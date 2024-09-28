@@ -104,24 +104,39 @@ void CMapEvent::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("nextOccurrence", nextOccurrence);
 	resources.serializeJson(handler, "resources");
 
-	JsonNode deletedObjectsJson;
-
-	for (const auto & entry : deletedObjectsCoordinates)
+	if(handler.saving)
 	{
-		JsonNode values;
-		JsonNode valueX;
-		JsonNode valueY;
-		JsonNode valueZ;
-		valueX.Float() = static_cast<int>(entry.x);
-		valueY.Float() = static_cast<int>(entry.y);
-		valueZ.Float() = static_cast<int>(entry.z);
-		values.Vector().push_back(valueX);
-		values.Vector().push_back(valueY);
-		values.Vector().push_back(valueZ);
-		deletedObjectsJson.Vector().push_back(values);
-	}
+		JsonNode deletedObjectsJson;
 
-	handler.serializeRaw("deletedObjectsCoordinates", deletedObjectsJson, std::nullopt);
+		for(const auto & entry : deletedObjectsCoordinates)
+		{
+			JsonNode values;
+			JsonNode valueX;
+			JsonNode valueY;
+			JsonNode valueZ;
+			valueX.Float() = static_cast<int>(entry.x);
+			valueY.Float() = static_cast<int>(entry.y);
+			valueZ.Float() = static_cast<int>(entry.z);
+			values.Vector().push_back(valueX);
+			values.Vector().push_back(valueY);
+			values.Vector().push_back(valueZ);
+			deletedObjectsJson.Vector().push_back(values);
+		}
+
+		handler.serializeRaw("deletedObjectsCoordinates", deletedObjectsJson, std::nullopt);
+	}
+	else
+	{
+		JsonNode deletedObjectsJson = handler.getCurrent()["deletedObjectsCoordinates"];
+		for(auto const & entry : deletedObjectsJson.Vector())
+		{
+			int3 position;
+			position.x = static_cast<int>(entry[0].Float());
+			position.y = static_cast<int>(entry[1].Float());
+			position.z = static_cast<int>(entry[2].Float());
+			deletedObjectsCoordinates.push_back(position);
+		}
+	}
 }
 
 void CCastleEvent::serializeJson(JsonSerializeFormat & handler)

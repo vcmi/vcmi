@@ -14,10 +14,11 @@
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/constants/StringConstants.h"
 
-TimedEvent::TimedEvent(QListWidgetItem * t, QWidget *parent) :
+TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) : 
+	controller(c),
 	QDialog(parent),
-	target(t),
-	ui(new Ui::TimedEvent)
+	ui(new Ui::TimedEvent),
+	target(t)
 {
 	ui->setupUi(this);
 
@@ -51,7 +52,12 @@ TimedEvent::TimedEvent(QListWidgetItem * t, QWidget *parent) :
 		nval->setFlags(nval->flags() | Qt::ItemIsEditable);
 		ui->resources->setItem(i, 1, nval);
 	}
-
+	auto deletedObjectPositions = params.value("deletedObjectsPositions").toList();
+	for(auto const & pos : deletedObjectPositions)
+	{
+		int3 position = pos.value<int3>();
+		ui->deletedObjects->addItem(QString("x: %1, y: %2, z: %3").arg(position.x).arg(position.y).arg(position.z));
+	}
 	show();
 }
 
@@ -89,10 +95,57 @@ void TimedEvent::on_TimedEvent_finished(int result)
 	}
 	descriptor["resources"] = res;
 
+	QVariantList deletedObjects;
+	for(int i = 0; i < ui->deletedObjects->count(); ++i)
+	{
+		auto const & pos = ui->deletedObjects->item(i)->text();
+		int3 position;
+		position.x = pos.split(", ").at(0).split(": ").at(1).toInt();
+		position.y = pos.split(", ").at(1).split(": ").at(1).toInt();
+		position.z = pos.split(", ").at(2).split(": ").at(1).toInt();
+		deletedObjects.push_back(QVariant::fromValue<int3>(position));
+	}
+	descriptor["deletedObjectsPositions"] = QVariant::fromValue(deletedObjects);
+
 	target->setData(Qt::UserRole, descriptor);
 	target->setText(ui->eventNameText->text());
 }
 
+void TimedEvent::on_addObjectToDelete_clicked()
+{
+	for(int lvl : {0, 1})
+	{
+		auto & l = controller.scene(lvl)->objectPickerView;
+		l.highlight<const CGObjectInstance>();
+		l.update();
+		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &TimedEvent::onObjectPicked);
+	}
+	hide();
+	dynamic_cast<QWidget *>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->hide();
+}
+
+void TimedEvent::on_removeObjectToDelete_clicked()
+{
+	delete ui->deletedObjects->takeItem(ui->deletedObjects->currentRow());
+}
+
+void TimedEvent::onObjectPicked(const CGObjectInstance * obj)
+{
+	show();
+	dynamic_cast<QWidget *>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->show();
+
+	for(int lvl : {0, 1})
+	{
+		auto & l = controller.scene(lvl)->objectPickerView;
+		l.clear();
+		l.update();
+		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &TimedEvent::onObjectPicked);
+	}
+
+	if(!obj) 
+		return;
+	ui->deletedObjects->addItem(QString("x: %1, y: %2, z: %3").arg(obj->pos.x).arg(obj->pos.y).arg(obj->pos.z));
+}
 
 void TimedEvent::on_pushButton_clicked()
 {

@@ -161,6 +161,6 @@ void EventSettings::on_timedEventRemove_clicked()
 
 void EventSettings::on_eventsList_itemActivated(QListWidgetItem *item)
 {
-	new TimedEvent(item, parentWidget());
+	new TimedEvent(*controller, item, parentWidget());
 }
 
