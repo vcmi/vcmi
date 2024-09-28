@@ -42,7 +42,7 @@ public:
 	virtual void visitSetSecSkill(SetSecSkill & pack) {}
 	virtual void visitHeroVisitCastle(HeroVisitCastle & pack) {}
 	virtual void visitChangeSpells(ChangeSpells & pack) {}
-	virtual void visitSetTownSpells(SetTownSpells & pack) {}
+	virtual void visitSetResearchedSpells(SetResearchedSpells & pack) {}
 	virtual void visitSetMana(SetMana & pack) {}
 	virtual void visitSetMovePoints(SetMovePoints & pack) {}
 	virtual void visitFoWChange(FoWChange & pack) {}

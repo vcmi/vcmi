@@ -74,6 +74,7 @@ public:
 	std::vector<CCastleEvent> events;
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond, factory = save debts);
 	int lastSpellResearchDay;
+	int spellResearchCounter;
 	bool spellResearchAllowed;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -96,7 +97,11 @@ public:
 		h & events;
 
 		if (h.version >= Handler::Version::SPELL_RESEARCH)
+		{
 			h & lastSpellResearchDay;
+			h & spellResearchCounter;
+			h & spellResearchAllowed;
+		}
 
 		if (h.version >= Handler::Version::NEW_TOWN_BUILDINGS)
 		{

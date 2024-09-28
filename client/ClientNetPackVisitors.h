@@ -37,7 +37,7 @@ public:
 	void visitHeroVisitCastle(HeroVisitCastle & pack) override;
 	void visitSetMana(SetMana & pack) override;
 	void visitSetMovePoints(SetMovePoints & pack) override;
-	void visitSetTownSpells(SetTownSpells & pack) override;
+	void visitSetResearchedSpells(SetResearchedSpells & pack) override;
 	void visitFoWChange(FoWChange & pack) override;
 	void visitChangeStackCount(ChangeStackCount & pack) override;
 	void visitSetStackType(SetStackType & pack) override;

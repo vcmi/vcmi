@@ -173,7 +173,7 @@ void ApplyClientNetPackVisitor::visitSetMovePoints(SetMovePoints & pack)
 	callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroMovePointsChanged, h);
 }
 
-void ApplyClientNetPackVisitor::visitSetTownSpells(SetTownSpells & pack)
+void ApplyClientNetPackVisitor::visitSetResearchedSpells(SetResearchedSpells & pack)
 {
 	for(const auto & win : GH.windows().findWindows<CMageGuildScreen>())
 		win->updateSpells();

@@ -249,9 +249,9 @@ int CBattleCallback::sendRequest(const CPackForServer * request)
 	return requestID;
 }
 
-void CCallback::spellResearch( const CGTownInstance *town, SpellID spellAtSlot )
+void CCallback::spellResearch( const CGTownInstance *town, SpellID spellAtSlot, bool accepted )
 {
-	SpellResearch pack(town->id, spellAtSlot);
+	SpellResearch pack(town->id, spellAtSlot, accepted);
 	sendRequest(&pack);
 }
 

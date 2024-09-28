@@ -1235,12 +1235,13 @@ void CGameHandler::changeSpells(const CGHeroInstance * hero, bool give, const st
 	sendAndApply(&cs);
 }
 
-void CGameHandler::setTownSpells(const CGTownInstance * town, int level, const std::vector<SpellID> spells)
+void CGameHandler::setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> spells, bool accepted)
 {
-	SetTownSpells cs;
+	SetResearchedSpells cs;
 	cs.tid = town->id;
 	cs.spells = spells;
 	cs.level = level;
+	cs.accepted = accepted;
 	sendAndApply(&cs);
 }
 
@@ -2242,7 +2243,7 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 	return true;
 }
 
-bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot)
+bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool accepted)
 {
 	CGTownInstance *t = gs->getTown(tid);
 
@@ -2263,7 +2264,7 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot)
 
 	auto costBase = TResources(getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_BASE));
 	auto costPerLevel = TResources(getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_PER_LEVEL));
-	auto cost = costBase + costPerLevel * (level + 1);
+	auto cost = (costBase + costPerLevel * (level + 1)) * (t->spellResearchCounter + 1);
 
 	if(!getPlayerState(t->getOwner())->resources.canAfford(cost) && complain("Spell replacement cannot be afforded!"))
 		return false;
@@ -2276,7 +2277,7 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot)
 	auto it = spells.begin() + t->spellsAtLevel(level, false);
 	std::rotate(it, it + 1, spells.end()); // move to end
 
-	setTownSpells(t, level, spells);
+	setResearchedSpells(t, level, spells, accepted);
 
 	if(t->visitingHero)
 		giveSpells(t, t->visitingHero);

@@ -162,9 +162,9 @@ void ChangeSpells::visitTyped(ICPackVisitor & visitor)
 	visitor.visitChangeSpells(*this);
 }
 
-void SetTownSpells::visitTyped(ICPackVisitor & visitor)
+void SetResearchedSpells::visitTyped(ICPackVisitor & visitor)
 {
-	visitor.visitSetTownSpells(*this);
+	visitor.visitSetResearchedSpells(*this);
 }
 void SetMana::visitTyped(ICPackVisitor & visitor)
 {
@@ -939,12 +939,14 @@ void ChangeSpells::applyGs(CGameState *gs)
 			hero->removeSpellFromSpellbook(sid);
 }
 
-void SetTownSpells::applyGs(CGameState *gs)
+void SetResearchedSpells::applyGs(CGameState *gs)
 {
 	CGTownInstance *town = gs->getTown(tid);
 
 	town->spells[level] = spells;
 	town->lastSpellResearchDay = gs->getDate(Date::DAY);
+	if(accepted)
+		town->spellResearchCounter++;
 }
 
 void SetMana::applyGs(CGameState *gs)

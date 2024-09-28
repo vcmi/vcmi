@@ -302,7 +302,7 @@
 			"backpackSize"		: -1,
 			// if heroes are invitable in tavern
 			"tavernInvite"            : false,
-			// minimai primary skills for heroes
+			// minimal primary skills for heroes
 			"minimalPrimarySkills": [ 0, 0, 1, 1]
 		},
 
@@ -317,7 +317,9 @@
 			// Base cost for an spell research
 			"spellResearchCostBase": { "gold": 1000 },
 			// Costs depends on level for an spell research
-			"spellResearchCostPerLevel": { "wood" : 2, "mercury": 2, "ore": 2, "sulfur": 2, "crystal": 2, "gems": 2 }
+			"spellResearchCostPerLevel": { "wood" : 2, "mercury": 2, "ore": 2, "sulfur": 2, "crystal": 2, "gems": 2 },
+			// Factor for increasing cost for each research
+			"spellResearchCostFactorPerResearch": 2.0
 		},
 
 		"combat":

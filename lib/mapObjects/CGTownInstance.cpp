@@ -270,6 +270,7 @@ CGTownInstance::CGTownInstance(IGameCallback *cb):
 	identifier(0),
 	alignmentToPlayer(PlayerColor::NEUTRAL),
 	lastSpellResearchDay(0),
+	spellResearchCounter(0),
 	spellResearchAllowed(true)
 {
 	this->setNodeType(CBonusSystemNode::TOWN);

@@ -2047,7 +2047,7 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 
 		auto costBase = TResources(LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_BASE));
 		auto costPerLevel = TResources(LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_PER_LEVEL));
-		auto cost = costBase + costPerLevel * (level + 1);
+		auto cost = (costBase + costPerLevel * (level + 1)) * (town->spellResearchCounter + 1);
 
 		std::vector<std::shared_ptr<CComponent>> resComps;
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, town->spells[level].at(town->spellsAtLevel(level, false))));
@@ -2058,7 +2058,7 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		}
 
 		if(LOCPLINT->cb->getResourceAmount().canAfford(cost))
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.spellResearch.pay"), [this, town](){ LOCPLINT->cb->spellResearch(town, spell->id); }, nullptr, resComps);
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.spellResearch.pay"), [this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, true); }, nullptr, resComps);
 		else
 			LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.spellResearch.canNotAfford"), resComps);
 	}

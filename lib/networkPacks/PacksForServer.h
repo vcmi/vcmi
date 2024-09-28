@@ -309,12 +309,13 @@ struct DLL_LINKAGE RazeStructure : public BuildStructure
 struct DLL_LINKAGE SpellResearch : public CPackForServer
 {
 	SpellResearch() = default;
-	SpellResearch(const ObjectInstanceID & TID, SpellID spellAtSlot)
+	SpellResearch(const ObjectInstanceID & TID, SpellID spellAtSlot, bool accepted)
 		: tid(TID), spellAtSlot(spellAtSlot)
 	{
 	}
 	ObjectInstanceID tid;
 	SpellID spellAtSlot;
+	bool accepted;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -323,6 +324,7 @@ struct DLL_LINKAGE SpellResearch : public CPackForServer
 		h & static_cast<CPackForServer &>(*this);
 		h & tid;
 		h & spellAtSlot;
+		h & accepted;
 	}
 };
 
