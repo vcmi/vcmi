@@ -962,7 +962,7 @@ void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 		// do not allow our own heroes in garrison to act on map
 		if(hero.first->getOwner() == ai->playerID
 			&& hero.first->inTownGarrison
-			&& (ai->isHeroLocked(hero.first) || ai->heroManager->heroCapReached()))
+			&& (ai->isHeroLocked(hero.first) || ai->heroManager->heroCapReached(false)))
 		{
 			continue;
 		}

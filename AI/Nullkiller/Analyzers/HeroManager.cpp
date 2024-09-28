@@ -189,10 +189,9 @@ float HeroManager::evaluateHero(const CGHeroInstance * hero) const
 	return evaluateFightingStrength(hero);
 }
 
-bool HeroManager::heroCapReached() const
+bool HeroManager::heroCapReached(bool includeGarrisoned) const
 {
-	const bool includeGarnisoned = true;
-	int heroCount = cb->getHeroCount(ai->playerID, includeGarnisoned);
+	int heroCount = cb->getHeroCount(ai->playerID, includeGarrisoned);
 
 	return heroCount >= ALLOWED_ROAMING_HEROES
 		|| heroCount >= ai->settings->getMaxRoamingHeroes()
