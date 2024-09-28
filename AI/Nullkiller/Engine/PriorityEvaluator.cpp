@@ -909,18 +909,21 @@ public:
 class StayAtTownManaRecoveryEvaluator : public IEvaluationContextBuilder
 {
 public:
-	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext& evaluationContext, Goals::TSubgoal task) const override
 	{
-		if(task->goalType != Goals::STAY_AT_TOWN)
+		if (task->goalType != Goals::STAY_AT_TOWN)
 			return;
 
-		Goals::StayAtTown & stayAtTown = dynamic_cast<Goals::StayAtTown &>(*task);
+		Goals::StayAtTown& stayAtTown = dynamic_cast<Goals::StayAtTown&>(*task);
 
 		evaluationContext.armyReward += evaluationContext.evaluator.getManaRecoveryArmyReward(stayAtTown.getHero());
 		if (evaluationContext.armyReward == 0)
 			evaluationContext.isDefend = true;
-		evaluationContext.movementCostByRole[evaluationContext.heroRole] += stayAtTown.getMovementWasted();
-		evaluationContext.movementCost += stayAtTown.getMovementWasted();
+		else
+		{
+			evaluationContext.movementCost += stayAtTown.getMovementWasted();
+			evaluationContext.movementCostByRole[evaluationContext.heroRole] += stayAtTown.getMovementWasted();
+		}
 	}
 };
 
@@ -1428,6 +1431,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (evaluationContext.isArmyUpgrade)
 					return 0;
+				if (evaluationContext.enemyHeroDangerRatio > 0 && arriveNextWeek)
+					return 0;
 				score += evaluationContext.strategicalValue * 1000;
 				score += evaluationContext.goldReward;
 				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossPersentage) * 0.05;
@@ -1438,8 +1443,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (score > 0)
 				{
 					score *= evaluationContext.closestWayRatio;
-					if (evaluationContext.enemyHeroDangerRatio > 1)
-						score /= evaluationContext.enemyHeroDangerRatio;
+					score /= (1 + evaluationContext.enemyHeroDangerRatio);
 					if (evaluationContext.movementCost > 0)
 						score /= evaluationContext.movementCost;
 					score *= (maxWillingToLose - evaluationContext.armyLossPersentage);
