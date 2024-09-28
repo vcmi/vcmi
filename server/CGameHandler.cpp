@@ -769,7 +769,7 @@ bool CGameHandler::removeObject(const CGObjectInstance * obj, const PlayerColor 
 	ro.initiator = initiator;
 	sendAndApply(&ro);
 
-	checkVictoryLossConditionsForAll(); //eg if monster escaped (removing objs after battle is done dircetly by endBattle, not this function)
+	checkVictoryLossConditionsForAll(); //e.g. if monster escaped (removing objs after battle is done directly by endBattle, not this function)
 	return true;
 }
 

@@ -44,7 +44,7 @@ public:
 	ui32 nextOccurrence; /// specifies after how many days the event will occur the next time; 0 if event occurs only one time
 
 	std::vector<int3> deletedObjectsCoordinates;
-	std::vector<const CGObjectInstance*> deletedObjectsInstances;
+	std::vector<ObjectInstanceID> deletedObjectsInstances;
 
 	std::vector<int3> unused;
 	std::set<const CGObjectInstance*> unused2;
