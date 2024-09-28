@@ -2069,7 +2069,7 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 			auto text = CGI->generaltexth->translate(LOCPLINT->cb->getResourceAmount().canAfford(cost) ? "vcmi.spellResearch.pay" : "vcmi.spellResearch.canNotAfford");
 			auto temp = std::make_shared<CInfoWindow>(text, LOCPLINT->playerID, resComps, pom);
 
-			temp->buttons[0]->addCallback([this, resComps, town, cost](){ LOCPLINT->cb->spellResearch(town, spell->id, true); });
+			temp->buttons[0]->addCallback([this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, true); });
 			temp->buttons[0]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.research")); });
 			temp->buttons[0]->setEnabled(LOCPLINT->cb->getResourceAmount().canAfford(cost));
 			temp->buttons[1]->addCallback([this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, false); });
