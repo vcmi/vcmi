@@ -40,6 +40,8 @@ NewTurnProcessor::NewTurnProcessor(CGameHandler * gameHandler)
 
 void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 {
+	std::vector<const CGObjectInstance*> removedObjects;
+
 	for (auto const & event : gameHandler->gameState()->map->events)
 	{
 		if (!event.occursToday(gameHandler->gameState()->day))
@@ -64,10 +66,18 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 		//remove objects specified by event
 		for(const CGObjectInstance * objectToRemove : event.deletedObjectsInstances)
 		{
+			removedObjects.push_back(objectToRemove);
 			gameHandler->removeObject(objectToRemove, PlayerColor::NEUTRAL);
 		}
 		gameHandler->sendAndApply(&iw); //show dialog
 	}
+
+	for (auto & event : gameHandler->gameState()->map->events)
+		vstd::erase_if(event.deletedObjectsInstances,
+			[removedObjects](const CGObjectInstance * o)
+			{
+				return vstd::contains(removedObjects, o);
+			});
 }
 
 void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
