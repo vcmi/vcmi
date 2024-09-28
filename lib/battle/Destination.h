@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "BattleHex.h"
+#include "BattleHexArray.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

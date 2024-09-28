@@ -355,7 +355,7 @@ BattleAction BattleEvaluator::moveOrAttack(const CStack * stack, BattleHex hex, 
 	}
 }
 
-BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes, const PotentialTargets & targets)
+BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, BattleHexArray hexes, const PotentialTargets & targets)
 {
 	auto reachability = cb->getBattle(battleID)->getReachability(stack);
 	auto avHexes = cb->getBattle(battleID)->battleGetAvailableHexes(reachability, stack, false);
@@ -381,7 +381,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 		return BattleAction::makeDefend(stack);
 	}
 
-	std::vector<BattleHex> targetHexes = hexes;
+	BattleHexArray targetHexes = hexes;
 
 	vstd::erase_if(targetHexes, [](const BattleHex & hex) { return !hex.isValid(); });
 
@@ -419,16 +419,16 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 
 	if(stack->hasBonusOfType(BonusType::FLYING))
 	{
-		std::set<BattleHex> obstacleHexes;
+		BattleHexArray obstacleHexes;
 
-		auto insertAffected = [](const CObstacleInstance & spellObst, std::set<BattleHex> & obstacleHexes) {
+		auto insertAffected = [](const CObstacleInstance & spellObst, BattleHexArray & obstacleHexes) {
 			auto affectedHexes = spellObst.getAffectedTiles();
-			obstacleHexes.insert(affectedHexes.cbegin(), affectedHexes.cend());
+			obstacleHexes.merge(affectedHexes);
 		};
 
 		const auto & obstacles = hb->battleGetAllObstacles();
 
-		for (const auto & obst: obstacles) {
+		for (const auto & obst : obstacles) {
 
 			if(obst->triggersEffects())
 			{

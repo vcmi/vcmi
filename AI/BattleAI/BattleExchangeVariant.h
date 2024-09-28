@@ -54,7 +54,7 @@ struct AttackerValue
 struct MoveTarget
 {
 	float score;
-	std::vector<BattleHex> positions;
+	BattleHexArray positions;
 	std::optional<AttackPossibility> cachedAttack;
 	uint8_t turnsToRich;
 

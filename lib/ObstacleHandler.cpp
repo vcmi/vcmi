@@ -55,16 +55,15 @@ Obstacle ObstacleInfo::getId() const
 	return obstacle;
 }
 
-std::vector<BattleHex> ObstacleInfo::getBlocked(BattleHex hex) const
+BattleHexArray ObstacleInfo::getBlocked(BattleHex hex) const
 {
-	std::vector<BattleHex> ret;
 	if(isAbsoluteObstacle)
 	{
 		assert(!hex.isValid());
-		range::copy(blockedTiles, std::back_inserter(ret));
-		return ret;
+		return BattleHexArray(blockedTiles);
 	}
 	
+	BattleHexArray ret;
 	for(int offset : blockedTiles)
 	{
 		BattleHex toBlock = hex + offset;
@@ -74,7 +73,7 @@ std::vector<BattleHex> ObstacleInfo::getBlocked(BattleHex hex) const
 		if(!toBlock.isValid())
 			logGlobal->error("Misplaced obstacle!");
 		else
-			ret.push_back(toBlock);
+			ret.insert(toBlock);
 	}
 	
 	return ret;

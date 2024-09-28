@@ -38,7 +38,7 @@ std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::str
 
 	info->isSpecial = json["isSpecial"].Bool();
 	for(auto node : json["impassableHexes"].Vector())
-		info->impassableHexes.emplace_back(node.Integer());
+		info->impassableHexes.insert(node.Integer());
 
 	info->openingSoundFilename = AudioPath::fromJson(json["openingSound"]);
 	info->musicFilename = AudioPath::fromJson(json["music"]);

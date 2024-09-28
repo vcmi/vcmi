@@ -14,7 +14,7 @@
 #include "bonuses/Bonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
-#include "battle/BattleHex.h"
+#include "battle/BattleHexArray.h"
 #include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -31,7 +31,7 @@ public:
 	std::string identifier;
 	std::string icon;
 	si32 iconIndex;
-	std::vector<BattleHex> impassableHexes;
+	BattleHexArray impassableHexes;
 	AudioPath openingSoundFilename;
 	AudioPath musicFilename;
 

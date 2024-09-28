@@ -17,7 +17,7 @@
 #include "../bonuses/IBonusBearer.h"
 
 #include "IUnitInfo.h"
-#include "BattleHex.h"
+#include "BattleHexArray.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -84,14 +84,11 @@ public:
 	bool isTurret() const;
 	virtual bool isValidTarget(bool allowDead = false) const = 0; //non-turret non-ghost stacks (can be attacked or be object of magic effect)
 
-	virtual bool isHypnotized() const = 0;
-
 	virtual bool isClone() const = 0;
 	virtual bool hasClone() const = 0;
 
 	virtual bool canCast() const = 0;
 	virtual bool isCaster() const = 0;
-	virtual bool canShootBlocked() const = 0;
 	virtual bool canShoot() const = 0;
 	virtual bool isShooter() const = 0;
 
@@ -115,6 +112,8 @@ public:
 	virtual BattleHex getPosition() const = 0;
 	virtual void setPosition(BattleHex hex) = 0;
 
+	virtual int32_t getInitiative(int turn = 0) const = 0;
+
 	virtual bool canMove(int turn = 0) const = 0; //if stack can move
 	virtual bool defended(int turn = 0) const = 0;
 	virtual bool moved(int turn = 0) const = 0; //if stack was already moved this turn
@@ -128,15 +127,15 @@ public:
 
 	virtual std::string getDescription() const;
 
-	std::vector<BattleHex> getSurroundingHexes(BattleHex assumedPosition = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
-	std::vector<BattleHex> getAttackableHexes(const Unit * attacker) const;
-	static std::vector<BattleHex> getSurroundingHexes(BattleHex position, bool twoHex, BattleSide side);
+	BattleHexArray getSurroundingHexes(BattleHex assumedPosition = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
+	BattleHexArray getAttackableHexes(const Unit * attacker) const;
+	static BattleHexArray getSurroundingHexes(BattleHex position, bool twoHex, BattleSide side);
 
 	bool coversPos(BattleHex position) const; //checks also if unit is double-wide
 
-	std::vector<BattleHex> getHexes() const; //up to two occupied hexes, starting from front
-	std::vector<BattleHex> getHexes(BattleHex assumedPos) const; //up to two occupied hexes, starting from front
-	static std::vector<BattleHex> getHexes(BattleHex assumedPos, bool twoHex, BattleSide side);
+	BattleHexArray getHexes() const; //up to two occupied hexes, starting from front
+	BattleHexArray getHexes(BattleHex assumedPos) const; //up to two occupied hexes, starting from front
+	static BattleHexArray getHexes(BattleHex assumedPos, bool twoHex, BattleSide side);
 
 	BattleHex occupiedHex() const; //returns number of occupied hex (not the position) if stack is double wide; otherwise -1
 	BattleHex occupiedHex(BattleHex assumedPos) const; //returns number of occupied hex (not the position) if stack is double wide and would stand on assumedPos; otherwise -1

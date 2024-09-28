@@ -32,7 +32,7 @@ namespace spells
 namespace effects
 {
 
-static void serializeMoatHexes(JsonSerializeFormat & handler, const std::string & fieldName, std::vector<std::vector<BattleHex>> & moatHexes)
+static void serializeMoatHexes(JsonSerializeFormat & handler, const std::string & fieldName, std::vector<BattleHexArray> & moatHexes)
 {
 	{
 		JsonArraySerializer outer = handler.enterArray(fieldName);
@@ -43,8 +43,12 @@ static void serializeMoatHexes(JsonSerializeFormat & handler, const std::string 
 			JsonArraySerializer inner = outer.enterArray(outerIndex);
 			inner.syncSize(moatHexes.at(outerIndex), JsonNode::JsonType::DATA_INTEGER);
 
+			BattleHex hex;
 			for(size_t innerIndex = 0; innerIndex < inner.size(); innerIndex++)
-				inner.serializeInt(innerIndex, moatHexes.at(outerIndex).at(innerIndex));
+			{
+				inner.serializeInt(innerIndex, hex);
+				moatHexes.at(outerIndex).set(innerIndex, hex);
+			}
 		}
 	}
 }
@@ -96,10 +100,10 @@ void Moat::convertBonus(const Mechanics * m, std::vector<Bonus> & converted) con
 			nb.sid = BonusSourceID(m->getSpellId()); //for all
 			nb.source = BonusSource::SPELL_EFFECT;//for all
 		}
-		std::set<BattleHex> flatMoatHexes;
+		BattleHexArray flatMoatHexes;
 
 		for(const auto & moatPatch : moatHexes)
-			flatMoatHexes.insert(moatPatch.begin(), moatPatch.end());
+			flatMoatHexes.merge(moatPatch);
 
 		nb.limiter = std::make_shared<UnitOnHexLimiter>(std::move(flatMoatHexes));
 		converted.push_back(nb);
@@ -164,7 +168,7 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 		obstacle.appearSound = sideOptions.appearSound; //For dispellable moats
 		obstacle.appearAnimation = sideOptions.appearAnimation; //For dispellable moats
 		obstacle.animation = sideOptions.animation;
-		obstacle.customSize.insert(obstacle.customSize.end(),destination.cbegin(), destination.cend());
+		obstacle.customSize.merge(destination);
 		obstacle.animationYOffset = sideOptions.offsetY;
 		pack.changes.emplace_back();
 		obstacle.toInfo(pack.changes.back());

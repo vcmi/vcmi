@@ -40,7 +40,7 @@ public:
 	ObjectGraphCalculator(ObjectGraph * target, const Nullkiller * ai);
 	void setGraphObjects();
 	void calculateConnections();
-	float getNeighborConnectionsCost(const int3 & pos, std::vector<AIPath> & pathCache);
+	float getneighbourConnectionsCost(const int3 & pos, std::vector<AIPath> & pathCache);
 	void addMinimalDistanceJunctions();
 
 private:

@@ -207,7 +207,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 		r.rand(1,8); //battle sound ID to play... can't do anything with it here
 		int tilesToBlock = r.rand(5,12);
 
-		std::vector<BattleHex> blockedTiles;
+		BattleHexArray blockedTiles;
 
 		auto appropriateAbsoluteObstacle = [&](int id)
 		{
@@ -232,7 +232,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 				currentBattle->obstacles.push_back(obstPtr);
 
 				for(BattleHex blocked : obstPtr->getBlockedTiles())
-					blockedTiles.push_back(blocked);
+					blockedTiles.insert(blocked);
 				tilesToBlock -= Obstacle(obstPtr->ID).getInfo()->blockedTiles.size() / 2;
 			}
 			catch(RangeGenerator::ExhaustedPossibilities &)
@@ -259,14 +259,14 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 						return false;
 					if(pos.getX() + obi.width > 15)
 						return false;
-					if(vstd::contains(blockedTiles, pos))
+					if(blockedTiles.contains(pos))
 						return false;
 
 					for(BattleHex blocked : obi.getBlocked(pos))
 					{
 						if(tileAccessibility[blocked] == EAccessibility::UNAVAILABLE) //for ship-to-ship battlefield - exclude hardcoded unavailable tiles
 							return false;
-						if(vstd::contains(blockedTiles, blocked))
+						if(blockedTiles.contains(blocked))
 							return false;
 						int x = blocked.getX();
 						if(x <= 2 || x >= 14)
@@ -285,7 +285,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 				currentBattle->obstacles.push_back(obstPtr);
 
 				for(BattleHex blocked : obstPtr->getBlockedTiles())
-					blockedTiles.push_back(blocked);
+					blockedTiles.insert(blocked);
 				tilesToBlock -= static_cast<int>(obi.blockedTiles.size());
 			}
 		}

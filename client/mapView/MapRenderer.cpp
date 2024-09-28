@@ -34,14 +34,14 @@
 #include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/pathfinder/CGPathNode.h"
 
-struct NeighborTilesInfo
+struct neighbourTilesInfo
 {
 	//567
 	//3 4
 	//012
 	std::bitset<8> d;
 
-	NeighborTilesInfo(IMapRendererContext & context, const int3 & pos)
+	neighbourTilesInfo(IMapRendererContext & context, const int3 & pos)
 	{
 		auto checkTile = [&](int dx, int dy)
 		{
@@ -340,9 +340,9 @@ void MapRendererFow::renderTile(IMapRendererContext & context, Canvas & target, 
 {
 	assert(!context.isVisible(coordinates));
 
-	const NeighborTilesInfo neighborInfo(context, coordinates);
+	const neighbourTilesInfo neighbourInfo(context, coordinates);
 
-	int retBitmapID = neighborInfo.getBitmapID(); // >=0 -> partial hide, <0 - full hide
+	int retBitmapID = neighbourInfo.getBitmapID(); // >=0 -> partial hide, <0 - full hide
 	if(retBitmapID < 0)
 	{
 		// generate a number that is predefined for each tile,
@@ -367,8 +367,8 @@ uint8_t MapRendererFow::checksum(IMapRendererContext & context, const int3 & coo
 	if (context.showSpellRange(coordinates))
 		return 0xff - 2;
 
-	const NeighborTilesInfo neighborInfo(context, coordinates);
-	int retBitmapID = neighborInfo.getBitmapID();
+	const neighbourTilesInfo neighbourInfo(context, coordinates);
+	int retBitmapID = neighbourInfo.getBitmapID();
 	if(retBitmapID < 0)
 		return 0xff - 1;
 	return retBitmapID;
@@ -738,9 +738,9 @@ MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & con
 		return result;
 	}
 
-	const NeighborTilesInfo neighborInfo(context, coordinates);
+	const neighbourTilesInfo neighbourInfo(context, coordinates);
 
-	if(!context.isVisible(coordinates) && neighborInfo.areAllHidden())
+	if(!context.isVisible(coordinates) && neighbourInfo.areAllHidden())
 	{
 		result[7] = rendererFow.checksum(context, coordinates);
 	}
@@ -769,9 +769,9 @@ void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, con
 		return;
 	}
 
-	const NeighborTilesInfo neighborInfo(context, coordinates);
+	const neighbourTilesInfo neighbourInfo(context, coordinates);
 
-	if(!context.isVisible(coordinates) && neighborInfo.areAllHidden())
+	if(!context.isVisible(coordinates) && neighbourInfo.areAllHidden())
 	{
 		rendererFow.renderTile(context, target, coordinates);
 	}

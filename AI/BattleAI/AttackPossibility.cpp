@@ -326,9 +326,9 @@ AttackPossibility AttackPossibility::evaluate(
 
 	AttackPossibility bestAp(hex, BattleHex::INVALID, attackInfo);
 
-	std::vector<BattleHex> defenderHex;
+	BattleHexArray defenderHex;
 	if(attackInfo.shooting)
-		defenderHex.push_back(defender->getPosition());
+		defenderHex.insert(defender->getPosition());
 	else
 		defenderHex = CStack::meleeAttackHexes(attacker, defender, hex);
 

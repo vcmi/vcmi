@@ -69,8 +69,16 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	BattleHex(si16 x, si16 y);
 	BattleHex(std::pair<si16, si16> xy);
 	operator si16() const;
-	bool isValid() const;
-	bool isAvailable() const; //valid position not in first or last column
+	inline bool isValid() const
+	{
+		return hex >= 0 && hex < GameConstants::BFIELD_SIZE;
+	}
+	
+	bool isAvailable() const //valid position not in first or last column
+	{
+		return isValid() && getX() > 0 && getX() < GameConstants::BFIELD_WIDTH - 1;
+	}
+
 	void setX(si16 x);
 	void setY(si16 y);
 	void setXY(si16 x, si16 y, bool hasToBeValid = true);
@@ -83,29 +91,31 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	BattleHex cloneInDirection(EDir dir, bool hasToBeValid = true) const;
 	BattleHex operator+(EDir dir) const;
 
-	/// returns all valid neighbouring tiles
-	std::vector<BattleHex> neighbouringTiles() const;
-
-	/// returns all tiles, unavailable tiles will be set as invalid
-	/// order of returned tiles matches EDir enim
-	std::vector<BattleHex> allNeighbouringTiles() const;
-
 	static EDir mutualPosition(BattleHex hex1, BattleHex hex2);
-	static uint8_t getDistance(BattleHex hex1, BattleHex hex2);
-	static void checkAndPush(BattleHex tile, std::vector<BattleHex> & ret);
-	static BattleHex getClosestTile(BattleSide side, BattleHex initialPos, std::set<BattleHex> & possibilities); //TODO: vector or set? copying one to another is bad
+	static uint8_t getDistance(BattleHex hex1, BattleHex hex2)
+	{
+		int y1 = hex1.getY();
+		int y2 = hex2.getY();
 
+		// FIXME: why there was * 0.5 instead of / 2?
+		int x1 = static_cast<int>(hex1.getX() + y1 / 2);
+		int x2 = static_cast<int>(hex2.getX() + y2 / 2);
+
+		int xDst = x2 - x1;
+		int yDst = y2 - y1;
+
+		if((xDst >= 0 && yDst >= 0) || (xDst < 0 && yDst < 0))
+			return std::max(std::abs(xDst), std::abs(yDst));
+
+		return std::abs(xDst) + std::abs(yDst);
+	}
+	
 	template <typename Handler>
 	void serialize(Handler &h)
 	{
 		h & hex;
 	}
 
-    using NeighbouringTiles = std::array<BattleHex, 6>;
-    using NeighbouringTilesCache = std::vector<NeighbouringTiles>;
-
-    static const NeighbouringTilesCache neighbouringTilesCache;
-private:
 	//Constexpr defined array with all directions used in battle
 	static constexpr auto hexagonalDirections() {
 		return std::array<EDir,6>{BattleHex::TOP_LEFT, BattleHex::TOP_RIGHT, BattleHex::RIGHT, BattleHex::BOTTOM_RIGHT, BattleHex::BOTTOM_LEFT, BattleHex::LEFT};

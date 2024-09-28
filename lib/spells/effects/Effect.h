@@ -15,6 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct BattleHex;
+class BattleHexArray;
 class CBattleInfoCallback;
 class JsonSerializeFormat;
 class ServerCallback;
@@ -51,7 +52,7 @@ public:
 	virtual void adjustTargetTypes(std::vector<TargetType> & types) const = 0;
 
 	/// Generates list of hexes affected by spell, if spell were to cast at specified target
-	virtual void adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const = 0;
+	virtual void adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const = 0;
 
 	/// Returns whether effect has any valid targets on the battlefield
 	virtual bool applicable(Problem & problem, const Mechanics * m) const;

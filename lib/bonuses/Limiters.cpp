@@ -226,7 +226,7 @@ ILimiter::EDecision UnitOnHexLimiter::limit(const BonusLimitationContext &contex
 	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 }
 
-UnitOnHexLimiter::UnitOnHexLimiter(const std::set<BattleHex> & applicableHexes):
+UnitOnHexLimiter::UnitOnHexLimiter(const BattleHexArray & applicableHexes):
 	applicableHexes(applicableHexes)
 {
 }
