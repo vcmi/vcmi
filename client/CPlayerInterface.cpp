@@ -427,6 +427,8 @@ void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	localState->addWanderingHero(hero);
 	adventureInt->onHeroChanged(hero);
+	if(castleInt)
+		CCS->soundh->playSound(soundBase::newBuilding);
 }
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
