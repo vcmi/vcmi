@@ -249,6 +249,16 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				continue;
 			}
 
+			if (!path.targetHero->canBeMergedWith(*town))
+			{
+#if NKAI_TRACE_LEVEL >= 1
+				logAi->trace("Can't merge armies of hero %s and town %s",
+					path.targetHero->getObjectName(),
+					town->getObjectName());
+#endif
+				continue;
+			}
+
 			if(path.targetHero == town->visitingHero.get() && path.exchangeCount == 1)
 			{
 #if NKAI_TRACE_LEVEL >= 1
