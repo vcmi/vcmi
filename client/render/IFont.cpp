@@ -23,13 +23,33 @@ int IFont::getScalingFactor() const
 	return GH.screenHandler().getScalingFactor();
 }
 
+size_t IFont::getLineHeight() const
+{
+	return getLineHeightScaled() / getScalingFactor();
+}
+
+size_t IFont::getGlyphWidth(const char * data) const
+{
+	return getGlyphWidthScaled(data) / getScalingFactor();
+}
+
 size_t IFont::getStringWidth(const std::string & data) const
+{
+	return getStringWidthScaled(data) / getScalingFactor();
+}
+
+size_t IFont::getFontAscent() const
+{
+	return getFontAscentScaled() / getScalingFactor();
+}
+
+size_t IFont::getStringWidthScaled(const std::string & data) const
 {
 	size_t width = 0;
 
 	for(size_t i=0; i<data.size(); i += TextOperations::getUnicodeCharacterSize(data[i]))
 	{
-		width += getGlyphWidth(data.data() + i);
+		width += getGlyphWidthScaled(data.data() + i);
 	}
 	return width;
 }

@@ -19,25 +19,15 @@
 #include <vcmi/spells/Service.h>
 
 #include "../renderSDL/SDL_Extensions.h"
-#include "../renderSDL/CBitmapFont.h"
-#include "../renderSDL/CBitmapHanFont.h"
-#include "../renderSDL/CTrueTypeFont.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
-#include "../render/IRenderHandler.h"
-#include "../gui/CGuiHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CBinaryReader.h"
 #include "../../lib/json/JsonNode.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModScope.h"
-#include "CGameInfo.h"
 #include "../lib/VCMI_Lib.h"
-#include "../CCallback.h"
-#include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/vcmi_endian.h"
-#include "../lib/CStopWatch.h"
 #include "../lib/CHeroHandler.h"
 
 #include <SDL_surface.h>
@@ -127,7 +117,6 @@ void Graphics::initializeBattleGraphics()
 }
 Graphics::Graphics()
 {
-	loadFonts();
 	loadPaletteAndColors();
 	initializeBattleGraphics();
 	loadErmuToPicture();
@@ -163,29 +152,6 @@ void Graphics::setPlayerFlagColor(SDL_Palette * targetPalette, PlayerColor playe
 	{
 		SDL_Color color = CSDL_Ext::toSDL(neutralColor);
 		SDL_SetPaletteColors(targetPalette, &color, 5, 1);
-	}
-}
-
-void Graphics::loadFonts()
-{
-	const JsonNode config(JsonPath::builtin("config/fonts.json"));
-
-	const JsonVector & bmpConf = config["bitmap"].Vector();
-	const JsonNode   & ttfConf = config["trueType"];
-	const JsonNode   & hanConf = config["bitmapHan"];
-
-	assert(bmpConf.size() == FONTS_NUMBER);
-
-	for (size_t i=0; i<FONTS_NUMBER; i++)
-	{
-		std::string filename = bmpConf[i].String();
-
-		if (!hanConf[filename].isNull())
-			fonts[i] = std::make_shared<CBitmapHanFont>(hanConf[filename]);
-		else if (!ttfConf[filename].isNull()) // no ttf override
-			fonts[i] = std::make_shared<CTrueTypeFont>(ttfConf[filename]);
-		else
-			fonts[i] = std::make_shared<CBitmapFont>(filename);
 	}
 }
 

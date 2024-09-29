@@ -235,7 +235,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="350"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
         <source>Description</source>
         <translation>详细介绍</translation>
     </message>
@@ -295,181 +295,191 @@
         <translation>终止</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="285"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="289"/>
         <source>Mod name</source>
         <translation>模组名称</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="290"/>
         <source>Installed version</source>
         <translation>已安装的版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="287"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="291"/>
         <source>Latest version</source>
         <translation>最新版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="290"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
         <source>Size</source>
         <translation>大小</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="296"/>
         <source>Download size</source>
         <translation>下载大小</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="298"/>
         <source>Authors</source>
         <translation>作者</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="297"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="301"/>
         <source>License</source>
         <translation>授权许可</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="300"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="304"/>
         <source>Contact</source>
         <translation>联系方式</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="309"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
         <source>Compatibility</source>
         <translation>兼容性</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
         <source>Required VCMI version</source>
         <translation>需要VCMI版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="317"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
         <source>Supported VCMI version</source>
         <translation>支持的VCMI版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="317"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
         <source>please upgrade mod</source>
         <translation>请更新模组</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="189"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="809"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="193"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="824"/>
         <source>mods repository index</source>
         <translation>模组源索引号</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
         <source>or newer</source>
         <translation>或更新的版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="326"/>
         <source>Supported VCMI versions</source>
         <translation>支持的VCMI版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="346"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="350"/>
         <source>Languages</source>
         <translation>语言</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="348"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
         <source>Required mods</source>
         <translatorcomment>Mod统一翻译为模组</translatorcomment>
         <translation>前置模组</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
         <source>Conflicting mods</source>
         <translatorcomment>Mod统一翻译为模组</translatorcomment>
         <translation>冲突的模组</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="358"/>
         <source>This mod can not be installed or enabled because the following dependencies are not present</source>
         <translation>这个模组无法被安装或者激活，因为下列依赖项未满足</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
         <source>This mod can not be enabled because the following mods are incompatible with it</source>
         <translation>这个模组无法被激活，因为下列模组与其不兼容</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="356"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
         <source>This mod cannot be disabled because it is required by the following mods</source>
         <translation>这个模组无法被禁用，因为它被下列模组所依赖</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="357"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
         <translation>这个模组无法被卸载或者更新，因为它被下列模组所依赖</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="358"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="362"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>这是一个附属模组它无法在所属模组外被直接被安装或者卸载</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="373"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="377"/>
         <source>Notes</source>
         <translation>笔记注释</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="639"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="643"/>
         <source>All supported files</source>
         <translation>所有支持的文件格式</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="639"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="644"/>
         <source>Maps</source>
         <translation>地图</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="639"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="645"/>
         <source>Campaigns</source>
         <translation>战役</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="639"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="646"/>
         <source>Configs</source>
         <translation>配置</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="639"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="647"/>
         <source>Mods</source>
         <translation>模组</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="640"/>
-        <source>Select files (configs, mods, maps, campaigns) to install...</source>
-        <translation>选择文件（配置，模组，地图，战役）来安装</translation>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="648"/>
+        <source>Gog files</source>
+        <translation>Gog文件</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="665"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="650"/>
+        <source>All files (*.*)</source>
+        <translation>所有文件 (*.*)</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="652"/>
+        <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
+        <translation>选择需要安装的文件（配置，模组，地图，战役，gog文件）...</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="677"/>
         <source>Replace config file?</source>
         <translation>替换配置文件？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="665"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="677"/>
         <source>Do you want to replace %1?</source>
         <translation>你想要替换%1吗？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="708"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="720"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>正在下载 %1. %p% (%v MB 共 %m MB) 已完成</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="733"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="745"/>
         <source>Download failed</source>
         <translation>下载失败</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="734"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="746"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -482,7 +492,7 @@ Encountered errors:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="735"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="747"/>
         <source>
 
 Install successfully downloaded?</source>
@@ -491,34 +501,39 @@ Install successfully downloaded?</source>
 安装下载成功的部分？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="881"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="852"/>
+        <source>Installing chronicles</source>
+        <translation>安装历代记</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="925"/>
         <source>Installing mod %1</source>
         <translation>正在安装模组 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="950"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="994"/>
         <source>Operation failed</source>
         <translation>操作失败</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="951"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="995"/>
         <source>Encountered errors:
 </source>
         <translation>遇到问题：
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="986"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1030"/>
         <source>screenshots</source>
         <translation>截图</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="992"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1036"/>
         <source>Screenshot %1</source>
         <translation>截图 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="280"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="284"/>
         <source>Mod is incompatible</source>
         <translatorcomment>Mod统一翻译为模组</translatorcomment>
         <translation>模组不兼容</translation>
@@ -624,7 +639,7 @@ Install successfully downloaded?</source>
 <context>
     <name>CSettingsView</name>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="90"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="98"/>
         <source>Off</source>
         <translation>关闭</translation>
     </message>
@@ -717,6 +732,11 @@ Install successfully downloaded?</source>
         <location filename="../settingsView/csettingsview_moc.ui" line="1186"/>
         <source>xBRZ x4</source>
         <translation>xBRZ x4</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1194"/>
+        <source>Use scalable fonts</source>
+        <translation>使用可缩放字体</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="138"/>
@@ -884,7 +904,7 @@ Install successfully downloaded?</source>
         <translation>渲染器</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="88"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="96"/>
         <source>On</source>
         <translation>开启</translation>
     </message>
@@ -972,29 +992,65 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <translation>显示开场动画</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="503"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="525"/>
         <source>Active</source>
         <translation>激活</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="508"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="530"/>
         <source>Disabled</source>
         <translation>禁用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="509"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="531"/>
         <source>Enable</source>
         <translation>启用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="514"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="536"/>
         <source>Not Installed</source>
         <translation>未安装</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="515"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="537"/>
         <source>Install</source>
         <translation>安装</translation>
+    </message>
+</context>
+<context>
+    <name>ChroniclesExtractor</name>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
+        <source>File cannot opened</source>
+        <translation>无法打开文件</translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
+        <source>Invalid file selected</source>
+        <translation>所选的文件无效</translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
+        <source>You have to select an gog installer file!</source>
+        <translation>您必须选择一个gog安装文件！</translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
+        <source>You have to select an chronicle installer file!</source>
+        <translation>您必须选择一个历代记安装文件！</translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="87"/>
+        <source>Extracting error!</source>
+        <translation>提取错误！</translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="141"/>
+        <source>Heroes Chronicles</source>
+        <translation>英雄无敌历代记</translation>
     </message>
 </context>
 <context>
@@ -1215,113 +1271,101 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
         <translation>追随神迹</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="178"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="174"/>
         <source>Heroes III installation found!</source>
         <translation>英雄无敌3安装目录已找到！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="178"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="174"/>
         <source>Copy data to VCMI folder?</source>
         <translation>复制数据到VCMI文件夹吗？</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="317"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="313"/>
         <source>Select %1 file...</source>
         <comment>param is file extension</comment>
         <translation>选择%1文件...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="318"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="314"/>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
         <translation>你必须选择%1文件！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="320"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="316"/>
         <source>GOG file (*.*)</source>
         <translation>GOG文件 (*.*)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="321"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="317"/>
         <source>File selection</source>
         <translation>选择文件</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="330"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="326"/>
         <source>File cannot be opened</source>
         <translation>打开文件失败</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="336"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="332"/>
         <source>Invalid file selected</source>
         <translation>所选的文件无效</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="346"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="342"/>
         <source>GOG installer</source>
         <translation>GOG安装包</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="343"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="339"/>
         <source>GOG data</source>
         <translation>GOC数据</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="438"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
         <source>No Heroes III data!</source>
         <translation>没有英雄无敌3数据！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="438"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>所选的文件不包含英雄无敌3数据！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="485"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="499"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="511"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="448"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="462"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="474"/>
         <source>Heroes III data not found!</source>
         <translation>未找到英雄无敌3数据！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="482"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="445"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select directory with installed Heroes III data.</source>
         <translation>从所选目录检测有效的英雄无敌3数据失败。
 请选择已安装英雄无敌3的数据目录。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="383"/>
         <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
         <translation>您提供的是GOG Galaxy安装器！这个文件不包含游戏内容，请下载离线游戏安装器！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="412"/>
-        <source>Stream error while extracting files!
-error reason: </source>
-        <translation>提取文件时遭遇文件流错误！
-错误原因： </translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="425"/>
-        <source>Not a supported Inno Setup installer!</source>
-        <translation>这不是一个支持的Inno Setup安装器！</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="436"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="399"/>
         <source>Extracting error!</source>
         <translation>提取错误！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>VCMI不支持英雄无敌3高清版文件。
 请选择包含《英雄无敌3：完全版》或《英雄无敌3：死亡阴影》的目录。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="511"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="474"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>检测到未知或不支持的英雄无敌3版本。
@@ -1334,6 +1378,26 @@ Please select directory with Heroes III: Complete Edition or Heroes III: Shadow 
         <location filename="../modManager/imageviewer_moc.ui" line="20"/>
         <source>Image Viewer</source>
         <translation>图片查看器</translation>
+    </message>
+</context>
+<context>
+    <name>Innoextract</name>
+    <message>
+        <location filename="../innoextract.cpp" line="42"/>
+        <source>Stream error while extracting files!
+error reason: </source>
+        <translation>提取文件时遭遇文件流错误！
+错误原因： </translation>
+    </message>
+    <message>
+        <location filename="../innoextract.cpp" line="55"/>
+        <source>Not a supported Inno Setup installer!</source>
+        <translation>这不是一个支持的Inno Setup安装器！</translation>
+    </message>
+    <message>
+        <location filename="../innoextract.cpp" line="58"/>
+        <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
+        <translation>VCMI编译时没有启用innoextract支持，启用了才可以从exe文件中提取数据！</translation>
     </message>
 </context>
 <context>

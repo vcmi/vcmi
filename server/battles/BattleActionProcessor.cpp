@@ -276,7 +276,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	for (int i = 0; i < totalAttacks; ++i)
 	{
 		//first strike
-		if(i == 0 && firstStrike && retaliation && !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION))
+		if(i == 0 && firstStrike && retaliation && !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION) && !stack->hasBonusOfType(BonusType::INVINCIBLE))
 		{
 			makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), true, false, true);
 		}
@@ -303,6 +303,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		//we check retaliation twice, so if it unblocked during attack it will work only on next attack
 		if(stack->alive()
 			&& !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION)
+			&& !stack->hasBonusOfType(BonusType::INVINCIBLE)
 			&& (i == 0 && !firstStrike)
 			&& retaliation && destinationStack->ableToRetaliate())
 		{
@@ -347,20 +348,27 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 		return false;
 	}
 
-	if (!destinationStack)
+	const bool emptyTileAreaAttack = battle.battleCanTargetEmptyHex(stack);
+
+	if (!destinationStack && !emptyTileAreaAttack)
 	{
 		gameHandler->complain("No target to shoot!");
 		return false;
 	}
 
-	static const auto firstStrikeSelector = Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeAll).Or(Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeRanged));
-	const bool firstStrike = destinationStack->hasBonus(firstStrikeSelector);
+	bool firstStrike = false;
+	if(!emptyTileAreaAttack)
+	{
+		static const auto firstStrikeSelector = Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeAll).Or(Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeRanged));
+		firstStrike = destinationStack->hasBonus(firstStrikeSelector);
+	}
 
 	if (!firstStrike)
 		makeAttack(battle, stack, destinationStack, 0, destination, true, true, false);
 
 	//ranged counterattack
-	if (destinationStack->hasBonusOfType(BonusType::RANGED_RETALIATION)
+	if (!emptyTileAreaAttack
+		&& destinationStack->hasBonusOfType(BonusType::RANGED_RETALIATION)
 		&& !stack->hasBonusOfType(BonusType::BLOCKS_RANGED_RETALIATION)
 		&& destinationStack->ableToRetaliate()
 		&& battle.battleCanShoot(destinationStack, stack->getPosition())
@@ -381,11 +389,9 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 
 	for(int i = firstStrike ? 0:1; i < totalRangedAttacks; ++i)
 	{
-		if(
-			stack->alive()
-			&& destinationStack->alive()
-			&& stack->shots.canUse()
-			)
+		if(stack->alive()
+			&& (emptyTileAreaAttack || destinationStack->alive())
+			&& stack->shots.canUse())
 		{
 			makeAttack(battle, stack, destinationStack, 0, destination, false, true, false);
 		}
@@ -907,7 +913,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 
 void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter)
 {
-	if(first && !counter)
+	if(defender && first && !counter)
 		handleAttackBeforeCasting(battle, ranged, attacker, defender);
 
 	FireShieldInfo fireShield;
@@ -962,7 +968,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	battle::HealInfo healInfo;
 
 	// only primary target
-	if(defender->alive())
+	if(defender && defender->alive())
 		applyBattleEffects(battle, bat, attackerState, fireShield, defender, healInfo, distance, false);
 
 	//multiple-hex normal attack
@@ -1044,7 +1050,8 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 		addGenericDamageLog(blm, attackerState, totalDamage);
 
-		addGenericKilledLog(blm, defender, totalKills, multipleTargets);
+		if(defender)
+			addGenericKilledLog(blm, defender, totalKills, multipleTargets);
 	}
 
 	// drain life effect (as well as log entry) must be applied after the attack
@@ -1110,7 +1117,8 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 	gameHandler->sendAndApply(&blm);
 
-	handleAfterAttackCasting(battle, ranged, attacker, defender);
+	if(defender)
+		handleAfterAttackCasting(battle, ranged, attacker, defender);
 }
 
 void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender)

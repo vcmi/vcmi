@@ -16,6 +16,7 @@
 #include "CampaignConstants.h"
 #include "CampaignScenarioPrologEpilog.h"
 #include "../gameState/HighScore.h"
+#include "../Point.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -27,7 +28,6 @@ class CMap;
 class CMapHeader;
 class CMapInfo;
 class JsonNode;
-class Point;
 class IGameCallback;
 
 class DLL_LINKAGE CampaignRegions
@@ -40,14 +40,22 @@ class DLL_LINKAGE CampaignRegions
 	struct DLL_LINKAGE RegionDescription
 	{
 		std::string infix;
-		int xpos;
-		int ypos;
+		Point pos;
+		std::optional<Point> labelPos;
 
 		template <typename Handler> void serialize(Handler &h)
 		{
 			h & infix;
-			h & xpos;
-			h & ypos;
+			if (h.version >= Handler::Version::REGION_LABEL)
+			{
+				h & pos;
+				h & labelPos;
+			}
+			else
+			{
+				h & pos.x;
+				h & pos.y;
+			}
 		}
 
 		static CampaignRegions::RegionDescription fromJson(const JsonNode & node);
@@ -60,6 +68,7 @@ class DLL_LINKAGE CampaignRegions
 public:
 	ImagePath getBackgroundName() const;
 	Point getPosition(CampaignScenarioID which) const;
+	std::optional<Point> getLabelPosition(CampaignScenarioID which) const;
 	ImagePath getAvailableName(CampaignScenarioID which, int color) const;
 	ImagePath getSelectedName(CampaignScenarioID which, int color) const;
 	ImagePath getConqueredName(CampaignScenarioID which, int color) const;

@@ -44,6 +44,7 @@ class CFilledTexture;
 class IImage;
 class VideoWidget;
 class VideoWidgetOnce;
+class GraphicalPrimitiveCanvas;
 
 enum class EUserEvent;
 
@@ -506,6 +507,7 @@ class VideoWindow : public CWindowObject
 {
 	std::shared_ptr<VideoWidgetOnce> videoPlayer;
 	std::shared_ptr<CFilledTexture> backgroundAroundWindow;
+	std::shared_ptr<GraphicalPrimitiveCanvas> blackBackground;
 
 	std::function<void(bool)> closeCb;
 

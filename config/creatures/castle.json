@@ -10,7 +10,7 @@
 			"cavalryChargeImmunity" :
 			{
 				"type" : "CHARGE_IMMUNITY"
-			},
+			}
 		},
 		"graphics" :
 		{

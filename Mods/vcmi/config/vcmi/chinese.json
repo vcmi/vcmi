@@ -12,6 +12,7 @@
 	"vcmi.adventureMap.monsterThreat.levels.9"  : "压倒性的",
 	"vcmi.adventureMap.monsterThreat.levels.10" : "致命的",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "无法取胜",
+	"vcmi.adventureMap.monsterLevel"            : "\n\n%TOWN%LEVEL级生物",
 
 	"vcmi.adventureMap.confirmRestartGame"     : "你想要重新开始游戏吗？",
 	"vcmi.adventureMap.noTownWithMarket"       : "没有足够的市场。",
@@ -20,6 +21,7 @@
 	"vcmi.adventureMap.playerAttacked"         : "玩家遭受攻击: %s",
 	"vcmi.adventureMap.moveCostDetails"        : "移动点数 - 花费: %TURNS 轮 + %POINTS 点移动力, 剩余移动力: %REMAINING",
 	"vcmi.adventureMap.moveCostDetailsNoTurns" : "移动点数 - 花费: %POINTS 点移动力, 剩余移动力: %REMAINING",
+	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(移动点数: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "抱歉，重放对手行动功能目前暂未实现！",
 
 	"vcmi.capitalColors.0" : "红色",
@@ -236,6 +238,8 @@
 	"vcmi.adventureOptions.infoBarCreatureManagement.help" : "{信息面板生物管理}\n\n允许在信息面板中重新排列生物，而不是在默认组件之间循环。",
 	"vcmi.adventureOptions.leftButtonDrag.hover" : "左键拖动地图",
 	"vcmi.adventureOptions.leftButtonDrag.help" : "{左键拖动地图}\n\n启用后，按住左键移动鼠标将拖动冒险地图视图。",
+	"vcmi.adventureOptions.rightButtonDrag.hover" : "右键拖动地图",
+	"vcmi.adventureOptions.rightButtonDrag.help" : "{右键拖动地图}\n\n启用后，按住右键移动鼠标将拖动冒险地图视图。",
 	"vcmi.adventureOptions.smoothDragging.hover" : "平滑地图拖动",
 	"vcmi.adventureOptions.smoothDragging.help" : "{平滑地图拖动}\n\n启用后，地图拖动会产生柔和的羽化效果。",
 	"vcmi.adventureOptions.skipAdventureMapAnimations.hover" : "关闭淡入淡出特效",
@@ -662,5 +666,7 @@
 	"core.bonus.WIDE_BREATH.name": "弧形焰息",
 	"core.bonus.WIDE_BREATH.description": "大范围喷吐攻击(目标左右以及后方共6格)",
 	"core.bonus.DISINTEGRATE.name": "解体",
-	"core.bonus.DISINTEGRATE.description": "死亡后不会留下尸体"
+	"core.bonus.DISINTEGRATE.description": "死亡后不会留下尸体",
+	"core.bonus.INVINCIBLE.name": "无敌",
+	"core.bonus.INVINCIBLE.description": "不受任何效果影响"
 }

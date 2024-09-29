@@ -231,7 +231,7 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 		if(mainTarget && mainTarget == caster)
 			return false; // can't cast on self
 
-		if(mainTarget && mainTarget->hasBonusOfType(BonusType::INVINCIBLE))
+		if(mainTarget && mainTarget->hasBonusOfType(BonusType::INVINCIBLE) && !getSpell()->getPositiveness())
 			return false;
 	}
 

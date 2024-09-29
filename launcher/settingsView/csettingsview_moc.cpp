@@ -174,17 +174,13 @@ void CSettingsView::loadSettings()
 	ui->sliderControllerSticksAcceleration->setValue(settings["input"]["controllerAxisScale"].Float() * 100);
 	ui->lineEditGameLobbyHost->setText(QString::fromStdString(settings["lobby"]["hostname"].String()));
 	ui->spinBoxNetworkPortLobby->setValue(settings["lobby"]["port"].Integer());
-	
-	auto mainWindow = getMainWindow();
-	if(mainWindow)
-	{
-		bool fontModAvailable = mainWindow->getModView()->isModInstalled("vcmi-extras.truetypefonts");
-		if(!fontModAvailable)
-		{
-			ui->labelTtfFont->hide();
-			ui->buttonTtfFont->hide();
-		}
-	}
+
+	if (settings["video"]["fontsType"].String() == "auto")
+		ui->buttonFontAuto->setChecked(true);
+	else if (settings["video"]["fontsType"].String() == "original")
+		ui->buttonFontOriginal->setChecked(true);
+	else
+		ui->buttonFontScalable->setChecked(true);
 
 	loadToggleButtonSettings();
 }
@@ -210,9 +206,9 @@ void CSettingsView::loadToggleButtonSettings()
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
 	setCheckbuttonState(ui->buttonCursorType, cursorTypeIndex);
 
-	auto mainWindow = getMainWindow();
-	if(mainWindow)
-		setCheckbuttonState(ui->buttonTtfFont, mainWindow->getModView()->isModEnabled("vcmi-extras.truetypefonts"));
+	int fontScalingPercentage = settings["video"]["fontScalingFactor"].Float() * 100;
+	ui->sliderScalingFont->setValue(fontScalingPercentage / 5);
+
 }
 
 void CSettingsView::fillValidResolutions()
@@ -770,12 +766,28 @@ void CSettingsView::on_sliderControllerSticksSensitivity_valueChanged(int value)
 	node->Integer() = value;
 }
 
-void CSettingsView::on_buttonTtfFont_toggled(bool value)
+void CSettingsView::on_sliderScalingFont_valueChanged(int value)
 {
-	auto mainWindow = getMainWindow();
-	if(value)
-		mainWindow->getModView()->enableModByName("vcmi-extras.truetypefonts");
-	else
-		mainWindow->getModView()->disableModByName("vcmi-extras.truetypefonts");
-	updateCheckbuttonText(ui->buttonTtfFont);
+	int actualValuePercentage = value * 5;
+	ui->labelScalingFontValue->setText(QString("%1%").arg(actualValuePercentage));
+	Settings node = settings.write["video"]["fontScalingFactor"];
+	node->Float() = actualValuePercentage / 100.0;
+}
+
+void CSettingsView::on_buttonFontAuto_clicked(bool checked)
+{
+	Settings node = settings.write["video"]["fontsType"];
+	node->String() = "auto";
+}
+
+void CSettingsView::on_buttonFontScalable_clicked(bool checked)
+{
+	Settings node = settings.write["video"]["fontsType"];
+	node->String() = "scalable";
+}
+
+void CSettingsView::on_buttonFontOriginal_clicked(bool checked)
+{
+	Settings node = settings.write["video"]["fontsType"];
+	node->String() = "original";
 }

@@ -9,26 +9,11 @@
  */
 #pragma once
 
-#include "../lib/GameConstants.h"
+#include "../lib/constants/NumericConstants.h"
+#include "../lib/constants/EntityIdentifiers.h"
 #include "../lib/Color.h"
-#include "../lib/filesystem/ResourcePath.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
-
-class CGHeroInstance;
-class CGTownInstance;
-class CHeroClass;
-struct InfoAboutHero;
-struct InfoAboutTown;
-class CGObjectInstance;
-class ObjectTemplate;
-class EntityService;
-class JsonNode;
-
-VCMI_LIB_NAMESPACE_END
 
 struct SDL_Palette;
-class IFont;
 
 /// Handles fonts, hero images, town images, various graphics
 class Graphics
@@ -36,13 +21,8 @@ class Graphics
 	void initializeBattleGraphics();
 	void loadPaletteAndColors();
 	void loadErmuToPicture();
-	void loadFonts();
 
 public:
-	//Fonts
-	static const int FONTS_NUMBER = 9;
-	std::array< std::shared_ptr<IFont>, FONTS_NUMBER> fonts;
-
 	using PlayerPalette = std::array<ColorRGBA, 32>;
 
 	//various graphics

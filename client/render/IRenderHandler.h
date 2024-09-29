@@ -17,9 +17,11 @@ VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
 
+class IFont;
 class IImage;
 class CAnimation;
 enum class EImageBlitMode : uint8_t;
+enum EFonts : int8_t;
 
 class IRenderHandler : public boost::noncopyable
 {
@@ -40,4 +42,7 @@ public:
 
 	/// Loads animation using given path
 	virtual std::shared_ptr<CAnimation> loadAnimation(const AnimationPath & path, EImageBlitMode mode) = 0;
+
+	/// Returns font with specified identifer
+	virtual std::shared_ptr<const IFont> loadFont(EFonts font) = 0;
 };

@@ -168,7 +168,7 @@ void ChroniclesExtractor::extractFiles(int no) const
 	QDir outDirSprites(pathToQString(basePath / "Sprites" / chroniclesDir));
 	QDir outDirVideo(pathToQString(basePath / "Video" / chroniclesDir));
 	QDir outDirSounds(pathToQString(basePath / "Sounds" / chroniclesDir));
-	QDir outDirMaps(pathToQString(basePath / "Maps"));
+	QDir outDirMaps(pathToQString(basePath / "Maps" / "Chronicles"));
 
 	auto extract = [](QDir scrDir, QDir dest, QString file, std::vector<std::string> files = {}){
 		CArchiveLoader archive("", scrDir.filePath(scrDir.entryList({file}).front()).toStdString(), false);

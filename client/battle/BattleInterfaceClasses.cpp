@@ -112,9 +112,10 @@ std::vector<std::string> BattleConsole::splitText(const std::string &text)
 
 	boost::split(lines, text, boost::is_any_of("\n"));
 
+	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
 	for(const auto & line : lines)
 	{
-		if (graphics->fonts[FONT_SMALL]->getStringWidth(text) < pos.w)
+		if (font->getStringWidth(text) < pos.w)
 		{
 			output.push_back(line);
 		}
@@ -327,7 +328,7 @@ void BattleHero::setPhase(EHeroAnimType newPhase)
 
 void BattleHero::heroLeftClicked()
 {
-	if(owner.actionsController->spellcastingModeActive()) //we are casting a spell
+	if(owner.actionsController->heroSpellcastingModeActive()) //we are casting a spell
 		return;
 
 	if(!hero || !owner.makingTurn())
@@ -1098,7 +1099,8 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 		if(currentTurn && !owner->embedded)
 		{
 			std::string tmp = std::to_string(*currentTurn);
-			int len = graphics->fonts[FONT_SMALL]->getStringWidth(tmp);
+			const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+			int len = font->getStringWidth(tmp);
 			roundRect->pos.w = len + 6;
 			round->setText(tmp);
 		}
