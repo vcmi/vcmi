@@ -374,7 +374,7 @@ void Nullkiller::makeTurn()
 
 		Goals::TTask bestTask = taskptr(Goals::Invalid());
 
-		for(;i <= settings->getMaxPass(); i++)
+		while(true)
 		{
 			bestTasks.clear();
 
