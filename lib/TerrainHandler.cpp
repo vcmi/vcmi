@@ -45,7 +45,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 	info->transitionRequired = json["transitionRequired"].Bool();
 	info->terrainViewPatterns = json["terrainViewPatterns"].String();
 
-	VLC->generaltexth->registerString(scope, info->getNameTextID(), json["text"].String());
+	VLC->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
 	const JsonVector & unblockedVec = json["minimapUnblocked"].Vector();
 	info->minimapUnblocked =

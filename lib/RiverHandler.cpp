@@ -50,7 +50,7 @@ std::shared_ptr<RiverType> RiverTypeHandler::loadFromJson(
 		info->paletteAnimation.push_back(element);
 	}
 
-	VLC->generaltexth->registerString(scope, info->getNameTextID(), json["text"].String());
+	VLC->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
 	return info;
 }

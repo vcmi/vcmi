@@ -25,14 +25,8 @@ protected:
 		/// Human-readable string that was added on registration
 		std::string baseValue;
 
-		/// Language of base string
-		std::string baseLanguage;
-
 		/// Translated human-readable string
 		std::string overrideValue;
-
-		/// Language of the override string
-		std::string overrideLanguage;
 
 		/// ID of mod that created this string
 		std::string modContext;
@@ -41,7 +35,7 @@ protected:
 		void serialize(Handler & h)
 		{
 			h & baseValue;
-			h & baseLanguage;
+			//h & baseLanguage;
 			h & modContext;
 		}
 	};
@@ -52,7 +46,7 @@ protected:
 	std::vector<const TextLocalizationContainer *> subContainers;
 
 	/// add selected string to internal storage as high-priority strings
-	void registerStringOverride(const std::string & modContext, const std::string & language, const TextIdentifier & UID, const std::string & localized);
+	void registerStringOverride(const std::string & modContext, const TextIdentifier & UID, const std::string & localized);
 
 	std::string getModLanguage(const std::string & modContext);
 
@@ -60,16 +54,12 @@ protected:
 	bool identifierExists(const TextIdentifier & UID) const;
 
 public:
-	/// validates translation of specified language for specified mod
-	/// returns true if localization is valid and complete
-	/// any error messages will be written to log file
-	bool validateTranslation(const std::string & language, const std::string & modContext, JsonNode const & file) const;
-
 	/// Loads translation from provided json
 	/// Any entries loaded by this will have priority over texts registered normally
-	void loadTranslationOverrides(const std::string & language, const std::string & modContext, JsonNode const & file);
+	void loadTranslationOverrides(const std::string & modContext, JsonNode const & file);
 
 	/// add selected string to internal storage
+	void registerString(const std::string & modContext, const TextIdentifier & UID, const JsonNode & localized);
 	void registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized);
 	void registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized, const std::string & language);
 

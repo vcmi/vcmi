@@ -292,8 +292,8 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	ret->modScope = source.getModScope();
 	ret->town = town;
 
-	VLC->generaltexth->registerString(source.getModScope(), ret->getNameTextID(), source["name"].String());
-	VLC->generaltexth->registerString(source.getModScope(), ret->getDescriptionTextID(), source["description"].String());
+	VLC->generaltexth->registerString(source.getModScope(), ret->getNameTextID(), source["name"]);
+	VLC->generaltexth->registerString(source.getModScope(), ret->getDescriptionTextID(), source["description"]);
 
 	ret->subId = vstd::find_or(MappedKeys::SPECIAL_BUILDINGS, source["type"].String(), BuildingSubID::NONE);
 	ret->resources = TResources(source["cost"]);
@@ -603,7 +603,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	town->namesCount = 0;
 	for(const auto & name : source["names"].Vector())
 	{
-		VLC->generaltexth->registerString(town->faction->modScope, town->getRandomNameTextID(town->namesCount), name.String());
+		VLC->generaltexth->registerString(town->faction->modScope, town->getRandomNameTextID(town->namesCount), name);
 		town->namesCount += 1;
 	}
 
@@ -718,8 +718,8 @@ std::shared_ptr<CFaction> CTownHandler::loadFromJson(const std::string & scope, 
 	faction->modScope = scope;
 	faction->identifier = identifier;
 
-	VLC->generaltexth->registerString(scope, faction->getNameTextID(), source["name"].String());
-	VLC->generaltexth->registerString(scope, faction->getDescriptionTextID(), source["description"].String());
+	VLC->generaltexth->registerString(scope, faction->getNameTextID(), source["name"]);
+	VLC->generaltexth->registerString(scope, faction->getDescriptionTextID(), source["description"]);
 
 	faction->creatureBg120 = ImagePath::fromJson(source["creatureBackground"]["120px"]);
 	faction->creatureBg130 = ImagePath::fromJson(source["creatureBackground"]["130px"]);
