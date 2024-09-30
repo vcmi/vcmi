@@ -53,11 +53,11 @@ TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) 
 		nval->setFlags(nval->flags() | Qt::ItemIsEditable);
 		ui->resources->setItem(i, 1, nval);
 	}
-	auto deletedObjectPositions = params.value("deletedObjectsPositions").toList();
-	for(auto const & pos : deletedObjectPositions)
+	auto deletedObjectInstances = params.value("deletedObjectsInstances").toList();
+	for(auto const & obj : deletedObjectInstances)
 	{
-		int3 position = pos.value<int3>();
-		auto obj = controller.map()->getObjectFrom(position);
+		auto id = ObjectInstanceID(obj.toInt());
+		auto obj = controller.map()->objects[id];
 		if(obj)
 			insertObjectToDelete(obj);
 	}
@@ -104,10 +104,9 @@ void TimedEvent::on_TimedEvent_finished(int result)
 		auto const & item = ui->deletedObjects->item(i);
 		auto data = item->data(MapEditorRoles::ObjectInstanceIDRole);
 		auto id = ObjectInstanceID(data.value<int>());
-		auto position = controller.map()->objects[id]->pos;
-		deletedObjects.push_back(QVariant::fromValue<int3>(position));
+		deletedObjects.push_back(QVariant::fromValue(id.num));
 	}
-	descriptor["deletedObjectsPositions"] = QVariant::fromValue(deletedObjects);
+	descriptor["deletedObjectsInstances"] = QVariant::fromValue(deletedObjects);
 
 	target->setData(Qt::UserRole, descriptor);
 	target->setText(ui->eventNameText->text());

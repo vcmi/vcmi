@@ -132,7 +132,6 @@ public:
 
 	/// Gets object of specified type on requested position
 	const CGObjectInstance * getObjectiveObjectFrom(const int3 & pos, Obj type);
-	const CGObjectInstance * getObjectFrom(const int3 & pos);
 	CGHeroInstance * getHero(HeroTypeID heroId);
 
 	/// Sets the victory/loss condition objectives ??
