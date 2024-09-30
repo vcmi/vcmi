@@ -11,6 +11,7 @@
 #include "timedevent.h"
 #include "ui_timedevent.h"
 #include "eventsettings.h"
+#include "../mapeditorroles.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/constants/StringConstants.h"
 
@@ -56,7 +57,9 @@ TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) 
 	for(auto const & pos : deletedObjectPositions)
 	{
 		int3 position = pos.value<int3>();
-		ui->deletedObjects->addItem(QString("x: %1, y: %2, z: %3").arg(position.x).arg(position.y).arg(position.z));
+		auto obj = controller.map()->getObjectFrom(position);
+		if(obj)
+			insertObjectToDelete(obj);
 	}
 	show();
 }
@@ -98,11 +101,10 @@ void TimedEvent::on_TimedEvent_finished(int result)
 	QVariantList deletedObjects;
 	for(int i = 0; i < ui->deletedObjects->count(); ++i)
 	{
-		auto const & pos = ui->deletedObjects->item(i)->text();
-		int3 position;
-		position.x = pos.split(", ").at(0).split(": ").at(1).toInt();
-		position.y = pos.split(", ").at(1).split(": ").at(1).toInt();
-		position.z = pos.split(", ").at(2).split(": ").at(1).toInt();
+		auto const & item = ui->deletedObjects->item(i);
+		auto data = item->data(MapEditorRoles::ObjectInstanceIDRole);
+		auto id = ObjectInstanceID(data.value<int>());
+		auto position = controller.map()->objects[id]->pos;
 		deletedObjects.push_back(QVariant::fromValue<int3>(position));
 	}
 	descriptor["deletedObjectsPositions"] = QVariant::fromValue(deletedObjects);
@@ -144,7 +146,15 @@ void TimedEvent::onObjectPicked(const CGObjectInstance * obj)
 
 	if(!obj) 
 		return;
-	ui->deletedObjects->addItem(QString("x: %1, y: %2, z: %3").arg(obj->pos.x).arg(obj->pos.y).arg(obj->pos.z));
+	insertObjectToDelete(obj);
+}
+
+void TimedEvent::insertObjectToDelete(const CGObjectInstance * obj)
+{
+	QString objectLabel = QString("%1, x: %2, y: %3, z: %4").arg(QString::fromStdString(obj->getObjectName())).arg(obj->pos.x).arg(obj->pos.y).arg(obj->pos.z);
+	auto * item = new QListWidgetItem(objectLabel);
+	item->setData(MapEditorRoles::ObjectInstanceIDRole, QVariant::fromValue(obj->id.num));
+	ui->deletedObjects->addItem(item);
 }
 
 void TimedEvent::on_pushButton_clicked()

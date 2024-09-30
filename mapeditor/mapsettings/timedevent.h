@@ -35,6 +35,8 @@ private slots:
 
 	void onObjectPicked(const CGObjectInstance * obj);
 
+	void insertObjectToDelete(const CGObjectInstance * obj);
+
 	void on_pushButton_clicked();
 
 	void on_resources_itemDoubleClicked(QTableWidgetItem * item);

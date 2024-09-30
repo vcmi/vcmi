@@ -489,6 +489,16 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj type
 	return bestMatch;
 }
 
+const CGObjectInstance * CMap::getObjectFrom(const int3 & pos)
+{
+	for(CGObjectInstance * object : objects)
+	{
+		if(object->pos == pos)
+			return object;
+	}
+	return nullptr;
+}
+
 void CMap::checkForObjectives()
 {
 	// NOTE: probably should be moved to MapFormatH3M.cpp

@@ -960,7 +960,8 @@ void CGameState::initTimedEventsRemovableObjects()
 		{
 			if(isInTheMap(coordinate))
 			{
-				for(const CGObjectInstance * object : getBlockingObjs(coordinate))
+				auto * object = map->getObjectFrom(coordinate);
+				if(object)
 				{
 					timedEvent.deletedObjectsInstances.push_back(object->id);
 				}
