@@ -200,8 +200,9 @@ ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonu
 
 void CBonusTypeHandler::load()
 {
-	const JsonNode gameConf(JsonPath::builtin("config/gameConfig.json"));
-	const JsonNode config(JsonUtils::assembleFromFiles(gameConf["bonuses"].convertTo<std::vector<std::string>>()));
+	JsonNode gameConf(JsonPath::builtin("config/gameConfig.json"));
+	JsonNode config(JsonUtils::assembleFromFiles(gameConf["bonuses"].convertTo<std::vector<std::string>>()));
+	config.setModScope("vcmi");
 	load(config);
 }
 
