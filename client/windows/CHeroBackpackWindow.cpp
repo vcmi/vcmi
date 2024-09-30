@@ -44,19 +44,35 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	addSet(arts);
 	arts->setHero(hero);
 	
-	quitButton = std::make_shared<CButton>(Point(), AnimationPath::builtin("IOKAY32.def"), CButton::tooltip(""),
-		[this]() { WindowBase::close(); }, EShortcut::GLOBAL_RETURN);
+	buttons.emplace_back(std::make_unique<CButton>(Point(), AnimationPath::builtin("ALTFILL.DEF"),
+		CButton::tooltipLocalized("vcmi.heroWindow.sortBackpackByCost"),
+		[hero]() { LOCPLINT->cb->sortBackpackArtifactsByCost(hero->id); }));
+	buttons.emplace_back(std::make_unique<CButton>(Point(), AnimationPath::builtin("ALTFILL.DEF"),
+		CButton::tooltipLocalized("vcmi.heroWindow.sortBackpackBySlot"),
+		[hero]() { LOCPLINT->cb->sortBackpackArtifactsBySlot(hero->id); }));
+	buttons.emplace_back(std::make_unique<CButton>(Point(), AnimationPath::builtin("ALTFILL.DEF"),
+		CButton::tooltipLocalized("vcmi.heroWindow.sortBackpackByClass"),
+		[hero]() { LOCPLINT->cb->sortBackpackArtifactsByClass(hero->id); }));
+
 	pos.w = stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
-	pos.h = stretchedBackground->pos.h = arts->pos.h + quitButton->pos.h + 3 * windowMargin;
-	quitButton->moveTo(Point(pos.x + pos.w / 2 - quitButton->pos.w / 2, pos.y + arts->pos.h + 2 * windowMargin));
+	pos.h = stretchedBackground->pos.h = arts->pos.h + buttons.back()->pos.h + 3 * windowMargin;
 	
-	sortBySlot = std::make_shared<CButton>(Point(), AnimationPath::builtin("IOKAY32.def"), CButton::tooltip(""),
-		[hero]() { LOCPLINT->cb->sortBackpackArtifactsBySlot(hero->id); }, EShortcut::GLOBAL_RETURN);
-	sortBySlot->moveTo(Point(pos.x + windowMargin, quitButton->pos.y));
+	auto buttonPos = Point(pos.x + windowMargin, pos.y + arts->pos.h + 2 * windowMargin);
+	for(const auto & button : buttons)
+	{
+		button->moveTo(buttonPos);
+		buttonPos += Point(button->pos.w + 10, 0);
+	}
+
 	statusbar = CGStatusBar::create(0, pos.h, ImagePath::builtin("ADROLLVR.bmp"), pos.w);
 	pos.h += statusbar->pos.h;
-
+	addUsedEvents(LCLICK);
 	center();
+}
+
+void CHeroBackpackWindow::notFocusedClick()
+{
+	close();
 }
 
 void CHeroBackpackWindow::showAll(Canvas & to)

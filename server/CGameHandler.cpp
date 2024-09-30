@@ -2670,10 +2670,14 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 
 		for(auto & [sortId, pack] : packsSorted)
 		{
-			// Each pack of artifacts is also sorted by ArtifactID
+			// Each pack of artifacts is also sorted by ArtifactID. Scrolls by SpellID
 			std::sort(pack.begin(), pack.end(), [artSet](const auto & slots0, const auto & slots1) -> bool
 				{
-					return artSet->getArt(slots0.srcPos)->getTypeId().num > artSet->getArt(slots1.srcPos)->getTypeId().num;
+					const auto art0 = artSet->getArt(slots0.srcPos);
+					const auto art1 = artSet->getArt(slots1.srcPos);
+					if(art0->isScroll() && art1->isScroll())
+						return art0->getScrollSpellID() > art1->getScrollSpellID();
+					return art0->getTypeId().num > art1->getTypeId().num;
 				});
 			bma.artsPack0.insert(bma.artsPack0.end(), pack.begin(), pack.end());
 		}

@@ -340,6 +340,12 @@
 	"vcmi.heroWindow.openCommander.help"  : "Shows details about the commander of this hero.",
 	"vcmi.heroWindow.openBackpack.hover" : "Open artifact backpack window",
 	"vcmi.heroWindow.openBackpack.help"  : "Opens window that allows easier artifact backpack management.",
+	"vcmi.heroWindow.sortBackpackByCost.hover"  : "Sort by cost",
+	"vcmi.heroWindow.sortBackpackByCost.help"  : "Sort artifacts in backpack by cost.",
+	"vcmi.heroWindow.sortBackpackBySlot.hover"  : "Sort by slot",
+	"vcmi.heroWindow.sortBackpackBySlot.help"  : "Sort artifacts in backpack by equipped slot.",
+	"vcmi.heroWindow.sortBackpackByClass.hover"  : "Sort by class",
+	"vcmi.heroWindow.sortBackpackByClass.help"  : "Sort artifacts in backpack by artifact class. Treasure, Minor, Major, Relic",
 
 	"vcmi.tavernWindow.inviteHero"  : "Invite hero",
 
