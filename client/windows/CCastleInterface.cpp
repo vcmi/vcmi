@@ -2053,19 +2053,24 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		auto cost = costBase * std::pow(town->spellResearchCounter + 1, costExponent);
 
 		std::vector<std::shared_ptr<CComponent>> resComps;
-		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, town->spells[level].at(town->spellsAtLevel(level, false))));
+		auto newSpell = town->spells[level].at(town->spellsAtLevel(level, false));
+		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
+		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, newSpell));
 		resComps.back()->newLine = true;
 		for(TResources::nziterator i(cost); i.valid(); i++)
 		{
 			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal, CComponent::ESize::medium));
 		}
 
-		auto showSpellResearchDialog = [this, resComps, town, cost](){
+		auto showSpellResearchDialog = [this, resComps, town, cost, newSpell](){
 			std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
 			pom.emplace_back(AnimationPath::builtin("ibuy30.DEF"), nullptr);
 			pom.emplace_back(AnimationPath::builtin("hsbtns4.DEF"), nullptr);
 			pom.emplace_back(AnimationPath::builtin("ICANCEL.DEF"), nullptr);
+
 			auto text = CGI->generaltexth->translate(LOCPLINT->cb->getResourceAmount().canAfford(cost) ? "vcmi.spellResearch.pay" : "vcmi.spellResearch.canNotAfford");
+			boost::replace_first(text, "%SPELL1", spell->id.toSpell()->getNameTranslated());
+			boost::replace_first(text, "%SPELL2", newSpell.toSpell()->getNameTranslated());
 			auto temp = std::make_shared<CInfoWindow>(text, LOCPLINT->playerID, resComps, pom);
 
 			temp->buttons[0]->addCallback([this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, true); });
