@@ -212,7 +212,7 @@
 	"vcmi.systemOptions.longTouchButton.help"              : "{Fördröjt tryckintervall}\n\nNär du använder dig av en pekskärm och vill komma åt spelalternativ behöver du göra en fördröjd pekskärmsberöring under en specifikt angiven tid (i millisekunder) för att en popup-meny skall synas.",
 	"vcmi.systemOptions.longTouchMenu.hover"               : "Välj tidsintervall för fördröjd pekskärmsberöringsmeny",
 	"vcmi.systemOptions.longTouchMenu.help"                : "Ändra varaktighetsintervallet för fördröjd beröring.",
-	"vcmi.systemOptions.longTouchMenu.entry"               : "%d millisekunder","%d millisekunder",
+	"vcmi.systemOptions.longTouchMenu.entry"               : "%d millisekunder",
 	"vcmi.systemOptions.framerateButton.hover"             : "Visar FPS (skärmbilder per sekund)",
 	"vcmi.systemOptions.framerateButton.help"              : "{Visa FPS}\n\nVisar räknaren för bildrutor per sekund i hörnet av spelfönstret.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"        : "Haptisk återkoppling",
