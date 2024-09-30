@@ -2036,22 +2036,21 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 	const CGTownInstance * town = LOCPLINT->cb->getTown(townId);
 	if(LOCPLINT->cb->getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && town->spellResearchAllowed)
 	{
-		int daysSinceLastResearch = LOCPLINT->cb->getDate(Date::DAY) - town->lastSpellResearchDay;
-		if(!daysSinceLastResearch)
+		int level = -1;
+		for(int i = 0; i < town->spells.size(); i++)
+			if(vstd::find_pos(town->spells[i], spell->id) != -1)
+				level = i;
+				
+		int today = LOCPLINT->cb->getDate(Date::DAY);
+		if(town->spellResearchActionsPerDay.find(today) == town->spellResearchActionsPerDay.end() || town->spellResearchActionsPerDay.at(today) >= LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY).Vector()[level].Float())
 		{
 			LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.spellResearch.comeAgain"));
 			return;
 		}
 
-		int level = -1;
-		for(int i = 0; i < town->spells.size(); i++)
-			if(vstd::find_pos(town->spells[i], spell->id) != -1)
-				level = i;
-
-		auto costBase = TResources(LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_BASE));
-		auto costPerLevel = TResources(LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_PER_LEVEL));
-		auto costExponent = LOCPLINT->cb->getSettings().getDouble(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH);
-		auto cost = (costBase + costPerLevel * (level + 1)) * std::pow(town->spellResearchCounter + 1, costExponent);
+		auto costBase = TResources(LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
+		auto costExponent = LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
+		auto cost = costBase * std::pow(town->spellResearchCounter + 1, costExponent);
 
 		std::vector<std::shared_ptr<CComponent>> resComps;
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, town->spells[level].at(town->spellsAtLevel(level, false))));

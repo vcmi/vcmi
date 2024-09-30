@@ -73,7 +73,7 @@ public:
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
 	std::vector<CCastleEvent> events;
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond, factory = save debts);
-	int lastSpellResearchDay;
+	std::map<int, int> spellResearchActionsPerDay;
 	int spellResearchCounter;
 	bool spellResearchAllowed;
 
@@ -98,7 +98,7 @@ public:
 
 		if (h.version >= Handler::Version::SPELL_RESEARCH)
 		{
-			h & lastSpellResearchDay;
+			h & spellResearchActionsPerDay;
 			h & spellResearchCounter;
 			h & spellResearchAllowed;
 		}

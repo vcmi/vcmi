@@ -269,7 +269,6 @@ CGTownInstance::CGTownInstance(IGameCallback *cb):
 	destroyed(0),
 	identifier(0),
 	alignmentToPlayer(PlayerColor::NEUTRAL),
-	lastSpellResearchDay(0),
 	spellResearchCounter(0),
 	spellResearchAllowed(true)
 {

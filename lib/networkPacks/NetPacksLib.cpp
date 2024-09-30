@@ -944,7 +944,7 @@ void SetResearchedSpells::applyGs(CGameState *gs)
 	CGTownInstance *town = gs->getTown(tid);
 
 	town->spells[level] = spells;
-	town->lastSpellResearchDay = gs->getDate(Date::DAY);
+	town->spellResearchActionsPerDay[gs->getDate(Date::DAY)]++;
 	if(accepted)
 		town->spellResearchCounter++;
 }
