@@ -97,9 +97,10 @@ std::optional<const CGObjectInstance *> ObjectClusterizer::getBlocker(const AIPa
 	{
 		auto guardPos = ai->cb->getGuardingCreaturePosition(node.coord);
 
-		blockers = ai->cb->getVisitableObjs(node.coord);
+		if (ai->cb->isVisible(node.coord))
+			blockers = ai->cb->getVisitableObjs(node.coord);
 
-		if(guardPos.valid())
+		if(guardPos.valid() && ai->cb->isVisible(guardPos))
 		{
 			auto guard = ai->cb->getTopObj(ai->cb->getGuardingCreaturePosition(node.coord));
 
