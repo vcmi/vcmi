@@ -44,6 +44,8 @@ namespace JsonUtils
 	 * @brief generate one Json structure from multiple files
 	 * @param files - list of filenames with parts of json structure
 	 */
+	DLL_LINKAGE JsonNode assembleFromFiles(const JsonNode & files);
+	DLL_LINKAGE JsonNode assembleFromFiles(const JsonNode & files, bool & isValid);
 	DLL_LINKAGE JsonNode assembleFromFiles(const std::vector<std::string> & files);
 	DLL_LINKAGE JsonNode assembleFromFiles(const std::vector<std::string> & files, bool & isValid);
 

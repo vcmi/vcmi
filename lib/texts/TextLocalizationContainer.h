@@ -36,7 +36,6 @@ protected:
 		void serialize(Handler & h)
 		{
 			h & translatedText;
-			//h & baseLanguage;
 			h & identifierModContext;
 			h & baseStringModContext;
 		}

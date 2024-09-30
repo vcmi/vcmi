@@ -50,7 +50,7 @@ ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string
 	}
 }
 
-bool ContentTypeHandler::preloadModData(const std::string & modName, const std::vector<std::string> & fileList, bool validate)
+bool ContentTypeHandler::preloadModData(const std::string & modName, const JsonNode & fileList, bool validate)
 {
 	bool result = false;
 	JsonNode data = JsonUtils::assembleFromFiles(fileList, result);
@@ -216,7 +216,7 @@ bool CContentHandler::preloadModData(const std::string & modName, JsonNode modCo
 	bool result = true;
 	for(auto & handler : handlers)
 	{
-		result &= handler.second.preloadModData(modName, modConfig[handler.first].convertTo<std::vector<std::string> >(), validate);
+		result &= handler.second.preloadModData(modName, modConfig[handler.first], validate);
 	}
 	return result;
 }
