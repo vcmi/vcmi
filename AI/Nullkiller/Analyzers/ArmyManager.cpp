@@ -152,16 +152,6 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 	uint64_t armyValue = 0;
 
 	TemporaryArmy newArmyInstance;
-	auto bonusModifiers = armyCarrier->getBonuses(Selector::type()(BonusType::MORALE));
-
-	for(auto bonus : *bonusModifiers)
-	{
-		// army bonuses will change and object bonuses are temporary
-		if(bonus->source != BonusSource::ARMY && bonus->source != BonusSource::OBJECT_INSTANCE && bonus->source != BonusSource::OBJECT_TYPE)
-		{
-			newArmyInstance.addNewBonus(std::make_shared<Bonus>(*bonus));
-		}
-	}
 
 	while(allowedFactions.size() < alignmentMap.size())
 	{
