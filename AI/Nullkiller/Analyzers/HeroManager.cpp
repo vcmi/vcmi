@@ -148,7 +148,10 @@ void HeroManager::update()
 
 HeroRole HeroManager::getHeroRole(const HeroPtr & hero) const
 {
-	return heroRoles.at(hero);
+	if (heroRoles.find(hero) != heroRoles.end())
+		return heroRoles.at(hero);
+	else
+		return HeroRole::SCOUT;
 }
 
 const std::map<HeroPtr, HeroRole> & HeroManager::getHeroRoles() const
