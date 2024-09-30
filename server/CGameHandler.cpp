@@ -2261,7 +2261,7 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool
 	auto spells = t->spells.at(level);
 	
 	int today = getDate(Date::DAY);
-	bool researchLimitExceeded = t->spellResearchActionsPerDay.find(today) == t->spellResearchActionsPerDay.end() || t->spellResearchActionsPerDay.at(today) >= getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY).Vector()[level].Float();
+	bool researchLimitExceeded = t->spellResearchActionsPerDay.find(today) != t->spellResearchActionsPerDay.end() && t->spellResearchActionsPerDay.at(today) >= getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY).Vector()[level].Float();
 	if(researchLimitExceeded && complain("Already researched today!"))
 		return false;
 

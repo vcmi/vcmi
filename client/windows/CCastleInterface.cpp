@@ -2042,7 +2042,7 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 				level = i;
 				
 		int today = LOCPLINT->cb->getDate(Date::DAY);
-		if(town->spellResearchActionsPerDay.find(today) == town->spellResearchActionsPerDay.end() || town->spellResearchActionsPerDay.at(today) >= LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY).Vector()[level].Float())
+		if(town->spellResearchActionsPerDay.find(today) != town->spellResearchActionsPerDay.end() && town->spellResearchActionsPerDay.at(today) >= LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY).Vector()[level].Float())
 		{
 			LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.spellResearch.comeAgain"));
 			return;
