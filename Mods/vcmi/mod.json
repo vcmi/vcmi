@@ -77,17 +77,6 @@
 		]
 	},
 
-	"ukrainian" : {
-		"name" : "VCMI - ключові файли",
-		"description" : "Ключові файли необхідні для повноцінної роботи VCMI",
-		"author" : "Команда VCMI",
-
-		"skipValidation" : true,
-		"translations" : [
-			"config/vcmi/ukrainian.json"
-		]
-	},
-
 	"spanish" : {
 		"name" : "VCMI - ficheros necesarios",
 		"description" : "Ficheros necesarios para ejecutar VCMI correctamente",
@@ -96,6 +85,28 @@
 		"skipValidation" : true,
 		"translations" : [
 			"config/vcmi/spanish.json"
+		]
+	},
+
+	"swedish" : {
+		"name" : "Nödvändiga VCMI-filer",
+		"description" : "Filer som behövs för att köra VCMI korrekt",
+		"author" : "Maurycy (XCOM-HUB on GitHub)",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/vcmi/swedish.json"
+		]
+	},
+
+	"ukrainian" : {
+		"name" : "VCMI - ключові файли",
+		"description" : "Ключові файли необхідні для повноцінної роботи VCMI",
+		"author" : "Команда VCMI",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/vcmi/ukrainian.json"
 		]
 	},
 
