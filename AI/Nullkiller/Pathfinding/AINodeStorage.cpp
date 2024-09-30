@@ -1197,6 +1197,10 @@ void AINodeStorage::calculateTownPortal(
 					continue;
 			}
 
+			if (targetTown->visitingHero
+				&& targetTown->visitingHero.get()->getFaction() != actor->hero->getFaction())
+				continue;
+
 			auto nodeOptional = townPortalFinder.createTownPortalNode(targetTown);
 
 			if(nodeOptional)
