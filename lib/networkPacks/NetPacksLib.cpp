@@ -944,9 +944,9 @@ void SetResearchedSpells::applyGs(CGameState *gs)
 	CGTownInstance *town = gs->getTown(tid);
 
 	town->spells[level] = spells;
-	town->spellResearchActionsPerDay[gs->getDate(Date::DAY)]++;
+	town->spellResearchCounterDay++;
 	if(accepted)
-		town->spellResearchCounter++;
+		town->spellResearchAcceptedCounter++;
 }
 
 void SetMana::applyGs(CGameState *gs)
@@ -1941,7 +1941,10 @@ void NewTurn::applyGs(CGameState *gs)
 		creatureSet.applyGs(gs);
 
 	for(CGTownInstance* t : gs->map->towns)
+	{
 		t->built = 0;
+		t->spellResearchCounterDay = 0;
+	}
 
 	if(newRumor)
 		gs->currentRumor = *newRumor;

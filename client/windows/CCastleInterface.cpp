@@ -2041,8 +2041,7 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 			if(vstd::find_pos(town->spells[i], spell->id) != -1)
 				level = i;
 				
-		int today = LOCPLINT->cb->getDate(Date::DAY);
-		if(town->spellResearchActionsPerDay.find(today) != town->spellResearchActionsPerDay.end() && town->spellResearchActionsPerDay.at(today) >= LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY).Vector()[level].Float())
+		if(town->spellResearchCounterDay >= LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY).Vector()[level].Float())
 		{
 			LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.spellResearch.comeAgain"));
 			return;
@@ -2050,7 +2049,7 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 
 		auto costBase = TResources(LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
 		auto costExponent = LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
-		auto cost = costBase * std::pow(town->spellResearchCounter + 1, costExponent);
+		auto cost = costBase * std::pow(town->spellResearchAcceptedCounter + 1, costExponent);
 
 		std::vector<std::shared_ptr<CComponent>> resComps;
 		auto newSpell = town->spells[level].at(town->spellsAtLevel(level, false));

@@ -2247,7 +2247,9 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool
 {
 	CGTownInstance *t = gs->getTown(tid);
 
-	if(!(getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && t->spellResearchAllowed) && complain("Spell research not allowed!"))
+	if(!getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && complain("Spell research not allowed!"))
+		return false;
+	if (!t->spellResearchAllowed && complain("Spell research not allowed in this town!"))
 		return false;
 
 	int level = -1;
@@ -2260,8 +2262,7 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool
 
 	auto spells = t->spells.at(level);
 	
-	int today = getDate(Date::DAY);
-	bool researchLimitExceeded = t->spellResearchActionsPerDay.find(today) != t->spellResearchActionsPerDay.end() && t->spellResearchActionsPerDay.at(today) >= getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY).Vector()[level].Float();
+	bool researchLimitExceeded = t->spellResearchCounterDay >= getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY).Vector()[level].Float();
 	if(researchLimitExceeded && complain("Already researched today!"))
 		return false;
 
@@ -2275,7 +2276,7 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool
 
 	auto costBase = TResources(getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
 	auto costExponent = getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
-	auto cost = costBase * std::pow(t->spellResearchCounter + 1, costExponent);
+	auto cost = costBase * std::pow(t->spellResearchAcceptedCounter + 1, costExponent);
 
 	if(!getPlayerState(t->getOwner())->resources.canAfford(cost) && complain("Spell replacement cannot be afforded!"))
 		return false;
