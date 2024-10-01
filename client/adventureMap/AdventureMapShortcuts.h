@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../../lib/constants/EntityIdentifiers.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 class Rect;
@@ -33,6 +35,9 @@ class AdventureMapShortcuts
 	EAdventureState state;
 	int mapLevel;
 
+	MapObjectID searchLast;
+	int searchPos;
+	
 	void showOverview();
 	void worldViewBack();
 	void worldViewScale1x();

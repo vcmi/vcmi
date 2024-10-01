@@ -43,6 +43,8 @@ AdventureMapShortcuts::AdventureMapShortcuts(AdventureMapInterface & owner)
 	: owner(owner)
 	, state(EAdventureState::NOT_INITIALIZED)
 	, mapLevel(0)
+	, searchLast(MapObjectID::NO_OBJ)
+	, searchPos(0)
 {}
 
 void AdventureMapShortcuts::setState(EAdventureState newState)
@@ -462,6 +464,7 @@ void AdventureMapShortcuts::zoom( int distance)
 
 void AdventureMapShortcuts::search()
 {
+	// get all relevant objects
 	std::vector<ObjectInstanceID> visitableObjInstances;
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	for(int x = 0; x < mapSizes.x; x++)
@@ -486,26 +489,37 @@ void AdventureMapShortcuts::search()
 		}
 	);
 
+	// get pos of last selection
+	int lastSel = 0;
+	for(int i = 0; i < mapObjCountList.size(); i++)
+		if(mapObjCountList[i].first == searchLast)
+			lastSel = i;
+
+	// create texts
 	std::vector<std::string> texts;
 	for(auto & obj : mapObjCountList)
 		texts.push_back(VLC->objtypeh->getObjectName(obj.first, 0) + " (" + std::to_string(obj.second) + ")");
 
-	GH.windows().createAndPushWindow<CObjectListWindow>(texts, nullptr,
-									CGI->generaltexth->translate("vcmi.adventureMap.search.hover"),
-									CGI->generaltexth->translate("vcmi.adventureMap.search.help"),
-									[this, mapObjCountList, visitableObjInstances](int index)
-									{
-										auto selObj = mapObjCountList[index].first;
-										for(auto & obj : visitableObjInstances)
-										{
-											auto objInst = LOCPLINT->cb->getObjInstance(obj);
-											if(selObj == objInst->getObjGroupIndex())
-												owner.centerOnObject(objInst);
-										}
-											
+	GH.windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, CGI->generaltexth->translate("vcmi.adventureMap.search.hover"), CGI->generaltexth->translate("vcmi.adventureMap.search.help"),
+		[this, mapObjCountList, visitableObjInstances](int index)
+		{
+			auto selObj = mapObjCountList[index].first;
 
-									},
-									0);
+			// filter for matching objects
+			std::vector<ObjectInstanceID> selVisitableObjInstances;
+			for(auto & obj : visitableObjInstances)
+				if(selObj == LOCPLINT->cb->getObjInstance(obj)->getObjGroupIndex())
+					selVisitableObjInstances.push_back(obj);
+			
+			if(searchPos + 1 < selVisitableObjInstances.size() && searchLast == selObj)
+				searchPos++;
+			else
+				searchPos = 0;
+
+			auto objInst = LOCPLINT->cb->getObjInstance(selVisitableObjInstances[searchPos]);
+			owner.centerOnObject(objInst);
+			searchLast = objInst->getObjGroupIndex();
+		}, lastSel);
 }
 
 void AdventureMapShortcuts::nextObject()
