@@ -1037,11 +1037,11 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	}
 	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
 
-	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, font->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
+	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, font->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::TOPCENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
 	auto hasHandicap = [this](){ return s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 && s->handicap.percentGrowth == 100; };
 	std::string labelHandicapText = hasHandicap() ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString();
-	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(57, 24, 47, font->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, labelHandicapText);
+	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(57, 24, 47, font->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::TOPCENTER, Colors::WHITE, labelHandicapText);
 	handicap = std::make_shared<LRClickableArea>(Rect(56, 24, 49, font->getLineHeight()*2), [](){
 		if(!CSH->isHost())
 			return;

@@ -29,7 +29,7 @@ class FontChain final : public IFont
 
 	void renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const override;
 	size_t getFontAscentScaled() const override;
-	bool bitmapFontsPrioritized() const;
+	bool bitmapFontsPrioritized(const std::string & bitmapFontName) const;
 public:
 	FontChain() = default;
 

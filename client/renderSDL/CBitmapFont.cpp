@@ -212,6 +212,12 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 		SDL_FreeSurface(atlasImage);
 		atlasImage = scaledSurface;
 	}
+
+	logGlobal->debug("Loaded BMP font: '%s', height %d, ascent %d",
+					 filename,
+					 getLineHeightScaled(),
+					 getFontAscentScaled()
+					 );
 }
 
 CBitmapFont::~CBitmapFont()

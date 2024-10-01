@@ -29,14 +29,14 @@
 	// "noShadow" - if set, this font will not drop any shadow
 	"trueType":
 	{
-		"BIGFONT"  : { "file" : "NotoSerif-Bold.ttf",   "size" : [ 19, 39, 58, 78] },
+		"BIGFONT"  : { "file" : "NotoSerif-Bold.ttf",   "size" : [ 18, 38, 57, 76] },
 		"CALLI10R" : { "file" : "NotoSerif-Bold.ttf",   "size" : [ 12, 24, 36, 48] }, // TODO: find better matching font? This is likely non-free 'Callisto MT' font
 		"CREDITS"  : { "file" : "NotoSerif-Black.ttf",  "size" : [ 22, 44, 66, 88], "outline" : true },
 		"HISCORE"  : { "file" : "NotoSerif-Black.ttf",  "size" : [ 18, 36, 54, 72], "outline" : true },
-		"MEDFONT"  : { "file" : "NotoSerif-Bold.ttf",   "size" : [ 15, 31, 46, 62] },
-		"SMALFONT" : { "file" : "NotoSerif-Medium.ttf", "size" : [ 12, 24, 36, 48] },
+		"MEDFONT"  : { "file" : "NotoSerif-Bold.ttf",   "size" : [ 13, 26, 39, 52] },
+		"SMALFONT" : { "file" : "NotoSerif-Medium.ttf", "size" : [ 11, 22, 33, 44] },
 		"TIMES08R" : { "file" : "NotoSerif-Medium.ttf", "size" : [  8, 16, 24, 32] },
-		"TINY"     : { "file" : "NotoSans-Medium.ttf",  "size" : [  9, 19, 28, 38], "noShadow" : true }, // The only H3 font without shadow
+		"TINY"     : { "file" : "NotoSans-Medium.ttf",  "size" : [  9, 18, 28, 38], "noShadow" : true }, // The only H3 font without shadow
 		"VERD10B"  : { "file" : "NotoSans-Medium.ttf",  "size" : [ 13, 26, 39, 52] }
 	}
 }
