@@ -2052,22 +2052,22 @@
     <message>
         <location filename="../windownewmap.ui" line="713"/>
         <source>Roads</source>
-        <translation type="unfinished">Estradas</translation>
+        <translation>Estradas</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="728"/>
         <source>Dirt</source>
-        <translation type="unfinished"></translation>
+        <translation>Terra</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="748"/>
         <source>Gravel</source>
-        <translation type="unfinished"></translation>
+        <translation>Cascalho</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="768"/>
         <source>Cobblestone</source>
-        <translation type="unfinished"></translation>
+        <translation>Paralelepípedo</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="813"/>
