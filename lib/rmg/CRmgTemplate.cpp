@@ -102,6 +102,7 @@ void ZoneOptions::CTownInfo::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("castles", castleCount, 0);
 	handler.serializeInt("townDensity", townDensity, 0);
 	handler.serializeInt("castleDensity", castleDensity, 0);
+	handler.serializeInt("sourceZone", sourceZone, NO_ZONE);
 }
 
 ZoneOptions::ZoneOptions():
@@ -156,7 +157,7 @@ std::optional<int> ZoneOptions::getOwner() const
 	return owner;
 }
 
-const std::set<TerrainId> ZoneOptions::getTerrainTypes() const
+std::set<TerrainId> ZoneOptions::getTerrainTypes() const
 {
 	if (terrainTypes.empty())
 	{
@@ -191,7 +192,7 @@ std::set<FactionID> ZoneOptions::getDefaultTownTypes() const
 	return VLC->townh->getDefaultAllowed();
 }
 
-const std::set<FactionID> ZoneOptions::getTownTypes() const
+std::set<FactionID> ZoneOptions::getTownTypes() const
 {
 	if (townTypes.empty())
 	{
@@ -214,7 +215,7 @@ void ZoneOptions::setMonsterTypes(const std::set<FactionID> & value)
 	monsterTypes = value;
 }
 
-const std::set<FactionID> ZoneOptions::getMonsterTypes() const
+std::set<FactionID> ZoneOptions::getMonsterTypes() const
 {
 	return vstd::difference(monsterTypes, bannedMonsters);
 }
@@ -250,7 +251,7 @@ void ZoneOptions::addTreasureInfo(const CTreasureInfo & value)
 	vstd::amax(maxTreasureValue, value.max);
 }
 
-const std::vector<CTreasureInfo> & ZoneOptions::getTreasureInfo() const
+std::vector<CTreasureInfo> ZoneOptions::getTreasureInfo() const
 {
 	return treasureInfo;
 }
@@ -272,7 +273,22 @@ TRmgTemplateZoneId ZoneOptions::getTerrainTypeLikeZone() const
 
 TRmgTemplateZoneId ZoneOptions::getTreasureLikeZone() const
 {
-    return treasureLikeZone;
+	return treasureLikeZone;
+}
+
+ObjectConfig ZoneOptions::getCustomObjects() const
+{
+	return objectConfig;
+}
+
+void ZoneOptions::setCustomObjects(const ObjectConfig & value)
+{
+	objectConfig = value;
+}
+
+TRmgTemplateZoneId ZoneOptions::getCustomObjectsLikeZone() const
+{
+	return customObjectsLikeZone;
 }
 
 void ZoneOptions::addConnection(const ZoneConnection & connection)
@@ -334,6 +350,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	SERIALIZE_ZONE_LINK(minesLikeZone);
 	SERIALIZE_ZONE_LINK(terrainTypeLikeZone);
 	SERIALIZE_ZONE_LINK(treasureLikeZone);
+	SERIALIZE_ZONE_LINK(customObjectsLikeZone);
 
 	#undef SERIALIZE_ZONE_LINK
 
@@ -398,6 +415,8 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 			handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], mines[idx], 0);
 		}
 	}
+
+	handler.serializeStruct("customObjects", objectConfig);
 }
 
 ZoneConnection::ZoneConnection():
@@ -759,53 +778,29 @@ const JsonNode & CRmgTemplate::getMapSettings() const
 	return *mapSettings;
 }
 
-std::set<TerrainId> CRmgTemplate::inheritTerrainType(std::shared_ptr<ZoneOptions> zone, uint32_t iteration /* = 0 */)
+template<typename T>
+T CRmgTemplate::inheritZoneProperty(std::shared_ptr<rmg::ZoneOptions> zone, 
+									T (rmg::ZoneOptions::*getter)() const,
+									void (rmg::ZoneOptions::*setter)(const T&),
+									TRmgTemplateZoneId (rmg::ZoneOptions::*inheritFrom)() const,
+									const std::string& propertyString,
+									uint32_t iteration)
 {
 	if (iteration >= 50)
 	{
-		logGlobal->error("Infinite recursion for terrain types detected in template %s", name);
-		return std::set<TerrainId>();
+		logGlobal->error("Infinite recursion for %s detected in template %s", propertyString, name);
+		return T();
 	}
-	if (zone->getTerrainTypeLikeZone() != ZoneOptions::NO_ZONE)
+	
+	if (((*zone).*inheritFrom)() != rmg::ZoneOptions::NO_ZONE)
 	{
 		iteration++;
-		const auto otherZone = zones.at(zone->getTerrainTypeLikeZone());
-		zone->setTerrainTypes(inheritTerrainType(otherZone, iteration));
+		const auto otherZone = zones.at(((*zone).*inheritFrom)());
+		T inheritedValue = inheritZoneProperty(otherZone, getter, setter, inheritFrom, propertyString, iteration);
+		((*zone).*setter)(inheritedValue);
 	}
-	//This implicitly excludes banned terrains
-	return zone->getTerrainTypes();
-}
-
-std::map<TResource, ui16> CRmgTemplate::inheritMineTypes(std::shared_ptr<ZoneOptions> zone, uint32_t iteration /* = 0 */)
-{
-	if (iteration >= 50)
-	{
-		logGlobal->error("Infinite recursion for mine types detected in template %s", name);
-		return std::map<TResource, ui16>();
-	}
-	if (zone->getMinesLikeZone() != ZoneOptions::NO_ZONE)
-	{
-		iteration++;
-		const auto otherZone = zones.at(zone->getMinesLikeZone());
-		zone->setMinesInfo(inheritMineTypes(otherZone, iteration));
-	}
-	return zone->getMinesInfo();
-}
-
-std::vector<CTreasureInfo> CRmgTemplate::inheritTreasureInfo(std::shared_ptr<ZoneOptions> zone, uint32_t iteration /* = 0 */)
-{
-	if (iteration >= 50)
-	{
-		logGlobal->error("Infinite recursion for treasures detected in template %s", name);
-		return std::vector<CTreasureInfo>();
-	}
-	if (zone->getTreasureLikeZone() != ZoneOptions::NO_ZONE)
-	{
-		iteration++;
-		const auto otherZone = zones.at(zone->getTreasureLikeZone());
-		zone->setTreasureInfo(inheritTreasureInfo(otherZone, iteration));
-	}
-	return zone->getTreasureInfo();
+	
+	return ((*zone).*getter)();
 }
 
 void CRmgTemplate::afterLoad()
@@ -814,12 +809,32 @@ void CRmgTemplate::afterLoad()
 	{
 		auto zone = idAndZone.second;
 
-		//Inherit properties recursively.
-		inheritTerrainType(zone);
-		inheritMineTypes(zone);
-		inheritTreasureInfo(zone);
+		// Inherit properties recursively
+		inheritZoneProperty(zone, 
+							&rmg::ZoneOptions::getTerrainTypes, 
+							&rmg::ZoneOptions::setTerrainTypes, 
+							&rmg::ZoneOptions::getTerrainTypeLikeZone,
+							"terrain types");
+		
+		inheritZoneProperty(zone, 
+							&rmg::ZoneOptions::getMinesInfo, 
+							&rmg::ZoneOptions::setMinesInfo, 
+							&rmg::ZoneOptions::getMinesLikeZone,
+							"mine types");
+		
+		inheritZoneProperty(zone, 
+							&rmg::ZoneOptions::getTreasureInfo, 
+							&rmg::ZoneOptions::setTreasureInfo, 
+							&rmg::ZoneOptions::getTreasureLikeZone,
+							"treasure info");
 
-		//TODO: Inherit monster types as well
+		inheritZoneProperty(zone, 
+							&rmg::ZoneOptions::getCustomObjects, 
+							&rmg::ZoneOptions::setCustomObjects, 
+							&rmg::ZoneOptions::getCustomObjectsLikeZone,
+							"custom objects");
+
+				//TODO: Inherit monster types as well
 		auto monsterTypes = zone->getMonsterTypes();
 		if (monsterTypes.empty())
 		{
@@ -848,6 +863,7 @@ void CRmgTemplate::afterLoad()
 	allowedWaterContent.erase(EWaterContent::RANDOM);
 }
 
+// TODO: Allow any integer size which does not match enum, as well
 void CRmgTemplate::serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName)
 {
 	static const std::map<std::string, int3> sizeMapping =
@@ -916,5 +932,19 @@ void CRmgTemplate::serializePlayers(JsonSerializeFormat & handler, CPlayerCountR
 		value.fromString(encodedValue);
 }
 
+const std::vector<CompoundMapObjectID> & ZoneOptions::getBannedObjects() const
+{
+	return objectConfig.getBannedObjects();
+}
+
+const std::vector<ObjectConfig::EObjectCategory> & ZoneOptions::getBannedObjectCategories() const
+{
+	return objectConfig.getBannedObjectCategories();
+}
+
+const std::vector<ObjectInfo> & ZoneOptions::getConfiguredObjects() const
+{
+	return objectConfig.getConfiguredObjects();
+}
 
 VCMI_LIB_NAMESPACE_END

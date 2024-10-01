@@ -39,7 +39,7 @@ public:
 	virtual void setHero(const CGHeroInstance * hero);
 	virtual const CGHeroInstance * getHero() const;
 	virtual void scrollBackpack(bool left);
-	virtual void markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved = true);
+	virtual void markPossibleSlots(const CArtifact * art, bool assumeDestRemoved = true);
 	virtual void unmarkSlots();
 	virtual ArtPlacePtr getArtPlace(const ArtifactPosition & slot);
 	virtual ArtPlacePtr getArtPlace(const Point & cursorPosition);

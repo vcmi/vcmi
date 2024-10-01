@@ -12,99 +12,33 @@
 #include "CRewardableObject.h"
 
 #include "../CPlayerState.h"
-#include "../GameSettings.h"
 #include "../IGameCallback.h"
+#include "../IGameSettings.h"
 #include "../battle/BattleLayout.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
-#include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../texts/CGeneralTextHandler.h"
 
 #include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void CRewardableObject::grantRewardWithMessage(const CGHeroInstance * contextHero, int index, bool markAsVisit) const
+const IObjectInterface * CRewardableObject::getObject() const
 {
-	auto vi = configuration.info.at(index);
-	logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
-	// show message only if it is not empty or in infobox
-	if (configuration.infoWindowType != EInfoWindowMode::MODAL || !vi.message.toString().empty())
-	{
-		InfoWindow iw;
-		iw.player = contextHero->tempOwner;
-		iw.text = vi.message;
-		vi.reward.loadComponents(iw.components, contextHero);
-		iw.type = configuration.infoWindowType;
-		if(!iw.components.empty() || !iw.text.toString().empty())
-			cb->showInfoDialog(&iw);
-	}
-	// grant reward afterwards. Note that it may remove object
-	if(markAsVisit)
-		markAsVisited(contextHero);
-	grantReward(index, contextHero);
+	return this;
 }
 
-void CRewardableObject::selectRewardWithMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const
+void CRewardableObject::markAsScouted(const CGHeroInstance * hero) const
 {
-	BlockingDialog sd(configuration.canRefuse, rewardIndices.size() > 1);
-	sd.player = contextHero->tempOwner;
-	sd.text = dialog;
-	sd.components = loadComponents(contextHero, rewardIndices);
-	cb->showBlockingDialog(this, &sd);
-
+	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_PLAYER, id, hero->id);
+	cb->sendAndApply(&cov);
 }
 
-void CRewardableObject::grantAllRewardsWithMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, bool markAsVisit) const
-{
-	if (rewardIndices.empty())
-		return;
-		
-	for (auto index : rewardIndices)
-	{
-		// TODO: Merge all rewards of same type, with single message?
-		grantRewardWithMessage(contextHero, index, false);
-	}
-	// Mark visited only after all rewards were processed
-	if(markAsVisit)
-		markAsVisited(contextHero);
-}
-
-std::vector<Component> CRewardableObject::loadComponents(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const
-{
-	std::vector<Component> result;
-
-	if (rewardIndices.empty())
-		return result;
-
-	if (configuration.selectMode != Rewardable::SELECT_FIRST && rewardIndices.size() > 1)
-	{
-		for (auto index : rewardIndices)
-			result.push_back(configuration.info.at(index).reward.getDisplayedComponent(contextHero));
-	}
-	else
-	{
-		configuration.info.at(rewardIndices.front()).reward.loadComponents(result, contextHero);
-	}
-
-	return result;
-}
-
-bool CRewardableObject::guardedPotentially() const
-{
-	for (auto const & visitInfo : configuration.info)
-		if (!visitInfo.reward.guards.empty())
-			return true;
-
-	return false;
-}
-
-bool CRewardableObject::guardedPresently() const
+bool CRewardableObject::isGuarded() const
 {
 	return stacksCount() > 0;
 }
@@ -117,7 +51,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *hero) const
 		cb->sendAndApply(&cov);
 	}
 
-	if (guardedPresently())
+	if (isGuarded())
 	{
 		auto guardedIndexes = getAvailableRewards(hero, Rewardable::EEventType::EVENT_GUARDED);
 		auto guardedReward = configuration.info.at(guardedIndexes.at(0));
@@ -136,94 +70,9 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *hero) const
 	}
 }
 
-void CRewardableObject::doHeroVisit(const CGHeroInstance *h) const
-{
-	if(!wasVisitedBefore(h))
-	{
-		auto rewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT);
-		bool objectRemovalPossible = false;
-		for(auto index : rewards)
-		{
-			if(configuration.info.at(index).reward.removeObject)
-				objectRemovalPossible = true;
-		}
-
-		logGlobal->debug("Visiting object with %d possible rewards", rewards.size());
-		switch (rewards.size())
-		{
-			case 0: // no available rewards, e.g. visiting School of War without gold
-			{
-				auto emptyRewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_NOT_AVAILABLE);
-				if (!emptyRewards.empty())
-					grantRewardWithMessage(h, emptyRewards[0], false);
-				else
-					logMod->warn("No applicable message for visiting empty object!");
-				break;
-			}
-			case 1: // one reward. Just give it with message
-			{
-				if (configuration.canRefuse)
-					selectRewardWithMessage(h, rewards, configuration.info.at(rewards.front()).message);
-				else
-					grantRewardWithMessage(h, rewards.front(), true);
-				break;
-			}
-			default: // multiple rewards. Act according to select mode
-			{
-				switch (configuration.selectMode) {
-					case Rewardable::SELECT_PLAYER: // player must select
-						selectRewardWithMessage(h, rewards, configuration.onSelect);
-						break;
-					case Rewardable::SELECT_FIRST: // give first available
-						if (configuration.canRefuse)
-							selectRewardWithMessage(h, { rewards.front() }, configuration.info.at(rewards.front()).message);
-						else
-							grantRewardWithMessage(h, rewards.front(), true);
-						break;
-					case Rewardable::SELECT_RANDOM: // give random
-					{
-						ui32 rewardIndex = *RandomGeneratorUtil::nextItem(rewards, cb->gameState()->getRandomGenerator());
-						if (configuration.canRefuse)
-							selectRewardWithMessage(h, { rewardIndex }, configuration.info.at(rewardIndex).message);
-						else
-							grantRewardWithMessage(h, rewardIndex, true);
-						break;
-					}
-					case Rewardable::SELECT_ALL: // grant all possible
-						grantAllRewardsWithMessage(h, rewards, true);
-						break;
-				}
-				break;
-			}
-		}
-
-		if(!objectRemovalPossible && getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
-		{
-			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_PLAYER, id, h->id);
-			cb->sendAndApply(&cov);
-		}
-	}
-	else
-	{
-		logGlobal->debug("Revisiting already visited object");
-
-		if (!wasVisited(h->getOwner()))
-		{
-			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_PLAYER, id, h->id);
-			cb->sendAndApply(&cov);
-		}
-
-		auto visitedRewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_ALREADY_VISITED);
-		if (!visitedRewards.empty())
-			grantRewardWithMessage(h, visitedRewards[0], false);
-		else
-			logMod->warn("No applicable message for visiting already visited object!");
-	}
-}
-
 void CRewardableObject::heroLevelUpDone(const CGHeroInstance *hero) const
 {
-	grantRewardAfterLevelup(cb, configuration.info.at(selectedReward), this, hero);
+	grantRewardAfterLevelup(configuration.info.at(selectedReward), this, hero);
 }
 
 void CRewardableObject::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
@@ -236,7 +85,7 @@ void CRewardableObject::battleFinished(const CGHeroInstance *hero, const BattleR
 
 void CRewardableObject::blockingDialogAnswered(const CGHeroInstance * hero, int32_t answer) const
 {
-	if(guardedPresently())
+	if(isGuarded())
 	{
 		if (answer)
 		{
@@ -273,12 +122,12 @@ void CRewardableObject::markAsVisited(const CGHeroInstance * hero) const
 void CRewardableObject::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
 {
 	cb->setObjPropertyValue(id, ObjProperty::REWARD_SELECT, rewardID);
-	grantRewardBeforeLevelup(cb, configuration.info.at(rewardID), hero);
+	grantRewardBeforeLevelup(configuration.info.at(rewardID), hero);
 	
 	// hero is not blocked by levelup dialog - grant remainder immediately
 	if(!cb->isVisitCoveredByAnotherQuery(this, hero))
 	{
-		grantRewardAfterLevelup(cb, configuration.info.at(rewardID), this, hero);
+		grantRewardAfterLevelup(configuration.info.at(rewardID), this, hero);
 	}
 }
 
@@ -410,7 +259,7 @@ std::vector<Component> CRewardableObject::getPopupComponentsImpl(PlayerColor pla
 	if (!wasScouted(player))
 		return {};
 
-	if (guardedPresently())
+	if (isGuarded())
 	{
 		if (!cb->getSettings().getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
 			return {};

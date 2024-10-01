@@ -243,8 +243,8 @@ public:
 	void initHero(vstd::RNG & rand);
 	void initHero(vstd::RNG & rand, const HeroTypeID & SUBID);
 
-	ArtPlacementMap putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
-	void removeArtifact(ArtifactPosition pos) override;
+	ArtPlacementMap putArtifact(const ArtifactPosition & pos, CArtifactInstance * art) override;
+	void removeArtifact(const ArtifactPosition & pos) override;
 	void initExp(vstd::RNG & rand);
 	void initArmy(vstd::RNG & rand, IArmyDescriptor *dst = nullptr);
 	void pushPrimSkill(PrimarySkill which, int val);

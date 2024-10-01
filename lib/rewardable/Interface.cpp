@@ -25,6 +25,8 @@
 #include "../networkPacks/PacksForClient.h"
 #include "../IGameCallback.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 std::vector<ui32> Rewardable::Interface::getAvailableRewards(const CGHeroInstance * hero, Rewardable::EEventType event) const
@@ -44,8 +46,10 @@ std::vector<ui32> Rewardable::Interface::getAvailableRewards(const CGHeroInstanc
 	return ret;
 }
 
-void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const Rewardable::VisitInfo & info, const CGHeroInstance * hero) const
+void Rewardable::Interface::grantRewardBeforeLevelup(const Rewardable::VisitInfo & info, const CGHeroInstance * hero) const
 {
+	auto cb = getObject()->cb;
+
 	assert(hero);
 	assert(hero->tempOwner.isValidPlayer());
 	assert(info.reward.creatures.size() <= GameConstants::ARMY_SIZE);
@@ -129,8 +133,10 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const R
 		cb->giveExperience(hero, expToGive);
 }
 
-void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Rewardable::VisitInfo & info, const CArmedInstance * army, const CGHeroInstance * hero) const
+void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo & info, const CArmedInstance * army, const CGHeroInstance * hero) const
 {
+	auto cb = getObject()->cb;
+
 	if(info.reward.manaDiff || info.reward.manaPercentage >= 0)
 		cb->setManaPoints(hero->id, info.reward.calculateManaPoints(hero));
 
@@ -214,6 +220,150 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Re
 void Rewardable::Interface::serializeJson(JsonSerializeFormat & handler)
 {
 	configuration.serializeJson(handler);
+}
+
+void Rewardable::Interface::grantRewardWithMessage(const CGHeroInstance * contextHero, int index, bool markAsVisit) const
+{
+	auto vi = configuration.info.at(index);
+	logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
+	// show message only if it is not empty or in infobox
+	if (configuration.infoWindowType != EInfoWindowMode::MODAL || !vi.message.toString().empty())
+	{
+		InfoWindow iw;
+		iw.player = contextHero->tempOwner;
+		iw.text = vi.message;
+		vi.reward.loadComponents(iw.components, contextHero);
+		iw.type = configuration.infoWindowType;
+		if(!iw.components.empty() || !iw.text.toString().empty())
+			getObject()->cb->showInfoDialog(&iw);
+	}
+	// grant reward afterwards. Note that it may remove object
+	if(markAsVisit)
+		markAsVisited(contextHero);
+	grantReward(index, contextHero);
+}
+
+void Rewardable::Interface::selectRewardWithMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const
+{
+	BlockingDialog sd(configuration.canRefuse, rewardIndices.size() > 1);
+	sd.player = contextHero->tempOwner;
+	sd.text = dialog;
+	sd.components = loadComponents(contextHero, rewardIndices);
+	getObject()->cb->showBlockingDialog(getObject(), &sd);
+}
+
+std::vector<Component> Rewardable::Interface::loadComponents(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const
+{
+	std::vector<Component> result;
+
+	if (rewardIndices.empty())
+		return result;
+
+	if (configuration.selectMode != Rewardable::SELECT_FIRST && rewardIndices.size() > 1)
+	{
+		for (auto index : rewardIndices)
+			result.push_back(configuration.info.at(index).reward.getDisplayedComponent(contextHero));
+	}
+	else
+	{
+		configuration.info.at(rewardIndices.front()).reward.loadComponents(result, contextHero);
+	}
+
+	return result;
+}
+
+void Rewardable::Interface::grantAllRewardsWithMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, bool markAsVisit) const
+{
+	if (rewardIndices.empty())
+		return;
+
+	for (auto index : rewardIndices)
+	{
+		// TODO: Merge all rewards of same type, with single message?
+		grantRewardWithMessage(contextHero, index, false);
+	}
+	// Mark visited only after all rewards were processed
+	if(markAsVisit)
+		markAsVisited(contextHero);
+}
+
+void Rewardable::Interface::doHeroVisit(const CGHeroInstance *h) const
+{
+	if(!wasVisitedBefore(h))
+	{
+		auto rewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT);
+		bool objectRemovalPossible = false;
+		for(auto index : rewards)
+		{
+			if(configuration.info.at(index).reward.removeObject)
+				objectRemovalPossible = true;
+		}
+
+		logGlobal->debug("Visiting object with %d possible rewards", rewards.size());
+		switch (rewards.size())
+		{
+			case 0: // no available rewards, e.g. visiting School of War without gold
+			{
+				auto emptyRewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_NOT_AVAILABLE);
+				if (!emptyRewards.empty())
+					grantRewardWithMessage(h, emptyRewards[0], false);
+				else
+					logMod->warn("No applicable message for visiting empty object!");
+				break;
+			}
+			case 1: // one reward. Just give it with message
+			{
+				if (configuration.canRefuse)
+					selectRewardWithMessage(h, rewards, configuration.info.at(rewards.front()).message);
+				else
+					grantRewardWithMessage(h, rewards.front(), true);
+				break;
+			}
+			default: // multiple rewards. Act according to select mode
+			{
+				switch (configuration.selectMode) {
+					case Rewardable::SELECT_PLAYER: // player must select
+						selectRewardWithMessage(h, rewards, configuration.onSelect);
+						break;
+					case Rewardable::SELECT_FIRST: // give first available
+						if (configuration.canRefuse)
+							selectRewardWithMessage(h, { rewards.front() }, configuration.info.at(rewards.front()).message);
+						else
+							grantRewardWithMessage(h, rewards.front(), true);
+						break;
+					case Rewardable::SELECT_RANDOM: // give random
+					{
+						ui32 rewardIndex = *RandomGeneratorUtil::nextItem(rewards, getObject()->cb->getRandomGenerator());
+						if (configuration.canRefuse)
+							selectRewardWithMessage(h, { rewardIndex }, configuration.info.at(rewardIndex).message);
+						else
+							grantRewardWithMessage(h, rewardIndex, true);
+						break;
+					}
+					case Rewardable::SELECT_ALL: // grant all possible
+						grantAllRewardsWithMessage(h, rewards, true);
+						break;
+				}
+				break;
+			}
+		}
+
+		if(!objectRemovalPossible && getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
+			markAsScouted(h);
+	}
+	else
+	{
+		logGlobal->debug("Revisiting already visited object");
+
+		if (!wasVisited(h->getOwner()))
+			markAsScouted(h);
+
+		auto visitedRewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_ALREADY_VISITED);
+		if (!visitedRewards.empty())
+			grantRewardWithMessage(h, visitedRewards[0], false);
+		else
+			logMod->warn("No applicable message for visiting already visited object!");
+	}
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -49,7 +49,10 @@ public:
 
 	virtual bool givesBonuses() const { return false; }
 
+	virtual bool hasGuards() const { return false; }
+
 	virtual ~IObjectInfo() = default;
+
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -147,7 +147,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 				if (!locked && !takeable)
 				{
 					logGlobal->debug("Removing artifact %s from slot %d of hero %s", art->artType->getJsonKey(), al.slot.getNum(), hero.hero->getHeroTypeName());
-					hero.hero->getArt(al.slot)->removeFrom(*hero.hero, al.slot);
+					gameState->map->removeArtifactInstance(*hero.hero, al.slot);
 					return true;
 				}
 				return false;
@@ -327,7 +327,7 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 			CArtifactInstance * scroll = ArtifactUtils::createScroll(SpellID(curBonus->info2));
 			const auto slot = ArtifactUtils::getArtAnyPosition(hero, scroll->getTypeId());
 			if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
-				scroll->putAt(*hero, slot);
+				gameState->map->putArtifactInstance(*hero, scroll, slot);
 			else
 				logGlobal->error("Cannot give starting scroll - no free slots!");
 			break;
@@ -423,7 +423,7 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 			auto * artifact = donorHero->getArt(artLocation);
 
 			logGlobal->debug("Removing artifact %s from slot %d of hero %s for transfer", artifact->artType->getJsonKey(), artLocation.getNum(), donorHero->getHeroTypeName());
-			artifact->removeFrom(*donorHero, artLocation);
+			gameState->map->removeArtifactInstance(*donorHero, artLocation);
 
 			if (receiver)
 			{
@@ -431,7 +431,7 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 
 				const auto slot = ArtifactUtils::getArtAnyPosition(receiver, artifact->getTypeId());
 				if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
-					artifact->putAt(*receiver, slot);
+					gameState->map->putArtifactInstance(*receiver, artifact, slot);
 				else
 					logGlobal->error("Cannot transfer artifact - no free slots!");
 			}
