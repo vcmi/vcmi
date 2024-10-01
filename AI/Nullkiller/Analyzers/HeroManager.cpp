@@ -284,7 +284,7 @@ const CGHeroInstance * HeroManager::findHeroWithGrail() const
 	return nullptr;
 }
 
-const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit) const
+const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit, const CGTownInstance* townToSpare) const
 {
 	const CGHeroInstance * weakestHero = nullptr;
 	auto myHeroes = ai->cb->getHeroesInfo();
@@ -295,6 +295,7 @@ const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit) co
 			|| existingHero->getArmyStrength() >armyLimit
 			|| getHeroRole(existingHero) == HeroRole::MAIN
 			|| existingHero->movementPointsRemaining()
+			|| (townToSpare != nullptr && existingHero->visitedTown == townToSpare)
 			|| existingHero->artifactsWorn.size() > (existingHero->hasSpellbook() ? 2 : 1))
 		{
 			continue;

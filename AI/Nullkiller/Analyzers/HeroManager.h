@@ -58,7 +58,7 @@ public:
 	bool canRecruitHero(const CGTownInstance * t = nullptr) const;
 	bool heroCapReached(bool includeGarrisoned = true) const;
 	const CGHeroInstance * findHeroWithGrail() const;
-	const CGHeroInstance * findWeakHeroToDismiss(uint64_t armyLimit) const;
+	const CGHeroInstance * findWeakHeroToDismiss(uint64_t armyLimit, const CGTownInstance * townToSpare = nullptr) const;
 	float getMagicStrength(const CGHeroInstance * hero) const;
 	float getFightingStrengthCached(const CGHeroInstance * hero) const;
 

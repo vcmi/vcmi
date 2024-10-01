@@ -354,21 +354,12 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			{
 				if(town->garrisonHero && town->garrisonHero != path.targetHero)
 				{
-					if(ai->heroManager->getHeroRole(town->visitingHero.get()) == HeroRole::SCOUT
-						&& town->visitingHero->getArmyStrength() < path.heroArmy->getArmyStrength() / 20)
-					{
-						if(path.turn() == 0)
-							sequence.push_back(sptr(DismissHero(town->visitingHero.get())));
-					}
-					else
-					{
 #if NKAI_TRACE_LEVEL >= 1
-						logAi->trace("Cancel moving %s to defend town %s as the town has garrison hero",
-							path.targetHero->getObjectName(),
-							town->getObjectName());
+					logAi->trace("Cancel moving %s to defend town %s as the town has garrison hero",
+						path.targetHero->getObjectName(),
+						town->getObjectName());
 #endif
-						continue;
-					}
+					continue;
 				}
 				else if(path.turn() == 0)
 				{
@@ -414,7 +405,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town, const Nullkiller * ai) const
 {
-	if (threat.turn > 0)
+	if (threat.turn > 0 || town->garrisonHero || town->visitingHero)
 		return;
 	
 	if(town->hasBuilt(BuildingID::TAVERN)
@@ -463,7 +454,7 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 			}
 			else if(ai->heroManager->heroCapReached())
 			{
-				heroToDismiss = ai->heroManager->findWeakHeroToDismiss(hero->getArmyStrength());
+				heroToDismiss = ai->heroManager->findWeakHeroToDismiss(hero->getArmyStrength(), town);
 
 				if(!heroToDismiss)
 					continue;
