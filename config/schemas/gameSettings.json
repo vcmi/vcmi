@@ -148,7 +148,7 @@
 				"perHero" : { "type" : "object" }
 			}
 		},
-		"general": {
+		"interface": {
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {

@@ -557,7 +557,7 @@
 			}
 		},
 
-		"general" :
+		"interface" :
 		{
 			// Color transform to make color of brown DIBOX.PCX texture match color of specified player
 			"playerColoredBackground" :

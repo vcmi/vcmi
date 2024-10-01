@@ -143,7 +143,7 @@ void AssetGenerator::createPlayerColoredBackground(const PlayerColor & player)
 	std::shared_ptr<IImage> texture = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
 
 	// transform to make color of brown DIBOX.PCX texture match color of specified player
-	auto filterSettings = VLC->settingsHandler->getFullConfig()["general"]["playerColoredBackground"];
+	auto filterSettings = VLC->settingsHandler->getFullConfig()["interface"]["playerColoredBackground"];
 	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
 		ColorFilter::genRangeShifter( filterSettings["red"   ].convertTo<std::vector<float>>() ),
 		ColorFilter::genRangeShifter( filterSettings["blue"  ].convertTo<std::vector<float>>() ),
