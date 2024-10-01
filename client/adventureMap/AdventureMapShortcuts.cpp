@@ -114,7 +114,8 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_MOVE_HERO_NW,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({-1, -1}); } },
 		{ EShortcut::ADVENTURE_MOVE_HERO_NN,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({ 0, -1}); } },
 		{ EShortcut::ADVENTURE_MOVE_HERO_NE,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({+1, -1}); } },
-		{ EShortcut::ADVENTURE_SEARCH,           optionSidePanelActive(),[this]() { this->search(); } }
+		{ EShortcut::ADVENTURE_SEARCH,           optionSidePanelActive(),[this]() { this->search(false); } },
+		{ EShortcut::ADVENTURE_SEARCH_CONTINUE,  optionSidePanelActive(),[this]() { this->search(true); } }
 	};
 	return result;
 }
@@ -462,7 +463,7 @@ void AdventureMapShortcuts::zoom( int distance)
 	owner.hotkeyZoom(distance, false);
 }
 
-void AdventureMapShortcuts::search()
+void AdventureMapShortcuts::search(bool next)
 {
 	// get all relevant objects
 	std::vector<ObjectInstanceID> visitableObjInstances;
@@ -501,8 +502,8 @@ void AdventureMapShortcuts::search()
 	for(auto & obj : textCountList)
 		texts.push_back(obj.first + " (" + std::to_string(obj.second) + ")");
 
-	GH.windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, CGI->generaltexth->translate("vcmi.adventureMap.search.hover"), CGI->generaltexth->translate("vcmi.adventureMap.search.help"),
-		[this, textCountList, visitableObjInstances](int index)
+	// function to center element from list on map
+	auto selectObjOnMap = [this, textCountList, visitableObjInstances](int index)
 		{
 			auto selObj = textCountList[index].first;
 
@@ -520,7 +521,12 @@ void AdventureMapShortcuts::search()
 			auto objInst = LOCPLINT->cb->getObjInstance(selVisitableObjInstances[searchPos]);
 			owner.centerOnObject(objInst);
 			searchLast = VLC->objtypeh->getObjectName(objInst->getObjGroupIndex(), objInst->getObjTypeIndex());
-		}, lastSel);
+		};
+
+	if(next)
+		selectObjOnMap(lastSel);
+	else
+		GH.windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, CGI->generaltexth->translate("vcmi.adventureMap.search.hover"), CGI->generaltexth->translate("vcmi.adventureMap.search.help"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel);
 }
 
 void AdventureMapShortcuts::nextObject()
