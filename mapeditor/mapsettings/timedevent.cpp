@@ -54,9 +54,9 @@ TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) 
 		ui->resources->setItem(i, 1, nval);
 	}
 	auto deletedObjectInstances = params.value("deletedObjectsInstances").toList();
-	for(auto const & obj : deletedObjectInstances)
+	for(auto const & idAsVariant : deletedObjectInstances)
 	{
-		auto id = ObjectInstanceID(obj.toInt());
+		auto id = ObjectInstanceID(idAsVariant.toInt());
 		auto obj = controller.map()->objects[id];
 		if(obj)
 			insertObjectToDelete(obj);

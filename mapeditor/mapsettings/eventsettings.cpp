@@ -68,9 +68,9 @@ QVariant toVariant(std::vector<ObjectInstanceID> objects)
 std::vector<ObjectInstanceID> deletedObjectsIdsFromVariant(const QVariant & v)
 {
 	std::vector<ObjectInstanceID> result;
-	for(auto isAsVariant : v.toList())
+	for(auto idAsVariant : v.toList())
 	{
-		auto id = isAsVariant.value<int>();
+		auto id = idAsVariant.value<int>();
 		result.push_back(ObjectInstanceID(id));
 	}
 
