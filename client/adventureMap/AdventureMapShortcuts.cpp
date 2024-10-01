@@ -24,6 +24,7 @@
 #include "../windows/CKingdomInterface.h"
 #include "../windows/CSpellWindow.h"
 #include "../windows/CMarketWindow.h"
+#include "../windows/GUIClasses.h"
 #include "../windows/settings/SettingsMainWindow.h"
 #include "AdventureMapInterface.h"
 #include "AdventureOptions.h"
@@ -461,8 +462,6 @@ void AdventureMapShortcuts::zoom( int distance)
 
 void AdventureMapShortcuts::search()
 {
-	LOCPLINT->showInfoDialog("search");
-
 	std::vector<ObjectInstanceID> visitableObjInstances;
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	for(int x = 0; x < mapSizes.x; x++)
@@ -477,19 +476,36 @@ void AdventureMapShortcuts::search()
 		mapObjCount[LOCPLINT->cb->getObjInstance(obj)->getObjGroupIndex()]++;
 
 	// sort by name
-	std::vector<std::pair<int, int>> mapObjCountList;
+	std::vector<std::pair<MapObjectID, int>> mapObjCountList;
 	for (auto itr = mapObjCount.begin(); itr != mapObjCount.end(); ++itr)
 		mapObjCountList.push_back(*itr);
 	std::sort(mapObjCountList.begin(), mapObjCountList.end(),
-		[=](std::pair<int, int>& a, std::pair<int, int>& b)
+		[=](std::pair<MapObjectID, int>& a, std::pair<MapObjectID, int>& b)
 		{
 			return VLC->objtypeh->getObjectName(a.first, 0) < VLC->objtypeh->getObjectName(b.first, 0);
 		}
 	);
 
-	//TODO show table as popup
+	std::vector<std::string> texts;
 	for(auto & obj : mapObjCountList)
-		std::cout << VLC->objtypeh->getObjectName(obj.first, 0) << "   " << obj.second << "\n";
+		texts.push_back(VLC->objtypeh->getObjectName(obj.first, 0) + " (" + std::to_string(obj.second) + ")");
+
+	GH.windows().createAndPushWindow<CObjectListWindow>(texts, nullptr,
+									CGI->generaltexth->translate("vcmi.adventureMap.search.hover"),
+									CGI->generaltexth->translate("vcmi.adventureMap.search.help"),
+									[this, mapObjCountList, visitableObjInstances](int index)
+									{
+										auto selObj = mapObjCountList[index].first;
+										for(auto & obj : visitableObjInstances)
+										{
+											auto objInst = LOCPLINT->cb->getObjInstance(obj);
+											if(selObj == objInst->getObjGroupIndex())
+												owner.centerOnObject(objInst);
+										}
+											
+
+									},
+									0);
 }
 
 void AdventureMapShortcuts::nextObject()

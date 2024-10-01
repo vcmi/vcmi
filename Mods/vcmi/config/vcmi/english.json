@@ -13,6 +13,8 @@
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Deadly",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Impossible",
 	"vcmi.adventureMap.monsterLevel"            : "\n\nLevel %LEVEL %TOWN unit",
+	"vcmi.adventureMap.search.hover"            : "Search map object",
+	"vcmi.adventureMap.search.help"             : "Select object to search on map.",
 
 	"vcmi.adventureMap.confirmRestartGame"               : "Are you sure you want to restart the game?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "There are no available marketplaces!",
