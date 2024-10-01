@@ -10,8 +10,6 @@
 
 #pragma once
 
-#include "../../lib/constants/EntityIdentifiers.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 class Rect;
