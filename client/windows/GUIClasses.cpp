@@ -1479,7 +1479,7 @@ void CObjectListWindow::CItem::showPopupWindow(const Point & cursorPosition)
 		parent->onPopup(index);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images)
+CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPGATE")),
 	onSelect(Callback),
 	selected(initialSelection),
@@ -1489,15 +1489,14 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	items.reserve(_items.size());
 
 	for(int id : _items)
-	{
 		items.push_back(std::make_pair(id, LOCPLINT->cb->getObjInstance(ObjectInstanceID(id))->getObjectName()));
-	}
+	itemsVisible = items;
 
-	init(titleWidget_, _title, _descr);
+	init(titleWidget_, _title, _descr, searchBoxEnabled);
 	list->scrollTo(initialSelection);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images)
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPGATE")),
 	onSelect(Callback),
 	selected(initialSelection),
@@ -1508,12 +1507,13 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 
 	for(size_t i=0; i<_items.size(); i++)
 		items.push_back(std::make_pair(int(i), _items[i]));
+	itemsVisible = items;
 
-	init(titleWidget_, _title, _descr);
+	init(titleWidget_, _title, _descr, searchBoxEnabled);
 	list->scrollTo(initialSelection);
 }
 
-void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr)
+void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled)
 {
 	titleWidget = titleWidget_;
 
@@ -1528,24 +1528,51 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 		titleWidget->pos.y =75 + pos.y - titleWidget->pos.h/2;
 	}
 	list = std::make_shared<CListBox>(std::bind(&CObjectListWindow::genItem, this, _1),
-		Point(14, 151), Point(0, 25), 9, items.size(), 0, 1, Rect(262, -32, 256, 256) );
+		Point(14, 151), Point(0, 25), 9, itemsVisible.size(), 0, 1, Rect(262, -32, 256, 256) );
 	list->setRedrawParent(true);
 
 	ok = std::make_shared<CButton>(Point(15, 402), AnimationPath::builtin("IOKAY.DEF"), CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), EShortcut::GLOBAL_ACCEPT);
 	ok->block(!list->size());
+
+	if(!searchBoxEnabled)
+		return;
+
+	Rect r(50, 90, pos.w - 100, 16);
+	const ColorRGBA rectangleColor = ColorRGBA(0, 0, 0, 75);
+	const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
+	const ColorRGBA grayedColor = ColorRGBA(158, 130, 105);
+	searchBoxRectangle = std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor);
+	searchBoxDescription = std::make_shared<CLabel>(r.center().x, r.center().y, FONT_SMALL, ETextAlignment::CENTER, grayedColor, CGI->generaltexth->translate("vcmi.spellBook.search"));
+
+	searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, ETextAlignment::CENTER, true);
+	searchBox->setCallback([this](const std::string & text){
+		searchBoxDescription->setEnabled(text.empty());
+
+		itemsVisible.clear();
+		for(auto & item : items)
+			if(boost::algorithm::contains(boost::algorithm::to_lower_copy(item.second), boost::algorithm::to_lower_copy(text)))
+				itemsVisible.push_back(item);
+
+		selected = 0;
+		list->resize(itemsVisible.size());
+		list->scrollTo(0);
+		ok->block(!itemsVisible.size());
+
+		redraw();
+	});
 }
 
 std::shared_ptr<CIntObject> CObjectListWindow::genItem(size_t index)
 {
-	if(index < items.size())
-		return std::make_shared<CItem>(this, index, items[index].second);
+	if(index < itemsVisible.size())
+		return std::make_shared<CItem>(this, index, itemsVisible[index].second);
 	return std::shared_ptr<CIntObject>();
 }
 
 void CObjectListWindow::elementSelected()
 {
 	std::function<void(int)> toCall = onSelect;//save
-	int where = items[selected].first;      //required variables
+	int where = itemsVisible[selected].first;      //required variables
 	close();//then destroy window
 	toCall(where);//and send selected object
 }
@@ -1601,13 +1628,13 @@ void CObjectListWindow::keyPressed(EShortcut key)
 		sel = 0;
 
 	break; case EShortcut::MOVE_LAST:
-		sel = static_cast<int>(items.size());
+		sel = static_cast<int>(itemsVisible.size());
 
 	break; default:
 		return;
 	}
 
-	vstd::abetween<int>(sel, 0, items.size()-1);
+	vstd::abetween<int>(sel, 0, itemsVisible.size()-1);
 	list->scrollTo(sel);
 	changeSelection(sel);
 }
