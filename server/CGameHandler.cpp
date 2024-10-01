@@ -1194,7 +1194,7 @@ void CGameHandler::visitCastleObjects(const CGTownInstance * t, std::vector<cons
 
 	for (auto & building : t->rewardableBuildings)
 	{
-		if (!t->town->buildings.at(building.first)->manualHeroVisit)
+		if (!t->town->buildings.at(building.first)->manualHeroVisit && t->hasBuilt(building.first))
 			buildingsToVisit.push_back(building.first);
 	}
 
