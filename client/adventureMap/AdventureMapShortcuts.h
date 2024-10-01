@@ -71,6 +71,7 @@ class AdventureMapShortcuts
 	void nextTown();
 	void nextObject();
 	void zoom( int distance);
+	void search();
 	void moveHeroDirectional(const Point & direction);
 
 public:

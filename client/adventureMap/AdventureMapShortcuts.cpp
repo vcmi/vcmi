@@ -36,6 +36,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/pathfinder/CGPathNode.h"
+#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 
 AdventureMapShortcuts::AdventureMapShortcuts(AdventureMapInterface & owner)
 	: owner(owner)
@@ -109,7 +110,8 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_MOVE_HERO_EE,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({+1,  0}); } },
 		{ EShortcut::ADVENTURE_MOVE_HERO_NW,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({-1, -1}); } },
 		{ EShortcut::ADVENTURE_MOVE_HERO_NN,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({ 0, -1}); } },
-		{ EShortcut::ADVENTURE_MOVE_HERO_NE,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({+1, -1}); } }
+		{ EShortcut::ADVENTURE_MOVE_HERO_NE,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({+1, -1}); } },
+		{ EShortcut::ADVENTURE_SEARCH,           optionSidePanelActive(),[this]() { this->search(); } }
 	};
 	return result;
 }
@@ -455,6 +457,39 @@ void AdventureMapShortcuts::nextTown()
 void AdventureMapShortcuts::zoom( int distance)
 {
 	owner.hotkeyZoom(distance, false);
+}
+
+void AdventureMapShortcuts::search()
+{
+	LOCPLINT->showInfoDialog("search");
+
+	std::vector<ObjectInstanceID> visitableObjInstances;
+	int3 mapSizes = LOCPLINT->cb->getMapSize();
+	for(int x = 0; x < mapSizes.x; x++)
+		for(int y = 0; y < mapSizes.y; y++)
+			for(int z = 0; z < mapSizes.z; z++)
+				for(auto & obj : LOCPLINT->cb->getVisitableObjs(int3(x, y, z), false))
+					visitableObjInstances.push_back(obj->id);
+
+	// count of elements for each group
+	std::map<MapObjectID, int> mapObjCount;
+	for(auto & obj : visitableObjInstances)
+		mapObjCount[LOCPLINT->cb->getObjInstance(obj)->getObjGroupIndex()]++;
+
+	// sort by name
+	std::vector<std::pair<int, int>> mapObjCountList;
+	for (auto itr = mapObjCount.begin(); itr != mapObjCount.end(); ++itr)
+		mapObjCountList.push_back(*itr);
+	std::sort(mapObjCountList.begin(), mapObjCountList.end(),
+		[=](std::pair<int, int>& a, std::pair<int, int>& b)
+		{
+			return VLC->objtypeh->getObjectName(a.first, 0) < VLC->objtypeh->getObjectName(b.first, 0);
+		}
+	);
+
+	//TODO show table as popup
+	for(auto & obj : mapObjCountList)
+		std::cout << VLC->objtypeh->getObjectName(obj.first, 0) << "   " << obj.second << "\n";
 }
 
 void AdventureMapShortcuts::nextObject()

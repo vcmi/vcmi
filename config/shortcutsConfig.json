@@ -56,6 +56,7 @@
 		"adventureZoomIn":          "Keypad +",
 		"adventureZoomOut":         "Keypad -",
 		"adventureZoomReset":       "Backspace",
+		"adventureSearch":          "Ctrl+F",
 		"battleAutocombat":         "A",
 		"battleAutocombatEnd":      "Q",
 		"battleCastSpell":          "C",
