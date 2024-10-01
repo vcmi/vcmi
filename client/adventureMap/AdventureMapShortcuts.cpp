@@ -43,7 +43,7 @@ AdventureMapShortcuts::AdventureMapShortcuts(AdventureMapInterface & owner)
 	: owner(owner)
 	, state(EAdventureState::NOT_INITIALIZED)
 	, mapLevel(0)
-	, searchLast(MapObjectID::NO_OBJ)
+	, searchLast({MapObjectID::NO_OBJ, 0})
 	, searchPos(0)
 {}
 
@@ -471,21 +471,22 @@ void AdventureMapShortcuts::search()
 		for(int y = 0; y < mapSizes.y; y++)
 			for(int z = 0; z < mapSizes.z; z++)
 				for(auto & obj : LOCPLINT->cb->getVisitableObjs(int3(x, y, z), false))
-					visitableObjInstances.push_back(obj->id);
+					if(obj->ID != MapObjectID::MONSTER && obj->ID != MapObjectID::EVENT && obj->ID != MapObjectID::HERO)
+						visitableObjInstances.push_back(obj->id);
 
 	// count of elements for each group
-	std::map<MapObjectID, int> mapObjCount;
+	std::map<std::pair<MapObjectID, MapObjectSubID>, int> mapObjCount;
 	for(auto & obj : visitableObjInstances)
-		mapObjCount[LOCPLINT->cb->getObjInstance(obj)->getObjGroupIndex()]++;
+		mapObjCount[{ LOCPLINT->cb->getObjInstance(obj)->getObjGroupIndex(), LOCPLINT->cb->getObjInstance(obj)->getObjTypeIndex() }]++;
 
 	// sort by name
-	std::vector<std::pair<MapObjectID, int>> mapObjCountList;
+	std::vector<std::pair<std::pair<MapObjectID, MapObjectSubID>, int>> mapObjCountList;
 	for (auto itr = mapObjCount.begin(); itr != mapObjCount.end(); ++itr)
 		mapObjCountList.push_back(*itr);
 	std::sort(mapObjCountList.begin(), mapObjCountList.end(),
-		[=](std::pair<MapObjectID, int>& a, std::pair<MapObjectID, int>& b)
+		[=](std::pair<std::pair<MapObjectID, MapObjectSubID>, int>& a, std::pair<std::pair<MapObjectID, MapObjectSubID>, int>& b)
 		{
-			return VLC->objtypeh->getObjectName(a.first, 0) < VLC->objtypeh->getObjectName(b.first, 0);
+			return VLC->objtypeh->getObjectName(a.first.first, a.first.second) < VLC->objtypeh->getObjectName(b.first.first, b.first.second);
 		}
 	);
 
@@ -498,7 +499,7 @@ void AdventureMapShortcuts::search()
 	// create texts
 	std::vector<std::string> texts;
 	for(auto & obj : mapObjCountList)
-		texts.push_back(VLC->objtypeh->getObjectName(obj.first, 0) + " (" + std::to_string(obj.second) + ")");
+		texts.push_back(VLC->objtypeh->getObjectName(obj.first.first, obj.first.second) + " (" + std::to_string(obj.second) + ")");
 
 	GH.windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, CGI->generaltexth->translate("vcmi.adventureMap.search.hover"), CGI->generaltexth->translate("vcmi.adventureMap.search.help"),
 		[this, mapObjCountList, visitableObjInstances](int index)
@@ -508,7 +509,7 @@ void AdventureMapShortcuts::search()
 			// filter for matching objects
 			std::vector<ObjectInstanceID> selVisitableObjInstances;
 			for(auto & obj : visitableObjInstances)
-				if(selObj == LOCPLINT->cb->getObjInstance(obj)->getObjGroupIndex())
+				if(selObj == std::pair<MapObjectID, MapObjectSubID>{ LOCPLINT->cb->getObjInstance(obj)->getObjGroupIndex(), LOCPLINT->cb->getObjInstance(obj)->getObjTypeIndex() })
 					selVisitableObjInstances.push_back(obj);
 			
 			if(searchPos + 1 < selVisitableObjInstances.size() && searchLast == selObj)
@@ -518,7 +519,7 @@ void AdventureMapShortcuts::search()
 
 			auto objInst = LOCPLINT->cb->getObjInstance(selVisitableObjInstances[searchPos]);
 			owner.centerOnObject(objInst);
-			searchLast = objInst->getObjGroupIndex();
+			searchLast = { objInst->getObjGroupIndex(), objInst->getObjTypeIndex() };
 		}, lastSel);
 }
 
