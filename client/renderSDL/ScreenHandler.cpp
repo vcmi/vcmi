@@ -93,6 +93,22 @@ Point ScreenHandler::getPreferredLogicalResolution() const
 	auto [minimalScaling, maximalScaling] = getSupportedScalingRange();
 
 	int userScaling = settings["video"]["resolution"]["scaling"].Integer();
+
+	if (userScaling == 0) // autodetection
+	{
+#ifdef VCMI_MOBILE
+		// for mobiles - stay at maximum scaling unless we have large screen
+		// might be better to check screen DPI / physical dimensions, but way more complex, and may result in different edge cases, e.g. chromebooks / tv's
+		int preferredMinimalScaling = 200;
+#else
+		// for PC - avoid downscaling if possible
+		int preferredMinimalScaling = 100;
+#endif
+		// prefer a little below maximum - to give space for extended UI
+		int preferredMaximalScaling = maximalScaling * 10 / 12;
+		userScaling = std::max(std::min(maximalScaling, preferredMinimalScaling), preferredMaximalScaling);
+	}
+
 	int scaling = std::clamp(userScaling, minimalScaling, maximalScaling);
 
 	Point logicalResolution = availableResolution * 100.0 / scaling;
