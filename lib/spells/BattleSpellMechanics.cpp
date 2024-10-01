@@ -217,22 +217,27 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 
 	const battle::Unit * mainTarget = nullptr;
 
-	if (!getSpell()->canCastOnSelf())
+	if(spellTarget.front().unitValue)
 	{
-		if(spellTarget.front().unitValue)
-		{
-			mainTarget = target.front().unitValue;
-		}
-		else if(spellTarget.front().hexValue.isValid())
-		{
-			mainTarget = battle()->battleGetUnitByPos(target.front().hexValue, true);
-		}
+		mainTarget = target.front().unitValue;
+	}
+	else if(spellTarget.front().hexValue.isValid())
+	{
+		mainTarget = battle()->battleGetUnitByPos(target.front().hexValue, true);
+	}
 
+	if (!getSpell()->canCastOnSelf() && !getSpell()->canCastOnlyOnSelf())
+	{
 		if(mainTarget && mainTarget == caster)
 			return false; // can't cast on self
 
 		if(mainTarget && mainTarget->hasBonusOfType(BonusType::INVINCIBLE) && !getSpell()->getPositiveness())
 			return false;
+	}
+	else if(getSpell()->canCastOnlyOnSelf())
+	{
+		if(mainTarget && mainTarget != caster)
+			return false; // can't cast on others
 	}
 
 	return effects->applicable(problem, this, target, spellTarget);
