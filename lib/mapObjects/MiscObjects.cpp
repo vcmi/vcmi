@@ -772,9 +772,8 @@ void CGArtifact::initObj(vstd::RNG & rand)
 	{
 		if (!storedArtifact)
 		{
-			auto * a = new CArtifactInstance();
-			cb->gameState()->map->addNewArtifactInstance(a);
-			storedArtifact = a;
+			storedArtifact = ArtifactUtils::createArtifact(ArtifactID());
+			cb->gameState()->map->addNewArtifactInstance(storedArtifact);
 		}
 		if(!storedArtifact->artType)
 			storedArtifact->setType(getArtifact().toArtifact());
@@ -901,7 +900,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 
 void CGArtifact::pick(const CGHeroInstance * h) const
 {
-	if(cb->putArtifact(ArtifactLocation(h->id, ArtifactPosition::FIRST_AVAILABLE), storedArtifact))
+	if(cb->putArtifact(ArtifactLocation(h->id, ArtifactPosition::FIRST_AVAILABLE), storedArtifact->getId()))
 		cb->removeObject(this, h->getOwner());
 }
 

@@ -49,13 +49,13 @@ const std::vector<CCombinedArtifactInstance::PartInfo> & CCombinedArtifactInstan
 	return partsInfo;
 }
 
-void CCombinedArtifactInstance::addPlacementMap(CArtifactSet::ArtPlacementMap & placementMap)
+void CCombinedArtifactInstance::addPlacementMap(const CArtifactSet::ArtPlacementMap & placementMap)
 {
 	if(!placementMap.empty())
 		for(auto & part : partsInfo)
 		{
-			assert(placementMap.find(part.art) != placementMap.end());
-			part.slot = placementMap.at(part.art);
+			if(placementMap.find(part.art) != placementMap.end())
+				part.slot = placementMap.at(part.art);
 		}
 }
 
@@ -165,28 +165,6 @@ bool CArtifactInstance::isCombined() const
 bool CArtifactInstance::isScroll() const
 {
 	return artType->isScroll();
-}
-
-void CArtifactInstance::putAt(CArtifactSet & set, const ArtifactPosition slot)
-{
-	auto placementMap = set.putArtifact(slot, this);
-	addPlacementMap(placementMap);
-}
-
-void CArtifactInstance::removeFrom(CArtifactSet & set, const ArtifactPosition slot)
-{
-	set.removeArtifact(slot);
-	for(auto & part : partsInfo)
-	{
-		if(part.slot != ArtifactPosition::PRE_FIRST)
-			part.slot = ArtifactPosition::PRE_FIRST;
-	}
-}
-
-void CArtifactInstance::move(CArtifactSet & srcSet, const ArtifactPosition srcSlot, CArtifactSet & dstSet, const ArtifactPosition dstSlot)
-{
-	removeFrom(srcSet, srcSlot);
-	putAt(dstSet, dstSlot);
 }
 
 void CArtifactInstance::deserializationFix()

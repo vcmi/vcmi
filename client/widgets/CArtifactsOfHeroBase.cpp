@@ -137,9 +137,9 @@ void CArtifactsOfHeroBase::scrollBackpack(bool left)
 	LOCPLINT->cb->scrollBackpackArtifacts(curHero->id, left);
 }
 
-void CArtifactsOfHeroBase::markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved)
+void CArtifactsOfHeroBase::markPossibleSlots(const CArtifact * art, bool assumeDestRemoved)
 {
-	for(auto artPlace : artWorn)
+	for(const auto & artPlace : artWorn)
 		artPlace.second->selectSlot(art->canBePutAt(curHero, artPlace.second->slot, assumeDestRemoved));
 }
 
@@ -271,7 +271,7 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 			arts.try_emplace(combinedArt->getId(), std::vector<ArtifactID>{});
 			for(const auto part : combinedArt->getConstituents())
 			{
-				if(curHero->hasArt(part->getId(), false, false, false))
+				if(curHero->hasArt(part->getId(), false, false))
 					arts.at(combinedArt->getId()).emplace_back(part->getId());
 			}
 		}

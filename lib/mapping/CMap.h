@@ -110,6 +110,9 @@ public:
 	void addNewArtifactInstance(CArtifactSet & artSet);
 	void addNewArtifactInstance(ConstTransitivePtr<CArtifactInstance> art);
 	void eraseArtifactInstance(CArtifactInstance * art);
+	void moveArtifactInstance(CArtifactSet & srcSet, const ArtifactPosition & srcSlot, CArtifactSet & dstSet, const ArtifactPosition & dstSlot);
+	void putArtifactInstance(CArtifactSet & set, CArtifactInstance * art, const ArtifactPosition & slot);
+	void removeArtifactInstance(CArtifactSet & set, const ArtifactPosition & slot);
 
 	void addNewQuestInstance(CQuest * quest);
 	void removeQuestInstance(CQuest * quest);

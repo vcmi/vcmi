@@ -917,7 +917,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 
 		hero->artifactsInBackpack.clear();
 		while(!hero->artifactsWorn.empty())
-			hero->eraseArtSlot(hero->artifactsWorn.begin()->first);
+			hero->removeArtifact(hero->artifactsWorn.begin()->first);
 	}
 
 	for(int i = 0; i < features.artifactSlotsCount; i++)
@@ -959,7 +959,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	if(ArtifactID(artifactID).toArtifact()->canBePutAt(hero, ArtifactPosition(slot)))
 	{
 		auto * artifact = ArtifactUtils::createArtifact(artifactID);
-		artifact->putAt(*hero, ArtifactPosition(slot));
+		map->putArtifactInstance(*hero, artifact, slot);
 		map->addNewArtifactInstance(artifact);
 	}
 	else
