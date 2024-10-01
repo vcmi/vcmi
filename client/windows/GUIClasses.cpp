@@ -1494,6 +1494,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	}
 
 	init(titleWidget_, _title, _descr);
+	list->scrollTo(initialSelection);
 }
 
 CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images)
@@ -1509,6 +1510,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 		items.push_back(std::make_pair(int(i), _items[i]));
 
 	init(titleWidget_, _title, _descr);
+	list->scrollTo(initialSelection);
 }
 
 void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr)

@@ -35,7 +35,7 @@ class AdventureMapShortcuts
 	EAdventureState state;
 	int mapLevel;
 
-	std::pair<MapObjectID, MapObjectSubID> searchLast;
+	std::string searchLast;
 	int searchPos;
 	
 	void showOverview();
