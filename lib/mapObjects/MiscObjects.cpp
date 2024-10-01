@@ -602,13 +602,13 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 
 		auto * hlp = dynamic_cast<CGSubterraneanGate *>(cb->gameState()->getObjInstance(obj->id));
 		if(hlp)
-			gatesSplit[hlp->pos.z].push_back(hlp);
+			gatesSplit[hlp->visitablePos().z].push_back(hlp);
 	}
 
 	//sort by position
 	std::sort(gatesSplit[0].begin(), gatesSplit[0].end(), [](const CGObjectInstance * a, const CGObjectInstance * b)
 	{
-		return a->pos < b->pos;
+		return a->visitablePos() < b->visitablePos();
 	});
 
 	auto assignToChannel = [&](CGSubterraneanGate * obj)
@@ -631,7 +631,7 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 			CGSubterraneanGate *checked = gatesSplit[1][j];
 			if(checked->channel != TeleportChannelID())
 				continue;
-			si32 hlp = checked->pos.dist2dSQ(objCurrent->pos);
+			si32 hlp = checked->visitablePos().dist2dSQ(objCurrent->visitablePos());
 			if(hlp < best.second)
 			{
 				best.first = j;
