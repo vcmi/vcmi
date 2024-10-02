@@ -110,7 +110,9 @@ std::string CGCreature::getPopupText(const CGHeroInstance * hero) const
 		hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.title");
 
 		int choice;
-		double ratio = (static_cast<double>(getArmyStrength()) / hero->getTotalStrength());
+		uint64_t armyStrength = getArmyStrength();
+		uint64_t heroStrength = hero->getTotalStrength();
+		double ratio = static_cast<double>(armyStrength) / heroStrength;
 		if (ratio < 0.1)  choice = 0;
 		else if (ratio < 0.25) choice = 1;
 		else if (ratio < 0.6)  choice = 2;
