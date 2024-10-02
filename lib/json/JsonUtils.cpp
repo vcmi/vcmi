@@ -275,4 +275,32 @@ JsonNode JsonUtils::assembleFromFiles(const std::string & filename)
 	return result;
 }
 
+void JsonUtils::detectConflicts(const JsonNode & left, const JsonNode & right, const std::string & entityName, const std::string & keyName)
+{
+	if (left == right)
+		return;
+
+	switch (left.getType())
+	{
+		case JsonNode::JsonType::DATA_NULL:
+		case JsonNode::JsonType::DATA_BOOL:
+		case JsonNode::JsonType::DATA_FLOAT:
+		case JsonNode::JsonType::DATA_INTEGER:
+		case JsonNode::JsonType::DATA_STRING:
+		case JsonNode::JsonType::DATA_VECTOR: // NOTE: comparing vectors as whole - since merge will overwrite it in its entirety
+		{
+			logMod->warn("Potential confict detected between '%s' and '%s' in object '%s'", left.getModScope(), right.getModScope(), entityName);
+			logMod->warn("Mod '%s' - value %s set to '%s'", left.getModScope(), keyName, left.toCompactString());
+			logMod->warn("Mod '%s' - value %s set to '%s'", right.getModScope(), keyName, right.toCompactString());
+			return;
+		}
+		case JsonNode::JsonType::DATA_STRUCT:
+		{
+			for(auto & node : left.Struct())
+				if (!right[node.first].isNull())
+					detectConflicts(node.second, right[node.first], entityName, keyName + "/" + node.first);
+		}
+	}
+}
+
 VCMI_LIB_NAMESPACE_END

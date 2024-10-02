@@ -79,6 +79,9 @@ bool ContentTypeHandler::preloadModData(const std::string & modName, const std::
 			logMod->trace("Patching object %s (%s) from %s", objectName, remoteName, modName);
 			JsonNode & remoteConf = modData[remoteName].patches[objectName];
 
+			if (!remoteConf.isNull())
+				JsonUtils::detectConflicts(remoteConf, entry.second, objectName, "<root>");
+
 			JsonUtils::merge(remoteConf, entry.second);
 		}
 	}
