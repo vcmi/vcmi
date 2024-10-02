@@ -1413,7 +1413,8 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 			|| node.layer != layer
 			|| node.action == EPathNodeAction::UNKNOWN
 			|| !node.actor
-			|| !node.actor->hero)
+			|| !node.actor->hero
+			|| node.actor->hero->getOwner() != ai->playerID)
 		{
 			continue;
 		}
