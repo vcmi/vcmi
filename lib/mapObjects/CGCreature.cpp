@@ -66,6 +66,18 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 	}
 }
 
+std::string CGCreature::getMonsterLevelText() const
+{
+	std::string monsterLevel = VLC->generaltexth->translate("vcmi.adventureMap.monsterLevel");
+	bool isRanged = VLC->creatures()->getById(getCreature())->getBonusBearer()->hasBonusOfType(BonusType::SHOOTER);
+	std::string attackTypeKey = isRanged ? "vcmi.adventureMap.monsterRangedType" : "vcmi.adventureMap.monsterMeleeType";
+	std::string attackType = VLC->generaltexth->translate(attackTypeKey);
+	boost::replace_first(monsterLevel, "%TOWN", (*VLC->townh)[VLC->creatures()->getById(getCreature())->getFaction()]->getNameTranslated());
+	boost::replace_first(monsterLevel, "%LEVEL", std::to_string(VLC->creatures()->getById(getCreature())->getLevel()));
+	boost::replace_first(monsterLevel, "%ATTACK_TYPE", attackType);
+	return monsterLevel;
+}
+
 std::string CGCreature::getPopupText(const CGHeroInstance * hero) const
 {
 	std::string hoverName;
@@ -102,11 +114,7 @@ std::string CGCreature::getPopupText(const CGHeroInstance * hero) const
 
 	if (settings["general"]["enableUiEnhancements"].Bool())
 	{
-		std::string monsterLevel = VLC->generaltexth->translate("vcmi.adventureMap.monsterLevel");
-		boost::replace_first(monsterLevel, "%TOWN", (*VLC->townh)[VLC->creatures()->getById(getCreature())->getFaction()]->getNameTranslated());
-		boost::replace_first(monsterLevel, "%LEVEL", std::to_string(VLC->creatures()->getById(getCreature())->getLevel()));
-		hoverName += monsterLevel;
-
+		hoverName += getMonsterLevelText();
 		hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.title");
 
 		int choice;
@@ -131,7 +139,12 @@ std::string CGCreature::getPopupText(const CGHeroInstance * hero) const
 
 std::string CGCreature::getPopupText(PlayerColor player) const
 {
-	return getHoverText(player);
+	std::string hoverName = getHoverText(player);
+	if (settings["general"]["enableUiEnhancements"].Bool())
+	{
+		hoverName += getMonsterLevelText();
+	}
+	return hoverName;
 }
 
 std::vector<Component> CGCreature::getPopupComponents(PlayerColor player) const
