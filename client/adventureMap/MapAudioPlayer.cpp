@@ -81,9 +81,9 @@ void MapAudioPlayer::addObject(const CGObjectInstance * obj)
 		{
 			for(int fy = 0; fy < obj->getHeight(); ++fy)
 			{
-				int3 currTile(obj->pos.x - fx, obj->pos.y - fy, obj->pos.z);
+				int3 currTile(obj->anchorPos().x - fx, obj->anchorPos().y - fy, obj->anchorPos().z);
 
-				if(LOCPLINT->cb->isInTheMap(currTile) && obj->coveringAt(currTile.x, currTile.y))
+				if(LOCPLINT->cb->isInTheMap(currTile) && obj->coveringAt(currTile))
 					objects[currTile.z][currTile.x][currTile.y].push_back(obj->id);
 			}
 		}
@@ -108,7 +108,7 @@ void MapAudioPlayer::addObject(const CGObjectInstance * obj)
 
 		for(const auto & tile : tiles)
 		{
-			int3 currTile = obj->pos + tile;
+			int3 currTile = obj->anchorPos() + tile;
 
 			if(LOCPLINT->cb->isInTheMap(currTile))
 				objects[currTile.z][currTile.x][currTile.y].push_back(obj->id);

@@ -864,7 +864,7 @@ void AIGateway::makeTurn()
 
 void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 {
-	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->pos.toString());
+	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->anchorPos().toString());
 	switch(obj->ID)
 	{
 	case Obj::TOWN:
@@ -1455,7 +1455,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 void AIGateway::buildStructure(const CGTownInstance * t, BuildingID building)
 {
 	auto name = t->town->buildings.at(building)->getNameTranslated();
-	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->getNameTranslated(), t->pos.toString());
+	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->getNameTranslated(), t->anchorPos().toString());
 	cb->buildBuilding(t, building); //just do this;
 }
 

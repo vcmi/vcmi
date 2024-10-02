@@ -375,7 +375,7 @@ void HeroMovementController::sendMovementRequest(const CGHeroInstance * h, const
 	{
 		updateMovementSound(h, currNode.coord, nextNode.coord, nextNode.action);
 
-		assert(h->pos.z == nextNode.coord.z); // Z should change only if it's movement via teleporter and in this case this code shouldn't be executed at all
+		assert(h->anchorPos().z == nextNode.coord.z); // Z should change only if it's movement via teleporter and in this case this code shouldn't be executed at all
 
 		logGlobal->trace("Requesting hero movement to %s", nextNode.coord.toString());
 

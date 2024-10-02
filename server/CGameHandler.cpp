@@ -803,7 +803,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		return false;
 	}
 
-	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.toString(), hid.getNum(), h->pos.toString(), dst.toString());
+	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.toString(), hid.getNum(), h->anchorPos().toString(), dst.toString());
 	const int3 hmpos = h->convertToVisitablePos(dst);
 
 	if (!gs->map->isInTheMap(hmpos))
@@ -902,7 +902,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	// should be called if hero changes tile but before applying TryMoveHero package
 	auto leaveTile = [&]()
 	{
-		for (CGObjectInstance *obj : gs->map->getTile(int3(h->pos.x-1, h->pos.y, h->pos.z)).visitableObjects)
+		for (CGObjectInstance *obj : gs->map->getTile(h->visitablePos()).visitableObjects)
 		{
 			obj->onHeroLeave(h);
 		}
@@ -4222,8 +4222,11 @@ CGObjectInstance * CGameHandler::createNewObject(const int3 & visitablePosition,
 	else
 		o->appearance = handler->getTemplates().front();
 
+	if (o->isVisitable())
+		o->setAnchorPos(visitablePosition + o->getVisitableOffset());
+	else
+		o->setAnchorPos(visitablePosition);
 
-	o->pos = visitablePosition + o->getVisitableOffset();
 	return o;
 }
 

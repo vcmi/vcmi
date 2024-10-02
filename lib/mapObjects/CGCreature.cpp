@@ -33,7 +33,7 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 	if(stacks.empty())
 	{
 		//should not happen...
-		logGlobal->error("Invalid stack at tile %s: subID=%d; id=%d", pos.toString(), getCreature(), id.getNum());
+		logGlobal->error("Invalid stack at tile %s: subID=%d; id=%d", anchorPos().toString(), getCreature(), id.getNum());
 		return "INVALID_STACK";
 	}
 
@@ -562,7 +562,7 @@ bool CGCreature::containsUpgradedStack() const
 	float c = 5325.181015f;
 	float d = 32788.727920f;
 
-	int val = static_cast<int>(std::floor(a * pos.x + b * pos.y + c * pos.z + d));
+	int val = static_cast<int>(std::floor(a * visitablePos().x + b * visitablePos().y + c * visitablePos().z + d));
 	return ((val % 32768) % 100) < 50;
 }
 
@@ -591,7 +591,7 @@ int CGCreature::getNumberOfStacks(const CGHeroInstance *hero) const
 	ui32 c = 1943276003u;
 	ui32 d = 3174620878u;
 
-	ui32 R1 = a * static_cast<ui32>(pos.x) + b * static_cast<ui32>(pos.y) + c * static_cast<ui32>(pos.z) + d;
+	ui32 R1 = a * static_cast<ui32>(visitablePos().x) + b * static_cast<ui32>(visitablePos().y) + c * static_cast<ui32>(visitablePos().z) + d;
 	ui32 R2 = (R1 >> 16) & 0x7fff;
 
 	int R4 = R2 % 100 + 1;

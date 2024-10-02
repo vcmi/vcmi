@@ -425,7 +425,7 @@ void ObjectsLayer::setDirty(const CGObjectInstance * object)
 	{
 		for(int i = 0; i < object->getWidth(); ++i)
 		{
-			setDirty(object->getPosition().x - i, object->getPosition().y - j);
+			setDirty(object->anchorPos().x - i, object->anchorPos().y - j);
 		}
 	}
 }
@@ -479,7 +479,7 @@ void SelectionObjectsLayer::draw()
 	{
 		if(obj != newObject)
 		{
-			QRect bbox(obj->getPosition().x, obj->getPosition().y, 1, 1);
+			QRect bbox(obj->anchorPos().x, obj->anchorPos().y, 1, 1);
 			for(auto & t : obj->getBlockedPos())
 			{
 				QPoint topLeft(std::min(t.x, bbox.topLeft().x()), std::min(t.y, bbox.topLeft().y()));
@@ -496,7 +496,7 @@ void SelectionObjectsLayer::draw()
 		if(selectionMode == SelectionMode::MOVEMENT && (shift.x() || shift.y()))
 		{
 			painter.setOpacity(0.7);
-			auto newPos = QPoint(obj->getPosition().x, obj->getPosition().y) + shift;
+			auto newPos = QPoint(obj->anchorPos().x, obj->anchorPos().y) + shift;
 			handler->drawObjectAt(painter, obj, newPos.x(), newPos.y());
 		}
 	}
@@ -517,7 +517,7 @@ CGObjectInstance * SelectionObjectsLayer::selectObjectAt(int x, int y, const CGO
 		if(!object.obj || object.obj == ignore || lockedObjects.count(object.obj))
 			continue;
 		
-		if(object.obj->visitableAt(x, y))
+		if(object.obj->visitableAt(int3(x, y, scene->level)))
 		{
 			return const_cast<CGObjectInstance*>(object.obj);
 		}
@@ -529,7 +529,7 @@ CGObjectInstance * SelectionObjectsLayer::selectObjectAt(int x, int y, const CGO
 		if(!object.obj || object.obj == ignore || lockedObjects.count(object.obj))
 			continue;
 		
-		if(object.obj->blockingAt(x, y))
+		if(object.obj->blockingAt(int3(x, y, scene->level)))
 		{
 			return const_cast<CGObjectInstance*>(object.obj);
 		}
@@ -541,7 +541,7 @@ CGObjectInstance * SelectionObjectsLayer::selectObjectAt(int x, int y, const CGO
 		if(!object.obj || object.obj == ignore || lockedObjects.count(object.obj))
 			continue;
 		
-		if(object.obj->coveringAt(x, y))
+		if(object.obj->coveringAt(int3(x, y, scene->level)))
 		{
 			return const_cast<CGObjectInstance*>(object.obj);
 		}

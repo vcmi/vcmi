@@ -283,7 +283,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 			gh.throwAndComplain(&pack, "Can not trade - no hero!");
 
 		// TODO: check that object is actually being visited (e.g. Query exists)
-		if (!object->visitableAt(hero->visitablePos().x, hero->visitablePos().y))
+		if (!object->visitableAt(hero->visitablePos()))
 			gh.throwAndComplain(&pack, "Can not trade - object not visited!");
 
 		if (object->getOwner().isValidPlayer() && gh.getPlayerRelations(object->getOwner(), hero->getOwner()) == PlayerRelations::ENEMIES)

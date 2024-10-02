@@ -913,7 +913,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 
 	if(!hero->artifactsWorn.empty() || !hero->artifactsInBackpack.empty())
 	{
-		logGlobal->debug("Hero %d at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getHeroType().getNum(), hero->pos.toString());
+		logGlobal->debug("Hero %d at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getHeroType().getNum(), hero->anchorPos().toString());
 
 		hero->artifactsInBackpack.clear();
 		while(!hero->artifactsWorn.empty())
@@ -1651,7 +1651,7 @@ void CMapLoaderH3M::readObjects()
 		if(!newObject)
 			continue;
 
-		newObject->pos = mapPosition;
+		newObject->setAnchorPos(mapPosition);
 		newObject->ID = objectTemplate->id;
 		newObject->id = objectInstanceID;
 		if(newObject->ID != Obj::HERO && newObject->ID != Obj::HERO_PLACEHOLDER && newObject->ID != Obj::PRISON)

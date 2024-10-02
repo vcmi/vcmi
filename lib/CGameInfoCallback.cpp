@@ -539,7 +539,7 @@ EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile, bool verbose) cons
 
 	for(const auto & object : gs->map->objects)
 	{
-		if(object && object->ID == Obj::HOLE && object->pos == tile)
+		if(object && object->ID == Obj::HOLE && object->anchorPos() == tile)
 			return EDiggingStatus::TILE_OCCUPIED;
 	}
 	return getTile(tile)->getDiggingStatus();

@@ -56,8 +56,6 @@ class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public I
 	std::set<BuildingID> builtBuildings;
 
 public:
-	using CGDwelling::getPosition;
-
 	enum EFortLevel {NONE = 0, FORT = 1, CITADEL = 2, CASTLE = 3};
 
 	CTownAndVisitingHero townAndVis;

@@ -449,7 +449,7 @@ void CGameState::initGrailPosition()
 		//remove tiles with holes
 		for(auto & elem : map->objects)
 			if(elem && elem->ID == Obj::HOLE)
-				allowedPos -= elem->pos;
+				allowedPos -= elem->anchorPos();
 
 		if(!allowedPos.empty())
 		{
@@ -495,7 +495,7 @@ void CGameState::randomizeMapObjects()
 			{
 				for (int j = 0; j < object->getHeight() ; j++)
 				{
-					int3 pos = object->pos - int3(i,j,0);
+					int3 pos = object->anchorPos() - int3(i,j,0);
 					if(map->isInTheMap(pos)) map->getTile(pos).extTileFlags |= 128;
 				}
 			}
@@ -530,7 +530,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 {
 	for(auto town : map->towns)
 	{
-		if(town->getPosition() == townPos)
+		if(town->anchorPos() == townPos)
 		{
 			townPos = town->visitablePos();
 			break;
@@ -545,8 +545,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 	hero->setHeroType(heroTypeId);
 	hero->tempOwner = playerColor;
 
-	hero->pos = townPos;
-	hero->pos += hero->getVisitableOffset();
+	hero->setAnchorPos(townPos + hero->getVisitableOffset());
 	map->getEditManager()->insertObject(hero);
 }
 
@@ -614,7 +613,7 @@ void CGameState::initHeroes()
 			auto boat = dynamic_cast<CGBoat*>(handler->create(callback, nullptr));
 			handler->configureObject(boat, gs->getRandomGenerator());
 
-			boat->pos = hero->pos;
+			boat->setAnchorPos(hero->anchorPos());
 			boat->appearance = handler->getTemplates().front();
 			boat->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
 
@@ -964,22 +963,18 @@ void CGameState::placeHeroesInTowns()
 		{
 			for(CGTownInstance * t : player.second.getTowns())
 			{
-				if(h->visitablePos().z != t->visitablePos().z)
-					continue;
-
-				bool heroOnTownBlockableTile = t->blockingAt(h->visitablePos().x, h->visitablePos().y);
+				bool heroOnTownBlockableTile = t->blockingAt(h->visitablePos());
 
 				// current hero position is at one of blocking tiles of current town
 				// assume that this hero should be visiting the town (H3M format quirk) and move hero to correct position
 				if (heroOnTownBlockableTile)
 				{
-					int3 correctedPos = h->convertFromVisitablePos(t->visitablePos());
-
 					map->removeBlockVisTiles(h);
-					h->pos = correctedPos;
+					int3 correctedPos = h->convertFromVisitablePos(t->visitablePos());
+					h->setAnchorPos(correctedPos);
 					map->addBlockVisTiles(h);
 
-					assert(t->visitableAt(h->visitablePos().x, h->visitablePos().y));
+					assert(t->visitableAt(h->visitablePos()));
 				}
 			}
 		}
@@ -1001,7 +996,7 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 				if(h->visitablePos().z != t->visitablePos().z)
 					continue;
 
-				if (t->visitableAt(h->visitablePos().x, h->visitablePos().y))
+				if (t->visitableAt(h->visitablePos()))
 				{
 					assert(t->visitingHero == nullptr);
 					t->setVisitingHero(h);
@@ -1066,7 +1061,7 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
 	for(auto &obj : map->objects)
 	{
 		//look only for objects covering given tile
-		if( !obj || obj->pos.z != tile.z || !obj->coveringAt(tile.x, tile.y))
+		if( !obj || !obj->coveringAt(tile))
 			continue;
 
 		auto customBattlefield = obj->getBattlefield();
@@ -1250,10 +1245,10 @@ bool CGameState::isVisible(const CGObjectInstance * obj, const std::optional<Pla
 	{
 		for(int fx=0; fx < obj->getWidth(); ++fx)
 		{
-			int3 pos = obj->pos + int3(-fx, -fy, 0);
+			int3 pos = obj->anchorPos() + int3(-fx, -fy, 0);
 
 			if ( map->isInTheMap(pos) &&
-				 obj->coveringAt(pos.x, pos.y) &&
+				 obj->coveringAt(pos) &&
 				 isVisible(pos, *player))
 				return true;
 		}

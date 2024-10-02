@@ -56,9 +56,9 @@ int3 TownBuildingInstance::visitablePos() const
 	return town->visitablePos();
 }
 
-int3 TownBuildingInstance::getPosition() const
+int3 TownBuildingInstance::anchorPos() const
 {
-	return town->getPosition();
+	return town->anchorPos();
 }
 
 TownRewardableBuildingInstance::TownRewardableBuildingInstance(IGameCallback *cb)
