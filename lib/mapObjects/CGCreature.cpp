@@ -141,9 +141,7 @@ std::string CGCreature::getPopupText(PlayerColor player) const
 {
 	std::string hoverName = getHoverText(player);
 	if (settings["general"]["enableUiEnhancements"].Bool())
-	{
 		hoverName += getMonsterLevelText();
-	}
 	return hoverName;
 }
 
