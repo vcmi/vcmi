@@ -1431,7 +1431,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (evaluationContext.isArmyUpgrade)
 					return 0;
-				if (evaluationContext.enemyHeroDangerRatio > 0 && arriveNextWeek)
+				if ((evaluationContext.enemyHeroDangerRatio > 0 && arriveNextWeek) || evaluationContext.enemyHeroDangerRatio > 1)
+					return 0;
+				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
 				score += evaluationContext.strategicalValue * 1000;
 				score += evaluationContext.goldReward;
@@ -1442,11 +1444,10 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				score -= evaluationContext.armyInvolvement * evaluationContext.armyLossPersentage;
 				if (score > 0)
 				{
+					score = 1000;
 					score *= evaluationContext.closestWayRatio;
-					score /= (1 + evaluationContext.enemyHeroDangerRatio);
 					if (evaluationContext.movementCost > 0)
 						score /= evaluationContext.movementCost;
-					score *= (maxWillingToLose - evaluationContext.armyLossPersentage);
 				}
 				break;
 			}
