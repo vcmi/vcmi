@@ -331,10 +331,32 @@ void CModHandler::loadModFilesystems()
 
 	coreMod->updateChecksum(calculateModChecksum(ModScope::scopeBuiltin(), CResourceHandler::get(ModScope::scopeBuiltin())));
 
+	std::map<std::string, ISimpleResourceLoader *> modFilesystems;
+
 	for(std::string & modName : activeMods)
+		modFilesystems[modName] = genModFilesystem(modName, allMods[modName].config);
+
+	for(std::string & modName : activeMods)
+		CResourceHandler::addFilesystem("data", modName, modFilesystems[modName]);
+
+	for(std::string & leftModName : activeMods)
 	{
-		CModInfo & mod = allMods[modName];
-		CResourceHandler::addFilesystem("data", modName, genModFilesystem(modName, mod.config));
+		for(std::string & rightModName : activeMods)
+		{
+			if (leftModName == rightModName)
+				continue;
+
+			const auto & filter = [](const ResourcePath &path){return path.getType() != EResType::DIRECTORY;};
+
+			std::unordered_set<ResourcePath> leftResources = modFilesystems[leftModName]->getFilteredFiles(filter);
+			std::unordered_set<ResourcePath> rightResources = modFilesystems[rightModName]->getFilteredFiles(filter);
+
+			for (auto const & leftFile : leftResources)
+			{
+				if (rightResources.count(leftFile))
+					logMod->warn("Potential confict detected between '%s' and '%s': both mods add file '%s'", leftModName, rightModName, leftFile.getOriginalName());
+			}
+		}
 	}
 }
 
