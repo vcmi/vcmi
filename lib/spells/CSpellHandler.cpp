@@ -79,6 +79,8 @@ CSpell::CSpell():
 	combat(false),
 	creatureAbility(false),
 	castOnSelf(false),
+	castOnlyOnSelf(false),
+	castWithoutSkip(false),
 	positiveness(ESpellPositiveness::NEUTRAL),
 	defaultProbability(0),
 	rising(false),
@@ -296,6 +298,11 @@ bool CSpell::hasBattleEffects() const
 bool CSpell::canCastOnSelf() const
 {
 	return castOnSelf;
+}
+
+bool CSpell::canCastOnlyOnSelf() const
+{
+	return castOnlyOnSelf;
 }
 
 bool CSpell::canCastWithoutSkip() const
@@ -788,6 +795,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	}
 
 	spell->castOnSelf = json["canCastOnSelf"].Bool();
+	spell->castOnlyOnSelf = json["canCastOnlyOnSelf"].Bool();
 	spell->castWithoutSkip = json["canCastWithoutSkip"].Bool();
 	spell->level = static_cast<si32>(json["level"].Integer());
 	spell->power = static_cast<si32>(json["power"].Integer());
