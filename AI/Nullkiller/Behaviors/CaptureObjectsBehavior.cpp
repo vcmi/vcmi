@@ -79,6 +79,9 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 		auto hero = path.targetHero;
 		auto danger = path.getTotalDanger();
 
+		if (hero->getOwner() != nullkiller->playerID)
+			continue;
+
 		if(nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT
 			&& (path.getTotalDanger() == 0 || path.turn() > 0)
 			&& path.exchangeCount > 1)

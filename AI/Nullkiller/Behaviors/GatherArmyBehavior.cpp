@@ -81,6 +81,9 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 		logAi->trace("Path found %s, %s, %lld", path.toString(), path.targetHero->getObjectName(), path.heroArmy->getArmyStrength());
 #endif
 		
+		if (path.targetHero->getOwner() != ai->playerID)
+			continue;
+		
 		if(path.containsHero(hero))
 		{
 #if NKAI_TRACE_LEVEL >= 2
