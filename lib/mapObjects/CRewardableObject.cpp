@@ -329,7 +329,7 @@ void CRewardableObject::newTurn(vstd::RNG & rand) const
 		if (configuration.resetParameters.rewards)
 		{
 			auto handler = std::dynamic_pointer_cast<const CRewardableConstructor>(getObjectHandler());
-			auto newConfiguration = handler->generateConfiguration(cb, rand, ID);
+			auto newConfiguration = handler->generateConfiguration(cb, rand, ID, configuration.variables.preset);
 			cb->setRewardableObjectConfiguration(id, newConfiguration);
 		}
 		if (configuration.resetParameters.visitors)
