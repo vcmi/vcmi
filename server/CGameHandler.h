@@ -194,7 +194,7 @@ public:
 
 	void init(StartInfo *si, Load::ProgressAccumulator & progressTracking);
 	void handleClientDisconnection(std::shared_ptr<CConnection> c);
-	void handleReceivedPack(CPackForServer * pack);
+	void handleReceivedPack(CPackForServer & pack);
 	bool hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const;
 

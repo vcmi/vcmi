@@ -457,20 +457,20 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 	}
 }
 
-void CGameHandler::handleReceivedPack(CPackForServer * pack)
+void CGameHandler::handleReceivedPack(CPackForServer & pack)
 {
 	//prepare struct informing that action was applied
 	auto sendPackageResponse = [&](bool successfullyApplied)
 	{
 		PackageApplied applied;
-		applied.player = pack->player;
+		applied.player = pack.player;
 		applied.result = successfullyApplied;
-		applied.packType = CTypeList::getInstance().getTypeID(pack);
-		applied.requestID = pack->requestID;
-		pack->c->sendPack(applied);
+		applied.packType = CTypeList::getInstance().getTypeID(&pack);
+		applied.requestID = pack.requestID;
+		pack.c->sendPack(applied);
 	};
 
-	if(isBlockedByQueries(pack, pack->player))
+	if(isBlockedByQueries(&pack, pack.player))
 	{
 		sendPackageResponse(false);
 	}
@@ -480,7 +480,7 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 		try
 		{
 			ApplyGhNetPackVisitor applier(*this);
-			pack->visit(applier);
+			pack.visit(applier);
 			result = applier.getResult();
 		}
 		catch(ExceptionNotAllowedAction &)
@@ -489,14 +489,13 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 		}
 
 		if(result)
-			logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
+			logGlobal->trace("Message %s successfully applied!", typeid(pack).name());
 		else
 			complain((boost::format("Got false in applying %s... that request must have been fishy!")
-				% typeid(*pack).name()).str());
+				% typeid(pack).name()).str());
 
 		sendPackageResponse(true);
 	}
-	vstd::clear_pointer(pack);
 }
 
 CGameHandler::CGameHandler(CVCMIServer * lobby)

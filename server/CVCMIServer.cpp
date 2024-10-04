@@ -55,7 +55,7 @@ public:
 	void visitForServer(CPackForServer & serverPack) override
 	{
 		if (gh)
-			gh->handleReceivedPack(&serverPack);
+			gh->handleReceivedPack(serverPack);
 		else
 			logNetwork->error("Received pack for game server while in lobby!");
 	}
