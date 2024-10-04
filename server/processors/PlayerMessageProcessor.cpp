@@ -847,7 +847,7 @@ void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> conn
 {
 	SystemMessage sm;
 	sm.text = message;
-	connection->sendPack(&sm);
+	connection->sendPack(sm);
 }
 
 void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message)
