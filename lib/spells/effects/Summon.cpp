@@ -159,7 +159,7 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 	}
 
 	if(!pack.changedStacks.empty())
-		server->apply(&pack);
+		server->apply(pack);
 }
 
 EffectTarget Summon::filterTarget(const Mechanics * m, const EffectTarget & target) const

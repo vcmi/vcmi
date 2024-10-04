@@ -28,7 +28,7 @@ void IObjectInterface::showInfoDialog(const ui32 txtID, const ui16 soundID, EInf
 	iw.player = getOwner();
 	iw.type = mode;
 	iw.text.appendLocalString(EMetaText::ADVOB_TXT,txtID);
-	cb->sendAndApply(&iw);
+	cb->sendAndApply(iw);
 }
 
 ///IObjectInterface

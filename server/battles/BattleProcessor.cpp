@@ -50,7 +50,7 @@ void BattleProcessor::engageIntoBattle(PlayerColor player)
 	pb.player = player;
 	pb.reason = PlayerBlocked::UPCOMING_BATTLE;
 	pb.startOrEnd = PlayerBlocked::BLOCKADE_STARTED;
-	gameHandler->sendAndApply(&pb);
+	gameHandler->sendAndApply(pb);
 }
 
 void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
@@ -76,7 +76,7 @@ void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInsta
 				SetMana restoreInitialMana;
 				restoreInitialMana.val = lastBattleQuery->initialHeroMana[i];
 				restoreInitialMana.hid = heroes[i]->id;
-				gameHandler->sendAndApply(&restoreInitialMana);
+				gameHandler->sendAndApply(restoreInitialMana);
 			}
 		}
 
@@ -88,7 +88,7 @@ void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInsta
 
 	BattleCancelled bc;
 	bc.battleID = battleID;
-	gameHandler->sendAndApply(&bc);
+	gameHandler->sendAndApply(bc);
 
 	startBattle(army1, army2, tile, hero1, hero2, layout, town);
 }
@@ -116,7 +116,7 @@ void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInsta
 			GiveBonus giveBonus(GiveBonus::ETarget::OBJECT);
 			giveBonus.id = hero1->id;
 			giveBonus.bonus = bonus;
-			gameHandler->sendAndApply(&giveBonus);
+			gameHandler->sendAndApply(giveBonus);
 		}
 	}
 
@@ -180,7 +180,7 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 	bool onlyOnePlayerHuman = isDefenderHuman != isAttackerHuman;
 	bs.info->replayAllowed = lastBattleQuery == nullptr && onlyOnePlayerHuman;
 
-	gameHandler->sendAndApply(&bs);
+	gameHandler->sendAndApply(bs);
 
 	return bs.battleID;
 }
@@ -258,7 +258,7 @@ void BattleProcessor::updateGateState(const CBattleInfoCallback & battle)
 	}
 
 	if (db.state != battle.battleGetGateState())
-		gameHandler->sendAndApply(&db);
+		gameHandler->sendAndApply(db);
 }
 
 bool BattleProcessor::makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction &ba)

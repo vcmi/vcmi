@@ -204,7 +204,7 @@ public:
 	void setManaPoints(ObjectInstanceID hid, int val) override {};
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override {};
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override {};
-	void sendAndApply(CPackForClient * pack) override {};
+	void sendAndApply(CPackForClient & pack) override {};
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {};
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override {};
 

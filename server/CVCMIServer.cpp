@@ -476,7 +476,7 @@ void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> connection)
 //	}
 //
 //	if(!startAiPack.players.empty())
-//		gh->sendAndApply(&startAiPack);
+//		gh->sendAndApply(startAiPack);
 }
 
 void CVCMIServer::reconnectPlayer(int connId)
@@ -503,7 +503,7 @@ void CVCMIServer::reconnectPlayer(int connId)
 		}
 
 		if(!startAiPack.players.empty())
-			gh->sendAndApply(&startAiPack);
+			gh->sendAndApply(startAiPack);
 	}
 }
 

@@ -273,7 +273,7 @@ void CHeroMovementQuery::onRemoval(PlayerColor color)
 	pb.player = color;
 	pb.reason = PlayerBlocked::ONGOING_MOVEMENT;
 	pb.startOrEnd = PlayerBlocked::BLOCKADE_ENDED;
-	gh->sendAndApply(&pb);
+	gh->sendAndApply(pb);
 }
 
 void CHeroMovementQuery::onAdding(PlayerColor color)
@@ -282,5 +282,5 @@ void CHeroMovementQuery::onAdding(PlayerColor color)
 	pb.player = color;
 	pb.reason = PlayerBlocked::ONGOING_MOVEMENT;
 	pb.startOrEnd = PlayerBlocked::BLOCKADE_STARTED;
-	gh->sendAndApply(&pb);
+	gh->sendAndApply(pb);
 }

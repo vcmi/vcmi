@@ -260,11 +260,11 @@ public:
 #endif
 	}
 
-	void sendToAllClients(CPackForClient * pack);
-	void sendAndApply(CPackForClient * pack) override;
-	void sendAndApply(CGarrisonOperationPack * pack);
-	void sendAndApply(SetResources * pack);
-	void sendAndApply(NewStructures * pack);
+	void sendToAllClients(CPackForClient & pack);
+	void sendAndApply(CPackForClient & pack) override;
+	void sendAndApply(CGarrisonOperationPack & pack);
+	void sendAndApply(SetResources & pack);
+	void sendAndApply(NewStructures & pack);
 
 	void wrongPlayerMessage(CPackForServer * pack, PlayerColor expectedplayer);
 	/// Unconditionally throws with "Action not allowed" message
