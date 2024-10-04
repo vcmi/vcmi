@@ -4008,7 +4008,7 @@ bool CGameHandler::isValidObject(const CGObjectInstance *obj) const
 	return vstd::contains(gs->map->objects, obj);
 }
 
-bool CGameHandler::isBlockedByQueries(const CPack *pack, PlayerColor player)
+bool CGameHandler::isBlockedByQueries(const CPackForServer *pack, PlayerColor player)
 {
 	if (dynamic_cast<const PlayerMessage *>(pack) != nullptr)
 		return false;

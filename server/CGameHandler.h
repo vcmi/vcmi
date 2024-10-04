@@ -27,7 +27,6 @@ class CCommanderInstance;
 class EVictoryLossCheckResult;
 class CRandomGenerator;
 
-struct CPack;
 struct CPackForServer;
 struct NewTurn;
 struct CGarrisonOperationPack;
@@ -89,7 +88,7 @@ public:
 	CVCMIServer * gameLobby() const;
 
 	bool isValidObject(const CGObjectInstance *obj) const;
-	bool isBlockedByQueries(const CPack *pack, PlayerColor player);
+	bool isBlockedByQueries(const CPackForServer *pack, PlayerColor player);
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 

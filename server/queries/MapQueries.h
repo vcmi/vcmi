@@ -25,7 +25,7 @@ class TimerPauseQuery : public CQuery
 public:	
 	TimerPauseQuery(CGameHandler * owner, PlayerColor player);
 	
-	bool blocksPack(const CPack *pack) const override;
+	bool blocksPack(const CPackForServer *pack) const override;
 	void onAdding(PlayerColor color) override;
 	void onRemoval(PlayerColor color) override;
 	bool endsByPlayerAnswer() const override;
@@ -54,7 +54,7 @@ public:
 
 	CGarrisonDialogQuery(CGameHandler * owner, const CArmedInstance *up, const CArmedInstance *down);
 	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
-	bool blocksPack(const CPack *pack) const override;
+	bool blocksPack(const CPackForServer *pack) const override;
 };
 
 //yes/no and component selection dialogs
@@ -75,7 +75,7 @@ class OpenWindowQuery : public CDialogQuery
 public:
 	OpenWindowQuery(CGameHandler * owner, const CGHeroInstance *hero, EOpenWindowMode mode);
 
-	bool blocksPack(const CPack *pack) const override;
+	bool blocksPack(const CPackForServer *pack) const override;
 	void onExposure(QueryPtr topQuery) override;
 };
 
