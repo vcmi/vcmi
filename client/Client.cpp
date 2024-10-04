@@ -362,8 +362,6 @@ void CClient::handlePack(CPackForClient * pack)
 	logNetwork->trace("\tApplied on gs: %s", typeid(*pack).name());
 	pack->visit(afterVisitor);
 	logNetwork->trace("\tMade second apply on cl: %s", typeid(*pack).name());
-
-	delete pack;
 }
 
 int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
@@ -376,7 +374,7 @@ int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
 	waitingRequest.pushBack(requestID);
 	request->requestID = requestID;
 	request->player = player;
-	CSH->logicConnection->sendPack(request);
+	CSH->logicConnection->sendPack(*request);
 	if(vstd::contains(playerint, player))
 		playerint[player]->requestSent(request, requestID);
 

@@ -853,7 +853,7 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 	if(getState() == EClientState::DISCONNECTING)
 		return;
 
-	CPack * pack = logicConnection->retrievePack(message);
+	auto pack = logicConnection->retrievePack(message);
 	ServerHandlerCPackVisitor visitor(*this);
 	pack->visit(visitor);
 }
@@ -945,7 +945,7 @@ void CServerHandler::visitForClient(CPackForClient & clientPack)
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const
 {
 	if(getState() != EClientState::STARTING)
-		logicConnection->sendPack(&pack);
+		logicConnection->sendPack(pack);
 }
 
 bool CServerHandler::inLobbyRoom() const

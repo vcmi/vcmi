@@ -467,7 +467,7 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 		applied.result = successfullyApplied;
 		applied.packType = CTypeList::getInstance().getTypeID(pack);
 		applied.requestID = pack->requestID;
-		pack->c->sendPack(&applied);
+		pack->c->sendPack(applied);
 	};
 
 	if(isBlockedByQueries(pack, pack->player))
@@ -1438,7 +1438,7 @@ void CGameHandler::sendToAllClients(CPackForClient * pack)
 {
 	logNetwork->trace("\tSending to all clients: %s", typeid(*pack).name());
 	for (auto c : lobby->activeConnections)
-		c->sendPack(pack);
+		c->sendPack(*pack);
 }
 
 void CGameHandler::sendAndApply(CPackForClient * pack)
