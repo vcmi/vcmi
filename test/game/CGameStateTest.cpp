@@ -65,42 +65,42 @@ public:
 
 	void apply(CPackForClient * pack) override
 	{
-		gameState->apply(pack);
+		gameState->apply(*pack);
 	}
 
 	void apply(BattleLogMessage * pack) override
 	{
-		gameState->apply(pack);
+		gameState->apply(*pack);
 	}
 
 	void apply(BattleStackMoved * pack) override
 	{
-		gameState->apply(pack);
+		gameState->apply(*pack);
 	}
 
 	void apply(BattleUnitsChanged * pack) override
 	{
-		gameState->apply(pack);
+		gameState->apply(*pack);
 	}
 
 	void apply(SetStackEffect * pack) override
 	{
-		gameState->apply(pack);
+		gameState->apply(*pack);
 	}
 
 	void apply(StacksInjured * pack) override
 	{
-		gameState->apply(pack);
+		gameState->apply(*pack);
 	}
 
 	void apply(BattleObstaclesChanged * pack) override
 	{
-		gameState->apply(pack);
+		gameState->apply(*pack);
 	}
 
 	void apply(CatapultAttack * pack) override
 	{
-		gameState->apply(pack);
+		gameState->apply(*pack);
 	}
 
 	void complain(const std::string & problem) override

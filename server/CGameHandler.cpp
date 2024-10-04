@@ -1444,8 +1444,8 @@ void CGameHandler::sendToAllClients(CPackForClient * pack)
 void CGameHandler::sendAndApply(CPackForClient * pack)
 {
 	sendToAllClients(pack);
-	gs->apply(pack);
-	logNetwork->trace("\tApplied on gs: %s", typeid(*pack).name());
+	gs->apply(*pack);
+	logNetwork->trace("\tApplied on gs: %s", typeid(pack).name());
 }
 
 void CGameHandler::sendAndApply(CGarrisonOperationPack * pack)

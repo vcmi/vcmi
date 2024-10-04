@@ -127,7 +127,7 @@ class CBattleCallback : public IBattleCallback
 	std::optional<PlayerColor> player;
 
 protected:
-	int sendRequest(const CPackForServer * request); //returns requestID (that'll be matched to requestID in PackageApplied)
+	int sendRequest(const CPackForServer & request); //returns requestID (that'll be matched to requestID in PackageApplied)
 	CClient *cl;
 
 public:

@@ -938,7 +938,7 @@ void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 
 void CServerHandler::visitForClient(CPackForClient & clientPack)
 {
-	client->handlePack(&clientPack);
+	client->handlePack(clientPack);
 }
 
 

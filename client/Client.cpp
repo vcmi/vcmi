@@ -163,7 +163,7 @@ void CClient::save(const std::string & fname)
 	}
 
 	SaveGame save_game(fname);
-	sendRequest(&save_game, PlayerColor::NEUTRAL);
+	sendRequest(save_game, PlayerColor::NEUTRAL);
 }
 
 void CClient::endNetwork()
@@ -348,35 +348,35 @@ void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> ba
 	}
 }
 
-void CClient::handlePack(CPackForClient * pack)
+void CClient::handlePack(CPackForClient & pack)
 {
 	ApplyClientNetPackVisitor afterVisitor(*this, *gameState());
 	ApplyFirstClientNetPackVisitor beforeVisitor(*this, *gameState());
 
-	pack->visit(beforeVisitor);
-	logNetwork->trace("\tMade first apply on cl: %s", typeid(*pack).name());
+	pack.visit(beforeVisitor);
+	logNetwork->trace("\tMade first apply on cl: %s", typeid(pack).name());
 	{
 		boost::unique_lock lock(CGameState::mutex);
 		gs->apply(pack);
 	}
-	logNetwork->trace("\tApplied on gs: %s", typeid(*pack).name());
-	pack->visit(afterVisitor);
-	logNetwork->trace("\tMade second apply on cl: %s", typeid(*pack).name());
+	logNetwork->trace("\tApplied on gs: %s", typeid(pack).name());
+	pack.visit(afterVisitor);
+	logNetwork->trace("\tMade second apply on cl: %s", typeid(pack).name());
 }
 
-int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
+int CClient::sendRequest(const CPackForServer & request, PlayerColor player)
 {
 	static ui32 requestCounter = 1;
 
 	ui32 requestID = requestCounter++;
-	logNetwork->trace("Sending a request \"%s\". It'll have an ID=%d.", typeid(*request).name(), requestID);
+	logNetwork->trace("Sending a request \"%s\". It'll have an ID=%d.", typeid(request).name(), requestID);
 
 	waitingRequest.pushBack(requestID);
-	request->requestID = requestID;
-	request->player = player;
-	CSH->logicConnection->sendPack(*request);
+	request.requestID = requestID;
+	request.player = player;
+	CSH->logicConnection->sendPack(request);
 	if(vstd::contains(playerint, player))
-		playerint[player]->requestSent(request, requestID);
+		playerint[player]->requestSent(&request, requestID);
 
 	return requestID;
 }
