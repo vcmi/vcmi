@@ -1715,7 +1715,7 @@ void BulkEraseArtifacts::applyGs(CGameState *gs)
 			for(auto & slotInfoWorn : artSet->artifactsWorn)
 			{
 				auto art = slotInfoWorn.second.artifact;
-				if(art->isCombined() && art->isPart(slotInfo->getArt()))
+				if(art->isCombined() && art->isPart(slotInfo->artifact))
 				{
 					dis.al.slot = artSet->getArtPos(art);
 					break;
