@@ -431,7 +431,7 @@ void CGSeerHut::setObjToKill()
 	
 	if(getCreatureToKill(true))
 	{
-		quest->stackToKill = getCreatureToKill(false)->getCreature();
+		quest->stackToKill = getCreatureToKill(false)->getCreatureID();
 		assert(quest->stackToKill != CreatureID::NONE);
 		quest->stackDirection = checkDirection();
 	}

@@ -1120,7 +1120,7 @@ public:
 
 uint64_t RewardEvaluator::getUpgradeArmyReward(const CGTownInstance * town, const BuildingInfo & bi) const
 {
-	if(ai->buildAnalyzer->hasAnyBuilding(town->getFaction(), bi.id))
+	if(ai->buildAnalyzer->hasAnyBuilding(town->getFactionID(), bi.id))
 		return 0;
 
 	auto creaturesToUpgrade = ai->armyManager->getTotalCreaturesAvailable(bi.baseCreatureID);

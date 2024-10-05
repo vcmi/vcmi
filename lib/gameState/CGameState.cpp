@@ -599,7 +599,7 @@ void CGameState::initHeroes()
 		}
 
 		hero->initHero(getRandomGenerator());
-		map->allHeroes[hero->getHeroType().getNum()] = hero;
+		map->allHeroes[hero->getHeroTypeID().getNum()] = hero;
 	}
 
 	// generate boats for all heroes on water
@@ -629,20 +629,20 @@ void CGameState::initHeroes()
 		{
 			auto * hero = dynamic_cast<CGHeroInstance*>(obj.get());
 			hero->initHero(getRandomGenerator());
-			map->allHeroes[hero->getHeroType().getNum()] = hero;
+			map->allHeroes[hero->getHeroTypeID().getNum()] = hero;
 		}
 	}
 
 	std::set<HeroTypeID> heroesToCreate = getUnusedAllowedHeroes(); //ids of heroes to be created and put into the pool
 	for(auto ph : map->predefinedHeroes)
 	{
-		if(!vstd::contains(heroesToCreate, ph->getHeroType()))
+		if(!vstd::contains(heroesToCreate, ph->getHeroTypeID()))
 			continue;
 		ph->initHero(getRandomGenerator());
 		heroesPool->addHeroToPool(ph);
-		heroesToCreate.erase(ph->type->getId());
+		heroesToCreate.erase(ph->getHeroTypeID());
 
-		map->allHeroes[ph->getHeroType().getNum()] = ph;
+		map->allHeroes[ph->getHeroTypeID().getNum()] = ph;
 	}
 
 	for(const HeroTypeID & htype : heroesToCreate) //all not used allowed heroes go with default state into the pool
@@ -756,12 +756,12 @@ void CGameState::initTownNames()
 
 	for(auto & vti : map->towns)
 	{
-		assert(vti->town);
+		assert(vti->getTown());
 
 		if(!vti->getNameTextID().empty())
 			continue;
 
-		FactionID faction = vti->getFaction();
+		FactionID faction = vti->getFactionID();
 
 		if(availableNames.empty())
 		{
@@ -798,8 +798,8 @@ void CGameState::initTowns()
 
 	for (auto & vti : map->towns)
 	{
-		assert(vti->town);
-		assert(vti->town->creatures.size() <= GameConstants::CREATURES_PER_TOWN); 
+		assert(vti->getTown());
+		assert(vti->getTown()->creatures.size() <= GameConstants::CREATURES_PER_TOWN);
 
 		constexpr std::array basicDwellings = { BuildingID::DWELL_FIRST, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3, BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7, BuildingID::DWELL_LVL_8 };
 		constexpr std::array upgradedDwellings = { BuildingID::DWELL_UP_FIRST, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP, BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP, BuildingID::DWELL_LVL_8_UP };
@@ -828,7 +828,7 @@ void CGameState::initTowns()
 		vti->addBuilding(BuildingID::VILLAGE_HALL);
 
 		//init hordes
-		for (int i = 0; i < vti->town->creatures.size(); i++)
+		for (int i = 0; i < vti->getTown()->creatures.size(); i++)
 		{
 			if(vti->hasBuilt(hordes[i])) //if we have horde for this level
 			{
@@ -894,7 +894,7 @@ void CGameState::initTowns()
 			int sel = -1;
 
 			for(ui32 ps=0;ps<vti->possibleSpells.size();ps++)
-				total += vti->possibleSpells[ps].toSpell()->getProbability(vti->getFaction());
+				total += vti->possibleSpells[ps].toSpell()->getProbability(vti->getFactionID());
 
 			if (total == 0) // remaining spells have 0 probability
 				break;
@@ -902,7 +902,7 @@ void CGameState::initTowns()
 			auto r = getRandomGenerator().nextInt(total - 1);
 			for(ui32 ps=0; ps<vti->possibleSpells.size();ps++)
 			{
-				r -= vti->possibleSpells[ps].toSpell()->getProbability(vti->getFaction());
+				r -= vti->possibleSpells[ps].toSpell()->getProbability(vti->getFactionID());
 				if(r<0)
 				{
 					sel = ps;
@@ -1655,18 +1655,13 @@ std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllow
 	}
 
 	for(auto hero : map->heroesOnMap)  //heroes instances initialization
-	{
-		if(hero->type)
-			ret -= hero->type->getId();
-		else
-			ret -= hero->getHeroType();
-	}
+		ret -= hero->getHeroTypeID();
 
 	for(auto obj : map->objects) //prisons
 	{
 		auto * hero = dynamic_cast<const CGHeroInstance *>(obj.get());
 		if(hero && hero->ID == Obj::PRISON)
-			ret -= hero->getHeroType();
+			ret -= hero->getHeroTypeID();
 	}
 
 	return ret;
@@ -1690,7 +1685,7 @@ CGHeroInstance * CGameState::getUsedHero(const HeroTypeID & hid) const
 		auto * hero = dynamic_cast<CGHeroInstance *>(obj.get());
 		assert(hero);
 
-		if (hero->getHeroType() == hid)
+		if (hero->getHeroTypeID() == hid)
 			return hero;
 	}
 

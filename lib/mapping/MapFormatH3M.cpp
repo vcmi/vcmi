@@ -896,7 +896,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		}
 		map->predefinedHeroes.emplace_back(hero);
 
-		logGlobal->debug("Map '%s': Hero predefined in map: %s", mapName, VLC->heroh->getById(hero->getHeroType())->getJsonKey());
+		logGlobal->debug("Map '%s': Hero predefined in map: %s", mapName, hero->getHeroType()->getJsonKey());
 	}
 }
 
@@ -913,7 +913,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 
 	if(!hero->artifactsWorn.empty() || !hero->artifactsInBackpack.empty())
 	{
-		logGlobal->debug("Hero %d at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getHeroType().getNum(), hero->anchorPos().toString());
+		logGlobal->debug("Hero %d at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getHeroTypeID().getNum(), hero->anchorPos().toString());
 
 		hero->artifactsInBackpack.clear();
 		while(!hero->artifactsWorn.empty())
@@ -1778,7 +1778,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 	for(auto & elem : map->disposedHeroes)
 	{
-		if(elem.heroId == object->getHeroType())
+		if(elem.heroId == object->getHeroTypeID())
 		{
 			object->nameCustomTextId = elem.name;
 			object->customPortraitSource = elem.portrait;
@@ -1788,7 +1788,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 	bool hasName = reader->readBool();
 	if(hasName)
-		object->nameCustomTextId = readLocalizedString(TextIdentifier("heroes", object->getHeroType().getNum(), "name"));
+		object->nameCustomTextId = readLocalizedString(TextIdentifier("heroes", object->getHeroTypeID().getNum(), "name"));
 
 	if(features.levelSOD)
 	{
@@ -1891,7 +1891,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 			auto ps = object->getAllBonuses(Selector::type()(BonusType::PRIMARY_SKILL).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)), nullptr);
 			if(ps->size())
 			{
-				logGlobal->debug("Hero %s has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getHeroType().getNum() );
+				logGlobal->debug("Hero %s has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getHeroTypeID().getNum() );
 				for(const auto & b : *ps)
 					object->removeBonus(b);
 			}
@@ -1904,7 +1904,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	}
 
 	if (object->subID != MapObjectSubID())
-		logGlobal->debug("Map '%s': Hero on map: %s at %s, owned by %s", mapName, VLC->heroh->getById(object->getHeroType())->getJsonKey(), mapPosition.toString(), object->getOwner().toString());
+		logGlobal->debug("Map '%s': Hero on map: %s at %s, owned by %s", mapName, object->getHeroType()->getJsonKey(), mapPosition.toString(), object->getOwner().toString());
 	else
 		logGlobal->debug("Map '%s': Hero on map: (random) at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().toString());
 

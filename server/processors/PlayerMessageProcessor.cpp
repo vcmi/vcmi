@@ -370,7 +370,7 @@ void PlayerMessageProcessor::cheatBuildTown(PlayerColor player, const CGTownInst
 	if (!town)
 		return;
 
-	for (auto & build : town->town->buildings)
+	for (auto & build : town->getTown()->buildings)
 	{
 		if (!town->hasBuilt(build.first)
 			&& !build.second->getNameTranslated().empty()

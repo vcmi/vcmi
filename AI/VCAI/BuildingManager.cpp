@@ -23,13 +23,13 @@ bool BuildingManager::tryBuildThisStructure(const CGTownInstance * t, BuildingID
 		return false;
 	}
 
-	if (!vstd::contains(t->town->buildings, building))
+	if (!vstd::contains(t->getTown()->buildings, building))
 		return false; // no such building in town
 
 	if (t->hasBuilt(building)) //Already built? Shouldn't happen in general
 		return true;
 
-	const CBuilding * buildPtr = t->town->buildings.at(building);
+	const CBuilding * buildPtr = t->getTown()->buildings.at(building);
 
 	auto toBuild = buildPtr->requirements.getFulfillmentCandidates([&](const BuildingID & buildID)
 	{
@@ -51,7 +51,7 @@ bool BuildingManager::tryBuildThisStructure(const CGTownInstance * t, BuildingID
 
 	for (const auto & buildID : toBuild)
 	{
-		const CBuilding * b = t->town->buildings.at(buildID);
+		const CBuilding * b = t->getTown()->buildings.at(buildID);
 
 		EBuildingState canBuild = cb->canBuildStructure(t, buildID);
 		if (canBuild == EBuildingState::ALLOWED)
@@ -220,7 +220,7 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 
 	//at the end, try to get and build any extra buildings with nonstandard slots (for example HotA 3rd level dwelling)
 	std::vector<BuildingID> extraBuildings;
-	for (auto buildingInfo : t->town->buildings)
+	for (auto buildingInfo : t->getTown()->buildings)
 	{
 		if (buildingInfo.first > BuildingID::DWELL_UP2_FIRST)
 			extraBuildings.push_back(buildingInfo.first);

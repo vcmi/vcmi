@@ -300,7 +300,7 @@ int InfoBoxHeroData::getSubID()
 		else
 			return 0;
 	case HERO_SPECIAL:
-		return hero->type->getIndex();
+		return hero->getHeroTypeID().getNum();
 	case HERO_MANA:
 	case HERO_EXPERIENCE:
 		return 0;
@@ -800,7 +800,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	garr = std::make_shared<CGarrisonInt>(Point(313, 3), 4, Point(232,0), town->getUpperArmy(), town->visitingHero, true, true, CGarrisonInt::ESlotsLayout::TWO_ROWS);
 	heroes = std::make_shared<HeroSlots>(town, Point(244,6), Point(475,6), garr, false);
 
-	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	size_t iconIndex = town->getTown()->clientInfo.icons[town->hasFort()][town->built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPT"), iconIndex, 0, 5, 6);
 	openTown = std::make_shared<LRClickableAreaOpenTown>(Rect(5, 6, 58, 64), town);
@@ -823,8 +823,8 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 		if(town->hasBuilt(BuildingID::TAVERN))
 			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 	}, [&]{
-		if(!town->town->faction->getDescriptionTranslated().empty())
-			CRClickPopup::createAndPush(town->town->faction->getDescriptionTranslated());
+		if(!town->getTown()->faction->getDescriptionTranslated().empty())
+			CRClickPopup::createAndPush(town->getFaction()->getDescriptionTranslated());
 	});
 	fastMarket = std::make_shared<LRClickableArea>(Rect(153, 6, 65, 64), []()
 	{

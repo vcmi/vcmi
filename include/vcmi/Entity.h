@@ -26,7 +26,7 @@ class DLL_LINKAGE INativeTerrainProvider
 {
 public:
 	virtual TerrainId getNativeTerrain() const = 0;
-	virtual FactionID getFaction() const = 0;
+	virtual FactionID getFactionID() const = 0;
 	virtual bool isNativeTerrain(TerrainId terrain) const;
 };
 

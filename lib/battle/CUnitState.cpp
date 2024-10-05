@@ -416,9 +416,9 @@ int32_t CUnitState::creatureIconIndex() const
 	return unitType()->getIconIndex();
 }
 
-FactionID CUnitState::getFaction() const
+FactionID CUnitState::getFactionID() const
 {
-	return unitType()->getFaction();
+	return unitType()->getFactionID();
 }
 
 int32_t CUnitState::getCasterUnitId() const
