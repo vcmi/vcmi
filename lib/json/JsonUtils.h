@@ -74,8 +74,10 @@ namespace JsonUtils
 	DLL_LINKAGE const JsonNode & getSchema(const std::string & URI);
 
 	/// detects potential conflicts - json entries present in both nodes
-	/// any error messages will be printed to error log
-	DLL_LINKAGE void detectConflicts(const JsonNode & left, const JsonNode & right, const std::string & entityName, const std::string & keyName);
+	/// returns JsonNode that contains list of conflicting keys
+	/// For each conflict - list of conflicting mods and list of conflicting json values
+	/// result[pathToKey][modID] -> node that was conflicting
+	DLL_LINKAGE void detectConflicts(JsonNode & result, const JsonNode & left, const JsonNode & right, const std::string & keyName);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -39,9 +39,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string & objectName):
+ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string & entityName):
 	handler(handler),
-	objectName(objectName),
+	entityName(entityName),
 	originalData(handler->loadLegacyData())
 {
 	for(auto & node : originalData)
@@ -80,7 +80,7 @@ bool ContentTypeHandler::preloadModData(const std::string & modName, const std::
 			JsonNode & remoteConf = modData[remoteName].patches[objectName];
 
 			if (!remoteConf.isNull())
-				JsonUtils::detectConflicts(remoteConf, entry.second, objectName, "<root>");
+				JsonUtils::detectConflicts(conflictList, remoteConf, entry.second, objectName);
 
 			JsonUtils::merge(remoteConf, entry.second);
 		}
@@ -96,7 +96,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 	auto performValidate = [&,this](JsonNode & data, const std::string & name){
 		handler->beforeValidate(data);
 		if (validate)
-			result &= JsonUtils::validate(data, "vcmi:" + objectName, name);
+			result &= JsonUtils::validate(data, "vcmi:" + entityName, name);
 	};
 
 	// apply patches
@@ -116,7 +116,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 			// - another mod attempts to add object into this mod (technically can be supported, but might lead to weird edge cases)
 			// - another mod attempts to edit object from this mod that no longer exist - DANGER since such patch likely has very incomplete data
 			// so emit warning and skip such case
-			logMod->warn("Mod '%s' attempts to edit object '%s' of type '%s' from mod '%s' but no such object exist!", data.getModScope(), name, objectName, modName);
+			logMod->warn("Mod '%s' attempts to edit object '%s' of type '%s' from mod '%s' but no such object exist!", data.getModScope(), name, entityName, modName);
 			continue;
 		}
 
@@ -187,6 +187,42 @@ void ContentTypeHandler::afterLoadFinalization()
 				}
 			}
 		}
+	}
+
+	for (const auto& [conflictPath, conflictModData] : conflictList.Struct())
+	{
+		std::set<std::string> conflictingMods;
+		std::set<std::string> resolvedConflicts;
+
+		for (auto const & conflictModData : conflictModData.Struct())
+			conflictingMods.insert(conflictModData.first);
+
+		for (auto const & modID : conflictingMods)
+			resolvedConflicts.merge(VLC->modh->getModDependencies(modID));
+
+		vstd::erase_if(conflictingMods, [&resolvedConflicts](const std::string & entry){ return resolvedConflicts.count(entry);});
+
+		if (conflictingMods.size() < 2)
+			continue; // all conflicts were resolved - either via compatibility patch (mod that depends on 2 conflicting mods) or simple mod that depends on another one
+
+		bool allEqual = true;
+
+		for (auto const & modID : conflictingMods)
+		{
+			if (conflictModData[modID] != conflictModData[*conflictingMods.begin()])
+			{
+				allEqual = false;
+				break;
+			}
+		}
+
+		if (allEqual)
+			continue; // conflict still present, but all mods use the same value for conflicting entry - permit it
+
+		logMod->warn("Potential confict in '%s'", conflictPath);
+
+		for (auto const & modID : conflictingMods)
+			logMod->warn("Mod '%s' - value set to %s", modID, conflictModData[modID].toCompactString());
 	}
 
 	handler->afterLoadFinalization();

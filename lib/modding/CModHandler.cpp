@@ -392,6 +392,12 @@ std::string CModHandler::getModLanguage(const TModID& modId) const
 	return allMods.at(modId).baseLanguage;
 }
 
+std::set<TModID> CModHandler::getModDependencies(const TModID & modId) const
+{
+	bool isModFound;
+	return getModDependencies(modId, isModFound);
+}
+
 std::set<TModID> CModHandler::getModDependencies(const TModID & modId, bool & isModFound) const
 {
 	auto it = allMods.find(modId);
@@ -499,8 +505,8 @@ void CModHandler::load()
 
 	content->loadCustom();
 
-	for(const TModID & modName : activeMods)
-		loadTranslation(modName);
+//	for(const TModID & modName : activeMods)
+//		loadTranslation(modName);
 
 #if 0
 	for(const TModID & modName : activeMods)

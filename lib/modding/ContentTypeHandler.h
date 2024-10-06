@@ -19,6 +19,8 @@ class CModInfo;
 /// internal type to handle loading of one data type (e.g. artifacts, creatures)
 class DLL_LINKAGE ContentTypeHandler
 {
+	JsonNode conflictList;
+
 public:
 	struct ModInfo
 	{
@@ -29,7 +31,7 @@ public:
 	};
 	/// handler to which all data will be loaded
 	IHandlerBase * handler;
-	std::string objectName;
+	std::string entityName;
 
 	/// contains all loaded H3 data
 	std::vector<JsonNode> originalData;
