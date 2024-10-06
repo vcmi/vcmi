@@ -346,6 +346,9 @@ void CModHandler::loadModFilesystems()
 			if (leftModName == rightModName)
 				continue;
 
+			if (getModDependencies(leftModName).count(rightModName) || getModDependencies(rightModName).count(leftModName))
+				continue;
+
 			const auto & filter = [](const ResourcePath &path){return path.getType() != EResType::DIRECTORY;};
 
 			std::unordered_set<ResourcePath> leftResources = modFilesystems[leftModName]->getFilteredFiles(filter);
