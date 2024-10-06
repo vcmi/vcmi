@@ -555,6 +555,22 @@
 					"valueType" : "BASE_NUMBER"
 				}
 			}
+		},
+
+		"interface" :
+		{
+			// Color transform to make color of brown DIBOX.PCX texture match color of specified player
+			"playerColoredBackground" :
+			{
+				"red" :    [  0.25,  0,     0,     1.25, 0.00, 0.00 ],
+				"blue" :   [  0,     0,     0,     0.45, 1.20, 4.50 ],
+				"tan" :    [  0.40,  0.27,  0.23,  1.10, 1.20, 1.15 ],
+				"green" :  [ -0.27,  0.10, -0.27,  0.70, 1.70, 0.70 ],
+				"orange" : [  0.47,  0.17, -0.27,  1.60, 1.20, 0.70 ],
+				"purple" : [  0.12, -0.1,   0.25,  1.15, 1.20, 2.20 ],
+				"teal" :   [ -0.13,  0.23,  0.23,  0.90, 1.20, 2.20 ],
+				"pink" :   [  0.44,  0.15,  0.25,  1.00, 1.00, 1.75 ]
+			}
 		}
 	}
 }
