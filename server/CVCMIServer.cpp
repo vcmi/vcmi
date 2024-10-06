@@ -297,25 +297,19 @@ void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & con
 	logNetwork->error("Network error receiving a pack. Connection has been closed");
 
 	std::shared_ptr<CConnection> c = findConnection(connection);
-	if (!c)
-		return; // player have already disconnected via clientDisconnected call
 
-	vstd::erase(activeConnections, c);
-
-	if(activeConnections.empty() || hostClientId == c->connectionID)
+	// player may have already disconnected via clientDisconnected call
+	if (c)
 	{
-		setState(EServerState::SHUTDOWN);
-		return;
-	}
+		//clientDisconnected(c);
 
-	if(gh && getState() == EServerState::GAMEPLAY)
-	{
-		gh->handleClientDisconnection(c);
-
-		auto lcd = std::make_unique<LobbyClientDisconnected>();
-		lcd->c = c;
-		lcd->clientId = c->connectionID;
-		handleReceivedPack(std::move(lcd));
+		if(gh && getState() == EServerState::GAMEPLAY)
+		{
+			auto lcd = std::make_unique<LobbyClientDisconnected>();
+			lcd->c = c;
+			lcd->clientId = c->connectionID;
+			handleReceivedPack(std::move(lcd));
+		}
 	}
 }
 
@@ -434,8 +428,20 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 
 void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> connection)
 {
-	connection->getConnection()->close();
+	assert(vstd::contains(activeConnections, connection));
+	logGlobal->trace("Received disconnection request");
 	vstd::erase(activeConnections, connection);
+
+	if(activeConnections.empty() || hostClientId == connection->connectionID)
+	{
+		setState(EServerState::SHUTDOWN);
+		return;
+	}
+
+	if(gh && getState() == EServerState::GAMEPLAY)
+	{
+		gh->handleClientDisconnection(connection);
+	}
 
 //	PlayerReinitInterface startAiPack;
 //	startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;
