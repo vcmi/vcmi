@@ -12,7 +12,9 @@
 	"vcmi.adventureMap.monsterThreat.levels.9"  : "Avassaladora",
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Mortal",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Impossível",
-	"vcmi.adventureMap.monsterLevel" : "\n\nNível %LEVEL, unidade de %TOWN",
+	"vcmi.adventureMap.monsterLevel"            : "\n\nNível %LEVEL, unidade %TOWN de ataque %ATTACK_TYPE",
+	"vcmi.adventureMap.monsterMeleeType"        : "corpo a corpo",
+	"vcmi.adventureMap.monsterRangedType"       : "à distância",
 
 	"vcmi.adventureMap.confirmRestartGame"               : "Tem certeza de que deseja reiniciar o jogo?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "Não há mercados disponíveis!",
@@ -143,6 +145,7 @@
 	"vcmi.client.errors.invalidMap" : "{Mapa ou campanha inválido}\n\nFalha ao iniciar o jogo! O mapa ou campanha selecionado pode ser inválido ou corrompido. Motivo:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{Arquivos de dados ausentes}\n\nOs arquivos de dados das campanhas não foram encontrados! Você pode estar usando arquivos de dados incompletos ou corrompidos do Heroes 3. Por favor, reinstale os dados do jogo.",
 	"vcmi.server.errors.disconnected" : "{Erro de Rede}\n\nA conexão com o servidor do jogo foi perdida!",
+	"vcmi.server.errors.playerLeft" : "{Jogador Saiu}\n\nO jogador %s desconectou-se do jogo!", //%s -> player color
 	"vcmi.server.errors.existingProcess" : "Outro processo do servidor VCMI está em execução. Por favor, termine-o antes de iniciar um novo jogo.",
 	"vcmi.server.errors.modsToEnable"    : "{Os seguintes mods são necessários}",
 	"vcmi.server.errors.modsToDisable"   : "{Os seguintes mods devem ser desativados}",
