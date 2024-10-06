@@ -17,6 +17,7 @@
 #include "ModIncompatibility.h"
 
 #include "../CCreatureHandler.h"
+#include "../CConfigHandler.h"
 #include "../CStopWatch.h"
 #include "../GameSettings.h"
 #include "../ScriptHandler.h"
@@ -339,25 +340,28 @@ void CModHandler::loadModFilesystems()
 	for(std::string & modName : activeMods)
 		CResourceHandler::addFilesystem("data", modName, modFilesystems[modName]);
 
-	for(std::string & leftModName : activeMods)
+	if (settings["mods"]["validation"].String() == "full")
 	{
-		for(std::string & rightModName : activeMods)
+		for(std::string & leftModName : activeMods)
 		{
-			if (leftModName == rightModName)
-				continue;
-
-			if (getModDependencies(leftModName).count(rightModName) || getModDependencies(rightModName).count(leftModName))
-				continue;
-
-			const auto & filter = [](const ResourcePath &path){return path.getType() != EResType::DIRECTORY;};
-
-			std::unordered_set<ResourcePath> leftResources = modFilesystems[leftModName]->getFilteredFiles(filter);
-			std::unordered_set<ResourcePath> rightResources = modFilesystems[rightModName]->getFilteredFiles(filter);
-
-			for (auto const & leftFile : leftResources)
+			for(std::string & rightModName : activeMods)
 			{
-				if (rightResources.count(leftFile))
-					logMod->warn("Potential confict detected between '%s' and '%s': both mods add file '%s'", leftModName, rightModName, leftFile.getOriginalName());
+				if (leftModName == rightModName)
+					continue;
+
+				if (getModDependencies(leftModName).count(rightModName) || getModDependencies(rightModName).count(leftModName))
+					continue;
+
+				const auto & filter = [](const ResourcePath &path){return path.getType() != EResType::DIRECTORY;};
+
+				std::unordered_set<ResourcePath> leftResources = modFilesystems[leftModName]->getFilteredFiles(filter);
+				std::unordered_set<ResourcePath> rightResources = modFilesystems[rightModName]->getFilteredFiles(filter);
+
+				for (auto const & leftFile : leftResources)
+				{
+					if (rightResources.count(leftFile))
+						logMod->warn("Potential confict detected between '%s' and '%s': both mods add file '%s'", leftModName, rightModName, leftFile.getOriginalName());
+				}
 			}
 		}
 	}
@@ -508,8 +512,8 @@ void CModHandler::load()
 
 	content->loadCustom();
 
-//	for(const TModID & modName : activeMods)
-//		loadTranslation(modName);
+	for(const TModID & modName : activeMods)
+		loadTranslation(modName);
 
 #if 0
 	for(const TModID & modName : activeMods)

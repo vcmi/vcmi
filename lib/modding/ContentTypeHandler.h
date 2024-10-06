@@ -58,6 +58,7 @@ class DLL_LINKAGE CContentHandler
 
 	std::map<std::string, ContentTypeHandler> handlers;
 
+	bool validateMod(const CModInfo & mod) const;
 public:
 	void init();
 

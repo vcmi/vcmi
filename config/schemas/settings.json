@@ -3,7 +3,7 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "lobby", "gameTweaks" ],
+	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "lobby", "gameTweaks", "mods" ],
 	"definitions" : {
 		"logLevelEnum" : {
 			"type" : "string",
@@ -149,6 +149,23 @@
 				}
 			}
 		},
+		
+		"mods" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"default" : {},
+			"required" : [ 
+				"validation"
+			],
+			"properties" : {
+				"validation" : {
+					"type" : "string",
+					"enum" : [ "off", "basic", "full" ],
+					"default" : "basic"
+				}
+			}
+		},
+		
 		"video" : {
 			"type" : "object",
 			"additionalProperties" : false,

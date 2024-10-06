@@ -14,6 +14,7 @@
 #include "../mapObjects/CRewardableObject.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
+#include "../CConfigHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,7 +26,8 @@ void CRewardableConstructor::initTypeData(const JsonNode & config)
 	if (!config["name"].isNull())
 		VLC->generaltexth->registerString( config.getModScope(), getNameTextID(), config["name"].String());
 
-	JsonUtils::validate(config, "vcmi:rewardable", getJsonKey());
+	if (settings["mods"]["validation"].String() != "off")
+		JsonUtils::validate(config, "vcmi:rewardable", getJsonKey());
 	
 }
 
