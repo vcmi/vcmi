@@ -126,7 +126,7 @@ static std::unique_ptr<CMap> loadOriginal(const JsonNode & header, const JsonNod
 
 	initialBuffer.seek(0);
 
-	CMapLoaderJson initialLoader(&initialBuffer);
+	CMapLoaderJson initialLoader("", "", &initialBuffer);
 
 	return initialLoader.loadMap(nullptr);
 }
