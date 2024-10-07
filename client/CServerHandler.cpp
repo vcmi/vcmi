@@ -141,7 +141,12 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	if(!playerNames.empty()) //if have custom set of player names - use it
 		localPlayerNames = playerNames;
 	else
-		localPlayerNames.push_back(settings["general"]["playerName"].String());
+	{
+		std::string playerName = settings["general"]["playerName"].String();
+		if(playerName == "Player")
+			playerName = CGI->generaltexth->translate("core.genrltxt.434");
+		localPlayerNames.push_back(playerName);
+	}
 
 	gameChat->resetMatchState();
 	lobbyClient->resetMatchState();
