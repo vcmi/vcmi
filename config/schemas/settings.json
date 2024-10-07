@@ -184,6 +184,7 @@
 				"targetfps",
 				"vsync",
 				"fontsType",
+				"cursorScalingFactor",
 				"fontScalingFactor",
 				"upscalingFilter",
 				"fontUpscalingFilter",
@@ -252,6 +253,10 @@
 					"type" : "string",
 					"enum" : [ "auto", "original", "scalable" ],
 					"default" : "auto"
+				},
+				"cursorScalingFactor" : {
+					"type" : "number",
+					"default" : 1
 				},
 				"fontScalingFactor" : {
 					"type" : "number",
