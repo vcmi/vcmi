@@ -1782,6 +1782,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	ui32 fortSize = static_cast<ui32>(town->creatures.size());
 	if(fortSize > town->town->creatures.size() && town->creatures.back().second.empty())
 		fortSize--;
+	fortSize = std::min(fortSize, static_cast<ui32>(GameConstants::CREATURES_PER_TOWN)); // for 8 creatures + portal of summoning
 
 	const CBuilding * fortBuilding = town->town->buildings.at(BuildingID(town->fortLevel()+6));
 	title = std::make_shared<CLabel>(400, 12, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE, fortBuilding->getNameTranslated());
@@ -1840,6 +1841,7 @@ ImagePath CFortScreen::getBgName(const CGTownInstance * town)
 	ui32 fortSize = static_cast<ui32>(town->creatures.size());
 	if(fortSize > town->town->creatures.size() && town->creatures.back().second.empty())
 		fortSize--;
+	fortSize = std::min(fortSize, static_cast<ui32>(GameConstants::CREATURES_PER_TOWN)); // for 8 creatures + portal of summoning
 
 	if(fortSize == GameConstants::CREATURES_PER_TOWN)
 		return ImagePath::builtin("TPCASTL8");
