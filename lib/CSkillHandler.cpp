@@ -212,7 +212,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 
 	skill->onlyOnWaterMap = json["onlyOnWaterMap"].Bool();
 
-	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"].String());
+	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
 	switch(json["gainChance"].getType())
 	{
 	case JsonNode::JsonType::DATA_INTEGER:
@@ -237,7 +237,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 			skill->addNewBonus(bonus, level);
 		}
 		CSkill::LevelInfo & skillAtLevel = skill->at(level);
-		VLC->generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"].String());
+		VLC->generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"]);
 		skillAtLevel.iconSmall = levelNode["images"]["small"].String();
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();

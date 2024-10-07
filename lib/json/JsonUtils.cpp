@@ -230,6 +230,27 @@ void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 	std::swap(descendant, inheritedNode);
 }
 
+JsonNode JsonUtils::assembleFromFiles(const JsonNode & files, bool & isValid)
+{
+	if (files.isVector())
+	{
+		auto configList = files.convertTo<std::vector<std::string> >();
+		JsonNode result = JsonUtils::assembleFromFiles(configList, isValid);
+
+		return result;
+	}
+	else
+	{
+		return files;
+	}
+}
+
+JsonNode JsonUtils::assembleFromFiles(const JsonNode & files)
+{
+	bool isValid = false;
+	return assembleFromFiles(files, isValid);
+}
+
 JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files)
 {
 	bool isValid = false;
