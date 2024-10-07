@@ -72,7 +72,7 @@ void HeroPoolProcessor::onHeroSurrendered(const PlayerColor & color, const CGHer
 	sah.player = color;
 	sah.hid = hero->getHeroType();
 	sah.replenishPoints = false;
-	gameHandler->sendAndApply(&sah);
+	gameHandler->sendAndApply(sah);
 }
 
 void HeroPoolProcessor::onHeroEscaped(const PlayerColor & color, const CGHeroInstance * hero)
@@ -87,7 +87,7 @@ void HeroPoolProcessor::onHeroEscaped(const PlayerColor & color, const CGHeroIns
 	sah.army.setCreature(SlotID(0), hero->type->initialArmy.at(0).creature, 1);
 	sah.replenishPoints = false;
 
-	gameHandler->sendAndApply(&sah);
+	gameHandler->sendAndApply(sah);
 }
 
 void HeroPoolProcessor::clearHeroFromSlot(const PlayerColor & color, TavernHeroSlot slot)
@@ -98,7 +98,7 @@ void HeroPoolProcessor::clearHeroFromSlot(const PlayerColor & color, TavernHeroS
 	sah.slotID = slot;
 	sah.hid = HeroTypeID::NONE;
 	sah.replenishPoints = false;
-	gameHandler->sendAndApply(&sah);
+	gameHandler->sendAndApply(sah);
 }
 
 void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHeroSlot slot, bool needNativeHero, bool giveArmy, const HeroTypeID & nextHero)
@@ -131,7 +131,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 		sah.hid = HeroTypeID::NONE;
 	}
 
-	gameHandler->sendAndApply(&sah);
+	gameHandler->sendAndApply(sah);
 }
 
 void HeroPoolProcessor::onNewWeek(const PlayerColor & color)
@@ -232,7 +232,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	}
 
 	// apply netpack -> this will remove hired hero from pool
-	gameHandler->sendAndApply(&hr);
+	gameHandler->sendAndApply(hr);
 
 	if(recruitableHeroes[0] == recruitedHero)
 		selectNewHeroForSlot(player, TavernHeroSlot::NATIVE, false, false, nextHero);

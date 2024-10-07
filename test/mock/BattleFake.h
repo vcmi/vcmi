@@ -81,9 +81,9 @@ public:
 #endif
 
 	template <typename T>
-	void accept(T * pack)
+	void accept(T & pack)
 	{
-		pack->applyBattle(this);
+		pack.applyBattle(this);
 	}
 
 	const IBattleInfo * getBattle() const override

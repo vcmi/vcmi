@@ -60,7 +60,7 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 				if (event.resources[i])
 					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
 		}
-		gameHandler->sendAndApply(&iw); //show dialog
+		gameHandler->sendAndApply(iw); //show dialog
 	}
 }
 
@@ -117,7 +117,7 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 				}
 			}
 		}
-		gameHandler->sendAndApply(&iw); //show dialog
+		gameHandler->sendAndApply(iw); //show dialog
 	}
 }
 
@@ -150,7 +150,7 @@ void NewTurnProcessor::onPlayerTurnEnded(PlayerColor which)
 		DaysWithoutTown pack;
 		pack.player = which;
 		pack.daysWithoutCastle = playerState->daysWithoutCastle.value_or(0) + 1;
-		gameHandler->sendAndApply(&pack);
+		gameHandler->sendAndApply(pack);
 	}
 	else
 	{
@@ -159,7 +159,7 @@ void NewTurnProcessor::onPlayerTurnEnded(PlayerColor which)
 			DaysWithoutTown pack;
 			pack.player = which;
 			pack.daysWithoutCastle = std::nullopt;
-			gameHandler->sendAndApply(&pack);
+			gameHandler->sendAndApply(pack);
 		}
 	}
 
@@ -321,7 +321,7 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 			sac.tid = t->id;
 			sac.creatures = t->creatures;
 			sac.creatures[tierToSubstract].first = creaturesLeft;
-			gameHandler->sendAndApply(&sac);
+			gameHandler->sendAndApply(sac);
 		}
 	};
 
@@ -657,7 +657,7 @@ void NewTurnProcessor::onNewTurn()
 	bool newWeek = gameHandler->getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
 	bool newMonth = gameHandler->getDate(Date::DAY_OF_MONTH) == 28;
 
-	gameHandler->sendAndApply(&n);
+	gameHandler->sendAndApply(n);
 
 	if (newWeek)
 	{

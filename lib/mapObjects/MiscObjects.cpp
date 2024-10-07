@@ -1087,14 +1087,14 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 			for(const auto & eye : eyes)
 			{
 				cb->getTilesInRange (fw.tiles, eye->pos, 10, ETileVisibility::HIDDEN, h->tempOwner);
-				cb->sendAndApply(&fw);
+				cb->sendAndApply(fw);
 				cv.pos = eye->pos;
 
-				cb->sendAndApply(&cv);
+				cb->sendAndApply(cv);
 			}
 			cv.pos = h->visitablePos();
 			cv.focusTime = 0;
-			cb->sendAndApply(&cv);
+			cb->sendAndApply(cv);
 		}
 	}
 	else if (ID == Obj::EYE_OF_MAGI)
@@ -1258,7 +1258,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 	if(!wasVisited(team))
 	{
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 96);
-		cb->sendAndApply(&iw);
+		cb->sendAndApply(iw);
 
 		// increment general visited obelisks counter
 		cb->setObjPropertyID(id, ObjProperty::OBELISK_VISITED, team);
@@ -1273,7 +1273,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 	else
 	{
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 97);
-		cb->sendAndApply(&iw);
+		cb->sendAndApply(iw);
 	}
 
 }
@@ -1341,7 +1341,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 			rb.whoID = oldOwner;
 			rb.source = BonusSource::OBJECT_INSTANCE;
 			rb.id = BonusSourceID(id);
-			cb->sendAndApply(&rb);
+			cb->sendAndApply(rb);
 		}
 	}
 }
@@ -1372,7 +1372,7 @@ void CGLighthouse::giveBonusTo(const PlayerColor & player, bool onInit) const
 	if(onInit)
 		gb.applyGs(cb->gameState());
 	else
-		cb->sendAndApply(&gb);
+		cb->sendAndApply(gb);
 }
 
 void CGLighthouse::serializeJsonOptions(JsonSerializeFormat& handler)

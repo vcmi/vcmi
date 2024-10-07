@@ -27,7 +27,6 @@ class CCommanderInstance;
 class EVictoryLossCheckResult;
 class CRandomGenerator;
 
-struct CPack;
 struct CPackForServer;
 struct NewTurn;
 struct CGarrisonOperationPack;
@@ -89,7 +88,7 @@ public:
 	CVCMIServer * gameLobby() const;
 
 	bool isValidObject(const CGObjectInstance *obj) const;
-	bool isBlockedByQueries(const CPack *pack, PlayerColor player);
+	bool isBlockedByQueries(const CPackForServer *pack, PlayerColor player);
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 
@@ -195,7 +194,7 @@ public:
 
 	void init(StartInfo *si, Load::ProgressAccumulator & progressTracking);
 	void handleClientDisconnection(std::shared_ptr<CConnection> c);
-	void handleReceivedPack(CPackForServer * pack);
+	void handleReceivedPack(CPackForServer & pack);
 	bool hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const;
 
@@ -261,11 +260,11 @@ public:
 #endif
 	}
 
-	void sendToAllClients(CPackForClient * pack);
-	void sendAndApply(CPackForClient * pack) override;
-	void sendAndApply(CGarrisonOperationPack * pack);
-	void sendAndApply(SetResources * pack);
-	void sendAndApply(NewStructures * pack);
+	void sendToAllClients(CPackForClient & pack);
+	void sendAndApply(CPackForClient & pack) override;
+	void sendAndApply(CGarrisonOperationPack & pack);
+	void sendAndApply(SetResources & pack);
+	void sendAndApply(NewStructures & pack);
 
 	void wrongPlayerMessage(CPackForServer * pack, PlayerColor expectedplayer);
 	/// Unconditionally throws with "Action not allowed" message

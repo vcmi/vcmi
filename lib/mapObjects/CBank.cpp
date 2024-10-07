@@ -138,7 +138,7 @@ bool CBank::wasVisited (PlayerColor player) const
 void CBank::onHeroVisit(const CGHeroInstance * h) const
 {
 	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_PLAYER, id, h->id);
-	cb->sendAndApply(&cov);
+	cb->sendAndApply(cov);
 
 	BlockingDialog bd(true, false);
 	bd.player = h->getOwner();

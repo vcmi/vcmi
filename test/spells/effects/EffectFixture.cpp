@@ -92,13 +92,13 @@ void EffectFixture::setUp()
 
 	ON_CALL(serverMock, getRNG()).WillByDefault(Return(&rngMock));
 
-	ON_CALL(serverMock, apply(Matcher<BattleLogMessage *>(_))).WillByDefault(Invoke(battleFake.get(),  &battle::BattleFake::accept<BattleLogMessage>));
-	ON_CALL(serverMock, apply(Matcher<BattleStackMoved *>(_))).WillByDefault(Invoke(battleFake.get(),  &battle::BattleFake::accept<BattleStackMoved>));
-	ON_CALL(serverMock, apply(Matcher<BattleUnitsChanged *>(_))).WillByDefault(Invoke(battleFake.get(),  &battle::BattleFake::accept<BattleUnitsChanged>));
-	ON_CALL(serverMock, apply(Matcher<SetStackEffect *>(_))).WillByDefault(Invoke(battleFake.get(),  &battle::BattleFake::accept<SetStackEffect>));
-	ON_CALL(serverMock, apply(Matcher<StacksInjured *>(_))).WillByDefault(Invoke(battleFake.get(),  &battle::BattleFake::accept<StacksInjured>));
-	ON_CALL(serverMock, apply(Matcher<BattleObstaclesChanged *>(_))).WillByDefault(Invoke(battleFake.get(),  &battle::BattleFake::accept<BattleObstaclesChanged>));
-	ON_CALL(serverMock, apply(Matcher<CatapultAttack *>(_))).WillByDefault(Invoke(battleFake.get(),  &battle::BattleFake::accept<CatapultAttack>));
+	ON_CALL(serverMock, apply(Matcher<BattleLogMessage &>(_))).WillByDefault(Invoke(battleFake.get(),  &battle::BattleFake::accept<BattleLogMessage>));
+	ON_CALL(serverMock, apply(Matcher<BattleStackMoved &>(_))).WillByDefault(Invoke(battleFake.get(),  &battle::BattleFake::accept<BattleStackMoved>));
+	ON_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).WillByDefault(Invoke(battleFake.get(),  &battle::BattleFake::accept<BattleUnitsChanged>));
+	ON_CALL(serverMock, apply(Matcher<SetStackEffect &>(_))).WillByDefault(Invoke(battleFake.get(),  &battle::BattleFake::accept<SetStackEffect>));
+	ON_CALL(serverMock, apply(Matcher<StacksInjured &>(_))).WillByDefault(Invoke(battleFake.get(),  &battle::BattleFake::accept<StacksInjured>));
+	ON_CALL(serverMock, apply(Matcher<BattleObstaclesChanged &>(_))).WillByDefault(Invoke(battleFake.get(),  &battle::BattleFake::accept<BattleObstaclesChanged>));
+	ON_CALL(serverMock, apply(Matcher<CatapultAttack &>(_))).WillByDefault(Invoke(battleFake.get(),  &battle::BattleFake::accept<CatapultAttack>));
 }
 
 static int64_t getInt64Range(int64_t lower, int64_t upper)

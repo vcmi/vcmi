@@ -326,7 +326,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 	}
 
 	if(!pack.changes.empty())
-		server->apply(&pack);
+		server->apply(pack);
 }
 
 }

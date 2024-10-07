@@ -16,7 +16,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct CPack;
 struct CPackForServer;
 class IBattleEventsReceiver;
 class CBattleGameInterface;
@@ -143,8 +142,8 @@ public:
 
 	static ThreadSafeVector<int> waitingRequest; //FIXME: make this normal field (need to join all threads before client destruction)
 
-	void handlePack(CPackForClient * pack); //applies the given pack and deletes it
-	int sendRequest(const CPackForServer * request, PlayerColor player); //returns ID given to that request
+	void handlePack(CPackForClient & pack); //applies the given pack and deletes it
+	int sendRequest(const CPackForServer & request, PlayerColor player); //returns ID given to that request
 
 	void battleStarted(const BattleInfo * info);
 	void battleFinished(const BattleID & battleID);
@@ -205,7 +204,7 @@ public:
 	void setManaPoints(ObjectInstanceID hid, int val) override {};
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override {};
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override {};
-	void sendAndApply(CPackForClient * pack) override {};
+	void sendAndApply(CPackForClient & pack) override {};
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {};
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override {};
 

@@ -80,10 +80,10 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 	}
 
 	if(!stacksInjured.stacks.empty())
-		server->apply(&stacksInjured);
+		server->apply(stacksInjured);
 
 	if(!blm.lines.empty())
-		server->apply(&blm);
+		server->apply(blm);
 }
 
 bool Damage::isReceptive(const Mechanics * m, const battle::Unit * unit) const

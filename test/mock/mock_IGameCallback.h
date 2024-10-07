@@ -96,7 +96,7 @@ public:
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override {}
 
 	///useful callback methods
-	void sendAndApply(CPackForClient * pack) override;
+	void sendAndApply(CPackForClient & pack) override;
 
 	vstd::RNG & getRandomGenerator() override;
 

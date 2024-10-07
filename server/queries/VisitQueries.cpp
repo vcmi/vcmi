@@ -24,7 +24,7 @@ VisitQuery::VisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const
 	addPlayer(Hero->tempOwner);
 }
 
-bool VisitQuery::blocksPack(const CPack * pack) const
+bool VisitQuery::blocksPack(const CPackForServer * pack) const
 {
 	//During the visit itself ALL actions are blocked.
 	//(However, the visit may trigger a query above that'll pass some.)
