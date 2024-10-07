@@ -97,6 +97,10 @@ private slots:
 
 	void on_buttonValidationFull_clicked(bool checked);
 
+	void on_sliderScalingCursor_valueChanged(int value);
+
+	void on_buttonScalingAuto_toggled(bool checked);
+
 private:
 	Ui::CSettingsView * ui;
 
