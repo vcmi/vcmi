@@ -77,7 +77,7 @@ TEST(MapFormat, DISABLED_Random)
 
 	serializeBuffer.seek(0);
 	{
-		CMapLoaderJson loader(&serializeBuffer);
+		CMapLoaderJson loader("", "", &serializeBuffer);
 		std::unique_ptr<CMap> serialized = loader.loadMap(nullptr);
 
 		MapComparer c;

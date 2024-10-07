@@ -875,8 +875,6 @@ void CMapLoaderJson::readHeader(const bool complete)
 	}
 
 	serializeHeader(handler);
-	mapHeader->name.clear();
-	mapHeader->description.clear();
 	mapHeader->name.appendTextID(mapRegisterLocalizedString(modName, *mapHeader, TextIdentifier("map", mapName, "header.name"), ""));
 	mapHeader->description.appendTextID(mapRegisterLocalizedString(modName, *mapHeader, TextIdentifier("map", mapName, "header.description"), ""));
 
@@ -1372,7 +1370,15 @@ void CMapSaverJson::writeTranslations()
 			continue;
 		}
 		logGlobal->trace("Saving translations, language: %s", language);
-		addToArchive(s.second, language + ".json");
+
+		auto vmapTranslation = s.second.Struct();
+		JsonMap tmp;
+		for (auto [key, val] : vmapTranslation)
+			tmp[std::regex_replace(key, std::regex("^.*\\..*\\."), "")] = val;
+
+		JsonNode tmpJson;
+		tmpJson.Struct() = tmp;
+		addToArchive(tmpJson, language + ".json");
 	}
 }
 
