@@ -431,10 +431,28 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 			continue;
 		
 		auto playerConnection = vstd::find(playerConnections.second, c);
-		if(playerConnection != playerConnections.second.end())
+		if(playerConnection == playerConnections.second.end())
+			continue;
+
+		logGlobal->trace("Player %s disconnected. Notifying remaining players", playerId.toString());
+
+		// this player have left the game - broadcast infowindow to all in-game players
+		for (auto i = gs->players.cbegin(); i!=gs->players.cend(); i++)
 		{
-			std::string messageText = boost::str(boost::format("%s (cid %d) was disconnected") % playerSettings->name % c->connectionID);
-			playerMessages->broadcastMessage(playerId, messageText);
+			if (i->first == playerId)
+				continue;
+
+			if (getPlayerState(i->first)->status != EPlayerStatus::INGAME)
+				continue;
+
+			logGlobal->trace("Notifying player %s", i->first);
+
+			InfoWindow out;
+			out.player = i->first;
+			out.text.appendTextID("vcmi.server.errors.playerLeft");
+			out.text.replaceName(playerId);
+			out.components.emplace_back(ComponentType::FLAG, playerId);
+			sendAndApply(&out);
 		}
 	}
 }
@@ -1194,7 +1212,7 @@ void CGameHandler::visitCastleObjects(const CGTownInstance * t, std::vector<cons
 
 	for (auto & building : t->rewardableBuildings)
 	{
-		if (!t->town->buildings.at(building.first)->manualHeroVisit)
+		if (!t->town->buildings.at(building.first)->manualHeroVisit && t->hasBuilt(building.first))
 			buildingsToVisit.push_back(building.first);
 	}
 
@@ -2782,15 +2800,15 @@ bool CGameHandler::switchArtifactsCostume(const PlayerColor & player, const Obje
 		// Second, find the necessary artifacts for the costume
 		for(const auto & artPos : costumeArtMap)
 		{
-			if(const auto availableArts = artFittingSet.getAllArtPositions(artPos.second, false, false, false); !availableArts.empty())
+			if(const auto slot = artFittingSet.getArtPos(artPos.second, false, false); slot != ArtifactPosition::PRE_FIRST)
 			{
 				bma.artsPack0.emplace_back(BulkMoveArtifacts::LinkedSlots
 					{
-						artSet->getArtPos(artFittingSet.getArt(availableArts.front())),
+						artSet->getArtPos(artFittingSet.getArt(slot)),
 						artPos.first
 					});
-				artFittingSet.removeArtifact(availableArts.front());
-				if(ArtifactUtils::isSlotBackpack(availableArts.front()))
+				artFittingSet.removeArtifact(slot);
+				if(ArtifactUtils::isSlotBackpack(slot))
 					estimateBackpackSize--;
 			}
 		}
@@ -3821,9 +3839,10 @@ bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & s
 	}
 }
 
-bool CGameHandler::putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble)
+bool CGameHandler::putArtifact(const ArtifactLocation & al, const ArtifactInstanceID & id, std::optional<bool> askAssemble)
 {
-	assert(art && art->artType);
+	const auto artInst = getArtInstance(id);
+	assert(artInst && artInst->artType);
 	ArtifactLocation dst(al.artHolder, ArtifactPosition::PRE_FIRST);
 	dst.creature = al.creature;
 	auto putTo = getArtSet(al);
@@ -3831,11 +3850,11 @@ bool CGameHandler::putArtifact(const ArtifactLocation & al, const CArtifactInsta
 
 	if(al.slot == ArtifactPosition::FIRST_AVAILABLE)
 	{
-		dst.slot = ArtifactUtils::getArtAnyPosition(putTo, art->getTypeId());
+		dst.slot = ArtifactUtils::getArtAnyPosition(putTo, artInst->getTypeId());
 	}
 	else if(ArtifactUtils::isSlotBackpack(al.slot) && !al.creature.has_value())
 	{
-		dst.slot = ArtifactUtils::getArtBackpackPosition(putTo, art->getTypeId());
+		dst.slot = ArtifactUtils::getArtBackpackPosition(putTo, artInst->getTypeId());
 	}
 	else
 	{
@@ -3850,10 +3869,9 @@ bool CGameHandler::putArtifact(const ArtifactLocation & al, const CArtifactInsta
 			askAssemble = false;
 	}
 
-	if(art->canBePutAt(putTo, dst.slot))
+	if(artInst->canBePutAt(putTo, dst.slot))
 	{
-		PutArtifact pa(dst, askAssemble.value());
-		pa.art = art;
+		PutArtifact pa(id, dst, askAssemble.value());
 		sendAndApply(&pa);
 		return true;
 	}

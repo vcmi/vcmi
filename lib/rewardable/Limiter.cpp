@@ -143,10 +143,28 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 		for(const auto & elem : artifactsRequirements)
 		{
 			// check required amount of artifacts
-			if(hero->getArtPosCount(elem.first, false, true, true) < elem.second)
+			size_t artCnt = 0;
+			for(const auto & [slot, slotInfo] : hero->artifactsWorn)
+				if(slotInfo.artifact->getTypeId() == elem.first)
+					artCnt++;
+
+			for(auto & slotInfo : hero->artifactsInBackpack)
+				if(slotInfo.artifact->getTypeId() == elem.first)
+				{
+					artCnt++;
+				}
+				else if(slotInfo.artifact->isCombined())
+				{
+					for(const auto & partInfo : slotInfo.artifact->getPartsInfo())
+						if(partInfo.art->getTypeId() == elem.first)
+							artCnt++;
+				}
+
+			if(artCnt < elem.second)
 				return false;
-			if(!hero->hasArt(elem.first))
-				reqSlots += hero->getAssemblyByConstituent(elem.first)->getPartsInfo().size() - 2;
+			// Check if art has no own slot. (As part of combined in backpack)
+			if(hero->getArtPos(elem.first, false) == ArtifactPosition::PRE_FIRST)
+				reqSlots += hero->getCombinedArtWithPart(elem.first)->getPartsInfo().size() - 2;
 		}
 		if(!ArtifactUtils::isBackpackFreeSlots(hero, reqSlots))
 			return false;

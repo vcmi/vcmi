@@ -1490,8 +1490,7 @@ void NewArtifact::applyGs(CGameState *gs)
 {
 	auto art = ArtifactUtils::createArtifact(artId, spellId);
 	gs->map->addNewArtifactInstance(art);
-	PutArtifact pa(ArtifactLocation(artHolder, pos), false);
-	pa.art = art;
+	PutArtifact pa(art->getId(), ArtifactLocation(artHolder, pos), false);
 	pa.applyGs(gs);
 }
 
@@ -1610,14 +1609,14 @@ void RebalanceStacks::applyGs(CGameState *gs)
 			const auto dstHero = dynamic_cast<CGHeroInstance*>(dst.army.get());
 			auto srcStack = const_cast<CStackInstance*>(src.getStack());
 			auto dstStack = const_cast<CStackInstance*>(dst.getStack());
-			if(auto srcArt = srcStack->getArt(ArtifactPosition::CREATURE_SLOT))
+			if(srcStack->getArt(ArtifactPosition::CREATURE_SLOT))
 			{
 				if(auto dstArt = dstStack->getArt(ArtifactPosition::CREATURE_SLOT))
 				{
 					auto dstSlot = ArtifactUtils::getArtBackpackPosition(srcHero, dstArt->getTypeId());
 					if(srcHero && dstSlot != ArtifactPosition::PRE_FIRST)
 					{
-						dstArt->move(*dstStack, ArtifactPosition::CREATURE_SLOT, *srcHero, dstSlot);
+						gs->map->moveArtifactInstance(*dstStack, ArtifactPosition::CREATURE_SLOT, *srcHero, dstSlot);
 					}
 					//else - artifact can be lost :/
 					else
@@ -1629,12 +1628,12 @@ void RebalanceStacks::applyGs(CGameState *gs)
 						ea.applyGs(gs);
 						logNetwork->warn("Cannot move artifact! No free slots");
 					}
-					srcArt->move(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
+					gs->map->moveArtifactInstance(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
 					//TODO: choose from dialog
 				}
 				else //just move to the other slot before stack gets erased
 				{
-					srcArt->move(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
+					gs->map->moveArtifactInstance(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
 				}
 			}
 			if (stackExp)
@@ -1704,14 +1703,13 @@ void BulkSmartRebalanceStacks::applyGs(CGameState *gs)
 
 void PutArtifact::applyGs(CGameState *gs)
 {
-	// Ensure that artifact has been correctly added via NewArtifact pack
-	assert(vstd::contains(gs->map->artInstances, art));
+	auto art = gs->getArtInstance(id);
 	assert(!art->getParentNodes().empty());
 	auto hero = gs->getHero(al.artHolder);
 	assert(hero);
 	assert(art && art->canBePutAt(hero, al.slot));
 	assert(ArtifactUtils::checkIfSlotValid(*hero, al.slot));
-	art->putAt(*hero, al.slot);
+	gs->map->putArtifactInstance(*hero, art, al.slot);
 }
 
 void BulkEraseArtifacts::applyGs(CGameState *gs)
@@ -1736,7 +1734,7 @@ void BulkEraseArtifacts::applyGs(CGameState *gs)
 			for(auto & slotInfoWorn : artSet->artifactsWorn)
 			{
 				auto art = slotInfoWorn.second.artifact;
-				if(art->isCombined() && art->isPart(slotInfo->getArt()))
+				if(art->isCombined() && art->isPart(slotInfo->artifact))
 				{
 					dis.al.slot = artSet->getArtPos(art);
 					break;
@@ -1750,15 +1748,13 @@ void BulkEraseArtifacts::applyGs(CGameState *gs)
 		{
 			logGlobal->debug("Erasing artifact %s", slotInfo->artifact->artType->getNameTranslated());
 		}
-		auto art = artSet->getArt(slot);
-		assert(art);
-		art->removeFrom(*artSet, slot);
+		gs->map->removeArtifactInstance(*artSet, slot);
 	}
 }
 
 void BulkMoveArtifacts::applyGs(CGameState *gs)
 {
-	const auto bulkArtsRemove = [](std::vector<LinkedSlots> & artsPack, CArtifactSet & artSet)
+	const auto bulkArtsRemove = [gs](std::vector<LinkedSlots> & artsPack, CArtifactSet & artSet)
 	{
 		std::vector<ArtifactPosition> packToRemove;
 		for(const auto & slotsPair : artsPack)
@@ -1769,20 +1765,16 @@ void BulkMoveArtifacts::applyGs(CGameState *gs)
 			});
 
 		for(const auto & slot : packToRemove)
-		{
-			auto * art = artSet.getArt(slot);
-			assert(art);
-			art->removeFrom(artSet, slot);
-		}
+			gs->map->removeArtifactInstance(artSet, slot);
 	};
 
-	const auto bulkArtsPut = [](std::vector<LinkedSlots> & artsPack, CArtifactSet & initArtSet, CArtifactSet & dstArtSet)
+	const auto bulkArtsPut = [gs](std::vector<LinkedSlots> & artsPack, CArtifactSet & initArtSet, CArtifactSet & dstArtSet)
 	{
 		for(const auto & slotsPair : artsPack)
 		{
 			auto * art = initArtSet.getArt(slotsPair.srcPos);
 			assert(art);
-			art->putAt(dstArtSet, slotsPair.dstPos);
+			gs->map->putArtifactInstance(dstArtSet, art, slotsPair.dstPos);
 		}
 	};
 	
@@ -1859,7 +1851,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	for(const auto slot : slotsInvolved)
 	{
 		const auto constituentInstance = hero->getArt(slot);
-		constituentInstance->removeFrom(*hero, slot);
+		gs->map->removeArtifactInstance(*hero, slot);
 
 		if(ArtifactUtils::isSlotEquipment(al.slot) && slot != al.slot)
 			combinedArt->addPart(constituentInstance, slot);
@@ -1868,7 +1860,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	}
 
 	// Put new combined artifacts
-	combinedArt->putAt(*hero, al.slot);
+	gs->map->putArtifactInstance(*hero, combinedArt, al.slot);
 }
 
 void DisassembledArtifact::applyGs(CGameState *gs)
@@ -1878,14 +1870,14 @@ void DisassembledArtifact::applyGs(CGameState *gs)
 	auto disassembledArt = hero->getArt(al.slot);
 	assert(disassembledArt);
 
-	auto parts = disassembledArt->getPartsInfo();
-	disassembledArt->removeFrom(*hero, al.slot);
+	const auto parts = disassembledArt->getPartsInfo();
+	gs->map->removeArtifactInstance(*hero, al.slot);
 	for(auto & part : parts)
 	{
 		// ArtifactPosition::PRE_FIRST is value of main part slot -> it'll replace combined artifact in its pos
 		auto slot = (ArtifactUtils::isSlotEquipment(part.slot) ? part.slot : al.slot);
 		disassembledArt->detachFrom(*part.art);
-		part.art->putAt(*hero, slot);
+		gs->map->putArtifactInstance(*hero, part.art, slot);
 	}
 	gs->map->eraseArtifactInstance(disassembledArt);
 }

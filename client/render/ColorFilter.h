@@ -44,6 +44,7 @@ public:
 
 	/// Generates object that transforms each channel independently
 	static ColorFilter genRangeShifter( float minR, float minG, float minB, float maxR, float maxG, float maxB );
+	static ColorFilter genRangeShifter( std::vector<float> parameters );
 
 	/// Generates object that performs arbitrary mixing between any channels
 	static ColorFilter genMuxerShifter( ChannelMuxer r, ChannelMuxer g, ChannelMuxer b, float a );

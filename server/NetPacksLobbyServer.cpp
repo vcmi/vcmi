@@ -108,6 +108,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyC
 
 void ApplyOnServerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
+	pack.c->getConnection()->close();
 	srv.clientDisconnected(pack.c);
 	result = true;
 }

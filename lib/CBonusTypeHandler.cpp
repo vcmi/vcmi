@@ -200,8 +200,9 @@ ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonu
 
 void CBonusTypeHandler::load()
 {
-	const JsonNode gameConf(JsonPath::builtin("config/gameConfig.json"));
-	const JsonNode config(JsonUtils::assembleFromFiles(gameConf["bonuses"].convertTo<std::vector<std::string>>()));
+	JsonNode gameConf(JsonPath::builtin("config/gameConfig.json"));
+	JsonNode config(JsonUtils::assembleFromFiles(gameConf["bonuses"].convertTo<std::vector<std::string>>()));
+	config.setModScope("vcmi");
 	load(config);
 }
 
@@ -240,8 +241,8 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 
 	if (!dest.hidden)
 	{
-		VLC->generaltexth->registerString( "vcmi", dest.getNameTextID(), source["name"].String());
-		VLC->generaltexth->registerString( "vcmi", dest.getDescriptionTextID(), source["description"].String());
+		VLC->generaltexth->registerString( "vcmi", dest.getNameTextID(), source["name"]);
+		VLC->generaltexth->registerString( "vcmi", dest.getDescriptionTextID(), source["description"]);
 	}
 
 	const JsonNode & graphics = source["graphics"];

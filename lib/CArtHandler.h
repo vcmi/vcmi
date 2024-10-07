@@ -175,10 +175,10 @@ private:
 
 struct DLL_LINKAGE ArtSlotInfo
 {
-	ConstTransitivePtr<CArtifactInstance> artifact;
-	ui8 locked; //if locked, then artifact points to the combined artifact
+	CArtifactInstance * artifact;
+	bool locked; //if locked, then artifact points to the combined artifact
 
-	ArtSlotInfo() : locked(false) {}
+	ArtSlotInfo() : artifact(nullptr), locked(false) {}
 	const CArtifactInstance * getArt() const;
 
 	template <typename Handler> void serialize(Handler & h)
@@ -197,32 +197,20 @@ public:
 	std::map<ArtifactPosition, ArtSlotInfo> artifactsWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	ArtSlotInfo artifactsTransitionPos; // Used as transition position for dragAndDrop artifact exchange
 
-	void setNewArtSlot(const ArtifactPosition & slot, ConstTransitivePtr<CArtifactInstance> art, bool locked);
-	void eraseArtSlot(const ArtifactPosition & slot);
-
 	const ArtSlotInfo * getSlot(const ArtifactPosition & pos) const;
-	const CArtifactInstance * getArt(const ArtifactPosition & pos, bool excludeLocked = true) const; //nullptr - no artifact
-	CArtifactInstance * getArt(const ArtifactPosition & pos, bool excludeLocked = true); //nullptr - no artifact
-	/// Looks for equipped artifact with given ID and returns its slot ID or -1 if none
-	/// (if more than one such artifact lower ID is returned)
+	void lockSlot(const ArtifactPosition & pos);
+	CArtifactInstance * getArt(const ArtifactPosition & pos, bool excludeLocked = true) const;
+	/// Looks for first artifact with given ID
 	ArtifactPosition getArtPos(const ArtifactID & aid, bool onlyWorn = true, bool allowLocked = true) const;
 	ArtifactPosition getArtPos(const CArtifactInstance * art) const;
-	std::vector<ArtifactPosition> getAllArtPositions(const ArtifactID & aid, bool onlyWorn, bool allowLocked, bool getAll) const;
-	std::vector<ArtifactPosition> getBackpackArtPositions(const ArtifactID & aid) const;
 	const CArtifactInstance * getArtByInstanceId(const ArtifactInstanceID & artInstId) const;
-	/// Search for constituents of assemblies in backpack which do not have an ArtifactPosition
-	const CArtifactInstance * getHiddenArt(const ArtifactID & aid) const;
-	const CArtifactInstance * getAssemblyByConstituent(const ArtifactID & aid) const;
-	/// Checks if hero possess artifact of given id (either in backack or worn)
-	bool hasArt(const ArtifactID & aid, bool onlyWorn = false, bool searchBackpackAssemblies = false, bool allowLocked = true) const;
-	bool hasArtBackpack(const ArtifactID & aid) const;
+	bool hasArt(const ArtifactID & aid, bool onlyWorn = false, bool searchCombinedParts = false) const;
 	bool isPositionFree(const ArtifactPosition & pos, bool onlyLockCheck = false) const;
-	unsigned getArtPosCount(const ArtifactID & aid, bool onlyWorn = true, bool searchBackpackAssemblies = true, bool allowLocked = true) const;
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
-	virtual ArtPlacementMap putArtifact(ArtifactPosition slot, CArtifactInstance * art);
-	virtual void removeArtifact(ArtifactPosition slot);
-	virtual ~CArtifactSet();
+	virtual ArtPlacementMap putArtifact(const ArtifactPosition & slot, CArtifactInstance * art);
+	virtual void removeArtifact(const ArtifactPosition & slot);
+	virtual ~CArtifactSet() = default;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -233,10 +221,11 @@ public:
 	void artDeserializationFix(CBonusSystemNode *node);
 
 	void serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName);
-protected:
-	std::pair<const CArtifactInstance *, const CArtifactInstance *> searchForConstituent(const ArtifactID & aid) const;
+	const CArtifactInstance * getCombinedArtWithPart(const ArtifactID & partId) const;
 
 private:
+	void setNewArtSlot(const ArtifactPosition & slot, CArtifactInstance * art, bool locked);
+
 	void serializeJsonHero(JsonSerializeFormat & handler);
 	void serializeJsonCreature(JsonSerializeFormat & handler);
 	void serializeJsonCommander(JsonSerializeFormat & handler);

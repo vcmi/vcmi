@@ -152,5 +152,12 @@
 				"perHero" : { "type" : "object" }
 			}
 		},
+		"interface": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"playerColoredBackground" : { "type" : "object" }
+			}
+		}
 	}
 }

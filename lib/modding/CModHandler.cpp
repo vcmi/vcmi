@@ -384,7 +384,7 @@ std::set<TModID> CModHandler::getModDependencies(const TModID & modId, bool & is
 
 void CModHandler::initializeConfig()
 {
-	VLC->settingsHandler->loadBase(coreMod->config["settings"]);
+	VLC->settingsHandler->loadBase(JsonUtils::assembleFromFiles(coreMod->config["settings"]));
 
 	for(const TModID & modName : activeMods)
 	{
@@ -401,33 +401,6 @@ CModVersion CModHandler::getModVersion(TModID modName) const
 	return {};
 }
 
-bool CModHandler::validateTranslations(TModID modName) const
-{
-	bool result = true;
-	const auto & mod = allMods.at(modName);
-
-	{
-		auto fileList = mod.config["translations"].convertTo<std::vector<std::string> >();
-		JsonNode json = JsonUtils::assembleFromFiles(fileList);
-		result |= VLC->generaltexth->validateTranslation(mod.baseLanguage, modName, json);
-	}
-
-	for(const auto & language : Languages::getLanguageList())
-	{
-		if (mod.config[language.identifier].isNull())
-			continue;
-
-		if (mod.config[language.identifier]["skipValidation"].Bool())
-			continue;
-
-		auto fileList = mod.config[language.identifier]["translations"].convertTo<std::vector<std::string> >();
-		JsonNode json = JsonUtils::assembleFromFiles(fileList);
-		result |= VLC->generaltexth->validateTranslation(language.identifier, modName, json);
-	}
-
-	return result;
-}
-
 void CModHandler::loadTranslation(const TModID & modName)
 {
 	const auto & mod = allMods[modName];
@@ -435,14 +408,11 @@ void CModHandler::loadTranslation(const TModID & modName)
 	std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
 	std::string modBaseLanguage = allMods[modName].baseLanguage;
 
-	auto baseTranslationList = mod.config["translations"].convertTo<std::vector<std::string> >();
-	auto extraTranslationList = mod.config[preferredLanguage]["translations"].convertTo<std::vector<std::string> >();
+	JsonNode baseTranslation = JsonUtils::assembleFromFiles(mod.config["translations"]);
+	JsonNode extraTranslation = JsonUtils::assembleFromFiles(mod.config[preferredLanguage]["translations"]);
 
-	JsonNode baseTranslation = JsonUtils::assembleFromFiles(baseTranslationList);
-	JsonNode extraTranslation = JsonUtils::assembleFromFiles(extraTranslationList);
-
-	VLC->generaltexth->loadTranslationOverrides(modBaseLanguage, modName, baseTranslation);
-	VLC->generaltexth->loadTranslationOverrides(preferredLanguage, modName, extraTranslation);
+	VLC->generaltexth->loadTranslationOverrides(modName, baseTranslation);
+	VLC->generaltexth->loadTranslationOverrides(modName, extraTranslation);
 }
 
 void CModHandler::load()
@@ -479,12 +449,6 @@ void CModHandler::load()
 
 	for(const TModID & modName : activeMods)
 		loadTranslation(modName);
-
-#if 0
-	for(const TModID & modName : activeMods)
-		if (!validateTranslations(modName))
-			allMods[modName].validation = CModInfo::FAILED;
-#endif
 
 	logMod->info("\tLoading mod data: %d ms", timer.getDiff());
 	VLC->creh->loadCrExpMod();

@@ -33,7 +33,9 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/opt.h>
 #include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
 }
 
 // Define a set of functions to read data
@@ -501,32 +503,71 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	int numChannels = codecpar->ch_layout.nb_channels;
 #endif
 
-	samples.reserve(44100 * 5); // arbitrary 5-second buffer
+	samples.reserve(44100 * 5); // arbitrary 5-second buffer to reduce reallocations
 
-	for (;;)
+	if (formatProperties.isPlanar && numChannels > 1)
 	{
-		decodeNextFrame();
-		const AVFrame * frame = getCurrentFrame();
+		// Format is 'planar', which is not supported by wav / SDL
+		// Use swresample part of ffmpeg to deplanarize audio into format supported by wav / SDL
 
-		if (!frame)
-			break;
+		auto sourceFormat = static_cast<AVSampleFormat>(codecpar->format);
+		auto targetFormat = av_get_alt_sample_fmt(sourceFormat, false);
 
-		int samplesToRead = frame->nb_samples * numChannels;
-		int bytesToRead = samplesToRead * formatProperties.sampleSizeBytes;
+		SwrContext * swr_ctx = swr_alloc();
 
-		if (formatProperties.isPlanar && numChannels > 1)
+#if (LIBAVUTIL_VERSION_MAJOR < 58)
+		av_opt_set_channel_layout(swr_ctx, "in_chlayout", codecpar->channel_layout, 0);
+		av_opt_set_channel_layout(swr_ctx, "out_chlayout", codecpar->channel_layout, 0);
+#else
+		av_opt_set_chlayout(swr_ctx, "in_chlayout", &codecpar->ch_layout, 0);
+		av_opt_set_chlayout(swr_ctx, "out_chlayout", &codecpar->ch_layout, 0);
+#endif
+		av_opt_set_int(swr_ctx, "in_sample_rate", codecpar->sample_rate, 0);
+		av_opt_set_sample_fmt(swr_ctx, "in_sample_fmt", sourceFormat, 0);
+		av_opt_set_int(swr_ctx, "out_sample_rate", codecpar->sample_rate, 0);
+		av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt", targetFormat, 0);
+
+		int initResult = swr_init(swr_ctx);
+		if (initResult < 0)
+			throwFFmpegError(initResult);
+
+		std::vector<uint8_t> frameSamplesBuffer;
+		for (;;)
 		{
-			// Workaround for lack of resampler
-			// Currently, ffmpeg on conan systems is built without sws resampler
-			// Because of that, and because wav format does not supports 'planar' formats from ffmpeg
-			// we need to de-planarize it and convert to "normal" (non-planar / interleaved) stream
-			samples.reserve(samples.size() + bytesToRead);
-			for (int sm = 0; sm < frame->nb_samples; ++sm)
-				for (int ch = 0; ch < numChannels; ++ch)
-					samples.insert(samples.end(), frame->data[ch] + sm * formatProperties.sampleSizeBytes, frame->data[ch] + (sm+1) * formatProperties.sampleSizeBytes );
+			decodeNextFrame();
+			const AVFrame * frame = getCurrentFrame();
+
+			if (!frame)
+				break;
+
+			size_t samplesToRead = frame->nb_samples * numChannels;
+			size_t bytesToRead = samplesToRead * formatProperties.sampleSizeBytes;
+			frameSamplesBuffer.resize(std::max(frameSamplesBuffer.size(), bytesToRead));
+			uint8_t * frameSamplesPtr = frameSamplesBuffer.data();
+
+			int result = swr_convert(swr_ctx, &frameSamplesPtr, frame->nb_samples, (const uint8_t **)frame->data, frame->nb_samples);
+
+			if (result < 0)
+				throwFFmpegError(result);
+
+			size_t samplesToCopy = result * numChannels;
+			size_t bytesToCopy = samplesToCopy * formatProperties.sampleSizeBytes;
+			samples.insert(samples.end(), frameSamplesBuffer.begin(), frameSamplesBuffer.begin() + bytesToCopy);
 		}
-		else
+		swr_free(&swr_ctx);
+	}
+	else
+	{
+		for (;;)
 		{
+			decodeNextFrame();
+			const AVFrame * frame = getCurrentFrame();
+
+			if (!frame)
+				break;
+
+			size_t samplesToRead = frame->nb_samples * numChannels;
+			size_t bytesToRead = samplesToRead * formatProperties.sampleSizeBytes;
 			samples.insert(samples.end(), frame->data[0], frame->data[0] + bytesToRead);
 		}
 	}

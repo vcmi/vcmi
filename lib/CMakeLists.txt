@@ -184,6 +184,8 @@ set(lib_MAIN_SRCS
 	rmg/TileInfo.cpp
 	rmg/Zone.cpp
 	rmg/Functions.cpp
+	rmg/ObjectInfo.cpp
+	rmg/ObjectConfig.cpp
 	rmg/RmgMap.cpp
 	rmg/PenroseTiling.cpp
 	rmg/modificators/Modificator.cpp
@@ -510,6 +512,7 @@ set(lib_MAIN_HEADERS
 	mapObjects/IOwnableObject.h
 	mapObjects/MapObjects.h
 	mapObjects/MiscObjects.h
+	mapObjects/CompoundMapObjectID.h
 	mapObjects/ObjectTemplate.h
 	mapObjects/ObstacleSetHandler.h
 
@@ -587,6 +590,8 @@ set(lib_MAIN_HEADERS
 	rmg/RmgMap.h
 	rmg/float3.h
 	rmg/Functions.h
+	rmg/ObjectInfo.h
+	rmg/ObjectConfig.h
 	rmg/PenroseTiling.h
 	rmg/modificators/Modificator.h
 	rmg/modificators/ObjectManager.h

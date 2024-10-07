@@ -152,7 +152,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 		}
 		else
 		{
-			const auto * assembly = h->getAssemblyByConstituent(elem);
+			const auto * assembly = h->getCombinedArtWithPart(elem);
 			assert(assembly);
 			auto parts = assembly->getPartsInfo();
 

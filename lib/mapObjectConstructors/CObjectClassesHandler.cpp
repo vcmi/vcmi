@@ -40,6 +40,8 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/CLegacyConfigParser.h"
 
+#include <vstd/StringUtils.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 CObjectClassesHandler::CObjectClassesHandler()
@@ -276,7 +278,7 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::stri
 	newObject->base = json["base"];
 	newObject->id = index;
 
-	VLC->generaltexth->registerString(scope, newObject->getNameTextID(), json["name"].String());
+	VLC->generaltexth->registerString(scope, newObject->getNameTextID(), json["name"]);
 
 	newObject->objectTypeHandlers.resize(json["lastReservedIndex"].Float() + 1);
 
@@ -390,6 +392,62 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(CompoundMapObjectID comp
 	return getHandlerFor(compoundIdentifier.primaryID, compoundIdentifier.secondaryID);
 }
 
+CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & scope, const std::string & type, const std::string & subtype) const
+{
+	std::optional<si32> id;
+	if (scope.empty())
+	{
+		id = VLC->identifiers()->getIdentifier("object", type);
+	}
+	else
+	{
+		id = VLC->identifiers()->getIdentifier(scope, "object", type);
+	}
+
+	if(id)
+	{
+		if (subtype.empty())
+			return CompoundMapObjectID(id.value(), 0);
+
+		const auto & object = mapObjectTypes.at(id.value());
+		std::optional<si32> subID = VLC->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
+
+		if (subID)
+			return CompoundMapObjectID(id.value(), subID.value());
+	}
+
+	std::string errorString = "Failed to get id for object of type " + type + "." + subtype;
+	logGlobal->error(errorString);
+	throw std::runtime_error(errorString);
+}
+
+CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & objectName) const
+{
+	std::string subtype = "object"; //Default for objects with no subIds
+	std::string type;
+
+	auto scopeAndFullName = vstd::splitStringToPair(objectName, ':');
+	logGlobal->debug("scopeAndFullName: %s, %s", scopeAndFullName.first, scopeAndFullName.second);
+	
+	auto typeAndName = vstd::splitStringToPair(scopeAndFullName.second, '.');
+	logGlobal->debug("typeAndName: %s, %s", typeAndName.first, typeAndName.second);
+	
+	auto nameAndSubtype = vstd::splitStringToPair(typeAndName.second, '.');
+	logGlobal->debug("nameAndSubtype: %s, %s", nameAndSubtype.first, nameAndSubtype.second);
+
+	if (!nameAndSubtype.first.empty())
+	{
+		type = nameAndSubtype.first;
+		subtype = nameAndSubtype.second;
+	}
+	else
+	{
+		type = typeAndName.second;
+	}
+	
+	return getCompoundIdentifier(boost::to_lower_copy(scopeAndFullName.first), type, subtype);
+}
+
 std::set<MapObjectID> CObjectClassesHandler::knownObjects() const
 {
 	std::set<MapObjectID> ret;
@@ -459,6 +517,18 @@ void CObjectClassesHandler::afterLoadFinalization()
 				logGlobal->warn("No templates found for %s:%s", entry->getJsonKey(), obj->getJsonKey());
 		}
 	}
+
+	for(auto & entry : objectIdHandlers)
+	{
+		// Call function for each object id
+		entry.second(entry.first);
+	}
+}
+
+void CObjectClassesHandler::resolveObjectCompoundId(const std::string & id, std::function<void(CompoundMapObjectID)> callback)
+{
+	auto compoundId = getCompoundIdentifier(id);
+	objectIdHandlers.push_back(std::make_pair(compoundId, callback));
 }
 
 void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container)

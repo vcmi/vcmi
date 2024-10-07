@@ -442,17 +442,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="648"/>
         <source>Gog files</source>
-        <translation type="unfinished"></translation>
+        <translation>Arquivos GOG</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="650"/>
         <source>All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Todos os arquivos (*.*)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="652"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecione arquivos (configurações, mods, mapas, campanhas, arquivos gog) para instalar...</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="677"/>
@@ -483,7 +483,7 @@ Encountered errors:
 </source>
         <translation>Não foi possível baixar todos os arquivos.
 
-Encontrados os seguintes erros:
+Erros encontrados:
 
 </translation>
     </message>
@@ -494,12 +494,12 @@ Encontrados os seguintes erros:
 Install successfully downloaded?</source>
         <translation>
 
-Instalar o download realizado com sucesso?</translation>
+O download da instalação foi bem-sucedido?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="852"/>
         <source>Installing chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalando crônicas</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="925"/>
@@ -641,12 +641,12 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="307"/>
         <source>Artificial Intelligence</source>
-        <translation>Inteligência Artificial</translation>
+        <translation>Inteligência artificial</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1072"/>
         <source>Interface Scaling</source>
-        <translation>Escala da Interface</translation>
+        <translation>Escala da interface</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="924"/>
@@ -666,12 +666,12 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="931"/>
         <source>Adventure Map Allies</source>
-        <translation>Aliados do Mapa de Aventura</translation>
+        <translation>Aliados do mapa de aventura</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="490"/>
         <source>Online Lobby port</source>
-        <translation>Porta da Sala de Espera On-line</translation>
+        <translation>Porta da sala de espera on-line</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="331"/>
@@ -681,22 +681,22 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="352"/>
         <source>Sticks Sensitivity</source>
-        <translation>Sensibilidade dos Analógicos</translation>
+        <translation>Sensibilidade dos analógicos</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="618"/>
         <source>Automatic (Linear)</source>
-        <translation>Automático (Linear)</translation>
+        <translation>Automático (linear)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="798"/>
         <source>Haptic Feedback</source>
-        <translation>Resposta Tátil</translation>
+        <translation>Resposta tátil</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="835"/>
         <source>Software Cursor</source>
-        <translation>Cursor por Software</translation>
+        <translation>Cursor por software</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1166"/>
@@ -724,24 +724,29 @@ Instalar o download realizado com sucesso?</translation>
         <translation>xBRZ x4</translation>
     </message>
     <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1194"/>
+        <source>Use scalable fonts</source>
+    <translation>Usar fontes escaláveis</translation>
+    </message>
+    <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="138"/>
         <source>Online Lobby address</source>
-        <translation>Endereço da Sala de Espera On-line</translation>
+        <translation>Endereço da sala de espera on-line</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1158"/>
         <source>Upscaling Filter</source>
-        <translation>Filtro de Aumento de Escala</translation>
+        <translation>Filtro de aumento de escala</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="317"/>
         <source>Use Relative Pointer Mode</source>
-        <translation>Usar Modo de Ponteiro Relativo</translation>
+        <translation>Usar modo de ponteiro relativo</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="608"/>
         <source>Nearest</source>
-        <translation>Mais Próximo</translation>
+        <translation>Mais próximo</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="613"/>
@@ -751,27 +756,22 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="750"/>
         <source>Input - Touchscreen</source>
-        <translation>Entrada - Tela de Toque</translation>
+        <translation>Entrada - tela de toque</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="900"/>
         <source>Adventure Map Enemies</source>
-        <translation>Inimigos do Mapa de Aventura</translation>
+        <translation>Inimigos do mapa de aventura</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1144"/>
         <source>Show Tutorial again</source>
-        <translation>Mostrar o Tutorial novamente</translation>
+        <translation>Mostrar o tutorial novamente</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1151"/>
         <source>Reset</source>
         <translation>Redefinir</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1194"/>
-        <source>Use scalable fonts</source>
-        <translation>Usar Fontes Escaláveis</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="854"/>
@@ -786,12 +786,12 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="842"/>
         <source>Relative Pointer Speed</source>
-        <translation>Velocidade do Ponteiro Relativo</translation>
+        <translation>Velocidade do ponteiro relativo</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1137"/>
         <source>Music Volume</source>
-        <translation>Volume da Música</translation>
+        <translation>Volume da música</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="767"/>
@@ -801,12 +801,12 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="943"/>
         <source>Input - Mouse</source>
-        <translation>Entrada - Mouse</translation>
+        <translation>Entrada - mouse</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="345"/>
         <source>Long Touch Duration</source>
-        <translation>Duração do Toque Longo</translation>
+        <translation>Duração do toque longo</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="115"/>
@@ -816,22 +816,22 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1037"/>
         <source>Controller Click Tolerance</source>
-        <translation>Tolerância de Clique do Controle</translation>
+        <translation>Tolerância de clique do controle</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="359"/>
         <source>Touch Tap Tolerance</source>
-        <translation>Tolerância de Toque Tátil</translation>
+        <translation>Tolerância de toque tátil</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1020"/>
         <source>Input - Controller</source>
-        <translation>Entrada - Controle</translation>
+        <translation>Entrada - controle</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1086"/>
         <source>Sound Volume</source>
-        <translation>Volume do Som</translation>
+        <translation>Volume do som</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="402"/>
@@ -856,12 +856,12 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="893"/>
         <source>Downscaling Filter</source>
-        <translation>Filtro de Redução de Escala</translation>
+        <translation>Filtro de redução de escala</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1030"/>
         <source>Framerate Limit</source>
-        <translation>Limite de Taxa de Quadros</translation>
+        <translation>Limite de taxa de quadros</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="760"/>
@@ -871,12 +871,12 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="828"/>
         <source>Mouse Click Tolerance</source>
-        <translation>Tolerância de Clique do Mouse</translation>
+        <translation>Tolerância de clique do mouse</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="94"/>
         <source>Sticks Acceleration</source>
-        <translation>Aceleração dos Analógicos</translation>
+        <translation>Aceleração dos analógicos</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1008"/>
@@ -1003,7 +1003,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="536"/>
         <source>Not Installed</source>
-        <translation>Não Instalado</translation>
+        <translation>Não instalado</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="537"/>
@@ -1016,35 +1016,35 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
         <source>File cannot opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível abrir o arquivo</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Arquivo selecionado inválido</translation>
+        <translation>Arquivo selecionado inválido</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <source>You have to select an gog installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Você precisa selecionar um arquivo de instalação do GOG!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>You have to select an chronicle installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Você precisa selecionar um arquivo de instalação do Chronicles!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="87"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">Erro ao extrair!</translation>
+        <translation>Erro ao extrair!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="141"/>
         <source>Heroes Chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes Chronicles</translation>
     </message>
 </context>
 <context>
@@ -1090,7 +1090,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="78"/>
         <source>Mods Preset</source>
-        <translation>Predefinição de Mod</translation>
+        <translation>Predefinição de mod</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="126"/>
@@ -1220,7 +1220,7 @@ O instalador offline consiste em duas partes, .exe e .bin. Certifique-se de baix
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="347"/>
         <source>Manual Installation</source>
-        <translation>Instalação Manual</translation>
+        <translation>Instalação manual</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="360"/>
@@ -1246,7 +1246,7 @@ O instalador offline consiste em duas partes, .exe e .bin. Certifique-se de baix
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="594"/>
         <source>Install VCMI Mod Preset</source>
-        <translation>Instalar Predefinição de Mod do VCMI</translation>
+        <translation>Instalar predefinição de mod do VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="710"/>
@@ -1370,7 +1370,7 @@ Por favor, selecione o diretório com Heroes III: Complete Edition ou Heroes III
     <message>
         <location filename="../modManager/imageviewer_moc.ui" line="20"/>
         <source>Image Viewer</source>
-        <translation>Visualizador de Imagens</translation>
+        <translation>Visualizador de imagens</translation>
     </message>
 </context>
 <context>
@@ -1379,18 +1379,18 @@ Por favor, selecione o diretório com Heroes III: Complete Edition ou Heroes III
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished">Erro de fluxo ao extrair arquivos!
+        <translation>Erro de fluxo ao extrair arquivos!
 Motivo do erro: </translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation type="unfinished">Instalador Inno Setup não suportado!</translation>
+        <translation>Instalador Inno Setup não suportado!</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="58"/>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
-        <translation type="unfinished"></translation>
+        <translation>O VCMI foi compilado sem suporte ao innoextract, que é necessário para extrair arquivos EXE!</translation>
     </message>
 </context>
 <context>
@@ -1506,7 +1506,7 @@ Motivo do erro: </translation>
     <message>
         <location filename="../mainwindow_moc.ui" line="210"/>
         <source>Map Editor</source>
-        <translation>Editor de Mapas</translation>
+        <translation>Editor de mapas</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="259"/>

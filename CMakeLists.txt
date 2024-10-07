@@ -486,11 +486,7 @@ if(NOT FORCE_BUNDLED_MINIZIP)
 endif()
 
 if (ENABLE_CLIENT)
-	set(FFMPEG_COMPONENTS avutil swscale avformat avcodec)
-	if(APPLE_IOS AND NOT USING_CONAN)
-		list(APPEND FFMPEG_COMPONENTS swresample)
-	endif()
-	find_package(ffmpeg COMPONENTS ${FFMPEG_COMPONENTS})
+	find_package(ffmpeg COMPONENTS avutil swscale avformat avcodec swresample)
 
 	find_package(SDL2 REQUIRED)
 	find_package(SDL2_image REQUIRED)
