@@ -43,7 +43,7 @@ MapServiceMock::MapServiceMock(const std::string & path, MapListener * mapListen
 std::unique_ptr<CMap> MapServiceMock::loadMap() const
 {
 	initialBuffer.seek(0);
-	CMapLoaderJson initialLoader(&initialBuffer);
+	CMapLoaderJson initialLoader("", "", &initialBuffer);
 
 	std::unique_ptr<CMap> res = initialLoader.loadMap(nullptr);
 
@@ -61,7 +61,7 @@ std::unique_ptr<CMap> MapServiceMock::loadMap(const ResourcePath & name, IGameCa
 std::unique_ptr<CMapHeader> MapServiceMock::loadMapHeader(const ResourcePath & name) const
 {
 	initialBuffer.seek(0);
-	CMapLoaderJson initialLoader(&initialBuffer);
+	CMapLoaderJson initialLoader("", "", &initialBuffer);
 	return initialLoader.loadMapHeader();
 }
 
@@ -73,7 +73,7 @@ std::unique_ptr<CMap> MapServiceMock::loadMap(const ui8 * buffer, int size, cons
 std::unique_ptr<CMapHeader> MapServiceMock::loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const
 {
 	initialBuffer.seek(0);
-	CMapLoaderJson initialLoader(&initialBuffer);
+	CMapLoaderJson initialLoader("", "", &initialBuffer);
 	return initialLoader.loadMapHeader();
 }
 
