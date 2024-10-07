@@ -9,14 +9,14 @@
  */
 #pragma once
 
+#include "vcmiqt.h"
+
 /// similar to lib/VCMIDirs, controls where all launcher-related data will be stored
-class CLauncherDirs
+namespace CLauncherDirs
 {
-public:
-	CLauncherDirs();
+	VCMIQT_LINKAGE void prepare();
 
-	static CLauncherDirs & get();
-
-	QString downloadsPath();
-	QString modsPath();
-};
+	VCMIQT_LINKAGE QString downloadsPath();
+	VCMIQT_LINKAGE QString modsPath();
+	VCMIQT_LINKAGE QString mapsPath();
+}
