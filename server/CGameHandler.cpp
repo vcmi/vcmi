@@ -2737,22 +2737,70 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 	return true;
 }
 
-bool CGameHandler::scrollBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, bool left)
+bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, const ManageBackpackArtifacts::ManageCmd & sortType)
 {
 	const auto artSet = getArtSet(heroID);
-	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "scrollBackpackArtifacts: wrong hero's ID");
+	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "manageBackpackArtifacts: wrong hero's ID");
 
 	BulkMoveArtifacts bma(player, heroID, heroID, false);
-
-	const auto backpackEnd = ArtifactPosition(ArtifactPosition::BACKPACK_START + artSet->artifactsInBackpack.size() - 1);
-	if(backpackEnd > ArtifactPosition::BACKPACK_START)
+	const auto makeSortBackpackRequest = [artSet, &bma](const std::function<int32_t(const ArtSlotInfo&)> & getSortId)
 	{
-		if(left)
-			bma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(backpackEnd, ArtifactPosition::BACKPACK_START));
-		else
-			bma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(ArtifactPosition::BACKPACK_START, backpackEnd));
-		sendAndApply(&bma);
+		std::map<int32_t, std::vector<BulkMoveArtifacts::LinkedSlots>> packsSorted;
+		ArtifactPosition backpackSlot = ArtifactPosition::BACKPACK_START;
+		for(const auto & backpackSlotInfo : artSet->artifactsInBackpack)
+			packsSorted.try_emplace(getSortId(backpackSlotInfo)).first->second.emplace_back(backpackSlot++, ArtifactPosition::PRE_FIRST);
+
+		for(auto & [sortId, pack] : packsSorted)
+		{
+			// Each pack of artifacts is also sorted by ArtifactID. Scrolls by SpellID
+			std::sort(pack.begin(), pack.end(), [artSet](const auto & slots0, const auto & slots1) -> bool
+				{
+					const auto art0 = artSet->getArt(slots0.srcPos);
+					const auto art1 = artSet->getArt(slots1.srcPos);
+					if(art0->isScroll() && art1->isScroll())
+						return art0->getScrollSpellID() > art1->getScrollSpellID();
+					return art0->getTypeId().num > art1->getTypeId().num;
+				});
+			bma.artsPack0.insert(bma.artsPack0.end(), pack.begin(), pack.end());
+		}
+		backpackSlot = ArtifactPosition::BACKPACK_START;
+		for(auto & slots : bma.artsPack0)
+			slots.dstPos = backpackSlot++;
+	};
+	
+	if(sortType == ManageBackpackArtifacts::ManageCmd::SORT_BY_SLOT)
+	{
+		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
+			{
+				return inf.getArt()->artType->getPossibleSlots().at(ArtBearer::HERO).front().num;
+			});
 	}
+	else if(sortType == ManageBackpackArtifacts::ManageCmd::SORT_BY_COST)
+	{
+		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
+			{
+				return inf.getArt()->artType->getPrice();
+			});
+	}
+	else if(sortType == ManageBackpackArtifacts::ManageCmd::SORT_BY_CLASS)
+	{
+		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
+			{
+				return inf.getArt()->artType->aClass;
+			});
+	}
+	else
+	{
+		const auto backpackEnd = ArtifactPosition(ArtifactPosition::BACKPACK_START + artSet->artifactsInBackpack.size() - 1);
+		if(backpackEnd > ArtifactPosition::BACKPACK_START)
+		{
+			if(sortType == ManageBackpackArtifacts::ManageCmd::SCROLL_LEFT)
+				bma.artsPack0.emplace_back(backpackEnd, ArtifactPosition::BACKPACK_START);
+			else
+				bma.artsPack0.emplace_back(ArtifactPosition::BACKPACK_START, backpackEnd);
+		}
+	}
+	sendAndApply(&bma);
 	return true;
 }
 

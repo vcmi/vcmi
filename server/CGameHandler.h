@@ -15,6 +15,7 @@
 #include "../lib/LoadProgress.h"
 #include "../lib/ScriptHandler.h"
 #include "../lib/gameState/GameStatistics.h"
+#include "../lib/networkPacks/PacksForServer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -142,7 +143,7 @@ public:
 	void removeArtifact(const ObjectInstanceID & srcId, const std::vector<ArtifactPosition> & slotsPack);
 	bool moveArtifact(const PlayerColor & player, const ArtifactLocation & src, const ArtifactLocation & dst) override;
 	bool bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack);
-	bool scrollBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, bool left);
+	bool manageBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, const ManageBackpackArtifacts::ManageCmd & sortType);
 	bool saveArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx);
 	bool switchArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx);
 	bool eraseArtifactByClient(const ArtifactLocation & al);

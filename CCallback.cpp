@@ -192,6 +192,24 @@ void CCallback::scrollBackpackArtifacts(ObjectInstanceID hero, bool left)
 	sendRequest(&mba);
 }
 
+void CCallback::sortBackpackArtifactsBySlot(const ObjectInstanceID hero)
+{
+	ManageBackpackArtifacts mba(hero, ManageBackpackArtifacts::ManageCmd::SORT_BY_SLOT);
+	sendRequest(&mba);
+}
+
+void CCallback::sortBackpackArtifactsByCost(const ObjectInstanceID hero)
+{
+	ManageBackpackArtifacts mba(hero, ManageBackpackArtifacts::ManageCmd::SORT_BY_COST);
+	sendRequest(&mba);
+}
+
+void CCallback::sortBackpackArtifactsByClass(const ObjectInstanceID hero)
+{
+	ManageBackpackArtifacts mba(hero, ManageBackpackArtifacts::ManageCmd::SORT_BY_CLASS);
+	sendRequest(&mba);
+}
+
 void CCallback::manageHeroCostume(ObjectInstanceID hero, size_t costumeIndex, bool saveCostume)
 {
 	ManageEquippedArtifacts mea(hero, costumeIndex, saveCostume);
