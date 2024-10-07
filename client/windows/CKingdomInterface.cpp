@@ -866,7 +866,7 @@ void CTownItem::update()
 
 	heroes->update();
 
-	for (size_t i=0; i<town->creatures.size(); i++)
+	for (size_t i=0; i<std::min(static_cast<int>(town->creatures.size()), GameConstants::CREATURES_PER_TOWN); i++)
 	{
 		growth[i]->update();
 		available[i]->update();
