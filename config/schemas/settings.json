@@ -207,7 +207,7 @@
 				},
 				"fullscreen" : {
 					"type" : "boolean",
-					"default" : false
+					"default" : true
 				},
 				"realFullscreen" : {
 					"type" : "boolean",
