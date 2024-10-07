@@ -774,8 +774,10 @@ void CMapPatcher::readPatchData()
 }
 
 ///CMapLoaderJson
-CMapLoaderJson::CMapLoaderJson(CInputStream * stream)
+CMapLoaderJson::CMapLoaderJson(std::string mapName, const std::string & modName, CInputStream * stream)
 	: buffer(stream)
+	, modName(modName)
+	, mapName(CMapFormat::convertMapName(mapName))
 	, ioApi(new CProxyROIOApi(buffer))
 	, loader("", "_", ioApi)
 {
@@ -873,6 +875,10 @@ void CMapLoaderJson::readHeader(const bool complete)
 	}
 
 	serializeHeader(handler);
+	mapHeader->name.clear();
+	mapHeader->description.clear();
+	mapHeader->name.appendTextID(mapRegisterLocalizedString(modName, *mapHeader, TextIdentifier("map", mapName, "header.name"), ""));
+	mapHeader->description.appendTextID(mapRegisterLocalizedString(modName, *mapHeader, TextIdentifier("map", mapName, "header.description"), ""));
 
 	readTriggeredEvents(handler);
 
@@ -1167,7 +1173,16 @@ void CMapLoaderJson::readTranslations()
 	for(auto & language : Languages::getLanguageList())
 	{
 		if(isExistArchive(language.identifier + ".json"))
-			mapHeader->translations.Struct()[language.identifier] = getFromArchive(language.identifier + ".json");
+		{
+			auto vmapTranslation = getFromArchive(language.identifier + ".json").Struct();
+			JsonMap tmp;
+			for (auto [key, val] : vmapTranslation)
+			{
+				TextIdentifier identifier("map", mapName, key);
+				tmp[identifier.get()] = val;
+			}
+			mapHeader->translations.Struct()[language.identifier].Struct() = tmp;
+		}
 	}
 	mapHeader->registerMapStrings();
 }

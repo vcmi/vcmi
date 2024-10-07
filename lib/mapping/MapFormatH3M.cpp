@@ -44,25 +44,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-static std::string convertMapName(std::string input)
-{
-	boost::algorithm::to_lower(input);
-	boost::algorithm::trim(input);
-	boost::algorithm::erase_all(input, ".");
-
-	size_t slashPos = input.find_last_of('/');
-
-	if(slashPos != std::string::npos)
-		return input.substr(slashPos + 1);
-
-	return input;
-}
-
 CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & modName, const std::string & encodingName, CInputStream * stream)
 	: map(nullptr)
 	, reader(new MapReaderH3M(stream))
 	, inputStream(stream)
-	, mapName(convertMapName(mapName))
+	, mapName(CMapFormat::convertMapName(mapName))
 	, modName(modName)
 	, fileEncoding(encodingName)
 {

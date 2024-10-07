@@ -19,6 +19,7 @@
 #include "../filesystem/CZipLoader.h"
 #include "../VCMI_Lib.h"
 #include "../constants/StringConstants.h"
+#include "../mapping/MapFormat.h"
 #include "../mapping/CMapHeader.h"
 #include "../mapping/CMapService.h"
 #include "../modding/CModHandler.h"
@@ -114,19 +115,6 @@ std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string &
 	return ret;
 }
 
-static std::string convertMapName(std::string input)
-{
-	boost::algorithm::to_lower(input);
-	boost::algorithm::trim(input);
-
-	size_t slashPos = input.find_last_of("/");
-
-	if (slashPos != std::string::npos)
-		return input.substr(slashPos + 1);
-
-	return input;
-}
-
 std::string CampaignHandler::readLocalizedString(CampaignHeader & target, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier)
 {
 	std::string input = TextOperations::toUnicode(reader.readBaseString(), encoding);
@@ -136,7 +124,7 @@ std::string CampaignHandler::readLocalizedString(CampaignHeader & target, CBinar
 
 std::string CampaignHandler::readLocalizedString(CampaignHeader & target, std::string text, std::string filename, std::string modName, std::string identifier)
 {
-	TextIdentifier stringID( "campaign", convertMapName(filename), identifier);
+	TextIdentifier stringID( "campaign", CMapFormat::convertMapName(filename), identifier);
 
 	if (text.empty())
 		return "";

@@ -25,4 +25,22 @@ enum class EMapFormat : uint8_t
 	VCMI  = 0x64
 };
 
+class DLL_LINKAGE CMapFormat
+{
+public:
+	static std::string convertMapName(std::string input)
+	{
+		boost::algorithm::to_lower(input);
+		boost::algorithm::trim(input);
+		boost::algorithm::erase_all(input, ".");
+
+		size_t slashPos = input.find_last_of('/');
+
+		if(slashPos != std::string::npos)
+			return input.substr(slashPos + 1);
+
+		return input;
+	}
+};
+
 VCMI_LIB_NAMESPACE_END

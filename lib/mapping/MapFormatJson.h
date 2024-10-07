@@ -160,7 +160,7 @@ public:
 	 *
 	 * @param stream a stream containing the map data
 	 */
-	CMapLoaderJson(CInputStream * stream);
+	CMapLoaderJson(std::string mapName, const std::string & modName, CInputStream * stream);
 
 	/**
 	 * Loads the VCMI/Json map file.
@@ -222,6 +222,9 @@ public:
 	JsonNode getFromArchive(const std::string & archiveFilename);
 
 private:
+	std::string mapName;
+	std::string modName;
+
 	CInputStream * buffer;
 	std::shared_ptr<CIOApi> ioApi;
 
