@@ -473,7 +473,7 @@ CKingdomInterface::CKingdomInterface()
 	generateButtons();
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(ImagePath::builtin("KSTATBAR"), 10,pos.h - 45));
-	resdatabar = std::make_shared<CResDataBar>(ImagePath::builtin("KRESBAR"), 7, 111+footerPos, 29, 5, 76, 81);
+	resdatabar = std::make_shared<CResDataBar>(ImagePath::builtin("KRESBAR"), 7, 111+footerPos, 29, 3, 76, 81);
 
 	activateTab(persistentStorage["gui"]["lastKindomInterface"].Integer());
 }
