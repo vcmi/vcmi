@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "vcmiqt.h"
+
 #include <QVariant>
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -17,11 +19,11 @@ class JsonNode;
 
 namespace JsonUtils
 {
-QVariant toVariant(const JsonNode & node);
-QVariant JsonFromFile(QString filename);
+VCMIQT_LINKAGE QVariant toVariant(const JsonNode & node);
+VCMIQT_LINKAGE QVariant JsonFromFile(QString filename);
 
-JsonNode toJson(QVariant object);
-void JsonToFile(QString filename, QVariant object);
+VCMIQT_LINKAGE JsonNode toJson(QVariant object);
+VCMIQT_LINKAGE void JsonToFile(QString filename, QVariant object);
 }
 
 VCMI_LIB_NAMESPACE_END

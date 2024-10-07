@@ -22,8 +22,8 @@
 #include "cdownloadmanager_moc.h"
 #include "chroniclesextractor.h"
 #include "../settingsView/csettingsview_moc.h"
-#include "../launcherdirs.h"
-#include "../jsonutils.h"
+#include "../vcmiqt/launcherdirs.h"
+#include "../vcmiqt/jsonutils.h"
 #include "../helper.h"
 
 #include "../../lib/VCMIDirs.h"

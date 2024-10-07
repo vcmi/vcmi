@@ -666,6 +666,10 @@ if(NOT TARGET minizip::minizip)
 	add_library(minizip::minizip ALIAS minizip)
 endif()
 
+if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
+	add_subdirectory(vcmiqt)
+endif()
+
 if(ENABLE_LAUNCHER)
 	add_subdirectory(launcher)
 endif()

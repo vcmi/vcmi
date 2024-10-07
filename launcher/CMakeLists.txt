@@ -20,8 +20,6 @@ set(launcher_SRCS
 		innoextract.cpp
 		mainwindow_moc.cpp
 		languages.cpp
-		launcherdirs.cpp
-		jsonutils.cpp
 		updatedialog_moc.cpp
 		prepare.cpp
 )
@@ -49,8 +47,6 @@ set(launcher_HEADERS
 		firstLaunch/firstlaunch_moc.h
 		mainwindow_moc.h
 		languages.h
-		launcherdirs.h
-		jsonutils.h
 		updatedialog_moc.h
 		main.h
 		helper.h
@@ -206,7 +202,7 @@ elseif(NOT APPLE_IOS)
 	target_link_libraries(vcmilauncher SDL2::SDL2)
 endif()
 
-target_link_libraries(vcmilauncher vcmi Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(vcmilauncher vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )

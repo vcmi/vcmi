@@ -1,8 +1,6 @@
 set(editor_SRCS
 		StdInc.cpp
 		main.cpp
-		launcherdirs.cpp
-		jsonutils.cpp
 		mainwindow.cpp
 		BitmapHandler.cpp
 		maphandler.cpp
@@ -45,8 +43,6 @@ set(editor_SRCS
 
 set(editor_HEADERS
 		StdInc.h
-		launcherdirs.h
-		jsonutils.h
 		mainwindow.h
 		BitmapHandler.h
 		maphandler.h
@@ -221,7 +217,7 @@ if(APPLE)
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmieditor)
 endif()
 
-target_link_libraries(vcmieditor vcmi Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(vcmieditor vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmieditor
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )

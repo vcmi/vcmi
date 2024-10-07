@@ -11,15 +11,10 @@
 
 #include "../Global.h"
 
-#include <QtWidgets>
-#include <QStringList>
-#include <QSet>
-#include <QVector>
-#include <QList>
-#include <QString>
+#include <QDir>
 #include <QFile>
-#include <QTemporaryDir>
+#include <QString>
 
-#include "../vcmiqt/convpathqstring.h"
+#include "convpathqstring.h"
 
 VCMI_LIB_USING_NAMESPACE

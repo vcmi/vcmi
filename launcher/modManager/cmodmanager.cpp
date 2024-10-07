@@ -17,8 +17,8 @@
 #include "../../lib/modding/CModInfo.h"
 #include "../../lib/modding/IdentifierStorage.h"
 
-#include "../jsonutils.h"
-#include "../launcherdirs.h"
+#include "../vcmiqt/jsonutils.h"
+#include "../vcmiqt/launcherdirs.h"
 
 #include <future>
 
