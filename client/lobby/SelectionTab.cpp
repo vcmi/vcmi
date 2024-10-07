@@ -809,6 +809,7 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 		{
 			auto mapInfo = std::make_shared<ElementInfo>();
 			mapInfo->mapInit(file.getName());
+			mapInfo->name = mapInfo->getNameForList();
 
 			if (isMapSupported(*mapInfo))
 				allItems.push_back(mapInfo);
@@ -988,6 +989,6 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		iconLossCondition->setFrame(info->mapHeader->defeatIconIndex, 0);
 		labelName->setMaxWidth(185);
 	}
-	labelName->setText(info->getNameForList());
+	labelName->setText(info->name);
 	labelName->setColor(color);
 }
