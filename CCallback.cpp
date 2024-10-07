@@ -195,19 +195,19 @@ void CCallback::scrollBackpackArtifacts(ObjectInstanceID hero, bool left)
 void CCallback::sortBackpackArtifactsBySlot(const ObjectInstanceID hero)
 {
 	ManageBackpackArtifacts mba(hero, ManageBackpackArtifacts::ManageCmd::SORT_BY_SLOT);
-	sendRequest(&mba);
+	sendRequest(mba);
 }
 
 void CCallback::sortBackpackArtifactsByCost(const ObjectInstanceID hero)
 {
 	ManageBackpackArtifacts mba(hero, ManageBackpackArtifacts::ManageCmd::SORT_BY_COST);
-	sendRequest(&mba);
+	sendRequest(mba);
 }
 
 void CCallback::sortBackpackArtifactsByClass(const ObjectInstanceID hero)
 {
 	ManageBackpackArtifacts mba(hero, ManageBackpackArtifacts::ManageCmd::SORT_BY_CLASS);
-	sendRequest(&mba);
+	sendRequest(mba);
 }
 
 void CCallback::manageHeroCostume(ObjectInstanceID hero, size_t costumeIndex, bool saveCostume)
@@ -270,7 +270,7 @@ int CBattleCallback::sendRequest(const CPackForServer & request)
 void CCallback::spellResearch( const CGTownInstance *town, SpellID spellAtSlot, bool accepted )
 {
 	SpellResearch pack(town->id, spellAtSlot, accepted);
-	sendRequest(&pack);
+	sendRequest(pack);
 }
 
 void CCallback::swapGarrisonHero( const CGTownInstance *town )

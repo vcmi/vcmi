@@ -452,7 +452,7 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 			out.text.appendTextID("vcmi.server.errors.playerLeft");
 			out.text.replaceName(playerId);
 			out.components.emplace_back(ComponentType::FLAG, playerId);
-			sendAndApply(&out);
+			sendAndApply(out);
 		}
 	}
 }
@@ -1259,7 +1259,7 @@ void CGameHandler::setResearchedSpells(const CGTownInstance * town, int level, c
 	cs.spells = spells;
 	cs.level = level;
 	cs.accepted = accepted;
-	sendAndApply(&cs);
+	sendAndApply(cs);
 }
 
 void CGameHandler::giveHeroBonus(GiveBonus * bonus)
