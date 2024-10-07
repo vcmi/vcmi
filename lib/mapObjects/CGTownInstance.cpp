@@ -268,7 +268,10 @@ CGTownInstance::CGTownInstance(IGameCallback *cb):
 	built(0),
 	destroyed(0),
 	identifier(0),
-	alignmentToPlayer(PlayerColor::NEUTRAL)
+	alignmentToPlayer(PlayerColor::NEUTRAL),
+	spellResearchCounterDay(0),
+	spellResearchAcceptedCounter(0),
+	spellResearchAllowed(true)
 {
 	this->setNodeType(CBonusSystemNode::TOWN);
 }

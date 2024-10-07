@@ -138,6 +138,14 @@ void ApplyGhNetPackVisitor::visitBuildStructure(BuildStructure & pack)
 	result = gh.buildStructure(pack.tid, pack.bid);
 }
 
+void ApplyGhNetPackVisitor::visitSpellResearch(SpellResearch & pack)
+{
+	gh.throwIfWrongOwner(&pack, pack.tid);
+	gh.throwIfPlayerNotActive(&pack);
+	
+	result = gh.spellResearch(pack.tid, pack.spellAtSlot, pack.accepted);
+}
+
 void ApplyGhNetPackVisitor::visitVisitTownBuilding(VisitTownBuilding & pack)
 {
 	gh.throwIfWrongOwner(&pack, pack.tid);

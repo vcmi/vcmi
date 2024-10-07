@@ -1253,6 +1253,16 @@ void CGameHandler::changeSpells(const CGHeroInstance * hero, bool give, const st
 	sendAndApply(&cs);
 }
 
+void CGameHandler::setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> spells, bool accepted)
+{
+	SetResearchedSpells cs;
+	cs.tid = town->id;
+	cs.spells = spells;
+	cs.level = level;
+	cs.accepted = accepted;
+	sendAndApply(&cs);
+}
+
 void CGameHandler::giveHeroBonus(GiveBonus * bonus)
 {
 	sendAndApply(bonus);
@@ -2248,6 +2258,60 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 // 		rb.id = 17;
 // 		sendAndApply(&rb);
 // 	}
+	return true;
+}
+
+bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool accepted)
+{
+	CGTownInstance *t = gs->getTown(tid);
+
+	if(!getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && complain("Spell research not allowed!"))
+		return false;
+	if (!t->spellResearchAllowed && complain("Spell research not allowed in this town!"))
+		return false;
+
+	int level = -1;
+	for(int i = 0; i < t->spells.size(); i++)
+		if(vstd::find_pos(t->spells[i], spellAtSlot) != -1)
+			level = i;
+	
+	if(level == -1 && complain("Spell for replacement not found!"))
+		return false;
+
+	auto spells = t->spells.at(level);
+	
+	bool researchLimitExceeded = t->spellResearchCounterDay >= getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY).Vector()[level].Float();
+	if(researchLimitExceeded && complain("Already researched today!"))
+		return false;
+
+	if(!accepted)
+	{
+		auto it = spells.begin() + t->spellsAtLevel(level, false);
+		std::rotate(it, it + 1, spells.end()); // move to end
+		setResearchedSpells(t, level, spells, accepted);
+		return true;
+	}
+
+	auto costBase = TResources(getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
+	auto costExponent = getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
+	auto cost = costBase * std::pow(t->spellResearchAcceptedCounter + 1, costExponent);
+
+	if(!getPlayerState(t->getOwner())->resources.canAfford(cost) && complain("Spell replacement cannot be afforded!"))
+		return false;
+
+	giveResources(t->getOwner(), -cost);
+
+	std::swap(spells.at(t->spellsAtLevel(level, false)), spells.at(vstd::find_pos(spells, spellAtSlot)));
+	auto it = spells.begin() + t->spellsAtLevel(level, false);
+	std::rotate(it, it + 1, spells.end()); // move to end
+
+	setResearchedSpells(t, level, spells, accepted);
+
+	if(t->visitingHero)
+		giveSpells(t, t->visitingHero);
+	if(t->garrisonHero)
+		giveSpells(t, t->garrisonHero);
+
 	return true;
 }
 

@@ -288,6 +288,8 @@ void registerTypes(Serializer &s)
 	s.template registerType<LobbySetDifficulty>(238);
 	s.template registerType<LobbyForceSetPlayer>(239);
 	s.template registerType<LobbySetExtraOptions>(240);
+	s.template registerType<SpellResearch>(241);
+	s.template registerType<SetResearchedSpells>(242);
 }
 
 VCMI_LIB_NAMESPACE_END

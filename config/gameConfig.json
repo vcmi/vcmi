@@ -302,7 +302,7 @@
 			"backpackSize"		: -1,
 			// if heroes are invitable in tavern
 			"tavernInvite"            : false,
-			// minimai primary skills for heroes
+			// minimal primary skills for heroes
 			"minimalPrimarySkills": [ 0, 0, 1, 1]
 		},
 
@@ -311,7 +311,21 @@
 			// How many new building can be built in a town per day
 			"buildingsPerTurnCap" : 1,
 			// Chances for a town with default buildings to receive corresponding dwelling level built in start
-			"startingDwellingChances": [100, 50] 
+			"startingDwellingChances": [100, 50],
+			// Enable spell research in mage guild
+			"spellResearch": false,
+			// Cost for an spell research (array index is spell tier)
+			"spellResearchCost": [
+				{ "gold": 1000, "wood" : 2, "mercury": 2, "ore": 2, "sulfur": 2, "crystal": 2, "gems": 2 },
+				{ "gold": 1000, "wood" : 4, "mercury": 4, "ore": 4, "sulfur": 4, "crystal": 4, "gems": 4 },
+				{ "gold": 1000, "wood" : 6, "mercury": 6, "ore": 6, "sulfur": 6, "crystal": 6, "gems": 6 },
+				{ "gold": 1000, "wood" : 8, "mercury": 8, "ore": 8, "sulfur": 8, "crystal": 8, "gems": 8 },
+				{ "gold": 1000, "wood" : 10, "mercury": 10, "ore": 10, "sulfur": 10, "crystal": 10, "gems": 10 }
+			],
+			// How much researchs/skips per day are possible? (array index is spell tier)
+			"spellResearchPerDay": [ 2, 2, 2, 2, 1 ],
+			// Exponent for increasing cost for each research (factor 1 disables this; array index is spell tier)
+			"spellResearchCostExponentPerResearch": [ 1.25, 1.25, 1.25, 1.25, 1.25 ]
 		},
 
 		"combat":

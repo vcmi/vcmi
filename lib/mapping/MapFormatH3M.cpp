@@ -2235,10 +2235,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	}
 
 	if(features.levelHOTA1)
-	{
-		// TODO: HOTA support
-		[[maybe_unused]] bool spellResearchAvailable = reader->readBool();
-	}
+		object->spellResearchAllowed = reader->readBool();
 
 	// Read castle events
 	uint32_t eventsCount = reader->readUInt32();

@@ -61,6 +61,13 @@
 
 	"vcmi.spellBook.search" : "search...",
 
+	"vcmi.spellResearch.canNotAfford" : "You can't afford to replace {%SPELL1} with {%SPELL2}. But you can still discard this spell and continue spell research.",
+	"vcmi.spellResearch.comeAgain" : "Research has already been done today. Come back tomorrow.",
+	"vcmi.spellResearch.pay" : "Would you like to replace {%SPELL1} with {%SPELL2}? Or discard this spell and continue spell research?",
+	"vcmi.spellResearch.research" : "Research this Spell",
+	"vcmi.spellResearch.skip" : "Skip this Spell",
+	"vcmi.spellResearch.abort" : "Abort",
+
 	"vcmi.mainMenu.serverConnecting" : "Connecting...",
 	"vcmi.mainMenu.serverAddressEnter" : "Enter address:",
 	"vcmi.mainMenu.serverConnectionFailed" : "Failed to connect",

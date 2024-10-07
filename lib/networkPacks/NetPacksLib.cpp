@@ -162,6 +162,10 @@ void ChangeSpells::visitTyped(ICPackVisitor & visitor)
 	visitor.visitChangeSpells(*this);
 }
 
+void SetResearchedSpells::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetResearchedSpells(*this);
+}
 void SetMana::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSetMana(*this);
@@ -592,6 +596,11 @@ void RazeStructure::visitTyped(ICPackVisitor & visitor)
 	visitor.visitRazeStructure(*this);
 }
 
+void SpellResearch::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSpellResearch(*this);
+}
+
 void RecruitCreatures::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitRecruitCreatures(*this);
@@ -928,6 +937,16 @@ void ChangeSpells::applyGs(CGameState *gs)
 	else
 		for(const auto & sid : spells)
 			hero->removeSpellFromSpellbook(sid);
+}
+
+void SetResearchedSpells::applyGs(CGameState *gs)
+{
+	CGTownInstance *town = gs->getTown(tid);
+
+	town->spells[level] = spells;
+	town->spellResearchCounterDay++;
+	if(accepted)
+		town->spellResearchAcceptedCounter++;
 }
 
 void SetMana::applyGs(CGameState *gs)
@@ -1914,7 +1933,10 @@ void NewTurn::applyGs(CGameState *gs)
 		creatureSet.applyGs(gs);
 
 	for(CGTownInstance* t : gs->map->towns)
+	{
 		t->built = 0;
+		t->spellResearchCounterDay = 0;
+	}
 
 	if(newRumor)
 		gs->currentRumor = *newRumor;

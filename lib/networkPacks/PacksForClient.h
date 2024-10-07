@@ -288,6 +288,26 @@ struct DLL_LINKAGE ChangeSpells : public CPackForClient
 	}
 };
 
+struct DLL_LINKAGE SetResearchedSpells : public CPackForClient
+{
+	void applyGs(CGameState * gs) override;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	ui8 level = 0;
+	ObjectInstanceID tid;
+	std::vector<SpellID> spells;
+	bool accepted;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & level;
+		h & tid;
+		h & spells;
+		h & accepted;
+	}
+};
+
 struct DLL_LINKAGE SetMana : public CPackForClient
 {
 	void applyGs(CGameState * gs) override;
