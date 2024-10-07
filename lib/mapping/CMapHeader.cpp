@@ -189,7 +189,7 @@ void CMapHeader::registerMapStrings()
 		JsonUtils::mergeCopy(data, translations[language]);
 	
 	for(auto & s : data.Struct())
-		texts.registerString("map", TextIdentifier(s.first), s.second.String(), language);
+		texts.registerString("map", TextIdentifier(s.first), s.second.String());
 }
 
 std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized)
@@ -199,7 +199,7 @@ std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeade
 
 std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized, const std::string & language)
 {
-	mapHeader.texts.registerString(modContext, UID, localized, language);
+	mapHeader.texts.registerString(modContext, UID, localized);
 	mapHeader.translations.Struct()[language].Struct()[UID.get()].String() = localized;
 	return UID.get();
 }

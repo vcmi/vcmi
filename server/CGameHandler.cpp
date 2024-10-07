@@ -431,10 +431,28 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 			continue;
 		
 		auto playerConnection = vstd::find(playerConnections.second, c);
-		if(playerConnection != playerConnections.second.end())
+		if(playerConnection == playerConnections.second.end())
+			continue;
+
+		logGlobal->trace("Player %s disconnected. Notifying remaining players", playerId.toString());
+
+		// this player have left the game - broadcast infowindow to all in-game players
+		for (auto i = gs->players.cbegin(); i!=gs->players.cend(); i++)
 		{
-			std::string messageText = boost::str(boost::format("%s (cid %d) was disconnected") % playerSettings->name % c->connectionID);
-			playerMessages->broadcastMessage(playerId, messageText);
+			if (i->first == playerId)
+				continue;
+
+			if (getPlayerState(i->first)->status != EPlayerStatus::INGAME)
+				continue;
+
+			logGlobal->trace("Notifying player %s", i->first);
+
+			InfoWindow out;
+			out.player = i->first;
+			out.text.appendTextID("vcmi.server.errors.playerLeft");
+			out.text.replaceName(playerId);
+			out.components.emplace_back(ComponentType::FLAG, playerId);
+			sendAndApply(&out);
 		}
 	}
 }

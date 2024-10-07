@@ -12,7 +12,9 @@
 	"vcmi.adventureMap.monsterThreat.levels.9"  : "Überwältigend",
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Tödlich",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Unmöglich",
-	"vcmi.adventureMap.monsterLevel"            : "\n\nStufe %LEVEL %TOWN-Einheit",
+	"vcmi.adventureMap.monsterLevel"            : "\n\nStufe %LEVEL %TOWN-Einheit (%ATTACK_TYPE)",
+	"vcmi.adventureMap.monsterMeleeType"        : "Nahkampf",
+	"vcmi.adventureMap.monsterRangedType"       : "Fernkampf",
 	"vcmi.adventureMap.search.hover"            : "Suche Kartenobjekt",
 	"vcmi.adventureMap.search.help"             : "Wähle Objekt das gesucht werden soll.",
 

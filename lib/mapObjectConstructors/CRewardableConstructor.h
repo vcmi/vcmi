@@ -31,7 +31,7 @@ public:
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
 
-	Rewardable::Configuration generateConfiguration(IGameCallback * cb, vstd::RNG & rand, MapObjectID objectID) const;
+	Rewardable::Configuration generateConfiguration(IGameCallback * cb, vstd::RNG & rand, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const;
 };
 
 VCMI_LIB_NAMESPACE_END

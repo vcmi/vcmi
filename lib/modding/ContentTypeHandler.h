@@ -39,7 +39,7 @@ public:
 
 	/// local version of methods in ContentHandler
 	/// returns true if loading was successful
-	bool preloadModData(const std::string & modName, const std::vector<std::string> & fileList, bool validate);
+	bool preloadModData(const std::string & modName, const JsonNode & fileList, bool validate);
 	bool loadMod(const std::string & modName, bool validate);
 	void loadCustom();
 	void afterLoadFinalization();

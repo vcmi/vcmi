@@ -12,7 +12,9 @@
 	"vcmi.adventureMap.monsterThreat.levels.9"  : "压倒性的",
 	"vcmi.adventureMap.monsterThreat.levels.10" : "致命的",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "无法取胜",
-	"vcmi.adventureMap.monsterLevel"            : "\n\n%TOWN%LEVEL级生物",
+	"vcmi.adventureMap.monsterLevel"            : "\n\n%TOWN%LEVEL级%ATTACK_TYPE生物",
+	"vcmi.adventureMap.monsterMeleeType"        : "近战",
+	"vcmi.adventureMap.monsterRangedType"       : "远程",
 
 	"vcmi.adventureMap.confirmRestartGame"     : "你想要重新开始游戏吗？",
 	"vcmi.adventureMap.noTownWithMarket"       : "没有足够的市场。",

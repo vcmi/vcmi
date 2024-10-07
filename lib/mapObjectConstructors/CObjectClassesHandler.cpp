@@ -278,7 +278,7 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::stri
 	newObject->base = json["base"];
 	newObject->id = index;
 
-	VLC->generaltexth->registerString(scope, newObject->getNameTextID(), json["name"].String());
+	VLC->generaltexth->registerString(scope, newObject->getNameTextID(), json["name"]);
 
 	newObject->objectTypeHandlers.resize(json["lastReservedIndex"].Float() + 1);
 

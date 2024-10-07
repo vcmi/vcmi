@@ -81,7 +81,7 @@ private:
 
 	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
 	void giveReward(const CGHeroInstance * h) const;
-
+	std::string getMonsterLevelText() const;
 };
 
 VCMI_LIB_NAMESPACE_END

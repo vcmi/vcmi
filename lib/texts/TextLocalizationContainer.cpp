@@ -22,20 +22,31 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 std::recursive_mutex TextLocalizationContainer::globalTextMutex;
 
-void TextLocalizationContainer::registerStringOverride(const std::string & modContext, const std::string & language, const TextIdentifier & UID, const std::string & localized)
+void TextLocalizationContainer::registerStringOverride(const std::string & modContext, const TextIdentifier & UID, const std::string & localized)
 {
 	std::lock_guard globalLock(globalTextMutex);
 
 	assert(!modContext.empty());
-	assert(!language.empty());
 
 	// NOTE: implicitly creates entry, intended - strings added by maps, campaigns, vcmi and potentially - UI mods are not registered anywhere at the moment
 	auto & entry = stringsLocalizations[UID.get()];
 
-	entry.overrideLanguage = language;
-	entry.overrideValue = localized;
-	if (entry.modContext.empty())
-		entry.modContext = modContext;
+	// load string override only in following cases:
+	// a) string was not modified in another mod (e.g. rebalance mod gave skill new description)
+	// b) this string override is defined in the same mod as one that provided modified version of this string
+	if (entry.identifierModContext == entry.baseStringModContext || modContext == entry.baseStringModContext)
+	{
+		entry.translatedText = localized;
+		if (entry.identifierModContext.empty())
+		{
+			entry.identifierModContext = modContext;
+			entry.baseStringModContext = modContext;
+		}
+	}
+	else
+	{
+		logGlobal->debug("Skipping translation override for string %s: changed in a different mod", UID.get());
+	}
 }
 
 void TextLocalizationContainer::addSubContainer(const TextLocalizationContainer & container)
@@ -55,7 +66,7 @@ void TextLocalizationContainer::removeSubContainer(const TextLocalizationContain
 	subContainers.erase(std::remove(subContainers.begin(), subContainers.end(), &container), subContainers.end());
 }
 
-const std::string & TextLocalizationContainer::deserialize(const TextIdentifier & identifier) const
+const std::string & TextLocalizationContainer::translateString(const TextIdentifier & identifier) const
 {
 	std::lock_guard globalLock(globalTextMutex);
 
@@ -63,108 +74,63 @@ const std::string & TextLocalizationContainer::deserialize(const TextIdentifier 
 	{
 		for(auto containerIter = subContainers.rbegin(); containerIter != subContainers.rend(); ++containerIter)
 			if((*containerIter)->identifierExists(identifier))
-				return (*containerIter)->deserialize(identifier);
+				return (*containerIter)->translateString(identifier);
 
 		logGlobal->error("Unable to find localization for string '%s'", identifier.get());
 		return identifier.get();
 	}
 
 	const auto & entry = stringsLocalizations.at(identifier.get());
-
-	if (!entry.overrideValue.empty())
-		return entry.overrideValue;
-	return entry.baseValue;
+	return entry.translatedText;
 }
 
-void TextLocalizationContainer::registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized, const std::string & language)
+void TextLocalizationContainer::registerString(const std::string & modContext, const TextIdentifier & inputUID, const JsonNode & localized)
+{
+	assert(localized.isNull() || !localized.getModScope().empty());
+	assert(localized.isNull() || !getModLanguage(localized.getModScope()).empty());
+
+	if (localized.isNull())
+		registerString(modContext, modContext, inputUID, localized.String());
+	else
+		registerString(modContext, localized.getModScope(), inputUID, localized.String());
+}
+
+void TextLocalizationContainer::registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized)
+{
+	registerString(modContext, modContext, UID, localized);
+}
+
+void TextLocalizationContainer::registerString(const std::string & identifierModContext, const std::string & localizedStringModContext, const TextIdentifier & UID, const std::string & localized)
 {
 	std::lock_guard globalLock(globalTextMutex);
 
-	assert(!modContext.empty());
-	assert(!Languages::getLanguageOptions(language).identifier.empty());
+	assert(!identifierModContext.empty());
+	assert(!localizedStringModContext.empty());
 	assert(UID.get().find("..") == std::string::npos); // invalid identifier - there is section that was evaluated to empty string
-	//assert(stringsLocalizations.count(UID.get()) == 0); // registering already registered string?
+	assert(stringsLocalizations.count(UID.get()) == 0 || identifierModContext == "map"); // registering already registered string?
 
 	if(stringsLocalizations.count(UID.get()) > 0)
 	{
 		auto & value = stringsLocalizations[UID.get()];
-		value.baseLanguage = language;
-		value.baseValue = localized;
+		value.translatedText = localized;
+		value.identifierModContext = identifierModContext;
+		value.baseStringModContext = localizedStringModContext;
 	}
 	else
 	{
 		StringState value;
-		value.baseLanguage = language;
-		value.baseValue = localized;
-		value.modContext = modContext;
+		value.translatedText = localized;
+		value.identifierModContext = identifierModContext;
+		value.baseStringModContext = localizedStringModContext;
 
 		stringsLocalizations[UID.get()] = value;
 	}
 }
 
-void TextLocalizationContainer::registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized)
-{
-	assert(!getModLanguage(modContext).empty());
-	registerString(modContext, UID, localized, getModLanguage(modContext));
-}
-
-bool TextLocalizationContainer::validateTranslation(const std::string & language, const std::string & modContext, const JsonNode & config) const
-{
-	std::lock_guard globalLock(globalTextMutex);
-
-	bool allPresent = true;
-
-	for(const auto & string : stringsLocalizations)
-	{
-		if (string.second.modContext != modContext)
-			continue; // Not our mod
-
-		if (string.second.overrideLanguage == language)
-			continue; // Already translated
-
-		if (string.second.baseLanguage == language && !string.second.baseValue.empty())
-			continue; // Base string already uses our language
-
-		if (string.second.baseLanguage.empty())
-			continue; // String added in localization, not present in base language (e.g. maps/campaigns)
-
-		if (config.Struct().count(string.first) > 0)
-			continue;
-
-		if (allPresent)
-			logMod->warn("Translation into language '%s' in mod '%s' is incomplete! Missing lines:", language, modContext);
-
-		std::string currentText;
-		if (string.second.overrideValue.empty())
-			currentText = string.second.baseValue;
-		else
-			currentText = string.second.overrideValue;
-
-		logMod->warn(R"(    "%s" : "%s",)", string.first, TextOperations::escapeString(currentText));
-		allPresent = false;
-	}
-
-	bool allFound = true;
-
-	//	for(const auto & string : config.Struct())
-	//	{
-	//		if (stringsLocalizations.count(string.first) > 0)
-	//			continue;
-	//
-	//		if (allFound)
-	//			logMod->warn("Translation into language '%s' in mod '%s' has unused lines:", language, modContext);
-	//
-	//		logMod->warn(R"(    "%s" : "%s",)", string.first, TextOperations::escapeString(string.second.String()));
-	//		allFound = false;
-	//	}
-
-	return allPresent && allFound;
-}
-
-void TextLocalizationContainer::loadTranslationOverrides(const std::string & language, const std::string & modContext, const JsonNode & config)
+void TextLocalizationContainer::loadTranslationOverrides(const std::string & modContext, const JsonNode & config)
 {
 	for(const auto & node : config.Struct())
-		registerStringOverride(modContext, language, node.first, node.second.String());
+		registerStringOverride(modContext, node.first, node.second.String());
 }
 
 bool TextLocalizationContainer::identifierExists(const TextIdentifier & UID) const
@@ -184,17 +150,19 @@ void TextLocalizationContainer::exportAllTexts(std::map<std::string, std::map<st
 	for (auto const & entry : stringsLocalizations)
 	{
 		std::string textToWrite;
-		std::string modName = entry.second.modContext;
+		std::string modName = entry.second.baseStringModContext;
 
-		if (modName.find('.') != std::string::npos)
-			modName = modName.substr(0, modName.find('.'));
+		if (entry.second.baseStringModContext == entry.second.identifierModContext)
+		{
+			if (modName.find('.') != std::string::npos)
+				modName = modName.substr(0, modName.find('.'));
+		}
+		boost::range::replace(modName, '.', '_');
 
-		if (!entry.second.overrideValue.empty())
-			textToWrite = entry.second.overrideValue;
-		else
-			textToWrite = entry.second.baseValue;
+		textToWrite = entry.second.translatedText;
 
-		storage[modName][entry.first] = textToWrite;
+		if (!textToWrite.empty())
+			storage[modName][entry.first] = textToWrite;
 	}
 }
 
@@ -210,11 +178,7 @@ void TextLocalizationContainer::jsonSerialize(JsonNode & dest) const
 	std::lock_guard globalLock(globalTextMutex);
 
 	for(auto & s : stringsLocalizations)
-	{
-		dest.Struct()[s.first].String() = s.second.baseValue;
-		if(!s.second.overrideValue.empty())
-			dest.Struct()[s.first].String() = s.second.overrideValue;
-	}
+		dest.Struct()[s.first].String() = s.second.translatedText;
 }
 
 TextContainerRegistrable::TextContainerRegistrable()

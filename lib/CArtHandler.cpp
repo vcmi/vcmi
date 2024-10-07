@@ -431,9 +431,9 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 
 	const JsonNode & text = node["text"];
 
-	VLC->generaltexth->registerString(scope, art->getNameTextID(), text["name"].String());
-	VLC->generaltexth->registerString(scope, art->getDescriptionTextID(), text["description"].String());
-	VLC->generaltexth->registerString(scope, art->getEventTextID(), text["event"].String());
+	VLC->generaltexth->registerString(scope, art->getNameTextID(), text["name"]);
+	VLC->generaltexth->registerString(scope, art->getDescriptionTextID(), text["description"]);
+	VLC->generaltexth->registerString(scope, art->getEventTextID(), text["event"]);
 
 	const JsonNode & graphics = node["graphics"];
 	art->image = graphics["image"].String();
