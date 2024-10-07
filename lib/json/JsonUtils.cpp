@@ -296,4 +296,28 @@ JsonNode JsonUtils::assembleFromFiles(const std::string & filename)
 	return result;
 }
 
+void JsonUtils::detectConflicts(JsonNode & result, const JsonNode & left, const JsonNode & right, const std::string & keyName)
+{
+	switch (left.getType())
+	{
+		case JsonNode::JsonType::DATA_NULL:
+		case JsonNode::JsonType::DATA_BOOL:
+		case JsonNode::JsonType::DATA_FLOAT:
+		case JsonNode::JsonType::DATA_INTEGER:
+		case JsonNode::JsonType::DATA_STRING:
+		case JsonNode::JsonType::DATA_VECTOR: // NOTE: comparing vectors as whole - since merge will overwrite it in its entirety
+		{
+			result[keyName][left.getModScope()] = left;
+			result[keyName][right.getModScope()] = right;
+			return;
+		}
+		case JsonNode::JsonType::DATA_STRUCT:
+		{
+			for(const auto & node : left.Struct())
+				if (!right[node.first].isNull())
+					detectConflicts(result, node.second, right[node.first], keyName + "/" + node.first);
+		}
+	}
+}
+
 VCMI_LIB_NAMESPACE_END

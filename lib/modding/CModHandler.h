@@ -64,6 +64,7 @@ public:
 
 	std::string getModLanguage(const TModID & modId) const;
 
+	std::set<TModID> getModDependencies(const TModID & modId) const;
 	std::set<TModID> getModDependencies(const TModID & modId, bool & isModFound) const;
 
 	/// returns list of all (active) mods
