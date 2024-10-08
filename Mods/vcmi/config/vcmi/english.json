@@ -12,7 +12,9 @@
 	"vcmi.adventureMap.monsterThreat.levels.9"  : "Overpowering",
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Deadly",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Impossible",
-	"vcmi.adventureMap.monsterLevel"            : "\n\nLevel %LEVEL %TOWN unit",
+	"vcmi.adventureMap.monsterLevel"            : "\n\nLevel %LEVEL %TOWN %ATTACK_TYPE unit",
+	"vcmi.adventureMap.monsterMeleeType"        : "melee",
+	"vcmi.adventureMap.monsterRangedType"       : "ranged",
 
 	"vcmi.adventureMap.confirmRestartGame"               : "Are you sure you want to restart the game?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "There are no available marketplaces!",
@@ -58,6 +60,13 @@
 	"vcmi.radialWheel.moveBottom" : "Move to bottom",
 
 	"vcmi.spellBook.search" : "search...",
+
+	"vcmi.spellResearch.canNotAfford" : "You can't afford to replace {%SPELL1} with {%SPELL2}. But you can still discard this spell and continue spell research.",
+	"vcmi.spellResearch.comeAgain" : "Research has already been done today. Come back tomorrow.",
+	"vcmi.spellResearch.pay" : "Would you like to replace {%SPELL1} with {%SPELL2}? Or discard this spell and continue spell research?",
+	"vcmi.spellResearch.research" : "Research this Spell",
+	"vcmi.spellResearch.skip" : "Skip this Spell",
+	"vcmi.spellResearch.abort" : "Abort",
 
 	"vcmi.mainMenu.serverConnecting" : "Connecting...",
 	"vcmi.mainMenu.serverAddressEnter" : "Enter address:",
@@ -143,6 +152,7 @@
 	"vcmi.client.errors.invalidMap" : "{Invalid map or campaign}\n\nFailed to start game! Selected map or campaign might be invalid or corrupted. Reason:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{Missing data files}\n\nCampaigns data files were not found! You may be using incomplete or corrupted Heroes 3 data files. Please reinstall game data.",
 	"vcmi.server.errors.disconnected" : "{Network Error}\n\nConnection to game server has been lost!",
+	"vcmi.server.errors.playerLeft" : "{Player Left}\n\n%s player have disconnected from the game!", //%s -> player color
 	"vcmi.server.errors.existingProcess" : "Another VCMI server process is running. Please terminate it before starting a new game.",
 	"vcmi.server.errors.modsToEnable"    : "{Following mods are required}",
 	"vcmi.server.errors.modsToDisable"   : "{Following mods must be disabled}",
@@ -340,6 +350,12 @@
 	"vcmi.heroWindow.openCommander.help"  : "Shows details about the commander of this hero.",
 	"vcmi.heroWindow.openBackpack.hover" : "Open artifact backpack window",
 	"vcmi.heroWindow.openBackpack.help"  : "Opens window that allows easier artifact backpack management.",
+	"vcmi.heroWindow.sortBackpackByCost.hover"  : "Sort by cost",
+	"vcmi.heroWindow.sortBackpackByCost.help"  : "Sort artifacts in backpack by cost.",
+	"vcmi.heroWindow.sortBackpackBySlot.hover"  : "Sort by slot",
+	"vcmi.heroWindow.sortBackpackBySlot.help"  : "Sort artifacts in backpack by equipped slot.",
+	"vcmi.heroWindow.sortBackpackByClass.hover"  : "Sort by class",
+	"vcmi.heroWindow.sortBackpackByClass.help"  : "Sort artifacts in backpack by artifact class. Treasure, Minor, Major, Relic",
 
 	"vcmi.tavernWindow.inviteHero"  : "Invite hero",
 

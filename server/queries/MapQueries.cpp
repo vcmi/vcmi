@@ -23,7 +23,7 @@ TimerPauseQuery::TimerPauseQuery(CGameHandler * owner, PlayerColor player):
 	addPlayer(player);
 }
 
-bool TimerPauseQuery::blocksPack(const CPack *pack) const
+bool TimerPauseQuery::blocksPack(const CPackForServer *pack) const
 {
 	return blockAllButReply(pack);
 }
@@ -58,7 +58,7 @@ CGarrisonDialogQuery::CGarrisonDialogQuery(CGameHandler * owner, const CArmedIns
 	addPlayer(down->tempOwner);
 }
 
-bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
+bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 {
 	std::set<ObjectInstanceID> ourIds;
 	ourIds.insert(this->exchangingArmies[0]->id);
@@ -143,7 +143,7 @@ void OpenWindowQuery::onExposure(QueryPtr topQuery)
 	//do nothing - wait for reply
 }
 
-bool OpenWindowQuery::blocksPack(const CPack *pack) const
+bool OpenWindowQuery::blocksPack(const CPackForServer *pack) const
 {
 	if (mode == EOpenWindowMode::RECRUITMENT_FIRST || mode == EOpenWindowMode::RECRUITMENT_ALL)
 	{
@@ -273,7 +273,7 @@ void CHeroMovementQuery::onRemoval(PlayerColor color)
 	pb.player = color;
 	pb.reason = PlayerBlocked::ONGOING_MOVEMENT;
 	pb.startOrEnd = PlayerBlocked::BLOCKADE_ENDED;
-	gh->sendAndApply(&pb);
+	gh->sendAndApply(pb);
 }
 
 void CHeroMovementQuery::onAdding(PlayerColor color)
@@ -282,5 +282,5 @@ void CHeroMovementQuery::onAdding(PlayerColor color)
 	pb.player = color;
 	pb.reason = PlayerBlocked::ONGOING_MOVEMENT;
 	pb.startOrEnd = PlayerBlocked::BLOCKADE_STARTED;
-	gh->sendAndApply(&pb);
+	gh->sendAndApply(pb);
 }

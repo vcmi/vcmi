@@ -98,7 +98,7 @@ void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const Effe
 	}
 
 	if(!pack.changedStacks.empty())
-		server->apply(&pack);
+		server->apply(pack);
 }
 
 bool DemonSummon::isValidTarget(const Mechanics * m, const battle::Unit * unit) const

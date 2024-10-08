@@ -49,8 +49,6 @@ class DLL_LINKAGE CModHandler final : boost::noncopyable
 	void loadOneMod(std::string modName, const std::string & parent, const JsonNode & modSettings, bool enableMods);
 	void loadTranslation(const TModID & modName);
 
-	bool validateTranslations(TModID modName) const;
-
 	CModVersion getModVersion(TModID modName) const;
 
 public:
@@ -66,6 +64,7 @@ public:
 
 	std::string getModLanguage(const TModID & modId) const;
 
+	std::set<TModID> getModDependencies(const TModID & modId) const;
 	std::set<TModID> getModDependencies(const TModID & modId, bool & isModFound) const;
 
 	/// returns list of all (active) mods

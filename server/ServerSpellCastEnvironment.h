@@ -24,15 +24,15 @@ public:
 
 	vstd::RNG * getRNG() override;
 
-	void apply(CPackForClient * pack) override;
+	void apply(CPackForClient & pack) override;
 
-	void apply(BattleLogMessage * pack) override;
-	void apply(BattleStackMoved * pack) override;
-	void apply(BattleUnitsChanged * pack) override;
-	void apply(SetStackEffect * pack) override;
-	void apply(StacksInjured * pack) override;
-	void apply(BattleObstaclesChanged * pack) override;
-	void apply(CatapultAttack * pack) override;
+	void apply(BattleLogMessage & pack) override;
+	void apply(BattleStackMoved & pack) override;
+	void apply(BattleUnitsChanged & pack) override;
+	void apply(SetStackEffect & pack) override;
+	void apply(StacksInjured & pack) override;
+	void apply(BattleObstaclesChanged & pack) override;
+	void apply(CatapultAttack & pack) override;
 
 	const CMap * getMap() const override;
 	const CGameInfoCallback * getCb() const override;

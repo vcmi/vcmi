@@ -166,4 +166,6 @@ QuickRecruitmentWindow::QuickRecruitmentWindow(const CGTownInstance * townd, Rec
 	setButtons();
 	setCreaturePurchaseCards();
 	maxAllCards(cards);
+
+	center();
 }

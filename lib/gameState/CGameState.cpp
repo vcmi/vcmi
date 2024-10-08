@@ -1143,9 +1143,9 @@ PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor 
 	return PlayerRelations::ENEMIES;
 }
 
-void CGameState::apply(CPackForClient *pack)
+void CGameState::apply(CPackForClient & pack)
 {
-	pack->applyGs(this);
+	pack.applyGs(this);
 }
 
 void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)

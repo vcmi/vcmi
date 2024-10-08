@@ -1782,6 +1782,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	ui32 fortSize = static_cast<ui32>(town->creatures.size());
 	if(fortSize > town->town->creatures.size() && town->creatures.back().second.empty())
 		fortSize--;
+	fortSize = std::min(fortSize, static_cast<ui32>(GameConstants::CREATURES_PER_TOWN)); // for 8 creatures + portal of summoning
 
 	const CBuilding * fortBuilding = town->town->buildings.at(BuildingID(town->fortLevel()+6));
 	title = std::make_shared<CLabel>(400, 12, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE, fortBuilding->getNameTranslated());
@@ -1840,6 +1841,7 @@ ImagePath CFortScreen::getBgName(const CGTownInstance * town)
 	ui32 fortSize = static_cast<ui32>(town->creatures.size());
 	if(fortSize > town->town->creatures.size() && town->creatures.back().second.empty())
 		fortSize--;
+	fortSize = std::min(fortSize, static_cast<ui32>(GameConstants::CREATURES_PER_TOWN)); // for 8 creatures + portal of summoning
 
 	if(fortSize == GameConstants::CREATURES_PER_TOWN)
 		return ImagePath::builtin("TPCASTL8");
@@ -1966,7 +1968,7 @@ void CFortScreen::RecruitArea::showPopupWindow(const Point & cursorPosition)
 }
 
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & imagename)
-	: CWindowObject(BORDERED, imagename)
+	: CWindowObject(BORDERED, imagename), townId(owner->town->id)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -1982,6 +1984,15 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & i
 
 	exit = std::make_shared<CButton>(Point(748, 556), AnimationPath::builtin("TPMAGE1.DEF"), CButton::tooltip(CGI->generaltexth->allTexts[593]), [&](){ close(); }, EShortcut::GLOBAL_RETURN);
 
+	updateSpells(townId);
+}
+
+void CMageGuildScreen::updateSpells(ObjectInstanceID tID)
+{
+	if(tID != townId)
+		return;
+
+	OBJECT_CONSTRUCTION;
 	static const std::vector<std::vector<Point> > positions =
 	{
 		{Point(222,445), Point(312,445), Point(402,445), Point(520,445), Point(610,445), Point(700,445)},
@@ -1991,21 +2002,28 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & i
 		{Point(491,325), Point(591,325)}
 	};
 
-	for(size_t i=0; i<owner->town->town->mageLevel; i++)
+	spells.clear();
+	emptyScrolls.clear();
+
+	const CGTownInstance * town = LOCPLINT->cb->getTown(townId);
+
+	for(size_t i=0; i<town->town->mageLevel; i++)
 	{
-		size_t spellCount = owner->town->spellsAtLevel((int)i+1,false); //spell at level with -1 hmmm?
+		size_t spellCount = town->spellsAtLevel((int)i+1,false); //spell at level with -1 hmmm?
 		for(size_t j=0; j<spellCount; j++)
 		{
-			if(i<owner->town->mageGuildLevel() && owner->town->spells[i].size()>j)
-				spells.push_back(std::make_shared<Scroll>(positions[i][j], owner->town->spells[i][j].toSpell()));
+			if(i<town->mageGuildLevel() && town->spells[i].size()>j)
+				spells.push_back(std::make_shared<Scroll>(positions[i][j], town->spells[i][j].toSpell(), townId));
 			else
 				emptyScrolls.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TPMAGES.DEF"), 1, 0, positions[i][j].x, positions[i][j].y));
 		}
 	}
+
+	redraw();
 }
 
-CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
-	: spell(Spell)
+CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell, ObjectInstanceID townId)
+	: spell(Spell), townId(townId)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -2017,7 +2035,61 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 
 void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 {
-	LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
+	const CGTownInstance * town = LOCPLINT->cb->getTown(townId);
+	if(LOCPLINT->cb->getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && town->spellResearchAllowed)
+	{
+		int level = -1;
+		for(int i = 0; i < town->spells.size(); i++)
+			if(vstd::find_pos(town->spells[i], spell->id) != -1)
+				level = i;
+				
+		if(town->spellResearchCounterDay >= LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY).Vector()[level].Float())
+		{
+			LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.spellResearch.comeAgain"));
+			return;
+		}
+
+		auto costBase = TResources(LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
+		auto costExponent = LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
+		auto cost = costBase * std::pow(town->spellResearchAcceptedCounter + 1, costExponent);
+
+		std::vector<std::shared_ptr<CComponent>> resComps;
+		auto newSpell = town->spells[level].at(town->spellsAtLevel(level, false));
+		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
+		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, newSpell));
+		resComps.back()->newLine = true;
+		for(TResources::nziterator i(cost); i.valid(); i++)
+		{
+			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal, CComponent::ESize::medium));
+		}
+
+		auto showSpellResearchDialog = [this, resComps, town, cost, newSpell](){
+			std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
+			for(int i = 0; i < 3; i++)
+				pom.emplace_back(AnimationPath::builtin("settingsWindow/button80"), nullptr);
+
+			auto text = CGI->generaltexth->translate(LOCPLINT->cb->getResourceAmount().canAfford(cost) ? "vcmi.spellResearch.pay" : "vcmi.spellResearch.canNotAfford");
+			boost::replace_first(text, "%SPELL1", spell->id.toSpell()->getNameTranslated());
+			boost::replace_first(text, "%SPELL2", newSpell.toSpell()->getNameTranslated());
+			auto temp = std::make_shared<CInfoWindow>(text, LOCPLINT->playerID, resComps, pom);
+
+			temp->buttons[0]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/accept")));
+			temp->buttons[0]->addCallback([this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, true); });
+			temp->buttons[0]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.research")); });
+			temp->buttons[0]->setEnabled(LOCPLINT->cb->getResourceAmount().canAfford(cost));
+			temp->buttons[1]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/reroll")));
+			temp->buttons[1]->addCallback([this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, false); });
+			temp->buttons[1]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.skip")); });
+			temp->buttons[2]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/close")));
+			temp->buttons[2]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.abort")); });
+
+			GH.windows().pushWindow(temp);
+		};
+
+		showSpellResearchDialog();
+	}
+	else
+		LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
 }
 
 void CMageGuildScreen::Scroll::showPopupWindow(const Point & cursorPosition)

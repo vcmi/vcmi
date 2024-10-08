@@ -863,7 +863,7 @@ std::string CStackInstance::getName() const
 ui64 CStackInstance::getPower() const
 {
 	assert(type);
-	return type->getAIValue() * count;
+	return static_cast<ui64>(type->getAIValue()) * count;
 }
 
 ui64 CStackInstance::getMarketValue() const

@@ -187,7 +187,7 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 	buffer.push_back(bonus2);
 
 	sse.toUpdate.push_back(std::make_pair(ba.stackNumber, buffer));
-	gameHandler->sendAndApply(&sse);
+	gameHandler->sendAndApply(sse);
 
 	BattleLogMessage message;
 	message.battleID = battle.getBattle()->getBattleID();
@@ -199,7 +199,7 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 
 	message.lines.push_back(text);
 
-	gameHandler->sendAndApply(&message);
+	gameHandler->sendAndApply(message);
 	return true;
 }
 
@@ -596,7 +596,7 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	{
 		StartAction startAction(ba);
 		startAction.battleID = battle.getBattle()->getBattleID();
-		gameHandler->sendAndApply(&startAction);
+		gameHandler->sendAndApply(startAction);
 	}
 
 	bool result = dispatchBattleAction(battle, ba);
@@ -605,7 +605,7 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	{
 		EndAction endAction;
 		endAction.battleID = battle.getBattle()->getBattleID();
-		gameHandler->sendAndApply(&endAction);
+		gameHandler->sendAndApply(endAction);
 	}
 
 	if(ba.actionType == EActionType::WAIT || ba.actionType == EActionType::DEFEND || ba.actionType == EActionType::SHOOT || ba.actionType == EActionType::MONSTER_SPELL)
@@ -716,7 +716,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 				BattleUpdateGateState db;
 				db.battleID = battle.getBattle()->getBattleID();
 				db.state = EGateState::OPENED;
-				gameHandler->sendAndApply(&db);
+				gameHandler->sendAndApply(db);
 			}
 
 			//inform clients about move
@@ -728,7 +728,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 			sm.tilesToMove = tiles;
 			sm.distance = path.second;
 			sm.teleporting = false;
-			gameHandler->sendAndApply(&sm);
+			gameHandler->sendAndApply(sm);
 		}
 	}
 	else //for non-flying creatures
@@ -856,7 +856,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 				sm.distance = path.second;
 				sm.teleporting = false;
 				sm.tilesToMove = tiles;
-				gameHandler->sendAndApply(&sm);
+				gameHandler->sendAndApply(sm);
 				tiles.clear();
 			}
 
@@ -881,7 +881,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 							BattleUpdateGateState db;
 							db.battleID = battle.getBattle()->getBattleID();
 							db.state = EGateState::OPENED;
-							gameHandler->sendAndApply(&db);
+							gameHandler->sendAndApply(db);
 						}
 					}
 					else if (curStack->getPosition() == gateMayCloseAtHex)
@@ -1034,7 +1034,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	for (BattleStackAttacked & bsa : bat.bsa)
 		bsa.battleID = battle.getBattle()->getBattleID();
 
-	gameHandler->sendAndApply(&bat);
+	gameHandler->sendAndApply(bat);
 
 	{
 		const bool multipleTargets = bat.bsa.size() > 1;
@@ -1101,7 +1101,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 			StacksInjured pack;
 			pack.battleID = battle.getBattle()->getBattleID();
 			pack.stacks.push_back(bsa);
-			gameHandler->sendAndApply(&pack);
+			gameHandler->sendAndApply(pack);
 
 			// TODO: this is already implemented in Damage::describeEffect()
 			{
@@ -1115,7 +1115,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		}
 	}
 
-	gameHandler->sendAndApply(&blm);
+	gameHandler->sendAndApply(blm);
 
 	if(defender)
 		handleAfterAttackCasting(battle, ranged, attacker, defender);
@@ -1386,14 +1386,14 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		BattleUnitsChanged removeUnits;
 		removeUnits.battleID = battle.getBattle()->getBattleID();
 		removeUnits.changedStacks.emplace_back(defender->unitId(), UnitChanges::EOperation::REMOVE);
-		gameHandler->sendAndApply(&removeUnits);
-		gameHandler->sendAndApply(&addUnits);
+		gameHandler->sendAndApply(removeUnits);
+		gameHandler->sendAndApply(addUnits);
 
 		// send empty event to client
 		// temporary(?) workaround to force animations to trigger
 		StacksInjured fakeEvent;
 		fakeEvent.battleID = battle.getBattle()->getBattleID();
-		gameHandler->sendAndApply(&fakeEvent);
+		gameHandler->sendAndApply(fakeEvent);
 	}
 
 	if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage) || attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount))
@@ -1430,7 +1430,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		si.battleID = battle.getBattle()->getBattleID();
 		si.stacks.push_back(bsa);
 
-		gameHandler->sendAndApply(&si);
+		gameHandler->sendAndApply(si);
 		sendGenericKilledLog(battle, defender, bsa.killedAmount, false);
 	}
 }
@@ -1504,7 +1504,7 @@ void BattleActionProcessor::sendGenericKilledLog(const CBattleInfoCallback & bat
 		BattleLogMessage blm;
 		blm.battleID = battle.getBattle()->getBattleID();
 		addGenericKilledLog(blm, defender, killed, multiple);
-		gameHandler->sendAndApply(&blm);
+		gameHandler->sendAndApply(blm);
 	}
 }
 

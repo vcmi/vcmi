@@ -129,7 +129,7 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 			if(wordBreak != ui32(-1))
 			{
 				currPos = wordBreak;
-				if(text.substr(0, currPos).find('{') == std::string::npos)
+				if(boost::count(text.substr(0, currPos), '{') == boost::count(text.substr(0, currPos), '}'))
 				{
 					opened = false;
 					color = "";

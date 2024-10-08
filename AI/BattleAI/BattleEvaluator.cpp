@@ -394,7 +394,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 	{
 		std::set<BattleHex> obstacleHexes;
 
-		auto insertAffected = [](const CObstacleInstance & spellObst, std::set<BattleHex> obstacleHexes) {
+		auto insertAffected = [](const CObstacleInstance & spellObst, std::set<BattleHex> & obstacleHexes) {
 			auto affectedHexes = spellObst.getAffectedTiles();
 			obstacleHexes.insert(affectedHexes.cbegin(), affectedHexes.cend());
 		};

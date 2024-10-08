@@ -473,7 +473,7 @@ CKingdomInterface::CKingdomInterface()
 	generateButtons();
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(ImagePath::builtin("KSTATBAR"), 10,pos.h - 45));
-	resdatabar = std::make_shared<CResDataBar>(ImagePath::builtin("KRESBAR"), 7, 111+footerPos, 29, 5, 76, 81);
+	resdatabar = std::make_shared<CResDataBar>(ImagePath::builtin("KRESBAR"), 7, 111+footerPos, 29, 3, 76, 81);
 
 	activateTab(persistentStorage["gui"]["lastKindomInterface"].Integer());
 }
@@ -805,7 +805,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPT"), iconIndex, 0, 5, 6);
 	openTown = std::make_shared<LRClickableAreaOpenTown>(Rect(5, 6, 58, 64), town);
 
-	for(size_t i=0; i<town->creatures.size(); i++)
+	for(size_t i=0; i<town->creatures.size() && i<GameConstants::CREATURES_PER_TOWN; i++)
 	{
 		growth.push_back(std::make_shared<CCreaInfo>(Point(401+37*(int)i, 78), town, (int)i, true, true));
 		available.push_back(std::make_shared<CCreaInfo>(Point(48+37*(int)i, 78), town, (int)i, true, false));
@@ -866,7 +866,7 @@ void CTownItem::update()
 
 	heroes->update();
 
-	for (size_t i=0; i<town->creatures.size(); i++)
+	for (size_t i=0; i<std::min(static_cast<int>(town->creatures.size()), GameConstants::CREATURES_PER_TOWN); i++)
 	{
 		growth[i]->update();
 		available[i]->update();

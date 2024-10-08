@@ -104,7 +104,7 @@ void Catapult::applyMassive(ServerCallback * server, const Mechanics * m) const
 			attackInfo->damageDealt += getRandomDamage(server);
 		}
 	}
-	server->apply(&ca);
+	server->apply(ca);
 
 	removeTowerShooters(server, m);
 }
@@ -144,7 +144,7 @@ void Catapult::applyTargeted(ServerCallback * server, const Mechanics * m, const
 		ca.battleID = m->battle()->getBattle()->getBattleID();
 		ca.attacker = m->caster->getHeroCaster() ? -1 : m->caster->getCasterUnitId();
 		ca.attackedParts.push_back(attack);
-		server->apply(&ca);
+		server->apply(ca);
 		removeTowerShooters(server, m);
 	}
 }
@@ -228,7 +228,7 @@ void Catapult::removeTowerShooters(ServerCallback * server, const Mechanics * m)
 	}
 
 	if(!removeUnits.changedStacks.empty())
-		server->apply(&removeUnits);
+		server->apply(removeUnits);
 }
 
 std::vector<EWallPart> Catapult::getPotentialTargets(const Mechanics * m, bool bypassGateCheck, bool bypassTowerCheck) const

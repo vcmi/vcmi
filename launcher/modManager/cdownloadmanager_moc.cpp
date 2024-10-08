@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "cdownloadmanager_moc.h"
 
-#include "../launcherdirs.h"
+#include "../vcmiqt/launcherdirs.h"
 
 #include "../../lib/CConfigHandler.h"
 

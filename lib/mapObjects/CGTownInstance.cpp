@@ -268,7 +268,10 @@ CGTownInstance::CGTownInstance(IGameCallback *cb):
 	built(0),
 	destroyed(0),
 	identifier(0),
-	alignmentToPlayer(PlayerColor::NEUTRAL)
+	alignmentToPlayer(PlayerColor::NEUTRAL),
+	spellResearchCounterDay(0),
+	spellResearchAcceptedCounter(0),
+	spellResearchAllowed(true)
 {
 	this->setNodeType(CBonusSystemNode::TOWN);
 }
@@ -347,7 +350,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			scp.heroid = h->id;
 			scp.which = SetCommanderProperty::ALIVE;
 			scp.amount = 1;
-			cb->sendAndApply(&scp);
+			cb->sendAndApply(scp);
 		}
 		cb->heroVisitCastle(this, h);
 		// TODO(vmarkovtsev): implement payment for rising the commander
@@ -628,7 +631,7 @@ void CGTownInstance::removeCapitols(const PlayerColor & owner) const
 				rs.tid = id;
 				rs.bid.insert(BuildingID::CAPITOL);
 				rs.destroyed = destroyed;
-				cb->sendAndApply(&rs);
+				cb->sendAndApply(rs);
 				return;
 			}
 		}

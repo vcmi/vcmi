@@ -61,6 +61,7 @@ enum class ESerializationVersion : int32_t
 	CAMPAIGN_OUTRO_SUPPORT, // 862 - support for campaign outro video
 	REWARDABLE_BANKS, // 863 - team state contains list of scouted objects, coast visitable rewardable objects
 	REGION_LABEL, // 864 - labels for campaign regions
+	SPELL_RESEARCH, // 865 - spell research
 
-	CURRENT = REGION_LABEL
+	CURRENT = SPELL_RESEARCH
 };

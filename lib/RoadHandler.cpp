@@ -41,7 +41,7 @@ std::shared_ptr<RoadType> RoadTypeHandler::loadFromJson(
 	info->shortIdentifier = json["shortIdentifier"].String();
 	info->movementCost    = json["moveCost"].Integer();
 
-	VLC->generaltexth->registerString(scope,info->getNameTextID(), json["text"].String());
+	VLC->generaltexth->registerString(scope,info->getNameTextID(), json["text"]);
 
 	return info;
 }

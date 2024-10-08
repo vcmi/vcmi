@@ -287,7 +287,7 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	PlayerStartsTurn pst;
 	pst.player = which;
 	pst.queryID = turnQuery->queryID;
-	gameHandler->sendAndApply(&pst);
+	gameHandler->sendAndApply(pst);
 
 	assert(!actingPlayers.empty());
 }
@@ -302,7 +302,7 @@ void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
 
 	PlayerEndsTurn pet;
 	pet.player = which;
-	gameHandler->sendAndApply(&pet);
+	gameHandler->sendAndApply(pet);
 
 	if (!awaitingPlayers.empty())
 		tryStartTurnsForPlayers();

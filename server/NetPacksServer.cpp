@@ -138,6 +138,14 @@ void ApplyGhNetPackVisitor::visitBuildStructure(BuildStructure & pack)
 	result = gh.buildStructure(pack.tid, pack.bid);
 }
 
+void ApplyGhNetPackVisitor::visitSpellResearch(SpellResearch & pack)
+{
+	gh.throwIfWrongOwner(&pack, pack.tid);
+	gh.throwIfPlayerNotActive(&pack);
+	
+	result = gh.spellResearch(pack.tid, pack.spellAtSlot, pack.accepted);
+}
+
 void ApplyGhNetPackVisitor::visitVisitTownBuilding(VisitTownBuilding & pack)
 {
 	gh.throwIfWrongOwner(&pack, pack.tid);
@@ -197,22 +205,7 @@ void ApplyGhNetPackVisitor::visitManageBackpackArtifacts(ManageBackpackArtifacts
 	gh.throwIfPlayerNotActive(&pack);
 
 	if(gh.getPlayerRelations(pack.player, gh.getOwner(pack.artHolder)) != PlayerRelations::ENEMIES)
-	{
-		if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SCROLL_LEFT)
-			result = gh.scrollBackpackArtifacts(pack.player, pack.artHolder, true);
-		else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SCROLL_RIGHT)
-			result = gh.scrollBackpackArtifacts(pack.player, pack.artHolder, false);
-		else
-		{
-			gh.throwIfWrongOwner(&pack, pack.artHolder);
-			if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_CLASS)
-				result = true;
-			else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_COST)
-				result = true;
-			else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_SLOT)
-				result = true;
-		}
-	}
+		result = gh.manageBackpackArtifacts(pack.player, pack.artHolder, pack.cmd);
 }
 
 void ApplyGhNetPackVisitor::visitManageEquippedArtifacts(ManageEquippedArtifacts & pack)

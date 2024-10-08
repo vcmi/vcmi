@@ -26,7 +26,7 @@ public:
 	const CGObjectInstance * visitedObject;
 	const CGHeroInstance * visitingHero;
 
-	bool blocksPack(const CPack * pack) const final;
+	bool blocksPack(const CPackForServer * pack) const final;
 };
 
 class MapObjectVisitQuery final : public VisitQuery

@@ -531,44 +531,44 @@ vstd::RNG * HypotheticBattle::HypotheticServerCallback::getRNG()
 	return &rngStub;
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(CPackForClient * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(CPackForClient & pack)
 {
 	logAi->error("Package of type %s is not allowed in battle evaluation", typeid(pack).name());
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(BattleLogMessage * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(BattleLogMessage & pack)
 {
-	pack->applyBattle(owner);
+	pack.applyBattle(owner);
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(BattleStackMoved * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(BattleStackMoved & pack)
 {
-	pack->applyBattle(owner);
+	pack.applyBattle(owner);
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(BattleUnitsChanged * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(BattleUnitsChanged & pack)
 {
-	pack->applyBattle(owner);
+	pack.applyBattle(owner);
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(SetStackEffect * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(SetStackEffect & pack)
 {
-	pack->applyBattle(owner);
+	pack.applyBattle(owner);
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(StacksInjured * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(StacksInjured & pack)
 {
-	pack->applyBattle(owner);
+	pack.applyBattle(owner);
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(BattleObstaclesChanged * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(BattleObstaclesChanged & pack)
 {
-	pack->applyBattle(owner);
+	pack.applyBattle(owner);
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(CatapultAttack * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(CatapultAttack & pack)
 {
-	pack->applyBattle(owner);
+	pack.applyBattle(owner);
 }
 
 HypotheticBattle::HypotheticEnvironment::HypotheticEnvironment(HypotheticBattle * owner_, const Environment * upperEnvironment)

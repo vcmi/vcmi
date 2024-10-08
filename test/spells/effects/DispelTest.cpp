@@ -209,7 +209,7 @@ TEST_F(DispelApplyTest, DISABLED_RemovesEffects)
 
 	EXPECT_CALL(mechanicsMock, getSpellIndex()).Times(AtLeast(1)).WillRepeatedly(Return(neutralID.toEnum()));
 
-	EXPECT_CALL(serverMock, apply(Matcher<SetStackEffect *>(_))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<SetStackEffect &>(_))).Times(1);
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	setDefaultExpectations();

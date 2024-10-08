@@ -827,7 +827,7 @@ void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) con
 		sm.hid = id;
 		sm.val = -spellCost;
 
-		server->apply(&sm);
+		server->apply(sm);
 	}
 }
 

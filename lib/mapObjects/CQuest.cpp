@@ -588,7 +588,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 			AddQuest aq;
 			aq.quest = QuestInfo (quest, this, visitablePos());
 			aq.player = h->tempOwner;
-			cb->sendAndApply(&aq); //TODO: merge with setObjProperty?
+			cb->sendAndApply(aq); //TODO: merge with setObjProperty?
 		}
 
 		if(firstVisit || failRequirements)
@@ -811,7 +811,7 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 		cow.mode = ChangeObjectVisitors::VISITOR_GLOBAL;
 		cow.hero = h->id;
 		cow.object = id;
-		cb->sendAndApply(&cow);
+		cb->sendAndApply(cow);
 		txt_id=19;
 	}
 	else
@@ -860,7 +860,7 @@ void CGBorderGuard::onHeroVisit(const CGHeroInstance * h) const
 		AddQuest aq;
 		aq.quest = QuestInfo (quest, this, visitablePos());
 		aq.player = h->tempOwner;
-		cb->sendAndApply (&aq);
+		cb->sendAndApply(aq);
 		//TODO: add this quest only once OR check for multiple instances later
 	}
 }
@@ -885,7 +885,7 @@ void CGBorderGate::onHeroVisit(const CGHeroInstance * h) const //TODO: passabili
 		AddQuest aq;
 		aq.quest = QuestInfo (quest, this, visitablePos());
 		aq.player = h->tempOwner;
-		cb->sendAndApply (&aq);
+		cb->sendAndApply(aq);
 	}
 }
 

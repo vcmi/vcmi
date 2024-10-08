@@ -94,6 +94,7 @@ public:
 	virtual void showInfoDialog(InfoWindow * iw) = 0;
 
 	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)=0;
+	virtual void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> spells, bool accepted)=0;
 	virtual bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
@@ -139,7 +140,7 @@ public:
 	virtual void setManaPoints(ObjectInstanceID hid, int val)=0;
 	virtual void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) = 0;
 	virtual void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator)=0;
-	virtual void sendAndApply(CPackForClient * pack) = 0;
+	virtual void sendAndApply(CPackForClient & pack) = 0;
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) = 0;
 	virtual void changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) = 0;

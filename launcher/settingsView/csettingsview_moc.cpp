@@ -15,7 +15,7 @@
 
 #include "../modManager/cmodlistview_moc.h"
 #include "../helper.h"
-#include "../jsonutils.h"
+#include "../vcmiqt/jsonutils.h"
 #include "../languages.h"
 
 #include <QFileInfo>
@@ -181,6 +181,13 @@ void CSettingsView::loadSettings()
 		ui->buttonFontOriginal->setChecked(true);
 	else
 		ui->buttonFontScalable->setChecked(true);
+
+	if (settings["mods"]["validation"].String() == "off")
+		ui->buttonValidationOff->setChecked(true);
+	else if (settings["mods"]["validation"].String() == "basic")
+		ui->buttonValidationBasic->setChecked(true);
+	else
+		ui->buttonValidationFull->setChecked(true);
 
 	loadToggleButtonSettings();
 }
@@ -790,4 +797,22 @@ void CSettingsView::on_buttonFontOriginal_clicked(bool checked)
 {
 	Settings node = settings.write["video"]["fontsType"];
 	node->String() = "original";
+}
+
+void CSettingsView::on_buttonValidationOff_clicked(bool checked)
+{
+	Settings node = settings.write["mods"]["validation"];
+	node->String() = "off";
+}
+
+void CSettingsView::on_buttonValidationBasic_clicked(bool checked)
+{
+	Settings node = settings.write["mods"]["validation"];
+	node->String() = "basic";
+}
+
+void CSettingsView::on_buttonValidationFull_clicked(bool checked)
+{
+	Settings node = settings.write["mods"]["validation"];
+	node->String() = "full";
 }
