@@ -654,6 +654,11 @@ O download da instalação foi bem-sucedido?</translation>
         <translation>IA neutra nas batalhas</translation>
     </message>
     <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="701"/>
+        <source>Font Scaling (experimental)</source>
+        <translation>Escala da fonte (experimental)</translation>
+    </message>
+    <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="738"/>
         <source>Enemy AI in battles</source>
         <translation>IA inimiga em batalhas</translation>
@@ -963,7 +968,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="593"/>
         <source>VSync</source>
-        <translation>VSync</translation>
+        <translation>Sincronização vertical (VSync)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="338"/>
