@@ -12,6 +12,7 @@
 #include "PacksForClient.h"
 #include "PacksForClientBattle.h"
 #include "PacksForServer.h"
+#include "SaveLocalState.h"
 #include "SetRewardableConfiguration.h"
 #include "StackLocation.h"
 #include "PacksForLobby.h"
@@ -91,6 +92,12 @@ bool CLobbyPackToServer::isForServer() const
 {
 	return true;
 }
+
+void SaveLocalState::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSaveLocalState(*this);
+}
+
 
 void PackageApplied::visitTyped(ICPackVisitor & visitor)
 {

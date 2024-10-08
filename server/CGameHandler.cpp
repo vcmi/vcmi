@@ -4012,6 +4012,9 @@ bool CGameHandler::isBlockedByQueries(const CPackForServer *pack, PlayerColor pl
 	if (dynamic_cast<const PlayerMessage *>(pack) != nullptr)
 		return false;
 
+	if (dynamic_cast<const SaveLocalState *>(pack) != nullptr)
+		return false;
+
 	auto query = queries->topQuery(player);
 	if (query && query->blocksPack(pack))
 	{

@@ -62,4 +62,5 @@ public:
 	void visitDigWithHero(DigWithHero & pack) override;
 	void visitCastAdvSpell(CastAdvSpell & pack) override;
 	void visitPlayerMessage(PlayerMessage & pack) override;
+	void visitSaveLocalState(SaveLocalState & pack) override;
 };

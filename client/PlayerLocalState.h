@@ -14,6 +14,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 class CGTownInstance;
 class CArmedInstance;
+class JsonNode;
 struct CGPath;
 class int3;
 
@@ -45,9 +46,7 @@ class PlayerLocalState
 
 	PlayerSpellbookSetting spellbookSettings;
 
-	void saveHeroPaths(std::map<const CGHeroInstance *, int3> & paths);
-	void loadHeroPaths(std::map<const CGHeroInstance *, int3> & paths);
-
+	void syncronizeState();
 public:
 
 	explicit PlayerLocalState(CPlayerInterface & owner);
@@ -86,6 +85,9 @@ public:
 	const CGHeroInstance * getCurrentHero() const;
 	const CGTownInstance * getCurrentTown() const;
 	const CArmedInstance * getCurrentArmy() const;
+
+	void serialize(JsonNode & dest) const;
+	void deserialize(const JsonNode & source);
 
 	/// Changes currently selected object
 	void setSelection(const CArmedInstance *sel);

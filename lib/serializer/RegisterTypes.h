@@ -34,6 +34,7 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/PacksForLobby.h"
 #include "../networkPacks/PacksForServer.h"
+#include "../networkPacks/SaveLocalState.h"
 #include "../networkPacks/SetRewardableConfiguration.h"
 #include "../networkPacks/SetStackEffect.h"
 
@@ -290,6 +291,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<LobbySetExtraOptions>(240);
 	s.template registerType<SpellResearch>(241);
 	s.template registerType<SetResearchedSpells>(242);
+	s.template registerType<SaveLocalState>(243);
 }
 
 VCMI_LIB_NAMESPACE_END

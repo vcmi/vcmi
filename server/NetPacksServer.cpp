@@ -19,6 +19,7 @@
 #include "queries/MapQueries.h"
 
 #include "../lib/IGameCallback.h"
+#include "../lib/CPlayerState.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/gameState/CGameState.h"
@@ -387,6 +388,13 @@ void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
 		gh.throwAndComplain(&pack, "Cannot answer the query with pack.id -1!");
 
 	result = gh.queryReply(pack.qid, pack.reply, pack.player);
+}
+
+void ApplyGhNetPackVisitor::visitSaveLocalState(SaveLocalState & pack)
+{
+	gh.throwIfWrongPlayer(&pack);
+	*gh.gameState()->getPlayerState(pack.player)->playerLocalSettings = pack.data;
+	result = true;
 }
 
 void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
