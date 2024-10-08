@@ -23,6 +23,16 @@ PlayerLocalState::PlayerLocalState(CPlayerInterface & owner)
 {
 }
 
+const PlayerSpellbookSetting & PlayerLocalState::getSpellbookSettings()
+{
+	return spellbookSettings;
+}
+
+void PlayerLocalState::setSpellbookSettings(const PlayerSpellbookSetting & newSettings)
+{
+	spellbookSettings = newSettings;
+}
+
 void PlayerLocalState::saveHeroPaths(std::map<const CGHeroInstance *, int3> & pathsMap)
 {
 	for(auto & p : paths)
