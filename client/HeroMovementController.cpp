@@ -162,11 +162,6 @@ void HeroMovementController::onTryMoveHero(const CGHeroInstance * hero, const Tr
 		}
 	}
 
-	bool directlyAttackingCreature =
-		details.attackedFrom.has_value() &&
-		LOCPLINT->localState->hasPath(hero) &&
-		LOCPLINT->localState->getPath(hero).lastNode().coord == details.attackedFrom;
-
 	std::unordered_set<int3> changedTiles {
 		hero->convertToVisitablePos(details.start),
 		hero->convertToVisitablePos(details.end)
@@ -189,22 +184,6 @@ void HeroMovementController::onTryMoveHero(const CGHeroInstance * hero, const Tr
 
 	//move finished
 	adventureInt->onHeroChanged(hero);
-
-	// Hero attacked creature, set direction to face it.
-	if(directlyAttackingCreature)
-	{
-		// Get direction to attacker.
-		int3 posOffset = *details.attackedFrom - details.end + int3(2, 1, 0);
-		static const ui8 dirLookup[3][3] =
-		{
-			{ 1, 2, 3 },
-			{ 8, 0, 4 },
-			{ 7, 6, 5 }
-		};
-
-		//FIXME: better handling of this case without const_cast
-		const_cast<CGHeroInstance *>(hero)->moveDir = dirLookup[posOffset.y][posOffset.x];
-	}
 }
 
 void HeroMovementController::onQueryReplyApplied()
@@ -383,6 +362,9 @@ void HeroMovementController::sendMovementRequest(const CGHeroInstance * h, const
 		int3 nextCoord = h->convertFromVisitablePos(nextNode.coord);
 
 		LOCPLINT->cb->moveHero(h, nextCoord, useTransit);
+
+		if (nextNode.action == EPathNodeAction::NORMAL || nextNode.action == EPathNodeAction::VISIT)
+			CGI->mh->onHeroMoved(h, h->pos, h->convertFromVisitablePos(nextNode.coord));
 		return;
 	}
 

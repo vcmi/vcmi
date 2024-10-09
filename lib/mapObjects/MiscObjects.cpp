@@ -1107,7 +1107,7 @@ CGBoat::CGBoat(IGameCallback * cb)
 	: CGObjectInstance(cb)
 {
 	hero = nullptr;
-	direction = 4;
+	direction = ECardinalDirection::EAST;
 	layer = EPathfindingLayer::SAIL;
 }
 

@@ -11,6 +11,21 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+enum class ECardinalDirection : int8_t
+{
+	INVALID = 0,
+
+	NORTH = 1,
+	NORTHEAST = 2,
+	EAST = 3,
+	SOUTHEAST = 4,
+	SOUTH = 5,
+	SOUTHWEST = 6,
+	WEST = 7,
+	NORTHWEST = 8,
+	CENTER = 9
+};
+
 /// Class which consists of three integer values. Represents position on adventure map.
 class int3
 {
@@ -46,6 +61,7 @@ public:
 	constexpr int3 operator*(const si32 i) const { return int3(x * i, y * i, z * i); }
 	//returns int3 with coordinates divided by given number
 	constexpr int3 operator/(const si32 i) const { return int3(x / i, y / i, z / i); }
+	constexpr int3 operator/(const int3 & i) const { return int3(x / i.x, y / i.y, z / i.z); }
 
 	constexpr int3 & operator+=(const int3 & i)
 	{
@@ -175,6 +191,22 @@ public:
 	{
 		return { { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 			int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) } };
+	}
+
+	/// returns cardinal direction in which to move in order to reach 'to'
+	/// returns INVALID if tiles are not adjancent
+	ECardinalDirection getDirection(int3 to) const
+	{
+		static std::array<std::array<ECardinalDirection, 3>, 3> dirLookup = {{
+			{ECardinalDirection::NORTHWEST, ECardinalDirection::NORTH,  ECardinalDirection::NORTHEAST},
+			{ECardinalDirection::WEST,      ECardinalDirection::CENTER, ECardinalDirection::EAST},
+			{ECardinalDirection::SOUTHWEST, ECardinalDirection::SOUTH,  ECardinalDirection::SOUTHEAST}
+		}};
+		int3 offset = to - *this + int3(1,1,0);
+		if (offset.x > 2 || offset.y > 2 || offset.x < 0 || offset.y < 0) // different z is legal, e.g. seer hut
+			return ECardinalDirection::INVALID;
+
+		return dirLookup.at(offset.y).at(offset.x);
 	}
 
 	// Solution by ChatGPT

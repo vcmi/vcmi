@@ -313,7 +313,7 @@ std::shared_ptr<QImage> MapHandler::findFlagBitmap(const CGHeroInstance * hero, 
 	return findFlagBitmapInternal(graphics->heroFlagAnimations.at(color.getNum()), anim, group, hero->moveDir, true);
 }
 
-std::shared_ptr<QImage> MapHandler::findFlagBitmapInternal(std::shared_ptr<Animation> animation, int anim, int group, ui8 dir, bool moving) const
+std::shared_ptr<QImage> MapHandler::findFlagBitmapInternal(std::shared_ptr<Animation> animation, int anim, int group, ECardinalDirection dir, bool moving) const
 {
 	size_t groupSize = animation->size(group);
 	if(groupSize == 0)

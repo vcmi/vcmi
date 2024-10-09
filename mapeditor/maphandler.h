@@ -58,7 +58,7 @@ private:
 	int index(int x, int y, int z) const;
 	int index(const int3 &) const;
 		
-	std::shared_ptr<QImage> findFlagBitmapInternal(std::shared_ptr<Animation> animation, int anim, int group, ui8 dir, bool moving) const;
+	std::shared_ptr<QImage> findFlagBitmapInternal(std::shared_ptr<Animation> animation, int anim, int group, ECardinalDirection dir, bool moving) const;
 	std::shared_ptr<QImage> findFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor color, int group) const;
 	BitmapHolder findObjectBitmap(const CGObjectInstance * obj, int anim, int group = 0) const;
 	

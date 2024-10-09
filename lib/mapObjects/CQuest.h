@@ -61,7 +61,7 @@ public:
 	ui8 textOption;
 	ui8 completedOption;
 	CreatureID stackToKill;
-	ui8 stackDirection;
+	ECardinalDirection stackDirection;
 	std::string heroName; //backup of hero name
 	HeroTypeID heroPortrait;
 
@@ -154,7 +154,7 @@ public:
 	void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
 
 	virtual void init(vstd::RNG & rand);
-	int checkDirection() const; //calculates the region of map where monster is placed
+	ECardinalDirection checkDirection() const; //calculates the region of map where monster is placed
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
 	const CGHeroInstance *getHeroToKill(bool allowNull) const;
 	const CGCreature *getCreatureToKill(bool allowNull) const;

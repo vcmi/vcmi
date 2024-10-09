@@ -63,14 +63,8 @@ private:
 
 public:
 
-	//////////////////////////////////////////////////////////////////////////
-	//format:   123
-	//          8 4
-	//          765
-	ui8 moveDir;
+	ECardinalDirection moveDir;
 	mutable ui8 tacticFormationEnabled;
-
-	//////////////////////////////////////////////////////////////////////////
 
 	const CHero * type;
 	TExpType exp; //experience points
