@@ -1248,44 +1248,6 @@ void RemoveObject::applyGs(CGameState *gs)
 	gs->map->calculateGuardingGreaturePositions();//FIXME: excessive, update only affected tiles
 }
 
-static int getDir(const int3 & src, const int3 & dst)
-{
-	int ret = -1;
-	if(dst.x+1 == src.x && dst.y+1 == src.y) //tl
-	{
-		ret = 1;
-	}
-	else if(dst.x == src.x && dst.y+1 == src.y) //t
-	{
-		ret = 2;
-	}
-	else if(dst.x-1 == src.x && dst.y+1 == src.y) //tr
-	{
-		ret = 3;
-	}
-	else if(dst.x-1 == src.x && dst.y == src.y) //r
-	{
-		ret = 4;
-	}
-	else if(dst.x-1 == src.x && dst.y-1 == src.y) //br
-	{
-		ret = 5;
-	}
-	else if(dst.x == src.x && dst.y-1 == src.y) //b
-	{
-		ret = 6;
-	}
-	else if(dst.x+1 == src.x && dst.y-1 == src.y) //bl
-	{
-		ret = 7;
-	}
-	else if(dst.x+1 == src.x && dst.y == src.y) //l
-	{
-		ret = 8;
-	}
-	return ret;
-}
-
 void TryMoveHero::applyGs(CGameState *gs)
 {
 	CGHeroInstance *h = gs->getHero(id);
@@ -1299,9 +1261,9 @@ void TryMoveHero::applyGs(CGameState *gs)
 
 	if((result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK || result == DISEMBARK) && start != end)
 	{
-		auto dir = getDir(start,end);
-		if(dir > 0  &&  dir <= 8)
-			h->moveDir = dir;
+		auto direction = start.getDirection(end);
+		if (direction != ECardinalDirection::INVALID)
+			h->moveDir = direction;
 		//else don`t change move direction - hero might have traversed the subterranean gate, direction should be kept
 	}
 

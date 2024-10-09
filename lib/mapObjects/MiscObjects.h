@@ -317,7 +317,7 @@ class DLL_LINKAGE CGBoat : public CGObjectInstance, public CBonusSystemNode
 public:
 	using CGObjectInstance::CGObjectInstance;
 
-	ui8 direction;
+	ECardinalDirection direction;
 	const CGHeroInstance *hero;  //hero on board
 	bool onboardAssaultAllowed; //if true, hero can attack units from transport
 	bool onboardVisitAllowed; //if true, hero can visit objects from transport

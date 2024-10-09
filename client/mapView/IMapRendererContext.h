@@ -21,6 +21,32 @@ struct CGPath;
 
 VCMI_LIB_NAMESPACE_END
 
+// Hero / boat animation groups, as defined in H3 .def files
+enum class EHeroMapAnimationGroup : int8_t
+{
+	IDLE_NORTH,
+	IDLE_NORTHEAST,
+	IDLE_EAST,
+	IDLE_SOUTHEAST,
+	IDLE_SOUTH,
+
+	MOVE_NORTH,
+	MOVE_NORTHEAST,
+	MOVE_EAST,
+	MOVE_SOUTHEAST,
+	MOVE_SOUTH,
+
+	// End of H3 groups, start of groups generated in vcmi in runtime
+
+	MOVE_NORTHWEST,
+	MOVE_WEST,
+	MOVE_SOUTHWEST,
+
+	IDLE_NORTHWEST,
+	IDLE_WEST,
+	IDLE_SOUTHWEST,
+};
+
 class IMapRendererContext
 {
 public:

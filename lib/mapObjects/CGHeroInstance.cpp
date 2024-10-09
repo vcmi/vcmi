@@ -285,7 +285,7 @@ CGHeroInstance::CGHeroInstance(IGameCallback * cb)
 	type(nullptr),
 	tacticFormationEnabled(false),
 	inTownGarrison(false),
-	moveDir(4),
+	moveDir(ECardinalDirection::EAST),
 	mana(UNINITIALIZED_MANA),
 	movement(UNINITIALIZED_MOVEMENT),
 	level(1),

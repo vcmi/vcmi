@@ -45,7 +45,7 @@ CQuest::CQuest():
 	killTarget(ObjectInstanceID::NONE),
 	textOption(0),
 	completedOption(0),
-	stackDirection(0),
+	stackDirection(ECardinalDirection::INVALID),
 	isCustomFirst(false),
 	isCustomNext(false),
 	isCustomComplete(false),
@@ -332,7 +332,10 @@ void CQuest::addKillTargetReplacements(MetaString &out) const
 	if(stackToKill != CreatureID::NONE)
 	{
 		out.replaceNamePlural(stackToKill);
-		out.replaceRawString(VLC->generaltexth->arraytxt[147+stackDirection]);
+		// 147 -> northern
+		// ...
+		// 156 -> central
+		out.replaceRawString(VLC->generaltexth->arraytxt[146+static_cast<int>(stackDirection)]);
 	}
 }
 
@@ -612,36 +615,18 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 	}
 }
 
-int CGSeerHut::checkDirection() const
+ECardinalDirection CGSeerHut::checkDirection() const
 {
-	int3 cord = getCreatureToKill(false)->pos;
-	if(static_cast<double>(cord.x) / static_cast<double>(cb->getMapSize().x) < 0.34) //north
-	{
-		if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.34) //northwest
-			return 8;
-		else if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.67) //north
-			return 1;
-		else //northeast
-			return 2;
-	}
-	else if(static_cast<double>(cord.x) / static_cast<double>(cb->getMapSize().x) < 0.67) //horizontal
-	{
-		if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.34) //west
-			return 7;
-		else if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.67) //central
-			return 9;
-		else //east
-			return 3;
-	}
-	else //south
-	{
-		if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.34) //southwest
-			return 6;
-		else if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.67) //south
-			return 5;
-		else //southeast
-			return 4;
-	}
+	int3 targetPos = getCreatureToKill(false)->visitablePos();
+	int3 mapSize = cb->getMapSize();
+	int3 scaledTargetPos = targetPos * 3 / mapSize;
+	int3 testCoordinates(1,1,0);
+
+	auto result = testCoordinates.getDirection(scaledTargetPos);
+	if (result == ECardinalDirection::INVALID)
+		throw std::runtime_error("Failed to compute direction for quest target at " + targetPos.toString());
+
+	return result;
 }
 
 const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const

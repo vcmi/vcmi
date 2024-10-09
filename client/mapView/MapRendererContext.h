@@ -28,7 +28,7 @@ public:
 
 	explicit MapRendererBaseContext(const MapRendererContextState & viewState);
 
-	uint32_t getObjectRotation(ObjectInstanceID objectID) const;
+	ECardinalDirection getObjectRotation(ObjectInstanceID objectID) const;
 
 	int3 getMapSize() const override;
 	bool isInMap(const int3 & coordinates) const override;

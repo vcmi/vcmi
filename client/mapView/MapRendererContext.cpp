@@ -31,7 +31,7 @@ MapRendererBaseContext::MapRendererBaseContext(const MapRendererContextState & v
 {
 }
 
-uint32_t MapRendererBaseContext::getObjectRotation(ObjectInstanceID objectID) const
+ECardinalDirection MapRendererBaseContext::getObjectRotation(ObjectInstanceID objectID) const
 {
 	const CGObjectInstance * obj = getObject(objectID);
 
@@ -49,7 +49,7 @@ uint32_t MapRendererBaseContext::getObjectRotation(ObjectInstanceID objectID) co
 			return boat->hero->moveDir;
 		return boat->direction;
 	}
-	return 0;
+	return ECardinalDirection::INVALID;
 }
 
 int3 MapRendererBaseContext::getMapSize() const
@@ -113,8 +113,19 @@ const CGPath * MapRendererBaseContext::currentPath() const
 
 size_t MapRendererBaseContext::objectGroupIndex(ObjectInstanceID objectID) const
 {
-	static const std::array<size_t, 9> idleGroups = {0, 13, 0, 1, 2, 3, 4, 15, 14};
-	return idleGroups[getObjectRotation(objectID)];
+	static constexpr std::array idleGroups = {
+		EHeroMapAnimationGroup::IDLE_NORTH,     //INVALID
+		EHeroMapAnimationGroup::IDLE_NORTH,     //NORTH
+		EHeroMapAnimationGroup::IDLE_NORTHEAST, //NORTHEAST
+		EHeroMapAnimationGroup::IDLE_EAST,      //EAST
+		EHeroMapAnimationGroup::IDLE_SOUTHEAST, //SOUTHEAST
+		EHeroMapAnimationGroup::IDLE_SOUTH,     //SOUTH
+		EHeroMapAnimationGroup::IDLE_SOUTHWEST, //SOUTHWEST
+		EHeroMapAnimationGroup::IDLE_WEST,	    //WEST
+		EHeroMapAnimationGroup::IDLE_NORTHWEST, //NORTHWEST
+		EHeroMapAnimationGroup::IDLE_EAST       //CENTER
+	};
+	return static_cast<size_t>(idleGroups.at(static_cast<size_t>(getObjectRotation(objectID))));
 }
 
 Point MapRendererBaseContext::objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const
@@ -401,12 +412,19 @@ MapRendererAdventureMovingContext::MapRendererAdventureMovingContext(const MapRe
 
 size_t MapRendererAdventureMovingContext::objectGroupIndex(ObjectInstanceID objectID) const
 {
-	if(target == objectID)
-	{
-		static const std::array<size_t, 9> moveGroups = {0, 10, 5, 6, 7, 8, 9, 12, 11};
-		return moveGroups[getObjectRotation(objectID)];
-	}
-	return MapRendererAdventureContext::objectGroupIndex(objectID);
+	static constexpr std::array moveGroups = {
+		EHeroMapAnimationGroup::IDLE_NORTH,     //INVALID
+		EHeroMapAnimationGroup::MOVE_NORTH,     //NORTH
+		EHeroMapAnimationGroup::MOVE_NORTHEAST, //NORTHEAST
+		EHeroMapAnimationGroup::MOVE_EAST,      //EAST
+		EHeroMapAnimationGroup::MOVE_SOUTHEAST, //SOUTHEAST
+		EHeroMapAnimationGroup::MOVE_SOUTH,     //SOUTH
+		EHeroMapAnimationGroup::MOVE_SOUTHWEST, //SOUTHWEST
+		EHeroMapAnimationGroup::MOVE_WEST,	    //WEST
+		EHeroMapAnimationGroup::MOVE_NORTHWEST, //NORTHWEST
+		EHeroMapAnimationGroup::MOVE_EAST       //CENTER
+	};
+	return static_cast<size_t>(moveGroups.at(static_cast<size_t>(getObjectRotation(objectID))));
 }
 
 bool MapRendererAdventureMovingContext::tileAnimated(const int3 & coordinates) const

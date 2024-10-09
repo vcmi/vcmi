@@ -405,13 +405,13 @@ std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const AnimationPath
 
 	if(generateMovementGroups)
 	{
-		ret->createFlippedGroup(1, 13);
-		ret->createFlippedGroup(2, 14);
-		ret->createFlippedGroup(3, 15);
+		ret->createFlippedGroup(static_cast<size_t>(EHeroMapAnimationGroup::IDLE_NORTHEAST), static_cast<size_t>(EHeroMapAnimationGroup::IDLE_NORTHWEST));
+		ret->createFlippedGroup(static_cast<size_t>(EHeroMapAnimationGroup::IDLE_EAST),      static_cast<size_t>(EHeroMapAnimationGroup::IDLE_WEST));
+		ret->createFlippedGroup(static_cast<size_t>(EHeroMapAnimationGroup::IDLE_SOUTHEAST), static_cast<size_t>(EHeroMapAnimationGroup::IDLE_SOUTHWEST));
 
-		ret->createFlippedGroup(6, 10);
-		ret->createFlippedGroup(7, 11);
-		ret->createFlippedGroup(8, 12);
+		ret->createFlippedGroup(static_cast<size_t>(EHeroMapAnimationGroup::MOVE_NORTHEAST), static_cast<size_t>(EHeroMapAnimationGroup::MOVE_NORTHWEST));
+		ret->createFlippedGroup(static_cast<size_t>(EHeroMapAnimationGroup::MOVE_EAST),      static_cast<size_t>(EHeroMapAnimationGroup::MOVE_WEST));
+		ret->createFlippedGroup(static_cast<size_t>(EHeroMapAnimationGroup::MOVE_SOUTHEAST), static_cast<size_t>(EHeroMapAnimationGroup::MOVE_SOUTHWEST));
 	}
 	return ret;
 }
