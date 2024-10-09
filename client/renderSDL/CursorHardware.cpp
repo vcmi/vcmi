@@ -48,7 +48,7 @@ void CursorHardware::setVisible(bool on)
 
 void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivotOffset)
 {
-	int videoScalingSettings = settings["video"]["resolution"]["scaling"].Integer();
+	int videoScalingSettings = GH.screenHandler().getInterfaceScalingPercentage();
 	float cursorScalingSettings = settings["video"]["cursorScalingFactor"].Float();
 	int cursorScalingPercent = videoScalingSettings * cursorScalingSettings;
 	Point cursorDimensions = image->dimensions() * GH.screenHandler().getScalingFactor();

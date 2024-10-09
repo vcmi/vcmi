@@ -84,12 +84,8 @@ Rect ScreenHandler::convertLogicalPointsToWindow(const Rect & input) const
 	return result;
 }
 
-Point ScreenHandler::getPreferredLogicalResolution() const
+int ScreenHandler::getInterfaceScalingPercentage() const
 {
-	Point renderResolution = getRenderResolution();
-	double reservedAreaWidth = settings["video"]["reservedWidth"].Float();
-	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
-
 	auto [minimalScaling, maximalScaling] = getSupportedScalingRange();
 
 	int userScaling = settings["video"]["resolution"]["scaling"].Integer();
@@ -110,9 +106,17 @@ Point ScreenHandler::getPreferredLogicalResolution() const
 	}
 
 	int scaling = std::clamp(userScaling, minimalScaling, maximalScaling);
+	return scaling;
+}
 
+Point ScreenHandler::getPreferredLogicalResolution() const
+{
+	Point renderResolution = getRenderResolution();
+	double reservedAreaWidth = settings["video"]["reservedWidth"].Float();
+
+	int scaling = getInterfaceScalingPercentage();
+	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
 	Point logicalResolution = availableResolution * 100.0 / scaling;
-
 	return logicalResolution;
 }
 
