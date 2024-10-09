@@ -554,12 +554,13 @@ void ApplyFirstClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 				CGI->mh->onBeforeHeroDisembark(h, pack.start, pack.end);
 				break;
 		}
-		CGI->mh->waitForOngoingAnimations();
 	}
 }
 
 void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 {
+	CGI->mh->waitForOngoingAnimations();
+
 	const CGHeroInstance *h = cl.getHero(pack.id);
 	cl.invalidatePaths();
 
@@ -568,7 +569,8 @@ void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 		switch(pack.result)
 		{
 			case TryMoveHero::SUCCESS:
-				CGI->mh->onHeroMoved(h, pack.start, pack.end);
+				CGI->mh->onObjectInstantRemove(h, h->getOwner());
+				CGI->mh->onObjectInstantAdd(h, h->getOwner());
 				break;
 			case TryMoveHero::EMBARK:
 				CGI->mh->onAfterHeroEmbark(h, pack.start, pack.end);

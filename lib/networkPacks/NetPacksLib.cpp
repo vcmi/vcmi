@@ -1262,6 +1262,9 @@ void TryMoveHero::applyGs(CGameState *gs)
 	if((result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK || result == DISEMBARK) && start != end)
 	{
 		auto direction = start.getDirection(end);
+		if(attackedFrom) // Hero attacked creature, set direction to face it.
+			direction = end.getDirection(*attackedFrom);
+
 		if (direction != ECardinalDirection::INVALID)
 			h->moveDir = direction;
 		//else don`t change move direction - hero might have traversed the subterranean gate, direction should be kept

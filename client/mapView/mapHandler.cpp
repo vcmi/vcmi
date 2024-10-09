@@ -218,7 +218,7 @@ void CMapHandler::onBeforeHeroTeleported(const CGHeroInstance * obj, const int3 
 
 void CMapHandler::onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	assert(obj->pos == dest);
+	assert(obj->pos == dest || obj->pos == from);
 	for(auto * observer : observers)
 		observer->onHeroMoved(obj, from, dest);
 }

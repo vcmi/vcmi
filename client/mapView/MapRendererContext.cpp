@@ -424,7 +424,9 @@ size_t MapRendererAdventureMovingContext::objectGroupIndex(ObjectInstanceID obje
 		EHeroMapAnimationGroup::MOVE_NORTHWEST, //NORTHWEST
 		EHeroMapAnimationGroup::MOVE_EAST       //CENTER
 	};
-	return static_cast<size_t>(moveGroups.at(static_cast<size_t>(getObjectRotation(objectID))));
+
+	auto direction = objectID == target ? tileFrom.getDirection(tileDest) : getObjectRotation(objectID);
+	return static_cast<size_t>(moveGroups.at(static_cast<int>(direction)));
 }
 
 bool MapRendererAdventureMovingContext::tileAnimated(const int3 & coordinates) const

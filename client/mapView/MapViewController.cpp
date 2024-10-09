@@ -244,10 +244,10 @@ void MapViewController::afterRender()
 		if(movementContext->progress >= 0.999)
 		{
 			logGlobal->debug("Ending movement animation");
-			setViewCenter(hero->getSightCenter());
+			setViewCenter(hero->convertToVisitablePos(movementContext->tileDest));
 
-			removeObject(context->getObject(movementContext->target));
-			addObject(context->getObject(movementContext->target));
+			//removeObject(context->getObject(movementContext->target));
+			//addObject(context->getObject(movementContext->target));
 
 			activateAdventureContext(movementContext->animationTime);
 		}
