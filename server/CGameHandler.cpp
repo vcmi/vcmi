@@ -235,7 +235,8 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 				scp.accumulatedBonus.type = BonusType::STACKS_SPEED;
 				break;
 			case ECommander::SPELL_POWER:
-				scp.accumulatedBonus.type = BonusType::MAGIC_RESISTANCE;
+				scp.accumulatedBonus.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				scp.accumulatedBonus.subtype = BonusSubtypeID(SpellSchool::ANY);
 				scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, ECommander::RESISTANCE);
 				sendAndApply(scp); //additional pack
 				scp.accumulatedBonus.type = BonusType::CREATURE_SPELL_POWER;

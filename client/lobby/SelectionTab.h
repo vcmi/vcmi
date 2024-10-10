@@ -33,6 +33,7 @@ public:
 	ElementInfo() : CMapInfo() { }
 	~ElementInfo() { }
 	std::string folderName = "";
+	std::string name = "";
 	bool isFolder = false;
 };
 
