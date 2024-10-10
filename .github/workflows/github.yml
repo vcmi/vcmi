@@ -17,6 +17,7 @@ env:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - platform: linux-qt6
