@@ -241,6 +241,7 @@ JsonNode JsonUtils::assembleFromFiles(const JsonNode & files, bool & isValid)
 	}
 	else
 	{
+		isValid = true;
 		return files;
 	}
 }
