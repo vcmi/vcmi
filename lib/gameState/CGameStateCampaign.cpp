@@ -368,7 +368,7 @@ void CGameStateCampaign::replaceHeroesPlaceholders()
 		heroToPlace->id = campaignHeroReplacement.heroPlaceholderId;
 		if(heroPlaceholder->tempOwner.isValidPlayer())
 			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
-		heroToPlace->pos = heroPlaceholder->pos;
+		heroToPlace->setAnchorPos(heroPlaceholder->anchorPos());
 		heroToPlace->type = heroToPlace->getHeroType().toHeroType();
 		heroToPlace->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, heroToPlace->type->heroClass->getIndex())->getTemplates().front();
 
@@ -655,7 +655,7 @@ void CGameStateCampaign::initTowns()
 		if (!owner->human)
 			continue;
 
-		if (town->pos != pi.posOfMainTown)
+		if (town->anchorPos() != pi.posOfMainTown)
 			continue;
 
 		BuildingID newBuilding;

@@ -954,7 +954,7 @@ TResources CGTownInstance::getBuildingCost(const BuildingID & buildingID) const
 		return town->buildings.at(buildingID)->resources;
 	else
 	{
-		logGlobal->error("Town %s at %s has no possible building %d!", getNameTranslated(), pos.toString(), buildingID.toEnum());
+		logGlobal->error("Town %s at %s has no possible building %d!", getNameTranslated(), anchorPos().toString(), buildingID.toEnum());
 		return TResources();
 	}
 

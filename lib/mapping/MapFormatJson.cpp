@@ -1072,7 +1072,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	instance->id = ObjectInstanceID(static_cast<si32>(owner->map->objects.size()));
 	instance->instanceName = jsonKey;
-	instance->pos = pos;
+	instance->setAnchorPos(pos);
 	owner->map->addNewObject(instance);
 }
 

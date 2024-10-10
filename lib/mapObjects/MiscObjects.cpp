@@ -111,7 +111,7 @@ void CGMine::initObj(vstd::RNG & rand)
 		}
 		else
 		{
-			logGlobal->error("Abandoned mine at (%s) has no valid resource candidates!", pos.toString());
+			logGlobal->error("Abandoned mine at (%s) has no valid resource candidates!", anchorPos().toString());
 			producedResource = GameResID::GOLD;
 		}
 	}
@@ -510,11 +510,11 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 
 		if(cb->isTeleportChannelImpassable(channel))
 		{
-			logGlobal->debug("Cannot find corresponding exit monolith for %d at %s", id.getNum(), pos.toString());
+			logGlobal->debug("Cannot find corresponding exit monolith for %d at %s", id.getNum(), anchorPos().toString());
 			td.impassable = true;
 		}
 		else if(getRandomExit(h) == ObjectInstanceID())
-			logGlobal->debug("All exits blocked for monolith %d at %s", id.getNum(), pos.toString());
+			logGlobal->debug("All exits blocked for monolith %d at %s", id.getNum(), anchorPos().toString());
 	}
 	else
 		h->showInfoDialog(70);
@@ -574,7 +574,7 @@ void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
 	if(cb->isTeleportChannelImpassable(channel))
 	{
 		h->showInfoDialog(153);//Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
-		logGlobal->debug("Cannot find exit subterranean gate for  %d at %s", id.getNum(), pos.toString());
+		logGlobal->debug("Cannot find exit subterranean gate for  %d at %s", id.getNum(), anchorPos().toString());
 		td.impassable = true;
 	}
 	else
@@ -602,13 +602,13 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 
 		auto * hlp = dynamic_cast<CGSubterraneanGate *>(cb->gameState()->getObjInstance(obj->id));
 		if(hlp)
-			gatesSplit[hlp->pos.z].push_back(hlp);
+			gatesSplit[hlp->visitablePos().z].push_back(hlp);
 	}
 
 	//sort by position
 	std::sort(gatesSplit[0].begin(), gatesSplit[0].end(), [](const CGObjectInstance * a, const CGObjectInstance * b)
 	{
-		return a->pos < b->pos;
+		return a->visitablePos() < b->visitablePos();
 	});
 
 	auto assignToChannel = [&](CGSubterraneanGate * obj)
@@ -631,7 +631,7 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 			CGSubterraneanGate *checked = gatesSplit[1][j];
 			if(checked->channel != TeleportChannelID())
 				continue;
-			si32 hlp = checked->pos.dist2dSQ(objCurrent->pos);
+			si32 hlp = checked->visitablePos().dist2dSQ(objCurrent->visitablePos());
 			if(hlp < best.second)
 			{
 				best.first = j;
@@ -657,11 +657,11 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 	TeleportDialog td(h->id, channel);
 	if(cb->isTeleportChannelImpassable(channel))
 	{
-		logGlobal->debug("Cannot find exit whirlpool for %d at %s", id.getNum(), pos.toString());
+		logGlobal->debug("Cannot find exit whirlpool for %d at %s", id.getNum(), anchorPos().toString());
 		td.impassable = true;
 	}
 	else if(getRandomExit(h) == ObjectInstanceID())
-		logGlobal->debug("All exits are blocked for whirlpool  %d at %s", id.getNum(), pos.toString());
+		logGlobal->debug("All exits are blocked for whirlpool  %d at %s", id.getNum(), anchorPos().toString());
 
 	if(!isProtected(h))
 	{
@@ -1086,9 +1086,9 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 
 			for(const auto & eye : eyes)
 			{
-				cb->getTilesInRange (fw.tiles, eye->pos, 10, ETileVisibility::HIDDEN, h->tempOwner);
+				cb->getTilesInRange (fw.tiles, eye->visitablePos(), 10, ETileVisibility::HIDDEN, h->tempOwner);
 				cb->sendAndApply(fw);
-				cv.pos = eye->pos;
+				cv.pos = eye->visitablePos();
 
 				cb->sendAndApply(cv);
 			}

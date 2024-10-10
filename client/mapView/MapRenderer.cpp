@@ -591,8 +591,8 @@ void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & targ
 
 			if(context.objectTransparency(objectID, coordinates) > 0 && !context.isActiveHero(object))
 			{
-				visitable |= object->visitableAt(coordinates.x, coordinates.y);
-				blocking |= object->blockingAt(coordinates.x, coordinates.y);
+				visitable |= object->visitableAt(coordinates);
+				blocking |= object->blockingAt(coordinates);
 			}
 		}
 

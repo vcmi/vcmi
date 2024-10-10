@@ -1514,11 +1514,11 @@ bool CGHeroInstance::hasVisions(const CGObjectInstance * target, BonusSubtypeID 
 	if (visionsMultiplier > 0)
 		vstd::amax(visionsRange, 3); //minimum range is 3 tiles, but only if VISIONS bonus present
 
-	const int distance = static_cast<int>(target->pos.dist2d(visitablePos()));
+	const int distance = static_cast<int>(target->anchorPos().dist2d(visitablePos()));
 
 	//logGlobal->debug(boost::str(boost::format("Visions: dist %d, mult %d, range %d") % distance % visionsMultiplier % visionsRange));
 
-	return (distance < visionsRange) && (target->pos.z == pos.z);
+	return (distance < visionsRange) && (target->anchorPos().z == anchorPos().z);
 }
 
 std::string CGHeroInstance::getHeroTypeName() const
