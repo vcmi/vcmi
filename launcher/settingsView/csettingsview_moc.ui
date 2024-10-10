@@ -47,7 +47,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-126</y>
+        <y>-797</y>
         <width>729</width>
         <height>1503</height>
        </rect>
@@ -259,31 +259,6 @@
          <property name="checked">
           <bool>false</bool>
          </property>
-        </widget>
-       </item>
-       <item row="60" column="4">
-        <widget class="QToolButton" name="buttonValidationBasic">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Basic</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">buttonGroupValidation</string>
-         </attribute>
         </widget>
        </item>
        <item row="31" column="0">
@@ -1448,6 +1423,31 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
        </item>
        <item row="12" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxResolution"/>
+       </item>
+       <item row="60" column="3" colspan="2">
+        <widget class="QToolButton" name="buttonValidationBasic">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Basic</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroupValidation</string>
+         </attribute>
+        </widget>
        </item>
       </layout>
      </widget>
