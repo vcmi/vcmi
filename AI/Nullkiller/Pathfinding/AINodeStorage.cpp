@@ -1198,7 +1198,7 @@ void AINodeStorage::calculateTownPortal(
 			}
 
 			if (targetTown->visitingHero
-				&& (targetTown->visitingHero.get()->getFaction() != actor->hero->getFaction()
+				&& (targetTown->visitingHero.get()->getFactionID() != actor->hero->getFactionID()
 					|| targetTown->getUpperArmy()->stacksCount()))
 				continue;
 

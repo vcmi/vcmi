@@ -87,7 +87,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 					score *= score / minScoreToHireMain;
 				}
 				score *= (hero->getArmyCost() + currentArmyValue);
-				if (hero->type->heroClass->faction == town->getFaction())
+				if (hero->getFactionID() == town->getFactionID())
 					score *= 1.5;
 				if (vstd::isAlmostZero(visitability))
 					score *= 30 * town->getTownLevel();
