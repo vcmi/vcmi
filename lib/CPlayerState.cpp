@@ -22,9 +22,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 PlayerState::PlayerState()
 	: color(-1)
-	, playerLocalSettings(std::make_unique<JsonNode>())
 	, human(false)
 	, cheated(false)
+	, playerLocalSettings(std::make_unique<JsonNode>())
 	, enteredWinningCheatCode(false)
 	, enteredLosingCheatCode(false)
 	, status(EPlayerStatus::INGAME)

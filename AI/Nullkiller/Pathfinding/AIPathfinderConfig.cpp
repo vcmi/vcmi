@@ -13,7 +13,7 @@
 #include "Rules/AIMovementAfterDestinationRule.h"
 #include "Rules/AIMovementToDestinationRule.h"
 #include "Rules/AIPreviousNodeRule.h"
-#include "../Engine//Nullkiller.h"
+#include "../Engine/Nullkiller.h"
 
 #include "../../../lib/pathfinder/CPathfinder.h"
 

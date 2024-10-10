@@ -197,8 +197,8 @@ void ContentTypeHandler::afterLoadFinalization()
 			std::set<std::string> conflictingMods;
 			std::set<std::string> resolvedConflicts;
 
-			for (auto const & conflictModData : conflictModData.Struct())
-				conflictingMods.insert(conflictModData.first);
+			for (auto const & conflictModEntry: conflictModData.Struct())
+				conflictingMods.insert(conflictModEntry.first);
 
 			for (auto const & modID : conflictingMods)
 				resolvedConflicts.merge(VLC->modh->getModDependencies(modID));

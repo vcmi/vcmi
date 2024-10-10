@@ -545,7 +545,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 			frameSamplesBuffer.resize(std::max(frameSamplesBuffer.size(), bytesToRead));
 			uint8_t * frameSamplesPtr = frameSamplesBuffer.data();
 
-			int result = swr_convert(swr_ctx, &frameSamplesPtr, frame->nb_samples, (const uint8_t **)frame->data, frame->nb_samples);
+			int result = swr_convert(swr_ctx, &frameSamplesPtr, frame->nb_samples, const_cast<const uint8_t **>(frame->data), frame->nb_samples);
 
 			if (result < 0)
 				throwFFmpegError(result);

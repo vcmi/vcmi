@@ -152,11 +152,9 @@ void TextLocalizationContainer::exportAllTexts(std::map<std::string, std::map<st
 		std::string textToWrite;
 		std::string modName = entry.second.baseStringModContext;
 
-		if (entry.second.baseStringModContext == entry.second.identifierModContext)
-		{
-			if (modName.find('.') != std::string::npos)
-				modName = modName.substr(0, modName.find('.'));
-		}
+		if (entry.second.baseStringModContext == entry.second.identifierModContext && modName.find('.') != std::string::npos)
+			modName = modName.substr(0, modName.find('.'));
+
 		boost::range::replace(modName, '.', '_');
 
 		textToWrite = entry.second.translatedText;

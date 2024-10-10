@@ -1611,7 +1611,7 @@ void CObjectListWindow::keyPressed(EShortcut key)
 	changeSelection(sel);
 }
 
-VideoWindow::VideoWindow(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void(bool skipped)> closeCb)
+VideoWindow::VideoWindow(const VideoPath & video, const ImagePath & rim, bool showBackground, float scaleFactor, const std::function<void(bool skipped)> & closeCb)
 	: CWindowObject(BORDERED | SHADOW_DISABLED | NEEDS_ANIMATED_BACKGROUND), closeCb(closeCb)
 {
 	OBJECT_CONSTRUCTION;
