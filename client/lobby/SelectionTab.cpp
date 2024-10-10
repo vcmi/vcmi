@@ -829,6 +829,7 @@ void SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 		{
 			auto mapInfo = std::make_shared<ElementInfo>();
 			mapInfo->saveInit(file);
+			mapInfo->name = mapInfo->getNameForList();
 
 			// Filter out other game modes
 			bool isCampaign = mapInfo->scenarioOptionsOfSave->mode == EStartMode::CAMPAIGN;
@@ -875,6 +876,7 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 		auto info = std::make_shared<ElementInfo>();
 		//allItems[i].date = std::asctime(std::localtime(&files[i].date));
 		info->fileURI = file.getOriginalName();
+		info->name = info->getNameForList();
 		info->campaignInit();
 		if(info->campaign)
 			allItems.push_back(info);
