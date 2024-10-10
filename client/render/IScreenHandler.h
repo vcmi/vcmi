@@ -44,6 +44,8 @@ public:
 	/// Dimensions of logical output. Can be different if scaling is used
 	virtual Point getLogicalResolution() const = 0;
 
+	virtual int getInterfaceScalingPercentage() const = 0;
+
 	virtual int getScalingFactor() const = 0;
 
 	/// Window has focus

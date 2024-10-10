@@ -112,6 +112,8 @@ public:
 
 	int getScalingFactor() const final;
 
+	int getInterfaceScalingPercentage() const final;
+
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;
 	std::tuple<int, int> getSupportedScalingRange() const final;
