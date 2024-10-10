@@ -50,18 +50,16 @@ struct DLL_LINKAGE GrowthInfo
 
 class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader
 {
+	friend class CTownInstanceConstructor;
 	std::string nameTextId; // name of town
 
 	std::map<BuildingID, TownRewardableBuildingInstance*> convertOldBuildings(std::vector<TownRewardableBuildingInstance*> oldVector);
 	std::set<BuildingID> builtBuildings;
 
 public:
-	using CGDwelling::getPosition;
-
 	enum EFortLevel {NONE = 0, FORT = 1, CITADEL = 2, CASTLE = 3};
 
 	CTownAndVisitingHero townAndVis;
-	const CTown * town;
 	si32 built; //how many buildings has been built this turn
 	si32 destroyed; //how many buildings has been destroyed this turn
 	ConstTransitivePtr<CGHeroInstance> garrisonHero, visitingHero;
@@ -114,16 +112,21 @@ public:
 			rewardableBuildings = convertOldBuildings(oldVector);
 		}
 
-		if (h.saving)
+		if (h.version < Handler::Version::REMOVE_TOWN_PTR)
 		{
-			CFaction * faction = town ? town->faction : nullptr;
-			h & faction;
-		}
-		else
-		{
-			CFaction * faction = nullptr;
-			h & faction;
-			town = faction ? faction->town : nullptr;
+			CTown * town = nullptr;
+
+			if (h.saving)
+			{
+				CFaction * faction = town ? town->faction : nullptr;
+				h & faction;
+			}
+			else
+			{
+				CFaction * faction = nullptr;
+				h & faction;
+				town = faction ? faction->town : nullptr;
+			}
 		}
 
 		h & townAndVis;
@@ -215,9 +218,10 @@ public:
 	DamageRange getKeepDamageRange() const;
 
 	const CTown * getTown() const;
+	const CFaction * getFaction() const;
 
 	/// INativeTerrainProvider
-	FactionID getFaction() const override;
+	FactionID getFactionID() const override;
 	TerrainId getNativeTerrain() const override;
 
 	/// Returns ID of war machine that is produced by specified building or NONE if this is not built or if building does not produce war machines

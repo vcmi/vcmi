@@ -202,6 +202,10 @@ elseif(NOT APPLE_IOS)
 	target_link_libraries(vcmilauncher SDL2::SDL2)
 endif()
 
+if(ENABLE_STATIC_LIBS OR NOT (ENABLE_EDITOR AND ENABLE_LAUNCHER))
+	target_compile_definitions(vcmilauncher PRIVATE VCMIQT_STATIC)
+endif()
+
 target_link_libraries(vcmilauncher vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}

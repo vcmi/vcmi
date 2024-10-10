@@ -38,7 +38,7 @@ public:
 	const IOwnableObject * asOwnable() const override;
 
 	int3 visitablePos() const override;
-	int3 getPosition() const override;
+	int3 anchorPos() const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{

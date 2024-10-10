@@ -25,6 +25,7 @@
 #include "lib/UnlockGuard.h"
 #include "lib/battle/BattleInfo.h"
 #include "lib/networkPacks/PacksForServer.h"
+#include "lib/networkPacks/SaveLocalState.h"
 
 bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *where)
 {
@@ -318,9 +319,18 @@ void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroIn
 	assert(townOrTavern);
 	assert(hero);
 
-	HireHero pack(hero->getHeroType(), townOrTavern->id, nextHero);
+	HireHero pack(hero->getHeroTypeID(), townOrTavern->id, nextHero);
 	pack.player = *player;
 	sendRequest(pack);
+}
+
+void CCallback::saveLocalState(const JsonNode & data)
+{
+	SaveLocalState state;
+	state.data = data;
+	state.player = *player;
+
+	sendRequest(state);
 }
 
 void CCallback::save( const std::string &fname )

@@ -87,7 +87,7 @@ const rmg::Area & Object::Instance::getAccessibleArea() const
 void Object::Instance::setPosition(const int3 & position)
 {
 	dPosition = position;
-	dObject.pos = dPosition + dParent.getPosition();
+	dObject.setAnchorPos(dPosition + dParent.getPosition());
 	
 	dBlockedAreaCache.clear();
 	dAccessibleAreaCache.clear();
@@ -96,21 +96,21 @@ void Object::Instance::setPosition(const int3 & position)
 
 void Object::Instance::setPositionRaw(const int3 & position)
 {
-	if(!dObject.pos.valid())
+	if(!dObject.anchorPos().valid())
 	{
-		dObject.pos = dPosition + dParent.getPosition();
+		dObject.setAnchorPos(dPosition + dParent.getPosition());
 		dBlockedAreaCache.clear();
 		dAccessibleAreaCache.clear();
 		dParent.clearCachedArea();
 	}
 		
-	auto shift = position + dParent.getPosition() - dObject.pos;
+	auto shift = position + dParent.getPosition() - dObject.anchorPos();
 	
 	dAccessibleAreaCache.translate(shift);
 	dBlockedAreaCache.translate(shift);
 	
 	dPosition = position;
-	dObject.pos = dPosition + dParent.getPosition();
+	dObject.setAnchorPos(dPosition + dParent.getPosition());
 }
 
 void Object::Instance::setAnyTemplate(vstd::RNG & rng)
@@ -497,12 +497,12 @@ void Object::Instance::finalize(RmgMap & map, vstd::RNG & rng)
 	}
 
 	if (dObject.isVisitable() && !map.isOnMap(dObject.visitablePos()))
-		throw rmgException(boost::str(boost::format("Visitable tile %s of object %d at %s is outside the map") % dObject.visitablePos().toString() % dObject.id % dObject.pos.toString()));
+		throw rmgException(boost::str(boost::format("Visitable tile %s of object %d at %s is outside the map") % dObject.visitablePos().toString() % dObject.id % dObject.anchorPos().toString()));
 
 	for(const auto & tile : dObject.getBlockedPos())
 	{
 		if(!map.isOnMap(tile))
-			throw rmgException(boost::str(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % dObject.id % dObject.pos.toString()));
+			throw rmgException(boost::str(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % dObject.id % dObject.anchorPos().toString()));
 	}
 
 	for(const auto & tile : getBlockedArea().getTilesVector())

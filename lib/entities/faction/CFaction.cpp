@@ -92,7 +92,7 @@ FactionID CFaction::getId() const
 	return FactionID(index);
 }
 
-FactionID CFaction::getFaction() const
+FactionID CFaction::getFactionID() const
 {
 	return FactionID(index);
 }

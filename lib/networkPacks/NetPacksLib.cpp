@@ -12,6 +12,7 @@
 #include "PacksForClient.h"
 #include "PacksForClientBattle.h"
 #include "PacksForServer.h"
+#include "SaveLocalState.h"
 #include "SetRewardableConfiguration.h"
 #include "StackLocation.h"
 #include "PacksForLobby.h"
@@ -91,6 +92,12 @@ bool CLobbyPackToServer::isForServer() const
 {
 	return true;
 }
+
+void SaveLocalState::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSaveLocalState(*this);
+}
+
 
 void PackageApplied::visitTyped(ICPackVisitor & visitor)
 {
@@ -1047,7 +1054,7 @@ void ChangeObjPos::applyGs(CGameState *gs)
 		return;
 	}
 	gs->map->removeBlockVisTiles(obj);
-	obj->pos = nPos + obj->getVisitableOffset();
+	obj->setAnchorPos(nPos + obj->getVisitableOffset());
 	gs->map->addBlockVisTiles(obj);
 }
 
@@ -1348,7 +1355,7 @@ void NewStructures::applyGs(CGameState *gs)
 
 	for(const auto & id : bid)
 	{
-		assert(t->town->buildings.at(id) != nullptr);
+		assert(t->getTown()->buildings.at(id) != nullptr);
 		t->addBuilding(id);
 	}
 	t->updateAppearance();
@@ -1463,11 +1470,11 @@ void GiveHero::applyGs(CGameState *gs)
 
 	auto oldVisitablePos = h->visitablePos();
 	gs->map->removeBlockVisTiles(h,true);
-	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->getIndex())->getTemplates().front();
+	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->getHeroClassID().getNum())->getTemplates().front();
 
 	h->setOwner(player);
 	h->setMovementPoints(h->movementPointsLimit(true));
-	h->pos = h->convertFromVisitablePos(oldVisitablePos);
+	h->setAnchorPos(h->convertFromVisitablePos(oldVisitablePos));
 	gs->map->heroesOnMap.emplace_back(h);
 	gs->getPlayerState(h->getOwner())->addOwnedObject(h);
 

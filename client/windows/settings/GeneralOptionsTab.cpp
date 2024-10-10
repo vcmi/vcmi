@@ -194,10 +194,8 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	build(config);
 
-	const auto & currentResolution = settings["video"]["resolution"];
-
 	std::shared_ptr<CLabel> scalingLabel = widget<CLabel>("scalingLabel");
-	scalingLabel->setText(scalingToLabelString(currentResolution["scaling"].Integer()));
+	scalingLabel->setText(scalingToLabelString(GH.screenHandler().getInterfaceScalingPercentage()));
 
 	std::shared_ptr<CLabel> longTouchLabel = widget<CLabel>("longTouchLabel");
 	if (longTouchLabel)

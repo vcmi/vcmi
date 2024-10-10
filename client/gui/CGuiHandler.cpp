@@ -250,8 +250,8 @@ void CGuiHandler::setStatusbar(std::shared_ptr<IStatusBar> newStatusBar)
 void CGuiHandler::onScreenResize(bool resolutionChanged)
 {
 	if(resolutionChanged)
-	{
 		screenHandler().onScreenResize();
-	}
+
 	windows().onScreenResize();
+	CCS->curh->onScreenResize();
 }

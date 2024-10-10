@@ -10,7 +10,7 @@
 
 #include <QtCore/QtGlobal>
 
-#if VCMIQT_STATIC
+#ifdef VCMIQT_STATIC
 # define VCMIQT_LINKAGE
 #elif defined(VCMIQT_SHARED)
 #  define VCMIQT_LINKAGE Q_DECL_EXPORT

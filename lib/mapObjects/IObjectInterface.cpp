@@ -145,7 +145,7 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 			out.appendLocalString(EMetaText::ADVOB_TXT, 189);
 		break;
 	case NO_WATER:
-		logGlobal->error("Shipyard without water at tile %s! ", getObject()->getPosition().toString());
+		logGlobal->error("Shipyard without water at tile %s! ", getObject()->anchorPos().toString());
 		return;
 	}
 }

@@ -138,7 +138,7 @@ void MapController::repairMap(CMap * map) const
 
 			// FIXME: How about custom scenarios where defeated hero cannot be hired again?
 
-			map->allowedHeroes.insert(nih->getHeroType());
+			map->allowedHeroes.insert(nih->getHeroTypeID());
 
 			auto const & type = VLC->heroh->objects[nih->subID];
 			assert(type->heroClass);
@@ -154,10 +154,6 @@ void MapController::repairMap(CMap * map) const
 				nih->subTypeName = "prison";
 				nih->subID = 0;
 			}
-			
-			if(obj->ID != Obj::RANDOM_HERO)
-				nih->type = type.get();
-			
 			if(nih->ID == Obj::HERO) //not prison
 				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 			//fix spellbook

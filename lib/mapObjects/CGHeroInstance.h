@@ -72,7 +72,6 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	const CHero * type;
 	TExpType exp; //experience points
 	ui32 level; //current level of hero
 
@@ -171,7 +170,7 @@ public:
 	const IOwnableObject * asOwnable() const final;
 
 	//INativeTerrainProvider
-	FactionID getFaction() const override;
+	FactionID getFactionID() const override;
 	TerrainId getNativeTerrain() const override;
 	int getLowestCreatureSpeed() const;
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
@@ -237,7 +236,11 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	HeroTypeID getHeroType() const;
+	const CHeroClass * getHeroClass() const;
+	HeroClassID getHeroClassID() const;
+
+	const CHero * getHeroType() const;
+	HeroTypeID getHeroTypeID() const;
 	void setHeroType(HeroTypeID type);
 
 	void initHero(vstd::RNG & rand);
@@ -354,7 +357,11 @@ public:
 		h & skillsInfo;
 		h & visitedTown;
 		h & boat;
-		h & type;
+		if (h.version < Handler::Version::REMOVE_TOWN_PTR)
+		{
+			CHero * type = nullptr;
+			h & type;
+		}
 		h & commander;
 		h & visitedObjects;
 		BONUS_TREE_DESERIALIZATION_FIX

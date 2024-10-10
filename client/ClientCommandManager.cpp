@@ -453,7 +453,7 @@ void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffe
 	if(what == "hs")
 	{
 		for(const CGHeroInstance* h : LOCPLINT->cb->getHeroesInfo())
-			if(h->type->getIndex() == id1)
+			if(h->getHeroTypeID().getNum() == id1)
 				if(const CArtifactInstance* a = h->getArt(ArtifactPosition(id2)))
 					printCommandMessage(a->nodeName());
 	}

@@ -88,7 +88,7 @@ void Moat::convertBonus(const Mechanics * m, std::vector<Bonus> & converted) con
 
 		if(m->battle()->battleGetDefendedTown() && m->battle()->battleGetFortifications().hasMoat)
 		{
-			nb.sid = BonusSourceID(m->battle()->battleGetDefendedTown()->town->buildings.at(BuildingID::CITADEL)->getUniqueTypeID());
+			nb.sid = BonusSourceID(m->battle()->battleGetDefendedTown()->getTown()->buildings.at(BuildingID::CITADEL)->getUniqueTypeID());
 			nb.source = BonusSource::TOWN_STRUCTURE;
 		}
 		else

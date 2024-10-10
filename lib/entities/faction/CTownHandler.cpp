@@ -883,8 +883,8 @@ void CTownHandler::beforeValidate(JsonNode & object)
 		if (building.second.Struct().count("onVisitBonuses"))
 		{
 			building.second["configuration"]["visitMode"] = JsonNode("bonus");
-			building.second["configuration"]["visitMode"]["rewards"][0]["message"] = building.second["description"];
-			building.second["configuration"]["visitMode"]["rewards"][0]["bonuses"] = building.second["onVisitBonuses"];
+			building.second["configuration"]["rewards"][0]["message"] = building.second["description"];
+			building.second["configuration"]["rewards"][0]["bonuses"] = building.second["onVisitBonuses"];
 		}
 	}
 }

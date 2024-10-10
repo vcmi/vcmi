@@ -47,8 +47,8 @@ TavernHeroSlot HeroPoolProcessor::selectSlotForRole(const PlayerColor & player, 
 	// try to find "better" slot to overwrite
 	// we want to avoid overwriting retreated heroes when tavern still has slot with random hero
 	// as well as avoid overwriting surrendered heroes if we can overwrite retreated hero
-	auto roleLeft = heroesPool->getSlotRole(heroes[0]->getHeroType());
-	auto roleRight = heroesPool->getSlotRole(heroes[1]->getHeroType());
+	auto roleLeft = heroesPool->getSlotRole(heroes[0]->getHeroTypeID());
+	auto roleRight = heroesPool->getSlotRole(heroes[1]->getHeroTypeID());
 
 	if (roleLeft > roleRight)
 		return TavernHeroSlot::RANDOM;
@@ -70,7 +70,7 @@ void HeroPoolProcessor::onHeroSurrendered(const PlayerColor & color, const CGHer
 
 	sah.slotID = selectSlotForRole(color, sah.roleID);
 	sah.player = color;
-	sah.hid = hero->getHeroType();
+	sah.hid = hero->getHeroTypeID();
 	sah.replenishPoints = false;
 	gameHandler->sendAndApply(sah);
 }
@@ -82,9 +82,9 @@ void HeroPoolProcessor::onHeroEscaped(const PlayerColor & color, const CGHeroIns
 
 	sah.slotID = selectSlotForRole(color, sah.roleID);
 	sah.player = color;
-	sah.hid = hero->getHeroType();
+	sah.hid = hero->getHeroTypeID();
 	sah.army.clearSlots();
-	sah.army.setCreature(SlotID(0), hero->type->initialArmy.at(0).creature, 1);
+	sah.army.setCreature(SlotID(0), hero->getHeroType()->initialArmy.at(0).creature, 1);
 	sah.replenishPoints = false;
 
 	gameHandler->sendAndApply(sah);
@@ -112,7 +112,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 
 	if (newHero)
 	{
-		sah.hid = newHero->getHeroType();
+		sah.hid = newHero->getHeroTypeID();
 
 		if (giveArmy)
 		{
@@ -123,7 +123,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 		{
 			sah.roleID = TavernSlotRole::SINGLE_UNIT;
 			sah.army.clearSlots();
-			sah.army.setCreature(SlotID(0), newHero->type->initialArmy[0].creature, 1);
+			sah.army.setCreature(SlotID(0), newHero->getHeroType()->initialArmy[0].creature, 1);
 		}
 	}
 	else
@@ -208,7 +208,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 
 	for(const auto & hero : recruitableHeroes)
 	{
-		if(hero->getHeroType() == heroToRecruit)
+		if(hero->getHeroTypeID() == heroToRecruit)
 			recruitedHero = hero;
 	}
 
@@ -221,7 +221,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 
 	HeroRecruited hr;
 	hr.tid = mapObject->id;
-	hr.hid = recruitedHero->getHeroType();
+	hr.hid = recruitedHero->getHeroTypeID();
 	hr.player = player;
 	hr.tile = recruitedHero->convertFromVisitablePos(targetPos );
 	if(gameHandler->getTile(targetPos)->isWater() && !recruitedHero->boat)
@@ -258,14 +258,14 @@ std::vector<const CHeroClass *> HeroPoolProcessor::findAvailableClassesFor(const
 
 	for(const auto & elem : heroesPool->unusedHeroesFromPool())
 	{
-		if (vstd::contains(result, elem.second->type->heroClass))
+		if (vstd::contains(result, elem.second->getHeroClass()))
 			continue;
 
 		bool heroAvailable = heroesPool->isHeroAvailableFor(elem.first, player);
-		bool heroClassBanned = elem.second->type->heroClass->tavernProbability(factionID) == 0;
+		bool heroClassBanned = elem.second->getHeroClass()->tavernProbability(factionID) == 0;
 
 		if(heroAvailable && !heroClassBanned)
-			result.push_back(elem.second->type->heroClass);
+			result.push_back(elem.second->getHeroClass());
 	}
 
 	return result;
@@ -282,7 +282,7 @@ std::vector<CGHeroInstance *> HeroPoolProcessor::findAvailableHeroesFor(const Pl
 		assert(!vstd::contains(result, elem.second));
 
 		bool heroAvailable = heroesPool->isHeroAvailableFor(elem.first, player);
-		bool heroClassMatches = elem.second->type->heroClass == heroClass;
+		bool heroClassMatches = elem.second->getHeroClass() == heroClass;
 
 		if(heroAvailable && heroClassMatches)
 			result.push_back(elem.second);
@@ -318,7 +318,7 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 			continue;
 
 		bool hasSameClass = vstd::contains_if(currentTavern, [&](const CGHeroInstance * hero){
-			return hero->type->heroClass == heroClass;
+			return hero->getHeroClass() == heroClass;
 		});
 
 		if (hasSameClass)

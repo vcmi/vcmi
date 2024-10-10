@@ -1138,7 +1138,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 		const CGTownInstance * t = dynamic_cast<const CGTownInstance *>(cb->getObj(obj));
 		if(t)
 		{
-			auto image = GH.renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->town->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
+			auto image = GH.renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->getTown()->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
 			image->scaleTo(Point(35, 23));
 			images.push_back(image);
 		}
@@ -1332,6 +1332,8 @@ void CPlayerInterface::initializeHeroTownList()
 		for(auto & town : cb->getTownsInfo())
 			localState->addOwnedTown(town);
 	}
+
+	localState->deserialize(*cb->getPlayerState(playerID)->playerLocalSettings);
 
 	if(adventureInt)
 		adventureInt->onHeroChanged(nullptr);

@@ -127,7 +127,7 @@ public:
 	std::string getNamePluralTextID() const override;
 	std::string getNameSingularTextID() const override;
 
-	FactionID getFaction() const override;
+	FactionID getFactionID() const override;
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
 	std::string getJsonKey() const override;

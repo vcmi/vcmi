@@ -480,11 +480,11 @@ void SelectionTab::filter(int size, bool selectFirst)
 		if((elem->mapHeader && (!size || elem->mapHeader->width == size)) || tabType == ESelectionScreen::campaignList)
 		{
 			if(showRandom)
-				curFolder = "RANDOMMAPS/";
+				curFolder = "RandomMaps/";
 
 			auto [folderName, baseFolder, parentExists, fileInFolder] = checkSubfolder(elem->originalFileURI);
 
-			if((showRandom && baseFolder != "RANDOMMAPS") || (!showRandom && baseFolder == "RANDOMMAPS"))
+			if((showRandom && baseFolder != "RandomMaps") || (!showRandom && baseFolder == "RandomMaps"))
 				continue;
 
 			if(parentExists && !showRandom)
@@ -715,7 +715,7 @@ void SelectionTab::selectFileName(std::string fname)
 	selectAbs(-1);
 
 	if(tabType == ESelectionScreen::saveGame && inputName->getText().empty())
-		inputName->setText("NEWGAME");
+		inputName->setText(CGI->generaltexth->translate("core.genrltxt.11"));
 }
 
 void SelectionTab::selectNewestFile()
@@ -808,7 +808,8 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 		try
 		{
 			auto mapInfo = std::make_shared<ElementInfo>();
-			mapInfo->mapInit(file.getName());
+			mapInfo->mapInit(file.getOriginalName());
+			mapInfo->name = mapInfo->getNameForList();
 
 			if (isMapSupported(*mapInfo))
 				allItems.push_back(mapInfo);
@@ -873,7 +874,7 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 	{
 		auto info = std::make_shared<ElementInfo>();
 		//allItems[i].date = std::asctime(std::localtime(&files[i].date));
-		info->fileURI = file.getName();
+		info->fileURI = file.getOriginalName();
 		info->campaignInit();
 		if(info->campaign)
 			allItems.push_back(info);
@@ -988,6 +989,6 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		iconLossCondition->setFrame(info->mapHeader->defeatIconIndex, 0);
 		labelName->setMaxWidth(185);
 	}
-	labelName->setText(info->getNameForList());
+	labelName->setText(info->name);
 	labelName->setColor(color);
 }

@@ -926,10 +926,10 @@ void CStackInstance::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-FactionID CStackInstance::getFaction() const
+FactionID CStackInstance::getFactionID() const
 {
 	if(type)
-		return type->getFaction();
+		return type->getFactionID();
 		
 	return FactionID::NEUTRAL;
 }
