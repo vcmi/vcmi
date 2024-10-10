@@ -292,7 +292,7 @@ TeleporterTilesVector CPathfinderHelper::getTeleportExits(const PathNodeInfo & s
 	{
 		auto * town = dynamic_cast<const CGTownInstance *>(source.nodeObject);
 		assert(town);
-		if (town && town->getFaction() == FactionID::INFERNO)
+		if (town && town->getFactionID() == FactionID::INFERNO)
 		{
 			/// TODO: Find way to reuse CPlayerSpecificInfoCallback::getTownsInfo
 			/// This may be handy if we allow to use teleportation to friendly towns

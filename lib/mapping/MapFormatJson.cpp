@@ -436,10 +436,8 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 						if(hero->ID == Obj::HERO)
 						{
 							std::string temp;
-							if(hero->type)
-								temp = hero->type->getJsonKey();
-							else
-								temp = hero->getHeroType().toEntity(VLC)->getJsonKey();
+							if(hero->getHeroTypeID().hasValue())
+								temp = hero->getHeroType()->getJsonKey();
 
 							handler.serializeString("type", temp);
 						}
@@ -1154,10 +1152,10 @@ void CMapLoaderJson::readObjects()
 
 		auto * hero = dynamic_cast<const CGHeroInstance *>(object.get());
 
-		if (debugHeroesOnMap.count(hero->getHeroType()))
+		if (debugHeroesOnMap.count(hero->getHeroTypeID()))
 			logGlobal->error("Hero is already on the map at %s", hero->visitablePos().toString());
 
-		debugHeroesOnMap.insert(hero->getHeroType());
+		debugHeroesOnMap.insert(hero->getHeroTypeID());
 	}
 }
 

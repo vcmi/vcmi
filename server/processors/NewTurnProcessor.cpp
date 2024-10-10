@@ -95,10 +95,10 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 			// 1. Building exists in town (don't attempt to build Lvl 5 guild in Fortress
 			// 2. Building was not built yet
 			// othervice, silently ignore / skip it
-			if (town->town->buildings.count(i) && !town->hasBuilt(i))
+			if (town->getTown()->buildings.count(i) && !town->hasBuilt(i))
 			{
 				gameHandler->buildStructure(town->id, i, true);
-				iw.components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFaction(), i));
+				iw.components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFactionID(), i));
 			}
 		}
 
@@ -246,7 +246,7 @@ SetAvailableCreatures NewTurnProcessor::generateTownGrowth(const CGTownInstance 
 	sac.tid = t->id;
 	sac.creatures = t->creatures;
 
-	for (int k=0; k < t->town->creatures.size(); k++)
+	for (int k=0; k < t->getTown()->creatures.size(); k++)
 	{
 		if (t->creatures.at(k).second.empty())
 			continue;
@@ -345,7 +345,7 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 	{
 		const auto * creature = slot.second->type;
 
-		if (creature->getFaction() != t->getFaction())
+		if (creature->getFactionID() != t->getFactionID())
 			continue;
 
 		if (creature->getLevel() != tierToGrow)
@@ -518,7 +518,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 			{
 				newMonster.second = VLC->creh->pickRandomMonster(gameHandler->getRandomGenerator());
 			} while (VLC->creh->objects[newMonster.second] &&
-					(*VLC->townh)[VLC->creatures()->getById(newMonster.second)->getFaction()]->town == nullptr); // find first non neutral creature
+					(*VLC->townh)[VLC->creatures()->getById(newMonster.second)->getFactionID()]->town == nullptr); // find first non neutral creature
 
 			return { EWeekType::BONUS_GROWTH, newMonster.second};
 		}

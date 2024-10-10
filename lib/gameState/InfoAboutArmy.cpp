@@ -115,7 +115,7 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 
 	initFromArmy(h, detailed);
 
-	hclass = h->type->heroClass;
+	hclass = h->getHeroClass();
 	name = h->getNameTranslated();
 	portraitSource = h->getPortraitSource();
 

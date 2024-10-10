@@ -73,14 +73,14 @@ TownRewardableBuildingInstance::TownRewardableBuildingInstance(CGTownInstance * 
 
 void TownRewardableBuildingInstance::initObj(vstd::RNG & rand)
 {
-	assert(town && town->town);
+	assert(town && town->getTown());
 	configuration = generateConfiguration(rand);
 }
 
 Rewardable::Configuration TownRewardableBuildingInstance::generateConfiguration(vstd::RNG & rand) const
 {
 	Rewardable::Configuration result;
-	auto building = town->town->buildings.at(getBuildingType());
+	auto building = town->getTown()->buildings.at(getBuildingType());
 
 	building->rewardableObjectInfo.configureObject(result, rand, cb);
 	for(auto & rewardInfo : result.info)

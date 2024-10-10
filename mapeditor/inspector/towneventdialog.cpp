@@ -100,7 +100,7 @@ void TownEventDialog::initResources()
 
 void TownEventDialog::initBuildings()
 {
-	auto * ctown = town.town;
+	auto * ctown = town.getTown();
 	if (!ctown)
 		ctown = VLC->townh->randomTown;
 	if (!ctown)
@@ -156,7 +156,7 @@ QStandardItem * TownEventDialog::addBuilding(const CTown& ctown, BuildingID buil
 void TownEventDialog::initCreatures()
 {
 	auto creatures = params.value("creatures").toList();
-	auto * ctown = town.town;
+	auto * ctown = town.getTown();
 	if (!ctown)
 		ui->creaturesTable->setRowCount(GameConstants::CREATURES_PER_TOWN);
 	else 

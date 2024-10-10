@@ -1355,7 +1355,7 @@ void NewStructures::applyGs(CGameState *gs)
 
 	for(const auto & id : bid)
 	{
-		assert(t->town->buildings.at(id) != nullptr);
+		assert(t->getTown()->buildings.at(id) != nullptr);
 		t->addBuilding(id);
 	}
 	t->updateAppearance();
@@ -1470,7 +1470,7 @@ void GiveHero::applyGs(CGameState *gs)
 
 	auto oldVisitablePos = h->visitablePos();
 	gs->map->removeBlockVisTiles(h,true);
-	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->getIndex())->getTemplates().front();
+	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->getHeroClassID().getNum())->getTemplates().front();
 
 	h->setOwner(player);
 	h->setMovementPoints(h->movementPointsLimit(true));

@@ -162,7 +162,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	hlu.player = hero->tempOwner;
 	hlu.heroId = hero->id;
 	hlu.primskill = primarySkill;
-	hlu.skills = hero->getLevelUpProposedSecondarySkills(heroPool->getHeroSkillsRandomGenerator(hero->getHeroType()));
+	hlu.skills = hero->getLevelUpProposedSecondarySkills(heroPool->getHeroSkillsRandomGenerator(hero->getHeroTypeID()));
 
 	if (hlu.skills.size() == 0)
 	{
@@ -553,7 +553,7 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	for (auto & elem : gs->map->allHeroes)
 	{
 		if(elem)
-			heroPool->getHeroSkillsRandomGenerator(elem->getHeroType()); // init RMG seed
+			heroPool->getHeroSkillsRandomGenerator(elem->getHeroTypeID()); // init RMG seed
 	}
 
 	reinitScripting();
@@ -569,12 +569,12 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 		return;
 	}
 
-	if (forced || town->creatures.at(town->town->creatures.size()).second.empty())//we need to change creature
+	if (forced || town->creatures.at(town->getTown()->creatures.size()).second.empty())//we need to change creature
 		{
 			SetAvailableCreatures ssi;
 			ssi.tid = town->id;
 			ssi.creatures = town->creatures;
-			ssi.creatures[town->town->creatures.size()].second.clear();//remove old one
+			ssi.creatures[town->getTown()->creatures.size()].second.clear();//remove old one
 
 			std::set<CreatureID> availableCreatures;
 			for (const auto & dwelling : p->getOwnedObjects())
@@ -590,13 +590,13 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 
 			if (clear)
 			{
-				ssi.creatures[town->town->creatures.size()].first = std::max(1, (creatureId.toEntity(VLC)->getGrowth())/2);
+				ssi.creatures[town->getTown()->creatures.size()].first = std::max(1, (creatureId.toEntity(VLC)->getGrowth())/2);
 			}
 			else
 			{
-				ssi.creatures[town->town->creatures.size()].first = creatureId.toEntity(VLC)->getGrowth();
+				ssi.creatures[town->getTown()->creatures.size()].first = creatureId.toEntity(VLC)->getGrowth();
 			}
-			ssi.creatures[town->town->creatures.size()].second.push_back(creatureId);
+			ssi.creatures[town->getTown()->creatures.size()].second.push_back(creatureId);
 			sendAndApply(ssi);
 		}
 }
@@ -657,7 +657,7 @@ void CGameHandler::onNewTurn()
 		PlayerColor player = t->tempOwner;
 
 		if(t->hasBuilt(BuildingID::GRAIL)
-			&& t->town->buildings.at(BuildingID::GRAIL)->height == CBuilding::HEIGHT_SKYSHIP)
+			&& t->getTown()->buildings.at(BuildingID::GRAIL)->height == CBuilding::HEIGHT_SKYSHIP)
 		{
 			// Skyship, probably easier to handle same as Veil of darkness
 			// do it every new day before veils
@@ -1048,7 +1048,7 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	if (((h->getOwner() != t->getOwner())
 		&& complain("Cannot teleport hero to another player"))
 
-	|| (from->town->faction->getId() != t->town->faction->getId()
+	|| (from->getFactionID() != t->getFactionID()
 		&& complain("Source town and destination town should belong to the same faction"))
 
 	|| ((!from || !from->hasBuilt(BuildingSubID::CASTLE_GATE))
@@ -1212,7 +1212,7 @@ void CGameHandler::visitCastleObjects(const CGTownInstance * t, std::vector<cons
 
 	for (auto & building : t->rewardableBuildings)
 	{
-		if (!t->town->buildings.at(building.first)->manualHeroVisit && t->hasBuilt(building.first))
+		if (!t->getTown()->buildings.at(building.first)->manualHeroVisit && t->hasBuilt(building.first))
 			buildingsToVisit.push_back(building.first);
 	}
 
@@ -2036,12 +2036,12 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	const CGTownInstance * t = getTown(tid);
 	if(!t)
 		COMPLAIN_RETF("No such town (ID=%s)!", tid);
-	if(!t->town->buildings.count(requestedID))
-		COMPLAIN_RETF("Town of faction %s does not have info about building ID=%s!", t->town->faction->getNameTranslated() % requestedID);
+	if(!t->getTown()->buildings.count(requestedID))
+		COMPLAIN_RETF("Town of faction %s does not have info about building ID=%s!", t->getFaction()->getNameTranslated() % requestedID);
 	if(t->hasBuilt(requestedID))
-		COMPLAIN_RETF("Building %s is already built in %s", t->town->buildings.at(requestedID)->getNameTranslated() % t->getNameTranslated());
+		COMPLAIN_RETF("Building %s is already built in %s", t->getTown()->buildings.at(requestedID)->getNameTranslated() % t->getNameTranslated());
 
-	const CBuilding * requestedBuilding = t->town->buildings.at(requestedID);
+	const CBuilding * requestedBuilding = t->getTown()->buildings.at(requestedID);
 
 	//Vector with future list of built building and buildings in auto-mode that are not yet built.
 	std::vector<const CBuilding*> remainingAutoBuildings;
@@ -2081,7 +2081,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 			int level = BuildingID::getLevelFromDwelling(buildingID);
 			int upgradeNumber = BuildingID::getUpgradedFromDwelling(buildingID);
 
-			if(upgradeNumber >= t->town->creatures.at(level).size())
+			if(upgradeNumber >= t->getTown()->creatures.at(level).size())
 			{
 				complain(boost::str(boost::format("Error encountered when building dwelling (bid=%s):"
 													"no creature found (upgrade number %d, level %d!")
@@ -2089,7 +2089,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 				return;
 			}
 
-			const CCreature * crea = t->town->creatures.at(level).at(upgradeNumber).toCreature();
+			const CCreature * crea = t->getTown()->creatures.at(level).at(upgradeNumber).toCreature();
 
 			SetAvailableCreatures ssi;
 			ssi.tid = t->id;
@@ -2099,7 +2099,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 			ssi.creatures[level].second.push_back(crea->getId());
 			sendAndApply(ssi);
 		}
-		if(t->town->buildings.at(buildingID)->subId == BuildingSubID::PORTAL_OF_SUMMONING)
+		if(t->getTown()->buildings.at(buildingID)->subId == BuildingSubID::PORTAL_OF_SUMMONING)
 		{
 			setPortalDwelling(t);
 		}
@@ -2110,9 +2110,9 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	{
 		auto isMageGuild = (buildingID <= BuildingID::MAGES_GUILD_5 && buildingID >= BuildingID::MAGES_GUILD_1);
 		auto isLibrary = isMageGuild ? false
-			: t->town->buildings.at(buildingID)->subId == BuildingSubID::EBuildingSubID::LIBRARY;
+			: t->getTown()->buildings.at(buildingID)->subId == BuildingSubID::EBuildingSubID::LIBRARY;
 
-		if(isMageGuild || isLibrary || (t->getFaction() == ETownType::CONFLUX && buildingID == BuildingID::GRAIL))
+		if(isMageGuild || isLibrary || (t->getFactionID() == ETownType::CONFLUX && buildingID == BuildingID::GRAIL))
 		{
 			if(t->visitingHero)
 				giveSpells(t,t->visitingHero);
@@ -2128,7 +2128,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	};
 
 	//Init the vectors
-	for(auto & build : t->town->buildings)
+	for(auto & build : t->getTown()->buildings)
 	{
 		if(t->hasBuilt(build.first))
 		{
@@ -2212,7 +2212,7 @@ bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)
 	if(!t->hasBuilt(bid))
 		return false;
 
-	auto subID = t->town->buildings.at(bid)->subId;
+	auto subID = t->getTown()->buildings.at(bid)->subId;
 
 	if(subID == BuildingSubID::EBuildingSubID::BANK)
 	{
@@ -2224,7 +2224,7 @@ bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)
 		return true;
 	}
 
-	if (t->rewardableBuildings.count(bid) && t->visitingHero && t->town->buildings.at(bid)->manualHeroVisit)
+	if (t->rewardableBuildings.count(bid) && t->visitingHero && t->getTown()->buildings.at(bid)->manualHeroVisit)
 	{
 		std::vector<BuildingID> buildingsToVisit;
 		std::vector<const CGHeroInstance*> visitors;

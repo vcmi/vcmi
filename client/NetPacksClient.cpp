@@ -671,7 +671,7 @@ void ApplyClientNetPackVisitor::visitSetHeroesInTown(SetHeroesInTown & pack)
 void ApplyClientNetPackVisitor::visitHeroRecruited(HeroRecruited & pack)
 {
 	CGHeroInstance *h = gs.map->heroesOnMap.back();
-	if(h->getHeroType() != pack.hid)
+	if(h->getHeroTypeID() != pack.hid)
 	{
 		logNetwork->error("Something wrong with hero recruited!");
 	}

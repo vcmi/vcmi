@@ -93,7 +93,7 @@ FactionID CGDwelling::randomizeFaction(vstd::RNG & rand)
 
 		assert(linkedTown->ID == Obj::TOWN);
 		if(linkedTown->ID==Obj::TOWN)
-			return linkedTown->getFaction();
+			return linkedTown->getFactionID();
 	}
 
 	if(!randomizationInfo->allowedFactions.empty())

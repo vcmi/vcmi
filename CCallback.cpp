@@ -319,7 +319,7 @@ void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroIn
 	assert(townOrTavern);
 	assert(hero);
 
-	HireHero pack(hero->getHeroType(), townOrTavern->id, nextHero);
+	HireHero pack(hero->getHeroTypeID(), townOrTavern->id, nextHero);
 	pack.player = *player;
 	sendRequest(pack);
 }

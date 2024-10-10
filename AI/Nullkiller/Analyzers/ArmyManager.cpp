@@ -144,7 +144,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 	for(auto & slot : sortedSlots)
 	{
-		alignmentMap[slot.creature->getFaction()] += slot.power;
+		alignmentMap[slot.creature->getFactionID()] += slot.power;
 	}
 
 	std::set<FactionID> allowedFactions;
@@ -178,7 +178,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 		for(auto & slot : sortedSlots)
 		{
-			if(vstd::contains(allowedFactions, slot.creature->getFaction()))
+			if(vstd::contains(allowedFactions, slot.creature->getFactionID()))
 			{
 				auto slotID = newArmyInstance.getSlotFor(slot.creature->getId());
 

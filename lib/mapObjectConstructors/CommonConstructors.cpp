@@ -96,7 +96,6 @@ bool CTownInstanceConstructor::objectFilter(const CGObjectInstance * object, std
 
 void CTownInstanceConstructor::initializeObject(CGTownInstance * obj) const
 {
-	obj->town = faction->town;
 	obj->tempOwner = PlayerColor::NEUTRAL;
 }
 
@@ -144,7 +143,7 @@ bool CHeroInstanceConstructor::objectFilter(const CGObjectInstance * object, std
 
 	auto heroTest = [&](const HeroTypeID & id)
 	{
-		return hero->type->getId() == id;
+		return hero->getHeroTypeID() == id;
 	};
 
 	if(filters.count(templ->stringID))
@@ -152,11 +151,6 @@ bool CHeroInstanceConstructor::objectFilter(const CGObjectInstance * object, std
 		return filters.at(templ->stringID).test(heroTest);
 	}
 	return false;
-}
-
-void CHeroInstanceConstructor::initializeObject(CGHeroInstance * obj) const
-{
-	obj->type = nullptr; //FIXME: set to valid value. somehow.
 }
 
 void CHeroInstanceConstructor::randomizeObject(CGHeroInstance * object, vstd::RNG & rng) const

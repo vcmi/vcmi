@@ -44,7 +44,7 @@ public:
 	MOCK_CONST_METHOD0(getLevel, int32_t());
 	MOCK_CONST_METHOD0(getGrowth, int32_t());
 	MOCK_CONST_METHOD0(getHorde, int32_t());
-	MOCK_CONST_METHOD0(getFaction, FactionID());
+	MOCK_CONST_METHOD0(getFactionID, FactionID());
 
 	MOCK_CONST_METHOD0(getBaseAttack, int32_t());
 	MOCK_CONST_METHOD0(getBaseDefense, int32_t());
