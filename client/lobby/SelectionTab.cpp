@@ -989,6 +989,6 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		iconLossCondition->setFrame(info->mapHeader->defeatIconIndex, 0);
 		labelName->setMaxWidth(185);
 	}
-	labelName->setText(info->name);
+	labelName->setText(info->getNameForList());
 	labelName->setColor(color);
 }
