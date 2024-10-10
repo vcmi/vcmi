@@ -219,7 +219,12 @@ void PlayerLocalState::removeWanderingHero(const CGHeroInstance * hero)
 	if (hero == currentSelection)
 	{
 		auto const * nextHero = getNextWanderingHero(hero);
-		setSelection(nextHero);
+		if (nextHero)
+			setSelection(nextHero);
+		else if (!ownedTowns.empty())
+			setSelection(ownedTowns.front());
+		else
+			setSelection(nullptr);
 	}
 
 	vstd::erase(wanderingHeroes, hero);
@@ -334,7 +339,8 @@ void PlayerLocalState::serialize(JsonNode & dest) const
 	dest["spellbook"]["tabBattle"].Integer() = spellbookSettings.spellbookLastTabBattle;
 	dest["spellbook"]["tabAdvmap"].Integer() = spellbookSettings.spellbookLastTabAdvmap;
 
-	dest["currentSelection"].Integer() = currentSelection->id;
+	if (currentSelection)
+		dest["currentSelection"].Integer() = currentSelection->id;
 }
 
 void PlayerLocalState::deserialize(const JsonNode & source)
