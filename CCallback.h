@@ -100,6 +100,7 @@ public:
 	virtual void assembleArtifacts(const ObjectInstanceID & heroID, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)=0;
 	virtual void eraseArtifactByClient(const ArtifactLocation & al)=0;
 	virtual bool dismissCreature(const CArmedInstance *obj, SlotID stackPos)=0;
+	virtual void saveLocalState(const JsonNode & data)=0;
 	virtual void endTurn()=0;
 	virtual void buyArtifact(const CGHeroInstance *hero, ArtifactID aid)=0; //used to buy artifacts in towns (including spell book in the guild and war machines in blacksmith)
 	virtual void setFormation(const CGHeroInstance * hero, EArmyFormation mode)=0;
@@ -193,6 +194,7 @@ public:
 	void recruitCreatures(const CGDwelling * obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1) override;
 	bool dismissCreature(const CArmedInstance *obj, SlotID stackPos) override;
 	bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE) override;
+	void saveLocalState(const JsonNode & data) override;
 	void endTurn() override;
 	void spellResearch(const CGTownInstance *town, SpellID spellAtSlot, bool accepted) override;
 	void swapGarrisonHero(const CGTownInstance *town) override;

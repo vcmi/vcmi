@@ -205,9 +205,9 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 		}
 	}
 
-	selectedTab = battleSpellsOnly ? myInt->localState->spellbookSettings.spellbookLastTabBattle : myInt->localState->spellbookSettings.spellbookLastTabAdvmap;
+	selectedTab = battleSpellsOnly ? myInt->localState->getSpellbookSettings().spellbookLastTabBattle : myInt->localState->getSpellbookSettings().spellbookLastTabAdvmap;
 	schoolTab->setFrame(selectedTab, 0);
-	int cp = battleSpellsOnly ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbookLastPageAdvmap;
+	int cp = battleSpellsOnly ? myInt->localState->getSpellbookSettings().spellbookLastPageBattle : myInt->localState->getSpellbookSettings().spellbookLastPageAdvmap;
 	// spellbook last page battle index is not reset after battle, so this needs to stay here
 	vstd::abetween(cp, 0, std::max(0, pagesWithinCurrentTab() - 1));
 	setCurrentPage(cp);
@@ -313,8 +313,18 @@ void CSpellWindow::processSpells()
 
 void CSpellWindow::fexitb()
 {
-	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastTabBattle : myInt->localState->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
-	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbookLastPageAdvmap) = currentPage;
+	auto spellBookState = myInt->localState->getSpellbookSettings();
+	if(myInt->battleInt)
+	{
+		spellBookState.spellbookLastTabBattle = selectedTab;
+		spellBookState.spellbookLastPageBattle = currentPage;
+	}
+	else
+	{
+		spellBookState.spellbookLastTabAdvmap = selectedTab;
+		spellBookState.spellbookLastPageAdvmap = currentPage;
+	}
+	myInt->localState->setSpellbookSettings(spellBookState);
 
 	if(onSpellSelect)
 		onSpellSelect(SpellID::NONE);
@@ -619,8 +629,10 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 
 			auto guard = vstd::makeScopeGuard([this]()
 			{
-				owner->myInt->localState->spellbookSettings.spellbookLastTabAdvmap = owner->selectedTab;
-				owner->myInt->localState->spellbookSettings.spellbookLastPageAdvmap = owner->currentPage;
+				auto spellBookState = owner->myInt->localState->getSpellbookSettings();
+				spellBookState.spellbookLastTabAdvmap = owner->selectedTab;
+				spellBookState.spellbookLastPageAdvmap = owner->currentPage;
+				owner->myInt->localState->setSpellbookSettings(spellBookState);
 			});
 
 			spells::detail::ProblemImpl problem;

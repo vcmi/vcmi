@@ -62,6 +62,7 @@ enum class ESerializationVersion : int32_t
 	REWARDABLE_BANKS, // 863 - team state contains list of scouted objects, coast visitable rewardable objects
 	REGION_LABEL, // 864 - labels for campaign regions
 	SPELL_RESEARCH, // 865 - spell research
+	LOCAL_PLAYER_STATE_DATA, // 866 - player state contains arbitrary client-side data
 
-	CURRENT = SPELL_RESEARCH
+	CURRENT = LOCAL_PLAYER_STATE_DATA
 };

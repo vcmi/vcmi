@@ -13,6 +13,7 @@
 #include "PacksForClientBattle.h"
 #include "PacksForServer.h"
 #include "PacksForLobby.h"
+#include "SaveLocalState.h"
 #include "SetRewardableConfiguration.h"
 #include "SetStackEffect.h"
 
@@ -177,6 +178,7 @@ public:
 	virtual void visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack) {}
 	virtual void visitLobbyShowMessage(LobbyShowMessage & pack) {}
 	virtual void visitLobbyPvPAction(LobbyPvPAction & pack) {}
+	virtual void visitSaveLocalState(SaveLocalState & pack) {}
 };
 
 VCMI_LIB_NAMESPACE_END
