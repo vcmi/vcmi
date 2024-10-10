@@ -29,6 +29,7 @@ namespace NKAI
 		bool allowObjectGraph;
 		bool useTroopsFromGarrisons;
 		bool openMap;
+		bool useFuzzy;
 
 	public:
 		Settings();
@@ -41,5 +42,6 @@ namespace NKAI
 		bool isObjectGraphAllowed() const { return allowObjectGraph; }
 		bool isGarrisonTroopsUsageAllowed() const { return useTroopsFromGarrisons; }
 		bool isOpenMap() const { return openMap; }
+		bool isUseFuzzy() const { return useFuzzy; }
 	};
 }

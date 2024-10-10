@@ -33,48 +33,32 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 
-	for(auto obj : ai->memory->visitableObjs)
+	for (auto obj : ai->memory->visitableObjs)
 	{
-		if(!vstd::contains(ai->memory->alreadyVisited, obj))
+		switch (obj->ID.num)
 		{
-			switch(obj->ID.num)
-			{
 			case Obj::REDWOOD_OBSERVATORY:
 			case Obj::PILLAR_OF_FIRE:
-				tasks.push_back(sptr(Composition().addNext(ExplorationPoint(obj->visitablePos(), 200)).addNext(CaptureObject(obj))));
+			{
+				auto rObj = dynamic_cast<const CRewardableObject*>(obj);
+				if (!rObj->wasScouted(ai->playerID))
+					tasks.push_back(sptr(Composition().addNext(ExplorationPoint(obj->visitablePos(), 200)).addNext(CaptureObject(obj))));
 				break;
+			}
 			case Obj::MONOLITH_ONE_WAY_ENTRANCE:
 			case Obj::MONOLITH_TWO_WAY:
 			case Obj::SUBTERRANEAN_GATE:
 			case Obj::WHIRLPOOL:
-				auto tObj = dynamic_cast<const CGTeleport *>(obj);
-				if(TeleportChannel::IMPASSABLE != ai->memory->knownTeleportChannels[tObj->channel]->passability)
-				{
-					tasks.push_back(sptr(Composition().addNext(ExplorationPoint(obj->visitablePos(), 50)).addNext(CaptureObject(obj))));
-				}
-				break;
-			}
-		}
-		else
-		{
-			switch(obj->ID.num)
 			{
-			case Obj::MONOLITH_TWO_WAY:
-			case Obj::SUBTERRANEAN_GATE:
-			case Obj::WHIRLPOOL:
-				auto tObj = dynamic_cast<const CGTeleport *>(obj);
-				if(TeleportChannel::IMPASSABLE == ai->memory->knownTeleportChannels[tObj->channel]->passability)
-					break;
-				for(auto exit : ai->memory->knownTeleportChannels[tObj->channel]->exits)
+				auto tObj = dynamic_cast<const CGTeleport*>(obj);
+				for (auto exit : cb->getTeleportChannelExits(tObj->channel))
 				{
-					if(!cb->getObj(exit))
-					{ 
-						// Always attempt to visit two-way teleports if one of channel exits is not visible
-						tasks.push_back(sptr(Composition().addNext(ExplorationPoint(obj->visitablePos(), 50)).addNext(CaptureObject(obj))));
-						break;
+					if (exit != tObj->id)
+					{
+						if (!cb->isVisible(cb->getObjInstance(exit)))
+							tasks.push_back(sptr(Composition().addNext(ExplorationPoint(obj->visitablePos(), 50)).addNext(CaptureObject(obj))));
 					}
 				}
-				break;
 			}
 		}
 	}

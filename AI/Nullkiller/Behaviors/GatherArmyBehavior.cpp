@@ -81,18 +81,13 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 		logAi->trace("Path found %s, %s, %lld", path.toString(), path.targetHero->getObjectName(), path.heroArmy->getArmyStrength());
 #endif
 		
+		if (path.targetHero->getOwner() != ai->playerID)
+			continue;
+		
 		if(path.containsHero(hero))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Selfcontaining path. Ignore");
-#endif
-			continue;
-		}
-
-		if(path.turn() > 0 && ai->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
-		{
-#if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
 #endif
 			continue;
 		}
@@ -288,17 +283,6 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 #if NKAI_TRACE_LEVEL >= 2
 			// TODO: decomposition?
 			logAi->trace("Ignore path. Action is blocked.");
-#endif
-			continue;
-		}
-
-		auto heroRole = ai->heroManager->getHeroRole(path.targetHero);
-
-		if(heroRole == HeroRole::SCOUT
-			&& ai->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
-		{
-#if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
 #endif
 			continue;
 		}
