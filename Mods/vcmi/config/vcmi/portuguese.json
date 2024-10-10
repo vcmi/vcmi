@@ -61,6 +61,13 @@
 
 	"vcmi.spellBook.search" : "Procurar...",
 
+	"vcmi.spellResearch.canNotAfford" : "Você não pode se dar ao luxo de substituir {%SPELL1} por {%SPELL2}. Mas você ainda pode descartar este feitiço e continuar a pesquisa de feitiços.",
+	"vcmi.spellResearch.comeAgain" : "A pesquisa já foi realizada hoje. Volte amanhã.",
+	"vcmi.spellResearch.pay" : "Gostaria de substituir {%SPELL1} por {%SPELL2}? Ou descartar este feitiço e continuar a pesquisa de feitiços?",
+	"vcmi.spellResearch.research" : "Pesquisar este Feitiço",
+	"vcmi.spellResearch.skip" : "Pular este Feitiço",
+	"vcmi.spellResearch.abort" : "Abortar",
+
 	"vcmi.mainMenu.serverConnecting" : "Conectando...",
 	"vcmi.mainMenu.serverAddressEnter" : "Insira o endereço:",
 	"vcmi.mainMenu.serverConnectionFailed" : "Falha ao conectar",
@@ -343,6 +350,12 @@
 	"vcmi.heroWindow.openCommander.help" : "Mostra detalhes sobre o comandante deste herói.",
 	"vcmi.heroWindow.openBackpack.hover" : "Abrir janela da mochila de artefatos",
 	"vcmi.heroWindow.openBackpack.help" : "Abre a janela que facilita o gerenciamento da mochila de artefatos.",
+	"vcmi.heroWindow.sortBackpackByCost.hover"  : "Ordenar por custo",
+	"vcmi.heroWindow.sortBackpackByCost.help"   : "Ordenar artefatos na mochila por custo.",
+	"vcmi.heroWindow.sortBackpackBySlot.hover"  : "Ordenar por espaço",
+	"vcmi.heroWindow.sortBackpackBySlot.help"   : "Ordenar artefatos na mochila por espaço equipado.",
+	"vcmi.heroWindow.sortBackpackByClass.hover" : "Ordenar por classe",
+	"vcmi.heroWindow.sortBackpackByClass.help"  : "Ordenar artefatos na mochila por classe de artefato. Tesouro, Menor, Maior, Relíquia",
 
 	"vcmi.tavernWindow.inviteHero" : "Convidar herói",
 
