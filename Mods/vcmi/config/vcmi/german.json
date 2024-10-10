@@ -15,6 +15,8 @@
 	"vcmi.adventureMap.monsterLevel"            : "\n\nStufe %LEVEL %TOWN-Einheit (%ATTACK_TYPE)",
 	"vcmi.adventureMap.monsterMeleeType"        : "Nahkampf",
 	"vcmi.adventureMap.monsterRangedType"       : "Fernkampf",
+	"vcmi.adventureMap.search.hover"            : "Suche Kartenobjekt",
+	"vcmi.adventureMap.search.help"             : "Wähle Objekt das gesucht werden soll.",
 
 	"vcmi.adventureMap.confirmRestartGame"               : "Seid Ihr sicher, dass Ihr das Spiel neu starten wollt?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "Kein Marktplatz verfügbar!",

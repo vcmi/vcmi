@@ -24,6 +24,7 @@
 #include "../windows/CKingdomInterface.h"
 #include "../windows/CSpellWindow.h"
 #include "../windows/CMarketWindow.h"
+#include "../windows/GUIClasses.h"
 #include "../windows/settings/SettingsMainWindow.h"
 #include "AdventureMapInterface.h"
 #include "AdventureOptions.h"
@@ -36,11 +37,14 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/pathfinder/CGPathNode.h"
+#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 
 AdventureMapShortcuts::AdventureMapShortcuts(AdventureMapInterface & owner)
 	: owner(owner)
 	, state(EAdventureState::NOT_INITIALIZED)
 	, mapLevel(0)
+	, searchLast("")
+	, searchPos(0)
 {}
 
 void AdventureMapShortcuts::setState(EAdventureState newState)
@@ -109,7 +113,9 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_MOVE_HERO_EE,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({+1,  0}); } },
 		{ EShortcut::ADVENTURE_MOVE_HERO_NW,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({-1, -1}); } },
 		{ EShortcut::ADVENTURE_MOVE_HERO_NN,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({ 0, -1}); } },
-		{ EShortcut::ADVENTURE_MOVE_HERO_NE,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({+1, -1}); } }
+		{ EShortcut::ADVENTURE_MOVE_HERO_NE,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({+1, -1}); } },
+		{ EShortcut::ADVENTURE_SEARCH,           optionSidePanelActive(),[this]() { this->search(false); } },
+		{ EShortcut::ADVENTURE_SEARCH_CONTINUE,  optionSidePanelActive(),[this]() { this->search(true); } }
 	};
 	return result;
 }
@@ -455,6 +461,72 @@ void AdventureMapShortcuts::nextTown()
 void AdventureMapShortcuts::zoom( int distance)
 {
 	owner.hotkeyZoom(distance, false);
+}
+
+void AdventureMapShortcuts::search(bool next)
+{
+	// get all relevant objects
+	std::vector<ObjectInstanceID> visitableObjInstances;
+	int3 mapSizes = LOCPLINT->cb->getMapSize();
+	for(int x = 0; x < mapSizes.x; x++)
+		for(int y = 0; y < mapSizes.y; y++)
+			for(int z = 0; z < mapSizes.z; z++)
+				for(auto & obj : LOCPLINT->cb->getVisitableObjs(int3(x, y, z), false))
+					if(obj->ID != MapObjectID::MONSTER && obj->ID != MapObjectID::EVENT && obj->ID != MapObjectID::HERO)
+						visitableObjInstances.push_back(obj->id);
+
+	// count of elements for each group
+	std::map<std::string, int> mapObjCount;
+	for(auto & obj : visitableObjInstances)
+		mapObjCount[{ VLC->objtypeh->getObjectName(LOCPLINT->cb->getObjInstance(obj)->getObjGroupIndex(), LOCPLINT->cb->getObjInstance(obj)->getObjTypeIndex()) }]++;
+
+	// sort by name
+	std::vector<std::pair<std::string, int>> textCountList;
+	for (auto itr = mapObjCount.begin(); itr != mapObjCount.end(); ++itr)
+		textCountList.push_back(*itr);
+	std::sort(textCountList.begin(), textCountList.end(),
+		[=](std::pair<std::string, int>& a, std::pair<std::string, int>& b)
+		{
+			return a.first < b.first;
+		}
+	);
+
+	// get pos of last selection
+	int lastSel = 0;
+	for(int i = 0; i < textCountList.size(); i++)
+		if(textCountList[i].first == searchLast)
+			lastSel = i;
+
+	// create texts
+	std::vector<std::string> texts;
+	for(auto & obj : textCountList)
+		texts.push_back(obj.first + " (" + std::to_string(obj.second) + ")");
+
+	// function to center element from list on map
+	auto selectObjOnMap = [this, textCountList, visitableObjInstances](int index)
+		{
+			auto selObj = textCountList[index].first;
+
+			// filter for matching objects
+			std::vector<ObjectInstanceID> selVisitableObjInstances;
+			for(auto & obj : visitableObjInstances)
+				if(selObj == VLC->objtypeh->getObjectName(LOCPLINT->cb->getObjInstance(obj)->getObjGroupIndex(), LOCPLINT->cb->getObjInstance(obj)->getObjTypeIndex()))
+					selVisitableObjInstances.push_back(obj);
+			
+			if(searchPos + 1 < selVisitableObjInstances.size() && searchLast == selObj)
+				searchPos++;
+			else
+				searchPos = 0;
+
+			auto objInst = LOCPLINT->cb->getObjInstance(selVisitableObjInstances[searchPos]);
+			owner.centerOnObject(objInst);
+			searchLast = VLC->objtypeh->getObjectName(objInst->getObjGroupIndex(), objInst->getObjTypeIndex());
+		};
+
+	if(next)
+		selectObjOnMap(lastSel);
+	else
+		GH.windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, CGI->generaltexth->translate("vcmi.adventureMap.search.hover"), CGI->generaltexth->translate("vcmi.adventureMap.search.help"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
 }
 
 void AdventureMapShortcuts::nextObject()

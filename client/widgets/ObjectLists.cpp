@@ -185,6 +185,9 @@ void CListBox::scrollTo(size_t which)
 	//scroll down
 	else if (first + items.size() <= which && which < totalSize)
 		moveToPos(which - items.size() + 1);
+		
+	if(slider)
+		slider->scrollTo(which);
 }
 
 void CListBox::moveToPos(size_t which)

@@ -209,6 +209,8 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"adventureZoomIn",          EShortcut::ADVENTURE_ZOOM_IN         },
 		{"adventureZoomOut",         EShortcut::ADVENTURE_ZOOM_OUT        },
 		{"adventureZoomReset",       EShortcut::ADVENTURE_ZOOM_RESET      },
+		{"adventureSearch",          EShortcut::ADVENTURE_SEARCH          },
+		{"adventureSearchContinue",  EShortcut::ADVENTURE_SEARCH_CONTINUE },
 		{"battleToggleHeroesStats",  EShortcut::BATTLE_TOGGLE_HEROES_STATS},
 		{"battleToggleQueue",        EShortcut::BATTLE_TOGGLE_QUEUE       },
 		{"battleUseCreatureSpell",   EShortcut::BATTLE_USE_CREATURE_SPELL },
