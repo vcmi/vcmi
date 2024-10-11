@@ -366,4 +366,21 @@ void Rewardable::Interface::doHeroVisit(const CGHeroInstance *h) const
 	}
 }
 
+void Rewardable::Interface::onBlockingDialogAnswered(const CGHeroInstance * hero, int32_t answer) const
+{
+	if (answer == 0)
+		return; //Player refused
+
+	if(answer > 0 && answer - 1 < configuration.info.size())
+	{
+		auto list = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
+		markAsVisited(hero);
+		grantReward(list[answer - 1], hero);
+	}
+	else
+	{
+		throw std::runtime_error("Unhandled choice");
+	}
+}
+
 VCMI_LIB_NAMESPACE_END

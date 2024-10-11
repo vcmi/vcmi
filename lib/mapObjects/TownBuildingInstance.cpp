@@ -131,21 +131,7 @@ void TownRewardableBuildingInstance::heroLevelUpDone(const CGHeroInstance *hero)
 
 void TownRewardableBuildingInstance::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
-	if(answer == 0)
-		return; // player refused
-	
-	if(visitors.find(hero->id) != visitors.end())
-		return; // query not for this building
-
-	if(answer > 0 && answer-1 < configuration.info.size())
-	{
-		auto list = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
-		grantReward(list[answer - 1], hero);
-	}
-	else
-	{
-		throw std::runtime_error("Unhandled choice");
-	}
+	onBlockingDialogAnswered(hero, answer);
 }
 
 void TownRewardableBuildingInstance::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
