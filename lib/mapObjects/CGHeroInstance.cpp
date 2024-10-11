@@ -309,7 +309,11 @@ const CHeroClass * CGHeroInstance::getHeroClass() const
 
 HeroClassID CGHeroInstance::getHeroClassID() const
 {
-	return getHeroType()->heroClass->getId();
+	auto heroType = getHeroTypeID();
+	if (heroType.hasValue())
+		return getHeroType()->heroClass->getId();
+	else
+		return HeroClassID();
 }
 
 const CHero * CGHeroInstance::getHeroType() const
