@@ -41,7 +41,6 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/entities/building/CBuilding.h"
@@ -49,6 +48,7 @@
 #include "../../lib/entities/faction/CFaction.h"
 #include "../../lib/entities/faction/CTown.h"
 #include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 

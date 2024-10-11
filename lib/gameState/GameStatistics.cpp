@@ -14,7 +14,6 @@
 #include "../VCMIDirs.h"
 #include "CGameState.h"
 #include "TerrainHandler.h"
-#include "CHeroHandler.h"
 #include "StartInfo.h"
 #include "HighScore.h"
 #include "../mapObjects/CGHeroInstance.h"

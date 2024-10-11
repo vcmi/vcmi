@@ -12,12 +12,12 @@
 #include "validator.h"
 #include "mapcontroller.h"
 #include "ui_validator.h"
+#include "../lib/entities/hero/CHero.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapObjects/MapObjects.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/CModInfo.h"
 #include "../lib/spells/CSpellHandler.h"
-#include "../lib/CHeroHandler.h"
 
 Validator::Validator(const CMap * map, QWidget *parent) :
 	QDialog(parent),

@@ -29,7 +29,6 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CCreatureSet.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CSoundBase.h"
@@ -48,6 +47,7 @@
 
 #include "../lib/entities/building/CBuilding.h"
 #include "../lib/entities/faction/CTownHandler.h"
+#include "../lib/entities/hero/CHeroHandler.h"
 
 #include "../lib/filesystem/FileInfo.h"
 #include "../lib/filesystem/Filesystem.h"

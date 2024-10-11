@@ -18,7 +18,6 @@
 
 #include "../ArtifactUtils.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../CHeroHandler.h"
 #include "../CPlayerState.h"
 #include "../CStopWatch.h"
 #include "../IGameSettings.h"
@@ -30,6 +29,8 @@
 #include "../campaign/CampaignState.h"
 #include "../constants/StringConstants.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/hero/CHero.h"
+#include "../entities/hero/CHeroClass.h"
 #include "../filesystem/ResourcePath.h"
 #include "../json/JsonBonus.h"
 #include "../json/JsonUtils.h"

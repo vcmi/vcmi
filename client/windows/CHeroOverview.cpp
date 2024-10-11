@@ -24,9 +24,10 @@
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 
 #include "../../lib/IGameSettings.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/entities/hero/CHeroClass.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 

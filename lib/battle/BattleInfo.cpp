@@ -15,7 +15,6 @@
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "../CStack.h"
-#include "../CHeroHandler.h"
 #include "../entities/building/TownFortifications.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjects/CGTownInstance.h"

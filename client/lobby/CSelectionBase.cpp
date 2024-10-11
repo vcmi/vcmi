@@ -43,7 +43,6 @@
 #include "../render/IFont.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/filesystem/Filesystem.h"

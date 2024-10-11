@@ -36,7 +36,6 @@
 
 #include "CSpellHandler.h"
 
-#include "../CHeroHandler.h"//todo: remove
 #include "../IGameCallback.h"//todo: remove
 #include "../BattleFieldHandler.h"
 

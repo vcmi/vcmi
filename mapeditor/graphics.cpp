@@ -29,11 +29,11 @@
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "BitmapHandler.h"
 #include "../lib/CStopWatch.h"
+#include "../lib/entities/hero/CHeroClassHandler.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjects/CGObjectInstance.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
-#include "../lib/CHeroHandler.h"
 
 Graphics * graphics = nullptr;
 

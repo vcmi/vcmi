@@ -12,9 +12,9 @@
 
 #include "MapFormat.h"
 
-#include "../CHeroHandler.h"
 #include "../VCMI_Lib.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/hero/CHeroHandler.h"
 #include "../json/JsonUtils.h"
 #include "../modding/CModHandler.h"
 #include "../texts/CGeneralTextHandler.h"

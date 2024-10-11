@@ -11,7 +11,6 @@
 #include "TavernHeroesPool.h"
 
 #include "../mapObjects/CGHeroInstance.h"
-#include "../CHeroHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
