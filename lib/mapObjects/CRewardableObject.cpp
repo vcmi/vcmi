@@ -95,19 +95,7 @@ void CRewardableObject::blockingDialogAnswered(const CGHeroInstance * hero, int3
 	}
 	else
 	{
-		if (answer == 0)
-			return; //Player refused
-
-		if(answer > 0 && answer - 1 < configuration.info.size())
-		{
-			auto list = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
-			markAsVisited(hero);
-			grantReward(list[answer - 1], hero);
-		}
-		else
-		{
-			throw std::runtime_error("Unhandled choice");
-		}
+		onBlockingDialogAnswered(hero, answer);
 	}
 }
 
