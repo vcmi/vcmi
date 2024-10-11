@@ -874,10 +874,9 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 	for(auto & file : files)
 	{
 		auto info = std::make_shared<ElementInfo>();
-		//allItems[i].date = std::asctime(std::localtime(&files[i].date));
 		info->fileURI = file.getOriginalName();
-		info->name = info->getNameForList();
 		info->campaignInit();
+		info->name = info->getNameForList();
 		if(info->campaign)
 			allItems.push_back(info);
 	}

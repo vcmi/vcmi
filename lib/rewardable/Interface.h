@@ -48,6 +48,8 @@ protected:
 	virtual void markAsVisited(const CGHeroInstance * hero) const = 0;
 	virtual void markAsScouted(const CGHeroInstance * hero) const = 0;
 	virtual void grantReward(ui32 rewardID, const CGHeroInstance * hero) const = 0;
+
+	void onBlockingDialogAnswered(const CGHeroInstance * hero, int32_t answer) const;
 public:
 
 	/// filters list of visit info and returns rewards that can be granted to current hero

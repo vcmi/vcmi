@@ -116,6 +116,8 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 					iw.components.emplace_back(ComponentType::CREATURE, town->creatures.at(i).second.back(), event.creatures.at(i));
 				}
 			}
+
+			gameHandler->sendAndApply(sac); //show dialog
 		}
 		gameHandler->sendAndApply(iw); //show dialog
 	}

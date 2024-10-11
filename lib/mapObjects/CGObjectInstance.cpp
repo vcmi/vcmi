@@ -208,7 +208,7 @@ int CGObjectInstance::getSightRadius() const
 int3 CGObjectInstance::getVisitableOffset() const
 {
 	if (!isVisitable())
-		throw std::runtime_error("Attempt to access visitable offset of a non-visitable object!");
+		logGlobal->debug("Attempt to access visitable offset on a non-visitable object!");
 	return appearance->getVisitableOffset();
 }
 
@@ -308,7 +308,7 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 int3 CGObjectInstance::visitablePos() const
 {
 	if (!isVisitable())
-		throw std::runtime_error("Attempt to access visitable position on a non-visitable object!");
+		logGlobal->debug("Attempt to access visitable position on a non-visitable object!");
 
 	return pos - getVisitableOffset();
 }

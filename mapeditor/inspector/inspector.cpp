@@ -139,6 +139,18 @@ void Initializer::initialize(CGHeroInstance * o)
 		o->tempOwner = PlayerColor::NEUTRAL;
 	}
 
+	if(o->ID == Obj::HERO)
+	{
+		for(auto const & t : VLC->heroh->objects)
+		{
+			if(t->heroClass->getId() == HeroClassID(o->subID))
+			{
+				o->subID = t->getId();
+				break;
+			}
+		}
+	}
+
 	if(o->getHeroTypeID().hasValue())
 	{
 		o->gender = o->getHeroType()->gender;
