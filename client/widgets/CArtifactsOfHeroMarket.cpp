@@ -32,7 +32,7 @@ void CArtifactsOfHeroMarket::clickPressedArtPlace(CComponentHolder & artPlace, c
 
 	if(const auto art = getArt(ownedPlace->slot))
 	{
-		if(onSelectArtCallback && art->artType->isTradable())
+		if(onSelectArtCallback && art->getType()->isTradable())
 		{
 			unmarkSlots();
 			artPlace.selectSlot(true);

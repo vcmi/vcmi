@@ -775,13 +775,13 @@ void CGArtifact::initObj(vstd::RNG & rand)
 			storedArtifact = ArtifactUtils::createArtifact(ArtifactID());
 			cb->gameState()->map->addNewArtifactInstance(storedArtifact);
 		}
-		if(!storedArtifact->artType)
+		if(!storedArtifact->getType())
 			storedArtifact->setType(getArtifact().toArtifact());
 	}
 	if(ID == Obj::SPELL_SCROLL)
 		subID = 1;
 
-	assert(storedArtifact->artType);
+	assert(storedArtifact->getType());
 	assert(!storedArtifact->getParentNodes().empty());
 
 	//assert(storedArtifact->artType->id == subID); //this does not stop desync
@@ -825,7 +825,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 
-		if(storedArtifact->artType->canBePutAt(h))
+		if(storedArtifact->getType()->canBePutAt(h))
 		{
 			switch (ID.toEnum())
 			{

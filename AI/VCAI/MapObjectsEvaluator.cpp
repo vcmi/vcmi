@@ -92,7 +92,7 @@ std::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * 
 	else if(obj->ID == Obj::ARTIFACT)
 	{
 		auto artifactObject = dynamic_cast<const CGArtifact *>(obj);
-		switch(artifactObject->storedArtifact->artType->aClass)
+		switch(artifactObject->storedArtifact->getType()->aClass)
 		{
 		case CArtifact::EartClass::ART_TREASURE:
 			return 2000;

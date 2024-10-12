@@ -2600,7 +2600,7 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 	if((srcSlotInfo && srcSlotInfo->locked) || (dstSlotInfo && dstSlotInfo->locked))
 		COMPLAIN_RET("Cannot move artifact locks.");
 
-	if(isDstSlotBackpack && srcArtifact->artType->isBig())
+	if(isDstSlotBackpack && srcArtifact->getType()->isBig())
 		COMPLAIN_RET("Cannot put big artifacts in backpack!");
 	if(src.slot == ArtifactPosition::MACH4 || dstSlot == ArtifactPosition::MACH4)
 		COMPLAIN_RET("Cannot move catapult!");
@@ -2625,7 +2625,7 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 	}
 
 	auto hero = getHero(dst.artHolder);
-	if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->getId(), dstSlot))
+	if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->getTypeId(), dstSlot))
 		giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 
 	ma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(src.slot, dstSlot));
@@ -2771,21 +2771,21 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 	{
 		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
 			{
-				return inf.getArt()->artType->getPossibleSlots().at(ArtBearer::HERO).front().num;
+				return inf.getArt()->getType()->getPossibleSlots().at(ArtBearer::HERO).front().num;
 			});
 	}
 	else if(sortType == ManageBackpackArtifacts::ManageCmd::SORT_BY_COST)
 	{
 		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
 			{
-				return inf.getArt()->artType->getPrice();
+				return inf.getArt()->getType()->getPrice();
 			});
 	}
 	else if(sortType == ManageBackpackArtifacts::ManageCmd::SORT_BY_CLASS)
 	{
 		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
 			{
-				return inf.getArt()->artType->aClass;
+				return inf.getArt()->getType()->aClass;
 			});
 	}
 	else
@@ -2924,7 +2924,7 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble is fused combined artifact!");
 
 		if(ArtifactUtils::isSlotBackpack(artifactSlot)
-			&& !ArtifactUtils::isBackpackFreeSlots(hero, destArtifact->artType->getConstituents().size() - 1))
+			&& !ArtifactUtils::isBackpackFreeSlots(hero, destArtifact->getType()->getConstituents().size() - 1))
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble but backpack is full!");
 
 		DisassembledArtifact da;
@@ -3058,11 +3058,11 @@ bool CGameHandler::sellArtifact(const IMarket *m, const CGHeroInstance *h, Artif
 	COMPLAIN_RET_FALSE_IF((!h), "Only hero can sell artifacts!");
 	const CArtifactInstance *art = h->getArtByInstanceId(aid);
 	COMPLAIN_RET_FALSE_IF((!art), "There is no artifact to sell!");
-	COMPLAIN_RET_FALSE_IF((!art->artType->isTradable()), "Cannot sell a war machine or spellbook!");
+	COMPLAIN_RET_FALSE_IF((!art->getType()->isTradable()), "Cannot sell a war machine or spellbook!");
 
 	int resVal = 0;
 	int dump = 1;
-	m->getOffer(art->artType->getId(), rid, dump, resVal, EMarketMode::ARTIFACT_RESOURCE);
+	m->getOffer(art->getType()->getId(), rid, dump, resVal, EMarketMode::ARTIFACT_RESOURCE);
 
 	removeArtifact(ArtifactLocation(h->id, h->getArtPos(art)));
 	giveResource(h->tempOwner, rid, resVal);
@@ -3686,7 +3686,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * market, const CGHeroInstanc
 	{
 		if(auto art = artSet->getArtByInstanceId(artInstId))
 		{
-			if(art->artType->isTradable())
+			if(art->getType()->isTradable())
 			{
 				int dmp;
 				int expToGive;
@@ -3892,7 +3892,7 @@ bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & s
 bool CGameHandler::putArtifact(const ArtifactLocation & al, const ArtifactInstanceID & id, std::optional<bool> askAssemble)
 {
 	const auto artInst = getArtInstance(id);
-	assert(artInst && artInst->artType);
+	assert(artInst && artInst->getType());
 	ArtifactLocation dst(al.artHolder, ArtifactPosition::PRE_FIRST);
 	dst.creature = al.creature;
 	auto putTo = getArtSet(al);

@@ -1055,7 +1055,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 				//FIXME: why are the above possible to be null?
 
 				bool emptySlotFound = false;
-				for(auto slot : artifact->artType->getPossibleSlots().at(target->bearerType()))
+				for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
 				{
 					if(target->isPositionFree(slot) && artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
 					{
@@ -1068,7 +1068,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 				}
 				if(!emptySlotFound) //try to put that atifact in already occupied slot
 				{
-					for(auto slot : artifact->artType->getPossibleSlots().at(target->bearerType()))
+					for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
 					{
 						auto otherSlot = target->getSlot(slot);
 						if(otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
@@ -1079,8 +1079,8 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 							{
 								logAi->trace(
 									"Exchange artifacts %s <-> %s",
-									artifact->artType->getNameTranslated(),
-									otherSlot->artifact->artType->getNameTranslated());
+									artifact->getType()->getNameTranslated(),
+									otherSlot->artifact->getType()->getNameTranslated());
 
 								if(!otherSlot->artifact->canBePutAt(artHolder, location.slot, true))
 								{
