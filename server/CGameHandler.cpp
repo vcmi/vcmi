@@ -2912,7 +2912,7 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 
 		AssembledArtifact aa;
 		aa.al = dstLoc;
-		aa.artId = assembleTo;
+		aa.artId = assembleTo->getId();
 		sendAndApply(aa);
 	}
 	else
@@ -3035,11 +3035,11 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, GameRe
 		COMPLAIN_RET("Wrong marktet...");
 
 	bool found = false;
-	for (const CArtifact *&art : saa.arts)
+	for (ArtifactID & art : saa.arts)
 	{
-		if (art && art->getId() == aid)
+		if (art == aid)
 		{
-			art = nullptr;
+			art = ArtifactID();
 			found = true;
 			break;
 		}

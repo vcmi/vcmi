@@ -180,7 +180,7 @@ public:
 	ui8 obeliskCount = 0; //how many obelisks are on map
 	std::map<TeamID, ui8> obelisksVisited; //map: team_id => how many obelisks has been visited
 
-	std::vector<const CArtifact *> townMerchantArtifacts;
+	std::vector<ArtifactID> townMerchantArtifacts;
 	std::vector<TradeItemBuy> townUniversitySkills;
 
 	void overrideGameSettings(const JsonNode & input);
