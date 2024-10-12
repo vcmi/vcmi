@@ -12,6 +12,9 @@
 	"vcmi.adventureMap.monsterThreat.levels.9"  : "Przytłaczający",
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Śmiertelny",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Nie do pokonania",
+	"vcmi.adventureMap.monsterLevel"            : "\n\n%Jednostka %ATTACK_TYPE %LEVEL poziomu z miasta %TOWN",
+	"vcmi.adventureMap.monsterMeleeType"        : "Walcząca wręcz",
+	"vcmi.adventureMap.monsterRangedType"       : "Dystansowa",
 
 	"vcmi.adventureMap.confirmRestartGame"     : "Czy na pewno chcesz zrestartować grę?",
 	"vcmi.adventureMap.noTownWithMarket"       : "Brak dostępnego targowiska!",
@@ -57,6 +60,13 @@
 	"vcmi.radialWheel.moveBottom" : "Przenieś na spód",
 
 	"vcmi.spellBook.search" : "szukaj...",
+
+	"vcmi.spellResearch.canNotAfford" : "Nie stać Cię na zastąpienie {%SPELL1} przez {%SPELL2}, ale za to możesz odrzucić ten czar i kontynuować badania.",
+	"vcmi.spellResearch.comeAgain" : "Badania zostały już przeprowadzone dzisiaj. Wróć jutro.",
+	"vcmi.spellResearch.pay" : "Czy chcesz zastąpić {%SPELL1} czarem {%SPELL2}? Czy odrzucić ten czar i kontynuować badania?",
+	"vcmi.spellResearch.research" : "Zamień zaklęcia",
+	"vcmi.spellResearch.skip" : "Kontynuuj badania",
+	"vcmi.spellResearch.abort" : "Anuluj",
 
 	"vcmi.mainMenu.serverConnecting" : "Łączenie...",
 	"vcmi.mainMenu.serverAddressEnter" : "Wprowadź adres:",
@@ -142,6 +152,7 @@
 	"vcmi.client.errors.invalidMap" : "{Błędna mapa lub kampania}\n\nNie udało się stworzyć gry! Wybrana mapa lub kampania jest niepoprawna lub uszkodzona. Powód:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{Brakujące pliki gry}\n\nPliki kampanii nie zostały znalezione! Możliwe że używasz niekompletnych lub uszkodzonych plików Heroes 3. Spróbuj ponownej instalacji plików gry.",
 	"vcmi.server.errors.disconnected" : "{Błąd sieciowy}\n\nUtracono połączenie z serwerem!",
+	"vcmi.server.errors.playerLeft" : "{Rozłączenie z graczem}\n\n%s opuścił rozgrywkę!", //%s -> player color
 	"vcmi.server.errors.existingProcess" : "Inny proces 'vcmiserver' został już uruchomiony, zakończ go nim przejdziesz dalej",
 	"vcmi.server.errors.modsToEnable"    : "{Następujące mody są wymagane do wczytania gry}",
 	"vcmi.server.errors.modsToDisable"   : "{Następujące mody muszą zostać wyłączone}",
@@ -235,8 +246,10 @@
 	"vcmi.adventureOptions.borderScroll.help" : "{Przewijanie na brzegu mapy}\n\nPrzewijanie mapy przygody gdy kursor najeżdża na brzeg okna gry. Może być wyłączone poprzez przytrzymanie klawisza CTRL.",
 	"vcmi.adventureOptions.infoBarCreatureManagement.hover" : "Zarządzanie armią w panelu informacyjnym",
 	"vcmi.adventureOptions.infoBarCreatureManagement.help" : "{Zarządzanie armią w panelu informacyjnym}\n\nPozwala zarządzać jednostkami w panelu informacyjnym, zamiast przełączać między domyślnymi informacjami.",
-	"vcmi.adventureOptions.leftButtonDrag.hover" : "Przeciąganie mapy lewym kliknięciem",
+	"vcmi.adventureOptions.leftButtonDrag.hover" : "Przeciąganie lewym",
 	"vcmi.adventureOptions.leftButtonDrag.help" : "{Przeciąganie mapy lewym kliknięciem}\n\nUmożliwia przesuwanie mapy przygody poprzez przeciąganie myszy z wciśniętym lewym przyciskiem.",
+	"vcmi.adventureOptions.rightButtonDrag.hover" : "Przeciąganie prawym",
+	"vcmi.adventureOptions.rightButtonDrag.help" : "{Przeciąganie mapy prawym kliknięciem}\n\nUmożliwia przesuwanie mapy przygody poprzez przeciąganie myszy z wciśniętym prawym przyciskiem.",
 	"vcmi.adventureOptions.smoothDragging.hover" : "'Pływające' przeciąganie mapy",
 	"vcmi.adventureOptions.smoothDragging.help" : "{'Pływające' przeciąganie mapy}\n\nPrzeciąganie mapy następuje ze stopniowo zanikającym przyspieszeniem.",
 	"vcmi.adventureOptions.skipAdventureMapAnimations.hover" : "Pomiń efekty zanikania",
@@ -337,6 +350,12 @@
 	"vcmi.heroWindow.openCommander.help"  : "Wyświetla informacje o dowódcy przynależącym do tego bohatera",
 	"vcmi.heroWindow.openBackpack.hover" : "Otwórz okno sakwy",
 	"vcmi.heroWindow.openBackpack.help"  : "Otwiera okno pozwalające łatwiej zarządzać artefaktami w sakwie",
+	"vcmi.heroWindow.sortBackpackByCost.hover"  : "Sortuj wg. wartości",
+	"vcmi.heroWindow.sortBackpackByCost.help"  : "Sortuj artefakty w sakwie według wartości",
+	"vcmi.heroWindow.sortBackpackBySlot.hover"  : "Sortuj wg. miejsc",
+	"vcmi.heroWindow.sortBackpackBySlot.help"  : "Sortuj artefakty w sakwie według umiejscowienia na ciele",
+	"vcmi.heroWindow.sortBackpackByClass.hover"  : "Sortuj wg. jakości",
+	"vcmi.heroWindow.sortBackpackByClass.help"  : "Sortuj artefakty w sakwie według jakości: Skarb, Pomniejszy, Potężny, Relikt",
 
 	"vcmi.tavernWindow.inviteHero"  : "Zaproś bohatera",
 
@@ -663,5 +682,7 @@
 	"core.bonus.WIDE_BREATH.name": "Szerokie zionięcie",
 	"core.bonus.WIDE_BREATH.description": "Szeroki atak zionięciem (wiele heksów)",
 	"core.bonus.DISINTEGRATE.name": "Rozpadanie",
-	"core.bonus.DISINTEGRATE.description": "Po śmierci nie pozostaje żaden trup"
+	"core.bonus.DISINTEGRATE.description": "Po śmierci nie pozostaje żaden trup",
+	"core.bonus.INVINCIBLE.name": "Niezwyciężony",
+	"core.bonus.INVINCIBLE.description": "Nic nie może mieć na niego wpływu"
 }
