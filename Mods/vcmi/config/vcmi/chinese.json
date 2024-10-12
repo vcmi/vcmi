@@ -581,7 +581,7 @@
 	"core.bonus.GARGOYLE.description": "不能被复活或治疗",
 	"core.bonus.GENERAL_DAMAGE_REDUCTION.name": "减少伤害 (${val}%)",
 	"core.bonus.GENERAL_DAMAGE_REDUCTION.description": "减少从远程和近战中遭受的物理伤害",
-	"core.bonus.HATE.name": "${subtype.creature}的死敌",
+	"core.bonus.HATE.name": "憎恨${subtype.creature}",
 	"core.bonus.HATE.description": "对${subtype.creature}造成额外${val}%伤害",
 	"core.bonus.HEALER.name": "治疗者",
 	"core.bonus.HEALER.description": "可以治疗友军单位",

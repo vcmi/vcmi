@@ -626,11 +626,12 @@ Install successfully downloaded?</source>
 <context>
     <name>CSettingsView</name>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1072"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1038"/>
         <source>Interface Scaling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="682"/>
         <location filename="../settingsView/csettingsview_moc.cpp" line="98"/>
         <source>Off</source>
         <translation>Отключено</translation>
@@ -641,292 +642,334 @@ Install successfully downloaded?</source>
         <translation>Включено</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="924"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="604"/>
         <source>Neutral AI in battles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="738"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
         <source>Enemy AI in battles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="821"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="751"/>
         <source>Additional repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="646"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1233"/>
         <source>Check on startup</source>
         <translation>Проверять при запуске</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="324"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="982"/>
         <source>Fullscreen</source>
         <translation>Полноэкранный режим</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="64"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="212"/>
         <source>General</source>
         <translation>Общее</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="210"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="852"/>
         <source>VCMI Language</source>
         <translation>Язык VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="307"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="441"/>
         <source>Artificial Intelligence</source>
         <translation>Искусственный интеллект</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="931"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="597"/>
         <source>Adventure Map Allies</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="101"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
         <source>Refresh now</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="900"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="774"/>
         <source>Adventure Map Enemies</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="490"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="866"/>
         <source>Online Lobby port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="331"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="666"/>
         <source>Autocombat AI in battles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="352"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1399"/>
         <source>Sticks Sensitivity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="618"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="908"/>
         <source>Automatic (Linear)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="798"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="274"/>
         <source>Haptic Feedback</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="835"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="378"/>
         <source>Software Cursor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1166"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="83"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="539"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1389"/>
         <source>Automatic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1171"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="75"/>
+        <source>Mods Validation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="88"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1176"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="93"/>
         <source>xBRZ x2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1181"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="98"/>
         <source>xBRZ x3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1186"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="103"/>
         <source>xBRZ x4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1194"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
+        <source>Full</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="788"/>
         <source>Use scalable fonts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="138"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="859"/>
         <source>Online Lobby address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1158"/>
-        <source>Upscaling Filter</source>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1079"/>
+        <source>Cursor Scaling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="317"/>
-        <source>Use Relative Pointer Mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="593"/>
-        <source>VSync</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="608"/>
-        <source>Nearest</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="613"/>
-        <source>Linear</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="750"/>
-        <source>Input - Touchscreen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="854"/>
-        <source>Network</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="893"/>
-        <source>Downscaling Filter</source>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1108"/>
+        <source>Scalable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1144"/>
+        <source>Miscellaneous</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
+        <source>Font Scaling (experimental)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1367"/>
+        <source>Original</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1406"/>
+        <source>Upscaling Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1439"/>
+        <source>Basic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
+        <source>Use Relative Pointer Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="764"/>
+        <source>VSync</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="898"/>
+        <source>Nearest</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="903"/>
+        <source>Linear</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="807"/>
+        <source>Input - Touchscreen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1129"/>
+        <source>Network</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
+        <source>Downscaling Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="926"/>
         <source>Show Tutorial again</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1151"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="139"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="536"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="741"/>
         <source>Audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="842"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="477"/>
         <source>Relative Pointer Speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1137"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1045"/>
         <source>Music Volume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="767"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="916"/>
         <source>Ignore SSL errors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="943"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="703"/>
         <source>Input - Mouse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="345"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1226"/>
         <source>Long Touch Duration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="115"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="461"/>
         <source>%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1037"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="873"/>
         <source>Controller Click Tolerance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="359"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="281"/>
         <source>Touch Tap Tolerance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1020"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="337"/>
         <source>Input - Controller</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1086"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="267"/>
         <source>Sound Volume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="402"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1195"/>
         <source>Windowed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="407"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
         <source>Borderless fullscreen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="412"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
         <source>Exclusive fullscreen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="131"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="200"/>
         <source>Reserved screen area</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="777"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1003"/>
         <source>Autosave limit (0 = off)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1030"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="781"/>
         <source>Framerate Limit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="760"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1413"/>
         <source>Autosave prefix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="828"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="989"/>
         <source>Mouse Click Tolerance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="94"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="933"/>
         <source>Sticks Acceleration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1008"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1354"/>
         <source>empty = map name prefix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="249"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="451"/>
         <source>Default repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="295"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="795"/>
         <source>Renderer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="389"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1182"/>
         <source>Select display mode for game
 
 Windowed - game will run inside a window that covers part of your screen
@@ -937,62 +980,62 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="269"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="429"/>
         <source>Heroes III Translation</source>
         <translation>Перевод Героев III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1079"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1420"/>
         <source>Resolution</source>
         <translation>Разрешение экрана</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="791"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="222"/>
         <source>Autosave</source>
         <translation>Автосохранение</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="338"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="649"/>
         <source>Display index</source>
         <translation>Дисплей</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="864"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="713"/>
         <source>Network port</source>
         <translation>Сетевой порт</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="521"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="945"/>
         <source>Video</source>
         <translation>Графика</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="452"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="526"/>
         <source>Show intro</source>
         <translation>Вступление</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="525"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="540"/>
         <source>Active</source>
         <translation>Активен</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="530"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="545"/>
         <source>Disabled</source>
         <translation>Отключен</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="531"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="546"/>
         <source>Enable</source>
         <translation>Включить</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="536"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="551"/>
         <source>Not Installed</source>
         <translation>Не установлен</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="537"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="552"/>
         <source>Install</source>
         <translation>Установить</translation>
     </message>
