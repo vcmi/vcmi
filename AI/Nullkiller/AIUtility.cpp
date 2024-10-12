@@ -312,7 +312,7 @@ int getDuplicatingSlots(const CArmedInstance * army)
 
 	for(auto stack : army->Slots())
 	{
-		if(stack.second->type && army->getSlotFor(stack.second->type) != stack.first)
+		if(stack.second->getCreature() && army->getSlotFor(stack.second->getCreature()) != stack.first)
 			duplicatingSlots++;
 	}
 
@@ -387,7 +387,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	{
 		for(auto slot : h->Slots())
 		{
-			if(slot.second->type->hasUpgrades())
+			if(slot.second->getType()->hasUpgrades())
 				return true; //TODO: check price?
 		}
 		return false;

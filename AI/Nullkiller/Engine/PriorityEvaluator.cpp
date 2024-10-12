@@ -155,10 +155,10 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 	for (auto c : creatures)
 	{
 		//Only if hero has slot for this creature in the army
-		auto ccre = dynamic_cast<const CCreature*>(c.data.type);
+		auto ccre = dynamic_cast<const CCreature*>(c.data.getType());
 		if (hero->getSlotFor(ccre).validSlot() || duplicatingSlots > 0)
 		{
-			result += (c.data.type->getAIValue() * c.data.count) * c.chance;
+			result += (c.data.getType()->getAIValue() * c.data.count) * c.chance;
 		}
 		/*else
 		{

@@ -345,7 +345,7 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 	// Check if town garrison already has unit of specified tier
 	for(const auto & slot : t->Slots())
 	{
-		const auto * creature = slot.second->type;
+		const auto * creature = slot.second->getCreature();
 
 		if (creature->getFactionID() != t->getFactionID())
 			continue;

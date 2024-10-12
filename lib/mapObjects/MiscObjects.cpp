@@ -1152,7 +1152,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 			if(drown)
 			{
 				cb->changeStackCount(StackLocation(h, i->first), -drown);
-				xp += drown * i->second->type->getMaxHealth();
+				xp += drown * i->second->getType()->getMaxHealth();
 			}
 		}
 
@@ -1318,7 +1318,7 @@ void HillFort::onHeroVisit(const CGHeroInstance * h) const
 
 void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const
 {
-	int32_t level = stack.type->getLevel();
+	int32_t level = stack.getType()->getLevel();
 	int32_t index = std::clamp<int32_t>(level - 1, 0, upgradeCostPercentage.size() - 1);
 
 	int costModifier = upgradeCostPercentage[index];
@@ -1326,10 +1326,10 @@ void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) 
 	if (costModifier < 0)
 		return; // upgrade not allowed
 
-	for(const auto & nid : stack.type->upgrades)
+	for(const auto & nid : stack.getCreature()->upgrades)
 	{
 		info.newID.push_back(nid);
-		info.cost.push_back((nid.toCreature()->getFullRecruitCost() - stack.type->getFullRecruitCost()) * costModifier / 100);
+		info.cost.push_back((nid.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost()) * costModifier / 100);
 	}
 }
 

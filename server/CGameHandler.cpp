@@ -1139,7 +1139,7 @@ void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance
 	//first we move creatures to give to make them army of object-source
 	for (auto & elem : creatures.Slots())
 	{
-		addToSlot(StackLocation(obj, obj->getSlotFor(elem.second->type)), elem.second->type, elem.second->count);
+		addToSlot(StackLocation(obj, obj->getSlotFor(elem.second->getCreature())), elem.second->getCreature(), elem.second->count);
 	}
 
 	tryJoiningArmy(obj, h, remove, true);
@@ -1160,7 +1160,7 @@ void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStac
 			bool foundSth = false;
 			for (auto i = obj->Slots().begin(); i != obj->Slots().end(); i++)
 			{
-				if (i->second->type == sbd.type)
+				if (i->second->getType() == sbd.getType())
 				{
 					TQuantity take = std::min(sbd.count - collected, i->second->count); //collect as much cres as we can
 					changeStackCount(StackLocation(obj, i->first), -take, false);
@@ -2455,7 +2455,7 @@ void CGameHandler::moveArmy(const CArmedInstance *src, const CArmedInstance *dst
 		auto i = src->Slots().begin(); //iterator to stack to move
 		StackLocation sl(src, i->first); //location of stack to move
 
-		SlotID pos = dst->getSlotFor(i->second->type);
+		SlotID pos = dst->getSlotFor(i->second->getCreature());
 		if (!pos.validSlot())
 		{
 			//try to merge two other stacks to make place
@@ -3137,7 +3137,7 @@ bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHero
 
 	int b1; //base quantities for trade
 	int b2;
-	market->getOffer(s.type->getId(), resourceID, b1, b2, EMarketMode::CREATURE_RESOURCE);
+	market->getOffer(s.getId(), resourceID, b1, b2, EMarketMode::CREATURE_RESOURCE);
 	int units = count / b1; //how many base quantities we trade
 
 	if (count%b1) //all offered units of resource should be used, if not -> somewhere in calculations must be an error
@@ -3648,7 +3648,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstan
 			COMPLAIN_RET("Cannot sacrifice last creature!");
 		}
 
-		int crid = hero->getStack(slot[i]).type->getId();
+		int crid = hero->getStack(slot[i]).getId();
 
 		changeStackCount(StackLocation(hero, slot[i]), -(TQuantity)count[i]);
 
@@ -3801,7 +3801,7 @@ void CGameHandler::tryJoiningArmy(const CArmedInstance *src, const CArmedInstanc
 			{
 				for (auto i = src->stacks.begin(); i != src->stacks.end(); i++)//while there are unmoved creatures
 				{
-					SlotID pos = dst->getSlotFor(i->second->type);
+					SlotID pos = dst->getSlotFor(i->second->getCreature());
 					if (pos.validSlot())
 					{
 						moveStack(StackLocation(src, i->first), StackLocation(dst, pos));

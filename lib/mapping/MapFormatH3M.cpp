@@ -2116,7 +2116,7 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 			guard->quest->mission.creatures.resize(typeNumber);
 			for(size_t hh = 0; hh < typeNumber; ++hh)
 			{
-				guard->quest->mission.creatures[hh].type = reader->readCreature().toCreature();
+				guard->quest->mission.creatures[hh].setType(reader->readCreature().toCreature());
 				guard->quest->mission.creatures[hh].count = reader->readUInt16();
 			}
 			break;

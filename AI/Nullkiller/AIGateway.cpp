@@ -1129,10 +1129,10 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 		{
 			for(auto stack : recruiter->Slots())
 			{
-				if(!stack.second->type)
+				if(!stack.second->getType())
 					continue;
 				
-				auto duplicatingSlot = recruiter->getSlotFor(stack.second->type);
+				auto duplicatingSlot = recruiter->getSlotFor(stack.second->getCreature());
 
 				if(duplicatingSlot != stack.first)
 				{

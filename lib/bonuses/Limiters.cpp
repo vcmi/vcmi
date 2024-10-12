@@ -75,7 +75,7 @@ static const CCreature * retrieveCreature(const CBonusSystemNode *node)
 	default:
 		const CStackInstance * csi = retrieveStackInstance(node);
 		if(csi)
-			return csi->type;
+			return csi->getCreature();
 		return nullptr;
 	}
 }

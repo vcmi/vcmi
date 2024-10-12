@@ -1227,14 +1227,14 @@ void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &s
 {
 	for(const CGTownInstance::TCreaturesSet::value_type & dwelling : creatures)
 	{
-		if (vstd::contains(dwelling.second, stack.type->getId())) //Dwelling with our creature
+		if (vstd::contains(dwelling.second, stack.getId())) //Dwelling with our creature
 		{
 			for(const auto & upgrID : dwelling.second)
 			{
-				if(vstd::contains(stack.type->upgrades, upgrID)) //possible upgrade
+				if(vstd::contains(stack.getCreature()->upgrades, upgrID)) //possible upgrade
 				{
 					info.newID.push_back(upgrID);
-					info.cost.push_back(upgrID.toCreature()->getFullRecruitCost() - stack.type->getFullRecruitCost());
+					info.cost.push_back(upgrID.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost());
 				}
 			}
 		}

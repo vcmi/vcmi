@@ -28,7 +28,7 @@ CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, Battle
 	CBonusSystemNode(STACK_BATTLE),
 	base(Base),
 	ID(I),
-	type(Base->type),
+	type(Base->getCreature()),
 	baseAmount(Base->count),
 	owner(O),
 	slot(S),
@@ -48,7 +48,7 @@ CStack::CStack():
 CStack::CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, BattleSide Side, const SlotID & S):
 	CBonusSystemNode(STACK_BATTLE),
 	ID(I),
-	type(stack->type),
+	type(stack->getCreature()),
 	baseAmount(stack->count),
 	owner(O),
 	slot(S),

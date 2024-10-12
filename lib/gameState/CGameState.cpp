@@ -1091,7 +1091,7 @@ void CGameState::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, Upg
 UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 {
 	UpgradeInfo ret;
-	const CCreature *base = stack.type;
+	const CCreature *base = stack.getCreature();
 
 	if (stack.armyObj->ID == Obj::HERO)
 	{
@@ -1571,7 +1571,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			{
 				for(const auto & it : elem->Slots())
 				{
-					CreatureID toCmp = it.second->type->getId(); //ID of creature we should compare with the best one
+					CreatureID toCmp = it.second->getId(); //ID of creature we should compare with the best one
 					if(bestCre == CreatureID::NONE || bestCre.toEntity(VLC)->getAIValue() < toCmp.toEntity(VLC)->getAIValue())
 					{
 						bestCre = toCmp;
