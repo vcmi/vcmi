@@ -61,6 +61,21 @@ const std::vector<const CArtifact*> & CCombinedArtifact::getPartOf() const
 	return partOf;
 }
 
+void CCombinedArtifact::setFused(bool isFused)
+{
+	fused = isFused;
+}
+
+bool CCombinedArtifact::isFused() const
+{
+	return fused;
+}
+
+bool CCombinedArtifact::hasParts() const
+{
+	return isCombined() && !isFused();
+}
+
 bool CScrollArtifact::isScroll() const
 {
 	return static_cast<const CArtifact*>(this)->getId() == ArtifactID::SPELL_SCROLL;
@@ -203,7 +218,7 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 
 	auto artCanBePutAt = [this, simpleArtCanBePutAt](const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved) -> bool
 	{
-		if(isCombined())
+		if(hasParts())
 		{
 			if(!simpleArtCanBePutAt(artSet, slot, assumeDestRemoved))
 				return false;
@@ -606,11 +621,11 @@ void CArtHandler::loadType(CArtifact * art, const JsonNode & node) const
 
 void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 {
-	if (!node["components"].isNull())
+	if(!node["components"].isNull())
 	{
 		for(const auto & component : node["components"].Vector())
 		{
-			VLC->identifiers()->requestIdentifier("artifact", component, [=](si32 id)
+			VLC->identifiers()->requestIdentifier("artifact", component, [this, art](int32_t id)
 			{
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them
@@ -619,6 +634,8 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 			});
 		}
 	}
+	if(!node["fusedComponents"].isNull())
+		art->setFused(node["fusedComponents"].Bool());
 }
 
 void CArtHandler::makeItCreatureArt(CArtifact * a, bool onlyCreature)
