@@ -467,29 +467,19 @@ void AdventureMapShortcuts::search(bool next)
 {
 	// get all relevant objects
 	std::vector<ObjectInstanceID> visitableObjInstances;
-	int3 mapSizes = LOCPLINT->cb->getMapSize();
-	for(int x = 0; x < mapSizes.x; x++)
-		for(int y = 0; y < mapSizes.y; y++)
-			for(int z = 0; z < mapSizes.z; z++)
-				for(auto & obj : LOCPLINT->cb->getVisitableObjs(int3(x, y, z), false))
-					if(obj->ID != MapObjectID::MONSTER && obj->ID != MapObjectID::EVENT && obj->ID != MapObjectID::HERO)
-						visitableObjInstances.push_back(obj->id);
+	for(auto & obj : LOCPLINT->cb->getAllVisitableObjs())
+		if(obj->ID != MapObjectID::MONSTER && obj->ID != MapObjectID::HERO && obj->ID != MapObjectID::TOWN)
+			visitableObjInstances.push_back(obj->id);
 
-	// count of elements for each group
+	// count of elements for each group (map is already sorted)
 	std::map<std::string, int> mapObjCount;
 	for(auto & obj : visitableObjInstances)
-		mapObjCount[{ VLC->objtypeh->getObjectName(LOCPLINT->cb->getObjInstance(obj)->getObjGroupIndex(), LOCPLINT->cb->getObjInstance(obj)->getObjTypeIndex()) }]++;
+		mapObjCount[{ LOCPLINT->cb->getObjInstance(obj)->getObjectName() }]++;
 
-	// sort by name
+	// convert to vector for indexed access
 	std::vector<std::pair<std::string, int>> textCountList;
 	for (auto itr = mapObjCount.begin(); itr != mapObjCount.end(); ++itr)
 		textCountList.push_back(*itr);
-	std::sort(textCountList.begin(), textCountList.end(),
-		[=](std::pair<std::string, int>& a, std::pair<std::string, int>& b)
-		{
-			return a.first < b.first;
-		}
-	);
 
 	// get pos of last selection
 	int lastSel = 0;
@@ -510,7 +500,7 @@ void AdventureMapShortcuts::search(bool next)
 			// filter for matching objects
 			std::vector<ObjectInstanceID> selVisitableObjInstances;
 			for(auto & obj : visitableObjInstances)
-				if(selObj == VLC->objtypeh->getObjectName(LOCPLINT->cb->getObjInstance(obj)->getObjGroupIndex(), LOCPLINT->cb->getObjInstance(obj)->getObjTypeIndex()))
+				if(selObj == LOCPLINT->cb->getObjInstance(obj)->getObjectName())
 					selVisitableObjInstances.push_back(obj);
 			
 			if(searchPos + 1 < selVisitableObjInstances.size() && searchLast == selObj)
@@ -520,7 +510,7 @@ void AdventureMapShortcuts::search(bool next)
 
 			auto objInst = LOCPLINT->cb->getObjInstance(selVisitableObjInstances[searchPos]);
 			owner.centerOnObject(objInst);
-			searchLast = VLC->objtypeh->getObjectName(objInst->getObjGroupIndex(), objInst->getObjTypeIndex());
+			searchLast = objInst->getObjectName();
 		};
 
 	if(next)
