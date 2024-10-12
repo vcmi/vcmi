@@ -1487,6 +1487,9 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	images(images)
 {
 	OBJECT_CONSTRUCTION;
+
+	addUsedEvents(KEYBOARD);
+
 	items.reserve(_items.size());
 
 	for(int id : _items)
@@ -1494,7 +1497,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	itemsVisible = items;
 
 	init(titleWidget_, _title, _descr, searchBoxEnabled);
-	list->scrollTo(initialSelection);
+	list->scrollTo(initialSelection - 4); // -4 is for centering (list have 9 elements)
 }
 
 CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled)
@@ -1504,6 +1507,9 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 	images(images)
 {
 	OBJECT_CONSTRUCTION;
+
+	addUsedEvents(KEYBOARD);
+
 	items.reserve(_items.size());
 
 	for(size_t i=0; i<_items.size(); i++)
@@ -1511,7 +1517,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 	itemsVisible = items;
 
 	init(titleWidget_, _title, _descr, searchBoxEnabled);
-	list->scrollTo(initialSelection);
+	list->scrollTo(initialSelection - 4); // -4 is for centering (list have 9 elements)
 }
 
 void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled)
@@ -1636,7 +1642,7 @@ void CObjectListWindow::keyPressed(EShortcut key)
 	}
 
 	vstd::abetween<int>(sel, 0, itemsVisible.size()-1);
-	list->scrollTo(sel);
+	list->scrollTo(sel - 4); // -4 is for centering (list have 9 elements)
 	changeSelection(sel);
 }
 
