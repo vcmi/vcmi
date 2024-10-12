@@ -49,7 +49,8 @@ public:
 	void newTurn(vstd::RNG & rand) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
-	CreatureID getCreature() const;
+	CreatureID getCreatureID() const;
+	const CCreature * getCreature() const;
 
 	//stack formation depends on position,
 	bool containsUpgradedStack() const;
@@ -81,7 +82,7 @@ private:
 
 	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
 	void giveReward(const CGHeroInstance * h) const;
-
+	std::string getMonsterLevelText() const;
 };
 
 VCMI_LIB_NAMESPACE_END

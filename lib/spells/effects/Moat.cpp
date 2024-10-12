@@ -88,7 +88,7 @@ void Moat::convertBonus(const Mechanics * m, std::vector<Bonus> & converted) con
 
 		if(m->battle()->battleGetDefendedTown() && m->battle()->battleGetFortifications().hasMoat)
 		{
-			nb.sid = BonusSourceID(m->battle()->battleGetDefendedTown()->town->buildings.at(BuildingID::CITADEL)->getUniqueTypeID());
+			nb.sid = BonusSourceID(m->battle()->battleGetDefendedTown()->getTown()->buildings.at(BuildingID::CITADEL)->getUniqueTypeID());
 			nb.source = BonusSource::TOWN_STRUCTURE;
 		}
 		else
@@ -122,7 +122,7 @@ void Moat::apply(ServerCallback * server, const Mechanics * m, const EffectTarge
 			GiveBonus gb(GiveBonus::ETarget::BATTLE);
 			gb.id = m->battle()->getBattle()->getBattleID();
 			gb.bonus = b;
-			server->apply(&gb);
+			server->apply(gb);
 		}
 	}
 }
@@ -171,7 +171,7 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 	}
 
 	if(!pack.changes.empty())
-		server->apply(&pack);
+		server->apply(pack);
 }
 
 }

@@ -459,11 +459,11 @@ std::shared_ptr<CHero> CHeroHandler::loadFromJson(const std::string & scope, con
 	hero->onlyOnWaterMap = node["onlyOnWaterMap"].Bool();
 	hero->onlyOnMapWithoutWater = node["onlyOnMapWithoutWater"].Bool();
 
-	VLC->generaltexth->registerString(scope, hero->getNameTextID(), node["texts"]["name"].String());
-	VLC->generaltexth->registerString(scope, hero->getBiographyTextID(), node["texts"]["biography"].String());
-	VLC->generaltexth->registerString(scope, hero->getSpecialtyNameTextID(), node["texts"]["specialty"]["name"].String());
-	VLC->generaltexth->registerString(scope, hero->getSpecialtyTooltipTextID(), node["texts"]["specialty"]["tooltip"].String());
-	VLC->generaltexth->registerString(scope, hero->getSpecialtyDescriptionTextID(), node["texts"]["specialty"]["description"].String());
+	VLC->generaltexth->registerString(scope, hero->getNameTextID(), node["texts"]["name"]);
+	VLC->generaltexth->registerString(scope, hero->getBiographyTextID(), node["texts"]["biography"]);
+	VLC->generaltexth->registerString(scope, hero->getSpecialtyNameTextID(), node["texts"]["specialty"]["name"]);
+	VLC->generaltexth->registerString(scope, hero->getSpecialtyTooltipTextID(), node["texts"]["specialty"]["tooltip"]);
+	VLC->generaltexth->registerString(scope, hero->getSpecialtyDescriptionTextID(), node["texts"]["specialty"]["description"]);
 
 	hero->iconSpecSmall = node["images"]["specialtySmall"].String();
 	hero->iconSpecLarge = node["images"]["specialtyLarge"].String();

@@ -49,13 +49,13 @@ public:
 
 	void visitForLobby(CPackForLobby & packForLobby) override
 	{
-		handler.handleReceivedPack(std::unique_ptr<CPackForLobby>(&packForLobby));
+		handler.handleReceivedPack(packForLobby);
 	}
 
 	void visitForServer(CPackForServer & serverPack) override
 	{
 		if (gh)
-			gh->handleReceivedPack(&serverPack);
+			gh->handleReceivedPack(serverPack);
 		else
 			logNetwork->error("Received pack for game server while in lobby!");
 	}
@@ -231,9 +231,9 @@ bool CVCMIServer::prepareToStartGame()
 			{
 				//FIXME: UNGUARDED MULTITHREADED ACCESS!!!
 				currentProgress = progressTracking.get();
-				std::unique_ptr<LobbyLoadProgress> loadProgress(new LobbyLoadProgress);
-				loadProgress->progress = currentProgress;
-				announcePack(std::move(loadProgress));
+				LobbyLoadProgress loadProgress;
+				loadProgress.progress = currentProgress;
+				announcePack(loadProgress);
 			}
 			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 		}
@@ -297,43 +297,37 @@ void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & con
 	logNetwork->error("Network error receiving a pack. Connection has been closed");
 
 	std::shared_ptr<CConnection> c = findConnection(connection);
-	if (!c)
-		return; // player have already disconnected via clientDisconnected call
 
-	vstd::erase(activeConnections, c);
-
-	if(activeConnections.empty() || hostClientId == c->connectionID)
+	// player may have already disconnected via clientDisconnected call
+	if (c)
 	{
-		setState(EServerState::SHUTDOWN);
-		return;
-	}
+		//clientDisconnected(c);
 
-	if(gh && getState() == EServerState::GAMEPLAY)
-	{
-		gh->handleClientDisconnection(c);
-
-		auto lcd = std::make_unique<LobbyClientDisconnected>();
-		lcd->c = c;
-		lcd->clientId = c->connectionID;
-		handleReceivedPack(std::move(lcd));
+		if(gh && getState() == EServerState::GAMEPLAY)
+		{
+			LobbyClientDisconnected lcd;
+			lcd.c = c;
+			lcd.clientId = c->connectionID;
+			handleReceivedPack(lcd);
+		}
 	}
 }
 
-void CVCMIServer::handleReceivedPack(std::unique_ptr<CPackForLobby> pack)
+void CVCMIServer::handleReceivedPack(CPackForLobby & pack)
 {
 	ClientPermissionsCheckerNetPackVisitor checker(*this);
-	pack->visit(checker);
+	pack.visit(checker);
 
 	if(checker.getResult())
 	{
 		ApplyOnServerNetPackVisitor applier(*this);
-		pack->visit(applier);
+		pack.visit(applier);
 		if (applier.getResult())
-			announcePack(std::move(pack));
+			announcePack(pack);
 	}
 }
 
-void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
+void CVCMIServer::announcePack(CPackForLobby & pack)
 {
 	for(auto activeConnection : activeConnections)
 	{
@@ -341,19 +335,19 @@ void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 		// Until UUID set we only pass LobbyClientConnected to this client
 		//if(c->uuid == uuid && !dynamic_cast<LobbyClientConnected *>(pack.get()))
 		//	continue;
-		activeConnection->sendPack(pack.get());
+		activeConnection->sendPack(pack);
 	}
 
 	ApplyOnServerAfterAnnounceNetPackVisitor applier(*this);
-	pack->visit(applier);
+	pack.visit(applier);
 }
 
 void CVCMIServer::announceMessage(const MetaString & txt)
 {
 	logNetwork->info("Show message: %s", txt.toString());
-	auto cm = std::make_unique<LobbyShowMessage>();
-	cm->message = txt;
-	announcePack(std::move(cm));
+	LobbyShowMessage cm;
+	cm.message = txt;
+	announcePack(cm);
 }
 
 void CVCMIServer::announceMessage(const std::string & txt)
@@ -366,10 +360,10 @@ void CVCMIServer::announceMessage(const std::string & txt)
 void CVCMIServer::announceTxt(const MetaString & txt, const std::string & playerName)
 {
 	logNetwork->info("%s says: %s", playerName, txt.toString());
-	auto cm = std::make_unique<LobbyChatMessage>();
-	cm->playerName = playerName;
-	cm->message = txt;
-	announcePack(std::move(cm));
+	LobbyChatMessage cm;
+	cm.playerName = playerName;
+	cm.message = txt;
+	announcePack(cm);
 }
 
 void CVCMIServer::announceTxt(const std::string & txt, const std::string & playerName)
@@ -434,8 +428,20 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 
 void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> connection)
 {
-	connection->getConnection()->close();
+	assert(vstd::contains(activeConnections, connection));
+	logGlobal->trace("Received disconnection request");
 	vstd::erase(activeConnections, connection);
+
+	if(activeConnections.empty() || hostClientId == connection->connectionID)
+	{
+		setState(EServerState::SHUTDOWN);
+		return;
+	}
+
+	if(gh && getState() == EServerState::GAMEPLAY)
+	{
+		gh->handleClientDisconnection(connection);
+	}
 
 //	PlayerReinitInterface startAiPack;
 //	startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;
@@ -470,7 +476,7 @@ void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> connection)
 //	}
 //
 //	if(!startAiPack.players.empty())
-//		gh->sendAndApply(&startAiPack);
+//		gh->sendAndApply(startAiPack);
 }
 
 void CVCMIServer::reconnectPlayer(int connId)
@@ -497,7 +503,7 @@ void CVCMIServer::reconnectPlayer(int connId)
 		}
 
 		if(!startAiPack.players.empty())
-			gh->sendAndApply(&startAiPack);
+			gh->sendAndApply(startAiPack);
 	}
 }
 
@@ -627,9 +633,9 @@ void CVCMIServer::updateAndPropagateLobbyState()
 		}
 	}
 
-	auto lus = std::make_unique<LobbyUpdateState>();
-	lus->state = *this;
-	announcePack(std::move(lus));
+	LobbyUpdateState lus;
+	lus.state = *this;
+	announcePack(lus);
 }
 
 void CVCMIServer::setPlayer(PlayerColor clickedColor)

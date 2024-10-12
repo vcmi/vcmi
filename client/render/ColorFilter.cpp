@@ -70,6 +70,13 @@ ColorFilter ColorFilter::genRangeShifter( float minR, float minG, float minB, fl
 				  1.f);
 }
 
+ColorFilter ColorFilter::genRangeShifter( std::vector<float> parameters )
+{
+	assert(std::size(parameters) == 6);
+
+	return genRangeShifter(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5]);
+}
+
 ColorFilter ColorFilter::genMuxerShifter( ChannelMuxer r, ChannelMuxer g, ChannelMuxer b, float a )
 {
 	return ColorFilter(r, g, b, a);

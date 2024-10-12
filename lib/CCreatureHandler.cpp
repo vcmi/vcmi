@@ -117,7 +117,7 @@ int32_t CCreature::getHorde() const
 	return hordeGrowth;
 }
 
-FactionID CCreature::getFaction() const
+FactionID CCreature::getFactionID() const
 {
 	return FactionID(faction);
 }
@@ -617,9 +617,9 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 
 	cre->cost = ResourceSet(node["cost"]);
 
-	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"].String());
-	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"].String());
-	VLC->generaltexth->registerString(scope, cre->getDescriptionTextID(), node["description"].String());
+	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);
+	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"]);
+	VLC->generaltexth->registerString(scope, cre->getDescriptionTextID(), node["description"]);
 
 	cre->addBonus(node["hitPoints"].Integer(), BonusType::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), BonusType::STACKS_SPEED);

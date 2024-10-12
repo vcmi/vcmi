@@ -18,6 +18,10 @@
 #include "../render/IRenderHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/GameSettings.h"
+#include "../lib/IGameSettings.h"
+#include "../lib/json/JsonNode.h"
+#include "../lib/VCMI_Lib.h"
 
 void AssetGenerator::generateAll()
 {
@@ -138,16 +142,17 @@ void AssetGenerator::createPlayerColoredBackground(const PlayerColor & player)
 
 	std::shared_ptr<IImage> texture = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
 
-	// Color transform to make color of brown DIBOX.PCX texture match color of specified player
+	// transform to make color of brown DIBOX.PCX texture match color of specified player
+	auto filterSettings = VLC->settingsHandler->getFullConfig()["interface"]["playerColoredBackground"];
 	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
-		ColorFilter::genRangeShifter(  0.25,  0,     0,     1.25, 0.00, 0.00 ), // red
-		ColorFilter::genRangeShifter(  0,     0,     0,     0.45, 1.20, 4.50 ), // blue
-		ColorFilter::genRangeShifter(  0.40,  0.27,  0.23,  1.10, 1.20, 1.15 ), // tan
-		ColorFilter::genRangeShifter( -0.27,  0.10, -0.27,  0.70, 1.70, 0.70 ), // green
-		ColorFilter::genRangeShifter(  0.47,  0.17, -0.27,  1.60, 1.20, 0.70 ), // orange
-		ColorFilter::genRangeShifter(  0.12, -0.1,   0.25,  1.15, 1.20, 2.20 ), // purple
-		ColorFilter::genRangeShifter( -0.13,  0.23,  0.23,  0.90, 1.20, 2.20 ), // teal
-		ColorFilter::genRangeShifter(  0.44,  0.15,  0.25,  1.00, 1.00, 1.75 )  // pink
+		ColorFilter::genRangeShifter( filterSettings["red"   ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["blue"  ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["tan"   ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["green" ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["orange"].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["purple"].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["teal"  ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["pink"  ].convertTo<std::vector<float>>() )
 	};
 
 	assert(player.isValidPlayer());

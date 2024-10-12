@@ -61,6 +61,9 @@ enum class ESerializationVersion : int32_t
 	CAMPAIGN_OUTRO_SUPPORT, // 862 - support for campaign outro video
 	REWARDABLE_BANKS, // 863 - team state contains list of scouted objects, coast visitable rewardable objects
 	REGION_LABEL, // 864 - labels for campaign regions
+	SPELL_RESEARCH, // 865 - spell research
+	LOCAL_PLAYER_STATE_DATA, // 866 - player state contains arbitrary client-side data
+	REMOVE_TOWN_PTR, // 867 - removed pointer to CTown from CGTownInstance
 
-	CURRENT = REGION_LABEL
+	CURRENT = REMOVE_TOWN_PTR
 };

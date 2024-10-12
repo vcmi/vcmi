@@ -120,21 +120,16 @@ void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::
 }
 
 CGeneralTextHandler::CGeneralTextHandler():
-	victoryConditions(*this, "core.vcdesc"   ),
-	lossConditions    (*this, "core.lcdesc"   ),
-	colors           (*this, "core.plcolors" ),
 	tcommands        (*this, "core.tcommand" ),
 	hcommands        (*this, "core.hallinfo" ),
 	fcommands        (*this, "core.castinfo" ),
 	advobtxt         (*this, "core.advevent" ),
 	restypes         (*this, "core.restypes" ),
-	randsign         (*this, "core.randsign" ),
 	overview         (*this, "core.overview" ),
 	arraytxt         (*this, "core.arraytxt" ),
 	primarySkillNames(*this, "core.priskill" ),
 	jktexts          (*this, "core.jktext"   ),
 	tavernInfo       (*this, "core.tvrninfo" ),
-	tavernRumors     (*this, "core.randtvrn" ),
 	turnDurations    (*this, "core.turndur"  ),
 	heroscrn         (*this, "core.heroscrn" ),
 	tentColors       (*this, "core.tentcolr" ),

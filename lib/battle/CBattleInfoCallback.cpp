@@ -927,7 +927,7 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 				bocp.battleID = getBattle()->getBattleID();
 				bocp.changes.emplace_back(spellObstacle.uniqueID, operation);
 				changedObstacle.toInfo(bocp.changes.back(), operation);
-				spellEnv.apply(&bocp);
+				spellEnv.apply(bocp);
 			};
 			const auto side = unit.unitSide();
 			auto shouldReveal = !spellObstacle->hidden || !battleIsObstacleVisibleForSide(*obstacle, side);

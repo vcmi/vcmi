@@ -184,9 +184,9 @@ void CHeroWindow::update()
 	name->setText(curHero->getNameTranslated());
 	title->setText((boost::format(CGI->generaltexth->allTexts[342]) % curHero->level % curHero->getClassNameTranslated()).str());
 
-	specArea->text = curHero->type->getSpecialtyDescriptionTranslated();
-	specImage->setFrame(curHero->type->imageIndex);
-	specName->setText(curHero->type->getSpecialtyNameTranslated());
+	specArea->text = curHero->getHeroType()->getSpecialtyDescriptionTranslated();
+	specImage->setFrame(curHero->getHeroType()->imageIndex);
+	specName->setText(curHero->getHeroType()->getSpecialtyNameTranslated());
 
 	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), AnimationPath::builtin("hsbtns8.def"), std::make_pair(heroscrn[26], heroscrn[31]), 0, EShortcut::HERO_TOGGLE_TACTICS);
 	tacticsButton->addHoverText(EButtonState::HIGHLIGHTED, CGI->generaltexth->heroscrn[25]);

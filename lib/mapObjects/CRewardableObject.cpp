@@ -35,7 +35,7 @@ const IObjectInterface * CRewardableObject::getObject() const
 void CRewardableObject::markAsScouted(const CGHeroInstance * hero) const
 {
 	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_PLAYER, id, hero->id);
-	cb->sendAndApply(&cov);
+	cb->sendAndApply(cov);
 }
 
 bool CRewardableObject::isGuarded() const
@@ -48,7 +48,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *hero) const
 	if(!wasScouted(hero->getOwner()))
 	{
 		ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_SCOUTED, id, hero->id);
-		cb->sendAndApply(&cov);
+		cb->sendAndApply(cov);
 	}
 
 	if (isGuarded())
@@ -95,19 +95,7 @@ void CRewardableObject::blockingDialogAnswered(const CGHeroInstance * hero, int3
 	}
 	else
 	{
-		if (answer == 0)
-			return; //Player refused
-
-		if(answer > 0 && answer - 1 < configuration.info.size())
-		{
-			auto list = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
-			markAsVisited(hero);
-			grantReward(list[answer - 1], hero);
-		}
-		else
-		{
-			throw std::runtime_error("Unhandled choice");
-		}
+		onBlockingDialogAnswered(hero, answer);
 	}
 }
 
@@ -116,7 +104,7 @@ void CRewardableObject::markAsVisited(const CGHeroInstance * hero) const
 	cb->setObjPropertyValue(id, ObjProperty::REWARD_CLEARED, true);
 
 	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_HERO, id, hero->id);
-	cb->sendAndApply(&cov);
+	cb->sendAndApply(cov);
 }
 
 void CRewardableObject::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
@@ -329,14 +317,14 @@ void CRewardableObject::newTurn(vstd::RNG & rand) const
 		if (configuration.resetParameters.rewards)
 		{
 			auto handler = std::dynamic_pointer_cast<const CRewardableConstructor>(getObjectHandler());
-			auto newConfiguration = handler->generateConfiguration(cb, rand, ID);
+			auto newConfiguration = handler->generateConfiguration(cb, rand, ID, configuration.variables.preset);
 			cb->setRewardableObjectConfiguration(id, newConfiguration);
 		}
 		if (configuration.resetParameters.visitors)
 		{
 			cb->setObjPropertyValue(id, ObjProperty::REWARD_CLEARED, false);
 			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_CLEAR, id);
-			cb->sendAndApply(&cov);
+			cb->sendAndApply(cov);
 		}
 	}
 }

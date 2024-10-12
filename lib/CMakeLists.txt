@@ -559,6 +559,7 @@ set(lib_MAIN_HEADERS
 	networkPacks/PacksForServer.h
 	networkPacks/SetRewardableConfiguration.h
 	networkPacks/SetStackEffect.h
+	networkPacks/SaveLocalState.h
 	networkPacks/StackLocation.h
 	networkPacks/TradeItem.h
 

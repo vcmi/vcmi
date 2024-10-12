@@ -70,6 +70,7 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 	customSubtitle = ValText;
 	size = imageSize;
 	font = fnt;
+	newLine = false;
 
 	assert(size < sizeInvalid);
 
@@ -471,7 +472,8 @@ void CComponentBox::placeComponents(bool selectable)
 
 		//start next row
 		if ((pos.w != 0 && rows.back().width + comp->pos.w + distance > pos.w) // row is full
-			|| rows.back().comps >= componentsInRow)
+			|| rows.back().comps >= componentsInRow
+			|| (prevComp && prevComp->newLine))
 		{
 			prevComp = nullptr;
 			rows.push_back (RowData (0,0,0));

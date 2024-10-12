@@ -16,7 +16,6 @@
 #include "bonuses/CBonusSystemNode.h"
 #include "ResourceSet.h"
 #include "TurnTimerInfo.h"
-#include "ConstTransitivePtr.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -66,6 +65,7 @@ public:
 	std::vector<QuestInfo> quests; //store info about all received quests
 	std::vector<Bonus> battleBonuses; //additional bonuses to be added during battle with neutrals
 	std::map<uint32_t, std::map<ArtifactPosition, ArtifactID>> costumesArtifacts;
+	std::unique_ptr<JsonNode> playerLocalSettings; // Json with client-defined data, such as order of heroes or current hero paths. Not used by client/lib
 
 	bool cheated;
 	bool enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
@@ -115,6 +115,9 @@ public:
 		h & resources;
 		h & status;
 		h & turnTimer;
+
+		if (h.version >= Handler::Version::LOCAL_PLAYER_STATE_DATA)
+			h & *playerLocalSettings;
 
 		if (h.version >= Handler::Version::PLAYER_STATE_OWNED_OBJECTS)
 		{

@@ -106,7 +106,7 @@ public:
 	//IConstBonusProvider
 	const IBonusBearer* getBonusBearer() const override;
 	//INativeTerrainProvider
-	FactionID getFaction() const override;
+	FactionID getFactionID() const override;
 
 	virtual ui64 getPower() const;
 	CCreature::CreatureQuantityId getQuantityID() const;

@@ -108,6 +108,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyC
 
 void ApplyOnServerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
+	pack.c->getConnection()->close();
 	srv.clientDisconnected(pack.c);
 	result = true;
 }
@@ -127,10 +128,10 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientDisconnected(Lobb
 	}
 	else if(pack.c->connectionID == srv.hostClientId)
 	{
-		auto ph = std::make_unique<LobbyChangeHost>();
+		LobbyChangeHost ph;
 		auto newHost = srv.activeConnections.front();
-		ph->newHostConnectionId = newHost->connectionID;
-		srv.announcePack(std::move(ph));
+		ph.newHostConnectionId = newHost->connectionID;
+		srv.announcePack(ph);
 	}
 	srv.updateAndPropagateLobbyState();
 	

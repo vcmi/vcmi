@@ -90,8 +90,9 @@ These are fields that are present only in local mod.json file
 {
 	// Following section describes configuration files with content added by mod
 	// It can be split into several files in any way you want but recommended organization is
-	// to keep one file per object (creature/hero/etc) and, if applicable, add separate file
-	// with translatable strings for each type of content
+	// to keep one file per object (creature/hero/etc)
+	// Alternatively, for small changes you can embed changes to content directly in here, e.g.
+	// "creatures" : { "core:imp" : { "health" : 5 }}
 
 	// list of factions/towns configuration files
 	"factions" :

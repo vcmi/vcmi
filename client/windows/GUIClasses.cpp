@@ -522,9 +522,9 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 			recruit->block(true);
 	}
 	if(LOCPLINT->castleInt)
-		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), LOCPLINT->castleInt->town->town->clientInfo.tavernVideo, false);
+		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), LOCPLINT->castleInt->town->getTown()->clientInfo.tavernVideo, false);
 	else if(const auto * townObj = dynamic_cast<const CGTownInstance *>(TavernObj))
-		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), townObj->town->clientInfo.tavernVideo, false);
+		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), townObj->getTown()->clientInfo.tavernVideo, false);
 	else
 		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), VideoPath::builtin("TAVERN.BIK"), false);
 
@@ -548,11 +548,12 @@ void CTavernWindow::addInvite()
 
 	if(!inviteableHeroes.empty())
 	{
+		int imageIndex = heroToInvite ? heroToInvite->getIconIndex() : 156; // 156 => special id for random
 		if(!heroToInvite)
 			heroToInvite = (*RandomGeneratorUtil::nextItem(inviteableHeroes, CRandomGenerator::getDefault())).second;
 
 		inviteHero = std::make_shared<CLabel>(170, 444, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.tavernWindow.inviteHero"));
-		inviteHeroImage = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), (*CGI->heroh)[heroToInvite->getHeroType()]->imageIndex, 0, 245, 428);
+		inviteHeroImage = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), imageIndex, 0, 245, 428);
 		inviteHeroImageArea = std::make_shared<LRClickableArea>(Rect(245, 428, 48, 32), [this](){ GH.windows().createAndPushWindow<HeroSelector>(inviteableHeroes, [this](CGHeroInstance* h){ heroToInvite = h; addInvite(); }); }, [this](){ GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(heroToInvite)); });
 	}
 }
@@ -562,7 +563,7 @@ void CTavernWindow::recruitb()
 	const CGHeroInstance *toBuy = (selected ? h2 : h1)->h;
 	const CGObjectInstance *obj = tavernObj;
 
-	LOCPLINT->cb->recruitHero(obj, toBuy, heroToInvite ? heroToInvite->getHeroType() : HeroTypeID::NONE);
+	LOCPLINT->cb->recruitHero(obj, toBuy, heroToInvite ? heroToInvite->getHeroTypeID() : HeroTypeID::NONE);
 	close();
 }
 
@@ -962,7 +963,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 
 	if(auto town = dynamic_cast<const CGTownInstance *>(_market))
 	{
-		auto faction = town->town->faction->getId();
+		auto faction = town->getTown()->faction->getId();
 		titlePic = std::make_shared<CAnimImage>((*CGI->townh)[faction]->town->clientInfo.buildingsIcons, building);
 	}
 	else if(auto uni = dynamic_cast<const CGUniversity *>(_market); uni->appearance)

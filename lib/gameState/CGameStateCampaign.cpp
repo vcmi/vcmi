@@ -86,7 +86,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 					.And(Selector::subtype()(BonusSubtypeID(g)))
 					.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 
-				hero.hero->getLocalBonus(sel)->val = hero.hero->type->heroClass->primarySkillInitial[g.getNum()];
+				hero.hero->getLocalBonus(sel)->val = hero.hero->getHeroClass()->primarySkillInitial[g.getNum()];
 			}
 		}
 	}
@@ -96,7 +96,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 		//trimming sec skills
 		for(auto & hero : campaignHeroReplacements)
 		{
-			hero.hero->secSkills = hero.hero->type->secSkillsInit;
+			hero.hero->secSkills = hero.hero->getHeroType()->secSkillsInit;
 			hero.hero->recreateSecondarySkillsBonuses();
 		}
 	}
@@ -240,7 +240,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 
 	for(auto & replacement : campaignHeroReplacements)
 		if (replacement.heroPlaceholderId.hasValue())
-			heroesToRemove.insert(replacement.hero->getHeroType());
+			heroesToRemove.insert(replacement.hero->getHeroTypeID());
 
 	for(auto & heroID : heroesToRemove)
 	{
@@ -368,9 +368,9 @@ void CGameStateCampaign::replaceHeroesPlaceholders()
 		heroToPlace->id = campaignHeroReplacement.heroPlaceholderId;
 		if(heroPlaceholder->tempOwner.isValidPlayer())
 			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
-		heroToPlace->pos = heroPlaceholder->pos;
-		heroToPlace->type = heroToPlace->getHeroType().toHeroType();
-		heroToPlace->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, heroToPlace->type->heroClass->getIndex())->getTemplates().front();
+		heroToPlace->setAnchorPos(heroPlaceholder->anchorPos());
+		heroToPlace->setHeroType(heroToPlace->getHeroTypeID());
+		heroToPlace->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, heroToPlace->getHeroTypeID())->getTemplates().front();
 
 		gameState->map->removeBlockVisTiles(heroPlaceholder, true);
 		gameState->map->objects[heroPlaceholder->id.getNum()] = nullptr;
@@ -563,7 +563,7 @@ void CGameStateCampaign::initHeroes()
 		{
 			for (auto & hero : heroes)
 			{
-				if (hero->getHeroType().getNum() == chosenBonus->info1)
+				if (hero->getHeroTypeID().getNum() == chosenBonus->info1)
 				{
 					giveCampaignBonusToHero(hero);
 					break;
@@ -655,14 +655,14 @@ void CGameStateCampaign::initTowns()
 		if (!owner->human)
 			continue;
 
-		if (town->pos != pi.posOfMainTown)
+		if (town->anchorPos() != pi.posOfMainTown)
 			continue;
 
 		BuildingID newBuilding;
 		if(gameState->scenarioOps->campState->formatVCMI())
 			newBuilding = BuildingID(chosenBonus->info1);
 		else
-			newBuilding = CBuildingHandler::campToERMU(chosenBonus->info1, town->getFaction(), town->getBuildings());
+			newBuilding = CBuildingHandler::campToERMU(chosenBonus->info1, town->getFactionID(), town->getBuildings());
 
 		// Build granted building & all prerequisites - e.g. Mages Guild Lvl 3 should also give Mages Guild Lvl 1 & 2
 		while(true)
@@ -675,7 +675,7 @@ void CGameStateCampaign::initTowns()
 
 			town->addBuilding(newBuilding);
 
-			auto building = town->town->buildings.at(newBuilding);
+			auto building = town->getTown()->buildings.at(newBuilding);
 			newBuilding = building->upgrade;
 		}
 		break;

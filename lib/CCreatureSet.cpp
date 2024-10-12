@@ -855,7 +855,7 @@ std::string CStackInstance::getName() const
 ui64 CStackInstance::getPower() const
 {
 	assert(type);
-	return type->getAIValue() * count;
+	return static_cast<ui64>(type->getAIValue()) * count;
 }
 
 ArtBearer::ArtBearer CStackInstance::bearerType() const
@@ -912,10 +912,10 @@ void CStackInstance::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-FactionID CStackInstance::getFaction() const
+FactionID CStackInstance::getFactionID() const
 {
 	if(type)
-		return type->getFaction();
+		return type->getFactionID();
 		
 	return FactionID::NEUTRAL;
 }

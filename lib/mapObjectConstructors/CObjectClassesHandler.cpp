@@ -207,8 +207,13 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 
 	// Compatibility with 1.5 mods for 1.6. To be removed in 1.7
 	// Detect banks that use old format and load them using old bank hander
-	if (baseObject->id == Obj::CREATURE_BANK && entry.Struct().count("levels") && !entry.Struct().count("rewards"))
-		handler = "bank";
+	if (baseObject->id == Obj::CREATURE_BANK)
+	{
+		if (entry.Struct().count("levels") && !entry.Struct().count("rewards"))
+			handler = "bank";
+		else
+			handler = "configurable";
+	}
 
 	auto createdObject = handlerConstructors.at(handler)();
 
@@ -278,7 +283,7 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::stri
 	newObject->base = json["base"];
 	newObject->id = index;
 
-	VLC->generaltexth->registerString(scope, newObject->getNameTextID(), json["name"].String());
+	VLC->generaltexth->registerString(scope, newObject->getNameTextID(), json["name"]);
 
 	newObject->objectTypeHandlers.resize(json["lastReservedIndex"].Float() + 1);
 

@@ -379,9 +379,10 @@ class CMageGuildScreen : public CStatusbarWindow
 	{
 		const CSpell * spell;
 		std::shared_ptr<CAnimImage> image;
+		ObjectInstanceID townId;
 
 	public:
-		Scroll(Point position, const CSpell *Spell);
+		Scroll(Point position, const CSpell *Spell, ObjectInstanceID townId);
 		void clickPressed(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
@@ -393,8 +394,11 @@ class CMageGuildScreen : public CStatusbarWindow
 
 	std::shared_ptr<CMinorResDataBar> resdatabar;
 
+	ObjectInstanceID townId;
+
 public:
 	CMageGuildScreen(CCastleInterface * owner, const ImagePath & image);
+	void updateSpells(ObjectInstanceID tID);
 };
 
 /// The blacksmith window where you can buy available in town war machine

@@ -81,7 +81,6 @@ public:
 	const CHeroClass * heroClass = nullptr;
 	std::map<std::string, LogicalExpression<HeroTypeID>> filters;
 
-	void initializeObject(CGHeroInstance * object) const override;
 	void randomizeObject(CGHeroInstance * object, vstd::RNG & rng) const override;
 	void afterLoadFinalization() override;
 

@@ -36,15 +36,15 @@ public:
 
 	virtual vstd::RNG * getRNG() = 0;
 
-	virtual void apply(CPackForClient * pack) = 0;
+	virtual void apply(CPackForClient & pack) = 0;
 
-	virtual void apply(BattleLogMessage * pack) = 0;
-	virtual void apply(BattleStackMoved * pack) = 0;
-	virtual void apply(BattleUnitsChanged * pack) = 0;
-	virtual void apply(SetStackEffect * pack) = 0;
-	virtual void apply(StacksInjured * pack) = 0;
-	virtual void apply(BattleObstaclesChanged * pack) = 0;
-	virtual void apply(CatapultAttack * pack) = 0;
+	virtual void apply(BattleLogMessage & pack) = 0;
+	virtual void apply(BattleStackMoved & pack) = 0;
+	virtual void apply(BattleUnitsChanged & pack) = 0;
+	virtual void apply(SetStackEffect & pack) = 0;
+	virtual void apply(StacksInjured & pack) = 0;
+	virtual void apply(BattleObstaclesChanged & pack) = 0;
+	virtual void apply(CatapultAttack & pack) = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

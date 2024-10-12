@@ -44,6 +44,8 @@ namespace JsonUtils
 	 * @brief generate one Json structure from multiple files
 	 * @param files - list of filenames with parts of json structure
 	 */
+	DLL_LINKAGE JsonNode assembleFromFiles(const JsonNode & files);
+	DLL_LINKAGE JsonNode assembleFromFiles(const JsonNode & files, bool & isValid);
 	DLL_LINKAGE JsonNode assembleFromFiles(const std::vector<std::string> & files);
 	DLL_LINKAGE JsonNode assembleFromFiles(const std::vector<std::string> & files, bool & isValid);
 
@@ -72,6 +74,12 @@ namespace JsonUtils
 	/// get schema by json URI: vcmi:<name of file in schemas directory>#<entry in file, optional>
 	/// example: schema "vcmi:settings" is used to check user settings
 	DLL_LINKAGE const JsonNode & getSchema(const std::string & URI);
+
+	/// detects potential conflicts - json entries present in both nodes
+	/// returns JsonNode that contains list of conflicting keys
+	/// For each conflict - list of conflicting mods and list of conflicting json values
+	/// result[pathToKey][modID] -> node that was conflicting
+	DLL_LINKAGE void detectConflicts(JsonNode & result, const JsonNode & left, const JsonNode & right, const std::string & keyName);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -17,6 +17,7 @@
 #include "ModIncompatibility.h"
 
 #include "../CCreatureHandler.h"
+#include "../CConfigHandler.h"
 #include "../CStopWatch.h"
 #include "../GameSettings.h"
 #include "../ScriptHandler.h"
@@ -331,10 +332,38 @@ void CModHandler::loadModFilesystems()
 
 	coreMod->updateChecksum(calculateModChecksum(ModScope::scopeBuiltin(), CResourceHandler::get(ModScope::scopeBuiltin())));
 
+	std::map<std::string, ISimpleResourceLoader *> modFilesystems;
+
 	for(std::string & modName : activeMods)
+		modFilesystems[modName] = genModFilesystem(modName, allMods[modName].config);
+
+	for(std::string & modName : activeMods)
+		CResourceHandler::addFilesystem("data", modName, modFilesystems[modName]);
+
+	if (settings["mods"]["validation"].String() == "full")
 	{
-		CModInfo & mod = allMods[modName];
-		CResourceHandler::addFilesystem("data", modName, genModFilesystem(modName, mod.config));
+		for(std::string & leftModName : activeMods)
+		{
+			for(std::string & rightModName : activeMods)
+			{
+				if (leftModName == rightModName)
+					continue;
+
+				if (getModDependencies(leftModName).count(rightModName) || getModDependencies(rightModName).count(leftModName))
+					continue;
+
+				const auto & filter = [](const ResourcePath &path){return path.getType() != EResType::DIRECTORY;};
+
+				std::unordered_set<ResourcePath> leftResources = modFilesystems[leftModName]->getFilteredFiles(filter);
+				std::unordered_set<ResourcePath> rightResources = modFilesystems[rightModName]->getFilteredFiles(filter);
+
+				for (auto const & leftFile : leftResources)
+				{
+					if (rightResources.count(leftFile))
+						logMod->warn("Potential confict detected between '%s' and '%s': both mods add file '%s'", leftModName, rightModName, leftFile.getOriginalName());
+				}
+			}
+		}
 	}
 }
 
@@ -370,6 +399,12 @@ std::string CModHandler::getModLanguage(const TModID& modId) const
 	return allMods.at(modId).baseLanguage;
 }
 
+std::set<TModID> CModHandler::getModDependencies(const TModID & modId) const
+{
+	bool isModFound;
+	return getModDependencies(modId, isModFound);
+}
+
 std::set<TModID> CModHandler::getModDependencies(const TModID & modId, bool & isModFound) const
 {
 	auto it = allMods.find(modId);
@@ -384,7 +419,7 @@ std::set<TModID> CModHandler::getModDependencies(const TModID & modId, bool & is
 
 void CModHandler::initializeConfig()
 {
-	VLC->settingsHandler->loadBase(coreMod->config["settings"]);
+	VLC->settingsHandler->loadBase(JsonUtils::assembleFromFiles(coreMod->config["settings"]));
 
 	for(const TModID & modName : activeMods)
 	{
@@ -401,33 +436,6 @@ CModVersion CModHandler::getModVersion(TModID modName) const
 	return {};
 }
 
-bool CModHandler::validateTranslations(TModID modName) const
-{
-	bool result = true;
-	const auto & mod = allMods.at(modName);
-
-	{
-		auto fileList = mod.config["translations"].convertTo<std::vector<std::string> >();
-		JsonNode json = JsonUtils::assembleFromFiles(fileList);
-		result |= VLC->generaltexth->validateTranslation(mod.baseLanguage, modName, json);
-	}
-
-	for(const auto & language : Languages::getLanguageList())
-	{
-		if (mod.config[language.identifier].isNull())
-			continue;
-
-		if (mod.config[language.identifier]["skipValidation"].Bool())
-			continue;
-
-		auto fileList = mod.config[language.identifier]["translations"].convertTo<std::vector<std::string> >();
-		JsonNode json = JsonUtils::assembleFromFiles(fileList);
-		result |= VLC->generaltexth->validateTranslation(language.identifier, modName, json);
-	}
-
-	return result;
-}
-
 void CModHandler::loadTranslation(const TModID & modName)
 {
 	const auto & mod = allMods[modName];
@@ -435,14 +443,11 @@ void CModHandler::loadTranslation(const TModID & modName)
 	std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
 	std::string modBaseLanguage = allMods[modName].baseLanguage;
 
-	auto baseTranslationList = mod.config["translations"].convertTo<std::vector<std::string> >();
-	auto extraTranslationList = mod.config[preferredLanguage]["translations"].convertTo<std::vector<std::string> >();
+	JsonNode baseTranslation = JsonUtils::assembleFromFiles(mod.config["translations"]);
+	JsonNode extraTranslation = JsonUtils::assembleFromFiles(mod.config[preferredLanguage]["translations"]);
 
-	JsonNode baseTranslation = JsonUtils::assembleFromFiles(baseTranslationList);
-	JsonNode extraTranslation = JsonUtils::assembleFromFiles(extraTranslationList);
-
-	VLC->generaltexth->loadTranslationOverrides(modBaseLanguage, modName, baseTranslation);
-	VLC->generaltexth->loadTranslationOverrides(preferredLanguage, modName, extraTranslation);
+	VLC->generaltexth->loadTranslationOverrides(modName, baseTranslation);
+	VLC->generaltexth->loadTranslationOverrides(modName, extraTranslation);
 }
 
 void CModHandler::load()
@@ -479,12 +484,6 @@ void CModHandler::load()
 
 	for(const TModID & modName : activeMods)
 		loadTranslation(modName);
-
-#if 0
-	for(const TModID & modName : activeMods)
-		if (!validateTranslations(modName))
-			allMods[modName].validation = CModInfo::FAILED;
-#endif
 
 	logMod->info("\tLoading mod data: %d ms", timer.getDiff());
 	VLC->creh->loadCrExpMod();

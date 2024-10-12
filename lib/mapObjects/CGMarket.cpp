@@ -93,7 +93,7 @@ void CGBlackMarket::newTurn(vstd::RNG & rand) const
 	SetAvailableArtifacts saa;
 	saa.id = id;
 	cb->pickAllowedArtsSet(saa.arts, rand);
-	cb->sendAndApply(&saa);
+	cb->sendAndApply(saa);
 }
 
 std::vector<TradeItemBuy> CGUniversity::availableItemsIds(EMarketMode mode) const

@@ -28,8 +28,6 @@ using TObjectTypeHandler = std::shared_ptr<AObjectTypeHandler>;
 class DLL_LINKAGE CGObjectInstance : public IObjectInterface
 {
 public:
-	/// Position of bottom-right corner of object on map
-	int3 pos;
 	/// Type of object, e.g. town, hero, creature.
 	MapObjectID ID;
 	/// Subtype of object, depends on type
@@ -40,6 +38,9 @@ public:
 	ObjectInstanceID id;
 	/// Defines appearance of object on map (animation, blocked tiles, blit order, etc)
 	std::shared_ptr<const ObjectTemplate> appearance;
+
+	/// Position of bottom-right corner of object on map
+	int3 pos;
 
 	std::string instanceName;
 	std::string typeName;
@@ -62,21 +63,19 @@ public:
 		return this->tempOwner;
 	}
 	void setOwner(const PlayerColor & ow);
+	void setAnchorPos(int3 pos);
 
 	/** APPEARANCE ACCESSORS **/
 
 	int getWidth() const; //returns width of object graphic in tiles
 	int getHeight() const; //returns height of object graphic in tiles
 	int3 visitablePos() const override;
-	int3 getPosition() const override;
+	int3 anchorPos() const override;
 	int3 getTopVisiblePos() const;
-	bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) (h3m pos)
-	bool blockingAt(int x, int y) const; //returns true if object is blocking location (x, y) (h3m pos)
-	bool coveringAt(int x, int y) const; //returns true if object covers with picture location (x, y) (h3m pos)
 
-	bool visitableAt(const int3 & pos) const; //returns true if object is visitable at location (x, y) (h3m pos)
-	bool blockingAt (const int3 & pos) const; //returns true if object is blocking location (x, y) (h3m pos)
-	bool coveringAt (const int3 & pos) const; //returns true if object covers with picture location (x, y) (h3m pos)
+	bool visitableAt(const int3 & pos) const; //returns true if object is visitable at location
+	bool blockingAt (const int3 & pos) const; //returns true if object is blocking location
+	bool coveringAt (const int3 & pos) const; //returns true if object covers with picture location
 
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
 	const std::set<int3> & getBlockedOffsets() const; //returns set of relative positions blocked by this object

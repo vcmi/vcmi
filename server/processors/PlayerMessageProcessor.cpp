@@ -100,7 +100,7 @@ void PlayerMessageProcessor::commandKick(PlayerColor player, const std::vector<s
 			PlayerCheated pc;
 			pc.player = playerToKick;
 			pc.losingCheatCode = true;
-			gameHandler->sendAndApply(&pc);
+			gameHandler->sendAndApply(pc);
 			gameHandler->checkVictoryLossConditionsForPlayer(playerToKick);
 		}
 	}
@@ -354,7 +354,7 @@ void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroIns
 	for (int level = 1; level <= GameConstants::SPELL_LEVELS; level++)
 	{
 		giveBonus.bonus.subtype = BonusCustomSubtype::spellLevel(level);
-		gameHandler->sendAndApply(&giveBonus);
+		gameHandler->sendAndApply(giveBonus);
 	}
 
 	///Give mana
@@ -362,7 +362,7 @@ void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroIns
 	sm.hid = hero->id;
 	sm.val = 999;
 	sm.absolute = true;
-	gameHandler->sendAndApply(&sm);
+	gameHandler->sendAndApply(sm);
 }
 
 void PlayerMessageProcessor::cheatBuildTown(PlayerColor player, const CGTownInstance * town)
@@ -370,7 +370,7 @@ void PlayerMessageProcessor::cheatBuildTown(PlayerColor player, const CGTownInst
 	if (!town)
 		return;
 
-	for (auto & build : town->town->buildings)
+	for (auto & build : town->getTown()->buildings)
 	{
 		if (!town->hasBuilt(build.first)
 			&& !build.second->getNameTranslated().empty()
@@ -520,7 +520,7 @@ void PlayerMessageProcessor::cheatMovement(PlayerColor player, const CGHeroInsta
 		unlimited = true;
 	}
 
-	gameHandler->sendAndApply(&smp);
+	gameHandler->sendAndApply(smp);
 
 	GiveBonus gb(GiveBonus::ETarget::OBJECT);
 	gb.bonus.type = BonusType::FREE_SHIP_BOARDING;
@@ -565,7 +565,7 @@ void PlayerMessageProcessor::cheatVictory(PlayerColor player)
 	PlayerCheated pc;
 	pc.player = player;
 	pc.winningCheatCode = true;
-	gameHandler->sendAndApply(&pc);
+	gameHandler->sendAndApply(pc);
 }
 
 void PlayerMessageProcessor::cheatDefeat(PlayerColor player)
@@ -573,7 +573,7 @@ void PlayerMessageProcessor::cheatDefeat(PlayerColor player)
 	PlayerCheated pc;
 	pc.player = player;
 	pc.losingCheatCode = true;
-	gameHandler->sendAndApply(&pc);
+	gameHandler->sendAndApply(pc);
 }
 
 void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
@@ -594,7 +594,7 @@ void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
 
 	fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);
 	delete [] hlp_tab;
-	gameHandler->sendAndApply(&fc);
+	gameHandler->sendAndApply(fc);
 }
 
 void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
@@ -612,7 +612,7 @@ void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
 
 				PlayerCheated pc;
 				pc.player = color;
-				gameHandler->sendAndApply(&pc);
+				gameHandler->sendAndApply(pc);
 			}
 		}
 	}
@@ -715,7 +715,7 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 
 		PlayerCheated pc;
 		pc.player = i.first;
-		gameHandler->sendAndApply(&pc);
+		gameHandler->sendAndApply(pc);
 
 		playerTargetedCheat = true;
 		parameters.erase(parameters.begin());
@@ -734,7 +734,7 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 
 	PlayerCheated pc;
 	pc.player = player;
-	gameHandler->sendAndApply(&pc);
+	gameHandler->sendAndApply(pc);
 	
 	if (!playerTargetedCheat)
 		executeCheatCode(cheatName, player, currObj, words);
@@ -847,7 +847,7 @@ void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> conn
 {
 	SystemMessage sm;
 	sm.text = message;
-	connection->sendPack(&sm);
+	connection->sendPack(sm);
 }
 
 void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message)
@@ -861,7 +861,7 @@ void PlayerMessageProcessor::broadcastSystemMessage(MetaString message)
 {
 	SystemMessage sm;
 	sm.text = message;
-	gameHandler->sendToAllClients(&sm);
+	gameHandler->sendToAllClients(sm);
 }
 
 void PlayerMessageProcessor::broadcastSystemMessage(const std::string & message)
@@ -874,5 +874,5 @@ void PlayerMessageProcessor::broadcastSystemMessage(const std::string & message)
 void PlayerMessageProcessor::broadcastMessage(PlayerColor playerSender, const std::string & message)
 {
 	PlayerMessageClient temp_message(playerSender, message);
-	gameHandler->sendAndApply(&temp_message);
+	gameHandler->sendAndApply(temp_message);
 }

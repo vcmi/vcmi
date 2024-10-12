@@ -306,6 +306,28 @@ struct DLL_LINKAGE RazeStructure : public BuildStructure
 	void visitTyped(ICPackVisitor & visitor) override;
 };
 
+struct DLL_LINKAGE SpellResearch : public CPackForServer
+{
+	SpellResearch() = default;
+	SpellResearch(const ObjectInstanceID & TID, SpellID spellAtSlot, bool accepted)
+		: tid(TID), spellAtSlot(spellAtSlot), accepted(accepted)
+	{
+	}
+	ObjectInstanceID tid;
+	SpellID spellAtSlot;
+	bool accepted;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CPackForServer &>(*this);
+		h & tid;
+		h & spellAtSlot;
+		h & accepted;
+	}
+};
+
 struct DLL_LINKAGE RecruitCreatures : public CPackForServer
 {
 	RecruitCreatures() = default;

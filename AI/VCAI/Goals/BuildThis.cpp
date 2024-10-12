@@ -56,7 +56,7 @@ TSubgoal BuildThis::whatToDoToAchieve()
 		case EBuildingState::ALLOWED:
 		case EBuildingState::NO_RESOURCES:
 		{
-			auto res = town->town->buildings.at(BuildingID(bid))->resources;
+			auto res = town->getTown()->buildings.at(BuildingID(bid))->resources;
 			return ai->ah->whatToDo(res, iAmElementar()); //realize immediately or gather resources
 		}
 		break;

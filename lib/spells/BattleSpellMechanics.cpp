@@ -353,9 +353,9 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 		sc.affectedCres.insert(unit->unitId());
 
 	if(!castDescription.lines.empty())
-		server->apply(&castDescription);
+		server->apply(castDescription);
 
-	server->apply(&sc);
+	server->apply(sc);
 
 	for(auto & p : effectsToApply)
 		p.first->apply(server, this, p.second);
@@ -375,7 +375,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	// temporary(?) workaround to force animations to trigger
 	StacksInjured fakeEvent;
 	fakeEvent.battleID = battle()->getBattle()->getBattleID();
-	server->apply(&fakeEvent);
+	server->apply(fakeEvent);
 }
 
 void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target)
@@ -491,7 +491,7 @@ void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const std::v
 	}
 
 	if(!sse.toRemove.empty())
-		server->apply(&sse);
+		server->apply(sse);
 }
 
 bool BattleSpellMechanics::counteringSelector(const Bonus * bonus) const

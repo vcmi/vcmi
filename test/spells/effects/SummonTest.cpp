@@ -225,7 +225,7 @@ TEST_P(SummonApplyTest, DISABLED_SpawnsNewUnit)
 
 	EXPECT_CALL(*battleFake, nextUnitId()).WillOnce(Return(unitId));
 	EXPECT_CALL(*battleFake, addUnit(Eq(unitId), _)).WillOnce(Invoke(this, &SummonApplyTest::onUnitAdded));
-	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged *>(_))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).Times(1);
 
 	EffectTarget target;
 	target.emplace_back(unitPosition);
@@ -261,7 +261,7 @@ TEST_P(SummonApplyTest, DISABLED_UpdatesOldUnit)
 
 	EXPECT_CALL(unit, unitId()).WillOnce(Return(unitId));
 
-	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged *>(_))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).Times(1);
 
 	unitsFake.setDefaultBonusExpectations();
 

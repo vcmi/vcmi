@@ -79,7 +79,7 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 
 				text.replaceNamePlural(elemental->creatureId());
 
-				if(caster->type->gender == EHeroGender::FEMALE)
+				if(caster->gender == EHeroGender::FEMALE)
 					text.replaceLocalString(EMetaText::GENERAL_TXT, 540);
 				else
 					text.replaceLocalString(EMetaText::GENERAL_TXT, 539);
@@ -159,7 +159,7 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 	}
 
 	if(!pack.changedStacks.empty())
-		server->apply(&pack);
+		server->apply(pack);
 }
 
 EffectTarget Summon::filterTarget(const Mechanics * m, const EffectTarget & target) const

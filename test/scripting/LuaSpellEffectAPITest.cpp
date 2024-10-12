@@ -157,18 +157,18 @@ TEST_F(LuaSpellEffectAPITest, DISABLED_ApplyMoveUnit)
 	BattleStackMoved expected;
 	BattleStackMoved actual;
 
-	auto checkMove = [&](BattleStackMoved * pack)
+	auto checkMove = [&](BattleStackMoved & pack)
 	{
-		EXPECT_EQ(pack->stack, 42);
-		EXPECT_EQ(pack->teleporting, true);
-		EXPECT_EQ(pack->distance, 0);
+		EXPECT_EQ(pack.stack, 42);
+		EXPECT_EQ(pack.teleporting, true);
+		EXPECT_EQ(pack.distance, 0);
 
 		std::vector<BattleHex> toMove(1, hex2);
 
-		EXPECT_EQ(pack->tilesToMove, toMove);
+		EXPECT_EQ(pack.tilesToMove, toMove);
 	};
 
-	EXPECT_CALL(serverMock, apply(Matcher<BattleStackMoved *>(_))).WillOnce(Invoke(checkMove));
+	EXPECT_CALL(serverMock, apply(Matcher<BattleStackMoved &>(_))).WillOnce(Invoke(checkMove));
 
 	context->callGlobal(&serverMock, "apply", params);
 }

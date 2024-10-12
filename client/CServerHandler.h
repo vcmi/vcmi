@@ -25,7 +25,6 @@ struct TurnTimerInfo;
 class CMapInfo;
 class CGameState;
 struct ClientPlayer;
-struct CPack;
 struct CPackForLobby;
 struct CPackForClient;
 

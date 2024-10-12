@@ -59,7 +59,7 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 
 	for(const auto & object : map->objects)
 	{
-		if(object && object->coveringAt(pos.x, pos.y) && object->pos.z == pos.z && object->isTile2Terrain())
+		if(object && object->coveringAt(pos) && object->isTile2Terrain())
 		{
 			result = object->getObjectName();
 			break;
@@ -103,15 +103,15 @@ bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObj
 
 	for(const auto & aOffset : a->getBlockedOffsets())
 	{
-		int3 testTarget = a->pos + aOffset + int3(0, 1, 0);
-		if(b->blockingAt(testTarget.x, testTarget.y))
+		int3 testTarget = a->anchorPos() + aOffset + int3(0, 1, 0);
+		if(b->blockingAt(testTarget))
 			bBlocksA += 1;
 	}
 
 	for(const auto & bOffset : b->getBlockedOffsets())
 	{
-		int3 testTarget = b->pos + bOffset + int3(0, 1, 0);
-		if(a->blockingAt(testTarget.x, testTarget.y))
+		int3 testTarget = b->anchorPos() + bOffset + int3(0, 1, 0);
+		if(a->blockingAt(testTarget))
 			aBlocksB += 1;
 	}
 
@@ -126,8 +126,8 @@ bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObj
 		return aBlocksB < bBlocksA;
 
 	// object that don't have clear priority via tile blocking will appear based on their row
-	if(a->pos.y != b->pos.y)
-		return a->pos.y < b->pos.y;
+	if(a->anchorPos().y != b->anchorPos().y)
+		return a->anchorPos().y < b->anchorPos().y;
 
 	// heroes should appear on top of objects on the same tile
 	if(b->ID==Obj::HERO && a->ID!=Obj::HERO)

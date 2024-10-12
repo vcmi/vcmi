@@ -54,19 +54,24 @@ MapObjectSubID CGObjectInstance::getObjTypeIndex() const
 	return subID;
 }
 
-int3 CGObjectInstance::getPosition() const
+int3 CGObjectInstance::anchorPos() const
 {
 	return pos;
 }
 
 int3 CGObjectInstance::getTopVisiblePos() const
 {
-	return pos - appearance->getTopVisibleOffset();
+	return anchorPos() - appearance->getTopVisibleOffset();
 }
 
 void CGObjectInstance::setOwner(const PlayerColor & ow)
 {
 	tempOwner = ow;
+}
+
+void CGObjectInstance::setAnchorPos(int3 newPos)
+{
+	pos = newPos;
 }
 
 int CGObjectInstance::getWidth() const
@@ -79,32 +84,19 @@ int CGObjectInstance::getHeight() const
 	return appearance->getHeight();
 }
 
-bool CGObjectInstance::visitableAt(int x, int y) const
-{
-	return appearance->isVisitableAt(pos.x - x, pos.y - y);
-}
-bool CGObjectInstance::blockingAt(int x, int y) const
-{
-	return appearance->isBlockedAt(pos.x - x, pos.y - y);
-}
-
-bool CGObjectInstance::coveringAt(int x, int y) const
-{
-	return appearance->isVisibleAt(pos.x - x, pos.y - y);
-}
-
 bool CGObjectInstance::visitableAt(const int3 & testPos) const
 {
-	return pos.z == testPos.z && appearance->isVisitableAt(pos.x - testPos.x, pos.y - testPos.y);
+	return anchorPos().z == testPos.z && appearance->isVisitableAt(anchorPos().x - testPos.x, anchorPos().y - testPos.y);
 }
+
 bool CGObjectInstance::blockingAt(const int3 & testPos) const
 {
-	return pos.z == testPos.z && appearance->isBlockedAt(pos.x - testPos.x, pos.y - testPos.y);
+	return anchorPos().z == testPos.z && appearance->isBlockedAt(anchorPos().x - testPos.x, anchorPos().y - testPos.y);
 }
 
 bool CGObjectInstance::coveringAt(const int3 & testPos) const
 {
-	return pos.z == testPos.z && appearance->isVisibleAt(pos.x - testPos.x, pos.y - testPos.y);
+	return anchorPos().z == testPos.z && appearance->isVisibleAt(anchorPos().x - testPos.x, anchorPos().y - testPos.y);
 }
 
 std::set<int3> CGObjectInstance::getBlockedPos() const
@@ -115,7 +107,7 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 		for(int h=0; h<getHeight(); ++h)
 		{
 			if(appearance->isBlockedAt(w, h))
-				ret.insert(int3(pos.x - w, pos.y - h, pos.z));
+				ret.insert(int3(anchorPos().x - w, anchorPos().y - h, anchorPos().z));
 		}
 	}
 	return ret;
@@ -215,6 +207,8 @@ int CGObjectInstance::getSightRadius() const
 
 int3 CGObjectInstance::getVisitableOffset() const
 {
+	if (!isVisitable())
+		logGlobal->debug("Attempt to access visitable offset on a non-visitable object!");
 	return appearance->getVisitableOffset();
 }
 
@@ -313,6 +307,9 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 
 int3 CGObjectInstance::visitablePos() const
 {
+	if (!isVisitable())
+		logGlobal->debug("Attempt to access visitable position on a non-visitable object!");
+
 	return pos - getVisitableOffset();
 }
 

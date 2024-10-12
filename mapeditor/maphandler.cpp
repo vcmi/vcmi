@@ -379,7 +379,7 @@ void MapHandler::drawObjects(QPainter & painter, int x, int y, int z, const std:
 		
 		if(objData.objBitmap)
 		{
-			auto pos = obj->getPosition();
+			auto pos = obj->anchorPos();
 
 			painter.drawImage(QPoint(x * tileSize, y * tileSize), *objData.objBitmap, object.rect, Qt::AutoColor | Qt::NoOpaqueDetection);
 
