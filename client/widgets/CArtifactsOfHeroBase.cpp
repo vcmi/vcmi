@@ -268,11 +268,17 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 		std::map<const ArtifactID, std::vector<ArtifactID>> arts;
 		for(const auto combinedArt : slotInfo->artifact->artType->getPartOf())
 		{
-			arts.try_emplace(combinedArt->getId(), std::vector<ArtifactID>{});
+			assert(combinedArt->isCombined());
+			arts.try_emplace(combinedArt->getId());
+			CArtifactFittingSet fittingSet(*curHero);
 			for(const auto part : combinedArt->getConstituents())
 			{
-				if(curHero->hasArt(part->getId(), false, false))
+				const auto partSlot = fittingSet.getArtPos(part->getId(), false, false);
+				if(partSlot != ArtifactPosition::PRE_FIRST)
+				{
 					arts.at(combinedArt->getId()).emplace_back(part->getId());
+					fittingSet.lockSlot(partSlot);
+				}
 			}
 		}
 		artPlace->addCombinedArtInfo(arts);

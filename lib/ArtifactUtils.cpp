@@ -202,21 +202,23 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 	if(art->isCombined())
 		return arts;
 
-	for(const auto artifact : art->getPartOf())
+	for(const auto combinedArt : art->getPartOf())
 	{
-		assert(artifact->isCombined());
+		assert(combinedArt->isCombined());
 		bool possible = true;
-
-		for(const auto constituent : artifact->getConstituents()) //check if all constituents are available
+		CArtifactFittingSet fittingSet(*artSet);
+		for(const auto part : combinedArt->getConstituents()) // check if all constituents are available
 		{
-			if(!artSet->hasArt(constituent->getId(), onlyEquiped, false))
+			const auto slot = fittingSet.getArtPos(part->getId(), onlyEquiped, false);
+			if(slot == ArtifactPosition::PRE_FIRST)
 			{
 				possible = false;
 				break;
 			}
+			fittingSet.lockSlot(slot);
 		}
 		if(possible)
-			arts.push_back(artifact);
+			arts.push_back(combinedArt);
 	}
 	return arts;
 }

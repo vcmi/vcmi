@@ -1818,14 +1818,11 @@ void AssembledArtifact::applyGs(CGameState *gs)
 
 	// Find slots for all involved artifacts
 	std::vector<ArtifactPosition> slotsInvolved;
+	CArtifactFittingSet artSet(*hero);
 	for(const auto constituent : builtArt->getConstituents())
 	{
-		ArtifactPosition slot;
-		if(transformedArt->getTypeId() == constituent->getId())
-			slot = transformedArtSlot;
-		else
-			slot = hero->getArtPos(constituent->getId(), false, false);
-
+		const auto slot = artSet.getArtPos(constituent->getId(), false, false);
+		artSet.lockSlot(slot);
 		assert(slot != ArtifactPosition::PRE_FIRST);
 		slotsInvolved.emplace_back(slot);
 	}
@@ -2487,10 +2484,7 @@ void SetBankConfiguration::applyGs(CGameState *gs)
 const CArtifactInstance * ArtSlotInfo::getArt() const
 {
 	if(locked)
-	{
-		logNetwork->warn("ArtifactLocation::getArt: This location is locked!");
 		return nullptr;
-	}
 	return artifact;
 }
 

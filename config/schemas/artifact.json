@@ -61,6 +61,10 @@
 			"description" : "Optional, list of components for combinational artifacts",
 			"items" : { "type" : "string" }
 		},
+		"fusedComponents" : {
+			"type" : "boolean",
+			"description" : "Used together with components fild. Marks the artifact as fused. Cannot be disassembled."
+		},
 		"bonuses" : {
 			"type" : "array",
 			"description" : "Bonuses provided by this artifact using bonus system",
