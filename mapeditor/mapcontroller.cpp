@@ -151,8 +151,8 @@ void MapController::repairMap(CMap * map) const
 			if(obj->ID == Obj::PRISON)
 			{
 				nih->typeName = "prison";
-				nih->subTypeName = "prison";
-				nih->subID = 0;
+				//nih->subTypeName = "prison";
+				//nih->subID = 0;
 			}
 			if(nih->ID == Obj::HERO) //not prison
 				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
