@@ -662,7 +662,7 @@
 	"core.bonus.SPELL_LIKE_ATTACK.name"                  : "Magisk attack",
 	"core.bonus.SPELL_LIKE_ATTACK.description"           : "Attackerar med '${subtype.spell}'.",
 	"core.bonus.SPELL_RESISTANCE_AURA.name"              : "Motståndsaura",
-	"core.bonus.SPELL_RESISTANCE_AURA.description"       : "Närbelägna förband får ${val}% magi-resistens.",
+	"core.bonus.SPELL_RESISTANCE_AURA.description"       : "Angränsande förband får ${val}% magi-resistens.",
 	"core.bonus.SUMMON_GUARDIANS.name"                   : "Åkalla väktare",
 	"core.bonus.SUMMON_GUARDIANS.description"            : "Vid strid åkallas: ${subtype.creature} ${val}%.",
 	"core.bonus.SYNERGY_TARGET.name"                     : "Synergibar",
