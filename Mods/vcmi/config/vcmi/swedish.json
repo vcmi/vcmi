@@ -243,7 +243,7 @@
 	"vcmi.adventureOptions.showGrid.hover"                   : "Visa rutnät",
 	"vcmi.adventureOptions.showGrid.help"                    : "{Visa rutnät}\n\nVisa rutnätsöverlägget som markerar gränserna mellan äventyrskartans brickor/rutor.",
 	"vcmi.adventureOptions.borderScroll.hover"               : "Kantrullning",
-	"vcmi.adventureOptions.borderScroll.help"                : "{Kantrullning}\n\nRullar äventyrskartan när markören är  till fönsterkanten. Kan inaktiveras genom att hålla ned CTRL-tangenten.",
+	"vcmi.adventureOptions.borderScroll.help"                : "{Kantrullning}\n\nRullar äventyrskartan när markören är angränsande till fönsterkanten. Kan inaktiveras genom att hålla ned CTRL-tangenten.",
 	"vcmi.adventureOptions.infoBarCreatureManagement.hover"  : "Hantera armén i nedre högra hörnet",
 	"vcmi.adventureOptions.infoBarCreatureManagement.help"   : "{Varelsehantering i infopanelen}\n\nTillåter omarrangering av varelser i infopanelen längst ner till höger på äventyrskartan istället för att bläddra mellan olika infopaneler.",
 	"vcmi.adventureOptions.leftButtonDrag.hover"             : "V.klicksdragning",
