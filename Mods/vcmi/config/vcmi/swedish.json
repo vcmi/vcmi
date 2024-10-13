@@ -378,7 +378,7 @@
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Vägtyper",
 
 	"vcmi.optionsTab.turnOptions.hover" : "Turomgångsalternativ",
-	"vcmi.optionsTab.turnOptions.help"  : "Ställ in turomgångs-timern och samtidiga turomgångar",
+	"vcmi.optionsTab.turnOptions.help"  : "Turomgångs-timer och samtidiga turomgångar (förinställningar)",
 
 	"vcmi.optionsTab.chessFieldBase.hover"          : "Bas-timern",
 	"vcmi.optionsTab.chessFieldTurn.hover"          : "Tur-timern",
