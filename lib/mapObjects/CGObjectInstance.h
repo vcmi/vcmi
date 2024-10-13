@@ -101,7 +101,7 @@ public:
 	std::optional<AudioPath> getVisitSound(vstd::RNG & rng) const;
 	std::optional<AudioPath> getRemovalSound(vstd::RNG & rng) const;
 
-	TObjectTypeHandler getObjectHandler() const;
+	virtual TObjectTypeHandler getObjectHandler() const;
 
 	/** VIRTUAL METHODS **/
 

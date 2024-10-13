@@ -360,8 +360,11 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 	//only save here, loading is handled by map loader
 	if(handler.saving)
 	{
-		handler.serializeString("type", typeName);
-		handler.serializeString("subtype", subTypeName);
+		std::string ourTypeName = getTypeName();
+		std::string ourSubtypeName = getSubtypeName();
+
+		handler.serializeString("type", ourTypeName);
+		handler.serializeString("subtype", ourSubtypeName);
 
 		handler.serializeInt("x", pos.x);
 		handler.serializeInt("y", pos.y);

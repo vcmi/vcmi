@@ -370,7 +370,7 @@ void CGameStateCampaign::replaceHeroesPlaceholders()
 			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
 		heroToPlace->setAnchorPos(heroPlaceholder->anchorPos());
 		heroToPlace->setHeroType(heroToPlace->getHeroTypeID());
-		heroToPlace->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, heroToPlace->getHeroTypeID())->getTemplates().front();
+		heroToPlace->appearance = heroToPlace->getObjectHandler()->getTemplates().front();
 
 		gameState->map->removeBlockVisTiles(heroPlaceholder, true);
 		gameState->map->objects[heroPlaceholder->id.getNum()] = nullptr;
