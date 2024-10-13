@@ -203,8 +203,8 @@ void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectI
 	EXPECT_EQ(actual->instanceName, expected->instanceName);
 	EXPECT_EQ(typeid(actual).name(), typeid(expected).name());//todo: remove and use just comparison
 
-	std::string actualFullID = boost::str(boost::format("%s(%d)|%s(%d) %d") % actual->typeName % actual->ID % actual->subTypeName % actual->subID % actual->tempOwner);
-	std::string expectedFullID = boost::str(boost::format("%s(%d)|%s(%d) %d") % expected->typeName % expected->ID % expected->subTypeName % expected->subID % expected->tempOwner);
+	std::string actualFullID = boost::str(boost::format("(%d)|(%d) %d") % actual->ID % actual->subID % actual->tempOwner);
+	std::string expectedFullID = boost::str(boost::format("(%d)|(%d) %d") % expected->ID % expected->subID % expected->tempOwner);
 
 	EXPECT_EQ(actualFullID, expectedFullID);
 

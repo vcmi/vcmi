@@ -30,7 +30,7 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 #if NKAI_TRACE_LEVEL >= 1
 		targetName = obj->getObjectName() + tile.toString();
 #else
-		targetName = obj->typeName + tile.toString();
+		targetName = obj->getTypeName() + tile.toString();
 #endif
 	}
 	else

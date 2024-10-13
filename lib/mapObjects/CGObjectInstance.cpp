@@ -192,6 +192,16 @@ TObjectTypeHandler CGObjectInstance::getObjectHandler() const
 	return VLC->objtypeh->getHandlerFor(ID, subID);
 }
 
+std::string CGObjectInstance::getTypeName() const
+{
+	return getObjectHandler()->getTypeName();
+}
+
+std::string CGObjectInstance::getSubtypeName() const
+{
+	return getObjectHandler()->getSubTypeName();
+}
+
 void CGObjectInstance::setPropertyDer( ObjProperty what, ObjPropertyID identifier )
 {}
 

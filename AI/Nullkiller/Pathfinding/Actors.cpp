@@ -440,7 +440,7 @@ int DwellingActor::getInitialTurn(bool waitForGrowth, int dayOfWeek)
 
 std::string DwellingActor::toString() const
 {
-	return dwelling->typeName + dwelling->visitablePos().toString();
+	return dwelling->getTypeName() + dwelling->visitablePos().toString();
 }
 
 CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, bool waitForGrowth)

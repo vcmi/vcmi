@@ -112,13 +112,6 @@ void MapController::repairMap(CMap * map) const
 	allImpactedObjects.insert(allImpactedObjects.end(), map->predefinedHeroes.begin(), map->predefinedHeroes.end());
 	for(auto obj : allImpactedObjects)
 	{
-		//setup proper names (hero name will be fixed later
-		if(obj->ID != Obj::HERO && obj->ID != Obj::PRISON && (obj->typeName.empty() || obj->subTypeName.empty()))
-		{
-			auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
-			obj->typeName = handler->getTypeName();
-			obj->subTypeName = handler->getSubTypeName();
-		}
 		//fix flags
 		if(obj->getOwner() == PlayerColor::UNFLAGGABLE)
 		{
@@ -142,18 +135,7 @@ void MapController::repairMap(CMap * map) const
 
 			auto const & type = VLC->heroh->objects[nih->subID];
 			assert(type->heroClass);
-			//TODO: find a way to get proper type name
-			if(obj->ID == Obj::HERO)
-			{
-				nih->typeName = "hero";
-				nih->subTypeName = type->heroClass->getJsonKey();
-			}
-			if(obj->ID == Obj::PRISON)
-			{
-				nih->typeName = "prison";
-				//nih->subTypeName = "prison";
-				//nih->subID = 0;
-			}
+
 			if(nih->ID == Obj::HERO) //not prison
 				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 			//fix spellbook
@@ -568,8 +550,6 @@ bool MapController::canPlaceObject(int level, CGObjectInstance * newObj, QString
 	
 	if(newObj->ID == Obj::GRAIL && objCounter >= 1) //special case for grail
 	{
-		auto typeName = QString::fromStdString(newObj->typeName);
-		auto subTypeName = QString::fromStdString(newObj->subTypeName);
 		error = QObject::tr("There can only be one grail object on the map.");
 		return false; //maplimit reached
 	}
