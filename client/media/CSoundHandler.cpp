@@ -147,18 +147,23 @@ uint32_t CSoundHandler::getSoundDurationMilliseconds(const AudioPath & sound)
 
 	auto data = CResourceHandler::get()->load(resourcePath)->readAll();
 
-	SDL_AudioSpec spec;
-	uint32_t audioLen;
-	uint8_t * audioBuf;
 	uint32_t milliseconds = 0;
 
-	if(SDL_LoadWAV_RW(SDL_RWFromMem(data.first.get(), data.second), 1, &spec, &audioBuf, &audioLen) != nullptr)
+	Mix_Chunk * chunk = Mix_LoadWAV_RW(SDL_RWFromMem(data.first.get(), data.second), 1);
+
+	int freq = 0;
+	Uint16 fmt = 0;
+	int chans = 0;
+	if(!Mix_QuerySpec(&freq, &fmt, &chans))
+		return 0;
+
+	if(chunk != nullptr)
 	{
-		SDL_FreeWAV(audioBuf);
-		uint32_t sampleSize = SDL_AUDIO_BITSIZE(spec.format) / 8;
-		uint32_t sampleCount = audioLen / sampleSize;
-		uint32_t sampleLen = sampleCount / spec.channels;
-		milliseconds = 1000 * sampleLen / spec.freq;
+		Uint32 points = (chunk->alen / ((fmt & 0xFF) / 8));
+		Uint32 frames = (points / chans);
+		milliseconds = ((frames * 1000) / freq);
+
+		Mix_FreeChunk(chunk);
 	}
 
 	return milliseconds;
