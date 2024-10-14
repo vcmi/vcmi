@@ -43,14 +43,15 @@ public:
 	int3 pos;
 
 	std::string instanceName;
-	std::string typeName;
-	std::string subTypeName;
 
 	CGObjectInstance(IGameCallback *cb);
 	~CGObjectInstance() override;
 
 	MapObjectID getObjGroupIndex() const override;
 	MapObjectSubID getObjTypeIndex() const override;
+
+	std::string getTypeName() const;
+	std::string getSubtypeName() const;
 
 	/// "center" tile from which the sight distance is calculated
 	int3 getSightCenter() const;
@@ -100,7 +101,7 @@ public:
 	std::optional<AudioPath> getVisitSound(vstd::RNG & rng) const;
 	std::optional<AudioPath> getRemovalSound(vstd::RNG & rng) const;
 
-	TObjectTypeHandler getObjectHandler() const;
+	virtual TObjectTypeHandler getObjectHandler() const;
 
 	/** VIRTUAL METHODS **/
 
@@ -142,8 +143,12 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & instanceName;
-		h & typeName;
-		h & subTypeName;
+		if (h.version < Handler::Version::REMOVE_OBJECT_TYPENAME)
+		{
+			std::string unused;
+			h & unused;
+			h & unused;
+		}
 		h & pos;
 		h & ID;
 		subID.serializeIdentifier(h, ID);

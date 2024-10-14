@@ -608,7 +608,7 @@ void CMap::setUniqueInstanceName(CGObjectInstance * obj)
 	auto uid = uidCounter++;
 
 	boost::format fmt("%s_%d");
-	fmt % obj->typeName % uid;
+	fmt % obj->getTypeName() % uid;
 	obj->instanceName = fmt.str();
 }
 

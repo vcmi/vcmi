@@ -192,6 +192,16 @@ TObjectTypeHandler CGObjectInstance::getObjectHandler() const
 	return VLC->objtypeh->getHandlerFor(ID, subID);
 }
 
+std::string CGObjectInstance::getTypeName() const
+{
+	return getObjectHandler()->getTypeName();
+}
+
+std::string CGObjectInstance::getSubtypeName() const
+{
+	return getObjectHandler()->getSubTypeName();
+}
+
 void CGObjectInstance::setPropertyDer( ObjProperty what, ObjPropertyID identifier )
 {}
 
@@ -350,8 +360,11 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 	//only save here, loading is handled by map loader
 	if(handler.saving)
 	{
-		handler.serializeString("type", typeName);
-		handler.serializeString("subtype", subTypeName);
+		std::string ourTypeName = getTypeName();
+		std::string ourSubtypeName = getSubtypeName();
+
+		handler.serializeString("type", ourTypeName);
+		handler.serializeString("subtype", ourSubtypeName);
 
 		handler.serializeInt("x", pos.x);
 		handler.serializeInt("y", pos.y);

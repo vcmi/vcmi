@@ -339,12 +339,20 @@ void CGHeroInstance::initHero(vstd::RNG & rand, const HeroTypeID & SUBID)
 	initHero(rand);
 }
 
+TObjectTypeHandler CGHeroInstance::getObjectHandler() const
+{
+	if (ID == Obj::HERO)
+		return VLC->objtypeh->getHandlerFor(ID, getHeroClass()->getIndex());
+	else // prison or random hero
+		return VLC->objtypeh->getHandlerFor(ID, 0);
+}
+
 void CGHeroInstance::initHero(vstd::RNG & rand)
 {
 	assert(validTypes(true));
 	
 	if (ID == Obj::HERO)
-		appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex())->getTemplates().front();
+		appearance = getObjectHandler()->getTemplates().front();
 
 	if(!vstd::contains(spells, SpellID::PRESET))
 	{

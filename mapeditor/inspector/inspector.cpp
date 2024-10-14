@@ -470,8 +470,6 @@ void Inspector::updateProperties()
 	addProperty("ID", obj->ID.getNum());
 	addProperty("SubID", obj->subID);
 	addProperty("InstanceName", obj->instanceName);
-	addProperty("TypeName", obj->typeName);
-	addProperty("SubTypeName", obj->subTypeName);
 	
 	if(obj->ID != Obj::HERO_PLACEHOLDER && !dynamic_cast<CGHeroInstance*>(obj))
 	{
