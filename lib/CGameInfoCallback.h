@@ -11,6 +11,7 @@
 
 #include "int3.h"
 #include "ResourceSet.h" // for Res
+#include "ConstTransitivePtr.h"
 
 #define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
@@ -189,6 +190,7 @@ public:
 	const CGObjectInstance * getObj(ObjectInstanceID objid, bool verbose = true) const override;
 	virtual std::vector <const CGObjectInstance * > getBlockingObjs(int3 pos)const;
 	std::vector <const CGObjectInstance * > getVisitableObjs(int3 pos, bool verbose = true) const override;
+	std::vector<ConstTransitivePtr<CGObjectInstance>> getAllVisitableObjs() const;
 	virtual std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	virtual const CGObjectInstance * getTopObj (int3 pos) const;
 	virtual PlayerColor getOwner(ObjectInstanceID heroID) const;
