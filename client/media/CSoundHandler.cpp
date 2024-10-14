@@ -153,14 +153,15 @@ uint32_t CSoundHandler::getSoundDurationMilliseconds(const AudioPath & sound)
 
 	int freq = 0;
 	Uint16 fmt = 0;
-	int chans = 0;
-	if(!Mix_QuerySpec(&freq, &fmt, &chans))
+	int channels = 0;
+	if(!Mix_QuerySpec(&freq, &fmt, &channels))
 		return 0;
 
 	if(chunk != nullptr)
 	{
-		Uint32 points = (chunk->alen / ((fmt & 0xFF) / 8));
-		Uint32 frames = (points / chans);
+		Uint32 sampleSizeBytes = (fmt & 0xFF) / 8;
+		Uint32 samples = (chunk->alen / sampleSizeBytes);
+		Uint32 frames = (samples / channels);
 		milliseconds = ((frames * 1000) / freq);
 
 		Mix_FreeChunk(chunk);
