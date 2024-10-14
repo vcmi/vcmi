@@ -484,7 +484,7 @@ std::vector<ConstTransitivePtr<CGObjectInstance>> CGameInfoCallback::getAllVisit
 {
 	std::vector<ConstTransitivePtr<CGObjectInstance>> ret;
 	for(auto & obj : gs->map->objects)
-		if(obj->isVisitable() && obj->ID != Obj::EVENT && getTile(obj->pos, false))
+		if(obj->isVisitable() && obj->ID != Obj::EVENT && isVisible(obj))
 			ret.push_back(obj);
 
 	return ret;
