@@ -709,7 +709,7 @@ O download da instalação foi bem-sucedido?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="75"/>
         <source>Mods Validation</source>
-        <translation type="unfinished"></translation>
+        <translation>Validação de mods</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="88"/>
@@ -734,7 +734,7 @@ O download da instalação foi bem-sucedido?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
         <source>Full</source>
-        <translation type="unfinished"></translation>
+        <translation>Completo</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="788"/>
@@ -749,27 +749,27 @@ O download da instalação foi bem-sucedido?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1079"/>
         <source>Cursor Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Escala do cursor</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1108"/>
         <source>Scalable</source>
-        <translation type="unfinished"></translation>
+        <translation>Escalável</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1144"/>
         <source>Miscellaneous</source>
-        <translation type="unfinished"></translation>
+        <translation>Diversos</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
         <source>Font Scaling (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Escala da fonte (experimental)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1367"/>
         <source>Original</source>
-        <translation type="unfinished"></translation>
+        <translation>Original</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1406"/>
@@ -779,7 +779,7 @@ O download da instalação foi bem-sucedido?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1439"/>
         <source>Basic</source>
-        <translation type="unfinished"></translation>
+        <translation>Básico</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
@@ -1006,7 +1006,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="764"/>
         <source>VSync</source>
-        <translation>VSync</translation>
+        <translation>Sincronização vertical (VSync)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="649"/>
