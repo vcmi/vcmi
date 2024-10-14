@@ -269,8 +269,8 @@ jobs:
         
         # Workaround for CPack bug on macOS 13
         counter=0
-        until cpack -C ${{matrix.pack_type}} || ((counter > 20))
-            do sleep 3
+        until cpack -C ${{matrix.pack_type}} || ((counter > 20)); do
+            sleep 3
             ((counter++))
         done
 

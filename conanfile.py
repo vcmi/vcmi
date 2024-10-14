@@ -70,6 +70,7 @@ class VCMI(ConanFile):
             self.requires("sdl_mixer/2.0.4")
         elif self.settings.os == "Android":
             # On Android SDL version must be same as version of Java wrapper for SDL in VCMI source code
+            # Wrapper can be found in following directory: android/vcmi-app/src/main/java/org/libsdl/app
             self.requires("sdl/2.26.5")
             self.requires("sdl_mixer/2.0.4")
         else:
