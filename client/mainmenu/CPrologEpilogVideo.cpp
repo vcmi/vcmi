@@ -48,6 +48,7 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	if (videoPlayer->pos.h == 400)
 		videoPlayer->moveBy(Point(0, 100));
 
+	CCS->musich->setVolume(CCS->musich->getVolume() / 2); // background volume is too loud by default
 	CCS->musich->playMusic(spe.prologMusic, true, true);
 	voiceDurationMilliseconds = CCS->soundh->getSoundDurationMilliseconds(spe.prologVoice);
 	voiceSoundHandle = CCS->soundh->playSound(spe.prologVoice);
@@ -88,6 +89,7 @@ void CPrologEpilogVideo::show(Canvas & to)
 
 void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
 {
+	CCS->musich->setVolume(CCS->musich->getVolume() * 2); // restore background volume
 	close();
 	CCS->soundh->resetCallback(voiceSoundHandle); // reset callback to avoid memory corruption since 'this' will be destroyed
 	CCS->soundh->stopSound(voiceSoundHandle);
