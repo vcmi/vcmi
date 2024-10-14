@@ -15,7 +15,7 @@
 
 #include "../modManager/cmodlistview_moc.h"
 #include "../helper.h"
-#include "../jsonutils.h"
+#include "../vcmiqt/jsonutils.h"
 #include "../languages.h"
 
 #include <QFileInfo>
@@ -127,7 +127,12 @@ void CSettingsView::loadSettings()
 #endif
 	fillValidScalingRange();
 
-	ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
+	ui->buttonScalingAuto->setChecked(settings["video"]["resolution"]["scaling"].Integer() == 0);
+	if (settings["video"]["resolution"]["scaling"].Integer() == 0)
+		ui->spinBoxInterfaceScaling->setValue(100);
+	else
+		ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
+
 	ui->spinBoxFramerateLimit->setValue(settings["video"]["targetfps"].Float());
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
 	ui->sliderReservedArea->setValue(std::round(settings["video"]["reservedWidth"].Float() * 100));
@@ -174,6 +179,7 @@ void CSettingsView::loadSettings()
 	ui->sliderControllerSticksAcceleration->setValue(settings["input"]["controllerAxisScale"].Float() * 100);
 	ui->lineEditGameLobbyHost->setText(QString::fromStdString(settings["lobby"]["hostname"].String()));
 	ui->spinBoxNetworkPortLobby->setValue(settings["lobby"]["port"].Integer());
+	ui->buttonVSync->setChecked(settings["video"]["vsync"].Bool());
 
 	if (settings["video"]["fontsType"].String() == "auto")
 		ui->buttonFontAuto->setChecked(true);
@@ -182,13 +188,19 @@ void CSettingsView::loadSettings()
 	else
 		ui->buttonFontScalable->setChecked(true);
 
+	if (settings["mods"]["validation"].String() == "off")
+		ui->buttonValidationOff->setChecked(true);
+	else if (settings["mods"]["validation"].String() == "basic")
+		ui->buttonValidationBasic->setChecked(true);
+	else
+		ui->buttonValidationFull->setChecked(true);
+
 	loadToggleButtonSettings();
 }
 
 void CSettingsView::loadToggleButtonSettings()
 {
 	setCheckbuttonState(ui->buttonShowIntro, settings["video"]["showIntro"].Bool());
-	setCheckbuttonState(ui->buttonVSync, settings["video"]["vsync"].Bool());
 	setCheckbuttonState(ui->buttonAutoCheck, settings["launcher"]["autoCheckRepositories"].Bool());
 
 	setCheckbuttonState(ui->buttonRepositoryDefault, settings["launcher"]["defaultRepositoryEnabled"].Bool());
@@ -205,9 +217,14 @@ void CSettingsView::loadToggleButtonSettings()
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
 	setCheckbuttonState(ui->buttonCursorType, cursorTypeIndex);
+	ui->sliderScalingCursor->setDisabled(cursorType == "software"); // Not supported
+	ui->labelScalingCursorValue->setDisabled(cursorType == "software"); // Not supported
 
 	int fontScalingPercentage = settings["video"]["fontScalingFactor"].Float() * 100;
 	ui->sliderScalingFont->setValue(fontScalingPercentage / 5);
+
+	int cursorScalingPercentage = settings["video"]["cursorScalingFactor"].Float() * 100;
+	ui->sliderScalingCursor->setValue(cursorScalingPercentage / 5);
 
 }
 
@@ -487,6 +504,8 @@ void CSettingsView::on_buttonCursorType_toggled(bool value)
 	Settings node = settings.write["video"]["cursor"];
 	node->String() = cursorTypesList[value ? 1 : 0];
 	updateCheckbuttonText(ui->buttonCursorType);
+	ui->sliderScalingCursor->setDisabled(value == 1); // Not supported
+	ui->labelScalingCursorValue->setDisabled(value == 1); // Not supported
 }
 
 void CSettingsView::loadTranslation()
@@ -620,7 +639,6 @@ void CSettingsView::on_buttonVSync_toggled(bool value)
 	Settings node = settings.write["video"]["vsync"];
 	node->Bool() = value;
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
-	updateCheckbuttonText(ui->buttonVSync);
 }
 
 void CSettingsView::on_comboBoxEnemyPlayerAI_currentTextChanged(const QString &arg1)
@@ -791,3 +809,39 @@ void CSettingsView::on_buttonFontOriginal_clicked(bool checked)
 	Settings node = settings.write["video"]["fontsType"];
 	node->String() = "original";
 }
+
+void CSettingsView::on_buttonValidationOff_clicked(bool checked)
+{
+	Settings node = settings.write["mods"]["validation"];
+	node->String() = "off";
+}
+
+void CSettingsView::on_buttonValidationBasic_clicked(bool checked)
+{
+	Settings node = settings.write["mods"]["validation"];
+	node->String() = "basic";
+}
+
+void CSettingsView::on_buttonValidationFull_clicked(bool checked)
+{
+	Settings node = settings.write["mods"]["validation"];
+	node->String() = "full";
+}
+
+void CSettingsView::on_sliderScalingCursor_valueChanged(int value)
+{
+	int actualValuePercentage = value * 5;
+	ui->labelScalingCursorValue->setText(QString("%1%").arg(actualValuePercentage));
+	Settings node = settings.write["video"]["cursorScalingFactor"];
+	node->Float() = actualValuePercentage / 100.0;
+}
+
+void CSettingsView::on_buttonScalingAuto_toggled(bool checked)
+{
+	ui->spinBoxInterfaceScaling->setDisabled(checked);
+	ui->spinBoxInterfaceScaling->setValue(100);
+
+	Settings node = settings.write["video"]["resolution"]["scaling"];
+	node->Integer() = checked ? 0 : 100;
+}
+

@@ -158,7 +158,7 @@ void AssetGenerator::createPlayerColoredBackground(const PlayerColor & player)
 	assert(player.isValidPlayer());
 	if (!player.isValidPlayer())
 	{
-		logGlobal->error("Unable to colorize to invalid player color %d!", static_cast<int>(player.getNum()));
+		logGlobal->error("Unable to colorize to invalid player color %d!", player.getNum());
 		return;
 	}
 

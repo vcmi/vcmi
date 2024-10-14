@@ -22,6 +22,8 @@
 #include <QString>
 #include <QFile>
 
+#include "../vcmiqt/convpathqstring.h"
+
 VCMI_LIB_USING_NAMESPACE
 
 using NumericPointer = typename std::conditional_t<sizeof(void *) == sizeof(unsigned long long),
@@ -43,22 +45,4 @@ Type * data_cast(NumericPointer _numeric)
 				  "Cannot compile for that architecture, see NumericPointer definition");
 
 	return reinterpret_cast<Type *>(_numeric);
-}
-
-inline QString pathToQString(const boost::filesystem::path & path)
-{
-#ifdef VCMI_WINDOWS
-	return QString::fromStdWString(path.wstring());
-#else
-	return QString::fromStdString(path.string());
-#endif
-}
-
-inline boost::filesystem::path qstringToPath(const QString & path)
-{
-#ifdef VCMI_WINDOWS
-	return boost::filesystem::path(path.toStdWString());
-#else
-	return boost::filesystem::path(path.toUtf8().data());
-#endif
 }

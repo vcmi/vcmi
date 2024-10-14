@@ -12,12 +12,12 @@
 #include "validator.h"
 #include "mapcontroller.h"
 #include "ui_validator.h"
+#include "../lib/entities/hero/CHero.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapObjects/MapObjects.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/CModInfo.h"
 #include "../lib/spells/CSpellHandler.h"
-#include "../lib/CHeroHandler.h"
 
 Validator::Validator(const CMap * map, QWidget *parent) :
 	QDialog(parent),
@@ -122,13 +122,13 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 
 					++amountOfHeroes[ins->getOwner()];
 				}
-				if(ins->type)
+				if(ins->getHeroTypeID().hasValue())
 				{
-					if(map->allowedHeroes.count(ins->getHeroType()) == 0)
-						issues.insert({ tr("Hero %1 is prohibited by map settings").arg(ins->type->getNameTranslated().c_str()), false });
+					if(map->allowedHeroes.count(ins->getHeroTypeID()) == 0)
+						issues.insert({ tr("Hero %1 is prohibited by map settings").arg(ins->getHeroType()->getNameTranslated().c_str()), false });
 					
-					if(!allHeroesOnMap.insert(ins->type).second)
-						issues.insert({ tr("Hero %1 has duplicate on map").arg(ins->type->getNameTranslated().c_str()), false });
+					if(!allHeroesOnMap.insert(ins->getHeroType()).second)
+						issues.insert({ tr("Hero %1 has duplicate on map").arg(ins->getHeroType()->getNameTranslated().c_str()), false });
 				}
 				else if(ins->ID != Obj::RANDOM_HERO)
 					issues.insert({ tr("Hero %1 has an empty type and must be removed").arg(ins->instanceName.c_str()), true });

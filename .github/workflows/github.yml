@@ -22,14 +22,17 @@ jobs:
           - platform: linux-qt6
             os: ubuntu-24.04
             test: 0
+            before_install: linux_qt6.sh
             preset: linux-clang-test
           - platform: linux
             os: ubuntu-24.04
             test: 1
+            before_install: linux_qt5.sh
             preset: linux-gcc-test
           - platform: linux
             os: ubuntu-20.04
             test: 0
+            before_install: linux_qt5.sh
             preset: linux-gcc-debug
           - platform: mac-intel
             os: macos-13
@@ -37,8 +40,10 @@ jobs:
             pack: 1
             pack_type: Release
             extension: dmg
+            before_install: macos.sh
             preset: macos-conan-ninja-release
             conan_profile: macos-intel
+            conan_prebuilts: dependencies-mac-intel
             conan_options: --options with_apple_system_libs=True
             artifact_platform: intel
           - platform: mac-arm
@@ -47,8 +52,10 @@ jobs:
             pack: 1
             pack_type: Release
             extension: dmg
+            before_install: macos.sh
             preset: macos-arm-conan-ninja-release
             conan_profile: macos-arm
+            conan_prebuilts: dependencies-mac-arm
             conan_options: --options with_apple_system_libs=True
             artifact_platform: arm
           - platform: ios
@@ -57,8 +64,10 @@ jobs:
             pack: 1
             pack_type: Release
             extension: ipa
+            before_install: macos.sh
             preset: ios-release-conan-ccache
             conan_profile: ios-arm64
+            conan_prebuilts: dependencies-ios
             conan_options: --options with_apple_system_libs=True
           - platform: msvc
             os: windows-latest
@@ -66,40 +75,45 @@ jobs:
             pack: 1
             pack_type: RelWithDebInfo
             extension: exe
+            before_install: msvc.sh
             preset: windows-msvc-release
-          - platform: mingw
-            os: ubuntu-22.04
+          - platform: mingw_x86_64
+            os: ubuntu-24.04
             test: 0
             pack: 1
             pack_type: Release
             extension: exe
-            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
             cmake_args: -G Ninja
+            before_install: mingw.sh
             preset: windows-mingw-conan-linux
             conan_profile: mingw64-linux.jinja
-          - platform: mingw-32
-            os: ubuntu-22.04
+            conan_prebuilts: dependencies-mingw-x86-64
+          - platform: mingw_x86
+            os: ubuntu-24.04
             test: 0
             pack: 1
             pack_type: Release
             extension: exe
-            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
             cmake_args: -G Ninja
+            before_install: mingw.sh
             preset: windows-mingw-conan-linux
             conan_profile: mingw32-linux.jinja
+            conan_prebuilts: dependencies-mingw-x86
           - platform: android-32
-            os: macos-14
+            os: ubuntu-24.04
             extension: apk
             preset: android-conan-ninja-release
-            conan_profile: android-32
-            conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
+            before_install: android.sh
+            conan_profile: android-32-ndk
+            conan_prebuilts: dependencies-android-armeabi-v7a
             artifact_platform: armeabi-v7a
           - platform: android-64
-            os: macos-14
+            os: ubuntu-24.04
             extension: apk
             preset: android-conan-ninja-release
-            conan_profile: android-64
-            conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
+            before_install: android.sh
+            conan_profile: android-64-ndk
+            conan_prebuilts: dependencies-android-arm64-v8a
             artifact_platform: arm64-v8a
     runs-on: ${{ matrix.os }}
     defaults:
@@ -107,14 +121,20 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
       with:
         submodules: recursive
 
-    - name: Dependencies
-      run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
+    - name: Prepare CI
+      if: "${{ matrix.before_install != '' }}"
+      run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}'
       env:
         VCMI_BUILD_PLATFORM: x64
+
+    - name: Install Conan Dependencies
+      if: "${{ matrix.conan_prebuilts != '' }}"
+      run: source '${{github.workspace}}/CI/install_conan_dependencies.sh' '${{matrix.conan_prebuilts}}'
 
     # ensure the ccache for each PR is separate so they don't interfere with each other
     # fall back to ccache of the vcmi/vcmi repo if no PR-specific ccache is found
@@ -157,15 +177,13 @@ jobs:
         mkdir -p ~/.local/share/vcmi/
         mv h3_assets/* ~/.local/share/vcmi/
 
-    - uses: actions/setup-python@v5
+    - name: Install Conan
       if: "${{ matrix.conan_profile != '' }}"
-      with:
-        python-version: '3.10'
+      run: pipx install 'conan<2.0'
 
-    - name: Conan setup
+    - name: Install Conan profile
       if: "${{ matrix.conan_profile != '' }}"
       run: |
-        pip3 install 'conan<2.0'
         conan profile new default --detect
         conan install . \
           --install-folder=conan-generated \
@@ -177,7 +195,13 @@ jobs:
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
 
-    - uses: actions/setup-java@v4
+    # Workaround for gradle not discovering SDK that was installed via conan
+    - name: Find Android NDK
+      if: ${{ startsWith(matrix.platform, 'android') }}
+      run: sudo ln -s -T /home/runner/.conan/data/android-ndk/r25c/_/_/package/4db1be536558d833e52e862fd84d64d75c2b3656/bin /usr/local/lib/android/sdk/ndk/25.2.9519653
+
+    - name: Install Java
+      uses: actions/setup-java@v4
       if: ${{ startsWith(matrix.platform, 'android') }}
       with:
         distribution: 'temurin'
@@ -242,11 +266,13 @@ jobs:
       if: ${{ matrix.pack == 1 }}
       run: |
         cd '${{github.workspace}}/out/build/${{matrix.preset}}'
-        CPACK_PATH=`which -a cpack | grep -m1 -v -i chocolatey`
-        counter=0; until "$CPACK_PATH" -C ${{matrix.pack_type}} ${{ matrix.cpack_args }} || ((counter > 20)); do sleep 3; ((counter++)); done
-        test -f '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' \
-          && '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' '${{github.workspace}}' "$(ls '${{ env.VCMI_PACKAGE_FILE_NAME }}'.*)"
-        rm -rf _CPack_Packages
+        
+        # Workaround for CPack bug on macOS 13
+        counter=0
+        until cpack -C ${{matrix.pack_type}} || ((counter > 20)); do
+            sleep 3
+            ((counter++))
+        done
 
     - name: Artifacts
       if: ${{ matrix.pack == 1 }}
@@ -268,7 +294,7 @@ jobs:
         echo "ANDROID_APK_PATH=$ANDROID_APK_PATH" >> $GITHUB_ENV
         echo "ANDROID_AAB_PATH=$ANDROID_AAB_PATH" >> $GITHUB_ENV
 
-    - name: Android apk artifacts
+    - name: Upload android apk artifacts
       if: ${{ startsWith(matrix.platform, 'android') }}
       uses: actions/upload-artifact@v4
       with:
@@ -276,15 +302,15 @@ jobs:
         path: |
           ${{ env.ANDROID_APK_PATH }}
 
-    - name: Android aab artifacts
-      if: ${{ startsWith(matrix.platform, 'android') }}
+    - name: Upload Android aab artifacts
+      if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - aab
         path: |
           ${{ env.ANDROID_AAB_PATH }}
 
-    - name: Symbols
+    - name: Upload debug symbols
       if: ${{ matrix.platform == 'msvc' }}
       uses: actions/upload-artifact@v4
       with:
@@ -343,11 +369,6 @@ jobs:
     steps:
         - uses: actions/checkout@v4
 
-        - uses: actions/setup-python@v5
-          if: "${{ matrix.conan_profile != '' }}"
-          with:
-            python-version: '3.10'
-
         - name: Ensure LF line endings
           run: |
             find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./test/googletest \
@@ -358,4 +379,4 @@ jobs:
         - name: Validate JSON
           run: |
             sudo apt install python3-jstyleson
-            python3 CI/linux-qt6/validate_json.py
+            python3 CI/validate_json.py

@@ -15,6 +15,7 @@
 #include "../lib/LoadProgress.h"
 #include "../lib/ScriptHandler.h"
 #include "../lib/gameState/GameStatistics.h"
+#include "../lib/networkPacks/PacksForServer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -26,7 +27,6 @@ class CCommanderInstance;
 class EVictoryLossCheckResult;
 class CRandomGenerator;
 
-struct CPack;
 struct CPackForServer;
 struct NewTurn;
 struct CGarrisonOperationPack;
@@ -88,7 +88,7 @@ public:
 	CVCMIServer * gameLobby() const;
 
 	bool isValidObject(const CGObjectInstance *obj) const;
-	bool isBlockedByQueries(const CPack *pack, PlayerColor player);
+	bool isBlockedByQueries(const CPackForServer *pack, PlayerColor player);
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 
@@ -107,6 +107,7 @@ public:
 	//from IGameCallback
 	//do sth
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override;
+	void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted) override;
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
@@ -141,7 +142,7 @@ public:
 	void removeArtifact(const ObjectInstanceID & srcId, const std::vector<ArtifactPosition> & slotsPack);
 	bool moveArtifact(const PlayerColor & player, const ArtifactLocation & src, const ArtifactLocation & dst) override;
 	bool bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack);
-	bool scrollBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, bool left);
+	bool manageBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, const ManageBackpackArtifacts::ManageCmd & sortType);
 	bool saveArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx);
 	bool switchArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx);
 	bool eraseArtifactByClient(const ArtifactLocation & al);
@@ -193,7 +194,7 @@ public:
 
 	void init(StartInfo *si, Load::ProgressAccumulator & progressTracking);
 	void handleClientDisconnection(std::shared_ptr<CConnection> c);
-	void handleReceivedPack(CPackForServer * pack);
+	void handleReceivedPack(CPackForServer & pack);
 	bool hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const;
 
@@ -218,6 +219,7 @@ public:
 	bool buildStructure(ObjectInstanceID tid, BuildingID bid, bool force=false);//force - for events: no cost, no checkings
 	bool visitTownBuilding(ObjectInstanceID tid, BuildingID bid);
 	bool razeStructure(ObjectInstanceID tid, BuildingID bid);
+	bool spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool accepted);
 	bool disbandCreature( ObjectInstanceID id, SlotID pos );
 	bool arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player);
 	bool bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot);
@@ -258,11 +260,11 @@ public:
 #endif
 	}
 
-	void sendToAllClients(CPackForClient * pack);
-	void sendAndApply(CPackForClient * pack) override;
-	void sendAndApply(CGarrisonOperationPack * pack);
-	void sendAndApply(SetResources * pack);
-	void sendAndApply(NewStructures * pack);
+	void sendToAllClients(CPackForClient & pack);
+	void sendAndApply(CPackForClient & pack) override;
+	void sendAndApply(CGarrisonOperationPack & pack);
+	void sendAndApply(SetResources & pack);
+	void sendAndApply(NewStructures & pack);
 
 	void wrongPlayerMessage(CPackForServer * pack, PlayerColor expectedplayer);
 	/// Unconditionally throws with "Action not allowed" message

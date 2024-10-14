@@ -153,7 +153,7 @@ void ObstaclePlacer::postProcess(const rmg::Object & object)
 	riverManager = zone.getModificator<RiverPlacer>();
 	if(riverManager)
 	{
-		const auto objTypeName = object.instances().front()->object().typeName;
+		const auto objTypeName = object.instances().front()->object().getTypeName();
 		if(objTypeName == "mountain")
 			riverManager->riverSource().unite(object.getArea());
 		else if(objTypeName == "lake")

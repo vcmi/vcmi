@@ -112,7 +112,7 @@ void QuestArtifactPlacer::placeQuestArtifacts(vstd::RNG & rand)
 
 			logGlobal->trace("Replacing %s at %s with the quest artifact %s",
 				objectToReplace->getObjectName(),
-				objectToReplace->getPosition().toString(),
+				objectToReplace->anchorPos().toString(),
 				VLC->artifacts()->getById(artifactToPlace)->getNameTranslated());
 
 			//Update appearance. Terrain is irrelevant.
@@ -121,7 +121,7 @@ void QuestArtifactPlacer::placeQuestArtifacts(vstd::RNG & rand)
 			auto templates = handler->getTemplates();
 			//artifactToReplace->appearance = templates.front();
 			newObj->appearance  = templates.front();
-			newObj->pos = objectToReplace->pos;
+			newObj->setAnchorPos(objectToReplace->anchorPos());
 			mapProxy->insertObject(newObj);
 			mapProxy->removeObject(objectToReplace);
 			break;

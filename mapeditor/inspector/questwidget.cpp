@@ -16,11 +16,15 @@
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CCreatureHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/constants/StringConstants.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGCreature.h"
+
+#include <vcmi/HeroTypeService.h>
+#include <vcmi/HeroType.h>
+#include <vcmi/HeroClassService.h>
+#include <vcmi/HeroClass.h>
 
 QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *parent) :
 	QDialog(parent),

@@ -39,12 +39,13 @@
 #include "../../lib/entities/faction/CFaction.h"
 #include "../../lib/entities/faction/CTown.h"
 #include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/entities/hero/CHeroClass.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 
@@ -835,9 +836,9 @@ OptionsTab::HandicapWindow::HandicapWindow()
 			if(i == 0)
 			{
 				if(isIncome)
-					labels.push_back(std::make_shared<CLabel>(xPos, 35, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.jktext.32")));
+					labels.push_back(std::make_shared<CLabel>(xPos, 38, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.jktext.32")));
 				else if(isGrowth)
-					labels.push_back(std::make_shared<CLabel>(xPos, 35, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.194")));
+					labels.push_back(std::make_shared<CLabel>(xPos, 38, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.194")));
 				else
 					anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(resource), 0, 15 + xPos + (j == 0 ? 10 : 0), 35));
 			}
@@ -1035,14 +1036,13 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 		labelPlayerNameEdit = std::make_shared<CTextInput>(Rect(6, 3, 95, 15), EFonts::FONT_SMALL, ETextAlignment::CENTER, false);
 		labelPlayerNameEdit->setText(name);
 	}
-	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
 
-	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, font->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::TOPCENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
+	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 21, 45, 26), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
 	auto hasHandicap = [this](){ return s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 && s->handicap.percentGrowth == 100; };
 	std::string labelHandicapText = hasHandicap() ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString();
-	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(57, 24, 47, font->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::TOPCENTER, Colors::WHITE, labelHandicapText);
-	handicap = std::make_shared<LRClickableArea>(Rect(56, 24, 49, font->getLineHeight()*2), [](){
+	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(55, 23, 46, 24), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, labelHandicapText);
+	handicap = std::make_shared<LRClickableArea>(Rect(53, 23, 50, 24), [](){
 		if(!CSH->isHost())
 			return;
 		

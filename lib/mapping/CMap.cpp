@@ -13,11 +13,11 @@
 #include "../CArtHandler.h"
 #include "../VCMI_Lib.h"
 #include "../CCreatureHandler.h"
-#include "../CHeroHandler.h"
 #include "../GameSettings.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
+#include "../entities/hero/CHeroHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/CQuest.h"
@@ -232,22 +232,22 @@ CMap::~CMap()
 
 void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 {
-	const int zVal = obj->pos.z;
+	const int zVal = obj->anchorPos().z;
 	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{
-		int xVal = obj->pos.x - fx;
+		int xVal = obj->anchorPos().x - fx;
 		for(int fy = 0; fy < obj->getHeight(); ++fy)
 		{
-			int yVal = obj->pos.y - fy;
+			int yVal = obj->anchorPos().y - fy;
 			if(xVal>=0 && xVal < width && yVal>=0 && yVal < height)
 			{
 				TerrainTile & curt = terrain[zVal][xVal][yVal];
-				if(total || obj->visitableAt(xVal, yVal))
+				if(total || obj->visitableAt(int3(xVal, yVal, zVal)))
 				{
 					curt.visitableObjects -= obj;
 					curt.visitable = curt.visitableObjects.size();
 				}
-				if(total || obj->blockingAt(xVal, yVal))
+				if(total || obj->blockingAt(int3(xVal, yVal, zVal)))
 				{
 					curt.blockingObjects -= obj;
 					curt.blocked = curt.blockingObjects.size();
@@ -259,22 +259,22 @@ void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 
 void CMap::addBlockVisTiles(CGObjectInstance * obj)
 {
-	const int zVal = obj->pos.z;
+	const int zVal = obj->anchorPos().z;
 	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{
-		int xVal = obj->pos.x - fx;
+		int xVal = obj->anchorPos().x - fx;
 		for(int fy = 0; fy < obj->getHeight(); ++fy)
 		{
-			int yVal = obj->pos.y - fy;
+			int yVal = obj->anchorPos().y - fy;
 			if(xVal>=0 && xVal < width && yVal >= 0 && yVal < height)
 			{
 				TerrainTile & curt = terrain[zVal][xVal][yVal];
-				if(obj->visitableAt(xVal, yVal))
+				if(obj->visitableAt(int3(xVal, yVal, zVal)))
 				{
 					curt.visitableObjects.push_back(obj);
 					curt.visitable = true;
 				}
-				if(obj->blockingAt(xVal, yVal))
+				if(obj->blockingAt(int3(xVal, yVal, zVal)))
 				{
 					curt.blockingObjects.push_back(obj);
 					curt.blocked = true;
@@ -302,7 +302,7 @@ void CMap::calculateGuardingGreaturePositions()
 CGHeroInstance * CMap::getHero(HeroTypeID heroID)
 {
 	for(auto & elem : heroesOnMap)
-		if(elem->getHeroType() == heroID)
+		if(elem->getHeroTypeID() == heroID)
 			return elem;
 	return nullptr;
 }
@@ -444,14 +444,14 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj type
 				bestMatch = object;
 			else
 			{
-				if (object->pos.dist2dSQ(pos) < bestMatch->pos.dist2dSQ(pos))
+				if (object->anchorPos().dist2dSQ(pos) < bestMatch->anchorPos().dist2dSQ(pos))
 					bestMatch = object;// closer than one we already found
 			}
 		}
 	}
 	assert(bestMatch != nullptr); // if this happens - victory conditions or map itself is very, very broken
 
-	logGlobal->error("Will use %s from %s", bestMatch->getObjectName(), bestMatch->pos.toString());
+	logGlobal->error("Will use %s from %s", bestMatch->getObjectName(), bestMatch->anchorPos().toString());
 	return bestMatch;
 }
 
@@ -608,7 +608,7 @@ void CMap::setUniqueInstanceName(CGObjectInstance * obj)
 	auto uid = uidCounter++;
 
 	boost::format fmt("%s_%d");
-	fmt % obj->typeName % uid;
+	fmt % obj->getTypeName() % uid;
 	obj->instanceName = fmt.str();
 }
 
@@ -635,7 +635,7 @@ void CMap::addNewObject(CGObjectInstance * obj)
 void CMap::moveObject(CGObjectInstance * obj, const int3 & pos)
 {
 	removeBlockVisTiles(obj);
-	obj->pos = pos;
+	obj->setAnchorPos(pos);
 	addBlockVisTiles(obj);
 }
 
@@ -803,7 +803,7 @@ void CMap::reindexObjects()
 		if (lhs->isRemovable() && !rhs->isRemovable())
 			return false;
 
-		return lhs->pos.y < rhs->pos.y;
+		return lhs->anchorPos().y < rhs->anchorPos().y;
 	});
 
 	// instanceNames don't change

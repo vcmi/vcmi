@@ -78,7 +78,7 @@ void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 
 	int3 tile;
 	if (q->obj)
-		tile = q->obj->pos;
+		tile = q->obj->visitablePos();
 	else
 		tile = q->tile;
 
@@ -104,7 +104,7 @@ void CQuestMinimap::update()
 void CQuestMinimap::iconClicked()
 {
 	if(currentQuest->obj)
-		adventureInt->centerOnTile(currentQuest->obj->pos);
+		adventureInt->centerOnTile(currentQuest->obj->visitablePos());
 	//moveAdvMapSelection();
 }
 

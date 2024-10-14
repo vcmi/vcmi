@@ -14,6 +14,7 @@
 #include "CPlayerInterface.h"
 #include "CGameInfo.h"
 #include "windows/GUIClasses.h"
+#include "windows/CCastleInterface.h"
 #include "mapView/mapHandler.h"
 #include "adventureMap/AdventureMapInterface.h"
 #include "adventureMap/CInGameConsole.h"
@@ -31,7 +32,6 @@
 #include "../lib/filesystem/FileInfo.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/VCMIDirs.h"
@@ -170,6 +170,12 @@ void ApplyClientNetPackVisitor::visitSetMovePoints(SetMovePoints & pack)
 	const CGHeroInstance *h = cl.getHero(pack.hid);
 	cl.updatePath(h);
 	callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroMovePointsChanged, h);
+}
+
+void ApplyClientNetPackVisitor::visitSetResearchedSpells(SetResearchedSpells & pack)
+{
+	for(const auto & win : GH.windows().findWindows<CMageGuildScreen>())
+		win->updateSpells(pack.tid);
 }
 
 void ApplyClientNetPackVisitor::visitFoWChange(FoWChange & pack)
@@ -664,7 +670,7 @@ void ApplyClientNetPackVisitor::visitSetHeroesInTown(SetHeroesInTown & pack)
 void ApplyClientNetPackVisitor::visitHeroRecruited(HeroRecruited & pack)
 {
 	CGHeroInstance *h = gs.map->heroesOnMap.back();
-	if(h->getHeroType() != pack.hid)
+	if(h->getHeroTypeID() != pack.hid)
 	{
 		logNetwork->error("Something wrong with hero recruited!");
 	}

@@ -54,7 +54,7 @@ void RemoveObstacle::apply(ServerCallback * server, const Mechanics * m, const E
 	}
 
 	if(!pack.changes.empty())
-		server->apply(&pack);
+		server->apply(pack);
 }
 
 void RemoveObstacle::serializeJsonEffect(JsonSerializeFormat & handler)

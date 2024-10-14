@@ -50,10 +50,11 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/entities/hero/CHeroClass.h"
+#include "../../lib/entities/hero/CHero.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -389,13 +390,13 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 {
 	AnimationPath animationPath;
 
-	if(!hero->type->battleImage.empty())
-		animationPath = hero->type->battleImage;
+	if(!hero->getHeroType()->battleImage.empty())
+		animationPath = hero->getHeroType()->battleImage;
 	else
 	if(hero->gender == EHeroGender::FEMALE)
-		animationPath = hero->type->heroClass->imageBattleFemale;
+		animationPath = hero->getHeroClass()->imageBattleFemale;
 	else
-		animationPath = hero->type->heroClass->imageBattleMale;
+		animationPath = hero->getHeroClass()->imageBattleMale;
 
 	animation = GH.renderHandler().loadAnimation(animationPath, EImageBlitMode::ALPHA);
 
@@ -1027,7 +1028,7 @@ void StackQueue::update()
 
 int32_t StackQueue::getSiegeShooterIconID()
 {
-	return owner.siegeController->getSiegedTown()->town->faction->getIndex();
+	return owner.siegeController->getSiegedTown()->getFactionID().getNum();
 }
 
 std::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const

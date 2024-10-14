@@ -13,6 +13,7 @@
 #include "PacksForClientBattle.h"
 #include "PacksForServer.h"
 #include "PacksForLobby.h"
+#include "SaveLocalState.h"
 #include "SetRewardableConfiguration.h"
 #include "SetStackEffect.h"
 
@@ -42,6 +43,7 @@ public:
 	virtual void visitSetSecSkill(SetSecSkill & pack) {}
 	virtual void visitHeroVisitCastle(HeroVisitCastle & pack) {}
 	virtual void visitChangeSpells(ChangeSpells & pack) {}
+	virtual void visitSetResearchedSpells(SetResearchedSpells & pack) {}
 	virtual void visitSetMana(SetMana & pack) {}
 	virtual void visitSetMovePoints(SetMovePoints & pack) {}
 	virtual void visitFoWChange(FoWChange & pack) {}
@@ -128,6 +130,7 @@ public:
 	virtual void visitBuildStructure(BuildStructure & pack) {}
 	virtual void visitVisitTownBuilding(VisitTownBuilding & pack) {}
 	virtual void visitRazeStructure(RazeStructure & pack) {}
+	virtual void visitSpellResearch(SpellResearch & pack) {}
 	virtual void visitRecruitCreatures(RecruitCreatures & pack) {}
 	virtual void visitUpgradeCreature(UpgradeCreature & pack) {}
 	virtual void visitGarrisonHeroSwap(GarrisonHeroSwap & pack) {}
@@ -175,6 +178,7 @@ public:
 	virtual void visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack) {}
 	virtual void visitLobbyShowMessage(LobbyShowMessage & pack) {}
 	virtual void visitLobbyPvPAction(LobbyPvPAction & pack) {}
+	virtual void visitSaveLocalState(SaveLocalState & pack) {}
 };
 
 VCMI_LIB_NAMESPACE_END

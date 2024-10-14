@@ -401,7 +401,7 @@ void CStack::spendMana(ServerCallback * server, const int spellCost) const
 	ssp.which = BattleSetStackProperty::CASTS;
 	ssp.val = -spellCost;
 	ssp.absolute = false;
-	server->apply(&ssp);
+	server->apply(ssp);
 }
 
 VCMI_LIB_NAMESPACE_END

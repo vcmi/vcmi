@@ -17,6 +17,7 @@
 #include "ModIncompatibility.h"
 
 #include "../CCreatureHandler.h"
+#include "../CConfigHandler.h"
 #include "../CStopWatch.h"
 #include "../GameSettings.h"
 #include "../ScriptHandler.h"
@@ -331,10 +332,38 @@ void CModHandler::loadModFilesystems()
 
 	coreMod->updateChecksum(calculateModChecksum(ModScope::scopeBuiltin(), CResourceHandler::get(ModScope::scopeBuiltin())));
 
+	std::map<std::string, ISimpleResourceLoader *> modFilesystems;
+
 	for(std::string & modName : activeMods)
+		modFilesystems[modName] = genModFilesystem(modName, allMods[modName].config);
+
+	for(std::string & modName : activeMods)
+		CResourceHandler::addFilesystem("data", modName, modFilesystems[modName]);
+
+	if (settings["mods"]["validation"].String() == "full")
 	{
-		CModInfo & mod = allMods[modName];
-		CResourceHandler::addFilesystem("data", modName, genModFilesystem(modName, mod.config));
+		for(std::string & leftModName : activeMods)
+		{
+			for(std::string & rightModName : activeMods)
+			{
+				if (leftModName == rightModName)
+					continue;
+
+				if (getModDependencies(leftModName).count(rightModName) || getModDependencies(rightModName).count(leftModName))
+					continue;
+
+				const auto & filter = [](const ResourcePath &path){return path.getType() != EResType::DIRECTORY;};
+
+				std::unordered_set<ResourcePath> leftResources = modFilesystems[leftModName]->getFilteredFiles(filter);
+				std::unordered_set<ResourcePath> rightResources = modFilesystems[rightModName]->getFilteredFiles(filter);
+
+				for (auto const & leftFile : leftResources)
+				{
+					if (rightResources.count(leftFile))
+						logMod->warn("Potential confict detected between '%s' and '%s': both mods add file '%s'", leftModName, rightModName, leftFile.getOriginalName());
+				}
+			}
+		}
 	}
 }
 
@@ -368,6 +397,12 @@ std::string CModHandler::getModLanguage(const TModID& modId) const
 	if(modId == "map")
 		return VLC->generaltexth->getPreferredLanguage();
 	return allMods.at(modId).baseLanguage;
+}
+
+std::set<TModID> CModHandler::getModDependencies(const TModID & modId) const
+{
+	bool isModFound;
+	return getModDependencies(modId, isModFound);
 }
 
 std::set<TModID> CModHandler::getModDependencies(const TModID & modId, bool & isModFound) const

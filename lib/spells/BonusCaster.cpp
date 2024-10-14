@@ -12,12 +12,12 @@
 #include "BonusCaster.h"
 
 #include <vcmi/spells/Spell.h>
+#include <vcmi/HeroType.h>
 
 #include "../battle/Unit.h"
 #include "../bonuses/Bonus.h"
 #include "../VCMI_Lib.h"
 #include "../CSkillHandler.h"
-#include "../CHeroHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

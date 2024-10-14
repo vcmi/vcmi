@@ -468,8 +468,8 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 				LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 		}
 	}, [town]{
-		if(!town->town->faction->getDescriptionTranslated().empty())
-			CRClickPopup::createAndPush(town->town->faction->getDescriptionTranslated());
+		if(!town->getFaction()->getDescriptionTranslated().empty())
+			CRClickPopup::createAndPush(town->getFaction()->getDescriptionTranslated());
 	});
 	fastMarket = std::make_shared<LRClickableArea>(Rect(143, 31, 30, 34), []()
 	{
@@ -532,8 +532,7 @@ CreatureTooltip::CreatureTooltip(Point pos, const CGCreature * creature)
 {
 	OBJECT_CONSTRUCTION;
 
-	auto creatureID = creature->getCreature();
-	int32_t creatureIconIndex = CGI->creatures()->getById(creatureID)->getIconIndex();
+	int32_t creatureIconIndex = creature->getCreature()->getIconIndex();
 
 	creatureImage = std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), creatureIconIndex);
 	creatureImage->center(Point(parent->pos.x + parent->pos.w / 2, parent->pos.y + creatureImage->pos.h / 2 + 11));
@@ -633,7 +632,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 	pos.x+=x;
 	pos.y+=y;
 
-	auto faction = cre->getFaction();
+	auto faction = cre->getFactionID();
 
 	assert(CGI->townh->size() > faction);
 

@@ -381,7 +381,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 			for(const auto & creature : VLC->creh->objects)
 			{
-				if(creature->getFaction() == factionIndex && static_cast<int>(creature->getAIValue()) > maxAIValue)
+				if(creature->getFactionID() == factionIndex && static_cast<int>(creature->getAIValue()) > maxAIValue)
 				{
 					maxAIValue = creature->getAIValue();
 					mostStrong = creature.get();
@@ -550,7 +550,7 @@ EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile, bool verbose) cons
 
 	for(const auto & object : gs->map->objects)
 	{
-		if(object && object->ID == Obj::HOLE && object->pos == tile)
+		if(object && object->ID == Obj::HOLE && object->anchorPos() == tile)
 			return EDiggingStatus::TILE_OCCUPIED;
 	}
 	return getTile(tile)->getDiggingStatus();
@@ -586,10 +586,10 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 {
 	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", EBuildingState::TOWN_NOT_OWNED);
 
-	if(!t->town->buildings.count(ID))
+	if(!t->getTown()->buildings.count(ID))
 		return EBuildingState::BUILDING_ERROR;
 
-	const CBuilding * building = t->town->buildings.at(ID);
+	const CBuilding * building = t->getTown()->buildings.at(ID);
 
 
 	if(t->hasBuilt(ID))	//already built

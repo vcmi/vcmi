@@ -23,9 +23,9 @@
 
 #include "../../../CCallback.h"
 
+#include "../../../lib/entities/hero/CHeroHandler.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../../../lib/CHeroHandler.h"
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CMarketBase::CMarketBase(const IMarket * market, const CGHeroInstance * hero)

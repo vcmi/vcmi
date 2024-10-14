@@ -62,6 +62,13 @@
 
 	"vcmi.spellBook.search" : "suchen...",
 
+	"vcmi.spellResearch.canNotAfford" : "Ihr könnt es Euch nicht leisten, {%SPELL1} durch {%SPELL2} zu ersetzen. Aber Ihr könnt diesen Zauberspruch trotzdem verwerfen und die Zauberspruchforschung fortsetzen.",
+	"vcmi.spellResearch.comeAgain" : "Die Forschung wurde heute bereits abgeschlossen. Kommt morgen wieder.",
+	"vcmi.spellResearch.pay" : "Möchtet Ihr {%SPELL1} durch {%SPELL2} ersetzen? Oder diesen Zauberspruch verwerfen und die Zauberspruchforschung fortsetzen?",
+	"vcmi.spellResearch.research" : "Erforsche diesen Zauberspruch",
+	"vcmi.spellResearch.skip" : "Überspringe diesen Zauberspruch",
+	"vcmi.spellResearch.abort" : "Abbruch",
+
 	"vcmi.mainMenu.serverConnecting" : "Verbinde...",
 	"vcmi.mainMenu.serverAddressEnter" : "Addresse eingeben:",
 	"vcmi.mainMenu.serverConnectionFailed" : "Verbindung fehlgeschlagen",

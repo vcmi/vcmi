@@ -12,7 +12,6 @@
 #include "MapIdentifiersH3M.h"
 
 #include "../VCMI_Lib.h"
-#include "../CHeroHandler.h"
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../filesystem/Filesystem.h"

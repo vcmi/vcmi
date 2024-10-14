@@ -519,7 +519,7 @@ class VideoWindow : public CWindowObject
 
 	void exit(bool skipped);
 public:
-	VideoWindow(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void(bool)> closeCb);
+	VideoWindow(const VideoPath & video, const ImagePath & rim, bool showBackground, float scaleFactor, const std::function<void(bool)> & closeCb);
 
 	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;

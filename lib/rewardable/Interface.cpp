@@ -11,10 +11,10 @@
 #include "StdInc.h"
 #include "Interface.h"
 
-#include "../CHeroHandler.h"
 #include "../TerrainHandler.h"
 #include "../CPlayerState.h"
 #include "../CSoundBase.h"
+#include "../entities/hero/CHeroHandler.h"
 #include "../gameState/CGameState.h"
 #include "../spells/CSpellHandler.h"
 #include "../spells/ISpellMechanics.h"
@@ -363,6 +363,23 @@ void Rewardable::Interface::doHeroVisit(const CGHeroInstance *h) const
 			grantRewardWithMessage(h, visitedRewards[0], false);
 		else
 			logMod->warn("No applicable message for visiting already visited object!");
+	}
+}
+
+void Rewardable::Interface::onBlockingDialogAnswered(const CGHeroInstance * hero, int32_t answer) const
+{
+	if (answer == 0)
+		return; //Player refused
+
+	if(answer > 0 && answer - 1 < configuration.info.size())
+	{
+		auto list = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
+		markAsVisited(hero);
+		grantReward(list[answer - 1], hero);
+	}
+	else
+	{
+		throw std::runtime_error("Unhandled choice");
 	}
 }
 

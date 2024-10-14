@@ -11,8 +11,9 @@
 #include "inspector.h"
 #include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
+#include "../lib/entities/hero/CHeroClass.h"
+#include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/spells/CSpellHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
@@ -138,25 +139,23 @@ void Initializer::initialize(CGHeroInstance * o)
 		o->subID = 0;
 		o->tempOwner = PlayerColor::NEUTRAL;
 	}
-	
+
 	if(o->ID == Obj::HERO)
 	{
 		for(auto const & t : VLC->heroh->objects)
 		{
 			if(t->heroClass->getId() == HeroClassID(o->subID))
 			{
-				o->type = t.get();
+				o->subID = t->getId();
 				break;
 			}
 		}
 	}
-	
-	if(o->type)
+
+	if(o->getHeroTypeID().hasValue())
 	{
-		//	o->type = VLC->heroh->objects.at(o->subID);
-		
-		o->gender = o->type->gender;
-		o->randomizeArmy(o->type->heroClass->faction);
+		o->gender = o->getHeroType()->gender;
+		o->randomizeArmy(o->getFactionID());
 	}
 }
 
@@ -304,7 +303,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	auto isPrison = o->ID == Obj::PRISON;
 	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller, isPrison), isPrison); //field is not editable for prison
 	addProperty<int>("Experience", o->exp, false);
-	addProperty("Hero class", o->type ? o->type->heroClass->getNameTranslated() : "", true);
+	addProperty("Hero class", o->getHeroClassID().hasValue() ? o->getHeroClass()->getNameTranslated() : "", true);
 	
 	{ //Gender
 		auto * delegate = new InspectorDelegate;
@@ -319,20 +318,20 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	addProperty("Skills", PropertyEditorPlaceholder(), delegate, false);
 	addProperty("Spells", PropertyEditorPlaceholder(), new HeroSpellDelegate(*o), false);
 	
-	if(o->type || o->ID == Obj::PRISON)
+	if(o->getHeroTypeID().hasValue() || o->ID == Obj::PRISON)
 	{ //Hero type
 		auto * delegate = new InspectorDelegate;
-		for(int i = 0; i < VLC->heroh->objects.size(); ++i)
+		for(const auto & heroPtr : VLC->heroh->objects)
 		{
-			if(controller.map()->allowedHeroes.count(HeroTypeID(i)) != 0)
+			if(controller.map()->allowedHeroes.count(heroPtr->getId()) != 0)
 			{
-				if(o->ID == Obj::PRISON || (o->type && VLC->heroh->objects[i]->heroClass->getIndex() == o->type->heroClass->getIndex()))
+				if(o->ID == Obj::PRISON || heroPtr->heroClass->getIndex() == o->getHeroClassID())
 				{
-					delegate->options.push_back({QObject::tr(VLC->heroh->objects[i]->getNameTranslated().c_str()), QVariant::fromValue(VLC->heroh->objects[i]->getId().getNum())});
+					delegate->options.push_back({QObject::tr(heroPtr->getNameTranslated().c_str()), QVariant::fromValue(heroPtr->getIndex())});
 				}
 			}
 		}
-		addProperty("Hero type", o->type ? o->type->getNameTranslated() : "", delegate, false);
+		addProperty("Hero type", o->getHeroTypeID().hasValue() ? o->getHeroType()->getNameTranslated() : "", delegate, false);
 	}
 }
 
@@ -472,8 +471,6 @@ void Inspector::updateProperties()
 	addProperty("ID", obj->ID.getNum());
 	addProperty("SubID", obj->subID);
 	addProperty("InstanceName", obj->instanceName);
-	addProperty("TypeName", obj->typeName);
-	addProperty("SubTypeName", obj->subTypeName);
 	
 	if(obj->ID != Obj::HERO_PLACEHOLDER && !dynamic_cast<CGHeroInstance*>(obj))
 	{
@@ -706,13 +703,10 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 		for(auto const & t : VLC->heroh->objects)
 		{
 			if(t->getId() == value.toInt())
-			{
 				o->subID = value.toInt();
-				o->type = t.get();
-			}
 		}
-		o->gender = o->type->gender;
-		o->randomizeArmy(o->type->heroClass->faction);
+		o->gender = o->getHeroType()->gender;
+		o->randomizeArmy(o->getHeroType()->heroClass->faction);
 		updateProperties(); //updating other properties after change
 	}
 }

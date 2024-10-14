@@ -312,3 +312,8 @@ void CursorHandler::changeCursor(Cursor::ShowType newShowType)
 			break;
 	}
 }
+
+void CursorHandler::onScreenResize()
+{
+	cursor->setImage(getCurrentImage(), getPivotOffset());
+}

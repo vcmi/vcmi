@@ -87,6 +87,10 @@ set(lib_MAIN_SRCS
 	entities/faction/CFaction.cpp
 	entities/faction/CTown.cpp
 	entities/faction/CTownHandler.cpp
+	entities/hero/CHero.cpp
+	entities/hero/CHeroClass.cpp
+	entities/hero/CHeroClassHandler.cpp
+	entities/hero/CHeroHandler.cpp
 
 	events/ApplyDamage.cpp
 	events/GameResumed.cpp
@@ -270,7 +274,6 @@ set(lib_MAIN_SRCS
 	CCreatureSet.cpp
 	CGameInfoCallback.cpp
 	CGameInterface.cpp
-	CHeroHandler.cpp
 	CPlayerState.cpp
 	CRandomGenerator.cpp
 	CScriptingModule.cpp
@@ -458,6 +461,11 @@ set(lib_MAIN_HEADERS
 	entities/faction/CFaction.h
 	entities/faction/CTown.h
 	entities/faction/CTownHandler.h
+	entities/hero/CHero.h
+	entities/hero/CHeroClass.h
+	entities/hero/CHeroClassHandler.h
+	entities/hero/CHeroHandler.h
+	entities/hero/EHeroGender.h
 
 	events/ApplyDamage.h
 	events/GameResumed.h
@@ -559,6 +567,7 @@ set(lib_MAIN_HEADERS
 	networkPacks/PacksForServer.h
 	networkPacks/SetRewardableConfiguration.h
 	networkPacks/SetStackEffect.h
+	networkPacks/SaveLocalState.h
 	networkPacks/StackLocation.h
 	networkPacks/TradeItem.h
 
@@ -682,7 +691,6 @@ set(lib_MAIN_HEADERS
 	CCreatureSet.h
 	CGameInfoCallback.h
 	CGameInterface.h
-	CHeroHandler.h
 	ConstTransitivePtr.h
 	Color.h
 	CPlayerState.h

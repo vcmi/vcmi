@@ -15,12 +15,12 @@
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
 #include "IGameSettings.h"
+#include "entities/hero/CHeroHandler.h"
 #include "mapObjects/CGHeroInstance.h"
 #include "modding/ModScope.h"
 #include "IGameCallback.h"
 #include "texts/CGeneralTextHandler.h"
 #include "spells/CSpellHandler.h"
-#include "CHeroHandler.h"
 #include "IBonusTypeHandler.h"
 #include "serializer/JsonSerializeFormat.h"
 
@@ -912,10 +912,10 @@ void CStackInstance::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-FactionID CStackInstance::getFaction() const
+FactionID CStackInstance::getFactionID() const
 {
 	if(type)
-		return type->getFaction();
+		return type->getFactionID();
 		
 	return FactionID::NEUTRAL;
 }

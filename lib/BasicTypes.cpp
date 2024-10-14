@@ -38,7 +38,7 @@ TerrainId AFactionMember::getNativeTerrain() const
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
 	return getBonusBearer()->hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
-		? TerrainId::ANY_TERRAIN : VLC->factions()->getById(getFaction())->getNativeTerrain();
+			 ? TerrainId::ANY_TERRAIN : getFactionID().toEntity(VLC)->getNativeTerrain();
 }
 
 int32_t AFactionMember::magicResistance() const

@@ -33,7 +33,7 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 	if(stacks.empty())
 	{
 		//should not happen...
-		logGlobal->error("Invalid stack at tile %s: subID=%d; id=%d", pos.toString(), getCreature(), id.getNum());
+		logGlobal->error("Invalid stack at tile %s: subID=%d; id=%d", anchorPos().toString(), getCreature(), id.getNum());
 		return "INVALID_STACK";
 	}
 
@@ -45,7 +45,7 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 	else
 		ms.appendLocalString(EMetaText::ARRAY_TXT, quantityTextIndex);
 	ms.appendRawString(" ");
-	ms.appendNamePlural(getCreature());
+	ms.appendNamePlural(getCreatureID());
 
 	return ms.toString();
 }
@@ -57,7 +57,7 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 		MetaString ms;
 		ms.appendNumber(stacks.begin()->second->count);
 		ms.appendRawString(" ");
-		ms.appendName(getCreature(), stacks.begin()->second->count);
+		ms.appendName(getCreatureID(), stacks.begin()->second->count);
 		return ms.toString();
 	}
 	else
@@ -69,11 +69,11 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 std::string CGCreature::getMonsterLevelText() const
 {
 	std::string monsterLevel = VLC->generaltexth->translate("vcmi.adventureMap.monsterLevel");
-	bool isRanged = VLC->creatures()->getById(getCreature())->getBonusBearer()->hasBonusOfType(BonusType::SHOOTER);
+	bool isRanged = getCreature()->getBonusBearer()->hasBonusOfType(BonusType::SHOOTER);
 	std::string attackTypeKey = isRanged ? "vcmi.adventureMap.monsterRangedType" : "vcmi.adventureMap.monsterMeleeType";
 	std::string attackType = VLC->generaltexth->translate(attackTypeKey);
-	boost::replace_first(monsterLevel, "%TOWN", (*VLC->townh)[VLC->creatures()->getById(getCreature())->getFaction()]->getNameTranslated());
-	boost::replace_first(monsterLevel, "%LEVEL", std::to_string(VLC->creatures()->getById(getCreature())->getLevel()));
+	boost::replace_first(monsterLevel, "%TOWN", getCreature()->getFactionID().toEntity(VLC)->getNameTranslated());
+	boost::replace_first(monsterLevel, "%LEVEL", std::to_string(getCreature()->getLevel()));
 	boost::replace_first(monsterLevel, "%ATTACK_TYPE", attackType);
 	return monsterLevel;
 }
@@ -150,7 +150,7 @@ std::string CGCreature::getPopupText(PlayerColor player) const
 std::vector<Component> CGCreature::getPopupComponents(PlayerColor player) const
 {
 	return {
-		Component(ComponentType::CREATURE, getCreature())
+		Component(ComponentType::CREATURE, getCreatureID())
 	};
 }
 
@@ -182,7 +182,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
 			ynd.text.appendLocalString(EMetaText::ADVOB_TXT, 86);
-			ynd.text.replaceName(getCreature(), getStackCount(SlotID(0)));
+			ynd.text.replaceName(getCreatureID(), getStackCount(SlotID(0)));
 			cb->showBlockingDialog(this, &ynd);
 			break;
 		}
@@ -197,7 +197,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			std::string tmp = VLC->generaltexth->advobtxt[90];
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(getStackCount(SlotID(0))));
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(action));
-			boost::algorithm::replace_first(tmp,"%s",VLC->creatures()->getById(getCreature())->getNamePluralTranslated());
+			boost::algorithm::replace_first(tmp,"%s",getCreature()->getNamePluralTranslated());
 			ynd.text.appendRawString(tmp);
 			cb->showBlockingDialog(this, &ynd);
 			break;
@@ -205,9 +205,14 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 	}
 }
 
-CreatureID CGCreature::getCreature() const
+CreatureID CGCreature::getCreatureID() const
 {
 	return CreatureID(getObjTypeIndex().getNum());
+}
+
+const CCreature * CGCreature::getCreature() const
+{
+	return getCreatureID().toCreature();
 }
 
 void CGCreature::pickRandomObject(vstd::RNG & rand)
@@ -279,7 +284,7 @@ void CGCreature::initObj(vstd::RNG & rand)
 
 	stacks[SlotID(0)]->setType(getCreature());
 	TQuantity &amount = stacks[SlotID(0)]->count;
-	const Creature * c = VLC->creatures()->getById(getCreature());
+	const Creature * c = getCreature();
 	if(amount == 0)
 	{
 		amount = rand.nextInt(c->getAdvMapAmountMin(), c->getAdvMapAmountMax());
@@ -353,8 +358,8 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 	for(const auto & elem : h->Slots())
 	{
-		bool isOurUpgrade = vstd::contains(getCreature().toCreature()->upgrades, elem.second->getCreatureID());
-		bool isOurDowngrade = vstd::contains(elem.second->type->upgrades, getCreature());
+		bool isOurUpgrade = vstd::contains(getCreature()->upgrades, elem.second->getCreatureID());
+		bool isOurDowngrade = vstd::contains(elem.second->type->upgrades, getCreatureID());
 
 		if(isOurUpgrade || isOurDowngrade)
 			count += elem.second->count;
@@ -380,7 +385,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 		if(diplomacy * 2 + sympathy + 1 >= character)
 		{
-			int32_t recruitCost = VLC->creatures()->getById(getCreature())->getRecruitCost(EGameResID::GOLD);
+			int32_t recruitCost = getCreature()->getRecruitCost(EGameResID::GOLD);
 			int32_t stackCount = getStackCount(SlotID(0));
 			return recruitCost * stackCount; //join for gold
 		}
@@ -493,7 +498,7 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 	BlockingDialog ynd(true,false);
 	ynd.player = h->tempOwner;
 	ynd.text.appendLocalString(EMetaText::ADVOB_TXT,91);
-	ynd.text.replaceName(getCreature(), getStackCount(SlotID(0)));
+	ynd.text.replaceName(getCreatureID(), getStackCount(SlotID(0)));
 	cb->showBlockingDialog(this, &ynd);
 }
 
@@ -513,7 +518,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 	{
 		//merge stacks into one
 		TSlots::const_iterator i;
-		const CCreature * cre = getCreature().toCreature();
+		const CCreature * cre = getCreature();
 		for(i = stacks.begin(); i != stacks.end(); i++)
 		{
 			if(cre->isMyUpgrade(i->second->type))
@@ -562,7 +567,7 @@ bool CGCreature::containsUpgradedStack() const
 	float c = 5325.181015f;
 	float d = 32788.727920f;
 
-	int val = static_cast<int>(std::floor(a * pos.x + b * pos.y + c * pos.z + d));
+	int val = static_cast<int>(std::floor(a * visitablePos().x + b * visitablePos().y + c * visitablePos().z + d));
 	return ((val % 32768) % 100) < 50;
 }
 
@@ -591,7 +596,7 @@ int CGCreature::getNumberOfStacks(const CGHeroInstance *hero) const
 	ui32 c = 1943276003u;
 	ui32 d = 3174620878u;
 
-	ui32 R1 = a * static_cast<ui32>(pos.x) + b * static_cast<ui32>(pos.y) + c * static_cast<ui32>(pos.z) + d;
+	ui32 R1 = a * static_cast<ui32>(visitablePos().x) + b * static_cast<ui32>(visitablePos().y) + c * static_cast<ui32>(visitablePos().z) + d;
 	ui32 R2 = (R1 >> 16) & 0x7fff;
 
 	int R4 = R2 % 100 + 1;

@@ -36,7 +36,6 @@
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ContentTypeHandler.h"
 #include "../lib/modding/ModUtility.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/logging/VisualLogger.h"
 #include "../lib/serializer/Connection.h"
@@ -453,7 +452,7 @@ void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffe
 	if(what == "hs")
 	{
 		for(const CGHeroInstance* h : LOCPLINT->cb->getHeroesInfo())
-			if(h->type->getIndex() == id1)
+			if(h->getHeroTypeID().getNum() == id1)
 				if(const CArtifactInstance* a = h->getArt(ArtifactPosition(id2)))
 					printCommandMessage(a->nodeName());
 	}

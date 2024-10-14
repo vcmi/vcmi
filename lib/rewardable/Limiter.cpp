@@ -17,7 +17,6 @@
 #include "../networkPacks/Component.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../constants/StringConstants.h"
-#include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
 #include "../ArtifactUtils.h"
 
@@ -173,10 +172,10 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 	if(!players.empty() && !vstd::contains(players, hero->getOwner()))
 		return false;
 	
-	if(!heroes.empty() && !vstd::contains(heroes, hero->type->getId()))
+	if(!heroes.empty() && !vstd::contains(heroes, hero->getHeroTypeID()))
 		return false;
 	
-	if(!heroClasses.empty() && !vstd::contains(heroClasses, hero->type->heroClass->getId()))
+	if(!heroClasses.empty() && !vstd::contains(heroClasses, hero->getHeroClassID()))
 		return false;
 		
 	

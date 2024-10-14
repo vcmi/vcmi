@@ -545,7 +545,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 			frameSamplesBuffer.resize(std::max(frameSamplesBuffer.size(), bytesToRead));
 			uint8_t * frameSamplesPtr = frameSamplesBuffer.data();
 
-			int result = swr_convert(swr_ctx, &frameSamplesPtr, frame->nb_samples, (const uint8_t **)frame->data, frame->nb_samples);
+			int result = swr_convert(swr_ctx, &frameSamplesPtr, frame->nb_samples, const_cast<const uint8_t **>(frame->data), frame->nb_samples);
 
 			if (result < 0)
 				throwFFmpegError(result);
@@ -608,9 +608,8 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool stopOnKey)
 {
 	CVideoInstance instance;
-	CAudioInstance audio;
 
-	auto extractedAudio = audio.extractAudio(name);
+	auto extractedAudio = getAudio(name);
 	int audioHandle = CCS->soundh->playSound(extractedAudio);
 
 	if (!instance.openInput(name))
@@ -684,6 +683,15 @@ std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, float
 
 std::pair<std::unique_ptr<ui8[]>, si64> CVideoPlayer::getAudio(const VideoPath & videoToOpen)
 {
+	AudioPath audioPath = videoToOpen.toType<EResType::SOUND>();
+	AudioPath audioPathVideoDir = audioPath.addPrefix("VIDEO/");
+
+	if(CResourceHandler::get()->existsResource(audioPath))
+		return CResourceHandler::get()->load(audioPath)->readAll();
+
+	if(CResourceHandler::get()->existsResource(audioPathVideoDir))
+		return CResourceHandler::get()->load(audioPathVideoDir)->readAll();
+
 	CAudioInstance audio;
 	return audio.extractAudio(videoToOpen);
 }

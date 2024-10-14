@@ -29,8 +29,8 @@
 
 #include "../../CCallback.h"
 
-#include "../lib/CHeroHandler.h"
 #include "../lib/CSkillHandler.h"
+#include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/texts/CGeneralTextHandler.h"
@@ -84,7 +84,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		for(int m=0; m < hero->secSkills.size(); ++m)
 			secSkillIcons[leftRight].push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SECSK32"), 0, 0, 32 + 36 * m + 454 * leftRight, qeLayout ? 83 : 88));
 
-		specImages[leftRight] = std::make_shared<CAnimImage>(AnimationPath::builtin("UN32"), hero->type->imageIndex, 0, 67 + 490 * leftRight, qeLayout ? 41 : 45);
+		specImages[leftRight] = std::make_shared<CAnimImage>(AnimationPath::builtin("UN32"), hero->getHeroType()->imageIndex, 0, 67 + 490 * leftRight, qeLayout ? 41 : 45);
 
 		expImages[leftRight] = std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL32"), 4, 0, 103 + 490 * leftRight, qeLayout ? 41 : 45);
 		expValues[leftRight] = std::make_shared<CLabel>(119 + 490 * leftRight, qeLayout ? 66 : 71, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
@@ -151,7 +151,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		specialtyAreas[b] = std::make_shared<LRClickableAreaWText>();
 		specialtyAreas[b]->pos = Rect(Point(pos.x + 69 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		specialtyAreas[b]->hoverText = CGI->generaltexth->heroscrn[27];
-		specialtyAreas[b]->text = hero->type->getSpecialtyDescriptionTranslated();
+		specialtyAreas[b]->text = hero->getHeroType()->getSpecialtyDescriptionTranslated();
 
 		experienceAreas[b] = std::make_shared<LRClickableAreaWText>();
 		experienceAreas[b]->pos = Rect(Point(pos.x + 105 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));

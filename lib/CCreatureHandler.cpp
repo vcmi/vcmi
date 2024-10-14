@@ -117,7 +117,7 @@ int32_t CCreature::getHorde() const
 	return hordeGrowth;
 }
 
-FactionID CCreature::getFaction() const
+FactionID CCreature::getFactionID() const
 {
 	return FactionID(faction);
 }

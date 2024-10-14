@@ -17,7 +17,6 @@
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/serializer/CTypeList.h"
@@ -649,12 +648,12 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				auto danger = nullkiller->dangerEvaluator->evaluateDanger(target, hero.get());
 				auto ratio = static_cast<float>(danger) / hero->getTotalStrength();
 
-				answer = 1;
+				answer = true;
 				
 				if(topObj->id != goalObjectID && nullkiller->dangerEvaluator->evaluateDanger(topObj) > 0)
 				{
 					// no if we do not aim to visit this object
-					answer = 0;
+					answer = false;
 				}
 				
 				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName(), hero.name(), ratio);
@@ -864,7 +863,7 @@ void AIGateway::makeTurn()
 
 void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 {
-	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->pos.toString());
+	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->anchorPos().toString());
 	switch(obj->ID)
 	{
 	case Obj::TOWN:
@@ -1454,8 +1453,8 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 
 void AIGateway::buildStructure(const CGTownInstance * t, BuildingID building)
 {
-	auto name = t->town->buildings.at(building)->getNameTranslated();
-	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->getNameTranslated(), t->pos.toString());
+	auto name = t->getTown()->buildings.at(building)->getNameTranslated();
+	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->getNameTranslated(), t->anchorPos().toString());
 	cb->buildBuilding(t, building); //just do this;
 }
 

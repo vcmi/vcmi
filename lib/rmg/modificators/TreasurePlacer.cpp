@@ -51,7 +51,7 @@ void TreasurePlacer::process()
 	// Add all native creatures
 	for(auto const & cre : VLC->creh->objects)
 	{
-		if(!cre->special && cre->getFaction() == zone.getTownType())
+		if(!cre->special && cre->getFactionID() == zone.getTownType())
 		{
 			creatures.push_back(cre.get());
 		}
@@ -192,7 +192,7 @@ void TreasurePlacer::addPrisons()
 			{
 				// Hero can be used again
 				auto* hero = dynamic_cast<CGHeroInstance*>(obj);
-				prisonHeroPlacer->restoreDrawnHero(hero->getHeroType());
+				prisonHeroPlacer->restoreDrawnHero(hero->getHeroTypeID());
 			};
 
 			oi.setTemplates(Obj::PRISON, 0, zone.getTerrainType());
@@ -236,9 +236,9 @@ void TreasurePlacer::addDwellings()
 				continue;
 
 			const auto * cre = creatures.front();
-			if(cre->getFaction() == zone.getTownType())
+			if(cre->getFactionID() == zone.getTownType())
 			{
-				auto nativeZonesCount = static_cast<float>(map.getZoneCount(cre->getFaction()));
+				auto nativeZonesCount = static_cast<float>(map.getZoneCount(cre->getFactionID()));
 				ObjectInfo oi(dwellingType, secondaryID);
 				setBasicProperties(oi, CompoundMapObjectID(dwellingType, secondaryID));
 
@@ -375,7 +375,7 @@ void TreasurePlacer::addPandoraBoxesWithCreatures()
 			return obj;
 		};
 		oi.setTemplates(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-		oi.value = static_cast<ui32>(creature->getAIValue() * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFaction())) / map.getTotalZoneCount()));
+		oi.value = static_cast<ui32>(creature->getAIValue() * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionID())) / map.getTotalZoneCount()));
 		oi.probability = 3;
 		if(!oi.templates.empty())
 			addObjectToRandomPool(oi);
@@ -555,7 +555,7 @@ void TreasurePlacer::addSeerHuts()
 			oi.destroyObject = destroyObject;
 			oi.probability = 3;
 			oi.setTemplates(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
-			oi.value = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFaction())) / map.getTotalZoneCount())) - 4000) / 3);
+			oi.value = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionID())) / map.getTotalZoneCount())) - 4000) / 3);
 			if (oi.value > zone.getMaxTreasureValue())
 			{
 				continue;

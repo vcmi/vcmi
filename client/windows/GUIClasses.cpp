@@ -44,6 +44,7 @@
 
 #include "../lib/entities/building/CBuilding.h"
 #include "../lib/entities/faction/CTownHandler.h"
+#include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjectConstructors/CommonConstructors.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
@@ -53,7 +54,6 @@
 #include "../lib/gameState/SThievesGuildInfo.h"
 #include "../lib/gameState/TavernHeroesPool.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/IGameSettings.h"
 #include "ConditionalWait.h"
 #include "../lib/CRandomGenerator.h"
@@ -522,9 +522,9 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 			recruit->block(true);
 	}
 	if(LOCPLINT->castleInt)
-		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), LOCPLINT->castleInt->town->town->clientInfo.tavernVideo, false);
+		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), LOCPLINT->castleInt->town->getTown()->clientInfo.tavernVideo, false);
 	else if(const auto * townObj = dynamic_cast<const CGTownInstance *>(TavernObj))
-		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), townObj->town->clientInfo.tavernVideo, false);
+		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), townObj->getTown()->clientInfo.tavernVideo, false);
 	else
 		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), VideoPath::builtin("TAVERN.BIK"), false);
 
@@ -548,7 +548,7 @@ void CTavernWindow::addInvite()
 
 	if(!inviteableHeroes.empty())
 	{
-		int imageIndex = heroToInvite ? (*CGI->heroh)[heroToInvite->getHeroType()]->imageIndex : 156; // 156 => special id for random
+		int imageIndex = heroToInvite ? heroToInvite->getIconIndex() : 156; // 156 => special id for random
 		if(!heroToInvite)
 			heroToInvite = (*RandomGeneratorUtil::nextItem(inviteableHeroes, CRandomGenerator::getDefault())).second;
 
@@ -563,7 +563,7 @@ void CTavernWindow::recruitb()
 	const CGHeroInstance *toBuy = (selected ? h2 : h1)->h;
 	const CGObjectInstance *obj = tavernObj;
 
-	LOCPLINT->cb->recruitHero(obj, toBuy, heroToInvite ? heroToInvite->getHeroType() : HeroTypeID::NONE);
+	LOCPLINT->cb->recruitHero(obj, toBuy, heroToInvite ? heroToInvite->getHeroTypeID() : HeroTypeID::NONE);
 	close();
 }
 
@@ -963,7 +963,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 
 	if(auto town = dynamic_cast<const CGTownInstance *>(_market))
 	{
-		auto faction = town->town->faction->getId();
+		auto faction = town->getTown()->faction->getId();
 		titlePic = std::make_shared<CAnimImage>((*CGI->townh)[faction]->town->clientInfo.buildingsIcons, building);
 	}
 	else if(auto uni = dynamic_cast<const CGUniversity *>(_market); uni->appearance)
@@ -1646,7 +1646,7 @@ void CObjectListWindow::keyPressed(EShortcut key)
 	changeSelection(sel);
 }
 
-VideoWindow::VideoWindow(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void(bool skipped)> closeCb)
+VideoWindow::VideoWindow(const VideoPath & video, const ImagePath & rim, bool showBackground, float scaleFactor, const std::function<void(bool skipped)> & closeCb)
 	: CWindowObject(BORDERED | SHADOW_DISABLED | NEEDS_ANIMATED_BACKGROUND), closeCb(closeCb)
 {
 	OBJECT_CONSTRUCTION;

@@ -33,8 +33,8 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/StartInfo.h"
@@ -300,7 +300,7 @@ int InfoBoxHeroData::getSubID()
 		else
 			return 0;
 	case HERO_SPECIAL:
-		return hero->type->getIndex();
+		return hero->getHeroTypeID().getNum();
 	case HERO_MANA:
 	case HERO_EXPERIENCE:
 		return 0;
@@ -473,7 +473,7 @@ CKingdomInterface::CKingdomInterface()
 	generateButtons();
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(ImagePath::builtin("KSTATBAR"), 10,pos.h - 45));
-	resdatabar = std::make_shared<CResDataBar>(ImagePath::builtin("KRESBAR"), 7, 111+footerPos, 29, 5, 76, 81);
+	resdatabar = std::make_shared<CResDataBar>(ImagePath::builtin("KRESBAR"), 7, 111+footerPos, 29, 3, 76, 81);
 
 	activateTab(persistentStorage["gui"]["lastKindomInterface"].Integer());
 }
@@ -800,12 +800,12 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	garr = std::make_shared<CGarrisonInt>(Point(313, 3), 4, Point(232,0), town->getUpperArmy(), town->visitingHero, true, true, CGarrisonInt::ESlotsLayout::TWO_ROWS);
 	heroes = std::make_shared<HeroSlots>(town, Point(244,6), Point(475,6), garr, false);
 
-	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	size_t iconIndex = town->getTown()->clientInfo.icons[town->hasFort()][town->built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPT"), iconIndex, 0, 5, 6);
 	openTown = std::make_shared<LRClickableAreaOpenTown>(Rect(5, 6, 58, 64), town);
 
-	for(size_t i=0; i<town->creatures.size(); i++)
+	for(size_t i=0; i<town->creatures.size() && i<GameConstants::CREATURES_PER_TOWN; i++)
 	{
 		growth.push_back(std::make_shared<CCreaInfo>(Point(401+37*(int)i, 78), town, (int)i, true, true));
 		available.push_back(std::make_shared<CCreaInfo>(Point(48+37*(int)i, 78), town, (int)i, true, false));
@@ -823,8 +823,8 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 		if(town->hasBuilt(BuildingID::TAVERN))
 			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 	}, [&]{
-		if(!town->town->faction->getDescriptionTranslated().empty())
-			CRClickPopup::createAndPush(town->town->faction->getDescriptionTranslated());
+		if(!town->getTown()->faction->getDescriptionTranslated().empty())
+			CRClickPopup::createAndPush(town->getFaction()->getDescriptionTranslated());
 	});
 	fastMarket = std::make_shared<LRClickableArea>(Rect(153, 6, 65, 64), []()
 	{
@@ -866,7 +866,7 @@ void CTownItem::update()
 
 	heroes->update();
 
-	for (size_t i=0; i<town->creatures.size(); i++)
+	for (size_t i=0; i<std::min(static_cast<int>(town->creatures.size()), GameConstants::CREATURES_PER_TOWN); i++)
 	{
 		growth[i]->update();
 		available[i]->update();

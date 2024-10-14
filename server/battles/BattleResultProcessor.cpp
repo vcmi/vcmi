@@ -178,7 +178,7 @@ void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 		scp.heroid = heroWithDeadCommander;
 		scp.which = SetCommanderProperty::ALIVE;
 		scp.amount = 0;
-		gh->sendAndApply(&scp);
+		gh->sendAndApply(scp);
 	}
 }
 
@@ -291,7 +291,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	}
 
 	gameHandler->turnTimerHandler->onBattleEnd(battle.getBattle()->getBattleID());
-	gameHandler->sendAndApply(battleResult);
+	gameHandler->sendAndApply(*battleResult);
 
 	if (battleResult->queryID == QueryID::NONE)
 		endBattleConfirm(battle);
@@ -384,8 +384,8 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 					iw.text.replaceLocalString(EMetaText::GENERAL_TXT, 141); // " and "
 				iw.components.emplace_back(ComponentType::SPELL, *it);
 			}
-			gameHandler->sendAndApply(&iw);
-			gameHandler->sendAndApply(&spells);
+			gameHandler->sendAndApply(iw);
+			gameHandler->sendAndApply(spells);
 		}
 	}
 	// Artifacts handling
@@ -410,7 +410,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		const auto sendArtifacts = [this](BulkMoveArtifacts & bma)
 		{
 			if(!bma.artsPack0.empty())
-				gameHandler->sendAndApply(&bma);
+				gameHandler->sendAndApply(bma);
 		};
 
 		BulkMoveArtifacts packHero(finishingBattle->winnerHero->getOwner(), ObjectInstanceID::NONE, finishingBattle->winnerHero->id, false);
@@ -466,11 +466,11 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 				if(iw.components.size() >= GameConstants::INFO_WINDOW_ARTIFACTS_MAX_ITEMS)
 				{
-					gameHandler->sendAndApply(&iw);
+					gameHandler->sendAndApply(iw);
 					iw.components.clear();
 				}
 			}
-			gameHandler->sendAndApply(&iw);
+			gameHandler->sendAndApply(iw);
 		}
 		if(!packHero.artsPack0.empty())
 			sendArtifacts(packHero);
@@ -491,13 +491,13 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		}
 
 		RemoveObject ro(finishingBattle->loserHero->id, finishingBattle->victor);
-		gameHandler->sendAndApply(&ro);
+		gameHandler->sendAndApply(ro);
 	}
 	// For draw case both heroes should be removed
 	if(finishingBattle->isDraw() && finishingBattle->winnerHero)
 	{
 		RemoveObject ro(finishingBattle->winnerHero->id, finishingBattle->loser);
-		gameHandler->sendAndApply(&ro);
+		gameHandler->sendAndApply(ro);
 	}
 
 	// add statistic
@@ -525,7 +525,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	raccepted.heroResult[BattleSide::ATTACKER].exp = battleResult->exp[BattleSide::ATTACKER];
 	raccepted.heroResult[BattleSide::DEFENDER].exp = battleResult->exp[BattleSide::DEFENDER];
 	raccepted.winnerSide = finishingBattle->winnerSide;
-	gameHandler->sendAndApply(&raccepted);
+	gameHandler->sendAndApply(raccepted);
 
 	gameHandler->queries->popIfTop(battleQuery);
 	//--> continuation (battleAfterLevelUp) occurs after level-up gameHandler->queries are handled or on removing query
@@ -568,7 +568,7 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 	resultsApplied.battleID = battleID;
 	resultsApplied.player1 = finishingBattle->victor;
 	resultsApplied.player2 = finishingBattle->loser;
-	gameHandler->sendAndApply(&resultsApplied);
+	gameHandler->sendAndApply(resultsApplied);
 
 	//handle victory/loss of engaged players
 	std::set<PlayerColor> playerColors = {finishingBattle->loser, finishingBattle->victor};
@@ -590,7 +590,7 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 		&& (!finishingBattle->winnerHero->commander || !finishingBattle->winnerHero->commander->alive))
 	{
 		RemoveObject ro(finishingBattle->winnerHero->id, finishingBattle->winnerHero->getOwner());
-		gameHandler->sendAndApply(&ro);
+		gameHandler->sendAndApply(ro);
 
 		if (gameHandler->getSettings().getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
 			gameHandler->heroPool->onHeroEscaped(finishingBattle->victor, finishingBattle->winnerHero);

@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 #include "prepare.h"
-#include "launcherdirs.h"
+#include "../vcmiqt/launcherdirs.h"
 
 #include <QDir>
 #include <QFile>

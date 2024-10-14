@@ -84,19 +84,39 @@ Rect ScreenHandler::convertLogicalPointsToWindow(const Rect & input) const
 	return result;
 }
 
+int ScreenHandler::getInterfaceScalingPercentage() const
+{
+	auto [minimalScaling, maximalScaling] = getSupportedScalingRange();
+
+	int userScaling = settings["video"]["resolution"]["scaling"].Integer();
+
+	if (userScaling == 0) // autodetection
+	{
+#ifdef VCMI_MOBILE
+		// for mobiles - stay at maximum scaling unless we have large screen
+		// might be better to check screen DPI / physical dimensions, but way more complex, and may result in different edge cases, e.g. chromebooks / tv's
+		int preferredMinimalScaling = 200;
+#else
+		// for PC - avoid downscaling if possible
+		int preferredMinimalScaling = 100;
+#endif
+		// prefer a little below maximum - to give space for extended UI
+		int preferredMaximalScaling = maximalScaling * 10 / 12;
+		userScaling = std::max(std::min(maximalScaling, preferredMinimalScaling), preferredMaximalScaling);
+	}
+
+	int scaling = std::clamp(userScaling, minimalScaling, maximalScaling);
+	return scaling;
+}
+
 Point ScreenHandler::getPreferredLogicalResolution() const
 {
 	Point renderResolution = getRenderResolution();
 	double reservedAreaWidth = settings["video"]["reservedWidth"].Float();
+
+	int scaling = getInterfaceScalingPercentage();
 	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
-
-	auto [minimalScaling, maximalScaling] = getSupportedScalingRange();
-
-	int userScaling = settings["video"]["resolution"]["scaling"].Integer();
-	int scaling = std::clamp(userScaling, minimalScaling, maximalScaling);
-
 	Point logicalResolution = availableResolution * 100.0 / scaling;
-
 	return logicalResolution;
 }
 
@@ -335,25 +355,22 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 	if (filter != EUpscalingFilter::AUTO)
 		return filter;
 
-	// for now - always fallback to no filter
-	return EUpscalingFilter::NONE;
-
 	// else - autoselect
-//	Point outputResolution = getRenderResolution();
-//	Point logicalResolution = getPreferredLogicalResolution();
-//
-//	float scaleX = static_cast<float>(outputResolution.x) / logicalResolution.x;
-//	float scaleY = static_cast<float>(outputResolution.x) / logicalResolution.x;
-//	float scaling = std::min(scaleX, scaleY);
-//
-//	if (scaling <= 1.0f)
-//		return EUpscalingFilter::NONE;
-//	if (scaling <= 2.0f)
-//		return EUpscalingFilter::XBRZ_2;
-//	if (scaling <= 3.0f)
-//		return EUpscalingFilter::XBRZ_3;
-//
-//	return EUpscalingFilter::XBRZ_4;
+	Point outputResolution = getRenderResolution();
+	Point logicalResolution = getPreferredLogicalResolution();
+
+	float scaleX = static_cast<float>(outputResolution.x) / logicalResolution.x;
+	float scaleY = static_cast<float>(outputResolution.x) / logicalResolution.x;
+	float scaling = std::min(scaleX, scaleY);
+
+	if (scaling <= 1.001f)
+		return EUpscalingFilter::NONE; // running at original resolution or even lower than that - no need for xbrz
+	if (scaling <= 2.001f)
+		return EUpscalingFilter::XBRZ_2; // resolutions below 1200p (including 1080p / FullHD)
+	if (scaling <= 3.001f)
+		return EUpscalingFilter::XBRZ_3; // resolutions below 2400p (including 1440p and 2160p / 4K)
+
+	return EUpscalingFilter::XBRZ_4; // Only for massive displays, e.g. 8K
 }
 
 void ScreenHandler::selectUpscalingFilter()

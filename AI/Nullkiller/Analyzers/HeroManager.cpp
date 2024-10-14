@@ -11,7 +11,6 @@
 #include "../StdInc.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/mapObjects/MapObjects.h"
-#include "../../../lib/CHeroHandler.h"
 #include "../../../lib/IGameSettings.h"
 
 namespace NKAI
@@ -71,7 +70,7 @@ float HeroManager::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance *
 
 float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 {
-	auto heroSpecial = Selector::source(BonusSource::HERO_SPECIAL, BonusSourceID(hero->type->getId()));
+	auto heroSpecial = Selector::source(BonusSource::HERO_SPECIAL, BonusSourceID(hero->getHeroTypeID()));
 	auto secondarySkillBonus = Selector::targetSourceType()(BonusSource::SECONDARY_SKILL);
 	auto specialSecondarySkillBonuses = hero->getBonuses(heroSpecial.And(secondarySkillBonus));
 	auto secondarySkillBonuses = hero->getBonuses(Selector::sourceTypeSel(BonusSource::SECONDARY_SKILL));

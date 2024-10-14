@@ -12,6 +12,7 @@
 #include "PacksForClient.h"
 #include "PacksForClientBattle.h"
 #include "PacksForServer.h"
+#include "SaveLocalState.h"
 #include "SetRewardableConfiguration.h"
 #include "StackLocation.h"
 #include "PacksForLobby.h"
@@ -19,7 +20,6 @@
 #include "NetPackVisitor.h"
 #include "texts/CGeneralTextHandler.h"
 #include "CArtHandler.h"
-#include "CHeroHandler.h"
 #include "VCMI_Lib.h"
 #include "mapping/CMap.h"
 #include "spells/CSpellHandler.h"
@@ -92,6 +92,12 @@ bool CLobbyPackToServer::isForServer() const
 	return true;
 }
 
+void SaveLocalState::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSaveLocalState(*this);
+}
+
+
 void PackageApplied::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitPackageApplied(*this);
@@ -162,6 +168,10 @@ void ChangeSpells::visitTyped(ICPackVisitor & visitor)
 	visitor.visitChangeSpells(*this);
 }
 
+void SetResearchedSpells::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetResearchedSpells(*this);
+}
 void SetMana::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSetMana(*this);
@@ -592,6 +602,11 @@ void RazeStructure::visitTyped(ICPackVisitor & visitor)
 	visitor.visitRazeStructure(*this);
 }
 
+void SpellResearch::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSpellResearch(*this);
+}
+
 void RecruitCreatures::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitRecruitCreatures(*this);
@@ -930,6 +945,16 @@ void ChangeSpells::applyGs(CGameState *gs)
 			hero->removeSpellFromSpellbook(sid);
 }
 
+void SetResearchedSpells::applyGs(CGameState *gs)
+{
+	CGTownInstance *town = gs->getTown(tid);
+
+	town->spells[level] = spells;
+	town->spellResearchCounterDay++;
+	if(accepted)
+		town->spellResearchAcceptedCounter++;
+}
+
 void SetMana::applyGs(CGameState *gs)
 {
 	CGHeroInstance * hero = gs->getHero(hid);
@@ -1028,7 +1053,7 @@ void ChangeObjPos::applyGs(CGameState *gs)
 		return;
 	}
 	gs->map->removeBlockVisTiles(obj);
-	obj->pos = nPos + obj->getVisitableOffset();
+	obj->setAnchorPos(nPos + obj->getVisitableOffset());
 	gs->map->addBlockVisTiles(obj);
 }
 
@@ -1329,7 +1354,7 @@ void NewStructures::applyGs(CGameState *gs)
 
 	for(const auto & id : bid)
 	{
-		assert(t->town->buildings.at(id) != nullptr);
+		assert(t->getTown()->buildings.at(id) != nullptr);
 		t->addBuilding(id);
 	}
 	t->updateAppearance();
@@ -1444,11 +1469,11 @@ void GiveHero::applyGs(CGameState *gs)
 
 	auto oldVisitablePos = h->visitablePos();
 	gs->map->removeBlockVisTiles(h,true);
-	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->getIndex())->getTemplates().front();
+	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->getHeroClassID().getNum())->getTemplates().front();
 
 	h->setOwner(player);
 	h->setMovementPoints(h->movementPointsLimit(true));
-	h->pos = h->convertFromVisitablePos(oldVisitablePos);
+	h->setAnchorPos(h->convertFromVisitablePos(oldVisitablePos));
 	gs->map->heroesOnMap.emplace_back(h);
 	gs->getPlayerState(h->getOwner())->addOwnedObject(h);
 
@@ -1914,7 +1939,10 @@ void NewTurn::applyGs(CGameState *gs)
 		creatureSet.applyGs(gs);
 
 	for(CGTownInstance* t : gs->map->towns)
+	{
 		t->built = 0;
+		t->spellResearchCounterDay = 0;
+	}
 
 	if(newRumor)
 		gs->currentRumor = *newRumor;

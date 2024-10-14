@@ -86,7 +86,7 @@ public:
 
 	void threadHandleClient(std::shared_ptr<CConnection> c);
 
-	void announcePack(std::unique_ptr<CPackForLobby> pack);
+	void announcePack(CPackForLobby & pack);
 	bool passHost(int toConnectionId);
 
 	void announceTxt(const MetaString & txt, const std::string & playerName = "system");
@@ -102,7 +102,7 @@ public:
 	void announceMessage(const MetaString & txt);
 	void announceMessage(const std::string & txt);
 
-	void handleReceivedPack(std::unique_ptr<CPackForLobby> pack);
+	void handleReceivedPack(CPackForLobby & pack);
 
 	void updateAndPropagateLobbyState();
 
