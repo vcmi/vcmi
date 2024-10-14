@@ -138,15 +138,50 @@ struct DLL_LINKAGE TerrainTile
 	template <typename Handler>
 	void serialize(Handler & h)
 	{
+		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			h & terrainType;
+		}
+		else
+		{
+			bool isNull = false;
+			h & isNull;
+			if (isNull)
+				h & terrainType;
+		}
 		h & terrainType;
 		h & terView;
-		h & riverType;
+		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			h & riverType;
+		}
+		else
+		{
+			bool isNull = false;
+			h & isNull;
+			if (isNull)
+				h & riverType;
+		}
 		h & riverDir;
-		h & roadType;
+		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			h & roadType;
+		}
+		else
+		{
+			bool isNull = false;
+			h & isNull;
+			if (isNull)
+				h & roadType;
+		}
 		h & roadDir;
 		h & extTileFlags;
-	//	h & visitable;
-	//	h & blocked;
+		if (h.version < Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			bool unused;
+			h & unused;
+			h & unused;
+		}
 		h & visitableObjects;
 		h & blockingObjects;
 	}

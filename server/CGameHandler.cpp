@@ -2912,7 +2912,7 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 
 		AssembledArtifact aa;
 		aa.al = dstLoc;
-		aa.artId = assembleTo->getId();
+		aa.artId = assembleTo;
 		sendAndApply(aa);
 	}
 	else
