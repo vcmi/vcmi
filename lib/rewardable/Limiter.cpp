@@ -17,7 +17,6 @@
 #include "../networkPacks/Component.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../constants/StringConstants.h"
-#include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
 #include "../ArtifactUtils.h"
 

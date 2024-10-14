@@ -29,7 +29,6 @@
 #include "../render/Colors.h"
 
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"

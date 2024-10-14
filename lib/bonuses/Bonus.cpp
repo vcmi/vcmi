@@ -14,18 +14,18 @@
 #include "Updaters.h"
 #include "Propagators.h"
 
-#include "../VCMI_Lib.h"
-#include "../spells/CSpellHandler.h"
+#include "../CArtHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
-#include "../CHeroHandler.h"
-#include "../texts/CGeneralTextHandler.h"
 #include "../CSkillHandler.h"
-#include "../CArtHandler.h"
 #include "../TerrainHandler.h"
-#include "../constants/StringConstants.h"
+#include "../VCMI_Lib.h"
 #include "../battle/BattleInfo.h"
+#include "../constants/StringConstants.h"
+#include "../entities/hero/CHero.h"
 #include "../modding/ModUtility.h"
+#include "../spells/CSpellHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

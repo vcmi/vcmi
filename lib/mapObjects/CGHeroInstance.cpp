@@ -17,7 +17,6 @@
 
 #include "../texts/CGeneralTextHandler.h"
 #include "../ArtifactUtils.h"
-#include "../CHeroHandler.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
 #include "../IGameSettings.h"
@@ -31,6 +30,8 @@
 #include "../StartInfo.h"
 #include "CGTownInstance.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/hero/CHeroHandler.h"
+#include "../entities/hero/CHeroClass.h"
 #include "../battle/CBattleInfoEssentials.h"
 #include "../campaign/CampaignState.h"
 #include "../json/JsonBonus.h"

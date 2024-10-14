@@ -12,9 +12,6 @@
 
 #include "Images.h"
 
-#include <vcmi/spells/Service.h>
-#include <vcmi/spells/Spell.h>
-
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/TextAlignment.h"
@@ -29,7 +26,6 @@
 #include "../CGameInfo.h"
 
 #include "../../lib/ArtifactUtils.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/faction/CFaction.h"
 #include "../../lib/entities/faction/CTown.h"
@@ -41,6 +37,11 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CArtifactInstance.h"
+
+#include <vcmi/spells/Service.h>
+#include <vcmi/spells/Spell.h>
+#include <vcmi/HeroTypeService.h>
+#include <vcmi/HeroType.h>
 
 CComponent::CComponent(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val, ESize imageSize, EFonts font)
 {

@@ -17,11 +17,11 @@
 #include "../CRandomGenerator.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/faction/CFaction.h"
+#include "../entities/hero/CHero.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../CArtHandler.h"
-#include "../CHeroHandler.h"
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "CZonePlacer.h"
@@ -35,6 +35,7 @@
 #include "modificators/RoadPlacer.h"
 
 #include <vstd/RNG.h>
+#include <vcmi/HeroTypeService.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

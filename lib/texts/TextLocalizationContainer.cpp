@@ -107,7 +107,7 @@ void TextLocalizationContainer::registerString(const std::string & identifierMod
 	assert(!identifierModContext.empty());
 	assert(!localizedStringModContext.empty());
 	assert(UID.get().find("..") == std::string::npos); // invalid identifier - there is section that was evaluated to empty string
-	assert(stringsLocalizations.count(UID.get()) == 0 || identifierModContext == "map"); // registering already registered string?
+	assert(stringsLocalizations.count(UID.get()) == 0 || boost::algorithm::starts_with(UID.get(), "map")); // registering already registered string?
 
 	if(stringsLocalizations.count(UID.get()) > 0)
 	{

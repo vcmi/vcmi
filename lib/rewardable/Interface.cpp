@@ -11,10 +11,10 @@
 #include "StdInc.h"
 #include "Interface.h"
 
-#include "../CHeroHandler.h"
 #include "../TerrainHandler.h"
 #include "../CPlayerState.h"
 #include "../CSoundBase.h"
+#include "../entities/hero/CHeroHandler.h"
 #include "../gameState/CGameState.h"
 #include "../spells/CSpellHandler.h"
 #include "../spells/ISpellMechanics.h"

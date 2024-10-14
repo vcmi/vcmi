@@ -31,7 +31,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CBonusTypeHandler.h"
 #include "../../lib/IGameSettings.h"
-#include "../../lib/CHeroHandler.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/texts/CGeneralTextHandler.h"

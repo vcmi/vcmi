@@ -13,10 +13,10 @@
 #include "ui_mapsettings.h"
 #include "mainwindow.h"
 
-#include "../../lib/CSkillHandler.h"
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CArtHandler.h"
-#include "../../lib/CHeroHandler.h"
+#include "../../lib/CSkillHandler.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
 
 
 MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :

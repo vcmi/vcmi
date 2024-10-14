@@ -29,8 +29,8 @@
 
 #include "../../CCallback.h"
 
-#include "../lib/CHeroHandler.h"
 #include "../lib/CSkillHandler.h"
+#include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/texts/CGeneralTextHandler.h"

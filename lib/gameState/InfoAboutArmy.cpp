@@ -12,7 +12,9 @@
 
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../CHeroHandler.h"
+
+#include <vcmi/HeroTypeService.h>
+#include <vcmi/HeroType.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

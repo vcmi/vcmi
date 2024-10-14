@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "IGameCallback.h"
 
-#include "CHeroHandler.h" // for CHeroHandler
 #include "spells/CSpellHandler.h"// for CSpell
 #include "CSkillHandler.h"// for CSkill
 #include "CBonusTypeHandler.h"
@@ -20,6 +19,7 @@
 #include "bonuses/Propagators.h"
 #include "bonuses/Updaters.h"
 #include "entities/building/CBuilding.h"
+#include "entities/hero/CHero.h"
 #include "networkPacks/ArtifactLocation.h"
 #include "serializer/CLoadFile.h"
 #include "serializer/CSaveFile.h"

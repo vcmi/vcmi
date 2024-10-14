@@ -10,9 +10,9 @@
 #include "StdInc.h"
 #include "CSerializer.h"
 
+#include "../entities/hero/CHero.h"
 #include "../gameState/CGameState.h"
 #include "../mapping/CMap.h"
-#include "../CHeroHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CQuest.h"
 

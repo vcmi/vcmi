@@ -15,9 +15,10 @@
 #include "LobbyNetPackVisitors.h"
 #include "processors/PlayerMessageProcessor.h"
 
-#include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/campaign/CampaignState.h"
+#include "../lib/entities/hero/CHeroHandler.h"
+#include "../lib/entities/hero/CHeroClass.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/mapping/CMapDefines.h"
 #include "../lib/mapping/CMapInfo.h"
