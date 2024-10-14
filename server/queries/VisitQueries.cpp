@@ -50,7 +50,6 @@ void MapObjectVisitQuery::onRemoval(PlayerColor color)
 {
 	gh->objectVisitEnded(visitingHero, players.front());
 
-	//TODO or should it be destructor?
 	//Can object visit affect 2 players and what would be desired behavior?
 	if(removeObjectAfterVisit)
 		gh->removeObject(visitedObject, color);
@@ -78,7 +77,7 @@ void TownBuildingVisitQuery::onAdded(PlayerColor color)
 	while (!visitedBuilding.empty() && owner->topQuery(color).get() == this)
 	{
 		visitingHero = visitedBuilding.back().hero;
-		auto * building = visitedTown->rewardableBuildings.at(visitedBuilding.back().building);
+		const auto * building = visitedTown->rewardableBuildings.at(visitedBuilding.back().building);
 		building->onHeroVisit(visitingHero);
 		visitedBuilding.pop_back();
 	}

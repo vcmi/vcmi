@@ -182,7 +182,7 @@ ExchangeResult HeroActor::tryExchangeNoLock(const ChainActor * specialActor, con
 		return &actor == specialActor;
 	});
 
-	result.actor = &(dynamic_cast<HeroActor *>(result.actor)->specialActors[index]);
+	result.actor = &(dynamic_cast<HeroActor *>(result.actor)->specialActors.at(index));
 
 	return result;
 }

@@ -55,7 +55,7 @@ public:
 	void setHeroAsleep(const CGHeroInstance * hero);
 	void setHeroAwaken(const CGHeroInstance * hero);
 
-	const PlayerSpellbookSetting & getSpellbookSettings();
+	const PlayerSpellbookSetting & getSpellbookSettings() const;
 	void setSpellbookSettings(const PlayerSpellbookSetting & newSettings);
 
 	const std::vector<const CGTownInstance *> & getOwnedTowns();

@@ -1253,7 +1253,7 @@ void CGameHandler::changeSpells(const CGHeroInstance * hero, bool give, const st
 	sendAndApply(cs);
 }
 
-void CGameHandler::setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> spells, bool accepted)
+void CGameHandler::setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted)
 {
 	SetResearchedSpells cs;
 	cs.tid = town->id;

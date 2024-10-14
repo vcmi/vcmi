@@ -74,7 +74,7 @@ static int getLevenshteinDistance(const std::string & s, const std::string & t)
 
 /// Searches for keys similar to 'target' in 'candidates' map
 /// Returns closest match or empty string if no suitable candidates are found
-static std::string findClosestMatch(JsonMap candidates, std::string target)
+static std::string findClosestMatch(const JsonMap & candidates, const std::string & target)
 {
 	// Maximum distance at which we can consider strings to be similar
 	// If strings have more different symbols than this number then it is not a typo, but a completely different word

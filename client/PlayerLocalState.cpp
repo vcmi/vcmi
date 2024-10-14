@@ -24,7 +24,7 @@ PlayerLocalState::PlayerLocalState(CPlayerInterface & owner)
 {
 }
 
-const PlayerSpellbookSetting & PlayerLocalState::getSpellbookSettings()
+const PlayerSpellbookSetting & PlayerLocalState::getSpellbookSettings() const
 {
 	return spellbookSettings;
 }

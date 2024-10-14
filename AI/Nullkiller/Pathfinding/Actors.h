@@ -113,7 +113,7 @@ public:
 	static const int SPECIAL_ACTORS_COUNT = 7;
 
 private:
-	ChainActor specialActors[SPECIAL_ACTORS_COUNT];
+	std::array<ChainActor, SPECIAL_ACTORS_COUNT> specialActors;
 	std::unique_ptr<HeroExchangeMap> exchangeMap;
 
 	void setupSpecialActors();
