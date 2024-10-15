@@ -538,7 +538,6 @@
 	},
 	"55":
 	{
-		"allowedTerrains" : ["water"],
 		"specialBattlefields" : ["ship"],
 		"width" : 3,
 		"height" : 3,
