@@ -38,6 +38,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
+#include "../adventureMap/AdventureMapInterface.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
@@ -389,10 +390,13 @@ void CBonusSelection::goBack()
 	if(CSH->getState() != EClientState::GAMEPLAY)
 	{
 		GH.windows().popWindows(2);
+		CMM->playMusic();
 	}
 	else
 	{
 		close();
+		if(adventureInt)
+			adventureInt->onAudioResumed();
 	}
 	// TODO: we can actually only pop bonus selection interface for custom campaigns
 	// Though this would require clearing CLobbyScreen::bonusSel pointer when poping this interface
@@ -403,7 +407,6 @@ void CBonusSelection::goBack()
 		CSH->state = EClientState::LOBBY;
 	}
 */
-	CMM->playMusic();
 }
 
 void CBonusSelection::startMap()
