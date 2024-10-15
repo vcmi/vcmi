@@ -176,6 +176,11 @@ void CMultiLineLabel::setText(const std::string & Txt)
 	CLabel::setText(Txt);
 }
 
+std::vector<std::string> CMultiLineLabel::getLines()
+{
+	return lines;
+}
+
 void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 {
 	const auto f = GH.renderHandler().loadFont(font);
