@@ -88,6 +88,7 @@ public:
 	void openVideo();
 	bool loadNextFrame();
 
+	double timeStamp() final;
 	bool videoEnded() final;
 	Point size() final;
 

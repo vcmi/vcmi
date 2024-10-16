@@ -14,10 +14,12 @@
 #include "../lib/filesystem/ResourcePath.h"
 
 class IVideoInstance;
+class CMultiLineLabel;
 
 class VideoWidgetBase : public CIntObject
 {
 	std::unique_ptr<IVideoInstance> videoInstance;
+	std::unique_ptr<CMultiLineLabel> subTitle;
 
 	std::pair<std::unique_ptr<ui8[]>, si64> audioData = {nullptr, 0};
 	int audioHandle = -1;

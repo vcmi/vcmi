@@ -20,6 +20,9 @@ VCMI_LIB_NAMESPACE_END
 class IVideoInstance
 {
 public:
+	/// Returns current video timestamp
+	virtual double timeStamp() = 0;
+
 	/// Returns true if video playback is over
 	virtual bool videoEnded() = 0;
 

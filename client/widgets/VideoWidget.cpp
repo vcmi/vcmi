@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "VideoWidget.h"
+#include "TextControls.h"
 
 #include "../CGameInfo.h"
 #include "../gui/CGuiHandler.h"
@@ -33,11 +34,14 @@ VideoWidgetBase::~VideoWidgetBase() = default;
 
 void VideoWidgetBase::playVideo(const VideoPath & fileToPlay)
 {
+	OBJECT_CONSTRUCTION;
+
 	videoInstance = CCS->videoh->open(fileToPlay, scaleFactor);
 	if (videoInstance)
 	{
 		pos.w = videoInstance->size().x;
 		pos.h = videoInstance->size().y;
+		subTitle = std::make_unique<CMultiLineLabel>(Rect(0, (pos.h / 5) * 4, pos.w, pos.h / 5), EFonts::FONT_HIGH_SCORE, ETextAlignment::CENTER, Colors::WHITE, "");
 	}
 
 	if (playAudio)
@@ -52,6 +56,8 @@ void VideoWidgetBase::show(Canvas & to)
 {
 	if(videoInstance)
 		videoInstance->show(pos.topLeft(), to);
+	if(subTitle)
+		subTitle->showAll(to);
 }
 
 void VideoWidgetBase::loadAudio(const VideoPath & fileToPlay)
@@ -107,6 +113,8 @@ void VideoWidgetBase::showAll(Canvas & to)
 {
 	if(videoInstance)
 		videoInstance->show(pos.topLeft(), to);
+	if(subTitle)
+		subTitle->showAll(to);
 }
 
 void VideoWidgetBase::tick(uint32_t msPassed)
@@ -122,6 +130,8 @@ void VideoWidgetBase::tick(uint32_t msPassed)
 			onPlaybackFinished();
 		}
 	}
+	if(subTitle && videoInstance)
+		subTitle->setText(std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()) + "\n" + std::to_string(msPassed) + "\n" + std::to_string(videoInstance->timeStamp()));
 }
 
 VideoWidget::VideoWidget(const Point & position, const VideoPath & prologue, const VideoPath & looped, bool playAudio)

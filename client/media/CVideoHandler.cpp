@@ -316,6 +316,12 @@ bool CVideoInstance::loadNextFrame()
 	return true;
 }
 
+
+double CVideoInstance::timeStamp()
+{
+	return getCurrentFrameEndTime();
+}
+
 bool CVideoInstance::videoEnded()
 {
 	return getCurrentFrame() == nullptr;
