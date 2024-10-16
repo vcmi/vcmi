@@ -29,11 +29,63 @@ static QVariant writeValue(QString path, QVariantMap input, QVariant value)
 	}
 }
 
+void ModSettingsStorage::createInitialPreset()
+{
+	// TODO: scan mods directory for all its content?
+
+	QStringList modList;
+	QVariantMap preset;
+	QVariantMap presetList;
+
+	modList.push_back("vcmi");
+	preset.insert("mods", modList);
+	presetList.insert("default", preset);
+	config.insert("presets", presetList);
+}
+
+void ModSettingsStorage::importInitialPreset()
+{
+	QStringList modList;
+	QMap<QString, QVariantMap> modSettings;
+
+	QVariantMap activeMods = config["activeMods"].toMap();
+	for (QVariantMap::const_iterator modEntry = activeMods.begin(); modEntry != activeMods.end(); ++modEntry)
+	{
+		if (modEntry.value().toMap()["active"].toBool())
+			modList.push_back(modEntry.key());
+
+		QVariantMap submods = modEntry.value().toMap()["mods"].toMap();
+		for (QVariantMap::const_iterator submodEntry = submods.begin(); submodEntry != submods.end(); ++submodEntry)
+			modSettings[modEntry.key()].insert(submodEntry.key(), submodEntry.value().toMap()["active"]);
+	}
+
+	QVariantMap importedPreset;
+	QVariantMap modSettingsVariant;
+	QVariantMap presetList;
+
+	for (QMap<QString, QVariantMap>::const_iterator modEntry = modSettings.begin(); modEntry != modSettings.end(); ++modEntry)
+		modSettingsVariant.insert(modEntry.key(), modEntry.value());
+
+	importedPreset.insert("mods", modList);
+	importedPreset.insert("settings", modSettingsVariant);
+	presetList.insert("default", importedPreset);
+	config.insert("presets", presetList);
+}
+
 ModSettingsStorage::ModSettingsStorage()
 {
 	config = JsonUtils::JsonFromFile(settingsPath()).toMap();
 
-	// TODO: import from 1.5 format
+	if (!config.contains("presets"))
+	{
+		config.insert("activePreset", QVariant("default"));
+		if (config.contains("activeMods"))
+			importInitialPreset(); // 1.5 format import
+		else
+			createInitialPreset(); // new install
+
+		JsonUtils::JsonToFile(settingsPath(), config);
+	}
 }
 
 QString ModSettingsStorage::settingsPath() const

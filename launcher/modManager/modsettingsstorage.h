@@ -17,6 +17,9 @@ class ModSettingsStorage
 
 	QString settingsPath() const;
 
+	void createInitialPreset();
+	void importInitialPreset();
+
 	void setRootModActive(const QString & modName, bool on);
 	void setModSettingActive(const QString & modName, bool on);
 
