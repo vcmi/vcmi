@@ -17,6 +17,8 @@
 #include "../media/IVideoPlayer.h"
 #include "../render/Canvas.h"
 
+#include "../../lib/filesystem/Filesystem.h"
+
 VideoWidgetBase::VideoWidgetBase(const Point & position, const VideoPath & video, bool playAudio)
 	: VideoWidgetBase(position, video, playAudio, 1.0)
 {
@@ -35,6 +37,20 @@ VideoWidgetBase::~VideoWidgetBase() = default;
 void VideoWidgetBase::playVideo(const VideoPath & fileToPlay)
 {
 	OBJECT_CONSTRUCTION;
+
+	using SubTitlePath = ResourcePathTempl<EResType::SUBTITLE>;
+	SubTitlePath subTitlePath = fileToPlay.toType<EResType::SUBTITLE>();
+	SubTitlePath subTitlePathVideoDir = subTitlePath.addPrefix("VIDEO/");
+	if(CResourceHandler::get()->existsResource(subTitlePath))
+	{
+		auto rawData = CResourceHandler::get()->load(subTitlePath)->readAll();
+		srtContent = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
+	}
+	if(CResourceHandler::get()->existsResource(subTitlePathVideoDir))
+	{
+		auto rawData = CResourceHandler::get()->load(subTitlePathVideoDir)->readAll();
+		srtContent = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
+	}
 
 	videoInstance = CCS->videoh->open(fileToPlay, scaleFactor);
 	if (videoInstance)
@@ -83,7 +99,7 @@ void VideoWidgetBase::startAudio()
 			{
 				this->audioHandle = -1;
 			}
-			);
+		);
 	}
 }
 
@@ -95,6 +111,34 @@ void VideoWidgetBase::stopAudio()
 		CCS->soundh->stopSound(audioHandle);
 		audioHandle = -1;
 	}
+}
+
+std::string VideoWidgetBase::getSubTitleLine(double timestamp)
+{
+	if(srtContent.empty())
+		return "";
+	
+    std::regex exp("^\\s*(\\d+:\\d+:\\d+,\\d+)[^\\S\\n]+-->[^\\S\\n]+(\\d+:\\d+:\\d+,\\d+)((?:\\n(?!\\d+:\\d+:\\d+,\\d+\\b|\\n+\\d+$).*)*)", std::regex::multiline);
+    std::smatch res;
+
+    std::string::const_iterator searchStart(srtContent.cbegin());
+    while (std::regex_search(searchStart, srtContent.cend(), res, exp))
+    {
+		std::vector<std::string> timestamp1Str;
+		boost::split(timestamp1Str, static_cast<std::string>(res[1]), boost::is_any_of(":,"));
+		std::vector<std::string> timestamp2Str;
+		boost::split(timestamp2Str, static_cast<std::string>(res[2]), boost::is_any_of(":,"));
+		double timestamp1 = std::stoi(timestamp1Str[0]) * 3600 + std::stoi(timestamp1Str[1]) * 60 + std::stoi(timestamp1Str[2]) + (std::stoi(timestamp1Str[3]) / 1000.0);
+		double timestamp2 = std::stoi(timestamp2Str[0]) * 3600 + std::stoi(timestamp2Str[1]) * 60 + std::stoi(timestamp2Str[2]) + (std::stoi(timestamp2Str[3]) / 1000.0);
+        std::string text = res[3];
+		text.erase(0, text.find_first_not_of("\r\n\t "));
+
+		if(timestamp > timestamp1 && timestamp < timestamp2)
+			return text;
+		
+        searchStart = res.suffix().first;
+    }
+	return "";
 }
 
 void VideoWidgetBase::activate()
@@ -131,7 +175,7 @@ void VideoWidgetBase::tick(uint32_t msPassed)
 		}
 	}
 	if(subTitle && videoInstance)
-		subTitle->setText(std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()) + "\n" + std::to_string(msPassed) + "\n" + std::to_string(videoInstance->timeStamp()));
+		subTitle->setText(getSubTitleLine(videoInstance->timeStamp()));
 }
 
 VideoWidget::VideoWidget(const Point & position, const VideoPath & prologue, const VideoPath & looped, bool playAudio)

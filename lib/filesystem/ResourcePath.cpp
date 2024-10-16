@@ -117,6 +117,7 @@ EResType EResTypeHelper::getTypeFromExtension(std::string extension)
 		{".BIK",   EResType::VIDEO},
 		{".OGV",   EResType::VIDEO},
 		{".WEBM",  EResType::VIDEO},
+		{".SRT",   EResType::SUBTITLE},
 		{".ZIP",   EResType::ARCHIVE_ZIP},
 		{".LOD",   EResType::ARCHIVE_LOD},
 		{".PAC",   EResType::ARCHIVE_LOD},

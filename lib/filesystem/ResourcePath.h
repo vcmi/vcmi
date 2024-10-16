@@ -30,6 +30,7 @@ class JsonSerializeFormat;
  * Sound: .wav .82m
  * Video: .smk, .bik .ogv .webm
  * Music: .mp3, .ogg
+ * Subtitle: .srt
  * Archive: .lod, .snd, .vid .pac .zip
  * Palette: .pal
  * Savegame: .v*gm1
@@ -48,6 +49,7 @@ enum class EResType
 	VIDEO,
 	VIDEO_LOW_QUALITY,
 	SOUND,
+	SUBTITLE,
 	ARCHIVE_VID,
 	ARCHIVE_ZIP,
 	ARCHIVE_SND,

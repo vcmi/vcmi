@@ -25,10 +25,12 @@ class VideoWidgetBase : public CIntObject
 	int audioHandle = -1;
 	bool playAudio = false;
 	float scaleFactor = 1.0;
+	std::string srtContent = "";
 
 	void loadAudio(const VideoPath & file);
 	void startAudio();
 	void stopAudio();
+	std::string getSubTitleLine(double timestamp);
 
 protected:
 	VideoWidgetBase(const Point & position, const VideoPath & video, bool playAudio);
