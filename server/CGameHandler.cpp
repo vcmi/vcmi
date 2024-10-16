@@ -2913,13 +2913,16 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 
 		AssembledArtifact aa;
 		aa.al = dstLoc;
-		aa.builtArt = combinedArt;
+		aa.artId = assembleTo;
 		sendAndApply(aa);
 	}
 	else
 	{
 		if(!destArtifact->isCombined())
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble is not a combined artifact!");
+
+		if(!destArtifact->hasParts())
+			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble is fused combined artifact!");
 
 		if(ArtifactUtils::isSlotBackpack(artifactSlot)
 			&& !ArtifactUtils::isBackpackFreeSlots(hero, destArtifact->artType->getConstituents().size() - 1))

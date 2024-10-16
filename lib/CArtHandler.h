@@ -46,14 +46,19 @@ namespace ArtBearer
 class DLL_LINKAGE CCombinedArtifact
 {
 protected:
-	CCombinedArtifact() = default;
+	CCombinedArtifact() : fused(false) {};
 
 	std::vector<const CArtifact*> constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
-	std::vector<const CArtifact*> partOf; // Reverse map of constituents - combined arts that include this art
+	std::set<const CArtifact*> partOf; // Reverse map of constituents - combined arts that include this art
+	bool fused;
+
 public:
 	bool isCombined() const;
 	const std::vector<const CArtifact*> & getConstituents() const;
-	const std::vector<const CArtifact*> & getPartOf() const;
+	const std::set<const CArtifact*> & getPartOf() const;
+	void setFused(bool isFused);
+	bool isFused() const;
+	bool hasParts() const;
 };
 
 class DLL_LINKAGE CScrollArtifact
@@ -224,8 +229,6 @@ public:
 	const CArtifactInstance * getCombinedArtWithPart(const ArtifactID & partId) const;
 
 private:
-	void setNewArtSlot(const ArtifactPosition & slot, CArtifactInstance * art, bool locked);
-
 	void serializeJsonHero(JsonSerializeFormat & handler);
 	void serializeJsonCreature(JsonSerializeFormat & handler);
 	void serializeJsonCommander(JsonSerializeFormat & handler);

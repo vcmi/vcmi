@@ -67,6 +67,9 @@ In order to make functional artifact you also need:
 		"artifact2",
 		"artifact3"
 	],
+	
+	// Optional, by default is false. Set to true if components are supposed to be fused. 
+	"fusedComponents" : true,
 
 	// Creature id to use on battle field. If set, this artifact is war machine
 	"warMachine" : "some.creature" 
