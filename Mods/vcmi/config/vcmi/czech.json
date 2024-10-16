@@ -358,6 +358,7 @@
 	"vcmi.heroWindow.sortBackpackBySlot.help"  : "Seřadí artefakty v batohu podle přiřazeného slotu.",
 	"vcmi.heroWindow.sortBackpackByClass.hover"  : "Seřadit podle třídy",
 	"vcmi.heroWindow.sortBackpackByClass.help"  : "Seřadí artefakty v batohu podle třídy artefaktu. Poklad, Menší, Větší, Relikvie.",
+	"vcmi.heroWindow.fusingArtifact.fusing" : "Máte všechny potřebné části k vytvoření %s. Chcete provést sloučení? {Při sloučení budou použity všechny části.}",
 
 	"vcmi.tavernWindow.inviteHero"  : "Pozvat hrdinu",
 
