@@ -38,26 +38,19 @@ void VideoWidgetBase::playVideo(const VideoPath & fileToPlay)
 {
 	OBJECT_CONSTRUCTION;
 
-	using SubTitlePath = ResourcePathTempl<EResType::SUBTITLE>;
-	SubTitlePath subTitlePath = fileToPlay.toType<EResType::SUBTITLE>();
-	SubTitlePath subTitlePathVideoDir = subTitlePath.addPrefix("VIDEO/");
+	JsonPath subTitlePath = fileToPlay.toType<EResType::JSON>();
+	JsonPath subTitlePathVideoDir = subTitlePath.addPrefix("VIDEO/");
 	if(CResourceHandler::get()->existsResource(subTitlePath))
-	{
-		auto rawData = CResourceHandler::get()->load(subTitlePath)->readAll();
-		srtContent = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
-	}
-	if(CResourceHandler::get()->existsResource(subTitlePathVideoDir))
-	{
-		auto rawData = CResourceHandler::get()->load(subTitlePathVideoDir)->readAll();
-		srtContent = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
-	}
+		subTitleData = JsonNode(subTitlePath);
+	else if(CResourceHandler::get()->existsResource(subTitlePathVideoDir))
+		subTitleData = JsonNode(subTitlePathVideoDir);
 
 	videoInstance = CCS->videoh->open(fileToPlay, scaleFactor);
 	if (videoInstance)
 	{
 		pos.w = videoInstance->size().x;
 		pos.h = videoInstance->size().y;
-		subTitle = std::make_unique<CMultiLineLabel>(Rect(0, (pos.h / 5) * 4, pos.w, pos.h / 5), EFonts::FONT_HIGH_SCORE, ETextAlignment::CENTER, Colors::WHITE, "");
+		subTitle = std::make_unique<CMultiLineLabel>(Rect(0, (pos.h / 5) * 4, pos.w, pos.h / 5), EFonts::FONT_HIGH_SCORE, ETextAlignment::CENTER, Colors::WHITE);
 	}
 
 	if (playAudio)
@@ -115,30 +108,14 @@ void VideoWidgetBase::stopAudio()
 
 std::string VideoWidgetBase::getSubTitleLine(double timestamp)
 {
-	if(srtContent.empty())
-		return "";
+	if(subTitleData.isNull())
+		return {};
+
+	for(auto & segment : subTitleData.Vector())
+		if(timestamp > segment["timeStart"].Float() && timestamp < segment["timeEnd"].Float())
+			return segment["text"].String();
 	
-    std::regex exp("^\\s*(\\d+:\\d+:\\d+,\\d+)[^\\S\\n]+-->[^\\S\\n]+(\\d+:\\d+:\\d+,\\d+)((?:\\n(?!\\d+:\\d+:\\d+,\\d+\\b|\\n+\\d+$).*)*)", std::regex::multiline);
-    std::smatch res;
-
-    std::string::const_iterator searchStart(srtContent.cbegin());
-    while (std::regex_search(searchStart, srtContent.cend(), res, exp))
-    {
-		std::vector<std::string> timestamp1Str;
-		boost::split(timestamp1Str, static_cast<std::string>(res[1]), boost::is_any_of(":,"));
-		std::vector<std::string> timestamp2Str;
-		boost::split(timestamp2Str, static_cast<std::string>(res[2]), boost::is_any_of(":,"));
-		double timestamp1 = std::stoi(timestamp1Str[0]) * 3600 + std::stoi(timestamp1Str[1]) * 60 + std::stoi(timestamp1Str[2]) + (std::stoi(timestamp1Str[3]) / 1000.0);
-		double timestamp2 = std::stoi(timestamp2Str[0]) * 3600 + std::stoi(timestamp2Str[1]) * 60 + std::stoi(timestamp2Str[2]) + (std::stoi(timestamp2Str[3]) / 1000.0);
-        std::string text = res[3];
-		text.erase(0, text.find_first_not_of("\r\n\t "));
-
-		if(timestamp > timestamp1 && timestamp < timestamp2)
-			return text;
-		
-        searchStart = res.suffix().first;
-    }
-	return "";
+	return {};
 }
 
 void VideoWidgetBase::activate()

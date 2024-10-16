@@ -12,6 +12,7 @@
 #include "../gui/CIntObject.h"
 
 #include "../lib/filesystem/ResourcePath.h"
+#include "../lib/json/JsonNode.h"
 
 class IVideoInstance;
 class CMultiLineLabel;
@@ -25,7 +26,7 @@ class VideoWidgetBase : public CIntObject
 	int audioHandle = -1;
 	bool playAudio = false;
 	float scaleFactor = 1.0;
-	std::string srtContent = "";
+	JsonNode subTitleData;
 
 	void loadAudio(const VideoPath & file);
 	void startAudio();
