@@ -10,6 +10,7 @@
 #pragma once
 
 #include "cmodlist.h"
+#include "modsettingsstorage.h"
 
 class CModManager : public QObject
 {
@@ -17,14 +18,12 @@ class CModManager : public QObject
 
 	CModList * modList;
 
-	QString settingsPath();
-
 	// check-free version of public method
 	bool doEnableMod(QString mod, bool on);
 	bool doInstallMod(QString mod, QString archivePath);
 	bool doUninstallMod(QString mod);
 
-	QVariantMap modSettings;
+	std::shared_ptr<ModSettingsStorage> modSettings;
 	QVariantMap localMods;
 
 	QStringList recentErrors;

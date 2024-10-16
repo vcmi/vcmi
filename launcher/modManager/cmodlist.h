@@ -13,6 +13,8 @@
 #include <QVariant>
 #include <QVector>
 
+#include "modsettingsstorage.h"
+
 namespace ModStatus
 {
 enum EModStatus
@@ -30,13 +32,13 @@ class CModEntry
 	// repository contains newest version only (if multiple are available)
 	QVariantMap repository;
 	QVariantMap localData;
-	QVariantMap modSettings;
+	bool modActive;
 
 	QString modname;
 
 	QVariant getValueImpl(QString value, bool localized) const;
 public:
-	CModEntry(QVariantMap repository, QVariantMap localData, QVariantMap modSettings, QString modname);
+	CModEntry(QVariantMap repository, QVariantMap localData, bool modActive, QString modname);
 
 	// installed and enabled
 	bool isEnabled() const;
@@ -80,7 +82,7 @@ class CModList
 {
 	QVector<QVariantMap> repositories;
 	QVariantMap localModList;
-	QVariantMap modSettings;
+	std::shared_ptr<ModSettingsStorage> modSettings;
 
 	mutable QMap<QString, CModEntry> cachedMods;
 
@@ -92,7 +94,7 @@ public:
 	virtual void reloadRepositories();
 	virtual void addRepository(QVariantMap data);
 	virtual void setLocalModList(QVariantMap data);
-	virtual void setModSettings(QVariant data);
+	virtual void setModSettings(std::shared_ptr<ModSettingsStorage> data);
 	virtual void modChanged(QString modID);
 
 	// returns mod by name. Note: mod MUST exist

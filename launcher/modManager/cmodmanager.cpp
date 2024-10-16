@@ -69,15 +69,10 @@ CModManager::CModManager(CModList * modList)
 	loadModSettings();
 }
 
-QString CModManager::settingsPath()
-{
-	return pathToQString(VCMIDirs::get().userConfigPath() / "modSettings.json");
-}
-
 void CModManager::loadModSettings()
 {
-	modSettings = JsonUtils::JsonFromFile(settingsPath()).toMap();
-	modList->setModSettings(modSettings["activeMods"]);
+	modSettings = std::make_shared<ModSettingsStorage>();
+	modList->setModSettings(modSettings);
 }
 
 void CModManager::resetRepositories()
@@ -248,34 +243,10 @@ bool CModManager::canDisableMod(QString modname)
 	return true;
 }
 
-static QVariant writeValue(QString path, QVariantMap input, QVariant value)
-{
-	if(path.size() > 1)
-	{
-
-		QString entryName = path.section('/', 0, 1);
-		QString remainder = "/" + path.section('/', 2, -1);
-
-		entryName.remove(0, 1);
-		input.insert(entryName, writeValue(remainder, input.value(entryName).toMap(), value));
-		return input;
-	}
-	else
-	{
-		return value;
-	}
-}
-
 bool CModManager::doEnableMod(QString mod, bool on)
 {
-	QString path = mod;
-	path = "/activeMods/" + path.replace(".", "/mods/") + "/active";
-
-	modSettings = writeValue(path, modSettings, QVariant(on)).toMap();
-	modList->setModSettings(modSettings["activeMods"]);
+	modSettings->setModActive(mod, on);
 	modList->modChanged(mod);
-
-	JsonUtils::JsonToFile(settingsPath(), modSettings);
 
 	return true;
 }

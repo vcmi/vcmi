@@ -42,11 +42,11 @@ class DLL_LINKAGE CModHandler final : boost::noncopyable
 	* @param modsToResolve list of valid mod IDs (checkDependencies returned true - TODO: Clarify it.)
 	* @return a vector of the topologically sorted resolved mods: child nodes (dependent mods) have greater index than parents
 	*/
-	std::vector <TModID> validateAndSortDependencies(std::vector <TModID> modsToResolve) const;
+	std::vector<TModID> validateAndSortDependencies(std::vector <TModID> modsToResolve) const;
 
 	std::vector<std::string> getModList(const std::string & path) const;
-	void loadMods(const std::string & path, const std::string & parent, const JsonNode & modSettings, bool enableMods);
-	void loadOneMod(std::string modName, const std::string & parent, const JsonNode & modSettings, bool enableMods);
+	void loadMods(const std::string & path, const std::string & parent, const JsonNode & modSettings, const std::vector<TModID> & modsToActivate, bool enableMods);
+	void loadOneMod(std::string modName, const std::string & parent, const JsonNode & modSettings, const std::vector<TModID> & modsToActivate, bool enableMods);
 	void loadTranslation(const TModID & modName);
 
 	CModVersion getModVersion(TModID modName) const;

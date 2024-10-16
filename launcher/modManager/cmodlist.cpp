@@ -33,8 +33,8 @@ QString CModEntry::sizeToString(double size)
 	return QCoreApplication::translate("File size", sizes[index]).arg(QString::number(size, 'f', 1));
 }
 
-CModEntry::CModEntry(QVariantMap repository, QVariantMap localData, QVariantMap modSettings, QString modname)
-	: repository(repository), localData(localData), modSettings(modSettings), modname(modname)
+CModEntry::CModEntry(QVariantMap repository, QVariantMap localData, bool modActive, QString modname)
+	: repository(repository), localData(localData), modActive(modActive), modname(modname)
 {
 }
 
@@ -46,7 +46,7 @@ bool CModEntry::isEnabled() const
 	if (!isVisible())
 		return false;
 
-	return modSettings["active"].toBool();
+	return modActive;
 }
 
 bool CModEntry::isDisabled() const
@@ -250,9 +250,9 @@ void CModList::setLocalModList(QVariantMap data)
 	cachedMods.clear();
 }
 
-void CModList::setModSettings(QVariant data)
+void CModList::setModSettings(std::shared_ptr<ModSettingsStorage> data)
 {
-	modSettings = data.toMap();
+	modSettings = data;
 	cachedMods.clear();
 }
 
@@ -294,46 +294,23 @@ CModEntry CModList::getModUncached(QString modname) const
 {
 	QVariantMap repo;
 	QVariantMap local = localModList[modname].toMap();
-	QVariantMap settings;
 
 	QString path = modname;
 	path = "/" + path.replace(".", "/mods/");
-	QVariant conf = getValue(modSettings, path);
 
-	if(conf.isNull())
+	bool modActive = modSettings->isModActive(modname);
+
+	if(modActive)
 	{
-		settings["active"] = !local.value("keepDisabled").toBool();
-	}
-	else
-	{
-		if(!conf.toMap().isEmpty())
-		{
-			settings = conf.toMap();
-			if(settings.value("active").isNull())
-				settings["active"] = !local.value("keepDisabled").toBool();
-		}
-		else
-			settings.insert("active", conf);
-	}
-	
-	if(settings["active"].toBool())
-	{
-		QString rootPath = path.section('/', 0, 1);
-		if(path != rootPath)
-		{
-			conf = getValue(modSettings, rootPath);
-			const auto confMap = conf.toMap();
-			if(!conf.isNull() && !confMap["active"].isNull() && !confMap["active"].toBool())
-			{
-				settings = confMap;
-			}
-		}
+		QString rootModName = modname.section('.', 0, 1);
+		if (!modSettings->isModActive(rootModName))
+			modActive = false; // parent mod is inactive -> submod is also inactive
 	}
 
-	if(settings.value("active").toBool())
+	if(modActive)
 	{
 		if(!::isCompatible(local.value("compatibility").toMap()))
-			settings["active"] = false;
+			modActive = false; // mod not compatible with our version of vcmi -> inactive
 	}
 
 	for(auto entry : repositories)
@@ -366,7 +343,7 @@ CModEntry CModList::getModUncached(QString modname) const
 		}
 	}
 
-	return CModEntry(repo, local, settings, modname);
+	return CModEntry(repo, local, modActive, modname);
 }
 
 bool CModList::hasMod(QString modname) const

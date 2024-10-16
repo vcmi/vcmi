@@ -192,6 +192,8 @@ void CModListModel::resetRepositories()
 
 void CModListModel::modChanged(QString modID)
 {
+	CModList::modChanged(modID);
+
 	int index = modNameToID.indexOf(modID);
 	QModelIndex parent = this->parent(createIndex(0, 0, index));
 	int row = modIndex[modIndexToName(parent)].indexOf(modID);
