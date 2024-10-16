@@ -162,7 +162,7 @@
 	"vcmi.server.errors.modConflict" : "Nelze načíst modifikaci {'%s'}!\n Je v kolizi s aktivní modifikací {'%s'}!\n",
 	"vcmi.server.errors.unknownEntity" : "Nelze načíst uloženou pozici! Neznámá entita '%s' nalezena v uložené pozici! Uložná pozice nemusí být kompatibilní s aktuálními verzemi modifikací!",
 	
-	"vcmi.dimensionDoor.seaToLandError" : "It's not possible to teleport from sea to land or vice versa with a Dimension Door.", //TODO
+	"vcmi.dimensionDoor.seaToLandError" : "Pomocí dimenzní brány není možné se teleportovat z moře na pevninu nebo naopak.",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "Obecné",
 	"vcmi.settingsMainWindow.generalTab.help"     : "Přepne na kartu obecných nastavení, která obsahuje nastavení související s obecným chováním klienta hry.",
@@ -253,7 +253,7 @@
 	"vcmi.adventureOptions.rightButtonDrag.hover" : "Přetahování pravým tlačítkem",
 	"vcmi.adventureOptions.rightButtonDrag.help" : "{Přetahování pravým tlačítkem}\n\nKdyž je povoleno, pohyb myší se stisknutým pravým tlačítkem bude posouvat pohled na mapě dobrodružství.",
 	"vcmi.adventureOptions.smoothDragging.hover" : "Plynulé posouvání mapy",
-	"vcmi.adventureOptions.smoothDragging.help" : "{Plynulé posouvání mapy}\n\nWhen enabled, map dragging has a modern run out effect.", // TODO
+	"vcmi.adventureOptions.smoothDragging.help" : "{Plynulé posouvání mapy}\n\nPokud je tato možnost aktivována, posouvání mapy bude plynulé.",
 	"vcmi.adventureOptions.skipAdventureMapAnimations.hover" : "Přeskočit efekty mizení",
 	"vcmi.adventureOptions.skipAdventureMapAnimations.help" : "{Přeskočit efekty mizení}\n\nKdyž je povoleno, přeskočí se efekty mizení objektů a podobné efekty (sběr surovin, nalodění atd.). V některých případech zrychlí uživatelské rozhraní na úkor estetiky. Obzvláště užitečné v PvP hrách. Pro maximální rychlost pohybu je toto nastavení aktivní bez ohledu na další volby.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
@@ -314,7 +314,7 @@
 	"vcmi.battleWindow.damageRetaliation.damage" : "(%DAMAGE).",
 	"vcmi.battleWindow.damageRetaliation.damageKills" : "(%DAMAGE, %KILLS).",
 	
-	"vcmi.battleWindow.killed" : "Zabito", //TODO
+	"vcmi.battleWindow.killed" : "Zabito",
 	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s bylo zabito přesnými zásahy!",
 	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s byl zabit přesným zásahem!",
 	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s bylo zabito přesnými zásahy!",
