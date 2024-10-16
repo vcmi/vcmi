@@ -1195,7 +1195,7 @@ Heroes® of Might and Magic® III HD momentálně není podporováno!</translati
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="622"/>
         <source>Install a translation of Heroes III in your preferred language</source>
-        <translation>Nainstalujte si překlad Heroes III dle preferovaného jazyku</translation>
+        <translation>Nainstalujte si překlad Heroes III dle preferovaného jazyka</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="388"/>
