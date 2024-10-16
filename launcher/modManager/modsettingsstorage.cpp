@@ -110,6 +110,22 @@ void ModSettingsStorage::setRootModActive(const QString & modName, bool on)
 	JsonUtils::JsonToFile(settingsPath(), config);
 }
 
+void ModSettingsStorage::registerNewMod(const QString & modName, bool keepDisabled)
+{
+	if (!modName.contains('.'))
+		return;
+
+	QString rootModName = modName.section('.', 0, 0);
+	QString settingName = modName.section('.', 1);
+
+	QVariantMap modSettings = getModSettings(rootModName);
+
+	if (modSettings.contains(settingName))
+		return;
+
+	setModSettingActive(modName, !keepDisabled);
+}
+
 void ModSettingsStorage::setModSettingActive(const QString & modName, bool on)
 {
 	QString presetName = getActivePreset();

@@ -30,6 +30,8 @@ class ModSettingsStorage
 public:
 	ModSettingsStorage();
 
+	void registerNewMod(const QString & modName, bool keepDisabled);
+
 	void setModActive(const QString & modName, bool on);
 	void setActivePreset(const QString & presetName);
 

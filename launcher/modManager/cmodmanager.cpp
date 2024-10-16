@@ -65,13 +65,13 @@ QString detectModArchive(QString path, QString modName, std::vector<std::string>
 CModManager::CModManager(CModList * modList)
 	: modList(modList)
 {
+	modSettings = std::make_shared<ModSettingsStorage>();
 	loadMods();
 	loadModSettings();
 }
 
 void CModManager::loadModSettings()
 {
-	modSettings = std::make_shared<ModSettingsStorage>();
 	modList->setModSettings(modSettings);
 }
 
@@ -116,7 +116,9 @@ void CModManager::loadMods()
 				json["storedLocally"].Bool() = true;
 
 			mod = JsonUtils::toVariant(json);
-			localMods.insert(QString::fromUtf8(modname.c_str()).toLower(), mod);
+			QString modNameQt = QString::fromUtf8(modname.c_str()).toLower();
+			localMods.insert(modNameQt, mod);
+			modSettings->registerNewMod(modNameQt, json["keepDisabled"].Bool());
 		}
 	}
 	modList->setLocalModList(localMods);
