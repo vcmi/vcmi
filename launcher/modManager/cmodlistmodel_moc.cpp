@@ -16,8 +16,10 @@ namespace ModStatus
 {
 static const QString iconDelete = ":/icons/mod-delete.png";
 static const QString iconDisabled = ":/icons/mod-disabled.png";
+static const QString iconDisabledSubmod = ":/icons/submod-disabled.png";
 static const QString iconDownload = ":/icons/mod-download.png";
 static const QString iconEnabled = ":/icons/mod-enabled.png";
+static const QString iconEnabledSubmod = ":/icons/submod-enabled.png";
 static const QString iconUpdate = ":/icons/mod-update.png";
 }
 
@@ -104,15 +106,33 @@ QVariant CModListModel::getText(const CModEntry & mod, int field) const
 
 QVariant CModListModel::getIcon(const CModEntry & mod, int field) const
 {
-	if(field == ModFields::STATUS_ENABLED && mod.isEnabled())
-		return QIcon(ModStatus::iconEnabled);
-	if(field == ModFields::STATUS_ENABLED && mod.isDisabled())
-		return QIcon(ModStatus::iconDisabled);
+	if (field == ModFields::STATUS_ENABLED)
+	{
+		if(mod.isSubmod())
+		{
+			QString toplevelParent = mod.getName().section('.', 0, 0);
+			if (getMod(toplevelParent).isDisabled())
+			{
+				if (mod.isEnabled())
+					return QIcon(ModStatus::iconEnabledSubmod);
+				if(mod.isDisabled())
+					return QIcon(ModStatus::iconDisabledSubmod);
+			}
+		}
 
-	if(field == ModFields::STATUS_UPDATE && mod.isUpdateable())
-		return QIcon(ModStatus::iconUpdate);
-	if(field == ModFields::STATUS_UPDATE && !mod.isInstalled())
-		return QIcon(ModStatus::iconDownload);
+		if (mod.isEnabled())
+			return QIcon(ModStatus::iconEnabled);
+		if(mod.isDisabled())
+			return QIcon(ModStatus::iconDisabled);
+	}
+
+	if(field == ModFields::STATUS_UPDATE)
+	{
+		if (mod.isUpdateable())
+			return QIcon(ModStatus::iconUpdate);
+		if(!mod.isInstalled())
+			return QIcon(ModStatus::iconDownload);
+	}
 
 	return QVariant();
 }
