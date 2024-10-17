@@ -66,7 +66,11 @@ public:
 	// see ModStatus enum
 	int getModStatus() const;
 
+	// Returns mod name / identifier (not human-readable)
 	QString getName() const;
+
+	// For submods only. Returns mod name / identifier of a top-level parent mod
+	QString getTopParentName() const;
 
 	// get value of some field in mod structure. Returns empty optional if value is not present
 	QVariant getValue(QString value) const;

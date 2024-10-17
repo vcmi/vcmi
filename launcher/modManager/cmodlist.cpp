@@ -149,6 +149,12 @@ QString CModEntry::getName() const
 	return modname;
 }
 
+QString CModEntry::getTopParentName() const
+{
+	assert(isSubmod());
+	return modname.section('.', 0, 0);
+}
+
 QVariant CModEntry::getValue(QString value) const
 {
 	return getValueImpl(value, true);

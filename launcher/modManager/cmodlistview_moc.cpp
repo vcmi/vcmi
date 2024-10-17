@@ -261,14 +261,25 @@ QStringList CModListView::getModNames(QStringList input)
 	{
 		auto mod = modModel->getMod(modID.toLower());
 
-		QString modName = mod.getValue("name").toString();
+		QString displayName = mod.getValue("name").toString();
+		if (displayName.isEmpty())
+			displayName = modID.toLower();
 
-		if (modName.isEmpty())
-			result += modID.toLower();
-		else
-			result += modName;
+		if (mod.isSubmod())
+		{
+			auto parentModID = mod.getTopParentName();
+			auto parentMod = modModel->getMod(parentModID.toLower());
+			QString parentDisplayName = parentMod.getValue("name").toString();
+			if (parentDisplayName.isEmpty())
+				parentDisplayName = parentModID.toLower();
+
+			if (mod.isInstalled())
+				displayName = QString("%1 (%2)").arg(displayName, parentDisplayName);
+			else
+				displayName = parentDisplayName;
+		}
+		result += displayName;
 	}
-
 	return result;
 }
 
