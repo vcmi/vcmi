@@ -52,7 +52,7 @@ public:
 	JsonNode config;
 
 	CModInfo();
-	CModInfo(const std::string & identifier, const JsonNode & local, const JsonNode & config);
+	CModInfo(const std::string & identifier, const JsonNode & local, const JsonNode & config, bool isActive);
 
 	JsonNode saveLocalData() const;
 	void updateChecksum(ui32 newChecksum);

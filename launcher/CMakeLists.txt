@@ -13,6 +13,7 @@ set(launcher_SRCS
 		modManager/cmodmanager.cpp
 		modManager/imageviewer_moc.cpp
 		modManager/chroniclesextractor.cpp
+		modManager/modsettingsstorage.cpp
 		settingsView/csettingsview_moc.cpp
 		firstLaunch/firstlaunch_moc.cpp
 		main.cpp
@@ -43,6 +44,7 @@ set(launcher_HEADERS
 		modManager/cmodmanager.h
 		modManager/imageviewer_moc.h
 		modManager/chroniclesextractor.h
+		modManager/modsettingsstorage.h
 		settingsView/csettingsview_moc.h
 		firstLaunch/firstlaunch_moc.h
 		mainwindow_moc.h
