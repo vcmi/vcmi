@@ -125,6 +125,14 @@ void CSettingsView::loadSettings()
 	else
 		ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
 #endif
+
+#ifdef ENABLE_MMAI
+	// Can play only as defender for now
+	ui->comboBoxNeutralAI->addItem("MMAI (experimental)", "MMAI");
+	// ui->comboBoxFriendlyAI->addItem("MMAI (experimental)", "MMAI");
+	// ui->comboBoxEnemyAI->addItem("MMAI (experimental)", "MMAI");
+#endif
+
 	fillValidScalingRange();
 
 	ui->buttonScalingAuto->setChecked(settings["video"]["resolution"]["scaling"].Integer() == 0);
@@ -137,12 +145,20 @@ void CSettingsView::loadSettings()
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
 	ui->sliderReservedArea->setValue(std::round(settings["video"]["reservedWidth"].Float() * 100));
 
-	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
-	ui->comboBoxNeutralAI->setCurrentText(QString::fromStdString(settings["server"]["neutralAI"].String()));
-	ui->comboBoxEnemyAI->setCurrentText(QString::fromStdString(settings["server"]["enemyAI"].String()));
+	// Find an entry by value and select it
+	auto setValue = [](QComboBox * box, std::string value)
+	{
+		auto qstr = QString::fromStdString(value);
+		int index = box->findData(qstr);
+		index >= 0 ? box->setCurrentIndex(index) : box->setCurrentText(qstr);
+	};
 
-	ui->comboBoxEnemyPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["playerAI"].String()));
-	ui->comboBoxAlliedPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["alliedAI"].String()));
+	setValue(ui->comboBoxFriendlyAI, settings["server"]["friendlyAI"].String());
+	setValue(ui->comboBoxNeutralAI, settings["server"]["neutralAI"].String());
+	setValue(ui->comboBoxEnemyAI, settings["server"]["enemyAI"].String());
+
+	setValue(ui->comboBoxEnemyPlayerAI, settings["server"]["playerAI"].String());
+	setValue(ui->comboBoxAlliedPlayerAI, settings["server"]["alliedAI"].String());
 
 	ui->spinBoxNetworkPort->setValue(settings["server"]["localPort"].Integer());
 
@@ -434,22 +450,25 @@ void CSettingsView::on_comboBoxDisplayIndex_currentIndexChanged(int index)
 	fillValidResolutionsForScreen(index);
 }
 
-void CSettingsView::on_comboBoxFriendlyAI_currentTextChanged(const QString & arg1)
+void CSettingsView::on_comboBoxFriendlyAI_currentTextChanged(const QString & text)
 {
 	Settings node = settings.write["server"]["friendlyAI"];
-	node->String() = arg1.toUtf8().data();
+	auto value = ui->comboBoxFriendlyAI->currentData().toString();
+	node->String() = value.isEmpty() ? text.toUtf8().data() : value.toUtf8().data();
 }
 
-void CSettingsView::on_comboBoxNeutralAI_currentTextChanged(const QString & arg1)
+void CSettingsView::on_comboBoxNeutralAI_currentTextChanged(const QString & text)
 {
 	Settings node = settings.write["server"]["neutralAI"];
-	node->String() = arg1.toUtf8().data();
+	auto value = ui->comboBoxNeutralAI->currentData().toString();
+	node->String() = value.isEmpty() ? text.toUtf8().data() : value.toUtf8().data();
 }
 
-void CSettingsView::on_comboBoxEnemyAI_currentTextChanged(const QString & arg1)
+void CSettingsView::on_comboBoxEnemyAI_currentTextChanged(const QString & text)
 {
 	Settings node = settings.write["server"]["enemyAI"];
-	node->String() = arg1.toUtf8().data();
+	auto value = ui->comboBoxEnemyAI->currentData().toString();
+	node->String() = value.isEmpty() ? text.toUtf8().data() : value.toUtf8().data();
 }
 
 void CSettingsView::on_spinBoxNetworkPort_valueChanged(int arg1)

@@ -696,16 +696,7 @@ void BattleWindow::bAutofightf()
 		owner.curInt->isAutoFightOn = true;
 		blockUI(true);
 
-		auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
-
-		AutocombatPreferences autocombatPreferences = AutocombatPreferences();
-		autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
-
-		ai->initBattleInterface(owner.curInt->env, owner.curInt->cb, autocombatPreferences);
-		ai->battleStart(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide(), false);
-		owner.curInt->autofightingAI = ai;
-		owner.curInt->cb->registerBattleInterface(ai);
-
+		owner.curInt->prepareAutoFightingAI(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide());
 		owner.requestAutofightingAIToTakeAction();
 	}
 }
@@ -896,18 +887,7 @@ void BattleWindow::endWithAutocombat()
 		[this]()
 		{
 			owner.curInt->isAutoFightEndBattle = true;
-
-			auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
-
-			AutocombatPreferences autocombatPreferences = AutocombatPreferences();
-			autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
-
-			ai->initBattleInterface(owner.curInt->env, owner.curInt->cb, autocombatPreferences);
-			ai->battleStart(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide(), false);
-
-			owner.curInt->isAutoFightOn = true;
-			owner.curInt->cb->registerBattleInterface(ai);
-			owner.curInt->autofightingAI = ai;
+			owner.curInt->prepareAutoFightingAI(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide());
 
 			owner.requestAutofightingAIToTakeAction();
 

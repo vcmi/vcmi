@@ -10,3 +10,9 @@
 	path = launcher/lib/innoextract
 	url = https://github.com/vcmi/innoextract.git
 	branch = vcmi
+[submodule "AI/MMAI"]
+	path = AI/MMAI
+	url = git@github.com:smanolloff/vcmi-MMAI.git
+[submodule "Mods/MMAI"]
+	path = Mods/MMAI
+	url = git@github.com:smanolloff/vcmi-MMAI-mod.git

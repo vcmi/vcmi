@@ -202,6 +202,8 @@ public: // public interface for use by client via LOCPLINT access
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
 
+	void prepareAutoFightingAI(const BattleID &bid, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side);
+
 	CPlayerInterface(PlayerColor Player);
 	~CPlayerInterface();
 
