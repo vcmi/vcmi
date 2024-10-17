@@ -906,7 +906,7 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getOneTurnReachableUn
 {
 	std::vector<const battle::Unit *> result;
 
-	for(int i = 0; i < turnOrder.size(); i++)
+	for(int i = 0; i < turnOrder.size(); i++, turn++)
 	{
 		auto & turnQueue = turnOrder[i];
 		HypotheticBattle turnBattle(env.get(), cb);

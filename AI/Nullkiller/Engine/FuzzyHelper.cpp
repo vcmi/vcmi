@@ -52,6 +52,15 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 			{
 				objectDanger += evaluateDanger(hero->visitedTown.get());
 			}
+			objectDanger *= ai->heroManager->getFightingStrengthCached(hero);
+		}
+		if (objWithID<Obj::TOWN>(dangerousObject))
+		{
+			auto town = dynamic_cast<const CGTownInstance*>(dangerousObject);
+			auto hero = town->garrisonHero;
+
+			if (hero)
+				objectDanger *= ai->heroManager->getFightingStrengthCached(hero);
 		}
 
 		if(objectDanger)
@@ -117,10 +126,10 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 		{
 			auto fortLevel = town->fortLevel();
 
-			if(fortLevel == CGTownInstance::EFortLevel::CASTLE)
-				danger += 10000;
+			if (fortLevel == CGTownInstance::EFortLevel::CASTLE)
+				danger = std::max(danger * 2, danger + 10000);
 			else if(fortLevel == CGTownInstance::EFortLevel::CITADEL)
-				danger += 4000;
+				danger = std::max(ui64(danger * 1.4), danger + 4000);
 		}
 
 		return danger;

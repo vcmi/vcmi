@@ -130,7 +130,7 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 
 			tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, nullptr).setpriority(5)));
 
-			return true;
+			return false;
 		}
 		else if(ai->heroManager->getHeroRole(town->garrisonHero.get()) == HeroRole::MAIN)
 		{
@@ -141,7 +141,7 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 			{
 				tasks.push_back(Goals::sptr(Goals::DismissHero(heroToDismiss).setpriority(5)));
 
-				return true;
+				return false;
 			}
 		}
 	}
@@ -158,11 +158,10 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	
 	threats.push_back(threatNode.fastestDanger); // no guarantee that fastest danger will be there
 
-	if(town->garrisonHero && handleGarrisonHeroFromPreviousTurn(town, tasks, ai))
+	if (town->garrisonHero && handleGarrisonHeroFromPreviousTurn(town, tasks, ai))
 	{
 		return;
 	}
-
 	if(!threatNode.fastestDanger.hero)
 	{
 		logAi->trace("No threat found for town %s", town->getNameTranslated());
@@ -247,6 +246,16 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 				defferedPaths[path.targetHero].push_back(i);
 
+				continue;
+			}
+
+			if (!path.targetHero->canBeMergedWith(*town))
+			{
+#if NKAI_TRACE_LEVEL >= 1
+				logAi->trace("Can't merge armies of hero %s and town %s",
+					path.targetHero->getObjectName(),
+					town->getObjectName());
+#endif
 				continue;
 			}
 
@@ -343,23 +352,14 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			}
 			else if(town->visitingHero && path.targetHero != town->visitingHero && !path.containsHero(town->visitingHero))
 			{
-				if(town->garrisonHero)
+				if(town->garrisonHero && town->garrisonHero != path.targetHero)
 				{
-					if(ai->heroManager->getHeroRole(town->visitingHero.get()) == HeroRole::SCOUT
-						&& town->visitingHero->getArmyStrength() < path.heroArmy->getArmyStrength() / 20)
-					{
-						if(path.turn() == 0)
-							sequence.push_back(sptr(DismissHero(town->visitingHero.get())));
-					}
-					else
-					{
 #if NKAI_TRACE_LEVEL >= 1
-						logAi->trace("Cancel moving %s to defend town %s as the town has garrison hero",
-							path.targetHero->getObjectName(),
-							town->getObjectName());
+					logAi->trace("Cancel moving %s to defend town %s as the town has garrison hero",
+						path.targetHero->getObjectName(),
+						town->getObjectName());
 #endif
-						continue;
-					}
+					continue;
 				}
 				else if(path.turn() == 0)
 				{
@@ -405,6 +405,9 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town, const Nullkiller * ai) const
 {
+	if (threat.turn > 0 || town->garrisonHero || town->visitingHero)
+		return;
+	
 	if(town->hasBuilt(BuildingID::TAVERN)
 		&& ai->cb->getResourceAmount(EGameResID::GOLD) > GameConstants::HERO_GOLD_COST)
 	{
@@ -451,7 +454,7 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 			}
 			else if(ai->heroManager->heroCapReached())
 			{
-				heroToDismiss = ai->heroManager->findWeakHeroToDismiss(hero->getArmyStrength());
+				heroToDismiss = ai->heroManager->findWeakHeroToDismiss(hero->getArmyStrength(), town);
 
 				if(!heroToDismiss)
 					continue;
