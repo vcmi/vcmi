@@ -86,7 +86,7 @@
 	"vcmi.lobby.sortDate" : "Řadit mapy dle data změny",
 	"vcmi.lobby.backToLobby" : "Vrátit se do lobby",
 	"vcmi.lobby.author" : "Autor",
-	"vcmi.lobby.handicap" : "Handicap",
+	"vcmi.lobby.handicap" : "Postih",
 	"vcmi.lobby.handicap.resource" : "Dává hráčům odpovídající zdroje navíc k běžným startovním zdrojům. Jsou povoleny záporné hodnoty, ale jsou omezeny na celkovou hodnotu 0 (hráč nikdy nezačíná se zápornými zdroji).",
 	"vcmi.lobby.handicap.income" : "Mění různé příjmy hráče podle procent. Výsledek je zaokrouhlen nahoru.",
 	"vcmi.lobby.handicap.growth" : "Mění rychlost růstu jednotel v městech vlastněných hráčem. Výsledek je zaokrouhlen nahoru.",
@@ -381,7 +381,7 @@
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Druhy cest",
 
 	"vcmi.optionsTab.turnOptions.hover" : "Možnosti tahu",
-	"vcmi.optionsTab.turnOptions.help" : "Vyberte odpočítávadlo tahů a nastavení souběžných tahů",
+	"vcmi.optionsTab.turnOptions.help" : "Vyberte odpočítávadlo a nastavení souběžných tahů",
 
 	"vcmi.optionsTab.chessFieldBase.hover" : "Základní časovač",
 	"vcmi.optionsTab.chessFieldTurn.hover" : "Časovač tahu",
@@ -404,7 +404,7 @@
 	"vcmi.optionsTab.simturnsMax.help" : "Hrát souběžně po určený počet dní nebo do setkání s jiným hráčem",
 	"vcmi.optionsTab.simturnsAI.help" : "{Souběžné tahy AI}\nExperimentální volba. Dovoluje AI hráčům hrát souběžně s lidskými hráči, když jsou souběžné tahy povoleny.",
 
-	"vcmi.optionsTab.turnTime.select"     : "Vyberte šablonu nastavení časovače",
+	"vcmi.optionsTab.turnTime.select"     : "Šablona nastavení časovače",
 	"vcmi.optionsTab.turnTime.unlimited"  : "Neomezený čas tahu",
 	"vcmi.optionsTab.turnTime.classic.1"  : "Klasický časovač: 1 minuta",
 	"vcmi.optionsTab.turnTime.classic.2"  : "Klasický časovač: 2 minuty",
@@ -419,7 +419,7 @@
 	"vcmi.optionsTab.turnTime.chess.2"    : "Šachová: 02:00 + 01:00 + 00:15 + 00:00",
 	"vcmi.optionsTab.turnTime.chess.1"    : "Šachová: 01:00 + 01:00 + 00:00 + 00:00",
 
-	"vcmi.optionsTab.simturns.select"         : "Vyberte šablonu souběžných tahů",
+	"vcmi.optionsTab.simturns.select"         : "Šablona souběžných tahů",
 	"vcmi.optionsTab.simturns.none"           : "Bez souběžných tahů",
 	"vcmi.optionsTab.simturns.tillContactMax" : "Souběžně: Do setkání",
 	"vcmi.optionsTab.simturns.tillContact1"   : "Souběžně: 1 týden, přerušit při setkání",
