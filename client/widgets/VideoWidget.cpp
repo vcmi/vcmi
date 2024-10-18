@@ -9,12 +9,15 @@
  */
 #include "StdInc.h"
 #include "VideoWidget.h"
+#include "TextControls.h"
 
 #include "../CGameInfo.h"
 #include "../gui/CGuiHandler.h"
 #include "../media/ISoundPlayer.h"
 #include "../media/IVideoPlayer.h"
 #include "../render/Canvas.h"
+
+#include "../../lib/filesystem/Filesystem.h"
 
 VideoWidgetBase::VideoWidgetBase(const Point & position, const VideoPath & video, bool playAudio)
 	: VideoWidgetBase(position, video, playAudio, 1.0)
@@ -33,11 +36,21 @@ VideoWidgetBase::~VideoWidgetBase() = default;
 
 void VideoWidgetBase::playVideo(const VideoPath & fileToPlay)
 {
+	OBJECT_CONSTRUCTION;
+
+	JsonPath subTitlePath = fileToPlay.toType<EResType::JSON>();
+	JsonPath subTitlePathVideoDir = subTitlePath.addPrefix("VIDEO/");
+	if(CResourceHandler::get()->existsResource(subTitlePath))
+		subTitleData = JsonNode(subTitlePath);
+	else if(CResourceHandler::get()->existsResource(subTitlePathVideoDir))
+		subTitleData = JsonNode(subTitlePathVideoDir);
+
 	videoInstance = CCS->videoh->open(fileToPlay, scaleFactor);
 	if (videoInstance)
 	{
 		pos.w = videoInstance->size().x;
 		pos.h = videoInstance->size().y;
+		subTitle = std::make_unique<CMultiLineLabel>(Rect(0, (pos.h / 5) * 4, pos.w, pos.h / 5), EFonts::FONT_HIGH_SCORE, ETextAlignment::CENTER, Colors::WHITE);
 	}
 
 	if (playAudio)
@@ -52,6 +65,8 @@ void VideoWidgetBase::show(Canvas & to)
 {
 	if(videoInstance)
 		videoInstance->show(pos.topLeft(), to);
+	if(subTitle)
+		subTitle->showAll(to);
 }
 
 void VideoWidgetBase::loadAudio(const VideoPath & fileToPlay)
@@ -77,7 +92,7 @@ void VideoWidgetBase::startAudio()
 			{
 				this->audioHandle = -1;
 			}
-			);
+		);
 	}
 }
 
@@ -89,6 +104,18 @@ void VideoWidgetBase::stopAudio()
 		CCS->soundh->stopSound(audioHandle);
 		audioHandle = -1;
 	}
+}
+
+std::string VideoWidgetBase::getSubTitleLine(double timestamp)
+{
+	if(subTitleData.isNull())
+		return {};
+
+	for(auto & segment : subTitleData.Vector())
+		if(timestamp > segment["timeStart"].Float() && timestamp < segment["timeEnd"].Float())
+			return segment["text"].String();
+	
+	return {};
 }
 
 void VideoWidgetBase::activate()
@@ -107,6 +134,8 @@ void VideoWidgetBase::showAll(Canvas & to)
 {
 	if(videoInstance)
 		videoInstance->show(pos.topLeft(), to);
+	if(subTitle)
+		subTitle->showAll(to);
 }
 
 void VideoWidgetBase::tick(uint32_t msPassed)
@@ -122,6 +151,8 @@ void VideoWidgetBase::tick(uint32_t msPassed)
 			onPlaybackFinished();
 		}
 	}
+	if(subTitle && videoInstance)
+		subTitle->setText(getSubTitleLine(videoInstance->timeStamp()));
 }
 
 VideoWidget::VideoWidget(const Point & position, const VideoPath & prologue, const VideoPath & looped, bool playAudio)
