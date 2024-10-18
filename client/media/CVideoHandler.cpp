@@ -391,7 +391,7 @@ void CVideoInstance::tick(uint32_t msPassed)
 	if(videoEnded())
 		throw std::runtime_error("Video already ended!");
 
-	if(startTime == std::chrono::high_resolution_clock())
+	if(startTime == std::chrono::high_resolution_clock::time_point())
 		startTime = std::chrono::high_resolution_clock::now();
 
 	auto nowTime = std::chrono::high_resolution_clock::now();
