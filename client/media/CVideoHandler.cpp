@@ -173,7 +173,6 @@ void CVideoInstance::openVideo()
 {
 	openContext();
 	openCodec(findVideoStream());
-	startTime = std::chrono::high_resolution_clock::now();
 }
 
 void CVideoInstance::prepareOutput(float scaleFactor, bool useTextureOutput)
@@ -391,6 +390,9 @@ void CVideoInstance::tick(uint32_t msPassed)
 
 	if(videoEnded())
 		throw std::runtime_error("Video already ended!");
+
+	if(startTime == std::chrono::high_resolution_clock())
+		startTime = std::chrono::high_resolution_clock::now();
 
 	auto nowTime = std::chrono::high_resolution_clock::now();
 	double difference = std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - startTime).count() / 1000.0;
