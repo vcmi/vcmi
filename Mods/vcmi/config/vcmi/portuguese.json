@@ -358,6 +358,7 @@
 	"vcmi.heroWindow.sortBackpackBySlot.help"   : "Ordenar artefatos na mochila por espaço equipado.",
 	"vcmi.heroWindow.sortBackpackByClass.hover" : "Ordenar por classe",
 	"vcmi.heroWindow.sortBackpackByClass.help"  : "Ordenar artefatos na mochila por classe de artefato. Tesouro, Menor, Maior, Relíquia",
+	"vcmi.heroWindow.fusingArtifact.fusing" : "Você possui todos os componentes necessários para a fusão de %s. Deseja realizar a fusão? {Todos os componentes serão consumidos após a fusão.}",
 
 	"vcmi.tavernWindow.inviteHero" : "Convidar herói",
 
