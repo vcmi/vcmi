@@ -78,7 +78,7 @@ class CVideoInstance final : public IVideoInstance, public FFMpegStream
 	Point dimensions;
 
 	/// video playback start time point
-	std::chrono::system_clock::time_point startTime;
+	std::chrono::high_resolution_clock::time_point startTime;
 
 	void prepareOutput(float scaleFactor, bool useTextureOutput);
 	
