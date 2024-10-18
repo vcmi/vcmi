@@ -12,7 +12,7 @@
 	"vcmi.adventureMap.monsterThreat.levels.9"  : "Převažující",
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Smrtelná",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Nemožná",
-	"vcmi.adventureMap.monsterLevel"            : "\n\nÚroveň %LEVEL %TOWN jednotka %ATTACK_TYPE",
+	"vcmi.adventureMap.monsterLevel"            : "\n\nÚroveň %LEVEL, %TOWN, jednotka %ATTACK_TYPE",
 	"vcmi.adventureMap.monsterMeleeType"        : "útočí zblízka",
 	"vcmi.adventureMap.monsterRangedType"       : "útočí na dálku",
 	"vcmi.adventureMap.search.hover"            : "Prohledat objekt",
