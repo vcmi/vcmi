@@ -74,7 +74,10 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 					MetaString message = MetaString::createFromTextID(art->artType->getDescriptionTextID());
 					message.appendEOL();
 					message.appendEOL();
-					message.appendRawString(CGI->generaltexth->allTexts[732]); // You possess all of the components needed to assemble the
+					if(combinedArt->isFused())
+						message.appendRawString(CGI->generaltexth->translate("vcmi.heroWindow.fusingArtifact.fusing"));
+					else
+						message.appendRawString(CGI->generaltexth->allTexts[732]); // You possess all of the components needed to assemble the
 					message.replaceName(ArtifactID(combinedArt->getId()));
 					LOCPLINT->showYesNoDialog(message.toString(), [&assembleConfirmed, hero, slot, combinedArt]()
 						{
@@ -102,7 +105,7 @@ bool ArtifactsUIController::askToDisassemble(const CGHeroInstance * hero, const 
 	if(hero->tempOwner != LOCPLINT->playerID)
 		return false;
 
-	if(art->isCombined())
+	if(art->hasParts())
 	{
 		if(ArtifactUtils::isSlotBackpack(slot) && !ArtifactUtils::isBackpackFreeSlots(hero, art->artType->getConstituents().size() - 1))
 			return false;

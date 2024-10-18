@@ -54,7 +54,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="114"/>
         <source>Log files directory</source>
-        <translation>Složka záznamů hry</translation>
+        <translation>Adresář souborů s logy</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="107"/>
@@ -176,7 +176,7 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="61"/>
         <source>Creatures</source>
-        <translation>Bojovníci</translation>
+        <translation>Jednotky</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
@@ -209,7 +209,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="71"/>
         <source>Downloadable</source>
-        <translation>Stahovatelné</translation>
+        <translation>Ke stažení</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="76"/>
@@ -219,7 +219,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="81"/>
         <source>Updatable</source>
-        <translation>Aktualizovatelné</translation>
+        <translation>K aktualizaci</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="86"/>
@@ -387,12 +387,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="358"/>
         <source>This mod can not be installed or enabled because the following dependencies are not present</source>
-        <translation>Tato modifikace nemůže být nainstalována nebo povolena, protože následující závislosti nejsou přítomny</translation>
+        <translation>Tato modifikace nelze nainstalovat ani povolit, protože nejsou přítomny následující závislosti</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
         <source>This mod can not be enabled because the following mods are incompatible with it</source>
-        <translation>Tato modifikace nemůže být povolena, protože následující modifikace s ní nejsou kompatibilní</translation>
+        <translation>Tato modifikace nemůže být povolena, protože není kompatibilní s následujícími modifikacemi</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
@@ -407,7 +407,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="362"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
-        <translation>Toto je podmodifikace, která nemůže být nainstalována nebo odinstalována bez její rodičovské modifikace</translation>
+        <translation>Toto je podmodifikace a nelze ji nainstalovat ani odinstalovat samostatně bez hlavní modifikace</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="377"/>
@@ -442,17 +442,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="648"/>
         <source>Gog files</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubory GOG</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="650"/>
         <source>All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Všechny soubory (*.*)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="652"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte soubory (konfigurace, modifikace, mapy, kampaně, soubory GOG) k instalaci...</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="677"/>
@@ -467,7 +467,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="720"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished"></translation>
+        <translation>Stahování %1. %p% (%v MB z %m MB) dokončeno</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="745"/>
@@ -499,7 +499,7 @@ Nainstalovat úspěšně stažené?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="852"/>
         <source>Installing chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalování kronik</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="925"/>
@@ -667,7 +667,7 @@ Nainstalovat úspěšně stažené?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
         <source>Downscaling Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr pro zmenšování</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="597"/>
@@ -677,7 +677,7 @@ Nainstalovat úspěšně stažené?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="866"/>
         <source>Online Lobby port</source>
-        <translation>Port online předsíně</translation>
+        <translation>Port online lobby</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="666"/>
@@ -692,7 +692,7 @@ Nainstalovat úspěšně stažené?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="908"/>
         <source>Automatic (Linear)</source>
-        <translation type="unfinished"></translation>
+        <translation>Automaticky (Lineárně)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="274"/>
@@ -709,42 +709,42 @@ Nainstalovat úspěšně stažené?</translation>
         <location filename="../settingsView/csettingsview_moc.ui" line="539"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="1389"/>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Automaticky</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="75"/>
         <source>Mods Validation</source>
-        <translation type="unfinished"></translation>
+        <translation>Validace modifikací</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="88"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Nic</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="93"/>
         <source>xBRZ x2</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x2</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="98"/>
         <source>xBRZ x3</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x3</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="103"/>
         <source>xBRZ x4</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x4</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
         <source>Full</source>
-        <translation type="unfinished"></translation>
+        <translation>Plné</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="788"/>
         <source>Use scalable fonts</source>
-        <translation type="unfinished"></translation>
+        <translation>Použít škálovatelná písma</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="859"/>
@@ -754,27 +754,27 @@ Nainstalovat úspěšně stažené?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1079"/>
         <source>Cursor Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Škálování kurzoru</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1108"/>
         <source>Scalable</source>
-        <translation type="unfinished"></translation>
+        <translation>Škálovatelné</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1144"/>
         <source>Miscellaneous</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostatní</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
         <source>Font Scaling (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Škálování písma (experimentální)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1367"/>
         <source>Original</source>
-        <translation type="unfinished"></translation>
+        <translation>Původní</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1406"/>
@@ -784,7 +784,7 @@ Nainstalovat úspěšně stažené?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1439"/>
         <source>Basic</source>
-        <translation type="unfinished"></translation>
+        <translation>Základní</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
@@ -814,12 +814,12 @@ Nainstalovat úspěšně stažené?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="926"/>
         <source>Show Tutorial again</source>
-        <translation type="unfinished"></translation>
+        <translation>Znovu zobrazi Tutoriál</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="139"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Restart</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1129"/>
@@ -1011,7 +1011,7 @@ Exkluzivní celá obrazovka - hra zakryje vaši celou obrazovku a použije vybra
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="649"/>
         <source>Display index</source>
-        <translation type="unfinished"></translation>
+        <translation>Monitor</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="713"/>
@@ -1059,35 +1059,35 @@ Exkluzivní celá obrazovka - hra zakryje vaši celou obrazovku a použije vybra
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
         <source>File cannot opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor nelze otevřít</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Vybrán neplatný soubor</translation>
+        <translation>Vybrán neplatný soubor</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <source>You have to select an gog installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Musíte vybrat instalační soubor GOG!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>You have to select an chronicle installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Musíte vybrat instalační soubor kronik!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="87"/>
         <source>Extracting error!</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyb při rozbalování!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="141"/>
         <source>Heroes Chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes Chronicles</translation>
     </message>
 </context>
 <context>
@@ -1154,13 +1154,13 @@ Before you can start playing, there are a few more steps that need to be complet
 Please keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation>Děkujeme za instalaci VCMI!
+        <translation>Děkujeme, že jste si nainstalovali VCMI!
 
-Před začátkem hraní musíte ještě dokončit pár kroků.
+Než začnete hrát, je třeba dokončit několik kroků.
 
-Prosíme, mějte na paměti, že abyste mohli hrát VCMI, musíte vlastnit originální datové soubory Heroes® of Might and Magic® III: Complete nebo The Shadow of Death.
+Pamatujte, že pro používání VCMI musíte vlastnit originální herní soubory pro Heroes® of Might and Magic® III: Complete nebo The Shadow of Death.
 
-Heroes® of Might and Magic® III HD není v současnosti podporovaný!</translation>
+Heroes® of Might and Magic® III HD momentálně není podporováno!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="248"/>
@@ -1175,7 +1175,7 @@ Heroes® of Might and Magic® III HD není v současnosti podporovaný!</transla
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
         <source>You can manually copy directories Maps, Data and Mp3 from the original game directory to VCMI data directory that you can see on top of this page</source>
-        <translation>Můžete ručně zkopírovat existující mapy, data a MP3 z originální složky hry do složky dat VCMI, kterou můžete vidět nahoře na této stránce.</translation>
+        <translation>Můžete ručně zkopírovat existující mapy, data a MP3 z originální složky hry do složky dat VCMI, kterou můžete vidět nahoře na této stránce</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="329"/>
@@ -1195,7 +1195,7 @@ Heroes® of Might and Magic® III HD není v současnosti podporovaný!</transla
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="622"/>
         <source>Install a translation of Heroes III in your preferred language</source>
-        <translation>Instalovat překlad Heroes III vašeho upřednostněného jazyka</translation>
+        <translation>Nainstalujte si překlad Heroes III dle preferovaného jazyka</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="388"/>
@@ -1222,7 +1222,7 @@ Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahuj
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="689"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
-        <translation>Nyní můžete volitelně nainstalovat další modifikace, nebo též kdykoliv potom pomocí spouštěče VCMI</translation>
+        <translation>Můžete si nyní, nebo kdykoliv později, nainstalovat další mody pomocí VCMI Launcheru, podle svých preferencí</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
@@ -1232,12 +1232,12 @@ Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahuj
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="673"/>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalovat kompatibilní verzi &apos;Horn of the Abyss&apos;, fanouškovského rozšíření Heroes III portovaného týmem VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Instalovat kompatibilní verzi In The Wake of Gods&apos;, fanouškovského rozšíření Heroes III portovaného týmem VCMI&quot;</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="867"/>
@@ -1294,7 +1294,7 @@ Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahuj
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="710"/>
         <source>Horn of the Abyss</source>
-        <translation type="unfinished"></translation>
+        <translation>Horn of the Abyss</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="643"/>
@@ -1304,7 +1304,7 @@ Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahuj
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="809"/>
         <source>In The Wake of Gods</source>
-        <translation type="unfinished"></translation>
+        <translation>In The Wake of Gods</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="174"/>
@@ -1341,7 +1341,7 @@ Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahuj
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="326"/>
         <source>File cannot be opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor nelze otevřít</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="332"/>
@@ -1361,17 +1361,17 @@ Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahuj
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="383"/>
         <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation type="unfinished"></translation>
+        <translation>Poskytli jste instalátor GOG Galaxy! Tento soubor neobsahuje hru. Prosím, stáhněte si záložní offline instalátor hry!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="399"/>
         <source>Extracting error!</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba při rozbalování!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
         <source>No Heroes III data!</source>
-        <translation>Žádná data Heroes III!</translation>
+        <translation>Chybí data Heroes III!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
@@ -1397,15 +1397,15 @@ Prosíme vyberte složku s nainstalovanými daty Heroes III.</translation>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation>Soubory Heroes III HD Edice nejsou podporována ve VCMI.
-Prosíme vyberte složku s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
+        <translation>Soubory Heroes III HD Edice nejsou podporovány ve VCMI.
+Prosím vyberte složku s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="474"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Nalezena neznámá nebo nepodporovaná verze Heroes III.
-Prosíme vyberte složku s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
+Prosím vyberte složku s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
     </message>
 </context>
 <context>
@@ -1422,17 +1422,18 @@ Prosíme vyberte složku s Heroes III: Complete Edition nebo Heroes III: Shadow 
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba při extrahování souborů!
+Důvod chyby: </translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodporovaný Inno Setup instalátor!</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="58"/>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI bylo zkompilováno bez podpory innoextract, která je potřebná pro extrahování EXE souborů!</translation>
     </message>
 </context>
 <context>
@@ -1533,7 +1534,7 @@ error reason: </source>
     <message>
         <location filename="../mainwindow_moc.ui" line="20"/>
         <source>VCMI Launcher</source>
-        <translation>Spouštěč VCMI</translation>
+        <translation>VCMI Launcher</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="99"/>
