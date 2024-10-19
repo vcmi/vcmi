@@ -126,8 +126,6 @@ size_t CArtifactsOfHeroBackpack::calcRows(size_t slots)
 CArtifactsOfHeroQuickBackpack::CArtifactsOfHeroQuickBackpack(const ArtifactPosition filterBySlot)
 	: CArtifactsOfHeroBackpack(0, 0)
 {
-	assert(ArtifactUtils::checkIfSlotValid(*getHero(), filterBySlot));
-
 	if(!ArtifactUtils::isSlotEquipment(filterBySlot))
 		return;
 
