@@ -29,26 +29,44 @@
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/CConfigHandler.h"
 
-void CArtPlace::setInternals(const CArtifactInstance * artInst)
+CArtPlace::CArtPlace(Point position, const ArtifactID & artId, const SpellID & spellId)
+	: SelectableSlot(Rect(position, Point(44, 44)), Point(1, 1))
+	, locked(false)
+	, imageIndex(0)
 {
-	ourArt = artInst;
-	if(!artInst)
+	OBJECT_CONSTRUCTION;
+
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), 0);
+	setArtifact(artId, spellId);
+	moveSelectionForeground();
+}
+
+void CArtPlace::setArtifact(const SpellID & spellId)
+{
+	setArtifact(ArtifactID::SPELL_SCROLL, spellId);
+}
+
+void CArtPlace::setArtifact(const ArtifactID & artId, const SpellID & spellId)
+{
+	this->artId = artId;
+	if(artId == ArtifactID::NONE)
 	{
 		image->disable();
 		text.clear();
-		hoverText = CGI->generaltexth->allTexts[507];
+		lockSlot(false);
 		return;
 	}
 
-	imageIndex = artInst->artType->getIconIndex();
-	if(artInst->getTypeId() == ArtifactID::SPELL_SCROLL)
+	const auto artType = artId.toArtifact();
+	imageIndex = artType->getIconIndex();
+	if(artId == ArtifactID::SPELL_SCROLL)
 	{
-		auto spellID = artInst->getScrollSpellID();
-		assert(spellID.num >= 0);
+		this->spellId = spellId;
+		assert(spellId.num > 0);
 
 		if(settings["general"]["enableUiEnhancements"].Bool())
 		{
-			imageIndex = spellID.num;
+			imageIndex = spellId.num;
 			if(component.type != ComponentType::SPELL_SCROLL)
 			{
 				image->setScale(Point(pos.w, 34));
@@ -58,7 +76,7 @@ void CArtPlace::setInternals(const CArtifactInstance * artInst)
 		}
 		// Add spell component info (used to provide a pic in r-click popup)
 		component.type = ComponentType::SPELL_SCROLL;
-		component.subType = spellID;
+		component.subType = spellId;
 	}
 	else
 	{
@@ -69,47 +87,33 @@ void CArtPlace::setInternals(const CArtifactInstance * artInst)
 			image->moveTo(Point(pos.x, pos.y));
 		}
 		component.type = ComponentType::ARTIFACT;
-		component.subType = artInst->getTypeId();
+		component.subType = artId;
 	}
 	image->enable();
-	text = artInst->getDescription();
+	lockSlot(locked);
+
+	text = artType->getDescriptionTranslated();
+	if(artType->isScroll())
+		ArtifactUtils::insertScrrollSpellName(text, spellId);
 }
 
-CArtPlace::CArtPlace(Point position, const CArtifactInstance * art)
-	: SelectableSlot(Rect(position, Point(44, 44)), Point(1, 1))
-	, ourArt(art)
-	, locked(false)
+ArtifactID CArtPlace::getArtifactId() const
 {
-	OBJECT_CONSTRUCTION;
-
-	imageIndex = 0;
-	if(locked)
-		imageIndex = ArtifactID::ART_LOCK;
-	else if(ourArt)
-		imageIndex = ourArt->artType->getIconIndex();
-
-	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), imageIndex);
-	image->disable();
-	moveSelectionForeground();
+	return artId;
 }
 
-const CArtifactInstance * CArtPlace::getArt() const
-{
-	return ourArt;
-}
-
-CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * art)
-	: CArtPlace(position, art),
+CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot,
+	const ArtifactID & artId, const SpellID & spellId)
+	: CArtPlace(position, artId, spellId),
 	commanderOwner(commanderOwner),
 	commanderSlotID(artSlot.num)
 {
-	setArtifact(art);
 }
 
 void CCommanderArtPlace::returnArtToHeroCallback()
 {
 	ArtifactPosition artifactPos = commanderSlotID;
-	ArtifactPosition freeSlot = ArtifactUtils::getArtBackpackPosition(commanderOwner, getArt()->getTypeId());
+	ArtifactPosition freeSlot = ArtifactUtils::getArtBackpackPosition(commanderOwner, getArtifactId());
 	if(freeSlot == ArtifactPosition::PRE_FIRST)
 	{
 		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.152"));
@@ -120,10 +124,10 @@ void CCommanderArtPlace::returnArtToHeroCallback()
 		src.creature = SlotID::COMMANDER_SLOT_PLACEHOLDER;
 		ArtifactLocation dst(commanderOwner->id, freeSlot);
 
-		if(getArt()->canBePutAt(commanderOwner, freeSlot, true))
+		if(getArtifactId().toArtifact()->canBePutAt(commanderOwner, freeSlot, true))
 		{
 			LOCPLINT->cb->swapArtifacts(src, dst);
-			setArtifact(nullptr);
+			setArtifact(ArtifactID(ArtifactID::NONE));
 			parent->redraw();
 		}
 	}
@@ -131,29 +135,35 @@ void CCommanderArtPlace::returnArtToHeroCallback()
 
 void CCommanderArtPlace::clickPressed(const Point & cursorPosition)
 {
-	if(getArt() && text.size())
+	if(getArtifactId() != ArtifactID::NONE && text.size())
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.commanderWindow.artifactMessage"), [this]() { returnArtToHeroCallback(); }, []() {});
 }
 
 void CCommanderArtPlace::showPopupWindow(const Point & cursorPosition)
 {
-	if(getArt() && text.size())
+	if(getArtifactId() != ArtifactID::NONE && text.size())
 		CArtPlace::showPopupWindow(cursorPosition);
 }
 
 void CArtPlace::lockSlot(bool on)
 {
-	if(locked == on)
-		return;
-
 	locked = on;
-
 	if(on)
+	{
 		image->setFrame(ArtifactID::ART_LOCK);
-	else if(ourArt)
+		hoverText = CGI->generaltexth->allTexts[507];
+	}
+	else if(artId != ArtifactID::NONE)
+	{
 		image->setFrame(imageIndex);
+		auto hoverText = MetaString::createFromRawString(CGI->generaltexth->heroscrn[1]);
+		hoverText.replaceName(artId);
+		this->hoverText = hoverText.toString();
+	}
 	else
-		image->setFrame(0);
+	{
+		hoverText = CGI->generaltexth->allTexts[507];
+	}
 }
 
 bool CArtPlace::isLocked() const
@@ -180,24 +190,6 @@ void CArtPlace::gesture(bool on, const Point & initialPosition, const Point & fi
 
 	if(gestureCallback)
 		gestureCallback(*this, initialPosition);
-}
-
-void CArtPlace::setArtifact(const CArtifactInstance * art)
-{
-	setInternals(art);
-	if(art)
-	{
-		image->setFrame(locked ? static_cast<int>(ArtifactID::ART_LOCK) : imageIndex);
-
-		if(locked) // Locks should appear as empty.
-			hoverText = CGI->generaltexth->allTexts[507];
-		else
-			hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % ourArt->artType->getNameTranslated());
-	}
-	else
-	{
-		lockSlot(false);
-	}
 }
 
 void CArtPlace::setClickPressedCallback(const ClickFunctor & callback)

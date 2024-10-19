@@ -66,13 +66,13 @@ void CArtifactsOfHeroBase::init(
 	for(auto artPlace : artWorn)
 	{
 		artPlace.second->slot = artPlace.first;
-		artPlace.second->setArtifact(nullptr);
+		artPlace.second->setArtifact(ArtifactID(ArtifactID::NONE));
 		artPlace.second->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
 		artPlace.second->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 	}
 	for(auto artPlace : backpack)
 	{
-		artPlace->setArtifact(nullptr);
+		artPlace->setArtifact(ArtifactID(ArtifactID::NONE));
 		artPlace->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
 		artPlace->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 	}
@@ -260,7 +260,7 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 	if(auto slotInfo = curHero->getSlot(slot))
 	{
 		artPlace->lockSlot(slotInfo->locked);
-		artPlace->setArtifact(slotInfo->artifact);
+		artPlace->setArtifact(slotInfo->artifact->getTypeId(), slotInfo->artifact->getScrollSpellID());
 		if(slotInfo->locked || slotInfo->artifact->isCombined())
 			return;
 
@@ -285,7 +285,7 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 	}
 	else
 	{
-		artPlace->setArtifact(nullptr);
+		artPlace->setArtifact(ArtifactID(ArtifactID::NONE));
 	}
 }
 

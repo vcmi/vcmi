@@ -432,7 +432,9 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 	for(auto equippedArtifact : parent->info->commander->artifactsWorn)
 	{
 		Point artPos = getArtifactPos(equippedArtifact.first);
-		auto artPlace = std::make_shared<CCommanderArtPlace>(artPos, parent->info->owner, equippedArtifact.first, equippedArtifact.second.artifact);
+		const auto commanderArt = equippedArtifact.second.artifact;
+		assert(commanderArt);
+		auto artPlace = std::make_shared<CCommanderArtPlace>(artPos, parent->info->owner, equippedArtifact.first, commanderArt->getTypeId());
 		artifacts.push_back(artPlace);
 	}
 
@@ -616,11 +618,11 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		auto art = parent->info->stackNode->getArt(ArtifactPosition::CREATURE_SLOT);
 		if(art)
 		{
-			parent->stackArtifactIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("ARTIFACT"), art->artType->getIconIndex(), 0, pos.x, pos.y);
-			parent->stackArtifactHelp = std::make_shared<LRClickableAreaWTextComp>(Rect(pos, Point(44, 44)), ComponentType::ARTIFACT);
-			parent->stackArtifactHelp->component.subType = art->artType->getId();
-			parent->stackArtifactHelp->text = art->getDescription();
-
+			parent->stackArtifact = std::make_shared<CArtPlace>(pos, art->getTypeId());
+			parent->stackArtifact->setShowPopupCallback([](CArtPlace & artPlace, const Point & cursorPosition)
+				{
+					artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
+				});
 			if(parent->info->owner)
 			{
 				parent->stackArtifactButton = std::make_shared<CButton>(
@@ -987,8 +989,7 @@ void CStackWindow::removeStackArtifact(ArtifactPosition pos)
 		artLoc.creature = info->stackNode->armyObj->findStack(info->stackNode);
 		LOCPLINT->cb->swapArtifacts(artLoc, ArtifactLocation(info->owner->id, slot));
 		stackArtifactButton.reset();
-		stackArtifactHelp.reset();
-		stackArtifactIcon.reset();
+		stackArtifact.reset();
 		redraw();
 	}
 }
