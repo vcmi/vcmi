@@ -17,7 +17,6 @@
 #include "../spells/CSpellHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
-#include "../CHeroHandler.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStack.h"

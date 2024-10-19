@@ -25,7 +25,6 @@
 #include "../texts/TextOperations.h"
 #include "../CCreatureHandler.h"
 #include "../IGameSettings.h"
-#include "../CHeroHandler.h"
 #include "../CConfigHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

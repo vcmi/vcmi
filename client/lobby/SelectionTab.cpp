@@ -693,7 +693,7 @@ void SelectionTab::selectFileName(std::string fname)
 
 	for(int i = (int)allItems.size() - 1; i >= 0; i--)
 	{
-		if(allItems[i]->fileURI == fname)
+		if(boost::to_upper_copy(allItems[i]->fileURI) == fname)
 		{
 			auto [folderName, baseFolder, parentExists, fileInFolder] = checkSubfolder(allItems[i]->originalFileURI);
 			curFolder = baseFolder != "" ? baseFolder + "/" : "";
@@ -704,7 +704,7 @@ void SelectionTab::selectFileName(std::string fname)
 
 	for(int i = (int)curItems.size() - 1; i >= 0; i--)
 	{
-		if(curItems[i]->fileURI == fname)
+		if(boost::to_upper_copy(curItems[i]->fileURI) == fname)
 		{
 			slider->scrollTo(i);
 			selectAbs(i);

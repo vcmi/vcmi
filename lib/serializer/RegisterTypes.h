@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "../CHeroHandler.h"
 #include "../CPlayerState.h"
 #include "../CStack.h"
 #include "../battle/BattleInfo.h"

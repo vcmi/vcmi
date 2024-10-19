@@ -162,5 +162,5 @@
 			159, 160, 161, 162, 163,
 			176, 177, 178, 179, 180]
 	},
-	"ship": { "graphics" : "CMBKDECK.BMP" }
+	"ship": { "graphics" : "CMBKDECK.BMP", "isSpecial" : true}
 }

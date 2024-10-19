@@ -12,7 +12,9 @@
 	"vcmi.adventureMap.monsterThreat.levels.9"  : "Avassaladora",
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Mortal",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Impossível",
-	"vcmi.adventureMap.monsterLevel" : "\n\nNível %LEVEL, unidade de %TOWN",
+	"vcmi.adventureMap.monsterLevel"            : "\n\nNível %LEVEL, unidade %TOWN de ataque %ATTACK_TYPE",
+	"vcmi.adventureMap.monsterMeleeType"        : "corpo a corpo",
+	"vcmi.adventureMap.monsterRangedType"       : "à distância",
 
 	"vcmi.adventureMap.confirmRestartGame"               : "Tem certeza de que deseja reiniciar o jogo?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "Não há mercados disponíveis!",
@@ -58,6 +60,13 @@
 	"vcmi.radialWheel.moveBottom" : "Mover para o fundo",
 
 	"vcmi.spellBook.search" : "Procurar...",
+
+	"vcmi.spellResearch.canNotAfford" : "Você não pode se dar ao luxo de substituir {%SPELL1} por {%SPELL2}. Mas você ainda pode descartar este feitiço e continuar a pesquisa de feitiços.",
+	"vcmi.spellResearch.comeAgain" : "A pesquisa já foi realizada hoje. Volte amanhã.",
+	"vcmi.spellResearch.pay" : "Gostaria de substituir {%SPELL1} por {%SPELL2}? Ou descartar este feitiço e continuar a pesquisa de feitiços?",
+	"vcmi.spellResearch.research" : "Pesquisar este Feitiço",
+	"vcmi.spellResearch.skip" : "Pular este Feitiço",
+	"vcmi.spellResearch.abort" : "Abortar",
 
 	"vcmi.mainMenu.serverConnecting" : "Conectando...",
 	"vcmi.mainMenu.serverAddressEnter" : "Insira o endereço:",
@@ -143,6 +152,7 @@
 	"vcmi.client.errors.invalidMap" : "{Mapa ou campanha inválido}\n\nFalha ao iniciar o jogo! O mapa ou campanha selecionado pode ser inválido ou corrompido. Motivo:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{Arquivos de dados ausentes}\n\nOs arquivos de dados das campanhas não foram encontrados! Você pode estar usando arquivos de dados incompletos ou corrompidos do Heroes 3. Por favor, reinstale os dados do jogo.",
 	"vcmi.server.errors.disconnected" : "{Erro de Rede}\n\nA conexão com o servidor do jogo foi perdida!",
+	"vcmi.server.errors.playerLeft" : "{Jogador Saiu}\n\nO jogador %s desconectou-se do jogo!", //%s -> player color
 	"vcmi.server.errors.existingProcess" : "Outro processo do servidor VCMI está em execução. Por favor, termine-o antes de iniciar um novo jogo.",
 	"vcmi.server.errors.modsToEnable"    : "{Os seguintes mods são necessários}",
 	"vcmi.server.errors.modsToDisable"   : "{Os seguintes mods devem ser desativados}",
@@ -340,6 +350,12 @@
 	"vcmi.heroWindow.openCommander.help" : "Mostra detalhes sobre o comandante deste herói.",
 	"vcmi.heroWindow.openBackpack.hover" : "Abrir janela da mochila de artefatos",
 	"vcmi.heroWindow.openBackpack.help" : "Abre a janela que facilita o gerenciamento da mochila de artefatos.",
+	"vcmi.heroWindow.sortBackpackByCost.hover"  : "Ordenar por custo",
+	"vcmi.heroWindow.sortBackpackByCost.help"   : "Ordenar artefatos na mochila por custo.",
+	"vcmi.heroWindow.sortBackpackBySlot.hover"  : "Ordenar por espaço",
+	"vcmi.heroWindow.sortBackpackBySlot.help"   : "Ordenar artefatos na mochila por espaço equipado.",
+	"vcmi.heroWindow.sortBackpackByClass.hover" : "Ordenar por classe",
+	"vcmi.heroWindow.sortBackpackByClass.help"  : "Ordenar artefatos na mochila por classe de artefato. Tesouro, Menor, Maior, Relíquia",
 
 	"vcmi.tavernWindow.inviteHero" : "Convidar herói",
 

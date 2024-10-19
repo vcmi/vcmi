@@ -17,7 +17,6 @@
 
 #include "../texts/CGeneralTextHandler.h"
 #include "../ArtifactUtils.h"
-#include "../CHeroHandler.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
 #include "../IGameSettings.h"
@@ -31,6 +30,8 @@
 #include "../StartInfo.h"
 #include "CGTownInstance.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/hero/CHeroHandler.h"
+#include "../entities/hero/CHeroClass.h"
 #include "../battle/CBattleInfoEssentials.h"
 #include "../campaign/CampaignState.h"
 #include "../json/JsonBonus.h"
@@ -339,12 +340,20 @@ void CGHeroInstance::initHero(vstd::RNG & rand, const HeroTypeID & SUBID)
 	initHero(rand);
 }
 
+TObjectTypeHandler CGHeroInstance::getObjectHandler() const
+{
+	if (ID == Obj::HERO)
+		return VLC->objtypeh->getHandlerFor(ID, getHeroClass()->getIndex());
+	else // prison or random hero
+		return VLC->objtypeh->getHandlerFor(ID, 0);
+}
+
 void CGHeroInstance::initHero(vstd::RNG & rand)
 {
 	assert(validTypes(true));
 	
 	if (ID == Obj::HERO)
-		appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex())->getTemplates().front();
+		appearance = getObjectHandler()->getTemplates().front();
 
 	if(!vstd::contains(spells, SpellID::PRESET))
 	{

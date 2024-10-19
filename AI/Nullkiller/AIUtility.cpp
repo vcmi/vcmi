@@ -14,7 +14,6 @@
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/gameState/QuestInfo.h"

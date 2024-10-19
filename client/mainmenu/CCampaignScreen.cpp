@@ -37,7 +37,6 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CSkillHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/CCreatureHandler.h"
 
 #include "../../lib/campaign/CampaignHandler.h"

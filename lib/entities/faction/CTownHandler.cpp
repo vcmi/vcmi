@@ -13,9 +13,9 @@
 #include "CTown.h"
 #include "CFaction.h"
 #include "../building/CBuilding.h"
+#include "../hero/CHeroClassHandler.h"
 
 #include "../../CCreatureHandler.h"
-#include "../../CHeroHandler.h"
 #include "../../IGameSettings.h"
 #include "../../TerrainHandler.h"
 #include "../../VCMI_Lib.h"

@@ -20,7 +20,6 @@
 #include "NetPackVisitor.h"
 #include "texts/CGeneralTextHandler.h"
 #include "CArtHandler.h"
-#include "CHeroHandler.h"
 #include "VCMI_Lib.h"
 #include "mapping/CMap.h"
 #include "spells/CSpellHandler.h"
@@ -1806,6 +1805,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	assert(hero);
 	const auto transformedArt = hero->getArt(al.slot);
 	assert(transformedArt);
+	const auto builtArt = artId.toArtifact();
 	assert(vstd::contains_if(ArtifactUtils::assemblyPossibilities(hero, transformedArt->getTypeId()), [=](const CArtifact * art)->bool
 		{
 			return art->getId() == builtArt->getId();
@@ -1817,14 +1817,11 @@ void AssembledArtifact::applyGs(CGameState *gs)
 
 	// Find slots for all involved artifacts
 	std::vector<ArtifactPosition> slotsInvolved;
+	CArtifactFittingSet artSet(*hero);
 	for(const auto constituent : builtArt->getConstituents())
 	{
-		ArtifactPosition slot;
-		if(transformedArt->getTypeId() == constituent->getId())
-			slot = transformedArtSlot;
-		else
-			slot = hero->getArtPos(constituent->getId(), false, false);
-
+		const auto slot = artSet.getArtPos(constituent->getId(), false, false);
+		artSet.lockSlot(slot);
 		assert(slot != ArtifactPosition::PRE_FIRST);
 		slotsInvolved.emplace_back(slot);
 	}
@@ -1832,7 +1829,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 
 	// Find a slot for combined artifact
 	al.slot = transformedArtSlot;
-	for(const auto slot : slotsInvolved)
+	for(const auto & slot : slotsInvolved)
 	{
 		if(ArtifactUtils::isSlotEquipment(transformedArtSlot))
 		{
@@ -1855,15 +1852,18 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	}
 
 	// Delete parts from hero
-	for(const auto slot : slotsInvolved)
+	for(const auto & slot : slotsInvolved)
 	{
 		const auto constituentInstance = hero->getArt(slot);
 		gs->map->removeArtifactInstance(*hero, slot);
 
-		if(ArtifactUtils::isSlotEquipment(al.slot) && slot != al.slot)
-			combinedArt->addPart(constituentInstance, slot);
-		else
-			combinedArt->addPart(constituentInstance, ArtifactPosition::PRE_FIRST);
+		if(!combinedArt->artType->isFused())
+		{
+			if(ArtifactUtils::isSlotEquipment(al.slot) && slot != al.slot)
+				combinedArt->addPart(constituentInstance, slot);
+			else
+				combinedArt->addPart(constituentInstance, ArtifactPosition::PRE_FIRST);
+		}
 	}
 
 	// Put new combined artifacts
@@ -2483,10 +2483,7 @@ void SetBankConfiguration::applyGs(CGameState *gs)
 const CArtifactInstance * ArtSlotInfo::getArt() const
 {
 	if(locked)
-	{
-		logNetwork->warn("ArtifactLocation::getArt: This location is locked!");
 		return nullptr;
-	}
 	return artifact;
 }
 

@@ -14,10 +14,11 @@
 #include "../CGameHandler.h"
 
 #include "../../lib/CRandomGenerator.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/entities/hero/CHeroClass.h"
+#include "../../lib/entities/hero/CHero.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/PacksForClient.h"

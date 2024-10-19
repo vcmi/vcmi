@@ -479,6 +479,17 @@ std::vector <const CGObjectInstance *> CGameInfoCallback::getVisitableObjs(int3 
 
 	return ret;
 }
+
+std::vector<ConstTransitivePtr<CGObjectInstance>> CGameInfoCallback::getAllVisitableObjs() const
+{
+	std::vector<ConstTransitivePtr<CGObjectInstance>> ret;
+	for(auto & obj : gs->map->objects)
+		if(obj->isVisitable() && obj->ID != Obj::EVENT && isVisible(obj))
+			ret.push_back(obj);
+
+	return ret;
+}
+
 const CGObjectInstance * CGameInfoCallback::getTopObj (int3 pos) const
 {
 	return vstd::backOrNull(getVisitableObjs(pos));

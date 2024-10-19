@@ -33,6 +33,9 @@ class AdventureMapShortcuts
 	EAdventureState state;
 	int mapLevel;
 
+	std::string searchLast;
+	int searchPos;
+	
 	void showOverview();
 	void worldViewBack();
 	void worldViewScale1x();
@@ -71,6 +74,7 @@ class AdventureMapShortcuts
 	void nextTown();
 	void nextObject();
 	void zoom( int distance);
+	void search(bool next);
 	void moveHeroDirectional(const Point & direction);
 
 public:

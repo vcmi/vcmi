@@ -19,8 +19,9 @@
 #include "../CCreatureHandler.h"
 #include "../CConfigHandler.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/hero/CHeroClassHandler.h"
+#include "../entities/hero/CHeroHandler.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
 #include "../IGameSettings.h"
@@ -197,8 +198,8 @@ void ContentTypeHandler::afterLoadFinalization()
 			std::set<std::string> conflictingMods;
 			std::set<std::string> resolvedConflicts;
 
-			for (auto const & conflictModData : conflictModData.Struct())
-				conflictingMods.insert(conflictModData.first);
+			for (auto const & conflictModEntry: conflictModData.Struct())
+				conflictingMods.insert(conflictModEntry.first);
 
 			for (auto const & modID : conflictingMods)
 				resolvedConflicts.merge(VLC->modh->getModDependencies(modID));

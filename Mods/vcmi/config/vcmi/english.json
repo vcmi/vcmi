@@ -15,6 +15,8 @@
 	"vcmi.adventureMap.monsterLevel"            : "\n\nLevel %LEVEL %TOWN %ATTACK_TYPE unit",
 	"vcmi.adventureMap.monsterMeleeType"        : "melee",
 	"vcmi.adventureMap.monsterRangedType"       : "ranged",
+	"vcmi.adventureMap.search.hover"            : "Search map object",
+	"vcmi.adventureMap.search.help"             : "Select object to search on map.",
 
 	"vcmi.adventureMap.confirmRestartGame"               : "Are you sure you want to restart the game?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "There are no available marketplaces!",
@@ -356,6 +358,7 @@
 	"vcmi.heroWindow.sortBackpackBySlot.help"  : "Sort artifacts in backpack by equipped slot.",
 	"vcmi.heroWindow.sortBackpackByClass.hover"  : "Sort by class",
 	"vcmi.heroWindow.sortBackpackByClass.help"  : "Sort artifacts in backpack by artifact class. Treasure, Minor, Major, Relic",
+	"vcmi.heroWindow.fusingArtifact.fusing" : "You possess all of the components needed for the fusion of the %s. Do you wish to perform the fusion? {All components will be consumed upon fusion.}",
 
 	"vcmi.tavernWindow.inviteHero"  : "Invite hero",
 

@@ -29,12 +29,13 @@
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
 #include "VCMI_Lib.h"
-#include "CHeroHandler.h"
 #include "CArtHandler.h"//todo: remove
 #include "CCreatureHandler.h"//todo: remove
 #include "spells/CSpellHandler.h" //todo: remove
 #include "CSkillHandler.h"//todo: remove
 #include "entities/faction/CFaction.h"
+#include "entities/hero/CHero.h"
+#include "entities/hero/CHeroClass.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "constants/StringConstants.h"
 #include "texts/CGeneralTextHandler.h"

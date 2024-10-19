@@ -29,7 +29,6 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CCreatureSet.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CSoundBase.h"
@@ -48,6 +47,7 @@
 
 #include "../lib/entities/building/CBuilding.h"
 #include "../lib/entities/faction/CTownHandler.h"
+#include "../lib/entities/hero/CHeroHandler.h"
 
 #include "../lib/filesystem/FileInfo.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -1253,7 +1253,7 @@ void CGameHandler::changeSpells(const CGHeroInstance * hero, bool give, const st
 	sendAndApply(cs);
 }
 
-void CGameHandler::setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> spells, bool accepted)
+void CGameHandler::setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted)
 {
 	SetResearchedSpells cs;
 	cs.tid = town->id;
@@ -2913,13 +2913,16 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 
 		AssembledArtifact aa;
 		aa.al = dstLoc;
-		aa.builtArt = combinedArt;
+		aa.artId = assembleTo;
 		sendAndApply(aa);
 	}
 	else
 	{
 		if(!destArtifact->isCombined())
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble is not a combined artifact!");
+
+		if(!destArtifact->hasParts())
+			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble is fused combined artifact!");
 
 		if(ArtifactUtils::isSlotBackpack(artifactSlot)
 			&& !ArtifactUtils::isBackpackFreeSlots(hero, destArtifact->artType->getConstituents().size() - 1))

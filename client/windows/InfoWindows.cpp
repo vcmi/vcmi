@@ -187,11 +187,6 @@ bool CRClickPopup::isPopupWindow() const
 	return true;
 }
 
-void CRClickPopup::close()
-{
-	WindowBase::close();
-}
-
 void CRClickPopup::createAndPush(const std::string & txt, const CInfoWindow::TCompsInfo & comps)
 {
 	PlayerColor player = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1); //if no player, then use blue

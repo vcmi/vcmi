@@ -217,9 +217,9 @@ void CArtPlace::setGestureCallback(const ClickFunctor & callback)
 
 void CArtPlace::addCombinedArtInfo(const std::map<const ArtifactID, std::vector<ArtifactID>> & arts)
 {
-	for(const auto & availableArts : arts)
+	for(auto [combinedId, availableArts] : arts)
 	{
-		const auto combinedArt = availableArts.first.toArtifact();
+		const auto combinedArt = combinedId.toArtifact();
 		MetaString info;
 		info.appendEOL();
 		info.appendEOL();
@@ -227,14 +227,20 @@ void CArtPlace::addCombinedArtInfo(const std::map<const ArtifactID, std::vector<
 		info.appendName(combinedArt->getId());
 		info.appendRawString("}");
 		info.appendRawString(" (%d/%d)");
-		info.replaceNumber(availableArts.second.size());
+		info.replaceNumber(availableArts.size());
 		info.replaceNumber(combinedArt->getConstituents().size());
 		for(const auto part : combinedArt->getConstituents())
 		{
+			const auto found = std::find_if(availableArts.begin(), availableArts.end(), [part](const auto & availablePart) -> bool
+				{
+					return availablePart == part->getId() ? true : false;
+				});
+
 			info.appendEOL();
-			if(vstd::contains(availableArts.second, part->getId()))
+			if(found < availableArts.end())
 			{
 				info.appendName(part->getId());
+				availableArts.erase(found);
 			}
 			else
 			{

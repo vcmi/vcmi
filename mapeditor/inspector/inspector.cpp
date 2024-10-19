@@ -11,8 +11,9 @@
 #include "inspector.h"
 #include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
+#include "../lib/entities/hero/CHeroClass.h"
+#include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/spells/CSpellHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
@@ -470,8 +471,6 @@ void Inspector::updateProperties()
 	addProperty("ID", obj->ID.getNum());
 	addProperty("SubID", obj->subID);
 	addProperty("InstanceName", obj->instanceName);
-	addProperty("TypeName", obj->typeName);
-	addProperty("SubTypeName", obj->subTypeName);
 	
 	if(obj->ID != Obj::HERO_PLACEHOLDER && !dynamic_cast<CGHeroInstance*>(obj))
 	{

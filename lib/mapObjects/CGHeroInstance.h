@@ -14,6 +14,7 @@
 #include "CArmedInstance.h"
 #include "IOwnableObject.h"
 
+#include "../entities/hero/EHeroGender.h"
 #include "../CArtHandler.h" // For CArtifactSet
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -24,7 +25,6 @@ class CGTownInstance;
 class CMap;
 struct TerrainTile;
 struct TurnInfo;
-enum class EHeroGender : int8_t;
 
 class DLL_LINKAGE CGHeroPlaceholder : public CGObjectInstance
 {
@@ -308,6 +308,8 @@ public:
 	std::string getObjectName() const override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getMovementPointsTextIfOwner(PlayerColor player) const;
+
+	TObjectTypeHandler getObjectHandler() const override;
 
 	void afterAddToMap(CMap * map) override;
 	void afterRemoveFromMap(CMap * map) override;

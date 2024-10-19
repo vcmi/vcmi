@@ -38,10 +38,10 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
+#include "../adventureMap/AdventureMapInterface.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/entities/building/CBuilding.h"
@@ -49,6 +49,7 @@
 #include "../../lib/entities/faction/CFaction.h"
 #include "../../lib/entities/faction/CTown.h"
 #include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
@@ -389,10 +390,13 @@ void CBonusSelection::goBack()
 	if(CSH->getState() != EClientState::GAMEPLAY)
 	{
 		GH.windows().popWindows(2);
+		CMM->playMusic();
 	}
 	else
 	{
 		close();
+		if(adventureInt)
+			adventureInt->onAudioResumed();
 	}
 	// TODO: we can actually only pop bonus selection interface for custom campaigns
 	// Though this would require clearing CLobbyScreen::bonusSel pointer when poping this interface
@@ -403,7 +407,6 @@ void CBonusSelection::goBack()
 		CSH->state = EClientState::LOBBY;
 	}
 */
-	CMM->playMusic();
 }
 
 void CBonusSelection::startMap()

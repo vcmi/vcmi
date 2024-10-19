@@ -11,7 +11,6 @@
 #include "../StdInc.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/mapObjects/MapObjects.h"
-#include "../../../lib/CHeroHandler.h"
 #include "../../../lib/IGameSettings.h"
 
 namespace NKAI

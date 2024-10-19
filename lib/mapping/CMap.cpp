@@ -13,11 +13,11 @@
 #include "../CArtHandler.h"
 #include "../VCMI_Lib.h"
 #include "../CCreatureHandler.h"
-#include "../CHeroHandler.h"
 #include "../GameSettings.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
+#include "../entities/hero/CHeroHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/CQuest.h"
@@ -608,7 +608,7 @@ void CMap::setUniqueInstanceName(CGObjectInstance * obj)
 	auto uid = uidCounter++;
 
 	boost::format fmt("%s_%d");
-	fmt % obj->typeName % uid;
+	fmt % obj->getTypeName() % uid;
 	obj->instanceName = fmt.str();
 }
 

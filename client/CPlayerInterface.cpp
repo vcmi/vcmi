@@ -67,7 +67,6 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CStack.h"

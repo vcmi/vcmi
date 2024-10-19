@@ -18,7 +18,6 @@
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
 #include "../../CCreatureHandler.h"
-#include "../../CHeroHandler.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 

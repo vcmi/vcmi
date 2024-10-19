@@ -17,7 +17,6 @@
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/serializer/CTypeList.h"
@@ -649,12 +648,12 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				auto danger = nullkiller->dangerEvaluator->evaluateDanger(target, hero.get());
 				auto ratio = static_cast<float>(danger) / hero->getTotalStrength();
 
-				answer = 1;
+				answer = true;
 				
 				if(topObj->id != goalObjectID && nullkiller->dangerEvaluator->evaluateDanger(topObj) > 0)
 				{
 					// no if we do not aim to visit this object
-					answer = 0;
+					answer = false;
 				}
 				
 				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName(), hero.name(), ratio);

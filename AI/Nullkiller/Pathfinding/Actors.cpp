@@ -182,7 +182,7 @@ ExchangeResult HeroActor::tryExchangeNoLock(const ChainActor * specialActor, con
 		return &actor == specialActor;
 	});
 
-	result.actor = &(dynamic_cast<HeroActor *>(result.actor)->specialActors[index]);
+	result.actor = &(dynamic_cast<HeroActor *>(result.actor)->specialActors.at(index));
 
 	return result;
 }
@@ -440,7 +440,7 @@ int DwellingActor::getInitialTurn(bool waitForGrowth, int dayOfWeek)
 
 std::string DwellingActor::toString() const
 {
-	return dwelling->typeName + dwelling->visitablePos().toString();
+	return dwelling->getTypeName() + dwelling->visitablePos().toString();
 }
 
 CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, bool waitForGrowth)

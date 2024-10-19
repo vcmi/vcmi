@@ -45,6 +45,7 @@ class IImage;
 class VideoWidget;
 class VideoWidgetOnce;
 class GraphicalPrimitiveCanvas;
+class TransparentFilledRectangle;
 
 enum class EUserEvent;
 
@@ -186,9 +187,14 @@ class CObjectListWindow : public CWindowObject
 	std::shared_ptr<CButton> ok;
 	std::shared_ptr<CButton> exit;
 
-	std::vector< std::pair<int, std::string> > items;//all items present in list
+	std::shared_ptr<CTextInput> searchBox;
+	std::shared_ptr<TransparentFilledRectangle> searchBoxRectangle;
+	std::shared_ptr<CLabel> searchBoxDescription;
 
-	void init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr);
+	std::vector< std::pair<int, std::string> > items; //all items present in list
+	std::vector< std::pair<int, std::string> > itemsVisible; //visible items present in list
+
+	void init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled);
 	void exitPressed();
 public:
 	size_t selected;//index of currently selected item
@@ -200,8 +206,8 @@ public:
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
 	/// Image can be nullptr
 	///item names will be taken from map objects
-	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {});
-	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {});
+	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false);
+	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false);
 
 	std::shared_ptr<CIntObject> genItem(size_t index);
 	void elementSelected();//call callback and close this window
@@ -513,7 +519,7 @@ class VideoWindow : public CWindowObject
 
 	void exit(bool skipped);
 public:
-	VideoWindow(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void(bool)> closeCb);
+	VideoWindow(const VideoPath & video, const ImagePath & rim, bool showBackground, float scaleFactor, const std::function<void(bool)> & closeCb);
 
 	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;

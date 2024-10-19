@@ -94,7 +94,7 @@ public:
 	virtual void showInfoDialog(InfoWindow * iw) = 0;
 
 	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)=0;
-	virtual void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> spells, bool accepted)=0;
+	virtual void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted)=0;
 	virtual bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;

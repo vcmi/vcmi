@@ -24,7 +24,7 @@ PlayerLocalState::PlayerLocalState(CPlayerInterface & owner)
 {
 }
 
-const PlayerSpellbookSetting & PlayerLocalState::getSpellbookSettings()
+const PlayerSpellbookSetting & PlayerLocalState::getSpellbookSettings() const
 {
 	return spellbookSettings;
 }
@@ -347,7 +347,7 @@ void PlayerLocalState::deserialize(const JsonNode & source)
 {
 	// this method must be called after player state has been initialized
 	assert(currentSelection != nullptr);
-	assert(!ownedTowns.empty() || wanderingHeroes.empty());
+	assert(!ownedTowns.empty() || !wanderingHeroes.empty());
 
 	auto oldHeroes = wanderingHeroes;
 	auto oldTowns = ownedTowns;

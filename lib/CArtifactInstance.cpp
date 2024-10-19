@@ -44,6 +44,11 @@ bool CCombinedArtifactInstance::isPart(const CArtifactInstance * supposedPart) c
 	return false;
 }
 
+bool CCombinedArtifactInstance::hasParts() const
+{
+	return !partsInfo.empty();
+}
+
 const std::vector<CCombinedArtifactInstance::PartInfo> & CCombinedArtifactInstance::getPartsInfo() const
 {
 	return partsInfo;

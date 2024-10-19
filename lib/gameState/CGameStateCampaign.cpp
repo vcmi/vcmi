@@ -16,6 +16,8 @@
 #include "../campaign/CampaignState.h"
 #include "../entities/building/CBuilding.h"
 #include "../entities/building/CBuildingHandler.h"
+#include "../entities/hero/CHeroClass.h"
+#include "../entities/hero/CHero.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
@@ -23,13 +25,13 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../StartInfo.h"
-#include "../CHeroHandler.h"
 #include "../mapping/CMap.h"
 #include "../ArtifactUtils.h"
 #include "../CPlayerState.h"
 #include "../serializer/CMemorySerializer.h"
 
 #include <vstd/RNG.h>
+#include <vcmi/HeroTypeService.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -370,7 +372,7 @@ void CGameStateCampaign::replaceHeroesPlaceholders()
 			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
 		heroToPlace->setAnchorPos(heroPlaceholder->anchorPos());
 		heroToPlace->setHeroType(heroToPlace->getHeroTypeID());
-		heroToPlace->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, heroToPlace->getHeroTypeID())->getTemplates().front();
+		heroToPlace->appearance = heroToPlace->getObjectHandler()->getTemplates().front();
 
 		gameState->map->removeBlockVisTiles(heroPlaceholder, true);
 		gameState->map->objects[heroPlaceholder->id.getNum()] = nullptr;

@@ -13,6 +13,8 @@
 
 #include <vstd/StringUtils.h>
 #include <vstd/RNG.h>
+#include <vcmi/HeroClassService.h>
+#include <vcmi/HeroTypeService.h>
 
 #include "JsonBonus.h"
 
@@ -23,8 +25,9 @@
 #include "../CCreatureSet.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
-#include "../CHeroHandler.h"
 #include "../IGameCallback.h"
+#include "../entities/hero/CHero.h"
+#include "../entities/hero/CHeroClass.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"

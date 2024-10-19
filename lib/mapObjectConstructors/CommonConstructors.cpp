@@ -11,7 +11,6 @@
 #include "CommonConstructors.h"
 
 #include "../texts/CGeneralTextHandler.h"
-#include "../CHeroHandler.h"
 #include "../IGameCallback.h"
 #include "../json/JsonRandom.h"
 #include "../constants/StringConstants.h"
@@ -19,6 +18,7 @@
 #include "../VCMI_Lib.h"
 
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/hero/CHeroClass.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGTownInstance.h"

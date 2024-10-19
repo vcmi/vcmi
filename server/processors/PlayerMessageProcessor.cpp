@@ -16,10 +16,10 @@
 #include "../CVCMIServer.h"
 #include "../TurnTimerHandler.h"
 
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"

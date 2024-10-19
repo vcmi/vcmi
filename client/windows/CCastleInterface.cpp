@@ -2007,10 +2007,10 @@ void CMageGuildScreen::updateSpells(ObjectInstanceID tID)
 
 	const CGTownInstance * town = LOCPLINT->cb->getTown(townId);
 
-	for(size_t i=0; i<town->getTown()->mageLevel; i++)
+	for(uint32_t i=0; i<town->getTown()->mageLevel; i++)
 	{
-		size_t spellCount = town->spellsAtLevel((int)i+1,false); //spell at level with -1 hmmm?
-		for(size_t j=0; j<spellCount; j++)
+		uint32_t spellCount = town->spellsAtLevel(i+1,false); //spell at level with -1 hmmm?
+		for(uint32_t j=0; j<spellCount; j++)
 		{
 			if(i<town->mageGuildLevel() && town->spells[i].size()>j)
 				spells.push_back(std::make_shared<Scroll>(positions[i][j], town->spells[i][j].toSpell(), townId));
@@ -2063,30 +2063,26 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal, CComponent::ESize::medium));
 		}
 
-		auto showSpellResearchDialog = [this, resComps, town, cost, newSpell](){
-			std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
-			for(int i = 0; i < 3; i++)
-				pom.emplace_back(AnimationPath::builtin("settingsWindow/button80"), nullptr);
+		std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
+		for(int i = 0; i < 3; i++)
+			pom.emplace_back(AnimationPath::builtin("settingsWindow/button80"), nullptr);
 
-			auto text = CGI->generaltexth->translate(LOCPLINT->cb->getResourceAmount().canAfford(cost) ? "vcmi.spellResearch.pay" : "vcmi.spellResearch.canNotAfford");
-			boost::replace_first(text, "%SPELL1", spell->id.toSpell()->getNameTranslated());
-			boost::replace_first(text, "%SPELL2", newSpell.toSpell()->getNameTranslated());
-			auto temp = std::make_shared<CInfoWindow>(text, LOCPLINT->playerID, resComps, pom);
+		auto text = CGI->generaltexth->translate(LOCPLINT->cb->getResourceAmount().canAfford(cost) ? "vcmi.spellResearch.pay" : "vcmi.spellResearch.canNotAfford");
+		boost::replace_first(text, "%SPELL1", spell->id.toSpell()->getNameTranslated());
+		boost::replace_first(text, "%SPELL2", newSpell.toSpell()->getNameTranslated());
+		auto temp = std::make_shared<CInfoWindow>(text, LOCPLINT->playerID, resComps, pom);
 
-			temp->buttons[0]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/accept")));
-			temp->buttons[0]->addCallback([this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, true); });
-			temp->buttons[0]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.research")); });
-			temp->buttons[0]->setEnabled(LOCPLINT->cb->getResourceAmount().canAfford(cost));
-			temp->buttons[1]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/reroll")));
-			temp->buttons[1]->addCallback([this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, false); });
-			temp->buttons[1]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.skip")); });
-			temp->buttons[2]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/close")));
-			temp->buttons[2]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.abort")); });
+		temp->buttons[0]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/accept")));
+		temp->buttons[0]->addCallback([this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, true); });
+		temp->buttons[0]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.research")); });
+		temp->buttons[0]->setEnabled(LOCPLINT->cb->getResourceAmount().canAfford(cost));
+		temp->buttons[1]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/reroll")));
+		temp->buttons[1]->addCallback([this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, false); });
+		temp->buttons[1]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.skip")); });
+		temp->buttons[2]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/close")));
+		temp->buttons[2]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.abort")); });
 
-			GH.windows().pushWindow(temp);
-		};
-
-		showSpellResearchDialog();
+		GH.windows().pushWindow(temp);
 	}
 	else
 		LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
