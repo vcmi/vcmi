@@ -57,6 +57,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 	bool haveCapitol = false;
 
 	ai->dangerHitMap->updateHitMap();
+	int treasureSourcesCount = 0;
 	
 	for(auto town : towns)
 	{
@@ -77,6 +78,22 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 		if(ai->heroManager->canRecruitHero(town))
 		{
 			auto availableHeroes = ai->cb->getAvailableHeroes(town);
+			
+			for (auto obj : ai->objectClusterizer->getNearbyObjects())
+			{
+				if ((obj->ID == Obj::RESOURCE)
+					|| obj->ID == Obj::TREASURE_CHEST
+					|| obj->ID == Obj::CAMPFIRE
+					|| isWeeklyRevisitable(ai, obj)
+					|| obj->ID == Obj::ARTIFACT)
+				{
+					auto tile = obj->visitablePos();
+					auto closestTown = ai->dangerHitMap->getClosestTown(tile);
+
+					if (town == closestTown)
+						treasureSourcesCount++;
+				}
+			}
 
 			for(auto hero : availableHeroes)
 			{
@@ -105,7 +122,8 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 	}
 	if (bestHeroToHire && bestTownToHireFrom)
 	{
-		if (ai->cb->getHeroesInfo().size() < ai->cb->getTownsInfo().size() + 1
+		if (ai->cb->getHeroesInfo().size() == 0
+			|| treasureSourcesCount > ai->cb->getHeroesInfo().size() * 5
 			|| (ai->getFreeResources()[EGameResID::GOLD] > 10000 && !ai->buildAnalyzer->isGoldPressureHigh() && haveCapitol)
 			|| (ai->getFreeResources()[EGameResID::GOLD] > 30000 && !ai->buildAnalyzer->isGoldPressureHigh()))
 		{
