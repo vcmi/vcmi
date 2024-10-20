@@ -270,6 +270,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				// dismiss creatures we are not able to pick to be able to hide in garrison
 				if(town->garrisonHero
 					|| town->getUpperArmy()->stacksCount() == 0
+					|| path.targetHero->canBeMergedWith(*town)
 					|| (town->getUpperArmy()->getArmyStrength() < 500 && town->fortLevel() >= CGTownInstance::CITADEL))
 				{
 					tasks.push_back(
