@@ -15,6 +15,8 @@
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../../../lib/mapObjects/MapObjects.h"
+#include "../../../lib/mapping/CMapDefines.h"
+#include "../../../lib/RoadHandler.h"
 #include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/VCMI_Lib.h"
 #include "../../../lib/StartInfo.h"
@@ -901,6 +903,8 @@ public:
 				break;
 			}
 		}
+		if(evaluationContext.evaluator.ai->cb->getTile(task->tile)->roadType && evaluationContext.evaluator.ai->cb->getTile(task->tile)->roadType->getId() != RoadId::NO_ROAD)
+			evaluationContext.explorePriority = 1;
 		if (evaluationContext.explorePriority == 0)
 			evaluationContext.explorePriority = 3;
 	}
@@ -1408,12 +1412,24 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (arriveNextWeek && evaluationContext.isEnemy)
 					return 0;
-				if (evaluationContext.conquestValue > 0 || evaluationContext.explorePriority == 1)
+				if (evaluationContext.conquestValue > 0)
 					score = 1000;
 				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > 1 && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !ai->cb->getTownsInfo().empty()))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
+				score *= evaluationContext.closestWayRatio;
+				if (evaluationContext.movementCost > 0)
+					score /= evaluationContext.movementCost;
+				break;
+			}
+			case PriorityTier::HIGH_PRIO_EXPLORE:
+			{
+				if (evaluationContext.enemyHeroDangerRatio > 1)
+					return 0;
+				if (evaluationContext.explorePriority != 1)
+					return 0;
+				score = 1000;
 				score *= evaluationContext.closestWayRatio;
 				if (evaluationContext.movementCost > 0)
 					score /= evaluationContext.movementCost;
