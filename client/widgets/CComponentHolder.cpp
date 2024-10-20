@@ -1,5 +1,5 @@
 /*
- * CArtPlace.cpp, part of VCMI engine
+ * CComponentHolder.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,14 +8,14 @@
  *
  */
 #include "StdInc.h"
-#include "CArtPlace.h"
+#include "CComponentHolder.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 
 #include "CComponent.h"
+#include "Images.h"
 
-#include "../windows/GUIClasses.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
 #include "../render/IRenderHandler.h"
@@ -28,9 +28,51 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/CSkillHandler.h"
+
+CComponentHolder::CComponentHolder(const Rect & area, const Point & selectionOversize)
+	: SelectableSlot(area, selectionOversize)
+{
+}
+
+void CComponentHolder::setClickPressedCallback(const ClickFunctor & callback)
+{
+	clickPressedCallback = callback;
+}
+
+void CComponentHolder::setShowPopupCallback(const ClickFunctor & callback)
+{
+	showPopupCallback = callback;
+}
+
+void CComponentHolder::setGestureCallback(const ClickFunctor & callback)
+{
+	gestureCallback = callback;
+}
+
+void CComponentHolder::clickPressed(const Point & cursorPosition)
+{
+	if(clickPressedCallback)
+		clickPressedCallback(*this, cursorPosition);
+}
+
+void CComponentHolder::showPopupWindow(const Point & cursorPosition)
+{
+	if(showPopupCallback)
+		showPopupCallback(*this, cursorPosition);
+}
+
+void CComponentHolder::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
+{
+	if(!on)
+		return;
+
+	if(gestureCallback)
+		gestureCallback(*this, initialPosition);
+}
 
 CArtPlace::CArtPlace(Point position, const ArtifactID & artId, const SpellID & spellId)
-	: SelectableSlot(Rect(position, Point(44, 44)), Point(1, 1))
+	: CComponentHolder(Rect(position, Point(44, 44)), Point(1, 1))
 	, locked(false)
 	, imageIndex(0)
 {
@@ -171,42 +213,6 @@ bool CArtPlace::isLocked() const
 	return locked;
 }
 
-void CArtPlace::clickPressed(const Point & cursorPosition)
-{
-	if(clickPressedCallback)
-		clickPressedCallback(*this, cursorPosition);
-}
-
-void CArtPlace::showPopupWindow(const Point & cursorPosition)
-{
-	if(showPopupCallback)
-		showPopupCallback(*this, cursorPosition);
-}
-
-void CArtPlace::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
-{
-	if(!on)
-		return;
-
-	if(gestureCallback)
-		gestureCallback(*this, initialPosition);
-}
-
-void CArtPlace::setClickPressedCallback(const ClickFunctor & callback)
-{
-	clickPressedCallback = callback;
-}
-
-void CArtPlace::setShowPopupCallback(const ClickFunctor & callback)
-{
-	showPopupCallback = callback;
-}
-
-void CArtPlace::setGestureCallback(const ClickFunctor & callback)
-{
-	gestureCallback = callback;
-}
-
 void CArtPlace::addCombinedArtInfo(const std::map<const ArtifactID, std::vector<ArtifactID>> & arts)
 {
 	for(auto [combinedId, availableArts] : arts)
@@ -243,4 +249,18 @@ void CArtPlace::addCombinedArtInfo(const std::map<const ArtifactID, std::vector<
 		}
 		text += info.toString();
 	}
+}
+
+CSecSkillPlace::CSecSkillPlace(const Point & position, const SecondarySkill & skillId)
+	: CComponentHolder(Rect(position, Point(44, 44)), Point())
+{
+	OBJECT_CONSTRUCTION;
+
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin("SECSKILL"), 0);
+	setSkill(skillId);
+}
+
+void CSecSkillPlace::setSkill(const SecondarySkill & skillId)
+{
+	//skillId.toSkill()->getIconIndex();
 }

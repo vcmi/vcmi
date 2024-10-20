@@ -1,5 +1,5 @@
 /*
- * CArtPlace.h, part of VCMI engine
+ * CComponentHolder.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -13,11 +13,29 @@
 
 class CAnimImage;
 
-class CArtPlace : public SelectableSlot
+class CComponentHolder : public SelectableSlot
 {
 public:
-	using ClickFunctor = std::function<void(CArtPlace&, const Point&)>;
+	using ClickFunctor = std::function<void(CComponentHolder&, const Point&)>;
 
+	ClickFunctor clickPressedCallback;
+	ClickFunctor showPopupCallback;
+	ClickFunctor gestureCallback;
+	std::shared_ptr<CAnimImage> image;
+
+	CComponentHolder(const Rect & area, const Point & selectionOversize);
+	void setClickPressedCallback(const ClickFunctor & callback);
+	void setShowPopupCallback(const ClickFunctor & callback);
+	void setGestureCallback(const ClickFunctor & callback);
+	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
+	virtual ~CComponentHolder() = default;
+};
+
+class CArtPlace : public CComponentHolder
+{
+public:
 	ArtifactPosition slot;
 	
 	CArtPlace(Point position, const ArtifactID & artId = ArtifactID::NONE, const SpellID & spellId = SpellID::NONE);
@@ -26,12 +44,6 @@ public:
 	ArtifactID getArtifactId() const;
 	void lockSlot(bool on);
 	bool isLocked() const;
-	void setClickPressedCallback(const ClickFunctor & callback);
-	void setShowPopupCallback(const ClickFunctor & callback);
-	void setGestureCallback(const ClickFunctor & callback);
-	void clickPressed(const Point & cursorPosition) override;
-	void showPopupWindow(const Point & cursorPosition) override;
-	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void addCombinedArtInfo(const std::map<const ArtifactID, std::vector<ArtifactID>> & arts);
 
 private:
@@ -39,10 +51,6 @@ private:
 	SpellID spellId;
 	bool locked;
 	int32_t imageIndex;
-	std::shared_ptr<CAnimImage> image;
-	ClickFunctor clickPressedCallback;
-	ClickFunctor showPopupCallback;
-	ClickFunctor gestureCallback;
 };
 
 class CCommanderArtPlace : public CArtPlace
@@ -58,4 +66,14 @@ public:
 		const ArtifactID & artId = ArtifactID::NONE, const SpellID & spellId = SpellID::NONE);
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
+};
+
+class CSecSkillPlace : public CComponentHolder
+{
+public:
+	CSecSkillPlace(const Point & position, const SecondarySkill & skillId = SecondarySkill::NONE);
+	void setSkill(const SecondarySkill & skillId);
+
+private:
+	SecondarySkill skillId;
 };

@@ -89,31 +89,40 @@ void CArtifactsOfHeroBase::init(
 	setRedrawParent(true);
 }
 
-void CArtifactsOfHeroBase::clickPrassedArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
+void CArtifactsOfHeroBase::clickPrassedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
-	if(artPlace.isLocked())
+	auto ownedPlace = getArtPlace(cursorPosition);
+	assert(ownedPlace != nullptr);
+
+	if(ownedPlace->isLocked())
 		return;
 
 	if(clickPressedCallback)
-		clickPressedCallback(artPlace, cursorPosition);
+		clickPressedCallback(*ownedPlace, cursorPosition);
 }
 
-void CArtifactsOfHeroBase::showPopupArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
+void CArtifactsOfHeroBase::showPopupArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
-	if(artPlace.isLocked())
+	auto ownedPlace = getArtPlace(cursorPosition);
+	assert(ownedPlace != nullptr);
+
+	if(ownedPlace->isLocked())
 		return;
 
 	if(showPopupCallback)
-		showPopupCallback(artPlace, cursorPosition);
+		showPopupCallback(*ownedPlace, cursorPosition);
 }
 
-void CArtifactsOfHeroBase::gestureArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
+void CArtifactsOfHeroBase::gestureArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
-	if(artPlace.isLocked())
+	auto ownedPlace = getArtPlace(cursorPosition);
+	assert(ownedPlace != nullptr);
+
+	if(ownedPlace->isLocked())
 		return;
 
 	if(gestureCallback)
-		gestureCallback(artPlace, cursorPosition);
+		gestureCallback(*ownedPlace, cursorPosition);
 }
 
 void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)
@@ -156,24 +165,16 @@ CArtifactsOfHeroBase::ArtPlacePtr CArtifactsOfHeroBase::getArtPlace(const Artifa
 {
 	if(ArtifactUtils::isSlotEquipment(slot))
 	{
-		if(artWorn.find(slot) == artWorn.end())
-		{
-			logGlobal->error("CArtifactsOfHero::getArtPlace: invalid slot %d", slot);
-			return nullptr;
-		}
-		return artWorn[slot];
+		if(artWorn.find(slot) != artWorn.end())
+			return artWorn[slot];
 	}
 	if(ArtifactUtils::isSlotBackpack(slot))
 	{
-		for(ArtPlacePtr artPlace : backpack)
-			if(artPlace->slot == slot)
-				return artPlace;
-		return nullptr;
+		if(slot - ArtifactPosition::BACKPACK_START < backpack.size())
+			return(backpack[slot - ArtifactPosition::BACKPACK_START]);
 	}
-	else
-	{
-		return nullptr;
-	}
+	logGlobal->error("CArtifactsOfHero::getArtPlace: invalid slot %d", slot);
+	return nullptr;
 }
 
 CArtifactsOfHeroBase::ArtPlacePtr CArtifactsOfHeroBase::getArtPlace(const Point & cursorPosition)

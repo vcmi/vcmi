@@ -22,18 +22,21 @@ CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position, const int
 		artPlace->setSelectionWidth(selectionWidth);
 };
 
-void CArtifactsOfHeroMarket::clickPrassedArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
+void CArtifactsOfHeroMarket::clickPrassedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
-	if(artPlace.isLocked())
+	auto ownedPlace = getArtPlace(cursorPosition);
+	assert(ownedPlace != nullptr);
+
+	if(ownedPlace->isLocked())
 		return;
 
-	if(const auto art = getArt(artPlace.slot))
+	if(const auto art = getArt(ownedPlace->slot))
 	{
 		if(onSelectArtCallback && art->artType->isTradable())
 		{
 			unmarkSlots();
 			artPlace.selectSlot(true);
-			onSelectArtCallback(&artPlace);
+			onSelectArtCallback(ownedPlace.get());
 		}
 		else
 		{

@@ -17,8 +17,8 @@
 #include "../CPlayerInterface.h"
 #include "../render/Canvas.h"
 #include "../widgets/Buttons.h"
-#include "../widgets/CArtPlace.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/CComponentHolder.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/ObjectLists.h"
@@ -619,7 +619,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		if(art)
 		{
 			parent->stackArtifact = std::make_shared<CArtPlace>(pos, art->getTypeId());
-			parent->stackArtifact->setShowPopupCallback([](CArtPlace & artPlace, const Point & cursorPosition)
+			parent->stackArtifact->setShowPopupCallback([](CComponentHolder & artPlace, const Point & cursorPosition)
 				{
 					artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
 				});
