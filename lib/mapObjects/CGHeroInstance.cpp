@@ -1898,5 +1898,11 @@ const IOwnableObject * CGHeroInstance::asOwnable() const
 	return this;
 }
 
+int CGHeroInstance::getBasePrimarySkillValue(PrimarySkill which) const
+{
+	std::string cachingStr = "type_PRIMARY_SKILL_base_" + std::to_string(static_cast<int>(which));
+	auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(which)).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
+	return valOfBonuses(selector, cachingStr);
+}
 
 VCMI_LIB_NAMESPACE_END

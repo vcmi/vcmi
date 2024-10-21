@@ -95,7 +95,7 @@ float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 
 float HeroManager::evaluateFightingStrength(const CGHeroInstance * hero) const
 {
-	return evaluateSpeciality(hero) + wariorSkillsScores.evaluateSecSkills(hero) + hero->level * 1.5f;
+	return evaluateSpeciality(hero) + wariorSkillsScores.evaluateSecSkills(hero) + hero->getBasePrimarySkillValue(PrimarySkill::ATTACK) + hero->getBasePrimarySkillValue(PrimarySkill::DEFENSE) + hero->getBasePrimarySkillValue(PrimarySkill::SPELL_POWER) + hero->getBasePrimarySkillValue(PrimarySkill::KNOWLEDGE);
 }
 
 void HeroManager::update()
