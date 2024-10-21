@@ -53,6 +53,9 @@ void AdventureSpellCast::accept(AIGateway * ai)
 			throw cannotFulfillGoalException("The town is already occupied by " + town->visitingHero->getNameTranslated());
 	}
 
+	if (hero->inTownGarrison)
+		ai->myCb->swapGarrisonHero(hero->visitedTown);
+
 	auto wait = cb->waitTillRealize;
 
 	cb->waitTillRealize = true;
