@@ -1401,8 +1401,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			{
 				if (evaluationContext.isDefend && evaluationContext.threatTurns == 0 && evaluationContext.turn == 0)
 					score = evaluationContext.armyInvolvement;
-				if (evaluationContext.isEnemy)
-					score *= (maxWillingToLose - evaluationContext.armyLossPersentage);
+				if (evaluationContext.isEnemy && maxWillingToLose - evaluationContext.armyLossPersentage < 0)
+					return 0;
 				score *= evaluationContext.closestWayRatio;
 				break;
 			}
