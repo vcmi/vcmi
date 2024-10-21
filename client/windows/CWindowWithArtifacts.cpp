@@ -128,12 +128,6 @@ void CWindowWithArtifacts::showArtifactAssembling(const CArtifactsOfHeroBase & a
 	}
 }
 
-void CWindowWithArtifacts::showArifactInfo(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition) const
-{
-	if(artsInst.getArt(artPlace.slot) && artPlace.text.size())
-		artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
-}
-
 void CWindowWithArtifacts::showQuickBackpackWindow(const CGHeroInstance * hero, const ArtifactPosition & slot,
 	const Point & cursorPosition) const
 {

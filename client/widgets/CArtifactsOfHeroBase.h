@@ -50,6 +50,8 @@ public:
 	void enableGesture();
 	const CArtifactInstance * getArt(const ArtifactPosition & slot) const;
 	void enableKeyboardShortcuts();
+	void setClickPrassedArtPlacesCallback(const CArtPlace::ClickFunctor & callback) const;
+	void setShowPopupArtPlacesCallback(const CArtPlace::ClickFunctor & callback) const;
 
 	const CGHeroInstance * curHero;
 	ArtPlaceMap artWorn;

@@ -162,7 +162,7 @@ void CAltarCreatures::makeDeal()
 	for(int & units : unitsOnAltar)
 		units = 0;
 
-	for(auto & heroSlot : offerTradePanel->slots)
+	for(const auto & heroSlot : offerTradePanel->slots)
 	{
 		heroSlot->setID(CreatureID::NONE);
 		heroSlot->subtitle->clear();

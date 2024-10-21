@@ -30,7 +30,6 @@ public:
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
-	virtual ~CComponentHolder() = default;
 };
 
 class CArtPlace : public CComponentHolder
@@ -38,9 +37,9 @@ class CArtPlace : public CComponentHolder
 public:
 	ArtifactPosition slot;
 	
-	CArtPlace(Point position, const ArtifactID & artId = ArtifactID::NONE, const SpellID & spellId = SpellID::NONE);
-	void setArtifact(const SpellID & spellId);
-	void setArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
+	CArtPlace(Point position, const ArtifactID & newArtId = ArtifactID::NONE, const SpellID & newSpellId = SpellID::NONE);
+	void setArtifact(const SpellID & newSpellId);
+	void setArtifact(const ArtifactID & newArtId, const SpellID & newSpellId = SpellID::NONE);
 	ArtifactID getArtifactId() const;
 	void lockSlot(bool on);
 	bool isLocked() const;
@@ -71,8 +70,16 @@ public:
 class CSecSkillPlace : public CComponentHolder
 {
 public:
-	CSecSkillPlace(const Point & position, const SecondarySkill & skillId = SecondarySkill::NONE);
-	void setSkill(const SecondarySkill & skillId);
+	enum class ImageSize
+	{
+		LARGE,
+		MEDIUM,
+		SMALL
+	};
+
+	CSecSkillPlace(const Point & position, const ImageSize & imageSize, const SecondarySkill & skillId = SecondarySkill::NONE, const uint8_t level = 0);
+	void setSkill(const SecondarySkill & newSkillId, const uint8_t level = 0);
+	void setLevel(const uint8_t level);
 
 private:
 	SecondarySkill skillId;

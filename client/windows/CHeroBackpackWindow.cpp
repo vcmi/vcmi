@@ -93,10 +93,6 @@ CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, 
 		if(const auto curHero = arts->getHero())
 			swapArtifactAndClose(*arts, artPlace.slot, ArtifactLocation(curHero->id, arts->getFilterSlot()));
 	};
-	arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
-	{
-		showArifactInfo(*arts, artPlace, cursorPosition);
-	};
 	addSet(arts);
 	arts->setHero(hero);
 	addUsedEvents(GESTURE);

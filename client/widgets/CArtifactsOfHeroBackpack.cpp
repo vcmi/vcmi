@@ -40,6 +40,8 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack()
 		visibleCapacityMax = visibleCapacityMax > backpackCap ? backpackCap : visibleCapacityMax;
 
 	initAOHbackpack(visibleCapacityMax, backpackCap < 0 || visibleCapacityMax < backpackCap);
+	setClickPrassedArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
+	setShowPopupArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 }
 
 void CArtifactsOfHeroBackpack::onSliderMoved(int newVal)
@@ -84,8 +86,6 @@ void CArtifactsOfHeroBackpack::initAOHbackpack(size_t slots, bool slider)
 		backpackSlotsBackgrounds.emplace_back(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/artifactSlotEmpty"), pos));
 		artPlace = std::make_shared<CArtPlace>(pos);
 		artPlace->setArtifact(ArtifactID(ArtifactID::NONE));
-		artPlace->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
-		artPlace->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 		artPlaceIdx++;
 	}
 
@@ -130,6 +130,7 @@ CArtifactsOfHeroQuickBackpack::CArtifactsOfHeroQuickBackpack(const ArtifactPosit
 		return;
 
 	this->filterBySlot = filterBySlot;
+	setShowPopupArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 }
 
 void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
@@ -172,6 +173,7 @@ void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
 		slotsColumnsMax = ceilf(sqrtf(requiredSlots));
 		slotsRowsMax = calcRows(requiredSlots);
 		initAOHbackpack(requiredSlots, false);
+		setClickPrassedArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
 		auto artPlace = backpack.begin();
 		for(auto & art : filteredArts)
 			setSlotData(*artPlace++, curHero->getArtPos(art.second));

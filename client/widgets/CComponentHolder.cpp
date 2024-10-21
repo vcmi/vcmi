@@ -33,6 +33,16 @@
 CComponentHolder::CComponentHolder(const Rect & area, const Point & selectionOversize)
 	: SelectableSlot(area, selectionOversize)
 {
+	setClickPressedCallback([this](const CComponentHolder &, const Point & cursorPosition)
+		{
+			if(text.size())
+				LRClickableAreaWTextComp::clickPressed(cursorPosition);
+		});
+	setShowPopupCallback([this](const CComponentHolder &, const Point & cursorPosition)
+		{
+			if(text.size())
+				LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
+		});
 }
 
 void CComponentHolder::setClickPressedCallback(const ClickFunctor & callback)
@@ -83,14 +93,14 @@ CArtPlace::CArtPlace(Point position, const ArtifactID & artId, const SpellID & s
 	moveSelectionForeground();
 }
 
-void CArtPlace::setArtifact(const SpellID & spellId)
+void CArtPlace::setArtifact(const SpellID & newSpellId)
 {
-	setArtifact(ArtifactID::SPELL_SCROLL, spellId);
+	setArtifact(ArtifactID::SPELL_SCROLL, newSpellId);
 }
 
-void CArtPlace::setArtifact(const ArtifactID & artId, const SpellID & spellId)
+void CArtPlace::setArtifact(const ArtifactID & newArtId, const SpellID & newSpellId)
 {
-	this->artId = artId;
+	artId = newArtId;
 	if(artId == ArtifactID::NONE)
 	{
 		image->disable();
@@ -103,7 +113,7 @@ void CArtPlace::setArtifact(const ArtifactID & artId, const SpellID & spellId)
 	imageIndex = artType->getIconIndex();
 	if(artId == ArtifactID::SPELL_SCROLL)
 	{
-		this->spellId = spellId;
+		spellId = newSpellId;
 		assert(spellId.num > 0);
 
 		if(settings["general"]["enableUiEnhancements"].Bool())
@@ -251,16 +261,53 @@ void CArtPlace::addCombinedArtInfo(const std::map<const ArtifactID, std::vector<
 	}
 }
 
-CSecSkillPlace::CSecSkillPlace(const Point & position, const SecondarySkill & skillId)
-	: CComponentHolder(Rect(position, Point(44, 44)), Point())
+CSecSkillPlace::CSecSkillPlace(const Point & position, const ImageSize & imageSize, const SecondarySkill & newSkillId, const uint8_t level)
+	: CComponentHolder(Rect(position, Point()), Point())
 {
 	OBJECT_CONSTRUCTION;
 
-	image = std::make_shared<CAnimImage>(AnimationPath::builtin("SECSKILL"), 0);
-	setSkill(skillId);
+	auto imagePath = AnimationPath::builtin("SECSKILL");
+	if(imageSize == ImageSize::MEDIUM)
+		imagePath = AnimationPath::builtin("SECSK32");
+	if(imageSize == ImageSize::SMALL)
+		imagePath = AnimationPath::builtin("SECSK82");
+
+	image = std::make_shared<CAnimImage>(imagePath, 0);
+	component.type = ComponentType::SEC_SKILL;
+	pos.w = image->pos.w;
+	pos.h = image->pos.h;
+	setSkill(newSkillId, level);
 }
 
-void CSecSkillPlace::setSkill(const SecondarySkill & skillId)
+void CSecSkillPlace::setSkill(const SecondarySkill & newSkillId, const uint8_t level)
 {
-	//skillId.toSkill()->getIconIndex();
+	skillId = newSkillId;
+	component.subType = newSkillId;
+	setLevel(level);
+}
+
+void CSecSkillPlace::setLevel(const uint8_t level)
+{
+	// 0 - none
+	// 1 - base
+	// 2 - advanced
+	// 3 - expert
+	assert(level <= 3);
+	if(skillId != SecondarySkill::NONE && level > 0)
+	{
+		image->setFrame(skillId.toSkill()->getIconIndex() + level - 1);
+		image->enable();
+		auto hoverText = MetaString::createFromRawString(CGI->generaltexth->heroscrn[21]);
+		hoverText.replaceRawString(CGI->generaltexth->levels[level - 1]);
+		hoverText.replaceTextID(SecondarySkill(skillId).toSkill()->getNameTextID());
+		this->hoverText = hoverText.toString();
+		component.value = level;
+		text = CGI->skillh->getByIndex(skillId)->getDescriptionTranslated(level);
+	}
+	else
+	{
+		image->disable();
+		hoverText.clear();
+		text.clear();
+	}
 }

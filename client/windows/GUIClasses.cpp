@@ -896,26 +896,16 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 	pos.x += X;
 	pos.y += Y;
 
-	icon = std::make_shared<CAnimImage>(AnimationPath::builtin("SECSKILL"), _ID * 3 + 3, 0);
+	skill = std::make_shared<CSecSkillPlace>(Point(), CSecSkillPlace::ImageSize::LARGE, _ID, 1);
+	skill->setClickPressedCallback([this](const CComponentHolder&, const Point& cursorPosition)
+		{
+			bool skillKnown = parent->hero->getSecSkillLevel(ID);
+			bool canLearn = parent->hero->canLearnSkill(ID);
 
-	pos.h = icon->pos.h;
-	pos.w = icon->pos.w;
-
+			if(!skillKnown && canLearn)
+				GH.windows().createAndPushWindow<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
+		});
 	update();
-}
-
-void CUniversityWindow::CItem::clickPressed(const Point & cursorPosition)
-{
-	bool skillKnown = parent->hero->getSecSkillLevel(ID);
-	bool canLearn =	parent->hero->canLearnSkill(ID);
-
-	if (!skillKnown && canLearn)
-		GH.windows().createAndPushWindow<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
-}
-
-void CUniversityWindow::CItem::showPopupWindow(const Point & cursorPosition)
-{
-	CRClickPopup::createAndPush(CGI->skillh->getByIndex(ID)->getDescriptionTranslated(1), std::make_shared<CComponent>(ComponentType::SEC_SKILL, ID, 1));
 }
 
 void CUniversityWindow::CItem::update()
@@ -939,14 +929,6 @@ void CUniversityWindow::CItem::update()
 	// needs to be on top of background bars
 	name = std::make_shared<CLabel>(22, -13, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, ID.toEntity(VLC)->getNameTranslated());
 	level = std::make_shared<CLabel>(22, 57, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->levels[0]);
-}
-
-void CUniversityWindow::CItem::hover(bool on)
-{
-	if(on)
-		GH.statusbar()->write(ID.toEntity(VLC)->getNameTranslated());
-	else
-		GH.statusbar()->clear();
 }
 
 CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID building, const IMarket * _market, const std::function<void()> & onWindowClosed)

@@ -63,18 +63,14 @@ void CArtifactsOfHeroBase::init(
 		auto artPlace = std::make_shared<CArtPlace>(Point(403 + 46 * s, 365));
 		backpack.push_back(artPlace);
 	}
-	for(auto artPlace : artWorn)
+	for(auto & artPlace : artWorn)
 	{
 		artPlace.second->slot = artPlace.first;
 		artPlace.second->setArtifact(ArtifactID(ArtifactID::NONE));
-		artPlace.second->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
-		artPlace.second->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 	}
-	for(auto artPlace : backpack)
+	for(const auto & artPlace : backpack)
 	{
 		artPlace->setArtifact(ArtifactID(ArtifactID::NONE));
-		artPlace->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
-		artPlace->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 	}
 	leftBackpackRoll = std::make_shared<CButton>(Point(379, 364), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(),
 		[scrollCallback](){scrollCallback(true);}, EShortcut::MOVE_LEFT);
@@ -87,6 +83,22 @@ void CArtifactsOfHeroBase::init(
 	backpackScroller->setScrollingEnabled(false);
 
 	setRedrawParent(true);
+}
+
+void CArtifactsOfHeroBase::setClickPrassedArtPlacesCallback(const CArtPlace::ClickFunctor & callback) const
+{
+	for(const auto & [slot, artPlace] : artWorn)
+		artPlace->setClickPressedCallback(callback);
+	for(const auto & artPlace : backpack)
+		artPlace->setClickPressedCallback(callback);
+}
+
+void CArtifactsOfHeroBase::setShowPopupArtPlacesCallback(const CArtPlace::ClickFunctor & callback) const
+{
+	for(const auto & [slot, artPlace] : artWorn)
+		artPlace->setShowPopupCallback(callback);
+	for(const auto & artPlace : backpack)
+		artPlace->setShowPopupCallback(callback);
 }
 
 void CArtifactsOfHeroBase::clickPrassedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
@@ -163,16 +175,10 @@ void CArtifactsOfHeroBase::unmarkSlots()
 
 CArtifactsOfHeroBase::ArtPlacePtr CArtifactsOfHeroBase::getArtPlace(const ArtifactPosition & slot)
 {
-	if(ArtifactUtils::isSlotEquipment(slot))
-	{
-		if(artWorn.find(slot) != artWorn.end())
-			return artWorn[slot];
-	}
-	if(ArtifactUtils::isSlotBackpack(slot))
-	{
-		if(slot - ArtifactPosition::BACKPACK_START < backpack.size())
-			return(backpack[slot - ArtifactPosition::BACKPACK_START]);
-	}
+	if(ArtifactUtils::isSlotEquipment(slot) && artWorn.find(slot) != artWorn.end())
+		return artWorn[slot];
+	if(ArtifactUtils::isSlotBackpack(slot) && slot - ArtifactPosition::BACKPACK_START < backpack.size())
+		return(backpack[slot - ArtifactPosition::BACKPACK_START]);
 	logGlobal->error("CArtifactsOfHero::getArtPlace: invalid slot %d", slot);
 	return nullptr;
 }
