@@ -1429,6 +1429,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (evaluationContext.explorePriority != 1)
 					return 0;
+				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
+					return 0;
 				score = 1000;
 				score *= evaluationContext.closestWayRatio;
 				if (evaluationContext.movementCost > 0)
@@ -1472,6 +1474,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (evaluationContext.enemyHeroDangerRatio > 1)
 					return 0;
 				if (evaluationContext.explorePriority != 3)
+					return 0;
+				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
 				score = 1000;
 				score *= evaluationContext.closestWayRatio;
