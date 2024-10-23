@@ -134,14 +134,6 @@ std::string CArtifactInstance::nodeName() const
 	return "Artifact instance of " + (artType ? artType->getJsonKey() : std::string("uninitialized")) + " type";
 }
 
-std::string CArtifactInstance::getDescription() const
-{
-	std::string text = artType->getDescriptionTranslated();
-	if(artType->isScroll())
-		ArtifactUtils::insertScrrollSpellName(text, getScrollSpellID());
-	return text;
-}
-
 ArtifactID CArtifactInstance::getTypeId() const
 {
 	return artType->getId();

@@ -28,6 +28,7 @@ class CTabbedInt;
 class CButton;
 class CMultiLineLabel;
 class CListBox;
+class CArtPlace;
 class CCommanderArtPlace;
 class LRClickableArea;
 
@@ -156,8 +157,7 @@ class CStackWindow : public CWindowObject
 		MainSection(CStackWindow * owner, int yOffset, bool showExp, bool showArt);
 	};
 
-	std::shared_ptr<CAnimImage> stackArtifactIcon;
-	std::shared_ptr<LRClickableAreaWTextComp> stackArtifactHelp;
+	std::shared_ptr<CArtPlace> stackArtifact;
 	std::shared_ptr<CButton> stackArtifactButton;
 
 

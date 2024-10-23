@@ -219,7 +219,6 @@ void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroI
 	auto artsSellingMarket = std::make_shared<CArtifactsSelling>(market, hero, getMarketTitle(market->getObjInstanceID(), EMarketMode::ARTIFACT_RESOURCE));
 	artSets.clear();
 	const auto heroArts = artsSellingMarket->getAOHset();
-	heroArts->showPopupCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition){showArifactInfo(*heroArts, artPlace, cursorPosition);};
 	addSet(heroArts);
 	marketWidget = artsSellingMarket;
 	initWidgetInternals(EMarketMode::ARTIFACT_RESOURCE, CGI->generaltexth->zelp[600]);

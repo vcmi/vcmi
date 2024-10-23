@@ -29,7 +29,7 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 	: CMarketBase(market, hero)
 	, CResourcesBuying(
 		[this](const std::shared_ptr<CTradeableItem> & heroSlot){CFreelancerGuild::onSlotClickPressed(heroSlot, offerTradePanel);},
-		[this](){CMarketBase::updateSubtitlesForBid(EMarketMode::CREATURE_RESOURCE, bidTradePanel->getSelectedItemId());})
+		[this](){CMarketBase::updateSubtitlesForBid(EMarketMode::CREATURE_RESOURCE, bidTradePanel->getHighlightedItemId());})
 	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
 {
 	OBJECT_CONSTRUCTION;
@@ -69,7 +69,7 @@ void CFreelancerGuild::makeDeal()
 {
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
-		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_RESOURCE, SlotID(bidTradePanel->highlightedSlot->serial), GameResID(offerTradePanel->getSelectedItemId()), bidQty * toTrade, hero);
+		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_RESOURCE, SlotID(bidTradePanel->highlightedSlot->serial), GameResID(offerTradePanel->getHighlightedItemId()), bidQty * toTrade, hero);
 		CMarketTraderText::makeDeal();
 		deselect();
 	}
@@ -80,8 +80,8 @@ CMarketBase::MarketShowcasesParams CFreelancerGuild::getShowcasesParams() const
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 		return MarketShowcasesParams
 		{
-			ShowcaseParams {std::to_string(bidQty * offerSlider->getValue()), CGI->creatures()->getByIndex(bidTradePanel->getSelectedItemId())->getIconIndex()},
-			ShowcaseParams {std::to_string(offerQty * offerSlider->getValue()), offerTradePanel->getSelectedItemId()}
+			ShowcaseParams {std::to_string(bidQty * offerSlider->getValue()), CGI->creatures()->getByIndex(bidTradePanel->getHighlightedItemId())->getIconIndex()},
+			ShowcaseParams {std::to_string(offerQty * offerSlider->getValue()), offerTradePanel->getHighlightedItemId()}
 		};
 	else
 		return MarketShowcasesParams {std::nullopt, std::nullopt};
@@ -91,7 +91,7 @@ void CFreelancerGuild::highlightingChanged()
 {
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
-		market->getOffer(bidTradePanel->getSelectedItemId(), offerTradePanel->getSelectedItemId(), bidQty, offerQty, EMarketMode::CREATURE_RESOURCE);
+		market->getOffer(bidTradePanel->getHighlightedItemId(), offerTradePanel->getHighlightedItemId(), bidQty, offerQty, EMarketMode::CREATURE_RESOURCE);
 		offerSlider->setAmount((hero->getStackCount(SlotID(bidTradePanel->highlightedSlot->serial)) - (hero->stacksCount() == 1 && hero->needsLastStack() ? 1 : 0)) / bidQty);
 		offerSlider->scrollTo(0);
 		offerSlider->block(false);
@@ -109,12 +109,12 @@ std::string CFreelancerGuild::getTraderText()
 		MetaString message = MetaString::createFromTextID("core.genrltxt.269");
 		message.replaceNumber(offerQty);
 		message.replaceRawString(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
-		message.replaceName(GameResID(offerTradePanel->getSelectedItemId()));
+		message.replaceName(GameResID(offerTradePanel->getHighlightedItemId()));
 		message.replaceNumber(bidQty);
 		if(bidQty == 1)
-			message.replaceNameSingular(bidTradePanel->getSelectedItemId());
+			message.replaceNameSingular(bidTradePanel->getHighlightedItemId());
 		else
-			message.replaceNamePlural(bidTradePanel->getSelectedItemId());
+			message.replaceNamePlural(bidTradePanel->getHighlightedItemId());
 		return message.toString();
 	}
 	else

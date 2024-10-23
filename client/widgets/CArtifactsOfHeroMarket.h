@@ -18,5 +18,5 @@ public:
 	std::function<void()> onClickNotTradableCallback;
 
 	CArtifactsOfHeroMarket(const Point & position, const int selectionWidth);
-	void clickPrassedArtPlace(CArtPlace & artPlace, const Point & cursorPosition) override;
+	void clickPrassedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition) override;
 };

@@ -46,6 +46,7 @@ class VideoWidget;
 class VideoWidgetOnce;
 class GraphicalPrimitiveCanvas;
 class TransparentFilledRectangle;
+class CSecSkillPlace;
 
 enum class EUserEvent;
 
@@ -370,7 +371,7 @@ class CUniversityWindow final : public CStatusbarWindow, public IMarketHolder
 {
 	class CItem final : public CIntObject
 	{
-		std::shared_ptr<CAnimImage> icon;
+		std::shared_ptr<CSecSkillPlace> skill;
 		std::shared_ptr<CPicture> topBar;
 		std::shared_ptr<CPicture> bottomBar;
 		std::shared_ptr<CLabel> name;
@@ -379,9 +380,6 @@ class CUniversityWindow final : public CStatusbarWindow, public IMarketHolder
 		SecondarySkill ID;//id of selected skill
 		CUniversityWindow * parent;
 
-		void clickPressed(const Point & cursorPosition) override;
-		void showPopupWindow(const Point & cursorPosition) override;
-		void hover(bool on) override;
 		void update();
 		CItem(CUniversityWindow * _parent, int _ID, int X, int Y);
 	};

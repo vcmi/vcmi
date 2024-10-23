@@ -33,4 +33,5 @@ private:
 	void onOfferSliderMoved(int newVal) override;
 	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<TradePanelBase> & curPanel) override;
 	std::string getTraderText() override;
+	std::tuple<const std::shared_ptr<CTradeableItem>, std::shared_ptr<TradePanelBase>> getOpposite(const std::shared_ptr<CTradeableItem> & curSlot);
 };

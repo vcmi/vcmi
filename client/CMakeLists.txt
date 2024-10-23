@@ -116,8 +116,8 @@ set(vcmiclientcommon_SRCS
 	globalLobby/GlobalLobbyWindow.cpp
 
 	widgets/Buttons.cpp
-	widgets/CArtPlace.cpp
 	widgets/CComponent.cpp
+	widgets/CComponentHolder.cpp
 	widgets/CExchangeController.cpp
 	widgets/CGarrisonInt.cpp
 	widgets/CreatureCostBox.cpp
@@ -327,8 +327,8 @@ set(vcmiclientcommon_HEADERS
 	globalLobby/GlobalLobbyWindow.h
 
 	widgets/Buttons.h
-	widgets/CArtPlace.h
 	widgets/CComponent.h
+	widgets/CComponentHolder.h
 	widgets/CExchangeController.h
 	widgets/CGarrisonInt.h
 	widgets/CreatureCostBox.h

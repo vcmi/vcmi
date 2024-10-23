@@ -19,7 +19,6 @@ class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public 
 	std::array<std::shared_ptr<CLabel>, 2> titles;
 	std::vector<std::shared_ptr<CAnimImage>> primSkillImages;//shared for both heroes
 	std::array<std::vector<std::shared_ptr<CLabel>>, 2> primSkillValues;
-	std::array<std::vector<std::shared_ptr<CAnimImage>>, 2> secSkillIcons;
 	std::array<std::shared_ptr<CAnimImage>, 2> specImages;
 	std::array<std::shared_ptr<CAnimImage>, 2> expImages;
 	std::array<std::shared_ptr<CLabel>, 2> expValues;
@@ -27,7 +26,7 @@ class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public 
 	std::array<std::shared_ptr<CLabel>, 2> manaValues;
 
 	std::vector<std::shared_ptr<LRClickableAreaWTextComp>> primSkillAreas;
-	std::array<std::vector<std::shared_ptr<LRClickableAreaWTextComp>>, 2> secSkillAreas;
+	std::array<std::vector<std::shared_ptr<CSecSkillPlace>>, 2> secSkills;
 
 	std::array<std::shared_ptr<CHeroArea>, 2> heroAreas;
 	std::array<std::shared_ptr<LRClickableAreaWText>, 2> specialtyAreas;
