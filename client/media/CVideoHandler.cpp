@@ -316,6 +316,12 @@ bool CVideoInstance::loadNextFrame()
 	return true;
 }
 
+
+double CVideoInstance::timeStamp()
+{
+	return getCurrentFrameEndTime();
+}
+
 bool CVideoInstance::videoEnded()
 {
 	return getCurrentFrame() == nullptr;
@@ -385,9 +391,19 @@ void CVideoInstance::tick(uint32_t msPassed)
 	if(videoEnded())
 		throw std::runtime_error("Video already ended!");
 
-	frameTime += msPassed / 1000.0;
+	if(startTime == std::chrono::high_resolution_clock::time_point())
+		startTime = std::chrono::high_resolution_clock::now();
 
-	if(frameTime >= getCurrentFrameEndTime())
+	auto nowTime = std::chrono::high_resolution_clock::now();
+	double difference = std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - startTime).count() / 1000.0;
+
+	int frameskipCounter = 0;
+	while(!videoEnded() && difference >= getCurrentFrameEndTime() + getCurrentFrameDuration() && frameskipCounter < MAX_FRAMESKIP) // Frameskip
+	{
+		decodeNextFrame();
+		frameskipCounter++;
+	}
+	if(!videoEnded() && difference >= getCurrentFrameEndTime())
 		loadNextFrame();
 }
 
