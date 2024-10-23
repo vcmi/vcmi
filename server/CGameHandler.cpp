@@ -4276,10 +4276,21 @@ void CGameHandler::newObject(CGObjectInstance * object, PlayerColor initiator)
 
 void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)
 {
+	if (settings["general"]["saveBeforeBattle"].Bool())
+	{
+		logGlobal->debug("gameHandler save before battle.");
+		save("Saves/BATTLE");
+	}
 	battles->startBattle(army1, army2, tile, hero1, hero2, layout, town);
 }
 
 void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance *army2 )
 {
+	if (settings["general"]["saveBeforeBattle"].Bool())
+	{
+		logGlobal->debug("gameHandler save before battle.");
+		save("Saves/BATTLE");
+	}
+
 	battles->startBattle(army1, army2);
 }

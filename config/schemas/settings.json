@@ -42,7 +42,8 @@
 				"savePrefix",
 				"startTurnAutosave",
 				"enableUiEnhancements",
-				"audioMuteFocus"
+				"audioMuteFocus",
+				"saveBeforeBattle"
 			],
 			"properties" : {
 				"playerName" : {
@@ -144,6 +145,10 @@
 					"default": true
 				},
 				"audioMuteFocus" : {
+					"type": "boolean",
+					"default": false
+				},
+				"saveBeforeBattle" : {
 					"type": "boolean",
 					"default": false
 				}

@@ -1010,6 +1010,11 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <translation>自动存档</translation>
     </message>
     <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1455"/>
+        <source>Save before battle</source>
+        <translation>战斗前存档</translation>
+    </message>
+    <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="764"/>
         <source>VSync</source>
         <translation>垂直同步</translation>
