@@ -573,7 +573,8 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
 
 	if (morale && node && (node->getBonusBearer()->hasBonusOfType(BonusType::UNDEAD)
-			|| node->getBonusBearer()->hasBonusOfType(BonusType::NON_LIVING)))
+			|| node->getBonusBearer()->hasBonusOfType(BonusType::NON_LIVING)
+			|| node->getBonusBearer()->hasBonusOfType(BonusType::MECHANICAL)))
 	{
 		text += CGI->generaltexth->arraytxt[113]; //unaffected by morale
 		component.value = 0;
