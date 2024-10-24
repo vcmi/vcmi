@@ -208,13 +208,13 @@ std::vector<std::string> CModHandler::getModList(const std::string & path) const
 
 
 
-void CModHandler::loadMods(const std::string & path, const std::string & parent, const JsonNode & modSettings, bool enableMods)
+void CModHandler::loadMods(const std::string & path, const std::string & parent, const JsonNode & modSettings, const std::vector<TModID> & modsToActivate, bool enableMods)
 {
 	for(const std::string & modName : getModList(path))
-		loadOneMod(modName, parent, modSettings, enableMods);
+		loadOneMod(modName, parent, modSettings, modsToActivate, enableMods);
 }
 
-void CModHandler::loadOneMod(std::string modName, const std::string & parent, const JsonNode & modSettings, bool enableMods)
+void CModHandler::loadOneMod(std::string modName, const std::string & parent, const JsonNode & modSettings, const std::vector<TModID> & modsToActivate, bool enableMods)
 {
 	boost::to_lower(modName);
 	std::string modFullName = parent.empty() ? modName : parent + '.' + modName;
@@ -227,7 +227,8 @@ void CModHandler::loadOneMod(std::string modName, const std::string & parent, co
 
 	if(CResourceHandler::get("initial")->existsResource(CModInfo::getModFile(modFullName)))
 	{
-		CModInfo mod(modFullName, modSettings[modName], JsonNode(CModInfo::getModFile(modFullName)));
+		bool thisModActive = vstd::contains(modsToActivate, modFullName);
+		CModInfo mod(modFullName, modSettings[modName], JsonNode(CModInfo::getModFile(modFullName)), thisModActive);
 		if (!parent.empty()) // this is submod, add parent to dependencies
 			mod.dependencies.insert(parent);
 
@@ -235,7 +236,7 @@ void CModHandler::loadOneMod(std::string modName, const std::string & parent, co
 		if (mod.isEnabled() && enableMods)
 			activeMods.push_back(modFullName);
 
-		loadMods(CModInfo::getModDir(modFullName) + '/', modFullName, modSettings[modName]["mods"], enableMods && mod.isEnabled());
+		loadMods(CModInfo::getModDir(modFullName) + '/', modFullName, modSettings[modName]["mods"], modsToActivate, enableMods && mod.isEnabled());
 	}
 }
 
@@ -244,9 +245,27 @@ void CModHandler::loadMods()
 	JsonNode modConfig;
 
 	modConfig = loadModSettings(JsonPath::builtin("config/modSettings.json"));
-	loadMods("", "", modConfig["activeMods"], true);
+	const JsonNode & modSettings = modConfig["activeMods"];
+	const std::string & currentPresetName = modConfig["activePreset"].String();
+	const JsonNode & currentPreset = modConfig["presets"][currentPresetName];
+	const JsonNode & modsToActivateJson = currentPreset["mods"];
+	std::vector<TModID> modsToActivate = modsToActivateJson.convertTo<std::vector<TModID>>();
 
-	coreMod = std::make_unique<CModInfo>(ModScope::scopeBuiltin(), modConfig[ModScope::scopeBuiltin()], JsonNode(JsonPath::builtin("config/gameConfig.json")));
+	for(const auto & settings : currentPreset["settings"].Struct())
+	{
+		if (!vstd::contains(modsToActivate, settings.first))
+			continue; // settings for inactive mod
+
+		for (const auto & submod : settings.second.Struct())
+		{
+			if (submod.second.Bool())
+				modsToActivate.push_back(settings.first + '.' + submod.first);
+		}
+	}
+
+	loadMods("", "", modSettings, modsToActivate, true);
+
+	coreMod = std::make_unique<CModInfo>(ModScope::scopeBuiltin(), modConfig[ModScope::scopeBuiltin()], JsonNode(JsonPath::builtin("config/gameConfig.json")), true);
 }
 
 std::vector<std::string> CModHandler::getAllMods() const

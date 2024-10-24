@@ -40,11 +40,11 @@ CModInfo::CModInfo():
 
 }
 
-CModInfo::CModInfo(const std::string & identifier, const JsonNode & local, const JsonNode & config):
+CModInfo::CModInfo(const std::string & identifier, const JsonNode & local, const JsonNode & config, bool isActive):
 	identifier(identifier),
 	dependencies(readModList(config["depends"])),
 	conflicts(readModList(config["conflicts"])),
-	explicitlyEnabled(false),
+	explicitlyEnabled(isActive),
 	implicitlyEnabled(true),
 	validation(PENDING),
 	config(addMeta(config, identifier))
@@ -109,11 +109,9 @@ void CModInfo::loadLocalData(const JsonNode & data)
 {
 	bool validated = false;
 	implicitlyEnabled = true;
-	explicitlyEnabled = !config["keepDisabled"].Bool();
 	verificationInfo.checksum = 0;
 	if (data.isStruct())
 	{
-		explicitlyEnabled = data["active"].Bool();
 		validated = data["validated"].Bool();
 		updateChecksum(strtol(data["checksum"].String().c_str(), nullptr, 16));
 	}
