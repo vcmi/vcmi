@@ -60,6 +60,16 @@
 	"vcmi.radialWheel.moveUp" : "Move up",
 	"vcmi.radialWheel.moveDown" : "Move down",
 	"vcmi.radialWheel.moveBottom" : "Move to bottom",
+	
+	"vcmi.randomMap.description" : "Map created by the Random Map Generator.\nTemplate was %s, size %dx%d, levels %d, players %d, computers %d, water %s, monster %s, VCMI map",
+	"vcmi.randomMap.description.isHuman" : ", %s is human",
+	"vcmi.randomMap.description.townChoice" : ", %s town choice is %s",
+	"vcmi.randomMap.description.water.none" : "none",
+	"vcmi.randomMap.description.water.normal" : "normal",
+	"vcmi.randomMap.description.water.islands" : "islands",
+	"vcmi.randomMap.description.monster.weak" : "weak",
+	"vcmi.randomMap.description.monster.normal" : "normal",
+	"vcmi.randomMap.description.monster.strong" : "strong",
 
 	"vcmi.spellBook.search" : "search...",
 
