@@ -13,10 +13,9 @@
 				"index" : 0,
 				"aiValue" : 500,
 				"rmg" : {
-				}
+				},
 				
 				"message" : "@core.advevent.69",
-				
 				"bonuses" : {
 					"seaMovement" : {
 						"type" : "MOVEMENT",

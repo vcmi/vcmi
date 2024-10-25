@@ -18,8 +18,11 @@
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
 #include "../CSkillHandler.h"
+#include "../IGameCallback.h"
 #include "../TerrainHandler.h"
 #include "../VCMI_Lib.h"
+#include "../mapObjects/CGObjectInstance.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../battle/BattleInfo.h"
 #include "../constants/StringConstants.h"
 #include "../entities/hero/CHero.h"
@@ -87,7 +90,7 @@ JsonNode CAddInfo::toJsonNode() const
 		return node;
 	}
 }
-std::string Bonus::Description(std::optional<si32> customValue) const
+std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32> customValue) const
 {
 	MetaString descriptionHelper = description;
 	auto valueToShow = customValue.value_or(val);
@@ -112,6 +115,10 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 			case BonusSource::HERO_SPECIAL:
 				descriptionHelper.appendTextID(sid.as<HeroTypeID>().toEntity(VLC)->getNameTextID());
 				break;
+			case BonusSource::OBJECT_INSTANCE:
+				const auto * object = cb->getObj(sid.as<ObjectInstanceID>());
+				if (object)
+					descriptionHelper.appendTextID(VLC->objtypeh->getObjectName(object->ID, object->subID));
 		}
 	}
 

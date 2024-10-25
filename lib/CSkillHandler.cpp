@@ -122,7 +122,7 @@ CSkill::LevelInfo & CSkill::at(int level)
 DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInfo & info)
 {
 	for(int i=0; i < info.effects.size(); i++)
-		out << (i ? "," : "") << info.effects[i]->Description();
+		out << (i ? "," : "") << info.effects[i]->Description(nullptr);
 	return out << "])";
 }
 
