@@ -254,9 +254,16 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	logGlobal->info("Loading campaigns for export");
 	for (auto const & campaignName : campaignList)
 	{
-		loadedCampaigns.push_back(CampaignHandler::getCampaign(campaignName.getName()));
-		for (auto const & part : loadedCampaigns.back()->allScenarios())
-			loadedCampaigns.back()->getMap(part, nullptr);
+		try
+		{
+			loadedCampaigns.push_back(CampaignHandler::getCampaign(campaignName.getName()));
+			for (auto const & part : loadedCampaigns.back()->allScenarios())
+				loadedCampaigns.back()->getMap(part, nullptr);
+		}
+		catch(std::exception & e)
+		{
+			logGlobal->warn("Campaign %s is invalid. Message: %s", campaignName.getName(), e.what());
+		}
 	}
 
 	std::map<std::string, std::map<std::string, std::string>> textsByMod;
