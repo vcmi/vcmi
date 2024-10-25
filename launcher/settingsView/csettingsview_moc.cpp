@@ -838,6 +838,11 @@ void CSettingsView::on_sliderScalingCursor_valueChanged(int value)
 
 void CSettingsView::on_buttonScalingAuto_toggled(bool checked)
 {
+	if (checked)
+		ui->spinBoxInterfaceScaling->hide();
+	else
+		ui->spinBoxInterfaceScaling->show();
+
 	ui->spinBoxInterfaceScaling->setDisabled(checked);
 	ui->spinBoxInterfaceScaling->setValue(100);
 
