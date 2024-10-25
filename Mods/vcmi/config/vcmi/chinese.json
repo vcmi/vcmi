@@ -149,6 +149,7 @@
 	"vcmi.server.errors.modsToEnable"    : "{需要启用的mod列表}",
 	"vcmi.server.errors.modsToDisable"   : "{需要禁用的mod列表}",
 	"vcmi.server.errors.modNoDependency" : "读取mod包 {'%s'}失败!\n 需要的mod {'%s'} 没有安装或无效!\n",
+	"vcmi.server.errors.modDependencyLoop" : "读取mod包 {'%s'}失败!\n 这个mod可能存在循环（软）依赖！",
 	"vcmi.server.errors.modConflict" : "读取的mod包 {'%s'}无法运行!\n 与另一个mod {'%s'}冲突!\n",
 	"vcmi.server.errors.unknownEntity" : "加载保存失败！ 在保存的游戏中发现未知实体'%s'！ 保存可能与当前安装的mod版本不兼容！",
 

@@ -44,6 +44,9 @@ public:
 	/// list of mods that should be loaded before this one
 	std::set <TModID> dependencies;
 
+	/// list of mods if they are enabled, should be loaded before this one. this mod will overwrite any conflicting items from its soft dependency mods
+	std::set <TModID> softDependencies;
+
 	/// list of mods that can't be used in the same time as this one
 	std::set <TModID> conflicts;
 

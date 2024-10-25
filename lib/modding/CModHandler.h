@@ -66,6 +66,8 @@ public:
 
 	std::set<TModID> getModDependencies(const TModID & modId) const;
 	std::set<TModID> getModDependencies(const TModID & modId, bool & isModFound) const;
+	std::set<TModID> getModSoftDependencies(const TModID & modId) const;
+	std::set<TModID> getModEnabledSoftDependencies(const TModID & modId) const;
 
 	/// returns list of all (active) mods
 	std::vector<std::string> getAllMods() const;
