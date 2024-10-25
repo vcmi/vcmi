@@ -10,6 +10,8 @@
 #pragma once
 
 #include "CDefaultObjectTypeHandler.h"
+
+#include "../ResourceSet.h"
 #include "../bonuses/Bonus.h"
 #include "../mapObjects/FlaggableMapObject.h"
 
@@ -17,10 +19,14 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class FlaggableInstanceConstructor final : public CDefaultObjectTypeHandler<FlaggableMapObject>
 {
+	/// List of bonuses that are provided by every map object of this type
 	std::vector<std::shared_ptr<Bonus>> providedBonuses;
 
 	/// ID of message to show on hero visit
 	std::string visitMessageTextID;
+
+	/// Amount of resources granted by this object to owner every day
+	ResourceSet dailyIncome;
 
 protected:
 	void initTypeData(const JsonNode & config) override;
@@ -29,6 +35,7 @@ protected:
 public:
 	const std::string & getVisitMessageTextID() const;
 	const std::vector<std::shared_ptr<Bonus>> & getProvidedBonuses() const;
+	const ResourceSet & getDailyIncome() const;
 };
 
 VCMI_LIB_NAMESPACE_END

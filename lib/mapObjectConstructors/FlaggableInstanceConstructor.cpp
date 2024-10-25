@@ -34,6 +34,8 @@ void FlaggableInstanceConstructor::initTypeData(const JsonNode & config)
 			VLC->generaltexth->registerString( config.getModScope(), visitMessageTextID, config["message"]);
 		}
 	}
+
+	dailyIncome = ResourceSet(config["dailyIncome"]);
 }
 
 void FlaggableInstanceConstructor::initializeObject(FlaggableMapObject * flaggable) const
@@ -48,6 +50,11 @@ const std::string & FlaggableInstanceConstructor::getVisitMessageTextID() const
 const std::vector<std::shared_ptr<Bonus>> & FlaggableInstanceConstructor::getProvidedBonuses() const
 {
 	return providedBonuses;
+}
+
+const ResourceSet & FlaggableInstanceConstructor::getDailyIncome() const
+{
+	return dailyIncome;
 }
 
 VCMI_LIB_NAMESPACE_END

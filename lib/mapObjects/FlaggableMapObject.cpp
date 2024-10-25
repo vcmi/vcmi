@@ -25,7 +25,7 @@ const IOwnableObject * FlaggableMapObject::asOwnable() const
 
 ResourceSet FlaggableMapObject::dailyIncome() const
 {
-	return {};
+	return getFlaggableHandler()->getDailyIncome();
 }
 
 std::vector<CreatureID> FlaggableMapObject::providedCreatures() const
