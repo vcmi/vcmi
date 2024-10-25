@@ -20,14 +20,17 @@
 #include "../gameState/CGameState.h"
 #include "../gameState/CGameStateCampaign.h"
 #include "../gameState/TavernHeroesPool.h"
+
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGDwelling.h"
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/CQuest.h"
+#include "../mapObjects/FlaggableMapObject.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/TownBuildingInstance.h"
+
 #include "../mapping/CMap.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
@@ -73,7 +76,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<CGSirens>(15);
 	s.template registerType<CGShipyard>(16);
 	s.template registerType<CGDenOfthieves>(17);
-	s.template registerType<CGLighthouse>(18);
+	s.template registerType<FlaggableMapObject>(18);
 	s.template registerType<CGTerrainPatch>(19);
 	s.template registerType<HillFort>(20);
 	s.template registerType<CGMarket>(21);

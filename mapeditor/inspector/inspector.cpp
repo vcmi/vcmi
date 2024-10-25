@@ -60,7 +60,7 @@ Initializer::Initializer(CGObjectInstance * o, const PlayerColor & pl) : default
 	INIT_OBJ_TYPE(CGHeroPlaceholder);
 	INIT_OBJ_TYPE(CGHeroInstance);
 	INIT_OBJ_TYPE(CGSignBottle);
-	INIT_OBJ_TYPE(CGLighthouse);
+	INIT_OBJ_TYPE(FlaggableMapObject);
 	//INIT_OBJ_TYPE(CRewardableObject);
 	//INIT_OBJ_TYPE(CGPandoraBox);
 	//INIT_OBJ_TYPE(CGEvent);
@@ -108,7 +108,7 @@ void Initializer::initialize(CGShipyard * o)
 	o->tempOwner = defaultPlayer;
 }
 
-void Initializer::initialize(CGLighthouse * o)
+void Initializer::initialize(FlaggableMapObject * o)
 {
 	if(!o) return;
 	
@@ -244,7 +244,7 @@ void Inspector::updateProperties(CGDwelling * o)
 	}
 }
 
-void Inspector::updateProperties(CGLighthouse * o)
+void Inspector::updateProperties(FlaggableMapObject * o)
 {
 	if(!o) return;
 
@@ -492,7 +492,7 @@ void Inspector::updateProperties()
 	UPDATE_OBJ_PROPERTIES(CGHeroPlaceholder);
 	UPDATE_OBJ_PROPERTIES(CGHeroInstance);
 	UPDATE_OBJ_PROPERTIES(CGSignBottle);
-	UPDATE_OBJ_PROPERTIES(CGLighthouse);
+	UPDATE_OBJ_PROPERTIES(FlaggableMapObject);
 	UPDATE_OBJ_PROPERTIES(CRewardableObject);
 	UPDATE_OBJ_PROPERTIES(CGPandoraBox);
 	UPDATE_OBJ_PROPERTIES(CGEvent);
@@ -540,7 +540,7 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	SET_PROPERTIES(CGHeroInstance);
 	SET_PROPERTIES(CGShipyard);
 	SET_PROPERTIES(CGSignBottle);
-	SET_PROPERTIES(CGLighthouse);
+	SET_PROPERTIES(FlaggableMapObject);
 	SET_PROPERTIES(CRewardableObject);
 	SET_PROPERTIES(CGPandoraBox);
 	SET_PROPERTIES(CGEvent);
@@ -553,7 +553,7 @@ void Inspector::setProperty(CArmedInstance * o, const QString & key, const QVari
 	if(!o) return;
 }
 
-void Inspector::setProperty(CGLighthouse * o, const QString & key, const QVariant & value)
+void Inspector::setProperty(FlaggableMapObject * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
 }

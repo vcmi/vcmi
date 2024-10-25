@@ -121,7 +121,7 @@ void MapController::repairMap(CMap * map) const
 			   dynamic_cast<CGTownInstance*>(obj.get()) ||
 			   dynamic_cast<CGGarrison*>(obj.get()) ||
 			   dynamic_cast<CGShipyard*>(obj.get()) ||
-			   dynamic_cast<CGLighthouse*>(obj.get()) ||
+			   dynamic_cast<FlaggableMapObject*>(obj.get()) ||
 			   dynamic_cast<CGHeroInstance*>(obj.get()))
 				obj->tempOwner = PlayerColor::NEUTRAL;
 		}

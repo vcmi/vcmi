@@ -116,6 +116,7 @@ set(lib_MAIN_SRCS
 	mapObjectConstructors/CommonConstructors.cpp
 	mapObjectConstructors/CRewardableConstructor.cpp
 	mapObjectConstructors/DwellingInstanceConstructor.cpp
+	mapObjectConstructors/FlaggableInstanceConstructor.cpp
 	mapObjectConstructors/HillFortInstanceConstructor.cpp
 	mapObjectConstructors/ShipyardInstanceConstructor.cpp
 
@@ -132,6 +133,7 @@ set(lib_MAIN_SRCS
 	mapObjects/CObjectHandler.cpp
 	mapObjects/CQuest.cpp
 	mapObjects/CRewardableObject.cpp
+	mapObjects/FlaggableMapObject.cpp
 	mapObjects/IMarket.cpp
 	mapObjects/IObjectInterface.cpp
 	mapObjects/MiscObjects.cpp
@@ -497,6 +499,7 @@ set(lib_MAIN_HEADERS
 	mapObjectConstructors/CRewardableConstructor.h
 	mapObjectConstructors/DwellingInstanceConstructor.h
 	mapObjectConstructors/HillFortInstanceConstructor.h
+	mapObjectConstructors/FlaggableInstanceConstructor.h
 	mapObjectConstructors/IObjectInfo.h
 	mapObjectConstructors/RandomMapInfo.h
 	mapObjectConstructors/ShipyardInstanceConstructor.h
@@ -515,6 +518,7 @@ set(lib_MAIN_HEADERS
 	mapObjects/CObjectHandler.h
 	mapObjects/CQuest.h
 	mapObjects/CRewardableObject.h
+	mapObjects/FlaggableMapObject.h
 	mapObjects/IMarket.h
 	mapObjects/IObjectInterface.h
 	mapObjects/IOwnableObject.h

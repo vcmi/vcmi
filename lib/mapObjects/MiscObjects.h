@@ -413,28 +413,6 @@ protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 };
 
-class DLL_LINKAGE CGLighthouse : public CGObjectInstance, public IOwnableObject
-{
-public:
-	using CGObjectInstance::CGObjectInstance;
-
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj(vstd::RNG & rand) override;
-
-	const IOwnableObject * asOwnable() const final;
-	ResourceSet dailyIncome() const override;
-	std::vector<CreatureID> providedCreatures() const override;
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & static_cast<CGObjectInstance&>(*this);
-	}
-	void giveBonusTo(const PlayerColor & player, bool onInit = false) const;
-
-protected:
-	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-};
-
 class DLL_LINKAGE CGTerrainPatch : public CGObjectInstance
 {
 public:
