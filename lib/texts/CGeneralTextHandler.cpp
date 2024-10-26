@@ -139,8 +139,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	// pseudo-array, that don't have H3 file with same name
 	seerEmpty        (*this, "core.seerhut.empty"  ),
 	seerNames        (*this, "core.seerhut.names"  ),
-	capColors        (*this, "vcmi.capitalColors"  ),
-	znpc00           (*this, "vcmi.znpc00"  ) // technically - wog
+	capColors        (*this, "vcmi.capitalColors"  )
 {
 	readToVector("core.vcdesc",   "DATA/VCDESC.TXT"   );
 	readToVector("core.lcdesc",   "DATA/LCDESC.TXT"   );
@@ -292,11 +291,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 
 			scenariosCountPerCampaign.push_back(region);
 		}
-	}
-	if (VLC->engineSettings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
-	{
-		if(CResourceHandler::get()->existsResource(TextPath::builtin("DATA/ZNPC00.TXT")))
-			readToVector("vcmi.znpc00", "DATA/ZNPC00.TXT" );
 	}
 }
 

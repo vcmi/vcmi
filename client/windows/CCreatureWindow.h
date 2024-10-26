@@ -189,6 +189,7 @@ class CStackWindow : public CWindowObject
 	void init();
 
 	std::string generateStackExpDescription();
+	std::string getCommanderSkillDescription(int skillIndex, int skillLevel);
 
 public:
 	// for battles
