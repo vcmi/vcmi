@@ -140,8 +140,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	seerEmpty        (*this, "core.seerhut.empty"  ),
 	seerNames        (*this, "core.seerhut.names"  ),
 	capColors        (*this, "vcmi.capitalColors"  ),
-	znpc00           (*this, "vcmi.znpc00"  ), // technically - wog
-	qeModCommands    (*this, "vcmi.quickExchange" )
+	znpc00           (*this, "vcmi.znpc00"  ) // technically - wog
 {
 	readToVector("core.vcdesc",   "DATA/VCDESC.TXT"   );
 	readToVector("core.lcdesc",   "DATA/LCDESC.TXT"   );
@@ -165,10 +164,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.minename", "DATA/MINENAME.TXT" );
 	readToVector("core.mineevnt", "DATA/MINEEVNT.TXT" );
 	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
-
-	static const std::string QE_MOD_COMMANDS = "DATA/QECOMMANDS.TXT";
-	if (CResourceHandler::get()->existsResource(TextPath::builtin(QE_MOD_COMMANDS)))
-		readToVector("vcmi.quickExchange", QE_MOD_COMMANDS);
 
 	{
 		CLegacyConfigParser parser(TextPath::builtin("DATA/RANDTVRN.TXT"));

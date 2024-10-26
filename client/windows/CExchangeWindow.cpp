@@ -192,18 +192,52 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	if(qeLayout)
 	{
-		buttonMoveUnitsFromLeftToRight = std::make_shared<CButton>(Point(325, 118), AnimationPath::builtin("quick-exchange/armRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]), [this](){ this->moveUnitsShortcut(true); });
-		buttonMoveUnitsFromRightToLeft = std::make_shared<CButton>(Point(425, 118), AnimationPath::builtin("quick-exchange/armLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]), [this](){ this->moveUnitsShortcut(false); });
-		buttonMoveArtifactsFromLeftToRight = std::make_shared<CButton>(Point(325, 154), AnimationPath::builtin("quick-exchange/artRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]), [this](){ this->moveArtifactsCallback(true);});
-		buttonMoveArtifactsFromRightToLeft = std::make_shared<CButton>(Point(425, 154), AnimationPath::builtin("quick-exchange/artLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]), [this](){ this->moveArtifactsCallback(false);});
+		buttonMoveUnitsFromLeftToRight = std::make_shared<CButton>(
+			Point(325, 118),
+			AnimationPath::builtin("quick-exchange/armRight.DEF"),
+			CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.moveAllUnits")),
+			[this](){ this->moveUnitsShortcut(true); });
 
-		exchangeUnitsButton = std::make_shared<CButton>(Point(377, 118), AnimationPath::builtin("quick-exchange/swapAll.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[2]), [this](){ controller.swapArmy(); });
-		exchangeArtifactsButton  = std::make_shared<CButton>(Point(377, 154), AnimationPath::builtin("quick-exchange/swapAll.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[4]), [this](){ this->swapArtifactsCallback(); });
+		buttonMoveUnitsFromRightToLeft = std::make_shared<CButton>(
+			Point(425, 118),
+			AnimationPath::builtin("quick-exchange/armLeft.DEF"),
+			CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.moveAllUnits")),
+			[this](){ this->moveUnitsShortcut(false); });
 
-		backpackButtonLeft = std::make_shared<CButton>(Point(325, 518), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
+		buttonMoveArtifactsFromLeftToRight = std::make_shared<CButton>(
+			Point(325, 154), AnimationPath::builtin("quick-exchange/artRight.DEF"),
+			CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.moveAllArtifacts")),
+			[this](){ this->moveArtifactsCallback(true);});
+
+		buttonMoveArtifactsFromRightToLeft = std::make_shared<CButton>(
+			Point(425, 154), AnimationPath::builtin("quick-exchange/artLeft.DEF"),
+			CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.moveAllArtifacts")),
+			[this](){ this->moveArtifactsCallback(false);});
+
+		exchangeUnitsButton = std::make_shared<CButton>(
+			Point(377, 118),
+			AnimationPath::builtin("quick-exchange/swapAll.DEF"),
+			CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.swapAllUnits")),
+			[this](){ controller.swapArmy(); });
+
+		exchangeArtifactsButton  = std::make_shared<CButton>(
+			Point(377, 154),
+			AnimationPath::builtin("quick-exchange/swapAll.DEF"),
+			CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.swapAllArtifacts")),
+			[this](){ this->swapArtifactsCallback(); });
+
+		backpackButtonLeft = std::make_shared<CButton>(
+			Point(325, 518),
+			AnimationPath::builtin("heroBackpack"),
+			CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
 			[this](){ this->backpackShortcut(true); });
-		backpackButtonRight = std::make_shared<CButton>(Point(419, 518), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
+
+		backpackButtonRight = std::make_shared<CButton>(
+			Point(419, 518),
+			AnimationPath::builtin("heroBackpack"),
+			CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
 			[this](){ this->backpackShortcut(false); });
+
 		backpackButtonLeft->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 		backpackButtonRight->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 
@@ -227,7 +261,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 				std::make_shared<CButton>(
 					Point(484 + 35 * i, 154),
 					AnimationPath::builtin("quick-exchange/unitLeft.DEF"),
-					CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
+					CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.moveUnit")),
 					std::bind(&CExchangeController::moveStack, &controller, false, SlotID(i))));
 			moveUnitFromRightToLeftButtons.back()->block(leftHeroBlock);
 
@@ -235,7 +269,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 				std::make_shared<CButton>(
 					Point(66 + 35 * i, 154),
 					AnimationPath::builtin("quick-exchange/unitRight.DEF"),
-					CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
+					CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.moveUnit")),
 					std::bind(&CExchangeController::moveStack, &controller, true, SlotID(i))));
 			moveUnitFromLeftToRightButtons.back()->block(rightHeroBlock);
 		}

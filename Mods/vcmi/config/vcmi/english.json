@@ -42,6 +42,12 @@
 	"vcmi.heroOverview.secondarySkills" : "Secondary Skills",
 	"vcmi.heroOverview.spells" : "Spells",
 	
+	"vcmi.quickExchange.moveUnit" : "Move Unit",
+	"vcmi.quickExchange.moveAllUnits" : "Move All Units",
+	"vcmi.quickExchange.swapAllUnits" : "Swap Armies",
+	"vcmi.quickExchange.moveAllArtifacts" : "Move All Artifacts",
+	"vcmi.quickExchange.swapAllArtifacts" : "Swap Artifact"
+	
 	"vcmi.radialWheel.mergeSameUnit" : "Merge same creatures",
 	"vcmi.radialWheel.fillSingleUnit" : "Fill with single creatures",
 	"vcmi.radialWheel.splitSingleUnit" : "Split off single creature",

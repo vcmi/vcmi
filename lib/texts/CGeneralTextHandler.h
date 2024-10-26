@@ -62,8 +62,6 @@ public:
 	LegacyTextContainer fcommands; // fort screen
 	LegacyTextContainer tavernInfo;
 
-	LegacyTextContainer qeModCommands;
-
 	LegacyHelpContainer zelp;
 
 	//objects
