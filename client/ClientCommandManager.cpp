@@ -185,12 +185,12 @@ void ClientCommandManager::handleRedrawCommand()
 	GH.windows().totalRedraw();
 }
 
-void ClientCommandManager::handleTranslateGameCommand()
+void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 {
 	std::map<std::string, std::map<std::string, std::string>> textsByMod;
-	VLC->generaltexth->exportAllTexts(textsByMod);
+	VLC->generaltexth->exportAllTexts(textsByMod, onlyMissing);
 
-	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / ( onlyMissing ? "translationMissing" : "translation");
 	boost::filesystem::create_directories(outPath);
 
 	for(const auto & modEntry : textsByMod)
@@ -267,7 +267,7 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	}
 
 	std::map<std::string, std::map<std::string, std::string>> textsByMod;
-	VLC->generaltexth->exportAllTexts(textsByMod);
+	VLC->generaltexth->exportAllTexts(textsByMod, false);
 
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
 	boost::filesystem::create_directories(outPath);
@@ -598,7 +598,10 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 		handleRedrawCommand();
 
 	else if(message=="translate" || message=="translate game")
-		handleTranslateGameCommand();
+		handleTranslateGameCommand(false);
+
+	else if(message=="translate missing")
+		handleTranslateGameCommand(true);
 
 	else if(message=="translate maps")
 		handleTranslateMapsCommand();

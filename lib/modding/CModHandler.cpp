@@ -446,8 +446,8 @@ void CModHandler::loadTranslation(const TModID & modName)
 	JsonNode baseTranslation = JsonUtils::assembleFromFiles(mod.config["translations"]);
 	JsonNode extraTranslation = JsonUtils::assembleFromFiles(mod.config[preferredLanguage]["translations"]);
 
-	VLC->generaltexth->loadTranslationOverrides(modName, baseTranslation);
-	VLC->generaltexth->loadTranslationOverrides(modName, extraTranslation);
+	VLC->generaltexth->loadTranslationOverrides(modName, modBaseLanguage, baseTranslation);
+	VLC->generaltexth->loadTranslationOverrides(modName, preferredLanguage, extraTranslation);
 }
 
 void CModHandler::load()

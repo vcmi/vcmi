@@ -22,7 +22,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 std::recursive_mutex TextLocalizationContainer::globalTextMutex;
 
-void TextLocalizationContainer::registerStringOverride(const std::string & modContext, const TextIdentifier & UID, const std::string & localized)
+void TextLocalizationContainer::registerStringOverride(const std::string & modContext, const TextIdentifier & UID, const std::string & localized, const std::string & language)
 {
 	std::lock_guard globalLock(globalTextMutex);
 
@@ -41,6 +41,11 @@ void TextLocalizationContainer::registerStringOverride(const std::string & modCo
 		{
 			entry.identifierModContext = modContext;
 			entry.baseStringModContext = modContext;
+		}
+		else
+		{
+			if (language == VLC->generaltexth->getPreferredLanguage())
+				entry.overriden = true;
 		}
 	}
 	else
@@ -127,10 +132,10 @@ void TextLocalizationContainer::registerString(const std::string & identifierMod
 	}
 }
 
-void TextLocalizationContainer::loadTranslationOverrides(const std::string & modContext, const JsonNode & config)
+void TextLocalizationContainer::loadTranslationOverrides(const std::string & modContext, const std::string & language, const JsonNode & config)
 {
 	for(const auto & node : config.Struct())
-		registerStringOverride(modContext, node.first, node.second.String());
+		registerStringOverride(modContext, node.first, node.second.String(), language);
 }
 
 bool TextLocalizationContainer::identifierExists(const TextIdentifier & UID) const
@@ -140,15 +145,18 @@ bool TextLocalizationContainer::identifierExists(const TextIdentifier & UID) con
 	return stringsLocalizations.count(UID.get());
 }
 
-void TextLocalizationContainer::exportAllTexts(std::map<std::string, std::map<std::string, std::string>> & storage) const
+void TextLocalizationContainer::exportAllTexts(std::map<std::string, std::map<std::string, std::string>> & storage, bool onlyMissing) const
 {
 	std::lock_guard globalLock(globalTextMutex);
 
 	for (auto const & subContainer : subContainers)
-		subContainer->exportAllTexts(storage);
+		subContainer->exportAllTexts(storage, onlyMissing);
 
 	for (auto const & entry : stringsLocalizations)
 	{
+		if (onlyMissing && entry.second.overriden)
+			continue;
+
 		std::string textToWrite;
 		std::string modName = entry.second.baseStringModContext;
 
