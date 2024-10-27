@@ -187,8 +187,8 @@ InfoCard::InfoCard()
 		iconsVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT"), 0, 0, 24, 302);
 		iconsLossCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRLOSS"), 0, 0, 24, 359);
 
-		labelVictoryConditionText = std::make_shared<CLabel>(60, 307, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-		labelLossConditionText = std::make_shared<CLabel>(60, 366, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+		labelVictoryConditionText = std::make_shared<CLabel>(60, 307, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, "", 290);
+		labelLossConditionText = std::make_shared<CLabel>(60, 366, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, "", 290);
 
 		labelDifficulty = std::make_shared<CLabel>(62, 472, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 		labelDifficultyPercent = std::make_shared<CLabel>(311, 472, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);

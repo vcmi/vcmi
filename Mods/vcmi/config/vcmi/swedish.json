@@ -15,6 +15,8 @@
 	"vcmi.adventureMap.monsterLevel"            : "\n\nNivå: %LEVEL - Faktion: %TOWN",
 	"vcmi.adventureMap.monsterMeleeType"        : "närstrid",
 	"vcmi.adventureMap.monsterRangedType"       : "fjärrstrid",
+	"vcmi.adventureMap.search.hover"            : "Sök kartobjekt",
+	"vcmi.adventureMap.search.help"             : "Välj objekt för att söka på kartan.",
 
 	"vcmi.adventureMap.confirmRestartGame"               : "Är du säker på att du vill starta om spelet?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "Det finns inga tillgängliga marknadsplatser!",
@@ -356,8 +358,9 @@
 	"vcmi.heroWindow.sortBackpackBySlot.help"   : "Sorterar artefakter i ryggsäcken efter utrustad plats.",
 	"vcmi.heroWindow.sortBackpackByClass.hover" : "Sortera efter klass",
 	"vcmi.heroWindow.sortBackpackByClass.help"  : "Sorterar artefakter i ryggsäcken efter artefaktklass (skatt, mindre, större, relik)",
+	"vcmi.heroWindow.fusingArtifact.fusing"     : "Du har alla komponenterna som behövs för en sammanslagning av %s. Vill du utföra sammanslagningen? {Alla komponenter kommer att förbrukas vid sammanslagningen.}",
 
-	"vcmi.tavernWindow.inviteHero"  : "Bjud in hjälte",
+	"vcmi.tavernWindow.inviteHero" : "Bjud in hjälte",
 
 	"vcmi.commanderWindow.artifactMessage" : "Vill du återlämna denna artefakt till hjälten?",
 
@@ -574,7 +577,7 @@
 	"core.bonus.ENEMY_ATTACK_REDUCTION.name"             : "Avfärda attack (${val}%)",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description"      : "Ignorerar ${val}% av angriparens attack.",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.name"            : "Förbigå försvar (${val}%)",
-	"core.bonus.ENEMY_DEFENCE_REDUCTION.description"     : "Din attack ignorerar ${val}% av fiendens försvar.",
+	"core.bonus.ENEMY_DEFENCE_REDUCTION.description"     : "Attacker ignorerar ${val}% av fiendens försvar.",
 	"core.bonus.FIRE_IMMUNITY.name"                      : "Eld-immunitet",
 	"core.bonus.FIRE_IMMUNITY.description"               : "Immun mot alla eldmagi-trollformler.",
 	"core.bonus.FIRE_SHIELD.name"                        : "Eldsköld (${val}%)",
@@ -594,7 +597,7 @@
 	"core.bonus.GARGOYLE.name"                           : "Stenfigur",
 	"core.bonus.GARGOYLE.description"                    : "Kan varken upplivas eller läkas.",
 	"core.bonus.GENERAL_DAMAGE_REDUCTION.name"           : "Minska skada (${val}%)",
-	"core.bonus.GENERAL_DAMAGE_REDUCTION.description"    : "Reducerar skadan från inkommande attacker.",
+	"core.bonus.GENERAL_DAMAGE_REDUCTION.description"    : "Reducerar skadan från fiendens attacker.",
 	"core.bonus.HATE.name"                               : "Hatar: ${subtype.creature}",
 	"core.bonus.HATE.description"                        : "Gör ${val}% mer skada mot ${subtype.creature}.",
 	"core.bonus.HEALER.name"                             : "Helare",
@@ -644,7 +647,7 @@
 	"core.bonus.REVENGE.name"                            : "Hämndlysten",
 	"core.bonus.REVENGE.description"                     : "Vållar mer skada om den själv blivit skadad.",
 	"core.bonus.SHOOTER.name"                            : "Distans-attack",
-	"core.bonus.SHOOTER.description"                     : "Varelsen kan skjuta/attackera på avstånd.",
+	"core.bonus.SHOOTER.description"                     : "Skjuter/attackerar på avstånd.",
 	"core.bonus.SHOOTS_ALL_ADJACENT.name"                : "Skjuter alla i närheten",
 	"core.bonus.SHOOTS_ALL_ADJACENT.description"         : "Distans-attack drabbar alla inom räckhåll.",
 	"core.bonus.SOUL_STEAL.name"                         : "Själtjuv",
