@@ -369,6 +369,7 @@ void MapController::pasteFromClipboard(int level)
 		if (!canPlaceObject(level, obj, errorMsg))
 		{
 			errors.push_back(std::move(errorMsg));
+			continue;
 		}
 		auto newPos = objUniquePtr->pos + shift;
 		if(_map->isInTheMap(newPos))
@@ -380,8 +381,8 @@ void MapController::pasteFromClipboard(int level)
 		_scenes[level]->selectionObjectsView.selectObject(obj);
 		_mapHandler->invalidate(obj);
 	}
-
-	QMessageBox::warning(main, QObject::tr("Can't place object"), errors.join('\n'));
+	if(!errors.isEmpty())
+		QMessageBox::warning(main, QObject::tr("Can't place object"), errors.join('\n'));
 	
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->passabilityView.update();

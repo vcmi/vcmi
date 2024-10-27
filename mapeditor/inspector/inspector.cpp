@@ -172,10 +172,12 @@ void Initializer::initialize(CGTownInstance * o)
 	if(lvl > 2) o->addBuilding(BuildingID::CASTLE);
 	if(lvl > 3) o->addBuilding(BuildingID::CAPITOL);
 
-	for(auto const & spell : VLC->spellh->objects) //add all regular spells to town
+	if(o->possibleSpells.empty())
 	{
-		if(!spell->isSpecial() && !spell->isCreatureAbility())
-			o->possibleSpells.push_back(spell->id);
+		for(auto const & spellId : VLC->spellh->getDefaultAllowed()) //add all regular spells to town
+		{
+			o->possibleSpells.push_back(spellId);
+		}
 	}
 }
 
