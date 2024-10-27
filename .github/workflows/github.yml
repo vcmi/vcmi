@@ -38,6 +38,7 @@ jobs:
             os: macos-13
             test: 0
             pack: 1
+            upload: 1
             pack_type: Release
             extension: dmg
             before_install: macos.sh
@@ -50,6 +51,7 @@ jobs:
             os: macos-13
             test: 0
             pack: 1
+            upload: 1
             pack_type: Release
             extension: dmg
             before_install: macos.sh
@@ -62,6 +64,7 @@ jobs:
             os: macos-13
             test: 0
             pack: 1
+            upload: 1
             pack_type: Release
             extension: ipa
             before_install: macos.sh
@@ -89,6 +92,7 @@ jobs:
             os: ubuntu-24.04
             test: 0
             pack: 1
+            upload: 1
             pack_type: Release
             extension: exe
             cmake_args: -G Ninja
@@ -109,6 +113,7 @@ jobs:
             conan_prebuilts: dependencies-mingw-x86
           - platform: android-32
             os: ubuntu-24.04
+            upload: 1
             extension: apk
             preset: android-conan-ninja-release
             before_install: android.sh
@@ -117,6 +122,7 @@ jobs:
             artifact_platform: armeabi-v7a
           - platform: android-64
             os: ubuntu-24.04
+            upload: 1
             extension: apk
             preset: android-conan-ninja-release
             before_install: android.sh
@@ -244,11 +250,11 @@ jobs:
         elif [[ (${{matrix.preset}} == android-conan-ninja-release) && (${{github.ref}} != 'refs/heads/master') ]]
         then
             cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily" --preset ${{ matrix.preset }}
-        elif [[ (${{matrix.platform}} != msvc-x64) && (${{matrix.platform}} != msvc-x86) ]]
+        elif [[ ${{startsWith(matrix.platform, 'msvc') }} ]]
         then
-            cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
-        else
             cmake --preset ${{ matrix.preset }}
+        else
+            cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
         fi
 
     - name: Build
@@ -336,7 +342,7 @@ jobs:
             ${{github.workspace}}/**/*.pdb
 
     - name: Upload build
-      if: ${{ (matrix.pack == 1 || startsWith(matrix.platform, 'android')) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc-x64' && matrix.platform != 'msvc-x86' && matrix.platform != 'mingw-32' }}
+      if: ${{ (matrix.upload == 1) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) }}
       continue-on-error: true
       run: |
         if [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then
