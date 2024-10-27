@@ -285,6 +285,7 @@ jobs:
             sleep 3
             ((counter++))
         done
+        rm -rf _CPack_Packages
 
     - name: Artifacts
       if: ${{ matrix.pack == 1 }}
