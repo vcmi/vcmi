@@ -208,7 +208,7 @@ private:
 	CGObjectInstance * readPyramid(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readQuestGuard(const int3 & position);
 	CGObjectInstance * readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readLighthouse(const int3 & mapPosition);
+	CGObjectInstance * readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readBank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 

@@ -17,6 +17,7 @@
 #include "../lib/GameConstants.h"
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/MapObjects.h"
+#include "../lib/mapObjects/FlaggableMapObject.h"
 #include "../lib/mapObjects/CRewardableObject.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/ResourceSet.h"
@@ -48,7 +49,7 @@ public:
 	DECLARE_OBJ_TYPE(CGHeroInstance);
 	DECLARE_OBJ_TYPE(CGCreature);
 	DECLARE_OBJ_TYPE(CGSignBottle);
-	DECLARE_OBJ_TYPE(CGLighthouse);
+	DECLARE_OBJ_TYPE(FlaggableMapObject);
 	//DECLARE_OBJ_TYPE(CRewardableObject);
 	//DECLARE_OBJ_TYPE(CGEvent);
 	//DECLARE_OBJ_TYPE(CGPandoraBox);
@@ -78,7 +79,7 @@ protected:
 	DECLARE_OBJ_PROPERTY_METHODS(CGHeroInstance);
 	DECLARE_OBJ_PROPERTY_METHODS(CGCreature);
 	DECLARE_OBJ_PROPERTY_METHODS(CGSignBottle);
-	DECLARE_OBJ_PROPERTY_METHODS(CGLighthouse);
+	DECLARE_OBJ_PROPERTY_METHODS(FlaggableMapObject);
 	DECLARE_OBJ_PROPERTY_METHODS(CRewardableObject);
 	DECLARE_OBJ_PROPERTY_METHODS(CGPandoraBox);
 	DECLARE_OBJ_PROPERTY_METHODS(CGEvent);

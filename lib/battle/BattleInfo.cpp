@@ -885,12 +885,12 @@ void BattleInfo::addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool fo
 	if(forceAdd || !sta->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, value.sid).And(Selector::typeSubtypeValueType(value.type, value.subtype, value.valType))))
 	{
 		//no such effect or cumulative - add new
-		logBonus->trace("%s receives a new bonus: %s", sta->nodeName(), value.Description());
+		logBonus->trace("%s receives a new bonus: %s", sta->nodeName(), value.Description(nullptr));
 		sta->addNewBonus(std::make_shared<Bonus>(value));
 	}
 	else
 	{
-		logBonus->trace("%s updated bonus: %s", sta->nodeName(), value.Description());
+		logBonus->trace("%s updated bonus: %s", sta->nodeName(), value.Description(nullptr));
 
 		for(const auto & stackBonus : sta->getExportedBonusList()) //TODO: optimize
 		{

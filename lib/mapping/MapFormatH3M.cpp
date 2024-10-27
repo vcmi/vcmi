@@ -1478,9 +1478,9 @@ CGObjectInstance * CMapLoaderH3M::readShipyard(const int3 & mapPosition, std::sh
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readLighthouse(const int3 & mapPosition)
+CGObjectInstance * CMapLoaderH3M::readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * object = new CGLighthouse(map->cb);
+	auto * object = readGeneric(mapPosition, objectTemplate);
 	setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
 	return object;
 }
@@ -1618,7 +1618,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 			return readPyramid(mapPosition, objectTemplate);
 
 		case Obj::LIGHTHOUSE:
-			return readLighthouse(mapPosition);
+			return readLighthouse(mapPosition, objectTemplate);
 
 		case Obj::CREATURE_BANK:
 		case Obj::DERELICT_SHIP:
