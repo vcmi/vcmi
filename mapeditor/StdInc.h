@@ -11,7 +11,6 @@
 
 #include "../Global.h"
 
-#define VCMI_EDITOR_VERSION "0.2"
 #define VCMI_EDITOR_NAME "VCMI Map Editor"
 
 #include <QtWidgets>
