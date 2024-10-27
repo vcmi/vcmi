@@ -845,7 +845,6 @@ void CSettingsView::on_buttonScalingAuto_toggled(bool checked)
 	else
 	{
 		ui->spinBoxInterfaceScaling->show();
-		ui->spinBoxInterfaceScaling->setDisabled(false);
 		ui->spinBoxInterfaceScaling->setValue(100);
 	}
 	
