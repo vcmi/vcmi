@@ -42,6 +42,12 @@
 	"vcmi.heroOverview.secondarySkills" : "Habilid. Secundárias",
 	"vcmi.heroOverview.spells" : "Feitiços",
 	
+	"vcmi.quickExchange.moveUnit" : "Mover Unidade",
+	"vcmi.quickExchange.moveAllUnits" : "Mover Todas as Unidades",
+	"vcmi.quickExchange.swapAllUnits" : "Trocar Exércitos",
+	"vcmi.quickExchange.moveAllArtifacts" : "Mover Todos os Artefatos",
+	"vcmi.quickExchange.swapAllArtifacts" : "Trocar Artefato",
+	
 	"vcmi.radialWheel.mergeSameUnit" : "Mesclar criaturas iguais",
 	"vcmi.radialWheel.fillSingleUnit" : "Preencher com criaturas únicas",
 	"vcmi.radialWheel.splitSingleUnit" : "Dividir uma criatura única",
@@ -60,6 +66,16 @@
 	"vcmi.radialWheel.moveUp" : "Mover para cima",
 	"vcmi.radialWheel.moveDown" : "Mover para baixo",
 	"vcmi.radialWheel.moveBottom" : "Mover para o fundo",
+	
+	"vcmi.randomMap.description" : "Mapa criado pelo Gerador de Mapas Aleatórios.\nO modelo foi %s, tamanho %dx%d, níveis %d, jogadores %d, computadores %d, água %s, monstros %s, mapa VCMI",
+	"vcmi.randomMap.description.isHuman" : ", %s é humano",
+	"vcmi.randomMap.description.townChoice" : ", a escolha de cidade de %s é %s",
+	"vcmi.randomMap.description.water.none" : "nenhuma",
+	"vcmi.randomMap.description.water.normal" : "normal",
+	"vcmi.randomMap.description.water.islands" : "ilhas",
+	"vcmi.randomMap.description.monster.weak" : "fraco",
+	"vcmi.randomMap.description.monster.normal" : "normal",
+	"vcmi.randomMap.description.monster.strong" : "forte",
 
 	"vcmi.spellBook.search" : "Procurar...",
 
@@ -535,7 +551,9 @@
 	"core.seerhut.quest.reachDate.visit.3" : "Fechado até %s.",
 	"core.seerhut.quest.reachDate.visit.4" : "Fechado até %s.",
 	"core.seerhut.quest.reachDate.visit.5" : "Fechado até %s.",
-
+	
+	"mapObject.core.hillFort.object.description" : "Atualiza criaturas. O custo de atualização para os níveis 1 a 4 é mais vantajoso do que na cidade associada.",
+	
 	"core.bonus.ADDITIONAL_ATTACK.name" : "Ataque Duplo",
 	"core.bonus.ADDITIONAL_ATTACK.description" : "Ataca duas vezes",
 	"core.bonus.ADDITIONAL_RETALIATION.name" : "Contra-ataques Adicionais",
