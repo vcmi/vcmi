@@ -706,6 +706,7 @@
 	"core.bonus.DISINTEGRATE.description": "Nenhum corpo permanece após a morte",
 	"core.bonus.INVINCIBLE.name": "Invencível",
 	"core.bonus.INVINCIBLE.description": "Não pode ser afetado por nada",
+	
 	"spell.core.castleMoat.name": "Fosso",
 	"spell.core.castleMoatTrigger.name": "Fosso",
 	"spell.core.catapultShot.name": "Disparo de Catapulta",
