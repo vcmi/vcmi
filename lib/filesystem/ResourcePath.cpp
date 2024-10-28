@@ -51,19 +51,19 @@ static inline std::string readName(std::string name, bool uppercase)
 ResourcePath::ResourcePath(const std::string & name_):
 	type(readType(name_)),
 	name(readName(name_, true)),
-	originalName(readName(name_, false))
+	originalName(name_)
 {}
 
 ResourcePath::ResourcePath(const std::string & name_, EResType type_):
 	type(type_),
 	name(readName(name_, true)),
-	originalName(readName(name_, false))
+	originalName(name_)
 {}
 
 ResourcePath::ResourcePath(const JsonNode & name, EResType type):
 	type(type),
 	name(readName(name.String(), true)),
-	originalName(readName(name.String(), false))
+	originalName(name.String())
 {
 }
 
@@ -76,7 +76,7 @@ void ResourcePath::serializeJson(JsonSerializeFormat & handler)
 		if (node.isString())
 		{
 			name = readName(node.String(), true);
-			originalName = readName(node.String(), false);
+			originalName = node.String();
 			return;
 		}
 	}
