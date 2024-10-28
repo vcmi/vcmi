@@ -270,23 +270,6 @@
 			}
 		}
 	},
-	"lighthouse" : {
-		"index" :42,
-		"handler" : "lighthouse",
-		"base" : {
-			"sounds" : {
-				"visit" : ["LIGHTHOUSE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 500,
-				"rmg" : {
-				}
-			}
-		}
-	},
 	"obelisk" : {
 		"index" :57,
 		"handler" : "obelisk",

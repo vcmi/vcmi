@@ -581,13 +581,13 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
 	{
 		auto noMorale = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_MORALE));
-		text += "\n" + noMorale->Description();
+		text += "\n" + noMorale->Description(LOCPLINT->cb.get());
 		component.value = 0;
 	}
 	else if (!morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_LUCK))
 	{
 		auto noLuck = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_LUCK));
-		text += "\n" + noLuck->Description();
+		text += "\n" + noLuck->Description(LOCPLINT->cb.get());
 		component.value = 0;
 	}
 	else
@@ -596,7 +596,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 		for(auto & bonus : * modifierList)
 		{
 			if(bonus->val) {
-				const std::string& description = bonus->Description();
+				const std::string& description = bonus->Description(LOCPLINT->cb.get());
 				//arraytxt already contains \n
 				if (description.size() && description[0] != '\n')
 					addInfo += '\n';

@@ -121,6 +121,7 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 
 #### Extract commands
 `translate` - save game texts into json files
+`translate missing` - save untranslated game texts into json files
 `translate maps` - save map and campaign texts into json files
 `get config` - save game objects data into json files
 `get scripts` - dumps lua script stuff into files (currently inactive due to scripting disabled for default builds)

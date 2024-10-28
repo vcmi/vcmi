@@ -26,6 +26,7 @@ class IPropagator;
 class IUpdater;
 class BonusList;
 class CSelector;
+class IGameInfoCallback;
 
 using BonusSubtypeID = VariantIdentifier<BonusCustomSubtype, SpellID, CreatureID, PrimarySkill, TerrainId, GameResID, SpellSchool>;
 using BonusSourceID = VariantIdentifier<BonusCustomSource, SpellID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField>;
@@ -177,7 +178,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		val += Val;
 	}
 
-	std::string Description(std::optional<si32> customValue = {}) const;
+	std::string Description(const IGameInfoCallback * cb, std::optional<si32> customValue = {}) const;
 	JsonNode toJsonNode() const;
 
 	std::shared_ptr<Bonus> addLimiter(const TLimiterPtr & Limiter); //returns this for convenient chain-calls

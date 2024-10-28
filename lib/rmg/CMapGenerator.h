@@ -10,14 +10,12 @@
 
 #pragma once
 
-#include "../GameConstants.h"
 #include "CMapGenOptions.h"
-#include "../int3.h"
-#include "CRmgTemplate.h"
 #include "../LoadProgress.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class MetaString;
 class CRmgTemplate;
 class CMapGenOptions;
 class JsonNode;
@@ -93,7 +91,7 @@ private:
 	/// Generation methods
 	void loadConfig();
 	
-	std::string getMapDescription() const;
+	MetaString getMapDescription() const;
 
 	void initPrisonsRemaining();
 	void initQuestArtsRemaining();

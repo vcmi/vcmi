@@ -46,7 +46,7 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	void handleRedrawCommand();
 
 	// Extracts all translateable game texts into Translation directory, separating files on per-mod basis
-	void handleTranslateGameCommand();
+	void handleTranslateGameCommand(bool onlyMissing);
 
 	// Extracts all translateable texts from maps and campaigns into Translation directory, separating files on per-mod basis
 	void handleTranslateMapsCommand();

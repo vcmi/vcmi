@@ -152,41 +152,55 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	return std::move(map->mapInstance);
 }
 
-std::string CMapGenerator::getMapDescription() const
+MetaString CMapGenerator::getMapDescription() const
 {
-	assert(map);
+	const TextIdentifier mainPattern("vcmi", "randomMap", "description");
+	const TextIdentifier isHuman("vcmi", "randomMap", "description", "isHuman");
+	const TextIdentifier townChoiceIs("vcmi", "randomMap", "description", "townChoice");
+	const std::array waterContent = {
+		TextIdentifier("vcmi", "randomMap", "description", "water", "none"),
+		TextIdentifier("vcmi", "randomMap", "description", "water", "normal"),
+		TextIdentifier("vcmi", "randomMap", "description", "water", "islands")
+	};
+	const std::array monsterStrength = {
+		TextIdentifier("vcmi", "randomMap", "description", "monster", "weak"),
+		TextIdentifier("vcmi", "randomMap", "description", "monster", "normal"),
+		TextIdentifier("vcmi", "randomMap", "description", "monster", "strong")
+	};
 
-	const std::string waterContentStr[3] = { "none", "normal", "islands" };
-	const std::string monsterStrengthStr[3] = { "weak", "normal", "strong" };
-
-	int monsterStrengthIndex = mapGenOptions.getMonsterStrength() - EMonsterStrength::GLOBAL_WEAK; //does not start from 0
 	const auto * mapTemplate = mapGenOptions.getMapTemplate();
+	int monsterStrengthIndex = mapGenOptions.getMonsterStrength() - EMonsterStrength::GLOBAL_WEAK; //does not start from 0
 
-	if(!mapTemplate)
-		throw rmgException("Map template for Random Map Generator is not found. Could not start the game.");
+	MetaString result = MetaString::createFromTextID(mainPattern.get());
 
-    std::stringstream ss;
-    ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, size %dx%d") +
-        ", levels %d, players %d, computers %d, water %s, monster %s, VCMI map") % mapTemplate->getName() %
-		map->width() % map->height() % static_cast<int>(map->levels()) % static_cast<int>(mapGenOptions.getHumanOrCpuPlayerCount()) %
-		static_cast<int>(mapGenOptions.getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions.getWaterContent()] %
-		monsterStrengthStr[monsterStrengthIndex]);
+	result.replaceRawString(mapTemplate->getName());
+	result.replaceNumber(map->width());
+	result.replaceNumber(map->height());
+	result.replaceNumber(map->levels());
+	result.replaceNumber(mapGenOptions.getHumanOrCpuPlayerCount());
+	result.replaceNumber(mapGenOptions.getCompOnlyPlayerCount());
+	result.replaceTextID(waterContent.at(mapGenOptions.getWaterContent()).get());
+	result.replaceTextID(monsterStrength.at(monsterStrengthIndex).get());
 
 	for(const auto & pair : mapGenOptions.getPlayersSettings())
 	{
 		const auto & pSettings = pair.second;
+
 		if(pSettings.getPlayerType() == EPlayerType::HUMAN)
 		{
-			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()] << " is human";
+			result.appendTextID(isHuman.get());
+			result.replaceName(pSettings.getColor());
 		}
+
 		if(pSettings.getStartingTown() != FactionID::RANDOM)
 		{
-			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()]
-			   << " town choice is " << (*VLC->townh)[pSettings.getStartingTown()]->getNameTranslated();
+			result.appendTextID(townChoiceIs.get());
+			result.replaceName(pSettings.getColor());
+			result.replaceName(pSettings.getStartingTown());
 		}
 	}
 
-	return ss.str();
+	return result;
 }
 
 void CMapGenerator::addPlayerInfo()
@@ -451,7 +465,7 @@ void CMapGenerator::addHeaderInfo()
 	m.height = mapGenOptions.getHeight();
 	m.twoLevel = mapGenOptions.getHasTwoLevels();
 	m.name.appendLocalString(EMetaText::GENERAL_TXT, 740);
-	m.description.appendRawString(getMapDescription());
+	m.description = getMapDescription();
 	m.difficulty = EMapDifficulty::NORMAL;
 	addPlayerInfo();
 	m.waterMap = (mapGenOptions.getWaterContent() != EWaterContent::EWaterContent::NONE);

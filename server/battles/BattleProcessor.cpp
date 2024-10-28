@@ -28,10 +28,12 @@
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/CPlayerState.h"
+#include <vstd/RNG.h>
 
 BattleProcessor::BattleProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)
@@ -156,16 +158,24 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 {
 	const auto & t = *gameHandler->getTile(tile);
 	TerrainId terrain = t.terType->getId();
-	if (gameHandler->gameState()->map->isCoastalTile(tile)) //coastal tile is always ground
+	if (town)
+		terrain = town->getNativeTerrain();
+	else if (gameHandler->gameState()->map->isCoastalTile(tile)) //coastal tile is always ground
 		terrain = ETerrainId::SAND;
 
-	BattleField terType = gameHandler->gameState()->battleGetBattlefieldType(tile, gameHandler->getRandomGenerator());
-	if (heroes[BattleSide::ATTACKER] && heroes[BattleSide::ATTACKER]->boat && heroes[BattleSide::DEFENDER] && heroes[BattleSide::DEFENDER]->boat)
-		terType = BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.ship_to_ship"));
+	BattleField battlefieldType = gameHandler->gameState()->battleGetBattlefieldType(tile, gameHandler->getRandomGenerator());
+
+	if (town)
+	{
+		const TerrainType* terrainData = VLC->terrainTypeHandler->getById(terrain);
+		battlefieldType = BattleField(*RandomGeneratorUtil::nextItem(terrainData->battleFields, gameHandler->getRandomGenerator()));
+	}
+	else if (heroes[BattleSide::ATTACKER] && heroes[BattleSide::ATTACKER]->boat && heroes[BattleSide::DEFENDER] && heroes[BattleSide::DEFENDER]->boat)
+		battlefieldType = BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.ship_to_ship"));
 
 	//send info about battles
 	BattleStart bs;
-	bs.info = BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, layout, town);
+	bs.info = BattleInfo::setupBattle(tile, terrain, battlefieldType, armies, heroes, layout, town);
 	bs.battleID = gameHandler->gameState()->nextBattleID;
 
 	engageIntoBattle(bs.info->getSide(BattleSide::ATTACKER).color);
