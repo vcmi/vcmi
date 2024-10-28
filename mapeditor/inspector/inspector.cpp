@@ -18,7 +18,6 @@
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
-#include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/constants/StringConstants.h"
 
@@ -339,7 +338,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	{
 		const int maxRadius = 60;
 		auto * patrolDelegate = new InspectorDelegate;
-		patrolDelegate->options = { {QObject::tr("No patrol"), QVariant::fromValue(CGHeroInstance::NO_PATROLLING)} };
+		patrolDelegate->options = { {QObject::tr("No patrol"), QVariant::fromValue(-1)} };
 		for(int i = 0; i <= maxRadius; ++i)
 			patrolDelegate->options.push_back({ QObject::tr("%1 tile(s)").arg(i), QVariant::fromValue(i) });
 		auto patrolRadiusText = o->patrol.patrolling ? QObject::tr("%1 tile(s)").arg(o->patrol.patrolRadius) : QObject::tr("No patrol");
@@ -724,9 +723,9 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 
 	if(key == "Patrol radius")
 	{
-		o->patrol.patrolRadius = value.toInt();
-		if(o->patrol.patrolRadius != CGHeroInstance::NO_PATROLLING)
-			o->patrol.patrolling = true;
+		auto radius = value.toInt();
+		o->patrol.patrolRadius = radius;
+		o->patrol.patrolling = radius != -1;
 	}
 }
 
