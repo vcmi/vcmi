@@ -115,6 +115,73 @@ jobs:
             conan_profile: android-64-ndk
             conan_prebuilts: dependencies-android-arm64-v8a
             artifact_platform: arm64-v8a
+
+          #
+          # MMAI builds
+          #
+          - platform: linux
+            os: ubuntu-20.04
+            test: 0
+            before_install: linux_qt5.sh
+            preset: linux-gcc-debug
+            mmai_deps: linux-x64
+          - platform: mac-intel
+            os: macos-13
+            test: 0
+            pack: 1
+            pack_type: Release
+            extension: dmg
+            before_install: macos.sh
+            preset: macos-conan-ninja-release
+            conan_profile: macos-intel
+            conan_prebuilts: dependencies-mac-intel
+            conan_options: --options with_apple_system_libs=True
+            artifact_platform: intel
+            mmai_deps: macos-x64
+          - platform: mac-arm
+            os: macos-13
+            test: 0
+            pack: 1
+            pack_type: Release
+            extension: dmg
+            before_install: macos.sh
+            preset: macos-arm-conan-ninja-release
+            conan_profile: macos-arm
+            conan_prebuilts: dependencies-mac-arm
+            conan_options: --options with_apple_system_libs=True
+            artifact_platform: arm
+            mmai_deps: macos-arm64
+          - platform: ios
+            os: macos-13
+            test: 0
+            pack: 1
+            pack_type: Release
+            extension: ipa
+            before_install: macos.sh
+            preset: ios-release-conan-ccache
+            conan_profile: ios-arm64
+            conan_prebuilts: dependencies-ios
+            conan_options: --options with_apple_system_libs=True
+            mmai_deps: ios-arm64
+          - platform: msvc
+            os: windows-latest
+            test: 0
+            pack: 1
+            pack_type: RelWithDebInfo
+            extension: exe
+            before_install: msvc.sh
+            preset: windows-msvc-release
+            mmai_deps: win-x64
+          - platform: android-64
+            os: ubuntu-24.04
+            extension: apk
+            preset: android-conan-ninja-release
+            before_install: android.sh
+            conan_profile: android-64-ndk
+            conan_prebuilts: dependencies-android-arm64-v8a
+            artifact_platform: arm64-v8a
+            mmai_deps: android-arm64
+
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -135,6 +202,10 @@ jobs:
     - name: Install Conan Dependencies
       if: "${{ matrix.conan_prebuilts != '' }}"
       run: source '${{github.workspace}}/CI/install_conan_dependencies.sh' '${{matrix.conan_prebuilts}}'
+
+    - name: Install MMAI dependencies
+      if: "${{ matrix.mmai_deps != '' }}"
+      run: source '${{github.workspace}}/CI/install_mmai_dependencies.sh' '${{matrix.mmai_deps}}'
 
     # ensure the ccache for each PR is separate so they don't interfere with each other
     # fall back to ccache of the vcmi/vcmi repo if no PR-specific ccache is found
@@ -215,6 +286,9 @@ jobs:
     - name: Build Number
       run: |
         source '${{github.workspace}}/CI/get_package_name.sh'
+        if [ '${{matrix.mmai_deps}}' ]; then
+          VCMI_PACKAGE_FILE_NAME+="-mmai"
+        fi
         if [ '${{ matrix.artifact_platform }}' ]; then
           VCMI_PACKAGE_FILE_NAME+="-${{ matrix.artifact_platform }}"
         fi
@@ -226,17 +300,24 @@ jobs:
 
     - name: Configure
       run: |
+        if [ '${{matrix.mmai_deps}}' ]
+        then
+          MMAI_FLAGS="-DENABLE_MMAI=ON"
+        else
+          MMAI_FLAGS=""
+        fi
+
         if [[ ${{matrix.preset}} == linux-gcc-test ]]
         then
-            cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 --preset ${{ matrix.preset }}
+            cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 $MMAI_FLAGS --preset ${{ matrix.preset }}
         elif [[ (${{matrix.preset}} == android-conan-ninja-release) && (${{github.ref}} != 'refs/heads/master') ]]
         then
-            cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily" --preset ${{ matrix.preset }}
+            cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily" $MMAI_FLAGS --preset ${{ matrix.preset }}
         elif [[ ${{matrix.platform}} != msvc ]]
         then
-            cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
+            cmake -DENABLE_CCACHE:BOOL=ON $MMAI_FLAGS --preset ${{ matrix.preset }}
         else
-            cmake --preset ${{ matrix.preset }}
+            cmake $MMAI_FLAGS --preset ${{ matrix.preset }}
         fi
 
     - name: Build
@@ -373,7 +454,7 @@ jobs:
           run: |
             find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./test/googletest \
             -o -path ./osx  -prune -o -type f \
-            -not -name '*.png' -and -not -name '*.ttf' -and -not -name '*.wav' -and -not -name '*.webm' -and -not -name '*.ico' -and -not -name '*.bat' -print0 | \
+            -not -name '*.png' -and -not -name '*.ttf' -and -not -name '*.wav' -and -not -name '*.webm' -and -not -name '*.ico' -and -not -name '*.bat' -and -not -name '*.pt' -print0 | \
             { ! xargs -0 grep -l -z -P '\r\n'; }
 
         - name: Validate JSON

@@ -39,5 +39,6 @@ public:
 
 	bool isDebugEnabled() const override {return true;}
 	bool isTraceEnabled() const override {return true;}
+	ELogLevel::ELogLevel getLevel() const override {return ELogLevel::WARN;}
 };
 
