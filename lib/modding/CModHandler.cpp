@@ -137,8 +137,8 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 		if(!resolvedOnCurrentTreeLevel.empty())
 		{
 			resolvedModIDs.insert(resolvedOnCurrentTreeLevel.begin(), resolvedOnCurrentTreeLevel.end());
-			for(auto it = resolvedOnCurrentTreeLevel.begin(); it != resolvedOnCurrentTreeLevel.end(); it++)
-				notResolvedModIDs.erase(*it);
+			for(const auto & it : resolvedOnCurrentTreeLevel)
+				notResolvedModIDs.erase(it);
 			continue;
 		}
 		// If there are no valid mods on the current mods tree level, no more mod can be resolved, should be ended.
