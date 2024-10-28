@@ -1874,5 +1874,6 @@ const IOwnableObject * CGHeroInstance::asOwnable() const
 	return this;
 }
 
+inline constexpr int CGHeroInstance::NO_PATROLLING;
 
 VCMI_LIB_NAMESPACE_END
