@@ -85,7 +85,7 @@ void CArtifactsOfHeroBase::init(
 	setRedrawParent(true);
 }
 
-void CArtifactsOfHeroBase::setClickPrassedArtPlacesCallback(const CArtPlace::ClickFunctor & callback) const
+void CArtifactsOfHeroBase::setClickPressedArtPlacesCallback(const CArtPlace::ClickFunctor & callback) const
 {
 	for(const auto & [slot, artPlace] : artWorn)
 		artPlace->setClickPressedCallback(callback);
@@ -101,7 +101,7 @@ void CArtifactsOfHeroBase::setShowPopupArtPlacesCallback(const CArtPlace::ClickF
 		artPlace->setShowPopupCallback(callback);
 }
 
-void CArtifactsOfHeroBase::clickPrassedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
+void CArtifactsOfHeroBase::clickPressedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
 	auto ownedPlace = getArtPlace(cursorPosition);
 	assert(ownedPlace != nullptr);

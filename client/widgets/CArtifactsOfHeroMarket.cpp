@@ -15,14 +15,14 @@
 CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position, const int selectionWidth)
 {
 	init(position, std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
-	setClickPrassedArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
+	setClickPressedArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::clickPressedArtPlace, this, _1, _2));
 	for(const auto & [slot, artPlace] : artWorn)
 		artPlace->setSelectionWidth(selectionWidth);
 	for(auto artPlace : backpack)
 		artPlace->setSelectionWidth(selectionWidth);
 };
 
-void CArtifactsOfHeroMarket::clickPrassedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
+void CArtifactsOfHeroMarket::clickPressedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
 	auto ownedPlace = getArtPlace(cursorPosition);
 	assert(ownedPlace != nullptr);

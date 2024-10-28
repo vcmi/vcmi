@@ -295,14 +295,15 @@ void CSecSkillPlace::setLevel(const uint8_t level)
 	assert(level <= 3);
 	if(skillId != SecondarySkill::NONE && level > 0)
 	{
-		image->setFrame(skillId.toSkill()->getIconIndex() + level - 1);
+		const auto secSkill = skillId.toSkill();
+		image->setFrame(secSkill->getIconIndex(level - 1));
 		image->enable();
 		auto hoverText = MetaString::createFromRawString(CGI->generaltexth->heroscrn[21]);
 		hoverText.replaceRawString(CGI->generaltexth->levels[level - 1]);
-		hoverText.replaceTextID(SecondarySkill(skillId).toSkill()->getNameTextID());
+		hoverText.replaceTextID(secSkill->getNameTextID());
 		this->hoverText = hoverText.toString();
 		component.value = level;
-		text = CGI->skillh->getByIndex(skillId)->getDescriptionTranslated(level);
+		text = secSkill->getDescriptionTranslated(level);
 	}
 	else
 	{

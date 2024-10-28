@@ -40,7 +40,7 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack()
 		visibleCapacityMax = visibleCapacityMax > backpackCap ? backpackCap : visibleCapacityMax;
 
 	initAOHbackpack(visibleCapacityMax, backpackCap < 0 || visibleCapacityMax < backpackCap);
-	setClickPrassedArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
+	setClickPressedArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::clickPressedArtPlace, this, _1, _2));
 	setShowPopupArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 }
 
@@ -173,7 +173,7 @@ void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
 		slotsColumnsMax = ceilf(sqrtf(requiredSlots));
 		slotsRowsMax = calcRows(requiredSlots);
 		initAOHbackpack(requiredSlots, false);
-		setClickPrassedArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
+		setClickPressedArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::clickPressedArtPlace, this, _1, _2));
 		auto artPlace = backpack.begin();
 		for(auto & art : filteredArts)
 			setSlotData(*artPlace++, curHero->getArtPos(art.second));
