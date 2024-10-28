@@ -1749,21 +1749,20 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	CArmedInstance::serializeJsonOptions(handler);
 
 	{
-		static constexpr int NO_PATROLING = -1;
-		int rawPatrolRadius = NO_PATROLING;
+		int rawPatrolRadius = NO_PATROLLING;
 
 		if(handler.saving)
 		{
-			rawPatrolRadius = patrol.patrolling ? patrol.patrolRadius : NO_PATROLING;
+			rawPatrolRadius = patrol.patrolling ? patrol.patrolRadius : NO_PATROLLING;
 		}
 
-		handler.serializeInt("patrolRadius", rawPatrolRadius, NO_PATROLING);
+		handler.serializeInt("patrolRadius", rawPatrolRadius, NO_PATROLLING);
 
 		if(!handler.saving)
 		{
-			patrol.patrolling = (rawPatrolRadius > NO_PATROLING);
+			patrol.patrolling = (rawPatrolRadius > NO_PATROLLING);
 			patrol.initialPos = visitablePos();
-			patrol.patrolRadius = (rawPatrolRadius > NO_PATROLING) ? rawPatrolRadius : 0;
+			patrol.patrolRadius = (rawPatrolRadius > NO_PATROLLING) ? rawPatrolRadius : 0;
 		}
 	}
 }
