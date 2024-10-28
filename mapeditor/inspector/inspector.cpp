@@ -18,6 +18,7 @@
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/constants/StringConstants.h"
 
