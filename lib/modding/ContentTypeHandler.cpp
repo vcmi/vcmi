@@ -201,7 +201,8 @@ void ContentTypeHandler::afterLoadFinalization()
 			for (auto const & conflictModEntry: conflictModData.Struct())
 				conflictingMods.insert(conflictModEntry.first);
 
-			for (auto const & modID : conflictingMods) {
+			for (auto const & modID : conflictingMods)
+			{
 				resolvedConflicts.merge(VLC->modh->getModDependencies(modID));
 				resolvedConflicts.merge(VLC->modh->getModEnabledSoftDependencies(modID));
 			}
