@@ -393,7 +393,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 
 	auto getSkillDescription = [this](int skillIndex) -> std::string
 	{
-		return CGI->generaltexth->znpc00[152 + (12 * skillIndex) + (parent->info->commander->secondarySkills[skillIndex] * 2)];
+		return parent->getCommanderSkillDescription(skillIndex, parent->info->commander->secondarySkills[skillIndex]);
 	};
 
 	for(int index = ECommander::ATTACK; index <= ECommander::SPELL_POWER; ++index)
@@ -905,14 +905,30 @@ std::string CStackWindow::generateStackExpDescription()
 	return expText;
 }
 
+std::string CStackWindow::getCommanderSkillDescription(int skillIndex, int skillLevel)
+{
+	constexpr std::array skillNames = {
+		"attack",
+		"defence",
+		"health",
+		"damage",
+		"speed",
+		"magic"
+	};
+
+	std::string textID = TextIdentifier("vcmi", "commander", "skill", skillNames.at(skillIndex), skillLevel).get();
+
+	return CGI->generaltexth->translate(textID);
+}
+
 void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIcon> newIcon)
 {
 	auto getSkillDescription = [this](int skillIndex, bool selected) -> std::string
 	{
 		if(selected)
-			return CGI->generaltexth->znpc00[152 + (12 * skillIndex) + ((info->commander->secondarySkills[skillIndex] + 1) * 2)]; //upgrade description
+			return getCommanderSkillDescription(skillIndex, info->commander->secondarySkills[skillIndex] + 1); //upgrade description
 		else
-			return CGI->generaltexth->znpc00[152 + (12 * skillIndex) + (info->commander->secondarySkills[skillIndex] * 2)];
+			return getCommanderSkillDescription(skillIndex, info->commander->secondarySkills[skillIndex]);
 	};
 
 	auto getSkillImage = [this](int skillIndex)

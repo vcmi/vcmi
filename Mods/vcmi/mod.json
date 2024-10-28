@@ -127,6 +127,7 @@
 
 	"factions" : [ "config/vcmi/towerFactions" ],
 	"creatures" : [ "config/vcmi/towerCreature" ],
+	"spells" : [ "config/vcmi/spells" ],
 
 	"translations" : [
 		"config/vcmi/english.json"

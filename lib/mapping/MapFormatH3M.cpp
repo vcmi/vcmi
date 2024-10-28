@@ -208,6 +208,9 @@ void CMapLoaderH3M::readHeader()
 
 	// optimization - load mappings only once to avoid slow parsing of map headers for map list
 	static const std::map<EMapFormat, MapIdentifiersH3M> identifierMappers = generateMappings();
+	if (!identifierMappers.count(mapHeader->version))
+		throw std::runtime_error("Unsupported map format! Format ID " + std::to_string(static_cast<int>(mapHeader->version)));
+
 	const MapIdentifiersH3M & identifierMapper = identifierMappers.at(mapHeader->version);
 
 	reader->setIdentifierRemapper(identifierMapper);

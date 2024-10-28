@@ -55,7 +55,7 @@
 	{
 		"targetType" : "CREATURE",
 		"type": "combat",
-		"name": "Land Mine",
+		"name": "",
 		"school":
 		{
 			"air": false,
@@ -237,7 +237,7 @@
 	"fireWallTrigger" : {
 		"targetType" : "CREATURE",
 		"type": "combat",
-		"name": "Fire Wall",
+		"name": "",
 		"school":
 		{
 			"air": false,
