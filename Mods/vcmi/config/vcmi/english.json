@@ -687,5 +687,7 @@
 	"core.bonus.DISINTEGRATE.name": "Disintegrate",
 	"core.bonus.DISINTEGRATE.description": "No corpse remains after death",
 	"core.bonus.INVINCIBLE.name": "Invincible",
-	"core.bonus.INVINCIBLE.description": "Cannot be affected by anything"
+	"core.bonus.INVINCIBLE.description": "Cannot be affected by anything",
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "Prism Breath",
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prism Breath Attack (three directions)"
 }
