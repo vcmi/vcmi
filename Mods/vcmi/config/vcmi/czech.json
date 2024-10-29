@@ -42,6 +42,12 @@
 	"vcmi.heroOverview.secondarySkills" : "Druhotné schopnosti",
 	"vcmi.heroOverview.spells" : "Kouzla",
 	
+	"vcmi.quickExchange.moveUnit" : "Přesunout jednotku",
+	"vcmi.quickExchange.moveAllUnits" : "Přesunout všechny jednotky",
+	"vcmi.quickExchange.swapAllUnits" : "Vyměnit armády",
+	"vcmi.quickExchange.moveAllArtifacts" : "Přesunout všechny artefakty",
+	"vcmi.quickExchange.swapAllArtifacts" : "Vyměnit artefakt",
+	
 	"vcmi.radialWheel.mergeSameUnit" : "Sloučit stejné jednotky",
 	"vcmi.radialWheel.fillSingleUnit" : "Vyplnit jednou jednotkou",
 	"vcmi.radialWheel.splitSingleUnit" : "Rozdělit jedinou jednotku",
@@ -60,8 +66,18 @@
 	"vcmi.radialWheel.moveUp" : "Posunout výše",
 	"vcmi.radialWheel.moveDown" : "Posunout níže",
 	"vcmi.radialWheel.moveBottom" : "Přesunout dolů",
+	
+	"vcmi.randomMap.description" : "Mapa vytvořená Generátorem náhodných map.\nŠablona: %s, rozměry: %dx%d, úroveň: %d, hráči: %d, AI hráči: %d, množství vody: %s, síla jednotek: %s, VCMI mapa",
+	"vcmi.randomMap.description.isHuman" : ", %s je lidský hráč",
+	"vcmi.randomMap.description.townChoice" : ", volba města pro %s je %s",
+	"vcmi.randomMap.description.water.none" : "žádná",
+	"vcmi.randomMap.description.water.normal" : "normální",
+	"vcmi.randomMap.description.water.islands" : "ostrovy",
+	"vcmi.randomMap.description.monster.weak" : "nízká",
+	"vcmi.randomMap.description.monster.normal" : "normální",
+	"vcmi.randomMap.description.monster.strong" : "vysoká",
 
-	"vcmi.spellBook.search" : "Hledat kouzlo",
+	"vcmi.spellBook.search" : "Hledat",
 
 	"vcmi.spellResearch.canNotAfford" : "Nemáte dostatek prostředků k nahrazení {%SPELL1} za {%SPELL2}. Stále však můžete toto kouzlo zrušit a pokračovat ve výzkumu kouzel.",
 	"vcmi.spellResearch.comeAgain" : "Výzkum už byl dnes proveden. Vraťte se zítra.",
@@ -688,4 +704,6 @@
 	"core.bonus.DISINTEGRATE.description": "Po smrti nezůstane žádné tělo",
 	"core.bonus.INVINCIBLE.name": "Neporazitelný",
 	"core.bonus.INVINCIBLE.description": "Nelze ovlivnit žádným efektem"
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "Trojitý dech",
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Útok trojitým dechem (útok přes 3 směry)"
 }
