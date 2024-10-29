@@ -391,10 +391,10 @@ void CVideoInstance::tick(uint32_t msPassed)
 	if(videoEnded())
 		throw std::runtime_error("Video already ended!");
 
-	if(startTime == std::chrono::high_resolution_clock::time_point())
-		startTime = std::chrono::high_resolution_clock::now();
+	if(startTime == std::chrono::steady_clock::time_point())
+		startTime = std::chrono::steady_clock::now();
 
-	auto nowTime = std::chrono::high_resolution_clock::now();
+	auto nowTime = std::chrono::steady_clock::now();
 	double difference = std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - startTime).count() / 1000.0;
 
 	int frameskipCounter = 0;
@@ -405,6 +405,22 @@ void CVideoInstance::tick(uint32_t msPassed)
 	}
 	if(!videoEnded() && difference >= getCurrentFrameEndTime())
 		loadNextFrame();
+}
+
+
+void CVideoInstance::activate()
+{
+	if(deactivationStartTime != std::chrono::steady_clock::time_point())
+	{
+		auto pauseDuration = std::chrono::steady_clock::now() - deactivationStartTime;
+		startTime += pauseDuration;
+		deactivationStartTime = std::chrono::steady_clock::time_point();
+	}
+}
+
+void CVideoInstance::deactivate()
+{
+	deactivationStartTime = std::chrono::steady_clock::now();
 }
 
 struct FFMpegFormatDescription

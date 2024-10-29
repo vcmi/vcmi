@@ -50,7 +50,8 @@ void VideoWidgetBase::playVideo(const VideoPath & fileToPlay)
 	{
 		pos.w = videoInstance->size().x;
 		pos.h = videoInstance->size().y;
-		subTitle = std::make_unique<CMultiLineLabel>(Rect(0, (pos.h / 5) * 4, pos.w, pos.h / 5), EFonts::FONT_HIGH_SCORE, ETextAlignment::CENTER, Colors::WHITE);
+		if(!subTitleData.isNull())
+			subTitle = std::make_unique<CMultiLineLabel>(Rect(0, (pos.h / 5) * 4, pos.w, pos.h / 5), EFonts::FONT_HIGH_SCORE, ETextAlignment::CENTER, Colors::WHITE);
 	}
 
 	if (playAudio)
@@ -121,13 +122,20 @@ std::string VideoWidgetBase::getSubTitleLine(double timestamp)
 void VideoWidgetBase::activate()
 {
 	CIntObject::activate();
-	startAudio();
+	if(audioHandle != -1)
+		CCS->soundh->resumeSound(audioHandle);
+	else
+		startAudio();
+	if(videoInstance)
+		videoInstance->activate();
 }
 
 void VideoWidgetBase::deactivate()
 {
 	CIntObject::deactivate();
-	stopAudio();
+	CCS->soundh->pauseSound(audioHandle);
+	if(videoInstance)
+		videoInstance->deactivate();
 }
 
 void VideoWidgetBase::showAll(Canvas & to)

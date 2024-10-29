@@ -78,7 +78,8 @@ class CVideoInstance final : public IVideoInstance, public FFMpegStream
 	Point dimensions;
 
 	/// video playback start time point
-	std::chrono::high_resolution_clock::time_point startTime;
+	std::chrono::steady_clock::time_point startTime;
+	std::chrono::steady_clock::time_point deactivationStartTime;
 
 	void prepareOutput(float scaleFactor, bool useTextureOutput);
 	
@@ -96,6 +97,8 @@ public:
 
 	void show(const Point & position, Canvas & canvas) final;
 	void tick(uint32_t msPassed) final;
+	void activate() final;
+	void deactivate() final;
 };
 
 class CVideoPlayer final : public IVideoPlayer
