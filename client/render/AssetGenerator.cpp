@@ -178,10 +178,10 @@ void AssetGenerator::createCombatUnitNumberWindow()
 	if(CResourceHandler::get()->existsResource(savePathDefault)) // overridden by mod, no generation
 		return;
 
-	if(!CResourceHandler::get("local")->createResource(savePathDefault.getOriginalName() + ".png") ||
-	   !CResourceHandler::get("local")->createResource(savePathNeutral.getOriginalName() + ".png") ||
-	   !CResourceHandler::get("local")->createResource(savePathPositive.getOriginalName() + ".png") ||
-	   !CResourceHandler::get("local")->createResource(savePathNegative.getOriginalName() + ".png"))
+	if(!CResourceHandler::get("local")->createResource(savePathDefault.getOriginalName()) ||
+	   !CResourceHandler::get("local")->createResource(savePathNeutral.getOriginalName()) ||
+	   !CResourceHandler::get("local")->createResource(savePathPositive.getOriginalName()) ||
+	   !CResourceHandler::get("local")->createResource(savePathNegative.getOriginalName()))
 		return;
 
 	auto locator = ImageLocator(ImagePath::builtin("CMNUMWIN"));
