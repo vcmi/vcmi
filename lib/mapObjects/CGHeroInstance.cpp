@@ -49,6 +49,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+const ui32 CGHeroInstance::NO_PATROLLING = std::numeric_limits<ui32>::max();
+
 void CGHeroPlaceholder::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	serializeJsonOwner(handler);
