@@ -187,7 +187,7 @@
 					"bonuses": [
 						{
 							"type": "PRIMARY_SKILL",
-							"subtype": "primarySkill.defence",
+							"subtype": "primarySkill.attack",
 							"val": 2
 						}
 					],
