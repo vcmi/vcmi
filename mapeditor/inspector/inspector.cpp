@@ -338,7 +338,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	{
 		const int maxRadius = 60;
 		auto * patrolDelegate = new InspectorDelegate;
-		patrolDelegate->options = { {QObject::tr("No patrol"), QVariant::fromValue(-1)} };
+		patrolDelegate->options = { {QObject::tr("No patrol"), QVariant::fromValue(std::numeric_limits<ui32>::max())} };
 		for(int i = 0; i <= maxRadius; ++i)
 			patrolDelegate->options.push_back({ QObject::tr("%1 tile(s)").arg(i), QVariant::fromValue(i) });
 		auto patrolRadiusText = o->patrol.patrolling ? QObject::tr("%1 tile(s)").arg(o->patrol.patrolRadius) : QObject::tr("No patrol");
@@ -725,7 +725,7 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 	{
 		auto radius = value.toInt();
 		o->patrol.patrolRadius = radius;
-		o->patrol.patrolling = radius != -1;
+		o->patrol.patrolling = radius != std::numeric_limits<ui32>::max();
 	}
 }
 
