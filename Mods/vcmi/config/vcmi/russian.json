@@ -203,7 +203,7 @@
 	"mapObject.core.creatureBank.dragonFlyHive.name" : "Улей летучих змиев",
 	"mapObject.core.creatureBank.dwarvenTreasury.name" : "Сокровищница гномов",
 	"mapObject.core.creatureBank.griffinConservatory.name" : "Консерватория грифонов",
-	"mapObject.core.creatureBank.inpCache.name" : "Яма бесов",
+	"mapObject.core.creatureBank.impCache.name" : "Яма бесов",
 	"mapObject.core.creatureBank.medusaStore.name" : "Склады медуз",
 	"mapObject.core.creatureBank.nagaBank.name" : "Хранилище наг",
 	"mapObject.core.crypt.crypt.name" : "Склеп",
