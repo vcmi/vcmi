@@ -100,10 +100,9 @@ public:
 
 	struct DLL_LINKAGE Patrol
 	{
-		Patrol(){patrolling=false;initialPos=int3();patrolRadius=NO_PATROLLING;};
-		bool patrolling;
+		bool patrolling{false};
 		int3 initialPos;
-		ui32 patrolRadius;
+		ui32 patrolRadius{NO_PATROLLING};
 		template <typename Handler> void serialize(Handler &h)
 		{
 			h & patrolling;
