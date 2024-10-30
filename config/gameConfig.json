@@ -53,6 +53,7 @@
 		"config/objects/creatureBanks.json",
 		"config/objects/dwellings.json",
 		"config/objects/generic.json",
+		"config/objects/lighthouse.json",
 		"config/objects/magicSpring.json",
 		"config/objects/magicWell.json",
 		"config/objects/moddables.json",

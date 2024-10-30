@@ -158,40 +158,58 @@ bool JsonParser::extractEscaping(std::string & str)
 
 	switch(input[pos])
 	{
+		case '\r':
+			if(settings.mode == JsonParsingSettings::JsonFormatMode::JSON5 && input.size() > pos && input[pos+1] == '\n')
+			{
+				pos += 2;
+				return true;
+			}
+			break;
+		case '\n':
+			if(settings.mode == JsonParsingSettings::JsonFormatMode::JSON5)
+			{
+				pos += 1;
+				return true;
+			}
+			break;
 		case '\"':
 			str += '\"';
-			break;
+			pos++;
+			return true;
 		case '\\':
 			str += '\\';
-			break;
+			pos++;
+			return true;
 		case 'b':
 			str += '\b';
-			break;
+			pos++;
+			return true;
 		case 'f':
 			str += '\f';
-			break;
+			pos++;
+			return true;
 		case 'n':
 			str += '\n';
-			break;
+			pos++;
+			return true;
 		case 'r':
 			str += '\r';
-			break;
+			pos++;
+			return true;
 		case 't':
 			str += '\t';
-			break;
+			pos++;
+			return true;
 		case '/':
 			str += '/';
-			break;
-		default:
-			return error("Unknown escape sequence!", true);
+			pos++;
+			return true;
 	}
-	return true;
+	return error("Unknown escape sequence!", true);
 }
 
 bool JsonParser::extractString(std::string & str)
 {
-	//TODO: JSON5 - line breaks escaping
-
 	if(settings.mode < JsonParsingSettings::JsonFormatMode::JSON5)
 	{
 		if(input[pos] != '\"')
@@ -216,27 +234,30 @@ bool JsonParser::extractString(std::string & str)
 			pos++;
 			return true;
 		}
-		if(input[pos] == '\\') // Escaping
+		else if(input[pos] == '\\') // Escaping
 		{
 			str.append(&input[first], pos - first);
 			pos++;
 			if(pos == input.size())
 				break;
+
 			extractEscaping(str);
-			first = pos + 1;
+			first = pos;
 		}
-		if(input[pos] == '\n') // end-of-line
+		else if(input[pos] == '\n') // end-of-line
 		{
 			str.append(&input[first], pos - first);
 			return error("Closing quote not found!", true);
 		}
-		if(static_cast<unsigned char>(input[pos]) < ' ') // control character
+		else if(static_cast<unsigned char>(input[pos]) < ' ') // control character
 		{
 			str.append(&input[first], pos - first);
-			first = pos + 1;
+			pos++;
+			first = pos;
 			error("Illegal character in the string!", true);
 		}
-		pos++;
+		else
+			pos++;
 	}
 	return error("Unterminated string!");
 }

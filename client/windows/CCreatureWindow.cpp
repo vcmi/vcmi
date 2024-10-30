@@ -17,8 +17,8 @@
 #include "../CPlayerInterface.h"
 #include "../render/Canvas.h"
 #include "../widgets/Buttons.h"
-#include "../widgets/CArtPlace.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/CComponentHolder.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/ObjectLists.h"
@@ -394,7 +394,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 
 	auto getSkillDescription = [this](int skillIndex) -> std::string
 	{
-		return CGI->generaltexth->znpc00[152 + (12 * skillIndex) + (parent->info->commander->secondarySkills[skillIndex] * 2)];
+		return parent->getCommanderSkillDescription(skillIndex, parent->info->commander->secondarySkills[skillIndex]);
 	};
 
 	for(int index = ECommander::ATTACK; index <= ECommander::SPELL_POWER; ++index)
@@ -433,7 +433,9 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 	for(auto equippedArtifact : parent->info->commander->artifactsWorn)
 	{
 		Point artPos = getArtifactPos(equippedArtifact.first);
-		auto artPlace = std::make_shared<CCommanderArtPlace>(artPos, parent->info->owner, equippedArtifact.first, equippedArtifact.second.artifact);
+		const auto commanderArt = equippedArtifact.second.artifact;
+		assert(commanderArt);
+		auto artPlace = std::make_shared<CCommanderArtPlace>(artPos, parent->info->owner, equippedArtifact.first, commanderArt->getTypeId());
 		artifacts.push_back(artPlace);
 	}
 
@@ -635,11 +637,11 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		auto art = parent->info->stackNode->getArt(ArtifactPosition::CREATURE_SLOT);
 		if(art)
 		{
-			parent->stackArtifactIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("ARTIFACT"), art->artType->getIconIndex(), 0, pos.x, pos.y);
-			parent->stackArtifactHelp = std::make_shared<LRClickableAreaWTextComp>(Rect(pos, Point(44, 44)), ComponentType::ARTIFACT);
-			parent->stackArtifactHelp->component.subType = art->artType->getId();
-			parent->stackArtifactHelp->text = art->getDescription();
-
+			parent->stackArtifact = std::make_shared<CArtPlace>(pos, art->getTypeId());
+			parent->stackArtifact->setShowPopupCallback([](CComponentHolder & artPlace, const Point & cursorPosition)
+				{
+					artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
+				});
 			if(parent->info->owner)
 			{
 				parent->stackArtifactButton = std::make_shared<CButton>(
@@ -924,14 +926,30 @@ std::string CStackWindow::generateStackExpDescription()
 	return expText;
 }
 
+std::string CStackWindow::getCommanderSkillDescription(int skillIndex, int skillLevel)
+{
+	constexpr std::array skillNames = {
+		"attack",
+		"defence",
+		"health",
+		"damage",
+		"speed",
+		"magic"
+	};
+
+	std::string textID = TextIdentifier("vcmi", "commander", "skill", skillNames.at(skillIndex), skillLevel).get();
+
+	return CGI->generaltexth->translate(textID);
+}
+
 void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIcon> newIcon)
 {
 	auto getSkillDescription = [this](int skillIndex, bool selected) -> std::string
 	{
 		if(selected)
-			return CGI->generaltexth->znpc00[152 + (12 * skillIndex) + ((info->commander->secondarySkills[skillIndex] + 1) * 2)]; //upgrade description
+			return getCommanderSkillDescription(skillIndex, info->commander->secondarySkills[skillIndex] + 1); //upgrade description
 		else
-			return CGI->generaltexth->znpc00[152 + (12 * skillIndex) + (info->commander->secondarySkills[skillIndex] * 2)];
+			return getCommanderSkillDescription(skillIndex, info->commander->secondarySkills[skillIndex]);
 	};
 
 	auto getSkillImage = [this](int skillIndex)
@@ -1006,8 +1024,7 @@ void CStackWindow::removeStackArtifact(ArtifactPosition pos)
 		artLoc.creature = info->stackNode->armyObj->findStack(info->stackNode);
 		LOCPLINT->cb->swapArtifacts(artLoc, ArtifactLocation(info->owner->id, slot));
 		stackArtifactButton.reset();
-		stackArtifactHelp.reset();
-		stackArtifactIcon.reset();
+		stackArtifact.reset();
 		redraw();
 	}
 }

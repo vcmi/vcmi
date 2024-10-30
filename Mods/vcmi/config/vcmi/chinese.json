@@ -15,6 +15,8 @@
 	"vcmi.adventureMap.monsterLevel"            : "\n\n%TOWN%LEVEL级%ATTACK_TYPE生物",
 	"vcmi.adventureMap.monsterMeleeType"        : "近战",
 	"vcmi.adventureMap.monsterRangedType"       : "远程",
+	"vcmi.adventureMap.search.hover"            : "搜索地图物体",
+	"vcmi.adventureMap.search.help"             : "选择要再地图上搜索的物体。",
 
 	"vcmi.adventureMap.confirmRestartGame"     : "你想要重新开始游戏吗？",
 	"vcmi.adventureMap.noTownWithMarket"       : "没有足够的市场。",
@@ -40,6 +42,12 @@
 	"vcmi.heroOverview.secondarySkills" : "初始技能",
 	"vcmi.heroOverview.spells" : "魔法",
 
+	"vcmi.quickExchange.moveUnit" : "移动生物",
+	"vcmi.quickExchange.moveAllUnits" : "移动所有生物",
+	"vcmi.quickExchange.swapAllUnits" : "交换生物",
+	"vcmi.quickExchange.moveAllArtifacts" : "移动所有宝物",
+	"vcmi.quickExchange.swapAllArtifacts" : "交换宝物",
+
 	"vcmi.radialWheel.mergeSameUnit" : "合并相同生物",
 	"vcmi.radialWheel.fillSingleUnit" : "单个生物填充空格",
 	"vcmi.radialWheel.splitSingleUnit" : "分割单个生物",
@@ -59,7 +67,24 @@
 	"vcmi.radialWheel.moveDown" : "下移",
 	"vcmi.radialWheel.moveBottom" : "移到底端",
 
+	"vcmi.randomMap.description" : "这是随机生成的地图。\\n模版为%s，大小为%dx%d，层数为%d，人类玩家数量为%d，电脑玩家数量为%d，水域面积%s，怪物等级%s，VCMI地图",
+	"vcmi.randomMap.description.isHuman" : ", %s为人类玩家",
+	"vcmi.randomMap.description.townChoice" : ", %s的城镇选择为%s",
+	"vcmi.randomMap.description.water.none" : "无",
+	"vcmi.randomMap.description.water.normal" : "普通",
+	"vcmi.randomMap.description.water.islands" : "岛屿",
+	"vcmi.randomMap.description.monster.weak" : "弱",
+	"vcmi.randomMap.description.monster.normal" : "普通",
+	"vcmi.randomMap.description.monster.strong" : "强",
+
 	"vcmi.spellBook.search" : "搜索中...",
+
+	"vcmi.spellResearch.canNotAfford" : "你没有足够的资源来将{%SPELL1}替换为{%SPELL2}。但你依然可以弃掉此法术，继续法术研究。",
+	"vcmi.spellResearch.comeAgain" : "今日已研究过法术，请明日再来。",
+	"vcmi.spellResearch.pay" : "你想将{%SPELL1}替换为{%SPELL2}吗？或者弃掉此法术，继续法术研究？",
+	"vcmi.spellResearch.research" : "研究此法术",
+	"vcmi.spellResearch.skip" : "跳过此法术",
+	"vcmi.spellResearch.abort" : "中止",
 
 	"vcmi.mainMenu.serverConnecting" : "连接中...",
 	"vcmi.mainMenu.serverAddressEnter" : "使用地址:",
@@ -145,10 +170,12 @@
 	"vcmi.client.errors.invalidMap" : "{非法地图或战役}\n\n启动游戏失败，选择的地图或者战役，无效或被污染。原因:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{找不到数据文件}\n\n没有找到战役数据文件！你可能使用了不完整或损坏的英雄无敌3数据文件，请重新安装数据文件。",
 	"vcmi.server.errors.disconnected" : "{网络错误}\n\n与游戏服务器的连接已断开！",
+	"vcmi.server.errors.playerLeft" : "{玩家离开}\n\n%s玩家已断开游戏！", //%s -> player color
 	"vcmi.server.errors.existingProcess"     : "一个VCMI进程已经在运行，启动新进程前请结束它。",
 	"vcmi.server.errors.modsToEnable"    : "{需要启用的mod列表}",
 	"vcmi.server.errors.modsToDisable"   : "{需要禁用的mod列表}",
 	"vcmi.server.errors.modNoDependency" : "读取mod包 {'%s'}失败!\n 需要的mod {'%s'} 没有安装或无效!\n",
+	"vcmi.server.errors.modDependencyLoop" : "读取mod包 {'%s'}失败!\n 这个mod可能存在循环（软）依赖！",
 	"vcmi.server.errors.modConflict" : "读取的mod包 {'%s'}无法运行!\n 与另一个mod {'%s'}冲突!\n",
 	"vcmi.server.errors.unknownEntity" : "加载保存失败！ 在保存的游戏中发现未知实体'%s'！ 保存可能与当前安装的mod版本不兼容！",
 
@@ -342,6 +369,13 @@
 	"vcmi.heroWindow.openCommander.help"  : "显示该英雄指挥官详细信息",
 	"vcmi.heroWindow.openBackpack.hover" : "开启宝物背包界面",
 	"vcmi.heroWindow.openBackpack.help"  : "用更大的界面显示所有获得的宝物",
+	"vcmi.heroWindow.sortBackpackByCost.hover"  : "按价格排序",
+	"vcmi.heroWindow.sortBackpackByCost.help"  : "将行囊里的宝物按价格排序。.",
+	"vcmi.heroWindow.sortBackpackBySlot.hover"  : "按装备槽排序",
+	"vcmi.heroWindow.sortBackpackBySlot.help"  : "将行囊里的宝物按装备槽排序。",
+	"vcmi.heroWindow.sortBackpackByClass.hover"  : "按类型排序",
+	"vcmi.heroWindow.sortBackpackByClass.help"  : "将行囊里的宝物按装备槽排序：低级宝物、中级宝物、高级宝物、圣物。",
+	"vcmi.heroWindow.fusingArtifact.fusing" : "你已拥有融合%s所需的全部组件，想现在进行融合吗？{所有组件在融合后将被消耗。}",
 
 	"vcmi.tavernWindow.inviteHero"  : "邀请英雄",
 
@@ -670,5 +704,7 @@
 	"core.bonus.DISINTEGRATE.name": "解体",
 	"core.bonus.DISINTEGRATE.description": "死亡后不会留下尸体",
 	"core.bonus.INVINCIBLE.name": "无敌",
-	"core.bonus.INVINCIBLE.description": "不受任何效果影响"
+	"core.bonus.INVINCIBLE.description": "不受任何效果影响",
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "棱光吐息",
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "攻击后向三方向扩散攻击"
 }

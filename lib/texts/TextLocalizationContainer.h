@@ -32,6 +32,8 @@ protected:
 		/// Different from identifierModContext if mod has modified object from another mod (e.g. rebalance mods)
 		std::string baseStringModContext;
 
+		bool overriden = false;
+
 		template <typename Handler>
 		void serialize(Handler & h)
 		{
@@ -47,7 +49,7 @@ protected:
 	std::vector<const TextLocalizationContainer *> subContainers;
 
 	/// add selected string to internal storage as high-priority strings
-	void registerStringOverride(const std::string & modContext, const TextIdentifier & UID, const std::string & localized);
+	void registerStringOverride(const std::string & modContext, const TextIdentifier & UID, const std::string & localized, const std::string & language);
 
 	std::string getModLanguage(const std::string & modContext);
 
@@ -57,7 +59,7 @@ protected:
 public:
 	/// Loads translation from provided json
 	/// Any entries loaded by this will have priority over texts registered normally
-	void loadTranslationOverrides(const std::string & modContext, JsonNode const & file);
+	void loadTranslationOverrides(const std::string & modContext, const std::string & language, JsonNode const & file);
 
 	/// add selected string to internal storage
 	void registerString(const std::string & modContext, const TextIdentifier & UID, const JsonNode & localized);
@@ -77,7 +79,7 @@ public:
 
 	/// Debug method, returns all currently stored texts
 	/// Format: [mod ID][string ID] -> human-readable text
-	void exportAllTexts(std::map<std::string, std::map<std::string, std::string>> & storage) const;
+	void exportAllTexts(std::map<std::string, std::map<std::string, std::string>> & storage, bool onlyMissing) const;
 
 	/// Add or override subcontainer which can store identifiers
 	void addSubContainer(const TextLocalizationContainer & container);

@@ -188,7 +188,7 @@ void CLobbyScreen::toggleMode(bool host)
 		return;
 
 	auto buttonColor = host ? Colors::WHITE : Colors::ORANGE;
-	buttonSelect->setTextOverlay(CGI->generaltexth->allTexts[500], FONT_SMALL, buttonColor);
+	buttonSelect->setTextOverlay("  " + CGI->generaltexth->allTexts[500], FONT_SMALL, buttonColor);
 	buttonOptions->setTextOverlay(CGI->generaltexth->allTexts[501], FONT_SMALL, buttonColor);
 
 	if (buttonTurnOptions)
@@ -199,7 +199,7 @@ void CLobbyScreen::toggleMode(bool host)
 
 	if(buttonRMG)
 	{
-		buttonRMG->setTextOverlay(CGI->generaltexth->allTexts[740], FONT_SMALL, buttonColor);
+		buttonRMG->setTextOverlay("  " + CGI->generaltexth->allTexts[740], FONT_SMALL, buttonColor);
 		buttonRMG->block(!host);
 	}
 	buttonSelect->block(!host);

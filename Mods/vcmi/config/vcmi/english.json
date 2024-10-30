@@ -42,6 +42,12 @@
 	"vcmi.heroOverview.secondarySkills" : "Secondary Skills",
 	"vcmi.heroOverview.spells" : "Spells",
 	
+	"vcmi.quickExchange.moveUnit" : "Move Unit",
+	"vcmi.quickExchange.moveAllUnits" : "Move All Units",
+	"vcmi.quickExchange.swapAllUnits" : "Swap Armies",
+	"vcmi.quickExchange.moveAllArtifacts" : "Move All Artifacts",
+	"vcmi.quickExchange.swapAllArtifacts" : "Swap Artifact",
+	
 	"vcmi.radialWheel.mergeSameUnit" : "Merge same creatures",
 	"vcmi.radialWheel.fillSingleUnit" : "Fill with single creatures",
 	"vcmi.radialWheel.splitSingleUnit" : "Split off single creature",
@@ -60,6 +66,16 @@
 	"vcmi.radialWheel.moveUp" : "Move up",
 	"vcmi.radialWheel.moveDown" : "Move down",
 	"vcmi.radialWheel.moveBottom" : "Move to bottom",
+	
+	"vcmi.randomMap.description" : "Map created by the Random Map Generator.\nTemplate was %s, size %dx%d, levels %d, players %d, computers %d, water %s, monster %s, VCMI map",
+	"vcmi.randomMap.description.isHuman" : ", %s is human",
+	"vcmi.randomMap.description.townChoice" : ", %s town choice is %s",
+	"vcmi.randomMap.description.water.none" : "none",
+	"vcmi.randomMap.description.water.normal" : "normal",
+	"vcmi.randomMap.description.water.islands" : "islands",
+	"vcmi.randomMap.description.monster.weak" : "weak",
+	"vcmi.randomMap.description.monster.normal" : "normal",
+	"vcmi.randomMap.description.monster.strong" : "strong",
 
 	"vcmi.spellBook.search" : "search...",
 
@@ -159,6 +175,7 @@
 	"vcmi.server.errors.modsToEnable"    : "{Following mods are required}",
 	"vcmi.server.errors.modsToDisable"   : "{Following mods must be disabled}",
 	"vcmi.server.errors.modNoDependency" : "Failed to load mod {'%s'}!\n It depends on mod {'%s'} which is not active!\n",
+	"vcmi.server.errors.modDependencyLoop" : "Failed to load mod {'%s'}!\n It maybe in a (soft) dependency loop.",
 	"vcmi.server.errors.modConflict" : "Failed to load mod {'%s'}!\n Conflicts with active mod {'%s'}!\n",
 	"vcmi.server.errors.unknownEntity" : "Failed to load save! Unknown entity '%s' found in saved game! Save may not be compatible with currently installed version of mods!",
 	
@@ -535,7 +552,9 @@
 	"core.seerhut.quest.reachDate.visit.3" : "Closed till %s.",
 	"core.seerhut.quest.reachDate.visit.4" : "Closed till %s.",
 	"core.seerhut.quest.reachDate.visit.5" : "Closed till %s.",
-
+	
+	"mapObject.core.hillFort.object.description" : "Upgrades creatures. Levels 1 - 4 are less expensive than in associated town.",
+	
 	"core.bonus.ADDITIONAL_ATTACK.name": "Double Strike",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Attacks twice",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Additional retaliations",
@@ -687,5 +706,7 @@
 	"core.bonus.DISINTEGRATE.name": "Disintegrate",
 	"core.bonus.DISINTEGRATE.description": "No corpse remains after death",
 	"core.bonus.INVINCIBLE.name": "Invincible",
-	"core.bonus.INVINCIBLE.description": "Cannot be affected by anything"
+	"core.bonus.INVINCIBLE.description": "Cannot be affected by anything",
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "Prism Breath",
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prism Breath Attack (three directions)"
 }

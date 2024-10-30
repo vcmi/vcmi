@@ -23,17 +23,21 @@
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
+#include "../mapObjectConstructors/FlaggableInstanceConstructor.h"
 #include "../mapObjectConstructors/HillFortInstanceConstructor.h"
 #include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
+
 #include "../mapObjects/CGCreature.h"
-#include "../mapObjects/CGPandoraBox.h"
-#include "../mapObjects/CQuest.h"
-#include "../mapObjects/ObjectTemplate.h"
-#include "../mapObjects/CGMarket.h"
-#include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGMarket.h"
+#include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/CQuest.h"
+#include "../mapObjects/FlaggableMapObject.h"
+#include "../mapObjects/MiscObjects.h"
+#include "../mapObjects/ObjectTemplate.h"
 #include "../mapObjects/ObstacleSetHandler.h"
+
 #include "../modding/IdentifierStorage.h"
 #include "../modding/CModHandler.h"
 #include "../modding/ModScope.h"
@@ -57,6 +61,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("town", CTownInstanceConstructor);
 	SET_HANDLER_CLASS("bank", CBankInstanceConstructor);
 	SET_HANDLER_CLASS("boat", BoatInstanceConstructor);
+	SET_HANDLER_CLASS("flaggable", FlaggableInstanceConstructor);
 	SET_HANDLER_CLASS("market", MarketInstanceConstructor);
 	SET_HANDLER_CLASS("hillFort", HillFortInstanceConstructor);
 	SET_HANDLER_CLASS("shipyard", ShipyardInstanceConstructor);
@@ -82,7 +87,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("garrison", CGGarrison);
 	SET_HANDLER("heroPlaceholder", CGHeroPlaceholder);
 	SET_HANDLER("keymaster", CGKeymasterTent);
-	SET_HANDLER("lighthouse", CGLighthouse);
 	SET_HANDLER("magi", CGMagi);
 	SET_HANDLER("mine", CGMine);
 	SET_HANDLER("obelisk", CGObelisk);

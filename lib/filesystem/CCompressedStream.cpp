@@ -136,6 +136,9 @@ si64 CCompressedStream::readMore(ui8 *data, si64 size)
 	{
 		if (inflateState->avail_in == 0)
 		{
+			if (gzipStream == nullptr)
+				throw std::runtime_error("Potentially truncated gzip file");
+
 			//inflate ran out of available data or was not initialized yet
 			// get new input data and update state accordingly
 			si64 availSize = gzipStream->read(compressedBuffer.data(), compressedBuffer.size());

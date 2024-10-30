@@ -583,28 +583,16 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 		if(object->ID == Obj::MINE || object->ID == Obj::ABANDONED_MINE)
 		{
 			const CGMine * mine = dynamic_cast<const CGMine *>(object);
-			assert(mine);
 			minesCount[mine->producedResource]++;
-			totalIncome += mine->dailyIncome()[EGameResID::GOLD];
 		}
 	}
 
-	//Heroes can produce gold as well - skill, specialty or arts
-	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
-	auto * playerSettings = LOCPLINT->cb->getPlayerSettings(LOCPLINT->playerID);
-	for(auto & hero : heroes)
-	{
-		totalIncome += hero->dailyIncome()[EGameResID::GOLD];
-	}
-
-	//Add town income of all towns
-	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
-	for(auto & town : towns)
-	{
-		totalIncome += town->dailyIncome()[EGameResID::GOLD];
-	}
+	for(auto & mapObject : ownedObjects)
+		totalIncome += mapObject->asOwnable()->dailyIncome()[EGameResID::GOLD];
 
 	//if player has some modded boosts we want to show that as well
+	const auto * playerSettings = LOCPLINT->cb->getPlayerSettings(LOCPLINT->playerID);
+	const auto & towns = LOCPLINT->cb->getTownsInfo(true);
 	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * playerSettings->handicap.percentIncome / 100;
 	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * towns.size() * playerSettings->handicap.percentIncome / 100;
 

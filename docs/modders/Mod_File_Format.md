@@ -48,6 +48,12 @@
 	[
 		"baseMod"
 	],
+	
+	// List of mods if they are enabled, should be loaded before this one. This mod will overwrite any conflicting items from its soft dependency mods.
+	"softDepends" :
+	[
+		"baseMod"
+	],
  
 	// List of mods that can't be enabled in the same time as this one
 	"conflicts" :

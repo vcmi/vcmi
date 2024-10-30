@@ -502,6 +502,10 @@ Affected unit attacks all adjacent creatures (Hydra). Only directly targeted cre
 
 Affected unit attacks creature located directly behind targeted tile (Dragons). Only directly targeted creature will attempt to retaliate
 
+### PRISM_HEX_ATTACK_BREATH
+
+Like `TWO_HEX_ATTACK_BREATH` but affects also two additional cratures (in triangle form from target tile)
+
 ### RETURN_AFTER_STRIKE
 
 Affected unit can return to his starting location after attack (Harpies)
