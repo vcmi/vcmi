@@ -15,8 +15,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class MarketInstanceConstructor;
+
 class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
 {
+	std::shared_ptr<MarketInstanceConstructor> getMarketHandler() const;
+
 public:
 	int marketEfficiency;
 	
@@ -24,6 +28,9 @@ public:
 	///IObjectInterface
 	void onHeroVisit(const CGHeroInstance * h) const override; //open trading window
 	void initObj(vstd::RNG & rand) override;//set skills for trade
+
+	std::string getPopupText(PlayerColor player) const override;
+	std::string getPopupText(const CGHeroInstance * hero) const override;
 
 	///IMarket
 	ObjectInstanceID getObjInstanceID() const override;
