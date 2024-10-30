@@ -249,7 +249,7 @@ void CPlayerInterface::performAutosave()
 				};
 				std::replace_if(name.begin(), name.end(), isSymbolIllegal, '_' );
 
-				prefix = name + "_" + cb->getStartInfo()->startTimeIso8601 + "/";
+				prefix = cb->getStartInfo()->startTimeIso8601 + "_" + name + "/";
 			}
 		}
 
