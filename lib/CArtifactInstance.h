@@ -80,7 +80,6 @@ public:
 	CArtifactInstance();
 	void setType(const CArtifact * art);
 	std::string nodeName() const override;
-	std::string getDescription() const;
 	ArtifactID getTypeId() const;
 	ArtifactInstanceID getId() const;
 	void setId(ArtifactInstanceID id);
