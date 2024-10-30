@@ -390,6 +390,36 @@ TModID CModHandler::findResourceOrigin(const ResourcePath & name) const
 	throw std::runtime_error("Resource with name " + name.getName() + " and type " + EResTypeHelper::getEResTypeAsString(name.getType()) + " wasn't found.");
 }
 
+std::string CModHandler::findResourceLanguage(const ResourcePath & name) const
+{
+	std::string modName = findResourceOrigin(name);
+	std::string modLanguage = getModLanguage(modName);
+	return modLanguage;
+}
+
+std::string CModHandler::findResourceEncoding(const ResourcePath & resource) const
+{
+	std::string modName = findResourceOrigin(resource);
+	std::string modLanguage = findResourceLanguage(resource);
+
+	bool potentiallyUserMadeContent = resource.getType() == EResType::MAP || resource.getType() == EResType::CAMPAIGN;
+	if (potentiallyUserMadeContent && modName == ModScope::scopeBuiltin() && modLanguage == "english")
+	{
+		// this might be a map or campaign that player downloaded manually and placed in Maps/ directory
+		// in this case, this file may be in user-preferred language, and not in same language as the rest of H3 data
+		// however at the moment we have no way to detect that for sure - file can be either in English or in user-preferred language
+		// but since all known H3 encodings (Win125X or GBK) are supersets of ASCII, we can safely load English data using encoding of user-preferred language
+		std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
+		std::string fileEncoding = Languages::getLanguageOptions(modLanguage).encoding;
+		return fileEncoding;
+	}
+	else
+	{
+		std::string fileEncoding = Languages::getLanguageOptions(modLanguage).encoding;
+		return fileEncoding;
+	}
+}
+
 std::string CModHandler::getModLanguage(const TModID& modId) const
 {
 	if(modId == "core")

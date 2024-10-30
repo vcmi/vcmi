@@ -62,6 +62,12 @@ public:
 	/// returns ID of mod that provides selected file resource
 	TModID findResourceOrigin(const ResourcePath & name) const;
 
+	/// Returns assumed language ID of mod that provides selected file resource
+	std::string findResourceLanguage(const ResourcePath & name) const;
+
+	/// Returns assumed encoding of language of mod that provides selected file resource
+	std::string findResourceEncoding(const ResourcePath & name) const;
+
 	std::string getModLanguage(const TModID & modId) const;
 
 	std::set<TModID> getModDependencies(const TModID & modId) const;
