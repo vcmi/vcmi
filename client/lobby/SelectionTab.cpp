@@ -307,7 +307,7 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 {
 	int line = getLine();
 
-	if(line != -1)
+	if(line != -1 && curItems.size() > line)
 	{
 		select(line);
 	}
