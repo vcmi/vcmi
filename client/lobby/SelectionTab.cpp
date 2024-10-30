@@ -955,7 +955,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		if(info->isAutoSaveFolder) // align autosave folder left (starting timestamps in list should be in one line)
 		{
 			labelName->alignment = ETextAlignment::CENTERLEFT;
-			labelName->moveTo(Point(pos.x + 95, labelName->pos.y));
+			labelName->moveTo(Point(pos.x + 80, labelName->pos.y));
 		}
 		else
 		{
