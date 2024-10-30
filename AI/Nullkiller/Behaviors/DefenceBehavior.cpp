@@ -41,6 +41,9 @@ Goals::TGoalVec DefenceBehavior::decompose(const Nullkiller * ai) const
 	for(auto town : ai->cb->getTownsInfo())
 	{
 		evaluateDefence(tasks, town, ai);
+		//Let's do only one defence-task per pass since otherwise it can try to hire the same hero twice
+		if (!tasks.empty())
+			break;
 	}
 
 	return tasks;
