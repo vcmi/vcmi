@@ -44,7 +44,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="121"/>
         <source>Check for updates</source>
-        <translation>Verificar por atualizações</translation>
+        <translation>Verificar atualizações</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="189"/>
@@ -54,7 +54,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="114"/>
         <source>Log files directory</source>
-        <translation>Diretório do arquivo de registro</translation>
+        <translation>Diretório de arquivos de registro</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="107"/>
@@ -79,7 +79,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="290"/>
         <source>Project homepage</source>
-        <translation>Página da web do projeto</translation>
+        <translation>Página do projeto</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="303"/>
