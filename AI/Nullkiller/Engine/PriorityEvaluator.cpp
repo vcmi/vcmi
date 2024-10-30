@@ -1423,6 +1423,20 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					score /= evaluationContext.movementCost;
 				break;
 			}
+			case PriorityTier::UPGRADE:
+			{
+				if (!evaluationContext.isArmyUpgrade)
+					return 0;
+				if (evaluationContext.enemyHeroDangerRatio > 1)
+					return 0;
+				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
+					return 0;
+				score = 1000;
+				score *= evaluationContext.closestWayRatio;
+				if (evaluationContext.movementCost > 0)
+					score /= evaluationContext.movementCost;
+				break;
+			}
 			case PriorityTier::HIGH_PRIO_EXPLORE:
 			{
 				if (evaluationContext.enemyHeroDangerRatio > 1)
