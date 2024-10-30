@@ -175,6 +175,7 @@
 	"vcmi.server.errors.modsToEnable"    : "{Následující modifikace jsou nutné pro načtení hry}",
 	"vcmi.server.errors.modsToDisable"   : "{Následující modifikace musí být zakázány}",
 	"vcmi.server.errors.modNoDependency" : "Nelze načíst modifikaci {'%s'}!\n Závisí na modifikaci {'%s'}, která není aktivní!\n",
+	"vcmi.server.errors.modDependencyLoop" : "Nelze načíst modifikaci {'%s'}!\n Modifikace může být součástí (nepřímé) závislostní smyčky.",
 	"vcmi.server.errors.modConflict" : "Nelze načíst modifikaci {'%s'}!\n Je v kolizi s aktivní modifikací {'%s'}!\n",
 	"vcmi.server.errors.unknownEntity" : "Nelze načíst uloženou pozici! Neznámá entita '%s' nalezena v uložené pozici! Uložná pozice nemusí být kompatibilní s aktuálními verzemi modifikací!",
 	
@@ -551,7 +552,9 @@
 	"core.seerhut.quest.reachDate.visit.3" : "Zavřeno do %s.",
 	"core.seerhut.quest.reachDate.visit.4" : "Zavřeno do %s.",
 	"core.seerhut.quest.reachDate.visit.5" : "Zavřeno do %s.",
-
+	
+	"mapObject.core.hillFort.object.description" : "Zde můžeš vylepšit jednotky. Vylepšení jednotek úrovně 1 až 4 je zde levnější než v jejich domovském městě.",
+	
 	"core.bonus.ADDITIONAL_ATTACK.name": "Dvojitý útok",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Útočí dvakrát",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Další odvetné útoky",
