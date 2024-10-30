@@ -87,8 +87,9 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 	std::vector <TModID> sortedValidMods; // Vector keeps order of elements (LIFO)
 	sortedValidMods.reserve(modsToResolve.size()); // push_back calls won't cause memory reallocation
 	std::set <TModID> resolvedModIDs; // Use a set for validation for performance reason, but set does not keep order of elements
+	std::set <TModID> notResolvedModIDs(modsToResolve.begin(), modsToResolve.end()); // Use a set for validation for performance reason
 
-	// Mod is resolved if it has not dependencies or all its dependencies are already resolved
+	// Mod is resolved if it has no dependencies or all its dependencies are already resolved
 	auto isResolved = [&](const CModInfo & mod) -> bool
 	{
 		if(mod.dependencies.size() > resolvedModIDs.size())
@@ -97,6 +98,12 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 		for(const TModID & dependency : mod.dependencies)
 		{
 			if(!vstd::contains(resolvedModIDs, dependency))
+				return false;
+		}
+
+		for(const TModID & softDependency : mod.softDependencies)
+		{
+			if(vstd::contains(notResolvedModIDs, softDependency))
 				return false;
 		}
 
@@ -130,9 +137,11 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 		if(!resolvedOnCurrentTreeLevel.empty())
 		{
 			resolvedModIDs.insert(resolvedOnCurrentTreeLevel.begin(), resolvedOnCurrentTreeLevel.end());
-					continue;
+			for(const auto & it : resolvedOnCurrentTreeLevel)
+				notResolvedModIDs.erase(it);
+			continue;
 		}
-		// If there're no valid mods on the current mods tree level, no more mod can be resolved, should be end.
+		// If there are no valid mods on the current mods tree level, no more mod can be resolved, should be ended.
 		break;
 	}
 
@@ -158,21 +167,42 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 	for(const auto & brokenModID : modsToResolve)
 	{
 		const CModInfo & brokenMod = allMods.at(brokenModID);
+		bool showErrorMessage = false;
 		for(const TModID & dependency : brokenMod.dependencies)
 		{
 			if(!vstd::contains(resolvedModIDs, dependency) && brokenMod.config["modType"].String() != "Compatibility")
+			{
 				addErrorMessage("vcmi.server.errors.modNoDependency", brokenModID, dependency);
+				showErrorMessage = true;
+			}
 		}
 		for(const TModID & conflict : brokenMod.conflicts)
 		{
 			if(vstd::contains(resolvedModIDs, conflict))
+			{
 				addErrorMessage("vcmi.server.errors.modConflict", brokenModID, conflict);
+				showErrorMessage = true;
+			}
 		}
 		for(const TModID & reverseConflict : resolvedModIDs)
 		{
 			if (vstd::contains(allMods.at(reverseConflict).conflicts, brokenModID))
+			{
 				addErrorMessage("vcmi.server.errors.modConflict", brokenModID, reverseConflict);
+				showErrorMessage = true;
+			}
 		}
+
+		// some mods may in a (soft) dependency loop.
+		if(!showErrorMessage && brokenMod.config["modType"].String() != "Compatibility")
+		{
+			modLoadErrors->appendTextID("vcmi.server.errors.modDependencyLoop");
+			if (allMods.count(brokenModID))
+				modLoadErrors->replaceRawString(allMods.at(brokenModID).getVerificationInfo().name);
+			else
+				modLoadErrors->replaceRawString(brokenModID);
+		}
+
 	}
 	return sortedValidMods;
 }
@@ -352,6 +382,9 @@ void CModHandler::loadModFilesystems()
 				if (getModDependencies(leftModName).count(rightModName) || getModDependencies(rightModName).count(leftModName))
 					continue;
 
+				if (getModSoftDependencies(leftModName).count(rightModName) || getModSoftDependencies(rightModName).count(leftModName))
+					continue;
+
 				const auto & filter = [](const ResourcePath &path){return path.getType() != EResType::DIRECTORY;};
 
 				std::unordered_set<ResourcePath> leftResources = modFilesystems[leftModName]->getFilteredFiles(filter);
@@ -415,6 +448,28 @@ std::set<TModID> CModHandler::getModDependencies(const TModID & modId, bool & is
 
 	logMod->error("Mod not found: '%s'", modId);
 	return {};
+}
+
+std::set<TModID> CModHandler::getModSoftDependencies(const TModID & modId) const
+{
+	auto it = allMods.find(modId);
+	if(it != allMods.end())
+		return it->second.softDependencies;
+	logMod->error("Mod not found: '%s'", modId);
+	return {};
+}
+
+std::set<TModID> CModHandler::getModEnabledSoftDependencies(const TModID & modId) const
+{
+	std::set<TModID> softDependencies = getModSoftDependencies(modId);
+	for (auto it = softDependencies.begin(); it != softDependencies.end();)
+	{
+		if (allMods.find(*it) == allMods.end())
+			it = softDependencies.erase(it);
+		else
+			it++;
+	}
+	return softDependencies;
 }
 
 void CModHandler::initializeConfig()
