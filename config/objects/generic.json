@@ -666,6 +666,7 @@
 			"object" : {
 				"index" : 0,
 				"aiValue" : 7000,
+				"description" : "",
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 7000,

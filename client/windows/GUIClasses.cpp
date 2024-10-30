@@ -1113,6 +1113,9 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	garr = std::make_shared<CGarrisonInt>(Point(108, 60), 18, Point(), hero, nullptr);
+
+	statusbar->write(VLC->generaltexth->translate(dynamic_cast<const HillFort *>(fort)->getDescriptionToolTip()));
+
 	updateGarrisons();
 }
 
@@ -1130,45 +1133,59 @@ void CHillFortWindow::updateGarrisons()
 
 	TResources totalSum; // totalSum[resource ID] = value
 
+	auto getImgIdx = [](CHillFortWindow::State st) -> std::size_t
+	{
+		switch (st)
+		{
+		case State::EMPTY:
+			return 0;
+		case State::UNAVAILABLE:
+		case State::ALREADY_UPGRADED:
+			return 1;
+		default:
+			return static_cast<std::size_t>(st);
+		}
+	};
+
 	for(int i=0; i<slotsCount; i++)
 	{
 		std::fill(costs[i].begin(), costs[i].end(), 0);
-		int newState = getState(SlotID(i));
-		if(newState != -1)
+		State newState = getState(SlotID(i));
+		if(newState != State::EMPTY)
 		{
 			UpgradeInfo info;
 			LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
 			if(info.newID.size())//we have upgrades here - update costs
 			{
-				costs[i] = info.cost[0] * hero->getStackCount(SlotID(i));
+				costs[i] = info.cost.back() * hero->getStackCount(SlotID(i));
 				totalSum += costs[i];
 			}
 		}
 
 		currState[i] = newState;
-		upgrade[i]->setImage(AnimationPath::builtin(currState[i] == -1 ? slotImages[0] : slotImages[currState[i]]));
-		upgrade[i]->block(currState[i] == -1);
+		upgrade[i]->setImage(AnimationPath::builtin(slotImages[getImgIdx(currState[i])]));
+		upgrade[i]->block(currState[i] == State::EMPTY);
 		upgrade[i]->addHoverText(EButtonState::NORMAL, getTextForSlot(SlotID(i)));
 	}
 
 	//"Upgrade all" slot
-	int newState = 2;
+	State newState = State::MAKE_UPGRADE;
 	{
 		TResources myRes = LOCPLINT->cb->getResourceAmount();
 
 		bool allUpgraded = true;//All creatures are upgraded?
 		for(int i=0; i<slotsCount; i++)
-			allUpgraded &= currState[i] == 1 || currState[i] == -1;
+			allUpgraded &= currState[i] == State::ALREADY_UPGRADED || currState[i] == State::EMPTY || currState[i] == State::UNAVAILABLE;
 
-		if(allUpgraded)
-			newState = 1;
+		if (allUpgraded)
+			newState = State::ALREADY_UPGRADED;
 
 		if(!totalSum.canBeAfforded(myRes))
-			newState = 0;
+			newState = State::UNAFFORDABLE;
 	}
 
 	currState[slotsCount] = newState;
-	upgradeAll->setImage(AnimationPath::builtin(allImages[newState]));
+	upgradeAll->setImage(AnimationPath::builtin(allImages[static_cast<std::size_t>(newState)]));
 
 	garr->recreateSlots();
 
@@ -1181,7 +1198,7 @@ void CHillFortWindow::updateGarrisons()
 			slotLabels[i][j]->setText("");
 		}
 		//if can upgrade or can not afford, draw cost
-		if(currState[i] == 0 || currState[i] == 2)
+		if(currState[i] == State::UNAFFORDABLE || currState[i] == State::MAKE_UPGRADE)
 		{
 			if(costs[i].nonZero())
 			{
@@ -1226,24 +1243,30 @@ void CHillFortWindow::updateGarrisons()
 
 void CHillFortWindow::makeDeal(SlotID slot)
 {
-	assert(slot.getNum()>=0);
-	int offset = (slot.getNum() == slotsCount)?2:0;
+	assert(slot.getNum() >= 0);
+	int offset = (slot.getNum() == slotsCount) ? 2 : 0;
 	switch(currState[slot.getNum()])
 	{
-		case 0:
-			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
-			break;
-		case 1:
+		case State::ALREADY_UPGRADED:
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[313 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
-		case 2:
-			for(int i=0; i<slotsCount; i++)
+		case State::UNAFFORDABLE:
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
+			break;
+		case State::UNAVAILABLE:
+		{
+			std::string message = VLC->generaltexth->translate(dynamic_cast<const HillFort *>(fort)->getUnavailableUpgradeMessage());
+			LOCPLINT->showInfoDialog(message, std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
+			break;
+		}
+		case State::MAKE_UPGRADE:
+			for(int i = 0; i < slotsCount; i++)
 			{
-				if(slot.getNum() ==i || ( slot.getNum() == slotsCount && currState[i] == 2 ))//this is activated slot or "upgrade all"
+				if(slot.getNum() == i || ( slot.getNum() == slotsCount && currState[i] == State::MAKE_UPGRADE ))//this is activated slot or "upgrade all"
 				{
 					UpgradeInfo info;
 					LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
-					LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.newID[0]);
+					LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.newID.back());
 				}
 			}
 			break;
@@ -1265,22 +1288,28 @@ std::string CHillFortWindow::getTextForSlot(SlotID slot)
 	return str;
 }
 
-int CHillFortWindow::getState(SlotID slot)
+CHillFortWindow::State CHillFortWindow::getState(SlotID slot)
 {
 	TResources myRes = LOCPLINT->cb->getResourceAmount();
 
-	if(hero->slotEmpty(slot))//no creature here
-		return -1;
+	if(hero->slotEmpty(slot))
+		return State::EMPTY;
 
 	UpgradeInfo info;
 	LOCPLINT->cb->fillUpgradeInfo(hero, slot, info);
-	if(!info.newID.size())//already upgraded
-		return 1;
+	if (info.newID.empty())
+	{
+		// Hill Fort may limit level of upgradeable creatures, e.g. mini Hill Fort from HOTA
+		if (hero->getCreature(slot)->hasUpgrades())
+			return State::UNAVAILABLE;
 
-	if(!(info.cost[0] * hero->getStackCount(slot)).canBeAfforded(myRes))
-		return 0;
+		return State::ALREADY_UPGRADED;
+	}
 
-	return 2;//can upgrade
+	if(!(info.cost.back() * hero->getStackCount(slot)).canBeAfforded(myRes))
+		return State::UNAFFORDABLE;
+
+	return State::MAKE_UPGRADE;
 }
 
 CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
