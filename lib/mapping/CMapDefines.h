@@ -178,7 +178,7 @@ struct DLL_LINKAGE TerrainTile
 		h & extTileFlags;
 		if (h.version < Handler::Version::REMOVE_VLC_POINTERS)
 		{
-			bool unused;
+			bool unused = false;
 			h & unused;
 			h & unused;
 		}
