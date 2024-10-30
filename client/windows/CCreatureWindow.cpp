@@ -543,8 +543,17 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		const auto hero = (battleStack->unitSide() == BattleSide::ATTACKER)
 			? battleInterface->attackingHeroInstance
 			: battleInterface->defendingHeroInstance;
+<<<<<<< HEAD
 		
 		dmgMultiply += hero->getPrimSkillLevel(PrimarySkill::ATTACK);
+=======
+
+		// Check if the hero has a ballista in the war machine slot
+		if (hero && hero->getStack(SlotID::WAR_MACHINES_SLOT).type->warMachine.BALLISTA)
+		{
+			dmgMultiply += hero->getPrimSkillLevel(PrimarySkill::ATTACK);
+		}
+>>>>>>> 389f8b678befdb4f3dc3bdcdf4d5847fc0f5129d
 	}
 		
 	icons = std::make_shared<CPicture>(ImagePath::builtin("stackWindow/icons"), 117, 32);
