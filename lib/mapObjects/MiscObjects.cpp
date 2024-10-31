@@ -1333,6 +1333,22 @@ void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) 
 	}
 }
 
+std::string HillFort::getPopupText(PlayerColor player) const
+{
+	MetaString message = MetaString::createFromRawString("{%s}\r\n\r\n%s");
+
+	message.replaceName(ID);
+	message.replaceTextID(getDescriptionToolTip());
+
+	return message.toString();
+}
+
+std::string HillFort::getPopupText(const CGHeroInstance * hero) const
+{
+	return getPopupText(hero->getOwner());
+}
+
+
 std::string HillFort::getDescriptionToolTip() const
 {
 	return TextIdentifier(getObjectHandler()->getBaseTextID(), "description").get();
