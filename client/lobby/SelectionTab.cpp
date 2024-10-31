@@ -262,10 +262,10 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 void SelectionTab::toggleMode()
 {
+	allItems.clear();
+	curItems.clear();
 	if(CSH->isGuest())
 	{
-		allItems.clear();
-		curItems.clear();
 		if(slider)
 			slider->block(true);
 	}
@@ -344,6 +344,14 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 			}
 
 			std::cout << (curItems[py]->isFolder ? curItems[py]->folderName : curItems[py]->fullFileURI) << "\n";
+
+			if(!curItems[py]->isFolder)
+				CInfoWindow::showYesNoDialog(CGI->generaltexth->translate("vcmi.lobby.deleteFile") + "\n\n" + curItems[py]->fullFileURI, std::vector<std::shared_ptr<CComponent>>(), [this, py](){
+					LobbyDelete ld;
+					ld.type = tabType == ESelectionScreen::newGame ? LobbyDelete::RANDOMMAP : LobbyDelete::SAVEGAME;
+					ld.name = curItems[py]->fileURI;
+					CSH->sendLobbyPack(ld);
+				}, nullptr);
 		}
 	}
 #ifdef VCMI_MOBILE

@@ -442,10 +442,15 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack
 
 void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 {
-	if(pack.type == LobbyDelete::SAVEGAME)
+	if(pack.type == LobbyDelete::SAVEGAME || pack.type == LobbyDelete::RANDOMMAP)
 	{
-		auto res = ResourcePath(pack.name, EResType::SAVEGAME);
+		auto res = ResourcePath(pack.name, pack.type == LobbyDelete::SAVEGAME ? EResType::SAVEGAME : EResType::MAP);
 		auto file = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(res));
 		boost::filesystem::remove(file);
 	}
+
+	LobbyUpdateState lus;
+	lus.state = srv;
+	lus.refreshList = true;
+	srv.announcePack(lus);
 }

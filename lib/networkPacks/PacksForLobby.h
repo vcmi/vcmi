@@ -170,12 +170,15 @@ struct DLL_LINKAGE LobbyUpdateState : public CLobbyPackToPropagate
 {
 	LobbyState state;
 	bool hostChanged = false; // Used on client-side only
+	bool refreshList = false;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & state;
+		if (h.version >= Handler::Version::LOBBY_DELETE)
+			h & refreshList;
 	}
 };
 
