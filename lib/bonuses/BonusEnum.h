@@ -180,6 +180,7 @@ class JsonNode;
 	BONUS_NAME(RESOURCES_TOWN_MULTIPLYING_BOOST) /*Bonus that does not account for propagation and gives extra resources per day with amount multiplied by number of owned towns. val - base resource amount to be multiplied times number of owned towns, subtype - resource type*/ \
 	BONUS_NAME(DISINTEGRATE) /* after death no corpse remains */ \
 	BONUS_NAME(INVINCIBLE) /* cannot be target of attacks or spells */ \
+	BONUS_NAME(MECHANICAL) /*eg. factory creatures, cannot be rised or healed, only neutral morale, repairable by engineer */ \
 	BONUS_NAME(PRISM_HEX_ATTACK_BREATH) /*eg. dragons*/	\
 	/* end of list */
 
