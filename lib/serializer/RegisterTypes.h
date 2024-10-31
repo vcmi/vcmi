@@ -294,6 +294,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<SpellResearch>(241);
 	s.template registerType<SetResearchedSpells>(242);
 	s.template registerType<SaveLocalState>(243);
+	s.template registerType<LobbyDelete>(244);
 }
 
 VCMI_LIB_NAMESPACE_END

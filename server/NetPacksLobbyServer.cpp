@@ -22,6 +22,7 @@
 #include "../lib/serializer/Connection.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
+#include "../lib/filesystem/Filesystem.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
@@ -383,7 +384,6 @@ void ApplyOnServerNetPackVisitor::visitLobbyForceSetPlayer(LobbyForceSetPlayer &
 	result = true;
 }
 
-
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 {
 	result = true;
@@ -432,4 +432,20 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 			break;
 	}
 	result = true;
+}
+
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
+{
+	result = srv.isClientHost(pack.c->connectionID);
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
+{
+	if(pack.type == LobbyDelete::SAVEGAME)
+	{
+		auto res = ResourcePath(pack.name, EResType::SAVEGAME);
+		auto file = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(res));
+		boost::filesystem::remove(file);
+	}
 }

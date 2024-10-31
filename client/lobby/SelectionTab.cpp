@@ -42,9 +42,11 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
+#include "../../lib/networkPacks/PacksForLobby.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/UnlockGuard.h"
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
 {
@@ -823,6 +825,15 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 
 void SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 {
+	enum Choice { NONE, REMAIN, DELETE };
+	Choice deleteUnsupported = NONE;
+	auto doDeleteUnsupported = [](std::string file){
+		LobbyDelete ld;
+		ld.type = LobbyDelete::SAVEGAME;
+		ld.name = file;
+		CSH->sendLobbyPack(ld);
+	};
+
 	for(auto & file : files)
 	{
 		try
@@ -863,7 +874,28 @@ void SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 		}
 		catch(const std::exception & e)
 		{
-			logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
+			// asking for deletion of unsupported saves
+			if(CSH->isHost())
+			{
+				if(deleteUnsupported == DELETE)
+					doDeleteUnsupported(file.getName());
+				else if(deleteUnsupported == NONE)
+				{
+					CInfoWindow::showYesNoDialog(CGI->generaltexth->translate("vcmi.lobby.deleteUnsupportedSave"), std::vector<std::shared_ptr<CComponent>>(), [&deleteUnsupported, doDeleteUnsupported, file](){
+						doDeleteUnsupported(file.getName());
+						deleteUnsupported = DELETE;
+					}, [&deleteUnsupported](){ deleteUnsupported = REMAIN; });
+
+					while(deleteUnsupported == NONE)
+					{
+						auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+						boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
+					}
+				}
+			}
+
+			if(deleteUnsupported != DELETE)
+				logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
 		}
 	}
 }

@@ -381,4 +381,22 @@ struct DLL_LINKAGE LobbyPvPAction : public CLobbyPackToServer
 	}
 };
 
+struct DLL_LINKAGE LobbyDelete : public CLobbyPackToServer
+{
+	enum EType : ui8 {
+		SAVEGAME, SAVEGAME_FOLDER, RANDOMMAP
+	};
+
+	EType type = SAVEGAME;
+	std::string name;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & type;
+		h & name;
+	}
+};
+
 VCMI_LIB_NAMESPACE_END
