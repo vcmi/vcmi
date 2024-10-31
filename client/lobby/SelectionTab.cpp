@@ -154,7 +154,7 @@ static ESortBy getSortBySelectionScreen(ESelectionScreen Type)
 }
 
 SelectionTab::SelectionTab(ESelectionScreen Type)
-	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}, curFolder(""), currentMapSizeFilter(0), showRandom(false)
+	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}, curFolder(""), currentMapSizeFilter(0), showRandom(false), deleteMode(false)
 {
 	OBJECT_CONSTRUCTION;
 		
@@ -194,20 +194,24 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 	int positionsToShow = 18;
 	std::string tabTitle;
+	std::string tabTitleDelete;
 	switch(tabType)
 	{
 	case ESelectionScreen::newGame:
-		tabTitle = CGI->generaltexth->arraytxt[229];
+		tabTitle = "{" + CGI->generaltexth->arraytxt[229] + "}";
+		tabTitleDelete = "{red|" + CGI->generaltexth->translate("vcmi.lobby.deleteMapTitle") + "}";
 		break;
 	case ESelectionScreen::loadGame:
-		tabTitle = CGI->generaltexth->arraytxt[230];
+		tabTitle = "{" + CGI->generaltexth->arraytxt[230] + "}";
+		tabTitleDelete = "{red|" + CGI->generaltexth->translate("vcmi.lobby.deleteSaveGameTitle") + "}";
 		break;
 	case ESelectionScreen::saveGame:
 		positionsToShow = 16;
-		tabTitle = CGI->generaltexth->arraytxt[231];
+		tabTitle = "{" + CGI->generaltexth->arraytxt[231] + "}";
+		tabTitleDelete = "{red|" + CGI->generaltexth->translate("vcmi.lobby.deleteSaveGameTitle") + "}";
 		break;
 	case ESelectionScreen::campaignList:
-		tabTitle = CGI->generaltexth->allTexts[726];
+		tabTitle = "{" + CGI->generaltexth->allTexts[726] + "}";
 		setRedrawParent(true); // we use parent background so we need to make sure it's will be redrawn too
 		pos.w = parent->pos.w;
 		pos.h = parent->pos.h;
@@ -227,12 +231,26 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		auto sortByDate = std::make_shared<CButton>(Point(371, 85), AnimationPath::builtin("selectionTabSortDate"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate), EShortcut::MAPS_SORT_CHANGEDATE);
 		sortByDate->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/selectionTabSortDate")));
 		buttonsSortBy.push_back(sortByDate);
+
+		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::saveGame || tabType == ESelectionScreen::newGame)
+		{
+			buttonDeleteMode = std::make_shared<CButton>(Point(367, 18), AnimationPath::builtin("lobby/deleteButton"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.deleteMode")), [this, tabTitle, tabTitleDelete](){
+				deleteMode = !deleteMode;
+				if(deleteMode)
+					labelTabTitle->setText(tabTitleDelete);
+				else
+					labelTabTitle->setText(tabTitle);
+			});
+
+			if(tabType == ESelectionScreen::newGame)
+				buttonDeleteMode->setEnabled(false);
+		}
 	}
 
 	for(int i = 0; i < positionsToShow; i++)
 		listItems.push_back(std::make_shared<ListItem>(Point(30, 129 + i * 25)));
 
-	labelTabTitle = std::make_shared<CLabel>(205, 28, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, tabTitle);
+	labelTabTitle = std::make_shared<CLabel>(205, 28, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, tabTitle);
 	slider = std::make_shared<CSlider>(Point(372, 86 + (enableUiEnhancements ? 30 : 0)), (tabType != ESelectionScreen::saveGame ? 480 : 430) - (enableUiEnhancements ? 30 : 0), std::bind(&SelectionTab::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, Orientation::VERTICAL, CSlider::BLUE);
 	slider->setPanningStep(24);
 
@@ -311,7 +329,22 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 
 	if(line != -1)
 	{
-		select(line);
+		if(!deleteMode)
+			select(line);
+		else
+		{
+			int py = line + slider->getValue();
+			vstd::amax(py, 0);
+			vstd::amin(py, curItems.size() - 1);
+
+			if(curItems[py]->isFolder && boost::algorithm::starts_with(curItems[py]->folderName, ".."))
+			{
+				select(line);
+				return;
+			}
+
+			std::cout << (curItems[py]->isFolder ? curItems[py]->folderName : curItems[py]->fullFileURI) << "\n";
+		}
 	}
 #ifdef VCMI_MOBILE
 	// focus input field if clicked inside it
@@ -476,6 +509,9 @@ void SelectionTab::filter(int size, bool selectFirst)
 	currentMapSizeFilter = size;
 
 	curItems.clear();
+
+	if(buttonDeleteMode)
+		buttonDeleteMode->setEnabled(tabType != ESelectionScreen::newGame || showRandom);
 
 	for(auto elem : allItems)
 	{

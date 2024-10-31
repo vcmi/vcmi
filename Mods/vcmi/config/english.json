@@ -107,6 +107,11 @@
 	"vcmi.lobby.handicap.income" : "Changes the player's various incomes by the percentage. Is rounded up.",
 	"vcmi.lobby.handicap.growth" : "Changes the growth rate of creatures in the towns owned by the player. Is rounded up.",
 	"vcmi.lobby.deleteUnsupportedSave" : "Unsupported saves found (e.g. from previous versions).\n\nDelete them?",
+	"vcmi.lobby.deleteSaveGameTitle" : "Select a Saved Game to delete",
+	"vcmi.lobby.deleteMapTitle" : "Select a Scenario to delete",
+	"vcmi.lobby.deleteFile" : "Do you want to delete following file?",
+	"vcmi.lobby.deleteFolder" : "Do you want to delete following folder?",
+	"vcmi.lobby.deleteMode" : "Switch to delete mode and back",
 		
 	"vcmi.lobby.login.title" : "VCMI Online Lobby",
 	"vcmi.lobby.login.username" : "Username:",

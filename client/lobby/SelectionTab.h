@@ -117,6 +117,9 @@ private:
 	ESelectionScreen tabType;
 	Rect inputNameRect;
 
+	std::shared_ptr<CButton> buttonDeleteMode;
+	bool deleteMode;
+
 	auto checkSubfolder(std::string path);
 
 	bool isMapSupported(const CMapInfo & info);
