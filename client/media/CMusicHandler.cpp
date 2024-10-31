@@ -265,7 +265,12 @@ void MusicEntry::load(const AudioPath & musicURI)
 
 	try
 	{
-		auto * musicFile = MakeSDLRWops(CResourceHandler::get()->load(currentName));
+		std::unique_ptr<CInputStream> stream = CResourceHandler::get()->load(currentName);
+
+		if(musicURI.getName() == "BLADEFWCAMPAIGN") // handle defect MP3 file - ffprobe says: Skipping 52 bytes of junk at 0.
+			stream->seek(52);
+
+		auto * musicFile = MakeSDLRWops(std::move(stream));
 		music = Mix_LoadMUS_RW(musicFile, SDL_TRUE);
 	}
 	catch(std::exception & e)

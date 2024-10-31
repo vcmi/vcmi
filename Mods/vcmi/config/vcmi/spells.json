@@ -1,0 +1,66 @@
+{
+	"core:summonDemons" : {
+		"name": "Summon Demons"
+	},
+	"core:firstAid" : {
+		"name": "First Aid"
+	},
+	"core:catapultShot" : {
+		"name": "Catapult shot"
+	},
+	"core:cyclopsShot" : {
+		"name": "Siege shot"
+	},
+	
+	"core:fireWallTrigger" : {
+		"name" : "Fire Wall"
+	},
+	"core:landMineTrigger" : {
+		"name" : "Land Mine",
+	},	
+	"core:castleMoatTrigger" : {
+		"name": "Moat"
+	},
+	"core:castleMoat": {
+		"name": "Moat"
+	},
+	"core:rampartMoatTrigger" : {
+		"name": "Brambles"
+	},
+	"core:rampartMoat": {
+		"name": "Brambles"
+	},
+	"core:towerMoat": {
+		"name": "Land Mine"
+	},
+	"core:infernoMoatTrigger" : {
+		"name": "Lava"
+	},
+	"core:infernoMoat": {
+		"name": "Lava"
+	},
+	"core:necropolisMoatTrigger" : {
+		"name": "Boneyard"
+	},
+	"core:necropolisMoat": {
+		"name": "Boneyard"
+	},
+	"core:dungeonMoatTrigger" : {
+		"name": "Boiling Oil"
+	},
+	"core:dungeonMoat": {
+		"name": "Boiling Oil"
+	},
+	"core:strongholdMoatTrigger" : {
+		"name": "Wooden Spikes"
+	},
+	"core:strongholdMoat": {
+		"name": "Wooden Spikes"
+	},
+	"core:fortressMoatTrigger" : {
+		"name": "Boiling Tar"
+	},
+	"core:fortressMoat": {
+		"name": "Boiling Tar"
+	}
+}

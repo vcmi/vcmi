@@ -1,0 +1,29 @@
+{
+	"lighthouse" : {
+		"index" :42,
+		"handler" : "flaggable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["LIGHTHOUSE"]
+			}
+		},
+		"types" : {
+			"lighthouse" : {
+				"compatibilityIdentifiers" : [ "object" ],
+				"index" : 0,
+				"aiValue" : 500,
+				"rmg" : {
+				},
+				
+				"message" : "@core.advevent.69",
+				"bonuses" : {
+					"seaMovement" : {
+						"type" : "MOVEMENT",
+						"subtype" : "heroMovementSea",
+						"val" : 500
+					}
+				}
+			}
+		}
+	}
+}

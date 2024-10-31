@@ -62,8 +62,6 @@ public:
 	LegacyTextContainer fcommands; // fort screen
 	LegacyTextContainer tavernInfo;
 
-	LegacyTextContainer qeModCommands;
-
 	LegacyHelpContainer zelp;
 
 	//objects
@@ -75,8 +73,6 @@ public:
 
 	//sec skills
 	LegacyTextContainer levels;
-	//commanders
-	LegacyTextContainer znpc00; //more or less useful content of that file
 
 	std::vector<std::string> findStringsWithPrefix(const std::string & prefix);
 

@@ -43,6 +43,7 @@ CModInfo::CModInfo():
 CModInfo::CModInfo(const std::string & identifier, const JsonNode & local, const JsonNode & config):
 	identifier(identifier),
 	dependencies(readModList(config["depends"])),
+	softDependencies(readModList(config["softDepends"])),
 	conflicts(readModList(config["conflicts"])),
 	explicitlyEnabled(false),
 	implicitlyEnabled(true),

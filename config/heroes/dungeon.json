@@ -198,7 +198,7 @@
 	{
 		"index": 91,
 		"class" : "warlock",
-		"female": true,
+		"female": false,
 		"spellbook": [ "resurrection" ],
 		"skills":
 		[

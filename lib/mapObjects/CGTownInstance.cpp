@@ -166,7 +166,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 		const auto growth = b->val * (base + castleBonus) / 100;
 		if (growth)
 		{
-			ret.entries.emplace_back(growth, b->Description(growth));
+			ret.entries.emplace_back(growth, b->Description(cb, growth));
 		}
 	}
 
@@ -174,7 +174,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	// Note: bonus uses 1-based levels (Pikeman is level 1), town list uses 0-based (Pikeman in 0-th creatures entry)
 	TConstBonusListPtr bonuses = getBonuses(Selector::typeSubtype(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(level+1)));
 	for(const auto & b : *bonuses)
-		ret.entries.emplace_back(b->val, b->Description());
+		ret.entries.emplace_back(b->val, b->Description(cb));
 
 	int dwellingBonus = 0;
 	if(const PlayerState *p = cb->getPlayerState(tempOwner, false))

@@ -29,15 +29,15 @@ CArtifactsOfHeroKingdom::CArtifactsOfHeroKingdom(ArtPlaceMap ArtWorn, std::vecto
 	for(auto artPlace : artWorn)
 	{
 		artPlace.second->slot = artPlace.first;
-		artPlace.second->setArtifact(nullptr);
-		artPlace.second->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
+		artPlace.second->setArtifact(ArtifactID(ArtifactID::NONE));
+		artPlace.second->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPressedArtPlace, this, _1, _2));
 		artPlace.second->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 	}
 	enableGesture();
 	for(auto artPlace : backpack)
 	{
-		artPlace->setArtifact(nullptr);
-		artPlace->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
+		artPlace->setArtifact(ArtifactID(ArtifactID::NONE));
+		artPlace->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPressedArtPlace, this, _1, _2));
 		artPlace->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 	}
 	leftBackpackRoll->addCallback(std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, -1));

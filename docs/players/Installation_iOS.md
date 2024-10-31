@@ -26,7 +26,7 @@ Note: if you don't need in-game videos, you can omit downloading/copying file VI
 
 ### Step 2.a: Installing data files with GOG offline installer
 
-If you bought HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the files directly from the browser and install them in the launcher. Select the .exe file first, then the .bin file. This may take a few seconds. Please be patient.
+If you bought HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the files directly from the browser and install them in the launcher. Select the .bin file first, then the .exe file. This may take a few seconds. Please be patient.
 
 ### Step 2.b: Installing data files with Finder or Windows explorer
 

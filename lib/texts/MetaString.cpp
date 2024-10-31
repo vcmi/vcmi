@@ -13,6 +13,7 @@
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
 #include "CCreatureSet.h"
+#include "entities/faction/CFaction.h"
 #include "texts/CGeneralTextHandler.h"
 #include "CSkillHandler.h"
 #include "GameConstants.h"
@@ -383,6 +384,11 @@ void MetaString::appendNamePlural(const CreatureID & id)
 }
 
 void MetaString::replaceName(const ArtifactID & id)
+{
+	replaceTextID(id.toEntity(VLC)->getNameTextID());
+}
+
+void MetaString::replaceName(const FactionID & id)
 {
 	replaceTextID(id.toEntity(VLC)->getNameTextID());
 }

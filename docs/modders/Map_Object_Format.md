@@ -49,6 +49,7 @@ These are object types that are available for modding and have configurable prop
 - `dwelling` - see [Dwelling](Map_Objects/Dwelling.md). Object that allows recruitments of units outside of towns
 - `market` - see [Market](Map_Objects/Market.md). Trading resources, artifacts, creatures and such
 - `boat` - see [Boat](Map_Objects/Boat.md). Object to move across different terrains, such as water
+- `flaggable` - see [Flaggable](Map_Objects/Flaggable.md). Object that can be flagged by a player to provide [Bonus](Bonus_Format.md) or resources
 - `hillFort` - TODO: documentation. See config files in vcmi installation for reference
 - `shipyard` - TODO: documentation. See config files in vcmi installation for reference
 - `terrain` - Defines terrain overlays such as magic grounds. TODO: documentation. See config files in vcmi installation for reference
@@ -60,7 +61,6 @@ These are types that don't have configurable properties, however it is possible 
 - `generic` - Defines empty object type that provides no functionality. Note that unlike `static`, objects of this type are never used by RMG
 - `borderGate`
 - `borderGuard`
-- `lighthouse`
 - `magi`
 - `mine`
 - `obelisk`
