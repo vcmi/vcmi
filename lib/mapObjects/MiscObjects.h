@@ -437,6 +437,9 @@ protected:
 public:
 	using CGObjectInstance::CGObjectInstance;
 
+	std::string getDescriptionToolTip() const;
+	std::string getUnavailableUpgradeMessage() const;
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);

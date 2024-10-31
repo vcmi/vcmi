@@ -49,6 +49,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+const ui32 CGHeroInstance::NO_PATROLLING = std::numeric_limits<ui32>::max();
+
 void CGHeroPlaceholder::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	serializeJsonOwner(handler);
@@ -1772,21 +1774,20 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	CArmedInstance::serializeJsonOptions(handler);
 
 	{
-		static constexpr int NO_PATROLING = -1;
-		int rawPatrolRadius = NO_PATROLING;
+		ui32 rawPatrolRadius = NO_PATROLLING;
 
 		if(handler.saving)
 		{
-			rawPatrolRadius = patrol.patrolling ? patrol.patrolRadius : NO_PATROLING;
+			rawPatrolRadius = patrol.patrolling ? patrol.patrolRadius : NO_PATROLLING;
 		}
 
-		handler.serializeInt("patrolRadius", rawPatrolRadius, NO_PATROLING);
+		handler.serializeInt("patrolRadius", rawPatrolRadius, NO_PATROLLING);
 
 		if(!handler.saving)
 		{
-			patrol.patrolling = (rawPatrolRadius > NO_PATROLING);
+			patrol.patrolling = (rawPatrolRadius != NO_PATROLLING);
 			patrol.initialPos = visitablePos();
-			patrol.patrolRadius = (rawPatrolRadius > NO_PATROLING) ? rawPatrolRadius : 0;
+			patrol.patrolRadius = patrol.patrolling ? rawPatrolRadius : 0;
 		}
 	}
 }

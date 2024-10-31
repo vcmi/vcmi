@@ -122,6 +122,11 @@
 			"description" : "List of mods that are required to run this one",
 			"items" : { "type" : "string" }
 		},
+		"softDepends" : {
+			"type" : "array",
+			"description" : "List of mods if they are enabled, should be loaded before this one. This mod will overwrite any conflicting items from its soft dependency mods",
+			"items" : { "type" : "string" }
+		},
 		"conflicts" : {
 			"type" : "array",
 			"description" : "List of mods that can't be enabled in the same time as this one",

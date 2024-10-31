@@ -46,6 +46,7 @@ class VideoWidget;
 class VideoWidgetOnce;
 class GraphicalPrimitiveCanvas;
 class TransparentFilledRectangle;
+class CSecSkillPlace;
 
 enum class EUserEvent;
 
@@ -370,7 +371,7 @@ class CUniversityWindow final : public CStatusbarWindow, public IMarketHolder
 {
 	class CItem final : public CIntObject
 	{
-		std::shared_ptr<CAnimImage> icon;
+		std::shared_ptr<CSecSkillPlace> skill;
 		std::shared_ptr<CPicture> topBar;
 		std::shared_ptr<CPicture> bottomBar;
 		std::shared_ptr<CLabel> name;
@@ -379,9 +380,6 @@ class CUniversityWindow final : public CStatusbarWindow, public IMarketHolder
 		SecondarySkill ID;//id of selected skill
 		CUniversityWindow * parent;
 
-		void clickPressed(const Point & cursorPosition) override;
-		void showPopupWindow(const Point & cursorPosition) override;
-		void hover(bool on) override;
 		void update();
 		CItem(CUniversityWindow * _parent, int _ID, int X, int Y);
 	};
@@ -451,9 +449,11 @@ public:
 class CHillFortWindow : public CStatusbarWindow, public IGarrisonHolder
 {
 private:
-	static const int slotsCount = 7;
+
+	enum class State { UNAFFORDABLE, ALREADY_UPGRADED, MAKE_UPGRADE, EMPTY, UNAVAILABLE };
+	static constexpr std::size_t slotsCount = 7;
 	//todo: mithril support
-	static const int resCount = 7;
+	static constexpr std::size_t resCount = 7;
 
 	const CGObjectInstance * fort;
 	const CGHeroInstance * hero;
@@ -465,7 +465,7 @@ private:
 	std::array<std::shared_ptr<CLabel>, resCount> totalLabels;
 
 	std::array<std::shared_ptr<CButton>, slotsCount> upgrade;//upgrade single creature
-	std::array<int, slotsCount + 1> currState;//current state of slot - to avoid calls to getState or updating buttons
+	std::array<State, slotsCount + 1> currState;//current state of slot - to avoid calls to getState or updating buttons
 
 	//there is a place for only 2 resources per slot
 	std::array< std::array<std::shared_ptr<CAnimImage>, 2>, slotsCount> slotIcons;
@@ -480,7 +480,7 @@ private:
 	std::string getTextForSlot(SlotID slot);
 
 	void makeDeal(SlotID slot);//-1 for upgrading all creatures
-	int getState(SlotID slot); //-1 = no creature 0=can't upgrade, 1=upgraded, 2=can upgrade
+	State getState(SlotID slot);
 public:
 	CHillFortWindow(const CGHeroInstance * visitor, const CGObjectInstance * object);
 	void updateGarrisons() override;//update buttons after garrison changes

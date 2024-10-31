@@ -1998,6 +1998,10 @@
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
 						"parameters" : [ "GARGOYLE" ]
+					},
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"parameters" : [ "SIEGE_WEAPON" ]
 					}
 				]
 			},
