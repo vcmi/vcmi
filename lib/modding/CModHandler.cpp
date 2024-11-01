@@ -443,7 +443,7 @@ std::string CModHandler::findResourceEncoding(const ResourcePath & resource) con
 		// however at the moment we have no way to detect that for sure - file can be either in English or in user-preferred language
 		// but since all known H3 encodings (Win125X or GBK) are supersets of ASCII, we can safely load English data using encoding of user-preferred language
 		std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
-		std::string fileEncoding = Languages::getLanguageOptions(modLanguage).encoding;
+		std::string fileEncoding = Languages::getLanguageOptions(preferredLanguage).encoding;
 		return fileEncoding;
 	}
 	else
