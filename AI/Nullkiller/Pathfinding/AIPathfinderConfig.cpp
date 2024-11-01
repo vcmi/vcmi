@@ -44,7 +44,7 @@ namespace AIPathfinding
 		Nullkiller * ai,
 		std::shared_ptr<AINodeStorage> nodeStorage,
 		bool allowBypassObjects)
-		:PathfinderConfig(nodeStorage, makeRuleset(cb, ai, nodeStorage, allowBypassObjects)), aiNodeStorage(nodeStorage)
+		:PathfinderConfig(nodeStorage, cb, makeRuleset(cb, ai, nodeStorage, allowBypassObjects)), aiNodeStorage(nodeStorage)
 	{
 		options.canUseCast = true;
 		options.allowLayerTransitioningAfterBattle = true;

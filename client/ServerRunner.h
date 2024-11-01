@@ -44,10 +44,23 @@ public:
 };
 
 #ifndef VCMI_MOBILE
+// Enable support for running vcmiserver as separate process. Unavailable on mobile systems
+#define ENABLE_SERVER_PROCESS
+#endif
 
+#ifdef ENABLE_SERVER_PROCESS
+
+#if BOOST_VERSION >= 108600
+namespace boost::process {
+inline namespace v1 {
+class child;
+}
+}
+#else
 namespace boost::process {
 class child;
 }
+#endif
 
 /// Class that runs server instance as a child process
 /// Available only on desktop systems where process management is allowed

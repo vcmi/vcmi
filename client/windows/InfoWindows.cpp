@@ -245,8 +245,11 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 	}
 }
 
-CRClickPopupInt::CRClickPopupInt(const std::shared_ptr<CIntObject> & our)
+CRClickPopupInt::CRClickPopupInt(const std::shared_ptr<CIntObject> & our) :
+	dragDistance(Point(0, 0))
 {
+	addUsedEvents(DRAG_POPUP);
+
 	CCS->curh->hide();
 	inner = our;
 	addChild(our.get(), false);
@@ -255,6 +258,17 @@ CRClickPopupInt::CRClickPopupInt(const std::shared_ptr<CIntObject> & our)
 CRClickPopupInt::~CRClickPopupInt()
 {
 	CCS->curh->show();
+}
+
+void CRClickPopupInt::mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance)
+{
+	if(!settings["adventure"]["rightButtonDrag"].Bool())
+		return;
+	
+	dragDistance += lastUpdateDistance;
+	
+	if(dragDistance.length() > 16)
+		close();
 }
 
 Point CInfoBoxPopup::toScreen(Point p)
@@ -267,6 +281,18 @@ Point CInfoBoxPopup::toScreen(Point p)
 	return p;
 }
 
+void CInfoBoxPopup::mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance)
+{
+	if(!settings["adventure"]["rightButtonDrag"].Bool())
+		return;
+	
+	dragDistance += lastUpdateDistance;
+	
+	if(dragDistance.length() > 16)
+		close();
+}
+
+
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
 	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("TOWNQVBK"), toScreen(position))
 {
@@ -275,6 +301,8 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
 
 	OBJECT_CONSTRUCTION;
 	tooltip = std::make_shared<CTownTooltip>(Point(9, 10), iah);
+
+	addUsedEvents(DRAG_POPUP);
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
@@ -285,6 +313,8 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
 
 	OBJECT_CONSTRUCTION;
 	tooltip = std::make_shared<CHeroTooltip>(Point(9, 10), iah);
+	
+	addUsedEvents(DRAG_POPUP);
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
@@ -295,6 +325,8 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
 
 	OBJECT_CONSTRUCTION;
 	tooltip = std::make_shared<CArmyTooltip>(Point(9, 10), iah);
+	
+	addUsedEvents(DRAG_POPUP);
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGCreature * creature)
@@ -302,6 +334,8 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGCreature * creature)
 {
 	OBJECT_CONSTRUCTION;
 	tooltip = std::make_shared<CreatureTooltip>(Point(9, 10), creature);
+	
+	addUsedEvents(DRAG_POPUP);
 }
 
 std::shared_ptr<WindowBase>

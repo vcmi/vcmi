@@ -145,13 +145,13 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 							issues.insert({ tr("Spell scroll %1 is prohibited by map settings").arg(ins->storedArtifact->getScrollSpellID().toEntity(VLC->spells())->getNameTranslated().c_str()), false });
 					}
 					else
-						issues.insert({ tr("Spell scroll % 1 doesn't have instance assigned and must be removed").arg(ins->instanceName.c_str()), true });
+						issues.insert({ tr("Spell scroll %1 doesn't have instance assigned and must be removed").arg(ins->instanceName.c_str()), true });
 				}
 				else
 				{
 					if(ins->ID == Obj::ARTIFACT && map->allowedArtifact.count(ins->getArtifact()) == 0)
 					{
-						issues.insert({ tr("Artifact % 1 is prohibited by map settings").arg(ins->getObjectName().c_str()), false });
+						issues.insert({ tr("Artifact %1 is prohibited by map settings").arg(ins->getObjectName().c_str()), false });
 					}
 				}
 			}

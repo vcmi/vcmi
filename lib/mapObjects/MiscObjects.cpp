@@ -219,7 +219,7 @@ void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &resu
 void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
-		cb->startBattleI(hero, this);
+		cb->startBattle(hero, this);
 }
 
 void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -352,7 +352,7 @@ void CGResource::battleFinished(const CGHeroInstance *hero, const BattleResult &
 void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
-		cb->startBattleI(hero, this);
+		cb->startBattle(hero, this);
 }
 
 void CGResource::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -919,7 +919,7 @@ void CGArtifact::battleFinished(const CGHeroInstance *hero, const BattleResult &
 void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
-		cb->startBattleI(hero, this);
+		cb->startBattle(hero, this);
 }
 
 void CGArtifact::afterAddToMap(CMap * map)
@@ -999,7 +999,7 @@ void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 	auto relations = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
 	if (relations == PlayerRelations::ENEMIES && stacksCount() > 0) {
 		//TODO: Find a way to apply magic garrison effects in battle.
-		cb->startBattleI(h, this);
+		cb->startBattle(h, this);
 		return;
 	}
 

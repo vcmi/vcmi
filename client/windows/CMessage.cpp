@@ -83,7 +83,7 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 		std::string printableString;
 
 		// loops till line is full or end of text reached
-		while(currPos < text.length() && text[currPos] != 0x0a)
+		while(currPos < text.length() && text[currPos] != 0x0a && graphics->fonts[font]->getStringWidth(printableString) <= maxLineWidth)
 		{
 			symbolSize = TextOperations::getUnicodeCharacterSize(text[currPos]);
 
@@ -115,22 +115,24 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 				color = "";
 			}
 			else
-			{
-				std::string newPrintableString = printableString;
-				newPrintableString.append(text.data() + currPos, symbolSize);
-				if (graphics->fonts[font]->getStringWidth(newPrintableString) < maxLineWidth)
-					printableString.append(text.data() + currPos, symbolSize);
-				else
-					break;
-			}
+				printableString.append(text.data() + currPos, symbolSize);
+
 			currPos += symbolSize;
 		}
 
-		// long line, create line break
+		// not all line has been processed - it turned out to be too long, so erase everything after last word break
+		// if string consists from a single word (or this is Chinese/Korean) - erase only last symbol to bring line back to allowed length
 		if(currPos < text.length() && (text[currPos] != 0x0a))
 		{
 			if(wordBreak != ui32(-1))
+			{
 				currPos = wordBreak;
+				if(text.substr(0, currPos).find('{') == std::string::npos)
+				{
+					opened = false;
+					color = "";
+				}
+			}
 			else
 				currPos -= symbolSize;
 		}

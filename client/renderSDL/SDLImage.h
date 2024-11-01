@@ -51,7 +51,7 @@ public:
 
 	void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;
 
-	void exportBitmap(const boost::filesystem::path & path) const override;
+	void exportBitmap(const boost::filesystem::path & path, SDL_Palette * palette) const override;
 	Point dimensions() const override;
 	bool isTransparent(const Point & coords) const override;
 	std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) override;
@@ -74,7 +74,6 @@ protected:
 public:
 	SDLImageBase(const std::shared_ptr<ISharedImage> & image, EImageBlitMode mode);
 
-	void exportBitmap(const boost::filesystem::path & path) const override;
 	bool isTransparent(const Point & coords) const override;
 	Point dimensions() const override;
 	void setAlpha(uint8_t value) override;
@@ -103,6 +102,7 @@ public:
 	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;
 	void scaleInteger(int factor) override;
 	void scaleTo(const Point & size) override;
+	void exportBitmap(const boost::filesystem::path & path) const override;
 
 	void setShadowEnabled(bool on) override;
 	void setBodyEnabled(bool on) override;
@@ -121,6 +121,7 @@ public:
 	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;
 	void scaleInteger(int factor) override;
 	void scaleTo(const Point & size) override;
+	void exportBitmap(const boost::filesystem::path & path) const override;
 
 	void setShadowEnabled(bool on) override;
 	void setBodyEnabled(bool on) override;

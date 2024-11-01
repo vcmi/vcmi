@@ -17,7 +17,7 @@
 
 #include "../CGameInfoCallback.h"
 #include "../CPlayerState.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
@@ -320,7 +320,7 @@ bool DimensionDoorMechanics::canBeCastImpl(spells::Problem & problem, const CGam
 	int castsAlreadyPerformedThisTurn = caster->getHeroCaster()->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(owner->id)), Selector::all, cachingStr.str())->size();
 	int castsLimit = owner->getLevelPower(schoolLevel);
 
-	bool isTournamentRulesLimitEnabled = VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TOURNAMENT_RULES_LIMIT);
+	bool isTournamentRulesLimitEnabled = cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TOURNAMENT_RULES_LIMIT);
 	if(isTournamentRulesLimitEnabled)
 	{
 		int3 mapSize = cb->getMapSize();
@@ -347,7 +347,7 @@ bool DimensionDoorMechanics::canBeCastAtImpl(spells::Problem & problem, const CG
 	if(!cb->isInTheMap(pos))
 		return false;
 
-	if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES))
+	if(cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES))
 	{
 		if(!cb->isVisible(pos, caster->getCasterOwner()))
 			return false;
@@ -367,7 +367,7 @@ bool DimensionDoorMechanics::canBeCastAtImpl(spells::Problem & problem, const CG
 	if(!isInScreenRange(casterPosition, pos))
 		return false;
 
-	if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_EXPOSES_TERRAIN_TYPE))
+	if(cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_EXPOSES_TERRAIN_TYPE))
 	{
 		if(!dest->isClear(curr))
 			return false;
@@ -396,7 +396,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 		iw.player = parameters.caster->getCasterOwner();
 
 		// tile is either blocked or not possible to move (e.g. water <-> land)
-		if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_FAILURE_SPENDS_POINTS))
+		if(env->getCb()->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_FAILURE_SPENDS_POINTS))
 		{
 			// SOD: DD to such "wrong" terrain results in mana and move points spending, but fails to move hero
 			iw.text = MetaString::createFromTextID("core.genrltxt.70"); // Dimension Door failed!

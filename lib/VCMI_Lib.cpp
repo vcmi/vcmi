@@ -135,7 +135,7 @@ const ObstacleService * LibClasses::obstacles() const
 	return obstacleHandler.get();
 }
 
-const IGameSettings * LibClasses::settings() const
+const IGameSettings * LibClasses::engineSettings() const
 {
 	return settingsHandler.get();
 }

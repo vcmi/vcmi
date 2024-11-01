@@ -16,7 +16,7 @@
 #include "../VCMI_Lib.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../CSoundBase.h"
 
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
@@ -103,7 +103,7 @@ CObjectClassesHandler::~CObjectClassesHandler() = default;
 
 std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_OBJECT);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_OBJECT);
 
 	CLegacyConfigParser parser(TextPath::builtin("Data/Objects.txt"));
 	auto totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
@@ -202,6 +202,11 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 		handler = "generic";
 		assert(handlerConstructors.count(handler) != 0);
 	}
+
+	// Compatibility with 1.5 mods for 1.6. To be removed in 1.7
+	// Detect banks that use old format and load them using old bank hander
+	if (baseObject->id == Obj::CREATURE_BANK && entry.Struct().count("levels") && !entry.Struct().count("rewards"))
+		handler = "bank";
 
 	auto createdObject = handlerConstructors.at(handler)();
 
@@ -346,7 +351,7 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObj
 			return mapObjectTypes.front()->objectTypeHandlers.front();
 
 		auto subID = subtype.getNum();
-		if (type == Obj::PRISON)
+		if (type == Obj::PRISON || type == Obj::HERO_PLACEHOLDER)
 			subID = 0;
 		auto result = mapObjectTypes.at(type.getNum())->objectTypeHandlers.at(subID);
 

@@ -17,7 +17,12 @@
 #include "../render/Canvas.h"
 
 VideoWidgetBase::VideoWidgetBase(const Point & position, const VideoPath & video, bool playAudio)
-	: playAudio(playAudio)
+	: VideoWidgetBase(position, video, playAudio, 1.0)
+{
+}
+
+VideoWidgetBase::VideoWidgetBase(const Point & position, const VideoPath & video, bool playAudio, float scaleFactor)
+	: playAudio(playAudio), scaleFactor(scaleFactor)
 {
 	addUsedEvents(TIME);
 	pos += position;
@@ -28,7 +33,7 @@ VideoWidgetBase::~VideoWidgetBase() = default;
 
 void VideoWidgetBase::playVideo(const VideoPath & fileToPlay)
 {
-	videoInstance = CCS->videoh->open(fileToPlay, false);
+	videoInstance = CCS->videoh->open(fileToPlay, scaleFactor);
 	if (videoInstance)
 	{
 		pos.w = videoInstance->size().x;
@@ -138,6 +143,12 @@ void VideoWidget::onPlaybackFinished()
 
 VideoWidgetOnce::VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, const std::function<void()> & callback)
 	: VideoWidgetBase(position, video, playAudio)
+	, callback(callback)
+{
+}
+
+VideoWidgetOnce::VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, float scaleFactor, const std::function<void()> & callback)
+	: VideoWidgetBase(position, video, playAudio, scaleFactor)
 	, callback(callback)
 {
 }

@@ -146,6 +146,13 @@ std::optional<const CGObjectInstance *> ObjectClusterizer::getBlocker(const AIPa
 		return blocker;
 	}
 
+	auto danger = ai->dangerEvaluator->evaluateDanger(blocker);
+
+	if(danger > 0 && blocker->isBlockedVisitable() && isObjectRemovable(blocker))
+	{
+		return blocker;
+	}
+
 	return std::optional< const CGObjectInstance *>();
 }
 

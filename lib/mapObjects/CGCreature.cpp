@@ -14,7 +14,7 @@
 
 #include "../texts/CGeneralTextHandler.h"
 #include "../CConfigHandler.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -22,6 +22,7 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../entities/faction/CTownHandler.h"
 
 #include <vstd/RNG.h>
 
@@ -101,6 +102,11 @@ std::string CGCreature::getPopupText(const CGHeroInstance * hero) const
 
 	if (settings["general"]["enableUiEnhancements"].Bool())
 	{
+		std::string monsterLevel = VLC->generaltexth->translate("vcmi.adventureMap.monsterLevel");
+		boost::replace_first(monsterLevel, "%TOWN", (*VLC->townh)[VLC->creatures()->getById(getCreature())->getFaction()]->getNameTranslated());
+		boost::replace_first(monsterLevel, "%LEVEL", std::to_string(VLC->creatures()->getById(getCreature())->getLevel()));
+		hoverName += monsterLevel;
+
 		hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.title");
 
 		int choice;
@@ -280,15 +286,15 @@ void CGCreature::newTurn(vstd::RNG & rand) const
 {//Works only for stacks of single type of size up to 2 millions
 	if (!notGrowingTeam)
 	{
-		if (stacks.begin()->second->count < VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
+		if (stacks.begin()->second->count < cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
 		{
-			ui32 power = static_cast<ui32>(temppower * (100 + VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT)) / 100);
-			cb->setObjPropertyValue(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP))); //set new amount
+			ui32 power = static_cast<ui32>(temppower * (100 + cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT)) / 100);
+			cb->setObjPropertyValue(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP))); //set new amount
 			cb->setObjPropertyValue(id, ObjProperty::MONSTER_POWER, power); //increase temppower
 		}
 	}
-	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
-		cb->setObjPropertyValue(id, ObjProperty::MONSTER_EXP, VLC->settings()->getInteger(EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE)); //for testing purpose
+	if (cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
+		cb->setObjPropertyValue(id, ObjProperty::MONSTER_EXP, cb->getSettings().getInteger(EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE)); //for testing purpose
 }
 void CGCreature::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
@@ -465,7 +471,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 		}
 	}
 
-	cb->startBattleI(h, this);
+	cb->startBattle(h, this);
 
 }
 

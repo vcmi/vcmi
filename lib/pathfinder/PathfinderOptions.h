@@ -16,7 +16,7 @@ class IPathfindingRule;
 class CPathfinderHelper;
 class CGameState;
 class CGHeroInstance;
-
+class CGameInfoCallback;
 struct PathNodeInfo;
 struct CPathsInfo;
 
@@ -85,7 +85,7 @@ struct DLL_LINKAGE PathfinderOptions
 	/// </summary>
 	bool allowLayerTransitioningAfterBattle;
 
-	PathfinderOptions();
+	PathfinderOptions(const CGameInfoCallback * callback);
 };
 
 class DLL_LINKAGE PathfinderConfig
@@ -97,6 +97,7 @@ public:
 
 	PathfinderConfig(
 		std::shared_ptr<INodeStorage> nodeStorage,
+		const CGameInfoCallback * callback,
 		std::vector<std::shared_ptr<IPathfindingRule>> rules);
 	virtual ~PathfinderConfig() = default;
 

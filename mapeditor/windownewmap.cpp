@@ -150,6 +150,10 @@ bool WindowNewMap::loadUserSettings()
 				ui->monsterOpt4->setChecked(true); break;
 		}
 
+		ui->roadDirt->setChecked(mapGenOptions.isRoadEnabled(Road::DIRT_ROAD));
+		ui->roadGravel->setChecked(mapGenOptions.isRoadEnabled(Road::GRAVEL_ROAD));
+		ui->roadCobblestone->setChecked(mapGenOptions.isRoadEnabled(Road::COBBLESTONE_ROAD));
+
 		ret = true;
 	}
 
@@ -236,6 +240,10 @@ void WindowNewMap::on_okButton_clicked()
 
 	mapGenOptions.setWaterContent(water);
 	mapGenOptions.setMonsterStrength(monster);
+
+	mapGenOptions.setRoadEnabled(Road::DIRT_ROAD, ui->roadDirt->isChecked());
+	mapGenOptions.setRoadEnabled(Road::GRAVEL_ROAD, ui->roadGravel->isChecked());
+	mapGenOptions.setRoadEnabled(Road::COBBLESTONE_ROAD, ui->roadCobblestone->isChecked());
 	
 	saveUserSettings();
 

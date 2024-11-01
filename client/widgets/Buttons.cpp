@@ -446,10 +446,13 @@ void CToggleBase::setAllowDeselection(bool on)
 }
 
 CToggleButton::CToggleButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help,
-							 CFunctionList<void(bool)> callback, EShortcut key, bool playerColoredButton):
+							 CFunctionList<void(bool)> callback, EShortcut key, bool playerColoredButton,
+				  			 CFunctionList<void()> callbackSelected):
   CButton(position, defName, help, 0, key, playerColoredButton),
-  CToggleBase(callback)
+  CToggleBase(callback),
+  callbackSelected(callbackSelected)
 {
+	addUsedEvents(DOUBLECLICK);
 }
 
 void CToggleButton::doSelect(bool on)
@@ -514,6 +517,12 @@ void CToggleButton::clickCancel(const Point & cursorPosition)
 		return;
 
 	doSelect(isSelected());
+}
+
+void CToggleButton::clickDouble(const Point & cursorPosition)
+{
+	if(callbackSelected)
+		callbackSelected();
 }
 
 void CToggleGroup::addCallback(const std::function<void(int)> & callback)

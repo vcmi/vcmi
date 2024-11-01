@@ -97,7 +97,9 @@ GeneralOptionsTab::GeneralOptionsTab()
 	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 
-	addConditional("touchscreen", GH.input().hasTouchInputDevice());
+	addConditional("touchscreen", GH.input().getCurrentInputMode() == InputMode::TOUCH);
+	addConditional("keyboardMouse", GH.input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE);
+	addConditional("controller", GH.input().getCurrentInputMode() == InputMode::CONTROLLER);
 #ifdef VCMI_MOBILE
 	addConditional("mobile", true);
 	addConditional("desktop", false);

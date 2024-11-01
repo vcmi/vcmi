@@ -15,6 +15,14 @@
 
 #include "RegisterTypes.h"
 
+#include "../GameSettings.h"
+#include "../RiverHandler.h"
+#include "../RoadHandler.h"
+#include "../TerrainHandler.h"
+#include "../mapObjects/ObjectTemplate.h"
+#include "../mapping/CMapInfo.h"
+#include "../rmg/CMapGenOptions.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 template<typename Type>

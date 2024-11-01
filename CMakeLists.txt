@@ -847,10 +847,10 @@ if(WIN32)
 	endif()
 	# set the install/unistall icon used for the installer itself
 	# There is a bug in NSI that does not handle full unix paths properly.
-	set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/client\\\\vcmi.ico")
-	set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/client\\\\vcmi.ico")
+	set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/clientapp/icons\\\\vcmi.ico")
+	set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/clientapp/icons\\\\vcmi.ico")
 	# set the package header icon for MUI
-	set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/client\\\\vcmi.ico")
+	set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/clientapp/icons\\\\vcmi.ico")
 
 	set(CPACK_NSIS_MENU_LINKS "http://vcmi.eu/" "VCMI Web Site")
 

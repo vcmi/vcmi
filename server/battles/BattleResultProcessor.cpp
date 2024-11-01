@@ -19,7 +19,7 @@
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CPlayerState.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/SideInBattle.h"
@@ -592,7 +592,7 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 		RemoveObject ro(finishingBattle->winnerHero->id, finishingBattle->winnerHero->getOwner());
 		gameHandler->sendAndApply(&ro);
 
-		if (VLC->settings()->getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
+		if (gameHandler->getSettings().getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
 			gameHandler->heroPool->onHeroEscaped(finishingBattle->victor, finishingBattle->winnerHero);
 	}
 

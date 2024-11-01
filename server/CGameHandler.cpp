@@ -36,7 +36,7 @@
 #include "../lib/CThreadHelper.h"
 #include "../lib/GameConstants.h"
 #include "../lib/UnlockGuard.h"
-#include "../lib/GameSettings.h"
+#include "../lib/IGameSettings.h"
 #include "../lib/ScriptHandler.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TerrainHandler.h"
@@ -456,26 +456,28 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 	{
 		sendPackageResponse(false);
 	}
-
-	bool result;
-	try
-	{
-		ApplyGhNetPackVisitor applier(*this);
-		pack->visit(applier);
-		result = applier.getResult();
-	}
-	catch(ExceptionNotAllowedAction &)
-	{
-		result = false;
-	}
-
-	if(result)
-		logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
 	else
-		complain((boost::format("Got false in applying %s... that request must have been fishy!")
-			% typeid(*pack).name()).str());
+	{
+		bool result;
+		try
+		{
+			ApplyGhNetPackVisitor applier(*this);
+			pack->visit(applier);
+			result = applier.getResult();
+		}
+		catch(ExceptionNotAllowedAction &)
+		{
+			result = false;
+		}
 
-	sendPackageResponse(true);
+		if(result)
+			logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
+		else
+			complain((boost::format("Got false in applying %s... that request must have been fishy!")
+				% typeid(*pack).name()).str());
+
+		sendPackageResponse(true);
+	}
 	vstd::clear_pointer(pack);
 }
 
@@ -823,7 +825,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	tmh.movePoints = h->movementPointsRemaining();
 
 	//check if destination tile is available
-	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, h, PathfinderOptions());
+	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, h, PathfinderOptions(this));
 	auto ti = pathfinderHelper->getTurnInfo();
 
 	const bool canFly = pathfinderHelper->hasBonusOfType(BonusType::FLYING_MOVEMENT) || (h->boat && h->boat->layer == EPathfindingLayer::AIR);
@@ -966,19 +968,18 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		if (blockingVisit()) // e.g. hero on the other side of teleporter
 			return true;
 
-		EGuardLook guardsCheck = (VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && movementMode == EMovementMode::DIMENSION_DOOR)
+		EGuardLook guardsCheck = (getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && movementMode == EMovementMode::DIMENSION_DOOR)
 			? CHECK_FOR_GUARDS
 			: IGNORE_GUARDS;
 
 		doMove(TryMoveHero::TELEPORTATION, guardsCheck, DONT_VISIT_DEST, LEAVING_TILE);
 
 		// visit town for town portal \ castle gates
-		// do not use generic visitObjectOnTile to avoid double-teleporting
-		// if this moveHero call was triggered by teleporter
+		// do not visit any other objects, e.g. monoliths to avoid double-teleporting
 		if (objectToVisit)
 		{
 			if (CGTownInstance * town = dynamic_cast<CGTownInstance *>(objectToVisit))
-				town->onHeroVisit(h);
+				objectVisited(town, h);
 		}
 
 		return true;
@@ -1172,7 +1173,6 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 		sendAndApply(&vc);
 	}
 	visitCastleObjects(obj, hero);
-	giveSpells (obj, hero);
 
 	if (obj->visitingHero && obj->garrisonHero)
 		useScholarSkill(obj->visitingHero->id, obj->garrisonHero->id);
@@ -1181,10 +1181,27 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 
 void CGameHandler::visitCastleObjects(const CGTownInstance * t, const CGHeroInstance * h)
 {
+	std::vector<const CGHeroInstance * > visitors;
+	visitors.push_back(h);
+	visitCastleObjects(t, visitors);
+}
+
+void CGameHandler::visitCastleObjects(const CGTownInstance * t, std::vector<const CGHeroInstance * > visitors)
+{
+	std::vector<BuildingID> buildingsToVisit;
+	for (auto const & hero : visitors)
+		giveSpells (t, hero);
+
 	for (auto & building : t->rewardableBuildings)
 	{
 		if (!t->town->buildings.at(building.first)->manualHeroVisit)
-			building.second->onHeroVisit(h);
+			buildingsToVisit.push_back(building.first);
+	}
+
+	if (!buildingsToVisit.empty())
+	{
+		auto visitQuery = std::make_shared<TownBuildingVisitQuery>(this, t, visitors, buildingsToVisit);
+		queries->addQuery(visitQuery);
 	}
 }
 
@@ -2143,10 +2160,18 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	// now when everything is built - reveal tiles for lookout tower
 	changeFogOfWar(t->getSightCenter(), t->getSightRadius(), t->getOwner(), ETileVisibility::REVEALED);
 
-	if(t->garrisonHero) //garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
-		objectVisited(t, t->garrisonHero);
-	if(t->visitingHero)
-		objectVisited(t, t->visitingHero);
+	if (!force)
+	{
+		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
+		std::vector<const CGHeroInstance *> visitors;
+		if (t->garrisonHero)
+			visitors.push_back(t->garrisonHero);
+		if (t->visitingHero)
+			visitors.push_back(t->visitingHero);
+
+		if (!visitors.empty())
+			visitCastleObjects(t, visitors);
+	}
 
 	checkVictoryLossConditionsForPlayer(t->tempOwner);
 	return true;
@@ -2171,19 +2196,15 @@ bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)
 		return true;
 	}
 
-	if (t->rewardableBuildings.count(bid))
+	if (t->rewardableBuildings.count(bid) && t->visitingHero && t->town->buildings.at(bid)->manualHeroVisit)
 	{
-		auto & hero = t->garrisonHero ? t->garrisonHero : t->visitingHero;
-		auto * building = t->rewardableBuildings.at(bid);
-
-		if (hero && t->town->buildings.at(bid)->manualHeroVisit)
-		{
-			auto visitQuery = std::make_shared<TownBuildingVisitQuery>(this, t, hero, bid);
-			queries->addQuery(visitQuery);
-			building->onHeroVisit(hero);
-			queries->popIfTop(visitQuery);
-			return true;
-		}
+		std::vector<BuildingID> buildingsToVisit;
+		std::vector<const CGHeroInstance*> visitors;
+		buildingsToVisit.push_back(bid);
+		visitors.push_back(t->visitingHero);
+		auto visitQuery = std::make_shared<TownBuildingVisitQuery>(this, t, visitors, buildingsToVisit);
+		queries->addQuery(visitQuery);
+		return true;
 	}
 
 	return true;
@@ -2427,7 +2448,7 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 	}
 	else if (town->garrisonHero && !town->visitingHero) //move hero out of the garrison
 	{
-		int mapCap = VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+		int mapCap = getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
 		//check if moving hero out of town will break wandering heroes limit
 		if (getHeroCount(town->garrisonHero->tempOwner,false) >= mapCap)
 		{
@@ -2718,7 +2739,7 @@ bool CGameHandler::switchArtifactsCostume(const PlayerColor & player, const Obje
 				estimateBackpackSize++;
 			}
 		
-		const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
+		const auto backpackCap = getSettings().getInteger(EGameSettings::HEROES_BACKPACK_CAP);
 		if((backpackCap < 0 || estimateBackpackSize <= backpackCap) && !bma.artsPack0.empty())
 			sendAndApply(&bma);
 	}
@@ -4114,17 +4135,12 @@ void CGameHandler::newObject(CGObjectInstance * object, PlayerColor initiator)
 	sendAndApply(&no);
 }
 
-void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, const CGTownInstance *town)
+void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)
 {
-	battles->startBattlePrimary(army1, army2, tile, hero1, hero2, creatureBank, town);
+	battles->startBattle(army1, army2, tile, hero1, hero2, layout, town);
 }
 
-void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank )
+void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance *army2 )
 {
-	battles->startBattleI(army1, army2, tile, creatureBank);
-}
-
-void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank )
-{
-	battles->startBattleI(army1, army2, creatureBank);
+	battles->startBattle(army1, army2);
 }

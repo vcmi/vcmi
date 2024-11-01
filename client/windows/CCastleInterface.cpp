@@ -46,7 +46,7 @@
 #include "../../lib/CSoundBase.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/StartInfo.h"
@@ -54,6 +54,7 @@
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/TownBuildingInstance.h"
 
 
 static bool useCompactCreatureBox()
@@ -527,7 +528,7 @@ void HeroSlots::swapArmies()
 	//moving hero out of town - check if it is allowed
 	if (town->garrisonHero)
 	{
-		if (!town->visitingHero && LOCPLINT->cb->howManyHeroes(false) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+		if (!town->visitingHero && LOCPLINT->cb->howManyHeroes(false) >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 		{
 			std::string text = CGI->generaltexth->translate("core.genrltxt.18"); //You already have %d adventuring heroes under your command.
 			boost::algorithm::replace_first(text,"%d",std::to_string(LOCPLINT->cb->howManyHeroes(false)));
@@ -845,7 +846,21 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 
 void CCastleBuildings::enterRewardable(BuildingID building)
 {
-	LOCPLINT->cb->visitTownBuilding(town, building);
+	if (town->visitingHero == nullptr)
+	{
+		MetaString message;
+		message.appendTextID("core.genrltxt.273"); // only visiting heroes may visit %s
+		message.replaceTextID(town->town->buildings.at(building)->getNameTextID());
+
+		LOCPLINT->showInfoDialog(message.toString());
+	}
+	else
+	{
+		if (town->rewardableBuildings.at(building)->wasVisited(town->visitingHero))
+			enterBuilding(building);
+		else
+			LOCPLINT->cb->visitTownBuilding(town, building);
+	}
 }
 
 void CCastleBuildings::enterBlacksmith(BuildingID building, ArtifactID artifactID)
@@ -1388,7 +1403,7 @@ void CCastleInterface::removeBuilding(BuildingID bid)
 void CCastleInterface::recreateIcons()
 {
 	OBJECT_CONSTRUCTION;
-	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->built >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	icon->setFrame(iconIndex);
 	TResources townIncome = town->dailyIncome();

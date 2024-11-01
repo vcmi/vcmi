@@ -23,6 +23,7 @@
 
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/VCMIDirs.h"
 
 #include <vcmi/ArtifactService.h>
 #include <vcmi/CreatureService.h>
@@ -136,14 +137,6 @@ int RenderHandler::getScalingFactor() const
 	return GH.screenHandler().getScalingFactor();
 }
 
-std::shared_ptr<IImage> RenderHandler::createImageReference(const ImageLocator & locator, std::shared_ptr<ISharedImage> input, EImageBlitMode mode)
-{
-	if (getScalingFactor() == 1 || locator.scalingFactor != 1 || locator.empty())
-		return input->createImageReference(mode);
-	else
-		return std::make_shared<ImageScaled>(locator, input, mode);
-}
-
 ImageLocator RenderHandler::getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group)
 {
 	const auto & layout = getAnimationLayout(path);
@@ -196,13 +189,26 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 	throw std::runtime_error("Invalid image locator received!");
 }
 
+void RenderHandler::storeCachedImage(const ImageLocator & locator, std::shared_ptr<ISharedImage> image)
+{
+	imageFiles[locator] = image;
+
+#if 0
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "imageCache" / (locator.toString() + ".png");
+	boost::filesystem::path outDir = outPath;
+	outDir.remove_filename();
+	boost::filesystem::create_directories(outDir);
+	image->exportBitmap(outPath , nullptr);
+#endif
+}
+
 std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFile(const ImageLocator & locator)
 {
 	if (imageFiles.count(locator))
 		return imageFiles.at(locator);
 
 	auto result = loadImageFromFileUncached(locator);
-	imageFiles[locator] = result;
+	storeCachedImage(locator, result);
 	return result;
 }
 
@@ -219,7 +225,7 @@ std::shared_ptr<ISharedImage> RenderHandler::transformImage(const ImageLocator &
 	if (locator.horizontalFlip)
 		result = result->horizontalFlip();
 
-	imageFiles[locator] = result;
+	storeCachedImage(locator, result);
 	return result;
 }
 
@@ -232,9 +238,12 @@ std::shared_ptr<ISharedImage> RenderHandler::scaleImage(const ImageLocator & loc
 
 	assert(locator.scalingFactor != 1); // should be filtered-out before
 
-	handle->setOverlayEnabled(locator.layer == EImageLayer::ALL || locator.layer == EImageLayer::OVERLAY);
 	handle->setBodyEnabled(locator.layer == EImageLayer::ALL || locator.layer == EImageLayer::BODY);
-	handle->setShadowEnabled(locator.layer == EImageLayer::ALL || locator.layer == EImageLayer::SHADOW);
+	if (locator.layer != EImageLayer::ALL)
+	{
+		handle->setOverlayEnabled(locator.layer == EImageLayer::OVERLAY);
+		handle->setShadowEnabled( locator.layer == EImageLayer::SHADOW);
+	}
 	if (locator.layer == EImageLayer::ALL && locator.playerColored != PlayerColor::CANNOT_DETERMINE)
 		handle->playerColored(locator.playerColored);
 
@@ -242,29 +251,52 @@ std::shared_ptr<ISharedImage> RenderHandler::scaleImage(const ImageLocator & loc
 
 	// TODO: try to optimize image size (possibly even before scaling?) - trim image borders if they are completely transparent
 	auto result = handle->getSharedImage();
-	imageFiles[locator] = result;
+	storeCachedImage(locator, result);
 	return result;
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, EImageBlitMode mode)
 {
-	return createImageReference(locator, loadImageImpl(locator), mode);
+	if (locator.scalingFactor == 0 && getScalingFactor() != 1 )
+	{
+		auto unscaledLocator = locator;
+		auto scaledLocator = locator;
+
+		unscaledLocator.scalingFactor = 1;
+		scaledLocator.scalingFactor = getScalingFactor();
+		auto unscaledImage = loadImageImpl(unscaledLocator);
+
+		return std::make_shared<ImageScaled>(scaledLocator, unscaledImage, mode);
+	}
+
+	if (locator.scalingFactor == 0)
+	{
+		auto scaledLocator = locator;
+		scaledLocator.scalingFactor = getScalingFactor();
+
+		return loadImageImpl(scaledLocator)->createImageReference(mode);
+	}
+	else
+	{
+		return loadImageImpl(locator)->createImageReference(mode);
+	}
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode)
 {
-	auto locator = getLocatorForAnimationFrame(path, frame, group);
+	ImageLocator locator = getLocatorForAnimationFrame(path, frame, group);
 	return loadImage(locator, mode);
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageBlitMode mode)
 {
-	return loadImage(ImageLocator(path), mode);
+	ImageLocator locator(path);
+	return loadImage(locator, mode);
 }
 
 std::shared_ptr<IImage> RenderHandler::createImage(SDL_Surface * source)
 {
-	return createImageReference(ImageLocator(), std::make_shared<SDLImageShared>(source), EImageBlitMode::ALPHA);
+	return std::make_shared<SDLImageShared>(source)->createImageReference(EImageBlitMode::ALPHA);
 }
 
 std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path, EImageBlitMode mode)

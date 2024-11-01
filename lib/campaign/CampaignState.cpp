@@ -210,14 +210,19 @@ ImagePath CampaignHeader::getLoadingBackground() const
 	return loadingBackground;
 }
 
-ImagePath CampaignHeader::getIntroVideoRim() const
+ImagePath CampaignHeader::getVideoRim() const
 {
-	return introVideoRim;
+	return videoRim;
 }
 
 VideoPath CampaignHeader::getIntroVideo() const
 {
 	return introVideo;
+}
+
+VideoPath CampaignHeader::getOutroVideo() const
+{
+	return outroVideo;
 }
 
 const CampaignRegions & CampaignHeader::getRegions() const
@@ -490,10 +495,12 @@ void Campaign::overrideCampaign()
 				loadLegacyData(CampaignRegions::fromJson(entry.second["regions"]), entry.second["scenarioCount"].Integer());
 			if(!entry.second["loadingBackground"].isNull())
 				loadingBackground = ImagePath::builtin(entry.second["loadingBackground"].String());
-			if(!entry.second["introVideoRim"].isNull())
-				introVideoRim = ImagePath::builtin(entry.second["introVideoRim"].String());
+			if(!entry.second["videoRim"].isNull())
+				videoRim = ImagePath::builtin(entry.second["videoRim"].String());
 			if(!entry.second["introVideo"].isNull())
 				introVideo = VideoPath::builtin(entry.second["introVideo"].String());
+			if(!entry.second["outroVideo"].isNull())
+				outroVideo = VideoPath::builtin(entry.second["outroVideo"].String());
 		}
 }
 

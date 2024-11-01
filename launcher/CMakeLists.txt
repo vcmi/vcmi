@@ -85,6 +85,7 @@ set(launcher_TS
 	"${translationsDir}/portuguese.ts"
 	"${translationsDir}/russian.ts"
 	"${translationsDir}/spanish.ts"
+	"${translationsDir}/swedish.ts"
 	"${translationsDir}/ukrainian.ts"
 	"${translationsDir}/vietnamese.ts"
 )

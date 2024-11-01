@@ -337,7 +337,10 @@ BattleAction BattleEvaluator::moveOrAttack(const CStack * stack, BattleHex hex, 
 	}
 	else
 	{
-		return BattleAction::makeMove(stack, hex);
+		if(stack->position == hex)
+			return BattleAction::makeDefend(stack);
+		else
+			return BattleAction::makeMove(stack, hex);
 	}
 }
 

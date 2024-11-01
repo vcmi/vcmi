@@ -1761,12 +1761,12 @@
     </message>
     <message>
         <location filename="../validator.cpp" line="148"/>
-        <source>Spell scroll % 1 doesn&apos;t have instance assigned and must be removed</source>
+        <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="154"/>
-        <source>Artifact % 1 is prohibited by map settings</source>
+        <source>Artifact %1 is prohibited by map settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

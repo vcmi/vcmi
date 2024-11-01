@@ -42,5 +42,6 @@ public:
 
 	void showAll(Canvas & to) override;
 	void onScreenResize() override;
+	void inputModeChanged(InputMode mode) override;
 };
 

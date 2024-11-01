@@ -15,9 +15,17 @@
 #include "../lib/CThreadHelper.h"
 #include "../server/CVCMIServer.h"
 
-#ifndef VCMI_MOBILE
+#ifdef ENABLE_SERVER_PROCESS
+
+#if BOOST_VERSION >= 108600
+// TODO: upgrade code to use v2 API instead of deprecated v1
+#include <boost/process/v1/child.hpp>
+#include <boost/process/v1/io.hpp>
+#else
 #include <boost/process/child.hpp>
 #include <boost/process/io.hpp>
+#endif
+
 #endif
 
 #include <future>
@@ -66,7 +74,7 @@ int ServerThreadRunner::exitCode()
 	return 0;
 }
 
-#ifndef VCMI_MOBILE
+#ifdef ENABLE_SERVER_PROCESS
 
 ServerProcessRunner::ServerProcessRunner() = default;
 ServerProcessRunner::~ServerProcessRunner() = default;

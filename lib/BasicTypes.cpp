@@ -12,7 +12,7 @@
 
 #include "VCMI_Lib.h"
 #include "GameConstants.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "bonuses/BonusList.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/IBonusBearer.h"
@@ -86,14 +86,14 @@ int AFactionMember::getPrimSkillLevel(PrimarySkill id) const
 	static const std::string keyAllSkills = "type_PRIMARY_SKILL";
 	auto allSkills = getBonusBearer()->getBonuses(selectorAllSkills, keyAllSkills);
 	auto ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(id)));
-	auto minSkillValue = VLC->settings()->getVector(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS)[id.getNum()];
+	auto minSkillValue = VLC->engineSettings()->getVector(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS)[id.getNum()];
 	return std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect, sp=0 works in old saves
 }
 
 int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 {
-	int32_t maxGoodMorale = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE).size();
-	int32_t maxBadMorale = - (int32_t) VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
+	int32_t maxGoodMorale = VLC->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE).size();
+	int32_t maxBadMorale = - (int32_t) VLC->engineSettings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
 
 	if(getBonusBearer()->hasBonusOfType(BonusType::MAX_MORALE))
 	{
@@ -123,8 +123,8 @@ int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 
 int AFactionMember::luckValAndBonusList(TConstBonusListPtr & bonusList) const
 {
-	int32_t maxGoodLuck = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE).size();
-	int32_t maxBadLuck = - (int32_t) VLC->settings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
+	int32_t maxGoodLuck = VLC->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE).size();
+	int32_t maxBadLuck = - (int32_t) VLC->engineSettings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
 
 	if(getBonusBearer()->hasBonusOfType(BonusType::MAX_LUCK))
 	{

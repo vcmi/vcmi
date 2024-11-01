@@ -70,6 +70,7 @@ class DLL_LINKAGE TownRewardableBuildingInstance : public TownBuildingInstance, 
 public:
 	void setProperty(ObjProperty what, ObjPropertyID identifier) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
+	bool wasVisited(const CGHeroInstance * contextHero) const override;
 	
 	void newTurn(vstd::RNG & rand) const override;
 	

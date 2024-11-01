@@ -22,6 +22,7 @@
 
 #include <tbb/parallel_for.h>
 #include <SDL_surface.h>
+#include <SDL_image.h>
 
 class SDLImageLoader;
 
@@ -327,9 +328,16 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Pa
 	return ret;
 }
 
-void SDLImageShared::exportBitmap(const boost::filesystem::path& path) const
+void SDLImageShared::exportBitmap(const boost::filesystem::path& path, SDL_Palette * palette) const
 {
-	SDL_SaveBMP(surf, path.string().c_str());
+	if (!surf)
+		return;
+
+	if (palette && surf->format->palette)
+		SDL_SetSurfacePalette(surf, palette);
+	IMG_SavePNG(surf, path.string().c_str());
+	if (palette && surf->format->palette)
+		SDL_SetSurfacePalette(surf, originalPalette);
 }
 
 void SDLImageIndexed::playerColored(PlayerColor player)
@@ -407,6 +415,10 @@ void SDLImageIndexed::shiftPalette(uint32_t firstColorID, uint32_t colorsToMove,
 
 void SDLImageIndexed::adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask)
 {
+	// If shadow is enabled, following colors must be skipped unconditionally
+	if (shadowEnabled)
+		colorsToSkipMask |= (1 << 0) + (1 << 1) + (1 << 4);
+
 	// Note: here we skip first colors in the palette that are predefined in H3 images
 	for(int i = 0; i < currentPalette->ncolors; i++)
 	{
@@ -428,9 +440,11 @@ SDLImageIndexed::SDLImageIndexed(const std::shared_ptr<ISharedImage> & image, SD
 	currentPalette = SDL_AllocPalette(originalPalette->ncolors);
 	SDL_SetPaletteColors(currentPalette, originalPalette->colors, 0, originalPalette->ncolors);
 
-	setOverlayColor(Colors::TRANSPARENCY);
 	if (mode == EImageBlitMode::ALPHA)
+	{
+		setOverlayColor(Colors::TRANSPARENCY);
 		setShadowTransparency(1.0);
+	}
 }
 
 SDLImageIndexed::~SDLImageIndexed()
@@ -468,7 +482,9 @@ void SDLImageIndexed::setShadowTransparency(float factor)
 
 void SDLImageIndexed::setOverlayColor(const ColorRGBA & color)
 {
-	for (int i : {5,6,7})
+	currentPalette->colors[5] = CSDL_Ext::toSDL(addColors(targetPalette[5], color));
+
+	for (int i : {6,7})
 	{
 		if (colorsSimilar(originalPalette->colors[i], sourcePalette[i]))
 			currentPalette->colors[i] = CSDL_Ext::toSDL(addColors(targetPalette[i], color));
@@ -500,8 +516,10 @@ void SDLImageIndexed::setOverlayEnabled(bool on)
 {
 	if (on)
 		setOverlayColor(Colors::WHITE_TRUE);
-	else
+
+	if (!on && blitMode == EImageBlitMode::ALPHA)
 		setOverlayColor(Colors::TRANSPARENCY);
+
 	overlayEnabled = on;
 }
 
@@ -532,6 +550,11 @@ void SDLImageIndexed::draw(SDL_Surface * where, const Point & pos, const Rect * 
 	image->draw(where, currentPalette, pos, src, Colors::WHITE_TRUE, alphaValue, blitMode);
 }
 
+void SDLImageIndexed::exportBitmap(const boost::filesystem::path & path) const
+{
+	image->exportBitmap(path, currentPalette);
+}
+
 void SDLImageIndexed::scaleTo(const Point & size)
 {
 	image = image->scaleTo(size, currentPalette);
@@ -552,9 +575,9 @@ void SDLImageRGB::scaleInteger(int factor)
 	image = image->scaleInteger(factor, nullptr);
 }
 
-void SDLImageBase::exportBitmap(const boost::filesystem::path & path) const
+void SDLImageRGB::exportBitmap(const boost::filesystem::path & path) const
 {
-	image->exportBitmap(path);
+	image->exportBitmap(path, nullptr);
 }
 
 bool SDLImageBase::isTransparent(const Point & coords) const

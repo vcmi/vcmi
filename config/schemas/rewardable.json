@@ -98,6 +98,9 @@
 						"max" : { "type" : "number", "exclusiveMinimum" : 0, "maximum" : 100 }
 					}
 				},
+
+				"guards"  : { "$ref" : "#/definitions/identifierWithValueList" },
+				
 				"limiter" : { "$ref" : "#/definitions/limiter" },
 				"message" : { "$ref" : "#/definitions/message" },
 				"description" : { "$ref" : "#/definitions/message" },
@@ -256,6 +259,9 @@
 			},
 		},
 
+		"onGuardedMessage" : {
+			"$ref" : "#/definitions/message"
+		},
 		"onSelectMessage" : {
 			"$ref" : "#/definitions/message"
 		},
@@ -287,14 +293,20 @@
 			"type" : "boolean"
 		},
 		
+		"coastVisitable": {
+			"type" : "boolean"
+		},
+		
 		"visitMode": {
 			"enum" : [ "unlimited", "once", "hero", "bonus", "limiter", "player" ],
 			"type" : "string"
 		},
 		
-		"visitLimiter": {
-			"type" : "object"
+		"guardsLayout": {
+			"type" : "string"
 		},
+		
+		"visitLimiter": { "$ref" : "#/definitions/limiter" },
 		
 		"selectMode": {
 			"enum" : [ "selectFirst", "selectPlayer", "selectRandom", "selectAll" ],

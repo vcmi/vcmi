@@ -19,7 +19,7 @@ class VCMI(ConanFile):
         "sdl_image/[~2.0.5]",
         "sdl_mixer/[~2.0.4]",
         "sdl_ttf/[~2.0.18]",
-        "onetbb/[^2021.3]",
+        "onetbb/[^2021.7 <2021.10]",  # 2021.10+ breaks mobile builds due to added hwloc dependency
         "xz_utils/[>=5.2.5]", # Required for innoextract
     ]
 
@@ -39,7 +39,6 @@ class VCMI(ConanFile):
 
         "boost/*:shared": True,
         "minizip/*:shared": True,
-        "onetbb/*:shared": True,
     }
 
     def configure(self):

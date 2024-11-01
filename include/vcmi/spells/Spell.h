@@ -45,6 +45,7 @@ public:
 
 	virtual bool hasSchool(SpellSchool school) const = 0;
 	virtual bool canCastOnSelf() const = 0;
+	virtual bool canCastWithoutSkip() const = 0;
 	virtual void forEachSchool(const SchoolCallback & cb) const = 0;
 	virtual int32_t getCost(const int32_t skillLevel) const = 0;
 

@@ -35,6 +35,7 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 	processList(AEventsReceiver::HOVER, hoverable);
 	processList(AEventsReceiver::MOVE, motioninterested);
 	processList(AEventsReceiver::DRAG, draginterested);
+	processList(AEventsReceiver::DRAG_POPUP, dragPopupInterested);
 	processList(AEventsReceiver::KEYBOARD, keyinterested);
 	processList(AEventsReceiver::TIME, timeinterested);
 	processList(AEventsReceiver::WHEEL, wheelInterested);
@@ -432,4 +433,11 @@ void EventDispatcher::dispatchMouseDragged(const Point & currentPosition, const 
 		if (elem->mouseClickedState)
 			elem->mouseDragged(currentPosition, lastUpdateDistance);
 	}
+}
+
+void EventDispatcher::dispatchMouseDraggedPopup(const Point & currentPosition, const Point & lastUpdateDistance)
+{
+	EventReceiversList diCopy = dragPopupInterested;
+	for(auto & elem : diCopy)
+		elem->mouseDraggedPopup(currentPosition, lastUpdateDistance);
 }

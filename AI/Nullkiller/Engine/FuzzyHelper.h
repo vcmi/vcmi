@@ -10,12 +10,6 @@
 #pragma once
 #include "FuzzyEngines.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
-class CBank;
-
-VCMI_LIB_NAMESPACE_END
-
 namespace NKAI
 {
 
@@ -29,8 +23,6 @@ private:
 
 public:
 	FuzzyHelper(const Nullkiller * ai): ai(ai) {}
-
-	ui64 estimateBankDanger(const CBank * bank); //TODO: move to another class?
 
 	ui64 evaluateDanger(const CGObjectInstance * obj);
 	ui64 evaluateDanger(const int3 & tile, const CGHeroInstance * visitor, bool checkGuards = true);

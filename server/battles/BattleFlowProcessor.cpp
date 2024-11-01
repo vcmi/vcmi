@@ -16,7 +16,7 @@
 #include "../TurnTimerHandler.h"
 
 #include "../../lib/CStack.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/entities/building/TownFortifications.h"
@@ -347,7 +347,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 	int nextStackMorale = next->moraleVal();
 	if(!next->hadMorale && !next->waited() && nextStackMorale < 0)
 	{
-		auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
+		auto diceSize = gameHandler->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
 		size_t diceIndex = std::min<size_t>(diceSize.size(), -nextStackMorale) - 1; // array index, so 0-indexed
 
 		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
@@ -526,7 +526,7 @@ bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, con
 		&& next->canMove()
 		&& nextStackMorale > 0)
 	{
-		auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
+		auto diceSize = gameHandler->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
 		size_t diceIndex = std::min<size_t>(diceSize.size(), nextStackMorale) - 1; // array index, so 0-indexed
 
 		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
@@ -564,6 +564,19 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 	// tactics - next stack will be selected by player
 	if(battle.battleGetTacticDist() != 0)
 		return;
+
+	// creature will not skip the turn after casting a spell if spell uses canCastWithoutSkip
+	if(ba.actionType == EActionType::MONSTER_SPELL)
+	{
+		assert(activeStack != nullptr);
+		assert(actedStack != nullptr);
+
+		if(actedStack->castSpellThisTurn && SpellID(ba.spell).toSpell()->canCastWithoutSkip())
+		{
+			setActiveStack(battle, actedStack);
+			return;
+		}
+	}
 
 	if (ba.isUnitAction())
 	{

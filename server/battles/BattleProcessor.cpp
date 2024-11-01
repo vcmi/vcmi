@@ -23,6 +23,7 @@
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/battle/BattleLayout.h"
 #include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapping/CMap.h"
@@ -52,9 +53,8 @@ void BattleProcessor::engageIntoBattle(PlayerColor player)
 	gameHandler->sendAndApply(&pb);
 }
 
-void BattleProcessor::restartBattlePrimary(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
-								const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank,
-								const CGTownInstance *town)
+void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
+								const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)
 {
 	auto battle = gameHandler->gameState()->getBattle(battleID);
 
@@ -90,12 +90,11 @@ void BattleProcessor::restartBattlePrimary(const BattleID & battleID, const CArm
 	bc.battleID = battleID;
 	gameHandler->sendAndApply(&bc);
 
-	startBattlePrimary(army1, army2, tile, hero1, hero2, creatureBank, town);
+	startBattle(army1, army2, tile, hero1, hero2, layout, town);
 }
 
-void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
-								const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank,
-								const CGTownInstance *town)
+void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
+								const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)
 {
 	assert(gameHandler->gameState()->getBattle(army1->getOwner()) == nullptr);
 	assert(gameHandler->gameState()->getBattle(army2->getOwner()) == nullptr);
@@ -103,7 +102,7 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 	BattleSideArray<const CArmedInstance *> armies{army1, army2};
 	BattleSideArray<const CGHeroInstance*>heroes{hero1, hero2};
 
-	auto battleID = setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
+	auto battleID = setupBattle(tile, armies, heroes, layout, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 
 	const auto * battle = gameHandler->gameState()->getBattle(battleID);
 	assert(battle);
@@ -144,20 +143,16 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 	flowProcessor->onBattleStarted(*battle);
 }
 
-void BattleProcessor::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank)
+void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInstance *army2)
 {
-	startBattlePrimary(army1, army2, tile,
-		army1->ID == Obj::HERO ? static_cast<const CGHeroInstance*>(army1) : nullptr,
-		army2->ID == Obj::HERO ? static_cast<const CGHeroInstance*>(army2) : nullptr,
-		creatureBank);
+	startBattle(army1, army2, army2->visitablePos(),
+		army1->ID == Obj::HERO ? dynamic_cast<const CGHeroInstance*>(army1) : nullptr,
+		army2->ID == Obj::HERO ? dynamic_cast<const CGHeroInstance*>(army2) : nullptr,
+		BattleLayout::createDefaultLayout(gameHandler, army1, army2),
+		nullptr);
 }
 
-void BattleProcessor::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank)
-{
-	startBattleI(army1, army2, army2->visitablePos(), creatureBank);
-}
-
-BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, bool creatureBank, const CGTownInstance *town)
+BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance *town)
 {
 	const auto & t = *gameHandler->getTile(tile);
 	TerrainId terrain = t.terType->getId();
@@ -170,7 +165,7 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 
 	//send info about battles
 	BattleStart bs;
-	bs.info = BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
+	bs.info = BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, layout, town);
 	bs.battleID = gameHandler->gameState()->nextBattleID;
 
 	engageIntoBattle(bs.info->getSide(BattleSide::ATTACKER).color);

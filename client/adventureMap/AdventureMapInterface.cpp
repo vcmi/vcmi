@@ -39,7 +39,7 @@
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -557,7 +557,8 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		{
 			if(LOCPLINT->localState->hasPath(currentHero) &&
-			   LOCPLINT->localState->getPath(currentHero).endPos() == targetPosition)//we'll be moving
+			   LOCPLINT->localState->getPath(currentHero).endPos() == targetPosition &&
+			   !GH.isKeyboardShiftDown())//we'll be moving
 			{
 				assert(!CGI->mh->hasOngoingAnimations());
 				if(!CGI->mh->hasOngoingAnimations() && LOCPLINT->localState->getPath(currentHero).nextNode().turns == 0)
@@ -617,7 +618,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		case SpellID::DIMENSION_DOOR:
 			if(isValidAdventureSpellTarget(targetPosition))
 			{
-				if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && LOCPLINT->cb->isTileGuardedUnchecked(targetPosition))
+				if(LOCPLINT->cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && LOCPLINT->cb->isTileGuardedUnchecked(targetPosition))
 					CCS->curh->set(Cursor::Map::T1_ATTACK);
 				else
 					CCS->curh->set(Cursor::Map::TELEPORT);

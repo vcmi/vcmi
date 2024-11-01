@@ -452,6 +452,18 @@ void MainWindow::saveMap()
 	
 	Translations::cleanupRemovedItems(*controller.map());
 
+	for(auto obj : controller.map()->objects)
+	{
+		if(obj->ID == Obj::HERO_PLACEHOLDER)
+		{
+			auto hero = dynamic_cast<CGHeroPlaceholder *>(obj.get());
+			if(hero->heroType.has_value())
+			{
+				controller.map()->reservedCampaignHeroes.insert(hero->heroType.value());
+			}
+		}
+	}
+
 	CMapService mapService;
 	try
 	{

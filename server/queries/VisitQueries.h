@@ -11,19 +11,22 @@
 
 #include "CQuery.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+class CGTownInstance;
+VCMI_LIB_NAMESPACE_END
+
 //Created when hero visits object.
 //Removed when query above is resolved (or immediately after visit if no queries were created)
 class VisitQuery : public CQuery
 {
 protected:
-	VisitQuery(CGameHandler * owner, const CGObjectInstance *Obj, const CGHeroInstance *Hero);
+	VisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero);
 
 public:
-	const CGObjectInstance *visitedObject;
-	const CGHeroInstance *visitingHero;
+	const CGObjectInstance * visitedObject;
+	const CGHeroInstance * visitingHero;
 
-	bool blocksPack(const CPack *pack) const final;
-	void onExposure(QueryPtr topQuery) final;
+	bool blocksPack(const CPack * pack) const final;
 };
 
 class MapObjectVisitQuery final : public VisitQuery
@@ -31,17 +34,26 @@ class MapObjectVisitQuery final : public VisitQuery
 public:
 	bool removeObjectAfterVisit;
 
-	MapObjectVisitQuery(CGameHandler * owner, const CGObjectInstance *Obj, const CGHeroInstance *Hero);
+	MapObjectVisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero);
 
 	void onRemoval(PlayerColor color) final;
+	void onExposure(QueryPtr topQuery) final;
 };
 
 class TownBuildingVisitQuery final : public VisitQuery
 {
+	struct BuildingVisit
+	{
+		const CGHeroInstance * hero;
+		BuildingID building;
+	};
+
+	const CGTownInstance * visitedTown;
+	std::vector<BuildingVisit> visitedBuilding;
+
 public:
-	BuildingID visitedBuilding;
+	TownBuildingVisitQuery(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit);
 
-	TownBuildingVisitQuery(CGameHandler * owner, const CGObjectInstance *Obj, const CGHeroInstance *Hero, BuildingID buildingToVisit);
-
-	void onRemoval(PlayerColor color) final;
+	void onAdded(PlayerColor color) final;
+	void onExposure(QueryPtr topQuery) final;
 };

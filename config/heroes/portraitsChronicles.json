@@ -1,0 +1,176 @@
+{
+	"portraitTarnumBarbarian" : // 163
+	{
+		"class" : "barbarian",
+		"special" : true,
+		"images": {
+			"large" : "HPL137",
+			"small" : "HPS137",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "goblin",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitTarnumKnight" : // 164
+	{
+		"class" : "knight",
+		"special" : true,
+		"images": {
+			"large" : "HPL138",
+			"small" : "HPS138",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "pikeman",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitTarnumWizard" : // 165
+	{
+		"class" : "wizard",
+		"special" : true,
+		"images": {
+			"large" : "HPL139",
+			"small" : "HPS139",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "enchanter",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitTarnumRanger" : // 166
+	{
+		"class" : "ranger",
+		"special" : true,
+		"images": {
+			"large" : "HPL140",
+			"small" : "HPS140",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "sharpshooter",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitTarnumOverlord" : // 167
+	{
+		"class" : "overlord",
+		"special" : true,
+		"images": {
+			"large" : "HPL141",
+			"small" : "HPS141",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "troglodyte",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitTarnumBeastmaster" : // 168
+	{
+		"class" : "beastmaster",
+		"special" : true,
+		"images": {
+			"large" : "HPL142",
+			"small" : "HPS142",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "gnoll",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	}
+}

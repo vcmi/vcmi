@@ -11,6 +11,7 @@
 
 #include "AdventureOptionsTab.h"
 
+#include "../../eventsSDL/InputHandler.h"
 #include "../../../lib/filesystem/ResourcePath.h"
 #include "../../gui/CGuiHandler.h"
 #include "../../widgets/Buttons.h"
@@ -36,6 +37,9 @@ AdventureOptionsTab::AdventureOptionsTab()
 	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 
+	addConditional("touchscreen", GH.input().getCurrentInputMode() == InputMode::TOUCH);
+	addConditional("keyboardMouse", GH.input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE);
+	addConditional("controller", GH.input().getCurrentInputMode() == InputMode::CONTROLLER);
 #ifdef VCMI_MOBILE
 	addConditional("mobile", true);
 	addConditional("desktop", false);
@@ -126,6 +130,10 @@ AdventureOptionsTab::AdventureOptionsTab()
 	{
 		return setBoolSetting("adventure", "leftButtonDrag", value);
 	});
+	addCallback("rightButtonDragChanged", [](bool value)
+	{
+		return setBoolSetting("adventure", "rightButtonDrag", value);
+	});
 	addCallback("smoothDraggingChanged", [](bool value)
 	{
 		return setBoolSetting("adventure", "smoothDragging", value);
@@ -176,6 +184,10 @@ AdventureOptionsTab::AdventureOptionsTab()
 	std::shared_ptr<CToggleButton> leftButtonDragCheckbox = widget<CToggleButton>("leftButtonDragCheckbox");
 	if (leftButtonDragCheckbox)
 		leftButtonDragCheckbox->setSelected(settings["adventure"]["leftButtonDrag"].Bool());
+
+	std::shared_ptr<CToggleButton> rightButtonDragCheckbox = widget<CToggleButton>("rightButtonDragCheckbox");
+	if (rightButtonDragCheckbox)
+		rightButtonDragCheckbox->setSelected(settings["adventure"]["rightButtonDrag"].Bool());
 
 	std::shared_ptr<CToggleButton> smoothDraggingCheckbox = widget<CToggleButton>("smoothDraggingCheckbox");
 	if (smoothDraggingCheckbox)

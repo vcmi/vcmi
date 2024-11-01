@@ -12,6 +12,7 @@
 
 #include "CHighScoreScreen.h"
 #include "CStatisticScreen.h"
+#include "CMainMenu.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
@@ -170,6 +171,7 @@ void CHighScoreScreen::buttonResetClick()
 void CHighScoreScreen::buttonExitClick()
 {
 	close();
+	CMM->playMusic();
 }
 
 CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc, const StatisticDataSet & statistic)

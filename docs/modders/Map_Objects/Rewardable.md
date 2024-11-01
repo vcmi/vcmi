@@ -117,6 +117,9 @@ Rewardable object is defined similarly to other objects, with key difference bei
 // Message that will be shown if there are multiple selectable awards to choose from
 "onSelectMessage" : "",
 
+// Message that will be shown if object has undefeated guards
+"onGuardedMessage" : "",
+
 // Message that will be shown if this object has been already visited before
 "onVisitedMessage" : "{Warehouse of Crystal}\r\n\r\nThe owner of the storage is apologising: 'I am sorry Milord, no crystal here. Please, return next week!'",
 
@@ -125,9 +128,21 @@ Rewardable object is defined similarly to other objects, with key difference bei
 "onVisited" : [
 ]
 
+// Layout of units in the battle (only used if guards are present)
+// Predefined values:
+// "default" - attacker is on the left, defender is on the right, war machine, tactics, and battlefield obstacles are present
+// "creatureBankNarrow" - emulates H3 logic for banks with narrow (1-tile wide) units
+// "creatureBankWide" - emulates H3 logic for banks with wide units that take 2 hexes
+// Additionally, it is possible to define new layouts, see "layouts" field in (vcmi install)/config/gameConfig.json file
+"guardsLayout" : "default"
+
 // if true, then player can refuse from reward and don't select anything
 // Note that in this case object will not become "visited" and can still be revisited later
 "canRefuse": true,
+
+// If set to true, then this object can be visited from land when placed next to a coast.
+// NOTE: make sure that object also has "blockedVisitable" set to true. Othervice, behavior is undefined
+"coastVisitable" : true
 
 // Controls when object state will be reset, allowing potential revisits. See Reset Parameters definition section
 "resetParameters" : {
@@ -479,8 +494,6 @@ Keep in mind, that all randomization is performed on map load and on object rese
 ],
 ```
 
-canLearnSpells
-
 ### Creatures
 - Can be used as limiter
 - Can be used as reward, to give new creatures to a hero
@@ -493,6 +506,21 @@ canLearnSpells
         "upgradeChance" : 30,
         "amount" : 20,
     }
+],
+```
+
+### Guards
+- When used in a reward, these creatures will be added to guards of the objects
+- Hero must defeat all guards before being able to receive rewards
+- Guards are only reset when object rewards are reset
+- Requires `guardsLayout` property to be set in main part of object configuration
+- It is possible to add up to 7 slots of creatures
+- Guards of the same creature type will never merge or rearrange their stacks
+```jsonc
+"guards" : [
+    { "type" : "archer", "amount" : 20 },
+    { "type" : "archer", "amount" : 20, "upgradeChance" : 30 },
+    { "type" : "archer", "amount" : 20 }
 ],
 ```
 

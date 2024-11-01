@@ -34,7 +34,7 @@ MapViewActions::MapViewActions(MapView & owner, const std::shared_ptr<MapViewMod
 	pos.w = model->getPixelsVisibleDimensions().x;
 	pos.h = model->getPixelsVisibleDimensions().y;
 
-	addUsedEvents(LCLICK | SHOW_POPUP | DRAG | GESTURE | HOVER | MOVE | WHEEL);
+	addUsedEvents(LCLICK | SHOW_POPUP | DRAG | DRAG_POPUP | GESTURE | HOVER | MOVE | WHEEL);
 }
 
 void MapViewActions::setContext(const std::shared_ptr<IMapRendererContext> & context)
@@ -99,6 +99,11 @@ void MapViewActions::mouseDragged(const Point & cursorPosition, const Point & la
 
 	if (dragActive && settings["adventure"]["leftButtonDrag"].Bool())
 		owner.onMapSwiped(lastUpdateDistance);
+}
+
+void MapViewActions::mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance)
+{
+	owner.onMapSwiped(lastUpdateDistance);
 }
 
 void MapViewActions::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)

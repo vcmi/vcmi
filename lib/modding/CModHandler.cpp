@@ -384,13 +384,13 @@ std::set<TModID> CModHandler::getModDependencies(const TModID & modId, bool & is
 
 void CModHandler::initializeConfig()
 {
-	VLC->settingsHandler->load(coreMod->config["settings"]);
+	VLC->settingsHandler->loadBase(coreMod->config["settings"]);
 
 	for(const TModID & modName : activeMods)
 	{
 		const auto & mod = allMods[modName];
 		if (!mod.config["settings"].isNull())
-			VLC->settingsHandler->load(mod.config["settings"]);
+			VLC->settingsHandler->loadBase(mod.config["settings"]);
 	}
 }
 

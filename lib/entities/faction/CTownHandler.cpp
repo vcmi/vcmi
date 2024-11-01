@@ -16,7 +16,7 @@
 
 #include "../../CCreatureHandler.h"
 #include "../../CHeroHandler.h"
-#include "../../GameSettings.h"
+#include "../../IGameSettings.h"
 #include "../../TerrainHandler.h"
 #include "../../VCMI_Lib.h"
 
@@ -76,7 +76,7 @@ const TPropagatorPtr & CTownHandler::emptyPropagator()
 
 std::vector<JsonNode> CTownHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_FACTION);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_FACTION);
 
 	std::vector<JsonNode> dest(dataSize);
 	objects.resize(dataSize);
@@ -719,7 +719,7 @@ std::shared_ptr<CFaction> CTownHandler::loadFromJson(const std::string & scope, 
 	faction->identifier = identifier;
 
 	VLC->generaltexth->registerString(scope, faction->getNameTextID(), source["name"].String());
-	VLC->generaltexth->registerString(scope, faction->getDescriptionTranslated(), source["description"].String());
+	VLC->generaltexth->registerString(scope, faction->getDescriptionTextID(), source["description"].String());
 
 	faction->creatureBg120 = ImagePath::fromJson(source["creatureBackground"]["120px"]);
 	faction->creatureBg130 = ImagePath::fromJson(source["creatureBackground"]["130px"]);

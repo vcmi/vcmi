@@ -141,6 +141,7 @@ public:
 	bool drainedMana;
 	bool fear;
 	bool hadMorale;
+	bool castSpellThisTurn;
 	bool ghost;
 	bool ghostPending;
 	bool movedThisRound;

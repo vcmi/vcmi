@@ -455,6 +455,7 @@ void CMapGenerator::addHeaderInfo()
 	addPlayerInfo();
 	m.waterMap = (mapGenOptions.getWaterContent() != EWaterContent::EWaterContent::NONE);
 	m.banWaterContent();
+	m.overrideGameSettings(mapGenOptions.getMapTemplate()->getMapSettings());
 }
 
 int CMapGenerator::getNextMonlithIndex()

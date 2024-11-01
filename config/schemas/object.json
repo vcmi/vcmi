@@ -17,7 +17,13 @@
 			"type" : "number"
 		},
 		"handler" : {
-			"type" : "string"
+			"type" : "string",
+			"enum" : [
+				"configurable", "dwelling", "hero", "town", "boat", "market", "hillFort", "shipyard", "monster", "resource", "static", "randomArtifact", 
+				"randomHero", "randomResource", "randomTown", "randomMonster", "randomDwelling", "generic", "artifact", "borderGate", "borderGuard", "denOfThieves", 
+				"event", "garrison", "heroPlaceholder", "keymaster", "lighthouse", "magi", "mine", "obelisk", "pandora", "prison", "questGuard", "seerHut", "sign", 
+				"siren", "monolith", "subterraneanGate", "whirlpool", "terrain"
+			]
 		},
 		"base" : {
 			"type" : "object"

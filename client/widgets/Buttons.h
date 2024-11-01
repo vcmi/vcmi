@@ -166,13 +166,17 @@ class CToggleButton : public CButton, public CToggleBase
 	void doSelect(bool on) override;
 	void setEnabled(bool enabled) override;
 
+	CFunctionList<void()> callbackSelected;
+
 public:
 	CToggleButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help,
-				  CFunctionList<void(bool)> Callback = 0, EShortcut key = {}, bool playerColoredButton = false );
+				  CFunctionList<void(bool)> Callback = nullptr, EShortcut key = {}, bool playerColoredButton = false,
+				  CFunctionList<void()> CallbackSelected = nullptr );
 
 	void clickPressed(const Point & cursorPosition) override;
 	void clickReleased(const Point & cursorPosition) override;
 	void clickCancel(const Point & cursorPosition) override;
+	void clickDouble(const Point & cursorPosition) override;
 
 	// bring overrides into scope
 	//using CButton::addCallback;

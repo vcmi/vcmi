@@ -37,6 +37,7 @@ class CGameStateCampaign;
 class TavernHeroesPool;
 struct SThievesGuildInfo;
 class CRandomGenerator;
+class GameSettings;
 
 struct UpgradeInfo
 {
@@ -53,7 +54,6 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheck
 class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeable
 {
 	friend class CGameStateCampaign;
-
 public:
 	/// Stores number of times each artifact was placed on map via randomization
 	std::map<ArtifactID, int> allocatedArtifacts;
@@ -130,6 +130,7 @@ public:
 	bool checkForStandardLoss(const PlayerColor & player) const; //checks if given player lost the game
 
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
+	const IGameSettings & getSettings() const;
 
 	bool isVisible(int3 pos, const std::optional<PlayerColor> & player) const override;
 	bool isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & player) const override;

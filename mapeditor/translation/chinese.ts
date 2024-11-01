@@ -1761,12 +1761,12 @@
     </message>
     <message>
         <location filename="../validator.cpp" line="148"/>
-        <source>Spell scroll % 1 doesn&apos;t have instance assigned and must be removed</source>
+        <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
         <translation>魔法卷轴 %1 没有分配任何实例，需要被移除</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="154"/>
-        <source>Artifact % 1 is prohibited by map settings</source>
+        <source>Artifact %1 is prohibited by map settings</source>
         <translation>宝物 %1 被地图设置禁止</translation>
     </message>
     <message>

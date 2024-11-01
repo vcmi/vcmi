@@ -501,9 +501,12 @@ void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
 
 using namespace rmg;//todo: remove
 
+CRmgTemplate::~CRmgTemplate() = default;
+
 CRmgTemplate::CRmgTemplate()
 	: minSize(72, 72, 2),
-	maxSize(72, 72, 2)
+	maxSize(72, 72, 2),
+	mapSettings(std::make_unique<JsonNode>())
 {
 
 }
@@ -694,6 +697,8 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 	serializePlayers(handler, players, "players");
 	serializePlayers(handler, humanPlayers, "humans"); // TODO: Rename this parameter
 
+	*mapSettings = handler.getCurrent()["settings"];
+
 	{
 		auto connectionsData = handler.enterArray("connections");
 		connectionsData.serializeStruct(connectedZoneIds);
@@ -747,6 +752,11 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 			}
 		}
 	}
+}
+
+const JsonNode & CRmgTemplate::getMapSettings() const
+{
+	return *mapSettings;
 }
 
 std::set<TerrainId> CRmgTemplate::inheritTerrainType(std::shared_ptr<ZoneOptions> zone, uint32_t iteration /* = 0 */)

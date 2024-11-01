@@ -28,7 +28,6 @@ ImageScaled::ImageScaled(const ImageLocator & inputLocator, const std::shared_pt
 	, alphaValue(SDL_ALPHA_OPAQUE)
 	, blitMode(mode)
 {
-	locator.scalingFactor = GH.screenHandler().getScalingFactor();
 	setBodyEnabled(true);
 	if (mode == EImageBlitMode::ALPHA)
 		setShadowEnabled(true);
@@ -52,7 +51,7 @@ void ImageScaled::scaleTo(const Point & size)
 
 void ImageScaled::exportBitmap(const boost::filesystem::path &path) const
 {
-	source->exportBitmap(path);
+	source->exportBitmap(path, nullptr);
 }
 
 bool ImageScaled::isTransparent(const Point &coords) const

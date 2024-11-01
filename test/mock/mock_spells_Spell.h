@@ -47,6 +47,7 @@ public:
 	MOCK_CONST_METHOD0(isSpecial, bool());
 	MOCK_CONST_METHOD0(isMagical, bool());
 	MOCK_CONST_METHOD0(canCastOnSelf, bool());
+	MOCK_CONST_METHOD0(canCastWithoutSkip, bool());
 	MOCK_CONST_METHOD1(hasSchool, bool(SpellSchool));
 	MOCK_CONST_METHOD1(forEachSchool, void(const SchoolCallback &));
 	MOCK_CONST_METHOD0(getCastSound, const std::string &());

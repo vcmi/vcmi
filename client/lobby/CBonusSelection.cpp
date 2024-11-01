@@ -58,42 +58,6 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
-
-CampaignIntroVideo::CampaignIntroVideo(VideoPath video, ImagePath rim, std::shared_ptr<CBonusSelection> bonusSel)
-	: CWindowObject(BORDERED), bonusSel(bonusSel)
-{
-	OBJECT_CONSTRUCTION;
-
-	addUsedEvents(LCLICK | KEYBOARD);
-
-	pos = center(Rect(0, 0, 800, 600));
-
-	videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, [this](){ exit(); });
-	setBackground(rim);
-
-	CCS->musich->stopMusic();
-}
-
-void CampaignIntroVideo::exit()
-{
-	close();
-	
-	if (!CSH->si->campState->getMusic().empty())
-		CCS->musich->playMusic(CSH->si->campState->getMusic(), true, false);
-
-	GH.windows().pushWindow(bonusSel);
-}
-
-void CampaignIntroVideo::clickPressed(const Point & cursorPosition)
-{
-	exit();
-}
-
-void CampaignIntroVideo::keyPressed(EShortcut key)
-{
-	exit();
-}
-
 std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
 {
 	return CSH->si->campState;
@@ -350,7 +314,10 @@ void CBonusSelection::createBonusesIcons()
 			break;
 		}
 
-		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), CButton::tooltip(desc.toString(), desc.toString()));
+		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), CButton::tooltip(desc.toString(), desc.toString()), nullptr, EShortcut::NONE, false, [this](){
+			if(buttonStart->isActive() && !buttonStart->isBlocked())	
+				CBonusSelection::startMap();
+		});
 
 		if(picNumber != -1)
 			bonusButton->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin(picName), picNumber));

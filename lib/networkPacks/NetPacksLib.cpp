@@ -44,7 +44,7 @@
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "campaign/CampaignState.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -1035,32 +1035,32 @@ void ChangeObjPos::applyGs(CGameState *gs)
 void ChangeObjectVisitors::applyGs(CGameState *gs)
 {
 	switch (mode) {
-		case VISITOR_ADD:
+		case VISITOR_ADD_HERO:
+			gs->getPlayerTeam(gs->getHero(hero)->tempOwner)->scoutedObjects.insert(object);
 			gs->getHero(hero)->visitedObjects.insert(object);
 			gs->getPlayerState(gs->getHero(hero)->tempOwner)->visitedObjects.insert(object);
 			break;
-		case VISITOR_ADD_TEAM:
-			{
-				TeamState *ts = gs->getPlayerTeam(gs->getHero(hero)->tempOwner);
-				for(const auto & color : ts->players)
-				{
-					gs->getPlayerState(color)->visitedObjects.insert(object);
-				}
-			}
+		case VISITOR_ADD_PLAYER:
+			gs->getPlayerTeam(gs->getHero(hero)->tempOwner)->scoutedObjects.insert(object);
+			for(const auto & color : gs->getPlayerTeam(gs->getHero(hero)->tempOwner)->players)
+				gs->getPlayerState(color)->visitedObjects.insert(object);
+
 			break;
 		case VISITOR_CLEAR:
+			// remove visit info from all heroes, including those that are not present on map
 			for (CGHeroInstance * hero : gs->map->allHeroes)
-			{
 				if (hero)
-				{
-					hero->visitedObjects.erase(object); // remove visit info from all heroes, including those that are not present on map
-				}
-			}
+					hero->visitedObjects.erase(object);
 
 			for(auto &elem : gs->players)
-			{
 				elem.second.visitedObjects.erase(object);
-			}
+
+			for(auto &elem : gs->teams)
+				elem.second.scoutedObjects.erase(object);
+
+			break;
+		case VISITOR_SCOUTED:
+			gs->getPlayerTeam(gs->getHero(hero)->tempOwner)->scoutedObjects.insert(object);
 
 			break;
 		case VISITOR_GLOBAL:
@@ -1069,9 +1069,6 @@ void ChangeObjectVisitors::applyGs(CGameState *gs)
 				gs->getPlayerState(gs->getHero(hero)->tempOwner)->visitedObjectsGlobal.insert({objectPtr->ID, objectPtr->subID});
 				break;
 			}
-		case VISITOR_REMOVE:
-			gs->getHero(hero)->visitedObjects.erase(object);
-			break;
 	}
 }
 
@@ -1580,7 +1577,7 @@ void RebalanceStacks::applyGs(CGameState *gs)
 
 	const CCreature * srcType = src.army->getCreature(src.slot);
 	TQuantity srcCount = src.army->getStackCount(src.slot);
-	bool stackExp = VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE);
+	bool stackExp = gs->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE);
 
 	if(srcCount == count) //moving whole stack
 	{
@@ -2109,7 +2106,7 @@ void BattleResultAccepted::applyGs(CGameState *gs)
 		}
 	}
 
-	if(VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
+	if(gs->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
 		if(heroResult[BattleSide::ATTACKER].army)
 			heroResult[BattleSide::ATTACKER].army->giveStackExp(heroResult[BattleSide::ATTACKER].exp);
@@ -2212,6 +2209,7 @@ void StartAction::applyGs(CGameState *gs)
 				st->waiting = false;
 				st->defendingAnim = false;
 				st->movedThisRound = true;
+				st->castSpellThisTurn = ba.actionType == EActionType::MONSTER_SPELL;
 				break;
 		}
 	}
@@ -2434,6 +2432,7 @@ void SetRewardableConfiguration::applyGs(CGameState *gs)
 		auto * rewardablePtr = dynamic_cast<CRewardableObject *>(objectPtr);
 		assert(rewardablePtr);
 		rewardablePtr->configuration = configuration;
+		rewardablePtr->initializeGuards();
 	}
 	else
 	{

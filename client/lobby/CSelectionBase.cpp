@@ -399,7 +399,7 @@ PvPBox::PvPBox(const Rect & rect)
 	pos += rect.topLeft();
 	setRedrawParent(true);
 
-	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, rect.w, rect.h));
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, rect.w, rect.h));
 	backgroundTexture->setPlayerColor(PlayerColor(1));
 	backgroundBorder = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, rect.w, rect.h), ColorRGBA(0, 0, 0, 64), ColorRGBA(96, 96, 96, 255), 1);
 

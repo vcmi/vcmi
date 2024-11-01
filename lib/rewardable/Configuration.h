@@ -44,7 +44,8 @@ enum class EEventType
 	EVENT_INVALID = 0,
 	EVENT_FIRST_VISIT,
 	EVENT_ALREADY_VISITED,
-	EVENT_NOT_AVAILABLE
+	EVENT_NOT_AVAILABLE,
+	EVENT_GUARDED
 };
 
 constexpr std::array<std::string_view, 4> SelectModeString{"selectFirst", "selectPlayer", "selectRandom", "selectAll"};
@@ -155,11 +156,15 @@ struct DLL_LINKAGE Configuration
 	/// Limiter that will be used to determine that object is visited. Only if visit mode is set to "limiter"
 	Rewardable::Limiter visitLimiter;
 
+	std::string guardsLayout;
+
 	/// if true - player can refuse visiting an object (e.g. Tomb)
 	bool canRefuse = false;
 
 	/// if true - right-clicking object will show preview of object rewards
 	bool showScoutedPreview = false;
+
+	bool coastVisitable = false;
 
 	/// if true - object info will shown in infobox (like resource pickup)
 	EInfoWindowMode infoWindowType = EInfoWindowMode::AUTO;
@@ -189,6 +194,13 @@ struct DLL_LINKAGE Configuration
 		h & canRefuse;
 		h & showScoutedPreview;
 		h & infoWindowType;
+		if (h.version >= Handler::Version::REWARDABLE_BANKS)
+		{
+			h & coastVisitable;
+			h & guardsLayout;
+		}
+		else
+			coastVisitable = false;
 	}
 };
 

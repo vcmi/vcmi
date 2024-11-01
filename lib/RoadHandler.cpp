@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "RoadHandler.h"
 #include "texts/CGeneralTextHandler.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "json/JsonNode.h"
 #include "VCMI_Lib.h"
 
@@ -54,7 +54,7 @@ const std::vector<std::string> & RoadTypeHandler::getTypeNames() const
 
 std::vector<JsonNode> RoadTypeHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_ROAD);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_ROAD);
 
 	objects.resize(dataSize);
 	return {};

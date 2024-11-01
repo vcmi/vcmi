@@ -364,10 +364,22 @@
 				},
 				{
 					"text": "vcmi.adventureOptions.leftButtonDrag.hover",
-					"created" : "desktop"
+					"created" : "keyboardMouse"
 				},
 				{
 					"text": "vcmi.adventureOptions.smoothDragging.hover"
+				}
+			]
+		},
+		{
+			"type": "verticalLayout",
+			"customType": "labelDescription",
+			"position": {"x": 225, "y": 415},
+			"items":
+			[
+				{
+					"text": "vcmi.adventureOptions.rightButtonDrag.hover",
+					"created" : "keyboardMouse"
 				}
 			]
 		},
@@ -411,12 +423,26 @@
 					"name": "leftButtonDragCheckbox",
 					"help": "vcmi.adventureOptions.leftButtonDrag",
 					"callback": "leftButtonDragChanged",
-					"created" : "desktop"
+					"created" : "keyboardMouse"
 				},
 				{
 					"name": "smoothDraggingCheckbox",
 					"help": "vcmi.adventureOptions.smoothDragging",
 					"callback": "smoothDraggingChanged"
+				}
+			]
+		},
+		{
+			"type": "verticalLayout",
+			"customType": "checkbox",
+			"position": {"x": 190, "y": 413},
+			"items":
+			[
+				{
+					"name": "rightButtonDragCheckbox",
+					"help": "vcmi.adventureOptions.rightButtonDrag",
+					"callback": "rightButtonDragChanged",
+					"created" : "keyboardMouse"
 				}
 			]
 		}

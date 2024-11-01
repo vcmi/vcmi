@@ -11,7 +11,7 @@
 #include "ArtifactUtils.h"
 
 #include "CArtHandler.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "spells/CSpellHandler.h"
 
 #include "mapObjects/CGHeroInstance.h"
@@ -184,7 +184,7 @@ DLL_LINKAGE bool ArtifactUtils::isBackpackFreeSlots(const CArtifactSet * target,
 {
 	if(target->bearerType() == ArtBearer::HERO)
 	{
-		const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
+		const auto backpackCap = VLC->engineSettings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
 		if(backpackCap < 0)
 			return true;
 		else

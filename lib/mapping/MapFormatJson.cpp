@@ -329,6 +329,8 @@ void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 
 	handler.serializeStruct("defeatMessage", mapHeader->defeatMessage);
 	handler.serializeInt("defeatIconIndex", mapHeader->defeatIconIndex);
+
+	handler.serializeIdArray("reservedCampaignHeroes", mapHeader->reservedCampaignHeroes);
 }
 
 void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)

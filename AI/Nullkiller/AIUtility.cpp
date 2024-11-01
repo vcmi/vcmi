@@ -18,7 +18,7 @@
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/gameState/QuestInfo.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 
 #include <vcmi/CreatureService.h>
 

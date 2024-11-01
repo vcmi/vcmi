@@ -54,7 +54,8 @@ In header are parameters describing campaign properties
 - `"allowDifficultySelection"` is a boolean field (`true`/`false`) which allows or disallows to choose difficulty before scenario start
 - `"loadingBackground"` is for setting a different loading screen background
 - `"introVideo"` is for defining an optional intro video
-- `"introVideoRim"` is for the Rim around the optional video (default is INTRORIM)
+- `"outroVideo"` is for defining an optional outro video
+- `"videoRim"` is for the Rim around the optional video (default is INTRORIM)
 
 ## Scenario description
 

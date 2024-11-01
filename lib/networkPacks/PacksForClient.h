@@ -1216,11 +1216,11 @@ struct DLL_LINKAGE ChangeObjectVisitors : public CPackForClient
 {
 	enum VisitMode
 	{
-		VISITOR_ADD,      // mark hero as one that have visited this object
-		VISITOR_ADD_TEAM, // mark team as one that have visited this object
-		VISITOR_GLOBAL,   // mark player as one that have visited object of this type
-		VISITOR_REMOVE,   // unmark visitor, reversed to ADD
-		VISITOR_CLEAR     // clear all visitors from this object (object reset)
+		VISITOR_ADD_HERO,   // mark hero as one that have visited this object
+		VISITOR_ADD_PLAYER, // mark player as one that have visited this object instance
+		VISITOR_GLOBAL,     // mark player as one that have visited object of this type
+		VISITOR_SCOUTED,    // marks targeted team as having scouted this object
+		VISITOR_CLEAR,      // clear all visitors from this object (object reset)
 	};
 	VisitMode mode = VISITOR_CLEAR; // uses VisitMode enum
 	ObjectInstanceID object;

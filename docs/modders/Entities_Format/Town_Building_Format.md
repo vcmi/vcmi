@@ -197,6 +197,7 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 	"bonuses" : [ BONUS_FORMAT ]
 	
 	// If set to true, this building will not automatically activate on new day or on entering town and needs to be activated manually on click
+	// Note that such building can only be activated by visiting hero, and not by garrisoned hero.
 	"manualHeroVisit" : false,
 	
 	// Bonuses provided by this special building if this building or any of its upgrades are constructed in town

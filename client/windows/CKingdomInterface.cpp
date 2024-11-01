@@ -35,7 +35,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -800,7 +800,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	garr = std::make_shared<CGarrisonInt>(Point(313, 3), 4, Point(232,0), town->getUpperArmy(), town->visitingHero, true, true, CGarrisonInt::ESlotsLayout::TWO_ROWS);
 	heroes = std::make_shared<HeroSlots>(town, Point(244,6), Point(475,6), garr, false);
 
-	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->built >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPT"), iconIndex, 0, 5, 6);
 	openTown = std::make_shared<LRClickableAreaOpenTown>(Rect(5, 6, 58, 64), town);
@@ -879,9 +879,9 @@ public:
 	std::shared_ptr<CAnimImage> background;
 	std::vector<std::shared_ptr<CArtPlace>> arts;
 
-	ArtSlotsTab()
+	ArtSlotsTab(CIntObject * parent)
 	{
-		OBJECT_CONSTRUCTION;
+		OBJECT_CONSTRUCTION_TARGETED(parent);
 		background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 4);
 		pos = background->pos;
 		for(int i=0; i<9; i++)
@@ -897,9 +897,9 @@ public:
 	std::shared_ptr<CButton> btnLeft;
 	std::shared_ptr<CButton> btnRight;
 
-	BackpackTab()
+	BackpackTab(CIntObject * parent)
 	{
-		OBJECT_CONSTRUCTION;
+		OBJECT_CONSTRUCTION_TARGETED(parent);
 		background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 5);
 		pos = background->pos;
 		btnLeft = std::make_shared<CButton>(Point(269, 66), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), 0);
@@ -915,9 +915,9 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	OBJECT_CONSTRUCTION;
 
 	artTabs.resize(3);
-	auto arts1 = std::make_shared<ArtSlotsTab>();
-	auto arts2 = std::make_shared<ArtSlotsTab>();
-	auto backpack = std::make_shared<BackpackTab>();
+	auto arts1 = std::make_shared<ArtSlotsTab>(this);
+	auto arts2 = std::make_shared<ArtSlotsTab>(this);
+	auto backpack = std::make_shared<BackpackTab>(this);
 	artTabs[0] = arts1;
 	artTabs[1] = arts2;
 	artTabs[2] = backpack;

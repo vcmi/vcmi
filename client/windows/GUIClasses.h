@@ -43,6 +43,7 @@ class CAnimImage;
 class CFilledTexture;
 class IImage;
 class VideoWidget;
+class VideoWidgetOnce;
 
 enum class EUserEvent;
 
@@ -296,7 +297,7 @@ public:
 class CShipyardWindow : public CStatusbarWindow
 {
 	std::shared_ptr<CPicture> bgWater;
-	std::shared_ptr<CAnimImage> bgShip;
+	std::shared_ptr<CShowableAnim> bgShip;
 
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CLabel> costLabel;
@@ -501,3 +502,18 @@ public:
 	CThievesGuildWindow(const CGObjectInstance * _owner);
 };
 
+class VideoWindow : public CWindowObject
+{
+	std::shared_ptr<VideoWidgetOnce> videoPlayer;
+	std::shared_ptr<CFilledTexture> backgroundAroundWindow;
+
+	std::function<void(bool)> closeCb;
+
+	void exit(bool skipped);
+public:
+	VideoWindow(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void(bool)> closeCb);
+
+	void clickPressed(const Point & cursorPosition) override;
+	void keyPressed(EShortcut key) override;
+	bool receiveEvent(const Point & position, int eventType) const override;
+};

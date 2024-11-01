@@ -23,7 +23,7 @@
 #include "texts/CGeneralTextHandler.h"
 #include "StartInfo.h" // for StartInfo
 #include "battle/BattleInfo.h" // for BattleInfo
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "TerrainHandler.h"
 #include "spells/CSpellHandler.h"
 #include "mapping/CMap.h"
@@ -272,6 +272,11 @@ bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown
 	else
 		return false;
 	return true;
+}
+
+const IGameSettings & CGameInfoCallback::getSettings() const
+{
+	return gs->getSettings();
 }
 
 int3 CGameInfoCallback::guardingCreaturePosition (int3 pos) const //FIXME: redundant?
@@ -626,7 +631,7 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 	if (!t->genBuildingRequirements(ID).test(buildTest))
 		return EBuildingState::PREREQUIRES;
 
-	if(t->built >= VLC->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
+	if(t->built >= getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
 		return EBuildingState::CANT_BUILD_TODAY; //building limit
 
 	//checking resources

@@ -12,6 +12,7 @@
 
 #include <vcmi/events/EventBus.h>
 
+#include "../../lib/battle/BattleLayout.h"
 #include "../../lib/CStack.h"
 #include "../../lib/ScriptHandler.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -479,10 +480,9 @@ int3 HypotheticBattle::getLocation() const
 	return int3(-1, -1, -1);
 }
 
-bool HypotheticBattle::isCreatureBank() const
+BattleLayout HypotheticBattle::getLayout() const
 {
-	// TODO
-	return false;
+	return subject->getBattle()->getLayout();
 }
 
 int64_t HypotheticBattle::getTreeVersion() const

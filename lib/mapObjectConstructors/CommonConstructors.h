@@ -26,7 +26,6 @@ class CGHeroInstance;
 class CGMarket;
 class CHeroClass;
 class CGCreature;
-class CBank;
 class CGBoat;
 class CFaction;
 class CStackBasicDescriptor;
