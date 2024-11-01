@@ -68,8 +68,8 @@ void prepareAndroid()
 		copyRecursively(QString{":/%1"}.arg(vcmiFilesResource), destDir.absolutePath());
 	}
 
-	QAndroidJniObject::callStaticObjectMethod<void>("org/libsdl/app/SDL/SDL", "setupJNI");
-	QAndroidJniObject::callStaticObjectMethod<void>("org/libsdl/app/SDL/SDL", "initialize");
+	QAndroidJniObject::callStaticObjectMethod("org/libsdl/app/SDL", "setupJNI", "(V)Lorg/libsdl/app/SDL;");
+	QAndroidJniObject::callStaticObjectMethod("org/libsdl/app/SDL", "initialize", "(V)Lorg/libsdl/app/SDL;");
 }
 }
 #endif
