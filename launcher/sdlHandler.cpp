@@ -14,6 +14,8 @@
 
 SdlHandler::SdlHandler() : gameControllerButtonCallback(nullptr)
 {
+	SDL_SetMainReady();
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
 }
 
 SdlHandler::~SdlHandler()
@@ -23,9 +25,6 @@ SdlHandler::~SdlHandler()
 
 void SdlHandler::eventHandler()
 {
-	SDL_SetMainReady();
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
-	
 	SDL_Event e;
 	while(SDL_PollEvent(&e))
 	{
