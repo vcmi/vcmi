@@ -108,8 +108,7 @@ void SdlHandler::mapGameControllerKey(SDL_GameControllerButton button)
 		auto focusObj = QGuiApplication::focusObject();
 		if(focusObj)
 		{
-			QString keyStr(QKeySequence(key).toString());
-			QKeyEvent pressEvent = QKeyEvent(QEvent::KeyPress, key, Qt::NoModifier, keyStr);
+			QKeyEvent pressEvent = QKeyEvent(QEvent::KeyPress, key, Qt::NoModifier);
 			QKeyEvent releaseEvent = QKeyEvent(QEvent::KeyRelease, key, Qt::NoModifier);
 			QCoreApplication::sendEvent(focusObj, &pressEvent);
 			QCoreApplication::sendEvent(focusObj, &releaseEvent);
