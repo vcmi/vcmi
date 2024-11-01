@@ -13,7 +13,6 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/constants/StringConstants.h"
@@ -23,6 +22,11 @@
 #include "../lib/rewardable/Reward.h"
 #include "../lib/mapObjects/CGPandoraBox.h"
 #include "../lib/mapObjects/CQuest.h"
+
+#include <vcmi/HeroTypeService.h>
+#include <vcmi/HeroType.h>
+#include <vcmi/HeroClassService.h>
+#include <vcmi/HeroClass.h>
 
 RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	QDialog(parent),

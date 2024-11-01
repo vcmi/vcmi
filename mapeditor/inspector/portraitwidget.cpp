@@ -10,8 +10,8 @@
 #include "StdInc.h"
 #include "portraitwidget.h"
 #include "ui_portraitwidget.h"
-#include "../../lib/CHeroHandler.h"
 #include "../Animation.h"
+#include "../lib/entities/hero/CHeroHandler.h"
 
 PortraitWidget::PortraitWidget(CGHeroInstance & h, QWidget *parent):
 	QDialog(parent),

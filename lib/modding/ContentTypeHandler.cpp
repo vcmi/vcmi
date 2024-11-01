@@ -17,9 +17,11 @@
 #include "../BattleFieldHandler.h"
 #include "../CArtHandler.h"
 #include "../CCreatureHandler.h"
+#include "../CConfigHandler.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/hero/CHeroClassHandler.h"
+#include "../entities/hero/CHeroHandler.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
 #include "../IGameSettings.h"
@@ -39,9 +41,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string & objectName):
+ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string & entityName):
 	handler(handler),
-	objectName(objectName),
+	entityName(entityName),
 	originalData(handler->loadLegacyData())
 {
 	for(auto & node : originalData)
@@ -50,7 +52,7 @@ ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string
 	}
 }
 
-bool ContentTypeHandler::preloadModData(const std::string & modName, const std::vector<std::string> & fileList, bool validate)
+bool ContentTypeHandler::preloadModData(const std::string & modName, const JsonNode & fileList, bool validate)
 {
 	bool result = false;
 	JsonNode data = JsonUtils::assembleFromFiles(fileList, result);
@@ -79,6 +81,9 @@ bool ContentTypeHandler::preloadModData(const std::string & modName, const std::
 			logMod->trace("Patching object %s (%s) from %s", objectName, remoteName, modName);
 			JsonNode & remoteConf = modData[remoteName].patches[objectName];
 
+			if (!remoteConf.isNull() && settings["mods"]["validation"].String() != "off")
+				JsonUtils::detectConflicts(conflictList, remoteConf, entry.second, objectName);
+
 			JsonUtils::merge(remoteConf, entry.second);
 		}
 	}
@@ -93,7 +98,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 	auto performValidate = [&,this](JsonNode & data, const std::string & name){
 		handler->beforeValidate(data);
 		if (validate)
-			result &= JsonUtils::validate(data, "vcmi:" + objectName, name);
+			result &= JsonUtils::validate(data, "vcmi:" + entityName, name);
 	};
 
 	// apply patches
@@ -113,7 +118,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 			// - another mod attempts to add object into this mod (technically can be supported, but might lead to weird edge cases)
 			// - another mod attempts to edit object from this mod that no longer exist - DANGER since such patch likely has very incomplete data
 			// so emit warning and skip such case
-			logMod->warn("Mod '%s' attempts to edit object '%s' of type '%s' from mod '%s' but no such object exist!", data.getModScope(), name, objectName, modName);
+			logMod->warn("Mod '%s' attempts to edit object '%s' of type '%s' from mod '%s' but no such object exist!", data.getModScope(), name, entityName, modName);
 			continue;
 		}
 
@@ -159,30 +164,72 @@ void ContentTypeHandler::loadCustom()
 
 void ContentTypeHandler::afterLoadFinalization()
 {
-	for (auto const & data : modData)
+	if (settings["mods"]["validation"].String() != "off")
 	{
-		if (data.second.modData.isNull())
+		for (auto const & data : modData)
 		{
-			for (auto node : data.second.patches.Struct())
-				logMod->warn("Mod '%s' have added patch for object '%s' from mod '%s', but this mod was not loaded or has no new objects.", node.second.getModScope(), node.first, data.first);
-		}
-
-		for(auto & otherMod : modData)
-		{
-			if (otherMod.first == data.first)
-				continue;
-
-			if (otherMod.second.modData.isNull())
-				continue;
-
-			for(auto & otherObject : otherMod.second.modData.Struct())
+			if (data.second.modData.isNull())
 			{
-				if (data.second.modData.Struct().count(otherObject.first))
+				for (auto node : data.second.patches.Struct())
+					logMod->warn("Mod '%s' have added patch for object '%s' from mod '%s', but this mod was not loaded or has no new objects.", node.second.getModScope(), node.first, data.first);
+			}
+
+			for(auto & otherMod : modData)
+			{
+				if (otherMod.first == data.first)
+					continue;
+
+				if (otherMod.second.modData.isNull())
+					continue;
+
+				for(auto & otherObject : otherMod.second.modData.Struct())
 				{
-					logMod->warn("Mod '%s' have added object with name '%s' that is also available in mod '%s'", data.first, otherObject.first, otherMod.first);
-					logMod->warn("Two objects with same name were loaded. Please use form '%s:%s' if mod '%s' needs to modify this object instead", otherMod.first, otherObject.first, data.first);
+					if (data.second.modData.Struct().count(otherObject.first))
+					{
+						logMod->warn("Mod '%s' have added object with name '%s' that is also available in mod '%s'", data.first, otherObject.first, otherMod.first);
+						logMod->warn("Two objects with same name were loaded. Please use form '%s:%s' if mod '%s' needs to modify this object instead", otherMod.first, otherObject.first, data.first);
+					}
 				}
 			}
+		}
+
+		for (const auto& [conflictPath, conflictModData] : conflictList.Struct())
+		{
+			std::set<std::string> conflictingMods;
+			std::set<std::string> resolvedConflicts;
+
+			for (auto const & conflictModEntry: conflictModData.Struct())
+				conflictingMods.insert(conflictModEntry.first);
+
+			for (auto const & modID : conflictingMods)
+			{
+				resolvedConflicts.merge(VLC->modh->getModDependencies(modID));
+				resolvedConflicts.merge(VLC->modh->getModEnabledSoftDependencies(modID));
+			}
+
+			vstd::erase_if(conflictingMods, [&resolvedConflicts](const std::string & entry){ return resolvedConflicts.count(entry);});
+
+			if (conflictingMods.size() < 2)
+				continue; // all conflicts were resolved - either via compatibility patch (mod that depends on 2 conflicting mods) or simple mod that depends on another one
+
+			bool allEqual = true;
+
+			for (auto const & modID : conflictingMods)
+			{
+				if (conflictModData[modID] != conflictModData[*conflictingMods.begin()])
+				{
+					allEqual = false;
+					break;
+				}
+			}
+
+			if (allEqual)
+				continue; // conflict still present, but all mods use the same value for conflicting entry - permit it
+
+			logMod->warn("Potential confict in '%s'", conflictPath);
+
+			for (auto const & modID : conflictingMods)
+				logMod->warn("Mod '%s' - value set to %s", modID, conflictModData[modID].toCompactString());
 		}
 	}
 
@@ -216,7 +263,7 @@ bool CContentHandler::preloadModData(const std::string & modName, JsonNode modCo
 	bool result = true;
 	for(auto & handler : handlers)
 	{
-		result &= handler.second.preloadModData(modName, modConfig[handler.first].convertTo<std::vector<std::string> >(), validate);
+		result &= handler.second.preloadModData(modName, modConfig[handler.first], validate);
 	}
 	return result;
 }
@@ -249,7 +296,7 @@ void CContentHandler::afterLoadFinalization()
 
 void CContentHandler::preloadData(CModInfo & mod)
 {
-	bool validate = (mod.validation != CModInfo::PASSED);
+	bool validate = validateMod(mod);
 
 	// print message in format [<8-symbols checksum>] <modname>
 	auto & info = mod.getVerificationInfo();
@@ -266,7 +313,7 @@ void CContentHandler::preloadData(CModInfo & mod)
 
 void CContentHandler::load(CModInfo & mod)
 {
-	bool validate = (mod.validation != CModInfo::PASSED);
+	bool validate = validateMod(mod);
 
 	if (!loadMod(mod.identifier, validate))
 		mod.validation = CModInfo::FAILED;
@@ -285,6 +332,20 @@ void CContentHandler::load(CModInfo & mod)
 const ContentTypeHandler & CContentHandler::operator[](const std::string & name) const
 {
 	return handlers.at(name);
+}
+
+bool CContentHandler::validateMod(const CModInfo & mod) const
+{
+	if (settings["mods"]["validation"].String() == "full")
+		return true;
+
+	if (mod.validation == CModInfo::PASSED)
+		return false;
+
+	if (settings["mods"]["validation"].String() == "off")
+		return false;
+
+	return true;
 }
 
 VCMI_LIB_NAMESPACE_END

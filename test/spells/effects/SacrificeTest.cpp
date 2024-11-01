@@ -203,8 +203,8 @@ TEST_F(SacrificeApplyTest, DISABLED_ResurrectsTarget)
 
 	EXPECT_CALL(targetUnit, acquire()).WillOnce(Return(targetUnitState));
 
-	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged *>(_))).Times(AtLeast(1));
-	EXPECT_CALL(serverMock, apply(Matcher<BattleLogMessage *>(_))).Times(AtLeast(1));
+	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).Times(AtLeast(1));
+	EXPECT_CALL(serverMock, apply(Matcher<BattleLogMessage &>(_))).Times(AtLeast(1));
 
 	setupDefaultRNG();
 

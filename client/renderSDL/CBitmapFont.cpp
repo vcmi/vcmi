@@ -96,21 +96,12 @@ static AtlasLayout doAtlasPacking(const std::map<int, Point> & images)
 	}
 }
 
-void CBitmapFont::loadModFont(const std::string & modName, const ResourcePath & resource, std::unordered_map<CodePoint, EntryFNT> & loadedChars)
+void CBitmapFont::loadFont(const ResourcePath & resource, std::unordered_map<CodePoint, EntryFNT> & loadedChars)
 {
-	if (!CResourceHandler::get(modName)->existsResource(resource))
-	{
-		logGlobal->error("Failed to load font %s from mod %s", resource.getName(), modName);
-		return;
-	}
+	auto data = CResourceHandler::get()->load(resource)->readAll();
+	std::string modEncoding = VLC->modh->findResourceEncoding(resource);
 
-	auto data = CResourceHandler::get(modName)->load(resource)->readAll();
-	std::string modLanguage = CGI->modh->getModLanguage(modName);
-	std::string modEncoding = Languages::getLanguageOptions(modLanguage).encoding;
-
-	uint32_t dataHeight = data.first[5];
-
-	maxHeight = std::max(maxHeight, dataHeight);
+	height = data.first[5];
 
 	constexpr size_t symbolsInFile = 0x100;
 	constexpr size_t baseIndex = 32;
@@ -126,10 +117,10 @@ void CBitmapFont::loadModFont(const std::string & modName, const ResourcePath & 
 		symbol.leftOffset =  read_le_u32(data.first.get() + baseIndex + charIndex * 12 + 0);
 		symbol.width =       read_le_u32(data.first.get() + baseIndex + charIndex * 12 + 4);
 		symbol.rightOffset = read_le_u32(data.first.get() + baseIndex + charIndex * 12 + 8);
-		symbol.height = dataHeight;
+		symbol.height = height;
 
 		uint32_t pixelDataOffset = read_le_u32(data.first.get() + offsetIndex + charIndex * 4);
-		uint32_t pixelsCount = dataHeight * symbol.width;
+		uint32_t pixelsCount = height * symbol.width;
 
 		symbol.pixels.resize(pixelsCount);
 
@@ -139,21 +130,27 @@ void CBitmapFont::loadModFont(const std::string & modName, const ResourcePath & 
 
 		loadedChars[codepoint] = symbol;
 	}
+
+	// Try to use symbol 'L' to detect font 'ascent' - number of pixels above text baseline
+	const auto & symbolL = loadedChars['L'];
+	uint32_t lastNonEmptyRow = 0;
+	for (uint32_t row = 0; row < symbolL.height; ++row)
+	{
+		for (uint32_t col = 0; col < symbolL.width; ++col)
+			if (symbolL.pixels.at(row * symbolL.width + col) == 255)
+				lastNonEmptyRow = std::max(lastNonEmptyRow, row);
+	}
+
+	ascent = lastNonEmptyRow + 1;
 }
 
 CBitmapFont::CBitmapFont(const std::string & filename):
-	maxHeight(0)
+	height(0)
 {
 	ResourcePath resource("data/" + filename, EResType::BMP_FONT);
 
 	std::unordered_map<CodePoint, EntryFNT> loadedChars;
-	loadModFont("core", resource, loadedChars);
-
-	for(const auto & modName : VLC->modh->getActiveMods())
-	{
-		if (CResourceHandler::get(modName)->existsResource(resource))
-			loadModFont(modName, resource, loadedChars);
-	}
+	loadFont(resource, loadedChars);
 
 	std::map<int, Point> atlasSymbol;
 	for (auto const & symbol : loadedChars)
@@ -214,7 +211,11 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 		atlasImage = scaledSurface;
 	}
 
-	IMG_SavePNG(atlasImage, ("/home/ivan/font_" + filename).c_str());
+	logGlobal->debug("Loaded BMP font: '%s', height %d, ascent %d",
+					 filename,
+					 getLineHeightScaled(),
+					 getFontAscentScaled()
+					 );
 }
 
 CBitmapFont::~CBitmapFont()
@@ -222,12 +223,12 @@ CBitmapFont::~CBitmapFont()
 	SDL_FreeSurface(atlasImage);
 }
 
-size_t CBitmapFont::getLineHeight() const
+size_t CBitmapFont::getLineHeightScaled() const
 {
-	return maxHeight;
+	return height * getScalingFactor();
 }
 
-size_t CBitmapFont::getGlyphWidth(const char * data) const
+size_t CBitmapFont::getGlyphWidthScaled(const char * data) const
 {
 	CodePoint localChar = TextOperations::getUnicodeCodepoint(data, 4);
 
@@ -236,7 +237,12 @@ size_t CBitmapFont::getGlyphWidth(const char * data) const
 	if (iter == chars.end())
 		return 0;
 
-	return iter->second.leftOffset + iter->second.positionInAtlas.w + iter->second.rightOffset;
+	return (iter->second.leftOffset + iter->second.positionInAtlas.w + iter->second.rightOffset) * getScalingFactor();
+}
+
+size_t CBitmapFont::getFontAscentScaled() const
+{
+	return ascent * getScalingFactor();
 }
 
 bool CBitmapFont::canRepresentCharacter(const char *data) const

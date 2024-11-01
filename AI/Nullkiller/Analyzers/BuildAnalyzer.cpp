@@ -17,7 +17,7 @@ namespace NKAI
 
 void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 {
-	auto townInfo = developmentInfo.town->town;
+	auto townInfo = developmentInfo.town->getTown();
 	auto creatures = townInfo->creatures;
 	auto buildings = townInfo->getAllBuildings();
 
@@ -31,7 +31,7 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 		}
 	}
 
-	for(int level = 0; level < developmentInfo.town->town->creatures.size(); level++)
+	for(int level = 0; level < developmentInfo.town->getTown()->creatures.size(); level++)
 	{
 		logAi->trace("Checking dwelling level %d", level);
 		BuildingInfo nextToBuild = BuildingInfo();
@@ -82,7 +82,7 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo)
 	{
 		for(auto & buildingID : buildingSet)
 		{
-			if(!developmentInfo.town->hasBuilt(buildingID) && developmentInfo.town->town->buildings.count(buildingID))
+			if(!developmentInfo.town->hasBuilt(buildingID) && developmentInfo.town->getTown()->buildings.count(buildingID))
 			{
 				developmentInfo.addBuildingToBuild(getBuildingOrPrerequisite(developmentInfo.town, buildingID));
 
@@ -198,7 +198,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	bool excludeDwellingDependencies) const
 {
 	BuildingID building = toBuild;
-	auto townInfo = town->town;
+	auto townInfo = town->getTown();
 
 	const CBuilding * buildPtr = townInfo->buildings.at(building);
 	const CCreature * creature = nullptr;
@@ -327,7 +327,7 @@ bool BuildAnalyzer::hasAnyBuilding(int32_t alignment, BuildingID bid) const
 {
 	for(auto tdi : developmentInfos)
 	{
-		if(tdi.town->getFaction() == alignment && tdi.town->hasBuilt(bid))
+		if(tdi.town->getFactionID() == alignment && tdi.town->hasBuilt(bid))
 			return true;
 	}
 

@@ -48,6 +48,12 @@
 	[
 		"baseMod"
 	],
+	
+	// List of mods if they are enabled, should be loaded before this one. This mod will overwrite any conflicting items from its soft dependency mods.
+	"softDepends" :
+	[
+		"baseMod"
+	],
  
 	// List of mods that can't be enabled in the same time as this one
 	"conflicts" :
@@ -90,25 +96,26 @@ These are fields that are present only in local mod.json file
 {
 	// Following section describes configuration files with content added by mod
 	// It can be split into several files in any way you want but recommended organization is
-	// to keep one file per object (creature/hero/etc) and, if applicable, add separate file
-	// with translatable strings for each type of content
+	// to keep one file per object (creature/hero/etc)
+	// Alternatively, for small changes you can embed changes to content directly in here, e.g.
+	// "creatures" : { "core:imp" : { "health" : 5 }}
 
 	// list of factions/towns configuration files
 	"factions" :
 	[
-		"config/myMod/faction.json"
+		"config/faction.json"
 	]
 
 	// List of hero classes configuration files
 	"heroClasses" :
 	[
-		"config/myMod/heroClasses.json"
+		"config/heroClasses.json"
 	],
 
 	// List of heroes configuration files
 	"heroes" :
 	[
-		"config/myMod/heroes.json"
+		"config/heroes.json"
 	],
 	
 	// List of configuration files for skills
@@ -117,68 +124,68 @@ These are fields that are present only in local mod.json file
 	// list of creature configuration files
 	"creatures" :
 	[
-		"config/myMod/creatures.json"
+		"config/creatures.json"
 	],
 
 	// List of artifacts configuration files
 	"artifacts" :
 	[
-		"config/myMod/artifacts.json"
+		"config/artifacts.json"
 	],
 
 	// List of objects defined in this mod
 	"objects" :
 	[
-		"config/myMod/objects.json"
+		"config/objects.json"
 	],
 
 	// List of spells defined in this mod
 	"spells" :
 	[
-		"config/myMod/spells.json"
+		"config/spells.json"
 	],
 	
 	// List of configuration files for terrains
 	"terrains" :
 	[
-		"config/myMod/terrains.json"
+		"config/terrains.json"
 	],
 	
 	// List of configuration files for roads
 	"roads" :
 	[
-		"config/myMod/roads.json"
+		"config/roads.json"
 	],
 	
 	// List of configuration files for rivers
 	"rivers" :
 	[
-		"config/myMod/rivers.json"
+		"config/rivers.json"
 	],
 	
 	// List of configuration files for battlefields
 	"battlefields" :
 	[
-		"config/myMod/battlefields.json"
+		"config/battlefields.json"
 	],
 	
 	// List of configuration files for obstacles
 	"obstacles" :
 	[
-		"config/myMod/obstacles.json"
+		"config/obstacles.json"
 	],
 
 	// List of RMG templates defined in this mod
 	"templates" :
 	[
-		"config/myMod/templates.json"
+		"config/templates.json"
 	],
 	
 	// Optional, primaly used by translation mods
 	// Defines strings that are translated by mod into base language specified in "language" field
 	"translations" :
 	[
-		"config/myMod/englishStrings.json
+		"config/englishStrings.json
 	]
 }
 ```
@@ -194,7 +201,7 @@ See [Translations](Translations.md) for more information
 		"description" : "<translated description>",
 		"author" : "<translated author>",
 		"translations" : [
-			"config/<modName>/<language>.json"
+			"config/<language>.json"
 		]
 	},
 ```

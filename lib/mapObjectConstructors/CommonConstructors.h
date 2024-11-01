@@ -81,7 +81,6 @@ public:
 	const CHeroClass * heroClass = nullptr;
 	std::map<std::string, LogicalExpression<HeroTypeID>> filters;
 
-	void initializeObject(CGHeroInstance * object) const override;
 	void randomizeObject(CGHeroInstance * object, vstd::RNG & rng) const override;
 	void afterLoadFinalization() override;
 
@@ -119,6 +118,7 @@ protected:
 	JsonNode predefinedOffer;
 	int marketEfficiency;
 	
+	std::string description;
 	std::string title;
 	std::string speech;
 	
@@ -128,6 +128,7 @@ public:
 	void randomizeObject(CGMarket * object, vstd::RNG & rng) const override;
 
 	const std::set<EMarketMode> & availableModes() const;
+	bool hasDescription() const;
 
 };
 

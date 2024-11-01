@@ -20,8 +20,6 @@ set(launcher_SRCS
 		innoextract.cpp
 		mainwindow_moc.cpp
 		languages.cpp
-		launcherdirs.cpp
-		jsonutils.cpp
 		updatedialog_moc.cpp
 		prepare.cpp
 		sdlHandler.cpp
@@ -50,8 +48,6 @@ set(launcher_HEADERS
 		firstLaunch/firstlaunch_moc.h
 		mainwindow_moc.h
 		languages.h
-		launcherdirs.h
-		jsonutils.h
 		updatedialog_moc.h
 		main.h
 		helper.h
@@ -208,7 +204,11 @@ endif()
 
 target_link_libraries(vcmilauncher SDL2::SDL2)
 
-target_link_libraries(vcmilauncher vcmi Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+if(ENABLE_STATIC_LIBS OR NOT (ENABLE_EDITOR AND ENABLE_LAUNCHER))
+	target_compile_definitions(vcmilauncher PRIVATE VCMIQT_STATIC)
+endif()
+
+target_link_libraries(vcmilauncher vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )

@@ -43,7 +43,6 @@
 #include "../render/IFont.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/filesystem/Filesystem.h"
@@ -188,8 +187,8 @@ InfoCard::InfoCard()
 		iconsVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT"), 0, 0, 24, 302);
 		iconsLossCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRLOSS"), 0, 0, 24, 359);
 
-		labelVictoryConditionText = std::make_shared<CLabel>(60, 307, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-		labelLossConditionText = std::make_shared<CLabel>(60, 366, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+		labelVictoryConditionText = std::make_shared<CLabel>(60, 307, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, "", 290);
+		labelLossConditionText = std::make_shared<CLabel>(60, 366, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, "", 290);
 
 		labelDifficulty = std::make_shared<CLabel>(62, 472, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 		labelDifficultyPercent = std::make_shared<CLabel>(311, 472, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
@@ -256,15 +255,17 @@ void InfoCard::changeSelection()
 	if(!showChat)
 		labelGroupPlayers->disable();
 
+	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+
 	for(const auto & p : CSH->playerNames)
 	{
 		int slotsUsed = labelGroupPlayers->currentSize();
 		Point labelPosition;
 
 		if(slotsUsed < 4)
-			labelPosition = Point(24, 285 + slotsUsed * graphics->fonts[FONT_SMALL]->getLineHeight()); // left column
+			labelPosition = Point(24, 285 + slotsUsed * font->getLineHeight()); // left column
 		else
-			labelPosition = Point(193, 285 + (slotsUsed - 4) * graphics->fonts[FONT_SMALL]->getLineHeight()); // right column
+			labelPosition = Point(193, 285 + (slotsUsed - 4) * font->getLineHeight()); // right column
 
 		labelGroupPlayers->add(labelPosition.x, labelPosition.y, p.second.name);
 	}
@@ -358,7 +359,8 @@ CChatBox::CChatBox(const Rect & rect)
 	pos += rect.topLeft();
 	setRedrawParent(true);
 
-	const int height = static_cast<int>(graphics->fonts[FONT_SMALL]->getLineHeight());
+	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+	const int height = font->getLineHeight();
 	Rect textInputArea(1, rect.h - height, rect.w - 1, height);
 	Rect chatHistoryArea(3, 1, rect.w - 3, rect.h - height - 1);
 	inputBackground = std::make_shared<TransparentFilledRectangle>(textInputArea, ColorRGBA(0,0,0,192));

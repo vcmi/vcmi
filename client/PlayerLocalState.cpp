@@ -11,6 +11,7 @@
 #include "PlayerLocalState.h"
 
 #include "../CCallback.h"
+#include "../lib/json/JsonNode.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/pathfinder/CGPathNode.h"
@@ -23,34 +24,20 @@ PlayerLocalState::PlayerLocalState(CPlayerInterface & owner)
 {
 }
 
-void PlayerLocalState::saveHeroPaths(std::map<const CGHeroInstance *, int3> & pathsMap)
+const PlayerSpellbookSetting & PlayerLocalState::getSpellbookSettings() const
 {
-	for(auto & p : paths)
-	{
-		if(p.second.nodes.size())
-			pathsMap[p.first] = p.second.endPos();
-		else
-			logGlobal->debug("%s has assigned an empty path! Ignoring it...", p.first->getNameTranslated());
-	}
+	return spellbookSettings;
 }
 
-void PlayerLocalState::loadHeroPaths(std::map<const CGHeroInstance *, int3> & pathsMap)
+void PlayerLocalState::setSpellbookSettings(const PlayerSpellbookSetting & newSettings)
 {
-	if(owner.cb)
-	{
-		for(auto & p : pathsMap)
-		{
-			CGPath path;
-			owner.cb->getPathsInfo(p.first)->getPath(path, p.second);
-			paths[p.first] = path;
-			logGlobal->trace("Restored path for hero %s leading to %s with %d nodes", p.first->nodeName(), p.second.toString(), path.nodes.size());
-		}
-	}
+	spellbookSettings = newSettings;
 }
 
 void PlayerLocalState::setPath(const CGHeroInstance * h, const CGPath & path)
 {
 	paths[h] = path;
+	syncronizeState();
 }
 
 const CGPath & PlayerLocalState::getPath(const CGHeroInstance * h) const
@@ -70,6 +57,7 @@ bool PlayerLocalState::setPath(const CGHeroInstance * h, const int3 & destinatio
 	if(!owner.cb->getPathsInfo(h)->getPath(path, destination))
 	{
 		paths.erase(h); //invalidate previously possible path if selected (before other hero blocked only path / fly spell expired)
+		syncronizeState();
 		return false;
 	}
 
@@ -93,6 +81,7 @@ void PlayerLocalState::erasePath(const CGHeroInstance * h)
 {
 	paths.erase(h);
 	adventureInt->onHeroChanged(h);
+	syncronizeState();
 }
 
 void PlayerLocalState::verifyPath(const CGHeroInstance * h)
@@ -170,6 +159,7 @@ void PlayerLocalState::setSelection(const CArmedInstance * selection)
 
 	if (adventureInt && selection)
 		adventureInt->onSelectionChanged(selection);
+	syncronizeState();
 }
 
 bool PlayerLocalState::isHeroSleeping(const CGHeroInstance * hero) const
@@ -184,6 +174,7 @@ void PlayerLocalState::setHeroAsleep(const CGHeroInstance * hero)
 	assert(!vstd::contains(sleepingHeroes, hero));
 
 	sleepingHeroes.push_back(hero);
+	syncronizeState();
 }
 
 void PlayerLocalState::setHeroAwaken(const CGHeroInstance * hero)
@@ -193,6 +184,7 @@ void PlayerLocalState::setHeroAwaken(const CGHeroInstance * hero)
 	assert(vstd::contains(sleepingHeroes, hero));
 
 	vstd::erase(sleepingHeroes, hero);
+	syncronizeState();
 }
 
 const std::vector<const CGHeroInstance *> & PlayerLocalState::getWanderingHeroes()
@@ -215,6 +207,8 @@ void PlayerLocalState::addWanderingHero(const CGHeroInstance * hero)
 
 	if (currentSelection == nullptr)
 		setSelection(hero);
+
+	syncronizeState();
 }
 
 void PlayerLocalState::removeWanderingHero(const CGHeroInstance * hero)
@@ -225,7 +219,12 @@ void PlayerLocalState::removeWanderingHero(const CGHeroInstance * hero)
 	if (hero == currentSelection)
 	{
 		auto const * nextHero = getNextWanderingHero(hero);
-		setSelection(nextHero);
+		if (nextHero)
+			setSelection(nextHero);
+		else if (!ownedTowns.empty())
+			setSelection(ownedTowns.front());
+		else
+			setSelection(nullptr);
 	}
 
 	vstd::erase(wanderingHeroes, hero);
@@ -236,6 +235,8 @@ void PlayerLocalState::removeWanderingHero(const CGHeroInstance * hero)
 
 	if (currentSelection == nullptr && !ownedTowns.empty())
 		setSelection(ownedTowns.front());
+
+	syncronizeState();
 }
 
 void PlayerLocalState::swapWanderingHero(size_t pos1, size_t pos2)
@@ -244,6 +245,8 @@ void PlayerLocalState::swapWanderingHero(size_t pos1, size_t pos2)
 	std::swap(wanderingHeroes.at(pos1), wanderingHeroes.at(pos2));
 
 	adventureInt->onHeroOrderChanged();
+
+	syncronizeState();
 }
 
 const std::vector<const CGTownInstance *> & PlayerLocalState::getOwnedTowns()
@@ -266,6 +269,8 @@ void PlayerLocalState::addOwnedTown(const CGTownInstance * town)
 
 	if (currentSelection == nullptr)
 		setSelection(town);
+
+	syncronizeState();
 }
 
 void PlayerLocalState::removeOwnedTown(const CGTownInstance * town)
@@ -282,6 +287,8 @@ void PlayerLocalState::removeOwnedTown(const CGTownInstance * town)
 
 	if (currentSelection == nullptr && !ownedTowns.empty())
 		setSelection(ownedTowns.front());
+
+	syncronizeState();
 }
 
 void PlayerLocalState::swapOwnedTowns(size_t pos1, size_t pos2)
@@ -289,5 +296,120 @@ void PlayerLocalState::swapOwnedTowns(size_t pos1, size_t pos2)
 	assert(ownedTowns[pos1] && ownedTowns[pos2]);
 	std::swap(ownedTowns.at(pos1), ownedTowns.at(pos2));
 
+	syncronizeState();
+
 	adventureInt->onTownOrderChanged();
+}
+
+void PlayerLocalState::syncronizeState()
+{
+	JsonNode data;
+	serialize(data);
+	owner.cb->saveLocalState(data);
+}
+
+void PlayerLocalState::serialize(JsonNode & dest) const
+{
+	dest.clear();
+
+	for (auto const * town : ownedTowns)
+	{
+		JsonNode record;
+		record["id"].Integer() = town->id;
+		dest["towns"].Vector().push_back(record);
+	}
+
+	for (auto const * hero : wanderingHeroes)
+	{
+		JsonNode record;
+		record["id"].Integer() = hero->id;
+		if (vstd::contains(sleepingHeroes, hero))
+			record["sleeping"].Bool() = true;
+
+		if (paths.count(hero))
+		{
+			record["path"]["x"].Integer() = paths.at(hero).lastNode().coord.x;
+			record["path"]["y"].Integer() = paths.at(hero).lastNode().coord.y;
+			record["path"]["z"].Integer() = paths.at(hero).lastNode().coord.z;
+		}
+		dest["heroes"].Vector().push_back(record);
+	}
+	dest["spellbook"]["pageBattle"].Integer() = spellbookSettings.spellbookLastPageBattle;
+	dest["spellbook"]["pageAdvmap"].Integer() = spellbookSettings.spellbookLastPageAdvmap;
+	dest["spellbook"]["tabBattle"].Integer() = spellbookSettings.spellbookLastTabBattle;
+	dest["spellbook"]["tabAdvmap"].Integer() = spellbookSettings.spellbookLastTabAdvmap;
+
+	if (currentSelection)
+		dest["currentSelection"].Integer() = currentSelection->id;
+}
+
+void PlayerLocalState::deserialize(const JsonNode & source)
+{
+	// this method must be called after player state has been initialized
+	assert(currentSelection != nullptr);
+	assert(!ownedTowns.empty() || !wanderingHeroes.empty());
+
+	auto oldHeroes = wanderingHeroes;
+	auto oldTowns = ownedTowns;
+
+	paths.clear();
+	sleepingHeroes.clear();
+	wanderingHeroes.clear();
+	ownedTowns.clear();
+
+	for (auto const & town : source["towns"].Vector())
+	{
+		ObjectInstanceID objID(town["id"].Integer());
+		const CGTownInstance * townPtr = owner.cb->getTown(objID);
+
+		if (!townPtr)
+			continue;
+
+		if (!vstd::contains(oldTowns, townPtr))
+			continue;
+
+		ownedTowns.push_back(townPtr);
+		vstd::erase(oldTowns, townPtr);
+	}
+
+	for (auto const & hero : source["heroes"].Vector())
+	{
+		ObjectInstanceID objID(hero["id"].Integer());
+		const CGHeroInstance * heroPtr = owner.cb->getHero(objID);
+
+		if (!heroPtr)
+			continue;
+
+		if (!vstd::contains(oldHeroes, heroPtr))
+			continue;
+
+		wanderingHeroes.push_back(heroPtr);
+		vstd::erase(oldHeroes, heroPtr);
+
+		if (hero["sleeping"].Bool())
+			sleepingHeroes.push_back(heroPtr);
+
+		if (hero["path"]["x"].isNumber() && hero["path"]["y"].isNumber() && hero["path"]["z"].isNumber())
+		{
+			int3 pathTarget(hero["path"]["x"].Integer(), hero["path"]["y"].Integer(), hero["path"]["z"].Integer());
+			setPath(heroPtr, pathTarget);
+		}
+	}
+
+	spellbookSettings.spellbookLastPageBattle = source["spellbook"]["pageBattle"].Integer();
+	spellbookSettings.spellbookLastPageAdvmap = source["spellbook"]["pageAdvmap"].Integer();
+	spellbookSettings.spellbookLastTabBattle = source["spellbook"]["tabBattle"].Integer();
+	spellbookSettings.spellbookLastTabAdvmap = source["spellbook"]["tabAdvmap"].Integer();
+
+	// append any owned heroes / towns that were not present in loaded state
+	wanderingHeroes.insert(wanderingHeroes.end(), oldHeroes.begin(), oldHeroes.end());
+	ownedTowns.insert(ownedTowns.end(), oldTowns.begin(), oldTowns.end());
+
+//FIXME: broken, anything that is selected in here will be overwritten on NewTurn pack
+//	ObjectInstanceID selectedObjectID(source["currentSelection"].Integer());
+//	const CGObjectInstance * objectPtr = owner.cb->getObjInstance(selectedObjectID);
+//	const CArmedInstance * armyPtr = dynamic_cast<const CArmedInstance*>(objectPtr);
+//
+//	if (armyPtr)
+//		setSelection(armyPtr);
 }

@@ -3,7 +3,7 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "lobby", "gameTweaks" ],
+	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "lobby", "gameTweaks", "mods" ],
 	"definitions" : {
 		"logLevelEnum" : {
 			"type" : "string",
@@ -149,6 +149,23 @@
 				}
 			}
 		},
+		
+		"mods" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"default" : {},
+			"required" : [ 
+				"validation"
+			],
+			"properties" : {
+				"validation" : {
+					"type" : "string",
+					"enum" : [ "off", "basic", "full" ],
+					"default" : "basic"
+				}
+			}
+		},
+		
 		"video" : {
 			"type" : "object",
 			"additionalProperties" : false,
@@ -166,6 +183,9 @@
 				"showfps",
 				"targetfps",
 				"vsync",
+				"fontsType",
+				"cursorScalingFactor",
+				"fontScalingFactor",
 				"upscalingFilter",
 				"fontUpscalingFilter",
 				"downscalingFilter"
@@ -176,22 +196,19 @@
 					"additionalProperties" : false,
 					"required" : [ "width", "height", "scaling" ],
 					"properties" : {
-						"width"  : { "type" : "number" },
-						"height" : { "type" : "number" },
-						"scaling" : { "type" : "number" }
-					},
-					"defaultIOS" : {"width" : 800, "height" : 600, "scaling" : 200 },
-					"defaultAndroid" : {"width" : 800, "height" : 600, "scaling" : 200 },
-					"default" : {"width" : 800, "height" : 600, "scaling" : 100 }
+						"width"  :  { "type" : "number", "default" : 1280 },
+						"height" :  { "type" : "number", "default" :  720 },
+						"scaling" : { "type" : "number", "default" :    0 }
+					}
 				},
 				"reservedWidth" : {
 					"type" : "number",
-					"defaultIOS" : 0.1, // iOS camera cutout / notch is excluded from available area by SDL
+					"defaultIOS" : 0.1, // iOS camera cutout / notch is not excluded from available area by SDL, handle it this way
 					"default" : 0
 				},
 				"fullscreen" : {
 					"type" : "boolean",
-					"default" : false
+					"default" : true
 				},
 				"realFullscreen" : {
 					"type" : "boolean",
@@ -231,6 +248,19 @@
 				"vsync" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"fontsType" : {
+					"type" : "string",
+					"enum" : [ "auto", "original", "scalable" ],
+					"default" : "auto"
+				},
+				"cursorScalingFactor" : {
+					"type" : "number",
+					"default" : 1
+				},
+				"fontScalingFactor" : {
+					"type" : "number",
+					"default" : 1
 				},
 				"fontUpscalingFilter" : {
 					"type" : "string",
@@ -498,7 +528,7 @@
 				},
 				"neutralAI" : {
 					"type" : "string",
-					"default" : "StupidAI"
+					"default" : "BattleAI"
 				},
 				"enemyAI" : {
 					"type" : "string",

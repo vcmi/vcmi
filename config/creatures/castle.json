@@ -10,10 +10,6 @@
 			"cavalryChargeImmunity" :
 			{
 				"type" : "CHARGE_IMMUNITY"
-			},
-			"invincible" :
-			{
-				"type" : "INVINCIBLE"
 			}
 		},
 		"graphics" :

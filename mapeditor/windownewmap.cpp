@@ -21,7 +21,7 @@
 #include "../lib/serializer/JsonSerializer.h"
 #include "../lib/serializer/JsonDeserializer.h"
 
-#include "jsonutils.h"
+#include "../vcmiqt/jsonutils.h"
 #include "windownewmap.h"
 #include "ui_windownewmap.h"
 #include "mainwindow.h"

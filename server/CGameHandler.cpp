@@ -29,7 +29,6 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CCreatureSet.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CSoundBase.h"
@@ -48,6 +47,7 @@
 
 #include "../lib/entities/building/CBuilding.h"
 #include "../lib/entities/faction/CTownHandler.h"
+#include "../lib/entities/hero/CHeroHandler.h"
 
 #include "../lib/filesystem/FileInfo.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -156,22 +156,22 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	sps.which = primarySkill;
 	sps.abs = false;
 	sps.val = 1;
-	sendAndApply(&sps);
+	sendAndApply(sps);
 
 	HeroLevelUp hlu;
 	hlu.player = hero->tempOwner;
 	hlu.heroId = hero->id;
 	hlu.primskill = primarySkill;
-	hlu.skills = hero->getLevelUpProposedSecondarySkills(heroPool->getHeroSkillsRandomGenerator(hero->getHeroType()));
+	hlu.skills = hero->getLevelUpProposedSecondarySkills(heroPool->getHeroSkillsRandomGenerator(hero->getHeroTypeID()));
 
 	if (hlu.skills.size() == 0)
 	{
-		sendAndApply(&hlu);
+		sendAndApply(hlu);
 		levelUpHero(hero);
 	}
 	else if (hlu.skills.size() == 1 || !hero->getOwner().isValidPlayer())
 	{
-		sendAndApply(&hlu);
+		sendAndApply(hlu);
 		levelUpHero(hero, hlu.skills.front());
 	}
 	else if (hlu.skills.size() > 1)
@@ -179,7 +179,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 		auto levelUpQuery = std::make_shared<CHeroLevelUpDialogQuery>(this, hlu, hero);
 		hlu.queryID = levelUpQuery->queryID;
 		queries->addQuery(levelUpQuery);
-		sendAndApply(&hlu);
+		sendAndApply(hlu);
 		//level up will be called on query reply
 	}
 }
@@ -235,33 +235,34 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 				scp.accumulatedBonus.type = BonusType::STACKS_SPEED;
 				break;
 			case ECommander::SPELL_POWER:
-				scp.accumulatedBonus.type = BonusType::MAGIC_RESISTANCE;
+				scp.accumulatedBonus.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				scp.accumulatedBonus.subtype = BonusSubtypeID(SpellSchool::ANY);
 				scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, ECommander::RESISTANCE);
-				sendAndApply (&scp); //additional pack
+				sendAndApply(scp); //additional pack
 				scp.accumulatedBonus.type = BonusType::CREATURE_SPELL_POWER;
 				scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, ECommander::SPELL_POWER) * 100; //like hero with spellpower = ability level
-				sendAndApply (&scp); //additional pack
+				sendAndApply(scp); //additional pack
 				scp.accumulatedBonus.type = BonusType::CASTS;
 				scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, ECommander::CASTS);
-				sendAndApply (&scp); //additional pack
+				sendAndApply(scp); //additional pack
 				scp.accumulatedBonus.type = BonusType::CREATURE_ENCHANT_POWER; //send normally
 				break;
 		}
 
 		scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, skill);
-		sendAndApply (&scp);
+		sendAndApply(scp);
 
 		scp.which = SetCommanderProperty::SECONDARY_SKILL;
 		scp.additionalInfo = skill;
 		scp.amount = c->secondarySkills.at(skill) + 1;
-		sendAndApply (&scp);
+		sendAndApply(scp);
 	}
 	else if (skill >= 100)
 	{
 		scp.which = SetCommanderProperty::SPECIAL_SKILL;
 		scp.accumulatedBonus = *VLC->creh->skillRequirements.at(skill-100).first;
 		scp.additionalInfo = skill; //unnormalized
-		sendAndApply (&scp);
+		sendAndApply(scp);
 	}
 	expGiven(hero);
 }
@@ -306,12 +307,12 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 
 	if (!skillAmount)
 	{
-		sendAndApply(&clu);
+		sendAndApply(clu);
 		levelUpCommander(c);
 	}
 	else if (skillAmount == 1  ||  hero->tempOwner == PlayerColor::NEUTRAL) //choose skill automatically
 	{
-		sendAndApply(&clu);
+		sendAndApply(clu);
 		levelUpCommander(c, *RandomGeneratorUtil::nextItem(clu.skills, getRandomGenerator()));
 	}
 	else if (skillAmount > 1) //apply and ask for secondary skill
@@ -319,7 +320,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 		auto commanderLevelUp = std::make_shared<CCommanderLevelUpDialogQuery>(this, clu, hero);
 		clu.queryID = commanderLevelUp->queryID;
 		queries->addQuery(commanderLevelUp);
-		sendAndApply(&clu);
+		sendAndApply(clu);
 	}
 }
 
@@ -357,7 +358,7 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 		iw.player = hero->tempOwner;
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 1); //can gain no more XP
 		iw.text.replaceTextID(hero->getNameTextID());
-		sendAndApply(&iw);
+		sendAndApply(iw);
 	}
 
 	SetPrimSkill sps;
@@ -365,7 +366,7 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 	sps.which = PrimarySkill::EXPERIENCE;
 	sps.abs = false;
 	sps.val = amountToGain;
-	sendAndApply(&sps);
+	sendAndApply(sps);
 
 	//hero may level up
 	if (hero->commander && hero->commander->alive)
@@ -375,7 +376,7 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 		scp.heroid = hero->id;
 		scp.which = SetCommanderProperty::EXPERIENCE;
 		scp.amount = amountToGain;
-		sendAndApply (&scp);
+		sendAndApply(scp);
 		CBonusSystemNode::treeHasChanged();
 	}
 
@@ -389,7 +390,7 @@ void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill whi
 	sps.which = which;
 	sps.abs = abs;
 	sps.val = val;
-	sendAndApply(&sps);
+	sendAndApply(sps);
 }
 
 void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs)
@@ -404,7 +405,7 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 	sss.which = which;
 	sss.val = val;
 	sss.abs = abs;
-	sendAndApply(&sss);
+	sendAndApply(sss);
 
 	if (hero->visitedTown)
 		giveSpells(hero->visitedTown, hero);
@@ -431,28 +432,46 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 			continue;
 		
 		auto playerConnection = vstd::find(playerConnections.second, c);
-		if(playerConnection != playerConnections.second.end())
+		if(playerConnection == playerConnections.second.end())
+			continue;
+
+		logGlobal->trace("Player %s disconnected. Notifying remaining players", playerId.toString());
+
+		// this player have left the game - broadcast infowindow to all in-game players
+		for (auto i = gs->players.cbegin(); i!=gs->players.cend(); i++)
 		{
-			std::string messageText = boost::str(boost::format("%s (cid %d) was disconnected") % playerSettings->name % c->connectionID);
-			playerMessages->broadcastMessage(playerId, messageText);
+			if (i->first == playerId)
+				continue;
+
+			if (getPlayerState(i->first)->status != EPlayerStatus::INGAME)
+				continue;
+
+			logGlobal->trace("Notifying player %s", i->first);
+
+			InfoWindow out;
+			out.player = i->first;
+			out.text.appendTextID("vcmi.server.errors.playerLeft");
+			out.text.replaceName(playerId);
+			out.components.emplace_back(ComponentType::FLAG, playerId);
+			sendAndApply(out);
 		}
 	}
 }
 
-void CGameHandler::handleReceivedPack(CPackForServer * pack)
+void CGameHandler::handleReceivedPack(CPackForServer & pack)
 {
 	//prepare struct informing that action was applied
 	auto sendPackageResponse = [&](bool successfullyApplied)
 	{
 		PackageApplied applied;
-		applied.player = pack->player;
+		applied.player = pack.player;
 		applied.result = successfullyApplied;
-		applied.packType = CTypeList::getInstance().getTypeID(pack);
-		applied.requestID = pack->requestID;
-		pack->c->sendPack(&applied);
+		applied.packType = CTypeList::getInstance().getTypeID(&pack);
+		applied.requestID = pack.requestID;
+		pack.c->sendPack(applied);
 	};
 
-	if(isBlockedByQueries(pack, pack->player))
+	if(isBlockedByQueries(&pack, pack.player))
 	{
 		sendPackageResponse(false);
 	}
@@ -462,7 +481,7 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 		try
 		{
 			ApplyGhNetPackVisitor applier(*this);
-			pack->visit(applier);
+			pack.visit(applier);
 			result = applier.getResult();
 		}
 		catch(ExceptionNotAllowedAction &)
@@ -471,14 +490,13 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 		}
 
 		if(result)
-			logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
+			logGlobal->trace("Message %s successfully applied!", typeid(pack).name());
 		else
 			complain((boost::format("Got false in applying %s... that request must have been fishy!")
-				% typeid(*pack).name()).str());
+				% typeid(pack).name()).str());
 
 		sendPackageResponse(true);
 	}
-	vstd::clear_pointer(pack);
 }
 
 CGameHandler::CGameHandler(CVCMIServer * lobby)
@@ -535,7 +553,7 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	for (auto & elem : gs->map->allHeroes)
 	{
 		if(elem)
-			heroPool->getHeroSkillsRandomGenerator(elem->getHeroType()); // init RMG seed
+			heroPool->getHeroSkillsRandomGenerator(elem->getHeroTypeID()); // init RMG seed
 	}
 
 	reinitScripting();
@@ -551,12 +569,12 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 		return;
 	}
 
-	if (forced || town->creatures.at(town->town->creatures.size()).second.empty())//we need to change creature
+	if (forced || town->creatures.at(town->getTown()->creatures.size()).second.empty())//we need to change creature
 		{
 			SetAvailableCreatures ssi;
 			ssi.tid = town->id;
 			ssi.creatures = town->creatures;
-			ssi.creatures[town->town->creatures.size()].second.clear();//remove old one
+			ssi.creatures[town->getTown()->creatures.size()].second.clear();//remove old one
 
 			std::set<CreatureID> availableCreatures;
 			for (const auto & dwelling : p->getOwnedObjects())
@@ -572,14 +590,14 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 
 			if (clear)
 			{
-				ssi.creatures[town->town->creatures.size()].first = std::max(1, (creatureId.toEntity(VLC)->getGrowth())/2);
+				ssi.creatures[town->getTown()->creatures.size()].first = std::max(1, (creatureId.toEntity(VLC)->getGrowth())/2);
 			}
 			else
 			{
-				ssi.creatures[town->town->creatures.size()].first = creatureId.toEntity(VLC)->getGrowth();
+				ssi.creatures[town->getTown()->creatures.size()].first = creatureId.toEntity(VLC)->getGrowth();
 			}
-			ssi.creatures[town->town->creatures.size()].second.push_back(creatureId);
-			sendAndApply(&ssi);
+			ssi.creatures[town->getTown()->creatures.size()].second.push_back(creatureId);
+			sendAndApply(ssi);
 		}
 }
 
@@ -639,7 +657,7 @@ void CGameHandler::onNewTurn()
 		PlayerColor player = t->tempOwner;
 
 		if(t->hasBuilt(BuildingID::GRAIL)
-			&& t->town->buildings.at(BuildingID::GRAIL)->height == CBuilding::HEIGHT_SKYSHIP)
+			&& t->getTown()->buildings.at(BuildingID::GRAIL)->height == CBuilding::HEIGHT_SKYSHIP)
 		{
 			// Skyship, probably easier to handle same as Veil of darkness
 			// do it every new day before veils
@@ -666,7 +684,7 @@ void CGameHandler::onNewTurn()
 		SetAvailableArtifacts saa;
 		saa.id = ObjectInstanceID::NONE;
 		pickAllowedArtsSet(saa.arts, getRandomGenerator());
-		sendAndApply(&saa);
+		sendAndApply(saa);
 	}
 
 	newTurnProcessor->onNewTurn();
@@ -753,7 +771,7 @@ void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
 		}
 	}
 	if (!cs.spells.empty())
-		sendAndApply(&cs);
+		sendAndApply(cs);
 }
 
 bool CGameHandler::removeObject(const CGObjectInstance * obj, const PlayerColor & initiator)
@@ -767,7 +785,7 @@ bool CGameHandler::removeObject(const CGObjectInstance * obj, const PlayerColor 
 	RemoveObject ro;
 	ro.objectID = obj->id;
 	ro.initiator = initiator;
-	sendAndApply(&ro);
+	sendAndApply(ro);
 
 	checkVictoryLossConditionsForAll(); //eg if monster escaped (removing objs after battle is done dircetly by endBattle, not this function)
 	return true;
@@ -786,7 +804,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		return false;
 	}
 
-	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.toString(), hid.getNum(), h->pos.toString(), dst.toString());
+	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.toString(), hid.getNum(), h->anchorPos().toString(), dst.toString());
 	const int3 hmpos = h->convertToVisitablePos(dst);
 
 	if (!gs->map->isInTheMap(hmpos))
@@ -840,7 +858,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	{
 		//send info about movement failure
 		complain(message);
-		sendAndApply(&tmh);
+		sendAndApply(tmh);
 		return false;
 	};
 
@@ -885,7 +903,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	// should be called if hero changes tile but before applying TryMoveHero package
 	auto leaveTile = [&]()
 	{
-		for (CGObjectInstance *obj : gs->map->getTile(int3(h->pos.x-1, h->pos.y, h->pos.z)).visitableObjects)
+		for (CGObjectInstance *obj : gs->map->getTile(h->visitablePos()).visitableObjects)
 		{
 			obj->onHeroLeave(h);
 		}
@@ -907,7 +925,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 			tmh.attackedFrom = std::make_optional(guardPos);
 
 		tmh.result = result;
-		sendAndApply(&tmh);
+		sendAndApply(tmh);
 
 		if (visitDest == VISIT_DEST && objectToVisit && objectToVisit->id == h->id)
 		{ // Hero should be always able to visit any object he is staying on even if there are guards around
@@ -1030,7 +1048,7 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	if (((h->getOwner() != t->getOwner())
 		&& complain("Cannot teleport hero to another player"))
 
-	|| (from->town->faction->getId() != t->town->faction->getId()
+	|| (from->getFactionID() != t->getFactionID()
 		&& complain("Source town and destination town should belong to the same faction"))
 
 	|| ((!from || !from->hasBuilt(BuildingSubID::CASTLE_GATE))
@@ -1084,7 +1102,7 @@ void CGameHandler::showBlockingDialog(const IObjectInterface * caller, BlockingD
 	auto dialogQuery = std::make_shared<CBlockingDialogQuery>(this, caller, *iw);
 	queries->addQuery(dialogQuery);
 	iw->queryID = dialogQuery->queryID;
-	sendToAllClients(iw);
+	sendToAllClients(*iw);
 }
 
 void CGameHandler::showTeleportDialog(TeleportDialog *iw)
@@ -1092,7 +1110,7 @@ void CGameHandler::showTeleportDialog(TeleportDialog *iw)
 	auto dialogQuery = std::make_shared<CTeleportDialogQuery>(this, *iw);
 	queries->addQuery(dialogQuery);
 	iw->queryID = dialogQuery->queryID;
-	sendToAllClients(iw);
+	sendToAllClients(*iw);
 }
 
 void CGameHandler::giveResource(PlayerColor player, GameResID which, int val) //TODO: cap according to Bersy's suggestion
@@ -1110,7 +1128,7 @@ void CGameHandler::giveResources(PlayerColor player, TResources resources)
 	sr.abs = false;
 	sr.player = player;
 	sr.res = resources;
-	sendAndApply(&sr);
+	sendAndApply(sr);
 }
 
 void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove)
@@ -1170,7 +1188,7 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 		vc.hid = hero->id;
 		vc.tid = obj->id;
 		vc.flags |= 1;
-		sendAndApply(&vc);
+		sendAndApply(vc);
 	}
 	visitCastleObjects(obj, hero);
 
@@ -1194,7 +1212,7 @@ void CGameHandler::visitCastleObjects(const CGTownInstance * t, std::vector<cons
 
 	for (auto & building : t->rewardableBuildings)
 	{
-		if (!t->town->buildings.at(building.first)->manualHeroVisit)
+		if (!t->getTown()->buildings.at(building.first)->manualHeroVisit && t->hasBuilt(building.first))
 			buildingsToVisit.push_back(building.first);
 	}
 
@@ -1210,7 +1228,7 @@ void CGameHandler::stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroI
 	HeroVisitCastle vc;
 	vc.hid = hero->id;
 	vc.tid = obj->id;
-	sendAndApply(&vc);
+	sendAndApply(vc);
 }
 
 void CGameHandler::removeArtifact(const ArtifactLocation & al)
@@ -1223,7 +1241,7 @@ void CGameHandler::removeArtifact(const ObjectInstanceID & srcId, const std::vec
 	BulkEraseArtifacts ea;
 	ea.artHolder = srcId;
 	ea.posPack.insert(ea.posPack.end(), slotsPack.begin(), slotsPack.end());
-	sendAndApply(&ea);
+	sendAndApply(ea);
 }
 
 void CGameHandler::changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)
@@ -1232,17 +1250,27 @@ void CGameHandler::changeSpells(const CGHeroInstance * hero, bool give, const st
 	cs.hid = hero->id;
 	cs.spells = spells;
 	cs.learn = give;
-	sendAndApply(&cs);
+	sendAndApply(cs);
+}
+
+void CGameHandler::setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted)
+{
+	SetResearchedSpells cs;
+	cs.tid = town->id;
+	cs.spells = spells;
+	cs.level = level;
+	cs.accepted = accepted;
+	sendAndApply(cs);
 }
 
 void CGameHandler::giveHeroBonus(GiveBonus * bonus)
 {
-	sendAndApply(bonus);
+	sendAndApply(*bonus);
 }
 
 void CGameHandler::setMovePoints(SetMovePoints * smp)
 {
-	sendAndApply(smp);
+	sendAndApply(*smp);
 }
 
 void CGameHandler::setMovePoints(ObjectInstanceID hid, int val, bool absolute)
@@ -1251,7 +1279,7 @@ void CGameHandler::setMovePoints(ObjectInstanceID hid, int val, bool absolute)
 	smp.hid = hid;
 	smp.val = val;
 	smp.absolute = absolute;
-	sendAndApply(&smp);
+	sendAndApply(smp);
 }
 
 void CGameHandler::setManaPoints(ObjectInstanceID hid, int val)
@@ -1260,7 +1288,7 @@ void CGameHandler::setManaPoints(ObjectInstanceID hid, int val)
 	sm.hid = hid;
 	sm.val = val;
 	sm.absolute = true;
-	sendAndApply(&sm);
+	sendAndApply(sm);
 }
 
 void CGameHandler::giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId)
@@ -1269,7 +1297,7 @@ void CGameHandler::giveHero(ObjectInstanceID id, PlayerColor player, ObjectInsta
 	gh.id = id;
 	gh.player = player;
 	gh.boatId = boatId;
-	sendAndApply(&gh);
+	sendAndApply(gh);
 
 	//Reveal fow around new hero, especially released from Prison
 	auto h = getHero(id);
@@ -1282,7 +1310,7 @@ void CGameHandler::changeObjPos(ObjectInstanceID objid, int3 newPos, const Playe
 	cop.objid = objid;
 	cop.nPos = newPos;
 	cop.initiator = initiator;
-	sendAndApply(&cop);
+	sendAndApply(cop);
 }
 
 void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID toHero)
@@ -1352,7 +1380,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 			}
 			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 142);//from %s
 			iw.text.replaceTextID(h2->getNameTextID());
-			sendAndApply(&cs2);
+			sendAndApply(cs2);
 		}
 
 		if (!cs1.spells.empty() && !cs2.spells.empty())
@@ -1380,9 +1408,9 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 			}
 			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 148);//from %s
 			iw.text.replaceTextID(h2->getNameTextID());
-			sendAndApply(&cs1);
+			sendAndApply(cs1);
 		}
-		sendAndApply(&iw);
+		sendAndApply(iw);
 	}
 }
 
@@ -1399,43 +1427,43 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 		hex.player = h1->getOwner();
 		hex.hero1 = hero1;
 		hex.hero2 = hero2;
-		sendAndApply(&hex);
+		sendAndApply(hex);
 
 		useScholarSkill(hero1,hero2);
 		queries->addQuery(exchange);
 	}
 }
 
-void CGameHandler::sendToAllClients(CPackForClient * pack)
+void CGameHandler::sendToAllClients(CPackForClient & pack)
 {
-	logNetwork->trace("\tSending to all clients: %s", typeid(*pack).name());
+	logNetwork->trace("\tSending to all clients: %s", typeid(pack).name());
 	for (auto c : lobby->activeConnections)
 		c->sendPack(pack);
 }
 
-void CGameHandler::sendAndApply(CPackForClient * pack)
+void CGameHandler::sendAndApply(CPackForClient & pack)
 {
 	sendToAllClients(pack);
 	gs->apply(pack);
-	logNetwork->trace("\tApplied on gs: %s", typeid(*pack).name());
+	logNetwork->trace("\tApplied on gs: %s", typeid(pack).name());
 }
 
-void CGameHandler::sendAndApply(CGarrisonOperationPack * pack)
+void CGameHandler::sendAndApply(CGarrisonOperationPack & pack)
 {
-	sendAndApply(static_cast<CPackForClient *>(pack));
+	sendAndApply(static_cast<CPackForClient &>(pack));
 	checkVictoryLossConditionsForAll();
 }
 
-void CGameHandler::sendAndApply(SetResources * pack)
+void CGameHandler::sendAndApply(SetResources & pack)
 {
-	sendAndApply(static_cast<CPackForClient *>(pack));
-	checkVictoryLossConditionsForPlayer(pack->player);
+	sendAndApply(static_cast<CPackForClient &>(pack));
+	checkVictoryLossConditionsForPlayer(pack.player);
 }
 
-void CGameHandler::sendAndApply(NewStructures * pack)
+void CGameHandler::sendAndApply(NewStructures & pack)
 {
-	sendAndApply(static_cast<CPackForClient *>(pack));
-	checkVictoryLossConditionsForPlayer(getTown(pack->tid)->tempOwner);
+	sendAndApply(static_cast<CPackForClient &>(pack));
+	checkVictoryLossConditionsForPlayer(getTown(pack.tid)->tempOwner);
 }
 
 bool CGameHandler::isPlayerOwns(CPackForServer * pack, ObjectInstanceID id)
@@ -1617,7 +1645,7 @@ bool CGameHandler::bulkSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner, si3
 		if(actualAmount <= howMany)
 			break;
 	}
-	sendAndApply(&bulkRS);
+	sendAndApply(bulkRS);
 	return true;
 }
 
@@ -1659,7 +1687,7 @@ bool CGameHandler::bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner)
 		rs.count = creatureSet.getStackCount(slot);
 		bulkRS.moves.push_back(rs);
 	}
-	sendAndApply(&bulkRS);
+	sendAndApply(bulkRS);
 	return true;
 }
 
@@ -1746,7 +1774,7 @@ bool CGameHandler::bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destA
 		rs.count = move.second.second;
 		bulkRS.moves.push_back(rs);
 	}
-	sendAndApply(&bulkRS);
+	sendAndApply(bulkRS);
 	return true;
 }
 
@@ -1828,7 +1856,7 @@ bool CGameHandler::bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner
 		complain((boost::format("Failure: totalCreatures=%d but check=%d") % totalCreatures % check).str());
 		return false;
 	}
-	sendAndApply(&bulkSRS);
+	sendAndApply(bulkSRS);
 	return true;
 }
 
@@ -2008,12 +2036,12 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	const CGTownInstance * t = getTown(tid);
 	if(!t)
 		COMPLAIN_RETF("No such town (ID=%s)!", tid);
-	if(!t->town->buildings.count(requestedID))
-		COMPLAIN_RETF("Town of faction %s does not have info about building ID=%s!", t->town->faction->getNameTranslated() % requestedID);
+	if(!t->getTown()->buildings.count(requestedID))
+		COMPLAIN_RETF("Town of faction %s does not have info about building ID=%s!", t->getFaction()->getNameTranslated() % requestedID);
 	if(t->hasBuilt(requestedID))
-		COMPLAIN_RETF("Building %s is already built in %s", t->town->buildings.at(requestedID)->getNameTranslated() % t->getNameTranslated());
+		COMPLAIN_RETF("Building %s is already built in %s", t->getTown()->buildings.at(requestedID)->getNameTranslated() % t->getNameTranslated());
 
-	const CBuilding * requestedBuilding = t->town->buildings.at(requestedID);
+	const CBuilding * requestedBuilding = t->getTown()->buildings.at(requestedID);
 
 	//Vector with future list of built building and buildings in auto-mode that are not yet built.
 	std::vector<const CBuilding*> remainingAutoBuildings;
@@ -2053,7 +2081,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 			int level = BuildingID::getLevelFromDwelling(buildingID);
 			int upgradeNumber = BuildingID::getUpgradedFromDwelling(buildingID);
 
-			if(upgradeNumber >= t->town->creatures.at(level).size())
+			if(upgradeNumber >= t->getTown()->creatures.at(level).size())
 			{
 				complain(boost::str(boost::format("Error encountered when building dwelling (bid=%s):"
 													"no creature found (upgrade number %d, level %d!")
@@ -2061,7 +2089,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 				return;
 			}
 
-			const CCreature * crea = t->town->creatures.at(level).at(upgradeNumber).toCreature();
+			const CCreature * crea = t->getTown()->creatures.at(level).at(upgradeNumber).toCreature();
 
 			SetAvailableCreatures ssi;
 			ssi.tid = t->id;
@@ -2069,9 +2097,9 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 			if (ssi.creatures[level].second.empty()) // first creature in a dwelling
 				ssi.creatures[level].first = crea->getGrowth();
 			ssi.creatures[level].second.push_back(crea->getId());
-			sendAndApply(&ssi);
+			sendAndApply(ssi);
 		}
-		if(t->town->buildings.at(buildingID)->subId == BuildingSubID::PORTAL_OF_SUMMONING)
+		if(t->getTown()->buildings.at(buildingID)->subId == BuildingSubID::PORTAL_OF_SUMMONING)
 		{
 			setPortalDwelling(t);
 		}
@@ -2082,9 +2110,9 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	{
 		auto isMageGuild = (buildingID <= BuildingID::MAGES_GUILD_5 && buildingID >= BuildingID::MAGES_GUILD_1);
 		auto isLibrary = isMageGuild ? false
-			: t->town->buildings.at(buildingID)->subId == BuildingSubID::EBuildingSubID::LIBRARY;
+			: t->getTown()->buildings.at(buildingID)->subId == BuildingSubID::EBuildingSubID::LIBRARY;
 
-		if(isMageGuild || isLibrary || (t->getFaction() == ETownType::CONFLUX && buildingID == BuildingID::GRAIL))
+		if(isMageGuild || isLibrary || (t->getFactionID() == ETownType::CONFLUX && buildingID == BuildingID::GRAIL))
 		{
 			if(t->visitingHero)
 				giveSpells(t,t->visitingHero);
@@ -2100,7 +2128,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	};
 
 	//Init the vectors
-	for(auto & build : t->town->buildings)
+	for(auto & build : t->getTown()->buildings)
 	{
 		if(t->hasBuilt(build.first))
 		{
@@ -2151,7 +2179,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	}
 
 	//We know what has been built, apply changes. Do this as final step to properly update town window
-	sendAndApply(&ns);
+	sendAndApply(ns);
 
 	//Other post-built events. To some logic like giving spells to work gamestate changes for new building must be already in place!
 	for(auto builtID : ns.bid)
@@ -2184,7 +2212,7 @@ bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)
 	if(!t->hasBuilt(bid))
 		return false;
 
-	auto subID = t->town->buildings.at(bid)->subId;
+	auto subID = t->getTown()->buildings.at(bid)->subId;
 
 	if(subID == BuildingSubID::EBuildingSubID::BANK)
 	{
@@ -2196,7 +2224,7 @@ bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)
 		return true;
 	}
 
-	if (t->rewardableBuildings.count(bid) && t->visitingHero && t->town->buildings.at(bid)->manualHeroVisit)
+	if (t->rewardableBuildings.count(bid) && t->visitingHero && t->getTown()->buildings.at(bid)->manualHeroVisit)
 	{
 		std::vector<BuildingID> buildingsToVisit;
 		std::vector<const CGHeroInstance*> visitors;
@@ -2220,7 +2248,7 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 	rs.tid = tid;
 	rs.bid.insert(bid);
 	rs.destroyed = t->destroyed + 1;
-	sendAndApply(&rs);
+	sendAndApply(rs);
 //TODO: Remove dwellers
 // 	if (t->subID == 4 && bid == 17) //Veil of Darkness
 // 	{
@@ -2228,8 +2256,62 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 // 		rb.whoID = t->id;
 // 		rb.source = BonusSource::TOWN_STRUCTURE;
 // 		rb.id = 17;
-// 		sendAndApply(&rb);
+// 		sendAndApply(rb);
 // 	}
+	return true;
+}
+
+bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool accepted)
+{
+	CGTownInstance *t = gs->getTown(tid);
+
+	if(!getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && complain("Spell research not allowed!"))
+		return false;
+	if (!t->spellResearchAllowed && complain("Spell research not allowed in this town!"))
+		return false;
+
+	int level = -1;
+	for(int i = 0; i < t->spells.size(); i++)
+		if(vstd::find_pos(t->spells[i], spellAtSlot) != -1)
+			level = i;
+	
+	if(level == -1 && complain("Spell for replacement not found!"))
+		return false;
+
+	auto spells = t->spells.at(level);
+	
+	bool researchLimitExceeded = t->spellResearchCounterDay >= getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY).Vector()[level].Float();
+	if(researchLimitExceeded && complain("Already researched today!"))
+		return false;
+
+	if(!accepted)
+	{
+		auto it = spells.begin() + t->spellsAtLevel(level, false);
+		std::rotate(it, it + 1, spells.end()); // move to end
+		setResearchedSpells(t, level, spells, accepted);
+		return true;
+	}
+
+	auto costBase = TResources(getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
+	auto costExponent = getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
+	auto cost = costBase * std::pow(t->spellResearchAcceptedCounter + 1, costExponent);
+
+	if(!getPlayerState(t->getOwner())->resources.canAfford(cost) && complain("Spell replacement cannot be afforded!"))
+		return false;
+
+	giveResources(t->getOwner(), -cost);
+
+	std::swap(spells.at(t->spellsAtLevel(level, false)), spells.at(vstd::find_pos(spells, spellAtSlot)));
+	auto it = spells.begin() + t->spellsAtLevel(level, false);
+	std::rotate(it, it + 1, spells.end()); // move to end
+
+	setResearchedSpells(t, level, spells, accepted);
+
+	if(t->visitingHero)
+		giveSpells(t, t->visitingHero);
+	if(t->garrisonHero)
+		giveSpells(t, t->garrisonHero);
+
 	return true;
 }
 
@@ -2299,7 +2381,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	sac.tid = objid;
 	sac.creatures = dwelling->creatures;
 	sac.creatures[level].first -= cram;
-	sendAndApply(&sac);
+	sendAndApply(sac);
 
 	if (warMachine)
 	{
@@ -2362,7 +2444,7 @@ bool CGameHandler::changeStackType(const StackLocation &sl, const CCreature *c)
 	sst.army = sl.army->id;
 	sst.slot = sl.slot;
 	sst.type = c->getId();
-	sendAndApply(&sst);
+	sendAndApply(sst);
 	return true;
 }
 
@@ -2421,7 +2503,7 @@ bool CGameHandler::swapGarrisonOnSiege(ObjectInstanceID tid)
 		intown.visiting = ObjectInstanceID();
 		intown.garrison = town->visitingHero->id;
 	}
-	sendAndApply(&intown);
+	sendAndApply(intown);
 	return true;
 }
 
@@ -2443,7 +2525,7 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 		intown.tid = tid;
 		intown.visiting = ObjectInstanceID();
 		intown.garrison = town->visitingHero->id;
-		sendAndApply(&intown);
+		sendAndApply(intown);
 		return true;
 	}
 	else if (town->garrisonHero && !town->visitingHero) //move hero out of the garrison
@@ -2460,7 +2542,7 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 		intown.tid = tid;
 		intown.garrison = ObjectInstanceID();
 		intown.visiting =  town->garrisonHero->id;
-		sendAndApply(&intown);
+		sendAndApply(intown);
 		return true;
 	}
 	else if (!!town->garrisonHero && town->visitingHero) //swap visiting and garrison hero
@@ -2469,7 +2551,7 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 		intown.tid = tid;
 		intown.garrison = town->visitingHero->id;
 		intown.visiting =  town->garrisonHero->id;
-		sendAndApply(&intown);
+		sendAndApply(intown);
 		return true;
 	}
 	else
@@ -2550,7 +2632,7 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 	ma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(src.slot, dstSlot));
 	if(src.artHolder != dst.artHolder)
 		ma.artsPack0.back().askAssemble = true;
-	sendAndApply(&ma);
+	sendAndApply(ma);
 	return true;
 }
 
@@ -2651,26 +2733,74 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 			}
 		}
 	}
-	sendAndApply(&ma);
+	sendAndApply(ma);
 	return true;
 }
 
-bool CGameHandler::scrollBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, bool left)
+bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, const ManageBackpackArtifacts::ManageCmd & sortType)
 {
 	const auto artSet = getArtSet(heroID);
-	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "scrollBackpackArtifacts: wrong hero's ID");
+	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "manageBackpackArtifacts: wrong hero's ID");
 
 	BulkMoveArtifacts bma(player, heroID, heroID, false);
-
-	const auto backpackEnd = ArtifactPosition(ArtifactPosition::BACKPACK_START + artSet->artifactsInBackpack.size() - 1);
-	if(backpackEnd > ArtifactPosition::BACKPACK_START)
+	const auto makeSortBackpackRequest = [artSet, &bma](const std::function<int32_t(const ArtSlotInfo&)> & getSortId)
 	{
-		if(left)
-			bma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(backpackEnd, ArtifactPosition::BACKPACK_START));
-		else
-			bma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(ArtifactPosition::BACKPACK_START, backpackEnd));
-		sendAndApply(&bma);
+		std::map<int32_t, std::vector<BulkMoveArtifacts::LinkedSlots>> packsSorted;
+		ArtifactPosition backpackSlot = ArtifactPosition::BACKPACK_START;
+		for(const auto & backpackSlotInfo : artSet->artifactsInBackpack)
+			packsSorted.try_emplace(getSortId(backpackSlotInfo)).first->second.emplace_back(backpackSlot++, ArtifactPosition::PRE_FIRST);
+
+		for(auto & [sortId, pack] : packsSorted)
+		{
+			// Each pack of artifacts is also sorted by ArtifactID. Scrolls by SpellID
+			std::sort(pack.begin(), pack.end(), [artSet](const auto & slots0, const auto & slots1) -> bool
+				{
+					const auto art0 = artSet->getArt(slots0.srcPos);
+					const auto art1 = artSet->getArt(slots1.srcPos);
+					if(art0->isScroll() && art1->isScroll())
+						return art0->getScrollSpellID() > art1->getScrollSpellID();
+					return art0->getTypeId().num > art1->getTypeId().num;
+				});
+			bma.artsPack0.insert(bma.artsPack0.end(), pack.begin(), pack.end());
+		}
+		backpackSlot = ArtifactPosition::BACKPACK_START;
+		for(auto & slots : bma.artsPack0)
+			slots.dstPos = backpackSlot++;
+	};
+	
+	if(sortType == ManageBackpackArtifacts::ManageCmd::SORT_BY_SLOT)
+	{
+		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
+			{
+				return inf.getArt()->artType->getPossibleSlots().at(ArtBearer::HERO).front().num;
+			});
 	}
+	else if(sortType == ManageBackpackArtifacts::ManageCmd::SORT_BY_COST)
+	{
+		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
+			{
+				return inf.getArt()->artType->getPrice();
+			});
+	}
+	else if(sortType == ManageBackpackArtifacts::ManageCmd::SORT_BY_CLASS)
+	{
+		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
+			{
+				return inf.getArt()->artType->aClass;
+			});
+	}
+	else
+	{
+		const auto backpackEnd = ArtifactPosition(ArtifactPosition::BACKPACK_START + artSet->artifactsInBackpack.size() - 1);
+		if(backpackEnd > ArtifactPosition::BACKPACK_START)
+		{
+			if(sortType == ManageBackpackArtifacts::ManageCmd::SCROLL_LEFT)
+				bma.artsPack0.emplace_back(backpackEnd, ArtifactPosition::BACKPACK_START);
+			else
+				bma.artsPack0.emplace_back(ArtifactPosition::BACKPACK_START, backpackEnd);
+		}
+	}
+	sendAndApply(bma);
 	return true;
 }
 
@@ -2686,7 +2816,7 @@ bool CGameHandler::saveArtifactsCostume(const PlayerColor & player, const Object
 			costume.costumeSet.emplace(slot, slotInfo->getArt()->getTypeId());
 	}
 
-	sendAndApply(&costume);
+	sendAndApply(costume);
 	return true;
 }
 
@@ -2718,15 +2848,15 @@ bool CGameHandler::switchArtifactsCostume(const PlayerColor & player, const Obje
 		// Second, find the necessary artifacts for the costume
 		for(const auto & artPos : costumeArtMap)
 		{
-			if(const auto availableArts = artFittingSet.getAllArtPositions(artPos.second, false, false, false); !availableArts.empty())
+			if(const auto slot = artFittingSet.getArtPos(artPos.second, false, false); slot != ArtifactPosition::PRE_FIRST)
 			{
 				bma.artsPack0.emplace_back(BulkMoveArtifacts::LinkedSlots
 					{
-						artSet->getArtPos(artFittingSet.getArt(availableArts.front())),
+						artSet->getArtPos(artFittingSet.getArt(slot)),
 						artPos.first
 					});
-				artFittingSet.removeArtifact(availableArts.front());
-				if(ArtifactUtils::isSlotBackpack(availableArts.front()))
+				artFittingSet.removeArtifact(slot);
+				if(ArtifactUtils::isSlotBackpack(slot))
 					estimateBackpackSize--;
 			}
 		}
@@ -2741,7 +2871,7 @@ bool CGameHandler::switchArtifactsCostume(const PlayerColor & player, const Obje
 		
 		const auto backpackCap = getSettings().getInteger(EGameSettings::HEROES_BACKPACK_CAP);
 		if((backpackCap < 0 || estimateBackpackSize <= backpackCap) && !bma.artsPack0.empty())
-			sendAndApply(&bma);
+			sendAndApply(bma);
 	}
 	return true;
 }
@@ -2783,13 +2913,16 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 
 		AssembledArtifact aa;
 		aa.al = dstLoc;
-		aa.builtArt = combinedArt;
-		sendAndApply(&aa);
+		aa.artId = assembleTo;
+		sendAndApply(aa);
 	}
 	else
 	{
 		if(!destArtifact->isCombined())
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble is not a combined artifact!");
+
+		if(!destArtifact->hasParts())
+			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble is fused combined artifact!");
 
 		if(ArtifactUtils::isSlotBackpack(artifactSlot)
 			&& !ArtifactUtils::isBackpackFreeSlots(hero, destArtifact->artType->getConstituents().size() - 1))
@@ -2797,7 +2930,7 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 
 		DisassembledArtifact da;
 		da.al = dstLoc;
-		sendAndApply(&da);
+		sendAndApply(da);
 	}
 
 	return true;
@@ -2916,7 +3049,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, GameRe
 	if (!found)
 		COMPLAIN_RET("Cannot find selected artifact on the list");
 
-	sendAndApply(&saa);
+	sendAndApply(saa);
 	giveHeroNewArtifact(h, aid, ArtifactPosition::FIRST_AVAILABLE);
 	return true;
 }
@@ -3080,7 +3213,7 @@ bool CGameHandler::setFormation(ObjectInstanceID hid, EArmyFormation formation)
 	ChangeFormation cf;
 	cf.hid = hid;
 	cf.formation = formation;
-	sendAndApply(&cf);
+	sendAndApply(cf);
 
 	return true;
 }
@@ -3137,7 +3270,7 @@ void CGameHandler::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID h
 	gd.objid = upobj;
 	gd.removableUnits = removableUnits;
 	gd.queryID = garrisonQuery->queryID;
-	sendAndApply(&gd);
+	sendAndApply(gd);
 }
 
 void CGameHandler::showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery)
@@ -3153,7 +3286,7 @@ void CGameHandler::showObjectWindow(const CGObjectInstance * object, EOpenWindow
 		pack.queryID = windowQuery->queryID;
 		queries->addQuery(windowQuery);
 	}
-	sendAndApply(&pack);
+	sendAndApply(pack);
 }
 
 bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
@@ -3255,7 +3388,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 		hv.heroId = h->id;
 		hv.player = h->tempOwner;
 		hv.starting = true;
-		sendAndApply(&hv);
+		sendAndApply(hv);
 
 		obj->onHeroVisit(h);
 	};
@@ -3278,7 +3411,7 @@ void CGameHandler::objectVisitEnded(const CGHeroInstance *h, PlayerColor player)
 		hv.player = event.getPlayer();
 		hv.heroId = event.getHero();
 		hv.starting = false;
-		sendAndApply(&hv);
+		sendAndApply(hv);
 	};
 
 	//TODO: ObjectVisitEnded should also have id of visited object,
@@ -3349,14 +3482,14 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 	{
 		InfoWindow iw;
 		getVictoryLossMessage(player, victoryLossCheckResult, iw);
-		sendAndApply(&iw);
+		sendAndApply(iw);
 
 		PlayerEndsGame peg;
 		peg.player = player;
 		peg.victoryLossCheckResult = victoryLossCheckResult;
 		peg.statistic = StatisticDataSet(gameState()->statistic);
 		addStatistics(peg.statistic); // add last turn befor win / loss
-		sendAndApply(&peg);
+		sendAndApply(peg);
 
 		turnOrder->onPlayerEndsGame(player);
 
@@ -3375,8 +3508,8 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 					getVictoryLossMessage(player, peg.victoryLossCheckResult, iw);
 					iw.player = i->first;
 
-					sendAndApply(&iw);
-					sendAndApply(&peg);
+					sendAndApply(iw);
+					sendAndApply(peg);
 				}
 			}
 
@@ -3420,7 +3553,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 					InfoWindow iw;
 					getVictoryLossMessage(player, victoryLossCheckResult.invert(), iw);
 					iw.player = pc;
-					sendAndApply(&iw);
+					sendAndApply(iw);
 				}
 			}
 			checkVictoryLossConditions(playerColors);
@@ -3447,7 +3580,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	SetMovePoints smp;
 	smp.hid = h->id;
 	smp.val = 0;
-	sendAndApply(&smp);
+	sendAndApply(smp);
 
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
@@ -3460,19 +3593,19 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 		iw.text.appendName(grail); // ... " The Grail"
 		iw.soundID = soundBase::ULTIMATEARTIFACT;
 		giveHeroNewArtifact(h, grail, ArtifactPosition::FIRST_AVAILABLE); //give grail
-		sendAndApply(&iw);
+		sendAndApply(iw);
 
 		iw.soundID = soundBase::invalid;
 		iw.components.emplace_back(ComponentType::ARTIFACT, grail);
 		iw.text.clear();
 		iw.text.appendTextID(grail.toArtifact()->getDescriptionTextID());
-		sendAndApply(&iw);
+		sendAndApply(iw);
 	}
 	else
 	{
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 59); //"Nothing here. \n Where could it be?"
 		iw.soundID = soundBase::Dig;
-		sendAndApply(&iw);
+		sendAndApply(iw);
 	}
 
 	return true;
@@ -3592,7 +3725,7 @@ bool CGameHandler::insertNewStack(const StackLocation &sl, const CCreature *c, T
 	ins.slot = sl.slot;
 	ins.type = c->getId();
 	ins.count = count;
-	sendAndApply(&ins);
+	sendAndApply(ins);
 	return true;
 }
 
@@ -3611,7 +3744,7 @@ bool CGameHandler::eraseStack(const StackLocation &sl, bool forceRemoval)
 	EraseStack es;
 	es.army = sl.army->id;
 	es.slot = sl.slot;
-	sendAndApply(&es);
+	sendAndApply(es);
 	return true;
 }
 
@@ -3636,7 +3769,7 @@ bool CGameHandler::changeStackCount(const StackLocation &sl, TQuantity count, bo
 		csc.slot = sl.slot;
 		csc.count = count;
 		csc.absoluteValue = absoluteValue;
-		sendAndApply(&csc);
+		sendAndApply(csc);
 	}
 	return true;
 }
@@ -3718,7 +3851,7 @@ bool CGameHandler::moveStack(const StackLocation &src, const StackLocation &dst,
 	rs.srcSlot = src.slot;
 	rs.dstSlot = dst.slot;
 	rs.count = count;
-	sendAndApply(&rs);
+	sendAndApply(rs);
 	return true;
 }
 
@@ -3752,14 +3885,15 @@ bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & s
 		ss.dstArmy = sl2.army->id;
 		ss.srcSlot = sl1.slot;
 		ss.dstSlot = sl2.slot;
-		sendAndApply(&ss);
+		sendAndApply(ss);
 		return true;
 	}
 }
 
-bool CGameHandler::putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble)
+bool CGameHandler::putArtifact(const ArtifactLocation & al, const ArtifactInstanceID & id, std::optional<bool> askAssemble)
 {
-	assert(art && art->artType);
+	const auto artInst = getArtInstance(id);
+	assert(artInst && artInst->artType);
 	ArtifactLocation dst(al.artHolder, ArtifactPosition::PRE_FIRST);
 	dst.creature = al.creature;
 	auto putTo = getArtSet(al);
@@ -3767,11 +3901,11 @@ bool CGameHandler::putArtifact(const ArtifactLocation & al, const CArtifactInsta
 
 	if(al.slot == ArtifactPosition::FIRST_AVAILABLE)
 	{
-		dst.slot = ArtifactUtils::getArtAnyPosition(putTo, art->getTypeId());
+		dst.slot = ArtifactUtils::getArtAnyPosition(putTo, artInst->getTypeId());
 	}
 	else if(ArtifactUtils::isSlotBackpack(al.slot) && !al.creature.has_value())
 	{
-		dst.slot = ArtifactUtils::getArtBackpackPosition(putTo, art->getTypeId());
+		dst.slot = ArtifactUtils::getArtBackpackPosition(putTo, artInst->getTypeId());
 	}
 	else
 	{
@@ -3786,11 +3920,10 @@ bool CGameHandler::putArtifact(const ArtifactLocation & al, const CArtifactInsta
 			askAssemble = false;
 	}
 
-	if(art->canBePutAt(putTo, dst.slot))
+	if(artInst->canBePutAt(putTo, dst.slot))
 	{
-		PutArtifact pa(dst, askAssemble.value());
-		pa.art = art;
-		sendAndApply(&pa);
+		PutArtifact pa(id, dst, askAssemble.value());
+		sendAndApply(pa);
 		return true;
 	}
 	else
@@ -3825,7 +3958,7 @@ bool CGameHandler::giveHeroNewArtifact(
 	{
 		COMPLAIN_RET_FALSE_IF(!artType->canBePutAt(h, pos, false), "Cannot put artifact in that slot!");
 	}
-	sendAndApply(&na);
+	sendAndApply(na);
 	return true;
 }
 
@@ -3870,7 +4003,7 @@ void CGameHandler::synchronizeArtifactHandlerLists()
 {
 	UpdateArtHandlerLists uahl;
 	uahl.allocatedArtifacts = gs->allocatedArtifacts;
-	sendAndApply(&uahl);
+	sendAndApply(uahl);
 }
 
 bool CGameHandler::isValidObject(const CGObjectInstance *obj) const
@@ -3878,9 +4011,12 @@ bool CGameHandler::isValidObject(const CGObjectInstance *obj) const
 	return vstd::contains(gs->map->objects, obj);
 }
 
-bool CGameHandler::isBlockedByQueries(const CPack *pack, PlayerColor player)
+bool CGameHandler::isBlockedByQueries(const CPackForServer *pack, PlayerColor player)
 {
 	if (dynamic_cast<const PlayerMessage *>(pack) != nullptr)
+		return false;
+
+	if (dynamic_cast<const SaveLocalState *>(pack) != nullptr)
 		return false;
 
 	auto query = queries->topQuery(player);
@@ -3957,7 +4093,7 @@ void CGameHandler::changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerC
 			return;
 	}
 
-	sendAndApply(&fow);
+	sendAndApply(fow);
 }
 
 const CGHeroInstance * CGameHandler::getVisitingHero(const CGObjectInstance *obj)
@@ -4008,7 +4144,7 @@ void CGameHandler::setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop,
 	sob.id = objid;
 	sob.what = prop;
 	sob.identifier = NumericID(value);
-	sendAndApply(&sob);
+	sendAndApply(sob);
 }
 
 void CGameHandler::setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier)
@@ -4017,7 +4153,7 @@ void CGameHandler::setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, Ob
 	sob.id = objid;
 	sob.what = prop;
 	sob.identifier = identifier;
-	sendAndApply(&sob);
+	sendAndApply(sob);
 }
 
 void CGameHandler::setBankObjectConfiguration(ObjectInstanceID objid, const BankConfig & configuration)
@@ -4025,7 +4161,7 @@ void CGameHandler::setBankObjectConfiguration(ObjectInstanceID objid, const Bank
 	SetBankConfiguration srb;
 	srb.objectID = objid;
 	srb.configuration = configuration;
-	sendAndApply(&srb);
+	sendAndApply(srb);
 }
 
 void CGameHandler::setRewardableObjectConfiguration(ObjectInstanceID objid, const Rewardable::Configuration & configuration)
@@ -4033,7 +4169,7 @@ void CGameHandler::setRewardableObjectConfiguration(ObjectInstanceID objid, cons
 	SetRewardableConfiguration srb;
 	srb.objectID = objid;
 	srb.configuration = configuration;
-	sendAndApply(&srb);
+	sendAndApply(srb);
 }
 
 void CGameHandler::setRewardableObjectConfiguration(ObjectInstanceID townInstanceID, BuildingID buildingID, const Rewardable::Configuration & configuration)
@@ -4042,12 +4178,12 @@ void CGameHandler::setRewardableObjectConfiguration(ObjectInstanceID townInstanc
 	srb.objectID = townInstanceID;
 	srb.buildingID = buildingID;
 	srb.configuration = configuration;
-	sendAndApply(&srb);
+	sendAndApply(srb);
 }
 
 void CGameHandler::showInfoDialog(InfoWindow * iw)
 {
-	sendAndApply(iw);
+	sendAndApply(*iw);
 }
 
 vstd::RNG & CGameHandler::getRandomGenerator()
@@ -4093,8 +4229,11 @@ CGObjectInstance * CGameHandler::createNewObject(const int3 & visitablePosition,
 	else
 		o->appearance = handler->getTemplates().front();
 
+	if (o->isVisitable())
+		o->setAnchorPos(visitablePosition + o->getVisitableOffset());
+	else
+		o->setAnchorPos(visitablePosition);
 
-	o->pos = visitablePosition + o->getVisitableOffset();
 	return o;
 }
 
@@ -4132,7 +4271,7 @@ void CGameHandler::newObject(CGObjectInstance * object, PlayerColor initiator)
 	NewObject no;
 	no.newObject = object;
 	no.initiator = initiator;
-	sendAndApply(&no);
+	sendAndApply(no);
 }
 
 void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)

@@ -217,22 +217,27 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 
 	const battle::Unit * mainTarget = nullptr;
 
-	if (!getSpell()->canCastOnSelf())
+	if(spellTarget.front().unitValue)
 	{
-		if(spellTarget.front().unitValue)
-		{
-			mainTarget = target.front().unitValue;
-		}
-		else if(spellTarget.front().hexValue.isValid())
-		{
-			mainTarget = battle()->battleGetUnitByPos(target.front().hexValue, true);
-		}
+		mainTarget = target.front().unitValue;
+	}
+	else if(spellTarget.front().hexValue.isValid())
+	{
+		mainTarget = battle()->battleGetUnitByPos(target.front().hexValue, true);
+	}
 
+	if (!getSpell()->canCastOnSelf() && !getSpell()->canCastOnlyOnSelf())
+	{
 		if(mainTarget && mainTarget == caster)
 			return false; // can't cast on self
 
-		if(mainTarget && mainTarget->hasBonusOfType(BonusType::INVINCIBLE))
+		if(mainTarget && mainTarget->hasBonusOfType(BonusType::INVINCIBLE) && !getSpell()->getPositiveness())
 			return false;
+	}
+	else if(getSpell()->canCastOnlyOnSelf())
+	{
+		if(mainTarget && mainTarget != caster)
+			return false; // can't cast on others
 	}
 
 	return effects->applicable(problem, this, target, spellTarget);
@@ -348,9 +353,9 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 		sc.affectedCres.insert(unit->unitId());
 
 	if(!castDescription.lines.empty())
-		server->apply(&castDescription);
+		server->apply(castDescription);
 
-	server->apply(&sc);
+	server->apply(sc);
 
 	for(auto & p : effectsToApply)
 		p.first->apply(server, this, p.second);
@@ -370,7 +375,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	// temporary(?) workaround to force animations to trigger
 	StacksInjured fakeEvent;
 	fakeEvent.battleID = battle()->getBattle()->getBattleID();
-	server->apply(&fakeEvent);
+	server->apply(fakeEvent);
 }
 
 void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target)
@@ -486,7 +491,7 @@ void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const std::v
 	}
 
 	if(!sse.toRemove.empty())
-		server->apply(&sse);
+		server->apply(sse);
 }
 
 bool BattleSpellMechanics::counteringSelector(const Bonus * bonus) const

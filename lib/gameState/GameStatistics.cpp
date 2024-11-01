@@ -14,7 +14,6 @@
 #include "../VCMIDirs.h"
 #include "CGameState.h"
 #include "TerrainHandler.h"
-#include "CHeroHandler.h"
 #include "StartInfo.h"
 #include "HighScore.h"
 #include "../mapObjects/CGHeroInstance.h"
@@ -381,7 +380,7 @@ float Statistic::getTownBuiltRatio(const PlayerState * ps)
 	for(const auto & t : ps->getTowns())
 	{
 		built += t->getBuildings().size();
-		for(const auto & b : t->town->buildings)
+		for(const auto & b : t->getTown()->buildings)
 			if(!t->forbiddenBuildings.count(b.first))
 				total += 1;
 	}

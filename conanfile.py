@@ -15,10 +15,11 @@ class VCMI(ConanFile):
         "minizip/[~1.2.12]",
     ]
     _clientRequires = [
-        "sdl/[~2.26.1 || >=2.0.20 <=2.22.0]", # versions in between have broken sound
-        "sdl_image/[~2.0.5]",
-        "sdl_mixer/[~2.0.4]",
-        "sdl_ttf/[~2.0.18]",
+        # Versions between 2.5-2.8 have broken loading of palette sdl images which a lot of mods use
+        # there is workaround that require disabling cmake flag which is not available in conan recipes. 
+        # Bug is fixed in version 2.8, however it is not available in conan at the moment
+        "sdl_image/2.0.5", 
+        "sdl_ttf/[>=2.0.18]",
         "onetbb/[^2021.7 <2021.10]",  # 2021.10+ breaks mobile builds due to added hwloc dependency
         "xz_utils/[>=5.2.5]", # Required for innoextract
     ]
@@ -46,20 +47,40 @@ class VCMI(ConanFile):
         self.options["freetype"].shared = self.settings.os == "Android"
 
         # SDL_image and Qt depend on it, in iOS both are static
-        # Enable static libpng due to https://github.com/conan-io/conan-center-index/issues/15440,
-        # which leads to VCMI crashes of MinGW
-        self.options["libpng"].shared = not (self.settings.os == "Windows" and cross_building(self)) and self.settings.os != "iOS"
+        self.options["libpng"].shared = self.settings.os != "iOS"
         # static Qt for iOS is the only viable option at the moment
         self.options["qt"].shared = self.settings.os != "iOS"
-
-        if self.settings.os == "Android":
-            self.options["qt"].android_sdk = tools.get_env("ANDROID_HOME", default="")
 
         # TODO: enable for all platforms
         if self.settings.os == "Android":
             self.options["bzip2"].shared = True
             self.options["libiconv"].shared = True
             self.options["zlib"].shared = True
+
+        # TODO: enable for all platforms?
+        if self.settings.os == "Windows":
+            self.options["sdl"].shared = True
+            self.options["sdl_image"].shared = True
+            self.options["sdl_mixer"].shared = True
+            self.options["sdl_ttf"].shared = True
+
+        if self.settings.os == "iOS": 
+            # TODO: ios - newer sdl fails to link
+            self.requires("sdl/2.26.1")
+            self.requires("sdl_mixer/2.0.4")
+        elif self.settings.os == "Android":
+            # On Android SDL version must be same as version of Java wrapper for SDL in VCMI source code
+            # Wrapper can be found in following directory: android/vcmi-app/src/main/java/org/libsdl/app
+            self.requires("sdl/2.26.5")
+            self.requires("sdl_mixer/2.0.4")
+        else:
+            # upcoming SDL version 3.0+ is not supported at the moment due to API breakage
+            # SDL versions between 2.22-2.26.1 have broken sound
+            self.requires("sdl/[^2.26 || >=2.0.20 <=2.22.0]")
+            self.requires("sdl_mixer/[>=2.0.4]")
+
+        if self.settings.os == "Android":
+            self.options["qt"].android_sdk = tools.get_env("ANDROID_HOME", default="")
 
         if self.options.default_options_of_requirements:
             return
@@ -86,6 +107,7 @@ class VCMI(ConanFile):
         self.options["boost"].without_timer = True
         self.options["boost"].without_type_erasure = True
         self.options["boost"].without_wave = True
+        self.options["boost"].without_url = True
 
         self.options["ffmpeg"].disable_all_bitstream_filters = True
         self.options["ffmpeg"].disable_all_decoders = True
@@ -149,8 +171,13 @@ class VCMI(ConanFile):
         self.options["sdl"].sdl2main = self.settings.os != "iOS"
         self.options["sdl"].vulkan = False
 
+        # bmp, png are the only ones that needs to be supported
+        # dds support may be useful for HD edition, but not supported by sdl_image at the moment
+        self.options["sdl_image"].gif = False
         self.options["sdl_image"].lbm = False
         self.options["sdl_image"].pnm = False
+        self.options["sdl_image"].pcx = False
+        #self.options["sdl_image"].qoi = False # sdl_image >=2.6
         self.options["sdl_image"].svg = False
         self.options["sdl_image"].tga = False
         self.options["sdl_image"].with_libjpeg = False
@@ -162,13 +189,17 @@ class VCMI(ConanFile):
         if is_apple_os(self):
             self.options["sdl_image"].imageio = True
 
+        # mp3, ogg and wav are the only ones that needs to be supported
+        # opus is nice to have, but fails to build in CI
+        # flac can be considered, but generally unnecessary
         self.options["sdl_mixer"].flac = False
-        self.options["sdl_mixer"].mad = False
-        self.options["sdl_mixer"].mikmod = False
         self.options["sdl_mixer"].modplug = False
-        self.options["sdl_mixer"].nativemidi = False
         self.options["sdl_mixer"].opus = False
-        self.options["sdl_mixer"].wav = False
+        if self.settings.os == "iOS" or self.settings.os == "Android":
+            # only available in older sdl_mixer version, removed in newer version
+            self.options["sdl_mixer"].mad = False
+            self.options["sdl_mixer"].mikmod = False
+            self.options["sdl_mixer"].nativemidi = False
 
         def _disableQtOptions(disableFlag, options):
             return " ".join([f"-{disableFlag}-{tool}" for tool in options])

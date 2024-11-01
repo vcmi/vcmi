@@ -42,7 +42,7 @@
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../mapsettings/eventsettings.cpp" line="118"/>
+        <location filename="../mapsettings/eventsettings.cpp" line="123"/>
         <source>New event</source>
         <translation>Neues Ereignis</translation>
     </message>
@@ -359,7 +359,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1051"/>
-        <location filename="../mainwindow.cpp" line="822"/>
+        <location filename="../mainwindow.cpp" line="834"/>
         <source>View underground</source>
         <translation>Ansicht Untergrund</translation>
     </message>
@@ -441,9 +441,9 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1205"/>
-        <location filename="../mainwindow.cpp" line="1093"/>
-        <location filename="../mainwindow.cpp" line="1097"/>
-        <location filename="../mainwindow.cpp" line="1154"/>
+        <location filename="../mainwindow.cpp" line="1105"/>
+        <location filename="../mainwindow.cpp" line="1109"/>
+        <location filename="../mainwindow.cpp" line="1166"/>
         <source>Update appearance</source>
         <translation>Aussehen aktualisieren</translation>
     </message>
@@ -594,72 +594,72 @@
         <translation>Alle unterstützten Karten (*.vmap *.h3m);;VCMI-Karten (*.vmap);;HoMM3-Karten (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="475"/>
+        <location filename="../mainwindow.cpp" line="487"/>
         <source>Save map</source>
         <translation>Karte speichern</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="475"/>
+        <location filename="../mainwindow.cpp" line="487"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>VCMI-Karten (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="664"/>
+        <location filename="../mainwindow.cpp" line="676"/>
         <source>Type</source>
         <translation>Typ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="826"/>
+        <location filename="../mainwindow.cpp" line="838"/>
         <source>View surface</source>
         <translation>Oberfläche anzeigen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1093"/>
+        <location filename="../mainwindow.cpp" line="1105"/>
         <source>No objects selected</source>
         <translation>Keine Objekte selektiert</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1097"/>
+        <location filename="../mainwindow.cpp" line="1109"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>Diese Operation ist unumkehrbar. Möchten sie fortsetzen?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1154"/>
+        <location filename="../mainwindow.cpp" line="1166"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>Fehler sind aufgetreten. %1 Objekte konnten nicht aktualisiert werden</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1194"/>
+        <location filename="../mainwindow.cpp" line="1206"/>
         <source>Save to image</source>
         <translation>Als Bild speichern</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1213"/>
+        <location filename="../mainwindow.cpp" line="1225"/>
         <source>Select maps to convert</source>
         <translation>Zu konvertierende Karten auswählen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1215"/>
+        <location filename="../mainwindow.cpp" line="1227"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation>HoMM3-Karten (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1219"/>
+        <location filename="../mainwindow.cpp" line="1231"/>
         <source>Choose directory to save converted maps</source>
         <translation>Verzeichnis zum Speichern der konvertierten Karten wählen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1232"/>
+        <location filename="../mainwindow.cpp" line="1244"/>
         <source>Operation completed</source>
         <translation>Vorgang abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1232"/>
+        <location filename="../mainwindow.cpp" line="1244"/>
         <source>Successfully converted %1 maps</source>
         <translation>Erfolgreiche Konvertierung von %1 Karten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1236"/>
+        <location filename="../mainwindow.cpp" line="1248"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation>Die Karte konnte nicht konvertiert werden. Vorgang abgebrochen</translation>
     </message>
@@ -1574,12 +1574,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="163"/>
+        <location filename="../inspector/towneventdialog.cpp" line="170"/>
         <source>Creature level %1 / Creature level %1 Upgrade</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="205"/>
+        <location filename="../inspector/towneventdialog.cpp" line="212"/>
         <source>Day %1 - %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1951,7 +1951,7 @@
         <translation>Spieler</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="751"/>
+        <location filename="../windownewmap.ui" line="858"/>
         <source>0</source>
         <translation>0</translation>
     </message>
@@ -2050,42 +2050,62 @@
         <translation>Inseln</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="716"/>
+        <location filename="../windownewmap.ui" line="713"/>
+        <source>Roads</source>
+        <translation type="unfinished">Straßen</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="728"/>
+        <source>Dirt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="748"/>
+        <source>Gravel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="768"/>
+        <source>Cobblestone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="813"/>
         <source>Template</source>
         <translation>Vorlage</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="764"/>
+        <location filename="../windownewmap.ui" line="845"/>
         <source>Custom seed</source>
         <translation>Benutzerdefiniertes Seed</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="778"/>
+        <location filename="../windownewmap.ui" line="875"/>
         <source>Generate random map</source>
         <translation>Zufällige Karte generieren</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="812"/>
+        <location filename="../windownewmap.ui" line="909"/>
         <source>Ok</source>
         <translation>Ok</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="831"/>
+        <location filename="../windownewmap.ui" line="928"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="248"/>
+        <location filename="../windownewmap.cpp" line="256"/>
         <source>No template</source>
         <translation>Kein Template</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="248"/>
+        <location filename="../windownewmap.cpp" line="256"/>
         <source>No template for parameters specified. Random map cannot be generated.</source>
         <translation>Es wurde kein Template für Parameter erstellt. Zufällige Karte kann nicht generiert werden.</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="268"/>
+        <location filename="../windownewmap.cpp" line="276"/>
         <source>RMG failure</source>
         <translation>RMG-Fehler</translation>
     </message>

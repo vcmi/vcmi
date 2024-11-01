@@ -39,7 +39,7 @@ class DLL_LINKAGE CFaction : public Faction
 
 	FactionID index = FactionID::NEUTRAL;
 
-	FactionID getFaction() const override; //This function should not be used
+	FactionID getFactionID() const override; //This function should not be used
 
 public:
 	TerrainId nativeTerrain;

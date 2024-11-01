@@ -17,6 +17,7 @@
 #include "../gui/Shortcut.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../lib/texts/TextOperations.h"
 
@@ -190,8 +191,9 @@ void CTextInput::updateLabel()
 	std::string visibleText = getVisibleText();
 
 	label->alignment = originalAlignment;
+	const auto & font = GH.renderHandler().loadFont(label->font);
 
-	while (graphics->fonts[label->font]->getStringWidth(visibleText) > pos.w)
+	while (font->getStringWidth(visibleText) > pos.w)
 	{
 		label->alignment = ETextAlignment::CENTERRIGHT;
 		visibleText = visibleText.substr(TextOperations::getUnicodeCharacterSize(visibleText[0]));

@@ -138,13 +138,13 @@ bool CBank::wasVisited (PlayerColor player) const
 void CBank::onHeroVisit(const CGHeroInstance * h) const
 {
 	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_PLAYER, id, h->id);
-	cb->sendAndApply(&cov);
+	cb->sendAndApply(cov);
 
 	BlockingDialog bd(true, false);
 	bd.player = h->getOwner();
 	bd.text.appendLocalString(EMetaText::ADVOB_TXT, 32);
 	bd.components = getPopupComponents(h->getOwner());
-	bd.text.replaceRawString(getObjectName());
+	bd.text.replaceTextID(getObjectHandler()->getNameTextID());
 	cb->showBlockingDialog(this, &bd);
 }
 
@@ -158,7 +158,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 	if (!bankConfig)
 	{
 		iw.text.appendRawString(VLC->generaltexth->advobtxt[33]);// This was X, now is completely empty
-		iw.text.replaceRawString(getObjectName());
+		iw.text.replaceTextID(getObjectHandler()->getNameTextID());
 		cb->showInfoDialog(&iw);
 	}
 

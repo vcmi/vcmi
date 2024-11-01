@@ -28,10 +28,12 @@
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/CPlayerState.h"
+#include <vstd/RNG.h>
 
 BattleProcessor::BattleProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)
@@ -50,7 +52,7 @@ void BattleProcessor::engageIntoBattle(PlayerColor player)
 	pb.player = player;
 	pb.reason = PlayerBlocked::UPCOMING_BATTLE;
 	pb.startOrEnd = PlayerBlocked::BLOCKADE_STARTED;
-	gameHandler->sendAndApply(&pb);
+	gameHandler->sendAndApply(pb);
 }
 
 void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
@@ -76,7 +78,7 @@ void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInsta
 				SetMana restoreInitialMana;
 				restoreInitialMana.val = lastBattleQuery->initialHeroMana[i];
 				restoreInitialMana.hid = heroes[i]->id;
-				gameHandler->sendAndApply(&restoreInitialMana);
+				gameHandler->sendAndApply(restoreInitialMana);
 			}
 		}
 
@@ -88,7 +90,7 @@ void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInsta
 
 	BattleCancelled bc;
 	bc.battleID = battleID;
-	gameHandler->sendAndApply(&bc);
+	gameHandler->sendAndApply(bc);
 
 	startBattle(army1, army2, tile, hero1, hero2, layout, town);
 }
@@ -116,7 +118,7 @@ void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInsta
 			GiveBonus giveBonus(GiveBonus::ETarget::OBJECT);
 			giveBonus.id = hero1->id;
 			giveBonus.bonus = bonus;
-			gameHandler->sendAndApply(&giveBonus);
+			gameHandler->sendAndApply(giveBonus);
 		}
 	}
 
@@ -156,16 +158,24 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 {
 	const auto & t = *gameHandler->getTile(tile);
 	TerrainId terrain = t.terType->getId();
-	if (gameHandler->gameState()->map->isCoastalTile(tile)) //coastal tile is always ground
+	if (town)
+		terrain = town->getNativeTerrain();
+	else if (gameHandler->gameState()->map->isCoastalTile(tile)) //coastal tile is always ground
 		terrain = ETerrainId::SAND;
 
-	BattleField terType = gameHandler->gameState()->battleGetBattlefieldType(tile, gameHandler->getRandomGenerator());
-	if (heroes[BattleSide::ATTACKER] && heroes[BattleSide::ATTACKER]->boat && heroes[BattleSide::DEFENDER] && heroes[BattleSide::DEFENDER]->boat)
-		terType = BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.ship_to_ship"));
+	BattleField battlefieldType = gameHandler->gameState()->battleGetBattlefieldType(tile, gameHandler->getRandomGenerator());
+
+	if (town)
+	{
+		const TerrainType* terrainData = VLC->terrainTypeHandler->getById(terrain);
+		battlefieldType = BattleField(*RandomGeneratorUtil::nextItem(terrainData->battleFields, gameHandler->getRandomGenerator()));
+	}
+	else if (heroes[BattleSide::ATTACKER] && heroes[BattleSide::ATTACKER]->boat && heroes[BattleSide::DEFENDER] && heroes[BattleSide::DEFENDER]->boat)
+		battlefieldType = BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.ship_to_ship"));
 
 	//send info about battles
 	BattleStart bs;
-	bs.info = BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, layout, town);
+	bs.info = BattleInfo::setupBattle(tile, terrain, battlefieldType, armies, heroes, layout, town);
 	bs.battleID = gameHandler->gameState()->nextBattleID;
 
 	engageIntoBattle(bs.info->getSide(BattleSide::ATTACKER).color);
@@ -180,7 +190,7 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 	bool onlyOnePlayerHuman = isDefenderHuman != isAttackerHuman;
 	bs.info->replayAllowed = lastBattleQuery == nullptr && onlyOnePlayerHuman;
 
-	gameHandler->sendAndApply(&bs);
+	gameHandler->sendAndApply(bs);
 
 	return bs.battleID;
 }
@@ -258,7 +268,7 @@ void BattleProcessor::updateGateState(const CBattleInfoCallback & battle)
 	}
 
 	if (db.state != battle.battleGetGateState())
-		gameHandler->sendAndApply(&db);
+		gameHandler->sendAndApply(db);
 }
 
 bool BattleProcessor::makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction &ba)

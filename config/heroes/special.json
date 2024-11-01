@@ -176,7 +176,7 @@
 	"mutare":
 	{
 		"index": 151,
-		"class" : "warlock",
+		"class" : "overlord",
 		"female": true,
 		"special" : true,
 		"spellbook": [ "magicArrow" ],
@@ -220,7 +220,7 @@
 	"mutareDrake":
 	{
 		"index": 153,
-		"class" : "warlock",
+		"class" : "overlord",
 		"female": true,
 		"special" : true,
 		"spellbook": [ "magicArrow" ],

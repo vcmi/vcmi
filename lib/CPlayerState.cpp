@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "CPlayerState.h"
+#include "json/JsonNode.h"
 #include "mapObjects/CGDwelling.h"
 #include "mapObjects/CGTownInstance.h"
 #include "mapObjects/CGHeroInstance.h"
@@ -20,8 +21,13 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 PlayerState::PlayerState()
- : color(-1), human(false), cheated(false), enteredWinningCheatCode(false),
-   enteredLosingCheatCode(false), status(EPlayerStatus::INGAME)
+	: color(-1)
+	, human(false)
+	, cheated(false)
+	, playerLocalSettings(std::make_unique<JsonNode>())
+	, enteredWinningCheatCode(false)
+	, enteredLosingCheatCode(false)
+	, status(EPlayerStatus::INGAME)
 {
 	setNodeType(PLAYER);
 }

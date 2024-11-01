@@ -23,9 +23,9 @@
 
 #include "../../../CCallback.h"
 
+#include "../../../lib/entities/hero/CHeroHandler.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../../../lib/CHeroHandler.h"
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CMarketBase::CMarketBase(const IMarket * market, const CGHeroInstance * hero)
@@ -93,7 +93,7 @@ void CMarketBase::updateSubtitlesForBid(EMarketMode marketMode, int bidId)
 
 void CMarketBase::updateShowcases()
 {
-	const auto updateSelectedBody = [](const std::shared_ptr<TradePanelBase> & tradePanel, const std::optional<const ShowcaseParams> & params)
+	const auto updateShowcase = [](const std::shared_ptr<TradePanelBase> & tradePanel, const std::optional<const ShowcaseParams> & params)
 	{
 		if(params.has_value())
 		{
@@ -109,9 +109,9 @@ void CMarketBase::updateShowcases()
 
 	const auto params = getShowcasesParams();
 	if(bidTradePanel)
-		updateSelectedBody(bidTradePanel, params.bidParams);
+		updateShowcase(bidTradePanel, params.bidParams);
 	if(offerTradePanel)
-		updateSelectedBody(offerTradePanel, params.offerParams);
+		updateShowcase(offerTradePanel, params.offerParams);
 }
 
 void CMarketBase::highlightingChanged()

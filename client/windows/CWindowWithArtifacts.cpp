@@ -62,15 +62,12 @@ const CGHeroInstance * CWindowWithArtifacts::getHeroPickedArtifact() const
 
 const CArtifactInstance * CWindowWithArtifacts::getPickedArtifact() const
 {
-	const CArtifactInstance * art = nullptr;
-
 	for(const auto & artSet : artSets)
 		if(const auto pickedArt = artSet->getHero()->getArt(ArtifactPosition::TRANSITION_POS))
 		{
-			art = pickedArt;
-			break;
+			return pickedArt;
 		}
-	return art;
+	return nullptr;
 }
 
 void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, const ArtifactPosition & slot,
@@ -85,6 +82,11 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, c
 	{
 		if(allowExchange || hero->id == heroArtOwner->id)
 			putPickedArtifact(*hero, slot);
+	}
+	else if(GH.isKeyboardShiftDown())
+	{
+		if(ArtifactUtils::isSlotEquipment(slot))
+			GH.windows().createAndPushWindow<CHeroQuickBackpackWindow>(hero, slot);
 	}
 	else if(auto art = hero->getArt(slot))
 	{
@@ -124,12 +126,6 @@ void CWindowWithArtifacts::showArtifactAssembling(const CArtifactsOfHeroBase & a
 		if(artPlace.text.size())
 			artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
 	}
-}
-
-void CWindowWithArtifacts::showArifactInfo(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition) const
-{
-	if(artsInst.getArt(artPlace.slot) && artPlace.text.size())
-		artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
 }
 
 void CWindowWithArtifacts::showQuickBackpackWindow(const CGHeroInstance * hero, const ArtifactPosition & slot,
@@ -202,7 +198,7 @@ void CWindowWithArtifacts::markPossibleSlots() const
 				continue;
 
 			if(getHeroPickedArtifact() == hero || !std::dynamic_pointer_cast<CArtifactsOfHeroKingdom>(artSet))
-				artSet->markPossibleSlots(pickedArtInst, hero->tempOwner == LOCPLINT->playerID);
+				artSet->markPossibleSlots(pickedArtInst->artType, hero->tempOwner == LOCPLINT->playerID);
 		}
 	}
 }

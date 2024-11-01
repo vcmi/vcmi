@@ -17,12 +17,12 @@
 #include "CMap.h"
 #include "MapFormat.h"
 #include "../ArtifactUtils.h"
-#include "../CHeroHandler.h"
 #include "../VCMI_Lib.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/hero/CHeroHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -436,10 +436,8 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 						if(hero->ID == Obj::HERO)
 						{
 							std::string temp;
-							if(hero->type)
-								temp = hero->type->getJsonKey();
-							else
-								temp = hero->getHeroType().toEntity(VLC)->getJsonKey();
+							if(hero->getHeroTypeID().hasValue())
+								temp = hero->getHeroType()->getJsonKey();
 
 							handler.serializeString("type", temp);
 						}
@@ -1016,8 +1014,6 @@ void CMapLoaderJson::readTerrain()
 		const JsonNode underground = getFromArchive(TERRAIN_FILE_NAMES[1]);
 		readTerrainLevel(underground, 1);
 	}
-
-	map->calculateWaterContent();
 }
 
 CMapLoaderJson::MapObjectLoader::MapObjectLoader(CMapLoaderJson * _owner, JsonMap::value_type & json):
@@ -1072,7 +1068,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	instance->id = ObjectInstanceID(static_cast<si32>(owner->map->objects.size()));
 	instance->instanceName = jsonKey;
-	instance->pos = pos;
+	instance->setAnchorPos(pos);
 	owner->map->addNewObject(instance);
 }
 
@@ -1154,10 +1150,10 @@ void CMapLoaderJson::readObjects()
 
 		auto * hero = dynamic_cast<const CGHeroInstance *>(object.get());
 
-		if (debugHeroesOnMap.count(hero->getHeroType()))
+		if (debugHeroesOnMap.count(hero->getHeroTypeID()))
 			logGlobal->error("Hero is already on the map at %s", hero->visitablePos().toString());
 
-		debugHeroesOnMap.insert(hero->getHeroType());
+		debugHeroesOnMap.insert(hero->getHeroTypeID());
 	}
 }
 

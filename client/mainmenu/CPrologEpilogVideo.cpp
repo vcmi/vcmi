@@ -48,6 +48,7 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	if (videoPlayer->pos.h == 400)
 		videoPlayer->moveBy(Point(0, 100));
 
+	CCS->musich->setVolume(CCS->musich->getVolume() / 2); // background volume is too loud by default
 	CCS->musich->playMusic(spe.prologMusic, true, true);
 	voiceDurationMilliseconds = CCS->soundh->getSoundDurationMilliseconds(spe.prologVoice);
 	voiceSoundHandle = CCS->soundh->playSound(spe.prologVoice);
@@ -59,7 +60,10 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	CCS->soundh->setCallback(voiceSoundHandle, onVoiceStop);
 
 	text = std::make_shared<CMultiLineLabel>(Rect(100, 500, 600, 100), EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::METALLIC_GOLD, spe.prologText.toString());
-	text->scrollTextTo(-50); // beginning of text in the vertical middle of black area
+	if(text->getLines().size() == 3)
+		text->scrollTextTo(-25); // beginning of text in the vertical middle of black area
+	else if(text->getLines().size() > 3)
+		text->scrollTextTo(-50); // beginning of text in the vertical middle of black area
 }
 
 void CPrologEpilogVideo::tick(uint32_t msPassed)
@@ -88,6 +92,7 @@ void CPrologEpilogVideo::show(Canvas & to)
 
 void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
 {
+	CCS->musich->setVolume(CCS->musich->getVolume() * 2); // restore background volume
 	close();
 	CCS->soundh->resetCallback(voiceSoundHandle); // reset callback to avoid memory corruption since 'this' will be destroyed
 	CCS->soundh->stopSound(voiceSoundHandle);

@@ -65,7 +65,7 @@ void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		pack.battleID = m->battle()->getBattle()->getBattleID();
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
-		server->apply(&pack);
+		server->apply(pack);
 
 		//TODO: use BattleUnitsChanged with UPDATE operation
 
@@ -90,7 +90,7 @@ void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		cloneFlags.changedStacks.emplace_back(originalState->unitId(), UnitChanges::EOperation::RESET_STATE);
 		originalState->save(cloneFlags.changedStacks.back().data);
 
-		server->apply(&cloneFlags);
+		server->apply(cloneFlags);
 
 		SetStackEffect sse;
 		sse.battleID = m->battle()->getBattle()->getBattleID();
@@ -100,7 +100,7 @@ void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		std::vector<Bonus> buffer;
 		buffer.push_back(lifeTimeMarker);
 		sse.toAdd.emplace_back(unitId, buffer);
-		server->apply(&sse);
+		server->apply(sse);
 	}
 }
 

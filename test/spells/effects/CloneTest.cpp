@@ -148,8 +148,8 @@ public:
 
 		battleFake->setupEmptyBattlefield();
 
-		EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged *>(_))).Times(2);
-		EXPECT_CALL(serverMock, apply(Matcher<SetStackEffect *>(_))).Times(1);
+		EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).Times(2);
+		EXPECT_CALL(serverMock, apply(Matcher<SetStackEffect &>(_))).Times(1);
 
 		EXPECT_CALL(mechanicsMock, getEffectDuration()).WillOnce(Return(effectDuration));
 		EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(1));

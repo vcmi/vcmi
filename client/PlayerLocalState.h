@@ -14,12 +14,22 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 class CGTownInstance;
 class CArmedInstance;
+class JsonNode;
 struct CGPath;
 class int3;
 
 VCMI_LIB_NAMESPACE_END
 
 class CPlayerInterface;
+
+struct PlayerSpellbookSetting
+{
+	//on which page we left spellbook
+	int spellbookLastPageBattle = 0;
+	int spellbookLastPageAdvmap = 0;
+	int spellbookLastTabBattle = 4;
+	int spellbookLastTabAdvmap = 4;
+};
 
 /// Class that contains potentially serializeable state of a local player
 class PlayerLocalState
@@ -34,24 +44,19 @@ class PlayerLocalState
 	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
 	std::vector<const CGTownInstance *> ownedTowns; //our towns on the adventure map
 
-	void saveHeroPaths(std::map<const CGHeroInstance *, int3> & paths);
-	void loadHeroPaths(std::map<const CGHeroInstance *, int3> & paths);
+	PlayerSpellbookSetting spellbookSettings;
 
+	void syncronizeState();
 public:
-	struct SpellbookLastSetting
-	{
-		//on which page we left spellbook
-		int spellbookLastPageBattle = 0;
-		int spellbookLastPageAdvmap = 0;
-		int spellbookLastTabBattle = 4;
-		int spellbookLastTabAdvmap = 4;
-	} spellbookSettings;
 
 	explicit PlayerLocalState(CPlayerInterface & owner);
 
 	bool isHeroSleeping(const CGHeroInstance * hero) const;
 	void setHeroAsleep(const CGHeroInstance * hero);
 	void setHeroAwaken(const CGHeroInstance * hero);
+
+	const PlayerSpellbookSetting & getSpellbookSettings() const;
+	void setSpellbookSettings(const PlayerSpellbookSetting & newSettings);
 
 	const std::vector<const CGTownInstance *> & getOwnedTowns();
 	const CGTownInstance * getOwnedTown(size_t index);
@@ -80,6 +85,9 @@ public:
 	const CGHeroInstance * getCurrentHero() const;
 	const CGTownInstance * getCurrentTown() const;
 	const CArmedInstance * getCurrentArmy() const;
+
+	void serialize(JsonNode & dest) const;
+	void deserialize(const JsonNode & source);
 
 	/// Changes currently selected object
 	void setSelection(const CArmedInstance *sel);

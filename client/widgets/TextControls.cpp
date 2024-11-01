@@ -22,6 +22,7 @@
 #include "../render/Canvas.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../lib/texts/TextOperations.h"
 
@@ -56,8 +57,9 @@ CLabel::CLabel(int x, int y, EFonts Font, ETextAlignment Align, const ColorRGBA 
 
 	if(alignment == ETextAlignment::TOPLEFT) // causes issues for MIDDLE
 	{
-		pos.w = (int)graphics->fonts[font]->getStringWidth(visibleText().c_str());
-		pos.h = (int)graphics->fonts[font]->getLineHeight();
+		const auto & fontPtr = GH.renderHandler().loadFont(font);
+		pos.w = fontPtr->getStringWidth(visibleText().c_str());
+		pos.h = fontPtr->getLineHeight();
 	}
 }
 
@@ -114,8 +116,12 @@ void CLabel::setMaxWidth(int width)
 void CLabel::trimText()
 {
 	if(maxWidth > 0)
-		while ((int)graphics->fonts[font]->getStringWidth(visibleText().c_str()) > maxWidth)
+	{
+		const auto & fontPtr = GH.renderHandler().loadFont(font);
+
+		while (fontPtr->getStringWidth(visibleText().c_str()) > maxWidth)
 			TextOperations::trimRightUnicode(text);
+	}
 }
 
 void CLabel::setColor(const ColorRGBA & Color)
@@ -132,7 +138,8 @@ void CLabel::setColor(const ColorRGBA & Color)
 
 size_t CLabel::getWidth()
 {
-	return graphics->fonts[font]->getStringWidth(visibleText());
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	return fontPtr->getStringWidth(visibleText());
 }
 
 CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, ETextAlignment Align, const ColorRGBA & Color, const std::string & Text) :
@@ -169,9 +176,14 @@ void CMultiLineLabel::setText(const std::string & Txt)
 	CLabel::setText(Txt);
 }
 
+std::vector<std::string> CMultiLineLabel::getLines()
+{
+	return lines;
+}
+
 void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 {
-	const auto f = graphics->fonts[font];
+	const auto f = GH.renderHandler().loadFont(font);
 	Point where = destRect.topLeft();
 	const std::string delimiters = "{}";
 	auto delimitersCount = std::count_if(what.cbegin(), what.cend(), [&delimiters](char c)
@@ -264,7 +276,7 @@ void CMultiLineLabel::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
-	const auto f = graphics->fonts[font];
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
 
 	// calculate which lines should be visible
 	int totalLines = static_cast<int>(lines.size());
@@ -274,17 +286,17 @@ void CMultiLineLabel::showAll(Canvas & to)
 	if(beginLine < 0)
 		beginLine = 0;
 	else
-		beginLine /= (int)f->getLineHeight();
+		beginLine /= fontPtr->getLineHeight();
 
 	if(endLine < 0)
 		endLine = 0;
 	else
-		endLine /= (int)f->getLineHeight();
+		endLine /= fontPtr->getLineHeight();
 	endLine++;
 
 	// and where they should be displayed
-	Point lineStart = getTextLocation().topLeft() - visibleSize + Point(0, beginLine * (int)f->getLineHeight());
-	Point lineSize = Point(getTextLocation().w, (int)f->getLineHeight());
+	Point lineStart = getTextLocation().topLeft() - visibleSize + Point(0, beginLine * fontPtr->getLineHeight());
+	Point lineSize = Point(getTextLocation().w, fontPtr->getLineHeight());
 
 	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), getTextLocation()); // to properly trim text that is too big to fit
 
@@ -293,7 +305,7 @@ void CMultiLineLabel::showAll(Canvas & to)
 		if(!lines[i].empty()) //non-empty line
 			blitLine(to, Rect(lineStart, lineSize), lines[i]);
 
-		lineStart.y += (int)f->getLineHeight();
+		lineStart.y += fontPtr->getLineHeight();
 	}
 }
 
@@ -301,15 +313,15 @@ void CMultiLineLabel::splitText(const std::string & Txt, bool redrawAfter)
 {
 	lines.clear();
 
-	const auto f = graphics->fonts[font];
-	int lineHeight = static_cast<int>(f->getLineHeight());
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	int lineHeight = fontPtr->getLineHeight();
 
 	lines = CMessage::breakText(Txt, pos.w, font);
 
 	textSize.y = lineHeight * (int)lines.size();
 	textSize.x = 0;
 	for(const std::string & line : lines)
-		vstd::amax(textSize.x, f->getStringWidth(line.c_str()));
+		vstd::amax(textSize.x, fontPtr->getStringWidth(line.c_str()));
 	if(redrawAfter)
 		redraw();
 }
@@ -322,16 +334,17 @@ Rect CMultiLineLabel::getTextLocation()
 	if(pos.h <= textSize.y)
 		return pos;
 
-	Point textSize(pos.w, (int)graphics->fonts[font]->getLineHeight() * (int)lines.size());
-	Point textOffset(pos.w - textSize.x, pos.h - textSize.y);
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	Point textSizeComputed(pos.w, fontPtr->getLineHeight() * lines.size()); //FIXME: how is this different from textSize member?
+	Point textOffset(pos.w - textSizeComputed.x, pos.h - textSizeComputed.y);
 
 	switch(alignment)
 	{
-	case ETextAlignment::TOPLEFT:     return Rect(pos.topLeft(), textSize);
-	case ETextAlignment::TOPCENTER:   return Rect(pos.topLeft(), textSize);
-	case ETextAlignment::CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSize);
-	case ETextAlignment::CENTERRIGHT: return Rect(pos.topLeft() + Point(textOffset.x, textOffset.y / 2), textSize);
-	case ETextAlignment::BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSize);
+	case ETextAlignment::TOPLEFT:     return Rect(pos.topLeft(), textSizeComputed);
+	case ETextAlignment::TOPCENTER:   return Rect(pos.topLeft(), textSizeComputed);
+	case ETextAlignment::CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSizeComputed);
+	case ETextAlignment::CENTERRIGHT: return Rect(pos.topLeft() + Point(textOffset.x, textOffset.y / 2), textSizeComputed);
+	case ETextAlignment::BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSizeComputed);
 	}
 	assert(0);
 	return Rect();
@@ -421,11 +434,12 @@ void CTextBox::setText(const std::string & text)
 		label->pos.w = pos.w - 16;
 		assert(label->pos.w > 0);
 		label->setText(text);
+		const auto & fontPtr = GH.renderHandler().loadFont(label->font);
 
 		OBJECT_CONSTRUCTION;
 		slider = std::make_shared<CSlider>(Point(pos.w - 16, 0), pos.h, std::bind(&CTextBox::sliderMoved, this, _1),
 			label->pos.h, label->textSize.y, 0, Orientation::VERTICAL, CSlider::EStyle(sliderStyle));
-		slider->setScrollStep((int)graphics->fonts[label->font]->getLineHeight());
+		slider->setScrollStep(fontPtr->getLineHeight());
 		slider->setPanningStep(1);
 		slider->setScrollBounds(pos - slider->pos.topLeft());
 	}

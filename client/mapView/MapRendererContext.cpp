@@ -120,7 +120,7 @@ size_t MapRendererBaseContext::objectGroupIndex(ObjectInstanceID objectID) const
 Point MapRendererBaseContext::objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const
 {
 	const CGObjectInstance * object = getObject(objectID);
-	int3 offsetTiles(object->getPosition() - coordinates);
+	int3 offsetTiles(object->anchorPos() - coordinates);
 	return Point(offsetTiles) * Point(32, 32);
 }
 
@@ -498,7 +498,7 @@ size_t MapRendererWorldViewContext::overlayImageIndex(const int3 & coordinates) 
 	{
 		const auto * object = getObject(objectID);
 
-		if(!object->visitableAt(coordinates.x, coordinates.y))
+		if(!object->visitableAt(coordinates))
 			continue;
 
 		ObjectPosInfo info(object);

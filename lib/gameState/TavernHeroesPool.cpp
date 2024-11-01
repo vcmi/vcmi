@@ -11,7 +11,6 @@
 #include "TavernHeroesPool.h"
 
 #include "../mapObjects/CGHeroInstance.h"
-#include "../CHeroHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,7 +24,7 @@ std::map<HeroTypeID, CGHeroInstance*> TavernHeroesPool::unusedHeroesFromPool() c
 {
 	std::map<HeroTypeID, CGHeroInstance*> pool = heroesPool;
 	for(const auto & slot : currentTavern)
-		pool.erase(slot.hero->getHeroType());
+		pool.erase(slot.hero->getHeroTypeID());
 
 	return pool;
 }
@@ -34,7 +33,7 @@ TavernSlotRole TavernHeroesPool::getSlotRole(HeroTypeID hero) const
 {
 	for (auto const & slot : currentTavern)
 	{
-		if (slot.hero->getHeroType() == hero)
+		if (slot.hero->getHeroTypeID() == hero)
 			return slot.role;
 	}
 	return TavernSlotRole::NONE;
@@ -106,7 +105,7 @@ CGHeroInstance * TavernHeroesPool::takeHeroFromPool(HeroTypeID hero)
 	heroesPool.erase(hero);
 
 	vstd::erase_if(currentTavern, [&](const TavernSlot & entry){
-		return entry.hero->type->getId() == hero;
+		return entry.hero->getHeroTypeID() == hero;
 	});
 
 	assert(result);
@@ -138,7 +137,7 @@ void TavernHeroesPool::onNewDay()
 
 void TavernHeroesPool::addHeroToPool(CGHeroInstance * hero)
 {
-	heroesPool[hero->getHeroType()] = hero;
+	heroesPool[hero->getHeroTypeID()] = hero;
 }
 
 void TavernHeroesPool::setAvailability(HeroTypeID hero, std::set<PlayerColor> mask)

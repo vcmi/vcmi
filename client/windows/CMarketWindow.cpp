@@ -192,7 +192,7 @@ std::string CMarketWindow::getMarketTitle(const ObjectInstanceID marketId, const
 	{
 		for(const auto & buildingId : town->getBuildings())
 		{
-			if(const auto building = town->town->buildings.at(buildingId); vstd::contains(building->marketModes, mode))
+			if(const auto building = town->getTown()->buildings.at(buildingId); vstd::contains(building->marketModes, mode))
 				return building->getNameTranslated();
 		}
 	}
@@ -219,7 +219,6 @@ void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroI
 	auto artsSellingMarket = std::make_shared<CArtifactsSelling>(market, hero, getMarketTitle(market->getObjInstanceID(), EMarketMode::ARTIFACT_RESOURCE));
 	artSets.clear();
 	const auto heroArts = artsSellingMarket->getAOHset();
-	heroArts->showPopupCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition){showArifactInfo(*heroArts, artPlace, cursorPosition);};
 	addSet(heroArts);
 	marketWidget = artsSellingMarket;
 	initWidgetInternals(EMarketMode::ARTIFACT_RESOURCE, CGI->generaltexth->zelp[600]);

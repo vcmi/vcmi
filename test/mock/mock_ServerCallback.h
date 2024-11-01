@@ -20,13 +20,13 @@ public:
 	MOCK_METHOD1(complain, void(const std::string &));
 	MOCK_METHOD0(getRNG, vstd::RNG *());
 
-	MOCK_METHOD1(apply, void(CPackForClient *));
+	MOCK_METHOD1(apply, void(CPackForClient &));
 
-	MOCK_METHOD1(apply, void(BattleLogMessage *));
-	MOCK_METHOD1(apply, void(BattleStackMoved *));
-	MOCK_METHOD1(apply, void(BattleUnitsChanged *));
-	MOCK_METHOD1(apply, void(SetStackEffect *));
-	MOCK_METHOD1(apply, void(StacksInjured *));
-	MOCK_METHOD1(apply, void(BattleObstaclesChanged *));
-	MOCK_METHOD1(apply, void(CatapultAttack *));
+	MOCK_METHOD1(apply, void(BattleLogMessage &));
+	MOCK_METHOD1(apply, void(BattleStackMoved &));
+	MOCK_METHOD1(apply, void(BattleUnitsChanged &));
+	MOCK_METHOD1(apply, void(SetStackEffect &));
+	MOCK_METHOD1(apply, void(StacksInjured &));
+	MOCK_METHOD1(apply, void(BattleObstaclesChanged &));
+	MOCK_METHOD1(apply, void(CatapultAttack &));
 };

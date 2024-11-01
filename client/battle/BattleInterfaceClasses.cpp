@@ -50,10 +50,11 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/entities/hero/CHeroClass.h"
+#include "../../lib/entities/hero/CHero.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -112,9 +113,10 @@ std::vector<std::string> BattleConsole::splitText(const std::string &text)
 
 	boost::split(lines, text, boost::is_any_of("\n"));
 
+	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
 	for(const auto & line : lines)
 	{
-		if (graphics->fonts[FONT_SMALL]->getStringWidth(text) < pos.w)
+		if (font->getStringWidth(text) < pos.w)
 		{
 			output.push_back(line);
 		}
@@ -327,7 +329,7 @@ void BattleHero::setPhase(EHeroAnimType newPhase)
 
 void BattleHero::heroLeftClicked()
 {
-	if(owner.actionsController->spellcastingModeActive()) //we are casting a spell
+	if(owner.actionsController->heroSpellcastingModeActive()) //we are casting a spell
 		return;
 
 	if(!hero || !owner.makingTurn())
@@ -388,13 +390,13 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 {
 	AnimationPath animationPath;
 
-	if(!hero->type->battleImage.empty())
-		animationPath = hero->type->battleImage;
+	if(!hero->getHeroType()->battleImage.empty())
+		animationPath = hero->getHeroType()->battleImage;
 	else
 	if(hero->gender == EHeroGender::FEMALE)
-		animationPath = hero->type->heroClass->imageBattleFemale;
+		animationPath = hero->getHeroClass()->imageBattleFemale;
 	else
-		animationPath = hero->type->heroClass->imageBattleMale;
+		animationPath = hero->getHeroClass()->imageBattleMale;
 
 	animation = GH.renderHandler().loadAnimation(animationPath, EImageBlitMode::ALPHA);
 
@@ -1026,7 +1028,7 @@ void StackQueue::update()
 
 int32_t StackQueue::getSiegeShooterIconID()
 {
-	return owner.siegeController->getSiegedTown()->town->faction->getIndex();
+	return owner.siegeController->getSiegedTown()->getFactionID().getNum();
 }
 
 std::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
@@ -1098,7 +1100,8 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 		if(currentTurn && !owner->embedded)
 		{
 			std::string tmp = std::to_string(*currentTurn);
-			int len = graphics->fonts[FONT_SMALL]->getStringWidth(tmp);
+			const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+			int len = font->getStringWidth(tmp);
 			roundRect->pos.w = len + 6;
 			round->setText(tmp);
 		}

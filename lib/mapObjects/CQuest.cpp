@@ -16,9 +16,9 @@
 #include "../ArtifactUtils.h"
 #include "../CSoundBase.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../CHeroHandler.h"
 #include "CGCreature.h"
 #include "../IGameCallback.h"
+#include "../entities/hero/CHeroHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../GameConstants.h"
@@ -152,7 +152,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 		}
 		else
 		{
-			const auto * assembly = h->getAssemblyByConstituent(elem);
+			const auto * assembly = h->getCombinedArtWithPart(elem);
 			assert(assembly);
 			auto parts = assembly->getPartsInfo();
 
@@ -431,7 +431,7 @@ void CGSeerHut::setObjToKill()
 	
 	if(getCreatureToKill(true))
 	{
-		quest->stackToKill = getCreatureToKill(false)->getCreature();
+		quest->stackToKill = getCreatureToKill(false)->getCreatureID();
 		assert(quest->stackToKill != CreatureID::NONE);
 		quest->stackDirection = checkDirection();
 	}
@@ -588,7 +588,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 			AddQuest aq;
 			aq.quest = QuestInfo (quest, this, visitablePos());
 			aq.player = h->tempOwner;
-			cb->sendAndApply(&aq); //TODO: merge with setObjProperty?
+			cb->sendAndApply(aq); //TODO: merge with setObjProperty?
 		}
 
 		if(firstVisit || failRequirements)
@@ -614,7 +614,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 
 int CGSeerHut::checkDirection() const
 {
-	int3 cord = getCreatureToKill(false)->pos;
+	int3 cord = getCreatureToKill(false)->visitablePos();
 	if(static_cast<double>(cord.x) / static_cast<double>(cb->getMapSize().x) < 0.34) //north
 	{
 		if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.34) //northwest
@@ -811,7 +811,7 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 		cow.mode = ChangeObjectVisitors::VISITOR_GLOBAL;
 		cow.hero = h->id;
 		cow.object = id;
-		cb->sendAndApply(&cow);
+		cb->sendAndApply(cow);
 		txt_id=19;
 	}
 	else
@@ -860,7 +860,7 @@ void CGBorderGuard::onHeroVisit(const CGHeroInstance * h) const
 		AddQuest aq;
 		aq.quest = QuestInfo (quest, this, visitablePos());
 		aq.player = h->tempOwner;
-		cb->sendAndApply (&aq);
+		cb->sendAndApply(aq);
 		//TODO: add this quest only once OR check for multiple instances later
 	}
 }
@@ -885,7 +885,7 @@ void CGBorderGate::onHeroVisit(const CGHeroInstance * h) const //TODO: passabili
 		AddQuest aq;
 		aq.quest = QuestInfo (quest, this, visitablePos());
 		aq.player = h->tempOwner;
-		cb->sendAndApply (&aq);
+		cb->sendAndApply(aq);
 	}
 }
 

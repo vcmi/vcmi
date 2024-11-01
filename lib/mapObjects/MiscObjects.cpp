@@ -111,7 +111,7 @@ void CGMine::initObj(vstd::RNG & rand)
 		}
 		else
 		{
-			logGlobal->error("Abandoned mine at (%s) has no valid resource candidates!", pos.toString());
+			logGlobal->error("Abandoned mine at (%s) has no valid resource candidates!", anchorPos().toString());
 			producedResource = GameResID::GOLD;
 		}
 	}
@@ -510,11 +510,11 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 
 		if(cb->isTeleportChannelImpassable(channel))
 		{
-			logGlobal->debug("Cannot find corresponding exit monolith for %d at %s", id.getNum(), pos.toString());
+			logGlobal->debug("Cannot find corresponding exit monolith for %d at %s", id.getNum(), anchorPos().toString());
 			td.impassable = true;
 		}
 		else if(getRandomExit(h) == ObjectInstanceID())
-			logGlobal->debug("All exits blocked for monolith %d at %s", id.getNum(), pos.toString());
+			logGlobal->debug("All exits blocked for monolith %d at %s", id.getNum(), anchorPos().toString());
 	}
 	else
 		h->showInfoDialog(70);
@@ -574,7 +574,7 @@ void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
 	if(cb->isTeleportChannelImpassable(channel))
 	{
 		h->showInfoDialog(153);//Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
-		logGlobal->debug("Cannot find exit subterranean gate for  %d at %s", id.getNum(), pos.toString());
+		logGlobal->debug("Cannot find exit subterranean gate for  %d at %s", id.getNum(), anchorPos().toString());
 		td.impassable = true;
 	}
 	else
@@ -602,13 +602,13 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 
 		auto * hlp = dynamic_cast<CGSubterraneanGate *>(cb->gameState()->getObjInstance(obj->id));
 		if(hlp)
-			gatesSplit[hlp->pos.z].push_back(hlp);
+			gatesSplit[hlp->visitablePos().z].push_back(hlp);
 	}
 
 	//sort by position
 	std::sort(gatesSplit[0].begin(), gatesSplit[0].end(), [](const CGObjectInstance * a, const CGObjectInstance * b)
 	{
-		return a->pos < b->pos;
+		return a->visitablePos() < b->visitablePos();
 	});
 
 	auto assignToChannel = [&](CGSubterraneanGate * obj)
@@ -631,7 +631,7 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 			CGSubterraneanGate *checked = gatesSplit[1][j];
 			if(checked->channel != TeleportChannelID())
 				continue;
-			si32 hlp = checked->pos.dist2dSQ(objCurrent->pos);
+			si32 hlp = checked->visitablePos().dist2dSQ(objCurrent->visitablePos());
 			if(hlp < best.second)
 			{
 				best.first = j;
@@ -657,11 +657,11 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 	TeleportDialog td(h->id, channel);
 	if(cb->isTeleportChannelImpassable(channel))
 	{
-		logGlobal->debug("Cannot find exit whirlpool for %d at %s", id.getNum(), pos.toString());
+		logGlobal->debug("Cannot find exit whirlpool for %d at %s", id.getNum(), anchorPos().toString());
 		td.impassable = true;
 	}
 	else if(getRandomExit(h) == ObjectInstanceID())
-		logGlobal->debug("All exits are blocked for whirlpool  %d at %s", id.getNum(), pos.toString());
+		logGlobal->debug("All exits are blocked for whirlpool  %d at %s", id.getNum(), anchorPos().toString());
 
 	if(!isProtected(h))
 	{
@@ -772,9 +772,8 @@ void CGArtifact::initObj(vstd::RNG & rand)
 	{
 		if (!storedArtifact)
 		{
-			auto * a = new CArtifactInstance();
-			cb->gameState()->map->addNewArtifactInstance(a);
-			storedArtifact = a;
+			storedArtifact = ArtifactUtils::createArtifact(ArtifactID());
+			cb->gameState()->map->addNewArtifactInstance(storedArtifact);
 		}
 		if(!storedArtifact->artType)
 			storedArtifact->setType(getArtifact().toArtifact());
@@ -901,7 +900,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 
 void CGArtifact::pick(const CGHeroInstance * h) const
 {
-	if(cb->putArtifact(ArtifactLocation(h->id, ArtifactPosition::FIRST_AVAILABLE), storedArtifact))
+	if(cb->putArtifact(ArtifactLocation(h->id, ArtifactPosition::FIRST_AVAILABLE), storedArtifact->getId()))
 		cb->removeObject(this, h->getOwner());
 }
 
@@ -1087,15 +1086,15 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 
 			for(const auto & eye : eyes)
 			{
-				cb->getTilesInRange (fw.tiles, eye->pos, 10, ETileVisibility::HIDDEN, h->tempOwner);
-				cb->sendAndApply(&fw);
-				cv.pos = eye->pos;
+				cb->getTilesInRange (fw.tiles, eye->visitablePos(), 10, ETileVisibility::HIDDEN, h->tempOwner);
+				cb->sendAndApply(fw);
+				cv.pos = eye->visitablePos();
 
-				cb->sendAndApply(&cv);
+				cb->sendAndApply(cv);
 			}
 			cv.pos = h->visitablePos();
 			cv.focusTime = 0;
-			cb->sendAndApply(&cv);
+			cb->sendAndApply(cv);
 		}
 	}
 	else if (ID == Obj::EYE_OF_MAGI)
@@ -1259,7 +1258,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 	if(!wasVisited(team))
 	{
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 96);
-		cb->sendAndApply(&iw);
+		cb->sendAndApply(iw);
 
 		// increment general visited obelisks counter
 		cb->setObjPropertyID(id, ObjProperty::OBELISK_VISITED, team);
@@ -1274,7 +1273,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 	else
 	{
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 97);
-		cb->sendAndApply(&iw);
+		cb->sendAndApply(iw);
 	}
 
 }
@@ -1312,75 +1311,6 @@ void CGObelisk::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	}
 }
 
-const IOwnableObject * CGLighthouse::asOwnable() const
-{
-	return this;
-}
-
-ResourceSet CGLighthouse::dailyIncome() const
-{
-	return {};
-}
-
-std::vector<CreatureID> CGLighthouse::providedCreatures() const
-{
-	return {};
-}
-
-void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
-{
-	if(h->tempOwner != tempOwner)
-	{
-		PlayerColor oldOwner = tempOwner;
-		cb->setOwner(this,h->tempOwner); //not ours? flag it!
-		h->showInfoDialog(69);
-		giveBonusTo(h->tempOwner);
-
-		if(oldOwner.isValidPlayer()) //remove bonus from old owner
-		{
-			RemoveBonus rb(GiveBonus::ETarget::PLAYER);
-			rb.whoID = oldOwner;
-			rb.source = BonusSource::OBJECT_INSTANCE;
-			rb.id = BonusSourceID(id);
-			cb->sendAndApply(&rb);
-		}
-	}
-}
-
-void CGLighthouse::initObj(vstd::RNG & rand)
-{
-	if(tempOwner.isValidPlayer())
-	{
-		// FIXME: This is dirty hack
-		giveBonusTo(tempOwner, true);
-	}
-}
-
-void CGLighthouse::giveBonusTo(const PlayerColor & player, bool onInit) const
-{
-	GiveBonus gb(GiveBonus::ETarget::PLAYER);
-	gb.bonus.type = BonusType::MOVEMENT;
-	gb.bonus.val = 500;
-	gb.id = player;
-	gb.bonus.duration = BonusDuration::PERMANENT;
-	gb.bonus.source = BonusSource::OBJECT_INSTANCE;
-	gb.bonus.sid = BonusSourceID(id);
-	gb.bonus.subtype = BonusCustomSubtype::heroMovementSea;
-
-	// FIXME: This is really dirty hack
-	// Proper fix would be to make CGLighthouse into bonus system node
-	// Unfortunately this will cause saves breakage
-	if(onInit)
-		gb.applyGs(cb->gameState());
-	else
-		cb->sendAndApply(&gb);
-}
-
-void CGLighthouse::serializeJsonOptions(JsonSerializeFormat& handler)
-{
-	serializeJsonOwner(handler);
-}
-
 void HillFort::onHeroVisit(const CGHeroInstance * h) const
 {
 	cb->showObjectWindow(this, EOpenWindowMode::HILL_FORT_WINDOW, h, false);
@@ -1401,6 +1331,32 @@ void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) 
 		info.newID.push_back(nid);
 		info.cost.push_back((nid.toCreature()->getFullRecruitCost() - stack.type->getFullRecruitCost()) * costModifier / 100);
 	}
+}
+
+std::string HillFort::getPopupText(PlayerColor player) const
+{
+	MetaString message = MetaString::createFromRawString("{%s}\r\n\r\n%s");
+
+	message.replaceName(ID);
+	message.replaceTextID(getDescriptionToolTip());
+
+	return message.toString();
+}
+
+std::string HillFort::getPopupText(const CGHeroInstance * hero) const
+{
+	return getPopupText(hero->getOwner());
+}
+
+
+std::string HillFort::getDescriptionToolTip() const
+{
+	return TextIdentifier(getObjectHandler()->getBaseTextID(), "description").get();
+}
+
+std::string HillFort::getUnavailableUpgradeMessage() const
+{
+	return TextIdentifier(getObjectHandler()->getBaseTextID(), "unavailableUpgradeMessage").get();
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -24,7 +24,7 @@ VisitQuery::VisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const
 	addPlayer(Hero->tempOwner);
 }
 
-bool VisitQuery::blocksPack(const CPack * pack) const
+bool VisitQuery::blocksPack(const CPackForServer * pack) const
 {
 	//During the visit itself ALL actions are blocked.
 	//(However, the visit may trigger a query above that'll pass some.)
@@ -50,7 +50,6 @@ void MapObjectVisitQuery::onRemoval(PlayerColor color)
 {
 	gh->objectVisitEnded(visitingHero, players.front());
 
-	//TODO or should it be destructor?
 	//Can object visit affect 2 players and what would be desired behavior?
 	if(removeObjectAfterVisit)
 		gh->removeObject(visitedObject, color);
@@ -78,7 +77,7 @@ void TownBuildingVisitQuery::onAdded(PlayerColor color)
 	while (!visitedBuilding.empty() && owner->topQuery(color).get() == this)
 	{
 		visitingHero = visitedBuilding.back().hero;
-		auto * building = visitedTown->rewardableBuildings.at(visitedBuilding.back().building);
+		const auto * building = visitedTown->rewardableBuildings.at(visitedBuilding.back().building);
 		building->onHeroVisit(visitingHero);
 		visitedBuilding.pop_back();
 	}

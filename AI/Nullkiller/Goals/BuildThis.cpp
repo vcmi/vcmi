@@ -23,7 +23,7 @@ BuildThis::BuildThis(BuildingID Bid, const CGTownInstance * tid)
 	: ElementarGoal(Goals::BUILD_STRUCTURE)
 {
 	buildingInfo = BuildingInfo(
-		tid->town->buildings.at(Bid),
+		tid->getTown()->buildings.at(Bid),
 		nullptr,
 		CreatureID::NONE,
 		tid,
@@ -52,7 +52,7 @@ void BuildThis::accept(AIGateway * ai)
 		if(cb->canBuildStructure(town, b) == EBuildingState::ALLOWED)
 		{
 			logAi->debug("Player %d will build %s in town of %s at %s",
-				ai->playerID, town->town->buildings.at(b)->getNameTranslated(), town->getNameTranslated(), town->pos.toString());
+				ai->playerID, town->getTown()->buildings.at(b)->getNameTranslated(), town->getNameTranslated(), town->anchorPos().toString());
 			cb->buildBuilding(town, b);
 
 			return;

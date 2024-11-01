@@ -42,7 +42,7 @@
         <translation>移除</translation>
     </message>
     <message>
-        <location filename="../mapsettings/eventsettings.cpp" line="118"/>
+        <location filename="../mapsettings/eventsettings.cpp" line="123"/>
         <source>New event</source>
         <translation>新事件</translation>
     </message>
@@ -359,7 +359,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1051"/>
-        <location filename="../mainwindow.cpp" line="822"/>
+        <location filename="../mainwindow.cpp" line="834"/>
         <source>View underground</source>
         <translation>查看地下</translation>
     </message>
@@ -441,9 +441,9 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1205"/>
-        <location filename="../mainwindow.cpp" line="1093"/>
-        <location filename="../mainwindow.cpp" line="1097"/>
-        <location filename="../mainwindow.cpp" line="1154"/>
+        <location filename="../mainwindow.cpp" line="1105"/>
+        <location filename="../mainwindow.cpp" line="1109"/>
+        <location filename="../mainwindow.cpp" line="1166"/>
         <source>Update appearance</source>
         <translation>更新外观</translation>
     </message>
@@ -594,72 +594,72 @@
         <translation>所有支持的地图类型(*.vmap *.h3m);;VCMI地图(*.vmap);;英雄无敌3地图(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="475"/>
+        <location filename="../mainwindow.cpp" line="487"/>
         <source>Save map</source>
         <translation>保存地图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="475"/>
+        <location filename="../mainwindow.cpp" line="487"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>VCMI地图(*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="664"/>
+        <location filename="../mainwindow.cpp" line="676"/>
         <source>Type</source>
         <translation>类型</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="826"/>
+        <location filename="../mainwindow.cpp" line="838"/>
         <source>View surface</source>
         <translation>查看地上</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1093"/>
+        <location filename="../mainwindow.cpp" line="1105"/>
         <source>No objects selected</source>
         <translation>未选择任何物体</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1097"/>
+        <location filename="../mainwindow.cpp" line="1109"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>此操作无法被撤销，你确定要继续么？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1154"/>
+        <location filename="../mainwindow.cpp" line="1166"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>发生错误！%1 物体未完成更新</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1194"/>
+        <location filename="../mainwindow.cpp" line="1206"/>
         <source>Save to image</source>
         <translation>保存为图片</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1213"/>
+        <location filename="../mainwindow.cpp" line="1225"/>
         <source>Select maps to convert</source>
         <translation>选择待转换的地图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1215"/>
+        <location filename="../mainwindow.cpp" line="1227"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation>英雄无敌3地图文件(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1219"/>
+        <location filename="../mainwindow.cpp" line="1231"/>
         <source>Choose directory to save converted maps</source>
         <translation>选择保存转换地图的目录</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1232"/>
+        <location filename="../mainwindow.cpp" line="1244"/>
         <source>Operation completed</source>
         <translation>操作完成</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1232"/>
+        <location filename="../mainwindow.cpp" line="1244"/>
         <source>Successfully converted %1 maps</source>
         <translation>成功转换 %1 地图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1236"/>
+        <location filename="../mainwindow.cpp" line="1248"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation>转换地图失败，操作终止</translation>
     </message>
@@ -1574,12 +1574,12 @@
         <translation>确定</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="163"/>
+        <location filename="../inspector/towneventdialog.cpp" line="170"/>
         <source>Creature level %1 / Creature level %1 Upgrade</source>
         <translation>%1级生物 / 升级后的%1级生物</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="205"/>
+        <location filename="../inspector/towneventdialog.cpp" line="212"/>
         <source>Day %1 - %2</source>
         <translation>%1 - %2 日</translation>
     </message>
@@ -1951,7 +1951,7 @@
         <translation>玩家</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="751"/>
+        <location filename="../windownewmap.ui" line="858"/>
         <source>0</source>
         <translation>0</translation>
     </message>
@@ -2050,42 +2050,62 @@
         <translation>岛屿</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="716"/>
+        <location filename="../windownewmap.ui" line="713"/>
+        <source>Roads</source>
+        <translation>道路</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="728"/>
+        <source>Dirt</source>
+        <translation>泥土</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="748"/>
+        <source>Gravel</source>
+        <translation>砂砾</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="768"/>
+        <source>Cobblestone</source>
+        <translation>鹅卵石</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="813"/>
         <source>Template</source>
         <translation>模版</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="764"/>
+        <location filename="../windownewmap.ui" line="845"/>
         <source>Custom seed</source>
         <translation>自定义种子</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="778"/>
+        <location filename="../windownewmap.ui" line="875"/>
         <source>Generate random map</source>
         <translation>生成随机地图</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="812"/>
+        <location filename="../windownewmap.ui" line="909"/>
         <source>Ok</source>
         <translation>确定</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="831"/>
+        <location filename="../windownewmap.ui" line="928"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="248"/>
+        <location filename="../windownewmap.cpp" line="256"/>
         <source>No template</source>
         <translation>缺少模版</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="248"/>
+        <location filename="../windownewmap.cpp" line="256"/>
         <source>No template for parameters specified. Random map cannot be generated.</source>
         <translation>未指定任一模版作为参数，随机地图无法生成。</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="268"/>
+        <location filename="../windownewmap.cpp" line="276"/>
         <source>RMG failure</source>
         <translation>随机地图生成失败</translation>
     </message>

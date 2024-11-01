@@ -55,10 +55,6 @@
 		"upgrades": ["stormElemental"],
 		"graphics" :
 		{
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"animation": "CAELEM.DEF"
 		},
 		"sound" :
@@ -122,10 +118,6 @@
 		"upgrades": ["magmaElemental"],
 		"graphics" :
 		{
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"animation": "CEELEM.DEF"
 		},
 		"sound" :
@@ -185,10 +177,6 @@
 		"upgrades": ["energyElemental"],
 		"graphics" :
 		{
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"animation": "CFELEM.DEF"
 		},
 		"sound" :
@@ -273,10 +261,6 @@
 		"upgrades": ["iceElemental"],
 		"graphics" :
 		{
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"animation": "CWELEM.DEF"
 		},
 		"sound" :
@@ -472,10 +456,6 @@
 		"graphics" :
 		{
 			"animation": "CICEE.DEF",
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"missile" :
 			{
 				"projectile": "PICEE.DEF"
@@ -554,10 +534,6 @@
 		},
 		"graphics" :
 		{
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"animation": "CSTONE.DEF"
 		},
 		"sound" :
@@ -635,10 +611,6 @@
 		"graphics" :
 		{
 			"animation": "CSTORM.DEF",
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"missile" :
 			{
 				"projectile": "CPRGTIX.DEF"
@@ -717,10 +689,6 @@
 		},
 		"graphics" :
 		{
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"animation": "CNRG.DEF"
 		},
 		"sound" :

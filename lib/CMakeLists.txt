@@ -87,6 +87,10 @@ set(lib_MAIN_SRCS
 	entities/faction/CFaction.cpp
 	entities/faction/CTown.cpp
 	entities/faction/CTownHandler.cpp
+	entities/hero/CHero.cpp
+	entities/hero/CHeroClass.cpp
+	entities/hero/CHeroClassHandler.cpp
+	entities/hero/CHeroHandler.cpp
 
 	events/ApplyDamage.cpp
 	events/GameResumed.cpp
@@ -112,6 +116,7 @@ set(lib_MAIN_SRCS
 	mapObjectConstructors/CommonConstructors.cpp
 	mapObjectConstructors/CRewardableConstructor.cpp
 	mapObjectConstructors/DwellingInstanceConstructor.cpp
+	mapObjectConstructors/FlaggableInstanceConstructor.cpp
 	mapObjectConstructors/HillFortInstanceConstructor.cpp
 	mapObjectConstructors/ShipyardInstanceConstructor.cpp
 
@@ -128,6 +133,7 @@ set(lib_MAIN_SRCS
 	mapObjects/CObjectHandler.cpp
 	mapObjects/CQuest.cpp
 	mapObjects/CRewardableObject.cpp
+	mapObjects/FlaggableMapObject.cpp
 	mapObjects/IMarket.cpp
 	mapObjects/IObjectInterface.cpp
 	mapObjects/MiscObjects.cpp
@@ -184,6 +190,8 @@ set(lib_MAIN_SRCS
 	rmg/TileInfo.cpp
 	rmg/Zone.cpp
 	rmg/Functions.cpp
+	rmg/ObjectInfo.cpp
+	rmg/ObjectConfig.cpp
 	rmg/RmgMap.cpp
 	rmg/PenroseTiling.cpp
 	rmg/modificators/Modificator.cpp
@@ -268,7 +276,6 @@ set(lib_MAIN_SRCS
 	CCreatureSet.cpp
 	CGameInfoCallback.cpp
 	CGameInterface.cpp
-	CHeroHandler.cpp
 	CPlayerState.cpp
 	CRandomGenerator.cpp
 	CScriptingModule.cpp
@@ -456,6 +463,11 @@ set(lib_MAIN_HEADERS
 	entities/faction/CFaction.h
 	entities/faction/CTown.h
 	entities/faction/CTownHandler.h
+	entities/hero/CHero.h
+	entities/hero/CHeroClass.h
+	entities/hero/CHeroClassHandler.h
+	entities/hero/CHeroHandler.h
+	entities/hero/EHeroGender.h
 
 	events/ApplyDamage.h
 	events/GameResumed.h
@@ -487,6 +499,7 @@ set(lib_MAIN_HEADERS
 	mapObjectConstructors/CRewardableConstructor.h
 	mapObjectConstructors/DwellingInstanceConstructor.h
 	mapObjectConstructors/HillFortInstanceConstructor.h
+	mapObjectConstructors/FlaggableInstanceConstructor.h
 	mapObjectConstructors/IObjectInfo.h
 	mapObjectConstructors/RandomMapInfo.h
 	mapObjectConstructors/ShipyardInstanceConstructor.h
@@ -505,11 +518,13 @@ set(lib_MAIN_HEADERS
 	mapObjects/CObjectHandler.h
 	mapObjects/CQuest.h
 	mapObjects/CRewardableObject.h
+	mapObjects/FlaggableMapObject.h
 	mapObjects/IMarket.h
 	mapObjects/IObjectInterface.h
 	mapObjects/IOwnableObject.h
 	mapObjects/MapObjects.h
 	mapObjects/MiscObjects.h
+	mapObjects/CompoundMapObjectID.h
 	mapObjects/ObjectTemplate.h
 	mapObjects/ObstacleSetHandler.h
 
@@ -556,6 +571,7 @@ set(lib_MAIN_HEADERS
 	networkPacks/PacksForServer.h
 	networkPacks/SetRewardableConfiguration.h
 	networkPacks/SetStackEffect.h
+	networkPacks/SaveLocalState.h
 	networkPacks/StackLocation.h
 	networkPacks/TradeItem.h
 
@@ -587,6 +603,8 @@ set(lib_MAIN_HEADERS
 	rmg/RmgMap.h
 	rmg/float3.h
 	rmg/Functions.h
+	rmg/ObjectInfo.h
+	rmg/ObjectConfig.h
 	rmg/PenroseTiling.h
 	rmg/modificators/Modificator.h
 	rmg/modificators/ObjectManager.h
@@ -677,7 +695,6 @@ set(lib_MAIN_HEADERS
 	CCreatureSet.h
 	CGameInfoCallback.h
 	CGameInterface.h
-	CHeroHandler.h
 	ConstTransitivePtr.h
 	Color.h
 	CPlayerState.h

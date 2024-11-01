@@ -182,6 +182,7 @@ public:
 
 	void hide();
 	void show();
+	void onScreenResize();
 
 	/// change cursor's positions to (x, y)
 	void cursorMove(const int & x, const int & y);

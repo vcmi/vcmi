@@ -331,7 +331,7 @@ void TownBuildingsDelegate::setEditorData(QWidget *editor, const QModelIndex &in
 {
 	if(auto * ed = qobject_cast<TownBuildingsWidget *>(editor))
 	{
-		auto * ctown = town.town;
+		auto * ctown = town.getTown();
 		if(!ctown)
 			ctown = VLC->townh->randomTown;
 		if(!ctown)

@@ -60,7 +60,7 @@ void TurnTimerHandler::sendTimerUpdate(PlayerColor player)
 	TurnTimeUpdate ttu;
 	ttu.player = player;
 	ttu.turnTimer = timers[player];
-	gameHandler.sendAndApply(&ttu);
+	gameHandler.sendAndApply(ttu);
 	lastUpdate[player] = 0;
 }
 

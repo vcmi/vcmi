@@ -111,7 +111,7 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 	if(key.repeat != 0)
 		return; // ignore periodic event resends
 
-	std::string keyName = SDL_GetKeyName(key.keysym.sym);
+	std::string keyName = getKeyNameWithModifiers(SDL_GetKeyName(key.keysym.sym));
 	logGlobal->trace("keyboard: key '%s' released", keyName);
 
 	if (SDL_IsTextInputActive() == SDL_TRUE)

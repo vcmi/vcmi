@@ -179,7 +179,7 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 			pack.battleID = battle.getBattle()->getBattleID();
 			pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 			info.save(pack.changedStacks.back().data);
-			gameHandler->sendAndApply(&pack);
+			gameHandler->sendAndApply(pack);
 		}
 	}
 
@@ -187,7 +187,7 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 	// temporary(?) workaround to force animations to trigger
 	StacksInjured fakeEvent;
 	fakeEvent.battleID = battle.getBattle()->getBattleID();
-	gameHandler->sendAndApply(&fakeEvent);
+	gameHandler->sendAndApply(fakeEvent);
 }
 
 void BattleFlowProcessor::castOpeningSpells(const CBattleInfoCallback & battle)
@@ -241,7 +241,7 @@ void BattleFlowProcessor::startNextRound(const CBattleInfoCallback & battle, boo
 	BattleNextRound bnr;
 	bnr.battleID = battle.getBattle()->getBattleID();
 	logGlobal->debug("Next round starts");
-	gameHandler->sendAndApply(&bnr);
+	gameHandler->sendAndApply(bnr);
 
 	// operate on copy - removing obstacles will invalidate iterator on 'battle' container
 	auto obstacles = battle.battleGetAllObstacles();
@@ -287,7 +287,7 @@ const CStack * BattleFlowProcessor::getNextStack(const CBattleInfoCallback & bat
 			bte.val = std::min(lostHealth, stack->valOfBonuses(BonusType::HP_REGENERATION));
 
 		if(bte.val) // anything to heal
-			gameHandler->sendAndApply(&bte);
+			gameHandler->sendAndApply(bte);
 	}
 
 	if(!next || !next->willMove())
@@ -327,7 +327,7 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 			removeGhosts.changedStacks.emplace_back(stack->unitId(), UnitChanges::EOperation::REMOVE);
 
 		if(!removeGhosts.changedStacks.empty())
-			gameHandler->sendAndApply(&removeGhosts);
+			gameHandler->sendAndApply(removeGhosts);
 
 		gameHandler->turnTimerHandler->onBattleNextStack(battle.getBattle()->getBattleID(), *next);
 
@@ -537,7 +537,7 @@ bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, con
 			bte.effect = vstd::to_underlying(BonusType::MORALE);
 			bte.val = 1;
 			bte.additionalInfo = 0;
-			gameHandler->sendAndApply(&bte); //play animation
+			gameHandler->sendAndApply(bte); //play animation
 			return true;
 		}
 	}
@@ -571,7 +571,8 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 		assert(activeStack != nullptr);
 		assert(actedStack != nullptr);
 
-		if(actedStack->castSpellThisTurn && SpellID(ba.spell).toSpell()->canCastWithoutSkip())
+		// NOTE: in case of random spellcaster, (e.g. Master Genie) spell has been selected by server and was not present in action received from player
+		if(actedStack->castSpellThisTurn && ba.spell.hasValue() && ba.spell.toSpell()->canCastWithoutSkip())
 		{
 			setActiveStack(battle, actedStack);
 			return;
@@ -620,7 +621,7 @@ bool BattleFlowProcessor::makeAutomaticAction(const CBattleInfoCallback & battle
 	bsa.battleID = battle.getBattle()->getBattleID();
 	bsa.stack = stack->unitId();
 	bsa.askPlayerInterface = false;
-	gameHandler->sendAndApply(&bsa);
+	gameHandler->sendAndApply(bsa);
 
 	bool ret = owner->makeAutomaticBattleAction(battle, ba);
 	return ret;
@@ -663,7 +664,7 @@ void BattleFlowProcessor::removeObstacle(const CBattleInfoCallback & battle, con
 	BattleObstaclesChanged obsRem;
 	obsRem.battleID = battle.getBattle()->getBattleID();
 	obsRem.changes.emplace_back(obstacle.uniqueID, ObstacleChanges::EOperation::REMOVE);
-	gameHandler->sendAndApply(&obsRem);
+	gameHandler->sendAndApply(obsRem);
 }
 
 void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, const CStack *st)
@@ -705,7 +706,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				ssp.battleID = battle.getBattle()->getBattleID();
 				ssp.which = BattleSetStackProperty::UNBIND;
 				ssp.stackID = st->unitId();
-				gameHandler->sendAndApply(&ssp);
+				gameHandler->sendAndApply(ssp);
 			}
 		}
 
@@ -718,7 +719,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				if (bte.val < b->val) //(negative) poison effect increases - update it
 				{
 					bte.effect = vstd::to_underlying(BonusType::POISON);
-					gameHandler->sendAndApply(&bte);
+					gameHandler->sendAndApply(bte);
 				}
 			}
 		}
@@ -734,7 +735,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 					bte.effect = vstd::to_underlying(BonusType::MANA_DRAIN);
 					bte.val = manaDrained;
 					bte.additionalInfo = opponentHero->id.getNum(); //for sanity
-					gameHandler->sendAndApply(&bte);
+					gameHandler->sendAndApply(bte);
 				}
 			}
 		}
@@ -754,7 +755,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				if (gameHandler->getRandomGenerator().nextInt(99) < 10) //fixed 10%
 				{
 					bte.effect = vstd::to_underlying(BonusType::FEAR);
-					gameHandler->sendAndApply(&bte);
+					gameHandler->sendAndApply(bte);
 				}
 			}
 		}
@@ -799,7 +800,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 					ssp.absolute = false;
 					ssp.val = cooldown;
 					ssp.stackID = st->unitId();
-					gameHandler->sendAndApply(&ssp);
+					gameHandler->sendAndApply(ssp);
 				}
 			}
 		}
@@ -813,5 +814,5 @@ void BattleFlowProcessor::setActiveStack(const CBattleInfoCallback & battle, con
 	BattleSetActiveStack sas;
 	sas.battleID = battle.getBattle()->getBattleID();
 	sas.stack = stack->unitId();
-	gameHandler->sendAndApply(&sas);
+	gameHandler->sendAndApply(sas);
 }

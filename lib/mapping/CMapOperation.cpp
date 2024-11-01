@@ -615,7 +615,7 @@ std::string CInsertObjectOperation::getLabel() const
 CMoveObjectOperation::CMoveObjectOperation(CMap* map, CGObjectInstance* obj, const int3& targetPosition)
 	: CMapOperation(map),
 	obj(obj),
-	initialPos(obj->pos),
+	initialPos(obj->anchorPos()),
 	targetPos(targetPosition)
 {
 }

@@ -81,7 +81,7 @@ void CQuery::onRemoval(PlayerColor color)
 
 }
 
-bool CQuery::blocksPack(const CPack * pack) const
+bool CQuery::blocksPack(const CPackForServer * pack) const
 {
 	return false;
 }
@@ -112,7 +112,7 @@ void CQuery::setReply(std::optional<int32_t> reply)
 
 }
 
-bool CQuery::blockAllButReply(const CPack * pack) const
+bool CQuery::blockAllButReply(const CPackForServer * pack) const
 {
 	//We accept only query replies from correct player
 	if(auto reply = dynamic_cast<const QueryReply*>(pack))
@@ -132,7 +132,7 @@ bool CDialogQuery::endsByPlayerAnswer() const
 	return true;
 }
 
-bool CDialogQuery::blocksPack(const CPack * pack) const
+bool CDialogQuery::blocksPack(const CPackForServer * pack) const
 {
 	return blockAllButReply(pack);
 }
@@ -149,7 +149,7 @@ CGenericQuery::CGenericQuery(CGameHandler * gh, PlayerColor color, std::function
 	addPlayer(color);
 }
 
-bool CGenericQuery::blocksPack(const CPack * pack) const
+bool CGenericQuery::blocksPack(const CPackForServer * pack) const
 {
 	return blockAllButReply(pack);
 }

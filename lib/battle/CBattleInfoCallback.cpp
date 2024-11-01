@@ -17,6 +17,7 @@
 #include "BattleInfo.h"
 #include "CObstacleInstance.h"
 #include "DamageCalculator.h"
+#include "IGameSettings.h"
 #include "PossiblePlayerBattleAction.h"
 #include "../entities/building/TownFortifications.h"
 #include "../spells/ObstacleCasterProxy.h"
@@ -725,18 +726,49 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker) const
 			|| attacker->hasBonusOfType(BonusType::FREE_SHOOTING));
 }
 
+bool CBattleInfoCallback::battleCanTargetEmptyHex(const battle::Unit * attacker) const
+{
+	RETURN_IF_NOT_BATTLE(false);
+
+	if(!VLC->engineSettings()->getBoolean(EGameSettings::COMBAT_AREA_SHOT_CAN_TARGET_EMPTY_HEX))
+		return false;
+
+	if(attacker->hasBonusOfType(BonusType::SPELL_LIKE_ATTACK))
+	{
+		auto bonus = attacker->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
+		const CSpell * spell = bonus->subtype.as<SpellID>().toSpell();
+		spells::BattleCast cast(this, attacker, spells::Mode::SPELL_LIKE_ATTACK, spell);
+		BattleHex dummySpellTarget = BattleHex(50); //check arbitrary hex for general spell range since currently there is no general way to access amount of hexes
+
+		if(spell->battleMechanics(&cast)->rangeInHexes(dummySpellTarget).size() > 1)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHex dest) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 
 	const battle::Unit * defender = battleGetUnitByPos(dest);
-	if(!attacker || !defender)
+	if(!attacker)
 		return false;
 
-	if(defender->hasBonusOfType(BonusType::INVINCIBLE))
-		return false;
+	bool emptyHexAreaAttack = battleCanTargetEmptyHex(attacker);
 
-	if(battleMatchOwner(attacker, defender) && defender->alive())
+	if(!emptyHexAreaAttack)
+	{
+		if(!defender)
+			return false;
+
+		if(defender->hasBonusOfType(BonusType::INVINCIBLE))
+			return false;
+	}
+
+	if(emptyHexAreaAttack || (battleMatchOwner(attacker, defender) && defender->alive()))
 	{
 		if(battleCanShoot(attacker))
 		{
@@ -747,7 +779,11 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHe
 			}
 
 			int shootingRange = limitedRangeBonus->val;
-			return isEnemyUnitWithinSpecifiedRange(attacker->getPosition(), defender, shootingRange);
+
+			if(defender)
+				return isEnemyUnitWithinSpecifiedRange(attacker->getPosition(), defender, shootingRange);
+			else
+				return isHexWithinSpecifiedRange(attacker->getPosition(), dest, shootingRange);
 		}
 	}
 
@@ -794,7 +830,7 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 	if (!bai.defender->ableToRetaliate())
 		return ret;
 
-	if (bai.attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION))
+	if (bai.attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION) || bai.attacker->hasBonusOfType(BonusType::INVINCIBLE))
 		return ret;
 
 	//TODO: rewrite using boost::numeric::interval
@@ -891,7 +927,7 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 				bocp.battleID = getBattle()->getBattleID();
 				bocp.changes.emplace_back(spellObstacle.uniqueID, operation);
 				changedObstacle.toInfo(bocp.changes.back(), operation);
-				spellEnv.apply(&bocp);
+				spellEnv.apply(bocp);
 			};
 			const auto side = unit.unitSide();
 			auto shouldReveal = !spellObstacle->hidden || !battleIsObstacleVisibleForSide(*obstacle, side);
@@ -1356,7 +1392,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 				at.friendlyCreaturePositions.insert(tile);
 		}
 	}
-	else if(attacker->hasBonusOfType(BonusType::TWO_HEX_ATTACK_BREATH))
+	else if(attacker->hasBonusOfType(BonusType::TWO_HEX_ATTACK_BREATH) || attacker->hasBonusOfType(BonusType::PRISM_HEX_ATTACK_BREATH))
 	{
 		auto direction = BattleHex::mutualPosition(attackOriginHex, destinationTile);
 		
@@ -1368,27 +1404,39 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 			direction = BattleHex::mutualPosition(attackOriginHex, defender->occupiedHex(defenderPos));
 		}
 
-		if(direction != BattleHex::NONE) //only adjacent hexes are subject of dragon breath calculation
+		for(int i = 0; i < 3; i++)
 		{
-			BattleHex nextHex = destinationTile.cloneInDirection(direction, false);
-
-			if ( defender->doubleWide() )
+			if(direction != BattleHex::NONE) //only adjacent hexes are subject of dragon breath calculation
 			{
-				auto secondHex = destinationTile == defenderPos ? defender->occupiedHex(defenderPos) : defenderPos;
+				BattleHex nextHex = destinationTile.cloneInDirection(direction, false);
 
-				// if targeted double-wide creature is attacked from above or below ( -> second hex is also adjacent to attack origin)
-				// then dragon breath should target tile on the opposite side of targeted creature
-				if(BattleHex::mutualPosition(attackOriginHex, secondHex) != BattleHex::NONE)
-					nextHex = secondHex.cloneInDirection(direction, false);
+				if ( defender->doubleWide() )
+				{
+					auto secondHex = destinationTile == defenderPos ? defender->occupiedHex(defenderPos) : defenderPos;
+
+					// if targeted double-wide creature is attacked from above or below ( -> second hex is also adjacent to attack origin)
+					// then dragon breath should target tile on the opposite side of targeted creature
+					if(BattleHex::mutualPosition(attackOriginHex, secondHex) != BattleHex::NONE)
+						nextHex = secondHex.cloneInDirection(direction, false);
+				}
+
+				if (nextHex.isValid())
+				{
+					//friendly stacks can also be damaged by Dragon Breath
+					const auto * st = battleGetUnitByPos(nextHex, true);
+					if(st != nullptr)
+						at.friendlyCreaturePositions.insert(nextHex);
+				}
 			}
 
-			if (nextHex.isValid())
-			{
-				//friendly stacks can also be damaged by Dragon Breath
-				const auto * st = battleGetUnitByPos(nextHex, true);
-				if(st != nullptr)
-					at.friendlyCreaturePositions.insert(nextHex);
-			}
+			if(!attacker->hasBonusOfType(BonusType::PRISM_HEX_ATTACK_BREATH))
+				break;
+
+			// only needed for prism
+			int tmpDirection = static_cast<int>(direction) + 2;
+			if(tmpDirection > static_cast<int>(BattleHex::EDir::LEFT))
+				tmpDirection -= static_cast<int>(BattleHex::EDir::TOP);
+			direction = static_cast<BattleHex::EDir>(tmpDirection);
 		}
 	}
 	return at;
@@ -1590,6 +1638,14 @@ bool CBattleInfoCallback::isEnemyUnitWithinSpecifiedRange(BattleHex attackerPosi
 		if(BattleHex::getDistance(attackerPosition, hex) <= range)
 			return true;
 	
+	return false;
+}
+
+bool CBattleInfoCallback::isHexWithinSpecifiedRange(BattleHex attackerPosition, BattleHex targetPosition, unsigned int range) const
+{
+	if(BattleHex::getDistance(attackerPosition, targetPosition) <= range)
+		return true;
+
 	return false;
 }
 

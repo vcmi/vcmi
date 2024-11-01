@@ -65,10 +65,10 @@ void Dispel::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 	}
 
 	if(!sse.toRemove.empty())
-		server->apply(&sse);
+		server->apply(sse);
 
 	if(describe && !blm.lines.empty())
-		server->apply(&blm);
+		server->apply(blm);
 }
 
 bool Dispel::isValidTarget(const Mechanics * m, const battle::Unit * unit) const

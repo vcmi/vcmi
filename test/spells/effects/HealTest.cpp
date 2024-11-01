@@ -375,8 +375,8 @@ TEST_P(HealApplyTest, DISABLED_Heals)
 
 	EXPECT_CALL(actualCaster, getCasterUnitId()).WillRepeatedly(Return(-1));
 
-	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged *>(_))).Times(1);
-	EXPECT_CALL(serverMock, apply(Matcher<BattleLogMessage *>(_))).Times(AtLeast(1));
+	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<BattleLogMessage &>(_))).Times(AtLeast(1));
 
 	setupDefaultRNG();
 

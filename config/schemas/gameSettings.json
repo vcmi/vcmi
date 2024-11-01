@@ -51,8 +51,12 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"buildingsPerTurnCap"  :    { "type" : "number" },
-				"startingDwellingChances" : { "type" : "array" }
+				"buildingsPerTurnCap"  :                 { "type" : "number" },
+				"startingDwellingChances" :              { "type" : "array" },
+				"spellResearch" :                        { "type" : "boolean" },
+				"spellResearchCost" :                    { "type" : "array" },
+				"spellResearchPerDay" :                  { "type" : "array" },
+				"spellResearchCostExponentPerResearch" : { "type" : "array" }
 			}
 		},
 		"combat": {
@@ -69,7 +73,8 @@
 				"defensePointDamageFactor" :    { "type" : "number" },
 				"defensePointDamageFactorCap" : { "type" : "number" },
 				"oneHexTriggersObstacles" :     { "type" : "boolean" },
-				"layouts" :                     { "type" : "object" }
+				"layouts" :                     { "type" : "object" },
+				"areaShotCanTargetEmptyHex" :   { "type" : "boolean" }
 			}
 		},
 		"creatures": {
@@ -147,5 +152,12 @@
 				"perHero" : { "type" : "object" }
 			}
 		},
+		"interface": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"playerColoredBackground" : { "type" : "object" }
+			}
+		}
 	}
 }

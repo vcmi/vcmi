@@ -83,12 +83,23 @@ private slots:
 	void on_sliderToleranceDistanceController_valueChanged(int value);
 	void on_lineEditGameLobbyHost_textChanged(const QString &arg1);
 	void on_spinBoxNetworkPortLobby_valueChanged(int arg1);
-
 	void on_sliderControllerSticksAcceleration_valueChanged(int value);
-
 	void on_sliderControllerSticksSensitivity_valueChanged(int value);
+	void on_sliderScalingFont_valueChanged(int value);
+	void on_buttonFontAuto_clicked(bool checked);
+	void on_buttonFontScalable_clicked(bool checked);
+	void on_buttonFontOriginal_clicked(bool checked);
 
-	void on_buttonTtfFont_toggled(bool value);
+
+	void on_buttonValidationOff_clicked(bool checked);
+
+	void on_buttonValidationBasic_clicked(bool checked);
+
+	void on_buttonValidationFull_clicked(bool checked);
+
+	void on_sliderScalingCursor_valueChanged(int value);
+
+	void on_buttonScalingAuto_toggled(bool checked);
 
 private:
 	Ui::CSettingsView * ui;

@@ -82,7 +82,7 @@ public:
 	MOCK_CONST_METHOD1(willMove, bool(int));
 	MOCK_CONST_METHOD1(waited, bool(int));
 
-	MOCK_CONST_METHOD0(getFaction, FactionID());
+	MOCK_CONST_METHOD0(getFactionID, FactionID());
 
 	MOCK_CONST_METHOD1(battleQueuePhase, battle::BattlePhases::Type(int));
 

@@ -51,6 +51,7 @@ public:
 	virtual void clickCancel(const Point & cursorPosition) {}
 	virtual void showPopupWindow(const Point & cursorPosition) {}
 	virtual void clickDouble(const Point & cursorPosition) {}
+	virtual void notFocusedClick() {};
 
 	/// Called when user pans screen by specified distance
 	virtual void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) {}

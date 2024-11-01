@@ -17,7 +17,6 @@
 #include "../spells/CSpellHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
-#include "../CHeroHandler.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStack.h"
@@ -300,15 +299,15 @@ ILimiter::EDecision FactionLimiter::limit(const BonusLimitationContext &context)
 	if(bearer)
 	{
 		if(faction != FactionID::DEFAULT)
-			return bearer->getFaction() == faction ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+			return bearer->getFactionID() == faction ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 
 		switch(context.b.source)
 		{
 			case BonusSource::CREATURE_ABILITY:
-				return bearer->getFaction() == context.b.sid.as<CreatureID>().toCreature()->getFaction() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+				return bearer->getFactionID() == context.b.sid.as<CreatureID>().toCreature()->getFactionID() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 			
 			case BonusSource::TOWN_STRUCTURE:
-				return bearer->getFaction() == context.b.sid.as<BuildingTypeUniqueID>().getFaction() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+				return bearer->getFactionID() == context.b.sid.as<BuildingTypeUniqueID>().getFaction() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 
 			//TODO: other sources of bonuses
 		}

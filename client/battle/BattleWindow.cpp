@@ -538,7 +538,7 @@ void BattleWindow::tacticPhaseEnded()
 
 void BattleWindow::bOptionsf()
 {
-	if (owner.actionsController->spellcastingModeActive())
+	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
 
 	CCS->curh->set(Cursor::Map::POINTER);
@@ -548,7 +548,7 @@ void BattleWindow::bOptionsf()
 
 void BattleWindow::bSurrenderf()
 {
-	if (owner.actionsController->spellcastingModeActive())
+	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
 
 	int cost = owner.getBattle()->battleGetSurrenderCost();
@@ -568,7 +568,7 @@ void BattleWindow::bSurrenderf()
 
 void BattleWindow::bFleef()
 {
-	if (owner.actionsController->spellcastingModeActive())
+	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
 
 	if ( owner.getBattle()->battleCanFlee() )
@@ -675,7 +675,7 @@ void BattleWindow::setAlternativeActions(const std::list<PossiblePlayerBattleAct
 
 void BattleWindow::bAutofightf()
 {
-	if (owner.actionsController->spellcastingModeActive())
+	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
 
 	if(settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman)
@@ -712,7 +712,7 @@ void BattleWindow::bAutofightf()
 
 void BattleWindow::bSpellf()
 {
-	if (owner.actionsController->spellcastingModeActive())
+	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
 
 	if (!owner.makingTurn())
@@ -743,7 +743,7 @@ void BattleWindow::bSpellf()
 			const auto artID = blockingBonus->sid.as<ArtifactID>();
 			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
 			//TODO check who *really* is source of bonus
-			std::string heroName = myHero->hasArt(artID) ? myHero->getNameTranslated() : owner.enemyHero().name;
+			std::string heroName = myHero->hasArt(artID, true) ? myHero->getNameTranslated() : owner.enemyHero().name;
 
 			//%s wields the %s, an ancient artifact which creates a p dead to all magic.
 			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[683])
@@ -785,7 +785,7 @@ void BattleWindow::bSwitchActionf()
 
 void BattleWindow::bWaitf()
 {
-	if (owner.actionsController->spellcastingModeActive())
+	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
 
 	if (owner.stacksController->getActiveStack() != nullptr)
@@ -794,7 +794,7 @@ void BattleWindow::bWaitf()
 
 void BattleWindow::bDefencef()
 {
-	if (owner.actionsController->spellcastingModeActive())
+	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
 
 	if (owner.stacksController->getActiveStack() != nullptr)
@@ -803,7 +803,7 @@ void BattleWindow::bDefencef()
 
 void BattleWindow::bConsoleUpf()
 {
-	if (owner.actionsController->spellcastingModeActive())
+	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
 
 	console->scrollUp();
@@ -811,7 +811,7 @@ void BattleWindow::bConsoleUpf()
 
 void BattleWindow::bConsoleDownf()
 {
-	if (owner.actionsController->spellcastingModeActive())
+	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
 
 	console->scrollDown();
@@ -851,8 +851,8 @@ void BattleWindow::blockUI(bool on)
 	setShortcutBlocked(EShortcut::BATTLE_WAIT, on || owner.tacticsMode || !canWait);
 	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_SELECT_ACTION, on || owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, (settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman) ? on || owner.tacticsMode || owner.actionsController->spellcastingModeActive() : owner.actionsController->spellcastingModeActive());
-	setShortcutBlocked(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, on || owner.tacticsMode || !onlyOnePlayerHuman || owner.actionsController->spellcastingModeActive());
+	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, (settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman) ? on || owner.tacticsMode || owner.actionsController->heroSpellcastingModeActive() : owner.actionsController->heroSpellcastingModeActive());
+	setShortcutBlocked(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, on || owner.tacticsMode || !onlyOnePlayerHuman || owner.actionsController->heroSpellcastingModeActive());
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on || !owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on || !owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !owner.tacticsMode);

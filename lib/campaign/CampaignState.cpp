@@ -37,8 +37,11 @@ CampaignRegions::RegionDescription CampaignRegions::RegionDescription::fromJson(
 {
 	CampaignRegions::RegionDescription rd;
 	rd.infix = node["infix"].String();
-	rd.xpos = static_cast<int>(node["x"].Float());
-	rd.ypos = static_cast<int>(node["y"].Float());
+	rd.pos = Point(static_cast<int>(node["x"].Float()), static_cast<int>(node["y"].Float()));
+	if(!node["labelPos"].isNull())
+		rd.labelPos = Point(static_cast<int>(node["labelPos"]["x"].Float()), static_cast<int>(node["labelPos"]["y"].Float()));
+	else
+		rd.labelPos = std::nullopt;
 	return rd;
 }
 
@@ -80,7 +83,13 @@ ImagePath CampaignRegions::getBackgroundName() const
 Point CampaignRegions::getPosition(CampaignScenarioID which) const
 {
 	auto const & region = regions[which.getNum()];
-	return Point(region.xpos, region.ypos);
+	return region.pos;
+}
+
+std::optional<Point> CampaignRegions::getLabelPosition(CampaignScenarioID which) const
+{
+	auto const & region = regions[which.getNum()];
+	return region.labelPos;
 }
 
 ImagePath CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, std::string type) const
@@ -342,14 +351,14 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 	{
 		JsonNode node = CampaignState::crossoverSerialize(hero);
 
-		if (reservedHeroes.count(hero->getHeroType()))
+		if (reservedHeroes.count(hero->getHeroTypeID()))
 		{
-			logGlobal->info("Hero crossover: %d (%s) exported to global pool", hero->getHeroType(), hero->getNameTranslated());
-			globalHeroPool[hero->getHeroType()] = node;
+			logGlobal->info("Hero crossover: %d (%s) exported to global pool", hero->getHeroTypeID(), hero->getNameTranslated());
+			globalHeroPool[hero->getHeroTypeID()] = node;
 		}
 		else
 		{
-			logGlobal->info("Hero crossover: %d (%s) exported to scenario pool", hero->getHeroType(), hero->getNameTranslated());
+			logGlobal->info("Hero crossover: %d (%s) exported to scenario pool", hero->getHeroTypeID(), hero->getNameTranslated());
 			scenarioHeroPool[*currentMap].push_back(node);
 		}
 	}

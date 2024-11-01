@@ -95,10 +95,10 @@ set(vcmiclientcommon_SRCS
 	render/ImageLocator.cpp
 
 	renderSDL/CBitmapFont.cpp
-	renderSDL/CBitmapHanFont.cpp
 	renderSDL/CTrueTypeFont.cpp
 	renderSDL/CursorHardware.cpp
 	renderSDL/CursorSoftware.cpp
+	renderSDL/FontChain.cpp
 	renderSDL/ImageScaled.cpp
 	renderSDL/RenderHandler.cpp
 	renderSDL/SDLImage.cpp
@@ -116,8 +116,8 @@ set(vcmiclientcommon_SRCS
 	globalLobby/GlobalLobbyWindow.cpp
 
 	widgets/Buttons.cpp
-	widgets/CArtPlace.cpp
 	widgets/CComponent.cpp
+	widgets/CComponentHolder.cpp
 	widgets/CExchangeController.cpp
 	widgets/CGarrisonInt.cpp
 	widgets/CreatureCostBox.cpp
@@ -303,10 +303,10 @@ set(vcmiclientcommon_HEADERS
 	render/IScreenHandler.h
 
 	renderSDL/CBitmapFont.h
-	renderSDL/CBitmapHanFont.h
 	renderSDL/CTrueTypeFont.h
 	renderSDL/CursorHardware.h
 	renderSDL/CursorSoftware.h
+	renderSDL/FontChain.h
 	renderSDL/ImageScaled.h
 	renderSDL/RenderHandler.h
 	renderSDL/SDLImage.h
@@ -327,8 +327,8 @@ set(vcmiclientcommon_HEADERS
 	globalLobby/GlobalLobbyWindow.h
 
 	widgets/Buttons.h
-	widgets/CArtPlace.h
 	widgets/CComponent.h
+	widgets/CComponentHolder.h
 	widgets/CExchangeController.h
 	widgets/CGarrisonInt.h
 	widgets/CreatureCostBox.h

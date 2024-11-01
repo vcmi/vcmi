@@ -19,6 +19,7 @@
 #include "../gui/Shortcut.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/ComboBox.h"
 #include "../widgets/Buttons.h"
@@ -284,7 +285,7 @@ EFonts InterfaceObjectConfigurable::readFont(const JsonNode & config) const
 			return EFonts::FONT_CALLI;
 	}
 	logGlobal->debug("Unknown font attribute");
-	return EFonts::FONT_TIMES;
+	return EFonts::FONT_MEDIUM;
 }
 
 std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(const JsonNode & config) const
@@ -357,8 +358,9 @@ std::shared_ptr<CMultiLineLabel> InterfaceObjectConfigurable::buildMultiLineLabe
 	auto color = readColor(config["color"]);
 	auto text = readText(config["text"]);
 	Rect rect = readRect(config["rect"]);
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
 	if(!config["adoptHeight"].isNull() && config["adoptHeight"].Bool())
-		rect.h = graphics->fonts[font]->getLineHeight() * 2;
+		rect.h = fontPtr->getLineHeight() * 2;
 	return std::make_shared<CMultiLineLabel>(rect, font, alignment, color, text);
 }
 

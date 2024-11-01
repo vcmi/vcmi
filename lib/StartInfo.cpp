@@ -11,10 +11,10 @@
 #include "StartInfo.h"
 
 #include "texts/CGeneralTextHandler.h"
-#include "CHeroHandler.h"
 #include "VCMI_Lib.h"
 #include "entities/faction/CFaction.h"
 #include "entities/faction/CTownHandler.h"
+#include "entities/hero/CHeroHandler.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapping/CMapInfo.h"
 #include "campaign/CampaignState.h"

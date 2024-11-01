@@ -39,7 +39,6 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"

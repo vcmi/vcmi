@@ -12,15 +12,13 @@
 
 #include "Images.h"
 
-#include <vcmi/spells/Service.h>
-#include <vcmi/spells/Spell.h>
-
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../render/Canvas.h"
 #include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
 #include "../render/Graphics.h"
 #include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
@@ -28,7 +26,6 @@
 #include "../CGameInfo.h"
 
 #include "../../lib/ArtifactUtils.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/faction/CFaction.h"
 #include "../../lib/entities/faction/CTown.h"
@@ -40,6 +37,11 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CArtifactInstance.h"
+
+#include <vcmi/spells/Service.h>
+#include <vcmi/spells/Spell.h>
+#include <vcmi/HeroTypeService.h>
+#include <vcmi/HeroType.h>
 
 CComponent::CComponent(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val, ESize imageSize, EFonts font)
 {
@@ -69,6 +71,7 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 	customSubtitle = ValText;
 	size = imageSize;
 	font = fnt;
+	newLine = false;
 
 	assert(size < sizeInvalid);
 
@@ -95,9 +98,11 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 		max = 80;
 
 	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(max, pos.w), font);
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const int height = static_cast<int>(fontPtr->getLineHeight());
+
 	for(auto & line : textLines)
 	{
-		int height = static_cast<int>(graphics->fonts[font]->getLineHeight());
 		auto label = std::make_shared<CLabel>(pos.w/2, pos.h + height/2, font, ETextAlignment::CENTER, Colors::WHITE, line);
 
 		pos.h += height;
@@ -468,7 +473,8 @@ void CComponentBox::placeComponents(bool selectable)
 
 		//start next row
 		if ((pos.w != 0 && rows.back().width + comp->pos.w + distance > pos.w) // row is full
-			|| rows.back().comps >= componentsInRow)
+			|| rows.back().comps >= componentsInRow
+			|| (prevComp && prevComp->newLine))
 		{
 			prevComp = nullptr;
 			rows.push_back (RowData (0,0,0));

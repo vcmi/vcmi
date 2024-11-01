@@ -399,6 +399,14 @@
 		}
 	},
 
+	"MECHANICAL":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/Mechanical"
+		}
+	},
+
 	"RANDOM_SPELLCASTER":
 	{
 		"graphics":
@@ -545,6 +553,14 @@
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/E_BREATH"
+		}
+	},
+
+	"PRISM_HEX_ATTACK_BREATH":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/PrismBreath"
 		}
 	},
 

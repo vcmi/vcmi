@@ -39,6 +39,22 @@ void CGMarket::onHeroVisit(const CGHeroInstance * h) const
 	cb->showObjectWindow(this, EOpenWindowMode::MARKET_WINDOW, h, true);
 }
 
+std::string CGMarket::getPopupText(PlayerColor player) const
+{
+	if (!getMarketHandler()->hasDescription())
+		return getHoverText(player);
+
+	MetaString message = MetaString::createFromRawString("{%s}\r\n\r\n%s");
+	message.replaceName(ID);
+	message.replaceTextID(TextIdentifier(getObjectHandler()->getBaseTextID(), "description").get());
+	return message.toString();
+}
+
+std::string CGMarket::getPopupText(const CGHeroInstance * hero) const
+{
+	return getPopupText(hero->getOwner());
+}
+
 int CGMarket::getMarketEfficiency() const
 {
 	return marketEfficiency;
@@ -49,12 +65,16 @@ int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 	return -1;
 }
 
-std::set<EMarketMode> CGMarket::availableModes() const
+std::shared_ptr<MarketInstanceConstructor> CGMarket::getMarketHandler() const
 {
 	const auto & baseHandler = getObjectHandler();
 	const auto & ourHandler = std::dynamic_pointer_cast<MarketInstanceConstructor>(baseHandler);
+	return ourHandler;
+}
 
-	return ourHandler->availableModes();
+std::set<EMarketMode> CGMarket::availableModes() const
+{
+	return getMarketHandler()->availableModes();
 }
 
 CGMarket::CGMarket(IGameCallback *cb):
@@ -93,7 +113,7 @@ void CGBlackMarket::newTurn(vstd::RNG & rand) const
 	SetAvailableArtifacts saa;
 	saa.id = id;
 	cb->pickAllowedArtsSet(saa.arts, rand);
-	cb->sendAndApply(&saa);
+	cb->sendAndApply(saa);
 }
 
 std::vector<TradeItemBuy> CGUniversity::availableItemsIds(EMarketMode mode) const

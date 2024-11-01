@@ -11,8 +11,9 @@
 #include "inspector.h"
 #include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
+#include "../lib/entities/hero/CHeroClass.h"
+#include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/spells/CSpellHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
@@ -59,7 +60,7 @@ Initializer::Initializer(CGObjectInstance * o, const PlayerColor & pl) : default
 	INIT_OBJ_TYPE(CGHeroPlaceholder);
 	INIT_OBJ_TYPE(CGHeroInstance);
 	INIT_OBJ_TYPE(CGSignBottle);
-	INIT_OBJ_TYPE(CGLighthouse);
+	INIT_OBJ_TYPE(FlaggableMapObject);
 	//INIT_OBJ_TYPE(CRewardableObject);
 	//INIT_OBJ_TYPE(CGPandoraBox);
 	//INIT_OBJ_TYPE(CGEvent);
@@ -107,7 +108,7 @@ void Initializer::initialize(CGShipyard * o)
 	o->tempOwner = defaultPlayer;
 }
 
-void Initializer::initialize(CGLighthouse * o)
+void Initializer::initialize(FlaggableMapObject * o)
 {
 	if(!o) return;
 	
@@ -138,25 +139,23 @@ void Initializer::initialize(CGHeroInstance * o)
 		o->subID = 0;
 		o->tempOwner = PlayerColor::NEUTRAL;
 	}
-	
+
 	if(o->ID == Obj::HERO)
 	{
 		for(auto const & t : VLC->heroh->objects)
 		{
 			if(t->heroClass->getId() == HeroClassID(o->subID))
 			{
-				o->type = t.get();
+				o->subID = t->getId();
 				break;
 			}
 		}
 	}
-	
-	if(o->type)
+
+	if(o->getHeroTypeID().hasValue())
 	{
-		//	o->type = VLC->heroh->objects.at(o->subID);
-		
-		o->gender = o->type->gender;
-		o->randomizeArmy(o->type->heroClass->faction);
+		o->gender = o->getHeroType()->gender;
+		o->randomizeArmy(o->getFactionID());
 	}
 }
 
@@ -173,10 +172,12 @@ void Initializer::initialize(CGTownInstance * o)
 	if(lvl > 2) o->addBuilding(BuildingID::CASTLE);
 	if(lvl > 3) o->addBuilding(BuildingID::CAPITOL);
 
-	for(auto const & spell : VLC->spellh->objects) //add all regular spells to town
+	if(o->possibleSpells.empty())
 	{
-		if(!spell->isSpecial() && !spell->isCreatureAbility())
-			o->possibleSpells.push_back(spell->id);
+		for(auto const & spellId : VLC->spellh->getDefaultAllowed()) //add all regular spells to town
+		{
+			o->possibleSpells.push_back(spellId);
+		}
 	}
 }
 
@@ -245,7 +246,7 @@ void Inspector::updateProperties(CGDwelling * o)
 	}
 }
 
-void Inspector::updateProperties(CGLighthouse * o)
+void Inspector::updateProperties(FlaggableMapObject * o)
 {
 	if(!o) return;
 
@@ -304,7 +305,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	auto isPrison = o->ID == Obj::PRISON;
 	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller, isPrison), isPrison); //field is not editable for prison
 	addProperty<int>("Experience", o->exp, false);
-	addProperty("Hero class", o->type ? o->type->heroClass->getNameTranslated() : "", true);
+	addProperty("Hero class", o->getHeroClassID().hasValue() ? o->getHeroClass()->getNameTranslated() : "", true);
 	
 	{ //Gender
 		auto * delegate = new InspectorDelegate;
@@ -319,20 +320,29 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	addProperty("Skills", PropertyEditorPlaceholder(), delegate, false);
 	addProperty("Spells", PropertyEditorPlaceholder(), new HeroSpellDelegate(*o), false);
 	
-	if(o->type || o->ID == Obj::PRISON)
+	if(o->getHeroTypeID().hasValue() || o->ID == Obj::PRISON)
 	{ //Hero type
 		auto * delegate = new InspectorDelegate;
-		for(int i = 0; i < VLC->heroh->objects.size(); ++i)
+		for(const auto & heroPtr : VLC->heroh->objects)
 		{
-			if(controller.map()->allowedHeroes.count(HeroTypeID(i)) != 0)
+			if(controller.map()->allowedHeroes.count(heroPtr->getId()) != 0)
 			{
-				if(o->ID == Obj::PRISON || (o->type && VLC->heroh->objects[i]->heroClass->getIndex() == o->type->heroClass->getIndex()))
+				if(o->ID == Obj::PRISON || heroPtr->heroClass->getIndex() == o->getHeroClassID())
 				{
-					delegate->options.push_back({QObject::tr(VLC->heroh->objects[i]->getNameTranslated().c_str()), QVariant::fromValue(VLC->heroh->objects[i]->getId().getNum())});
+					delegate->options.push_back({QObject::tr(heroPtr->getNameTranslated().c_str()), QVariant::fromValue(heroPtr->getIndex())});
 				}
 			}
 		}
-		addProperty("Hero type", o->type ? o->type->getNameTranslated() : "", delegate, false);
+		addProperty("Hero type", o->getHeroTypeID().hasValue() ? o->getHeroType()->getNameTranslated() : "", delegate, false);
+	}
+	{
+		const int maxRadius = 60;
+		auto * patrolDelegate = new InspectorDelegate;
+		patrolDelegate->options = { {QObject::tr("No patrol"), QVariant::fromValue(CGHeroInstance::NO_PATROLLING)} };
+		for(int i = 0; i <= maxRadius; ++i)
+			patrolDelegate->options.push_back({ QObject::tr("%n tile(s)", "", i), QVariant::fromValue(i)});
+		auto patrolRadiusText = o->patrol.patrolling ? QObject::tr("%n tile(s)", "", o->patrol.patrolRadius) : QObject::tr("No patrol");
+		addProperty("Patrol radius", patrolRadiusText, patrolDelegate, false);
 	}
 }
 
@@ -472,8 +482,6 @@ void Inspector::updateProperties()
 	addProperty("ID", obj->ID.getNum());
 	addProperty("SubID", obj->subID);
 	addProperty("InstanceName", obj->instanceName);
-	addProperty("TypeName", obj->typeName);
-	addProperty("SubTypeName", obj->subTypeName);
 	
 	if(obj->ID != Obj::HERO_PLACEHOLDER && !dynamic_cast<CGHeroInstance*>(obj))
 	{
@@ -495,7 +503,7 @@ void Inspector::updateProperties()
 	UPDATE_OBJ_PROPERTIES(CGHeroPlaceholder);
 	UPDATE_OBJ_PROPERTIES(CGHeroInstance);
 	UPDATE_OBJ_PROPERTIES(CGSignBottle);
-	UPDATE_OBJ_PROPERTIES(CGLighthouse);
+	UPDATE_OBJ_PROPERTIES(FlaggableMapObject);
 	UPDATE_OBJ_PROPERTIES(CRewardableObject);
 	UPDATE_OBJ_PROPERTIES(CGPandoraBox);
 	UPDATE_OBJ_PROPERTIES(CGEvent);
@@ -543,7 +551,7 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	SET_PROPERTIES(CGHeroInstance);
 	SET_PROPERTIES(CGShipyard);
 	SET_PROPERTIES(CGSignBottle);
-	SET_PROPERTIES(CGLighthouse);
+	SET_PROPERTIES(FlaggableMapObject);
 	SET_PROPERTIES(CRewardableObject);
 	SET_PROPERTIES(CGPandoraBox);
 	SET_PROPERTIES(CGEvent);
@@ -556,7 +564,7 @@ void Inspector::setProperty(CArmedInstance * o, const QString & key, const QVari
 	if(!o) return;
 }
 
-void Inspector::setProperty(CGLighthouse * o, const QString & key, const QVariant & value)
+void Inspector::setProperty(FlaggableMapObject * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
 }
@@ -706,14 +714,18 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 		for(auto const & t : VLC->heroh->objects)
 		{
 			if(t->getId() == value.toInt())
-			{
 				o->subID = value.toInt();
-				o->type = t.get();
-			}
 		}
-		o->gender = o->type->gender;
-		o->randomizeArmy(o->type->heroClass->faction);
+		o->gender = o->getHeroType()->gender;
+		o->randomizeArmy(o->getHeroType()->heroClass->faction);
 		updateProperties(); //updating other properties after change
+	}
+
+	if(key == "Patrol radius")
+	{
+		auto radius = value.toInt();
+		o->patrol.patrolRadius = radius;
+		o->patrol.patrolling = radius != CGHeroInstance::NO_PATROLLING;
 	}
 }
 

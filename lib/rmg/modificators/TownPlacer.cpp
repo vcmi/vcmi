@@ -90,7 +90,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		
 		totalTowns++;
 		//register MAIN town of zone only
-		map.registerZone(town->getFaction());
+		map.registerZone(town->getFactionID());
 		
 		if(player.isValidPlayer()) //configure info for owning player
 		{
@@ -213,7 +213,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 		{
 			//FIXME: discovered bug with small zones - getPos is close to map boarder and we have outOfMap exception
 			//register MAIN town of zone
-			map.registerZone(town->getFaction());
+			map.registerZone(town->getFactionID());
 			//first town in zone goes in the middle
 			placeMainTown(manager, *town);
 		}

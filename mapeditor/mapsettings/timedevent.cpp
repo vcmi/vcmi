@@ -28,7 +28,7 @@ TimedEvent::TimedEvent(QListWidgetItem * t, QWidget *parent) :
 	ui->eventMessageText->setPlainText(params.value("message").toString());
 	ui->eventAffectsCpu->setChecked(params.value("computerAffected").toBool());
 	ui->eventAffectsHuman->setChecked(params.value("humanAffected").toBool());
-	ui->eventFirstOccurrence->setValue(params.value("firstOccurrence").toInt());
+	ui->eventFirstOccurrence->setValue(params.value("firstOccurrence").toInt() + 1);
 	ui->eventRepeatAfter->setValue(params.value("nextOccurrence").toInt());
 
 	auto playerList = params.value("players").toList();
@@ -68,7 +68,7 @@ void TimedEvent::on_TimedEvent_finished(int result)
 	descriptor["message"] = ui->eventMessageText->toPlainText();
 	descriptor["humanAffected"] = QVariant::fromValue(ui->eventAffectsHuman->isChecked());
 	descriptor["computerAffected"] = QVariant::fromValue(ui->eventAffectsCpu->isChecked());
-	descriptor["firstOccurrence"] = QVariant::fromValue(ui->eventFirstOccurrence->value());
+	descriptor["firstOccurrence"] = QVariant::fromValue(ui->eventFirstOccurrence->value() - 1);
 	descriptor["nextOccurrence"] = QVariant::fromValue(ui->eventRepeatAfter->value());
 
 	QVariantList players;
