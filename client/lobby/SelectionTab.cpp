@@ -208,7 +208,6 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	case ESelectionScreen::saveGame:
 		positionsToShow = 16;
 		tabTitle = "{" + CGI->generaltexth->arraytxt[231] + "}";
-		tabTitleDelete = "{red|" + CGI->generaltexth->translate("vcmi.lobby.deleteSaveGameTitle") + "}";
 		break;
 	case ESelectionScreen::campaignList:
 		tabTitle = "{" + CGI->generaltexth->allTexts[726] + "}";
@@ -232,7 +231,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		sortByDate->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/selectionTabSortDate")));
 		buttonsSortBy.push_back(sortByDate);
 
-		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::saveGame || tabType == ESelectionScreen::newGame)
+		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::newGame)
 		{
 			buttonDeleteMode = std::make_shared<CButton>(Point(367, 18), AnimationPath::builtin("lobby/deleteButton"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.deleteMode")), [this, tabTitle, tabTitleDelete](){
 				deleteMode = !deleteMode;
@@ -343,13 +342,18 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 				return;
 			}
 
-			std::cout << (curItems[py]->isFolder ? curItems[py]->folderName : curItems[py]->fullFileURI) << "\n";
-
 			if(!curItems[py]->isFolder)
 				CInfoWindow::showYesNoDialog(CGI->generaltexth->translate("vcmi.lobby.deleteFile") + "\n\n" + curItems[py]->fullFileURI, std::vector<std::shared_ptr<CComponent>>(), [this, py](){
 					LobbyDelete ld;
 					ld.type = tabType == ESelectionScreen::newGame ? LobbyDelete::RANDOMMAP : LobbyDelete::SAVEGAME;
 					ld.name = curItems[py]->fileURI;
+					CSH->sendLobbyPack(ld);
+				}, nullptr);
+			else
+				CInfoWindow::showYesNoDialog(CGI->generaltexth->translate("vcmi.lobby.deleteFolder") + "\n\n" + curFolder + curItems[py]->folderName, std::vector<std::shared_ptr<CComponent>>(), [this, py](){
+					LobbyDelete ld;
+					ld.type = LobbyDelete::SAVEGAME_FOLDER;
+					ld.name = curFolder + curItems[py]->folderName;
 					CSH->sendLobbyPack(ld);
 				}, nullptr);
 		}
