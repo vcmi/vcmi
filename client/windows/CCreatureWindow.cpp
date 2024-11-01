@@ -22,6 +22,7 @@
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/ObjectLists.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../windows/InfoWindows.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
@@ -239,8 +240,8 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 	}
 }
 
-CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t lineIndex)
-	: CWindowSection(owner, ImagePath::builtin("stackWindow/bonus-effects"), 0)
+CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t lineIndex, bool noScroll)
+	: CWindowSection(owner, ImagePath::builtin(noScroll ? "stackWindow/bonus-effects-noscroll" : "stackWindow/bonus-effects"), 0)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -261,6 +262,31 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 			icon[leftRight] = std::make_shared<CPicture>(bi.imagePath, position.x, position.y);
 			name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, bi.name);
 			description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 17, 137, 30), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
+
+			std::map<BonusSource, ColorRGBA> bonusColors = {
+				{BonusSource::ARTIFACT,          ColorRGBA(255, 0, 0)},
+				{BonusSource::ARTIFACT_INSTANCE, ColorRGBA(255, 0, 0)},
+				{BonusSource::OBJECT_TYPE,       ColorRGBA(255, 0, 0)},
+				{BonusSource::OBJECT_INSTANCE,   ColorRGBA(255, 0, 0)},
+				{BonusSource::CREATURE_ABILITY,  ColorRGBA(255, 0, 0)},
+				{BonusSource::TERRAIN_NATIVE,    ColorRGBA(255, 0, 0)},
+				{BonusSource::TERRAIN_OVERLAY,   ColorRGBA(255, 0, 0)},
+				{BonusSource::SPELL_EFFECT,      ColorRGBA(255, 0, 0)},
+				{BonusSource::TOWN_STRUCTURE,    ColorRGBA(255, 0, 0)},
+				{BonusSource::HERO_BASE_SKILL,   ColorRGBA(255, 0, 0)},
+				{BonusSource::SECONDARY_SKILL,   ColorRGBA(0, 0, 255)},
+				{BonusSource::HERO_SPECIAL,      ColorRGBA(0, 0, 255)},
+				{BonusSource::ARMY,              ColorRGBA(0, 255, 0)},
+				{BonusSource::CAMPAIGN_BONUS,    ColorRGBA(255, 0, 0)},
+				{BonusSource::STACK_EXPERIENCE,  ColorRGBA(255, 0, 0)},
+				{BonusSource::COMMANDER,         ColorRGBA(255, 0, 0)},
+				{BonusSource::GLOBAL,            ColorRGBA(255, 0, 0)},
+				{BonusSource::OTHER,             ColorRGBA(255, 0, 0)}
+			};
+
+			frame[leftRight] = std::make_shared<GraphicalPrimitiveCanvas>(Rect(position.x, position.y, 50, 50));
+			if(bonusColors.count(bi.bonus->source))
+				frame[leftRight]->addRectangle(Point(0, 0), Point(50, 50), bonusColors[bi.bonus->source]);
 		}
 	}
 }
@@ -281,10 +307,10 @@ CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, 
 
 	auto onCreate = [=](size_t index) -> std::shared_ptr<CIntObject>
 	{
-		return std::make_shared<BonusLineSection>(owner, index);
+		return std::make_shared<BonusLineSection>(owner, index, totalSize <= 3);
 	};
 
-	lines = std::make_shared<CListBox>(onCreate, Point(0, 0), Point(0, itemHeight), visibleSize, totalSize, 0, 1, Rect(pos.w - 15, 0, pos.h, pos.h));
+	lines = std::make_shared<CListBox>(onCreate, Point(0, 0), Point(0, itemHeight), visibleSize, totalSize, 0, totalSize > 3 ? 1 : 0, Rect(pos.w - 15, 0, pos.h, pos.h));
 }
 
 CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
@@ -533,7 +559,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		animation->setAmount(parent->info->creatureCount);
 	}
 
-	name = std::make_shared<CLabel>(215, 12, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, parent->info->getName());
+	name = std::make_shared<CLabel>(215, 13, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, parent->info->getName());
 
 	const BattleInterface* battleInterface = LOCPLINT->battleInt.get();
 	const CStack* battleStack = parent->info->stack;
@@ -801,6 +827,7 @@ void CStackWindow::initBonusesList()
 		bonusInfo.name = info->stackNode->bonusToString(b, false);
 		bonusInfo.description = info->stackNode->bonusToString(b, true);
 		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
+		bonusInfo.bonus = b;
 
 		//if it's possible to give any description or image for this kind of bonus
 		//TODO: figure out why half of bonuses don't have proper description
