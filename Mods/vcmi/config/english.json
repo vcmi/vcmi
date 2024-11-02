@@ -33,6 +33,7 @@
 	"vcmi.bonusSource.spell" : "Spell",
 	"vcmi.bonusSource.hero" : "Hero",
 	"vcmi.bonusSource.commander" : "Commander",
+	"vcmi.bonusSource.other" : "Other",
 
 	"vcmi.capitalColors.0" : "Red",
 	"vcmi.capitalColors.1" : "Blue",
