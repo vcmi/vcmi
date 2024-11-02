@@ -29,7 +29,7 @@
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Sorry, replay opponent turn is not implemented yet!",
 
 	"vcmi.bonusSource.artifact" : "Artifact",
-	"vcmi.bonusSource.creature" : "Creature",
+	"vcmi.bonusSource.creature" : "Ability",
 	"vcmi.bonusSource.spell" : "Spell",
 	"vcmi.bonusSource.hero" : "Hero",
 	"vcmi.bonusSource.commander" : "Commander",
