@@ -250,6 +250,28 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 		Point(6, 4),
 		Point(214, 4)
 	};
+	
+	std::map<BonusSource, ColorRGBA> bonusColors = {
+		{BonusSource::ARTIFACT,          Colors::GREEN},
+		{BonusSource::ARTIFACT_INSTANCE, Colors::GREEN},
+		{BonusSource::CREATURE_ABILITY,  Colors::YELLOW},
+		{BonusSource::SPELL_EFFECT,      Colors::ORANGE},
+		{BonusSource::SECONDARY_SKILL,   Colors::PURPLE},
+		{BonusSource::HERO_SPECIAL,      Colors::PURPLE},
+		{BonusSource::STACK_EXPERIENCE,  Colors::CYAN},
+		{BonusSource::COMMANDER,         Colors::CYAN},
+	};
+	
+	std::map<BonusSource, std::string> bonusNames = {
+		{BonusSource::ARTIFACT,          CGI->generaltexth->translate("vcmi.bonusSource.artifact")},
+		{BonusSource::ARTIFACT_INSTANCE, CGI->generaltexth->translate("vcmi.bonusSource.artifact")},
+		{BonusSource::CREATURE_ABILITY,  CGI->generaltexth->translate("vcmi.bonusSource.creature")},
+		{BonusSource::SPELL_EFFECT,      CGI->generaltexth->translate("vcmi.bonusSource.spell")},
+		{BonusSource::SECONDARY_SKILL,   CGI->generaltexth->translate("vcmi.bonusSource.hero")},
+		{BonusSource::HERO_SPECIAL,      CGI->generaltexth->translate("vcmi.bonusSource.hero")},
+		{BonusSource::STACK_EXPERIENCE,  CGI->generaltexth->translate("vcmi.bonusSource.commander")},
+		{BonusSource::COMMANDER,         CGI->generaltexth->translate("vcmi.bonusSource.commander")},
+	};
 
 	for(size_t leftRight : {0, 1})
 	{
@@ -260,20 +282,9 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 		{
 			BonusInfo & bi = parent->activeBonuses[bonusIndex];
 			icon[leftRight] = std::make_shared<CPicture>(bi.imagePath, position.x, position.y);
-			name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, bi.name);
-			description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 17, 137, 30), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
-
-			std::map<BonusSource, ColorRGBA> bonusColors = {
-				{BonusSource::ARTIFACT,          Colors::GREEN},
-				{BonusSource::ARTIFACT_INSTANCE, Colors::GREEN},
-				{BonusSource::CREATURE_ABILITY,  Colors::YELLOW},
-				{BonusSource::SPELL_EFFECT,      Colors::ORANGE},
-				{BonusSource::SECONDARY_SKILL,   Colors::PURPLE},
-				{BonusSource::HERO_SPECIAL,      Colors::PURPLE},
-				{BonusSource::STACK_EXPERIENCE,  Colors::CYAN},
-				{BonusSource::COMMANDER,         Colors::CYAN},
-			};
-
+			name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.name, 110);
+			description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 17, 137, 30), FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
+			bonusSource[leftRight] = std::make_shared<CLabel>(position.x + 60 + 137, position.y + 2, FONT_TINY, ETextAlignment::TOPRIGHT, bonusColors.count(bi.bonusSource) ? bonusColors[bi.bonusSource] : Colors::BLACK, bonusNames.count(bi.bonusSource) ? bonusNames[bi.bonusSource] : "", 27);
 			frame[leftRight] = std::make_shared<GraphicalPrimitiveCanvas>(Rect(position.x - 1, position.y - 1, 52, 52));
 			frame[leftRight]->addRectangle(Point(0, 0), Point(52, 52), bonusColors.count(bi.bonusSource) ? bonusColors[bi.bonusSource] : Colors::BLACK);
 		}

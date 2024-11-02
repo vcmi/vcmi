@@ -28,6 +28,12 @@
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Movement points: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Sorry, replay opponent turn is not implemented yet!",
 
+	"vcmi.bonusSource.artifact" : "Art.",
+	"vcmi.bonusSource.creature" : "Crea.",
+	"vcmi.bonusSource.spell" : "Spell",
+	"vcmi.bonusSource.hero" : "Hero",
+	"vcmi.bonusSource.commander" : "Comm.",
+
 	"vcmi.capitalColors.0" : "Red",
 	"vcmi.capitalColors.1" : "Blue",
 	"vcmi.capitalColors.2" : "Tan",
