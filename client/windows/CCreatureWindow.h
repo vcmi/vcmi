@@ -87,7 +87,7 @@ class CStackWindow : public CWindowObject
 		std::array<std::shared_ptr<CLabel>, 2> name;
 		std::array<std::shared_ptr<CMultiLineLabel>, 2> description;
 		std::array<std::shared_ptr<GraphicalPrimitiveCanvas>, 2> frame;
-		std::array<std::shared_ptr<CLabel>, 2> bonusSource;
+		std::array<std::vector<std::shared_ptr<CLabel>>, 2> bonusSource;
 	public:
 		BonusLineSection(CStackWindow * owner, size_t lineIndex, bool noScroll);
 	};

@@ -273,6 +273,24 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 		{BonusSource::COMMANDER,         CGI->generaltexth->translate("vcmi.bonusSource.commander")},
 	};
 
+	auto drawBonusSourceText = [this, &bonusColors, &bonusNames](int leftRight, Point p, BonusInfo & bi)
+	{	
+		if(!bonusColors.count(bi.bonusSource) || !bonusNames.count(bi.bonusSource))
+			return;
+
+		auto c = bonusColors[bi.bonusSource];
+		std::string t = bonusNames[bi.bonusSource];
+		int maxLen = 50;
+		EFonts f = FONT_TINY;
+
+		// 1px Black border
+		bonusSource[leftRight].push_back(std::make_shared<CLabel>(p.x - 1, p.y, f, ETextAlignment::TOPLEFT, Colors::BLACK, t, maxLen));
+		bonusSource[leftRight].push_back(std::make_shared<CLabel>(p.x + 1, p.y, f, ETextAlignment::TOPLEFT, Colors::BLACK, t, maxLen));
+		bonusSource[leftRight].push_back(std::make_shared<CLabel>(p.x, p.y - 1, f, ETextAlignment::TOPLEFT, Colors::BLACK, t, maxLen));
+		bonusSource[leftRight].push_back(std::make_shared<CLabel>(p.x, p.y + 1, f, ETextAlignment::TOPLEFT, Colors::BLACK, t, maxLen));
+		bonusSource[leftRight].push_back(std::make_shared<CLabel>(p.x, p.y, f, ETextAlignment::TOPLEFT, c, t, maxLen));
+	};
+
 	for(size_t leftRight : {0, 1})
 	{
 		auto position = offset[leftRight];
@@ -282,9 +300,9 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 		{
 			BonusInfo & bi = parent->activeBonuses[bonusIndex];
 			icon[leftRight] = std::make_shared<CPicture>(bi.imagePath, position.x, position.y);
-			name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.name, 110);
-			description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 17, 137, 30), FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
-			bonusSource[leftRight] = std::make_shared<CLabel>(position.x + 60 + 137, position.y + 2, FONT_TINY, ETextAlignment::TOPRIGHT, bonusColors.count(bi.bonusSource) ? bonusColors[bi.bonusSource] : Colors::BLACK, bonusNames.count(bi.bonusSource) ? bonusNames[bi.bonusSource] : "", 27);
+			name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.name, 137);
+			description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 20, 137, 30), FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
+			drawBonusSourceText(leftRight, Point(position.x + 2, position.y + 39), bi);
 			frame[leftRight] = std::make_shared<GraphicalPrimitiveCanvas>(Rect(position.x - 1, position.y - 1, 52, 52));
 			frame[leftRight]->addRectangle(Point(0, 0), Point(52, 52), bonusColors.count(bi.bonusSource) ? bonusColors[bi.bonusSource] : Colors::BLACK);
 		}
