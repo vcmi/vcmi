@@ -106,7 +106,13 @@
 	"vcmi.lobby.handicap.resource" : "Dává hráčům odpovídající zdroje navíc k běžným startovním zdrojům. Jsou povoleny záporné hodnoty, ale jsou omezeny na celkovou hodnotu 0 (hráč nikdy nezačíná se zápornými zdroji).",
 	"vcmi.lobby.handicap.income" : "Mění různé příjmy hráče podle procent. Výsledek je zaokrouhlen nahoru.",
 	"vcmi.lobby.handicap.growth" : "Mění rychlost růstu jednotel v městech vlastněných hráčem. Výsledek je zaokrouhlen nahoru.",
-		
+    "vcmi.lobby.deleteUnsupportedSave" : "Nalezeny nepodporované uložené hry (např. z předchozích verzí).\n\nChcete je odstranit?",
+    "vcmi.lobby.deleteSaveGameTitle" : "Vyberte uloženou hru k odstranění",
+    "vcmi.lobby.deleteMapTitle" : "Vyberte scénář k odstranění",
+    "vcmi.lobby.deleteFile" : "Chcete smazat následující soubor?",
+    "vcmi.lobby.deleteFolder" : "Chcete smazat následující složku?",
+    "vcmi.lobby.deleteMode" : "Přepnout do režimu mazání a zpět",
+	
 	"vcmi.lobby.login.title" : "Online lobby VCMI",
 	"vcmi.lobby.login.username" : "Uživatelské jméno:",
 	"vcmi.lobby.login.connecting" : "Připojování...",
