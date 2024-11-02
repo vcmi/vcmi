@@ -240,8 +240,8 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 	}
 }
 
-CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t lineIndex, bool noScroll)
-	: CWindowSection(owner, ImagePath::builtin(noScroll ? "stackWindow/bonus-effects-noscroll" : "stackWindow/bonus-effects"), 0)
+CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t lineIndex)
+	: CWindowSection(owner, ImagePath::builtin("stackWindow/bonus-effects"), 0)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -324,7 +324,7 @@ CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, 
 
 	auto onCreate = [=](size_t index) -> std::shared_ptr<CIntObject>
 	{
-		return std::make_shared<BonusLineSection>(owner, index, totalSize <= 3);
+		return std::make_shared<BonusLineSection>(owner, index);
 	};
 
 	lines = std::make_shared<CListBox>(onCreate, Point(0, 0), Point(0, itemHeight), visibleSize, totalSize, 0, totalSize > 3 ? 1 : 0, Rect(pos.w - 15, 0, pos.h, pos.h));
