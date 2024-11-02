@@ -264,29 +264,18 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 			description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 17, 137, 30), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
 
 			std::map<BonusSource, ColorRGBA> bonusColors = {
-				{BonusSource::ARTIFACT,          ColorRGBA(255, 0, 0)},
-				{BonusSource::ARTIFACT_INSTANCE, ColorRGBA(255, 0, 0)},
-				{BonusSource::OBJECT_TYPE,       ColorRGBA(255, 0, 0)},
-				{BonusSource::OBJECT_INSTANCE,   ColorRGBA(255, 0, 0)},
-				{BonusSource::CREATURE_ABILITY,  ColorRGBA(255, 0, 0)},
-				{BonusSource::TERRAIN_NATIVE,    ColorRGBA(255, 0, 0)},
-				{BonusSource::TERRAIN_OVERLAY,   ColorRGBA(255, 0, 0)},
-				{BonusSource::SPELL_EFFECT,      ColorRGBA(255, 0, 0)},
-				{BonusSource::TOWN_STRUCTURE,    ColorRGBA(255, 0, 0)},
-				{BonusSource::HERO_BASE_SKILL,   ColorRGBA(255, 0, 0)},
-				{BonusSource::SECONDARY_SKILL,   ColorRGBA(0, 0, 255)},
-				{BonusSource::HERO_SPECIAL,      ColorRGBA(0, 0, 255)},
-				{BonusSource::ARMY,              ColorRGBA(0, 255, 0)},
-				{BonusSource::CAMPAIGN_BONUS,    ColorRGBA(255, 0, 0)},
-				{BonusSource::STACK_EXPERIENCE,  ColorRGBA(255, 0, 0)},
-				{BonusSource::COMMANDER,         ColorRGBA(255, 0, 0)},
-				{BonusSource::GLOBAL,            ColorRGBA(255, 0, 0)},
-				{BonusSource::OTHER,             ColorRGBA(255, 0, 0)}
+				{BonusSource::ARTIFACT,          Colors::GREEN},
+				{BonusSource::ARTIFACT_INSTANCE, Colors::GREEN},
+				{BonusSource::CREATURE_ABILITY,  Colors::YELLOW},
+				{BonusSource::SPELL_EFFECT,      Colors::ORANGE},
+				{BonusSource::SECONDARY_SKILL,   Colors::PURPLE},
+				{BonusSource::HERO_SPECIAL,      Colors::PURPLE},
+				{BonusSource::STACK_EXPERIENCE,  Colors::CYAN},
+				{BonusSource::COMMANDER,         Colors::CYAN},
 			};
 
-			frame[leftRight] = std::make_shared<GraphicalPrimitiveCanvas>(Rect(position.x, position.y, 50, 50));
-			if(bonusColors.count(bi.bonus->source))
-				frame[leftRight]->addRectangle(Point(0, 0), Point(50, 50), bonusColors[bi.bonus->source]);
+			frame[leftRight] = std::make_shared<GraphicalPrimitiveCanvas>(Rect(position.x - 1, position.y - 1, 52, 52));
+			frame[leftRight]->addRectangle(Point(0, 0), Point(52, 52), bonusColors.count(bi.bonusSource) ? bonusColors[bi.bonusSource] : Colors::BLACK);
 		}
 	}
 }
@@ -827,7 +816,7 @@ void CStackWindow::initBonusesList()
 		bonusInfo.name = info->stackNode->bonusToString(b, false);
 		bonusInfo.description = info->stackNode->bonusToString(b, true);
 		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
-		bonusInfo.bonus = b;
+		bonusInfo.bonusSource = b->source;
 
 		//if it's possible to give any description or image for this kind of bonus
 		//TODO: figure out why half of bonuses don't have proper description
