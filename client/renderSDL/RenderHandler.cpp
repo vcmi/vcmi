@@ -299,7 +299,7 @@ std::shared_ptr<ISharedImage> RenderHandler::scaleImage(const ImageLocator & loc
 	if (locator.layer == EImageLayer::ALL && locator.playerColored != PlayerColor::CANNOT_DETERMINE)
 		handle->playerColored(locator.playerColored);
 
-	handle->scaleInteger(locator.scalingFactor);	
+	handle->scaleInteger(locator.scalingFactor);
 
 	// TODO: try to optimize image size (possibly even before scaling?) - trim image borders if they are completely transparent
 	auto result = handle->getSharedImage();
@@ -309,10 +309,24 @@ std::shared_ptr<ISharedImage> RenderHandler::scaleImage(const ImageLocator & loc
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, EImageBlitMode mode)
 {
-	if (locator.scalingFactor == 0 && getScalingFactor() != 1 )
+	ImageLocator loc = locator;
+	if(loc.defFile && loc.scalingFactor == 0 && loc.preScaledFactor == 1)
 	{
-		auto unscaledLocator = locator;
-		auto scaledLocator = locator;
+		auto tmp = getScalePath(*loc.defFile);
+		loc.defFile = AnimationPath::builtin(tmp.first.getName());
+		loc.preScaledFactor = tmp.second;
+	}
+	if(loc.image && loc.scalingFactor == 0 && loc.preScaledFactor == 1)
+	{
+		auto tmp = getScalePath(*loc.image);
+		loc.image = ImagePath::builtin(tmp.first.getName());
+		loc.preScaledFactor = tmp.second;
+	}
+
+	if (loc.scalingFactor == 0 && getScalingFactor() != 1 )
+	{
+		auto unscaledLocator = loc;
+		auto scaledLocator = loc;
 
 		unscaledLocator.scalingFactor = 1;
 		scaledLocator.scalingFactor = getScalingFactor();
@@ -321,16 +335,16 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, E
 		return std::make_shared<ImageScaled>(scaledLocator, unscaledImage, mode);
 	}
 
-	if (locator.scalingFactor == 0)
+	if (loc.scalingFactor == 0)
 	{
-		auto scaledLocator = locator;
+		auto scaledLocator = loc;
 		scaledLocator.scalingFactor = getScalingFactor();
 
 		return loadImageImpl(scaledLocator)->createImageReference(mode);
 	}
 	else
 	{
-		return loadImageImpl(locator)->createImageReference(mode);
+		return loadImageImpl(loc)->createImageReference(mode);
 	}
 }
 
@@ -344,9 +358,7 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageBlitMode mode)
 {
-	auto tmp = getScalePath(path);
-	ImageLocator locator(ImagePath::builtin(tmp.first.getName()));
-	locator.preScaledFactor = tmp.second;
+	ImageLocator locator(path);
 	return loadImage(locator, mode);
 }
 
