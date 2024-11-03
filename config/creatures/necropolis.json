@@ -5,6 +5,13 @@
 		"level": 1,
 		"faction": "necropolis",
 		"upgrades": ["skeletonWarrior"],
+		"abilities" :
+		{
+			"IS_UNDEAD" :
+			{
+				"type" : "UNDEAD"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CSKELE.DEF"
@@ -23,6 +30,13 @@
 		"index": 57,
 		"level": 1,
 		"faction": "necropolis",
+		"abilities" :
+		{
+			"IS_UNDEAD" :
+			{
+				"type" : "UNDEAD"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CWSKEL.DEF"
@@ -43,6 +57,13 @@
 		"extraNames": [ "zombie" ], //FIXME: zombie is a name of upgrade but not in HOTRAITS
 		"faction" : "necropolis",
 		"upgrades": ["zombieLord"],
+		"abilities" :
+		{
+			"IS_UNDEAD" :
+			{
+				"type" : "UNDEAD"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CZOMBI.DEF"
@@ -75,6 +96,10 @@
 		},
 		"abilities":
 		{
+			"IS_UNDEAD" :
+			{
+				"type" : "UNDEAD"
+			},
 			"castDisease" : 
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -90,6 +115,14 @@
 		"faction": "necropolis",
 		"abilities":
 		{
+			"IS_UNDEAD" :
+			{
+				"type" : "UNDEAD"
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"regenerate" : 
 			{
 				"type" : "HP_REGENERATION",
@@ -118,6 +151,14 @@
 		"faction": "necropolis",
 		"abilities":
 		{
+			"IS_UNDEAD" :
+			{
+				"type" : "UNDEAD"
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"regenerate" : 
 			{
 				"type" : "HP_REGENERATION",
@@ -149,6 +190,14 @@
 		"faction": "necropolis",
 		"abilities":
 		{
+			"IS_UNDEAD" :
+			{
+				"type" : "UNDEAD"
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"noRetalitation" : 
 			{
 				"type" : "BLOCKS_RETALIATION"
@@ -177,6 +226,14 @@
 		"faction": "necropolis",
 		"abilities":
 		{
+			"IS_UNDEAD" :
+			{
+				"type" : "UNDEAD"
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"noRetalitation" : 
 			{
 				"type" : "BLOCKS_RETALIATION"
@@ -210,6 +267,14 @@
 		"faction": "necropolis",
 		"abilities":
 		{
+			"IS_UNDEAD" :
+			{
+				"type" : "UNDEAD"
+			},
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
 			"deathCloud" :
 			{
 				"type" : "SPELL_LIKE_ATTACK",
@@ -242,6 +307,14 @@
 		"faction": "necropolis",
 		"abilities":
 		{
+			"IS_UNDEAD" :
+			{
+				"type" : "UNDEAD"
+			},
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
 			"deathCloud" :
 			{
 				"type" : "SPELL_LIKE_ATTACK",
@@ -273,6 +346,10 @@
 		"faction": "necropolis",
 		"abilities":
 		{
+			"IS_UNDEAD" :
+			{
+				"type" : "UNDEAD"
+			},
 			"curses" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -301,6 +378,10 @@
 		"faction": "necropolis",
 		"abilities":
 		{
+			"IS_UNDEAD" :
+			{
+				"type" : "UNDEAD"
+			},
 			"curses" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -333,6 +414,19 @@
 		"faction": "necropolis",
 		"abilities" :
 		{
+			"IS_UNDEAD" :
+			{
+				"type" : "UNDEAD"
+			},
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
@@ -368,6 +462,19 @@
 		"faction": "necropolis",
 		"abilities":
 		{
+			"IS_UNDEAD" :
+			{
+				"type" : "UNDEAD"
+			},
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"

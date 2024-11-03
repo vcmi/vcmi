@@ -26,6 +26,13 @@
 		"index": 29,
 		"level": 1,
 		"faction": "tower",
+		"abilities" :
+		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CGREMM.DEF",
@@ -54,6 +61,10 @@
 			"gargoyle" :
 			{
 				"type" : "GARGOYLE"
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
 			}
 		},
 		"upgrades": ["obsidianGargoyle"],
@@ -80,6 +91,10 @@
 			"gargoyle" :
 			{
 				"type" : "GARGOYLE"
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
 			}
 		},
 		"graphics" :
@@ -165,6 +180,14 @@
 		"faction": "tower",
 		"abilities": 
 		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
+			"const_no_melee_penalty" :
+			{
+				"type" : "NO_MELEE_PENALTY"
+			},
 			"reduceSpellCost" : 
 			{
 				"type" : "CHANGES_SPELL_COST_FOR_ALLY",
@@ -197,6 +220,18 @@
 		"faction": "tower",
 		"abilities": 
 		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
+			"const_no_melee_penalty" :
+			{
+				"type" : "NO_MELEE_PENALTY"
+			},
+			"const_no_wall_penalty" :
+			{
+				"type" : "NO_WALL_PENALTY"
+			},
 			"reduceSpellCost" : 
 			{
 				"type" : "CHANGES_SPELL_COST_FOR_ALLY",
@@ -236,6 +271,10 @@
 		"faction": "tower",
 		"abilities":
 		{
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"hateEfreet" : 
 			{
 				"type" : "HATE",
@@ -270,6 +309,10 @@
 		"faction": "tower",
 		"abilities":
 		{
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"casts" :
 			{
 				"type" : "CASTS",
@@ -370,6 +413,11 @@
 		"faction": "tower",
 		"abilities" :
 		{
+			"KING_3" :
+			{
+				"type" : "KING",
+				"val" : 3
+			},
 			"immuneToMind" : 
 			{
 				"type" : "MIND_IMMUNITY"
@@ -396,6 +444,19 @@
 		"faction": "tower",
 		"abilities" :
 		{
+			"KING_3" :
+			{
+				"type" : "KING",
+				"val" : 3
+			},
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
+			"const_no_melee_penalty" :
+			{
+				"type" : "NO_MELEE_PENALTY"
+			},
 			"immuneToMind" : 
 			{
 				"type" : "MIND_IMMUNITY"

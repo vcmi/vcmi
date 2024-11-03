@@ -99,6 +99,13 @@
 		"level": 3,
 		"faction": "rampart",
 		"upgrades": ["grandElf"],
+		"abilities" :
+		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CELF.DEF",
@@ -124,6 +131,10 @@
 		"faction": "rampart",
 		"abilities": 
 		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
 			"doubleShot" :
 			{
 				"type": "ADDITIONAL_ATTACK",
@@ -156,6 +167,10 @@
 		"faction": "rampart",
 		"abilities":
 		{
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"increaseManaCost" :
 			{
 				"type" : "CHANGES_SPELL_COST_FOR_ENEMY",
@@ -184,6 +199,10 @@
 		"faction": "rampart",
 		"abilities":
 		{
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"increaseManaCost" :
 			{
 				"type" : "CHANGES_SPELL_COST_FOR_ENEMY",
@@ -333,6 +352,15 @@
 		"faction": "rampart",
 		"abilities":
 		{
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
@@ -368,6 +396,15 @@
 		"faction": "rampart",
 		"abilities":
 		{
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"

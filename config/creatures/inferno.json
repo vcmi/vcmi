@@ -51,6 +51,13 @@
 		"faction": "inferno",
 		"upgrades": ["magog"],
 		"hasDoubleWeek": true,
+		"abilities" :
+		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CGOG.DEF",
@@ -76,6 +83,10 @@
 		"faction": "inferno",
 		"abilities":
 		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
 			"fireball" :
 			{
 				"type" : "SPELL_LIKE_ATTACK",
@@ -345,6 +356,11 @@
 		"faction": "inferno",
 		"abilities":
 		{
+			"KING_2" :
+			{
+				"type" : "KING",
+				"val" : 2
+			},
 			"FLYING_ARMY" :
 			{
 				// type loaded from crtraits
@@ -400,6 +416,11 @@
 		"faction": "inferno",
 		"abilities" :
 		{
+			"KING_2" :
+			{
+				"type" : "KING",
+				"val" : 2
+			},
 			"FLYING_ARMY" :
 			{
 				// type loaded from crtraits

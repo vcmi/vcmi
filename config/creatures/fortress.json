@@ -44,6 +44,13 @@
 		"faction": "fortress",
 		"upgrades": ["lizardWarrior"],
 		"hasDoubleWeek": true,
+		"abilities" :
+		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CPLIZA.DEF",
@@ -67,6 +74,13 @@
 		"index": 101,
 		"level": 2,
 		"faction": "fortress",
+		"abilities" :
+		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CALIZA.DEF",
@@ -139,6 +153,10 @@
 		"faction": "fortress",
 		"abilities":
 		{
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"dispellHelpful" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -168,6 +186,10 @@
 		"faction": "fortress",
 		"abilities":
 		{
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"dispellHelpful" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -256,6 +278,13 @@
 		"level": 6,
 		"faction": "fortress",
 		"upgrades": ["wyvernMonarch"],
+		"abilities" :
+		{
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CWYVER.DEF"
@@ -276,7 +305,11 @@
 		"faction": "fortress",
 		"abilities":
 		{
-			"petrify" :
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
+			"poison" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.poison",
@@ -303,6 +336,11 @@
 		"faction": "fortress",
 		"abilities":
 		{
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
 			"attackAll" :
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
@@ -333,6 +371,11 @@
 		"faction": "fortress",
 		"abilities":
 		{
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
 			"attackAll" :
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"

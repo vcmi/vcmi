@@ -90,6 +90,13 @@
 		"level": 3,
 		"faction": "stronghold",
 		"upgrades": ["orcChieftain"],
+		"abilities" :
+		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CORC.DEF",
@@ -113,6 +120,13 @@
 		"index": 89,
 		"level": 3,
 		"faction": "stronghold",
+		"abilities" :
+		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CORCCH.DEF",
@@ -194,6 +208,13 @@
 		"level": 5,
 		"faction": "stronghold",
 		"upgrades": ["thunderbird"],
+		"abilities" :
+		{
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CROC.DEF"
@@ -214,6 +235,10 @@
 		"faction": "stronghold",
 		"abilities":
 		{
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"thunderOnAttack" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -247,6 +272,10 @@
 		"faction": "stronghold",
 		"abilities" :
 		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
 			"siege" : {
 				"subtype" : "spell.cyclopsShot",
 				"type" : "CATAPULT"
@@ -278,6 +307,10 @@
 		"faction": "stronghold",
 		"abilities":
 		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
 			"siege" : {
 				"subtype" : "spell.cyclopsShot",
 				"type" : "CATAPULT"
@@ -315,6 +348,11 @@
 		"faction": "stronghold",
 		"abilities":
 		{
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
 			"reduceDefence" :
 			{
 				"type" : "ENEMY_DEFENCE_REDUCTION",
@@ -342,6 +380,11 @@
 		"faction": "stronghold",
 		"abilities":
 		{
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
 			"reduceDefence" :
 			{
 				"type" : "ENEMY_DEFENCE_REDUCTION",

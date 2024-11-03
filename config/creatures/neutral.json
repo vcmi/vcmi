@@ -70,6 +70,15 @@
 		"excludeFromRandomization" : true,
 		"abilities":
 		{
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"dragon" : 
 			{
 				"type" : "DRAGON_NATURE"
@@ -82,14 +91,14 @@
 			{
 				"type" : "FEAR"
 			},
+			"fearless" :
+			{
+				"type" : "FEARLESS"
+			},
 			"spellImmunity" :
 			{
 				"type" : "LEVEL_SPELL_IMMUNITY",
 				"val" : 3
-			},
-			"fearless" :
-			{
-				"type" : "FEARLESS"
 			}
 		},
 		"graphics" :
@@ -113,6 +122,11 @@
 		"excludeFromRandomization" : true,
 		"abilities":
 		{
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
@@ -149,6 +163,11 @@
 		"excludeFromRandomization" : true,
 		"abilities":
 		{
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
@@ -247,6 +266,15 @@
 		"excludeFromRandomization" : true,
 		"abilities":
 		{
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"dragon" : 
 			{
 				"type" : "DRAGON_NATURE"
@@ -290,6 +318,14 @@
 		"excludeFromRandomization" : true,
 		"abilities":
 		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
+			"const_no_melee_penalty" :
+			{
+				"type" : "NO_MELEE_PENALTY"
+			},
 			"noPenalty" : 
 			{
 				"type" : "NO_WALL_PENALTY"
@@ -369,6 +405,10 @@
 		"excludeFromRandomization" : true,
 		"abilities":
 		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
 			"noDistancePenalty" :
 			{
 				"type" : "NO_DISTANCE_PENALTY"
@@ -403,6 +443,10 @@
 		"faction": "neutral",
 		"abilities": 
 		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
 			"lucky" :
 			{
 				"type" : "LUCK",
@@ -481,7 +525,7 @@
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.curse",
 				"val" : 50
-			}			
+			}
 		},
 		"graphics" :
 		{
@@ -545,7 +589,7 @@
 				"subtype" : "visionsHeroes",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
-				"propagator" : "HERO"				
+				"propagator" : "HERO"
 			},
 			"visionsTowns" :
 			{
@@ -553,7 +597,7 @@
 				"subtype" : "visionsTowns",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
-				"propagator" : "HERO"				
+				"propagator" : "HERO"
 			}
 		},
 		"graphics" :

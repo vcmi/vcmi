@@ -57,6 +57,12 @@
 		"extraNames": [ "lightCrossbowman" ],
 		"faction": "castle",
 		"upgrades": ["marksman"],
+		"abilities" :
+		{
+			"SHOOTING_ARMY" : {
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CLCBOW.DEF",
@@ -80,7 +86,11 @@
 		"index": 3,
 		"level": 2,
 		"faction": "castle",
-		"abilities": {
+		"abilities":
+		{
+			"SHOOTING_ARMY" : {
+				"type" : "SHOOTER"
+			},
 			"extraAttack" :
 			{
 				"type": "ADDITIONAL_ATTACK",
@@ -113,6 +123,9 @@
 		"faction": "castle",
 		"abilities":
 		{
+			"FLYING_ARMY" : {
+				"type" : "FLYING"
+			},
 			"extraRetaliation" :
 			{
 				"type" : "ADDITIONAL_RETALIATION",
@@ -141,6 +154,9 @@
 		"faction": "castle",
 		"abilities":
 		{
+			"FLYING_ARMY" : {
+				"type" : "FLYING"
+			},
 			"unlimitedRetaliation" :
 			{
 				"type" : "UNLIMITED_RETALIATIONS"
@@ -210,6 +226,12 @@
 		"level": 5,
 		"faction": "castle",
 		"upgrades": ["zealot"],
+		"abilities" :
+		{
+			"SHOOTING_ARMY" : {
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CMONKK.DEF",
@@ -233,6 +255,15 @@
 		"index": 9,
 		"level": 5,
 		"faction": "castle",
+		"abilities" :
+		{
+			"SHOOTING_ARMY" : {
+				"type" : "SHOOTER"
+			},
+			"const_no_melee_penalty" : {
+				"type" : "NO_MELEE_PENALTY"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CZEALT.DEF",
@@ -257,6 +288,12 @@
 		"level": 6,
 		"faction": "castle",
 		"upgrades": ["champion"],
+		"abilities" :
+		{
+			"const_jousting" : {
+				"type" : "JOUSTING"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CCAVLR.DEF"
@@ -275,6 +312,12 @@
 		"index": 11,
 		"level": 6,
 		"faction": "castle",
+		"abilities" :
+		{
+			"const_jousting" : {
+				"type" : "JOUSTING"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CCHAMP.DEF"
@@ -295,8 +338,20 @@
 		"faction": "castle",
 		"abilities":
 		{
+			"KING_2" :
+			{
+				"type" : "KING",
+				"val" : 2
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"const_raises_morale" :
 			{
+				"type" : "MORALE",
+				"val" : 1,
+				"propagator" : "HERO",
 				"stacking" : "Angels"
 			},
 			"hateDevils" :
@@ -333,6 +388,15 @@
 		"faction": "castle",
 		"abilities":
 		{
+			"KING_2" :
+			{
+				"type" : "KING",
+				"val" : 2
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"resurrects" :
 			{
 				"type" : "SPELLCASTER",
@@ -350,8 +414,10 @@
 				"type" : "CASTS",
 				"val" : 1
 			},
-			"const_raises_morale" :
-			{
+			"const_raises_morale" : {
+				"type" : "MORALE",
+				"val" : 1,
+				"propagator" : "HERO",
 				"stacking" : "Angels"
 			},
 			"hateDevils" :

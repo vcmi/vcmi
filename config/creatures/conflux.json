@@ -6,6 +6,12 @@
 		"extraNames": [ "pixies" ],
 		"faction": "conflux",
 		"upgrades": ["sprite"],
+		"abilities" :
+		{
+			"FLYING_ARMY" : {
+				"type" : "FLYING"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CPIXIE.DEF"
@@ -24,6 +30,15 @@
 		"index": 119,
 		"level": 1,
 		"faction": "conflux",
+		"abilities" :
+		{
+			"FLYING_ARMY" : {
+				"type" : "FLYING"
+			},
+			"const_free_attack" : {
+				"type" : "BLOCKS_RETALIATION"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CSPRITE.DEF"
@@ -53,6 +68,11 @@
 			{
 				"type" : "MIND_IMMUNITY"
 			},
+			"meteorShowerImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.meteorShower"
+			},
 			"lightingVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
@@ -64,11 +84,6 @@
 				"type" : "MORE_DAMAGE_FROM_SPELL",
 				"subtype" : "spell.chainLightning",
 				"val" : 100
-			},
-			"meteorShowerImmunity" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.meteorShower"
 			},
 			"armageddonVulnerablity" :
 			{
@@ -115,6 +130,10 @@
 			{
 				"type" : "NON_LIVING"
 			},
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
 			"spellcaster":
 			{
 				"type" : "SPELLCASTER",
@@ -131,6 +150,15 @@
 				"type" : "CASTS",
 				"val" : 3
 			},
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			},
+			"meteorShowerImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.meteorShower"
+			},
 			"lightingVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
@@ -142,11 +170,6 @@
 				"type" : "MORE_DAMAGE_FROM_SPELL",
 				"subtype" : "spell.chainLightning",
 				"val" : 100
-			},
-			"meteorShowerImmunity" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.meteorShower"
 			},
 			"armageddonVulnerablity" :
 			{
@@ -279,6 +302,10 @@
 			"nonLiving" : 
 			{
 				"type" : "NON_LIVING"
+			},
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
 			},
 			"spellcaster":
 			{
@@ -442,6 +469,10 @@
 			{
 				"type" : "NON_LIVING"
 			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"spellcaster":
 			{
 				"type" : "SPELLCASTER",
@@ -595,6 +626,10 @@
 				"type" : "CASTS",
 				"val" : 3
 			},
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			},
 			"lightingImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
@@ -652,6 +687,18 @@
 			"nonLiving" : 
 			{
 				"type" : "NON_LIVING"
+			},
+			"MULTI_HEADED" :
+			{
+				"type" : "ATTACKS_ALL_ADJACENT"
+			},
+			"const_free_attack" :
+			{
+				"type" : "BLOCKS_RETALIATION"
+			},
+			"IMMUNE_TO_MIND_SPELLS" :
+			{
+				"type" : "MIND_IMMUNITY"
 			}
 		},
 		"doubleWide" : false,
@@ -679,6 +726,14 @@
 			"nonLiving" : 
 			{
 				"type" : "NON_LIVING"
+			},
+			"MULTI_HEADED" :
+			{
+				"type" : "ATTACKS_ALL_ADJACENT"
+			},
+			"const_free_attack" :
+			{
+				"type" : "BLOCKS_RETALIATION"
 			},
 			"magicImmunity" :
 			{
@@ -708,6 +763,19 @@
 		"upgrades": ["phoenix"],
 		"abilities":
 		{
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
+			"HAS_EXTENDED_ATTACK" :
+			{
+				"type" : "TWO_HEX_ATTACK_BREATH"
+			},
 			"immuneToFire" :
 			{
 				"type" : "SPELL_SCHOOL_IMMUNITY",
@@ -734,6 +802,19 @@
 		"faction": "conflux",
 		"abilities":
 		{
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
+			"HAS_EXTENDED_ATTACK" :
+			{
+				"type" : "TWO_HEX_ATTACK_BREATH"
+			},
 			"immuneToFire" :
 			{
 				"type" : "SPELL_SCHOOL_IMMUNITY",

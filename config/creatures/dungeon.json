@@ -74,6 +74,10 @@
 		"faction": "dungeon",
 		"abilities":
 		{
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"strikeAndReturn" : 
 			{
 				"type" : "RETURN_AFTER_STRIKE"
@@ -101,6 +105,10 @@
 		"faction": "dungeon",
 		"abilities":
 		{
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"strikeAndReturn" : 
 			{
 				"type" : "RETURN_AFTER_STRIKE"
@@ -130,6 +138,17 @@
 		"level": 3,
 		"faction": "dungeon",
 		"upgrades": ["evilEye"],
+		"abilities" :
+		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
+			"const_no_melee_penalty" :
+			{
+				"type" : "NO_MELEE_PENALTY"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CBEHOL.DEF",
@@ -160,6 +179,17 @@
 		"index": 75,
 		"level": 3,
 		"faction": "dungeon",
+		"abilities" :
+		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
+			"const_no_melee_penalty" :
+			{
+				"type" : "NO_MELEE_PENALTY"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CEVEYE.DEF",
@@ -192,6 +222,14 @@
 		"faction": "dungeon",
 		"abilities":
 		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
+			"const_no_melee_penalty" :
+			{
+				"type" : "NO_MELEE_PENALTY"
+			},
 			"petrification" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -226,6 +264,14 @@
 		"faction": "dungeon",
 		"abilities":
 		{
+			"SHOOTING_ARMY" :
+			{
+				"type" : "SHOOTER"
+			},
+			"const_no_melee_penalty" :
+			{
+				"type" : "NO_MELEE_PENALTY"
+			},
 			"petrification" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -314,6 +360,13 @@
 		"level": 6,
 		"faction": "dungeon",
 		"upgrades": ["scorpicore"],
+		"abilities" :
+		{
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CMCORE.DEF"
@@ -335,6 +388,10 @@
 		"faction": "dungeon",
 		"abilities":
 		{
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"paralize" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -363,6 +420,15 @@
 		"faction": "dungeon",
 		"abilities":
 		{
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"dragon" : 
 			{
 				"type" : "DRAGON_NATURE"
@@ -398,6 +464,15 @@
 		"faction": "dungeon",
 		"abilities":
 		{
+			"KING_1" :
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"FLYING_ARMY" :
+			{
+				"type" : "FLYING"
+			},
 			"dragon" : 
 			{
 				"type" : "DRAGON_NATURE"
