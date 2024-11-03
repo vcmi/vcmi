@@ -152,7 +152,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	for(int i = 0; i < std::min<size_t>(hero->secSkills.size(), 8u); ++i)
 	{
 		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  136,  42);
-		secSkills.emplace_back(std::make_shared<CSecSkillPlace>(r.topLeft(), CSecSkillPlace::ImageSize::LARGE));
+		secSkills.emplace_back(std::make_shared<CSecSkillPlace>(r.topLeft(), CSecSkillPlace::ImageSize::MEDIUM));
 
 		int x = (i % 2) ? 212 : 68;
 		int y = 280 + 48 * (i/2);
