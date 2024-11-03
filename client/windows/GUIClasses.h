@@ -523,5 +523,5 @@ public:
 
 	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
-	bool receiveEvent(const Point & position, int eventType) const override;
+	void notFocusedClick() override;
 };
