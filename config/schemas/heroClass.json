@@ -60,9 +60,7 @@
 			"properties" : {
 				"filters" : {
 					"type" : "object",
-					"additionalProperties" : { 
-						"type" : "array" 
-					}
+					"additionalProperties" : true
 				}
 			}
 		},

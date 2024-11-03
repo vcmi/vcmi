@@ -1430,6 +1430,7 @@ void HeroRecruited::applyGs(CGameState *gs)
 
 	h->setOwner(player);
 	h->pos = tile;
+	h->updateAppearance();
 
 	if(h->id == ObjectInstanceID())
 	{
@@ -1469,7 +1470,7 @@ void GiveHero::applyGs(CGameState *gs)
 
 	auto oldVisitablePos = h->visitablePos();
 	gs->map->removeBlockVisTiles(h,true);
-	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->getHeroClassID().getNum())->getTemplates().front();
+	h->updateAppearance();
 
 	h->setOwner(player);
 	h->setMovementPoints(h->movementPointsLimit(true));

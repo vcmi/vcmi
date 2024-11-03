@@ -336,6 +336,11 @@ void CGHeroInstance::setHeroType(HeroTypeID heroType)
 	subID = heroType;
 }
 
+void CGHeroInstance::initObj(vstd::RNG & rand)
+{
+	updateAppearance();
+}
+
 void CGHeroInstance::initHero(vstd::RNG & rand, const HeroTypeID & SUBID)
 {
 	subID = SUBID.getNum();
@@ -350,12 +355,27 @@ TObjectTypeHandler CGHeroInstance::getObjectHandler() const
 		return VLC->objtypeh->getHandlerFor(ID, 0);
 }
 
+void CGHeroInstance::updateAppearance()
+{
+	auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());;
+	auto terrain = cb->gameState()->getTile(visitablePos())->terType->getId();
+	auto app = handler->getOverride(terrain, this);
+	if (app)
+		appearance = app;
+}
+
 void CGHeroInstance::initHero(vstd::RNG & rand)
 {
 	assert(validTypes(true));
 	
+	if (gender == EHeroGender::DEFAULT)
+		gender = getHeroType()->gender;
+
 	if (ID == Obj::HERO)
-		appearance = getObjectHandler()->getTemplates().front();
+	{
+		auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());;
+		appearance = handler->getTemplates().front();
+	}
 
 	if(!vstd::contains(spells, SpellID::PRESET))
 	{
@@ -393,9 +413,6 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 	}
 	if(secSkills.size() == 1 && secSkills[0] == std::pair<SecondarySkill,ui8>(SecondarySkill::NONE, -1)) //set secondary skills to default
 		secSkills = getHeroType()->secSkillsInit;
-
-	if (gender == EHeroGender::DEFAULT)
-		gender = getHeroType()->gender;
 
 	setFormation(EArmyFormation::LOOSE);
 	if (!stacksCount()) //standard army//initial army
