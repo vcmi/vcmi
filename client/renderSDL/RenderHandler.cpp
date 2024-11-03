@@ -55,6 +55,58 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 	return result;
 }
 
+std::optional<ResourcePath> RenderHandler::getPath(ResourcePath path)
+{
+	if(CResourceHandler::get()->existsResource(path))
+		return path;
+	if(path.getType() == EResType::IMAGE)
+	{
+		auto p = ImagePath::builtin(path.getName());
+		if(CResourceHandler::get()->existsResource(p.addPrefix("DATA/")))
+			return std::optional<ResourcePath>(p.addPrefix("DATA/"));
+		if(CResourceHandler::get()->existsResource(p.addPrefix("SPRITES/")))
+			return std::optional<ResourcePath>(p.addPrefix("SPRITES/"));
+	}
+	else
+	{
+		auto p = AnimationPath::builtin(path.getName());
+		auto pJson = p.toType<EResType::JSON>();
+		if(CResourceHandler::get()->existsResource(p.addPrefix("SPRITES/")))
+			return std::optional<ResourcePath>(p.addPrefix("SPRITES/"));
+		if(CResourceHandler::get()->existsResource(pJson))
+			return std::optional<ResourcePath>(p);
+		if(CResourceHandler::get()->existsResource(pJson.addPrefix("SPRITES/")))
+			return std::optional<ResourcePath>(p.addPrefix("SPRITES/"));
+	}
+
+	return std::nullopt;
+}
+
+std::pair<ResourcePath, int> RenderHandler::getScalePath(ResourcePath p)
+{
+	auto path = p;
+	auto name = p.getName();
+	int scaleFactor = 1;
+	if(getScalingFactor() > 1)
+	{
+		std::vector<int> factorsToCheck = {getScalingFactor(), 4, 3, 2};
+		for(auto factorToCheck : factorsToCheck)
+		{
+			ResourcePath scaledPath = ImagePath::builtin(name + "$" + std::to_string(factorToCheck));
+			if(p.getType() != EResType::IMAGE)
+				scaledPath = AnimationPath::builtin(name + "$" + std::to_string(factorToCheck));
+			if(getPath(scaledPath))
+			{
+				path = scaledPath;
+				scaleFactor = factorToCheck;
+				break;
+			}
+		}
+	}
+
+	return std::pair<ResourcePath, int>(path, scaleFactor);
+};
+
 void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & config)
 {
 	std::string basepath;
@@ -177,13 +229,13 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 	if (locator.image)
 	{
 		// TODO: create EmptySharedImage class that will be instantiated if image does not exists or fails to load
-		return std::make_shared<SDLImageShared>(*locator.image);
+		return std::make_shared<SDLImageShared>(*locator.image, locator.preScaledFactor);
 	}
 
 	if (locator.defFile)
 	{
 		auto defFile = getAnimationFile(*locator.defFile);
-		return std::make_shared<SDLImageShared>(defFile.get(), locator.defFrame, locator.defGroup);
+		return std::make_shared<SDLImageShared>(defFile.get(), locator.defFrame, locator.defGroup, locator.preScaledFactor);
 	}
 
 	throw std::runtime_error("Invalid image locator received!");
@@ -247,7 +299,7 @@ std::shared_ptr<ISharedImage> RenderHandler::scaleImage(const ImageLocator & loc
 	if (locator.layer == EImageLayer::ALL && locator.playerColored != PlayerColor::CANNOT_DETERMINE)
 		handle->playerColored(locator.playerColored);
 
-	handle->scaleInteger(locator.scalingFactor);
+	handle->scaleInteger(locator.scalingFactor);	
 
 	// TODO: try to optimize image size (possibly even before scaling?) - trim image borders if they are completely transparent
 	auto result = handle->getSharedImage();
@@ -284,13 +336,17 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, E
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode)
 {
-	ImageLocator locator = getLocatorForAnimationFrame(path, frame, group);
+	auto tmp = getScalePath(path);
+	ImageLocator locator = getLocatorForAnimationFrame(AnimationPath::builtin(tmp.first.getName()), frame, group);
+	locator.preScaledFactor = tmp.second;
 	return loadImage(locator, mode);
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageBlitMode mode)
 {
-	ImageLocator locator(path);
+	auto tmp = getScalePath(path);
+	ImageLocator locator(ImagePath::builtin(tmp.first.getName()));
+	locator.preScaledFactor = tmp.second;
 	return loadImage(locator, mode);
 }
 
@@ -301,7 +357,14 @@ std::shared_ptr<IImage> RenderHandler::createImage(SDL_Surface * source)
 
 std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path, EImageBlitMode mode)
 {
-	return std::make_shared<CAnimation>(path, getAnimationLayout(path), mode);
+	auto tmp = getScalePath(path);
+	auto animPath = AnimationPath::builtin(tmp.first.getName());
+	auto layout = getAnimationLayout(animPath);
+	for(auto & g : layout)
+		for(auto & i : g.second)
+			i.preScaledFactor = tmp.second;
+
+	return std::make_shared<CAnimation>(animPath, layout, mode);
 }
 
 void RenderHandler::addImageListEntries(const EntityService * service)

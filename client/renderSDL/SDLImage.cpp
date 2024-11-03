@@ -89,11 +89,12 @@ int IImage::height() const
 	return dimensions().y;
 }
 
-SDLImageShared::SDLImageShared(const CDefFile * data, size_t frame, size_t group)
+SDLImageShared::SDLImageShared(const CDefFile * data, size_t frame, size_t group, int scaleFactor)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
-	originalPalette(nullptr)
+	originalPalette(nullptr),
+	scaleFactor(scaleFactor)
 {
 	SDLImageLoader loader(this);
 	data->loadFrame(frame, group, loader);
@@ -105,7 +106,8 @@ SDLImageShared::SDLImageShared(SDL_Surface * from)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
-	originalPalette(nullptr)
+	originalPalette(nullptr),
+	scaleFactor(1)
 {
 	surf = from;
 	if (surf == nullptr)
@@ -118,11 +120,12 @@ SDLImageShared::SDLImageShared(SDL_Surface * from)
 	fullSize.y = surf->h;
 }
 
-SDLImageShared::SDLImageShared(const ImagePath & filename)
+SDLImageShared::SDLImageShared(const ImagePath & filename, int scaleFactor)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
-	originalPalette(nullptr)
+	originalPalette(nullptr),
+	scaleFactor(scaleFactor)
 {
 	surf = BitmapHandler::loadBitmap(filename);
 
@@ -274,7 +277,13 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palet
 	if (palette && surf && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
 
-	SDL_Surface * scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, factor, EScalingAlgorithm::XBRZ);
+	SDL_Surface * scaled = nullptr;
+	if(scaleFactor == factor)
+		scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, 1, EScalingAlgorithm::NEAREST); // keep size
+	else if(scaleFactor == 1)
+		scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, factor, EScalingAlgorithm::XBRZ);
+	else
+		scaled = CSDL_Ext::scaleSurface(surf, (surf->w / scaleFactor) * factor, (surf->h / scaleFactor) * factor);
 
 	auto ret = std::make_shared<SDLImageShared>(scaled);
 
@@ -296,8 +305,8 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palet
 
 std::shared_ptr<ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Palette * palette) const
 {
-	float scaleX = float(size.x) / dimensions().x;
-	float scaleY = float(size.y) / dimensions().y;
+	float scaleX = float(size.x) / fullSize.x;
+	float scaleY = float(size.y) / fullSize.y;
 
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
@@ -355,7 +364,7 @@ bool SDLImageShared::isTransparent(const Point & coords) const
 
 Point SDLImageShared::dimensions() const
 {
-	return fullSize;
+	return fullSize / scaleFactor;
 }
 
 std::shared_ptr<IImage> SDLImageShared::createImageReference(EImageBlitMode mode)
