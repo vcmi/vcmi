@@ -10,14 +10,19 @@
 #include "StdInc.h"
 #include "FlaggableInstanceConstructor.h"
 
-#include "../json/JsonBonus.h"
-#include "../texts/CGeneralTextHandler.h"
+#include "../CConfigHandler.h"
 #include "../VCMI_Lib.h"
+#include "../json/JsonBonus.h"
+#include "../json/JsonUtils.h"
+#include "../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 void FlaggableInstanceConstructor::initTypeData(const JsonNode & config)
 {
+	if (settings["mods"]["validation"].String() != "off")
+		JsonUtils::validate(config, "vcmi:flaggable", getJsonKey());
+
 	for (const auto & bonusJson : config["bonuses"].Struct())
 		providedBonuses.push_back(JsonUtils::parseBonus(bonusJson.second));
 
