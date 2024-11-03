@@ -29,7 +29,7 @@
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Omlouváme se, přehrání tahu soupeře ještě není implementováno!",
 
 	"vcmi.bonusSource.artifact" : "Artefakt",
-	"vcmi.bonusSource.creature" : "Jednotka",
+	"vcmi.bonusSource.creature" : "Schopnost",
 	"vcmi.bonusSource.spell" : "Kouzlo",
 	"vcmi.bonusSource.hero" : "Hrdina",
 	"vcmi.bonusSource.commander" : "Velitel",
