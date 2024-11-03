@@ -102,15 +102,15 @@
 		"faction": "tower",
 		"abilities":
 		{
+			"nonliving" :
+			{
+				"type" : "NON_LIVING"
+			},
 			"magicResistance" :
 			{
 				"type" : "SPELL_DAMAGE_REDUCTION",
 				"subtype" : "spellSchool.any",
 				"val" : 50
-			},
-			"nonliving" :
-			{
-				"type" : "NON_LIVING"
 			}
 		},
 		"upgrades": ["stoneGolem"],
@@ -134,15 +134,15 @@
 		"faction": "tower",
 		"abilities" :
 		{
+			"nonliving" :
+			{
+				"type" : "NON_LIVING"
+			},
 			"magicResistance" :
 			{
 				"type" : "SPELL_DAMAGE_REDUCTION",
 				"subtype" : "spellSchool.any",
 				"val" : 75
-			},
-			"nonliving" :
-			{
-				"type" : "NON_LIVING"
 			}
 		},
 		"graphics" :
@@ -236,13 +236,13 @@
 		"faction": "tower",
 		"abilities":
 		{
-			"hateAngels" : 
+			"hateEfreet" : 
 			{
 				"type" : "HATE",
 				"subtype" : "creature.efreet",
 				"val" : 50
 			},
-			"hateArchAngels" : 
+			"hateEfreetSultans" : 
 			{
 				"type" : "HATE",
 				"subtype" : "creature.efreetSultan",
@@ -270,17 +270,10 @@
 		"faction": "tower",
 		"abilities":
 		{
-			"hateAngels" : 
+			"casts" :
 			{
-				"type" : "HATE",
-				"subtype" : "creature.efreet",
-				"val" : 50
-			},
-			"hateArchAngels" : 
-			{
-				"type" : "HATE",
-				"subtype" : "creature.efreetSultan",
-				"val" : 50
+				"type" : "CASTS",
+				"val" : 3
 			},
 			"spellsLength" : 
 			{
@@ -292,10 +285,17 @@
 				"type" : "RANDOM_SPELLCASTER",
 				"val" : 2
 			},
-			"casts" :
+			"hateEfreet" : 
 			{
-				"type" : "CASTS",
-				"val" : 3
+				"type" : "HATE",
+				"subtype" : "creature.efreet",
+				"val" : 50
+			},
+			"hateEfreetSultans" : 
+			{
+				"type" : "HATE",
+				"subtype" : "creature.efreetSultan",
+				"val" : 50
 			}
 		},
 		"graphics" :
@@ -400,7 +400,7 @@
 			{
 				"type" : "MIND_IMMUNITY"
 			},
-			"hateArchAngels" : 
+			"hateBlackDragons" : 
 			{
 				"type" : "HATE",
 				"subtype" : "creature.blackDragon",

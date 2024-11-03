@@ -7,15 +7,15 @@
 		"faction": "neutral",
 		"abilities":
 		{
+			"nonliving" :
+			{
+				"type" : "NON_LIVING"
+			},
 			"magicResistance" :
 			{
 				"type" : "SPELL_DAMAGE_REDUCTION",
 				"subtype" : "spellSchool.any",
 				"val" : 85
-			},
-			"nonliving" :
-			{
-				"type" : "NON_LIVING"
 			}
 		},
 		"graphics" :
@@ -38,15 +38,15 @@
 		"faction": "neutral",
 		"abilities":
 		{
+			"nonliving" :
+			{
+				"type" : "NON_LIVING"
+			},
 			"magicResistance" :
 			{
 				"type" : "SPELL_DAMAGE_REDUCTION",
 				"subtype" : "spellSchool.any",
 				"val" : 95
-			},
-			"nonliving" :
-			{
-				"type" : "NON_LIVING"
 			}
 		},
 		"graphics" :
@@ -78,6 +78,10 @@
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
+			"fear" :
+			{
+				"type" : "FEAR"
+			},
 			"spellImmunity" :
 			{
 				"type" : "LEVEL_SPELL_IMMUNITY",
@@ -86,10 +90,6 @@
 			"fearless" :
 			{
 				"type" : "FEARLESS"
-			},
-			"fear" :
-			{
-				"type" : "FEAR"
 			}
 		},
 		"graphics" :
@@ -251,15 +251,15 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
+			"fireBreath" :
+			{
+				"type" : "TWO_HEX_ATTACK_BREATH"
+			},
 			"acidBreath" :
 			{
 				"type" : "ACID_BREATH",
 				"val" : 25,
 				"addInfo" : 30
-			},
-			"fireBreath" :
-			{
-				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
 			"reduceDefence" :
 			{
@@ -299,10 +299,24 @@
 				"type" : "CASTS",
 				"val" : 5
 			},
-			"castsAirShield" :
+			"castsHaste" :
 			{
 				"type" : "ENCHANTER",
-				"subtype" : "spell.airShield",
+				"subtype" : "spell.haste",
+				"val" : 3,
+				"addInfo" : 3
+			},
+			"castsSlow" :
+			{
+				"type" : "ENCHANTER",
+				"subtype" : "spell.slow",
+				"val" : 3,
+				"addInfo" : 3
+			},
+			"castsStoneSkin" :
+			{
+				"type" : "ENCHANTER",
+				"subtype" : "spell.stoneSkin",
 				"val" : 3,
 				"addInfo" : 3
 			},
@@ -320,28 +334,13 @@
 				"val" : 3,
 				"addInfo" : 3
 			},
-			"castsStoneSkin" :
+			"castsAirShield" :
 			{
 				"type" : "ENCHANTER",
-				"subtype" : "spell.stoneSkin",
-				"val" : 3,
-				"addInfo" : 3
-			},
-			"castsSlow" :
-			{
-				"type" : "ENCHANTER",
-				"subtype" : "spell.slow",
-				"val" : 3,
-				"addInfo" : 3
-			},
-			"castsHaste" :
-			{
-				"type" : "ENCHANTER",
-				"subtype" : "spell.haste",
+				"subtype" : "spell.airShield",
 				"val" : 3,
 				"addInfo" : 3
 			}
-			
 		},
 		"graphics" :
 		{
@@ -370,13 +369,13 @@
 		"excludeFromRandomization" : true,
 		"abilities":
 		{
-			"noPenalty" : 
-			{
-				"type" : "NO_WALL_PENALTY"
-			},
 			"noDistancePenalty" :
 			{
 				"type" : "NO_DISTANCE_PENALTY"
+			},
+			"noPenalty" : 
+			{
+				"type" : "NO_WALL_PENALTY"
 			}
 		},
 		"graphics" :

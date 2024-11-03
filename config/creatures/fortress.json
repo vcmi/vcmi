@@ -303,13 +303,13 @@
 		"faction": "fortress",
 		"abilities":
 		{
-			"noRetaliate" :
-			{
-				"type" : "BLOCKS_RETALIATION"
-			},
 			"attackAll" :
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
+			},
+			"noRetaliate" :
+			{
+				"type" : "BLOCKS_RETALIATION"
 			}
 		},
 		"upgrades": ["chaosHydra"],
@@ -333,13 +333,13 @@
 		"faction": "fortress",
 		"abilities":
 		{
-			"noRetaliate" :
-			{
-				"type" : "BLOCKS_RETALIATION"
-			},
 			"attackAll" :
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
+			},
+			"noRetaliate" :
+			{
+				"type" : "BLOCKS_RETALIATION"
 			}
 		},
 		"graphics" :

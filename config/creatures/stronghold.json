@@ -214,17 +214,17 @@
 		"faction": "stronghold",
 		"abilities":
 		{
-			"thunderStrength" :
-			{
-				"type" : "SPECIFIC_SPELL_POWER",
-				"subtype" : "spell.thunderbolt",
-				"val" : 10
-			},
 			"thunderOnAttack" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.thunderbolt",
 				"val" : 20
+			},
+			"thunderStrength" :
+			{
+				"type" : "SPECIFIC_SPELL_POWER",
+				"subtype" : "spell.thunderbolt",
+				"val" : 10
 			}
 		},
 		"graphics" :

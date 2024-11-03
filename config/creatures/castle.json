@@ -295,6 +295,10 @@
 		"faction": "castle",
 		"abilities":
 		{
+			"const_raises_morale" :
+			{
+				"stacking" : "Angels"
+			},
 			"hateDevils" :
 			{
 				"type" : "HATE",
@@ -306,10 +310,6 @@
 				"type" : "HATE",
 				"subtype" : "creature.archDevil",
 				"val" : 50
-			},
-			"const_raises_morale" :
-			{
-				"stacking" : "Angels"
 			}
 		},
 		"upgrades": ["archangel"],
@@ -333,22 +333,26 @@
 		"faction": "castle",
 		"abilities":
 		{
-			"resurrection100hp" : 
-			{
-				"type" : "SPECIFIC_SPELL_POWER",
-				"subtype" : "spell.resurrection",
-				"val" : 100
-			},
 			"resurrects" :
 			{
 				"type" : "SPELLCASTER",
 				"subtype" : "spell.resurrection",
 				"val" : 3
 			},
+			"resurrection100hp" : 
+			{
+				"type" : "SPECIFIC_SPELL_POWER",
+				"subtype" : "spell.resurrection",
+				"val" : 100
+			},
 			"spellpoints" :
 			{
 				"type" : "CASTS",
 				"val" : 1
+			},
+			"const_raises_morale" :
+			{
+				"stacking" : "Angels"
 			},
 			"hateDevils" :
 			{
@@ -361,10 +365,6 @@
 				"type" : "HATE",
 				"subtype" : "creature.archDevil",
 				"val" : 50
-			},
-			"const_raises_morale" :
-			{
-				"stacking" : "Angels"
 			}
 		},
 		"graphics" :

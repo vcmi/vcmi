@@ -372,6 +372,12 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
+			"age" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.age",
+				"val" : 20
+			},
 			"decreaseMorale" :
 			{
 				"type" : "MORALE",
@@ -380,12 +386,6 @@
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
 				"limiters" : [ "OPPOSITE_SIDE" ]
-			},
-			"age" :
-			{
-				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.age",
-				"val" : 20
 			}
 		},
 		"graphics" :
