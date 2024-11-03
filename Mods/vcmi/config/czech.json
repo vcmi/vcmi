@@ -126,7 +126,7 @@
 	"vcmi.lobby.login.error" : "Chyba při připojování: %s",
 	"vcmi.lobby.login.create" : "Nový účet",
 	"vcmi.lobby.login.login" : "Přihlásit se",
-	"vcmi.lobby.login.as" : "Přilásit se jako %s",
+	"vcmi.lobby.login.as" : "Přihlásit se jako %s",
 	"vcmi.lobby.header.rooms" : "Herní místnosti - %d",
 	"vcmi.lobby.header.channels" : "Kanály konverzace",
 	"vcmi.lobby.header.chat.global" : "Globální konverzace hry - %s", // %s -> language name
