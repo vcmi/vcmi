@@ -71,7 +71,7 @@ const CArtifactInstance * CWindowWithArtifacts::getPickedArtifact() const
 }
 
 void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, const ArtifactPosition & slot,
-	bool allowExchange, bool altarTrading, bool closeWindow)
+	bool allowExchange, bool altarTrading, bool closeWindow, const Point & cursorPosition)
 {
 	if(!LOCPLINT->makingTurn)
 		return;
@@ -85,8 +85,7 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, c
 	}
 	else if(GH.isKeyboardShiftDown())
 	{
-		if(ArtifactUtils::isSlotEquipment(slot))
-			GH.windows().createAndPushWindow<CHeroQuickBackpackWindow>(hero, slot);
+		showQuickBackpackWindow(hero, slot, cursorPosition);
 	}
 	else if(auto art = hero->getArt(slot))
 	{
@@ -132,6 +131,9 @@ void CWindowWithArtifacts::showQuickBackpackWindow(const CGHeroInstance * hero, 
 	const Point & cursorPosition) const
 {
 	if(!settings["general"]["enableUiEnhancements"].Bool())
+		return;
+
+	if(!ArtifactUtils::isSlotEquipment(slot))
 		return;
 
 	GH.windows().createAndPushWindow<CHeroQuickBackpackWindow>(hero, slot);
