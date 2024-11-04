@@ -46,10 +46,10 @@
 							"@gainedSpell"
 						],
 						"description" : "@core.genrltxt.355",
-						"message" : [ 127, "%s." ] // You learn new spell
+						"message" : [ 127, "{%s}." ] // You learn new spell
 					}
 				],
-				"onVisitedMessage" : [ 127, "%s. ", 174 ], // You already known this spell
+				"onVisitedMessage" : [ 127, "{%s}. ", 174 ], // You already known this spell
 				"onEmpty" : [
 					{
 						"limiter" : {
@@ -59,10 +59,10 @@
 								}
 							]
 						},
-						"message" : [ 127, "%s. ", 130 ] // No Wisdom
+						"message" : [ 127, "{%s}. ", 130 ] // No Wisdom
 					},
 					{
-						"message" : [ 127, "%s. ", 131 ] // No spellbook
+						"message" : [ 127, "{%s}. ", 131 ] // No spellbook
 					}
 				]
 			}
@@ -115,10 +115,10 @@
 							"@gainedSpell"
 						],
 						"description" : "@core.genrltxt.355",
-						"message" : [ 128, "%s." ] // You learn new spell
+						"message" : [ 128, "{%s}." ] // You learn new spell
 					}
 				],
-				"onVisitedMessage" : [ 128, "%s. ", 174 ], // You already known this spell
+				"onVisitedMessage" : [ 128, "{%s}. ", 174 ], // You already known this spell
 				"onEmpty" : [
 					{
 						"limiter" : {
@@ -128,10 +128,10 @@
 								}
 							]
 						},
-						"message" : [ 128, "%s. ", 130 ] // No Wisdom
+						"message" : [ 128, "{%s}. ", 130 ] // No Wisdom
 					},
 					{
-						"message" : [ 128, "%s. ", 131 ] // No spellbook
+						"message" : [ 128, "{%s}. ", 131 ] // No spellbook
 					}
 				]
 			}
@@ -184,10 +184,10 @@
 							"@gainedSpell"
 						],
 						"description" : "@core.genrltxt.355",
-						"message" : [ 129, "%s." ] // You learn new spell
+						"message" : [ 129, "{%s}." ] // You learn new spell
 					}
 				],
-				"onVisitedMessage" : [ 129, "%s. ", 174 ], // You already known this spell
+				"onVisitedMessage" : [ 129, "{%s}. ", 174 ], // You already known this spell
 				"onEmpty" : [
 					{
 						"limiter" : {
@@ -197,10 +197,10 @@
 								}
 							]
 						},
-						"message" : [ 129, "%s. ", 130 ] // No Wisdom
+						"message" : [ 129, "{%s}. ", 130 ] // No Wisdom
 					},
 					{
-						"message" : [ 129, "%s. ", 131 ] // No spellbook
+						"message" : [ 129, "{%s}. ", 131 ] // No spellbook
 					}
 				]
 			}
