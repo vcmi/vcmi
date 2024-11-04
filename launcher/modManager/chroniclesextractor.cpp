@@ -106,7 +106,7 @@ void ChroniclesExtractor::createBaseMod() const
 		{ "author", "3DO" },
 		{ "version", "1.0" },
 		{ "contact", "vcmi.eu" },
-		{ "heroes", QJsonArray({"config/heroes/portraitsChronicles.json"}) },
+		{ "heroes", QJsonArray({"config/portraitsChronicles.json"}) },
 		{ "settings", QJsonObject({{"mapFormat", QJsonObject({{"chronicles", QJsonObject({{
 			{"supported", true},
 			{"portraits", QJsonObject({
@@ -123,6 +123,17 @@ void ChroniclesExtractor::createBaseMod() const
 	QFile jsonFile(dir.filePath("mod.json"));
     jsonFile.open(QFile::WriteOnly);
     jsonFile.write(QJsonDocument(mod).toJson());
+
+	for(auto & dataPath : VCMIDirs::get().dataPaths())
+	{
+		auto file = dataPath / "config" / "heroes" / "portraitsChronicles.json";
+		auto destFolder = VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "content" / "config";
+		if(boost::filesystem::exists(file))
+		{
+			boost::filesystem::create_directories(destFolder);
+			boost::filesystem::copy_file(file, destFolder / "portraitsChronicles.json", boost::filesystem::copy_options::overwrite_existing);
+		}
+	}
 }
 
 void ChroniclesExtractor::createChronicleMod(int no)
