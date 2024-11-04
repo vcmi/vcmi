@@ -22,7 +22,7 @@ BattleHexArray::BattleHexArray(std::initializer_list<BattleHex> initList) noexce
 	}
 }
 
-BattleHex BattleHexArray::getClosestTile(BattleSide side, BattleHex initialPos)
+BattleHex BattleHexArray::getClosestTile(BattleSide side, BattleHex initialPos) const
 {
 	BattleHex initialHex = BattleHex(initialPos);
 	auto compareDistance = [initialHex](const BattleHex left, const BattleHex right) -> bool
@@ -56,6 +56,74 @@ BattleHex BattleHexArray::getClosestTile(BattleSide side, BattleHex initialPos)
 	return sortedTiles.front();
 }
 
+BattleHexArray::NeighbouringTilesCache BattleHexArray::calculateNeighbouringTiles()
+{
+	BattleHexArray::NeighbouringTilesCache ret;
+
+	for(si16 hex = 0; hex < GameConstants::BFIELD_SIZE; hex++)
+	{
+		BattleHexArray hexes = BattleHexArray::generateNeighbouringTiles(hex);
+
+		size_t index = 0;
+		ret[hex].resize(hexes.size());
+		for(auto neighbour : hexes)
+			ret[hex].set(index++, neighbour);
+	}
+
+	return ret;
+}
+
+BattleHexArray BattleHexArray::generateNeighbouringTiles(BattleHex hex)
+{
+	BattleHexArray ret;
+	for(auto dir : BattleHex::hexagonalDirections())
+		ret.checkAndPush(hex.cloneInDirection(dir, false));
+
+	return ret;
+}
+
+BattleHexArray BattleHexArray::generateAttackerClosestTilesCache()
+{
+	assert(!neighbouringTilesCache.empty());
+
+	BattleHexArray ret;
+
+	ret.resize(GameConstants::BFIELD_SIZE);
+
+	for(si16 hex = 0; hex < GameConstants::BFIELD_SIZE; hex++)
+	{
+		ret.set(hex, neighbouringTilesCache[hex].getClosestTile(BattleSide::ATTACKER, hex));
+	}
+
+	return ret;
+}
+
+BattleHexArray BattleHexArray::generateDefenderClosestTilesCache()
+{
+	assert(!neighbouringTilesCache.empty());
+
+	BattleHexArray ret;
+
+	ret.resize(GameConstants::BFIELD_SIZE);
+
+	for(si16 hex = 0; hex < GameConstants::BFIELD_SIZE; hex++)
+	{
+		ret.set(hex, neighbouringTilesCache[hex].getClosestTile(BattleSide::DEFENDER, hex));
+	}
+
+	return ret;
+}
+
+BattleHex BattleHexArray::getClosestTileFromAllPossibleNeighbours(BattleSide side, BattleHex pos)
+{
+	if(side == BattleSide::ATTACKER)
+			return closestTilesCacheForAttacker[pos.hex];
+	else if(side == BattleSide::DEFENDER)
+		return closestTilesCacheForDefender[pos.hex];
+	else
+		assert(false);		// we should never be here
+}
+
 void BattleHexArray::merge(const BattleHexArray & other) noexcept
 {
 	for(auto hex : other)
@@ -82,22 +150,9 @@ void BattleHexArray::clear() noexcept
 	internalStorage.clear();
 }
 
-static BattleHexArray::NeighbouringTilesCache calculateNeighbouringTiles()
-{
-	BattleHexArray::NeighbouringTilesCache ret;
-
-	for(si16 hex = 0; hex < GameConstants::BFIELD_SIZE; hex++)
-	{
-		auto hexes = BattleHexArray::generateNeighbouringTiles(hex);
-
-		size_t index = 0;
-		for(auto neighbour : hexes)
-			ret[hex].at(index++) = neighbour;
-	}
-
-	return ret;
-}
-
 const BattleHexArray::NeighbouringTilesCache BattleHexArray::neighbouringTilesCache = calculateNeighbouringTiles();
+
+const BattleHexArray BattleHexArray::closestTilesCacheForAttacker = generateAttackerClosestTilesCache();
+const BattleHexArray BattleHexArray::closestTilesCacheForDefender = generateDefenderClosestTilesCache();
 
 VCMI_LIB_NAMESPACE_END

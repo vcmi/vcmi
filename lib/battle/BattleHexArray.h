@@ -33,10 +33,11 @@ public:
 	using reverse_iterator = typename StorageType::reverse_iterator;
 	using const_reverse_iterator = typename StorageType::const_reverse_iterator;
 
-	using NeighbouringTiles = std::array<BattleHex, 6>;
-	using NeighbouringTilesCache = std::array<NeighbouringTiles, GameConstants::BFIELD_SIZE>;
+	using NeighbouringTilesCache = std::array<BattleHexArray, GameConstants::BFIELD_SIZE>;
 
 	static const NeighbouringTilesCache neighbouringTilesCache;
+	static const BattleHexArray closestTilesCacheForAttacker;
+	static const BattleHexArray closestTilesCacheForDefender;
 
 	BattleHexArray() noexcept
 	{
@@ -62,16 +63,6 @@ public:
 	
 	BattleHexArray(std::initializer_list<BattleHex> initList) noexcept;
 
-	/// returns all valid neighbouring tiles
-	static BattleHexArray generateNeighbouringTiles(BattleHex hex)
-	{
-		BattleHexArray ret;
-		for(auto dir : BattleHex::hexagonalDirections())
-			ret.checkAndPush(hex.cloneInDirection(dir, false));
-
-		return ret;
-	}
-
 	/// returns all tiles, unavailable tiles will be set as invalid
 	/// order of returned tiles matches EDir enum
 	static BattleHexArray generateAllNeighbouringTiles(BattleHex hex)
@@ -85,8 +76,6 @@ public:
 
 		return ret;
 	}
-
-	BattleHex getClosestTile(BattleSide side, BattleHex initialPos);
 
 	void checkAndPush(BattleHex tile)
 	{
@@ -114,6 +103,14 @@ public:
 		/*if(isNotValidForInsertion(hex))
 			return;*/
 
+		if(index >= internalStorage.size())
+		{
+			logGlobal->error("Invalid BattleHexArray::set index parameter. It is " + std::to_string(index)
+				+ " and current size is " + std::to_string(internalStorage.size()));
+			throw std::out_of_range("Invalid BattleHexArray::set index parameter. It is " + std::to_string(index)
+				+ " and current size is " + std::to_string(internalStorage.size()));
+		}
+
 		if(contains(hex))
 			return;
 
@@ -132,6 +129,10 @@ public:
 		presenceFlags[hex] = 1;
 		return internalStorage.insert(pos, hex);
 	}
+
+	static BattleHex getClosestTileFromAllPossibleNeighbours(BattleSide side, BattleHex pos);
+
+	BattleHex getClosestTile(BattleSide side, BattleHex initialPos) const;
 
 	void merge(const BattleHexArray & other) noexcept;
 
@@ -295,6 +296,12 @@ private:
 	{
 		return hex == BattleHex::CASTLE_CENTRAL_TOWER || hex == BattleHex::CASTLE_UPPER_TOWER || hex == BattleHex::CASTLE_BOTTOM_TOWER;
 	}
+
+	/// returns all valid neighbouring tiles
+	static BattleHexArray::NeighbouringTilesCache calculateNeighbouringTiles();
+	static BattleHexArray generateNeighbouringTiles(BattleHex hex);
+	static BattleHexArray generateAttackerClosestTilesCache();
+	static BattleHexArray generateDefenderClosestTilesCache();
 };
 
 VCMI_LIB_NAMESPACE_END

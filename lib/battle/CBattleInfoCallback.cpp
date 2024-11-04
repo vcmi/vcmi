@@ -204,7 +204,7 @@ bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest,
 
 		while (next != dest)
 		{
-			next = BattleHexArray::generateNeighbouringTiles(next).getClosestTile(direction, dest);
+			next = BattleHexArray::neighbouringTilesCache[next].getClosestTile(direction, dest);
 			ret.insert(next);
 		}
 		assert(!ret.empty());
@@ -1360,7 +1360,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 	}
 	if(attacker->hasBonusOfType(BonusType::WIDE_BREATH))
 	{
-		BattleHexArray hexes = BattleHexArray::generateNeighbouringTiles(destinationTile);
+		BattleHexArray hexes = BattleHexArray::neighbouringTilesCache[destinationTile];
 		for(int i = 0; i < hexes.size(); i++)
 		{
 			if(hexes.at(i) == attackOriginHex)
@@ -1433,9 +1433,9 @@ AttackableTiles CBattleInfoCallback::getPotentiallyShootableHexes(const battle::
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
 
-	if(attacker->hasBonusOfType(BonusType::SHOOTS_ALL_ADJACENT) && !BattleHexArray::generateNeighbouringTiles(attackerPos).contains(destinationTile))
+	if(attacker->hasBonusOfType(BonusType::SHOOTS_ALL_ADJACENT) && !BattleHexArray::neighbouringTilesCache[attackerPos].contains(destinationTile))
 	{
-		auto targetHexes = BattleHexArray::generateNeighbouringTiles(destinationTile);
+		auto targetHexes = BattleHexArray::neighbouringTilesCache[destinationTile];
 		targetHexes.insert(destinationTile);
 		boost::copy(targetHexes, vstd::set_inserter(at.hostileCreaturePositions));
 	}
