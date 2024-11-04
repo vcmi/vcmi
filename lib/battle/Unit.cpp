@@ -88,7 +88,7 @@ BattleHexArray Unit::getSurroundingHexes(BattleHex position, bool twoHex, Battle
 	}
 	else
 	{
-		return BattleHexArray::generateNeighbouringTiles(position);
+		return BattleHexArray::neighbouringTilesCache[position];
 	}
 }
 
@@ -112,7 +112,7 @@ BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
 			hexes.pop_back();
 
 		for(auto hex : hexes)
-			targetableHexes.merge(BattleHexArray::generateNeighbouringTiles(hex));
+			targetableHexes.merge(BattleHexArray::neighbouringTilesCache[hex]);
 	}
 
 	return targetableHexes;
