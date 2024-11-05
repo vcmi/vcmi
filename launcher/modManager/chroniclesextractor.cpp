@@ -131,7 +131,11 @@ void ChroniclesExtractor::createBaseMod() const
 		if(boost::filesystem::exists(file))
 		{
 			boost::filesystem::create_directories(destFolder);
+#if BOOST_VERSION >= 107400
 			boost::filesystem::copy_file(file, destFolder / "portraitsChronicles.json", boost::filesystem::copy_options::overwrite_existing);
+#else
+			boost::filesystem::copy_file(file, destFolder / "portraitsChronicles.json", boost::filesystem::copy_option::overwrite_if_exists);
+#endif
 		}
 	}
 }
