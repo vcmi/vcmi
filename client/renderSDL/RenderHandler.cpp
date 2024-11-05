@@ -148,7 +148,9 @@ void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & c
 
 RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const AnimationPath & path)
 {
-	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
+	auto tmp = getScalePath(path);
+	auto animPath = AnimationPath::builtin(tmp.first.getName());
+	AnimationPath actualPath = boost::starts_with(animPath.getName(), "SPRITES") ? animPath : animPath.addPrefix("SPRITES/");
 
 	auto it = animationLayouts.find(actualPath);
 
@@ -175,10 +177,14 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
 		stream->read(textData.get(), stream->getSize());
 
-		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), path.getOriginalName());
+		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), animPath.getOriginalName());
 
 		initFromJson(result, config);
 	}
+
+	for(auto & g : result)
+		for(auto & i : g.second)
+			i.preScaledFactor = tmp.second;
 
 	animationLayouts[actualPath] = result;
 	return animationLayouts[actualPath];
@@ -235,7 +241,17 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 	if (locator.defFile)
 	{
 		auto defFile = getAnimationFile(*locator.defFile);
-		return std::make_shared<SDLImageShared>(defFile.get(), locator.defFrame, locator.defGroup, locator.preScaledFactor);
+		int preScaledFactor = locator.preScaledFactor;
+		if(!defFile) // no presscale for this frame
+		{
+			auto tmpPath = (*locator.defFile).getName();
+			boost::algorithm::replace_all(tmpPath, "$2", "");
+			boost::algorithm::replace_all(tmpPath, "$3", "");
+			boost::algorithm::replace_all(tmpPath, "$4", "");
+			preScaledFactor = 1;
+			defFile = getAnimationFile(AnimationPath::builtin(tmpPath));
+		}
+		return std::make_shared<SDLImageShared>(defFile.get(), locator.defFrame, locator.defGroup, preScaledFactor);
 	}
 
 	throw std::runtime_error("Invalid image locator received!");
@@ -369,14 +385,7 @@ std::shared_ptr<IImage> RenderHandler::createImage(SDL_Surface * source)
 
 std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path, EImageBlitMode mode)
 {
-	auto tmp = getScalePath(path);
-	auto animPath = AnimationPath::builtin(tmp.first.getName());
-	auto layout = getAnimationLayout(animPath);
-	for(auto & g : layout)
-		for(auto & i : g.second)
-			i.preScaledFactor = tmp.second;
-
-	return std::make_shared<CAnimation>(animPath, layout, mode);
+	return std::make_shared<CAnimation>(path, getAnimationLayout(path), mode);
 }
 
 void RenderHandler::addImageListEntries(const EntityService * service)
