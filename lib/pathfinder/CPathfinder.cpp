@@ -596,25 +596,19 @@ void CPathfinderHelper::getNeighbours(
 			continue;
 
 		const TerrainTile & destTile = map->getTile(destCoord);
-		if(!destTile.terType->isPassable())
+		if(!destTile.getTerrain()->isPassable())
 			continue;
 
-// 		//we cannot visit things from blocked tiles
-// 		if(srcTile.blocked && !srcTile.visitable && destTile.visitable && srcTile.blockingObjects.front()->ID != HEROI_TYPE)
-// 		{
-// 			continue;
-// 		}
-
 		/// Following condition let us avoid diagonal movement over coast when sailing
-		if(srcTile.terType->isWater() && limitCoastSailing && destTile.terType->isWater() && dir.x && dir.y) //diagonal move through water
+		if(srcTile.isWater() && limitCoastSailing && destTile.isWater() && dir.x && dir.y) //diagonal move through water
 		{
 			const int3 horizontalNeighbour = srcCoord + int3{dir.x, 0, 0};
 			const int3 verticalNeighbour = srcCoord + int3{0, dir.y, 0};
-			if(map->getTile(horizontalNeighbour).terType->isLand() || map->getTile(verticalNeighbour).terType->isLand())
+			if(map->getTile(horizontalNeighbour).isLand() || map->getTile(verticalNeighbour).isLand())
 				continue;
 		}
 
-		if(indeterminate(onLand) || onLand == destTile.terType->isLand())
+		if(indeterminate(onLand) || onLand == destTile.isLand())
 		{
 			vec.push_back(destCoord);
 		}
@@ -662,13 +656,13 @@ int CPathfinderHelper::getMovementCost(
 
 	bool isSailLayer;
 	if(indeterminate(isDstSailLayer))
-		isSailLayer = hero->boat && hero->boat->layer == EPathfindingLayer::SAIL && dt->terType->isWater();
+		isSailLayer = hero->boat && hero->boat->layer == EPathfindingLayer::SAIL && dt->isWater();
 	else
 		isSailLayer = static_cast<bool>(isDstSailLayer);
 
 	bool isWaterLayer;
 	if(indeterminate(isDstWaterLayer))
-		isWaterLayer = ((hero->boat && hero->boat->layer == EPathfindingLayer::WATER) || ti->hasBonusOfType(BonusType::WATER_WALKING)) && dt->terType->isWater();
+		isWaterLayer = ((hero->boat && hero->boat->layer == EPathfindingLayer::WATER) || ti->hasBonusOfType(BonusType::WATER_WALKING)) && dt->isWater();
 	else
 		isWaterLayer = static_cast<bool>(isDstWaterLayer);
 	
@@ -703,7 +697,7 @@ int CPathfinderHelper::getMovementCost(
 	{
 		NeighbourTilesVector vec;
 
-		getNeighbours(*dt, dst, vec, ct->terType->isLand(), true);
+		getNeighbours(*dt, dst, vec, ct->isLand(), true);
 		for(const auto & elem : vec)
 		{
 			int fcost = getMovementCost(dst, elem, nullptr, nullptr, left, false);

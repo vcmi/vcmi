@@ -32,7 +32,7 @@ namespace PathfinderUtil
 		{
 		case ELayer::LAND:
 		case ELayer::SAIL:
-			if(tinfo.visitable)
+			if(tinfo.visitable())
 			{
 				if(tinfo.visitableObjects.front()->ID == Obj::SANCTUARY && tinfo.visitableObjects.back()->ID == Obj::HERO && tinfo.visitableObjects.back()->tempOwner != player) //non-owned hero stands on Sanctuary
 				{
@@ -51,7 +51,7 @@ namespace PathfinderUtil
 					}
 				}
 			}
-			else if(tinfo.blocked)
+			else if(tinfo.blocked())
 			{
 				return EPathAccessibility::BLOCKED;
 			}
@@ -64,7 +64,7 @@ namespace PathfinderUtil
 			break;
 
 		case ELayer::WATER:
-			if(tinfo.blocked || tinfo.terType->isLand())
+			if(tinfo.blocked() || tinfo.isLand())
 				return EPathAccessibility::BLOCKED;
 
 			break;

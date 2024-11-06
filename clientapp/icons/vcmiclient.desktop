@@ -1,8 +1,11 @@
 [Desktop Entry]
 Type=Application
 Name=VCMI Client
+Name[cs]=VCMI Klient
 GenericName=Strategy Game Engine
+GenericName[cs]=Engine strategické hry
 Comment=Open engine for Heroes of Might and Magic 3
+Comment[cs]=Open-source engine pro Heroes of Might and Magic III
 Icon=vcmiclient
 Exec=vcmiclient
 Categories=Game;StrategyGame;

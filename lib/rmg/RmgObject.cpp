@@ -484,7 +484,7 @@ void Object::Instance::finalize(RmgMap & map, vstd::RNG & rng)
 	//If no specific template was defined for this object, select any matching
 	if (!dObject.appearance)
 	{
-		const auto * terrainType = map.getTile(getPosition(true)).terType;
+		const auto * terrainType = map.getTile(getPosition(true)).getTerrain();
 		auto templates = dObject.getObjectHandler()->getTemplates(terrainType->getId());
 		if (templates.empty())
 		{

@@ -459,7 +459,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 	}
 	for(auto & i : vinfo.reward.creatures)
 	{
-		int index = i.type->getIndex();
+		int index = i.getType()->getIndex();
 		ui->rCreatureId->setCurrentIndex(index);
 		ui->rCreatureAmount->setValue(i.count);
 		onCreatureAdd(ui->rCreatures, ui->rCreatureId, ui->rCreatureAmount);
@@ -527,7 +527,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 	}
 	for(auto & i : vinfo.limiter.creatures)
 	{
-		int index = i.type->getIndex();
+		int index = i.getType()->getIndex();
 		ui->lCreatureId->setCurrentIndex(index);
 		ui->lCreatureAmount->setValue(i.count);
 		onCreatureAdd(ui->lCreatures, ui->lCreatureId, ui->lCreatureAmount);

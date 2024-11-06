@@ -326,7 +326,7 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 {
 	int line = getLine();
 
-	if(line != -1)
+	if(line != -1 && curItems.size() > line)
 	{
 		if(!deleteMode)
 			select(line);
@@ -551,6 +551,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 			auto folder = std::make_shared<ElementInfo>();
 			folder->isFolder = true;
 			folder->folderName = folderName;
+			folder->isAutoSaveFolder = boost::starts_with(baseFolder, "Autosave/") && folderName != "Autosave";
 			auto itemIt = boost::range::find_if(curItems, [folder](std::shared_ptr<ElementInfo> e) { return e->folderName == folder->folderName; });
 			if (itemIt == curItems.end() && folderName != "") {
 				curItems.push_back(folder);
@@ -611,7 +612,11 @@ void SelectionTab::sort()
 
 	int firstMapIndex = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
 	if(!sortModeAscending)
+	{
+		if(firstMapIndex)
+			std::reverse(std::next(curItems.begin(), boost::starts_with(curItems[0]->folderName, "..") ? 1 : 0), std::next(curItems.begin(), firstMapIndex - 1));
 		std::reverse(std::next(curItems.begin(), firstMapIndex), curItems.end());
+	}
 
 	updateListItems();
 	redraw();
@@ -983,7 +988,7 @@ SelectionTab::ListItem::ListItem(Point position)
 {
 	OBJECT_CONSTRUCTION;
 	pictureEmptyLine = std::make_shared<CPicture>(ImagePath::builtin("camcust"), Rect(25, 121, 349, 26), -8, -14);
-	labelName = std::make_shared<CLabel>(184, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "", 185);
+	labelName = std::make_shared<CLabel>(LABEL_POS_X, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "", 185);
 	labelName->setAutoRedraw(false);
 	labelAmountOfPlayers = std::make_shared<CLabel>(8, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelAmountOfPlayers->setAutoRedraw(false);
@@ -1027,6 +1032,16 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelNumberOfCampaignMaps->disable();
 		labelName->enable();
 		labelName->setMaxWidth(316);
+		if(info->isAutoSaveFolder) // align autosave folder left (starting timestamps in list should be in one line)
+		{
+			labelName->alignment = ETextAlignment::CENTERLEFT;
+			labelName->moveTo(Point(pos.x + 80, labelName->pos.y));
+		}
+		else
+		{
+			labelName->alignment = ETextAlignment::CENTER;
+			labelName->moveTo(Point(pos.x + LABEL_POS_X, labelName->pos.y));
+		}
 		labelName->setText(info->folderName);
 		labelName->setColor(color);
 		return;
@@ -1048,6 +1063,8 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelNumberOfCampaignMaps->setText(ostr.str());
 		labelNumberOfCampaignMaps->setColor(color);
 		labelName->setMaxWidth(316);
+		labelName->alignment = ETextAlignment::CENTER;
+		labelName->moveTo(Point(pos.x + LABEL_POS_X, labelName->pos.y));
 	}
 	else
 	{
@@ -1069,6 +1086,8 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		iconLossCondition->enable();
 		iconLossCondition->setFrame(info->mapHeader->defeatIconIndex, 0);
 		labelName->setMaxWidth(185);
+		labelName->alignment = ETextAlignment::CENTER;
+		labelName->moveTo(Point(pos.x + LABEL_POS_X, labelName->pos.y));
 	}
 	labelName->setText(info->name);
 	labelName->setColor(color);

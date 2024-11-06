@@ -94,7 +94,7 @@ public:
 class DLL_LINKAGE CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
 {
 public:
-	const CCreature * creature = nullptr;
+	CreatureID creatureID;
 	bool includeUpgrades = false;
 
 	CCreatureTypeLimiter() = default;
@@ -108,7 +108,7 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
-		h & creature;
+		h & creatureID;
 		h & includeUpgrades;
 	}
 };

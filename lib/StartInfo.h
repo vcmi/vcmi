@@ -146,7 +146,7 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 	using TPlayerInfos = std::map<PlayerColor, PlayerSettings>;
 	TPlayerInfos playerInfos; //color indexed
 
-	std::string startTimeIso8601;
+	time_t startTime;
 	std::string fileURI;
 	SimturnsInfo simturnsInfo;
 	TurnTimerInfo turnTimerInfo;
@@ -180,7 +180,17 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 			h & oldSeeds;
 			h & oldSeeds;
 		}
-		h & startTimeIso8601;
+		if (h.version < Handler::Version::FOLDER_NAME_REWORK)
+		{
+			std::string startTimeLegacy;
+			h & startTimeLegacy;
+			struct std::tm tm;
+			std::istringstream ss(startTimeLegacy);
+			ss >> std::get_time(&tm, "%Y%m%dT%H%M%S");
+			startTime = mktime(&tm);
+		}
+		else
+			h & startTime;
 		h & fileURI;
 		h & simturnsInfo;
 		h & turnTimerInfo;
@@ -193,7 +203,7 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 	StartInfo()
 		: mode(EStartMode::INVALID)
 		, difficulty(1)
-		, startTimeIso8601(vstd::getDateTimeISO8601Basic(std::time(nullptr)))
+		, startTime(std::time(nullptr))
 	{
 
 	}

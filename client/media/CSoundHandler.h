@@ -67,6 +67,8 @@ public:
 	int playSound(std::pair<std::unique_ptr<ui8[]>, si64> & data, int repeats = 0, bool cache = false) final;
 	int playSoundFromSet(std::vector<soundBase::soundID> & sound_vec) final;
 	void stopSound(int handler) final;
+	void pauseSound(int handler) final;
+	void resumeSound(int handler) final;
 
 	void setCallback(int channel, std::function<void()> function) final;
 	void resetCallback(int channel) final;

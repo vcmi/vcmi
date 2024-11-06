@@ -152,7 +152,7 @@ void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
 		std::map<const ArtifactID, const CArtifactInstance*> filteredArts;
 		for(auto & slotInfo : curHero->artifactsInBackpack)
 			if(slotInfo.artifact->getTypeId() != artInSlotId &&	!slotInfo.artifact->isScroll() &&
-				slotInfo.artifact->artType->canBePutAt(curHero, filterBySlot, true))
+				slotInfo.artifact->getType()->canBePutAt(curHero, filterBySlot, true))
 			{
 				filteredArts.insert(std::pair(slotInfo.artifact->getTypeId(), slotInfo.artifact));
 			}

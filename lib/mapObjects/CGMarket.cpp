@@ -88,11 +88,8 @@ std::vector<TradeItemBuy> CGBlackMarket::availableItemsIds(EMarketMode mode) con
 	case EMarketMode::RESOURCE_ARTIFACT:
 		{
 			std::vector<TradeItemBuy> ret;
-			for(const CArtifact *a : artifacts)
-				if(a)
-					ret.push_back(a->getId());
-				else
-					ret.push_back(ArtifactID{});
+			for(const auto & a : artifacts)
+				ret.push_back(a);
 			return ret;
 		}
 	default:

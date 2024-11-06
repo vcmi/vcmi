@@ -235,25 +235,6 @@ public:
 			return;
 		}
 
-		loadPointerImpl(data);
-	}
-
-	template < typename T, typename std::enable_if_t < std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  > = 0 >
-	void loadPointerImpl(T &data)
-	{
-		using DataType = std::remove_pointer_t<T>;
-
-		typename DataType::IdentifierType index;
-		load(index);
-
-		auto * constEntity = index.toEntity(VLC);
-		auto * constData = dynamic_cast<const DataType *>(constEntity);
-		data = const_cast<DataType *>(constData);
-	}
-
-	template < typename T, typename std::enable_if_t < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  > = 0 >
-	void loadPointerImpl(T &data)
-	{
 		if(reader->smartVectorMembersSerialization)
 		{
 			typedef typename std::remove_const_t<typename std::remove_pointer_t<T>> TObjectType; //eg: const CGHeroInstance * => CGHeroInstance

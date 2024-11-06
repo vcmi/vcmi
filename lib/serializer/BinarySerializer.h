@@ -186,19 +186,6 @@ public:
 		if(data == nullptr)
 			return;
 
-		savePointerImpl(data);
-	}
-
-	template < typename T, typename std::enable_if_t < std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  > = 0 >
-	void savePointerImpl(const T &data)
-	{
-		auto index = data->getId();
-		save(index);
-	}
-
-	template < typename T, typename std::enable_if_t < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  > = 0 >
-	void savePointerImpl(const T &data)
-	{
 		typedef typename std::remove_const_t<typename std::remove_pointer_t<T>> TObjectType;
 
 		if(writer->smartVectorMembersSerialization)

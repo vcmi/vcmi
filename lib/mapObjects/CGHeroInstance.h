@@ -359,8 +359,11 @@ public:
 		h & boat;
 		if (h.version < Handler::Version::REMOVE_TOWN_PTR)
 		{
-			CHero * type = nullptr;
-			h & type;
+			HeroTypeID type;
+			bool isNull = false;
+			h & isNull;
+			if(!isNull)
+				h & type;
 		}
 		h & commander;
 		h & visitedObjects;

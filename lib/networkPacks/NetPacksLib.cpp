@@ -1213,7 +1213,7 @@ void RemoveObject::applyGs(CGameState *gs)
 		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
 		vstd::erase_if(beatenHero->artifactsInBackpack, [](const ArtSlotInfo& asi)
 		{
-			return asi.artifact->artType->getId() == ArtifactID::GRAIL;
+			return asi.artifact->getTypeId() == ArtifactID::GRAIL;
 		});
 
 		if(beatenHero->visitedTown)
@@ -1738,7 +1738,7 @@ void BulkEraseArtifacts::applyGs(CGameState *gs)
 		const auto slotInfo = artSet->getSlot(slot);
 		if(slotInfo->locked)
 		{
-			logGlobal->debug("Erasing locked artifact: %s", slotInfo->artifact->artType->getNameTranslated());
+			logGlobal->debug("Erasing locked artifact: %s", slotInfo->artifact->getType()->getNameTranslated());
 			DisassembledArtifact dis;
 			dis.al.artHolder = artHolder;
 
@@ -1752,12 +1752,12 @@ void BulkEraseArtifacts::applyGs(CGameState *gs)
 				}
 			}
 			assert((dis.al.slot != ArtifactPosition::PRE_FIRST) && "Failed to determine the assembly this locked artifact belongs to");
-			logGlobal->debug("Found the corresponding assembly: %s", artSet->getArt(dis.al.slot)->artType->getNameTranslated());
+			logGlobal->debug("Found the corresponding assembly: %s", artSet->getArt(dis.al.slot)->getType()->getNameTranslated());
 			dis.applyGs(gs);
 		}
 		else
 		{
-			logGlobal->debug("Erasing artifact %s", slotInfo->artifact->artType->getNameTranslated());
+			logGlobal->debug("Erasing artifact %s", slotInfo->artifact->getType()->getNameTranslated());
 		}
 		gs->map->removeArtifactInstance(*artSet, slot);
 	}
@@ -1845,8 +1845,8 @@ void AssembledArtifact::applyGs(CGameState *gs)
 				break;
 			}
 
-			if(!vstd::contains(combinedArt->artType->getPossibleSlots().at(hero->bearerType()), al.slot)
-				&& vstd::contains(combinedArt->artType->getPossibleSlots().at(hero->bearerType()), slot))
+			if(!vstd::contains(combinedArt->getType()->getPossibleSlots().at(hero->bearerType()), al.slot)
+				&& vstd::contains(combinedArt->getType()->getPossibleSlots().at(hero->bearerType()), slot))
 				al.slot = slot;
 		}
 		else
@@ -1862,7 +1862,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 		const auto constituentInstance = hero->getArt(slot);
 		gs->map->removeArtifactInstance(*hero, slot);
 
-		if(!combinedArt->artType->isFused())
+		if(!combinedArt->getType()->isFused())
 		{
 			if(ArtifactUtils::isSlotEquipment(al.slot) && slot != al.slot)
 				combinedArt->addPart(constituentInstance, slot);

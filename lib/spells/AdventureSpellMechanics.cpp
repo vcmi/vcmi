@@ -374,7 +374,7 @@ bool DimensionDoorMechanics::canBeCastAtImpl(spells::Problem & problem, const CG
 	}
 	else
 	{
-		if (dest->blocked)
+		if (dest->blocked())
 			return false;
 	}
 

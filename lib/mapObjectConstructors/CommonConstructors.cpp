@@ -101,7 +101,7 @@ void CTownInstanceConstructor::initializeObject(CGTownInstance * obj) const
 
 void CTownInstanceConstructor::randomizeObject(CGTownInstance * object, vstd::RNG & rng) const
 {
-	auto templ = getOverride(object->cb->getTile(object->pos)->terType->getId(), object);
+	auto templ = getOverride(object->cb->getTile(object->pos)->getTerrainID(), object);
 	if(templ)
 		object->appearance = templ;
 }

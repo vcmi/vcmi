@@ -65,7 +65,9 @@ enum class ESerializationVersion : int32_t
 	LOCAL_PLAYER_STATE_DATA, // 866 - player state contains arbitrary client-side data
 	REMOVE_TOWN_PTR, // 867 - removed pointer to CTown from CGTownInstance
 	REMOVE_OBJECT_TYPENAME, // 868 - remove typename from CGObjectInstance
-	LOBBY_DELETE, // 869 - possibility to delete savegames and random maps
+	REMOVE_VLC_POINTERS, // 869 removed remaining pointers to VLC entities
+  FOLDER_NAME_REWORK, // 870 - rework foldername
+	LOBBY_DELETE, // 871 - possibility to delete savegames and random maps
 
 	CURRENT = LOBBY_DELETE
 };
