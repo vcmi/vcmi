@@ -66,6 +66,7 @@ enum class ESerializationVersion : int32_t
 	REMOVE_TOWN_PTR, // 867 - removed pointer to CTown from CGTownInstance
 	REMOVE_OBJECT_TYPENAME, // 868 - remove typename from CGObjectInstance
 	REMOVE_VLC_POINTERS, // 869 removed remaining pointers to VLC entities
+  FOLDER_NAME_REWORK, // 870 - rework foldername
 
-	CURRENT = REMOVE_VLC_POINTERS
+	CURRENT = FOLDER_NAME_REWORK
 };
