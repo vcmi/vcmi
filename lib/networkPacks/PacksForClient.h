@@ -819,7 +819,7 @@ struct DLL_LINKAGE SetAvailableArtifacts : public CPackForClient
 
 	//two variants: id < 0: set artifact pool for Artifact Merchants in towns; id >= 0: set pool for adv. map Black Market (id is the id of Black Market instance then)
 	ObjectInstanceID id;
-	std::vector<const CArtifact *> arts;
+	std::vector<ArtifactID> arts;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 

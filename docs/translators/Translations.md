@@ -56,6 +56,19 @@ This will export all strings from game into `Documents/My Games/VCMI/extracted/t
 
 To export maps and campaigns, use '/translate maps' command instead.
 
+### Video subtitles
+It's possible to add video subtitles. Create a JSON file in `video` folder of translation mod with the name of the video (e.g. `H3Intro.json`):
+```
+[
+    {
+        "timeStart" : 5.640, // start time, seconds
+        "timeEnd" : 8.120, // end time, seconds
+        "text" : " ... " // text to show during this period
+    },
+    ...
+]
+```
+
 ## Translating VCMI data
 
 VCMI contains several new strings, to cover functionality not existing in Heroes III. It can be roughly split into following parts:
@@ -135,6 +148,8 @@ If you want to start new translation for a mod or to update existing one you may
 After that, start Launcher, switch to Help tab and open "log files directory". You can find exported json's in 'extracted/translation' directory.
 
 If your mod also contains maps or campaigns that you want to translate, then use '/translate maps' command instead.
+
+If you want to update existing translation, you can use '/translate missing' command that will export only strings that were not translated
 
 ### Translating mod information
 In order to display information in Launcher in language selected by user add following block into your `mod.json`:

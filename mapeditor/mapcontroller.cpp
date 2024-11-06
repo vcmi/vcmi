@@ -121,7 +121,7 @@ void MapController::repairMap(CMap * map) const
 			   dynamic_cast<CGTownInstance*>(obj.get()) ||
 			   dynamic_cast<CGGarrison*>(obj.get()) ||
 			   dynamic_cast<CGShipyard*>(obj.get()) ||
-			   dynamic_cast<CGLighthouse*>(obj.get()) ||
+			   dynamic_cast<FlaggableMapObject*>(obj.get()) ||
 			   dynamic_cast<CGHeroInstance*>(obj.get()))
 				obj->tempOwner = PlayerColor::NEUTRAL;
 		}
@@ -369,6 +369,7 @@ void MapController::pasteFromClipboard(int level)
 		if (!canPlaceObject(level, obj, errorMsg))
 		{
 			errors.push_back(std::move(errorMsg));
+			continue;
 		}
 		auto newPos = objUniquePtr->pos + shift;
 		if(_map->isInTheMap(newPos))
@@ -380,8 +381,8 @@ void MapController::pasteFromClipboard(int level)
 		_scenes[level]->selectionObjectsView.selectObject(obj);
 		_mapHandler->invalidate(obj);
 	}
-
-	QMessageBox::warning(main, QObject::tr("Can't place object"), errors.join('\n'));
+	if(!errors.isEmpty())
+		QMessageBox::warning(main, QObject::tr("Can't place object"), errors.join('\n'));
 	
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->passabilityView.update();
@@ -428,10 +429,10 @@ void MapController::commitObstacleFill(int level)
 	for(auto & t : selection)
 	{
 		auto tl = _map->getTile(t);
-		if(tl.blocked || tl.visitable)
+		if(tl.blocked() || tl.visitable())
 			continue;
 		
-		auto terrain = tl.terType->getId();
+		auto terrain = tl.getTerrainID();
 		_obstaclePainters[terrain]->addBlockedTile(t);
 	}
 	

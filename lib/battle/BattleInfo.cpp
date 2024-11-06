@@ -161,54 +161,45 @@ struct RangeGenerator
 BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town)
 {
 	CMP_stack cmpst;
-	auto * curB = new BattleInfo(layout);
+	auto * currentBattle = new BattleInfo(layout);
 
 	for(auto i : { BattleSide::LEFT_SIDE, BattleSide::RIGHT_SIDE})
-		curB->sides[i].init(heroes[i], armies[i]);
+		currentBattle->sides[i].init(heroes[i], armies[i]);
 
-	std::vector<CStack*> & stacks = (curB->stacks);
+	std::vector<CStack*> & stacks = (currentBattle->stacks);
 
-	curB->tile = tile;
-	curB->battlefieldType = battlefieldType;
-	curB->round = -2;
-	curB->activeStack = -1;
-	curB->replayAllowed = false;
-
-	if(town)
-	{
-		curB->town = town;
-		curB->terrainType = town->getNativeTerrain();
-	}
-	else
-	{
-		curB->town = nullptr;
-		curB->terrainType = terrain;
-	}
+	currentBattle->tile = tile;
+	currentBattle->terrainType = terrain;
+	currentBattle->battlefieldType = battlefieldType;
+	currentBattle->round = -2;
+	currentBattle->activeStack = -1;
+	currentBattle->replayAllowed = false;
+	currentBattle->town = town;
 
 	//setting up siege obstacles
 	if (town && town->fortificationsLevel().wallsHealth != 0)
 	{
 		auto fortification = town->fortificationsLevel();
 
-		curB->si.gateState = EGateState::CLOSED;
+		currentBattle->si.gateState = EGateState::CLOSED;
 
-		curB->si.wallState[EWallPart::GATE] = EWallState::INTACT;
+		currentBattle->si.wallState[EWallPart::GATE] = EWallState::INTACT;
 
 		for(const auto wall : {EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE, EWallPart::OVER_GATE, EWallPart::UPPER_WALL})
-			curB->si.wallState[wall] = static_cast<EWallState>(fortification.wallsHealth);
+			currentBattle->si.wallState[wall] = static_cast<EWallState>(fortification.wallsHealth);
 
 		if (fortification.citadelHealth != 0)
-			curB->si.wallState[EWallPart::KEEP] = static_cast<EWallState>(fortification.citadelHealth);
+			currentBattle->si.wallState[EWallPart::KEEP] = static_cast<EWallState>(fortification.citadelHealth);
 
 		if (fortification.upperTowerHealth != 0)
-			curB->si.wallState[EWallPart::UPPER_TOWER] = static_cast<EWallState>(fortification.upperTowerHealth);
+			currentBattle->si.wallState[EWallPart::UPPER_TOWER] = static_cast<EWallState>(fortification.upperTowerHealth);
 
 		if (fortification.lowerTowerHealth != 0)
-			curB->si.wallState[EWallPart::BOTTOM_TOWER] = static_cast<EWallState>(fortification.lowerTowerHealth);
+			currentBattle->si.wallState[EWallPart::BOTTOM_TOWER] = static_cast<EWallState>(fortification.lowerTowerHealth);
 	}
 
 	//randomize obstacles
-	if (layout.obstaclesAllowed && !town)
+	if (layout.obstaclesAllowed && (!town || !town->hasFort()))
  	{
 		RandGen r{};
 		auto ourRand = [&](){ return r.rand(); };
@@ -221,12 +212,12 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 		auto appropriateAbsoluteObstacle = [&](int id)
 		{
 			const auto * info = Obstacle(id).getInfo();
-			return info && info->isAbsoluteObstacle && info->isAppropriate(curB->terrainType, battlefieldType);
+			return info && info->isAbsoluteObstacle && info->isAppropriate(currentBattle->terrainType, battlefieldType);
 		};
 		auto appropriateUsualObstacle = [&](int id)
 		{
 			const auto * info = Obstacle(id).getInfo();
-			return info && !info->isAbsoluteObstacle && info->isAppropriate(curB->terrainType, battlefieldType);
+			return info && !info->isAbsoluteObstacle && info->isAppropriate(currentBattle->terrainType, battlefieldType);
 		};
 
 		if(r.rand(1,100) <= 40) //put cliff-like obstacle
@@ -237,8 +228,8 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 				auto obstPtr = std::make_shared<CObstacleInstance>();
 				obstPtr->obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
 				obstPtr->ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
-				obstPtr->uniqueID = static_cast<si32>(curB->obstacles.size());
-				curB->obstacles.push_back(obstPtr);
+				obstPtr->uniqueID = static_cast<si32>(currentBattle->obstacles.size());
+				currentBattle->obstacles.push_back(obstPtr);
 
 				for(BattleHex blocked : obstPtr->getBlockedTiles())
 					blockedTiles.push_back(blocked);
@@ -256,7 +247,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 			while(tilesToBlock > 0)
 			{
 				RangeGenerator obidgen(0, VLC->obstacleHandler->size() - 1, ourRand);
-				auto tileAccessibility = curB->getAccessibility();
+				auto tileAccessibility = currentBattle->getAccessibility();
 				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
 				const ObstacleInfo &obi = *Obstacle(obid).getInfo();
 
@@ -290,8 +281,8 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 				auto obstPtr = std::make_shared<CObstacleInstance>();
 				obstPtr->ID = obid;
 				obstPtr->pos = posgenerator.getSuchNumber(validPosition);
-				obstPtr->uniqueID = static_cast<si32>(curB->obstacles.size());
-				curB->obstacles.push_back(obstPtr);
+				obstPtr->uniqueID = static_cast<si32>(currentBattle->obstacles.size());
+				currentBattle->obstacles.push_back(obstPtr);
 
 				for(BattleHex blocked : obstPtr->getBlockedTiles())
 					blockedTiles.push_back(blocked);
@@ -312,10 +303,10 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 
 		if(nullptr != warMachineArt && hex.isValid())
 		{
-			CreatureID cre = warMachineArt->artType->getWarMachine();
+			CreatureID cre = warMachineArt->getType()->getWarMachine();
 
 			if(cre != CreatureID::NONE)
-				curB->generateNewStack(curB->nextUnitId(), CStackBasicDescriptor(cre, 1), side, SlotID::WAR_MACHINES_SLOT, hex);
+				currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(cre, 1), side, SlotID::WAR_MACHINES_SLOT, hex);
 		}
 	};
 
@@ -353,7 +344,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 			const BattleHex & pos = layout.units.at(side).at(k);
 
 			if (pos.isValid())
-				curB->generateNewStack(curB->nextUnitId(), *i->second, side, i->first, pos);
+				currentBattle->generateNewStack(currentBattle->nextUnitId(), *i->second, side, i->first, pos);
 		}
 	}
 
@@ -362,20 +353,20 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	{
 		if (heroes[i] && heroes[i]->commander && heroes[i]->commander->alive)
 		{
-			curB->generateNewStack(curB->nextUnitId(), *heroes[i]->commander, i, SlotID::COMMANDER_SLOT_PLACEHOLDER, layout.commanders.at(i));
+			currentBattle->generateNewStack(currentBattle->nextUnitId(), *heroes[i]->commander, i, SlotID::COMMANDER_SLOT_PLACEHOLDER, layout.commanders.at(i));
 		}
 	}
 
-	if (curB->town)
+	if (currentBattle->town)
 	{
-		if (curB->town->fortificationsLevel().citadelHealth != 0)
-			curB->generateNewStack(curB->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_CENTRAL_TOWER);
+		if (currentBattle->town->fortificationsLevel().citadelHealth != 0)
+			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_CENTRAL_TOWER);
 
-		if (curB->town->fortificationsLevel().upperTowerHealth != 0)
-			curB->generateNewStack(curB->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_UPPER_TOWER);
+		if (currentBattle->town->fortificationsLevel().upperTowerHealth != 0)
+			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_UPPER_TOWER);
 
-		if (curB->town->fortificationsLevel().lowerTowerHealth != 0)
-			curB->generateNewStack(curB->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_BOTTOM_TOWER);
+		if (currentBattle->town->fortificationsLevel().lowerTowerHealth != 0)
+			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_BOTTOM_TOWER);
 
 		//Moat generating is done on server
 	}
@@ -390,15 +381,15 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 
 	for(const std::shared_ptr<Bonus> & bonus : bgInfo->bonuses)
 	{
-		curB->addNewBonus(bonus);
+		currentBattle->addNewBonus(bonus);
 	}
 
 	//native terrain bonuses
 	auto nativeTerrain = std::make_shared<CreatureTerrainLimiter>();
 	
-	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACKS_SPEED, BonusSource::TERRAIN_NATIVE, 1,  BonusSourceID())->addLimiter(nativeTerrain));
-	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::ATTACK))->addLimiter(nativeTerrain));
-	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE))->addLimiter(nativeTerrain));
+	currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACKS_SPEED, BonusSource::TERRAIN_NATIVE, 1,  BonusSourceID())->addLimiter(nativeTerrain));
+	currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::ATTACK))->addLimiter(nativeTerrain));
+	currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE))->addLimiter(nativeTerrain));
 	//////////////////////////////////////////////////////////////////////////
 
 	//tactics
@@ -428,21 +419,21 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 			logGlobal->warn("Double tactics is not implemented, only attacker will have tactics!");
 		if(tacticsSkillDiffAttacker > 0)
 		{
-			curB->tacticsSide = BattleSide::ATTACKER;
+			currentBattle->tacticsSide = BattleSide::ATTACKER;
 			//bonus specifies distance you can move beyond base row; this allows 100% compatibility with HMM3 mechanics
-			curB->tacticDistance = 1 + tacticsSkillDiffAttacker;
+			currentBattle->tacticDistance = 1 + tacticsSkillDiffAttacker;
 		}
 		else if(tacticsSkillDiffDefender > 0)
 		{
-			curB->tacticsSide = BattleSide::DEFENDER;
+			currentBattle->tacticsSide = BattleSide::DEFENDER;
 			//bonus specifies distance you can move beyond base row; this allows 100% compatibility with HMM3 mechanics
-			curB->tacticDistance = 1 + tacticsSkillDiffDefender;
+			currentBattle->tacticDistance = 1 + tacticsSkillDiffDefender;
 		}
 		else
-			curB->tacticDistance = 0;
+			currentBattle->tacticDistance = 0;
 	}
 
-	return curB;
+	return currentBattle;
 }
 
 const CGHeroInstance * BattleInfo::getHero(const PlayerColor & player) const
@@ -885,12 +876,12 @@ void BattleInfo::addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool fo
 	if(forceAdd || !sta->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, value.sid).And(Selector::typeSubtypeValueType(value.type, value.subtype, value.valType))))
 	{
 		//no such effect or cumulative - add new
-		logBonus->trace("%s receives a new bonus: %s", sta->nodeName(), value.Description());
+		logBonus->trace("%s receives a new bonus: %s", sta->nodeName(), value.Description(nullptr));
 		sta->addNewBonus(std::make_shared<Bonus>(value));
 	}
 	else
 	{
-		logBonus->trace("%s updated bonus: %s", sta->nodeName(), value.Description());
+		logBonus->trace("%s updated bonus: %s", sta->nodeName(), value.Description(nullptr));
 
 		for(const auto & stackBonus : sta->getExportedBonusList()) //TODO: optimize
 		{

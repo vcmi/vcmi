@@ -364,7 +364,7 @@ void MapView::mousePressEvent(QMouseEvent *event)
 						else if(controller->map()->getTile(tile).riverType
 						   && controller->map()->getTile(tile).riverType != controller->map()->getTile(tilen).riverType)
 							continue;
-						else if(controller->map()->getTile(tile).terType != controller->map()->getTile(tilen).terType)
+						else if(controller->map()->getTile(tile).terrainType != controller->map()->getTile(tilen).terrainType)
 							continue;
 					}
 					if(event->button() == Qt::LeftButton && sc->selectionTerrainView.selection().count(tilen))

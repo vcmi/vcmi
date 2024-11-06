@@ -208,6 +208,9 @@ void CMapLoaderH3M::readHeader()
 
 	// optimization - load mappings only once to avoid slow parsing of map headers for map list
 	static const std::map<EMapFormat, MapIdentifiersH3M> identifierMappers = generateMappings();
+	if (!identifierMappers.count(mapHeader->version))
+		throw std::runtime_error("Unsupported map format! Format ID " + std::to_string(static_cast<int>(mapHeader->version)));
+
 	const MapIdentifiersH3M & identifierMapper = identifierMappers.at(mapHeader->version);
 
 	reader->setIdentifierRemapper(identifierMapper);
@@ -985,17 +988,13 @@ void CMapLoaderH3M::readTerrain()
 			for(pos.x = 0; pos.x < map->width; pos.x++)
 			{
 				auto & tile = map->getTile(pos);
-				tile.terType = VLC->terrainTypeHandler->getById(reader->readTerrain());
+				tile.terrainType = reader->readTerrain();
 				tile.terView = reader->readUInt8();
-				tile.riverType = VLC->riverTypeHandler->getById(reader->readRiver());
+				tile.riverType = reader->readRiver();
 				tile.riverDir = reader->readUInt8();
-				tile.roadType = VLC->roadTypeHandler->getById(reader->readRoad());
+				tile.roadType = reader->readRoad();
 				tile.roadDir = reader->readUInt8();
 				tile.extTileFlags = reader->readUInt8();
-				tile.blocked = !tile.terType->isPassable();
-				tile.visitable = false;
-
-				assert(tile.terType->getId() != ETerrainId::NONE);
 			}
 		}
 	}
@@ -1478,9 +1477,9 @@ CGObjectInstance * CMapLoaderH3M::readShipyard(const int3 & mapPosition, std::sh
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readLighthouse(const int3 & mapPosition)
+CGObjectInstance * CMapLoaderH3M::readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * object = new CGLighthouse(map->cb);
+	auto * object = readGeneric(mapPosition, objectTemplate);
 	setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
 	return object;
 }
@@ -1618,7 +1617,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 			return readPyramid(mapPosition, objectTemplate);
 
 		case Obj::LIGHTHOUSE:
-			return readLighthouse(mapPosition);
+			return readLighthouse(mapPosition, objectTemplate);
 
 		case Obj::CREATURE_BANK:
 		case Obj::DERELICT_SHIP:
@@ -2117,7 +2116,7 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 			guard->quest->mission.creatures.resize(typeNumber);
 			for(size_t hh = 0; hh < typeNumber; ++hh)
 			{
-				guard->quest->mission.creatures[hh].type = reader->readCreature().toCreature();
+				guard->quest->mission.creatures[hh].setType(reader->readCreature().toCreature());
 				guard->quest->mission.creatures[hh].count = reader->readUInt16();
 			}
 			break;

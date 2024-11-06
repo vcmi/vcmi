@@ -67,9 +67,9 @@ Canvas CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<CMap> & map, in
 		{
 			TerrainTile & tile = map->getTile(int3(x, y, layer));
 
-			ColorRGBA color = tile.terType->minimapUnblocked;
-			if (tile.blocked && (!tile.visitable))
-				color = tile.terType->minimapBlocked;
+			ColorRGBA color = tile.getTerrain()->minimapUnblocked;
+			if (tile.blocked() && !tile.visitable())
+				color = tile.getTerrain()->minimapBlocked;
 
 			if(drawPlayerElements)
 				// if object at tile is owned - it will be colored as its owner

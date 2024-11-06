@@ -77,10 +77,13 @@ class CVideoInstance final : public IVideoInstance, public FFMpegStream
 	SDL_Surface * surface = nullptr;
 	Point dimensions;
 
-	/// video playback current progress, in seconds
-	double frameTime = 0.0;
+	/// video playback start time point
+	std::chrono::steady_clock::time_point startTime;
+	std::chrono::steady_clock::time_point deactivationStartTime;
 
 	void prepareOutput(float scaleFactor, bool useTextureOutput);
+	
+	const int MAX_FRAMESKIP = 5;
 
 public:
 	~CVideoInstance();
@@ -88,11 +91,14 @@ public:
 	void openVideo();
 	bool loadNextFrame();
 
+	double timeStamp() final;
 	bool videoEnded() final;
 	Point size() final;
 
 	void show(const Point & position, Canvas & canvas) final;
 	void tick(uint32_t msPassed) final;
+	void activate() final;
+	void deactivate() final;
 };
 
 class CVideoPlayer final : public IVideoPlayer

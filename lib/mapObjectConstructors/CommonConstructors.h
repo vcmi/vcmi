@@ -118,6 +118,7 @@ protected:
 	JsonNode predefinedOffer;
 	int marketEfficiency;
 	
+	std::string description;
 	std::string title;
 	std::string speech;
 	
@@ -127,6 +128,7 @@ public:
 	void randomizeObject(CGMarket * object, vstd::RNG & rng) const override;
 
 	const std::set<EMarketMode> & availableModes() const;
+	bool hasDescription() const;
 
 };
 

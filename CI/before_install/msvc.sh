@@ -1,10 +1,17 @@
-curl -LfsS -o "vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v143.7z" \
-	"https://github.com/vcmi/vcmi-deps-windows/releases/download/v1.7/vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v143.7z"
-7z x "vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v143.7z"
+#!/usr/bin/env bash
 
-#rm -r -f vcpkg/installed/${VCMI_BUILD_PLATFORM}-windows/debug
-#mkdir -p vcpkg/installed/${VCMI_BUILD_PLATFORM}-windows/debug/bin
-#cp vcpkg/installed/${VCMI_BUILD_PLATFORM}-windows/bin/* vcpkg/installed/${VCMI_BUILD_PLATFORM}-windows/debug/bin
+MSVC_INSTALL_PATH=$(vswhere -latest -property installationPath)
+echo "MSVC_INSTALL_PATH = $MSVC_INSTALL_PATH"
+echo "Installed toolset versions:"
+ls -vr "$MSVC_INSTALL_PATH/VC/Tools/MSVC"
 
-DUMPBIN_DIR=$(vswhere -latest -find **/dumpbin.exe | head -n 1)
-dirname "$DUMPBIN_DIR" > $GITHUB_PATH
+TOOLS_DIR=$(ls -vr "$MSVC_INSTALL_PATH/VC/Tools/MSVC/" | head -1)
+DUMPBIN_PATH="$MSVC_INSTALL_PATH/VC/Tools/MSVC/$TOOLS_DIR/bin/Hostx64/x64/dumpbin.exe"
+
+# This command should work as well, but for some reason it is *extremely* slow on the Github CI (~7 minutes)
+#DUMPBIN_PATH=$(vswhere -latest -find **/dumpbin.exe | head -n 1)
+
+echo "TOOLS_DIR = $TOOLS_DIR"
+echo "DUMPBIN_PATH = $DUMPBIN_PATH"
+
+dirname "$DUMPBIN_PATH" > "$GITHUB_PATH"

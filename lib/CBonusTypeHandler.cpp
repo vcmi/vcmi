@@ -15,12 +15,13 @@
 
 #include "filesystem/Filesystem.h"
 
-#include "GameConstants.h"
 #include "CCreatureHandler.h"
+#include "GameConstants.h"
+#include "VCMI_Lib.h"
+#include "modding/ModScope.h"
+#include "spells/CSpellHandler.h"
 #include "texts/CGeneralTextHandler.h"
 #include "json/JsonUtils.h"
-#include "spells/CSpellHandler.h"
-#include "VCMI_Lib.h"
 
 template class std::vector<VCMI_LIB_WRAP_NAMESPACE(CBonusType)>;
 
@@ -201,7 +202,8 @@ ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonu
 void CBonusTypeHandler::load()
 {
 	JsonNode gameConf(JsonPath::builtin("config/gameConfig.json"));
-	JsonNode config(JsonUtils::assembleFromFiles(gameConf["bonuses"].convertTo<std::vector<std::string>>()));
+	gameConf.setModScope(ModScope::scopeBuiltin());
+	JsonNode config(JsonUtils::assembleFromFiles(gameConf["bonuses"]));
 	config.setModScope("vcmi");
 	load(config);
 }

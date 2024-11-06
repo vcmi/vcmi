@@ -36,7 +36,7 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 	{
 		for(auto & i : armyPtr->Slots())
 		{
-			auto cre = dynamic_cast<const CCreature*>(i.second->type);
+			auto cre = dynamic_cast<const CCreature*>(i.second->getType());
 			auto & slotInfp = creToPower[cre];
 
 			slotInfp.creature = cre;

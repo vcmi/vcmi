@@ -20,6 +20,9 @@ VCMI_LIB_NAMESPACE_END
 class IVideoInstance
 {
 public:
+	/// Returns current video timestamp
+	virtual double timeStamp() = 0;
+
 	/// Returns true if video playback is over
 	virtual bool videoEnded() = 0;
 
@@ -31,6 +34,10 @@ public:
 
 	/// Advances video playback by specified duration
 	virtual void tick(uint32_t msPassed) = 0;
+
+	/// activate or deactivate video
+	virtual void activate() = 0;
+	virtual void deactivate() = 0;
 
 	virtual ~IVideoInstance() = default;
 };

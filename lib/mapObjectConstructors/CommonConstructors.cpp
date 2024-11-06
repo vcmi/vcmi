@@ -101,7 +101,7 @@ void CTownInstanceConstructor::initializeObject(CGTownInstance * obj) const
 
 void CTownInstanceConstructor::randomizeObject(CGTownInstance * object, vstd::RNG & rng) const
 {
-	auto templ = getOverride(object->cb->getTile(object->pos)->terType->getId(), object);
+	auto templ = getOverride(object->cb->getTile(object->pos)->getTerrainID(), object);
 	if(templ)
 		object->appearance = templ;
 }
@@ -205,6 +205,12 @@ AnimationPath BoatInstanceConstructor::getBoatAnimationName() const
 
 void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 {
+	if (!input["description"].isNull())
+	{
+		description = input["description"].String();
+		VLC->generaltexth->registerString(input.getModScope(), TextIdentifier(getBaseTextID(), "description"), description);
+	}
+
 	for(auto & element : input["modes"].Vector())
 	{
 		if(MappedKeys::MARKET_NAMES_TO_TYPES.count(element.String()))
@@ -216,6 +222,11 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 	
 	title = input["title"].String();
 	speech = input["speech"].String();
+}
+
+bool MarketInstanceConstructor::hasDescription() const
+{
+	return !description.empty();
 }
 
 CGMarket * MarketInstanceConstructor::createObject(IGameCallback * cb) const

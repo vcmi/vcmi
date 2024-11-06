@@ -133,7 +133,7 @@ void checkEqual(const ObjectTemplate & actual, const ObjectTemplate & expected)
 void checkEqual(const TerrainTile & actual, const TerrainTile & expected)
 {
 	//fatal fail here on any error
-	VCMI_REQUIRE_FIELD_EQUAL(terType);
+	VCMI_REQUIRE_FIELD_EQUAL(terrainType);
 	VCMI_REQUIRE_FIELD_EQUAL(terView);
 	VCMI_REQUIRE_FIELD_EQUAL(riverType);
 	VCMI_REQUIRE_FIELD_EQUAL(riverDir);
@@ -143,9 +143,6 @@ void checkEqual(const TerrainTile & actual, const TerrainTile & expected)
 
 	ASSERT_EQ(actual.blockingObjects.size(), expected.blockingObjects.size());
 	ASSERT_EQ(actual.visitableObjects.size(), expected.visitableObjects.size());
-
-	VCMI_REQUIRE_FIELD_EQUAL(visitable);
-	VCMI_REQUIRE_FIELD_EQUAL(blocked);
 }
 
 //MapComparer

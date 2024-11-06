@@ -166,7 +166,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 		const auto growth = b->val * (base + castleBonus) / 100;
 		if (growth)
 		{
-			ret.entries.emplace_back(growth, b->Description(growth));
+			ret.entries.emplace_back(growth, b->Description(cb, growth));
 		}
 	}
 
@@ -174,7 +174,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	// Note: bonus uses 1-based levels (Pikeman is level 1), town list uses 0-based (Pikeman in 0-th creatures entry)
 	TConstBonusListPtr bonuses = getBonuses(Selector::typeSubtype(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(level+1)));
 	for(const auto & b : *bonuses)
-		ret.entries.emplace_back(b->val, b->Description());
+		ret.entries.emplace_back(b->val, b->Description(cb));
 
 	int dwellingBonus = 0;
 	if(const PlayerState *p = cb->getPlayerState(tempOwner, false))
@@ -670,11 +670,9 @@ std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) co
 	if(mode == EMarketMode::RESOURCE_ARTIFACT)
 	{
 		std::vector<TradeItemBuy> ret;
-		for(const CArtifact *a : cb->gameState()->map->townMerchantArtifacts)
-			if(a)
-				ret.push_back(a->getId());
-			else
-				ret.push_back(ArtifactID{});
+		for(const ArtifactID a : cb->gameState()->map->townMerchantArtifacts)
+			ret.push_back(a);
+
 		return ret;
 	}
 	else if ( mode == EMarketMode::RESOURCE_SKILL )
@@ -692,7 +690,7 @@ ObjectInstanceID CGTownInstance::getObjInstanceID() const
 
 void CGTownInstance::updateAppearance()
 {
-	auto terrain = cb->gameState()->getTile(visitablePos())->terType->getId();
+	auto terrain = cb->gameState()->getTile(visitablePos())->getTerrainID();
 	//FIXME: not the best way to do this
 	auto app = getObjectHandler()->getOverride(terrain, this);
 	if (app)
@@ -1227,14 +1225,14 @@ void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &s
 {
 	for(const CGTownInstance::TCreaturesSet::value_type & dwelling : creatures)
 	{
-		if (vstd::contains(dwelling.second, stack.type->getId())) //Dwelling with our creature
+		if (vstd::contains(dwelling.second, stack.getId())) //Dwelling with our creature
 		{
 			for(const auto & upgrID : dwelling.second)
 			{
-				if(vstd::contains(stack.type->upgrades, upgrID)) //possible upgrade
+				if(vstd::contains(stack.getCreature()->upgrades, upgrID)) //possible upgrade
 				{
 					info.newID.push_back(upgrID);
-					info.cost.push_back(upgrID.toCreature()->getFullRecruitCost() - stack.type->getFullRecruitCost());
+					info.cost.push_back(upgrID.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost());
 				}
 			}
 		}

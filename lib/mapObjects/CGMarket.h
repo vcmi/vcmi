@@ -15,8 +15,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class MarketInstanceConstructor;
+
 class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
 {
+	std::shared_ptr<MarketInstanceConstructor> getMarketHandler() const;
+
 public:
 	int marketEfficiency;
 	
@@ -24,6 +28,9 @@ public:
 	///IObjectInterface
 	void onHeroVisit(const CGHeroInstance * h) const override; //open trading window
 	void initObj(vstd::RNG & rand) override;//set skills for trade
+
+	std::string getPopupText(PlayerColor player) const override;
+	std::string getPopupText(const CGHeroInstance * hero) const override;
 
 	///IMarket
 	ObjectInstanceID getObjInstanceID() const override;
@@ -63,7 +70,7 @@ class DLL_LINKAGE CGBlackMarket : public CGMarket
 public:
 	using CGMarket::CGMarket;
 
-	std::vector<const CArtifact *> artifacts; //available artifacts
+	std::vector<ArtifactID> artifacts; //available artifacts
 
 	void newTurn(vstd::RNG & rand) const override; //reset artifacts for black market every month
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;

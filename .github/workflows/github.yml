@@ -3,7 +3,6 @@ name: VCMI
 on:
   push:
     branches:
-      - features/*
       - beta
       - master
       - develop
@@ -38,6 +37,7 @@ jobs:
             os: macos-13
             test: 0
             pack: 1
+            upload: 1
             pack_type: Release
             extension: dmg
             before_install: macos.sh
@@ -50,6 +50,7 @@ jobs:
             os: macos-13
             test: 0
             pack: 1
+            upload: 1
             pack_type: Release
             extension: dmg
             before_install: macos.sh
@@ -62,6 +63,7 @@ jobs:
             os: macos-13
             test: 0
             pack: 1
+            upload: 1
             pack_type: Release
             extension: ipa
             before_install: macos.sh
@@ -69,14 +71,23 @@ jobs:
             conan_profile: ios-arm64
             conan_prebuilts: dependencies-ios
             conan_options: --options with_apple_system_libs=True
-          - platform: msvc
+          - platform: msvc-x64
+            os: windows-latest
+            test: 0
+            pack: 1
+            upload: 1
+            pack_type: RelWithDebInfo
+            extension: exe
+            before_install: msvc.sh
+            preset: windows-msvc-release
+          - platform: msvc-x86
             os: windows-latest
             test: 0
             pack: 1
             pack_type: RelWithDebInfo
             extension: exe
             before_install: msvc.sh
-            preset: windows-msvc-release
+            preset: windows-msvc-release-x86
           - platform: mingw_x86_64
             os: ubuntu-24.04
             test: 0
@@ -101,6 +112,7 @@ jobs:
             conan_prebuilts: dependencies-mingw-x86
           - platform: android-32
             os: ubuntu-24.04
+            upload: 1
             extension: apk
             preset: android-conan-ninja-release
             before_install: android.sh
@@ -109,6 +121,7 @@ jobs:
             artifact_platform: armeabi-v7a
           - platform: android-64
             os: ubuntu-24.04
+            upload: 1
             extension: apk
             preset: android-conan-ninja-release
             before_install: android.sh
@@ -135,6 +148,10 @@ jobs:
     - name: Install Conan Dependencies
       if: "${{ matrix.conan_prebuilts != '' }}"
       run: source '${{github.workspace}}/CI/install_conan_dependencies.sh' '${{matrix.conan_prebuilts}}'
+
+    - name: Install vcpkg Dependencies
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
+      run: source '${{github.workspace}}/CI/install_vcpkg_dependencies.sh' '${{matrix.platform}}'
 
     # ensure the ccache for each PR is separate so they don't interfere with each other
     # fall back to ccache of the vcmi/vcmi repo if no PR-specific ccache is found
@@ -232,11 +249,11 @@ jobs:
         elif [[ (${{matrix.preset}} == android-conan-ninja-release) && (${{github.ref}} != 'refs/heads/master') ]]
         then
             cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily" --preset ${{ matrix.preset }}
-        elif [[ ${{matrix.platform}} != msvc ]]
+        elif [[ ${{startsWith(matrix.platform, 'msvc') }} ]]
         then
-            cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
-        else
             cmake --preset ${{ matrix.preset }}
+        else
+            cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
         fi
 
     - name: Build
@@ -273,12 +290,14 @@ jobs:
             sleep 3
             ((counter++))
         done
+        rm -rf _CPack_Packages
 
     - name: Artifacts
       if: ${{ matrix.pack == 1 }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
+        compression-level: 0
         path: |
           ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
 
@@ -299,6 +318,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
+        compression-level: 0
         path: |
           ${{ env.ANDROID_APK_PATH }}
 
@@ -307,19 +327,21 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - aab
+        compression-level: 0
         path: |
           ${{ env.ANDROID_AAB_PATH }}
 
     - name: Upload debug symbols
-      if: ${{ matrix.platform == 'msvc' }}
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - symbols
+        compression-level: 9
         path: |
             ${{github.workspace}}/**/*.pdb
 
     - name: Upload build
-      if: ${{ (matrix.pack == 1 || startsWith(matrix.platform, 'android')) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' && matrix.platform != 'mingw-32' }}
+      if: ${{ (matrix.upload == 1) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') }}
       continue-on-error: true
       run: |
         if [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then

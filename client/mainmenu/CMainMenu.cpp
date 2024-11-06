@@ -540,7 +540,7 @@ CMultiPlayers::CMultiPlayers(const std::vector<std::string> & playerNames, ESele
 
 	std::string text = CGI->generaltexth->allTexts[446];
 	boost::replace_all(text, "\t", "\n");
-	textTitle = std::make_shared<CTextBox>(text, Rect(25, 20, 315, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE); //HOTSEAT	Please enter names
+	textTitle = std::make_shared<CTextBox>(text, Rect(25, 10, 315, 60), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE); //HOTSEAT	Please enter names
 
 	for(int i = 0; i < inputNames.size(); i++)
 	{

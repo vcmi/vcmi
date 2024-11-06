@@ -402,6 +402,10 @@ Increases starting amount of shots that unit has in battle
 
 Affected unit is considered to not be alive and not affected by morale and certain spells
 
+### MECHANICAL
+
+Affected unit is considered to not be alive and not affected by morale and certain spells but should be repairable from engineers (factory).
+
 ### GARGOYLE
 
 Affected unit is considered to be a gargoyle and not affected by certain spells
@@ -501,6 +505,10 @@ Affected unit attacks all adjacent creatures (Hydra). Only directly targeted cre
 ### TWO_HEX_ATTACK_BREATH
 
 Affected unit attacks creature located directly behind targeted tile (Dragons). Only directly targeted creature will attempt to retaliate
+
+### PRISM_HEX_ATTACK_BREATH
+
+Like `TWO_HEX_ATTACK_BREATH` but affects also two additional cratures (in triangle form from target tile)
 
 ### RETURN_AFTER_STRIKE
 

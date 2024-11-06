@@ -182,6 +182,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	console = new CConsoleHandler();
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
+	logGlobal->info("Starting map editor of '%s'", GameConstants::VCMI_VERSION);
 	logGlobal->info("The log file will be saved to %s", logPath);
 
 	//init
@@ -317,7 +318,7 @@ void MainWindow::setStatusMessage(const QString & status)
 
 void MainWindow::setTitle()
 {
-	QString title = QString("%1%2 - %3 (v%4)").arg(filename, unsaved ? "*" : "", VCMI_EDITOR_NAME, VCMI_EDITOR_VERSION);
+	QString title = QString("%1%2 - %3 (%4)").arg(filename, unsaved ? "*" : "", VCMI_EDITOR_NAME, GameConstants::VCMI_VERSION.c_str());
 	setWindowTitle(title);
 }
 
@@ -1122,7 +1123,7 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 			continue;
 		}
 		
-		auto * terrain = controller.map()->getTile(obj->visitablePos()).terType;
+		auto * terrain = controller.map()->getTile(obj->visitablePos()).getTerrain();
 		
 		if(handler->isStaticObject())
 		{
