@@ -19,6 +19,7 @@ class CComponentBox;
 class CTextBox;
 class TransparentFilledRectangle;
 class SimpleLine;
+class CSecSkillPlace;
 
 class CHeroOverview : public CWindowObject
 {
@@ -60,7 +61,7 @@ class CHeroOverview : public CWindowObject
     std::vector<std::shared_ptr<CLabel>> labelSpellsNames;
 
     std::shared_ptr<CLabel> labelSecSkillTitle;
-    std::vector<std::shared_ptr<CAnimImage>> imageSecSkills;
+    std::vector<std::shared_ptr<CSecSkillPlace>> secSkills;
     std::vector<std::shared_ptr<CLabel>> labelSecSkillsNames;
 
     void genBackground();

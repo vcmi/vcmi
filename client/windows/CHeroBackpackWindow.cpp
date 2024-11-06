@@ -35,7 +35,7 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	arts->moveBy(Point(windowMargin, windowMargin));
 	arts->clickPressedCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition)
 	{
-		clickPressedOnArtPlace(arts->getHero(), artPlace.slot, true, false, true);
+		clickPressedOnArtPlace(arts->getHero(), artPlace.slot, true, false, true, cursorPosition);
 	};
 	arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
 	{

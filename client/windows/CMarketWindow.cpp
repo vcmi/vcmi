@@ -262,7 +262,7 @@ void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroIns
 	const auto heroArts = altarArtifactsStorage->getAOHset();
 	heroArts->clickPressedCallback = [this, heroArts](const CArtPlace & artPlace, const Point & cursorPosition)
 	{
-		clickPressedOnArtPlace(heroArts->getHero(), artPlace.slot, true, true, false);
+		clickPressedOnArtPlace(heroArts->getHero(), artPlace.slot, true, true, false, cursorPosition);
 	};
 	heroArts->showPopupCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition)
 	{
