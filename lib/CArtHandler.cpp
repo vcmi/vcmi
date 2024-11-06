@@ -732,7 +732,7 @@ ArtifactPosition CArtifactSet::getArtPos(const ArtifactID & aid, bool onlyWorn, 
 		for(const auto & artInfo : artifactsInBackpack)
 		{
 			const auto art = artInfo.getArt();
-			if(art && art->artType->getId() == aid)
+			if(art && art->getType()->getId() == aid)
 				return ArtifactPosition(backpackPositionIdx);
 			backpackPositionIdx++;
 		}
@@ -757,7 +757,7 @@ ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance * artInst) cons
 {
 	if(artInst)
 	{
-		for(const auto & slot : artInst->artType->getPossibleSlots().at(bearerType()))
+		for(const auto & slot : artInst->getType()->getPossibleSlots().at(bearerType()))
 			if(getArt(slot) == artInst)
 				return slot;
 
@@ -805,11 +805,11 @@ CArtifactSet::ArtPlacementMap CArtifactSet::putArtifact(const ArtifactPosition &
 	};
 
 	putToSlot(slot, art, false);
-	if(art->artType->isCombined() && ArtifactUtils::isSlotEquipment(slot))
+	if(art->getType()->isCombined() && ArtifactUtils::isSlotEquipment(slot))
 	{
 		const CArtifactInstance * mainPart = nullptr;
 		for(const auto & part : art->getPartsInfo())
-			if(vstd::contains(part.art->artType->getPossibleSlots().at(bearerType()), slot)
+			if(vstd::contains(part.art->getType()->getPossibleSlots().at(bearerType()), slot)
 				&& (part.slot == ArtifactPosition::PRE_FIRST))
 			{
 				mainPart = part.art;
@@ -821,7 +821,7 @@ CArtifactSet::ArtPlacementMap CArtifactSet::putArtifact(const ArtifactPosition &
 			if(part.art != mainPart)
 			{
 				auto partSlot = part.slot;
-				if(!part.art->artType->canBePutAt(this, partSlot))
+				if(!part.art->getType()->canBePutAt(this, partSlot))
 					partSlot = ArtifactUtils::getArtAnyPosition(this, part.art->getTypeId());
 
 				assert(ArtifactUtils::isSlotEquipment(partSlot));
@@ -995,7 +995,7 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler)
 		{
 			auto * artifact = ArtifactUtils::createArtifact(artifactID);
 			auto slot = ArtifactPosition::BACKPACK_START + artifactsInBackpack.size();
-			if(artifact->artType->canBePutAt(this, slot))
+			if(artifact->getType()->canBePutAt(this, slot))
 			{
 				auto artsMap = putArtifact(slot, artifact);
 				artifact->addPlacementMap(artsMap);
@@ -1036,7 +1036,7 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 		{
 			auto * artifact = ArtifactUtils::createArtifact(artifactID.toEnum());
 
-			if(artifact->artType->canBePutAt(this, slot))
+			if(artifact->getType()->canBePutAt(this, slot))
 			{
 				auto artsMap = putArtifact(slot, artifact);
 				artifact->addPlacementMap(artsMap);

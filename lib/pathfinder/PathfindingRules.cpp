@@ -380,7 +380,7 @@ void LayerTransitionRule::process(
 
 	case EPathfindingLayer::SAIL:
 		// have to disembark first before visiting objects on land
-		if (destination.tile->visitable)
+		if (destination.tile->visitable())
 			destination.blocked = true;
 
 		//can disembark only on accessible tiles or tiles guarded by nearby monster
@@ -397,7 +397,7 @@ void LayerTransitionRule::process(
 				if (destination.node->accessible == EPathAccessibility::BLOCKVIS)
 				{
 					// Can't visit 'blockvisit' objects on coast if hero will end up on water terrain
-					if (source.tile->blocked || !destination.tile->entrableTerrain(source.tile))
+					if (source.tile->blocked() || !destination.tile->entrableTerrain(source.tile))
 						destination.blocked = true;
 				}
 			}

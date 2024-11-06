@@ -101,9 +101,9 @@ void PassabilityLayer::update()
 			for(int i = 0; i < map->width; ++i)
 			{
 				auto tl = map->getTile(int3(i, j, scene->level));
-				if(tl.blocked || tl.visitable)
+				if(tl.blocked() || tl.visitable())
 				{
-					painter.fillRect(i * 32, j * 32, 31, 31, tl.visitable ? QColor(200, 200, 0, 64) : QColor(255, 0, 0, 64));
+					painter.fillRect(i * 32, j * 32, 31, 31, tl.visitable() ? QColor(200, 200, 0, 64) : QColor(255, 0, 0, 64));
 				}
 			}
 		}

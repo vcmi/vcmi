@@ -90,7 +90,7 @@ public:
 	std::string getName() const
 	{
 		if(commander)
-			return commander->type->getNameSingularTranslated();
+			return commander->getType()->getNameSingularTranslated();
 		else
 			return creature->getNamePluralTranslated();
 	}
@@ -705,7 +705,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, bool popup)
 	info(new UnitView())
 {
 	info->stackNode = stack;
-	info->creature = stack->type;
+	info->creature = stack->getCreature();
 	info->creatureCount = stack->count;
 	info->popupWindow = popup;
 	info->owner = dynamic_cast<const CGHeroInstance *> (stack->armyObj);
@@ -717,7 +717,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> d
 	info(new UnitView())
 {
 	info->stackNode = stack;
-	info->creature = stack->type;
+	info->creature = stack->getCreature();
 	info->creatureCount = stack->count;
 
 	info->upgradeInfo = std::make_optional(UnitView::StackUpgradeInfo());
@@ -734,7 +734,7 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, bool popup)
 	info(new UnitView())
 {
 	info->stackNode = commander;
-	info->creature = commander->type;
+	info->creature = commander->getCreature();
 	info->commander = commander;
 	info->creatureCount = 1;
 	info->popupWindow = popup;
@@ -747,7 +747,7 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui3
 	info(new UnitView())
 {
 	info->stackNode = commander;
-	info->creature = commander->type;
+	info->creature = commander->getCreature();
 	info->commander = commander;
 	info->creatureCount = 1;
 	info->levelupInfo = std::make_optional(UnitView::CommanderLevelInfo());
@@ -879,7 +879,7 @@ std::string CStackWindow::generateStackExpDescription()
 	const CStackInstance * stack = info->stackNode;
 	const CCreature * creature = info->creature;
 
-	int tier = stack->type->getLevel();
+	int tier = stack->getType()->getLevel();
 	int rank = stack->getExpRank();
 	if (!vstd::iswithin(tier, 1, 7))
 		tier = 0;

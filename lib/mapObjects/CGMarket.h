@@ -70,7 +70,7 @@ class DLL_LINKAGE CGBlackMarket : public CGMarket
 public:
 	using CGMarket::CGMarket;
 
-	std::vector<const CArtifact *> artifacts; //available artifacts
+	std::vector<ArtifactID> artifacts; //available artifacts
 
 	void newTurn(vstd::RNG & rand) const override; //reset artifacts for black market every month
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;

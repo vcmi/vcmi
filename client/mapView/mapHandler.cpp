@@ -55,7 +55,7 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 	if(t.hasFavorableWinds())
 		return CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS, 0);
 
-	std::string result = t.terType->getNameTranslated();
+	std::string result = t.getTerrain()->getNameTranslated();
 
 	for(const auto & object : map->objects)
 	{

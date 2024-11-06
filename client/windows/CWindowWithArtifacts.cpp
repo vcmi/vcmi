@@ -198,7 +198,7 @@ void CWindowWithArtifacts::markPossibleSlots() const
 				continue;
 
 			if(getHeroPickedArtifact() == hero || !std::dynamic_pointer_cast<CArtifactsOfHeroKingdom>(artSet))
-				artSet->markPossibleSlots(pickedArtInst->artType, hero->tempOwner == LOCPLINT->playerID);
+				artSet->markPossibleSlots(pickedArtInst->getType(), hero->tempOwner == LOCPLINT->playerID);
 		}
 	}
 }
@@ -219,7 +219,7 @@ bool CWindowWithArtifacts::checkSpecialArts(const CArtifactInstance & artInst, c
 			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, ArtifactID(ArtifactID::CATAPULT))));
 		return false;
 	}
-	if(isTrade && !artInst.artType->isTradable())
+	if(isTrade && !artInst.getType()->isTradable())
 	{
 		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21],
 			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, artId)));
@@ -240,7 +240,7 @@ void CWindowWithArtifacts::setCursorAnimation(const CArtifactInstance & artInst)
 	}
 	else
 	{
-		CCS->curh->dragAndDropCursor(AnimationPath::builtin("artifact"), artInst.artType->getIconIndex());
+		CCS->curh->dragAndDropCursor(AnimationPath::builtin("artifact"), artInst.getType()->getIconIndex());
 	}
 }
 
@@ -253,10 +253,10 @@ void CWindowWithArtifacts::putPickedArtifact(const CGHeroInstance & curHero, con
 
 	if(ArtifactUtils::isSlotBackpack(dstLoc.slot))
 	{
-		if(pickedArt->artType->isBig())
+		if(pickedArt->getType()->isBig())
 		{
 			// War machines cannot go to backpack
-			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % pickedArt->artType->getNameTranslated()));
+			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % pickedArt->getType()->getNameTranslated()));
 		}
 		else
 		{

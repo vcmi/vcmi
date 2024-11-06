@@ -343,11 +343,6 @@ bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
 	return vstd::contains(upgrades, anotherCre->getId());
 }
 
-bool CCreature::valid() const
-{
-	return this == (*VLC->creh)[idNumber];
-}
-
 std::string CCreature::nodeName() const
 {
 	return "\"" + getNamePluralTextID() + "\"";

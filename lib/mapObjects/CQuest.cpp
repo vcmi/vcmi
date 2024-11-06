@@ -110,7 +110,7 @@ bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 	{
 		for(count = 0, it = army->Slots().begin(); it != army->Slots().end(); ++it)
 		{
-			if(it->second->type == cre->type)
+			if(it->second->getType() == cre->getType())
 			{
 				count += it->second->count;
 				slotsCount++;

@@ -830,9 +830,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 
 	const bool embarking = !h->boat && objectToVisit && objectToVisit->ID == Obj::BOAT;
 	const bool disembarking = h->boat
-		&& t.terType->isLand()
-		&& (dst == h->pos
-			|| (h->boat->layer == EPathfindingLayer::SAIL && !t.blocked));
+		&& t.isLand()
+		&& (dst == h->pos || (h->boat->layer == EPathfindingLayer::SAIL && !t.blocked()));
 
 	//result structure for start - movement failed, no move points used
 	TryMoveHero tmh;
@@ -850,9 +849,9 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	const bool canWalkOnSea = pathfinderHelper->hasBonusOfType(BonusType::WATER_WALKING) || (h->boat && h->boat->layer == EPathfindingLayer::WATER);
 	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movementPointsRemaining());
 
-	const bool movingOntoObstacle = t.blocked && !t.visitable;
+	const bool movingOntoObstacle = t.blocked() && !t.visitable();
 	const bool objectCoastVisitable = objectToVisit && objectToVisit->isCoastVisitable();
-	const bool movingOntoWater = !h->boat && t.terType->isWater() && !objectCoastVisitable;
+	const bool movingOntoWater = !h->boat && t.isWater() && !objectCoastVisitable;
 
 	const auto complainRet = [&](const std::string & message)
 	{
@@ -876,14 +875,14 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
-	if (!t.terType->isPassable() || (movingOntoObstacle && !canFly))
+	if (!t.getTerrain()->isPassable() || (movingOntoObstacle && !canFly))
 		return complainRet("Cannot move hero, destination tile is blocked!");
 
 	//hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 	if(movingOntoWater && !canFly && !canWalkOnSea)
 		return complainRet("Cannot move hero, destination tile is on water!");
 
-	if(h->boat && h->boat->layer == EPathfindingLayer::SAIL && t.terType->isLand() && t.blocked)
+	if(h->boat && h->boat->layer == EPathfindingLayer::SAIL && t.isLand() && t.blocked())
 		return complainRet("Cannot disembark hero, tile is blocked!");
 
 	if(distance(h->pos, dst) >= 1.5 && movementMode == EMovementMode::STANDARD)
@@ -895,7 +894,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	if(h->movementPointsRemaining() < cost && dst != h->pos && movementMode == EMovementMode::STANDARD)
 		return complainRet("Hero doesn't have any movement points left!");
 
-	if (transit && !canFly && !(canWalkOnSea && t.terType->isWater()) && !CGTeleport::isTeleport(objectToVisit))
+	if (transit && !canFly && !(canWalkOnSea && t.isWater()) && !CGTeleport::isTeleport(objectToVisit))
 		return complainRet("Hero cannot transit over this tile!");
 
 	//several generic blocks of code
@@ -1017,7 +1016,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 			if (CGTeleport::isTeleport(objectToVisit))
 				visitDest = DONT_VISIT_DEST;
 
-			if (canFly || (canWalkOnSea && t.terType->isWater()))
+			if (canFly || (canWalkOnSea && t.isWater()))
 			{
 				lookForGuards = IGNORE_GUARDS;
 				visitDest = DONT_VISIT_DEST;
@@ -1140,7 +1139,7 @@ void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance
 	//first we move creatures to give to make them army of object-source
 	for (auto & elem : creatures.Slots())
 	{
-		addToSlot(StackLocation(obj, obj->getSlotFor(elem.second->type)), elem.second->type, elem.second->count);
+		addToSlot(StackLocation(obj, obj->getSlotFor(elem.second->getCreature())), elem.second->getCreature(), elem.second->count);
 	}
 
 	tryJoiningArmy(obj, h, remove, true);
@@ -1161,7 +1160,7 @@ void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStac
 			bool foundSth = false;
 			for (auto i = obj->Slots().begin(); i != obj->Slots().end(); i++)
 			{
-				if (i->second->type == sbd.type)
+				if (i->second->getType() == sbd.getType())
 				{
 					TQuantity take = std::min(sbd.count - collected, i->second->count); //collect as much cres as we can
 					changeStackCount(StackLocation(obj, i->first), -take, false);
@@ -2456,7 +2455,7 @@ void CGameHandler::moveArmy(const CArmedInstance *src, const CArmedInstance *dst
 		auto i = src->Slots().begin(); //iterator to stack to move
 		StackLocation sl(src, i->first); //location of stack to move
 
-		SlotID pos = dst->getSlotFor(i->second->type);
+		SlotID pos = dst->getSlotFor(i->second->getCreature());
 		if (!pos.validSlot())
 		{
 			//try to merge two other stacks to make place
@@ -2601,7 +2600,7 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 	if((srcSlotInfo && srcSlotInfo->locked) || (dstSlotInfo && dstSlotInfo->locked))
 		COMPLAIN_RET("Cannot move artifact locks.");
 
-	if(isDstSlotBackpack && srcArtifact->artType->isBig())
+	if(isDstSlotBackpack && srcArtifact->getType()->isBig())
 		COMPLAIN_RET("Cannot put big artifacts in backpack!");
 	if(src.slot == ArtifactPosition::MACH4 || dstSlot == ArtifactPosition::MACH4)
 		COMPLAIN_RET("Cannot move catapult!");
@@ -2626,7 +2625,7 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 	}
 
 	auto hero = getHero(dst.artHolder);
-	if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->getId(), dstSlot))
+	if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->getTypeId(), dstSlot))
 		giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 
 	ma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(src.slot, dstSlot));
@@ -2772,21 +2771,21 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 	{
 		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
 			{
-				return inf.getArt()->artType->getPossibleSlots().at(ArtBearer::HERO).front().num;
+				return inf.getArt()->getType()->getPossibleSlots().at(ArtBearer::HERO).front().num;
 			});
 	}
 	else if(sortType == ManageBackpackArtifacts::ManageCmd::SORT_BY_COST)
 	{
 		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
 			{
-				return inf.getArt()->artType->getPrice();
+				return inf.getArt()->getType()->getPrice();
 			});
 	}
 	else if(sortType == ManageBackpackArtifacts::ManageCmd::SORT_BY_CLASS)
 	{
 		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
 			{
-				return inf.getArt()->artType->aClass;
+				return inf.getArt()->getType()->aClass;
 			});
 	}
 	else
@@ -2925,7 +2924,7 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble is fused combined artifact!");
 
 		if(ArtifactUtils::isSlotBackpack(artifactSlot)
-			&& !ArtifactUtils::isBackpackFreeSlots(hero, destArtifact->artType->getConstituents().size() - 1))
+			&& !ArtifactUtils::isBackpackFreeSlots(hero, destArtifact->getType()->getConstituents().size() - 1))
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble but backpack is full!");
 
 		DisassembledArtifact da;
@@ -3036,11 +3035,11 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, GameRe
 		COMPLAIN_RET("Wrong marktet...");
 
 	bool found = false;
-	for (const CArtifact *&art : saa.arts)
+	for (ArtifactID & art : saa.arts)
 	{
-		if (art && art->getId() == aid)
+		if (art == aid)
 		{
-			art = nullptr;
+			art = ArtifactID();
 			found = true;
 			break;
 		}
@@ -3059,11 +3058,11 @@ bool CGameHandler::sellArtifact(const IMarket *m, const CGHeroInstance *h, Artif
 	COMPLAIN_RET_FALSE_IF((!h), "Only hero can sell artifacts!");
 	const CArtifactInstance *art = h->getArtByInstanceId(aid);
 	COMPLAIN_RET_FALSE_IF((!art), "There is no artifact to sell!");
-	COMPLAIN_RET_FALSE_IF((!art->artType->isTradable()), "Cannot sell a war machine or spellbook!");
+	COMPLAIN_RET_FALSE_IF((!art->getType()->isTradable()), "Cannot sell a war machine or spellbook!");
 
 	int resVal = 0;
 	int dump = 1;
-	m->getOffer(art->artType->getId(), rid, dump, resVal, EMarketMode::ARTIFACT_RESOURCE);
+	m->getOffer(art->getType()->getId(), rid, dump, resVal, EMarketMode::ARTIFACT_RESOURCE);
 
 	removeArtifact(ArtifactLocation(h->id, h->getArtPos(art)));
 	giveResource(h->tempOwner, rid, resVal);
@@ -3138,7 +3137,7 @@ bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHero
 
 	int b1; //base quantities for trade
 	int b2;
-	market->getOffer(s.type->getId(), resourceID, b1, b2, EMarketMode::CREATURE_RESOURCE);
+	market->getOffer(s.getId(), resourceID, b1, b2, EMarketMode::CREATURE_RESOURCE);
 	int units = count / b1; //how many base quantities we trade
 
 	if (count%b1) //all offered units of resource should be used, if not -> somewhere in calculations must be an error
@@ -3649,7 +3648,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstan
 			COMPLAIN_RET("Cannot sacrifice last creature!");
 		}
 
-		int crid = hero->getStack(slot[i]).type->getId();
+		int crid = hero->getStack(slot[i]).getId();
 
 		changeStackCount(StackLocation(hero, slot[i]), -(TQuantity)count[i]);
 
@@ -3687,7 +3686,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * market, const CGHeroInstanc
 	{
 		if(auto art = artSet->getArtByInstanceId(artInstId))
 		{
-			if(art->artType->isTradable())
+			if(art->getType()->isTradable())
 			{
 				int dmp;
 				int expToGive;
@@ -3802,7 +3801,7 @@ void CGameHandler::tryJoiningArmy(const CArmedInstance *src, const CArmedInstanc
 			{
 				for (auto i = src->stacks.begin(); i != src->stacks.end(); i++)//while there are unmoved creatures
 				{
-					SlotID pos = dst->getSlotFor(i->second->type);
+					SlotID pos = dst->getSlotFor(i->second->getCreature());
 					if (pos.validSlot())
 					{
 						moveStack(StackLocation(src, i->first), StackLocation(dst, pos));
@@ -3893,7 +3892,7 @@ bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & s
 bool CGameHandler::putArtifact(const ArtifactLocation & al, const ArtifactInstanceID & id, std::optional<bool> askAssemble)
 {
 	const auto artInst = getArtInstance(id);
-	assert(artInst && artInst->artType);
+	assert(artInst && artInst->getType());
 	ArtifactLocation dst(al.artHolder, ArtifactPosition::PRE_FIRST);
 	dst.creature = al.creature;
 	auto putTo = getArtSet(al);
@@ -4212,7 +4211,7 @@ CGObjectInstance * CGameHandler::createNewObject(const int3 & visitablePosition,
 		throw std::runtime_error("Attempt to create object outside map at " + visitablePosition.toString());
 
 	const TerrainTile & t = gs->map->getTile(visitablePosition);
-	terrainType = t.terType->getId();
+	terrainType = t.getTerrainID();
 
 	auto handler = VLC->objtypeh->getHandlerFor(objectID, subID);
 
