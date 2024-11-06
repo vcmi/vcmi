@@ -749,7 +749,7 @@ Nainstalovat úspěšně stažené?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="859"/>
         <source>Online Lobby address</source>
-        <translation>Adresa online předsíně</translation>
+        <translation>Adresa online lobby</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1079"/>
