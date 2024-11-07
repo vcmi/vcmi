@@ -146,10 +146,9 @@ struct DLL_LINKAGE TerrainTile
 		{
 			bool isNull = false;
 			h & isNull;
-			if (isNull)
+			if (!isNull)
 				h & terrainType;
 		}
-		h & terrainType;
 		h & terView;
 		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
 		{
@@ -159,7 +158,7 @@ struct DLL_LINKAGE TerrainTile
 		{
 			bool isNull = false;
 			h & isNull;
-			if (isNull)
+			if (!isNull)
 				h & riverType;
 		}
 		h & riverDir;
@@ -171,7 +170,7 @@ struct DLL_LINKAGE TerrainTile
 		{
 			bool isNull = false;
 			h & isNull;
-			if (isNull)
+			if (!isNull)
 				h & roadType;
 		}
 		h & roadDir;
