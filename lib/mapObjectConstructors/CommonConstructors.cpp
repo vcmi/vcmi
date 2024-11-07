@@ -123,34 +123,71 @@ void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
 		input["heroClass"],
 		[&](si32 index) { heroClass = HeroClassID(index).toHeroClass(); });
 
-	filtersJson = input["filters"];
-}
-
-void CHeroInstanceConstructor::afterLoadFinalization()
-{
-	for(const auto & entry : filtersJson.Struct())
+	for (const auto & [name, config] : input["filters"].Struct())
 	{
-		filters[entry.first] = LogicalExpression<HeroTypeID>(entry.second, [](const JsonNode & node)
+		HeroFilter filter;
+		filter.allowFemale =  config["female"].Bool();
+		filter.allowMale =  config["male"].Bool();
+		filters[name] = filter;
+
+		if (!config["hero"].isNull())
 		{
-			return HeroTypeID(VLC->identifiers()->getIdentifier("hero", node.Vector()[0]).value_or(-1));
-		});
+			VLC->identifiers()->requestIdentifier( "hero", config["hero"], [this, templateName = name](si32 index) {
+				filters.at(templateName).fixedHero = HeroTypeID(index);
+			});
+		}
 	}
 }
 
-bool CHeroInstanceConstructor::objectFilter(const CGObjectInstance * object, std::shared_ptr<const ObjectTemplate> templ) const
+std::shared_ptr<const ObjectTemplate> CHeroInstanceConstructor::getOverride(TerrainId terrainType, const CGObjectInstance * object) const
 {
 	const auto * hero = dynamic_cast<const CGHeroInstance *>(object);
 
-	auto heroTest = [&](const HeroTypeID & id)
-	{
-		return hero->getHeroTypeID() == id;
-	};
+	std::vector<std::shared_ptr<const ObjectTemplate>> allTemplates = getTemplates();
+	std::shared_ptr<const ObjectTemplate> candidateFullMatch;
+	std::shared_ptr<const ObjectTemplate> candidateGenderMatch;
+	std::shared_ptr<const ObjectTemplate> candidateBase;
 
-	if(filters.count(templ->stringID))
+	assert(hero->gender != EHeroGender::DEFAULT);
+
+	for (const auto & templ : allTemplates)
 	{
-		return filters.at(templ->stringID).test(heroTest);
+		if (filters.count(templ->stringID))
+		{
+			const auto & filter = filters.at(templ->stringID);
+			if (filter.fixedHero.hasValue())
+			{
+				if (filter.fixedHero == hero->getHeroTypeID())
+					candidateFullMatch = templ;
+			}
+			else if (filter.allowMale)
+			{
+				if (hero->gender == EHeroGender::MALE)
+					candidateGenderMatch = templ;
+			}
+			else if (filter.allowFemale)
+			{
+				if (hero->gender == EHeroGender::FEMALE)
+					candidateGenderMatch = templ;
+			}
+			else
+			{
+				candidateBase = templ;
+			}
+		}
+		else
+		{
+			candidateBase = templ;
+		}
 	}
-	return false;
+
+	if (candidateFullMatch)
+		return candidateFullMatch;
+
+	if (candidateGenderMatch)
+		return candidateGenderMatch;
+
+	return candidateBase;
 }
 
 void CHeroInstanceConstructor::randomizeObject(CGHeroInstance * object, vstd::RNG & rng) const

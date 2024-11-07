@@ -222,7 +222,25 @@ public:
 		// static members
 		h & obeliskCount;
 		h & obelisksVisited;
-		h & townMerchantArtifacts;
+
+		if (h.version < Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			int32_t size = 0;
+			h & size;
+			for (int32_t i = 0; i < size; ++i)
+			{
+				bool isNull = false;
+				ArtifactID artifact;
+				h & isNull;
+				if (!isNull)
+					h & artifact;
+				townMerchantArtifacts.push_back(artifact);
+			}
+		}
+		else
+		{
+			h & townMerchantArtifacts;
+		}
 		h & townUniversitySkills;
 
 		h & instanceNames;

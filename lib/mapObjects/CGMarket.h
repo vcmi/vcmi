@@ -78,7 +78,24 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGMarket&>(*this);
-		h & artifacts;
+		if (h.version < Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			int32_t size = 0;
+			h & size;
+			for (int32_t i = 0; i < size; ++i)
+			{
+				bool isNull = false;
+				ArtifactID artifact;
+				h & isNull;
+				if (!isNull)
+					h & artifact;
+				artifacts.push_back(artifact);
+			}
+		}
+		else
+		{
+			h & artifacts;
+		}
 	}
 };
 
