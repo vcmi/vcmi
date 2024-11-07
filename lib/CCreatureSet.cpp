@@ -863,8 +863,8 @@ ui64 CStackInstance::getPower() const
 
 ui64 CStackInstance::getMarketValue() const
 {
-	assert(type);
-	return type->getFullRecruitCost().marketValue() * count;
+	assert(getType());
+	return getType()->getFullRecruitCost().marketValue() * count;
 }
 
 ArtBearer::ArtBearer CStackInstance::bearerType() const

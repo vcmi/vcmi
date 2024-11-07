@@ -903,7 +903,7 @@ public:
 				break;
 			}
 		}
-		if(evaluationContext.evaluator.ai->cb->getTile(task->tile)->roadType && evaluationContext.evaluator.ai->cb->getTile(task->tile)->roadType->getId() != RoadId::NO_ROAD)
+		if(evaluationContext.evaluator.ai->cb->getTile(task->tile)->roadType != RoadId::NO_ROAD)
 			evaluationContext.explorePriority = 1;
 		if (evaluationContext.explorePriority == 0)
 			evaluationContext.explorePriority = 3;
