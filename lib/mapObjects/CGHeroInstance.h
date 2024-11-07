@@ -244,6 +244,7 @@ public:
 	HeroTypeID getHeroTypeID() const;
 	void setHeroType(HeroTypeID type);
 
+	void initObj(vstd::RNG & rand) override;
 	void initHero(vstd::RNG & rand);
 	void initHero(vstd::RNG & rand, const HeroTypeID & SUBID);
 
@@ -303,6 +304,7 @@ public:
 	void attachToBoat(CGBoat* newBoat);
 	void boatDeserializationFix();
 	void deserializationFix();
+	void updateAppearance();
 
 	void pickRandomObject(vstd::RNG & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;

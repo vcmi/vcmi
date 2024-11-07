@@ -1019,12 +1019,12 @@ CStackBasicDescriptor::CStackBasicDescriptor(const CCreature *c, TQuantity Count
 
 const CCreature * CStackBasicDescriptor::getCreature() const
 {
-	return typeID.toCreature();
+	return typeID.hasValue() ? typeID.toCreature() : nullptr;
 }
 
 const Creature * CStackBasicDescriptor::getType() const
 {
-	return typeID.toEntity(VLC);
+	return typeID.hasValue() ? typeID.toEntity(VLC) : nullptr;
 }
 
 CreatureID CStackBasicDescriptor::getId() const

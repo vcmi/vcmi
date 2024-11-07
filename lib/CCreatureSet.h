@@ -51,9 +51,16 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & typeID;
-		if(!h.saving)
-			setType(typeID.toCreature());
+		if(h.saving)
+		{
+			h & typeID;
+		}
+		else
+		{
+			CreatureID creatureID;
+			h & creatureID;
+			setType(creatureID.toCreature());
+		}
 
 		h & count;
 	}

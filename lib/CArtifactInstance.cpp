@@ -141,7 +141,7 @@ ArtifactID CArtifactInstance::getTypeId() const
 
 const CArtifact * CArtifactInstance::getType() const
 {
-	return artTypeID.toArtifact();
+	return artTypeID.hasValue() ? artTypeID.toArtifact() : nullptr;
 }
 
 ArtifactInstanceID CArtifactInstance::getId() const

@@ -215,10 +215,6 @@ void CMapLoaderH3M::readHeader()
 
 	reader->setIdentifierRemapper(identifierMapper);
 
-	// include basic mod
-	if(mapHeader->version == EMapFormat::WOG)
-		mapHeader->mods["wake-of-gods"];
-
 	// Read map name, description, dimensions,...
 	mapHeader->areAnyPlayers = reader->readBool();
 	mapHeader->height = mapHeader->width = reader->readInt32();
