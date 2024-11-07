@@ -89,12 +89,12 @@ int IImage::height() const
 	return dimensions().y;
 }
 
-SDLImageShared::SDLImageShared(const CDefFile * data, size_t frame, size_t group, int scaleFactor)
+SDLImageShared::SDLImageShared(const CDefFile * data, size_t frame, size_t group, int preScaleFactor)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
 	originalPalette(nullptr),
-	scaleFactor(scaleFactor)
+	preScaleFactor(preScaleFactor)
 {
 	SDLImageLoader loader(this);
 	data->loadFrame(frame, group, loader);
@@ -107,7 +107,7 @@ SDLImageShared::SDLImageShared(SDL_Surface * from)
 	margins(0, 0),
 	fullSize(0, 0),
 	originalPalette(nullptr),
-	scaleFactor(1)
+	preScaleFactor(1)
 {
 	surf = from;
 	if (surf == nullptr)
@@ -120,12 +120,12 @@ SDLImageShared::SDLImageShared(SDL_Surface * from)
 	fullSize.y = surf->h;
 }
 
-SDLImageShared::SDLImageShared(const ImagePath & filename, int scaleFactor)
+SDLImageShared::SDLImageShared(const ImagePath & filename, int preScaleFactor)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
 	originalPalette(nullptr),
-	scaleFactor(scaleFactor)
+	preScaleFactor(preScaleFactor)
 {
 	surf = BitmapHandler::loadBitmap(filename);
 
@@ -278,12 +278,12 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palet
 		SDL_SetSurfacePalette(surf, palette);
 
 	SDL_Surface * scaled = nullptr;
-	if(scaleFactor == factor)
+	if(preScaleFactor == factor)
 		scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, 1, EScalingAlgorithm::NEAREST); // keep size
-	else if(scaleFactor == 1)
+	else if(preScaleFactor == 1)
 		scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, factor, EScalingAlgorithm::XBRZ);
 	else
-		scaled = CSDL_Ext::scaleSurface(surf, (surf->w / scaleFactor) * factor, (surf->h / scaleFactor) * factor);
+		scaled = CSDL_Ext::scaleSurface(surf, (surf->w / preScaleFactor) * factor, (surf->h / preScaleFactor) * factor);
 
 	auto ret = std::make_shared<SDLImageShared>(scaled);
 
@@ -364,7 +364,7 @@ bool SDLImageShared::isTransparent(const Point & coords) const
 
 Point SDLImageShared::dimensions() const
 {
-	return fullSize / scaleFactor;
+	return fullSize / preScaleFactor;
 }
 
 std::shared_ptr<IImage> SDLImageShared::createImageReference(EImageBlitMode mode)
