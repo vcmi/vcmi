@@ -128,13 +128,13 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 	cb->gameState()->map->removeBlockVisTiles(this, true);
 	auto handler = VLC->objtypeh->getHandlerFor(newID, newSubID);
 
-	if(!handler->getTemplates(tile.terType->getId()).empty())
+	if(!handler->getTemplates(tile.getTerrainID()).empty())
 	{
-		appearance = handler->getTemplates(tile.terType->getId())[0];
+		appearance = handler->getTemplates(tile.getTerrainID())[0];
 	}
 	else
 	{
-		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", newID, newSubID, visitablePos().toString(), tile.terType->getNameTranslated());
+		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", newID, newSubID, visitablePos().toString(), tile.getTerrain()->getNameTranslated());
 		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
 	}
 

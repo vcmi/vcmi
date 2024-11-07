@@ -273,7 +273,7 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 
 		// If the artifact is part of at least one combined artifact, add additional information
 		std::map<const ArtifactID, std::vector<ArtifactID>> arts;
-		for(const auto combinedArt : slotInfo->artifact->artType->getPartOf())
+		for(const auto combinedArt : slotInfo->artifact->getType()->getPartOf())
 		{
 			assert(combinedArt->isCombined());
 			arts.try_emplace(combinedArt->getId());

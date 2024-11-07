@@ -166,8 +166,6 @@ public:
 	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range
 	bool isMyUpgrade(const CCreature *anotherCre) const;
 
-	bool valid() const;
-
 	void addBonus(int val, BonusType type);
 	void addBonus(int val, BonusType type, BonusSubtypeID subtype);
 	std::string nodeName() const override;

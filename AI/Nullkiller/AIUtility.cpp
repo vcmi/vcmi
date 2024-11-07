@@ -193,7 +193,7 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 {
 	// TODO: Such information should be provided by pathfinder
 	// Tile must be free or with unoccupied boat
-	if(!t->blocked)
+	if(!t->blocked())
 	{
 		return true;
 	}
@@ -267,8 +267,8 @@ bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2)
 
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2)
 {
-	auto art1 = a1->artType;
-	auto art2 = a2->artType;
+	auto art1 = a1->getType();
+	auto art2 = a2->getType();
 
 	if(art1->getPrice() == art2->getPrice())
 		return art1->valOfBonuses(BonusType::PRIMARY_SKILL) > art2->valOfBonuses(BonusType::PRIMARY_SKILL);
@@ -312,7 +312,7 @@ int getDuplicatingSlots(const CArmedInstance * army)
 
 	for(auto stack : army->Slots())
 	{
-		if(stack.second->type && army->getSlotFor(stack.second->type) != stack.first)
+		if(stack.second->getCreature() && army->getSlotFor(stack.second->getCreature()) != stack.first)
 			duplicatingSlots++;
 	}
 
@@ -387,7 +387,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	{
 		for(auto slot : h->Slots())
 		{
-			if(slot.second->type->hasUpgrades())
+			if(slot.second->getType()->hasUpgrades())
 				return true; //TODO: check price?
 		}
 		return false;

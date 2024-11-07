@@ -266,11 +266,11 @@ CSecSkillPlace::CSecSkillPlace(const Point & position, const ImageSize & imageSi
 {
 	OBJECT_CONSTRUCTION;
 
-	auto imagePath = AnimationPath::builtin("SECSKILL");
+	auto imagePath = AnimationPath::builtin("SECSK82");
 	if(imageSize == ImageSize::MEDIUM)
-		imagePath = AnimationPath::builtin("SECSK32");
+		imagePath = AnimationPath::builtin("SECSKILL");
 	if(imageSize == ImageSize::SMALL)
-		imagePath = AnimationPath::builtin("SECSK82");
+		imagePath = AnimationPath::builtin("SECSK32");
 
 	image = std::make_shared<CAnimImage>(imagePath, 0);
 	component.type = ComponentType::SEC_SKILL;

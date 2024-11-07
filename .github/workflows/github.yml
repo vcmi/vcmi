@@ -3,7 +3,6 @@ name: VCMI
 on:
   push:
     branches:
-      - features/*
       - beta
       - master
       - develop
@@ -76,6 +75,7 @@ jobs:
             os: windows-latest
             test: 0
             pack: 1
+            upload: 1
             pack_type: RelWithDebInfo
             extension: exe
             before_install: msvc.sh
@@ -92,7 +92,6 @@ jobs:
             os: ubuntu-24.04
             test: 0
             pack: 1
-            upload: 1
             pack_type: Release
             extension: exe
             cmake_args: -G Ninja
@@ -342,7 +341,7 @@ jobs:
             ${{github.workspace}}/**/*.pdb
 
     - name: Upload build
-      if: ${{ (matrix.upload == 1) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) }}
+      if: ${{ (matrix.upload == 1) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') }}
       continue-on-error: true
       run: |
         if [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then

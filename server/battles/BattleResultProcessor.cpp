@@ -556,12 +556,12 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 	const CStackBasicDescriptor raisedStack = finishingBattle->winnerHero ? finishingBattle->winnerHero->calculateNecromancy(result) : CStackBasicDescriptor();
 	// Give raised units to winner and show dialog, if any were raised,
 	// units will be given after casualties are taken
-	const SlotID necroSlot = raisedStack.type ? finishingBattle->winnerHero->getSlotFor(raisedStack.type) : SlotID();
+	const SlotID necroSlot = raisedStack.getCreature() ? finishingBattle->winnerHero->getSlotFor(raisedStack.getCreature()) : SlotID();
 
 	if (necroSlot != SlotID() && !finishingBattle->isDraw())
 	{
 		finishingBattle->winnerHero->showNecromancyDialog(raisedStack, gameHandler->getRandomGenerator());
-		gameHandler->addToSlot(StackLocation(finishingBattle->winnerHero, necroSlot), raisedStack.type, raisedStack.count);
+		gameHandler->addToSlot(StackLocation(finishingBattle->winnerHero, necroSlot), raisedStack.getCreature(), raisedStack.count);
 	}
 
 	BattleResultsApplied resultsApplied;

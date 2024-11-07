@@ -896,7 +896,7 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 	pos.x += X;
 	pos.y += Y;
 
-	skill = std::make_shared<CSecSkillPlace>(Point(), CSecSkillPlace::ImageSize::LARGE, _ID, 1);
+	skill = std::make_shared<CSecSkillPlace>(Point(), CSecSkillPlace::ImageSize::MEDIUM, _ID, 1);
 	skill->setClickPressedCallback([this](const CComponentHolder&, const Point& cursorPosition)
 		{
 			bool skillKnown = parent->hero->getSecSkillLevel(ID);
@@ -1056,7 +1056,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 		if(up->Slots().size() > 0)
 		{
 			titleText = CGI->generaltexth->allTexts[35];
-			boost::algorithm::replace_first(titleText, "%s", up->Slots().begin()->second->type->getNamePluralTranslated());
+			boost::algorithm::replace_first(titleText, "%s", up->Slots().begin()->second->getType()->getNamePluralTranslated());
 		}
 		else
 		{

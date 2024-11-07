@@ -201,7 +201,7 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 	{
 		if(pickedArtInst->canBePutAt(altarArtifactsStorage))
 		{
-			if(pickedArtInst->artType->isTradable())
+			if(pickedArtInst->getType()->isTradable())
 			{
 				if(altarSlot->id == -1)
 					tradeSlotsMap.try_emplace(altarSlot, pickedArtInst);

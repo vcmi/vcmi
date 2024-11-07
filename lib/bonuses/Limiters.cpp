@@ -75,7 +75,7 @@ static const CCreature * retrieveCreature(const CBonusSystemNode *node)
 	default:
 		const CStackInstance * csi = retrieveStackInstance(node);
 		if(csi)
-			return csi->type;
+			return csi->getCreature();
 		return nullptr;
 	}
 }
@@ -103,25 +103,25 @@ ILimiter::EDecision CCreatureTypeLimiter::limit(const BonusLimitationContext &co
 	if(!c)
 		return ILimiter::EDecision::DISCARD;
 	
-	auto accept =  c->getId() == creature->getId() || (includeUpgrades && creature->isMyUpgrade(c));
+	auto accept =  c->getId() == creatureID || (includeUpgrades && creatureID.toCreature()->isMyUpgrade(c));
 	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 	//drop bonus if it's not our creature and (we don`t check upgrades or its not our upgrade)
 }
 
 CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature & creature_, bool IncludeUpgrades)
-	: creature(&creature_), includeUpgrades(IncludeUpgrades)
+	: creatureID(creature_.getId()), includeUpgrades(IncludeUpgrades)
 {
 }
 
 void CCreatureTypeLimiter::setCreature(const CreatureID & id)
 {
-	creature = id.toCreature();
+	creatureID = id;
 }
 
 std::string CCreatureTypeLimiter::toString() const
 {
 	boost::format fmt("CCreatureTypeLimiter(creature=%s, includeUpgrades=%s)");
-	fmt % creature->getJsonKey() % (includeUpgrades ? "true" : "false");
+	fmt % creatureID.toEntity(VLC)->getJsonKey() % (includeUpgrades ? "true" : "false");
 	return fmt.str();
 }
 
@@ -130,7 +130,7 @@ JsonNode CCreatureTypeLimiter::toJsonNode() const
 	JsonNode root;
 
 	root["type"].String() = "CREATURE_TYPE_LIMITER";
-	root["parameters"].Vector().emplace_back(creature->getJsonKey());
+	root["parameters"].Vector().emplace_back(creatureID.toEntity(VLC)->getJsonKey());
 	root["parameters"].Vector().emplace_back(includeUpgrades);
 
 	return root;

@@ -94,7 +94,7 @@ void CBank::setConfig(const BankConfig & config)
 	clearSlots(); // remove all stacks, if any
 
 	for(const auto & stack : config.guards)
-		setCreature (SlotID(stacksCount()), stack.type->getId(), stack.count);
+		setCreature (SlotID(stacksCount()), stack.getId(), stack.count);
 
 	daycounter = 1; //yes, 1 since "today" daycounter won't be incremented
 }
@@ -190,8 +190,8 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT, 34);
 			const auto * strongest = boost::range::max_element(bankConfig->guards, [](const CStackBasicDescriptor & a, const CStackBasicDescriptor & b)
 			{
-				return a.type->getFightValue() < b.type->getFightValue();
-			})->type;
+				return a.getType()->getFightValue() < b.getType()->getFightValue();
+			})->getType();
 
 			iw.text.replaceNamePlural(strongest->getId());
 			iw.text.replaceRawString(loot.buildList());
@@ -244,7 +244,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		CCreatureSet ourArmy;
 		for(const auto & slot : bankConfig->creatures)
 		{
-			ourArmy.addToSlot(ourArmy.getSlotFor(slot.type->getId()), slot.type->getId(), slot.count);
+			ourArmy.addToSlot(ourArmy.getSlotFor(slot.getId()), slot.getId(), slot.count);
 		}
 
 		for(const auto & elem : ourArmy.Slots())

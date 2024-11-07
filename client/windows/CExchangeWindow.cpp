@@ -82,7 +82,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 
 		for(int m=0; m < hero->secSkills.size(); ++m)
-			secSkills[leftRight].push_back(std::make_shared<CSecSkillPlace>(Point(32 + 36 * m + 454 * leftRight, qeLayout ? 83 : 88), CSecSkillPlace::ImageSize::MEDIUM,
+			secSkills[leftRight].push_back(std::make_shared<CSecSkillPlace>(Point(32 + 36 * m + 454 * leftRight, qeLayout ? 83 : 88), CSecSkillPlace::ImageSize::SMALL,
 				hero->secSkills[m].first, hero->secSkills[m].second));
 
 		specImages[leftRight] = std::make_shared<CAnimImage>(AnimationPath::builtin("UN32"), hero->getHeroType()->imageIndex, 0, 67 + 490 * leftRight, qeLayout ? 41 : 45);
@@ -95,12 +95,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	}
 
 	artifs[0] = std::make_shared<CArtifactsOfHeroMain>(Point(-334, 151));
-	artifs[0]->clickPressedCallback = [this, hero = heroInst[0]](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(hero, artPlace.slot, true, false, false);};
+	artifs[0]->clickPressedCallback = [this, hero = heroInst[0]](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(hero, artPlace.slot, true, false, false, cursorPosition);};
 	artifs[0]->showPopupCallback = [this, heroArts = artifs[0]](CArtPlace & artPlace, const Point & cursorPosition){showArtifactAssembling(*heroArts, artPlace, cursorPosition);};
 	artifs[0]->gestureCallback = [this, hero = heroInst[0]](const CArtPlace & artPlace, const Point & cursorPosition){showQuickBackpackWindow(hero, artPlace.slot, cursorPosition);};
 	artifs[0]->setHero(heroInst[0]);
 	artifs[1] = std::make_shared<CArtifactsOfHeroMain>(Point(98, 151));
-	artifs[1]->clickPressedCallback = [this, hero = heroInst[1]](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(hero, artPlace.slot, true, false, false);};
+	artifs[1]->clickPressedCallback = [this, hero = heroInst[1]](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(hero, artPlace.slot, true, false, false, cursorPosition);};
 	artifs[1]->showPopupCallback = [this, heroArts = artifs[1]](CArtPlace & artPlace, const Point & cursorPosition){showArtifactAssembling(*heroArts, artPlace, cursorPosition);};
 	artifs[1]->gestureCallback = [this, hero = heroInst[1]](const CArtPlace & artPlace, const Point & cursorPosition){showQuickBackpackWindow(hero, artPlace.slot, cursorPosition);};
 	artifs[1]->setHero(heroInst[1]);

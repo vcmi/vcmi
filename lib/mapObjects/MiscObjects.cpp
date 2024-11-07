@@ -775,13 +775,13 @@ void CGArtifact::initObj(vstd::RNG & rand)
 			storedArtifact = ArtifactUtils::createArtifact(ArtifactID());
 			cb->gameState()->map->addNewArtifactInstance(storedArtifact);
 		}
-		if(!storedArtifact->artType)
+		if(!storedArtifact->getType())
 			storedArtifact->setType(getArtifact().toArtifact());
 	}
 	if(ID == Obj::SPELL_SCROLL)
 		subID = 1;
 
-	assert(storedArtifact->artType);
+	assert(storedArtifact->getType());
 	assert(!storedArtifact->getParentNodes().empty());
 
 	//assert(storedArtifact->artType->id == subID); //this does not stop desync
@@ -825,7 +825,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 
-		if(storedArtifact->artType->canBePutAt(h))
+		if(storedArtifact->getType()->canBePutAt(h))
 		{
 			switch (ID.toEnum())
 			{
@@ -1152,7 +1152,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 			if(drown)
 			{
 				cb->changeStackCount(StackLocation(h, i->first), -drown);
-				xp += drown * i->second->type->getMaxHealth();
+				xp += drown * i->second->getType()->getMaxHealth();
 			}
 		}
 
@@ -1318,7 +1318,7 @@ void HillFort::onHeroVisit(const CGHeroInstance * h) const
 
 void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const
 {
-	int32_t level = stack.type->getLevel();
+	int32_t level = stack.getType()->getLevel();
 	int32_t index = std::clamp<int32_t>(level - 1, 0, upgradeCostPercentage.size() - 1);
 
 	int costModifier = upgradeCostPercentage[index];
@@ -1326,12 +1326,28 @@ void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) 
 	if (costModifier < 0)
 		return; // upgrade not allowed
 
-	for(const auto & nid : stack.type->upgrades)
+	for(const auto & nid : stack.getCreature()->upgrades)
 	{
 		info.newID.push_back(nid);
-		info.cost.push_back((nid.toCreature()->getFullRecruitCost() - stack.type->getFullRecruitCost()) * costModifier / 100);
+		info.cost.push_back((nid.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost()) * costModifier / 100);
 	}
 }
+
+std::string HillFort::getPopupText(PlayerColor player) const
+{
+	MetaString message = MetaString::createFromRawString("{%s}\r\n\r\n%s");
+
+	message.replaceName(ID);
+	message.replaceTextID(getDescriptionToolTip());
+
+	return message.toString();
+}
+
+std::string HillFort::getPopupText(const CGHeroInstance * hero) const
+{
+	return getPopupText(hero->getOwner());
+}
+
 
 std::string HillFort::getDescriptionToolTip() const
 {

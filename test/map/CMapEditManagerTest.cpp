@@ -38,17 +38,17 @@ TEST(MapManager, DrawTerrain_Type)
 		static const int3 squareCheck[] = { int3(5,5,0), int3(5,4,0), int3(4,4,0), int3(4,5,0) };
 		for(const auto & tile : squareCheck)
 		{
-			EXPECT_EQ(map->getTile(tile).terType->getId(), ETerrainId::GRASS);
+			EXPECT_EQ(map->getTile(tile).getTerrainID(), ETerrainId::GRASS);
 		}
 
 		// Concat to square
 		editManager->getTerrainSelection().select(int3(6, 5, 0));
 		editManager->drawTerrain(ETerrainId::GRASS, 10, &rand);
-		EXPECT_EQ(map->getTile(int3(6, 4, 0)).terType->getId(), ETerrainId::GRASS);
+		EXPECT_EQ(map->getTile(int3(6, 4, 0)).getTerrainID(), ETerrainId::GRASS);
 		editManager->getTerrainSelection().select(int3(6, 5, 0));
 		editManager->drawTerrain(ETerrainId::LAVA, 10, &rand);
-		EXPECT_EQ(map->getTile(int3(4, 4, 0)).terType->getId(), ETerrainId::GRASS);
-		EXPECT_EQ(map->getTile(int3(7, 4, 0)).terType->getId(), ETerrainId::LAVA);
+		EXPECT_EQ(map->getTile(int3(4, 4, 0)).getTerrainID(), ETerrainId::GRASS);
+		EXPECT_EQ(map->getTile(int3(7, 4, 0)).getTerrainID(), ETerrainId::LAVA);
 
 		// Special case water,rock
 		editManager->getTerrainSelection().selectRange(MapRect(int3(10, 10, 0), 10, 5));
@@ -57,7 +57,7 @@ TEST(MapManager, DrawTerrain_Type)
 		editManager->drawTerrain(ETerrainId::GRASS, 10, &rand);
 		editManager->getTerrainSelection().select(int3(21, 16, 0));
 		editManager->drawTerrain(ETerrainId::GRASS, 10, &rand);
-		EXPECT_EQ(map->getTile(int3(20, 15, 0)).terType->getId(), ETerrainId::GRASS);
+		EXPECT_EQ(map->getTile(int3(20, 15, 0)).getTerrainID(), ETerrainId::GRASS);
 
 		// Special case non water,rock
 		static const int3 diagonalCheck[] = { int3(31,42,0), int3(32,42,0), int3(32,43,0), int3(33,43,0), int3(33,44,0),
@@ -68,7 +68,7 @@ TEST(MapManager, DrawTerrain_Type)
 			editManager->getTerrainSelection().select(tile);
 		}
 		editManager->drawTerrain(ETerrainId::GRASS, 10, &rand);
-		EXPECT_EQ(map->getTile(int3(35, 44, 0)).terType->getId(), ETerrainId::WATER);
+		EXPECT_EQ(map->getTile(int3(35, 44, 0)).getTerrainID(), ETerrainId::WATER);
 
 		// Rock case
 		editManager->getTerrainSelection().selectRange(MapRect(int3(1, 1, 1), 15, 15));
@@ -77,7 +77,7 @@ TEST(MapManager, DrawTerrain_Type)
 								int3(8, 7, 1), int3(4, 8, 1), int3(5, 8, 1), int3(6, 8, 1)});
 		editManager->getTerrainSelection().setSelection(vec);
 		editManager->drawTerrain(ETerrainId::ROCK, 10, &rand);
-		EXPECT_TRUE(!map->getTile(int3(5, 6, 1)).terType->isPassable() || !map->getTile(int3(7, 8, 1)).terType->isPassable());
+		EXPECT_TRUE(!map->getTile(int3(5, 6, 1)).getTerrain()->isPassable() || !map->getTile(int3(7, 8, 1)).getTerrain()->isPassable());
 
 		//todo: add checks here and enable, also use smaller size
 		#if 0
@@ -144,7 +144,7 @@ TEST(MapManager, DrawTerrain_View)
 				int3 pos((si32)posVector[0].Float(), (si32)posVector[1].Float(), (si32)posVector[2].Float());
 				const auto & originalTile = originalMap->getTile(pos);
 				editManager->getTerrainSelection().selectRange(MapRect(pos, 1, 1));
-				editManager->drawTerrain(originalTile.terType->getId(), 10, &gen);
+				editManager->drawTerrain(originalTile.getTerrainID(), 10, &gen);
 				const auto & tile = map->getTile(pos);
 				bool isInRange = false;
 				for(const auto & range : mapping)

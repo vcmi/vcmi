@@ -25,6 +25,7 @@
 #include "../windows/InfoWindows.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../battle/BattleInterface.h"
 
 #include "../../CCallback.h"
 #include "../../lib/ArtifactUtils.h"
@@ -89,7 +90,7 @@ public:
 	std::string getName() const
 	{
 		if(commander)
-			return commander->type->getNameSingularTranslated();
+			return commander->getType()->getNameSingularTranslated();
 		else
 			return creature->getNamePluralTranslated();
 	}
@@ -525,6 +526,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 			CRClickPopup::createAndPush(parent->info->creature->getDescriptionTranslated());
 	});
 
+
 	if(parent->info->stackNode != nullptr && parent->info->commander == nullptr)
 	{
 		//normal stack, not a commander and not non-existing stack (e.g. recruitment dialog)
@@ -533,13 +535,21 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 	name = std::make_shared<CLabel>(215, 12, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, parent->info->getName());
 
+	const BattleInterface* battleInterface = LOCPLINT->battleInt.get();
+	const CStack* battleStack = parent->info->stack;
+
 	int dmgMultiply = 1;
-	if(parent->info->owner && parent->info->stackNode->hasBonusOfType(BonusType::SIEGE_WEAPON))
-		dmgMultiply += parent->info->owner->getPrimSkillLevel(PrimarySkill::ATTACK);
+	if (battleInterface && battleInterface->getBattle() != nullptr && battleStack->hasBonusOfType(BonusType::SIEGE_WEAPON))
+	{
+		// Determine the relevant hero based on the unit side
+		const auto hero = (battleStack->unitSide() == BattleSide::ATTACKER)
+			? battleInterface->attackingHeroInstance
+			: battleInterface->defendingHeroInstance;
 
+		dmgMultiply += hero->getPrimSkillLevel(PrimarySkill::ATTACK);
+	}
+		
 	icons = std::make_shared<CPicture>(ImagePath::builtin("stackWindow/icons"), 117, 32);
-
-	const CStack * battleStack = parent->info->stack;
 
 	morale = std::make_shared<MoraleLuckBox>(true, Rect(Point(321, 110), Point(42, 42) ));
 	luck = std::make_shared<MoraleLuckBox>(false,  Rect(Point(375, 110), Point(42, 42) ));
@@ -568,7 +578,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 		addStatLabel(EStat::ATTACK, parent->info->creature->getAttack(shooter), parent->info->stackNode->getAttack(shooter));
 		addStatLabel(EStat::DEFENCE, parent->info->creature->getDefense(shooter), parent->info->stackNode->getDefense(shooter));
-		addStatLabel(EStat::DAMAGE, parent->info->stackNode->getMinDamage(shooter) * dmgMultiply, parent->info->stackNode->getMaxDamage(shooter) * dmgMultiply);
+		addStatLabel(EStat::DAMAGE, parent->info->stackNode->getMinDamage(shooter), parent->info->stackNode->getMaxDamage(shooter));
 		addStatLabel(EStat::HEALTH, parent->info->creature->getMaxHealth(), parent->info->stackNode->getMaxHealth());
 		addStatLabel(EStat::SPEED, parent->info->creature->getMovementRange(), parent->info->stackNode->getMovementRange());
 
@@ -695,7 +705,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, bool popup)
 	info(new UnitView())
 {
 	info->stackNode = stack;
-	info->creature = stack->type;
+	info->creature = stack->getCreature();
 	info->creatureCount = stack->count;
 	info->popupWindow = popup;
 	info->owner = dynamic_cast<const CGHeroInstance *> (stack->armyObj);
@@ -707,7 +717,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> d
 	info(new UnitView())
 {
 	info->stackNode = stack;
-	info->creature = stack->type;
+	info->creature = stack->getCreature();
 	info->creatureCount = stack->count;
 
 	info->upgradeInfo = std::make_optional(UnitView::StackUpgradeInfo());
@@ -724,7 +734,7 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, bool popup)
 	info(new UnitView())
 {
 	info->stackNode = commander;
-	info->creature = commander->type;
+	info->creature = commander->getCreature();
 	info->commander = commander;
 	info->creatureCount = 1;
 	info->popupWindow = popup;
@@ -737,7 +747,7 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui3
 	info(new UnitView())
 {
 	info->stackNode = commander;
-	info->creature = commander->type;
+	info->creature = commander->getCreature();
 	info->commander = commander;
 	info->creatureCount = 1;
 	info->levelupInfo = std::make_optional(UnitView::CommanderLevelInfo());
@@ -869,7 +879,7 @@ std::string CStackWindow::generateStackExpDescription()
 	const CStackInstance * stack = info->stackNode;
 	const CCreature * creature = info->creature;
 
-	int tier = stack->type->getLevel();
+	int tier = stack->getType()->getLevel();
 	int rank = stack->getExpRank();
 	if (!vstd::iswithin(tier, 1, 7))
 		tier = 0;

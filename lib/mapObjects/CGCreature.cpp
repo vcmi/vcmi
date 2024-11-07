@@ -359,7 +359,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	for(const auto & elem : h->Slots())
 	{
 		bool isOurUpgrade = vstd::contains(getCreature()->upgrades, elem.second->getCreatureID());
-		bool isOurDowngrade = vstd::contains(elem.second->type->upgrades, getCreatureID());
+		bool isOurDowngrade = vstd::contains(elem.second->getCreature()->upgrades, getCreatureID());
 
 		if(isOurUpgrade || isOurDowngrade)
 			count += elem.second->count;
@@ -480,7 +480,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 		if (containsUpgradedStack()) //upgrade
 		{
 			SlotID slotID = SlotID(static_cast<si32>(std::floor(static_cast<float>(stacks.size()) / 2.0f)));
-			const auto & upgrades = getStack(slotID).type->upgrades;
+			const auto & upgrades = getStack(slotID).getCreature()->upgrades;
 			if(!upgrades.empty())
 			{
 				auto it = RandomGeneratorUtil::nextItem(upgrades, cb->gameState()->getRandomGenerator());
@@ -521,7 +521,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 		const CCreature * cre = getCreature();
 		for(i = stacks.begin(); i != stacks.end(); i++)
 		{
-			if(cre->isMyUpgrade(i->second->type))
+			if(cre->isMyUpgrade(i->second->getCreature()))
 			{
 				cb->changeStackType(StackLocation(this, i->first), cre); //un-upgrade creatures
 			}
@@ -536,7 +536,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 			// TODO it's either overcomplicated (if we assume there'll be only one stack) or buggy (if we allow multiple stacks... but that'll also cause troubles elsewhere)
 			i = stacks.end();
 			i--;
-			SlotID slot = getSlotFor(i->second->type);
+			SlotID slot = getSlotFor(i->second->getCreature());
 			if(slot == i->first) //no reason to move stack to its own slot
 				break;
 			else

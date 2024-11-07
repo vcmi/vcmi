@@ -157,7 +157,7 @@ void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInsta
 BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance *town)
 {
 	const auto & t = *gameHandler->getTile(tile);
-	TerrainId terrain = t.terType->getId();
+	TerrainId terrain = t.getTerrainID();
 	if (town)
 		terrain = town->getNativeTerrain();
 	else if (gameHandler->gameState()->map->isCoastalTile(tile)) //coastal tile is always ground

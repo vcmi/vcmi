@@ -28,6 +28,13 @@
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Body pohybu: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Omlouváme se, přehrání tahu soupeře ještě není implementováno!",
 
+	"vcmi.bonusSource.artifact" : "Artefakt",
+	"vcmi.bonusSource.creature" : "Schopnost",
+	"vcmi.bonusSource.spell" : "Kouzlo",
+	"vcmi.bonusSource.hero" : "Hrdina",
+	"vcmi.bonusSource.commander" : "Velitel",
+	"vcmi.bonusSource.other" : "Ostatní",
+
 	"vcmi.capitalColors.0" : "Červený",
 	"vcmi.capitalColors.1" : "Modrý",
 	"vcmi.capitalColors.2" : "Hnědý",
@@ -36,25 +43,25 @@
 	"vcmi.capitalColors.5" : "Fialový",
 	"vcmi.capitalColors.6" : "Tyrkysový",
 	"vcmi.capitalColors.7" : "Růžový",
-	
+
 	"vcmi.heroOverview.startingArmy" : "Počáteční jednotky",
 	"vcmi.heroOverview.warMachine" : "Bojové stroje",
 	"vcmi.heroOverview.secondarySkills" : "Druhotné schopnosti",
 	"vcmi.heroOverview.spells" : "Kouzla",
-	
+
 	"vcmi.quickExchange.moveUnit" : "Přesunout jednotku",
 	"vcmi.quickExchange.moveAllUnits" : "Přesunout všechny jednotky",
 	"vcmi.quickExchange.swapAllUnits" : "Vyměnit armády",
 	"vcmi.quickExchange.moveAllArtifacts" : "Přesunout všechny artefakty",
 	"vcmi.quickExchange.swapAllArtifacts" : "Vyměnit artefakt",
-	
+
 	"vcmi.radialWheel.mergeSameUnit" : "Sloučit stejné jednotky",
 	"vcmi.radialWheel.fillSingleUnit" : "Vyplnit jednou jednotkou",
 	"vcmi.radialWheel.splitSingleUnit" : "Rozdělit jedinou jednotku",
 	"vcmi.radialWheel.splitUnitEqually" : "Rozdělit jednotky rovnoměrně",
 	"vcmi.radialWheel.moveUnit" : "Přesunout jednotky do jiného oddílu",
 	"vcmi.radialWheel.splitUnit" : "Rozdělit jednotku do jiné pozice",
-	
+
 	"vcmi.radialWheel.heroGetArmy" : "Získat armádu jiného hrdiny",
 	"vcmi.radialWheel.heroSwapArmy" : "Vyměnit armádu s jiným hrdinou",
 	"vcmi.radialWheel.heroExchange" : "Otevřít výměnu hrdinů",
@@ -66,7 +73,7 @@
 	"vcmi.radialWheel.moveUp" : "Posunout výše",
 	"vcmi.radialWheel.moveDown" : "Posunout níže",
 	"vcmi.radialWheel.moveBottom" : "Přesunout dolů",
-	
+
 	"vcmi.randomMap.description" : "Mapa vytvořená Generátorem náhodných map.\nŠablona: %s, rozměry: %dx%d, úroveň: %d, hráči: %d, AI hráči: %d, množství vody: %s, síla jednotek: %s, VCMI mapa",
 	"vcmi.randomMap.description.isHuman" : ", %s je lidský hráč",
 	"vcmi.randomMap.description.townChoice" : ", volba města pro %s je %s",
@@ -106,14 +113,20 @@
 	"vcmi.lobby.handicap.resource" : "Dává hráčům odpovídající zdroje navíc k běžným startovním zdrojům. Jsou povoleny záporné hodnoty, ale jsou omezeny na celkovou hodnotu 0 (hráč nikdy nezačíná se zápornými zdroji).",
 	"vcmi.lobby.handicap.income" : "Mění různé příjmy hráče podle procent. Výsledek je zaokrouhlen nahoru.",
 	"vcmi.lobby.handicap.growth" : "Mění rychlost růstu jednotel v městech vlastněných hráčem. Výsledek je zaokrouhlen nahoru.",
-		
+	"vcmi.lobby.deleteUnsupportedSave" : "Nalezeny nepodporované uložené hry (např. z předchozích verzí).\n\nChcete je odstranit?",
+	"vcmi.lobby.deleteSaveGameTitle" : "Vyberte uloženou hru k odstranění",
+	"vcmi.lobby.deleteMapTitle" : "Vyberte scénář k odstranění",
+	"vcmi.lobby.deleteFile" : "Chcete smazat následující soubor?",
+	"vcmi.lobby.deleteFolder" : "Chcete smazat následující složku?",
+	"vcmi.lobby.deleteMode" : "Přepnout do režimu mazání a zpět",
+
 	"vcmi.lobby.login.title" : "Online lobby VCMI",
 	"vcmi.lobby.login.username" : "Uživatelské jméno:",
 	"vcmi.lobby.login.connecting" : "Připojování...",
 	"vcmi.lobby.login.error" : "Chyba při připojování: %s",
 	"vcmi.lobby.login.create" : "Nový účet",
 	"vcmi.lobby.login.login" : "Přihlásit se",
-	"vcmi.lobby.login.as" : "Přilásit se jako %s",
+	"vcmi.lobby.login.as" : "Přihlásit se jako %s",
 	"vcmi.lobby.header.rooms" : "Herní místnosti - %d",
 	"vcmi.lobby.header.channels" : "Kanály konverzace",
 	"vcmi.lobby.header.chat.global" : "Globální konverzace hry - %s", // %s -> language name
@@ -175,9 +188,10 @@
 	"vcmi.server.errors.modsToEnable"    : "{Následující modifikace jsou nutné pro načtení hry}",
 	"vcmi.server.errors.modsToDisable"   : "{Následující modifikace musí být zakázány}",
 	"vcmi.server.errors.modNoDependency" : "Nelze načíst modifikaci {'%s'}!\n Závisí na modifikaci {'%s'}, která není aktivní!\n",
+	"vcmi.server.errors.modDependencyLoop" : "Nelze načíst modifikaci {'%s'}!\n Modifikace může být součástí (nepřímé) závislostní smyčky.",
 	"vcmi.server.errors.modConflict" : "Nelze načíst modifikaci {'%s'}!\n Je v kolizi s aktivní modifikací {'%s'}!\n",
 	"vcmi.server.errors.unknownEntity" : "Nelze načíst uloženou pozici! Neznámá entita '%s' nalezena v uložené pozici! Uložná pozice nemusí být kompatibilní s aktuálními verzemi modifikací!",
-	
+
 	"vcmi.dimensionDoor.seaToLandError" : "Pomocí dimenzní brány není možné se teleportovat z moře na pevninu nebo naopak.",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "Obecné",
@@ -323,13 +337,13 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d poškození",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d zahyne",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d zahyne",
-	
+
 	"vcmi.battleWindow.damageRetaliation.will" : "Provede odvetu ",
 	"vcmi.battleWindow.damageRetaliation.may" : "Může provést odvetu",
 	"vcmi.battleWindow.damageRetaliation.never" : "Neprovede odvetu.",
 	"vcmi.battleWindow.damageRetaliation.damage" : "(%DAMAGE).",
 	"vcmi.battleWindow.damageRetaliation.damageKills" : "(%DAMAGE, %KILLS).",
-	
+
 	"vcmi.battleWindow.killed" : "Zabito",
 	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s bylo zabito přesnými zásahy!",
 	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s byl zabit přesným zásahem!",
@@ -444,7 +458,7 @@
 	"vcmi.optionsTab.simturns.blocked1"       : "Souběžně: 1 týden, setkání zablokována",
 	"vcmi.optionsTab.simturns.blocked2"       : "Souběžně: 2 týdny, setkání zablokována",
 	"vcmi.optionsTab.simturns.blocked4"       : "Souběžně: 1 měsíc, setkání zablokována",
-	
+
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount
 	"vcmi.optionsTab.simturns.days.0" : " %d dní",
@@ -488,7 +502,7 @@
 	"vcmi.stackExperience.rank.8" : "Elitní",
 	"vcmi.stackExperience.rank.9" : "Mistr",
 	"vcmi.stackExperience.rank.10" : "Eso",
-	
+
 	// Strings for HotA Seer Hut / Quest Guards
 	"core.seerhut.quest.heroClass.complete.0" : "Ah, vy jste %s. Tady máte dárek. Přijmete ho?",
 	"core.seerhut.quest.heroClass.complete.1" : "Ah, vy jste %s. Tady máte dárek. Přijmete ho?",
@@ -520,7 +534,7 @@
 	"core.seerhut.quest.heroClass.visit.3" : "Stráže zde povolí průchod pouze %s.",
 	"core.seerhut.quest.heroClass.visit.4" : "Stráže zde povolí průchod pouze %s.",
 	"core.seerhut.quest.heroClass.visit.5" : "Stráže zde povolí průchod pouze %s.",
-	
+
 	"core.seerhut.quest.reachDate.complete.0" : "Jsem nyní volný. Tady máte, co jsem pro vás měl. Přijmete to?",
 	"core.seerhut.quest.reachDate.complete.1" : "Jsem nyní volný. Tady máte, co jsem pro vás měl. Přijmete to?",
 	"core.seerhut.quest.reachDate.complete.2" : "Jsem nyní volný. Tady máte, co jsem pro vás měl. Přijmete to?",
@@ -551,6 +565,8 @@
 	"core.seerhut.quest.reachDate.visit.3" : "Zavřeno do %s.",
 	"core.seerhut.quest.reachDate.visit.4" : "Zavřeno do %s.",
 	"core.seerhut.quest.reachDate.visit.5" : "Zavřeno do %s.",
+
+	"mapObject.core.hillFort.object.description" : "Zde můžeš vylepšit jednotky. Vylepšení jednotek úrovně 1 až 4 je zde levnější než v jejich domovském městě.",
 
 	"core.bonus.ADDITIONAL_ATTACK.name": "Dvojitý útok",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Útočí dvakrát",

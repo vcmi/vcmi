@@ -22,6 +22,8 @@ public:
 	virtual int playSound(std::pair<std::unique_ptr<ui8[]>, si64> & data, int repeats = 0, bool cache = false) = 0;
 	virtual int playSoundFromSet(std::vector<soundBase::soundID> & sound_vec) = 0;
 	virtual void stopSound(int handler) = 0;
+	virtual void pauseSound(int handler) = 0;
+	virtual void resumeSound(int handler) = 0;
 
 	virtual ui32 getVolume() const = 0;
 	virtual void setVolume(ui32 percent) = 0;
