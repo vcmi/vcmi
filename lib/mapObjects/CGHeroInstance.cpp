@@ -358,7 +358,7 @@ TObjectTypeHandler CGHeroInstance::getObjectHandler() const
 void CGHeroInstance::updateAppearance()
 {
 	auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());;
-	auto terrain = cb->gameState()->getTile(visitablePos())->terType->getId();
+	auto terrain = cb->gameState()->getTile(visitablePos())->getTerrainID();
 	auto app = handler->getOverride(terrain, this);
 	if (app)
 		appearance = app;
