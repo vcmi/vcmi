@@ -49,7 +49,7 @@ public:
 	//Load from bitmap file
 	SDLImageShared(const ImagePath & filename, int preScaleFactor=1);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface
-	SDLImageShared(SDL_Surface * from);
+	SDLImageShared(SDL_Surface * from, int preScaleFactor=1);
 	~SDLImageShared();
 
 	void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;
