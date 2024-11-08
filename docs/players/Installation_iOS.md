@@ -10,13 +10,18 @@ You can run VCMI on iOS 12.0 and later, all devices are supported. If you wish t
 To run on a non-jailbroken device you need to sign the IPA file, you
 have the following options:
 
-- (Easiest way) [AltStore](https://altstore.io/) or [Sideloadly](https://sideloadly.io/) - can be installed on Windows or macOS, don't require dealing with signing on your own 
-- if you're on iOS 14.0-15.4.1, you can try <https://github.com/opa334/TrollStore>
+- (Easiest way) [AltStore Classic](https://altstore.io/) or [Sideloadly](https://sideloadly.io/) - can be installed on Windows or macOS, doesn't require dealing with signing on your own 
+- if you're on iOS 14.0-15.4.1, you can try <https://github.com/opa334/TrollStore>. If you’re using this, no need to use any of the tools below. 
 - Get signer tool [here](https://dantheman827.github.io/ios-app-signer/) and a guide [here](https://forum.kodi.tv/showthread.php?tid=245978) (it's for Kodi, but the logic is the same). Signing with this app can only be done on macOS.
 - [Create signing assets on macOS from terminal](https://github.com/kambala-decapitator/xcode-auto-signing-assets). In the command replace `your.bundle.id` with something like `com.MY-NAME.vcmi`. After that use the above signer tool.
 - [Sign from any OS (Rust)](https://github.com/indygreg/PyOxidizer/tree/main/tugger-code-signing) / [alternative project (C++)](https://github.com/zhlynn/zsign). You'd still need to find a way to create signing assets (private key and provisioning profile) though.
 
-To install the signed ipa on your device, you can use Xcode or Apple Configurator (available on the Mac App Store for free). The latter also allows installing ipa from the command line, here's an example that assumes you have only 1 device connected to your Mac and the signed ipa is on your desktop:
+The easiest way to install the ipa on your device is to do one of the following:
+- Drag and drop the .ipa file into your iOS device in iTunes or
+- Download the .ipa file on your iOS device directly from the latest releases. In AltStore as an example on your device go to >My Apps > press + in the top left corner. Select VCMI-iOS.ipa to install
+
+
+Alternatively, to install the signed ipa on your device, you can use Xcode or Apple Configurator (available on the Mac App Store for free). The latter also allows installing ipa from the command line, here's an example that assumes you have only 1 device connected to your Mac and the signed ipa is on your desktop:
 
     /Applications/Apple\ Configurator.app/Contents/MacOS/cfgutil install-app ~/Desktop/vcmi.ipa
 
@@ -26,7 +31,7 @@ Note: if you don't need in-game videos, you can omit downloading/copying file VI
 
 ### Step 2.a: Installing data files with GOG offline installer
 
-If you bought HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the files directly from the browser and install them in the launcher. Select the .bin file first, then the .exe file. This may take a few seconds. Please be patient.
+If you bought HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the files directly from the browser in the device. Launch VCMI app on the device and the launcher will prompt two files to complete the installation. Select the .bin file first, then the .exe file. This may take a few seconds. Please be patient. You do not need any of the steps below if you’re using this method.
 
 ### Step 2.b: Installing data files with Finder or Windows explorer
 
