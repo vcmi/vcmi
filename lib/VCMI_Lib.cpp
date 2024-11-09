@@ -26,7 +26,6 @@
 #include "entities/hero/CHeroHandler.h"
 #include "texts/CGeneralTextHandler.h"
 #include "modding/CModHandler.h"
-#include "modding/CModInfo.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/CModVersion.h"
 #include "IGameEventsReceiver.h"
@@ -157,7 +156,6 @@ void LibClasses::loadModFilesystem()
 	CStopWatch loadTime;
 	modh = std::make_unique<CModHandler>();
 	identifiersHandler = std::make_unique<CIdentifierStorage>();
-	modh->loadMods();
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
 	modh->loadModFilesystems();

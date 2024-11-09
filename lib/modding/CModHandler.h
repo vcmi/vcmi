@@ -12,51 +12,26 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CModHandler;
-class CModIdentifier;
-class CModInfo;
-struct CModVersion;
-class JsonNode;
-class IHandlerBase;
-class CIdentifierStorage;
+class ModDescription;
 class CContentHandler;
-struct ModVerificationInfo;
 class ResourcePath;
-class MetaString;
+class ModManager;
+class ISimpleResourceLoader;
 
 using TModID = std::string;
 
 class DLL_LINKAGE CModHandler final : boost::noncopyable
 {
-	std::map <TModID, CModInfo> allMods;
-	std::vector <TModID> activeMods;//active mods, in order in which they were loaded
-	std::unique_ptr<CModInfo> coreMod;
-	mutable std::unique_ptr<MetaString> modLoadErrors;
+	std::unique_ptr<ModManager> modManager;
 
-	bool hasCircularDependency(const TModID & mod, std::set<TModID> currentList = std::set<TModID>()) const;
-
-	/**
-	* 1. Set apart mods with resolved dependencies from mods which have unresolved dependencies
-	* 2. Sort resolved mods using topological algorithm
-	* 3. Log all problem mods and their unresolved dependencies
-	*
-	* @param modsToResolve list of valid mod IDs (checkDependencies returned true - TODO: Clarify it.)
-	* @return a vector of the topologically sorted resolved mods: child nodes (dependent mods) have greater index than parents
-	*/
-	std::vector<TModID> validateAndSortDependencies(std::vector <TModID> modsToResolve) const;
-
-	std::vector<std::string> getModList(const std::string & path) const;
-	void loadMods(const std::string & path, const std::string & parent, const JsonNode & modSettings, const std::vector<TModID> & modsToActivate, bool enableMods);
-	void loadOneMod(std::string modName, const std::string & parent, const JsonNode & modSettings, const std::vector<TModID> & modsToActivate, bool enableMods);
 	void loadTranslation(const TModID & modName);
-
-	CModVersion getModVersion(TModID modName) const;
+	void checkModFilesystemsConflicts(const std::map<TModID, ISimpleResourceLoader *> & modFilesystems);
 
 public:
-	std::shared_ptr<CContentHandler> content; //(!)Do not serialize FIXME: make private
+	std::shared_ptr<CContentHandler> content; //FIXME: make private
 
 	/// receives list of available mods and trying to load mod.json from all of them
 	void initializeConfig();
-	void loadMods();
 	void loadModFilesystems();
 
 	/// returns ID of mod that provides selected file resource
@@ -82,7 +57,7 @@ public:
 	/// Returns human-readable string that describes errors encounter during mod loading, such as missing dependencies
 	std::string getModLoadErrors() const;
 	
-	const CModInfo & getModInfo(const TModID & modId) const;
+	const ModDescription & getModInfo(const TModID & modId) const;
 
 	/// load content from all available mods
 	void load();

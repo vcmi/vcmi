@@ -157,10 +157,11 @@ set(lib_MAIN_SRCS
 
 	modding/ActiveModsInSaveList.cpp
 	modding/CModHandler.cpp
-	modding/CModInfo.cpp
 	modding/CModVersion.cpp
 	modding/ContentTypeHandler.cpp
 	modding/IdentifierStorage.cpp
+	modding/ModDescription.cpp
+	modding/ModManager.cpp
 	modding/ModUtility.cpp
 	modding/ModVerificationInfo.cpp
 
@@ -547,11 +548,12 @@ set(lib_MAIN_HEADERS
 
 	modding/ActiveModsInSaveList.h
 	modding/CModHandler.h
-	modding/CModInfo.h
 	modding/CModVersion.h
 	modding/ContentTypeHandler.h
 	modding/IdentifierStorage.h
+	modding/ModDescription.h
 	modding/ModIncompatibility.h
+	modding/ModManager.h
 	modding/ModScope.h
 	modding/ModUtility.h
 	modding/ModVerificationInfo.h

@@ -11,7 +11,8 @@
 #include "ContentTypeHandler.h"
 
 #include "CModHandler.h"
-#include "CModInfo.h"
+#include "ModDescription.h"
+#include "ModManager.h"
 #include "ModScope.h"
 
 #include "../BattleFieldHandler.h"
@@ -294,39 +295,43 @@ void CContentHandler::afterLoadFinalization()
 	}
 }
 
-void CContentHandler::preloadData(CModInfo & mod)
+void CContentHandler::preloadData(const ModDescription & mod)
 {
-	bool validate = validateMod(mod);
+	preloadModData(mod.getID(), mod.getConfig(), false);
 
-	// print message in format [<8-symbols checksum>] <modname>
-	auto & info = mod.getVerificationInfo();
-	logMod->info("\t\t[%08x]%s", info.checksum, info.name);
-
-	if (validate && mod.identifier != ModScope::scopeBuiltin())
-	{
-		if (!JsonUtils::validate(mod.config, "vcmi:mod", mod.identifier))
-			mod.validation = CModInfo::FAILED;
-	}
-	if (!preloadModData(mod.identifier, mod.config, validate))
-		mod.validation = CModInfo::FAILED;
+//	bool validate = validateMod(mod);
+//
+//	// print message in format [<8-symbols checksum>] <modname>
+//	auto & info = mod.getVerificationInfo();
+//	logMod->info("\t\t[%08x]%s", info.checksum, info.name);
+//
+//	if (validate && mod.identifier != ModScope::scopeBuiltin())
+//	{
+//		if (!JsonUtils::validate(mod.config, "vcmi:mod", mod.identifier))
+//			mod.validation = CModInfo::FAILED;
+//	}
+//	if (!preloadModData(mod.identifier, mod.config, validate))
+//		mod.validation = CModInfo::FAILED;
 }
 
-void CContentHandler::load(CModInfo & mod)
+void CContentHandler::load(const ModDescription & mod)
 {
-	bool validate = validateMod(mod);
+	loadMod(mod.getID(), false);
 
-	if (!loadMod(mod.identifier, validate))
-		mod.validation = CModInfo::FAILED;
-
-	if (validate)
-	{
-		if (mod.validation != CModInfo::FAILED)
-			logMod->info("\t\t[DONE] %s", mod.getVerificationInfo().name);
-		else
-			logMod->error("\t\t[FAIL] %s", mod.getVerificationInfo().name);
-	}
-	else
-		logMod->info("\t\t[SKIP] %s", mod.getVerificationInfo().name);
+//	bool validate = validateMod(mod);
+//
+//	if (!loadMod(mod.identifier, validate))
+//		mod.validation = CModInfo::FAILED;
+//
+//	if (validate)
+//	{
+//		if (mod.validation != CModInfo::FAILED)
+//			logMod->info("\t\t[DONE] %s", mod.getVerificationInfo().name);
+//		else
+//			logMod->error("\t\t[FAIL] %s", mod.getVerificationInfo().name);
+//	}
+//	else
+//		logMod->info("\t\t[SKIP] %s", mod.getVerificationInfo().name);
 }
 
 const ContentTypeHandler & CContentHandler::operator[](const std::string & name) const
@@ -334,13 +339,13 @@ const ContentTypeHandler & CContentHandler::operator[](const std::string & name)
 	return handlers.at(name);
 }
 
-bool CContentHandler::validateMod(const CModInfo & mod) const
+bool CContentHandler::validateMod(const ModDescription & mod) const
 {
 	if (settings["mods"]["validation"].String() == "full")
 		return true;
 
-	if (mod.validation == CModInfo::PASSED)
-		return false;
+//	if (mod.validation == CModInfo::PASSED)
+//		return false;
 
 	if (settings["mods"]["validation"].String() == "off")
 		return false;
