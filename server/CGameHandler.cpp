@@ -2771,7 +2771,7 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 	{
 		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
 			{
-				auto possibleSlots = inf.getArt()->artType->getPossibleSlots();
+				auto possibleSlots = inf.getArt()->getType()->getPossibleSlots();
 				if (possibleSlots.find(ArtBearer::CREATURE) != possibleSlots.end() && !possibleSlots.at(ArtBearer::CREATURE).empty()) 
 				{
 					return -2;
@@ -2786,7 +2786,7 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 				}
 				else 
 				{
-					logGlobal->error("Unable to get artifact %s slot.", inf.getArt()->artType->getNameTextID());
+					logGlobal->error("Unable to get artifact %s slot.", inf.getArt()->getType()->getNameTextID());
 					return -3;
 				}
 			});
