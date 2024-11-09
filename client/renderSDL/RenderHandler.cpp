@@ -327,13 +327,13 @@ std::shared_ptr<ISharedImage> RenderHandler::scaleImage(const ImageLocator & loc
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, EImageBlitMode mode)
 {
 	ImageLocator loc = locator;
-	if(loc.defFile && loc.scalingFactor == 0 && loc.preScaledFactor == 1)
+	if(loc.defFile && loc.scalingFactor == 0)
 	{
 		auto tmp = getScalePath(*loc.defFile);
 		loc.defFile = AnimationPath::builtin(tmp.first.getName());
 		loc.preScaledFactor = tmp.second;
 	}
-	if(loc.image && loc.scalingFactor == 0 && loc.preScaledFactor == 1)
+	if(loc.image && loc.scalingFactor == 0)
 	{
 		auto tmp = getScalePath(*loc.image);
 		loc.image = ImagePath::builtin(tmp.first.getName());
