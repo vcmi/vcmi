@@ -361,6 +361,18 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, E
 	}
 	else
 	{
+		if(loc.image)
+		{
+			std::string imgPath = (*loc.image).getName();
+			if(loc.layer == EImageLayer::OVERLAY)
+				imgPath += "-overlay";
+			if(loc.layer == EImageLayer::SHADOW)
+				imgPath += "-shadow";
+
+			if(CResourceHandler::get()->existsResource(ImagePath::builtin(imgPath)))
+				loc.image = ImagePath::builtin(imgPath);
+		}
+
 		return loadImageImpl(loc)->createImageReference(mode);
 	}
 }
