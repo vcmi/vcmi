@@ -238,7 +238,7 @@ void CPlayerInterface::performAutosave()
 				std::string name = cb->getMapHeader()->name.toString();
 				int txtlen = TextOperations::getUnicodeCharactersCount(name);
 
-				TextOperations::trimRightUnicode(name, std::max(0, txtlen - 15));
+				TextOperations::trimRightUnicode(name, std::max(0, txtlen - 14));
 				auto const & isSymbolIllegal = [&](char c) {
 					static const std::string forbiddenChars("\\/:*?\"<>| ");
 
@@ -249,7 +249,7 @@ void CPlayerInterface::performAutosave()
 				};
 				std::replace_if(name.begin(), name.end(), isSymbolIllegal, '_' );
 
-				prefix = name + "_" + cb->getStartInfo()->startTimeIso8601 + "/";
+				prefix = vstd::getFormattedDateTime(cb->getStartInfo()->startTime, "%Y-%m-%d_%H-%M") + "_" + name + "/";
 			}
 		}
 

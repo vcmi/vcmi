@@ -335,6 +335,15 @@ void Inspector::updateProperties(CGHeroInstance * o)
 		}
 		addProperty("Hero type", o->getHeroTypeID().hasValue() ? o->getHeroType()->getNameTranslated() : "", delegate, false);
 	}
+	{
+		const int maxRadius = 60;
+		auto * patrolDelegate = new InspectorDelegate;
+		patrolDelegate->options = { {QObject::tr("No patrol"), QVariant::fromValue(CGHeroInstance::NO_PATROLLING)} };
+		for(int i = 0; i <= maxRadius; ++i)
+			patrolDelegate->options.push_back({ QObject::tr("%n tile(s)", "", i), QVariant::fromValue(i)});
+		auto patrolRadiusText = o->patrol.patrolling ? QObject::tr("%n tile(s)", "", o->patrol.patrolRadius) : QObject::tr("No patrol");
+		addProperty("Patrol radius", patrolRadiusText, patrolDelegate, false);
+	}
 }
 
 void Inspector::updateProperties(CGTownInstance * o)
@@ -710,6 +719,13 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 		o->gender = o->getHeroType()->gender;
 		o->randomizeArmy(o->getHeroType()->heroClass->faction);
 		updateProperties(); //updating other properties after change
+	}
+
+	if(key == "Patrol radius")
+	{
+		auto radius = value.toInt();
+		o->patrol.patrolRadius = radius;
+		o->patrol.patrolling = radius != CGHeroInstance::NO_PATROLLING;
 	}
 }
 

@@ -74,8 +74,7 @@ class CHeroWindow : public CStatusbarWindow, public IGarrisonHolder, public CWin
 	std::shared_ptr<CLabel> specName;
 	std::shared_ptr<MoraleLuckBox> morale;
 	std::shared_ptr<MoraleLuckBox> luck;
-	std::vector<std::shared_ptr<LRClickableAreaWTextComp>> secSkillAreas;
-	std::vector<std::shared_ptr<CAnimImage>> secSkillImages;
+	std::vector< std::shared_ptr<CSecSkillPlace>> secSkills;
 	std::vector<std::shared_ptr<CLabel>> secSkillNames;
 	std::vector<std::shared_ptr<CLabel>> secSkillValues;
 

@@ -552,7 +552,7 @@ std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
 			{
 				newHeroSet->clickPressedCallback = [this, newHeroSet](const CArtPlace & artPlace, const Point & cursorPosition)
 				{
-					clickPressedOnArtPlace(newHeroSet->getHero(), artPlace.slot, false, false, false);
+					clickPressedOnArtPlace(newHeroSet->getHero(), artPlace.slot, false, false, false, cursorPosition);
 				};
 				newHeroSet->showPopupCallback = [this, newHeroSet](CArtPlace & artPlace, const Point & cursorPosition)
 				{

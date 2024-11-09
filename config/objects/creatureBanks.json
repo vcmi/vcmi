@@ -261,7 +261,8 @@
 					}
 				]
 			},
-			"inpCache" :  {
+			"impCache" :  {
+				"compatibilityIdentifiers" : [ "inpCache" ],
 				"index" : 3,
 				"name" : "Imp Cache",
 				"aiValue" : 1500,

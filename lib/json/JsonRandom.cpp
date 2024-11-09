@@ -485,13 +485,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 		else
 			logMod->warn("Failed to select suitable random creature!");
 
-		stack.type = pickedCreature.toCreature();
+		stack.setType(pickedCreature.toCreature());
 		stack.count = loadValue(value, rng, variables);
-		if (!value["upgradeChance"].isNull() && !stack.type->upgrades.empty())
+		if (!value["upgradeChance"].isNull() && !stack.getCreature()->upgrades.empty())
 		{
 			if (int(value["upgradeChance"].Float()) > rng.nextInt(99)) // select random upgrade
 			{
-				stack.type = RandomGeneratorUtil::nextItem(stack.type->upgrades, rng)->toCreature();
+				stack.setType(RandomGeneratorUtil::nextItem(stack.getCreature()->upgrades, rng)->toCreature());
 			}
 		}
 		return stack;

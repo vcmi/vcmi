@@ -60,11 +60,9 @@ bool FontChain::bitmapFontsPrioritized(const std::string & bitmapFontName) const
 	if (!vstd::isAlmostEqual(1.0, settings["video"]["fontScalingFactor"].Float()))
 		return false; // If player requested non-100% scaling - use scalable fonts
 
-	std::string modName = CGI->modh->findResourceOrigin(ResourcePath("data/" + bitmapFontName, EResType::BMP_FONT));
-	std::string fontLanguage = CGI->modh->getModLanguage(modName);
 	std::string gameLanguage = CGI->generaltexth->getPreferredLanguage();
-	std::string fontEncoding = Languages::getLanguageOptions(fontLanguage).encoding;
 	std::string gameEncoding = Languages::getLanguageOptions(gameLanguage).encoding;
+	std::string fontEncoding = CGI->modh->findResourceEncoding(ResourcePath("data/" + bitmapFontName, EResType::BMP_FONT));
 
 	// player uses language with different encoding than his bitmap fonts
 	// for example, Polish language with English fonts or Chinese language which can't use H3 fonts at all

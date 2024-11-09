@@ -72,17 +72,21 @@ public:
 
 class CHeroInstanceConstructor : public CDefaultObjectTypeHandler<CGHeroInstance>
 {
-	JsonNode filtersJson;
-protected:
-	bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const override;
+	struct HeroFilter
+	{
+		HeroTypeID fixedHero;
+		bool allowMale;
+		bool allowFemale;
+	};
+
+	std::map<std::string, HeroFilter> filters;
+	const CHeroClass * heroClass = nullptr;
+
+	std::shared_ptr<const ObjectTemplate> getOverride(TerrainId terrainType, const CGObjectInstance * object) const override;
 	void initTypeData(const JsonNode & input) override;
 
 public:
-	const CHeroClass * heroClass = nullptr;
-	std::map<std::string, LogicalExpression<HeroTypeID>> filters;
-
 	void randomizeObject(CGHeroInstance * object, vstd::RNG & rng) const override;
-	void afterLoadFinalization() override;
 
 	bool hasNameTextID() const override;
 	std::string getNameTextID() const override;
@@ -118,6 +122,7 @@ protected:
 	JsonNode predefinedOffer;
 	int marketEfficiency;
 	
+	std::string description;
 	std::string title;
 	std::string speech;
 	
@@ -127,6 +132,7 @@ public:
 	void randomizeObject(CGMarket * object, vstd::RNG & rng) const override;
 
 	const std::set<EMarketMode> & availableModes() const;
+	bool hasDescription() const;
 
 };
 

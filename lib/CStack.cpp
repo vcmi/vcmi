@@ -28,7 +28,7 @@ CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, Battle
 	CBonusSystemNode(STACK_BATTLE),
 	base(Base),
 	ID(I),
-	type(Base->type),
+	typeID(Base->getId()),
 	baseAmount(Base->count),
 	owner(O),
 	slot(S),
@@ -48,7 +48,7 @@ CStack::CStack():
 CStack::CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, BattleSide Side, const SlotID & S):
 	CBonusSystemNode(STACK_BATTLE),
 	ID(I),
-	type(stack->type),
+	typeID(stack->getId()),
 	baseAmount(stack->count),
 	owner(O),
 	slot(S),
@@ -60,7 +60,7 @@ CStack::CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I
 void CStack::localInit(BattleInfo * battleInfo)
 {
 	battle = battleInfo;
-	assert(type);
+	assert(typeID.hasValue());
 
 	exportBonuses();
 	if(base) //stack originating from "real" stack in garrison -> attach to it
@@ -72,7 +72,7 @@ void CStack::localInit(BattleInfo * battleInfo)
 		CArmedInstance * army = battle->battleGetArmyObject(side);
 		assert(army);
 		attachTo(*army);
-		attachToSource(*type);
+		attachToSource(*typeID.toCreature());
 	}
 	nativeTerrain = getNativeTerrain(); //save nativeTerrain in the variable on the battle start to avoid dead lock
 	CUnitState::localInit(this); //it causes execution of the CStack::isOnNativeTerrain where nativeTerrain will be considered
@@ -164,8 +164,8 @@ std::string CStack::nodeName() const
 	std::ostringstream oss;
 	oss << owner.toString();
 	oss << " battle stack [" << ID << "]: " << getCount() << " of ";
-	if(type)
-		oss << type->getNamePluralTextID();
+	if(typeID.hasValue())
+		oss << typeID.toEntity(VLC)->getNamePluralTextID();
 	else
 		oss << "[UNDEFINED TYPE]";
 
@@ -304,7 +304,7 @@ bool CStack::isMeleeAttackPossible(const battle::Unit * attacker, const battle::
 
 std::string CStack::getName() const
 {
-	return (getCount() == 1) ? type->getNameSingularTranslated() : type->getNamePluralTranslated(); //War machines can't use base
+	return (getCount() == 1) ? typeID.toEntity(VLC)->getNameSingularTranslated() : typeID.toEntity(VLC)->getNamePluralTranslated(); //War machines can't use base
 }
 
 bool CStack::canBeHealed() const
@@ -326,7 +326,7 @@ bool CStack::isOnTerrain(TerrainId terrain) const
 
 const CCreature * CStack::unitType() const
 {
-	return type;
+	return typeID.toCreature();
 }
 
 int32_t CStack::unitBaseAmount() const
@@ -352,7 +352,7 @@ bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 	const auto * ownerHero = battle->battleGetOwnerHero(unit);
 	if(ownerHero && ownerHero->artifactsWorn.find(ArtifactPosition::MACH2) != ownerHero->artifactsWorn.end())
 	{
-		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).artifact->artType->getId() == ArtifactID::AMMO_CART)
+		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).artifact->getTypeId() == ArtifactID::AMMO_CART)
 		{
 			return true;
 		}

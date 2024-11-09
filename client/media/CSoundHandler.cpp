@@ -240,6 +240,18 @@ void CSoundHandler::stopSound(int handler)
 		Mix_HaltChannel(handler);
 }
 
+void CSoundHandler::pauseSound(int handler)
+{
+	if(isInitialized() && handler != -1)
+		Mix_Pause(handler);
+}
+
+void CSoundHandler::resumeSound(int handler)
+{
+	if(isInitialized() && handler != -1)
+		Mix_Resume(handler);
+}
+
 ui32 CSoundHandler::getVolume() const
 {
 	return volume;

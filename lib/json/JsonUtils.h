@@ -47,7 +47,7 @@ namespace JsonUtils
 	DLL_LINKAGE JsonNode assembleFromFiles(const JsonNode & files);
 	DLL_LINKAGE JsonNode assembleFromFiles(const JsonNode & files, bool & isValid);
 	DLL_LINKAGE JsonNode assembleFromFiles(const std::vector<std::string> & files);
-	DLL_LINKAGE JsonNode assembleFromFiles(const std::vector<std::string> & files, bool & isValid);
+	DLL_LINKAGE JsonNode assembleFromFiles(const std::vector<std::string> & files, std::string modName, bool & isValid);
 
 	/// This version loads all files with same name (overridden by mods)
 	DLL_LINKAGE JsonNode assembleFromFiles(const std::string & filename);

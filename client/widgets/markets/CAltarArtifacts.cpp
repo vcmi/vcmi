@@ -58,7 +58,7 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 			CAltarArtifacts::onSlotClickPressed(altarSlot, offerTradePanel);
 		});
 	offerTradePanel->updateSlotsCallback = std::bind(&CAltarArtifacts::updateAltarSlots, this);
-	offerTradePanel->moveTo(pos.topLeft() + Point(315, 52));
+	offerTradePanel->moveTo(pos.topLeft() + Point(315, 53));
 
 	CMarketBase::updateShowcases();
 	CAltarArtifacts::deselect();
@@ -201,7 +201,7 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 	{
 		if(pickedArtInst->canBePutAt(altarArtifactsStorage))
 		{
-			if(pickedArtInst->artType->isTradable())
+			if(pickedArtInst->getType()->isTradable())
 			{
 				if(altarSlot->id == -1)
 					tradeSlotsMap.try_emplace(altarSlot, pickedArtInst);

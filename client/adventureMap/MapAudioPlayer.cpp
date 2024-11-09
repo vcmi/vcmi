@@ -182,7 +182,7 @@ void MapAudioPlayer::updateMusic()
 		const auto * tile = LOCPLINT->cb->getTile(currentSelection->visitablePos());
 
 		if (tile)
-			CCS->musich->playMusicFromSet("terrain", tile->terType->getJsonKey(), true, false);
+			CCS->musich->playMusicFromSet("terrain", tile->getTerrain()->getJsonKey(), true, false);
 	}
 
 	if(audioPlaying && enemyMakingTurn)

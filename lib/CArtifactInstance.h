@@ -73,15 +73,15 @@ protected:
 	void init();
 
 	ArtifactInstanceID id;
+	ArtifactID artTypeID;
 public:
-	const CArtifact * artType = nullptr;
 
 	CArtifactInstance(const CArtifact * art);
 	CArtifactInstance();
 	void setType(const CArtifact * art);
 	std::string nodeName() const override;
-	std::string getDescription() const;
 	ArtifactID getTypeId() const;
+	const CArtifact * getType() const;
 	ArtifactInstanceID getId() const;
 	void setId(ArtifactInstanceID id);
 
@@ -95,7 +95,17 @@ public:
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CCombinedArtifactInstance&>(*this);
-		h & artType;
+		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			h & artTypeID;
+		}
+		else
+		{
+			bool isNull = false;
+			h & isNull;
+			if (!isNull)
+				h & artTypeID;
+		}
 		h & id;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}

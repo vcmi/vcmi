@@ -402,6 +402,10 @@ Increases starting amount of shots that unit has in battle
 
 Affected unit is considered to not be alive and not affected by morale and certain spells
 
+### MECHANICAL
+
+Affected unit is considered to not be alive and not affected by morale and certain spells but should be repairable from engineers (factory).
+
 ### GARGOYLE
 
 Affected unit is considered to be a gargoyle and not affected by certain spells

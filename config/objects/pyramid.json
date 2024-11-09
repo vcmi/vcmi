@@ -46,7 +46,7 @@
 						"spells" : [
 							"@gainedSpell"
 						],
-						"message" : [ 106, "%s." ], // Upon defeating monsters, you learn new spell
+						"message" : [ 106, "{%s}." ], // Upon defeating monsters, you learn new spell
 						"guards" : [
 							{ "amount" : 40, "type" : "goldGolem" },
 							{ "amount" : 10, "type" : "diamondGolem" },
@@ -63,10 +63,10 @@
 								}
 							]
 						},
-						"message" : [ 106, "%s.", 108 ] // No Wisdom
+						"message" : [ 106, "{%s}. ", 108 ] // No Wisdom
 					},
 					{
-						"message" : [ 106, "%s.", 109 ] // No spellbook
+						"message" : [ 106, "{%s}. ", 109 ] // No spellbook
 					}
 				]
 

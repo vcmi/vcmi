@@ -27,7 +27,7 @@ class DLL_LINKAGE CStack : public CBonusSystemNode, public battle::CUnitState, p
 {
 private:
 	ui32 ID = -1; //unique ID of stack
-	const CCreature * type = nullptr;
+	CreatureID typeID;
 	TerrainId nativeTerrain; //tmp variable to save native terrain value on battle init
 	ui32 baseAmount = -1;
 
@@ -98,7 +98,7 @@ public:
 		//stackState is not serialized here
 		assert(isIndependentNode());
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & type;
+		h & typeID;
 		h & ID;
 		h & baseAmount;
 		h & owner;
@@ -133,7 +133,7 @@ public:
 			else if(!army || extSlot == SlotID() || !army->hasStackAtSlot(extSlot))
 			{
 				base = nullptr;
-				logGlobal->warn("%s doesn't have a base stack!", type->getNameSingularTranslated());
+				logGlobal->warn("%s doesn't have a base stack!", typeID.toEntity(VLC)->getNameSingularTranslated());
 			}
 			else
 			{

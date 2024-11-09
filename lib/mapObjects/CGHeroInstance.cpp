@@ -49,6 +49,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+const ui32 CGHeroInstance::NO_PATROLLING = std::numeric_limits<ui32>::max();
+
 void CGHeroPlaceholder::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	serializeJsonOwner(handler);
@@ -100,16 +102,16 @@ ui32 CGHeroInstance::getTileMovementCost(const TerrainTile & dest, const Terrain
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use src road movement cost
-	if(dest.roadType->getId() != Road::NO_ROAD && from.roadType->getId() != Road::NO_ROAD)
+	if(dest.hasRoad() && from.hasRoad())
 	{
-		ret = from.roadType->movementCost;
+		ret = from.getRoad()->movementCost;
 	}
-	else if(ti->nativeTerrain != from.terType->getId() &&//the terrain is not native
+	else if(ti->nativeTerrain != from.getTerrainID() &&//the terrain is not native
 			ti->nativeTerrain != ETerrainId::ANY_TERRAIN && //no special creature bonus
-			!ti->hasBonusOfType(BonusType::NO_TERRAIN_PENALTY, BonusSubtypeID(from.terType->getId()))) //no special movement bonus
+			!ti->hasBonusOfType(BonusType::NO_TERRAIN_PENALTY, BonusSubtypeID(from.getTerrainID()))) //no special movement bonus
 	{
 
-		ret = VLC->terrainTypeHandler->getById(from.terType->getId())->moveCost;
+		ret = VLC->terrainTypeHandler->getById(from.getTerrainID())->moveCost;
 		ret -= ti->valOfBonuses(BonusType::ROUGH_TERRAIN_DISCOUNT);
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;
@@ -334,6 +336,11 @@ void CGHeroInstance::setHeroType(HeroTypeID heroType)
 	subID = heroType;
 }
 
+void CGHeroInstance::initObj(vstd::RNG & rand)
+{
+	updateAppearance();
+}
+
 void CGHeroInstance::initHero(vstd::RNG & rand, const HeroTypeID & SUBID)
 {
 	subID = SUBID.getNum();
@@ -348,12 +355,27 @@ TObjectTypeHandler CGHeroInstance::getObjectHandler() const
 		return VLC->objtypeh->getHandlerFor(ID, 0);
 }
 
+void CGHeroInstance::updateAppearance()
+{
+	auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());;
+	auto terrain = cb->gameState()->getTile(visitablePos())->getTerrainID();
+	auto app = handler->getOverride(terrain, this);
+	if (app)
+		appearance = app;
+}
+
 void CGHeroInstance::initHero(vstd::RNG & rand)
 {
 	assert(validTypes(true));
 	
+	if (gender == EHeroGender::DEFAULT)
+		gender = getHeroType()->gender;
+
 	if (ID == Obj::HERO)
-		appearance = getObjectHandler()->getTemplates().front();
+	{
+		auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());;
+		appearance = handler->getTemplates().front();
+	}
 
 	if(!vstd::contains(spells, SpellID::PRESET))
 	{
@@ -391,9 +413,6 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 	}
 	if(secSkills.size() == 1 && secSkills[0] == std::pair<SecondarySkill,ui8>(SecondarySkill::NONE, -1)) //set secondary skills to default
 		secSkills = getHeroType()->secSkillsInit;
-
-	if (gender == EHeroGender::DEFAULT)
-		gender = getHeroType()->gender;
 
 	setFormation(EArmyFormation::LOOSE);
 	if (!stacksCount()) //standard army//initial army
@@ -1749,21 +1768,20 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	CArmedInstance::serializeJsonOptions(handler);
 
 	{
-		static constexpr int NO_PATROLING = -1;
-		int rawPatrolRadius = NO_PATROLING;
+		ui32 rawPatrolRadius = NO_PATROLLING;
 
 		if(handler.saving)
 		{
-			rawPatrolRadius = patrol.patrolling ? patrol.patrolRadius : NO_PATROLING;
+			rawPatrolRadius = patrol.patrolling ? patrol.patrolRadius : NO_PATROLLING;
 		}
 
-		handler.serializeInt("patrolRadius", rawPatrolRadius, NO_PATROLING);
+		handler.serializeInt("patrolRadius", rawPatrolRadius, NO_PATROLLING);
 
 		if(!handler.saving)
 		{
-			patrol.patrolling = (rawPatrolRadius > NO_PATROLING);
+			patrol.patrolling = (rawPatrolRadius != NO_PATROLLING);
 			patrol.initialPos = visitablePos();
-			patrol.patrolRadius = (rawPatrolRadius > NO_PATROLING) ? rawPatrolRadius : 0;
+			patrol.patrolRadius = patrol.patrolling ? rawPatrolRadius : 0;
 		}
 	}
 }
@@ -1805,14 +1823,14 @@ bool CGHeroInstance::isMissionCritical() const
 
 void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const
 {
-	TConstBonusListPtr lista = getBonuses(Selector::typeSubtype(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.type->getId())));
+	TConstBonusListPtr lista = getBonuses(Selector::typeSubtype(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId())));
 	for(const auto & it : *lista)
 	{
 		auto nid = CreatureID(it->additionalInfo[0]);
-		if (nid != stack.type->getId()) //in very specific case the upgrade is available by default (?)
+		if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
 		{
 			info.newID.push_back(nid);
-			info.cost.push_back(nid.toCreature()->getFullRecruitCost() - stack.type->getFullRecruitCost());
+			info.cost.push_back(nid.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost());
 		}
 	}
 }

@@ -79,7 +79,7 @@ void CArtifactsSelling::makeDeal()
 	const auto art = hero->getArt(selectedHeroSlot);
 	assert(art);
 	LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::ARTIFACT_RESOURCE, art->getId(),
-		GameResID(offerTradePanel->getSelectedItemId()), offerQty, hero);
+		GameResID(offerTradePanel->getHighlightedItemId()), offerQty, hero);
 	CMarketTraderText::makeDeal();
 }
 
@@ -129,7 +129,7 @@ CMarketBase::MarketShowcasesParams CArtifactsSelling::getShowcasesParams() const
 		return MarketShowcasesParams
 		{
 			std::nullopt,
-			ShowcaseParams {std::to_string(offerQty), offerTradePanel->getSelectedItemId()}
+			ShowcaseParams {std::to_string(offerQty), offerTradePanel->getHighlightedItemId()}
 		};
 	else
 		return MarketShowcasesParams {std::nullopt, std::nullopt};
@@ -147,7 +147,7 @@ void CArtifactsSelling::highlightingChanged()
 	const auto art = hero->getArt(selectedHeroSlot);
 	if(art && offerTradePanel->isHighlighted())
 	{
-		market->getOffer(art->getTypeId(), offerTradePanel->getSelectedItemId(), bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
+		market->getOffer(art->getTypeId(), offerTradePanel->getHighlightedItemId(), bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
 		deal->block(!LOCPLINT->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
@@ -162,7 +162,7 @@ std::string CArtifactsSelling::getTraderText()
 		MetaString message = MetaString::createFromTextID("core.genrltxt.268");
 		message.replaceNumber(offerQty);
 		message.replaceRawString(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
-		message.replaceName(GameResID(offerTradePanel->getSelectedItemId()));
+		message.replaceName(GameResID(offerTradePanel->getHighlightedItemId()));
 		message.replaceName(art->getTypeId());
 		return message.toString();
 	}
