@@ -55,28 +55,28 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 	return result;
 }
 
-std::optional<ResourcePath> RenderHandler::getPath(ResourcePath path)
+std::optional<ResourcePath> RenderHandler::getPath(ResourcePath path, std::string factor)
 {
 	if(CResourceHandler::get()->existsResource(path))
 		return path;
 	if(path.getType() == EResType::IMAGE)
 	{
 		auto p = ImagePath::builtin(path.getName());
-		if(CResourceHandler::get()->existsResource(p.addPrefix("DATA/")))
-			return std::optional<ResourcePath>(p.addPrefix("DATA/"));
-		if(CResourceHandler::get()->existsResource(p.addPrefix("SPRITES/")))
-			return std::optional<ResourcePath>(p.addPrefix("SPRITES/"));
+		if(CResourceHandler::get()->existsResource(p.addPrefix("DATA" + factor + "X/")))
+			return std::optional<ResourcePath>(p.addPrefix("DATA" + factor + "X/"));
+		if(CResourceHandler::get()->existsResource(p.addPrefix("SPRITES" + factor + "X/")))
+			return std::optional<ResourcePath>(p.addPrefix("SPRITES" + factor + "X/"));
 	}
 	else
 	{
 		auto p = AnimationPath::builtin(path.getName());
 		auto pJson = p.toType<EResType::JSON>();
-		if(CResourceHandler::get()->existsResource(p.addPrefix("SPRITES/")))
-			return std::optional<ResourcePath>(p.addPrefix("SPRITES/"));
+		if(CResourceHandler::get()->existsResource(p.addPrefix("SPRITES" + factor + "X/")))
+			return std::optional<ResourcePath>(p.addPrefix("SPRITES" + factor + "X/"));
 		if(CResourceHandler::get()->existsResource(pJson))
 			return std::optional<ResourcePath>(p);
-		if(CResourceHandler::get()->existsResource(pJson.addPrefix("SPRITES/")))
-			return std::optional<ResourcePath>(p.addPrefix("SPRITES/"));
+		if(CResourceHandler::get()->existsResource(pJson.addPrefix("SPRITES" + factor + "X/")))
+			return std::optional<ResourcePath>(p.addPrefix("SPRITES" + factor + "X/"));
 	}
 
 	return std::nullopt;
@@ -85,19 +85,22 @@ std::optional<ResourcePath> RenderHandler::getPath(ResourcePath path)
 std::pair<ResourcePath, int> RenderHandler::getScalePath(ResourcePath p)
 {
 	auto path = p;
-	auto name = p.getName();
 	int scaleFactor = 1;
 	if(getScalingFactor() > 1)
 	{
 		std::vector<int> factorsToCheck = {getScalingFactor(), 4, 3, 2};
 		for(auto factorToCheck : factorsToCheck)
 		{
-			ResourcePath scaledPath = ImagePath::builtin(name + "$" + std::to_string(factorToCheck));
+			std::string name = boost::algorithm::to_upper_copy(p.getName());
+			boost::replace_all(name, "SPRITES/", std::string("SPRITES") + std::to_string(factorToCheck) + std::string("X/"));
+			boost::replace_all(name, "DATA/", std::string("DATA") + std::to_string(factorToCheck) + std::string("X/"));
+			ResourcePath scaledPath = ImagePath::builtin(name);
 			if(p.getType() != EResType::IMAGE)
-				scaledPath = AnimationPath::builtin(name + "$" + std::to_string(factorToCheck));
-			if(getPath(scaledPath))
+				scaledPath = AnimationPath::builtin(name);
+			auto tmpPath = getPath(scaledPath, std::to_string(factorToCheck));
+			if(tmpPath)
 			{
-				path = scaledPath;
+				path = *tmpPath;
 				scaleFactor = factorToCheck;
 				break;
 			}
@@ -242,12 +245,12 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 	{
 		auto defFile = getAnimationFile(*locator.defFile);
 		int preScaledFactor = locator.preScaledFactor;
-		if(!defFile) // no presscale for this frame
+		if(!defFile) // no prescale for this frame
 		{
 			auto tmpPath = (*locator.defFile).getName();
-			boost::algorithm::replace_all(tmpPath, "$2", "");
-			boost::algorithm::replace_all(tmpPath, "$3", "");
-			boost::algorithm::replace_all(tmpPath, "$4", "");
+			boost::algorithm::replace_all(tmpPath, "2X/", "/");
+			boost::algorithm::replace_all(tmpPath, "3X/", "/");
+			boost::algorithm::replace_all(tmpPath, "4X/", "/");
 			preScaledFactor = 1;
 			defFile = getAnimationFile(AnimationPath::builtin(tmpPath));
 		}

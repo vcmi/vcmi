@@ -29,7 +29,7 @@ class RenderHandler : public IRenderHandler
 	std::map<EFonts, std::shared_ptr<const IFont>> fonts;
 
 	std::shared_ptr<CDefFile> getAnimationFile(const AnimationPath & path);
-	std::optional<ResourcePath> getPath(ResourcePath path);
+	std::optional<ResourcePath> getPath(ResourcePath path, std::string factor);
 	std::pair<ResourcePath, int> getScalePath(ResourcePath p);
 	AnimationLayoutMap & getAnimationLayout(const AnimationPath & path);
 	void initFromJson(AnimationLayoutMap & layout, const JsonNode & config);
