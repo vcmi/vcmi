@@ -55,17 +55,15 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 	return result;
 }
 
-std::optional<ResourcePath> RenderHandler::getPath(ResourcePath path, std::string factor)
+std::optional<ResourcePath> RenderHandler::getPathForScaleFactor(ResourcePath path, std::string factor)
 {
-	if(CResourceHandler::get()->existsResource(path))
-		return path;
 	if(path.getType() == EResType::IMAGE)
 	{
 		auto p = ImagePath::builtin(path.getName());
-		if(CResourceHandler::get()->existsResource(p.addPrefix("DATA" + factor + "X/")))
-			return std::optional<ResourcePath>(p.addPrefix("DATA" + factor + "X/"));
 		if(CResourceHandler::get()->existsResource(p.addPrefix("SPRITES" + factor + "X/")))
 			return std::optional<ResourcePath>(p.addPrefix("SPRITES" + factor + "X/"));
+		if(CResourceHandler::get()->existsResource(p.addPrefix("DATA" + factor + "X/")))
+			return std::optional<ResourcePath>(p.addPrefix("DATA" + factor + "X/"));
 	}
 	else
 	{
@@ -97,7 +95,7 @@ std::pair<ResourcePath, int> RenderHandler::getScalePath(ResourcePath p)
 			ResourcePath scaledPath = ImagePath::builtin(name);
 			if(p.getType() != EResType::IMAGE)
 				scaledPath = AnimationPath::builtin(name);
-			auto tmpPath = getPath(scaledPath, std::to_string(factorToCheck));
+			auto tmpPath = getPathForScaleFactor(scaledPath, std::to_string(factorToCheck));
 			if(tmpPath)
 			{
 				path = *tmpPath;
