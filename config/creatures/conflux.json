@@ -763,7 +763,7 @@
 		"upgrades": ["phoenix"],
 		"abilities":
 		{
-			"KING_1" :
+			"KING_1" : // Will be affected by Slayer with no expertise
 			{
 				"type" : "KING",
 				"val" : 0
@@ -802,7 +802,7 @@
 		"faction": "conflux",
 		"abilities":
 		{
-			"KING_1" :
+			"KING_1" : // Will be affected by Slayer with no expertise
 			{
 				"type" : "KING",
 				"val" : 0

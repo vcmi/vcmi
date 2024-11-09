@@ -336,7 +336,7 @@
 		"faction": "fortress",
 		"abilities":
 		{
-			"KING_1" :
+			"KING_1" : // Will be affected by Slayer with no expertise
 			{
 				"type" : "KING",
 				"val" : 0
@@ -371,7 +371,7 @@
 		"faction": "fortress",
 		"abilities":
 		{
-			"KING_1" :
+			"KING_1" : // Will be affected by Slayer with no expertise
 			{
 				"type" : "KING",
 				"val" : 0

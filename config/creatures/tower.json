@@ -413,7 +413,7 @@
 		"faction": "tower",
 		"abilities" :
 		{
-			"KING_3" :
+			"KING_3" : // Will be affected by Expert Slayer only
 			{
 				"type" : "KING",
 				"val" : 3
@@ -444,7 +444,7 @@
 		"faction": "tower",
 		"abilities" :
 		{
-			"KING_3" :
+			"KING_3" : // Will be affected by Expert Slayer only
 			{
 				"type" : "KING",
 				"val" : 3

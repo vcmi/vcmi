@@ -338,7 +338,7 @@
 		"faction": "castle",
 		"abilities":
 		{
-			"KING_2" :
+			"KING_2" : // Will be affected by Advanced Slayer or better
 			{
 				"type" : "KING",
 				"val" : 2
@@ -388,7 +388,7 @@
 		"faction": "castle",
 		"abilities":
 		{
-			"KING_2" :
+			"KING_2" : // Will be affected by Advanced Slayer or better
 			{
 				"type" : "KING",
 				"val" : 2
