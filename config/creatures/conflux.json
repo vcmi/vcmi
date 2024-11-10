@@ -1,4 +1,60 @@
 {
+	"pixie" :
+	{
+		"index": 118,
+		"level": 1,
+		"extraNames": [ "pixies" ],
+		"faction": "conflux",
+		"upgrades": ["sprite"],
+		"abilities" :
+		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			}
+		},
+		"graphics" :
+		{
+			"animation": "CPIXIE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "PIXIATTK.wav",
+			"defend": "PIXIDFND.wav",
+			"killed": "PIXIKILL.wav",
+			"move": "PIXIMOVE.wav",
+			"wince": "PIXIWNCE.wav"
+		}
+	},
+	"sprite" :
+	{
+		"index": 119,
+		"level": 1,
+		"faction": "conflux",
+		"abilities" :
+		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
+			"noRetaliation" :
+			{
+				"type" : "BLOCKS_RETALIATION"
+			}
+		},
+		"graphics" :
+		{
+			"animation": "CSPRITE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "SPRTATTK.wav",
+			"defend": "SPRTDFND.wav",
+			"killed": "SPRTKILL.wav",
+			"move": "SPRTMOVE.wav",
+			"wince": "SPRTWNCE.wav"
+		}
+	},
 	"airElemental" :
 	{
 		"index": 112,
@@ -66,485 +122,6 @@
 			"wince": "AELMWNCE.wav"
 		}
 	},
-	"earthElemental" :
-	{
-		"index": 113,
-		"level": 5,
-		"faction": "conflux",
-		"abilities":
-		{
-			"nonLiving" : 
-			{
-				"type" : "NON_LIVING"
-			},
-			"immuneToMind" : 
-			{
-				"type" : "MIND_IMMUNITY"
-			},
-			"meteorShowerVulnerability" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.meteorShower",
-				"val" : 100
-			},
-			"lightingImmunity" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.lightningBolt"
-			},
-			"chainLightingImmunity" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.chainLightning"
-			},
-			"armageddonImmunity" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.armageddon"
-			},
-			"oppositeAir" :
-			{
-				"type" : "HATE",
-				"subtype" : "creature.airElemental",
-				"val" : 100
-			},
-			"oppositeStorm" :
-			{
-				"type" : "HATE",
-				"subtype" : "creature.stormElemental",
-				"val" : 100
-			}
-		},
-		"upgrades": ["magmaElemental"],
-		"graphics" :
-		{
-			"animation": "CEELEM.DEF"
-		},
-		"sound" :
-		{
-			"attack": "EELMATTK.wav",
-			"defend": "EELMDFND.wav",
-			"killed": "EELMKILL.wav",
-			"move": "EELMMOVE.wav",
-			"wince": "EELMWNCE.wav"
-		}
-	},
-	"fireElemental" :
-	{
-		"index": 114,
-		"level": 4,
-		"faction": "conflux",
-		"abilities":
-		{
-			"nonLiving" : 
-			{
-				"type" : "NON_LIVING"
-			},
-			"immuneToMind" : 
-			{
-				"type" : "MIND_IMMUNITY"
-			},
-			"immuneToFire" : 
-			{
-				"type" : "SPELL_SCHOOL_IMMUNITY",
-				"subtype" : "spellSchool.fire"
-			},
-			"frostRingVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.frostRing",
-				"val" : 100
-			},
-			"iceBoltVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.iceBolt",
-				"val" : 100
-			},
-			"oppositeWater" :
-			{
-				"type" : "HATE",
-				"subtype" : "creature.waterElemental",
-				"val" : 100
-			},
-			"oppositeIce" :
-			{
-				"type" : "HATE",
-				"subtype" : "creature.iceElemental",
-				"val" : 100
-			}
-		},
-		"upgrades": ["energyElemental"],
-		"graphics" :
-		{
-			"animation": "CFELEM.DEF"
-		},
-		"sound" :
-		{
-			"attack": "FELMATTK.wav",
-			"defend": "FELMDFND.wav",
-			"killed": "FELMKILL.wav",
-			"move": "FELMMOVE.wav",
-			"wince": "FELMWNCE.wav"
-		}
-	},
-	"waterElemental" :
-	{
-		"index": 115,
-		"level": 3,
-		"extraNames": [ "waterElementals" ],
-		"faction": "conflux",
-		"abilities":
-		{
-			"nonLiving" : 
-			{
-				"type" : "NON_LIVING"
-			},
-			"immuneToMind" : 
-			{
-				"type" : "MIND_IMMUNITY"
-			},
-			"fireShieldVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireShield",
-				"val" : 100
-			},
-			"infernoVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.inferno",
-				"val" : 100
-			},
-			"fireballVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireball",
-				"val" : 100
-			},
-			"fireWallVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireWallTrigger",
-				"val" : 100
-			},
-			"armageddonVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.armageddon",
-				"val" : 100
-			},
-			"immuneToIceBolt" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.iceBolt"
-			},
-			"immuneToFrostRing" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.frostRing"
-			},
-			"oppositeFire" :
-			{
-				"type" : "HATE",
-				"subtype" : "creature.fireElemental",
-				"val" : 100
-			},
-			"oppositeEnergy" :
-			{
-				"type" : "HATE",
-				"subtype" : "creature.energyElemental",
-				"val" : 100
-			}
-		},
-		"doubleWide" : true,
-		"upgrades": ["iceElemental"],
-		"graphics" :
-		{
-			"animation": "CWELEM.DEF"
-		},
-		"sound" :
-		{
-			"attack": "WELMATTK.wav",
-			"defend": "WELMDFND.wav",
-			"killed": "WELMKILL.wav",
-			"move": "WELMMOVE.wav",
-			"wince": "WELMWNCE.wav"
-		}
-	},
-	"pixie" :
-	{
-		"index": 118,
-		"level": 1,
-		"extraNames": [ "pixies" ],
-		"faction": "conflux",
-		"upgrades": ["sprite"],
-		"graphics" :
-		{
-			"animation": "CPIXIE.DEF"
-		},
-		"sound" :
-		{
-			"attack": "PIXIATTK.wav",
-			"defend": "PIXIDFND.wav",
-			"killed": "PIXIKILL.wav",
-			"move": "PIXIMOVE.wav",
-			"wince": "PIXIWNCE.wav"
-		}
-	},
-	"sprite" :
-	{
-		"index": 119,
-		"level": 1,
-		"faction": "conflux",
-		"graphics" :
-		{
-			"animation": "CSPRITE.DEF"
-		},
-		"sound" :
-		{
-			"attack": "SPRTATTK.wav",
-			"defend": "SPRTDFND.wav",
-			"killed": "SPRTKILL.wav",
-			"move": "SPRTMOVE.wav",
-			"wince": "SPRTWNCE.wav"
-		}
-	},
-	"psychicElemental" :
-	{
-		"index": 120,
-		"level": 6,
-		"faction": "conflux",
-		"abilities":
-		{
-			"nonLiving" : 
-			{
-				"type" : "NON_LIVING"
-			}
-		},
-		"doubleWide" : false,
-		"upgrades": ["magicElemental"],
-		"graphics" :
-		{
-			"animation": "CPSYEL.DEF"
-		},
-		"sound" :
-		{
-			"attack": "PSYCATTK.wav",
-			"defend": "PSYCDFND.wav",
-			"killed": "PSYCKILL.wav",
-			"move": "PSYCMOVE.wav",
-			"wince": "PSYCWNCE.wav"
-		}
-	},
-	"magicElemental" :
-	{
-		"index": 121,
-		"level": 6,
-		"faction": "conflux",
-		"abilities":
-		{
-			"nonLiving" : 
-			{
-				"type" : "NON_LIVING"
-			},
-			"magicImmunity" :
-			{
-				"type" : "LEVEL_SPELL_IMMUNITY",
-				"val" : 5
-			}
-		},
-		"doubleWide" : false,
-		"graphics" :
-		{
-			"animation": "CMAGEL.DEF"
-		},
-		"sound" :
-		{
-			"attack": "MGELATTK.wav",
-			"defend": "MGELDFND.wav",
-			"killed": "MGELKILL.wav",
-			"move": "MGELMOVE.wav",
-			"wince": "MGELWNCE.wav"
-		}
-	},
-	"iceElemental" :
-	{
-		"index": 123,
-		"level": 3,
-		"faction": "conflux",
-		"abilities":
-		{
-			"nonLiving" : 
-			{
-				"type" : "NON_LIVING"
-			},
-			"spellPower" : 
-			{
-				"type" : "CREATURE_ENCHANT_POWER",
-				"val" : 6
-			},
-			"spellPoints" : 
-			{
-				"type" : "CASTS",
-				"val" : 3
-			},
-			"spellcaster":
-			{
-				"type" : "SPELLCASTER",
-				"subtype" : "spell.protectWater",
-				"val" : 2
-			},
-			"immuneToMind" : 
-			{
-				"type" : "MIND_IMMUNITY"
-			},
-			"fireShieldVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireShield",
-				"val" : 100
-			},
-			"infernoVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.inferno",
-				"val" : 100
-			},
-			"fireballVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireball",
-				"val" : 100
-			},
-			"fireWallVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireWallTrigger",
-				"val" : 100
-			},
-			"armageddonVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.armageddon",
-				"val" : 100
-			},
-			"immuneToIceBolt" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.iceBolt"
-			},
-			"immuneToFrostRing" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.frostRing"
-			},
-			"oppositeFire" :
-			{
-				"type" : "HATE",
-				"subtype" : "creature.fireElemental",
-				"val" : 100
-			},
-			"oppositeEnergy" :
-			{
-				"type" : "HATE",
-				"subtype" : "creature.energyElemental",
-				"val" : 100
-			}
-		},
-		"doubleWide" : true,
-		"graphics" :
-		{
-			"animation": "CICEE.DEF",
-			"missile" :
-			{
-				"projectile": "PICEE.DEF"
-			}
-		},
-		"sound" :
-		{
-			"attack": "ICELATTK.wav",
-			"defend": "ICELDFND.wav",
-			"killed": "ICELKILL.wav",
-			"move": "ICELMOVE.wav",
-			"shoot": "ICELSHOT.wav",
-			"wince": "ICELWNCE.wav"
-		}
-	},
-	"magmaElemental" :
-	{
-		"index": 125,
-		"level": 5,
-		"faction": "conflux",
-		"abilities":
-		{
-			"nonLiving" : 
-			{
-				"type" : "NON_LIVING"
-			},
-			"spellPower" : 
-			{
-				"type" : "CREATURE_ENCHANT_POWER",
-				"val" : 6
-			},
-			"spellPoints" : 
-			{
-				"type" : "CASTS",
-				"val" : 3
-			},
-			"spellcaster":
-			{
-				"type" : "SPELLCASTER",
-				"subtype" : "spell.protectEarth",
-				"val" : 2
-			},
-			"meteorShowerVulnerability" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.meteorShower",
-				"val" : 100
-			},
-			"lightingImmunity" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.lightningBolt"
-			},
-			"chainLightingImmunity" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.chainLightning"
-			},			
-			"armageddonImmunity" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.armageddon"
-			},
-			"oppositeAir" :
-			{
-				"type" : "HATE",
-				"subtype" : "creature.airElemental",
-				"val" : 100
-			},
-			"oppositeStorm" :
-			{
-				"type" : "HATE",
-				"subtype" : "creature.stormElemental",
-				"val" : 100
-			}
-		},
-		"graphics" :
-		{
-			"animation": "CSTONE.DEF"
-		},
-		"sound" :
-		{
-			"attack": "MAGMATTK.wav",
-			"defend": "MAGMDFND.wav",
-			"killed": "MAGMKILL.wav",
-			"move": "MAGMMOVE.wav",
-			"wince": "MAGMWNCE.wav"
-		}
-	},
 	"stormElemental" :
 	{
 		"index": 127,
@@ -556,6 +133,16 @@
 			{
 				"type" : "NON_LIVING"
 			},
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			},
+			"spellcaster":
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.protectAir",
+				"val" : 2
+			},
 			"spellPower" : 
 			{
 				"type" : "CREATURE_ENCHANT_POWER",
@@ -566,11 +153,9 @@
 				"type" : "CASTS",
 				"val" : 3
 			},
-			"spellcaster":
+			"immuneToMind" : 
 			{
-				"type" : "SPELLCASTER",
-				"subtype" : "spell.protectAir",
-				"val" : 2
+				"type" : "MIND_IMMUNITY"
 			},
 			"meteorShowerImmunity" :
 			{
@@ -626,9 +211,200 @@
 			"wince": "STORWNCE.wav"
 		}
 	},
-	"energyElemental" :
+	"waterElemental" :
 	{
-		"index": 129,
+		"index": 115,
+		"level": 3,
+		"extraNames": [ "waterElementals" ],
+		"faction": "conflux",
+		"doubleWide" : true,
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			},
+			"immuneToIceBolt" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.iceBolt"
+			},
+			"immuneToFrostRing" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.frostRing"
+			},
+			"fireballVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.fireball",
+				"val" : 100
+			},
+			"infernoVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.inferno",
+				"val" : 100
+			},
+			"armageddonVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.armageddon",
+				"val" : 100
+			},
+			"fireShieldVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.fireShield",
+				"val" : 100
+			},
+			"fireWallVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.fireWallTrigger",
+				"val" : 100
+			},
+			"oppositeFire" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.fireElemental",
+				"val" : 100
+			},
+			"oppositeEnergy" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.energyElemental",
+				"val" : 100
+			}
+		},
+		"upgrades": ["iceElemental"],
+		"graphics" :
+		{
+			"animation": "CWELEM.DEF"
+		},
+		"sound" :
+		{
+			"attack": "WELMATTK.wav",
+			"defend": "WELMDFND.wav",
+			"killed": "WELMKILL.wav",
+			"move": "WELMMOVE.wav",
+			"wince": "WELMWNCE.wav"
+		}
+	},
+	"iceElemental" :
+	{
+		"index": 123,
+		"level": 3,
+		"faction": "conflux",
+		"doubleWide" : true,
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			},
+			"spellcaster":
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.protectWater",
+				"val" : 2
+			},
+			"spellPower" : 
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 6
+			},
+			"spellPoints" : 
+			{
+				"type" : "CASTS",
+				"val" : 3
+			},
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			},
+			"immuneToIceBolt" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.iceBolt"
+			},
+			"immuneToFrostRing" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.frostRing"
+			},
+			"fireballVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.fireball",
+				"val" : 100
+			},
+			"infernoVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.inferno",
+				"val" : 100
+			},
+			"armageddonVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.armageddon",
+				"val" : 100
+			},
+			"fireShieldVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.fireShield",
+				"val" : 100
+			},
+			"fireWallVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.fireWallTrigger",
+				"val" : 100
+			},
+			"oppositeFire" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.fireElemental",
+				"val" : 100
+			},
+			"oppositeEnergy" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.energyElemental",
+				"val" : 100
+			}
+		},
+		"graphics" :
+		{
+			"animation": "CICEE.DEF",
+			"missile" :
+			{
+				"projectile": "PICEE.DEF"
+			}
+		},
+		"sound" :
+		{
+			"attack": "ICELATTK.wav",
+			"defend": "ICELDFND.wav",
+			"killed": "ICELKILL.wav",
+			"move": "ICELMOVE.wav",
+			"shoot": "ICELSHOT.wav",
+			"wince": "ICELWNCE.wav"
+		}
+	},
+	"fireElemental" :
+	{
+		"index": 114,
 		"level": 4,
 		"faction": "conflux",
 		"abilities":
@@ -646,17 +422,65 @@
 				"type" : "SPELL_SCHOOL_IMMUNITY",
 				"subtype" : "spellSchool.fire"
 			},
+			"iceBoltVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.iceBolt",
+				"val" : 100
+			},
 			"frostRingVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
 				"subtype" : "spell.frostRing",
 				"val" : 100
 			},
-			"iceBoltVulnerablity" :
+			"oppositeWater" :
 			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.iceBolt",
+				"type" : "HATE",
+				"subtype" : "creature.waterElemental",
 				"val" : 100
+			},
+			"oppositeIce" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.iceElemental",
+				"val" : 100
+			}
+		},
+		"upgrades": ["energyElemental"],
+		"graphics" :
+		{
+			"animation": "CFELEM.DEF"
+		},
+		"sound" :
+		{
+			"attack": "FELMATTK.wav",
+			"defend": "FELMDFND.wav",
+			"killed": "FELMKILL.wav",
+			"move": "FELMMOVE.wav",
+			"wince": "FELMWNCE.wav"
+		}
+	},
+	"energyElemental" :
+	{
+		"index": 129,
+		"level": 4,
+		"faction": "conflux",
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
+			"spellcaster":
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.protectFire",
+				"val" : 2
 			},
 			"spellPower" : 
 			{
@@ -668,11 +492,26 @@
 				"type" : "CASTS",
 				"val" : 3
 			},
-			"spellcaster":
+			"immuneToMind" : 
 			{
-				"type" : "SPELLCASTER",
-				"subtype" : "spell.protectFire",
-				"val" : 2
+				"type" : "MIND_IMMUNITY"
+			},
+			"immuneToFire" : 
+			{
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
+			},
+			"iceBoltVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.iceBolt",
+				"val" : 100
+			},
+			"frostRingVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.frostRing",
+				"val" : 100
 			},
 			"oppositeWater" :
 			{
@@ -700,14 +539,247 @@
 			"wince": "ENERWNCE.wav"
 		}
 	},
+	"earthElemental" :
+	{
+		"index": 113,
+		"level": 5,
+		"faction": "conflux",
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			},
+			"lightingImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.lightningBolt"
+			},
+			"chainLightingImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.chainLightning"
+			},
+			"armageddonImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.armageddon"
+			},
+			"meteorShowerVulnerability" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.meteorShower",
+				"val" : 100
+			},
+			"oppositeAir" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.airElemental",
+				"val" : 100
+			},
+			"oppositeStorm" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.stormElemental",
+				"val" : 100
+			}
+		},
+		"upgrades": ["magmaElemental"],
+		"graphics" :
+		{
+			"animation": "CEELEM.DEF"
+		},
+		"sound" :
+		{
+			"attack": "EELMATTK.wav",
+			"defend": "EELMDFND.wav",
+			"killed": "EELMKILL.wav",
+			"move": "EELMMOVE.wav",
+			"wince": "EELMWNCE.wav"
+		}
+	},
+	"magmaElemental" :
+	{
+		"index": 125,
+		"level": 5,
+		"faction": "conflux",
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"spellcaster":
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.protectEarth",
+				"val" : 2
+			},
+			"spellPower" : 
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 6
+			},
+			"spellPoints" : 
+			{
+				"type" : "CASTS",
+				"val" : 3
+			},
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			},
+			"lightingImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.lightningBolt"
+			},
+			"chainLightingImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.chainLightning"
+			},
+			"armageddonImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.armageddon"
+			},
+			"meteorShowerVulnerability" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.meteorShower",
+				"val" : 100
+			},
+			"oppositeAir" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.airElemental",
+				"val" : 100
+			},
+			"oppositeStorm" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.stormElemental",
+				"val" : 100
+			}
+		},
+		"graphics" :
+		{
+			"animation": "CSTONE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "MAGMATTK.wav",
+			"defend": "MAGMDFND.wav",
+			"killed": "MAGMKILL.wav",
+			"move": "MAGMMOVE.wav",
+			"wince": "MAGMWNCE.wav"
+		}
+	},
+	"psychicElemental" :
+	{
+		"index": 120,
+		"level": 6,
+		"faction": "conflux",
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"attackAllAdjacent" :
+			{
+				"type" : "ATTACKS_ALL_ADJACENT"
+			},
+			"noRetaliation" :
+			{
+				"type" : "BLOCKS_RETALIATION"
+			},
+			"immuneToMind" :
+			{
+				"type" : "MIND_IMMUNITY"
+			}
+		},
+		"doubleWide" : false,
+		"upgrades": ["magicElemental"],
+		"graphics" :
+		{
+			"animation": "CPSYEL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "PSYCATTK.wav",
+			"defend": "PSYCDFND.wav",
+			"killed": "PSYCKILL.wav",
+			"move": "PSYCMOVE.wav",
+			"wince": "PSYCWNCE.wav"
+		}
+	},
+	"magicElemental" :
+	{
+		"index": 121,
+		"level": 6,
+		"faction": "conflux",
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"attackAllAdjacent" :
+			{
+				"type" : "ATTACKS_ALL_ADJACENT"
+			},
+			"noRetaliation" :
+			{
+				"type" : "BLOCKS_RETALIATION"
+			},
+			"magicImmunity" :
+			{
+				"type" : "LEVEL_SPELL_IMMUNITY",
+				"val" : 5
+			}
+		},
+		"doubleWide" : false,
+		"graphics" :
+		{
+			"animation": "CMAGEL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "MGELATTK.wav",
+			"defend": "MGELDFND.wav",
+			"killed": "MGELKILL.wav",
+			"move": "MGELMOVE.wav",
+			"wince": "MGELWNCE.wav"
+		}
+	},
 	"firebird" :
 	{
 		"index": 130,
 		"level": 7,
 		"faction": "conflux",
 		"upgrades": ["phoenix"],
+		"doubleWide" : true,
 		"abilities":
 		{
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
+			"twoHexAttackBreath" :
+			{
+				"type" : "TWO_HEX_ATTACK_BREATH"
+			},
 			"immuneToFire" :
 			{
 				"type" : "SPELL_SCHOOL_IMMUNITY",
@@ -732,17 +804,31 @@
 		"index": 131,
 		"level": 7,
 		"faction": "conflux",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"rebirthOnce" :
+			"KING_1" : // Will be affected by Slayer with no expertise
 			{
-				"type" : "CASTS",
-				"val" : 1
+				"type" : "KING",
+				"val" : 0
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
+			"twoHexAttackBreath" :
+			{
+				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
 			"immuneToFire" :
 			{
 				"type" : "SPELL_SCHOOL_IMMUNITY",
 				"subtype" : "spellSchool.fire"
+			},
+			"rebirthOnce" :
+			{
+				"type" : "CASTS",
+				"val" : 1
 			},
 			"rebirth" : 
 			{

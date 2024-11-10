@@ -7,15 +7,15 @@
 		"faction": "neutral",
 		"abilities":
 		{
+			"nonliving" :
+			{
+				"type" : "NON_LIVING"
+			},
 			"magicResistance" :
 			{
 				"type" : "SPELL_DAMAGE_REDUCTION",
 				"subtype" : "spellSchool.any",
 				"val" : 85
-			},
-			"nonliving" :
-			{
-				"type" : "NON_LIVING"
 			}
 		},
 		"graphics" :
@@ -38,15 +38,15 @@
 		"faction": "neutral",
 		"abilities":
 		{
+			"nonliving" :
+			{
+				"type" : "NON_LIVING"
+			},
 			"magicResistance" :
 			{
 				"type" : "SPELL_DAMAGE_REDUCTION",
 				"subtype" : "spellSchool.any",
 				"val" : 95
-			},
-			"nonliving" :
-			{
-				"type" : "NON_LIVING"
 			}
 		},
 		"graphics" :
@@ -68,28 +68,38 @@
 		"level": 10,
 		"faction": "neutral",
 		"excludeFromRandomization" : true,
+		"doubleWide" : true,
 		"abilities":
 		{
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
 			"dragon" : 
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"fireBreath" :
+			"twoHexAttackBreath" :
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
-			"spellImmunity" :
+			"fear" :
 			{
-				"type" : "LEVEL_SPELL_IMMUNITY",
-				"val" : 3
+				"type" : "FEAR"
 			},
 			"fearless" :
 			{
 				"type" : "FEARLESS"
 			},
-			"fear" :
+			"spellImmunity" :
 			{
-				"type" : "FEAR"
+				"type" : "LEVEL_SPELL_IMMUNITY",
+				"val" : 3
 			}
 		},
 		"graphics" :
@@ -111,8 +121,14 @@
 		"level": 10,
 		"faction": "neutral",
 		"excludeFromRandomization" : true,
+		"doubleWide" : true,
 		"abilities":
 		{
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
+			},
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
@@ -125,8 +141,7 @@
 			"crystals" :
 			{
 				"type" : "SPECIAL_CRYSTAL_GENERATION"
-			},
-			"FLYING_ARMY" : null
+			}
 		},
 		"graphics" :
 		{
@@ -147,8 +162,14 @@
 		"level": 8,
 		"faction": "neutral",
 		"excludeFromRandomization" : true,
+		"doubleWide" : true,
 		"abilities":
 		{
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
+			},
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
@@ -245,21 +266,31 @@
 		"level": 10,
 		"faction": "neutral",
 		"excludeFromRandomization" : true,
+		"doubleWide" : true,
 		"abilities":
 		{
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
 			"dragon" : 
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"twoHexAttackBreath" :
+			{
+				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
 			"acidBreath" :
 			{
 				"type" : "ACID_BREATH",
 				"val" : 25,
 				"addInfo" : 30
-			},
-			"fireBreath" :
-			{
-				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
 			"reduceDefence" :
 			{
@@ -290,7 +321,15 @@
 		"excludeFromRandomization" : true,
 		"abilities":
 		{
-			"noPenalty" : 
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			},
+			"noMeleePenalty" :
+			{
+				"type" : "NO_MELEE_PENALTY"
+			},
+			"noWallPenalty" :
 			{
 				"type" : "NO_WALL_PENALTY"
 			},
@@ -299,10 +338,24 @@
 				"type" : "CASTS",
 				"val" : 5
 			},
-			"castsAirShield" :
+			"castsHaste" :
 			{
 				"type" : "ENCHANTER",
-				"subtype" : "spell.airShield",
+				"subtype" : "spell.haste",
+				"val" : 3,
+				"addInfo" : 3
+			},
+			"castsSlow" :
+			{
+				"type" : "ENCHANTER",
+				"subtype" : "spell.slow",
+				"val" : 3,
+				"addInfo" : 3
+			},
+			"castsStoneSkin" :
+			{
+				"type" : "ENCHANTER",
+				"subtype" : "spell.stoneSkin",
 				"val" : 3,
 				"addInfo" : 3
 			},
@@ -320,28 +373,13 @@
 				"val" : 3,
 				"addInfo" : 3
 			},
-			"castsStoneSkin" :
+			"castsAirShield" :
 			{
 				"type" : "ENCHANTER",
-				"subtype" : "spell.stoneSkin",
-				"val" : 3,
-				"addInfo" : 3
-			},
-			"castsSlow" :
-			{
-				"type" : "ENCHANTER",
-				"subtype" : "spell.slow",
-				"val" : 3,
-				"addInfo" : 3
-			},
-			"castsHaste" :
-			{
-				"type" : "ENCHANTER",
-				"subtype" : "spell.haste",
+				"subtype" : "spell.airShield",
 				"val" : 3,
 				"addInfo" : 3
 			}
-			
 		},
 		"graphics" :
 		{
@@ -370,13 +408,17 @@
 		"excludeFromRandomization" : true,
 		"abilities":
 		{
-			"noPenalty" : 
+			"shooter" :
 			{
-				"type" : "NO_WALL_PENALTY"
+				"type" : "SHOOTER"
 			},
 			"noDistancePenalty" :
 			{
 				"type" : "NO_DISTANCE_PENALTY"
+			},
+			"noWallPenalty" :
+			{
+				"type" : "NO_WALL_PENALTY"
 			}
 		},
 		"graphics" :
@@ -404,6 +446,10 @@
 		"faction": "neutral",
 		"abilities": 
 		{
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			},
 			"lucky" :
 			{
 				"type" : "LUCK",
@@ -482,7 +528,7 @@
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.curse",
 				"val" : 50
-			}			
+			}
 		},
 		"graphics" :
 		{
@@ -502,6 +548,7 @@
 		"index": 142,
 		"level": 3,
 		"faction": "neutral",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"sandWalker" :
@@ -511,7 +558,6 @@
 				"propagator" : "HERO"
 			}
 		},
-		"doubleWide" : true,
 		"graphics" :
 		{
 			"animation": "CNOMAD.DEF"
@@ -546,7 +592,7 @@
 				"subtype" : "visionsHeroes",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
-				"propagator" : "HERO"				
+				"propagator" : "HERO"
 			},
 			"visionsTowns" :
 			{
@@ -554,7 +600,7 @@
 				"subtype" : "visionsTowns",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
-				"propagator" : "HERO"				
+				"propagator" : "HERO"
 			}
 		},
 		"graphics" :
