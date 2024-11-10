@@ -2786,7 +2786,7 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 				}
 				else 
 				{
-					logGlobal->error("Unable to get artifact %s slot.", inf.getArt()->getType()->getNameTextID());
+					// for grail
 					return -3;
 				}
 			});
