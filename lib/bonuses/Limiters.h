@@ -108,7 +108,6 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
-<<<<<<< HEAD
 
 		if (h.version < Handler::Version::REMOVE_TOWN_PTR)
 		{
@@ -119,9 +118,6 @@ public:
 		}
 		else
 			h & creatureID;
-=======
-		h & creature;
->>>>>>> 153a8f877 (Fix serializer.)
 		h & includeUpgrades;
 	}
 };
