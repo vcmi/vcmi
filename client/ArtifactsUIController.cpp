@@ -26,6 +26,7 @@
 ArtifactsUIController::ArtifactsUIController()
 {
 	numOfMovedArts = 0;
+	numOfArtsAskAssembleSession = 0;
 }
 
 bool ArtifactsUIController::askToAssemble(const ArtifactLocation & al, const bool onlyEquipped, const bool checkIgnored)
