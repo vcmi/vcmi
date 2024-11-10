@@ -280,7 +280,7 @@
 			{
 				"type" : "SHOOTER"
 			},
-			"siege" :
+			"canShootWalls" :
 			{
 				"type" : "CATAPULT",
 				"subtype" : "spell.cyclopsShot"
@@ -316,12 +316,12 @@
 			{
 				"type" : "SHOOTER"
 			},
-			"siege" :
+			"canShootWalls" :
 			{
 				"type" : "CATAPULT",
 				"subtype" : "spell.cyclopsShot"
 			},
-			"siegeLevel" :
+			"canShootWallsTimes" :
 			{
 				"type" : "CATAPULT_EXTRA_SHOTS",
 				"subtype" : "spell.cyclopsShot",
