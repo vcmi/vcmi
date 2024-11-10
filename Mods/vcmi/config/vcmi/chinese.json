@@ -85,6 +85,7 @@
 	"vcmi.spellResearch.research" : "研究此法术",
 	"vcmi.spellResearch.skip" : "跳过此法术",
 	"vcmi.spellResearch.abort" : "中止",
+	"vcmi.spellResearch.noMoreSpells" : "没有更多的法术可供研究。",
 
 	"vcmi.mainMenu.serverConnecting" : "连接中...",
 	"vcmi.mainMenu.serverAddressEnter" : "使用地址:",

@@ -85,6 +85,7 @@
 	"vcmi.spellResearch.research" : "Research this Spell",
 	"vcmi.spellResearch.skip" : "Skip this Spell",
 	"vcmi.spellResearch.abort" : "Abort",
+	"vcmi.spellResearch.noMoreSpells" : "There are no more spells available for research.",
 
 	"vcmi.mainMenu.serverConnecting" : "Connecting...",
 	"vcmi.mainMenu.serverAddressEnter" : "Enter address:",
