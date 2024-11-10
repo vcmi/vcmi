@@ -291,7 +291,7 @@ float Statistic::getMapExploredRatio(const CGameState * gs, PlayerColor player)
 			{
 				TerrainTile tile = gs->map->getTile(int3(x, y, layer));
 
-				if(tile.blocked && (!tile.visitable))
+				if(tile.blocked() && !tile.visitable())
 					continue;
 
 				if(gs->isVisible(int3(x, y, layer), player))

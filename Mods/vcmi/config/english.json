@@ -176,6 +176,7 @@
 	"vcmi.server.errors.modsToEnable"    : "{Following mods are required}",
 	"vcmi.server.errors.modsToDisable"   : "{Following mods must be disabled}",
 	"vcmi.server.errors.modNoDependency" : "Failed to load mod {'%s'}!\n It depends on mod {'%s'} which is not active!\n",
+	"vcmi.server.errors.modDependencyLoop" : "Failed to load mod {'%s'}!\n It maybe in a (soft) dependency loop.",
 	"vcmi.server.errors.modConflict" : "Failed to load mod {'%s'}!\n Conflicts with active mod {'%s'}!\n",
 	"vcmi.server.errors.unknownEntity" : "Failed to load save! Unknown entity '%s' found in saved game! Save may not be compatible with currently installed version of mods!",
 	
@@ -552,7 +553,9 @@
 	"core.seerhut.quest.reachDate.visit.3" : "Closed till %s.",
 	"core.seerhut.quest.reachDate.visit.4" : "Closed till %s.",
 	"core.seerhut.quest.reachDate.visit.5" : "Closed till %s.",
-
+	
+	"mapObject.core.hillFort.object.description" : "Upgrades creatures. Levels 1 - 4 are less expensive than in associated town.",
+	
 	"core.bonus.ADDITIONAL_ATTACK.name": "Double Strike",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Attacks twice",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Additional retaliations",
@@ -705,6 +708,8 @@
 	"core.bonus.DISINTEGRATE.description": "No corpse remains after death",
 	"core.bonus.INVINCIBLE.name": "Invincible",
 	"core.bonus.INVINCIBLE.description": "Cannot be affected by anything",
+	"core.bonus.MECHANICAL.name": "Mechanical",
+	"core.bonus.MECHANICAL.description": "Immunity to many effects, repairable",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "Prism Breath",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prism Breath Attack (three directions)"
 }

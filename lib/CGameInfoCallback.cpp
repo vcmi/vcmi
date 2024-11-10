@@ -345,10 +345,10 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 			for(auto & elem : info.army)
 			{
-				if(static_cast<int>(elem.second.type->getAIValue()) > maxAIValue)
+				if(static_cast<int>(elem.second.getCreature()->getAIValue()) > maxAIValue)
 				{
-					maxAIValue = elem.second.type->getAIValue();
-					mostStrong = elem.second.type;
+					maxAIValue = elem.second.getCreature()->getAIValue();
+					mostStrong = elem.second.getCreature();
 				}
 			}
 
@@ -357,7 +357,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 			else
 				for(auto & elem : info.army)
 				{
-					elem.second.type = mostStrong;
+					elem.second.setType(mostStrong);
 				}
 		};
 
@@ -390,7 +390,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 			if(nullptr != mostStrong) //possible, faction may have no creatures at all
 				for(auto & elem : info.army)
-					elem.second.type = mostStrong;
+					elem.second.setType(mostStrong);
 		};
 
 
@@ -630,7 +630,7 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 	{
 		const TerrainTile *tile = getTile(t->bestLocation(), false);
 
-		if(!tile || !tile->terType->isWater())
+		if(!tile || !tile->isWater())
 			return EBuildingState::NO_WATER; //lack of water
 	}
 

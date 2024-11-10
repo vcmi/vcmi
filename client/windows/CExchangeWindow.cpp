@@ -82,7 +82,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 
 		for(int m=0; m < hero->secSkills.size(); ++m)
-			secSkillIcons[leftRight].push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SECSK32"), 0, 0, 32 + 36 * m + 454 * leftRight, qeLayout ? 83 : 88));
+			secSkills[leftRight].push_back(std::make_shared<CSecSkillPlace>(Point(32 + 36 * m + 454 * leftRight, qeLayout ? 83 : 88), CSecSkillPlace::ImageSize::SMALL,
+				hero->secSkills[m].first, hero->secSkills[m].second));
 
 		specImages[leftRight] = std::make_shared<CAnimImage>(AnimationPath::builtin("UN32"), hero->getHeroType()->imageIndex, 0, 67 + 490 * leftRight, qeLayout ? 41 : 45);
 
@@ -94,12 +95,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	}
 
 	artifs[0] = std::make_shared<CArtifactsOfHeroMain>(Point(-334, 151));
-	artifs[0]->clickPressedCallback = [this, hero = heroInst[0]](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(hero, artPlace.slot, true, false, false);};
+	artifs[0]->clickPressedCallback = [this, hero = heroInst[0]](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(hero, artPlace.slot, true, false, false, cursorPosition);};
 	artifs[0]->showPopupCallback = [this, heroArts = artifs[0]](CArtPlace & artPlace, const Point & cursorPosition){showArtifactAssembling(*heroArts, artPlace, cursorPosition);};
 	artifs[0]->gestureCallback = [this, hero = heroInst[0]](const CArtPlace & artPlace, const Point & cursorPosition){showQuickBackpackWindow(hero, artPlace.slot, cursorPosition);};
 	artifs[0]->setHero(heroInst[0]);
 	artifs[1] = std::make_shared<CArtifactsOfHeroMain>(Point(98, 151));
-	artifs[1]->clickPressedCallback = [this, hero = heroInst[1]](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(hero, artPlace.slot, true, false, false);};
+	artifs[1]->clickPressedCallback = [this, hero = heroInst[1]](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(hero, artPlace.slot, true, false, false, cursorPosition);};
 	artifs[1]->showPopupCallback = [this, heroArts = artifs[1]](CArtPlace & artPlace, const Point & cursorPosition){showArtifactAssembling(*heroArts, artPlace, cursorPosition);};
 	artifs[1]->gestureCallback = [this, hero = heroInst[1]](const CArtPlace & artPlace, const Point & cursorPosition){showQuickBackpackWindow(hero, artPlace.slot, cursorPosition);};
 	artifs[1]->setHero(heroInst[1]);
@@ -125,21 +126,6 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	for(int b=0; b < heroInst.size(); b++)
 	{
 		const CGHeroInstance * hero = heroInst.at(b);
-
-		//secondary skill's clickable areas
-		for(int g=0; g<hero->secSkills.size(); ++g)
-		{
-			SecondarySkill skill = hero->secSkills[g].first;
-			int level = hero->secSkills[g].second; // <1, 3>
-			secSkillAreas[b].push_back(std::make_shared<LRClickableAreaWTextComp>());
-			secSkillAreas[b][g]->pos = Rect(Point(pos.x + 32 + g * 36 + b * 454 , pos.y + (qeLayout ? 83 : 88)), Point(32, 32) );
-			secSkillAreas[b][g]->component = Component(ComponentType::SEC_SKILL, skill, level);
-			secSkillAreas[b][g]->text = CGI->skillh->getByIndex(skill)->getDescriptionTranslated(level);
-
-			secSkillAreas[b][g]->hoverText = CGI->generaltexth->heroscrn[21];
-			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->generaltexth->levels[level - 1]);
-			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->skillh->getByIndex(skill)->getNameTranslated());
-		}
 
 		heroAreas[b] = std::make_shared<CHeroArea>(257 + 228 * b, 13, hero);
 		heroAreas[b]->addClickCallback([this, hero]() -> void
@@ -396,7 +382,7 @@ void CExchangeWindow::update()
 			int id = hero->secSkills[m].first;
 			int level = hero->secSkills[m].second;
 
-			secSkillIcons[leftRight][m]->setFrame(2 + id * 3 + level);
+			secSkills[leftRight][m]->setSkill(id, level);
 		}
 
 		expValues[leftRight]->setText(TextOperations::formatMetric(hero->exp, 3));

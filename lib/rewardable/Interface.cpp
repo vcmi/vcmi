@@ -63,16 +63,16 @@ void Rewardable::Interface::grantRewardBeforeLevelup(const Rewardable::VisitInfo
 		const auto functor = [&props](const TerrainTile * tile)
 		{
 			int score = 0;
-			if (tile->terType->isSurface())
+			if (tile->getTerrain()->isSurface())
 				score += props.scoreSurface;
 
-			if (tile->terType->isUnderground())
+			if (tile->getTerrain()->isUnderground())
 				score += props.scoreSubterra;
 
-			if (tile->terType->isWater())
+			if (tile->getTerrain()->isWater())
 				score += props.scoreWater;
 
-			if (tile->terType->isRock())
+			if (tile->getTerrain()->isRock())
 				score += props.scoreRock;
 
 			return score > 0;
@@ -185,7 +185,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 
 			for(const auto & change : info.reward.creaturesChange)
 			{
-				if (heroStack->type->getId() == change.first)
+				if (heroStack->getId() == change.first)
 				{
 					StackLocation location(hero, slot.first);
 					cb->changeStackType(location, change.second.toCreature());
@@ -199,7 +199,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 	{
 		CCreatureSet creatures;
 		for(const auto & crea : info.reward.creatures)
-			creatures.addToSlot(creatures.getFreeSlot(), new CStackInstance(crea.type, crea.count));
+			creatures.addToSlot(creatures.getFreeSlot(), new CStackInstance(crea.getCreature(), crea.count));
 
 		if(auto * army = dynamic_cast<const CArmedInstance*>(this)) //TODO: to fix that, CArmedInstance must be split on map instance part and interface part
 			cb->giveCreatures(army, hero, creatures, false);

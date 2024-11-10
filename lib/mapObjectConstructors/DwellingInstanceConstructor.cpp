@@ -102,7 +102,7 @@ void DwellingInstanceConstructor::randomizeObject(CGDwelling * dwelling, vstd::R
 		JsonRandom::Variables emptyVariables;
 		for(auto & stack : randomizer.loadCreatures(guards, rng, emptyVariables))
 		{
-			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.type->getId(), stack.count));
+			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.getId(), stack.count));
 		}
 	}
 	else //default condition - creatures are of level 5 or higher

@@ -51,7 +51,7 @@ void WaterProxy::process()
 	for([[maybe_unused]] const auto & t : area->getTilesVector())
 	{
 		assert(map.isOnMap(t));
-		assert(map.getTile(t).terType->getId() == zone.getTerrainType());
+		assert(map.getTile(t).getTerrainID() == zone.getTerrainType());
 	}
 
 	// FIXME: Possible deadlock for 2 zones
@@ -66,7 +66,7 @@ void WaterProxy::process()
 		auto secondAreaPossible = z.second->areaPossible();
 		for(const auto & t : secondArea->getTilesVector())
 		{
-			if(map.getTile(t).terType->getId() == zone.getTerrainType())
+			if(map.getTile(t).getTerrainID() == zone.getTerrainType())
 			{
 				secondArea->erase(t);
 				secondAreaPossible->erase(t);

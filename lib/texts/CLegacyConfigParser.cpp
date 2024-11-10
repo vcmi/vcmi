@@ -32,9 +32,7 @@ protected:
 CLegacyConfigParser::CLegacyConfigParser(const TextPath & resource)
 {
 	auto input = CResourceHandler::get()->load(resource);
-	std::string modName = VLC->modh->findResourceOrigin(resource);
-	std::string language = VLC->modh->getModLanguage(modName);
-	fileEncoding = Languages::getLanguageOptions(language).encoding;
+	fileEncoding = VLC->modh->findResourceEncoding(resource);
 
 	data.reset(new char[input->getSize()]);
 	input->read(reinterpret_cast<uint8_t*>(data.get()), input->getSize());

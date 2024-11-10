@@ -87,8 +87,9 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 	std::vector <TModID> sortedValidMods; // Vector keeps order of elements (LIFO)
 	sortedValidMods.reserve(modsToResolve.size()); // push_back calls won't cause memory reallocation
 	std::set <TModID> resolvedModIDs; // Use a set for validation for performance reason, but set does not keep order of elements
+	std::set <TModID> notResolvedModIDs(modsToResolve.begin(), modsToResolve.end()); // Use a set for validation for performance reason
 
-	// Mod is resolved if it has not dependencies or all its dependencies are already resolved
+	// Mod is resolved if it has no dependencies or all its dependencies are already resolved
 	auto isResolved = [&](const CModInfo & mod) -> bool
 	{
 		if(mod.dependencies.size() > resolvedModIDs.size())
@@ -97,6 +98,12 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 		for(const TModID & dependency : mod.dependencies)
 		{
 			if(!vstd::contains(resolvedModIDs, dependency))
+				return false;
+		}
+
+		for(const TModID & softDependency : mod.softDependencies)
+		{
+			if(vstd::contains(notResolvedModIDs, softDependency))
 				return false;
 		}
 
@@ -130,9 +137,11 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 		if(!resolvedOnCurrentTreeLevel.empty())
 		{
 			resolvedModIDs.insert(resolvedOnCurrentTreeLevel.begin(), resolvedOnCurrentTreeLevel.end());
-					continue;
+			for(const auto & it : resolvedOnCurrentTreeLevel)
+				notResolvedModIDs.erase(it);
+			continue;
 		}
-		// If there're no valid mods on the current mods tree level, no more mod can be resolved, should be end.
+		// If there are no valid mods on the current mods tree level, no more mod can be resolved, should be ended.
 		break;
 	}
 
@@ -158,21 +167,42 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 	for(const auto & brokenModID : modsToResolve)
 	{
 		const CModInfo & brokenMod = allMods.at(brokenModID);
+		bool showErrorMessage = false;
 		for(const TModID & dependency : brokenMod.dependencies)
 		{
 			if(!vstd::contains(resolvedModIDs, dependency) && brokenMod.config["modType"].String() != "Compatibility")
+			{
 				addErrorMessage("vcmi.server.errors.modNoDependency", brokenModID, dependency);
+				showErrorMessage = true;
+			}
 		}
 		for(const TModID & conflict : brokenMod.conflicts)
 		{
 			if(vstd::contains(resolvedModIDs, conflict))
+			{
 				addErrorMessage("vcmi.server.errors.modConflict", brokenModID, conflict);
+				showErrorMessage = true;
+			}
 		}
 		for(const TModID & reverseConflict : resolvedModIDs)
 		{
 			if (vstd::contains(allMods.at(reverseConflict).conflicts, brokenModID))
+			{
 				addErrorMessage("vcmi.server.errors.modConflict", brokenModID, reverseConflict);
+				showErrorMessage = true;
+			}
 		}
+
+		// some mods may in a (soft) dependency loop.
+		if(!showErrorMessage && brokenMod.config["modType"].String() != "Compatibility")
+		{
+			modLoadErrors->appendTextID("vcmi.server.errors.modDependencyLoop");
+			if (allMods.count(brokenModID))
+				modLoadErrors->replaceRawString(allMods.at(brokenModID).getVerificationInfo().name);
+			else
+				modLoadErrors->replaceRawString(brokenModID);
+		}
+
 	}
 	return sortedValidMods;
 }
@@ -352,7 +382,10 @@ void CModHandler::loadModFilesystems()
 				if (getModDependencies(leftModName).count(rightModName) || getModDependencies(rightModName).count(leftModName))
 					continue;
 
-				const auto & filter = [](const ResourcePath &path){return path.getType() != EResType::DIRECTORY;};
+				if (getModSoftDependencies(leftModName).count(rightModName) || getModSoftDependencies(rightModName).count(leftModName))
+					continue;
+
+				const auto & filter = [](const ResourcePath &path){return path.getType() != EResType::DIRECTORY && path.getType() != EResType::JSON;};
 
 				std::unordered_set<ResourcePath> leftResources = modFilesystems[leftModName]->getFilteredFiles(filter);
 				std::unordered_set<ResourcePath> rightResources = modFilesystems[rightModName]->getFilteredFiles(filter);
@@ -390,6 +423,36 @@ TModID CModHandler::findResourceOrigin(const ResourcePath & name) const
 	throw std::runtime_error("Resource with name " + name.getName() + " and type " + EResTypeHelper::getEResTypeAsString(name.getType()) + " wasn't found.");
 }
 
+std::string CModHandler::findResourceLanguage(const ResourcePath & name) const
+{
+	std::string modName = findResourceOrigin(name);
+	std::string modLanguage = getModLanguage(modName);
+	return modLanguage;
+}
+
+std::string CModHandler::findResourceEncoding(const ResourcePath & resource) const
+{
+	std::string modName = findResourceOrigin(resource);
+	std::string modLanguage = findResourceLanguage(resource);
+
+	bool potentiallyUserMadeContent = resource.getType() == EResType::MAP || resource.getType() == EResType::CAMPAIGN;
+	if (potentiallyUserMadeContent && modName == ModScope::scopeBuiltin() && modLanguage == "english")
+	{
+		// this might be a map or campaign that player downloaded manually and placed in Maps/ directory
+		// in this case, this file may be in user-preferred language, and not in same language as the rest of H3 data
+		// however at the moment we have no way to detect that for sure - file can be either in English or in user-preferred language
+		// but since all known H3 encodings (Win125X or GBK) are supersets of ASCII, we can safely load English data using encoding of user-preferred language
+		std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
+		std::string fileEncoding = Languages::getLanguageOptions(preferredLanguage).encoding;
+		return fileEncoding;
+	}
+	else
+	{
+		std::string fileEncoding = Languages::getLanguageOptions(modLanguage).encoding;
+		return fileEncoding;
+	}
+}
+
 std::string CModHandler::getModLanguage(const TModID& modId) const
 {
 	if(modId == "core")
@@ -415,6 +478,28 @@ std::set<TModID> CModHandler::getModDependencies(const TModID & modId, bool & is
 
 	logMod->error("Mod not found: '%s'", modId);
 	return {};
+}
+
+std::set<TModID> CModHandler::getModSoftDependencies(const TModID & modId) const
+{
+	auto it = allMods.find(modId);
+	if(it != allMods.end())
+		return it->second.softDependencies;
+	logMod->error("Mod not found: '%s'", modId);
+	return {};
+}
+
+std::set<TModID> CModHandler::getModEnabledSoftDependencies(const TModID & modId) const
+{
+	std::set<TModID> softDependencies = getModSoftDependencies(modId);
+	for (auto it = softDependencies.begin(); it != softDependencies.end();)
+	{
+		if (allMods.find(*it) == allMods.end())
+			it = softDependencies.erase(it);
+		else
+			it++;
+	}
+	return softDependencies;
 }
 
 void CModHandler::initializeConfig()

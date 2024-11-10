@@ -35,7 +35,7 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	arts->moveBy(Point(windowMargin, windowMargin));
 	arts->clickPressedCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition)
 	{
-		clickPressedOnArtPlace(arts->getHero(), artPlace.slot, true, false, true);
+		clickPressedOnArtPlace(arts->getHero(), artPlace.slot, true, false, true, cursorPosition);
 	};
 	arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
 	{
@@ -92,10 +92,6 @@ CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, 
 	{
 		if(const auto curHero = arts->getHero())
 			swapArtifactAndClose(*arts, artPlace.slot, ArtifactLocation(curHero->id, arts->getFilterSlot()));
-	};
-	arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
-	{
-		showArifactInfo(*arts, artPlace, cursorPosition);
 	};
 	addSet(arts);
 	arts->setHero(hero);

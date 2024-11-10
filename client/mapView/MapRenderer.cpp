@@ -143,7 +143,7 @@ void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & targ
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
-	int32_t terrainIndex = mapTile.terType->getIndex();
+	int32_t terrainIndex = mapTile.getTerrainID();
 	int32_t imageIndex = mapTile.terView;
 	int32_t rotationIndex = mapTile.extTileFlags % 4;
 
@@ -152,11 +152,11 @@ void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & targ
 	assert(image);
 	if (!image)
 	{
-		logGlobal->error("Failed to find image %d for terrain %s on tile %s", imageIndex, mapTile.terType->getNameTranslated(), coordinates.toString());
+		logGlobal->error("Failed to find image %d for terrain %s on tile %s", imageIndex, mapTile.getTerrain()->getNameTranslated(), coordinates.toString());
 		return;
 	}
 
-	for( auto const & element : mapTile.terType->paletteAnimation)
+	for( auto const & element : mapTile.getTerrain()->paletteAnimation)
 		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
 
 	target.draw(image, Point(0, 0));
@@ -166,7 +166,7 @@ uint8_t MapRendererTerrain::checksum(IMapRendererContext & context, const int3 &
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
-	if(!mapTile.terType->paletteAnimation.empty())
+	if(!mapTile.getTerrain()->paletteAnimation.empty())
 		return context.terrainImageIndex(250);
 	return 0xff - 1;
 }
@@ -184,16 +184,16 @@ void MapRendererRiver::renderTile(IMapRendererContext & context, Canvas & target
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
-	if(mapTile.riverType->getId() == River::NO_RIVER)
+	if(!mapTile.hasRiver())
 		return;
 
-	int32_t terrainIndex = mapTile.riverType->getIndex();
+	int32_t terrainIndex = mapTile.getRiverID();
 	int32_t imageIndex = mapTile.riverDir;
 	int32_t rotationIndex = (mapTile.extTileFlags >> 2) % 4;
 
 	const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
 
-	for( auto const & element : mapTile.riverType->paletteAnimation)
+	for( auto const & element : mapTile.getRiver()->paletteAnimation)
 		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
 
 	target.draw(image, Point(0, 0));
@@ -203,7 +203,7 @@ uint8_t MapRendererRiver::checksum(IMapRendererContext & context, const int3 & c
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
-	if(!mapTile.riverType->paletteAnimation.empty())
+	if(!mapTile.getRiver()->paletteAnimation.empty())
 		return context.terrainImageIndex(250);
 	return 0xff-1;
 }
@@ -224,9 +224,9 @@ void MapRendererRoad::renderTile(IMapRendererContext & context, Canvas & target,
 	if(context.isInMap(coordinatesAbove))
 	{
 		const TerrainTile & mapTileAbove = context.getMapTile(coordinatesAbove);
-		if(mapTileAbove.roadType->getId() != Road::NO_ROAD)
+		if(mapTileAbove.hasRoad())
 		{
-			int32_t terrainIndex = mapTileAbove.roadType->getIndex();
+			int32_t terrainIndex = mapTileAbove.getRoadID();
 			int32_t imageIndex = mapTileAbove.roadDir;
 			int32_t rotationIndex = (mapTileAbove.extTileFlags >> 4) % 4;
 
@@ -236,9 +236,9 @@ void MapRendererRoad::renderTile(IMapRendererContext & context, Canvas & target,
 	}
 
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
-	if(mapTile.roadType->getId() != Road::NO_ROAD)
+	if(mapTile.hasRoad())
 	{
-		int32_t terrainIndex = mapTile.roadType->getIndex();
+		int32_t terrainIndex = mapTile.getRoadID();
 		int32_t imageIndex = mapTile.roadDir;
 		int32_t rotationIndex = (mapTile.extTileFlags >> 4) % 4;
 

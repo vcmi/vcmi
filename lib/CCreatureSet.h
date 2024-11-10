@@ -31,8 +31,8 @@ class JsonSerializeFormat;
 
 class DLL_LINKAGE CStackBasicDescriptor
 {
+	CreatureID typeID;
 public:
-	const CCreature *type = nullptr;
 	TQuantity count = -1; //exact quantity or quantity ID from CCreature::getQuantityID when getting info about enemy army
 
 	CStackBasicDescriptor();
@@ -41,29 +41,27 @@ public:
 	virtual ~CStackBasicDescriptor() = default;
 
 	const Creature * getType() const;
+	const CCreature * getCreature() const;
 	CreatureID getId() const;
 	TQuantity getCount() const;
 
 	virtual void setType(const CCreature * c);
-	
+
 	friend bool operator== (const CStackBasicDescriptor & l, const CStackBasicDescriptor & r);
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		if(h.saving)
 		{
-			auto idNumber = type ? type->getId() : CreatureID(CreatureID::NONE);
-			h & idNumber;
+			h & typeID;
 		}
 		else
 		{
-			CreatureID idNumber;
-			h & idNumber;
-			if(idNumber != CreatureID::NONE)
-				setType(dynamic_cast<const CCreature*>(VLC->creatures()->getById(idNumber)));
-			else
-				type = nullptr;
+			CreatureID creatureID;
+			h & creatureID;
+			setType(creatureID.toCreature());
 		}
+
 		h & count;
 	}
 

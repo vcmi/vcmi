@@ -169,7 +169,7 @@ void QuestWidget::obtainData()
 	}
 	for(auto & i : quest.mission.creatures)
 	{
-		int index = i.type->getIndex();
+		int index = i.getType()->getIndex();
 		ui->lCreatureId->setCurrentIndex(index);
 		ui->lCreatureAmount->setValue(i.count);
 		onCreatureAdd(ui->lCreatures, ui->lCreatureId, ui->lCreatureAmount);

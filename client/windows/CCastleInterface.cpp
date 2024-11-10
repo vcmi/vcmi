@@ -238,7 +238,8 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 		return town->getTown()->buildings.at(getBuilding()->bid)->getNameTranslated();
 	else//dwellings - recruit %creature%
 	{
-		auto & availableCreatures = town->creatures[(bid-30)%town->getTown()->creatures.size()].second;
+		int level = BuildingID::getLevelFromDwelling(getBuilding()->bid);
+		auto & availableCreatures = town->creatures[level].second;
 		if(availableCreatures.size())
 		{
 			int creaID = availableCreatures.back();//taking last of available creatures

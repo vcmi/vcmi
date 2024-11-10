@@ -114,19 +114,11 @@ public:
 
 		if (h.version < Handler::Version::REMOVE_TOWN_PTR)
 		{
-			CTown * town = nullptr;
-
-			if (h.saving)
-			{
-				CFaction * faction = town ? town->faction : nullptr;
+			FactionID faction;
+			bool isNull = false;
+			h & isNull;
+			if (!isNull)
 				h & faction;
-			}
-			else
-			{
-				CFaction * faction = nullptr;
-				h & faction;
-				town = faction ? faction->town : nullptr;
-			}
 		}
 
 		h & townAndVis;

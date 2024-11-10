@@ -166,8 +166,6 @@ public:
 	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range
 	bool isMyUpgrade(const CCreature *anotherCre) const;
 
-	bool valid() const;
-
 	void addBonus(int val, BonusType type);
 	void addBonus(int val, BonusType type, BonusSubtypeID subtype);
 	std::string nodeName() const override;
@@ -197,8 +195,6 @@ private:
 	void loadStackExperience(CCreature * creature, const JsonNode & input) const;
 	void loadCreatureJson(CCreature * creature, const JsonNode & config) const;
 
-	/// adding abilities from ZCRTRAIT.TXT
-	void loadBonuses(JsonNode & creature, std::string bonuses) const;
 	/// load all creatures from H3 files
 	void load();
 	void loadCommanders();

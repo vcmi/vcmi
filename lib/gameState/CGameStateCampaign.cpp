@@ -137,18 +137,18 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 
 				ArtifactLocation al(hero.hero->id, artifactPosition);
 
-				bool takeable = travelOptions.artifactsKeptByHero.count(art->artType->getId());
+				bool takeable = travelOptions.artifactsKeptByHero.count(art->getTypeId());
 				bool locked = hero.hero->getSlot(al.slot)->locked;
 
 				if (!locked && takeable)
 				{
-					logGlobal->debug("Artifact %s from slot %d of hero %s will be transferred to next scenario", art->artType->getJsonKey(), al.slot.getNum(), hero.hero->getHeroTypeName());
+					logGlobal->debug("Artifact %s from slot %d of hero %s will be transferred to next scenario", art->getType()->getJsonKey(), al.slot.getNum(), hero.hero->getHeroTypeName());
 					hero.transferrableArtifacts.push_back(artifactPosition);
 				}
 
 				if (!locked && !takeable)
 				{
-					logGlobal->debug("Removing artifact %s from slot %d of hero %s", art->artType->getJsonKey(), al.slot.getNum(), hero.hero->getHeroTypeName());
+					logGlobal->debug("Removing artifact %s from slot %d of hero %s", art->getType()->getJsonKey(), al.slot.getNum(), hero.hero->getHeroTypeName());
 					gameState->map->removeArtifactInstance(*hero.hero, al.slot);
 					return true;
 				}
@@ -424,12 +424,12 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 		{
 			auto * artifact = donorHero->getArt(artLocation);
 
-			logGlobal->debug("Removing artifact %s from slot %d of hero %s for transfer", artifact->artType->getJsonKey(), artLocation.getNum(), donorHero->getHeroTypeName());
+			logGlobal->debug("Removing artifact %s from slot %d of hero %s for transfer", artifact->getType()->getJsonKey(), artLocation.getNum(), donorHero->getHeroTypeName());
 			gameState->map->removeArtifactInstance(*donorHero, artLocation);
 
 			if (receiver)
 			{
-				logGlobal->debug("Granting artifact %s to hero %s for transfer", artifact->artType->getJsonKey(), receiver->getHeroTypeName());
+				logGlobal->debug("Granting artifact %s to hero %s for transfer", artifact->getType()->getJsonKey(), receiver->getHeroTypeName());
 
 				const auto slot = ArtifactUtils::getArtAnyPosition(receiver, artifact->getTypeId());
 				if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))

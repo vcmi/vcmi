@@ -429,10 +429,10 @@ void MapController::commitObstacleFill(int level)
 	for(auto & t : selection)
 	{
 		auto tl = _map->getTile(t);
-		if(tl.blocked || tl.visitable)
+		if(tl.blocked() || tl.visitable())
 			continue;
 		
-		auto terrain = tl.terType->getId();
+		auto terrain = tl.getTerrainID();
 		_obstaclePainters[terrain]->addBlockedTile(t);
 	}
 	

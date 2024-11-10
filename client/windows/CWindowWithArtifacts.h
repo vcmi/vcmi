@@ -28,10 +28,9 @@ public:
 	const CGHeroInstance * getHeroPickedArtifact() const;
 	const CArtifactInstance * getPickedArtifact() const;
 	void clickPressedOnArtPlace(const CGHeroInstance * hero, const ArtifactPosition & slot,
-		bool allowExchange, bool altarTrading, bool closeWindow);
+		bool allowExchange, bool altarTrading, bool closeWindow, const Point & cursorPosition);
 	void swapArtifactAndClose(const CArtifactsOfHeroBase & artsInst, const ArtifactPosition & slot, const ArtifactLocation & dstLoc);
 	void showArtifactAssembling(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition) const;
-	void showArifactInfo(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition) const;
 	void showQuickBackpackWindow(const CGHeroInstance * hero, const ArtifactPosition & slot, const Point & cursorPosition) const;
 	void activate() override;
 	void deactivate() override;

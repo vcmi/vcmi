@@ -71,7 +71,7 @@ const CArtifactInstance * CWindowWithArtifacts::getPickedArtifact() const
 }
 
 void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, const ArtifactPosition & slot,
-	bool allowExchange, bool altarTrading, bool closeWindow)
+	bool allowExchange, bool altarTrading, bool closeWindow, const Point & cursorPosition)
 {
 	if(!LOCPLINT->makingTurn)
 		return;
@@ -85,8 +85,7 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, c
 	}
 	else if(GH.isKeyboardShiftDown())
 	{
-		if(ArtifactUtils::isSlotEquipment(slot))
-			GH.windows().createAndPushWindow<CHeroQuickBackpackWindow>(hero, slot);
+		showQuickBackpackWindow(hero, slot, cursorPosition);
 	}
 	else if(auto art = hero->getArt(slot))
 	{
@@ -128,16 +127,13 @@ void CWindowWithArtifacts::showArtifactAssembling(const CArtifactsOfHeroBase & a
 	}
 }
 
-void CWindowWithArtifacts::showArifactInfo(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition) const
-{
-	if(artsInst.getArt(artPlace.slot) && artPlace.text.size())
-		artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
-}
-
 void CWindowWithArtifacts::showQuickBackpackWindow(const CGHeroInstance * hero, const ArtifactPosition & slot,
 	const Point & cursorPosition) const
 {
 	if(!settings["general"]["enableUiEnhancements"].Bool())
+		return;
+
+	if(!ArtifactUtils::isSlotEquipment(slot))
 		return;
 
 	GH.windows().createAndPushWindow<CHeroQuickBackpackWindow>(hero, slot);
@@ -204,7 +200,7 @@ void CWindowWithArtifacts::markPossibleSlots() const
 				continue;
 
 			if(getHeroPickedArtifact() == hero || !std::dynamic_pointer_cast<CArtifactsOfHeroKingdom>(artSet))
-				artSet->markPossibleSlots(pickedArtInst->artType, hero->tempOwner == LOCPLINT->playerID);
+				artSet->markPossibleSlots(pickedArtInst->getType(), hero->tempOwner == LOCPLINT->playerID);
 		}
 	}
 }
@@ -225,7 +221,7 @@ bool CWindowWithArtifacts::checkSpecialArts(const CArtifactInstance & artInst, c
 			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, ArtifactID(ArtifactID::CATAPULT))));
 		return false;
 	}
-	if(isTrade && !artInst.artType->isTradable())
+	if(isTrade && !artInst.getType()->isTradable())
 	{
 		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21],
 			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, artId)));
@@ -246,7 +242,7 @@ void CWindowWithArtifacts::setCursorAnimation(const CArtifactInstance & artInst)
 	}
 	else
 	{
-		CCS->curh->dragAndDropCursor(AnimationPath::builtin("artifact"), artInst.artType->getIconIndex());
+		CCS->curh->dragAndDropCursor(AnimationPath::builtin("artifact"), artInst.getType()->getIconIndex());
 	}
 }
 
@@ -259,10 +255,10 @@ void CWindowWithArtifacts::putPickedArtifact(const CGHeroInstance & curHero, con
 
 	if(ArtifactUtils::isSlotBackpack(dstLoc.slot))
 	{
-		if(pickedArt->artType->isBig())
+		if(pickedArt->getType()->isBig())
 		{
 			// War machines cannot go to backpack
-			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % pickedArt->artType->getNameTranslated()));
+			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % pickedArt->getType()->getNameTranslated()));
 		}
 		else
 		{

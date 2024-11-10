@@ -121,7 +121,7 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 	}
 
 	for(const auto & entry : creatures)
-		comps.emplace_back(ComponentType::CREATURE, entry.type->getId(), entry.count);
+		comps.emplace_back(ComponentType::CREATURE, entry.getId(), entry.count);
 
 	for (size_t i=0; i<resources.size(); i++)
 	{

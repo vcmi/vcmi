@@ -35,6 +35,7 @@ public:
 	std::string folderName = "";
 	std::string name = "";
 	bool isFolder = false;
+	bool isAutoSaveFolder = false;
 };
 
 /// Class which handles map sorting by different criteria
@@ -59,6 +60,8 @@ class SelectionTab : public CIntObject
 		std::shared_ptr<CAnimImage> iconLossCondition;
 		std::shared_ptr<CPicture> pictureEmptyLine;
 		std::shared_ptr<CLabel> labelName;
+
+		const int LABEL_POS_X = 184;
 
 		ListItem(Point position);
 		void updateItem(std::shared_ptr<ElementInfo> info = {}, bool selected = false);
