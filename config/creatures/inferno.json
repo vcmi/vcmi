@@ -53,7 +53,7 @@
 		"hasDoubleWeek": true,
 		"abilities" :
 		{
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			}
@@ -83,7 +83,7 @@
 		"faction": "inferno",
 		"abilities":
 		{
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
@@ -117,10 +117,7 @@
 		"level": 3,
 		"faction": "inferno",
 		"upgrades": ["cerberus"],
-		"abilities":
-		{
-			 "FLYING_ARMY" : null //hell hound doesn't fly
-		},
+		"doubleWide" : true,
 		"graphics" :
 		{
 			"animation": "CHHOUN.DEF"
@@ -139,6 +136,7 @@
 		"index": 47,
 		"level": 3,
 		"faction": "inferno",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"noRetaliation" :
@@ -148,8 +146,7 @@
 			"threeHeads" : 
 			{
 				"type" : "THREE_HEADED_ATTACK"
-			},
-			"FLYING_ARMY" : null //cerberus doesn't fly
+			}
 		},
 		"graphics" :
 		{
@@ -361,12 +358,12 @@
 				"type" : "KING",
 				"val" : 2
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
-				// type loaded from crtraits
+				"type" : "FLYING",
 				"subtype" : "movementTeleporting"
 			},
-			"blockRetaliation" :
+			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
 			},
@@ -421,12 +418,12 @@
 				"type" : "KING",
 				"val" : 2
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
-				// type loaded from crtraits
+				"type" : "FLYING",
 				"subtype" : "movementTeleporting"
 			},
-			"blockRetaliation" :
+			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
 			},

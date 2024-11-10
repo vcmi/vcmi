@@ -74,7 +74,7 @@
 		"faction": "dungeon",
 		"abilities":
 		{
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -105,7 +105,7 @@
 		"faction": "dungeon",
 		"abilities":
 		{
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -140,11 +140,11 @@
 		"upgrades": ["evilEye"],
 		"abilities" :
 		{
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
-			"const_no_melee_penalty" :
+			"noMeleePenalty" :
 			{
 				"type" : "NO_MELEE_PENALTY"
 			}
@@ -181,11 +181,11 @@
 		"faction": "dungeon",
 		"abilities" :
 		{
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
-			"const_no_melee_penalty" :
+			"noMeleePenalty" :
 			{
 				"type" : "NO_MELEE_PENALTY"
 			}
@@ -220,13 +220,14 @@
 		"index": 76,
 		"level": 4,
 		"faction": "dungeon",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
-			"const_no_melee_penalty" :
+			"noMeleePenalty" :
 			{
 				"type" : "NO_MELEE_PENALTY"
 			},
@@ -262,13 +263,14 @@
 		"index": 77,
 		"level": 4,
 		"faction": "dungeon",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
-			"const_no_melee_penalty" :
+			"noMeleePenalty" :
 			{
 				"type" : "NO_MELEE_PENALTY"
 			},
@@ -360,9 +362,10 @@
 		"level": 6,
 		"faction": "dungeon",
 		"upgrades": ["scorpicore"],
+		"doubleWide" : true,
 		"abilities" :
 		{
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			}
@@ -386,9 +389,10 @@
 		"index": 81,
 		"level": 6,
 		"faction": "dungeon",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -418,6 +422,7 @@
 		"index": 82,
 		"level": 7,
 		"faction": "dungeon",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"KING_1" : // Will be affected by Slayer with no expertise
@@ -425,7 +430,7 @@
 				"type" : "KING",
 				"val" : 0
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -433,7 +438,7 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"fireBreath" :
+			"twoHexAttackBreath" :
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
@@ -462,6 +467,7 @@
 		"index": 83,
 		"level": 7,
 		"faction": "dungeon",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"KING_1" : // Will be affected by Slayer with no expertise
@@ -469,7 +475,7 @@
 				"type" : "KING",
 				"val" : 0
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -477,7 +483,7 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"fireBreath" :
+			"twoHexAttackBreath" :
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},

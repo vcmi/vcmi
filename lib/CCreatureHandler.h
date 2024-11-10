@@ -195,8 +195,6 @@ private:
 	void loadStackExperience(CCreature * creature, const JsonNode & input) const;
 	void loadCreatureJson(CCreature * creature, const JsonNode & config) const;
 
-	/// adding abilities from ZCRTRAIT.TXT
-	void loadBonuses(JsonNode & creature, std::string bonuses) const;
 	/// load all creatures from H3 files
 	void load();
 	void loadCommanders();

@@ -7,7 +7,7 @@
 		"upgrades": ["skeletonWarrior"],
 		"abilities" :
 		{
-			"IS_UNDEAD" :
+			"undead" :
 			{
 				"type" : "UNDEAD"
 			}
@@ -32,7 +32,7 @@
 		"faction": "necropolis",
 		"abilities" :
 		{
-			"IS_UNDEAD" :
+			"undead" :
 			{
 				"type" : "UNDEAD"
 			}
@@ -59,7 +59,7 @@
 		"upgrades": ["zombieLord"],
 		"abilities" :
 		{
-			"IS_UNDEAD" :
+			"undead" :
 			{
 				"type" : "UNDEAD"
 			}
@@ -96,7 +96,7 @@
 		},
 		"abilities":
 		{
-			"IS_UNDEAD" :
+			"undead" :
 			{
 				"type" : "UNDEAD"
 			},
@@ -115,11 +115,11 @@
 		"faction": "necropolis",
 		"abilities":
 		{
-			"IS_UNDEAD" :
+			"undead" :
 			{
 				"type" : "UNDEAD"
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -151,11 +151,11 @@
 		"faction": "necropolis",
 		"abilities":
 		{
-			"IS_UNDEAD" :
+			"undead" :
 			{
 				"type" : "UNDEAD"
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -190,11 +190,11 @@
 		"faction": "necropolis",
 		"abilities":
 		{
-			"IS_UNDEAD" :
+			"undead" :
 			{
 				"type" : "UNDEAD"
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -226,11 +226,11 @@
 		"faction": "necropolis",
 		"abilities":
 		{
-			"IS_UNDEAD" :
+			"undead" :
 			{
 				"type" : "UNDEAD"
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -267,11 +267,11 @@
 		"faction": "necropolis",
 		"abilities":
 		{
-			"IS_UNDEAD" :
+			"undead" :
 			{
 				"type" : "UNDEAD"
 			},
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
@@ -307,11 +307,11 @@
 		"faction": "necropolis",
 		"abilities":
 		{
-			"IS_UNDEAD" :
+			"undead" :
 			{
 				"type" : "UNDEAD"
 			},
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
@@ -344,9 +344,10 @@
 		"index": 66,
 		"level": 6,
 		"faction": "necropolis",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"IS_UNDEAD" :
+			"undead" :
 			{
 				"type" : "UNDEAD"
 			},
@@ -376,9 +377,10 @@
 		"index": 67,
 		"level": 6,
 		"faction": "necropolis",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"IS_UNDEAD" :
+			"undead" :
 			{
 				"type" : "UNDEAD"
 			},
@@ -412,9 +414,10 @@
 		"index": 68,
 		"level": 7,
 		"faction": "necropolis",
+		"doubleWide" : true,
 		"abilities" :
 		{
-			"IS_UNDEAD" :
+			"undead" :
 			{
 				"type" : "UNDEAD"
 			},
@@ -423,7 +426,7 @@
 				"type" : "KING",
 				"val" : 0
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -460,9 +463,10 @@
 		"index": 69,
 		"level": 7,
 		"faction": "necropolis",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"IS_UNDEAD" :
+			"undead" :
 			{
 				"type" : "UNDEAD"
 			},
@@ -471,7 +475,7 @@
 				"type" : "KING",
 				"val" : 0
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},

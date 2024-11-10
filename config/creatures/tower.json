@@ -28,7 +28,7 @@
 		"faction": "tower",
 		"abilities" :
 		{
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			}
@@ -62,7 +62,7 @@
 			{
 				"type" : "GARGOYLE"
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			}
@@ -92,7 +92,7 @@
 			{
 				"type" : "GARGOYLE"
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			}
@@ -180,11 +180,11 @@
 		"faction": "tower",
 		"abilities": 
 		{
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
-			"const_no_melee_penalty" :
+			"noMeleePenalty" :
 			{
 				"type" : "NO_MELEE_PENALTY"
 			},
@@ -220,15 +220,15 @@
 		"faction": "tower",
 		"abilities": 
 		{
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
-			"const_no_melee_penalty" :
+			"noMeleePenalty" :
 			{
 				"type" : "NO_MELEE_PENALTY"
 			},
-			"const_no_wall_penalty" :
+			"noWallPenalty" :
 			{
 				"type" : "NO_WALL_PENALTY"
 			},
@@ -271,7 +271,7 @@
 		"faction": "tower",
 		"abilities":
 		{
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -309,7 +309,7 @@
 		"faction": "tower",
 		"abilities":
 		{
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -360,6 +360,7 @@
 		"index": 38,
 		"level": 6,
 		"faction": "tower",
+		"doubleWide" : true,
 		"abilities" :
 		{
 			"noRetaliation" : 
@@ -386,6 +387,7 @@
 		"index": 39,
 		"level": 6,
 		"faction": "tower",
+		"doubleWide" : true,
 		"abilities" :
 		{
 			"noRetaliation" : 
@@ -449,11 +451,11 @@
 				"type" : "KING",
 				"val" : 3
 			},
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
-			"const_no_melee_penalty" :
+			"noMeleePenalty" :
 			{
 				"type" : "NO_MELEE_PENALTY"
 			},

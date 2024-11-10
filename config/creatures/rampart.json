@@ -5,6 +5,7 @@
 		"level": 1,
 		"faction": "rampart",
 		"upgrades": ["centaurCaptain"],
+		"doubleWide" : true,
 		"hasDoubleWeek": true,
 		"graphics" :
 		{
@@ -26,6 +27,7 @@
 		"index": 15,
 		"level": 1,
 		"faction": "rampart",
+		"doubleWide" : true,
 		"graphics" :
 		{
 			"missile" : null,
@@ -101,7 +103,7 @@
 		"upgrades": ["grandElf"],
 		"abilities" :
 		{
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			}
@@ -131,7 +133,7 @@
 		"faction": "rampart",
 		"abilities": 
 		{
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
@@ -165,9 +167,10 @@
 		"index": 20,
 		"level": 4,
 		"faction": "rampart",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -197,9 +200,10 @@
 		"index": 21,
 		"level": 4,
 		"faction": "rampart",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -282,6 +286,7 @@
 		"index": 24,
 		"level": 6,
 		"faction": "rampart",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"blinds" :
@@ -316,6 +321,7 @@
 		"index": 25,
 		"level": 6,
 		"faction": "rampart",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"blinds" :
@@ -350,6 +356,7 @@
 		"index": 26,
 		"level": 7,
 		"faction": "rampart",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"KING_1" : // Will be affected by Slayer with no expertise
@@ -357,7 +364,7 @@
 				"type" : "KING",
 				"val" : 0
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -365,7 +372,7 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"fireBreath" :
+			"twoHexAttackBreath" :
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
@@ -394,6 +401,7 @@
 		"index": 27,
 		"level": 7,
 		"faction": "rampart",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"KING_1" : // Will be affected by Slayer with no expertise
@@ -401,7 +409,7 @@
 				"type" : "KING",
 				"val" : 0
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -409,7 +417,7 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"fireBreath" :
+			"twoHexAttackBreath" :
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},

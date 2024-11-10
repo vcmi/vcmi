@@ -36,8 +36,14 @@
 		"index": 145,
 		"level": 0,
 		"faction": "neutral",
-		"abilities" : {
-			"siegeMachine" : { "type" : "CATAPULT", "subtype" : "spell.catapultShot" }
+		"doubleWide" : true,
+		"abilities" :
+		{
+			"siegeMachine" :
+			{
+				"type" : "CATAPULT",
+				"subtype" : "spell.catapultShot"
+			}
 		},
 		"graphics" :
 		{
@@ -60,6 +66,7 @@
 		"index": 146,
 		"level": 0,
 		"faction": "neutral",
+		"doubleWide" : true,
 		"graphics" :
 		{
 			"animation": "SMBAL.DEF",
@@ -81,6 +88,7 @@
 		"index": 147,
 		"level": 0,
 		"faction": "neutral",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"heals" : {

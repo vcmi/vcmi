@@ -68,6 +68,7 @@
 		"level": 10,
 		"faction": "neutral",
 		"excludeFromRandomization" : true,
+		"doubleWide" : true,
 		"abilities":
 		{
 			"KING_1" : // Will be affected by Slayer with no expertise
@@ -75,7 +76,7 @@
 				"type" : "KING",
 				"val" : 0
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -83,7 +84,7 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"fireBreath" :
+			"twoHexAttackBreath" :
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
@@ -120,6 +121,7 @@
 		"level": 10,
 		"faction": "neutral",
 		"excludeFromRandomization" : true,
+		"doubleWide" : true,
 		"abilities":
 		{
 			"KING_1" : // Will be affected by Slayer with no expertise
@@ -139,8 +141,7 @@
 			"crystals" :
 			{
 				"type" : "SPECIAL_CRYSTAL_GENERATION"
-			},
-			"FLYING_ARMY" : null
+			}
 		},
 		"graphics" :
 		{
@@ -161,6 +162,7 @@
 		"level": 8,
 		"faction": "neutral",
 		"excludeFromRandomization" : true,
+		"doubleWide" : true,
 		"abilities":
 		{
 			"KING_1" : // Will be affected by Slayer with no expertise
@@ -264,6 +266,7 @@
 		"level": 10,
 		"faction": "neutral",
 		"excludeFromRandomization" : true,
+		"doubleWide" : true,
 		"abilities":
 		{
 			"KING_1" : // Will be affected by Slayer with no expertise
@@ -271,7 +274,7 @@
 				"type" : "KING",
 				"val" : 0
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -279,7 +282,7 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"fireBreath" :
+			"twoHexAttackBreath" :
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
@@ -318,15 +321,15 @@
 		"excludeFromRandomization" : true,
 		"abilities":
 		{
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
-			"const_no_melee_penalty" :
+			"noMeleePenalty" :
 			{
 				"type" : "NO_MELEE_PENALTY"
 			},
-			"noPenalty" : 
+			"noWallPenalty" :
 			{
 				"type" : "NO_WALL_PENALTY"
 			},
@@ -405,7 +408,7 @@
 		"excludeFromRandomization" : true,
 		"abilities":
 		{
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
@@ -413,7 +416,7 @@
 			{
 				"type" : "NO_DISTANCE_PENALTY"
 			},
-			"noPenalty" : 
+			"noWallPenalty" :
 			{
 				"type" : "NO_WALL_PENALTY"
 			}
@@ -443,7 +446,7 @@
 		"faction": "neutral",
 		"abilities": 
 		{
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
@@ -545,6 +548,7 @@
 		"index": 142,
 		"level": 3,
 		"faction": "neutral",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"sandWalker" :
@@ -554,7 +558,6 @@
 				"propagator" : "HERO"
 			}
 		},
-		"doubleWide" : true,
 		"graphics" :
 		{
 			"animation": "CNOMAD.DEF"

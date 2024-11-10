@@ -59,7 +59,7 @@
 		"upgrades": ["marksman"],
 		"abilities" :
 		{
-			"SHOOTING_ARMY" : {
+			"shooter" : {
 				"type" : "SHOOTER"
 			}
 		},
@@ -88,7 +88,7 @@
 		"faction": "castle",
 		"abilities":
 		{
-			"SHOOTING_ARMY" : {
+			"shooter" : {
 				"type" : "SHOOTER"
 			},
 			"extraAttack" :
@@ -121,9 +121,10 @@
 		"index": 4,
 		"level": 3,
 		"faction": "castle",
+		"doubleWide": true,
 		"abilities":
 		{
-			"FLYING_ARMY" : {
+			"canFly" : {
 				"type" : "FLYING"
 			},
 			"extraRetaliation" :
@@ -152,9 +153,10 @@
 		"index": 5,
 		"level": 3,
 		"faction": "castle",
+		"doubleWide": true,
 		"abilities":
 		{
-			"FLYING_ARMY" : {
+			"canFly" : {
 				"type" : "FLYING"
 			},
 			"unlimitedRetaliation" :
@@ -228,7 +230,7 @@
 		"upgrades": ["zealot"],
 		"abilities" :
 		{
-			"SHOOTING_ARMY" : {
+			"shooter" : {
 				"type" : "SHOOTER"
 			}
 		},
@@ -257,10 +259,10 @@
 		"faction": "castle",
 		"abilities" :
 		{
-			"SHOOTING_ARMY" : {
+			"shooter" : {
 				"type" : "SHOOTER"
 			},
-			"const_no_melee_penalty" : {
+			"noMeleePenalty" : {
 				"type" : "NO_MELEE_PENALTY"
 			}
 		},
@@ -287,11 +289,14 @@
 		"index": 10,
 		"level": 6,
 		"faction": "castle",
+		"doubleWide": true,
 		"upgrades": ["champion"],
 		"abilities" :
 		{
-			"const_jousting" : {
-				"type" : "JOUSTING"
+			"jousting":
+			{
+				"type": "JOUSTING",
+				"val": 5
 			}
 		},
 		"graphics" :
@@ -312,10 +317,13 @@
 		"index": 11,
 		"level": 6,
 		"faction": "castle",
+		"doubleWide": true,
 		"abilities" :
 		{
-			"const_jousting" : {
-				"type" : "JOUSTING"
+			"jousting":
+			{
+				"type": "JOUSTING",
+				"val": 5
 			}
 		},
 		"graphics" :
@@ -336,6 +344,7 @@
 		"index": 12,
 		"level": 7,
 		"faction": "castle",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"KING_2" : // Will be affected by Advanced Slayer or better
@@ -343,11 +352,11 @@
 				"type" : "KING",
 				"val" : 2
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
-			"const_raises_morale" :
+			"raisesMorale" :
 			{
 				"type" : "MORALE",
 				"val" : 1,
@@ -386,6 +395,7 @@
 		"index": 13,
 		"level": 7,
 		"faction": "castle",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"KING_2" : // Will be affected by Advanced Slayer or better
@@ -393,7 +403,7 @@
 				"type" : "KING",
 				"val" : 2
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -414,7 +424,7 @@
 				"type" : "CASTS",
 				"val" : 1
 			},
-			"const_raises_morale" : {
+			"raisesMorale" : {
 				"type" : "MORALE",
 				"val" : 1,
 				"propagator" : "HERO",

@@ -8,7 +8,8 @@
 		"upgrades": ["sprite"],
 		"abilities" :
 		{
-			"FLYING_ARMY" : {
+			"canFly" :
+			{
 				"type" : "FLYING"
 			}
 		},
@@ -32,10 +33,12 @@
 		"faction": "conflux",
 		"abilities" :
 		{
-			"FLYING_ARMY" : {
+			"canFly" :
+			{
 				"type" : "FLYING"
 			},
-			"const_free_attack" : {
+			"noRetaliation" :
+			{
 				"type" : "BLOCKS_RETALIATION"
 			}
 		},
@@ -130,7 +133,7 @@
 			{
 				"type" : "NON_LIVING"
 			},
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
@@ -214,6 +217,7 @@
 		"level": 3,
 		"extraNames": [ "waterElementals" ],
 		"faction": "conflux",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"nonLiving" : 
@@ -277,7 +281,6 @@
 				"val" : 100
 			}
 		},
-		"doubleWide" : true,
 		"upgrades": ["iceElemental"],
 		"graphics" :
 		{
@@ -297,13 +300,14 @@
 		"index": 123,
 		"level": 3,
 		"faction": "conflux",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"nonLiving" : 
 			{
 				"type" : "NON_LIVING"
 			},
-			"SHOOTING_ARMY" :
+			"shooter" :
 			{
 				"type" : "SHOOTER"
 			},
@@ -380,7 +384,6 @@
 				"val" : 100
 			}
 		},
-		"doubleWide" : true,
 		"graphics" :
 		{
 			"animation": "CICEE.DEF",
@@ -469,7 +472,7 @@
 			{
 				"type" : "NON_LIVING"
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
@@ -688,15 +691,15 @@
 			{
 				"type" : "NON_LIVING"
 			},
-			"MULTI_HEADED" :
+			"attackAllAdjacent" :
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
 			},
-			"const_free_attack" :
+			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
 			},
-			"IMMUNE_TO_MIND_SPELLS" :
+			"immuneToMind" :
 			{
 				"type" : "MIND_IMMUNITY"
 			}
@@ -727,11 +730,11 @@
 			{
 				"type" : "NON_LIVING"
 			},
-			"MULTI_HEADED" :
+			"attackAllAdjacent" :
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
 			},
-			"const_free_attack" :
+			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
 			},
@@ -761,6 +764,7 @@
 		"level": 7,
 		"faction": "conflux",
 		"upgrades": ["phoenix"],
+		"doubleWide" : true,
 		"abilities":
 		{
 			"KING_1" : // Will be affected by Slayer with no expertise
@@ -768,11 +772,11 @@
 				"type" : "KING",
 				"val" : 0
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
-			"HAS_EXTENDED_ATTACK" :
+			"twoHexAttackBreath" :
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
@@ -800,6 +804,7 @@
 		"index": 131,
 		"level": 7,
 		"faction": "conflux",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"KING_1" : // Will be affected by Slayer with no expertise
@@ -807,11 +812,11 @@
 				"type" : "KING",
 				"val" : 0
 			},
-			"FLYING_ARMY" :
+			"canFly" :
 			{
 				"type" : "FLYING"
 			},
-			"HAS_EXTENDED_ATTACK" :
+			"twoHexAttackBreath" :
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
