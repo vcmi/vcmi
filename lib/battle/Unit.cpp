@@ -60,6 +60,9 @@ BattleHexArray Unit::getSurroundingHexes(BattleHex assumedPosition) const
 
 BattleHexArray Unit::getSurroundingHexes(BattleHex position, bool twoHex, BattleSide side)
 {
+	if(!position.isValid())
+		return { };
+
 	BattleHexArray hexes;
 	if(twoHex)
 	{

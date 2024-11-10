@@ -24,36 +24,68 @@ BattleHexArray::BattleHexArray(std::initializer_list<BattleHex> initList) noexce
 
 BattleHex BattleHexArray::getClosestTile(BattleSide side, BattleHex initialPos) const
 {
+	if(this->empty())
+		return BattleHex();
+
 	BattleHex initialHex = BattleHex(initialPos);
-	auto compareDistance = [initialHex](const BattleHex left, const BattleHex right) -> bool
+	int closestDistance = std::numeric_limits<int>::max();
+	BattleHexArray closestTiles;
+
+	for(auto hex : internalStorage)
 	{
-		return initialHex.getDistance(initialHex, left) < initialHex.getDistance(initialHex, right);
-	};
-	BattleHexArray sortedTiles(*this);
-	boost::sort(sortedTiles, compareDistance); //closest tiles at front
-	int closestDistance = initialHex.getDistance(initialPos, sortedTiles.front()); //sometimes closest tiles can be many hexes away
-	auto notClosest = [closestDistance, initialPos](const BattleHex here) -> bool
-	{
-		return closestDistance < here.getDistance(initialPos, here);
-	};
-	vstd::erase_if(sortedTiles, notClosest); //only closest tiles are interesting
-	auto compareHorizontal = [side, initialPos](const BattleHex left, const BattleHex right) -> bool
+		int distance = initialHex.getDistance(initialHex, hex);
+		if(distance < closestDistance)
+		{
+			closestDistance = distance;
+			closestTiles.clear();
+			closestTiles.insert(hex);
+		}
+		else if(distance == closestDistance)
+			closestTiles.insert(hex);
+	}
+
+	auto compareHorizontal = [side, initialPos](const BattleHex & left, const BattleHex & right)
 	{
 		if(left.getX() != right.getX())
 		{
-			if(side == BattleSide::ATTACKER)
-				return left.getX() > right.getX(); //find furthest right
-			else
-				return left.getX() < right.getX(); //find furthest left
+			return (side == BattleSide::ATTACKER) ? (left.getX() > right.getX()) : (left.getX() < right.getX());
 		}
-		else
-		{
-			//Prefer tiles in the same row.
-			return std::abs(left.getY() - initialPos.getY()) < std::abs(right.getY() - initialPos.getY());
-		}
+		return std::abs(left.getY() - initialPos.getY()) < std::abs(right.getY() - initialPos.getY());
 	};
-	boost::sort(sortedTiles, compareHorizontal);
-	return sortedTiles.front();
+
+	auto bestTile = std::min_element(closestTiles.begin(), closestTiles.end(), compareHorizontal);
+	return (bestTile != closestTiles.end()) ? *bestTile : BattleHex();
+
+	//BattleHex initialHex = BattleHex(initialPos);
+	//auto compareDistance = [initialHex](const BattleHex left, const BattleHex right) -> bool
+	//{
+	//	return initialHex.getDistance(initialHex, left) < initialHex.getDistance(initialHex, right);
+	//};
+	//BattleHexArray sortedTiles(*this);
+	//boost::sort(sortedTiles, compareDistance); //closest tiles at front
+	//int closestDistance = initialHex.getDistance(initialPos, sortedTiles.front()); //sometimes closest tiles can be many hexes away
+	//auto notClosest = [closestDistance, initialPos](const BattleHex here) -> bool
+	//{
+	//	return closestDistance < here.getDistance(initialPos, here);
+	//};
+	//vstd::erase_if(sortedTiles, notClosest); //only closest tiles are interesting
+	//auto compareHorizontal = [side, initialPos](const BattleHex left, const BattleHex right) -> bool
+	//{
+	//	if(left.getX() != right.getX())
+	//	{
+	//		if(side == BattleSide::ATTACKER)
+	//			return left.getX() > right.getX(); //find furthest right
+	//		else
+	//			return left.getX() < right.getX(); //find furthest left
+	//	}
+	//	else
+	//	{
+	//		//Prefer tiles in the same row.
+	//		return std::abs(left.getY() - initialPos.getY()) < std::abs(right.getY() - initialPos.getY());
+	//	}
+	//};
+	//boost::sort(sortedTiles, compareHorizontal);
+	//return sortedTiles.front();
 }
 
 BattleHexArray::NeighbouringTilesCache BattleHexArray::calculateNeighbouringTiles()
