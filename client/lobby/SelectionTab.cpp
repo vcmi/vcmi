@@ -876,6 +876,7 @@ void SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files)
 {
 	auto campaignSets = JsonNode(JsonPath::builtin("config/campaignSets.json"));
+	auto mainmenu = JsonNode(JsonPath::builtin("config/mainmenu.json"));
 
 	allItems.reserve(files.size());
 	for(auto & file : files)
@@ -886,13 +887,21 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 		info->name = info->getNameForList();
 
 		// skip campaigns organized in sets
-		bool foundInSet = false;
+		std::string foundInSet = "";
 		for (auto const & set : campaignSets.Struct())
 			for (auto const & item : set.second["items"].Vector())
 				if(file.getName() == ResourcePath(item["file"].String()).getName())
-					foundInSet = true;
-
-		if(info->campaign && !foundInSet)
+					foundInSet = set.first;
+		
+		// set has to be used in main menu
+		bool setInMainmenu = false;
+		if(!foundInSet.empty())
+			for (auto const & item : mainmenu["window"]["items"].Vector())
+				for (auto const & button : item["buttons"].Vector())
+					if(boost::algorithm::contains(boost::algorithm::to_lower_copy(button["command"].String()), boost::algorithm::to_lower_copy(foundInSet)))
+						setInMainmenu = true;
+				
+		if(info->campaign && !setInMainmenu)
 			allItems.push_back(info);
 	}
 }
