@@ -12,12 +12,13 @@ If you're having trouble enabling "sync with this iOS device over Wi-Fi" press o
 
 ![image](https://github.com/user-attachments/assets/74fe2ca2-b55c-4b05-b083-89df604248f3)
 
+ii) Download the VCMI-iOS.ipa file on your iOS device directly from the [latest releases](https://github.com/vcmi/vcmi/releases/latest).
 
-ii) Download the .ipa file on your iOS device directly from the [latest releases](https://github.com/vcmi/vcmi/releases/latest).
+iii) To install the .ipa file on your device do one of the following:
 
-iii) To install VCMI the .ipa file on your device download do one of the following:
+•	In AltStore go to >My Apps > press + in the top left corner. Select VCMI-iOS.ipa to install 
 
-•	In AltStore go to >My Apps > press + in the top left corner. Select VCMI-iOS.ipa to install or
+or
 
 •	Drag and drop the .ipa file into your iOS device in iTunes
 
@@ -27,6 +28,16 @@ iii) To install VCMI the .ipa file on your device download do one of the followi
 If you bought HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the files directly from the browser in the device. 
 
 Launch VCMI app on the device and the launcher will prompt two files to complete the installation. Select the .bin file first, then the .exe file. This may take a few seconds. Please be patient. 
+
+
+## Step 3: Configuration settings
+Once you have installed VCMI and have the launcher opened, select Settings on the left bar. The following Video settings are recommended:
+
+•	Lower reserved screen area to zero.
+
+•	Increase interface Scaling to maximum. This number will depend on your device. For 11" iPad Air it was at 273% as an example
+
+Together, the two options should eliminate black bars and enable full screen VCMI experience. Enjoy!
 
 ## Alternative Step 1: Download and install VCMI
 
