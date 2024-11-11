@@ -12,12 +12,13 @@ If you're having trouble enabling "sync with this iOS device over Wi-Fi" press o
 
 ![image](https://github.com/user-attachments/assets/74fe2ca2-b55c-4b05-b083-89df604248f3)
 
+ii) Download the VCMI-iOS.ipa file on your iOS device directly from the [latest releases](https://github.com/vcmi/vcmi/releases/latest).
 
-ii) Download the .ipa file on your iOS device directly from the [latest releases](https://github.com/vcmi/vcmi/releases/latest).
+iii) To install the .ipa file on your device do one of the following:
 
-iii) To install VCMI the .ipa file on your device download do one of the following:
+•	In AltStore go to >My Apps > press + in the top left corner. Select VCMI-iOS.ipa to install 
 
-•	In AltStore go to >My Apps > press + in the top left corner. Select VCMI-iOS.ipa to install or
+or
 
 •	Drag and drop the .ipa file into your iOS device in iTunes
 
