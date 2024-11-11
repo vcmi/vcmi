@@ -28,6 +28,15 @@ If you bought HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_mag
 
 Launch VCMI app on the device and the launcher will prompt two files to complete the installation. Select the .bin file first, then the .exe file. This may take a few seconds. Please be patient. 
 
+
+## Step 3: Configuration settings
+Once you have installed VCMI and have the launcher opened, select Settings on the left bar. The following Video settings are recommended:
+
+•	Lower reserved screen area to zero.
+•	Increase interface Scaling to maximum. This number will depend on your device. For 11" iPad Air it was at 273% as an example
+
+Together, the two options should eliminate black bars and enable full screen VCMI experience. Enjoy!
+
 ## Alternative Step 1: Download and install VCMI
 
 - The latest release (recommended): <https://github.com/vcmi/vcmi/releases/latest>
