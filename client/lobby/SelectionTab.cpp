@@ -875,6 +875,8 @@ void SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 
 void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files)
 {
+	auto campaignSets = JsonNode(JsonPath::builtin("config/campaignSets.json"));
+
 	allItems.reserve(files.size());
 	for(auto & file : files)
 	{
@@ -882,7 +884,15 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 		info->fileURI = file.getOriginalName();
 		info->campaignInit();
 		info->name = info->getNameForList();
-		if(info->campaign)
+
+		// skip campaigns organized in sets
+		bool foundInSet = false;
+		for (auto const & set : campaignSets.Struct())
+			for (auto const & item : set.second["items"].Vector())
+				if(file.getName() == ResourcePath(item["file"].String()).getName())
+					foundInSet = true;
+
+		if(info->campaign && !foundInSet)
 			allItems.push_back(info);
 	}
 }
