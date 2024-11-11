@@ -44,17 +44,23 @@ class ModsPresetState : boost::noncopyable
 	void createInitialPreset();
 	void importInitialPreset();
 
+	const JsonNode & getActivePresetConfig() const;
+
 public:
 	ModsPresetState();
 
-	/// Returns true if mod is active in current preset
-	bool isModActive(const TModID & modName) const;
-
-	void activateModInPreset(const TModID & modName);
-	void dectivateModInAllPresets(const TModID & modName);
+	void setSettingActiveInPreset(const TModID & modName, const TModID & settingName, bool isActive);
+	void eraseModInAllPresets(const TModID & modName);
+	void eraseModSettingInAllPresets(const TModID & modName, const TModID & settingName);
 
 	/// Returns list of all mods active in current preset. Mod order is unspecified
 	TModList getActiveMods() const;
+
+	/// Returns list of currently active root mods (non-submod)
+	TModList getActiveRootMods() const;
+
+	/// Returns list of all known settings (submods) for a specified mod
+	std::map<TModID, bool> getModSettings(const TModID & modID) const;
 };
 
 /// Provides access to mod properties
@@ -82,6 +88,8 @@ class ModManager : boost::noncopyable
 	std::unique_ptr<ModsStorage> modsStorage;
 
 	void generateLoadOrder(TModList desiredModList);
+	void eraseMissingModsFromPreset();
+	void addNewModsToPreset();
 
 public:
 	ModManager();

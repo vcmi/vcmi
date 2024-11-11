@@ -106,9 +106,24 @@ ModVerificationInfo ModDescription::getVerificationInfo() const
 	return result;
 }
 
+bool ModDescription::isCompatibility() const
+{
+	return getConfig()["modType"].String() == "Compatibility";
+}
+
+bool ModDescription::isTranslation() const
+{
+	return getConfig()["modType"].String() == "Translation";
+}
+
+bool ModDescription::keepDisabled() const
+{
+	return getConfig()["keepDisabled"].Bool();
+}
+
 bool ModDescription::affectsGameplay() const
 {
-	return false; // TODO
+	return true; // TODO
 }
 
 VCMI_LIB_NAMESPACE_END

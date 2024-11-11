@@ -15,6 +15,7 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonNode.h"
+#include "../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -153,25 +154,62 @@ void ModsPresetState::importInitialPreset()
 	modConfig["presets"]["default"] = preset;
 }
 
-std::vector<TModID> ModsPresetState::getActiveMods() const
+const JsonNode & ModsPresetState::getActivePresetConfig() const
 {
 	const std::string & currentPresetName = modConfig["activePreset"].String();
 	const JsonNode & currentPreset = modConfig["presets"][currentPresetName];
-	const JsonNode & modsToActivateJson = currentPreset["mods"];
+	return currentPreset;
+}
+
+TModList ModsPresetState::getActiveRootMods() const
+{
+	const JsonNode & modsToActivateJson = getActivePresetConfig()["mods"];
 	std::vector<TModID> modsToActivate = modsToActivateJson.convertTo<std::vector<TModID>>();
-
 	modsToActivate.push_back(ModScope::scopeBuiltin());
-
-	for(const auto & settings : currentPreset["settings"].Struct())
-	{
-		if(!vstd::contains(modsToActivate, settings.first))
-			continue; // settings for inactive mod
-
-		for(const auto & submod : settings.second.Struct())
-			if(submod.second.Bool())
-				modsToActivate.push_back(settings.first + '.' + submod.first);
-	}
 	return modsToActivate;
+}
+
+std::map<TModID, bool> ModsPresetState::getModSettings(const TModID & modID) const
+{
+	const JsonNode & modSettingsJson = getActivePresetConfig()["settings"][modID];
+	std::map<TModID, bool> modSettings = modSettingsJson.convertTo<std::map<TModID, bool>>();
+	return modSettings;
+}
+
+void ModsPresetState::setSettingActiveInPreset(const TModID & modName, const TModID & settingName, bool isActive)
+{
+	const std::string & currentPresetName = modConfig["activePreset"].String();
+	JsonNode & currentPreset = modConfig["presets"][currentPresetName];
+
+	currentPreset["settings"][modName][settingName].Bool() = isActive;
+}
+
+void ModsPresetState::eraseModInAllPresets(const TModID & modName)
+{
+	for (auto & preset : modConfig["presets"].Struct())
+		vstd::erase(preset.second["mods"].Vector(), JsonNode(modName));
+}
+
+void ModsPresetState::eraseModSettingInAllPresets(const TModID & modName, const TModID & settingName)
+{
+	for (auto & preset : modConfig["presets"].Struct())
+		preset.second["settings"][modName].Struct().erase(modName);
+}
+
+std::vector<TModID> ModsPresetState::getActiveMods() const
+{
+	TModList activeRootMods = getActiveRootMods();
+	TModList allActiveMods;
+
+	for(const auto & activeMod : activeRootMods)
+	{
+		activeRootMods.push_back(activeMod);
+
+		for(const auto & submod : getModSettings(activeMod))
+			if(submod.second)
+				allActiveMods.push_back(activeMod + '.' + submod.first);
+	}
+	return allActiveMods;
 }
 
 ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad)
@@ -210,15 +248,11 @@ ModManager::ModManager()
 	: modsState(std::make_unique<ModsState>())
 	, modsPreset(std::make_unique<ModsPresetState>())
 {
+	eraseMissingModsFromPreset();
+	addNewModsToPreset();
+
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
-	const std::vector<TModID> & installedModList = modsState->getAllMods();
-
-	vstd::erase_if(desiredModList, [&](const TModID & mod){
-		return !vstd::contains(installedModList, mod);
-	});
-
 	modsStorage = std::make_unique<ModsStorage>(desiredModList);
-
 	generateLoadOrder(desiredModList);
 }
 
@@ -239,6 +273,54 @@ const TModList & ModManager::getActiveMods() const
 	return activeMods;
 }
 
+void ModManager::eraseMissingModsFromPreset()
+{
+	const TModList & installedMods = modsState->getAllMods();
+	const TModList & rootMods = modsPreset->getActiveRootMods();
+
+	for(const auto & rootMod : rootMods)
+	{
+		if(!vstd::contains(installedMods, rootMod))
+		{
+			modsPreset->eraseModInAllPresets(rootMod);
+			continue;
+		}
+
+		const auto & modSettings = modsPreset->getModSettings(rootMod);
+
+		for(const auto & modSetting : modSettings)
+		{
+			TModID fullModID = rootMod + '.' + modSetting.first;
+			if(!vstd::contains(installedMods, fullModID))
+			{
+				modsPreset->eraseModSettingInAllPresets(rootMod, modSetting.first);
+				continue;
+			}
+		}
+	}
+}
+
+void ModManager::addNewModsToPreset()
+{
+	const TModList & installedMods = modsState->getAllMods();
+
+	for(const auto & modID : installedMods)
+	{
+		size_t dotPos = modID.find('.');
+
+		if(dotPos == std::string::npos)
+			continue; // only look up submods aka mod settings
+
+		std::string rootMod = modID.substr(0, dotPos);
+		std::string settingID = modID.substr(dotPos + 1);
+
+		const auto & modSettings = modsPreset->getModSettings(rootMod);
+
+		if (!modSettings.count(settingID))
+			modsPreset->setSettingActiveInPreset(rootMod, settingID, modsStorage->getMod(modID).keepDisabled());
+	}
+}
+
 void ModManager::generateLoadOrder(std::vector<TModID> modsToResolve)
 {
 	// Topological sort algorithm.
@@ -251,6 +333,9 @@ void ModManager::generateLoadOrder(std::vector<TModID> modsToResolve)
 	// Mod is resolved if it has no dependencies or all its dependencies are already resolved
 	auto isResolved = [&](const ModDescription & mod) -> bool
 	{
+		if (mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage())
+			return false;
+
 		if(mod.getDependencies().size() > resolvedModIDs.size())
 			return false;
 

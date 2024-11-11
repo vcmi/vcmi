@@ -51,6 +51,9 @@ public:
 	ModVerificationInfo getVerificationInfo() const;
 
 	bool affectsGameplay() const;
+	bool isCompatibility() const;
+	bool isTranslation() const;
+	bool keepDisabled() const;
 };
 
 VCMI_LIB_NAMESPACE_END

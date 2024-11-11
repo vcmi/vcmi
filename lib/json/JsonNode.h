@@ -187,7 +187,7 @@ void convert(std::map<std::string, Type> & value, const JsonNode & node)
 {
 	value.clear();
 	for(const JsonMap::value_type & entry : node.Struct())
-		value.insert(entry.first, entry.second.convertTo<Type>());
+		value.emplace(entry.first, entry.second.convertTo<Type>());
 }
 
 template<typename Type>
