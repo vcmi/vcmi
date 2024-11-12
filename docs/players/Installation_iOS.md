@@ -51,7 +51,7 @@ The easiest way to install the ipa on your device is to do one of the following:
 
 - In AltStore go to >My Apps > press + in the top left corner. Select VCMI-iOS.ipa to install or
 
-•	Drag and drop the .ipa file into your iOS device in iTunes
+- Drag and drop the .ipa file into your iOS device in iTunes
 
 Alternatively, to install the signed ipa on your device, you can use Xcode or Apple Configurator (available on the Mac App Store for free). The latter also allows installing ipa from the command line, here's an example that assumes you have only 1 device connected to your Mac and the signed ipa is on your desktop:
 
