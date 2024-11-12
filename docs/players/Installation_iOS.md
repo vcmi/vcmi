@@ -59,7 +59,7 @@ Alternatively, to install the signed ipa on your device, you can use Xcode or Ap
 
 ## Alternative Step 2: Installing Heroes III data files
 
-Note: if you don't need in-game videos, you can omit downloading/copying file VIDEO.VID from data folder - it will save your time and space. The same applies to the Mp3 directory.
+Note: if you don't need in-game videos, you can omit downloading/copying file VIDEO.VID from the Data folder - it will save your time and space. The same applies to the Mp3 directory.
 
 ### Step 2.a: Installing data files with Finder or Windows explorer
 
