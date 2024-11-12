@@ -6,7 +6,7 @@ You can run VCMI on iOS 12.0 and later, all devices are supported. If you wish t
 
 The easiest and recommended way to install on a non-jailbroken device is to install the [AltStore Classic](https://altstore.io/) or [Sideloadly](https://sideloadly.io/). We will use AltStore as an example below. Using this method means the VCMI certificate is auto-signed automatically.
 
-i) Use [AltStore Windows](https://faq.altstore.io/altstore-classic/how-to-install-altstore-windows) or [AltStore MacOS](https://faq.altstore.io/altstore-classic/how-to-install-altstore-macos) instructions to install the store depending on the operating system you are using. 
+i) Use [AltStore Windows](https://faq.altstore.io/altstore-classic/how-to-install-altstore-windows) or [AltStore macOS](https://faq.altstore.io/altstore-classic/how-to-install-altstore-macos) instructions to install the store depending on the operating system you are using. 
 
 If you're having trouble enabling "sync with this iOS device over Wi-Fi" press on the rectangular shape below "Account". Example shown below.
 
