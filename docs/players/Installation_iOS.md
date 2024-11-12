@@ -16,11 +16,8 @@ ii) Download the VCMI-iOS.ipa file on your iOS device directly from the [latest 
 
 iii) To install the .ipa file on your device do one of the following:
 
-•	In AltStore go to >My Apps > press + in the top left corner. Select VCMI-iOS.ipa to install 
-
-or
-
-•	Drag and drop the .ipa file into your iOS device in iTunes
+- In AltStore go to >My Apps > press + in the top left corner. Select VCMI-iOS.ipa to install,
+- or drag and drop the .ipa file into your iOS device in iTunes
 
 
 ## Step 2: Installing Heroes III data files
