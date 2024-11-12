@@ -15,7 +15,6 @@
 #include "ESerializationVersion.h"
 #include "Serializeable.h"
 #include "../mapObjects/CArmedInstance.h"
-#include "../battle/BattleHexArray.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
