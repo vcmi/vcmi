@@ -87,19 +87,19 @@ void CZonePlacer::findPathsBetweenZones()
 					case rmg::EConnectionType::FORCE_PORTAL:
 						continue;
 				}
-				auto neighbour = connection.getOtherZoneId(current);
+				auto neighbor = connection.getOtherZoneId(current);
 
-				if (current == neighbour)
+				if (current == neighbor)
 				{
 					//Do not consider self-connections
 					continue;
 				}
 
-				if (!visited[neighbour])
+				if (!visited[neighbor])
 				{
-					visited[neighbour] = true;
-					q.push(neighbour);
-					distancesBetweenZones[start][neighbour] = distancesBetweenZones[start][current] + 1;
+					visited[neighbor] = true;
+					q.push(neighbor);
+					distancesBetweenZones[start][neighbor] = distancesBetweenZones[start][current] + 1;
 				}
 			}
 		}
