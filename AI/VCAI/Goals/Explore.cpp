@@ -83,17 +83,17 @@ namespace Goals
 			{
 				if(ts->fogOfWarMap[pos.z][pos.x][pos.y])
 				{
-					bool hasInvisibleneighbour = false;
+					bool hasInvisibleNeighbor = false;
 
 					foreach_neighbour(cbp, pos, [&](CCallback * cbp, int3 neighbour)
 					{
 						if(!ts->fogOfWarMap[neighbour.z][neighbour.x][neighbour.y])
 						{
-							hasInvisibleneighbour = true;
+							hasInvisibleNeighbor = true;
 						}
 					});
 
-					if(hasInvisibleneighbour)
+					if(hasInvisibleNeighbor)
 						from.push_back(pos);
 				}
 			});
@@ -195,7 +195,7 @@ namespace Goals
 						&& !slice[npos.x][npos.y])
 					{
 						if(allowDeadEndCancellation
-							&& !hasReachableneighbour(npos))
+							&& !hasReachableNeighbor(npos))
 						{
 							continue;
 						}
@@ -208,7 +208,7 @@ namespace Goals
 			return ret;
 		}
 
-		bool hasReachableneighbour(const int3 &pos) const
+		bool hasReachableNeighbor(const int3 &pos) const
 		{
 			for(crint3 dir : int3::getDirs())
 			{

@@ -819,6 +819,9 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 
 bool BattleFieldController::isTileAttackable(const BattleHex & number) const
 {
+	if(!number.isValid())
+		return false;
+
 	for (auto & elem : occupiableHexes)
 	{
 		if (BattleHex::mutualPosition(elem, number) != -1 || elem == number)

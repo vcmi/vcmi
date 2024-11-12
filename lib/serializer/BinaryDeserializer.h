@@ -13,7 +13,6 @@
 #include "SerializerReflection.h"
 #include "ESerializationVersion.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../battle/BattleHexArray.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -443,19 +442,6 @@ public:
 			load(data[key]);
 		}
 	}
-
-	//void load(BattleHexArray & data)
-	//{
-	//	uint32_t length = readAndCheckLength();
-	//	data.clear();
-	//	BattleHex hex;
-	//	for(uint32_t i = 0; i < length; i++)
-	//	{
-	//		load(hex);
-	//		data.insert(hex);
-	//	}
-	//}
-
 	void load(std::string &data)
 	{
 		if (hasFeature(Version::COMPACT_STRING_SERIALIZATION))

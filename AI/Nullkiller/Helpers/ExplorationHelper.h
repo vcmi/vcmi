@@ -43,7 +43,7 @@ public:
 
 private:
 	void scanTile(const int3 & tile);
-	bool hasReachableneighbour(const int3 & pos) const;
+	bool hasReachableNeighbor(const int3 & pos) const;
 };
 
 }
