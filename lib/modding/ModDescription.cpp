@@ -19,7 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 ModDescription::ModDescription(const TModID & fullID, const JsonNode & config)
 	: identifier(fullID)
-	, config(std::make_unique<JsonNode>(config))
+	, localConfig(std::make_unique<JsonNode>(config))
 	, dependencies(loadModList(config["depends"]))
 	, softDependencies(loadModList(config["softDepends"]))
 	, conflicts(loadModList(config["conflicts"]))
@@ -72,27 +72,42 @@ const std::string & ModDescription::getBaseLanguage() const
 {
 	static const std::string defaultLanguage = "english";
 
-	return getConfig()["language"].isString() ? getConfig()["language"].String() : defaultLanguage;
+	return getLocalConfig()["language"].isString() ? getLocalConfig()["language"].String() : defaultLanguage;
 }
 
 const std::string & ModDescription::getName() const
 {
-	return getConfig()["name"].String();
+	return getLocalConfig()["name"].String();
 }
 
 const JsonNode & ModDescription::getFilesystemConfig() const
 {
-	return getConfig()["filesystem"];
+	return getLocalConfig()["filesystem"];
 }
 
-const JsonNode & ModDescription::getConfig() const
+const JsonNode & ModDescription::getLocalConfig() const
 {
-	return *config;
+	return *localConfig;
+}
+
+const JsonNode & ModDescription::getValue(const std::string & keyName) const
+{
+	return getLocalConfig()[keyName];
+}
+
+const JsonNode & ModDescription::getLocalValue(const std::string & keyName) const
+{
+	return getLocalConfig()[keyName];
+}
+
+const JsonNode & ModDescription::getRepositoryValue(const std::string & keyName) const
+{
+	return (*repositoryConfig)[keyName];
 }
 
 CModVersion ModDescription::getVersion() const
 {
-	return CModVersion::fromString(getConfig()["version"].String());
+	return CModVersion::fromString(getLocalConfig()["version"].String());
 }
 
 ModVerificationInfo ModDescription::getVerificationInfo() const
@@ -108,17 +123,22 @@ ModVerificationInfo ModDescription::getVerificationInfo() const
 
 bool ModDescription::isCompatibility() const
 {
-	return getConfig()["modType"].String() == "Compatibility";
+	return getLocalConfig()["modType"].String() == "Compatibility";
 }
 
 bool ModDescription::isTranslation() const
 {
-	return getConfig()["modType"].String() == "Translation";
+	return getLocalConfig()["modType"].String() == "Translation";
 }
 
 bool ModDescription::keepDisabled() const
 {
-	return getConfig()["keepDisabled"].Bool();
+	return getLocalConfig()["keepDisabled"].Bool();
+}
+
+bool ModDescription::isInstalled() const
+{
+	return !localConfig->isNull();
 }
 
 bool ModDescription::affectsGameplay() const

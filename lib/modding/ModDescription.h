@@ -26,12 +26,14 @@ class DLL_LINKAGE ModDescription : boost::noncopyable
 	TModSet softDependencies;
 	TModSet conflicts;
 
-	std::unique_ptr<JsonNode> config;
+	std::unique_ptr<JsonNode> localConfig;
+	std::unique_ptr<JsonNode> repositoryConfig;
 
 	TModSet loadModList(const JsonNode & configNode) const;
 
 public:
-	ModDescription(const TModID & fullID, const JsonNode & config);
+	ModDescription(const TModID & fullID, const JsonNode & localConfig);
+	ModDescription(const TModID & fullID, const JsonNode & localConfig, const JsonNode & repositoryConfig);
 	~ModDescription();
 
 	const TModID & getID() const;
@@ -45,7 +47,10 @@ public:
 	const std::string & getName() const;
 
 	const JsonNode & getFilesystemConfig() const;
-	const JsonNode & getConfig() const;
+	const JsonNode & getLocalConfig() const;
+	const JsonNode & getValue(const std::string & keyName) const;
+	const JsonNode & getLocalValue(const std::string & keyName) const;
+	const JsonNode & getRepositoryValue(const std::string & keyName) const;
 
 	CModVersion getVersion() const;
 	ModVerificationInfo getVerificationInfo() const;
@@ -54,6 +59,7 @@ public:
 	bool isCompatibility() const;
 	bool isTranslation() const;
 	bool keepDisabled() const;
+	bool isInstalled() const;
 };
 
 VCMI_LIB_NAMESPACE_END

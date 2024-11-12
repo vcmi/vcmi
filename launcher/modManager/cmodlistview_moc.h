@@ -17,21 +17,23 @@ namespace Ui
 class CModListView;
 }
 
-class CModManager;
+class ModStateController;
 class CModList;
-class CModListModel;
+class ModStateItemModel;
+class ModStateModel;
 class CModFilterModel;
 class CDownloadManager;
 class QTableWidgetItem;
 
-class CModEntry;
+class ModState;
 
 class CModListView : public QWidget
 {
 	Q_OBJECT
 
-	std::unique_ptr<CModManager> manager;
-	CModListModel * modModel;
+	std::shared_ptr<ModStateModel> modStateModel;
+	std::unique_ptr<ModStateController> manager;
+	ModStateItemModel * modModel;
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;
 
@@ -59,8 +61,8 @@ class CModListView : public QWidget
 	void installMaps(QStringList maps);
 	void installFiles(QStringList mods);
 
-	QString genChangelogText(CModEntry & mod);
-	QString genModInfoText(CModEntry & mod);
+	QString genChangelogText(ModState & mod);
+	QString genModInfoText(ModState & mod);
 
 	void changeEvent(QEvent *event) override;
 	void dragEnterEvent(QDragEnterEvent* event) override;
@@ -79,7 +81,7 @@ public:
 
 	void selectMod(const QModelIndex & index);
 
-	const CModList & getModList() const;
+	//const CModList & getModList() const;
 	
 	// First Launch View interface
 

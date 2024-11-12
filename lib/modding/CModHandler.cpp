@@ -259,8 +259,8 @@ void CModHandler::initializeConfig()
 	for(const TModID & modName : getActiveMods())
 	{
 		const auto & mod = getModInfo(modName);
-		if (!mod.getConfig()["settings"].isNull())
-			VLC->settingsHandler->loadBase(mod.getConfig()["settings"]);
+		if (!mod.getLocalConfig()["settings"].isNull())
+			VLC->settingsHandler->loadBase(mod.getLocalConfig()["settings"]);
 	}
 }
 
@@ -271,8 +271,8 @@ void CModHandler::loadTranslation(const TModID & modName)
 	std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
 	std::string modBaseLanguage = getModInfo(modName).getBaseLanguage();
 
-	JsonNode baseTranslation = JsonUtils::assembleFromFiles(mod.getConfig()["translations"]);
-	JsonNode extraTranslation = JsonUtils::assembleFromFiles(mod.getConfig()[preferredLanguage]["translations"]);
+	JsonNode baseTranslation = JsonUtils::assembleFromFiles(mod.getLocalConfig()["translations"]);
+	JsonNode extraTranslation = JsonUtils::assembleFromFiles(mod.getLocalConfig()[preferredLanguage]["translations"]);
 
 	VLC->generaltexth->loadTranslationOverrides(modName, modBaseLanguage, baseTranslation);
 	VLC->generaltexth->loadTranslationOverrides(modName, preferredLanguage, extraTranslation);

@@ -203,7 +203,7 @@ std::vector<TModID> ModsPresetState::getActiveMods() const
 
 	for(const auto & activeMod : activeRootMods)
 	{
-		activeRootMods.push_back(activeMod);
+		allActiveMods.push_back(activeMod);
 
 		for(const auto & submod : getModSettings(activeMod))
 			if(submod.second)
@@ -212,7 +212,7 @@ std::vector<TModID> ModsPresetState::getActiveMods() const
 	return allActiveMods;
 }
 
-ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad)
+ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const std::vector<JsonNode> & repositoryList)
 {
 	JsonNode coreModConfig(JsonPath::builtin("config/gameConfig.json"));
 	coreModConfig.setModScope(ModScope::scopeBuiltin());
@@ -245,14 +245,21 @@ const ModDescription & ModsStorage::getMod(const TModID & fullID) const
 }
 
 ModManager::ModManager()
+	:ModManager(std::vector<JsonNode>())
+{
+}
+
+ModManager::ModManager(const std::vector<JsonNode> & repositoryList)
 	: modsState(std::make_unique<ModsState>())
 	, modsPreset(std::make_unique<ModsPresetState>())
 {
+
 	eraseMissingModsFromPreset();
+	//TODO: load only active mods & all their submods in game mode
+	modsStorage = std::make_unique<ModsStorage>(modsState->getAllMods(), repositoryList);
 	addNewModsToPreset();
 
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
-	modsStorage = std::make_unique<ModsStorage>(desiredModList);
 	generateLoadOrder(desiredModList);
 }
 
@@ -271,6 +278,11 @@ bool ModManager::isModActive(const TModID & modID) const
 const TModList & ModManager::getActiveMods() const
 {
 	return activeMods;
+}
+
+const TModList & ModManager::getAllMods() const
+{
+	return activeMods; //TODO
 }
 
 void ModManager::eraseMissingModsFromPreset()
@@ -383,6 +395,7 @@ void ModManager::generateLoadOrder(std::vector<TModID> modsToResolve)
 		break;
 	}
 
+	assert(!sortedValidMods.empty());
 	activeMods = sortedValidMods;
 	brokenMods = modsToResolve;
 }

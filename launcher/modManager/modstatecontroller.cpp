@@ -1,5 +1,5 @@
 /*
- * cmodmanager.cpp, part of VCMI engine
+ * modstatecontroller.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,13 +8,16 @@
  *
  */
 #include "StdInc.h"
-#include "cmodmanager.h"
+#include "modstatecontroller.h"
+
+#include "modstatemodel.h"
 
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CZipLoader.h"
 #include "../../lib/modding/CModHandler.h"
 #include "../../lib/modding/IdentifierStorage.h"
+#include "../../lib/json/JsonNode.h"
 
 #include "../vcmiqt/jsonutils.h"
 #include "../vcmiqt/launcherdirs.h"
@@ -61,37 +64,24 @@ QString detectModArchive(QString path, QString modName, std::vector<std::string>
 }
 
 
-CModManager::CModManager(CModList * modList)
+ModStateController::ModStateController(std::shared_ptr<ModStateModel> modList)
 	: modList(modList)
 {
-	modSettings = std::make_shared<ModSettingsStorage>();
-	loadMods();
-	loadModSettings();
 }
 
-void CModManager::loadModSettings()
+ModStateController::~ModStateController() = default;
+
+void ModStateController::loadRepositories(QVector<JsonNode> repomap)
 {
-	modList->setModSettings(modSettings);
+	modList->setRepositories(repomap);
 }
 
-void CModManager::resetRepositories()
-{
-	modList->resetRepositories();
-}
-
-void CModManager::loadRepositories(QVector<QVariantMap> repomap)
-{
-	for (auto const & entry : repomap)
-		modList->addRepository(entry);
-	modList->reloadRepositories();
-}
-
-void CModManager::loadMods()
-{
-	CModHandler handler;
-	auto installedMods = handler.getAllMods();
-	localMods.clear();
-
+//void ModStateController::loadMods()
+//{
+//	CModHandler handler;
+//	auto installedMods = handler.getAllMods();
+//	localMods.clear();
+//
 //	for(auto modname : installedMods)
 //	{
 //			//calculate mod size
@@ -115,43 +105,43 @@ void CModManager::loadMods()
 //			localMods.insert(modNameQt, mod);
 //			modSettings->registerNewMod(modNameQt, json["keepDisabled"].Bool());
 //	}
-	modList->setLocalModList(localMods);
-}
+//	modList->setLocalModList(localMods);
+//}
 
-bool CModManager::addError(QString modname, QString message)
+bool ModStateController::addError(QString modname, QString message)
 {
 	recentErrors.push_back(QString("%1: %2").arg(modname).arg(message));
 	return false;
 }
 
-QStringList CModManager::getErrors()
+QStringList ModStateController::getErrors()
 {
 	QStringList ret = recentErrors;
 	recentErrors.clear();
 	return ret;
 }
 
-bool CModManager::installMod(QString modname, QString archivePath)
+bool ModStateController::installMod(QString modname, QString archivePath)
 {
 	return canInstallMod(modname) && doInstallMod(modname, archivePath);
 }
 
-bool CModManager::uninstallMod(QString modname)
+bool ModStateController::uninstallMod(QString modname)
 {
 	return canUninstallMod(modname) && doUninstallMod(modname);
 }
 
-bool CModManager::enableMod(QString modname)
+bool ModStateController::enableMod(QString modname)
 {
 	return canEnableMod(modname) && doEnableMod(modname, true);
 }
 
-bool CModManager::disableMod(QString modname)
+bool ModStateController::disableMod(QString modname)
 {
 	return canDisableMod(modname) && doEnableMod(modname, false);
 }
 
-bool CModManager::canInstallMod(QString modname)
+bool ModStateController::canInstallMod(QString modname)
 {
 	auto mod = modList->getMod(modname);
 
@@ -163,7 +153,7 @@ bool CModManager::canInstallMod(QString modname)
 	return true;
 }
 
-bool CModManager::canUninstallMod(QString modname)
+bool ModStateController::canUninstallMod(QString modname)
 {
 	auto mod = modList->getMod(modname);
 
@@ -176,11 +166,11 @@ bool CModManager::canUninstallMod(QString modname)
 	return true;
 }
 
-bool CModManager::canEnableMod(QString modname)
+bool ModStateController::canEnableMod(QString modname)
 {
 	auto mod = modList->getMod(modname);
 
-	if(mod.isEnabled())
+	if(modList->isModEnabled(modname))
 		return addError(modname, tr("Mod is already enabled"));
 
 	if(!mod.isInstalled())
@@ -192,62 +182,61 @@ bool CModManager::canEnableMod(QString modname)
 
 	for(auto modEntry : mod.getDependencies())
 	{
-		if(!modList->hasMod(modEntry)) // required mod is not available
+		if(!modList->isModExists(modEntry)) // required mod is not available
 			return addError(modname, tr("Required mod %1 is missing").arg(modEntry));
 
-		CModEntry modData = modList->getMod(modEntry);
+		ModState modData = modList->getMod(modEntry);
 
-		if(!modData.isCompatibilityPatch() && !modData.isEnabled())
+		if(!modData.isCompatibility() && !modList->isModEnabled(modEntry))
 			return addError(modname, tr("Required mod %1 is not enabled").arg(modEntry));
 	}
 
-	for(QString modEntry : modList->getModList())
+	for(QString modEntry : modList->getAllMods())
 	{
 		auto mod = modList->getMod(modEntry);
 
 		// "reverse conflict" - enabled mod has this one as conflict
-		if(mod.isEnabled() && mod.getConflicts().contains(modname))
+		if(modList->isModEnabled(modname) && mod.getConflicts().contains(modname))
 			return addError(modname, tr("This mod conflicts with %1").arg(modEntry));
 	}
 
 	for(auto modEntry : mod.getConflicts())
 	{
 		// check if conflicting mod installed and enabled
-		if(modList->hasMod(modEntry) && modList->getMod(modEntry).isEnabled())
+		if(modList->isModExists(modEntry) && modList->isModEnabled(modEntry))
 			return addError(modname, tr("This mod conflicts with %1").arg(modEntry));
 	}
 	return true;
 }
 
-bool CModManager::canDisableMod(QString modname)
+bool ModStateController::canDisableMod(QString modname)
 {
 	auto mod = modList->getMod(modname);
 
-	if(mod.isDisabled())
+	if(!modList->isModEnabled(modname))
 		return addError(modname, tr("Mod is already disabled"));
 
 	if(!mod.isInstalled())
 		return addError(modname, tr("Mod must be installed first"));
 
-	for(QString modEntry : modList->getModList())
+	for(QString modEntry : modList->getAllMods())
 	{
 		auto current = modList->getMod(modEntry);
 
-		if(current.getDependencies().contains(modname) && current.isEnabled())
+		if(current.getDependencies().contains(modname) && modList->isModEnabled(modEntry))
 			return addError(modname, tr("This mod is needed to run %1").arg(modEntry));
 	}
 	return true;
 }
 
-bool CModManager::doEnableMod(QString mod, bool on)
+bool ModStateController::doEnableMod(QString mod, bool on)
 {
-	modSettings->setModActive(mod, on);
-	modList->modChanged(mod);
-
+	//modSettings->setModActive(mod, on);
+	//modList->modChanged(mod);
 	return true;
 }
 
-bool CModManager::doInstallMod(QString modname, QString archivePath)
+bool ModStateController::doInstallMod(QString modname, QString archivePath)
 {
 	const auto destDir = CLauncherDirs::modsPath() + QChar{'/'};
 
@@ -301,13 +290,13 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 		removeModDir(destDir + upperLevel);
 	
 	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &) { return true; });
-	loadMods();
-	modList->reloadRepositories();
+	//loadMods();
+	//modList->reloadRepositories();
 
 	return true;
 }
 
-bool CModManager::doUninstallMod(QString modname)
+bool ModStateController::doUninstallMod(QString modname)
 {
 	ResourcePath resID(std::string("Mods/") + modname.toStdString(), EResType::DIRECTORY);
 	// Get location of the mod, in case-insensitive way
@@ -321,13 +310,13 @@ bool CModManager::doUninstallMod(QString modname)
 		return addError(modname, tr("Mod is located in protected directory, please remove it manually:\n") + modFullDir.absolutePath());
 
 	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
-	loadMods();
-	modList->reloadRepositories();
+	//loadMods();
+	//modList->reloadRepositories();
 
 	return true;
 }
 
-bool CModManager::removeModDir(QString path)
+bool ModStateController::removeModDir(QString path)
 {
 	// issues 2673 and 2680 its why you do not recursively remove without sanity check
 	QDir checkDir(path);

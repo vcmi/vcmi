@@ -1,5 +1,5 @@
 /*
- * cmodlistmodel_moc.h, part of VCMI engine
+ * modstateview_moc.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,10 +9,11 @@
  */
 #pragma once
 
-#include "cmodlist.h"
-
 #include <QAbstractTableModel>
 #include <QSortFilterProxyModel>
+
+class ModStateModel;
+class ModState;
 
 namespace ModFields
 {
@@ -26,6 +27,16 @@ enum EModFields
 };
 }
 
+enum class ModFilterMask : uint8_t
+{
+	ALL,
+	AVAILABLE,
+	INSTALLED,
+	UPDATEABLE,
+	ENABLED,
+	DISABLED
+};
+
 namespace ModRoles
 {
 enum EModRoles
@@ -35,14 +46,17 @@ enum EModRoles
 };
 }
 
-class CModListModel : public QAbstractItemModel, public CModList
+class ModStateItemModel : public QAbstractItemModel
 {
+	friend class CModFilterModel;
 	Q_OBJECT
 
-	QVector<QString> modNameToID;
+	std::shared_ptr<ModStateModel> model;
+
+	QStringList modNameToID;
 	// contains mapping mod -> numbered list of submods
 	// mods that have no parent located under "" key (empty string)
-	QMap<QString, QVector<QString>> modIndex;
+	QMap<QString, QStringList> modIndex;
 
 	void endResetModel();
 
@@ -50,17 +64,16 @@ class CModListModel : public QAbstractItemModel, public CModList
 	QString modTypeName(QString modTypeID) const;
 
 	QVariant getTextAlign(int field) const;
-	QVariant getValue(const CModEntry & mod, int field) const;
-	QVariant getText(const CModEntry & mod, int field) const;
-	QVariant getIcon(const CModEntry & mod, int field) const;
+	QVariant getValue(const ModState & mod, int field) const;
+	QVariant getText(const ModState & mod, int field) const;
+	QVariant getIcon(const ModState & mod, int field) const;
 
 public:
-	explicit CModListModel(QObject * parent = nullptr);
+	explicit ModStateItemModel(QObject * parent = nullptr);
 
 	/// CModListContainer overrides
-	void resetRepositories() override;
-	void reloadRepositories() override;
-	void modChanged(QString modID) override;
+	void reloadRepositories();
+	void modChanged(QString modID);
 
 	QVariant data(const QModelIndex & index, int role) const override;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
@@ -72,25 +85,19 @@ public:
 	QModelIndex parent(const QModelIndex & child) const override;
 
 	Qt::ItemFlags flags(const QModelIndex & index) const override;
-
-signals:
-
-public slots:
-
 };
 
 class CModFilterModel : public QSortFilterProxyModel
 {
-	CModListModel * base;
-	int filteredType;
-	int filterMask;
+	ModStateItemModel * base;
+	ModFilterMask filterMask;
 
 	bool filterMatchesThis(const QModelIndex & source) const;
 
 	bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 
 public:
-	void setTypeFilter(int filteredType, int filterMask);
+	void setTypeFilter(ModFilterMask filterMask);
 
-	CModFilterModel(CModListModel * model, QObject * parent = nullptr);
+	CModFilterModel(ModStateItemModel * model, QObject * parent = nullptr);
 };

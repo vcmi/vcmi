@@ -69,13 +69,13 @@ class ModsStorage : boost::noncopyable
 	std::map<TModID, ModDescription> mods;
 
 public:
-	ModsStorage(const TModList & modsToLoad);
+	ModsStorage(const TModList & modsToLoad, const std::vector<JsonNode> & repositoryList);
 
 	const ModDescription & getMod(const TModID & fullID) const;
 };
 
 /// Provides public interface to access mod state
-class ModManager : boost::noncopyable
+class DLL_LINKAGE ModManager : boost::noncopyable
 {
 	/// all currently active mods, in their load order
 	TModList activeMods;
@@ -92,11 +92,13 @@ class ModManager : boost::noncopyable
 	void addNewModsToPreset();
 
 public:
+	ModManager(const std::vector<JsonNode> & repositoryList);
 	ModManager();
 	~ModManager();
 
 	const ModDescription & getModDescription(const TModID & modID) const;
 	const TModList & getActiveMods() const;
+	const TModList & getAllMods() const;
 	bool isModActive(const TModID & modID) const;
 };
 

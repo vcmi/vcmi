@@ -206,10 +206,10 @@ void MainWindow::on_startEditorButton_clicked()
 	startEditor({});
 }
 
-const CModList & MainWindow::getModList() const
-{
-	return ui->modlistView->getModList();
-}
+//const CModList & MainWindow::getModList() const
+//{
+//	return ui->modlistView->getModList();
+//}
 
 CModListView * MainWindow::getModView()
 {

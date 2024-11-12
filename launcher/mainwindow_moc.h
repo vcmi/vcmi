@@ -46,7 +46,7 @@ public:
 	explicit MainWindow(QWidget * parent = nullptr);
 	~MainWindow() override;
 
-	const CModList & getModList() const;
+//	const CModList & getModList() const;
 	CModListView * getModView();
 
 	void updateTranslation();

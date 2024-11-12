@@ -297,7 +297,7 @@ void CContentHandler::afterLoadFinalization()
 
 void CContentHandler::preloadData(const ModDescription & mod)
 {
-	preloadModData(mod.getID(), mod.getConfig(), false);
+	preloadModData(mod.getID(), mod.getLocalConfig(), false);
 
 //	bool validate = validateMod(mod);
 //
