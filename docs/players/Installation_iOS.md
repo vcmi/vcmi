@@ -49,7 +49,7 @@ To run on a non-jailbroken device you need to sign the IPA file, you have the fo
 
 The easiest way to install the ipa on your device is to do one of the following:
 
-•	In AltStore go to >My Apps > press + in the top left corner. Select VCMI-iOS.ipa to install or
+- In AltStore go to >My Apps > press + in the top left corner. Select VCMI-iOS.ipa to install or
 
 •	Drag and drop the .ipa file into your iOS device in iTunes
 
