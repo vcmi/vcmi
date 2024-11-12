@@ -74,6 +74,10 @@
 		"faction": "dungeon",
 		"abilities":
 		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
 			"strikeAndReturn" : 
 			{
 				"type" : "RETURN_AFTER_STRIKE"
@@ -101,6 +105,10 @@
 		"faction": "dungeon",
 		"abilities":
 		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
 			"strikeAndReturn" : 
 			{
 				"type" : "RETURN_AFTER_STRIKE"
@@ -130,6 +138,17 @@
 		"level": 3,
 		"faction": "dungeon",
 		"upgrades": ["evilEye"],
+		"abilities" :
+		{
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			},
+			"noMeleePenalty" :
+			{
+				"type" : "NO_MELEE_PENALTY"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CBEHOL.DEF",
@@ -160,6 +179,17 @@
 		"index": 75,
 		"level": 3,
 		"faction": "dungeon",
+		"abilities" :
+		{
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			},
+			"noMeleePenalty" :
+			{
+				"type" : "NO_MELEE_PENALTY"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CEVEYE.DEF",
@@ -190,8 +220,17 @@
 		"index": 76,
 		"level": 4,
 		"faction": "dungeon",
+		"doubleWide" : true,
 		"abilities":
 		{
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			},
+			"noMeleePenalty" :
+			{
+				"type" : "NO_MELEE_PENALTY"
+			},
 			"petrification" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -224,8 +263,17 @@
 		"index": 77,
 		"level": 4,
 		"faction": "dungeon",
+		"doubleWide" : true,
 		"abilities":
 		{
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			},
+			"noMeleePenalty" :
+			{
+				"type" : "NO_MELEE_PENALTY"
+			},
 			"petrification" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -314,6 +362,14 @@
 		"level": 6,
 		"faction": "dungeon",
 		"upgrades": ["scorpicore"],
+		"doubleWide" : true,
+		"abilities" :
+		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CMCORE.DEF"
@@ -333,8 +389,13 @@
 		"index": 81,
 		"level": 6,
 		"faction": "dungeon",
+		"doubleWide" : true,
 		"abilities":
 		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
 			"paralize" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -361,13 +422,23 @@
 		"index": 82,
 		"level": 7,
 		"faction": "dungeon",
+		"doubleWide" : true,
 		"abilities":
 		{
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
 			"dragon" : 
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"fireBreath" :
+			"twoHexAttackBreath" :
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
@@ -396,13 +467,23 @@
 		"index": 83,
 		"level": 7,
 		"faction": "dungeon",
+		"doubleWide" : true,
 		"abilities":
 		{
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
 			"dragon" : 
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"fireBreath" :
+			"twoHexAttackBreath" :
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
