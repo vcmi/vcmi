@@ -24,7 +24,7 @@ iii) To install the .ipa file on your device do one of the following:
 
 If you bought HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the files directly from the browser in the device. 
 
-Launch VCMI app on the device and the launcher will prompt two files to complete the installation. Select the .bin file first, then the .exe file. This may take a few seconds. Please be patient. 
+Launch VCMI app on the device and the launcher will prompt two files to complete the installation. Select the **.bin** file first, then the **.exe** file. This may take a few seconds. Please be patient. 
 
 
 ## Step 3: Configuration settings
