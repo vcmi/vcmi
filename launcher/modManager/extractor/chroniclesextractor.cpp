@@ -11,10 +11,10 @@
 
 #include "chroniclesextractor.h"
 
-#include "../../lib/VCMIDirs.h"
-#include "../../lib/filesystem/CArchiveLoader.h"
+#include "../../../lib/VCMIDirs.h"
+#include "../../../lib/filesystem/CArchiveLoader.h"
 
-#include "../innoextract.h"
+#include "../../innoextract.h"
 
 ChroniclesExtractor::ChroniclesExtractor(QWidget *p, std::function<void(float percent)> cb) :
 	parent(p), cb(cb)

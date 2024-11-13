@@ -11,6 +11,10 @@
 
 #include "../Global.h"
 
+#include "tbb/blocked_range.h"
+#include "tbb/parallel_for.h"
+#undef emit // Qt defines also emit -> compile error -> we don't need it
+
 #include <QtWidgets>
 #include <QStringList>
 #include <QSet>

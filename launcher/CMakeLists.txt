@@ -12,7 +12,8 @@ set(launcher_SRCS
 		modManager/cmodlistview_moc.cpp
 		modManager/cmodmanager.cpp
 		modManager/imageviewer_moc.cpp
-		modManager/chroniclesextractor.cpp
+		modManager/extractor/chroniclesextractor.cpp
+		modManager/extractor/hdextractor.cpp
 		settingsView/csettingsview_moc.cpp
 		firstLaunch/firstlaunch_moc.cpp
 		main.cpp
@@ -42,7 +43,12 @@ set(launcher_HEADERS
 		modManager/cmodlistview_moc.h
 		modManager/cmodmanager.h
 		modManager/imageviewer_moc.h
-		modManager/chroniclesextractor.h
+		modManager/extractor/chroniclesextractor.h
+		modManager/extractor/hdextractor.h
+		modManager/extractor/sd_data.h
+		lib/bcdec/bcdec.h
+		lib/dds/dds.hpp
+		lib/dds/dds_formats.hpp
 		settingsView/csettingsview_moc.h
 		firstLaunch/firstlaunch_moc.h
 		mainwindow_moc.h
@@ -206,7 +212,7 @@ if(ENABLE_STATIC_LIBS OR NOT (ENABLE_EDITOR AND ENABLE_LAUNCHER))
 	target_compile_definitions(vcmilauncher PRIVATE VCMIQT_STATIC)
 endif()
 
-target_link_libraries(vcmilauncher vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(vcmilauncher vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network TBB::tbb)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )

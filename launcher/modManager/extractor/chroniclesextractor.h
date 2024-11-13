@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../StdInc.h"
+#include "../../StdInc.h"
 
 class ChroniclesExtractor : public QObject
 {

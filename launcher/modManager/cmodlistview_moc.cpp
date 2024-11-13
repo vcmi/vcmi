@@ -20,7 +20,8 @@
 #include "cmodlistmodel_moc.h"
 #include "cmodmanager.h"
 #include "cdownloadmanager_moc.h"
-#include "chroniclesextractor.h"
+#include "extractor/chroniclesextractor.h"
+#include "extractor/hdextractor.h"
 #include "../settingsView/csettingsview_moc.h"
 #include "../vcmiqt/launcherdirs.h"
 #include "../vcmiqt/jsonutils.h"
@@ -636,26 +637,77 @@ void CModListView::on_installButton_clicked()
 
 void CModListView::on_installFromFileButton_clicked()
 {
-	// iOS can't display modal dialogs when called directly on button press
-	// https://bugreports.qt.io/browse/QTBUG-98651
-	QTimer::singleShot(0, this, [this]
-	{
-		QString filter = tr("All supported files") + " (*.h3m *.vmap *.h3c *.vcmp *.zip *.json *.exe);;" + 
-			tr("Maps") + " (*.h3m *.vmap);;" + 
-			tr("Campaigns") + " (*.h3c *.vcmp);;" + 
-			tr("Configs") + " (*.json);;" + 
-			tr("Mods") + " (*.zip);;" + 
-			tr("Gog files") + " (*.exe)";
-#if defined(VCMI_MOBILE)
-		filter = tr("All files (*.*)"); //Workaround for sometimes incorrect mime for some extensions (e.g. for exe)
-#endif
-		QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (configs, mods, maps, campaigns, gog files) to install..."), QDir::homePath(), filter);
-
-		for(const auto & file : files)
+	QMessageBox::StandardButton reply;
+  	reply = QMessageBox::question(this, tr("Select file?"), tr("Yes:\nSelect file (configs, mods, maps, campaigns, chronicles gog files)\n\n\nNo:\nSelect folder from Heroes III HD (Steam version)\nExtraction process takes a while (sometimes over 1 hour)!\n"), QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
+	if (reply == QMessageBox::Yes) {
+		// iOS can't display modal dialogs when called directly on button press
+		// https://bugreports.qt.io/browse/QTBUG-98651
+		QTimer::singleShot(0, this, [this]
 		{
-			manualInstallFile(file);
-		}
-	});
+			QString filter = tr("All supported files") + " (*.h3m *.vmap *.h3c *.vcmp *.zip *.json *.exe);;" + 
+				tr("Maps") + " (*.h3m *.vmap);;" + 
+				tr("Campaigns") + " (*.h3c *.vcmp);;" + 
+				tr("Configs") + " (*.json);;" + 
+				tr("Mods") + " (*.zip);;" + 
+				tr("Gog files") + " (*.exe)";
+	#if defined(VCMI_MOBILE)
+			filter = tr("All files (*.*)"); //Workaround for sometimes incorrect mime for some extensions (e.g. for exe)
+	#endif
+			QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (configs, mods, maps, campaigns, gog files) to install..."), QDir::homePath(), filter);
+
+			for(const auto & file : files)
+			{
+				manualInstallFile(file);
+			}
+		});
+	}
+	else if(reply == QMessageBox::No)
+	{
+		// iOS can't display modal dialogs when called directly on button press
+		// https://bugreports.qt.io/browse/QTBUG-98651
+		QTimer::singleShot(0, this, [this]
+		{
+			auto path = QFileDialog::getExistingDirectory(0, tr("Select folder from Heroes III HD (Steam version)"));
+			if(path.isEmpty())
+				return;
+			if(!QDir(path).entryList({"HOMM3 2.0.exe"}).length())
+			{
+				QMessageBox::warning(this, tr("Invalid folder"), tr("Selected folder doesn't contains data from Heroes III HD (Steam version)"), QMessageBox::Ok, QMessageBox::Ok);
+				return;
+			}
+
+			ui->progressWidget->setVisible(true);
+			ui->progressBar->setFormat(tr("Installing HD mod (needs sometimes over one hour!) - %p%"));
+
+			float prog = 0.0;
+
+			auto futureExtract = std::async(std::launch::async, [this, path, &prog]()
+			{
+				HdExtractor he(this, [&prog](float progress) {
+					prog = progress;
+				});
+				he.installHd(path);
+				return true;
+			});
+			
+			while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
+			{
+				emit extractionProgress(static_cast<int>(prog * 1000.f), 1000);
+				qApp->processEvents();
+			}
+			
+			if(futureExtract.get())
+			{
+				//update
+				CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
+				manager->loadMods();
+				modModel->reloadRepositories();
+				hideProgressBar();
+				ui->progressWidget->setVisible(false);
+				emit modsChanged();
+			}
+		});
+	}
 }
 
 void CModListView::manualInstallFile(QString filePath)
@@ -849,7 +901,7 @@ void CModListView::installFiles(QStringList files)
 
 	if(!exe.empty())
 	{
-		ui->progressBar->setFormat(tr("Installing chronicles"));
+		ui->progressBar->setFormat(tr("Installing chronicles - %p%"));
 
 		float prog = 0.0;
 
