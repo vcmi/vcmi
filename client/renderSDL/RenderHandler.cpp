@@ -246,9 +246,9 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 		if(!defFile) // no prescale for this frame
 		{
 			auto tmpPath = (*locator.defFile).getName();
-			boost::algorithm::replace_all(tmpPath, "2X/", "/");
-			boost::algorithm::replace_all(tmpPath, "3X/", "/");
-			boost::algorithm::replace_all(tmpPath, "4X/", "/");
+			boost::algorithm::replace_all(tmpPath, "SPRITES2X/", "SPRITES/");
+			boost::algorithm::replace_all(tmpPath, "SPRITES3X/", "SPRITES/");
+			boost::algorithm::replace_all(tmpPath, "SPRITES4X/", "SPRITES/");
 			preScaledFactor = 1;
 			defFile = getAnimationFile(AnimationPath::builtin(tmpPath));
 		}

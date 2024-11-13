@@ -279,7 +279,10 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palet
 
 	SDL_Surface * scaled = nullptr;
 	if(preScaleFactor == factor)
-		scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, 1, EScalingAlgorithm::NEAREST); // keep size
+	{
+		scaled = CSDL_Ext::newSurface(Point(surf->w, surf->h), surf);
+		SDL_BlitSurface(surf, nullptr, scaled, nullptr);
+	}
 	else if(preScaleFactor == 1)
 		scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, factor, EScalingAlgorithm::XBRZ);
 	else
