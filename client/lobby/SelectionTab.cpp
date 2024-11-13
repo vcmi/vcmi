@@ -901,7 +901,7 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 				for (auto const & item : mainmenu["window"]["items"].Vector())
 					if(item["name"].String() == "campaign")
 						for (auto const & button : item["buttons"].Vector())
-							if(boost::algorithm::contains(boost::algorithm::to_lower_copy(button["command"].String()), boost::algorithm::to_lower_copy(foundInSet)))
+							if(boost::algorithm::ends_with(boost::algorithm::to_lower_copy(button["command"].String()), boost::algorithm::to_lower_copy(foundInSet)))
 								setInMainmenu = true;
 
 			if(!setInMainmenu)
