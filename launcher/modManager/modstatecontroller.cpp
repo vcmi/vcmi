@@ -71,9 +71,9 @@ ModStateController::ModStateController(std::shared_ptr<ModStateModel> modList)
 
 ModStateController::~ModStateController() = default;
 
-void ModStateController::loadRepositories(QVector<JsonNode> repomap)
+void ModStateController::appendRepositories(const JsonNode & repomap)
 {
-	modList->setRepositories(repomap);
+	modList->appendRepositories(repomap);
 }
 
 //void ModStateController::loadMods()

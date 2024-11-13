@@ -37,8 +37,14 @@
 
 void CModListView::setupModModel()
 {
+	static const QString repositoryCachePath = CLauncherDirs::downloadsPath() + "/repositoryCache.json";
+	const auto &cachedRepositoryData = JsonUtils::jsonFromFile(repositoryCachePath);
+
 	modStateModel = std::make_shared<ModStateModel>();
-	modModel = new ModStateItemModel(this);
+	if (!cachedRepositoryData.isNull())
+		modStateModel->appendRepositories(cachedRepositoryData);
+
+	modModel = new ModStateItemModel(modStateModel, this);
 	manager = std::make_unique<ModStateController>(modStateModel);
 }
 
@@ -248,6 +254,14 @@ QStringList CModListView::getModNames(QStringList input)
 
 	for(const auto & modID : input)
 	{
+		// Missing mod - use mod ID
+		// TODO: for submods show parent ID instead
+		if (!modStateModel->isModExists(modID))
+		{
+			result += modID;
+			continue;
+		}
+
 		auto mod = modStateModel->getMod(modID);
 
 		QString displayName = mod.getName();
@@ -298,10 +312,10 @@ QString CModListView::genModInfoText(ModState & mod)
 	
 	result += replaceIfNotEmpty(mod.getAuthors(), lineTemplate.arg(tr("Authors")));
 
-	if(mod.getLicenseName().isEmpty())
+	if(!mod.getLicenseName().isEmpty())
 		result += urlTemplate.arg(tr("License")).arg(mod.getLicenseUrl()).arg(mod.getLicenseName());
 
-	if(mod.getContact().isEmpty())
+	if(!mod.getContact().isEmpty())
 		result += urlTemplate.arg(tr("Contact")).arg(mod.getContact()).arg(mod.getContact());
 
 	//compatibility info
@@ -357,12 +371,12 @@ QString CModListView::genModInfoText(ModState & mod)
 
 	QString notes;
 
-	notes += replaceIfNotEmpty(getModNames(findInvalidDependencies(mod.getName())), listTemplate.arg(unknownDeps));
-	notes += replaceIfNotEmpty(getModNames(findBlockingMods(mod.getName())), listTemplate.arg(blockingMods));
+	notes += replaceIfNotEmpty(getModNames(findInvalidDependencies(mod.getID())), listTemplate.arg(unknownDeps));
+	notes += replaceIfNotEmpty(getModNames(findBlockingMods(mod.getID())), listTemplate.arg(blockingMods));
 	if(mod.isEnabled())
-		notes += replaceIfNotEmpty(getModNames(findDependentMods(mod.getName(), true)), listTemplate.arg(hasActiveDependentMods));
+		notes += replaceIfNotEmpty(getModNames(findDependentMods(mod.getID(), true)), listTemplate.arg(hasActiveDependentMods));
 	if(mod.isInstalled())
-		notes += replaceIfNotEmpty(getModNames(findDependentMods(mod.getName(), false)), listTemplate.arg(hasDependentMods));
+		notes += replaceIfNotEmpty(getModNames(findDependentMods(mod.getID(), false)), listTemplate.arg(hasDependentMods));
 
 	if(mod.isSubmod())
 		notes += noteTemplate.arg(thisIsSubmod);
@@ -463,7 +477,7 @@ QStringList CModListView::findInvalidDependencies(QString mod)
 	QStringList ret;
 	for(QString requirement : modStateModel->getMod(mod).getDependencies())
 	{
-		if(!modStateModel->isModExists(requirement) && !modStateModel->isModExists(modStateModel->getMod(requirement).getTopParentID()))
+		if(!modStateModel->isModExists(requirement))
 			ret += requirement;
 	}
 	return ret;
@@ -776,7 +790,7 @@ void CModListView::installFiles(QStringList files)
 	QStringList maps;
 	QStringList images;
 	QStringList exe;
-	QVector<QVariantMap> repositories;
+	JsonNode repository;
 
 	// TODO: some better way to separate zip's with mods and downloaded repository files
 	for(QString filename : files)
@@ -790,33 +804,40 @@ void CModListView::installFiles(QStringList files)
 		else if(filename.endsWith(".json", Qt::CaseInsensitive))
 		{
 			//download and merge additional files
-			auto repoData = JsonUtils::JsonFromFile(filename).toMap();
-			if(repoData.value("name").isNull())
+			const auto &repoData = JsonUtils::jsonFromFile(filename);
+			if(repoData["name"].isNull())
 			{
-				for(const auto & key : repoData.keys())
+				// This is main repository index. Download all referenced mods
+				for(const auto & [modName, modJson] : repoData.Struct())
 				{
-					auto modjson = repoData[key].toMap().value("mod");
-					if(!modjson.isNull())
-					{
-						downloadFile(key + ".json", modjson.toString(), tr("mods repository index"));
-					}
+					auto modNameLower = boost::algorithm::to_lower_copy(modName);
+					auto modJsonUrl = modJson["mod"];
+					if(!modJsonUrl.isNull())
+						downloadFile(QString::fromStdString(modName + ".json"), QString::fromStdString(modJsonUrl.String()), tr("mods repository index"));
+
+					repository[modNameLower] = repoData;
 				}
 			}
 			else
 			{
-				auto modn = QFileInfo(filename).baseName();
-				QVariantMap temp;
-				temp[modn] = repoData;
-				repoData = temp;
+				// This is json of a single mod. Extract name of mod and add it to repo
+				auto modName = QFileInfo(filename).baseName().toStdString();
+				auto modNameLower = boost::algorithm::to_lower_copy(modName);
+				repository[modNameLower] = repoData;
 			}
-			repositories.push_back(repoData);
 		}
 		else if(filename.endsWith(".png", Qt::CaseInsensitive))
 			images.push_back(filename);
 	}
 
-//	if (!repositories.empty())
-//		manager->loadRepositories(repositories);
+	if (!repository.isNull())
+	{
+		manager->appendRepositories(repository);
+		modModel->reloadRepositories();
+
+		static const QString repositoryCachePath = CLauncherDirs::downloadsPath() + "/repositoryCache.json";
+		JsonUtils::jsonToFile(repositoryCachePath, modStateModel->getRepositoryData());
+	}
 
 	if(!mods.empty())
 		installMods(mods);

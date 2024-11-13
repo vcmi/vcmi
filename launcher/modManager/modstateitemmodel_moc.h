@@ -46,7 +46,7 @@ enum EModRoles
 };
 }
 
-class ModStateItemModel : public QAbstractItemModel
+class	ModStateItemModel : public QAbstractItemModel
 {
 	friend class CModFilterModel;
 	Q_OBJECT
@@ -69,7 +69,7 @@ class ModStateItemModel : public QAbstractItemModel
 	QVariant getIcon(const ModState & mod, int field) const;
 
 public:
-	explicit ModStateItemModel(QObject * parent = nullptr);
+	explicit ModStateItemModel(std::shared_ptr<ModStateModel> model, QObject * parent = nullptr);
 
 	/// CModListContainer overrides
 	void reloadRepositories();

@@ -25,8 +25,9 @@ static const QString iconEnabledSubmod = ":/icons/submod-enabled.png";
 static const QString iconUpdate = ":/icons/mod-update.png";
 }
 
-ModStateItemModel::ModStateItemModel(QObject * parent)
+ModStateItemModel::ModStateItemModel(std::shared_ptr<ModStateModel> model, QObject * parent)
 	: QAbstractItemModel(parent)
+	, model(model)
 {
 }
 
@@ -164,7 +165,7 @@ QVariant ModStateItemModel::data(const QModelIndex & index, int role) const
 		case ModRoles::ValueRole:
 			return getValue(mod, index.column());
 		case ModRoles::ModNameRole:
-			return mod.getName();
+			return mod.getID();
 		}
 	}
 	return QVariant();
@@ -280,7 +281,7 @@ bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & sourc
 {
 	QModelIndex index = base->index(source_row, 0, source_parent);
 	QString modID = index.data(ModRoles::ModNameRole).toString();
-	if (base->model->isModVisible(modID))
+	if (base->model->getMod(modID).isHidden())
 		return false;
 
 	if(filterMatchesThis(index))

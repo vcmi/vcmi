@@ -17,12 +17,13 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-ModDescription::ModDescription(const TModID & fullID, const JsonNode & config)
+ModDescription::ModDescription(const TModID & fullID, const JsonNode & localConfig, const JsonNode & repositoryConfig)
 	: identifier(fullID)
-	, localConfig(std::make_unique<JsonNode>(config))
-	, dependencies(loadModList(config["depends"]))
-	, softDependencies(loadModList(config["softDepends"]))
-	, conflicts(loadModList(config["conflicts"]))
+	, localConfig(std::make_unique<JsonNode>(localConfig))
+	, repositoryConfig(std::make_unique<JsonNode>(repositoryConfig))
+	, dependencies(loadModList(getValue("depends")))
+	, softDependencies(loadModList(getValue("softDepends")))
+	, conflicts(loadModList(getValue("conflicts")))
 {
 	if(getID() != "core")
 		dependencies.insert("core");
@@ -72,17 +73,17 @@ const std::string & ModDescription::getBaseLanguage() const
 {
 	static const std::string defaultLanguage = "english";
 
-	return getLocalConfig()["language"].isString() ? getLocalConfig()["language"].String() : defaultLanguage;
+	return getValue("language").isString() ? getValue("language").String() : defaultLanguage;
 }
 
 const std::string & ModDescription::getName() const
 {
-	return getLocalConfig()["name"].String();
+	return getValue("name").String();
 }
 
 const JsonNode & ModDescription::getFilesystemConfig() const
 {
-	return getLocalConfig()["filesystem"];
+	return getLocalValue("filesystem");
 }
 
 const JsonNode & ModDescription::getLocalConfig() const
@@ -92,7 +93,11 @@ const JsonNode & ModDescription::getLocalConfig() const
 
 const JsonNode & ModDescription::getValue(const std::string & keyName) const
 {
-	return getLocalConfig()[keyName];
+	const JsonNode & localValue = getLocalValue(keyName);
+	if (localValue.isNull())
+		return getRepositoryValue(keyName);
+	else
+		return getLocalValue(keyName);
 }
 
 const JsonNode & ModDescription::getLocalValue(const std::string & keyName) const
@@ -107,7 +112,7 @@ const JsonNode & ModDescription::getRepositoryValue(const std::string & keyName)
 
 CModVersion ModDescription::getVersion() const
 {
-	return CModVersion::fromString(getLocalConfig()["version"].String());
+	return CModVersion::fromString(getValue("version").String());
 }
 
 ModVerificationInfo ModDescription::getVerificationInfo() const
@@ -123,17 +128,17 @@ ModVerificationInfo ModDescription::getVerificationInfo() const
 
 bool ModDescription::isCompatibility() const
 {
-	return getLocalConfig()["modType"].String() == "Compatibility";
+	return getValue("modType").String() == "Compatibility";
 }
 
 bool ModDescription::isTranslation() const
 {
-	return getLocalConfig()["modType"].String() == "Translation";
+	return getValue("modType").String() == "Translation";
 }
 
 bool ModDescription::keepDisabled() const
 {
-	return getLocalConfig()["keepDisabled"].Bool();
+	return getValue("keepDisabled").Bool();
 }
 
 bool ModDescription::isInstalled() const

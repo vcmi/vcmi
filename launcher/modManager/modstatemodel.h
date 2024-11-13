@@ -20,13 +20,15 @@ VCMI_LIB_NAMESPACE_END
 /// Provides Qt-based interface to library class ModManager
 class ModStateModel
 {
+	std::unique_ptr<JsonNode> repositoryData;
 	std::unique_ptr<ModManager> modManager;
 
 public:
 	ModStateModel();
 	~ModStateModel();
 
-	void setRepositories(QVector<JsonNode> repositoriesList);
+	void appendRepositories(const JsonNode & repositoriesList);
+	const JsonNode & getRepositoryData() const;
 
 	ModState getMod(QString modName) const;
 	QStringList getAllMods() const;

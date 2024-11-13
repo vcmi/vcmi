@@ -212,11 +212,11 @@ std::vector<TModID> ModsPresetState::getActiveMods() const
 	return allActiveMods;
 }
 
-ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const std::vector<JsonNode> & repositoryList)
+ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode & repositoryList)
 {
 	JsonNode coreModConfig(JsonPath::builtin("config/gameConfig.json"));
 	coreModConfig.setModScope(ModScope::scopeBuiltin());
-	mods.try_emplace(ModScope::scopeBuiltin(), ModScope::scopeBuiltin(), coreModConfig);
+	mods.try_emplace(ModScope::scopeBuiltin(), ModScope::scopeBuiltin(), coreModConfig, JsonNode());
 
 	for(auto modID : modsToLoad)
 	{
@@ -235,7 +235,18 @@ ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const std::vect
 			continue;
 		}
 
-		mods.try_emplace(modID, modID, modConfig);
+		mods.try_emplace(modID, modID, modConfig, repositoryList[modID]);
+	}
+
+	for(const auto & mod : repositoryList.Struct())
+	{
+		if (vstd::contains(modsToLoad, mod.first))
+			continue;
+
+		if (mod.second["modType"].isNull() || mod.second["name"].isNull())
+			continue;
+
+		mods.try_emplace(mod.first, mod.first, JsonNode(), mod.second);
 	}
 }
 
@@ -244,12 +255,21 @@ const ModDescription & ModsStorage::getMod(const TModID & fullID) const
 	return mods.at(fullID);
 }
 
+TModList ModsStorage::getAllMods() const
+{
+	TModList result;
+	for (const auto & mod : mods)
+		result.push_back(mod.first);
+
+	return result;
+}
+
 ModManager::ModManager()
-	:ModManager(std::vector<JsonNode>())
+	:ModManager(JsonNode())
 {
 }
 
-ModManager::ModManager(const std::vector<JsonNode> & repositoryList)
+ModManager::ModManager(const JsonNode & repositoryList)
 	: modsState(std::make_unique<ModsState>())
 	, modsPreset(std::make_unique<ModsPresetState>())
 {
@@ -267,6 +287,7 @@ ModManager::~ModManager() = default;
 
 const ModDescription & ModManager::getModDescription(const TModID & modID) const
 {
+	assert(boost::to_lower_copy(modID) == modID);
 	return modsStorage->getMod(modID);
 }
 
@@ -280,9 +301,9 @@ const TModList & ModManager::getActiveMods() const
 	return activeMods;
 }
 
-const TModList & ModManager::getAllMods() const
+TModList ModManager::getAllMods() const
 {
-	return activeMods; //TODO
+	return modsStorage->getAllMods();
 }
 
 void ModManager::eraseMissingModsFromPreset()

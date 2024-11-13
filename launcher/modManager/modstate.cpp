@@ -120,7 +120,7 @@ QString ModState::getLocalSizeFormatted() const
 
 QString ModState::getAuthors() const
 {
-	return QString::fromStdString(impl.getValue("authors").String());
+	return QString::fromStdString(impl.getValue("author").String());
 }
 
 QString ModState::getContact() const
@@ -130,7 +130,7 @@ QString ModState::getContact() const
 
 QString ModState::getLicenseUrl() const
 {
-	return QString::fromStdString(impl.getValue("licenseUrl").String());
+	return QString::fromStdString(impl.getValue("licenseURL").String());
 }
 
 QString ModState::getLicenseName() const
@@ -173,7 +173,7 @@ bool ModState::isHidden() const
 	if (isTranslation() && !isInstalled())
 		return impl.getBaseLanguage() == CGeneralTextHandler::getPreferredLanguage();
 
-	return isCompatibility() || getID() == "vcmi";
+	return isCompatibility() || getID() == "vcmi" || getID() == "core";
 }
 
 bool ModState::isDisabled() const
@@ -198,7 +198,7 @@ bool ModState::isInstalled() const
 
 bool ModState::isUpdateAvailable() const
 {
-	return getInstalledVersion() != getRepositoryVersion() && !getRepositoryVersion().isEmpty();
+	return getInstalledVersion() != getRepositoryVersion() && !getRepositoryVersion().isEmpty() && !getInstalledVersion().isEmpty();;
 }
 
 bool ModState::isCompatible() const

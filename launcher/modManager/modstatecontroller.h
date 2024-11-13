@@ -38,7 +38,7 @@ public:
 	ModStateController(std::shared_ptr<ModStateModel> modList);
 	~ModStateController();
 
-	void loadRepositories(QVector<JsonNode> repositoriesList);
+	void appendRepositories(const JsonNode & repositoriesList);
 
 	QStringList getErrors();
 

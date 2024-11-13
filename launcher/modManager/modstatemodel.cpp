@@ -11,20 +11,31 @@
 #include "modstatemodel.h"
 
 #include "../../lib/modding/ModManager.h"
+#include "../../lib/json/JsonUtils.h"
 
 ModStateModel::ModStateModel()
-    :modManager(std::make_unique<ModManager>())
-{}
+	: repositoryData(std::make_unique<JsonNode>())
+	, modManager(std::make_unique<ModManager>())
+{
+}
 
 ModStateModel::~ModStateModel() = default;
 
-void ModStateModel::setRepositories(QVector<JsonNode> repositoriesList)
+void ModStateModel::appendRepositories(const JsonNode & repositoriesList)
 {
-	//TODO
+	JsonUtils::mergeCopy(*repositoryData, repositoriesList);
+
+	modManager = std::make_unique<ModManager>(*repositoryData);
+}
+
+const JsonNode & ModStateModel::getRepositoryData() const
+{
+	return *repositoryData;
 }
 
 ModState ModStateModel::getMod(QString modName) const
 {
+	assert(modName.toLower() == modName);
 	return ModState(modManager->getModDescription(modName.toStdString()));
 }
 
@@ -39,7 +50,7 @@ QStringList stringListStdToQt(const Container & container)
 
 QStringList ModStateModel::getAllMods() const
 {
-	return stringListStdToQt(modManager->getActiveMods());
+	return stringListStdToQt(modManager->getAllMods());
 }
 
 QStringList ModStateModel::getSubmods(QString modName) const

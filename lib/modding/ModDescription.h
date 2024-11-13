@@ -21,18 +21,17 @@ using TModSet = std::set<TModID>;
 
 class DLL_LINKAGE ModDescription : boost::noncopyable
 {
+	std::unique_ptr<JsonNode> localConfig;
+	std::unique_ptr<JsonNode> repositoryConfig;
+
 	TModID identifier;
 	TModSet dependencies;
 	TModSet softDependencies;
 	TModSet conflicts;
 
-	std::unique_ptr<JsonNode> localConfig;
-	std::unique_ptr<JsonNode> repositoryConfig;
-
 	TModSet loadModList(const JsonNode & configNode) const;
 
 public:
-	ModDescription(const TModID & fullID, const JsonNode & localConfig);
 	ModDescription(const TModID & fullID, const JsonNode & localConfig, const JsonNode & repositoryConfig);
 	~ModDescription();
 
