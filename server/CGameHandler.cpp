@@ -2771,7 +2771,24 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 	{
 		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
 			{
-				return inf.getArt()->getType()->getPossibleSlots().at(ArtBearer::HERO).front().num;
+				auto possibleSlots = inf.getArt()->getType()->getPossibleSlots();
+				if (possibleSlots.find(ArtBearer::CREATURE) != possibleSlots.end() && !possibleSlots.at(ArtBearer::CREATURE).empty()) 
+				{
+					return -2;
+				}
+				else if (possibleSlots.find(ArtBearer::COMMANDER) != possibleSlots.end() && !possibleSlots.at(ArtBearer::COMMANDER).empty()) 
+				{
+					return -1;
+				}
+				else if (possibleSlots.find(ArtBearer::HERO) != possibleSlots.end() && !possibleSlots.at(ArtBearer::HERO).empty()) 
+				{
+					return inf.getArt()->getType()->getPossibleSlots().at(ArtBearer::HERO).front().num;
+				}
+				else 
+				{
+					// for grail
+					return -3;
+				}
 			});
 	}
 	else if(sortType == ManageBackpackArtifacts::ManageCmd::SORT_BY_COST)
