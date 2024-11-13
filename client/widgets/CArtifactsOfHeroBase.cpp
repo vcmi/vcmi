@@ -103,38 +103,38 @@ void CArtifactsOfHeroBase::setShowPopupArtPlacesCallback(const CArtPlace::ClickF
 
 void CArtifactsOfHeroBase::clickPressedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
-	auto ownedPlace = getArtPlace(cursorPosition);
-	assert(ownedPlace != nullptr);
+	if(auto ownedPlace = getArtPlace(cursorPosition))
+	{
+		if(ownedPlace->isLocked())
+			return;
 
-	if(ownedPlace->isLocked())
-		return;
-
-	if(clickPressedCallback)
-		clickPressedCallback(*ownedPlace, cursorPosition);
+		if(clickPressedCallback)
+			clickPressedCallback(*ownedPlace, cursorPosition);
+	}
 }
 
 void CArtifactsOfHeroBase::showPopupArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
-	auto ownedPlace = getArtPlace(cursorPosition);
-	assert(ownedPlace != nullptr);
+	if(auto ownedPlace = getArtPlace(cursorPosition))
+	{
+		if(ownedPlace->isLocked())
+			return;
 
-	if(ownedPlace->isLocked())
-		return;
-
-	if(showPopupCallback)
-		showPopupCallback(*ownedPlace, cursorPosition);
+		if(showPopupCallback)
+			showPopupCallback(*ownedPlace, cursorPosition);
+	}
 }
 
 void CArtifactsOfHeroBase::gestureArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
-	auto ownedPlace = getArtPlace(cursorPosition);
-	assert(ownedPlace != nullptr);
+	if(auto ownedPlace = getArtPlace(cursorPosition))
+	{
+		if(ownedPlace->isLocked())
+			return;
 
-	if(ownedPlace->isLocked())
-		return;
-
-	if(gestureCallback)
-		gestureCallback(*ownedPlace, cursorPosition);
+		if(gestureCallback)
+			gestureCallback(*ownedPlace, cursorPosition);
+	}
 }
 
 void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)
