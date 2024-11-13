@@ -830,7 +830,10 @@ void CStackWindow::initBonusesList()
 	BonusList input;
 	input = *(info->stackNode->getBonuses(CSelector(Bonus::Permanent), Selector::all));
 	std::sort(input.begin(), input.end(), [this](std::shared_ptr<Bonus> v1, std::shared_ptr<Bonus> & v2){
-		return v1->source == v2->source ? info->stackNode->bonusToString(v1, false) < info->stackNode->bonusToString(v2, false) : v1->source == BonusSource::CREATURE_ABILITY || (v1->source < v2->source);
+		if (v1->source != v2->source)
+			return v1->source == BonusSource::CREATURE_ABILITY || (v1->source < v2->source);
+		else
+			return  info->stackNode->bonusToString(v1, false) < info->stackNode->bonusToString(v2, false);
 	});
 
 	while(!input.empty())
