@@ -1802,61 +1802,59 @@ void BulkMoveArtifacts::applyGs(CGameState *gs)
 
 void AssembledArtifact::applyGs(CGameState *gs)
 {
-	auto hero = gs->getHero(al.artHolder);
-	assert(hero);
-	const auto transformedArt = hero->getArt(al.slot);
+	auto artSet = gs->getArtSet(al.artHolder);
+	assert(artSet);
+	const auto transformedArt = artSet->getArt(al.slot);
 	assert(transformedArt);
 	const auto builtArt = artId.toArtifact();
-	assert(vstd::contains_if(ArtifactUtils::assemblyPossibilities(hero, transformedArt->getTypeId()), [=](const CArtifact * art)->bool
+	assert(vstd::contains_if(ArtifactUtils::assemblyPossibilities(artSet, transformedArt->getTypeId()), [=](const CArtifact * art)->bool
 		{
 			return art->getId() == builtArt->getId();
 		}));
 
-	const auto transformedArtSlot = hero->getArtPos(transformedArt);
 	auto * combinedArt = new CArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
 
 	// Find slots for all involved artifacts
-	std::vector<ArtifactPosition> slotsInvolved;
-	CArtifactFittingSet artSet(*hero);
-	for(const auto constituent : builtArt->getConstituents())
+	std::set<ArtifactPosition, std::greater<>> slotsInvolved = { al.slot };
+	CArtifactFittingSet fittingSet(*artSet);
+	auto parts = builtArt->getConstituents();
+	parts.erase(std::find(parts.begin(), parts.end(), transformedArt->getType()));
+	for(const auto constituent : parts)
 	{
-		const auto slot = artSet.getArtPos(constituent->getId(), false, false);
-		artSet.lockSlot(slot);
+		const auto slot = fittingSet.getArtPos(constituent->getId(), false, false);
+		fittingSet.lockSlot(slot);
 		assert(slot != ArtifactPosition::PRE_FIRST);
-		slotsInvolved.emplace_back(slot);
+		slotsInvolved.insert(slot);
 	}
-	std::sort(slotsInvolved.begin(), slotsInvolved.end(), std::greater<>());
 
 	// Find a slot for combined artifact
-	al.slot = transformedArtSlot;
-	for(const auto & slot : slotsInvolved)
+	if(ArtifactUtils::isSlotEquipment(al.slot) && ArtifactUtils::isSlotBackpack(*slotsInvolved.begin()))
 	{
-		if(ArtifactUtils::isSlotEquipment(transformedArtSlot))
-		{
-
+		al.slot = ArtifactPosition::BACKPACK_START;
+	}
+	else if(ArtifactUtils::isSlotBackpack(al.slot))
+	{
+		for(const auto & slot : slotsInvolved)
 			if(ArtifactUtils::isSlotBackpack(slot))
+				al.slot = slot;
+	}
+	else
+	{
+		for(const auto & slot : slotsInvolved)
+			if(!vstd::contains(builtArt->getPossibleSlots().at(artSet->bearerType()), al.slot)
+				&& vstd::contains(builtArt->getPossibleSlots().at(artSet->bearerType()), slot))
 			{
-				al.slot = ArtifactPosition::BACKPACK_START;
+				al.slot = slot;
 				break;
 			}
-
-			if(!vstd::contains(combinedArt->getType()->getPossibleSlots().at(hero->bearerType()), al.slot)
-				&& vstd::contains(combinedArt->getType()->getPossibleSlots().at(hero->bearerType()), slot))
-				al.slot = slot;
-		}
-		else
-		{
-			if(ArtifactUtils::isSlotBackpack(slot))
-				al.slot = std::min(al.slot, slot);
-		}
 	}
 
 	// Delete parts from hero
 	for(const auto & slot : slotsInvolved)
 	{
-		const auto constituentInstance = hero->getArt(slot);
-		gs->map->removeArtifactInstance(*hero, slot);
+		const auto constituentInstance = artSet->getArt(slot);
+		gs->map->removeArtifactInstance(*artSet, slot);
 
 		if(!combinedArt->getType()->isFused())
 		{
@@ -1868,7 +1866,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	}
 
 	// Put new combined artifacts
-	gs->map->putArtifactInstance(*hero, combinedArt, al.slot);
+	gs->map->putArtifactInstance(*artSet, combinedArt, al.slot);
 }
 
 void DisassembledArtifact::applyGs(CGameState *gs)

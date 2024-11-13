@@ -192,7 +192,6 @@ bool CArtifact::isTradable() const
 	switch(id.toEnum())
 	{
 	case ArtifactID::SPELLBOOK:
-	case ArtifactID::GRAIL:
 		return false;
 	default:
 		return !isBig();

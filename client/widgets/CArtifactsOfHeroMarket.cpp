@@ -24,24 +24,24 @@ CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position, const int
 
 void CArtifactsOfHeroMarket::clickPressedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
-	auto ownedPlace = getArtPlace(cursorPosition);
-	assert(ownedPlace != nullptr);
-
-	if(ownedPlace->isLocked())
-		return;
-
-	if(const auto art = getArt(ownedPlace->slot))
+	if(auto ownedPlace = getArtPlace(cursorPosition))
 	{
-		if(onSelectArtCallback && art->getType()->isTradable())
+		if(ownedPlace->isLocked())
+			return;
+
+		if(const auto art = getArt(ownedPlace->slot))
 		{
-			unmarkSlots();
-			artPlace.selectSlot(true);
-			onSelectArtCallback(ownedPlace.get());
-		}
-		else
-		{
-			if(onClickNotTradableCallback)
-				onClickNotTradableCallback();
+			if(onSelectArtCallback && art->getType()->isTradable())
+			{
+				unmarkSlots();
+				artPlace.selectSlot(true);
+				onSelectArtCallback(ownedPlace.get());
+			}
+			else
+			{
+				if(onClickNotTradableCallback)
+					onClickNotTradableCallback();
+			}
 		}
 	}
 }

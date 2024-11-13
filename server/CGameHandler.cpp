@@ -2629,7 +2629,7 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 		giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 
 	ma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(src.slot, dstSlot));
-	if(src.artHolder != dst.artHolder)
+	if(src.artHolder != dst.artHolder && !isDstSlotBackpack)
 		ma.artsPack0.back().askAssemble = true;
 	sendAndApply(ma);
 	return true;
