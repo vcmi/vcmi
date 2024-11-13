@@ -46,7 +46,7 @@ enum EModRoles
 };
 }
 
-class	ModStateItemModel : public QAbstractItemModel
+class ModStateItemModel : public QAbstractItemModel
 {
 	friend class CModFilterModel;
 	Q_OBJECT

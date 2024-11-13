@@ -109,7 +109,6 @@ QVariant ModStateItemModel::getText(const ModState & mod, int field) const
 
 QVariant ModStateItemModel::getIcon(const ModState & mod, int field) const
 {
-
 	if (field == ModFields::STATUS_ENABLED)
 	{
 		if (!model->isModInstalled(mod.getID()))

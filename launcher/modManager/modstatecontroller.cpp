@@ -42,7 +42,7 @@ QString detectModArchive(QString path, QString modName, std::vector<std::string>
 
 	for(int folderLevel : {0, 1}) //search in subfolder if there is no mod.json in the root
 	{
-		for(auto file : filesToExtract)
+		for(const auto & file : filesToExtract)
 		{
 			QString filename = QString::fromUtf8(file.c_str());
 			modDirName = filename.section('/', 0, folderLevel);
@@ -56,7 +56,7 @@ QString detectModArchive(QString path, QString modName, std::vector<std::string>
 
 	logGlobal->error("Failed to detect mod path in archive!");
 	logGlobal->debug("List of file in archive:");
-	for(auto file : filesToExtract)
+	for(const auto & file : filesToExtract)
 		logGlobal->debug("%s", file.c_str());
 	
 	return "";
@@ -180,7 +180,7 @@ bool ModStateController::canEnableMod(QString modname)
 	if(!mod.isCompatible())
 		return addError(modname, tr("Mod is not compatible, please update VCMI and checkout latest mod revisions"));
 
-	for(auto modEntry : mod.getDependencies())
+	for(const auto & modEntry : mod.getDependencies())
 	{
 		if(!modList->isModExists(modEntry)) // required mod is not available
 			return addError(modname, tr("Required mod %1 is missing").arg(modEntry));
@@ -193,14 +193,14 @@ bool ModStateController::canEnableMod(QString modname)
 
 	for(QString modEntry : modList->getAllMods())
 	{
-		auto mod = modList->getMod(modEntry);
+		auto otherMod = modList->getMod(modEntry);
 
 		// "reverse conflict" - enabled mod has this one as conflict
-		if(modList->isModEnabled(modname) && mod.getConflicts().contains(modname))
+		if(modList->isModEnabled(modname) && otherMod.getConflicts().contains(modname))
 			return addError(modname, tr("This mod conflicts with %1").arg(modEntry));
 	}
 
-	for(auto modEntry : mod.getConflicts())
+	for(const auto & modEntry : mod.getConflicts())
 	{
 		// check if conflicting mod installed and enabled
 		if(modList->isModExists(modEntry) && modList->isModEnabled(modEntry))
@@ -257,7 +257,7 @@ bool ModStateController::doInstallMod(QString modname, QString archivePath)
 	{
 		const auto destDirFsPath = qstringToPath(destDir);
 		ZipArchive archive(qstringToPath(archivePath));
-		for (auto const & file : filesToExtract)
+		for(const auto & file : filesToExtract)
 		{
 			if (!archive.extract(destDirFsPath, file))
 				return false;

@@ -61,14 +61,12 @@ class CModListView : public QWidget
 	void installMaps(QStringList maps);
 	void installFiles(QStringList mods);
 
-	QString genChangelogText(ModState & mod);
-	QString genModInfoText(ModState & mod);
+	QString genChangelogText(const ModState & mod);
+	QString genModInfoText(const ModState & mod);
 
 	void changeEvent(QEvent *event) override;
 	void dragEnterEvent(QDragEnterEvent* event) override;
 	void dropEvent(QDropEvent *event) override;
-signals:
-	void modsChanged();
 
 public:
 	explicit CModListView(QWidget * parent = nullptr);
@@ -81,8 +79,6 @@ public:
 
 	void selectMod(const QModelIndex & index);
 
-	//const CModList & getModList() const;
-	
 	// First Launch View interface
 
 	/// install mod by name

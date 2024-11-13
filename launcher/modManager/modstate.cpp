@@ -198,7 +198,7 @@ bool ModState::isInstalled() const
 
 bool ModState::isUpdateAvailable() const
 {
-	return getInstalledVersion() != getRepositoryVersion() && !getRepositoryVersion().isEmpty() && !getInstalledVersion().isEmpty();;
+	return getInstalledVersion() != getRepositoryVersion() && !getRepositoryVersion().isEmpty() && !getInstalledVersion().isEmpty();
 }
 
 bool ModState::isCompatible() const
