@@ -177,8 +177,7 @@ struct DLL_LINKAGE LobbyUpdateState : public CLobbyPackToPropagate
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & state;
-		if (h.version >= Handler::Version::LOBBY_DELETE)
-			h & refreshList;
+		h & refreshList;
 	}
 };
 

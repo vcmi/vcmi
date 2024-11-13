@@ -282,9 +282,12 @@ void SelectionTab::toggleMode()
 			}
 
 		case ESelectionScreen::loadGame:
-			inputName->disable();
-			parseSaves(getFiles("Saves/", EResType::SAVEGAME));
-			break;
+			{
+				inputName->disable();
+				auto unsupported = parseSaves(getFiles("Saves/", EResType::SAVEGAME));
+				handleUnsupportedSavegames(unsupported);
+				break;
+			}
 
 		case ESelectionScreen::saveGame:
 			parseSaves(getFiles("Saves/", EResType::SAVEGAME));
@@ -876,16 +879,9 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 	}
 }
 
-void SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
+std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 {
-	enum Choice { NONE, REMAIN, DELETE };
-	Choice deleteUnsupported = NONE;
-	auto doDeleteUnsupported = [](std::string file){
-		LobbyDelete ld;
-		ld.type = LobbyDelete::SAVEGAME;
-		ld.name = file;
-		CSH->sendLobbyPack(ld);
-	};
+	std::vector<ResourcePath> unsupported;
 
 	for(auto & file : files)
 	{
@@ -925,31 +921,35 @@ void SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 
 			allItems.push_back(mapInfo);
 		}
+		catch(const IdentifierResolutionException & e)
+		{
+			logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
+		}
 		catch(const std::exception & e)
 		{
-			// asking for deletion of unsupported saves
-			if(CSH->isHost())
-			{
-				if(deleteUnsupported == DELETE)
-					doDeleteUnsupported(file.getName());
-				else if(deleteUnsupported == NONE)
-				{
-					CInfoWindow::showYesNoDialog(CGI->generaltexth->translate("vcmi.lobby.deleteUnsupportedSave"), std::vector<std::shared_ptr<CComponent>>(), [&deleteUnsupported, doDeleteUnsupported, file](){
-						doDeleteUnsupported(file.getName());
-						deleteUnsupported = DELETE;
-					}, [&deleteUnsupported](){ deleteUnsupported = REMAIN; });
-
-					while(deleteUnsupported == NONE)
-					{
-						auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
-						boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
-					}
-				}
-			}
-
-			if(deleteUnsupported != DELETE)
-				logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
+			unsupported.push_back(file); // IdentifierResolutionException is not relevant -> not ask to delete, when mods are disabled
+			logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
 		}
+	}
+
+	return unsupported;
+}
+
+void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> files)
+{
+	if(CSH->isHost() && files.size())
+	{
+		MetaString text = MetaString::createFromTextID("vcmi.lobby.deleteUnsupportedSave");
+		text.replaceNumber(files.size());
+		CInfoWindow::showYesNoDialog(text.toString(), std::vector<std::shared_ptr<CComponent>>(), [files](){
+			for(auto & file : files)
+			{
+				LobbyDelete ld;
+				ld.type = LobbyDelete::SAVEGAME;
+				ld.name = file.getName();
+				CSH->sendLobbyPack(ld);
+			}
+		}, nullptr);
 	}
 }
 
