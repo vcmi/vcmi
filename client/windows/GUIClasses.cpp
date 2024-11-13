@@ -1703,7 +1703,7 @@ void VideoWindow::keyPressed(EShortcut key)
 	exit(true);
 }
 
-bool VideoWindow::receiveEvent(const Point & position, int eventType) const
+void VideoWindow::notFocusedClick()
 {
-	return true;  // capture click also outside of window
+	exit(true);
 }
