@@ -82,3 +82,13 @@ bool ModStateModel::isModVisible(QString modName) const
 {
 	return getMod(modName).isVisible();
 }
+
+QString ModStateModel::getInstalledModSizeFormatted(QString modName) const
+{
+	return QCoreApplication::translate("File size", "%1 MiB").arg(QString::number(getInstalledModSizeMegabytes(modName), 'f', 1));
+}
+
+double ModStateModel::getInstalledModSizeMegabytes(QString modName) const
+{
+	return modManager->getInstalledModSizeMegabytes(modName.toStdString());
+}

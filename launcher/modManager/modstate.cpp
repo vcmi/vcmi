@@ -140,11 +140,6 @@ QString ModState::getDownloadSizeFormatted() const
 	return QCoreApplication::translate("File size", "%1 MiB").arg(QString::number(getDownloadSizeMegabytes(), 'f', 1));
 }
 
-QString ModState::getLocalSizeFormatted() const
-{
-	return {}; // TODO
-}
-
 QString ModState::getAuthors() const
 {
 	return QString::fromStdString(impl.getValue("author").String());

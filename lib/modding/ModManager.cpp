@@ -20,20 +20,22 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-static std::string getModSettingsDirectory(const TModID & modName)
+static std::string getModDirectory(const TModID & modName)
 {
 	std::string result = modName;
 	boost::to_upper(result);
 	boost::algorithm::replace_all(result, ".", "/MODS/");
-	return "MODS/" + result + "/MODS/";
+	return "MODS/" + result;
+}
+
+static std::string getModSettingsDirectory(const TModID & modName)
+{
+	return getModDirectory(modName) + "/MODS/";
 }
 
 static JsonPath getModDescriptionFile(const TModID & modName)
 {
-	std::string result = modName;
-	boost::to_upper(result);
-	boost::algorithm::replace_all(result, ".", "/MODS/");
-	return JsonPath::builtin("MODS/" + result + "/mod");
+	return JsonPath::builtin(getModDirectory(modName) + "/mod");
 }
 
 ModsState::ModsState()
@@ -87,6 +89,22 @@ uint32_t ModsState::computeChecksum(const TModID & modName) const
 		modChecksum.process_bytes(static_cast<const void *>(&fileChecksum), sizeof(fileChecksum));
 	}
 	return modChecksum.checksum();
+}
+
+double ModsState::getInstalledModSizeMegabytes(const TModID & modName) const
+{
+	ResourcePath resDir(getModDirectory(modName), EResType::DIRECTORY);
+	std::string path = CResourceHandler::get()->getResourceName(resDir)->string();
+
+	size_t sizeBytes = 0;
+	for(boost::filesystem::recursive_directory_iterator it(path); it != boost::filesystem::recursive_directory_iterator(); ++it)
+	{
+		if(!boost::filesystem::is_directory(*it))
+			sizeBytes += boost::filesystem::file_size(*it);
+	}
+
+	double sizeMegabytes = sizeBytes / double(1024*1024);
+	return sizeMegabytes;
 }
 
 std::vector<TModID> ModsState::scanModsDirectory(const std::string & modDir) const
@@ -370,6 +388,11 @@ void ModManager::saveConfigurationState() const
 TModList ModManager::getAllMods() const
 {
 	return modsStorage->getAllMods();
+}
+
+double ModManager::getInstalledModSizeMegabytes(const TModID & modName) const
+{
+	return modsState->getInstalledModSizeMegabytes(modName);
 }
 
 void ModManager::eraseMissingModsFromPreset()

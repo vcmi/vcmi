@@ -76,38 +76,6 @@ void ModStateController::appendRepositories(const JsonNode & repomap)
 	modList->appendRepositories(repomap);
 }
 
-//void ModStateController::loadMods()
-//{
-//	CModHandler handler;
-//	auto installedMods = handler.getAllMods();
-//	localMods.clear();
-//
-//	for(auto modname : installedMods)
-//	{
-//			//calculate mod size
-//			qint64 total = 0;
-//			ResourcePath resDir(CModInfo::getModDir(modname), EResType::DIRECTORY);
-//			if(CResourceHandler::get()->existsResource(resDir))
-//			{
-//				for(QDirIterator iter(QString::fromStdString(CResourceHandler::get()->getResourceName(resDir)->string()), QDirIterator::Subdirectories); iter.hasNext(); iter.next())
-//					total += iter.fileInfo().size();
-//			}
-//
-//			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);
-//			auto mod = JsonUtils::JsonFromFile(pathToQString(name));
-//			auto json = JsonUtils::toJson(mod);
-//			json["localSizeBytes"].Float() = total;
-//			if(!name.is_absolute())
-//				json["storedLocally"].Bool() = true;
-//
-//			mod = JsonUtils::toVariant(json);
-//			QString modNameQt = QString::fromUtf8(modname.c_str()).toLower();
-//			localMods.insert(modNameQt, mod);
-//			modSettings->registerNewMod(modNameQt, json["keepDisabled"].Bool());
-//	}
-//	modList->setLocalModList(localMods);
-//}
-
 bool ModStateController::addError(QString modname, QString message)
 {
 	recentErrors.push_back(QString("%1: %2").arg(modname).arg(message));

@@ -46,7 +46,6 @@ public:
 	double getDownloadSizeMegabytes() const;
 	size_t getDownloadSizeBytes() const;
 	QString getDownloadSizeFormatted() const;
-	QString getLocalSizeFormatted() const;
 	QString getAuthors() const;
 	QString getContact() const;
 	QString getLicenseUrl() const;

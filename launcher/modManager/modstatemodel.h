@@ -34,6 +34,9 @@ public:
 	QStringList getAllMods() const;
 	QStringList getSubmods(QString modName) const;
 
+	QString getInstalledModSizeFormatted(QString modName) const;
+	double getInstalledModSizeMegabytes(QString modName) const;
+
 	bool isModExists(QString modName) const;
 	bool isModInstalled(QString modName) const;
 	bool isModEnabled(QString modName) const;

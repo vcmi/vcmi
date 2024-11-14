@@ -32,6 +32,7 @@ public:
 	ModsState();
 
 	TModList getInstalledMods() const;
+	double getInstalledModSizeMegabytes(const TModID & modName) const;
 
 	uint32_t computeChecksum(const TModID & modName) const;
 };
@@ -111,6 +112,7 @@ public:
 	std::optional<uint32_t> getValidatedChecksum(const TModID & modName) const;
 	void setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value);
 	void saveConfigurationState() const;
+	double getInstalledModSizeMegabytes(const TModID & modName) const;
 };
 
 VCMI_LIB_NAMESPACE_END
