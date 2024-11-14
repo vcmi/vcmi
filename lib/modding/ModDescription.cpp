@@ -26,7 +26,7 @@ ModDescription::ModDescription(const TModID & fullID, const JsonNode & localConf
 	, conflicts(loadModList(getValue("conflicts")))
 {
 	if(getID() != "core")
-		dependencies.insert("core");
+		dependencies.emplace("core");
 }
 
 ModDescription::~ModDescription() = default;

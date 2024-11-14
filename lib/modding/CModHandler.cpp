@@ -38,17 +38,12 @@ CModHandler::~CModHandler() = default;
 
 std::vector<std::string> CModHandler::getAllMods() const
 {
-	return modManager->getActiveMods();// TODO: currently identical to active
+	return modManager->getAllMods();
 }
 
-std::vector<std::string> CModHandler::getActiveMods() const
+const std::vector<std::string> & CModHandler::getActiveMods() const
 {
 	return modManager->getActiveMods();
-}
-
-std::string CModHandler::getModLoadErrors() const
-{
-	return ""; // TODO: modLoadErrors->toString();
 }
 
 const ModDescription & CModHandler::getModInfo(const TModID & modId) const
@@ -85,35 +80,6 @@ static ISimpleResourceLoader * genModFilesystem(const std::string & modName, con
 	else
 		return CResourceHandler::createFileSystem(getModDirectory(modName), defaultFS);
 }
-
-//static ui32 calculateModChecksum(const std::string & modName, ISimpleResourceLoader * filesystem)
-//{
-//	boost::crc_32_type modChecksum;
-//	// first - add current VCMI version into checksum to force re-validation on VCMI updates
-//	modChecksum.process_bytes(reinterpret_cast<const void*>(GameConstants::VCMI_VERSION.data()), GameConstants::VCMI_VERSION.size());
-//
-//	// second - add mod.json into checksum because filesystem does not contains this file
-//	// FIXME: remove workaround for core mod
-//	if (modName != ModScope::scopeBuiltin())
-//	{
-//		auto modConfFile = CModInfo::getModFile(modName);
-//		ui32 configChecksum = CResourceHandler::get("initial")->load(modConfFile)->calculateCRC32();
-//		modChecksum.process_bytes(reinterpret_cast<const void *>(&configChecksum), sizeof(configChecksum));
-//	}
-//	// third - add all detected text files from this mod into checksum
-//	auto files = filesystem->getFilteredFiles([](const ResourcePath & resID)
-//	{
-//		return (resID.getType() == EResType::TEXT || resID.getType() == EResType::JSON) &&
-//			   ( boost::starts_with(resID.getName(), "DATA") || boost::starts_with(resID.getName(), "CONFIG"));
-//	});
-//
-//	for (const ResourcePath & file : files)
-//	{
-//		ui32 fileChecksum = filesystem->load(file)->calculateCRC32();
-//		modChecksum.process_bytes(reinterpret_cast<const void *>(&fileChecksum), sizeof(fileChecksum));
-//	}
-//	return modChecksum.checksum();
-//}
 
 void CModHandler::loadModFilesystems()
 {
@@ -250,7 +216,7 @@ std::set<TModID> CModHandler::getModEnabledSoftDependencies(const TModID & modId
 {
 	std::set<TModID> softDependencies = getModSoftDependencies(modId);
 
-	vstd::erase_if(softDependencies, [&](const TModID & dependency){ return !modManager->isModActive(dependency);});
+	vstd::erase_if(softDependencies, [this](const TModID & dependency){ return !modManager->isModActive(dependency);});
 
 	return softDependencies;
 }
@@ -285,18 +251,41 @@ void CModHandler::load()
 
 	content->init();
 
-//	for(const TModID & modName : getActiveMods())
-//	{
-//		logMod->trace("Generating checksum for %s", modName);
-//		allMods[modName].updateChecksum(calculateModChecksum(modName, CResourceHandler::get(modName)));
-//	}
+	const auto & activeMods = getActiveMods();
 
-	for(const TModID & modName : getActiveMods())
-		content->preloadData(getModInfo(modName));
+	validationPassed.insert(activeMods.begin(), activeMods.end());
+
+	for(const TModID & modName : activeMods)
+	{
+		modChecksums[modName] = this->modManager->computeChecksum(modName);
+	}
+
+	for(const TModID & modName : activeMods)
+	{
+		const auto & modInfo = getModInfo(modName);
+		bool isValid = content->preloadData(modInfo, isModValidationNeeded(modInfo));
+		if (isValid)
+			logGlobal->info("\t\tParsing mod: OK (%s)", modInfo.getName());
+		else
+			logGlobal->warn("\t\tParsing mod: Issues found! (%s)", modInfo.getName());
+
+		if (!isValid)
+			validationPassed.erase(modName);
+	}
 	logMod->info("\tParsing mod data");
 
-	for(const TModID & modName : getActiveMods())
-		content->load(getModInfo(modName));
+	for(const TModID & modName : activeMods)
+	{
+		const auto & modInfo = getModInfo(modName);
+		bool isValid = content->load(getModInfo(modName), isModValidationNeeded(getModInfo(modName)));
+		if (isValid)
+			logGlobal->info("\t\tLoading mod: OK (%s)", modInfo.getName());
+		else
+			logGlobal->warn("\t\tLoading mod: Issues found! (%s)", modInfo.getName());
+
+		if (!isValid)
+			validationPassed.erase(modName);
+	}
 
 #if SCRIPTING_ENABLED
 	VLC->scriptHandler->performRegistration(VLC);//todo: this should be done before any other handlers load
@@ -304,7 +293,7 @@ void CModHandler::load()
 
 	content->loadCustom();
 
-	for(const TModID & modName : getActiveMods())
+	for(const TModID & modName : activeMods)
 		loadTranslation(modName);
 
 	logMod->info("\tLoading mod data");
@@ -319,21 +308,30 @@ void CModHandler::load()
 
 void CModHandler::afterLoad(bool onlyEssential)
 {
-	//JsonNode modSettings;
-	//for (auto & modEntry : getActiveMods())
-	//{
-	//	std::string pointer = "/" + boost::algorithm::replace_all_copy(modEntry.first, ".", "/mods/");
+	JsonNode modSettings;
+	for (auto & modEntry : getActiveMods())
+	{
+		if (validationPassed.count(modEntry))
+			modManager->setValidatedChecksum(modEntry, modChecksums.at(modEntry));
+		else
+			modManager->setValidatedChecksum(modEntry, std::nullopt);
+	}
 
-	//	modSettings["activeMods"].resolvePointer(pointer) = modEntry.second.saveLocalData();
-	//}
-	//modSettings[ModScope::scopeBuiltin()] = coreMod->saveLocalData();
-	//modSettings[ModScope::scopeBuiltin()]["name"].String() = "Original game files";
+	modManager->saveConfigurationState();
+}
 
-	//if(!onlyEssential)
-	//{
-	//	std::fstream file(CResourceHandler::get()->getResourceName(ResourcePath("config/modSettings.json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
-	//	file << modSettings.toString();
-	//}
+bool CModHandler::isModValidationNeeded(const ModDescription & mod) const
+{
+	if (settings["mods"]["validation"].String() == "full")
+		return true;
+
+	if (modManager->getValidatedChecksum(mod.getID()) == modChecksums.at(mod.getID()))
+		return false;
+
+	if (settings["mods"]["validation"].String() == "off")
+		return false;
+
+	return true;
 }
 
 VCMI_LIB_NAMESPACE_END

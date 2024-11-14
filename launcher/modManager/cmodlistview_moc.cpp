@@ -809,7 +809,7 @@ void CModListView::installFiles(QStringList files)
 					if(!modJsonUrl.isNull())
 						downloadFile(QString::fromStdString(modName + ".json"), QString::fromStdString(modJsonUrl.String()), tr("mods repository index"));
 
-					repository[modNameLower] = repoData;
+					repository[modNameLower] = modJson;
 				}
 			}
 			else

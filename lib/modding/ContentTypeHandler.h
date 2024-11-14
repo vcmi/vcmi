@@ -50,23 +50,16 @@ public:
 /// class used to load all game data into handlers. Used only during loading
 class DLL_LINKAGE CContentHandler
 {
-	/// preloads all data from fileList as data from modName.
-	bool preloadModData(const std::string & modName, JsonNode modConfig, bool validate);
-
-	/// actually loads data in mod
-	bool loadMod(const std::string & modName, bool validate);
-
 	std::map<std::string, ContentTypeHandler> handlers;
 
-	bool validateMod(const ModDescription & mod) const;
 public:
 	void init();
 
 	/// preloads all data from fileList as data from modName.
-	void preloadData(const ModDescription & mod);
+	bool preloadData(const ModDescription & mod, bool validateMod);
 
 	/// actually loads data in mod
-	void load(const ModDescription & mod);
+	bool load(const ModDescription & mod, bool validateMod);
 
 	void loadCustom();
 

@@ -13,6 +13,7 @@
 #include "ModDescription.h"
 #include "ModScope.h"
 
+#include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonNode.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -49,15 +50,43 @@ ModsState::ModsState()
 
 		for(const auto & submod : scanModsDirectory(getModSettingsDirectory(target)))
 			testLocations.push_back(target + '.' + submod);
-
-		// TODO: check that this is vcmi mod and not era mod?
-		// TODO: check that mod name is not reserved (ModScope::isScopeReserved(modFullName)))
 	}
 }
 
-TModList ModsState::getAllMods() const
+TModList ModsState::getInstalledMods() const
 {
 	return modList;
+}
+
+uint32_t ModsState::computeChecksum(const TModID & modName) const
+{
+	boost::crc_32_type modChecksum;
+	// first - add current VCMI version into checksum to force re-validation on VCMI updates
+	modChecksum.process_bytes(reinterpret_cast<const void*>(GameConstants::VCMI_VERSION.data()), GameConstants::VCMI_VERSION.size());
+
+	// second - add mod.json into checksum because filesystem does not contains this file
+	// FIXME: remove workaround for core mod
+	if (modName != ModScope::scopeBuiltin())
+	{
+		auto modConfFile = getModDescriptionFile(modName);
+		ui32 configChecksum = CResourceHandler::get("initial")->load(modConfFile)->calculateCRC32();
+		modChecksum.process_bytes(reinterpret_cast<const void *>(&configChecksum), sizeof(configChecksum));
+	}
+
+	// third - add all detected text files from this mod into checksum
+	const auto & filesystem = CResourceHandler::get(modName);
+
+	auto files = filesystem->getFilteredFiles([](const ResourcePath & resID)
+	{
+		return resID.getType() == EResType::JSON && boost::starts_with(resID.getName(), "CONFIG");
+	});
+
+	for (const ResourcePath & file : files)
+	{
+		ui32 fileChecksum = filesystem->load(file)->calculateCRC32();
+		modChecksum.process_bytes(reinterpret_cast<const void *>(&fileChecksum), sizeof(fileChecksum));
+	}
+	return modChecksum.checksum();
 }
 
 std::vector<TModID> ModsState::scanModsDirectory(const std::string & modDir) const
@@ -88,6 +117,9 @@ std::vector<TModID> ModsState::scanModsDirectory(const std::string & modDir) con
 			continue;
 
 		if(name.find('.') != std::string::npos)
+			continue;
+
+		if (ModScope::isScopeReserved(boost::to_lower_copy(name)))
 			continue;
 
 		if(!CResourceHandler::get("initial")->existsResource(JsonPath::builtin(entry.getName() + "/MOD")))
@@ -123,20 +155,14 @@ ModsPresetState::ModsPresetState()
 		else
 			importInitialPreset(); // 1.5 format import
 
-		saveConfiguration(modConfig);
+		saveConfigurationState();
 	}
-}
-
-void ModsPresetState::saveConfiguration(const JsonNode & modSettings)
-{
-	std::fstream file(CResourceHandler::get()->getResourceName(ResourcePath("config/modSettings.json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
-	file << modSettings.toString();
 }
 
 void ModsPresetState::createInitialPreset()
 {
 	// TODO: scan mods directory for all its content? Probably unnecessary since this looks like new install, but who knows?
-	modConfig["presets"]["default"]["mods"].Vector().push_back(JsonNode("vcmi"));
+	modConfig["presets"]["default"]["mods"].Vector().emplace_back("vcmi");
 }
 
 void ModsPresetState::importInitialPreset()
@@ -146,7 +172,7 @@ void ModsPresetState::importInitialPreset()
 	for(const auto & mod : modConfig["activeMods"].Struct())
 	{
 		if(mod.second["active"].Bool())
-			preset["mods"].Vector().push_back(JsonNode(mod.first));
+			preset["mods"].Vector().emplace_back(mod.first);
 
 		for(const auto & submod : mod.second["mods"].Struct())
 			preset["settings"][mod.first][submod.first] = submod.second["active"];
@@ -174,6 +200,15 @@ std::map<TModID, bool> ModsPresetState::getModSettings(const TModID & modID) con
 	const JsonNode & modSettingsJson = getActivePresetConfig()["settings"][modID];
 	std::map<TModID, bool> modSettings = modSettingsJson.convertTo<std::map<TModID, bool>>();
 	return modSettings;
+}
+
+std::optional<uint32_t> ModsPresetState::getValidatedChecksum(const TModID & modName) const
+{
+	const JsonNode & node = modConfig["validatedMods"][modName];
+	if (node.isNull())
+		return std::nullopt;
+	else
+		return node.Integer();
 }
 
 void ModsPresetState::setSettingActiveInPreset(const TModID & modName, const TModID & settingName, bool isActive)
@@ -212,6 +247,20 @@ std::vector<TModID> ModsPresetState::getActiveMods() const
 	return allActiveMods;
 }
 
+void ModsPresetState::setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value)
+{
+	if (value.has_value())
+		modConfig["validatedMods"][modName].Integer() = *value;
+	else
+		modConfig["validatedMods"].Struct().erase(modName);
+}
+
+void ModsPresetState::saveConfigurationState() const
+{
+	std::fstream file(CResourceHandler::get()->getResourceName(ResourcePath("config/modSettings.json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
+	file << modConfig.toCompactString();
+}
+
 ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode & repositoryList)
 {
 	JsonNode coreModConfig(JsonPath::builtin("config/gameConfig.json"));
@@ -221,10 +270,7 @@ ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode 
 	for(auto modID : modsToLoad)
 	{
 		if(ModScope::isScopeReserved(modID))
-		{
-			logMod->error("Can not load mod %s - this name is reserved for internal use!", modID);
 			continue;
-		}
 
 		JsonNode modConfig(getModDescriptionFile(modID));
 		modConfig.setModScope(modID);
@@ -273,10 +319,10 @@ ModManager::ModManager(const JsonNode & repositoryList)
 	: modsState(std::make_unique<ModsState>())
 	, modsPreset(std::make_unique<ModsPresetState>())
 {
+	//TODO: load only active mods & all their submods in game mode?
+	modsStorage = std::make_unique<ModsStorage>(modsState->getInstalledMods(), repositoryList);
 
 	eraseMissingModsFromPreset();
-	//TODO: load only active mods & all their submods in game mode
-	modsStorage = std::make_unique<ModsStorage>(modsState->getAllMods(), repositoryList);
 	addNewModsToPreset();
 
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
@@ -301,6 +347,26 @@ const TModList & ModManager::getActiveMods() const
 	return activeMods;
 }
 
+uint32_t ModManager::computeChecksum(const TModID & modName) const
+{
+	return modsState->computeChecksum(modName);
+}
+
+std::optional<uint32_t> ModManager::getValidatedChecksum(const TModID & modName) const
+{
+	return modsPreset->getValidatedChecksum(modName);
+}
+
+void ModManager::setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value)
+{
+	modsPreset->setValidatedChecksum(modName, value);
+}
+
+void ModManager::saveConfigurationState() const
+{
+	modsPreset->saveConfigurationState();
+}
+
 TModList ModManager::getAllMods() const
 {
 	return modsStorage->getAllMods();
@@ -308,7 +374,7 @@ TModList ModManager::getAllMods() const
 
 void ModManager::eraseMissingModsFromPreset()
 {
-	const TModList & installedMods = modsState->getAllMods();
+	const TModList & installedMods = modsState->getInstalledMods();
 	const TModList & rootMods = modsPreset->getActiveRootMods();
 
 	for(const auto & rootMod : rootMods)
@@ -335,7 +401,7 @@ void ModManager::eraseMissingModsFromPreset()
 
 void ModManager::addNewModsToPreset()
 {
-	const TModList & installedMods = modsState->getAllMods();
+	const TModList & installedMods = modsState->getInstalledMods();
 
 	for(const auto & modID : installedMods)
 	{
@@ -420,67 +486,5 @@ void ModManager::generateLoadOrder(std::vector<TModID> modsToResolve)
 	activeMods = sortedValidMods;
 	brokenMods = modsToResolve;
 }
-
-//	modLoadErrors = std::make_unique<MetaString>();
-//
-//	auto addErrorMessage = [this](const std::string & textID, const std::string & brokenModID, const std::string & missingModID)
-//	{
-//		modLoadErrors->appendTextID(textID);
-//
-//		if (allMods.count(brokenModID))
-//			modLoadErrors->replaceRawString(allMods.at(brokenModID).getVerificationInfo().name);
-//		else
-//			modLoadErrors->replaceRawString(brokenModID);
-//
-//		if (allMods.count(missingModID))
-//			modLoadErrors->replaceRawString(allMods.at(missingModID).getVerificationInfo().name);
-//		else
-//			modLoadErrors->replaceRawString(missingModID);
-//
-//	};
-//
-//	// Left mods have unresolved dependencies, output all to log.
-//	for(const auto & brokenModID : modsToResolve)
-//	{
-//		const CModInfo & brokenMod = allMods.at(brokenModID);
-//		bool showErrorMessage = false;
-//		for(const TModID & dependency : brokenMod.dependencies)
-//		{
-//			if(!vstd::contains(resolvedModIDs, dependency) && brokenMod.config["modType"].String() != "Compatibility")
-//			{
-//				addErrorMessage("vcmi.server.errors.modNoDependency", brokenModID, dependency);
-//				showErrorMessage = true;
-//			}
-//		}
-//		for(const TModID & conflict : brokenMod.conflicts)
-//		{
-//			if(vstd::contains(resolvedModIDs, conflict))
-//			{
-//				addErrorMessage("vcmi.server.errors.modConflict", brokenModID, conflict);
-//				showErrorMessage = true;
-//			}
-//		}
-//		for(const TModID & reverseConflict : resolvedModIDs)
-//		{
-//			if (vstd::contains(allMods.at(reverseConflict).conflicts, brokenModID))
-//			{
-//				addErrorMessage("vcmi.server.errors.modConflict", brokenModID, reverseConflict);
-//				showErrorMessage = true;
-//			}
-//		}
-//
-//		// some mods may in a (soft) dependency loop.
-//		if(!showErrorMessage && brokenMod.config["modType"].String() != "Compatibility")
-//		{
-//			modLoadErrors->appendTextID("vcmi.server.errors.modDependencyLoop");
-//			if (allMods.count(brokenModID))
-//				modLoadErrors->replaceRawString(allMods.at(brokenModID).getVerificationInfo().name);
-//			else
-//				modLoadErrors->replaceRawString(brokenModID);
-//		}
-//
-//	}
-//	return sortedValidMods;
-//}
 
 VCMI_LIB_NAMESPACE_END

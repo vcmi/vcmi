@@ -23,12 +23,16 @@ using TModID = std::string;
 class DLL_LINKAGE CModHandler final : boost::noncopyable
 {
 	std::unique_ptr<ModManager> modManager;
+	std::map<std::string, uint32_t> modChecksums;
+	std::set<std::string> validationPassed;
 
 	void loadTranslation(const TModID & modName);
 	void checkModFilesystemsConflicts(const std::map<TModID, ISimpleResourceLoader *> & modFilesystems);
 
+	bool isModValidationNeeded(const ModDescription & mod) const;
+
 public:
-	std::shared_ptr<CContentHandler> content; //FIXME: make private
+	std::shared_ptr<CContentHandler> content;
 
 	/// receives list of available mods and trying to load mod.json from all of them
 	void initializeConfig();
@@ -52,11 +56,8 @@ public:
 
 	/// returns list of all (active) mods
 	std::vector<std::string> getAllMods() const;
-	std::vector<std::string> getActiveMods() const;
+	const std::vector<std::string> & getActiveMods() const;
 
-	/// Returns human-readable string that describes errors encounter during mod loading, such as missing dependencies
-	std::string getModLoadErrors() const;
-	
 	const ModDescription & getModInfo(const TModID & modId) const;
 
 	/// load content from all available mods

@@ -31,15 +31,15 @@ class ModsState : boost::noncopyable
 public:
 	ModsState();
 
-	TModList getAllMods() const;
+	TModList getInstalledMods() const;
+
+	uint32_t computeChecksum(const TModID & modName) const;
 };
 
 /// Provides interface to access or change current mod preset
 class ModsPresetState : boost::noncopyable
 {
 	JsonNode modConfig;
-
-	void saveConfiguration(const JsonNode & config);
 
 	void createInitialPreset();
 	void importInitialPreset();
@@ -61,6 +61,10 @@ public:
 
 	/// Returns list of all known settings (submods) for a specified mod
 	std::map<TModID, bool> getModSettings(const TModID & modID) const;
+	std::optional<uint32_t> getValidatedChecksum(const TModID & modName) const;
+	void setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value);
+
+	void saveConfigurationState() const;
 };
 
 /// Provides access to mod properties
@@ -101,7 +105,12 @@ public:
 	const ModDescription & getModDescription(const TModID & modID) const;
 	const TModList & getActiveMods() const;
 	TModList getAllMods() const;
+
 	bool isModActive(const TModID & modID) const;
+	uint32_t computeChecksum(const TModID & modName) const;
+	std::optional<uint32_t> getValidatedChecksum(const TModID & modName) const;
+	void setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value);
+	void saveConfigurationState() const;
 };
 
 VCMI_LIB_NAMESPACE_END

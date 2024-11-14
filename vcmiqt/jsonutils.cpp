@@ -116,7 +116,7 @@ JsonNode toJson(QVariant object)
 void jsonToFile(QString filename, const JsonNode & object)
 {
 	std::fstream file(qstringToPath(filename).c_str(), std::ios::out | std::ios_base::binary);
-	file << object.toString();
+	file << object.toCompactString();
 }
 
 }

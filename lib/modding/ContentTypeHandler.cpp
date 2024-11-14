@@ -55,7 +55,7 @@ ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string
 
 bool ContentTypeHandler::preloadModData(const std::string & modName, const JsonNode & fileList, bool validate)
 {
-	bool result = false;
+	bool result = true;
 	JsonNode data = JsonUtils::assembleFromFiles(fileList, result);
 	data.setModScope(modName);
 
@@ -259,22 +259,28 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("biomes", ContentTypeHandler(VLC->biomeHandler.get(), "biome")));
 }
 
-bool CContentHandler::preloadModData(const std::string & modName, JsonNode modConfig, bool validate)
+bool CContentHandler::preloadData(const ModDescription & mod, bool validate)
 {
 	bool result = true;
+	if (validate && mod.getID() != ModScope::scopeBuiltin()) // TODO: remove workaround
+	{
+		if (!JsonUtils::validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
+			result = false;
+	}
+
 	for(auto & handler : handlers)
 	{
-		result &= handler.second.preloadModData(modName, modConfig[handler.first], validate);
+		result &= handler.second.preloadModData(mod.getID(), mod.getLocalValue(handler.first), validate);
 	}
 	return result;
 }
 
-bool CContentHandler::loadMod(const std::string & modName, bool validate)
+bool CContentHandler::load(const ModDescription & mod, bool validate)
 {
 	bool result = true;
 	for(auto & handler : handlers)
 	{
-		result &= handler.second.loadMod(modName, validate);
+		result &= handler.second.loadMod(mod.getID(), validate);
 	}
 	return result;
 }
@@ -295,62 +301,9 @@ void CContentHandler::afterLoadFinalization()
 	}
 }
 
-void CContentHandler::preloadData(const ModDescription & mod)
-{
-	preloadModData(mod.getID(), mod.getLocalConfig(), false);
-
-//	bool validate = validateMod(mod);
-//
-//	// print message in format [<8-symbols checksum>] <modname>
-//	auto & info = mod.getVerificationInfo();
-//	logMod->info("\t\t[%08x]%s", info.checksum, info.name);
-//
-//	if (validate && mod.identifier != ModScope::scopeBuiltin())
-//	{
-//		if (!JsonUtils::validate(mod.config, "vcmi:mod", mod.identifier))
-//			mod.validation = CModInfo::FAILED;
-//	}
-//	if (!preloadModData(mod.identifier, mod.config, validate))
-//		mod.validation = CModInfo::FAILED;
-}
-
-void CContentHandler::load(const ModDescription & mod)
-{
-	loadMod(mod.getID(), false);
-
-//	bool validate = validateMod(mod);
-//
-//	if (!loadMod(mod.identifier, validate))
-//		mod.validation = CModInfo::FAILED;
-//
-//	if (validate)
-//	{
-//		if (mod.validation != CModInfo::FAILED)
-//			logMod->info("\t\t[DONE] %s", mod.getVerificationInfo().name);
-//		else
-//			logMod->error("\t\t[FAIL] %s", mod.getVerificationInfo().name);
-//	}
-//	else
-//		logMod->info("\t\t[SKIP] %s", mod.getVerificationInfo().name);
-}
-
 const ContentTypeHandler & CContentHandler::operator[](const std::string & name) const
 {
 	return handlers.at(name);
-}
-
-bool CContentHandler::validateMod(const ModDescription & mod) const
-{
-	if (settings["mods"]["validation"].String() == "full")
-		return true;
-
-//	if (mod.validation == CModInfo::PASSED)
-//		return false;
-
-	if (settings["mods"]["validation"].String() == "off")
-		return false;
-
-	return true;
 }
 
 VCMI_LIB_NAMESPACE_END
