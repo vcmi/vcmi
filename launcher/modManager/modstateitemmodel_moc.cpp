@@ -268,12 +268,33 @@ void CModFilterModel::setTypeFilter(ModFilterMask newFilterMask)
 	invalidateFilter();
 }
 
+bool CModFilterModel::filterMatchesCategory(const QModelIndex & source) const
+{
+	QString modID =source.data(ModRoles::ModNameRole).toString();
+	ModState mod = base->model->getMod(modID);
+
+	switch (filterMask)
+	{
+		case ModFilterMask::ALL:
+			return true;
+		case ModFilterMask::AVAILABLE:
+			return !mod.isInstalled();
+		case ModFilterMask::INSTALLED:
+			return mod.isInstalled();
+		case ModFilterMask::UPDATEABLE:
+			return mod.isUpdateAvailable();
+		case ModFilterMask::ENABLED:
+			return mod.isInstalled() && mod.isEnabled();
+		case ModFilterMask::DISABLED:
+			return mod.isInstalled() && mod.isDisabled();
+	}
+	assert(0);
+	return false;
+}
+
 bool CModFilterModel::filterMatchesThis(const QModelIndex & source) const
 {
-	//QString modID =source.data(ModRoles::ModNameRole).toString();
-	//ModState mod = base->model->getMod(modID);
-	return /*(mod.getModStatus() & filterMask) == filteredType &&*/
-	       QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent());
+	return filterMatchesCategory(source) && QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent());
 }
 
 bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const

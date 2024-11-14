@@ -93,6 +93,7 @@ class CModFilterModel : public QSortFilterProxyModel
 	ModFilterMask filterMask;
 
 	bool filterMatchesThis(const QModelIndex & source) const;
+	bool filterMatchesCategory(const QModelIndex & source) const;
 
 	bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 
