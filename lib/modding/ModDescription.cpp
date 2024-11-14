@@ -126,6 +126,23 @@ ModVerificationInfo ModDescription::getVerificationInfo() const
 	return result;
 }
 
+bool ModDescription::isCompatible() const
+{
+	const JsonNode & compatibility = getValue("compatibility");
+
+	if (compatibility.isNull())
+		return true;
+
+	auto vcmiCompatibleMin = CModVersion::fromString(compatibility["min"].String());
+	auto vcmiCompatibleMax = CModVersion::fromString(compatibility["max"].String());
+
+	bool compatible = true;
+	compatible &= (vcmiCompatibleMin.isNull() || CModVersion::GameVersion().compatible(vcmiCompatibleMin, true, true));
+	compatible &= (vcmiCompatibleMax.isNull() || vcmiCompatibleMax.compatible(CModVersion::GameVersion(), true, true));
+
+	return compatible;
+}
+
 bool ModDescription::isCompatibility() const
 {
 	return getValue("modType").String() == "Compatibility";

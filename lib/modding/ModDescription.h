@@ -55,6 +55,8 @@ public:
 	CModVersion getVersion() const;
 	ModVerificationInfo getVerificationInfo() const;
 
+	bool isCompatible() const;
+
 	bool affectsGameplay() const;
 	bool isCompatibility() const;
 	bool isTranslation() const;

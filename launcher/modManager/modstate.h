@@ -41,6 +41,7 @@ public:
 
 	QString getInstalledVersion() const;
 	QString getRepositoryVersion() const;
+	QString getVersion() const;
 
 	double getDownloadSizeMegabytes() const;
 	size_t getDownloadSizeBytes() const;

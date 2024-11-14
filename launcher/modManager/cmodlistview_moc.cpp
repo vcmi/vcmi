@@ -314,8 +314,13 @@ QString CModListView::genModInfoText(const ModState & mod)
 	QString result;
 
 	result += replaceIfNotEmpty(mod.getName(), lineTemplate.arg(tr("Mod name")));
-	result += replaceIfNotEmpty(mod.getInstalledVersion(), lineTemplate.arg(tr("Installed version")));
-	result += replaceIfNotEmpty(mod.getRepositoryVersion(), lineTemplate.arg(tr("Latest version")));
+	if (mod.isUpdateAvailable())
+	{
+		result += replaceIfNotEmpty(mod.getInstalledVersion(), lineTemplate.arg(tr("Installed version")));
+		result += replaceIfNotEmpty(mod.getRepositoryVersion(), lineTemplate.arg(tr("Latest version")));
+	}
+	else
+		result += replaceIfNotEmpty(mod.getVersion(), lineTemplate.arg(tr("Version")));
 
 	if(!mod.getLocalSizeFormatted().isEmpty())
 		result += replaceIfNotEmpty(mod.getLocalSizeFormatted(), lineTemplate.arg(tr("Size")));
@@ -416,6 +421,8 @@ void CModListView::dataChanged(const QModelIndex & topleft, const QModelIndex & 
 
 void CModListView::selectMod(const QModelIndex & index)
 {
+	ui->tabWidget->setCurrentIndex(0);
+
 	if(!index.isValid())
 	{
 		disableModInfo();
@@ -424,6 +431,9 @@ void CModListView::selectMod(const QModelIndex & index)
 	{
 		const auto modName = index.data(ModRoles::ModNameRole).toString();
 		auto mod = modStateModel->getMod(modName);
+
+		ui->tabWidget->setTabEnabled(1, !mod.getChangelog().isEmpty());
+		ui->tabWidget->setTabEnabled(2, !mod.getScreenshots().isEmpty());
 
 		ui->modInfoBrowser->setHtml(genModInfoText(mod));
 		ui->changelogBrowser->setHtml(genChangelogText(mod));

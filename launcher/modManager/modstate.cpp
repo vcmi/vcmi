@@ -13,6 +13,7 @@
 #include "../../lib/modding/ModDescription.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/Languages.h"
 
 ModState::ModState(const ModDescription & impl)
 	: impl(impl)
@@ -70,7 +71,7 @@ QStringList ModState::getConflicts() const
 
 QStringList ModState::getScreenshots() const
 {
-	return {}; // TODO
+	return stringListStdToQt(impl.getValue("screenshots").convertTo<std::vector<std::string>>());
 }
 
 QString ModState::getBaseLanguage() const
@@ -80,12 +81,33 @@ QString ModState::getBaseLanguage() const
 
 QStringList ModState::getSupportedLanguages() const
 {
-	return {}; //TODO
+	QStringList result;
+	result.push_back(getBaseLanguage());
+
+	for (const auto & language : Languages::getLanguageList())
+	{
+		QString languageID = QString::fromStdString(language.identifier);
+
+		if (languageID != getBaseLanguage() && !impl.getValue(language.identifier).isNull())
+			result.push_back(languageID);
+	}
+	return result;
 }
 
 QMap<QString, QStringList> ModState::getChangelog() const
 {
-	return {}; //TODO
+	QMap<QString, QStringList> result;
+	const JsonNode & changelog = impl.getValue("changelog");
+
+	for (const auto & entry : changelog.Struct())
+	{
+		QString version = QString::fromStdString(entry.first);
+		QStringList changes = stringListStdToQt(entry.second.convertTo<std::vector<std::string>>());
+
+		result[version]	= changes;
+	}
+
+	return result;
 }
 
 QString ModState::getInstalledVersion() const
@@ -96,6 +118,11 @@ QString ModState::getInstalledVersion() const
 QString ModState::getRepositoryVersion() const
 {
 	return QString::fromStdString(impl.getRepositoryValue("version").String());
+}
+
+QString ModState::getVersion() const
+{
+	return QString::fromStdString(impl.getValue("version").String());
 }
 
 double ModState::getDownloadSizeMegabytes() const
@@ -110,7 +137,7 @@ size_t ModState::getDownloadSizeBytes() const
 
 QString ModState::getDownloadSizeFormatted() const
 {
-	return {}; // TODO
+	return QCoreApplication::translate("File size", "%1 MiB").arg(QString::number(getDownloadSizeMegabytes(), 'f', 1));
 }
 
 QString ModState::getLocalSizeFormatted() const
@@ -145,7 +172,14 @@ QString ModState::getDownloadUrl() const
 
 QPair<QString, QString> ModState::getCompatibleVersionRange() const
 {
-	return {}; // TODO
+	const JsonNode & compatibility = impl.getValue("compatibility");
+
+	if (compatibility.isNull())
+		return {};
+
+	auto min = QString::fromStdString(compatibility["min"].String());
+	auto max = QString::fromStdString(compatibility["max"].String());
+	return { min, max};
 }
 
 bool ModState::isSubmod() const
@@ -203,7 +237,7 @@ bool ModState::isUpdateAvailable() const
 
 bool ModState::isCompatible() const
 {
-	return true; //TODO
+	return impl.isCompatible();
 }
 
 bool ModState::isKeptDisabled() const
