@@ -61,8 +61,6 @@ public:
 
 	bool isVisible() const;
 	bool isHidden() const;
-	bool isDisabled() const;
-	bool isEnabled() const;
 	bool isAvailable() const;
 	bool isInstalled() const;
 	bool isUpdateAvailable() const;

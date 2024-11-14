@@ -258,9 +258,11 @@ QString CModListView::genChangelogText(const ModState & mod)
 	return result;
 }
 
-QStringList CModListView::getModNames(QStringList input)
+QStringList CModListView::getModNames(QString queryingModID, QStringList input)
 {
 	QStringList result;
+
+	auto queryingMod = modStateModel->getMod(queryingModID);
 
 	for(const auto & modID : input)
 	{
@@ -274,6 +276,9 @@ QStringList CModListView::getModNames(QStringList input)
 
 		auto mod = modStateModel->getMod(modID);
 
+		if (queryingMod.getParentID() == modID)
+			continue;
+
 		if (mod.isHidden())
 			continue;
 
@@ -281,7 +286,7 @@ QStringList CModListView::getModNames(QStringList input)
 		if (displayName.isEmpty())
 			displayName = modID.toLower();
 
-		if (mod.isSubmod())
+		if (mod.isSubmod() && queryingMod.getParentID() != mod.getParentID() )
 		{
 			auto parentModID = mod.getTopParentID();
 			auto parentMod = modStateModel->getMod(parentModID);
@@ -375,8 +380,8 @@ QString CModListView::genModInfoText(const ModState & mod)
 		result += replaceIfNotEmpty(supportedLanguagesTranslated, lineTemplate.arg(tr("Languages")));
 	}
 
-	result += replaceIfNotEmpty(getModNames(mod.getDependencies()), lineTemplate.arg(tr("Required mods")));
-	result += replaceIfNotEmpty(getModNames(mod.getConflicts()), lineTemplate.arg(tr("Conflicting mods")));
+	result += replaceIfNotEmpty(getModNames(mod.getID(), mod.getDependencies()), lineTemplate.arg(tr("Required mods")));
+	result += replaceIfNotEmpty(getModNames(mod.getID(), mod.getConflicts()), lineTemplate.arg(tr("Conflicting mods")));
 	result += replaceIfNotEmpty(mod.getDescription(), textTemplate.arg(tr("Description")));
 
 	result += "<p></p>"; // to get some empty space
@@ -389,12 +394,12 @@ QString CModListView::genModInfoText(const ModState & mod)
 
 	QString notes;
 
-	notes += replaceIfNotEmpty(getModNames(findInvalidDependencies(mod.getID())), listTemplate.arg(unknownDeps));
-	notes += replaceIfNotEmpty(getModNames(findBlockingMods(mod.getID())), listTemplate.arg(blockingMods));
-	if(mod.isEnabled())
-		notes += replaceIfNotEmpty(getModNames(findDependentMods(mod.getID(), true)), listTemplate.arg(hasActiveDependentMods));
+	notes += replaceIfNotEmpty(getModNames(mod.getID(), findInvalidDependencies(mod.getID())), listTemplate.arg(unknownDeps));
+	notes += replaceIfNotEmpty(getModNames(mod.getID(), findBlockingMods(mod.getID())), listTemplate.arg(blockingMods));
+	if(modStateModel->isModEnabled(mod.getID()))
+		notes += replaceIfNotEmpty(getModNames(mod.getID(), findDependentMods(mod.getID(), true)), listTemplate.arg(hasActiveDependentMods));
 	if(mod.isInstalled())
-		notes += replaceIfNotEmpty(getModNames(findDependentMods(mod.getID(), false)), listTemplate.arg(hasDependentMods));
+		notes += replaceIfNotEmpty(getModNames(mod.getID(), findDependentMods(mod.getID(), false)), listTemplate.arg(hasDependentMods));
 
 	if(mod.isSubmod())
 		notes += noteTemplate.arg(thisIsSubmod);
@@ -445,8 +450,8 @@ void CModListView::selectMod(const QModelIndex & index)
 		bool hasBlockingMods = !findBlockingMods(modName).empty();
 		bool hasDependentMods = !findDependentMods(modName, true).empty();
 
-		ui->disableButton->setVisible(mod.isEnabled());
-		ui->enableButton->setVisible(mod.isDisabled());
+		ui->disableButton->setVisible(modStateModel->isModEnabled(mod.getID()));
+		ui->enableButton->setVisible(!modStateModel->isModEnabled(mod.getID()));
 		ui->installButton->setVisible(mod.isAvailable() && !mod.isSubmod());
 		ui->uninstallButton->setVisible(mod.isInstalled() && !mod.isSubmod());
 		ui->updateButton->setVisible(mod.isUpdateAvailable());
@@ -515,7 +520,7 @@ QStringList CModListView::findBlockingMods(QString modUnderTest)
 	{
 		auto mod = modStateModel->getMod(name);
 
-		if(mod.isEnabled())
+		if(modStateModel->isModEnabled(mod.getID()))
 		{
 			// one of enabled mods have requirement (or this mod) marked as conflict
 			for(const auto & conflict : mod.getConflicts())
@@ -541,7 +546,7 @@ QStringList CModListView::findDependentMods(QString mod, bool excludeDisabled)
 
 		if(current.getDependencies().contains(mod, Qt::CaseInsensitive))
 		{
-			if(!(current.isDisabled() && excludeDisabled))
+			if(!(modStateModel->isModEnabled(modName) && excludeDisabled))
 				ret += modName;
 		}
 	}
@@ -566,7 +571,7 @@ void CModListView::enableModByName(QString modName)
 
 	for(const auto & name : mod.getDependencies())
 	{
-		if(modStateModel->getMod(name).isDisabled())
+		if(!modStateModel->isModEnabled(name))
 			manager->enableMod(name);
 	}
 }
@@ -582,7 +587,7 @@ void CModListView::on_disableButton_clicked()
 
 void CModListView::disableModByName(QString modName)
 {
-	if(modStateModel->isModExists(modName) && modStateModel->getMod(modName).isEnabled())
+	if(modStateModel->isModExists(modName) && modStateModel->isModEnabled(modName))
 		manager->disableMod(modName);
 }
 
@@ -608,7 +613,7 @@ void CModListView::on_uninstallButton_clicked()
 
 	if(modStateModel->isModExists(modName) && modStateModel->getMod(modName).isInstalled())
 	{
-		if(modStateModel->getMod(modName).isEnabled())
+		if(modStateModel->isModEnabled(modName))
 			manager->disableMod(modName);
 		manager->uninstallMod(modName);
 	}
@@ -627,14 +632,13 @@ void CModListView::on_installButton_clicked()
 		auto mod = modStateModel->getMod(name);
 		if(mod.isAvailable())
 			downloadFile(name + ".zip", mod.getDownloadUrl(), name, mod.getDownloadSizeMegabytes());
-		else if(!mod.isEnabled())
+		else if(modStateModel->isModEnabled(name))
 			enableModByName(name);
 	}
 
 	for(const auto & name : modStateModel->getMod(modName).getConflicts())
 	{
-		auto mod = modStateModel->getMod(name);
-		if(mod.isEnabled())
+		if(modStateModel->isModEnabled(name))
 		{
 			//TODO: consider reverse dependencies disabling
 			//TODO: consider if it may be possible for subdependencies to block disabling conflicting mod?
@@ -915,7 +919,7 @@ void CModListView::installMods(QStringList archives)
 		if(entry.isInstalled())
 		{
 			// enable mod if installed and enabled
-			if(entry.isEnabled())
+			if(modStateModel->isModEnabled(mod))
 				modsToEnable.push_back(mod);
 		}
 		else
@@ -948,12 +952,11 @@ void CModListView::installMods(QStringList archives)
 		{
 			for(const auto & dependencyName : mod.getDependencies())
 			{
-				auto dependency = modStateModel->getMod(dependencyName);
-				if(dependency.isDisabled())
+				if(!modStateModel->isModEnabled(dependencyName))
 					manager->enableMod(dependencyName);
 			}
 
-			if(mod.isDisabled() && manager->enableMod(modName))
+			if(!modStateModel->isModEnabled(modName) && manager->enableMod(modName))
 			{
 				for(QString child : modStateModel->getSubmods(modName))
 					enableMod(child);
@@ -1082,8 +1085,7 @@ bool CModListView::isModAvailable(const QString & modName)
 
 bool CModListView::isModEnabled(const QString & modName)
 {
-	auto mod = modStateModel->getMod(modName);
-	return mod.isEnabled();
+	return modStateModel->isModEnabled(modName);
 }
 
 bool CModListView::isModInstalled(const QString & modName)
@@ -1144,13 +1146,13 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 		return;
 	}
 
-	if(!hasBlockingMods && !hasInvalidDeps && mod.isDisabled())
+	if(!hasBlockingMods && !hasInvalidDeps && !modStateModel->isModEnabled(modName))
 	{
 		on_enableButton_clicked();
 		return;
 	}
 
-	if(!hasDependentMods && !mod.isVisible() && mod.isEnabled())
+	if(!hasDependentMods && !mod.isVisible() && modStateModel->isModEnabled(modName))
 	{
 		on_disableButton_clicked();
 		return;

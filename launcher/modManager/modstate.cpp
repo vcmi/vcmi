@@ -205,16 +205,6 @@ bool ModState::isHidden() const
 	return isCompatibility() || getID() == "vcmi" || getID() == "core";
 }
 
-bool ModState::isDisabled() const
-{
-	return false; // TODO
-}
-
-bool ModState::isEnabled() const
-{
-	return true; // TODO
-}
-
 bool ModState::isAvailable() const
 {
 	return !isInstalled();

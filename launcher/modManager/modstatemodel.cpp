@@ -70,7 +70,7 @@ bool ModStateModel::isModInstalled(QString modName) const
 
 bool ModStateModel::isModEnabled(QString modName) const
 {
-	return getMod(modName).isEnabled(); // TODO
+	return modManager->isModActive(modName.toStdString());
 }
 
 bool ModStateModel::isModUpdateAvailable(QString modName) const

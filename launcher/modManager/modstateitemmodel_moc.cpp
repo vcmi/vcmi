@@ -284,9 +284,9 @@ bool CModFilterModel::filterMatchesCategory(const QModelIndex & source) const
 		case ModFilterMask::UPDATEABLE:
 			return mod.isUpdateAvailable();
 		case ModFilterMask::ENABLED:
-			return mod.isInstalled() && mod.isEnabled();
+			return mod.isInstalled() && base->model->isModEnabled(modID);
 		case ModFilterMask::DISABLED:
-			return mod.isInstalled() && mod.isDisabled();
+			return mod.isInstalled() && !base->model->isModEnabled(modID);
 	}
 	assert(0);
 	return false;
