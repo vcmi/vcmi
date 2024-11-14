@@ -47,7 +47,7 @@ QString ModState::getParentID() const
 
 QString ModState::getTopParentID() const
 {
-	return QString::fromStdString(impl.getParentID());
+	return QString::fromStdString(impl.getParentID()); // TODO
 }
 
 template<typename Container>

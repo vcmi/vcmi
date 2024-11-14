@@ -152,28 +152,8 @@ bool ModStateController::canEnableMod(QString modname)
 	{
 		if(!modList->isModExists(modEntry)) // required mod is not available
 			return addError(modname, tr("Required mod %1 is missing").arg(modEntry));
-
-		ModState modData = modList->getMod(modEntry);
-
-		if(!modData.isCompatibility() && !modList->isModEnabled(modEntry))
-			return addError(modname, tr("Required mod %1 is not enabled").arg(modEntry));
 	}
 
-	for(QString modEntry : modList->getAllMods())
-	{
-		auto otherMod = modList->getMod(modEntry);
-
-		// "reverse conflict" - enabled mod has this one as conflict
-		if(modList->isModEnabled(modname) && otherMod.getConflicts().contains(modname))
-			return addError(modname, tr("This mod conflicts with %1").arg(modEntry));
-	}
-
-	for(const auto & modEntry : mod.getConflicts())
-	{
-		// check if conflicting mod installed and enabled
-		if(modList->isModExists(modEntry) && modList->isModEnabled(modEntry))
-			return addError(modname, tr("This mod conflicts with %1").arg(modEntry));
-	}
 	return true;
 }
 
@@ -187,20 +167,16 @@ bool ModStateController::canDisableMod(QString modname)
 	if(!mod.isInstalled())
 		return addError(modname, tr("Mod must be installed first"));
 
-	for(QString modEntry : modList->getAllMods())
-	{
-		auto current = modList->getMod(modEntry);
-
-		if(current.getDependencies().contains(modname) && modList->isModEnabled(modEntry))
-			return addError(modname, tr("This mod is needed to run %1").arg(modEntry));
-	}
 	return true;
 }
 
 bool ModStateController::doEnableMod(QString mod, bool on)
 {
-	//modSettings->setModActive(mod, on);
-	//modList->modChanged(mod);
+	if (on)
+		modList->doEnableMod(mod);
+	else
+		modList->doDisableMod(mod);
+
 	return true;
 }
 

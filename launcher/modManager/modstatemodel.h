@@ -32,7 +32,6 @@ public:
 
 	ModState getMod(QString modName) const;
 	QStringList getAllMods() const;
-	QStringList getSubmods(QString modName) const;
 
 	QString getInstalledModSizeFormatted(QString modName) const;
 	double getInstalledModSizeMegabytes(QString modName) const;
@@ -42,4 +41,7 @@ public:
 	bool isModEnabled(QString modName) const;
 	bool isModUpdateAvailable(QString modName) const;
 	bool isModVisible(QString modName) const;
+
+	void doEnableMod(QString modname);
+	void doDisableMod(QString modname);
 };

@@ -46,7 +46,7 @@ enum EModRoles
 };
 }
 
-class ModStateItemModel : public QAbstractItemModel
+class ModStateItemModel final : public QAbstractItemModel
 {
 	friend class CModFilterModel;
 	Q_OBJECT
@@ -87,7 +87,7 @@ public:
 	Qt::ItemFlags flags(const QModelIndex & index) const override;
 };
 
-class CModFilterModel : public QSortFilterProxyModel
+class CModFilterModel final : public QSortFilterProxyModel
 {
 	ModStateItemModel * base;
 	ModFilterMask filterMask;

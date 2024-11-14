@@ -446,8 +446,10 @@ void CModListView::selectMod(const QModelIndex & index)
 		Helper::enableScrollBySwiping(ui->modInfoBrowser);
 		Helper::enableScrollBySwiping(ui->changelogBrowser);
 
+		//FIXME: this function should be recursive
+		//FIXME: ensure that this is also reflected correctly in "Notes" section of mod description
 		bool hasInvalidDeps = !findInvalidDependencies(modName).empty();
-		bool hasBlockingMods = !findBlockingMods(modName).empty();
+		//bool hasBlockingMods = !findBlockingMods(modName).empty();
 		bool hasDependentMods = !findDependentMods(modName, true).empty();
 
 		ui->disableButton->setVisible(modStateModel->isModEnabled(mod.getID()));
@@ -459,8 +461,8 @@ void CModListView::selectMod(const QModelIndex & index)
 		// Block buttons if action is not allowed at this time
 		// TODO: automate handling of some of these cases instead of forcing player
 		// to resolve all conflicts manually.
-		ui->disableButton->setEnabled(!hasDependentMods && !mod.isHidden());
-		ui->enableButton->setEnabled(!hasBlockingMods && !hasInvalidDeps);
+		ui->disableButton->setEnabled(true);
+		ui->enableButton->setEnabled(!hasInvalidDeps);
 		ui->installButton->setEnabled(!hasInvalidDeps);
 		ui->uninstallButton->setEnabled(!hasDependentMods && !mod.isHidden());
 		ui->updateButton->setEnabled(!hasInvalidDeps && !hasDependentMods);
@@ -564,16 +566,8 @@ void CModListView::on_enableButton_clicked()
 
 void CModListView::enableModByName(QString modName)
 {
-	assert(findBlockingMods(modName).empty());
-	assert(findInvalidDependencies(modName).empty());
-
-	auto mod = modStateModel->getMod(modName);
-
-	for(const auto & name : mod.getDependencies())
-	{
-		if(!modStateModel->isModEnabled(name))
-			manager->enableMod(name);
-	}
+	manager->enableMod(modName);
+	modModel->reloadRepositories();
 }
 
 void CModListView::on_disableButton_clicked()
@@ -587,8 +581,8 @@ void CModListView::on_disableButton_clicked()
 
 void CModListView::disableModByName(QString modName)
 {
-	if(modStateModel->isModExists(modName) && modStateModel->isModEnabled(modName))
-		manager->disableMod(modName);
+	manager->disableMod(modName);
+	modModel->reloadRepositories();
 }
 
 void CModListView::on_updateButton_clicked()
@@ -943,30 +937,9 @@ void CModListView::installMods(QStringList archives)
 		manager->installMod(modNames[i], archives[i]);
 	}
 
-	std::function<void(QString)> enableMod;
-
-	enableMod = [&](QString modName)
-	{
-		auto mod = modStateModel->getMod(modName);
-		if(mod.isInstalled() && !mod.isKeptDisabled())
-		{
-			for(const auto & dependencyName : mod.getDependencies())
-			{
-				if(!modStateModel->isModEnabled(dependencyName))
-					manager->enableMod(dependencyName);
-			}
-
-			if(!modStateModel->isModEnabled(modName) && manager->enableMod(modName))
-			{
-				for(QString child : modStateModel->getSubmods(modName))
-					enableMod(child);
-			}
-		}
-	};
-
 	for(QString mod : modsToEnable)
 	{
-		enableMod(mod);
+		manager->enableMod(mod); // TODO: make it as a single action, so if mod 1 depends on mod 2 it would still activate
 	}
 
 	checkManagerErrors();

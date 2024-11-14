@@ -172,8 +172,6 @@ ModsPresetState::ModsPresetState()
 			createInitialPreset(); // new install
 		else
 			importInitialPreset(); // 1.5 format import
-
-		saveConfigurationState();
 	}
 }
 
@@ -229,7 +227,35 @@ std::optional<uint32_t> ModsPresetState::getValidatedChecksum(const TModID & mod
 		return node.Integer();
 }
 
-void ModsPresetState::setSettingActiveInPreset(const TModID & modName, const TModID & settingName, bool isActive)
+void ModsPresetState::setModActive(const TModID & modID, bool isActive)
+{
+	size_t dotPos = modID.find('.');
+
+	if(dotPos != std::string::npos)
+	{
+		std::string rootMod = modID.substr(0, dotPos);
+		std::string settingID = modID.substr(dotPos + 1);
+		setSettingActive(rootMod, settingID, isActive);
+	}
+	else
+	{
+		if (isActive)
+			addRootMod(modID);
+		else
+			eraseRootMod(modID);
+	}
+}
+
+void ModsPresetState::addRootMod(const TModID & modName)
+{
+	const std::string & currentPresetName = modConfig["activePreset"].String();
+	JsonNode & currentPreset = modConfig["presets"][currentPresetName];
+
+	if (!vstd::contains(currentPreset["mods"].Vector(), JsonNode(modName)))
+		currentPreset["mods"].Vector().emplace_back(modName);
+}
+
+void ModsPresetState::setSettingActive(const TModID & modName, const TModID & settingName, bool isActive)
 {
 	const std::string & currentPresetName = modConfig["activePreset"].String();
 	JsonNode & currentPreset = modConfig["presets"][currentPresetName];
@@ -237,16 +263,18 @@ void ModsPresetState::setSettingActiveInPreset(const TModID & modName, const TMo
 	currentPreset["settings"][modName][settingName].Bool() = isActive;
 }
 
-void ModsPresetState::eraseModInAllPresets(const TModID & modName)
+void ModsPresetState::eraseRootMod(const TModID & modName)
 {
-	for (auto & preset : modConfig["presets"].Struct())
-		vstd::erase(preset.second["mods"].Vector(), JsonNode(modName));
+	const std::string & currentPresetName = modConfig["activePreset"].String();
+	JsonNode & currentPreset = modConfig["presets"][currentPresetName];
+	vstd::erase(currentPreset["mods"].Vector(), JsonNode(modName));
 }
 
-void ModsPresetState::eraseModSettingInAllPresets(const TModID & modName, const TModID & settingName)
+void ModsPresetState::eraseModSetting(const TModID & modName, const TModID & settingName)
 {
-	for (auto & preset : modConfig["presets"].Struct())
-		preset.second["settings"][modName].Struct().erase(modName);
+	const std::string & currentPresetName = modConfig["activePreset"].String();
+	JsonNode & currentPreset = modConfig["presets"][currentPresetName];
+	currentPreset["settings"][modName].Struct().erase(modName);
 }
 
 std::vector<TModID> ModsPresetState::getActiveMods() const
@@ -344,7 +372,7 @@ ModManager::ModManager(const JsonNode & repositoryList)
 	addNewModsToPreset();
 
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
-	generateLoadOrder(desiredModList);
+	depedencyResolver = std::make_unique<ModDependenciesResolver>(desiredModList, *modsStorage);
 }
 
 ModManager::~ModManager() = default;
@@ -357,12 +385,12 @@ const ModDescription & ModManager::getModDescription(const TModID & modID) const
 
 bool ModManager::isModActive(const TModID & modID) const
 {
-	return vstd::contains(activeMods, modID);
+	return vstd::contains(getActiveMods(), modID);
 }
 
 const TModList & ModManager::getActiveMods() const
 {
-	return activeMods;
+	return depedencyResolver->getActiveMods();
 }
 
 uint32_t ModManager::computeChecksum(const TModID & modName) const
@@ -404,7 +432,7 @@ void ModManager::eraseMissingModsFromPreset()
 	{
 		if(!vstd::contains(installedMods, rootMod))
 		{
-			modsPreset->eraseModInAllPresets(rootMod);
+			modsPreset->eraseRootMod(rootMod);
 			continue;
 		}
 
@@ -415,7 +443,7 @@ void ModManager::eraseMissingModsFromPreset()
 			TModID fullModID = rootMod + '.' + modSetting.first;
 			if(!vstd::contains(installedMods, fullModID))
 			{
-				modsPreset->eraseModSettingInAllPresets(rootMod, modSetting.first);
+				modsPreset->eraseModSetting(rootMod, modSetting.first);
 				continue;
 			}
 		}
@@ -439,17 +467,110 @@ void ModManager::addNewModsToPreset()
 		const auto & modSettings = modsPreset->getModSettings(rootMod);
 
 		if (!modSettings.count(settingID))
-			modsPreset->setSettingActiveInPreset(rootMod, settingID, modsStorage->getMod(modID).keepDisabled());
+			modsPreset->setSettingActive(rootMod, settingID, modsStorage->getMod(modID).keepDisabled());
 	}
 }
 
-void ModManager::generateLoadOrder(std::vector<TModID> modsToResolve)
+TModList ModManager::collectDependenciesRecursive(const TModID & modID) const
+{
+	TModList result;
+	TModList toTest;
+
+	toTest.push_back(modID);
+	while (!toTest.empty())
+	{
+		TModID currentMod = toTest.back();
+		toTest.pop_back();
+		result.push_back(currentMod);
+
+		for (const auto & dependency : getModDescription(currentMod).getDependencies())
+		{
+			if (!vstd::contains(result, dependency))
+				toTest.push_back(dependency);
+		}
+	}
+
+	return result;
+}
+
+void ModManager::tryEnableMod(const TModID & modName)
+{
+	auto requiredActiveMods = collectDependenciesRecursive(modName);
+	auto additionalActiveMods = getActiveMods();
+
+	assert(!vstd::contains(additionalActiveMods, modName));
+
+	ModDependenciesResolver testResolver(requiredActiveMods, *modsStorage);
+	assert(testResolver.getBrokenMods().empty());
+	assert(vstd::contains(testResolver.getActiveMods(), modName));
+
+	testResolver.tryAddMods(additionalActiveMods, *modsStorage);
+
+	if (!vstd::contains(testResolver.getActiveMods(), modName))
+	{
+		// FIXME: report?
+		return;
+	}
+
+	updatePreset(testResolver);
+}
+
+void ModManager::tryDisableMod(const TModID & modName)
+{
+	auto desiredActiveMods = getActiveMods();
+	assert(vstd::contains(desiredActiveMods, modName));
+
+	vstd::erase(desiredActiveMods, modName);
+
+	ModDependenciesResolver testResolver(desiredActiveMods, *modsStorage);
+
+	if (vstd::contains(testResolver.getActiveMods(), modName))
+	{
+		// FIXME: report?
+		return;
+	}
+
+	updatePreset(testResolver);
+}
+
+void ModManager::updatePreset(const ModDependenciesResolver & testResolver)
+{
+	const auto & newActiveMods = testResolver.getActiveMods();
+	const auto & newBrokenMods = testResolver.getBrokenMods();
+
+	for (const auto & modID : newActiveMods)
+		modsPreset->setModActive(modID, true);
+
+	for (const auto & modID : newBrokenMods)
+		modsPreset->setModActive(modID, false);
+
+	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
+	depedencyResolver = std::make_unique<ModDependenciesResolver>(desiredModList, *modsStorage);
+
+	modsPreset->saveConfigurationState();
+}
+
+ModDependenciesResolver::ModDependenciesResolver(const TModList & modsToResolve, const ModsStorage & storage)
+{
+	tryAddMods(modsToResolve, storage);
+}
+
+const TModList & ModDependenciesResolver::getActiveMods() const
+{
+	return activeMods;
+}
+
+const TModList & ModDependenciesResolver::getBrokenMods() const
+{
+	return brokenMods;
+}
+
+void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStorage & storage)
 {
 	// Topological sort algorithm.
 	boost::range::sort(modsToResolve); // Sort mods per name
-	std::vector<TModID> sortedValidMods; // Vector keeps order of elements (LIFO)
-	sortedValidMods.reserve(modsToResolve.size()); // push_back calls won't cause memory reallocation
-	std::set<TModID> resolvedModIDs; // Use a set for validation for performance reason, but set does not keep order of elements
+	std::vector<TModID> sortedValidMods(activeMods.begin(), activeMods.end()); // Vector keeps order of elements (LIFO)
+	std::set<TModID> resolvedModIDs(activeMods.begin(), activeMods.end()); // Use a set for validation for performance reason, but set does not keep order of elements
 	std::set<TModID> notResolvedModIDs(modsToResolve.begin(), modsToResolve.end()); // Use a set for validation for performance reason
 
 	// Mod is resolved if it has no dependencies or all its dependencies are already resolved
@@ -474,7 +595,7 @@ void ModManager::generateLoadOrder(std::vector<TModID> modsToResolve)
 				return false;
 
 		for(const TModID & reverseConflict : resolvedModIDs)
-			if(vstd::contains(modsStorage->getMod(reverseConflict).getConflicts(), mod.getID()))
+			if(vstd::contains(storage.getMod(reverseConflict).getConflicts(), mod.getID()))
 				return false;
 
 		return true;
@@ -485,7 +606,7 @@ void ModManager::generateLoadOrder(std::vector<TModID> modsToResolve)
 		std::set<TModID> resolvedOnCurrentTreeLevel;
 		for(auto it = modsToResolve.begin(); it != modsToResolve.end();) // One iteration - one level of mods tree
 		{
-			if(isResolved(modsStorage->getMod(*it)))
+			if(isResolved(storage.getMod(*it)))
 			{
 				resolvedOnCurrentTreeLevel.insert(*it); // Not to the resolvedModIDs, so current node children will be resolved on the next iteration
 				sortedValidMods.push_back(*it);
@@ -507,7 +628,7 @@ void ModManager::generateLoadOrder(std::vector<TModID> modsToResolve)
 
 	assert(!sortedValidMods.empty());
 	activeMods = sortedValidMods;
-	brokenMods = modsToResolve;
+	brokenMods.insert(brokenMods.end(), modsToResolve.begin(), modsToResolve.end());
 }
 
 VCMI_LIB_NAMESPACE_END

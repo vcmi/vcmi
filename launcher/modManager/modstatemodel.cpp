@@ -53,11 +53,6 @@ QStringList ModStateModel::getAllMods() const
 	return stringListStdToQt(modManager->getAllMods());
 }
 
-QStringList ModStateModel::getSubmods(QString modName) const
-{
-	return {}; //TODO
-}
-
 bool ModStateModel::isModExists(QString modName) const
 {
 	return vstd::contains(modManager->getAllMods(), modName.toStdString());
@@ -91,4 +86,14 @@ QString ModStateModel::getInstalledModSizeFormatted(QString modName) const
 double ModStateModel::getInstalledModSizeMegabytes(QString modName) const
 {
 	return modManager->getInstalledModSizeMegabytes(modName.toStdString());
+}
+
+void ModStateModel::doEnableMod(QString modname)
+{
+	modManager->tryEnableMod(modname.toStdString());
+}
+
+void ModStateModel::doDisableMod(QString modname)
+{
+	modManager->tryDisableMod(modname.toStdString());
 }

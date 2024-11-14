@@ -50,9 +50,13 @@ class ModsPresetState : boost::noncopyable
 public:
 	ModsPresetState();
 
-	void setSettingActiveInPreset(const TModID & modName, const TModID & settingName, bool isActive);
-	void eraseModInAllPresets(const TModID & modName);
-	void eraseModSettingInAllPresets(const TModID & modName, const TModID & settingName);
+	void setModActive(const TModID & modName, bool isActive);
+
+	void addRootMod(const TModID & modName);
+	void eraseRootMod(const TModID & modName);
+
+	void setSettingActive(const TModID & modName, const TModID & settingName, bool isActive);
+	void eraseModSetting(const TModID & modName, const TModID & settingName);
 
 	/// Returns list of all mods active in current preset. Mod order is unspecified
 	TModList getActiveMods() const;
@@ -81,8 +85,7 @@ public:
 	TModList getAllMods() const;
 };
 
-/// Provides public interface to access mod state
-class DLL_LINKAGE ModManager : boost::noncopyable
+class ModDependenciesResolver : boost::noncopyable
 {
 	/// all currently active mods, in their load order
 	TModList activeMods;
@@ -90,13 +93,29 @@ class DLL_LINKAGE ModManager : boost::noncopyable
 	/// Mods from current preset that failed to load due to invalid dependencies
 	TModList brokenMods;
 
+public:
+	ModDependenciesResolver(const TModList & modsToResolve, const ModsStorage & storage);
+
+	void tryAddMods(TModList modsToResolve, const ModsStorage & storage);
+
+	const TModList & getActiveMods() const;
+	const TModList & getBrokenMods() const;
+};
+
+/// Provides public interface to access mod state
+class DLL_LINKAGE ModManager : boost::noncopyable
+{
 	std::unique_ptr<ModsState> modsState;
 	std::unique_ptr<ModsPresetState> modsPreset;
 	std::unique_ptr<ModsStorage> modsStorage;
+	std::unique_ptr<ModDependenciesResolver> depedencyResolver;
 
 	void generateLoadOrder(TModList desiredModList);
 	void eraseMissingModsFromPreset();
 	void addNewModsToPreset();
+	void updatePreset(const ModDependenciesResolver & newData);
+
+	TModList collectDependenciesRecursive(const TModID & modID) const;
 
 public:
 	ModManager(const JsonNode & repositoryList);
@@ -113,6 +132,9 @@ public:
 	void setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value);
 	void saveConfigurationState() const;
 	double getInstalledModSizeMegabytes(const TModID & modName) const;
+
+	void tryEnableMod(const TModID & modName);
+	void tryDisableMod(const TModID & modName);
 };
 
 VCMI_LIB_NAMESPACE_END
