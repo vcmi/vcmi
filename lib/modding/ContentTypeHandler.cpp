@@ -171,7 +171,7 @@ void ContentTypeHandler::afterLoadFinalization()
 		{
 			if (data.second.modData.isNull())
 			{
-				for (auto node : data.second.patches.Struct())
+				for (const auto & node : data.second.patches.Struct())
 					logMod->warn("Mod '%s' have added patch for object '%s' from mod '%s', but this mod was not loaded or has no new objects.", node.second.getModScope(), node.first, data.first);
 			}
 

@@ -309,7 +309,7 @@ void CModHandler::load()
 void CModHandler::afterLoad(bool onlyEssential)
 {
 	JsonNode modSettings;
-	for (auto & modEntry : getActiveMods())
+	for (const auto & modEntry : getActiveMods())
 	{
 		if (validationPassed.count(modEntry))
 			modManager->setValidatedChecksum(modEntry, modChecksums.at(modEntry));

@@ -62,7 +62,7 @@ uint32_t ModsState::computeChecksum(const TModID & modName) const
 {
 	boost::crc_32_type modChecksum;
 	// first - add current VCMI version into checksum to force re-validation on VCMI updates
-	modChecksum.process_bytes(reinterpret_cast<const void*>(GameConstants::VCMI_VERSION.data()), GameConstants::VCMI_VERSION.size());
+	modChecksum.process_bytes(static_cast<const void*>(GameConstants::VCMI_VERSION.data()), GameConstants::VCMI_VERSION.size());
 
 	// second - add mod.json into checksum because filesystem does not contains this file
 	// FIXME: remove workaround for core mod
@@ -70,7 +70,7 @@ uint32_t ModsState::computeChecksum(const TModID & modName) const
 	{
 		auto modConfFile = getModDescriptionFile(modName);
 		ui32 configChecksum = CResourceHandler::get("initial")->load(modConfFile)->calculateCRC32();
-		modChecksum.process_bytes(reinterpret_cast<const void *>(&configChecksum), sizeof(configChecksum));
+		modChecksum.process_bytes(static_cast<const void *>(&configChecksum), sizeof(configChecksum));
 	}
 
 	// third - add all detected text files from this mod into checksum
@@ -84,7 +84,7 @@ uint32_t ModsState::computeChecksum(const TModID & modName) const
 	for (const ResourcePath & file : files)
 	{
 		ui32 fileChecksum = filesystem->load(file)->calculateCRC32();
-		modChecksum.process_bytes(reinterpret_cast<const void *>(&fileChecksum), sizeof(fileChecksum));
+		modChecksum.process_bytes(static_cast<const void *>(&fileChecksum), sizeof(fileChecksum));
 	}
 	return modChecksum.checksum();
 }
@@ -190,7 +190,7 @@ const JsonNode & ModsPresetState::getActivePresetConfig() const
 TModList ModsPresetState::getActiveRootMods() const
 {
 	const JsonNode & modsToActivateJson = getActivePresetConfig()["mods"];
-	std::vector<TModID> modsToActivate = modsToActivateJson.convertTo<std::vector<TModID>>();
+	auto modsToActivate = modsToActivateJson.convertTo<std::vector<TModID>>();
 	modsToActivate.push_back(ModScope::scopeBuiltin());
 	return modsToActivate;
 }
@@ -198,7 +198,7 @@ TModList ModsPresetState::getActiveRootMods() const
 std::map<TModID, bool> ModsPresetState::getModSettings(const TModID & modID) const
 {
 	const JsonNode & modSettingsJson = getActivePresetConfig()["settings"][modID];
-	std::map<TModID, bool> modSettings = modSettingsJson.convertTo<std::map<TModID, bool>>();
+	auto modSettings = modSettingsJson.convertTo<std::map<TModID, bool>>();
 	return modSettings;
 }
 
