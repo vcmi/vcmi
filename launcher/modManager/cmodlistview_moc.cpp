@@ -199,11 +199,21 @@ CModListView::~CModListView()
 
 static QString replaceIfNotEmpty(QVariant value, QString pattern)
 {
-	if(value.canConvert<QStringList>())
-		return pattern.arg(value.toStringList().join(", "));
-
 	if(value.canConvert<QString>())
-		return pattern.arg(value.toString());
+	{
+		if (value.toString().isEmpty())
+			return "";
+		else
+			return pattern.arg(value.toString());
+	}
+
+	if(value.canConvert<QStringList>())
+	{
+		if (value.toStringList().isEmpty())
+			return "";
+		else
+			return pattern.arg(value.toStringList().join(", "));
+	}
 
 	// all valid types of data should have been filtered by code above
 	assert(!value.isValid());
@@ -263,6 +273,9 @@ QStringList CModListView::getModNames(QStringList input)
 		}
 
 		auto mod = modStateModel->getMod(modID);
+
+		if (mod.isHidden())
+			continue;
 
 		QString displayName = mod.getName();
 		if (displayName.isEmpty())
