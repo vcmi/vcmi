@@ -1356,6 +1356,7 @@ std::string HillFort::getDescriptionToolTip() const
 
 std::string HillFort::getUnavailableUpgradeMessage() const
 {
+	assert(getObjectHandler()->getModScope() != "core");
 	return TextIdentifier(getObjectHandler()->getBaseTextID(), "unavailableUpgradeMessage").get();
 }
 
