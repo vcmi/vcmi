@@ -200,7 +200,7 @@ bool ModState::isVisible() const
 bool ModState::isHidden() const
 {
 	if (isTranslation() && !isInstalled())
-		return impl.getBaseLanguage() == CGeneralTextHandler::getPreferredLanguage();
+		return impl.getBaseLanguage() != CGeneralTextHandler::getPreferredLanguage();
 
 	return isCompatibility() || getID() == "vcmi" || getID() == "core";
 }
