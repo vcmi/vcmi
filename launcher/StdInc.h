@@ -13,6 +13,7 @@
 
 #include "tbb/blocked_range.h"
 #include "tbb/parallel_for.h"
+#include "tbb/parallel_for_each.h"
 #undef emit // Qt defines also emit -> compile error -> we don't need it
 
 #include <QtWidgets>

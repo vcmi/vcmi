@@ -66,6 +66,7 @@ class HdExtractor : public QObject
 	std::function<void(float percent)> cb;
 	QDir tempDir;
 	QDir baseDir;
+	std::mutex mutex;
 	class ModGenerator
 	{
 		std::map<SubModType, std::string> SUBMODNAMES = {
@@ -82,9 +83,9 @@ class HdExtractor : public QObject
 		QImage flag2x;
 		QImage flag3x;
 
-		std::map<SubModType, std::shared_ptr<CZipSaver>> savers;
+		std::shared_ptr<CZipSaver> saver;
 	public:
-		ModGenerator(QDir outputDir, std::string language);
+		ModGenerator(QDir outputDir, std::string language, SubModType subModType);
 		void addFile(QString groupName, QString imageName, QImage & img, ArchiveType type);
 		void createModJson(std::optional<SubModType> submodType, QDir path, std::string language);
 		void createAnimationJson(QString name, std::vector<QString> files, ArchiveType type);

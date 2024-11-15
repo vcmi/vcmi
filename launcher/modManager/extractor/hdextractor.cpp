@@ -76,64 +76,79 @@ void HdExtractor::extract()
 			if(lng.first == folder.toStdString())
 				language = lng.first;
 
-	ModGenerator mg(QDir::cleanPath(tempDir.absolutePath() + QDir::separator() + "hd-version"), LANGUAGES[language]);
-	mg.loadFlagData(baseDir);
+	auto outputDir = QDir::cleanPath(tempDir.absolutePath() + QDir::separator() + "hd-version");
 
+	std::vector<SubModType> modTypes = {X2, X3, LOC_X2, LOC_X3};
 	int count = 0;
-	for(auto & type : {ArchiveType::BITMAP_X2, ArchiveType::BITMAP_X3, ArchiveType::SPRITE_X2, ArchiveType::SPRITE_X3, ArchiveType::BITMAP_LOC_X2, ArchiveType::BITMAP_LOC_X3, ArchiveType::SPRITE_LOC_X2, ArchiveType::SPRITE_LOC_X3})
-	{
-		QFile fileName;
-		if(vstd::contains({ArchiveType::BITMAP_LOC_X2, ArchiveType::BITMAP_LOC_X3, ArchiveType::SPRITE_LOC_X2, ArchiveType::SPRITE_LOC_X3}, type))
-			fileName.setFileName(baseDir.filePath(QString("data/") + QString::fromStdString(language) + QString::fromStdString(PAKPATH[type])));
-		else
-			fileName.setFileName(baseDir.filePath(QString("data/") + QString::fromStdString(PAKPATH[type])));
+	tbb::parallel_for_each(modTypes.begin(), modTypes.end(), [&](SubModType & t)
+		{
+			ModGenerator mg(outputDir, LANGUAGES[language], t);
+			mg.loadFlagData(baseDir);
+			if(t == X2) //only one thread needs to create
+				mg.createModJson(std::nullopt, outputDir, language);
 
-		decodePac(fileName, [&, this](QString groupName, QString imageConfig, std::vector<QByteArray> & data){
-			std::vector<QImage> sheets;
-			for(auto & d : data)
-				sheets.push_back(loadDds(d));
-			std::vector<QString> imgNames;
+			for(auto & type : {ArchiveType::BITMAP_X2, ArchiveType::BITMAP_X3, ArchiveType::SPRITE_X2, ArchiveType::SPRITE_X3, ArchiveType::BITMAP_LOC_X2, ArchiveType::BITMAP_LOC_X3, ArchiveType::SPRITE_LOC_X2, ArchiveType::SPRITE_LOC_X3})
+			{
+				if(archiveTypeToSubModType(type) != t)
+					continue;
 
-			if(!mg.filter(groupName, type))
-				return;
+				QFile fileName;
+				if(vstd::contains({ArchiveType::BITMAP_LOC_X2, ArchiveType::BITMAP_LOC_X3, ArchiveType::SPRITE_LOC_X2, ArchiveType::SPRITE_LOC_X3}, type))
+					fileName.setFileName(baseDir.filePath(QString("data/") + QString::fromStdString(language) + QString::fromStdString(PAKPATH[type])));
+				else
+					fileName.setFileName(baseDir.filePath(QString("data/") + QString::fromStdString(PAKPATH[type])));
 
-			cropImages(sheets, imageConfig, [&](QString imageName, QImage & img, int * sdOffset, bool isShadow){
-				count++;
-				cb(static_cast<float>(count) / static_cast<float>(FILES));
+				decodePac(fileName, [&, this](QString groupName, QString imageConfig, std::vector<QByteArray> & data){
+					std::vector<QImage> sheets;
+					for(auto & d : data)
+						sheets.push_back(loadDds(d));
+					std::vector<QString> imgNames;
 
-				bool isSprite = vstd::contains({ArchiveType::SPRITE_X2, ArchiveType::SPRITE_X3, ArchiveType::SPRITE_LOC_X2, ArchiveType::SPRITE_LOC_X3}, type);
-				if(isSprite)
-					img = mg.resizeSprite(img, groupName, imageName, type, sdOffset);
-				mg.addFile(groupName, imageName + (isShadow ? "-shadow" : ""), img, type);
+					if(!mg.filter(groupName, type))
+						return;
 
-				if(!isShadow)
-				{
-					bool needsBorder = vstd::contains({"CABEHE", "CADEVL", "CAELEM", "CALIZA", "CAMAGE", "CANGEL", "CAPEGS", "CBASIL", "CBDRGN", "CBDWAR", "CBEHOL", "CBGOG", "CBKNIG", "CBLORD", "CBTREE", "CBWLFR", "CCAVLR", "CCENTR", "CCERBU", "CCGORG", "CCHAMP", "CCHYDR", "CCMCOR", "CCRUSD", "CCYCLLOR", "CCYCLR", "CDDRAG", "CDEVIL", "CDGOLE", "CDRFIR", "CDRFLY", "CDWARF", "CECENT", "CEELEM", "CEFREE", "CEFRES", "CELF", "CEVEYE", "CFAMIL", "CFELEM", "CGARGO", "CGBASI", "CGDRAG", "CGENIE", "CGGOLE", "CGNOLL", "CGNOLM", "CGOBLI", "CGOG", "CGRELF", "CGREMA", "CGREMM", "CGRIFF", "CGTITA", "CHALBD", "CHARPH", "CHARPY", "CHCBOW", "CHDRGN", "CHGOBL", "CHHOUN", "CHYDRA", "CIGOLE", "CIMP", "CITROG", "CLCBOW", "CLICH", "CLTITA", "CMAGE", "CMAGOG", "CMCORE", "CMEDUQ", "CMEDUS", "CMINOK", "CMINOT", "CMONKK", "CNAGA", "CNAGAG", "CNDRGN", "CNOSFE", "COGARG", "COGMAG", "COGRE", "COHDEM", "CORCCH", "CORC", "CPEGAS", "CPFIEN", "CPFOE", "CPKMAN", "CPLICH", "CPLIZA", "CRANGL", "CRDRGN", "CRGRIF", "CROC", "CSGOLE", "CSKELE", "CSULTA", "CSWORD", "CTBIRD", "CTHDEM", "CTREE", "CTROGL", "CUNICO", "CUWLFR", "CVAMP", "CWELEM", "CWIGHT", "CWRAIT", "CWSKEL", "CWUNIC", "CWYVER", "CWYVMN", "CYBEHE", "CZEALT", "CZOMBI", "CZOMLO"}, boost::to_upper_copy(groupName.toStdString()));
-					if(needsBorder)
-					{
-						auto imgBorder = mg.getBorder(img, qRgb(255, 255, 255), 2);
-						mg.addFile(groupName, imageName + "-overlay", imgBorder, type);
-					}
+					cropImages(sheets, imageConfig, [&](QString imageName, QImage & img, int * sdOffset, bool isShadow){
+						{
+							const std::lock_guard<std::mutex> lock(mutex);
+							count++;
+							if(count % 50 == 0)
+								cb(static_cast<float>(count) / static_cast<float>(FILES));
+						}
 
-					int scaleFactor = vstd::contains({ArchiveType::BITMAP_X2, ArchiveType::BITMAP_LOC_X2, ArchiveType::SPRITE_X2, ArchiveType::SPRITE_LOC_X2}, type) ? 2 : 3;
-					QImage flagImage = mg.addFlags(img, groupName, imageName, scaleFactor);
-					if(!flagImage.isNull())
-						mg.addFile(groupName, imageName + "-overlay", flagImage, type);
+						bool isSprite = vstd::contains({ArchiveType::SPRITE_X2, ArchiveType::SPRITE_X3, ArchiveType::SPRITE_LOC_X2, ArchiveType::SPRITE_LOC_X3}, type);
+						if(isSprite)
+							img = mg.resizeSprite(img, groupName, imageName, type, sdOffset);
+						mg.addFile(groupName, imageName + (isShadow ? "-shadow" : ""), img, type);
 
-					if(boost::to_upper_copy(groupName.toStdString()) == "AVXPRSN0") // prision needs empty overlay
-					{
-						QImage tmpImg(img.width(), img.height(), QImage::Format_RGBA8888);
-						tmpImg.fill(qRgba(0, 0, 0, 0));
-						mg.addFile(groupName, imageName + "-overlay", tmpImg, type);
-					}
-				}
+						if(!isShadow)
+						{
+							bool needsBorder = vstd::contains({"CABEHE", "CADEVL", "CAELEM", "CALIZA", "CAMAGE", "CANGEL", "CAPEGS", "CBASIL", "CBDRGN", "CBDWAR", "CBEHOL", "CBGOG", "CBKNIG", "CBLORD", "CBTREE", "CBWLFR", "CCAVLR", "CCENTR", "CCERBU", "CCGORG", "CCHAMP", "CCHYDR", "CCMCOR", "CCRUSD", "CCYCLLOR", "CCYCLR", "CDDRAG", "CDEVIL", "CDGOLE", "CDRFIR", "CDRFLY", "CDWARF", "CECENT", "CEELEM", "CEFREE", "CEFRES", "CELF", "CEVEYE", "CFAMIL", "CFELEM", "CGARGO", "CGBASI", "CGDRAG", "CGENIE", "CGGOLE", "CGNOLL", "CGNOLM", "CGOBLI", "CGOG", "CGRELF", "CGREMA", "CGREMM", "CGRIFF", "CGTITA", "CHALBD", "CHARPH", "CHARPY", "CHCBOW", "CHDRGN", "CHGOBL", "CHHOUN", "CHYDRA", "CIGOLE", "CIMP", "CITROG", "CLCBOW", "CLICH", "CLTITA", "CMAGE", "CMAGOG", "CMCORE", "CMEDUQ", "CMEDUS", "CMINOK", "CMINOT", "CMONKK", "CNAGA", "CNAGAG", "CNDRGN", "CNOSFE", "COGARG", "COGMAG", "COGRE", "COHDEM", "CORCCH", "CORC", "CPEGAS", "CPFIEN", "CPFOE", "CPKMAN", "CPLICH", "CPLIZA", "CRANGL", "CRDRGN", "CRGRIF", "CROC", "CSGOLE", "CSKELE", "CSULTA", "CSWORD", "CTBIRD", "CTHDEM", "CTREE", "CTROGL", "CUNICO", "CUWLFR", "CVAMP", "CWELEM", "CWIGHT", "CWRAIT", "CWSKEL", "CWUNIC", "CWYVER", "CWYVMN", "CYBEHE", "CZEALT", "CZOMBI", "CZOMLO"}, boost::to_upper_copy(groupName.toStdString()));
+							if(needsBorder)
+							{
+								auto imgBorder = mg.getBorder(img, qRgb(255, 255, 255), 2);
+								mg.addFile(groupName, imageName + "-overlay", imgBorder, type);
+							}
 
-				if(!vstd::contains(imgNames, imageName))
-					imgNames.push_back(imageName);
-			});
-			mg.createAnimationJson(groupName, imgNames, type);
+							int scaleFactor = vstd::contains({ArchiveType::BITMAP_X2, ArchiveType::BITMAP_LOC_X2, ArchiveType::SPRITE_X2, ArchiveType::SPRITE_LOC_X2}, type) ? 2 : 3;
+							QImage flagImage = mg.addFlags(img, groupName, imageName, scaleFactor);
+							if(!flagImage.isNull())
+								mg.addFile(groupName, imageName + "-overlay", flagImage, type);
+
+							if(boost::to_upper_copy(groupName.toStdString()) == "AVXPRSN0") // prision needs empty overlay
+							{
+								QImage tmpImg(img.width(), img.height(), QImage::Format_RGBA8888);
+								tmpImg.fill(qRgba(0, 0, 0, 0));
+								mg.addFile(groupName, imageName + "-overlay", tmpImg, type);
+							}
+						}
+
+						if(!vstd::contains(imgNames, imageName))
+							imgNames.push_back(imageName);
+					});
+					mg.createAnimationJson(groupName, imgNames, type);
+				});
+			}
 		});
-	}
 }
 
 void HdExtractor::cropImages(std::vector<QImage> & images, QString imageParam, std::function<void(QString, QImage &, int[2], bool)> cb)
@@ -340,23 +355,17 @@ HdExtractor::SubModType HdExtractor::archiveTypeToSubModType(ArchiveType v)
 	return subModType;
 };
 
-HdExtractor::ModGenerator::ModGenerator(QDir outputDir, std::string language) :
+HdExtractor::ModGenerator::ModGenerator(QDir outputDir, std::string language, SubModType subModType) :
 	language(language), sdData(getSdData())
 {
-	for(auto & subMod : {SubModType::X2, SubModType::X3, SubModType::LOC_X2, SubModType::LOC_X3})
-	{
-		std::string suffix = (language.empty() || subMod == SubModType::X2 || subMod == SubModType::X3) ? "" : "_" + language;
-		QDir modPath = QDir(outputDir.filePath(QString("mods/") + QString::fromStdString(SUBMODNAMES[subMod] + suffix)));
-		QFileInfo zipFile(modPath.absolutePath() + QString("/content.zip"));
-		QDir(zipFile.absolutePath()).mkpath(".");
-		std::shared_ptr<CIOApi> io(new CDefaultIOApi());
-		std::shared_ptr<CZipSaver> saver = std::make_shared<CZipSaver>(io, zipFile.absoluteFilePath().toStdString());
-		savers[subMod] = saver;
+	std::string suffix = (language.empty() || subModType == SubModType::X2 || subModType == SubModType::X3) ? "" : "_" + language;
+	QDir modPath = QDir(outputDir.filePath(QString("mods/") + QString::fromStdString(SUBMODNAMES[subModType] + suffix)));
+	QFileInfo zipFile(modPath.absolutePath() + QString("/content.zip"));
+	QDir(zipFile.absolutePath()).mkpath(".");
+	std::shared_ptr<CIOApi> io(new CDefaultIOApi());
+	saver = std::make_shared<CZipSaver>(io, zipFile.absoluteFilePath().toStdString());
 
-		createModJson(subMod, modPath, language);
-	}
-
-	createModJson(std::nullopt, outputDir, language);
+	createModJson(subModType, modPath, language);
 }
 
 void HdExtractor::ModGenerator::addFile(QString groupName, QString imageName, QImage & img, ArchiveType type)
@@ -373,7 +382,7 @@ void HdExtractor::ModGenerator::addFile(QString groupName, QString imageName, QI
 	buffer.open(QIODevice::WriteOnly);
 	img.save(&buffer, "png", 50);
 
-	auto stream = savers[subModType]->addFile(folder + imageName.toStdString() + ".png");
+	auto stream = saver->addFile(folder + imageName.toStdString() + ".png");
 	stream->write(reinterpret_cast<const ui8 *>(imgData.data()), imgData.size());
 }
 
@@ -476,7 +485,7 @@ void HdExtractor::ModGenerator::createAnimationJson(QString name, std::vector<QS
 	};
 
 	auto data = QJsonDocument(mod).toJson();
-	auto stream = savers[subModType]->addFile((vstd::contains({SubModType::X2, SubModType::LOC_X2}, subModType) ? "sprites2x/" : "sprites3x/") + name.toStdString() + ".json");
+	auto stream = saver->addFile((vstd::contains({SubModType::X2, SubModType::LOC_X2}, subModType) ? "sprites2x/" : "sprites3x/") + name.toStdString() + ".json");
 	stream->write(reinterpret_cast<const ui8 *>(data.data()), data.size());
 }
 
