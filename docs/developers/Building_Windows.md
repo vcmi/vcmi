@@ -115,7 +115,7 @@ Extract `ccache` to a folder of your choosing, add the folder to the `PATH` envi
 ### Compile VCMI with MinGW via MSYS2
 - Install MSYS2 from https://www.msys2.org/
 - Start the `MSYS MinGW x64`-shell
-- Install dependencies: `pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-boost mingw-w64-x86_64-gcc mingw-w64-x86_64-ninja mingw-w64-x86_64-qt5-static`
+- Install dependencies: `pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-boost mingw-w64-x86_64-gcc mingw-w64-x86_64-ninja mingw-w64-x86_64-qt5-static mingw-w64-x86_64-qt5-tools mingw-w64-x86_64-tbb`
 - Generate and build solution from VCMI-root dir: `cmake --preset windows-mingw-release && cmake --build --preset windows-mingw-release`
 
 **NOTE:** This will link Qt5 statically to `VCMI_launcher.exe` and `VCMI_Mapeditor.exe`. See [PR #3421](https://github.com/vcmi/vcmi/pull/3421) for some background.
