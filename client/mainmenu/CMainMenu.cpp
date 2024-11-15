@@ -38,6 +38,7 @@
 #include "../widgets/VideoWidget.h"
 #include "../windows/InfoWindows.h"
 #include "../CServerHandler.h"
+#include "../render/AssetGenerator.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
@@ -403,6 +404,9 @@ void CMainMenu::openCampaignScreen(std::string name)
 {
 	auto const & config = CMainMenuConfig::get().getCampaigns();
 
+	AssetGenerator::createCampaignBackground();
+	AssetGenerator::createChroniclesCampaignImages();
+
 	if(!vstd::contains(config.Struct(), name))
 	{
 		logGlobal->error("Unknown campaign set: %s", name);
@@ -413,7 +417,9 @@ void CMainMenu::openCampaignScreen(std::string name)
 	for (auto const & entry : config[name]["items"].Vector())
 	{
 		ResourcePath resourceID(entry["file"].String(), EResType::CAMPAIGN);
-		if (!CResourceHandler::get()->existsResource(resourceID))
+		if(entry["optional"].Bool())
+			continue;
+		if(!CResourceHandler::get()->existsResource(resourceID))
 			campaignsFound = false;
 	}
 

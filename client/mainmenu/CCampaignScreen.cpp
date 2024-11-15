@@ -67,7 +67,8 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 	}
 
 	for(const JsonNode & node : config[name]["items"].Vector())
-		campButtons.push_back(std::make_shared<CCampaignButton>(node, config, campaignSet));
+		if(CResourceHandler::get()->existsResource(ResourcePath(node["file"].String(), EResType::CAMPAIGN)))
+			campButtons.push_back(std::make_shared<CCampaignButton>(node, config, campaignSet));
 }
 
 void CCampaignScreen::activate()
