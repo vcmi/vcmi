@@ -385,11 +385,11 @@ struct DLL_LINKAGE LobbyPvPAction : public CLobbyPackToServer
 
 struct DLL_LINKAGE LobbyDelete : public CLobbyPackToServer
 {
-	enum EType : ui8 {
+	enum class EType : ui8 {
 		SAVEGAME, SAVEGAME_FOLDER, RANDOMMAP
 	};
 
-	EType type = SAVEGAME;
+	EType type = EType::SAVEGAME;
 	std::string name;
 
 	void visitTyped(ICPackVisitor & visitor) override;

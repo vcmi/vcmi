@@ -133,5 +133,5 @@ private:
 	void parseCampaigns(const std::unordered_set<ResourcePath> & files);
 	std::unordered_set<ResourcePath> getFiles(std::string dirURI, EResType resType);
 
-	void handleUnsupportedSavegames(const std::vector<ResourcePath> files);
+	void handleUnsupportedSavegames(const std::vector<ResourcePath> & files);
 };

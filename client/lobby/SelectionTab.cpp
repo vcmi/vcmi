@@ -348,14 +348,14 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 			if(!curItems[py]->isFolder)
 				CInfoWindow::showYesNoDialog(CGI->generaltexth->translate("vcmi.lobby.deleteFile") + "\n\n" + curItems[py]->fullFileURI, std::vector<std::shared_ptr<CComponent>>(), [this, py](){
 					LobbyDelete ld;
-					ld.type = tabType == ESelectionScreen::newGame ? LobbyDelete::RANDOMMAP : LobbyDelete::SAVEGAME;
+					ld.type = tabType == ESelectionScreen::newGame ? LobbyDelete::EType::RANDOMMAP : LobbyDelete::EType::SAVEGAME;
 					ld.name = curItems[py]->fileURI;
 					CSH->sendLobbyPack(ld);
 				}, nullptr);
 			else
 				CInfoWindow::showYesNoDialog(CGI->generaltexth->translate("vcmi.lobby.deleteFolder") + "\n\n" + curFolder + curItems[py]->folderName, std::vector<std::shared_ptr<CComponent>>(), [this, py](){
 					LobbyDelete ld;
-					ld.type = LobbyDelete::SAVEGAME_FOLDER;
+					ld.type = LobbyDelete::EType::SAVEGAME_FOLDER;
 					ld.name = curFolder + curItems[py]->folderName;
 					CSH->sendLobbyPack(ld);
 				}, nullptr);
@@ -935,7 +935,7 @@ std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<Reso
 	return unsupported;
 }
 
-void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> files)
+void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & files)
 {
 	if(CSH->isHost() && files.size())
 	{
@@ -945,7 +945,7 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> fi
 			for(auto & file : files)
 			{
 				LobbyDelete ld;
-				ld.type = LobbyDelete::SAVEGAME;
+				ld.type = LobbyDelete::EType::SAVEGAME;
 				ld.name = file.getName();
 				CSH->sendLobbyPack(ld);
 			}
