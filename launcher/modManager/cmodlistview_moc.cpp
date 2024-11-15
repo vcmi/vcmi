@@ -380,26 +380,27 @@ QString CModListView::genModInfoText(const ModState & mod)
 		result += replaceIfNotEmpty(supportedLanguagesTranslated, lineTemplate.arg(tr("Languages")));
 	}
 
+	QStringList conflicts = mod.getConflicts();
+	for (const auto & otherMod : modStateModel->getAllMods())
+	{
+		QStringList otherConflicts = modStateModel->getMod(otherMod).getConflicts();
+
+		if (otherConflicts.contains(mod.getID()) && !conflicts.contains(otherMod))
+			conflicts.push_back(otherMod);
+	}
+
 	result += replaceIfNotEmpty(getModNames(mod.getID(), mod.getDependencies()), lineTemplate.arg(tr("Required mods")));
-	result += replaceIfNotEmpty(getModNames(mod.getID(), mod.getConflicts()), lineTemplate.arg(tr("Conflicting mods")));
+	result += replaceIfNotEmpty(getModNames(mod.getID(), conflicts), lineTemplate.arg(tr("Conflicting mods")));
 	result += replaceIfNotEmpty(mod.getDescription(), textTemplate.arg(tr("Description")));
 
 	result += "<p></p>"; // to get some empty space
 
 	QString unknownDeps = tr("This mod can not be installed or enabled because the following dependencies are not present");
-	QString blockingMods = tr("This mod can not be enabled because the following mods are incompatible with it");
-	QString hasActiveDependentMods = tr("This mod cannot be disabled because it is required by the following mods");
-	QString hasDependentMods = tr("This mod cannot be uninstalled or updated because it is required by the following mods");
 	QString thisIsSubmod = tr("This is a submod and it cannot be installed or uninstalled separately from its parent mod");
 
 	QString notes;
 
 	notes += replaceIfNotEmpty(getModNames(mod.getID(), findInvalidDependencies(mod.getID())), listTemplate.arg(unknownDeps));
-	notes += replaceIfNotEmpty(getModNames(mod.getID(), findBlockingMods(mod.getID())), listTemplate.arg(blockingMods));
-	if(modStateModel->isModEnabled(mod.getID()))
-		notes += replaceIfNotEmpty(getModNames(mod.getID(), findDependentMods(mod.getID(), true)), listTemplate.arg(hasActiveDependentMods));
-	if(mod.isInstalled())
-		notes += replaceIfNotEmpty(getModNames(mod.getID(), findDependentMods(mod.getID(), false)), listTemplate.arg(hasDependentMods));
 
 	if(mod.isSubmod())
 		notes += noteTemplate.arg(thisIsSubmod);
@@ -603,7 +604,6 @@ void CModListView::on_updateButton_clicked()
 void CModListView::on_uninstallButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
-	// NOTE: perhaps add "manually installed" flag and uninstall those dependencies that don't have it?
 
 	if(modStateModel->isModExists(modName) && modStateModel->getMod(modName).isInstalled())
 	{
@@ -627,19 +627,8 @@ void CModListView::on_installButton_clicked()
 		auto mod = modStateModel->getMod(name);
 		if(mod.isAvailable())
 			downloadFile(name + ".zip", mod.getDownloadUrl(), name, mod.getDownloadSizeMegabytes());
-		else if(modStateModel->isModEnabled(name))
+		else if(!modStateModel->isModEnabled(name))
 			enableModByName(name);
-	}
-
-	for(const auto & name : modStateModel->getMod(modName).getConflicts())
-	{
-		if(modStateModel->isModEnabled(name))
-		{
-			//TODO: consider reverse dependencies disabling
-			//TODO: consider if it may be possible for subdependencies to block disabling conflicting mod?
-			//TODO: consider if it may be possible to get subconflicts that will block disabling conflicting mod?
-			disableModByName(name);
-		}
 	}
 }
 
@@ -905,28 +894,8 @@ void CModListView::installMods(QStringList archives)
 		modNames.push_back(modName);
 	}
 
-	QStringList modsToEnable;
-
-	// disable mod(s), to properly recalculate dependencies, if changed
-	for(QString mod : boost::adaptors::reverse(modNames))
-	{
-		ModState entry = modStateModel->getMod(mod);
-		if(entry.isInstalled())
-		{
-			// enable mod if installed and enabled
-			if(modStateModel->isModEnabled(mod))
-				modsToEnable.push_back(mod);
-		}
-		else
-		{
-			// enable mod if m
-			if(settings["launcher"]["enableInstalledMods"].Bool())
-				modsToEnable.push_back(mod);
-		}
-	}
-
 	// uninstall old version of mod, if installed
-	for(QString mod : boost::adaptors::reverse(modNames))
+	for(QString mod : modNames)
 	{
 		if(modStateModel->getMod(mod).isInstalled())
 			manager->uninstallMod(mod);
@@ -938,7 +907,7 @@ void CModListView::installMods(QStringList archives)
 		manager->installMod(modNames[i], archives[i]);
 	}
 
-	for(QString mod : modsToEnable)
+	for(QString mod : modNames)
 	{
 		manager->enableMod(mod); // TODO: make it as a single action, so if mod 1 depends on mod 2 it would still activate
 	}

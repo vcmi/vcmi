@@ -192,7 +192,28 @@ bool ModDescription::isInstalled() const
 
 bool ModDescription::affectsGameplay() const
 {
-	return true; // TODO
+	static const std::array keysToTest = {
+		"artifacts",
+		"battlefields",
+		"creatures",
+		"factions",
+		"heroClasses",
+		"heroes",
+		"objects",
+		"obstacles",
+		"rivers",
+		"roads",
+		"settings",
+		"skills",
+		"spells",
+		"terrains",
+	};
+
+	for(const auto & key : keysToTest)
+		if (!getLocalValue(key).isNull())
+			return true;
+
+	return false;
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -503,7 +503,7 @@ void ModManager::tryEnableMod(const TModID & modName)
 	auto additionalActiveMods = getActiveMods();
 
 	assert(!vstd::contains(additionalActiveMods, modName));
-	assert(vstd::contains(requiredActiveMods, modName));
+	assert(vstd::contains(requiredActiveMods, modName));// FIXME: fails on attempt to enable broken mod / translation to other language
 
 	ModDependenciesResolver testResolver(requiredActiveMods, *modsStorage);
 	assert(testResolver.getBrokenMods().empty());
@@ -554,6 +554,8 @@ void ModManager::updatePreset(const ModDependenciesResolver & testResolver)
 
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
 	depedencyResolver = std::make_unique<ModDependenciesResolver>(desiredModList, *modsStorage);
+
+	// TODO: check activation status of submods of new mods
 
 	modsPreset->saveConfigurationState();
 }
