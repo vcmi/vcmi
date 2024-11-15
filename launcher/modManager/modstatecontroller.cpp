@@ -233,8 +233,7 @@ bool ModStateController::doInstallMod(QString modname, QString archivePath)
 	if(upperLevel != modDirName)
 		removeModDir(destDir + upperLevel);
 	
-	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &) { return true; });
-	//modList->reloadLocalMods();
+	modList->reloadLocalState();
 
 	return true;
 }
@@ -252,7 +251,6 @@ bool ModStateController::doUninstallMod(QString modname)
 	if(!removeModDir(modDir))
 		return addError(modname, tr("Mod is located in protected directory, please remove it manually:\n") + modFullDir.absolutePath());
 
-	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
 	modList->reloadLocalState();
 
 	return true;

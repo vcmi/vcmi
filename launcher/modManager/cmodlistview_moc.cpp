@@ -886,6 +886,7 @@ void CModListView::installFiles(QStringList files)
 void CModListView::installMods(QStringList archives)
 {
 	QStringList modNames;
+	QStringList modsToEnable;
 
 	for(QString archive : archives)
 	{
@@ -900,7 +901,15 @@ void CModListView::installMods(QStringList archives)
 	for(QString mod : modNames)
 	{
 		if(modStateModel->getMod(mod).isInstalled())
+		{
 			manager->uninstallMod(mod);
+		}
+		else
+		{
+			// installation of previously not present mod -> enable it
+			if (modStateModel->isModEnabled(mod))
+				modsToEnable.push_back(mod);
+		}
 	}
 
 	for(int i = 0; i < modNames.size(); i++)
@@ -909,7 +918,7 @@ void CModListView::installMods(QStringList archives)
 		manager->installMod(modNames[i], archives[i]);
 	}
 
-	for(QString mod : modNames)
+	for(QString mod : modsToEnable)
 	{
 		manager->enableMod(mod); // TODO: make it as a single action, so if mod 1 depends on mod 2 it would still activate
 	}
