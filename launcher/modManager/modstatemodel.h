@@ -28,6 +28,7 @@ public:
 	~ModStateModel();
 
 	void appendRepositories(const JsonNode & repositoriesList);
+	void reloadLocalState();
 	const JsonNode & getRepositoryData() const;
 
 	ModState getMod(QString modName) const;

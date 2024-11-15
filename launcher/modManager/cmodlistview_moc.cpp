@@ -464,7 +464,7 @@ void CModListView::selectMod(const QModelIndex & index)
 		ui->disableButton->setEnabled(true);
 		ui->enableButton->setEnabled(!hasInvalidDeps);
 		ui->installButton->setEnabled(!hasInvalidDeps);
-		ui->uninstallButton->setEnabled(!hasDependentMods && !mod.isHidden());
+		ui->uninstallButton->setEnabled(true);
 		ui->updateButton->setEnabled(!hasInvalidDeps && !hasDependentMods);
 
 		loadScreenshots();
@@ -610,6 +610,7 @@ void CModListView::on_uninstallButton_clicked()
 		if(modStateModel->isModEnabled(modName))
 			manager->disableMod(modName);
 		manager->uninstallMod(modName);
+		modModel->reloadRepositories();
 	}
 	
 	checkManagerErrors();

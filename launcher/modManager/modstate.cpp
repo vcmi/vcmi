@@ -32,7 +32,7 @@ QString ModState::getType() const
 
 QString ModState::getDescription() const
 {
-	return QString::fromStdString(impl.getValue("description").String());
+	return QString::fromStdString(impl.getLocalizedValue("description").String());
 }
 
 QString ModState::getID() const
@@ -47,7 +47,7 @@ QString ModState::getParentID() const
 
 QString ModState::getTopParentID() const
 {
-	return QString::fromStdString(impl.getParentID()); // TODO
+	return QString::fromStdString(impl.getTopParentID());
 }
 
 template<typename Container>
@@ -71,7 +71,7 @@ QStringList ModState::getConflicts() const
 
 QStringList ModState::getScreenshots() const
 {
-	return stringListStdToQt(impl.getValue("screenshots").convertTo<std::vector<std::string>>());
+	return stringListStdToQt(impl.getLocalizedValue("screenshots").convertTo<std::vector<std::string>>());
 }
 
 QString ModState::getBaseLanguage() const
@@ -97,7 +97,7 @@ QStringList ModState::getSupportedLanguages() const
 QMap<QString, QStringList> ModState::getChangelog() const
 {
 	QMap<QString, QStringList> result;
-	const JsonNode & changelog = impl.getValue("changelog");
+	const JsonNode & changelog = impl.getLocalizedValue("changelog");
 
 	for (const auto & entry : changelog.Struct())
 	{
@@ -142,7 +142,7 @@ QString ModState::getDownloadSizeFormatted() const
 
 QString ModState::getAuthors() const
 {
-	return QString::fromStdString(impl.getValue("author").String());
+	return QString::fromStdString(impl.getLocalizedValue("author").String());
 }
 
 QString ModState::getContact() const

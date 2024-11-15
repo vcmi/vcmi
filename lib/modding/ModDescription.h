@@ -38,6 +38,7 @@ public:
 
 	const TModID & getID() const;
 	TModID getParentID() const;
+	TModID getTopParentID() const;
 
 	const TModSet & getDependencies() const;
 	const TModSet & getSoftDependencies() const;
@@ -49,6 +50,7 @@ public:
 	const JsonNode & getFilesystemConfig() const;
 	const JsonNode & getLocalConfig() const;
 	const JsonNode & getValue(const std::string & keyName) const;
+	const JsonNode & getLocalizedValue(const std::string & keyName) const;
 	const JsonNode & getLocalValue(const std::string & keyName) const;
 	const JsonNode & getRepositoryValue(const std::string & keyName) const;
 

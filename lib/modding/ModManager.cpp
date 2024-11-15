@@ -479,11 +479,15 @@ TModList ModManager::collectDependenciesRecursive(const TModID & modID) const
 	toTest.push_back(modID);
 	while (!toTest.empty())
 	{
-		TModID currentMod = toTest.back();
+		TModID currentModID = toTest.back();
+		const auto & currentMod = getModDescription(currentModID);
 		toTest.pop_back();
-		result.push_back(currentMod);
+		result.push_back(currentModID);
 
-		for (const auto & dependency : getModDescription(currentMod).getDependencies())
+		if (!currentMod.isInstalled())
+			return {}; // failure. TODO: better handling?
+
+		for (const auto & dependency : currentMod.getDependencies())
 		{
 			if (!vstd::contains(result, dependency))
 				toTest.push_back(dependency);
@@ -499,6 +503,7 @@ void ModManager::tryEnableMod(const TModID & modName)
 	auto additionalActiveMods = getActiveMods();
 
 	assert(!vstd::contains(additionalActiveMods, modName));
+	assert(vstd::contains(requiredActiveMods, modName));
 
 	ModDependenciesResolver testResolver(requiredActiveMods, *modsStorage);
 	assert(testResolver.getBrokenMods().empty());
@@ -539,7 +544,10 @@ void ModManager::updatePreset(const ModDependenciesResolver & testResolver)
 	const auto & newBrokenMods = testResolver.getBrokenMods();
 
 	for (const auto & modID : newActiveMods)
+	{
+		assert(vstd::contains(modsState->getInstalledMods(), modID));
 		modsPreset->setModActive(modID, true);
+	}
 
 	for (const auto & modID : newBrokenMods)
 		modsPreset->setModActive(modID, false);

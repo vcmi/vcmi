@@ -10,8 +10,9 @@
 #include "StdInc.h"
 #include "modstatemodel.h"
 
-#include "../../lib/modding/ModManager.h"
+#include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/json/JsonUtils.h"
+#include "../../lib/modding/ModManager.h"
 
 ModStateModel::ModStateModel()
 	: repositoryData(std::make_unique<JsonNode>())
@@ -25,6 +26,12 @@ void ModStateModel::appendRepositories(const JsonNode & repositoriesList)
 {
 	JsonUtils::mergeCopy(*repositoryData, repositoriesList);
 
+	modManager = std::make_unique<ModManager>(*repositoryData);
+}
+
+void ModStateModel::reloadLocalState()
+{
+	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
 	modManager = std::make_unique<ModManager>(*repositoryData);
 }
 

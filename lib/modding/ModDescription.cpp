@@ -14,6 +14,7 @@
 #include "ModVerificationInfo.h"
 
 #include "../json/JsonNode.h"
+#include "../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -57,6 +58,16 @@ TModID ModDescription::getParentID() const
 	return identifier.substr(0, dotPos);
 }
 
+TModID ModDescription::getTopParentID() const
+{
+	size_t dotPos = identifier.find('.');
+
+	if(dotPos == std::string::npos)
+		return {};
+
+	return identifier.substr(0, dotPos);
+}
+
 const TModSet & ModDescription::getDependencies() const
 {
 	return dependencies;
@@ -81,7 +92,7 @@ const std::string & ModDescription::getBaseLanguage() const
 
 const std::string & ModDescription::getName() const
 {
-	return getValue("name").String();
+	return getLocalizedValue("name").String();
 }
 
 const JsonNode & ModDescription::getFilesystemConfig() const
@@ -92,6 +103,19 @@ const JsonNode & ModDescription::getFilesystemConfig() const
 const JsonNode & ModDescription::getLocalConfig() const
 {
 	return *localConfig;
+}
+
+const JsonNode & ModDescription::getLocalizedValue(const std::string & keyName) const
+{
+	const std::string language = CGeneralTextHandler::getPreferredLanguage();
+	const JsonNode & languageNode = getValue(language);
+	const JsonNode & baseValue = getValue(keyName);
+	const JsonNode & localizedValue = languageNode[keyName];
+
+	if (localizedValue.isNull())
+		return baseValue;
+	else
+		return localizedValue;
 }
 
 const JsonNode & ModDescription::getValue(const std::string & keyName) const
