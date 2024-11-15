@@ -638,7 +638,7 @@ void CModListView::on_installButton_clicked()
 void CModListView::on_installFromFileButton_clicked()
 {
 	QMessageBox::StandardButton reply;
-  	reply = QMessageBox::question(this, tr("Select file?"), tr("Yes:\nSelect file (configs, mods, maps, campaigns, chronicles gog files)\n\n\nNo:\nSelect folder from Heroes III HD (Steam version)\nExtraction process takes a while (sometimes over 1 hour)!\n"), QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
+  	reply = QMessageBox::question(this, tr("Select file?"), tr("Yes:\nSelect file (configs, mods, maps, campaigns, chronicles gog files)\n\n\nNo:\nSelect folder from Heroes III HD (Steam version)\nExtraction process takes a while (needs up to 1 hour)!\n"), QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
 	if (reply == QMessageBox::Yes) {
 		// iOS can't display modal dialogs when called directly on button press
 		// https://bugreports.qt.io/browse/QTBUG-98651
@@ -677,7 +677,7 @@ void CModListView::on_installFromFileButton_clicked()
 			}
 
 			ui->progressWidget->setVisible(true);
-			ui->progressBar->setFormat(tr("Installing HD mod (needs sometimes over one hour!) - %p%"));
+			ui->progressBar->setFormat(tr("Installing HD mod (needs up to one hour!) - %p%"));
 
 			float prog = 0.0;
 

@@ -94,7 +94,7 @@ void HdExtractor::extract()
 
 				QFile fileName;
 				if(vstd::contains({ArchiveType::BITMAP_LOC_X2, ArchiveType::BITMAP_LOC_X3, ArchiveType::SPRITE_LOC_X2, ArchiveType::SPRITE_LOC_X3}, type))
-					fileName.setFileName(baseDir.filePath(QString("data/") + QString::fromStdString(language) + QString::fromStdString(PAKPATH[type])));
+					fileName.setFileName(baseDir.filePath(QString("data/LOC/") + QString::fromStdString(language) + "/" + QString::fromStdString(PAKPATH[type])));
 				else
 					fileName.setFileName(baseDir.filePath(QString("data/") + QString::fromStdString(PAKPATH[type])));
 
@@ -380,7 +380,7 @@ void HdExtractor::ModGenerator::addFile(QString groupName, QString imageName, QI
 	QByteArray imgData;
 	QBuffer buffer(&imgData);
 	buffer.open(QIODevice::WriteOnly);
-	img.save(&buffer, "png", 50);
+	img.save(&buffer, "png", 85);
 
 	auto stream = saver->addFile(folder + imageName.toStdString() + ".png");
 	stream->write(reinterpret_cast<const ui8 *>(imgData.data()), imgData.size());
