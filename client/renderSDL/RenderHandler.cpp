@@ -326,24 +326,24 @@ std::shared_ptr<ISharedImage> RenderHandler::scaleImage(const ImageLocator & loc
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, EImageBlitMode mode)
 {
-	ImageLocator loc = locator;
-	if(loc.defFile && loc.scalingFactor == 0)
+	ImageLocator adjustedLocator = locator;
+	if(adjustedLocator.defFile && adjustedLocator.scalingFactor == 0)
 	{
-		auto tmp = getScalePath(*loc.defFile);
-		loc.defFile = AnimationPath::builtin(tmp.first.getName());
-		loc.preScaledFactor = tmp.second;
+		auto tmp = getScalePath(*adjustedLocator.defFile);
+		adjustedLocator.defFile = AnimationPath::builtin(tmp.first.getName());
+		adjustedLocator.preScaledFactor = tmp.second;
 	}
-	if(loc.image && loc.scalingFactor == 0)
+	if(adjustedLocator.image && adjustedLocator.scalingFactor == 0)
 	{
-		auto tmp = getScalePath(*loc.image);
-		loc.image = ImagePath::builtin(tmp.first.getName());
-		loc.preScaledFactor = tmp.second;
+		auto tmp = getScalePath(*adjustedLocator.image);
+		adjustedLocator.image = ImagePath::builtin(tmp.first.getName());
+		adjustedLocator.preScaledFactor = tmp.second;
 	}
 
-	if (loc.scalingFactor == 0 && getScalingFactor() != 1 )
+	if (adjustedLocator.scalingFactor == 0 && getScalingFactor() != 1 )
 	{
-		auto unscaledLocator = loc;
-		auto scaledLocator = loc;
+		auto unscaledLocator = adjustedLocator;
+		auto scaledLocator = adjustedLocator;
 
 		unscaledLocator.scalingFactor = 1;
 		scaledLocator.scalingFactor = getScalingFactor();
@@ -352,28 +352,28 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, E
 		return std::make_shared<ImageScaled>(scaledLocator, unscaledImage, mode);
 	}
 
-	if (loc.scalingFactor == 0)
+	if (adjustedLocator.scalingFactor == 0)
 	{
-		auto scaledLocator = loc;
+		auto scaledLocator = adjustedLocator;
 		scaledLocator.scalingFactor = getScalingFactor();
 
 		return loadImageImpl(scaledLocator)->createImageReference(mode);
 	}
 	else
 	{
-		if(loc.image)
+		if(adjustedLocator.image)
 		{
-			std::string imgPath = (*loc.image).getName();
-			if(loc.layer == EImageLayer::OVERLAY)
+			std::string imgPath = (*adjustedLocator.image).getName();
+			if(adjustedLocator.layer == EImageLayer::OVERLAY)
 				imgPath += "-overlay";
-			if(loc.layer == EImageLayer::SHADOW)
+			if(adjustedLocator.layer == EImageLayer::SHADOW)
 				imgPath += "-shadow";
 
 			if(CResourceHandler::get()->existsResource(ImagePath::builtin(imgPath)))
-				loc.image = ImagePath::builtin(imgPath);
+				adjustedLocator.image = ImagePath::builtin(imgPath);
 		}
 
-		return loadImageImpl(loc)->createImageReference(mode);
+		return loadImageImpl(adjustedLocator)->createImageReference(mode);
 	}
 }
 
