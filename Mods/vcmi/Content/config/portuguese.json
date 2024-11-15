@@ -174,8 +174,6 @@
 	"vcmi.server.errors.existingProcess" : "Outro processo do servidor VCMI está em execução. Por favor, termine-o antes de iniciar um novo jogo.",
 	"vcmi.server.errors.modsToEnable"    : "{Os seguintes mods são necessários}",
 	"vcmi.server.errors.modsToDisable"   : "{Os seguintes mods devem ser desativados}",
-	"vcmi.server.errors.modNoDependency" : "Falha ao carregar o mod {'%s'}!\n Ele depende do mod {'%s'}, que não está ativo!\n",
-	"vcmi.server.errors.modConflict" : "Falha ao carregar o mod {'%s'}!\n Conflito com o mod ativo {'%s'}!\n",
 	"vcmi.server.errors.unknownEntity" : "Falha ao carregar o jogo salvo! Entidade desconhecida '%s' encontrada no jogo salvo! O jogo salvo pode não ser compatível com a versão atualmente instalada dos mods!",
 	
 	"vcmi.dimensionDoor.seaToLandError" : "Não é possível teleportar do mar para a terra ou vice-versa com uma Porta Dimensional.",
