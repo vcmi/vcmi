@@ -286,7 +286,7 @@ QStringList CModListView::getModNames(QString queryingModID, QStringList input)
 		if (displayName.isEmpty())
 			displayName = modID.toLower();
 
-		if (mod.isSubmod() && queryingMod.getParentID() != mod.getParentID() )
+		if (mod.isSubmod() && queryingMod.getParentID() != mod.getParentID() ) // FIXME: recheck this block
 		{
 			auto parentModID = mod.getTopParentID();
 			auto parentMod = modStateModel->getMod(parentModID);
@@ -299,6 +299,8 @@ QStringList CModListView::getModNames(QString queryingModID, QStringList input)
 			else
 				displayName = parentDisplayName;
 		}
+
+		// TODO: show active mods in bold?
 		result += displayName;
 	}
 	return result;
