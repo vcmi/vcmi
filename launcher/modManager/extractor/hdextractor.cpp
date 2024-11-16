@@ -354,7 +354,7 @@ void HdExtractor::drawImage(int xOffset, int yOffset, QImage & in, QImage & out)
 
 HdExtractor::SubModType HdExtractor::archiveTypeToSubModType(ArchiveType v)
 {
-	SubModType subModType;
+	SubModType subModType = SubModType::X2;
 	if(vstd::contains({ArchiveType::BITMAP_X2, ArchiveType::SPRITE_X2}, v))
 		subModType = SubModType::X2;
 	else if(vstd::contains({ArchiveType::BITMAP_X3, ArchiveType::SPRITE_X3}, v))
