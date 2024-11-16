@@ -223,6 +223,7 @@
 				"ambient" : ["LOOPFACT"],
 				"visit" : ["MILITARY"]
 			}
+			"creatures": [["ballista"], ["firstAidTent"], ["ammoCart"] ]
 		},
 		"types" : {
 			"object" : {
