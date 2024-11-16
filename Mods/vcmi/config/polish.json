@@ -717,6 +717,6 @@
 	"core.bonus.INVINCIBLE.description": "Nic nie może mieć na niego wpływu",
 	"core.bonus.MECHANICAL.name": "Mechaniczny",
 	"core.bonus.MECHANICAL.description": "Odporny na wiele efektów, naprawialny",
-	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "Pryzmaty oddech",
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "Pryzmatyczny oddech",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Atakuje pryzmatycznym zionięciem (trzy kierunki)"
 }
