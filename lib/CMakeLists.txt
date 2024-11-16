@@ -790,6 +790,16 @@ if(WIN32)
 	)
 endif()
 
+# Use -Og for files that generate very large object files
+# when compiling with MinGW lest you get "too many sections" assembler errors
+if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set_source_files_properties(
+		serializer/SerializerReflection.cpp
+		IGameCallback.cpp
+		PROPERTIES
+		COMPILE_OPTIONS "-Og")
+endif()
+
 vcmi_set_output_dir(vcmi "")
 
 enable_pch(vcmi)
