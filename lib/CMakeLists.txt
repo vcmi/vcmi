@@ -790,7 +790,7 @@ if(WIN32)
 	)
 endif()
 
-# Use -Og for files that generate very large object files
+# Use '-Wa,-mbig-obj' for files that generate very large object files
 # when compiling with MinGW lest you get "too many sections" assembler errors
 if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set_source_files_properties(
