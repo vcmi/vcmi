@@ -340,6 +340,18 @@ QImage HdExtractor::loadDds(QByteArray & data)
 	return QImage{};
 }
 
+void HdExtractor::drawImage(int xOffset, int yOffset, QImage & in, QImage & out)
+{
+	//Alternative; QPainter doesn't work correctly: https://forum.qt.io/topic/88000/qpainter-loosing-color-of-transparent-pixels-critical
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, in.width()), [&](const tbb::blocked_range<size_t> & r)
+	{
+		for (int x = r.begin(), width = r.end(); x < width; x++)
+			for (int y = 0, height = in.height(); y < height; y++)
+				out.setPixelColor(x + xOffset, y + yOffset, in.pixelColor(x, y));
+	});
+}
+
 HdExtractor::SubModType HdExtractor::archiveTypeToSubModType(ArchiveType v)
 {
 	SubModType subModType;
@@ -509,8 +521,7 @@ QImage HdExtractor::ModGenerator::resizeSprite(QImage & img, QString groupName, 
 
 				QImage tmpImg(fullWidth, fullHeight, QImage::Format_RGBA8888);
 				tmpImg.fill(qRgba(0, 0, 0, 0));
-				QPainter p(&tmpImg);
-				p.drawImage((leftMargin - sdOffsets[0]) * scaleFactor, (topMargin - sdOffsets[1]) * scaleFactor, img);
+				drawImage((leftMargin - sdOffsets[0]) * scaleFactor, (topMargin - sdOffsets[1]) * scaleFactor, img, tmpImg);
 
 				return tmpImg;
 			}

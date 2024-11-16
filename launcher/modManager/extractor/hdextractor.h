@@ -99,10 +99,11 @@ class HdExtractor : public QObject
 	void extract();
 	void decodePac(QFile & file, std::function<void(QString, QString, std::vector<QByteArray> &)> cb);
 	void cropImages(std::vector<QImage> & images, QString imageParam, std::function<void(QString, QImage &, int[2], bool)> cb);
-	QImage loadDds(QByteArray & data);
 	bool createTempDir();
 	void removeTempDir();
 public:
+	static QImage loadDds(QByteArray & data);
+	static void drawImage(int xOffset, int yOffset, QImage & in, QImage & out);
 	void installHd(QDir path);
 	HdExtractor(QWidget *p, std::function<void(float percent)> cb = nullptr);
 	static SubModType archiveTypeToSubModType(ArchiveType v);
