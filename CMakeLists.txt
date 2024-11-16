@@ -355,13 +355,6 @@ if(MINGW OR MSVC)
 		if(ICONV_FOUND)
 			set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
 		endif()
-
-		# Prevent compiler issues when building Debug
-		# Assembler might fail with "too many sections"
-		# With big-obj or 64-bit build will take hours
-		if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Og")
-		endif()
 	endif(MINGW)
 endif(MINGW OR MSVC)
 
