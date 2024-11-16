@@ -71,6 +71,7 @@ ImageLocator ImageLocator::copyFile() const
 {
 	ImageLocator result;
 	result.scalingFactor = 1;
+	result.preScaledFactor = preScaledFactor;
 	result.image = image;
 	result.defFile = defFile;
 	result.defFrame = defFrame;

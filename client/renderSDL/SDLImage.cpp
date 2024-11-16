@@ -89,11 +89,12 @@ int IImage::height() const
 	return dimensions().y;
 }
 
-SDLImageShared::SDLImageShared(const CDefFile * data, size_t frame, size_t group)
+SDLImageShared::SDLImageShared(const CDefFile * data, size_t frame, size_t group, int preScaleFactor)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
-	originalPalette(nullptr)
+	originalPalette(nullptr),
+	preScaleFactor(preScaleFactor)
 {
 	SDLImageLoader loader(this);
 	data->loadFrame(frame, group, loader);
@@ -101,11 +102,12 @@ SDLImageShared::SDLImageShared(const CDefFile * data, size_t frame, size_t group
 	savePalette();
 }
 
-SDLImageShared::SDLImageShared(SDL_Surface * from)
+SDLImageShared::SDLImageShared(SDL_Surface * from, int preScaleFactor)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
-	originalPalette(nullptr)
+	originalPalette(nullptr),
+	preScaleFactor(preScaleFactor)
 {
 	surf = from;
 	if (surf == nullptr)
@@ -118,11 +120,12 @@ SDLImageShared::SDLImageShared(SDL_Surface * from)
 	fullSize.y = surf->h;
 }
 
-SDLImageShared::SDLImageShared(const ImagePath & filename)
+SDLImageShared::SDLImageShared(const ImagePath & filename, int preScaleFactor)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
-	originalPalette(nullptr)
+	originalPalette(nullptr),
+	preScaleFactor(preScaleFactor)
 {
 	surf = BitmapHandler::loadBitmap(filename);
 
@@ -274,9 +277,18 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palet
 	if (palette && surf && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
 
-	SDL_Surface * scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, factor, EScalingAlgorithm::XBRZ);
+	SDL_Surface * scaled = nullptr;
+	if(preScaleFactor == factor)
+	{
+		scaled = CSDL_Ext::newSurface(Point(surf->w, surf->h), surf);
+		SDL_BlitSurface(surf, nullptr, scaled, nullptr);
+	}
+	else if(preScaleFactor == 1)
+		scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, factor, EScalingAlgorithm::XBRZ);
+	else
+		scaled = CSDL_Ext::scaleSurface(surf, (surf->w / preScaleFactor) * factor, (surf->h / preScaleFactor) * factor);
 
-	auto ret = std::make_shared<SDLImageShared>(scaled);
+	auto ret = std::make_shared<SDLImageShared>(scaled, preScaleFactor);
 
 	ret->fullSize.x = fullSize.x * factor;
 	ret->fullSize.y = fullSize.y * factor;
@@ -296,8 +308,8 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palet
 
 std::shared_ptr<ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Palette * palette) const
 {
-	float scaleX = float(size.x) / dimensions().x;
-	float scaleY = float(size.y) / dimensions().y;
+	float scaleX = float(size.x) / fullSize.x;
+	float scaleY = float(size.y) / fullSize.y;
 
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
@@ -311,7 +323,7 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Pa
 	else
 		CSDL_Ext::setDefaultColorKey(scaled);//just in case
 
-	auto ret = std::make_shared<SDLImageShared>(scaled);
+	auto ret = std::make_shared<SDLImageShared>(scaled, preScaleFactor);
 
 	ret->fullSize.x = (int) round((float)fullSize.x * scaleX);
 	ret->fullSize.y = (int) round((float)fullSize.y * scaleY);
@@ -355,7 +367,7 @@ bool SDLImageShared::isTransparent(const Point & coords) const
 
 Point SDLImageShared::dimensions() const
 {
-	return fullSize;
+	return fullSize / preScaleFactor;
 }
 
 std::shared_ptr<IImage> SDLImageShared::createImageReference(EImageBlitMode mode)
@@ -369,7 +381,7 @@ std::shared_ptr<IImage> SDLImageShared::createImageReference(EImageBlitMode mode
 std::shared_ptr<ISharedImage> SDLImageShared::horizontalFlip() const
 {
 	SDL_Surface * flipped = CSDL_Ext::horizontalFlip(surf);
-	auto ret = std::make_shared<SDLImageShared>(flipped);
+	auto ret = std::make_shared<SDLImageShared>(flipped, preScaleFactor);
 	ret->fullSize = fullSize;
 	ret->margins.x = margins.x;
 	ret->margins.y = fullSize.y - surf->h - margins.y;
@@ -381,7 +393,7 @@ std::shared_ptr<ISharedImage> SDLImageShared::horizontalFlip() const
 std::shared_ptr<ISharedImage> SDLImageShared::verticalFlip() const
 {
 	SDL_Surface * flipped = CSDL_Ext::verticalFlip(surf);
-	auto ret = std::make_shared<SDLImageShared>(flipped);
+	auto ret = std::make_shared<SDLImageShared>(flipped, preScaleFactor);
 	ret->fullSize = fullSize;
 	ret->margins.x = fullSize.x - surf->w - margins.x;
 	ret->margins.y = margins.y;

@@ -35,6 +35,9 @@ class SDLImageShared final : public ISharedImage, public std::enable_shared_from
 	//total size including borders
 	Point fullSize;
 
+	//pre scaled image
+	int preScaleFactor;
+
 	// Keep the original palette, in order to do color switching operation
 	void savePalette();
 
@@ -42,11 +45,11 @@ class SDLImageShared final : public ISharedImage, public std::enable_shared_from
 
 public:
 	//Load image from def file
-	SDLImageShared(const CDefFile *data, size_t frame, size_t group=0);
+	SDLImageShared(const CDefFile *data, size_t frame, size_t group=0, int preScaleFactor=1);
 	//Load from bitmap file
-	SDLImageShared(const ImagePath & filename);
+	SDLImageShared(const ImagePath & filename, int preScaleFactor=1);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface
-	SDLImageShared(SDL_Surface * from);
+	SDLImageShared(SDL_Surface * from, int preScaleFactor=1);
 	~SDLImageShared();
 
 	void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;

@@ -33,6 +33,7 @@ struct ImageLocator
 	bool verticalFlip = false;
 	bool horizontalFlip = false;
 	int8_t scalingFactor = 0; // 0 = auto / use default scaling
+	int8_t preScaledFactor = 1;
 	EImageLayer layer = EImageLayer::ALL;
 
 	ImageLocator() = default;
