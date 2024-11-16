@@ -67,6 +67,7 @@ enum class ESerializationVersion : int32_t
 	REMOVE_OBJECT_TYPENAME, // 868 - remove typename from CGObjectInstance
 	REMOVE_VLC_POINTERS, // 869 removed remaining pointers to VLC entities
 	FOLDER_NAME_REWORK, // 870 - rework foldername
+	REWARDABLE_GUARDS, // 871 - fix missing serialization of guards in rewardable objects
 	
-	CURRENT = FOLDER_NAME_REWORK
+	CURRENT = REWARDABLE_GUARDS
 };
