@@ -1243,7 +1243,7 @@ void CGHeroInstance::removeSpellbook()
 
 	if(hasSpellbook())
 	{
-		cb->removeArtifact(ArtifactLocation(this->id, ArtifactPosition::SPELLBOOK));
+		cb->gameState()->map->removeArtifactInstance(*this, ArtifactPosition::SPELLBOOK);
 	}
 }
 

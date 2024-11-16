@@ -21,7 +21,7 @@
 
 #include <SDL_surface.h>
 
-ImageScaled::ImageScaled(const ImageLocator & inputLocator, const std::shared_ptr<ISharedImage> & source, EImageBlitMode mode)
+ImageScaled::ImageScaled(const ImageLocator & inputLocator, const std::shared_ptr<const ISharedImage> & source, EImageBlitMode mode)
 	: source(source)
 	, locator(inputLocator)
 	, colorMultiplier(Colors::WHITE_TRUE)
@@ -33,7 +33,7 @@ ImageScaled::ImageScaled(const ImageLocator & inputLocator, const std::shared_pt
 		setShadowEnabled(true);
 }
 
-std::shared_ptr<ISharedImage> ImageScaled::getSharedImage() const
+std::shared_ptr<const ISharedImage> ImageScaled::getSharedImage() const
 {
 	return body;
 }

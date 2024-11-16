@@ -129,6 +129,8 @@ struct DLL_LINKAGE Reward final
 		h & removeObject;
 		h & manaPercentage;
 		h & movePercentage;
+		if (h.version >= Handler::Version::REWARDABLE_GUARDS)
+			h & guards;
 		h & heroExperience;
 		h & heroLevel;
 		h & manaDiff;

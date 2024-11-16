@@ -212,7 +212,7 @@ ImageLocator RenderHandler::getLocatorForAnimationFrame(const AnimationPath & pa
 	return ImageLocator(path, frame, group);
 }
 
-std::shared_ptr<ISharedImage> RenderHandler::loadImageImpl(const ImageLocator & locator)
+std::shared_ptr<const ISharedImage> RenderHandler::loadImageImpl(const ImageLocator & locator)
 {
 	auto it = imageFiles.find(locator);
 	if (it != imageFiles.end())
@@ -231,7 +231,7 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageImpl(const ImageLocator & 
 	return scaledImage;
 }
 
-std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const ImageLocator & locator)
+std::shared_ptr<const ISharedImage> RenderHandler::loadImageFromFileUncached(const ImageLocator & locator)
 {
 	if (locator.image)
 	{
@@ -258,7 +258,7 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 	throw std::runtime_error("Invalid image locator received!");
 }
 
-void RenderHandler::storeCachedImage(const ImageLocator & locator, std::shared_ptr<ISharedImage> image)
+void RenderHandler::storeCachedImage(const ImageLocator & locator, std::shared_ptr<const ISharedImage> image)
 {
 	imageFiles[locator] = image;
 
@@ -271,7 +271,7 @@ void RenderHandler::storeCachedImage(const ImageLocator & locator, std::shared_p
 #endif
 }
 
-std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFile(const ImageLocator & locator)
+std::shared_ptr<const ISharedImage> RenderHandler::loadImageFromFile(const ImageLocator & locator)
 {
 	if (imageFiles.count(locator))
 		return imageFiles.at(locator);
@@ -281,7 +281,7 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFile(const ImageLocato
 	return result;
 }
 
-std::shared_ptr<ISharedImage> RenderHandler::transformImage(const ImageLocator & locator, std::shared_ptr<ISharedImage> image)
+std::shared_ptr<const ISharedImage> RenderHandler::transformImage(const ImageLocator & locator, std::shared_ptr<const ISharedImage> image)
 {
 	if (imageFiles.count(locator))
 		return imageFiles.at(locator);
@@ -298,7 +298,7 @@ std::shared_ptr<ISharedImage> RenderHandler::transformImage(const ImageLocator &
 	return result;
 }
 
-std::shared_ptr<ISharedImage> RenderHandler::scaleImage(const ImageLocator & locator, std::shared_ptr<ISharedImage> image)
+std::shared_ptr<const ISharedImage> RenderHandler::scaleImage(const ImageLocator & locator, std::shared_ptr<const ISharedImage> image)
 {
 	if (imageFiles.count(locator))
 		return imageFiles.at(locator);
