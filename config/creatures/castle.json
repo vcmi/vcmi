@@ -344,7 +344,6 @@
 		"index": 12,
 		"level": 7,
 		"faction": "castle",
-		"doubleWide" : true,
 		"abilities":
 		{
 			"KING_2" : // Will be affected by Advanced Slayer or better
