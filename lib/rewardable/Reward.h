@@ -129,6 +129,7 @@ struct DLL_LINKAGE Reward final
 		h & removeObject;
 		h & manaPercentage;
 		h & movePercentage;
+		h & guards;
 		h & heroExperience;
 		h & heroLevel;
 		h & manaDiff;
