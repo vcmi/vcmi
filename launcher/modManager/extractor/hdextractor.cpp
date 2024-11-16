@@ -257,7 +257,7 @@ void HdExtractor::decodePac(QFile & file, std::function<void(QString, QString, s
 			nameOffset = file.pos();
 
 			file.seek(offset);
-			char tmpImageConfig[imageConfigSize];
+			char tmpImageConfig[100000] = {  };
 			in.readRawData(tmpImageConfig, imageConfigSize);
 			imageConfig = QString(tmpImageConfig);
 			offset += imageConfigSize;
