@@ -269,7 +269,7 @@ void SDLImageShared::optimizeSurface()
 	}
 }
 
-std::shared_ptr<ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palette * palette) const
+std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palette * palette) const
 {
 	if (factor <= 0)
 		throw std::runtime_error("Unable to scale by integer value of " + std::to_string(factor));
@@ -279,10 +279,7 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palet
 
 	SDL_Surface * scaled = nullptr;
 	if(preScaleFactor == factor)
-	{
-		scaled = CSDL_Ext::newSurface(Point(surf->w, surf->h), surf);
-		SDL_BlitSurface(surf, nullptr, scaled, nullptr);
-	}
+		return shared_from_this();
 	else if(preScaleFactor == 1)
 		scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, factor, EScalingAlgorithm::XBRZ);
 	else
@@ -306,7 +303,7 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palet
 	return ret;
 }
 
-std::shared_ptr<ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Palette * palette) const
+std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Palette * palette) const
 {
 	float scaleX = float(size.x) / fullSize.x;
 	float scaleY = float(size.y) / fullSize.y;
@@ -370,7 +367,7 @@ Point SDLImageShared::dimensions() const
 	return fullSize / preScaleFactor;
 }
 
-std::shared_ptr<IImage> SDLImageShared::createImageReference(EImageBlitMode mode)
+std::shared_ptr<IImage> SDLImageShared::createImageReference(EImageBlitMode mode) const
 {
 	if (surf && surf->format->palette)
 		return std::make_shared<SDLImageIndexed>(shared_from_this(), originalPalette, mode);
@@ -378,7 +375,7 @@ std::shared_ptr<IImage> SDLImageShared::createImageReference(EImageBlitMode mode
 		return std::make_shared<SDLImageRGB>(shared_from_this(), mode);
 }
 
-std::shared_ptr<ISharedImage> SDLImageShared::horizontalFlip() const
+std::shared_ptr<const ISharedImage> SDLImageShared::horizontalFlip() const
 {
 	SDL_Surface * flipped = CSDL_Ext::horizontalFlip(surf);
 	auto ret = std::make_shared<SDLImageShared>(flipped, preScaleFactor);
@@ -390,7 +387,7 @@ std::shared_ptr<ISharedImage> SDLImageShared::horizontalFlip() const
 	return ret;
 }
 
-std::shared_ptr<ISharedImage> SDLImageShared::verticalFlip() const
+std::shared_ptr<const ISharedImage> SDLImageShared::verticalFlip() const
 {
 	SDL_Surface * flipped = CSDL_Ext::verticalFlip(surf);
 	auto ret = std::make_shared<SDLImageShared>(flipped, preScaleFactor);
@@ -444,7 +441,7 @@ void SDLImageIndexed::adjustPalette(const ColorFilter & shifter, uint32_t colors
 	}
 }
 
-SDLImageIndexed::SDLImageIndexed(const std::shared_ptr<ISharedImage> & image, SDL_Palette * originalPalette, EImageBlitMode mode)
+SDLImageIndexed::SDLImageIndexed(const std::shared_ptr<const ISharedImage> & image, SDL_Palette * originalPalette, EImageBlitMode mode)
 	:SDLImageBase::SDLImageBase(image, mode)
 	,originalPalette(originalPalette)
 {
@@ -541,13 +538,13 @@ SDLImageShared::~SDLImageShared()
 	SDL_FreePalette(originalPalette);
 }
 
-SDLImageBase::SDLImageBase(const std::shared_ptr<ISharedImage> & image, EImageBlitMode mode)
+SDLImageBase::SDLImageBase(const std::shared_ptr<const ISharedImage> & image, EImageBlitMode mode)
 	:image(image)
 	, alphaValue(SDL_ALPHA_OPAQUE)
 	, blitMode(mode)
 {}
 
-std::shared_ptr<ISharedImage> SDLImageBase::getSharedImage() const
+std::shared_ptr<const ISharedImage> SDLImageBase::getSharedImage() const
 {
 	return image;
 }

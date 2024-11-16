@@ -57,11 +57,11 @@ public:
 	void exportBitmap(const boost::filesystem::path & path, SDL_Palette * palette) const override;
 	Point dimensions() const override;
 	bool isTransparent(const Point & coords) const override;
-	std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) override;
-	std::shared_ptr<ISharedImage> horizontalFlip() const override;
-	std::shared_ptr<ISharedImage> verticalFlip() const override;
-	std::shared_ptr<ISharedImage> scaleInteger(int factor, SDL_Palette * palette) const override;
-	std::shared_ptr<ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const override;
+	std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) const override;
+	std::shared_ptr<const ISharedImage> horizontalFlip() const override;
+	std::shared_ptr<const ISharedImage> verticalFlip() const override;
+	std::shared_ptr<const ISharedImage> scaleInteger(int factor, SDL_Palette * palette) const override;
+	std::shared_ptr<const ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const override;
 
 	friend class SDLImageLoader;
 };
@@ -69,19 +69,19 @@ public:
 class SDLImageBase : public IImage, boost::noncopyable
 {
 protected:
-	std::shared_ptr<ISharedImage> image;
+	std::shared_ptr<const ISharedImage> image;
 
 	uint8_t alphaValue;
 	EImageBlitMode blitMode;
 
 public:
-	SDLImageBase(const std::shared_ptr<ISharedImage> & image, EImageBlitMode mode);
+	SDLImageBase(const std::shared_ptr<const ISharedImage> & image, EImageBlitMode mode);
 
 	bool isTransparent(const Point & coords) const override;
 	Point dimensions() const override;
 	void setAlpha(uint8_t value) override;
 	void setBlitMode(EImageBlitMode mode) override;
-	std::shared_ptr<ISharedImage> getSharedImage() const override;
+	std::shared_ptr<const ISharedImage> getSharedImage() const override;
 };
 
 class SDLImageIndexed final : public SDLImageBase
@@ -95,7 +95,7 @@ class SDLImageIndexed final : public SDLImageBase
 
 	void setShadowTransparency(float factor);
 public:
-	SDLImageIndexed(const std::shared_ptr<ISharedImage> & image, SDL_Palette * palette, EImageBlitMode mode);
+	SDLImageIndexed(const std::shared_ptr<const ISharedImage> & image, SDL_Palette * palette, EImageBlitMode mode);
 	~SDLImageIndexed();
 
 	void draw(SDL_Surface * where, const Point & pos, const Rect * src) const override;
