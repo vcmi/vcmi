@@ -11,7 +11,7 @@
 
 #include "../../StdInc.h"
 
-class CZipSaver;
+#include "../../../lib/filesystem/CZipSaver.h"
 
 class HdExtractor : public QObject
 {
