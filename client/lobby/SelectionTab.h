@@ -72,6 +72,8 @@ class SelectionTab : public CIntObject
 	// FIXME: CSelectionBase use them too!
 	std::shared_ptr<CAnimation> iconsVictoryCondition;
 	std::shared_ptr<CAnimation> iconsLossCondition;
+
+	std::vector<std::shared_ptr<ListItem>> unSupportedSaves;
 public:
 	std::vector<std::shared_ptr<ElementInfo>> allItems;
 	std::vector<std::shared_ptr<ElementInfo>> curItems;
@@ -120,11 +122,16 @@ private:
 	ESelectionScreen tabType;
 	Rect inputNameRect;
 
+	std::shared_ptr<CButton> buttonDeleteMode;
+	bool deleteMode;
+
 	auto checkSubfolder(std::string path);
 
 	bool isMapSupported(const CMapInfo & info);
 	void parseMaps(const std::unordered_set<ResourcePath> & files);
-	void parseSaves(const std::unordered_set<ResourcePath> & files);
+	std::vector<ResourcePath> parseSaves(const std::unordered_set<ResourcePath> & files);
 	void parseCampaigns(const std::unordered_set<ResourcePath> & files);
 	std::unordered_set<ResourcePath> getFiles(std::string dirURI, EResType resType);
+
+	void handleUnsupportedSavegames(const std::vector<ResourcePath> & files);
 };

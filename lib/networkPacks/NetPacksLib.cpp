@@ -842,6 +842,11 @@ void LobbyPvPAction::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyPvPAction(*this);
 }
 
+void LobbyDelete::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyDelete(*this);
+}
+
 void SetResources::applyGs(CGameState *gs)
 {
 	assert(player.isValidPlayer());
