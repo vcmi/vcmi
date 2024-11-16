@@ -797,7 +797,7 @@ if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 		serializer/SerializerReflection.cpp
 		IGameCallback.cpp
 		PROPERTIES
-		COMPILE_OPTIONS "-Og")
+		COMPILE_OPTIONS "-Wa,-mbig-obj")
 endif()
 
 vcmi_set_output_dir(vcmi "")
