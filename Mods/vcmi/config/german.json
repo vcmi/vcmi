@@ -25,7 +25,15 @@
 	"vcmi.adventureMap.playerAttacked"                   : "Spieler wurde attackiert: %s",
 	"vcmi.adventureMap.moveCostDetails"                  : "Bewegungspunkte - Kosten: %TURNS Runden + %POINTS Punkte, Verbleibende Punkte: %REMAINING",
 	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Bewegungspunkte - Kosten: %POINTS Punkte, Verbleibende Punkte: %REMAINING",
+	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Bewegungspunkte: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Das Wiederholen des gegnerischen Zuges ist aktuell noch nicht implementiert!",
+
+	"vcmi.bonusSource.artifact" : "Artefakt",
+	"vcmi.bonusSource.creature" : "Fähigkeit",
+	"vcmi.bonusSource.spell" : "Zauber",
+	"vcmi.bonusSource.hero" : "Held",
+	"vcmi.bonusSource.commander" : "Commander",
+	"vcmi.bonusSource.other" : "Anderes",
 
 	"vcmi.capitalColors.0" : "Rot",
 	"vcmi.capitalColors.1" : "Blau",
@@ -40,6 +48,12 @@
 	"vcmi.heroOverview.warMachine" : "Kriegsmaschinen",
 	"vcmi.heroOverview.secondarySkills" : "Sekundäre Skills",
 	"vcmi.heroOverview.spells" : "Zaubersprüche",
+	
+	"vcmi.quickExchange.moveUnit" : "Einheit bewegen",
+	"vcmi.quickExchange.moveAllUnits" : "Alle Einheiten bewegen",
+	"vcmi.quickExchange.swapAllUnits" : "Einheiten tauschen",
+	"vcmi.quickExchange.moveAllArtifacts" : "Alle Artefakte bewegen",
+	"vcmi.quickExchange.swapAllArtifacts" : "Artefakte tauschen",
 	
 	"vcmi.radialWheel.mergeSameUnit" : "Gleiche Kreaturen zusammenführen",
 	"vcmi.radialWheel.fillSingleUnit" : "Füllen mit einzelnen Kreaturen",
@@ -59,6 +73,16 @@
 	"vcmi.radialWheel.moveUp" : "Nach oben bewegen",
 	"vcmi.radialWheel.moveDown" : "Nach unten bewegen",
 	"vcmi.radialWheel.moveBottom" : "Ganz nach unten bewegen",
+	
+	"vcmi.randomMap.description" : "Die Karte wurde mit dem Zufallsgenerator erstellt.\nTemplate war %s, Größe %dx%d, Level %d, Spieler %d, Computer %d, Wasser %s, Monster %s, VCMI-Karte",
+	"vcmi.randomMap.description.isHuman" : ", %s ist Mensch",
+	"vcmi.randomMap.description.townChoice" : ", %s Stadt-Wahl ist %s",
+	"vcmi.randomMap.description.water.none" : "Kein",
+	"vcmi.randomMap.description.water.normal" : "Normal",
+	"vcmi.randomMap.description.water.islands" : "Inseln",
+	"vcmi.randomMap.description.monster.weak" : "Schwach",
+	"vcmi.randomMap.description.monster.normal" : "Normal",
+	"vcmi.randomMap.description.monster.strong" : "Stark",
 
 	"vcmi.spellBook.search" : "suchen...",
 
@@ -68,6 +92,7 @@
 	"vcmi.spellResearch.research" : "Erforsche diesen Zauberspruch",
 	"vcmi.spellResearch.skip" : "Überspringe diesen Zauberspruch",
 	"vcmi.spellResearch.abort" : "Abbruch",
+	"vcmi.spellResearch.noMoreSpells" : "Es sind keine weiteren Zaubersprüche für die Forschung verfügbar.",
 
 	"vcmi.mainMenu.serverConnecting" : "Verbinde...",
 	"vcmi.mainMenu.serverAddressEnter" : "Addresse eingeben:",
@@ -89,7 +114,13 @@
 	"vcmi.lobby.handicap.resource" : "Gibt den Spielern entsprechende Ressourcen zum Start zusätzlich zu den normalen Startressourcen. Negative Werte sind erlaubt, werden aber insgesamt auf 0 begrenzt (der Spieler beginnt nie mit negativen Ressourcen).",
 	"vcmi.lobby.handicap.income" : "Verändert die verschiedenen Einkommen des Spielers um den Prozentsatz. Wird aufgerundet.",
 	"vcmi.lobby.handicap.growth" : "Verändert die Wachstumsrate der Kreaturen in den Städten, die der Spieler besitzt. Wird aufgerundet.",
-	
+	"vcmi.lobby.deleteUnsupportedSave" : "{Nicht unterstützte Spielstände gefunden}\n\nVCMI hat %d gespeicherte Spiele gefunden, die nicht mehr unterstützt werden, möglicherweise aufgrund von Unterschieden in VCMI-Versionen.\n\nMöchtet Ihr sie löschen?",
+	"vcmi.lobby.deleteSaveGameTitle" : "Wählt gespeichertes Spiel zum Löschen aus",
+	"vcmi.lobby.deleteMapTitle" : "Wählt ein zu löschendes Szenario",
+	"vcmi.lobby.deleteFile" : "Möchtet Ihr folgende Datei löschen?",
+	"vcmi.lobby.deleteFolder" : "Möchtet Ihr folgenden Ordner löschen?",
+	"vcmi.lobby.deleteMode" : "In den Löschmodus wechseln und zurück",
+		
 	"vcmi.lobby.login.title" : "VCMI Online Lobby",
 	"vcmi.lobby.login.username" : "Benutzername:",
 	"vcmi.lobby.login.connecting" : "Verbinde...",
@@ -153,10 +184,12 @@
 	"vcmi.client.errors.invalidMap" : "{Ungültige Karte oder Kampagne}\n\nDas Spiel konnte nicht gestartet werden! Die ausgewählte Karte oder Kampagne ist möglicherweise ungültig oder beschädigt. Grund:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{Fehlende Dateien}\n\nEs wurden keine Kampagnendateien gefunden! Möglicherweise verwendest du unvollständige oder beschädigte Heroes 3 Datendateien. Bitte installiere die Spieldaten neu.",
 	"vcmi.server.errors.disconnected" : "{Netzwerkfehler}\n\nDie Verbindung zum Spielserver wurde unterbrochen!",
+	"vcmi.server.errors.playerLeft" : "{Verlassen eines Spielers}\n\n%s Spieler hat die Verbindung zum Spiel unterbrochen!", //%s -> player color
 	"vcmi.server.errors.existingProcess" : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
 	"vcmi.server.errors.modsToEnable"    : "{Erforderliche Mods um das Spiel zu laden}",
 	"vcmi.server.errors.modsToDisable"   : "{Folgende Mods müssen deaktiviert werden}",
 	"vcmi.server.errors.modNoDependency" : "Mod {'%s'} konnte nicht geladen werden!\n Sie hängt von Mod {'%s'} ab, die nicht aktiv ist!\n",
+	"vcmi.server.errors.modDependencyLoop" : "Mod {'%s'} konnte nicht geladen werden.!\n Möglicherweise befindet sie sich in einer (weichen) Abhängigkeitsschleife.",
 	"vcmi.server.errors.modConflict" : "Mod {'%s'} konnte nicht geladen werden!\n Konflikte mit aktiver Mod {'%s'}!\n",
 	"vcmi.server.errors.unknownEntity" : "Spielstand konnte nicht geladen werden! Unbekannte Entität '%s' im gespeicherten Spiel gefunden! Der Spielstand ist möglicherweise nicht mit der aktuell installierten Version der Mods kompatibel!",
 	
@@ -339,6 +372,9 @@
 	"vcmi.townHall.missingBase"             : "Basis Gebäude %s muss als erstes gebaut werden",
 	"vcmi.townHall.noCreaturesToRecruit"    : "Es gibt keine Kreaturen zu rekrutieren!",
 
+	"vcmi.townStructure.bank.borrow" : "Ihr betretet die Bank. Ein Bankangestellter sieht Euch und sagt: \"Wir haben ein spezielles Angebot für Euch gemacht. Ihr könnt bei uns einen Kredit von 2500 Gold für 5 Tage aufnehmen. Ihr werdet jeden Tag 500 Gold zurückzahlen müssen.\"",
+	"vcmi.townStructure.bank.payBack" : "Ihr betretet die Bank. Ein Bankangestellter sieht Euch und sagt: \"Ihr habt Euren Kredit bereits erhalten. Zahlt Ihn ihn zurück, bevor Ihr einen neuen aufnehmt.\"",
+
 	"vcmi.logicalExpressions.anyOf"  : "Eines der folgenden:",
 	"vcmi.logicalExpressions.allOf"  : "Alles der folgenden:",
 	"vcmi.logicalExpressions.noneOf" : "Keines der folgenden:",
@@ -347,6 +383,13 @@
 	"vcmi.heroWindow.openCommander.help"  : "Zeige Informationen über Kommandanten dieses Helden",
 	"vcmi.heroWindow.openBackpack.hover" : "Artefakt-Rucksack-Fenster öffnen",
 	"vcmi.heroWindow.openBackpack.help"  : "Öffnet ein Fenster, das die Verwaltung des Artefakt-Rucksacks erleichtert",
+	"vcmi.heroWindow.sortBackpackByCost.hover"  : "Nach Kosten sortieren",
+	"vcmi.heroWindow.sortBackpackByCost.help"  : "Artefakte im Rucksack nach Kosten sortieren.",
+	"vcmi.heroWindow.sortBackpackBySlot.hover"  : "Nach Slot sortieren",
+	"vcmi.heroWindow.sortBackpackBySlot.help"  : "Artefakte im Rucksack nach Ausrüstungsslot sortieren.",
+	"vcmi.heroWindow.sortBackpackByClass.hover"  : "Nach Klasse sortieren",
+	"vcmi.heroWindow.sortBackpackByClass.help"  : "Artefakte im Rucksack nach Artefaktklasse sortieren. Schatz, Klein, Groß, Relikt",
+	"vcmi.heroWindow.fusingArtifact.fusing" : "Ihr verfügt über alle Komponenten, die für die Fusion der %s benötigt werden. Möchtet Ihr die Verschmelzung durchführen? {Alle Komponenten werden bei der Fusion verbraucht.}",
 
 	"vcmi.tavernWindow.inviteHero"  : "Helden einladen",
 
@@ -523,7 +566,9 @@
 	"core.seerhut.quest.reachDate.visit.3" : "Geschlossen bis %s.",
 	"core.seerhut.quest.reachDate.visit.4" : "Geschlossen bis %s.",
 	"core.seerhut.quest.reachDate.visit.5" : "Geschlossen bis %s.",
-
+	
+	"mapObject.core.hillFort.object.description" : "Aufwertungen von Kreaturen. Die Stufen 1 - 4 sind billiger als in der zugehörigen Stadt.",
+	
 	"core.bonus.ADDITIONAL_ATTACK.name": "Doppelschlag",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Greift zweimal an",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Zusätzliche Vergeltungsmaßnahmen",
@@ -671,5 +716,13 @@
 	"core.bonus.WATER_IMMUNITY.name": "Wasser-Immunität",
 	"core.bonus.WATER_IMMUNITY.description": "Immun gegen alle Zauber der Wasserschule",
 	"core.bonus.WIDE_BREATH.name": "Breiter Atem",
-	"core.bonus.WIDE_BREATH.description": "Breiter Atem-Angriff (mehrere Felder)"
+	"core.bonus.WIDE_BREATH.description": "Breiter Atem-Angriff (mehrere Felder)",
+	"core.bonus.DISINTEGRATE.name": "Auflösen",
+	"core.bonus.DISINTEGRATE.description": "Kein Leichnam bleibt nach dem Tod übrig",
+	"core.bonus.INVINCIBLE.name": "Unbesiegbar",
+	"core.bonus.INVINCIBLE.description": "Kann durch nichts beeinflusst werden",
+	"core.bonus.MECHANICAL.name": "Mechanisch",
+	"core.bonus.MECHANICAL.description": "Immunität gegen viele Effekte, reparierbar",
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "Prisma-Atem",
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prisma-Atem-Angriff (drei Richtungen)"
 }

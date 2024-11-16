@@ -442,17 +442,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="648"/>
         <source>Gog files</source>
-        <translation type="unfinished"></translation>
+        <translation>Gog-Dateien</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="650"/>
         <source>All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Dateien (*.*)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="652"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wähle zu installierenden Dateien aus (Konfigs, Mods, Karten, Kampagnen, Gog-Dateien)...</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="677"/>
@@ -499,7 +499,7 @@ Installation erfolgreich heruntergeladen?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="852"/>
         <source>Installing chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Installation der Chronicles</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="925"/>
@@ -667,7 +667,7 @@ Installation erfolgreich heruntergeladen?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
         <source>Downscaling Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Herunterskalierungsfilter</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="597"/>
@@ -692,7 +692,7 @@ Installation erfolgreich heruntergeladen?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="908"/>
         <source>Automatic (Linear)</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch (linear)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="274"/>
@@ -709,42 +709,42 @@ Installation erfolgreich heruntergeladen?</translation>
         <location filename="../settingsView/csettingsview_moc.ui" line="539"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="1389"/>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="75"/>
         <source>Mods Validation</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod-Validierung</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="88"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Keiner</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="93"/>
         <source>xBRZ x2</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x2</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="98"/>
         <source>xBRZ x3</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x3</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="103"/>
         <source>xBRZ x4</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x4</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
         <source>Full</source>
-        <translation type="unfinished"></translation>
+        <translation>Voll</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="788"/>
         <source>Use scalable fonts</source>
-        <translation type="unfinished"></translation>
+        <translation>Skalierbare Schriftarten verwenden</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="859"/>
@@ -754,27 +754,27 @@ Installation erfolgreich heruntergeladen?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1079"/>
         <source>Cursor Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Cursor-Skalierung</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1108"/>
         <source>Scalable</source>
-        <translation type="unfinished"></translation>
+        <translation>Skalierbar</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1144"/>
         <source>Miscellaneous</source>
-        <translation type="unfinished"></translation>
+        <translation>Sonstiges</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
         <source>Font Scaling (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Schriftskalierung (experimentell)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1367"/>
         <source>Original</source>
-        <translation type="unfinished"></translation>
+        <translation>Original</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1406"/>
@@ -784,7 +784,7 @@ Installation erfolgreich heruntergeladen?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1439"/>
         <source>Basic</source>
-        <translation type="unfinished"></translation>
+        <translation>Grundlegend</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
@@ -1059,35 +1059,35 @@ Exklusiver Vollbildmodus - das Spiel bedeckt den gesamten Bildschirm und verwend
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
         <source>File cannot opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei kann nicht geöffnet werden</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Ungültige Datei ausgewählt</translation>
+        <translation>Ungültige Datei ausgewählt</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <source>You have to select an gog installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie müssen eine Gog-Installer-Datei auswählen!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>You have to select an chronicle installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie müssen eine Chronicle-Installationsdatei auswählen!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="87"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">Fehler beim Extrahieren!</translation>
+        <translation>Fehler beim Extrahieren!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
-        <location filename="../modManager/chroniclesextractor.cpp" line="141"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="156"/>
         <source>Heroes Chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes Chronicles</translation>
     </message>
 </context>
 <context>
@@ -1422,18 +1422,18 @@ Bitte wählen Sie ein Verzeichnis mit Heroes III: Complete Edition oder Heroes I
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished">Stream-Fehler beim Extrahieren von Dateien!
+        <translation>Stream-Fehler beim Extrahieren von Dateien!
 Fehlerursache: </translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation type="unfinished">Kein unterstütztes Inno Setup Installationsprogramm!</translation>
+        <translation>Kein unterstütztes Inno Setup Installationsprogramm!</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="58"/>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI wurde ohne innoextract-Unterstützung kompiliert, die zum Extrahieren von exe-Dateien benötigt wird!</translation>
     </message>
 </context>
 <context>

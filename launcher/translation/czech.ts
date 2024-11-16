@@ -1085,7 +1085,7 @@ Exkluzivní celá obrazovka - hra zakryje vaši celou obrazovku a použije vybra
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
-        <location filename="../modManager/chroniclesextractor.cpp" line="141"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="156"/>
         <source>Heroes Chronicles</source>
         <translation>Heroes Chronicles</translation>
     </message>
