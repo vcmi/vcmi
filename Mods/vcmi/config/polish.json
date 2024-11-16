@@ -15,7 +15,7 @@
 	"vcmi.adventureMap.monsterLevel"            : "\n\nJednostka %ATTACK_TYPE %LEVEL poziomu z miasta %TOWN",
 	"vcmi.adventureMap.monsterMeleeType"        : "Walcząca wręcz",
 	"vcmi.adventureMap.monsterRangedType"       : "Dystansowa",
-	"vcmi.adventureMap.search.hover"            : "Wyszukiwarka obiektów na mapie",
+	"vcmi.adventureMap.search.hover"            : "Wyszukiwarka obiektów",
 	"vcmi.adventureMap.search.help"             : "Wybierz obiekt który chcesz znaleźć na mapie.",
 
 	"vcmi.adventureMap.confirmRestartGame"     : "Czy na pewno chcesz zrestartować grę?",
