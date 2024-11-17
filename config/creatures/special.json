@@ -39,6 +39,14 @@
 		"doubleWide" : true,
 		"abilities" :
 		{
+			"siegeWeapon" :
+			{
+				"type" : "SIEGE_WEAPON"
+			},
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			},
 			"siegeMachine" :
 			{
 				"type" : "CATAPULT",
@@ -67,6 +75,17 @@
 		"level": 0,
 		"faction": "neutral",
 		"doubleWide" : true,
+		"abilities" :
+		{
+			"siegeWeapon" :
+			{
+				"type" : "SIEGE_WEAPON"
+			},
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "SMBAL.DEF",
@@ -91,7 +110,12 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"heals" : {
+			"siegeWeapon" :
+			{
+				"type" : "SIEGE_WEAPON"
+			},
+			"heals" :
+			{
 				"type" : "HEALER" ,
 				"subtype" : "spell.firstAid"
 			}
@@ -112,7 +136,17 @@
 		"index": 148,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": { "inactive" : { "type" : "NOT_ACTIVE" } },
+		"abilities": 
+		{
+			"siegeWeapon" :
+			{
+				"type" : "SIEGE_WEAPON"
+			},
+			"inactive" :
+			{
+				"type" : "NOT_ACTIVE"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "SMCART.DEF"
