@@ -767,11 +767,6 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
-			{
-				"type" : "KING",
-				"val" : 0
-			},
 			"canFly" :
 			{
 				"type" : "FLYING"
@@ -784,6 +779,11 @@
 			{
 				"type" : "SPELL_SCHOOL_IMMUNITY",
 				"subtype" : "spellSchool.fire"
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"graphics" :
@@ -807,11 +807,6 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
-			{
-				"type" : "KING",
-				"val" : 0
-			},
 			"canFly" :
 			{
 				"type" : "FLYING"
@@ -819,11 +814,6 @@
 			"twoHexAttackBreath" :
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
-			},
-			"immuneToFire" :
-			{
-				"type" : "SPELL_SCHOOL_IMMUNITY",
-				"subtype" : "spellSchool.fire"
 			},
 			"rebirthOnce" :
 			{
@@ -834,6 +824,16 @@
 			{
 				"type" : "REBIRTH",
 				"val" : 20
+			},
+			"immuneToFire" :
+			{
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"graphics" :

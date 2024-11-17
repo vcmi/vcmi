@@ -343,11 +343,6 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
-			{
-				"type" : "KING",
-				"val" : 0
-			},
 			"attackAllAdjacent" :
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
@@ -355,6 +350,11 @@
 			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"upgrades": ["chaosHydra"],
@@ -379,11 +379,6 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
-			{
-				"type" : "KING",
-				"val" : 0
-			},
 			"attackAllAdjacent" :
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
@@ -391,6 +386,11 @@
 			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"graphics" :
