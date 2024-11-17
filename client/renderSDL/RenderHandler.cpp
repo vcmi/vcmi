@@ -327,6 +327,21 @@ std::shared_ptr<ISharedImage> RenderHandler::scaleImage(const ImageLocator & loc
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, EImageBlitMode mode)
 {
 	ImageLocator adjustedLocator = locator;
+
+	if(adjustedLocator.image)
+	{
+		std::string imgPath = (*adjustedLocator.image).getName();
+		if(adjustedLocator.layer == EImageLayer::OVERLAY)
+			imgPath += "-OVERLAY";
+		if(adjustedLocator.layer == EImageLayer::SHADOW)
+			imgPath += "-SHADOW";
+
+		if(CResourceHandler::get()->existsResource(ImagePath::builtin(imgPath)) ||
+		   CResourceHandler::get()->existsResource(ImagePath::builtin(imgPath).addPrefix("DATA/")) ||
+		   CResourceHandler::get()->existsResource(ImagePath::builtin(imgPath).addPrefix("SPRITES/")))
+			adjustedLocator.image = ImagePath::builtin(imgPath);
+	}
+
 	if(adjustedLocator.defFile && adjustedLocator.scalingFactor == 0)
 	{
 		auto tmp = getScalePath(*adjustedLocator.defFile);
@@ -360,21 +375,7 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, E
 		return loadImageImpl(scaledLocator)->createImageReference(mode);
 	}
 	else
-	{
-		if(adjustedLocator.image)
-		{
-			std::string imgPath = (*adjustedLocator.image).getName();
-			if(adjustedLocator.layer == EImageLayer::OVERLAY)
-				imgPath += "-overlay";
-			if(adjustedLocator.layer == EImageLayer::SHADOW)
-				imgPath += "-shadow";
-
-			if(CResourceHandler::get()->existsResource(ImagePath::builtin(imgPath)))
-				adjustedLocator.image = ImagePath::builtin(imgPath);
-		}
-
 		return loadImageImpl(adjustedLocator)->createImageReference(mode);
-	}
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode)
