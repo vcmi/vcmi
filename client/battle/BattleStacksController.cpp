@@ -636,7 +636,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [=]()
 		{
-			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, AudioPath::builtin("DRAINLIF"), attacker->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, AudioPath::builtin("DRAINLIF"), attacker->getPosition(), 0.5);
 		});
 	}
 

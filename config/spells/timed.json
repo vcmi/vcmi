@@ -652,7 +652,7 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":["C07SPA1"],
+			"affect":[{"defName" : "C07SPA1", "transparency" : 0.5}],
 			"projectile":[{"defName":"C07SPA0"}]//???
 		},
 		"sounds": {
@@ -696,7 +696,7 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":[{"defName":"C10SPW", "verticalPosition":"bottom"}]
+			"affect":[{"defName":"C10SPW", "verticalPosition":"bottom", "transparency" : 0.5}]
 		},
 		"sounds": {
 			"cast": "PRAYER"

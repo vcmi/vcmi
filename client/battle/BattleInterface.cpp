@@ -535,9 +535,9 @@ void BattleInterface::displaySpellAnimationQueue(const CSpell * spell, const CSp
 				flags |= EffectAnimation::SCREEN_FILL;
 
 			if (!destinationTile.isValid())
-				stacksController->addNewAnim(new EffectAnimation(*this, animation.resourceName, flags));
+				stacksController->addNewAnim(new EffectAnimation(*this, animation.resourceName, flags, animation.transparency));
 			else
-				stacksController->addNewAnim(new EffectAnimation(*this, animation.resourceName, destinationTile, flags));
+				stacksController->addNewAnim(new EffectAnimation(*this, animation.resourceName, destinationTile, flags, animation.transparency));
 		}
 	}
 }

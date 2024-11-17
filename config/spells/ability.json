@@ -252,7 +252,7 @@
 		"targetType": "NO_TARGET",
 
 		"animation":{
-			"hit":["SP04_"]
+			"hit":[{ "defName" : "SP04_", "transparency" : 0.5}]
 		},
 		"sounds": {
 			"cast": "DEATHCLD"

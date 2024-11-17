@@ -74,6 +74,7 @@ public:
 		AnimationPath resourceName;
 		std::string effectName;
 		VerticalPosition verticalPosition;
+		float transparency;
 		int pause;
 
 		AnimationItem();

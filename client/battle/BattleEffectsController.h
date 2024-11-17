@@ -39,7 +39,8 @@ struct BattleEffect
 
 	AnimType type;
 	Point pos; //position on the screen
-	float currentFrame;
+	float currentFrame = 0.0;
+	float transparencyFactor = 1.0;
 	std::shared_ptr<CAnimation> animation;
 	int effectID; //uniqueID equal ot ID of appropriate CSpellEffectAnim
 	BattleHex tile; //Indicates if effect which hex the effect is drawn on
@@ -65,7 +66,7 @@ public:
 
 	//displays custom effect on the battlefield
 	void displayEffect(EBattleEffect effect, const BattleHex & destTile);
-	void displayEffect(EBattleEffect effect, const AudioPath & soundFile, const BattleHex & destTile);
+	void displayEffect(EBattleEffect effect, const AudioPath & soundFile, const BattleHex & destTile, float transparencyFactor = 1.f);
 
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 
