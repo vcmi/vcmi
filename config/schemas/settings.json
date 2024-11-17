@@ -624,7 +624,8 @@
 				"autoCheckRepositories", 
 				"ignoreSslErrors",
 				"updateOnStartup", 
-				"updateConfigUrl"
+				"updateConfigUrl", 
+				"preLauncher"
 			],
 			"properties" : {
 				"defaultRepositoryEnabled" : {
@@ -666,6 +667,10 @@
 				"updateConfigUrl" : {
 					"type" : "string",
 					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json"
+				},
+				"preLauncher" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		},

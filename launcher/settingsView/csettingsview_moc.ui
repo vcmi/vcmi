@@ -1449,6 +1449,35 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
          </attribute>
         </widget>
        </item>
+       <item row="61" column="0">
+        <widget class="QLabel" name="labelPreLauncher">
+         <property name="text">
+          <string>Prelauncher</string>
+         </property>
+        </widget>
+       </item>
+       <item row="61" column="1" colspan="5">
+        <widget class="QToolButton" name="buttonPreLauncher">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>
