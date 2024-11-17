@@ -116,7 +116,7 @@ MainWindow::MainWindow(QWidget * parent)
 
 	ui->settingsView->setDisplayList();
 	
-	if(settings["launcher"]["preLauncher"].Bool())
+	if(settings["launcher"]["preLauncher"].Bool()) // MessageBox before launcher asking how to start (automatically starts client after 10 seconds)
 		preLauncher();
 
 	if(settings["launcher"]["updateOnStartup"].Bool())
@@ -128,13 +128,14 @@ void MainWindow::preLauncher()
 	QMessageBox msgBox;
 	int secondsRemaining = 10;
 	QString text = tr("How to start?\n\nVCMI starts automatically in ");
-	msgBox.setText(text + QString::number(secondsRemaining) + tr(" Seconds"));
+	QString textSeconds = tr(" Seconds");
+	msgBox.setText(text + QString::number(secondsRemaining) + textSeconds);
 	msgBox.setWindowTitle(tr("VCMI"));
 	msgBox.setIcon(QMessageBox::Information);
 	msgBox.addButton(tr("Start Launcher"), QMessageBox::YesRole);
 	QPushButton * startClient = msgBox.addButton(tr("Start VCMI"), QMessageBox::NoRole);
 	QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, [this, &timer, &text, &msgBox, &secondsRemaining](){
+	connect(timer, &QTimer::timeout, this, [this, &timer, &text, &textSeconds, &msgBox, &secondsRemaining](){
 		if(secondsRemaining == 0)
 		{
 			timer->stop();
@@ -142,10 +143,10 @@ void MainWindow::preLauncher()
 			ui->startGameButton->click();
 			return;
 		}
-		msgBox.setText(text + QString::number(secondsRemaining) + tr(" Seconds"));
+		msgBox.setText(text + QString::number(secondsRemaining) + textSeconds);
 		secondsRemaining--;
 	});
-    timer->start(1000);
+	timer->start(1000);
 	msgBox.exec();
 	timer->stop();
 	if(msgBox.clickedButton() == startClient && secondsRemaining)
