@@ -139,6 +139,8 @@ SDLImageShared::SDLImageShared(const ImagePath & filename, int preScaleFactor)
 		savePalette();
 		fullSize.x = surf->w;
 		fullSize.y = surf->h;
+
+		optimizeSurface();
 	}
 }
 
