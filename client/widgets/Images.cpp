@@ -20,6 +20,7 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/ColorFilter.h"
+#include "../render/Colors.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -431,6 +432,7 @@ void CShowableAnim::blitImage(size_t frame, size_t group, Canvas & to)
 	if(img)
 	{
 		img->setAlpha(alpha);
+		img->setOverlayColor(Colors::TRANSPARENCY);
 		to.draw(img, pos.topLeft(), src);
 	}
 }
