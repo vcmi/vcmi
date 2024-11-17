@@ -303,22 +303,14 @@ std::shared_ptr<const ISharedImage> RenderHandler::scaleImage(const ImageLocator
 	if (imageFiles.count(locator))
 		return imageFiles.at(locator);
 
-	auto handle = image->createImageReference(locator.layer == EImageLayer::ALL ? EImageBlitMode::OPAQUE : EImageBlitMode::ALPHA);
+	auto handle = image->createImageReference(locator.layer);
 
 	assert(locator.scalingFactor != 1); // should be filtered-out before
-
-	handle->setBodyEnabled(locator.layer == EImageLayer::ALL || locator.layer == EImageLayer::BODY);
-	if (locator.layer != EImageLayer::ALL)
-	{
-		handle->setOverlayEnabled(locator.layer == EImageLayer::OVERLAY);
-		handle->setShadowEnabled( locator.layer == EImageLayer::SHADOW);
-	}
-	if (locator.layer == EImageLayer::ALL && locator.playerColored != PlayerColor::CANNOT_DETERMINE)
+	if (locator.playerColored != PlayerColor::CANNOT_DETERMINE)
 		handle->playerColored(locator.playerColored);
 
 	handle->scaleInteger(locator.scalingFactor);
 
-	// TODO: try to optimize image size (possibly even before scaling?) - trim image borders if they are completely transparent
 	auto result = handle->getSharedImage();
 	storeCachedImage(locator, result);
 	return result;
@@ -331,9 +323,9 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, E
 	if(adjustedLocator.image)
 	{
 		std::string imgPath = (*adjustedLocator.image).getName();
-		if(adjustedLocator.layer == EImageLayer::OVERLAY)
+		if(adjustedLocator.layer == EImageBlitMode::ONLY_OVERLAY)
 			imgPath += "-OVERLAY";
-		if(adjustedLocator.layer == EImageLayer::SHADOW)
+		if(adjustedLocator.layer == EImageBlitMode::ONLY_SHADOW)
 			imgPath += "-SHADOW";
 
 		if(CResourceHandler::get()->existsResource(ImagePath::builtin(imgPath)) ||
@@ -394,7 +386,7 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageB
 
 std::shared_ptr<IImage> RenderHandler::createImage(SDL_Surface * source)
 {
-	return std::make_shared<SDLImageShared>(source)->createImageReference(EImageBlitMode::ALPHA);
+	return std::make_shared<SDLImageShared>(source)->createImageReference(EImageBlitMode::SIMPLE);
 }
 
 std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path, EImageBlitMode mode)

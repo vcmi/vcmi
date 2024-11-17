@@ -398,7 +398,7 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	else
 		animationPath = hero->getHeroClass()->imageBattleMale;
 
-	animation = GH.renderHandler().loadAnimation(animationPath, EImageBlitMode::ALPHA);
+	animation = GH.renderHandler().loadAnimation(animationPath, EImageBlitMode::WITH_SHADOW);
 
 	pos.w = 64;
 	pos.h = 136;

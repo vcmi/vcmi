@@ -98,7 +98,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 		border = GH.renderHandler().loadImage(str->borderName, EImageBlitMode::COLORKEY);
 
 	if(!str->areaName.empty())
-		area = GH.renderHandler().loadImage(str->areaName, EImageBlitMode::ALPHA);
+		area = GH.renderHandler().loadImage(str->areaName, EImageBlitMode::SIMPLE);
 }
 
 const CBuilding * CBuildingRect::getBuilding()

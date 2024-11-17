@@ -124,8 +124,12 @@ std::string ImageLocator::toString() const
 	if (playerColored.isValidPlayer())
 		result += "-player" + playerColored.toString();
 
-	if (layer != EImageLayer::ALL)
-		result += "-layer" + std::to_string(static_cast<int>(layer));
+	if (layer == EImageBlitMode::ONLY_OVERLAY)
+		result += "-overlay";
+
+	if (layer == EImageBlitMode::ONLY_SHADOW)
+		result += "-shadow";
+
 
 	return result;
 }

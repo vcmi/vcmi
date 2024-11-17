@@ -44,6 +44,7 @@ private:
 	uint8_t alphaValue;
 	EImageBlitMode blitMode;
 
+	void prepareImages();
 public:
 	ImageScaled(const ImageLocator & locator, const std::shared_ptr<const ISharedImage> & source, EImageBlitMode mode);
 
@@ -60,8 +61,5 @@ public:
 	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
 	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;
 
-	void setShadowEnabled(bool on) override;
-	void setBodyEnabled(bool on) override;
-	void setOverlayEnabled(bool on) override;
 	std::shared_ptr<const ISharedImage> getSharedImage() const override;
 };
