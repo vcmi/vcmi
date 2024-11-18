@@ -155,11 +155,11 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 
 	if(settings["lobby"]["mapPreview"].Bool() && p.tabType != ESelectionScreen::campaignList)
 	{
-		ResourcePath res = ResourcePath(p.resource.getName(), EResType::MAP);
+		ResourcePath res = ResourcePath(p.resource.getOriginalName(), EResType::MAP);
 		std::unique_ptr<CMap> campaignMap = nullptr;
 		if(p.tabType != ESelectionScreen::newGame && config["variables"]["mapPreviewForSaves"].Bool())
 		{
-			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), ESerializationVersion::MINIMAL);
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getOriginalName(), EResType::SAVEGAME)), ESerializationVersion::MINIMAL);
 			lf.checkMagicBytes(SAVEGAME_MAGIC);
 
 			auto mapHeader = std::make_unique<CMapHeader>();
@@ -196,7 +196,8 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 	{
 		if(p.date.empty())
 		{
-			std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), p.tabType == ESelectionScreen::campaignList ? EResType::CAMPAIGN : EResType::MAP)));
+			std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getOriginalName(),
+				p.tabType == ESelectionScreen::campaignList ? EResType::CAMPAIGN : EResType::MAP)));
 			w->setText(TextOperations::getFormattedDateTimeLocal(time));
 		}
 		else

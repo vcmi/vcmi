@@ -26,7 +26,8 @@ static inline EResType readType(const std::string& name)
 	return EResTypeHelper::getTypeFromExtension(FileInfo::GetExtension(name).to_string());
 }
 
-static inline std::string readName(std::string name, bool uppercase)
+static inline std::string readName(std::string name, bool uppercase, bool chopExt = true);
+static inline std::string readName(std::string name, bool uppercase, bool chopExt)
 {
 	const auto dotPos = name.find_last_of('.');
 
@@ -38,7 +39,7 @@ static inline std::string readName(std::string name, bool uppercase)
 	if((delimPos == std::string::npos || delimPos < dotPos) && dotPos != std::string::npos)
 	{
 		auto type = EResTypeHelper::getTypeFromExtension(name.substr(dotPos));
-		if(type != EResType::OTHER)
+		if(type != EResType::OTHER && chopExt)
 			name.resize(dotPos);
 	}
 
@@ -51,19 +52,19 @@ static inline std::string readName(std::string name, bool uppercase)
 ResourcePath::ResourcePath(const std::string & name_):
 	type(readType(name_)),
 	name(readName(name_, true)),
-	originalName(readName(name_, false))
+	originalName(readName(name_, false, false))
 {}
 
 ResourcePath::ResourcePath(const std::string & name_, EResType type_):
 	type(type_),
 	name(readName(name_, true)),
-	originalName(readName(name_, false))
+	originalName(readName(name_, false, false))
 {}
 
 ResourcePath::ResourcePath(const JsonNode & name, EResType type):
 	type(type),
 	name(readName(name.String(), true)),
-	originalName(readName(name.String(), false))
+	originalName(readName(name.String(), false, false))
 {
 }
 
@@ -76,7 +77,7 @@ void ResourcePath::serializeJson(JsonSerializeFormat & handler)
 		if (node.isString())
 		{
 			name = readName(node.String(), true);
-			originalName = readName(node.String(), false);
+			originalName =  readName(node.String(), false, false);
 			return;
 		}
 	}

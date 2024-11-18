@@ -111,7 +111,7 @@ TEST(MapManager, DrawTerrain_View)
 {
 	try
 	{
-		const ResourcePath testMap("test/TerrainViewTest", EResType::MAP);
+		const ResourcePath testMap("test/TerrainViewTest.h3m", EResType::MAP);
 		// Load maps and json config
 		CMapService mapService;
 		const auto originalMap = mapService.loadMap(testMap, nullptr);
