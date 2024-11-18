@@ -127,29 +127,33 @@ void MainWindow::preLauncher()
 {
 	QMessageBox msgBox;
 	int secondsRemaining = 10;
-	auto text = "How to start?\n\nVCMI starts automatically in %n second(s)";
-	msgBox.setText(tr(text, "", secondsRemaining));
-	msgBox.setWindowTitle(tr("VCMI"));
-	msgBox.setIcon(QMessageBox::Information);
+	auto setText = [&](){ msgBox.setText(tr("How to start?\n\nVCMI starts automatically in %n second(s)", "", secondsRemaining)); };
+	setText();
+	msgBox.setWindowTitle("VCMI");
+	msgBox.setIcon(QMessageBox::Question);
 	msgBox.addButton(tr("Start Launcher"), QMessageBox::YesRole);
 	QPushButton * startClient = msgBox.addButton(tr("Start VCMI"), QMessageBox::NoRole);
 	QTimer *timer = new QTimer(this);
-	connect(timer, &QTimer::timeout, this, [this, &timer, &text, &msgBox, &secondsRemaining](){
+	connect(timer, &QTimer::timeout, this, [&, this](){
 		if(secondsRemaining == 0)
 		{
 			timer->stop();
 			msgBox.close();
-			ui->startGameButton->click();
+			hide();
+			startGame({});
 			return;
 		}
-		msgBox.setText(tr(text, "", secondsRemaining));
+		setText();
 		secondsRemaining--;
 	});
 	timer->start(1000);
 	msgBox.exec();
 	timer->stop();
 	if(msgBox.clickedButton() == startClient && secondsRemaining)
-		ui->startGameButton->click();
+	{
+		hide();
+		startGame({});
+	}
 }
 
 void MainWindow::detectPreferredLanguage()
