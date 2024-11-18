@@ -57,6 +57,7 @@
 		"extraNames": [ "lightCrossbowman" ],
 		"faction": "castle",
 		"upgrades": ["marksman"],
+		"shots" : 12,
 		"abilities" :
 		{
 			"shooter" : {
@@ -86,6 +87,7 @@
 		"index": 3,
 		"level": 2,
 		"faction": "castle",
+		"shots" : 24,
 		"abilities":
 		{
 			"shooter" : {
@@ -228,6 +230,7 @@
 		"level": 5,
 		"faction": "castle",
 		"upgrades": ["zealot"],
+		"shots" : 12,
 		"abilities" :
 		{
 			"shooter" : {
@@ -257,6 +260,7 @@
 		"index": 9,
 		"level": 5,
 		"faction": "castle",
+		"shots" : 24,
 		"abilities" :
 		{
 			"shooter" : {

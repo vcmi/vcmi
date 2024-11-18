@@ -44,6 +44,7 @@
 		"faction": "fortress",
 		"upgrades": ["lizardWarrior"],
 		"hasDoubleWeek": true,
+		"shots" : 12,
 		"abilities" :
 		{
 			"shooter" :
@@ -74,6 +75,7 @@
 		"index": 101,
 		"level": 2,
 		"faction": "fortress",
+		"shots" : 24,
 		"abilities" :
 		{
 			"shooter" :

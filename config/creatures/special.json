@@ -37,6 +37,7 @@
 		"level": 0,
 		"faction": "neutral",
 		"doubleWide" : true,
+		"shots" : 24,
 		"abilities" :
 		{
 			"siegeWeapon" :
@@ -75,6 +76,7 @@
 		"level": 0,
 		"faction": "neutral",
 		"doubleWide" : true,
+		"shots" : 24,
 		"abilities" :
 		{
 			"siegeWeapon" :
@@ -163,6 +165,7 @@
 		"index": 149,
 		"level": 0,
 		"faction": "neutral",
+		"shots" : 99,
 		"abilities":
 		{
 			"shooter" : { "type" : "SHOOTER" },

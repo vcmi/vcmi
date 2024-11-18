@@ -51,6 +51,7 @@
 		"faction": "inferno",
 		"upgrades": ["magog"],
 		"hasDoubleWeek": true,
+		"shots" : 12,
 		"abilities" :
 		{
 			"shooter" :
@@ -81,6 +82,7 @@
 		"index": 45,
 		"level": 2,
 		"faction": "inferno",
+		"shots" : 24,
 		"abilities":
 		{
 			"shooter" :
