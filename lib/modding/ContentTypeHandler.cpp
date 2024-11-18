@@ -262,11 +262,9 @@ void CContentHandler::init()
 bool CContentHandler::preloadData(const ModDescription & mod, bool validate)
 {
 	bool result = true;
-	if (validate && mod.getID() != ModScope::scopeBuiltin()) // TODO: remove workaround
-	{
-		if (!JsonUtils::validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
-			result = false;
-	}
+
+	if (!JsonUtils::validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
+		result = false;
 
 	for(auto & handler : handlers)
 	{

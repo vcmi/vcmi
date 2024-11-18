@@ -103,7 +103,7 @@ double ModsState::getInstalledModSizeMegabytes(const TModID & modName) const
 			sizeBytes += boost::filesystem::file_size(*it);
 	}
 
-	double sizeMegabytes = sizeBytes / double(1024*1024);
+	double sizeMegabytes = sizeBytes / static_cast<double>(1024*1024);
 	return sizeMegabytes;
 }
 
@@ -150,20 +150,19 @@ std::vector<TModID> ModsState::scanModsDirectory(const std::string & modDir) con
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static JsonNode loadModSettings(const JsonPath & path)
-{
-	if(CResourceHandler::get("local")->existsResource(ResourcePath(path)))
-	{
-		return JsonNode(path);
-	}
-	// Probably new install. Create initial configuration
-	CResourceHandler::get("local")->createResource(path.getOriginalName() + ".json");
-	return JsonNode();
-}
-
 ModsPresetState::ModsPresetState()
 {
-	modConfig = loadModSettings(JsonPath::builtin("config/modSettings.json"));
+	static const JsonPath settingsPath = JsonPath::builtin("config/modSettings.json");
+
+	if(CResourceHandler::get("local")->existsResource(ResourcePath(settingsPath)))
+	{
+		modConfig = JsonNode(settingsPath);
+	}
+	else
+	{
+		// Probably new install. Create initial configuration
+		CResourceHandler::get("local")->createResource(settingsPath.getOriginalName() + ".json");
+	}
 
 	if(modConfig["presets"].isNull())
 	{
@@ -365,7 +364,6 @@ ModManager::ModManager(const JsonNode & repositoryList)
 	: modsState(std::make_unique<ModsState>())
 	, modsPreset(std::make_unique<ModsPresetState>())
 {
-	//TODO: load only active mods & all their submods in game mode?
 	modsStorage = std::make_unique<ModsStorage>(modsState->getInstalledMods(), repositoryList);
 
 	eraseMissingModsFromPreset();

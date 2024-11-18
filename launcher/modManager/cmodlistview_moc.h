@@ -48,8 +48,6 @@ class CModListView : public QWidget
 
 	// find mods unknown to mod list (not present in repo and not installed)
 	QStringList findInvalidDependencies(QString mod);
-	// find mods that block enabling of this mod: conflicting with this mod or one of required mods
-	QStringList findBlockingMods(QString modUnderTest);
 	// find mods that depend on this one
 	QStringList findDependentMods(QString mod, bool excludeDisabled);
 

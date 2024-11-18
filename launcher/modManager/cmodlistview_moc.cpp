@@ -457,7 +457,6 @@ void CModListView::selectMod(const QModelIndex & index)
 		//FIXME: this function should be recursive
 		//FIXME: ensure that this is also reflected correctly in "Notes" section of mod description
 		bool hasInvalidDeps = !findInvalidDependencies(modName).empty();
-		//bool hasBlockingMods = !findBlockingMods(modName).empty();
 		bool hasDependentMods = !findDependentMods(modName, true).empty();
 
 		ui->disableButton->setVisible(modStateModel->isModEnabled(mod.getID()));
@@ -518,29 +517,6 @@ QStringList CModListView::findInvalidDependencies(QString mod)
 		if(!modStateModel->isModExists(requirement))
 			ret += requirement;
 	}
-	return ret;
-}
-
-QStringList CModListView::findBlockingMods(QString modUnderTest)
-{
-	QStringList ret;
-	auto required = modStateModel->getMod(modUnderTest).getDependencies();
-
-	for(QString name : modStateModel->getAllMods())
-	{
-		auto mod = modStateModel->getMod(name);
-
-		if(modStateModel->isModEnabled(mod.getID()))
-		{
-			// one of enabled mods have requirement (or this mod) marked as conflict
-			for(const auto & conflict : mod.getConflicts())
-			{
-				if(required.contains(conflict))
-					ret.push_back(name);
-			}
-		}
-	}
-
 	return ret;
 }
 
@@ -691,7 +667,9 @@ void CModListView::manualInstallFile(QString filePath)
 				for(const auto widget : qApp->allWidgets())
 					if(auto settingsView = qobject_cast<CSettingsView *>(widget))
 						settingsView->loadSettings();
-				// TODO: rescan local mods
+
+				modStateModel->reloadLocalState();
+				modModel->reloadRepositories();
 			}
 		}
 	}
@@ -879,8 +857,8 @@ void CModListView::installFiles(QStringList files)
 		if(futureExtract.get())
 		{
 			//update
-			CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
-			// TODO: rescan local mods
+			modStateModel->reloadLocalState();
+			modModel->reloadRepositories();
 		}
 	}
 
@@ -1080,7 +1058,6 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 	auto mod = modStateModel->getMod(modName);
 	
 	bool hasInvalidDeps = !findInvalidDependencies(modName).empty();
-	bool hasBlockingMods = !findBlockingMods(modName).empty();
 	bool hasDependentMods = !findDependentMods(modName, true).empty();
 	
 	if(!hasInvalidDeps && mod.isAvailable() && !mod.isSubmod())
@@ -1105,7 +1082,7 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 		return;
 	}
 
-	if(!hasBlockingMods && !hasInvalidDeps && !modStateModel->isModEnabled(modName))
+	if(!hasInvalidDeps && !modStateModel->isModEnabled(modName))
 	{
 		on_enableButton_clicked();
 		return;

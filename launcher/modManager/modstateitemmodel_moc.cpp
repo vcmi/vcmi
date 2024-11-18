@@ -14,17 +14,6 @@
 
 #include <QIcon>
 
-namespace ModStatus
-{
-static const QString iconDelete = ":/icons/mod-delete.png";
-static const QString iconDisabled = ":/icons/mod-disabled.png";
-static const QString iconDisabledSubmod = ":/icons/submod-disabled.png";
-static const QString iconDownload = ":/icons/mod-download.png";
-static const QString iconEnabled = ":/icons/mod-enabled.png";
-static const QString iconEnabledSubmod = ":/icons/submod-enabled.png";
-static const QString iconUpdate = ":/icons/mod-update.png";
-}
-
 ModStateItemModel::ModStateItemModel(std::shared_ptr<ModStateModel> model, QObject * parent)
 	: QAbstractItemModel(parent)
 	, model(model)
@@ -109,6 +98,13 @@ QVariant ModStateItemModel::getText(const ModState & mod, int field) const
 
 QVariant ModStateItemModel::getIcon(const ModState & mod, int field) const
 {
+	static const QString iconDisabled = ":/icons/mod-disabled.png";
+	static const QString iconDisabledSubmod = ":/icons/submod-disabled.png";
+	static const QString iconDownload = ":/icons/mod-download.png";
+	static const QString iconEnabled = ":/icons/mod-enabled.png";
+	static const QString iconEnabledSubmod = ":/icons/submod-enabled.png";
+	static const QString iconUpdate = ":/icons/mod-update.png";
+
 	if (field == ModFields::STATUS_ENABLED)
 	{
 		if (!model->isModInstalled(mod.getID()))
@@ -119,24 +115,24 @@ QVariant ModStateItemModel::getIcon(const ModState & mod, int field) const
 			if (!model->isModEnabled(mod.getTopParentID()))
 			{
 				if (model->isModEnabled(mod.getID()))
-					return QIcon(ModStatus::iconEnabledSubmod);
+					return QIcon(iconEnabledSubmod);
 				else
-					return QIcon(ModStatus::iconDisabledSubmod);
+					return QIcon(iconDisabledSubmod);
 			}
 		}
 
 		if (model->isModEnabled(mod.getID()))
-			return QIcon(ModStatus::iconEnabled);
+			return QIcon(iconEnabled);
 		else
-			return QIcon(ModStatus::iconDisabled);
+			return QIcon(iconDisabled);
 	}
 
 	if(field == ModFields::STATUS_UPDATE)
 	{
 		if (model->isModUpdateAvailable(mod.getID()))
-			return QIcon(ModStatus::iconUpdate);
+			return QIcon(iconUpdate);
 		if (!model->isModInstalled(mod.getID()))
-			return QIcon(ModStatus::iconDownload);
+			return QIcon(iconDownload);
 	}
 
 	return QVariant();
@@ -189,7 +185,7 @@ Qt::ItemFlags ModStateItemModel::flags(const QModelIndex &) const
 
 QVariant ModStateItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-	static const QString header[ModFields::COUNT] =
+	static const std::array header =
 	{
 		QT_TRANSLATE_NOOP("ModFields", "Name"),
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
@@ -198,7 +194,7 @@ QVariant ModStateItemModel::headerData(int section, Qt::Orientation orientation,
 	};
 
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)
-		return QCoreApplication::translate("ModFields", header[section].toStdString().c_str());
+		return QCoreApplication::translate("ModFields", header[section]);
 	return QVariant();
 }
 
@@ -311,7 +307,7 @@ bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & sourc
 
 	for(size_t i = 0; i < base->rowCount(index); i++)
 	{
-		if(filterMatchesThis(base->index((int)i, 0, index)))
+		if(filterMatchesThis(base->index(i, 0, index)))
 			return true;
 	}
 
