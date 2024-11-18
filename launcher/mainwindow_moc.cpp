@@ -127,15 +127,14 @@ void MainWindow::preLauncher()
 {
 	QMessageBox msgBox;
 	int secondsRemaining = 10;
-	QString text = tr("How to start?\n\nVCMI starts automatically in ");
-	QString textSeconds = tr(" Seconds");
-	msgBox.setText(text + QString::number(secondsRemaining) + textSeconds);
+	auto text = "How to start?\n\nVCMI starts automatically in %n second(s)";
+	msgBox.setText(tr(text, "", secondsRemaining));
 	msgBox.setWindowTitle(tr("VCMI"));
 	msgBox.setIcon(QMessageBox::Information);
 	msgBox.addButton(tr("Start Launcher"), QMessageBox::YesRole);
 	QPushButton * startClient = msgBox.addButton(tr("Start VCMI"), QMessageBox::NoRole);
 	QTimer *timer = new QTimer(this);
-	connect(timer, &QTimer::timeout, this, [this, &timer, &text, &textSeconds, &msgBox, &secondsRemaining](){
+	connect(timer, &QTimer::timeout, this, [this, &timer, &text, &msgBox, &secondsRemaining](){
 		if(secondsRemaining == 0)
 		{
 			timer->stop();
@@ -143,7 +142,7 @@ void MainWindow::preLauncher()
 			ui->startGameButton->click();
 			return;
 		}
-		msgBox.setText(text + QString::number(secondsRemaining) + textSeconds);
+		msgBox.setText(tr(text, "", secondsRemaining));
 		secondsRemaining--;
 	});
 	timer->start(1000);
