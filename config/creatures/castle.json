@@ -346,11 +346,6 @@
 		"faction": "castle",
 		"abilities":
 		{
-			"KING_2" : // Will be affected by Advanced Slayer or better
-			{
-				"type" : "KING",
-				"val" : 2
-			},
 			"canFly" :
 			{
 				"type" : "FLYING"
@@ -361,6 +356,11 @@
 				"val" : 1,
 				"propagator" : "HERO",
 				"stacking" : "Angels"
+			},
+			"KING_2" : // Will be affected by Advanced Slayer or better
+			{
+				"type" : "KING",
+				"val" : 2
 			},
 			"hateDevils" :
 			{
@@ -397,11 +397,6 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_2" : // Will be affected by Advanced Slayer or better
-			{
-				"type" : "KING",
-				"val" : 2
-			},
 			"canFly" :
 			{
 				"type" : "FLYING"
@@ -428,6 +423,11 @@
 				"val" : 1,
 				"propagator" : "HERO",
 				"stacking" : "Angels"
+			},
+			"KING_2" : // Will be affected by Advanced Slayer or better
+			{
+				"type" : "KING",
+				"val" : 2
 			},
 			"hateDevils" :
 			{

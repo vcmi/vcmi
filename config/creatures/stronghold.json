@@ -355,15 +355,15 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
-			{
-				"type" : "KING",
-				"val" : 0
-			},
 			"reduceDefence" :
 			{
 				"type" : "ENEMY_DEFENCE_REDUCTION",
 				"val" : 40
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"upgrades": ["ancientBehemoth"],
@@ -388,15 +388,15 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
-			{
-				"type" : "KING",
-				"val" : 0
-			},
 			"reduceDefence" :
 			{
 				"type" : "ENEMY_DEFENCE_REDUCTION",
 				"val" : 80
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"graphics" :

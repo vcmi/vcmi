@@ -71,18 +71,13 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
+			"dragon" : 
 			{
-				"type" : "KING",
-				"val" : 0
+				"type" : "DRAGON_NATURE"
 			},
 			"canFly" :
 			{
 				"type" : "FLYING"
-			},
-			"dragon" : 
-			{
-				"type" : "DRAGON_NATURE"
 			},
 			"twoHexAttackBreath" :
 			{
@@ -100,6 +95,11 @@
 			{
 				"type" : "LEVEL_SPELL_IMMUNITY",
 				"val" : 3
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"graphics" :
@@ -124,23 +124,23 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
-			{
-				"type" : "KING",
-				"val" : 0
-			},
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"crystals" :
+			{
+				"type" : "SPECIAL_CRYSTAL_GENERATION"
 			},
 			"magicResistance" :
 			{
 				"type" : "MAGIC_RESISTANCE",
 				"val" : 20
 			},
-			"crystals" :
+			"KING_1" : // Will be affected by Slayer with no expertise
 			{
-				"type" : "SPECIAL_CRYSTAL_GENERATION"
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"graphics" :
@@ -165,14 +165,13 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
-			{
-				"type" : "KING",
-				"val" : 0
-			},
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
 			},
 			"mirror" :
 			{
@@ -244,6 +243,11 @@
 				"subtype" : "spell.meteorShower",
 				"addInfo" : 5,
 				"val" : 2
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"graphics" :
@@ -269,18 +273,13 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
+			"dragon" : 
 			{
-				"type" : "KING",
-				"val" : 0
+				"type" : "DRAGON_NATURE"
 			},
 			"canFly" :
 			{
 				"type" : "FLYING"
-			},
-			"dragon" : 
-			{
-				"type" : "DRAGON_NATURE"
 			},
 			"twoHexAttackBreath" :
 			{
@@ -297,6 +296,11 @@
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.acidBreath",
 				"val" : 100
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"graphics" :

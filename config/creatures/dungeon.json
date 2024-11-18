@@ -425,18 +425,13 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
+			"dragon" : 
 			{
-				"type" : "KING",
-				"val" : 0
+				"type" : "DRAGON_NATURE"
 			},
 			"canFly" :
 			{
 				"type" : "FLYING"
-			},
-			"dragon" : 
-			{
-				"type" : "DRAGON_NATURE"
 			},
 			"twoHexAttackBreath" :
 			{
@@ -446,6 +441,11 @@
 			{
 				"type" : "LEVEL_SPELL_IMMUNITY",
 				"val" : 3
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"upgrades": ["blackDragon"],
@@ -470,18 +470,13 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
+			"dragon" : 
 			{
-				"type" : "KING",
-				"val" : 0
+				"type" : "DRAGON_NATURE"
 			},
 			"canFly" :
 			{
 				"type" : "FLYING"
-			},
-			"dragon" : 
-			{
-				"type" : "DRAGON_NATURE"
 			},
 			"twoHexAttackBreath" :
 			{
@@ -491,6 +486,11 @@
 			{
 				"type" : "LEVEL_SPELL_IMMUNITY",
 				"val" : 5
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			},
 			"hateTitans" :
 			{

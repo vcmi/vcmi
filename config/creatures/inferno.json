@@ -353,11 +353,6 @@
 		"faction": "inferno",
 		"abilities":
 		{
-			"KING_2" : // Will be affected by Advanced Slayer or better
-			{
-				"type" : "KING",
-				"val" : 2
-			},
 			"canFly" :
 			{
 				"type" : "FLYING",
@@ -375,6 +370,11 @@
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
 				"limiters" : [ "OPPOSITE_SIDE" ]
+			},
+			"KING_2" : // Will be affected by Advanced Slayer or better
+			{
+				"type" : "KING",
+				"val" : 2
 			},
 			"hateAngels" : 
 			{
@@ -413,11 +413,6 @@
 		"faction": "inferno",
 		"abilities" :
 		{
-			"KING_2" : // Will be affected by Advanced Slayer or better
-			{
-				"type" : "KING",
-				"val" : 2
-			},
 			"canFly" :
 			{
 				"type" : "FLYING",
@@ -435,6 +430,11 @@
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
 				"limiters" : [ "OPPOSITE_SIDE" ]
+			},
+			"KING_2" : // Will be affected by Advanced Slayer or better
+			{
+				"type" : "KING",
+				"val" : 2
 			},
 			"hateAngels" : 
 			{

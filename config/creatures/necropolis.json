@@ -421,18 +421,13 @@
 			{
 				"type" : "UNDEAD"
 			},
-			"KING_1" : // Will be affected by Slayer with no expertise
+			"dragon" :
 			{
-				"type" : "KING",
-				"val" : 0
+				"type" : "DRAGON_NATURE"
 			},
 			"canFly" :
 			{
 				"type" : "FLYING"
-			},
-			"dragon" :
-			{
-				"type" : "DRAGON_NATURE"
 			},
 			"decreaseMorale" :
 			{
@@ -442,6 +437,11 @@
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
 				"limiters" : [ "OPPOSITE_SIDE" ]
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"upgrades": ["ghostDragon"],
@@ -470,18 +470,13 @@
 			{
 				"type" : "UNDEAD"
 			},
-			"KING_1" : // Will be affected by Slayer with no expertise
+			"dragon" :
 			{
-				"type" : "KING",
-				"val" : 0
+				"type" : "DRAGON_NATURE"
 			},
 			"canFly" :
 			{
 				"type" : "FLYING"
-			},
-			"dragon" :
-			{
-				"type" : "DRAGON_NATURE"
 			},
 			"age" :
 			{
@@ -497,6 +492,11 @@
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
 				"limiters" : [ "OPPOSITE_SIDE" ]
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"graphics" :
