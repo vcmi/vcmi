@@ -263,6 +263,13 @@ void SDLImageShared::optimizeSurface()
 		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
 		SDL_BlitSurface(surf, &rectSDL, newSurface, nullptr);
 
+		if (SDL_HasColorKey(surf))
+		{
+			uint32_t colorKey;
+			SDL_GetColorKey(surf, &colorKey);
+			SDL_SetColorKey(newSurface, SDL_TRUE, colorKey);
+		}
+
 		SDL_FreeSurface(surf);
 		surf = newSurface;
 
@@ -359,7 +366,7 @@ void SDLImageIndexed::playerColored(PlayerColor player)
 bool SDLImageShared::isTransparent(const Point & coords) const
 {
 	if (surf)
-		return CSDL_Ext::isTransparent(surf, coords.x, coords.y);
+		return CSDL_Ext::isTransparent(surf, coords.x - margins.x, coords.y	- margins.y);
 	else
 		return true;
 }
