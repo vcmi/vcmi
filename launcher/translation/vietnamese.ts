@@ -1077,7 +1077,7 @@ Toàn màn hình riêng biệt - Trò chơi chạy toàn màn hình và dùng đ
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
-        <location filename="../modManager/chroniclesextractor.cpp" line="141"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="156"/>
         <source>Heroes Chronicles</source>
         <translation type="unfinished"></translation>
     </message>

@@ -359,7 +359,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1051"/>
-        <location filename="../mainwindow.cpp" line="834"/>
+        <location filename="../mainwindow.cpp" line="835"/>
         <source>View underground</source>
         <translation>Xem hang ngầm</translation>
     </message>
@@ -441,9 +441,9 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1205"/>
-        <location filename="../mainwindow.cpp" line="1105"/>
-        <location filename="../mainwindow.cpp" line="1109"/>
-        <location filename="../mainwindow.cpp" line="1166"/>
+        <location filename="../mainwindow.cpp" line="1106"/>
+        <location filename="../mainwindow.cpp" line="1110"/>
+        <location filename="../mainwindow.cpp" line="1167"/>
         <source>Update appearance</source>
         <translation>Cập nhật hiện thị</translation>
     </message>
@@ -574,92 +574,92 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="296"/>
+        <location filename="../mainwindow.cpp" line="297"/>
         <source>Confirmation</source>
         <translation>Xác nhận</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="296"/>
+        <location filename="../mainwindow.cpp" line="297"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>Thay đổi chưa lưu sẽ bị mất, bạn có chắc chắn?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="422"/>
+        <location filename="../mainwindow.cpp" line="423"/>
         <source>Open map</source>
         <translation>Mở bản đồ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="424"/>
+        <location filename="../mainwindow.cpp" line="425"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Tất cả bản đồ hỗ trợ (*.vmap *.h3m);;Bản đồ VCMI (*.vmap);;Bản đồ HoMM3 (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="487"/>
+        <location filename="../mainwindow.cpp" line="488"/>
         <source>Save map</source>
         <translation>Lưu bản đồ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="487"/>
+        <location filename="../mainwindow.cpp" line="488"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>Bản đồ VCMI (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="676"/>
+        <location filename="../mainwindow.cpp" line="677"/>
         <source>Type</source>
         <translation>Loại</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="838"/>
+        <location filename="../mainwindow.cpp" line="839"/>
         <source>View surface</source>
         <translation>Xem bề mặt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1105"/>
+        <location filename="../mainwindow.cpp" line="1106"/>
         <source>No objects selected</source>
         <translation>Không mục tiêu được chọn</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1109"/>
+        <location filename="../mainwindow.cpp" line="1110"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>Thao tác này không thể đảo ngược. Bạn muốn tiếp tục?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1166"/>
+        <location filename="../mainwindow.cpp" line="1167"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>Xảy ra lỗi. %1 mục tiêu không được cập nhật</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1206"/>
+        <location filename="../mainwindow.cpp" line="1207"/>
         <source>Save to image</source>
         <translation>Lưu thành ảnh</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1225"/>
+        <location filename="../mainwindow.cpp" line="1226"/>
         <source>Select maps to convert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1227"/>
+        <location filename="../mainwindow.cpp" line="1228"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1231"/>
+        <location filename="../mainwindow.cpp" line="1232"/>
         <source>Choose directory to save converted maps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1244"/>
+        <location filename="../mainwindow.cpp" line="1245"/>
         <source>Operation completed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1244"/>
+        <location filename="../mainwindow.cpp" line="1245"/>
         <source>Successfully converted %1 maps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1248"/>
+        <location filename="../mainwindow.cpp" line="1249"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation type="unfinished"></translation>
     </message>
@@ -844,7 +844,7 @@
         <translation>(mặc định)</translation>
     </message>
     <message>
-        <location filename="../playerparams.cpp" line="110"/>
+        <location filename="../playerparams.cpp" line="108"/>
         <source>Player ID: %1</source>
         <translation>ID người chơi: %1</translation>
     </message>
@@ -909,53 +909,67 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="38"/>
+        <location filename="../inspector/inspector.cpp" line="39"/>
         <source>Compliant</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="39"/>
+        <location filename="../inspector/inspector.cpp" line="40"/>
         <source>Friendly</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="40"/>
+        <location filename="../inspector/inspector.cpp" line="41"/>
         <source>Aggressive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="41"/>
+        <location filename="../inspector/inspector.cpp" line="42"/>
         <source>Hostile</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="42"/>
+        <location filename="../inspector/inspector.cpp" line="43"/>
         <source>Savage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="847"/>
-        <location filename="../inspector/inspector.cpp" line="936"/>
+        <location filename="../inspector/inspector.cpp" line="341"/>
+        <location filename="../inspector/inspector.cpp" line="344"/>
+        <source>No patrol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../inspector/inspector.cpp" line="343"/>
+        <location filename="../inspector/inspector.cpp" line="344"/>
+        <source>%n tile(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="859"/>
+        <location filename="../inspector/inspector.cpp" line="948"/>
         <source>neutral</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="845"/>
+        <location filename="../inspector/inspector.cpp" line="857"/>
         <source>UNFLAGGABLE</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="405"/>
+        <location filename="../mapcontroller.cpp" line="385"/>
         <source>Can&apos;t place object</source>
         <translation type="unfinished">Không thể đặt vật thể</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="577"/>
+        <location filename="../mapcontroller.cpp" line="555"/>
         <source>There can only be one grail object on the map.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="583"/>
+        <location filename="../mapcontroller.cpp" line="561"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1083,12 +1097,12 @@
         <translation type="unfinished">Người chơi</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="34"/>
+        <location filename="../inspector/questwidget.cpp" line="38"/>
         <source>None</source>
         <translation type="unfinished">Không</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="36"/>
+        <location filename="../inspector/questwidget.cpp" line="40"/>
         <source>Day %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1356,18 +1370,18 @@
         <translation type="unfinished">Người chơi</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="45"/>
+        <location filename="../inspector/rewardswidget.cpp" line="49"/>
         <source>None</source>
         <translation type="unfinished">Không</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="47"/>
+        <location filename="../inspector/rewardswidget.cpp" line="51"/>
         <source>Day %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="234"/>
-        <location filename="../inspector/rewardswidget.cpp" line="605"/>
+        <location filename="../inspector/rewardswidget.cpp" line="238"/>
+        <location filename="../inspector/rewardswidget.cpp" line="609"/>
         <source>Reward %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1433,32 +1447,32 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="87"/>
+        <location filename="../mapsettings/timedevent.ui" line="91"/>
         <source>Repeat after (0 = no repeat)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="108"/>
+        <location filename="../mapsettings/timedevent.ui" line="112"/>
         <source>Affected players</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="131"/>
+        <location filename="../mapsettings/timedevent.ui" line="135"/>
         <source>Resources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="190"/>
+        <location filename="../mapsettings/timedevent.ui" line="194"/>
         <source>type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="195"/>
+        <location filename="../mapsettings/timedevent.ui" line="199"/>
         <source>qty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="203"/>
+        <location filename="../mapsettings/timedevent.ui" line="207"/>
         <source>Ok</source>
         <translation type="unfinished">Đồng ý</translation>
     </message>

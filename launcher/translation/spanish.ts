@@ -1084,7 +1084,7 @@ Pantalla completa - el juego cubrirá la totalidad de la pantalla y utilizará l
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
-        <location filename="../modManager/chroniclesextractor.cpp" line="141"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="156"/>
         <source>Heroes Chronicles</source>
         <translation type="unfinished"></translation>
     </message>

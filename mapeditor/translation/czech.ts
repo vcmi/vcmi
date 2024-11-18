@@ -359,7 +359,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1051"/>
-        <location filename="../mainwindow.cpp" line="834"/>
+        <location filename="../mainwindow.cpp" line="835"/>
         <source>View underground</source>
         <translation>Zobrazit podzemí</translation>
     </message>
@@ -441,9 +441,9 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1205"/>
-        <location filename="../mainwindow.cpp" line="1105"/>
-        <location filename="../mainwindow.cpp" line="1109"/>
-        <location filename="../mainwindow.cpp" line="1166"/>
+        <location filename="../mainwindow.cpp" line="1106"/>
+        <location filename="../mainwindow.cpp" line="1110"/>
+        <location filename="../mainwindow.cpp" line="1167"/>
         <source>Update appearance</source>
         <translation>Aktualizovat vzhled</translation>
     </message>
@@ -574,92 +574,92 @@
         <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="296"/>
+        <location filename="../mainwindow.cpp" line="297"/>
         <source>Confirmation</source>
         <translation>Potvrzení</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="296"/>
+        <location filename="../mainwindow.cpp" line="297"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>Neuložené změny budou ztraceny, jste si jisti?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="422"/>
+        <location filename="../mainwindow.cpp" line="423"/>
         <source>Open map</source>
         <translation>Otevřít mapu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="424"/>
+        <location filename="../mainwindow.cpp" line="425"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Všechny podporované mapy (*.vmap *.h3m);; Mapy VCMI(*.vmap);;Mapy HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="487"/>
+        <location filename="../mainwindow.cpp" line="488"/>
         <source>Save map</source>
         <translation>Uložit mapu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="487"/>
+        <location filename="../mainwindow.cpp" line="488"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>Mapy VCMI (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="676"/>
+        <location filename="../mainwindow.cpp" line="677"/>
         <source>Type</source>
         <translation>Druh</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="838"/>
+        <location filename="../mainwindow.cpp" line="839"/>
         <source>View surface</source>
         <translation>Zobrazit povrch</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1105"/>
+        <location filename="../mainwindow.cpp" line="1106"/>
         <source>No objects selected</source>
         <translation>Nejsou vybrány žádné objekty</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1109"/>
+        <location filename="../mainwindow.cpp" line="1110"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>Tento úkon je nezvratný. Chcete pokračovat?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1166"/>
+        <location filename="../mainwindow.cpp" line="1167"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>Nastaly chyby. Nebylo aktualizováno %1 objektů</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1206"/>
+        <location filename="../mainwindow.cpp" line="1207"/>
         <source>Save to image</source>
         <translation>Uložit do obrázku</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1225"/>
+        <location filename="../mainwindow.cpp" line="1226"/>
         <source>Select maps to convert</source>
         <translation>Vyberte mapy pro převod</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1227"/>
+        <location filename="../mainwindow.cpp" line="1228"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation>Mapy HoMM3 (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1231"/>
+        <location filename="../mainwindow.cpp" line="1232"/>
         <source>Choose directory to save converted maps</source>
         <translation>Vyberte složku pro uložení převedených map</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1244"/>
+        <location filename="../mainwindow.cpp" line="1245"/>
         <source>Operation completed</source>
         <translation>Operace dokončena</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1244"/>
+        <location filename="../mainwindow.cpp" line="1245"/>
         <source>Successfully converted %1 maps</source>
         <translation>Úspěšně převedeno %1 map</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1248"/>
+        <location filename="../mainwindow.cpp" line="1249"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation>Převod map selhal. Úkon zrušen</translation>
     </message>
@@ -844,7 +844,7 @@
         <translation>(výchozí)</translation>
     </message>
     <message>
-        <location filename="../playerparams.cpp" line="110"/>
+        <location filename="../playerparams.cpp" line="108"/>
         <source>Player ID: %1</source>
         <translation>ID hráče: %1</translation>
     </message>
@@ -909,53 +909,69 @@
         <translation>Expert</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="38"/>
+        <location filename="../inspector/inspector.cpp" line="39"/>
         <source>Compliant</source>
         <translation>Ochotná</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="39"/>
+        <location filename="../inspector/inspector.cpp" line="40"/>
         <source>Friendly</source>
         <translation>Přátelská</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="40"/>
+        <location filename="../inspector/inspector.cpp" line="41"/>
         <source>Aggressive</source>
         <translation>Agresivní</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="41"/>
+        <location filename="../inspector/inspector.cpp" line="42"/>
         <source>Hostile</source>
         <translation>Nepřátelská</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="42"/>
+        <location filename="../inspector/inspector.cpp" line="43"/>
         <source>Savage</source>
         <translation>Brutální</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="847"/>
-        <location filename="../inspector/inspector.cpp" line="936"/>
+        <location filename="../inspector/inspector.cpp" line="341"/>
+        <location filename="../inspector/inspector.cpp" line="344"/>
+        <source>No patrol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../inspector/inspector.cpp" line="343"/>
+        <location filename="../inspector/inspector.cpp" line="344"/>
+        <source>%n tile(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="859"/>
+        <location filename="../inspector/inspector.cpp" line="948"/>
         <source>neutral</source>
         <translation>neutrální</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="845"/>
+        <location filename="../inspector/inspector.cpp" line="857"/>
         <source>UNFLAGGABLE</source>
         <translation>NEOZNAČITELNÝ</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="405"/>
+        <location filename="../mapcontroller.cpp" line="385"/>
         <source>Can&apos;t place object</source>
         <translation>Nelze umístit objekt</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="577"/>
+        <location filename="../mapcontroller.cpp" line="555"/>
         <source>There can only be one grail object on the map.</source>
         <translation>Na mapě může být pouze jeden grál.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="583"/>
+        <location filename="../mapcontroller.cpp" line="561"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
         <translation>Hrdina %1 nemůže být vytvořen jako NEUTRÁLNÍ.</translation>
     </message>
@@ -1083,12 +1099,12 @@
         <translation>Hráči</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="34"/>
+        <location filename="../inspector/questwidget.cpp" line="38"/>
         <source>None</source>
         <translation>Žádný</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="36"/>
+        <location filename="../inspector/questwidget.cpp" line="40"/>
         <source>Day %1</source>
         <translation>Den %1</translation>
     </message>
@@ -1356,18 +1372,18 @@
         <translation>Hráči</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="45"/>
+        <location filename="../inspector/rewardswidget.cpp" line="49"/>
         <source>None</source>
         <translation>Žádný</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="47"/>
+        <location filename="../inspector/rewardswidget.cpp" line="51"/>
         <source>Day %1</source>
         <translation>Den %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="234"/>
-        <location filename="../inspector/rewardswidget.cpp" line="605"/>
+        <location filename="../inspector/rewardswidget.cpp" line="238"/>
+        <location filename="../inspector/rewardswidget.cpp" line="609"/>
         <source>Reward %1</source>
         <translation>Odměna %1</translation>
     </message>
@@ -1433,32 +1449,32 @@
         <translation>Den prvního výskytu</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="87"/>
+        <location filename="../mapsettings/timedevent.ui" line="91"/>
         <source>Repeat after (0 = no repeat)</source>
         <translation>Opakovat po (0 = bez opak.)</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="108"/>
+        <location filename="../mapsettings/timedevent.ui" line="112"/>
         <source>Affected players</source>
         <translation>Ovlivnění hráči</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="131"/>
+        <location filename="../mapsettings/timedevent.ui" line="135"/>
         <source>Resources</source>
         <translation>Zdroje</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="190"/>
+        <location filename="../mapsettings/timedevent.ui" line="194"/>
         <source>type</source>
         <translation>druh</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="195"/>
+        <location filename="../mapsettings/timedevent.ui" line="199"/>
         <source>qty</source>
         <translation>množství</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="203"/>
+        <location filename="../mapsettings/timedevent.ui" line="207"/>
         <source>Ok</source>
         <translation>Dobře</translation>
     </message>
