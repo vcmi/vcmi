@@ -104,3 +104,17 @@ void ModStateModel::doDisableMod(QString modname)
 {
 	modManager->tryDisableMod(modname.toStdString());
 }
+
+bool ModStateModel::isSubmod(QString modname)
+{
+	return modname.contains('.');
+}
+
+QString ModStateModel::getTopParent(QString modname) const
+{
+	QStringList components = modname.split('.');
+	if (components.size() > 1)
+		return components.front();
+	else
+		return "";
+}

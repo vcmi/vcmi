@@ -45,4 +45,7 @@ public:
 
 	void doEnableMod(QString modname);
 	void doDisableMod(QString modname);
+
+	bool isSubmod(QString modname);
+	QString getTopParent(QString modname) const;
 };

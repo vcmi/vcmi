@@ -266,41 +266,34 @@ QStringList CModListView::getModNames(QString queryingModID, QStringList input)
 
 	for(const auto & modID : input)
 	{
-		// Missing mod - use mod ID
-		// TODO: for submods show parent ID instead
-		if (!modStateModel->isModExists(modID))
+		if (modStateModel->isModExists(modID) && modStateModel->getMod(modID).isHidden())
+			continue;
+
+		QString parentModID = modStateModel->getTopParent(modID);
+		QString displayName;
+
+		if (modStateModel->isSubmod(modID) && queryingMod.getParentID() != parentModID )
 		{
-			result += modID;
-			continue;
+			// show in form "parent mod (submod)"
+
+			QString parentDisplayName = parentModID;
+			QString submodDisplayName = modID;
+
+			if (modStateModel->isModExists(parentModID))
+				parentDisplayName = modStateModel->getMod(parentModID).getName();
+
+			if (modStateModel->isModExists(modID))
+				submodDisplayName = modStateModel->getMod(modID).getName();
+
+			displayName = QString("%1 (%2)").arg(submodDisplayName, parentDisplayName);
 		}
-
-		auto mod = modStateModel->getMod(modID);
-
-		if (queryingMod.getParentID() == modID)
-			continue;
-
-		if (mod.isHidden())
-			continue;
-
-		QString displayName = mod.getName();
-		if (displayName.isEmpty())
-			displayName = modID.toLower();
-
-		if (mod.isSubmod() && queryingMod.getParentID() != mod.getParentID() ) // FIXME: recheck this block
+		else
 		{
-			auto parentModID = mod.getTopParentID();
-			auto parentMod = modStateModel->getMod(parentModID);
-			QString parentDisplayName = parentMod.getName();
-			if (parentDisplayName.isEmpty())
-				parentDisplayName = parentModID.toLower();
-			
-			if (modStateModel->isModInstalled(modID))
-				displayName = QString("%1 (%2)").arg(displayName, parentDisplayName);
-			else
-				displayName = parentDisplayName;
+			// show simply as mod name
+			displayName = modID;
+			if (modStateModel->isModExists(modID))
+				displayName = modStateModel->getMod(modID).getName();
 		}
-
-		// TODO: show active mods in bold?
 		result += displayName;
 	}
 	return result;
@@ -457,7 +450,6 @@ void CModListView::selectMod(const QModelIndex & index)
 		//FIXME: this function should be recursive
 		//FIXME: ensure that this is also reflected correctly in "Notes" section of mod description
 		bool hasInvalidDeps = !findInvalidDependencies(modName).empty();
-		bool hasDependentMods = !findDependentMods(modName, true).empty();
 
 		ui->disableButton->setVisible(modStateModel->isModEnabled(mod.getID()));
 		ui->enableButton->setVisible(!modStateModel->isModEnabled(mod.getID()));
@@ -466,13 +458,11 @@ void CModListView::selectMod(const QModelIndex & index)
 		ui->updateButton->setVisible(mod.isUpdateAvailable());
 
 		// Block buttons if action is not allowed at this time
-		// TODO: automate handling of some of these cases instead of forcing player
-		// to resolve all conflicts manually.
 		ui->disableButton->setEnabled(true);
 		ui->enableButton->setEnabled(!hasInvalidDeps);
 		ui->installButton->setEnabled(!hasInvalidDeps);
 		ui->uninstallButton->setEnabled(true);
-		ui->updateButton->setEnabled(!hasInvalidDeps && !hasDependentMods);
+		ui->updateButton->setEnabled(!hasInvalidDeps);
 
 		loadScreenshots();
 	}
@@ -514,27 +504,18 @@ QStringList CModListView::findInvalidDependencies(QString mod)
 	QStringList ret;
 	for(QString requirement : modStateModel->getMod(mod).getDependencies())
 	{
-		if(!modStateModel->isModExists(requirement))
-			ret += requirement;
-	}
-	return ret;
-}
-
-QStringList CModListView::findDependentMods(QString mod, bool excludeDisabled)
-{
-	QStringList ret;
-	for(QString modName : modStateModel->getAllMods())
-	{
-		auto current = modStateModel->getMod(modName);
-
-		if(!current.isInstalled() || !current.isVisible())
+		if(modStateModel->isModExists(requirement))
 			continue;
 
-		if(current.getDependencies().contains(mod, Qt::CaseInsensitive))
+		if(modStateModel->isSubmod(requirement))
 		{
-			if(!(modStateModel->isModEnabled(modName) && excludeDisabled))
-				ret += modName;
+			QString parentModID = modStateModel->getTopParent(requirement);
+
+			if (modStateModel->isModExists(parentModID) && !modStateModel->isModInstalled(parentModID))
+				continue;
 		}
+
+		ret += requirement;
 	}
 	return ret;
 }
@@ -569,13 +550,47 @@ void CModListView::disableModByName(QString modName)
 	modModel->reloadRepositories();
 }
 
+QStringList CModListView::getModsToInstall(QString mod)
+{
+	QStringList result;
+	QStringList candidates;
+	QStringList processed;
+
+	candidates.push_back(mod);
+	while (!candidates.empty())
+	{
+		QString potentialToInstall = candidates.back();
+		candidates.pop_back();
+		processed.push_back(potentialToInstall);
+
+		if (modStateModel->isSubmod(potentialToInstall))
+			potentialToInstall = modStateModel->getTopParent(potentialToInstall);
+
+		if (!modStateModel->isModExists(potentialToInstall))
+			throw std::runtime_error("Attempt to install non-existing mod! Mod name:" + potentialToInstall.toStdString());
+
+		if (modStateModel->isModInstalled(potentialToInstall))
+			continue;
+
+		result.push_back(potentialToInstall);
+
+		QStringList dependencies = modStateModel->getMod(potentialToInstall).getDependencies();
+		for (const auto & dependency : dependencies)
+		{
+			if (!processed.contains(dependency))
+				candidates.push_back(dependency);
+		}
+	}
+	return result;
+}
+
 void CModListView::on_updateButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 
 	assert(findInvalidDependencies(modName).empty());
 
-	for(const auto & name : modStateModel->getMod(modName).getDependencies())
+	for(const auto & name : getModsToInstall(modName))
 	{
 		auto mod = modStateModel->getMod(name);
 		// update required mod, install missing (can be new dependency)
@@ -604,8 +619,8 @@ void CModListView::on_installButton_clicked()
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 
 	assert(findInvalidDependencies(modName).empty());
-	
-	for(const auto & name : modStateModel->getMod(modName).getDependencies())
+
+	for(const auto & name : getModsToInstall(modName))
 	{
 		auto mod = modStateModel->getMod(name);
 		if(mod.isAvailable())
@@ -1058,7 +1073,6 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 	auto mod = modStateModel->getMod(modName);
 	
 	bool hasInvalidDeps = !findInvalidDependencies(modName).empty();
-	bool hasDependentMods = !findDependentMods(modName, true).empty();
 	
 	if(!hasInvalidDeps && mod.isAvailable() && !mod.isSubmod())
 	{
@@ -1066,7 +1080,7 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 		return;
 	}
 
-	if(!hasInvalidDeps && !hasDependentMods && mod.isUpdateAvailable() && index.column() == ModFields::STATUS_UPDATE)
+	if(!hasInvalidDeps && mod.isUpdateAvailable() && index.column() == ModFields::STATUS_UPDATE)
 	{
 		on_updateButton_clicked();
 		return;
@@ -1088,7 +1102,7 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 		return;
 	}
 
-	if(!hasDependentMods && !mod.isVisible() && modStateModel->isModEnabled(modName))
+	if(modStateModel->isModEnabled(modName))
 	{
 		on_disableButton_clicked();
 		return;

@@ -93,7 +93,8 @@ void CModHandler::loadModFilesystems()
 		modFilesystems[modName] = genModFilesystem(modName, getModInfo(modName).getFilesystemConfig());
 
 	for(const TModID & modName : activeMods)
-		CResourceHandler::addFilesystem("data", modName, modFilesystems[modName]);
+		if (modName != "core") // FIXME: remove
+			CResourceHandler::addFilesystem("data", modName, modFilesystems[modName]);
 
 	if (settings["mods"]["validation"].String() == "full")
 		checkModFilesystemsConflicts(modFilesystems);

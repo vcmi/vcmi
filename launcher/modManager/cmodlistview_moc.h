@@ -46,10 +46,11 @@ class CModListView : public QWidget
 	/// replace mod ID's with proper human-readable mod names
 	QStringList getModNames(QString queryingMod, QStringList input);
 
+	/// returns list of mods that are needed for install of this mod (potentially including this mod itself)
+	QStringList getModsToInstall(QString mod);
+
 	// find mods unknown to mod list (not present in repo and not installed)
 	QStringList findInvalidDependencies(QString mod);
-	// find mods that depend on this one
-	QStringList findDependentMods(QString mod, bool excludeDisabled);
 
 	void manualInstallFile(QString filePath);
 	void downloadFile(QString file, QString url, QString description, qint64 size = 0);
