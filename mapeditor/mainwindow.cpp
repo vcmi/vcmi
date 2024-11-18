@@ -488,7 +488,6 @@ void MainWindow::on_actionOpenRecent_triggered()
 		d.close();
 	};
 
-	connect(&d.listWidget, &QListWidget::itemDoubleClicked, this, onSelect);
 	connect(&d.listWidget, &QListWidget::itemActivated, this, onSelect);
 
 	d.exec();
