@@ -139,6 +139,8 @@ SDLImageShared::SDLImageShared(const ImagePath & filename, int preScaleFactor)
 		savePalette();
 		fullSize.x = surf->w;
 		fullSize.y = surf->h;
+
+		optimizeSurface();
 	}
 }
 
@@ -180,7 +182,7 @@ void SDLImageShared::draw(SDL_Surface * where, SDL_Palette * palette, const Poin
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
 
-	if(surf->format->palette && mode == EImageBlitMode::ALPHA)
+	if(surf->format->palette && mode != EImageBlitMode::OPAQUE && mode != EImageBlitMode::COLORKEY)
 	{
 		CSDL_Ext::blit8bppAlphaTo24bpp(surf, sourceRect, where, destShift, alpha);
 	}
@@ -260,6 +262,13 @@ void SDLImageShared::optimizeSurface()
 		auto newSurface = CSDL_Ext::newSurface(newDimensions.dimensions(), surf);
 		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
 		SDL_BlitSurface(surf, &rectSDL, newSurface, nullptr);
+
+		if (SDL_HasColorKey(surf))
+		{
+			uint32_t colorKey;
+			SDL_GetColorKey(surf, &colorKey);
+			SDL_SetColorKey(newSurface, SDL_TRUE, colorKey);
+		}
 
 		SDL_FreeSurface(surf);
 		surf = newSurface;
@@ -357,7 +366,7 @@ void SDLImageIndexed::playerColored(PlayerColor player)
 bool SDLImageShared::isTransparent(const Point & coords) const
 {
 	if (surf)
-		return CSDL_Ext::isTransparent(surf, coords.x, coords.y);
+		return CSDL_Ext::isTransparent(surf, coords.x - margins.x, coords.y	- margins.y);
 	else
 		return true;
 }
@@ -425,7 +434,7 @@ void SDLImageIndexed::shiftPalette(uint32_t firstColorID, uint32_t colorsToMove,
 void SDLImageIndexed::adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask)
 {
 	// If shadow is enabled, following colors must be skipped unconditionally
-	if (shadowEnabled)
+	if (blitMode == EImageBlitMode::WITH_SHADOW || blitMode == EImageBlitMode::WITH_SHADOW_AND_OVERLAY)
 		colorsToSkipMask |= (1 << 0) + (1 << 1) + (1 << 4);
 
 	// Note: here we skip first colors in the palette that are predefined in H3 images
@@ -445,15 +454,10 @@ SDLImageIndexed::SDLImageIndexed(const std::shared_ptr<const ISharedImage> & ima
 	:SDLImageBase::SDLImageBase(image, mode)
 	,originalPalette(originalPalette)
 {
-
 	currentPalette = SDL_AllocPalette(originalPalette->ncolors);
 	SDL_SetPaletteColors(currentPalette, originalPalette->colors, 0, originalPalette->ncolors);
 
-	if (mode == EImageBlitMode::ALPHA)
-	{
-		setOverlayColor(Colors::TRANSPARENCY);
-		setShadowTransparency(1.0);
-	}
+	preparePalette();
 }
 
 SDLImageIndexed::~SDLImageIndexed()
@@ -500,36 +504,42 @@ void SDLImageIndexed::setOverlayColor(const ColorRGBA & color)
 	}
 }
 
-void SDLImageIndexed::setShadowEnabled(bool on)
+void SDLImageIndexed::preparePalette()
 {
-	if (on)
-		setShadowTransparency(1.0);
+	switch(blitMode)
+	{
+		case EImageBlitMode::ONLY_SHADOW:
+		case EImageBlitMode::ONLY_OVERLAY:
+			adjustPalette(ColorFilter::genAlphaShifter(0), 0);
+			break;
+	}
 
-	if (!on && blitMode == EImageBlitMode::ALPHA)
-		setShadowTransparency(0.0);
+	switch(blitMode)
+	{
+		case EImageBlitMode::SIMPLE:
+		case EImageBlitMode::WITH_SHADOW:
+		case EImageBlitMode::ONLY_SHADOW:
+		case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
+			setShadowTransparency(1.0);
+			break;
+		case EImageBlitMode::ONLY_BODY:
+		case EImageBlitMode::ONLY_BODY_IGNORE_OVERLAY:
+		case EImageBlitMode::ONLY_OVERLAY:
+			setShadowTransparency(0.0);
+			break;
+	}
 
-	shadowEnabled = on;
-}
-
-void SDLImageIndexed::setBodyEnabled(bool on)
-{
-	if (on)
-		adjustPalette(ColorFilter::genEmptyShifter(), 0);
-	else
-		adjustPalette(ColorFilter::genAlphaShifter(0), 0);
-
-	bodyEnabled = on;
-}
-
-void SDLImageIndexed::setOverlayEnabled(bool on)
-{
-	if (on)
-		setOverlayColor(Colors::WHITE_TRUE);
-
-	if (!on && blitMode == EImageBlitMode::ALPHA)
-		setOverlayColor(Colors::TRANSPARENCY);
-
-	overlayEnabled = on;
+	switch(blitMode)
+	{
+		case EImageBlitMode::ONLY_OVERLAY:
+		case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
+			setOverlayColor(Colors::WHITE_TRUE);
+			break;
+		case EImageBlitMode::ONLY_SHADOW:
+		case EImageBlitMode::ONLY_BODY:
+			setOverlayColor(Colors::TRANSPARENCY);
+			break;
+	}
 }
 
 SDLImageShared::~SDLImageShared()
@@ -607,21 +617,6 @@ void SDLImageBase::setAlpha(uint8_t value)
 void SDLImageBase::setBlitMode(EImageBlitMode mode)
 {
 	blitMode = mode;
-}
-
-void SDLImageRGB::setShadowEnabled(bool on)
-{
-	// Not supported. Theoretically we can try to extract all pixels of specific colors, but better to use 8-bit images or composite images
-}
-
-void SDLImageRGB::setBodyEnabled(bool on)
-{
-	// Not supported. Theoretically we can try to extract all pixels of specific colors, but better to use 8-bit images or composite images
-}
-
-void SDLImageRGB::setOverlayEnabled(bool on)
-{
-	// Not supported. Theoretically we can try to extract all pixels of specific colors, but better to use 8-bit images or composite images
 }
 
 void SDLImageRGB::setOverlayColor(const ColorRGBA & color)

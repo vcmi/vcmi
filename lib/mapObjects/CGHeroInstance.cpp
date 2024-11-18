@@ -338,7 +338,8 @@ void CGHeroInstance::setHeroType(HeroTypeID heroType)
 
 void CGHeroInstance::initObj(vstd::RNG & rand)
 {
-	updateAppearance();
+	if (ID == Obj::HERO)
+		updateAppearance();
 }
 
 void CGHeroInstance::initHero(vstd::RNG & rand, const HeroTypeID & SUBID)

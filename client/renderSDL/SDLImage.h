@@ -89,11 +89,8 @@ class SDLImageIndexed final : public SDLImageBase
 	SDL_Palette * currentPalette = nullptr;
 	SDL_Palette * originalPalette = nullptr;
 
-	bool bodyEnabled = true;
-	bool shadowEnabled = false;
-	bool overlayEnabled = false;
-
 	void setShadowTransparency(float factor);
+	void preparePalette();
 public:
 	SDLImageIndexed(const std::shared_ptr<const ISharedImage> & image, SDL_Palette * palette, EImageBlitMode mode);
 	~SDLImageIndexed();
@@ -106,10 +103,6 @@ public:
 	void scaleInteger(int factor) override;
 	void scaleTo(const Point & size) override;
 	void exportBitmap(const boost::filesystem::path & path) const override;
-
-	void setShadowEnabled(bool on) override;
-	void setBodyEnabled(bool on) override;
-	void setOverlayEnabled(bool on) override;
 };
 
 class SDLImageRGB final : public SDLImageBase
@@ -125,8 +118,4 @@ public:
 	void scaleInteger(int factor) override;
 	void scaleTo(const Point & size) override;
 	void exportBitmap(const boost::filesystem::path & path) const override;
-
-	void setShadowEnabled(bool on) override;
-	void setBodyEnabled(bool on) override;
-	void setOverlayEnabled(bool on) override;
 };

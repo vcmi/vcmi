@@ -37,9 +37,29 @@ enum class EImageBlitMode : uint8_t
 	/// RGBA: full alpha transparency range, e.g. shadows
 	COLORKEY,
 
-	/// Should be avoided if possible, use only for images that use def's with semi-transparency
-	/// Indexed or RGBA: Image might have full alpha transparency range, e.g. shadows
-	ALPHA
+	/// Full transparency including shadow, but treated as a single image
+	/// Indexed: Image can have alpha transparency, e.g. shadow
+	/// RGBA: full alpha transparency range, e.g. shadows
+	/// Upscaled form: single image, no option to display shadow separately
+	SIMPLE,
+
+	/// RGBA, may consist from 2 separate parts: base and shadow, overlay not preset or treated as part of body
+	WITH_SHADOW,
+
+	/// RGBA, may consist from 3 separate parts: base, shadow, and overlay
+	WITH_SHADOW_AND_OVERLAY,
+
+	/// RGBA, contains only body, with shadow and overlay disabled
+	ONLY_BODY,
+
+	/// RGBA, contains only body, with shadow disabled and overlay treated as part of body
+	ONLY_BODY_IGNORE_OVERLAY,
+
+	/// RGBA, contains only shadow
+	ONLY_SHADOW,
+
+	/// RGBA, contains only overlay
+	ONLY_OVERLAY,
 };
 
 /// Base class for images for use in client code.
@@ -75,9 +95,6 @@ public:
 	//only indexed bitmaps with 7 special colors
 	virtual void setOverlayColor(const ColorRGBA & color) = 0;
 
-	virtual void setShadowEnabled(bool on) = 0;
-	virtual void setBodyEnabled(bool on) = 0;
-	virtual void setOverlayEnabled(bool on) = 0;
 	virtual std::shared_ptr<const ISharedImage> getSharedImage() const = 0;
 
 	virtual ~IImage() = default;

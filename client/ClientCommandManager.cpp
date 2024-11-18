@@ -394,7 +394,7 @@ void ClientCommandManager::handleDef2bmpCommand(std::istringstream& singleWordBu
 {
 	std::string URI;
 	singleWordBuffer >> URI;
-	auto anim = GH.renderHandler().loadAnimation(AnimationPath::builtin(URI), EImageBlitMode::ALPHA);
+	auto anim = GH.renderHandler().loadAnimation(AnimationPath::builtin(URI), EImageBlitMode::SIMPLE);
 	anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
 }
 

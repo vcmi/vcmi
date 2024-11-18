@@ -957,12 +957,12 @@ void CGameInfoCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &
 
 const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID aid ) const
 {
-	return gs->map->artInstances[aid.num];
+	return gs->map->artInstances.at(aid.num);
 }
 
 const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid ) const
 {
-	return gs->map->objects[oid.num];
+	return gs->map->objects.at(oid.num);
 }
 
 const CArtifactSet * CGameInfoCallback::getArtSet(const ArtifactLocation & loc) const

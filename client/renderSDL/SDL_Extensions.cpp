@@ -90,7 +90,7 @@ SDL_Surface * CSDL_Ext::newSurface(const Point & dimensions, SDL_Surface * mod) 
 	if (mod->format->palette)
 	{
 		assert(ret->format->palette);
-		assert(ret->format->palette->ncolors == mod->format->palette->ncolors);
+		assert(ret->format->palette->ncolors >= mod->format->palette->ncolors);
 		memcpy(ret->format->palette->colors, mod->format->palette->colors, mod->format->palette->ncolors * sizeof(SDL_Color));
 	}
 	return ret;

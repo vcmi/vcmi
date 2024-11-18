@@ -20,6 +20,7 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/ColorFilter.h"
+#include "../render/Colors.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -194,12 +195,12 @@ CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, size_t Group, i
 {
 	pos.x += x;
 	pos.y += y;
-	anim = GH.renderHandler().loadAnimation(name, EImageBlitMode::COLORKEY);
+	anim = GH.renderHandler().loadAnimation(name, (Flags & CCreatureAnim::CREATURE_MODE) ? EImageBlitMode::WITH_SHADOW_AND_OVERLAY : EImageBlitMode::COLORKEY);
 	init();
 }
 
 CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, Rect targetPos, size_t Group, ui8 Flags):
-	anim(GH.renderHandler().loadAnimation(name, EImageBlitMode::COLORKEY)),
+	anim(GH.renderHandler().loadAnimation(name, (Flags & CCreatureAnim::CREATURE_MODE) ? EImageBlitMode::WITH_SHADOW_AND_OVERLAY : EImageBlitMode::COLORKEY)),
 	frame(Frame),
 	group(Group),
 	flags(Flags),
@@ -317,7 +318,7 @@ bool CAnimImage::isPlayerColored() const
 }
 
 CShowableAnim::CShowableAnim(int x, int y, const AnimationPath & name, ui8 Flags, ui32 frameTime, size_t Group, uint8_t alpha):
-	anim(GH.renderHandler().loadAnimation(name, (Flags & CREATURE_MODE) ? EImageBlitMode::ALPHA : EImageBlitMode::COLORKEY)),
+	anim(GH.renderHandler().loadAnimation(name, (Flags & CREATURE_MODE) ? EImageBlitMode::WITH_SHADOW_AND_OVERLAY : EImageBlitMode::COLORKEY)),
 	group(Group),
 	frame(0),
 	first(0),
@@ -430,9 +431,8 @@ void CShowableAnim::blitImage(size_t frame, size_t group, Canvas & to)
 	auto img = anim->getImage(frame, group);
 	if(img)
 	{
-		if (flags & CREATURE_MODE)
-			img->setShadowEnabled(true);
 		img->setAlpha(alpha);
+		img->setOverlayColor(Colors::TRANSPARENCY);
 		to.draw(img, pos.topLeft(), src);
 	}
 }
