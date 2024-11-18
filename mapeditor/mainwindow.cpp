@@ -16,6 +16,9 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QFileInfo>
+#include <qdialog.h>
+#include <qlistwidget.h>
+#include <qnamespace.h>
 
 #include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
@@ -222,6 +225,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->toolFill->setIcon(QIcon{":/icons/tool-fill.png"});
 	ui->toolSelect->setIcon(QIcon{":/icons/tool-select.png"});
 	ui->actionOpen->setIcon(QIcon{":/icons/document-open.png"});
+	ui->actionOpenRecent->setIcon(QIcon{":/icons/document-open-recent.png"});
 	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
 	ui->actionNew->setIcon(QIcon{":/icons/document-new.png"});
 	ui->actionLevel->setIcon(QIcon{":/icons/toggle-underground.png"});
@@ -412,7 +416,19 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	
 	filename = filenameSelect;
 	initializeMap(controller.map()->version != EMapFormat::VCMI);
+
+	updateRecentMenu(filenameSelect);
+
 	return true;
+}
+
+void MainWindow::updateRecentMenu(const QString & filenameSelect) {
+	QSettings s(Ui::teamName, Ui::appName);
+	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
+	recentFiles.removeAll(filenameSelect);
+	recentFiles.prepend(filenameSelect);
+	constexpr int maxRecentFiles = 10;
+	s.setValue(recentlyOpenedFilesSetting, QStringList(recentFiles.mid(0, maxRecentFiles)));
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -427,6 +443,54 @@ void MainWindow::on_actionOpen_triggered()
 		return;
 	
 	openMap(filenameSelect);
+}
+
+void MainWindow::on_actionOpenRecent_triggered()
+{
+	if(!getAnswerAboutUnsavedChanges())
+		return;
+
+	QSettings s(Ui::teamName, Ui::appName);
+	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
+
+	struct RecentFileDialog : public QDialog {
+		
+		RecentFileDialog(QWidget *parent, const QStringList& recentFiles) : QDialog(parent), layout(this) {
+
+			setWindowTitle("Recently Opened Files");
+			setMinimumWidth(600);
+
+			for (const QString &file : recentFiles) {
+				QListWidgetItem *item = new QListWidgetItem(file);
+				listWidget.addItem(item);
+			}
+
+			// Select most recent items by default.
+			// This enables a "CTRL+R => Enter"-workflow instead of "CTRL+R => 'mouse click on first item'"
+			if(listWidget.count() > 0) {
+				listWidget.item(0)->setSelected(true);
+			}
+
+			layout.setSizeConstraint(QLayout::SetMaximumSize);
+			layout.addWidget(&listWidget);
+		}
+
+		QVBoxLayout layout;
+		QListWidget listWidget;
+	};
+
+	RecentFileDialog d(this, recentFiles);
+
+	auto onSelect = [this, &d](QListWidgetItem *item) {
+		QString filename = item->text();
+		openMap(filename);
+		d.close();
+	};
+
+	connect(&d.listWidget, &QListWidget::itemDoubleClicked, this, onSelect);
+	connect(&d.listWidget, &QListWidget::itemActivated, this, onSelect);
+
+	d.exec();
 }
 
 void MainWindow::saveMap()

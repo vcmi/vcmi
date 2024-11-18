@@ -60,6 +60,7 @@
     </property>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
+    <addaction name="actionOpenRecent"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
     <addaction name="actionExport"/>
@@ -133,6 +134,7 @@
    </attribute>
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
+   <addaction name="actionOpenRecent"/>
    <addaction name="actionSave"/>
    <addaction name="separator"/>
    <addaction name="actionUndo"/>
@@ -1019,6 +1021,14 @@
     <string notr="true">Ctrl+O</string>
    </property>
   </action>
+  <action name="actionOpenRecent">
+    <property name="text">
+     <string>Open Recent</string>
+    </property>
+    <property name="shortcut">
+     <string notr="true">Ctrl+R</string>
+    </property>
+   </action>
   <action name="actionSave">
    <property name="text">
     <string>Save</string>
