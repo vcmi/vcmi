@@ -355,7 +355,7 @@
 		"faction": "inferno",
 		"abilities":
 		{
-			"canFly" :
+			"teleports" :
 			{
 				"type" : "FLYING",
 				"subtype" : "movementTeleporting"
@@ -415,7 +415,7 @@
 		"faction": "inferno",
 		"abilities" :
 		{
-			"canFly" :
+			"teleports" :
 			{
 				"type" : "FLYING",
 				"subtype" : "movementTeleporting"

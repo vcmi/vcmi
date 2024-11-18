@@ -474,11 +474,11 @@
 			{
 				"type" : "NON_LIVING"
 			},
-			"canFly" :
+			"energizes" :
 			{
 				"type" : "FLYING"
 			},
-			"spellcaster":
+			"spellcaster" :
 			{
 				"type" : "SPELLCASTER",
 				"subtype" : "spell.protectFire",
