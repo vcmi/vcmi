@@ -448,9 +448,6 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_actionOpenRecent_triggered()
 {
-	if(!getAnswerAboutUnsavedChanges())
-		return;
-
 	QSettings s(Ui::teamName, Ui::appName);
 	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
 
@@ -483,8 +480,10 @@ void MainWindow::on_actionOpenRecent_triggered()
 	RecentFileDialog d(this, recentFiles);
 
 	auto onSelect = [this, &d](QListWidgetItem *item) {
-		QString filename = item->text();
-		openMap(filename);
+		if(getAnswerAboutUnsavedChanges()) {
+			QString filename = item->text();
+			openMap(filename);
+		}
 		d.close();
 	};
 
