@@ -494,6 +494,36 @@ void MainWindow::on_actionOpenRecent_triggered()
 	d.exec();
 }
 
+void MainWindow::on_menuOpenRecent_aboutToShow()
+{
+	// Clear all actions except "More...", lest the list will grow with each
+	// showing of the list
+	for (QAction* action : ui->menuOpenRecent->actions()) {
+		if (action != ui->actionOpenRecentMore) {
+			ui->menuOpenRecent->removeAction(action);
+		}
+	}
+
+	QSettings s(Ui::teamName, Ui::appName);
+	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
+
+	// Dynamically populate menuOpenRecent with one action per file.
+	for (const QString & file : recentFiles) {
+		QAction *action = new QAction(file, this);
+		ui->menuOpenRecent->insertAction(ui->actionOpenRecentMore, action);
+		connect(action, &QAction::triggered, this, [this, file]() {
+			if(!getAnswerAboutUnsavedChanges())
+				return;
+			openMap(file);
+		});
+	}
+
+	// Finally add a separator between recent entries and "More..."
+	if(recentFiles.size() > 0) {
+		ui->menuOpenRecent->insertSeparator(ui->actionOpenRecentMore);
+	}
+}
+
 void MainWindow::on_actionOpenRecentMore_triggered()
 {
 	on_actionOpenRecent_triggered();
