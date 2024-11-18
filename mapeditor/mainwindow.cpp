@@ -226,6 +226,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->toolSelect->setIcon(QIcon{":/icons/tool-select.png"});
 	ui->actionOpen->setIcon(QIcon{":/icons/document-open.png"});
 	ui->actionOpenRecent->setIcon(QIcon{":/icons/document-open-recent.png"});
+	ui->menuOpenRecent->setIcon(QIcon{":/icons/document-open-recent.png"});
 	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
 	ui->actionNew->setIcon(QIcon{":/icons/document-new.png"});
 	ui->actionLevel->setIcon(QIcon{":/icons/toggle-underground.png"});
@@ -491,6 +492,11 @@ void MainWindow::on_actionOpenRecent_triggered()
 	connect(&d.listWidget, &QListWidget::itemActivated, this, onSelect);
 
 	d.exec();
+}
+
+void MainWindow::on_actionOpenRecentMore_triggered()
+{
+	on_actionOpenRecent_triggered();
 }
 
 void MainWindow::saveMap()

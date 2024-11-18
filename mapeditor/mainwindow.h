@@ -62,6 +62,8 @@ private slots:
 	
 	void on_actionOpenRecent_triggered();
 
+	void on_actionOpenRecentMore_triggered();
+
 	void on_actionSave_as_triggered();
 
 	void on_actionNew_triggered();
