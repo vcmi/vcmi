@@ -214,33 +214,5 @@
 		"config/rmg/symmetric/8xm12.JSON",
 		"config/rmg/symmetric/8xm12a.JSON",
 		"config/rmg/symmetric/8xm8.JSON"
-	],
-
-	"filesystem":
-	{
-		"CONFIG/" :
-		[
-			{"type" : "dir",  "path" : "/Config"}
-		],
-		"DATA/" :
-		[
-			{"type" : "dir",  "path" : "/Data"}
-		],
-		"SPRITES/":
-		[
-			{"type" : "dir",  "path" : "/Sprites"}
-		],
-		"MAPS/":
-		[
-			{"type" : "dir",  "path" : "/Maps"}
-		],
-		"SOUNDS/":
-		[
-			{"type" : "dir", "path" : "/Sounds"}
-		],
-		"VIDEO/":
-		[
-			{"type" : "dir", "path" : "/Video"}
-		]
-	}
+	]
 }
