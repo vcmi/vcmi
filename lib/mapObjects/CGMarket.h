@@ -19,11 +19,10 @@ class MarketInstanceConstructor;
 
 class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
 {
+protected:
 	std::shared_ptr<MarketInstanceConstructor> getMarketHandler() const;
 
 public:
-	int marketEfficiency;
-	
 	CGMarket(IGameCallback *cb);
 	///IObjectInterface
 	void onHeroVisit(const CGHeroInstance * h) const override; //open trading window
@@ -48,7 +47,12 @@ public:
 			h & marketModes;
 		}
 
-		h & marketEfficiency;
+		if (h.version < Handler::Version::MARKET_TRANSLATION_FIX)
+		{
+			int unused = 0;
+			h & unused;
+		}
+
 		if (h.version < Handler::Version::NEW_MARKETS)
 		{
 			std::string speech;
@@ -103,8 +107,8 @@ class DLL_LINKAGE CGUniversity : public CGMarket
 {
 public:
 	using CGMarket::CGMarket;
-	std::string speech; //currently shown only in university
-	std::string title;
+
+	std::string getSpeechTranslated() const;
 
 	std::vector<TradeItemBuy> skills; //available skills
 
@@ -115,10 +119,11 @@ public:
 	{
 		h & static_cast<CGMarket&>(*this);
 		h & skills;
-		if (h.version >= Handler::Version::NEW_MARKETS)
+		if (h.version >= Handler::Version::NEW_MARKETS && h.version < Handler::Version::MARKET_TRANSLATION_FIX)
 		{
-			h & speech;
-			h & title;
+			std::string temp;
+			h & temp;
+			h & temp;
 		}
 	}
 };
