@@ -30,7 +30,10 @@ SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possi
 	{
 		skills.push_back(possible);
 		if (secSkillProbability.count(possible) != 0)
-			weights.push_back(secSkillProbability.at(possible));
+		{
+			int weight = secSkillProbability.at(possible);
+			weights.push_back(std::max(1, weight));
+		}
 		else
 			weights.push_back(1); // H3 behavior - banned skills have minimal (1) chance to be picked
 	}
