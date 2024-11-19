@@ -117,6 +117,8 @@ class DLL_LINKAGE ModManager : boost::noncopyable
 
 	TModList collectDependenciesRecursive(const TModID & modID) const;
 
+	void tryEnableMod(const TModID & modList);
+
 public:
 	ModManager(const JsonNode & repositoryList);
 	ModManager();
@@ -133,7 +135,7 @@ public:
 	void saveConfigurationState() const;
 	double getInstalledModSizeMegabytes(const TModID & modName) const;
 
-	void tryEnableMod(const TModID & modName);
+	void tryEnableMods(const TModList & modList);
 	void tryDisableMod(const TModID & modName);
 };
 

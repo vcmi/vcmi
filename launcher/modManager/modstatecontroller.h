@@ -24,7 +24,6 @@ class ModStateController : public QObject, public boost::noncopyable
 	std::shared_ptr<ModStateModel> modList;
 
 	// check-free version of public method
-	bool doEnableMod(QString mod, bool on);
 	bool doInstallMod(QString mod, QString archivePath);
 	bool doUninstallMod(QString mod);
 
@@ -47,7 +46,7 @@ public:
 	/// installs mod from zip archive located at archivePath
 	bool installMod(QString mod, QString archivePath);
 	bool uninstallMod(QString mod);
-	bool enableMod(QString mod);
+	bool enableMods(QStringList mod);
 	bool disableMod(QString mod);
 
 	bool canInstallMod(QString mod);

@@ -99,14 +99,22 @@ bool ModStateController::uninstallMod(QString modname)
 	return canUninstallMod(modname) && doUninstallMod(modname);
 }
 
-bool ModStateController::enableMod(QString modname)
+bool ModStateController::enableMods(QStringList modlist)
 {
-	return canEnableMod(modname) && doEnableMod(modname, true);
+	for (const auto & modname : modlist)
+		if (!canEnableMod(modname))
+			return false;
+
+	modList->doEnableMods(modlist);
+	return true;
 }
 
 bool ModStateController::disableMod(QString modname)
 {
-	return canDisableMod(modname) && doEnableMod(modname, false);
+	if (!canDisableMod(modname))
+		return false;
+	modList->doDisableMod(modname);
+	return true;
 }
 
 bool ModStateController::canInstallMod(QString modname)
@@ -166,16 +174,6 @@ bool ModStateController::canDisableMod(QString modname)
 
 	if(!mod.isInstalled())
 		return addError(modname, tr("Mod must be installed first"));
-
-	return true;
-}
-
-bool ModStateController::doEnableMod(QString mod, bool on)
-{
-	if (on)
-		modList->doEnableMod(mod);
-	else
-		modList->doDisableMod(mod);
 
 	return true;
 }

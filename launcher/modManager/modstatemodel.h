@@ -43,7 +43,7 @@ public:
 	bool isModUpdateAvailable(QString modName) const;
 	bool isModVisible(QString modName) const;
 
-	void doEnableMod(QString modname);
+	void doEnableMods(QStringList modList);
 	void doDisableMod(QString modname);
 
 	bool isSubmod(QString modname);

@@ -95,9 +95,14 @@ double ModStateModel::getInstalledModSizeMegabytes(QString modName) const
 	return modManager->getInstalledModSizeMegabytes(modName.toStdString());
 }
 
-void ModStateModel::doEnableMod(QString modname)
+void ModStateModel::doEnableMods(QStringList modList)
 {
-	modManager->tryEnableMod(modname.toStdString());
+	std::vector<std::string> stdList;
+
+	for (const auto & entry : modList)
+		stdList.push_back(entry.toStdString());
+
+	modManager->tryEnableMods(stdList);
 }
 
 void ModStateModel::doDisableMod(QString modname)

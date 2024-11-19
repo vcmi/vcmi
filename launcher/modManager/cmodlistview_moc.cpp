@@ -451,8 +451,8 @@ void CModListView::selectMod(const QModelIndex & index)
 		//FIXME: ensure that this is also reflected correctly in "Notes" section of mod description
 		bool hasInvalidDeps = !findInvalidDependencies(modName).empty();
 
-		ui->disableButton->setVisible(modStateModel->isModEnabled(mod.getID()));
-		ui->enableButton->setVisible(!modStateModel->isModEnabled(mod.getID()));
+		ui->disableButton->setVisible(modStateModel->isModInstalled(mod.getID()) && modStateModel->isModEnabled(mod.getID()));
+		ui->enableButton->setVisible(modStateModel->isModInstalled(mod.getID()) && !modStateModel->isModEnabled(mod.getID()));
 		ui->installButton->setVisible(mod.isAvailable() && !mod.isSubmod());
 		ui->uninstallButton->setVisible(mod.isInstalled() && !mod.isSubmod());
 		ui->updateButton->setVisible(mod.isUpdateAvailable());
@@ -531,7 +531,7 @@ void CModListView::on_enableButton_clicked()
 
 void CModListView::enableModByName(QString modName)
 {
-	manager->enableMod(modName);
+	manager->enableMods({modName});
 	modModel->reloadRepositories();
 }
 
@@ -577,10 +577,11 @@ QStringList CModListView::getModsToInstall(QString mod)
 		QStringList dependencies = modStateModel->getMod(potentialToInstall).getDependencies();
 		for (const auto & dependency : dependencies)
 		{
-			if (!processed.contains(dependency))
+			if (!processed.contains(dependency) && !candidates.contains(dependency))
 				candidates.push_back(dependency);
 		}
 	}
+	assert(result.removeDuplicates() == 0);
 	return result;
 }
 
@@ -900,13 +901,15 @@ void CModListView::installMods(QStringList archives)
 	{
 		if(modStateModel->getMod(mod).isInstalled())
 		{
+			if (modStateModel->isModEnabled(mod))
+				modsToEnable.push_back(mod);
+
 			manager->uninstallMod(mod);
 		}
 		else
 		{
 			// installation of previously not present mod -> enable it
-			if (modStateModel->isModEnabled(mod))
-				modsToEnable.push_back(mod);
+			modsToEnable.push_back(mod);
 		}
 	}
 
@@ -916,10 +919,7 @@ void CModListView::installMods(QStringList archives)
 		manager->installMod(modNames[i], archives[i]);
 	}
 
-	for(QString mod : modsToEnable)
-	{
-		manager->enableMod(mod); // TODO: make it as a single action, so if mod 1 depends on mod 2 it would still activate
-	}
+	manager->enableMods(modsToEnable);
 
 	checkManagerErrors();
 

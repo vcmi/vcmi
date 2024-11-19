@@ -495,24 +495,34 @@ TModList ModManager::collectDependenciesRecursive(const TModID & modID) const
 	return result;
 }
 
-void ModManager::tryEnableMod(const TModID & modName)
+void ModManager::tryEnableMods(const TModList & modList)
 {
-	auto requiredActiveMods = collectDependenciesRecursive(modName);
-	auto additionalActiveMods = getActiveMods();
+	TModList requiredActiveMods;
+	TModList additionalActiveMods = getActiveMods();
 
-	assert(!vstd::contains(additionalActiveMods, modName));
-	assert(vstd::contains(requiredActiveMods, modName));// FIXME: fails on attempt to enable broken mod / translation to other language
+	for (const auto & modName : modList)
+	{
+		for (const auto & dependency : collectDependenciesRecursive(modName))
+			if (!vstd::contains(requiredActiveMods, dependency))
+				requiredActiveMods.push_back(dependency);
+
+		assert(!vstd::contains(additionalActiveMods, modName));
+		assert(vstd::contains(requiredActiveMods, modName));// FIXME: fails on attempt to enable broken mod / translation to other language
+	}
 
 	ModDependenciesResolver testResolver(requiredActiveMods, *modsStorage);
 	assert(testResolver.getBrokenMods().empty());
-	assert(vstd::contains(testResolver.getActiveMods(), modName));
 
 	testResolver.tryAddMods(additionalActiveMods, *modsStorage);
 
-	if (!vstd::contains(testResolver.getActiveMods(), modName))
+	for (const auto & modName : modList)
 	{
-		// FIXME: report?
-		return;
+		assert(vstd::contains(testResolver.getActiveMods(), modName));
+		if (!vstd::contains(testResolver.getActiveMods(), modName))
+		{
+			// FIXME: report?
+			return;
+		}
 	}
 
 	updatePreset(testResolver);
