@@ -788,14 +788,29 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 	{
 		if(const CStackInstance * s = obj->getStackPtr(SlotID(i)))
 		{
-			UpgradeInfo ui;
-			myCb->fillUpgradeInfo(obj, SlotID(i), ui);
-			if(ui.oldID != CreatureID::NONE && nullkiller->getFreeResources().canAfford(ui.cost[0] * s->count))
+			UpgradeInfo ui(s->getId());
+			do
 			{
-				myCb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
-				upgraded = true;
-				logAi->debug("Upgraded %d %s to %s", s->count, ui.oldID.toCreature()->getNamePluralTranslated(), ui.newID[0].toCreature()->getNamePluralTranslated());
+				myCb->fillUpgradeInfo(obj, SlotID(i), ui);
+
+				if(ui.hasUpgrades())
+				{
+					// creature at given slot might have alternative upgrades, pick best one
+					CreatureID upgID = *vstd::maxElementByFun(ui.getAvailableUpgrades(), [](const CreatureID & id)
+						{
+							return id.toCreature()->getAIValue();
+						});
+					if(nullkiller->getFreeResources().canAfford(ui.getUpgradeCostsFor(upgID) * s->count))
+					{
+						myCb->upgradeCreature(obj, SlotID(i), upgID);
+						upgraded = true;
+						logAi->debug("Upgraded %d %s to %s", s->count, ui.oldID.toCreature()->getNamePluralTranslated(), ui.getNextUpgrade().toCreature()->getNamePluralTranslated());
+					}
+					else
+						break;
+				}
 			}
+			while(ui.hasUpgrades());
 		}
 	}
 

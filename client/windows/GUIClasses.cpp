@@ -1153,12 +1153,15 @@ void CHillFortWindow::updateGarrisons()
 		State newState = getState(SlotID(i));
 		if(newState != State::EMPTY)
 		{
-			UpgradeInfo info;
-			LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
-			if(info.newID.size())//we have upgrades here - update costs
+			if(const CStackInstance * s = hero->getStackPtr(SlotID(i)))
 			{
-				costs[i] = info.cost.back() * hero->getStackCount(SlotID(i));
-				totalSum += costs[i];
+				UpgradeInfo info(s->getCreature()->getId());
+				LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
+				if(info.canUpgrade())	//we have upgrades here - update costs
+				{
+					costs[i] = info.getNextUpgradeCosts() * hero->getStackCount(SlotID(i));
+					totalSum += costs[i];
+				}
 			}
 		}
 
@@ -1264,9 +1267,12 @@ void CHillFortWindow::makeDeal(SlotID slot)
 			{
 				if(slot.getNum() == i || ( slot.getNum() == slotsCount && currState[i] == State::MAKE_UPGRADE ))//this is activated slot or "upgrade all"
 				{
-					UpgradeInfo info;
-					LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
-					LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.newID.back());
+					if(const CStackInstance * s = hero->getStackPtr(SlotID(i)))
+					{
+						UpgradeInfo info(s->getCreatureID());
+						LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
+						LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.getNextUpgrade());
+					}
 				}
 			}
 			break;
@@ -1295,18 +1301,15 @@ CHillFortWindow::State CHillFortWindow::getState(SlotID slot)
 	if(hero->slotEmpty(slot))
 		return State::EMPTY;
 
-	UpgradeInfo info;
+	UpgradeInfo info(hero->getStackPtr(slot)->getCreatureID());
 	LOCPLINT->cb->fillUpgradeInfo(hero, slot, info);
-	if (info.newID.empty())
-	{
-		// Hill Fort may limit level of upgradeable creatures, e.g. mini Hill Fort from HOTA
-		if (hero->getCreature(slot)->hasUpgrades())
-			return State::UNAVAILABLE;
+	if(info.hasUpgrades() && !info.canUpgrade())
+		return State::UNAVAILABLE;  // Hill Fort may limit level of upgradeable creatures, e.g. mini Hill Fort from HOTA
 
+	if(!info.hasUpgrades())
 		return State::ALREADY_UPGRADED;
-	}
 
-	if(!(info.cost.back() * hero->getStackCount(slot)).canBeAfforded(myRes))
+	if(!(info.getNextUpgradeCosts() * hero->getStackCount(slot)).canBeAfforded(myRes))
 		return State::UNAFFORDABLE;
 
 	return State::MAKE_UPGRADE;

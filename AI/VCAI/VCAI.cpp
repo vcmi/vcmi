@@ -754,12 +754,28 @@ void makePossibleUpgrades(const CArmedInstance * obj)
 	{
 		if(const CStackInstance * s = obj->getStackPtr(SlotID(i)))
 		{
-			UpgradeInfo ui;
-			cb->fillUpgradeInfo(obj, SlotID(i), ui);
-			if(ui.oldID != CreatureID::NONE && cb->getResourceAmount().canAfford(ui.cost[0] * s->count))
+			UpgradeInfo ui(s->getId());
+			do
 			{
-				cb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
+				cb->fillUpgradeInfo(obj, SlotID(i), ui);
+
+				if(ui.hasUpgrades())
+				{
+					// creature at given slot might have alternative upgrades, pick best one
+					CreatureID upgID = *vstd::maxElementByFun(ui.getAvailableUpgrades(), [](const CreatureID & id)
+						{
+							return id.toCreature()->getAIValue();
+						});
+					if(cb->getResourceAmount().canAfford(ui.getUpgradeCostsFor(upgID) * s->count))
+					{
+						cb->upgradeCreature(obj, SlotID(i), upgID);
+						logAi->debug("Upgraded %d %s to %s", s->count, ui.oldID.toCreature()->getNamePluralTranslated(), ui.getNextUpgrade().toCreature()->getNamePluralTranslated());
+					}
+					else
+						break;
+				}
 			}
+			while(ui.hasUpgrades());
 		}
 	}
 }

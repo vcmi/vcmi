@@ -57,6 +57,10 @@ public:
 	};
 	struct StackUpgradeInfo
 	{
+		StackUpgradeInfo() = delete;
+		StackUpgradeInfo(UpgradeInfo && upgradeInfo)
+			: info(std::move(upgradeInfo))
+		{ }
 		UpgradeInfo info;
 		std::function<void(CreatureID)> callback;
 	};
@@ -355,15 +359,15 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 		// besides - should commander really be upgradeable?
 
 		auto & upgradeInfo = parent->info->upgradeInfo.value();
-		const size_t buttonsToCreate = std::min<size_t>(upgradeInfo.info.newID.size(), upgrade.size());
+		const size_t buttonsToCreate = std::min<size_t>(upgradeInfo.info.size(), upgrade.size());
 
 		for(size_t buttonIndex = 0; buttonIndex < buttonsToCreate; buttonIndex++)
 		{
-			TResources totalCost = upgradeInfo.info.cost[buttonIndex] * parent->info->creatureCount;
+			TResources totalCost = upgradeInfo.info.getUpgradeCosts().at(buttonIndex) * parent->info->creatureCount;
 
 			auto onUpgrade = [=]()
 			{
-				upgradeInfo.callback(upgradeInfo.info.newID[buttonIndex]);
+				upgradeInfo.callback(upgradeInfo.info.getAvailableUpgrades().at(buttonIndex));
 				parent->close();
 			};
 			auto onClick = [=]()
@@ -385,7 +389,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 			};
 			auto upgradeBtn = std::make_shared<CButton>(Point(221 + (int)buttonIndex * 40, 5), AnimationPath::builtin("stackWindow/upgradeButton"), CGI->generaltexth->zelp[446], onClick);
 
-			upgradeBtn->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), VLC->creh->objects[upgradeInfo.info.newID[buttonIndex]]->getIconIndex()));
+			upgradeBtn->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), VLC->creh->objects[upgradeInfo.info.getAvailableUpgrades()[buttonIndex]]->getIconIndex()));
 
 			if(buttonsToCreate == 1) // single upgrade available
 				upgradeBtn->assignedKey = EShortcut::RECRUITMENT_UPGRADE;
@@ -755,7 +759,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, bool popup)
 	init();
 }
 
-CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> dismiss, const UpgradeInfo & upgradeInfo, std::function<void(CreatureID)> callback)
+CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> dismiss, UpgradeInfo && upgradeInfo, std::function<void(CreatureID)> callback)
 	: CWindowObject(BORDERED),
 	info(new UnitView())
 {
@@ -763,9 +767,8 @@ CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> d
 	info->creature = stack->getCreature();
 	info->creatureCount = stack->count;
 
-	info->upgradeInfo = std::make_optional(UnitView::StackUpgradeInfo());
+	info->upgradeInfo = std::make_optional(UnitView::StackUpgradeInfo(std::move(upgradeInfo)));
 	info->dismissInfo = std::make_optional(UnitView::StackDismissInfo());
-	info->upgradeInfo->info = upgradeInfo;
 	info->upgradeInfo->callback = callback;
 	info->dismissInfo->callback = dismiss;
 	info->owner = dynamic_cast<const CGHeroInstance *> (stack->armyObj);

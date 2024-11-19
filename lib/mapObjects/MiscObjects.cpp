@@ -1323,13 +1323,12 @@ void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) 
 
 	int costModifier = upgradeCostPercentage[index];
 
-	if (costModifier < 0)
-		return; // upgrade not allowed
+	if(costModifier < 0)
+		return;
 
 	for(const auto & nid : stack.getCreature()->upgrades)
 	{
-		info.newID.push_back(nid);
-		info.cost.push_back((nid.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost()) * costModifier / 100);
+		info.addUpgrade(nid, (nid, (nid.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost()) * costModifier / 100), costModifier >= 0);
 	}
 }
 

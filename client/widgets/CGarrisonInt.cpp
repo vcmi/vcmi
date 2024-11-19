@@ -162,10 +162,10 @@ std::function<void()> CGarrisonSlot::getDismiss() const
 /// @return Whether the view should be refreshed
 bool CGarrisonSlot::viewInfo()
 {
-	UpgradeInfo pom;
+	UpgradeInfo pom(ID.getNum());
 	LOCPLINT->cb->fillUpgradeInfo(getObj(), ID, pom);
 
-	bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.oldID != CreatureID::NONE; //upgrade is possible
+	bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.canUpgrade(); //upgrade is possible
 	std::function<void(CreatureID)> upgr = nullptr;
 	auto dism = getDismiss();
 	if(canUpgrade) upgr = [=] (CreatureID newID) { LOCPLINT->cb->upgradeCreature(getObj(), ID, newID); };
@@ -177,7 +177,7 @@ bool CGarrisonSlot::viewInfo()
 		elem->block(true);
 
 	redraw();
-	GH.windows().createAndPushWindow<CStackWindow>(myStack, dism, pom, upgr);
+	GH.windows().createAndPushWindow<CStackWindow>(myStack, dism, std::move(pom), upgr);
 	return true;
 }
 

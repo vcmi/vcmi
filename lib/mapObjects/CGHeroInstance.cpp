@@ -1855,8 +1855,7 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &s
 		auto nid = CreatureID(it->additionalInfo[0]);
 		if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
 		{
-			info.newID.push_back(nid);
-			info.cost.push_back(nid.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost());
+			info.addUpgrade(std::move(nid), nid.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost());
 		}
 	}
 }

@@ -2414,19 +2414,19 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 	{
 		COMPLAIN_RET("Cannot upgrade, no stack at slot " + std::to_string(pos));
 	}
-	UpgradeInfo ui;
+	UpgradeInfo ui(obj->getStackPtr(pos)->getId());
 	fillUpgradeInfo(obj, pos, ui);
 	PlayerColor player = obj->tempOwner;
 	const PlayerState *p = getPlayerState(player);
 	int crQuantity = obj->stacks.at(pos)->count;
-	int newIDpos= vstd::find_pos(ui.newID, upgID);//get position of new id in UpgradeInfo
+	int newIDpos= vstd::find_pos(ui.getAvailableUpgrades(), upgID);//get position of new id in UpgradeInfo
 
 	//check if upgrade is possible
-	if ((ui.oldID == CreatureID::NONE || newIDpos == -1) && complain("That upgrade is not possible!"))
+	if (!ui.hasUpgrades() && complain("That upgrade is not possible!"))
 	{
 		return false;
 	}
-	TResources totalCost = ui.cost.at(newIDpos) * crQuantity;
+	TResources totalCost = ui.getUpgradeCostsFor(upgID) * crQuantity;
 
 	//check if player has enough resources
 	if (!p->resources.canAfford(totalCost))

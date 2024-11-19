@@ -1088,10 +1088,11 @@ void CGameState::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, Upg
 	out = fillUpgradeInfo(obj->getStack(stackPos));
 }
 
-UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
+UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance & stack) const
 {
-	UpgradeInfo ret;
 	const CCreature *base = stack.getCreature();
+	
+	UpgradeInfo ret(base->getId());
 
 	if (stack.armyObj->ID == Obj::HERO)
 	{
@@ -1116,12 +1117,6 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 		auto town = dynamic_cast<const CGTownInstance *>(stack.armyObj);
 		town->fillUpgradeInfo(ret, stack);
 	}
-
-	if(!ret.newID.empty())
-		ret.oldID = base->getId();
-
-	for (ResourceSet &cost : ret.cost)
-		cost.positive(); //upgrade cost can't be negative, ignore missing resources
 
 	return ret;
 }
@@ -1782,6 +1777,24 @@ ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::function<bool(A
 ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags)
 {
 	return pickRandomArtifact(rand, flags, [](const ArtifactID &) { return true; });
+}
+
+void UpgradeInfo::addUpgrade(const CreatureID & upgradeID, ResourceSet && upgradeCost, bool available)
+{
+	isAvailable = available;
+	upgradesIDs.push_back(upgradeID);
+	
+	upgradeCost.positive(); //upgrade cost can't be negative, ignore missing resources
+	upgradesCosts.push_back(std::move(upgradeCost));
+
+	// sort from highest ID to smallest
+	size_t pos = upgradesIDs.size() - 1;
+	while(pos > 0 && upgradesIDs[pos] > upgradesIDs[pos - 1])
+	{
+		std::swap(upgradesIDs[pos], upgradesIDs[pos - 1]);
+		std::swap(upgradesCosts[pos], upgradesCosts[pos - 1]);
+		--pos;
+	}
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -19,7 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CCommanderInstance;
 class CStackInstance;
 class CStack;
-struct UpgradeInfo;
+class UpgradeInfo;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -204,7 +204,7 @@ public:
 
 	// for normal stacks in armies
 	CStackWindow(const CStackInstance * stack, bool popup);
-	CStackWindow(const CStackInstance * stack, std::function<void()> dismiss, const UpgradeInfo & info, std::function<void(CreatureID)> callback);
+	CStackWindow(const CStackInstance * stack, std::function<void()> dismiss, UpgradeInfo && info, std::function<void(CreatureID)> callback);
 
 	// for commanders & commander level-up dialog
 	CStackWindow(const CCommanderInstance * commander, bool popup);
