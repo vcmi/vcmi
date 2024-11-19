@@ -101,6 +101,7 @@
 		"level": 3,
 		"faction": "rampart",
 		"upgrades": ["grandElf"],
+		"shots" : 24,
 		"abilities" :
 		{
 			"shooter" :
@@ -131,7 +132,8 @@
 		"index": 19,
 		"level": 3,
 		"faction": "rampart",
-		"abilities": 
+		"shots" : 24,
+		"abilities" :
 		{
 			"shooter" :
 			{

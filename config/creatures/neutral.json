@@ -323,6 +323,7 @@
 		"extraNames": [ "enchanters" ],
 		"faction": "neutral",
 		"excludeFromRandomization" : true,
+		"shots" : 32,
 		"abilities":
 		{
 			"shooter" :
@@ -410,6 +411,7 @@
 		"extraNames": [ "sharpshooters" ],
 		"faction": "neutral",
 		"excludeFromRandomization" : true,
+		"shots" : 32,
 		"abilities":
 		{
 			"shooter" :
@@ -448,6 +450,7 @@
 		"index": 138,
 		"level": 1,
 		"faction": "neutral",
+		"shots" : 24,
 		"abilities": 
 		{
 			"shooter" :

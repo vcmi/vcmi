@@ -127,6 +127,7 @@
 		"index": 127,
 		"level": 2,
 		"faction": "conflux",
+		"shots" : 24,
 		"abilities":
 		{
 			"nonLiving" : 
@@ -301,6 +302,7 @@
 		"level": 3,
 		"faction": "conflux",
 		"doubleWide" : true,
+		"shots" : 24,
 		"abilities":
 		{
 			"nonLiving" : 
@@ -472,11 +474,11 @@
 			{
 				"type" : "NON_LIVING"
 			},
-			"canFly" :
+			"energizes" :
 			{
 				"type" : "FLYING"
 			},
-			"spellcaster":
+			"spellcaster" :
 			{
 				"type" : "SPELLCASTER",
 				"subtype" : "spell.protectFire",
