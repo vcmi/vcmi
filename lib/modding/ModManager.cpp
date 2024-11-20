@@ -67,7 +67,6 @@ uint32_t ModsState::computeChecksum(const TModID & modName) const
 	modChecksum.process_bytes(static_cast<const void*>(GameConstants::VCMI_VERSION.data()), GameConstants::VCMI_VERSION.size());
 
 	// second - add mod.json into checksum because filesystem does not contains this file
-	// FIXME: remove workaround for core mod
 	if (modName != ModScope::scopeBuiltin())
 	{
 		auto modConfFile = getModDescriptionFile(modName);
@@ -483,7 +482,7 @@ TModList ModManager::collectDependenciesRecursive(const TModID & modID) const
 		result.push_back(currentModID);
 
 		if (!currentMod.isInstalled())
-			return {}; // failure. TODO: better handling?
+			throw std::runtime_error("Unable to enable mod " + modID + "! Dependency " + currentModID + " is not installed!");
 
 		for (const auto & dependency : currentMod.getDependencies())
 		{
@@ -519,10 +518,7 @@ void ModManager::tryEnableMods(const TModList & modList)
 	{
 		assert(vstd::contains(testResolver.getActiveMods(), modName));
 		if (!vstd::contains(testResolver.getActiveMods(), modName))
-		{
-			// FIXME: report?
-			return;
-		}
+			throw std::runtime_error("Failed to enable mod! Mod " + modName + " remains disabled!");
 	}
 
 	updatePreset(testResolver);
@@ -538,10 +534,7 @@ void ModManager::tryDisableMod(const TModID & modName)
 	ModDependenciesResolver testResolver(desiredActiveMods, *modsStorage);
 
 	if (vstd::contains(testResolver.getActiveMods(), modName))
-	{
-		// FIXME: report?
-		return;
-	}
+		throw std::runtime_error("Failed to disable mod! Mod " + modName + " remains enabled!");
 
 	updatePreset(testResolver);
 }

@@ -50,7 +50,7 @@ class CModListView : public QWidget
 	QStringList getModsToInstall(QString mod);
 
 	// find mods unknown to mod list (not present in repo and not installed)
-	QStringList findInvalidDependencies(QString mod);
+	QStringList findUnavailableMods(QStringList candidates);
 
 	void manualInstallFile(QString filePath);
 	void downloadFile(QString file, QString url, QString description, qint64 size = 0);

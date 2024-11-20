@@ -110,15 +110,12 @@ QVariant ModStateItemModel::getIcon(const ModState & mod, int field) const
 		if (!model->isModInstalled(mod.getID()))
 			return QVariant();
 
-		if(mod.isSubmod())
+		if(mod.isSubmod() && !model->isModEnabled(mod.getTopParentID()))
 		{
-			if (!model->isModEnabled(mod.getTopParentID()))
-			{
-				if (model->isModEnabled(mod.getID()))
-					return QIcon(iconEnabledSubmod);
-				else
-					return QIcon(iconDisabledSubmod);
-			}
+			if (model->isModEnabled(mod.getID()))
+				return QIcon(iconEnabledSubmod);
+			else
+				return QIcon(iconDisabledSubmod);
 		}
 
 		if (model->isModEnabled(mod.getID()))

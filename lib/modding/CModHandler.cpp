@@ -93,7 +93,7 @@ void CModHandler::loadModFilesystems()
 		modFilesystems[modName] = genModFilesystem(modName, getModInfo(modName).getFilesystemConfig());
 
 	for(const TModID & modName : activeMods)
-		if (modName != "core") // FIXME: remove
+		if (modName != "core") // virtual mod 'core' has no filesystem on its own - shared with base install
 			CResourceHandler::addFilesystem("data", modName, modFilesystems[modName]);
 
 	if (settings["mods"]["validation"].String() == "full")

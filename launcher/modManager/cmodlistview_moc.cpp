@@ -395,12 +395,19 @@ QString CModListView::genModInfoText(const ModState & mod)
 
 	result += "<p></p>"; // to get some empty space
 
-	QString unknownDeps = tr("This mod can not be installed or enabled because the following dependencies are not present");
+	QString notInstalledDeps = tr("This mod can not be enabled because the following dependencies are not present");
+	QString unavailableDeps = tr("This mod can not be installed because the following dependencies are not present");
 	QString thisIsSubmod = tr("This is a submod and it cannot be installed or uninstalled separately from its parent mod");
 
 	QString notes;
 
-	notes += replaceIfNotEmpty(getModNames(mod.getID(), findInvalidDependencies(mod.getID())), listTemplate.arg(unknownDeps));
+	QStringList notInstalledDependencies = this->getModsToInstall(mod.getID());
+	QStringList unavailableDependencies = this->findUnavailableMods(notInstalledDependencies);
+
+	if (mod.isInstalled())
+		notes += replaceIfNotEmpty(getModNames(mod.getID(), notInstalledDependencies), listTemplate.arg(notInstalledDeps));
+	else
+		notes += replaceIfNotEmpty(getModNames(mod.getID(), unavailableDependencies), listTemplate.arg(unavailableDeps));
 
 	if(mod.isSubmod())
 		notes += noteTemplate.arg(thisIsSubmod);
@@ -447,9 +454,8 @@ void CModListView::selectMod(const QModelIndex & index)
 		Helper::enableScrollBySwiping(ui->modInfoBrowser);
 		Helper::enableScrollBySwiping(ui->changelogBrowser);
 
-		//FIXME: this function should be recursive
-		//FIXME: ensure that this is also reflected correctly in "Notes" section of mod description
-		bool hasInvalidDeps = !findInvalidDependencies(modName).empty();
+		QStringList notInstalledDependencies = this->getModsToInstall(modName);
+		QStringList unavailableDependencies = this->findUnavailableMods(notInstalledDependencies);
 
 		ui->disableButton->setVisible(modStateModel->isModInstalled(mod.getID()) && modStateModel->isModEnabled(mod.getID()));
 		ui->enableButton->setVisible(modStateModel->isModInstalled(mod.getID()) && !modStateModel->isModEnabled(mod.getID()));
@@ -459,10 +465,10 @@ void CModListView::selectMod(const QModelIndex & index)
 
 		// Block buttons if action is not allowed at this time
 		ui->disableButton->setEnabled(true);
-		ui->enableButton->setEnabled(!hasInvalidDeps);
-		ui->installButton->setEnabled(!hasInvalidDeps);
+		ui->enableButton->setEnabled(notInstalledDependencies.empty());
+		ui->installButton->setEnabled(unavailableDependencies.empty());
 		ui->uninstallButton->setEnabled(true);
-		ui->updateButton->setEnabled(!hasInvalidDeps);
+		ui->updateButton->setEnabled(unavailableDependencies.empty());
 
 		loadScreenshots();
 	}
@@ -499,25 +505,16 @@ void CModListView::on_comboBox_currentIndexChanged(int index)
 	filterModel->setTypeFilter(enumIndex);
 }
 
-QStringList CModListView::findInvalidDependencies(QString mod)
+QStringList CModListView::findUnavailableMods(QStringList candidates)
 {
-	QStringList ret;
-	for(QString requirement : modStateModel->getMod(mod).getDependencies())
+	QStringList invalidMods;
+
+	for(QString modName : candidates)
 	{
-		if(modStateModel->isModExists(requirement))
-			continue;
-
-		if(modStateModel->isSubmod(requirement))
-		{
-			QString parentModID = modStateModel->getTopParent(requirement);
-
-			if (modStateModel->isModExists(parentModID) && !modStateModel->isModInstalled(parentModID))
-				continue;
-		}
-
-		ret += requirement;
+		if(!modStateModel->isModExists(modName))
+			invalidMods.push_back(modName);
 	}
-	return ret;
+	return invalidMods;
 }
 
 void CModListView::on_enableButton_clicked()
@@ -563,22 +560,32 @@ QStringList CModListView::getModsToInstall(QString mod)
 		candidates.pop_back();
 		processed.push_back(potentialToInstall);
 
-		if (modStateModel->isSubmod(potentialToInstall))
-			potentialToInstall = modStateModel->getTopParent(potentialToInstall);
-
-		if (!modStateModel->isModExists(potentialToInstall))
-			throw std::runtime_error("Attempt to install non-existing mod! Mod name:" + potentialToInstall.toStdString());
-
 		if (modStateModel->isModInstalled(potentialToInstall))
 			continue;
 
+		if (modStateModel->isSubmod(potentialToInstall))
+		{
+			QString topParent = modStateModel->getTopParent(potentialToInstall);
+			if (modStateModel->isModInstalled(topParent))
+			{
+				if (modStateModel->isModUpdateAvailable(topParent))
+					potentialToInstall = modStateModel->getTopParent(potentialToInstall);
+				// else - potentially broken mod that depends on non-existing submod
+			}
+			else
+				potentialToInstall = modStateModel->getTopParent(potentialToInstall);
+		}
+
 		result.push_back(potentialToInstall);
 
-		QStringList dependencies = modStateModel->getMod(potentialToInstall).getDependencies();
-		for (const auto & dependency : dependencies)
+		if (modStateModel->isModExists(potentialToInstall))
 		{
-			if (!processed.contains(dependency) && !candidates.contains(dependency))
-				candidates.push_back(dependency);
+			QStringList dependencies = modStateModel->getMod(potentialToInstall).getDependencies();
+			for (const auto & dependency : dependencies)
+			{
+				if (!processed.contains(dependency) && !candidates.contains(dependency))
+					candidates.push_back(dependency);
+			}
 		}
 	}
 	assert(result.removeDuplicates() == 0);
@@ -588,8 +595,6 @@ QStringList CModListView::getModsToInstall(QString mod)
 void CModListView::on_updateButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
-
-	assert(findInvalidDependencies(modName).empty());
 
 	for(const auto & name : getModsToInstall(modName))
 	{
@@ -618,8 +623,6 @@ void CModListView::on_uninstallButton_clicked()
 void CModListView::on_installButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
-
-	assert(findInvalidDependencies(modName).empty());
 
 	for(const auto & name : getModsToInstall(modName))
 	{
@@ -1020,8 +1023,6 @@ void CModListView::on_screenshotsList_clicked(const QModelIndex & index)
 
 void CModListView::doInstallMod(const QString & modName)
 {
-	assert(findInvalidDependencies(modName).empty());
-
 	for(const auto & name : modStateModel->getMod(modName).getDependencies())
 	{
 		auto mod = modStateModel->getMod(name);
@@ -1072,15 +1073,16 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 	auto modName = index.data(ModRoles::ModNameRole).toString();
 	auto mod = modStateModel->getMod(modName);
 	
-	bool hasInvalidDeps = !findInvalidDependencies(modName).empty();
-	
-	if(!hasInvalidDeps && mod.isAvailable() && !mod.isSubmod())
+	QStringList notInstalledDependencies = this->getModsToInstall(mod.getID());
+	QStringList unavailableDependencies = this->findUnavailableMods(notInstalledDependencies);
+
+	if(unavailableDependencies.empty() && mod.isAvailable() && !mod.isSubmod())
 	{
 		on_installButton_clicked();
 		return;
 	}
 
-	if(!hasInvalidDeps && mod.isUpdateAvailable() && index.column() == ModFields::STATUS_UPDATE)
+	if(unavailableDependencies.empty() && mod.isUpdateAvailable() && index.column() == ModFields::STATUS_UPDATE)
 	{
 		on_updateButton_clicked();
 		return;
@@ -1096,7 +1098,7 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 		return;
 	}
 
-	if(!hasInvalidDeps && !modStateModel->isModEnabled(modName))
+	if(notInstalledDependencies.empty() && !modStateModel->isModEnabled(modName))
 	{
 		on_enableButton_clicked();
 		return;
