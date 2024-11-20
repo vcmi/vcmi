@@ -32,6 +32,7 @@
 #include "../../lib/texts/Languages.h"
 #include "../../lib/modding/CModVersion.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 #include <future>
 
@@ -395,6 +396,7 @@ QString CModListView::genModInfoText(const ModState & mod)
 
 	result += "<p></p>"; // to get some empty space
 
+	QString translationMismatch = tr("This mod cannot be enabled because it translates into a different language.");
 	QString notInstalledDeps = tr("This mod can not be enabled because the following dependencies are not present");
 	QString unavailableDeps = tr("This mod can not be installed because the following dependencies are not present");
 	QString thisIsSubmod = tr("This is a submod and it cannot be installed or uninstalled separately from its parent mod");
@@ -411,6 +413,9 @@ QString CModListView::genModInfoText(const ModState & mod)
 
 	if(mod.isSubmod())
 		notes += noteTemplate.arg(thisIsSubmod);
+
+	if (mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString())
+		notes += noteTemplate.arg(translationMismatch);
 
 	if(notes.size())
 		result += textTemplate.arg(tr("Notes")).arg(notes);
@@ -456,6 +461,7 @@ void CModListView::selectMod(const QModelIndex & index)
 
 		QStringList notInstalledDependencies = this->getModsToInstall(modName);
 		QStringList unavailableDependencies = this->findUnavailableMods(notInstalledDependencies);
+		bool translationMismatch = 	mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString();
 
 		ui->disableButton->setVisible(modStateModel->isModInstalled(mod.getID()) && modStateModel->isModEnabled(mod.getID()));
 		ui->enableButton->setVisible(modStateModel->isModInstalled(mod.getID()) && !modStateModel->isModEnabled(mod.getID()));
@@ -465,7 +471,7 @@ void CModListView::selectMod(const QModelIndex & index)
 
 		// Block buttons if action is not allowed at this time
 		ui->disableButton->setEnabled(true);
-		ui->enableButton->setEnabled(notInstalledDependencies.empty());
+		ui->enableButton->setEnabled(notInstalledDependencies.empty() && !translationMismatch);
 		ui->installButton->setEnabled(unavailableDependencies.empty());
 		ui->uninstallButton->setEnabled(true);
 		ui->updateButton->setEnabled(unavailableDependencies.empty());

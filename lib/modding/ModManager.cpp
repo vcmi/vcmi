@@ -205,7 +205,8 @@ TModList ModsPresetState::getActiveRootMods() const
 {
 	const JsonNode & modsToActivateJson = getActivePresetConfig()["mods"];
 	auto modsToActivate = modsToActivateJson.convertTo<std::vector<TModID>>();
-	modsToActivate.push_back(ModScope::scopeBuiltin());
+	if (!vstd::contains(modsToActivate, ModScope::scopeBuiltin()))
+		modsToActivate.push_back(ModScope::scopeBuiltin());
 	return modsToActivate;
 }
 
@@ -282,11 +283,17 @@ std::vector<TModID> ModsPresetState::getActiveMods() const
 
 	for(const auto & activeMod : activeRootMods)
 	{
+		assert(!vstd::contains(allActiveMods, activeMod));
 		allActiveMods.push_back(activeMod);
 
 		for(const auto & submod : getModSettings(activeMod))
+		{
 			if(submod.second)
+			{
+				assert(!vstd::contains(allActiveMods, activeMod + '.' + submod.first));
 				allActiveMods.push_back(activeMod + '.' + submod.first);
+			}
+		}
 	}
 	return allActiveMods;
 }
@@ -464,7 +471,7 @@ void ModManager::addNewModsToPreset()
 		const auto & modSettings = modsPreset->getModSettings(rootMod);
 
 		if (!modSettings.count(settingID))
-			modsPreset->setSettingActive(rootMod, settingID, modsStorage->getMod(modID).keepDisabled());
+			modsPreset->setSettingActive(rootMod, settingID, !modsStorage->getMod(modID).keepDisabled());
 	}
 }
 
@@ -502,24 +509,25 @@ void ModManager::tryEnableMods(const TModList & modList)
 	for (const auto & modName : modList)
 	{
 		for (const auto & dependency : collectDependenciesRecursive(modName))
+		{
 			if (!vstd::contains(requiredActiveMods, dependency))
+			{
 				requiredActiveMods.push_back(dependency);
+				vstd::erase(additionalActiveMods, dependency);
+			}
+		}
 
 		assert(!vstd::contains(additionalActiveMods, modName));
 		assert(vstd::contains(requiredActiveMods, modName));// FIXME: fails on attempt to enable broken mod / translation to other language
 	}
 
 	ModDependenciesResolver testResolver(requiredActiveMods, *modsStorage);
-	assert(testResolver.getBrokenMods().empty());
 
 	testResolver.tryAddMods(additionalActiveMods, *modsStorage);
 
 	for (const auto & modName : modList)
-	{
-		assert(vstd::contains(testResolver.getActiveMods(), modName));
 		if (!vstd::contains(testResolver.getActiveMods(), modName))
 			throw std::runtime_error("Failed to enable mod! Mod " + modName + " remains disabled!");
-	}
 
 	updatePreset(testResolver);
 }
@@ -536,6 +544,7 @@ void ModManager::tryDisableMod(const TModID & modName)
 	if (vstd::contains(testResolver.getActiveMods(), modName))
 		throw std::runtime_error("Failed to disable mod! Mod " + modName + " remains enabled!");
 
+	modsPreset->setModActive(modName, false);
 	updatePreset(testResolver);
 }
 
@@ -551,7 +560,11 @@ void ModManager::updatePreset(const ModDependenciesResolver & testResolver)
 	}
 
 	for (const auto & modID : newBrokenMods)
-		modsPreset->setModActive(modID, false);
+	{
+		const auto & mod = getModDescription(modID);
+		if (vstd::contains(newActiveMods, mod.getTopParentID()))
+			modsPreset->setModActive(modID, false);
+	}
 
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
 	depedencyResolver = std::make_unique<ModDependenciesResolver>(desiredModList, *modsStorage);
@@ -620,6 +633,7 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 			if(isResolved(storage.getMod(*it)))
 			{
 				resolvedOnCurrentTreeLevel.insert(*it); // Not to the resolvedModIDs, so current node children will be resolved on the next iteration
+				assert(!vstd::contains(sortedValidMods, *it));
 				sortedValidMods.push_back(*it);
 				it = modsToResolve.erase(it);
 				continue;
