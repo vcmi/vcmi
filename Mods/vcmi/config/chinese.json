@@ -724,5 +724,27 @@
 	"core.bonus.MECHANICAL.name": "机械",
 	"core.bonus.MECHANICAL.description": "免疫大多数效果，可修复",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "棱光吐息",
-	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "攻击后向三方向扩散攻击"
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "攻击后向三方向扩散攻击",
+	
+	"spell.core.castleMoat.name" : "护城河",
+	"spell.core.castleMoatTrigger.name" : "护城河",
+	"spell.core.catapultShot.name" : "投石车射击",
+	"spell.core.cyclopsShot.name" : "攻城射击",
+	"spell.core.dungeonMoat.name" : "极热之油",
+	"spell.core.dungeonMoatTrigger.name" : "极热之油",
+	"spell.core.fireWallTrigger.name" : "烈火魔墙",
+	"spell.core.firstAid.name" : "急救术",
+	"spell.core.fortressMoat.name" : "焦油",
+	"spell.core.fortressMoatTrigger.name" : "焦油",
+	"spell.core.infernoMoat.name" : "熔岩",
+	"spell.core.infernoMoatTrigger.name" : "熔岩",
+	"spell.core.landMineTrigger.name" : "埋设地雷",
+	"spell.core.necropolisMoat.name" : "尸骨堆",
+	"spell.core.necropolisMoatTrigger.name" : "尸骨堆",
+	"spell.core.rampartMoat.name" : "护城河",
+	"spell.core.rampartMoatTrigger.name" : "护城河",
+	"spell.core.strongholdMoat.name" : "栅栏",
+	"spell.core.strongholdMoatTrigger.name" : "栅栏",
+	"spell.core.summonDemons.name" : "召唤恶鬼",
+	"spell.core.towerMoat.name" : "埋设地雷"
 }
