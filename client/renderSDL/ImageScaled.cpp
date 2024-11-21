@@ -21,19 +21,17 @@
 
 #include <SDL_surface.h>
 
-ImageScaled::ImageScaled(const ImageLocator & inputLocator, const std::shared_ptr<ISharedImage> & source, EImageBlitMode mode)
+ImageScaled::ImageScaled(const ImageLocator & inputLocator, const std::shared_ptr<const ISharedImage> & source, EImageBlitMode mode)
 	: source(source)
 	, locator(inputLocator)
 	, colorMultiplier(Colors::WHITE_TRUE)
 	, alphaValue(SDL_ALPHA_OPAQUE)
 	, blitMode(mode)
 {
-	setBodyEnabled(true);
-	if (mode == EImageBlitMode::ALPHA)
-		setShadowEnabled(true);
+	prepareImages();
 }
 
-std::shared_ptr<ISharedImage> ImageScaled::getSharedImage() const
+std::shared_ptr<const ISharedImage> ImageScaled::getSharedImage() const
 {
 	return body;
 }
@@ -92,8 +90,7 @@ void ImageScaled::setOverlayColor(const ColorRGBA & color)
 void ImageScaled::playerColored(PlayerColor player)
 {
 	playerColor = player;
-	if (body)
-		setBodyEnabled(true); // regenerate
+	prepareImages();
 }
 
 void ImageScaled::shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove)
@@ -106,41 +103,63 @@ void ImageScaled::adjustPalette(const ColorFilter &shifter, uint32_t colorsToSki
 	// TODO: implement
 }
 
-void ImageScaled::setShadowEnabled(bool on)
+void ImageScaled::prepareImages()
 {
-	assert(blitMode == EImageBlitMode::ALPHA);
-	if (on)
+	switch(blitMode)
 	{
-		locator.layer = EImageLayer::SHADOW;
-		locator.playerColored = PlayerColor::CANNOT_DETERMINE;
-		shadow = GH.renderHandler().loadImage(locator, blitMode)->getSharedImage();
-	}
-	else
-		shadow = nullptr;
-}
+		case EImageBlitMode::OPAQUE:
+		case EImageBlitMode::COLORKEY:
+		case EImageBlitMode::SIMPLE:
+			locator.layer = blitMode;
+			locator.playerColored = playerColor;
+			body = GH.renderHandler().loadImage(locator, blitMode)->getSharedImage();
+			break;
 
-void ImageScaled::setBodyEnabled(bool on)
-{
-	if (on)
+		case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
+		case EImageBlitMode::ONLY_BODY:
+			locator.layer = EImageBlitMode::ONLY_BODY;
+			locator.playerColored = playerColor;
+			body = GH.renderHandler().loadImage(locator, blitMode)->getSharedImage();
+			break;
+
+		case EImageBlitMode::WITH_SHADOW:
+		case EImageBlitMode::ONLY_BODY_IGNORE_OVERLAY:
+			locator.layer = EImageBlitMode::ONLY_BODY_IGNORE_OVERLAY;
+			locator.playerColored = playerColor;
+			body = GH.renderHandler().loadImage(locator, blitMode)->getSharedImage();
+			break;
+
+		case EImageBlitMode::ONLY_SHADOW:
+		case EImageBlitMode::ONLY_OVERLAY:
+			body = nullptr;
+			break;
+	}
+
+	switch(blitMode)
 	{
-		locator.layer = blitMode == EImageBlitMode::ALPHA ? EImageLayer::BODY : EImageLayer::ALL;
-		locator.playerColored = playerColor;
-		body = GH.renderHandler().loadImage(locator, blitMode)->getSharedImage();
+		case EImageBlitMode::SIMPLE:
+		case EImageBlitMode::WITH_SHADOW:
+		case EImageBlitMode::ONLY_SHADOW:
+		case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
+			locator.layer = EImageBlitMode::ONLY_SHADOW;
+			locator.playerColored = PlayerColor::CANNOT_DETERMINE;
+			shadow = GH.renderHandler().loadImage(locator, blitMode)->getSharedImage();
+			break;
+		default:
+			shadow = nullptr;
+			break;
 	}
-	else
-		body = nullptr;
-}
 
-
-void ImageScaled::setOverlayEnabled(bool on)
-{
-	assert(blitMode == EImageBlitMode::ALPHA);
-	if (on)
+	switch(blitMode)
 	{
-		locator.layer = EImageLayer::OVERLAY;
-		locator.playerColored = PlayerColor::CANNOT_DETERMINE;
-		overlay = GH.renderHandler().loadImage(locator, blitMode)->getSharedImage();
+		case EImageBlitMode::ONLY_OVERLAY:
+		case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
+			locator.layer = EImageBlitMode::ONLY_OVERLAY;
+			locator.playerColored = PlayerColor::CANNOT_DETERMINE;
+			overlay = GH.renderHandler().loadImage(locator, blitMode)->getSharedImage();
+			break;
+		default:
+			overlay = nullptr;
+			break;
 	}
-	else
-		overlay = nullptr;
 }

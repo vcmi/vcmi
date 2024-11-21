@@ -167,7 +167,7 @@ TODO
 	],
 	"cast" : []
 	"hit":["C20SPX"],
-	"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
+	"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom", "transparency" : 0.5}, "C11SPA1"]
 }
 ```
 

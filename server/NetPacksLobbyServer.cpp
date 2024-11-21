@@ -22,6 +22,7 @@
 #include "../lib/serializer/Connection.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
+#include "../lib/filesystem/Filesystem.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
@@ -383,7 +384,6 @@ void ApplyOnServerNetPackVisitor::visitLobbyForceSetPlayer(LobbyForceSetPlayer &
 	result = true;
 }
 
-
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 {
 	result = true;
@@ -432,4 +432,33 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 			break;
 	}
 	result = true;
+}
+
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
+{
+	result = srv.isClientHost(pack.c->connectionID);
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
+{
+	if(pack.type == LobbyDelete::EType::SAVEGAME || pack.type == LobbyDelete::EType::RANDOMMAP)
+	{
+		auto res = ResourcePath(pack.name, pack.type == LobbyDelete::EType::SAVEGAME ? EResType::SAVEGAME : EResType::MAP);
+		auto file = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(res));
+		boost::filesystem::remove(file);
+		if(boost::filesystem::is_empty(file.parent_path()))
+			boost::filesystem::remove(file.parent_path());
+	}
+	else if(pack.type == LobbyDelete::EType::SAVEGAME_FOLDER)
+	{
+		auto res = ResourcePath("Saves/" + pack.name, EResType::DIRECTORY);
+		auto folder = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(res));
+		boost::filesystem::remove_all(folder);
+	}
+
+	LobbyUpdateState lus;
+	lus.state = srv;
+	lus.refreshList = true;
+	srv.announcePack(lus);
 }

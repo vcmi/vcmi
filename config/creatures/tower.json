@@ -26,6 +26,7 @@
 		"index": 29,
 		"level": 1,
 		"faction": "tower",
+		"shots" : 8,
 		"abilities" :
 		{
 			"shooter" :
@@ -178,6 +179,7 @@
 		"index": 34,
 		"level": 4,
 		"faction": "tower",
+		"shots" : 24,
 		"abilities": 
 		{
 			"shooter" :
@@ -218,6 +220,7 @@
 		"index": 35,
 		"level": 4,
 		"faction": "tower",
+		"shots" : 24,
 		"abilities": 
 		{
 			"shooter" :
@@ -415,14 +418,14 @@
 		"faction": "tower",
 		"abilities" :
 		{
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			},
 			"KING_3" : // Will be affected by Expert Slayer only
 			{
 				"type" : "KING",
 				"val" : 3
-			},
-			"immuneToMind" : 
-			{
-				"type" : "MIND_IMMUNITY"
 			}
 		},
 		"upgrades": ["titan"],
@@ -444,13 +447,9 @@
 		"index": 41,
 		"level": 7,
 		"faction": "tower",
+		"shots" : 24,
 		"abilities" :
 		{
-			"KING_3" : // Will be affected by Expert Slayer only
-			{
-				"type" : "KING",
-				"val" : 3
-			},
 			"shooter" :
 			{
 				"type" : "SHOOTER"
@@ -462,6 +461,11 @@
 			"immuneToMind" : 
 			{
 				"type" : "MIND_IMMUNITY"
+			},
+			"KING_3" : // Will be affected by Expert Slayer only
+			{
+				"type" : "KING",
+				"val" : 3
 			},
 			"hateBlackDragons" : 
 			{

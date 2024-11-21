@@ -44,7 +44,7 @@ void BattleEffectsController::displayEffect(EBattleEffect effect, const BattleHe
 	displayEffect(effect, AudioPath(), destTile);
 }
 
-void BattleEffectsController::displayEffect(EBattleEffect effect, const AudioPath & soundFile, const BattleHex & destTile)
+void BattleEffectsController::displayEffect(EBattleEffect effect, const AudioPath & soundFile, const BattleHex & destTile, float transparencyFactor)
 {
 	size_t effectID = static_cast<size_t>(effect);
 
@@ -52,7 +52,7 @@ void BattleEffectsController::displayEffect(EBattleEffect effect, const AudioPat
 
 	CCS->soundh->playSound( soundFile );
 
-	owner.stacksController->addNewAnim(new EffectAnimation(owner, customAnim, destTile));
+	owner.stacksController->addNewAnim(new EffectAnimation(owner, customAnim, destTile, 0, transparencyFactor));
 }
 
 void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bte)
@@ -69,7 +69,7 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 	switch(static_cast<BonusType>(bte.effect))
 	{
 		case BonusType::HP_REGENERATION:
-			displayEffect(EBattleEffect::REGENERATION, AudioPath::builtin("REGENER"), stack->getPosition());
+			displayEffect(EBattleEffect::REGENERATION, AudioPath::builtin("REGENER"), stack->getPosition(), 0.5);
 			break;
 		case BonusType::MANA_DRAIN:
 			displayEffect(EBattleEffect::MANA_DRAIN, AudioPath::builtin("MANADRAI"), stack->getPosition());
@@ -78,7 +78,7 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 			displayEffect(EBattleEffect::POISON, AudioPath::builtin("POISON"), stack->getPosition());
 			break;
 		case BonusType::FEAR:
-			displayEffect(EBattleEffect::FEAR, AudioPath::builtin("FEAR"), stack->getPosition());
+			displayEffect(EBattleEffect::FEAR, AudioPath::builtin("FEAR"), stack->getPosition(), 0.5);
 			break;
 		case BonusType::MORALE:
 		{
@@ -124,6 +124,7 @@ void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer
 			currentFrame %= elem.animation->size();
 
 			auto img = elem.animation->getImage(currentFrame, static_cast<size_t>(elem.type));
+			img->setAlpha(255 * elem.transparencyFactor);
 
 			canvas.draw(img, elem.pos);
 		});

@@ -57,6 +57,7 @@
 		"extraNames": [ "lightCrossbowman" ],
 		"faction": "castle",
 		"upgrades": ["marksman"],
+		"shots" : 12,
 		"abilities" :
 		{
 			"shooter" : {
@@ -86,6 +87,7 @@
 		"index": 3,
 		"level": 2,
 		"faction": "castle",
+		"shots" : 24,
 		"abilities":
 		{
 			"shooter" : {
@@ -228,6 +230,7 @@
 		"level": 5,
 		"faction": "castle",
 		"upgrades": ["zealot"],
+		"shots" : 12,
 		"abilities" :
 		{
 			"shooter" : {
@@ -257,6 +260,7 @@
 		"index": 9,
 		"level": 5,
 		"faction": "castle",
+		"shots" : 24,
 		"abilities" :
 		{
 			"shooter" : {
@@ -344,14 +348,8 @@
 		"index": 12,
 		"level": 7,
 		"faction": "castle",
-		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_2" : // Will be affected by Advanced Slayer or better
-			{
-				"type" : "KING",
-				"val" : 2
-			},
 			"canFly" :
 			{
 				"type" : "FLYING"
@@ -362,6 +360,11 @@
 				"val" : 1,
 				"propagator" : "HERO",
 				"stacking" : "Angels"
+			},
+			"KING_2" : // Will be affected by Advanced Slayer or better
+			{
+				"type" : "KING",
+				"val" : 2
 			},
 			"hateDevils" :
 			{
@@ -398,11 +401,6 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_2" : // Will be affected by Advanced Slayer or better
-			{
-				"type" : "KING",
-				"val" : 2
-			},
 			"canFly" :
 			{
 				"type" : "FLYING"
@@ -429,6 +427,11 @@
 				"val" : 1,
 				"propagator" : "HERO",
 				"stacking" : "Angels"
+			},
+			"KING_2" : // Will be affected by Advanced Slayer or better
+			{
+				"type" : "KING",
+				"val" : 2
 			},
 			"hateDevils" :
 			{

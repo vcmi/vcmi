@@ -44,6 +44,7 @@
 		"faction": "fortress",
 		"upgrades": ["lizardWarrior"],
 		"hasDoubleWeek": true,
+		"shots" : 12,
 		"abilities" :
 		{
 			"shooter" :
@@ -74,6 +75,7 @@
 		"index": 101,
 		"level": 2,
 		"faction": "fortress",
+		"shots" : 24,
 		"abilities" :
 		{
 			"shooter" :
@@ -97,54 +99,6 @@
 			"move": "ALIZMOVE.wav",
 			"shoot": "ALIZSHOT.wav",
 			"wince": "ALIZWNCE.wav"
-		}
-	},
-	"gorgon" :
-	{
-		"index": 102,
-		"level": 5,
-		"faction": "fortress",
-		"upgrades": ["mightyGorgon"],
-		"doubleWide" : true,
-		"graphics" :
-		{
-			"animation": "CCGORG.DEF"
-		},
-		"sound" :
-		{
-			"attack": "CGORATTK.wav",
-			"defend": "CGORDFND.wav",
-			"killed": "CGORKILL.wav",
-			"move": "CGORMOVE.wav",
-			"wince": "CGORWNCE.wav"
-		}
-	},
-	"mightyGorgon" :
-	{
-		"index": 103,
-		"level": 5,
-		"faction": "fortress",
-		"doubleWide" : true,
-		"abilities":
-		{
-			"deathStare" : 
-			{
-				"type" : "DEATH_STARE",
-				"subtype" : "deathStareGorgon",
-				"val" : 10
-			}
-		},
-		"graphics" :
-		{
-			"animation": "CBGOG.DEF"
-		},
-		"sound" :
-		{
-			"attack": "BGORATTK.wav",
-			"defend": "BGORDFND.wav",
-			"killed": "BGORKILL.wav",
-			"move": "BGORMOVE.wav",
-			"wince": "BGORWNCE.wav"
 		}
 	},
 	"serpentFly" :
@@ -276,6 +230,54 @@
 			"wince": "GBASWNCE.wav"
 		}
 	},
+	"gorgon" :
+	{
+		"index": 102,
+		"level": 5,
+		"faction": "fortress",
+		"upgrades": ["mightyGorgon"],
+		"doubleWide" : true,
+		"graphics" :
+		{
+			"animation": "CCGORG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "CGORATTK.wav",
+			"defend": "CGORDFND.wav",
+			"killed": "CGORKILL.wav",
+			"move": "CGORMOVE.wav",
+			"wince": "CGORWNCE.wav"
+		}
+	},
+	"mightyGorgon" :
+	{
+		"index": 103,
+		"level": 5,
+		"faction": "fortress",
+		"doubleWide" : true,
+		"abilities":
+		{
+			"deathStare" : 
+			{
+				"type" : "DEATH_STARE",
+				"subtype" : "deathStareGorgon",
+				"val" : 10
+			}
+		},
+		"graphics" :
+		{
+			"animation": "CBGOG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BGORATTK.wav",
+			"defend": "BGORDFND.wav",
+			"killed": "BGORKILL.wav",
+			"move": "BGORMOVE.wav",
+			"wince": "BGORWNCE.wav"
+		}
+	},
 	"wyvern" :
 	{
 		"index": 108,
@@ -343,11 +345,6 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
-			{
-				"type" : "KING",
-				"val" : 0
-			},
 			"attackAllAdjacent" :
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
@@ -355,6 +352,11 @@
 			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"upgrades": ["chaosHydra"],
@@ -379,11 +381,6 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
-			{
-				"type" : "KING",
-				"val" : 0
-			},
 			"attackAllAdjacent" :
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
@@ -391,6 +388,11 @@
 			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"graphics" :

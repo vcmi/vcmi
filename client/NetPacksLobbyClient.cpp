@@ -226,7 +226,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	else
 		lobby->updateAfterStateChange();
 
-	if(pack.hostChanged)
+	if(pack.hostChanged || pack.refreshList)
 		lobby->toggleMode(handler.isHost());
 }
 

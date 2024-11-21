@@ -1861,18 +1861,19 @@ bool CGameHandler::bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner
 
 bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player)
 {
-	const CArmedInstance * s1 = static_cast<const CArmedInstance *>(getObjInstance(id1));
-	const CArmedInstance * s2 = static_cast<const CArmedInstance *>(getObjInstance(id2));
-	const CCreatureSet & S1 = *s1;
-	const CCreatureSet & S2 = *s2;
-	StackLocation sl1(s1, p1);
-	StackLocation sl2(s2, p2);
+	const CArmedInstance * s1 = static_cast<const CArmedInstance *>(getObj(id1));
+	const CArmedInstance * s2 = static_cast<const CArmedInstance *>(getObj(id2));
 
 	if (s1 == nullptr || s2 == nullptr)
 	{
 		complain("Cannot exchange stacks between non-existing objects!!\n");
 		return false;
 	}
+
+	const CCreatureSet & S1 = *s1;
+	const CCreatureSet & S2 = *s2;
+	StackLocation sl1(s1, p1);
+	StackLocation sl2(s2, p2);
 
 	if (!sl1.slot.validSlot()  ||  !sl2.slot.validSlot())
 	{
@@ -2629,7 +2630,7 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 		giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 
 	ma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(src.slot, dstSlot));
-	if(src.artHolder != dst.artHolder)
+	if(src.artHolder != dst.artHolder && !isDstSlotBackpack)
 		ma.artsPack0.back().askAssemble = true;
 	sendAndApply(ma);
 	return true;
@@ -2771,7 +2772,24 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 	{
 		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
 			{
-				return inf.getArt()->getType()->getPossibleSlots().at(ArtBearer::HERO).front().num;
+				auto possibleSlots = inf.getArt()->getType()->getPossibleSlots();
+				if (possibleSlots.find(ArtBearer::CREATURE) != possibleSlots.end() && !possibleSlots.at(ArtBearer::CREATURE).empty()) 
+				{
+					return -2;
+				}
+				else if (possibleSlots.find(ArtBearer::COMMANDER) != possibleSlots.end() && !possibleSlots.at(ArtBearer::COMMANDER).empty()) 
+				{
+					return -1;
+				}
+				else if (possibleSlots.find(ArtBearer::HERO) != possibleSlots.end() && !possibleSlots.at(ArtBearer::HERO).empty()) 
+				{
+					return inf.getArt()->getType()->getPossibleSlots().at(ArtBearer::HERO).front().num;
+				}
+				else 
+				{
+					// for grail
+					return -3;
+				}
 			});
 	}
 	else if(sortType == ManageBackpackArtifacts::ManageCmd::SORT_BY_COST)

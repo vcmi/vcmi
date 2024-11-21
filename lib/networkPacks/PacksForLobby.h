@@ -170,12 +170,14 @@ struct DLL_LINKAGE LobbyUpdateState : public CLobbyPackToPropagate
 {
 	LobbyState state;
 	bool hostChanged = false; // Used on client-side only
+	bool refreshList = false;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & state;
+		h & refreshList;
 	}
 };
 
@@ -378,6 +380,24 @@ struct DLL_LINKAGE LobbyPvPAction : public CLobbyPackToServer
 	{
 		h & action;
 		h & bannedTowns;
+	}
+};
+
+struct DLL_LINKAGE LobbyDelete : public CLobbyPackToServer
+{
+	enum class EType : ui8 {
+		SAVEGAME, SAVEGAME_FOLDER, RANDOMMAP
+	};
+
+	EType type = EType::SAVEGAME;
+	std::string name;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & type;
+		h & name;
 	}
 };
 

@@ -180,6 +180,7 @@ void CGDwelling::initObj(vstd::RNG & rand)
 	{
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR4:
+	case Obj::WAR_MACHINE_FACTORY:
 		{
 			getObjectHandler()->configureObject(this, rand);
 			assert(!creatures.empty());
@@ -188,13 +189,6 @@ void CGDwelling::initObj(vstd::RNG & rand)
 		}
 	case Obj::REFUGEE_CAMP:
 		//is handled within newturn func
-		break;
-
-	case Obj::WAR_MACHINE_FACTORY:
-		creatures.resize(3);
-		creatures[0].second.emplace_back(CreatureID::BALLISTA);
-		creatures[1].second.emplace_back(CreatureID::FIRST_AID_TENT);
-		creatures[2].second.emplace_back(CreatureID::AMMO_CART);
 		break;
 
 	default:

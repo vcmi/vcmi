@@ -316,7 +316,7 @@ uint8_t MapRendererBorder::checksum(IMapRendererContext & context, const int3 & 
 MapRendererFow::MapRendererFow()
 {
 	fogOfWarFullHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRC"), EImageBlitMode::OPAQUE);
-	fogOfWarPartialHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRE"), EImageBlitMode::ALPHA);
+	fogOfWarPartialHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRE"), EImageBlitMode::SIMPLE);
 
 	static const std::vector<int> rotations = {22, 15, 2, 13, 12, 16, 28, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27};
 
@@ -383,24 +383,25 @@ std::shared_ptr<CAnimation> MapRendererObjects::getBaseAnimation(const CGObjectI
 	}
 
 	bool generateMovementGroups = (info->id == Obj::BOAT) || (info->id == Obj::HERO);
+	bool enableOverlay = obj->ID != Obj::BOAT && obj->ID != Obj::HERO && obj->getOwner() != PlayerColor::UNFLAGGABLE;
 
 	// Boat appearance files only contain single, unanimated image
 	// proper boat animations are actually in different file
 	if (info->id == Obj::BOAT)
 		if(auto boat = dynamic_cast<const CGBoat*>(obj); boat && !boat->actualAnimation.empty())
-			return getAnimation(boat->actualAnimation, generateMovementGroups);
+			return getAnimation(boat->actualAnimation, generateMovementGroups, enableOverlay);
 
-	return getAnimation(info->animationFile, generateMovementGroups);
+	return getAnimation(info->animationFile, generateMovementGroups, enableOverlay);
 }
 
-std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const AnimationPath & filename, bool generateMovementGroups)
+std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const AnimationPath & filename, bool generateMovementGroups, bool enableOverlay)
 {
 	auto it = animations.find(filename);
 
 	if(it != animations.end())
 		return it->second;
 
-	auto ret = GH.renderHandler().loadAnimation(filename, EImageBlitMode::ALPHA);
+	auto ret = GH.renderHandler().loadAnimation(filename, enableOverlay ? EImageBlitMode::WITH_SHADOW_AND_OVERLAY : EImageBlitMode::WITH_SHADOW);
 	animations[filename] = ret;
 
 	if(generateMovementGroups)
@@ -427,14 +428,14 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 	{
 		assert(dynamic_cast<const CGHeroInstance *>(obj) != nullptr);
 		assert(obj->tempOwner.isValidPlayer());
-		return getAnimation(AnimationPath::builtin(heroFlags[obj->tempOwner.getNum()]), true);
+		return getAnimation(AnimationPath::builtin(heroFlags[obj->tempOwner.getNum()]), true, false);
 	}
 
 	if(obj->ID == Obj::BOAT)
 	{
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
 		if(boat && boat->hero && !boat->flagAnimations[boat->hero->tempOwner.getNum()].empty())
-			return getAnimation(boat->flagAnimations[boat->hero->tempOwner.getNum()], true);
+			return getAnimation(boat->flagAnimations[boat->hero->tempOwner.getNum()], true, false);
 	}
 
 	return nullptr;
@@ -447,7 +448,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getOverlayAnimation(const CGObje
 		// Boats have additional animation with waves around boat
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
 		if(boat && boat->hero && !boat->overlayAnimation.empty())
-			return getAnimation(boat->overlayAnimation, true);
+			return getAnimation(boat->overlayAnimation, true, false);
 	}
 	return nullptr;
 }
@@ -478,21 +479,13 @@ void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & tar
 		return;
 
 	image->setAlpha(transparency);
-	image->setShadowEnabled(true);
-	if (object->ID != Obj::HERO)
+	if (object->ID != Obj::HERO) // heroes use separate image with flag instead of player-colored palette
 	{
-		image->setOverlayEnabled(object->getOwner().isValidPlayer() || object->getOwner() == PlayerColor::NEUTRAL);
-
 		if (object->getOwner().isValidPlayer())
 			image->setOverlayColor(graphics->playerColors[object->getOwner().getNum()]);
 
 		if (object->getOwner() == PlayerColor::NEUTRAL)
 			image->setOverlayColor(graphics->neutralColor);
-	}
-	else
-	{
-		// heroes use separate image with flag instead of player-colored palette
-		image->setOverlayEnabled(false);
 	}
 
 	Point offsetPixels = context.objectImageOffset(object->id, coordinates);
@@ -567,10 +560,10 @@ uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 &
 }
 
 MapRendererOverlay::MapRendererOverlay()
-	: imageGrid(GH.renderHandler().loadImage(ImagePath::builtin("debug/grid"), EImageBlitMode::ALPHA))
-	, imageBlocked(GH.renderHandler().loadImage(ImagePath::builtin("debug/blocked"), EImageBlitMode::ALPHA))
-	, imageVisitable(GH.renderHandler().loadImage(ImagePath::builtin("debug/visitable"), EImageBlitMode::ALPHA))
-	, imageSpellRange(GH.renderHandler().loadImage(ImagePath::builtin("debug/spellRange"), EImageBlitMode::ALPHA))
+	: imageGrid(GH.renderHandler().loadImage(ImagePath::builtin("debug/grid"), EImageBlitMode::COLORKEY))
+	, imageBlocked(GH.renderHandler().loadImage(ImagePath::builtin("debug/blocked"), EImageBlitMode::COLORKEY))
+	, imageVisitable(GH.renderHandler().loadImage(ImagePath::builtin("debug/visitable"), EImageBlitMode::COLORKEY))
+	, imageSpellRange(GH.renderHandler().loadImage(ImagePath::builtin("debug/spellRange"), EImageBlitMode::COLORKEY))
 {
 
 }
@@ -626,7 +619,7 @@ uint8_t MapRendererOverlay::checksum(IMapRendererContext & context, const int3 &
 }
 
 MapRendererPath::MapRendererPath()
-	: pathNodes(GH.renderHandler().loadAnimation(AnimationPath::builtin("ADAG"), EImageBlitMode::ALPHA))
+	: pathNodes(GH.renderHandler().loadAnimation(AnimationPath::builtin("ADAG"), EImageBlitMode::SIMPLE))
 {
 }
 

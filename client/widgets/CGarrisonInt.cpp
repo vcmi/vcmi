@@ -274,12 +274,12 @@ bool CGarrisonSlot::mustForceReselection() const
 	if (!LOCPLINT->makingTurn)
 		return true;
 
-	if (!creature || !selection->creature)
-		return false;
-
 	// Attempt to take creatures from ally (select theirs first)
 	if (!selection->our())
 		return true;
+	
+	if (!creature || !selection->creature)
+		return false;
 
 	// Attempt to swap creatures with ally (select ours first)
 	if (selection->creature != creature && withAlly)

@@ -37,8 +37,17 @@
 		"level": 0,
 		"faction": "neutral",
 		"doubleWide" : true,
+		"shots" : 24,
 		"abilities" :
 		{
+			"siegeWeapon" :
+			{
+				"type" : "SIEGE_WEAPON"
+			},
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			},
 			"siegeMachine" :
 			{
 				"type" : "CATAPULT",
@@ -67,6 +76,18 @@
 		"level": 0,
 		"faction": "neutral",
 		"doubleWide" : true,
+		"shots" : 24,
+		"abilities" :
+		{
+			"siegeWeapon" :
+			{
+				"type" : "SIEGE_WEAPON"
+			},
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "SMBAL.DEF",
@@ -91,7 +112,12 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"heals" : {
+			"siegeWeapon" :
+			{
+				"type" : "SIEGE_WEAPON"
+			},
+			"heals" :
+			{
 				"type" : "HEALER" ,
 				"subtype" : "spell.firstAid"
 			}
@@ -112,7 +138,17 @@
 		"index": 148,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": { "inactive" : { "type" : "NOT_ACTIVE" } },
+		"abilities": 
+		{
+			"siegeWeapon" :
+			{
+				"type" : "SIEGE_WEAPON"
+			},
+			"inactive" :
+			{
+				"type" : "NOT_ACTIVE"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "SMCART.DEF"
@@ -129,8 +165,10 @@
 		"index": 149,
 		"level": 0,
 		"faction": "neutral",
+		"shots" : 99,
 		"abilities":
 		{
+			"siegeWeapon" : { "type" : "SIEGE_WEAPON" },
 			"shooter" : { "type" : "SHOOTER" },
 			"ignoreDefence" : { "type" : "ENEMY_DEFENCE_REDUCTION", "val" : 100 },
 			"noWallPenalty" : { "type" : "NO_WALL_PENALTY" },

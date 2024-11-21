@@ -950,7 +950,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 	}
 	else if(auto uni = dynamic_cast<const CGUniversity *>(_market); uni->appearance)
 	{
-		titlePic = std::make_shared<CAnimImage>(uni->appearance->animationFile, 0);
+		titlePic = std::make_shared<CAnimImage>(uni->appearance->animationFile, 0, 0, 0, 0, CShowableAnim::CREATURE_MODE);
 		titleStr = uni->title;
 		speechStr = uni->speech;
 	}
@@ -1703,7 +1703,7 @@ void VideoWindow::keyPressed(EShortcut key)
 	exit(true);
 }
 
-bool VideoWindow::receiveEvent(const Point & position, int eventType) const
+void VideoWindow::notFocusedClick()
 {
-	return true;  // capture click also outside of window
+	exit(true);
 }

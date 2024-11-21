@@ -54,8 +54,8 @@ void CreaturePurchaseCard::switchCreatureLevel()
 	auto index = vstd::find_pos(upgradesID, creatureOnTheCard->getId());
 	auto nextCreatureId = vstd::circularAt(upgradesID, ++index);
 	creatureOnTheCard = nextCreatureId.toCreature();
-	picture = std::make_shared<CCreaturePic>(parent->pos.x, parent->pos.y, creatureOnTheCard);
-	creatureClickArea = std::make_shared<CCreatureClickArea>(Point(parent->pos.x, parent->pos.y), picture, creatureOnTheCard);
+	picture = std::make_shared<CCreaturePic>(picture->pos.x - pos.x, picture->pos.y - pos.y, creatureOnTheCard);
+	creatureClickArea = std::make_shared<CCreatureClickArea>(Point(picture->pos.x - pos.x, picture->pos.y - pos.y), picture, creatureOnTheCard);
 	parent->updateAllSliders();
 	cost->set(creatureOnTheCard->getFullRecruitCost() * slider->getValue());
 }

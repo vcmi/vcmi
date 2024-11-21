@@ -22,7 +22,8 @@
 						"properties" : {
 							"verticalPosition" : {"type" : "string", "enum" :["top","bottom"]},
 							"defName" : {"type" : "string", "format" : "animationFile"},
-							"effectName" : { "type" : "string" }
+							"effectName" : { "type" : "string" },
+							"transparency" : {"type" : "number", "minimum" : 0, "maximum" : 1}
 						},
 						"additionalProperties" : false
 					}

@@ -66,7 +66,8 @@ enum class ESerializationVersion : int32_t
 	REMOVE_TOWN_PTR, // 867 - removed pointer to CTown from CGTownInstance
 	REMOVE_OBJECT_TYPENAME, // 868 - remove typename from CGObjectInstance
 	REMOVE_VLC_POINTERS, // 869 removed remaining pointers to VLC entities
-  FOLDER_NAME_REWORK, // 870 - rework foldername
-
-	CURRENT = FOLDER_NAME_REWORK
+	FOLDER_NAME_REWORK, // 870 - rework foldername
+	REWARDABLE_GUARDS, // 871 - fix missing serialization of guards in rewardable objects
+	
+	CURRENT = REWARDABLE_GUARDS
 };

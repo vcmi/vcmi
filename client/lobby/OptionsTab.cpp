@@ -765,21 +765,15 @@ void OptionsTab::SelectionWindow::sliderMove(int slidPos)
 	redraw();
 }
 
-bool OptionsTab::SelectionWindow::receiveEvent(const Point & position, int eventType) const
+void OptionsTab::SelectionWindow::notFocusedClick()
 {
-	return true;  // capture click also outside of window
+	close();
 }
 
 void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition)
 {
 	if(slider && slider->pos.isInside(cursorPosition))
 		return;
-
-	if(!pos.isInside(cursorPosition))
-	{
-		close();
-		return;
-	}
 
 	int elem = getElement(cursorPosition);
 
@@ -898,15 +892,9 @@ OptionsTab::HandicapWindow::HandicapWindow()
 	center();
 }
 
-bool OptionsTab::HandicapWindow::receiveEvent(const Point & position, int eventType) const
+void OptionsTab::HandicapWindow::notFocusedClick()
 {
-	return true;  // capture click also outside of window
-}
-
-void OptionsTab::HandicapWindow::clickReleased(const Point & cursorPosition)
-{
-	if(!pos.isInside(cursorPosition)) // make it possible to close window by touching/clicking outside of window
-		close();
+	close();
 }
 
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & playerSettings, SelType type)

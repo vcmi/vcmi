@@ -138,6 +138,7 @@
 		"level": 3,
 		"faction": "dungeon",
 		"upgrades": ["evilEye"],
+		"shots" : 12,
 		"abilities" :
 		{
 			"shooter" :
@@ -179,6 +180,7 @@
 		"index": 75,
 		"level": 3,
 		"faction": "dungeon",
+		"shots" : 24,
 		"abilities" :
 		{
 			"shooter" :
@@ -221,6 +223,7 @@
 		"level": 4,
 		"faction": "dungeon",
 		"doubleWide" : true,
+		"shots" : 4,
 		"abilities":
 		{
 			"shooter" :
@@ -264,6 +267,7 @@
 		"level": 4,
 		"faction": "dungeon",
 		"doubleWide" : true,
+		"shots" : 8,
 		"abilities":
 		{
 			"shooter" :
@@ -425,18 +429,13 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
+			"dragon" : 
 			{
-				"type" : "KING",
-				"val" : 0
+				"type" : "DRAGON_NATURE"
 			},
 			"canFly" :
 			{
 				"type" : "FLYING"
-			},
-			"dragon" : 
-			{
-				"type" : "DRAGON_NATURE"
 			},
 			"twoHexAttackBreath" :
 			{
@@ -446,6 +445,11 @@
 			{
 				"type" : "LEVEL_SPELL_IMMUNITY",
 				"val" : 3
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"upgrades": ["blackDragon"],
@@ -470,18 +474,13 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"KING_1" : // Will be affected by Slayer with no expertise
+			"dragon" : 
 			{
-				"type" : "KING",
-				"val" : 0
+				"type" : "DRAGON_NATURE"
 			},
 			"canFly" :
 			{
 				"type" : "FLYING"
-			},
-			"dragon" : 
-			{
-				"type" : "DRAGON_NATURE"
 			},
 			"twoHexAttackBreath" :
 			{
@@ -491,6 +490,11 @@
 			{
 				"type" : "LEVEL_SPELL_IMMUNITY",
 				"val" : 5
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			},
 			"hateTitans" :
 			{

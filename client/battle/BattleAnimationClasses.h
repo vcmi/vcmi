@@ -309,9 +309,10 @@ public:
 class EffectAnimation : public BattleAnimation
 {
 	std::string soundName;
+	int effectFlags;
+	float transparencyFactor;
 	bool effectFinished;
 	bool reversed;
-	int effectFlags;
 
 	std::shared_ptr<CAnimation>	animation;
 	std::vector<Point> positions;
@@ -335,14 +336,14 @@ public:
 	};
 
 	/// Create animation with screen-wide effect
-	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects = 0, float transparencyFactor = 1.f, bool reversed = false);
 
 	/// Create animation positioned at point(s). Note that positions must be are absolute, including battleint position offset
 	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos                 , int effects = 0, bool reversed = false);
 	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<Point> pos    , int effects = 0, bool reversed = false);
 
 	/// Create animation positioned at certain hex(es)
-	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex             , int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex             , int effects = 0, float transparencyFactor = 1.0f, bool reversed = false);
 	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<BattleHex> hex, int effects = 0, bool reversed = false);
 
 	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, BattleHex hex,   int effects = 0, bool reversed = false);

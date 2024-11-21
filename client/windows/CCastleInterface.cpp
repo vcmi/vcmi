@@ -98,7 +98,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 		border = GH.renderHandler().loadImage(str->borderName, EImageBlitMode::COLORKEY);
 
 	if(!str->areaName.empty())
-		area = GH.renderHandler().loadImage(str->areaName, EImageBlitMode::ALPHA);
+		area = GH.renderHandler().loadImage(str->areaName, EImageBlitMode::SIMPLE);
 }
 
 const CBuilding * CBuildingRect::getBuilding()
@@ -2055,7 +2055,14 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		auto cost = costBase * std::pow(town->spellResearchAcceptedCounter + 1, costExponent);
 
 		std::vector<std::shared_ptr<CComponent>> resComps;
-		auto newSpell = town->spells[level].at(town->spellsAtLevel(level, false));
+
+		int index = town->spellsAtLevel(level, false);
+		if (index >= town->spells[level].size())
+		{
+			LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.spellResearch.noMoreSpells"));
+			return;
+		}
+		auto newSpell = town->spells[level].at(index);
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, newSpell));
 		resComps.back()->newLine = true;
