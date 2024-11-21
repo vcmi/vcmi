@@ -40,6 +40,7 @@ public:
 	bool isModExists(QString modName) const;
 	bool isModInstalled(QString modName) const;
 	bool isModEnabled(QString modName) const;
+	bool isModSettingEnabled(QString rootModName, QString modSettingName) const;
 	bool isModUpdateAvailable(QString modName) const;
 	bool isModVisible(QString modName) const;
 

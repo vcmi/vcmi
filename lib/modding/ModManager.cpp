@@ -387,6 +387,11 @@ const ModDescription & ModManager::getModDescription(const TModID & modID) const
 	return modsStorage->getMod(modID);
 }
 
+bool ModManager::isModSettingActive(const TModID & rootModID, const TModID & modSettingID) const
+{
+	return modsPreset->getModSettings(rootModID).at(modSettingID);
+}
+
 bool ModManager::isModActive(const TModID & modID) const
 {
 	return vstd::contains(getActiveMods(), modID);
