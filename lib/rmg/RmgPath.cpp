@@ -190,4 +190,24 @@ const Area & Path::getPathArea() const
 	return dPath;
 }
 
+Path::MoveCostFunction Path::createCurvedCostFunction(const Area & border)
+{
+	// Capture by value to ensure the Area object persists
+	return [border = border](const int3& src, const int3& dst) -> float
+	{
+		// Route main roads far from border
+		//float ret = dst.dist2d(src);
+		float ret = dst.dist2d(src);
+
+		float dist = border.distanceSqr(dst);
+		//int3 closestTile = border.nearest(dst);
+		//float dist = dst.chebdist2d(closestTile);
+		if(dist > 1.0f)
+		{
+			ret /= dist * dist;
+		}
+		return ret;
+	};
+}
+
 VCMI_LIB_NAMESPACE_END

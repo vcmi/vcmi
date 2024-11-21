@@ -419,6 +419,11 @@ bool ObjectManager::createMonoliths()
 			return false;
 		}
 		
+		// Once it can be created, replace with curved path
+		auto costFunction = rmg::Path::createCurvedCostFunction(zone.area()->getBorder());	
+		rmg::Path curvedPath(zone.areaPossible() + zone.freePaths());
+		path = curvedPath.search(rmgObject.getVisitablePosition(), true, costFunction);
+		
 		zone.connectPath(path);
 		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 	}
@@ -448,6 +453,24 @@ bool ObjectManager::createRequiredObjects()
 		{
 			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
+		}
+		if (objInfo.createRoad)
+		{
+			// Once valid path can be created, replace with curved path
+
+			auto costFunction = rmg::Path::createCurvedCostFunction(zone.area()->getBorder());
+			auto pathArea = zone.areaPossible() + zone.freePaths();
+			rmg::Path curvedPath(pathArea);
+			curvedPath.connect(zone.freePaths().get());
+			curvedPath = curvedPath.search(rmgObject.getVisitablePosition(), false, costFunction);
+			if (curvedPath.valid())
+			{
+				path = curvedPath;
+			}
+			else
+			{
+				logGlobal->warn("Failed to create curved path for required object at %s", rmgObject.getPosition().toString());
+			}
 		}
 		
 		zone.connectPath(path);

@@ -278,24 +278,23 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			assert(zone.getModificator<ObjectManager>());
 			auto & manager = *zone.getModificator<ObjectManager>();
 			auto * monsterType = manager.chooseGuard(connection.getGuardStrength(), true);
-			
+		
 			rmg::Area border(zone.area()->getBorder());
 			border.unite(otherZone->area()->getBorder());
-			
-			auto costFunction = [&border](const int3 & s, const int3 & d)
-			{
-				return 1.f / (1.f + border.distanceSqr(d));
-			};
-			
+
+			auto localCostFunction = rmg::Path::createCurvedCostFunction(zone.area()->getBorder());
+			auto otherCostFunction = rmg::Path::createCurvedCostFunction(otherZone->area()->getBorder());
+
+			// TODO: helper function for this sum?
 			auto ourArea = zone.areaPossible() + zone.freePaths();
 			auto theirArea = otherZone->areaPossible() + otherZone->freePaths();
 			theirArea.add(guardPos);
 			rmg::Path ourPath(ourArea);
 			rmg::Path theirPath(theirArea);
 			ourPath.connect(zone.freePaths().get());
-			ourPath = ourPath.search(guardPos, true, costFunction);
+			ourPath = ourPath.search(guardPos, true, localCostFunction);
 			theirPath.connect(otherZone->freePaths().get());
-			theirPath = theirPath.search(guardPos, true, costFunction);
+			theirPath = theirPath.search(guardPos, true, otherCostFunction);
 			
 			if(ourPath.valid() && theirPath.valid())
 			{
