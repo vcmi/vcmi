@@ -28,6 +28,13 @@
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(移动点数: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "抱歉，重放对手行动功能目前暂未实现！",
 
+	"vcmi.bonusSource.artifact" : "宝物",
+	"vcmi.bonusSource.creature" : "技能",
+	"vcmi.bonusSource.spell" : "法术",
+	"vcmi.bonusSource.hero" : "英雄",
+	"vcmi.bonusSource.commander" : "指挥官",
+	"vcmi.bonusSource.other" : "其他",
+
 	"vcmi.capitalColors.0" : "红色",
 	"vcmi.capitalColors.1" : "蓝色",
 	"vcmi.capitalColors.2" : "褐色",
@@ -107,6 +114,12 @@
 	"vcmi.lobby.handicap.resource" : "给予玩家起始资源以外的更多资源，允许负值，但总量不会低于0（玩家永远不会能以负资源开始游戏）。",
 	"vcmi.lobby.handicap.income" : "按百分比改变玩家的各种收入，向上取整。",
 	"vcmi.lobby.handicap.growth" : "改变玩家拥有的城镇的生物增长率，向上取整。",
+	"vcmi.lobby.deleteUnsupportedSave" : "{检测到无法支持的存档}\n\nVCMI检测到%d个存档已不再受支持，这可能是由于 VCMI 版本不兼容导致的。\n\n你是否要删除这些存档？",
+	"vcmi.lobby.deleteSaveGameTitle" : "选择一个要删除的存档",
+	"vcmi.lobby.deleteMapTitle" : "选择一个要删除要删除的场景",
+	"vcmi.lobby.deleteFile" : "你确定要删除下列文件？",
+	"vcmi.lobby.deleteFolder" : "你确定要删除下列文件夹？",
+	"vcmi.lobby.deleteMode" : "切换删除模式并返回",
 
 	"vcmi.lobby.login.title" : "VCMI大厅",
 	"vcmi.lobby.login.username" : "用户名:",
@@ -553,6 +566,8 @@
 	"core.seerhut.quest.reachDate.visit.3" : "关门直到%s。",
 	"core.seerhut.quest.reachDate.visit.4" : "关门直到%s。",
 	"core.seerhut.quest.reachDate.visit.5" : "关门直到%s。",
+
+	"mapObject.core.hillFort.object.description" : "升级生物，1-4级生物升级比城镇中更便宜。",
 
 	"core.bonus.ADDITIONAL_ATTACK.name": "双击",
 	"core.bonus.ADDITIONAL_ATTACK.description": "生物可以攻击两次",
