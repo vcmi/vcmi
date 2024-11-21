@@ -28,6 +28,13 @@
 	"vcmi.adventureMap.movementPointsHeroInfo"           : "(Förflyttningspoäng: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Tyvärr, att spela om motståndarens tur är inte implementerat ännu!",
 
+	"vcmi.bonusSource.artifact" : "Artefakt",
+	"vcmi.bonusSource.creature" : "Förmåga",
+	"vcmi.bonusSource.spell"    : "Trollformel",
+	"vcmi.bonusSource.hero"     : "Hjälte",
+	"vcmi.bonusSource.commander": "Befälhavare",
+	"vcmi.bonusSource.other"    : "Annan",
+
 	"vcmi.capitalColors.0" : "Röd",
 	"vcmi.capitalColors.1" : "Blå",
 	"vcmi.capitalColors.2" : "Ljusbrun",
@@ -41,6 +48,12 @@
 	"vcmi.heroOverview.warMachine"      : "Krigsmaskiner",
 	"vcmi.heroOverview.secondarySkills" : "Sekundärförmågor",
 	"vcmi.heroOverview.spells"          : "Trollformler",
+
+	"vcmi.quickExchange.moveUnit"        : "Flytta enhet",
+	"vcmi.quickExchange.moveAllUnits"    : "Flytta alla enheter",
+	"vcmi.quickExchange.swapAllUnits"    : "Byt arméer",
+	"vcmi.quickExchange.moveAllArtifacts": "Flytta alla artefakter",
+	"vcmi.quickExchange.swapAllArtifacts": "Byt artefakter",
 
 	"vcmi.radialWheel.mergeSameUnit"    : "Slå samman varelser av samma sort",
 	"vcmi.radialWheel.fillSingleUnit"   : "Fyll på med enstaka varelser",
@@ -61,6 +74,16 @@
 	"vcmi.radialWheel.moveDown"   : "Flytta nedåt",
 	"vcmi.radialWheel.moveBottom" : "Flytta längst ner",
 
+	"vcmi.randomMap.description"               : "Kartan skapades av den slumpmässiga kartgeneratorn.\nMallen var %s, storlek %dx%d, nivåer %d, spelare %d, datorspelare %d, vatten %s, monster %s, VCMI karta",
+	"vcmi.randomMap.description.isHuman"       : ", %s är människa",
+	"vcmi.randomMap.description.townChoice"    : ", %s valde stadstyp: %s",
+	"vcmi.randomMap.description.water.none"    : "inget",
+	"vcmi.randomMap.description.water.normal"  : "normalt",
+	"vcmi.randomMap.description.water.islands" : "öar",
+	"vcmi.randomMap.description.monster.weak"  : "svaga",
+	"vcmi.randomMap.description.monster.normal": "normala",
+	"vcmi.randomMap.description.monster.strong": "starka",
+
 	"vcmi.spellBook.search" : "sök...",
 
 	"vcmi.spellResearch.canNotAfford" : "Du har inte råd att byta ut '{%SPELL1}' med '{%SPELL2}'. Du kan fortfarande göra dig av med den här trollformeln och forska vidare.",
@@ -69,6 +92,7 @@
 	"vcmi.spellResearch.research"     : "Forska fram denna trollformel",
 	"vcmi.spellResearch.skip"         : "Strunta i denna trollformel",
 	"vcmi.spellResearch.abort"        : "Avbryt",
+	"vcmi.spellResearch.noMoreSpells" : "Det finns inga fler trollformler tillgängliga för forskning.",
 
 	"vcmi.mainMenu.serverConnecting"       : "Ansluter...",
 	"vcmi.mainMenu.serverAddressEnter"     : "Ange adress:",
@@ -90,6 +114,12 @@
 	"vcmi.lobby.handicap.resource" : "Ger spelarna lämpliga resurser att börja med utöver de normala startresurserna. Negativa värden är tillåtna men är begränsade till 0 totalt (spelaren börjar aldrig med negativa resurser).",
 	"vcmi.lobby.handicap.income"   : "Ändrar spelarens olika inkomster i procent (resultaten avrundas uppåt).",
 	"vcmi.lobby.handicap.growth"   : "Ändrar tillväxttakten för varelser i de städer som ägs av spelaren (resultaten avrundas uppåt).",
+	"vcmi.lobby.deleteUnsupportedSave": "{Ostödda sparningar av spel hittades}\n\nVCMI har hittat %d sparade spelfiler som inte längre stöds, möjligen på grund av skillnader i VCMI-versioner.\n\nVill du ta bort dem?",
+	"vcmi.lobby.deleteSaveGameTitle"  : "Välj ett sparat spel som ska raderas",
+	"vcmi.lobby.deleteMapTitle"       : "Välj ett scenario som ska raderas",
+	"vcmi.lobby.deleteFile"           : "Vill du radera följande fil?",
+	"vcmi.lobby.deleteFolder"         : "Vill du radera följande mapp?",
+	"vcmi.lobby.deleteMode"           : "Växla till raderingsläge och tillbaka",
 
 	"vcmi.lobby.login.title"              : "VCMI Online Lobby",
 	"vcmi.lobby.login.username"           : "Användarnamn:",
@@ -159,6 +189,7 @@
 	"vcmi.server.errors.modsToEnable"     : "{Följande modd(ar) krävs}",
 	"vcmi.server.errors.modsToDisable"    : "{Följande modd(ar) måste inaktiveras}",
 	"vcmi.server.errors.modNoDependency"  : "Misslyckades med att ladda modd {'%s'}!\n Den är beroende av modd {'%s'} som inte är aktiverad!\n",
+	"vcmi.server.errors.modDependencyLoop": "Misslyckades med att ladda modd {'%s'}!\n Den kanske är i en (mjuk) beroendeloop.",
 	"vcmi.server.errors.modConflict"      : "Misslyckades med att ladda modd {'%s'}!\n Konflikter med aktiverad modd {'%s'}!\n",
 	"vcmi.server.errors.unknownEntity"    : "Misslyckades med att ladda sparat spel! Okänd enhet '%s' hittades i sparat spel! Sparningen kanske inte är kompatibel med den aktuella versionen av moddarna!",
 
@@ -536,6 +567,8 @@
 	"core.seerhut.quest.reachDate.visit.4"       : "Stängt fram till %s.",
 	"core.seerhut.quest.reachDate.visit.5"       : "Stängt fram till %s.",
 
+	"mapObject.core.hillFort.object.description" : "Uppgraderar varelser. Nivåerna 1 - 4 är billigare än i associerad stad.",
+
 	"core.bonus.ADDITIONAL_ATTACK.name"                  : "Dubbelslag",
 	"core.bonus.ADDITIONAL_ATTACK.description"           : "Attackerar två gånger.",
 	"core.bonus.ADDITIONAL_RETALIATION.name"             : "Ytterligare motattacker",
@@ -688,4 +721,8 @@
 	"core.bonus.DISINTEGRATE.description"                : "Ingen kropp lämnas kvar på slagfältet.",
 	"core.bonus.INVINCIBLE.name"                         : "Oövervinnerlig",
 	"core.bonus.INVINCIBLE.description"                  : "Kan inte påverkas av någonting."
+	"core.bonus.MECHANICAL.name"                         : "Mekanisk",
+	"core.bonus.MECHANICAL.description"                  : "Immun mot många effekter, reparerbar.",
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.name"            : "Prism-andedräkt",
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.description"     : "Treriktad andedräkt."
 }
