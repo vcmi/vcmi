@@ -116,8 +116,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 				if(!result.dArea->contains(pos))
 					return;
 				
-				float movementCost = moveCostFunction(currentNode, pos) + currentNode.dist2d(pos);
-				
+				float movementCost = moveCostFunction(currentNode, pos);
 				float distance = distances[currentNode] + movementCost; //we prefer to use already free paths
 				int bestDistanceSoFar = std::numeric_limits<int>::max();
 				auto it = distances.find(pos);
@@ -196,15 +195,12 @@ Path::MoveCostFunction Path::createCurvedCostFunction(const Area & border)
 	return [border = border](const int3& src, const int3& dst) -> float
 	{
 		// Route main roads far from border
-		//float ret = dst.dist2d(src);
 		float ret = dst.dist2d(src);
-
 		float dist = border.distanceSqr(dst);
-		//int3 closestTile = border.nearest(dst);
-		//float dist = dst.chebdist2d(closestTile);
+
 		if(dist > 1.0f)
 		{
-			ret /= dist * dist;
+			ret /= dist;
 		}
 		return ret;
 	};

@@ -91,7 +91,7 @@ bool RoadPlacer::createRoad(const int3 & destination)
 			float dist = border.distanceSqr(dst);
 			if(dist > 1.0f)
 			{
-				ret /= dist * dist;
+				ret /= dist;
 			}
 			return ret;
 		}
