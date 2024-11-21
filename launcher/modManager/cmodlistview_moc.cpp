@@ -526,31 +526,27 @@ QStringList CModListView::findUnavailableMods(QStringList candidates)
 void CModListView::on_enableButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
-	
 	enableModByName(modName);
-	
 	checkManagerErrors();
 }
 
 void CModListView::enableModByName(QString modName)
 {
 	manager->enableMods({modName});
-	modModel->reloadRepositories();
+	modModel->modChanged(modName);
 }
 
 void CModListView::on_disableButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
-
 	disableModByName(modName);
-	
 	checkManagerErrors();
 }
 
 void CModListView::disableModByName(QString modName)
 {
 	manager->disableMod(modName);
-	modModel->reloadRepositories();
+	modModel->modChanged(modName);
 }
 
 QStringList CModListView::getModsToInstall(QString mod)
@@ -566,7 +562,7 @@ QStringList CModListView::getModsToInstall(QString mod)
 		candidates.pop_back();
 		processed.push_back(potentialToInstall);
 
-		if (modStateModel->isModInstalled(potentialToInstall))
+		if (modStateModel->isModExists(potentialToInstall) && modStateModel->isModInstalled(potentialToInstall))
 			continue;
 
 		if (modStateModel->isSubmod(potentialToInstall))
@@ -607,7 +603,7 @@ void CModListView::on_updateButton_clicked()
 		auto mod = modStateModel->getMod(name);
 		// update required mod, install missing (can be new dependency)
 		if(mod.isUpdateAvailable() || !mod.isInstalled())
-			downloadFile(name + ".zip", mod.getDownloadUrl(), name, mod.getDownloadSizeMegabytes());
+			downloadFile(name + ".zip", mod.getDownloadUrl(), name, mod.getDownloadSizeBytes());
 	}
 }
 
@@ -634,7 +630,7 @@ void CModListView::on_installButton_clicked()
 	{
 		auto mod = modStateModel->getMod(name);
 		if(mod.isAvailable())
-			downloadFile(name + ".zip", mod.getDownloadUrl(), name, mod.getDownloadSizeMegabytes());
+			downloadFile(name + ".zip", mod.getDownloadUrl(), name, mod.getDownloadSizeBytes());
 		else if(!modStateModel->isModEnabled(name))
 			enableModByName(name);
 	}
@@ -702,12 +698,12 @@ void CModListView::manualInstallFile(QString filePath)
 		downloadFile(fileName, QUrl::fromLocalFile(filePath), fileName);
 }
 
-void CModListView::downloadFile(QString file, QString url, QString description, qint64 size)
+void CModListView::downloadFile(QString file, QString url, QString description, qint64 sizeBytes)
 {
-	downloadFile(file, QUrl{url}, description, size);
+	downloadFile(file, QUrl{url}, description, sizeBytes);
 }
 
-void CModListView::downloadFile(QString file, QUrl url, QString description, qint64 size)
+void CModListView::downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes)
 {
 	if(!dlManager)
 	{
@@ -728,7 +724,7 @@ void CModListView::downloadFile(QString file, QUrl url, QString description, qin
 		ui->progressBar->setFormat(progressBarFormat);
 	}
 
-	dlManager->downloadFile(url, file, size);
+	dlManager->downloadFile(url, file, sizeBytes);
 }
 
 void CModListView::downloadProgress(qint64 current, qint64 max)
@@ -1033,7 +1029,7 @@ void CModListView::doInstallMod(const QString & modName)
 	{
 		auto mod = modStateModel->getMod(name);
 		if(!mod.isInstalled())
-			downloadFile(name + ".zip", mod.getDownloadUrl(), name, mod.getDownloadSizeMegabytes());
+			downloadFile(name + ".zip", mod.getDownloadUrl(), name, mod.getDownloadSizeBytes());
 	}
 }
 

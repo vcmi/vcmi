@@ -53,8 +53,8 @@ class CModListView : public QWidget
 	QStringList findUnavailableMods(QStringList candidates);
 
 	void manualInstallFile(QString filePath);
-	void downloadFile(QString file, QString url, QString description, qint64 size = 0);
-	void downloadFile(QString file, QUrl url, QString description, qint64 size = 0);
+	void downloadFile(QString file, QString url, QString description, qint64 sizeBytes = 0);
+	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
 
 	void installMods(QStringList archives);
 	void installMaps(QStringList maps);
