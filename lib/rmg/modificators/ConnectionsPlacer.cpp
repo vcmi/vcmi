@@ -185,8 +185,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 							return 1.f / (1.f + border.distanceSqr(d));
 						};
 
-						auto ourArea = zone.areaPossible() + zone.freePaths();
-						auto theirArea = otherZone->areaPossible() + otherZone->freePaths();
+						auto ourArea = zone.areaForRoads();
+						auto theirArea = otherZone->areaForRoads();
 						theirArea.add(potentialPos);
 						rmg::Path ourPath(ourArea);
 						rmg::Path theirPath(theirArea);
@@ -285,9 +285,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			auto localCostFunction = rmg::Path::createCurvedCostFunction(zone.area()->getBorder());
 			auto otherCostFunction = rmg::Path::createCurvedCostFunction(otherZone->area()->getBorder());
 
-			// TODO: helper function for this sum?
-			auto ourArea = zone.areaPossible() + zone.freePaths();
-			auto theirArea = otherZone->areaPossible() + otherZone->freePaths();
+			auto ourArea = zone.areaForRoads();
+			auto theirArea = otherZone->areaForRoads();
 			theirArea.add(guardPos);
 			rmg::Path ourPath(ourArea);
 			rmg::Path theirPath(theirArea);
@@ -417,11 +416,15 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			
 			if(path1.valid() && path2.valid())
 			{
-				zone.connectPath(path1);
-				otherZone->connectPath(path2);
-				
 				manager.placeObject(rmgGate1, guarded1, true, allowRoad);
 				managerOther.placeObject(rmgGate2, guarded2, true, allowRoad);
+
+				// FIXME: Guard can still be placed on the object
+				replaceWithCurvedPath(path1, zone, rmgGate1.getVisitablePosition());
+				replaceWithCurvedPath(path2, *otherZone, rmgGate2.getVisitablePosition());
+
+				zone.connectPath(path1);
+				otherZone->connectPath(path2);
 				
 				assert(otherZone->getModificator<ConnectionsPlacer>());
 				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);

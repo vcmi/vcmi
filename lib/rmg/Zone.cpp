@@ -121,6 +121,11 @@ ThreadSafeProxy<const rmg::Area> Zone::areaUsed() const
 	return ThreadSafeProxy<const rmg::Area>(dAreaUsed, areaMutex);
 }
 
+rmg::Area Zone::areaForRoads() const
+{
+	return areaPossible() + freePaths();
+}
+
 void Zone::clearTiles()
 {
 	Lock lock(areaMutex);

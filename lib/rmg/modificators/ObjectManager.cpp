@@ -344,7 +344,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 {
 	int3 pos;
 	auto possibleArea = searchArea;
-	auto cachedArea = zone.areaPossible() + zone.freePaths();
+	auto cachedArea = zone.areaForRoads();
 	while(true)
 	{
 		pos = findPlaceForObject(possibleArea, obj, weightFunction, optimizer);
@@ -420,9 +420,7 @@ bool ObjectManager::createMonoliths()
 		}
 		
 		// Once it can be created, replace with curved path
-		auto costFunction = rmg::Path::createCurvedCostFunction(zone.area()->getBorder());	
-		rmg::Path curvedPath(zone.areaPossible() + zone.freePaths());
-		path = curvedPath.search(rmgObject.getVisitablePosition(), true, costFunction);
+		replaceWithCurvedPath(path, zone, rmgObject.getVisitablePosition());
 		
 		zone.connectPath(path);
 		placeObject(rmgObject, guarded, true, objInfo.createRoad);
@@ -457,20 +455,7 @@ bool ObjectManager::createRequiredObjects()
 		if (objInfo.createRoad)
 		{
 			// Once valid path can be created, replace with curved path
-
-			auto costFunction = rmg::Path::createCurvedCostFunction(zone.area()->getBorder());
-			auto pathArea = zone.areaPossible() + zone.freePaths();
-			rmg::Path curvedPath(pathArea);
-			curvedPath.connect(zone.freePaths().get());
-			curvedPath = curvedPath.search(rmgObject.getVisitablePosition(), false, costFunction);
-			if (curvedPath.valid())
-			{
-				path = curvedPath;
-			}
-			else
-			{
-				logGlobal->warn("Failed to create curved path for required object at %s", rmgObject.getPosition().toString());
-			}
+			replaceWithCurvedPath(path, zone, rmgObject.getVisitablePosition());
 		}
 		
 		zone.connectPath(path);
