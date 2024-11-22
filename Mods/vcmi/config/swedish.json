@@ -720,7 +720,7 @@
 	"core.bonus.DISINTEGRATE.name"                       : "Desintegrerar",
 	"core.bonus.DISINTEGRATE.description"                : "Ingen kropp lämnas kvar på slagfältet.",
 	"core.bonus.INVINCIBLE.name"                         : "Oövervinnerlig",
-	"core.bonus.INVINCIBLE.description"                  : "Kan inte påverkas av någonting."
+	"core.bonus.INVINCIBLE.description"                  : "Kan inte påverkas av någonting.",
 	"core.bonus.MECHANICAL.name"                         : "Mekanisk",
 	"core.bonus.MECHANICAL.description"                  : "Immun mot många effekter, reparerbar.",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name"            : "Prism-andedräkt",
