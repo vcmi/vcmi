@@ -937,15 +937,15 @@
         <location filename="../inspector/inspector.cpp" line="341"/>
         <location filename="../inspector/inspector.cpp" line="344"/>
         <source>No patrol</source>
-        <translation type="unfinished"></translation>
+        <translation>Sem patrulha</translation>
     </message>
     <message numerus="yes">
         <location filename="../inspector/inspector.cpp" line="343"/>
         <location filename="../inspector/inspector.cpp" line="344"/>
         <source>%n tile(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n bloco</numerusform>
+            <numerusform>%n blocos</numerusform>
         </translation>
     </message>
     <message>
