@@ -562,7 +562,7 @@ Install successfully downloaded?</source>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="200"/>
-        <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
+        <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -618,7 +618,7 @@ Install successfully downloaded?</source>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="354"/>
-        <source>Mod is located in protected directory, please remove it manually:
+        <source>Mod is located in a protected directory, please remove it manually:
 </source>
         <translation type="unfinished"></translation>
     </message>
@@ -940,13 +940,13 @@ Install successfully downloaded?</source>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1182"/>
-        <source>Select display mode for game
+        <source>Select display mode for the game
 
-Windowed - game will run inside a window that covers part of your screen
+Windowed - The game will run inside a window that covers part of your screen
 
-Borderless Windowed Mode - game will run in a window that covers entirely of your screen, using same resolution as your screen.
+Borderless Windowed Mode - the game will run in a window that covers entirely of your screen, using the same resolution as your screen.
 
-Fullscreen Exclusive Mode - game will cover entirety of your screen and will use selected resolution.</source>
+Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use a selected resolution.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1044,7 +1044,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     <name>ChroniclesExtractor</name>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
-        <source>File cannot opened</source>
+        <source>File cannot be opened</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1055,12 +1055,12 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
-        <source>You have to select an gog installer file!</source>
+        <source>You have to select a gog installer file!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
-        <source>You have to select an chronicle installer file!</source>
+        <source>You have to select a Heroes Chronicles installer file!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1135,9 +1135,9 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="178"/>
         <source>Thank you for installing VCMI!
 
-Before you can start playing, there are a few more steps that need to be completed.
+Before you can start playing, there are a few more steps to complete.
 
-Please keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
+Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
         <translation type="unfinished"></translation>
@@ -1154,7 +1154,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
-        <source>You can manually copy directories Maps, Data and Mp3 from the original game directory to VCMI data directory that you can see on top of this page</source>
+        <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1194,8 +1194,8 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
-        <source>If you own Heroes III on gog.com you can download backup offline installer from gog.com, and VCMI will import Heroes III data using offline installer. 
-Offline installer consists of two parts, .exe and .bin. Make sure you download both of them.</source>
+        <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
+Offline installers consist of two parts, .exe, and .bin. You need to download both of them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1205,7 +1205,7 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
-        <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
+        <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1339,7 +1339,7 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="383"/>
-        <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
+        <source>You've provided a GOG Galaxy installer! This file doesn't contain the game. Please download the offline backup game installer!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1368,19 +1368,19 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="445"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
-Please select directory with installed Heroes III data.</source>
+Please select the directory with installed Heroes III data.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
-Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
+Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="474"/>
         <source>Unknown or unsupported Heroes III version found.
-Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
+Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1588,7 +1588,7 @@ Reason: %2</source>
     </message>
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
-        <source>Cannot read JSON from url or incorrect JSON data</source>
+        <source>Cannot read JSON from URL or incorrect JSON data</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
