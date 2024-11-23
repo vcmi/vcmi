@@ -625,7 +625,7 @@
 				"ignoreSslErrors",
 				"updateOnStartup", 
 				"updateConfigUrl", 
-				"preLauncher"
+				"skipLauncher"
 			],
 			"properties" : {
 				"defaultRepositoryEnabled" : {
@@ -668,7 +668,7 @@
 					"type" : "string",
 					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json"
 				},
-				"preLauncher" : {
+				"skipLauncher" : {
 					"type" : "boolean",
 					"default" : false
 				}

@@ -89,7 +89,7 @@ private slots:
 	void on_buttonFontAuto_clicked(bool checked);
 	void on_buttonFontScalable_clicked(bool checked);
 	void on_buttonFontOriginal_clicked(bool checked);
-	void on_buttonPreLauncher_clicked(bool checked);
+	void on_buttonSkipLauncher_clicked(bool checked);
 
 
 	void on_buttonValidationOff_clicked(bool checked);

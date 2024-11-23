@@ -33,7 +33,7 @@ class MainWindow : public QMainWindow
 	Ui::MainWindow * ui;
 
 	void load();
-	void preLauncher();
+	void skipLauncher();
 
 	enum TabRows
 	{

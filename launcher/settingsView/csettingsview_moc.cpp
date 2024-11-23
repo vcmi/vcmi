@@ -214,7 +214,7 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonRelativeCursorMode, settings["general"]["userRelativePointer"].Bool());
 	setCheckbuttonState(ui->buttonHapticFeedback, settings["general"]["hapticFeedback"].Bool());
 
-	setCheckbuttonState(ui->buttonPreLauncher, settings["launcher"]["preLauncher"].Bool());
+	setCheckbuttonState(ui->buttonSkipLauncher, settings["launcher"]["skipLauncher"].Bool());
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
@@ -854,10 +854,10 @@ void CSettingsView::on_buttonScalingAuto_toggled(bool checked)
 	node->Integer() = checked ? 0 : 100;
 }
 
-void CSettingsView::on_buttonPreLauncher_clicked(bool checked)
+void CSettingsView::on_buttonSkipLauncher_clicked(bool checked)
 {
-	Settings node = settings.write["launcher"]["preLauncher"];
+	Settings node = settings.write["launcher"]["skipLauncher"];
 	node->Bool() = checked;
-	updateCheckbuttonText(ui->buttonPreLauncher);
+	updateCheckbuttonText(ui->buttonSkipLauncher);
 }
 
