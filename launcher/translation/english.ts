@@ -942,7 +942,7 @@ Install successfully downloaded?</source>
         <location filename="../settingsView/csettingsview_moc.ui" line="1182"/>
         <source>Select display mode for the game
 
-Windowed - The game will run inside a window that covers part of your screen
+Windowed - the game will run inside a window that covers part of your screen
 
 Borderless Windowed Mode - the game will run in a window that covers entirely of your screen, using the same resolution as your screen.
 
