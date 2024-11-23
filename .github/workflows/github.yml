@@ -202,6 +202,7 @@ jobs:
       if: "${{ matrix.conan_profile != '' }}"
       run: |
         conan profile new default --detect
+        sed -i '' 's/compiler.version=16/compiler.version=15/' ~/.conan/profiles/default
         conan install . \
           --install-folder=conan-generated \
           --no-imports \
