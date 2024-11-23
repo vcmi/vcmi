@@ -335,7 +335,8 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 		"cpuStart",
 		"treasure",
 		"junction",
-		"water"
+		"water",
+		"sealed"
 	};
 
 	handler.serializeEnum("type", type, zoneTypes);
