@@ -46,19 +46,19 @@ jobs:
           #   conan_prebuilts: dependencies-mac-intel
           #   conan_options: --options with_apple_system_libs=True
           #   artifact_platform: intel
-          - platform: mac-arm
-            os: macos-14
-            test: 0
-            pack: 1
-            upload: 1
-            pack_type: Release
-            extension: dmg
-            before_install: macos.sh
-            preset: macos-arm-conan-ninja-release
-            conan_profile: macos-arm
-            conan_prebuilts: dependencies-mac-arm
-            conan_options: --options with_apple_system_libs=True
-            artifact_platform: arm
+          # - platform: mac-arm
+          #   os: macos-14
+          #   test: 0
+          #   pack: 1
+          #   upload: 1
+          #   pack_type: Release
+          #   extension: dmg
+          #   before_install: macos.sh
+          #   preset: macos-arm-conan-ninja-release
+          #   conan_profile: macos-arm
+          #   conan_prebuilts: dependencies-mac-arm
+          #   conan_options: --options with_apple_system_libs=True
+          #   artifact_platform: arm
           - platform: ios
             os: macos-14
             test: 0
