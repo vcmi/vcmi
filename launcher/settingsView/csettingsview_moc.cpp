@@ -214,7 +214,12 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonRelativeCursorMode, settings["general"]["userRelativePointer"].Bool());
 	setCheckbuttonState(ui->buttonHapticFeedback, settings["general"]["hapticFeedback"].Bool());
 
+#ifdef ENABLE_SKIP_LAUNCHER
 	setCheckbuttonState(ui->buttonSkipLauncher, settings["launcher"]["skipLauncher"].Bool());
+#else
+	ui->buttonSkipLauncher->setVisible(false);
+	ui->labelSkipLauncher->setVisible(false);
+#endif
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);

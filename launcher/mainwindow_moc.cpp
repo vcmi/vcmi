@@ -125,6 +125,7 @@ MainWindow::MainWindow(QWidget * parent)
 
 void MainWindow::skipLauncher()
 {
+#ifdef ENABLE_SKIP_LAUNCHER
 	QMessageBox msgBox;
 	int secondsRemaining = 10;
 	auto getText = [&] { return tr("How to start?\n\nVCMI starts automatically in %n second(s)", nullptr, secondsRemaining); };
@@ -154,6 +155,7 @@ void MainWindow::skipLauncher()
 		hide();
 		startGame({});
 	}
+#endif
 }
 
 void MainWindow::detectPreferredLanguage()

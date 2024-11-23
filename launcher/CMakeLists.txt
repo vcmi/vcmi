@@ -166,6 +166,8 @@ if(ANDROID)
 	list(APPEND launcher_RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/config.qrc")
 	generate_binary_resource("Mods" "${CMAKE_SOURCE_DIR}/Mods")
 	list(APPEND launcher_RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/Mods.qrc")
+
+	add_definitions(-DENABLE_SKIP_LAUNCHER)
 endif()
 
 target_sources(vcmilauncher PRIVATE
