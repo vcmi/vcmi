@@ -452,7 +452,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="652"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation>Selecione arquivos (configurações, mods, mapas, campanhas, arquivos gog) para instalar...</translation>
+        <translation>Selecione arquivos (configurações, mods, mapas, campanhas, arquivos GOG) para instalar...</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="677"/>
@@ -1075,7 +1075,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>You have to select an chronicle installer file!</source>
-        <translation>Você precisa selecionar um arquivo de instalação do Chronicles!</translation>
+        <translation>Você precisa selecionar um arquivo de instalação do Heroes Chronicles!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="87"/>
