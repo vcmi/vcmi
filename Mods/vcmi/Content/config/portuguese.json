@@ -28,6 +28,13 @@
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Pontos de movimento: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Desculpe, a repetição do turno do oponente ainda não está implementada!",
 
+	"vcmi.bonusSource.artifact" : "Artefato",
+	"vcmi.bonusSource.creature" : "Habilidade",
+	"vcmi.bonusSource.spell" : "Feitiço",
+	"vcmi.bonusSource.hero" : "Herói",
+	"vcmi.bonusSource.commander" : "Comandante",
+	"vcmi.bonusSource.other" : "Outro",
+
 	"vcmi.capitalColors.0" : "Vermelho",
 	"vcmi.capitalColors.1" : "Azul",
 	"vcmi.capitalColors.2" : "Bege",
@@ -85,6 +92,7 @@
 	"vcmi.spellResearch.research" : "Pesquisar este Feitiço",
 	"vcmi.spellResearch.skip" : "Pular este Feitiço",
 	"vcmi.spellResearch.abort" : "Abortar",
+	"vcmi.spellResearch.noMoreSpells" : "Não há mais feitiços disponíveis para pesquisa.",
 
 	"vcmi.mainMenu.serverConnecting" : "Conectando...",
 	"vcmi.mainMenu.serverAddressEnter" : "Insira o endereço:",
@@ -106,6 +114,12 @@
 	"vcmi.lobby.handicap.resource" : "Fornece aos jogadores recursos apropriados para começar, além dos recursos iniciais normais. Valores negativos são permitidos, mas são limitados a 0 no total (o jogador nunca começa com recursos negativos).",
 	"vcmi.lobby.handicap.income" : "Altera as várias rendas do jogador em porcentagem. Arredondado para cima.",
 	"vcmi.lobby.handicap.growth" : "Altera a taxa de produção das criaturas nas cidades possuídas pelo jogador. Arredondado para cima.",
+	"vcmi.lobby.deleteUnsupportedSave" : "Foram encontrados arquivos de salvamento não suportados (ex.: de versões anteriores).\n\nDeseja excluí-los?",
+	"vcmi.lobby.deleteSaveGameTitle" : "Selecione um Jogo Salvo para excluir",
+	"vcmi.lobby.deleteMapTitle" : "Selecione um Cenário para excluir",
+	"vcmi.lobby.deleteFile" : "Deseja excluir o seguinte arquivo?",
+	"vcmi.lobby.deleteFolder" : "Deseja excluir a seguinte pasta?",
+	"vcmi.lobby.deleteMode" : "Alternar para o modo de exclusão e voltar",
 		
 	"vcmi.lobby.login.title" : "Sala de Espera Online do VCMI",
 	"vcmi.lobby.login.username" : "Nome de usuário:",
@@ -175,6 +189,7 @@
 	"vcmi.server.errors.modsToEnable"    : "{Os seguintes mods são necessários}",
 	"vcmi.server.errors.modsToDisable"   : "{Os seguintes mods devem ser desativados}",
 	"vcmi.server.errors.modNoDependency" : "Falha ao carregar o mod {'%s'}!\n Ele depende do mod {'%s'}, que não está ativo!\n",
+	"vcmi.server.errors.modDependencyLoop" : "Falha ao carregar o mod {'%s'}!\n Ele pode estar em um ciclo de dependência.",
 	"vcmi.server.errors.modConflict" : "Falha ao carregar o mod {'%s'}!\n Conflito com o mod ativo {'%s'}!\n",
 	"vcmi.server.errors.unknownEntity" : "Falha ao carregar o jogo salvo! Entidade desconhecida '%s' encontrada no jogo salvo! O jogo salvo pode não ser compatível com a versão atualmente instalada dos mods!",
 	
@@ -706,6 +721,8 @@
 	"core.bonus.DISINTEGRATE.description": "Nenhum corpo permanece após a morte",
 	"core.bonus.INVINCIBLE.name": "Invencível",
 	"core.bonus.INVINCIBLE.description": "Não pode ser afetado por nada",
+	"core.bonus.MECHANICAL.name": "Mecânico",
+	"core.bonus.MECHANICAL.description": "Imunidade a muitos efeitos, reparável",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name" : "Sopro Prismático",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.description" : "Ataque de Sopro Prismático (três direções)",
 	"vcmi.server.errors.modDependencyLoop" : "Falha ao carregar o mod {'%s'}!\n Ele pode estar em um ciclo de dependência.",
