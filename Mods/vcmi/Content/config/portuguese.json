@@ -725,7 +725,6 @@
 	"core.bonus.MECHANICAL.description": "Imunidade a muitos efeitos, reparável",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name" : "Sopro Prismático",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.description" : "Ataque de Sopro Prismático (três direções)",
-	"vcmi.server.errors.modDependencyLoop" : "Falha ao carregar o mod {'%s'}!\n Ele pode estar em um ciclo de dependência.",
 
 	"spell.core.castleMoat.name": "Fosso",
 	"spell.core.castleMoatTrigger.name": "Fosso",
