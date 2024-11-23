@@ -75,6 +75,7 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 
 	bool onlyOnWaterMap;
+	bool special;
 
 	friend class CSkillHandler;
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill & skill);
