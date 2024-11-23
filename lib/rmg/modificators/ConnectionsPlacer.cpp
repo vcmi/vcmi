@@ -419,7 +419,6 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 				manager.placeObject(rmgGate1, guarded1, true, allowRoad);
 				managerOther.placeObject(rmgGate2, guarded2, true, allowRoad);
 
-				// FIXME: Guard can still be placed on the object
 				replaceWithCurvedPath(path1, zone, rmgGate1.getVisitablePosition());
 				replaceWithCurvedPath(path2, *otherZone, rmgGate2.getVisitablePosition());
 
