@@ -1044,7 +1044,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <name>ChroniclesExtractor</name>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
-        <source>File cannot be opened</source>
+        <source>The file cannot be opened</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
