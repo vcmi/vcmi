@@ -298,7 +298,7 @@ public:
 		HORDE_2_UPGR,   GRAIL,         EXTRA_TOWN_HALL,   EXTRA_CITY_HALL, EXTRA_CAPITOL,
 		DWELL_FIRST=30, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LAST=36,
 		DWELL_UP_FIRST=37,  DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP,
-		DWELL_LVL_6_UP, DWELL_UP_LAST=43, DWELL_LVL_8=150, DWELL_LVL_8_UP=151,
+		DWELL_LVL_6_UP, DWELL_UP_LAST=43, DWELL_LVL_8=150, DWELL_LVL_8_UP=151, //150-154 reserved for 8. creature with potential upgrades
 
 		DWELL_LVL_1 = DWELL_FIRST,
 		DWELL_LVL_7 = DWELL_LAST,
@@ -337,7 +337,10 @@ public:
 			if (it != tmp.end())
 				return std::distance(tmp.begin(), it);
 		}
-		return (dwelling - DWELL_FIRST) % (GameConstants::CREATURES_PER_TOWN - 1);
+		if(dwelling >= BuildingIDBase::DWELL_LVL_8 && dwelling < BuildingIDBase::DWELL_LVL_8 + 5)
+			return 7;
+		else
+			return (dwelling - DWELL_FIRST) % (GameConstants::CREATURES_PER_TOWN - 1);
 	}
 
 	static int getUpgradedFromDwelling(BuildingIDBase dwelling)
@@ -349,15 +352,18 @@ public:
 			if (it != tmp.end())
 				return i;
 		}
-		return (dwelling - DWELL_FIRST) / (GameConstants::CREATURES_PER_TOWN - 1);
+		if(dwelling >= BuildingIDBase::DWELL_LVL_8 && dwelling < BuildingIDBase::DWELL_LVL_8 + 5)
+			return dwelling - BuildingIDBase::DWELL_LVL_8;
+		else
+			return (dwelling - DWELL_FIRST) / (GameConstants::CREATURES_PER_TOWN - 1);
 	}
 
 	static void advanceDwelling(BuildingIDBase & dwelling)
 	{
-		if(dwelling != BuildingIDBase::DWELL_LVL_8)
-			dwelling.advance(GameConstants::CREATURES_PER_TOWN - 1);
-		else
+		if(dwelling >= BuildingIDBase::DWELL_LVL_8 && dwelling < BuildingIDBase::DWELL_LVL_8 + 5)
 			dwelling.advance(1);
+		else
+			dwelling.advance(GameConstants::CREATURES_PER_TOWN - 1);
 	}
 
 	bool IsSpecialOrGrail() const
