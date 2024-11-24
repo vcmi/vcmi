@@ -851,7 +851,11 @@ void CModListView::installFiles(QStringList files)
 	}
 
 	if(!mods.empty())
+	{
 		installMods(mods);
+		modStateModel->reloadLocalState();
+		modModel->reloadRepositories();
+	}
 
 	if(!maps.empty())
 		installMaps(maps);
