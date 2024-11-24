@@ -456,7 +456,7 @@ void MainWindow::on_actionOpenRecent_triggered()
 		RecentFileDialog(QStringList recentFiles, QWidget * parent = nullptr) : QDialog(parent), layout(this)
 		{
 
-			setWindowTitle("Recently Opened Files");
+			setWindowTitle(tr("Recently Opened Files"));
 			setMinimumWidth(600);
 
 			for (const QString &file : recentFiles) {
