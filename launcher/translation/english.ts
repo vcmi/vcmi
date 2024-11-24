@@ -1339,7 +1339,7 @@ Offline installer consists of two files: ".exe" and ".bin" - you must download b
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="383"/>
-        <source>You've provided a GOG Galaxy installer! This file doesn't contain the game. Please download the offline backup game installer!</source>
+        <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
