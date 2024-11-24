@@ -453,7 +453,8 @@ void MainWindow::on_actionOpenRecent_triggered()
 
 	struct RecentFileDialog : public QDialog {
 		
-		RecentFileDialog(QWidget *parent, const QStringList& recentFiles) : QDialog(parent), layout(this) {
+		RecentFileDialog(QStringList recentFiles, QWidget * parent = nullptr) : QDialog(parent), layout(this)
+		{
 
 			setWindowTitle("Recently Opened Files");
 			setMinimumWidth(600);
