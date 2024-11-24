@@ -1195,7 +1195,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
-Offline installers consist of two parts, .exe, and .bin. You need to download both of them.</source>
+Offline installer consists of two files: ".exe" and ".bin" - you must download both.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
