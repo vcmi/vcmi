@@ -16,9 +16,8 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QFileInfo>
-#include <qdialog.h>
-#include <qlistwidget.h>
-#include <qnamespace.h>
+#include <QDialog>
+#include <QListWidget>
 
 #include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
