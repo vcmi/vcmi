@@ -40,6 +40,7 @@ class MainWindow : public QMainWindow
 		SETTINGS = 1,
 		SETUP = 2,
 		ABOUT = 3,
+		START = 4,
 	};
 
 public:
@@ -55,6 +56,7 @@ public:
 	void enterSetup();
 	void exitSetup();
 	void switchToModsTab();
+	void switchToStartTab();
 
 protected:
 	void changeEvent(QEvent * event) override;

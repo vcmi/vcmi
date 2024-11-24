@@ -47,7 +47,6 @@ void MainWindow::computeSidePanelSizes()
 		ui->modslistButton,
 		ui->settingsButton,
 		ui->aboutButton,
-		ui->startEditorButton,
 		ui->startGameButton
 	};
 
@@ -82,7 +81,6 @@ MainWindow::MainWindow(QWidget * parent)
 	ui->modslistButton->setIcon(QIcon{":/icons/menu-mods.png"});
 	ui->settingsButton->setIcon(QIcon{":/icons/menu-settings.png"});
 	ui->aboutButton->setIcon(QIcon{":/icons/about-project.png"});
-	ui->startEditorButton->setIcon(QIcon{":/icons/menu-editor.png"});
 	ui->startGameButton->setIcon(QIcon{":/icons/menu-game.png"});
 
 #ifndef VCMI_MOBILE
@@ -110,7 +108,7 @@ MainWindow::MainWindow(QWidget * parent)
 	bool h3DataFound = CResourceHandler::get()->existsResource(ResourcePath("DATA/GENRLTXT.TXT"));
 
 	if (h3DataFound && setupCompleted)
-		ui->tabListWidget->setCurrentIndex(TabRows::MODS);
+		ui->tabListWidget->setCurrentIndex(TabRows::START);
 	else
 		enterSetup();
 
@@ -147,7 +145,6 @@ void MainWindow::detectPreferredLanguage()
 void MainWindow::enterSetup()
 {
 	ui->startGameButton->setEnabled(false);
-	ui->startEditorButton->setEnabled(false);
 	ui->settingsButton->setEnabled(false);
 	ui->aboutButton->setEnabled(false);
 	ui->modslistButton->setEnabled(false);
@@ -160,11 +157,16 @@ void MainWindow::exitSetup()
 	writer->Bool() = true;
 
 	ui->startGameButton->setEnabled(true);
-	ui->startEditorButton->setEnabled(true);
 	ui->settingsButton->setEnabled(true);
 	ui->aboutButton->setEnabled(true);
 	ui->modslistButton->setEnabled(true);
 	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
+}
+
+void MainWindow::switchToStartTab()
+{
+	ui->startGameButton->setEnabled(true);
+	ui->tabListWidget->setCurrentIndex(TabRows::START);
 }
 
 void MainWindow::switchToModsTab()
@@ -196,8 +198,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_startGameButton_clicked()
 {
-	hide();
-	startGame({});
+	switchToStartTab();
 }
 
 void MainWindow::on_startEditorButton_clicked()

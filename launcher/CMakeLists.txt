@@ -15,6 +15,7 @@ set(launcher_SRCS
 		modManager/imageviewer_moc.cpp
 		modManager/chroniclesextractor.cpp
 		settingsView/csettingsview_moc.cpp
+		startGame/StartGameTab.cpp
 		firstLaunch/firstlaunch_moc.cpp
 		main.cpp
 		helper.cpp
@@ -46,6 +47,7 @@ set(launcher_HEADERS
 		modManager/imageviewer_moc.h
 		modManager/chroniclesextractor.h
 		settingsView/csettingsview_moc.h
+		startGame/StartGameTab.h
 		firstLaunch/firstlaunch_moc.h
 		mainwindow_moc.h
 		languages.h
@@ -63,6 +65,7 @@ set(launcher_FORMS
 		settingsView/csettingsview_moc.ui
 		firstLaunch/firstlaunch_moc.ui
 		mainwindow_moc.ui
+		startGame/StartGameTab.ui
 		updatedialog_moc.ui
 )
 
