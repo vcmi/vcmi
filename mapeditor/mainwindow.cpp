@@ -482,8 +482,8 @@ void MainWindow::on_actionOpenRecent_triggered()
 
 	auto onSelect = [this, &d](QListWidgetItem *item) {
 		if(getAnswerAboutUnsavedChanges()) {
-			QString filename = item->text();
-			openMap(filename);
+			QString filePath = item->text();
+			openMap(filePath);
 		}
 		d.close();
 	};
