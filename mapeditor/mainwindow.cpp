@@ -455,7 +455,8 @@ void MainWindow::on_actionOpenRecent_triggered()
 	class RecentFileDialog : public QDialog {
 	
 	public:
-		RecentFileDialog(const QStringList& recentFiles, QWidget *parent) : QDialog(parent), layout(this) {
+		RecentFileDialog(const QStringList& recentFiles, QWidget *parent)
+			: QDialog(parent), layout(new QVBoxLayout(this)), listWidget(new QListWidget(this)) {
 
 			setWindowTitle(tr("Recently Opened Files"));
 			setMinimumWidth(600);
@@ -465,31 +466,31 @@ void MainWindow::on_actionOpenRecent_triggered()
 				accept();
 			};
 
-			connect(&listWidget, &QListWidget::itemActivated, this, onSelect);
+			connect(listWidget, &QListWidget::itemActivated, this, onSelect);
 
 			for (const QString &file : recentFiles) {
 				QListWidgetItem *item = new QListWidgetItem(file);
-				listWidget.addItem(item);
+				listWidget->addItem(item);
 			}
 
 			// Select most recent items by default.
 			// This enables a "CTRL+R => Enter"-workflow instead of "CTRL+R => 'mouse click on first item'"
-			if(listWidget.count() > 0) {
-				listWidget.item(0)->setSelected(true);
+			if(listWidget->count() > 0) {
+				listWidget->item(0)->setSelected(true);
 			}
 
-			layout.setSizeConstraint(QLayout::SetMaximumSize);
-			layout.addWidget(&listWidget);
+			layout->setSizeConstraint(QLayout::SetMaximumSize);
+			layout->addWidget(listWidget);
 		}
 
 		QString getSelectedFilePath() const {
-			return listWidget.currentItem()->text();
+			return listWidget->currentItem()->text();
 		}
 
 	private:
 
-		QVBoxLayout layout;
-		QListWidget listWidget;
+		QVBoxLayout * layout;
+		QListWidget * listWidget;
 		QString selectedFilePath;
 	};
 
