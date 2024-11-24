@@ -452,29 +452,32 @@ void MainWindow::on_actionOpenRecent_triggered()
 	QSettings s(Ui::teamName, Ui::appName);
 	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
 
-	class RecentFileDialog : public QDialog {
-	
+	class RecentFileDialog : public QDialog
+	{
+
 	public:
 		RecentFileDialog(const QStringList& recentFiles, QWidget *parent)
-			: QDialog(parent), layout(new QVBoxLayout(this)), listWidget(new QListWidget(this)) {
+			: QDialog(parent), layout(new QVBoxLayout(this)), listWidget(new QListWidget(this))
+		{
 
 			setWindowTitle(tr("Recently Opened Files"));
 			setMinimumWidth(600);
 
-			auto onSelect = [this](QListWidgetItem *item) {
+			connect(listWidget, &QListWidget::itemActivated, this, [this](QListWidgetItem *item)
+			{
 				accept();
-			};
+			});
 
-			connect(listWidget, &QListWidget::itemActivated, this, onSelect);
-
-			for (const QString &file : recentFiles) {
+			for (const QString &file : recentFiles)
+			{
 				QListWidgetItem *item = new QListWidgetItem(file);
 				listWidget->addItem(item);
 			}
 
 			// Select most recent items by default.
 			// This enables a "CTRL+R => Enter"-workflow instead of "CTRL+R => 'mouse click on first item'"
-			if(listWidget->count() > 0) {
+			if(listWidget->count() > 0)
+			{
 				listWidget->item(0)->setSelected(true);
 			}
 
@@ -482,21 +485,20 @@ void MainWindow::on_actionOpenRecent_triggered()
 			layout->addWidget(listWidget);
 		}
 
-		QString getSelectedFilePath() const {
+		QString getSelectedFilePath() const
+		{
 			return listWidget->currentItem()->text();
 		}
 
 	private:
-
 		QVBoxLayout * layout;
 		QListWidget * listWidget;
 	};
 
 	RecentFileDialog d(recentFiles, this);
-	if(d.exec() == QDialog::Accepted) {
-		if(getAnswerAboutUnsavedChanges()) {
-			openMap(d.getSelectedFilePath());
-		}
+	if(d.exec() == QDialog::Accepted && getAnswerAboutUnsavedChanges())
+	{
+		openMap(d.getSelectedFilePath());
 	}
 }
 
