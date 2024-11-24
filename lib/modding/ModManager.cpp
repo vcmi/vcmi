@@ -376,7 +376,8 @@ ModManager::ModManager(const JsonNode & repositoryList)
 	addNewModsToPreset();
 
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
-	depedencyResolver = std::make_unique<ModDependenciesResolver>(desiredModList, *modsStorage);
+	ModDependenciesResolver newResolver(desiredModList, *modsStorage);
+	updatePreset(newResolver);
 }
 
 ModManager::~ModManager() = default;
@@ -572,10 +573,24 @@ void ModManager::updatePreset(const ModDependenciesResolver & testResolver)
 	}
 
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
+
+	// Try to enable all existing compatibility patches. Ignore on failure
+	for (const auto & rootMod : modsPreset->getActiveRootMods())
+	{
+		for (const auto & modSetting : modsPreset->getModSettings(rootMod))
+		{
+			if (modSetting.second)
+				continue;
+
+			TModID fullModID = rootMod + '.' + modSetting.first;
+			const auto & modDescription = modsStorage->getMod(fullModID);
+
+			if (modDescription.isCompatibility())
+				desiredModList.push_back(fullModID);
+		}
+	}
+
 	depedencyResolver = std::make_unique<ModDependenciesResolver>(desiredModList, *modsStorage);
-
-	// TODO: check activation status of submods of new mods
-
 	modsPreset->saveConfigurationState();
 }
 
