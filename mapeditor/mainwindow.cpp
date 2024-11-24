@@ -269,6 +269,8 @@ MainWindow::MainWindow(QWidget* parent) :
 	scenePreview = new QGraphicsScene(this);
 	ui->objectPreview->setScene(scenePreview);
 
+	connect(ui->actionOpenRecentMore, &QAction::triggered, this, &MainWindow::on_actionOpenRecent_triggered);
+
 	//loading objects
 	loadObjectsTree();
 	
@@ -522,11 +524,6 @@ void MainWindow::on_menuOpenRecent_aboutToShow()
 	if(recentFiles.size() > 0) {
 		ui->menuOpenRecent->insertSeparator(ui->actionOpenRecentMore);
 	}
-}
-
-void MainWindow::on_actionOpenRecentMore_triggered()
-{
-	on_actionOpenRecent_triggered();
 }
 
 void MainWindow::saveMap()

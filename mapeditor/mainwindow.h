@@ -64,8 +64,6 @@ private slots:
 
 	void on_menuOpenRecent_aboutToShow();
 
-	void on_actionOpenRecentMore_triggered();
-
 	void on_actionSave_as_triggered();
 
 	void on_actionNew_triggered();
