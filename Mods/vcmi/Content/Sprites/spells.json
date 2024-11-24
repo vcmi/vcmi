@@ -1,0 +1,7 @@
+{
+	"images" :
+	[
+		{ "frame" : 3, "defFile" : "spells.def", "defFrame" : 5},
+		{ "frame" : 5, "defFile" : "spells.def", "defFrame" : 3}
+	]
+}

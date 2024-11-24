@@ -142,7 +142,13 @@ void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & c
 
 		JsonNode toAdd = node;
 		JsonUtils::inherit(toAdd, base);
-		toAdd["file"].String() = basepath + node["file"].String();
+
+		if (toAdd.Struct().count("file"))
+			toAdd["file"].String() = basepath + node["file"].String();
+
+		if (toAdd.Struct().count("defFile"))
+			toAdd["defFile"].String() = basepath + node["defFile"].String();
+
 		source[group][frame] = ImageLocator(toAdd);
 	}
 }
