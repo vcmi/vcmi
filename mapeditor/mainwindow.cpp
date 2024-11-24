@@ -460,6 +460,13 @@ void MainWindow::on_actionOpenRecent_triggered()
 			setWindowTitle(tr("Recently Opened Files"));
 			setMinimumWidth(600);
 
+			auto onSelect = [this](QListWidgetItem *item) {
+				selectedFilePath = item->text();
+				accept();
+			};
+
+			connect(&listWidget, &QListWidget::itemActivated, this, onSelect);
+
 			for (const QString &file : recentFiles) {
 				QListWidgetItem *item = new QListWidgetItem(file);
 				listWidget.addItem(item);
@@ -475,25 +482,23 @@ void MainWindow::on_actionOpenRecent_triggered()
 			layout.addWidget(&listWidget);
 		}
 
+		QString getSelectedFilePath() const {
+			return listWidget.currentItem()->text();
+		}
+
 	private:
 
 		QVBoxLayout layout;
 		QListWidget listWidget;
+		QString selectedFilePath;
 	};
 
 	RecentFileDialog d(recentFiles, this);
-
-	auto onSelect = [this, &d](QListWidgetItem *item) {
+	if(d.exec() == QDialog::Accepted) {
 		if(getAnswerAboutUnsavedChanges()) {
-			QString filePath = item->text();
-			openMap(filePath);
+			openMap(d.getSelectedFilePath());
 		}
-		d.close();
-	};
-
-	connect(&d.listWidget, &QListWidget::itemActivated, this, onSelect);
-
-	d.exec();
+	}
 }
 
 void MainWindow::on_menuOpenRecent_aboutToShow()
