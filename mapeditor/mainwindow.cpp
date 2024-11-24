@@ -479,7 +479,7 @@ void MainWindow::on_actionOpenRecent_triggered()
 		QListWidget listWidget;
 	};
 
-	RecentFileDialog d(this, recentFiles);
+	RecentFileDialog d(recentFiles, this);
 
 	auto onSelect = [this, &d](QListWidgetItem *item) {
 		if(getAnswerAboutUnsavedChanges()) {
