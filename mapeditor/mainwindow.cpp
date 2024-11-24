@@ -450,10 +450,10 @@ void MainWindow::on_actionOpenRecent_triggered()
 	QSettings s(Ui::teamName, Ui::appName);
 	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
 
-	struct RecentFileDialog : public QDialog {
-		
-		RecentFileDialog(QStringList recentFiles, QWidget * parent = nullptr) : QDialog(parent), layout(this)
-		{
+	class RecentFileDialog : public QDialog {
+	
+	public:
+		RecentFileDialog(QWidget *parent, const QStringList& recentFiles) : QDialog(parent), layout(this) {
 
 			setWindowTitle(tr("Recently Opened Files"));
 			setMinimumWidth(600);
@@ -472,6 +472,8 @@ void MainWindow::on_actionOpenRecent_triggered()
 			layout.setSizeConstraint(QLayout::SetMaximumSize);
 			layout.addWidget(&listWidget);
 		}
+
+	private:
 
 		QVBoxLayout layout;
 		QListWidget listWidget;
