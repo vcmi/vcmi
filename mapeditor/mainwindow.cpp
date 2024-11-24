@@ -462,7 +462,6 @@ void MainWindow::on_actionOpenRecent_triggered()
 			setMinimumWidth(600);
 
 			auto onSelect = [this](QListWidgetItem *item) {
-				selectedFilePath = item->text();
 				accept();
 			};
 
@@ -491,7 +490,6 @@ void MainWindow::on_actionOpenRecent_triggered()
 
 		QVBoxLayout * layout;
 		QListWidget * listWidget;
-		QString selectedFilePath;
 	};
 
 	RecentFileDialog d(recentFiles, this);
