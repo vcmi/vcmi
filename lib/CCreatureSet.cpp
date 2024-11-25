@@ -733,7 +733,7 @@ int CStackInstance::getExpRank() const
 
 int CStackInstance::getLevel() const
 {
-	return std::max(1, static_cast<int>(getType()->getLevel()));
+	return std::max(1, getType()->getLevel());
 }
 
 void CStackInstance::giveStackExp(TExpType exp)

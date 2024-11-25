@@ -260,7 +260,8 @@ class StackQueue : public CIntObject
 		std::shared_ptr<CPicture> background;
 		std::shared_ptr<CAnimImage> icon;
 		std::shared_ptr<CLabel> amount;
-		std::shared_ptr<CAnimImage> stateIcon;
+		std::shared_ptr<CPicture> waitIcon;
+		std::shared_ptr<CPicture> defendIcon;
 		std::shared_ptr<CLabel> round;
 		std::shared_ptr<TransparentFilledRectangle> roundRect;
 

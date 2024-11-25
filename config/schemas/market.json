@@ -1,0 +1,50 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI map object format",
+	"description" : "Description of map object class",
+	"required" : [ "modes" ],
+
+	"additionalProperties" : false,
+
+	"properties" : {
+		"description" : {
+			"description" : "Message that will be shown on right-clicking this object",
+			"type" : "string"
+		},
+		
+		"speech" : {
+			"description" : "Message that will be shown to player on visiting this object",
+			"type" : "string"
+		},
+
+		"modes" : {
+			"type" : "array",
+			"items" : {
+				"enum" : [ "resource-resource", "resource-player", "creature-resource", "resource-artifact", "artifact-resource", "artifact-experience", "creature-experience", "creature-undead", "resource-skill" ],
+				"type" : "string"
+			}
+		},
+		"efficiency" : {
+			"type" : "number",
+			"minimum" : 1,
+			"maximum" : 9
+		},
+		"offer" : {
+			"type" : "array"
+		},
+
+		// Properties that might appear since this node is shared with object config
+		"compatibilityIdentifiers" : { },
+		"blockedVisitable" : { },
+		"removable" : { },
+		"aiValue" : { },
+		"index" : { },
+		"base" : { },
+		"name" : { },
+		"rmg" : { },
+		"templates" : { },
+		"battleground" : { },
+		"sounds" : { }
+	}
+}

@@ -57,7 +57,7 @@ std::string CGMarket::getPopupText(const CGHeroInstance * hero) const
 
 int CGMarket::getMarketEfficiency() const
 {
-	return marketEfficiency;
+	return getMarketHandler()->getMarketEfficiency();
 }
 
 int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
@@ -123,6 +123,11 @@ std::vector<TradeItemBuy> CGUniversity::availableItemsIds(EMarketMode mode) cons
 		default:
 			return std::vector<TradeItemBuy>();
 	}
+}
+
+std::string CGUniversity::getSpeechTranslated() const
+{
+	return getMarketHandler()->getSpeechTranslated();
 }
 
 void CGUniversity::onHeroVisit(const CGHeroInstance * h) const

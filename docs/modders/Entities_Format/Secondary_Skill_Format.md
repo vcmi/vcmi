@@ -4,6 +4,15 @@
 
 ```jsonc
 {
+	// Skill be only be available on maps with water
+	"onlyOnWaterMap" : false,
+	// Skill is not available on maps at random
+	"special" : true
+}
+```
+
+```jsonc
+{
 	"skillName":
 	{
 		//Mandatory, localizable skill name

@@ -138,7 +138,7 @@
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="51"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="69"/>
         <source>Other</source>
-        <translation>Övrigt</translation>
+        <translation>Annan</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="52"/>
@@ -442,17 +442,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="648"/>
         <source>Gog files</source>
-        <translation type="unfinished"></translation>
+        <translation>GOG-filer</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="650"/>
         <source>All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Alla filer (*.*)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="652"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj filer (konfigurationsfiler, moddar, kartor, kampanjer och GOG-filer) som ska installeras...</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="677"/>
@@ -499,7 +499,7 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="852"/>
         <source>Installing chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Installera Chronicles</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="925"/>
@@ -704,7 +704,7 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="75"/>
         <source>Mods Validation</source>
-        <translation type="unfinished"></translation>
+        <translation>Validering av moddar</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="88"/>
@@ -729,12 +729,12 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
         <source>Full</source>
-        <translation type="unfinished"></translation>
+        <translation>Hela</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="788"/>
         <source>Use scalable fonts</source>
-        <translation type="unfinished"></translation>
+        <translation>Använd skalbara teckensnitt</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="859"/>
@@ -744,27 +744,27 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1079"/>
         <source>Cursor Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Skalning av markör</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1108"/>
         <source>Scalable</source>
-        <translation type="unfinished"></translation>
+        <translation>Skalbar</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1144"/>
         <source>Miscellaneous</source>
-        <translation type="unfinished"></translation>
+        <translation>Övrigt</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
         <source>Font Scaling (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Skalning av teckensnitt (experimentell)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1367"/>
         <source>Original</source>
-        <translation type="unfinished"></translation>
+        <translation>Original</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1406"/>
@@ -774,7 +774,7 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1439"/>
         <source>Basic</source>
-        <translation type="unfinished"></translation>
+        <translation>Grundläggande</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
@@ -1059,35 +1059,35 @@ Exklusivt helskärmsläge - spelet kommer att täcka hela skärmen och använda 
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
         <source>File cannot opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen kan inte öppnas</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Ogiltig fil vald</translation>
+        <translation>Ogiltig fil vald</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <source>You have to select an gog installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Du måste välja en GOG-installationsfil!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>You have to select an chronicle installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Du måste välja en Chronicles-installationsfil!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="87"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">Extraktionsfel!</translation>
+        <translation>Extraheringsfel!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="156"/>
         <source>Heroes Chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes Chronicles</translation>
     </message>
 </context>
 <context>
@@ -1420,18 +1420,18 @@ Vänligen välj en mapp som innehåller data från Heroes III: Complete Edition 
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished">Strömningsfel vid extrahering av filer!
+        <translation>Strömningsfel vid extrahering av filer!
 Orsak till fel: </translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation type="unfinished">Inno Setup-installationsprogrammet stöds inte!</translation>
+        <translation>Inno Setup-installationsprogrammet stöds inte!</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="58"/>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI kompilerades utan stöd för innoextract, vilket behövs för att extrahera exe-filer!</translation>
     </message>
 </context>
 <context>
