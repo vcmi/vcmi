@@ -55,7 +55,7 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 	return result;
 }
 
-std::optional<ResourcePath> RenderHandler::getPathForScaleFactor(ResourcePath path, std::string factor)
+std::optional<ResourcePath> RenderHandler::getPathForScaleFactor(const ResourcePath & path, const std::string & factor)
 {
 	if(path.getType() == EResType::IMAGE)
 	{
@@ -80,7 +80,7 @@ std::optional<ResourcePath> RenderHandler::getPathForScaleFactor(ResourcePath pa
 	return std::nullopt;
 }
 
-std::pair<ResourcePath, int> RenderHandler::getScalePath(ResourcePath p)
+std::pair<ResourcePath, int> RenderHandler::getScalePath(const ResourcePath & p)
 {
 	auto path = p;
 	int scaleFactor = 1;

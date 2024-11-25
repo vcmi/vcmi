@@ -917,7 +917,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		handleAttackBeforeCasting(battle, ranged, attacker, defender);
 
 	// If the attacker or defender is not alive before the attack action, the action should be skipped.
-	if((attacker && !attacker->alive()) || (defender && !defender->alive()))
+	if((!attacker->alive()) || (defender && !defender->alive()))
 		return;
 
 	FireShieldInfo fireShield;
