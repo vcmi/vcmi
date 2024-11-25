@@ -124,7 +124,17 @@ si8 CMapGenOptions::getMinPlayersCount(bool withTemplateLimit) const
 si8 CMapGenOptions::getMaxPlayersCount(bool withTemplateLimit) const
 {
 	// Max number of players possible with current settings
-	auto totalPlayers = PlayerColor::PLAYER_LIMIT_I;
+	auto totalPlayers = 0;
+	si8 humans = getHumanOrCpuPlayerCount();
+	si8 cpus = getCompOnlyPlayerCount();
+	if (humans == RANDOM_SIZE || cpus == RANDOM_SIZE)
+	{
+		totalPlayers = PlayerColor::PLAYER_LIMIT_I;
+	}
+	else
+	{
+		totalPlayers = humans + cpus;
+	}
 
 	if (withTemplateLimit && mapTemplate)
 	{
