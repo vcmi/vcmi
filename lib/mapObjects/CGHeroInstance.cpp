@@ -661,8 +661,10 @@ void CGHeroInstance::pickRandomObject(vstd::RNG & rand)
 
 	if (ID == Obj::RANDOM_HERO)
 	{
+		auto selectedHero = cb->gameState()->pickNextHeroType(getOwner());
+
 		ID = Obj::HERO;
-		subID = cb->gameState()->pickNextHeroType(getOwner());
+		subID = selectedHero;
 		randomizeArmy(getHeroClass()->faction);
 	}
 
