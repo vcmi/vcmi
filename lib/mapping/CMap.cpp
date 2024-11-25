@@ -104,24 +104,8 @@ void CMapEvent::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("nextOccurrence", nextOccurrence);
 	resources.serializeJson(handler, "resources");
 
-	JsonNode deletedObjectsJson;
-
-	for (const auto & entry : deletedObjectsCoordinates)
-	{
-		JsonNode values;
-		JsonNode valueX;
-		JsonNode valueY;
-		JsonNode valueZ;
-		valueX.Float() = static_cast<int>(entry.x);
-		valueY.Float() = static_cast<int>(entry.y);
-		valueZ.Float() = static_cast<int>(entry.z);
-		values.Vector().push_back(valueX);
-		values.Vector().push_back(valueY);
-		values.Vector().push_back(valueZ);
-		deletedObjectsJson.Vector().push_back(values);
-	}
-
-	handler.serializeRaw("deletedObjectsCoordinates", deletedObjectsJson, std::nullopt);
+	auto deletedObjects = handler.enterArray("deletedObjectsInstances");
+	deletedObjects.serializeArray(deletedObjectsInstances);
 }
 
 void CCastleEvent::serializeJson(JsonSerializeFormat & handler)

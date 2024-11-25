@@ -55,23 +55,23 @@ TResources resourcesFromVariant(const QVariant & v)
 	return TResources(vJson);
 }
 
-QVariant toVariant(std::vector<int3> positions)
+QVariant toVariant(std::vector<ObjectInstanceID> objects)
 {
 	QVariantList result;
-	for(int3 position : positions)
+	for(auto obj : objects)
 	{
-		result.push_back(QVariant::fromValue<int3>(position));
+		result.push_back(QVariant::fromValue(obj.num));
 	}
 	return result;
 }
 
-std::vector<int3> deletedObjectsPositionsFromVariant(const QVariant & v)
+std::vector<ObjectInstanceID> deletedObjectsIdsFromVariant(const QVariant & v)
 {
-	std::vector<int3> result;
-	for (auto positionAsVariant : v.toList())
+	std::vector<ObjectInstanceID> result;
+	for(auto idAsVariant : v.toList())
 	{
-		int3 position = positionAsVariant.value<int3>();
-		result.push_back(position);
+		auto id = idAsVariant.value<int>();
+		result.push_back(ObjectInstanceID(id));
 	}
 
 	return result;
@@ -88,7 +88,7 @@ QVariant toVariant(const CMapEvent & event)
 	result["firstOccurrence"] = QVariant::fromValue(event.firstOccurrence);
 	result["nextOccurrence"] = QVariant::fromValue(event.nextOccurrence);
 	result["resources"] = toVariant(event.resources);
-	result["deletedObjectsPositions"] = toVariant(event.deletedObjectsCoordinates);
+	result["deletedObjectsInstances"] = toVariant(event.deletedObjectsInstances);
 	return QVariant(result);
 }
 
@@ -104,7 +104,7 @@ CMapEvent eventFromVariant(CMapHeader & mapHeader, const QVariant & variant)
 	result.firstOccurrence = v.value("firstOccurrence").toInt();
 	result.nextOccurrence = v.value("nextOccurrence").toInt();
 	result.resources = resourcesFromVariant(v.value("resources"));
-	result.deletedObjectsCoordinates = deletedObjectsPositionsFromVariant(v.value("deletedObjectsPositions"));
+	result.deletedObjectsInstances = deletedObjectsIdsFromVariant(v.value("deletedObjectsInstances"));
 	return result;
 }
 
@@ -161,6 +161,6 @@ void EventSettings::on_timedEventRemove_clicked()
 
 void EventSettings::on_eventsList_itemActivated(QListWidgetItem *item)
 {
-	new TimedEvent(item, parentWidget());
+	new TimedEvent(*controller, item, parentWidget());
 }
 

@@ -16,5 +16,6 @@ enum MapEditorRoles
 	TownEventRole = Qt::UserRole + 1,
 	PlayerIDRole,
 	BuildingIDRole,
-	SpellIDRole
+	SpellIDRole,
+	ObjectInstanceIDRole
 };

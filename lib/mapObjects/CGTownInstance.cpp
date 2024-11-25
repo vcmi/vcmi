@@ -376,7 +376,7 @@ void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 
 std::string CGTownInstance::getObjectName() const
 {
-	return getNameTranslated() + ", " + town->faction->getNameTranslated();
+	return getNameTranslated() + ", " + (ID == Obj::RANDOM_TOWN ? "Random town" : getFaction().toEntity(VLC)->getNameTranslated());
 }
 
 bool CGTownInstance::townEnvisagesBuilding(BuildingSubID::EBuildingSubID subId) const
