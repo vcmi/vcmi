@@ -304,14 +304,6 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 
 			armyToGetOrBuy.upgradeValue -= path.heroArmy->getArmyStrength();
 
-			armyToGetOrBuy.addArmyToBuy(
-				ai->armyManager->toSlotInfo(
-					ai->armyManager->getArmyAvailableToBuy(
-						path.heroArmy,
-						upgrader,
-						ai->getFreeResources(),
-						path.turn())));
-
 			upgrade.upgradeValue += armyToGetOrBuy.upgradeValue;
 			upgrade.upgradeCost += armyToGetOrBuy.upgradeCost;
 			vstd::concatenate(upgrade.resultingArmy, armyToGetOrBuy.resultingArmy);
@@ -323,8 +315,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 			{
 				for(auto hero : cb->getAvailableHeroes(upgrader))
 				{
-					auto scoutReinforcement =  ai->armyManager->howManyReinforcementsCanBuy(hero, upgrader)
-						+ ai->armyManager->howManyReinforcementsCanGet(hero, upgrader);
+					auto scoutReinforcement = ai->armyManager->howManyReinforcementsCanGet(hero, upgrader);
 
 					if(scoutReinforcement >= armyToGetOrBuy.upgradeValue
 						&& ai->getFreeGold() >20000
