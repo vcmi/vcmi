@@ -10,8 +10,8 @@
 #include "StdInc.h"
 #include "ModVerificationInfo.h"
 
-#include "CModInfo.h"
 #include "CModHandler.h"
+#include "ModDescription.h"
 #include "ModIncompatibility.h"
 
 #include "../json/JsonNode.h"
@@ -68,7 +68,7 @@ ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const 
 		if(modList.count(m))
 			continue;
 
-		if(VLC->modh->getModInfo(m).checkModGameplayAffecting())
+		if(VLC->modh->getModInfo(m).affectsGameplay())
 			result[m] = ModVerificationStatus::EXCESSIVE;
 	}
 
@@ -88,8 +88,8 @@ ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const 
 			continue;
 		}
 
-		auto & localModInfo = VLC->modh->getModInfo(remoteModId).getVerificationInfo();
-		modAffectsGameplay |= VLC->modh->getModInfo(remoteModId).checkModGameplayAffecting();
+		const auto & localVersion = VLC->modh->getModInfo(remoteModId).getVersion();
+		modAffectsGameplay |= VLC->modh->getModInfo(remoteModId).affectsGameplay();
 
 		// skip it. Such mods should only be present in old saves or if mod changed and no longer affects gameplay
 		if (!modAffectsGameplay)
@@ -101,7 +101,7 @@ ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const 
 			continue;
 		}
 
-		if(remoteModInfo.version != localModInfo.version)
+		if(remoteModInfo.version != localVersion)
 		{
 			result[remoteModId] = ModVerificationStatus::VERSION_MISMATCH;
 			continue;

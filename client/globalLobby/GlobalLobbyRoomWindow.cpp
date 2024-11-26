@@ -27,7 +27,7 @@
 #include "../widgets/ObjectLists.h"
 
 #include "../../lib/modding/CModHandler.h"
-#include "../../lib/modding/CModInfo.h"
+#include "../../lib/modding/ModDescription.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/MetaString.h"
 
@@ -128,14 +128,14 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 		GlobalLobbyRoomModInfo modInfo;
 		modInfo.status = modEntry.second;
 		if (modEntry.second == ModVerificationStatus::EXCESSIVE)
-			modInfo.version = CGI->modh->getModInfo(modEntry.first).getVerificationInfo().version.toString();
+			modInfo.version = CGI->modh->getModInfo(modEntry.first).getVersion().toString();
 		else
 			modInfo.version = roomDescription.modList.at(modEntry.first).version.toString();
 
 		if (modEntry.second == ModVerificationStatus::NOT_INSTALLED)
 			modInfo.modName = roomDescription.modList.at(modEntry.first).name;
 		else
-			modInfo.modName = CGI->modh->getModInfo(modEntry.first).getVerificationInfo().name;
+			modInfo.modName = CGI->modh->getModInfo(modEntry.first).getName();
 
 		modVerificationList.push_back(modInfo);
 	}

@@ -20,10 +20,10 @@ class JsonNode;
 namespace JsonUtils
 {
 VCMIQT_LINKAGE QVariant toVariant(const JsonNode & node);
-VCMIQT_LINKAGE QVariant JsonFromFile(QString filename);
+VCMIQT_LINKAGE JsonNode jsonFromFile(QString filename);
 
 VCMIQT_LINKAGE JsonNode toJson(QVariant object);
-VCMIQT_LINKAGE void JsonToFile(QString filename, QVariant object);
+VCMIQT_LINKAGE void jsonToFile(QString filename, const JsonNode & object);
 }
 
 VCMI_LIB_NAMESPACE_END

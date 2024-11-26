@@ -11,9 +11,9 @@
 #include "modsettings.h"
 #include "ui_modsettings.h"
 #include "../mapcontroller.h"
+#include "../../lib/modding/ModDescription.h"
 #include "../../lib/modding/CModHandler.h"
 #include "../../lib/mapping/CMapService.h"
-#include "../../lib/modding/CModInfo.h"
 
 void traverseNode(QTreeWidgetItem * item, std::function<void(QTreeWidgetItem*)> action)
 {
@@ -45,12 +45,12 @@ void ModSettings::initialize(MapController & c)
 	QSet<QString> modsToProcess;
 	ui->treeMods->blockSignals(true);
 
-	auto createModTreeWidgetItem = [&](QTreeWidgetItem * parent, const CModInfo & modInfo)
+	auto createModTreeWidgetItem = [&](QTreeWidgetItem * parent, const ModDescription & modInfo)
 	{
-		auto item = new QTreeWidgetItem(parent, {QString::fromStdString(modInfo.getVerificationInfo().name), QString::fromStdString(modInfo.getVerificationInfo().version.toString())});
-		item->setData(0, Qt::UserRole, QVariant(QString::fromStdString(modInfo.identifier)));
+		auto item = new QTreeWidgetItem(parent, {QString::fromStdString(modInfo.getName()), QString::fromStdString(modInfo.getVersion().toString())});
+		item->setData(0, Qt::UserRole, QVariant(QString::fromStdString(modInfo.getID())));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-		item->setCheckState(0, controller->map()->mods.count(modInfo.identifier) ? Qt::Checked : Qt::Unchecked);
+		item->setCheckState(0, controller->map()->mods.count(modInfo.getID()) ? Qt::Checked : Qt::Unchecked);
 		//set parent check
 		if(parent && item->checkState(0) == Qt::Checked)
 			parent->setCheckState(0, Qt::Checked);

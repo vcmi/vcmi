@@ -41,7 +41,6 @@
 #include "gameState/QuestInfo.h"
 #include "mapping/CMap.h"
 #include "modding/CModHandler.h"
-#include "modding/CModInfo.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/CModVersion.h"
 #include "modding/ActiveModsInSaveList.h"

@@ -362,17 +362,6 @@ void CMainMenu::update()
 		menu->switchToTab(menu->getActiveTab());
 	}
 
-	static bool warnedAboutModDependencies = false;
-
-	if (!warnedAboutModDependencies)
-	{
-		warnedAboutModDependencies = true;
-		auto errorMessages = CGI->modh->getModLoadErrors();
-
-		if (!errorMessages.empty())
-			CInfoWindow::showInfoDialog(errorMessages, std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
-	}
-
 	// Handles mouse and key input
 	GH.handleEvents();
 	GH.windows().simpleRedraw();
