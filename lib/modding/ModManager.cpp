@@ -287,7 +287,7 @@ void ModsPresetState::eraseModSetting(const TModID & modName, const TModID & set
 {
 	const std::string & currentPresetName = modConfig["activePreset"].String();
 	JsonNode & currentPreset = modConfig["presets"][currentPresetName];
-	currentPreset["settings"][modName].Struct().erase(modName);
+	currentPreset["settings"][modName].Struct().erase(settingName);
 }
 
 std::vector<TModID> ModsPresetState::getActiveMods() const
