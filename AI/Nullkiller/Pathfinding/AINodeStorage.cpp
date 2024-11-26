@@ -719,6 +719,7 @@ void HeroChainCalculationTask::calculateHeroChain(
 		if(node->action == EPathNodeAction::BATTLE
 			|| node->action == EPathNodeAction::TELEPORT_BATTLE
 			|| node->action == EPathNodeAction::TELEPORT_NORMAL
+			|| node->action == EPathNodeAction::DISEMBARK
 			|| node->action == EPathNodeAction::TELEPORT_BLOCKING_VISIT)
 		{
 			continue;
@@ -961,7 +962,7 @@ void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 		// do not allow our own heroes in garrison to act on map
 		if(hero.first->getOwner() == ai->playerID
 			&& hero.first->inTownGarrison
-			&& (ai->isHeroLocked(hero.first) || ai->heroManager->heroCapReached()))
+			&& (ai->isHeroLocked(hero.first) || ai->heroManager->heroCapReached(false)))
 		{
 			continue;
 		}
@@ -1196,6 +1197,11 @@ void AINodeStorage::calculateTownPortal(
 					continue;
 			}
 
+			if (targetTown->visitingHero
+				&& (targetTown->visitingHero.get()->getFactionID() != actor->hero->getFactionID()
+					|| targetTown->getUpperArmy()->stacksCount()))
+				continue;
+
 			auto nodeOptional = townPortalFinder.createTownPortalNode(targetTown);
 
 			if(nodeOptional)
@@ -1418,6 +1424,10 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 		path.heroArmy = node.actor->creatureSet;
 		path.armyLoss = node.armyLoss;
 		path.targetObjectDanger = ai->dangerEvaluator->evaluateDanger(pos, path.targetHero, !node.actor->allowBattle);
+		for (auto pathNode : path.nodes)
+		{
+			path.targetObjectDanger = std::max(ai->dangerEvaluator->evaluateDanger(pathNode.coord, path.targetHero, !node.actor->allowBattle), path.targetObjectDanger);
+		}
 
 		if(path.targetObjectDanger > 0)
 		{
@@ -1564,7 +1574,7 @@ uint8_t AIPath::turn() const
 
 uint64_t AIPath::getHeroStrength() const
 {
-	return targetHero->getFightingStrength() * getHeroArmyStrengthWithCommander(targetHero, heroArmy);
+	return targetHero->getHeroStrength() * getHeroArmyStrengthWithCommander(targetHero, heroArmy);
 }
 
 uint64_t AIPath::getTotalDanger() const
