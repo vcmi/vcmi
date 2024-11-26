@@ -28,6 +28,8 @@ namespace NKAI
 		scoutHeroTurnDistanceLimit(5),
 		maxGoldPressure(0.3f), 
 		maxpass(10),
+		pathfinderBucketsCount(1),
+		pathfinderBucketSize(32),
 		allowObjectGraph(true),
 		useTroopsFromGarrisons(false),
 		openMap(true),
@@ -35,49 +37,16 @@ namespace NKAI
 	{
 		JsonNode node = JsonUtils::assembleFromFiles("config/ai/nkai/nkai-settings");
 
-		if(node.Struct()["maxRoamingHeroes"].isNumber())
-		{
-			maxRoamingHeroes = node.Struct()["maxRoamingHeroes"].Integer();
-		}
-
-		if(node.Struct()["mainHeroTurnDistanceLimit"].isNumber())
-		{
-			mainHeroTurnDistanceLimit = node.Struct()["mainHeroTurnDistanceLimit"].Integer();
-		}
-
-		if(node.Struct()["scoutHeroTurnDistanceLimit"].isNumber())
-		{
-			scoutHeroTurnDistanceLimit = node.Struct()["scoutHeroTurnDistanceLimit"].Integer();
-		}
-
-		if(node.Struct()["maxpass"].isNumber())
-		{
-			maxpass = node.Struct()["maxpass"].Integer();
-		}
-
-		if(node.Struct()["maxGoldPressure"].isNumber())
-		{
-			maxGoldPressure = node.Struct()["maxGoldPressure"].Float();
-		}
-
-		if(!node.Struct()["allowObjectGraph"].isNull())
-		{
-			allowObjectGraph = node.Struct()["allowObjectGraph"].Bool();
-		}
-
-		if(!node.Struct()["openMap"].isNull())
-		{
-			openMap = node.Struct()["openMap"].Bool();
-		}
-
-		if (!node.Struct()["useFuzzy"].isNull())
-		{
-			useFuzzy = node.Struct()["useFuzzy"].Bool();
-		}
-
-		if(!node.Struct()["useTroopsFromGarrisons"].isNull())
-		{
-			useTroopsFromGarrisons = node.Struct()["useTroopsFromGarrisons"].Bool();
-		}
+		maxRoamingHeroes = node["maxRoamingHeroes"].Integer();
+		mainHeroTurnDistanceLimit = node["mainHeroTurnDistanceLimit"].Integer();
+		scoutHeroTurnDistanceLimit = node["scoutHeroTurnDistanceLimit"].Integer();
+		maxpass = node["maxpass"].Integer();
+		pathfinderBucketsCount = node["pathfinderBucketsCount"].Integer();
+		pathfinderBucketSize = node["pathfinderBucketSize"].Integer();
+		maxGoldPressure = node["maxGoldPressure"].Float();
+		allowObjectGraph = node["allowObjectGraph"].Bool();
+		openMap = node["openMap"].Bool();
+		useFuzzy = node["useFuzzy"].Bool();
+		useTroopsFromGarrisons = node["useTroopsFromGarrisons"].Bool();
 	}
 }
