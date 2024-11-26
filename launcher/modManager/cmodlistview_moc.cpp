@@ -590,7 +590,7 @@ QStringList CModListView::getModsToInstall(QString mod)
 			}
 		}
 	}
-	assert(result.removeDuplicates() == 0);
+	result.removeDuplicates();
 	return result;
 }
 

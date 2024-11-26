@@ -262,6 +262,20 @@ void ModsPresetState::setSettingActive(const TModID & modName, const TModID & se
 	currentPreset["settings"][modName][settingName].Bool() = isActive;
 }
 
+void ModsPresetState::removeOldMods(const TModList & modsToKeep)
+{
+	const std::string & currentPresetName = modConfig["activePreset"].String();
+	JsonNode & currentPreset = modConfig["presets"][currentPresetName];
+
+	vstd::erase_if(currentPreset["mods"].Vector(), [&](const JsonNode & entry){
+		return !vstd::contains(modsToKeep, entry.String());
+	});
+
+	vstd::erase_if(currentPreset["settings"].Struct(), [&](const auto & entry){
+		return !vstd::contains(modsToKeep, entry.first);
+	});
+}
+
 void ModsPresetState::eraseRootMod(const TModID & modName)
 {
 	const std::string & currentPresetName = modConfig["activePreset"].String();
@@ -438,14 +452,10 @@ void ModManager::eraseMissingModsFromPreset()
 	const TModList & installedMods = modsState->getInstalledMods();
 	const TModList & rootMods = modsPreset->getActiveRootMods();
 
+	modsPreset->removeOldMods(installedMods);
+
 	for(const auto & rootMod : rootMods)
 	{
-		if(!vstd::contains(installedMods, rootMod))
-		{
-			modsPreset->eraseRootMod(rootMod);
-			continue;
-		}
-
 		const auto & modSettings = modsPreset->getModSettings(rootMod);
 
 		for(const auto & modSetting : modSettings)
@@ -530,6 +540,23 @@ void ModManager::tryEnableMods(const TModList & modList)
 	ModDependenciesResolver testResolver(requiredActiveMods, *modsStorage);
 
 	testResolver.tryAddMods(additionalActiveMods, *modsStorage);
+
+	TModList additionalActiveSubmods;
+	for (const auto & modName : modList)
+	{
+		if (modName.find('.') != std::string::npos)
+			continue;
+
+		auto modSettings = modsPreset->getModSettings(modName);
+		for (const auto & entry : modSettings)
+		{
+			TModID fullModID = modName + '.' + entry.first;
+			if (entry.second && !vstd::contains(requiredActiveMods, fullModID))
+				additionalActiveSubmods.push_back(fullModID);
+		}
+	}
+
+	testResolver.tryAddMods(additionalActiveSubmods, *modsStorage);
 
 	for (const auto & modName : modList)
 		if (!vstd::contains(testResolver.getActiveMods(), modName))

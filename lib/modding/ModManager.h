@@ -54,6 +54,7 @@ public:
 
 	void addRootMod(const TModID & modName);
 	void eraseRootMod(const TModID & modName);
+	void removeOldMods(const TModList & modsToKeep);
 
 	void setSettingActive(const TModID & modName, const TModID & settingName, bool isActive);
 	void eraseModSetting(const TModID & modName, const TModID & settingName);
