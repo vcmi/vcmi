@@ -300,7 +300,7 @@ void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & con
 	std::shared_ptr<CConnection> c = findConnection(connection);
 
 	// player may have already disconnected via clientDisconnected call
-	if (c && gh && getState() == EServerState::GAMEPLAY)
+	if (c)
 	{
 		LobbyClientDisconnected lcd;
 		lcd.c = c;
