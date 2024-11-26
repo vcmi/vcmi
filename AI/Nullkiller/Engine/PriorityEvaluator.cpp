@@ -1052,6 +1052,8 @@ public:
 				evaluationContext.isEnemy = true;
 			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army);
 			evaluationContext.armyInvolvement += army->getArmyCost();
+			if(evaluationContext.danger > 0)
+				evaluationContext.skillReward += (float)evaluationContext.danger / (float)hero->getArmyStrength();
 		}
 
 		vstd::amax(evaluationContext.armyLossPersentage, (float)path.getTotalArmyLoss() / (float)army->getArmyStrength());
