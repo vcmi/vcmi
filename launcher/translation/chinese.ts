@@ -385,17 +385,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
-        <translation type="unfinished"></translation>
+        <translation>这个模组无法被启用，因为它被翻译成其他语言。</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
-        <translation type="unfinished"></translation>
+        <translation>这个模组无法被启用，因为下列依赖不满足</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
-        <translation type="unfinished"></translation>
+        <translation>这个模组无法被安装，因为下列依赖不满足</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
@@ -1553,84 +1553,84 @@ error reason: </source>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="126"/>
         <source>Can not install submod</source>
-        <translation type="unfinished">无法安装子模组</translation>
+        <translation>无法安装子模组</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="129"/>
         <source>Mod is already installed</source>
-        <translation type="unfinished">模组已安装</translation>
+        <translation>模组已安装</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="138"/>
         <source>Can not uninstall submod</source>
-        <translation type="unfinished">无法卸载子模组</translation>
+        <translation>无法卸载子模组</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="141"/>
         <source>Mod is not installed</source>
-        <translation type="unfinished">模组未安装</translation>
+        <translation>模组未安装</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="151"/>
         <source>Mod is already enabled</source>
-        <translation type="unfinished">模组已启用</translation>
+        <translation>模组已启用</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="154"/>
         <location filename="../modManager/modstatecontroller.cpp" line="180"/>
         <source>Mod must be installed first</source>
-        <translation type="unfinished">需要先安装模组</translation>
+        <translation>需要先安装模组</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="158"/>
         <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
-        <translation type="unfinished">模组不兼容，请更新VCMI并获取模组最新版本</translation>
+        <translation>模组不兼容，请更新VCMI并获取模组最新版本</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="161"/>
         <source>Can not enable translation mod for a different language!</source>
-        <translation type="unfinished"></translation>
+        <translation>无法启用不同语言的模组！</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="166"/>
         <source>Required mod %1 is missing</source>
-        <translation type="unfinished">需要的模组%1未找到</translation>
+        <translation>需要的模组%1未找到</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="177"/>
         <source>Mod is already disabled</source>
-        <translation type="unfinished">模组已禁用</translation>
+        <translation>模组已禁用</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="190"/>
         <source>Mod archive is missing</source>
-        <translation type="unfinished">模组归档文件未找到</translation>
+        <translation>模组归档文件未找到</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="193"/>
         <source>Mod with such name is already installed</source>
-        <translation type="unfinished">同名模组已安装</translation>
+        <translation>同名模组已安装</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="198"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation type="unfinished">模组归档文件无效或损坏</translation>
+        <translation>模组归档文件无效或损坏</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="224"/>
         <source>Failed to extract mod data</source>
-        <translation type="unfinished">提取模组数据失败</translation>
+        <translation>提取模组数据失败</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="250"/>
         <source>Data with this mod was not found</source>
-        <translation type="unfinished">此模组的数据未找到</translation>
+        <translation>此模组的数据未找到</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="254"/>
         <source>Mod is located in protected directory, please remove it manually:
 </source>
-        <translation type="unfinished">模组位于受保护的目录，请手动删除它:
+        <translation>模组位于受保护的目录，请手动删除它:
 </translation>
     </message>
 </context>
@@ -1639,106 +1639,106 @@ error reason: </source>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="36"/>
         <source>Translation</source>
-        <translation type="unfinished">本地化</translation>
+        <translation>本地化</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="37"/>
         <source>Town</source>
-        <translation type="unfinished">城镇</translation>
+        <translation>城镇</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="38"/>
         <source>Test</source>
-        <translation type="unfinished">测试</translation>
+        <translation>测试</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="39"/>
         <source>Templates</source>
-        <translation type="unfinished">地图模板</translation>
+        <translation>地图模板</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="40"/>
         <source>Spells</source>
-        <translation type="unfinished">法术</translation>
+        <translation>法术</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="41"/>
         <source>Music</source>
-        <translation type="unfinished">音乐</translation>
+        <translation>音乐</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="42"/>
         <source>Maps</source>
-        <translation type="unfinished">地图</translation>
+        <translation>地图</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="43"/>
         <source>Sounds</source>
-        <translation type="unfinished">音效</translation>
+        <translation>音效</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="44"/>
         <source>Skills</source>
-        <translation type="unfinished">技能</translation>
+        <translation>技能</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="45"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="63"/>
         <source>Other</source>
-        <translation type="unfinished">其他</translation>
+        <translation>其他</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="46"/>
         <source>Objects</source>
-        <translation type="unfinished">物件</translation>
+        <translation>物件</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="47"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="48"/>
         <source>Mechanics</source>
-        <translation type="unfinished">机制</translation>
+        <translation>机制</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="49"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="50"/>
         <source>Interface</source>
-        <translation type="unfinished">界面</translation>
+        <translation>界面</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="51"/>
         <source>Heroes</source>
-        <translation type="unfinished">英雄</translation>
+        <translation>英雄</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="52"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="53"/>
         <source>Graphical</source>
-        <translation type="unfinished">图像</translation>
+        <translation>图像</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Expansion</source>
-        <translation type="unfinished">扩展包</translation>
+        <translation>扩展包</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
         <source>Creatures</source>
-        <translation type="unfinished">生物</translation>
+        <translation>生物</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="56"/>
         <source>Compatibility</source>
-        <translation type="unfinished">兼容性</translation>
+        <translation>兼容性</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
         <source>Artifacts</source>
-        <translation type="unfinished">宝物</translation>
+        <translation>宝物</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="58"/>
         <source>AI</source>
-        <translation type="unfinished">AI</translation>
+        <translation>AI</translation>
     </message>
 </context>
 <context>
