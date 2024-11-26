@@ -255,6 +255,15 @@ if(ENABLE_GOLDMASTER)
 	add_definitions(-DENABLE_GOLDMASTER)
 endif()
 
+if(ENABLE_STRICT_COMPILATION)
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+		add_compile_options(/WX)
+	elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
+		add_compile_options(-Werror)
+		add_compile_options(-Wno-error=array-bounds)
+	endif()
+endif()
+
 if(APPLE_IOS)
 	set(CMAKE_MACOSX_RPATH 1)
 	set(CMAKE_OSX_DEPLOYMENT_TARGET 12.0)
@@ -324,10 +333,6 @@ if(MINGW OR MSVC)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267") # 4267: conversion from 'xxx' to 'yyy', possible loss of data
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4275") # 4275: non dll-interface class 'xxx' used as base for dll-interface class
 
-		if(ENABLE_STRICT_COMPILATION)
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX") # Treats all compiler warnings as errors
-		endif()
-
 		if(ENABLE_MULTI_PROCESS_BUILDS)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 		endif()
@@ -381,11 +386,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")            # large number of noise, low chance of any significant issues
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")       # low chance of any significant issues
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-varargs")            # emitted in fuzzylite headers, disabled
-
-	if(ENABLE_STRICT_COMPILATION)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=array-bounds") # false positives in boost::multiarray during release build, keep as warning-only
-	endif()
 
 	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT WIN32)
