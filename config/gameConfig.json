@@ -501,7 +501,7 @@
 				"queen" : { "wood" : 275 , "mercury" : 100, "ore" : 275, "sulfur" : 100, "crystal" : 100, "gems" : 100, "gold" : 175},
 				"king"  : { "wood" : 375 , "mercury" : 200, "ore" : 375, "sulfur" : 200, "crystal" : 200, "gems" : 200, "gold" : 350}
 			}
-		}
+		},
 
 		"spells":
 		{
