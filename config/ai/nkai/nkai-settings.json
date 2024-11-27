@@ -1,13 +1,71 @@
 {
-	"maxRoamingHeroes" : 8,
-	"maxpass" : 30,
-	"mainHeroTurnDistanceLimit" : 10,
-	"scoutHeroTurnDistanceLimit" : 5,
-	"maxGoldPressure" : 0.3,
-	"useTroopsFromGarrisons" : true,
-	"openMap": true,
-	"allowObjectGraph": false,
-	"pathfinderBucketsCount" : 1, // old value: 3,
-	"pathfinderBucketSize" : 32, // old value: 7,
-	"useFuzzy" : false
+	"pawn" : {
+		"maxRoamingHeroes" : 8,
+		"maxpass" : 30,
+		"mainHeroTurnDistanceLimit" : 10,
+		"scoutHeroTurnDistanceLimit" : 5,
+		"maxGoldPressure" : 0.3,
+		"useTroopsFromGarrisons" : true,
+		"openMap": false,
+		"allowObjectGraph": false,
+		"pathfinderBucketsCount" : 1, // old value: 3,
+		"pathfinderBucketSize" : 32, // old value: 7,
+		"useFuzzy" : false
+	},
+	
+	"knight" : {
+		"maxRoamingHeroes" : 8,
+		"maxpass" : 30,
+		"mainHeroTurnDistanceLimit" : 10,
+		"scoutHeroTurnDistanceLimit" : 5,
+		"maxGoldPressure" : 0.3,
+		"useTroopsFromGarrisons" : true,
+		"openMap": false,
+		"allowObjectGraph": false,
+		"pathfinderBucketsCount" : 1, // old value: 3,
+		"pathfinderBucketSize" : 32, // old value: 7,
+		"useFuzzy" : false
+	},
+	
+	"rook" : {
+		"maxRoamingHeroes" : 8,
+		"maxpass" : 30,
+		"mainHeroTurnDistanceLimit" : 10,
+		"scoutHeroTurnDistanceLimit" : 5,
+		"maxGoldPressure" : 0.3,
+		"useTroopsFromGarrisons" : true,
+		"openMap": false,
+		"allowObjectGraph": false,
+		"pathfinderBucketsCount" : 1, // old value: 3,
+		"pathfinderBucketSize" : 32, // old value: 7,
+		"useFuzzy" : false
+	},
+	
+	"queen" : {
+		"maxRoamingHeroes" : 8,
+		"maxpass" : 30,
+		"mainHeroTurnDistanceLimit" : 10,
+		"scoutHeroTurnDistanceLimit" : 5,
+		"maxGoldPressure" : 0.3,
+		"useTroopsFromGarrisons" : true,
+		"openMap": true,
+		"allowObjectGraph": false,
+		"pathfinderBucketsCount" : 1, // old value: 3,
+		"pathfinderBucketSize" : 32, // old value: 7,
+		"useFuzzy" : false
+	},
+	
+	"king" : {
+		"maxRoamingHeroes" : 8,
+		"maxpass" : 30,
+		"mainHeroTurnDistanceLimit" : 10,
+		"scoutHeroTurnDistanceLimit" : 5,
+		"maxGoldPressure" : 0.3,
+		"useTroopsFromGarrisons" : true,
+		"openMap": true,
+		"allowObjectGraph": false,
+		"pathfinderBucketsCount" : 1, // old value: 3,
+		"pathfinderBucketSize" : 32, // old value: 7,
+		"useFuzzy" : false
+	}
 }

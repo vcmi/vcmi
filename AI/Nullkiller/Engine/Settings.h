@@ -34,7 +34,7 @@ namespace NKAI
 		bool useFuzzy;
 
 	public:
-		Settings();
+		explicit Settings(int difficultyLevel);
 
 		int getMaxPass() const { return maxpass; }
 		float getMaxGoldPressure() const { return maxGoldPressure; }

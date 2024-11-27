@@ -11,6 +11,8 @@
 #include <limits>
 
 #include "Settings.h"
+
+#include "../../../lib/constants/StringConstants.h"
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
@@ -22,7 +24,7 @@
 
 namespace NKAI
 {
-	Settings::Settings()
+	Settings::Settings(int difficultyLevel)
 		: maxRoamingHeroes(8),
 		mainHeroTurnDistanceLimit(10),
 		scoutHeroTurnDistanceLimit(5),
@@ -35,7 +37,9 @@ namespace NKAI
 		openMap(true),
 		useFuzzy(false)
 	{
-		JsonNode node = JsonUtils::assembleFromFiles("config/ai/nkai/nkai-settings");
+		const std::string & difficultyName = GameConstants::DIFFICULTY_NAMES[difficultyLevel];
+		const JsonNode & rootNode = JsonUtils::assembleFromFiles("config/ai/nkai/nkai-settings");
+		const JsonNode & node = rootNode[difficultyName];
 
 		maxRoamingHeroes = node["maxRoamingHeroes"].Integer();
 		mainHeroTurnDistanceLimit = node["mainHeroTurnDistanceLimit"].Integer();
