@@ -99,6 +99,9 @@ SDLImageShared::SDLImageShared(const CDefFile * data, size_t frame, size_t group
 	SDLImageLoader loader(this);
 	data->loadFrame(frame, group, loader);
 
+	if(surf == nullptr)
+		return;
+
 	savePalette();
 }
 

@@ -11,6 +11,7 @@
 
 #include "../render/IImage.h"
 #include "../../lib/Point.h"
+#include <SDL_surface.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
@@ -24,7 +25,7 @@ struct SDL_Palette;
 /*
  * Wrapper around SDL_Surface
  */
-class SDLImageShared final : public ISharedImage, public std::enable_shared_from_this<SDLImageShared>, boost::noncopyable
+class SDLImageShared : public ISharedImage, public std::enable_shared_from_this<SDLImageShared>, boost::noncopyable
 {
 	//Surface without empty borders
 	SDL_Surface * surf;
@@ -64,6 +65,20 @@ public:
 	std::shared_ptr<const ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const override;
 
 	friend class SDLImageLoader;
+};
+
+class SDLEmptyImageShared : public SDLImageShared
+{
+public:
+	SDLEmptyImageShared() : SDLImageShared(createDefaultSurface().get()) {}
+
+private:
+	std::shared_ptr<SDL_Surface> createDefaultSurface()
+	{
+		auto surface = SDL_CreateRGBSurface(0, 32, 32, 32, 0, 0, 0, 0);
+		SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, 255, 0, 0));
+		return std::shared_ptr<SDL_Surface>(surface, SDL_FreeSurface);
+	}
 };
 
 class SDLImageBase : public IImage, boost::noncopyable

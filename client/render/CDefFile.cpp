@@ -38,7 +38,8 @@ enum class DefType : uint32_t
 
 CDefFile::CDefFile(const AnimationPath & Name):
 	data(nullptr),
-	palette(nullptr)
+	palette(nullptr),
+	fileName(Name.getName())
 {
 	data = CResourceHandler::get()->load(Name)->readAll().first;
 
@@ -83,13 +84,12 @@ CDefFile::CDefFile(const AnimationPath & Name):
 
 void CDefFile::loadFrame(size_t frame, size_t group, IImageLoader &loader) const
 {
-	std::map<size_t, std::vector <size_t> >::const_iterator it;
-	it = offset.find(group);
-	assert (it != offset.end());
+	assert(hasFrame(frame, group));		// hasFrame() should be called before calling loadFrame()
 
-	const ui8 * FDef = data.get()+it->second[frame];
+	const ui8 * FDef = data.get() + offset.at(group)[frame];
 
-	const SSpriteDef sd = * reinterpret_cast<const SSpriteDef *>(FDef);
+	const SSpriteDef sd = *reinterpret_cast<const SSpriteDef *>(FDef);
+
 	SSpriteDef sprite;
 
 	sprite.format = read_le_u32(&sd.format);
@@ -227,6 +227,23 @@ void CDefFile::loadFrame(size_t frame, size_t group, IImageLoader &loader) const
 	logGlobal->error("Error: unsupported format of def file: %d", sprite.format);
 		break;
 	}
+}
+
+bool CDefFile::hasFrame(size_t frame, size_t group) const
+{
+	std::map<size_t, std::vector <size_t> >::const_iterator it;
+	it = offset.find(group);
+	if(it == offset.end())
+	{
+		return false;
+	}
+
+	if(frame >= it->second.size())
+	{
+		return false;
+	}
+
+	return true;
 }
 
 CDefFile::~CDefFile() = default;

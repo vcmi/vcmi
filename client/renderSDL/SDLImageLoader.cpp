@@ -38,6 +38,7 @@ void SDLImageLoader::init(Point SpriteSize, Point Margins, Point FullSize, SDL_C
 	SDL_FreePalette(p);
 
 	SDL_LockSurface(image->surf);
+
 	lineStart = position = (ui8*)image->surf->pixels;
 }
 
@@ -67,8 +68,11 @@ inline void SDLImageLoader::endLine()
 
 SDLImageLoader::~SDLImageLoader()
 {
-	SDL_UnlockSurface(image->surf);
-	SDL_SetColorKey(image->surf, SDL_TRUE, 0);
-	//TODO: RLE if compressed and bpp>1
+	if(image->surf)
+	{
+		SDL_UnlockSurface(image->surf);
+		SDL_SetColorKey(image->surf, SDL_TRUE, 0);
+		//TODO: RLE if compressed and bpp>1
+	}
 }
 
