@@ -58,6 +58,7 @@ public:
 	ModVerificationInfo getVerificationInfo() const;
 
 	bool isCompatible() const;
+	bool isUpdateAvailable() const;
 
 	bool affectsGameplay() const;
 	bool isCompatibility() const;

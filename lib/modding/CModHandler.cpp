@@ -266,9 +266,9 @@ void CModHandler::load()
 		const auto & modInfo = getModInfo(modName);
 		bool isValid = content->preloadData(modInfo, isModValidationNeeded(modInfo));
 		if (isValid)
-			logGlobal->info("\t\tParsing mod: OK (%s)", modInfo.getName());
+			logGlobal->info("\t\tParsing mod: OK (%s)", modInfo.getID());
 		else
-			logGlobal->warn("\t\tParsing mod: Issues found! (%s)", modInfo.getName());
+			logGlobal->warn("\t\tParsing mod: Issues found! (%s)", modInfo.getID());
 
 		if (!isValid)
 			validationPassed.erase(modName);
@@ -280,9 +280,9 @@ void CModHandler::load()
 		const auto & modInfo = getModInfo(modName);
 		bool isValid = content->load(getModInfo(modName), isModValidationNeeded(getModInfo(modName)));
 		if (isValid)
-			logGlobal->info("\t\tLoading mod: OK (%s)", modInfo.getName());
+			logGlobal->info("\t\tLoading mod: OK (%s)", modInfo.getID());
 		else
-			logGlobal->warn("\t\tLoading mod: Issues found! (%s)", modInfo.getName());
+			logGlobal->warn("\t\tLoading mod: Issues found! (%s)", modInfo.getID());
 
 		if (!isValid)
 			validationPassed.erase(modName);
