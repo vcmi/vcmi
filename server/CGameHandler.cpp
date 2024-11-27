@@ -2419,7 +2419,6 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 	PlayerColor player = obj->tempOwner;
 	const PlayerState *p = getPlayerState(player);
 	int crQuantity = obj->stacks.at(pos)->count;
-	int newIDpos= vstd::find_pos(ui.getAvailableUpgrades(), upgID);//get position of new id in UpgradeInfo
 
 	//check if upgrade is possible
 	if (!ui.hasUpgrades() && complain("That upgrade is not possible!"))

@@ -1328,7 +1328,9 @@ void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) 
 
 	for(const auto & nid : stack.getCreature()->upgrades)
 	{
-		info.addUpgrade(nid, (nid, (nid.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost()) * costModifier / 100), costModifier >= 0);
+		info.addUpgrade(nid, 
+						(nid.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost() * costModifier / 100), 
+						costModifier >= 0);
 	}
 }
 
