@@ -754,6 +754,9 @@ void CGArtifact::pickRandomObject(vstd::RNG & rand)
 		case MapObjectID::RANDOM_RELIC_ART:
 			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_RELIC);
 			break;
+		// Silence -Wswitch
+		default:
+			break;
 	}
 
 	if (ID != MapObjectID::SPELL_SCROLL && ID != MapObjectID::ARTIFACT)
@@ -851,6 +854,9 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 				}
 			}
 			break;
+			// Silence -Wswitch
+			default:
+				break;
 			}
 		}
 		else
@@ -893,6 +899,9 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 				else
 					blockingDialogAnswered(h, true);
 			}
+			break;
+		// Silence -Wswitch
+		default:
 			break;
 		}
 	}

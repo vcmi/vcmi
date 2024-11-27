@@ -697,6 +697,9 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 	case RumorState::TYPE_RAND:
 		text.replaceTextID(TextIdentifier("core", "randtvrn", rumor.first).get());
 		break;
+	// Silence -Wswitch
+	default:
+		break;
 	}
 
 	return text.toString();

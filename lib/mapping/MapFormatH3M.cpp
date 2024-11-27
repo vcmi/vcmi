@@ -650,6 +650,9 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				mapHeader->defeatMessage.appendTextID("core.lcdesc.3");
 				break;
 			}
+			// Silence -Wswitch
+			default:
+				break;
 		}
 		// turn simple loss condition into complete one that can be evaluated later:
 		// - any of :

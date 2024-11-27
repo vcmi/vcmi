@@ -165,6 +165,9 @@ std::vector<TradeItemBuy> IMarket::availableItemsIds(const EMarketMode mode) con
 	case EMarketMode::CREATURE_RESOURCE:
 		for(const auto & res : GameResID::ALL_RESOURCES())
 			ret.push_back(res);
+	// Silence -Wswitch
+	default:
+		break;
 	}
 	return ret;
 }

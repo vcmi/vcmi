@@ -111,7 +111,7 @@ void RmgMap::initTiles(CMapGenerator & generator, vstd::RNG & rand)
 	switch(mapGenOptions.getWaterContent())
 	{
 		case EWaterContent::NORMAL:
-		case EWaterContent::ISLANDS:
+		case EWaterContent::ISLANDS: {
 			TRmgTemplateZoneId waterId = zones.size() + 1;
 			rmg::ZoneOptions options;
 			options.setId(waterId);
@@ -122,6 +122,9 @@ void RmgMap::initTiles(CMapGenerator & generator, vstd::RNG & rand)
 			//zone->setMonsterTypes(allowedMonsterFactions); // can be set here, probably from template json, along with the treasure ranges and densities
 			zone->monsterStrength = EMonsterStrength::ZONE_NONE; // can be set to other value, probably from a new field in the template json
 			zones[zone->getId()] = zone;
+		} break;
+		// Silence -Wswitch
+		default:
 			break;
 	}
 }

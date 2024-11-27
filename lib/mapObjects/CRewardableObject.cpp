@@ -307,6 +307,9 @@ void CRewardableObject::setPropertyDer(ObjProperty what, ObjPropertyID identifie
 		case ObjProperty::REWARD_CLEARED:
 			onceVisitableObjectCleared = identifier.getNum();
 			break;
+		// Silence -Wswitch
+		default:
+			break;
 	}
 }
 

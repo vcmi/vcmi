@@ -184,6 +184,9 @@ void CGObjectInstance::setProperty( ObjProperty what, ObjPropertyID identifier )
 	case ObjProperty::ID:
 		ID = identifier.as<MapObjectID>();
 		break;
+	// Silence -Wswitch
+	default:
+		break;
 	}
 }
 
@@ -311,6 +314,9 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			cb->showObjectWindow(this, EOpenWindowMode::TAVERN_WINDOW, h, true);
 		}
+		break;
+	// Silence -Wswitch
+	default:
 		break;
 	}
 }

@@ -189,6 +189,9 @@ namespace TriggeredEventsDetail
 					else
 						event.objectType = MapObjectID(MapObjectID::decode(data["type"].String()));
 					break;
+				// Silence -Wswitch
+				default:
+					break;
 			}
 
 			if (!data["position"].isNull())

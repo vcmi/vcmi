@@ -119,6 +119,9 @@ int BonusList::totalValue() const
 		case BonusValueType::PERCENT_TO_TARGET_TYPE:
 			percentToSource[vstd::to_underlying(b->targetSourceType)] += b->val;
 			break;
+		// Silence -Wswitch
+		default:
+			break;
 		}
 	}
 
@@ -148,6 +151,9 @@ int BonusList::totalValue() const
 		case BonusValueType::INDEPENDENT_MIN: // actual meaning: at most this value
 			indexMinCount++;
 			vstd::amin(accumulated.indepMin, valModified);
+			break;
+		// Silence -Wswitch
+		default:
 			break;
 		}
 	}

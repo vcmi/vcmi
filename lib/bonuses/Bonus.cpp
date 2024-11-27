@@ -115,10 +115,15 @@ std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32>
 			case BonusSource::HERO_SPECIAL:
 				descriptionHelper.appendTextID(sid.as<HeroTypeID>().toEntity(VLC)->getNameTextID());
 				break;
-			case BonusSource::OBJECT_INSTANCE:
+			case BonusSource::OBJECT_INSTANCE: {
 				const auto * object = cb->getObj(sid.as<ObjectInstanceID>());
 				if (object)
 					descriptionHelper.appendTextID(VLC->objtypeh->getObjectName(object->ID, object->subID));
+				
+			} break;
+			// Silence -Wswitch
+			default:
+				break;
 		}
 	}
 
