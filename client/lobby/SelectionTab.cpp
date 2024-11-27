@@ -1112,6 +1112,6 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelName->alignment = ETextAlignment::CENTER;
 		labelName->moveTo(Point(pos.x + LABEL_POS_X, labelName->pos.y));
 	}
-	labelName->setText(info->getNameForList());
+	labelName->setText(info->name);
 	labelName->setColor(color);
 }

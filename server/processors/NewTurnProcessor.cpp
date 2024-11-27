@@ -18,6 +18,7 @@
 #include "../../lib/IGameSettings.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/constants/StringConstants.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/gameState/CGameState.h"
@@ -240,46 +241,22 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 	if (!state.isHuman())
 	{
 		// Initialize bonuses for different resources
-		std::array<int, GameResID::COUNT> weeklyBonuses = {};
-
-		// Calculate weekly bonuses based on difficulty
-		if (gameHandler->gameState()->getStartInfo()->difficulty == 0)
-		{
-			weeklyBonuses[EGameResID::GOLD] = static_cast<int>(std::round(incomeHandicapped[EGameResID::GOLD] * (0.75 - 1) * 7));
-		}
-		else if (gameHandler->gameState()->getStartInfo()->difficulty == 3)
-		{
-			weeklyBonuses[EGameResID::GOLD] = static_cast<int>(std::round(incomeHandicapped[EGameResID::GOLD] * 0.25 * 7));
-			weeklyBonuses[EGameResID::WOOD] = static_cast<int>(std::round(incomeHandicapped[EGameResID::WOOD] * 0.39 * 7));
-			weeklyBonuses[EGameResID::ORE] = static_cast<int>(std::round(incomeHandicapped[EGameResID::ORE] * 0.39 * 7));
-			weeklyBonuses[EGameResID::MERCURY] = static_cast<int>(std::round(incomeHandicapped[EGameResID::MERCURY] * 0.14 * 7));
-			weeklyBonuses[EGameResID::CRYSTAL] = static_cast<int>(std::round(incomeHandicapped[EGameResID::CRYSTAL] * 0.14 * 7));
-			weeklyBonuses[EGameResID::SULFUR] = static_cast<int>(std::round(incomeHandicapped[EGameResID::SULFUR] * 0.14 * 7));
-			weeklyBonuses[EGameResID::GEMS] = static_cast<int>(std::round(incomeHandicapped[EGameResID::GEMS] * 0.14 * 7));
-		}
-		else if (gameHandler->gameState()->getStartInfo()->difficulty == 4)
-		{
-			weeklyBonuses[EGameResID::GOLD] = static_cast<int>(std::round(incomeHandicapped[EGameResID::GOLD] * 0.5 * 7));
-			weeklyBonuses[EGameResID::WOOD] = static_cast<int>(std::round(incomeHandicapped[EGameResID::WOOD] * 0.53 * 7));
-			weeklyBonuses[EGameResID::ORE] = static_cast<int>(std::round(incomeHandicapped[EGameResID::ORE] * 0.53 * 7));
-			weeklyBonuses[EGameResID::MERCURY] = static_cast<int>(std::round(incomeHandicapped[EGameResID::MERCURY] * 0.28 * 7));
-			weeklyBonuses[EGameResID::CRYSTAL] = static_cast<int>(std::round(incomeHandicapped[EGameResID::CRYSTAL] * 0.28 * 7));
-			weeklyBonuses[EGameResID::SULFUR] = static_cast<int>(std::round(incomeHandicapped[EGameResID::SULFUR] * 0.28 * 7));
-			weeklyBonuses[EGameResID::GEMS] = static_cast<int>(std::round(incomeHandicapped[EGameResID::GEMS] * 0.28 * 7));
-		}
+		int difficultyIndex = gameHandler->gameState()->getStartInfo()->difficulty;
+		const std::string & difficultyName = GameConstants::DIFFICULTY_NAMES[difficultyIndex];
+		const JsonNode & weeklyBonusesConfig = gameHandler->gameState()->getSettings().getValue(EGameSettings::RESOURCES_WEEKLY_BONUSES_AI);
+		const JsonNode & difficultyConfig = weeklyBonusesConfig[difficultyName];
 
 		// Distribute weekly bonuses over 7 days, depending on the current day of the week
-		for (int i = 0; i < GameResID::COUNT; ++i)
+		for (GameResID i : GameResID::ALL_RESOURCES())
 		{
-			int dailyBonus = weeklyBonuses[i] / 7;
-			int remainderBonus = weeklyBonuses[i] % 7;
-
-			// Apply the daily bonus for each day, and distribute the remainder accordingly
-			incomeHandicapped[static_cast<GameResID>(i)] += dailyBonus;
-			if (gameHandler->gameState()->getDate(Date::DAY_OF_WEEK) - 1 < remainderBonus)
-			{
-				incomeHandicapped[static_cast<GameResID>(i)] += 1;
-			}
+			const std::string & name = GameConstants::RESOURCE_NAMES[i];
+			int weeklyBonus = difficultyConfig[name].Integer();
+			int dayOfWeek = gameHandler->gameState()->getDate(Date::DAY_OF_WEEK);
+			int dailyIncome = incomeHandicapped[i];
+			int amountTillToday = dailyIncome * weeklyBonus * (dayOfWeek-1) / 7 / 100;
+			int amountAfterToday = dailyIncome * weeklyBonus * dayOfWeek / 7 / 100;
+			int dailyBonusToday = amountAfterToday - amountTillToday;
+			incomeHandicapped[static_cast<GameResID>(i)] += dailyBonusToday;
 		}
 	}
 

@@ -6,5 +6,8 @@
 	"maxGoldPressure" : 0.3,
 	"useTroopsFromGarrisons" : true,
 	"openMap": true,
-	"allowObjectGraph": false
+	"allowObjectGraph": false,
+	"pathfinderBucketsCount" : 1, // old value: 3,
+	"pathfinderBucketSize" : 32, // old value: 7,
+	"useFuzzy" : false
 }

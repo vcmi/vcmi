@@ -25,6 +25,8 @@ namespace NKAI
 		int mainHeroTurnDistanceLimit;
 		int scoutHeroTurnDistanceLimit;
 		int maxpass;
+		int pathfinderBucketsCount;
+		int pathfinderBucketSize;
 		float maxGoldPressure;
 		bool allowObjectGraph;
 		bool useTroopsFromGarrisons;
@@ -39,6 +41,8 @@ namespace NKAI
 		int getMaxRoamingHeroes() const { return maxRoamingHeroes; }
 		int getMainHeroTurnDistanceLimit() const { return mainHeroTurnDistanceLimit; }
 		int getScoutHeroTurnDistanceLimit() const { return scoutHeroTurnDistanceLimit; }
+		int getPathfinderBucketsCount() const { return pathfinderBucketsCount; }
+		int getPathfinderBucketSize() const { return pathfinderBucketSize; }
 		bool isObjectGraphAllowed() const { return allowObjectGraph; }
 		bool isGarrisonTroopsUsageAllowed() const { return useTroopsFromGarrisons; }
 		bool isOpenMap() const { return openMap; }
