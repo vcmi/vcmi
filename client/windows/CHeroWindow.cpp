@@ -312,6 +312,7 @@ void CHeroWindow::dismissCurrent()
 			arts->putBackPickedArtifact();
 			close();
 			LOCPLINT->cb->dismissHero(curHero);
+			arts->setHero(nullptr);
 		}, nullptr);
 }
 
