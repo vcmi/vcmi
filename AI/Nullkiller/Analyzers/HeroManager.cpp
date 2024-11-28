@@ -195,8 +195,7 @@ bool HeroManager::heroCapReached(bool includeGarrisoned) const
 {
 	int heroCount = cb->getHeroCount(ai->playerID, includeGarrisoned);
 
-	return heroCount >= ALLOWED_ROAMING_HEROES
-		|| heroCount >= ai->settings->getMaxRoamingHeroes()
+	return heroCount >= ai->settings->getMaxRoamingHeroes()
 		|| heroCount >= cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP)
 		|| heroCount >= cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP);
 }
