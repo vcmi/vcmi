@@ -29,7 +29,7 @@ namespace NKAI
 		int pathfinderBucketSize;
 		float maxGoldPressure;
 		float retreatThresholdRelative;
-		float retreatThresholdAbsoolute;
+		float retreatThresholdAbsolute;
 		float safeAttackRatio;
 		bool allowObjectGraph;
 		bool useTroopsFromGarrisons;
@@ -42,7 +42,7 @@ namespace NKAI
 		int getMaxPass() const { return maxpass; }
 		float getMaxGoldPressure() const { return maxGoldPressure; }
 		float getRetreatThresholdRelative() const { return retreatThresholdRelative; }
-		float getRetreatThresholdAbsoolute() const { return retreatThresholdAbsoolute; }
+		float getRetreatThresholdAbsolute() const { return retreatThresholdAbsolute; }
 		float getSafeAttackRatio() const { return safeAttackRatio; }
 		int getMaxRoamingHeroes() const { return maxRoamingHeroes; }
 		int getMainHeroTurnDistanceLimit() const { return mainHeroTurnDistanceLimit; }

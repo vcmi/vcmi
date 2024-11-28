@@ -548,7 +548,7 @@ std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const Battle
 	double fightRatio = ourStrength / (double)battleState.getEnemyStrength();
 
 	// if we have no towns - things are already bad, so retreat is not an option.
-	if(cb->getTownsInfo().size() && ourStrength < nullkiller->settings->getRetreatThresholdAbsoolute() && fightRatio < nullkiller->settings->getRetreatThresholdRelative() && battleState.canFlee)
+	if(cb->getTownsInfo().size() && ourStrength < nullkiller->settings->getRetreatThresholdAbsolute() && fightRatio < nullkiller->settings->getRetreatThresholdRelative() && battleState.canFlee)
 	{
 		return BattleAction::makeRetreat(battleState.ourSide);
 	}
