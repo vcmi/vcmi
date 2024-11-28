@@ -67,22 +67,22 @@
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="52"/>
         <source>Author</source>
-        <translation type="unfinished"></translation>
+        <translation>Autor</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="62"/>
         <source>Author contact (e.g. email)</source>
-        <translation type="unfinished"></translation>
+        <translation>Autor - kontakt (np. email)</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="72"/>
         <source>Map Creation Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Data utworzenia mapy</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="86"/>
         <source>Map Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Wersja mapy</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="120"/>
@@ -546,7 +546,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1358"/>
         <source>Zoom in</source>
-        <translation>Powiększ</translation>
+        <translation>Zbliż widok</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1361"/>
@@ -556,7 +556,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1366"/>
         <source>Zoom out</source>
-        <translation>Pomniejsz</translation>
+        <translation>Oddal widok</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1369"/>
@@ -566,7 +566,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1374"/>
         <source>Zoom reset</source>
-        <translation>Domyślne powiększenie</translation>
+        <translation>Domyślne oddalenie</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1377"/>
@@ -646,7 +646,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1232"/>
         <source>Choose directory to save converted maps</source>
-        <translation>Wybierz folder zapisu skonwertowanych map</translation>
+        <translation>Wybierz folder do zapisu skonwertowanych map</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1245"/>
@@ -937,7 +937,7 @@
         <location filename="../inspector/inspector.cpp" line="341"/>
         <location filename="../inspector/inspector.cpp" line="344"/>
         <source>No patrol</source>
-        <translation type="unfinished"></translation>
+        <translation>Bez patrolowania</translation>
     </message>
     <message numerus="yes">
         <location filename="../inspector/inspector.cpp" line="343"/>
@@ -958,22 +958,22 @@
     <message>
         <location filename="../inspector/inspector.cpp" line="857"/>
         <source>UNFLAGGABLE</source>
-        <translation>NIEOFLAGOWYWALNY</translation>
+        <translation>NIEFLAGOWALNY</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="385"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished">Nie można umieścić obiektu</translation>
+        <translation>Nie można umieścić obiektu</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="555"/>
         <source>There can only be one grail object on the map.</source>
-        <translation type="unfinished"></translation>
+        <translation>Na mapie może znajdować się tylko jeden gral.</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="561"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bohater %1 nie może zostać utworzony jako NEUTRALNY</translation>
     </message>
 </context>
 <context>
@@ -1768,7 +1768,7 @@
     <message>
         <location filename="../validator.cpp" line="97"/>
         <source>Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translation>Obiekt z armią %1 jest nie do oflagowania, lecz musi mieć właściciela neutralnego lub gracza</translation>
+        <translation>Obiekt z armią %1 jest nie do oflagowania, lecz musi mieć być oznaczony jako neutralny lub przynależeć do gracza</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="103"/>
@@ -1778,17 +1778,17 @@
     <message>
         <location filename="../validator.cpp" line="148"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaklęcie ze zwoju %1 nie posiada przypisanego obiektu i musi zostać usunięte</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="154"/>
         <source>Artifact %1 is prohibited by map settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Artefakt %1 jest zabroniony w ustawieniach mapy</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="168"/>
         <source>Player %1 has no towns and heroes assigned</source>
-        <translation type="unfinished"></translation>
+        <translation>Gracz %1 nie posiada żadnych miast i bohaterów</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="116"/>
@@ -1848,7 +1848,7 @@
     <message>
         <location filename="../validator.cpp" line="195"/>
         <source>Unknown exception occurs during validation</source>
-        <translation>Wystąpił nieznane wyjątek podczas walidacji</translation>
+        <translation>Wystąpił nieznany wyjątek podczas walidacji</translation>
     </message>
 </context>
 <context>
@@ -2068,22 +2068,22 @@
     <message>
         <location filename="../windownewmap.ui" line="713"/>
         <source>Roads</source>
-        <translation type="unfinished">Drogi</translation>
+        <translation>Drogi</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="728"/>
         <source>Dirt</source>
-        <translation type="unfinished"></translation>
+        <translation>Ziemna</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="748"/>
         <source>Gravel</source>
-        <translation type="unfinished"></translation>
+        <translation>Żwirowa</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="768"/>
         <source>Cobblestone</source>
-        <translation type="unfinished"></translation>
+        <translation>Brukowana</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="813"/>
