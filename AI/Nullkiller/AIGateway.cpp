@@ -36,8 +36,6 @@ namespace NKAI
 
 // our to enemy strength ratio constants
 const float SAFE_ATTACK_CONSTANT = 1.1f;
-const float RETREAT_THRESHOLD = 0.3f;
-const double RETREAT_ABSOLUTE_THRESHOLD = 10000.;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
 thread_local CCallback * cb = nullptr;
@@ -553,7 +551,7 @@ std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const Battle
 	double fightRatio = ourStrength / (double)battleState.getEnemyStrength();
 
 	// if we have no towns - things are already bad, so retreat is not an option.
-	if(cb->getTownsInfo().size() && ourStrength < RETREAT_ABSOLUTE_THRESHOLD && fightRatio < RETREAT_THRESHOLD && battleState.canFlee)
+	if(cb->getTownsInfo().size() && ourStrength < nullkiller->settings->getRetreatThresholdAbsoolute() && fightRatio < nullkiller->settings->getRetreatThresholdRelative() && battleState.canFlee)
 	{
 		return BattleAction::makeRetreat(battleState.ourSide);
 	}
