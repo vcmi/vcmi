@@ -31,6 +31,7 @@ namespace NKAI
 		maxGoldPressure(0.3f),
 		retreatThresholdRelative(0.3),
 		retreatThresholdAbsoolute(10000),
+		safeAttackRatio(1.1),
 		maxpass(10),
 		pathfinderBucketsCount(1),
 		pathfinderBucketSize(32),
@@ -52,6 +53,7 @@ namespace NKAI
 		maxGoldPressure = node["maxGoldPressure"].Float();
 		retreatThresholdRelative = node["retreatThresholdRelative"].Float();
 		retreatThresholdAbsoolute = node["retreatThresholdAbsoolute"].Float();
+		safeAttackRatio = node["safeAttackRatio"].Float();
 		allowObjectGraph = node["allowObjectGraph"].Bool();
 		openMap = node["openMap"].Bool();
 		useFuzzy = node["useFuzzy"].Bool();

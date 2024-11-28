@@ -34,9 +34,6 @@
 namespace NKAI
 {
 
-// our to enemy strength ratio constants
-const float SAFE_ATTACK_CONSTANT = 1.1f;
-
 //one thread may be turn of AI and another will be handling a side effect for AI2
 thread_local CCallback * cb = nullptr;
 thread_local AIGateway * ai = nullptr;
@@ -668,7 +665,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				else if(objType == Obj::ARTIFACT || objType == Obj::RESOURCE)
 				{
 					bool dangerUnknown = danger == 0;
-					bool dangerTooHigh = ratio > (1 / SAFE_ATTACK_CONSTANT);
+					bool dangerTooHigh = ratio * nullkiller->settings->getSafeAttackRatio() > 1;
 
 					answer = !dangerUnknown && !dangerTooHigh;
 				}

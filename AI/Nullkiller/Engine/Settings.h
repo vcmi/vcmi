@@ -30,6 +30,7 @@ namespace NKAI
 		float maxGoldPressure;
 		float retreatThresholdRelative;
 		float retreatThresholdAbsoolute;
+		float safeAttackRatio;
 		bool allowObjectGraph;
 		bool useTroopsFromGarrisons;
 		bool openMap;
@@ -42,6 +43,7 @@ namespace NKAI
 		float getMaxGoldPressure() const { return maxGoldPressure; }
 		float getRetreatThresholdRelative() const { return retreatThresholdRelative; }
 		float getRetreatThresholdAbsoolute() const { return retreatThresholdAbsoolute; }
+		float getSafeAttackRatio() const { return safeAttackRatio; }
 		int getMaxRoamingHeroes() const { return maxRoamingHeroes; }
 		int getMainHeroTurnDistanceLimit() const { return mainHeroTurnDistanceLimit; }
 		int getScoutHeroTurnDistanceLimit() const { return scoutHeroTurnDistanceLimit; }

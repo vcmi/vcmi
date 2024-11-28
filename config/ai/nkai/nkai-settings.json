@@ -12,6 +12,7 @@
 		"pathfinderBucketSize" : 32, // old value: 7,
 		"retreatThresholdRelative" : 0.3,
 		"retreatThresholdAbsoolute" : 10000,
+		"safeAttackRatio" : 1.1,
 		"useFuzzy" : false
 	},
 	
@@ -28,6 +29,7 @@
 		"pathfinderBucketSize" : 32, // old value: 7,
 		"retreatThresholdRelative" : 0.3,
 		"retreatThresholdAbsoolute" : 10000,
+		"safeAttackRatio" : 1.1,
 		"useFuzzy" : false
 	},
 	
@@ -44,6 +46,7 @@
 		"pathfinderBucketSize" : 32, // old value: 7,
 		"retreatThresholdRelative" : 0.3,
 		"retreatThresholdAbsoolute" : 10000,
+		"safeAttackRatio" : 1.1,
 		"useFuzzy" : false
 	},
 	
@@ -60,6 +63,7 @@
 		"pathfinderBucketSize" : 32, // old value: 7,
 		"retreatThresholdRelative" : 0.3,
 		"retreatThresholdAbsoolute" : 10000,
+		"safeAttackRatio" : 1.1,
 		"useFuzzy" : false
 	},
 	
@@ -76,6 +80,7 @@
 		"pathfinderBucketSize" : 32, // old value: 7,
 		"retreatThresholdRelative" : 0.3,
 		"retreatThresholdAbsoolute" : 10000,
+		"safeAttackRatio" : 1.1,
 		"useFuzzy" : false
 	}
 }
