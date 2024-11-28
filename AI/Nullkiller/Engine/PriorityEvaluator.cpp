@@ -35,9 +35,7 @@
 namespace NKAI
 {
 
-#define MIN_AI_STRENGTH (0.5f) //lower when combat AI gets smarter
-#define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
-const float MIN_CRITICAL_VALUE = 2.0f;
+constexpr float MIN_CRITICAL_VALUE = 2.0f;
 
 EvaluationContext::EvaluationContext(const Nullkiller* ai)
 	: movementCost(0.0),
