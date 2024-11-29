@@ -31,6 +31,7 @@ namespace NKAI
 		float retreatThresholdRelative;
 		float retreatThresholdAbsolute;
 		float safeAttackRatio;
+		float maxArmyLossTarget;
 		bool allowObjectGraph;
 		bool useTroopsFromGarrisons;
 		bool updateHitmapOnTileReveal;
@@ -45,6 +46,7 @@ namespace NKAI
 		float getRetreatThresholdRelative() const { return retreatThresholdRelative; }
 		float getRetreatThresholdAbsolute() const { return retreatThresholdAbsolute; }
 		float getSafeAttackRatio() const { return safeAttackRatio; }
+		float getMaxArmyLossTarget() const { return maxArmyLossTarget; }
 		int getMaxRoamingHeroes() const { return maxRoamingHeroes; }
 		int getMainHeroTurnDistanceLimit() const { return mainHeroTurnDistanceLimit; }
 		int getScoutHeroTurnDistanceLimit() const { return scoutHeroTurnDistanceLimit; }
