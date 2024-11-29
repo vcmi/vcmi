@@ -283,7 +283,10 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 	if (factor <= 0)
 		throw std::runtime_error("Unable to scale by integer value of " + std::to_string(factor));
 
-	if (palette && surf && surf->format->palette)
+	if (!surf)
+		return shared_from_this();
+
+	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
 
 	SDL_Surface * scaled = nullptr;
@@ -306,7 +309,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 	// erase our own reference
 	SDL_FreeSurface(scaled);
 
-	if (surf && surf->format->palette)
+	if (surf->format->palette)
 		SDL_SetSurfacePalette(surf, originalPalette);
 
 	return ret;
@@ -314,8 +317,8 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 
 std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Palette * palette) const
 {
-	float scaleX = float(size.x) / fullSize.x;
-	float scaleY = float(size.y) / fullSize.y;
+	float scaleX = static_cast<float>(size.x) / fullSize.x;
+	float scaleY = static_cast<float>(size.y) / fullSize.y;
 
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);

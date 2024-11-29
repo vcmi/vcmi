@@ -61,11 +61,6 @@ const int GOLD_MINE_PRODUCTION = 1000;
 const int WOOD_ORE_MINE_PRODUCTION = 2;
 const int RESOURCE_MINE_PRODUCTION = 1;
 const int ACTUAL_RESOURCE_COUNT = 7;
-const int ALLOWED_ROAMING_HEROES = 8;
-
-//implementation-dependent
-extern const float SAFE_ATTACK_CONSTANT;
-extern const int GOLD_RESERVE;
 
 extern thread_local CCallback * cb;
 
@@ -213,8 +208,8 @@ bool isBlockVisitObj(const int3 & pos);
 bool isWeeklyRevisitable(const Nullkiller * ai, const CGObjectInstance * obj);
 
 bool isObjectRemovable(const CGObjectInstance * obj); //FIXME FIXME: move logic to object property!
-bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength);
-bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet *, uint64_t dangerStrength);
+bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength, float safeAttackRatio);
+bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet *, uint64_t dangerStrength, float safeAttackRatio);
 
 bool compareHeroStrength(const CGHeroInstance * h1, const CGHeroInstance * h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);

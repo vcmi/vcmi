@@ -951,8 +951,8 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 	else if(auto uni = dynamic_cast<const CGUniversity *>(_market); uni->appearance)
 	{
 		titlePic = std::make_shared<CAnimImage>(uni->appearance->animationFile, 0, 0, 0, 0, CShowableAnim::CREATURE_MODE);
-		titleStr = uni->title;
-		speechStr = uni->speech;
+		titleStr = uni->getObjectName();
+		speechStr = uni->getSpeechTranslated();
 	}
 	else
 	{

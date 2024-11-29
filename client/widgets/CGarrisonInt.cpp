@@ -370,6 +370,9 @@ void CGarrisonSlot::gesture(bool on, const Point & initialPosition, const Point 
 	if (!settings["input"]["radialWheelGarrisonSwipe"].Bool())
 		return;
 
+	if(GH.windows().topWindow<CIntObject>()->isPopupWindow())
+		return;
+
 	const auto * otherArmy = upg == EGarrisonType::UPPER ? owner->lowerArmy() : owner->upperArmy();
 
 	bool stackExists = myStack != nullptr;

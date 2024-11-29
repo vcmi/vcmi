@@ -17,21 +17,23 @@ namespace Ui
 class CModListView;
 }
 
-class CModManager;
+class ModStateController;
 class CModList;
-class CModListModel;
+class ModStateItemModel;
+class ModStateModel;
 class CModFilterModel;
 class CDownloadManager;
 class QTableWidgetItem;
 
-class CModEntry;
+class ModState;
 
 class CModListView : public QWidget
 {
 	Q_OBJECT
 
-	std::unique_ptr<CModManager> manager;
-	CModListModel * modModel;
+	std::shared_ptr<ModStateModel> modStateModel;
+	std::unique_ptr<ModStateController> manager;
+	ModStateItemModel * modModel;
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;
 
@@ -42,31 +44,28 @@ class CModListView : public QWidget
 	void checkManagerErrors();
 
 	/// replace mod ID's with proper human-readable mod names
-	QStringList getModNames(QStringList input);
+	QStringList getModNames(QString queryingMod, QStringList input);
+
+	/// returns list of mods that are needed for install of this mod (potentially including this mod itself)
+	QStringList getModsToInstall(QString mod);
 
 	// find mods unknown to mod list (not present in repo and not installed)
-	QStringList findInvalidDependencies(QString mod);
-	// find mods that block enabling of this mod: conflicting with this mod or one of required mods
-	QStringList findBlockingMods(QString modUnderTest);
-	// find mods that depend on this one
-	QStringList findDependentMods(QString mod, bool excludeDisabled);
+	QStringList findUnavailableMods(QStringList candidates);
 
 	void manualInstallFile(QString filePath);
-	void downloadFile(QString file, QString url, QString description, qint64 size = 0);
-	void downloadFile(QString file, QUrl url, QString description, qint64 size = 0);
+	void downloadFile(QString file, QString url, QString description, qint64 sizeBytes = 0);
+	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
 
 	void installMods(QStringList archives);
 	void installMaps(QStringList maps);
 	void installFiles(QStringList mods);
 
-	QString genChangelogText(CModEntry & mod);
-	QString genModInfoText(CModEntry & mod);
+	QString genChangelogText(const ModState & mod);
+	QString genModInfoText(const ModState & mod);
 
 	void changeEvent(QEvent *event) override;
 	void dragEnterEvent(QDragEnterEvent* event) override;
 	void dropEvent(QDropEvent *event) override;
-signals:
-	void modsChanged();
 
 public:
 	explicit CModListView(QWidget * parent = nullptr);
@@ -79,8 +78,6 @@ public:
 
 	void selectMod(const QModelIndex & index);
 
-	const CModList & getModList() const;
-	
 	// First Launch View interface
 
 	/// install mod by name

@@ -1,5 +1,5 @@
 /*
- * cmodmanager.h, part of VCMI engine
+ * modstatecontroller.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,22 +9,24 @@
  */
 #pragma once
 
-#include "cmodlist.h"
+#include <QVector>
 
-class CModManager : public QObject
+VCMI_LIB_NAMESPACE_BEGIN
+class JsonNode;
+VCMI_LIB_NAMESPACE_END
+
+class ModStateModel;
+
+class ModStateController : public QObject, public boost::noncopyable
 {
 	Q_OBJECT
 
-	CModList * modList;
-
-	QString settingsPath();
+	std::shared_ptr<ModStateModel> modList;
 
 	// check-free version of public method
-	bool doEnableMod(QString mod, bool on);
 	bool doInstallMod(QString mod, QString archivePath);
 	bool doUninstallMod(QString mod);
 
-	QVariantMap modSettings;
 	QVariantMap localMods;
 
 	QStringList recentErrors;
@@ -32,12 +34,10 @@ class CModManager : public QObject
 	bool removeModDir(QString mod);
 
 public:
-	CModManager(CModList * modList);
+	ModStateController(std::shared_ptr<ModStateModel> modList);
+	~ModStateController();
 
-	void resetRepositories();
-	void loadRepositories(QVector<QVariantMap> repomap);
-	void loadModSettings();
-	void loadMods();
+	void appendRepositories(const JsonNode & repositoriesList);
 
 	QStringList getErrors();
 
@@ -46,7 +46,7 @@ public:
 	/// installs mod from zip archive located at archivePath
 	bool installMod(QString mod, QString archivePath);
 	bool uninstallMod(QString mod);
-	bool enableMod(QString mod);
+	bool enableMods(QStringList mod);
 	bool disableMod(QString mod);
 
 	bool canInstallMod(QString mod);

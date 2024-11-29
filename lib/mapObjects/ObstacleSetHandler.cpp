@@ -43,7 +43,7 @@ void ObstacleSet::removeEmptyTemplates()
 	{
 		if (tmpl->getBlockedOffsets().empty())
 		{
-			logMod->warn("Obstacle template %s blocks no tiles, removing it", tmpl->stringID);
+			logMod->debug("Obstacle template %s blocks no tiles, removing it", tmpl->stringID);
 			return true;
 		}
 		return false;
@@ -457,7 +457,7 @@ void ObstacleSetHandler::addTemplate(const std::string & scope, const std::strin
 
 	if (VLC->identifiersHandler->getIdentifier(scope, "obstacleTemplate", strippedName, true))
 	{
-		logMod->warn("Duplicate obstacle template: %s", strippedName);
+		logMod->debug("Duplicate obstacle template: %s", strippedName);
 		return;
 	}
 	else

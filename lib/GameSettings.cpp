@@ -89,6 +89,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_UNIQUE,           "pathfinder", "useMonolithOneWayUnique"             },
 		{EGameSettings::PATHFINDER_USE_MONOLITH_TWO_WAY,                  "pathfinder", "useMonolithTwoWay"                   },
 		{EGameSettings::PATHFINDER_USE_WHIRLPOOL,                         "pathfinder", "useWhirlpool"                        },
+		{EGameSettings::RESOURCES_WEEKLY_BONUSES_AI,                      "resources", "weeklyBonusesAI"                      },
 		{EGameSettings::TEXTS_ARTIFACT,                                   "textData",  "artifact"                             },
 		{EGameSettings::TEXTS_CREATURE,                                   "textData",  "creature"                             },
 		{EGameSettings::TEXTS_FACTION,                                    "textData",  "faction"                              },

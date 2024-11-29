@@ -188,9 +188,7 @@
 	"vcmi.server.errors.existingProcess" : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
 	"vcmi.server.errors.modsToEnable"    : "{Erforderliche Mods um das Spiel zu laden}",
 	"vcmi.server.errors.modsToDisable"   : "{Folgende Mods müssen deaktiviert werden}",
-	"vcmi.server.errors.modNoDependency" : "Mod {'%s'} konnte nicht geladen werden!\n Sie hängt von Mod {'%s'} ab, die nicht aktiv ist!\n",
 	"vcmi.server.errors.modDependencyLoop" : "Mod {'%s'} konnte nicht geladen werden.!\n Möglicherweise befindet sie sich in einer (weichen) Abhängigkeitsschleife.",
-	"vcmi.server.errors.modConflict" : "Mod {'%s'} konnte nicht geladen werden!\n Konflikte mit aktiver Mod {'%s'}!\n",
 	"vcmi.server.errors.unknownEntity" : "Spielstand konnte nicht geladen werden! Unbekannte Entität '%s' im gespeicherten Spiel gefunden! Der Spielstand ist möglicherweise nicht mit der aktuell installierten Version der Mods kompatibel!",
 	
 	"vcmi.dimensionDoor.seaToLandError" : "Es ist nicht möglich, mit einer Dimensionstür vom Meer zum Land oder umgekehrt zu teleportieren.",

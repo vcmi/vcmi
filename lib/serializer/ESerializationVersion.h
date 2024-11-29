@@ -68,6 +68,7 @@ enum class ESerializationVersion : int32_t
 	REMOVE_VLC_POINTERS, // 869 removed remaining pointers to VLC entities
 	FOLDER_NAME_REWORK, // 870 - rework foldername
 	REWARDABLE_GUARDS, // 871 - fix missing serialization of guards in rewardable objects
+	MARKET_TRANSLATION_FIX, // 872 - remove serialization of markets translateable strings
 	
-	CURRENT = REWARDABLE_GUARDS
+	CURRENT = MARKET_TRANSLATION_FIX
 };

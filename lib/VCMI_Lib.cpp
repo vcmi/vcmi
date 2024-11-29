@@ -26,7 +26,6 @@
 #include "entities/hero/CHeroHandler.h"
 #include "texts/CGeneralTextHandler.h"
 #include "modding/CModHandler.h"
-#include "modding/CModInfo.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/CModVersion.h"
 #include "IGameEventsReceiver.h"
@@ -157,55 +156,44 @@ void LibClasses::loadModFilesystem()
 	CStopWatch loadTime;
 	modh = std::make_unique<CModHandler>();
 	identifiersHandler = std::make_unique<CIdentifierStorage>();
-	modh->loadMods();
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
 	modh->loadModFilesystems();
 	logGlobal->info("\tMod filesystems: %d ms", loadTime.getDiff());
 }
 
-static void logHandlerLoaded(const std::string & name, CStopWatch & timer)
-{
-	logGlobal->info("\t\t %s handler: %d ms", name, timer.getDiff());
-}
-
-template <class Handler> void createHandler(std::shared_ptr<Handler> & handler, const std::string &name, CStopWatch &timer)
+template <class Handler> void createHandler(std::shared_ptr<Handler> & handler)
 {
 	handler = std::make_shared<Handler>();
-	logHandlerLoaded(name, timer);
 }
 
 void LibClasses::init(bool onlyEssential)
 {
-	CStopWatch pomtime;
-	CStopWatch totalTime;
-
-	createHandler(settingsHandler, "Game Settings", pomtime);
+	createHandler(settingsHandler);
 	modh->initializeConfig();
 
-	createHandler(generaltexth, "General text", pomtime);
-	createHandler(bth, "Bonus type", pomtime);
-	createHandler(roadTypeHandler, "Road", pomtime);
-	createHandler(riverTypeHandler, "River", pomtime);
-	createHandler(terrainTypeHandler, "Terrain", pomtime);
-	createHandler(heroh, "Hero", pomtime);
-	createHandler(heroclassesh, "Hero classes", pomtime);
-	createHandler(arth, "Artifact", pomtime);
-	createHandler(creh, "Creature", pomtime);
-	createHandler(townh, "Town", pomtime);
-	createHandler(biomeHandler, "Obstacle set", pomtime);
-	createHandler(objh, "Object", pomtime);
-	createHandler(objtypeh, "Object types information", pomtime);
-	createHandler(spellh, "Spell", pomtime);
-	createHandler(skillh, "Skill", pomtime);
-	createHandler(terviewh, "Terrain view pattern", pomtime);
-	createHandler(tplh, "Template", pomtime); //templates need already resolved identifiers (refactor?)
+	createHandler(generaltexth);
+	createHandler(bth);
+	createHandler(roadTypeHandler);
+	createHandler(riverTypeHandler);
+	createHandler(terrainTypeHandler);
+	createHandler(heroh);
+	createHandler(heroclassesh);
+	createHandler(arth);
+	createHandler(creh);
+	createHandler(townh);
+	createHandler(biomeHandler);
+	createHandler(objh);
+	createHandler(objtypeh);
+	createHandler(spellh);
+	createHandler(skillh);
+	createHandler(terviewh);
+	createHandler(tplh); //templates need already resolved identifiers (refactor?)
 #if SCRIPTING_ENABLED
-	createHandler(scriptHandler, "Script", pomtime);
+	createHandler(scriptHandler);
 #endif
-	createHandler(battlefieldsHandler, "Battlefields", pomtime);
-	createHandler(obstacleHandler, "Obstacles", pomtime);
-	logGlobal->info("\tInitializing handlers: %d ms", totalTime.getDiff());
+	createHandler(battlefieldsHandler);
+	createHandler(obstacleHandler);
 
 	modh->load();
 	modh->afterLoad(onlyEssential);

@@ -14,7 +14,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class IHandlerBase;
-class CModInfo;
+class ModDescription;
 
 /// internal type to handle loading of one data type (e.g. artifacts, creatures)
 class DLL_LINKAGE ContentTypeHandler
@@ -50,23 +50,16 @@ public:
 /// class used to load all game data into handlers. Used only during loading
 class DLL_LINKAGE CContentHandler
 {
-	/// preloads all data from fileList as data from modName.
-	bool preloadModData(const std::string & modName, JsonNode modConfig, bool validate);
-
-	/// actually loads data in mod
-	bool loadMod(const std::string & modName, bool validate);
-
 	std::map<std::string, ContentTypeHandler> handlers;
 
-	bool validateMod(const CModInfo & mod) const;
 public:
 	void init();
 
 	/// preloads all data from fileList as data from modName.
-	void preloadData(CModInfo & mod);
+	bool preloadData(const ModDescription & mod, bool validateMod);
 
 	/// actually loads data in mod
-	void load(CModInfo & mod);
+	bool load(const ModDescription & mod, bool validateMod);
 
 	void loadCustom();
 
