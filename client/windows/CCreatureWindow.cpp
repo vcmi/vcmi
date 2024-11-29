@@ -279,7 +279,7 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 		std::string t = bonusNames.count(bi.bonusSource) ? bonusNames[bi.bonusSource] : CGI->generaltexth->translate("vcmi.bonusSource.other");
 		int maxLen = 50;
 		EFonts f = FONT_TINY;
-		Point pText = p + Point(3, 40);
+		Point pText = p + Point(4, 38);
 
 		// 1px Black border
 		bonusSource[leftRight].push_back(std::make_shared<CLabel>(pText.x - 1, pText.y, f, ETextAlignment::TOPLEFT, Colors::BLACK, t, maxLen));
