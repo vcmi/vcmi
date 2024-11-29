@@ -131,12 +131,12 @@ public:
 
 			if ((byteValue & 0x80) != 0)
 			{
-				valueUnsigned |= (byteValue & 0x7f) << offset;
+				valueUnsigned |= static_cast<uint64_t>(byteValue & 0x7f) << offset;
 				offset += 7;
 			}
 			else
 			{
-				valueUnsigned |= (byteValue & 0x3f) << offset;
+				valueUnsigned |= static_cast<uint64_t>(byteValue & 0x3f) << offset;
 				bool isNegative = (byteValue & 0x40) != 0;
 				if (isNegative)
 					return -static_cast<int64_t>(valueUnsigned);
