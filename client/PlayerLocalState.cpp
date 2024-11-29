@@ -396,16 +396,19 @@ void PlayerLocalState::deserialize(const JsonNode & source)
 		}
 	}
 
-	spellbookSettings.spellbookLastPageBattle = source["spellbook"]["pageBattle"].Integer();
-	spellbookSettings.spellbookLastPageAdvmap = source["spellbook"]["pageAdvmap"].Integer();
-	spellbookSettings.spellbookLastTabBattle = source["spellbook"]["tabBattle"].Integer();
-	spellbookSettings.spellbookLastTabAdvmap = source["spellbook"]["tabAdvmap"].Integer();
+	if (!source["spellbook"].isNull())
+	{
+		spellbookSettings.spellbookLastPageBattle = source["spellbook"]["pageBattle"].Integer();
+		spellbookSettings.spellbookLastPageAdvmap = source["spellbook"]["pageAdvmap"].Integer();
+		spellbookSettings.spellbookLastTabBattle = source["spellbook"]["tabBattle"].Integer();
+		spellbookSettings.spellbookLastTabAdvmap = source["spellbook"]["tabAdvmap"].Integer();
+	}
 
 	// append any owned heroes / towns that were not present in loaded state
 	wanderingHeroes.insert(wanderingHeroes.end(), oldHeroes.begin(), oldHeroes.end());
 	ownedTowns.insert(ownedTowns.end(), oldTowns.begin(), oldTowns.end());
 
-//FIXME: broken, anything that is selected in here will be overwritten on NewTurn pack
+//FIXME: broken, anything that is selected in here will be overwritten on PlayerStartsTurn pack
 //	ObjectInstanceID selectedObjectID(source["currentSelection"].Integer());
 //	const CGObjectInstance * objectPtr = owner.cb->getObjInstance(selectedObjectID);
 //	const CArmedInstance * armyPtr = dynamic_cast<const CArmedInstance*>(objectPtr);
