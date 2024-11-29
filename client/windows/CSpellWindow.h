@@ -28,6 +28,7 @@ class CSpellWindow;
 class CTextInput;
 class TransparentFilledRectangle;
 class CToggleButton;
+class VideoWidgetOnce;
 
 /// The spell window
 class CSpellWindow : public CWindowObject
@@ -85,6 +86,8 @@ class CSpellWindow : public CWindowObject
 
 	std::shared_ptr<CToggleButton> showAllSpells;
 	std::shared_ptr<CLabel> showAllSpellsDescription;
+
+	std::shared_ptr<VideoWidgetOnce> video;
 
 	bool isBigSpellbook;
 	int spellsPerPage;
