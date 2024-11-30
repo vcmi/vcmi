@@ -383,7 +383,7 @@ void AssetGenerator::createPaletteShiftedSprites()
 						return;
 
 					auto img = anim->getImage(j);
-					if(std::holds_alternative<TerainPaletteAnimation>(element))
+					if(std::holds_alternative<TerrainPaletteAnimation>(element))
 					{
 						auto tmp = std::get<TerrainPaletteAnimation>(element);
 						img->shiftPalette(tmp.start, tmp.length, l);
