@@ -16,12 +16,16 @@
 #include "../render/Canvas.h"
 #include "../render/ColorFilter.h"
 #include "../render/IRenderHandler.h"
+#include "../render/CAnimation.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/GameSettings.h"
 #include "../lib/IGameSettings.h"
 #include "../lib/json/JsonNode.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/RiverHandler.h"
+#include "../lib/RoadHandler.h"
+#include "../lib/TerrainHandler.h"
 
 void AssetGenerator::generateAll()
 {
@@ -32,6 +36,7 @@ void AssetGenerator::generateAll()
 	createCombatUnitNumberWindow();
 	createCampaignBackground();
 	createChroniclesCampaignImages();
+	createPaletteShiftedSprites();
 }
 
 void AssetGenerator::createAdventureOptionsCleanBackground()
@@ -324,5 +329,76 @@ void AssetGenerator::createChroniclesCampaignImages()
 		std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
 		image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+	}
+}
+
+void AssetGenerator::createPaletteShiftedSprites()
+{
+	std::vector<std::string> tiles;
+	std::vector<std::vector<std::variant<TerrainPaletteAnimation, RiverPaletteAnimation>>> paletteAnimations;
+	VLC->terrainTypeHandler->forEach([&](const TerrainType *entity, bool &stop){
+		if(entity->paletteAnimation.size())
+		{
+			tiles.push_back(entity->tilesFilename.getName());
+			std::vector<std::variant<TerrainPaletteAnimation, RiverPaletteAnimation>> tmpAnim;
+			for(auto & animEntity : entity->paletteAnimation)
+				tmpAnim.push_back(animEntity);
+			paletteAnimations.push_back(tmpAnim);
+		}
+	});
+	VLC->riverTypeHandler->forEach([&](const RiverType *entity, bool &stop){
+		if(entity->paletteAnimation.size())
+		{
+			tiles.push_back(entity->tilesFilename.getName());
+			std::vector<std::variant<TerrainPaletteAnimation, RiverPaletteAnimation>> tmpAnim;
+			for(auto & animEntity : entity->paletteAnimation)
+				tmpAnim.push_back(animEntity);
+			paletteAnimations.push_back(tmpAnim);
+		}
+	});
+
+	for(int i = 0; i < tiles.size(); i++)
+	{
+		auto sprite = tiles[i];
+		auto filename = AnimationPath::builtin(sprite).addPrefix("SPRITES/");
+		auto filenameNew = AnimationPath::builtin(sprite + "_Shifted").addPrefix("SPRITES/");
+
+		if(CResourceHandler::get()->existsResource(ResourcePath(filenameNew))) // overridden by mod, no generation
+			return;
+		
+		auto anim = GH.renderHandler().loadAnimation(filename, EImageBlitMode::COLORKEY);
+		for(int j = 0; j < anim->size(); j++)
+		{
+			int counter = 0;
+			for(int k = 0; k < paletteAnimations[i].size(); k++)
+			{
+				auto element = paletteAnimations[i][k];
+				int length = std::holds_alternative<TerrainPaletteAnimation>(element) ? std::get<TerrainPaletteAnimation>(element).length : std::get<RiverPaletteAnimation>(element).length;
+				for(int l = 0; l < length; l++)
+				{
+					std::string filenameNew = "sprites/" + sprite + "_Shifted" + "/" + sprite + boost::str(boost::format("%02d") % j) + "_" + std::to_string(counter) + ".png";
+					ResourcePath savePath(filenameNew, EResType::IMAGE);
+
+					if(!CResourceHandler::get("local")->createResource(filenameNew))
+						return;
+
+					auto img = anim->getImage(j);
+					if(std::holds_alternative<TerainPaletteAnimation>(element))
+					{
+						auto tmp = std::get<TerrainPaletteAnimation>(element);
+						img->shiftPalette(tmp.start, tmp.length, l);
+					}
+					else
+					{
+						auto tmp = std::get<RiverPaletteAnimation>(element);
+						img->shiftPalette(tmp.start, tmp.length, l);
+					}
+					
+					img->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+
+					counter++;
+				}
+			}
+		}
 	}
 }
