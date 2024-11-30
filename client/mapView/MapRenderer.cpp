@@ -121,13 +121,23 @@ void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBl
 		terrainAnimations[3]->horizontalFlip();
 }
 
-std::shared_ptr<IImage> MapTileStorage::find(size_t fileIndex, size_t rotationIndex, size_t imageIndex)
+std::shared_ptr<IImage> MapTileStorage::find(size_t fileIndex, size_t rotationIndex, size_t imageIndex, size_t groupIndex)
 {
 	const auto & animation = animations[fileIndex][rotationIndex];
 	if (animation)
-		return animation->getImage(imageIndex); // ask for group
+		return animation->getImage(imageIndex, groupIndex); // ask for group
 	else
 		return nullptr;
+}
+
+int MapTileStorage::groupCount(size_t fileIndex, size_t rotationIndex, size_t imageIndex)
+{
+	const auto & animation = animations[fileIndex][rotationIndex];
+	if (animation)
+		for(int i = 0; true; i++)
+			if(!animation->getImage(imageIndex, i, false))
+				return i;
+	return 1;
 }
 
 MapRendererTerrain::MapRendererTerrain()
@@ -147,7 +157,8 @@ void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & targ
 	int32_t imageIndex = mapTile.terView;
 	int32_t rotationIndex = mapTile.extTileFlags % 4;
 
-	const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
+	int groupCount = storage.groupCount(terrainIndex, rotationIndex, imageIndex);
+	const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex, groupCount > 1 ? context.terrainImageIndex(groupCount) : 0);
 
 	assert(image);
 	if (!image)
@@ -155,9 +166,6 @@ void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & targ
 		logGlobal->error("Failed to find image %d for terrain %s on tile %s", imageIndex, mapTile.getTerrain()->getNameTranslated(), coordinates.toString());
 		return;
 	}
-
-	for( auto const & element : mapTile.getTerrain()->paletteAnimation)
-		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
 
 	target.draw(image, Point(0, 0));
 }
@@ -191,10 +199,8 @@ void MapRendererRiver::renderTile(IMapRendererContext & context, Canvas & target
 	int32_t imageIndex = mapTile.riverDir;
 	int32_t rotationIndex = (mapTile.extTileFlags >> 2) % 4;
 
-	const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
-
-	for( auto const & element : mapTile.getRiver()->paletteAnimation)
-		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
+	int groupCount = storage.groupCount(terrainIndex, rotationIndex, imageIndex);
+	const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex, groupCount > 1 ? context.terrainImageIndex(groupCount) : 0);
 
 	target.draw(image, Point(0, 0));
 }

@@ -41,7 +41,7 @@ private:
 	PlayerColor player = PlayerColor::CANNOT_DETERMINE;
 
 	//loader, will be called by load(), require opened def file for loading from it. Returns true if image is loaded
-	bool loadFrame(size_t frame, size_t group);
+	bool loadFrame(size_t frame, size_t group, bool verbose = true);
 
 	//unloadFrame, returns true if image has been unloaded ( either deleted or decreased refCount)
 	bool unloadFrame(size_t frame, size_t group);

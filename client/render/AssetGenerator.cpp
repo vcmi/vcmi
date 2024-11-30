@@ -409,6 +409,7 @@ void AssetGenerator::createPaletteShiftedSprites()
 						img->shiftPalette(tmp.start, tmp.length, l % tmp.length);
 					}
 				}
+				
 				Canvas canvas = Canvas(Point(32, 32), CanvasScalingPolicy::IGNORE);
 				canvas.draw(img, Point((32 - img->dimensions().x) / 2, (32 - img->dimensions().y) / 2));
 				std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
