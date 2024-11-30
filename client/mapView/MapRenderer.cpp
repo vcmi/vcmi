@@ -125,7 +125,7 @@ std::shared_ptr<IImage> MapTileStorage::find(size_t fileIndex, size_t rotationIn
 {
 	const auto & animation = animations[fileIndex][rotationIndex];
 	if (animation)
-		return animation->getImage(imageIndex);
+		return animation->getImage(imageIndex); // ask for group
 	else
 		return nullptr;
 }
@@ -156,8 +156,8 @@ void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & targ
 		return;
 	}
 
-	for( auto const & element : mapTile.getTerrain()->paletteAnimation)
-		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
+//	for( auto const & element : mapTile.getTerrain()->paletteAnimation)
+//		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
 
 	target.draw(image, Point(0, 0));
 }
@@ -193,8 +193,8 @@ void MapRendererRiver::renderTile(IMapRendererContext & context, Canvas & target
 
 	const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
 
-	for( auto const & element : mapTile.getRiver()->paletteAnimation)
-		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
+	//for( auto const & element : mapTile.getRiver()->paletteAnimation)
+	//	image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
 
 	target.draw(image, Point(0, 0));
 }

@@ -310,6 +310,8 @@ void CMainMenu::playIntroVideos()
 			cb(true);
 	};
 
+	AssetGenerator::generateAll();
+
 	playVideo("3DOLOGO.SMK", false, 1.25, [playVideo, this](bool skipped){
 		if(!skipped)
 			playVideo("NWCLOGO.SMK", false, 2, [playVideo, this](bool skipped){
