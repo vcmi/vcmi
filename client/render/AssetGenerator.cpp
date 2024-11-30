@@ -360,6 +360,11 @@ void AssetGenerator::createPaletteShiftedSprites()
 	for(int i = 0; i < tiles.size(); i++)
 	{
 		auto sprite = tiles[i];
+
+		JsonNode config;
+		config["basepath"].String() = sprite + "_Shifted/";
+		config["images"].Vector();
+
 		auto filename = AnimationPath::builtin(sprite).addPrefix("SPRITES/");
 		auto filenameNew = AnimationPath::builtin(sprite + "_Shifted").addPrefix("SPRITES/");
 
@@ -369,12 +374,22 @@ void AssetGenerator::createPaletteShiftedSprites()
 		auto anim = GH.renderHandler().loadAnimation(filename, EImageBlitMode::COLORKEY);
 		for(int j = 0; j < anim->size(); j++)
 		{
-			for(int l = 0; l < 11; l++)
+			int maxLen = 0;
+			for(int k = 0; k < paletteAnimations[i].size(); k++)
 			{
-				std::string filenameNew = "sprites/" + sprite + "_Shifted" + "/" + sprite + boost::str(boost::format("%02d") % j) + "_" + std::to_string(l) + ".png";
-				ResourcePath savePath(filenameNew, EResType::IMAGE);
+				auto element = paletteAnimations[i][k];
+				if(std::holds_alternative<TerrainPaletteAnimation>(element))
+					maxLen = std::max(maxLen, std::get<TerrainPaletteAnimation>(element).length);
+				else
+					maxLen = std::max(maxLen, std::get<RiverPaletteAnimation>(element).length);
+			}
+			for(int l = 0; l < maxLen; l++)
+			{
+				std::string spriteName = sprite + boost::str(boost::format("%02d") % j) + "_" + std::to_string(l) + ".png";
+				std::string filenameNewImg = "sprites/" + sprite + "_Shifted" + "/" + spriteName;
+				ResourcePath savePath(filenameNewImg, EResType::IMAGE);
 
-				if(!CResourceHandler::get("local")->createResource(filenameNew))
+				if(!CResourceHandler::get("local")->createResource(filenameNewImg))
 					return;
 
 				auto imgLoc = anim->getImageLocator(j, 0);
@@ -386,16 +401,31 @@ void AssetGenerator::createPaletteShiftedSprites()
 					if(std::holds_alternative<TerrainPaletteAnimation>(element))
 					{
 						auto tmp = std::get<TerrainPaletteAnimation>(element);
-						img->shiftPalette(tmp.start, tmp.length, l);
+						img->shiftPalette(tmp.start, tmp.length, l % tmp.length);
 					}
 					else
 					{
 						auto tmp = std::get<RiverPaletteAnimation>(element);
-						img->shiftPalette(tmp.start, tmp.length, l);
+						img->shiftPalette(tmp.start, tmp.length, l % tmp.length);
 					}
 				}
 				img->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+
+				JsonNode node;
+				node.Struct() = {
+					{ "group", JsonNode(std::to_string(l)) },
+					{ "frame", JsonNode(std::to_string(j)) },
+					{ "file", JsonNode(spriteName) }
+				};
+				config["images"].Vector().push_back(node);
 			}
 		}
+
+		ResourcePath savePath(filenameNew.getOriginalName(), EResType::JSON);
+		if(!CResourceHandler::get("local")->createResource(filenameNew.getOriginalName() + ".json"))
+			return;
+
+		std::fstream file(CResourceHandler::get()->getResourceName(savePath)->c_str(), std::ofstream::out | std::ofstream::trunc);
+		file << config.toString();
 	}
 }
