@@ -369,20 +369,20 @@ void AssetGenerator::createPaletteShiftedSprites()
 		auto anim = GH.renderHandler().loadAnimation(filename, EImageBlitMode::COLORKEY);
 		for(int j = 0; j < anim->size(); j++)
 		{
-			int counter = 0;
-			for(int k = 0; k < paletteAnimations[i].size(); k++)
+			for(int l = 0; l < 11; l++)
 			{
-				auto element = paletteAnimations[i][k];
-				int length = std::holds_alternative<TerrainPaletteAnimation>(element) ? std::get<TerrainPaletteAnimation>(element).length : std::get<RiverPaletteAnimation>(element).length;
-				for(int l = 0; l < length; l++)
+				std::string filenameNew = "sprites/" + sprite + "_Shifted" + "/" + sprite + boost::str(boost::format("%02d") % j) + "_" + std::to_string(l) + ".png";
+				ResourcePath savePath(filenameNew, EResType::IMAGE);
+
+				if(!CResourceHandler::get("local")->createResource(filenameNew))
+					return;
+
+				auto imgLoc = anim->getImageLocator(j, 0);
+				imgLoc.scalingFactor = 1;
+				auto img = GH.renderHandler().loadImage(imgLoc, EImageBlitMode::COLORKEY);
+				for(int k = 0; k < paletteAnimations[i].size(); k++)
 				{
-					std::string filenameNew = "sprites/" + sprite + "_Shifted" + "/" + sprite + boost::str(boost::format("%02d") % j) + "_" + std::to_string(counter) + ".png";
-					ResourcePath savePath(filenameNew, EResType::IMAGE);
-
-					if(!CResourceHandler::get("local")->createResource(filenameNew))
-						return;
-
-					auto img = anim->getImage(j);
+					auto element = paletteAnimations[i][k];
 					if(std::holds_alternative<TerrainPaletteAnimation>(element))
 					{
 						auto tmp = std::get<TerrainPaletteAnimation>(element);
@@ -393,11 +393,8 @@ void AssetGenerator::createPaletteShiftedSprites()
 						auto tmp = std::get<RiverPaletteAnimation>(element);
 						img->shiftPalette(tmp.start, tmp.length, l);
 					}
-					
-					img->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
-
-					counter++;
 				}
+				img->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 			}
 		}
 	}

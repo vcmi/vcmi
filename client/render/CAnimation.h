@@ -50,8 +50,6 @@ private:
 	void printError(size_t frame, size_t group, std::string type) const;
 
 	std::shared_ptr<IImage> getImageImpl(size_t frame, size_t group=0, bool verbose=true);
-
-	ImageLocator getImageLocator(size_t frame, size_t group) const;
 public:
 	CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <ImageLocator> > layout, EImageBlitMode mode);
 	~CAnimation();
@@ -74,5 +72,7 @@ public:
 	void playerColored(PlayerColor player);
 
 	void createFlippedGroup(const size_t sourceGroup, const size_t targetGroup);
+
+	ImageLocator getImageLocator(size_t frame, size_t group) const;
 };
 
