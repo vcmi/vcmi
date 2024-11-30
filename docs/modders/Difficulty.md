@@ -7,7 +7,7 @@ Difficulty configuration is located in [config/difficulty.json](../config/diffic
 
 ## Format summary
 
-``` javascript
+``` jsonc
 {
 	"human": //parameters impacting human players only
 	{

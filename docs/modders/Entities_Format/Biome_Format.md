@@ -38,5 +38,3 @@ Currently algorithm picks randomly:
 - One or two sets of **rocks** (small objects)
 - One of each remaining types of object (**structure**, **animal**, **other**), until enough number of sets is picked.
 - Obstacles marked as **other** are picked last, and are generally rare.
-
-

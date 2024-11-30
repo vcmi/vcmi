@@ -6,7 +6,7 @@ Qt Creator is the recommended IDE for VCMI development on Linux distributions, b
 - Almost no manual configuration when used with CMake. Project configuration is read from CMake text files,
 - Easy to setup and use with multiple different compiler toolchains: GCC, Visual Studio, Clang
 
-You can install Qt Creator from repository, but better to stick to latest version from Qt website: https://www.qt.io/download-qt-installer-oss
+You can install Qt Creator from repository, but better to stick to latest version from Qt website: <https://www.qt.io/download-qt-installer-oss>
 
 ## Configuration
 

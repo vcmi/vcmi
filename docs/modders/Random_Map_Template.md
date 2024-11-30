@@ -2,7 +2,7 @@
 
 ## Template format
 
-``` javascript
+``` jsonc
 /// Unique template name
 "Triangle" : 
 {
@@ -56,7 +56,7 @@
 
 ## Zone format
 
-``` javascript
+``` jsonc
 {
 	// Type of this zone. Possible values are:
 	// "playerStart", "cpuStart", "treasure", "junction"

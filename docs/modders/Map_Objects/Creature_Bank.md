@@ -6,8 +6,10 @@ Format of rewards is same as in [Rewardable Objects](Rewardable.md)
 Deprecated in 1.6. Please use [Rewardable Objects](Rewardable.md) instead. See Conversion from 1.5 format section below for help with migration
 
 ### Example
+
 This example defines a rewardable object with functionality similar of H3 creature bank.
 See [Rewardable Objects](Rewardable.md) for detailed documentation of these properties.
+
 ```jsonc
 {
 	"name" : "Cyclops Stockpile",
@@ -93,6 +95,7 @@ See [Rewardable Objects](Rewardable.md) for detailed documentation of these prop
 ```
 
 ### Conversion from 1.5 format
+
 This is a list of changes that needs to be done to bank config to migrate it to 1.6 system. See [Rewardable Objects](Rewardable.md) documentation for description of new fields
 
 - If your object type has defined `handler`, change its value from `bank` to `configurable`

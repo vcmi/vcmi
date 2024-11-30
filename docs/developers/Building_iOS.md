@@ -6,7 +6,8 @@
 2. Xcode: <https://developer.apple.com/xcode/>
 3. CMake 3.21+: `brew install --cask cmake` or get from <https://cmake.org/download/>
 4. Optional:
-  - CCache to speed up recompilation: `brew install ccache`
+
+- CCache to speed up recompilation: `brew install ccache`
 
 ## Obtaining source code
 

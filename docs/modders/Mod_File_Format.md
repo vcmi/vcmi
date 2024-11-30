@@ -2,7 +2,7 @@
 
 ## Fields with description of mod
 
-``` javascript
+``` jsonc
 {
 	// Name of your mod. While it does not have hard length limit
 	// it should not be longer than ~30 symbols to fit into allowed space
@@ -91,7 +91,7 @@
 
 These are fields that are present only in local mod.json file
 
-``` javascript
+``` jsonc
  
 {
 	// Following section describes configuration files with content added by mod

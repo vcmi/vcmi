@@ -34,6 +34,7 @@ Here is schema describing such object
 
 Mode parameter defines a way to exchange different entities. Multiple modes can be specified to support several types of exchange.
 Following options are supported:
+
 * `"resource-resource"` - regular resource exchange, like trading post
 * `"resource-player"` - allows to send resources to another player
 * `"creature-resource"` - acts like freelance guild
@@ -49,6 +50,7 @@ Following options are supported:
 ### Trading post
 
 Trading post allows to exchange resources and send resources to another player, so it shall be configured this way:
+
 ```json
 "modes" : ["resource-resource", "resource-player"]
 ```
