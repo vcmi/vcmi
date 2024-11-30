@@ -135,7 +135,7 @@ MapRendererTerrain::MapRendererTerrain()
 {
 	logGlobal->debug("Loading map terrains");
 	for(const auto & terrain : VLC->terrainTypeHandler->objects)
-		storage.load(terrain->getIndex(), terrain->tilesFilename, EImageBlitMode::OPAQUE);
+		storage.load(terrain->getIndex(), AnimationPath::builtin(terrain->tilesFilename.getName() + (terrain->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::OPAQUE);
 	logGlobal->debug("Done loading map terrains");
 }
 
@@ -156,8 +156,8 @@ void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & targ
 		return;
 	}
 
-//	for( auto const & element : mapTile.getTerrain()->paletteAnimation)
-//		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
+	for( auto const & element : mapTile.getTerrain()->paletteAnimation)
+		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
 
 	target.draw(image, Point(0, 0));
 }
@@ -176,7 +176,7 @@ MapRendererRiver::MapRendererRiver()
 {
 	logGlobal->debug("Loading map rivers");
 	for(const auto & river : VLC->riverTypeHandler->objects)
-		storage.load(river->getIndex(), river->tilesFilename, EImageBlitMode::COLORKEY);
+		storage.load(river->getIndex(), AnimationPath::builtin(river->tilesFilename.getName() + (river->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::COLORKEY);
 	logGlobal->debug("Done loading map rivers");
 }
 
@@ -193,8 +193,8 @@ void MapRendererRiver::renderTile(IMapRendererContext & context, Canvas & target
 
 	const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
 
-	//for( auto const & element : mapTile.getRiver()->paletteAnimation)
-	//	image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
+	for( auto const & element : mapTile.getRiver()->paletteAnimation)
+		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
 
 	target.draw(image, Point(0, 0));
 }

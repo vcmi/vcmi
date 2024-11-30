@@ -368,7 +368,7 @@ void AssetGenerator::createPaletteShiftedSprites()
 		auto filename = AnimationPath::builtin(sprite).addPrefix("SPRITES/");
 		auto filenameNew = AnimationPath::builtin(sprite + "_Shifted").addPrefix("SPRITES/");
 
-		if(CResourceHandler::get()->existsResource(ResourcePath(filenameNew))) // overridden by mod, no generation
+		if(CResourceHandler::get()->existsResource(ResourcePath(filenameNew.getName(), EResType::JSON))) // overridden by mod, no generation
 			return;
 		
 		auto anim = GH.renderHandler().loadAnimation(filename, EImageBlitMode::COLORKEY);
@@ -409,12 +409,15 @@ void AssetGenerator::createPaletteShiftedSprites()
 						img->shiftPalette(tmp.start, tmp.length, l % tmp.length);
 					}
 				}
-				img->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+				Canvas canvas = Canvas(Point(32, 32), CanvasScalingPolicy::IGNORE);
+				canvas.draw(img, Point((32 - img->dimensions().x) / 2, (32 - img->dimensions().y) / 2));
+				std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
+				image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 
 				JsonNode node;
 				node.Struct() = {
-					{ "group", JsonNode(std::to_string(l)) },
-					{ "frame", JsonNode(std::to_string(j)) },
+					{ "group", JsonNode(l) },
+					{ "frame", JsonNode(j) },
 					{ "file", JsonNode(spriteName) }
 				};
 				config["images"].Vector().push_back(node);
@@ -425,7 +428,7 @@ void AssetGenerator::createPaletteShiftedSprites()
 		if(!CResourceHandler::get("local")->createResource(filenameNew.getOriginalName() + ".json"))
 			return;
 
-		std::fstream file(CResourceHandler::get()->getResourceName(savePath)->c_str(), std::ofstream::out | std::ofstream::trunc);
+		std::fstream file(CResourceHandler::get("local")->getResourceName(savePath)->c_str(), std::ofstream::out | std::ofstream::trunc);
 		file << config.toString();
 	}
 }
