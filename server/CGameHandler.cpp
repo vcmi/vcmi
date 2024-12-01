@@ -1473,7 +1473,7 @@ bool CGameHandler::isPlayerOwns(CPackForServer * pack, ObjectInstanceID id)
 void CGameHandler::throwNotAllowedAction(CPackForServer * pack)
 {
 	if(pack->c)
-		playerMessages->sendSystemMessage(pack->c, "You are not allowed to perform this action!");
+		playerMessages->sendSystemMessage(pack->c, MetaString::createFromTextID("vcmi.server.errors.notAllowed"));
 
 	logNetwork->error("Player is not allowed to perform this action!");
 	throw ExceptionNotAllowedAction();
@@ -1481,12 +1481,13 @@ void CGameHandler::throwNotAllowedAction(CPackForServer * pack)
 
 void CGameHandler::wrongPlayerMessage(CPackForServer * pack, PlayerColor expectedplayer)
 {
-	std::ostringstream oss;
-	oss << "You were identified as player " << pack->player << " while expecting " << expectedplayer;
-	logNetwork->error(oss.str());
+	auto str = MetaString::createFromTextID("vcmi.server.errors.wrongIdentified");
+	str.appendName(pack->player);
+	str.appendName(expectedplayer);
+	logNetwork->error(str.toString());
 
 	if(pack->c)
-		playerMessages->sendSystemMessage(pack->c, oss.str());
+		playerMessages->sendSystemMessage(pack->c, str);
 }
 
 void CGameHandler::throwIfWrongOwner(CPackForServer * pack, ObjectInstanceID id)
@@ -1569,16 +1570,18 @@ bool CGameHandler::load(const std::string & filename)
 	catch(const ModIncompatibility & e)
 	{
 		logGlobal->error("Failed to load game: %s", e.what());
-		std::string errorMsg;
+		MetaString errorMsg;
 		if(!e.whatMissing().empty())
 		{
-			errorMsg += VLC->generaltexth->translate("vcmi.server.errors.modsToEnable") + '\n';
-			errorMsg += e.whatMissing();
+			errorMsg.appendTextID("vcmi.server.errors.modsToEnable");
+			errorMsg.appendRawString("\n");
+			errorMsg.appendRawString(e.whatMissing());
 		}
 		if(!e.whatExcessive().empty())
 		{
-			errorMsg += VLC->generaltexth->translate("vcmi.server.errors.modsToDisable") + '\n';
-			errorMsg += e.whatExcessive();
+			errorMsg.appendTextID("vcmi.server.errors.modsToDisable");
+			errorMsg.appendRawString("\n");
+			errorMsg.appendRawString(e.whatExcessive());
 		}
 		lobby->announceMessage(errorMsg);
 		return false;
@@ -1589,14 +1592,17 @@ bool CGameHandler::load(const std::string & filename)
 		MetaString errorMsg;
 		errorMsg.appendTextID("vcmi.server.errors.unknownEntity");
 		errorMsg.replaceRawString(e.identifierName);
-		lobby->announceMessage(errorMsg.toString());//FIXME: should be localized on client side
+		lobby->announceMessage(errorMsg);
 		return false;
 	}
 
 	catch(const std::exception & e)
 	{
 		logGlobal->error("Failed to load game: %s", e.what());
-		lobby->announceMessage(std::string("Failed to load game: ") + e.what());
+		auto str = MetaString::createFromTextID("vcmi.broadcast.failedLoadGame");
+		str.appendRawString(": ");
+		str.appendRawString(e.what());
+		lobby->announceMessage(str);
 		return false;
 	}
 	gs->preInit(VLC, this);
@@ -3265,7 +3271,7 @@ bool CGameHandler::complain(const std::string &problem)
 {
 #ifndef ENABLE_GOLDMASTER
 	MetaString str;
-	str.appendTextID("vcmi.broadcast.serverproblem");
+	str.appendTextID("vcmi.broadcast.serverProblem");
 	str.appendRawString(": ");
 	str.appendRawString(problem);
 	playerMessages->broadcastSystemMessage(str);

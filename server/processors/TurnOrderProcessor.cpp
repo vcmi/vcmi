@@ -83,7 +83,7 @@ void TurnOrderProcessor::updateAndNotifyContactStatus()
 				continue;
 
 			MetaString message;
-			message.appendTextID("vcmi.broadcast.simturn.endbetween");
+			message.appendTextID("vcmi.broadcast.simturn.endBetween");
 			message.replaceName(contact.a);
 			message.replaceName(contact.b);
 
