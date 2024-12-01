@@ -381,17 +381,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuto modifikaci nelze aktivovat, protože je určena pro jiný jazyk.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuto modifikaci nelze aktivovat, protože chybí následující závislosti</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuto modifikaci nelze nainstalovat, protože chybí následující závislosti</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
@@ -1255,7 +1255,7 @@ Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahuj
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="594"/>
         <source>Install VCMI Mod Preset</source>
-        <translation>Instalovat předvybrané modifiakce VCMI</translation>
+        <translation>Instalovat předvybrané VCMI modifikace</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="710"/>
@@ -1546,84 +1546,84 @@ Důvod chyby: </translation>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="126"/>
         <source>Can not install submod</source>
-        <translation type="unfinished">Nelze nainstalovat podmodifikaci</translation>
+        <translation>Nelze nainstalovat podmodifikaci</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="129"/>
         <source>Mod is already installed</source>
-        <translation type="unfinished">Modifikace je již nainstalována</translation>
+        <translation>Modifikace je již nainstalována</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="138"/>
         <source>Can not uninstall submod</source>
-        <translation type="unfinished">Nelze odinstalovat podmodifikaci</translation>
+        <translation>Nelze odinstalovat podmodifikaci</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="141"/>
         <source>Mod is not installed</source>
-        <translation type="unfinished">Modifikace není nainstalována</translation>
+        <translation>Modifikace není nainstalována</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="151"/>
         <source>Mod is already enabled</source>
-        <translation type="unfinished">Modifikace je již povolena</translation>
+        <translation>Modifikace je již povolena</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="154"/>
         <location filename="../modManager/modstatecontroller.cpp" line="180"/>
         <source>Mod must be installed first</source>
-        <translation type="unfinished">Nejprve musí být nainstalována modifikace</translation>
+        <translation>Nejprve je třeba nainstalovat modifikaci</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="158"/>
         <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
-        <translation type="unfinished">Modifikace není kompatibilní, prosíme aktualizujte VCMI a použijte nejnovější verzi modifikace</translation>
+        <translation>Modifikace není kompatibilní, prosím aktualizujte VCMI a použijte nejnovější verzi modifikace</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="161"/>
         <source>Can not enable translation mod for a different language!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nelze zapnout modifikaci s překladem pro jiný jazyk!</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="166"/>
         <source>Required mod %1 is missing</source>
-        <translation type="unfinished">Vyžadovaná modifkace %1 chybí</translation>
+        <translation>Vyžadovaná modifkace %1 chybí</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="177"/>
         <source>Mod is already disabled</source>
-        <translation type="unfinished">Modifikace je již povolena</translation>
+        <translation>Modifikace je již deaktivována</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="190"/>
         <source>Mod archive is missing</source>
-        <translation type="unfinished">Archiv modifikace chybí</translation>
+        <translation>Archiv modifikace chybí</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="193"/>
         <source>Mod with such name is already installed</source>
-        <translation type="unfinished">Modifikace s tímto názvem je již nainstalována</translation>
+        <translation>Modifikace s tímto názvem je již nainstalována</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="198"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation type="unfinished">Archiv modifikace je neplatný nebo poškozený</translation>
+        <translation>Archiv modifikace je neplatný nebo poškozený</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="224"/>
         <source>Failed to extract mod data</source>
-        <translation type="unfinished">Extrakce dat modifikace selhala</translation>
+        <translation>Extrakce modifikace selhala</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="250"/>
         <source>Data with this mod was not found</source>
-        <translation type="unfinished">Data s touto modifikací nebyla nalezena</translation>
+        <translation>Data s touto modifikací nebyla nalezena</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="254"/>
         <source>Mod is located in protected directory, please remove it manually:
 </source>
-        <translation type="unfinished">Modifikace se nachází v zabezpečené složce, prosíme odstraňte ji ručně:
+        <translation>Modifikace se nachází v zabezpečené složce, prosím odstraňte ji ručně:
 </translation>
     </message>
 </context>
@@ -1632,106 +1632,106 @@ Důvod chyby: </translation>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="36"/>
         <source>Translation</source>
-        <translation type="unfinished">Překlad</translation>
+        <translation>Překlad</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="37"/>
         <source>Town</source>
-        <translation type="unfinished">Město</translation>
+        <translation>Město</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="38"/>
         <source>Test</source>
-        <translation type="unfinished">Zkouška</translation>
+        <translation>Zkouška</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="39"/>
         <source>Templates</source>
-        <translation type="unfinished">Šablony</translation>
+        <translation>Šablony</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="40"/>
         <source>Spells</source>
-        <translation type="unfinished">Kouzla</translation>
+        <translation>Kouzla</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="41"/>
         <source>Music</source>
-        <translation type="unfinished">Hudba</translation>
+        <translation>Hudba</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="42"/>
         <source>Maps</source>
-        <translation type="unfinished">Mapy</translation>
+        <translation>Mapy</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="43"/>
         <source>Sounds</source>
-        <translation type="unfinished">Zvuky</translation>
+        <translation>Zvuky</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="44"/>
         <source>Skills</source>
-        <translation type="unfinished">Schopnosti</translation>
+        <translation>Schopnosti</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="45"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="63"/>
         <source>Other</source>
-        <translation type="unfinished">Ostatní</translation>
+        <translation>Ostatní</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="46"/>
         <source>Objects</source>
-        <translation type="unfinished">Objekty</translation>
+        <translation>Objekty</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="47"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="48"/>
         <source>Mechanics</source>
-        <translation type="unfinished">Mechaniky</translation>
+        <translation>Mechaniky</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="49"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="50"/>
         <source>Interface</source>
-        <translation type="unfinished">Rozhraní</translation>
+        <translation>Rozhraní</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="51"/>
         <source>Heroes</source>
-        <translation type="unfinished">Hrdinové</translation>
+        <translation>Hrdinové</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="52"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="53"/>
         <source>Graphical</source>
-        <translation type="unfinished">Grafika</translation>
+        <translation>Grafika</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Expansion</source>
-        <translation type="unfinished">Rozšíření</translation>
+        <translation>Rozšíření</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
         <source>Creatures</source>
-        <translation type="unfinished">Jednotky</translation>
+        <translation>Jednotky</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="56"/>
         <source>Compatibility</source>
-        <translation type="unfinished">Kompabilita</translation>
+        <translation>Kompatibilita</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefakty</translation>
+        <translation>Artefakty</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="58"/>
         <source>AI</source>
-        <translation type="unfinished">AI</translation>
+        <translation>AI</translation>
     </message>
 </context>
 <context>
