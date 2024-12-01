@@ -65,15 +65,7 @@ QString Innoextract::getHashError(QFile exe, std::optional<QFile> bin)
 {
 	enum filetype
 	{
-		H3_COMPLETE,
-		CHR1,
-		CHR2,
-		CHR3,
-		CHR4,
-		CHR5,
-		CHR6,
-		CHR7,
-		CHR8
+		H3_COMPLETE, CHR
 	};
 	struct data
 	{
@@ -94,42 +86,67 @@ QString Innoextract::getHashError(QFile exe, std::optional<QFile> bin)
 		{ H3_COMPLETE, "french",     822688,  998540653, "fbb300eeef52f5d81a571a178723b19313e3856d", "4f4d90ff2f60968616766237664744bc54754500" }, // setup_heroes_of_might_and_magic_3_complete_4.0_(3.2)_gog_0.1_(french)_(77075).exe
 		{ H3_COMPLETE, "polish",     819904,  851750601, "a413b0b9f3d5ca3e1a57e84a42de28c67d77b1a7", "fd9fe58bcbb8b442e8cfc299d90f1d503f281d40" }, // setup_heroes_of_might_and_magic_3_complete_4.0_(3.2)_gog_0.1_(polish)_(77075).exe
 		{ H3_COMPLETE, "russian",    819416,  981633128, "e84eedf62fe2e5f9171a7e1ce6e99315a09ce41f", "49cc683395c0cf80830bfa66e42bb5dfdb7aa124" }, // setup_heroes_of_might_and_magic_3_complete_4.0_(3.2)_gog_0.1_(russian)_(77075).exe
-		{ CHR1,        "english", 485694752,          0, "44e4fc2c38261a1c2a57d5198f44493210e8fc1a", ""                                         }, // setup_heroes_chronicles_chapter1_2.1.0.42.exe
-		{ CHR2,        "english", 493102840,          0, "b479a3272cf4b57a6b7fc499df5eafb624dcd6de", ""                                         }, // setup_heroes_chronicles_chapter2_2.1.0.43.exe
-		{ CHR3,        "english", 470364128,          0, "5ad36d822e1700c9ecf93b78652900a52518146b", ""                                         }, // setup_heroes_chronicles_chapter3_2.1.0.41.exe
-		{ CHR4,        "english", 469211296,          0, "5deb374a2e188ed14e8f74ad1284c45e46adf760", ""                                         }, // setup_heroes_chronicles_chapter4_2.1.0.42.exe
-		{ CHR5,        "english", 447497560,          0, "a6daa6ed56c840f3be7ad6ad920a2f9f2439acc8", ""                                         }, // setup_heroes_chronicles_chapter5_2.1.0.42.exe
-		{ CHR6,        "english", 447430456,          0, "93a42dd24453f36e7020afc61bca05b8461a3f04", ""                                         }, // setup_heroes_chronicles_chapter6_2.1.0.42.exe
-		{ CHR7,        "english", 481583720,          0, "d74b042015f3c5b667821c5d721ac3d2fdbf43fc", ""                                         }, // setup_heroes_chronicles_chapter7_2.1.0.42.exe
-		{ CHR8,        "english", 462976008,          0, "9039050e88b9dabcdb3ffa74b33e6aa86a20b7d9", ""                                         }, // setup_heroes_chronicles_chapter8_2.1.0.42.exe
+		{ CHR,         "english", 485694752,          0, "44e4fc2c38261a1c2a57d5198f44493210e8fc1a", ""                                         }, // setup_heroes_chronicles_chapter1_2.1.0.42.exe
+		{ CHR,         "english", 493102840,          0, "b479a3272cf4b57a6b7fc499df5eafb624dcd6de", ""                                         }, // setup_heroes_chronicles_chapter2_2.1.0.43.exe
+		{ CHR,         "english", 470364128,          0, "5ad36d822e1700c9ecf93b78652900a52518146b", ""                                         }, // setup_heroes_chronicles_chapter3_2.1.0.41.exe
+		{ CHR,         "english", 469211296,          0, "5deb374a2e188ed14e8f74ad1284c45e46adf760", ""                                         }, // setup_heroes_chronicles_chapter4_2.1.0.42.exe
+		{ CHR,         "english", 447497560,          0, "a6daa6ed56c840f3be7ad6ad920a2f9f2439acc8", ""                                         }, // setup_heroes_chronicles_chapter5_2.1.0.42.exe
+		{ CHR,         "english", 447430456,          0, "93a42dd24453f36e7020afc61bca05b8461a3f04", ""                                         }, // setup_heroes_chronicles_chapter6_2.1.0.42.exe
+		{ CHR,         "english", 481583720,          0, "d74b042015f3c5b667821c5d721ac3d2fdbf43fc", ""                                         }, // setup_heroes_chronicles_chapter7_2.1.0.42.exe
+		{ CHR,         "english", 462976008,          0, "9039050e88b9dabcdb3ffa74b33e6aa86a20b7d9", ""                                         }, // setup_heroes_chronicles_chapter8_2.1.0.42.exe
 	};
 
 	std::string exeHash;
 	std::string binHash;
+	int exeSize = 0;
+	int binSize = 0;
 
 	if(exe.open(QFile::ReadOnly)) {
-        QCryptographicHash hash(QCryptographicHash::Algorithm::Sha1);
-        if(hash.addData(&exe)) {
-            exeHash = hash.result().toHex().toLower().toStdString();
-        }
-    }
+		QCryptographicHash hash(QCryptographicHash::Algorithm::Sha1);
+		if(hash.addData(&exe))
+			exeHash = hash.result().toHex().toLower().toStdString();
+		exeSize = exe.size();
+	}
 	else
 		return QString{}; // reading problem
 	if(bin)
 	{
 		if((*bin).open(QFile::ReadOnly)) {
 			QCryptographicHash hash(QCryptographicHash::Algorithm::Sha1);
-			if(hash.addData(&(*bin))) {
+			if(hash.addData(&(*bin)))
 				binHash = hash.result().toHex().toLower().toStdString();
-			}
+			binSize = (*bin).size();
 		}
 		else
 			return QString{}; // reading problem
 	}
 	
-	QString hashOutput = tr("Hash:\n") + tr("Exe: ") + QString::fromStdString(exeHash);
+	QString hashOutput = tr("Hash:\n") + tr("Exe") + ": " + QString::fromStdString(exeHash) + " (" + QString::number(1) + " " + tr("bytes") + ")";
 	if(!binHash.empty())
-		hashOutput += "\n" + tr("Bin: ") + QString::fromStdString(binHash);
+		hashOutput += "\n" + tr("Bin") + ": " + QString::fromStdString(binHash) + " (" + QString::number(1) + " " + tr("bytes") + ")";
+	
+	QString foundKnown;
+	QString exeLang;
+	QString binLang;
+	auto find = [exeHash, binHash](const data & d) { return (!d.exe.empty() && d.exe == exeHash) || (!d.bin.empty() && d.bin == binHash);};
+	auto it = std::find_if(knownHashes.begin(), knownHashes.end(), find);
+	while(it != knownHashes.end()){
+		auto lang = QString::fromStdString((*it).language);
+		foundKnown += (exeHash == (*it).exe ? tr("Exe") : tr("Bin")) + " - " + lang + "\n";
+		if(exeHash == (*it).exe)
+			exeLang = lang;
+		else
+			binLang = lang;
+		it = std::find_if(++it, knownHashes.end(), find);
+	}
+	if(!exeLang.isEmpty() && !binLang.isEmpty() && exeLang != binLang && bin)
+		return tr("Language mismatch.\n\n") + foundKnown + "\n\n" + hashOutput;
+	else if((!exeLang.isEmpty() || !binLang.isEmpty()) && bin)
+		return tr("Only one file known.\n\n") + foundKnown + "\n\n" + hashOutput;
+	else if(!exeLang.isEmpty() && !bin)
+		return QString{};
+	else if(!exeLang.isEmpty() && bin && exeLang == binLang)
+		return QString{};
 
-	return tr("Unknown files:\n\n") + hashOutput;
+	return tr("Unknown files. Maybe files are corrupted? Please download again.\n\n") + hashOutput;
 }

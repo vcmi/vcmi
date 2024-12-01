@@ -395,7 +395,7 @@ void FirstLaunchView::extractGogData()
 		QStringList dirData = tempDir.entryList({"data"}, QDir::Filter::Dirs);
 		if(!errorText.isEmpty() || dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
 		{
-			if(!errorText.isEmpty())
+			if(!errorText.isEmpty()) //
 				QMessageBox::critical(this, tr("Extracting error!"), errorText, QMessageBox::Ok, QMessageBox::Ok);
 			else
 				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
