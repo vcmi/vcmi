@@ -140,6 +140,7 @@
 * Fixed duplicated list of spells in Mage Guild in copy-pasted towns
 * Removed separate versioning of map editor. Map editor now has same version as VCMI
 * Timed events interfaces now counts days from 1, instead of from 0
+* Added Recent Files to File Menu and Toolbar
 
 ### Modding
 * Added support for configurable flaggable objects that can provide bonuses or daily income to owning player
