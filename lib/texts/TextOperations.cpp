@@ -221,7 +221,7 @@ std::string TextOperations::getFormattedDateTimeLocal(std::time_t dt)
 
 std::string TextOperations::getFormattedTimeLocal(std::time_t dt)
 {
-	return vstd::getFormattedDateTime(dt, "%H:%M");
+	return vstd::getFormattedDateTime(dt, "%H:%M:%S");
 }
 
 std::string TextOperations::getCurrentFormattedTimeLocal(std::chrono::seconds timeOffset)
