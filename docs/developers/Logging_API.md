@@ -68,7 +68,7 @@ The following code shows how the logging system can be configured:
 
 If `configureDefault` or `configure` won't be called, then logs aren't written either to the console or to the file. The default logging setups a system like this:
 
-**Console**
+#### Console
 
 Format: %m
 Threshold: info
@@ -76,11 +76,11 @@ coloredOutputEnabled: true
 
 colorMapping: trace -\> gray, debug -\> white, info -\> green, warn -\> yellow, error -\> red
 
-**File**
+#### File
 
 Format: %d %l %n \[%t\] - %m
 
-**Loggers**
+#### Loggers
 
 global -\> info
 

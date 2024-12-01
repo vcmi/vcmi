@@ -11,14 +11,14 @@ We have 3 battle AIs so far:
 * StupidAI - for neutrals, should be simple so that experienced players can abuse it
 * Empty AI - should do nothing at all. If needed another battle AI can be introduced.  
 
-Each battle AI consist of a few classes, but the main class, kind of entry point usually has the same name as the package itself. In BattleAI it is the BattleAI class. It implements some battle specific interface, do not remember. Main method there is activeStack(battle::Unit*stack). It is invoked by the system when it's time to move your stack. The thing you use to interact with the game and receive the gamestate is usually referenced in the code as cb. CPlayerSpecificCallback it should be. It has a lot of methods and can do anything. For instance it has battleGetUnitsIf(), which returns all units on the battlefield matching some lambda condition.
-Each side in a battle is represented by an CArmedInstance object. CHeroInstance and CGDwelling, CGMonster and more are subclasses of CArmedInstance. CArmedInstance contains a set of stacks. When the battle starts, these stacks are converted to battle stacks. Usually Battle AIs reference them using the interface battle::Unit*.
+Each battle AI consist of a few classes, but the main class, kind of entry point usually has the same name as the package itself. In BattleAI it is the BattleAI class. It implements some battle specific interface, do not remember. Main method there is `activeStack(battle::Unit * stack)`. It is invoked by the system when it's time to move your stack. The thing you use to interact with the game and receive the gamestate is usually referenced in the code as `cb`. `CPlayerSpecificCallback` it should be. It has a lot of methods and can do anything. For instance it has battleGetUnitsIf(), which returns all units on the battlefield matching some lambda condition.
+Each side in a battle is represented by an `CArmedInstance` object. `CHeroInstance` and `CGDwelling`, `CGMonster` and more are subclasses of `CArmedInstance`. `CArmedInstance` contains a set of stacks. When the battle starts, these stacks are converted to battle stacks. Usually Battle AIs reference them using the interface `battle::Unit *`.
 Units have bonuses. Nearly everything aspect of a unit is configured in the form of bonuses. Attack, defense, health, retaliation, shooter or not, initial count of shots and so on.
-When you call unit->getAttack() it summarizes all these bonuses and returns the resulting value.  
+When you call `unit->getAttack()` it summarizes all these bonuses and returns the resulting value.  
 
-One important class is HypotheticBattle. It is used to evaluate the effects of an action without changing the actual gamestate. It is a wrapper around CPlayerSpecificCallback or another HypotheticBattle so it can provide you data, Internally it has a set of modified unit states and intercepts some calls to underlying callback and returns these internal states instead. These states in turn are wrappers around original units and contain modified bonuses (CStackWithBonuses). So if you need to emulate an attack you can call hypotheticbattle.getforupdate() and it will return the CStackWithBonuses which you can safely change.  
+One important class is `HypotheticBattle`. It is used to evaluate the effects of an action without changing the actual gamestate. It is a wrapper around `CPlayerSpecificCallback` or another `HypotheticBattle` so it can provide you data, Internally it has a set of modified unit states and intercepts some calls to underlying callback and returns these internal states instead. These states in turn are wrappers around original units and contain modified bonuses (`CStackWithBonuses`). So if you need to emulate an attack you can call `hypotheticbattle.getforupdate()` and it will return the `CStackWithBonuses` which you can safely change.  
 
-## BattleAI  
+## BattleAI
 
 BattleAI's most important classes are the following:
 
@@ -47,9 +47,9 @@ Nullkiller engine - place where actual AI logic is organized. It contains a main
 
 * reset AI state, it avoids keeping some memory about the game in general to reduce amount of things serialized into savefile state. The only serialized things are in nullkiller->memory. This helps reducing save incompatibility. It should be mostly enough for AI to analyze data avaialble in CCallback
 * main loop, loop iteration is called a pass
-**update AI state, some state is lazy and updates once per day to avoid performance hit, some state is recalculated each loop iteration. At this stage analysers and pathfidner work
-** gathering goals, prioritizing and decomposing them
-** execute selected best goals
+  * update AI state, some state is lazy and updates once per day to avoid performance hit, some state is recalculated each loop iteration. At this stage analysers and pathfidner work
+  * gathering goals, prioritizing and decomposing them
+  * execute selected best goals
 
 Analyzer - a module gathering data from CCallback *. Its goal to make some statistics and avoid making any significant decissions.
 

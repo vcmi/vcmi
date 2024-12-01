@@ -27,8 +27,8 @@ So far we using following services:
   - One administrative email used for other services registration.
   - "noreply" email used for outgoing mail on Wiki and Bug Tracker.
   - "forum" email used for outgoing mail on Forums. Since we authenticate everyone through forum it's should be separate email.
-- Administrator access: Tow, SXX.
-  - [Google Play Console](https://play.google.com/apps/publish/) account.
+  - Administrator access: Tow, SXX.
+- [Google Play Console](https://play.google.com/apps/publish/) account.
   - Hold ownership over VCMI Android App.
   - Owner: SXX
   - Administrator access: Warmonger, AVS, Ivan.

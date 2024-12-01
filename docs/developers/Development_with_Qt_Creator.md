@@ -21,4 +21,4 @@ The build dir should be set to something like /trunk/build for the debug build a
 There is a problem with QtCreator when debugging both vcmiclient and vcmiserver. If you debug the vcmiclient, start a game, attach the vcmiserver process to the gdb debugger(Debug \> Start Debugging \> Attach to Running External Application...) then breakpoints which are set for vcmiserver will be ignored. This looks like a bug, in any case it's not intuitively. Two workarounds are available luckily:
 
 1. Run vcmiclient (no debug mode), then attach server process to the debugger
-2. Open two instances of QtCreator and debug vcmiserver and vcmiclient separately(it works!)
+2. Open two instances of QtCreator and debug vcmiserver and vcmiclient separately (it works!)

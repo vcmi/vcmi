@@ -59,7 +59,7 @@ Should be done 1 day before release. At this point beta branch is in full freeze
 - Merge `beta` into `master`. This will trigger CI pipeline that will generate release packages
 - Create draft release page, specify `1.x.y` as tag for `master` after publishing
 - Check that artifacts for all platforms have been built by CI on `master` branch
-- Download and rename all build artifacts to use form "VCMI-1.X.Y-Platform.xxx"
+- Download and rename all build artifacts to use form `VCMI-1.X.Y-Platform.xxx`
 - Attach build artifacts for all platforms to release page
 - Manually extract Windows installer, remove `$PLUGINSDIR` directory which contains installer files and repackage data as .zip archive
 - Attach produced zip archive to release page as an alternative Windows installer

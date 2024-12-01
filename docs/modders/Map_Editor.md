@@ -172,7 +172,7 @@ You can modify general properties of the map
 
 ## Player settings
 
-Open **Map** menu on the top and select **Player settings"
+Open **Map** menu on the top and select **Player settings**
 
 <img width="141" src="https://user-images.githubusercontent.com/9308612/188781357-4a6091cf-f175-4649-a000-620f306d2c46.png">
 

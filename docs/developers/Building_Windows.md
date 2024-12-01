@@ -68,7 +68,9 @@ Be aware that building Vcpkg might take a lot of time depend on your CPU model a
 
 From command line use:
 
-`git clone https://github.com/microsoft/vcpkg.git %VCMI_DIR%/vcpkg`
+```sh
+git clone https://github.com/microsoft/vcpkg.git %VCMI_DIR%/vcpkg
+```
 
 #### Build vcpkg and dependencies
 

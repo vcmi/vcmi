@@ -12,9 +12,7 @@ Check the files in *config/heroes/* for additional usage examples.
 
 - Type: Complex
 - Parameters: valPer20, stepSize=1
-- Effect: Updates val to
-
-`ceil(valPer20 * floor(heroLevel / stepSize) / 20)`
+- Effect: Updates val to `ceil(valPer20 * floor(heroLevel / stepSize) / 20)`
 
 Example: The following updater will cause a bonus to grow by 6 for every
 40 levels. At first level, rounding will cause the bonus to be 0.
@@ -46,13 +44,9 @@ Remarks:
 ## TIMES_HERO_LEVEL
 
 - Type: Simple
-- Effect: Updates val to
+- Effect: Updates val to `val * heroLevel`
 
-`val * heroLevel`
-
-Usage:
-
-`"updater" : "TIMES_HERO_LEVEL"`
+Usage: `"updater" : "TIMES_HERO_LEVEL"`
 
 Remark: This updater is redundant, in the sense that GROWS_WITH_LEVEL
 can also express the desired scaling by setting valPer20 to 20\*val. It
@@ -61,9 +55,7 @@ has been added for convenience.
 ## TIMES_STACK_LEVEL
 
 - Type: Simple
-- Effect: Updates val to
-
-`val * stackLevel`
+- Effect: Updates val to `val * stackLevel`
 
 Usage:
 
@@ -74,13 +66,9 @@ Remark: The stack level for war machines is 0.
 ## ARMY_MOVEMENT
 
 - Type: Complex
-- Parameters: basePerSpeed, dividePerSpeed, additionalMultiplier,
-    maxValue
-- Effect: Updates val to val+= max((floor(basePerSpeed /
-    dividePerSpeed)\* additionalMultiplier), maxValue)
-- Remark: this updater is designed for MOVEMENT bonus to match H3 army
-    movement rules (in the example - actual movement updater, which
-    produces values same as in default movement.txt).
+- Parameters: basePerSpeed, dividePerSpeed, additionalMultiplier, maxValue
+- Effect: Updates val to `val+= max((floor(basePerSpeed / dividePerSpeed) * additionalMultiplier), maxValue)`
+- Remark: this updater is designed for MOVEMENT bonus to match H3 army movement rules (in the example - actual movement updater, which produces values same as in default movement.txt).
 - Example:
 
 ``` jsonc

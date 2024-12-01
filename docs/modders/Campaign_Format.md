@@ -3,7 +3,7 @@
 ## Introduction
 
 Starting from version 1.3, VCMI supports its own campaign format.
-Campaigns have `*.vcmp file` format and it consists from campaign json and set of scenarios (can be both `*.vmap` and `*.h3m`)
+Campaigns have `*.vcmp` file format and it consists from campaign json and set of scenarios (can be both `*.vmap` and `*.h3m`)
 
 To start making campaign, create file named `header.json`. See also [Packing campaign](#packing-campaign)
 

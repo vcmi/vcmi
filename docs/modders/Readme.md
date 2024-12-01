@@ -208,8 +208,10 @@ Link to our mod will looks like that: <https://github.com/vcmi-mods/adventure-ai
 
 For sanity reasons mod identifier must only contain lower-case English characters, numbers and hyphens.
 
-`my-mod-name`
-`2000-new-maps`
+```
+my-mod-name
+2000-new-maps
+```
 
 Sub-mods can be named as you like, but we strongly encourage everyone to use proper identifiers for them as well.
 
