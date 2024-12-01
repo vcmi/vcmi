@@ -425,7 +425,10 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 				if (auto recruitGoal = dynamic_cast<Goals::RecruitHero*>(task.get())) 
 				{
 					if (recruitGoal->getHero() == hero)
+					{
 						heroAlreadyHiredInOtherTown = true;
+						break;
+					}
 				}
 			}
 			if (heroAlreadyHiredInOtherTown)
