@@ -166,12 +166,14 @@ void MainWindow::exitSetup()
 void MainWindow::switchToStartTab()
 {
 	ui->startGameButton->setEnabled(true);
+	ui->startGameButton->setChecked(true);
 	ui->tabListWidget->setCurrentIndex(TabRows::START);
 }
 
 void MainWindow::switchToModsTab()
 {
 	ui->startGameButton->setEnabled(true);
+	ui->modslistButton->setChecked(true);
 	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
 }
 
