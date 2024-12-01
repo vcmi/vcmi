@@ -65,6 +65,7 @@ This json file will allow replacing .def file for a button with png images. Butt
 4. Highlighted state. This state is used by only some buttons and only in some cases. For example, in main menu buttons will appear highlighted when mouse cursor is on top of the image. Another example is buttons that can be selected, such as settings that can be toggled on or off
 
 ```json5
+{
 	"basepath" : "interface/MyButton", // all images are located in this directory
 
 	"images" :
@@ -82,6 +83,7 @@ This json file will allow replacing .def file for a button with png images. Butt
 This json file allows defining one animation sequence, for example for adventure map objects or for town buildings.
 
 ```json5
+{
 	"basepath" : "myTown/myBuilding", // all images are located in this directory
 
 	"sequences" :
