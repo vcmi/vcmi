@@ -123,7 +123,7 @@ QString Innoextract::getHashError(QString exeFile, QString binFile)
 			return QString{}; // reading problem
 	}
 	
-	QString hashOutput = tr("SHA1-Hash of provided files:\n") + tr("Exe") + " (" + QString::number(exeSize) + " " + tr("bytes") + ")" + ":\n" + QString::fromStdString(exeHash);
+	QString hashOutput = tr("SHA1 hash of provided files:\n") + tr("Exe") + " (" + QString::number(exeSize) + " " + tr("bytes") + ")" + ":\n" + QString::fromStdString(exeHash);
 	if(!binHash.empty())
 		hashOutput += "\n" + tr("Bin") + " (" + QString::number(binSize) + " " + tr("bytes") + ")" + ":\n" + QString::fromStdString(binHash);
 	
@@ -142,13 +142,13 @@ QString Innoextract::getHashError(QString exeFile, QString binFile)
 		it = std::find_if(++it, knownHashes.end(), find);
 	}
 	if(!exeLang.isEmpty() && !binLang.isEmpty() && exeLang != binLang && !binFile.isEmpty())
-		return tr("Language mismatch.\n\n") + foundKnown + "\n\n" + hashOutput;
+		return tr("Language mismatch!\n\n") + foundKnown + "\n\n" + hashOutput;
 	else if((!exeLang.isEmpty() || !binLang.isEmpty()) && !binFile.isEmpty())
-		return tr("Only one file known. Maybe files are corrupted? Please download again.\n\n") + foundKnown + "\n\n" + hashOutput;
+		return tr("Only one file known! Maybe files are corrupted? Please download again.\n\n") + foundKnown + "\n\n" + hashOutput;
 	else if(!exeLang.isEmpty() && binFile.isEmpty())
 		return QString{};
 	else if(!exeLang.isEmpty() && !binFile.isEmpty() && exeLang == binLang)
 		return QString{};
 
-	return tr("Unknown files. Maybe files are corrupted? Please download again.\n\n") + hashOutput;
+	return tr("Unknown files! Maybe files are corrupted? Please download again.\n\n") + hashOutput;
 }
