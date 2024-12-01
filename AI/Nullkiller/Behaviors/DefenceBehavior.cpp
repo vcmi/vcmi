@@ -41,9 +41,6 @@ Goals::TGoalVec DefenceBehavior::decompose(const Nullkiller * ai) const
 	for(auto town : ai->cb->getTownsInfo())
 	{
 		evaluateDefence(tasks, town, ai);
-		//Let's do only one defence-task per pass since otherwise it can try to hire the same hero twice
-		if (!tasks.empty())
-			break;
 	}
 
 	return tasks;
@@ -420,6 +417,18 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 		for(auto hero : heroesInTavern)
 		{
 			if(hero->getTotalStrength() < threat.danger)
+				continue;
+
+			bool heroAlreadyHiredInOtherTown = false;
+			for (const auto& task : tasks) 
+			{
+				if (auto recruitGoal = dynamic_cast<Goals::RecruitHero*>(task.get())) 
+				{
+					if (recruitGoal->getHero() == hero)
+						heroAlreadyHiredInOtherTown = true;
+				}
+			}
+			if (heroAlreadyHiredInOtherTown)
 				continue;
 
 			auto myHeroes = ai->cb->getHeroesInfo();
