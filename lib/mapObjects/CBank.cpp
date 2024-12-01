@@ -109,6 +109,9 @@ void CBank::setPropertyDer (ObjProperty what, ObjPropertyID identifier)
 		case ObjProperty::BANK_CLEAR:
 			bankConfig.reset();
 			break;
+		// Silenct -Wswitch
+		default:
+			break;
 	}
 }
 

@@ -86,6 +86,9 @@ void CZonePlacer::findPathsBetweenZones()
 					case rmg::EConnectionType::REPULSIVE:
 					case rmg::EConnectionType::FORCE_PORTAL:
 						continue;
+					// Silence -Wswitch
+					default:
+						break;
 				}
 				auto neighbor = connection.getOtherZoneId(current);
 
@@ -191,6 +194,9 @@ void CZonePlacer::placeOnGrid(vstd::RNG* rand)
 			break;
 		case ETemplateZoneType::JUNCTION:
 			getRandomEdge(x, y);
+			break;
+		// Silence -Wswitch
+		default:
 			break;
 	}
 	grid[x][y] = firstZone;
@@ -567,6 +573,9 @@ void CZonePlacer::attractConnectedZones(TZoneMap & zones, TForceVector & forces,
 				case rmg::EConnectionType::REPULSIVE:
 				case rmg::EConnectionType::FORCE_PORTAL:
 					continue;
+				// Silence -Wswitch
+				default:
+					break;
 			}
 			if (connection.getZoneA() == connection.getZoneB())
 			{
@@ -733,6 +742,9 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 				case rmg::EConnectionType::REPULSIVE:
 				case rmg::EConnectionType::FORCE_PORTAL:
 					continue;
+				// Silence -Wswitch
+				default:
+					break;
 			}
 			if (connection.getZoneA() == connection.getZoneB())
 			{

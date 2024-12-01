@@ -243,6 +243,9 @@ void CGCreature::pickRandomObject(vstd::RNG & rand)
 		case MapObjectID::RANDOM_MONSTER_L7:
 			subID = VLC->creh->pickRandomMonster(rand, 7);
 			break;
+		// Silence -Wswitch
+		default:
+			break;
 	}
 
 	try {
@@ -329,6 +332,9 @@ void CGCreature::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 			break;
 		case ObjProperty::MONSTER_REFUSED_JOIN:
 			refusedJoining = identifier.getNum();
+			break;
+		// Silence -Wswitch
+		default:
 			break;
 	}
 }

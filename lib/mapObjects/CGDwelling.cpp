@@ -206,6 +206,9 @@ void CGDwelling::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 			creatures[0].second.resize(1);
 			creatures[0].second[0] = identifier.as<CreatureID>();
 			break;
+		// Silence -Wswitch
+		default:
+			break;
 	}
 }
 

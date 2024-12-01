@@ -199,7 +199,14 @@ void TextOperations::trimRightUnicode(std::string & text, const size_t amount)
 
 size_t TextOperations::getUnicodeCharactersCount(const std::string & text)
 {
+#if defined(__clang__) || defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
+#pragma GCC diagnostic pop
+#else
+	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
+#endif
 	return conv.from_bytes(text).size(); 
 }
 

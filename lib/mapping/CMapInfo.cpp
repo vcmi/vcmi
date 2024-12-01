@@ -179,6 +179,8 @@ int CMapInfo::getMapSizeFormatIconId() const
 			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS)["iconIndex"].Integer();
 		case EMapFormat::VCMI:
 			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["iconIndex"].Integer();
+		case EMapFormat::INVALID:
+			logGlobal->error("Invalid map format: {}", vstd::to_underlying(mapHeader->version));
 	}
 	return 0;
 }

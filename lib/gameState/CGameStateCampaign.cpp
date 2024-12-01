@@ -354,6 +354,9 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 			hero->setSecSkillLevel(SecondarySkill(curBonus->info2), curBonus->info3, true);
 			break;
 		}
+		// Silence -Wswitch
+		default:
+			break;
 	}
 }
 

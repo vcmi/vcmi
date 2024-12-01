@@ -365,6 +365,9 @@ bool CPathfinder::isLayerTransitionPossible() const
 			return true;
 
 		break;
+	// Silence -Wswitch
+	default:
+		break;
 	}
 
 	return false;
@@ -553,6 +556,9 @@ bool CPathfinderHelper::isLayerAvailable(const EPathfindingLayer & layer) const
 		if(canCastWaterWalk && options.canUseCast)
 			return true;
 
+		break;
+	// Silence -Wswitch
+	default:
 		break;
 	}
 

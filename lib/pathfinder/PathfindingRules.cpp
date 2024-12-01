@@ -194,7 +194,12 @@ void DestinationActionRule::process(
 			action = EPathNodeAction::BATTLE;
 
 		break;
+
+	// Silence -Wswitch
+	default:
+		break;
 	}
+
 
 	destination.action = action;
 }
@@ -280,6 +285,9 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 				return BlockingReason::DESTINATION_GUARDED;
 		}
 		break;
+	// Silence -Wswitch
+	default:
+		break;
 	}
 
 	return BlockingReason::DESTINATION_BLOCKED;
@@ -352,6 +360,10 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 			return BlockingReason::DESTINATION_BLOCKED;
 
 		break;
+
+	// Silence -Wswitch
+	default:
+		break;
 	}
 
 	return BlockingReason::NONE;
@@ -419,6 +431,9 @@ void LayerTransitionRule::process(
 			destination.blocked = true;
 		}
 
+		break;
+	// Silence -Wswitch
+	default:
 		break;
 	}
 }

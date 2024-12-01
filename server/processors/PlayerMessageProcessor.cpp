@@ -264,6 +264,8 @@ void PlayerMessageProcessor::finishVoting()
 			broadcastSystemMessage("Voting successful. Timer for all players has been prolonger for " + std::to_string(currentVoteParameter) + " seconds");
 			gameHandler->turnTimerHandler->prolongTimers(currentVoteParameter * 1000);
 			break;
+		case ECurrentChatVote::NONE:
+			break;
 	}
 
 	currentVote = ECurrentChatVote::NONE;

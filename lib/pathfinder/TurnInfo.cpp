@@ -67,6 +67,9 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 			return false;
 
 		break;
+	// Silence -Wswitch
+	default:
+		break;
 	}
 
 	return true;
@@ -89,6 +92,9 @@ bool TurnInfo::hasBonusOfType(BonusType type, BonusSubtypeID subtype) const
 		return bonusCache->waterWalking;
 	case BonusType::NO_TERRAIN_PENALTY:
 		return bonusCache->noTerrainPenalty.count(subtype.as<TerrainId>());
+	// Silence -Wswitch
+	default:
+		break;
 	}
 
 	return static_cast<bool>(
@@ -110,6 +116,9 @@ int TurnInfo::valOfBonuses(BonusType type, BonusSubtypeID subtype) const
 		return bonusCache->waterWalkingVal;
 	case BonusType::ROUGH_TERRAIN_DISCOUNT:
 		return bonusCache->pathfindingVal;
+	// Silence -Wswitch
+	default:
+		break;
 	}
 
 	return bonuses->valOfBonuses(Selector::type()(type).And(Selector::subtype()(subtype)));

@@ -280,6 +280,9 @@ std::string CLogFormatter::format(const LogRecord & record) const
 	case ELogLevel::ERROR:
 		level = "ERROR";
 		break;
+	case ELogLevel::NOT_SET:
+		level = "NOT_SET";
+		break;
 	}
 	boost::algorithm::replace_first(message, "%l", level);
 
