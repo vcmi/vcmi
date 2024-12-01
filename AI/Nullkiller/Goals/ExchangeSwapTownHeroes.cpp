@@ -90,9 +90,12 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 	
 	if(!town->garrisonHero)
 	{
-		while(upperArmy->stacksCount() != 0)
+		if (!garrisonHero->canBeMergedWith(*town))
 		{
-			cb->dismissCreature(upperArmy, upperArmy->Slots().begin()->first);
+			while (upperArmy->stacksCount() != 0)
+			{
+				cb->dismissCreature(upperArmy, upperArmy->Slots().begin()->first);
+			}
 		}
 	}
 	

@@ -548,7 +548,10 @@ size_t MapRendererSpellViewContext::overlayImageIndex(const int3 & coordinates) 
 			return iconIndex;
 	}
 
-	return MapRendererWorldViewContext::overlayImageIndex(coordinates);
+	if (MapRendererBaseContext::isVisible(coordinates))
+		return MapRendererWorldViewContext::overlayImageIndex(coordinates);
+	else
+		return std::numeric_limits<size_t>::max();
 }
 
 MapRendererPuzzleMapContext::MapRendererPuzzleMapContext(const MapRendererContextState & viewState)

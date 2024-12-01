@@ -1,8 +1,0 @@
-{
-	"basepath": "vcmi/battleQueue/",
-	"images" :
-	[
-		{ "frame" : 0, "file" : "defendSmall"},
-		{ "frame" : 1, "file" : "waitSmall"}
-	]
-}

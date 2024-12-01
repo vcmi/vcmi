@@ -13,6 +13,7 @@
 #include "../Engine/Nullkiller.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapObjects/MapObjects.h"
+#include "../../../lib/IGameSettings.h"
 #include "../../../lib/GameConstants.h"
 
 namespace NKAI
@@ -152,16 +153,6 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 	uint64_t armyValue = 0;
 
 	TemporaryArmy newArmyInstance;
-	auto bonusModifiers = armyCarrier->getBonuses(Selector::type()(BonusType::MORALE));
-
-	for(auto bonus : *bonusModifiers)
-	{
-		// army bonuses will change and object bonuses are temporary
-		if(bonus->source != BonusSource::ARMY && bonus->source != BonusSource::OBJECT_INSTANCE && bonus->source != BonusSource::OBJECT_TYPE)
-		{
-			newArmyInstance.addNewBonus(std::make_shared<Bonus>(*bonus));
-		}
-	}
 
 	while(allowedFactions.size() < alignmentMap.size())
 	{
@@ -197,16 +188,18 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 			auto morale = slot.second->moraleVal();
 			auto multiplier = 1.0f;
 
-			const float BadMoraleChance = 0.083f;
-			const float HighMoraleChance = 0.04f;
+			const auto & badMoraleDice = cb->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
+			const auto & highMoraleDice = cb->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
 
-			if(morale < 0)
+			if(morale < 0 && !badMoraleDice.empty())
 			{
-				multiplier += morale * BadMoraleChance;
+				size_t diceIndex = std::min<size_t>(badMoraleDice.size(), -morale) - 1;
+				multiplier -= 1.0 / badMoraleDice.at(diceIndex);
 			}
-			else if(morale > 0)
+			else if(morale > 0 && !highMoraleDice.empty())
 			{
-				multiplier += morale * HighMoraleChance;
+				size_t diceIndex = std::min<size_t>(highMoraleDice.size(), morale) - 1;
+				multiplier += 1.0 / highMoraleDice.at(diceIndex);
 			}
 
 			newValue += multiplier * slot.second->getPower();

@@ -886,7 +886,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		return complainRet("Cannot disembark hero, tile is blocked!");
 
 	if(distance(h->pos, dst) >= 1.5 && movementMode == EMovementMode::STANDARD)
-		return complainRet("Tiles are not neighboring!");
+		return complainRet("Tiles " + h->pos.toString()+ " and "+ dst.toString() +" are not neighboring!");
 
 	if(h->inTownGarrison)
 		return complainRet("Can not move garrisoned hero!");

@@ -1,0 +1,138 @@
+{
+	"altarOfSacrifice" : {
+		"index" :2, 
+		"handler" : "market",
+		"base" : {
+			"sounds" : {
+				"visit" : ["MYSTERY"]
+			}
+		},
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 20
+				},
+				"modes" : ["creature-experience", "artifact-experience"]
+			}
+		}
+	},
+
+	"tradingPost" : {
+		"index" :221, 
+		"handler" : "market",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPMARK"],
+				"visit" : ["STORE"]
+			}
+		},
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				},
+				"modes" : ["resource-resource", "resource-player"],
+				"efficiency" : 5
+			}
+		}
+	},
+
+	"tradingPostDUPLICATE"		: {
+		"index" :99, 
+		"handler" : "market",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPMARK"],
+				"visit" : ["STORE"]
+			}
+		},
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				},
+				"modes" : ["resource-resource", "resource-player"],
+				"efficiency" : 5
+			}
+		}
+	},
+
+	"freelancersGuild" : {
+		"index" :213, 
+		"handler" : "market",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				},
+				"modes" : ["creature-resource"]
+			}
+		}
+	},
+
+	"blackMarket" : {
+		"index" :7, 
+		"handler" : "market",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPMARK"],
+				"visit" : ["MYSTERY"]
+			}
+		},
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"aiValue" : 8000,
+				"rmg" : {
+					"value"		: 8000,
+					"rarity"	: 20
+				},
+				"modes" : ["resource-artifact"]
+			}
+		}
+	},
+	"university" : {
+		"index" :104, 
+		"handler" : "market",
+		"base" : {
+			"sounds" : {
+				"visit" : ["GAZEBO"]
+			}
+		},
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"aiValue" : 2500,
+				"rmg" : {
+					"value"		: 2500,
+					"rarity"	: 20
+				},
+				"modes" : ["resource-skill"],
+				"speech" : "@core.genrltxt.603",
+				"offer": 
+				[
+					{ "noneOf" : ["necromancy"] },
+					{ "noneOf" : ["necromancy"] },
+					{ "noneOf" : ["necromancy"] },
+					{ "noneOf" : ["necromancy"] }
+				]
+			}
+		}
+	}
+}

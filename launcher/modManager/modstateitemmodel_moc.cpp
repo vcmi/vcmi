@@ -1,5 +1,5 @@
 /*
- * cmodlistmodel_moc.cpp, part of VCMI engine
+ * modstateview_moc.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,25 +8,19 @@
  *
  */
 #include "StdInc.h"
-#include "cmodlistmodel_moc.h"
+#include "modstateitemmodel_moc.h"
+
+#include "modstatemodel.h"
 
 #include <QIcon>
 
-namespace ModStatus
-{
-static const QString iconDelete = ":/icons/mod-delete.png";
-static const QString iconDisabled = ":/icons/mod-disabled.png";
-static const QString iconDownload = ":/icons/mod-download.png";
-static const QString iconEnabled = ":/icons/mod-enabled.png";
-static const QString iconUpdate = ":/icons/mod-update.png";
-}
-
-CModListModel::CModListModel(QObject * parent)
+ModStateItemModel::ModStateItemModel(std::shared_ptr<ModStateModel> model, QObject * parent)
 	: QAbstractItemModel(parent)
+	, model(model)
 {
 }
 
-QString CModListModel::modIndexToName(const QModelIndex & index) const
+QString ModStateItemModel::modIndexToName(const QModelIndex & index) const
 {
 	if(index.isValid())
 	{
@@ -36,7 +30,7 @@ QString CModListModel::modIndexToName(const QModelIndex & index) const
 }
 
 
-QString CModListModel::modTypeName(QString modTypeID) const
+QString ModStateItemModel::modTypeName(QString modTypeID) const
 {
 	static const QMap<QString, QString> modTypes = {
 		{"Translation", tr("Translation")},
@@ -69,28 +63,28 @@ QString CModListModel::modTypeName(QString modTypeID) const
 	return tr("Other");
 }
 
-QVariant CModListModel::getValue(const CModEntry & mod, int field) const
+QVariant ModStateItemModel::getValue(const ModState & mod, int field) const
 {
 	switch(field)
 	{
 		case ModFields::STATUS_ENABLED:
-			return mod.getModStatus() & (ModStatus::ENABLED | ModStatus::INSTALLED);
+			return model->isModEnabled(mod.getID());
 
 		case ModFields::STATUS_UPDATE:
-			return mod.getModStatus() & (ModStatus::UPDATEABLE | ModStatus::INSTALLED);
+			return model->isModUpdateAvailable(mod.getID());
 
 		case ModFields::NAME:
-			return mod.getValue("name");
+			return mod.getName();
 
 		case ModFields::TYPE:
-			return modTypeName(mod.getValue("modType").toString());
+			return modTypeName(mod.getType());
 
 		default:
 			return QVariant();
 	}
 }
 
-QVariant CModListModel::getText(const CModEntry & mod, int field) const
+QVariant ModStateItemModel::getText(const ModState & mod, int field) const
 {
 	switch(field)
 	{
@@ -102,31 +96,58 @@ QVariant CModListModel::getText(const CModEntry & mod, int field) const
 	}
 }
 
-QVariant CModListModel::getIcon(const CModEntry & mod, int field) const
+QVariant ModStateItemModel::getIcon(const ModState & mod, int field) const
 {
-	if(field == ModFields::STATUS_ENABLED && mod.isEnabled())
-		return QIcon(ModStatus::iconEnabled);
-	if(field == ModFields::STATUS_ENABLED && mod.isDisabled())
-		return QIcon(ModStatus::iconDisabled);
+	static const QString iconDisabled = ":/icons/mod-disabled.png";
+	static const QString iconDisabledSubmod = ":/icons/submod-disabled.png";
+	static const QString iconDownload = ":/icons/mod-download.png";
+	static const QString iconEnabled = ":/icons/mod-enabled.png";
+	static const QString iconEnabledSubmod = ":/icons/submod-enabled.png";
+	static const QString iconUpdate = ":/icons/mod-update.png";
 
-	if(field == ModFields::STATUS_UPDATE && mod.isUpdateable())
-		return QIcon(ModStatus::iconUpdate);
-	if(field == ModFields::STATUS_UPDATE && !mod.isInstalled())
-		return QIcon(ModStatus::iconDownload);
+	if (field == ModFields::STATUS_ENABLED)
+	{
+		if (!model->isModInstalled(mod.getID()))
+			return QVariant();
+
+		if(mod.isSubmod() && !model->isModEnabled(mod.getTopParentID()))
+		{
+			QString topParentID = mod.getTopParentID();
+			QString settingID = mod.getID().section('.', 1);
+
+			if (model->isModSettingEnabled(topParentID, settingID))
+				return QIcon(iconEnabledSubmod);
+			else
+				return QIcon(iconDisabledSubmod);
+		}
+
+		if (model->isModEnabled(mod.getID()))
+			return QIcon(iconEnabled);
+		else
+			return QIcon(iconDisabled);
+	}
+
+	if(field == ModFields::STATUS_UPDATE)
+	{
+		if (model->isModUpdateAvailable(mod.getID()))
+			return QIcon(iconUpdate);
+		if (!model->isModInstalled(mod.getID()))
+			return QIcon(iconDownload);
+	}
 
 	return QVariant();
 }
 
-QVariant CModListModel::getTextAlign(int field) const
+QVariant ModStateItemModel::getTextAlign(int field) const
 {
 	return QVariant(Qt::AlignLeft | Qt::AlignVCenter);
 }
 
-QVariant CModListModel::data(const QModelIndex & index, int role) const
+QVariant ModStateItemModel::data(const QModelIndex & index, int role) const
 {
 	if(index.isValid())
 	{
-		auto mod = getMod(modIndexToName(index));
+		auto mod = model->getMod(modIndexToName(index));
 
 		switch(role)
 		{
@@ -139,32 +160,32 @@ QVariant CModListModel::data(const QModelIndex & index, int role) const
 		case ModRoles::ValueRole:
 			return getValue(mod, index.column());
 		case ModRoles::ModNameRole:
-			return mod.getName();
+			return mod.getID();
 		}
 	}
 	return QVariant();
 }
 
-int CModListModel::rowCount(const QModelIndex & index) const
+int ModStateItemModel::rowCount(const QModelIndex & index) const
 {
 	if(index.isValid())
 		return modIndex[modIndexToName(index)].size();
 	return modIndex[""].size();
 }
 
-int CModListModel::columnCount(const QModelIndex &) const
+int ModStateItemModel::columnCount(const QModelIndex &) const
 {
 	return ModFields::COUNT;
 }
 
-Qt::ItemFlags CModListModel::flags(const QModelIndex &) const
+Qt::ItemFlags ModStateItemModel::flags(const QModelIndex &) const
 {
 	return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
-QVariant CModListModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant ModStateItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-	static const QString header[ModFields::COUNT] =
+	static const std::array header =
 	{
 		QT_TRANSLATE_NOOP("ModFields", "Name"),
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
@@ -173,24 +194,17 @@ QVariant CModListModel::headerData(int section, Qt::Orientation orientation, int
 	};
 
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)
-		return QCoreApplication::translate("ModFields", header[section].toStdString().c_str());
+		return QCoreApplication::translate("ModFields", header[section]);
 	return QVariant();
 }
 
-void CModListModel::reloadRepositories()
+void ModStateItemModel::reloadRepositories()
 {
 	beginResetModel();
 	endResetModel();
 }
 
-void CModListModel::resetRepositories()
-{
-	beginResetModel();
-	CModList::resetRepositories();
-	endResetModel();
-}
-
-void CModListModel::modChanged(QString modID)
+void ModStateItemModel::modChanged(QString modID)
 {
 	int index = modNameToID.indexOf(modID);
 	QModelIndex parent = this->parent(createIndex(0, 0, index));
@@ -198,9 +212,9 @@ void CModListModel::modChanged(QString modID)
 	emit dataChanged(createIndex(row, 0, index), createIndex(row, 4, index));
 }
 
-void CModListModel::endResetModel()
+void ModStateItemModel::endResetModel()
 {
-	modNameToID = getModList();
+	modNameToID = model->getAllMods();
 	modIndex.clear();
 	for(const QString & str : modNameToID)
 	{
@@ -216,7 +230,7 @@ void CModListModel::endResetModel()
 	QAbstractItemModel::endResetModel();
 }
 
-QModelIndex CModListModel::index(int row, int column, const QModelIndex & parent) const
+QModelIndex ModStateItemModel::index(int row, int column, const QModelIndex & parent) const
 {
 	if(parent.isValid())
 	{
@@ -231,7 +245,7 @@ QModelIndex CModListModel::index(int row, int column, const QModelIndex & parent
 	return QModelIndex();
 }
 
-QModelIndex CModListModel::parent(const QModelIndex & child) const
+QModelIndex ModStateItemModel::parent(const QModelIndex & child) const
 {
 	QString modID = modNameToID[child.internalId()];
 	for(auto entry = modIndex.begin(); entry != modIndex.end(); entry++) // because using range-for entry type is QMap::value_type oO
@@ -244,26 +258,46 @@ QModelIndex CModListModel::parent(const QModelIndex & child) const
 	return QModelIndex();
 }
 
-void CModFilterModel::setTypeFilter(int filteredType, int filterMask)
+void CModFilterModel::setTypeFilter(ModFilterMask newFilterMask)
 {
-	this->filterMask = filterMask;
-	this->filteredType = filteredType;
+	filterMask = newFilterMask;
 	invalidateFilter();
+}
+
+bool CModFilterModel::filterMatchesCategory(const QModelIndex & source) const
+{
+	QString modID =source.data(ModRoles::ModNameRole).toString();
+	ModState mod = base->model->getMod(modID);
+
+	switch (filterMask)
+	{
+		case ModFilterMask::ALL:
+			return true;
+		case ModFilterMask::AVAILABLE:
+			return !mod.isInstalled();
+		case ModFilterMask::INSTALLED:
+			return mod.isInstalled();
+		case ModFilterMask::UPDATEABLE:
+			return mod.isUpdateAvailable();
+		case ModFilterMask::ENABLED:
+			return mod.isInstalled() && base->model->isModEnabled(modID);
+		case ModFilterMask::DISABLED:
+			return mod.isInstalled() && !base->model->isModEnabled(modID);
+	}
+	assert(0);
+	return false;
 }
 
 bool CModFilterModel::filterMatchesThis(const QModelIndex & source) const
 {
-	CModEntry mod = base->getMod(source.data(ModRoles::ModNameRole).toString());
-	return (mod.getModStatus() & filterMask) == filteredType &&
-	       QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent());
+	return filterMatchesCategory(source) && QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent());
 }
 
 bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const
 {
 	QModelIndex index = base->index(source_row, 0, source_parent);
-
-	CModEntry mod = base->getMod(index.data(ModRoles::ModNameRole).toString());
-	if (!mod.isVisible())
+	QString modID = index.data(ModRoles::ModNameRole).toString();
+	if (base->model->getMod(modID).isHidden())
 		return false;
 
 	if(filterMatchesThis(index))
@@ -273,7 +307,7 @@ bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & sourc
 
 	for(size_t i = 0; i < base->rowCount(index); i++)
 	{
-		if(filterMatchesThis(base->index((int)i, 0, index)))
+		if(filterMatchesThis(base->index(i, 0, index)))
 			return true;
 	}
 
@@ -287,8 +321,8 @@ bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & sourc
 	return false;
 }
 
-CModFilterModel::CModFilterModel(CModListModel * model, QObject * parent)
-	: QSortFilterProxyModel(parent), base(model), filteredType(ModStatus::MASK_NONE), filterMask(ModStatus::MASK_NONE)
+CModFilterModel::CModFilterModel(ModStateItemModel * model, QObject * parent)
+	: QSortFilterProxyModel(parent), base(model), filterMask(ModFilterMask::ALL)
 {
 	setSourceModel(model);
 	setSortRole(ModRoles::ValueRole);

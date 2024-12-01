@@ -544,8 +544,8 @@ void CSpell::serializeJson(JsonSerializeFormat & handler)
 ///CSpell::AnimationInfo
 CSpell::AnimationItem::AnimationItem() :
 	verticalPosition(VerticalPosition::TOP),
-	pause(0),
-	transparency(1)
+	transparency(1),
+	pause(0)
 {
 
 }

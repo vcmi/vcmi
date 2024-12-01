@@ -1424,7 +1424,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 				{
 					//friendly stacks can also be damaged by Dragon Breath
 					const auto * st = battleGetUnitByPos(nextHex, true);
-					if(st != nullptr)
+					if(st != nullptr && st != attacker) //but not unit itself (doublewide + prism attack)
 						at.friendlyCreaturePositions.insert(nextHex);
 				}
 			}

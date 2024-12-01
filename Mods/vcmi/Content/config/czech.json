@@ -187,9 +187,6 @@
 	"vcmi.server.errors.existingProcess" : "Již běží jiný server VCMI. Prosím, ukončete ho před startem nové hry.",
 	"vcmi.server.errors.modsToEnable"    : "{Následující modifikace jsou nutné pro načtení hry}",
 	"vcmi.server.errors.modsToDisable"   : "{Následující modifikace musí být zakázány}",
-	"vcmi.server.errors.modNoDependency" : "Nelze načíst modifikaci {'%s'}!\n Závisí na modifikaci {'%s'}, která není aktivní!\n",
-	"vcmi.server.errors.modDependencyLoop" : "Nelze načíst modifikaci {'%s'}!\n Modifikace může být součástí (nepřímé) závislostní smyčky.",
-	"vcmi.server.errors.modConflict" : "Nelze načíst modifikaci {'%s'}!\n Je v kolizi s aktivní modifikací {'%s'}!\n",
 	"vcmi.server.errors.unknownEntity" : "Nelze načíst uloženou pozici! Neznámá entita '%s' nalezena v uložené pozici! Uložná pozice nemusí být kompatibilní s aktuálními verzemi modifikací!",
 
 	"vcmi.dimensionDoor.seaToLandError" : "Pomocí dimenzní brány není možné se teleportovat z moře na pevninu nebo naopak.",

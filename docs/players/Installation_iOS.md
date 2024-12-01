@@ -8,9 +8,9 @@ The easiest and recommended way to install on a non-jailbroken device is to inst
 
 i) Use [AltStore Windows](https://faq.altstore.io/altstore-classic/how-to-install-altstore-windows) or [AltStore macOS](https://faq.altstore.io/altstore-classic/how-to-install-altstore-macos) instructions to install the store depending on the operating system you are using. 
 
-If you're having trouble enabling "sync with this iOS device over Wi-Fi" press on the rectangular shape below "Account". Example shown below.
+If you're having trouble enabling "sync with this iOS device over Wi-Fi" press on the rectangular shape below "Account". Windows example from iTunes shown below:
 
-![image](https://github.com/user-attachments/assets/74fe2ca2-b55c-4b05-b083-89df604248f3)
+![iTunes](images/itunes.jpg)
 
 ii) Download the VCMI-iOS.ipa file on your iOS device directly from the [latest releases](https://github.com/vcmi/vcmi/releases/latest).
 
@@ -50,7 +50,6 @@ To run on a non-jailbroken device you need to sign the IPA file, you have the fo
 The easiest way to install the ipa on your device is to do one of the following:
 
 - In AltStore go to >My Apps > press + in the top left corner. Select VCMI-iOS.ipa to install or
-
 - Drag and drop the .ipa file into your iOS device in iTunes
 
 Alternatively, to install the signed ipa on your device, you can use Xcode or Apple Configurator (available on the Mac App Store for free). The latter also allows installing ipa from the command line, here's an example that assumes you have only 1 device connected to your Mac and the signed ipa is on your desktop:

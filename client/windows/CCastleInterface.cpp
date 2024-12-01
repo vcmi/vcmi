@@ -456,7 +456,7 @@ void CHeroGSlot::showPopupWindow(const Point & cursorPosition)
 {
 	if(hero)
 	{
-		GH.windows().createAndPushWindow<CInfoBoxPopup>(Point(pos.x + 175, pos.y + 100), hero);
+		GH.windows().createAndPushWindow<CInfoBoxPopup>(pos.center(), hero);
 	}
 }
 

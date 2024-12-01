@@ -15,15 +15,17 @@
 
 #include "../../lib/json/JsonNode.h"
 
-
 ImageLocator::ImageLocator(const JsonNode & config)
-	: image(ImagePath::fromJson(config["file"]))
-	, defFile(AnimationPath::fromJson(config["defFile"]))
-	, defFrame(config["defFrame"].Integer())
+	: defFrame(config["defFrame"].Integer())
 	, defGroup(config["defGroup"].Integer())
 	, verticalFlip(config["verticalFlip"].Bool())
 	, horizontalFlip(config["horizontalFlip"].Bool())
 {
+	if(!config["file"].isNull())
+		image = ImagePath::fromJson(config["file"]);
+
+	if(!config["defFile"].isNull())
+		defFile = AnimationPath::fromJson(config["defFile"]);
 }
 
 ImageLocator::ImageLocator(const ImagePath & path)

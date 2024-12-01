@@ -1,0 +1,8 @@
+{
+	"images" :
+	[
+		// Fix for swapped in H3 icons of View Earth and View Air
+		{ "frame" : 3, "defFile" : "spells.def", "defFrame" : 5},
+		{ "frame" : 5, "defFile" : "spells.def", "defFrame" : 3}
+	]
+}

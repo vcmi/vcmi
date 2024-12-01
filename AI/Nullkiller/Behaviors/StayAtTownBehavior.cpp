@@ -39,9 +39,6 @@ Goals::TGoalVec StayAtTownBehavior::decompose(const Nullkiller * ai) const
 
 	for(auto town : towns)
 	{
-		if(!town->hasBuilt(BuildingID::MAGES_GUILD_1))
-			continue;
-
 		ai->pathfinder->calculatePathInfo(paths, town->visitablePos());
 
 		for(auto & path : paths)
@@ -49,14 +46,8 @@ Goals::TGoalVec StayAtTownBehavior::decompose(const Nullkiller * ai) const
 			if(town->visitingHero && town->visitingHero.get() != path.targetHero)
 				continue;
 
-			if(!path.targetHero->hasSpellbook() || path.targetHero->mana >= 0.75f * path.targetHero->manaLimit())
-				continue;
-
-			if(path.turn() == 0 && !path.getFirstBlockedAction() && path.exchangeCount <= 1)
+			if(!path.getFirstBlockedAction() && path.exchangeCount <= 1)
 			{
-				if(path.targetHero->mana == path.targetHero->manaLimit())
-					continue;
-
 				Composition stayAtTown;
 
 				stayAtTown.addNextSequence({
