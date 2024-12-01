@@ -3264,7 +3264,11 @@ bool CGameHandler::queryReply(QueryID qid, std::optional<int32_t> answer, Player
 bool CGameHandler::complain(const std::string &problem)
 {
 #ifndef ENABLE_GOLDMASTER
-	playerMessages->broadcastSystemMessage("Server encountered a problem: " + problem);
+	MetaString str;
+	str.appendTextID("vcmi.broadcast.serverproblem");
+	str.appendRawString(": ");
+	str.appendRawString(problem);
+	playerMessages->broadcastSystemMessage(str);
 #endif
 	logGlobal->error(problem);
 	return true;
