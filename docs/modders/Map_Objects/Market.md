@@ -7,7 +7,7 @@ Markets can be added as any other object with special handler called "market".
 
 Here is schema describing such object
 
-```js
+```json5
 "seafaringAcademy" : //object name
 {
 	"handler" : "market", //market handler
@@ -85,14 +85,14 @@ See [Secondary skills](Rewardable.md#secondary-skills) description for more deta
 
 ### Example for University of magic (e.g conflux building)
 
-```js
+```json5
 "modes" : ["resource-skill"],
 "offer" : ["airMagic", "waterMagic", "earthMagic", "fireMagic"]
 ```
 
 ### Example for regular University
 
-```js
+```json5
 "modes" : ["resource-skill"],
 "offer" : [ //4 random skills except necromancy
     { "noneOf" : ["necromancy"] },

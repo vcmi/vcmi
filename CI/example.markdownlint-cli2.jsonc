@@ -186,7 +186,7 @@
 		// FIXME: enable and consider fixing
 		//{
 		//// List of languages
-		//	"allowed_languages": [ "cpp", "json", "jsonc", "json5", "sh" ],
+		//	"allowed_languages": [ "cpp", "json5", "sh" ],
 		//// Require language only
 		//	"language_only": true
 		//},

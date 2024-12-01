@@ -50,7 +50,7 @@ For both types of bonuses, `source` should be specified as `OTHER`.
 
 ## Example
 
-```js
+```json5
 { //will give 150% extra health to all players' creatures if specified in "battleBonuses" array
 	"type" : "STACK_HEALTH",
 	"val" : 150,
