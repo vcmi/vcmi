@@ -37,6 +37,7 @@ namespace NKAI
 		pathfinderBucketSize(32),
 		allowObjectGraph(true),
 		useTroopsFromGarrisons(false),
+		updateHitmapOnTileReveal(false),
 		openMap(true),
 		useFuzzy(false)
 	{
@@ -55,6 +56,7 @@ namespace NKAI
 		retreatThresholdAbsolute = node["retreatThresholdAbsolute"].Float();
 		safeAttackRatio = node["safeAttackRatio"].Float();
 		allowObjectGraph = node["allowObjectGraph"].Bool();
+		updateHitmapOnTileReveal = node["updateHitmapOnTileReveal"].Bool();
 		openMap = node["openMap"].Bool();
 		useFuzzy = node["useFuzzy"].Bool();
 		useTroopsFromGarrisons = node["useTroopsFromGarrisons"].Bool();
