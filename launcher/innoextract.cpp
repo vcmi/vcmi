@@ -61,7 +61,7 @@ QString Innoextract::extract(QString installer, QString outDir, std::function<vo
 	return errorText;
 }
 
-QString Innoextract::getHashError(QFile exe, std::optional<QFile> bin)
+QString Innoextract::getHashError(QString exeFile, QString binFile)
 {
 	enum filetype
 	{
@@ -101,6 +101,7 @@ QString Innoextract::getHashError(QFile exe, std::optional<QFile> bin)
 	int exeSize = 0;
 	int binSize = 0;
 
+	auto exe = QFile(exeFile);
 	if(exe.open(QFile::ReadOnly)) {
 		QCryptographicHash hash(QCryptographicHash::Algorithm::Sha1);
 		if(hash.addData(&exe))
@@ -109,21 +110,22 @@ QString Innoextract::getHashError(QFile exe, std::optional<QFile> bin)
 	}
 	else
 		return QString{}; // reading problem
-	if(bin)
+	if(!binFile.isEmpty())
 	{
-		if((*bin).open(QFile::ReadOnly)) {
+		auto bin = QFile(binFile);
+		if(bin.open(QFile::ReadOnly)) {
 			QCryptographicHash hash(QCryptographicHash::Algorithm::Sha1);
-			if(hash.addData(&(*bin)))
+			if(hash.addData(&bin))
 				binHash = hash.result().toHex().toLower().toStdString();
-			binSize = (*bin).size();
+			binSize = bin.size();
 		}
 		else
 			return QString{}; // reading problem
 	}
 	
-	QString hashOutput = tr("Hash:\n") + tr("Exe") + ": " + QString::fromStdString(exeHash) + " (" + QString::number(1) + " " + tr("bytes") + ")";
+	QString hashOutput = tr("Hash:\n") + tr("Exe") + ": " + QString::fromStdString(exeHash) + " (" + QString::number(exeSize) + " " + tr("bytes") + ")";
 	if(!binHash.empty())
-		hashOutput += "\n" + tr("Bin") + ": " + QString::fromStdString(binHash) + " (" + QString::number(1) + " " + tr("bytes") + ")";
+		hashOutput += "\n" + tr("Bin") + ": " + QString::fromStdString(binHash) + " (" + QString::number(binSize) + " " + tr("bytes") + ")";
 	
 	QString foundKnown;
 	QString exeLang;
@@ -139,13 +141,13 @@ QString Innoextract::getHashError(QFile exe, std::optional<QFile> bin)
 			binLang = lang;
 		it = std::find_if(++it, knownHashes.end(), find);
 	}
-	if(!exeLang.isEmpty() && !binLang.isEmpty() && exeLang != binLang && bin)
+	if(!exeLang.isEmpty() && !binLang.isEmpty() && exeLang != binLang && !binFile.isEmpty())
 		return tr("Language mismatch.\n\n") + foundKnown + "\n\n" + hashOutput;
-	else if((!exeLang.isEmpty() || !binLang.isEmpty()) && bin)
+	else if((!exeLang.isEmpty() || !binLang.isEmpty()) && !binFile.isEmpty())
 		return tr("Only one file known.\n\n") + foundKnown + "\n\n" + hashOutput;
-	else if(!exeLang.isEmpty() && !bin)
+	else if(!exeLang.isEmpty() && binFile.isEmpty())
 		return QString{};
-	else if(!exeLang.isEmpty() && bin && exeLang == binLang)
+	else if(!exeLang.isEmpty() && !binFile.isEmpty() && exeLang == binLang)
 		return QString{};
 
 	return tr("Unknown files. Maybe files are corrupted? Please download again.\n\n") + hashOutput;
