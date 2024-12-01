@@ -123,9 +123,9 @@ QString Innoextract::getHashError(QString exeFile, QString binFile)
 			return QString{}; // reading problem
 	}
 	
-	QString hashOutput = tr("SHA1-Hash of provided files:\n") + tr("Exe") + ":\n" + QString::fromStdString(exeHash) + "\n(" + QString::number(exeSize) + " " + tr("bytes") + ")";
+	QString hashOutput = tr("SHA1-Hash of provided files:\n") + tr("Exe") + " (" + QString::number(exeSize) + " " + tr("bytes") + ")" + ":\n" + QString::fromStdString(exeHash);
 	if(!binHash.empty())
-		hashOutput += "\n" + tr("Bin") + ":\n" + QString::fromStdString(binHash) + "\n(" + QString::number(binSize) + " " + tr("bytes") + ")";
+		hashOutput += "\n" + tr("Bin") + " (" + QString::number(binSize) + " " + tr("bytes") + ")" + ":\n" + QString::fromStdString(binHash);
 	
 	QString foundKnown;
 	QString exeLang;
