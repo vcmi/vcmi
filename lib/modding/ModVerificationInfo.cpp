@@ -13,6 +13,7 @@
 #include "CModHandler.h"
 #include "ModDescription.h"
 #include "ModIncompatibility.h"
+#include "ModScope.h"
 
 #include "../json/JsonNode.h"
 #include "../VCMI_Lib.h"
@@ -68,6 +69,9 @@ ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const 
 		if(modList.count(m))
 			continue;
 
+		if (m == ModScope::scopeBuiltin())
+			continue;
+
 		if(VLC->modh->getModInfo(m).affectsGameplay())
 			result[m] = ModVerificationStatus::EXCESSIVE;
 	}
@@ -76,6 +80,9 @@ ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const 
 	{
 		auto & remoteModId = infoPair.first;
 		auto & remoteModInfo = infoPair.second;
+
+		if (remoteModId == ModScope::scopeBuiltin())
+			continue;
 
 		bool modAffectsGameplay = remoteModInfo.impactsGameplay;
 		//parent mod affects gameplay if child affects too
