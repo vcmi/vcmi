@@ -2,7 +2,7 @@
 
 ## Configuration
 
-``` jsonc
+```json5
 {
  	//general purpose script, Lua or ERM, runs on server
  	"myScript":

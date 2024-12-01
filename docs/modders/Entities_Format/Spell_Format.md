@@ -2,7 +2,7 @@
 
 ## Main format
 
-``` jsonc
+```json5
 {
 	"spellName":
 	{	
@@ -156,7 +156,7 @@
 
 TODO
 
-``` jsonc
+```json5
 {
 	"projectile": [
 		{"minimumAngle": 0 ,"defName":"C20SPX4"},
@@ -179,7 +179,7 @@ Json object with data common for all levels can be put here. These configuration
 
 This will make spell affect single target on all levels except expert, where it is massive spell.
 
-``` jsonc
+```json5
 "base":{
 	"range": 0
 },
@@ -192,7 +192,7 @@ This will make spell affect single target on all levels except expert, where it 
 
 TODO
 
-``` jsonc
+```json5
 
 {
 	//Mandatory, localizable description. Use {xxx} for formatting
@@ -262,7 +262,7 @@ Configurable spells ignore *offensive* flag, *effects* and *cumulativeEffects*. 
 
 TODO
 
-``` jsonc
+```json5
 
 "mod:effectId":{
 
@@ -283,7 +283,7 @@ TODO
 
 TODO
 
-``` jsonc
+```json5
 
 "mod:effectId":{
 
@@ -304,7 +304,7 @@ TODO
 
 Configurable version of Clone spell.
 
-``` jsonc
+```json5
 
 "mod:effectId":{
 
@@ -320,7 +320,7 @@ TODO
 
 If effect is automatic, spell behave like offensive spell (uses power, levelPower etc)
 
-``` jsonc
+```json5
 
 "mod:effectId":{
 
@@ -368,7 +368,7 @@ TODO
 If effect is automatic, spell behave like \[de\]buff spell (effect and
 cumulativeEffects ignored)
 
-``` jsonc
+```json5
 
 "mod:effectId":{
 

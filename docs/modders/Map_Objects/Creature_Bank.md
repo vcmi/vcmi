@@ -10,7 +10,7 @@ Deprecated in 1.6. Please use [Rewardable Objects](Rewardable.md) instead. See C
 This example defines a rewardable object with functionality similar of H3 creature bank.
 See [Rewardable Objects](Rewardable.md) for detailed documentation of these properties.
 
-```jsonc
+```json5
 {
 	"name" : "Cyclops Stockpile",
 
@@ -115,7 +115,7 @@ This is a list of changes that needs to be done to bank config to migrate it to 
 
 ### Old format (1.5 or earlier)
 
-``` jsonc
+```json5
 {
 	/// If true, battle setup will be like normal - Attacking player on the left, enemy on the right
 	"regularUnitPlacement" : true,

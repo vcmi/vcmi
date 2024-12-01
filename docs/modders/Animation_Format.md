@@ -8,7 +8,7 @@ VCMI allows overriding HoMM3 .def files with .json replacement. Compared to .def
 
 ## Format description
 
-``` jsonc
+```json5
 {
     // Base path of all images in animation. Optional.
     // Can be used to avoid using long path to images 
@@ -64,7 +64,7 @@ This json file will allow replacing .def file for a button with png images. Butt
 3. Blocked state. Button is blocked and can not be interacted with. Note that some buttons are never blocked and can be used without this image
 4. Highlighted state. This state is used by only some buttons and only in some cases. For example, in main menu buttons will appear highlighted when mouse cursor is on top of the image. Another example is buttons that can be selected, such as settings that can be toggled on or off
 
-```jsonc
+```json5
 	"basepath" : "interface/MyButton", // all images are located in this directory
 
 	"images" :
@@ -81,7 +81,7 @@ This json file will allow replacing .def file for a button with png images. Butt
 
 This json file allows defining one animation sequence, for example for adventure map objects or for town buildings.
 
-```jsonc
+```json5
 	"basepath" : "myTown/myBuilding", // all images are located in this directory
 
 	"sequences" :

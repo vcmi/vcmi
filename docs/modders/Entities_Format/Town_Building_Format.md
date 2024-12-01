@@ -17,7 +17,7 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 
 ##### Order of Fire from Inferno
 
-```jsonc
+```json5
 "special4": {
 	"requires" : [ "mageGuild1" ],
 	"name" : "Order of Fire",
@@ -41,7 +41,7 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 
 ##### Mana Vortex from Dungeon
 
-```jsonc
+```json5
 "special2": {
 	"requires" : [ "mageGuild1" ],
 	"name" : "Mana Vortex",
@@ -70,7 +70,7 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 
 #### Resource Silo with custom production
 
-```jsonc
+```json5
 "resourceSilo": {
 	"name" : "Wood Resource Silo",
 	"description" : "Produces 2 wood every day",
@@ -86,7 +86,7 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 
 #### Brotherhood of Sword - bonuses in siege
 
-```jsonc
+```json5
 "special3": {
 	// replaces +1 Morale bonus from Tavern
 	"upgradeReplacesBonuses" : true, 
@@ -103,7 +103,7 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 
 #### Lighthouse - bonus to all heroes under player control
 
-```jsonc
+```json5
 "special1":       { 
 	"bonuses": [
 		{
@@ -119,7 +119,7 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 
 ## Town Building node
 
-```jsonc
+```json5
 {
 	// Numeric identifier of this building
 	"id" : 0,
@@ -218,7 +218,7 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 
 Building requirements can be described using logical expressions:
 
-```jsonc
+```json5
 "requires" :
 [
 	"allOf", // Normal H3 "build all" mode
@@ -265,7 +265,7 @@ In addition to above, it is possible to use same format as [Rewardable](../Map_O
 
 ### Town Structure node
 
-```jsonc
+```json5
 {
 	// Main animation file for this building
 	"animation" : "", 
@@ -299,12 +299,12 @@ Market buildings require list of available [modes](../Map_Objects/Market.md)
 
 ##### Marketplace
 
-```jsonc
+```json5
 	"marketplace":    { "marketModes" : ["resource-resource", "resource-player"] },
 ```
 
 ##### Artifact merchant
 
-```jsonc
+```json5
 	"special1":       { "type" : "artifactMerchant", "requires" : [ "marketplace" ], "marketModes" : ["resource-artifact", "artifact-resource"] },
 ```

@@ -9,7 +9,7 @@ Currently, it is possible to make flaggable objects that provide player with:
 
 ## Format description
 
-```jsonc
+```json5
 {
   "baseObjectName" : {
     "name" : "Object name",

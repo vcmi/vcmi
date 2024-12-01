@@ -47,7 +47,7 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 ## Faction node (root entry for town configuration)
 
-```jsonc
+```json5
 // Unique faction identifier.
 "myFaction" :
 {
@@ -108,7 +108,7 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 ## Town node
 
-```jsonc
+```json5
 {
 	// Field that describes behavior of map object part of town. Town-specific part of object format
 	"mapObject" : 
@@ -256,7 +256,7 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 ## Siege node
 
-```jsonc
+```json5
 // Describes town siege screen
 // Comments in the end of each graphic position indicate specify required suffix for image
 // Note: one not included image is battlefield background with suffix "BACK"

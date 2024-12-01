@@ -16,7 +16,7 @@ Full object consists from 3 parts:
 
 ## Object group format
 
-``` jsonc
+```json5
 
 {
 	"myCoolObjectGroup":
@@ -99,7 +99,7 @@ These are internal types that are generally not available for modding and are ha
 
 ## Object type format
 
-``` jsonc
+```json5
 {
 	"myCoolObject":
 	{
@@ -153,7 +153,7 @@ These are internal types that are generally not available for modding and are ha
 
 ## Object template format
 
-``` jsonc
+```json5
 {
 	"myCoolObjectTemplate" : 
 	{

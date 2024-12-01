@@ -12,7 +12,7 @@ In order to make functional artifact you also need:
 
 ## Format
 
-``` jsonc
+```json5
 {
 	// Type of this artifact - creature, hero or commander
 	"type": ["HERO", "CREATURE", "COMMANDER"] 

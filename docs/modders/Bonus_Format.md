@@ -4,7 +4,7 @@
 
 All parameters but type are optional.
 
-``` jsonc
+```json5
 {
 	// Type of the bonus. See Bonus Types for full list
 	"type":         "BONUS_TYPE",
@@ -81,7 +81,7 @@ See [Game Identifiers](Game_Identifiers.md) for full list of available identifie
 
 ### Example
 
-``` jsonc
+```json5
 "bonus" :
 {
 	"type" : "HATE",

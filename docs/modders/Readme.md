@@ -30,7 +30,7 @@ All VCMI configuration files use [JSON format](http://en.wikipedia.org/wiki/Json
 Mod.json is main file in your mod and must be present in any mod. This file contains basic description of your mod, dependencies or conflicting mods (if present), list of new content and so on.
 Minimalistic version of this file:
 
-``` jsonc
+```json5
 {
     "name" : "My test mod",
     "description" : "My test mod that add a lot of useless stuff into the game",
@@ -102,7 +102,7 @@ VCMI uses strings to reference objects. Examples:
 
 Alternatively to creating new objects, you can edit existing objects. Normally, when creating new objects you specify object name as:
 
-``` jsonc
+```json5
 "newCreature" : {
     // creature parameters
 }
@@ -110,7 +110,7 @@ Alternatively to creating new objects, you can edit existing objects. Normally, 
 
 In order to access and modify existing object you need to specify mod that you wish to edit:
 
-``` jsonc
+```json5
 /// "core" specifier refers to objects that exist in H3
 "core:archer" : {
 	/// This will set health of Archer to 10
@@ -159,7 +159,7 @@ These files can be replaced by another def file but in some cases original forma
 In VCMI these animation files can also be replaced by json description of their content. See [Animation Format](Animation_Format.md) for full description of this format.
 Example: replacing single icon
 
-``` jsonc
+```json5
 {
 	// List of replaced images
 	"images" :

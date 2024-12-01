@@ -17,7 +17,7 @@ Check the files in *config/heroes/* for additional usage examples.
 Example: The following updater will cause a bonus to grow by 6 for every
 40 levels. At first level, rounding will cause the bonus to be 0.
 
-``` jsonc
+```json5
 "updater" : {
     "parameters" : [ 6, 2 ],
     "type" : "GROWS_WITH_LEVEL"
@@ -27,7 +27,7 @@ Example: The following updater will cause a bonus to grow by 6 for every
 Example: The following updater will cause a bonus to grow by 3 for every
 20 levels. At first level, rounding will cause the bonus to be 1.
 
-``` jsonc
+```json5
 "updater" : {
     "parameters" : [ 3 ],
     "type" : "GROWS_WITH_LEVEL"
@@ -71,7 +71,7 @@ Remark: The stack level for war machines is 0.
 - Remark: this updater is designed for MOVEMENT bonus to match H3 army movement rules (in the example - actual movement updater, which produces values same as in default movement.txt).
 - Example:
 
-``` jsonc
+```json5
 "updater" : {
     "parameters" : [ 20, 3, 10, 700 ],
     "type" : "ARMY_MOVEMENT"

@@ -55,7 +55,7 @@ Updaters are objects attached to bonuses. They can modify a bonus (typically by 
 
 The following example shows an artifact providing a bonus based on the level of the hero that wears it:
 
-```jsonc
+```json5
    "core:greaterGnollsFlail":
    {
        "text" : { "description" : "This mighty flail increases the attack of all gnolls under the hero's command by twice the hero's level." },

@@ -128,7 +128,7 @@ Allows to raise different creatures than Skeletons after battle.
 - addInfo: Level of Necromancy secondary skill (1 - Basic, 3 - Expert)
 - Example (from Cloak Of The Undead King):
 
-```jsonc
+```json5
 {
     "type" : "IMPROVED_NECROMANCY",
     "subtype" : "creature.walkingDead",
@@ -256,7 +256,7 @@ Gives creature under effect of this spell additional bonus, which is hardcoded a
 
 Modifies 'val' parameter of spell effects that give bonuses by specified value. For example, Aenain makes Disrupting Ray decrease target's defense by additional 2 points:
 
-```jsonc
+```json5
 "disruptingRay" : {
     "addInfo" : -2,
     "subtype" : "spell.disruptingRay",
@@ -271,7 +271,7 @@ Modifies 'val' parameter of spell effects that give bonuses by specified value. 
 
 Changes 'val' parameter of spell effects that give bonuses to a specified value. For example, Fortune cast by Melody always modifies luck by +3:
 
-```jsonc
+```json5
 "fortune" : {
     "addInfo" : 3,
     "subtype" : "spell.fortune",

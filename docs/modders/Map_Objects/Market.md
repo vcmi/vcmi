@@ -51,19 +51,19 @@ Following options are supported:
 
 Trading post allows to exchange resources and send resources to another player, so it shall be configured this way:
 
-```json
+```json5
 "modes" : ["resource-resource", "resource-player"]
 ```
 
 ### Black market
 
-```json
+```json5
 "modes" : ["resource-artifact"]
 ```
 
 ### Freelance guild
 
-```json
+```json5
 "modes" : ["creature-resource"]
 ```
 
@@ -73,7 +73,7 @@ Altar of sacrifice allows exchange creatures for experience for evil factions an
 So both modes shall be available in the market.
 Game logic prohibits using modes unavailable for faction
 
-```json
+```json5
 "modes" : ["creature-experience", "artifact-experience"]
 ```
 
