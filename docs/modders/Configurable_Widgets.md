@@ -21,6 +21,7 @@ In this tutorial we will recreate options tab to support chess timers UI.
 ### Creating mod structure
 
 To start making mod, create following folders structure;
+
 ```
 extendedLobby/
 |- content/
@@ -31,7 +32,8 @@ extendedLobby/
 ```
 
 File `mod.json` is generic and could look like this:
-```json
+
+```json5
 {
 	"name" : "Configurable UI tutorial mod",
 	"description" : "See tutorial here https://github.com/vcmi/vcmi/wiki/Configurable-UI-widgets",
@@ -44,7 +46,7 @@ File `mod.json` is generic and could look like this:
 }
 ```
 
-After that you can copy `extendedLobby/ folder to `mods/` folder and your mod will immediately appear in launcher but it does nothing for now.
+After that you can copy `extendedLobby/` folder to `mods/` folder and your mod will immediately appear in launcher but it does nothing for now.
 
 ### Making layout for timer
 
@@ -64,7 +66,8 @@ So we need to modify turn duration label and add combo box with timer types
 Open `optionsTab.json` and scroll it until you see comment `timer`. Three elements after this comment are related to timer.
 
 Let's find first element, which is label
-```json
+
+```json5
 {
 	"items"
 	[
@@ -85,7 +88,8 @@ Let's find first element, which is label
 ```
 
 And modify it a bit
-```json
+
+```json5
 {
 	"name": "labelTimer", //add name, only for convenience
 	"type": "label",
@@ -98,7 +102,8 @@ And modify it a bit
 ```
 
 But we also need proper background image for this label. Add image widget BEFORE labelTimer widget:
-```json
+
+```json5
 {
 	"type": "picture",
 	"image": "RmgTTBk",
@@ -109,6 +114,7 @@ But we also need proper background image for this label. Add image widget BEFORE
 	...
 },
 ```
+
 In order to make it work, add file `RmgTTBk.bmp` to `content/sprites/`
 
 Elements named `labelTurnDurationValue` and `sliderTurnDuration` we will keep without change - they are needed to configure classic timer.
@@ -121,7 +127,7 @@ Copy image `DrDoCoBk.bmp` to `content/sprites/`. Button objects use animated ima
 For normal, pressed, blocked and highlighted. Our combo box inherits this behavior, so let's convert image to animation.
 In order to do it, we need to create file `DrDoCoBk.json` in same folder `content/sprites/` with following content:
 
-```json
+```json5
 {
     "sequences" :
     [
@@ -140,7 +146,7 @@ Thus we created file with animation, containing single frame which can be used f
 
 Let's add one more element after `//timer` comment:
 
-```json
+```json5
 ...
 //timer
 {
@@ -157,7 +163,7 @@ Let's add one more element after `//timer` comment:
 
 We also want to have label on the top of this combo box showing which element is selected. You need to add `items` array, where additional elements can be specified, label in our case:
 
-```json
+```json5
 ...
 //timer
 {
@@ -189,7 +195,7 @@ First of all, add images to `content/sprites/` folder: `List2Bk.bmp` for drop-do
 
 Now specify items inside `dropDown` field
 
-```json
+```json5
 "dropDown":
 {
 	"items":
@@ -272,7 +278,8 @@ After view part is done, let's make behavioural part.
 Let's hide elements, related to classic timer when chess timer is selected and show them back if classic selected.
 
 To do that, find `"variables"` part inside `optionsTab.json` and add there `"timers"` array, containing 2 elements:
-```json
+
+```json5
 "variables":
 {
 	"timers":
@@ -300,10 +307,10 @@ Now we show and hide elements, but visually you still can some "artifacts":
 
 <img width="341" alt="Снимок экрана 2023-08-30 в 15 51 22" src="https://github.com/vcmi/vcmi/assets/9308612/8a4eecdf-2c44-4f38-a7a0-aff6b9254fe6">
 
-It's because options tab background image we use has those elements drawn. Let's hide them with overlay image `timchebk.bmp`. 
+It's because options tab background image we use has those elements drawn. Let's hide them with overlay image `timchebk.bmp`.
 It should be drawn before all other timer elements:
 
-```json
+```json5
 ...
 // timer
 {
@@ -328,9 +335,10 @@ It works and can switch elements, the only missing part is chess timer configura
 
 We should add text input fields, to specify different timers. We will use background for them `timerField.bmp`, copy it to `content/sprites/` folder of your mod.
 
-There are 4 different timers: base, turn, battle and creature. Read about them here: https://github.com/vcmi/vcmi/issues/1364
+There are 4 different timers: base, turn, battle and creature. Read about them here: <https://github.com/vcmi/vcmi/issues/1364>
 We can add editors for them into items list, their format will be following:
-```json
+
+```json5
 {
 	"name": "chessFieldBase",
 	"type": "textInput",
@@ -345,6 +353,7 @@ We can add editors for them into items list, their format will be following:
 ```
 
 Add three remaining elements for different timers by yourself. You can play with all settings, except callback. There are 4 predefined callbacks to setup timers:
+
 - `parseAndSetTimer_base`
 - `parseAndSetTimer_turn`
 - `parseAndSetTimer_battle`
@@ -363,7 +372,7 @@ There are different basic types, which can be used as value.
 
 #### Primitive types
 
-Read JSON documentation for primitive types description: https://www.json.org/json-en.html
+Read JSON documentation for primitive types description: <https://www.json.org/json-en.html>
 
 #### Text
 
@@ -430,7 +439,8 @@ One of predefined values:
 ### Configurable objects
 
 Configurable object has following structure:
-```json
+
+```json5
 {
 	"items": [],
 	"variables": {}, //optional
@@ -621,7 +631,7 @@ Filling area with texture
 
 `"color"`: [color](#color),
 
-`"text": string` optional, default text. Translations are not supported 
+`"text": string` optional, default text. Translations are not supported
 
 `"position"`: [position](#position)
 
@@ -748,11 +758,13 @@ Used only as special object for [combo box](#combo-box)
 `"position"`: [position](#position)
 
 `"items": []` array of overlay widgets with certain types and names:
- - `"name": "hoverImage"`, `"type": ` [picture](#picture) - image to be shown when cursor hovers elements
- - `"name": "labelName"`, `"type": ` [label](#label) - element caption
+
+- `"name": "hoverImage"`, `"type":` [picture](#picture) - image to be shown when cursor hovers elements
+- `"name": "labelName"`, `"type":` [label](#label) - element caption
 
 **Callbacks**
- - `sliderMove` connect to slider callback to correctly navigate over elements
+
+- `sliderMove` connect to slider callback to correctly navigate over elements
 
 #### Layout
 
@@ -769,7 +781,8 @@ Used only as special object for [combo box](#combo-box)
 While designing a new element, you can make it configurable to reuse all functionality described above. It will provide flexibility to further changes as well as modding capabilities.
 
 Class should inherit `InterfaceObjectConfigurable`.
-```C++
+
+```cpp
 #include "gui/InterfaceObjectConfigurable.h" //assuming we are in client folder
 
 class MyYesNoDialog: public InterfaceObjectConfigurable
@@ -781,7 +794,7 @@ class MyYesNoDialog: public InterfaceObjectConfigurable
 
 To make new object work, it's sufficient to define constructor, which receives const reference to `JsonNode`.
 
-```C++
+```cpp
 MyYesNoDialog::MyYesNoDialog(const JsonNode & config):
 	InterfaceObjectConfigurable(), //you can pass arguments same as for CIntObject
 {
@@ -808,13 +821,13 @@ MyYesNoDialog::MyYesNoDialog(const JsonNode & config):
 
 You can build custom widgets, related to your UI element specifically. Like in example above, there is Item widget, which can be also used on JSON config.
 
-```C++
+```cpp
 REGISTER_BUILDER("myItem", &MyYesNoDialog::buildMyItem);
 ```
 
 You have to define function, which takes JsonNode as an argument and return pointer to built widget
 
-```C++
+```cpp
 std::shared_ptr<MyYesNoDialog::Item> MyYesNoDialog::buildMyItem(const JsonNode & config)
 {
 	auto position = readPosition(config["position"]);
@@ -824,7 +837,7 @@ std::shared_ptr<MyYesNoDialog::Item> MyYesNoDialog::buildMyItem(const JsonNode &
 
 After that, if your JSON file has items with type "MyItem", the new Item element will be constructed.
 
-```json
+```json5
 {
 	"items":
 	[
@@ -840,7 +853,7 @@ After that, if your JSON file has items with type "MyItem", the new Item element
 
 After calling `build(config)` variables defined in config JSON file become available. You can interpret them and use in callbacks or in element code
 
-```C++
+```cpp
 build(config);
 
 if(variables["colorfulText"].Bool())

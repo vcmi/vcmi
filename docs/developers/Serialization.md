@@ -140,7 +140,7 @@ CLoadFile/CSaveFile classes allow to read data to file and store data to file. T
 
 #### Networking
 
-See [Networking](Networking.md) 
+See [Networking](Networking.md)
 
 ### Additional features
 

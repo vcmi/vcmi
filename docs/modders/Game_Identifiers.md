@@ -493,7 +493,7 @@ This is a list of all game identifiers available to modders. Note that only iden
 - hero.thorgrim
 - hero.thunar
 - hero.tiva
-- hero.torosar 
+- hero.torosar
 - hero.tyraxor
 - hero.tyris
 - hero.ufretin
