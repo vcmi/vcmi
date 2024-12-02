@@ -88,89 +88,6 @@
     </message>
 </context>
 <context>
-    <name>CModListModel</name>
-    <message>
-        <source>Translation</source>
-        <translation type="vanished">Tradução</translation>
-    </message>
-    <message>
-        <source>Town</source>
-        <translation type="vanished">Cidade</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation type="vanished">Teste</translation>
-    </message>
-    <message>
-        <source>Templates</source>
-        <translation type="vanished">Modelos</translation>
-    </message>
-    <message>
-        <source>Spells</source>
-        <translation type="vanished">Feitiços</translation>
-    </message>
-    <message>
-        <source>Music</source>
-        <translation type="vanished">Música</translation>
-    </message>
-    <message>
-        <source>Maps</source>
-        <translation type="vanished">Mapas</translation>
-    </message>
-    <message>
-        <source>Sounds</source>
-        <translation type="vanished">Sons</translation>
-    </message>
-    <message>
-        <source>Skills</source>
-        <translation type="vanished">Habilidades</translation>
-    </message>
-    <message>
-        <source>Other</source>
-        <translation type="vanished">Outros</translation>
-    </message>
-    <message>
-        <source>Objects</source>
-        <translation type="vanished">Objetos</translation>
-    </message>
-    <message>
-        <source>Mechanics</source>
-        <translation type="vanished">Mecânicas</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation type="vanished">Interface</translation>
-    </message>
-    <message>
-        <source>Heroes</source>
-        <translation type="vanished">Heróis</translation>
-    </message>
-    <message>
-        <source>Graphical</source>
-        <translation type="vanished">Gráficos</translation>
-    </message>
-    <message>
-        <source>Expansion</source>
-        <translation type="vanished">Expansão</translation>
-    </message>
-    <message>
-        <source>Creatures</source>
-        <translation type="vanished">Criaturas</translation>
-    </message>
-    <message>
-        <source>Compatibility</source>
-        <translation type="vanished">Compatibilidade</translation>
-    </message>
-    <message>
-        <source>Artifacts</source>
-        <translation type="vanished">Artefatos</translation>
-    </message>
-    <message>
-        <source>AI</source>
-        <translation type="vanished">IA</translation>
-    </message>
-</context>
-<context>
     <name>CModListView</name>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="43"/>
@@ -363,35 +280,19 @@
         <translation>Mods conflitantes</translation>
     </message>
     <message>
-        <source>This mod can not be installed or enabled because the following dependencies are not present</source>
-        <translation type="vanished">Este mod não pode ser instalado ou ativado porque as seguintes dependências não estão presentes</translation>
-    </message>
-    <message>
-        <source>This mod can not be enabled because the following mods are incompatible with it</source>
-        <translation type="vanished">Este mod não pode ser ativado porque os seguintes mods são incompatíveis com ele</translation>
-    </message>
-    <message>
-        <source>This mod cannot be disabled because it is required by the following mods</source>
-        <translation type="vanished">Este mod não pode ser desativado porque é necessário pelos seguintes mods</translation>
-    </message>
-    <message>
-        <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
-        <translation type="vanished">Este mod não pode ser desinstalado ou atualizado porque é necessário pelos seguintes mods</translation>
-    </message>
-    <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
-        <translation type="unfinished"></translation>
+        <translation>Este mod não pode ser ativado porque traduz para um idioma diferente.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
-        <translation type="unfinished"></translation>
+        <translation>Este mod não pode ser ativado porque as seguintes dependências estão ausentes</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
-        <translation type="unfinished"></translation>
+        <translation>Este mod não pode ser instalado porque as seguintes dependências estão ausentes</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
@@ -441,7 +342,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="654"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation>Selecione arquivos (configurações, mods, mapas, campanhas, arquivos gog) para instalar...</translation>
+        <translation>Selecione arquivos (configurações, mods, mapas, campanhas, arquivos GOG) para instalar...</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="679"/>
@@ -521,83 +422,6 @@ O download da instalação foi bem-sucedido?</translation>
         <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
         <source>Mod is incompatible</source>
         <translation>O mod é incompatível</translation>
-    </message>
-</context>
-<context>
-    <name>CModManager</name>
-    <message>
-        <source>Can not install submod</source>
-        <translation type="vanished">Não é possível instalar o submod</translation>
-    </message>
-    <message>
-        <source>Mod is already installed</source>
-        <translation type="vanished">O mod já está instalado</translation>
-    </message>
-    <message>
-        <source>Can not uninstall submod</source>
-        <translation type="vanished">Não é possível desinstalar o submod</translation>
-    </message>
-    <message>
-        <source>Mod is not installed</source>
-        <translation type="vanished">O mod não está instalado</translation>
-    </message>
-    <message>
-        <source>Mod is already enabled</source>
-        <translation type="vanished">O mod já está ativado</translation>
-    </message>
-    <message>
-        <source>Mod must be installed first</source>
-        <translation type="vanished">O mod deve ser instalado primeiro</translation>
-    </message>
-    <message>
-        <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
-        <translation type="vanished">O mod não é compatível, por favor, atualize o VCMI e verifique as últimas revisões do mod</translation>
-    </message>
-    <message>
-        <source>Required mod %1 is missing</source>
-        <translation type="vanished">O mod necessário %1 está faltando</translation>
-    </message>
-    <message>
-        <source>Required mod %1 is not enabled</source>
-        <translation type="vanished">O mod necessário %1 não está ativado</translation>
-    </message>
-    <message>
-        <source>This mod conflicts with %1</source>
-        <translation type="vanished">Este mod entra em conflito com %1</translation>
-    </message>
-    <message>
-        <source>Mod is already disabled</source>
-        <translation type="vanished">O mod já está desativado</translation>
-    </message>
-    <message>
-        <source>This mod is needed to run %1</source>
-        <translation type="vanished">Este mod é necessário para executar %1</translation>
-    </message>
-    <message>
-        <source>Mod archive is missing</source>
-        <translation type="vanished">O arquivo do mod está faltando</translation>
-    </message>
-    <message>
-        <source>Mod with such name is already installed</source>
-        <translation type="vanished">Um mod com esse nome já está instalado</translation>
-    </message>
-    <message>
-        <source>Mod archive is invalid or corrupted</source>
-        <translation type="vanished">O arquivo do mod é inválido ou está corrompido</translation>
-    </message>
-    <message>
-        <source>Failed to extract mod data</source>
-        <translation type="vanished">Falha ao extrair os dados do mod</translation>
-    </message>
-    <message>
-        <source>Data with this mod was not found</source>
-        <translation type="vanished">Não foram encontrados dados com este mod</translation>
-    </message>
-    <message>
-        <source>Mod is located in protected directory, please remove it manually:
-</source>
-        <translation type="vanished">O mod está localizado em um diretório protegido, por favor, remova-o manualmente:
-</translation>
     </message>
 </context>
 <context>
@@ -1044,7 +868,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>You have to select an chronicle installer file!</source>
-        <translation>Você precisa selecionar um arquivo de instalação do Chronicles!</translation>
+        <translation>Você precisa selecionar um arquivo de instalação do Heroes Chronicles!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="87"/>
@@ -1062,26 +886,10 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
 <context>
     <name>File size</name>
     <message>
-        <source>%1 B</source>
-        <translation type="vanished">%1 B</translation>
-    </message>
-    <message>
-        <source>%1 KiB</source>
-        <translation type="vanished">%1 KiB</translation>
-    </message>
-    <message>
         <location filename="../modManager/modstate.cpp" line="140"/>
         <location filename="../modManager/modstatemodel.cpp" line="95"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
-    </message>
-    <message>
-        <source>%1 GiB</source>
-        <translation type="vanished">%1 GiB</translation>
-    </message>
-    <message>
-        <source>%1 TiB</source>
-        <translation type="vanished">%1 TiB</translation>
     </message>
 </context>
 <context>
@@ -1546,84 +1354,84 @@ Motivo do erro: </translation>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="126"/>
         <source>Can not install submod</source>
-        <translation type="unfinished">Não é possível instalar o submod</translation>
+        <translation>Não é possível instalar o submod</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="129"/>
         <source>Mod is already installed</source>
-        <translation type="unfinished">O mod já está instalado</translation>
+        <translation>O mod já está instalado</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="138"/>
         <source>Can not uninstall submod</source>
-        <translation type="unfinished">Não é possível desinstalar o submod</translation>
+        <translation>Não é possível desinstalar o submod</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="141"/>
         <source>Mod is not installed</source>
-        <translation type="unfinished">O mod não está instalado</translation>
+        <translation>O mod não está instalado</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="151"/>
         <source>Mod is already enabled</source>
-        <translation type="unfinished">O mod já está ativado</translation>
+        <translation>O mod já está ativado</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="154"/>
         <location filename="../modManager/modstatecontroller.cpp" line="180"/>
         <source>Mod must be installed first</source>
-        <translation type="unfinished">O mod deve ser instalado primeiro</translation>
+        <translation>O mod deve ser instalado primeiro</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="158"/>
         <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
-        <translation type="unfinished">O mod não é compatível, por favor, atualize o VCMI e verifique as últimas revisões do mod</translation>
+        <translation>O mod não é compatível, por favor, atualize o VCMI e verifique as últimas revisões do mod</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="161"/>
         <source>Can not enable translation mod for a different language!</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é possível ativar o mod de tradução para um idioma diferente!</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="166"/>
         <source>Required mod %1 is missing</source>
-        <translation type="unfinished">O mod necessário %1 está faltando</translation>
+        <translation>O mod necessário %1 está faltando</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="177"/>
         <source>Mod is already disabled</source>
-        <translation type="unfinished">O mod já está desativado</translation>
+        <translation>O mod já está desativado</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="190"/>
         <source>Mod archive is missing</source>
-        <translation type="unfinished">O arquivo do mod está faltando</translation>
+        <translation>O arquivo do mod está faltando</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="193"/>
         <source>Mod with such name is already installed</source>
-        <translation type="unfinished">Um mod com esse nome já está instalado</translation>
+        <translation>Um mod com esse nome já está instalado</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="198"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation type="unfinished">O arquivo do mod é inválido ou está corrompido</translation>
+        <translation>O arquivo do mod é inválido ou está corrompido</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="224"/>
         <source>Failed to extract mod data</source>
-        <translation type="unfinished">Falha ao extrair os dados do mod</translation>
+        <translation>Falha ao extrair os dados do mod</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="250"/>
         <source>Data with this mod was not found</source>
-        <translation type="unfinished">Não foram encontrados dados com este mod</translation>
+        <translation>Não foram encontrados dados com este mod</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="254"/>
         <source>Mod is located in protected directory, please remove it manually:
 </source>
-        <translation type="unfinished">O mod está localizado em um diretório protegido, por favor, remova-o manualmente:
+        <translation>O mod está localizado em um diretório protegido, por favor, remova-o manualmente:
 </translation>
     </message>
 </context>
@@ -1632,106 +1440,106 @@ Motivo do erro: </translation>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="36"/>
         <source>Translation</source>
-        <translation type="unfinished">Tradução</translation>
+        <translation>Tradução</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="37"/>
         <source>Town</source>
-        <translation type="unfinished">Cidade</translation>
+        <translation>Cidade</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="38"/>
         <source>Test</source>
-        <translation type="unfinished">Teste</translation>
+        <translation>Teste</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="39"/>
         <source>Templates</source>
-        <translation type="unfinished">Modelos</translation>
+        <translation>Modelos</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="40"/>
         <source>Spells</source>
-        <translation type="unfinished">Feitiços</translation>
+        <translation>Feitiços</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="41"/>
         <source>Music</source>
-        <translation type="unfinished">Música</translation>
+        <translation>Música</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="42"/>
         <source>Maps</source>
-        <translation type="unfinished">Mapas</translation>
+        <translation>Mapas</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="43"/>
         <source>Sounds</source>
-        <translation type="unfinished">Sons</translation>
+        <translation>Sons</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="44"/>
         <source>Skills</source>
-        <translation type="unfinished">Habilidades</translation>
+        <translation>Habilidades</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="45"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="63"/>
         <source>Other</source>
-        <translation type="unfinished">Outros</translation>
+        <translation>Outros</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="46"/>
         <source>Objects</source>
-        <translation type="unfinished">Objetos</translation>
+        <translation>Objetos</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="47"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="48"/>
         <source>Mechanics</source>
-        <translation type="unfinished">Mecânicas</translation>
+        <translation>Mecânicas</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="49"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="50"/>
         <source>Interface</source>
-        <translation type="unfinished">Interface</translation>
+        <translation>Interface</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="51"/>
         <source>Heroes</source>
-        <translation type="unfinished">Heróis</translation>
+        <translation>Heróis</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="52"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="53"/>
         <source>Graphical</source>
-        <translation type="unfinished">Gráficos</translation>
+        <translation>Gráficos</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Expansion</source>
-        <translation type="unfinished">Expansão</translation>
+        <translation>Expansão</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
         <source>Creatures</source>
-        <translation type="unfinished">Criaturas</translation>
+        <translation>Criaturas</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="56"/>
         <source>Compatibility</source>
-        <translation type="unfinished">Compatibilidade</translation>
+        <translation>Compatibilidade</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefatos</translation>
+        <translation>Artefatos</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="58"/>
         <source>AI</source>
-        <translation type="unfinished">IA</translation>
+        <translation>IA</translation>
     </message>
 </context>
 <context>
