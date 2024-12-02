@@ -106,6 +106,8 @@ QString Innoextract::getHashError(QString exeFile, QString binFile)
 		QCryptographicHash hash(QCryptographicHash::Algorithm::Sha1);
 		if(hash.addData(&exe))
 			exeHash = hash.result().toHex().toLower().toStdString();
+		else
+			return QString{}; // error with hashing
 		exeSize = exe.size();
 	}
 	else
@@ -117,6 +119,8 @@ QString Innoextract::getHashError(QString exeFile, QString binFile)
 			QCryptographicHash hash(QCryptographicHash::Algorithm::Sha1);
 			if(hash.addData(&bin))
 				binHash = hash.result().toHex().toLower().toStdString();
+			else
+				return QString{}; // error with hashing
 			binSize = bin.size();
 		}
 		else
