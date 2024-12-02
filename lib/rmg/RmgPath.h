@@ -21,7 +21,7 @@ namespace rmg
 class Path
 {
 public:
-	typedef std::function<float(const int3 &, const int3 &)> MoveCostFunction;
+	using MoveCostFunction = std::function<float(const int3 &, const int3 &)>;
 	const static MoveCostFunction DEFAULT_MOVEMENT_FUNCTION;
 	
 	Path(const Area & area);
