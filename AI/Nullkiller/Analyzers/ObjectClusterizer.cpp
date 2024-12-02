@@ -505,7 +505,7 @@ void ObjectClusterizer::clusterizeObject(
 		else if (priority <= 0)
 			continue;
 
-		bool interestingObject = path.turn() <= 2 || priority > 0.5f;
+		bool interestingObject = path.turn() <= 2 || priority > ai->settings->isUseFuzzy() ? 0.5f : 0;
 
 		if(interestingObject)
 		{
