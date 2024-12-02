@@ -88,89 +88,6 @@
     </message>
 </context>
 <context>
-    <name>CModListModel</name>
-    <message>
-        <source>Translation</source>
-        <translation type="vanished">Překlad</translation>
-    </message>
-    <message>
-        <source>Town</source>
-        <translation type="vanished">Město</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation type="vanished">Zkouška</translation>
-    </message>
-    <message>
-        <source>Templates</source>
-        <translation type="vanished">Šablony</translation>
-    </message>
-    <message>
-        <source>Spells</source>
-        <translation type="vanished">Kouzla</translation>
-    </message>
-    <message>
-        <source>Music</source>
-        <translation type="vanished">Hudba</translation>
-    </message>
-    <message>
-        <source>Maps</source>
-        <translation type="vanished">Mapy</translation>
-    </message>
-    <message>
-        <source>Sounds</source>
-        <translation type="vanished">Zvuky</translation>
-    </message>
-    <message>
-        <source>Skills</source>
-        <translation type="vanished">Schopnosti</translation>
-    </message>
-    <message>
-        <source>Other</source>
-        <translation type="vanished">Ostatní</translation>
-    </message>
-    <message>
-        <source>Objects</source>
-        <translation type="vanished">Objekty</translation>
-    </message>
-    <message>
-        <source>Mechanics</source>
-        <translation type="vanished">Mechaniky</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation type="vanished">Rozhraní</translation>
-    </message>
-    <message>
-        <source>Heroes</source>
-        <translation type="vanished">Hrdinové</translation>
-    </message>
-    <message>
-        <source>Graphical</source>
-        <translation type="vanished">Grafika</translation>
-    </message>
-    <message>
-        <source>Expansion</source>
-        <translation type="vanished">Rozšíření</translation>
-    </message>
-    <message>
-        <source>Creatures</source>
-        <translation type="vanished">Jednotky</translation>
-    </message>
-    <message>
-        <source>Compatibility</source>
-        <translation type="vanished">Kompabilita</translation>
-    </message>
-    <message>
-        <source>Artifacts</source>
-        <translation type="vanished">Artefakty</translation>
-    </message>
-    <message>
-        <source>AI</source>
-        <translation type="vanished">AI</translation>
-    </message>
-</context>
-<context>
     <name>CModListView</name>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="43"/>
@@ -363,22 +280,6 @@
         <translation>Modifikace v kolizi</translation>
     </message>
     <message>
-        <source>This mod can not be installed or enabled because the following dependencies are not present</source>
-        <translation type="vanished">Tato modifikace nelze nainstalovat ani povolit, protože nejsou přítomny následující závislosti</translation>
-    </message>
-    <message>
-        <source>This mod can not be enabled because the following mods are incompatible with it</source>
-        <translation type="vanished">Tato modifikace nemůže být povolena, protože není kompatibilní s následujícími modifikacemi</translation>
-    </message>
-    <message>
-        <source>This mod cannot be disabled because it is required by the following mods</source>
-        <translation type="vanished">Tato modifikace nemůže být zakázána, protože je vyžadována následujícími modifikacemi</translation>
-    </message>
-    <message>
-        <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
-        <translation type="vanished">Tato modifikace nemůže být odinstalována nebo aktualizována, protože je vyžadována následujícími modifikacemi</translation>
-    </message>
-    <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
         <translation>Tuto modifikaci nelze aktivovat, protože je určena pro jiný jazyk.</translation>
@@ -524,83 +425,6 @@ Nainstalovat úspěšně stažené?</translation>
     </message>
 </context>
 <context>
-    <name>CModManager</name>
-    <message>
-        <source>Can not install submod</source>
-        <translation type="vanished">Nelze nainstalovat podmodifikaci</translation>
-    </message>
-    <message>
-        <source>Mod is already installed</source>
-        <translation type="vanished">Modifikace je již nainstalována</translation>
-    </message>
-    <message>
-        <source>Can not uninstall submod</source>
-        <translation type="vanished">Nelze odinstalovat podmodifikaci</translation>
-    </message>
-    <message>
-        <source>Mod is not installed</source>
-        <translation type="vanished">Modifikace není nainstalována</translation>
-    </message>
-    <message>
-        <source>Mod is already enabled</source>
-        <translation type="vanished">Modifikace je již povolena</translation>
-    </message>
-    <message>
-        <source>Mod must be installed first</source>
-        <translation type="vanished">Nejprve musí být nainstalována modifikace</translation>
-    </message>
-    <message>
-        <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
-        <translation type="vanished">Modifikace není kompatibilní, prosíme aktualizujte VCMI a použijte nejnovější verzi modifikace</translation>
-    </message>
-    <message>
-        <source>Required mod %1 is missing</source>
-        <translation type="vanished">Vyžadovaná modifkace %1 chybí</translation>
-    </message>
-    <message>
-        <source>Required mod %1 is not enabled</source>
-        <translation type="vanished">Vyžadovaná modifikace %1 není povolena</translation>
-    </message>
-    <message>
-        <source>This mod conflicts with %1</source>
-        <translation type="vanished">Tato modifikace koliduje s %1</translation>
-    </message>
-    <message>
-        <source>Mod is already disabled</source>
-        <translation type="vanished">Modifikace je již povolena</translation>
-    </message>
-    <message>
-        <source>This mod is needed to run %1</source>
-        <translation type="vanished">Modifikace %1 je vyžadována pro běh</translation>
-    </message>
-    <message>
-        <source>Mod archive is missing</source>
-        <translation type="vanished">Archiv modifikace chybí</translation>
-    </message>
-    <message>
-        <source>Mod with such name is already installed</source>
-        <translation type="vanished">Modifikace s tímto názvem je již nainstalována</translation>
-    </message>
-    <message>
-        <source>Mod archive is invalid or corrupted</source>
-        <translation type="vanished">Archiv modifikace je neplatný nebo poškozený</translation>
-    </message>
-    <message>
-        <source>Failed to extract mod data</source>
-        <translation type="vanished">Extrakce dat modifikace selhala</translation>
-    </message>
-    <message>
-        <source>Data with this mod was not found</source>
-        <translation type="vanished">Data s touto modifikací nebyla nalezena</translation>
-    </message>
-    <message>
-        <source>Mod is located in protected directory, please remove it manually:
-</source>
-        <translation type="vanished">Modifikace se nachází v zabezpečené složce, prosíme odstraňte ji ručně:
-</translation>
-    </message>
-</context>
-<context>
     <name>CSettingsView</name>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="682"/>
@@ -632,11 +456,6 @@ Nainstalovat úspěšně stažené?</translation>
         <location filename="../settingsView/csettingsview_moc.ui" line="751"/>
         <source>Additional repository</source>
         <translation>Další repozitáře</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
-        <source>Downscaling Filter</source>
-        <translation>Filtr pro zmenšování</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="597"/>
@@ -871,6 +690,11 @@ Nainstalovat úspěšně stažené?</translation>
         <translation>Limit aut. uložení (0=vypnuto)</translation>
     </message>
     <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
+        <source>Downscaling Filter</source>
+        <translation>Filtr pro zmenšování</translation>
+    </message>
+    <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="781"/>
         <source>Framerate Limit</source>
         <translation>Omezení snímků za sekundu</translation>
@@ -1062,26 +886,10 @@ Exkluzivní celá obrazovka - hra zakryje vaši celou obrazovku a použije vybra
 <context>
     <name>File size</name>
     <message>
-        <source>%1 B</source>
-        <translation type="vanished">%1 B</translation>
-    </message>
-    <message>
-        <source>%1 KiB</source>
-        <translation type="vanished">%1 KiB</translation>
-    </message>
-    <message>
         <location filename="../modManager/modstate.cpp" line="140"/>
         <location filename="../modManager/modstatemodel.cpp" line="95"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
-    </message>
-    <message>
-        <source>%1 GiB</source>
-        <translation type="vanished">%1 GiB</translation>
-    </message>
-    <message>
-        <source>%1 TiB</source>
-        <translation type="vanished">%1 TiB</translation>
     </message>
 </context>
 <context>
@@ -1126,7 +934,7 @@ Než začnete hrát, je třeba dokončit několik kroků.
 
 Pamatujte, že pro používání VCMI musíte vlastnit originální herní soubory pro Heroes® of Might and Magic® III: Complete nebo The Shadow of Death.
 
-Heroes® of Might and Magic® III HD momentálně není podporováno!</translation>
+Heroes® of Might and Magic® III HD momentálně není podporována!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="248"/>
