@@ -61,7 +61,7 @@ QString Innoextract::extract(QString installer, QString outDir, std::function<vo
 	return errorText;
 }
 
-QString Innoextract::getHashError(QString exeFile, QString binFile)
+QString Innoextract::getHashError(QString exeFile, QString binFile, QString exeFileOriginal, QString binFileOriginal)
 {
 	enum filetype
 	{
@@ -75,6 +75,11 @@ QString Innoextract::getHashError(QString exeFile, QString binFile)
 		int binSize;
 		std::string exe;
 		std::string bin;
+	};
+
+	struct fileinfo {
+		std::string hash;
+		int size = 0;
 	};
 	
 	std::vector<data> knownHashes = {
@@ -96,63 +101,64 @@ QString Innoextract::getHashError(QString exeFile, QString binFile)
 		{ CHR,         "english", 462976008,          0, "9039050e88b9dabcdb3ffa74b33e6aa86a20b7d9", ""                                         }, // setup_heroes_chronicles_chapter8_2.1.0.42.exe
 	};
 
-	std::string exeHash;
-	std::string binHash;
-	int exeSize = 0;
-	int binSize = 0;
+	auto doHash = [](QFile f){
+		fileinfo tmp;
 
-	auto exe = QFile(exeFile);
-	if(exe.open(QFile::ReadOnly)) {
-		QCryptographicHash hash(QCryptographicHash::Algorithm::Sha1);
-		if(hash.addData(&exe))
-			exeHash = hash.result().toHex().toLower().toStdString();
-		else
-			return QString{}; // error with hashing
-		exeSize = exe.size();
-	}
-	else
-		return QString{}; // reading problem
-	if(!binFile.isEmpty())
-	{
-		auto bin = QFile(binFile);
-		if(bin.open(QFile::ReadOnly)) {
+		if(f.open(QFile::ReadOnly)) {
 			QCryptographicHash hash(QCryptographicHash::Algorithm::Sha1);
-			if(hash.addData(&bin))
-				binHash = hash.result().toHex().toLower().toStdString();
-			else
-				return QString{}; // error with hashing
-			binSize = bin.size();
+			if(hash.addData(&f))
+				tmp.hash = hash.result().toHex().toLower().toStdString();
+			tmp.size = f.size();
 		}
-		else
-			return QString{}; // reading problem
-	}
+
+		return tmp;
+	};
+
+	fileinfo exeInfo;
+	fileinfo binInfo;
+	fileinfo exeInfoOriginal;
+	fileinfo binInfoOriginal;
+
+	exeInfo = doHash(QFile(exeFile));
+	if(!binFile.isEmpty())
+		binInfo = doHash(QFile(binFile));
+	exeInfoOriginal = doHash(QFile(exeFileOriginal));
+	if(!binFileOriginal.isEmpty())
+		binInfoOriginal = doHash(QFile(binFileOriginal));
 	
-	QString hashOutput = tr("SHA1 hash of provided files:\n") + tr("Exe") + " (" + QString::number(exeSize) + " " + tr("bytes") + ")" + ":\n" + QString::fromStdString(exeHash);
-	if(!binHash.empty())
-		hashOutput += "\n" + tr("Bin") + " (" + QString::number(binSize) + " " + tr("bytes") + ")" + ":\n" + QString::fromStdString(binHash);
+	if(exeInfo.hash.empty() || (!binFile.isEmpty() && binInfo.hash.empty()))
+		return QString{}; // hashing not possible -> previous error is enough
+
+	QString hashOutput = tr("SHA1 hash of provided files:\nExe (%1 bytes):\n%2").arg(QString::number(exeInfo.size), QString::fromStdString(exeInfo.hash));
+	if(!binInfo.hash.empty())
+		hashOutput += tr("\nBin (%1 bytes):\n%2").arg(QString::number(binInfo.size), QString::fromStdString(binInfo.hash));
+	
+	if((!exeInfoOriginal.hash.empty() && exeInfo.hash != exeInfoOriginal.hash) || (!binInfoOriginal.hash.empty() && !binFile.isEmpty() && !binFileOriginal.isEmpty() && binInfo.hash != binInfoOriginal.hash))
+		return tr("Internal copy process failed. Enough space on device?\n\n%1").arg(hashOutput);
 	
 	QString foundKnown;
 	QString exeLang;
 	QString binLang;
-	auto find = [exeHash, binHash](const data & d) { return (!d.exe.empty() && d.exe == exeHash) || (!d.bin.empty() && d.bin == binHash);};
+	auto find = [exeInfo, binInfo](const data & d) { return (!d.exe.empty() && d.exe == exeInfo.hash) || (!d.bin.empty() && d.bin == binInfo.hash);};
 	auto it = std::find_if(knownHashes.begin(), knownHashes.end(), find);
 	while(it != knownHashes.end()){
 		auto lang = QString::fromStdString((*it).language);
-		foundKnown += (exeHash == (*it).exe ? tr("Exe") : tr("Bin")) + " - " + lang + "\n";
-		if(exeHash == (*it).exe)
+		foundKnown += "\n" + (exeInfo.hash == (*it).exe ? tr("Exe") : tr("Bin")) + " - " + lang;
+		if(exeInfo.hash == (*it).exe)
 			exeLang = lang;
 		else
 			binLang = lang;
 		it = std::find_if(++it, knownHashes.end(), find);
 	}
+
 	if(!exeLang.isEmpty() && !binLang.isEmpty() && exeLang != binLang && !binFile.isEmpty())
-		return tr("Language mismatch!\n\n") + foundKnown + "\n\n" + hashOutput;
+		return tr("Language mismatch!\n%1\n\n%2").arg(foundKnown, hashOutput);
 	else if((!exeLang.isEmpty() || !binLang.isEmpty()) && !binFile.isEmpty())
-		return tr("Only one file known! Maybe files are corrupted? Please download again.\n\n") + foundKnown + "\n\n" + hashOutput;
+		return tr("Only one file known! Maybe files are corrupted? Please download again.\n%1\n\n%2").arg(foundKnown, hashOutput);
 	else if(!exeLang.isEmpty() && binFile.isEmpty())
 		return QString{};
 	else if(!exeLang.isEmpty() && !binFile.isEmpty() && exeLang == binLang)
 		return QString{};
 
-	return tr("Unknown files! Maybe files are corrupted? Please download again.\n\n") + hashOutput;
+	return tr("Unknown files! Maybe files are corrupted? Please download again.\n\n%1").arg(hashOutput);
 }

@@ -391,7 +391,7 @@ void FirstLaunchView::extractGogData()
 		
 		QString hashError;
 		if(!errorText.isEmpty())
-			hashError = Innoextract::getHashError(tmpFileExe, tmpFileBin);
+			hashError = Innoextract::getHashError(tmpFileExe, tmpFileBin, fileExe, fileBin);
 
 		ui->progressBarGog->setVisible(false);
 		ui->pushButtonGogInstall->setVisible(true);
