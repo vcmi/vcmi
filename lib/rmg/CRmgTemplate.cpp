@@ -335,7 +335,8 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 		"cpuStart",
 		"treasure",
 		"junction",
-		"water"
+		"water",
+		"sealed"
 	};
 
 	handler.serializeEnum("type", type, zoneTypes);
@@ -420,6 +421,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 }
 
 ZoneConnection::ZoneConnection():
+	id(-1),
 	zoneA(-1),
 	zoneB(-1),
 	guardStrength(0),
@@ -427,6 +429,16 @@ ZoneConnection::ZoneConnection():
 	hasRoad(rmg::ERoadOption::ROAD_TRUE)
 {
 
+}
+
+int ZoneConnection::getId() const
+{
+	return id;
+}
+
+void ZoneConnection::setId(int id)
+{
+	this->id = id;
 }
 
 TRmgTemplateZoneId ZoneConnection::getZoneA() const
@@ -472,7 +484,7 @@ rmg::ERoadOption ZoneConnection::getRoadOption() const
 	
 bool operator==(const ZoneConnection & l, const ZoneConnection & r)
 {
-	return l.zoneA == r.zoneA && l.zoneB == r.zoneB && l.guardStrength == r.guardStrength;
+	return l.id == r.id;
 }
 
 void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
@@ -591,7 +603,7 @@ const CRmgTemplate::Zones & CRmgTemplate::getZones() const
 
 const std::vector<ZoneConnection> & CRmgTemplate::getConnectedZoneIds() const
 {
-	return connectedZoneIds;
+	return connections;
 }
 
 void CRmgTemplate::validate() const
@@ -720,7 +732,14 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 
 	{
 		auto connectionsData = handler.enterArray("connections");
-		connectionsData.serializeStruct(connectedZoneIds);
+		connectionsData.serializeStruct(connections);
+		if(!handler.saving)
+		{
+			for(size_t i = 0; i < connections.size(); ++i)
+			{
+				connections[i].setId(i);
+			}
+		}
 	}
 	
 	{
@@ -842,7 +861,7 @@ void CRmgTemplate::afterLoad()
 		}
 	}
 
-	for(const auto & connection : connectedZoneIds)
+	for(const auto & connection : connections)
 	{
 		auto id1 = connection.getZoneA();
 		auto id2 = connection.getZoneB();

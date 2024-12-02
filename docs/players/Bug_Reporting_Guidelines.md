@@ -23,9 +23,9 @@ First of all, if you encounter a crash, don't re-run VCMI immediately to see if 
 
 By default, log files are written to:
 
--   Windows: Documents\My Games\vcmi\\
--   Linux: ~/.cache/vcmi/
--   Android: Android/data/is.xyz.vcmi/files/vcmi-data/cache/
+- Windows: Documents\My Games\vcmi\\
+- Linux: ~/.cache/vcmi/
+- Android: Android/data/is.xyz.vcmi/files/vcmi-data/cache/
 
 Now you should try to reproduce encountered issue. It's best when you write how to reproduce the issue by starting a new game and taking some steps (e.g. start Arrogance map as red player and attack monster Y with hero X). If you have troubles with reproducing it this way but you can do it from a savegame - that's good too. Finally, when you are not able to reproduce the issue at all, just upload the files mentioned above. To sum up, this is a list of what's the most desired for a developer:
 

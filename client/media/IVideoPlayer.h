@@ -45,9 +45,6 @@ public:
 class IVideoPlayer : boost::noncopyable
 {
 public:
-	/// Plays video on top of the screen, returns only after playback is over
-	virtual void playSpellbookAnimation(const VideoPath & name, const Point & position) = 0;
-
 	/// Load video from specified path. Returns nullptr on failure
 	virtual std::unique_ptr<IVideoInstance> open(const VideoPath & name, float scaleFactor) = 0;
 

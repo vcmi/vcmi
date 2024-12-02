@@ -118,6 +118,12 @@ size_t CTrueTypeFont::getStringWidthScaled(const std::string & text) const
 {
 	int width;
 	TTF_SizeUTF8(font.get(), text.c_str(), &width, nullptr);
+
+	if (outline)
+		width += getScalingFactor();
+	if (dropShadow || outline)
+		width += getScalingFactor();
+		
 	return width;
 }
 

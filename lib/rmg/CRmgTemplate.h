@@ -28,7 +28,8 @@ enum class ETemplateZoneType
 	CPU_START,
 	TREASURE,
 	JUNCTION,
-	WATER
+	WATER,
+	SEALED
 };
 
 namespace EWaterContent // Not enum class, because it's used in method RandomMapTab::setMapGenOptions
@@ -96,6 +97,8 @@ public:
 
 	ZoneConnection();
 
+	int getId() const;
+	void setId(int id);
 	TRmgTemplateZoneId getZoneA() const;
 	TRmgTemplateZoneId getZoneB() const;
 	TRmgTemplateZoneId getOtherZoneId(TRmgTemplateZoneId id) const;
@@ -107,6 +110,7 @@ public:
 	
 	friend bool operator==(const ZoneConnection &, const ZoneConnection &);
 private:
+	int id;
 	TRmgTemplateZoneId zoneA;
 	TRmgTemplateZoneId zoneB;
 	int guardStrength;
@@ -293,7 +297,7 @@ private:
 	CPlayerCountRange players;
 	CPlayerCountRange humanPlayers;
 	Zones zones;
-	std::vector<rmg::ZoneConnection> connectedZoneIds;
+	std::vector<rmg::ZoneConnection> connections;
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;
 	std::unique_ptr<JsonNode> mapSettings;
 
