@@ -264,7 +264,7 @@ std::shared_ptr<const ISharedImage> RenderHandler::loadImageFromFileUncached(con
 		{
 			logGlobal->error("Frame %d in group %d not found in file: %s", 
 				locator.defFrame, locator.defGroup, locator.defFile->getName().c_str());
-			return std::make_shared<SDLEmptyImageShared>();
+			return std::make_shared<SDLImageShared>(ImagePath::builtin("DEFAULT"), locator.preScaledFactor);
 		}
 	}
 
