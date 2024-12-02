@@ -143,7 +143,7 @@ void ConnectionsPlacer::forcePortalConnection(const rmg::ZoneConnection & connec
 void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & connection)
 {
 	bool success = false;
-	auto otherZoneId = (connection.getZoneA() == zone.getId() ? connection.getZoneB() : connection.getZoneA());
+	auto otherZoneId = connection.getOtherZoneId(zone.getId());
 	auto & otherZone = map.getZones().at(otherZoneId);
 	bool createRoad = shouldGenerateRoad(connection);
 	
@@ -327,10 +327,9 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 
 					assert(otherZone->getModificator<RoadPlacer>());
 					otherZone->getModificator<RoadPlacer>()->addRoadNode(roadNode);
-
-					assert(otherZone->getModificator<ConnectionsPlacer>());
-					otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
 				}
+				assert(otherZone->getModificator<ConnectionsPlacer>());
+				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
 
 				success = true;
 			}

@@ -97,6 +97,8 @@ public:
 
 	ZoneConnection();
 
+	int getId() const;
+	void setId(int id);
 	TRmgTemplateZoneId getZoneA() const;
 	TRmgTemplateZoneId getZoneB() const;
 	TRmgTemplateZoneId getOtherZoneId(TRmgTemplateZoneId id) const;
@@ -108,6 +110,7 @@ public:
 	
 	friend bool operator==(const ZoneConnection &, const ZoneConnection &);
 private:
+	int id;
 	TRmgTemplateZoneId zoneA;
 	TRmgTemplateZoneId zoneB;
 	int guardStrength;
@@ -294,7 +297,7 @@ private:
 	CPlayerCountRange players;
 	CPlayerCountRange humanPlayers;
 	Zones zones;
-	std::vector<rmg::ZoneConnection> connectedZoneIds;
+	std::vector<rmg::ZoneConnection> connections;
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;
 	std::unique_ptr<JsonNode> mapSettings;
 
