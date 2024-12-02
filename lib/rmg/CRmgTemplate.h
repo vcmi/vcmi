@@ -28,7 +28,8 @@ enum class ETemplateZoneType
 	CPU_START,
 	TREASURE,
 	JUNCTION,
-	WATER
+	WATER,
+	SEALED
 };
 
 namespace EWaterContent // Not enum class, because it's used in method RandomMapTab::setMapGenOptions
