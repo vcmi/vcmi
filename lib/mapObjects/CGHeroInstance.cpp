@@ -711,7 +711,25 @@ double CGHeroInstance::getFightingStrength() const
 
 double CGHeroInstance::getMagicStrength() const
 {
-	return sqrt((1.0 + 0.05*getPrimSkillLevel(PrimarySkill::KNOWLEDGE)) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::SPELL_POWER)));
+	if (!hasSpellbook())
+		return 1;
+	bool atLeastOneCombatSpell = false;
+	for (auto spell : spells)
+	{
+		if (spellbookContainsSpell(spell) && spell.toSpell()->isCombat())
+		{
+			atLeastOneCombatSpell = true;
+			break;
+		}
+	}
+	if (!atLeastOneCombatSpell)
+		return 1;
+	return sqrt((1.0 + 0.05*getPrimSkillLevel(PrimarySkill::KNOWLEDGE) * mana / manaLimit()) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::SPELL_POWER) * mana / manaLimit()));
+}
+
+double CGHeroInstance::getMagicStrengthForCampaign() const
+{
+	return sqrt((1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::KNOWLEDGE)) * (1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::SPELL_POWER)));
 }
 
 double CGHeroInstance::getHeroStrength() const
@@ -719,9 +737,14 @@ double CGHeroInstance::getHeroStrength() const
 	return sqrt(pow(getFightingStrength(), 2.0) * pow(getMagicStrength(), 2.0));
 }
 
+double CGHeroInstance::getHeroStrengthForCampaign() const
+{
+	return sqrt(pow(getFightingStrength(), 2.0) * pow(getMagicStrengthForCampaign(), 2.0));
+}
+
 ui64 CGHeroInstance::getTotalStrength() const
 {
-	double ret = getFightingStrength() * getArmyStrength();
+	double ret = getHeroStrength() * getArmyStrength();
 	return static_cast<ui64>(ret);
 }
 
@@ -1896,5 +1919,11 @@ const IOwnableObject * CGHeroInstance::asOwnable() const
 	return this;
 }
 
+int CGHeroInstance::getBasePrimarySkillValue(PrimarySkill which) const
+{
+	std::string cachingStr = "type_PRIMARY_SKILL_base_" + std::to_string(static_cast<int>(which));
+	auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(which)).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
+	return valOfBonuses(selector, cachingStr);
+}
 
 VCMI_LIB_NAMESPACE_END

@@ -117,7 +117,13 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 				color = "";
 			}
 			else
-				printableString.append(text.data() + currPos, symbolSize);
+			{
+				std::string character = "";
+				character.append(text.data() + currPos, symbolSize);
+				if(fontPtr->getStringWidth(printableString + character) > maxLineWidth)
+					break;
+				printableString += character;
+			}
 
 			currPos += symbolSize;
 		}

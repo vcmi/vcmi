@@ -182,9 +182,7 @@
 	"vcmi.server.errors.existingProcess" : "Inny proces 'vcmiserver' został już uruchomiony, zakończ go nim przejdziesz dalej",
 	"vcmi.server.errors.modsToEnable"    : "{Następujące mody są wymagane do wczytania gry}",
 	"vcmi.server.errors.modsToDisable"   : "{Następujące mody muszą zostać wyłączone}",
-	"vcmi.server.errors.modNoDependency" : "Nie udało się wczytać moda {'%s'}!\n Jest on zależny od moda {'%s'} który nie jest aktywny!\n",
 	"vcmi.server.errors.modDependencyLoop" : "Nie udało się wczytać moda {'%s'}!\n Być może znajduje się w pętli zależności",
-	"vcmi.server.errors.modConflict" : "Nie udało się wczytać moda {'%s'}!\n Konflikty z aktywnym modem {'%s'}!\n",
 	"vcmi.server.errors.unknownEntity" : "Nie udało się wczytać zapisu! Nieznany element '%s' znaleziony w pliku zapisu! Zapis może nie być zgodny z aktualnie zainstalowaną wersją modów!",
 
 	"vcmi.dimensionDoor.seaToLandError" : "Nie jest możliwa teleportacja przez drzwi wymiarów z wód na ląd i na odwrót.",

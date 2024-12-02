@@ -23,7 +23,7 @@
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/ObstacleProxy.h"
 #include "../lib/modding/CModHandler.h"
-#include "../lib/modding/CModInfo.h"
+#include "../lib/modding/ModDescription.h"
 #include "../lib/TerrainHandler.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"

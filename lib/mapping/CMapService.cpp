@@ -17,8 +17,8 @@
 #include "../filesystem/CMemoryStream.h"
 #include "../filesystem/CMemoryBuffer.h"
 #include "../modding/CModHandler.h"
+#include "../modding/ModDescription.h"
 #include "../modding/ModScope.h"
-#include "../modding/CModInfo.h"
 #include "../VCMI_Lib.h"
 
 #include "CMap.h"
@@ -99,7 +99,7 @@ ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
 		if(vstd::contains(activeMods, mapMod.first))
 		{
 			const auto & modInfo = VLC->modh->getModInfo(mapMod.first);
-			if(modInfo.getVerificationInfo().version.compatible(mapMod.second.version))
+			if(modInfo.getVersion().compatible(mapMod.second.version))
 				continue;
 		}
 		missingMods[mapMod.first] = mapMod.second;

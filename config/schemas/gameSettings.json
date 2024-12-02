@@ -133,6 +133,14 @@
 				"originalFlyRules" :        { "type" : "boolean" }
 			}
 		},
+		"resources": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"weeklyBonusesAI" : { "type" : "object" }
+			}
+		},
+
 		"spells": {
 			"type" : "object",
 			"additionalProperties" : false,

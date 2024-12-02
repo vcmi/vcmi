@@ -138,7 +138,7 @@ void Zone::initFreeTiles()
 	});
 	dAreaPossible.assign(possibleTiles);
 	
-	if(dAreaFree.empty())
+	if(dAreaFree.empty() && getType() != ETemplateZoneType::SEALED)
 	{
 		// Fixme: This might fail fot water zone, which doesn't need to have a tile in its center of the mass
 		dAreaPossible.erase(pos);
@@ -347,6 +347,16 @@ void Zone::fractalize()
 				break;
 			tilesToIgnore.clear();
 		}
+	}
+	else if (type == ETemplateZoneType::SEALED)
+	{
+		//Completely block all the tiles in the zone
+		auto tiles = areaPossible()->getTiles();
+		for(const auto & t : tiles)
+			map.setOccupied(t, ETileType::BLOCKED);
+		possibleTiles.clear();
+		dAreaFree.clear();
+		return;
 	}
 	else
 	{

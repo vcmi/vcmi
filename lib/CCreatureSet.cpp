@@ -361,6 +361,14 @@ ui64 CCreatureSet::getArmyStrength() const
 	return ret;
 }
 
+ui64 CCreatureSet::getArmyCost() const
+{
+	ui64 ret = 0;
+	for (const auto& elem : stacks)
+		ret += elem.second->getMarketValue();
+	return ret;
+}
+
 ui64 CCreatureSet::getPower(const SlotID & slot) const
 {
 	return getStack(slot).getPower();
@@ -851,6 +859,12 @@ ui64 CStackInstance::getPower() const
 {
 	assert(getType());
 	return static_cast<ui64>(getType()->getAIValue()) * count;
+}
+
+ui64 CStackInstance::getMarketValue() const
+{
+	assert(getType());
+	return getType()->getFullRecruitCost().marketValue() * count;
 }
 
 ArtBearer::ArtBearer CStackInstance::bearerType() const

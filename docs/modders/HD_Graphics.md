@@ -13,6 +13,7 @@ If user for example selects 3x resolution and only 2x exists in mod then the 2x 
 ## Mod
 
 For upscaled images you have to use following folders (next to `sprites`, `data` and `video` folders):
+
 - `sprites2x`, `sprites3x`, `sprites4x` for sprites
 - `data2x`, `data3x`, `data4x` for images
 - `video2x`, `video3x`, `video4x` for videos
@@ -25,11 +26,13 @@ It's also possible (but not necessary) to add high-definition shadows: Just plac
 In future, such shadows will likely become required to correctly exclude shadow from effects such as Clone spell.
 
 Shadow images are used only for animations of following objects:
+
 - All adventure map objects
 - All creature animations in combat
 
 Same for overlays with `-overlay`. But overlays are **necessary** for some animation graphics. They will be colorized by VCMI.
 
 Currently needed for:
+
 - Flaggable adventure map objects. Overlay must contain a transparent image with white flags on it and will be used to colorize flags to owning player
 - Creature battle animations, idle and mouse hover group. Overlay must contain a transparent image with white outline of creature for highlighting on mouse hover

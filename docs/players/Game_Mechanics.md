@@ -58,7 +58,7 @@ These bugs were present in original Shadow of Death game, however the team decid
 Some of H3 mechanics can't be straight considered as bug, but default VCMI behaviour is different:
 
 - Pathfinding. Hero can't grab artifact while flying when all tiles around it are guarded without triggering attack from guard.
-- Battles. Hero that won battle, but only have temporary summoned creatures alive going to appear in tavern like if he retreated. 
+- Battles. Hero that won battle, but only have temporary summoned creatures alive going to appear in tavern like if he retreated.
 - Battles. Spells from artifacts like AOTD are autocasted on beginning of the battle, not beginning of turn.
 
 ## Adventure map features
@@ -106,7 +106,7 @@ In combat, some creatures, such as Dragon or Cerberi, may attack enemies on mult
 - [LCtrl] + LClick – splits a single unit from the selected stack into an empty slot.
 - [LCtrl] + [LShift] + LClick – split single units from the selected stack into all empty hero/garrison slots
 - [Alt] + LClick – merge all split single units into one stack
-- [Alt] + [LCtrl] + LClick - move all units of selected stack to the city's garrison or to the met hero 
+- [Alt] + [LCtrl] + LClick - move all units of selected stack to the city's garrison or to the met hero
 - [Alt] + [LShift] + LClick - dismiss selected stack`
 - Directly type numbers in the Split Stack window to split them in any way you wish
 
@@ -174,6 +174,7 @@ TODO
 Simultaneous turns allow multiple players to act at the same time, speeding up early game phase in multiplayer games. During this phase if different players (allies or not) attempt to interact with each other, such as capture objects owned by other players (mines, dwellings, towns) or attack their heroes, game will block such actions. Interaction with same map objects at the same time, such as attacking same wandering monster is also blocked.
 
 Following options can be used to configure simultaneous turns:
+
 - Minimal duration (at least for): this is duration during which simultaneous turns will run unconditionally. Until specified number of days have passed, simultaneous turns will never break and game will not attempt to detect contacts.
 - Maximal duration (at most for): this is duration after which simultaneous turns will end unconditionally, even if players still have not contacted each other. However if contact detection discovers contact between two players, simultaneous turns between them might end before specified duration.
 - Simultaneous turns for AI: If this option is on, AI can act at the same time as human players. Note that AI shares settings for simultaneous turns with human players - if no simultaneous turns have been set up this option has no effect.
@@ -185,6 +186,7 @@ Players are considered to be "in contact" if movement range of their heroes at t
 Once detected, contact can never be "lost". If game detected contact between two players, this contact will remain active till the end of the game, even if their heroes move far enough from each other.
 
 Game performs contact detection once per turn, at the very start of each in-game day. Once contact detection has been performed, players that are not in contact with each other can start making turn. For example, in game with 4 players: red, blue, brown and green. If game detected contact between red and blue following will happen:
+
 - red, brown and green will all instantly start turn
 - once red ends his turn, blue will be able to start his own turn (even if brown or green are still making turn)
 
@@ -197,4 +199,4 @@ Differences compared to HD Mod version:
 
 ## Manuals and guides
 
-- https://heroes.thelazy.net/index.php/Main_Page Wiki that aims to be a complete reference to Heroes of Might and Magic III. 
+- <https://heroes.thelazy.net/index.php/Main_Page> Wiki that aims to be a complete reference to Heroes of Might and Magic III.

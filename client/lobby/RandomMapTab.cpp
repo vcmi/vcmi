@@ -263,7 +263,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		humanCountAllowed = tmpl->getHumanPlayers().getNumbers(); // Unused now?
 	}
 	
-	si8 playerLimit = opts->getMaxPlayersCount();
+	si8 playerLimit = opts->getPlayerLimit();
 	si8 humanOrCpuPlayerCount = opts->getHumanOrCpuPlayerCount();
 	si8 compOnlyPlayersCount = opts->getCompOnlyPlayerCount();
 

@@ -41,6 +41,7 @@ public:
 	float getResourceRequirementStrength(int resType) const;
 	float getResourceRequirementStrength(const TResources & res) const;
 	float getStrategicalValue(const CGObjectInstance * target, const CGHeroInstance * hero = nullptr) const;
+	float getConquestValue(const CGObjectInstance* target) const;
 	float getTotalResourceRequirementStrength(int resType) const;
 	float evaluateWitchHutSkillScore(const CGObjectInstance * hut, const CGHeroInstance * hero, HeroRole role) const;
 	float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * hero, HeroRole role) const;
@@ -48,7 +49,7 @@ public:
 	uint64_t getUpgradeArmyReward(const CGTownInstance * town, const BuildingInfo & bi) const;
 	const HitMapInfo & getEnemyHeroDanger(const int3 & tile, uint8_t turn) const;
 	uint64_t townArmyGrowth(const CGTownInstance * town) const;
-	uint64_t getManaRecoveryArmyReward(const CGHeroInstance * hero) const;
+	float getManaRecoveryArmyReward(const CGHeroInstance * hero) const;
 };
 
 struct DLL_EXPORT EvaluationContext
@@ -65,10 +66,24 @@ struct DLL_EXPORT EvaluationContext
 	int32_t goldCost;
 	float skillReward;
 	float strategicalValue;
+	float conquestValue;
 	HeroRole heroRole;
 	uint8_t turn;
 	RewardEvaluator evaluator;
 	float enemyHeroDangerRatio;
+	float threat;
+	float armyInvolvement;
+	int defenseValue;
+	bool isDefend;
+	int threatTurns;
+	TResources buildingCost;
+	bool involvesSailing;
+	bool isTradeBuilding;
+	bool isExchange;
+	bool isArmyUpgrade;
+	bool isHero;
+	bool isEnemy;
+	int explorePriority;
 
 	EvaluationContext(const Nullkiller * ai);
 
@@ -91,7 +106,20 @@ public:
 	~PriorityEvaluator();
 	void initVisitTile();
 
-	float evaluate(Goals::TSubgoal task);
+	float evaluate(Goals::TSubgoal task, int priorityTier = BUILDINGS);
+
+	enum PriorityTier : int32_t
+	{
+		BUILDINGS = 0,
+		INSTAKILL,
+		INSTADEFEND,
+		KILL,
+		UPGRADE,
+		HIGH_PRIO_EXPLORE,
+		HUNTER_GATHER,
+		LOW_PRIO_EXPLORE,
+		DEFEND
+	};
 
 private:
 	const Nullkiller * ai;
