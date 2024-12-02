@@ -16,6 +16,7 @@
 #include "../media/ISoundPlayer.h"
 #include "../media/IVideoPlayer.h"
 #include "../render/Canvas.h"
+#include "../render/IScreenHandler.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 
@@ -45,7 +46,26 @@ void VideoWidgetBase::playVideo(const VideoPath & fileToPlay)
 	else if(CResourceHandler::get()->existsResource(subTitlePathVideoDir))
 		subTitleData = JsonNode(subTitlePathVideoDir);
 
-	videoInstance = CCS->videoh->open(fileToPlay, scaleFactor);
+	float preScaleFactor = 1;
+	VideoPath videoFile = fileToPlay;
+	if(GH.screenHandler().getScalingFactor() > 1)
+	{
+		std::vector<int> factorsToCheck = {GH.screenHandler().getScalingFactor(), 4, 3, 2};
+		for(auto factorToCheck : factorsToCheck)
+		{
+			std::string name = boost::algorithm::to_upper_copy(videoFile.getName());
+			boost::replace_all(name, "VIDEO/", std::string("VIDEO") + std::to_string(factorToCheck) + std::string("X/"));
+			auto p = VideoPath::builtin(name).addPrefix("VIDEO" + std::to_string(factorToCheck) + "X/");
+			if(CResourceHandler::get()->existsResource(p))
+			{
+				preScaleFactor = 1.0 / static_cast<float>(factorToCheck);
+				videoFile = p;
+				break;
+			}
+		}
+	}
+
+	videoInstance = CCS->videoh->open(videoFile, scaleFactor * preScaleFactor);
 	if (videoInstance)
 	{
 		pos.w = videoInstance->size().x;

@@ -103,11 +103,9 @@ public:
 
 class CVideoPlayer final : public IVideoPlayer
 {
-	bool openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool stopOnKey);
 	void openVideoFile(CVideoInstance & state, const VideoPath & fname);
 
 public:
-	void playSpellbookAnimation(const VideoPath & name, const Point & position) final;
 	std::unique_ptr<IVideoInstance> open(const VideoPath & name, float scaleFactor) final;
 	std::pair<std::unique_ptr<ui8[]>, si64> getAudio(const VideoPath & videoToOpen) final;
 };
