@@ -1083,28 +1083,25 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 
 		for(BattleHex neighbour : BattleHexArray::neighbouringTilesCache[curHex.hex])
 		{
-			if(neighbour.isValid())
+			auto additionalCost = 0;
+
+			if(params.bypassEnemyStacks)
 			{
-				auto additionalCost = 0;
+				auto enemyToBypass = params.destructibleEnemyTurns.at(neighbour);
 
-				if(params.bypassEnemyStacks)
+				if(enemyToBypass >= 0)
 				{
-					auto enemyToBypass = params.destructibleEnemyTurns.find(neighbour);
-
-					if(enemyToBypass != params.destructibleEnemyTurns.end())
-					{
-						additionalCost = enemyToBypass->second;
-					}
+					additionalCost = enemyToBypass;
 				}
+			}
 
-				const int costFoundSoFar = ret.distances[neighbour.hex];
+			const int costFoundSoFar = ret.distances[neighbour.hex];
 
-				if(accessibleCache[neighbour.hex] && costToNeighbour + additionalCost < costFoundSoFar)
-				{
-					hexq.push(neighbour);
-					ret.distances[neighbour.hex] = costToNeighbour + additionalCost;
-					ret.predecessors[neighbour.hex] = curHex;
-				}
+			if(accessibleCache[neighbour.hex] && costToNeighbour + additionalCost < costFoundSoFar)
+			{
+				hexq.push(neighbour);
+				ret.distances[neighbour.hex] = costToNeighbour + additionalCost;
+				ret.predecessors[neighbour.hex] = curHex;
 			}
 		}
 	}
@@ -1280,7 +1277,7 @@ ReachabilityInfo CBattleInfoCallback::getReachability(const ReachabilityInfo::Pa
 	{
 		auto accessibility = getAccessibility(params.knownAccessible);
 
-		accessibility.destructibleEnemyTurns = params.destructibleEnemyTurns;
+		accessibility.destructibleEnemyTurns = & params.destructibleEnemyTurns;
 
 		return makeBFS(accessibility, params);
 	}

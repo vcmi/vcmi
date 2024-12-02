@@ -22,9 +22,10 @@ bool AccessibilityInfo::tileAccessibleWithGate(BattleHex tile, BattleSide side) 
 
 	if(accessibility == EAccessibility::ALIVE_STACK)
 	{
-		auto destructible = destructibleEnemyTurns.find(tile);
+		if(!destructibleEnemyTurns)
+			return false;
 
-		return destructible != destructibleEnemyTurns.end();
+		return destructibleEnemyTurns->at(tile.hex) >= 0;
 	}
 
 	if(accessibility != EAccessibility::ACCESSIBLE)
