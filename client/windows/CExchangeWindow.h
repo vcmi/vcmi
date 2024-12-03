@@ -54,6 +54,7 @@ class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public 
 	std::shared_ptr<CButton> backpackButtonRight;
 	CExchangeController controller;
 
+	void creatureArrowButtonCallback(bool leftToRight, SlotID slotID);
 	void moveArtifactsCallback(bool leftToRight);
 	void swapArtifactsCallback();
 	void moveUnitsShortcut(bool leftToRight);

@@ -248,7 +248,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 					Point(484 + 35 * i, 154),
 					AnimationPath::builtin("quick-exchange/unitLeft.DEF"),
 					CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.moveUnit")),
-					std::bind(&CExchangeController::moveStack, &controller, false, SlotID(i))));
+					[this, i]() { creatureArrowButtonCallback(false, SlotID(i)); }));
 			moveUnitFromRightToLeftButtons.back()->block(leftHeroBlock);
 
 			moveUnitFromLeftToRightButtons.push_back(
@@ -256,12 +256,20 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 					Point(66 + 35 * i, 154),
 					AnimationPath::builtin("quick-exchange/unitRight.DEF"),
 					CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.moveUnit")),
-					std::bind(&CExchangeController::moveStack, &controller, true, SlotID(i))));
+					[this, i]() { creatureArrowButtonCallback(true, SlotID(i)); }));
 			moveUnitFromLeftToRightButtons.back()->block(rightHeroBlock);
 		}
 	}
 
 	CExchangeWindow::update();
+}
+
+void CExchangeWindow::creatureArrowButtonCallback(bool leftToRight, SlotID slotId)
+{
+	if (GH.isKeyboardAltDown())
+		controller.moveArmy(leftToRight, slotId);
+	else
+		controller.moveStack(leftToRight, slotId);
 }
 
 void CExchangeWindow::moveArtifactsCallback(bool leftToRight)
