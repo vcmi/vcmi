@@ -1019,12 +1019,20 @@ public:
 				evaluationContext.involvesSailing = true;
 		}
 
+		float highestCostForSingleHero = 0;
 		for(auto pair : costsPerHero)
 		{
 			auto role = evaluationContext.evaluator.ai->heroManager->getHeroRole(pair.first);
-
 			evaluationContext.movementCostByRole[role] += pair.second;
+			if (pair.second > highestCostForSingleHero)
+				highestCostForSingleHero = pair.second;
 		}
+		if (highestCostForSingleHero > 1 && costsPerHero.size() > 1)
+		{
+			//Chains that involve more than 1 hero doing something for more than a turn are too expensive in my book. They often involved heroes doing nothing just standing there waiting to fulfill their part of the chain.
+			return;
+		}
+		evaluationContext.movementCost *= costsPerHero.size(); //further deincentivise chaining as it often involves bringing back the army afterwards
 
 		auto hero = task->hero;
 		bool checkGold = evaluationContext.danger == 0;
@@ -1387,12 +1395,11 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (evaluationContext.turn > 0)
 					return 0;
 				if(evaluationContext.conquestValue > 0)
-					score = 1000;
+					score = evaluationContext.armyInvolvement;
 				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > 1 && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !ai->cb->getTownsInfo().empty()))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
-				score *= evaluationContext.closestWayRatio;
 				if (evaluationContext.movementCost > 0)
 					score /= evaluationContext.movementCost;
 				break;
@@ -1403,7 +1410,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					score = evaluationContext.armyInvolvement;
 				if (evaluationContext.isEnemy && maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
-				score *= evaluationContext.closestWayRatio;
 				break;
 			}
 			case PriorityTier::KILL: //Take towns / kill heroes that are further away
@@ -1413,7 +1419,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (arriveNextWeek && evaluationContext.isEnemy)
 					return 0;
 				if (evaluationContext.conquestValue > 0)
-					score = 1000;
+					score = evaluationContext.armyInvolvement;
 				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > 1 && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !ai->cb->getTownsInfo().empty()))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
@@ -1431,8 +1437,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
+				if (evaluationContext.armyLossPersentage == 0 && evaluationContext.closestWayRatio < 1.0)
+					return 0;
 				score = 1000;
-				score *= evaluationContext.closestWayRatio;
 				if (evaluationContext.movementCost > 0)
 					score /= evaluationContext.movementCost;
 				break;
@@ -1445,8 +1452,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
+				if (evaluationContext.armyLossPersentage == 0 && evaluationContext.closestWayRatio < 1.0)
+					return 0;
 				score = 1000;
-				score *= evaluationContext.closestWayRatio;
 				if (evaluationContext.movementCost > 0)
 					score /= evaluationContext.movementCost;
 				break;
@@ -1467,6 +1475,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
+				if (evaluationContext.armyLossPersentage == 0 && evaluationContext.closestWayRatio < 1.0)
+					return 0;
 				score += evaluationContext.strategicalValue * 1000;
 				score += evaluationContext.goldReward;
 				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossPersentage) * 0.05;
@@ -1477,7 +1487,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (score > 0)
 				{
 					score = 1000;
-					score *= evaluationContext.closestWayRatio;
 					if (evaluationContext.movementCost > 0)
 						score /= evaluationContext.movementCost;
 				}
@@ -1491,8 +1500,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
+				if (evaluationContext.closestWayRatio < 1.0)
+					return 0;
 				score = 1000;
-				score *= evaluationContext.closestWayRatio;
 				if (evaluationContext.movementCost > 0)
 					score /= evaluationContext.movementCost;
 				break;
@@ -1502,8 +1512,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (evaluationContext.enemyHeroDangerRatio > 1 && evaluationContext.isExchange)
 					return 0;
 				if (evaluationContext.isDefend || evaluationContext.isArmyUpgrade)
-					score = 1000;
-				score *= evaluationContext.closestWayRatio;
+					score = evaluationContext.armyInvolvement;
 				score /= (evaluationContext.turn + 1);
 				break;
 			}
