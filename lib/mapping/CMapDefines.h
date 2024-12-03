@@ -45,8 +45,7 @@ public:
 
 	std::vector<ObjectInstanceID> deletedObjectsInstances;
 
-	std::vector<int3> unused;
-	std::set<const CGObjectInstance*> unused2;
+	std::vector<ObjectInstanceID> unused;
 
 	template <typename Handler>
 	void serialize(Handler & h)
@@ -77,7 +76,6 @@ public:
 		else
 		{
 			h & unused;
-			h & unused2;
 		}
 	}
 	
