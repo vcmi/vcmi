@@ -85,7 +85,7 @@ void Teleport::apply(ServerCallback * server, const Mechanics * m, const EffectT
 	tiles.push_back(destination);
 	pack.tilesToMove = tiles;
 	pack.teleporting = true;
-	server->apply(&pack);
+	server->apply(pack);
 
 	if(triggerObstacles)
 	{

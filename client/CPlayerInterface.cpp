@@ -67,7 +67,6 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CStack.h"
@@ -239,7 +238,7 @@ void CPlayerInterface::performAutosave()
 				std::string name = cb->getMapHeader()->name.toString();
 				int txtlen = TextOperations::getUnicodeCharactersCount(name);
 
-				TextOperations::trimRightUnicode(name, std::max(0, txtlen - 15));
+				TextOperations::trimRightUnicode(name, std::max(0, txtlen - 14));
 				auto const & isSymbolIllegal = [&](char c) {
 					static const std::string forbiddenChars("\\/:*?\"<>| ");
 
@@ -250,7 +249,7 @@ void CPlayerInterface::performAutosave()
 				};
 				std::replace_if(name.begin(), name.end(), isSymbolIllegal, '_' );
 
-				prefix = name + "_" + cb->getStartInfo()->startTimeIso8601 + "/";
+				prefix = vstd::getFormattedDateTime(cb->getStartInfo()->startTime, "%Y-%m-%d_%H-%M") + "_" + name + "/";
 			}
 		}
 
@@ -432,6 +431,8 @@ void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	localState->addWanderingHero(hero);
 	adventureInt->onHeroChanged(hero);
+	if(castleInt)
+		CCS->soundh->playSound(soundBase::newBuilding);
 }
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
@@ -1148,7 +1149,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 		const CGTownInstance * t = dynamic_cast<const CGTownInstance *>(cb->getObj(obj));
 		if(t)
 		{
-			auto image = GH.renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->town->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
+			auto image = GH.renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->getTown()->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
 			image->scaleTo(Point(35, 23));
 			images.push_back(image);
 		}
@@ -1342,6 +1343,8 @@ void CPlayerInterface::initializeHeroTownList()
 		for(auto & town : cb->getTownsInfo())
 			localState->addOwnedTown(town);
 	}
+
+	localState->deserialize(*cb->getPlayerState(playerID)->playerLocalSettings);
 
 	if(adventureInt)
 		adventureInt->onHeroChanged(nullptr);

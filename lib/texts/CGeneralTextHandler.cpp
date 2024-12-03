@@ -120,21 +120,16 @@ void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::
 }
 
 CGeneralTextHandler::CGeneralTextHandler():
-	victoryConditions(*this, "core.vcdesc"   ),
-	lossConditions    (*this, "core.lcdesc"   ),
-	colors           (*this, "core.plcolors" ),
 	tcommands        (*this, "core.tcommand" ),
 	hcommands        (*this, "core.hallinfo" ),
 	fcommands        (*this, "core.castinfo" ),
 	advobtxt         (*this, "core.advevent" ),
 	restypes         (*this, "core.restypes" ),
-	randsign         (*this, "core.randsign" ),
 	overview         (*this, "core.overview" ),
 	arraytxt         (*this, "core.arraytxt" ),
 	primarySkillNames(*this, "core.priskill" ),
 	jktexts          (*this, "core.jktext"   ),
 	tavernInfo       (*this, "core.tvrninfo" ),
-	tavernRumors     (*this, "core.randtvrn" ),
 	turnDurations    (*this, "core.turndur"  ),
 	heroscrn         (*this, "core.heroscrn" ),
 	tentColors       (*this, "core.tentcolr" ),
@@ -144,9 +139,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	// pseudo-array, that don't have H3 file with same name
 	seerEmpty        (*this, "core.seerhut.empty"  ),
 	seerNames        (*this, "core.seerhut.names"  ),
-	capColors        (*this, "vcmi.capitalColors"  ),
-	znpc00           (*this, "vcmi.znpc00"  ), // technically - wog
-	qeModCommands    (*this, "vcmi.quickExchange" )
+	capColors        (*this, "vcmi.capitalColors"  )
 {
 	readToVector("core.vcdesc",   "DATA/VCDESC.TXT"   );
 	readToVector("core.lcdesc",   "DATA/LCDESC.TXT"   );
@@ -170,10 +163,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.minename", "DATA/MINENAME.TXT" );
 	readToVector("core.mineevnt", "DATA/MINEEVNT.TXT" );
 	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
-
-	static const std::string QE_MOD_COMMANDS = "DATA/QECOMMANDS.TXT";
-	if (CResourceHandler::get()->existsResource(TextPath::builtin(QE_MOD_COMMANDS)))
-		readToVector("vcmi.quickExchange", QE_MOD_COMMANDS);
 
 	{
 		CLegacyConfigParser parser(TextPath::builtin("DATA/RANDTVRN.TXT"));
@@ -302,11 +291,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 
 			scenariosCountPerCampaign.push_back(region);
 		}
-	}
-	if (VLC->engineSettings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
-	{
-		if(CResourceHandler::get()->existsResource(TextPath::builtin("DATA/ZNPC00.TXT")))
-			readToVector("vcmi.znpc00", "DATA/ZNPC00.TXT" );
 	}
 }
 

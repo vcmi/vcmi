@@ -114,7 +114,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 	//preparing cells and hexes
 	cellBorder = GH.renderHandler().loadImage(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
-	cellShade = GH.renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"), EImageBlitMode::ALPHA);
+	cellShade = GH.renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"), EImageBlitMode::SIMPLE);
 	cellUnitMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
 	cellUnitMaxMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMaxMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
 
@@ -123,8 +123,6 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 	rangedFullDamageLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"), EImageBlitMode::COLORKEY);
 	shootingRangeLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"), EImageBlitMode::COLORKEY);
-
-	cellShade->setShadowEnabled(true);
 
 	if(!owner.siegeController)
 	{

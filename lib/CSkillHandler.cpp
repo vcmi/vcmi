@@ -32,7 +32,9 @@ CSkill::CSkill(const SecondarySkill & id, std::string identifier, bool obligator
 	id(id),
 	identifier(std::move(identifier)),
 	obligatoryMajor(obligatoryMajor),
-	obligatoryMinor(obligatoryMinor)
+	obligatoryMinor(obligatoryMinor),
+	special(false),
+	onlyOnWaterMap(false)
 {
 	gainChance[0] = gainChance[1] = 0; //affects CHeroClassHandler::afterLoadFinalization()
 	levels.resize(NSecondarySkill::levels.size() - 1);
@@ -45,7 +47,12 @@ int32_t CSkill::getIndex() const
 
 int32_t CSkill::getIconIndex() const
 {
-	return getIndex(); //TODO: actual value with skill level
+	return getIndex() * 3 + 3; // Base master level
+}
+
+int32_t CSkill::getIconIndex(uint8_t skillMasterLevel) const
+{
+	return getIconIndex() + skillMasterLevel;
 }
 
 std::string CSkill::getNameTextID() const
@@ -122,7 +129,7 @@ CSkill::LevelInfo & CSkill::at(int level)
 DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInfo & info)
 {
 	for(int i=0; i < info.effects.size(); i++)
-		out << (i ? "," : "") << info.effects[i]->Description();
+		out << (i ? "," : "") << info.effects[i]->Description(nullptr);
 	return out << "])";
 }
 
@@ -211,8 +218,9 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 	skill->modScope = scope;
 
 	skill->onlyOnWaterMap = json["onlyOnWaterMap"].Bool();
+	skill->special = json["special"].Bool();
 
-	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"].String());
+	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
 	switch(json["gainChance"].getType())
 	{
 	case JsonNode::JsonType::DATA_INTEGER:
@@ -237,7 +245,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 			skill->addNewBonus(bonus, level);
 		}
 		CSkill::LevelInfo & skillAtLevel = skill->at(level);
-		VLC->generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"].String());
+		VLC->generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"]);
 		skillAtLevel.iconSmall = levelNode["images"]["small"].String();
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
@@ -270,7 +278,8 @@ std::set<SecondarySkill> CSkillHandler::getDefaultAllowed() const
 	std::set<SecondarySkill> result;
 
 	for (auto const & skill : objects)
-		result.insert(skill->getId());
+		if (!skill->special)
+			result.insert(skill->getId());
 
 	return result;
 }

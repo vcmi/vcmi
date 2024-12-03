@@ -394,7 +394,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 	{
 		std::set<BattleHex> obstacleHexes;
 
-		auto insertAffected = [](const CObstacleInstance & spellObst, std::set<BattleHex> obstacleHexes) {
+		auto insertAffected = [](const CObstacleInstance & spellObst, std::set<BattleHex> & obstacleHexes) {
 			auto affectedHexes = spellObst.getAffectedTiles();
 			obstacleHexes.insert(affectedHexes.cbegin(), affectedHexes.cend());
 		};
@@ -675,7 +675,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				spells::BattleCast cast(state.get(), hero, spells::Mode::HERO, ps.spell);
 				cast.castEval(state->getServerCallback(), ps.dest);
 
-				auto allUnits = state->battleGetUnitsIf([](const battle::Unit * u) -> bool { return true; });
+				auto allUnits = state->battleGetUnitsIf([](const battle::Unit * u) -> bool { return u->isValidTarget(); });
 
 				auto needFullEval = vstd::contains_if(allUnits, [&](const battle::Unit * u) -> bool
 					{
@@ -731,7 +731,6 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 					ps.value = scoreEvaluator.evaluateExchange(updatedAttack, cachedAttack.turn, *targets, innerCache, state);
 				}
-
 				for(const auto & unit : allUnits)
 				{
 					if(!unit->isValidTarget(true))
@@ -771,11 +770,31 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 							ps.value -= 4 * dpsReduce * scoreEvaluator.getNegativeEffectMultiplier();
 
 #if BATTLE_TRACE_LEVEL >= 1
-						logAi->trace(
-							"Spell affects %s (%d), dps: %2f",
-							unit->creatureId().toCreature()->getNameSingularTranslated(),
-							unit->getCount(),
-							dpsReduce);
+						// Ensure ps.dest is not empty before accessing the first element
+						if (!ps.dest.empty()) 
+						{
+							logAi->trace(
+								"Spell %s to %d affects %s (%d), dps: %2f oldHealth: %d newHealth: %d",
+								ps.spell->getNameTranslated(),
+								ps.dest.at(0).hexValue.hex,  // Safe to access .at(0) now
+								unit->creatureId().toCreature()->getNameSingularTranslated(),
+								unit->getCount(),
+								dpsReduce,
+								oldHealth,
+								newHealth);
+						}
+						else 
+						{
+							// Handle the case where ps.dest is empty
+							logAi->trace(
+								"Spell %s has no destination, affects %s (%d), dps: %2f oldHealth: %d newHealth: %d",
+								ps.spell->getNameTranslated(),
+								unit->creatureId().toCreature()->getNameSingularTranslated(),
+								unit->getCount(),
+								dpsReduce,
+								oldHealth,
+								newHealth);
+						}
 #endif
 					}
 				}

@@ -50,11 +50,11 @@ void BattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 	if (oi.obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 	{
 		// obstacle uses single bitmap image for animations
-		obstacleImages[oi.uniqueID] = GH.renderHandler().loadImage(animationName.toType<EResType::IMAGE>(), EImageBlitMode::COLORKEY);
+		obstacleImages[oi.uniqueID] = GH.renderHandler().loadImage(animationName.toType<EResType::IMAGE>(), EImageBlitMode::SIMPLE);
 	}
 	else
 	{
-		obstacleAnimations[oi.uniqueID] = GH.renderHandler().loadAnimation(animationName, EImageBlitMode::COLORKEY);
+		obstacleAnimations[oi.uniqueID] = GH.renderHandler().loadAnimation(animationName, EImageBlitMode::SIMPLE);
 		obstacleImages[oi.uniqueID] = obstacleAnimations[oi.uniqueID]->getImage(0);
 	}
 }
@@ -78,7 +78,7 @@ void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges
 		if(animationPath.empty())
 			continue;
 
-		auto animation = GH.renderHandler().loadAnimation(animationPath, EImageBlitMode::COLORKEY);
+		auto animation = GH.renderHandler().loadAnimation(animationPath, EImageBlitMode::SIMPLE);
 		auto first = animation->getImage(0, 0);
 		if(!first)
 			continue;
@@ -105,7 +105,7 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 		if(!oi->visibleForSide(side, owner.getBattle()->battleHasNativeStack(side)))
 			continue;
 
-		auto animation = GH.renderHandler().loadAnimation(oi->getAppearAnimation(), EImageBlitMode::ALPHA);
+		auto animation = GH.renderHandler().loadAnimation(oi->getAppearAnimation(), EImageBlitMode::SIMPLE);
 		auto first = animation->getImage(0, 0);
 		if(!first)
 			continue;

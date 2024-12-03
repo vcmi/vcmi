@@ -44,7 +44,7 @@
 				{"minimumAngle": 1.20 ,"defName":"C08SPW1"},
 				{"minimumAngle": 1.50 ,"defName":"C08SPW0"}
 			],
-			"hit":["C08SPW5"]
+			"hit":[ {"defName" : "C08SPW5", "transparency" : 0.5 }]
 		},
 		"sounds": {
 			"cast": "ICERAY"
@@ -309,7 +309,7 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":["C14SPA0"]
+			"affect":[{"defName" : "C14SPA0", "transparency" : 0.5}]
 		},
 		"sounds": {
 			"cast": "SACBRETH"

@@ -17,7 +17,6 @@
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/serializer/CTypeList.h"
@@ -34,11 +33,6 @@
 
 namespace NKAI
 {
-
-// our to enemy strength ratio constants
-const float SAFE_ATTACK_CONSTANT = 1.1f;
-const float RETREAT_THRESHOLD = 0.3f;
-const double RETREAT_ABSOLUTE_THRESHOLD = 10000.;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
 thread_local CCallback * cb = nullptr;
@@ -554,7 +548,7 @@ std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const Battle
 	double fightRatio = ourStrength / (double)battleState.getEnemyStrength();
 
 	// if we have no towns - things are already bad, so retreat is not an option.
-	if(cb->getTownsInfo().size() && ourStrength < RETREAT_ABSOLUTE_THRESHOLD && fightRatio < RETREAT_THRESHOLD && battleState.canFlee)
+	if(cb->getTownsInfo().size() && ourStrength < nullkiller->settings->getRetreatThresholdAbsolute() && fightRatio < nullkiller->settings->getRetreatThresholdRelative() && battleState.canFlee)
 	{
 		return BattleAction::makeRetreat(battleState.ourSide);
 	}
@@ -649,12 +643,12 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				auto danger = nullkiller->dangerEvaluator->evaluateDanger(target, hero.get());
 				auto ratio = static_cast<float>(danger) / hero->getTotalStrength();
 
-				answer = 1;
+				answer = true;
 				
 				if(topObj->id != goalObjectID && nullkiller->dangerEvaluator->evaluateDanger(topObj) > 0)
 				{
 					// no if we do not aim to visit this object
-					answer = 0;
+					answer = false;
 				}
 				
 				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName(), hero.name(), ratio);
@@ -671,7 +665,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				else if(objType == Obj::ARTIFACT || objType == Obj::RESOURCE)
 				{
 					bool dangerUnknown = danger == 0;
-					bool dangerTooHigh = ratio > (1 / SAFE_ATTACK_CONSTANT);
+					bool dangerTooHigh = ratio * nullkiller->settings->getSafeAttackRatio() > 1;
 
 					answer = !dangerUnknown && !dangerTooHigh;
 				}
@@ -764,7 +758,7 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	//you can't request action from action-response thread
 	requestActionASAP([=]()
 	{
-		if(removableUnits && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed() && !cb->getStartInfo()->isSteadwickFallCampaignMission())
+		if(removableUnits && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed() && !cb->getStartInfo()->isRestorationOfErathiaCampaign())
 		{
 			pickBestCreatures(down, up);
 		}
@@ -864,7 +858,7 @@ void AIGateway::makeTurn()
 
 void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 {
-	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->pos.toString());
+	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->anchorPos().toString());
 	switch(obj->ID)
 	{
 	case Obj::TOWN:
@@ -1056,7 +1050,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 				//FIXME: why are the above possible to be null?
 
 				bool emptySlotFound = false;
-				for(auto slot : artifact->artType->getPossibleSlots().at(target->bearerType()))
+				for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
 				{
 					if(target->isPositionFree(slot) && artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
 					{
@@ -1069,7 +1063,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 				}
 				if(!emptySlotFound) //try to put that atifact in already occupied slot
 				{
-					for(auto slot : artifact->artType->getPossibleSlots().at(target->bearerType()))
+					for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
 					{
 						auto otherSlot = target->getSlot(slot);
 						if(otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
@@ -1080,8 +1074,8 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 							{
 								logAi->trace(
 									"Exchange artifacts %s <-> %s",
-									artifact->artType->getNameTranslated(),
-									otherSlot->artifact->artType->getNameTranslated());
+									artifact->getType()->getNameTranslated(),
+									otherSlot->artifact->getType()->getNameTranslated());
 
 								if(!otherSlot->artifact->canBePutAt(artHolder, location.slot, true))
 								{
@@ -1130,10 +1124,10 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 		{
 			for(auto stack : recruiter->Slots())
 			{
-				if(!stack.second->type)
+				if(!stack.second->getType())
 					continue;
 				
-				auto duplicatingSlot = recruiter->getSlotFor(stack.second->type);
+				auto duplicatingSlot = recruiter->getSlotFor(stack.second->getCreature());
 
 				if(duplicatingSlot != stack.first)
 				{
@@ -1454,8 +1448,8 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 
 void AIGateway::buildStructure(const CGTownInstance * t, BuildingID building)
 {
-	auto name = t->town->buildings.at(building)->getNameTranslated();
-	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->getNameTranslated(), t->pos.toString());
+	auto name = t->getTown()->buildings.at(building)->getNameTranslated();
+	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->getNameTranslated(), t->anchorPos().toString());
 	cb->buildBuilding(t, building); //just do this;
 }
 

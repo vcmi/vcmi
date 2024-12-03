@@ -927,7 +927,7 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 				bocp.battleID = getBattle()->getBattleID();
 				bocp.changes.emplace_back(spellObstacle.uniqueID, operation);
 				changedObstacle.toInfo(bocp.changes.back(), operation);
-				spellEnv.apply(&bocp);
+				spellEnv.apply(bocp);
 			};
 			const auto side = unit.unitSide();
 			auto shouldReveal = !spellObstacle->hidden || !battleIsObstacleVisibleForSide(*obstacle, side);
@@ -1392,7 +1392,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 				at.friendlyCreaturePositions.insert(tile);
 		}
 	}
-	else if(attacker->hasBonusOfType(BonusType::TWO_HEX_ATTACK_BREATH))
+	else if(attacker->hasBonusOfType(BonusType::TWO_HEX_ATTACK_BREATH) || attacker->hasBonusOfType(BonusType::PRISM_HEX_ATTACK_BREATH))
 	{
 		auto direction = BattleHex::mutualPosition(attackOriginHex, destinationTile);
 		
@@ -1404,27 +1404,39 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 			direction = BattleHex::mutualPosition(attackOriginHex, defender->occupiedHex(defenderPos));
 		}
 
-		if(direction != BattleHex::NONE) //only adjacent hexes are subject of dragon breath calculation
+		for(int i = 0; i < 3; i++)
 		{
-			BattleHex nextHex = destinationTile.cloneInDirection(direction, false);
-
-			if ( defender->doubleWide() )
+			if(direction != BattleHex::NONE) //only adjacent hexes are subject of dragon breath calculation
 			{
-				auto secondHex = destinationTile == defenderPos ? defender->occupiedHex(defenderPos) : defenderPos;
+				BattleHex nextHex = destinationTile.cloneInDirection(direction, false);
 
-				// if targeted double-wide creature is attacked from above or below ( -> second hex is also adjacent to attack origin)
-				// then dragon breath should target tile on the opposite side of targeted creature
-				if(BattleHex::mutualPosition(attackOriginHex, secondHex) != BattleHex::NONE)
-					nextHex = secondHex.cloneInDirection(direction, false);
+				if ( defender->doubleWide() )
+				{
+					auto secondHex = destinationTile == defenderPos ? defender->occupiedHex(defenderPos) : defenderPos;
+
+					// if targeted double-wide creature is attacked from above or below ( -> second hex is also adjacent to attack origin)
+					// then dragon breath should target tile on the opposite side of targeted creature
+					if(BattleHex::mutualPosition(attackOriginHex, secondHex) != BattleHex::NONE)
+						nextHex = secondHex.cloneInDirection(direction, false);
+				}
+
+				if (nextHex.isValid())
+				{
+					//friendly stacks can also be damaged by Dragon Breath
+					const auto * st = battleGetUnitByPos(nextHex, true);
+					if(st != nullptr && st != attacker) //but not unit itself (doublewide + prism attack)
+						at.friendlyCreaturePositions.insert(nextHex);
+				}
 			}
 
-			if (nextHex.isValid())
-			{
-				//friendly stacks can also be damaged by Dragon Breath
-				const auto * st = battleGetUnitByPos(nextHex, true);
-				if(st != nullptr)
-					at.friendlyCreaturePositions.insert(nextHex);
-			}
+			if(!attacker->hasBonusOfType(BonusType::PRISM_HEX_ATTACK_BREATH))
+				break;
+
+			// only needed for prism
+			int tmpDirection = static_cast<int>(direction) + 2;
+			if(tmpDirection > static_cast<int>(BattleHex::EDir::LEFT))
+				tmpDirection -= static_cast<int>(BattleHex::EDir::TOP);
+			direction = static_cast<BattleHex::EDir>(tmpDirection);
 		}
 	}
 	return at;

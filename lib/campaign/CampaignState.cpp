@@ -339,7 +339,7 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 {
 	range::sort(heroes, [](const CGHeroInstance * a, const CGHeroInstance * b)
 	{
-		return a->getHeroStrength() > b->getHeroStrength();
+		return a->getHeroStrengthForCampaign() > b->getHeroStrengthForCampaign();
 	});
 
 	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", currentMap->getNum(), getFilename(), getNameTranslated());
@@ -351,14 +351,14 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 	{
 		JsonNode node = CampaignState::crossoverSerialize(hero);
 
-		if (reservedHeroes.count(hero->getHeroType()))
+		if (reservedHeroes.count(hero->getHeroTypeID()))
 		{
-			logGlobal->info("Hero crossover: %d (%s) exported to global pool", hero->getHeroType(), hero->getNameTranslated());
-			globalHeroPool[hero->getHeroType()] = node;
+			logGlobal->info("Hero crossover: %d (%s) exported to global pool", hero->getHeroTypeID(), hero->getNameTranslated());
+			globalHeroPool[hero->getHeroTypeID()] = node;
 		}
 		else
 		{
-			logGlobal->info("Hero crossover: %d (%s) exported to scenario pool", hero->getHeroType(), hero->getNameTranslated());
+			logGlobal->info("Hero crossover: %d (%s) exported to scenario pool", hero->getHeroTypeID(), hero->getNameTranslated());
 			scenarioHeroPool[*currentMap].push_back(node);
 		}
 	}

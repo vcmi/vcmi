@@ -21,6 +21,7 @@ class MapObjectSubID;
 class PlayerColor;
 class SecondarySkill;
 class SpellID;
+class FactionID;
 class GameResID;
 using TQuantity = si32;
 
@@ -97,7 +98,9 @@ public:
 	void replacePositiveNumber(int64_t txt);
 
 	void replaceName(const ArtifactID & id);
-	void replaceName(const MapObjectID& id);
+	void replaceName(const FactionID& id);
+	void replaceName(const MapObjectID & id);
+	void replaceName(const MapObjectID & id, const MapObjectSubID & subId);
 	void replaceName(const PlayerColor& id);
 	void replaceName(const SecondarySkill& id);
 	void replaceName(const SpellID& id);

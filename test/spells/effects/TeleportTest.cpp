@@ -71,7 +71,7 @@ TEST_F(TeleportApplyTest, DISABLED_MovesUnit)
 
 	EXPECT_CALL(*battleFake, moveUnit(Eq(unitId), Eq(destination)));
 	EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(0));
-	EXPECT_CALL(serverMock, apply(Matcher<BattleStackMoved *>(_))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<BattleStackMoved &>(_))).Times(1);
 
 	Target target;
 	target.emplace_back(&unit, BattleHex());

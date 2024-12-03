@@ -18,7 +18,6 @@
 
 #include "../ArtifactUtils.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../CHeroHandler.h"
 #include "../CPlayerState.h"
 #include "../CStopWatch.h"
 #include "../IGameSettings.h"
@@ -30,6 +29,8 @@
 #include "../campaign/CampaignState.h"
 #include "../constants/StringConstants.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/hero/CHero.h"
+#include "../entities/hero/CHeroClass.h"
 #include "../filesystem/ResourcePath.h"
 #include "../json/JsonBonus.h"
 #include "../json/JsonUtils.h"
@@ -61,7 +62,7 @@ boost::shared_mutex CGameState::mutex;
 HeroTypeID CGameState::pickNextHeroType(const PlayerColor & owner)
 {
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
-	if(ps.hero >= HeroTypeID(0) && !isUsedHero(HeroTypeID(ps.hero))) //we haven't used selected hero
+	if(ps.hero.isValid() && !isUsedHero(HeroTypeID(ps.hero))) //we haven't used selected hero
 	{
 		return HeroTypeID(ps.hero);
 	}
@@ -267,6 +268,8 @@ void CGameState::updateOnLoad(StartInfo * si)
 	for(auto & i : si->playerInfos)
 		gs->players[i.first].human = i.second.isControlledByHuman();
 	scenarioOps->extraOptionsInfo = si->extraOptionsInfo;
+	scenarioOps->turnTimerInfo = si->turnTimerInfo;
+	scenarioOps->simturnsInfo = si->simturnsInfo;
 }
 
 void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking)
@@ -434,10 +437,10 @@ void CGameState::initGrailPosition()
 				for(int y = BORDER_WIDTH; y < map->height - BORDER_WIDTH; y++)
 				{
 					const TerrainTile &t = map->getTile(int3(x, y, z));
-					if(!t.blocked
-						&& !t.visitable
-						&& t.terType->isLand()
-						&& t.terType->isPassable()
+					if(!t.blocked()
+					   && !t.visitable()
+						&& t.isLand()
+						&& t.getTerrain()->isPassable()
 						&& (int)map->grailPos.dist2dSQ(int3(x, y, z)) <= (map->grailRadius * map->grailRadius))
 						allowedPos.emplace_back(x, y, z);
 				}
@@ -447,7 +450,7 @@ void CGameState::initGrailPosition()
 		//remove tiles with holes
 		for(auto & elem : map->objects)
 			if(elem && elem->ID == Obj::HOLE)
-				allowedPos -= elem->pos;
+				allowedPos -= elem->anchorPos();
 
 		if(!allowedPos.empty())
 		{
@@ -493,7 +496,7 @@ void CGameState::randomizeMapObjects()
 			{
 				for (int j = 0; j < object->getHeight() ; j++)
 				{
-					int3 pos = object->pos - int3(i,j,0);
+					int3 pos = object->anchorPos() - int3(i,j,0);
 					if(map->isInTheMap(pos)) map->getTile(pos).extTileFlags |= 128;
 				}
 			}
@@ -528,7 +531,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 {
 	for(auto town : map->towns)
 	{
-		if(town->getPosition() == townPos)
+		if(town->anchorPos() == townPos)
 		{
 			townPos = town->visitablePos();
 			break;
@@ -543,8 +546,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 	hero->setHeroType(heroTypeId);
 	hero->tempOwner = playerColor;
 
-	hero->pos = townPos;
-	hero->pos += hero->getVisitableOffset();
+	hero->setAnchorPos(townPos + hero->getVisitableOffset());
 	map->getEditManager()->insertObject(hero);
 }
 
@@ -598,7 +600,7 @@ void CGameState::initHeroes()
 		}
 
 		hero->initHero(getRandomGenerator());
-		map->allHeroes[hero->getHeroType().getNum()] = hero;
+		map->allHeroes[hero->getHeroTypeID().getNum()] = hero;
 	}
 
 	// generate boats for all heroes on water
@@ -606,13 +608,13 @@ void CGameState::initHeroes()
 	{
 		assert(map->isInTheMap(hero->visitablePos()));
 		const auto & tile = map->getTile(hero->visitablePos());
-		if (tile.terType->isWater())
+		if (tile.isWater())
 		{
 			auto handler = VLC->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
 			auto boat = dynamic_cast<CGBoat*>(handler->create(callback, nullptr));
 			handler->configureObject(boat, gs->getRandomGenerator());
 
-			boat->pos = hero->pos;
+			boat->setAnchorPos(hero->anchorPos());
 			boat->appearance = handler->getTemplates().front();
 			boat->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
 
@@ -628,20 +630,20 @@ void CGameState::initHeroes()
 		{
 			auto * hero = dynamic_cast<CGHeroInstance*>(obj.get());
 			hero->initHero(getRandomGenerator());
-			map->allHeroes[hero->getHeroType().getNum()] = hero;
+			map->allHeroes[hero->getHeroTypeID().getNum()] = hero;
 		}
 	}
 
 	std::set<HeroTypeID> heroesToCreate = getUnusedAllowedHeroes(); //ids of heroes to be created and put into the pool
 	for(auto ph : map->predefinedHeroes)
 	{
-		if(!vstd::contains(heroesToCreate, ph->getHeroType()))
+		if(!vstd::contains(heroesToCreate, ph->getHeroTypeID()))
 			continue;
 		ph->initHero(getRandomGenerator());
 		heroesPool->addHeroToPool(ph);
-		heroesToCreate.erase(ph->type->getId());
+		heroesToCreate.erase(ph->getHeroTypeID());
 
-		map->allHeroes[ph->getHeroType().getNum()] = ph;
+		map->allHeroes[ph->getHeroTypeID().getNum()] = ph;
 	}
 
 	for(const HeroTypeID & htype : heroesToCreate) //all not used allowed heroes go with default state into the pool
@@ -755,12 +757,12 @@ void CGameState::initTownNames()
 
 	for(auto & vti : map->towns)
 	{
-		assert(vti->town);
+		assert(vti->getTown());
 
 		if(!vti->getNameTextID().empty())
 			continue;
 
-		FactionID faction = vti->getFaction();
+		FactionID faction = vti->getFactionID();
 
 		if(availableNames.empty())
 		{
@@ -797,8 +799,8 @@ void CGameState::initTowns()
 
 	for (auto & vti : map->towns)
 	{
-		assert(vti->town);
-		assert(vti->town->creatures.size() <= GameConstants::CREATURES_PER_TOWN); 
+		assert(vti->getTown());
+		assert(vti->getTown()->creatures.size() <= GameConstants::CREATURES_PER_TOWN);
 
 		constexpr std::array basicDwellings = { BuildingID::DWELL_FIRST, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3, BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7, BuildingID::DWELL_LVL_8 };
 		constexpr std::array upgradedDwellings = { BuildingID::DWELL_UP_FIRST, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP, BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP, BuildingID::DWELL_LVL_8_UP };
@@ -827,7 +829,7 @@ void CGameState::initTowns()
 		vti->addBuilding(BuildingID::VILLAGE_HALL);
 
 		//init hordes
-		for (int i = 0; i < vti->town->creatures.size(); i++)
+		for (int i = 0; i < vti->getTown()->creatures.size(); i++)
 		{
 			if(vti->hasBuilt(hordes[i])) //if we have horde for this level
 			{
@@ -893,7 +895,7 @@ void CGameState::initTowns()
 			int sel = -1;
 
 			for(ui32 ps=0;ps<vti->possibleSpells.size();ps++)
-				total += vti->possibleSpells[ps].toSpell()->getProbability(vti->getFaction());
+				total += vti->possibleSpells[ps].toSpell()->getProbability(vti->getFactionID());
 
 			if (total == 0) // remaining spells have 0 probability
 				break;
@@ -901,7 +903,7 @@ void CGameState::initTowns()
 			auto r = getRandomGenerator().nextInt(total - 1);
 			for(ui32 ps=0; ps<vti->possibleSpells.size();ps++)
 			{
-				r -= vti->possibleSpells[ps].toSpell()->getProbability(vti->getFaction());
+				r -= vti->possibleSpells[ps].toSpell()->getProbability(vti->getFactionID());
 				if(r<0)
 				{
 					sel = ps;
@@ -962,22 +964,18 @@ void CGameState::placeHeroesInTowns()
 		{
 			for(CGTownInstance * t : player.second.getTowns())
 			{
-				if(h->visitablePos().z != t->visitablePos().z)
-					continue;
-
-				bool heroOnTownBlockableTile = t->blockingAt(h->visitablePos().x, h->visitablePos().y);
+				bool heroOnTownBlockableTile = t->blockingAt(h->visitablePos());
 
 				// current hero position is at one of blocking tiles of current town
 				// assume that this hero should be visiting the town (H3M format quirk) and move hero to correct position
 				if (heroOnTownBlockableTile)
 				{
-					int3 correctedPos = h->convertFromVisitablePos(t->visitablePos());
-
 					map->removeBlockVisTiles(h);
-					h->pos = correctedPos;
+					int3 correctedPos = h->convertFromVisitablePos(t->visitablePos());
+					h->setAnchorPos(correctedPos);
 					map->addBlockVisTiles(h);
 
-					assert(t->visitableAt(h->visitablePos().x, h->visitablePos().y));
+					assert(t->visitableAt(h->visitablePos()));
 				}
 			}
 		}
@@ -999,7 +997,7 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 				if(h->visitablePos().z != t->visitablePos().z)
 					continue;
 
-				if (t->visitableAt(h->visitablePos().x, h->visitablePos().y))
+				if (t->visitableAt(h->visitablePos()))
 				{
 					assert(t->visitingHero == nullptr);
 					t->setVisitingHero(h);
@@ -1064,7 +1062,7 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
 	for(auto &obj : map->objects)
 	{
 		//look only for objects covering given tile
-		if( !obj || obj->pos.z != tile.z || !obj->coveringAt(tile.x, tile.y))
+		if( !obj || !obj->coveringAt(tile))
 			continue;
 
 		auto customBattlefield = obj->getBattlefield();
@@ -1076,10 +1074,10 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
 	
-	if (t.terType->battleFields.empty())
-		throw std::runtime_error("Failed to find battlefield for terrain " + t.terType->getJsonKey());
+	if (t.getTerrain()->battleFields.empty())
+		throw std::runtime_error("Failed to find battlefield for terrain " + t.getTerrain()->getJsonKey());
 
-	return BattleField(*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
+	return BattleField(*RandomGeneratorUtil::nextItem(t.getTerrain()->battleFields, rand));
 }
 
 void CGameState::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
@@ -1093,7 +1091,7 @@ void CGameState::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, Upg
 UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 {
 	UpgradeInfo ret;
-	const CCreature *base = stack.type;
+	const CCreature *base = stack.getCreature();
 
 	if (stack.armyObj->ID == Obj::HERO)
 	{
@@ -1141,9 +1139,9 @@ PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor 
 	return PlayerRelations::ENEMIES;
 }
 
-void CGameState::apply(CPackForClient *pack)
+void CGameState::apply(CPackForClient & pack)
 {
-	pack->applyGs(this);
+	pack.applyGs(this);
 }
 
 void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)
@@ -1173,7 +1171,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 		return guards;
 
 	const TerrainTile &posTile = map->getTile(pos);
-	if (posTile.visitable)
+	if (posTile.visitable())
 	{
 		for (CGObjectInstance* obj : posTile.visitableObjects)
 		{
@@ -1192,7 +1190,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 			if (map->isInTheMap(pos))
 			{
 				const auto & tile = map->getTile(pos);
-				if (tile.visitable && (tile.isWater() == posTile.isWater()))
+				if (tile.visitable() && (tile.isWater() == posTile.isWater()))
 				{
 					for (CGObjectInstance* obj : tile.visitableObjects)
 					{
@@ -1248,10 +1246,10 @@ bool CGameState::isVisible(const CGObjectInstance * obj, const std::optional<Pla
 	{
 		for(int fx=0; fx < obj->getWidth(); ++fx)
 		{
-			int3 pos = obj->pos + int3(-fx, -fy, 0);
+			int3 pos = obj->anchorPos() + int3(-fx, -fy, 0);
 
 			if ( map->isInTheMap(pos) &&
-				 obj->coveringAt(pos.x, pos.y) &&
+				 obj->coveringAt(pos) &&
 				 isVisible(pos, *player))
 				return true;
 		}
@@ -1573,7 +1571,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			{
 				for(const auto & it : elem->Slots())
 				{
-					CreatureID toCmp = it.second->type->getId(); //ID of creature we should compare with the best one
+					CreatureID toCmp = it.second->getId(); //ID of creature we should compare with the best one
 					if(bestCre == CreatureID::NONE || bestCre.toEntity(VLC)->getAIValue() < toCmp.toEntity(VLC)->getAIValue())
 					{
 						bestCre = toCmp;
@@ -1638,7 +1636,7 @@ bool CGameState::giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid)
 	 auto slot = ArtifactUtils::getArtAnyPosition(h, aid);
 	 if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
 	 {
-		 ai->putAt(*h, slot);
+		 map->putArtifactInstance(*h, ai, slot);
 		 return true;
 	 }
 	 else
@@ -1658,18 +1656,13 @@ std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllow
 	}
 
 	for(auto hero : map->heroesOnMap)  //heroes instances initialization
-	{
-		if(hero->type)
-			ret -= hero->type->getId();
-		else
-			ret -= hero->getHeroType();
-	}
+		ret -= hero->getHeroTypeID();
 
 	for(auto obj : map->objects) //prisons
 	{
 		auto * hero = dynamic_cast<const CGHeroInstance *>(obj.get());
 		if(hero && hero->ID == Obj::PRISON)
-			ret -= hero->getHeroType();
+			ret -= hero->getHeroTypeID();
 	}
 
 	return ret;
@@ -1693,7 +1686,7 @@ CGHeroInstance * CGameState::getUsedHero(const HeroTypeID & hid) const
 		auto * hero = dynamic_cast<CGHeroInstance *>(obj.get());
 		assert(hero);
 
-		if (hero->getHeroType() == hid)
+		if (hero->getHeroTypeID() == hid)
 			return hero;
 	}
 

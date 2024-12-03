@@ -1,28 +1,27 @@
+# VCMI Project
+
 [![VCMI](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg?branch=develop&event=push)](https://github.com/vcmi/vcmi/actions/workflows/github.yml?query=branch%3Adevelop+event%3Apush)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.5.0/total)](https://github.com/vcmi/vcmi/releases/tag/1.5.0)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.5.6/total)](https://github.com/vcmi/vcmi/releases/tag/1.5.6)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.5.7/total)](https://github.com/vcmi/vcmi/releases/tag/1.5.7)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/total)](https://github.com/vcmi/vcmi/releases)
 
-# VCMI Project
-
 VCMI is an open-source recreation of Heroes of Might & Magic III engine, giving it new and extended possibilities.
 
 <p>
-<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.3.0/Castle%20Siege.jpg?raw=true" alt="Vanilla town siege in extended window" style="height:120px;"/>
-<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.3.0/Town%20Screen%20with%20Radial%20Menu.jpg?raw=true" alt="Vanilla town view with radial menu for touchscreen devices" style="height:120px;"/>
-<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Big%20spellbook.jpg?raw=true" alt="Large Spellbook with German translation" style="height:120px;"/>
-<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Quick%20Hero%20Select%20Bastion.jpg?raw=true" alt="New widget for Hero selection, featuring Pavillon Town" style="height:120px;"/>
+  <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.3.0/Castle%20Siege.jpg?raw=true" alt="Vanilla town siege in extended window" style="height:120px;"/>
+  <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.3.0/Town%20Screen%20with%20Radial%20Menu.jpg?raw=true" alt="Vanilla town view with radial menu for touchscreen devices" style="height:120px;"/>
+  <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Big%20spellbook.jpg?raw=true" alt="Large Spellbook with German translation" style="height:120px;"/>
+  <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Quick%20Hero%20Select%20Bastion.jpg?raw=true" alt="New widget for Hero selection, featuring Pavillon Town" style="height:120px;"/>
 </p>
-
 
 ## Links
 
- * Homepage:   https://vcmi.eu/
- * Forums:     https://forum.vcmi.eu/
- * Bugtracker: https://github.com/vcmi/vcmi/issues
- * Discord:    https://discord.gg/chBT42V
- * GPT Store:  https://chat.openai.com/g/g-1kNhX0mlO-vcmi-assistant
+* Homepage:   <https://vcmi.eu/>
+* Forums:     <https://forum.vcmi.eu/>
+* Bugtracker: <https://github.com/vcmi/vcmi/issues>
+* Discord:    <https://discord.gg/chBT42V>
+* GPT Store:  <https://chat.openai.com/g/g-1kNhX0mlO-vcmi-assistant>
 
 ## Latest release
 
@@ -31,16 +30,19 @@ Loading saves made with different major version of VCMI is usually **not** suppo
 Please see corresponding installation guide articles for details for your platform.  
 
 ## Installation guides
+
 - [Windows](players/Installation_Windows.md)
 - [macOS](players/Installation_macOS.md)
 - [Linux](players/Installation_Linux.md)
 - [Android](players/Installation_Android.md)
 - [iOS](players/Installation_iOS.md)
 
+See also installation guide for [Heroes Chronicles](players/Heroes_Chronicles.md).
+
 <p>
-<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Antagarich%20Burning%20Battle.jpg?raw=true" alt="Forge Town in battle" style="height:120px;"/>
-<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Town%20and%20Unit.jpg?raw=true" alt="Asylum town with new creature dialog" style="height:120px;"/>
-<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Siege.jpg?raw=true" alt="Ruins town siege" style="height:120px;"/>
+  <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Antagarich%20Burning%20Battle.jpg?raw=true" alt="Forge Town in battle" style="height:120px;"/>
+  <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Town%20and%20Unit.jpg?raw=true" alt="Asylum town with new creature dialog" style="height:120px;"/>
+  <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Siege.jpg?raw=true" alt="Ruins town siege" style="height:120px;"/>
   <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Editor.jpg?raw=true" alt="Map editor" style="height:120px;"/>
 </p>
 
@@ -68,6 +70,7 @@ Please see corresponding installation guide articles for details for your platfo
 ## Documentation and guidelines for developers
 
 Development environment setup instructions:
+
 - [Building VCMI for Android](developers/Building_Android.md)
 - [Building VCMI for iOS](developers/Building_iOS.md)
 - [Building VCMI for Linux](developers/Building_Linux.md)
@@ -76,6 +79,7 @@ Development environment setup instructions:
 - [Conan](developers/Conan.md)
 
 Engine documentation: (NOTE: may be outdated)
+
 - [Development with Qt Creator](developers/Development_with_Qt_Creator.md)
 - [Coding Guidelines](developers/Coding_Guidelines.md)
 - [Bonus System](developers/Bonus_System.md)
@@ -93,6 +97,6 @@ Engine documentation: (NOTE: may be outdated)
 ## Copyright and license
 
 VCMI Project source code is licensed under GPL version 2 or later.
-VCMI Project assets are licensed under CC-BY-SA 4.0. Assets sources and information about contributors are available under following link: https://github.com/vcmi/vcmi-assets
+VCMI Project assets are licensed under CC-BY-SA 4.0. Assets sources and information about contributors are available under following link: <https://github.com/vcmi/vcmi-assets>
 
 Copyright (C) 2007-2024  VCMI Team (check AUTHORS file for the contributors list)

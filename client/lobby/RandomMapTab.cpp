@@ -263,7 +263,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		humanCountAllowed = tmpl->getHumanPlayers().getNumbers(); // Unused now?
 	}
 	
-	si8 playerLimit = opts->getMaxPlayersCount();
+	si8 playerLimit = opts->getPlayerLimit();
 	si8 humanOrCpuPlayerCount = opts->getHumanOrCpuPlayerCount();
 	si8 compOnlyPlayersCount = opts->getCompOnlyPlayerCount();
 
@@ -469,6 +469,8 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	variables["totalPlayers"].Integer() = totalPlayers;
 	
 	pos.w = variables["windowSize"]["x"].Integer() + totalPlayers * variables["cellMargin"]["x"].Integer();
+	auto widthExtend = std::max(pos.w, 220) - pos.w; // too small for buttons
+	pos.w += widthExtend;
 	pos.h = variables["windowSize"]["y"].Integer() + totalPlayers * variables["cellMargin"]["y"].Integer();
 	variables["backgroundRect"]["x"].Integer() = 0;
 	variables["backgroundRect"]["y"].Integer() = 0;
@@ -553,7 +555,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 
 		for(int teamId = 0; teamId < totalPlayers; ++teamId)
 		{
-			variables["point"]["x"].Integer() = variables["cellOffset"]["x"].Integer() + plId * variables["cellMargin"]["x"].Integer();
+			variables["point"]["x"].Integer() = variables["cellOffset"]["x"].Integer() + plId * variables["cellMargin"]["x"].Integer() + (widthExtend / 2);
 			variables["point"]["y"].Integer() = variables["cellOffset"]["y"].Integer() + teamId * variables["cellMargin"]["y"].Integer();
 			auto button = buildWidget(variables["button"]);
 			players.back()->addToggle(teamId, std::dynamic_pointer_cast<CToggleBase>(button));

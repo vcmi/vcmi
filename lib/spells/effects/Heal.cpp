@@ -42,9 +42,9 @@ void Heal::apply(int64_t value, ServerCallback * server, const Mechanics * m, co
 
 	prepareHealEffect(value, pack, logMessage, *server->getRNG(), m, target);
 	if(!pack.changedStacks.empty())
-		server->apply(&pack);
+		server->apply(pack);
 	if(!logMessage.lines.empty())
-		server->apply(&logMessage);
+		server->apply(logMessage);
 }
 
 bool Heal::isValidTarget(const Mechanics * m, const battle::Unit * unit) const

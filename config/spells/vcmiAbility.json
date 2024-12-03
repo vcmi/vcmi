@@ -1,8 +1,8 @@
 {
-    "summonDemons" : {
+	"summonDemons" : {
 		"type": "ability",
 		"targetType" : "CREATURE",
-		"name": "Summon Demons",
+		"name": "",
 		"school" : {},
 		"level": 2,
 		"power": 50,
@@ -41,16 +41,17 @@
 		"targetCondition" : {
 			"noneOf" : {
 				"bonus.NON_LIVING" : "absolute",
+				"bonus.MECHANICAL" : "absolute",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "absolute",
 				"bonus.GARGOYLE" : "absolute"
 			}
 		}
-    },
-    "firstAid" : {
+	},
+	"firstAid" : {
 		"targetType" : "CREATURE",
 		"type": "ability",
-		"name": "First Aid",
+		"name": "",
 		"school" : {},
 		"level": 1,
 		"power": 10,
@@ -106,7 +107,7 @@
 	"catapultShot" : {
 		"targetType" : "LOCATION",
 		"type": "ability",
-		"name": "Catapult shot",
+		"name": "",
 		"school" : {},
 		"level": 1,
 		"power": 1,
@@ -187,7 +188,7 @@
 	"cyclopsShot" : {
 		"targetType" : "LOCATION",
 		"type": "ability",
-		"name": "Siege shot",
+		"name": "",
 		"school" : {},
 		"level": 1,
 		"power": 1,

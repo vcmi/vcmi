@@ -1,0 +1,8 @@
+{
+	"basepath" : "lobby/",
+	"images" :
+	[
+		{ "frame" : 0, "file" : "delete-normal.png"},
+		{ "frame" : 1, "file" : "delete-pressed.png"}
+	]
+}

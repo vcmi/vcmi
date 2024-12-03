@@ -16,7 +16,7 @@
 
 enum class EType
 {
-	RESOURCE, PLAYER, ARTIFACT_TYPE, CREATURE, CREATURE_PLACEHOLDER, ARTIFACT_PLACEHOLDER, ARTIFACT_INSTANCE
+	RESOURCE, PLAYER, ARTIFACT_TYPE, CREATURE, ARTIFACT
 };
 
 class CTradeableItem : public SelectableSlot, public std::enable_shared_from_this<CTradeableItem>
@@ -28,19 +28,19 @@ public:
 	using ClickPressedFunctor = std::function<void(const std::shared_ptr<CTradeableItem>&)>;
 
 	EType type;
-	int id;
-	const int serial;
+	int32_t id;
+	const int32_t serial;
 	std::shared_ptr<CLabel> subtitle;
 	ClickPressedFunctor clickPressedCallback;
 
 	void setType(EType newType);
-	void setID(int newID);
+	void setID(int32_t newID);
 	void clear();
 
 	void showPopupWindow(const Point & cursorPosition) override;
 	void hover(bool on) override;
 	void clickPressed(const Point & cursorPosition) override;
-	CTradeableItem(const Rect & area, EType Type, int ID, int Serial);
+	CTradeableItem(const Rect & area, EType Type, int32_t ID, int32_t serial);
 };
 
 class TradePanelBase : public CIntObject
@@ -61,7 +61,7 @@ public:
 	virtual void clearSubtitles();
 	void updateOffer(CTradeableItem & slot, int, int);
 	void setShowcaseSubtitle(const std::string & text);
-	int getSelectedItemId() const;
+	int32_t getHighlightedItemId() const;
 	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot);
 	bool isHighlighted() const;
 };

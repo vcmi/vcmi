@@ -20,6 +20,8 @@
 #include "render/Canvas.h"
 #include "CPlayerInterface.h"
 
+#include "../../CCallback.h"
+
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 
@@ -33,7 +35,7 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	arts->moveBy(Point(windowMargin, windowMargin));
 	arts->clickPressedCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition)
 	{
-		clickPressedOnArtPlace(arts->getHero(), artPlace.slot, true, false, true);
+		clickPressedOnArtPlace(arts->getHero(), artPlace.slot, true, false, true, cursorPosition);
 	};
 	arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
 	{
@@ -41,15 +43,36 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	};
 	addSet(arts);
 	arts->setHero(hero);
-	quitButton = std::make_shared<CButton>(Point(), AnimationPath::builtin("IOKAY32.def"), CButton::tooltip(""),
-		[this]() { WindowBase::close(); }, EShortcut::GLOBAL_RETURN);
+	
+	buttons.emplace_back(std::make_unique<CButton>(Point(), AnimationPath::builtin("ALTFILL.DEF"),
+		CButton::tooltipLocalized("vcmi.heroWindow.sortBackpackByCost"),
+		[hero]() { LOCPLINT->cb->sortBackpackArtifactsByCost(hero->id); }));
+	buttons.emplace_back(std::make_unique<CButton>(Point(), AnimationPath::builtin("ALTFILL.DEF"),
+		CButton::tooltipLocalized("vcmi.heroWindow.sortBackpackBySlot"),
+		[hero]() { LOCPLINT->cb->sortBackpackArtifactsBySlot(hero->id); }));
+	buttons.emplace_back(std::make_unique<CButton>(Point(), AnimationPath::builtin("ALTFILL.DEF"),
+		CButton::tooltipLocalized("vcmi.heroWindow.sortBackpackByClass"),
+		[hero]() { LOCPLINT->cb->sortBackpackArtifactsByClass(hero->id); }));
+
 	pos.w = stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
-	pos.h = stretchedBackground->pos.h = arts->pos.h + quitButton->pos.h + 3 * windowMargin;
-	quitButton->moveTo(Point(pos.x + pos.w / 2 - quitButton->pos.w / 2, pos.y + arts->pos.h + 2 * windowMargin));
+	pos.h = stretchedBackground->pos.h = arts->pos.h + buttons.back()->pos.h + 3 * windowMargin;
+	
+	auto buttonPos = Point(pos.x + windowMargin, pos.y + arts->pos.h + 2 * windowMargin);
+	for(const auto & button : buttons)
+	{
+		button->moveTo(buttonPos);
+		buttonPos += Point(button->pos.w + 10, 0);
+	}
+
 	statusbar = CGStatusBar::create(0, pos.h, ImagePath::builtin("ADROLLVR.bmp"), pos.w);
 	pos.h += statusbar->pos.h;
-
+	addUsedEvents(LCLICK);
 	center();
+}
+
+void CHeroBackpackWindow::notFocusedClick()
+{
+	close();
 }
 
 void CHeroBackpackWindow::showAll(Canvas & to)
@@ -69,10 +92,6 @@ CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, 
 	{
 		if(const auto curHero = arts->getHero())
 			swapArtifactAndClose(*arts, artPlace.slot, ArtifactLocation(curHero->id, arts->getFilterSlot()));
-	};
-	arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
-	{
-		showArifactInfo(*arts, artPlace, cursorPosition);
 	};
 	addSet(arts);
 	arts->setHero(hero);

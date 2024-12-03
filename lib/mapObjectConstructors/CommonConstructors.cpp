@@ -11,14 +11,16 @@
 #include "CommonConstructors.h"
 
 #include "../texts/CGeneralTextHandler.h"
-#include "../CHeroHandler.h"
 #include "../IGameCallback.h"
 #include "../json/JsonRandom.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../VCMI_Lib.h"
 
+#include "../CConfigHandler.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/hero/CHeroClass.h"
+#include "../json/JsonUtils.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGTownInstance.h"
@@ -96,13 +98,12 @@ bool CTownInstanceConstructor::objectFilter(const CGObjectInstance * object, std
 
 void CTownInstanceConstructor::initializeObject(CGTownInstance * obj) const
 {
-	obj->town = faction->town;
 	obj->tempOwner = PlayerColor::NEUTRAL;
 }
 
 void CTownInstanceConstructor::randomizeObject(CGTownInstance * object, vstd::RNG & rng) const
 {
-	auto templ = getOverride(object->cb->getTile(object->pos)->terType->getId(), object);
+	auto templ = getOverride(object->cb->getTile(object->pos)->getTerrainID(), object);
 	if(templ)
 		object->appearance = templ;
 }
@@ -124,39 +125,71 @@ void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
 		input["heroClass"],
 		[&](si32 index) { heroClass = HeroClassID(index).toHeroClass(); });
 
-	filtersJson = input["filters"];
-}
-
-void CHeroInstanceConstructor::afterLoadFinalization()
-{
-	for(const auto & entry : filtersJson.Struct())
+	for (const auto & [name, config] : input["filters"].Struct())
 	{
-		filters[entry.first] = LogicalExpression<HeroTypeID>(entry.second, [](const JsonNode & node)
+		HeroFilter filter;
+		filter.allowFemale =  config["female"].Bool();
+		filter.allowMale =  config["male"].Bool();
+		filters[name] = filter;
+
+		if (!config["hero"].isNull())
 		{
-			return HeroTypeID(VLC->identifiers()->getIdentifier("hero", node.Vector()[0]).value_or(-1));
-		});
+			VLC->identifiers()->requestIdentifier( "hero", config["hero"], [this, templateName = name](si32 index) {
+				filters.at(templateName).fixedHero = HeroTypeID(index);
+			});
+		}
 	}
 }
 
-bool CHeroInstanceConstructor::objectFilter(const CGObjectInstance * object, std::shared_ptr<const ObjectTemplate> templ) const
+std::shared_ptr<const ObjectTemplate> CHeroInstanceConstructor::getOverride(TerrainId terrainType, const CGObjectInstance * object) const
 {
 	const auto * hero = dynamic_cast<const CGHeroInstance *>(object);
 
-	auto heroTest = [&](const HeroTypeID & id)
-	{
-		return hero->type->getId() == id;
-	};
+	std::vector<std::shared_ptr<const ObjectTemplate>> allTemplates = getTemplates();
+	std::shared_ptr<const ObjectTemplate> candidateFullMatch;
+	std::shared_ptr<const ObjectTemplate> candidateGenderMatch;
+	std::shared_ptr<const ObjectTemplate> candidateBase;
 
-	if(filters.count(templ->stringID))
+	assert(hero->gender != EHeroGender::DEFAULT);
+
+	for (const auto & templ : allTemplates)
 	{
-		return filters.at(templ->stringID).test(heroTest);
+		if (filters.count(templ->stringID))
+		{
+			const auto & filter = filters.at(templ->stringID);
+			if (filter.fixedHero.hasValue())
+			{
+				if (filter.fixedHero == hero->getHeroTypeID())
+					candidateFullMatch = templ;
+			}
+			else if (filter.allowMale)
+			{
+				if (hero->gender == EHeroGender::MALE)
+					candidateGenderMatch = templ;
+			}
+			else if (filter.allowFemale)
+			{
+				if (hero->gender == EHeroGender::FEMALE)
+					candidateGenderMatch = templ;
+			}
+			else
+			{
+				candidateBase = templ;
+			}
+		}
+		else
+		{
+			candidateBase = templ;
+		}
 	}
-	return false;
-}
 
-void CHeroInstanceConstructor::initializeObject(CGHeroInstance * obj) const
-{
-	obj->type = nullptr; //FIXME: set to valid value. somehow.
+	if (candidateFullMatch)
+		return candidateFullMatch;
+
+	if (candidateGenderMatch)
+		return candidateGenderMatch;
+
+	return candidateBase;
 }
 
 void CHeroInstanceConstructor::randomizeObject(CGHeroInstance * object, vstd::RNG & rng) const
@@ -211,6 +244,30 @@ AnimationPath BoatInstanceConstructor::getBoatAnimationName() const
 
 void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 {
+	if (settings["mods"]["validation"].String() != "off")
+		JsonUtils::validate(input, "vcmi:market", getJsonKey());
+
+	if (!input["description"].isNull())
+	{
+		std::string description = input["description"].String();
+		descriptionTextID = TextIdentifier(getBaseTextID(), "description").get();
+		VLC->generaltexth->registerString( input.getModScope(), descriptionTextID, input["description"]);
+	}
+
+	if (!input["speech"].isNull())
+	{
+		std::string speech = input["speech"].String();
+		if (!speech.empty() && speech.at(0) == '@')
+		{
+			speechTextID = speech.substr(1);
+		}
+		else
+		{
+			speechTextID = TextIdentifier(getBaseTextID(), "speech").get();
+			VLC->generaltexth->registerString( input.getModScope(), speechTextID, input["speech"]);
+		}
+	}
+
 	for(auto & element : input["modes"].Vector())
 	{
 		if(MappedKeys::MARKET_NAMES_TO_TYPES.count(element.String()))
@@ -219,9 +276,11 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 	
 	marketEfficiency = input["efficiency"].isNull() ? 5 : input["efficiency"].Integer();
 	predefinedOffer = input["offer"];
-	
-	title = input["title"].String();
-	speech = input["speech"].String();
+}
+
+bool MarketInstanceConstructor::hasDescription() const
+{
+	return !descriptionTextID.empty();
 }
 
 CGMarket * MarketInstanceConstructor::createObject(IGameCallback * cb) const
@@ -241,21 +300,6 @@ CGMarket * MarketInstanceConstructor::createObject(IGameCallback * cb) const
 	return new CGMarket(cb);
 }
 
-void MarketInstanceConstructor::initializeObject(CGMarket * market) const
-{
-	market->marketEfficiency = marketEfficiency;
-	
-	if(auto university = dynamic_cast<CGUniversity*>(market))
-	{
-		university->title = market->getObjectName();
-		if(!title.empty())
-			university->title = VLC->generaltexth->translate(title);
-
-		if(!speech.empty())
-			university->speech = VLC->generaltexth->translate(speech);
-	}
-}
-
 const std::set<EMarketMode> & MarketInstanceConstructor::availableModes() const
 {
 	return marketModes;
@@ -271,6 +315,17 @@ void MarketInstanceConstructor::randomizeObject(CGMarket * object, vstd::RNG & r
 		for(auto skill : randomizer.loadSecondaries(predefinedOffer, rng, emptyVariables))
 			university->skills.push_back(skill.first);
 	}
+}
+
+std::string MarketInstanceConstructor::getSpeechTranslated() const
+{
+	assert(marketModes.count(EMarketMode::RESOURCE_SKILL));
+	return VLC->generaltexth->translate(speechTextID);
+}
+
+int MarketInstanceConstructor::getMarketEfficiency() const
+{
+	return marketEfficiency;
 }
 
 VCMI_LIB_NAMESPACE_END

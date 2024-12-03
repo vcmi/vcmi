@@ -61,7 +61,15 @@ enum class ESerializationVersion : int32_t
 	CAMPAIGN_OUTRO_SUPPORT, // 862 - support for campaign outro video
 	REWARDABLE_BANKS, // 863 - team state contains list of scouted objects, coast visitable rewardable objects
 	REGION_LABEL, // 864 - labels for campaign regions
-	EVENT_OBJECTS_DELETION, //865 - allow events to remove map objects
-
+	SPELL_RESEARCH, // 865 - spell research
+	LOCAL_PLAYER_STATE_DATA, // 866 - player state contains arbitrary client-side data
+	REMOVE_TOWN_PTR, // 867 - removed pointer to CTown from CGTownInstance
+	REMOVE_OBJECT_TYPENAME, // 868 - remove typename from CGObjectInstance
+	REMOVE_VLC_POINTERS, // 869 removed remaining pointers to VLC entities
+	FOLDER_NAME_REWORK, // 870 - rework foldername
+	REWARDABLE_GUARDS, // 871 - fix missing serialization of guards in rewardable objects
+	MARKET_TRANSLATION_FIX, // 872 - remove serialization of markets translateable strings
+	EVENT_OBJECTS_DELETION, //873 - allow events to remove map objects
+	
 	CURRENT = EVENT_OBJECTS_DELETION
 };

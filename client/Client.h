@@ -16,7 +16,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct CPack;
 struct CPackForServer;
 class IBattleEventsReceiver;
 class CBattleGameInterface;
@@ -143,8 +142,8 @@ public:
 
 	static ThreadSafeVector<int> waitingRequest; //FIXME: make this normal field (need to join all threads before client destruction)
 
-	void handlePack(CPackForClient * pack); //applies the given pack and deletes it
-	int sendRequest(const CPackForServer * request, PlayerColor player); //returns ID given to that request
+	void handlePack(CPackForClient & pack); //applies the given pack and deletes it
+	int sendRequest(const CPackForServer & request, PlayerColor player); //returns ID given to that request
 
 	void battleStarted(const BattleInfo * info);
 	void battleFinished(const BattleID & battleID);
@@ -159,6 +158,7 @@ public:
 	friend class CBattleCallback; //handling players actions
 
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> & spells) override {};
+	void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted) override {};
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override {return false;};
 	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override {};
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override {};
@@ -188,7 +188,7 @@ public:
 	bool swapGarrisonOnSiege(ObjectInstanceID tid) override {return false;};
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) override {return false;};
 	bool giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos) override {return false;};
-	bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble) override {return false;};
+	bool putArtifact(const ArtifactLocation & al, const ArtifactInstanceID & id, std::optional<bool> askAssemble) override {return false;};
 	void removeArtifact(const ArtifactLocation & al) override {};
 	bool moveArtifact(const PlayerColor & player, const ArtifactLocation & al1, const ArtifactLocation & al2) override {return false;};
 
@@ -204,7 +204,7 @@ public:
 	void setManaPoints(ObjectInstanceID hid, int val) override {};
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override {};
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override {};
-	void sendAndApply(CPackForClient * pack) override {};
+	void sendAndApply(CPackForClient & pack) override {};
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {};
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override {};
 

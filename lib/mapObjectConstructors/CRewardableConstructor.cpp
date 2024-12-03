@@ -14,6 +14,7 @@
 #include "../mapObjects/CRewardableObject.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
+#include "../CConfigHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -23,9 +24,10 @@ void CRewardableConstructor::initTypeData(const JsonNode & config)
 	blockVisit = config["blockedVisitable"].Bool();
 
 	if (!config["name"].isNull())
-		VLC->generaltexth->registerString( config.getModScope(), getNameTextID(), config["name"].String());
+		VLC->generaltexth->registerString( config.getModScope(), getNameTextID(), config["name"]);
 
-	JsonUtils::validate(config, "vcmi:rewardable", getJsonKey());
+	if (settings["mods"]["validation"].String() != "off")
+		JsonUtils::validate(config, "vcmi:rewardable", getJsonKey());
 	
 }
 
@@ -43,9 +45,10 @@ CGObjectInstance * CRewardableConstructor::create(IGameCallback * cb, std::share
 	return ret;
 }
 
-Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameCallback * cb, vstd::RNG & rand, MapObjectID objectID) const
+Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameCallback * cb, vstd::RNG & rand, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const
 {
 	Rewardable::Configuration result;
+	result.variables.preset = presetVariables;
 	objectInfo.configureObject(result, rand, cb);
 
 	for(auto & rewardInfo : result.info)
@@ -67,7 +70,7 @@ void CRewardableConstructor::configureObject(CGObjectInstance * object, vstd::RN
 	if (!rewardableObject)
 		throw std::runtime_error("Object " + std::to_string(object->getObjGroupIndex()) + ", " + std::to_string(object->getObjTypeIndex()) + " is not a rewardable object!" );
 
-	rewardableObject->configuration = generateConfiguration(object->cb, rng, object->ID);
+	rewardableObject->configuration = generateConfiguration(object->cb, rng, object->ID, rewardableObject->configuration.variables.preset);
 	rewardableObject->initializeGuards();
 
 	if (rewardableObject->configuration.info.empty())

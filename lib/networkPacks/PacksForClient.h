@@ -288,6 +288,26 @@ struct DLL_LINKAGE ChangeSpells : public CPackForClient
 	}
 };
 
+struct DLL_LINKAGE SetResearchedSpells : public CPackForClient
+{
+	void applyGs(CGameState * gs) override;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	ui8 level = 0;
+	ObjectInstanceID tid;
+	std::vector<SpellID> spells;
+	bool accepted;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & level;
+		h & tid;
+		h & spells;
+		h & accepted;
+	}
+};
+
 struct DLL_LINKAGE SetMana : public CPackForClient
 {
 	void applyGs(CGameState * gs) override;
@@ -799,7 +819,7 @@ struct DLL_LINKAGE SetAvailableArtifacts : public CPackForClient
 
 	//two variants: id < 0: set artifact pool for Artifact Merchants in towns; id >= 0: set pool for adv. map Black Market (id is the id of Black Market instance then)
 	ObjectInstanceID id;
-	std::vector<const CArtifact *> arts;
+	std::vector<ArtifactID> arts;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -965,14 +985,14 @@ struct DLL_LINKAGE CArtifactOperationPack : CPackForClient
 struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 {
 	PutArtifact() = default;
-	explicit PutArtifact(const ArtifactLocation & dst, bool askAssemble = true)
-		: al(dst), askAssemble(askAssemble)
+	explicit PutArtifact(const ArtifactInstanceID & id, const ArtifactLocation & dst, bool askAssemble = true)
+		: al(dst), askAssemble(askAssemble), id(id)
 	{
 	}
 
 	ArtifactLocation al;
 	bool askAssemble;
-	ConstTransitivePtr<CArtifactInstance> art;
+	ArtifactInstanceID id;
 
 	void applyGs(CGameState * gs) override;
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -981,7 +1001,7 @@ struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 	{
 		h & al;
 		h & askAssemble;
-		h & art;
+		h & id;
 	}
 };
 
@@ -1088,8 +1108,8 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 
 struct DLL_LINKAGE AssembledArtifact : CArtifactOperationPack
 {
-	ArtifactLocation al; //where assembly will be put
-	const CArtifact * builtArt;
+	ArtifactLocation al;
+	ArtifactID artId;
 
 	void applyGs(CGameState * gs) override;
 
@@ -1098,7 +1118,7 @@ struct DLL_LINKAGE AssembledArtifact : CArtifactOperationPack
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & al;
-		h & builtArt;
+		h & artId;
 	}
 };
 

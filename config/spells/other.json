@@ -55,7 +55,7 @@
 	{
 		"targetType" : "CREATURE",
 		"type": "combat",
-		"name": "Land Mine",
+		"name": "",
 		"school":
 		{
 			"air": false,
@@ -237,7 +237,7 @@
 	"fireWallTrigger" : {
 		"targetType" : "CREATURE",
 		"type": "combat",
-		"name": "Fire Wall",
+		"name": "",
 		"school":
 		{
 			"air": false,
@@ -483,7 +483,7 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":["C01SPE0"]
+			"affect":[{ "defName" : "C01SPE0", "transparency" : 0.5}]
 		},
 		"sounds": {
 			"cast": "RESURECT"
@@ -531,6 +531,7 @@
 		"targetCondition" : {
 			"noneOf" : {
 				"bonus.NON_LIVING" : "absolute",
+				"bonus.MECHANICAL" : "absolute",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "absolute",
 				"bonus.GARGOYLE" : "absolute"
@@ -602,6 +603,7 @@
 		"targetCondition" : {
 			"noneOf" : {
 				"bonus.NON_LIVING" : "absolute",
+				"bonus.MECHANICAL" : "absolute",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "absolute",
 				"bonus.GARGOYLE" : "absolute"

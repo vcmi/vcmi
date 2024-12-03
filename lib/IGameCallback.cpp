@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "IGameCallback.h"
 
-#include "CHeroHandler.h" // for CHeroHandler
 #include "spells/CSpellHandler.h"// for CSpell
 #include "CSkillHandler.h"// for CSkill
 #include "CBonusTypeHandler.h"
@@ -20,6 +19,7 @@
 #include "bonuses/Propagators.h"
 #include "bonuses/Updaters.h"
 #include "entities/building/CBuilding.h"
+#include "entities/hero/CHero.h"
 #include "networkPacks/ArtifactLocation.h"
 #include "serializer/CLoadFile.h"
 #include "serializer/CSaveFile.h"
@@ -41,7 +41,6 @@
 #include "gameState/QuestInfo.h"
 #include "mapping/CMap.h"
 #include "modding/CModHandler.h"
-#include "modding/CModInfo.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/CModVersion.h"
 #include "modding/ActiveModsInSaveList.h"
@@ -72,7 +71,7 @@ void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
-				if (tinfo->terType->isLand() && tinfo->terType->isPassable() && !tinfo->blocked) //land and free
+				if (tinfo->isLand() && tinfo->getTerrain()->isPassable() && !tinfo->blocked()) //land and free
 					tiles.emplace_back(xd, yd, zd);
 			}
 		}
@@ -149,14 +148,14 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std:
 	}
 }
 
-void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> & out, vstd::RNG & rand)
+void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand)
 {
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_TREASURE).toArtifact());
+		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_TREASURE));
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_MINOR).toArtifact());
+		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_MINOR));
 
-	out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_MAJOR).toArtifact());
+	out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_MAJOR));
 }
 
 void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)

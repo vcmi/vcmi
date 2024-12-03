@@ -13,7 +13,6 @@
 #include "../mapcontroller.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGCreature.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/mapObjects/CGCreature.h"
 
 //parses date for lose condition (1m 1w 1d)
@@ -115,7 +114,7 @@ std::string AbstractSettings::getMonsterName(const CMap & map, int objectIdx)
 	std::string name;
 	if(auto monster = dynamic_cast<const CGCreature*>(map.objects[objectIdx].get()))
 	{
-		name = boost::str(boost::format("%1% at %2%") % monster->getObjectName() % monster->getPosition().toString());
+		name = boost::str(boost::format("%1% at %2%") % monster->getObjectName() % monster->anchorPos().toString());
 	}
 	return name;
 }

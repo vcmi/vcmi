@@ -21,7 +21,7 @@
 			"enum" : [
 				"configurable", "dwelling", "hero", "town", "boat", "market", "hillFort", "shipyard", "monster", "resource", "static", "randomArtifact", 
 				"randomHero", "randomResource", "randomTown", "randomMonster", "randomDwelling", "generic", "artifact", "borderGate", "borderGuard", "denOfThieves", 
-				"event", "garrison", "heroPlaceholder", "keymaster", "lighthouse", "magi", "mine", "obelisk", "pandora", "prison", "questGuard", "seerHut", "sign", 
+				"event", "garrison", "heroPlaceholder", "keymaster", "flaggable", "magi", "mine", "obelisk", "pandora", "prison", "questGuard", "seerHut", "sign", 
 				"siren", "monolith", "subterraneanGate", "whirlpool", "terrain"
 			]
 		},

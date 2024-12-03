@@ -11,12 +11,17 @@
 #include "HillFortInstanceConstructor.h"
 
 #include "../mapObjects/MiscObjects.h"
+#include "../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 void HillFortInstanceConstructor::initTypeData(const JsonNode & config)
 {
 	parameters = config;
+	if(!parameters["unavailableUpgradeMessage"].isNull())
+		VLC->generaltexth->registerString(parameters.getModScope(), TextIdentifier(getBaseTextID(), "unavailableUpgradeMessage"), parameters["unavailableUpgradeMessage"].String());
+	
+	VLC->generaltexth->registerString(parameters.getModScope(), TextIdentifier(getBaseTextID(), "description"), parameters["description"].String());
 }
 
 void HillFortInstanceConstructor::initializeObject(HillFort * fort) const

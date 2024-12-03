@@ -19,6 +19,7 @@
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
+#include "../entities/hero/CHero.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapping/CMapInfo.h"
 #include "../rmg/CMapGenOptions.h"

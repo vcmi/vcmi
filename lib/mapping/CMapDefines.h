@@ -43,7 +43,6 @@ public:
 	ui32 firstOccurrence;
 	ui32 nextOccurrence; /// specifies after how many days the event will occur the next time; 0 if event occurs only one time
 
-	std::vector<int3> deletedObjectsCoordinates;
 	std::vector<ObjectInstanceID> deletedObjectsInstances;
 
 	std::vector<int3> unused;
@@ -73,7 +72,6 @@ public:
 		h & nextOccurrence;
 		if(h.version >= Handler::Version::EVENT_OBJECTS_DELETION)
 		{
-			h & deletedObjectsCoordinates;
 			h & deletedObjectsInstances;
 		}
 		else
@@ -121,20 +119,33 @@ struct DLL_LINKAGE TerrainTile
 	Obj topVisitableId(bool excludeTop = false) const;
 	CGObjectInstance * topVisitableObj(bool excludeTop = false) const;
 	bool isWater() const;
-	EDiggingStatus getDiggingStatus(const bool excludeTop = true) const;
+	bool isLand() const;
+	EDiggingStatus getDiggingStatus(bool excludeTop = true) const;
 	bool hasFavorableWinds() const;
 
-	const TerrainType * terType;
-	const RiverType * riverType;
-	const RoadType * roadType;
+	bool visitable() const;
+	bool blocked() const;
+
+	const TerrainType * getTerrain() const;
+	const RiverType * getRiver() const;
+	const RoadType * getRoad() const;
+
+	TerrainId getTerrainID() const;
+	RiverId getRiverID() const;
+	RoadId getRoadID() const;
+
+	bool hasRiver() const;
+	bool hasRoad() const;
+
+	TerrainId terrainType;
+	RiverId riverType;
+	RoadId roadType;
 	ui8 terView;
 	ui8 riverDir;
 	ui8 roadDir;
 	/// first two bits - how to rotate terrain graphic (next two - river graphic, next two - road);
 	///	7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favorable Winds effect
 	ui8 extTileFlags;
-	bool visitable;
-	bool blocked;
 
 	std::vector<CGObjectInstance *> visitableObjects;
 	std::vector<CGObjectInstance *> blockingObjects;
@@ -142,15 +153,49 @@ struct DLL_LINKAGE TerrainTile
 	template <typename Handler>
 	void serialize(Handler & h)
 	{
-		h & terType;
+		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			h & terrainType;
+		}
+		else
+		{
+			bool isNull = false;
+			h & isNull;
+			if (!isNull)
+				h & terrainType;
+		}
 		h & terView;
-		h & riverType;
+		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			h & riverType;
+		}
+		else
+		{
+			bool isNull = false;
+			h & isNull;
+			if (!isNull)
+				h & riverType;
+		}
 		h & riverDir;
-		h & roadType;
+		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			h & roadType;
+		}
+		else
+		{
+			bool isNull = false;
+			h & isNull;
+			if (!isNull)
+				h & roadType;
+		}
 		h & roadDir;
 		h & extTileFlags;
-		h & visitable;
-		h & blocked;
+		if (h.version < Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			bool unused = false;
+			h & unused;
+			h & unused;
+		}
 		h & visitableObjects;
 		h & blockingObjects;
 	}

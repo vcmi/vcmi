@@ -20,12 +20,12 @@ VCMI_LIB_NAMESPACE_BEGIN
 void CCombinedArtifactInstance::addPart(CArtifactInstance * art, const ArtifactPosition & slot)
 {
 	auto artInst = static_cast<CArtifactInstance*>(this);
-	assert(vstd::contains_if(artInst->artType->getConstituents(),
+	assert(vstd::contains_if(artInst->getType()->getConstituents(),
 		[=](const CArtifact * partType)
 		{
 			return partType->getId() == art->getTypeId();
 		}));
-	assert(art->getParentNodes().size() == 1  &&  art->getParentNodes().front() == art->artType);
+	assert(art->getParentNodes().size() == 1  &&  art->getParentNodes().front() == art->getType());
 	partsInfo.emplace_back(art, slot);
 	artInst->attachTo(*art);
 }
@@ -44,18 +44,23 @@ bool CCombinedArtifactInstance::isPart(const CArtifactInstance * supposedPart) c
 	return false;
 }
 
+bool CCombinedArtifactInstance::hasParts() const
+{
+	return !partsInfo.empty();
+}
+
 const std::vector<CCombinedArtifactInstance::PartInfo> & CCombinedArtifactInstance::getPartsInfo() const
 {
 	return partsInfo;
 }
 
-void CCombinedArtifactInstance::addPlacementMap(CArtifactSet::ArtPlacementMap & placementMap)
+void CCombinedArtifactInstance::addPlacementMap(const CArtifactSet::ArtPlacementMap & placementMap)
 {
 	if(!placementMap.empty())
 		for(auto & part : partsInfo)
 		{
-			assert(placementMap.find(part.art) != placementMap.end());
-			part.slot = placementMap.at(part.art);
+			if(placementMap.find(part.art) != placementMap.end())
+				part.slot = placementMap.at(part.art);
 		}
 }
 
@@ -72,7 +77,7 @@ void CGrowingArtifactInstance::growingUp()
 {
 	auto artInst = static_cast<CArtifactInstance*>(this);
 	
-	if(artInst->artType->isGrowing())
+	if(artInst->getType()->isGrowing())
 	{
 
 		auto bonus = std::make_shared<Bonus>();
@@ -81,7 +86,7 @@ void CGrowingArtifactInstance::growingUp()
 		bonus->duration = BonusDuration::COMMANDER_KILLED;
 		artInst->accumulateBonus(bonus);
 
-		for(const auto & bonus : artInst->artType->getBonusesPerLevel())
+		for(const auto & bonus : artInst->getType()->getBonusesPerLevel())
 		{
 			// Every n levels
 			if(artInst->valOfBonuses(BonusType::LEVEL_COUNTER) % bonus.first == 0)
@@ -89,7 +94,7 @@ void CGrowingArtifactInstance::growingUp()
 				artInst->accumulateBonus(std::make_shared<Bonus>(bonus.second));
 			}
 		}
-		for(const auto & bonus : artInst->artType->getThresholdBonuses())
+		for(const auto & bonus : artInst->getType()->getThresholdBonuses())
 		{
 			// At n level
 			if(artInst->valOfBonuses(BonusType::LEVEL_COUNTER) == bonus.first)
@@ -120,26 +125,23 @@ CArtifactInstance::CArtifactInstance()
 
 void CArtifactInstance::setType(const CArtifact * art)
 {
-	artType = art;
+	artTypeID = art->getId();
 	attachToSource(*art);
 }
 
 std::string CArtifactInstance::nodeName() const
 {
-	return "Artifact instance of " + (artType ? artType->getJsonKey() : std::string("uninitialized")) + " type";
-}
-
-std::string CArtifactInstance::getDescription() const
-{
-	std::string text = artType->getDescriptionTranslated();
-	if(artType->isScroll())
-		ArtifactUtils::insertScrrollSpellName(text, getScrollSpellID());
-	return text;
+	return "Artifact instance of " + (getType() ? getType()->getJsonKey() : std::string("uninitialized")) + " type";
 }
 
 ArtifactID CArtifactInstance::getTypeId() const
 {
-	return artType->getId();
+	return artTypeID;
+}
+
+const CArtifact * CArtifactInstance::getType() const
+{
+	return artTypeID.hasValue() ? artTypeID.toArtifact() : nullptr;
 }
 
 ArtifactInstanceID CArtifactInstance::getId() const
@@ -154,44 +156,22 @@ void CArtifactInstance::setId(ArtifactInstanceID id)
 
 bool CArtifactInstance::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved) const
 {
-	return artType->canBePutAt(artSet, slot, assumeDestRemoved);
+	return getType()->canBePutAt(artSet, slot, assumeDestRemoved);
 }
 
 bool CArtifactInstance::isCombined() const
 {
-	return artType->isCombined();
+	return getType()->isCombined();
 }
 
 bool CArtifactInstance::isScroll() const
 {
-	return artType->isScroll();
-}
-
-void CArtifactInstance::putAt(CArtifactSet & set, const ArtifactPosition slot)
-{
-	auto placementMap = set.putArtifact(slot, this);
-	addPlacementMap(placementMap);
-}
-
-void CArtifactInstance::removeFrom(CArtifactSet & set, const ArtifactPosition slot)
-{
-	set.removeArtifact(slot);
-	for(auto & part : partsInfo)
-	{
-		if(part.slot != ArtifactPosition::PRE_FIRST)
-			part.slot = ArtifactPosition::PRE_FIRST;
-	}
-}
-
-void CArtifactInstance::move(CArtifactSet & srcSet, const ArtifactPosition srcSlot, CArtifactSet & dstSet, const ArtifactPosition dstSlot)
-{
-	removeFrom(srcSet, srcSlot);
-	putAt(dstSet, dstSlot);
+	return getType()->isScroll();
 }
 
 void CArtifactInstance::deserializationFix()
 {
-	setType(artType);
+	setType(artTypeID.toArtifact());
 	for(PartInfo & part : partsInfo)
 		attachTo(*part.art);
 }

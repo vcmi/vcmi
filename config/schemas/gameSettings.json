@@ -51,8 +51,12 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"buildingsPerTurnCap"  :    { "type" : "number" },
-				"startingDwellingChances" : { "type" : "array" }
+				"buildingsPerTurnCap"  :                 { "type" : "number" },
+				"startingDwellingChances" :              { "type" : "array" },
+				"spellResearch" :                        { "type" : "boolean" },
+				"spellResearchCost" :                    { "type" : "array" },
+				"spellResearchPerDay" :                  { "type" : "array" },
+				"spellResearchCostExponentPerResearch" : { "type" : "array" }
 			}
 		},
 		"combat": {
@@ -129,6 +133,14 @@
 				"originalFlyRules" :        { "type" : "boolean" }
 			}
 		},
+		"resources": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"weeklyBonusesAI" : { "type" : "object" }
+			}
+		},
+
 		"spells": {
 			"type" : "object",
 			"additionalProperties" : false,
@@ -148,5 +160,12 @@
 				"perHero" : { "type" : "object" }
 			}
 		},
+		"interface": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"playerColoredBackground" : { "type" : "object" }
+			}
+		}
 	}
 }

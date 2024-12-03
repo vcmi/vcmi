@@ -44,6 +44,7 @@ public:
 	void showInfoDialog(InfoWindow * iw) override {}
 
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override {}
+	void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted) override {}
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override {return false;}
 	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override {}
 	void setOwner(const CGObjectInstance * objid, PlayerColor owner) override {}
@@ -72,7 +73,7 @@ public:
 
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) override {return false;}
 	bool giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos) override {return false;}
-	bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble) override {return false;}
+	bool putArtifact(const ArtifactLocation & al, const ArtifactInstanceID & id, std::optional<bool> askAssemble) override {return false;}
 	void removeArtifact(const ArtifactLocation &al) override {}
 	bool moveArtifact(const PlayerColor & player, const ArtifactLocation & al1, const ArtifactLocation & al2) override {return false;}
 
@@ -95,7 +96,7 @@ public:
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override {}
 
 	///useful callback methods
-	void sendAndApply(CPackForClient * pack) override;
+	void sendAndApply(CPackForClient & pack) override;
 
 	vstd::RNG & getRandomGenerator() override;
 

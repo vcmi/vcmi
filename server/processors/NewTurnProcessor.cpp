@@ -18,6 +18,7 @@
 #include "../../lib/IGameSettings.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/constants/StringConstants.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/gameState/CGameState.h"
@@ -70,7 +71,7 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 			if(objectInstance != nullptr)
 				gameHandler->removeObject(objectInstance, PlayerColor::NEUTRAL);
 		}
-		gameHandler->sendAndApply(&iw); //show dialog
+		gameHandler->sendAndApply(iw); //show dialog
 	}
 }
 
@@ -105,10 +106,10 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 			// 1. Building exists in town (don't attempt to build Lvl 5 guild in Fortress
 			// 2. Building was not built yet
 			// othervice, silently ignore / skip it
-			if (town->town->buildings.count(i) && !town->hasBuilt(i))
+			if (town->getTown()->buildings.count(i) && !town->hasBuilt(i))
 			{
 				gameHandler->buildStructure(town->id, i, true);
-				iw.components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFaction(), i));
+				iw.components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFactionID(), i));
 			}
 		}
 
@@ -126,8 +127,10 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 					iw.components.emplace_back(ComponentType::CREATURE, town->creatures.at(i).second.back(), event.creatures.at(i));
 				}
 			}
+
+			gameHandler->sendAndApply(sac); //show dialog
 		}
-		gameHandler->sendAndApply(&iw); //show dialog
+		gameHandler->sendAndApply(iw); //show dialog
 	}
 }
 
@@ -160,7 +163,7 @@ void NewTurnProcessor::onPlayerTurnEnded(PlayerColor which)
 		DaysWithoutTown pack;
 		pack.player = which;
 		pack.daysWithoutCastle = playerState->daysWithoutCastle.value_or(0) + 1;
-		gameHandler->sendAndApply(&pack);
+		gameHandler->sendAndApply(pack);
 	}
 	else
 	{
@@ -169,7 +172,7 @@ void NewTurnProcessor::onPlayerTurnEnded(PlayerColor which)
 			DaysWithoutTown pack;
 			pack.player = which;
 			pack.daysWithoutCastle = std::nullopt;
-			gameHandler->sendAndApply(&pack);
+			gameHandler->sendAndApply(pack);
 		}
 	}
 
@@ -245,6 +248,28 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 	for (auto obj :	state.getOwnedObjects())
 		incomeHandicapped += obj->asOwnable()->dailyIncome();
 
+	if (!state.isHuman())
+	{
+		// Initialize bonuses for different resources
+		int difficultyIndex = gameHandler->gameState()->getStartInfo()->difficulty;
+		const std::string & difficultyName = GameConstants::DIFFICULTY_NAMES[difficultyIndex];
+		const JsonNode & weeklyBonusesConfig = gameHandler->gameState()->getSettings().getValue(EGameSettings::RESOURCES_WEEKLY_BONUSES_AI);
+		const JsonNode & difficultyConfig = weeklyBonusesConfig[difficultyName];
+
+		// Distribute weekly bonuses over 7 days, depending on the current day of the week
+		for (GameResID i : GameResID::ALL_RESOURCES())
+		{
+			const std::string & name = GameConstants::RESOURCE_NAMES[i];
+			int weeklyBonus = difficultyConfig[name].Integer();
+			int dayOfWeek = gameHandler->gameState()->getDate(Date::DAY_OF_WEEK);
+			int dailyIncome = incomeHandicapped[i];
+			int amountTillToday = dailyIncome * weeklyBonus * (dayOfWeek-1) / 7 / 100;
+			int amountAfterToday = dailyIncome * weeklyBonus * dayOfWeek / 7 / 100;
+			int dailyBonusToday = amountAfterToday - amountTillToday;
+			incomeHandicapped[static_cast<GameResID>(i)] += dailyBonusToday;
+		}
+	}
+
 	return incomeHandicapped;
 }
 
@@ -256,7 +281,7 @@ SetAvailableCreatures NewTurnProcessor::generateTownGrowth(const CGTownInstance 
 	sac.tid = t->id;
 	sac.creatures = t->creatures;
 
-	for (int k=0; k < t->town->creatures.size(); k++)
+	for (int k=0; k < t->getTown()->creatures.size(); k++)
 	{
 		if (t->creatures.at(k).second.empty())
 			continue;
@@ -331,7 +356,7 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 			sac.tid = t->id;
 			sac.creatures = t->creatures;
 			sac.creatures[tierToSubstract].first = creaturesLeft;
-			gameHandler->sendAndApply(&sac);
+			gameHandler->sendAndApply(sac);
 		}
 	};
 
@@ -353,9 +378,9 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 	// Check if town garrison already has unit of specified tier
 	for(const auto & slot : t->Slots())
 	{
-		const auto * creature = slot.second->type;
+		const auto * creature = slot.second->getCreature();
 
-		if (creature->getFaction() != t->getFaction())
+		if (creature->getFactionID() != t->getFactionID())
 			continue;
 
 		if (creature->getLevel() != tierToGrow)
@@ -431,7 +456,7 @@ RumorState NewTurnProcessor::pickNewRumor()
 				rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
 				if(rumorId == RumorState::RUMOR_GRAIL)
 				{
-					rumorExtra = gameHandler->gameState()->getTile(gameHandler->gameState()->map->grailPos)->terType->getIndex();
+					rumorExtra = gameHandler->gameState()->getTile(gameHandler->gameState()->map->grailPos)->getTerrainID().getNum();
 					break;
 				}
 
@@ -528,7 +553,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 			{
 				newMonster.second = VLC->creh->pickRandomMonster(gameHandler->getRandomGenerator());
 			} while (VLC->creh->objects[newMonster.second] &&
-					(*VLC->townh)[VLC->creatures()->getById(newMonster.second)->getFaction()]->town == nullptr); // find first non neutral creature
+					(*VLC->townh)[VLC->creatures()->getById(newMonster.second)->getFactionID()]->town == nullptr); // find first non neutral creature
 
 			return { EWeekType::BONUS_GROWTH, newMonster.second};
 		}
@@ -563,7 +588,7 @@ std::vector<SetMovePoints> NewTurnProcessor::updateHeroesMovementPoints()
 		{
 			auto ti = std::make_unique<TurnInfo>(h, 1);
 			// NOTE: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
-			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState()->map->getTile(h->visitablePos()).terType->isLand(), ti.get());
+			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState()->map->getTile(h->visitablePos()).isLand(), ti.get());
 
 			if (newMovementPoints != h->movementPointsRemaining())
 				result.emplace_back(h->id, newMovementPoints, true);
@@ -667,7 +692,7 @@ void NewTurnProcessor::onNewTurn()
 	bool newWeek = gameHandler->getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
 	bool newMonth = gameHandler->getDate(Date::DAY_OF_MONTH) == 28;
 
-	gameHandler->sendAndApply(&n);
+	gameHandler->sendAndApply(n);
 
 	if (newWeek)
 	{

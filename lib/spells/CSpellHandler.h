@@ -74,6 +74,7 @@ public:
 		AnimationPath resourceName;
 		std::string effectName;
 		VerticalPosition verticalPosition;
+		float transparency;
 		int pause;
 
 		AnimationItem();
@@ -167,6 +168,7 @@ public:
 
 	bool hasSchool(SpellSchool school) const override;
 	bool canCastOnSelf() const override;
+	bool canCastOnlyOnSelf() const override;
 	bool canCastWithoutSkip() const override;
 
 	/**
@@ -297,6 +299,7 @@ private:
 	bool combat; //is this spell combat (true) or adventure (false)
 	bool creatureAbility; //if true, only creatures can use this spell
 	bool castOnSelf; // if set, creature caster can cast this spell on itself
+	bool castOnlyOnSelf; // if set, creature caster can cast this spell on itself
 	bool castWithoutSkip; // if set the creature will not skip the turn after casting a spell
 	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
 

@@ -9,17 +9,10 @@
  */
 #pragma once
 
+#include "IImage.h"
+
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/constants/EntityIdentifiers.h"
-
-enum class EImageLayer
-{
-	ALL,
-
-	BODY,
-	SHADOW,
-	OVERLAY,
-};
 
 struct ImageLocator
 {
@@ -28,12 +21,13 @@ struct ImageLocator
 	int defFrame = -1;
 	int defGroup = -1;
 
-	PlayerColor playerColored = PlayerColor::CANNOT_DETERMINE;
+	PlayerColor playerColored = PlayerColor::CANNOT_DETERMINE; // FIXME: treat as identical to blue to avoid double-loading?
 
 	bool verticalFlip = false;
 	bool horizontalFlip = false;
 	int8_t scalingFactor = 0; // 0 = auto / use default scaling
-	EImageLayer layer = EImageLayer::ALL;
+	int8_t preScaledFactor = 1;
+	EImageBlitMode layer = EImageBlitMode::OPAQUE;
 
 	ImageLocator() = default;
 	ImageLocator(const AnimationPath & path, int frame, int group);

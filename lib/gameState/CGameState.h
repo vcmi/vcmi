@@ -98,7 +98,7 @@ public:
 	/// picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
 	HeroTypeID pickNextHeroType(const PlayerColor & owner);
 
-	void apply(CPackForClient *pack);
+	void apply(CPackForClient & pack);
 	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & rand);
 
 	void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const override;

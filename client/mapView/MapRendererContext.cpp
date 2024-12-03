@@ -120,7 +120,7 @@ size_t MapRendererBaseContext::objectGroupIndex(ObjectInstanceID objectID) const
 Point MapRendererBaseContext::objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const
 {
 	const CGObjectInstance * object = getObject(objectID);
-	int3 offsetTiles(object->getPosition() - coordinates);
+	int3 offsetTiles(object->anchorPos() - coordinates);
 	return Point(offsetTiles) * Point(32, 32);
 }
 
@@ -275,7 +275,7 @@ std::string MapRendererAdventureContext::overlayText(const int3 & coordinates) c
 
 	const auto & tile = getMapTile(coordinates);
 
-	if (!tile.visitable)
+	if (!tile.visitable())
 		return {};
 
 	return tile.visitableObjects.back()->getObjectName();
@@ -288,7 +288,7 @@ ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates
 
 	const auto & tile = getMapTile(coordinates);
 
-	if (!tile.visitable)
+	if (!tile.visitable())
 		return {};
 
 	const auto * object = tile.visitableObjects.back();
@@ -498,7 +498,7 @@ size_t MapRendererWorldViewContext::overlayImageIndex(const int3 & coordinates) 
 	{
 		const auto * object = getObject(objectID);
 
-		if(!object->visitableAt(coordinates.x, coordinates.y))
+		if(!object->visitableAt(coordinates))
 			continue;
 
 		ObjectPosInfo info(object);
@@ -548,7 +548,10 @@ size_t MapRendererSpellViewContext::overlayImageIndex(const int3 & coordinates) 
 			return iconIndex;
 	}
 
-	return MapRendererWorldViewContext::overlayImageIndex(coordinates);
+	if (MapRendererBaseContext::isVisible(coordinates))
+		return MapRendererWorldViewContext::overlayImageIndex(coordinates);
+	else
+		return std::numeric_limits<size_t>::max();
 }
 
 MapRendererPuzzleMapContext::MapRendererPuzzleMapContext(const MapRendererContextState & viewState)

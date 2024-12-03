@@ -57,9 +57,9 @@ Bonus that does not account for propagation and gives extra resources per day wi
 
 Increases amount of movement points available to affected hero on new turn
 
-- subtype: 
-	- heroMovementLand: only land movement will be affected
-	- heroMovementSea: only sea movement will be affected
+- subtype:
+  - heroMovementLand: only land movement will be affected
+  - heroMovementSea: only sea movement will be affected
 - val: number of movement points (100 points for a tile)
 
 ### WATER_WALKING
@@ -128,7 +128,7 @@ Allows to raise different creatures than Skeletons after battle.
 - addInfo: Level of Necromancy secondary skill (1 - Basic, 3 - Expert)
 - Example (from Cloak Of The Undead King):
 
-```jsonc
+```json5
 {
     "type" : "IMPROVED_NECROMANCY",
     "subtype" : "creature.walkingDead",
@@ -158,7 +158,7 @@ Allows affected heroes to learn spells from each other during hero exchange
 
 Reduces movement points penalty when moving on terrains with movement cost over 100 points. Can not reduce movement cost below 100 points
 
-- val: penalty reduction, in movement points per tile. 
+- val: penalty reduction, in movement points per tile.
 
 ### WANDERING_CREATURES_JOIN_BONUS
 
@@ -256,7 +256,7 @@ Gives creature under effect of this spell additional bonus, which is hardcoded a
 
 Modifies 'val' parameter of spell effects that give bonuses by specified value. For example, Aenain makes Disrupting Ray decrease target's defense by additional 2 points:
 
-```jsonc
+```json5
 "disruptingRay" : {
     "addInfo" : -2,
     "subtype" : "spell.disruptingRay",
@@ -271,7 +271,7 @@ Modifies 'val' parameter of spell effects that give bonuses by specified value. 
 
 Changes 'val' parameter of spell effects that give bonuses to a specified value. For example, Fortune cast by Melody always modifies luck by +3:
 
-```jsonc
+```json5
 "fortune" : {
     "addInfo" : 3,
     "subtype" : "spell.fortune",
@@ -346,8 +346,8 @@ Heroes affected by this bonus can not retreat or surrender in battle (Shackles o
 Negates all natural immunities for affected stacks. (Orb of Vulnerability)
 
 - subtype:
-	- immunityBattleWide: Entire battle will be affected by bonus
-	- immunityEnemyHero: Only enemy hero will be affected by bonus
+  - immunityBattleWide: Entire battle will be affected by bonus
+  - immunityEnemyHero: Only enemy hero will be affected by bonus
 
 ### OPENING_BATTLE_SPELL
 
@@ -383,9 +383,9 @@ Increases movement speed of units in battle
 Increases base damage of creature in battle
 
 - subtype:
-	- creatureDamageMin: increases only minimal damage 
-	- creatureDamageMax: increases only maximal damage
-	- creatureDamageBoth: increases both minimal and maximal damage
+  - creatureDamageMin: increases only minimal damage
+  - creatureDamageMax: increases only maximal damage
+  - creatureDamageBoth: increases both minimal and maximal damage
 - val: additional damage points
 
 ### SHOTS
@@ -401,6 +401,10 @@ Increases starting amount of shots that unit has in battle
 ### NON_LIVING
 
 Affected unit is considered to not be alive and not affected by morale and certain spells
+
+### MECHANICAL
+
+Affected unit is considered to not be alive and not affected by morale and certain spells but should be repairable from engineers (factory).
 
 ### GARGOYLE
 
@@ -443,8 +447,8 @@ Affected units can not receive good or bad morale
 Affected unit can fly on the battlefield
 
 - subtype:
-	- movementFlying: creature will fly (slowly move across battlefield)
-	- movementTeleporting: creature will instantly teleport to destination, skipping movement animation.
+  - movementFlying: creature will fly (slowly move across battlefield)
+  - movementTeleporting: creature will instantly teleport to destination, skipping movement animation.
 
 ### SHOOTER
 
@@ -502,6 +506,10 @@ Affected unit attacks all adjacent creatures (Hydra). Only directly targeted cre
 
 Affected unit attacks creature located directly behind targeted tile (Dragons). Only directly targeted creature will attempt to retaliate
 
+### PRISM_HEX_ATTACK_BREATH
+
+Like `TWO_HEX_ATTACK_BREATH` but affects also two additional cratures (in triangle form from target tile)
+
 ### RETURN_AFTER_STRIKE
 
 Affected unit can return to his starting location after attack (Harpies)
@@ -517,19 +525,19 @@ Affected unit will ignore specified percentage of attacked unit defense (Behemot
 Affected units will receive reduced damage from attacks by other units
 
 - val: damage reduction, percentage
-- subtype: 
-	- damageTypeMelee: only melee damage will be reduced
-	- damageTypeRanged: only ranged damage will be reduced
-	- damageTypeAll: all damage will be reduced
+- subtype:
+  - damageTypeMelee: only melee damage will be reduced
+  - damageTypeRanged: only ranged damage will be reduced
+  - damageTypeAll: all damage will be reduced
 
 ### PERCENTAGE_DAMAGE_BOOST
 
 Affected units will deal increased damage when attacking other units
 
 - val: damage increase, percentage
-- subtype: 
-	- damageTypeMelee: only melee damage will increased
-	- damageTypeRanged: only ranged damage will increased
+- subtype:
+  - damageTypeMelee: only melee damage will increased
+  - damageTypeRanged: only ranged damage will increased
 
 ### GENERAL_ATTACK_REDUCTION
 
@@ -568,18 +576,18 @@ Affected unit will never receive retaliations when attacking
 Affected unit will gain new creatures for each enemy killed by this unit
 
 - val: number of units gained per enemy killed
-- subtype: 
-	- soulStealPermanent: creature will stay after the battle
-	- soulStealBattle: creature will be lost after the battle
+- subtype:
+  - soulStealPermanent: creature will stay after the battle
+  - soulStealBattle: creature will be lost after the battle
 
 ### TRANSMUTATION
 
 Affected units have chance to transform attacked unit to other creature type
 
 - val: chance for ability to trigger, percentage
-- subtype: 
-	- transmutationPerHealth: transformed unit will have same HP pool as original stack, 
-	- transmutationPerUnit: transformed unit will have same number of units as original stack
+- subtype:
+  - transmutationPerHealth: transformed unit will have same HP pool as original stack,
+  - transmutationPerUnit: transformed unit will have same number of units as original stack
 - addInfo: creature to transform to. If not set, creature will transform to same unit as attacker
 
 ### SUMMON_GUARDIANS
@@ -605,10 +613,10 @@ Affected unit will attack units on all hexes that surround attacked hex
 
 Affected unit will retaliate before enemy attacks, if able
 
-- subtype: 
-	- damageTypeMelee: only melee attacks affected
-	- damageTypeRanged: only ranged attacks affected. Note that unit also requires ability to retaliate in ranged, such as RANGED_RETALIATION bonus
-	- damageTypeAll: any attacks are affected
+- subtype:
+  - damageTypeMelee: only melee attacks affected
+  - damageTypeRanged: only ranged attacks affected. Note that unit also requires ability to retaliate in ranged, such as RANGED_RETALIATION bonus
+  - damageTypeAll: any attacks are affected
 
 ### SHOOTS_ALL_ADJACENT
 
@@ -619,9 +627,9 @@ Affected unit will attack units on all hexes that surround attacked hex in range
 Affected unit will kills additional units after attack
 
 - val: chance to trigger, percentage
-- subtype: 
-	- destructionKillPercentage: kill percentage of units, 
-	- destructionKillAmount: kill amount
+- subtype:
+  - destructionKillPercentage: kill percentage of units,
+  - destructionKillAmount: kill amount
 - addInfo: amount or percentage to kill
 
 ### LIMITED_SHOOTING_RANGE
@@ -661,6 +669,7 @@ Affected unit can attack walls during siege battles (Cyclops)
 ### CATAPULT_EXTRA_SHOTS
 
 Defines spell mastery level for spell used by CATAPULT bonus
+
 - subtype: affected spell
 - val: spell mastery level to use
 
@@ -752,18 +761,18 @@ Affected unit will deal additional damage after attack
 
 Affected unit will kill additional units after attack. Used for Death stare (Mighty Gorgon) ability and for Accurate Shot (Pirates, HotA)
 
-- subtype: 
-	- deathStareGorgon: only melee attack, random amount of killed units
-	- deathStareNoRangePenalty: only ranged attacks without obstacle (walls) or range penalty
-	- deathStareRangePenalty: only ranged attacks with range penalty
-	- deathStareObstaclePenalty: only ranged attacks with obstacle (walls) penalty
-	- deathStareRangeObstaclePenalty: only ranged attacks with both range and obstacle penalty
-	- deathStareCommander: fixed amount, both melee and ranged attacks
-- val: 
-	- for deathStareCommander: number of creatures to kill, total amount of killed creatures is (attacker level / defender level) \* val
-	- for all other subtypes: chance to kill, counted separately for each unit in attacking stack, percentage. At most (stack size \* chance) units can be killed at once, rounded up
+- subtype:
+  - deathStareGorgon: only melee attack, random amount of killed units
+  - deathStareNoRangePenalty: only ranged attacks without obstacle (walls) or range penalty
+  - deathStareRangePenalty: only ranged attacks with range penalty
+  - deathStareObstaclePenalty: only ranged attacks with obstacle (walls) penalty
+  - deathStareRangeObstaclePenalty: only ranged attacks with both range and obstacle penalty
+  - deathStareCommander: fixed amount, both melee and ranged attacks
+- val:
+  - for deathStareCommander: number of creatures to kill, total amount of killed creatures is (attacker level / defender level) \* val
+  - for all other subtypes: chance to kill, counted separately for each unit in attacking stack, percentage. At most (stack size \* chance) units can be killed at once, rounded up
 - addInfo:
-	- SpellID to be used as hit effect. If not set - 'deathStare' spell will be used. If set to "accurateShot" battle log messages will use alternative description
+  - SpellID to be used as hit effect. If not set - 'deathStare' spell will be used. If set to "accurateShot" battle log messages will use alternative description
 
 ### SPECIAL_CRYSTAL_GENERATION
 
@@ -808,9 +817,9 @@ Determines how many times per combat affected creature can cast its targeted spe
 - subtype - spell id, eg. spell.iceBolt
 - value - chance (percent)
 - additional info - \[X, Y, Z\]
-    - X - spell mastery level (1 - Basic, 3 - Expert)
-    - Y = 0 - all attacks, 1 - shot only, 2 - melee only
-    - Z (optional) - layer for multiple SPELL_AFTER_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
+  - X - spell mastery level (1 - Basic, 3 - Expert)
+  - Y = 0 - all attacks, 1 - shot only, 2 - melee only
+  - Z (optional) - layer for multiple SPELL_AFTER_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
   When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
 
 ### SPELL_BEFORE_ATTACK
@@ -818,12 +827,12 @@ Determines how many times per combat affected creature can cast its targeted spe
 - subtype - spell id
 - value - chance %
 - additional info - \[X, Y, Z\]
-    - X - spell mastery level (1 - Basic, 3 - Expert)
-    - Y = 0 - all attacks, 1 - shot only, 2 - melee only
-    - Z (optional) - layer for multiple SPELL_BEFORE_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
+  - X - spell mastery level (1 - Basic, 3 - Expert)
+  - Y = 0 - all attacks, 1 - shot only, 2 - melee only
+  - Z (optional) - layer for multiple SPELL_BEFORE_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
   When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
 
-### SPECIFIC_SPELL_POWER 
+### SPECIFIC_SPELL_POWER
 
 - value: Used for Thunderbolt and Resurrection cast by units (multiplied by stack size). Also used for Healing secondary skill (for core:spell.firstAid used by First Aid tent)
 - subtype - spell id
@@ -834,16 +843,16 @@ Determines how many times per combat affected creature can cast its targeted spe
 
 ### CREATURE_ENCHANT_POWER
 
- - val: Total duration of spells cast by creature, in turns
+- val: Total duration of spells cast by creature, in turns
 
 ### REBIRTH
 
 Affected stack will resurrect after death
 
-- val - percent of total stack HP restored, not rounded. For instance, when 4 Phoenixes with Rebirth chance of 20% die, there is 80% chance than one Phoenix will rise. 
+- val - percent of total stack HP restored, not rounded. For instance, when 4 Phoenixes with Rebirth chance of 20% die, there is 80% chance than one Phoenix will rise.
 - subtype:
-    - rebirthRegular: Phoenix, as described above.
-    - rebirthSpecial: At least one unit will always rise (Sacred Phoenix)
+  - rebirthRegular: Phoenix, as described above.
+  - rebirthSpecial: At least one unit will always rise (Sacred Phoenix)
 
 ### ENCHANTED
 
@@ -992,9 +1001,9 @@ Affected heroes will be under effect of Visions spell, revealing information of 
 
 - val: multiplier to effect range. Information is revealed within (val \* hero spell power) range
 - subtype:
-    - visionsMonsters: reveal information on monsters, 
-    - visionsHeroes: reveal information on heroes, 
-    - visionsTowns: reveal information on towns
+  - visionsMonsters: reveal information on monsters,
+  - visionsHeroes: reveal information on heroes,
+  - visionsTowns: reveal information on towns
 
 ### BLOCK_MAGIC_BELOW
 

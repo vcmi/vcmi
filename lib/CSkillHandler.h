@@ -34,6 +34,7 @@ public:
 private:
 	std::vector<LevelInfo> levels; // bonuses provided by basic, advanced and expert level
 	void addNewBonus(const std::shared_ptr<Bonus> & b, int level);
+	int32_t getIconIndex() const override;
 
 	SecondarySkill id;
 	std::string modScope;
@@ -50,7 +51,7 @@ public:
 	};
 
 	int32_t getIndex() const override;
-	int32_t getIconIndex() const override;
+	int32_t getIconIndex(uint8_t skillMasterLevel) const;
 	std::string getJsonKey() const override;
 	std::string getModScope() const override;
 	void registerIcons(const IconRegistar & cb) const override;
@@ -74,6 +75,7 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 
 	bool onlyOnWaterMap;
+	bool special;
 
 	friend class CSkillHandler;
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill & skill);

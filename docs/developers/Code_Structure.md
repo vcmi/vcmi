@@ -29,9 +29,10 @@ Most of VCMI configuration files uses Json format and located in "config" direct
 ### Main purposes of client
 
 Client is responsible for:
--   displaying state of game to human player
--   capturing player's actions and sending requests to server
--   displaying changes in state of game indicated by server
+
+- displaying state of game to human player
+- capturing player's actions and sending requests to server
+- displaying changes in state of game indicated by server
 
 ### Rendering of graphics
 
@@ -44,9 +45,9 @@ In rendering, Interface object system is quite helpful. Its base is CIntObject c
 
 Server is responsible for:
 
--   maintaining state of the game
--   handling requests from all clients participating in game
--   informing all clients about changes in state of the game that are
+- maintaining state of the game
+- handling requests from all clients participating in game
+- informing all clients about changes in state of the game that are
     visible to them
 
 ## Lib
@@ -59,11 +60,11 @@ iOS platform pioneered single process build, where server is a static library an
 
 Lib contains code responsible for:
 
--   handling most of Heroes III files (.lod, .txt setting files)
--   storing information common to server and client like state of the game
--   managing armies, buildings, artifacts, spells, bonuses and other game objects
--   handling general game mechanics and related actions (only adventure map objects; it's an unwanted remnant of past development - all game mechanics should be handled by the server)
--   networking and serialization
+- handling most of Heroes III files (.lod, .txt setting files)
+- storing information common to server and client like state of the game
+- managing armies, buildings, artifacts, spells, bonuses and other game objects
+- handling general game mechanics and related actions (only adventure map objects; it's an unwanted remnant of past development - all game mechanics should be handled by the server)
+- networking and serialization
 
 #### Serialization
 
@@ -93,7 +94,6 @@ Forward declarations of the lib in headers of other parts of the project need to
 `VCMI_LIB_NAMESPACE_END`  
 `<other forward declarations>`  
 `<classes>`
-
 
 ##### New project part
 

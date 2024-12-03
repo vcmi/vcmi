@@ -13,7 +13,6 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/constants/StringConstants.h"
@@ -23,6 +22,11 @@
 #include "../lib/rewardable/Reward.h"
 #include "../lib/mapObjects/CGPandoraBox.h"
 #include "../lib/mapObjects/CQuest.h"
+
+#include <vcmi/HeroTypeService.h>
+#include <vcmi/HeroType.h>
+#include <vcmi/HeroClassService.h>
+#include <vcmi/HeroClass.h>
 
 RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	QDialog(parent),
@@ -455,7 +459,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 	}
 	for(auto & i : vinfo.reward.creatures)
 	{
-		int index = i.type->getIndex();
+		int index = i.getType()->getIndex();
 		ui->rCreatureId->setCurrentIndex(index);
 		ui->rCreatureAmount->setValue(i.count);
 		onCreatureAdd(ui->rCreatures, ui->rCreatureId, ui->rCreatureAmount);
@@ -523,7 +527,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 	}
 	for(auto & i : vinfo.limiter.creatures)
 	{
-		int index = i.type->getIndex();
+		int index = i.getType()->getIndex();
 		ui->lCreatureId->setCurrentIndex(index);
 		ui->lCreatureAmount->setValue(i.count);
 		onCreatureAdd(ui->lCreatures, ui->lCreatureId, ui->lCreatureAmount);

@@ -7,10 +7,11 @@ set(launcher_SRCS
 		StdInc.cpp
 		aboutProject/aboutproject_moc.cpp
 		modManager/cdownloadmanager_moc.cpp
-		modManager/cmodlist.cpp
-		modManager/cmodlistmodel_moc.cpp
+		modManager/modstateitemmodel_moc.cpp
 		modManager/cmodlistview_moc.cpp
-		modManager/cmodmanager.cpp
+		modManager/modstatecontroller.cpp
+		modManager/modstatemodel.cpp
+		modManager/modstate.cpp
 		modManager/imageviewer_moc.cpp
 		modManager/chroniclesextractor.cpp
 		settingsView/csettingsview_moc.cpp
@@ -20,8 +21,6 @@ set(launcher_SRCS
 		innoextract.cpp
 		mainwindow_moc.cpp
 		languages.cpp
-		launcherdirs.cpp
-		jsonutils.cpp
 		updatedialog_moc.cpp
 		prepare.cpp
 )
@@ -39,18 +38,17 @@ set(launcher_HEADERS
 		StdInc.h
 		aboutProject/aboutproject_moc.h
 		modManager/cdownloadmanager_moc.h
-		modManager/cmodlist.h
-		modManager/cmodlistmodel_moc.h
+		modManager/modstateitemmodel_moc.h
 		modManager/cmodlistview_moc.h
-		modManager/cmodmanager.h
+		modManager/modstatecontroller.h
+		modManager/modstatemodel.h
+		modManager/modstate.h
 		modManager/imageviewer_moc.h
 		modManager/chroniclesextractor.h
 		settingsView/csettingsview_moc.h
 		firstLaunch/firstlaunch_moc.h
 		mainwindow_moc.h
 		languages.h
-		launcherdirs.h
-		jsonutils.h
 		updatedialog_moc.h
 		main.h
 		helper.h
@@ -206,7 +204,11 @@ elseif(NOT APPLE_IOS)
 	target_link_libraries(vcmilauncher SDL2::SDL2)
 endif()
 
-target_link_libraries(vcmilauncher vcmi Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+if(ENABLE_STATIC_LIBS OR NOT (ENABLE_EDITOR AND ENABLE_LAUNCHER))
+	target_compile_definitions(vcmilauncher PRIVATE VCMIQT_STATIC)
+endif()
+
+target_link_libraries(vcmilauncher vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )

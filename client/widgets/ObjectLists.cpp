@@ -116,12 +116,12 @@ void CListBox::updatePositions()
 		(elem)->moveTo(itemPos);
 		itemPos += itemOffset;
 	}
-	if (isActive())
+	if(slider)
 	{
-		redraw();
-		if (slider)
-			slider->scrollTo((int)first);
+		slider->scrollTo((int)first);
+		moveChildForeground(slider.get());
 	}
+	redraw();
 }
 
 void CListBox::reset()

@@ -33,7 +33,9 @@ public:
 	ElementInfo() : CMapInfo() { }
 	~ElementInfo() { }
 	std::string folderName = "";
+	std::string name = "";
 	bool isFolder = false;
+	bool isAutoSaveFolder = false;
 };
 
 /// Class which handles map sorting by different criteria
@@ -59,6 +61,8 @@ class SelectionTab : public CIntObject
 		std::shared_ptr<CPicture> pictureEmptyLine;
 		std::shared_ptr<CLabel> labelName;
 
+		const int LABEL_POS_X = 184;
+
 		ListItem(Point position);
 		void updateItem(std::shared_ptr<ElementInfo> info = {}, bool selected = false);
 	};
@@ -68,6 +72,8 @@ class SelectionTab : public CIntObject
 	// FIXME: CSelectionBase use them too!
 	std::shared_ptr<CAnimation> iconsVictoryCondition;
 	std::shared_ptr<CAnimation> iconsLossCondition;
+
+	std::vector<std::shared_ptr<ListItem>> unSupportedSaves;
 public:
 	std::vector<std::shared_ptr<ElementInfo>> allItems;
 	std::vector<std::shared_ptr<ElementInfo>> curItems;
@@ -116,11 +122,16 @@ private:
 	ESelectionScreen tabType;
 	Rect inputNameRect;
 
+	std::shared_ptr<CButton> buttonDeleteMode;
+	bool deleteMode;
+
 	auto checkSubfolder(std::string path);
 
 	bool isMapSupported(const CMapInfo & info);
 	void parseMaps(const std::unordered_set<ResourcePath> & files);
-	void parseSaves(const std::unordered_set<ResourcePath> & files);
+	std::vector<ResourcePath> parseSaves(const std::unordered_set<ResourcePath> & files);
 	void parseCampaigns(const std::unordered_set<ResourcePath> & files);
 	std::unordered_set<ResourcePath> getFiles(std::string dirURI, EResType resType);
+
+	void handleUnsupportedSavegames(const std::vector<ResourcePath> & files);
 };

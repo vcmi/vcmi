@@ -176,6 +176,11 @@ void CMultiLineLabel::setText(const std::string & Txt)
 	CLabel::setText(Txt);
 }
 
+std::vector<std::string> CMultiLineLabel::getLines()
+{
+	return lines;
+}
+
 void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 {
 	const auto f = GH.renderHandler().loadFont(font);
@@ -309,7 +314,7 @@ void CMultiLineLabel::splitText(const std::string & Txt, bool redrawAfter)
 	lines.clear();
 
 	const auto & fontPtr = GH.renderHandler().loadFont(font);
-	int lineHeight = static_cast<int>(fontPtr->getLineHeight());
+	int lineHeight = fontPtr->getLineHeight();
 
 	lines = CMessage::breakText(Txt, pos.w, font);
 
@@ -330,16 +335,16 @@ Rect CMultiLineLabel::getTextLocation()
 		return pos;
 
 	const auto & fontPtr = GH.renderHandler().loadFont(font);
-	Point textSize(pos.w, fontPtr->getLineHeight() * (int)lines.size());
-	Point textOffset(pos.w - textSize.x, pos.h - textSize.y);
+	Point textSizeComputed(pos.w, fontPtr->getLineHeight() * lines.size()); //FIXME: how is this different from textSize member?
+	Point textOffset(pos.w - textSizeComputed.x, pos.h - textSizeComputed.y);
 
 	switch(alignment)
 	{
-	case ETextAlignment::TOPLEFT:     return Rect(pos.topLeft(), textSize);
-	case ETextAlignment::TOPCENTER:   return Rect(pos.topLeft(), textSize);
-	case ETextAlignment::CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSize);
-	case ETextAlignment::CENTERRIGHT: return Rect(pos.topLeft() + Point(textOffset.x, textOffset.y / 2), textSize);
-	case ETextAlignment::BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSize);
+	case ETextAlignment::TOPLEFT:     return Rect(pos.topLeft(), textSizeComputed);
+	case ETextAlignment::TOPCENTER:   return Rect(pos.topLeft(), textSizeComputed);
+	case ETextAlignment::CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSizeComputed);
+	case ETextAlignment::CENTERRIGHT: return Rect(pos.topLeft() + Point(textOffset.x, textOffset.y / 2), textSizeComputed);
+	case ETextAlignment::BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSizeComputed);
 	}
 	assert(0);
 	return Rect();

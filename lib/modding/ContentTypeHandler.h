@@ -14,11 +14,13 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class IHandlerBase;
-class CModInfo;
+class ModDescription;
 
 /// internal type to handle loading of one data type (e.g. artifacts, creatures)
 class DLL_LINKAGE ContentTypeHandler
 {
+	JsonNode conflictList;
+
 public:
 	struct ModInfo
 	{
@@ -29,7 +31,7 @@ public:
 	};
 	/// handler to which all data will be loaded
 	IHandlerBase * handler;
-	std::string objectName;
+	std::string entityName;
 
 	/// contains all loaded H3 data
 	std::vector<JsonNode> originalData;
@@ -39,7 +41,7 @@ public:
 
 	/// local version of methods in ContentHandler
 	/// returns true if loading was successful
-	bool preloadModData(const std::string & modName, const std::vector<std::string> & fileList, bool validate);
+	bool preloadModData(const std::string & modName, const JsonNode & fileList, bool validate);
 	bool loadMod(const std::string & modName, bool validate);
 	void loadCustom();
 	void afterLoadFinalization();
@@ -48,22 +50,16 @@ public:
 /// class used to load all game data into handlers. Used only during loading
 class DLL_LINKAGE CContentHandler
 {
-	/// preloads all data from fileList as data from modName.
-	bool preloadModData(const std::string & modName, JsonNode modConfig, bool validate);
-
-	/// actually loads data in mod
-	bool loadMod(const std::string & modName, bool validate);
-
 	std::map<std::string, ContentTypeHandler> handlers;
 
 public:
 	void init();
 
 	/// preloads all data from fileList as data from modName.
-	void preloadData(CModInfo & mod);
+	bool preloadData(const ModDescription & mod, bool validateMod);
 
 	/// actually loads data in mod
-	void load(CModInfo & mod);
+	bool load(const ModDescription & mod, bool validateMod);
 
 	void loadCustom();
 

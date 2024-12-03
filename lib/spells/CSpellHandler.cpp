@@ -79,6 +79,8 @@ CSpell::CSpell():
 	combat(false),
 	creatureAbility(false),
 	castOnSelf(false),
+	castOnlyOnSelf(false),
+	castWithoutSkip(false),
 	positiveness(ESpellPositiveness::NEUTRAL),
 	defaultProbability(0),
 	rising(false),
@@ -296,6 +298,11 @@ bool CSpell::hasBattleEffects() const
 bool CSpell::canCastOnSelf() const
 {
 	return castOnSelf;
+}
+
+bool CSpell::canCastOnlyOnSelf() const
+{
+	return castOnlyOnSelf;
 }
 
 bool CSpell::canCastWithoutSkip() const
@@ -537,6 +544,7 @@ void CSpell::serializeJson(JsonSerializeFormat & handler)
 ///CSpell::AnimationInfo
 CSpell::AnimationItem::AnimationItem() :
 	verticalPosition(VerticalPosition::TOP),
+	transparency(1),
 	pause(0)
 {
 
@@ -776,7 +784,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 		spell->combat = type == "combat";
 	}
 
-	VLC->generaltexth->registerString(scope, spell->getNameTextID(), json["name"].String());
+	VLC->generaltexth->registerString(scope, spell->getNameTextID(), json["name"]);
 
 	logMod->trace("%s: loading spell %s", __FUNCTION__, spell->getNameTranslated());
 
@@ -788,6 +796,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	}
 
 	spell->castOnSelf = json["canCastOnSelf"].Bool();
+	spell->castOnlyOnSelf = json["canCastOnlyOnSelf"].Bool();
 	spell->castWithoutSkip = json["canCastWithoutSkip"].Bool();
 	spell->level = static_cast<si32>(json["level"].Integer());
 	spell->power = static_cast<si32>(json["power"].Integer());
@@ -957,10 +966,15 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 				auto vPosStr = item["verticalPosition"].String();
 				if("bottom" == vPosStr)
 					newItem.verticalPosition = VerticalPosition::BOTTOM;
+
+				if (item["transparency"].isNumber())
+					newItem.transparency = item["transparency"].Float();
+				else
+					newItem.transparency = 1.0;
 			}
 			else if(item.isNumber())
 			{
-				newItem.pause = static_cast<int>(item.Float());
+				newItem.pause = item.Integer();
 			}
 
 			q.push_back(newItem);
@@ -997,7 +1011,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 		const si32 levelPower     = levelObject.power = static_cast<si32>(levelNode["power"].Integer());
 
 		if (!spell->isCreatureAbility())
-			VLC->generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"].String());
+			VLC->generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"]);
 
 		levelObject.cost          = static_cast<si32>(levelNode["cost"].Integer());
 		levelObject.AIValue       = static_cast<si32>(levelNode["aiValue"].Integer());

@@ -25,24 +25,26 @@ class RenderHandler : public IRenderHandler
 
 	std::map<AnimationPath, std::shared_ptr<CDefFile>> animationFiles;
 	std::map<AnimationPath, AnimationLayoutMap> animationLayouts;
-	std::map<ImageLocator, std::shared_ptr<ISharedImage>> imageFiles;
+	std::map<ImageLocator, std::shared_ptr<const ISharedImage>> imageFiles;
 	std::map<EFonts, std::shared_ptr<const IFont>> fonts;
 
 	std::shared_ptr<CDefFile> getAnimationFile(const AnimationPath & path);
+	std::optional<ResourcePath> getPathForScaleFactor(const ResourcePath & path, const std::string & factor);
+	std::pair<ResourcePath, int> getScalePath(const ResourcePath & p);
 	AnimationLayoutMap & getAnimationLayout(const AnimationPath & path);
 	void initFromJson(AnimationLayoutMap & layout, const JsonNode & config);
 
 	void addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName);
 	void addImageListEntries(const EntityService * service);
-	void storeCachedImage(const ImageLocator & locator, std::shared_ptr<ISharedImage> image);
+	void storeCachedImage(const ImageLocator & locator, std::shared_ptr<const ISharedImage> image);
 
-	std::shared_ptr<ISharedImage> loadImageImpl(const ImageLocator & config);
+	std::shared_ptr<const ISharedImage> loadImageImpl(const ImageLocator & config);
 
-	std::shared_ptr<ISharedImage> loadImageFromFileUncached(const ImageLocator & locator);
-	std::shared_ptr<ISharedImage> loadImageFromFile(const ImageLocator & locator);
+	std::shared_ptr<const ISharedImage> loadImageFromFileUncached(const ImageLocator & locator);
+	std::shared_ptr<const ISharedImage> loadImageFromFile(const ImageLocator & locator);
 
-	std::shared_ptr<ISharedImage> transformImage(const ImageLocator & locator, std::shared_ptr<ISharedImage> image);
-	std::shared_ptr<ISharedImage> scaleImage(const ImageLocator & locator, std::shared_ptr<ISharedImage> image);
+	std::shared_ptr<const ISharedImage> transformImage(const ImageLocator & locator, std::shared_ptr<const ISharedImage> image);
+	std::shared_ptr<const ISharedImage> scaleImage(const ImageLocator & locator, std::shared_ptr<const ISharedImage> image);
 
 	ImageLocator getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group);
 

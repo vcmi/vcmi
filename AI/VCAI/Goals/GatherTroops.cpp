@@ -88,13 +88,13 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 		}
 
 		auto creature = VLC->creatures()->getByIndex(objid);
-		if(t->getFaction() == creature->getFaction()) //TODO: how to force AI to build unupgraded creatures? :O
+		if(t->getFactionID() == creature->getFactionID()) //TODO: how to force AI to build unupgraded creatures? :O
 		{
 			auto tryFindCreature = [&]() -> std::optional<std::vector<CreatureID>>
 			{
-				if(vstd::isValidIndex(t->town->creatures, creature->getLevel() - 1))
+				if(vstd::isValidIndex(t->getTown()->creatures, creature->getLevel() - 1))
 				{
-					auto itr = t->town->creatures.begin();
+					auto itr = t->getTown()->creatures.begin();
 					std::advance(itr, creature->getLevel() - 1);
 					return make_optional(*itr);
 				}
@@ -109,7 +109,7 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 			if(upgradeNumber < 0)
 				continue;
 
-			BuildingID bid(BuildingID::DWELL_FIRST + creature->getLevel() - 1 + upgradeNumber * t->town->creatures.size());
+			BuildingID bid(BuildingID::DWELL_FIRST + creature->getLevel() - 1 + upgradeNumber * t->getTown()->creatures.size());
 			if(t->hasBuilt(bid) && ai->ah->freeResources().canAfford(creature->getFullRecruitCost())) //this assumes only creatures with dwellings are assigned to faction
 			{
 				solutions.push_back(sptr(BuyArmy(t, creature->getAIValue() * this->value).setobjid(objid)));

@@ -58,14 +58,14 @@ ImagePath BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual 
 		};
 	};
 
-	const std::string & prefix = town->town->clientInfo.siegePrefix;
+	const std::string & prefix = town->getTown()->clientInfo.siegePrefix;
 	std::string addit = std::to_string(getImageIndex());
 
 	switch(what)
 	{
 	case EWallVisual::BACKGROUND_WALL:
 		{
-			auto faction = town->town->faction->getIndex();
+			auto faction = town->getFactionID();
 
 			if (faction == ETownType::RAMPART || faction == ETownType::NECROPOLIS || faction == ETownType::DUNGEON || faction == ETownType::STRONGHOLD)
 				return ImagePath::builtinTODO(prefix + "TPW1.BMP");
@@ -111,7 +111,7 @@ ImagePath BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual 
 
 void BattleSiegeController::showWallPiece(Canvas & canvas, EWallVisual::EWallVisual what)
 {
-	auto & ci = town->town->clientInfo;
+	auto & ci = town->getTown()->clientInfo;
 	auto const & pos = ci.siegePositions[what];
 
 	if ( wallPieceImages[what] && pos.isValid())
@@ -120,7 +120,7 @@ void BattleSiegeController::showWallPiece(Canvas & canvas, EWallVisual::EWallVis
 
 ImagePath BattleSiegeController::getBattleBackgroundName() const
 {
-	const std::string & prefix = town->town->clientInfo.siegePrefix;
+	const std::string & prefix = town->getTown()->clientInfo.siegePrefix;
 	return ImagePath::builtinTODO(prefix + "BACK.BMP");
 }
 
@@ -130,8 +130,8 @@ bool BattleSiegeController::getWallPieceExistence(EWallVisual::EWallVisual what)
 
 	switch (what)
 	{
-	case EWallVisual::MOAT:              return fortifications.hasMoat && town->town->clientInfo.siegePositions.at(EWallVisual::MOAT).isValid();
-	case EWallVisual::MOAT_BANK:         return fortifications.hasMoat && town->town->clientInfo.siegePositions.at(EWallVisual::MOAT_BANK).isValid();
+	case EWallVisual::MOAT:              return fortifications.hasMoat && town->getTown()->clientInfo.siegePositions.at(EWallVisual::MOAT).isValid();
+	case EWallVisual::MOAT_BANK:         return fortifications.hasMoat && town->getTown()->clientInfo.siegePositions.at(EWallVisual::MOAT_BANK).isValid();
 	case EWallVisual::KEEP_BATTLEMENT:   return fortifications.citadelHealth > 0 && owner.getBattle()->battleGetWallState(EWallPart::KEEP) != EWallState::DESTROYED;
 	case EWallVisual::UPPER_BATTLEMENT:  return fortifications.upperTowerHealth > 0 && owner.getBattle()->battleGetWallState(EWallPart::UPPER_TOWER) != EWallState::DESTROYED;
 	case EWallVisual::BOTTOM_BATTLEMENT: return fortifications.lowerTowerHealth > 0 && owner.getBattle()->battleGetWallState(EWallPart::BOTTOM_TOWER) != EWallState::DESTROYED;
@@ -218,8 +218,8 @@ Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) con
 	if (posID != 0)
 	{
 		return {
-			town->town->clientInfo.siegePositions[posID].x,
-			town->town->clientInfo.siegePositions[posID].y
+			town->getTown()->clientInfo.siegePositions[posID].x,
+			town->getTown()->clientInfo.siegePositions[posID].y
 		};
 	}
 

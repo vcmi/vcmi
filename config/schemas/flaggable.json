@@ -1,0 +1,64 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI map object format",
+	"description" : "Description of map object class",
+	"required" : [ "message" ],
+	"anyOf" : [ //NOTE: strictly speaking, not required - buidling can function without it, but won't do anythin
+		{
+			"required" : [ "bonuses" ]
+		},
+		{
+			"required" : [ "dailyIncome" ]
+		}
+	],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"bonuses" : {
+			"type" : "object",
+			"description" : "List of bonuses provided by this map object. See bonus format for more details",
+			"additionalProperties" : { "$ref" : "bonus.json" }
+		},
+		
+		"message" : {
+			"description" : "Message that will be shown to player on capturing this object",
+			"anyOf" : [
+				{
+					"type" : "string",
+				},
+				{
+					"type" : "number",
+				}
+			]
+		},
+
+		"dailyIncome" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"description" : "Daily income that this building provides to owner, if any",
+			"properties" : {
+				"gold" :    { "type" : "number"},
+				"wood" :    { "type" : "number"},
+				"ore" :     { "type" : "number"},
+				"mercury" : { "type" : "number"},
+				"sulfur" :  { "type" : "number"},
+				"crystal" : { "type" : "number"},
+				"gems" :    { "type" : "number"}
+			}
+		},
+
+		// Properties that might appear since this node is shared with object config
+		"compatibilityIdentifiers" : { },
+		"blockedVisitable" : { },
+		"removable" : { },
+		"aiValue" : { },
+		"index" : { },
+		"base" : { },
+		"name" : { },
+		"rmg" : { },
+		"templates" : { },
+		"battleground" : { },
+		"sounds" : { }
+	}
+}

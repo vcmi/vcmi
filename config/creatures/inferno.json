@@ -51,6 +51,14 @@
 		"faction": "inferno",
 		"upgrades": ["magog"],
 		"hasDoubleWeek": true,
+		"shots" : 12,
+		"abilities" :
+		{
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CGOG.DEF",
@@ -74,8 +82,13 @@
 		"index": 45,
 		"level": 2,
 		"faction": "inferno",
+		"shots" : 24,
 		"abilities":
 		{
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			},
 			"fireball" :
 			{
 				"type" : "SPELL_LIKE_ATTACK",
@@ -106,10 +119,7 @@
 		"level": 3,
 		"faction": "inferno",
 		"upgrades": ["cerberus"],
-		"abilities":
-		{
-			 "FLYING_ARMY" : null //hell hound doesn't fly
-		},
+		"doubleWide" : true,
 		"graphics" :
 		{
 			"animation": "CHHOUN.DEF"
@@ -128,17 +138,17 @@
 		"index": 47,
 		"level": 3,
 		"faction": "inferno",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"threeHeads" : 
-			{
-				"type" : "THREE_HEADED_ATTACK"
-			},
 			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
 			},
-			"FLYING_ARMY" : null //cerberus doesn't fly
+			"threeHeads" : 
+			{
+				"type" : "THREE_HEADED_ATTACK"
+			}
 		},
 		"graphics" :
 		{
@@ -254,6 +264,15 @@
 		"faction": "inferno", 
 		"abilities":
 		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
+			"immuneToFire" :
+			{
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
+			},
 			"hateGenies" : 
 			{
 				"type" : "HATE",
@@ -265,15 +284,6 @@
 				"type" : "HATE",
 				"subtype" : "creature.masterGenie",
 				"val" : 50
-			},
-			"canFly" :
-			{
-				"type" : "FLYING"
-			},
-			"immuneToFire" :
-			{
-				"type" : "SPELL_SCHOOL_IMMUNITY",
-				"subtype" : "spellSchool.fire"
 			}
 		},
 		"upgrades": ["efreetSultan"],
@@ -297,6 +307,20 @@
 		"faction": "inferno",
 		"abilities":
 		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
+			"fireShield" :
+			{
+				"type" : "FIRE_SHIELD",
+				"val" : 20
+			},
+			"immuneToFire" :
+			{
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
+			},
 			"hateGenies" : 
 			{
 				"type" : "HATE",
@@ -308,20 +332,6 @@
 				"type" : "HATE",
 				"subtype" : "creature.masterGenie",
 				"val" : 50
-			},
-			"canFly" :
-			{
-				"type" : "FLYING"
-			},
-			"immuneToFire" :
-			{
-				"type" : "SPELL_SCHOOL_IMMUNITY",
-				"subtype" : "spellSchool.fire"
-			},
-			"fireShield" :
-			{
-				"type" : "FIRE_SHIELD",
-				"val" : 20
 			}
 		},
 		"graphics" :
@@ -345,6 +355,29 @@
 		"faction": "inferno",
 		"abilities":
 		{
+			"teleports" :
+			{
+				"type" : "FLYING",
+				"subtype" : "movementTeleporting"
+			},
+			"noRetaliation" :
+			{
+				"type" : "BLOCKS_RETALIATION"
+			},
+			"descreaseLuck" :
+			{
+				"type" : "LUCK",
+				"val" : -1,
+				"stacking" : "Devils",
+				"propagator": "BATTLE_WIDE",
+				"propagationUpdater" : "BONUS_OWNER_UPDATER",
+				"limiters" : [ "OPPOSITE_SIDE" ]
+			},
+			"KING_2" : // Will be affected by Advanced Slayer or better
+			{
+				"type" : "KING",
+				"val" : 2
+			},
 			"hateAngels" : 
 			{
 				"type" : "HATE",
@@ -357,24 +390,6 @@
 				"subtype" : "creature.archangel",
 				"val" : 50,
 				"description" : "Devil -1"
-			},
-			"FLYING_ARMY" :
-			{
-				// type loaded from crtraits
-				"subtype" : "movementTeleporting"
-			},
-			"descreaseLuck" :
-			{
-				"type" : "LUCK",
-				"val" : -1,
-				"stacking" : "Devils",
-				"propagator": "BATTLE_WIDE",
-				"propagationUpdater" : "BONUS_OWNER_UPDATER",
-				"limiters" : [ "OPPOSITE_SIDE" ]
-			},
-			"blockRetaliation" :
-			{
-				"type" : "BLOCKS_RETALIATION"
 			}
 		},
 		"upgrades": ["archDevil"],
@@ -400,6 +415,29 @@
 		"faction": "inferno",
 		"abilities" :
 		{
+			"teleports" :
+			{
+				"type" : "FLYING",
+				"subtype" : "movementTeleporting"
+			},
+			"noRetaliation" :
+			{
+				"type" : "BLOCKS_RETALIATION"
+			},
+			"descreaseLuck" :
+			{
+				"type" : "LUCK",
+				"val" : -1,
+				"stacking" : "Devils",
+				"propagator": "BATTLE_WIDE",
+				"propagationUpdater" : "BONUS_OWNER_UPDATER",
+				"limiters" : [ "OPPOSITE_SIDE" ]
+			},
+			"KING_2" : // Will be affected by Advanced Slayer or better
+			{
+				"type" : "KING",
+				"val" : 2
+			},
 			"hateAngels" : 
 			{
 				"type" : "HATE",
@@ -411,24 +449,6 @@
 				"type" : "HATE",
 				"subtype" : "creature.archangel",
 				"val" : 50
-			},
-			"FLYING_ARMY" :
-			{
-				// type loaded from crtraits
-				"subtype" : "movementTeleporting"
-			},
-			"descreaseLuck" :
-			{
-				"type" : "LUCK",
-				"val" : -1,
-				"stacking" : "Devils",
-				"propagator": "BATTLE_WIDE",
-				"propagationUpdater" : "BONUS_OWNER_UPDATER",
-				"limiters" : [ "OPPOSITE_SIDE" ]
-			},
-			"blockRetaliation" :
-			{
-				"type" : "BLOCKS_RETALIATION"
 			}
 		},
 		"graphics" :

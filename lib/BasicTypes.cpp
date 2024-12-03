@@ -38,7 +38,7 @@ TerrainId AFactionMember::getNativeTerrain() const
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
 	return getBonusBearer()->hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
-		? TerrainId::ANY_TERRAIN : VLC->factions()->getById(getFaction())->getNativeTerrain();
+			 ? TerrainId::ANY_TERRAIN : getFactionID().toEntity(VLC)->getNativeTerrain();
 }
 
 int32_t AFactionMember::magicResistance() const
@@ -102,7 +102,7 @@ int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 		return maxGoodMorale;
 	}
 
-	static const auto unaffectedByMoraleSelector = Selector::type()(BonusType::NON_LIVING).Or(Selector::type()(BonusType::UNDEAD))
+	static const auto unaffectedByMoraleSelector = Selector::type()(BonusType::NON_LIVING).Or(Selector::type()(BonusType::MECHANICAL)).Or(Selector::type()(BonusType::UNDEAD))
 													.Or(Selector::type()(BonusType::SIEGE_WEAPON)).Or(Selector::type()(BonusType::NO_MORALE));
 
 	static const std::string cachingStrUn = "AFactionMember::unaffectedByMoraleSelector";
@@ -187,6 +187,7 @@ bool ACreature::isLiving() const //TODO: theoreticaly there exists "LIVING" bonu
 	static const std::string cachingStr = "ACreature::isLiving";
 	static const CSelector selector = Selector::type()(BonusType::UNDEAD)
 		.Or(Selector::type()(BonusType::NON_LIVING))
+		.Or(Selector::type()(BonusType::MECHANICAL))
 		.Or(Selector::type()(BonusType::GARGOYLE))
 		.Or(Selector::type()(BonusType::SIEGE_WEAPON));
 

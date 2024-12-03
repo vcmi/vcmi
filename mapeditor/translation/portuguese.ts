@@ -72,7 +72,7 @@
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="62"/>
         <source>Author contact (e.g. email)</source>
-        <translation>Contato do autor (ex.: e-mail)</translation>
+        <translation>Contato do autor (ex: e-mail)</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="72"/>
@@ -87,7 +87,7 @@
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="120"/>
         <source>Limit maximum heroes level</source>
-        <translation>Limite máximo do nível dos heróis</translation>
+        <translation>Limitar nível máximo dos heróis</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="129"/>
@@ -207,7 +207,7 @@
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="37"/>
         <source>No special loss</source>
-        <translation>Sem perda especial</translation>
+        <translation>Sem derrota especial</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="38"/>
@@ -359,7 +359,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1051"/>
-        <location filename="../mainwindow.cpp" line="834"/>
+        <location filename="../mainwindow.cpp" line="835"/>
         <source>View underground</source>
         <translation>Visualizar subterrâneo</translation>
     </message>
@@ -371,7 +371,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1070"/>
         <source>Cut</source>
-        <translation>Cortar</translation>
+        <translation>Recortar</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1078"/>
@@ -441,9 +441,9 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1205"/>
-        <location filename="../mainwindow.cpp" line="1105"/>
-        <location filename="../mainwindow.cpp" line="1109"/>
-        <location filename="../mainwindow.cpp" line="1166"/>
+        <location filename="../mainwindow.cpp" line="1106"/>
+        <location filename="../mainwindow.cpp" line="1110"/>
+        <location filename="../mainwindow.cpp" line="1167"/>
         <source>Update appearance</source>
         <translation>Atualizar aparência</translation>
     </message>
@@ -516,12 +516,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1336"/>
         <source>Lock</source>
-        <translation>Travar</translation>
+        <translation>Bloquear</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1339"/>
         <source>Lock objects on map to avoid unnecessary changes</source>
-        <translation>Travar objetos no mapa para evitar alterações desnecessárias</translation>
+        <translation>Bloquear objetos no mapa para evitar alterações desnecessárias</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1342"/>
@@ -566,7 +566,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1374"/>
         <source>Zoom reset</source>
-        <translation>Redefinir do zoom</translation>
+        <translation>Redefinir zoom</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1377"/>
@@ -574,92 +574,92 @@
         <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="296"/>
+        <location filename="../mainwindow.cpp" line="297"/>
         <source>Confirmation</source>
         <translation>Confirmação</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="296"/>
+        <location filename="../mainwindow.cpp" line="297"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>As alterações não salvas serão perdidas. Tem certeza?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="422"/>
+        <location filename="../mainwindow.cpp" line="423"/>
         <source>Open map</source>
         <translation>Abrir mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="424"/>
+        <location filename="../mainwindow.cpp" line="425"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Todos os mapas suportados (*.vmap *.h3m);;Mapas do VCMI (*.vmap);;Mapas do HoMM3 (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="487"/>
+        <location filename="../mainwindow.cpp" line="488"/>
         <source>Save map</source>
         <translation>Salvar mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="487"/>
+        <location filename="../mainwindow.cpp" line="488"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>Mapas do VCMI (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="676"/>
+        <location filename="../mainwindow.cpp" line="677"/>
         <source>Type</source>
         <translation>Tipo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="838"/>
+        <location filename="../mainwindow.cpp" line="839"/>
         <source>View surface</source>
         <translation>Visualizar superfície</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1105"/>
+        <location filename="../mainwindow.cpp" line="1106"/>
         <source>No objects selected</source>
         <translation>Nenhum objeto selecionado</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1109"/>
+        <location filename="../mainwindow.cpp" line="1110"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>Esta operação é irreversível. Deseja continuar?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1166"/>
+        <location filename="../mainwindow.cpp" line="1167"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>Ocorreram erros. %1 objetos não foram atualizados</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1206"/>
+        <location filename="../mainwindow.cpp" line="1207"/>
         <source>Save to image</source>
         <translation>Salvar como imagem</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1225"/>
+        <location filename="../mainwindow.cpp" line="1226"/>
         <source>Select maps to convert</source>
         <translation>Selecionar mapas para converter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1227"/>
+        <location filename="../mainwindow.cpp" line="1228"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation>Mapas do HoMM3 (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1231"/>
+        <location filename="../mainwindow.cpp" line="1232"/>
         <source>Choose directory to save converted maps</source>
         <translation>Escolher diretório para salvar mapas convertidos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1244"/>
+        <location filename="../mainwindow.cpp" line="1245"/>
         <source>Operation completed</source>
         <translation>Operação concluída</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1244"/>
+        <location filename="../mainwindow.cpp" line="1245"/>
         <source>Successfully converted %1 maps</source>
         <translation>%1 mapas foram convertidos com sucesso</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1248"/>
+        <location filename="../mainwindow.cpp" line="1249"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation>Falha ao converter o mapa. Abortar operação</translation>
     </message>
@@ -831,7 +831,7 @@
     <message>
         <location filename="../playerparams.ui" line="221"/>
         <source>Random faction</source>
-        <translation>Fação aleatória</translation>
+        <translation>Facção aleatória</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="179"/>
@@ -844,7 +844,7 @@
         <translation>(padrão)</translation>
     </message>
     <message>
-        <location filename="../playerparams.cpp" line="110"/>
+        <location filename="../playerparams.cpp" line="108"/>
         <source>Player ID: %1</source>
         <translation>ID do Jogador: %1</translation>
     </message>
@@ -909,53 +909,68 @@
         <translation>Experiente</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="38"/>
+        <location filename="../inspector/inspector.cpp" line="39"/>
         <source>Compliant</source>
-        <translation>Conformista</translation>
+        <translation>Complacente</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="39"/>
+        <location filename="../inspector/inspector.cpp" line="40"/>
         <source>Friendly</source>
         <translation>Amigável</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="40"/>
+        <location filename="../inspector/inspector.cpp" line="41"/>
         <source>Aggressive</source>
         <translation>Agressivo</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="41"/>
+        <location filename="../inspector/inspector.cpp" line="42"/>
         <source>Hostile</source>
         <translation>Hostil</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="42"/>
+        <location filename="../inspector/inspector.cpp" line="43"/>
         <source>Savage</source>
         <translation>Selvagem</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="847"/>
-        <location filename="../inspector/inspector.cpp" line="936"/>
+        <location filename="../inspector/inspector.cpp" line="341"/>
+        <location filename="../inspector/inspector.cpp" line="344"/>
+        <source>No patrol</source>
+        <translation>Sem patrulha</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../inspector/inspector.cpp" line="343"/>
+        <location filename="../inspector/inspector.cpp" line="344"/>
+        <source>%n tile(s)</source>
+        <translation>
+            <numerusform>%n bloco</numerusform>
+            <numerusform>%n blocos</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="859"/>
+        <location filename="../inspector/inspector.cpp" line="948"/>
         <source>neutral</source>
         <translation>neutro</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="845"/>
+        <location filename="../inspector/inspector.cpp" line="857"/>
         <source>UNFLAGGABLE</source>
         <translation>NÃO TEM BANDEIRA</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="405"/>
+        <location filename="../mapcontroller.cpp" line="385"/>
         <source>Can&apos;t place object</source>
         <translation>Não é possível colocar objeto</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="577"/>
+        <location filename="../mapcontroller.cpp" line="555"/>
         <source>There can only be one grail object on the map.</source>
         <translation>Pode haver apenas um objeto graal no mapa.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="583"/>
+        <location filename="../mapcontroller.cpp" line="561"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
         <translation>O herói %1 não pode ser criado como NEUTRO.</translation>
     </message>
@@ -1010,7 +1025,7 @@
     <message>
         <location filename="../inspector/questwidget.ui" line="206"/>
         <source>Primary skills</source>
-        <translation>Habilidades principais</translation>
+        <translation>Habilidades primárias</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="221"/>
@@ -1083,12 +1098,12 @@
         <translation>Jogadores</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="34"/>
+        <location filename="../inspector/questwidget.cpp" line="38"/>
         <source>None</source>
         <translation>Nenhum</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="36"/>
+        <location filename="../inspector/questwidget.cpp" line="40"/>
         <source>Day %1</source>
         <translation>Dia %1</translation>
     </message>
@@ -1226,7 +1241,7 @@
         <location filename="../inspector/rewardswidget.ui" line="417"/>
         <location filename="../inspector/rewardswidget.ui" line="1137"/>
         <source>Primary skills</source>
-        <translation>Habilidades principais</translation>
+        <translation>Habilidades primárias</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="432"/>
@@ -1356,18 +1371,18 @@
         <translation>Jogadores</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="45"/>
+        <location filename="../inspector/rewardswidget.cpp" line="49"/>
         <source>None</source>
         <translation>Nenhum</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="47"/>
+        <location filename="../inspector/rewardswidget.cpp" line="51"/>
         <source>Day %1</source>
         <translation>Dia %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="234"/>
-        <location filename="../inspector/rewardswidget.cpp" line="605"/>
+        <location filename="../inspector/rewardswidget.cpp" line="238"/>
+        <location filename="../inspector/rewardswidget.cpp" line="609"/>
         <source>Reward %1</source>
         <translation>Recompensa %1</translation>
     </message>
@@ -1382,7 +1397,7 @@
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="37"/>
         <source>Tavern rumors</source>
-        <translation>Boatos da taverna</translation>
+        <translation>Rumores da taverna</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="63"/>
@@ -1433,32 +1448,32 @@
         <translation>Dia da primeira ocorrência</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="87"/>
+        <location filename="../mapsettings/timedevent.ui" line="91"/>
         <source>Repeat after (0 = no repeat)</source>
         <translation>Repetir após (0 = não repetir)</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="108"/>
+        <location filename="../mapsettings/timedevent.ui" line="112"/>
         <source>Affected players</source>
         <translation>Jogadores afetados</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="131"/>
+        <location filename="../mapsettings/timedevent.ui" line="135"/>
         <source>Resources</source>
         <translation>Recursos</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="190"/>
+        <location filename="../mapsettings/timedevent.ui" line="194"/>
         <source>type</source>
         <translation>tipo</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="195"/>
+        <location filename="../mapsettings/timedevent.ui" line="199"/>
         <source>qty</source>
-        <translation>quantidade</translation>
+        <translation>qtd</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="203"/>
+        <location filename="../mapsettings/timedevent.ui" line="207"/>
         <source>Ok</source>
         <translation>Ok</translation>
     </message>
@@ -2052,22 +2067,22 @@
     <message>
         <location filename="../windownewmap.ui" line="713"/>
         <source>Roads</source>
-        <translation type="unfinished">Estradas</translation>
+        <translation>Estradas</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="728"/>
         <source>Dirt</source>
-        <translation type="unfinished"></translation>
+        <translation>Terra</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="748"/>
         <source>Gravel</source>
-        <translation type="unfinished"></translation>
+        <translation>Cascalho</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="768"/>
         <source>Cobblestone</source>
-        <translation type="unfinished"></translation>
+        <translation>Paralelepípedo</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="813"/>

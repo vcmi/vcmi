@@ -19,6 +19,7 @@
 #include "queries/MapQueries.h"
 
 #include "../lib/IGameCallback.h"
+#include "../lib/CPlayerState.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/gameState/CGameState.h"
@@ -138,6 +139,14 @@ void ApplyGhNetPackVisitor::visitBuildStructure(BuildStructure & pack)
 	result = gh.buildStructure(pack.tid, pack.bid);
 }
 
+void ApplyGhNetPackVisitor::visitSpellResearch(SpellResearch & pack)
+{
+	gh.throwIfWrongOwner(&pack, pack.tid);
+	gh.throwIfPlayerNotActive(&pack);
+	
+	result = gh.spellResearch(pack.tid, pack.spellAtSlot, pack.accepted);
+}
+
 void ApplyGhNetPackVisitor::visitVisitTownBuilding(VisitTownBuilding & pack)
 {
 	gh.throwIfWrongOwner(&pack, pack.tid);
@@ -197,22 +206,7 @@ void ApplyGhNetPackVisitor::visitManageBackpackArtifacts(ManageBackpackArtifacts
 	gh.throwIfPlayerNotActive(&pack);
 
 	if(gh.getPlayerRelations(pack.player, gh.getOwner(pack.artHolder)) != PlayerRelations::ENEMIES)
-	{
-		if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SCROLL_LEFT)
-			result = gh.scrollBackpackArtifacts(pack.player, pack.artHolder, true);
-		else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SCROLL_RIGHT)
-			result = gh.scrollBackpackArtifacts(pack.player, pack.artHolder, false);
-		else
-		{
-			gh.throwIfWrongOwner(&pack, pack.artHolder);
-			if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_CLASS)
-				result = true;
-			else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_COST)
-				result = true;
-			else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_SLOT)
-				result = true;
-		}
-	}
+		result = gh.manageBackpackArtifacts(pack.player, pack.artHolder, pack.cmd);
 }
 
 void ApplyGhNetPackVisitor::visitManageEquippedArtifacts(ManageEquippedArtifacts & pack)
@@ -290,7 +284,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 			gh.throwAndComplain(&pack, "Can not trade - no hero!");
 
 		// TODO: check that object is actually being visited (e.g. Query exists)
-		if (!object->visitableAt(hero->visitablePos().x, hero->visitablePos().y))
+		if (!object->visitableAt(hero->visitablePos()))
 			gh.throwAndComplain(&pack, "Can not trade - object not visited!");
 
 		if (object->getOwner().isValidPlayer() && gh.getPlayerRelations(object->getOwner(), hero->getOwner()) == PlayerRelations::ENEMIES)
@@ -394,6 +388,13 @@ void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
 		gh.throwAndComplain(&pack, "Cannot answer the query with pack.id -1!");
 
 	result = gh.queryReply(pack.qid, pack.reply, pack.player);
+}
+
+void ApplyGhNetPackVisitor::visitSaveLocalState(SaveLocalState & pack)
+{
+	gh.throwIfWrongPlayer(&pack);
+	*gh.gameState()->getPlayerState(pack.player)->playerLocalSettings = pack.data;
+	result = true;
 }
 
 void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)

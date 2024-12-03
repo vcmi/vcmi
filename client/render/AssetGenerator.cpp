@@ -18,6 +18,10 @@
 #include "../render/IRenderHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/GameSettings.h"
+#include "../lib/IGameSettings.h"
+#include "../lib/json/JsonNode.h"
+#include "../lib/VCMI_Lib.h"
 
 void AssetGenerator::generateAll()
 {
@@ -26,6 +30,8 @@ void AssetGenerator::generateAll()
 	for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 		createPlayerColoredBackground(PlayerColor(i));
 	createCombatUnitNumberWindow();
+	createCampaignBackground();
+	createChroniclesCampaignImages();
 }
 
 void AssetGenerator::createAdventureOptionsCleanBackground()
@@ -138,22 +144,23 @@ void AssetGenerator::createPlayerColoredBackground(const PlayerColor & player)
 
 	std::shared_ptr<IImage> texture = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
 
-	// Color transform to make color of brown DIBOX.PCX texture match color of specified player
+	// transform to make color of brown DIBOX.PCX texture match color of specified player
+	auto filterSettings = VLC->settingsHandler->getFullConfig()["interface"]["playerColoredBackground"];
 	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
-		ColorFilter::genRangeShifter(  0.25,  0,     0,     1.25, 0.00, 0.00 ), // red
-		ColorFilter::genRangeShifter(  0,     0,     0,     0.45, 1.20, 4.50 ), // blue
-		ColorFilter::genRangeShifter(  0.40,  0.27,  0.23,  1.10, 1.20, 1.15 ), // tan
-		ColorFilter::genRangeShifter( -0.27,  0.10, -0.27,  0.70, 1.70, 0.70 ), // green
-		ColorFilter::genRangeShifter(  0.47,  0.17, -0.27,  1.60, 1.20, 0.70 ), // orange
-		ColorFilter::genRangeShifter(  0.12, -0.1,   0.25,  1.15, 1.20, 2.20 ), // purple
-		ColorFilter::genRangeShifter( -0.13,  0.23,  0.23,  0.90, 1.20, 2.20 ), // teal
-		ColorFilter::genRangeShifter(  0.44,  0.15,  0.25,  1.00, 1.00, 1.75 )  // pink
+		ColorFilter::genRangeShifter( filterSettings["red"   ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["blue"  ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["tan"   ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["green" ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["orange"].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["purple"].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["teal"  ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["pink"  ].convertTo<std::vector<float>>() )
 	};
 
 	assert(player.isValidPlayer());
 	if (!player.isValidPlayer())
 	{
-		logGlobal->error("Unable to colorize to invalid player color %d!", static_cast<int>(player.getNum()));
+		logGlobal->error("Unable to colorize to invalid player color %d!", player.getNum());
 		return;
 	}
 
@@ -200,4 +207,122 @@ void AssetGenerator::createCombatUnitNumberWindow()
 	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePathNegative));
 	texture->adjustPalette(shifterNeutral, ignoredMask);
 	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePathNeutral));
+}
+
+void AssetGenerator::createCampaignBackground()
+{
+	std::string filename = "data/CampaignBackground8.png";
+
+	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
+		return;
+
+	if(!CResourceHandler::get("local")->createResource(filename))
+		return;
+	ResourcePath savePath(filename, EResType::IMAGE);
+
+	auto locator = ImageLocator(ImagePath::builtin("CAMPBACK"));
+	locator.scalingFactor = 1;
+
+	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
+	Canvas canvas = Canvas(Point(800, 600), CanvasScalingPolicy::IGNORE);
+	
+	canvas.draw(img, Point(0, 0), Rect(0, 0, 800, 600));
+
+	// left image
+	canvas.draw(img, Point(220, 73), Rect(290, 73, 141, 115));
+	canvas.draw(img, Point(37, 70), Rect(87, 70, 207, 120));
+
+	// right image
+	canvas.draw(img, Point(513, 67), Rect(463, 67, 71, 126));
+	canvas.draw(img, Point(586, 71), Rect(536, 71, 207, 117));
+
+	// middle image
+	canvas.draw(img, Point(306, 68), Rect(86, 68, 209, 122));
+
+	// disabled fields
+	canvas.draw(img, Point(40, 72), Rect(313, 74, 197, 114));
+	canvas.draw(img, Point(310, 72), Rect(313, 74, 197, 114));
+	canvas.draw(img, Point(590, 72), Rect(313, 74, 197, 114));
+	canvas.draw(img, Point(43, 245), Rect(313, 74, 197, 114));
+	canvas.draw(img, Point(313, 244), Rect(313, 74, 197, 114));
+	canvas.draw(img, Point(586, 246), Rect(313, 74, 197, 114));
+	canvas.draw(img, Point(34, 417), Rect(313, 74, 197, 114));
+	canvas.draw(img, Point(404, 414), Rect(313, 74, 197, 114));
+
+	// skull
+	auto locatorSkull = ImageLocator(ImagePath::builtin("CAMPNOSC"));
+	locatorSkull.scalingFactor = 1;
+	std::shared_ptr<IImage> imgSkull = GH.renderHandler().loadImage(locatorSkull, EImageBlitMode::OPAQUE);
+	canvas.draw(imgSkull, Point(562, 509), Rect(178, 108, 43, 19));
+
+	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
+
+	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+}
+
+void AssetGenerator::createChroniclesCampaignImages()
+{
+	for(int i = 1; i < 9; i++)
+	{
+		std::string filename = "data/CampaignHc" + std::to_string(i) + "Image.png";
+
+		if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
+			continue;
+			
+		auto imgPathBg = ImagePath::builtin("data/chronicles_" + std::to_string(i) + "/GamSelBk");
+		if(!CResourceHandler::get()->existsResource(imgPathBg)) // Chronicle episode not installed
+			continue;
+
+		if(!CResourceHandler::get("local")->createResource(filename))
+			continue;
+		ResourcePath savePath(filename, EResType::IMAGE);
+
+		auto locator = ImageLocator(imgPathBg);
+		locator.scalingFactor = 1;
+
+		std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
+		Canvas canvas = Canvas(Point(200, 116), CanvasScalingPolicy::IGNORE);
+		
+		switch (i)
+		{
+		case 1:
+			canvas.draw(img, Point(0, 0), Rect(149, 144, 200, 116));
+			break;
+		case 2:
+			canvas.draw(img, Point(0, 0), Rect(156, 150, 200, 116));
+			break;
+		case 3:
+			canvas.draw(img, Point(0, 0), Rect(171, 153, 200, 116));
+			break;
+		case 4:
+			canvas.draw(img, Point(0, 0), Rect(35, 358, 200, 116));
+			break;
+		case 5:
+			canvas.draw(img, Point(0, 0), Rect(216, 248, 200, 116));
+			break;
+		case 6:
+			canvas.draw(img, Point(0, 0), Rect(58, 234, 200, 116));
+			break;
+		case 7:
+			canvas.draw(img, Point(0, 0), Rect(184, 219, 200, 116));
+			break;
+		case 8:
+			canvas.draw(img, Point(0, 0), Rect(268, 210, 200, 116));
+
+			//skull
+			auto locatorSkull = ImageLocator(ImagePath::builtin("CampSP1"));
+			locatorSkull.scalingFactor = 1;
+			std::shared_ptr<IImage> imgSkull = GH.renderHandler().loadImage(locatorSkull, EImageBlitMode::OPAQUE);
+			canvas.draw(imgSkull, Point(162, 94), Rect(162, 94, 41, 22));
+			canvas.draw(img, Point(162, 94), Rect(424, 304, 14, 4));
+			canvas.draw(img, Point(162, 98), Rect(424, 308, 10, 4));
+			canvas.draw(img, Point(158, 102), Rect(424, 312, 10, 4));
+			canvas.draw(img, Point(154, 106), Rect(424, 316, 10, 4));
+			break;
+		}
+
+		std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
+
+		image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+	}
 }

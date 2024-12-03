@@ -76,7 +76,7 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 
 	auto loadString = [&](const JsonNode & entry, const TextIdentifier & textID){
 		if (entry.isString() && !entry.String().empty() && entry.String()[0] != '@')
-			VLC->generaltexth->registerString(entry.getModScope(), textID, entry.String());
+			VLC->generaltexth->registerString(entry.getModScope(), textID, entry);
 	};
 
 	parameters = objectConfig;
@@ -524,6 +524,11 @@ bool Rewardable::Info::givesSpells() const
 bool Rewardable::Info::givesBonuses() const
 {
 	return testForKey(parameters, "bonuses");
+}
+
+bool Rewardable::Info::hasGuards() const
+{
+	return testForKey(parameters, "guards");
 }
 
 const JsonNode & Rewardable::Info::getParameters() const

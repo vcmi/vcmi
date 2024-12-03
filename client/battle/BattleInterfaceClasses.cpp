@@ -50,10 +50,11 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/entities/hero/CHeroClass.h"
+#include "../../lib/entities/hero/CHero.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -389,15 +390,15 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 {
 	AnimationPath animationPath;
 
-	if(!hero->type->battleImage.empty())
-		animationPath = hero->type->battleImage;
+	if(!hero->getHeroType()->battleImage.empty())
+		animationPath = hero->getHeroType()->battleImage;
 	else
 	if(hero->gender == EHeroGender::FEMALE)
-		animationPath = hero->type->heroClass->imageBattleFemale;
+		animationPath = hero->getHeroClass()->imageBattleFemale;
 	else
-		animationPath = hero->type->heroClass->imageBattleMale;
+		animationPath = hero->getHeroClass()->imageBattleMale;
 
-	animation = GH.renderHandler().loadAnimation(animationPath, EImageBlitMode::ALPHA);
+	animation = GH.renderHandler().loadAnimation(animationPath, EImageBlitMode::WITH_SHADOW);
 
 	pos.w = 64;
 	pos.h = 136;
@@ -1027,7 +1028,7 @@ void StackQueue::update()
 
 int32_t StackQueue::getSiegeShooterIconID()
 {
-	return owner.siegeController->getSiegedTown()->town->faction->getIndex();
+	return owner.siegeController->getSiegedTown()->getFactionID().getNum();
 }
 
 std::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
@@ -1065,11 +1066,13 @@ StackQueue::StackBox::StackBox(StackQueue * owner):
 		roundRect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, 15, 18), ColorRGBA(0, 0, 0, 255), ColorRGBA(241, 216, 120, 255));
 		round = std::make_shared<CLabel>(4, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 
-		int icon_x = pos.w - 17;
-		int icon_y = pos.h - 18;
+		Point iconPos(pos.w - 16, pos.h - 16);
 
-		stateIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"), 0, 0, icon_x, icon_y);
-		stateIcon->visible = false;
+		defendIcon = std::make_shared<CPicture>(ImagePath::builtin("battle/QueueDefend"), iconPos);
+		waitIcon = std::make_shared<CPicture>(ImagePath::builtin("battle/QueueWait"), iconPos);
+
+		defendIcon->setEnabled(false);
+		waitIcon->setEnabled(false);
 	}
 	roundRect->disable();
 }
@@ -1105,22 +1108,13 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 			round->setText(tmp);
 		}
 
-		if(stateIcon)
+		if(!owner->embedded)
 		{
-			if(unit->defended((int)turn) || (turn > 0 && unit->defended((int)turn - 1)))
-			{
-				stateIcon->setFrame(0, 0);
-				stateIcon->visible = true;
-			}
-			else if(unit->waited((int)turn))
-			{
-				stateIcon->setFrame(1, 0);
-				stateIcon->visible = true;
-			}
-			else
-			{
-				stateIcon->visible = false;
-			}
+			bool defended = unit->defended(turn) || (turn > 0 && unit->defended(turn - 1));
+			bool waited = unit->waited(turn) && !defended;
+
+			defendIcon->setEnabled(defended);
+			waitIcon->setEnabled(waited);
 		}
 	}
 	else
@@ -1130,9 +1124,11 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 		icon->visible = false;
 		icon->setFrame(0);
 		amount->setText("");
-
-		if(stateIcon)
-			stateIcon->visible = false;
+		if(!owner->embedded)
+		{
+			defendIcon->setEnabled(false);
+			waitIcon->setEnabled(false);
+		}
 	}
 }
 

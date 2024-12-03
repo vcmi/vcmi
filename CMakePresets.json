@@ -134,7 +134,9 @@
             "description": "VCMI Windows Ninja using MinGW",
             "inherits": "default-release",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++"
             }
         },
         {
@@ -152,6 +154,19 @@
                 "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
                 "FORCE_BUNDLED_MINIZIP": "ON"
 
+            }
+        },
+        {
+            "name": "windows-msvc-release-x86",
+            "displayName": "Windows x86 RelWithDebInfo",
+            "description": "VCMI RelWithDebInfo build",
+            "inherits": "default-release",
+            "generator": "Visual Studio 17 2022",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
+                "FORCE_BUNDLED_MINIZIP": "ON",
+                "CMAKE_GENERATOR_PLATFORM": "WIN32"
             }
         },
         {
@@ -380,6 +395,11 @@
         {
             "name": "windows-msvc-release",
             "configurePreset": "windows-msvc-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-msvc-release-x86",
+            "configurePreset": "windows-msvc-release-x86",
             "inherits": "default-release"
         },
         {

@@ -44,6 +44,14 @@
 		"faction": "fortress",
 		"upgrades": ["lizardWarrior"],
 		"hasDoubleWeek": true,
+		"shots" : 12,
+		"abilities" :
+		{
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CPLIZA.DEF",
@@ -67,6 +75,14 @@
 		"index": 101,
 		"level": 2,
 		"faction": "fortress",
+		"shots" : 24,
+		"abilities" :
+		{
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CALIZA.DEF",
@@ -85,52 +101,6 @@
 			"wince": "ALIZWNCE.wav"
 		}
 	},
-	"gorgon" :
-	{
-		"index": 102,
-		"level": 5,
-		"faction": "fortress",
-		"upgrades": ["mightyGorgon"],
-		"graphics" :
-		{
-			"animation": "CCGORG.DEF"
-		},
-		"sound" :
-		{
-			"attack": "CGORATTK.wav",
-			"defend": "CGORDFND.wav",
-			"killed": "CGORKILL.wav",
-			"move": "CGORMOVE.wav",
-			"wince": "CGORWNCE.wav"
-		}
-	},
-	"mightyGorgon" :
-	{
-		"index": 103,
-		"level": 5,
-		"faction": "fortress",
-		"abilities":
-		{
-			"deathStare" : 
-			{
-				"type" : "DEATH_STARE",
-				"subtype" : "deathStareGorgon",
-				"val" : 10
-			}
-		},
-		"graphics" :
-		{
-			"animation": "CBGOG.DEF"
-		},
-		"sound" :
-		{
-			"attack": "BGORATTK.wav",
-			"defend": "BGORDFND.wav",
-			"killed": "BGORKILL.wav",
-			"move": "BGORMOVE.wav",
-			"wince": "BGORWNCE.wav"
-		}
-	},
 	"serpentFly" :
 	{
 		"index": 104,
@@ -139,6 +109,10 @@
 		"faction": "fortress",
 		"abilities":
 		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
 			"dispellHelpful" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -168,6 +142,10 @@
 		"faction": "fortress",
 		"abilities":
 		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
 			"dispellHelpful" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -200,6 +178,7 @@
 		"index": 106,
 		"level": 4,
 		"faction": "fortress",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"petrify" :
@@ -228,6 +207,7 @@
 		"index": 107,
 		"level": 4,
 		"faction": "fortress",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"petrify" :
@@ -250,12 +230,68 @@
 			"wince": "GBASWNCE.wav"
 		}
 	},
+	"gorgon" :
+	{
+		"index": 102,
+		"level": 5,
+		"faction": "fortress",
+		"upgrades": ["mightyGorgon"],
+		"doubleWide" : true,
+		"graphics" :
+		{
+			"animation": "CCGORG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "CGORATTK.wav",
+			"defend": "CGORDFND.wav",
+			"killed": "CGORKILL.wav",
+			"move": "CGORMOVE.wav",
+			"wince": "CGORWNCE.wav"
+		}
+	},
+	"mightyGorgon" :
+	{
+		"index": 103,
+		"level": 5,
+		"faction": "fortress",
+		"doubleWide" : true,
+		"abilities":
+		{
+			"deathStare" : 
+			{
+				"type" : "DEATH_STARE",
+				"subtype" : "deathStareGorgon",
+				"val" : 10
+			}
+		},
+		"graphics" :
+		{
+			"animation": "CBGOG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BGORATTK.wav",
+			"defend": "BGORDFND.wav",
+			"killed": "BGORKILL.wav",
+			"move": "BGORMOVE.wav",
+			"wince": "BGORWNCE.wav"
+		}
+	},
 	"wyvern" :
 	{
 		"index": 108,
 		"level": 6,
 		"faction": "fortress",
 		"upgrades": ["wyvernMonarch"],
+		"doubleWide" : true,
+		"abilities" :
+		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CWYVER.DEF"
@@ -274,9 +310,14 @@
 		"index": 109,
 		"level": 6,
 		"faction": "fortress",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"petrify" :
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
+			"poison" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.poison",
@@ -301,15 +342,21 @@
 		"index": 110,
 		"level": 7,
 		"faction": "fortress",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"noRetaliate" :
+			"attackAllAdjacent" :
+			{
+				"type" : "ATTACKS_ALL_ADJACENT"
+			},
+			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
 			},
-			"attackAll" :
+			"KING_1" : // Will be affected by Slayer with no expertise
 			{
-				"type" : "ATTACKS_ALL_ADJACENT"
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"upgrades": ["chaosHydra"],
@@ -331,15 +378,21 @@
 		"index": 111,
 		"level": 7,
 		"faction": "fortress",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"noRetaliate" :
+			"attackAllAdjacent" :
+			{
+				"type" : "ATTACKS_ALL_ADJACENT"
+			},
+			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
 			},
-			"attackAll" :
+			"KING_1" : // Will be affected by Slayer with no expertise
 			{
-				"type" : "ATTACKS_ALL_ADJACENT"
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"graphics" :

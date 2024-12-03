@@ -29,7 +29,7 @@ void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
 	if (input.Struct().count("name") == 0)
 		logMod->warn("Dwelling %s missing name!", getJsonKey());
 
-	VLC->generaltexth->registerString( input.getModScope(), getNameTextID(), input["name"].String());
+	VLC->generaltexth->registerString( input.getModScope(), getNameTextID(), input["name"]);
 
 	const JsonVector & levels = input["creatures"].Vector();
 	const auto totalLevels = levels.size();
@@ -88,25 +88,28 @@ void DwellingInstanceConstructor::randomizeObject(CGDwelling * dwelling, vstd::R
 			dwelling->creatures.back().second.push_back(cre->getId());
 	}
 
-	bool guarded = false; //TODO: serialize for sanity
+	bool guarded = false;
 
-	if(guards.getType() == JsonNode::JsonType::DATA_BOOL) //simple switch
+	if(guards.getType() == JsonNode::JsonType::DATA_BOOL)
 	{
+		//simple switch
 		if(guards.Bool())
 		{
 			guarded = true;
 		}
 	}
-	else if(guards.getType() == JsonNode::JsonType::DATA_VECTOR) //custom guards (eg. Elemental Conflux)
+	else if(guards.getType() == JsonNode::JsonType::DATA_VECTOR)
 	{
+		//custom guards (eg. Elemental Conflux)
 		JsonRandom::Variables emptyVariables;
 		for(auto & stack : randomizer.loadCreatures(guards, rng, emptyVariables))
 		{
-			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.type->getId(), stack.count));
+			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.getId(), stack.count));
 		}
 	}
-	else //default condition - creatures are of level 5 or higher
+	else if (dwelling->ID == Obj::CREATURE_GENERATOR1 || dwelling->ID == Obj::CREATURE_GENERATOR4)
 	{
+		//default condition - this is dwelling with creatures of level 5 or higher
 		for(auto creatureEntry : availableCreatures)
 		{
 			if(creatureEntry.at(0)->getLevel() >= 5)

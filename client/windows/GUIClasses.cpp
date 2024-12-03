@@ -44,6 +44,7 @@
 
 #include "../lib/entities/building/CBuilding.h"
 #include "../lib/entities/faction/CTownHandler.h"
+#include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjectConstructors/CommonConstructors.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
@@ -53,7 +54,6 @@
 #include "../lib/gameState/SThievesGuildInfo.h"
 #include "../lib/gameState/TavernHeroesPool.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/IGameSettings.h"
 #include "ConditionalWait.h"
 #include "../lib/CRandomGenerator.h"
@@ -522,9 +522,9 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 			recruit->block(true);
 	}
 	if(LOCPLINT->castleInt)
-		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), LOCPLINT->castleInt->town->town->clientInfo.tavernVideo, false);
+		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), LOCPLINT->castleInt->town->getTown()->clientInfo.tavernVideo, false);
 	else if(const auto * townObj = dynamic_cast<const CGTownInstance *>(TavernObj))
-		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), townObj->town->clientInfo.tavernVideo, false);
+		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), townObj->getTown()->clientInfo.tavernVideo, false);
 	else
 		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), VideoPath::builtin("TAVERN.BIK"), false);
 
@@ -548,11 +548,12 @@ void CTavernWindow::addInvite()
 
 	if(!inviteableHeroes.empty())
 	{
+		int imageIndex = heroToInvite ? heroToInvite->getIconIndex() : 156; // 156 => special id for random
 		if(!heroToInvite)
 			heroToInvite = (*RandomGeneratorUtil::nextItem(inviteableHeroes, CRandomGenerator::getDefault())).second;
 
 		inviteHero = std::make_shared<CLabel>(170, 444, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.tavernWindow.inviteHero"));
-		inviteHeroImage = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), (*CGI->heroh)[heroToInvite->getHeroType()]->imageIndex, 0, 245, 428);
+		inviteHeroImage = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), imageIndex, 0, 245, 428);
 		inviteHeroImageArea = std::make_shared<LRClickableArea>(Rect(245, 428, 48, 32), [this](){ GH.windows().createAndPushWindow<HeroSelector>(inviteableHeroes, [this](CGHeroInstance* h){ heroToInvite = h; addInvite(); }); }, [this](){ GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(heroToInvite)); });
 	}
 }
@@ -562,7 +563,7 @@ void CTavernWindow::recruitb()
 	const CGHeroInstance *toBuy = (selected ? h2 : h1)->h;
 	const CGObjectInstance *obj = tavernObj;
 
-	LOCPLINT->cb->recruitHero(obj, toBuy, heroToInvite ? heroToInvite->getHeroType() : HeroTypeID::NONE);
+	LOCPLINT->cb->recruitHero(obj, toBuy, heroToInvite ? heroToInvite->getHeroTypeID() : HeroTypeID::NONE);
 	close();
 }
 
@@ -895,26 +896,16 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 	pos.x += X;
 	pos.y += Y;
 
-	icon = std::make_shared<CAnimImage>(AnimationPath::builtin("SECSKILL"), _ID * 3 + 3, 0);
+	skill = std::make_shared<CSecSkillPlace>(Point(), CSecSkillPlace::ImageSize::MEDIUM, _ID, 1);
+	skill->setClickPressedCallback([this](const CComponentHolder&, const Point& cursorPosition)
+		{
+			bool skillKnown = parent->hero->getSecSkillLevel(ID);
+			bool canLearn = parent->hero->canLearnSkill(ID);
 
-	pos.h = icon->pos.h;
-	pos.w = icon->pos.w;
-
+			if(!skillKnown && canLearn)
+				GH.windows().createAndPushWindow<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
+		});
 	update();
-}
-
-void CUniversityWindow::CItem::clickPressed(const Point & cursorPosition)
-{
-	bool skillKnown = parent->hero->getSecSkillLevel(ID);
-	bool canLearn =	parent->hero->canLearnSkill(ID);
-
-	if (!skillKnown && canLearn)
-		GH.windows().createAndPushWindow<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
-}
-
-void CUniversityWindow::CItem::showPopupWindow(const Point & cursorPosition)
-{
-	CRClickPopup::createAndPush(CGI->skillh->getByIndex(ID)->getDescriptionTranslated(1), std::make_shared<CComponent>(ComponentType::SEC_SKILL, ID, 1));
 }
 
 void CUniversityWindow::CItem::update()
@@ -940,14 +931,6 @@ void CUniversityWindow::CItem::update()
 	level = std::make_shared<CLabel>(22, 57, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->levels[0]);
 }
 
-void CUniversityWindow::CItem::hover(bool on)
-{
-	if(on)
-		GH.statusbar()->write(ID.toEntity(VLC)->getNameTranslated());
-	else
-		GH.statusbar()->clear();
-}
-
 CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID building, const IMarket * _market, const std::function<void()> & onWindowClosed)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("UNIVERS1")),
 	hero(_hero),
@@ -962,14 +945,14 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 
 	if(auto town = dynamic_cast<const CGTownInstance *>(_market))
 	{
-		auto faction = town->town->faction->getId();
+		auto faction = town->getTown()->faction->getId();
 		titlePic = std::make_shared<CAnimImage>((*CGI->townh)[faction]->town->clientInfo.buildingsIcons, building);
 	}
 	else if(auto uni = dynamic_cast<const CGUniversity *>(_market); uni->appearance)
 	{
-		titlePic = std::make_shared<CAnimImage>(uni->appearance->animationFile, 0);
-		titleStr = uni->title;
-		speechStr = uni->speech;
+		titlePic = std::make_shared<CAnimImage>(uni->appearance->animationFile, 0, 0, 0, 0, CShowableAnim::CREATURE_MODE);
+		titleStr = uni->getObjectName();
+		speechStr = uni->getSpeechTranslated();
 	}
 	else
 	{
@@ -1073,7 +1056,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 		if(up->Slots().size() > 0)
 		{
 			titleText = CGI->generaltexth->allTexts[35];
-			boost::algorithm::replace_first(titleText, "%s", up->Slots().begin()->second->type->getNamePluralTranslated());
+			boost::algorithm::replace_first(titleText, "%s", up->Slots().begin()->second->getType()->getNamePluralTranslated());
 		}
 		else
 		{
@@ -1130,6 +1113,9 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	garr = std::make_shared<CGarrisonInt>(Point(108, 60), 18, Point(), hero, nullptr);
+
+	statusbar->write(VLC->generaltexth->translate(dynamic_cast<const HillFort *>(fort)->getDescriptionToolTip()));
+
 	updateGarrisons();
 }
 
@@ -1147,45 +1133,59 @@ void CHillFortWindow::updateGarrisons()
 
 	TResources totalSum; // totalSum[resource ID] = value
 
+	auto getImgIdx = [](CHillFortWindow::State st) -> std::size_t
+	{
+		switch (st)
+		{
+		case State::EMPTY:
+			return 0;
+		case State::UNAVAILABLE:
+		case State::ALREADY_UPGRADED:
+			return 1;
+		default:
+			return static_cast<std::size_t>(st);
+		}
+	};
+
 	for(int i=0; i<slotsCount; i++)
 	{
 		std::fill(costs[i].begin(), costs[i].end(), 0);
-		int newState = getState(SlotID(i));
-		if(newState != -1)
+		State newState = getState(SlotID(i));
+		if(newState != State::EMPTY)
 		{
 			UpgradeInfo info;
 			LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
 			if(info.newID.size())//we have upgrades here - update costs
 			{
-				costs[i] = info.cost[0] * hero->getStackCount(SlotID(i));
+				costs[i] = info.cost.back() * hero->getStackCount(SlotID(i));
 				totalSum += costs[i];
 			}
 		}
 
 		currState[i] = newState;
-		upgrade[i]->setImage(AnimationPath::builtin(currState[i] == -1 ? slotImages[0] : slotImages[currState[i]]));
-		upgrade[i]->block(currState[i] == -1);
+		upgrade[i]->setImage(AnimationPath::builtin(slotImages[getImgIdx(currState[i])]));
+		upgrade[i]->block(currState[i] == State::EMPTY);
 		upgrade[i]->addHoverText(EButtonState::NORMAL, getTextForSlot(SlotID(i)));
 	}
 
 	//"Upgrade all" slot
-	int newState = 2;
+	State newState = State::MAKE_UPGRADE;
 	{
 		TResources myRes = LOCPLINT->cb->getResourceAmount();
 
 		bool allUpgraded = true;//All creatures are upgraded?
 		for(int i=0; i<slotsCount; i++)
-			allUpgraded &= currState[i] == 1 || currState[i] == -1;
+			allUpgraded &= currState[i] == State::ALREADY_UPGRADED || currState[i] == State::EMPTY || currState[i] == State::UNAVAILABLE;
 
-		if(allUpgraded)
-			newState = 1;
+		if (allUpgraded)
+			newState = State::ALREADY_UPGRADED;
 
 		if(!totalSum.canBeAfforded(myRes))
-			newState = 0;
+			newState = State::UNAFFORDABLE;
 	}
 
 	currState[slotsCount] = newState;
-	upgradeAll->setImage(AnimationPath::builtin(allImages[newState]));
+	upgradeAll->setImage(AnimationPath::builtin(allImages[static_cast<std::size_t>(newState)]));
 
 	garr->recreateSlots();
 
@@ -1198,7 +1198,7 @@ void CHillFortWindow::updateGarrisons()
 			slotLabels[i][j]->setText("");
 		}
 		//if can upgrade or can not afford, draw cost
-		if(currState[i] == 0 || currState[i] == 2)
+		if(currState[i] == State::UNAFFORDABLE || currState[i] == State::MAKE_UPGRADE)
 		{
 			if(costs[i].nonZero())
 			{
@@ -1243,24 +1243,30 @@ void CHillFortWindow::updateGarrisons()
 
 void CHillFortWindow::makeDeal(SlotID slot)
 {
-	assert(slot.getNum()>=0);
-	int offset = (slot.getNum() == slotsCount)?2:0;
+	assert(slot.getNum() >= 0);
+	int offset = (slot.getNum() == slotsCount) ? 2 : 0;
 	switch(currState[slot.getNum()])
 	{
-		case 0:
-			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
-			break;
-		case 1:
+		case State::ALREADY_UPGRADED:
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[313 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
-		case 2:
-			for(int i=0; i<slotsCount; i++)
+		case State::UNAFFORDABLE:
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
+			break;
+		case State::UNAVAILABLE:
+		{
+			std::string message = VLC->generaltexth->translate(dynamic_cast<const HillFort *>(fort)->getUnavailableUpgradeMessage());
+			LOCPLINT->showInfoDialog(message, std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
+			break;
+		}
+		case State::MAKE_UPGRADE:
+			for(int i = 0; i < slotsCount; i++)
 			{
-				if(slot.getNum() ==i || ( slot.getNum() == slotsCount && currState[i] == 2 ))//this is activated slot or "upgrade all"
+				if(slot.getNum() == i || ( slot.getNum() == slotsCount && currState[i] == State::MAKE_UPGRADE ))//this is activated slot or "upgrade all"
 				{
 					UpgradeInfo info;
 					LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
-					LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.newID[0]);
+					LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.newID.back());
 				}
 			}
 			break;
@@ -1282,22 +1288,28 @@ std::string CHillFortWindow::getTextForSlot(SlotID slot)
 	return str;
 }
 
-int CHillFortWindow::getState(SlotID slot)
+CHillFortWindow::State CHillFortWindow::getState(SlotID slot)
 {
 	TResources myRes = LOCPLINT->cb->getResourceAmount();
 
-	if(hero->slotEmpty(slot))//no creature here
-		return -1;
+	if(hero->slotEmpty(slot))
+		return State::EMPTY;
 
 	UpgradeInfo info;
 	LOCPLINT->cb->fillUpgradeInfo(hero, slot, info);
-	if(!info.newID.size())//already upgraded
-		return 1;
+	if (info.newID.empty())
+	{
+		// Hill Fort may limit level of upgradeable creatures, e.g. mini Hill Fort from HOTA
+		if (hero->getCreature(slot)->hasUpgrades())
+			return State::UNAVAILABLE;
 
-	if(!(info.cost[0] * hero->getStackCount(slot)).canBeAfforded(myRes))
-		return 0;
+		return State::ALREADY_UPGRADED;
+	}
 
-	return 2;//can upgrade
+	if(!(info.cost.back() * hero->getStackCount(slot)).canBeAfforded(myRes))
+		return State::UNAFFORDABLE;
+
+	return State::MAKE_UPGRADE;
 }
 
 CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
@@ -1479,39 +1491,47 @@ void CObjectListWindow::CItem::showPopupWindow(const Point & cursorPosition)
 		parent->onPopup(index);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images)
+CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPGATE")),
 	onSelect(Callback),
 	selected(initialSelection),
 	images(images)
 {
 	OBJECT_CONSTRUCTION;
+
+	addUsedEvents(KEYBOARD);
+
 	items.reserve(_items.size());
 
 	for(int id : _items)
-	{
 		items.push_back(std::make_pair(id, LOCPLINT->cb->getObjInstance(ObjectInstanceID(id))->getObjectName()));
-	}
+	itemsVisible = items;
 
-	init(titleWidget_, _title, _descr);
+	init(titleWidget_, _title, _descr, searchBoxEnabled);
+	list->scrollTo(std::min(static_cast<int>(initialSelection + 4), static_cast<int>(items.size() - 1))); // 4 is for centering (list have 9 elements)
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images)
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPGATE")),
 	onSelect(Callback),
 	selected(initialSelection),
 	images(images)
 {
 	OBJECT_CONSTRUCTION;
+
+	addUsedEvents(KEYBOARD);
+
 	items.reserve(_items.size());
 
 	for(size_t i=0; i<_items.size(); i++)
 		items.push_back(std::make_pair(int(i), _items[i]));
+	itemsVisible = items;
 
-	init(titleWidget_, _title, _descr);
+	init(titleWidget_, _title, _descr, searchBoxEnabled);
+	list->scrollTo(std::min(static_cast<int>(initialSelection + 4), static_cast<int>(items.size() - 1))); // 4 is for centering (list have 9 elements)
 }
 
-void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr)
+void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled)
 {
 	titleWidget = titleWidget_;
 
@@ -1526,24 +1546,51 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 		titleWidget->pos.y =75 + pos.y - titleWidget->pos.h/2;
 	}
 	list = std::make_shared<CListBox>(std::bind(&CObjectListWindow::genItem, this, _1),
-		Point(14, 151), Point(0, 25), 9, items.size(), 0, 1, Rect(262, -32, 256, 256) );
+		Point(14, 151), Point(0, 25), 9, itemsVisible.size(), 0, 1, Rect(262, -32, 256, 256) );
 	list->setRedrawParent(true);
 
 	ok = std::make_shared<CButton>(Point(15, 402), AnimationPath::builtin("IOKAY.DEF"), CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), EShortcut::GLOBAL_ACCEPT);
 	ok->block(!list->size());
+
+	if(!searchBoxEnabled)
+		return;
+
+	Rect r(50, 90, pos.w - 100, 16);
+	const ColorRGBA rectangleColor = ColorRGBA(0, 0, 0, 75);
+	const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
+	const ColorRGBA grayedColor = ColorRGBA(158, 130, 105);
+	searchBoxRectangle = std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor);
+	searchBoxDescription = std::make_shared<CLabel>(r.center().x, r.center().y, FONT_SMALL, ETextAlignment::CENTER, grayedColor, CGI->generaltexth->translate("vcmi.spellBook.search"));
+
+	searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, ETextAlignment::CENTER, true);
+	searchBox->setCallback([this](const std::string & text){
+		searchBoxDescription->setEnabled(text.empty());
+
+		itemsVisible.clear();
+		for(auto & item : items)
+			if(boost::algorithm::contains(boost::algorithm::to_lower_copy(item.second), boost::algorithm::to_lower_copy(text)))
+				itemsVisible.push_back(item);
+
+		selected = 0;
+		list->resize(itemsVisible.size());
+		list->scrollTo(0);
+		ok->block(!itemsVisible.size());
+
+		redraw();
+	});
 }
 
 std::shared_ptr<CIntObject> CObjectListWindow::genItem(size_t index)
 {
-	if(index < items.size())
-		return std::make_shared<CItem>(this, index, items[index].second);
+	if(index < itemsVisible.size())
+		return std::make_shared<CItem>(this, index, itemsVisible[index].second);
 	return std::shared_ptr<CIntObject>();
 }
 
 void CObjectListWindow::elementSelected()
 {
 	std::function<void(int)> toCall = onSelect;//save
-	int where = items[selected].first;      //required variables
+	int where = itemsVisible[selected].first;      //required variables
 	close();//then destroy window
 	toCall(where);//and send selected object
 }
@@ -1599,18 +1646,18 @@ void CObjectListWindow::keyPressed(EShortcut key)
 		sel = 0;
 
 	break; case EShortcut::MOVE_LAST:
-		sel = static_cast<int>(items.size());
+		sel = static_cast<int>(itemsVisible.size());
 
 	break; default:
 		return;
 	}
 
-	vstd::abetween<int>(sel, 0, items.size()-1);
+	vstd::abetween<int>(sel, 0, itemsVisible.size()-1);
 	list->scrollTo(sel);
 	changeSelection(sel);
 }
 
-VideoWindow::VideoWindow(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void(bool skipped)> closeCb)
+VideoWindow::VideoWindow(const VideoPath & video, const ImagePath & rim, bool showBackground, float scaleFactor, const std::function<void(bool skipped)> & closeCb)
 	: CWindowObject(BORDERED | SHADOW_DISABLED | NEEDS_ANIMATED_BACKGROUND), closeCb(closeCb)
 {
 	OBJECT_CONSTRUCTION;
@@ -1656,7 +1703,7 @@ void VideoWindow::keyPressed(EShortcut key)
 	exit(true);
 }
 
-bool VideoWindow::receiveEvent(const Point & position, int eventType) const
+void VideoWindow::notFocusedClick()
 {
-	return true;  // capture click also outside of window
+	exit(true);
 }

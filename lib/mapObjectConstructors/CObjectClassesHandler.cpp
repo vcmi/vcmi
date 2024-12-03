@@ -23,22 +23,28 @@
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
+#include "../mapObjectConstructors/FlaggableInstanceConstructor.h"
 #include "../mapObjectConstructors/HillFortInstanceConstructor.h"
 #include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
+
 #include "../mapObjects/CGCreature.h"
-#include "../mapObjects/CGPandoraBox.h"
-#include "../mapObjects/CQuest.h"
-#include "../mapObjects/ObjectTemplate.h"
-#include "../mapObjects/CGMarket.h"
-#include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGMarket.h"
+#include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/CQuest.h"
+#include "../mapObjects/FlaggableMapObject.h"
+#include "../mapObjects/MiscObjects.h"
+#include "../mapObjects/ObjectTemplate.h"
 #include "../mapObjects/ObstacleSetHandler.h"
+
 #include "../modding/IdentifierStorage.h"
 #include "../modding/CModHandler.h"
 #include "../modding/ModScope.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/CLegacyConfigParser.h"
+
+#include <vstd/StringUtils.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -55,6 +61,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("town", CTownInstanceConstructor);
 	SET_HANDLER_CLASS("bank", CBankInstanceConstructor);
 	SET_HANDLER_CLASS("boat", BoatInstanceConstructor);
+	SET_HANDLER_CLASS("flaggable", FlaggableInstanceConstructor);
 	SET_HANDLER_CLASS("market", MarketInstanceConstructor);
 	SET_HANDLER_CLASS("hillFort", HillFortInstanceConstructor);
 	SET_HANDLER_CLASS("shipyard", ShipyardInstanceConstructor);
@@ -80,7 +87,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("garrison", CGGarrison);
 	SET_HANDLER("heroPlaceholder", CGHeroPlaceholder);
 	SET_HANDLER("keymaster", CGKeymasterTent);
-	SET_HANDLER("lighthouse", CGLighthouse);
 	SET_HANDLER("magi", CGMagi);
 	SET_HANDLER("mine", CGMine);
 	SET_HANDLER("obelisk", CGObelisk);
@@ -205,8 +211,13 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 
 	// Compatibility with 1.5 mods for 1.6. To be removed in 1.7
 	// Detect banks that use old format and load them using old bank hander
-	if (baseObject->id == Obj::CREATURE_BANK && entry.Struct().count("levels") && !entry.Struct().count("rewards"))
-		handler = "bank";
+	if (baseObject->id == Obj::CREATURE_BANK)
+	{
+		if (entry.Struct().count("levels") && !entry.Struct().count("rewards"))
+			handler = "bank";
+		else
+			handler = "configurable";
+	}
 
 	auto createdObject = handlerConstructors.at(handler)();
 
@@ -276,7 +287,7 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::stri
 	newObject->base = json["base"];
 	newObject->id = index;
 
-	VLC->generaltexth->registerString(scope, newObject->getNameTextID(), json["name"].String());
+	VLC->generaltexth->registerString(scope, newObject->getNameTextID(), json["name"]);
 
 	newObject->objectTypeHandlers.resize(json["lastReservedIndex"].Float() + 1);
 
@@ -351,7 +362,7 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObj
 			return mapObjectTypes.front()->objectTypeHandlers.front();
 
 		auto subID = subtype.getNum();
-		if (type == Obj::PRISON || type == Obj::HERO_PLACEHOLDER)
+		if (type == Obj::PRISON || type == Obj::HERO_PLACEHOLDER || type == Obj::SPELL_SCROLL)
 			subID = 0;
 		auto result = mapObjectTypes.at(type.getNum())->objectTypeHandlers.at(subID);
 
@@ -388,6 +399,62 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scop
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(CompoundMapObjectID compoundIdentifier) const
 {
 	return getHandlerFor(compoundIdentifier.primaryID, compoundIdentifier.secondaryID);
+}
+
+CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & scope, const std::string & type, const std::string & subtype) const
+{
+	std::optional<si32> id;
+	if (scope.empty())
+	{
+		id = VLC->identifiers()->getIdentifier("object", type);
+	}
+	else
+	{
+		id = VLC->identifiers()->getIdentifier(scope, "object", type);
+	}
+
+	if(id)
+	{
+		if (subtype.empty())
+			return CompoundMapObjectID(id.value(), 0);
+
+		const auto & object = mapObjectTypes.at(id.value());
+		std::optional<si32> subID = VLC->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
+
+		if (subID)
+			return CompoundMapObjectID(id.value(), subID.value());
+	}
+
+	std::string errorString = "Failed to get id for object of type " + type + "." + subtype;
+	logGlobal->error(errorString);
+	throw std::runtime_error(errorString);
+}
+
+CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & objectName) const
+{
+	std::string subtype = "object"; //Default for objects with no subIds
+	std::string type;
+
+	auto scopeAndFullName = vstd::splitStringToPair(objectName, ':');
+	logGlobal->debug("scopeAndFullName: %s, %s", scopeAndFullName.first, scopeAndFullName.second);
+	
+	auto typeAndName = vstd::splitStringToPair(scopeAndFullName.second, '.');
+	logGlobal->debug("typeAndName: %s, %s", typeAndName.first, typeAndName.second);
+	
+	auto nameAndSubtype = vstd::splitStringToPair(typeAndName.second, '.');
+	logGlobal->debug("nameAndSubtype: %s, %s", nameAndSubtype.first, nameAndSubtype.second);
+
+	if (!nameAndSubtype.first.empty())
+	{
+		type = nameAndSubtype.first;
+		subtype = nameAndSubtype.second;
+	}
+	else
+	{
+		type = typeAndName.second;
+	}
+	
+	return getCompoundIdentifier(boost::to_lower_copy(scopeAndFullName.first), type, subtype);
 }
 
 std::set<MapObjectID> CObjectClassesHandler::knownObjects() const
@@ -456,9 +523,21 @@ void CObjectClassesHandler::afterLoadFinalization()
 
 			obj->afterLoadFinalization();
 			if(obj->getTemplates().empty())
-				logGlobal->warn("No templates found for %s:%s", entry->getJsonKey(), obj->getJsonKey());
+				logMod->debug("No templates found for %s:%s", entry->getJsonKey(), obj->getJsonKey());
 		}
 	}
+
+	for(auto & entry : objectIdHandlers)
+	{
+		// Call function for each object id
+		entry.second(entry.first);
+	}
+}
+
+void CObjectClassesHandler::resolveObjectCompoundId(const std::string & id, std::function<void(CompoundMapObjectID)> callback)
+{
+	auto compoundId = getCompoundIdentifier(id);
+	objectIdHandlers.push_back(std::make_pair(compoundId, callback));
 }
 
 void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container)

@@ -20,7 +20,6 @@
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/bonuses/Limiters.h"
@@ -732,7 +731,7 @@ void VCAI::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * 
 	//you can't request action from action-response thread
 	requestActionASAP([=]()
 	{
-		if(removableUnits && !cb->getStartInfo()->isSteadwickFallCampaignMission())
+		if(removableUnits && !cb->getStartInfo()->isRestorationOfErathiaCampaign())
 			pickBestCreatures(down, up);
 
 		answerQuery(queryID, 0);
@@ -1032,7 +1031,7 @@ void VCAI::mainLoop()
 
 void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 {
-	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->pos.toString());
+	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->anchorPos().toString());
 	switch(obj->ID)
 	{
 	case Obj::TOWN:
@@ -1181,7 +1180,7 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				//FIXME: why are the above possible to be null?
 
 				bool emptySlotFound = false;
-				for(auto slot : artifact->artType->getPossibleSlots().at(target->bearerType()))
+				for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
 				{
 					if(target->isPositionFree(slot) && artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
 					{
@@ -1194,7 +1193,7 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				}
 				if(!emptySlotFound) //try to put that atifact in already occupied slot
 				{
-					for(auto slot : artifact->artType->getPossibleSlots().at(target->bearerType()))
+					for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
 					{
 						auto otherSlot = target->getSlot(slot);
 						if(otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
@@ -1315,8 +1314,6 @@ bool VCAI::canRecruitAnyHero(const CGTownInstance * t) const
 		return false;
 	if(cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //TODO: use ResourceManager
 		return false;
-	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
-		return false;
 	if(cb->getHeroesInfo().size() >= cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 		return false;
 	if(!cb->getAvailableHeroes(t).size())
@@ -1417,11 +1414,11 @@ void VCAI::wander(HeroPtr h)
 				//TODO pick the truly best
 				const CGTownInstance * t = *boost::max_element(townsNotReachable, compareReinforcements);
 				logAi->debug("%s can't reach any town, we'll try to make our way to %s at %s", h->getNameTranslated(), t->getNameTranslated(), t->visitablePos().toString());
-				int3 pos1 = h->pos;
+				int3 posBefore = h->visitablePos();
 				striveToGoal(sptr(Goals::ClearWayTo(t->visitablePos()).sethero(h))); //TODO: drop "strive", add to mainLoop
 				//if out hero is stuck, we may need to request another hero to clear the way we see
 
-				if(pos1 == h->pos && h == primaryHero()) //hero can't move
+				if(posBefore == h->visitablePos() && h == primaryHero()) //hero can't move
 				{
 					if(canRecruitAnyHero(t))
 						recruitHero(t);
@@ -1471,7 +1468,7 @@ void VCAI::wander(HeroPtr h)
 				{
 					auto chosenObject = cb->getObjInstance(ObjectInstanceID(bestObjectGoal->objid));
 					if(chosenObject != nullptr)
-						logAi->debug("Of all %d destinations, object %s at pos=%s seems nice", dests.size(), chosenObject->getObjectName(), chosenObject->pos.toString());
+						logAi->debug("Of all %d destinations, object %s at pos=%s seems nice", dests.size(), chosenObject->getObjectName(), chosenObject->anchorPos().toString());
 				}
 				else
 					logAi->debug("Trying to realize goal of type %s as part of wandering.", bestObjectGoal->name());
@@ -1994,8 +1991,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 void VCAI::buildStructure(const CGTownInstance * t, BuildingID building)
 {
-	auto name = t->town->buildings.at(building)->getNameTranslated();
-	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->getNameTranslated(), t->pos.toString());
+	auto name = t->getTown()->buildings.at(building)->getNameTranslated();
+	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->getNameTranslated(), t->anchorPos().toString());
 	cb->buildBuilding(t, building); //just do this;
 }
 
@@ -2081,7 +2078,7 @@ void VCAI::tryRealize(Goals::BuildThis & g)
 		if (cb->canBuildStructure(t, b) == EBuildingState::ALLOWED)
 		{
 			logAi->debug("Player %d will build %s in town of %s at %s",
-				playerID, t->town->buildings.at(b)->getNameTranslated(), t->getNameTranslated(), t->pos.toString());
+				playerID, t->getTown()->buildings.at(b)->getNameTranslated(), t->getNameTranslated(), t->anchorPos().toString());
 			cb->buildBuilding(t, b);
 			throw goalFulfilledException(sptr(g));
 		}
@@ -2819,7 +2816,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	{
 		for(auto slot : h->Slots())
 		{
-			if(slot.second->type->hasUpgrades())
+			if(slot.second->getType()->hasUpgrades())
 				return true; //TODO: check price?
 		}
 		return false;

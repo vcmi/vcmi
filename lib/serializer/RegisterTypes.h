@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "../CHeroHandler.h"
 #include "../CPlayerState.h"
 #include "../CStack.h"
 #include "../battle/BattleInfo.h"
@@ -21,19 +20,23 @@
 #include "../gameState/CGameState.h"
 #include "../gameState/CGameStateCampaign.h"
 #include "../gameState/TavernHeroesPool.h"
+
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGDwelling.h"
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/CQuest.h"
+#include "../mapObjects/FlaggableMapObject.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/TownBuildingInstance.h"
+
 #include "../mapping/CMap.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/PacksForLobby.h"
 #include "../networkPacks/PacksForServer.h"
+#include "../networkPacks/SaveLocalState.h"
 #include "../networkPacks/SetRewardableConfiguration.h"
 #include "../networkPacks/SetStackEffect.h"
 
@@ -73,7 +76,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<CGSirens>(15);
 	s.template registerType<CGShipyard>(16);
 	s.template registerType<CGDenOfthieves>(17);
-	s.template registerType<CGLighthouse>(18);
+	s.template registerType<FlaggableMapObject>(18);
 	s.template registerType<CGTerrainPatch>(19);
 	s.template registerType<HillFort>(20);
 	s.template registerType<CGMarket>(21);
@@ -288,6 +291,10 @@ void registerTypes(Serializer &s)
 	s.template registerType<LobbySetDifficulty>(238);
 	s.template registerType<LobbyForceSetPlayer>(239);
 	s.template registerType<LobbySetExtraOptions>(240);
+	s.template registerType<SpellResearch>(241);
+	s.template registerType<SetResearchedSpells>(242);
+	s.template registerType<SaveLocalState>(243);
+	s.template registerType<LobbyDelete>(244);
 }
 
 VCMI_LIB_NAMESPACE_END

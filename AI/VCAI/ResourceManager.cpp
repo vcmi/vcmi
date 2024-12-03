@@ -14,8 +14,6 @@
 #include "../../CCallback.h"
 #include "../../lib/mapObjects/MapObjects.h"
 
-#define GOLD_RESERVE (10000); //at least we'll be able to reach capitol
-
 ResourceObjective::ResourceObjective(const TResources & Res, Goals::TSubgoal Goal)
 	: resources(Res), goal(Goal)
 {

@@ -79,7 +79,7 @@ public:
 	explicit JsonNode(const JsonPath & fileURI);
 	explicit JsonNode(const JsonPath & fileURI, const JsonParsingSettings & parserSettings);
 	explicit JsonNode(const JsonPath & fileURI, const std::string & modName);
-	explicit JsonNode(const JsonPath & fileURI, bool & isValidSyntax);
+	explicit JsonNode(const JsonPath & fileURI, const std::string & modName, bool & isValidSyntax);
 
 	bool operator==(const JsonNode & other) const;
 	bool operator!=(const JsonNode & other) const;
@@ -187,7 +187,7 @@ void convert(std::map<std::string, Type> & value, const JsonNode & node)
 {
 	value.clear();
 	for(const JsonMap::value_type & entry : node.Struct())
-		value.insert(entry.first, entry.second.convertTo<Type>());
+		value.emplace(entry.first, entry.second.convertTo<Type>());
 }
 
 template<typename Type>

@@ -35,11 +35,11 @@
 #include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/networkPacks/ArtifactLocation.h"
+#include "../lib/networkPacks/ArtifactLocation.h"
 
 void CHeroSwitcher::clickPressed(const Point & cursorPosition)
 {
@@ -152,8 +152,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	for(int i = 0; i < std::min<size_t>(hero->secSkills.size(), 8u); ++i)
 	{
 		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  136,  42);
-		secSkillAreas.push_back(std::make_shared<LRClickableAreaWTextComp>(r, ComponentType::SEC_SKILL));
-		secSkillImages.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SECSKILL"), 0, 0, r.x, r.y));
+		secSkills.emplace_back(std::make_shared<CSecSkillPlace>(r.topLeft(), CSecSkillPlace::ImageSize::MEDIUM));
 
 		int x = (i % 2) ? 212 : 68;
 		int y = 280 + 48 * (i/2);
@@ -184,9 +183,9 @@ void CHeroWindow::update()
 	name->setText(curHero->getNameTranslated());
 	title->setText((boost::format(CGI->generaltexth->allTexts[342]) % curHero->level % curHero->getClassNameTranslated()).str());
 
-	specArea->text = curHero->type->getSpecialtyDescriptionTranslated();
-	specImage->setFrame(curHero->type->imageIndex);
-	specName->setText(curHero->type->getSpecialtyNameTranslated());
+	specArea->text = curHero->getHeroType()->getSpecialtyDescriptionTranslated();
+	specImage->setFrame(curHero->getHeroType()->imageIndex);
+	specName->setText(curHero->getHeroType()->getSpecialtyNameTranslated());
 
 	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), AnimationPath::builtin("hsbtns8.def"), std::make_pair(heroscrn[26], heroscrn[31]), 0, EShortcut::HERO_TOGGLE_TACTICS);
 	tacticsButton->addHoverText(EButtonState::HIGHLIGHTED, CGI->generaltexth->heroscrn[25]);
@@ -200,17 +199,18 @@ void CHeroWindow::update()
 		OBJECT_CONSTRUCTION;
 		if(!garr)
 		{
+			bool removableTroops = curHero->getOwner() == LOCPLINT->playerID;
 			std::string helpBox = heroscrn[32];
 			boost::algorithm::replace_first(helpBox, "%s", CGI->generaltexth->allTexts[43]);
 
-			garr = std::make_shared<CGarrisonInt>(Point(15, 485), 8, Point(), curHero);
+			garr = std::make_shared<CGarrisonInt>(Point(15, 485), 8, Point(), curHero, nullptr, removableTroops);
 			auto split = std::make_shared<CButton>(Point(539, 519), AnimationPath::builtin("hsbtns9.def"), CButton::tooltip(CGI->generaltexth->allTexts[256], helpBox), [this](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT);
 			garr->addSplitBtn(split);
 		}
 		if(!arts)
 		{
 			arts = std::make_shared<CArtifactsOfHeroMain>(Point(-65, -8));
-			arts->clickPressedCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(curHero, artPlace.slot, true, false, false);};
+			arts->clickPressedCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(curHero, artPlace.slot, true, false, false, cursorPosition);};
 			arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition){showArtifactAssembling(*arts, artPlace, cursorPosition);};
 			arts->gestureCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition){showQuickBackpackWindow(curHero, artPlace.slot, cursorPosition);};
 			arts->setHero(curHero);
@@ -234,20 +234,16 @@ void CHeroWindow::update()
 	}
 
 	//secondary skills support
-	for(size_t g=0; g< secSkillAreas.size(); ++g)
+	for(size_t g=0; g< secSkills.size(); ++g)
 	{
 		SecondarySkill skill = curHero->secSkills[g].first;
 		int	level = curHero->getSecSkillLevel(skill);
 		std::string skillName = CGI->skillh->getByIndex(skill)->getNameTranslated();
 		std::string skillValue = CGI->generaltexth->levels[level-1];
 
-		secSkillAreas[g]->component.subType = skill;
-		secSkillAreas[g]->component.value = level;
-		secSkillAreas[g]->text = CGI->skillh->getByIndex(skill)->getDescriptionTranslated(level);
-		secSkillAreas[g]->hoverText = boost::str(boost::format(heroscrn[21]) % skillValue % skillName);
-		secSkillImages[g]->setFrame(skill*3 + level + 2);
 		secSkillNames[g]->setText(skillName);
 		secSkillValues[g]->setText(skillValue);
+		secSkills[g]->setSkill(skill, level);
 	}
 
 	std::ostringstream expstr;
@@ -316,6 +312,7 @@ void CHeroWindow::dismissCurrent()
 			arts->putBackPickedArtifact();
 			close();
 			LOCPLINT->cb->dismissHero(curHero);
+			arts->setHero(nullptr);
 		}, nullptr);
 }
 

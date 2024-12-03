@@ -72,7 +72,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="eventFirstOccurrence"/>
+          <widget class="QSpinBox" name="eventFirstOccurrence">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>

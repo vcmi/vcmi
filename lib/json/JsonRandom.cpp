@@ -13,6 +13,8 @@
 
 #include <vstd/StringUtils.h>
 #include <vstd/RNG.h>
+#include <vcmi/HeroClassService.h>
+#include <vcmi/HeroTypeService.h>
 
 #include "JsonBonus.h"
 
@@ -23,8 +25,9 @@
 #include "../CCreatureSet.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
-#include "../CHeroHandler.h"
 #include "../IGameCallback.h"
+#include "../entities/hero/CHero.h"
+#include "../entities/hero/CHeroClass.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
@@ -482,13 +485,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 		else
 			logMod->warn("Failed to select suitable random creature!");
 
-		stack.type = pickedCreature.toCreature();
+		stack.setType(pickedCreature.toCreature());
 		stack.count = loadValue(value, rng, variables);
-		if (!value["upgradeChance"].isNull() && !stack.type->upgrades.empty())
+		if (!value["upgradeChance"].isNull() && !stack.getCreature()->upgrades.empty())
 		{
 			if (int(value["upgradeChance"].Float()) > rng.nextInt(99)) // select random upgrade
 			{
-				stack.type = RandomGeneratorUtil::nextItem(stack.type->upgrades, rng)->toCreature();
+				stack.setType(RandomGeneratorUtil::nextItem(stack.getCreature()->upgrades, rng)->toCreature());
 			}
 		}
 		return stack;

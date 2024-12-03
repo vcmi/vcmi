@@ -28,8 +28,10 @@ class CTabbedInt;
 class CButton;
 class CMultiLineLabel;
 class CListBox;
+class CArtPlace;
 class CCommanderArtPlace;
 class LRClickableArea;
+class GraphicalPrimitiveCanvas;
 
 class CCommanderSkillIcon : public LRClickableAreaWText //TODO: maybe bring commander skill button initialization logic inside?
 {
@@ -57,6 +59,7 @@ class CStackWindow : public CWindowObject
 		std::string name;
 		std::string description;
 		ImagePath imagePath;
+		BonusSource bonusSource;
 	};
 
 	class CWindowSection : public CIntObject
@@ -83,6 +86,8 @@ class CStackWindow : public CWindowObject
 		std::array<std::shared_ptr<CPicture>, 2> icon;
 		std::array<std::shared_ptr<CLabel>, 2> name;
 		std::array<std::shared_ptr<CMultiLineLabel>, 2> description;
+		std::array<std::shared_ptr<GraphicalPrimitiveCanvas>, 2> frame;
+		std::array<std::vector<std::shared_ptr<CLabel>>, 2> bonusSource;
 	public:
 		BonusLineSection(CStackWindow * owner, size_t lineIndex);
 	};
@@ -156,8 +161,7 @@ class CStackWindow : public CWindowObject
 		MainSection(CStackWindow * owner, int yOffset, bool showExp, bool showArt);
 	};
 
-	std::shared_ptr<CAnimImage> stackArtifactIcon;
-	std::shared_ptr<LRClickableAreaWTextComp> stackArtifactHelp;
+	std::shared_ptr<CArtPlace> stackArtifact;
 	std::shared_ptr<CButton> stackArtifactButton;
 
 
@@ -189,6 +193,7 @@ class CStackWindow : public CWindowObject
 	void init();
 
 	std::string generateStackExpDescription();
+	std::string getCommanderSkillDescription(int skillIndex, int skillLevel);
 
 public:
 	// for battles

@@ -17,7 +17,6 @@
 
 #include "../texts/CGeneralTextHandler.h"
 #include "../ArtifactUtils.h"
-#include "../CHeroHandler.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
 #include "../IGameSettings.h"
@@ -31,6 +30,8 @@
 #include "../StartInfo.h"
 #include "CGTownInstance.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/hero/CHeroHandler.h"
+#include "../entities/hero/CHeroClass.h"
 #include "../battle/CBattleInfoEssentials.h"
 #include "../campaign/CampaignState.h"
 #include "../json/JsonBonus.h"
@@ -47,6 +48,8 @@
 #include "CConfigHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+const ui32 CGHeroInstance::NO_PATROLLING = std::numeric_limits<ui32>::max();
 
 void CGHeroPlaceholder::serializeJsonOptions(JsonSerializeFormat & handler)
 {
@@ -99,16 +102,16 @@ ui32 CGHeroInstance::getTileMovementCost(const TerrainTile & dest, const Terrain
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use src road movement cost
-	if(dest.roadType->getId() != Road::NO_ROAD && from.roadType->getId() != Road::NO_ROAD)
+	if(dest.hasRoad() && from.hasRoad())
 	{
-		ret = from.roadType->movementCost;
+		ret = from.getRoad()->movementCost;
 	}
-	else if(ti->nativeTerrain != from.terType->getId() &&//the terrain is not native
+	else if(ti->nativeTerrain != from.getTerrainID() &&//the terrain is not native
 			ti->nativeTerrain != ETerrainId::ANY_TERRAIN && //no special creature bonus
-			!ti->hasBonusOfType(BonusType::NO_TERRAIN_PENALTY, BonusSubtypeID(from.terType->getId()))) //no special movement bonus
+			!ti->hasBonusOfType(BonusType::NO_TERRAIN_PENALTY, BonusSubtypeID(from.getTerrainID()))) //no special movement bonus
 	{
 
-		ret = VLC->terrainTypeHandler->getById(from.terType->getId())->moveCost;
+		ret = VLC->terrainTypeHandler->getById(from.getTerrainID())->moveCost;
 		ret -= ti->valOfBonuses(BonusType::ROUGH_TERRAIN_DISCOUNT);
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;
@@ -116,9 +119,9 @@ ui32 CGHeroInstance::getTileMovementCost(const TerrainTile & dest, const Terrain
 	return static_cast<ui32>(ret);
 }
 
-FactionID CGHeroInstance::getFaction() const
+FactionID CGHeroInstance::getFactionID() const
 {
-	return FactionID(type->heroClass->faction);
+	return getHeroClass()->faction;
 }
 
 const IBonusBearer* CGHeroInstance::getBonusBearer() const
@@ -229,10 +232,10 @@ bool CGHeroInstance::canLearnSkill(const SecondarySkill & which) const
 	if (getSecSkillLevel(which) > 0)
 		return false;
 
-	if (type->heroClass->secSkillProbability.count(which) == 0)
+	if (getHeroClass()->secSkillProbability.count(which) == 0)
 		return false;
 
-	if (type->heroClass->secSkillProbability.at(which) == 0)
+	if (getHeroClass()->secSkillProbability.at(which) == 0)
 		return false;
 
 	return true;
@@ -282,7 +285,6 @@ int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) 
 
 CGHeroInstance::CGHeroInstance(IGameCallback * cb)
 	: CArmedInstance(cb),
-	type(nullptr),
 	tacticFormationEnabled(false),
 	inTownGarrison(false),
 	moveDir(4),
@@ -303,15 +305,41 @@ PlayerColor CGHeroInstance::getOwner() const
 	return tempOwner;
 }
 
-HeroTypeID CGHeroInstance::getHeroType() const
+const CHeroClass * CGHeroInstance::getHeroClass() const
 {
+	return getHeroType()->heroClass;
+}
+
+HeroClassID CGHeroInstance::getHeroClassID() const
+{
+	auto heroType = getHeroTypeID();
+	if (heroType.hasValue())
+		return getHeroType()->heroClass->getId();
+	else
+		return HeroClassID();
+}
+
+const CHero * CGHeroInstance::getHeroType() const
+{
+	return getHeroTypeID().toHeroType();
+}
+
+HeroTypeID CGHeroInstance::getHeroTypeID() const
+{
+	if (ID == Obj::RANDOM_HERO)
+		return HeroTypeID::NONE;
 	return HeroTypeID(getObjTypeIndex().getNum());
 }
 
 void CGHeroInstance::setHeroType(HeroTypeID heroType)
 {
-	assert(type == nullptr);
 	subID = heroType;
+}
+
+void CGHeroInstance::initObj(vstd::RNG & rand)
+{
+	if (ID == Obj::HERO)
+		updateAppearance();
 }
 
 void CGHeroInstance::initHero(vstd::RNG & rand, const HeroTypeID & SUBID)
@@ -320,19 +348,40 @@ void CGHeroInstance::initHero(vstd::RNG & rand, const HeroTypeID & SUBID)
 	initHero(rand);
 }
 
+TObjectTypeHandler CGHeroInstance::getObjectHandler() const
+{
+	if (ID == Obj::HERO)
+		return VLC->objtypeh->getHandlerFor(ID, getHeroClass()->getIndex());
+	else // prison or random hero
+		return VLC->objtypeh->getHandlerFor(ID, 0);
+}
+
+void CGHeroInstance::updateAppearance()
+{
+	auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());;
+	auto terrain = cb->gameState()->getTile(visitablePos())->getTerrainID();
+	auto app = handler->getOverride(terrain, this);
+	if (app)
+		appearance = app;
+}
+
 void CGHeroInstance::initHero(vstd::RNG & rand)
 {
 	assert(validTypes(true));
-	if(!type)
-		type = getHeroType().toHeroType();
+	
+	if (gender == EHeroGender::DEFAULT)
+		gender = getHeroType()->gender;
 
 	if (ID == Obj::HERO)
-		appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
+	{
+		auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());;
+		appearance = handler->getTemplates().front();
+	}
 
 	if(!vstd::contains(spells, SpellID::PRESET))
 	{
 		// hero starts with default spells
-		for(const auto & spellID : type->spells)
+		for(const auto & spellID : getHeroType()->spells)
 			spells.insert(spellID);
 	}
 	else //remove placeholder
@@ -341,7 +390,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 	if(!vstd::contains(spells, SpellID::SPELLBOOK_PRESET))
 	{
 		// hero starts with default spellbook presence status
-		if(!getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook)
+		if(!getArt(ArtifactPosition::SPELLBOOK) && getHeroType()->haveSpellBook)
 		{
 			auto artifact = ArtifactUtils::createArtifact(ArtifactID::SPELLBOOK);
 			putArtifact(ArtifactPosition::SPELLBOOK, artifact);
@@ -360,14 +409,11 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 	{
 		for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
 		{
-			pushPrimSkill(static_cast<PrimarySkill>(g), type->heroClass->primarySkillInitial[g]);
+			pushPrimSkill(static_cast<PrimarySkill>(g), getHeroClass()->primarySkillInitial[g]);
 		}
 	}
 	if(secSkills.size() == 1 && secSkills[0] == std::pair<SecondarySkill,ui8>(SecondarySkill::NONE, -1)) //set secondary skills to default
-		secSkills = type->secSkillsInit;
-
-	if (gender == EHeroGender::DEFAULT)
-		gender = type->gender;
+		secSkills = getHeroType()->secSkillsInit;
 
 	setFormation(EArmyFormation::LOOSE);
 	if (!stacksCount()) //standard army//initial army
@@ -403,9 +449,9 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 		addNewBonus(bonus);
 	}
 
-	if (cb->getSettings().getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander && type->heroClass->commander.hasValue())
+	if (cb->getSettings().getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander && getHeroClass()->commander.hasValue())
 	{
-		commander = new CCommanderInstance(type->heroClass->commander);
+		commander = new CCommanderInstance(getHeroClass()->commander);
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
 		commander->giveStackExp (exp); //after our exp is set
 	}
@@ -413,7 +459,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 	skillsInfo = SecondarySkillsInfo();
 
 	//copy active (probably growing) bonuses from hero prototype to hero object
-	for(const std::shared_ptr<Bonus> & b : type->specialty)
+	for(const std::shared_ptr<Bonus> & b : getHeroType()->specialty)
 		addNewBonus(b);
 
 	//initialize bonuses
@@ -433,14 +479,14 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 	auto stacksCountChances = cb->getSettings().getVector(EGameSettings::HEROES_STARTING_STACKS_CHANCES);
 	int stacksCountInitRandomNumber = rand.nextInt(1, 100);
 
-	size_t maxStacksCount = std::min(stacksCountChances.size(), type->initialArmy.size());
+	size_t maxStacksCount = std::min(stacksCountChances.size(), getHeroType()->initialArmy.size());
 
 	for(int stackNo=0; stackNo < maxStacksCount; stackNo++)
 	{
 		if (stacksCountInitRandomNumber > stacksCountChances[stackNo])
 			continue;
 
-		auto & stack = type->initialArmy[stackNo];
+		auto & stack = getHeroType()->initialArmy[stackNo];
 
 		int count = rand.nextInt(stack.minAmount, stack.maxAmount);
 
@@ -588,11 +634,11 @@ std::string CGHeroInstance::getMovementPointsTextIfOwner(PlayerColor player) con
 
 ui8 CGHeroInstance::maxlevelsToMagicSchool() const
 {
-	return type->heroClass->isMagicHero() ? 3 : 4;
+	return getHeroClass()->isMagicHero() ? 3 : 4;
 }
 ui8 CGHeroInstance::maxlevelsToWisdom() const
 {
-	return type->heroClass->isMagicHero() ? 3 : 6;
+	return getHeroClass()->isMagicHero() ? 3 : 6;
 }
 
 CGHeroInstance::SecondarySkillsInfo::SecondarySkillsInfo():
@@ -615,13 +661,12 @@ void CGHeroInstance::pickRandomObject(vstd::RNG & rand)
 
 	if (ID == Obj::RANDOM_HERO)
 	{
+		auto selectedHero = cb->gameState()->pickNextHeroType(getOwner());
+
 		ID = Obj::HERO;
-		subID = cb->gameState()->pickNextHeroType(getOwner());
-		type = getHeroType().toHeroType();
-		randomizeArmy(type->heroClass->faction);
+		subID = selectedHero;
+		randomizeArmy(getHeroClass()->faction);
 	}
-	else
-		type = getHeroType().toHeroType();
 
 	auto oldSubID = subID;
 
@@ -629,7 +674,7 @@ void CGHeroInstance::pickRandomObject(vstd::RNG & rand)
 	// after setType subID used to store unique hero identify id. Check issue 2277 for details
 	// exclude prisons which should use appearance as set in map, via map editor or RMG
 	if (ID != Obj::PRISON)
-		setType(ID, type->heroClass->getIndex());
+		setType(ID, getHeroClass()->getIndex());
 
 	this->subID = oldSubID;
 }
@@ -666,7 +711,25 @@ double CGHeroInstance::getFightingStrength() const
 
 double CGHeroInstance::getMagicStrength() const
 {
-	return sqrt((1.0 + 0.05*getPrimSkillLevel(PrimarySkill::KNOWLEDGE)) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::SPELL_POWER)));
+	if (!hasSpellbook())
+		return 1;
+	bool atLeastOneCombatSpell = false;
+	for (auto spell : spells)
+	{
+		if (spellbookContainsSpell(spell) && spell.toSpell()->isCombat())
+		{
+			atLeastOneCombatSpell = true;
+			break;
+		}
+	}
+	if (!atLeastOneCombatSpell)
+		return 1;
+	return sqrt((1.0 + 0.05*getPrimSkillLevel(PrimarySkill::KNOWLEDGE) * mana / manaLimit()) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::SPELL_POWER) * mana / manaLimit()));
+}
+
+double CGHeroInstance::getMagicStrengthForCampaign() const
+{
+	return sqrt((1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::KNOWLEDGE)) * (1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::SPELL_POWER)));
 }
 
 double CGHeroInstance::getHeroStrength() const
@@ -674,9 +737,14 @@ double CGHeroInstance::getHeroStrength() const
 	return sqrt(pow(getFightingStrength(), 2.0) * pow(getMagicStrength(), 2.0));
 }
 
+double CGHeroInstance::getHeroStrengthForCampaign() const
+{
+	return sqrt(pow(getFightingStrength(), 2.0) * pow(getMagicStrengthForCampaign(), 2.0));
+}
+
 ui64 CGHeroInstance::getTotalStrength() const
 {
-	double ret = getFightingStrength() * getArmyStrength();
+	double ret = getHeroStrength() * getArmyStrength();
 	return static_cast<ui64>(ret);
 }
 
@@ -804,7 +872,7 @@ void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) con
 		sm.hid = id;
 		sm.val = -spellCost;
 
-		server->apply(&sm);
+		server->apply(sm);
 	}
 }
 
@@ -1041,7 +1109,7 @@ si32 CGHeroInstance::getManaNewTurn() const
 
 BoatId CGHeroInstance::getBoatType() const
 {
-	return BoatId(VLC->townh->getById(type->heroClass->faction)->getBoatType());
+	return BoatId(VLC->townh->getById(getHeroClass()->faction)->getBoatType());
 }
 
 void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
@@ -1080,7 +1148,7 @@ void CGHeroInstance::pushPrimSkill( PrimarySkill which, int val )
 
 EAlignment CGHeroInstance::getAlignment() const
 {
-	return type->heroClass->getAlignment();
+	return getHeroClass()->getAlignment();
 }
 
 void CGHeroInstance::initExp(vstd::RNG & rand)
@@ -1104,12 +1172,12 @@ HeroTypeID CGHeroInstance::getPortraitSource() const
 	if (customPortraitSource.isValid())
 		return customPortraitSource;
 	else
-		return getHeroType();
+		return getHeroTypeID();
 }
 
 int32_t CGHeroInstance::getIconIndex() const
 {
-	return VLC->heroTypes()->getById(getPortraitSource())->getIconIndex();
+	return getPortraitSource().toEntity(VLC)->getIconIndex();
 }
 
 std::string CGHeroInstance::getNameTranslated() const
@@ -1126,15 +1194,15 @@ std::string CGHeroInstance::getClassNameTextID() const
 {
 	if (isCampaignGem())
 		return "core.genrltxt.735";
-	return type->heroClass->getNameTextID();
+	return getHeroClass()->getNameTextID();
 }
 
 std::string CGHeroInstance::getNameTextID() const
 {
 	if (!nameCustomTextId.empty())
 		return nameCustomTextId;
-	if (type)
-		return type->getNameTextID();
+	if (getHeroTypeID().hasValue())
+		return getHeroType()->getNameTextID();
 
 	// FIXME: called by logging from some specialties (mods?) before type is set on deserialization
 	// assert(0);
@@ -1150,13 +1218,13 @@ std::string CGHeroInstance::getBiographyTextID() const
 {
 	if (!biographyCustomTextId.empty())
 		return biographyCustomTextId;
-	if (type)
-		return type->getBiographyTextID();
+	if (getHeroTypeID().hasValue())
+		return getHeroType()->getBiographyTextID();
 	
 	return ""; //for random hero
 }
 
-CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
+CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(const ArtifactPosition & pos, CArtifactInstance * art)
 {
 	assert(art->canBePutAt(this, pos));
 
@@ -1165,7 +1233,7 @@ CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(ArtifactPosition pos
 	return CArtifactSet::putArtifact(pos, art);
 }
 
-void CGHeroInstance::removeArtifact(ArtifactPosition pos)
+void CGHeroInstance::removeArtifact(const ArtifactPosition & pos)
 {
 	auto art = getArt(pos);
 	assert(art);
@@ -1201,7 +1269,7 @@ void CGHeroInstance::removeSpellbook()
 
 	if(hasSpellbook())
 	{
-		getArt(ArtifactPosition::SPELLBOOK)->removeFrom(*this, ArtifactPosition::SPELLBOOK);
+		cb->gameState()->map->removeArtifactInstance(*this, ArtifactPosition::SPELLBOOK);
 	}
 }
 
@@ -1349,11 +1417,11 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills(vs
 		SecondarySkill selection;
 
 		if (selectWisdom)
-			selection = type->heroClass->chooseSecSkill(intersect(options, wisdomList), rand);
+			selection = getHeroClass()->chooseSecSkill(intersect(options, wisdomList), rand);
 		else if (selectSchool)
-			selection = type->heroClass->chooseSecSkill(intersect(options, schoolList), rand);
+			selection = getHeroClass()->chooseSecSkill(intersect(options, schoolList), rand);
 		else
-			selection = type->heroClass->chooseSecSkill(options, rand);
+			selection = getHeroClass()->chooseSecSkill(options, rand);
 
 		skills.push_back(selection);
 		options.erase(selection);
@@ -1384,7 +1452,7 @@ PrimarySkill CGHeroInstance::nextPrimarySkill(vstd::RNG & rand) const
 {
 	assert(gainsLevel());
 	const auto isLowLevelHero = level < GameConstants::HERO_HIGH_LEVEL;
-	const auto & skillChances = isLowLevelHero ? type->heroClass->primarySkillLowLevel : type->heroClass->primarySkillHighLevel;
+	const auto & skillChances = isLowLevelHero ? getHeroClass()->primarySkillLowLevel : getHeroClass()->primarySkillHighLevel;
 
 	if (isCampaignYog())
 	{
@@ -1514,35 +1582,25 @@ bool CGHeroInstance::hasVisions(const CGObjectInstance * target, BonusSubtypeID 
 	if (visionsMultiplier > 0)
 		vstd::amax(visionsRange, 3); //minimum range is 3 tiles, but only if VISIONS bonus present
 
-	const int distance = static_cast<int>(target->pos.dist2d(visitablePos()));
+	const int distance = static_cast<int>(target->anchorPos().dist2d(visitablePos()));
 
 	//logGlobal->debug(boost::str(boost::format("Visions: dist %d, mult %d, range %d") % distance % visionsMultiplier % visionsRange));
 
-	return (distance < visionsRange) && (target->pos.z == pos.z);
+	return (distance < visionsRange) && (target->anchorPos().z == anchorPos().z);
 }
 
 std::string CGHeroInstance::getHeroTypeName() const
 {
 	if(ID == Obj::HERO || ID == Obj::PRISON)
-	{
-		if(type)
-		{
-			return type->getJsonKey();
-		}
-		else
-		{
-			return getHeroType().toEntity(VLC)->getJsonKey();
-		}
-	}
+		return getHeroType()->getJsonKey();
+
 	return "";
 }
 
 void CGHeroInstance::afterAddToMap(CMap * map)
 {
 	if(ID != Obj::PRISON)
-	{		
 		map->heroesOnMap.emplace_back(this);
-	}
 }
 void CGHeroInstance::afterRemoveFromMap(CMap* map)
 {
@@ -1729,29 +1787,27 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(!appearance)
 		{
 			// crossoverDeserialize
-			type = getHeroType().toHeroType();
-			appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
+			appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, getHeroClassID())->getTemplates().front();
 		}
 	}
 
 	CArmedInstance::serializeJsonOptions(handler);
 
 	{
-		static constexpr int NO_PATROLING = -1;
-		int rawPatrolRadius = NO_PATROLING;
+		ui32 rawPatrolRadius = NO_PATROLLING;
 
 		if(handler.saving)
 		{
-			rawPatrolRadius = patrol.patrolling ? patrol.patrolRadius : NO_PATROLING;
+			rawPatrolRadius = patrol.patrolling ? patrol.patrolRadius : NO_PATROLLING;
 		}
 
-		handler.serializeInt("patrolRadius", rawPatrolRadius, NO_PATROLING);
+		handler.serializeInt("patrolRadius", rawPatrolRadius, NO_PATROLLING);
 
 		if(!handler.saving)
 		{
-			patrol.patrolling = (rawPatrolRadius > NO_PATROLING);
+			patrol.patrolling = (rawPatrolRadius != NO_PATROLLING);
 			patrol.initialPos = visitablePos();
-			patrol.patrolRadius = (rawPatrolRadius > NO_PATROLING) ? rawPatrolRadius : 0;
+			patrol.patrolRadius = patrol.patrolling ? rawPatrolRadius : 0;
 		}
 	}
 }
@@ -1793,14 +1849,14 @@ bool CGHeroInstance::isMissionCritical() const
 
 void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const
 {
-	TConstBonusListPtr lista = getBonuses(Selector::typeSubtype(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.type->getId())));
+	TConstBonusListPtr lista = getBonuses(Selector::typeSubtype(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId())));
 	for(const auto & it : *lista)
 	{
 		auto nid = CreatureID(it->additionalInfo[0]);
-		if (nid != stack.type->getId()) //in very specific case the upgrade is available by default (?)
+		if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
 		{
 			info.newID.push_back(nid);
-			info.cost.push_back(nid.toCreature()->getFullRecruitCost() - stack.type->getFullRecruitCost());
+			info.cost.push_back(nid.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost());
 		}
 	}
 }
@@ -1817,7 +1873,7 @@ bool CGHeroInstance::isCampaignYog() const
 	if (!boost::starts_with(campaign, "DATA/YOG")) // "Birth of a Barbarian"
 		return false;
 
-	if (getHeroType() != HeroTypeID::SOLMYR) // Yog (based on Solmyr)
+	if (getHeroTypeID() != HeroTypeID::SOLMYR) // Yog (based on Solmyr)
 		return false;
 
 	return true;
@@ -1835,7 +1891,7 @@ bool CGHeroInstance::isCampaignGem() const
 	if (!boost::starts_with(campaign, "DATA/GEM") &&  !boost::starts_with(campaign, "DATA/FINAL")) // "New Beginning" and "Unholy Alliance"
 		return false;
 
-	if (getHeroType() != HeroTypeID::GEM) // Yog (based on Solmyr)
+	if (getHeroTypeID() != HeroTypeID::GEM) // Yog (based on Solmyr)
 		return false;
 
 	return true;
@@ -1863,5 +1919,11 @@ const IOwnableObject * CGHeroInstance::asOwnable() const
 	return this;
 }
 
+int CGHeroInstance::getBasePrimarySkillValue(PrimarySkill which) const
+{
+	std::string cachingStr = "type_PRIMARY_SKILL_base_" + std::to_string(static_cast<int>(which));
+	auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(which)).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
+	return valOfBonuses(selector, cachingStr);
+}
 
 VCMI_LIB_NAMESPACE_END

@@ -117,7 +117,7 @@ int32_t CCreature::getHorde() const
 	return hordeGrowth;
 }
 
-FactionID CCreature::getFaction() const
+FactionID CCreature::getFactionID() const
 {
 	return FactionID(faction);
 }
@@ -343,11 +343,6 @@ bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
 	return vstd::contains(upgrades, anotherCre->getId());
 }
 
-bool CCreature::valid() const
-{
-	return this == (*VLC->creh)[idNumber];
-}
-
 std::string CCreature::nodeName() const
 {
 	return "\"" + getNamePluralTextID() + "\"";
@@ -467,56 +462,6 @@ void CCreatureHandler::loadCommanders()
 	}
 }
 
-void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses) const
-{
-	auto makeBonusNode = [&](const std::string & type, double val = 0) -> JsonNode
-	{
-		JsonNode ret;
-		ret["type"].String() = type;
-		ret["val"].Float() = val;
-		return ret;
-	};
-
-	static const std::map<std::string, JsonNode> abilityMap =
-	{
-		{"FLYING_ARMY",            makeBonusNode("FLYING")},
-		{"SHOOTING_ARMY",          makeBonusNode("SHOOTER")},
-		{"SIEGE_WEAPON",           makeBonusNode("SIEGE_WEAPON")},
-		{"const_free_attack",      makeBonusNode("BLOCKS_RETALIATION")},
-		{"IS_UNDEAD",              makeBonusNode("UNDEAD")},
-		{"const_no_melee_penalty", makeBonusNode("NO_MELEE_PENALTY")},
-		{"const_jousting",         makeBonusNode("JOUSTING", 5)},
-		{"KING_1",                 makeBonusNode("KING")}, // Slayer with no expertise
-		{"KING_2",                 makeBonusNode("KING", 2)}, // Advanced Slayer or better
-		{"KING_3",                 makeBonusNode("KING", 3)}, // Expert Slayer only
-		{"const_no_wall_penalty",  makeBonusNode("NO_WALL_PENALTY")},
-		{"MULTI_HEADED",           makeBonusNode("ATTACKS_ALL_ADJACENT")},
-		{"IMMUNE_TO_MIND_SPELLS",  makeBonusNode("MIND_IMMUNITY")},
-		{"HAS_EXTENDED_ATTACK",    makeBonusNode("TWO_HEX_ATTACK_BREATH")}
-	};
-
-	auto hasAbility = [&](const std::string & name) -> bool 
-	{
-		return boost::algorithm::find_first(bonuses, name);
-	};
-
-	for(const auto & a : abilityMap)
-	{
-		if(hasAbility(a.first))
-			creature["abilities"][a.first] = a.second;
-	}
-	if(hasAbility("DOUBLE_WIDE"))
-		creature["doubleWide"].Bool() = true;
-
-	if(hasAbility("const_raises_morale"))
-	{
-		JsonNode node = makeBonusNode("MORALE");
-		node["val"].Float() = 1;
-		node["propagator"].String() = "HERO";
-		creature["abilities"]["const_raises_morale"] = node;
-	}
-}
-
 std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 {
 	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE);
@@ -586,7 +531,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 
 		// unused - ability text, not used since we no longer have original creature window
 		parser.readString();
-		loadBonuses(data, parser.readString()); //Attributes
+		parser.readString(); // unused - abilities, not used since we load them all from json configs
 
 		h3Data.push_back(data);
 	}
@@ -617,9 +562,9 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 
 	cre->cost = ResourceSet(node["cost"]);
 
-	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"].String());
-	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"].String());
-	VLC->generaltexth->registerString(scope, cre->getDescriptionTextID(), node["description"].String());
+	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);
+	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"]);
+	VLC->generaltexth->registerString(scope, cre->getDescriptionTextID(), node["description"]);
 
 	cre->addBonus(node["hitPoints"].Integer(), BonusType::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), BonusType::STACKS_SPEED);

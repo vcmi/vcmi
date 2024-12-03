@@ -20,6 +20,9 @@ VCMI_LIB_NAMESPACE_END
 class IVideoInstance
 {
 public:
+	/// Returns current video timestamp
+	virtual double timeStamp() = 0;
+
 	/// Returns true if video playback is over
 	virtual bool videoEnded() = 0;
 
@@ -32,15 +35,16 @@ public:
 	/// Advances video playback by specified duration
 	virtual void tick(uint32_t msPassed) = 0;
 
+	/// activate or deactivate video
+	virtual void activate() = 0;
+	virtual void deactivate() = 0;
+
 	virtual ~IVideoInstance() = default;
 };
 
 class IVideoPlayer : boost::noncopyable
 {
 public:
-	/// Plays video on top of the screen, returns only after playback is over
-	virtual void playSpellbookAnimation(const VideoPath & name, const Point & position) = 0;
-
 	/// Load video from specified path. Returns nullptr on failure
 	virtual std::unique_ptr<IVideoInstance> open(const VideoPath & name, float scaleFactor) = 0;
 

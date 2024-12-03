@@ -12,7 +12,7 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CHeroHandler.h"
+#include "../../lib/mapObjects/CompoundMapObjectID.h"
 #include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -68,7 +68,7 @@ std::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * 
 	{
 		//special case handling: in-game heroes have hero ID as object subID, but when reading configs available hero object subID's are hero classes
 		auto hero = dynamic_cast<const CGHeroInstance*>(obj);
-		return getObjectValue(obj->ID, hero->type->heroClass->getIndex());
+		return getObjectValue(obj->ID, hero->getHeroClassID());
 	}
 	else if(obj->ID == Obj::PRISON)
 	{
@@ -92,7 +92,7 @@ std::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * 
 	else if(obj->ID == Obj::ARTIFACT)
 	{
 		auto artifactObject = dynamic_cast<const CGArtifact *>(obj);
-		switch(artifactObject->storedArtifact->artType->aClass)
+		switch(artifactObject->storedArtifact->getType()->aClass)
 		{
 		case CArtifact::EartClass::ART_TREASURE:
 			return 2000;

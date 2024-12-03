@@ -45,7 +45,6 @@ void ObjectDistributor::init()
 
 void ObjectDistributor::distributeLimitedObjects()
 {
-	ObjectInfo oi;
 	auto zones = map.getZones();
 
 	for (auto primaryID : VLC->objtypeh->knownObjects())
@@ -81,6 +80,8 @@ void ObjectDistributor::distributeLimitedObjects()
 					RandomGeneratorUtil::randomShuffle(matchingZones, zone.getRand());
 					for (auto& zone : matchingZones)
 					{
+						ObjectInfo oi(primaryID, secondaryID);
+						
 						oi.generateObject = [cb=map.mapInstance->cb, primaryID, secondaryID]() -> CGObjectInstance *
 						{
 							return VLC->objtypeh->getHandlerFor(primaryID, secondaryID)->create(cb, nullptr);

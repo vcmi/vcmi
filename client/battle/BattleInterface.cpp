@@ -39,7 +39,6 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -536,9 +535,9 @@ void BattleInterface::displaySpellAnimationQueue(const CSpell * spell, const CSp
 				flags |= EffectAnimation::SCREEN_FILL;
 
 			if (!destinationTile.isValid())
-				stacksController->addNewAnim(new EffectAnimation(*this, animation.resourceName, flags));
+				stacksController->addNewAnim(new EffectAnimation(*this, animation.resourceName, flags, animation.transparency));
 			else
-				stacksController->addNewAnim(new EffectAnimation(*this, animation.resourceName, destinationTile, flags));
+				stacksController->addNewAnim(new EffectAnimation(*this, animation.resourceName, destinationTile, flags, animation.transparency));
 		}
 	}
 }

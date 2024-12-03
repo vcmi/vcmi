@@ -12,8 +12,8 @@ Windows builds can be made in more than one way and with more than one tool. Thi
 - CMake [download link](https://cmake.org/download/). During install after accepting license agreement make sure to check "Add CMake to the system PATH for all users".
 - To unpack pre-build Vcpkg: [7-zip](http://www.7-zip.org/download.html)
 - Optional:
-    - To create installer: [NSIS](http://nsis.sourceforge.net/Main_Page)
-    - To speed up recompilation: [CCache](https://github.com/ccache/ccache/releases)
+  - To create installer: [NSIS](http://nsis.sourceforge.net/Main_Page)
+  - To speed up recompilation: [CCache](https://github.com/ccache/ccache/releases)
 
 ### Choose an installation directory
 
@@ -21,12 +21,14 @@ Create a directory for VCMI development, eg. `C:\VCMI` We will call this directo
 
 Warning! Replace `%VCMI_DIR%` with path you've chosen for VCMI installation in the following commands.
 
-It is recommended to avoid non-ascii characters in the path to your working folders. The folder should not be write-protected by system.   
+It is recommended to avoid non-ascii characters in the path to your working folders. The folder should not be write-protected by system.
 
 Good locations:
+
 - `C:\VCMI`
 
 Bad locations:
+
 - `C:\Users\Michał\VCMI (non-ascii character)`
 - `C:\Program Files (x86)\VCMI (write protection)`
 
@@ -38,13 +40,14 @@ You have two options: to use pre-built libraries or build your own. We strongly 
 
 #### Download and unpack archive
 
-Vcpkg Archives are available at our GitHub: https://github.com/vcmi/vcmi-deps-windows/releases
+Vcpkg Archives are available at our GitHub: <https://github.com/vcmi/vcmi-deps-windows/releases>
 
 - Download latest version available.
 EG: v1.6 assets - [vcpkg-export-x64-windows-v143.7z](https://github.com/vcmi/vcmi-deps-windows/releases/download/v1.6/vcpkg-export-x64-windows-v143.7z)  
 - Extract archive by right clicking on it and choosing "7-zip -> Extract Here".
 
 #### Move dependencies to target directory
+
 Once extracted, a `vcpkg` directory will appear with `installed` and `scripts` subfolders inside.
 Move extracted `vcpkg` directory into your `%VCMI_DIR%`
 
@@ -57,19 +60,21 @@ Be aware that building Vcpkg might take a lot of time depend on your CPU model a
 
 #### Clone vcpkg
 
-1.  open SourceTree
-2.  File -\> Clone
-3.  select **<https://github.com/microsoft/vcpkg/>** as source
-4.  select **%VCMI_DIR%/vcpkg** as destination
-5.  click **Clone**
+1. open SourceTree
+2. File -\> Clone
+3. select **<https://github.com/microsoft/vcpkg/>** as source
+4. select **%VCMI_DIR%/vcpkg** as destination
+5. click **Clone**
 
 From command line use:
 
-    git clone https://github.com/microsoft/vcpkg.git %VCMI_DIR%/vcpkg
+```sh
+git clone https://github.com/microsoft/vcpkg.git %VCMI_DIR%/vcpkg
+```
 
 #### Build vcpkg and dependencies
 
-- Run 
+- Run
 `%VCMI_DIR%/vcpkg/bootstrap-vcpkg.bat`
 - For 32-bit build run:
 `%VCMI_DIR%/vcpkg/vcpkg.exe install tbb:x64-windows fuzzylite:x64-windows sdl2:x64-windows sdl2-image:x64-windows sdl2-ttf:x64-windows sdl2-mixer[mpg123]:x64-windows boost:x64-windows qt5-base:x64-windows ffmpeg:x64-windows luajit:x64-windows`
@@ -85,6 +90,7 @@ Extract `ccache` to a folder of your choosing, add the folder to the `PATH` envi
 ## Build VCMI
 
 #### From GIT GUI
+
 - Open SourceTree
 - File -> Clone
 - select `https://github.com/vcmi/vcmi/` as source
@@ -94,28 +100,32 @@ Extract `ccache` to a folder of your choosing, add the folder to the `PATH` envi
 - click Clone
 
 #### From command line  
+
 - `git clone --recursive https://github.com/vcmi/vcmi.git %VCMI_DIR%/source`  
 
 ### Generate solution for VCMI  
+
 - Create `%VCMI_DIR%/build` folder  
 - Open a command line prompt at `%VCMI_DIR%/build`  
-- Execute `cd %VCMI_DIR%/build`    
+- Execute `cd %VCMI_DIR%/build`
 - Create solution (Visual Studio 2022 64-bit) `cmake %VCMI_DIR%/source -DCMAKE_TOOLCHAIN_FILE=%VCMI_DIR%/vcpkg/scripts/buildsystems/vcpkg.cmake -G "Visual Studio 17 2022" -A x64`
 
 ### Compile VCMI with Visual Studio
+
 - Open `%VCMI_DIR%/build/VCMI.sln` in Visual Studio
 - Select `Release` build type in the combobox
 - If you want to use ccache:
-    - Select `Manage Configurations...` in the combobox
-    - Specify the following CMake variable: `ENABLE_CCACHE=ON`
-    - See the [Visual Studio documentation](https://learn.microsoft.com/en-us/cpp/build/customize-cmake-settings?view=msvc-170#cmake-variables-and-cache) for details
+  - Select `Manage Configurations...` in the combobox
+  - Specify the following CMake variable: `ENABLE_CCACHE=ON`
+  - See the [Visual Studio documentation](https://learn.microsoft.com/en-us/cpp/build/customize-cmake-settings?view=msvc-170#cmake-variables-and-cache) for details
 - Right click on `BUILD_ALL` project. This `BUILD_ALL` project should be in `CMakePredefinedTargets` tree in Solution Explorer.
 - VCMI will be built in `%VCMI_DIR%/build/bin` folder!
 
 ### Compile VCMI with MinGW via MSYS2
-- Install MSYS2 from https://www.msys2.org/
+
+- Install MSYS2 from <https://www.msys2.org/>
 - Start the `MSYS MinGW x64`-shell
-- Install dependencies: `pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-boost mingw-w64-x86_64-gcc mingw-w64-x86_64-ninja mingw-w64-x86_64-qt5-static`
+- Install dependencies: `pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-boost mingw-w64-x86_64-gcc mingw-w64-x86_64-ninja mingw-w64-x86_64-qt5-static mingw-w64-x86_64-qt5-tools mingw-w64-x86_64-tbb`
 - Generate and build solution from VCMI-root dir: `cmake --preset windows-mingw-release && cmake --build --preset windows-mingw-release`
 
 **NOTE:** This will link Qt5 statically to `VCMI_launcher.exe` and `VCMI_Mapeditor.exe`. See [PR #3421](https://github.com/vcmi/vcmi/pull/3421) for some background.
@@ -134,8 +144,10 @@ Vcpkg might be very unstable due to limited popularity and fact of using bleedin
 
 Pre-built version we provide is always manually tested with all supported versions of MSVC for both Release and Debug builds and all known quirks are listed below.
 
-#$# Build is successful but can not start new game
+### Build is successful but can not start new game
+
 Make sure you have:
+
 * Installed Heroes III from disk or using GOG installer
 * Copied `Data`, `Maps` and `Mp3` folders from Heroes III to: `%USERPROFILE%\Documents\My Games\vcmi\`
 

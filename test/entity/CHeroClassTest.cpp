@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 
-#include "../../lib/CHeroHandler.h"
+#include "../../lib/entities/hero/CHeroClass.h"
 
 namespace test
 {

@@ -49,7 +49,7 @@ CBattleQuery::CBattleQuery(CGameHandler * owner):
 	belligerents[BattleSide::DEFENDER] = nullptr;
 }
 
-bool CBattleQuery::blocksPack(const CPack * pack) const
+bool CBattleQuery::blocksPack(const CPackForServer * pack) const
 {
 	if(dynamic_cast<const MakeAction*>(pack) != nullptr)
 		return false;

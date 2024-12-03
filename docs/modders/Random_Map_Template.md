@@ -2,7 +2,7 @@
 
 ## Template format
 
-``` javascript
+```json5
 /// Unique template name
 "Triangle" : 
 {
@@ -28,10 +28,11 @@
 	
 	/// List of game settings that were overriden by this template. See config/gameConfig.json in vcmi install directory for possible values
 	/// Settings defined here will always override any settings from vcmi or from mods
-	"settings" : {
-			"heroes" : {
-				"perPlayerOnMapCap" : 1
-			}
+	"settings" :
+	{
+		"heroes" :
+		{
+			"perPlayerOnMapCap" : 1
 		}
 	},
 
@@ -56,10 +57,14 @@
 
 ## Zone format
 
-``` javascript
+```json5
 {
 	// Type of this zone. Possible values are:
-	// "playerStart", "cpuStart", "treasure", "junction"
+	// "playerStart" - Starting zone for a "human or CPU" players
+	// "cpuStart" - Starting zone for "CPU only" players
+	// "treasure" - Generic neutral zone
+	// "junction" - Neutral zone with narrow passages only. The rest of area is filled with obstacles.
+	// "sealed" - Decorative impassable zone completely filled with obstacles
 	"type" : "playerStart", 
 
 	// relative size of zone
@@ -99,10 +104,13 @@
 	"minesLikeZone" : 1,
 	
 	// Treasures will have same configuration as in linked zone
-	"treasureLikeZone" : 1
+	"treasureLikeZone" : 1,
 	
 	// Terrain type will have same configuration as in linked zone
-	"terrainTypeLikeZone" : 3
+	"terrainTypeLikeZone" : 3,
+
+	// Custom objects will have same configuration as in linked zone
+	"customObjectsLikeZone" : 1,
 
 	// factions of monsters allowed on this zone
 	"allowedMonsters" : ["inferno", "necropolis"] 
@@ -130,6 +138,28 @@
 			"density" : 5
 		}
 		  ...
-	]
+	],
+
+	// Objects with different configuration than default / set by mods
+	"customObjects" :
+	{
+		// All of objects of this kind will be removed from zone
+		// Possible values: "all", "none", "creatureBank", "bonus", "dwelling", "resource", "resourceGenerator", "spellScroll", "randomArtifact", "pandorasBox", "questArtifact", "seerHut", "other
+		"bannedCategories" : ["all", "dwelling", "creatureBank", "other"],
+		// Specify object types and subtypes
+		"bannedObjects" :["core:object.randomArtifactRelic"],
+		// Configure individual common objects - overrides banned objects
+		"commonObjects":
+		[
+			{
+				"id" : "core:object.creatureBank.dragonFlyHive",
+				"rmg" : {
+					"value"		: 9000,
+					"rarity"	: 500,
+					"zoneLimit" : 2
+				}
+			}
+		]
+	}
 }
 ```

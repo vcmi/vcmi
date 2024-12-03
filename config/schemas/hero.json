@@ -4,7 +4,7 @@
 	"title" : "VCMI hero format",
 	"description" : "Format used to define new heroes in VCMI",
 	"required" : [ "class", "army", "skills", "texts" ],
-	"oneOf" : [
+	"anyOf" : [
 		{
 			"required" : [ "images" ]
 		},

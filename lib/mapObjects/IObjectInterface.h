@@ -47,7 +47,7 @@ public:
 
 	virtual PlayerColor getOwner() const = 0;
 	virtual int3 visitablePos() const = 0;
-	virtual int3 getPosition() const = 0;
+	virtual int3 anchorPos() const = 0;
 
 	virtual void onHeroVisit(const CGHeroInstance * h) const;
 	virtual void onHeroLeave(const CGHeroInstance * h) const;

@@ -49,14 +49,13 @@ void MapRendererContextState::addObject(const CGObjectInstance * obj)
 	{
 		for(int fy = 0; fy < obj->getHeight(); ++fy)
 		{
-			int3 currTile(obj->pos.x - fx, obj->pos.y - fy, obj->pos.z);
+			int3 currTile(obj->anchorPos().x - fx, obj->anchorPos().y - fy, obj->anchorPos().z);
 
-			if(LOCPLINT->cb->isInTheMap(currTile) && obj->coveringAt(currTile.x, currTile.y))
+			if(LOCPLINT->cb->isInTheMap(currTile) && obj->coveringAt(currTile))
 			{
 				auto & container = objects[currTile.z][currTile.x][currTile.y];
-
-				container.push_back(obj->id);
-				boost::range::sort(container, compareObjectBlitOrder);
+				auto position = std::upper_bound(container.begin(), container.end(), obj->id, compareObjectBlitOrder);
+				container.insert(position, obj->id);
 			}
 		}
 	}
@@ -73,7 +72,7 @@ void MapRendererContextState::addMovingObject(const CGObjectInstance * object, c
 	{
 		for(int y = yFrom; y <= yDest; ++y)
 		{
-			int3 currTile(x, y, object->pos.z);
+			int3 currTile(x, y, object->anchorPos().z);
 
 			if(LOCPLINT->cb->isInTheMap(currTile))
 			{

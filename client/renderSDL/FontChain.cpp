@@ -13,8 +13,13 @@
 #include "CTrueTypeFont.h"
 #include "CBitmapFont.h"
 
+#include "../CGameInfo.h"
+
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/modding/CModHandler.h"
 #include "../../lib/texts/TextOperations.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/Languages.h"
 
 void FontChain::renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
 {
@@ -39,7 +44,7 @@ size_t FontChain::getFontAscentScaled() const
 	return maxHeight;
 }
 
-bool FontChain::bitmapFontsPrioritized() const
+bool FontChain::bitmapFontsPrioritized(const std::string & bitmapFontName) const
 {
 	const std::string & fontType = settings["video"]["fontsType"].String();
 	if (fontType == "original")
@@ -55,6 +60,17 @@ bool FontChain::bitmapFontsPrioritized() const
 	if (!vstd::isAlmostEqual(1.0, settings["video"]["fontScalingFactor"].Float()))
 		return false; // If player requested non-100% scaling - use scalable fonts
 
+	std::string gameLanguage = CGI->generaltexth->getPreferredLanguage();
+	std::string gameEncoding = Languages::getLanguageOptions(gameLanguage).encoding;
+	std::string fontEncoding = CGI->modh->findResourceEncoding(ResourcePath("data/" + bitmapFontName, EResType::BMP_FONT));
+
+	// player uses language with different encoding than his bitmap fonts
+	// for example, Polish language with English fonts or Chinese language which can't use H3 fonts at all
+	// this may result in unintended mixing of ttf and bitmap fonts, which may have a bit different look
+	// so in this case prefer ttf fonts that are likely to cover target language better than H3 fonts
+	if (fontEncoding != gameEncoding)
+		return false;
+
 	return true; // else - use original bitmap fonts
 }
 
@@ -65,7 +81,7 @@ void FontChain::addTrueTypeFont(const JsonNode & trueTypeConfig)
 
 void FontChain::addBitmapFont(const std::string & bitmapFilename)
 {
-	if (bitmapFontsPrioritized())
+	if (bitmapFontsPrioritized(bitmapFilename))
 		chain.insert(chain.begin(), std::make_unique<CBitmapFont>(bitmapFilename));
 	else
 		chain.push_back(std::make_unique<CBitmapFont>(bitmapFilename));

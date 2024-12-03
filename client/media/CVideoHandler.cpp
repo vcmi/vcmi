@@ -33,7 +33,9 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/opt.h>
 #include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
 }
 
 // Define a set of functions to read data
@@ -314,6 +316,12 @@ bool CVideoInstance::loadNextFrame()
 	return true;
 }
 
+
+double CVideoInstance::timeStamp()
+{
+	return getCurrentFrameEndTime();
+}
+
 bool CVideoInstance::videoEnded()
 {
 	return getCurrentFrame() == nullptr;
@@ -383,10 +391,36 @@ void CVideoInstance::tick(uint32_t msPassed)
 	if(videoEnded())
 		throw std::runtime_error("Video already ended!");
 
-	frameTime += msPassed / 1000.0;
+	if(startTime == std::chrono::steady_clock::time_point())
+		startTime = std::chrono::steady_clock::now();
 
-	if(frameTime >= getCurrentFrameEndTime())
+	auto nowTime = std::chrono::steady_clock::now();
+	double difference = std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - startTime).count() / 1000.0;
+
+	int frameskipCounter = 0;
+	while(!videoEnded() && difference >= getCurrentFrameEndTime() + getCurrentFrameDuration() && frameskipCounter < MAX_FRAMESKIP) // Frameskip
+	{
+		decodeNextFrame();
+		frameskipCounter++;
+	}
+	if(!videoEnded() && difference >= getCurrentFrameEndTime())
 		loadNextFrame();
+}
+
+
+void CVideoInstance::activate()
+{
+	if(deactivationStartTime != std::chrono::steady_clock::time_point())
+	{
+		auto pauseDuration = std::chrono::steady_clock::now() - deactivationStartTime;
+		startTime += pauseDuration;
+		deactivationStartTime = std::chrono::steady_clock::time_point();
+	}
+}
+
+void CVideoInstance::deactivate()
+{
+	deactivationStartTime = std::chrono::steady_clock::now();
 }
 
 struct FFMpegFormatDescription
@@ -501,32 +535,71 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	int numChannels = codecpar->ch_layout.nb_channels;
 #endif
 
-	samples.reserve(44100 * 5); // arbitrary 5-second buffer
+	samples.reserve(44100 * 5); // arbitrary 5-second buffer to reduce reallocations
 
-	for (;;)
+	if (formatProperties.isPlanar && numChannels > 1)
 	{
-		decodeNextFrame();
-		const AVFrame * frame = getCurrentFrame();
+		// Format is 'planar', which is not supported by wav / SDL
+		// Use swresample part of ffmpeg to deplanarize audio into format supported by wav / SDL
 
-		if (!frame)
-			break;
+		auto sourceFormat = static_cast<AVSampleFormat>(codecpar->format);
+		auto targetFormat = av_get_alt_sample_fmt(sourceFormat, false);
 
-		int samplesToRead = frame->nb_samples * numChannels;
-		int bytesToRead = samplesToRead * formatProperties.sampleSizeBytes;
+		SwrContext * swr_ctx = swr_alloc();
 
-		if (formatProperties.isPlanar && numChannels > 1)
+#if (LIBAVUTIL_VERSION_MAJOR < 58)
+		av_opt_set_channel_layout(swr_ctx, "in_chlayout", codecpar->channel_layout, 0);
+		av_opt_set_channel_layout(swr_ctx, "out_chlayout", codecpar->channel_layout, 0);
+#else
+		av_opt_set_chlayout(swr_ctx, "in_chlayout", &codecpar->ch_layout, 0);
+		av_opt_set_chlayout(swr_ctx, "out_chlayout", &codecpar->ch_layout, 0);
+#endif
+		av_opt_set_int(swr_ctx, "in_sample_rate", codecpar->sample_rate, 0);
+		av_opt_set_sample_fmt(swr_ctx, "in_sample_fmt", sourceFormat, 0);
+		av_opt_set_int(swr_ctx, "out_sample_rate", codecpar->sample_rate, 0);
+		av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt", targetFormat, 0);
+
+		int initResult = swr_init(swr_ctx);
+		if (initResult < 0)
+			throwFFmpegError(initResult);
+
+		std::vector<uint8_t> frameSamplesBuffer;
+		for (;;)
 		{
-			// Workaround for lack of resampler
-			// Currently, ffmpeg on conan systems is built without sws resampler
-			// Because of that, and because wav format does not supports 'planar' formats from ffmpeg
-			// we need to de-planarize it and convert to "normal" (non-planar / interleaved) stream
-			samples.reserve(samples.size() + bytesToRead);
-			for (int sm = 0; sm < frame->nb_samples; ++sm)
-				for (int ch = 0; ch < numChannels; ++ch)
-					samples.insert(samples.end(), frame->data[ch] + sm * formatProperties.sampleSizeBytes, frame->data[ch] + (sm+1) * formatProperties.sampleSizeBytes );
+			decodeNextFrame();
+			const AVFrame * frame = getCurrentFrame();
+
+			if (!frame)
+				break;
+
+			size_t samplesToRead = frame->nb_samples * numChannels;
+			size_t bytesToRead = samplesToRead * formatProperties.sampleSizeBytes;
+			frameSamplesBuffer.resize(std::max(frameSamplesBuffer.size(), bytesToRead));
+			uint8_t * frameSamplesPtr = frameSamplesBuffer.data();
+
+			int result = swr_convert(swr_ctx, &frameSamplesPtr, frame->nb_samples, const_cast<const uint8_t **>(frame->data), frame->nb_samples);
+
+			if (result < 0)
+				throwFFmpegError(result);
+
+			size_t samplesToCopy = result * numChannels;
+			size_t bytesToCopy = samplesToCopy * formatProperties.sampleSizeBytes;
+			samples.insert(samples.end(), frameSamplesBuffer.begin(), frameSamplesBuffer.begin() + bytesToCopy);
 		}
-		else
+		swr_free(&swr_ctx);
+	}
+	else
+	{
+		for (;;)
 		{
+			decodeNextFrame();
+			const AVFrame * frame = getCurrentFrame();
+
+			if (!frame)
+				break;
+
+			size_t samplesToRead = frame->nb_samples * numChannels;
+			size_t bytesToRead = samplesToRead * formatProperties.sampleSizeBytes;
 			samples.insert(samples.end(), frame->data[0], frame->data[0] + bytesToRead);
 		}
 	}
@@ -564,69 +637,6 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	return dat;
 }
 
-bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool stopOnKey)
-{
-	CVideoInstance instance;
-	CAudioInstance audio;
-
-	auto extractedAudio = audio.extractAudio(name);
-	int audioHandle = CCS->soundh->playSound(extractedAudio);
-
-	if (!instance.openInput(name))
-		return true;
-
-	instance.openVideo();
-	instance.prepareOutput(1, true);
-
-	auto lastTimePoint = boost::chrono::steady_clock::now();
-
-	while(instance.loadNextFrame())
-	{
-		if(stopOnKey)
-		{
-			GH.input().fetchEvents();
-			if(GH.input().ignoreEventsUntilInput())
-			{
-				CCS->soundh->stopSound(audioHandle);
-				return false;
-			}
-		}
-
-		SDL_Rect rect;
-		rect.x = position.x;
-		rect.y = position.y;
-		rect.w = instance.dimensions.x;
-		rect.h = instance.dimensions.y;
-
-		SDL_RenderFillRect(mainRenderer, &rect);
-
-		if(instance.textureYUV)
-			SDL_RenderCopy(mainRenderer, instance.textureYUV, nullptr, &rect);
-		else
-			SDL_RenderCopy(mainRenderer, instance.textureRGB, nullptr, &rect);
-
-		SDL_RenderPresent(mainRenderer);
-
-		// Framerate delay
-		double targetFrameTimeSeconds = instance.getCurrentFrameDuration();
-		auto targetFrameTime = boost::chrono::milliseconds(static_cast<int>(1000 * targetFrameTimeSeconds));
-
-		auto timePointAfterPresent = boost::chrono::steady_clock::now();
-		auto timeSpentBusy = boost::chrono::duration_cast<boost::chrono::milliseconds>(timePointAfterPresent - lastTimePoint);
-
-		if(targetFrameTime > timeSpentBusy)
-			boost::this_thread::sleep_for(targetFrameTime - timeSpentBusy);
-
-		lastTimePoint = boost::chrono::steady_clock::now();
-	}
-	return true;
-}
-
-void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & position)
-{
-	openAndPlayVideoImpl(name, position * GH.screenHandler().getScalingFactor(), false, false);
-}
-
 std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, float scaleFactor)
 {
 	auto result = std::make_unique<CVideoInstance>();
@@ -643,6 +653,15 @@ std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, float
 
 std::pair<std::unique_ptr<ui8[]>, si64> CVideoPlayer::getAudio(const VideoPath & videoToOpen)
 {
+	AudioPath audioPath = videoToOpen.toType<EResType::SOUND>();
+	AudioPath audioPathVideoDir = audioPath.addPrefix("VIDEO/");
+
+	if(CResourceHandler::get()->existsResource(audioPath))
+		return CResourceHandler::get()->load(audioPath)->readAll();
+
+	if(CResourceHandler::get()->existsResource(audioPathVideoDir))
+		return CResourceHandler::get()->load(audioPathVideoDir)->readAll();
+
 	CAudioInstance audio;
 	return audio.extractAudio(videoToOpen);
 }

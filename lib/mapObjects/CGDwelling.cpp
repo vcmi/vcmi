@@ -93,7 +93,7 @@ FactionID CGDwelling::randomizeFaction(vstd::RNG & rand)
 
 		assert(linkedTown->ID == Obj::TOWN);
 		if(linkedTown->ID==Obj::TOWN)
-			return linkedTown->getFaction();
+			return linkedTown->getFactionID();
 	}
 
 	if(!randomizationInfo->allowedFactions.empty())
@@ -180,6 +180,7 @@ void CGDwelling::initObj(vstd::RNG & rand)
 	{
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR4:
+	case Obj::WAR_MACHINE_FACTORY:
 		{
 			getObjectHandler()->configureObject(this, rand);
 			assert(!creatures.empty());
@@ -188,13 +189,6 @@ void CGDwelling::initObj(vstd::RNG & rand)
 		}
 	case Obj::REFUGEE_CAMP:
 		//is handled within newturn func
-		break;
-
-	case Obj::WAR_MACHINE_FACTORY:
-		creatures.resize(3);
-		creatures[0].second.emplace_back(CreatureID::BALLISTA);
-		creatures[1].second.emplace_back(CreatureID::FIRST_AID_TENT);
-		creatures[2].second.emplace_back(CreatureID::AMMO_CART);
 		break;
 
 	default:
@@ -224,7 +218,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		iw.player = h->tempOwner;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 44); //{%s} \n\n The camp is deserted.  Perhaps you should try next week.
 		iw.text.replaceName(ID);
-		cb->sendAndApply(&iw);
+		cb->sendAndApply(iw);
 		return;
 	}
 
@@ -324,7 +318,7 @@ void CGDwelling::newTurn(vstd::RNG & rand) const
 	}
 
 	if(change)
-		cb->sendAndApply(&sac);
+		cb->sendAndApply(sac);
 
 	updateGuards();
 }
@@ -392,7 +386,7 @@ void CGDwelling::updateGuards() const
 				csc.slot = slot;
 				csc.count = crea->getGrowth() * 3;
 				csc.absoluteValue = true;
-				cb->sendAndApply(&csc);
+				cb->sendAndApply(csc);
 			}
 			else //slot is empty, create whole new stack
 			{
@@ -401,7 +395,7 @@ void CGDwelling::updateGuards() const
 				ns.slot = slot;
 				ns.type = crea->getId();
 				ns.count = crea->getGrowth() * 3;
-				cb->sendAndApply(&ns);
+				cb->sendAndApply(ns);
 			}
 		}
 	}
@@ -458,7 +452,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 				iw.text.replaceNamePlural(crid);
 
 				cb->showInfoDialog(&iw);
-				cb->sendAndApply(&sac);
+				cb->sendAndApply(sac);
 				cb->addToSlot(StackLocation(h, slot), crs, count);
 			}
 		}
@@ -469,7 +463,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 422); //There are no %s here to recruit.
 			iw.text.replaceNamePlural(crid);
 			iw.player = h->tempOwner;
-			cb->sendAndApply(&iw);
+			cb->sendAndApply(iw);
 		}
 	}
 	else
@@ -483,7 +477,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 			sac.creatures[0].first = !h->getArt(ArtifactPosition::MACH1); //ballista
 			sac.creatures[1].first = !h->getArt(ArtifactPosition::MACH3); //first aid tent
 			sac.creatures[2].first = !h->getArt(ArtifactPosition::MACH2); //ammo cart
-			cb->sendAndApply(&sac);
+			cb->sendAndApply(sac);
 		}
 
 		auto windowMode = (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::REFUGEE_CAMP) ? EOpenWindowMode::RECRUITMENT_FIRST : EOpenWindowMode::RECRUITMENT_ALL;

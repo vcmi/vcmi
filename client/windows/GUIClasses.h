@@ -45,6 +45,8 @@ class IImage;
 class VideoWidget;
 class VideoWidgetOnce;
 class GraphicalPrimitiveCanvas;
+class TransparentFilledRectangle;
+class CSecSkillPlace;
 
 enum class EUserEvent;
 
@@ -186,9 +188,14 @@ class CObjectListWindow : public CWindowObject
 	std::shared_ptr<CButton> ok;
 	std::shared_ptr<CButton> exit;
 
-	std::vector< std::pair<int, std::string> > items;//all items present in list
+	std::shared_ptr<CTextInput> searchBox;
+	std::shared_ptr<TransparentFilledRectangle> searchBoxRectangle;
+	std::shared_ptr<CLabel> searchBoxDescription;
 
-	void init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr);
+	std::vector< std::pair<int, std::string> > items; //all items present in list
+	std::vector< std::pair<int, std::string> > itemsVisible; //visible items present in list
+
+	void init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled);
 	void exitPressed();
 public:
 	size_t selected;//index of currently selected item
@@ -200,8 +207,8 @@ public:
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
 	/// Image can be nullptr
 	///item names will be taken from map objects
-	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {});
-	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {});
+	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false);
+	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false);
 
 	std::shared_ptr<CIntObject> genItem(size_t index);
 	void elementSelected();//call callback and close this window
@@ -364,7 +371,7 @@ class CUniversityWindow final : public CStatusbarWindow, public IMarketHolder
 {
 	class CItem final : public CIntObject
 	{
-		std::shared_ptr<CAnimImage> icon;
+		std::shared_ptr<CSecSkillPlace> skill;
 		std::shared_ptr<CPicture> topBar;
 		std::shared_ptr<CPicture> bottomBar;
 		std::shared_ptr<CLabel> name;
@@ -373,9 +380,6 @@ class CUniversityWindow final : public CStatusbarWindow, public IMarketHolder
 		SecondarySkill ID;//id of selected skill
 		CUniversityWindow * parent;
 
-		void clickPressed(const Point & cursorPosition) override;
-		void showPopupWindow(const Point & cursorPosition) override;
-		void hover(bool on) override;
 		void update();
 		CItem(CUniversityWindow * _parent, int _ID, int X, int Y);
 	};
@@ -445,9 +449,11 @@ public:
 class CHillFortWindow : public CStatusbarWindow, public IGarrisonHolder
 {
 private:
-	static const int slotsCount = 7;
+
+	enum class State { UNAFFORDABLE, ALREADY_UPGRADED, MAKE_UPGRADE, EMPTY, UNAVAILABLE };
+	static constexpr std::size_t slotsCount = 7;
 	//todo: mithril support
-	static const int resCount = 7;
+	static constexpr std::size_t resCount = 7;
 
 	const CGObjectInstance * fort;
 	const CGHeroInstance * hero;
@@ -459,7 +465,7 @@ private:
 	std::array<std::shared_ptr<CLabel>, resCount> totalLabels;
 
 	std::array<std::shared_ptr<CButton>, slotsCount> upgrade;//upgrade single creature
-	std::array<int, slotsCount + 1> currState;//current state of slot - to avoid calls to getState or updating buttons
+	std::array<State, slotsCount + 1> currState;//current state of slot - to avoid calls to getState or updating buttons
 
 	//there is a place for only 2 resources per slot
 	std::array< std::array<std::shared_ptr<CAnimImage>, 2>, slotsCount> slotIcons;
@@ -474,7 +480,7 @@ private:
 	std::string getTextForSlot(SlotID slot);
 
 	void makeDeal(SlotID slot);//-1 for upgrading all creatures
-	int getState(SlotID slot); //-1 = no creature 0=can't upgrade, 1=upgraded, 2=can upgrade
+	State getState(SlotID slot);
 public:
 	CHillFortWindow(const CGHeroInstance * visitor, const CGObjectInstance * object);
 	void updateGarrisons() override;//update buttons after garrison changes
@@ -513,9 +519,9 @@ class VideoWindow : public CWindowObject
 
 	void exit(bool skipped);
 public:
-	VideoWindow(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void(bool)> closeCb);
+	VideoWindow(const VideoPath & video, const ImagePath & rim, bool showBackground, float scaleFactor, const std::function<void(bool)> & closeCb);
 
 	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
-	bool receiveEvent(const Point & position, int eventType) const override;
+	void notFocusedClick() override;
 };

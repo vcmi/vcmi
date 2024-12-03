@@ -118,7 +118,7 @@ TEST_P(TimedApplyTest, DISABLED_ChangesBonuses)
 
 	setDefaultExpectations();
 
-	EXPECT_CALL(serverMock, apply(Matcher<SetStackEffect *>(_))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<SetStackEffect &>(_))).Times(1);
 
 	subject->apply(&serverMock, &mechanicsMock, target);
 

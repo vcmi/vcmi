@@ -46,7 +46,7 @@ TSubgoal FindObj::whatToDoToAchieve()
 			}
 		}
 	}
-	if(o && ai->isAccessible(o->pos)) //we don't use isAccessibleForHero as we don't know which hero it is
+	if(o && ai->isAccessible(o->visitablePos())) //we don't use isAccessibleForHero as we don't know which hero it is
 		return sptr(VisitObj(o->id.getNum()));
 	else
 		return sptr(Explore());

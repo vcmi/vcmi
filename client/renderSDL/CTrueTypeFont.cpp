@@ -64,15 +64,23 @@ int CTrueTypeFont::getFontStyle(const JsonNode &config) const
 CTrueTypeFont::CTrueTypeFont(const JsonNode & fontConfig):
 	data(loadData(fontConfig)),
 	font(loadFont(fontConfig), TTF_CloseFont),
-	dropShadow(!fontConfig["noShadow"].Bool()),
+	blended(true),
 	outline(fontConfig["outline"].Bool()),
-	blended(true)
+	dropShadow(!fontConfig["noShadow"].Bool())
 {
 	assert(font);
 
 	TTF_SetFontStyle(font.get(), getFontStyle(fontConfig));
 	TTF_SetFontHinting(font.get(),TTF_HINTING_MONO);
 
+	logGlobal->debug("Loaded TTF font: '%s', point size %d, height %d, ascent %d, descent %d, line skip %d",
+					 fontConfig["file"].String(),
+					 getPointSize(fontConfig["size"]),
+					 TTF_FontHeight(font.get()),
+					 TTF_FontAscent(font.get()),
+					 TTF_FontDescent(font.get()),
+					 TTF_FontLineSkip(font.get())
+	);
 }
 
 CTrueTypeFont::~CTrueTypeFont() = default;
@@ -87,14 +95,14 @@ size_t CTrueTypeFont::getLineHeightScaled() const
 	return TTF_FontHeight(font.get());
 }
 
-size_t CTrueTypeFont::getGlyphWidthScaled(const char *data) const
+size_t CTrueTypeFont::getGlyphWidthScaled(const char *text) const
 {
-	return getStringWidthScaled(std::string(data, TextOperations::getUnicodeCharacterSize(*data)));
+	return getStringWidthScaled(std::string(text, TextOperations::getUnicodeCharacterSize(*text)));
 }
 
-bool CTrueTypeFont::canRepresentCharacter(const char * data) const
+bool CTrueTypeFont::canRepresentCharacter(const char * text) const
 {
-	uint32_t codepoint = TextOperations::getUnicodeCodepoint(data, TextOperations::getUnicodeCharacterSize(*data));
+	uint32_t codepoint = TextOperations::getUnicodeCodepoint(text, TextOperations::getUnicodeCharacterSize(*text));
 #if SDL_TTF_VERSION_ATLEAST(2, 0, 18)
 	return TTF_GlyphIsProvided32(font.get(), codepoint);
 #elif SDL_TTF_VERSION_ATLEAST(2, 0, 12)
@@ -106,10 +114,16 @@ bool CTrueTypeFont::canRepresentCharacter(const char * data) const
 #endif
 }
 
-size_t CTrueTypeFont::getStringWidthScaled(const std::string & data) const
+size_t CTrueTypeFont::getStringWidthScaled(const std::string & text) const
 {
 	int width;
-	TTF_SizeUTF8(font.get(), data.c_str(), &width, nullptr);
+	TTF_SizeUTF8(font.get(), text.c_str(), &width, nullptr);
+
+	if (outline)
+		width += getScalingFactor();
+	if (dropShadow || outline)
+		width += getScalingFactor();
+		
 	return width;
 }
 

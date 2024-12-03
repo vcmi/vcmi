@@ -18,7 +18,6 @@
 #include "../ArtifactUtils.h"
 #include "../CCreatureHandler.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
 #include "../IGameSettings.h"
@@ -27,6 +26,7 @@
 #include "../TerrainHandler.h"
 #include "../VCMI_Lib.h"
 #include "../constants/StringConstants.h"
+#include "../entities/hero/CHeroHandler.h"
 #include "../filesystem/CBinaryReader.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -208,13 +208,12 @@ void CMapLoaderH3M::readHeader()
 
 	// optimization - load mappings only once to avoid slow parsing of map headers for map list
 	static const std::map<EMapFormat, MapIdentifiersH3M> identifierMappers = generateMappings();
+	if (!identifierMappers.count(mapHeader->version))
+		throw std::runtime_error("Unsupported map format! Format ID " + std::to_string(static_cast<int>(mapHeader->version)));
+
 	const MapIdentifiersH3M & identifierMapper = identifierMappers.at(mapHeader->version);
 
 	reader->setIdentifierRemapper(identifierMapper);
-
-	// include basic mod
-	if(mapHeader->version == EMapFormat::WOG)
-		mapHeader->mods["wake-of-gods"];
 
 	// Read map name, description, dimensions,...
 	mapHeader->areAnyPlayers = reader->readBool();
@@ -896,7 +895,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		}
 		map->predefinedHeroes.emplace_back(hero);
 
-		logGlobal->debug("Map '%s': Hero predefined in map: %s", mapName, VLC->heroh->getById(hero->getHeroType())->getJsonKey());
+		logGlobal->debug("Map '%s': Hero predefined in map: %s", mapName, hero->getHeroType()->getJsonKey());
 	}
 }
 
@@ -913,11 +912,11 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 
 	if(!hero->artifactsWorn.empty() || !hero->artifactsInBackpack.empty())
 	{
-		logGlobal->debug("Hero %d at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getHeroType().getNum(), hero->pos.toString());
+		logGlobal->debug("Hero %d at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getHeroTypeID().getNum(), hero->anchorPos().toString());
 
 		hero->artifactsInBackpack.clear();
 		while(!hero->artifactsWorn.empty())
-			hero->eraseArtSlot(hero->artifactsWorn.begin()->first);
+			hero->removeArtifact(hero->artifactsWorn.begin()->first);
 	}
 
 	for(int i = 0; i < features.artifactSlotsCount; i++)
@@ -959,7 +958,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	if(ArtifactID(artifactID).toArtifact()->canBePutAt(hero, ArtifactPosition(slot)))
 	{
 		auto * artifact = ArtifactUtils::createArtifact(artifactID);
-		artifact->putAt(*hero, ArtifactPosition(slot));
+		map->putArtifactInstance(*hero, artifact, slot);
 		map->addNewArtifactInstance(artifact);
 	}
 	else
@@ -985,17 +984,13 @@ void CMapLoaderH3M::readTerrain()
 			for(pos.x = 0; pos.x < map->width; pos.x++)
 			{
 				auto & tile = map->getTile(pos);
-				tile.terType = VLC->terrainTypeHandler->getById(reader->readTerrain());
+				tile.terrainType = reader->readTerrain();
 				tile.terView = reader->readUInt8();
-				tile.riverType = VLC->riverTypeHandler->getById(reader->readRiver());
+				tile.riverType = reader->readRiver();
 				tile.riverDir = reader->readUInt8();
-				tile.roadType = VLC->roadTypeHandler->getById(reader->readRoad());
+				tile.roadType = reader->readRoad();
 				tile.roadDir = reader->readUInt8();
 				tile.extTileFlags = reader->readUInt8();
-				tile.blocked = !tile.terType->isPassable();
-				tile.visitable = false;
-
-				assert(tile.terType->getId() != ETerrainId::NONE);
 			}
 		}
 	}
@@ -1478,9 +1473,9 @@ CGObjectInstance * CMapLoaderH3M::readShipyard(const int3 & mapPosition, std::sh
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readLighthouse(const int3 & mapPosition)
+CGObjectInstance * CMapLoaderH3M::readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * object = new CGLighthouse(map->cb);
+	auto * object = readGeneric(mapPosition, objectTemplate);
 	setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
 	return object;
 }
@@ -1618,7 +1613,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 			return readPyramid(mapPosition, objectTemplate);
 
 		case Obj::LIGHTHOUSE:
-			return readLighthouse(mapPosition);
+			return readLighthouse(mapPosition, objectTemplate);
 
 		case Obj::CREATURE_BANK:
 		case Obj::DERELICT_SHIP:
@@ -1651,7 +1646,7 @@ void CMapLoaderH3M::readObjects()
 		if(!newObject)
 			continue;
 
-		newObject->pos = mapPosition;
+		newObject->setAnchorPos(mapPosition);
 		newObject->ID = objectTemplate->id;
 		newObject->id = objectInstanceID;
 		if(newObject->ID != Obj::HERO && newObject->ID != Obj::HERO_PLACEHOLDER && newObject->ID != Obj::PRISON)
@@ -1778,7 +1773,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 	for(auto & elem : map->disposedHeroes)
 	{
-		if(elem.heroId == object->getHeroType())
+		if(elem.heroId == object->getHeroTypeID())
 		{
 			object->nameCustomTextId = elem.name;
 			object->customPortraitSource = elem.portrait;
@@ -1788,7 +1783,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 	bool hasName = reader->readBool();
 	if(hasName)
-		object->nameCustomTextId = readLocalizedString(TextIdentifier("heroes", object->getHeroType().getNum(), "name"));
+		object->nameCustomTextId = readLocalizedString(TextIdentifier("heroes", object->getHeroTypeID().getNum(), "name"));
 
 	if(features.levelSOD)
 	{
@@ -1891,7 +1886,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 			auto ps = object->getAllBonuses(Selector::type()(BonusType::PRIMARY_SKILL).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)), nullptr);
 			if(ps->size())
 			{
-				logGlobal->debug("Hero %s has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getHeroType().getNum() );
+				logGlobal->debug("Hero %s has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getHeroTypeID().getNum() );
 				for(const auto & b : *ps)
 					object->removeBonus(b);
 			}
@@ -1904,7 +1899,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	}
 
 	if (object->subID != MapObjectSubID())
-		logGlobal->debug("Map '%s': Hero on map: %s at %s, owned by %s", mapName, VLC->heroh->getById(object->getHeroType())->getJsonKey(), mapPosition.toString(), object->getOwner().toString());
+		logGlobal->debug("Map '%s': Hero on map: %s at %s, owned by %s", mapName, object->getHeroType()->getJsonKey(), mapPosition.toString(), object->getOwner().toString());
 	else
 		logGlobal->debug("Map '%s': Hero on map: (random) at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().toString());
 
@@ -2117,7 +2112,7 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 			guard->quest->mission.creatures.resize(typeNumber);
 			for(size_t hh = 0; hh < typeNumber; ++hh)
 			{
-				guard->quest->mission.creatures[hh].type = reader->readCreature().toCreature();
+				guard->quest->mission.creatures[hh].setType(reader->readCreature().toCreature());
 				guard->quest->mission.creatures[hh].count = reader->readUInt16();
 			}
 			break;
@@ -2235,10 +2230,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	}
 
 	if(features.levelHOTA1)
-	{
-		// TODO: HOTA support
-		[[maybe_unused]] bool spellResearchAvailable = reader->readBool();
-	}
+		object->spellResearchAllowed = reader->readBool();
 
 	// Read castle events
 	uint32_t eventsCount = reader->readUInt32();

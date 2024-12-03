@@ -125,7 +125,7 @@ void Sacrifice::apply(ServerCallback * server, const Mechanics * m, const Effect
 	BattleUnitsChanged removeUnits;
 	removeUnits.battleID = m->battle()->getBattle()->getBattleID();
 	removeUnits.changedStacks.emplace_back(victim->unitId(), UnitChanges::EOperation::REMOVE);
-	server->apply(&removeUnits);
+	server->apply(removeUnits);
 }
 
 bool Sacrifice::isValidTarget(const Mechanics * m, const battle::Unit * unit) const

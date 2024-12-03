@@ -53,7 +53,6 @@ public:
 	LegacyTextContainer jktexts;
 	LegacyTextContainer heroscrn;
 	LegacyTextContainer overview;//text for Kingdom Overview window
-	LegacyTextContainer colors; //names of player colors ("red",...)
 	LegacyTextContainer capColors; //names of player colors with first letter capitalized ("Red",...)
 	LegacyTextContainer turnDurations; //turn durations for pregame (1 Minute ... Unlimited)
 
@@ -62,26 +61,18 @@ public:
 	LegacyTextContainer hcommands; // town hall screen
 	LegacyTextContainer fcommands; // fort screen
 	LegacyTextContainer tavernInfo;
-	LegacyTextContainer tavernRumors;
-
-	LegacyTextContainer qeModCommands;
 
 	LegacyHelpContainer zelp;
-	LegacyTextContainer lossConditions;
-	LegacyTextContainer victoryConditions;
 
 	//objects
 	LegacyTextContainer advobtxt;
 	LegacyTextContainer restypes; //names of resources
-	LegacyTextContainer randsign;
 	LegacyTextContainer seerEmpty;
 	LegacyTextContainer seerNames;
 	LegacyTextContainer tentColors;
 
 	//sec skills
 	LegacyTextContainer levels;
-	//commanders
-	LegacyTextContainer znpc00; //more or less useful content of that file
 
 	std::vector<std::string> findStringsWithPrefix(const std::string & prefix);
 

@@ -44,6 +44,7 @@
 		"level": 2,
 		"faction": "stronghold",
 		"upgrades": ["hobgoblinWolfRider"],
+		"doubleWide" : true,
 		"hasDoubleWeek": true,
 		"graphics" :
 		{
@@ -63,6 +64,7 @@
 		"index": 87,
 		"level": 2,
 		"faction": "stronghold",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"extraAttack" :
@@ -90,6 +92,14 @@
 		"level": 3,
 		"faction": "stronghold",
 		"upgrades": ["orcChieftain"],
+		"shots" : 12,
+		"abilities" :
+		{
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CORC.DEF",
@@ -113,6 +123,14 @@
 		"index": 89,
 		"level": 3,
 		"faction": "stronghold",
+		"shots" : 24,
+		"abilities" :
+		{
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CORCCH.DEF",
@@ -194,6 +212,14 @@
 		"level": 5,
 		"faction": "stronghold",
 		"upgrades": ["thunderbird"],
+		"doubleWide" : true,
+		"abilities" :
+		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CROC.DEF"
@@ -212,19 +238,24 @@
 		"index": 93,
 		"level": 5,
 		"faction": "stronghold",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"thunderStrength" :
+			"canFly" :
 			{
-				"type" : "SPECIFIC_SPELL_POWER",
-				"subtype" : "spell.thunderbolt",
-				"val" : 10
+				"type" : "FLYING"
 			},
 			"thunderOnAttack" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.thunderbolt",
 				"val" : 20
+			},
+			"thunderStrength" :
+			{
+				"type" : "SPECIFIC_SPELL_POWER",
+				"subtype" : "spell.thunderbolt",
+				"val" : 10
 			}
 		},
 		"graphics" :
@@ -245,11 +276,17 @@
 		"index": 94,
 		"level": 6,
 		"faction": "stronghold",
+		"shots" : 16,
 		"abilities" :
 		{
-			"siege" : {
-				"subtype" : "spell.cyclopsShot",
-				"type" : "CATAPULT"
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			},
+			"canShootWalls" :
+			{
+				"type" : "CATAPULT",
+				"subtype" : "spell.cyclopsShot"
 			}
 		},
 		"upgrades": ["cyclopKing"],
@@ -276,16 +313,22 @@
 		"index": 95,
 		"level": 6,
 		"faction": "stronghold",
+		"shots" : 24,
 		"abilities":
 		{
-			"siege" : {
-				"subtype" : "spell.cyclopsShot",
-				"type" : "CATAPULT"
-			},
-			"siegeLevel" :
+			"shooter" :
 			{
-				"subtype" : "spell.cyclopsShot",
+				"type" : "SHOOTER"
+			},
+			"canShootWalls" :
+			{
+				"type" : "CATAPULT",
+				"subtype" : "spell.cyclopsShot"
+			},
+			"canShootWallsTimes" :
+			{
 				"type" : "CATAPULT_EXTRA_SHOTS",
+				"subtype" : "spell.cyclopsShot",
 				"valueType" : "BASE_NUMBER",
 				"val" : 1
 			}
@@ -313,12 +356,18 @@
 		"index": 96,
 		"level": 7,
 		"faction": "stronghold",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"reduceDefence" :
 			{
 				"type" : "ENEMY_DEFENCE_REDUCTION",
 				"val" : 40
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"upgrades": ["ancientBehemoth"],
@@ -340,12 +389,18 @@
 		"index": 97,
 		"level": 7,
 		"faction": "stronghold",
+		"doubleWide" : true,
 		"abilities":
 		{
 			"reduceDefence" :
 			{
 				"type" : "ENEMY_DEFENCE_REDUCTION",
 				"val" : 80
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"graphics" :

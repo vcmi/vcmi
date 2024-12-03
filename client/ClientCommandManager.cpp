@@ -36,7 +36,6 @@
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ContentTypeHandler.h"
 #include "../lib/modding/ModUtility.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/logging/VisualLogger.h"
 #include "../lib/serializer/Connection.h"
@@ -186,12 +185,12 @@ void ClientCommandManager::handleRedrawCommand()
 	GH.windows().totalRedraw();
 }
 
-void ClientCommandManager::handleTranslateGameCommand()
+void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 {
 	std::map<std::string, std::map<std::string, std::string>> textsByMod;
-	VLC->generaltexth->exportAllTexts(textsByMod);
+	VLC->generaltexth->exportAllTexts(textsByMod, onlyMissing);
 
-	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / ( onlyMissing ? "translationMissing" : "translation");
 	boost::filesystem::create_directories(outPath);
 
 	for(const auto & modEntry : textsByMod)
@@ -255,13 +254,20 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	logGlobal->info("Loading campaigns for export");
 	for (auto const & campaignName : campaignList)
 	{
-		loadedCampaigns.push_back(CampaignHandler::getCampaign(campaignName.getName()));
-		for (auto const & part : loadedCampaigns.back()->allScenarios())
-			loadedCampaigns.back()->getMap(part, nullptr);
+		try
+		{
+			loadedCampaigns.push_back(CampaignHandler::getCampaign(campaignName.getName()));
+			for (auto const & part : loadedCampaigns.back()->allScenarios())
+				loadedCampaigns.back()->getMap(part, nullptr);
+		}
+		catch(std::exception & e)
+		{
+			logGlobal->warn("Campaign %s is invalid. Message: %s", campaignName.getName(), e.what());
+		}
 	}
 
 	std::map<std::string, std::map<std::string, std::string>> textsByMod;
-	VLC->generaltexth->exportAllTexts(textsByMod);
+	VLC->generaltexth->exportAllTexts(textsByMod, false);
 
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
 	boost::filesystem::create_directories(outPath);
@@ -388,7 +394,7 @@ void ClientCommandManager::handleDef2bmpCommand(std::istringstream& singleWordBu
 {
 	std::string URI;
 	singleWordBuffer >> URI;
-	auto anim = GH.renderHandler().loadAnimation(AnimationPath::builtin(URI), EImageBlitMode::ALPHA);
+	auto anim = GH.renderHandler().loadAnimation(AnimationPath::builtin(URI), EImageBlitMode::SIMPLE);
 	anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
 }
 
@@ -453,7 +459,7 @@ void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffe
 	if(what == "hs")
 	{
 		for(const CGHeroInstance* h : LOCPLINT->cb->getHeroesInfo())
-			if(h->type->getIndex() == id1)
+			if(h->getHeroTypeID().getNum() == id1)
 				if(const CArtifactInstance* a = h->getArt(ArtifactPosition(id2)))
 					printCommandMessage(a->nodeName());
 	}
@@ -592,7 +598,10 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 		handleRedrawCommand();
 
 	else if(message=="translate" || message=="translate game")
-		handleTranslateGameCommand();
+		handleTranslateGameCommand(false);
+
+	else if(message=="translate missing")
+		handleTranslateGameCommand(true);
 
 	else if(message=="translate maps")
 		handleTranslateMapsCommand();

@@ -58,7 +58,7 @@ void DamageCache::buildObstacleDamageCache(std::shared_ptr<HypotheticBattle> hb,
 			return u->alive() && !u->isTurret() && u->getPosition().isValid();
 		});
 
-		std::shared_ptr<HypotheticBattle> inner = std::make_shared<HypotheticBattle>(hb->env, hb);
+		auto inner = std::make_shared<HypotheticBattle>(hb->env, hb);
 
 		for(auto stack : stacks)
 		{

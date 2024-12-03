@@ -17,9 +17,8 @@
 #include "../filesystem/CMemoryStream.h"
 #include "../filesystem/CMemoryBuffer.h"
 #include "../modding/CModHandler.h"
+#include "../modding/ModDescription.h"
 #include "../modding/ModScope.h"
-#include "../modding/CModInfo.h"
-#include "../texts/Languages.h"
 #include "../VCMI_Lib.h"
 
 #include "CMap.h"
@@ -34,8 +33,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 std::unique_ptr<CMap> CMapService::loadMap(const ResourcePath & name, IGameCallback * cb) const
 {
 	std::string modName = VLC->modh->findResourceOrigin(name);
-	std::string language = VLC->modh->getModLanguage(modName);
-	std::string encoding = Languages::getLanguageOptions(language).encoding;
+	std::string encoding = VLC->modh->findResourceEncoding(name);
 
 	auto stream = getStreamFromFS(name);
 	return getMapLoader(stream, name.getName(), modName, encoding)->loadMap(cb);
@@ -44,8 +42,7 @@ std::unique_ptr<CMap> CMapService::loadMap(const ResourcePath & name, IGameCallb
 std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourcePath & name) const
 {
 	std::string modName = VLC->modh->findResourceOrigin(name);
-	std::string language = VLC->modh->getModLanguage(modName);
-	std::string encoding = Languages::getLanguageOptions(language).encoding;
+	std::string encoding = VLC->modh->findResourceEncoding(name);
 
 	auto stream = getStreamFromFS(name);
 	return getMapLoader(stream, name.getName(), modName, encoding)->loadMapHeader();
@@ -102,7 +99,7 @@ ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
 		if(vstd::contains(activeMods, mapMod.first))
 		{
 			const auto & modInfo = VLC->modh->getModInfo(mapMod.first);
-			if(modInfo.getVerificationInfo().version.compatible(mapMod.second.version))
+			if(modInfo.getVersion().compatible(mapMod.second.version))
 				continue;
 		}
 		missingMods[mapMod.first] = mapMod.second;

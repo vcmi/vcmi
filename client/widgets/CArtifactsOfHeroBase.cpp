@@ -63,18 +63,14 @@ void CArtifactsOfHeroBase::init(
 		auto artPlace = std::make_shared<CArtPlace>(Point(403 + 46 * s, 365));
 		backpack.push_back(artPlace);
 	}
-	for(auto artPlace : artWorn)
+	for(auto & artPlace : artWorn)
 	{
 		artPlace.second->slot = artPlace.first;
-		artPlace.second->setArtifact(nullptr);
-		artPlace.second->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
-		artPlace.second->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
+		artPlace.second->setArtifact(ArtifactID(ArtifactID::NONE));
 	}
-	for(auto artPlace : backpack)
+	for(const auto & artPlace : backpack)
 	{
-		artPlace->setArtifact(nullptr);
-		artPlace->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
-		artPlace->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
+		artPlace->setArtifact(ArtifactID(ArtifactID::NONE));
 	}
 	leftBackpackRoll = std::make_shared<CButton>(Point(379, 364), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(),
 		[scrollCallback](){scrollCallback(true);}, EShortcut::MOVE_LEFT);
@@ -89,36 +85,63 @@ void CArtifactsOfHeroBase::init(
 	setRedrawParent(true);
 }
 
-void CArtifactsOfHeroBase::clickPrassedArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
+void CArtifactsOfHeroBase::setClickPressedArtPlacesCallback(const CArtPlace::ClickFunctor & callback) const
 {
-	if(artPlace.isLocked())
-		return;
-
-	if(clickPressedCallback)
-		clickPressedCallback(artPlace, cursorPosition);
+	for(const auto & [slot, artPlace] : artWorn)
+		artPlace->setClickPressedCallback(callback);
+	for(const auto & artPlace : backpack)
+		artPlace->setClickPressedCallback(callback);
 }
 
-void CArtifactsOfHeroBase::showPopupArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
+void CArtifactsOfHeroBase::setShowPopupArtPlacesCallback(const CArtPlace::ClickFunctor & callback) const
 {
-	if(artPlace.isLocked())
-		return;
-
-	if(showPopupCallback)
-		showPopupCallback(artPlace, cursorPosition);
+	for(const auto & [slot, artPlace] : artWorn)
+		artPlace->setShowPopupCallback(callback);
+	for(const auto & artPlace : backpack)
+		artPlace->setShowPopupCallback(callback);
 }
 
-void CArtifactsOfHeroBase::gestureArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
+void CArtifactsOfHeroBase::clickPressedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
-	if(artPlace.isLocked())
-		return;
+	if(auto ownedPlace = getArtPlace(cursorPosition))
+	{
+		if(ownedPlace->isLocked())
+			return;
 
-	if(gestureCallback)
-		gestureCallback(artPlace, cursorPosition);
+		if(clickPressedCallback)
+			clickPressedCallback(*ownedPlace, cursorPosition);
+	}
+}
+
+void CArtifactsOfHeroBase::showPopupArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
+{
+	if(auto ownedPlace = getArtPlace(cursorPosition))
+	{
+		if(ownedPlace->isLocked())
+			return;
+
+		if(showPopupCallback)
+			showPopupCallback(*ownedPlace, cursorPosition);
+	}
+}
+
+void CArtifactsOfHeroBase::gestureArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
+{
+	if(auto ownedPlace = getArtPlace(cursorPosition))
+	{
+		if(ownedPlace->isLocked())
+			return;
+
+		if(gestureCallback)
+			gestureCallback(*ownedPlace, cursorPosition);
+	}
 }
 
 void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)
 {
 	curHero = hero;
+	if (!hero)
+		return;
 
 	for(auto slot : artWorn)
 	{
@@ -137,9 +160,9 @@ void CArtifactsOfHeroBase::scrollBackpack(bool left)
 	LOCPLINT->cb->scrollBackpackArtifacts(curHero->id, left);
 }
 
-void CArtifactsOfHeroBase::markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved)
+void CArtifactsOfHeroBase::markPossibleSlots(const CArtifact * art, bool assumeDestRemoved)
 {
-	for(auto artPlace : artWorn)
+	for(const auto & artPlace : artWorn)
 		artPlace.second->selectSlot(art->canBePutAt(curHero, artPlace.second->slot, assumeDestRemoved));
 }
 
@@ -154,26 +177,12 @@ void CArtifactsOfHeroBase::unmarkSlots()
 
 CArtifactsOfHeroBase::ArtPlacePtr CArtifactsOfHeroBase::getArtPlace(const ArtifactPosition & slot)
 {
-	if(ArtifactUtils::isSlotEquipment(slot))
-	{
-		if(artWorn.find(slot) == artWorn.end())
-		{
-			logGlobal->error("CArtifactsOfHero::getArtPlace: invalid slot %d", slot);
-			return nullptr;
-		}
+	if(ArtifactUtils::isSlotEquipment(slot) && artWorn.find(slot) != artWorn.end())
 		return artWorn[slot];
-	}
-	if(ArtifactUtils::isSlotBackpack(slot))
-	{
-		for(ArtPlacePtr artPlace : backpack)
-			if(artPlace->slot == slot)
-				return artPlace;
-		return nullptr;
-	}
-	else
-	{
-		return nullptr;
-	}
+	if(ArtifactUtils::isSlotBackpack(slot) && slot - ArtifactPosition::BACKPACK_START < backpack.size())
+		return(backpack[slot - ArtifactPosition::BACKPACK_START]);
+	logGlobal->error("CArtifactsOfHero::getArtPlace: invalid slot %d", slot);
+	return nullptr;
 }
 
 CArtifactsOfHeroBase::ArtPlacePtr CArtifactsOfHeroBase::getArtPlace(const Point & cursorPosition)
@@ -260,26 +269,32 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 	if(auto slotInfo = curHero->getSlot(slot))
 	{
 		artPlace->lockSlot(slotInfo->locked);
-		artPlace->setArtifact(slotInfo->artifact);
+		artPlace->setArtifact(slotInfo->artifact->getTypeId(), slotInfo->artifact->getScrollSpellID());
 		if(slotInfo->locked || slotInfo->artifact->isCombined())
 			return;
 
 		// If the artifact is part of at least one combined artifact, add additional information
 		std::map<const ArtifactID, std::vector<ArtifactID>> arts;
-		for(const auto combinedArt : slotInfo->artifact->artType->getPartOf())
+		for(const auto combinedArt : slotInfo->artifact->getType()->getPartOf())
 		{
-			arts.try_emplace(combinedArt->getId(), std::vector<ArtifactID>{});
+			assert(combinedArt->isCombined());
+			arts.try_emplace(combinedArt->getId());
+			CArtifactFittingSet fittingSet(*curHero);
 			for(const auto part : combinedArt->getConstituents())
 			{
-				if(curHero->hasArt(part->getId(), false, false, false))
+				const auto partSlot = fittingSet.getArtPos(part->getId(), false, false);
+				if(partSlot != ArtifactPosition::PRE_FIRST)
+				{
 					arts.at(combinedArt->getId()).emplace_back(part->getId());
+					fittingSet.lockSlot(partSlot);
+				}
 			}
 		}
 		artPlace->addCombinedArtInfo(arts);
 	}
 	else
 	{
-		artPlace->setArtifact(nullptr);
+		artPlace->setArtifact(ArtifactID(ArtifactID::NONE));
 	}
 }
 

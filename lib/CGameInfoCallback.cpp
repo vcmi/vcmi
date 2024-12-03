@@ -345,10 +345,10 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 			for(auto & elem : info.army)
 			{
-				if(static_cast<int>(elem.second.type->getAIValue()) > maxAIValue)
+				if(static_cast<int>(elem.second.getCreature()->getAIValue()) > maxAIValue)
 				{
-					maxAIValue = elem.second.type->getAIValue();
-					mostStrong = elem.second.type;
+					maxAIValue = elem.second.getCreature()->getAIValue();
+					mostStrong = elem.second.getCreature();
 				}
 			}
 
@@ -357,7 +357,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 			else
 				for(auto & elem : info.army)
 				{
-					elem.second.type = mostStrong;
+					elem.second.setType(mostStrong);
 				}
 		};
 
@@ -381,7 +381,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 			for(const auto & creature : VLC->creh->objects)
 			{
-				if(creature->getFaction() == factionIndex && static_cast<int>(creature->getAIValue()) > maxAIValue)
+				if(creature->getFactionID() == factionIndex && static_cast<int>(creature->getAIValue()) > maxAIValue)
 				{
 					maxAIValue = creature->getAIValue();
 					mostStrong = creature.get();
@@ -390,7 +390,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 			if(nullptr != mostStrong) //possible, faction may have no creatures at all
 				for(auto & elem : info.army)
-					elem.second.type = mostStrong;
+					elem.second.setType(mostStrong);
 		};
 
 
@@ -479,6 +479,17 @@ std::vector <const CGObjectInstance *> CGameInfoCallback::getVisitableObjs(int3 
 
 	return ret;
 }
+
+std::vector<ConstTransitivePtr<CGObjectInstance>> CGameInfoCallback::getAllVisitableObjs() const
+{
+	std::vector<ConstTransitivePtr<CGObjectInstance>> ret;
+	for(auto & obj : gs->map->objects)
+		if(obj && obj->isVisitable() && obj->ID != Obj::EVENT && isVisible(obj))
+			ret.push_back(obj);
+
+	return ret;
+}
+
 const CGObjectInstance * CGameInfoCallback::getTopObj (int3 pos) const
 {
 	return vstd::backOrNull(getVisitableObjs(pos));
@@ -539,7 +550,7 @@ EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile, bool verbose) cons
 
 	for(const auto & object : gs->map->objects)
 	{
-		if(object && object->ID == Obj::HOLE && object->pos == tile)
+		if(object && object->ID == Obj::HOLE && object->anchorPos() == tile)
 			return EDiggingStatus::TILE_OCCUPIED;
 	}
 	return getTile(tile)->getDiggingStatus();
@@ -575,10 +586,10 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 {
 	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", EBuildingState::TOWN_NOT_OWNED);
 
-	if(!t->town->buildings.count(ID))
+	if(!t->getTown()->buildings.count(ID))
 		return EBuildingState::BUILDING_ERROR;
 
-	const CBuilding * building = t->town->buildings.at(ID);
+	const CBuilding * building = t->getTown()->buildings.at(ID);
 
 
 	if(t->hasBuilt(ID))	//already built
@@ -619,7 +630,7 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 	{
 		const TerrainTile *tile = getTile(t->bestLocation(), false);
 
-		if(!tile || !tile->terType->isWater())
+		if(!tile || !tile->isWater())
 			return EBuildingState::NO_WATER; //lack of water
 	}
 
@@ -946,12 +957,12 @@ void CGameInfoCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &
 
 const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID aid ) const
 {
-	return gs->map->artInstances[aid.num];
+	return gs->map->artInstances.at(aid.num);
 }
 
 const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid ) const
 {
-	return gs->map->objects[oid.num];
+	return gs->map->objects.at(oid.num);
 }
 
 const CArtifactSet * CGameInfoCallback::getArtSet(const ArtifactLocation & loc) const
@@ -964,7 +975,7 @@ std::vector<ObjectInstanceID> CGameInfoCallback::getVisibleTeleportObjects(std::
 	vstd::erase_if(ids, [&](const ObjectInstanceID & id) -> bool
 	{
 		const auto * obj = getObj(id, false);
-		return player != PlayerColor::UNFLAGGABLE && (!obj || !isVisible(obj->pos, player));
+		return player != PlayerColor::UNFLAGGABLE && (!obj || !isVisible(obj->visitablePos(), player));
 	});
 	return ids;
 }

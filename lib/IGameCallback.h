@@ -75,7 +75,7 @@ public:
 	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, std::function<bool(const TerrainTile *)> filter) const;
 
 	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
-	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, vstd::RNG & rand);
+	void pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand);
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
 
 	void saveCommonState(CSaveFile &out) const; //stores GS and VLC
@@ -94,6 +94,7 @@ public:
 	virtual void showInfoDialog(InfoWindow * iw) = 0;
 
 	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)=0;
+	virtual void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted)=0;
 	virtual bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
@@ -122,7 +123,7 @@ public:
 
 	virtual bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) = 0;
 	virtual bool giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos) = 0;
-	virtual bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble = std::nullopt) = 0;
+	virtual bool putArtifact(const ArtifactLocation & al, const ArtifactInstanceID & id, std::optional<bool> askAssemble = std::nullopt) = 0;
 	virtual void removeArtifact(const ArtifactLocation& al) = 0;
 	virtual bool moveArtifact(const PlayerColor & player, const ArtifactLocation & al1, const ArtifactLocation & al2) = 0;
 
@@ -139,7 +140,7 @@ public:
 	virtual void setManaPoints(ObjectInstanceID hid, int val)=0;
 	virtual void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) = 0;
 	virtual void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator)=0;
-	virtual void sendAndApply(CPackForClient * pack) = 0;
+	virtual void sendAndApply(CPackForClient & pack) = 0;
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) = 0;
 	virtual void changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) = 0;

@@ -2,7 +2,7 @@
 
 ## Format
 
-```jsonc
+```json5
 "newRiver" :
 {
 	// Two-letters unique identifier for this river. Used in map format

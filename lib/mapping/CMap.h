@@ -110,6 +110,9 @@ public:
 	void addNewArtifactInstance(CArtifactSet & artSet);
 	void addNewArtifactInstance(ConstTransitivePtr<CArtifactInstance> art);
 	void eraseArtifactInstance(CArtifactInstance * art);
+	void moveArtifactInstance(CArtifactSet & srcSet, const ArtifactPosition & srcSlot, CArtifactSet & dstSet, const ArtifactPosition & dstSlot);
+	void putArtifactInstance(CArtifactSet & set, CArtifactInstance * art, const ArtifactPosition & slot);
+	void removeArtifactInstance(CArtifactSet & set, const ArtifactPosition & slot);
 
 	void addNewQuestInstance(CQuest * quest);
 	void removeQuestInstance(CQuest * quest);
@@ -177,7 +180,7 @@ public:
 	ui8 obeliskCount = 0; //how many obelisks are on map
 	std::map<TeamID, ui8> obelisksVisited; //map: team_id => how many obelisks has been visited
 
-	std::vector<const CArtifact *> townMerchantArtifacts;
+	std::vector<ArtifactID> townMerchantArtifacts;
 	std::vector<TradeItemBuy> townUniversitySkills;
 
 	void overrideGameSettings(const JsonNode & input);
@@ -219,7 +222,25 @@ public:
 		// static members
 		h & obeliskCount;
 		h & obelisksVisited;
-		h & townMerchantArtifacts;
+
+		if (h.version < Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			int32_t size = 0;
+			h & size;
+			for (int32_t i = 0; i < size; ++i)
+			{
+				bool isNull = false;
+				ArtifactID artifact;
+				h & isNull;
+				if (!isNull)
+					h & artifact;
+				townMerchantArtifacts.push_back(artifact);
+			}
+		}
+		else
+		{
+			h & townMerchantArtifacts;
+		}
 		h & townUniversitySkills;
 
 		h & instanceNames;

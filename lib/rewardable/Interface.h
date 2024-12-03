@@ -15,7 +15,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class IGameCallback;
+class IObjectInterface;
 
 namespace Rewardable
 {
@@ -30,11 +30,26 @@ private:
 protected:
 	
 	/// function that must be called if hero got level-up during grantReward call
-	virtual void grantRewardAfterLevelup(IGameCallback * cb, const Rewardable::VisitInfo & reward, const CArmedInstance * army, const CGHeroInstance * hero) const;
+	void grantRewardAfterLevelup(const Rewardable::VisitInfo & reward, const CArmedInstance * army, const CGHeroInstance * hero) const;
 
 	/// grants reward to hero
-	virtual void grantRewardBeforeLevelup(IGameCallback * cb, const Rewardable::VisitInfo & reward, const CGHeroInstance * hero) const;
+	void grantRewardBeforeLevelup(const Rewardable::VisitInfo & reward, const CGHeroInstance * hero) const;
 	
+	virtual void grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const;
+	void selectRewardWithMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const;
+	void grantAllRewardsWithMessage(const CGHeroInstance * contextHero, const std::vector<ui32>& rewardIndices, bool markAsVisit) const;
+	std::vector<Component> loadComponents(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const;
+
+	void doHeroVisit(const CGHeroInstance *h) const;
+
+	virtual const IObjectInterface * getObject() const = 0;
+	virtual bool wasVisitedBefore(const CGHeroInstance * hero) const = 0;
+	virtual bool wasVisited(PlayerColor player) const = 0;
+	virtual void markAsVisited(const CGHeroInstance * hero) const = 0;
+	virtual void markAsScouted(const CGHeroInstance * hero) const = 0;
+	virtual void grantReward(ui32 rewardID, const CGHeroInstance * hero) const = 0;
+
+	void onBlockingDialogAnswered(const CGHeroInstance * hero, int32_t answer) const;
 public:
 
 	/// filters list of visit info and returns rewards that can be granted to current hero

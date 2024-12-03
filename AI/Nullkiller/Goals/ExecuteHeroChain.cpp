@@ -22,6 +22,7 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 {
 	hero = path.targetHero;
 	tile = path.targetTile();
+	closestWayRatio = 1;
 
 	if(obj)
 	{
@@ -30,7 +31,7 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 #if NKAI_TRACE_LEVEL >= 1
 		targetName = obj->getObjectName() + tile.toString();
 #else
-		targetName = obj->typeName + tile.toString();
+		targetName = obj->getTypeName() + tile.toString();
 #endif
 	}
 	else
@@ -85,6 +86,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 
 	ai->nullkiller->setActive(chainPath.targetHero, tile);
 	ai->nullkiller->setTargetObject(objid);
+	ai->nullkiller->objectClusterizer->reset();
 
 	auto targetObject = ai->myCb->getObj(static_cast<ObjectInstanceID>(objid), false);
 

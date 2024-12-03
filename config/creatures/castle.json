@@ -57,6 +57,13 @@
 		"extraNames": [ "lightCrossbowman" ],
 		"faction": "castle",
 		"upgrades": ["marksman"],
+		"shots" : 12,
+		"abilities" :
+		{
+			"shooter" : {
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CLCBOW.DEF",
@@ -80,7 +87,12 @@
 		"index": 3,
 		"level": 2,
 		"faction": "castle",
-		"abilities": {
+		"shots" : 24,
+		"abilities":
+		{
+			"shooter" : {
+				"type" : "SHOOTER"
+			},
 			"extraAttack" :
 			{
 				"type": "ADDITIONAL_ATTACK",
@@ -111,8 +123,12 @@
 		"index": 4,
 		"level": 3,
 		"faction": "castle",
+		"doubleWide": true,
 		"abilities":
 		{
+			"canFly" : {
+				"type" : "FLYING"
+			},
 			"extraRetaliation" :
 			{
 				"type" : "ADDITIONAL_RETALIATION",
@@ -139,8 +155,12 @@
 		"index": 5,
 		"level": 3,
 		"faction": "castle",
+		"doubleWide": true,
 		"abilities":
 		{
+			"canFly" : {
+				"type" : "FLYING"
+			},
 			"unlimitedRetaliation" :
 			{
 				"type" : "UNLIMITED_RETALIATIONS"
@@ -210,6 +230,13 @@
 		"level": 5,
 		"faction": "castle",
 		"upgrades": ["zealot"],
+		"shots" : 12,
+		"abilities" :
+		{
+			"shooter" : {
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CMONKK.DEF",
@@ -233,6 +260,16 @@
 		"index": 9,
 		"level": 5,
 		"faction": "castle",
+		"shots" : 24,
+		"abilities" :
+		{
+			"shooter" : {
+				"type" : "SHOOTER"
+			},
+			"noMeleePenalty" : {
+				"type" : "NO_MELEE_PENALTY"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CZEALT.DEF",
@@ -256,7 +293,16 @@
 		"index": 10,
 		"level": 6,
 		"faction": "castle",
+		"doubleWide": true,
 		"upgrades": ["champion"],
+		"abilities" :
+		{
+			"jousting":
+			{
+				"type": "JOUSTING",
+				"val": 5
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CCAVLR.DEF"
@@ -275,6 +321,15 @@
 		"index": 11,
 		"level": 6,
 		"faction": "castle",
+		"doubleWide": true,
+		"abilities" :
+		{
+			"jousting":
+			{
+				"type": "JOUSTING",
+				"val": 5
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CCHAMP.DEF"
@@ -295,6 +350,22 @@
 		"faction": "castle",
 		"abilities":
 		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
+			"raisesMorale" :
+			{
+				"type" : "MORALE",
+				"val" : 1,
+				"propagator" : "HERO",
+				"stacking" : "Angels"
+			},
+			"KING_2" : // Will be affected by Advanced Slayer or better
+			{
+				"type" : "KING",
+				"val" : 2
+			},
 			"hateDevils" :
 			{
 				"type" : "HATE",
@@ -306,10 +377,6 @@
 				"type" : "HATE",
 				"subtype" : "creature.archDevil",
 				"val" : 50
-			},
-			"const_raises_morale" :
-			{
-				"stacking" : "Angels"
 			}
 		},
 		"upgrades": ["archangel"],
@@ -331,13 +398,12 @@
 		"index": 13,
 		"level": 7,
 		"faction": "castle",
+		"doubleWide" : true,
 		"abilities":
 		{
-			"resurrection100hp" : 
+			"canFly" :
 			{
-				"type" : "SPECIFIC_SPELL_POWER",
-				"subtype" : "spell.resurrection",
-				"val" : 100
+				"type" : "FLYING"
 			},
 			"resurrects" :
 			{
@@ -345,10 +411,27 @@
 				"subtype" : "spell.resurrection",
 				"val" : 3
 			},
+			"resurrection100hp" : 
+			{
+				"type" : "SPECIFIC_SPELL_POWER",
+				"subtype" : "spell.resurrection",
+				"val" : 100
+			},
 			"spellpoints" :
 			{
 				"type" : "CASTS",
 				"val" : 1
+			},
+			"raisesMorale" : {
+				"type" : "MORALE",
+				"val" : 1,
+				"propagator" : "HERO",
+				"stacking" : "Angels"
+			},
+			"KING_2" : // Will be affected by Advanced Slayer or better
+			{
+				"type" : "KING",
+				"val" : 2
 			},
 			"hateDevils" :
 			{
@@ -361,10 +444,6 @@
 				"type" : "HATE",
 				"subtype" : "creature.archDevil",
 				"val" : 50
-			},
-			"const_raises_morale" :
-			{
-				"stacking" : "Angels"
 			}
 		},
 		"graphics" :

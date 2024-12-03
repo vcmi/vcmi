@@ -180,11 +180,6 @@ else()
 	add_definitions(-DVCMI_NO_EXTRA_VERSION)
 endif(ENABLE_GITVERSION)
 
-# Precompiled header configuration
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0 )
-	set(ENABLE_PCH OFF) # broken
-endif()
-
 if(ENABLE_PCH)
 	macro(enable_pch name)
 		target_precompile_headers(${name} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:<StdInc.h$<ANGLE-R>>)
@@ -328,7 +323,6 @@ if(MINGW OR MSVC)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244") # 4244: conversion from 'xxx' to 'yyy', possible loss of data
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267") # 4267: conversion from 'xxx' to 'yyy', possible loss of data
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4275") # 4275: non dll-interface class 'xxx' used as base for dll-interface class
-		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4800") # 4800: implicit conversion from 'xxx' to bool. Possible information loss
 
 		if(ENABLE_STRICT_COMPILATION)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX") # Treats all compiler warnings as errors
@@ -360,13 +354,6 @@ if(MINGW OR MSVC)
 		check_library_exists(iconv libiconv_open "" ICONV_FOUND)
 		if(ICONV_FOUND)
 			set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
-		endif()
-
-		# Prevent compiler issues when building Debug
-		# Assembler might fail with "too many sections"
-		# With big-obj or 64-bit build will take hours
-		if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Og")
 		endif()
 	endif(MINGW)
 endif(MINGW OR MSVC)
@@ -486,24 +473,29 @@ if(NOT FORCE_BUNDLED_MINIZIP)
 endif()
 
 if (ENABLE_CLIENT)
-	set(FFMPEG_COMPONENTS avutil swscale avformat avcodec)
-	if(APPLE_IOS AND NOT USING_CONAN)
-		list(APPEND FFMPEG_COMPONENTS swresample)
-	endif()
-	find_package(ffmpeg COMPONENTS ${FFMPEG_COMPONENTS})
+	find_package(ffmpeg COMPONENTS avutil swscale avformat avcodec swresample)
 
 	find_package(SDL2 REQUIRED)
 	find_package(SDL2_image REQUIRED)
 	if(TARGET SDL2_image::SDL2_image)
 		add_library(SDL2::Image ALIAS SDL2_image::SDL2_image)
 	endif()
+	if(TARGET SDL2_image::SDL2_image-static)
+		add_library(SDL2::Image ALIAS SDL2_image::SDL2_image-static)
+	endif()
 	find_package(SDL2_mixer REQUIRED)
 	if(TARGET SDL2_mixer::SDL2_mixer)
 		add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer)
 	endif()
+	if(TARGET SDL2_mixer::SDL2_mixer-static)
+		add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer-static)
+	endif()
 	find_package(SDL2_ttf REQUIRED)
 	if(TARGET SDL2_ttf::SDL2_ttf)
 		add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
+	endif()
+	if(TARGET SDL2_ttf::SDL2_ttf-static)
+		add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf-static)
 	endif()
 endif()
 
@@ -666,6 +658,10 @@ if(NOT TARGET minizip::minizip)
 	add_library(minizip::minizip ALIAS minizip)
 endif()
 
+if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
+	add_subdirectory(vcmiqt)
+endif()
+
 if(ENABLE_LAUNCHER)
 	add_subdirectory(launcher)
 endif()
@@ -727,7 +723,7 @@ endif()
 
 if(WIN32)
 	if(TBB_FOUND AND MSVC)
-		   install_vcpkg_imported_tgt(TBB::tbb)
+		install_vcpkg_imported_tgt(TBB::tbb)
 	endif()
 
 	if(USING_CONAN)
@@ -737,7 +733,9 @@ if(WIN32)
 				${dep_files}
 				"${CMAKE_SYSROOT}/bin/*.dll" 
 				"${CMAKE_SYSROOT}/lib/*.dll" 
-				"${CONAN_SYSTEM_LIBRARY_LOCATION}/*.dll")
+				"${CONAN_SYSTEM_LIBRARY_LOCATION}/libgcc_s_dw2-1.dll" # for 32-bit only?
+				"${CONAN_SYSTEM_LIBRARY_LOCATION}/libgcc_s_seh-1.dll" # for 64-bit only?
+				"${CONAN_SYSTEM_LIBRARY_LOCATION}/libstdc++-6.dll")
 	else()
 		file(GLOB dep_files
 				${dep_files}

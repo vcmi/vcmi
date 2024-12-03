@@ -28,7 +28,6 @@
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModScope.h"
 #include "../lib/VCMI_Lib.h"
-#include "../lib/CHeroHandler.h"
 
 #include <SDL_surface.h>
 

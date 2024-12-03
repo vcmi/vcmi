@@ -63,42 +63,42 @@ public:
 		return true;
 	}
 
-	void apply(CPackForClient * pack) override
+	void apply(CPackForClient & pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void apply(BattleLogMessage * pack) override
+	void apply(BattleLogMessage & pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void apply(BattleStackMoved * pack) override
+	void apply(BattleStackMoved & pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void apply(BattleUnitsChanged * pack) override
+	void apply(BattleUnitsChanged & pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void apply(SetStackEffect * pack) override
+	void apply(SetStackEffect & pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void apply(StacksInjured * pack) override
+	void apply(StacksInjured & pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void apply(BattleObstaclesChanged * pack) override
+	void apply(BattleObstaclesChanged & pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void apply(CatapultAttack * pack) override
+	void apply(CatapultAttack & pack) override
 	{
 		gameState->apply(pack);
 	}
@@ -196,7 +196,7 @@ public:
 
 		const auto & t = *gameCallback->getTile(tile);
 
-		auto terrain = t.terType->getId();
+		auto terrain = t.getTerrainID();
 		BattleField terType(0);
 		BattleLayout layout = BattleLayout::createDefaultLayout(gameState->callback, attacker, defender);
 
@@ -207,7 +207,7 @@ public:
 		BattleStart bs;
 		bs.info = battle;
 		ASSERT_EQ(gameState->currentBattles.size(), 0);
-		gameCallback->sendAndApply(&bs);
+		gameCallback->sendAndApply(bs);
 		ASSERT_EQ(gameState->currentBattles.size(), 1);
 	}
 
@@ -236,7 +236,7 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 		na.artHolder = defender->id;
 		na.artId = ArtifactID::BALLISTA;
 		na.pos = ArtifactPosition::MACH1;
-		gameCallback->sendAndApply(&na);
+		gameCallback->sendAndApply(na);
 	}
 
 	startTestBattle(attacker, defender);
@@ -253,7 +253,7 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 		BattleUnitsChanged pack;
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
-		gameCallback->sendAndApply(&pack);
+		gameCallback->sendAndApply(pack);
 	}
 
 	const CStack * att = nullptr;
@@ -324,7 +324,7 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		na.artHolder = attacker->id;
 		na.artId = ArtifactID::SPELLBOOK;
 		na.pos = ArtifactPosition::SPELLBOOK;
-		gameCallback->sendAndApply(&na);
+		gameCallback->sendAndApply(na);
 	}
 
 	startTestBattle(attacker, defender);
@@ -343,7 +343,7 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		BattleUnitsChanged pack;
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
-		gameCallback->sendAndApply(&pack);
+		gameCallback->sendAndApply(pack);
 	}
 
 	{
@@ -358,7 +358,7 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		BattleUnitsChanged pack;
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
-		gameCallback->sendAndApply(&pack);
+		gameCallback->sendAndApply(pack);
 	}
 
 	CStack * unit = gameState->currentBattles.front()->getStack(unitId);
