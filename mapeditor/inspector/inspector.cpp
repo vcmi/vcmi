@@ -28,6 +28,7 @@
 #include "messagewidget.h"
 #include "rewardswidget.h"
 #include "questwidget.h"
+#include "heroartifactswidget.h"
 #include "heroskillswidget.h"
 #include "herospellwidget.h"
 #include "portraitwidget.h"
@@ -333,6 +334,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	auto * delegate = new HeroSkillsDelegate(*o);
 	addProperty("Skills", PropertyEditorPlaceholder(), delegate, false);
 	addProperty("Spells", PropertyEditorPlaceholder(), new HeroSpellDelegate(*o), false);
+	addProperty("Artifacts", PropertyEditorPlaceholder(), new HeroArtifactsDelegate(*o), false);
 	
 	if(o->getHeroTypeID().hasValue() || o->ID == Obj::PRISON)
 	{ //Hero type
