@@ -8,8 +8,8 @@
  *
  */
 #include "StdInc.h"
-#include "artifactWidget.h"
-#include "ui_artifactWidget.h"
+#include "artifactwidget.h"
+#include "ui_artifactwidget.h"
 #include "inspector.h"
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/constants/StringConstants.h"
