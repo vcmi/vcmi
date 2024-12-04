@@ -270,8 +270,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Heroes Chronicles:
-0/8 installed</string>
+            <string/>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -758,8 +757,8 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>80</width>
-         <height>80</height>
+         <width>64</width>
+         <height>64</height>
         </size>
        </property>
        <property name="text">
@@ -767,14 +766,30 @@
        </property>
        <property name="iconSize">
         <size>
-         <width>64</width>
-         <height>64</height>
+         <width>48</width>
+         <height>48</height>
         </size>
        </property>
        <property name="toolButtonStyle">
         <enum>Qt::ToolButtonTextUnderIcon</enum>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item>
       <widget class="QToolButton" name="buttonGameStart">
@@ -810,6 +825,22 @@
       </widget>
      </item>
      <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QToolButton" name="buttonGameEditor">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -819,8 +850,8 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>80</width>
-         <height>80</height>
+         <width>64</width>
+         <height>64</height>
         </size>
        </property>
        <property name="text">
@@ -828,8 +859,8 @@
        </property>
        <property name="iconSize">
         <size>
-         <width>64</width>
-         <height>64</height>
+         <width>48</width>
+         <height>48</height>
         </size>
        </property>
        <property name="toolButtonStyle">

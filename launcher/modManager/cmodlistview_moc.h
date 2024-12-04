@@ -52,7 +52,6 @@ class CModListView : public QWidget
 	// find mods unknown to mod list (not present in repo and not installed)
 	QStringList findUnavailableMods(QStringList candidates);
 
-
 	void installMods(QStringList archives);
 	void installMaps(QStringList maps);
 	void installFiles(QStringList mods);
@@ -85,6 +84,9 @@ public:
 
 	/// finds translation mod for specified languages. Returns empty string on error
 	QString getTranslationModName(const QString & language);
+
+	/// finds all already imported Heroes Chronicles mods (if any)
+	QStringList getInstalledChronicles();
 
 	/// returns true if mod is currently enabled
 	bool isModEnabled(const QString & modName);

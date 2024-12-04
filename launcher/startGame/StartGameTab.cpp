@@ -41,7 +41,7 @@ void StartGameTab::refreshState()
 {
 	refreshGameData();
 	refreshUpdateStatus(EGameUpdateStatus::NOT_CHECKED);//TODO
-	refreshTranslation(ETranslationStatus::ACTIVE);
+	refreshTranslation(getMainWindow()->getTranslationStatus());
 	refreshMods();
 }
 
@@ -92,8 +92,6 @@ void StartGameTab::refreshGameData()
 	ui->buttonMissingFilesHelp->setVisible(missingGameFiles);
 	ui->buttonMissingVideoHelp->setVisible(missingVideoFiles);
 	ui->buttonMissingSoundtrackHelp->setVisible(missingSoundtrack);
-
-	// TODO: Chronicles
 }
 
 void StartGameTab::refreshTranslation(ETranslationStatus status)
@@ -107,10 +105,16 @@ void StartGameTab::refreshTranslation(ETranslationStatus status)
 
 void StartGameTab::refreshMods()
 {
-	QStringList updateableMods;
+	constexpr int chroniclesCount = 8;
+	QStringList updateableMods; // TODO
+	QStringList chroniclesMods = getMainWindow()->getModView()->getInstalledChronicles();
 
 	ui->buttonUpdateMods->setVisible(!updateableMods.empty());
 	ui->buttonUpdateModsHelp->setVisible(!updateableMods.empty());
+
+	ui->labelChronicles->setText(tr("Heroes Chronicles:\n%1/%2 installed").arg(chroniclesMods.size()).arg(chroniclesCount));
+	ui->labelChronicles->setVisible(chroniclesMods.size() != chroniclesCount);
+	ui->buttonChroniclesHelp->setVisible(chroniclesMods.size() != chroniclesCount);
 }
 
 void StartGameTab::refreshUpdateStatus(EGameUpdateStatus status)
@@ -134,25 +138,21 @@ void StartGameTab::on_buttonOpenChangelog_clicked()
 	QDesktopServices::openUrl(QUrl("https://vcmi.eu/ChangeLog/"));
 }
 
-
 void StartGameTab::on_buttonOpenDownloads_clicked()
 {
 	QDesktopServices::openUrl(QUrl("https://vcmi.eu/download/"));
 }
-
 
 void StartGameTab::on_buttonUpdateCheck_clicked()
 {
 	// TODO: implement
 }
 
-
 void StartGameTab::on_buttonGameEditor_clicked()
 {
 	getMainWindow()->hide();
 	startEditor({});
 }
-
 
 void StartGameTab::on_buttonImportFiles_clicked()
 {
@@ -181,5 +181,62 @@ void StartGameTab::on_buttonImportFiles_clicked()
 	QTimer::singleShot(0, this, importFunctor);
 }
 
+void StartGameTab::on_buttonInstallTranslation_clicked()
+{
+	// TODO
+}
 
+void StartGameTab::on_buttonActivateTranslation_clicked()
+{
+	// TODO
+}
 
+void StartGameTab::on_buttonUpdateMods_clicked()
+{
+	// TODO
+}
+
+void StartGameTab::on_buttonHelpImportFiles_clicked()
+{
+	QMessageBox::information(this, ui->buttonImportFiles->text(), tr("TODO")); // TODO
+}
+
+void StartGameTab::on_buttonInstallTranslationHelp_clicked()
+{
+	QMessageBox::information(this, ui->buttonInstallTranslation->text(), tr("TODO")); // TODO
+}
+
+void StartGameTab::on_buttonActivateTranslationHelp_clicked()
+{
+	QMessageBox::information(this, ui->buttonActivateTranslation->text(), tr("TODO")); // TODO
+}
+
+void StartGameTab::on_buttonUpdateModsHelp_clicked()
+{
+	QMessageBox::information(this, ui->buttonUpdateMods->text(), tr("TODO")); // TODO
+}
+
+void StartGameTab::on_buttonChroniclesHelp_clicked()
+{
+	QMessageBox::information(this, ui->labelChronicles->text(), tr("TODO")); // TODO
+}
+
+void StartGameTab::on_buttonMissingSoundtrackHelp_clicked()
+{
+	QMessageBox::information(this, ui->labelMissingSoundtrack->text(), tr("TODO")); // TODO
+}
+
+void StartGameTab::on_buttonMissingVideoHelp_clicked()
+{
+	QMessageBox::information(this, ui->labelMissingVideo->text(), tr("TODO")); // TODO
+}
+
+void StartGameTab::on_buttonMissingFilesHelp_clicked()
+{
+	QMessageBox::information(this, ui->labelMissingCampaigns->text(), tr("TODO")); // TODO
+}
+
+void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
+{
+	QMessageBox::information(this, ui->labelMissingCampaigns->text(), tr("TODO")); // TODO
+}

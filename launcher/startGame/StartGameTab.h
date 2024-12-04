@@ -15,13 +15,7 @@ enum class EGameUpdateStatus : int8_t
 	UPDATE_AVAILABLE
 };
 
-enum ETranslationStatus
-{
-	NOT_AVAILABLE, // translation for this language was not found in mod list. Could also happen if player is offline or disabled repository checkout
-	NOT_INSTALLLED, // translation mod found, but it is not installed
-	DISABLED, // translation mod found, and installed, but toggled off
-	ACTIVE // translation mod active OR game is already in specified language (e.g. English H3 for players with English language)
-};
+enum class ETranslationStatus : int8_t;
 
 class MainWindow;
 
@@ -44,16 +38,23 @@ public:
 
 private slots:
 	void on_buttonGameStart_clicked();
-
 	void on_buttonOpenChangelog_clicked();
-
 	void on_buttonOpenDownloads_clicked();
-
 	void on_buttonUpdateCheck_clicked();
-
 	void on_buttonGameEditor_clicked();
-
 	void on_buttonImportFiles_clicked();
+	void on_buttonInstallTranslation_clicked();
+	void on_buttonActivateTranslation_clicked();
+	void on_buttonUpdateMods_clicked();
+	void on_buttonHelpImportFiles_clicked();
+	void on_buttonInstallTranslationHelp_clicked();
+	void on_buttonActivateTranslationHelp_clicked();
+	void on_buttonUpdateModsHelp_clicked();
+	void on_buttonChroniclesHelp_clicked();
+	void on_buttonMissingSoundtrackHelp_clicked();
+	void on_buttonMissingVideoHelp_clicked();
+	void on_buttonMissingFilesHelp_clicked();
+	void on_buttonMissingCampaignsHelp_clicked();
 
 private:
 	Ui::StartGameTab * ui;

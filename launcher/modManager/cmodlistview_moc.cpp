@@ -975,6 +975,25 @@ bool CModListView::isModInstalled(const QString & modName)
 	return mod.isInstalled();
 }
 
+QStringList CModListView::getInstalledChronicles()
+{
+	QStringList result;
+
+	for(const auto & modName : modStateModel->getAllMods())
+	{
+		auto mod = modStateModel->getMod(modName);
+		if (!mod.isInstalled())
+			continue;
+
+		if (mod.getTopParentID() != "chronicles")
+			continue;
+
+		result += modName;
+	}
+
+	return result;
+}
+
 QString CModListView::getTranslationModName(const QString & language)
 {
 	for(const auto & modName : modStateModel->getAllMods())

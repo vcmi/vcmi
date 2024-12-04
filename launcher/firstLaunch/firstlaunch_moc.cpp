@@ -549,15 +549,13 @@ void FirstLaunchView::modPresetUpdate()
 
 QString FirstLaunchView::findTranslationModName()
 {
-	if (!getModView())
+	auto * mainWindow = dynamic_cast<MainWindow *>(QApplication::activeWindow());
+	auto status = mainWindow->getTranslationStatus();
+
+	if (status == ETranslationStatus::ACTIVE || status == ETranslationStatus::NOT_AVAILABLE)
 		return QString();
 
 	QString preferredlanguage = QString::fromStdString(settings["general"]["language"].String());
-	QString installedlanguage = QString::fromStdString(settings["session"]["language"].String());
-
-	if (preferredlanguage == installedlanguage)
-		return QString();
-
 	return getModView()->getTranslationModName(preferredlanguage);
 }
 

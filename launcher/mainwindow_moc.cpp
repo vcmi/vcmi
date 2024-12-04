@@ -286,6 +286,28 @@ void MainWindow::manualInstallFile(QString filePath)
 		getModView()->downloadFile(fileName, QUrl::fromLocalFile(filePath), fileName);
 }
 
+ETranslationStatus MainWindow::getTranslationStatus()
+{
+	QString preferredlanguage = QString::fromStdString(settings["general"]["language"].String());
+	QString installedlanguage = QString::fromStdString(settings["session"]["language"].String());
+
+	if (preferredlanguage == installedlanguage)
+		return ETranslationStatus::ACTIVE;
+
+	QString modName = getModView()->getTranslationModName(preferredlanguage);
+
+	if (modName.isEmpty())
+		return ETranslationStatus::NOT_AVAILABLE;
+
+	if (!getModView()->isModInstalled(modName))
+		return ETranslationStatus::NOT_INSTALLLED;
+
+	if (!getModView()->isModEnabled(modName))
+		return ETranslationStatus::DISABLED;
+
+	return ETranslationStatus::ACTIVE;
+}
+
 void MainWindow::updateTranslation()
 {
 #ifdef ENABLE_QT_TRANSLATIONS
