@@ -21,7 +21,7 @@ ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, BattleHex S
 	side(Stack->unitSide()),
 	flying(Stack->hasBonusOfType(BonusType::FLYING))
 {
-	knownAccessible = battle::Unit::getHexes(startPosition, doubleWide, side);
+	knownAccessible = & battle::Unit::getHexes(startPosition, doubleWide, side);
 	destructibleEnemyTurns.fill(-1);
 }
 

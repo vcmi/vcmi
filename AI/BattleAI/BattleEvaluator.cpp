@@ -278,7 +278,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		score = moveTarget.score;
 		cachedAttack.ap = moveTarget.cachedAttack;
 		cachedAttack.score = score;
-		cachedAttack.turn = moveTarget.turnsToRich;
+		cachedAttack.turn = moveTarget.turnsToReach;
 
 		if(stack->waited())
 		{
@@ -390,11 +390,11 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, BattleHexAr
 			return reachability.distances[h1] < reachability.distances[h2];
 		});
 
-	BattleHex bestNeighbor = targetHexes.front();
+	BattleHex bestNeighbour = hexes.front();
 
-	if(reachability.distances[bestNeighbor] > GameConstants::BFIELD_SIZE)
+	if(reachability.distances[bestNeighbour] > GameConstants::BFIELD_SIZE)
 	{
-		logAi->trace("No richable hexes.");
+		logAi->trace("No reachable hexes.");
 		return BattleAction::makeDefend(stack);
 	}
 
@@ -421,22 +421,17 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, BattleHexAr
 	{
 		BattleHexArray obstacleHexes;
 
-		auto insertAffected = [](const CObstacleInstance & spellObst, BattleHexArray & obstacleHexes) {
-			auto affectedHexes = spellObst.getAffectedTiles();
-			obstacleHexes.merge(affectedHexes);
-		};
-
 		const auto & obstacles = hb->battleGetAllObstacles();
 
-		for (const auto & obst : obstacles) {
-
+		for (const auto & obst : obstacles) 
+		{
 			if(obst->triggersEffects())
 			{
 				auto triggerAbility =  VLC->spells()->getById(obst->getTrigger());
 				auto triggerIsNegative = triggerAbility->isNegative() || triggerAbility->isDamage();
 
 				if(triggerIsNegative)
-					insertAffected(*obst, obstacleHexes);
+					obstacleHexes.merge(obst->getAffectedTiles());
 			}
 		}
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
@@ -446,7 +441,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, BattleHexAr
 			const int NEGATIVE_OBSTACLE_PENALTY = 100; // avoid landing on negative obstacle (moat, fire wall, etc)
 			const int BLOCKED_STACK_PENALTY = 100; // avoid landing on moat
 
-			auto distance = BattleHex::getDistance(bestNeighbor, hex);
+			auto distance = BattleHex::getDistance(bestNeighbour, hex);
 
 			if(vstd::contains(obstacleHexes, hex))
 				distance += NEGATIVE_OBSTACLE_PENALTY;
@@ -458,7 +453,8 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, BattleHexAr
 	}
 	else
 	{
-		BattleHex currentDest = bestNeighbor;
+		BattleHex currentDest = bestNeighbour;
+
 		while(true)
 		{
 			if(!currentDest.isValid())
