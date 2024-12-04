@@ -59,30 +59,6 @@ void CModListView::changeEvent(QEvent *event)
 	QWidget::changeEvent(event);
 }
 
-void CModListView::dragEnterEvent(QDragEnterEvent* event)
-{
-	if(event->mimeData()->hasUrls())
-		for(const auto & url : event->mimeData()->urls())
-			for(const auto & ending : QStringList({".zip", ".h3m", ".h3c", ".vmap", ".vcmp", ".json", ".exe"}))
-				if(url.fileName().endsWith(ending, Qt::CaseInsensitive))
-				{
-					event->acceptProposedAction();
-					return;
-				}
-}
-
-void CModListView::dropEvent(QDropEvent* event)
-{
-	const QMimeData* mimeData = event->mimeData();
-
-	if(mimeData->hasUrls())
-	{
-		const QList<QUrl> urlList = mimeData->urls();
-		for (const auto & url : urlList)
-			manualInstallFile(url.toLocalFile());
-	}
-}
-
 void CModListView::setupFilterModel()
 {
 	filterModel = new CModFilterModel(modModel, this);
@@ -167,6 +143,12 @@ CModListView::CModListView(QWidget * parent)
 		scrollWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	}
 #endif
+}
+
+void CModListView::reload()
+{
+	modStateModel->reloadLocalState();
+	modModel->reloadRepositories();
 }
 
 void CModListView::loadRepositories()
@@ -640,73 +622,6 @@ void CModListView::on_installButton_clicked()
 		else if(!modStateModel->isModEnabled(name))
 			enableModByName(name);
 	}
-}
-
-void CModListView::on_installFromFileButton_clicked()
-{
-	// iOS can't display modal dialogs when called directly on button press
-	// https://bugreports.qt.io/browse/QTBUG-98651
-	QTimer::singleShot(0, this, [this]
-	{
-		QString filter = tr("All supported files") + " (*.h3m *.vmap *.h3c *.vcmp *.zip *.json *.exe);;" + 
-			tr("Maps") + " (*.h3m *.vmap);;" + 
-			tr("Campaigns") + " (*.h3c *.vcmp);;" + 
-			tr("Configs") + " (*.json);;" + 
-			tr("Mods") + " (*.zip);;" + 
-			tr("Gog files") + " (*.exe)";
-#if defined(VCMI_MOBILE)
-		filter = tr("All files (*.*)"); //Workaround for sometimes incorrect mime for some extensions (e.g. for exe)
-#endif
-		QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (configs, mods, maps, campaigns, gog files) to install..."), QDir::homePath(), filter);
-
-		for(const auto & file : files)
-		{
-			manualInstallFile(file);
-		}
-	});
-}
-
-void CModListView::manualInstallFile(QString filePath)
-{
-	QString fileName = QFileInfo{filePath}.fileName();
-	if(filePath.endsWith(".zip", Qt::CaseInsensitive))
-		downloadFile(fileName.toLower()
-			// mod name currently comes from zip file -> remove suffixes from github zip download
-			.replace(QRegularExpression("-[0-9a-f]{40}"), "")
-			.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
-			.replace("-main.zip", ".zip")
-			, QUrl::fromLocalFile(filePath), "mods");
-	else if(filePath.endsWith(".json", Qt::CaseInsensitive))
-	{
-		QDir configDir(QString::fromStdString(VCMIDirs::get().userConfigPath().string()));
-		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files); // case insensitive check
-		if(!configFile.empty())
-		{
-			auto dialogResult = QMessageBox::warning(this, tr("Replace config file?"), tr("Do you want to replace %1?").arg(configFile[0]), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-			if(dialogResult == QMessageBox::Yes)
-			{
-				const auto configFilePath = configDir.filePath(configFile[0]);
-				QFile::remove(configFilePath);
-				QFile::copy(filePath, configFilePath);
-
-				// reload settings
-				Helper::loadSettings();
-				for(const auto widget : qApp->allWidgets())
-					if(auto settingsView = qobject_cast<CSettingsView *>(widget))
-						settingsView->loadSettings();
-
-				modStateModel->reloadLocalState();
-				modModel->reloadRepositories();
-			}
-		}
-	}
-	else
-		downloadFile(fileName, QUrl::fromLocalFile(filePath), fileName);
-}
-
-void CModListView::downloadFile(QString file, QString url, QString description, qint64 sizeBytes)
-{
-	downloadFile(file, QUrl{url}, description, sizeBytes);
 }
 
 void CModListView::downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes)

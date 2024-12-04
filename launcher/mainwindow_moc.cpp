@@ -203,12 +203,6 @@ void MainWindow::on_startGameButton_clicked()
 	switchToStartTab();
 }
 
-void MainWindow::on_startEditorButton_clicked()
-{
-	hide();
-	startEditor({});
-}
-
 CModListView * MainWindow::getModView()
 {
 	return ui->modlistView;
@@ -229,6 +223,67 @@ void MainWindow::on_aboutButton_clicked()
 {
 	ui->startGameButton->setEnabled(true);
 	ui->tabListWidget->setCurrentIndex(TabRows::ABOUT);
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent* event)
+{
+	if(event->mimeData()->hasUrls())
+		for(const auto & url : event->mimeData()->urls())
+			for(const auto & ending : QStringList({".zip", ".h3m", ".h3c", ".vmap", ".vcmp", ".json", ".exe"}))
+				if(url.fileName().endsWith(ending, Qt::CaseInsensitive))
+				{
+					event->acceptProposedAction();
+					return;
+				}
+}
+
+void MainWindow::dropEvent(QDropEvent* event)
+{
+	const QMimeData* mimeData = event->mimeData();
+
+	if(mimeData->hasUrls())
+	{
+		const QList<QUrl> urlList = mimeData->urls();
+		for (const auto & url : urlList)
+			manualInstallFile(url.toLocalFile());
+	}
+}
+
+void MainWindow::manualInstallFile(QString filePath)
+{
+	QString fileName = QFileInfo{filePath}.fileName();
+	if(filePath.endsWith(".zip", Qt::CaseInsensitive))
+		getModView()->downloadFile(fileName.toLower()
+														// mod name currently comes from zip file -> remove suffixes from github zip download
+														.replace(QRegularExpression("-[0-9a-f]{40}"), "")
+														.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
+														.replace("-main.zip", ".zip")
+													, QUrl::fromLocalFile(filePath), "mods");
+	else if(filePath.endsWith(".json", Qt::CaseInsensitive))
+	{
+		QDir configDir(QString::fromStdString(VCMIDirs::get().userConfigPath().string()));
+		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files); // case insensitive check
+		if(!configFile.empty())
+		{
+			auto dialogResult = QMessageBox::warning(this, tr("Replace config file?"), tr("Do you want to replace %1?").arg(configFile[0]), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+			if(dialogResult == QMessageBox::Yes)
+			{
+				const auto configFilePath = configDir.filePath(configFile[0]);
+				QFile::remove(configFilePath);
+				QFile::copy(filePath, configFilePath);
+
+				// reload settings
+				Helper::loadSettings();
+				for(const auto widget : qApp->allWidgets())
+					if(auto settingsView = qobject_cast<CSettingsView *>(widget))
+						settingsView->loadSettings();
+
+				getModView()->reload();
+			}
+		}
+	}
+	else
+		getModView()->downloadFile(fileName, QUrl::fromLocalFile(filePath), fileName);
 }
 
 void MainWindow::updateTranslation()

@@ -58,6 +58,10 @@ public:
 	void switchToModsTab();
 	void switchToStartTab();
 
+	void dragEnterEvent(QDragEnterEvent* event) override;
+	void dropEvent(QDropEvent *event) override;
+	void manualInstallFile(QString filePath);
+
 protected:
 	void changeEvent(QEvent * event) override;
 
@@ -67,6 +71,5 @@ public slots:
 private slots:
 	void on_modslistButton_clicked();
 	void on_settingsButton_clicked();
-	void on_startEditorButton_clicked();
 	void on_aboutButton_clicked();
 };
