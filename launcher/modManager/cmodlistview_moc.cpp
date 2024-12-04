@@ -932,7 +932,8 @@ void CModListView::installMods(QStringList archives)
 		manager->installMod(modNames[i], archives[i]);
 	}
 
-	manager->enableMods(modsToEnable);
+	if (!modsToEnable.empty())
+		manager->enableMods(modsToEnable);
 
 	checkManagerErrors();
 
