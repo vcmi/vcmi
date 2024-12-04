@@ -152,6 +152,7 @@ CModListView::CModListView(QWidget * parent)
 	ui->progressWidget->setVisible(false);
 	dlManager = nullptr;
 
+	modModel->reloadRepositories();
 	if(settings["launcher"]["autoCheckRepositories"].Bool())
 		loadRepositories();
 
