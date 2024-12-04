@@ -79,6 +79,9 @@ public:
 	/// install mod by name
 	void doInstallMod(const QString & modName);
 
+	/// update mod by name
+	void doUpdateMod(const QString & modName);
+
 	/// returns true if mod is available in repository and can be installed
 	bool isModAvailable(const QString & modName);
 
@@ -87,6 +90,9 @@ public:
 
 	/// finds all already imported Heroes Chronicles mods (if any)
 	QStringList getInstalledChronicles();
+
+	/// finds all mods that can be updated
+	QStringList getUpdateableMods();
 
 	/// returns true if mod is currently enabled
 	bool isModEnabled(const QString & modName);

@@ -581,6 +581,11 @@ QStringList CModListView::getModsToInstall(QString mod)
 void CModListView::on_updateButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
+	doUpdateMod(modName);
+}
+
+void CModListView::doUpdateMod(const QString & modName)
+{
 	auto targetMod = modStateModel->getMod(modName);
 
 	if(targetMod.isUpdateAvailable())
@@ -989,6 +994,20 @@ QStringList CModListView::getInstalledChronicles()
 			continue;
 
 		result += modName;
+	}
+
+	return result;
+}
+
+QStringList CModListView::getUpdateableMods()
+{
+	QStringList result;
+
+	for(const auto & modName : modStateModel->getAllMods())
+	{
+		auto mod = modStateModel->getMod(modName);
+		if (mod.isUpdateAvailable())
+			result.push_back(modName);
 	}
 
 	return result;

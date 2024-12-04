@@ -106,13 +106,14 @@ void StartGameTab::refreshTranslation(ETranslationStatus status)
 void StartGameTab::refreshMods()
 {
 	constexpr int chroniclesCount = 8;
-	QStringList updateableMods; // TODO
+	QStringList updateableMods = getMainWindow()->getModView()->getUpdateableMods();
 	QStringList chroniclesMods = getMainWindow()->getModView()->getInstalledChronicles();
 
+	ui->buttonUpdateMods->setText(tr("Update %n mods", "", updateableMods.size()));
 	ui->buttonUpdateMods->setVisible(!updateableMods.empty());
 	ui->buttonUpdateModsHelp->setVisible(!updateableMods.empty());
 
-	ui->labelChronicles->setText(tr("Heroes Chronicles:\n%1/%2 installed").arg(chroniclesMods.size()).arg(chroniclesCount));
+	ui->labelChronicles->setText(tr("Heroes Chronicles:\n%n/%1 installed", "", chroniclesMods.size()).arg(chroniclesCount));
 	ui->labelChronicles->setVisible(chroniclesMods.size() != chroniclesCount);
 	ui->buttonChroniclesHelp->setVisible(chroniclesMods.size() != chroniclesCount);
 }
@@ -183,7 +184,17 @@ void StartGameTab::on_buttonImportFiles_clicked()
 
 void StartGameTab::on_buttonInstallTranslation_clicked()
 {
-	// TODO
+	if (getMainWindow()->getTranslationStatus() == ETranslationStatus::NOT_INSTALLLED)
+	{
+		getMainWindow()->getModView()->getTranslationModName();
+		mainWindow->getModView()->doInstallMod(modName);
+	}
+	}
+	else
+	{
+		mainWindow->getModView()->enableModByName(modName);
+	}
+}
 }
 
 void StartGameTab::on_buttonActivateTranslation_clicked()
@@ -193,7 +204,10 @@ void StartGameTab::on_buttonActivateTranslation_clicked()
 
 void StartGameTab::on_buttonUpdateMods_clicked()
 {
-	// TODO
+	QStringList updateableMods = getMainWindow()->getModView()->getUpdateableMods();
+
+	for (const auto & modName : updateableMods)
+		getMainWindow()->getModView()->doInstallMod(modName);
 }
 
 void StartGameTab::on_buttonHelpImportFiles_clicked()
