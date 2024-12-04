@@ -144,6 +144,7 @@ CModListView::CModListView(QWidget * parent)
 
 	ui->splitter->setStyleSheet("QSplitter::handle {background: palette('window');}");
 
+	disableModInfo();
 	setupModModel();
 	setupFilterModel();
 	setupModsView();
