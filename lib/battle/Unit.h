@@ -127,15 +127,15 @@ public:
 
 	virtual std::string getDescription() const;
 
-	BattleHexArray getSurroundingHexes(BattleHex assumedPosition = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
+	const BattleHexArray & getSurroundingHexes(BattleHex assumedPosition = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
 	BattleHexArray getAttackableHexes(const Unit * attacker) const;
-	static BattleHexArray getSurroundingHexes(BattleHex position, bool twoHex, BattleSide side);
+	static const BattleHexArray & getSurroundingHexes(BattleHex position, bool twoHex, BattleSide side);
 
 	bool coversPos(BattleHex position) const; //checks also if unit is double-wide
 
-	BattleHexArray getHexes() const; //up to two occupied hexes, starting from front
-	BattleHexArray getHexes(BattleHex assumedPos) const; //up to two occupied hexes, starting from front
-	static BattleHexArray getHexes(BattleHex assumedPos, bool twoHex, BattleSide side);
+	const BattleHexArray & getHexes() const; //up to two occupied hexes, starting from front
+	const BattleHexArray & getHexes(BattleHex assumedPos) const; //up to two occupied hexes, starting from front
+	static const BattleHexArray & getHexes(BattleHex assumedPos, bool twoHex, BattleSide side);
 
 	BattleHex occupiedHex() const; //returns number of occupied hex (not the position) if stack is double wide; otherwise -1
 	BattleHex occupiedHex(BattleHex assumedPos) const; //returns number of occupied hex (not the position) if stack is double wide and would stand on assumedPos; otherwise -1

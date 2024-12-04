@@ -32,7 +32,7 @@ struct DLL_LINKAGE ReachabilityInfo
 		bool flying = false;
 		bool ignoreKnownAccessible = false; //Ignore obstacles if it is in accessible hexes
 		bool bypassEnemyStacks = false; // in case of true will count amount of turns needed to kill enemy and thus move forward
-		BattleHexArray knownAccessible; //hexes that will be treated as accessible, even if they're occupied by stack (by default - tiles occupied by stack we do reachability for, so it doesn't block itself)
+		const BattleHexArray * knownAccessible; //hexes that will be treated as accessible, even if they're occupied by stack (by default - tiles occupied by stack we do reachability for, so it doesn't block itself)
 		std::array<int8_t, GameConstants::BFIELD_SIZE> destructibleEnemyTurns; // how many turns it is needed to kill enemy on specific hex (index <=> hex)
 
 		BattleHex startPosition; //assumed position of stack
