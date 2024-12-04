@@ -33,11 +33,9 @@ public:
 	using reverse_iterator = typename StorageType::reverse_iterator;
 	using const_reverse_iterator = typename StorageType::const_reverse_iterator;
 
-	using NeighbouringTilesCache = std::array<BattleHexArray, GameConstants::BFIELD_SIZE>;
+	using ArrayOfBattleHexArrays = std::array<BattleHexArray, GameConstants::BFIELD_SIZE>;
 
-	static const NeighbouringTilesCache neighbouringTilesCache;
-	static const BattleHexArray closestTilesCacheForAttacker;
-	static const BattleHexArray closestTilesCacheForDefender;
+	static const ArrayOfBattleHexArrays neighbouringTilesCache;
 
 	BattleHexArray() noexcept
 	{
@@ -130,7 +128,8 @@ public:
 		return internalStorage.insert(pos, hex);
 	}
 
-	static BattleHex getClosestTileFromAllPossibleNeighbours(BattleSide side, BattleHex pos);
+	static const BattleHexArray & getClosestTilesCache(BattleHex pos, BattleSide side);
+	static const BattleHexArray & getNeighbouringTilesDblWide(BattleHex pos, BattleSide side);
 
 	BattleHex getClosestTile(BattleSide side, BattleHex initialPos) const;
 
@@ -190,7 +189,7 @@ public:
 			logGlobal->warn("BattleHexArray::contains( %d ) - invalid BattleHex!", hex);
 		*/
 		
-		// return true for invalid hexes
+		// returns true also for invalid hexes
 		return true;
 	}
 
@@ -298,10 +297,8 @@ private:
 	}
 
 	/// returns all valid neighbouring tiles
-	static BattleHexArray::NeighbouringTilesCache calculateNeighbouringTiles();
+	static BattleHexArray::ArrayOfBattleHexArrays calculateNeighbouringTiles();
 	static BattleHexArray generateNeighbouringTiles(BattleHex hex);
-	static BattleHexArray generateAttackerClosestTilesCache();
-	static BattleHexArray generateDefenderClosestTilesCache();
 };
 
 VCMI_LIB_NAMESPACE_END

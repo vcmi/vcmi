@@ -651,7 +651,7 @@ BattleHexArray CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit *
 			if(!otherSt->isValidTarget(false))
 				continue;
 
-			BattleHexArray occupied = otherSt->getHexes();
+			const BattleHexArray & occupied = otherSt->getHexes();
 
 			if(battleCanShoot(unit, otherSt->getPosition()))
 			{
@@ -973,9 +973,7 @@ AccessibilityInfo CBattleInfoCallback::getAccessibility() const
 
 	if(bFieldType != BattleField::NONE)
 	{
-		BattleHexArray impassableHexes = bFieldType.getInfo()->impassableHexes;
-
-		for(auto hex : impassableHexes)
+		for(auto hex : bFieldType.getInfo()->impassableHexes)
 			ret[hex] = EAccessibility::UNAVAILABLE;
 	}
 
@@ -1040,20 +1038,20 @@ AccessibilityInfo CBattleInfoCallback::getAccessibility() const
 
 AccessibilityInfo CBattleInfoCallback::getAccessibility(const battle::Unit * stack) const
 {
-	return getAccessibility(battle::Unit::getHexes(stack->getPosition(), stack->doubleWide(), stack->unitSide()));
+	return getAccessibility(& battle::Unit::getHexes(stack->getPosition(), stack->doubleWide(), stack->unitSide()));
 }
 
-AccessibilityInfo CBattleInfoCallback::getAccessibility(const BattleHexArray & accessibleHexes) const
+AccessibilityInfo CBattleInfoCallback::getAccessibility(const BattleHexArray * accessibleHexes) const
 {
 	auto ret = getAccessibility();
-	for(auto hex : accessibleHexes)
+	for(auto hex : *accessibleHexes)
 		if(hex.isValid())
 			ret[hex] = EAccessibility::ACCESSIBLE;
 
 	return ret;
 }
 
-ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibility, const ReachabilityInfo::Parameters & params) const
+ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo & accessibility, const ReachabilityInfo::Parameters & params) const
 {
 	ReachabilityInfo ret;
 	ret.accessibility = accessibility;
@@ -1123,11 +1121,11 @@ bool CBattleInfoCallback::isInObstacle(
 	const BattleHexArray & obstacleHexes,
 	const ReachabilityInfo::Parameters & params) const
 {
-	auto occupiedHexes = battle::Unit::getHexes(hex, params.doubleWide, params.side);
+	const BattleHexArray & occupiedHexes = battle::Unit::getHexes(hex, params.doubleWide, params.side);
 
 	for(auto occupiedHex : occupiedHexes)
 	{
-		if(params.ignoreKnownAccessible && params.knownAccessible.contains(occupiedHex))
+		if(params.ignoreKnownAccessible && params.knownAccessible->contains(occupiedHex))
 			continue;
 
 		if(obstacleHexes.contains(occupiedHex))
@@ -1155,7 +1153,7 @@ BattleHexArray CBattleInfoCallback::getStoppers(BattleSide whichSidePerspective)
 		if(!battleIsObstacleVisibleForSide(*oi, whichSidePerspective))
 			continue;
 
-		for(const auto & hex : oi->getStoppingTile())
+		for(auto hex : oi->getStoppingTile())
 		{
 			if(hex == BattleHex::GATE_BRIDGE && oi->obstacleType == CObstacleInstance::MOAT)
 			{
@@ -1171,7 +1169,6 @@ BattleHexArray CBattleInfoCallback::getStoppers(BattleSide whichSidePerspective)
 std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(const battle::Unit * closest) const
 {
 	auto reachability = getReachability(closest);
-	auto avHexes = battleGetAvailableHexes(reachability, closest, false);
 
 	// I hate std::pairs with their undescriptive member names first / second
 	struct DistStack
@@ -1190,7 +1187,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 
 	for(const battle::Unit * st : possible)
 	{
-		for(BattleHex hex : avHexes)
+		for(BattleHex hex : battleGetAvailableHexes(reachability, closest, false))
 			if(CStack::isMeleeAttackPossible(closest, st, hex))
 			{
 				DistStack hlp = {reachability.distances[hex], hex, st};
@@ -1278,7 +1275,7 @@ ReachabilityInfo CBattleInfoCallback::getReachability(const battle::Unit * unit)
 	return getReachability(params);
 }
 
-ReachabilityInfo CBattleInfoCallback::getReachability(const ReachabilityInfo::Parameters &params) const
+ReachabilityInfo CBattleInfoCallback::getReachability(const ReachabilityInfo::Parameters & params) const
 {
 	if(params.flying)
 		return getFlyingReachability(params);
@@ -1292,7 +1289,7 @@ ReachabilityInfo CBattleInfoCallback::getReachability(const ReachabilityInfo::Pa
 	}
 }
 
-ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityInfo::Parameters &params) const
+ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityInfo::Parameters & params) const
 {
 	ReachabilityInfo ret;
 	ret.accessibility = getAccessibility(params.knownAccessible);
@@ -1349,11 +1346,11 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 	}
 	if(attacker->hasBonusOfType(BonusType::ATTACKS_ALL_ADJACENT))
 	{
-		boost::copy(attacker->getSurroundingHexes(attackerPos), vstd::set_inserter(at.hostileCreaturePositions));
+		at.hostileCreaturePositions.merge(attacker->getSurroundingHexes(attackerPos));
 	}
 	if(attacker->hasBonusOfType(BonusType::THREE_HEADED_ATTACK))
 	{
-		BattleHexArray hexes = attacker->getSurroundingHexes(attackerPos);
+		const BattleHexArray & hexes = attacker->getSurroundingHexes(attackerPos);
 		for(BattleHex tile : hexes)
 		{
 			if((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition(tile, attackOriginHex) > -1)) //adjacent both to attacker's head and attacked tile
@@ -1441,9 +1438,8 @@ AttackableTiles CBattleInfoCallback::getPotentiallyShootableHexes(const battle::
 
 	if(attacker->hasBonusOfType(BonusType::SHOOTS_ALL_ADJACENT) && !BattleHexArray::neighbouringTilesCache[attackerPos].contains(destinationTile))
 	{
-		auto targetHexes = BattleHexArray::neighbouringTilesCache[destinationTile];
-		targetHexes.insert(destinationTile);
-		boost::copy(targetHexes, vstd::set_inserter(at.hostileCreaturePositions));
+		at.hostileCreaturePositions.merge(BattleHexArray::neighbouringTilesCache[destinationTile]);
+		at.hostileCreaturePositions.insert(destinationTile);
 	}
 
 	return at;

@@ -56,7 +56,7 @@ struct MoveTarget
 	float score;
 	BattleHexArray positions;
 	std::optional<AttackPossibility> cachedAttack;
-	uint8_t turnsToRich;
+	uint8_t turnsToReach;
 
 	MoveTarget();
 };

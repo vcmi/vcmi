@@ -51,53 +51,26 @@ const IBonusBearer* Unit::getBonusBearer() const
 	return this;
 }
 
-BattleHexArray Unit::getSurroundingHexes(BattleHex assumedPosition) const
+const BattleHexArray & Unit::getSurroundingHexes(BattleHex assumedPosition) const
 {
 	BattleHex hex = (assumedPosition != BattleHex::INVALID) ? assumedPosition : getPosition(); //use hypothetical position
 
 	return getSurroundingHexes(hex, doubleWide(), unitSide());
 }
 
-BattleHexArray Unit::getSurroundingHexes(BattleHex position, bool twoHex, BattleSide side)
+const BattleHexArray & Unit::getSurroundingHexes(BattleHex position, bool twoHex, BattleSide side)
 {
-	if(!position.isValid())
-		return { };
-
-	BattleHexArray hexes;
-	if(twoHex)
-	{
-		const BattleHex otherHex = occupiedHex(position, twoHex, side);
-
-		if(side == BattleSide::ATTACKER)
-		{
-			for(auto dir = static_cast<BattleHex::EDir>(0); dir <= static_cast<BattleHex::EDir>(4); dir = static_cast<BattleHex::EDir>(dir + 1))
-				hexes.checkAndPush(position.cloneInDirection(dir, false));
-
-			hexes.checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false));
-			hexes.checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::LEFT, false));
-			hexes.checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::TOP_LEFT, false));
-		}
-		else
-		{
-			hexes.checkAndPush(position.cloneInDirection(BattleHex::EDir::TOP_LEFT, false));
-
-			for(auto dir = static_cast<BattleHex::EDir>(0); dir <= static_cast<BattleHex::EDir>(4); dir = static_cast<BattleHex::EDir>(dir + 1))
-				hexes.checkAndPush(otherHex.cloneInDirection(dir, false));
-
-			hexes.checkAndPush(position.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false));
-			hexes.checkAndPush(position.cloneInDirection(BattleHex::EDir::LEFT, false));
-		}
-		return hexes;
-	}
-	else
-	{
+	assert(position.isValid());			// check outside if position isValid
+	
+	if(!twoHex)
 		return BattleHexArray::neighbouringTilesCache[position];
-	}
+
+	return BattleHexArray::getNeighbouringTilesDblWide(position, side);
 }
 
 BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
 {
-	auto defenderHexes = battle::Unit::getHexes(
+	const BattleHexArray & defenderHexes = battle::Unit::getHexes(
 		getPosition(),
 		doubleWide(),
 		unitSide());
@@ -126,25 +99,35 @@ bool Unit::coversPos(BattleHex pos) const
 	return getPosition() == pos || (doubleWide() && (occupiedHex() == pos));
 }
 
-BattleHexArray Unit::getHexes() const
+const BattleHexArray & Unit::getHexes() const
 {
 	return getHexes(getPosition(), doubleWide(), unitSide());
 }
 
-BattleHexArray Unit::getHexes(BattleHex assumedPos) const
+const BattleHexArray & Unit::getHexes(BattleHex assumedPos) const
 {
 	return getHexes(assumedPos, doubleWide(), unitSide());
 }
 
-BattleHexArray Unit::getHexes(BattleHex assumedPos, bool twoHex, BattleSide side)
+const BattleHexArray & Unit::getHexes(BattleHex assumedPos, bool twoHex, BattleSide side)
 {
+	static BattleHexArray::ArrayOfBattleHexArrays cache[4];
+	int index = side == BattleSide::ATTACKER ? 0 : 2;
+
+	if(!cache[index + twoHex][assumedPos].empty())
+		return cache[index + twoHex][assumedPos];
+
+	// first run, initialize
+
 	BattleHexArray hexes;
 	hexes.insert(assumedPos);
 
 	if(twoHex)
 		hexes.insert(occupiedHex(assumedPos, twoHex, side));
 
-	return hexes;
+	cache[index + twoHex][assumedPos] = std::move(hexes);
+
+	return cache[index + twoHex][assumedPos];
 }
 
 BattleHex Unit::occupiedHex() const
