@@ -15,6 +15,10 @@ StartGameTab::StartGameTab(QWidget * parent)
 {
 	ui->setupUi(this);
 
+	ui->buttonGameResume->setIcon(QIcon{":/icons/menu-game.png"}); //TODO: different icon?
+	ui->buttonGameStart->setIcon(QIcon{":/icons/menu-game.png"});
+	ui->buttonGameEditor->setIcon(QIcon{":/icons/menu-editor.png"});
+
 	refreshState();
 
 	ui->buttonGameResume->setVisible(false); // TODO: implement

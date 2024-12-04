@@ -206,7 +206,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Start game</string>
+         <string>Game</string>
         </property>
         <property name="iconSize">
          <size>
