@@ -266,9 +266,9 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, bool createRoad, Rout
 	rmg::Object rmgObject(*boat);
 	rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 
-	auto waterAvailable = zone.areaPossible() + zone.freePaths();
+	auto waterAvailable = zone.areaForRoads();
 	rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
-	coast.intersect(land.areaPossible() + land.freePaths()); //having only available land tiles
+	coast.intersect(land.areaForRoads()); //having only available land tiles
 	auto boardingPositions = coast.getSubarea([&waterAvailable, this](const int3 & tile) //tiles where boarding is possible
 		{
 			//We don't want place boat right to any land object, especiallly the zone guard
@@ -332,10 +332,10 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, bool 
 	rmgObject.setTemplate(land.getTerrainType(), zone.getRand());
 	bool guarded = manager->addGuard(rmgObject, guard);
 	
-	auto waterAvailable = zone.areaPossible() + zone.freePaths();
+	auto waterAvailable = zone.areaForRoads();
 	waterAvailable.intersect(lake.area);
 	rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
-	coast.intersect(land.areaPossible() + land.freePaths()); //having only available land tiles
+	coast.intersect(land.areaForRoads()); //having only available land tiles
 	auto boardingPositions = coast.getSubarea([&waterAvailable](const int3 & tile) //tiles where boarding is possible
 	{
 		rmg::Area a({tile});
