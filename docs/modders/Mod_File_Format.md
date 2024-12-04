@@ -2,7 +2,7 @@
 
 ## Fields with description of mod
 
-```json5
+```json
 {
 	// Name of your mod. While it does not have hard length limit
 	// it should not be longer than ~30 symbols to fit into allowed space
@@ -91,7 +91,7 @@
 
 These are fields that are present only in local mod.json file
 
-```json5
+```json
  
 {
 	// Following section describes configuration files with content added by mod
@@ -210,7 +210,7 @@ See [Translations](Translations.md) for more information
 
 These are fields that are present only in remote repository and are generally not used in mod.json
 
-```json5
+```json
 {
 	// URL to mod.json that describes this mod
 	"mod" : "https://raw.githubusercontent.com/vcmi-mods/vcmi-extras/vcmi-1.4/mod.json",

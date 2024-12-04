@@ -172,7 +172,7 @@ cmake --preset ios-conan
 
 `CMakeUserPresets.json` file:
 
-```json5
+```json
 {
     "version": 3,
     "cmakeMinimumRequired": {

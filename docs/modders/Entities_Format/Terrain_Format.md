@@ -2,7 +2,7 @@
 
 ## Format
 
-```json5
+```json
 "newTerrain" :
 {
 	// Two-letters unique identifier for this terrain. Used in map format

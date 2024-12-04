@@ -9,7 +9,7 @@ To start making campaign, create file named `header.json`. See also [Packing cam
 
 Basic structure of this file is here, each section is described in details below
 
-```json5
+```json
 {
     "version" : 1,
 
@@ -34,7 +34,7 @@ Basic structure of this file is here, each section is described in details below
 
 In header are parameters describing campaign properties
 
-```json5
+```json
     ...
     "regions": {...},
     "name": "Campaign name",
@@ -63,7 +63,7 @@ In header are parameters describing campaign properties
 
 Scenario description looks like follow:
 
-```json5
+```json
 {
     "map": "maps/SomeMap",
     "preconditions": [],
@@ -100,7 +100,7 @@ Scenario description looks like follow:
 
 Prolog and epilog properties are optional
 
-```json5
+```json
 {
     "video": "NEUTRALA.smk", //video to show
     "music": "musicFile.ogg", //music to play, should be located in music directory
@@ -119,7 +119,7 @@ If `startOptions` is `none`, `bonuses` field will be ignored
 
 If `startOptions` is `bonus`, bonus format may vary depending on its type.
 
-```json5
+```json
 {
     "what": "",
 
@@ -162,7 +162,7 @@ If `startOptions` is `bonus`, bonus format may vary depending on its type.
 
 If `startOptions` is `crossover`, heroes from specific scenario will be moved to this scenario. Bonus format is following
 
-```json5
+```json
 {
     "playerColor": 0,
     "scenario": 0
@@ -176,7 +176,7 @@ If `startOptions` is `crossover`, heroes from specific scenario will be moved to
 
 If `startOptions` is `hero`, hero can be chosen as a starting bonus. Bonus format is following
 
-```json5
+```json
 {
     "playerColor": 0,
     "hero": "random"
@@ -190,7 +190,7 @@ If `startOptions` is `hero`, hero can be chosen as a starting bonus. Bonus forma
 
 Predefined campaign regions are located in file `campaign_regions.json`
 
-```json5
+```json
 {
     "background": "ownRegionBackground.png",
 		"suffix": ["Enabled", "Selected", "Conquered"],

@@ -9,7 +9,7 @@ In order to make functional hero you also need:
 
 ## Format
 
-```json5
+```json
 "myHeroName" :
 {
 	// Identifier of class this hero belongs to. Such as knight or battleMage

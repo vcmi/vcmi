@@ -2,7 +2,7 @@
 
 ## Template format
 
-```json5
+```json
 /// Unique template name
 "Triangle" : 
 {
@@ -57,7 +57,7 @@
 
 ## Zone format
 
-```json5
+```json
 {
 	// Type of this zone. Possible values are:
 	// "playerStart" - Starting zone for a "human or CPU" players
