@@ -597,6 +597,10 @@ QStringList CModListView::getModsToInstall(QString mod)
 void CModListView::on_updateButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
+	auto targetMod = modStateModel->getMod(modName);
+
+	if(targetMod.isUpdateAvailable())
+		downloadFile(modName + ".zip", targetMod.getDownloadUrl(), modName, targetMod.getDownloadSizeBytes());
 
 	for(const auto & name : getModsToInstall(modName))
 	{
