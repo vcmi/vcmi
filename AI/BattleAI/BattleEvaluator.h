@@ -53,6 +53,8 @@ public:
 	std::optional<PossibleSpellcast> findBestCreatureSpell(const CStack * stack);
 	BattleAction goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes, const PotentialTargets & targets);
 	std::vector<BattleHex> getBrokenWallMoatHexes() const;
+	static std::vector<BattleHex> getCastleHexes();
+	bool hasWorkingTowers() const;
 	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps); //for offensive damaging spells only
 	void print(const std::string & text) const;
 	BattleAction moveOrAttack(const CStack * stack, BattleHex hex, const PotentialTargets & targets);

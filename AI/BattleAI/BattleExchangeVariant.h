@@ -159,7 +159,8 @@ public:
 		const battle::Unit * activeStack,
 		PotentialTargets & targets,
 		DamageCache & damageCache,
-		std::shared_ptr<HypotheticBattle> hb);
+		std::shared_ptr<HypotheticBattle> hb,
+		bool siegeDefense = false);
 
 	float evaluateExchange(
 		const AttackPossibility & ap,
