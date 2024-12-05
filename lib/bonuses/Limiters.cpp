@@ -221,7 +221,7 @@ ILimiter::EDecision UnitOnHexLimiter::limit(const BonusLimitationContext &contex
 
 	auto accept = false;
 	for (const auto & hex : stack->getHexes())
-		accept |= !!applicableHexes.contains(hex);
+		accept |= applicableHexes.contains(hex);
 
 	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 }

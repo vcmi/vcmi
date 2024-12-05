@@ -68,13 +68,13 @@ class BattleFieldController : public CIntObject
 	BattleHexArray getRangeHexes(BattleHex sourceHex, uint8_t distance);
 
 	/// get only hexes at the limit of a range
-	BattleHexArray getRangeLimitHexes(BattleHex hoveredHex, BattleHexArray hexRange, uint8_t distanceToLimit);
+	BattleHexArray getRangeLimitHexes(BattleHex hoveredHex, const BattleHexArray & hexRange, uint8_t distanceToLimit);
 
 	/// calculate if a hex is in range limit and return its index in range
-	bool IsHexInRangeLimit(BattleHex hex, BattleHexArray & rangeLimitHexes, int * hexIndexInRangeLimit);
+	bool IsHexInRangeLimit(BattleHex hex, const BattleHexArray & rangeLimitHexes, int * hexIndexInRangeLimit);
 
 	/// get an array that has for each hex in range, an array with all directions where an outside neighbour hex exists
-	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(BattleHexArray rangeHexes, BattleHexArray rangeLimitHexes);
+	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(const BattleHexArray & rangeHexes, const BattleHexArray & rangeLimitHexes);
 
 	/// calculates what image to use as range limit, depending on the direction of neighbours
 	/// a mask is used internally to mark the directions of all neighbours

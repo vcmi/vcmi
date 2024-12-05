@@ -63,16 +63,24 @@ public:
 
 	/// returns all tiles, unavailable tiles will be set as invalid
 	/// order of returned tiles matches EDir enum
-	static BattleHexArray generateAllNeighbouringTiles(BattleHex hex)
+	static BattleHexArray getAllNeighbouringTiles(BattleHex hex)
 	{
-		BattleHexArray ret;
+		static ArrayOfBattleHexArrays cache;
+		static bool initialized = false;
 
-		ret.resize(6);
+		if(initialized)
+			return cache[hex.hex];
 
-		for(auto dir : BattleHex::hexagonalDirections())
-			ret.set(dir, hex.cloneInDirection(dir, false));
+		for(BattleHex h = 0; h < GameConstants::BFIELD_SIZE; h.hex++)
+		{
+			cache[h].resize(6);
 
-		return ret;
+			for(auto dir : BattleHex::hexagonalDirections())
+				cache[h].set(dir, h.cloneInDirection(dir, false));
+		}
+		initialized = true;
+
+		return cache[hex.hex];
 	}
 
 	void checkAndPush(BattleHex tile)
