@@ -24,7 +24,7 @@ Some notes:
 
 ### Setup settings.json
 
-```json5
+```json
 {
     "logging" : {
         "console" : {

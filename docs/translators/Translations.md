@@ -62,7 +62,7 @@ To export maps and campaigns, use '/translate maps' command instead.
 
 It's possible to add video subtitles. Create a JSON file in `video` folder of translation mod with the name of the video (e.g. `H3Intro.json`):
 
-```json5
+```json
 [
     {
         "timeStart" : 5.640, // start time, seconds
@@ -164,7 +164,7 @@ If you want to update existing translation, you can use '/translate missing' com
 
 In order to display information in Launcher in language selected by user add following block into your `mod.json`:
 
-```json5
+```json
 	"<language>" : {
 		"name" : "<translated name>",
 		"description" : "<translated description>",

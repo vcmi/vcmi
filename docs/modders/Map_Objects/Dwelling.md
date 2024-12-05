@@ -1,6 +1,6 @@
 # Dwelling
 
-```json5
+```json
 {
 	/// List of creatures in this bank. Each list represents one "level" of bank
 	/// Creatures on the same level will have shared growth and available number (similar to towns)

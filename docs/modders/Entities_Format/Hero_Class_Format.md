@@ -9,7 +9,7 @@ In order to make functional hero class you also need:
 
 ## Format
 
-```json5
+```json
 // Unique identifier of hero class, camelCase
 "myClassName" :
 {

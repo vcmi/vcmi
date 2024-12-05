@@ -7,7 +7,7 @@ Markets can be added as any other object with special handler called "market".
 
 Here is schema describing such object
 
-```json5
+```json
 "seafaringAcademy" : //object name
 {
 	"handler" : "market", //market handler
@@ -51,19 +51,19 @@ Following options are supported:
 
 Trading post allows to exchange resources and send resources to another player, so it shall be configured this way:
 
-```json5
+```json
 "modes" : ["resource-resource", "resource-player"]
 ```
 
 ### Black market
 
-```json5
+```json
 "modes" : ["resource-artifact"]
 ```
 
 ### Freelance guild
 
-```json5
+```json
 "modes" : ["creature-resource"]
 ```
 
@@ -73,7 +73,7 @@ Altar of sacrifice allows exchange creatures for experience for evil factions an
 So both modes shall be available in the market.
 Game logic prohibits using modes unavailable for faction
 
-```json5
+```json
 "modes" : ["creature-experience", "artifact-experience"]
 ```
 
@@ -85,14 +85,14 @@ See [Secondary skills](Rewardable.md#secondary-skills) description for more deta
 
 ### Example for University of magic (e.g conflux building)
 
-```json5
+```json
 "modes" : ["resource-skill"],
 "offer" : ["airMagic", "waterMagic", "earthMagic", "fireMagic"]
 ```
 
 ### Example for regular University
 
-```json5
+```json
 "modes" : ["resource-skill"],
 "offer" : [ //4 random skills except necromancy
     { "noneOf" : ["necromancy"] },
