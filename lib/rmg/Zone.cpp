@@ -121,6 +121,11 @@ ThreadSafeProxy<const rmg::Area> Zone::areaUsed() const
 	return ThreadSafeProxy<const rmg::Area>(dAreaUsed, areaMutex);
 }
 
+rmg::Area Zone::areaForRoads() const
+{
+	return areaPossible() + freePaths();
+}
+
 void Zone::clearTiles()
 {
 	Lock lock(areaMutex);
@@ -299,7 +304,6 @@ void Zone::fractalize()
 	logGlobal->trace("Zone %d: treasureValue %d blockDistance: %2.f, freeDistance: %2.f", getId(), treasureValue, blockDistance, freeDistance);
 
 	Lock lock(areaMutex);
-	// FIXME: Do not access Area directly
 
 	rmg::Area clearedTiles(dAreaFree);
 	rmg::Area possibleTiles(dAreaPossible);

@@ -92,6 +92,8 @@ public:
 	ThreadSafeProxy<const rmg::Area> freePaths() const;
 	ThreadSafeProxy<rmg::Area> areaUsed();
 	ThreadSafeProxy<const rmg::Area> areaUsed() const;
+	
+	rmg::Area areaForRoads() const;
 
 	void initFreeTiles();
 	void clearTiles();
