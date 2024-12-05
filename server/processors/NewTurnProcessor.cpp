@@ -41,8 +41,6 @@ NewTurnProcessor::NewTurnProcessor(CGameHandler * gameHandler)
 
 void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 {
-	std::vector<const CGObjectInstance*> removedObjects;
-
 	for (auto const & event : gameHandler->gameState()->map->events)
 	{
 		if (!event.occursToday(gameHandler->gameState()->day))

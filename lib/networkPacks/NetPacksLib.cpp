@@ -1199,8 +1199,6 @@ void RemoveObject::applyGs(CGameState *gs)
 		assert(beatenHero);
 		PlayerState * p = gs->getPlayerState(beatenHero->tempOwner);
 		gs->map->heroesOnMap -= beatenHero;
-		p->removeOwnedObject(beatenHero);
-
 
 		auto * siegeNode = beatenHero->whereShouldBeAttachedOnSiege(gs);
 
@@ -1254,8 +1252,8 @@ void RemoveObject::applyGs(CGameState *gs)
 		}
 	}
 
-	if(initiator == PlayerColor::NEUTRAL && obj->tempOwner.isValidPlayer())
-		gs->getPlayerState(obj->tempOwner)->removeOwnedObject(obj); //object removed via map event
+	if(obj->getOwner().isValidPlayer())
+		gs->getPlayerState(obj->getOwner())->removeOwnedObject(obj); //object removed via map event
 
 	gs->map->instanceNames.erase(obj->instanceName);
 	gs->map->objects[objectID.getNum()].dellNull();

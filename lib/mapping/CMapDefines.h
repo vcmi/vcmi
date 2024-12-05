@@ -45,8 +45,6 @@ public:
 
 	std::vector<ObjectInstanceID> deletedObjectsInstances;
 
-	std::vector<ObjectInstanceID> unused;
-
 	template <typename Handler>
 	void serialize(Handler & h)
 	{
@@ -72,10 +70,6 @@ public:
 		if(h.version >= Handler::Version::EVENT_OBJECTS_DELETION)
 		{
 			h & deletedObjectsInstances;
-		}
-		else
-		{
-			h & unused;
 		}
 	}
 	

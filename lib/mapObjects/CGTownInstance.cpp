@@ -378,7 +378,10 @@ void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 
 std::string CGTownInstance::getObjectName() const
 {
-	return getNameTranslated() + ", " + (ID == Obj::RANDOM_TOWN ? "Random town" : getTown()->faction->getNameTranslated());
+	if(ID == Obj::RANDOM_TOWN )
+		return CGObjectInstance::getObjectName();
+
+	return getNameTranslated() + ", " + getTown()->faction->getNameTranslated();
 }
 
 bool CGTownInstance::townEnvisagesBuilding(BuildingSubID::EBuildingSubID subId) const
