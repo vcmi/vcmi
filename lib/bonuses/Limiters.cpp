@@ -220,6 +220,7 @@ ILimiter::EDecision UnitOnHexLimiter::limit(const BonusLimitationContext &contex
 		return ILimiter::EDecision::DISCARD;
 
 	auto accept = false;
+
 	for (auto hex : stack->getHexes())
 		accept |= applicableHexes.contains(hex);
 

@@ -640,11 +640,11 @@ BattleHexArray CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit *
 		{
 			// Return true if given hex has at least one available neighbour.
 			// Available hexes are already present in ret vector.
-			auto availableneighbour = boost::find_if(ret, [=] (BattleHex availableHex)
+			auto availableNeighbour = boost::find_if(ret, [=] (BattleHex availableHex)
 			{
 				return BattleHex::mutualPosition(hex, availableHex) >= 0;
 			});
-			return availableneighbour != ret.end();
+			return availableNeighbour != ret.end();
 		};
 		for(const auto * otherSt : battleAliveUnits(otherSide(unit->unitSide())))
 		{
@@ -1112,9 +1112,8 @@ bool CBattleInfoCallback::isInObstacle(
 	const BattleHexArray & obstacleHexes,
 	const ReachabilityInfo::Parameters & params) const
 {
-	const BattleHexArray & occupiedHexes = battle::Unit::getHexes(hex, params.doubleWide, params.side);
 
-	for(auto occupiedHex : occupiedHexes)
+	for(auto occupiedHex : battle::Unit::getHexes(hex, params.doubleWide, params.side))
 	{
 		if(params.ignoreKnownAccessible && params.knownAccessible->contains(occupiedHex))
 			continue;

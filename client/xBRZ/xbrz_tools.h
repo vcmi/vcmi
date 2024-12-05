@@ -67,9 +67,9 @@ void fillBlock(Pix* trg, int pitch /*[bytes]*/, Pix col, int blockWidth, int blo
 }
 
 
-//nearest-neighbour (going over target image - slow for upscaling, since source is read multiple times missing out on cache! Fast for similar image sizes!)
+//nearest-neighbor (going over target image - slow for upscaling, since source is read multiple times missing out on cache! Fast for similar image sizes!)
 template <class PixSrc, class PixTrg, class PixConverter>
-void nearestneighbourScale(const PixSrc* src, int srcWidth, int srcHeight, int srcPitch /*[bytes]*/,
+void nearestNeighborScale(const PixSrc* src, int srcWidth, int srcHeight, int srcPitch /*[bytes]*/,
                           /**/  PixTrg* trg, int trgWidth, int trgHeight, int trgPitch /*[bytes]*/,
                           int yFirst, int yLast, PixConverter pixCvrt /*convert PixSrc to PixTrg*/)
 {
@@ -104,9 +104,9 @@ void nearestneighbourScale(const PixSrc* src, int srcWidth, int srcHeight, int s
 }
 
 
-//nearest-neighbour (going over source image - fast for upscaling, since source is read only once
+//nearest-neighbor (going over source image - fast for upscaling, since source is read only once
 template <class PixSrc, class PixTrg, class PixConverter>
-void nearestneighbourScaleOverSource(const PixSrc* src, int srcWidth, int srcHeight, int srcPitch /*[bytes]*/,
+void nearestNeighborScaleOverSource(const PixSrc* src, int srcWidth, int srcHeight, int srcPitch /*[bytes]*/,
                                     /**/  PixTrg* trg, int trgWidth, int trgHeight, int trgPitch /*[bytes]*/,
                                     int yFirst, int yLast, PixConverter pixCvrt /*convert PixSrc to PixTrg*/)
 {

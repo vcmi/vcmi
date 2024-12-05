@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 bool AccessibilityInfo::tileAccessibleWithGate(BattleHex tile, BattleSide side) const
 {
 	//at(otherHex) != EAccessibility::ACCESSIBLE && (at(otherHex) != EAccessibility::GATE || side != BattleSide::DEFENDER)
-	auto accessibility = at(tile);
+	const auto & accessibility = at(tile);
 
 	if(accessibility == EAccessibility::ALIVE_STACK)
 	{

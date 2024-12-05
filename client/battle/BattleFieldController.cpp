@@ -442,7 +442,7 @@ BattleHexArray BattleFieldController::getRangeHexes(BattleHex sourceHex, uint8_t
 	return rangeHexes;
 }
 
-BattleHexArray BattleFieldController::getRangeLimitHexes(BattleHex hoveredHex, BattleHexArray rangeHexes, uint8_t distanceToLimit)
+BattleHexArray BattleFieldController::getRangeLimitHexes(BattleHex hoveredHex, const BattleHexArray & rangeHexes, uint8_t distanceToLimit)
 {
 	BattleHexArray rangeLimitHexes;
 
@@ -456,7 +456,7 @@ BattleHexArray BattleFieldController::getRangeLimitHexes(BattleHex hoveredHex, B
 	return rangeLimitHexes;
 }
 
-bool BattleFieldController::IsHexInRangeLimit(BattleHex hex, BattleHexArray & rangeLimitHexes, int * hexIndexInRangeLimit)
+bool BattleFieldController::IsHexInRangeLimit(BattleHex hex, const BattleHexArray & rangeLimitHexes, int * hexIndexInRangeLimit)
 {
 	bool  hexInRangeLimit = false;
 
@@ -470,7 +470,8 @@ bool BattleFieldController::IsHexInRangeLimit(BattleHex hex, BattleHexArray & ra
 	return hexInRangeLimit;
 }
 
-std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeighbourDirectionsForLimitHexes(BattleHexArray wholeRangeHexes, BattleHexArray rangeLimitHexes)
+std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeighbourDirectionsForLimitHexes(
+	const BattleHexArray & wholeRangeHexes, const BattleHexArray & rangeLimitHexes)
 {
 	std::vector<std::vector<BattleHex::EDir>> output;
 
@@ -481,7 +482,7 @@ std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeigh
 	{
 		// get all neighbours and their directions
 		
-		auto neighbouringTiles = BattleHexArray::generateAllNeighbouringTiles(hex);
+		const BattleHexArray & neighbouringTiles = BattleHexArray::getAllNeighbouringTiles(hex);
 
 		std::vector<BattleHex::EDir> outsideNeighbourDirections;
 
@@ -679,7 +680,7 @@ BattleHex BattleFieldController::getHexAtPosition(Point hoverPos)
 BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber)
 {
 	const bool doubleWide = owner.stacksController->getActiveStack()->doubleWide();
-	auto neighbours = BattleHexArray::generateAllNeighbouringTiles(myNumber);
+	const BattleHexArray & neighbours = BattleHexArray::getAllNeighbouringTiles(myNumber);
 	//   0 1
 	//  5 x 2
 	//   4 3
