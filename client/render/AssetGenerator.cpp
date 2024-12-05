@@ -336,7 +336,8 @@ void AssetGenerator::createPaletteShiftedSprites()
 {
 	std::vector<std::string> tiles;
 	std::vector<std::vector<std::variant<TerrainPaletteAnimation, RiverPaletteAnimation>>> paletteAnimations;
-	VLC->terrainTypeHandler->forEach([&](const TerrainType *entity, bool &stop){
+	for(auto entity : VLC->terrainTypeHandler->objects)
+	{
 		if(entity->paletteAnimation.size())
 		{
 			tiles.push_back(entity->tilesFilename.getName());
@@ -345,8 +346,9 @@ void AssetGenerator::createPaletteShiftedSprites()
 				tmpAnim.push_back(animEntity);
 			paletteAnimations.push_back(tmpAnim);
 		}
-	});
-	VLC->riverTypeHandler->forEach([&](const RiverType *entity, bool &stop){
+	}
+	for(auto entity : VLC->riverTypeHandler->objects)
+	{
 		if(entity->paletteAnimation.size())
 		{
 			tiles.push_back(entity->tilesFilename.getName());
@@ -355,7 +357,7 @@ void AssetGenerator::createPaletteShiftedSprites()
 				tmpAnim.push_back(animEntity);
 			paletteAnimations.push_back(tmpAnim);
 		}
-	});
+	}
 
 	for(int i = 0; i < tiles.size(); i++)
 	{
@@ -374,14 +376,14 @@ void AssetGenerator::createPaletteShiftedSprites()
 		auto anim = GH.renderHandler().loadAnimation(filename, EImageBlitMode::COLORKEY);
 		for(int j = 0; j < anim->size(); j++)
 		{
-			int maxLen = 0;
+			int maxLen = 1;
 			for(int k = 0; k < paletteAnimations[i].size(); k++)
 			{
 				auto element = paletteAnimations[i][k];
 				if(std::holds_alternative<TerrainPaletteAnimation>(element))
-					maxLen = std::max(maxLen, std::get<TerrainPaletteAnimation>(element).length);
+					maxLen = std::lcm(maxLen, std::get<TerrainPaletteAnimation>(element).length);
 				else
-					maxLen = std::max(maxLen, std::get<RiverPaletteAnimation>(element).length);
+					maxLen = std::lcm(maxLen, std::get<RiverPaletteAnimation>(element).length);
 			}
 			for(int l = 0; l < maxLen; l++)
 			{
@@ -415,12 +417,11 @@ void AssetGenerator::createPaletteShiftedSprites()
 				std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 				image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 
-				JsonNode node;
-				node.Struct() = {
+				JsonNode node(JsonMap{
 					{ "group", JsonNode(l) },
 					{ "frame", JsonNode(j) },
 					{ "file", JsonNode(spriteName) }
-				};
+				});
 				config["images"].Vector().push_back(node);
 			}
 		}

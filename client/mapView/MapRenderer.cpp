@@ -125,7 +125,7 @@ std::shared_ptr<IImage> MapTileStorage::find(size_t fileIndex, size_t rotationIn
 {
 	const auto & animation = animations[fileIndex][rotationIndex];
 	if (animation)
-		return animation->getImage(imageIndex, groupIndex); // ask for group
+		return animation->getImage(imageIndex, groupIndex);
 	else
 		return nullptr;
 }
@@ -134,7 +134,7 @@ int MapTileStorage::groupCount(size_t fileIndex, size_t rotationIndex, size_t im
 {
 	const auto & animation = animations[fileIndex][rotationIndex];
 	if (animation)
-		for(int i = 0; true; i++)
+		for(int i = 0;; i++)
 			if(!animation->getImage(imageIndex, i, false))
 				return i;
 	return 1;
