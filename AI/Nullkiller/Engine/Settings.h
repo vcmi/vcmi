@@ -33,6 +33,7 @@ namespace NKAI
 		float safeAttackRatio;
 		bool allowObjectGraph;
 		bool useTroopsFromGarrisons;
+		bool updateHitmapOnTileReveal;
 		bool openMap;
 		bool useFuzzy;
 
@@ -51,6 +52,7 @@ namespace NKAI
 		int getPathfinderBucketSize() const { return pathfinderBucketSize; }
 		bool isObjectGraphAllowed() const { return allowObjectGraph; }
 		bool isGarrisonTroopsUsageAllowed() const { return useTroopsFromGarrisons; }
+		bool isUpdateHitmapOnTileReveal() const { return updateHitmapOnTileReveal; }
 		bool isOpenMap() const { return openMap; }
 		bool isUseFuzzy() const { return useFuzzy; }
 	};

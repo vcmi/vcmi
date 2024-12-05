@@ -281,6 +281,9 @@ void AIGateway::tileRevealed(const std::unordered_set<int3> & pos)
 		for(const CGObjectInstance * obj : myCb->getVisitableObjs(tile))
 			addVisitableObj(obj);
 	}
+
+	if (nullkiller->settings->isUpdateHitmapOnTileReveal())
+		nullkiller->dangerHitMap->reset();
 }
 
 void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
