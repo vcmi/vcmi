@@ -33,7 +33,7 @@
 	
 	
 	"pawn" : {
-		"maxRoamingHeroes" : 3,
+		"maxRoamingHeroes" : 4, //H3 value: 3,
 		"maxpass" : 30,
 		"mainHeroTurnDistanceLimit" : 10,
 		"scoutHeroTurnDistanceLimit" : 5,
@@ -52,7 +52,7 @@
 	},
 	
 	"knight" : {
-		"maxRoamingHeroes" : 3,
+		"maxRoamingHeroes" : 6, //H3 value: 3,
 		"maxpass" : 30,
 		"mainHeroTurnDistanceLimit" : 10,
 		"scoutHeroTurnDistanceLimit" : 5,
@@ -71,7 +71,7 @@
 	},
 	
 	"rook" : {
-		"maxRoamingHeroes" : 4,
+		"maxRoamingHeroes" : 8, //H3 value: 4
 		"maxpass" : 30,
 		"mainHeroTurnDistanceLimit" : 10,
 		"scoutHeroTurnDistanceLimit" : 5,
@@ -90,7 +90,7 @@
 	},
 	
 	"queen" : {
-		"maxRoamingHeroes" : 6,
+		"maxRoamingHeroes" : 8, //H3 value: 5
 		"maxpass" : 30,
 		"mainHeroTurnDistanceLimit" : 10,
 		"scoutHeroTurnDistanceLimit" : 5,
@@ -109,7 +109,7 @@
 	},
 	
 	"king" : {
-		"maxRoamingHeroes" : 8,
+		"maxRoamingHeroes" : 8, //H3 value: 6
 		"maxpass" : 30,
 		"mainHeroTurnDistanceLimit" : 10,
 		"scoutHeroTurnDistanceLimit" : 5,
