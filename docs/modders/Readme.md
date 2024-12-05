@@ -8,7 +8,7 @@ All content of your mod should go into **Content** directory, e.g. **Mods/myMod/
 
 Example of how directory structure of your mod may look like:
 
-```
+```text
     Mods/
         myMod/
             mod.json
@@ -208,7 +208,7 @@ Link to our mod will looks like that: <https://github.com/vcmi-mods/adventure-ai
 
 For sanity reasons mod identifier must only contain lower-case English characters, numbers and hyphens.
 
-```
+```text
 my-mod-name
 2000-new-maps
 ```

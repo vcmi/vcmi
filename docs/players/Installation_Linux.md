@@ -10,7 +10,7 @@ Up-to-date releases can be found in our PPA here: <https://launchpad.net/~vcmi/+
 
 To install VCMI from PPA use:
 
-```
+```sh
     sudo apt-add-repository ppa:vcmi/ppa
     sudo apt update
     sudo apt install vcmi
@@ -22,7 +22,7 @@ We also provide latest, unstable builds mostly suitable for testing here: <https
 
 In order to install from this PPA use:
 
-```
+```sh
     sudo add-apt-repository ppa:vcmi/vcmi-latest
     sudo apt update
     sudo apt install vcmi
@@ -33,7 +33,7 @@ In order to install from this PPA use:
 VCMI stable builds available in "multiverse" repository. Learn how to enable it in [Ubuntu wiki](https://help.ubuntu.com/community/Repositories/Ubuntu).
 Once enabled, you can install VCMI using Ubuntu Store or in terminal using following commands:
 
-```
+```sh
     sudo apt update
     sudo apt install vcmi
 ```
@@ -45,7 +45,7 @@ Note that version available in Ubuntu is outdated. Install via PPA is preferred.
 Stable VCMI version is available in "contrib" repository. Learn how to enable it in [Debian wiki](https://wiki.debian.org/SourcesList).
 To install VCMI from repository:
 
-```
+```sh
     sudo apt-get update
     sudo apt-get install vcmi
 ```
@@ -54,7 +54,7 @@ To install VCMI from repository:
 
 Stable VCMI version is available in RPM Fusion repository. Learn how to enable it in [wiki](https://docs.fedoraproject.org/en-US/quick-docs/rpmfusion-setup/). To install VCMI from repository:
 
-```
+```sh
     sudo dnf update
     sudo dnf install vcmi
 ```
@@ -95,7 +95,7 @@ To install Heroes 3 data using automated script you need any of:
 
 Run the script using options appropriate to your input files:
 
-```
+```sh
 vcmibuilder --cd1 /path/to/iso/or/cd --cd2 /path/to/second/cd
 vcmibuilder --gog /path/to/gog.com/installer.exe
 vcmibuilder --data /path/to/h3/data
@@ -105,7 +105,7 @@ You should use only one of these commands.
 
 On flatpak install, it's also possible to run the script, but any path seems to be interpreted from within the Flatpak sandbox:
 
-```
+```sh
 flatpak run --command=vcmibuilder eu.vcmi.VCMI --data /path/to/h3/data`
 ```
 
@@ -117,7 +117,7 @@ You can select both downloaded files in launcher to extract automatically.
 
 Alternatively you can use the classic way:
 
-```
+```sh
 innoextract --output-dir=~/Downloads/HoMM3 "setup_heroes_of_might_and_magic_3_complete_4.0_(28740).exe"
 ```
 

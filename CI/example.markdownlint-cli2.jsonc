@@ -182,14 +182,12 @@
 		"MD039": true,
 
 		// MD040/fenced-code-language : Fenced code blocks should have a language specified : https://github.com/DavidAnson/markdownlint/blob/v0.32.1/doc/md040.md
-		"MD040": false,
-		// FIXME: enable and consider fixing
-		//{
-		//// List of languages
-		//	"allowed_languages": [ "cpp", "json5", "sh" ],
-		//// Require language only
-		//	"language_only": true
-		//},
+		"MD040": {
+		// List of languages
+			"allowed_languages": [ "cpp", "json", "sh", "text", "nix", "powershell", "lua" ],
+		// Require language only
+			"language_only": true
+		},
 
 		// MD041/first-line-heading/first-line-h1 : First line in a file should be a top-level heading : https://github.com/DavidAnson/markdownlint/blob/v0.32.1/doc/md041.md
 		"MD041": {

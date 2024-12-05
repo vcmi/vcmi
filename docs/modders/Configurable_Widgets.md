@@ -22,7 +22,7 @@ In this tutorial we will recreate options tab to support chess timers UI.
 
 To start making mod, create following folders structure;
 
-```
+```text
 extendedLobby/
 |- content/
 |  |- sprites/
@@ -413,7 +413,7 @@ Predefined fonts:
 Hint text is a pair of strings, one is usually shown in status bar when cursor hovers element, another hint while right button pressed.
 Each of elements is a [Text](#text)
 
-```
+```json
 {
   "hover": "Text",
   "help": "Text

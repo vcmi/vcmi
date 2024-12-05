@@ -195,7 +195,7 @@ These are fields that are present only in local mod.json file
 In addition to field listed above, it is possible to add following block for any language supported by VCMI. If such block is present, Launcher will use this information for displaying translated mod information and game will use provided json files to translate mod to specified language.
 See [Translations](Translations.md) for more information
 
-```
+```json
 	"<language>" : {
 		"name" : "<translated name>",
 		"description" : "<translated description>",
