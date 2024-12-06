@@ -13,4 +13,5 @@ class Innoextract : public QObject
 {
 public:
 	static QString extract(QString installer, QString outDir, std::function<void (float percent)> cb = nullptr);
+	static QString getHashError(QString exeFile, QString binFile, QString exeFileOriginal, QString binFileOriginal);
 };
