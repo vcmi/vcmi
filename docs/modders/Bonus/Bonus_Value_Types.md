@@ -4,7 +4,7 @@ Total value of Bonus is calculated using the following:
 
 - For each bonus source type we calculate new source value (for all bonus value types except PERCENT_TO_SOURCE and PERCENT_TO_TARGET_TYPE) using the following:
 
-```
+```text
 newVal = (val * (100 + PERCENT_TO_SOURCE) / 100))
 ```
 
@@ -12,7 +12,7 @@ newVal = (val * (100 + PERCENT_TO_SOURCE) / 100))
 
 - All bonus value types summarized and then used as subject of the following formula:
 
-```
+```text
 clamp(((BASE_NUMBER * (100 + PERCENT_TO_BASE) / 100) + ADDITIVE_VALUE) * (100 + PERCENT_TO_ALL) / 100), INDEPENDENT_MAX, INDEPENDENT_MIN)
 ```
 

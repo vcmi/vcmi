@@ -10,7 +10,7 @@ TODO: ONLY_MELEE_FIGHT / ONLY_DISTANCE_FIGHT range types work ONLY with creature
 
 For replacing ONLY_ENEMY_ARMY alias, you should use the following parameters of bonus:
 
-```
+```text
 	"propagator": "BATTLE_WIDE",
 	"propagationUpdater" : "BONUS_OWNER_UPDATER",
 	"limiters" : [ "OPPOSITE_SIDE" ]

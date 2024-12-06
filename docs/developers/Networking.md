@@ -6,7 +6,7 @@ For implementation details see files located at `lib/network` directory.
 
 VCMI uses connection using TCP to communicate with server, even in single-player games. However, even though TCP is stream-based protocol, VCMI uses atomic messages for communication. Each message is a serialized stream of bytes, preceded by 4-byte message size:
 
-```
+```cpp
 int32_t messageSize;
 byte messagePayload[messageSize];
 ```
@@ -37,7 +37,7 @@ For implementation details see:
 
 In case of global lobby, message payload uses plaintext json format - utf-8 encoded string:
 
-```
+```cpp
 int32_t messageSize;
 char jsonString[messageSize];
 ```
