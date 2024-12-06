@@ -220,6 +220,7 @@ private:
 	};
 
 	void heroKilled(const CGHeroInstance* hero);
+	void townRemoved(const CGTownInstance* town);
 	void garrisonsChanged(std::vector<const CArmedInstance *> objs);
 	void requestReturningToMainMenu(bool won);
 	void acceptTurn(QueryID queryID, bool hotseatWait); //used during hot seat after your turn message is close

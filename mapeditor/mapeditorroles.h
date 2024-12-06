@@ -17,6 +17,7 @@ enum MapEditorRoles
 	PlayerIDRole,
 	BuildingIDRole,
 	SpellIDRole,
+	ObjectInstanceIDRole,
 	ArtifactIDRole,
-	ArtifactSlotRole
+	ArtifactSlotRole,
 };
