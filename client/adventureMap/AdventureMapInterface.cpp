@@ -34,6 +34,7 @@
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../render/IScreenHandler.h"
+#include "../render/AssetGenerator.h"
 #include "../CMT.h"
 #include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
@@ -63,6 +64,8 @@ AdventureMapInterface::AdventureMapInterface():
 	pos.x = pos.y = 0;
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
+
+	AssetGenerator::createPaletteShiftedSprites();
 
 	shortcuts = std::make_shared<AdventureMapShortcuts>(*this);
 
