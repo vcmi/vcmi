@@ -54,6 +54,7 @@ namespace NKAI
 		maxGoldPressure = node["maxGoldPressure"].Float();
 		retreatThresholdRelative = node["retreatThresholdRelative"].Float();
 		retreatThresholdAbsolute = node["retreatThresholdAbsolute"].Float();
+		maxArmyLossTarget = node["maxArmyLossTarget"].Float();
 		safeAttackRatio = node["safeAttackRatio"].Float();
 		allowObjectGraph = node["allowObjectGraph"].Bool();
 		updateHitmapOnTileReveal = node["updateHitmapOnTileReveal"].Bool();
