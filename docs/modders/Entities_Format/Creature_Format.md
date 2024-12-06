@@ -23,7 +23,7 @@ In order to make functional creature you also need:
 
 ## Format
 
-```json5
+```json
 // camelCase unique creature identifier
 "creatureName" : 
 {

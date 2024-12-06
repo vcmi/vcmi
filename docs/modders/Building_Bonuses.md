@@ -22,7 +22,7 @@ Includes:
 
 Function of all of these objects can be enabled by this:
 
-```json5
+```json
  "function" : "castleGates" 
 ```
 
@@ -58,31 +58,31 @@ CBuilding class.
 
 #### unlock guild level
 
-```json5
+```json
  "guildLevels" : 1 
 ```
 
 #### unlock hero recruitment
 
-```json5
+```json
  "allowsHeroPurchase" : true 
 ```
 
 #### unlock ship purchase
 
-```json5
+```json
  "allowsShipPurchase" : true 
 ```
 
 #### unlock building purchase
 
-```json5
+```json
  "allowsBuildingPurchase" : true 
 ```
 
 #### unlocks creatures
 
-```json5
+```json
  "dwelling" : { "level" : 1, "creature" : "archer" } 
 ```
 
@@ -92,31 +92,31 @@ Turn into town bonus? What about creature-specific bonuses from hordes?
 
 #### gives resources
 
-```json5
+```json
  "provides" : { "gold" : 500 } 
 ```
 
 #### gives guild spells
 
-```json5
+```json
  "guildSpells" : [5, 0, 0, 0, 0] 
 ```
 
 #### gives thieves guild
 
-```json5
+```json
  "thievesGuildLevels" : 1 
 ```
 
 #### gives fortifications
 
-```json5
+```json
  "fortificationLevels" : 1 
 ```
 
 #### gives war machine
 
-```json5
+```json
  "warMachine" : "ballista" 
 ```
 
@@ -134,7 +134,7 @@ Includes:
 - bonus to scouting range
 - bonus to player
 
-```json5
+```json
 "bonuses" :
 {
 	"moraleToDefenders" :
@@ -162,12 +162,12 @@ Possible issue - with removing of fixed ID's buildings in different town
 may no longer share same ID. However Capitol must be unique across all
 town. Should be fixed somehow.
 
-```json5
+```json
  "onePerPlayer" : true 
 ```
 
 #### chance to be built on start
 
-```json5
+```json
  "prebuiltChance" : 75 
 ```

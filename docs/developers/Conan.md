@@ -126,7 +126,7 @@ In these examples only the minimum required amount of options is passed to `cmak
 
 ### Use our prebuilt binaries to build for macOS x86_64 with Xcode
 
-```
+```sh
 conan install . \
   --install-folder=conan-generated \
   --no-imports \
@@ -143,7 +143,7 @@ cmake -S . -B build -G Xcode \
 
 If you also want to build the missing binaries from source, use `--build=missing` instead of `--build=never`.
 
-```
+```sh
 conan install . \
   --install-folder=~/my-dir \
   --no-imports \
@@ -158,7 +158,7 @@ cmake -S . -B build \
 
 ### Use our prebuilt binaries to build for iOS arm64 device with custom preset
 
-```
+```sh
 conan install . \
   --install-folder=~/my-dir \
   --no-imports \
@@ -172,7 +172,7 @@ cmake --preset ios-conan
 
 `CMakeUserPresets.json` file:
 
-```json5
+```json
 {
     "version": 3,
     "cmakeMinimumRequired": {
@@ -205,7 +205,7 @@ ubuntu
 
 Next steps are identical both in WSL and in real Ubuntu 22.04
 
-```bash
+```sh
 sudo pip3 install conan
 sudo apt install cmake build-essential
 sed -i 's/x86_64-w64-mingw32/i686-w64-mingw32/g' CI/mingw-ubuntu/before-install.sh

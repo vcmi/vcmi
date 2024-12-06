@@ -4,7 +4,7 @@
 
 Rewardable object is defined similarly to other objects, with key difference being `handler`. This field must be set to `"handler" : "configurable"` in order for vcmi to use this mode.
 
-```json5
+```json
 {
   "baseObjectName" : {
     "name" : "Object name",
@@ -37,7 +37,7 @@ Rewardable object is defined similarly to other objects, with key difference bei
 
 ## Configurable object definition
 
-```json5
+```json
 // List of potential rewards
 "rewards" : [
   {
@@ -177,7 +177,7 @@ Variables are randomized only once, so you can use them multiple times for examp
 
 Example of creation of a variable named "gainedSkill" of type "secondarySkill":
 
-```json5
+```json
 "variables" : {
 	"secondarySkill" : {
 		"gainedSkill" : {
@@ -200,7 +200,7 @@ Possible variable types:
 
 To reference variable in limiter prepend variable name with '@' symbol:
 
-```json5
+```json
 "secondary" : {
     "@gainedSkill" : 1
 },
@@ -214,7 +214,7 @@ This property describes how object state should be reset. Objects without this f
 - If `visitors` is set to true, game will reset list of visitors (heroes and players) on start of new period, allowing revisits of objects with `visitMode` set to `once`, `hero`, or `player`. Objects with visit mode set to `bonus` are not affected. In order to allow revisit such objects use appropriate bonus duration (e.g. `ONE_DAY` or `ONE_WEEK`) instead.
 - If `rewards` is set to true, object will re-randomize its provided rewards, similar to such H3 objects as "Fountain of Fortune" or "Windmill"
 
-```json5
+```json
 "resetParameters" : {
     "period" : 7,
     "visitors" : true,
@@ -233,7 +233,7 @@ Note that object that uses appearChance MUST have continuous range for every val
 - `"min" : 66, "max" : 100`
 In other words, min chance of second reward must be equal to max chance of previous reward
 
-```json5
+```json
     "appearChance": 
     {
       // (Advanced) rewards with different dice number will get different dice number
@@ -253,7 +253,7 @@ In other words, min chance of second reward must be equal to max chance of previ
 
 Unless stated othervice, all numbers in this section can be replaced with random values, e.g.
 
-```json5
+```json
 "minLevel" : { "min" : 5, "max" : 10 } // select random number between 5-10, including both 5 & 10
 "minLevel" : [ 2, 4, 6, 8, 10] // (VCMI 1.2) select random number out of provided list, with equal chance for each
 ```
@@ -265,13 +265,13 @@ Keep in mind, that all randomization is performed on map load and on object rese
 
 - Can only be used as limiter. To pass, current day of week should be equal to this value. 1 = first day of the week, 7 = last day
 
-```json5
+```json
 "dayOfWeek" : 0 
 ```
 
 - Can only be used as limiter. To pass, number of days since game started must be at equal or greater than this value
 
-```json5
+```json
 "daysPassed" : 8
 ```
 
@@ -281,7 +281,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can be used as reward to grant resources to player
 - If negative value is used as reward, it will be used as cost and take resources from player
 
-```json5
+```json
 "resources": {
     "crystal" : 6,
     "gold" : -1000,
@@ -290,7 +290,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 
 - Alternative format that allows random selection of a resource type
 
-```json5
+```json
 "resources": [
     {
         "anyOf" : [ "wood", "ore" ],
@@ -308,7 +308,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can be used as limiter
 - Can be used as reward to grant experience to hero
 
-```json5
+```json
 "heroExperience" : 1000, 
 ```
 
@@ -317,7 +317,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can be used as limiter. Hero requires to have at least specified level
 - Can be used as reward, will grant hero experience amount equal to the difference between the hero's next level and current level (Tree of Knowledge)
 
-```json5
+```json
 "heroLevel" : 1,
 ```
 
@@ -327,13 +327,13 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can be used as reward, to give mana points to hero. Mana points may go above mana pool limit.
 - If negative value is used as reward, it will be used as cost and take mana from player
 
-```json5
+```json
 "manaPoints": -10, 
 ```
 
 - If giving mana points puts hero above mana pool limit, any overflow will be multiplied by specified percentage. If set to 0, mana will not go above mana pool limit.
 
-```json5
+```json
 "manaOverflowFactor" : 50,
 ```
 
@@ -342,7 +342,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can be used as limiter. Hero must have at least specific mana percentage
 - Can be used to set hero mana level to specified percentage value, not restricted to mana pool limit (Magic Well, Mana Spring)
 
-```json5
+```json
 "manaPercentage": 200, 
 ```
 
@@ -351,7 +351,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can NOT be used as limiter
 - Can be used as reward, to give movement points to hero. Movement points may go above mana pool limit.
 
-```json5
+```json
 "movePoints": 200,
 ```
 
@@ -360,7 +360,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can NOT be used as limiter
 - Can be used to set hero movement points level to specified percentage value. Value of 0 will take away any remaining movement points
 
-```json5
+```json
 "movePercentage": 50,
 ```
 
@@ -372,7 +372,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Each primary skill can be explicitly specified or randomly selected
 - Possible values: `"attack", "defence", "spellpower", "knowledge"`
 
-```json5
+```json
 "primary": [
     {
         // Specific primary skill
@@ -406,7 +406,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Possible values: 1 (basic), 2 (advanced), 3 (expert)
 - Each secondary skill can be explicitly specified or randomly selected
 
-```json5
+```json
 "secondary": [
     {
         // Specific skill
@@ -435,7 +435,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 
 - Can be used as limiter. Hero must have free skill slot to pass limiter
 
-```json5
+```json
     "canLearnSkills" : true
 ```
 
@@ -446,7 +446,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Note that unlike most values, parameter of bonuses can NOT be randomized
 - Description can be string or number of corresponding string from `arraytxt.txt`
 
-```json5
+```json
 "bonuses" : [
     {
         "type" : "MORALE", 
@@ -463,7 +463,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can be used as reward, to give new artifact to a hero
 - Artifacts added as reward will be used for text substitution. First `%s` in text string will be replaced with name of an artifact
 
-```json5
+```json
 "artifacts": [
     "ribCage"
 ],
@@ -473,7 +473,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - For artifact class possible values are "TREASURE", "MINOR", "MAJOR", "RELIC"
 - Artifact value range can be specified with min value and max value
 
-```json5
+```json
 "artifacts": [
     {
         "class" : "TREASURE",
@@ -489,7 +489,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can be used as reward, to give new spell to a hero
 - Spells added as reward will be used for text substitution. First `%s` in text string will be replaced with spell name
 
-```json5
+```json
 "spells": [
     "magicArrow"
 ],
@@ -498,7 +498,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Alternative format, random spell selection
 - Spell can be selected from specifically selected school
 
-```json5
+```json
 "spells": [
     {
         "level" : 1,
@@ -515,7 +515,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - - he does not have a spellbook
 - - he does not have sufficient Wisdom level for this spell
 
-```json5
+```json
     "canLearnSpells" : [
         "magicArrow"
 ],
@@ -528,7 +528,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - If hero does not have enough free slots, game will show selection dialog to pick troops to keep
 - It is possible to specify probability to receive upgraded creature
 
-```json5
+```json
 "creatures" : [
     {
         "type" : "archer",
@@ -547,7 +547,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - It is possible to add up to 7 slots of creatures
 - Guards of the same creature type will never merge or rearrange their stacks
 
-```json5
+```json
 "guards" : [
     { "type" : "archer", "amount" : 20 },
     { "type" : "archer", "amount" : 20, "upgradeChance" : 30 },
@@ -561,7 +561,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can be used as reward, to replace creatures in hero army. It is possible to use this parameter both for upgrades of creatures as well as for changing them into completely unrelated creature, e.g. similar to Skeleton Transformer
 - This parameter will not change creatures given by `creatures` parameter on the same visit
 
-```json5
+```json
 "changeCreatures" : {
     "cavalier" : "champion"
 }
@@ -573,7 +573,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - As reward, instantly casts adventure map spell for visiting hero. All checks for spell book, wisdom or presence of mana will be ignored. It's possible to specify school level at which spell will be casted. If it's necessary to reduce player's mana or do some checks, they shall be introduced as limiters and other rewards
 - School level possible values: 1 (basic), 2 (advanced), 3 (expert)
 
-```json5
+```json
 "spellCast" : {
     "spell" : "townPortal",
     "schoolLevel": 3
@@ -588,7 +588,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - It is possible to specify which terrain classes should be affected. Tile will be affected if sum of values its classes is positive. For example, `"water" : 1` will affect all water tiles, while `"surface" : 1, "subterra" : -1` will include terrains that have "surface" flag but do not have "subterra" flag
 - If 'hide' is set to true, then instead of revealing terrain, game will hide affected tiles for all other players
 
-```json5
+```json
 "revealTiles" : {
 	"radius" : 20,
 	"surface" : 1,
@@ -605,7 +605,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can NOT be used as reward
 - Only players with specific color can pass the limiter
 
-```json5
+```json
 "colors" : [ "red", "blue", "tan", "green", "orange", "purple", "teal", "pink" ]
 ```
 
@@ -615,7 +615,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can NOT be used as reward
 - Only specific heroes can pass the limiter
 
-```json5
+```json
 "heroes" : [ "orrin" ]
 ```
 
@@ -625,6 +625,6 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can NOT be used as reward
 - Only heroes belonging to specific classes can pass the limiter
 
-```json5
+```json
 "heroClasses" : [ "battlemage" ]
 ```

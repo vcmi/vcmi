@@ -2,7 +2,7 @@
 
 ## Configuration
 
-```json5
+```json
 {
  	//general purpose script, Lua or ERM, runs on server
  	"myScript":
@@ -65,7 +65,7 @@ TODO **In near future Lua API may change drastically several times. Information 
 
 #### Low level events API
 
-``` Lua
+```lua
 
 -- Each event type must be loaded first
 local PlayerGotTurn = require("events.PlayerGotTurn")

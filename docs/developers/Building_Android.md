@@ -22,7 +22,7 @@ The following instructions apply to **v1.2 and later**. For earlier versions the
 
 Clone <https://github.com/vcmi/vcmi> with submodules. Example for command line:
 
-```
+```sh
 git clone --recurse-submodules https://github.com/vcmi/vcmi.git
 ```
 
@@ -42,7 +42,7 @@ Conan must be aware of the NDK location when you execute `conan install`. There'
 - the easiest is to download NDK from Conan (option 1 in the docs), then all the magic happens automatically. On the step where you need to replace **PROFILE**, choose *android-**X**-ndk* where ***X*** is either `32` or `64`.
 - to use an already installed NDK, you can simply pass it on the command line to `conan install`: (note that this will work only when consuming the pre-built binaries)
 
-```
+```sh
 conan install -c tools.android:ndk_path=/path/to/ndk ...
 ```
 

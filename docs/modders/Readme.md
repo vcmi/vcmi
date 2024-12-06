@@ -8,7 +8,7 @@ All content of your mod should go into **Content** directory, e.g. **Mods/myMod/
 
 Example of how directory structure of your mod may look like:
 
-```
+```text
     Mods/
         myMod/
             mod.json
@@ -30,7 +30,7 @@ All VCMI configuration files use [JSON format](http://en.wikipedia.org/wiki/Json
 Mod.json is main file in your mod and must be present in any mod. This file contains basic description of your mod, dependencies or conflicting mods (if present), list of new content and so on.
 Minimalistic version of this file:
 
-```json5
+```json
 {
     "name" : "My test mod",
     "description" : "My test mod that add a lot of useless stuff into the game",
@@ -102,7 +102,7 @@ VCMI uses strings to reference objects. Examples:
 
 Alternatively to creating new objects, you can edit existing objects. Normally, when creating new objects you specify object name as:
 
-```json5
+```json
 "newCreature" : {
     // creature parameters
 }
@@ -110,7 +110,7 @@ Alternatively to creating new objects, you can edit existing objects. Normally, 
 
 In order to access and modify existing object you need to specify mod that you wish to edit:
 
-```json5
+```json
 /// "core" specifier refers to objects that exist in H3
 "core:archer" : {
 	/// This will set health of Archer to 10
@@ -159,7 +159,7 @@ These files can be replaced by another def file but in some cases original forma
 In VCMI these animation files can also be replaced by json description of their content. See [Animation Format](Animation_Format.md) for full description of this format.
 Example: replacing single icon
 
-```json5
+```json
 {
 	// List of replaced images
 	"images" :
@@ -208,7 +208,7 @@ Link to our mod will looks like that: <https://github.com/vcmi-mods/adventure-ai
 
 For sanity reasons mod identifier must only contain lower-case English characters, numbers and hyphens.
 
-```
+```text
 my-mod-name
 2000-new-maps
 ```
