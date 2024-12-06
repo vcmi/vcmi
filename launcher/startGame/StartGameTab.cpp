@@ -209,7 +209,17 @@ void StartGameTab::on_buttonUpdateMods_clicked()
 
 void StartGameTab::on_buttonHelpImportFiles_clicked()
 {
-	QMessageBox::information(this, ui->buttonImportFiles->text(), tr("TODO")); // TODO
+	QString message = tr(
+		"This option allows you to import additional data files into your VCMI installation. "
+		"At the moment, following options are supported:\n\n"
+		" - Heroes III Maps (.h3m or .vmap).\n"
+		" - Heroes III Campaigns (.h3c or .vcmp).\n"
+		" - Heroes III Chronicles using offline backup installer from GOG.com (.exe).\n"
+		" - VCMI mods in zip format (.zip)\n"
+		" - VCMI configuration files (.json)\n"
+	);
+
+	QMessageBox::information(this, ui->buttonImportFiles->text(), message);
 }
 
 void StartGameTab::on_buttonInstallTranslationHelp_clicked()
