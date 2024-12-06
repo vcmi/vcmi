@@ -186,20 +186,17 @@ void StartGameTab::on_buttonInstallTranslation_clicked()
 {
 	if (getMainWindow()->getTranslationStatus() == ETranslationStatus::NOT_INSTALLLED)
 	{
-		getMainWindow()->getModView()->getTranslationModName();
-		mainWindow->getModView()->doInstallMod(modName);
+		QString preferredlanguage = QString::fromStdString(settings["general"]["language"].String());
+		QString modName = getMainWindow()->getModView()->getTranslationModName(preferredlanguage);
+		getMainWindow()->getModView()->doInstallMod(modName);
 	}
-	}
-	else
-	{
-		mainWindow->getModView()->enableModByName(modName);
-	}
-}
 }
 
 void StartGameTab::on_buttonActivateTranslation_clicked()
 {
-	// TODO
+	QString preferredlanguage = QString::fromStdString(settings["general"]["language"].String());
+	QString modName = getMainWindow()->getModView()->getTranslationModName(preferredlanguage);
+	getMainWindow()->getModView()->enableModByName(modName);
 }
 
 void StartGameTab::on_buttonUpdateMods_clicked()
