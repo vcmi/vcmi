@@ -389,7 +389,7 @@ void FirstLaunchView::extractGogData()
 		};
 
 		if(isGogGalaxyExe(tmpFileExe))
-			errorText = tr("You've provided GOG Galaxy installer! This file doesn't contain the game. Please download the offline backup game installer!");
+			errorText = tr("You've provided a GOG Galaxy installer! This file doesn't contain the game. Please download the offline backup game installer!");
 
 		if(errorText.isEmpty())
 			errorText = Innoextract::extract(tmpFileExe, tempDir.path(), [this](float progress) {
@@ -459,7 +459,7 @@ void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 	QStringList dirMaps = sourceRoot.entryList({"maps"}, QDir::Filter::Dirs);
 	QStringList dirMp3 = sourceRoot.entryList({"mp3"}, QDir::Filter::Dirs);
 
-	const auto noDataMessage = tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data.");
+	const auto noDataMessage = tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select the directory with installed Heroes III data.");
 	if(dirData.empty())
 	{
 		QMessageBox::critical(this, tr("Heroes III data not found!"), noDataMessage);
@@ -483,12 +483,12 @@ void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 		if (!hdFiles.empty())
 		{
 			// HD Edition contains only RoE data so we can't use even unmodified files from it
-			QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Heroes III: HD Edition files are not supported by VCMI.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death."));
+			QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Heroes III: HD Edition files are not supported by VCMI.\nPlease select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death."));
 			return;
 		}
 
 		// RoE or some other unsupported edition. Demo version?
-		QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Unknown or unsupported Heroes III version found.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death."));
+		QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Unknown or unsupported Heroes III version found.\nPlease select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death."));
 		return;
 	}
 
