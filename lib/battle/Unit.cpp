@@ -65,7 +65,7 @@ const BattleHexArray & Unit::getSurroundingHexes(BattleHex position, bool twoHex
 	if(!twoHex)
 		return BattleHexArray::neighbouringTilesCache[position];
 
-	return BattleHexArray::getNeighbouringTilesDblWide(position, side);
+	return BattleHexArray::neighbouringTilesDblWide.at(side).at(position);
 }
 
 BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const

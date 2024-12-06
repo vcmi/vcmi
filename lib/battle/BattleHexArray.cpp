@@ -74,6 +74,43 @@ BattleHexArray::ArrayOfBattleHexArrays BattleHexArray::calculateNeighbouringTile
 	return ret;
 }
 
+BattleHexArray::ArrayOfBattleHexArrays BattleHexArray::calculateNeighbouringTilesDblWide(BattleSide side)
+{
+	ArrayOfBattleHexArrays ret;
+
+	for(BattleHex hex = 0; hex < GameConstants::BFIELD_SIZE; hex.hex++)
+	{
+		BattleHexArray hexes;
+
+		if(side == BattleSide::ATTACKER)
+		{
+			const BattleHex otherHex = hex - 1;
+
+			for(auto dir = static_cast<BattleHex::EDir>(0); dir <= static_cast<BattleHex::EDir>(4); dir = static_cast<BattleHex::EDir>(dir + 1))
+				hexes.checkAndPush(hex.cloneInDirection(dir, false));
+
+			hexes.checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false));
+			hexes.checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::LEFT, false));
+			hexes.checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::TOP_LEFT, false));
+		}
+		else if(side == BattleSide::DEFENDER)
+		{
+			const BattleHex otherHex = hex + 1;
+
+			hexes.checkAndPush(hex.cloneInDirection(BattleHex::EDir::TOP_LEFT, false));
+
+			for(auto dir = static_cast<BattleHex::EDir>(0); dir <= static_cast<BattleHex::EDir>(4); dir = static_cast<BattleHex::EDir>(dir + 1))
+				hexes.checkAndPush(otherHex.cloneInDirection(dir, false));
+
+			hexes.checkAndPush(hex.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false));
+			hexes.checkAndPush(hex.cloneInDirection(BattleHex::EDir::LEFT, false));
+		}
+		ret[hex.hex] = std::move(hexes);
+	}
+
+	return ret;
+}
+
 BattleHexArray BattleHexArray::generateNeighbouringTiles(BattleHex hex)
 {
 	BattleHexArray ret;
@@ -81,73 +118,6 @@ BattleHexArray BattleHexArray::generateNeighbouringTiles(BattleHex hex)
 		ret.checkAndPush(hex.cloneInDirection(dir, false));
 	
 	return ret;
-}
-
-const BattleHexArray & BattleHexArray::getNeighbouringTilesDblWide(BattleHex pos, BattleSide side)
-{
-	static std::array<ArrayOfBattleHexArrays, 2> ret;		// 2 -> only two valid sides: ATTACKER and DEFENDER
-	size_t sideIdx = static_cast<size_t>(side);
-	static bool initialized[2] = { false, false };
-
-	if(!initialized[sideIdx])
-	{
-		// first run, need to initialize
-
-		for(BattleHex hex = 0; hex < GameConstants::BFIELD_SIZE; hex.hex++)
-		{
-			BattleHexArray hexes;
-
-			if(side == BattleSide::ATTACKER)
-			{
-				const BattleHex otherHex = hex - 1;
-
-				for(auto dir = static_cast<BattleHex::EDir>(0); dir <= static_cast<BattleHex::EDir>(4); dir = static_cast<BattleHex::EDir>(dir + 1))
-					hexes.checkAndPush(hex.cloneInDirection(dir, false));
-
-				hexes.checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false));
-				hexes.checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::LEFT, false));
-				hexes.checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::TOP_LEFT, false));
-			}
-			else if(side == BattleSide::DEFENDER)
-			{
-				const BattleHex otherHex = hex + 1;
-
-				hexes.checkAndPush(hex.cloneInDirection(BattleHex::EDir::TOP_LEFT, false));
-
-				for(auto dir = static_cast<BattleHex::EDir>(0); dir <= static_cast<BattleHex::EDir>(4); dir = static_cast<BattleHex::EDir>(dir + 1))
-					hexes.checkAndPush(otherHex.cloneInDirection(dir, false));
-
-				hexes.checkAndPush(hex.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false));
-				hexes.checkAndPush(hex.cloneInDirection(BattleHex::EDir::LEFT, false));
-			}
-			ret[sideIdx][hex.hex] = std::move(hexes);
-		}
-		initialized[sideIdx] = true;
-	}
-
-	return ret[sideIdx][pos.hex];
-}
-
-const BattleHexArray & BattleHexArray::getClosestTilesCache(BattleHex pos, BattleSide side)
-{
-	assert(!neighbouringTilesCache.empty());
-
-	static std::array<BattleHexArray, 2> ret;
-	static bool initialized = false;
-	size_t sideIdx = static_cast<size_t>(side);
-
-	if(!initialized)
-	{
-		ret[sideIdx].resize(GameConstants::BFIELD_SIZE);
-
-		for(si16 hex = 0; hex < GameConstants::BFIELD_SIZE; hex++)
-		{
-			ret[sideIdx].set(hex, neighbouringTilesCache[hex].getClosestTile(BattleSide::ATTACKER, hex));
-		}
-		initialized = true;
-	}
-
-	return ret[sideIdx];
 }
 
 void BattleHexArray::merge(const BattleHexArray & other) noexcept
@@ -177,5 +147,8 @@ void BattleHexArray::clear() noexcept
 }
 
 const BattleHexArray::ArrayOfBattleHexArrays BattleHexArray::neighbouringTilesCache = calculateNeighbouringTiles();
+const std::map<BattleSide, BattleHexArray::ArrayOfBattleHexArrays> BattleHexArray::neighbouringTilesDblWide = 
+	{ { BattleSide::ATTACKER, calculateNeighbouringTilesDblWide(BattleSide::ATTACKER) },
+	{ BattleSide::DEFENDER, calculateNeighbouringTilesDblWide(BattleSide::DEFENDER) } };
 
 VCMI_LIB_NAMESPACE_END
