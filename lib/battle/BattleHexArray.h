@@ -36,6 +36,7 @@ public:
 	using ArrayOfBattleHexArrays = std::array<BattleHexArray, GameConstants::BFIELD_SIZE>;
 
 	static const ArrayOfBattleHexArrays neighbouringTilesCache;
+	static const std::map<BattleSide, ArrayOfBattleHexArrays> neighbouringTilesDblWide;
 
 	BattleHexArray() noexcept
 	{
@@ -136,12 +137,19 @@ public:
 		return internalStorage.insert(pos, hex);
 	}
 
-	static const BattleHexArray & getClosestTilesCache(BattleHex pos, BattleSide side);
-	static const BattleHexArray & getNeighbouringTilesDblWide(BattleHex pos, BattleSide side);
-
 	BattleHex getClosestTile(BattleSide side, BattleHex initialPos) const;
 
 	void merge(const BattleHexArray & other) noexcept;
+
+	template <typename Container, typename = std::enable_if_t<
+		std::is_convertible_v<typename Container::value_type, BattleHex>>>
+		void merge(const Container & container) noexcept
+	{
+		for(auto value : container)
+		{
+			insert(value);
+		}
+	}
 
 	void clear() noexcept;
 	inline void erase(size_type index) noexcept
@@ -306,6 +314,7 @@ private:
 
 	/// returns all valid neighbouring tiles
 	static BattleHexArray::ArrayOfBattleHexArrays calculateNeighbouringTiles();
+	static BattleHexArray::ArrayOfBattleHexArrays calculateNeighbouringTilesDblWide(BattleSide side);
 	static BattleHexArray generateNeighbouringTiles(BattleHex hex);
 };
 
