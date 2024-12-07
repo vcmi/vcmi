@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - beta
-      - master
+      - googleplay
       - develop
   pull_request:
   workflow_dispatch:
@@ -169,7 +169,7 @@ jobs:
 
     - name: ccache for everything but PRs
       uses: hendrikmuhs/ccache-action@v1.2
-      if: ${{ (github.repository == 'vcmi/vcmi' && github.event.number == '' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master')) ||  github.repository != 'vcmi/vcmi' }}
+      if: ${{ (github.repository == 'vcmi/vcmi' && github.event.number == '' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/googleplay')) ||  github.repository != 'vcmi/vcmi' }}
       with:
         key: ${{ matrix.preset }}-no-PR
         restore-keys: |
@@ -246,7 +246,7 @@ jobs:
         if [[ ${{matrix.preset}} == linux-gcc-test ]]
         then
             cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 --preset ${{ matrix.preset }}
-        elif [[ (${{matrix.preset}} == android-conan-ninja-release) && (${{github.ref}} != 'refs/heads/master') ]]
+        elif [[ (${{matrix.preset}} == android-conan-ninja-release) && (${{github.ref}} != 'refs/heads/googleplay') ]]
         then
             cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily" --preset ${{ matrix.preset }}
         elif [[ ${{startsWith(matrix.platform, 'msvc') }} ]]
@@ -323,7 +323,7 @@ jobs:
           ${{ env.ANDROID_APK_PATH }}
 
     - name: Upload Android aab artifacts
-      if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
+      if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/googleplay' }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - aab
@@ -341,7 +341,7 @@ jobs:
             ${{github.workspace}}/**/*.pdb
 
     - name: Upload build
-      if: ${{ (matrix.upload == 1) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') }}
+      if: ${{ (matrix.upload == 1) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/googleplay') }}
       continue-on-error: true
       run: |
         if [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then
