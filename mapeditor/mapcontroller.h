@@ -69,6 +69,7 @@ public:
 	void redo();
 	
 	PlayerColor defaultPlayer;
+	QDialog * settingsDialog = nullptr;
 	
 private:
 	std::unique_ptr<CMap> _map;

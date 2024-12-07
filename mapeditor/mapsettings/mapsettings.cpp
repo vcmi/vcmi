@@ -27,7 +27,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	ui->setupUi(this);
 
 	assert(controller.map());
-	
+	controller.settingsDialog = this;
 	show();
 
 	for(auto const & objectPtr : VLC->skillh->objects)
@@ -73,6 +73,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 
 MapSettings::~MapSettings()
 {
+	controller.settingsDialog = nullptr;
 	delete ui;
 }
 
