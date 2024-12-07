@@ -4,11 +4,13 @@
 
 ### Major changes
 
+* Greatly improved decision-making of NullkillerAI
 * Implemented handicap system, with options to reduce income and growth in addition to starting resources restriction
 * Game will now show statistics after scenario completion, such as resources or army strength over time
 * Implemented spell quick selection panel in combat
 * Implemented adventure map overlay accessible via Alt key that highlights all interactive objects on screen
 * Implemented xBRZ upscaling filter
+* Added support for high-resolution graphical assets
 * It is now possible to import data from Heroes Chronicles (gog.com installer only) as custom campaigns
 * Added simple support for spell research feature from HotA that can be enabled via mod or game configuration editing
 * Implemented automatic selection of interface scaling. Selecting interface scaling manually will restore old behavior
@@ -20,6 +22,8 @@
 * Mods that modify game texts, such as descriptions of secondary skills, will now correctly override translation mods
 * Game will now correctly restore information such as hero path, order of heroes and towns, and list of sleeping heroes on loading a save game
 * Added translation for missing texts, such as random map descriptions, quick exchange buttons, wog commander abilities, moat names
+* When playing in non-English language using English Heroes III data files, game will now load all maps and campaigns using player language
+* Added `vcmiscrolls` cheat code that gives spell scrolls for every possible spells
 
 ### Multiplayer
 
@@ -36,6 +40,8 @@
 * Fixed possible crash on connecting bluetooth mouse during gameplay on Android
 * VCMI will now write more detailed information to log file on crash due to uncaught exception
 * Fixed crash on transfer of multiple artifacts in a backpack to another hero on starting next campaign scenario without hero that held these artifacts before
+* Fixed crash on dismissing hero after picking up an artifact from hero doll
+* Fixed possible crash if creature with spell before attack bonus kills unit it was attacking with spell
 
 ### Mechanics
 
@@ -54,6 +60,12 @@
 * Chain Lightning will now skip over creatures that are immune to this spell instead of targeting them but dealing no damage
 * Commanders spell resistance now uses golem-like logic which reduces damage instead of using dwarf-style change to block spell
 * It is now possible to target empty hex for shooters with area attack, such as Magog or Lich
+* View Earth will no longer reveal position of enemy heroes and towns
+* It is now possible to sell Grail, in line with Heroes III
+* Jeddite is no longer female
+* Mutare and Mutare Drake are now Overlord and not Warlock
+* Elixir of Life no longer affects siege machines
+* Banned skills known by hero now have minimal chance (1) instead of 0 to appear on levelup
 
 ### Video / Audio
 
@@ -72,19 +84,26 @@
 * Fixed computation of audio length for formats other than .wav. This fixes incorrect text scrolling speed in campaign intro/outro
 * Game will now use Noto family true type font to display characters not preset in Heroes III fonts
 * Added option to scale all in-game fonts when scalable true type fonts are in use
+* Some of the assets provided by VCMI are now available in higher resolution
+* Implemented support for semi-transparent spell effects, such as Life Drain or Resurrection (and many others)
 
 ### Interface
 
 * It is now possible to search for a map object using Ctrl+F hotkey
+* Holding Alt while using move unit button on Exchange screen will now move entire army except for single unit in this slot
 * Added option to drag map with right-click
 * Added hotkeys to reorder list of owned towns or heroes
 * The number of units resurrected using the Life Drain ability is now written to the combat log.
 * Fixed order of popup dialogs after battle.
+* Creature window now displays source of all bonuses that creature has, such as creature ability, hero skill, hero artifact, etc.
+* Reduced font used for creature abilities description to reduce text clipping
 * Right-click on wandering monster on adventure map will now also show creature level and faction it belongs to
 * Added additional information to map right-click popup dialog: map author, map creation date, map version
 * Added scrollbars for selection of starting town, starting hero, and tavern invite if number of objects is too large to fit into the screen
 * Fixed incorrect battle turn queue displaying incorrect turn order when all units have waited
 * Semi-transparent shadows now correctly update their transparency during fading effects, such as resource pickups
+* Fixed swapped Overlord and Warlock models on adventure map
+* Fixed Heroes III bug - swapped icons of View Earth and View Air
 * Game will now save all names for human player in hotseat mode
 * Added unassigned by default shortcuts for toggling visibility of visitable and blocked tiles
 * Spellbook button in battle is now blocked if hero has no spellbook
@@ -100,6 +119,16 @@
 * Quick backpack window is now also accessible via Shift+mouse click, similar to HD Mod
 * It is now possible to sort artifacts in backpack by cost, slot, or rarity class
 * Fixed incorrect display of names of VCMI maps in scenario selection if multiple VCMI map are present in list
+* Fixed bug leading to inability to select larger number of "CPU only players" in random map generation menu
+* It is now possible to delete saved games
+* Game will now promt to delete saves from no longer supported versions of VCMI
+* It is now possible to use scroll in touch popup windows
+* Name of spell provided by Shrine is now displayed in yellow color
+* Fixed right-click popup on hero in town placed outside of screen boundaries on low resolutions
+* Fixed misaligned button in 2-player alliance selector in random map generation menu
+* Damage range of Ballista in unit window now accounts for hero attack skill, in line with Heroes III
+* Changed format of automatic autosave to more human-readable version
+* Names of autosave folders are now left-aligned in save game list
 
 ### Random Maps Generator
 
@@ -107,9 +136,12 @@
 * It is now possible to connect zone to itself using pair of portals
 * It is now possible for a random map template to change game settings
 * Road settings will now be correctly loaded when opening random map setup tab
+* Roads placed on the maps will now be curved a little bit to improve the look of the maps.
 * Added support for banning objects per zones
 * Added support for customizing objects frequency, value, and count per zone
 * Fixed values of Pandora Boxes with creatures to be in line with H3:SoD
+* Added sealed zone types, for entirely unpassable zones.
+* It is now possible to connect two zones with multiple connections of same or different types
 
 ### Campaigns
 
@@ -121,29 +153,48 @@
 * Added support for custom loading screen in campaigns
 * Added support for custom region definitions (such as background images) for VCMI campaigns
 
-### AI
+### Adventure AI
 
-* VCMI will now use BattleAI for battles with neutral enemies by default
-* Fixed bug where BattleAI attempts to move double-wide unit to an unreachable hex
+* Greatly improved decision-making of NullkillerAI
+* NullkillerAI will now act differently based on difficulty level
 * Fixed several cases where Nullkiller AI can count same dangerous object twice, doubling expected army loss.
 * Nullkiller is now capable of visiting configurable objects from mods
 * Nullkiller now uses whirlpools for map movement
+* Fixed possible crash on AI attempting to visit town that is already being visited by this hero
+* It is now possible to configure NullkillerAI parameters separately for each game difficulty
+* Extended hardcoded logic of AI not taking creatures from Garrisons to all Heroes III: Restoration of Erathia campaigns, in line with original game
+
+### Combat AI
+
+* VCMI will now use BattleAI for battles with neutral enemies by default
+* Fixed bug where BattleAI attempts to move double-wide unit to an unreachable hex
+* Fixed a bug causing BattleAI to focus on unreachable targets and ignoring reachable enemies
 * AI can now correctly estimate effect of Dragon Breath and other similar abilities
 * Battle AI should now avoid ending turn on the moat
 * Fixed case where BattleAI will go around the map to attack ranged units if direct path is blocked by another unit
 * Fixed evaluation of effects of waiting if unit is under haste effect by Battle AI
 * Battle AI can now use location spells
 * Battle AI will now correctly avoid moving flying units into dangerous obstacles such as moat
-* Fixed possible crash on AI attempting to visit town that is already being visited by this hero
 
 ### Launcher
 
+* It is now always possible to disable or uninstall a mod. Any mods that depend on this mod will be automatically disabled
+* It is now always possible to update a mod, even if there are mods that depend on this mod.
+* It is now possible to enable mod that conflicts with already active mod. Conflicting mods will be automatically disabled
+* If main mod is disabled, all its submods will have their active or inactive status shown as greyed-out for clarity
+* If mod depends or conflicts with a submod, Launcher will now also show name of parent mod in list of dependencies / conflicts
+* Game will now cache result of mod repository checkout and restore it immediately on next start. This removes flickering when game fills list of available mods.
+* Screenshot and Changelog tabs in mod description are now disabled for mods that do not have them.
+* Launcher will now correctly show conflicts on both sides - if mod A is marked as conflicting with B, then information on this conflict will be shown in description of both mod A and mod B (instead of only in mod B)
 * Added Swedish translation
+* Added better diagnostics for gog installer extraction errors
 
 ### Map Editor
 
+* It is now possible to remove any map object as part of timed event
 * Implemented tracking of building requirements for Building Dialog
 * Added build/demolish/enable/disable all buildings options to Building Dialog in town properties
+* Added support for customization of heroes artifacts
 * Implemented configuration of patrol radius for heroes
 * It is now possible to set spells allowed or required to be present in Mages Guild
 * It is now possible to add timed events to a town
@@ -154,9 +205,13 @@
 * Fixed duplicated list of spells in Mage Guild in copy-pasted towns
 * Removed separate versioning of map editor. Map editor now has same version as VCMI
 * Timed events interfaces now counts days from 1, instead of from 0
+* Fixed crash on attempting to save map with random dwelling
 
 ### Modding
 
+* Json configuration files from different mods no longer can override each other to reduce possibility of a file name clash
+* Game will now load high-resolution assets when xbrz upscaler is in use from Data2x, Data3x, Data4x, or Sprites2x, Sprites3x, Sprites4x directories.
+* Game will now load high-resolution movies when xbrz upscaler is in use from Video2x, Video3x, Video4x directories
 * Added support for configurable flaggable objects that can provide bonuses or daily income to owning player
 * Added support for soft dependencies for mods, that only affect mod loading order (and as result - override order), without requiring dependent mod or allowing access to its identifiers
 * It is now possible to provide translations for mods that modify strings from original game, such as secondary skill descriptions
@@ -168,6 +223,7 @@
 * Added support for explicitly visitable town buildings that will activate only on click and not on construction or on hero visit (Mana Vortex from HotA)
 * It is now possible to add guards to a configurable objects. All H3 creature banks are now implemented as configurable object.
 * It is now possible to define starting position of units in a guarded configurable object
+* It is now possible to add description to an object with "market" handler
 * Added `canCastWithoutSkip` parameter to a spell. If such spell is cast by a creature, its turn will not end after a spellcast
 * Added `castOnlyOnSelf` parameter to a spell. Creature that can cast this spell can only cast it on themselves
 * Mod can now provide pregenerated assets in place of autogenerated, such as large spellbook.
@@ -176,12 +232,15 @@
 * Added support for multiple music tracks for towns
 * Added support for multiple music tracks for terrains on adventure map
 * Fixed several cases where vcmi will report errors in json without specifying filename of invalid file
+* Fixed selection of gendered sprites for heroes on adventure map
 * It is now possible to change minimal values of primary skills for heroes
 * Added support for HotA Bank building from Factory
 * Added support for HotA Grotto buiding from Cove
 * Added support for HotA-style 8th creature in town
 * Town building can now define war machine produced in this building (Blacksmith or Ballista Yard)
 * Town building can now define provided fortifications - health of walls, towers, presence of moat, identifier of creature shooter on tower
+* War Machines Factory no longer unconditionally contain war machines from the original game, allowing mods to define list of war machines from scratch
+* Added MECHANICAL bonus
 * Added DISINTEGRATE bonus
 * Added INVINCIBLE bonus
 * Added PRISM_HEX_ATTACK_BREATH bonus
@@ -190,6 +249,9 @@
 * Black market restock period setting now correctly restocks on specified date instead of restocking on all dates other than specified one
 * Json Validator will now attempt to detect typos when encountering unknown property in Json
 * Added `translate missing` command that will export only untranslated strings into `translationsMissing` directory, separated per mod
+* Added support for text subtitiles for video files
+* Added validation of objects with "market" and "flaggable" handlers
+* Added "special" property for secondary skills
 
 ## 1.5.6 -> 1.5.7
 
