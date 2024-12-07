@@ -1670,21 +1670,26 @@ VideoWindow::VideoWindow(const VideoPath & video, const ImagePath & rim, bool sh
 	if(!rim.empty())
 	{
 		setBackground(rim);
-		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, [this](){ exit(false); });
+		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, this);
 		pos = center(Rect(0, 0, 800, 600));
 	}
 	else
 	{
 		blackBackground = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y));
-		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, scaleFactor, [this](){ exit(false); });
+		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, scaleFactor, this);
 		pos = center(Rect(0, 0, videoPlayer->pos.w, videoPlayer->pos.h));
 		blackBackground->addBox(Point(0, 0), Point(pos.x, pos.y), Colors::BLACK);
 	}
 
 	if(backgroundAroundWindow)
 		backgroundAroundWindow->pos.moveTo(Point(0, 0));
-
 }
+
+void VideoWindow::onVideoPlaybackFinished()
+{
+	exit(false);
+}
+
 
 void VideoWindow::exit(bool skipped)
 {
