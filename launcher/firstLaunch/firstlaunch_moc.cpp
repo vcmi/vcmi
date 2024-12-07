@@ -298,8 +298,14 @@ QString FirstLaunchView::getHeroesInstallDir()
 	QString gogPath = QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\GOG.com\\Games\\1207658787", QSettings::NativeFormat).value("path").toString();
 	if(!gogPath.isEmpty())
 		return gogPath;
+	gogPath = QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\GOG.com\\Games\\1207658787", QSettings::NativeFormat).value("path").toString();
+	if(!gogPath.isEmpty())
+		return gogPath;
 
 	QString cdPath = QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic® III\\1.0", QSettings::NativeFormat).value("AppPath").toString();
+	if(!cdPath.isEmpty())
+		return cdPath;
+	cdPath = QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\New World Computing\\Heroes of Might and Magic® III\\1.0", QSettings::NativeFormat).value("AppPath").toString();
 	if(!cdPath.isEmpty())
 		return cdPath;
 #endif
