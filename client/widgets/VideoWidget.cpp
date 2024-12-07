@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "VideoWidget.h"
 #include "TextControls.h"
+#include "IVideoHolder.h"
 
 #include "../CGameInfo.h"
 #include "../gui/CGuiHandler.h"
@@ -172,15 +173,17 @@ void VideoWidgetBase::tick(uint32_t msPassed)
 	{
 		videoInstance->tick(msPassed);
 
+		if(subTitle)
+			subTitle->setText(getSubTitleLine(videoInstance->timeStamp()));
+
 		if(videoInstance->videoEnded())
 		{
 			videoInstance.reset();
 			stopAudio();
 			onPlaybackFinished();
+			// WARNING: onPlaybackFinished call may destoy `this`. Make sure that this is the very last operation in this method!
 		}
 	}
-	if(subTitle && videoInstance)
-		subTitle->setText(getSubTitleLine(videoInstance->timeStamp()));
 }
 
 VideoWidget::VideoWidget(const Point & position, const VideoPath & prologue, const VideoPath & looped, bool playAudio)
@@ -200,19 +203,19 @@ void VideoWidget::onPlaybackFinished()
 	playVideo(loopedVideo);
 }
 
-VideoWidgetOnce::VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, const std::function<void()> & callback)
+VideoWidgetOnce::VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, IVideoHolder * owner)
 	: VideoWidgetBase(position, video, playAudio)
-	, callback(callback)
+	, owner(owner)
 {
 }
 
-VideoWidgetOnce::VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, float scaleFactor, const std::function<void()> & callback)
+VideoWidgetOnce::VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, float scaleFactor, IVideoHolder * owner)
 	: VideoWidgetBase(position, video, playAudio, scaleFactor)
-	, callback(callback)
+	, owner(owner)
 {
 }
 
 void VideoWidgetOnce::onPlaybackFinished()
 {
-	callback();
+	owner->onVideoPlaybackFinished();
 }
