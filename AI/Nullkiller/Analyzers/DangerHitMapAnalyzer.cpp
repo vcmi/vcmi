@@ -348,6 +348,7 @@ std::set<const CGObjectInstance *> DangerHitMapAnalyzer::getOneTurnAccessibleObj
 void DangerHitMapAnalyzer::reset()
 {
 	hitMapUpToDate = false;
+	tileOwnersUpToDate = false;
 }
 
 }

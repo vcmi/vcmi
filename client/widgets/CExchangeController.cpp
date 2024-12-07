@@ -79,6 +79,10 @@ void CExchangeController::moveArmy(bool leftToRight, std::optional<SlotID> heldS
 			});
 		heldSlot = weakestSlot->first;
 	}
+	
+	if (source->getCreature(heldSlot.value()) == nullptr)
+		return;
+
 	LOCPLINT->cb->bulkMoveArmy(source->id, target->id, heldSlot.value());
 }
 

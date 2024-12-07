@@ -1016,7 +1016,7 @@ void CVCMIServer::multiplayerWelcomeMessage()
 	if(humanPlayer < 2) // Singleplayer
 		return;
 
-	gh->playerMessages->broadcastSystemMessage("Use '!help' to list available commands");
+	gh->playerMessages->broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.command"));
 
 	for (const auto & pi : si->playerInfos)
 		if(!pi.second.handicap.startBonus.empty() || pi.second.handicap.percentIncome != 100 || pi.second.handicap.percentGrowth != 100)

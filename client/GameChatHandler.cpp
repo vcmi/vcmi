@@ -93,7 +93,7 @@ void GameChatHandler::onNewGameMessageReceived(PlayerColor sender, const std::st
 		playerName = LOCPLINT->cb->getStartInfo()->playerInfos.at(sender).name;
 
 	if (sender.isSpectator())
-		playerName = "Spectator"; // FIXME: translate? Provide nickname somewhere?
+		playerName = VLC->generaltexth->translate("vcmi.lobby.login.spectator");
 
 	chatHistory.push_back({playerName, messageText, timeFormatted});
 

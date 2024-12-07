@@ -103,6 +103,9 @@ void CMapEvent::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("firstOccurrence", firstOccurrence);
 	handler.serializeInt("nextOccurrence", nextOccurrence);
 	resources.serializeJson(handler, "resources");
+
+	auto deletedObjects = handler.enterArray("deletedObjectsInstances");
+	deletedObjects.serializeArray(deletedObjectsInstances);
 }
 
 void CCastleEvent::serializeJson(JsonSerializeFormat & handler)

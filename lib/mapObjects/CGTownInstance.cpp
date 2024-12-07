@@ -378,6 +378,9 @@ void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 
 std::string CGTownInstance::getObjectName() const
 {
+	if(ID == Obj::RANDOM_TOWN )
+		return CGObjectInstance::getObjectName();
+
 	return getNameTranslated() + ", " + getTown()->faction->getNameTranslated();
 }
 

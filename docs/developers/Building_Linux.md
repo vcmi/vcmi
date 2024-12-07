@@ -70,7 +70,7 @@ And put it into build directory. Then run `nix-shell` before running any build c
 
 We recommend the following directory structure:
 
-```
+```text
 .
 ├── vcmi -> contains sources and is under git control
 └── build -> contains build output, makefiles, object files,...
@@ -97,7 +97,7 @@ See [CMake](CMake.md) for a list of options
 
 ### Trigger build
 
-```
+```sh
 cmake --build . -j8
 ```
 

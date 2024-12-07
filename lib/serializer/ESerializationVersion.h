@@ -69,6 +69,7 @@ enum class ESerializationVersion : int32_t
 	FOLDER_NAME_REWORK, // 870 - rework foldername
 	REWARDABLE_GUARDS, // 871 - fix missing serialization of guards in rewardable objects
 	MARKET_TRANSLATION_FIX, // 872 - remove serialization of markets translateable strings
+	EVENT_OBJECTS_DELETION, //873 - allow events to remove map objects
 	
-	CURRENT = MARKET_TRANSLATION_FIX
+	CURRENT = EVENT_OBJECTS_DELETION
 };

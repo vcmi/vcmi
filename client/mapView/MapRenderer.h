@@ -33,7 +33,8 @@ class MapTileStorage
 public:
 	explicit MapTileStorage(size_t capacity);
 	void load(size_t index, const AnimationPath & filename, EImageBlitMode blitMode);
-	std::shared_ptr<IImage> find(size_t fileIndex, size_t rotationIndex, size_t imageIndex);
+	std::shared_ptr<IImage> find(size_t fileIndex, size_t rotationIndex, size_t imageIndex, size_t groupIndex = 0);
+	int groupCount(size_t fileIndex, size_t rotationIndex, size_t imageIndex);
 };
 
 class MapRendererTerrain

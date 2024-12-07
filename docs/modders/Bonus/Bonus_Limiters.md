@@ -15,7 +15,7 @@ The limiters take no parameters:
 
 Example:
 
-```json5
+```json
 "limiters" : [ "SHOOTER_ONLY" ]
 ```
 
@@ -30,7 +30,7 @@ Parameters:
 - (optional) bonus sourceType and sourceId in struct
 - example: (from Adele's bless):
 
-```json5
+```json
 	"limiters" : [
 		{
 			"type" : "HAS_ANOTHER_BONUS_LIMITER",
@@ -82,14 +82,14 @@ Parameters:
 
 Example:
 
-```json5
+```json
 "limiters": [ {
 	"type":"CREATURE_TYPE_LIMITER",
 	"parameters": [ "angel", true ]
 } ],
 ```
 
-```json5
+```json
 "limiters" : [ {
 	"type" : "CREATURE_TERRAIN_LIMITER",
 	"parameters" : ["sand"]
@@ -113,7 +113,7 @@ and operate on the remaining limiters in that list:
 
 Example:
 
-```json5
+```json
 "limiters" : [
     "noneOf",
     "IS_UNDEAD",

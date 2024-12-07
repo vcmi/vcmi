@@ -4,12 +4,12 @@
   * Enables debug info and disables optimizations
 * `-D CMAKE_EXPORT_COMPILE_COMMANDS=ON`
   * Creates `compile_commands.json` for [clangd](https://clangd.llvm.org/) language server. For clangd to find the JSON, create a file named `.clangd` with this content
-     ```
+     ```text
     CompileFlags:
     CompilationDatabase: build
     ```
     and place it here:
-    ```
+    ```text
     .
     ├── vcmi -> contains sources and is under git control
     ├── build -> contains build output, makefiles, object files,...

@@ -23,4 +23,5 @@ public:
 	static void createCombatUnitNumberWindow();
 	static void createCampaignBackground();
 	static void createChroniclesCampaignImages();
+	static void createPaletteShiftedSprites();
 };

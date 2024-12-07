@@ -31,8 +31,10 @@ namespace NKAI
 		float retreatThresholdRelative;
 		float retreatThresholdAbsolute;
 		float safeAttackRatio;
+		float maxArmyLossTarget;
 		bool allowObjectGraph;
 		bool useTroopsFromGarrisons;
+		bool updateHitmapOnTileReveal;
 		bool openMap;
 		bool useFuzzy;
 
@@ -44,6 +46,7 @@ namespace NKAI
 		float getRetreatThresholdRelative() const { return retreatThresholdRelative; }
 		float getRetreatThresholdAbsolute() const { return retreatThresholdAbsolute; }
 		float getSafeAttackRatio() const { return safeAttackRatio; }
+		float getMaxArmyLossTarget() const { return maxArmyLossTarget; }
 		int getMaxRoamingHeroes() const { return maxRoamingHeroes; }
 		int getMainHeroTurnDistanceLimit() const { return mainHeroTurnDistanceLimit; }
 		int getScoutHeroTurnDistanceLimit() const { return scoutHeroTurnDistanceLimit; }
@@ -51,6 +54,7 @@ namespace NKAI
 		int getPathfinderBucketSize() const { return pathfinderBucketSize; }
 		bool isObjectGraphAllowed() const { return allowObjectGraph; }
 		bool isGarrisonTroopsUsageAllowed() const { return useTroopsFromGarrisons; }
+		bool isUpdateHitmapOnTileReveal() const { return updateHitmapOnTileReveal; }
 		bool isOpenMap() const { return openMap; }
 		bool isUseFuzzy() const { return useFuzzy; }
 	};

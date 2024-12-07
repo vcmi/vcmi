@@ -22,7 +22,7 @@ In this tutorial we will recreate options tab to support chess timers UI.
 
 To start making mod, create following folders structure;
 
-```
+```text
 extendedLobby/
 |- content/
 |  |- sprites/
@@ -33,7 +33,7 @@ extendedLobby/
 
 File `mod.json` is generic and could look like this:
 
-```json5
+```json
 {
 	"name" : "Configurable UI tutorial mod",
 	"description" : "See tutorial here https://github.com/vcmi/vcmi/wiki/Configurable-UI-widgets",
@@ -67,7 +67,7 @@ Open `optionsTab.json` and scroll it until you see comment `timer`. Three elemen
 
 Let's find first element, which is label
 
-```json5
+```json
 {
 	"items"
 	[
@@ -89,7 +89,7 @@ Let's find first element, which is label
 
 And modify it a bit
 
-```json5
+```json
 {
 	"name": "labelTimer", //add name, only for convenience
 	"type": "label",
@@ -103,7 +103,7 @@ And modify it a bit
 
 But we also need proper background image for this label. Add image widget BEFORE labelTimer widget:
 
-```json5
+```json
 {
 	"type": "picture",
 	"image": "RmgTTBk",
@@ -127,7 +127,7 @@ Copy image `DrDoCoBk.bmp` to `content/sprites/`. Button objects use animated ima
 For normal, pressed, blocked and highlighted. Our combo box inherits this behavior, so let's convert image to animation.
 In order to do it, we need to create file `DrDoCoBk.json` in same folder `content/sprites/` with following content:
 
-```json5
+```json
 {
     "sequences" :
     [
@@ -146,7 +146,7 @@ Thus we created file with animation, containing single frame which can be used f
 
 Let's add one more element after `//timer` comment:
 
-```json5
+```json
 ...
 //timer
 {
@@ -163,7 +163,7 @@ Let's add one more element after `//timer` comment:
 
 We also want to have label on the top of this combo box showing which element is selected. You need to add `items` array, where additional elements can be specified, label in our case:
 
-```json5
+```json
 ...
 //timer
 {
@@ -195,7 +195,7 @@ First of all, add images to `content/sprites/` folder: `List2Bk.bmp` for drop-do
 
 Now specify items inside `dropDown` field
 
-```json5
+```json
 "dropDown":
 {
 	"items":
@@ -279,7 +279,7 @@ Let's hide elements, related to classic timer when chess timer is selected and s
 
 To do that, find `"variables"` part inside `optionsTab.json` and add there `"timers"` array, containing 2 elements:
 
-```json5
+```json
 "variables":
 {
 	"timers":
@@ -310,7 +310,7 @@ Now we show and hide elements, but visually you still can some "artifacts":
 It's because options tab background image we use has those elements drawn. Let's hide them with overlay image `timchebk.bmp`.
 It should be drawn before all other timer elements:
 
-```json5
+```json
 ...
 // timer
 {
@@ -338,7 +338,7 @@ We should add text input fields, to specify different timers. We will use backgr
 There are 4 different timers: base, turn, battle and creature. Read about them here: <https://github.com/vcmi/vcmi/issues/1364>
 We can add editors for them into items list, their format will be following:
 
-```json5
+```json
 {
 	"name": "chessFieldBase",
 	"type": "textInput",
@@ -413,7 +413,7 @@ Predefined fonts:
 Hint text is a pair of strings, one is usually shown in status bar when cursor hovers element, another hint while right button pressed.
 Each of elements is a [Text](#text)
 
-```
+```json
 {
   "hover": "Text",
   "help": "Text
@@ -440,7 +440,7 @@ One of predefined values:
 
 Configurable object has following structure:
 
-```json5
+```json
 {
 	"items": [],
 	"variables": {}, //optional
@@ -837,7 +837,7 @@ std::shared_ptr<MyYesNoDialog::Item> MyYesNoDialog::buildMyItem(const JsonNode &
 
 After that, if your JSON file has items with type "MyItem", the new Item element will be constructed.
 
-```json5
+```json
 {
 	"items":
 	[

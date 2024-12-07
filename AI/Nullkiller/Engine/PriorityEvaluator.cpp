@@ -1357,7 +1357,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	else
 	{
 		float score = 0;
-		float maxWillingToLose = ai->cb->getTownsInfo().empty() || (evaluationContext.isDefend && evaluationContext.threatTurns == 0) ? 1 : 0.25;
+		const bool amIInDanger = ai->cb->getTownsInfo().empty() || (evaluationContext.isDefend && evaluationContext.threatTurns == 0);
+		const float maxWillingToLose = amIInDanger ? 1 : ai->settings->getMaxArmyLossTarget();
 
 		bool arriveNextWeek = false;
 		if (ai->cb->getDate(Date::DAY_OF_WEEK) + evaluationContext.turn > 7)
