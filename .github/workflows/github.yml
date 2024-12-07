@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - beta
-      - master
+      - googleplay
       - develop
   pull_request:
   workflow_dispatch:
@@ -310,7 +310,7 @@ jobs:
     - name: Configure (non-MSVC)
       if: ${{ !startsWith(matrix.platform, 'msvc') }}
       run: |
-        if [[ ("${{ matrix.preset }}" == "android-conan-ninja-release") && ("${{ github.ref }}" != 'refs/heads/master') ]]; then
+        if [[ ("${{ matrix.preset }}" == "android-conan-ninja-release") && ("${{ github.ref }}" != 'refs/heads/googleplay') ]]; then
           # key1=value1;key2=value2;...
           gradleProperties=$(python3 CI/android/gradle_daily_props.py)
           androidOptions=("-DANDROID_GRADLE_PROPERTIES=$gradleProperties")
@@ -391,7 +391,7 @@ jobs:
 
     - name: Upload AAB Artifact
       id: upload_aab
-      if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
+      if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/googleplay' }}
       uses: actions/upload-artifact@v6
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}-aab
