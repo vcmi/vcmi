@@ -498,20 +498,20 @@ void CSpellWindow::turnPageLeft()
 {
 	OBJECT_CONSTRUCTION;
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		video = std::make_shared<VideoWidgetOnce>(Point(13, 14), VideoPath::builtin("PGTRNLFT.SMK"), false, [this](){
-			video.reset();
-			redraw();
-		});
+		video = std::make_shared<VideoWidgetOnce>(Point(13, 14), VideoPath::builtin("PGTRNLFT.SMK"), false, this);
 }
 
 void CSpellWindow::turnPageRight()
 {
 	OBJECT_CONSTRUCTION;
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		video = std::make_shared<VideoWidgetOnce>(Point(13, 14), VideoPath::builtin("PGTRNRGH.SMK"), false, [this](){
-			video.reset();
-			redraw();
-		});
+		video = std::make_shared<VideoWidgetOnce>(Point(13, 14), VideoPath::builtin("PGTRNRGH.SMK"), false, this);
+}
+
+void CSpellWindow::onVideoPlaybackFinished()
+{
+	video.reset();
+	redraw();
 }
 
 void CSpellWindow::keyPressed(EShortcut key)

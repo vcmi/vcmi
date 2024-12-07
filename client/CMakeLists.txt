@@ -347,6 +347,7 @@ set(vcmiclientcommon_HEADERS
 	widgets/CArtifactsOfHeroAltar.h
 	widgets/CArtifactsOfHeroMarket.h
 	widgets/CArtifactsOfHeroBackpack.h
+	widgets/IVideoHolder.h
 	widgets/RadialMenu.h
 	widgets/VideoWidget.h
 	widgets/markets/CAltarArtifacts.h
