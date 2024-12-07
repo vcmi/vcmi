@@ -26,7 +26,7 @@ android {
 		minSdk = qtMinSdkVersion as Integer
 		targetSdk = qtTargetSdkVersion as Integer // ANDROID_TARGET_SDK_VERSION in the CMake project
 
-		versionCode 1670
+		versionCode 1676
 		versionName "1.6.7"
 
 		setProperty("archivesBaseName", "vcmi")
