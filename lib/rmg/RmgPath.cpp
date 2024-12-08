@@ -117,6 +117,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 					return;
 				
 				float movementCost = moveCostFunction(currentNode, pos);
+
 				float distance = distances[currentNode] + movementCost; //we prefer to use already free paths
 				int bestDistanceSoFar = std::numeric_limits<int>::max();
 				auto it = distances.find(pos);

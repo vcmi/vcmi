@@ -846,7 +846,7 @@ void CPlayerInterface::battleLogMessage(const BattleID & battleID, const std::ve
 	battleInt->displayBattleLog(lines);
 }
 
-void CPlayerInterface::battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport)
+void CPlayerInterface::battleStackMoved(const BattleID & battleID, const CStack * stack, BattleHexArray dest, int distance, bool teleport)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;

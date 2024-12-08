@@ -813,10 +813,20 @@ void ApplyClientNetPackVisitor::visitBattleNextRound(BattleNextRound & pack)
 	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleNewRound, pack.battleID);
 }
 
+uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start)
+{
+	auto end = std::chrono::high_resolution_clock::now();
+
+	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+}
+
 void ApplyClientNetPackVisitor::visitBattleSetActiveStack(BattleSetActiveStack & pack)
 {
 	if(!pack.askPlayerInterface)
 		return;
+
+	auto start = std::chrono::steady_clock::now();
+	static uint64_t duration = 0;
 
 	const CStack *activated = gs.getBattle(pack.battleID)->battleGetStackByID(pack.stack);
 	PlayerColor playerToCall; //pack.player that will move activated stack
@@ -832,6 +842,8 @@ void ApplyClientNetPackVisitor::visitBattleSetActiveStack(BattleSetActiveStack &
 	}
 
 	cl.startPlayerBattleAction(pack.battleID, playerToCall);
+	duration += timeElapsed(start);
+	logGlobal->warn("Battle elapsed for %ld ms", duration);
 }
 
 void ApplyClientNetPackVisitor::visitBattleLogMessage(BattleLogMessage & pack)

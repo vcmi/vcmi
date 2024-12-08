@@ -357,7 +357,7 @@ int32_t CSpell::getLevelPower(const int32_t skillLevel) const
 
 si32 CSpell::getProbability(const FactionID & factionId) const
 {
-	if(!vstd::contains(probabilities,factionId))
+	if(!vstd::contains(probabilities, factionId))
 	{
 		return defaultProbability;
 	}
@@ -701,7 +701,7 @@ const std::vector<std::string> & CSpellHandler::getTypeNames() const
 
 std::vector<int> CSpellHandler::spellRangeInHexes(std::string input) const
 {
-	std::set<BattleHex> ret;
+	BattleHexArray ret;
 	std::string rng = input + ','; //copy + artificial comma for easier handling
 
 	if(rng.size() >= 2 && std::tolower(rng[0]) != 'x') //there is at least one hex in range (+artificial comma)
