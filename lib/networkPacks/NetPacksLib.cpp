@@ -1193,6 +1193,17 @@ void RemoveObject::applyGs(CGameState *gs)
 	if (initiator.isValidPlayer())
 		gs->getPlayerState(initiator)->destroyedObjects.insert(objectID);
 
+	if(obj->getOwner().isValidPlayer())
+	{
+		gs->getPlayerState(obj->getOwner())->removeOwnedObject(obj); //object removed via map event or hero got beaten
+
+		FlaggableMapObject* flaggableObject = dynamic_cast<FlaggableMapObject*>(obj);
+		if(flaggableObject)
+		{
+			flaggableObject->markAsDeleted();
+		}
+	}
+
 	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
 		auto * beatenHero = dynamic_cast<CGHeroInstance *>(obj);
@@ -1252,18 +1263,6 @@ void RemoveObject::applyGs(CGameState *gs)
 			});
 		}
 	}
-
-	if(obj->getOwner().isValidPlayer())
-	{
-		gs->getPlayerState(obj->getOwner())->removeOwnedObject(obj); //object removed via map event or hero got beaten
-
-		FlaggableMapObject* flaggableObject = dynamic_cast<FlaggableMapObject*>(obj);
-		if(flaggableObject)
-		{
-			flaggableObject->markAsDeleted();
-		}
-	}
-
 
 	gs->map->instanceNames.erase(obj->instanceName);
 	gs->map->objects[objectID.getNum()].dellNull();
