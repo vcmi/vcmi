@@ -295,7 +295,7 @@ bool FirstLaunchView::heroesDataDetect()
 QString FirstLaunchView::getHeroesInstallDir()
 {
 #ifdef VCMI_WINDOWS
-	std::map<QString, QString> regKeys = {
+	QHash<QString, QString> regKeys = {
 		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\GOG.com\\Games\\1207658787",                                            "path"    }, // Gog on x86 system
 		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\GOG.com\\Games\\1207658787",                               "path"    }, // Gog on x64 system
 		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic® III\\1.0",              "AppPath" }, // H3 Complete on x86 system
@@ -306,7 +306,7 @@ QString FirstLaunchView::getHeroesInstallDir()
 
 	for(auto & regKey : regKeys)
 	{
-		QString path = QSettings(regKey.first, QSettings::NativeFormat).value(regKey.second).toString();
+		QString path = QSettings(regKey, QSettings::NativeFormat).value(regKeys[regKey]).toString();
 		if(!path.isEmpty())
 			return path;
 	}
