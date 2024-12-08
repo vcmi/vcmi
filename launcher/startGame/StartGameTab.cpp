@@ -224,40 +224,109 @@ void StartGameTab::on_buttonHelpImportFiles_clicked()
 
 void StartGameTab::on_buttonInstallTranslationHelp_clicked()
 {
-	QMessageBox::information(this, ui->buttonInstallTranslation->text(), tr("TODO")); // TODO
+	QString message = tr(
+		"Your Heroes III version uses different language. "
+		"VCMI provides translations of the game into various languages that you can use. "
+		"Use this option to automatically install such translation to your language."
+	);
+	QMessageBox::information(this, ui->buttonInstallTranslation->text(), message);
 }
 
 void StartGameTab::on_buttonActivateTranslationHelp_clicked()
 {
-	QMessageBox::information(this, ui->buttonActivateTranslation->text(), tr("TODO")); // TODO
+	QString message = tr(
+		"Translation of Heroes III into your language is installed, but has been turned off. "
+		"Use this option to enable it."
+	);
+
+	QMessageBox::information(this, ui->buttonActivateTranslation->text(), message);
 }
 
 void StartGameTab::on_buttonUpdateModsHelp_clicked()
 {
-	QMessageBox::information(this, ui->buttonUpdateMods->text(), tr("TODO")); // TODO
+	QString message = tr(
+		"A new version of some of the mods that you have installed is now available in mod repository. "
+		"Use this option to automatically update all your mods to latest version.\n\n"
+		"WARNING: IN some cases, updated versions of mods may not be compatible with your existing saves. "
+		"You many want to postpone mod update until you finish any of your ongoing games."
+		);
+
+	QMessageBox::information(this, ui->buttonUpdateMods->text(), message);
 }
 
 void StartGameTab::on_buttonChroniclesHelp_clicked()
 {
-	QMessageBox::information(this, ui->labelChronicles->text(), tr("TODO")); // TODO
+	QString message = tr(
+		"If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog "
+		"to import Heroes Chronicles data into VCMI as custom campaigns.\n"
+		"To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, "
+		"select 'Import files' option and select downloaded file. "
+		"This will generate and install mod for VCMI that contains imported chronicles"
+	);
+
+	QMessageBox::information(this, ui->labelChronicles->text(), message);
 }
 
 void StartGameTab::on_buttonMissingSoundtrackHelp_clicked()
 {
-	QMessageBox::information(this, ui->labelMissingSoundtrack->text(), tr("TODO")); // TODO
+	QString message = tr(
+		"VCMI has detected that Heroes III music files are missing from your installation. "
+		"VCMI will run, but in-game music will not be available.\n\n"
+		"To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually "
+		"or reinstall VCMI and re-import Heroes III data files"
+	);
+	QMessageBox::information(this, ui->labelMissingSoundtrack->text(), message);
 }
 
 void StartGameTab::on_buttonMissingVideoHelp_clicked()
 {
-	QMessageBox::information(this, ui->labelMissingVideo->text(), tr("TODO")); // TODO
+	QString message = tr(
+		"VCMI has detected that Heroes III video files are missing from your installation. "
+		"VCMI will run, but in-game cutscenes will not be available.\n\n"
+		"To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually "
+		"or reinstall VCMI and re-import Heroes III data files"
+		);
+	QMessageBox::information(this, ui->labelMissingVideo->text(), message);
 }
 
 void StartGameTab::on_buttonMissingFilesHelp_clicked()
 {
-	QMessageBox::information(this, ui->labelMissingCampaigns->text(), tr("TODO")); // TODO
+	QString message = tr(
+		"VCMI has detected that some of Heroes III data files are missing from your installation. "
+		"You may attempt to run VCMI, but game may not work as expected or crash.\n\n"
+		"To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. "
+		"VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com"
+	);
+	QMessageBox::information(this, ui->labelMissingFiles->text(), message);
 }
 
 void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
 {
-	QMessageBox::information(this, ui->labelMissingCampaigns->text(), tr("TODO")); // TODO
+	QString message = tr(
+		"VCMI has detected that some of Heroes III: Armageddon's Blade data files are missing from your installation. "
+		"VCMI will work, but Armageddon's Blade campaigns will not be available.\n\n"
+		"To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually "
+		"or reinstall VCMI and re-import Heroes III data files"
+	);
+	QMessageBox::information(this, ui->labelMissingCampaigns->text(), message);
+}
+
+void StartGameTab::on_buttonPresetExport_clicked()
+{
+	// TODO
+}
+
+void StartGameTab::on_buttonPresetImport_clicked()
+{
+	// TODO
+}
+
+void StartGameTab::on_buttonPresetNew_clicked()
+{
+	// TODO
+}
+
+void StartGameTab::on_buttonPresetDelete_clicked()
+{
+	// TODO
 }

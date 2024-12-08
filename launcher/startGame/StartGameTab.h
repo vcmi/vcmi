@@ -56,6 +56,14 @@ private slots:
 	void on_buttonMissingFilesHelp_clicked();
 	void on_buttonMissingCampaignsHelp_clicked();
 
+	void on_buttonPresetExport_clicked();
+
+	void on_buttonPresetImport_clicked();
+
+	void on_buttonPresetNew_clicked();
+
+	void on_buttonPresetDelete_clicked();
+
 private:
 	Ui::StartGameTab * ui;
 };
