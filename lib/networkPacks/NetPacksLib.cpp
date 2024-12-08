@@ -1197,7 +1197,9 @@ void RemoveObject::applyGs(CGameState *gs)
 	{
 		auto * beatenHero = dynamic_cast<CGHeroInstance *>(obj);
 		assert(beatenHero);
+		PlayerState* p = gs->getPlayerState(beatenHero->tempOwner);
 		gs->map->heroesOnMap -= beatenHero;
+		p->removeOwnedObject(beatenHero);
 
 		auto * siegeNode = beatenHero->whereShouldBeAttachedOnSiege(gs);
 
