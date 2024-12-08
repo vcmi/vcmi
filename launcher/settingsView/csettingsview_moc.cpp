@@ -614,7 +614,7 @@ void CSettingsView::on_lineEditRepositoryExtra_textEdited(const QString &arg1)
 void CSettingsView::on_spinBoxInterfaceScaling_valueChanged(int arg1)
 {
 	Settings node = settings.write["video"]["resolution"]["scaling"];
-	node->Float() = arg1;
+	node->Float() = ui->buttonScalingAuto->isChecked() ? 0 : arg1;
 }
 
 void CSettingsView::on_refreshRepositoriesButton_clicked()
