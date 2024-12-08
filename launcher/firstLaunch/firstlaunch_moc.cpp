@@ -304,11 +304,13 @@ QString FirstLaunchView::getHeroesInstallDir()
 		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\New World Computing\\Heroes of Might and Magic III\\1.0",  "AppPath" }, // some localized H3 on x64 system
 	};
 
-	for(auto & regKey : regKeys)
+	QHash<QString, QString>::const_iterator i = regKeys.constBegin();
+	while (i != regKeys.constEnd())
 	{
-		QString path = QSettings(regKey, QSettings::NativeFormat).value(regKeys[regKey]).toString();
+		QString path = QSettings(i.key(), QSettings::NativeFormat).value(i.value()).toString();
 		if(!path.isEmpty())
 			return path;
+		++i;
 	}
 #endif
 	return QString{};
