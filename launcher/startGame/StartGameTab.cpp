@@ -3,6 +3,7 @@
 
 #include "../mainwindow_moc.h"
 #include "../main.h"
+#include "../updatedialog_moc.h"
 
 #include "../modManager/cmodlistview_moc.h"
 
@@ -120,7 +121,7 @@ void StartGameTab::refreshMods()
 
 void StartGameTab::refreshUpdateStatus(EGameUpdateStatus status)
 {
-	ui->buttonEngine->setText("VCMI " VCMI_VERSION_STRING);
+	ui->labelTitleEngine->setText("VCMI " VCMI_VERSION_STRING);
 	ui->buttonUpdateCheck->setVisible(status == EGameUpdateStatus::NOT_CHECKED);
 	ui->labelUpdateNotFound->setVisible(status == EGameUpdateStatus::NO_UPDATE);
 	ui->labelUpdateAvailable->setVisible(status == EGameUpdateStatus::UPDATE_AVAILABLE);
@@ -146,7 +147,7 @@ void StartGameTab::on_buttonOpenDownloads_clicked()
 
 void StartGameTab::on_buttonUpdateCheck_clicked()
 {
-	// TODO: implement
+	UpdateDialog::showUpdateDialog(true);
 }
 
 void StartGameTab::on_buttonGameEditor_clicked()

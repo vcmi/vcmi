@@ -16,44 +16,6 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout_4" columnstretch="1,1,1">
-     <item row="0" column="2">
-      <widget class="QToolButton" name="buttonPreset">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Preset: %1</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QToolButton" name="buttonGameFiles">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Game Data Files</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="2">
       <widget class="QScrollArea" name="scrollArea">
        <property name="widgetResizable">
@@ -65,7 +27,7 @@
           <x>0</x>
           <y>0</y>
           <width>240</width>
-          <height>206</height>
+          <height>222</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout" rowstretch="1,0,0,0,0,0,0">
@@ -181,25 +143,6 @@
          </item>
         </layout>
        </widget>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QToolButton" name="buttonEngine">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
       </widget>
      </item>
      <item row="1" column="1">
@@ -605,7 +548,7 @@
           <x>0</x>
           <y>0</y>
           <width>240</width>
-          <height>206</height>
+          <height>222</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_3">
@@ -725,6 +668,60 @@
          </item>
         </layout>
        </widget>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="labelTitleEngine">
+       <property name="font">
+        <font>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+       <property name="indent">
+        <number>6</number>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="labelTitleDataFiles">
+       <property name="font">
+        <font>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Game Data Files</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+       <property name="indent">
+        <number>6</number>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="labelTitleModPreset">
+       <property name="font">
+        <font>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Mod Preset</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+       <property name="indent">
+        <number>6</number>
+       </property>
       </widget>
      </item>
     </layout>
