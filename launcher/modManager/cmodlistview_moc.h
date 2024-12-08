@@ -94,6 +94,18 @@ public:
 	/// finds all mods that can be updated
 	QStringList getUpdateableMods();
 
+	void createNewPreset(const QString & presetName);
+
+	void deletePreset(const QString & presetName);
+
+	void activatePreset(const QString & presetName);
+
+	void renamePreset(const QString & oldPresetName, const QString & newPresetName);
+
+	QStringList getAllPresets() const;
+
+	QString getActivePreset() const;
+
 	/// returns true if mod is currently enabled
 	bool isModEnabled(const QString & modName);
 

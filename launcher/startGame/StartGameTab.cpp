@@ -23,6 +23,8 @@ StartGameTab::StartGameTab(QWidget * parent)
 	refreshState();
 
 	ui->buttonGameResume->setVisible(false); // TODO: implement
+	ui->buttonPresetExport->setVisible(false); // TODO: implement
+	ui->buttonPresetImport->setVisible(false); // TODO: implement
 }
 
 StartGameTab::~StartGameTab()
@@ -41,9 +43,21 @@ MainWindow * StartGameTab::getMainWindow()
 void StartGameTab::refreshState()
 {
 	refreshGameData();
-	refreshUpdateStatus(EGameUpdateStatus::NOT_CHECKED);//TODO
+	refreshUpdateStatus(EGameUpdateStatus::NOT_CHECKED);//TODO - follow automatic check on startup setting
 	refreshTranslation(getMainWindow()->getTranslationStatus());
+	refreshPresets();
 	refreshMods();
+}
+
+void StartGameTab::refreshPresets()
+{
+	QSignalBlocker blocker(ui->comboBoxModPresets);
+
+	QStringList allPresets = getMainWindow()->getModView()->getAllPresets();
+	ui->comboBoxModPresets->clear();
+	ui->comboBoxModPresets->addItems(allPresets);
+	ui->comboBoxModPresets->setCurrentText(getMainWindow()->getModView()->getActivePreset());
+	ui->buttonPresetDelete->setVisible(allPresets.size() > 1);
 }
 
 void StartGameTab::refreshGameData()
@@ -121,12 +135,17 @@ void StartGameTab::refreshMods()
 
 void StartGameTab::refreshUpdateStatus(EGameUpdateStatus status)
 {
+	QString availableVersion; // TODO
+
 	ui->labelTitleEngine->setText("VCMI " VCMI_VERSION_STRING);
 	ui->buttonUpdateCheck->setVisible(status == EGameUpdateStatus::NOT_CHECKED);
 	ui->labelUpdateNotFound->setVisible(status == EGameUpdateStatus::NO_UPDATE);
 	ui->labelUpdateAvailable->setVisible(status == EGameUpdateStatus::UPDATE_AVAILABLE);
 	ui->buttonOpenChangelog->setVisible(status == EGameUpdateStatus::UPDATE_AVAILABLE);
 	ui->buttonOpenDownloads->setVisible(status == EGameUpdateStatus::UPDATE_AVAILABLE);
+
+	if (status == EGameUpdateStatus::UPDATE_AVAILABLE)
+		ui->labelUpdateAvailable->setText(tr("Update to %1 available").arg(availableVersion));
 }
 
 void StartGameTab::on_buttonGameStart_clicked()
@@ -204,8 +223,10 @@ void StartGameTab::on_buttonUpdateMods_clicked()
 {
 	QStringList updateableMods = getMainWindow()->getModView()->getUpdateableMods();
 
+	getMainWindow()->switchToModsTab();
+
 	for (const auto & modName : updateableMods)
-		getMainWindow()->getModView()->doInstallMod(modName);
+		getMainWindow()->getModView()->doUpdateMod(modName);
 }
 
 void StartGameTab::on_buttonHelpImportFiles_clicked()
@@ -248,7 +269,7 @@ void StartGameTab::on_buttonUpdateModsHelp_clicked()
 	QString message = tr(
 		"A new version of some of the mods that you have installed is now available in mod repository. "
 		"Use this option to automatically update all your mods to latest version.\n\n"
-		"WARNING: IN some cases, updated versions of mods may not be compatible with your existing saves. "
+		"WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. "
 		"You many want to postpone mod update until you finish any of your ongoing games."
 		);
 
@@ -324,10 +345,59 @@ void StartGameTab::on_buttonPresetImport_clicked()
 
 void StartGameTab::on_buttonPresetNew_clicked()
 {
-	// TODO
+	bool ok;
+	QString presetName = QInputDialog::getText(
+		this,
+		ui->buttonPresetNew->text(),
+		tr("Enter preset name:"),
+		QLineEdit::Normal,
+		QString(),
+		&ok);
+
+	if (ok && !presetName.isEmpty())
+	{
+		getMainWindow()->getModView()->createNewPreset(presetName);
+		getMainWindow()->getModView()->activatePreset(presetName);
+		refreshPresets();
+	}
 }
 
 void StartGameTab::on_buttonPresetDelete_clicked()
 {
-	// TODO
+	QString activePresetBefore = getMainWindow()->getModView()->getActivePreset();
+	QStringList allPresets = getMainWindow()->getModView()->getAllPresets();
+
+	allPresets.removeAll(activePresetBefore);
+	if (!allPresets.empty())
+	{
+		getMainWindow()->getModView()->activatePreset(allPresets.front());
+		getMainWindow()->getModView()->deletePreset(activePresetBefore);
+		refreshPresets();
+	}
 }
+
+void StartGameTab::on_comboBoxModPresets_currentTextChanged(const QString &presetName)
+{
+	getMainWindow()->getModView()->activatePreset(presetName);
+}
+
+void StartGameTab::on_buttonPresetRename_clicked()
+{
+	QString currentName = getMainWindow()->getModView()->getActivePreset();
+
+	bool ok;
+	QString newName = QInputDialog::getText(
+		this,
+		ui->buttonPresetNew->text(),
+		tr("Rename preset '%1' to:").arg(currentName),
+		QLineEdit::Normal,
+		currentName,
+		&ok);
+
+	if (ok && !newName.isEmpty())
+	{
+		getMainWindow()->getModView()->renamePreset(currentName, newName);
+		refreshPresets();
+	}
+}
+

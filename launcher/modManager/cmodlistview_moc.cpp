@@ -1076,3 +1076,34 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 		return;
 	}
 }
+
+void CModListView::createNewPreset(const QString & presetName)
+{
+	modStateModel->createNewPreset(presetName);
+}
+
+void CModListView::deletePreset(const QString & presetName)
+{
+	modStateModel->deletePreset(presetName);
+}
+
+void CModListView::activatePreset(const QString & presetName)
+{
+	modStateModel->activatePreset(presetName);
+	modStateModel->reloadLocalState();
+}
+
+void CModListView::renamePreset(const QString & oldPresetName, const QString & newPresetName)
+{
+	modStateModel->renamePreset(oldPresetName, newPresetName);
+}
+
+QStringList CModListView::getAllPresets() const
+{
+	return modStateModel->getAllPresets();
+}
+
+QString CModListView::getActivePreset() const
+{
+	return modStateModel->getActivePreset();
+}

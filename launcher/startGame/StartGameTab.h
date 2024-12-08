@@ -30,6 +30,7 @@ class StartGameTab : public QWidget
 	void refreshUpdateStatus(EGameUpdateStatus status);
 	void refreshTranslation(ETranslationStatus status);
 	void refreshMods();
+	void refreshPresets();
 	void refreshGameData();
 
 public:
@@ -63,6 +64,10 @@ private slots:
 	void on_buttonPresetNew_clicked();
 
 	void on_buttonPresetDelete_clicked();
+
+	void on_comboBoxModPresets_currentTextChanged(const QString &arg1);
+
+	void on_buttonPresetRename_clicked();
 
 private:
 	Ui::StartGameTab * ui;
