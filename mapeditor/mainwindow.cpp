@@ -534,7 +534,7 @@ void MainWindow::roadOrRiverButtonClicked(ui8 type, bool isRoad)
 	controller.commitRoadOrRiverChange(mapLevel, type, isRoad);
 }
 
-void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool staticOnly)
+void MainWindow::addGroupIntoCatalog(const QString & groupName, bool staticOnly)
 {
 	auto knownObjects = VLC->objtypeh->knownObjects();
 	for(auto ID : knownObjects)
@@ -546,13 +546,13 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool staticO
 	}
 }
 
-void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCustomName, bool staticOnly, int ID)
+void MainWindow::addGroupIntoCatalog(const QString & groupName, bool useCustomName, bool staticOnly, int ID)
 {
 	QStandardItem * itemGroup = nullptr;
-	auto itms = objectsModel.findItems(QString::fromStdString(groupName));
+	auto itms = objectsModel.findItems(groupName);
 	if(itms.empty())
 	{
-		itemGroup = new QStandardItem(QString::fromStdString(groupName));
+		itemGroup = new QStandardItem(groupName);
 		objectsModel.appendRow(itemGroup);
 	}
 	else
@@ -684,138 +684,158 @@ void MainWindow::loadObjectsTree()
 	ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
 	connect(ui->treeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(treeViewSelected(const QModelIndex &, const QModelIndex &)));
 
+	//groups
+	enum GroupCat { TOWNS, OBJECTS, HEROES, ARTIFACTS, RESOURCES, BANKS, DWELLINGS, GROUNDS, TELEPORTS, MINES, TRIGGERS, MONSTERS, QUESTS, WOG_OBJECTS, OBSTACLES, OTHER };
+	QMap<GroupCat, QString> groups = {
+		{ TOWNS,       tr("Towns")       },
+		{ OBJECTS,     tr("Objects")     },
+		{ HEROES,      tr("Heroes")      },
+		{ ARTIFACTS,   tr("Artifacts")   },
+		{ RESOURCES,   tr("Resources")   },
+		{ BANKS,       tr("Banks")       },
+		{ DWELLINGS,   tr("Dwellings")   },
+		{ GROUNDS,     tr("Grounds")     },
+		{ TELEPORTS,   tr("Teleports")   },
+		{ MINES,       tr("Mines")       },
+		{ TRIGGERS,    tr("Triggers")    },
+		{ MONSTERS,    tr("Monsters")    },
+		{ QUESTS,      tr("Quests")      },
+		{ WOG_OBJECTS, tr("Wog Objects") },
+		{ OBSTACLES,   tr("Obstacles")   },
+		{ OTHER,       tr("Other")       },
+	};
 
 	//adding objects
-	addGroupIntoCatalog("TOWNS", false, false, Obj::TOWN);
-	addGroupIntoCatalog("TOWNS", false, false, Obj::RANDOM_TOWN);
-	addGroupIntoCatalog("TOWNS", true, false, Obj::SHIPYARD);
-	addGroupIntoCatalog("TOWNS", true, false, Obj::GARRISON);
-	addGroupIntoCatalog("TOWNS", true, false, Obj::GARRISON2);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::ARENA);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::BUOY);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::CARTOGRAPHER);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::SWAN_POND);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::COVER_OF_DARKNESS);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::CORPSE);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::FAERIE_RING);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::FOUNTAIN_OF_FORTUNE);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::FOUNTAIN_OF_YOUTH);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::GARDEN_OF_REVELATION);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::HILL_FORT);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::IDOL_OF_FORTUNE);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::LIBRARY_OF_ENLIGHTENMENT);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::LIGHTHOUSE);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::SCHOOL_OF_MAGIC);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::MAGIC_SPRING);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::MAGIC_WELL);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::MERCENARY_CAMP);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::MERMAID);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::MYSTICAL_GARDEN);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::OASIS);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::LEAN_TO);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::OBELISK);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::REDWOOD_OBSERVATORY);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::PILLAR_OF_FIRE);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::STAR_AXIS);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::RALLY_FLAG);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::WATERING_HOLE);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::SCHOLAR);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::SHRINE_OF_MAGIC_INCANTATION);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::SHRINE_OF_MAGIC_GESTURE);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::SHRINE_OF_MAGIC_THOUGHT);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::SIRENS);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::STABLES);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::TAVERN);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::TEMPLE);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::DEN_OF_THIEVES);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::LEARNING_STONE);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::TREE_OF_KNOWLEDGE);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::WAGON);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::SCHOOL_OF_WAR);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::WAR_MACHINE_FACTORY);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::WARRIORS_TOMB);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::WITCH_HUT);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::SANCTUARY);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::MARLETTO_TOWER);
-	addGroupIntoCatalog("HEROES", true, false, Obj::PRISON);
-	addGroupIntoCatalog("HEROES", false, false, Obj::HERO);
-	addGroupIntoCatalog("HEROES", false, false, Obj::RANDOM_HERO);
-	addGroupIntoCatalog("HEROES", false, false, Obj::HERO_PLACEHOLDER);
-	addGroupIntoCatalog("HEROES", false, false, Obj::BOAT);
-	addGroupIntoCatalog("ARTIFACTS", true, false, Obj::ARTIFACT);
-	addGroupIntoCatalog("ARTIFACTS", false, false, Obj::RANDOM_ART);
-	addGroupIntoCatalog("ARTIFACTS", false, false, Obj::RANDOM_TREASURE_ART);
-	addGroupIntoCatalog("ARTIFACTS", false, false, Obj::RANDOM_MINOR_ART);
-	addGroupIntoCatalog("ARTIFACTS", false, false, Obj::RANDOM_MAJOR_ART);
-	addGroupIntoCatalog("ARTIFACTS", false, false, Obj::RANDOM_RELIC_ART);
-	addGroupIntoCatalog("ARTIFACTS", true, false, Obj::SPELL_SCROLL);
-	addGroupIntoCatalog("ARTIFACTS", true, false, Obj::PANDORAS_BOX);
-	addGroupIntoCatalog("RESOURCES", true, false, Obj::RANDOM_RESOURCE);
-	addGroupIntoCatalog("RESOURCES", false, false, Obj::RESOURCE);
-	addGroupIntoCatalog("RESOURCES", true, false, Obj::SEA_CHEST);
-	addGroupIntoCatalog("RESOURCES", true, false, Obj::TREASURE_CHEST);
-	addGroupIntoCatalog("RESOURCES", true, false, Obj::CAMPFIRE);
-	addGroupIntoCatalog("RESOURCES", true, false, Obj::SHIPWRECK_SURVIVOR);
-	addGroupIntoCatalog("RESOURCES", true, false, Obj::FLOTSAM);
-	addGroupIntoCatalog("BANKS", true, false, Obj::CREATURE_BANK);
-	addGroupIntoCatalog("BANKS", true, false, Obj::DRAGON_UTOPIA);
-	addGroupIntoCatalog("BANKS", true, false, Obj::CRYPT);
-	addGroupIntoCatalog("BANKS", true, false, Obj::DERELICT_SHIP);
-	addGroupIntoCatalog("BANKS", true, false, Obj::PYRAMID);
-	addGroupIntoCatalog("BANKS", true, false, Obj::SHIPWRECK);
-	addGroupIntoCatalog("DWELLINGS", true, false, Obj::CREATURE_GENERATOR1);
-	addGroupIntoCatalog("DWELLINGS", true, false, Obj::CREATURE_GENERATOR2);
-	addGroupIntoCatalog("DWELLINGS", true, false, Obj::CREATURE_GENERATOR3);
-	addGroupIntoCatalog("DWELLINGS", true, false, Obj::CREATURE_GENERATOR4);
-	addGroupIntoCatalog("DWELLINGS", true, false, Obj::REFUGEE_CAMP);
-	addGroupIntoCatalog("DWELLINGS", false, false, Obj::RANDOM_DWELLING);
-	addGroupIntoCatalog("DWELLINGS", false, false, Obj::RANDOM_DWELLING_LVL);
-	addGroupIntoCatalog("DWELLINGS", false, false, Obj::RANDOM_DWELLING_FACTION);
-	addGroupIntoCatalog("GROUNDS", true, false, Obj::CURSED_GROUND1);
-	addGroupIntoCatalog("GROUNDS", true, false, Obj::MAGIC_PLAINS1);
-	addGroupIntoCatalog("GROUNDS", true, false, Obj::CLOVER_FIELD);
-	addGroupIntoCatalog("GROUNDS", true, false, Obj::CURSED_GROUND2);
-	addGroupIntoCatalog("GROUNDS", true, false, Obj::EVIL_FOG);
-	addGroupIntoCatalog("GROUNDS", true, false, Obj::FAVORABLE_WINDS);
-	addGroupIntoCatalog("GROUNDS", true, false, Obj::FIERY_FIELDS);
-	addGroupIntoCatalog("GROUNDS", true, false, Obj::HOLY_GROUNDS);
-	addGroupIntoCatalog("GROUNDS", true, false, Obj::LUCID_POOLS);
-	addGroupIntoCatalog("GROUNDS", true, false, Obj::MAGIC_CLOUDS);
-	addGroupIntoCatalog("GROUNDS", true, false, Obj::MAGIC_PLAINS2);
-	addGroupIntoCatalog("GROUNDS", true, false, Obj::ROCKLANDS);
-	addGroupIntoCatalog("GROUNDS", true, false, Obj::HOLE);
-	addGroupIntoCatalog("TELEPORTS", true, false, Obj::MONOLITH_ONE_WAY_ENTRANCE);
-	addGroupIntoCatalog("TELEPORTS", true, false, Obj::MONOLITH_ONE_WAY_EXIT);
-	addGroupIntoCatalog("TELEPORTS", true, false, Obj::MONOLITH_TWO_WAY);
-	addGroupIntoCatalog("TELEPORTS", true, false, Obj::SUBTERRANEAN_GATE);
-	addGroupIntoCatalog("TELEPORTS", true, false, Obj::WHIRLPOOL);
-	addGroupIntoCatalog("MINES", true, false, Obj::MINE);
-	addGroupIntoCatalog("MINES", false, false, Obj::ABANDONED_MINE);
-	addGroupIntoCatalog("MINES", true, false, Obj::WINDMILL);
-	addGroupIntoCatalog("MINES", true, false, Obj::WATER_WHEEL);
-	addGroupIntoCatalog("TRIGGERS", true, false, Obj::EVENT);
-	addGroupIntoCatalog("TRIGGERS", true, false, Obj::GRAIL);
-	addGroupIntoCatalog("TRIGGERS", true, false, Obj::SIGN);
-	addGroupIntoCatalog("TRIGGERS", true, false, Obj::OCEAN_BOTTLE);
-	addGroupIntoCatalog("MONSTERS", false, false, Obj::MONSTER);
-	addGroupIntoCatalog("MONSTERS", true, false, Obj::RANDOM_MONSTER);
-	addGroupIntoCatalog("MONSTERS", true, false, Obj::RANDOM_MONSTER_L1);
-	addGroupIntoCatalog("MONSTERS", true, false, Obj::RANDOM_MONSTER_L2);
-	addGroupIntoCatalog("MONSTERS", true, false, Obj::RANDOM_MONSTER_L3);
-	addGroupIntoCatalog("MONSTERS", true, false, Obj::RANDOM_MONSTER_L4);
-	addGroupIntoCatalog("MONSTERS", true, false, Obj::RANDOM_MONSTER_L5);
-	addGroupIntoCatalog("MONSTERS", true, false, Obj::RANDOM_MONSTER_L6);
-	addGroupIntoCatalog("MONSTERS", true, false, Obj::RANDOM_MONSTER_L7);
-	addGroupIntoCatalog("QUESTS", true, false, Obj::SEER_HUT);
-	addGroupIntoCatalog("QUESTS", true, false, Obj::BORDER_GATE);
-	addGroupIntoCatalog("QUESTS", true, false, Obj::QUEST_GUARD);
-	addGroupIntoCatalog("QUESTS", true, false, Obj::HUT_OF_MAGI);
-	addGroupIntoCatalog("QUESTS", true, false, Obj::EYE_OF_MAGI);
-	addGroupIntoCatalog("QUESTS", true, false, Obj::BORDERGUARD);
-	addGroupIntoCatalog("QUESTS", true, false, Obj::KEYMASTER);
-	addGroupIntoCatalog("wog object", true, false, Obj::WOG_OBJECT);
-	addGroupIntoCatalog("OBSTACLES", true);
-	addGroupIntoCatalog("OTHER", false);
+	addGroupIntoCatalog(groups[TOWNS], false, false, Obj::TOWN);
+	addGroupIntoCatalog(groups[TOWNS], false, false, Obj::RANDOM_TOWN);
+	addGroupIntoCatalog(groups[TOWNS], true, false, Obj::SHIPYARD);
+	addGroupIntoCatalog(groups[TOWNS], true, false, Obj::GARRISON);
+	addGroupIntoCatalog(groups[TOWNS], true, false, Obj::GARRISON2);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::ARENA);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::BUOY);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::CARTOGRAPHER);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::SWAN_POND);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::COVER_OF_DARKNESS);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::CORPSE);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::FAERIE_RING);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::FOUNTAIN_OF_FORTUNE);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::FOUNTAIN_OF_YOUTH);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::GARDEN_OF_REVELATION);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::HILL_FORT);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::IDOL_OF_FORTUNE);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::LIBRARY_OF_ENLIGHTENMENT);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::LIGHTHOUSE);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::SCHOOL_OF_MAGIC);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::MAGIC_SPRING);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::MAGIC_WELL);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::MERCENARY_CAMP);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::MERMAID);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::MYSTICAL_GARDEN);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::OASIS);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::LEAN_TO);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::OBELISK);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::REDWOOD_OBSERVATORY);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::PILLAR_OF_FIRE);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::STAR_AXIS);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::RALLY_FLAG);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::WATERING_HOLE);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::SCHOLAR);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::SHRINE_OF_MAGIC_INCANTATION);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::SHRINE_OF_MAGIC_GESTURE);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::SHRINE_OF_MAGIC_THOUGHT);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::SIRENS);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::STABLES);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::TAVERN);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::TEMPLE);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::DEN_OF_THIEVES);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::LEARNING_STONE);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::TREE_OF_KNOWLEDGE);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::WAGON);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::SCHOOL_OF_WAR);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::WAR_MACHINE_FACTORY);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::WARRIORS_TOMB);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::WITCH_HUT);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::SANCTUARY);
+	addGroupIntoCatalog(groups[OBJECTS], true, false, Obj::MARLETTO_TOWER);
+	addGroupIntoCatalog(groups[HEROES], true, false, Obj::PRISON);
+	addGroupIntoCatalog(groups[HEROES], false, false, Obj::HERO);
+	addGroupIntoCatalog(groups[HEROES], false, false, Obj::RANDOM_HERO);
+	addGroupIntoCatalog(groups[HEROES], false, false, Obj::HERO_PLACEHOLDER);
+	addGroupIntoCatalog(groups[HEROES], false, false, Obj::BOAT);
+	addGroupIntoCatalog(groups[ARTIFACTS], true, false, Obj::ARTIFACT);
+	addGroupIntoCatalog(groups[ARTIFACTS], false, false, Obj::RANDOM_ART);
+	addGroupIntoCatalog(groups[ARTIFACTS], false, false, Obj::RANDOM_TREASURE_ART);
+	addGroupIntoCatalog(groups[ARTIFACTS], false, false, Obj::RANDOM_MINOR_ART);
+	addGroupIntoCatalog(groups[ARTIFACTS], false, false, Obj::RANDOM_MAJOR_ART);
+	addGroupIntoCatalog(groups[ARTIFACTS], false, false, Obj::RANDOM_RELIC_ART);
+	addGroupIntoCatalog(groups[ARTIFACTS], true, false, Obj::SPELL_SCROLL);
+	addGroupIntoCatalog(groups[ARTIFACTS], true, false, Obj::PANDORAS_BOX);
+	addGroupIntoCatalog(groups[RESOURCES], true, false, Obj::RANDOM_RESOURCE);
+	addGroupIntoCatalog(groups[RESOURCES], false, false, Obj::RESOURCE);
+	addGroupIntoCatalog(groups[RESOURCES], true, false, Obj::SEA_CHEST);
+	addGroupIntoCatalog(groups[RESOURCES], true, false, Obj::TREASURE_CHEST);
+	addGroupIntoCatalog(groups[RESOURCES], true, false, Obj::CAMPFIRE);
+	addGroupIntoCatalog(groups[RESOURCES], true, false, Obj::SHIPWRECK_SURVIVOR);
+	addGroupIntoCatalog(groups[RESOURCES], true, false, Obj::FLOTSAM);
+	addGroupIntoCatalog(groups[BANKS], true, false, Obj::CREATURE_BANK);
+	addGroupIntoCatalog(groups[BANKS], true, false, Obj::DRAGON_UTOPIA);
+	addGroupIntoCatalog(groups[BANKS], true, false, Obj::CRYPT);
+	addGroupIntoCatalog(groups[BANKS], true, false, Obj::DERELICT_SHIP);
+	addGroupIntoCatalog(groups[BANKS], true, false, Obj::PYRAMID);
+	addGroupIntoCatalog(groups[BANKS], true, false, Obj::SHIPWRECK);
+	addGroupIntoCatalog(groups[DWELLINGS], true, false, Obj::CREATURE_GENERATOR1);
+	addGroupIntoCatalog(groups[DWELLINGS], true, false, Obj::CREATURE_GENERATOR2);
+	addGroupIntoCatalog(groups[DWELLINGS], true, false, Obj::CREATURE_GENERATOR3);
+	addGroupIntoCatalog(groups[DWELLINGS], true, false, Obj::CREATURE_GENERATOR4);
+	addGroupIntoCatalog(groups[DWELLINGS], true, false, Obj::REFUGEE_CAMP);
+	addGroupIntoCatalog(groups[DWELLINGS], false, false, Obj::RANDOM_DWELLING);
+	addGroupIntoCatalog(groups[DWELLINGS], false, false, Obj::RANDOM_DWELLING_LVL);
+	addGroupIntoCatalog(groups[DWELLINGS], false, false, Obj::RANDOM_DWELLING_FACTION);
+	addGroupIntoCatalog(groups[GROUNDS], true, false, Obj::CURSED_GROUND1);
+	addGroupIntoCatalog(groups[GROUNDS], true, false, Obj::MAGIC_PLAINS1);
+	addGroupIntoCatalog(groups[GROUNDS], true, false, Obj::CLOVER_FIELD);
+	addGroupIntoCatalog(groups[GROUNDS], true, false, Obj::CURSED_GROUND2);
+	addGroupIntoCatalog(groups[GROUNDS], true, false, Obj::EVIL_FOG);
+	addGroupIntoCatalog(groups[GROUNDS], true, false, Obj::FAVORABLE_WINDS);
+	addGroupIntoCatalog(groups[GROUNDS], true, false, Obj::FIERY_FIELDS);
+	addGroupIntoCatalog(groups[GROUNDS], true, false, Obj::HOLY_GROUNDS);
+	addGroupIntoCatalog(groups[GROUNDS], true, false, Obj::LUCID_POOLS);
+	addGroupIntoCatalog(groups[GROUNDS], true, false, Obj::MAGIC_CLOUDS);
+	addGroupIntoCatalog(groups[GROUNDS], true, false, Obj::MAGIC_PLAINS2);
+	addGroupIntoCatalog(groups[GROUNDS], true, false, Obj::ROCKLANDS);
+	addGroupIntoCatalog(groups[GROUNDS], true, false, Obj::HOLE);
+	addGroupIntoCatalog(groups[TELEPORTS], true, false, Obj::MONOLITH_ONE_WAY_ENTRANCE);
+	addGroupIntoCatalog(groups[TELEPORTS], true, false, Obj::MONOLITH_ONE_WAY_EXIT);
+	addGroupIntoCatalog(groups[TELEPORTS], true, false, Obj::MONOLITH_TWO_WAY);
+	addGroupIntoCatalog(groups[TELEPORTS], true, false, Obj::SUBTERRANEAN_GATE);
+	addGroupIntoCatalog(groups[TELEPORTS], true, false, Obj::WHIRLPOOL);
+	addGroupIntoCatalog(groups[MINES], true, false, Obj::MINE);
+	addGroupIntoCatalog(groups[MINES], false, false, Obj::ABANDONED_MINE);
+	addGroupIntoCatalog(groups[MINES], true, false, Obj::WINDMILL);
+	addGroupIntoCatalog(groups[MINES], true, false, Obj::WATER_WHEEL);
+	addGroupIntoCatalog(groups[TRIGGERS], true, false, Obj::EVENT);
+	addGroupIntoCatalog(groups[TRIGGERS], true, false, Obj::GRAIL);
+	addGroupIntoCatalog(groups[TRIGGERS], true, false, Obj::SIGN);
+	addGroupIntoCatalog(groups[TRIGGERS], true, false, Obj::OCEAN_BOTTLE);
+	addGroupIntoCatalog(groups[MONSTERS], false, false, Obj::MONSTER);
+	addGroupIntoCatalog(groups[MONSTERS], true, false, Obj::RANDOM_MONSTER);
+	addGroupIntoCatalog(groups[MONSTERS], true, false, Obj::RANDOM_MONSTER_L1);
+	addGroupIntoCatalog(groups[MONSTERS], true, false, Obj::RANDOM_MONSTER_L2);
+	addGroupIntoCatalog(groups[MONSTERS], true, false, Obj::RANDOM_MONSTER_L3);
+	addGroupIntoCatalog(groups[MONSTERS], true, false, Obj::RANDOM_MONSTER_L4);
+	addGroupIntoCatalog(groups[MONSTERS], true, false, Obj::RANDOM_MONSTER_L5);
+	addGroupIntoCatalog(groups[MONSTERS], true, false, Obj::RANDOM_MONSTER_L6);
+	addGroupIntoCatalog(groups[MONSTERS], true, false, Obj::RANDOM_MONSTER_L7);
+	addGroupIntoCatalog(groups[QUESTS], true, false, Obj::SEER_HUT);
+	addGroupIntoCatalog(groups[QUESTS], true, false, Obj::BORDER_GATE);
+	addGroupIntoCatalog(groups[QUESTS], true, false, Obj::QUEST_GUARD);
+	addGroupIntoCatalog(groups[QUESTS], true, false, Obj::HUT_OF_MAGI);
+	addGroupIntoCatalog(groups[QUESTS], true, false, Obj::EYE_OF_MAGI);
+	addGroupIntoCatalog(groups[QUESTS], true, false, Obj::BORDERGUARD);
+	addGroupIntoCatalog(groups[QUESTS], true, false, Obj::KEYMASTER);
+	addGroupIntoCatalog(groups[WOG_OBJECTS], true, false, Obj::WOG_OBJECT);
+	addGroupIntoCatalog(groups[OBSTACLES], true);
+	addGroupIntoCatalog(groups[OTHER], false);
 	}
 	catch(const std::exception &)
 	{

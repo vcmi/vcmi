@@ -153,8 +153,8 @@ public slots:
 
 private:
 	void preparePreview(const QModelIndex & index);
-	void addGroupIntoCatalog(const std::string & groupName, bool staticOnly);
-	void addGroupIntoCatalog(const std::string & groupName, bool useCustomName, bool staticOnly, int ID);
+	void addGroupIntoCatalog(const QString & groupName, bool staticOnly);
+	void addGroupIntoCatalog(const QString & groupName, bool useCustomName, bool staticOnly, int ID);
 	
 	QAction * getActionPlayer(const PlayerColor &);
 
