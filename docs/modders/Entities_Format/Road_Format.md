@@ -2,7 +2,7 @@
 
 ## Format
 
-```jsonc
+```json
 "newRoad" :
 {
 	// Two-letters unique identifier for this road. Used in map format

@@ -45,6 +45,7 @@
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "campaign/CampaignState.h"
 #include "IGameSettings.h"
+#include "mapObjects/FlaggableMapObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -1184,7 +1185,6 @@ void RemoveBonus::applyGs(CGameState *gs)
 
 void RemoveObject::applyGs(CGameState *gs)
 {
-
 	CGObjectInstance *obj = gs->getObjInstance(objectID);
 	logGlobal->debug("removing object id=%d; address=%x; name=%s", objectID, (intptr_t)obj, obj->getObjectName());
 	//unblock tiles
@@ -1193,14 +1193,22 @@ void RemoveObject::applyGs(CGameState *gs)
 	if (initiator.isValidPlayer())
 		gs->getPlayerState(initiator)->destroyedObjects.insert(objectID);
 
+	if(obj->getOwner().isValidPlayer())
+	{
+		gs->getPlayerState(obj->getOwner())->removeOwnedObject(obj); //object removed via map event or hero got beaten
+
+		FlaggableMapObject* flaggableObject = dynamic_cast<FlaggableMapObject*>(obj);
+		if(flaggableObject)
+		{
+			flaggableObject->markAsDeleted();
+		}
+	}
+
 	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
 		auto * beatenHero = dynamic_cast<CGHeroInstance *>(obj);
 		assert(beatenHero);
-		PlayerState * p = gs->getPlayerState(beatenHero->tempOwner);
 		gs->map->heroesOnMap -= beatenHero;
-		p->removeOwnedObject(beatenHero);
-
 
 		auto * siegeNode = beatenHero->whereShouldBeAttachedOnSiege(gs);
 

@@ -212,6 +212,7 @@ ISimpleResourceLoader * CResourceHandler::get()
 
 ISimpleResourceLoader * CResourceHandler::get(const std::string & identifier)
 {
+	assert(knownLoaders.count(identifier));
 	return knownLoaders.at(identifier);
 }
 

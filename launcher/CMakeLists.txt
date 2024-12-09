@@ -7,10 +7,11 @@ set(launcher_SRCS
 		StdInc.cpp
 		aboutProject/aboutproject_moc.cpp
 		modManager/cdownloadmanager_moc.cpp
-		modManager/cmodlist.cpp
-		modManager/cmodlistmodel_moc.cpp
+		modManager/modstateitemmodel_moc.cpp
 		modManager/cmodlistview_moc.cpp
-		modManager/cmodmanager.cpp
+		modManager/modstatecontroller.cpp
+		modManager/modstatemodel.cpp
+		modManager/modstate.cpp
 		modManager/imageviewer_moc.cpp
 		modManager/chroniclesextractor.cpp
 		settingsView/csettingsview_moc.cpp
@@ -37,10 +38,11 @@ set(launcher_HEADERS
 		StdInc.h
 		aboutProject/aboutproject_moc.h
 		modManager/cdownloadmanager_moc.h
-		modManager/cmodlist.h
-		modManager/cmodlistmodel_moc.h
+		modManager/modstateitemmodel_moc.h
 		modManager/cmodlistview_moc.h
-		modManager/cmodmanager.h
+		modManager/modstatecontroller.h
+		modManager/modstatemodel.h
+		modManager/modstate.h
 		modManager/imageviewer_moc.h
 		modManager/chroniclesextractor.h
 		settingsView/csettingsview_moc.h

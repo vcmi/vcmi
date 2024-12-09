@@ -70,7 +70,7 @@ void PlayerMessageProcessor::commandExit(PlayerColor player, const std::vector<s
 	if(!isHost)
 		return;
 
-	broadcastSystemMessage("game was terminated");
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.gameTerminated"));
 	gameHandler->gameLobby()->setState(EServerState::SHUTDOWN);
 }
 
@@ -115,7 +115,11 @@ void PlayerMessageProcessor::commandSave(PlayerColor player, const std::vector<s
 	if(words.size() == 2)
 	{
 		gameHandler->save("Saves/" + words[1]);
-		broadcastSystemMessage("game saved as " + words[1]);
+		MetaString str;
+		str.appendTextID("vcmi.broadcast.gameSavedAs");
+		str.appendRawString(" ");
+		str.appendRawString(words[1]);
+		broadcastSystemMessage(str);
 	}
 }
 
@@ -126,13 +130,15 @@ void PlayerMessageProcessor::commandCheaters(PlayerColor player, const std::vect
 	{
 		if(player.second.cheated)
 		{
-			broadcastSystemMessage("Player " + player.first.toString() + " is cheater!");
+			auto str = MetaString::createFromTextID("vcmi.broadcast.playerCheater");
+			str.replaceName(player.first);
+			broadcastSystemMessage(str);
 			playersCheated++;
 		}
 	}
 
 	if(!playersCheated)
-		broadcastSystemMessage("No cheaters registered!");
+		broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.noCheater"));
 }
 
 void PlayerMessageProcessor::commandStatistic(PlayerColor player, const std::vector<std::string> & words)
@@ -143,49 +149,51 @@ void PlayerMessageProcessor::commandStatistic(PlayerColor player, const std::vec
 
 	std::string path = gameHandler->gameState()->statistic.writeCsv();
 
-	broadcastSystemMessage("Statistic files can be found in " + path + " directory\n");
+	auto str = MetaString::createFromTextID("vcmi.broadcast.statisticFile");
+	str.replaceRawString(path);
+	broadcastSystemMessage(str);
 }
 
 void PlayerMessageProcessor::commandHelp(PlayerColor player, const std::vector<std::string> & words)
 {
-	broadcastSystemMessage("Available commands to host:");
-	broadcastSystemMessage("'!exit' - immediately ends current game");
-	broadcastSystemMessage("'!kick <player>' - kick specified player from the game");
-	broadcastSystemMessage("'!save <filename>' - save game under specified filename");
-	broadcastSystemMessage("'!statistic' - save game statistics as csv file");
-	broadcastSystemMessage("Available commands to all players:");
-	broadcastSystemMessage("'!help' - display this help");
-	broadcastSystemMessage("'!cheaters' - list players that entered cheat command during game");
-	broadcastSystemMessage("'!vote' - allows to change some game settings if all players vote for it");
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.commands"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.exit"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.kick"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.save"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.statistic"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.commandsAll"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.help"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.cheaters"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.vote"));
 }
 
 void PlayerMessageProcessor::commandVote(PlayerColor player, const std::vector<std::string> & words)
 {
 	if(words.size() < 2)
 	{
-		broadcastSystemMessage("'!vote simturns allow X' - allow simultaneous turns for specified number of days, or until contact");
-		broadcastSystemMessage("'!vote simturns force X' - force simultaneous turns for specified number of days, blocking player contacts");
-		broadcastSystemMessage("'!vote simturns abort' - abort simultaneous turns once this turn ends");
-		broadcastSystemMessage("'!vote timer prolong X' - prolong base timer for all players by specified number of seconds");
+		broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.allow"));
+		broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.force"));
+		broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.abort"));
+		broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.timer"));
 		return;
 	}
 
-	if(words[1] == "yes" || words[1] == "no")
+	if(words[1] == "yes" || words[1] == "no" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.yes").toString() || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.no").toString())
 	{
 		if(currentVote == ECurrentChatVote::NONE)
 		{
-			broadcastSystemMessage("No active voting!");
+			broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.noActive"));
 			return;
 		}
 
-		if(words[1] == "yes")
+		if(words[1] == "yes" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.yes").toString())
 		{
 			awaitingPlayers.erase(player);
 			if(awaitingPlayers.empty())
 				finishVoting();
 			return;
 		}
-		if(words[1] == "no")
+		if(words[1] == "no" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.no").toString())
 		{
 			abortVoting();
 			return;
@@ -240,28 +248,36 @@ void PlayerMessageProcessor::commandVote(PlayerColor player, const std::vector<s
 		}
 	}
 
-	broadcastSystemMessage("Voting command not recognized!");
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.notRecognized"));
 }
 
 void PlayerMessageProcessor::finishVoting()
 {
+	MetaString msg;
 	switch(currentVote)
 	{
 		case ECurrentChatVote::SIMTURNS_ALLOW:
-			broadcastSystemMessage("Voting successful. Simultaneous turns will run for " + std::to_string(currentVoteParameter) + " more days, or until contact");
+			msg.appendTextID("vcmi.broadcast.vote.success.untilContacts");
+			msg.replaceRawString(std::to_string(currentVoteParameter));
+			broadcastSystemMessage(msg);
 			gameHandler->turnOrder->setMaxSimturnsDuration(currentVoteParameter);
 			break;
 		case ECurrentChatVote::SIMTURNS_FORCE:
-			broadcastSystemMessage("Voting successful. Simultaneous turns will run for " + std::to_string(currentVoteParameter) + " more days. Contacts are blocked");
+			msg.appendTextID("vcmi.broadcast.vote.success.contactsBlocked");
+			msg.replaceRawString(std::to_string(currentVoteParameter));
+			broadcastSystemMessage(msg);
 			gameHandler->turnOrder->setMinSimturnsDuration(currentVoteParameter);
 			break;
 		case ECurrentChatVote::SIMTURNS_ABORT:
-			broadcastSystemMessage("Voting successful. Simultaneous turns will end on next day");
+			msg.appendTextID("vcmi.broadcast.vote.success.nextDay");
+			broadcastSystemMessage(msg);
 			gameHandler->turnOrder->setMinSimturnsDuration(0);
 			gameHandler->turnOrder->setMaxSimturnsDuration(0);
 			break;
 		case ECurrentChatVote::TIMER_PROLONG:
-			broadcastSystemMessage("Voting successful. Timer for all players has been prolonger for " + std::to_string(currentVoteParameter) + " seconds");
+			msg.appendTextID("vcmi.broadcast.vote.success.timer");
+			msg.replaceRawString(std::to_string(currentVoteParameter));
+			broadcastSystemMessage(msg);
 			gameHandler->turnTimerHandler->prolongTimers(currentVoteParameter * 1000);
 			break;
 	}
@@ -272,7 +288,7 @@ void PlayerMessageProcessor::finishVoting()
 
 void PlayerMessageProcessor::abortVoting()
 {
-	broadcastSystemMessage("Player voted against change. Voting aborted");
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.aborted"));
 	currentVote = ECurrentChatVote::NONE;
 }
 
@@ -281,25 +297,33 @@ void PlayerMessageProcessor::startVoting(PlayerColor initiator, ECurrentChatVote
 	currentVote = what;
 	currentVoteParameter = parameter;
 
+	MetaString msg;
 	switch(currentVote)
 	{
 		case ECurrentChatVote::SIMTURNS_ALLOW:
-			broadcastSystemMessage("Started voting to allow simultaneous turns for " + std::to_string(parameter) + " more days");
+			msg.appendTextID("vcmi.broadcast.vote.start.untilContacts");
+			msg.replaceRawString(std::to_string(parameter));
+			broadcastSystemMessage(msg);
 			break;
 		case ECurrentChatVote::SIMTURNS_FORCE:
-			broadcastSystemMessage("Started voting to force simultaneous turns for " + std::to_string(parameter) + " more days");
+			msg.appendTextID("vcmi.broadcast.vote.start.contactsBlocked");
+			msg.replaceRawString(std::to_string(parameter));
+			broadcastSystemMessage(msg);
 			break;
 		case ECurrentChatVote::SIMTURNS_ABORT:
-			broadcastSystemMessage("Started voting to end simultaneous turns starting from next day");
+			msg.appendTextID("vcmi.broadcast.vote.start.nextDay");
+			broadcastSystemMessage(msg);
 			break;
 		case ECurrentChatVote::TIMER_PROLONG:
-			broadcastSystemMessage("Started voting to prolong timer for all players by " + std::to_string(parameter) + " seconds");
+			msg.appendTextID("vcmi.broadcast.vote.start.timer");
+			msg.replaceRawString(std::to_string(parameter));
+			broadcastSystemMessage(msg);
 			break;
 		default:
 			return;
 	}
 
-	broadcastSystemMessage("Type '!vote yes' to agree to this change or '!vote no' to vote against it");
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.hint"));
 	awaitingPlayers.clear();
 
 	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)

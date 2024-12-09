@@ -951,8 +951,8 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 	else if(auto uni = dynamic_cast<const CGUniversity *>(_market); uni->appearance)
 	{
 		titlePic = std::make_shared<CAnimImage>(uni->appearance->animationFile, 0, 0, 0, 0, CShowableAnim::CREATURE_MODE);
-		titleStr = uni->title;
-		speechStr = uni->speech;
+		titleStr = uni->getObjectName();
+		speechStr = uni->getSpeechTranslated();
 	}
 	else
 	{
@@ -1508,7 +1508,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	itemsVisible = items;
 
 	init(titleWidget_, _title, _descr, searchBoxEnabled);
-	list->scrollTo(initialSelection - 4); // -4 is for centering (list have 9 elements)
+	list->scrollTo(std::min(static_cast<int>(initialSelection + 4), static_cast<int>(items.size() - 1))); // 4 is for centering (list have 9 elements)
 }
 
 CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled)
@@ -1528,7 +1528,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 	itemsVisible = items;
 
 	init(titleWidget_, _title, _descr, searchBoxEnabled);
-	list->scrollTo(initialSelection - 4); // -4 is for centering (list have 9 elements)
+	list->scrollTo(std::min(static_cast<int>(initialSelection + 4), static_cast<int>(items.size() - 1))); // 4 is for centering (list have 9 elements)
 }
 
 void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled)
@@ -1653,7 +1653,7 @@ void CObjectListWindow::keyPressed(EShortcut key)
 	}
 
 	vstd::abetween<int>(sel, 0, itemsVisible.size()-1);
-	list->scrollTo(sel - 4); // -4 is for centering (list have 9 elements)
+	list->scrollTo(sel);
 	changeSelection(sel);
 }
 
@@ -1670,21 +1670,26 @@ VideoWindow::VideoWindow(const VideoPath & video, const ImagePath & rim, bool sh
 	if(!rim.empty())
 	{
 		setBackground(rim);
-		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, [this](){ exit(false); });
+		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, this);
 		pos = center(Rect(0, 0, 800, 600));
 	}
 	else
 	{
 		blackBackground = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y));
-		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, scaleFactor, [this](){ exit(false); });
+		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, scaleFactor, this);
 		pos = center(Rect(0, 0, videoPlayer->pos.w, videoPlayer->pos.h));
 		blackBackground->addBox(Point(0, 0), Point(pos.x, pos.y), Colors::BLACK);
 	}
 
 	if(backgroundAroundWindow)
 		backgroundAroundWindow->pos.moveTo(Point(0, 0));
-
 }
+
+void VideoWindow::onVideoPlaybackFinished()
+{
+	exit(false);
+}
+
 
 void VideoWindow::exit(bool skipped)
 {

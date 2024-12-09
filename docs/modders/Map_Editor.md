@@ -38,7 +38,7 @@ Templates are dynamically filtered depending on parameters you choose.
 
 To load the map, press open and select map file from the browser.
 
-You can load both *.h3m and *.vmap formats but for saving *.vmap is allowed only.
+You can load both *.h3m and*.vmap formats but for saving *.vmap is allowed only.
 
 ## Views
 
@@ -60,7 +60,7 @@ There are 3 buttons switching views <img width="131" alt="Снимок экра�
 
 <img width="190" src="https://user-images.githubusercontent.com/9308612/188778010-a1d45d59-7333-4432-b83f-57190fbe09f4.png">
 
-# Setup terrain
+## Setup terrain
 
 1. Select brush you want
 <img width="124" src="https://user-images.githubusercontent.com/9308612/188776299-fd688696-a98d-4f89-8bef-e81c90d3724b.png">
@@ -77,7 +77,7 @@ There are 3 buttons switching views <img width="131" alt="Снимок экра�
 
 #### Drawing roads and rivers
 
-Actually, the process to draw rivers or roads is exactly the same as for terrains. You need to select tiles and then choose road/river type from the panel. 
+Actually, the process to draw rivers or roads is exactly the same as for terrains. You need to select tiles and then choose road/river type from the panel.
 
 <img width="232" src="https://user-images.githubusercontent.com/9308612/189968965-7adbd76c-9ffc-46e5-aeb7-9a79214cc506.png">
 
@@ -85,9 +85,10 @@ To erase roads or rivers, you need to select tiles to be cleaned and press empty
 
 <img width="130" src="https://user-images.githubusercontent.com/9308612/189969309-87ff7818-2915-4b38-b9db-ec4a616d18e7.png">
 
-_Erasing works either for roads or for rivers, e.g. empty button from the roads tab erases roads only, but not rivers. You also can safely select bigger area, because it won't erase anything on tiles without roads/rivers accordingly_
+*Erasing works either for roads or for rivers, e.g. empty button from the roads tab erases roads only, but not rivers. You also can safely select bigger area, because it won't erase anything on tiles without roads/rivers accordingly*
 
 ### About brushes
+
 * Buttons "1", "2", "4" - 1x1, 2x2, 4x4 brush sizes accordingly
 * Button "[]" - non-additive rectangle selection
 * Button "O" - lasso brush (not implemented yet)
@@ -171,7 +172,7 @@ You can modify general properties of the map
 
 ## Player settings
 
-Open **Map** menu on the top and select **Player settings" 
+Open **Map** menu on the top and select **Player settings**
 
 <img width="141" src="https://user-images.githubusercontent.com/9308612/188781357-4a6091cf-f175-4649-a000-620f306d2c46.png">
 
@@ -208,6 +209,7 @@ vcmieditor loads set of mods using exactly same mechanism as game uses and mod m
 The mods mechanism used in map editor is the same as in game.
 
 To enable or disable mods
+
 * Start launcher, activate or deactivate mods you want
 * Close launcher
 * Run map editor

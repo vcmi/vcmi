@@ -6,13 +6,13 @@ Artifact bonuses use [Bonus Format](../Bonus_Format.md)
 
 In order to make functional artifact you also need:
 
--   Icon for hero inventory (1 image)
--   Icon for popup windows (1 image, optional)
--   Animation for adventure map (1 animation)
+- Icon for hero inventory (1 image)
+- Icon for popup windows (1 image, optional)
+- Animation for adventure map (1 animation)
 
 ## Format
 
-``` jsonc
+```json
 {
 	// Type of this artifact - creature, hero or commander
 	"type": ["HERO", "CREATURE", "COMMANDER"] 

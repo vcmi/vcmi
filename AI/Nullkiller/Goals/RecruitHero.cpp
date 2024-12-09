@@ -73,6 +73,7 @@ void RecruitHero::accept(AIGateway * ai)
 		std::unique_lock lockGuard(ai->nullkiller->aiStateMutex);
 
 		ai->nullkiller->heroManager->update();
+		ai->nullkiller->objectClusterizer->reset();
 	}
 }
 

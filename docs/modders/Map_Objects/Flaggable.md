@@ -3,12 +3,13 @@
 Flaggable object are those that can be captured by a visiting hero. H3 examples are mines, dwellings, or lighthouse.
 
 Currently, it is possible to make flaggable objects that provide player with:
+
 - Any [Bonus](Bonus_Format.md) supported by bonus system
 - Daily resources income (wood, ore, gold, etc)
 
 ## Format description
 
-```jsonc
+```json
 {
   "baseObjectName" : {
     "name" : "Object name",

@@ -86,6 +86,11 @@ JsonNode::JsonNode(const std::string & string)
 {
 }
 
+JsonNode::JsonNode(const JsonMap & map)
+	: data(map)
+{
+}
+
 JsonNode::JsonNode(const std::byte * data, size_t datasize, const std::string & fileName)
 	: JsonNode(data, datasize, JsonParsingSettings(), fileName)
 {

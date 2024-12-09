@@ -46,7 +46,7 @@ ChainActor::ChainActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t 
 	initialMovement = hero->movementPointsRemaining();
 	initialTurn = 0;
 	armyValue = getHeroArmyStrengthWithCommander(hero, hero);
-	heroFightingStrength = hero->getFightingStrength();
+	heroFightingStrength = hero->getHeroStrength();
 	tiCache.reset(new TurnInfo(hero));
 }
 

@@ -12,17 +12,17 @@ should be moved to scripting.
 
 Includes:
 
--   mystic pond
--   treasury
--   god of fire
--   castle gates
--   cover of darkness
--   portal of summoning
--   escape tunnel
+- mystic pond
+- treasury
+- god of fire
+- castle gates
+- cover of darkness
+- portal of summoning
+- escape tunnel
 
 Function of all of these objects can be enabled by this:
 
-``` javascript
+```json
  "function" : "castleGates" 
 ```
 
@@ -31,13 +31,13 @@ Function of all of these objects can be enabled by this:
 Hardcoded functionality for now due to complexity of these objects.
 Temporary can be handles as unique buildings. Includes:
 
--   resource - resource
--   resource - player
--   artifact - resource
--   resource - artifact
--   creature - resource
--   resource - skills
--   creature - skeleton
+- resource - resource
+- resource - player
+- artifact - resource
+- resource - artifact
+- creature - resource
+- resource - skills
+- creature - skeleton
 
 ### hero visitables
 
@@ -46,10 +46,10 @@ handled via configurable objects system.
 
 Includes:
 
--   gives mana points
--   gives movement points
--   give bonus to visitor
--   permanent bonus to hero
+- gives mana points
+- gives movement points
+- give bonus to visitor
+- permanent bonus to hero
 
 ### generic functions
 
@@ -58,31 +58,31 @@ CBuilding class.
 
 #### unlock guild level
 
-``` javascript
+```json
  "guildLevels" : 1 
 ```
 
 #### unlock hero recruitment
 
-``` javascript
+```json
  "allowsHeroPurchase" : true 
 ```
 
 #### unlock ship purchase
 
-``` javascript
+```json
  "allowsShipPurchase" : true 
 ```
 
 #### unlock building purchase
 
-``` javascript
+```json
  "allowsBuildingPurchase" : true 
 ```
 
 #### unlocks creatures
 
-``` javascript
+```json
  "dwelling" : { "level" : 1, "creature" : "archer" } 
 ```
 
@@ -92,31 +92,31 @@ Turn into town bonus? What about creature-specific bonuses from hordes?
 
 #### gives resources
 
-``` javascript
+```json
  "provides" : { "gold" : 500 } 
 ```
 
 #### gives guild spells
 
-``` javascript
+```json
  "guildSpells" : [5, 0, 0, 0, 0] 
 ```
 
 #### gives thieves guild
 
-``` javascript
+```json
  "thievesGuildLevels" : 1 
 ```
 
 #### gives fortifications
 
-``` javascript
+```json
  "fortificationLevels" : 1 
 ```
 
 #### gives war machine
 
-``` javascript
+```json
  "warMachine" : "ballista" 
 ```
 
@@ -129,12 +129,12 @@ TODO: how to handle stackable bonuses like Necromancy Amplifier?
 
 Includes:
 
--   bonus to defender
--   bonus to alliance
--   bonus to scouting range
--   bonus to player
+- bonus to defender
+- bonus to alliance
+- bonus to scouting range
+- bonus to player
 
-``` javascript
+```json
 "bonuses" :
 {
 	"moraleToDefenders" :
@@ -162,12 +162,12 @@ Possible issue - with removing of fixed ID's buildings in different town
 may no longer share same ID. However Capitol must be unique across all
 town. Should be fixed somehow.
 
-``` javascript
+```json
  "onePerPlayer" : true 
 ```
 
 #### chance to be built on start
 
-``` javascript
+```json
  "prebuiltChance" : 75 
 ```

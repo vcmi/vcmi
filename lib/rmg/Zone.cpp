@@ -121,6 +121,11 @@ ThreadSafeProxy<const rmg::Area> Zone::areaUsed() const
 	return ThreadSafeProxy<const rmg::Area>(dAreaUsed, areaMutex);
 }
 
+rmg::Area Zone::areaForRoads() const
+{
+	return areaPossible() + freePaths();
+}
+
 void Zone::clearTiles()
 {
 	Lock lock(areaMutex);
@@ -138,7 +143,7 @@ void Zone::initFreeTiles()
 	});
 	dAreaPossible.assign(possibleTiles);
 	
-	if(dAreaFree.empty())
+	if(dAreaFree.empty() && getType() != ETemplateZoneType::SEALED)
 	{
 		// Fixme: This might fail fot water zone, which doesn't need to have a tile in its center of the mass
 		dAreaPossible.erase(pos);
@@ -299,7 +304,6 @@ void Zone::fractalize()
 	logGlobal->trace("Zone %d: treasureValue %d blockDistance: %2.f, freeDistance: %2.f", getId(), treasureValue, blockDistance, freeDistance);
 
 	Lock lock(areaMutex);
-	// FIXME: Do not access Area directly
 
 	rmg::Area clearedTiles(dAreaFree);
 	rmg::Area possibleTiles(dAreaPossible);
@@ -347,6 +351,16 @@ void Zone::fractalize()
 				break;
 			tilesToIgnore.clear();
 		}
+	}
+	else if (type == ETemplateZoneType::SEALED)
+	{
+		//Completely block all the tiles in the zone
+		auto tiles = areaPossible()->getTiles();
+		for(const auto & t : tiles)
+			map.setOccupied(t, ETileType::BLOCKED);
+		possibleTiles.clear();
+		dAreaFree.clear();
+		return;
 	}
 	else
 	{

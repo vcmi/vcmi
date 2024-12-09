@@ -212,7 +212,7 @@ void RiverPlacer::preprocess()
 	{
 		auto river = VLC->terrainTypeHandler->getById(zone.getTerrainType())->river;
 		auto & a = neighbourZonesTiles[connectedToWaterZoneId];
-		auto availableArea = zone.areaPossible() + zone.freePaths();
+		auto availableArea = zone.areaForRoads();
 		for(const auto & tileToProcess : availableArea.getTilesVector())
 		{
 			int templateId = -1;

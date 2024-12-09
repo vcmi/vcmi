@@ -10,12 +10,14 @@
 #include "StdInc.h"
 #include "VideoWidget.h"
 #include "TextControls.h"
+#include "IVideoHolder.h"
 
 #include "../CGameInfo.h"
 #include "../gui/CGuiHandler.h"
 #include "../media/ISoundPlayer.h"
 #include "../media/IVideoPlayer.h"
 #include "../render/Canvas.h"
+#include "../render/IScreenHandler.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 
@@ -45,7 +47,26 @@ void VideoWidgetBase::playVideo(const VideoPath & fileToPlay)
 	else if(CResourceHandler::get()->existsResource(subTitlePathVideoDir))
 		subTitleData = JsonNode(subTitlePathVideoDir);
 
-	videoInstance = CCS->videoh->open(fileToPlay, scaleFactor);
+	float preScaleFactor = 1;
+	VideoPath videoFile = fileToPlay;
+	if(GH.screenHandler().getScalingFactor() > 1)
+	{
+		std::vector<int> factorsToCheck = {GH.screenHandler().getScalingFactor(), 4, 3, 2};
+		for(auto factorToCheck : factorsToCheck)
+		{
+			std::string name = boost::algorithm::to_upper_copy(videoFile.getName());
+			boost::replace_all(name, "VIDEO/", std::string("VIDEO") + std::to_string(factorToCheck) + std::string("X/"));
+			auto p = VideoPath::builtin(name).addPrefix("VIDEO" + std::to_string(factorToCheck) + "X/");
+			if(CResourceHandler::get()->existsResource(p))
+			{
+				preScaleFactor = 1.0 / static_cast<float>(factorToCheck);
+				videoFile = p;
+				break;
+			}
+		}
+	}
+
+	videoInstance = CCS->videoh->open(videoFile, scaleFactor * preScaleFactor);
 	if (videoInstance)
 	{
 		pos.w = videoInstance->size().x;
@@ -152,15 +173,17 @@ void VideoWidgetBase::tick(uint32_t msPassed)
 	{
 		videoInstance->tick(msPassed);
 
+		if(subTitle)
+			subTitle->setText(getSubTitleLine(videoInstance->timeStamp()));
+
 		if(videoInstance->videoEnded())
 		{
 			videoInstance.reset();
 			stopAudio();
 			onPlaybackFinished();
+			// WARNING: onPlaybackFinished call may destoy `this`. Make sure that this is the very last operation in this method!
 		}
 	}
-	if(subTitle && videoInstance)
-		subTitle->setText(getSubTitleLine(videoInstance->timeStamp()));
 }
 
 VideoWidget::VideoWidget(const Point & position, const VideoPath & prologue, const VideoPath & looped, bool playAudio)
@@ -180,19 +203,19 @@ void VideoWidget::onPlaybackFinished()
 	playVideo(loopedVideo);
 }
 
-VideoWidgetOnce::VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, const std::function<void()> & callback)
+VideoWidgetOnce::VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, IVideoHolder * owner)
 	: VideoWidgetBase(position, video, playAudio)
-	, callback(callback)
+	, owner(owner)
 {
 }
 
-VideoWidgetOnce::VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, float scaleFactor, const std::function<void()> & callback)
+VideoWidgetOnce::VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, float scaleFactor, IVideoHolder * owner)
 	: VideoWidgetBase(position, video, playAudio, scaleFactor)
-	, callback(callback)
+	, owner(owner)
 {
 }
 
 void VideoWidgetOnce::onPlaybackFinished()
 {
-	callback();
+	owner->onVideoPlaybackFinished();
 }

@@ -4,17 +4,20 @@
 
 Each building requires following assets:
 
--   Town animation file (1 animation file)
--   Selection highlight (1 image)
--   Selection area (1 image)
--   Town hall icon (1 image)
+- Town animation file (1 animation file)
+- Selection highlight (1 image)
+- Selection area (1 image)
+- Town hall icon (1 image)
 
 ## Examples
+
 These are just a couple of examples of what can be done in VCMI. See vcmi configuration files to check how buildings from Heroes III are implemented or other mods for more examples
+
 ####
 
-##### Order of Fire from Inferno:
-```jsonc
+##### Order of Fire from Inferno
+
+```json
 "special4": {
 	"requires" : [ "mageGuild1" ],
 	"name" : "Order of Fire",
@@ -34,10 +37,11 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 		]
 	}
 }
-``` 
+```
 
 ##### Mana Vortex from Dungeon
-```jsonc
+
+```json
 "special2": {
 	"requires" : [ "mageGuild1" ],
 	"name" : "Mana Vortex",
@@ -65,7 +69,8 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 ```
 
 #### Resource Silo with custom production
-```jsonc
+
+```json
 "resourceSilo": {
 	"name" : "Wood Resource Silo",
 	"description" : "Produces 2 wood every day",
@@ -80,7 +85,8 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 ```
 
 #### Brotherhood of Sword - bonuses in siege
-```jsonc
+
+```json
 "special3": {
 	// replaces +1 Morale bonus from Tavern
 	"upgradeReplacesBonuses" : true, 
@@ -96,7 +102,8 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 ```
 
 #### Lighthouse - bonus to all heroes under player control
-```jsonc
+
+```json
 "special1":       { 
 	"bonuses": [
 		{
@@ -112,7 +119,7 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 
 ## Town Building node
 
-```jsonc
+```json
 {
 	// Numeric identifier of this building
 	"id" : 0,
@@ -211,7 +218,7 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 
 Building requirements can be described using logical expressions:
 
-```jsonc
+```json
 "requires" :
 [
 	"allOf", // Normal H3 "build all" mode
@@ -228,10 +235,13 @@ Building requirements can be described using logical expressions:
 	]
 ]
 ```
+
 ### List of unique town buildings
 
 #### Buildings from Heroes III
+
 Following Heroes III buildings can be used as unique buildings for a town. Their functionality should be identical to a corresponding H3 building. H3 buildings that are not present in this list contain no hardcoded functionality. See vcmi json configuration to see how such buildings can be implemented in a mod.
+
 - `mysticPond`
 - `artifactMerchant`
 - `freelancersGuild`
@@ -244,16 +254,18 @@ Following Heroes III buildings can be used as unique buildings for a town. Their
 - `treasury`
 
 #### Buildings from other Heroes III mods
+
 Following HotA buildings can be used as unique building for a town. Functionality should match corresponding HotA building:
+
 - `bank`
 
 #### Custom buildings
-In addition to above, it is possible to use same format as [Rewardable](../Map_Objects/Rewardable.md) map objects for town buildings. In order to do that, configuration of a rewardable object must be placed into `configuration` json node in building config.
 
+In addition to above, it is possible to use same format as [Rewardable](../Map_Objects/Rewardable.md) map objects for town buildings. In order to do that, configuration of a rewardable object must be placed into `configuration` json node in building config.
 
 ### Town Structure node
 
-```jsonc
+```json
 {
 	// Main animation file for this building
 	"animation" : "", 
@@ -281,16 +293,18 @@ In addition to above, it is possible to use same format as [Rewardable](../Map_O
 }
 ```
 
-
 #### Markets in towns
+
 Market buildings require list of available [modes](../Map_Objects/Market.md)
 
 ##### Marketplace
-```jsonc
+
+```json
 	"marketplace":    { "marketModes" : ["resource-resource", "resource-player"] },
 ```
 
 ##### Artifact merchant
-```jsonc
+
+```json
 	"special1":       { "type" : "artifactMerchant", "requires" : [ "marketplace" ], "marketModes" : ["resource-artifact", "artifact-resource"] },
 ```

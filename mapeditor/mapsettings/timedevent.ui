@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>620</width>
-    <height>371</height>
+    <width>730</width>
+    <height>422</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -200,6 +200,34 @@
         </property>
        </column>
       </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="deletedObjectsLabel">
+       <property name="text">
+        <string>Objects to delete</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="addObjectToDelete">
+       <property name="text">
+        <string>Add</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="removeObjectToDelete">
+       <property name="text">
+        <string>Remove</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QListWidget" name="deletedObjects"/>
      </item>
      <item>
       <widget class="QPushButton" name="pushButton">

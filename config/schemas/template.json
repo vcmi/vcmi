@@ -12,7 +12,7 @@
 			"properties" : {
 				"type" : {
 					"type" : "string",
-					"enum" : ["playerStart", "cpuStart", "treasure", "junction"]
+					"enum" : ["playerStart", "cpuStart", "treasure", "junction", "sealed"]
 				},
 				"size" : { "type" : "number", "minimum" : 1 },
 				"owner" : {},

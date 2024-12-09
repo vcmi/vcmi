@@ -1066,11 +1066,13 @@ StackQueue::StackBox::StackBox(StackQueue * owner):
 		roundRect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, 15, 18), ColorRGBA(0, 0, 0, 255), ColorRGBA(241, 216, 120, 255));
 		round = std::make_shared<CLabel>(4, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 
-		int icon_x = pos.w - 17;
-		int icon_y = pos.h - 18;
+		Point iconPos(pos.w - 16, pos.h - 16);
 
-		stateIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"), 0, 0, icon_x, icon_y);
-		stateIcon->visible = false;
+		defendIcon = std::make_shared<CPicture>(ImagePath::builtin("battle/QueueDefend"), iconPos);
+		waitIcon = std::make_shared<CPicture>(ImagePath::builtin("battle/QueueWait"), iconPos);
+
+		defendIcon->setEnabled(false);
+		waitIcon->setEnabled(false);
 	}
 	roundRect->disable();
 }
@@ -1106,22 +1108,13 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 			round->setText(tmp);
 		}
 
-		if(stateIcon)
+		if(!owner->embedded)
 		{
-			if(unit->defended((int)turn) || (turn > 0 && unit->defended((int)turn - 1)))
-			{
-				stateIcon->setFrame(0, 0);
-				stateIcon->visible = true;
-			}
-			else if(unit->waited((int)turn))
-			{
-				stateIcon->setFrame(1, 0);
-				stateIcon->visible = true;
-			}
-			else
-			{
-				stateIcon->visible = false;
-			}
+			bool defended = unit->defended(turn) || (turn > 0 && unit->defended(turn - 1));
+			bool waited = unit->waited(turn) && !defended;
+
+			defendIcon->setEnabled(defended);
+			waitIcon->setEnabled(waited);
 		}
 	}
 	else
@@ -1131,9 +1124,11 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 		icon->visible = false;
 		icon->setFrame(0);
 		amount->setText("");
-
-		if(stateIcon)
-			stateIcon->visible = false;
+		if(!owner->embedded)
+		{
+			defendIcon->setEnabled(false);
+			waitIcon->setEnabled(false);
+		}
 	}
 }
 

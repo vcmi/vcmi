@@ -118,7 +118,6 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 			}
 			else
 				printableString.append(text.data() + currPos, symbolSize);
-
 			currPos += symbolSize;
 		}
 

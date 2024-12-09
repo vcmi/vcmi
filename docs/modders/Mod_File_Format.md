@@ -2,7 +2,7 @@
 
 ## Fields with description of mod
 
-``` javascript
+```json
 {
 	// Name of your mod. While it does not have hard length limit
 	// it should not be longer than ~30 symbols to fit into allowed space
@@ -91,7 +91,7 @@
 
 These are fields that are present only in local mod.json file
 
-``` javascript
+```json
  
 {
 	// Following section describes configuration files with content added by mod
@@ -195,7 +195,7 @@ These are fields that are present only in local mod.json file
 In addition to field listed above, it is possible to add following block for any language supported by VCMI. If such block is present, Launcher will use this information for displaying translated mod information and game will use provided json files to translate mod to specified language.
 See [Translations](Translations.md) for more information
 
-```
+```json
 	"<language>" : {
 		"name" : "<translated name>",
 		"description" : "<translated description>",
@@ -210,7 +210,7 @@ See [Translations](Translations.md) for more information
 
 These are fields that are present only in remote repository and are generally not used in mod.json
 
-```jsonc
+```json
 {
 	// URL to mod.json that describes this mod
 	"mod" : "https://raw.githubusercontent.com/vcmi-mods/vcmi-extras/vcmi-1.4/mod.json",

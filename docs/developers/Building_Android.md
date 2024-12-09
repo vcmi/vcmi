@@ -1,28 +1,28 @@
 # Building Android
 
-The following instructions apply to **v1.2 and later**. For earlier versions the best documentation is https://github.com/vcmi/vcmi-android/blob/master/building.txt (and reading scripts in that repo), however very limited to no support will be provided from our side if you wish to go down that rabbit hole.
+The following instructions apply to **v1.2 and later**. For earlier versions the best documentation is <https://github.com/vcmi/vcmi-android/blob/master/building.txt> (and reading scripts in that repo), however very limited to no support will be provided from our side if you wish to go down that rabbit hole.
 
 *Note*: building has been tested only on Linux and macOS. It may or may not work on Windows out of the box.
 
 ## Requirements
 
-1. CMake 3.20+: download from your package manager or from https://cmake.org/download/
+1. CMake 3.20+: download from your package manager or from <https://cmake.org/download/>
 2. JDK 11, not necessarily from Oracle
-3. Android command line tools or Android Studio for your OS: https://developer.android.com/studio/
+3. Android command line tools or Android Studio for your OS: <https://developer.android.com/studio/>
 4. Android NDK version **r25c (25.2.9519653)**, there're multiple ways to obtain it:
     - install with Android Studio
     - install with `sdkmanager` command line tool
-    - download from https://developer.android.com/ndk/downloads
+    - download from <https://developer.android.com/ndk/downloads>
     - download with Conan, see [#NDK and Conan](#ndk-and-conan)
 5. Optional:
-    - Ninja: download from your package manager or from https://github.com/ninja-build/ninja/releases
-    - Ccache: download from your package manager or from https://github.com/ccache/ccache/releases
+    - Ninja: download from your package manager or from <https://github.com/ninja-build/ninja/releases>
+    - Ccache: download from your package manager or from <https://github.com/ccache/ccache/releases>
 
 ## Obtaining source code
 
-Clone https://github.com/vcmi/vcmi with submodules. Example for command line:
+Clone <https://github.com/vcmi/vcmi> with submodules. Example for command line:
 
-```
+```sh
 git clone --recurse-submodules https://github.com/vcmi/vcmi.git
 ```
 
@@ -31,6 +31,7 @@ git clone --recurse-submodules https://github.com/vcmi/vcmi.git
 We use Conan package manager to build/consume dependencies, find detailed usage instructions [here](./Conan.md). Note that the link points to the state of the current branch, for the latest release check the same document in the [master branch](https://github.com/vcmi/vcmi/blob/master/docs/developers/Сonan.md).
 
 On the step where you need to replace **PROFILE**, choose:
+
 - `android-32` to build for 32-bit architecture (armeabi-v7a)
 - `android-64` to build for 64-bit architecture (aarch64-v8a)
 
@@ -38,10 +39,10 @@ On the step where you need to replace **PROFILE**, choose:
 
 Conan must be aware of the NDK location when you execute `conan install`. There're multiple ways to achieve that as written in the [Conan docs](https://docs.conan.io/1/integrations/cross_platform/android.html):
 
-- the easiest is to download NDK from Conan (option 1 in the docs), then all the magic happens automatically. On the step where you need to replace **PROFILE**, choose _android-**X**-ndk_ where _**X**_ is either `32` or `64`.
+- the easiest is to download NDK from Conan (option 1 in the docs), then all the magic happens automatically. On the step where you need to replace **PROFILE**, choose *android-**X**-ndk* where ***X*** is either `32` or `64`.
 - to use an already installed NDK, you can simply pass it on the command line to `conan install`: (note that this will work only when consuming the pre-built binaries)
 
-```
+```sh
 conan install -c tools.android:ndk_path=/path/to/ndk ...
 ```
 

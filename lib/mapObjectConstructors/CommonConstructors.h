@@ -115,25 +115,23 @@ public:
 
 class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
 {
-protected:
-	void initTypeData(const JsonNode & config) override;
+	std::string descriptionTextID;
+	std::string speechTextID;
 	
 	std::set<EMarketMode> marketModes;
 	JsonNode predefinedOffer;
 	int marketEfficiency;
-	
-	std::string description;
-	std::string title;
-	std::string speech;
-	
+
+	void initTypeData(const JsonNode & config) override;
 public:
 	CGMarket * createObject(IGameCallback * cb) const override;
-	void initializeObject(CGMarket * object) const override;
 	void randomizeObject(CGMarket * object, vstd::RNG & rng) const override;
 
 	const std::set<EMarketMode> & availableModes() const;
 	bool hasDescription() const;
 
+	std::string getSpeechTranslated() const;
+	int getMarketEfficiency() const;
 };
 
 VCMI_LIB_NAMESPACE_END

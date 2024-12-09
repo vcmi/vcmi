@@ -31,6 +31,7 @@ Gives specific creature in every slot, with optional amount. Examples:
 
 `nwclotsofguns` or `vcminoldor` or `vcmimachines` - give ballista, ammo cart and first aid tent  
 `vcmiforgeofnoldorking` or `vcmiartifacts` - give all artifacts, except spell book, spell scrolls and war machines. Artifacts added via mods included  
+`vcmiscrolls` - give spell scrolls for every possible spells
 
 ### Movement points
 
@@ -70,13 +71,15 @@ Alternative usage: `vcmiexp <amount>` - gives selected hero specified amount of 
 `nwcbluepill` or `vcmimelkor` or `vcmilose` - player loses
 
 ### Misc
+
 `nwctheone` or `vcmigod` - reveals the whole map, gives 5 archangels in each empty slot, unlimited movement points and permanent flight
 
 ## Using cheat codes on other players
+
 By default, all cheat codes apply to current player. Alternatively, it is possible to specify player that you want to target:
 
 - Specific players: `red`/`blue`/`green`...
-- Only AI players: `ai` 
+- Only AI players: `ai`
 - All players: `all`
 
 ### Examples
@@ -89,12 +92,14 @@ By default, all cheat codes apply to current player. Alternatively, it is possib
 ## Multiplayer chat commands
 
 Following commands can be used in multiplayer only by host player to control the session:
+
 - `!exit` - finish the game  
 - `!save <filename>` - save the game into the specified file  
 - `!kick red/blue/tan/green/orange/purple/teal/pink` - kick player of specified color from the game  
-- `!kick 0/1/2/3/4/5/6/7/8` - kick player of specified ID from the game (_zero indexed!_) (`0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`)  
+- `!kick 0/1/2/3/4/5/6/7/8` - kick player of specified ID from the game (*zero indexed!*) (`0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`)  
 
 Following commands can be used by any player in multiplayer:
+
 - `!help` - displays in-game list of available commands
 - `!cheaters` - lists players that have entered cheat at any point of the game
 - `!vote` - initiates voting to change one of the possible options:
@@ -114,12 +119,14 @@ Windows builds of VCMI run separate console window by default, on other platform
 Below a list of supported commands, with their arguments wrapped in `<>`
 
 #### Game Commands
+
 `die, fool` - quits game  
 `save <filename>` - saves game in given file (at the moment doesn't work)  
 `mp` - on adventure map with a hero selected, shows heroes current movement points, max movement points on land and on water  
 `bonuses` - shows bonuses of currently selected adventure map object
 
 #### Extract commands
+
 `translate` - save game texts into json files
 `translate missing` - save untranslated game texts into json files
 `translate maps` - save map and campaign texts into json files
@@ -131,15 +138,17 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 `generate assets` - generate all assets at once
 
 #### AI commands
+
 `setBattleAI <ai name>` - change battle AI used by neutral creatures to the one specified, persists through game quit  
 `gosolo` - AI takes over until the end of turn (unlike original H3 currently causes AI to take over until typed again)  
 `controlai <[red][blue][tan][green][orange][purple][teal][pink]>` - gives you control over specified AI player. If none is specified gives you control over all AI players  
 `autoskip` - Toggles autoskip mode on and off. In this mode, player turns are automatically skipped and only AI moves. However, GUI is still present and allows to observe AI moves. After this option is activated, you need to end first turn manually. Press `[Shift]` before your turn starts to not skip it  
 
 #### Settings
+
 `set <command> <on/off>` - sets special temporary settings that reset on game quit. Below some of the most notable commands:  
 -`autoskip` - identical to `autoskip` option  
--`onlyAI` - run without human player, all players will be _default AI_  
+-`onlyAI` - run without human player, all players will be *default AI*  
 -`headless` - run without GUI, implies `onlyAI` is set  
 -`showGrid` - display a square grid overlay on top of adventure map  
 -`showBlocked` - show blocked tiles on map  
@@ -147,6 +156,7 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 -`hideSystemMessages` - suppress server messages in chat  
 
 #### Developer Commands
+
 `crash` - force a game crash. It is sometimes useful to generate memory dump file in certain situations, for example game freeze  
 `gui` - displays tree view of currently present VCMI common GUI elements  
 `activate <0/1/2>` - activate game windows (no current use, apparently broken long ago)  

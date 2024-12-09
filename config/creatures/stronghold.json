@@ -92,6 +92,7 @@
 		"level": 3,
 		"faction": "stronghold",
 		"upgrades": ["orcChieftain"],
+		"shots" : 12,
 		"abilities" :
 		{
 			"shooter" :
@@ -122,6 +123,7 @@
 		"index": 89,
 		"level": 3,
 		"faction": "stronghold",
+		"shots" : 24,
 		"abilities" :
 		{
 			"shooter" :
@@ -274,6 +276,7 @@
 		"index": 94,
 		"level": 6,
 		"faction": "stronghold",
+		"shots" : 16,
 		"abilities" :
 		{
 			"shooter" :
@@ -310,6 +313,7 @@
 		"index": 95,
 		"level": 6,
 		"faction": "stronghold",
+		"shots" : 24,
 		"abilities":
 		{
 			"shooter" :

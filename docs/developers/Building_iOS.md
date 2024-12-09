@@ -6,13 +6,13 @@
 2. Xcode: <https://developer.apple.com/xcode/>
 3. CMake 3.21+: `brew install --cask cmake` or get from <https://cmake.org/download/>
 4. Optional:
-  - CCache to speed up recompilation: `brew install ccache`
+   - CCache to speed up recompilation: `brew install ccache`
 
 ## Obtaining source code
 
 Clone <https://github.com/vcmi/vcmi> with submodules. Example for command line:
 
-```
+```sh
 git clone --recurse-submodules https://github.com/vcmi/vcmi.git
 ```
 
@@ -36,9 +36,8 @@ There're a few [CMake presets](https://cmake.org/cmake/help/latest/manual/cmake-
 
 Open terminal and `cd` to the directory with source code. Configuration example for device with Conan:
 
-```
-cmake --preset ios-device-conan \
-  -D BUNDLE_IDENTIFIER_PREFIX=com.MY-NAME
+```sh
+cmake --preset ios-device-conan -D BUNDLE_IDENTIFIER_PREFIX=com.MY-NAME
 ```
 
 By default build directory containing Xcode project will appear at `../build-ios-device-conan`, but you can change it with `-B` option.
@@ -61,7 +60,7 @@ You must also install game files, see [Installation on iOS](../players/Installat
 
 ### From command line
 
-```
+```sh
 cmake --build <path to build directory> --target vcmiclient -- -quiet
 ```
 

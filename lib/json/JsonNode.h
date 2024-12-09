@@ -71,6 +71,9 @@ public:
 	explicit JsonNode(const char * string);
 	explicit JsonNode(const std::string & string);
 
+	/// Create tree from map
+	explicit JsonNode(const JsonMap & map);
+
 	/// Create tree from Json-formatted input
 	explicit JsonNode(const std::byte * data, size_t datasize, const std::string & fileName);
 	explicit JsonNode(const std::byte * data, size_t datasize, const JsonParsingSettings & parserSettings, const std::string & fileName);
@@ -187,7 +190,7 @@ void convert(std::map<std::string, Type> & value, const JsonNode & node)
 {
 	value.clear();
 	for(const JsonMap::value_type & entry : node.Struct())
-		value.insert(entry.first, entry.second.convertTo<Type>());
+		value.emplace(entry.first, entry.second.convertTo<Type>());
 }
 
 template<typename Type>

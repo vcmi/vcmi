@@ -56,6 +56,7 @@
 		"config/objects/lighthouse.json",
 		"config/objects/magicSpring.json",
 		"config/objects/magicWell.json",
+		"config/objects/markets.json",
 		"config/objects/moddables.json",
 		"config/objects/observatory.json",
 		"config/objects/pyramid.json",
@@ -486,6 +487,20 @@
 			"useWhirlpool" : true,
 			// if enabled flying will work like in original game, otherwise nerf similar to HotA flying is applied
 			"originalFlyRules" : true
+		},
+		
+		"resources" : {
+			// H3 mechanics - AI receives bonus (or malus, on easy) to his resource income
+			// AI will receive specified values as percentage of his weekly income
+			// So, "gems" : 200 will give AI player 200% of his daily income of gems over week, or, in other words,
+			// giving AI player 2 additional gems per week for every owned Gem Pond
+			"weeklyBonusesAI" : {
+				"pawn"  : { "gold" : -175 },
+				"knight": {},
+				"rook"  : {},
+				"queen" : { "wood" : 275 , "mercury" : 100, "ore" : 275, "sulfur" : 100, "crystal" : 100, "gems" : 100, "gold" : 175},
+				"king"  : { "wood" : 375 , "mercury" : 200, "ore" : 375, "sulfur" : 200, "crystal" : 200, "gems" : 200, "gold" : 350}
+			}
 		},
 
 		"spells":

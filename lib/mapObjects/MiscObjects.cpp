@@ -1337,7 +1337,7 @@ std::string HillFort::getPopupText(PlayerColor player) const
 {
 	MetaString message = MetaString::createFromRawString("{%s}\r\n\r\n%s");
 
-	message.replaceName(ID);
+	message.replaceName(ID, subID);
 	message.replaceTextID(getDescriptionToolTip());
 
 	return message.toString();
@@ -1356,6 +1356,7 @@ std::string HillFort::getDescriptionToolTip() const
 
 std::string HillFort::getUnavailableUpgradeMessage() const
 {
+	assert(getObjectHandler()->getModScope() != "core");
 	return TextIdentifier(getObjectHandler()->getBaseTextID(), "unavailableUpgradeMessage").get();
 }
 

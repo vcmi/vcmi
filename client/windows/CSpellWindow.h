@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CWindowObject.h"
+#include "../widgets/IVideoHolder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -28,9 +29,10 @@ class CSpellWindow;
 class CTextInput;
 class TransparentFilledRectangle;
 class CToggleButton;
+class VideoWidgetOnce;
 
 /// The spell window
-class CSpellWindow : public CWindowObject
+class CSpellWindow : public CWindowObject, public IVideoHolder
 {
 	class SpellArea : public CIntObject
 	{
@@ -86,6 +88,8 @@ class CSpellWindow : public CWindowObject
 	std::shared_ptr<CToggleButton> showAllSpells;
 	std::shared_ptr<CLabel> showAllSpellsDescription;
 
+	std::shared_ptr<VideoWidgetOnce> video;
+
 	bool isBigSpellbook;
 	int spellsPerPage;
 	int offL;
@@ -112,6 +116,8 @@ class CSpellWindow : public CWindowObject
 	void setCurrentPage(int value);
 	void turnPageLeft();
 	void turnPageRight();
+
+	void onVideoPlaybackFinished() override;
 
 	bool openOnBattleSpells;
 	std::function<void(SpellID)> onSpellSelect; //external processing of selected spell

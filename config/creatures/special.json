@@ -37,6 +37,7 @@
 		"level": 0,
 		"faction": "neutral",
 		"doubleWide" : true,
+		"shots" : 24,
 		"abilities" :
 		{
 			"siegeWeapon" :
@@ -75,6 +76,7 @@
 		"level": 0,
 		"faction": "neutral",
 		"doubleWide" : true,
+		"shots" : 24,
 		"abilities" :
 		{
 			"siegeWeapon" :
@@ -163,8 +165,10 @@
 		"index": 149,
 		"level": 0,
 		"faction": "neutral",
+		"shots" : 99,
 		"abilities":
 		{
+			"siegeWeapon" : { "type" : "SIEGE_WEAPON" },
 			"shooter" : { "type" : "SHOOTER" },
 			"ignoreDefence" : { "type" : "ENEMY_DEFENCE_REDUCTION", "val" : 100 },
 			"noWallPenalty" : { "type" : "NO_WALL_PENALTY" },

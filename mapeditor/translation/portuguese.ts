@@ -72,7 +72,7 @@
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="62"/>
         <source>Author contact (e.g. email)</source>
-        <translation>Contato do autor (ex.: e-mail)</translation>
+        <translation>Contato do autor (ex: e-mail)</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="72"/>
@@ -87,7 +87,7 @@
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="120"/>
         <source>Limit maximum heroes level</source>
-        <translation>Limite máximo do nível dos heróis</translation>
+        <translation>Limitar nível máximo dos heróis</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="129"/>
@@ -207,7 +207,7 @@
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="37"/>
         <source>No special loss</source>
-        <translation>Sem perda especial</translation>
+        <translation>Sem derrota especial</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="38"/>
@@ -371,7 +371,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1070"/>
         <source>Cut</source>
-        <translation>Cortar</translation>
+        <translation>Recortar</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1078"/>
@@ -516,12 +516,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1336"/>
         <source>Lock</source>
-        <translation>Travar</translation>
+        <translation>Bloquear</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1339"/>
         <source>Lock objects on map to avoid unnecessary changes</source>
-        <translation>Travar objetos no mapa para evitar alterações desnecessárias</translation>
+        <translation>Bloquear objetos no mapa para evitar alterações desnecessárias</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1342"/>
@@ -566,7 +566,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1374"/>
         <source>Zoom reset</source>
-        <translation>Redefinir do zoom</translation>
+        <translation>Redefinir zoom</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1377"/>
@@ -831,7 +831,7 @@
     <message>
         <location filename="../playerparams.ui" line="221"/>
         <source>Random faction</source>
-        <translation>Fação aleatória</translation>
+        <translation>Facção aleatória</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="179"/>
@@ -911,7 +911,7 @@
     <message>
         <location filename="../inspector/inspector.cpp" line="39"/>
         <source>Compliant</source>
-        <translation>Conformista</translation>
+        <translation>Complacente</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="40"/>
@@ -937,15 +937,15 @@
         <location filename="../inspector/inspector.cpp" line="341"/>
         <location filename="../inspector/inspector.cpp" line="344"/>
         <source>No patrol</source>
-        <translation type="unfinished"></translation>
+        <translation>Sem patrulha</translation>
     </message>
     <message numerus="yes">
         <location filename="../inspector/inspector.cpp" line="343"/>
         <location filename="../inspector/inspector.cpp" line="344"/>
         <source>%n tile(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n bloco</numerusform>
+            <numerusform>%n blocos</numerusform>
         </translation>
     </message>
     <message>
@@ -1025,7 +1025,7 @@
     <message>
         <location filename="../inspector/questwidget.ui" line="206"/>
         <source>Primary skills</source>
-        <translation>Habilidades principais</translation>
+        <translation>Habilidades primárias</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="221"/>
@@ -1241,7 +1241,7 @@
         <location filename="../inspector/rewardswidget.ui" line="417"/>
         <location filename="../inspector/rewardswidget.ui" line="1137"/>
         <source>Primary skills</source>
-        <translation>Habilidades principais</translation>
+        <translation>Habilidades primárias</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="432"/>
@@ -1397,7 +1397,7 @@
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="37"/>
         <source>Tavern rumors</source>
-        <translation>Boatos da taverna</translation>
+        <translation>Rumores da taverna</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="63"/>
@@ -1470,7 +1470,7 @@
     <message>
         <location filename="../mapsettings/timedevent.ui" line="199"/>
         <source>qty</source>
-        <translation>quantidade</translation>
+        <translation>qtd</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="207"/>

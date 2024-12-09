@@ -140,6 +140,8 @@ void CArtifactsOfHeroBase::gestureArtPlace(CComponentHolder & artPlace, const Po
 void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)
 {
 	curHero = hero;
+	if (!hero)
+		return;
 
 	for(auto slot : artWorn)
 	{

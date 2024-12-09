@@ -2,7 +2,7 @@
 
 ## Template format
 
-``` javascript
+```json
 /// Unique template name
 "Triangle" : 
 {
@@ -28,10 +28,11 @@
 	
 	/// List of game settings that were overriden by this template. See config/gameConfig.json in vcmi install directory for possible values
 	/// Settings defined here will always override any settings from vcmi or from mods
-	"settings" : {
-			"heroes" : {
-				"perPlayerOnMapCap" : 1
-			}
+	"settings" :
+	{
+		"heroes" :
+		{
+			"perPlayerOnMapCap" : 1
 		}
 	},
 
@@ -56,10 +57,14 @@
 
 ## Zone format
 
-``` javascript
+```json
 {
 	// Type of this zone. Possible values are:
-	// "playerStart", "cpuStart", "treasure", "junction"
+	// "playerStart" - Starting zone for a "human or CPU" players
+	// "cpuStart" - Starting zone for "CPU only" players
+	// "treasure" - Generic neutral zone
+	// "junction" - Neutral zone with narrow passages only. The rest of area is filled with obstacles.
+	// "sealed" - Decorative impassable zone completely filled with obstacles
 	"type" : "playerStart", 
 
 	// relative size of zone

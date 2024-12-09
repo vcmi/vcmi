@@ -90,108 +90,84 @@
 <context>
     <name>CModListModel</name>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="42"/>
         <source>Translation</source>
-        <translation>Översättning</translation>
+        <translation type="vanished">Översättning</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="43"/>
         <source>Town</source>
-        <translation>Stad</translation>
+        <translation type="vanished">Stad</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="44"/>
         <source>Test</source>
-        <translation>Test</translation>
+        <translation type="vanished">Test</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="45"/>
         <source>Templates</source>
-        <translation>Modeller</translation>
+        <translation type="vanished">Modeller</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="46"/>
         <source>Spells</source>
-        <translation>Trollformler</translation>
+        <translation type="vanished">Trollformler</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="47"/>
         <source>Music</source>
-        <translation>Musik</translation>
+        <translation type="vanished">Musik</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="48"/>
         <source>Maps</source>
-        <translation>Kartor</translation>
+        <translation type="vanished">Kartor</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="49"/>
         <source>Sounds</source>
-        <translation>Ljud</translation>
+        <translation type="vanished">Ljud</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="50"/>
         <source>Skills</source>
-        <translation>Färdigheter</translation>
+        <translation type="vanished">Färdigheter</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="51"/>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="69"/>
         <source>Other</source>
-        <translation>Övrigt</translation>
+        <translation type="vanished">Annan</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="52"/>
         <source>Objects</source>
-        <translation>Objekt</translation>
+        <translation type="vanished">Objekt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="53"/>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="54"/>
         <source>Mechanics</source>
-        <translation>Mekanik</translation>
+        <translation type="vanished">Mekanik</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="55"/>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="56"/>
         <source>Interface</source>
-        <translation>Gränssnitt</translation>
+        <translation type="vanished">Gränssnitt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="57"/>
         <source>Heroes</source>
-        <translation>Hjälte</translation>
+        <translation type="vanished">Hjälte</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="58"/>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="59"/>
         <source>Graphical</source>
-        <translation>Grafik</translation>
+        <translation type="vanished">Grafik</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="60"/>
         <source>Expansion</source>
-        <translation>Expansion/Tillägg</translation>
+        <translation type="vanished">Expansion/Tillägg</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="61"/>
         <source>Creatures</source>
-        <translation>Varelser</translation>
+        <translation type="vanished">Varelser</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
         <source>Compatibility</source>
-        <translation>Kompatibilitet</translation>
+        <translation type="vanished">Kompatibilitet</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="63"/>
         <source>Artifacts</source>
-        <translation>Artefakter</translation>
+        <translation type="vanished">Artefakter</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="64"/>
         <source>AI</source>
-        <translation>AI</translation>
+        <translation type="vanished">AI</translation>
     </message>
 </context>
 <context>
@@ -238,7 +214,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
         <source>Description</source>
         <translation>Beskrivning</translation>
     </message>
@@ -293,189 +269,202 @@
         <translation>Avbryt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="289"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="317"/>
         <source>Mod name</source>
         <translation>Modd-namn</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="290"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="326"/>
         <source>Installed version</source>
         <translation>Installerad version</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="291"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="328"/>
         <source>Latest version</source>
         <translation>Senaste version</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="332"/>
         <source>Size</source>
         <translation>Storlek</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="296"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="335"/>
         <source>Download size</source>
         <translation>Nedladdnings-storlek</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="337"/>
         <source>Authors</source>
         <translation>Författare</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="301"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="340"/>
         <source>License</source>
         <translation>Licens</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="304"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="343"/>
         <source>Contact</source>
         <translation>Kontakt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
         <source>Compatibility</source>
         <translation>Kompatibilitet</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="362"/>
         <source>Required VCMI version</source>
         <translation>VCMI-version som krävs</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
         <source>Supported VCMI version</source>
         <translation>VCMI-version som stöds</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
         <source>please upgrade mod</source>
         <translation>vänligen uppdatera modd</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="193"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="824"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="189"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="827"/>
         <source>mods repository index</source>
         <translation>Modd-repositorie-index</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="362"/>
         <source>or newer</source>
         <translation>eller nyare</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="326"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="365"/>
         <source>Supported VCMI versions</source>
         <translation>VCMI-versioner som stöds</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="350"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="381"/>
         <source>Languages</source>
         <translation>Språk</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="393"/>
         <source>Required mods</source>
         <translation>Moddar som krävs</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
         <source>Conflicting mods</source>
         <translation>Modd-konflikter</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="358"/>
         <source>This mod can not be installed or enabled because the following dependencies are not present</source>
-        <translation>Denna modd kan inte installeras eller aktiveras eftersom följande beroenden inte finns</translation>
+        <translation type="vanished">Denna modd kan inte installeras eller aktiveras eftersom följande beroenden inte finns</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
         <source>This mod can not be enabled because the following mods are incompatible with it</source>
-        <translation>Denna modd kan inte aktiveras eftersom följande moddar är inkompatibla med den</translation>
+        <translation type="vanished">Denna modd kan inte aktiveras eftersom följande moddar är inkompatibla med den</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
         <source>This mod cannot be disabled because it is required by the following mods</source>
-        <translation>Denna modd kan inte inaktiveras eftersom den krävs för följande modd</translation>
+        <translation type="vanished">Denna modd kan inte inaktiveras eftersom den krävs för följande modd</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
-        <translation>Denna modd kan inte avinstalleras eller uppdateras eftersom den krävs för följande modd</translation>
+        <translation type="vanished">Denna modd kan inte avinstalleras eller uppdateras eftersom den krävs för följande modd</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="362"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
+        <source>This mod cannot be enabled because it translates into a different language.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <source>This mod can not be enabled because the following dependencies are not present</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
+        <source>This mod can not be installed because the following dependencies are not present</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>Detta är en undermodd/submodd och den kan inte installeras eller avinstalleras separat från huvud-modden</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="377"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="421"/>
         <source>Notes</source>
         <translation>Anteckningar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="643"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="645"/>
         <source>All supported files</source>
         <translation>Alla filer som stöds</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="644"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="646"/>
         <source>Maps</source>
         <translation>Kartor</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="645"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="647"/>
         <source>Campaigns</source>
         <translation>Kampanjer</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="646"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="648"/>
         <source>Configs</source>
         <translation>Konfigurationer</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="647"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="649"/>
         <source>Mods</source>
         <translation>Moddar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="648"/>
-        <source>Gog files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="650"/>
-        <source>All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <source>Gog files</source>
+        <translation>GOG-filer</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="652"/>
-        <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <source>All files (*.*)</source>
+        <translation>Alla filer (*.*)</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="677"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="654"/>
+        <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
+        <translation>Välj filer (konfigurationsfiler, moddar, kartor, kampanjer och GOG-filer) som ska installeras...</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="679"/>
         <source>Replace config file?</source>
         <translation>Byt ut konfigurationsfilen?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="677"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="679"/>
         <source>Do you want to replace %1?</source>
         <translation>Vill du ersätta %1?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="720"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="723"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>Laddar ner %1. %p% (%v MB av %m MB) slutfört</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="745"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="748"/>
         <source>Download failed</source>
         <translation>Nedladdning misslyckades</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="746"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="749"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -488,7 +477,7 @@ Fel påträffat:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="747"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="750"/>
         <source>
 
 Install successfully downloaded?</source>
@@ -497,39 +486,39 @@ Install successfully downloaded?</source>
 Installation framgångsrikt nedladdad?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="852"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="865"/>
         <source>Installing chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Installera Chronicles</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="925"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="927"/>
         <source>Installing mod %1</source>
         <translation>Installera modd %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="994"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="971"/>
         <source>Operation failed</source>
         <translation>Åtgärden misslyckades</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="995"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="972"/>
         <source>Encountered errors:
 </source>
         <translation>Fel påträffades:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1030"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
         <source>screenshots</source>
         <translation>skärmdumpar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1036"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1013"/>
         <source>Screenshot %1</source>
         <translation>Skärmbild %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="284"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
         <source>Mod is incompatible</source>
         <translation>Denna modd är inkompatibel</translation>
     </message>
@@ -537,97 +526,77 @@ Installation framgångsrikt nedladdad?</translation>
 <context>
     <name>CModManager</name>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="168"/>
         <source>Can not install submod</source>
-        <translation>Det går inte att installera undermodd/submodd</translation>
+        <translation type="vanished">Det går inte att installera undermodd/submodd</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="171"/>
         <source>Mod is already installed</source>
-        <translation>Modden är redan installerad</translation>
+        <translation type="vanished">Modden är redan installerad</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="180"/>
         <source>Can not uninstall submod</source>
-        <translation>Det går inte att avinstallera undermodd/submodd</translation>
+        <translation type="vanished">Det går inte att avinstallera undermodd/submodd</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="183"/>
         <source>Mod is not installed</source>
-        <translation>Modden är inte installerad</translation>
+        <translation type="vanished">Modden är inte installerad</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="193"/>
         <source>Mod is already enabled</source>
-        <translation>Modden är redan aktiverad</translation>
+        <translation type="vanished">Modden är redan aktiverad</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="196"/>
-        <location filename="../modManager/cmodmanager.cpp" line="239"/>
         <source>Mod must be installed first</source>
-        <translation>Modden måste installeras först</translation>
+        <translation type="vanished">Modden måste installeras först</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="200"/>
         <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
-        <translation>Modden är inte kompatibel. Vänligen uppdatera VCMI och kontrollera att du har den senaste kompatibla versionen av modden</translation>
+        <translation type="vanished">Modden är inte kompatibel. Vänligen uppdatera VCMI och kontrollera att du har den senaste kompatibla versionen av modden</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="205"/>
         <source>Required mod %1 is missing</source>
-        <translation>Den obligatorisk modden %1 saknas</translation>
+        <translation type="vanished">Den obligatorisk modden %1 saknas</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="210"/>
         <source>Required mod %1 is not enabled</source>
-        <translation>Den obligatoriska modden %1 är inte aktiverad</translation>
+        <translation type="vanished">Den obligatoriska modden %1 är inte aktiverad</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="219"/>
-        <location filename="../modManager/cmodmanager.cpp" line="226"/>
         <source>This mod conflicts with %1</source>
-        <translation>Denna modd är i konflikt med %1</translation>
+        <translation type="vanished">Denna modd är i konflikt med %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="236"/>
         <source>Mod is already disabled</source>
-        <translation>Modden är redan inaktiverad</translation>
+        <translation type="vanished">Modden är redan inaktiverad</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="246"/>
         <source>This mod is needed to run %1</source>
-        <translation>Denna modden krävs för att köra %1</translation>
+        <translation type="vanished">Denna modden krävs för att köra %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="288"/>
         <source>Mod archive is missing</source>
-        <translation>Modd-arkiv saknas</translation>
+        <translation type="vanished">Modd-arkiv saknas</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="291"/>
         <source>Mod with such name is already installed</source>
-        <translation>En modd med samma namn är redan installerad</translation>
+        <translation type="vanished">En modd med samma namn är redan installerad</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="296"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation>Modd-arkivet är ogiltigt eller korrupt</translation>
+        <translation type="vanished">Modd-arkivet är ogiltigt eller korrupt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="322"/>
         <source>Failed to extract mod data</source>
-        <translation>Misslyckades att extrahera data från modd</translation>
+        <translation type="vanished">Misslyckades att extrahera data från modd</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="350"/>
         <source>Data with this mod was not found</source>
-        <translation>Modd-data för denna modd hittades inte</translation>
+        <translation type="vanished">Modd-data för denna modd hittades inte</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="354"/>
         <source>Mod is located in protected directory, please remove it manually:
 </source>
-        <translation>Modden är placerad i en skyddad mapp. Vänligen radera den manuellt:
+        <translation type="vanished">Modden är placerad i en skyddad mapp. Vänligen radera den manuellt:
 </translation>
     </message>
 </context>
@@ -704,7 +673,7 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="75"/>
         <source>Mods Validation</source>
-        <translation type="unfinished"></translation>
+        <translation>Validering av moddar</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="88"/>
@@ -729,12 +698,12 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
         <source>Full</source>
-        <translation type="unfinished"></translation>
+        <translation>Hela</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="788"/>
         <source>Use scalable fonts</source>
-        <translation type="unfinished"></translation>
+        <translation>Använd skalbara teckensnitt</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="859"/>
@@ -744,27 +713,27 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1079"/>
         <source>Cursor Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Skalning av markör</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1108"/>
         <source>Scalable</source>
-        <translation type="unfinished"></translation>
+        <translation>Skalbar</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1144"/>
         <source>Miscellaneous</source>
-        <translation type="unfinished"></translation>
+        <translation>Övrigt</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
         <source>Font Scaling (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Skalning av teckensnitt (experimentell)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1367"/>
         <source>Original</source>
-        <translation type="unfinished"></translation>
+        <translation>Original</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1406"/>
@@ -774,7 +743,7 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1439"/>
         <source>Basic</source>
-        <translation type="unfinished"></translation>
+        <translation>Grundläggande</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
@@ -1059,63 +1028,60 @@ Exklusivt helskärmsläge - spelet kommer att täcka hela skärmen och använda 
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
         <source>File cannot opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen kan inte öppnas</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Ogiltig fil vald</translation>
+        <translation>Ogiltig fil vald</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <source>You have to select an gog installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Du måste välja en GOG-installationsfil!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>You have to select an chronicle installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Du måste välja en Chronicles-installationsfil!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="87"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">Extraktionsfel!</translation>
+        <translation>Extraheringsfel!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="156"/>
         <source>Heroes Chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes Chronicles</translation>
     </message>
 </context>
 <context>
     <name>File size</name>
     <message>
-        <location filename="../modManager/cmodlist.cpp" line="21"/>
         <source>%1 B</source>
-        <translation>%1 B</translation>
+        <translation type="vanished">%1 B</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlist.cpp" line="22"/>
         <source>%1 KiB</source>
-        <translation>%1 KiB</translation>
+        <translation type="vanished">%1 KiB</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlist.cpp" line="23"/>
+        <location filename="../modManager/modstate.cpp" line="140"/>
+        <location filename="../modManager/modstatemodel.cpp" line="95"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlist.cpp" line="24"/>
         <source>%1 GiB</source>
-        <translation>%1 GiB</translation>
+        <translation type="vanished">%1 GiB</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlist.cpp" line="25"/>
         <source>%1 TiB</source>
-        <translation>%1 TiB</translation>
+        <translation type="vanished">%1 TiB</translation>
     </message>
 </context>
 <context>
@@ -1420,18 +1386,18 @@ Vänligen välj en mapp som innehåller data från Heroes III: Complete Edition 
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished">Strömningsfel vid extrahering av filer!
+        <translation>Strömningsfel vid extrahering av filer!
 Orsak till fel: </translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation type="unfinished">Inno Setup-installationsprogrammet stöds inte!</translation>
+        <translation>Inno Setup-installationsprogrammet stöds inte!</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="58"/>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI kompilerades utan stöd för innoextract, vilket behövs för att extrahera exe-filer!</translation>
     </message>
 </context>
 <context>
@@ -1563,14 +1529,207 @@ Orsak till fel: </translation>
 <context>
     <name>ModFields</name>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="169"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="190"/>
         <source>Name</source>
         <translation>Namn</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="172"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="193"/>
         <source>Type</source>
         <translation>Typ</translation>
+    </message>
+</context>
+<context>
+    <name>ModStateController</name>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="126"/>
+        <source>Can not install submod</source>
+        <translation type="unfinished">Det går inte att installera undermodd/submodd</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="129"/>
+        <source>Mod is already installed</source>
+        <translation type="unfinished">Modden är redan installerad</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="138"/>
+        <source>Can not uninstall submod</source>
+        <translation type="unfinished">Det går inte att avinstallera undermodd/submodd</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="141"/>
+        <source>Mod is not installed</source>
+        <translation type="unfinished">Modden är inte installerad</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="151"/>
+        <source>Mod is already enabled</source>
+        <translation type="unfinished">Modden är redan aktiverad</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="154"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="180"/>
+        <source>Mod must be installed first</source>
+        <translation type="unfinished">Modden måste installeras först</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="158"/>
+        <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
+        <translation type="unfinished">Modden är inte kompatibel. Vänligen uppdatera VCMI och kontrollera att du har den senaste kompatibla versionen av modden</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="161"/>
+        <source>Can not enable translation mod for a different language!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="166"/>
+        <source>Required mod %1 is missing</source>
+        <translation type="unfinished">Den obligatorisk modden %1 saknas</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="177"/>
+        <source>Mod is already disabled</source>
+        <translation type="unfinished">Modden är redan inaktiverad</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="190"/>
+        <source>Mod archive is missing</source>
+        <translation type="unfinished">Modd-arkiv saknas</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="193"/>
+        <source>Mod with such name is already installed</source>
+        <translation type="unfinished">En modd med samma namn är redan installerad</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="198"/>
+        <source>Mod archive is invalid or corrupted</source>
+        <translation type="unfinished">Modd-arkivet är ogiltigt eller korrupt</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="224"/>
+        <source>Failed to extract mod data</source>
+        <translation type="unfinished">Misslyckades att extrahera data från modd</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="250"/>
+        <source>Data with this mod was not found</source>
+        <translation type="unfinished">Modd-data för denna modd hittades inte</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="254"/>
+        <source>Mod is located in protected directory, please remove it manually:
+</source>
+        <translation type="unfinished">Modden är placerad i en skyddad mapp. Vänligen radera den manuellt:
+</translation>
+    </message>
+</context>
+<context>
+    <name>ModStateItemModel</name>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="36"/>
+        <source>Translation</source>
+        <translation type="unfinished">Översättning</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="37"/>
+        <source>Town</source>
+        <translation type="unfinished">Stad</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="38"/>
+        <source>Test</source>
+        <translation type="unfinished">Test</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="39"/>
+        <source>Templates</source>
+        <translation type="unfinished">Modeller</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="40"/>
+        <source>Spells</source>
+        <translation type="unfinished">Trollformler</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="41"/>
+        <source>Music</source>
+        <translation type="unfinished">Musik</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="42"/>
+        <source>Maps</source>
+        <translation type="unfinished">Kartor</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="43"/>
+        <source>Sounds</source>
+        <translation type="unfinished">Ljud</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="44"/>
+        <source>Skills</source>
+        <translation type="unfinished">Färdigheter</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="45"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="63"/>
+        <source>Other</source>
+        <translation type="unfinished">Övrigt</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="46"/>
+        <source>Objects</source>
+        <translation type="unfinished">Objekt</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="47"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="48"/>
+        <source>Mechanics</source>
+        <translation type="unfinished">Mekanik</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="49"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="50"/>
+        <source>Interface</source>
+        <translation type="unfinished">Gränssnitt</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="51"/>
+        <source>Heroes</source>
+        <translation type="unfinished">Hjälte</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="52"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="53"/>
+        <source>Graphical</source>
+        <translation type="unfinished">Grafik</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
+        <source>Expansion</source>
+        <translation type="unfinished">Expansion/Tillägg</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
+        <source>Creatures</source>
+        <translation type="unfinished">Varelser</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="56"/>
+        <source>Compatibility</source>
+        <translation type="unfinished">Kompatibilitet</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
+        <source>Artifacts</source>
+        <translation type="unfinished">Artefakter</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="58"/>
+        <source>AI</source>
+        <translation type="unfinished">AI</translation>
     </message>
 </context>
 <context>

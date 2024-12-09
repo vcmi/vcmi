@@ -28,7 +28,8 @@ CArtifactsOfHeroMain::CArtifactsOfHeroMain(const Point & position)
 
 CArtifactsOfHeroMain::~CArtifactsOfHeroMain()
 {
-	CArtifactsOfHeroBase::putBackPickedArtifact();
+	if(curHero)
+		CArtifactsOfHeroBase::putBackPickedArtifact();
 }
 
 void CArtifactsOfHeroMain::keyPressed(EShortcut key)

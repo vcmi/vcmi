@@ -300,7 +300,7 @@ void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & con
 	std::shared_ptr<CConnection> c = findConnection(connection);
 
 	// player may have already disconnected via clientDisconnected call
-	if (c && gh && getState() == EServerState::GAMEPLAY)
+	if (c)
 	{
 		LobbyClientDisconnected lcd;
 		lcd.c = c;
@@ -1016,7 +1016,7 @@ void CVCMIServer::multiplayerWelcomeMessage()
 	if(humanPlayer < 2) // Singleplayer
 		return;
 
-	gh->playerMessages->broadcastSystemMessage("Use '!help' to list available commands");
+	gh->playerMessages->broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.command"));
 
 	for (const auto & pi : si->playerInfos)
 		if(!pi.second.handicap.startBonus.empty() || pi.second.handicap.percentIncome != 100 || pi.second.handicap.percentGrowth != 100)

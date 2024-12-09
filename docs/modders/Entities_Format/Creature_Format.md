@@ -8,22 +8,22 @@ In order to make functional creature you also need:
 
 ### Animation
 
--   Battle animation (1 def file)
--   Set of rendered projectiles (1 def files, shooters only)
--   Adventure map animation (1 def file)
+- Battle animation (1 def file)
+- Set of rendered projectiles (1 def files, shooters only)
+- Adventure map animation (1 def file)
 
 ### Images
 
--   Small portrait for hero exchange window (1 image)
--   Large portrait for hero window (1 image)
+- Small portrait for hero exchange window (1 image)
+- Large portrait for hero window (1 image)
 
 ### Sounds
 
--   Set of sounds (up to 8 sounds)
+- Set of sounds (up to 8 sounds)
 
 ## Format
 
-``` javascript
+```json
 // camelCase unique creature identifier
 "creatureName" : 
 {

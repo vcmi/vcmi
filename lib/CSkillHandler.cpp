@@ -32,7 +32,9 @@ CSkill::CSkill(const SecondarySkill & id, std::string identifier, bool obligator
 	id(id),
 	identifier(std::move(identifier)),
 	obligatoryMajor(obligatoryMajor),
-	obligatoryMinor(obligatoryMinor)
+	obligatoryMinor(obligatoryMinor),
+	special(false),
+	onlyOnWaterMap(false)
 {
 	gainChance[0] = gainChance[1] = 0; //affects CHeroClassHandler::afterLoadFinalization()
 	levels.resize(NSecondarySkill::levels.size() - 1);
@@ -216,6 +218,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 	skill->modScope = scope;
 
 	skill->onlyOnWaterMap = json["onlyOnWaterMap"].Bool();
+	skill->special = json["special"].Bool();
 
 	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
 	switch(json["gainChance"].getType())
@@ -275,7 +278,8 @@ std::set<SecondarySkill> CSkillHandler::getDefaultAllowed() const
 	std::set<SecondarySkill> result;
 
 	for (auto const & skill : objects)
-		result.insert(skill->getId());
+		if (!skill->special)
+			result.insert(skill->getId());
 
 	return result;
 }

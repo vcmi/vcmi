@@ -5,12 +5,14 @@
 For implementation details see files located at `lib/network` directory.
 
 VCMI uses connection using TCP to communicate with server, even in single-player games. However, even though TCP is stream-based protocol, VCMI uses atomic messages for communication. Each message is a serialized stream of bytes, preceded by 4-byte message size:
-```
+
+```cpp
 int32_t messageSize;
 byte messagePayload[messageSize];
 ```
 
 Networking can be used by:
+
 - game client (vcmiclient / VCMI_Client.exe). Actual application that player interacts with directly using UI.
 - match server (vcmiserver / VCMI_Server.exe / part of game client). This app controls game logic and coordinates multiplayer games.
 - lobby server (vcmilobby). This app provides access to global lobby through which players can play game over Internet.
@@ -28,12 +30,14 @@ For gameplay, VCMI serializes data into a binary stream. See [Serialization](Ser
 ## Global lobby communication
 
 For implementation details see:
+
 - game client: `client/globalLobby/GlobalLobbyClient.h
 - match server: `server/GlobalLobbyProcessor.h
 - lobby server: `client/globalLobby/GlobalLobbyClient.h
 
 In case of global lobby, message payload uses plaintext json format - utf-8 encoded string:
-```
+
+```cpp
 int32_t messageSize;
 char jsonString[messageSize];
 ```
@@ -43,6 +47,7 @@ Every message must be a struct (json object) that contains "type" field. Unlike 
 ### Communication flow
 
 Notes:
+
 - invalid message, such as corrupted json format or failure to validate message will result in no reply from server
 - in addition to specified messages, match server will send `operationFailed` message on failure to apply player request
 
@@ -51,7 +56,8 @@ Notes:
 - client -> lobby: `clientRegister`
 - lobby -> client: `accountCreated`
 
-#### Login 
+#### Login
+
 - client -> lobby: `clientLogin`
 - lobby -> client: `loginSuccess`
 - lobby -> client: `chatHistory`
@@ -59,10 +65,12 @@ Notes:
 - lobby -> client: `activeGameRooms`
 
 #### Chat Message
+
 - client -> lobby: `sendChatMessage`
 - lobby -> every client: `chatMessage`
 
 #### New Game Room
+
 - client starts match server instance
 - match -> lobby: `serverLogin`
 - lobby -> match: `loginSuccess`
@@ -73,19 +81,23 @@ Notes:
 - lobby -> every client: `activeGameRooms`
 
 #### Joining a game room
+
 See [#Proxy mode](proxy-mode)
 
 #### Leaving a game room
+
 - client closes connection to match server
 - match -> lobby: `leaveGameRoom`
 
-#### Sending an invite:
+#### Sending an invite
+
 - client -> lobby: `sendInvite`
 - lobby -> target client: `inviteReceived`
 
 Note: there is no dedicated procedure to accept an invite. Instead, invited player will use same flow as when joining public game room
 
 #### Logout
+
 - client closes connection
 - lobby -> every client: `activeAccounts`
 
@@ -94,6 +106,7 @@ Note: there is no dedicated procedure to accept an invite. Instead, invited play
 In order to connect players located behind NAT, VCMI lobby can operate in "proxy" mode. In this mode, connection will be act as proxy and will transmit gameplay data from client to a match server, without any data processing on lobby server.
 
 Currently, process to establish connection using proxy mode is:
+
 - Player attempt to join open game room using `joinGameRoom` message
 - Lobby server validates requests and on success - notifies match server about new player in lobby using control connection
 - Match server receives request, establishes new connection to game lobby, sends `serverProxyLogin` message to lobby server and immediately transfers this connection to VCMIServer class to use as connection for gameplay communication

@@ -15,7 +15,7 @@
 
 Clone <https://github.com/vcmi/vcmi> with submodules. Example for command line:
 
-```
+```sh
 git clone --recurse-submodules https://github.com/vcmi/vcmi.git
 ```
 
@@ -91,7 +91,7 @@ Open `VCMI.xcodeproj` from the build directory, select `vcmiclient` scheme and h
 
 ## Packaging project into DMG file
 
-After building, run `cpack` from the build directory. If using Xcode generator, also pass `-C `<configuration name> with the same configuration that you used to build the project.
+After building, run `cpack` from the build directory. If using Xcode generator, also pass `-C <configuration name>` with the same configuration that you used to build the project.
 
 If you use Conan, it's expected that you use **conan-generated** directory at step 4 of [Conan package manager](Conan.md).
 

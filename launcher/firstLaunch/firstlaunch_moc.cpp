@@ -359,8 +359,9 @@ void FirstLaunchView::extractGogData()
 			return; // should not happen - but avoid deleting wrong folder in any case
 
 		QString tmpFileExe = tempDir.filePath("h3_gog.exe");
+		QString tmpFileBin = tempDir.filePath("h3_gog-1.bin");
 		QFile(fileExe).copy(tmpFileExe);
-		QFile(fileBin).copy(tempDir.filePath("h3_gog-1.bin"));
+		QFile(fileBin).copy(tmpFileBin);
 
 		QString errorText{};
 
@@ -387,6 +388,10 @@ void FirstLaunchView::extractGogData()
 				ui->progressBarGog->setValue(progress * 100);
 				qApp->processEvents();
 			});
+		
+		QString hashError;
+		if(!errorText.isEmpty())
+			hashError = Innoextract::getHashError(tmpFileExe, tmpFileBin, fileExe, fileBin);
 
 		ui->progressBarGog->setVisible(false);
 		ui->pushButtonGogInstall->setVisible(true);
@@ -396,7 +401,11 @@ void FirstLaunchView::extractGogData()
 		if(!errorText.isEmpty() || dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
 		{
 			if(!errorText.isEmpty())
+			{
 				QMessageBox::critical(this, tr("Extracting error!"), errorText, QMessageBox::Ok, QMessageBox::Ok);
+				if(!hashError.isEmpty())
+					QMessageBox::critical(this, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
+			}
 			else
 				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
 			tempDir.removeRecursively();

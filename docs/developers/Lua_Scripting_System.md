@@ -2,7 +2,7 @@
 
 ## Configuration
 
-``` javascript
+```json
 {
  	//general purpose script, Lua or ERM, runs on server
  	"myScript":
@@ -65,7 +65,7 @@ TODO **In near future Lua API may change drastically several times. Information 
 
 #### Low level events API
 
-``` Lua
+```lua
 
 -- Each event type must be loaded first
 local PlayerGotTurn = require("events.PlayerGotTurn")
@@ -87,75 +87,75 @@ VCMI uses LuaJIT, which is Lua 5.1 API, see [upstream documentation](https://www
 
 Following libraries are supported
 
--   base
--   table
--   string
--   math
--   bit
+- base
+- table
+- string
+- math
+- bit
 
 ## ERM
 
 ### Features
 
--   no strict limit on function/variable numbers (technical limit 32 bit integer except 0))
--   TODO semi compare
--   DONE macros
+- no strict limit on function/variable numbers (technical limit 32 bit integer except 0))
+- TODO semi compare
+- DONE macros
 
 ### Bugs
 
--   TODO Broken XOR support (clashes with \`X\` option)
+- TODO Broken XOR support (clashes with \`X\` option)
 
 ### Triggers
 
--   TODO **!?AE** Equip/Unequip artifact
--   WIP **!?BA** when any battle occurs
--   WIP **!?BF** when a battlefield is prepared for a battle
--   TODO **!?BG** at every action taken by any stack or by the hero
--   TODO **!?BR** at every turn of a battle
--   *!?CM (client only) click the mouse button.*
--   TODO **!?CO** Commander triggers
--   TODO **!?DL** Custom dialogs
--   DONE **!?FU** function
--   TODO **!?GE** "global" event
--   TODO **!?GM** Saving/Loading
--   TODO **!?HE** when the hero \# is attacked by an enemy hero or
+- TODO **!?AE** Equip/Unequip artifact
+- WIP **!?BA** when any battle occurs
+- WIP **!?BF** when a battlefield is prepared for a battle
+- TODO **!?BG** at every action taken by any stack or by the hero
+- TODO **!?BR** at every turn of a battle
+- *!?CM (client only) click the mouse button.*
+- TODO **!?CO** Commander triggers
+- TODO **!?DL** Custom dialogs
+- DONE **!?FU** function
+- TODO **!?GE** "global" event
+- TODO **!?GM** Saving/Loading
+- TODO **!?HE** when the hero \# is attacked by an enemy hero or
     visited by an allied hero
--   TODO **!?HL** hero gains a level
--   TODO **!?HM** every step a hero \# takes
--   *!?IP Multiplayer support.*
--   TODO **!?LE** (!$LE) An Event on the map
--   WIP **!?MF** stack taking physical damage(before an action)
--   TODO **!?MG** casting on the adventure map
--   *!?MM scroll text during a battle*
--   TODO **!?MR** Magic resistance
--   TODO **!?MW** Wandering Monsters
--   WIP **!?OB** (!$OB) visiting objects
--   DONE **!?PI** Post Instruction.
--   TODO **!?SN** Sound and ERA extensions
--   *!?TH town hall*
--   TODO **!?TL** Real-Time Timer
--   TODO **!?TM** timed events
+- TODO **!?HL** hero gains a level
+- TODO **!?HM** every step a hero \# takes
+- *!?IP Multiplayer support.*
+- TODO **!?LE** (!$LE) An Event on the map
+- WIP **!?MF** stack taking physical damage(before an action)
+- TODO **!?MG** casting on the adventure map
+- *!?MM scroll text during a battle*
+- TODO **!?MR** Magic resistance
+- TODO **!?MW** Wandering Monsters
+- WIP **!?OB** (!$OB) visiting objects
+- DONE **!?PI** Post Instruction.
+- TODO **!?SN** Sound and ERA extensions
+- *!?TH town hall*
+- TODO **!?TL** Real-Time Timer
+- TODO **!?TM** timed events
 
 ### Receivers
 
 #### VCMI
 
--   **!!MC:S@varName@** - declare new "normal" variable (technically
+- **!!MC:S@varName@** - declare new "normal" variable (technically
     v-var with string key)
--   TODO Identifier resolver
--   WIP Bonus system
+- TODO Identifier resolver
+- WIP Bonus system
 
 #### ERA
 
--   DONE !!if !!el !!en
--   TODO !!br !!co
--   TODO !!SN:X
+- DONE !!if !!el !!en
+- TODO !!br !!co
+- TODO !!SN:X
 
 #### WoG
 
 - TODO !!AR Артефакт (ресурс) в определенной позиции
 - TODO !!BA Битва
- - !!BA:A$ return 1 for battle evaluation
+- !!BA:A$ return 1 for battle evaluation
 - TODO !!BF Препятствия на поле боя
 - TODO !!BG Действий монстров в бою
 - TODO !!BH Действия героя в бою

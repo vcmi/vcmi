@@ -4,12 +4,12 @@
 
 In order to make functional hero you also need:
 
--   Portraits, small and big versions (2 images)
--   Specialty icons, small and big versions (2 images)
+- Portraits, small and big versions (2 images)
+- Specialty icons, small and big versions (2 images)
 
 ## Format
 
-``` javascript
+```json
 "myHeroName" :
 {
 	// Identifier of class this hero belongs to. Such as knight or battleMage
