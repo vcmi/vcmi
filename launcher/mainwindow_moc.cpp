@@ -99,10 +99,6 @@ MainWindow::MainWindow(QWidget * parent)
 	}
 #endif
 
-#ifndef ENABLE_EDITOR
-	ui->startEditorButton->hide();
-#endif
-
 	computeSidePanelSizes();
 
 	bool h3DataFound = CResourceHandler::get()->existsResource(ResourcePath("DATA/GENRLTXT.TXT"));

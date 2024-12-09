@@ -1,3 +1,13 @@
+/*
+ * StartGameTab.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#include "StdInc.h"
 #include "StartGameTab.h"
 #include "ui_StartGameTab.h"
 
@@ -25,6 +35,10 @@ StartGameTab::StartGameTab(QWidget * parent)
 	ui->buttonGameResume->setVisible(false); // TODO: implement
 	ui->buttonPresetExport->setVisible(false); // TODO: implement
 	ui->buttonPresetImport->setVisible(false); // TODO: implement
+
+#ifndef ENABLE_EDITOR
+	ui->buttonGameEditor->hide();
+#endif
 }
 
 StartGameTab::~StartGameTab()
