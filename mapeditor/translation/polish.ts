@@ -937,7 +937,7 @@
         <location filename="../inspector/inspector.cpp" line="341"/>
         <location filename="../inspector/inspector.cpp" line="344"/>
         <source>No patrol</source>
-        <translation>Bez patrolowania</translation>
+        <translation>Brak patrolu</translation>
     </message>
     <message numerus="yes">
         <location filename="../inspector/inspector.cpp" line="343"/>
@@ -968,7 +968,7 @@
     <message>
         <location filename="../mapcontroller.cpp" line="555"/>
         <source>There can only be one grail object on the map.</source>
-        <translation>Na mapie może znajdować się tylko jeden gral.</translation>
+        <translation>Na mapie może znajdować się tylko jeden Graal.</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="561"/>

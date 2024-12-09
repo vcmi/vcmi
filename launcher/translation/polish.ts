@@ -1687,7 +1687,7 @@ powód błędu: </translation>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="47"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="48"/>
         <source>Mechanics</source>
-        <translation>Mechaniki</translation>
+        <translation>Mechanika</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="49"/>
