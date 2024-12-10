@@ -110,8 +110,6 @@ CModListView::CModListView(QWidget * parent)
 {
 	ui->setupUi(this);
 
-	setAcceptDrops(true);
-
 	ui->uninstallButton->setIcon(QIcon{":/icons/mod-delete.png"});
 	ui->enableButton->setIcon(QIcon{":/icons/mod-enabled.png"});
 	ui->disableButton->setIcon(QIcon{":/icons/mod-disabled.png"});

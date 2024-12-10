@@ -77,6 +77,8 @@ MainWindow::MainWindow(QWidget * parent)
 
 	ui->setupUi(this);
 
+	setAcceptDrops(true);
+
 	setWindowIcon(QIcon{":/icons/menu-game.png"});
 	ui->modslistButton->setIcon(QIcon{":/icons/menu-mods.png"});
 	ui->settingsButton->setIcon(QIcon{":/icons/menu-settings.png"});
