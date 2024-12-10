@@ -23,6 +23,14 @@ class QTableWidgetItem;
 class CModList;
 class CModListView;
 
+enum class ETranslationStatus : int8_t
+{
+	NOT_AVAILABLE, // translation for this language was not found in mod list. Could also happen if player is offline or disabled repository checkout
+	NOT_INSTALLLED, // translation mod found, but it is not installed
+	DISABLED, // translation mod found, and installed, but toggled off
+	ACTIVE // translation mod active OR game is already in specified language (e.g. English H3 for players with English language)
+};
+
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -40,6 +48,7 @@ class MainWindow : public QMainWindow
 		SETTINGS = 1,
 		SETUP = 2,
 		ABOUT = 3,
+		START = 4,
 	};
 
 public:
@@ -55,6 +64,13 @@ public:
 	void enterSetup();
 	void exitSetup();
 	void switchToModsTab();
+	void switchToStartTab();
+
+	void dragEnterEvent(QDragEnterEvent* event) override;
+	void dropEvent(QDropEvent *event) override;
+
+	void manualInstallFile(QString filePath);
+	ETranslationStatus getTranslationStatus();
 
 protected:
 	void changeEvent(QEvent * event) override;
@@ -65,6 +81,5 @@ public slots:
 private slots:
 	void on_modslistButton_clicked();
 	void on_settingsButton_clicked();
-	void on_startEditorButton_clicked();
 	void on_aboutButton_clicked();
 };

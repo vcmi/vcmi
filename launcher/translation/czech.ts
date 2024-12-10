@@ -126,52 +126,51 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="379"/>
         <source>Description</source>
         <translation>Popis</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="209"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="211"/>
         <source>Changelog</source>
         <translation>Seznam změn</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="231"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="233"/>
         <source>Screenshots</source>
         <translation>Snímky obrazovky</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="373"/>
         <source>Install from file</source>
-        <translation>Instalovat ze souboru</translation>
+        <translation type="vanished">Instalovat ze souboru</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="424"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="391"/>
         <source>Uninstall</source>
         <translation>Odinstalovat</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="455"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="422"/>
         <source>Enable</source>
         <translation>Povolit</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="486"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="453"/>
         <source>Disable</source>
         <translation>Zakázat</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="517"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="484"/>
         <source>Update</source>
         <translation>Aktualizovat</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="548"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="515"/>
         <source>Install</source>
         <translation>Instalovat</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="327"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="329"/>
         <source> %p% (%v KB out of %m KB)</source>
         <translation> %p% (%v KB z %m KB)</translation>
     </message>
@@ -181,191 +180,181 @@
         <translation>Načíst repozitáře</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="340"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="342"/>
         <source>Abort</source>
         <translation>Zrušit</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="317"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="301"/>
         <source>Mod name</source>
         <translation>Název modifikace</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="326"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="304"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
         <source>Installed version</source>
         <translation>Nainstalovaná verze</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="328"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="305"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
         <source>Latest version</source>
         <translation>Nejnovější verze</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="332"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="316"/>
         <source>Size</source>
         <translation>Velikost</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="335"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
         <source>Download size</source>
         <translation>Velikost ke stažení</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="337"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
         <source>Authors</source>
         <translation>Autoři</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="340"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="324"/>
         <source>License</source>
         <translation>Licence</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="343"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="327"/>
         <source>Contact</source>
         <translation>Kontakt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="336"/>
         <source>Compatibility</source>
         <translation>Kompabilita</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="362"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="346"/>
         <source>Required VCMI version</source>
         <translation>Vyžadovaná verze VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="344"/>
         <source>Supported VCMI version</source>
         <translation>Podporovaná verze VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="344"/>
         <source>please upgrade mod</source>
         <translation>prosíme aktualizujte modifikaci</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="189"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="827"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="173"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="753"/>
         <source>mods repository index</source>
         <translation>index repozitáře modifikací</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="362"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="346"/>
         <source>or newer</source>
         <translation>nebo novější</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="365"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
         <source>Supported VCMI versions</source>
         <translation>Podporované verze VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="381"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="365"/>
         <source>Languages</source>
         <translation>Jazyky</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="393"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="377"/>
         <source>Required mods</source>
         <translation>Vyžadované modifikace VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="378"/>
         <source>Conflicting mods</source>
         <translation>Modifikace v kolizi</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="383"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
         <translation>Tuto modifikaci nelze aktivovat, protože je určena pro jiný jazyk.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
         <translation>Tuto modifikaci nelze aktivovat, protože chybí následující závislosti</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="385"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
         <translation>Tuto modifikaci nelze nainstalovat, protože chybí následující závislosti</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="386"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>Toto je podmodifikace a nelze ji nainstalovat ani odinstalovat samostatně bez hlavní modifikace</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="421"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="405"/>
         <source>Notes</source>
         <translation>Poznámky</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="645"/>
         <source>All supported files</source>
-        <translation>Všechny podporované soubory</translation>
+        <translation type="vanished">Všechny podporované soubory</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="646"/>
         <source>Maps</source>
-        <translation>Mapy</translation>
+        <translation type="vanished">Mapy</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="647"/>
         <source>Campaigns</source>
-        <translation>Kampaně</translation>
+        <translation type="vanished">Kampaně</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="648"/>
         <source>Configs</source>
-        <translation>Nastavení</translation>
+        <translation type="vanished">Nastavení</translation>
+    </message>
+    <message>
+        <source>Mods</source>
+        <translation type="vanished">Modifikace</translation>
+    </message>
+    <message>
+        <source>Gog files</source>
+        <translation type="vanished">Soubory GOG</translation>
+    </message>
+    <message>
+        <source>All files (*.*)</source>
+        <translation type="vanished">Všechny soubory (*.*)</translation>
+    </message>
+    <message>
+        <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
+        <translation type="vanished">Vyberte soubory (konfigurace, modifikace, mapy, kampaně, soubory GOG) k instalaci...</translation>
+    </message>
+    <message>
+        <source>Replace config file?</source>
+        <translation type="vanished">Nahradit soubor nastavení?</translation>
+    </message>
+    <message>
+        <source>Do you want to replace %1?</source>
+        <translation type="vanished">Chcete nahradit %1?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="649"/>
-        <source>Mods</source>
-        <translation>Modifikace</translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="650"/>
-        <source>Gog files</source>
-        <translation>Soubory GOG</translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="652"/>
-        <source>All files (*.*)</source>
-        <translation>Všechny soubory (*.*)</translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="654"/>
-        <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation>Vyberte soubory (konfigurace, modifikace, mapy, kampaně, soubory GOG) k instalaci...</translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="679"/>
-        <source>Replace config file?</source>
-        <translation>Nahradit soubor nastavení?</translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="679"/>
-        <source>Do you want to replace %1?</source>
-        <translation>Chcete nahradit %1?</translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="723"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>Stahování %1. %p% (%v MB z %m MB) dokončeno</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="748"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="674"/>
         <source>Download failed</source>
         <translation>Stahování selhalo</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="749"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="675"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -378,7 +367,7 @@ Vyskytly se chyby:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="750"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="676"/>
         <source>
 
 Install successfully downloaded?</source>
@@ -387,39 +376,39 @@ Install successfully downloaded?</source>
 Nainstalovat úspěšně stažené?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="865"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="791"/>
         <source>Installing chronicles</source>
         <translation>Instalování kronik</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="927"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="853"/>
         <source>Installing mod %1</source>
         <translation>Instalování modifikace %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="971"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="898"/>
         <source>Operation failed</source>
         <translation>Operace selhala</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="972"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="899"/>
         <source>Encountered errors:
 </source>
         <translation>Vyskytly se chyby:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="934"/>
         <source>screenshots</source>
         <translation>snímky obrazovky</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1013"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="940"/>
         <source>Screenshot %1</source>
         <translation>Snímek obrazovky %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="296"/>
         <source>Mod is incompatible</source>
         <translation>Modifikace není kompatibilní</translation>
     </message>
@@ -553,6 +542,17 @@ Nainstalovat úspěšně stažené?</translation>
         <location filename="../settingsView/csettingsview_moc.ui" line="1144"/>
         <source>Miscellaneous</source>
         <translation>Ostatní</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1182"/>
+        <source>Select a display mode for the game
+
+Windowed - the game will run inside a window that covers part of your screen.
+
+Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
+
+Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
@@ -740,7 +740,6 @@ Nainstalovat úspěšně stažené?</translation>
         <translation>Zapnuto</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1182"/>
         <source>Select display mode for game
 
 Windowed - game will run inside a window that covers part of your screen
@@ -748,7 +747,7 @@ Windowed - game will run inside a window that covers part of your screen
 Borderless Windowed Mode - game will run in a window that covers entirely of your screen, using same resolution as your screen.
 
 Fullscreen Exclusive Mode - game will cover entirety of your screen and will use selected resolution.</source>
-        <translation>Vyberte režim zobrazení pro hru
+        <translation type="vanished">Vyberte režim zobrazení pro hru
 
 V okně - hra bude běžet v okně zakrývajícím část vaší obrazovky
 
@@ -822,27 +821,27 @@ Exkluzivní celá obrazovka - hra zakryje vaši celou obrazovku a použije vybra
         <translation>Zobrazit intro</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="540"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="530"/>
         <source>Active</source>
         <translation>Aktivní</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="545"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="535"/>
         <source>Disabled</source>
         <translation>Zakázáno</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="546"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="536"/>
         <source>Enable</source>
         <translation>Povolit</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="551"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="541"/>
         <source>Not Installed</source>
         <translation>Nenainstalováno</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="552"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="542"/>
         <source>Install</source>
         <translation>Instalovat</translation>
     </message>
@@ -850,9 +849,8 @@ Exkluzivní celá obrazovka - hra zakryje vaši celou obrazovku a použije vybra
 <context>
     <name>ChroniclesExtractor</name>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
         <source>File cannot opened</source>
-        <translation>Soubor nelze otevřít</translation>
+        <translation type="vanished">Soubor nelze otevřít</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
@@ -861,24 +859,42 @@ Exkluzivní celá obrazovka - hra zakryje vaši celou obrazovku a použije vybra
         <translation>Vybrán neplatný soubor</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <source>You have to select an gog installer file!</source>
-        <translation>Musíte vybrat instalační soubor GOG!</translation>
+        <translation type="vanished">Musíte vybrat instalační soubor GOG!</translation>
+    </message>
+    <message>
+        <source>You have to select an chronicle installer file!</source>
+        <translation type="vanished">Musíte vybrat instalační soubor kronik!</translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
+        <source>The file cannot be opened</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
+        <source>You have to select a gog installer file!</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
-        <source>You have to select an chronicle installer file!</source>
-        <translation>Musíte vybrat instalační soubor kronik!</translation>
+        <source>You have to select a Heroes Chronicles installer file!</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="87"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="88"/>
         <source>Extracting error!</source>
         <translation>Chyb při rozbalování!</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
-        <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
-        <location filename="../modManager/chroniclesextractor.cpp" line="156"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="90"/>
+        <source>Hash error!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="107"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="108"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="159"/>
         <source>Heroes Chronicles</source>
         <translation>Heroes Chronicles</translation>
     </message>
@@ -920,7 +936,6 @@ Exkluzivní celá obrazovka - hra zakryje vaši celou obrazovku a použije vybra
         <translation>Máte otázku? Našli jste chybu? Chcete pomoct? Připojte se k nám!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="178"/>
         <source>Thank you for installing VCMI!
 
 Before you can start playing, there are a few more steps that need to be completed.
@@ -928,7 +943,7 @@ Before you can start playing, there are a few more steps that need to be complet
 Please keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation>Děkujeme, že jste si nainstalovali VCMI!
+        <translation type="vanished">Děkujeme, že jste si nainstalovali VCMI!
 
 Než začnete hrát, je třeba dokončit několik kroků.
 
@@ -947,9 +962,8 @@ Heroes® of Might and Magic® III HD momentálně není podporována!</translati
         <translation>Použít offline instalátor z gog.com</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
         <source>You can manually copy directories Maps, Data and Mp3 from the original game directory to VCMI data directory that you can see on top of this page</source>
-        <translation>Můžete ručně zkopírovat existující mapy, data a MP3 z originální složky hry do složky dat VCMI, kterou můžete vidět nahoře na této stránce</translation>
+        <translation type="vanished">Můžete ručně zkopírovat existující mapy, data a MP3 z originální složky hry do složky dat VCMI, kterou můžete vidět nahoře na této stránce</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="329"/>
@@ -987,10 +1001,9 @@ Heroes® of Might and Magic® III HD momentálně není podporována!</translati
         <translation>Kopírovat existující data</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com you can download backup offline installer from gog.com, and VCMI will import Heroes III data using offline installer. 
 Offline installer consists of two parts, .exe and .bin. Make sure you download both of them.</source>
-        <translation>Pokud vlastníte Heroes III na gog.com, můžete odsud stáhnout záložní offline instalátor a VCMI z něj naimportuje data.
+        <translation type="vanished">Pokud vlastníte Heroes III na gog.com, můžete odsud stáhnout záložní offline instalátor a VCMI z něj naimportuje data.
 Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahujete obě.</translation>
     </message>
     <message>
@@ -999,9 +1012,8 @@ Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahuj
         <translation>Můžete si nyní, nebo kdykoliv později, nainstalovat další mody pomocí VCMI Launcheru, podle svých preferencí</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
-        <translation>Instalovat modifikaci, která poskytuje různá vylepšení rozhraní, například lepší rozhraní pro náhodné mapy a volitelné akce v bitvách</translation>
+        <translation type="vanished">Instalovat modifikaci, která poskytuje různá vylepšení rozhraní, například lepší rozhraní pro náhodné mapy a volitelné akce v bitvách</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="673"/>
@@ -1012,6 +1024,11 @@ Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahuj
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
         <translation>&quot;Instalovat kompatibilní verzi In The Wake of Gods&apos;, fanouškovského rozšíření Heroes III portovaného týmem VCMI&quot;</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
+        <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="867"/>
@@ -1029,10 +1046,26 @@ Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahuj
         <translation>VCMI na Discordu</translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="178"/>
+        <source>Thank you for installing VCMI!
+
+Before you can start playing, there are a few more steps to complete.
+
+Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
+
+Heroes® of Might and Magic® III HD is currently not supported!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="212"/>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="564"/>
         <source>Next</source>
         <translation>Další</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
+        <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="347"/>
@@ -1053,6 +1086,12 @@ Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahuj
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="279"/>
         <source>Copy existing data</source>
         <translation>Kopírovat existující data</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
+        <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
+Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="557"/>
@@ -1091,94 +1130,118 @@ Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahuj
         <translation>Zkopírovat data do složky VCMI?</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="313"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="321"/>
         <source>Select %1 file...</source>
         <comment>param is file extension</comment>
         <translation>Vyberte soubor %1...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="314"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="322"/>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
         <translation>Musíte vybrat soubor %1!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="316"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="324"/>
         <source>GOG file (*.*)</source>
         <translation>GOG soubor (*.*)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="317"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="325"/>
         <source>File selection</source>
         <translation>Výběr souboru</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="326"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="334"/>
         <source>File cannot be opened</source>
         <translation>Soubor nelze otevřít</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="332"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="340"/>
         <source>Invalid file selected</source>
         <translation>Vybrán neplatný soubor</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="342"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="350"/>
         <source>GOG installer</source>
         <translation>Instalátor GOG</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="339"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="392"/>
+        <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="486"/>
+        <source>Heroes III: HD Edition files are not supported by VCMI.
+Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="491"/>
+        <source>Unknown or unsupported Heroes III version found.
+Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="347"/>
         <source>GOG data</source>
         <translation>Data GOG</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="383"/>
         <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation>Poskytli jste instalátor GOG Galaxy! Tento soubor neobsahuje hru. Prosím, stáhněte si záložní offline instalátor hry!</translation>
+        <translation type="vanished">Poskytli jste instalátor GOG Galaxy! Tento soubor neobsahuje hru. Prosím, stáhněte si záložní offline instalátor hry!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="399"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
         <source>Extracting error!</source>
         <translation>Chyba při rozbalování!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="415"/>
+        <source>Hash error!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="418"/>
         <source>No Heroes III data!</source>
         <translation>Chybí data Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="418"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>Vybrané soubory neobsahují data Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="448"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="462"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="474"/>
+        <source>Failed to detect valid Heroes III data in chosen directory.
+Please select the directory with installed Heroes III data.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="465"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="479"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="486"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="491"/>
         <source>Heroes III data not found!</source>
         <translation>Data Heroes III nenalezena!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="445"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select directory with installed Heroes III data.</source>
-        <translation>Detekce platných dat Heroes III ve vybrané složce selhala.
+        <translation type="vanished">Detekce platných dat Heroes III ve vybrané složce selhala.
 Prosíme vyberte složku s nainstalovanými daty Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation>Soubory Heroes III HD Edice nejsou podporovány ve VCMI.
+        <translation type="vanished">Soubory Heroes III HD Edice nejsou podporovány ve VCMI.
 Prosím vyberte složku s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="474"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation>Nalezena neznámá nebo nepodporovaná verze Heroes III.
+        <translation type="vanished">Nalezena neznámá nebo nepodporovaná verze Heroes III.
 Prosím vyberte složku s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
     </message>
 </context>
@@ -1208,6 +1271,60 @@ Důvod chyby: </translation>
         <location filename="../innoextract.cpp" line="58"/>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
         <translation>VCMI bylo zkompilováno bez podpory innoextract, která je potřebná pro extrahování EXE souborů!</translation>
+    </message>
+    <message>
+        <location filename="../innoextract.cpp" line="132"/>
+        <source>SHA1 hash of provided files:
+Exe (%1 bytes):
+%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../innoextract.cpp" line="134"/>
+        <source>
+Bin (%1 bytes):
+%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../innoextract.cpp" line="137"/>
+        <source>Internal copy process failed. Enough space on device?
+
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../innoextract.cpp" line="146"/>
+        <source>Exe</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../innoextract.cpp" line="146"/>
+        <source>Bin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../innoextract.cpp" line="155"/>
+        <source>Language mismatch!
+%1
+
+%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../innoextract.cpp" line="157"/>
+        <source>Only one file known! Maybe files are corrupted? Please download again.
+%1
+
+%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../innoextract.cpp" line="163"/>
+        <source>Unknown files! Maybe files are corrupted? Please download again.
+
+%1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1321,30 +1438,43 @@ Důvod chyby: </translation>
         <translation>Nápověda</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="210"/>
-        <source>Map Editor</source>
-        <translation>Editor map</translation>
+        <location filename="../mainwindow_moc.ui" line="209"/>
+        <source>Game</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="259"/>
+        <source>Map Editor</source>
+        <translation type="vanished">Editor map</translation>
+    </message>
+    <message>
         <source>Start game</source>
-        <translation>Spustit hru</translation>
+        <translation type="vanished">Spustit hru</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="53"/>
         <source>Mods</source>
         <translation>Modifikace</translation>
     </message>
+    <message>
+        <location filename="../mainwindow_moc.cpp" line="264"/>
+        <source>Replace config file?</source>
+        <translation type="unfinished">Nahradit soubor nastavení?</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow_moc.cpp" line="264"/>
+        <source>Do you want to replace %1?</source>
+        <translation type="unfinished">Chcete nahradit %1?</translation>
+    </message>
 </context>
 <context>
     <name>ModFields</name>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="190"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="187"/>
         <source>Name</source>
         <translation>Název</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="193"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="190"/>
         <source>Type</source>
         <translation>Druh</translation>
     </message>
@@ -1383,9 +1513,13 @@ Důvod chyby: </translation>
         <translation>Nejprve je třeba nainstalovat modifikaci</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="158"/>
         <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
-        <translation>Modifikace není kompatibilní, prosím aktualizujte VCMI a použijte nejnovější verzi modifikace</translation>
+        <translation type="vanished">Modifikace není kompatibilní, prosím aktualizujte VCMI a použijte nejnovější verzi modifikace</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="158"/>
+        <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="161"/>
@@ -1429,9 +1563,14 @@ Důvod chyby: </translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="254"/>
+        <source>Mod is located in a protected directory, please remove it manually:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Mod is located in protected directory, please remove it manually:
 </source>
-        <translation>Modifikace se nachází v zabezpečené složce, prosím odstraňte ji ručně:
+        <translation type="vanished">Modifikace se nachází v zabezpečené složce, prosím odstraňte ji ručně:
 </translation>
     </message>
 </context>
@@ -1484,7 +1623,7 @@ Důvod chyby: </translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="45"/>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="63"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="60"/>
         <source>Other</source>
         <translation>Ostatní</translation>
     </message>
@@ -1495,49 +1634,46 @@ Důvod chyby: </translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="47"/>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="48"/>
         <source>Mechanics</source>
         <translation>Mechaniky</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="49"/>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="50"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="48"/>
         <source>Interface</source>
         <translation>Rozhraní</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="51"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="49"/>
         <source>Heroes</source>
         <translation>Hrdinové</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="52"/>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="53"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="50"/>
         <source>Graphical</source>
         <translation>Grafika</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="51"/>
         <source>Expansion</source>
         <translation>Rozšíření</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="52"/>
         <source>Creatures</source>
         <translation>Jednotky</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="56"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="53"/>
         <source>Compatibility</source>
         <translation>Kompatibilita</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Artifacts</source>
         <translation>Artefakty</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="58"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
         <source>AI</source>
         <translation>AI</translation>
     </message>
@@ -1555,6 +1691,274 @@ Důvod chyby: </translation>
 Reason: %2</source>
         <translation>Selhal start %1
 Důvod: %2</translation>
+    </message>
+</context>
+<context>
+    <name>StartGameTab</name>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="49"/>
+        <source>Import from Clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="81"/>
+        <source>Rename Current Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="101"/>
+        <source>Current Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="121"/>
+        <source>Create New Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="140"/>
+        <source>Export to Clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="159"/>
+        <source>Delete Current Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="200"/>
+        <source>Unsupported or corrupted game data detected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="257"/>
+        <location filename="../startGame/StartGameTab.ui" line="276"/>
+        <location filename="../startGame/StartGameTab.ui" line="314"/>
+        <location filename="../startGame/StartGameTab.ui" line="333"/>
+        <location filename="../startGame/StartGameTab.ui" line="374"/>
+        <location filename="../startGame/StartGameTab.ui" line="415"/>
+        <location filename="../startGame/StartGameTab.ui" line="434"/>
+        <location filename="../startGame/StartGameTab.ui" line="475"/>
+        <location filename="../startGame/StartGameTab.ui" line="551"/>
+        <source>?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="295"/>
+        <source>Install Translation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="352"/>
+        <source>No soundtrack detected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="393"/>
+        <source>Armaggedon&apos;s Blade campaigns are missing!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="453"/>
+        <source>No video files detected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="494"/>
+        <source>Activate Translation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="513"/>
+        <source>Import files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="624"/>
+        <source>Check For Updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="643"/>
+        <source>Go to Downloads Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="662"/>
+        <source>Go to Changelog Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="681"/>
+        <source>You are using the latest version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="718"/>
+        <source>Game Data Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="736"/>
+        <source>Mod Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="781"/>
+        <source>Resume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="830"/>
+        <source>Play</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="874"/>
+        <source>Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../startGame/StartGameTab.cpp" line="141"/>
+        <source>Update %n mods</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../startGame/StartGameTab.cpp" line="145"/>
+        <source>Heroes Chronicles:
+%n/%1 installed</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="162"/>
+        <source>Update to %1 available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="198"/>
+        <source>All supported files</source>
+        <translation type="unfinished">Všechny podporované soubory</translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="199"/>
+        <source>Maps</source>
+        <translation type="unfinished">Mapy</translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="200"/>
+        <source>Campaigns</source>
+        <translation type="unfinished">Kampaně</translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="201"/>
+        <source>Configs</source>
+        <translation type="unfinished">Nastavení</translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="202"/>
+        <source>Mods</source>
+        <translation type="unfinished">Modifikace</translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="203"/>
+        <source>Gog files</source>
+        <translation type="unfinished">Soubory GOG</translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="206"/>
+        <source>All files (*.*)</source>
+        <translation type="unfinished">Všechny soubory (*.*)</translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="208"/>
+        <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
+        <translation type="unfinished">Vyberte soubory (konfigurace, modifikace, mapy, kampaně, soubory GOG) k instalaci...</translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="248"/>
+        <source>This option allows you to import additional data files into your VCMI installation. At the moment, following options are supported:
+
+ - Heroes III Maps (.h3m or .vmap).
+ - Heroes III Campaigns (.h3c or .vcmp).
+ - Heroes III Chronicles using offline backup installer from GOG.com (.exe).
+ - VCMI mods in zip format (.zip)
+ - VCMI configuration files (.json)
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="263"/>
+        <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="273"/>
+        <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="283"/>
+        <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
+
+WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You many want to postpone mod update until you finish any of your ongoing games.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="295"/>
+        <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
+To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="308"/>
+        <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
+
+To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="319"/>
+        <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
+
+To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="330"/>
+        <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
+
+To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="341"/>
+        <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
+
+To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="366"/>
+        <source>Enter preset name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="406"/>
+        <source>Rename preset &apos;%1&apos; to:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1581,8 +1985,12 @@ Důvod: %2</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
+        <source>Cannot read JSON from URL or incorrect JSON data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Cannot read JSON from url or incorrect JSON data</source>
-        <translation>Nelze přečíst JSON z URL nebo nesprávná data JSON</translation>
+        <translation type="vanished">Nelze přečíst JSON z URL nebo nesprávná data JSON</translation>
     </message>
 </context>
 </TS>

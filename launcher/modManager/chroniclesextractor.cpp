@@ -45,7 +45,7 @@ int ChroniclesExtractor::getChronicleNo(QFile & file)
 {
 	if(!file.open(QIODevice::ReadOnly))
 	{
-		QMessageBox::critical(parent, tr("File cannot opened"), file.errorString());
+		QMessageBox::critical(parent, tr("The file cannot be opened"), file.errorString());
 		return 0;
 	}
 
@@ -53,7 +53,7 @@ int ChroniclesExtractor::getChronicleNo(QFile & file)
 	QByteArray magicFile = file.read(magic.length());
 	if(!magicFile.startsWith(magic))
 	{
-		QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select an gog installer file!"));
+		QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select a gog installer file!"));
 		return 0;
 	}
 
@@ -68,7 +68,7 @@ int ChroniclesExtractor::getChronicleNo(QFile & file)
 	}
 	if(!chronicle)
 	{
-		QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select an chronicle installer file!"));
+		QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select a Heroes Chronicles installer file!"));
 		return 0;
 	}
 	return chronicle;

@@ -155,7 +155,7 @@ bool ModStateController::canEnableMod(QString modname)
 
 	//check for compatibility
 	if(!mod.isCompatible())
-		return addError(modname, tr("Mod is not compatible, please update VCMI and checkout latest mod revisions"));
+		return addError(modname, tr("Mod is not compatible, please update VCMI and check the latest mod revisions"));
 
 	if (mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString())
 		return addError(modname, tr("Can not enable translation mod for a different language!"));
@@ -251,7 +251,7 @@ bool ModStateController::doUninstallMod(QString modname)
 
 	QDir modFullDir(modDir);
 	if(!removeModDir(modDir))
-		return addError(modname, tr("Mod is located in protected directory, please remove it manually:\n") + modFullDir.absolutePath());
+		return addError(modname, tr("Mod is located in a protected directory, please remove it manually:\n") + modFullDir.absolutePath());
 
 	modList->reloadLocalState();
 
