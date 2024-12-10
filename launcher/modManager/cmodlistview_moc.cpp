@@ -443,9 +443,10 @@ void CModListView::selectMod(const QModelIndex & index)
 		Helper::enableScrollBySwiping(ui->modInfoBrowser);
 		Helper::enableScrollBySwiping(ui->changelogBrowser);
 
-		QStringList notInstalledDependencies = this->getModsToInstall(modName);
-		QStringList unavailableDependencies = this->findUnavailableMods(notInstalledDependencies);
+		QStringList notInstalledDependencies = getModsToInstall(modName);
+		QStringList unavailableDependencies = findUnavailableMods(notInstalledDependencies);
 		bool translationMismatch = 	mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString();
+		bool modIsBeingDownloaded = enqueuedModDownloads.contains(mod.getID());
 
 		ui->disableButton->setVisible(modStateModel->isModInstalled(mod.getID()) && modStateModel->isModEnabled(mod.getID()));
 		ui->enableButton->setVisible(modStateModel->isModInstalled(mod.getID()) && !modStateModel->isModEnabled(mod.getID()));
@@ -456,9 +457,9 @@ void CModListView::selectMod(const QModelIndex & index)
 		// Block buttons if action is not allowed at this time
 		ui->disableButton->setEnabled(true);
 		ui->enableButton->setEnabled(notInstalledDependencies.empty() && !translationMismatch);
-		ui->installButton->setEnabled(unavailableDependencies.empty());
+		ui->installButton->setEnabled(unavailableDependencies.empty() && !modIsBeingDownloaded);
 		ui->uninstallButton->setEnabled(true);
-		ui->updateButton->setEnabled(unavailableDependencies.empty());
+		ui->updateButton->setEnabled(unavailableDependencies.empty() && !modIsBeingDownloaded);
 
 		loadScreenshots();
 	}
@@ -580,6 +581,8 @@ void CModListView::on_updateButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 	doUpdateMod(modName);
+
+	ui->updateButton->setEnabled(false);
 }
 
 void CModListView::doUpdateMod(const QString & modName)
@@ -587,14 +590,14 @@ void CModListView::doUpdateMod(const QString & modName)
 	auto targetMod = modStateModel->getMod(modName);
 
 	if(targetMod.isUpdateAvailable())
-		downloadFile(modName + ".zip", targetMod.getDownloadUrl(), modName, targetMod.getDownloadSizeBytes());
+		downloadMod(targetMod);
 
 	for(const auto & name : getModsToInstall(modName))
 	{
 		auto mod = modStateModel->getMod(name);
 		// update required mod, install missing (can be new dependency)
 		if(mod.isUpdateAvailable() || !mod.isInstalled())
-			downloadFile(name + ".zip", mod.getDownloadUrl(), name, mod.getDownloadSizeBytes());
+			downloadMod(mod);
 	}
 }
 
@@ -621,10 +624,21 @@ void CModListView::on_installButton_clicked()
 	{
 		auto mod = modStateModel->getMod(name);
 		if(mod.isAvailable())
-			downloadFile(name + ".zip", mod.getDownloadUrl(), name, mod.getDownloadSizeBytes());
+			downloadMod(mod);
 		else if(!modStateModel->isModEnabled(name))
 			enableModByName(name);
 	}
+
+	ui->installButton->setEnabled(false);
+}
+
+void CModListView::downloadMod(const ModState & mod)
+{
+	if (enqueuedModDownloads.contains(mod.getID()))
+		return;
+
+	enqueuedModDownloads.push_back(mod.getID());
+	downloadFile(mod.getID() + ".zip", mod.getDownloadUrl(), mod.getName(), mod.getDownloadSizeBytes());
 }
 
 void CModListView::downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes)
@@ -697,6 +711,7 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 		doInstallFiles = true;
 	}
 
+	enqueuedModDownloads.clear();
 	dlManager->deleteLater();
 	dlManager = nullptr;
 	
@@ -958,7 +973,7 @@ void CModListView::doInstallMod(const QString & modName)
 	{
 		auto mod = modStateModel->getMod(name);
 		if(!mod.isInstalled())
-			downloadFile(name + ".zip", mod.getDownloadUrl(), name, mod.getDownloadSizeBytes());
+			downloadMod(mod);
 	}
 }
 
