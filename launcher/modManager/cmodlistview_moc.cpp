@@ -620,14 +620,7 @@ void CModListView::on_installButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 
-	for(const auto & name : getModsToInstall(modName))
-	{
-		auto mod = modStateModel->getMod(name);
-		if(mod.isAvailable())
-			downloadMod(mod);
-		else if(!modStateModel->isModEnabled(name))
-			enableModByName(name);
-	}
+	doInstallMod(modName);
 
 	ui->installButton->setEnabled(false);
 }
@@ -969,11 +962,13 @@ void CModListView::on_screenshotsList_clicked(const QModelIndex & index)
 
 void CModListView::doInstallMod(const QString & modName)
 {
-	for(const auto & name : modStateModel->getMod(modName).getDependencies())
+	for(const auto & name : getModsToInstall(modName))
 	{
 		auto mod = modStateModel->getMod(name);
-		if(!mod.isInstalled())
+		if(mod.isAvailable())
 			downloadMod(mod);
+		else if(!modStateModel->isModEnabled(name))
+			enableModByName(name);
 	}
 }
 
