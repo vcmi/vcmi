@@ -235,16 +235,19 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 	for(QString f : exe)
 	{
 		extractionFile++;
-		QFile file(f);
+
+		if(!createTempDir())
+			continue;
+		
+		QString filepath = tempDir.filePath("chr.exe");
+		QFile(f).copy(filepath);
+		QFile file(filepath);
 
 		int chronicleNo = getChronicleNo(file);
 		if(!chronicleNo)
 			continue;
 
-		if(!createTempDir())
-			continue;
-
-		if(!extractGogInstaller(f))
+		if(!extractGogInstaller(filepath))
 			continue;
 		
 		createBaseMod();
