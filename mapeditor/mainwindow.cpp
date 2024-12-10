@@ -16,6 +16,8 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QFileInfo>
+#include <QDialog>
+#include <QListWidget>
 
 #include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
@@ -222,6 +224,8 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->toolFill->setIcon(QIcon{":/icons/tool-fill.png"});
 	ui->toolSelect->setIcon(QIcon{":/icons/tool-select.png"});
 	ui->actionOpen->setIcon(QIcon{":/icons/document-open.png"});
+	ui->actionOpenRecent->setIcon(QIcon{":/icons/document-open-recent.png"});
+	ui->menuOpenRecent->setIcon(QIcon{":/icons/document-open-recent.png"});
 	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
 	ui->actionNew->setIcon(QIcon{":/icons/document-new.png"});
 	ui->actionLevel->setIcon(QIcon{":/icons/toggle-underground.png"});
@@ -264,6 +268,8 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	scenePreview = new QGraphicsScene(this);
 	ui->objectPreview->setScene(scenePreview);
+
+	connect(ui->actionOpenRecentMore, &QAction::triggered, this, &MainWindow::on_actionOpenRecent_triggered);
 
 	//loading objects
 	loadObjectsTree();
@@ -412,7 +418,19 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	
 	filename = filenameSelect;
 	initializeMap(controller.map()->version != EMapFormat::VCMI);
+
+	updateRecentMenu(filenameSelect);
+
 	return true;
+}
+
+void MainWindow::updateRecentMenu(const QString & filenameSelect) {
+	QSettings s(Ui::teamName, Ui::appName);
+	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
+	recentFiles.removeAll(filenameSelect);
+	recentFiles.prepend(filenameSelect);
+	constexpr int maxRecentFiles = 10;
+	s.setValue(recentlyOpenedFilesSetting, QStringList(recentFiles.mid(0, maxRecentFiles)));
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -427,6 +445,91 @@ void MainWindow::on_actionOpen_triggered()
 		return;
 	
 	openMap(filenameSelect);
+}
+
+void MainWindow::on_actionOpenRecent_triggered()
+{
+	QSettings s(Ui::teamName, Ui::appName);
+	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
+
+	class RecentFileDialog : public QDialog
+	{
+
+	public:
+		RecentFileDialog(const QStringList& recentFiles, QWidget *parent)
+			: QDialog(parent), layout(new QVBoxLayout(this)), listWidget(new QListWidget(this))
+		{
+
+			setWindowTitle(tr("Recently Opened Files"));
+			setMinimumWidth(600);
+
+			connect(listWidget, &QListWidget::itemActivated, this, [this](QListWidgetItem *item)
+			{
+				accept();
+			});
+
+			for (const QString &file : recentFiles)
+			{
+				QListWidgetItem *item = new QListWidgetItem(file);
+				listWidget->addItem(item);
+			}
+
+			// Select most recent items by default.
+			// This enables a "CTRL+R => Enter"-workflow instead of "CTRL+R => 'mouse click on first item'"
+			if(listWidget->count() > 0)
+			{
+				listWidget->item(0)->setSelected(true);
+			}
+
+			layout->setSizeConstraint(QLayout::SetMaximumSize);
+			layout->addWidget(listWidget);
+		}
+
+		QString getSelectedFilePath() const
+		{
+			return listWidget->currentItem()->text();
+		}
+
+	private:
+		QVBoxLayout * layout;
+		QListWidget * listWidget;
+	};
+
+	RecentFileDialog d(recentFiles, this);
+	if(d.exec() == QDialog::Accepted && getAnswerAboutUnsavedChanges())
+	{
+		openMap(d.getSelectedFilePath());
+	}
+}
+
+void MainWindow::on_menuOpenRecent_aboutToShow()
+{
+	// Clear all actions except "More...", lest the list will grow with each
+	// showing of the list
+	for (QAction* action : ui->menuOpenRecent->actions()) {
+		if (action != ui->actionOpenRecentMore) {
+			ui->menuOpenRecent->removeAction(action);
+		}
+	}
+
+	QSettings s(Ui::teamName, Ui::appName);
+	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
+
+	// Dynamically populate menuOpenRecent with one action per file.
+	for (const QString & file : recentFiles) {
+		QAction *action = new QAction(file, this);
+		ui->menuOpenRecent->insertAction(ui->actionOpenRecentMore, action);
+		connect(action, &QAction::triggered, this, [this, file]() {
+			if(!getAnswerAboutUnsavedChanges())
+				return;
+			openMap(file);
+		});
+	}
+
+	// Finally add a separator between recent entries and "More..."
+	if(recentFiles.size() > 0) {
+		ui->menuOpenRecent->insertSeparator(ui->actionOpenRecentMore);
+	}
 }
 
 void MainWindow::saveMap()
