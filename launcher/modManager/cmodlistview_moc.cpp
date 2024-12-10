@@ -788,6 +788,8 @@ void CModListView::installFiles(QStringList files)
 
 	if(!exe.empty())
 	{
+		ui->progressWidget->setVisible(true);
+		ui->pushButton->setEnabled(false);
 		ui->progressBar->setFormat(tr("Installing chronicles"));
 
 		float prog = 0.0;
@@ -807,6 +809,9 @@ void CModListView::installFiles(QStringList files)
 		
 		if(futureExtract.get())
 		{
+			hideProgressBar();
+			ui->pushButton->setEnabled(true);
+			ui->progressWidget->setVisible(false);
 			//update
 			modStateModel->reloadLocalState();
 			modModel->reloadRepositories();
