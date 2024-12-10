@@ -25,22 +25,22 @@
         <location filename="../inspector/artifactwidget.ui" line="29"/>
         <location filename="../inspector/artifactwidget.ui" line="44"/>
         <source>Artifact</source>
-        <translation type="unfinished"></translation>
+        <translation>Artefakt</translation>
     </message>
     <message>
         <location filename="../inspector/artifactwidget.ui" line="57"/>
         <source>Equip where:</source>
-        <translation type="unfinished"></translation>
+        <translation>Umístění:</translation>
     </message>
     <message>
         <location filename="../inspector/artifactwidget.ui" line="73"/>
         <source>Save</source>
-        <translation type="unfinished">Uložit</translation>
+        <translation>Uložit</translation>
     </message>
     <message>
         <location filename="../inspector/artifactwidget.ui" line="86"/>
         <source>Cancel</source>
-        <translation type="unfinished">Zrušit</translation>
+        <translation>Zrušit</translation>
     </message>
 </context>
 <context>
@@ -132,27 +132,27 @@
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="29"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefakty</translation>
+        <translation>Artefakty</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="71"/>
         <source>Add</source>
-        <translation type="unfinished">Přidat</translation>
+        <translation>Přidat</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="87"/>
         <source>Remove</source>
-        <translation type="unfinished">Odebrat</translation>
+        <translation>Odebrat</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="130"/>
         <source>Slot</source>
-        <translation type="unfinished"></translation>
+        <translation>Slot</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="135"/>
         <source>Artifact</source>
-        <translation type="unfinished"></translation>
+        <translation>Artefatk</translation>
     </message>
 </context>
 <context>
@@ -298,7 +298,7 @@
         <location filename="../mainwindow.ui" line="63"/>
         <location filename="../mainwindow.ui" line="1032"/>
         <source>Open Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevřít poslední</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="77"/>
@@ -393,7 +393,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1037"/>
         <source>More...</source>
-        <translation type="unfinished"></translation>
+        <translation>Více...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1045"/>
@@ -500,7 +500,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1215"/>
         <source>Validate</source>
-        <translation>Posoudit</translation>
+        <translation>Ověřit</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1226"/>
@@ -659,7 +659,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="463"/>
         <source>Recently Opened Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Naposledny otevřené soubory</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="591"/>
@@ -679,82 +679,82 @@
     <message>
         <location filename="../mainwindow.cpp" line="793"/>
         <source>Towns</source>
-        <translation type="unfinished"></translation>
+        <translation>Města</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="794"/>
         <source>Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Objekty</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="795"/>
         <source>Heroes</source>
-        <translation type="unfinished">Hrdinové</translation>
+        <translation>Hrdinové</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="796"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefakty</translation>
+        <translation>Artefakty</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="797"/>
         <source>Resources</source>
-        <translation type="unfinished">Zdroje</translation>
+        <translation>Suroviny</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="798"/>
         <source>Banks</source>
-        <translation type="unfinished"></translation>
+        <translation>Zásobárny</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="799"/>
         <source>Dwellings</source>
-        <translation type="unfinished"></translation>
+        <translation>Obydlí</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="800"/>
         <source>Grounds</source>
-        <translation type="unfinished"></translation>
+        <translation>Země</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="801"/>
         <source>Teleports</source>
-        <translation type="unfinished"></translation>
+        <translation>Teleporty</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="802"/>
         <source>Mines</source>
-        <translation type="unfinished"></translation>
+        <translation>Doly</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="803"/>
         <source>Triggers</source>
-        <translation type="unfinished"></translation>
+        <translation>Spouštěče</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="804"/>
         <source>Monsters</source>
-        <translation type="unfinished"></translation>
+        <translation>Jednotky</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="805"/>
         <source>Quests</source>
-        <translation type="unfinished"></translation>
+        <translation>Úkoly</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="806"/>
         <source>Wog Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>WoG objekty</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="807"/>
         <source>Obstacles</source>
-        <translation type="unfinished"></translation>
+        <translation>Překážky</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="808"/>
         <source>Other</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostatní</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="962"/>
@@ -994,7 +994,7 @@
     <message>
         <location filename="../playerparams.cpp" line="27"/>
         <source>No team</source>
-        <translation type="unfinished"></translation>
+        <translation>Bez týmu</translation>
     </message>
     <message>
         <location filename="../playerparams.cpp" line="108"/>
@@ -1629,17 +1629,17 @@
     <message>
         <location filename="../mapsettings/timedevent.ui" line="211"/>
         <source>Objects to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Objekty k odstranění</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="218"/>
         <source>Add</source>
-        <translation type="unfinished">Přidat</translation>
+        <translation>Přidat</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="225"/>
         <source>Remove</source>
-        <translation type="unfinished">Odebrat</translation>
+        <translation>Odebrat</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="235"/>
