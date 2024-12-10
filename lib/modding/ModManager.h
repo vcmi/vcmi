@@ -50,6 +50,14 @@ class ModsPresetState : boost::noncopyable
 public:
 	ModsPresetState();
 
+	void createNewPreset(const std::string & presetName);
+	void deletePreset(const std::string & presetName);
+	void activatePreset(const std::string & presetName);
+	void renamePreset(const std::string & oldPresetName, const std::string & newPresetName);
+
+	std::vector<std::string> getAllPresets() const;
+	std::string getActivePreset() const;
+
 	void setModActive(const TModID & modName, bool isActive);
 
 	void addRootMod(const TModID & modName);
@@ -139,6 +147,14 @@ public:
 
 	void tryEnableMods(const TModList & modList);
 	void tryDisableMod(const TModID & modName);
+
+	void createNewPreset(const std::string & presetName);
+	void deletePreset(const std::string & presetName);
+	void activatePreset(const std::string & presetName);
+	void renamePreset(const std::string & oldPresetName, const std::string & newPresetName);
+
+	std::vector<std::string> getAllPresets() const;
+	std::string getActivePreset() const;
 };
 
 VCMI_LIB_NAMESPACE_END
