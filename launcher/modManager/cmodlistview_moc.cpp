@@ -546,9 +546,6 @@ QStringList CModListView::getModsToInstall(QString mod)
 		candidates.pop_back();
 		processed.push_back(potentialToInstall);
 
-		if (modStateModel->isModExists(potentialToInstall) && modStateModel->isModInstalled(potentialToInstall))
-			continue;
-
 		if (modStateModel->isSubmod(potentialToInstall))
 		{
 			QString topParent = modStateModel->getTopParent(potentialToInstall);
@@ -562,7 +559,8 @@ QStringList CModListView::getModsToInstall(QString mod)
 				potentialToInstall = modStateModel->getTopParent(potentialToInstall);
 		}
 
-		result.push_back(potentialToInstall);
+		if (modStateModel->isModExists(potentialToInstall) && !modStateModel->isModInstalled(potentialToInstall))
+			result.push_back(potentialToInstall);
 
 		if (modStateModel->isModExists(potentialToInstall))
 		{
