@@ -1364,7 +1364,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		const float maxWillingToLose = amIInDanger ? 1 : ai->settings->getMaxArmyLossTarget();
 
 		bool arriveNextWeek = false;
-		if (ai->cb->getDate(Date::DAY_OF_WEEK) + evaluationContext.turn > 7)
+		if (ai->cb->getDate(Date::DAY_OF_WEEK) + evaluationContext.turn > 7 && priorityTier < PriorityTier::FAR_KILL)
 			arriveNextWeek = true;
 
 #if NKAI_TRACE_LEVEL >= 2
@@ -1417,6 +1417,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				break;
 			}
 			case PriorityTier::KILL: //Take towns / kill heroes that are further away
+				//FALL_THROUGH
+			case PriorityTier::FAR_KILL:
 			{
 				if (evaluationContext.turn > 0 && evaluationContext.isHero)
 					return 0;
@@ -1464,6 +1466,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				break;
 			}
 			case PriorityTier::HUNTER_GATHER: //Collect guarded stuff
+				//FALL_THROUGH
+			case PriorityTier::FAR_HUNTER_GATHER:
 			{
 				if (evaluationContext.enemyHeroDangerRatio > 1 && !evaluationContext.isDefend)
 					return 0;
