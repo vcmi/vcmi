@@ -480,8 +480,8 @@ Install successfully downloaded?</source>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="791"/>
-        <source>Installing chronicles</source>
-        <translation>安装历代记</translation>
+        <source>Installing Heroes Chronicles</source>
+        <translation type="unfinished">安装历代记</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="853"/>

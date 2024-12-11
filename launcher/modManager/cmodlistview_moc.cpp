@@ -792,9 +792,9 @@ void CModListView::installFiles(QStringList files)
 
 	if(!exe.empty())
 	{
+		ui->progressBar->setFormat(tr("Installing Heroes Chronicles"));
 		ui->progressWidget->setVisible(true);
 		ui->pushButton->setEnabled(false);
-		ui->progressBar->setFormat(tr("Installing chronicles"));
 
 		float prog = 0.0;
 
