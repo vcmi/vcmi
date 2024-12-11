@@ -1006,6 +1006,9 @@ public:
 		Goals::ExecuteHeroChain & chain = dynamic_cast<Goals::ExecuteHeroChain &>(*task);
 		const AIPath & path = chain.getPath();
 
+		if (path.movementCost() == 0)
+			return;
+
 		vstd::amax(evaluationContext.danger, path.getTotalDanger());
 		evaluationContext.movementCost += path.movementCost();
 		evaluationContext.closestWayRatio = chain.closestWayRatio;
