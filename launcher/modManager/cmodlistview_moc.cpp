@@ -802,6 +802,7 @@ void CModListView::installFiles(QStringList files)
 		{
 			ChroniclesExtractor ce(this, [&prog](float progress) { prog = progress; });
 			ce.installChronicles(exe);
+			enableModByName("chronicles");
 			return true;
 		});
 		
