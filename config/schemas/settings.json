@@ -739,7 +739,7 @@
 				},
 				"skipBattleIntroMusic" : {
 					"type" : "boolean",
-					"default" : true
+					"default" : false
 				},
 				"infoBarCreatureManagement": {
 					"type" : "boolean",
