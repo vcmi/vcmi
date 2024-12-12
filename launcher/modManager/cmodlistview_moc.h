@@ -54,7 +54,6 @@ class CModListView : public QWidget
 
 	void installMods(QStringList archives);
 	void installMaps(QStringList maps);
-	void installFiles(QStringList mods);
 
 	QString genChangelogText(const ModState & mod);
 	QString genModInfoText(const ModState & mod);
@@ -113,6 +112,7 @@ public:
 	bool isModInstalled(const QString & modName);
 
 	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
+	void installFiles(QStringList mods);
 
 public slots:
 	void enableModByName(QString modName);

@@ -33,8 +33,6 @@ class StartGameTab : public QWidget
 
 	MainWindow * getMainWindow();
 
-	void refreshState();
-
 	void refreshUpdateStatus(EGameUpdateStatus status);
 	void refreshTranslation(ETranslationStatus status);
 	void refreshMods();
@@ -44,6 +42,8 @@ class StartGameTab : public QWidget
 public:
 	explicit StartGameTab(QWidget * parent = nullptr);
 	~StartGameTab();
+
+	void refreshState();
 
 private slots:
 	void on_buttonGameStart_clicked();
