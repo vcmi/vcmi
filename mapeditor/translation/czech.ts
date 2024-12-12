@@ -152,7 +152,7 @@
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="135"/>
         <source>Artifact</source>
-        <translation>Artefatk</translation>
+        <translation>Artefakt</translation>
     </message>
 </context>
 <context>
