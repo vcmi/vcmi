@@ -53,7 +53,7 @@
 	"vcmi.quickExchange.moveAllUnits" : "Move All Units",
 	"vcmi.quickExchange.swapAllUnits" : "Swap Armies",
 	"vcmi.quickExchange.moveAllArtifacts" : "Move All Artifacts",
-	"vcmi.quickExchange.swapAllArtifacts" : "Swap Artifact",
+	"vcmi.quickExchange.swapAllArtifacts" : "Swap Artifacts",
 	
 	"vcmi.radialWheel.mergeSameUnit" : "Merge same creatures",
 	"vcmi.radialWheel.fillSingleUnit" : "Fill with single creatures",

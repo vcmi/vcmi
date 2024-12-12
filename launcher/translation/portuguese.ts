@@ -377,8 +377,8 @@ O download da instalação foi bem-sucedido?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="791"/>
-        <source>Installing chronicles</source>
-        <translation>Instalando crônicas</translation>
+        <source>Installing Heroes Chronicles</source>
+        <translation type="unfinished">Instalando crônicas</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="853"/>
