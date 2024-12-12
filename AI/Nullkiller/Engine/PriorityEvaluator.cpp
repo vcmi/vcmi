@@ -1057,7 +1057,7 @@ public:
 			evaluationContext.conquestValue += evaluationContext.evaluator.getConquestValue(target);
 			if (target->ID == Obj::HERO)
 				evaluationContext.isHero = true;
-			if (target->getOwner() != PlayerColor::NEUTRAL && ai->cb->getPlayerRelations(ai->playerID, target->getOwner()) == PlayerRelations::ENEMIES)
+			if (target->getOwner().isValidPlayer() && ai->cb->getPlayerRelations(ai->playerID, target->getOwner()) == PlayerRelations::ENEMIES)
 				evaluationContext.isEnemy = true;
 			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army);
 			if(evaluationContext.danger > 0)
@@ -1368,7 +1368,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			arriveNextWeek = true;
 
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, army-involvement: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, explorePriority: %d isDefend: %d",
+		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, army-involvement: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, explorePriority: %d isDefend: %d isEnemy: %d arriveNextWeek: %d",
 			priorityTier,
 			task->toString(),
 			evaluationContext.armyLossPersentage,
@@ -1390,7 +1390,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			evaluationContext.closestWayRatio,
 			evaluationContext.enemyHeroDangerRatio,
 			evaluationContext.explorePriority,
-			evaluationContext.isDefend);
+			evaluationContext.isDefend,
+			evaluationContext.isEnemy,
+			arriveNextWeek);
 #endif
 
 		switch (priorityTier)
