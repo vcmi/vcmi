@@ -58,6 +58,29 @@ void BuyArmy::accept(AIGateway * ai)
 
 		if(ci.count)
 		{
+			if (!town->getUpperArmy()->hasStackAtSlot(town->getUpperArmy()->getSlotFor(ci.creID)))
+			{
+				SlotID lowestValueSlot;
+				int lowestValue = std::numeric_limits<int>::max();
+				for (auto slot : town->getUpperArmy()->Slots())
+				{
+					if (slot.second->getCreatureID() != CreatureID::NONE)
+					{
+						int currentStackMarketValue =
+							slot.second->getCreatureID().toCreature()->getFullRecruitCost().marketValue() * slot.second->getCount();
+
+						if (currentStackMarketValue < lowestValue)
+						{
+							lowestValue = currentStackMarketValue;
+							lowestValueSlot = slot.first;
+						}
+					}
+				}
+				if (lowestValueSlot.validSlot())
+				{
+					cb->dismissCreature(town->getUpperArmy(), lowestValueSlot);
+				}
+			}
 			cb->recruitCreatures(town, town->getUpperArmy(), ci.creID, ci.count, ci.level);
 			valueBought += ci.count * ci.creID.toCreature()->getAIValue();
 		}

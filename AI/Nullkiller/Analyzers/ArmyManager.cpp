@@ -309,6 +309,10 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 		? dynamic_cast<const CGTownInstance *>(dwelling)
 		: nullptr;
 
+	// Keep track of the least valuable slot in the hero's army
+	SlotID leastValuableSlot;
+	int leastValuableStackMarketValue = std::numeric_limits<int>::max();
+
 	for(int i = dwelling->creatures.size() - 1; i >= 0; i--)
 	{
 		auto ci = infoFromDC(dwelling->creatures[i]);
@@ -322,13 +326,40 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 
 		if(!ci.count) continue;
 
+		// Calculate the market value of the new stack
+		int newStackMarketValue = ci.creID.toCreature()->getFullRecruitCost().marketValue() * ci.count;
+
 		SlotID dst = hero->getSlotFor(ci.creID);
 		if(!hero->hasStackAtSlot(dst)) //need another new slot for this stack
 		{
-			if(!freeHeroSlots) //no more place for stacks
-				continue;
+			if(!freeHeroSlots) // No free slots; consider replacing
+			{
+				// Check for the least valuable existing stack
+				for (auto& slot : hero->Slots())
+				{
+					if(slot.second->getCreatureID() != CreatureID::NONE)
+					{
+						int currentStackMarketValue =
+							slot.second->getCreatureID().toCreature()->getFullRecruitCost().marketValue() * slot.second->getCount();
+
+						if(currentStackMarketValue < leastValuableStackMarketValue)
+						{
+							leastValuableStackMarketValue = currentStackMarketValue;
+							leastValuableSlot = slot.first;
+						}
+					}
+				}
+
+				// Decide whether to replace the least valuable stack
+				if(newStackMarketValue <= leastValuableStackMarketValue)
+				{
+					continue; // Skip if the new stack isn't worth replacing
+				}
+			}
 			else
+			{
 				freeHeroSlots--; //new slot will be occupied
+			}
 		}
 
 		vstd::amin(ci.count, availableRes / ci.creID.toCreature()->getFullRecruitCost()); //max count we can afford
