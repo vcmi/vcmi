@@ -422,7 +422,7 @@ static std::string requiredCheck(JsonValidator & validator, const JsonNode & bas
 	std::string errors;
 	for(const auto & required : schema.Vector())
 	{
-		if (data[required.String()].isNull())
+		if (data[required.String()].isNull() && data.getModScope() != "core")
 			errors += validator.makeErrorMessage("Required entry " + required.String() + " is missing");
 	}
 	return errors;

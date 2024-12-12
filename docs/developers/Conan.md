@@ -27,7 +27,7 @@ The following platforms are supported and known to work, others might require ch
     - **Windows**: libraries are built with x86_64-mingw-w64-gcc version 10 (which is available in repositories of Ubuntu 22.04)
     - **Android**: libraries are built with NDK r25c (25.2.9519653)
 
-2. Download the binaries archive and unpack it to `~/.conan` directory from https://github.com/vcmi/vcmi-dependencies/releases/latest
+2. Download the binaries archive and unpack it to `~/.conan` directory from <https://github.com/vcmi/vcmi-dependencies/releases/latest>
 
     - macOS: pick **dependencies-mac-intel.txz** if you have Intel Mac, otherwise - **dependencies-mac-arm.txz**
     - iOS: pick ***dependencies-ios.txz***
@@ -65,7 +65,7 @@ If you use `--build=never` and this command fails, then it means that you can't 
 
 VCMI "recipe" also has some options that you can specify. For example, if you don't care about game videos, you can disable FFmpeg dependency by passing `-o with_ffmpeg=False`. If you only want to make release build, you can use `GENERATE_ONLY_BUILT_CONFIG=1` environment variable to skip generating files for other configurations (our CI does this).
 
-_Note_: you can find full reference of this command [in the official documentation](https://docs.conan.io/1/reference/commands/consumer/install.html) or by executing `conan help install`.
+*Note*: you can find full reference of this command [in the official documentation](https://docs.conan.io/1/reference/commands/consumer/install.html) or by executing `conan help install`.
 
 ### Using our prebuilt binaries for macOS/iOS
 
@@ -86,7 +86,7 @@ This subsection describes platform specifics to build libraries from source prop
 
 #### Building for macOS/iOS
 
-- To build Locale module of Boost in versions >= 1.81, you must use `compiler.cppstd=11` Conan setting (our profiles already contain it). To use it with another profile, either add this setting to your _host_ profile or pass `-s compiler.cppstd=11` on the command line.
+- To build Locale module of Boost in versions >= 1.81, you must use `compiler.cppstd=11` Conan setting (our profiles already contain it). To use it with another profile, either add this setting to your *host* profile or pass `-s compiler.cppstd=11` on the command line.
 - If you wish to build dependencies against system libraries (like our prebuilt ones do), follow [below instructions](#using-recipes-for-system-libraries) executing `conan create` for all directories. Don't forget to pass `-o with_apple_system_libs=True` to `conan install` afterwards.
 
 #### Building for Android
@@ -105,11 +105,11 @@ After applying patch(es):
 2. Run `make`
 3. Copy file `qtbase/jar/QtAndroid.jar` from the build directory to the **package directory**, e.g. `~/.conan/data/qt/5.15.14/_/_/package/SOME_HASH/jar`.
 
-_Note_: if you plan to build Qt from source again, then you don't need to perform the above _After applying patch(es)_ steps after building.
+*Note*: if you plan to build Qt from source again, then you don't need to perform the above *After applying patch(es)* steps after building.
 
 ##### Using recipes for system libraries
 
-1. Clone/download https://github.com/kambala-decapitator/conan-system-libs
+1. Clone/download <https://github.com/kambala-decapitator/conan-system-libs>
 2. Execute `conan create PACKAGE vcmi/CHANNEL`, where `PACKAGE` is a directory path in that repository and `CHANNEL` is **apple** for macOS/iOS and **android** for Android. Do it for each library you need.
 3. Now you can execute `conan install` to build all dependencies.
 
@@ -126,7 +126,7 @@ In these examples only the minimum required amount of options is passed to `cmak
 
 ### Use our prebuilt binaries to build for macOS x86_64 with Xcode
 
-```
+```sh
 conan install . \
   --install-folder=conan-generated \
   --no-imports \
@@ -143,7 +143,7 @@ cmake -S . -B build -G Xcode \
 
 If you also want to build the missing binaries from source, use `--build=missing` instead of `--build=never`.
 
-```
+```sh
 conan install . \
   --install-folder=~/my-dir \
   --no-imports \
@@ -158,7 +158,7 @@ cmake -S . -B build \
 
 ### Use our prebuilt binaries to build for iOS arm64 device with custom preset
 
-```
+```sh
 conan install . \
   --install-folder=~/my-dir \
   --no-imports \
@@ -205,7 +205,7 @@ ubuntu
 
 Next steps are identical both in WSL and in real Ubuntu 22.04
 
-```bash
+```sh
 sudo pip3 install conan
 sudo apt install cmake build-essential
 sed -i 's/x86_64-w64-mingw32/i686-w64-mingw32/g' CI/mingw-ubuntu/before-install.sh

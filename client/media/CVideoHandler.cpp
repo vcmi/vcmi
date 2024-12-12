@@ -327,6 +327,11 @@ bool CVideoInstance::videoEnded()
 	return getCurrentFrame() == nullptr;
 }
 
+CVideoInstance::CVideoInstance()
+	: startTimeInitialized(false), deactivationStartTimeHandling(false)
+{
+}
+
 CVideoInstance::~CVideoInstance()
 {
 	sws_freeContext(sws);
@@ -391,8 +396,11 @@ void CVideoInstance::tick(uint32_t msPassed)
 	if(videoEnded())
 		throw std::runtime_error("Video already ended!");
 
-	if(startTime == std::chrono::steady_clock::time_point())
+	if(!startTimeInitialized)
+	{
 		startTime = std::chrono::steady_clock::now();
+		startTimeInitialized = true;
+	}
 
 	auto nowTime = std::chrono::steady_clock::now();
 	double difference = std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - startTime).count() / 1000.0;
@@ -410,17 +418,18 @@ void CVideoInstance::tick(uint32_t msPassed)
 
 void CVideoInstance::activate()
 {
-	if(deactivationStartTime != std::chrono::steady_clock::time_point())
+	if(deactivationStartTimeHandling)
 	{
 		auto pauseDuration = std::chrono::steady_clock::now() - deactivationStartTime;
 		startTime += pauseDuration;
-		deactivationStartTime = std::chrono::steady_clock::time_point();
+		deactivationStartTimeHandling = false;
 	}
 }
 
 void CVideoInstance::deactivate()
 {
 	deactivationStartTime = std::chrono::steady_clock::now();
+	deactivationStartTimeHandling = true;
 }
 
 struct FFMpegFormatDescription
@@ -635,68 +644,6 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	std::copy(samples.begin(), samples.end(), dat.first.get() + sizeof(WavHeader));
 
 	return dat;
-}
-
-bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool stopOnKey)
-{
-	CVideoInstance instance;
-
-	auto extractedAudio = getAudio(name);
-	int audioHandle = CCS->soundh->playSound(extractedAudio);
-
-	if (!instance.openInput(name))
-		return true;
-
-	instance.openVideo();
-	instance.prepareOutput(1, true);
-
-	auto lastTimePoint = boost::chrono::steady_clock::now();
-
-	while(instance.loadNextFrame())
-	{
-		if(stopOnKey)
-		{
-			GH.input().fetchEvents();
-			if(GH.input().ignoreEventsUntilInput())
-			{
-				CCS->soundh->stopSound(audioHandle);
-				return false;
-			}
-		}
-
-		SDL_Rect rect;
-		rect.x = position.x;
-		rect.y = position.y;
-		rect.w = instance.dimensions.x;
-		rect.h = instance.dimensions.y;
-
-		SDL_RenderFillRect(mainRenderer, &rect);
-
-		if(instance.textureYUV)
-			SDL_RenderCopy(mainRenderer, instance.textureYUV, nullptr, &rect);
-		else
-			SDL_RenderCopy(mainRenderer, instance.textureRGB, nullptr, &rect);
-
-		SDL_RenderPresent(mainRenderer);
-
-		// Framerate delay
-		double targetFrameTimeSeconds = instance.getCurrentFrameDuration();
-		auto targetFrameTime = boost::chrono::milliseconds(static_cast<int>(1000 * targetFrameTimeSeconds));
-
-		auto timePointAfterPresent = boost::chrono::steady_clock::now();
-		auto timeSpentBusy = boost::chrono::duration_cast<boost::chrono::milliseconds>(timePointAfterPresent - lastTimePoint);
-
-		if(targetFrameTime > timeSpentBusy)
-			boost::this_thread::sleep_for(targetFrameTime - timeSpentBusy);
-
-		lastTimePoint = boost::chrono::steady_clock::now();
-	}
-	return true;
-}
-
-void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & position)
-{
-	openAndPlayVideoImpl(name, position * GH.screenHandler().getScalingFactor(), false, false);
 }
 
 std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, float scaleFactor)

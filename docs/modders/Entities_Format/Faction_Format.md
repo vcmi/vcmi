@@ -8,46 +8,46 @@ In order to make functional town, you also need:
 
 ### Images
 
--   Creature backgrounds images, 120x100 and 130x100 versions (2 images)
--   Set of puzzle map pieces (48 images)
--   Background scenery (1 image)
--   Mage guild window view (1 image)
--   Town hall background (1 image)
+- Creature backgrounds images, 120x100 and 130x100 versions (2 images)
+- Set of puzzle map pieces (48 images)
+- Background scenery (1 image)
+- Mage guild window view (1 image)
+- Town hall background (1 image)
 
--   Set of town icons, consists from all possible combinations of: (8
+- Set of town icons, consists from all possible combinations of: (8
     images total)
-    -   small and big icons
-    -   village and fort icons
-    -   built and normal icons
+  - small and big icons
+  - village and fort icons
+  - built and normal icons
 
--   Set for castle siege screen, consists from:
-    -   Background (1 image)
-    -   Destructible towers (3 parts, 3 images each)
-    -   Destructible walls (4 parts, 3 images each)
-    -   Static walls (3 images)
-    -   Town gates (5 images)
-    -   Moat (2 images)
+- Set for castle siege screen, consists from:
+  - Background (1 image)
+  - Destructible towers (3 parts, 3 images each)
+  - Destructible walls (4 parts, 3 images each)
+  - Static walls (3 images)
+  - Town gates (5 images)
+  - Moat (2 images)
 
 ### Animation
 
--   Adventure map images for village, town and capitol (3 def files)
+- Adventure map images for village, town and capitol (3 def files)
 
 ### Music
 
--   Town theme music track (at least 1 music file)
+- Town theme music track (at least 1 music file)
 
 ### Buildings
 
 Each town requires a set of buildings (Around 30-45 buildings)
 
--   Town animation file (1 animation file)
--   Selection highlight (1 image)
--   Selection area (1 image)
--   Town hall icon (1 image)
+- Town animation file (1 animation file)
+- Selection highlight (1 image)
+- Selection area (1 image)
+- Town hall icon (1 image)
 
 ## Faction node (root entry for town configuration)
 
-```jsonc
+```json
 // Unique faction identifier.
 "myFaction" :
 {
@@ -108,7 +108,7 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 ## Town node
 
-```jsonc
+```json
 {
 	// Field that describes behavior of map object part of town. Town-specific part of object format
 	"mapObject" : 
@@ -256,7 +256,7 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 ## Siege node
 
-```jsonc
+```json
 // Describes town siege screen
 // Comments in the end of each graphic position indicate specify required suffix for image
 // Note: one not included image is battlefield background with suffix "BACK"
@@ -340,7 +340,9 @@ Each town requires a set of buildings (Around 30-45 buildings)
 ```
 
 ## Building node
+
 See [Town Building Format](Town_Building_Format.md)
 
 ## Structure node
+
 See [Town Building Format](Town_Building_Format.md)

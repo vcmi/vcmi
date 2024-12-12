@@ -39,17 +39,17 @@ const uint64_t CHAIN_MAX_DEPTH = 4;
 
 const bool DO_NOT_SAVE_TO_COMMITTED_TILES = false;
 
-AISharedStorage::AISharedStorage(int3 sizes)
+AISharedStorage::AISharedStorage(int3 sizes, int numChains)
 {
 	if(!shared){
 		shared.reset(new boost::multi_array<AIPathNode, 4>(
-			boost::extents[sizes.z][sizes.x][sizes.y][AIPathfinding::NUM_CHAINS]));
+			boost::extents[sizes.z][sizes.x][sizes.y][numChains]));
 
 		nodes = shared;
 
 		foreach_tile_pos([&](const int3 & pos)
 			{
-				for(auto i = 0; i < AIPathfinding::NUM_CHAINS; i++)
+				for(auto i = 0; i < numChains; i++)
 				{
 					auto & node = get(pos)[i];
 						
@@ -92,8 +92,18 @@ void AIPathNode::addSpecialAction(std::shared_ptr<const SpecialAction> action)
 	}
 }
 
+int AINodeStorage::getBucketCount() const
+{
+	return ai->settings->getPathfinderBucketsCount();
+}
+
+int AINodeStorage::getBucketSize() const
+{
+	return ai->settings->getPathfinderBucketSize();
+}
+
 AINodeStorage::AINodeStorage(const Nullkiller * ai, const int3 & Sizes)
-	: sizes(Sizes), ai(ai), cb(ai->cb.get()), nodes(Sizes)
+	: sizes(Sizes), ai(ai), cb(ai->cb.get()), nodes(Sizes, ai->settings->getPathfinderBucketSize() * ai->settings->getPathfinderBucketsCount())
 {
 	accessibility = std::make_unique<boost::multi_array<EPathAccessibility, 4>>(
 		boost::extents[sizes.z][sizes.x][sizes.y][EPathfindingLayer::NUM_LAYERS]);
@@ -169,8 +179,8 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const EPathfindingLayer layer, 
 	const ChainActor * actor)
 {
-	int bucketIndex = ((uintptr_t)actor + static_cast<uint32_t>(layer)) % AIPathfinding::BUCKET_COUNT;
-	int bucketOffset = bucketIndex * AIPathfinding::BUCKET_SIZE;
+	int bucketIndex = ((uintptr_t)actor + static_cast<uint32_t>(layer)) % ai->settings->getPathfinderBucketsCount();
+	int bucketOffset = bucketIndex * ai->settings->getPathfinderBucketSize();
 	auto chains = nodes.get(pos);
 
 	if(blocked(pos, layer))
@@ -178,7 +188,7 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 		return std::nullopt;
 	}
 
-	for(auto i = AIPathfinding::BUCKET_SIZE - 1; i >= 0; i--)
+	for(auto i = ai->settings->getPathfinderBucketSize() - 1; i >= 0; i--)
 	{
 		AIPathNode & node = chains[i + bucketOffset];
 
@@ -486,8 +496,8 @@ public:
 		AINodeStorage & storage, const std::vector<int3> & tiles, uint64_t chainMask, int heroChainTurn)
 		:existingChains(), newChains(), delayedWork(), storage(storage), chainMask(chainMask), heroChainTurn(heroChainTurn), heroChain(), tiles(tiles)
 	{
-		existingChains.reserve(AIPathfinding::NUM_CHAINS);
-		newChains.reserve(AIPathfinding::NUM_CHAINS);
+		existingChains.reserve(storage.getBucketCount() * storage.getBucketSize());
+		newChains.reserve(storage.getBucketCount() * storage.getBucketSize());
 	}
 
 	void execute(const tbb::blocked_range<size_t>& r)

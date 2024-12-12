@@ -120,6 +120,8 @@
 	"vcmi.lobby.deleteFile" : "Möchtet Ihr folgende Datei löschen?",
 	"vcmi.lobby.deleteFolder" : "Möchtet Ihr folgenden Ordner löschen?",
 	"vcmi.lobby.deleteMode" : "In den Löschmodus wechseln und zurück",
+
+	"vcmi.broadcast.command" : "Benutze '!help' um alle verfügbaren Befehle aufzulisten",
 		
 	"vcmi.lobby.login.title" : "VCMI Online Lobby",
 	"vcmi.lobby.login.username" : "Benutzername:",

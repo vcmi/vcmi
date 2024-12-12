@@ -16,12 +16,16 @@
 #include "../render/Canvas.h"
 #include "../render/ColorFilter.h"
 #include "../render/IRenderHandler.h"
+#include "../render/CAnimation.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/GameSettings.h"
 #include "../lib/IGameSettings.h"
 #include "../lib/json/JsonNode.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/RiverHandler.h"
+#include "../lib/RoadHandler.h"
+#include "../lib/TerrainHandler.h"
 
 void AssetGenerator::generateAll()
 {
@@ -32,6 +36,7 @@ void AssetGenerator::generateAll()
 	createCombatUnitNumberWindow();
 	createCampaignBackground();
 	createChroniclesCampaignImages();
+	createPaletteShiftedSprites();
 }
 
 void AssetGenerator::createAdventureOptionsCleanBackground()
@@ -324,5 +329,108 @@ void AssetGenerator::createChroniclesCampaignImages()
 		std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
 		image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+	}
+}
+
+void AssetGenerator::createPaletteShiftedSprites()
+{
+	std::vector<std::string> tiles;
+	std::vector<std::vector<std::variant<TerrainPaletteAnimation, RiverPaletteAnimation>>> paletteAnimations;
+	for(auto entity : VLC->terrainTypeHandler->objects)
+	{
+		if(entity->paletteAnimation.size())
+		{
+			tiles.push_back(entity->tilesFilename.getName());
+			std::vector<std::variant<TerrainPaletteAnimation, RiverPaletteAnimation>> tmpAnim;
+			for(auto & animEntity : entity->paletteAnimation)
+				tmpAnim.push_back(animEntity);
+			paletteAnimations.push_back(tmpAnim);
+		}
+	}
+	for(auto entity : VLC->riverTypeHandler->objects)
+	{
+		if(entity->paletteAnimation.size())
+		{
+			tiles.push_back(entity->tilesFilename.getName());
+			std::vector<std::variant<TerrainPaletteAnimation, RiverPaletteAnimation>> tmpAnim;
+			for(auto & animEntity : entity->paletteAnimation)
+				tmpAnim.push_back(animEntity);
+			paletteAnimations.push_back(tmpAnim);
+		}
+	}
+
+	for(int i = 0; i < tiles.size(); i++)
+	{
+		auto sprite = tiles[i];
+
+		JsonNode config;
+		config["basepath"].String() = sprite + "_Shifted/";
+		config["images"].Vector();
+
+		auto filename = AnimationPath::builtin(sprite).addPrefix("SPRITES/");
+		auto filenameNew = AnimationPath::builtin(sprite + "_Shifted").addPrefix("SPRITES/");
+
+		if(CResourceHandler::get()->existsResource(ResourcePath(filenameNew.getName(), EResType::JSON))) // overridden by mod, no generation
+			return;
+		
+		auto anim = GH.renderHandler().loadAnimation(filename, EImageBlitMode::COLORKEY);
+		for(int j = 0; j < anim->size(); j++)
+		{
+			int maxLen = 1;
+			for(int k = 0; k < paletteAnimations[i].size(); k++)
+			{
+				auto element = paletteAnimations[i][k];
+				if(std::holds_alternative<TerrainPaletteAnimation>(element))
+					maxLen = std::lcm(maxLen, std::get<TerrainPaletteAnimation>(element).length);
+				else
+					maxLen = std::lcm(maxLen, std::get<RiverPaletteAnimation>(element).length);
+			}
+			for(int l = 0; l < maxLen; l++)
+			{
+				std::string spriteName = sprite + boost::str(boost::format("%02d") % j) + "_" + std::to_string(l) + ".png";
+				std::string filenameNewImg = "sprites/" + sprite + "_Shifted" + "/" + spriteName;
+				ResourcePath savePath(filenameNewImg, EResType::IMAGE);
+
+				if(!CResourceHandler::get("local")->createResource(filenameNewImg))
+					return;
+
+				auto imgLoc = anim->getImageLocator(j, 0);
+				imgLoc.scalingFactor = 1;
+				auto img = GH.renderHandler().loadImage(imgLoc, EImageBlitMode::COLORKEY);
+				for(int k = 0; k < paletteAnimations[i].size(); k++)
+				{
+					auto element = paletteAnimations[i][k];
+					if(std::holds_alternative<TerrainPaletteAnimation>(element))
+					{
+						auto tmp = std::get<TerrainPaletteAnimation>(element);
+						img->shiftPalette(tmp.start, tmp.length, l % tmp.length);
+					}
+					else
+					{
+						auto tmp = std::get<RiverPaletteAnimation>(element);
+						img->shiftPalette(tmp.start, tmp.length, l % tmp.length);
+					}
+				}
+				
+				Canvas canvas = Canvas(Point(32, 32), CanvasScalingPolicy::IGNORE);
+				canvas.draw(img, Point((32 - img->dimensions().x) / 2, (32 - img->dimensions().y) / 2));
+				std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
+				image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+
+				JsonNode node(JsonMap{
+					{ "group", JsonNode(l) },
+					{ "frame", JsonNode(j) },
+					{ "file", JsonNode(spriteName) }
+				});
+				config["images"].Vector().push_back(node);
+			}
+		}
+
+		ResourcePath savePath(filenameNew.getOriginalName(), EResType::JSON);
+		if(!CResourceHandler::get("local")->createResource(filenameNew.getOriginalName() + ".json"))
+			return;
+
+		std::fstream file(CResourceHandler::get("local")->getResourceName(savePath)->c_str(), std::ofstream::out | std::ofstream::trunc);
+		file << config.toString();
 	}
 }

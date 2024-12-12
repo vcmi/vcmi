@@ -47,7 +47,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-797</y>
+        <y>0</y>
         <width>729</width>
         <height>1503</height>
        </rect>
@@ -1179,13 +1179,13 @@
        <item row="11" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxFullScreen">
          <property name="toolTip">
-          <string>Select display mode for game
+          <string>Select a display mode for the game
 
-Windowed - game will run inside a window that covers part of your screen
+Windowed - the game will run inside a window that covers part of your screen.
 
-Borderless Windowed Mode - game will run in a window that covers entirely of your screen, using same resolution as your screen.
+Borderless Windowed Mode - the game will run in a full-screen window, matching your screen's resolution.
 
-Fullscreen Exclusive Mode - game will cover entirety of your screen and will use selected resolution.</string>
+Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</string>
          </property>
          <property name="currentIndex">
           <number>0</number>

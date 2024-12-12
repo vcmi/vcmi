@@ -3,12 +3,13 @@
 ## Introduction
 
 Starting from version 1.3, VCMI supports its own campaign format.
-Campaigns have *.vcmp file format and it consists from campaign json and set of scenarios (can be both *.vmap and *.h3m)
+Campaigns have `*.vcmp` file format and it consists from campaign json and set of scenarios (can be both `*.vmap` and `*.h3m`)
 
 To start making campaign, create file named `header.json`. See also [Packing campaign](#packing-campaign)
 
 Basic structure of this file is here, each section is described in details below
-```js
+
+```json
 {
     "version" : 1,
 
@@ -32,7 +33,8 @@ Basic structure of this file is here, each section is described in details below
 ## Header properties
 
 In header are parameters describing campaign properties
-```js
+
+```json
     ...
     "regions": {...},
     "name": "Campaign name",
@@ -60,7 +62,8 @@ In header are parameters describing campaign properties
 ## Scenario description
 
 Scenario description looks like follow:
-```js
+
+```json
 {
     "map": "maps/SomeMap",
     "preconditions": [],
@@ -77,7 +80,7 @@ Scenario description looks like follow:
 }
 ```
 
-- `"map"` map name without extension but with relative path. Both *.h3m and *.vmap maps are supported. If you will pack scenarios inside campaign, numerical map name should be used, see details in [packing campaign](#packing-campaign)
+- `"map"` map name without extension but with relative path. Both `*.h3m` and `*.vmap` maps are supported. If you will pack scenarios inside campaign, numerical map name should be used, see details in [packing campaign](#packing-campaign)
 - `"preconditions"` enumerate scenarios indexes which must be completed to unlock this scenario. For example, if you want to make sequential missions, you should specify `"preconditions": []` for first scenario, but for second scenario it should be `"preconditions": [0]` and for third `"preconditions": [0, 1]`. But you can allow non-linear conquering using this parameter
 - `"color"` defines color id for the region. Possible values are `0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`
 - `"difficulty"` sets initial difficulty for this scenario. If `"allowDifficultySelection"`is defined for campaign, difficulty may be changed by player. Possible values are `0: pawn, 1: knight, 2: rook, 3: queen, 4: king`
@@ -96,7 +99,8 @@ Scenario description looks like follow:
 ### Prolog/Epilog
 
 Prolog and epilog properties are optional
-```js
+
+```json
 {
     "video": "NEUTRALA.smk", //video to show
     "music": "musicFile.ogg", //music to play, should be located in music directory
@@ -115,7 +119,7 @@ If `startOptions` is `none`, `bonuses` field will be ignored
 
 If `startOptions` is `bonus`, bonus format may vary depending on its type.
 
-```js
+```json
 {
     "what": "",
 
@@ -158,19 +162,21 @@ If `startOptions` is `bonus`, bonus format may vary depending on its type.
 
 If `startOptions` is `crossover`, heroes from specific scenario will be moved to this scenario. Bonus format is following
 
-```js
+```json
 {
     "playerColor": 0,
     "scenario": 0
 },
 ```
+
 - `"playerColor"` from what player color heroes shall be taken. Possible values are `0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`
 - `"scenario"` from which scenario heroes shall be taken. 0 means first scenario
 
 #### Hero start option
 
 If `startOptions` is `hero`, hero can be chosen as a starting bonus. Bonus format is following
-```js
+
+```json
 {
     "playerColor": 0,
     "hero": "random"
@@ -184,7 +190,7 @@ If `startOptions` is `hero`, hero can be chosen as a starting bonus. Bonus forma
 
 Predefined campaign regions are located in file `campaign_regions.json`
 
-```js
+```json
 {
     "background": "ownRegionBackground.png",
 		"suffix": ["Enabled", "Selected", "Conquered"],
@@ -201,7 +207,7 @@ Predefined campaign regions are located in file `campaign_regions.json`
 - `"background"` optional - use own image name for background instead of adding "_BG" to the prefix as name
 - `"prefix"` used to identify all images related to campaign. In this example (if background parameter wouldn't exists), background picture will be `G3_BG`
 - `"suffix"` optional - use other suffixes than the default `En`, `Se` and `Co` for the three different images
-- `"infix"` used to identify all images related to region. In this example, it will be pictures whose files names begin with `G3A_..., G3B_..., G3C_..."` 
+- `"infix"` used to identify all images related to region. In this example, it will be pictures whose files names begin with `G3A_..., G3B_..., G3C_..."`
 - `"labelPos"` optional -  to add scenario name as label on map
 - `"colorSuffixLength"` identifies suffix length for region colourful frames. 0 is no color suffix (no colorisation), 1 is used for `R, B, N, G, O, V, T, P`, value 2 is used for `Re, Bl, Br, Gr, Or, Vi, Te, Pi`
 
@@ -213,6 +219,7 @@ This file is a zip archive.
 The scenarios should be named as in `"map"` field from header. Subfolders are allowed.
 
 ## Compatibility table
+
 | Version | Min VCMI | Max VCMI | Description |
 |---------|----------|----------|-------------|
 | 1       | 1.3      |          | Initial release |

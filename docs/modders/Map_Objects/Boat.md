@@ -1,6 +1,6 @@
 # Boat
 
-``` javascript
+```json
 {
 	// Layer on which this boat moves. Possible values:
 	// "land" - same rules as movement of hero on land

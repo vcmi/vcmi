@@ -1064,7 +1064,7 @@ StackQueue::StackBox::StackBox(StackQueue * owner):
 		icon = std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), 0, 0, 9, 1);
 		amount = std::make_shared<CLabel>(pos.w/2, pos.h - 8, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 		roundRect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, 15, 18), ColorRGBA(0, 0, 0, 255), ColorRGBA(241, 216, 120, 255));
-		round = std::make_shared<CLabel>(4, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+		round = std::make_shared<CLabel>(6, 9, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
 		Point iconPos(pos.w - 16, pos.h - 16);
 
@@ -1105,6 +1105,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 			const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
 			int len = font->getStringWidth(tmp);
 			roundRect->pos.w = len + 6;
+			round->pos = Rect(roundRect->pos.center().x, roundRect->pos.center().y, 0, 0);
 			round->setText(tmp);
 		}
 

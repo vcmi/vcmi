@@ -146,21 +146,21 @@ bool HeroPtr::operator==(const HeroPtr & rhs) const
 	return h == rhs.get(true);
 }
 
-bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint64_t dangerStrength)
+bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint64_t dangerStrength, float safeAttackRatio)
 {
 	const ui64 heroStrength = h->getHeroStrength() * heroArmy->getArmyStrength();
 
 	if(dangerStrength)
 	{
-		return heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength;
+		return heroStrength > dangerStrength * safeAttackRatio;
 	}
 
 	return true; //there's no danger
 }
 
-bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength)
+bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength, float safeAttackRatio)
 {
-	return isSafeToVisit(h, h, dangerStrength);
+	return isSafeToVisit(h, h, dangerStrength, safeAttackRatio);
 }
 
 bool isObjectRemovable(const CGObjectInstance * obj)

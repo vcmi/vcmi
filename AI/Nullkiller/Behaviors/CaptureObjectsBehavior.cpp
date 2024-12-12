@@ -114,7 +114,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 			continue;
 		}
 
-		auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
+		auto isSafe = isSafeToVisit(hero, path.heroArmy, danger, nullkiller->settings->getSafeAttackRatio());
 
 #if NKAI_TRACE_LEVEL >= 2
 		logAi->trace(

@@ -30,6 +30,7 @@
 #include "../widgets/CTextInput.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/VideoWidget.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../render/AssetGenerator.h"
 
@@ -395,6 +396,8 @@ void CSpellWindow::fRcornerb()
 
 void CSpellWindow::show(Canvas & to)
 {
+	if(video)
+		video->show(to);
 	statusBar->show(to);
 }
 
@@ -493,14 +496,22 @@ void CSpellWindow::setCurrentPage(int value)
 
 void CSpellWindow::turnPageLeft()
 {
+	OBJECT_CONSTRUCTION;
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		CCS->videoh->playSpellbookAnimation(VideoPath::builtin("PGTRNLFT.SMK"), pos.topLeft() + Point(13, 14));
+		video = std::make_shared<VideoWidgetOnce>(Point(13, 14), VideoPath::builtin("PGTRNLFT.SMK"), false, this);
 }
 
 void CSpellWindow::turnPageRight()
 {
+	OBJECT_CONSTRUCTION;
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		CCS->videoh->playSpellbookAnimation(VideoPath::builtin("PGTRNRGH.SMK"), pos.topLeft() + Point(13, 14));
+		video = std::make_shared<VideoWidgetOnce>(Point(13, 14), VideoPath::builtin("PGTRNRGH.SMK"), false, this);
+}
+
+void CSpellWindow::onVideoPlaybackFinished()
+{
+	video.reset();
+	redraw();
 }
 
 void CSpellWindow::keyPressed(EShortcut key)

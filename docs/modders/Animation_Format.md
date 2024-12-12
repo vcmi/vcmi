@@ -2,13 +2,13 @@
 
 VCMI allows overriding HoMM3 .def files with .json replacement. Compared to .def this format allows:
 
--   Overriding individual frames from json file (e.g. icons)
--   Modern graphics formats (targa, png - all formats supported by VCMI image loader)
--   Does not requires any special tools - all you need is text editor and images.
+- Overriding individual frames from json file (e.g. icons)
+- Modern graphics formats (targa, png - all formats supported by VCMI image loader)
+- Does not requires any special tools - all you need is text editor and images.
 
 ## Format description
 
-``` javascript
+```json
 {
     // Base path of all images in animation. Optional.
     // Can be used to avoid using long path to images 
@@ -58,12 +58,14 @@ VCMI allows overriding HoMM3 .def files with .json replacement. Compared to .def
 ### Replacing a button
 
 This json file will allow replacing .def file for a button with png images. Buttons require following images:
+
 1. Active state. Button is active and can be pressed by player
 2. Pressed state. Player pressed button but have not released it yet
 3. Blocked state. Button is blocked and can not be interacted with. Note that some buttons are never blocked and can be used without this image
 4. Highlighted state. This state is used by only some buttons and only in some cases. For example, in main menu buttons will appear highlighted when mouse cursor is on top of the image. Another example is buttons that can be selected, such as settings that can be toggled on or off
 
-```javascript
+```json
+{
 	"basepath" : "interface/MyButton", // all images are located in this directory
 
 	"images" :
@@ -80,7 +82,8 @@ This json file will allow replacing .def file for a button with png images. Butt
 
 This json file allows defining one animation sequence, for example for adventure map objects or for town buildings.
 
-```javascript
+```json
+{
 	"basepath" : "myTown/myBuilding", // all images are located in this directory
 
 	"sequences" :

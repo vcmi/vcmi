@@ -55,6 +55,28 @@ TResources resourcesFromVariant(const QVariant & v)
 	return TResources(vJson);
 }
 
+QVariant toVariant(std::vector<ObjectInstanceID> objects)
+{
+	QVariantList result;
+	for(auto obj : objects)
+	{
+		result.push_back(QVariant::fromValue(obj.num));
+	}
+	return result;
+}
+
+std::vector<ObjectInstanceID> deletedObjectsIdsFromVariant(const QVariant & v)
+{
+	std::vector<ObjectInstanceID> result;
+	for(auto idAsVariant : v.toList())
+	{
+		auto id = idAsVariant.value<int>();
+		result.push_back(ObjectInstanceID(id));
+	}
+
+	return result;
+}
+
 QVariant toVariant(const CMapEvent & event)
 {
 	QVariantMap result;
@@ -66,6 +88,7 @@ QVariant toVariant(const CMapEvent & event)
 	result["firstOccurrence"] = QVariant::fromValue(event.firstOccurrence);
 	result["nextOccurrence"] = QVariant::fromValue(event.nextOccurrence);
 	result["resources"] = toVariant(event.resources);
+	result["deletedObjectsInstances"] = toVariant(event.deletedObjectsInstances);
 	return QVariant(result);
 }
 
@@ -81,6 +104,7 @@ CMapEvent eventFromVariant(CMapHeader & mapHeader, const QVariant & variant)
 	result.firstOccurrence = v.value("firstOccurrence").toInt();
 	result.nextOccurrence = v.value("nextOccurrence").toInt();
 	result.resources = resourcesFromVariant(v.value("resources"));
+	result.deletedObjectsInstances = deletedObjectsIdsFromVariant(v.value("deletedObjectsInstances"));
 	return result;
 }
 
@@ -137,6 +161,6 @@ void EventSettings::on_timedEventRemove_clicked()
 
 void EventSettings::on_eventsList_itemActivated(QListWidgetItem *item)
 {
-	new TimedEvent(item, parentWidget());
+	new TimedEvent(*controller, item, parentWidget());
 }
 

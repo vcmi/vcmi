@@ -15,7 +15,7 @@ The limiters take no parameters:
 
 Example:
 
-``` javascript
+```json
 "limiters" : [ "SHOOTER_ONLY" ]
 ```
 
@@ -25,12 +25,12 @@ Example:
 
 Parameters:
 
--   Bonus type
--   (optional) bonus subtype
--   (optional) bonus sourceType and sourceId in struct
--   example: (from Adele's bless):
+- Bonus type
+- (optional) bonus subtype
+- (optional) bonus sourceType and sourceId in struct
+- example: (from Adele's bless):
 
-``` javascript
+```json
 	"limiters" : [
 		{
 			"type" : "HAS_ANOTHER_BONUS_LIMITER",
@@ -50,20 +50,21 @@ Parameters:
 
 Parameters:
 
--   Creature id (string)
--   (optional) include upgrades - default is false
+- Creature id (string)
+- (optional) include upgrades - default is false
 
 ### CREATURE_ALIGNMENT_LIMITER
 
 Parameters:
 
--   Alignment identifier
+- Alignment identifier
 
 ### CREATURE_LEVEL_LIMITER
 
 If parameters is empty, level limiter works as CREATURES_ONLY limiter
 
 Parameters:
+
 - Minimal level
 - Maximal level
 
@@ -71,24 +72,24 @@ Parameters:
 
 Parameters:
 
--   Faction identifier
+- Faction identifier
 
 ### CREATURE_TERRAIN_LIMITER
 
 Parameters:
 
--   Terrain identifier
+- Terrain identifier
 
 Example:
 
-``` javascript
+```json
 "limiters": [ {
 	"type":"CREATURE_TYPE_LIMITER",
 	"parameters": [ "angel", true ]
 } ],
 ```
 
-``` javascript
+```json
 "limiters" : [ {
 	"type" : "CREATURE_TERRAIN_LIMITER",
 	"parameters" : ["sand"]
@@ -106,13 +107,13 @@ Parameters:
 The following limiters must be specified as the first element of a list,
 and operate on the remaining limiters in that list:
 
--   allOf (default when no aggregate limiter is specified)
--   anyOf
--   noneOf
+- allOf (default when no aggregate limiter is specified)
+- anyOf
+- noneOf
 
 Example:
 
-``` javascript
+```json
 "limiters" : [
     "noneOf",
     "IS_UNDEAD",

@@ -47,7 +47,6 @@ void MainWindow::computeSidePanelSizes()
 		ui->modslistButton,
 		ui->settingsButton,
 		ui->aboutButton,
-		ui->startEditorButton,
 		ui->startGameButton
 	};
 
@@ -78,11 +77,12 @@ MainWindow::MainWindow(QWidget * parent)
 
 	ui->setupUi(this);
 
+	setAcceptDrops(true);
+
 	setWindowIcon(QIcon{":/icons/menu-game.png"});
 	ui->modslistButton->setIcon(QIcon{":/icons/menu-mods.png"});
 	ui->settingsButton->setIcon(QIcon{":/icons/menu-settings.png"});
 	ui->aboutButton->setIcon(QIcon{":/icons/about-project.png"});
-	ui->startEditorButton->setIcon(QIcon{":/icons/menu-editor.png"});
 	ui->startGameButton->setIcon(QIcon{":/icons/menu-game.png"});
 
 #ifndef VCMI_MOBILE
@@ -101,16 +101,12 @@ MainWindow::MainWindow(QWidget * parent)
 	}
 #endif
 
-#ifndef ENABLE_EDITOR
-	ui->startEditorButton->hide();
-#endif
-
 	computeSidePanelSizes();
 
 	bool h3DataFound = CResourceHandler::get()->existsResource(ResourcePath("DATA/GENRLTXT.TXT"));
 
 	if (h3DataFound && setupCompleted)
-		ui->tabListWidget->setCurrentIndex(TabRows::MODS);
+		ui->tabListWidget->setCurrentIndex(TabRows::START);
 	else
 		enterSetup();
 
@@ -147,7 +143,6 @@ void MainWindow::detectPreferredLanguage()
 void MainWindow::enterSetup()
 {
 	ui->startGameButton->setEnabled(false);
-	ui->startEditorButton->setEnabled(false);
 	ui->settingsButton->setEnabled(false);
 	ui->aboutButton->setEnabled(false);
 	ui->modslistButton->setEnabled(false);
@@ -160,16 +155,27 @@ void MainWindow::exitSetup()
 	writer->Bool() = true;
 
 	ui->startGameButton->setEnabled(true);
-	ui->startEditorButton->setEnabled(true);
 	ui->settingsButton->setEnabled(true);
 	ui->aboutButton->setEnabled(true);
 	ui->modslistButton->setEnabled(true);
 	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
 }
 
+void MainWindow::switchToStartTab()
+{
+	ui->startGameButton->setEnabled(true);
+	ui->startGameButton->setChecked(true);
+	ui->tabListWidget->setCurrentIndex(TabRows::START);
+
+	auto* startGameTabWidget = qobject_cast<StartGameTab*>(ui->tabListWidget->widget(TabRows::START));
+	if(startGameTabWidget)
+		startGameTabWidget->refreshState();
+}
+
 void MainWindow::switchToModsTab()
 {
 	ui->startGameButton->setEnabled(true);
+	ui->modslistButton->setChecked(true);
 	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
 }
 
@@ -196,14 +202,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_startGameButton_clicked()
 {
-	hide();
-	startGame({});
-}
-
-void MainWindow::on_startEditorButton_clicked()
-{
-	hide();
-	startEditor({});
+	switchToStartTab();
 }
 
 CModListView * MainWindow::getModView()
@@ -226,6 +225,92 @@ void MainWindow::on_aboutButton_clicked()
 {
 	ui->startGameButton->setEnabled(true);
 	ui->tabListWidget->setCurrentIndex(TabRows::ABOUT);
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent* event)
+{
+	if(event->mimeData()->hasUrls())
+		for(const auto & url : event->mimeData()->urls())
+			for(const auto & ending : QStringList({".zip", ".h3m", ".h3c", ".vmap", ".vcmp", ".json", ".exe"}))
+				if(url.fileName().endsWith(ending, Qt::CaseInsensitive))
+				{
+					event->acceptProposedAction();
+					return;
+				}
+}
+
+void MainWindow::dropEvent(QDropEvent* event)
+{
+	const QMimeData* mimeData = event->mimeData();
+
+	if(mimeData->hasUrls())
+	{
+		const QList<QUrl> urlList = mimeData->urls();
+		for (const auto & url : urlList)
+			manualInstallFile(url.toLocalFile());
+	}
+}
+
+void MainWindow::manualInstallFile(QString filePath)
+{
+	if(filePath.endsWith(".zip", Qt::CaseInsensitive) || filePath.endsWith(".exe", Qt::CaseInsensitive))
+		switchToModsTab();
+
+	QString fileName = QFileInfo{filePath}.fileName();
+	if(filePath.endsWith(".zip", Qt::CaseInsensitive))
+		getModView()->downloadFile(fileName.toLower()
+														// mod name currently comes from zip file -> remove suffixes from github zip download
+														.replace(QRegularExpression("-[0-9a-f]{40}"), "")
+														.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
+														.replace("-main.zip", ".zip")
+													, QUrl::fromLocalFile(filePath), "mods");
+	else if(filePath.endsWith(".json", Qt::CaseInsensitive))
+	{
+		QDir configDir(QString::fromStdString(VCMIDirs::get().userConfigPath().string()));
+		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files); // case insensitive check
+		if(!configFile.empty())
+		{
+			auto dialogResult = QMessageBox::warning(this, tr("Replace config file?"), tr("Do you want to replace %1?").arg(configFile[0]), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+			if(dialogResult == QMessageBox::Yes)
+			{
+				const auto configFilePath = configDir.filePath(configFile[0]);
+				QFile::remove(configFilePath);
+				QFile::copy(filePath, configFilePath);
+
+				// reload settings
+				Helper::loadSettings();
+				for(const auto widget : qApp->allWidgets())
+					if(auto settingsView = qobject_cast<CSettingsView *>(widget))
+						settingsView->loadSettings();
+
+				getModView()->reload();
+			}
+		}
+	}
+	else
+		getModView()->installFiles(QStringList{filePath});
+}
+
+ETranslationStatus MainWindow::getTranslationStatus()
+{
+	QString preferredlanguage = QString::fromStdString(settings["general"]["language"].String());
+	QString installedlanguage = QString::fromStdString(settings["session"]["language"].String());
+
+	if (preferredlanguage == installedlanguage)
+		return ETranslationStatus::ACTIVE;
+
+	QString modName = getModView()->getTranslationModName(preferredlanguage);
+
+	if (modName.isEmpty())
+		return ETranslationStatus::NOT_AVAILABLE;
+
+	if (!getModView()->isModInstalled(modName))
+		return ETranslationStatus::NOT_INSTALLLED;
+
+	if (!getModView()->isModEnabled(modName))
+		return ETranslationStatus::DISABLED;
+
+	return ETranslationStatus::ACTIVE;
 }
 
 void MainWindow::updateTranslation()

@@ -24,6 +24,23 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+void replaceWithCurvedPath(rmg::Path & path, const Zone & zone, const int3 & src, bool onlyStraight)
+{
+	auto costFunction = rmg::Path::createCurvedCostFunction(zone.area()->getBorder());
+	auto pathArea = zone.areaForRoads();
+	rmg::Path curvedPath(pathArea);
+	curvedPath.connect(zone.freePaths().get());
+	curvedPath = curvedPath.search(src, onlyStraight, costFunction);
+	if (curvedPath.valid())
+	{
+		path = curvedPath;
+	}
+	else
+	{
+		logGlobal->warn("Failed to create curved path to %s", src.toString());
+	}
+}
+
 rmg::Tileset collectDistantTiles(const Zone& zone, int distance)
 {
 	uint32_t distanceSq = distance * distance;

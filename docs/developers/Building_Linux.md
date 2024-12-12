@@ -11,15 +11,15 @@ Older distributions and compilers might work, but they aren't tested by Github C
 
 To compile, the following packages (and their development counterparts) are needed to build:
 
--   CMake
--   SDL2 with devel packages: mixer, image, ttf
--   zlib and zlib-devel
--   Boost C++ libraries v1.48+: program-options, filesystem, system, thread, locale
--   Recommended, if you want to build launcher or map editor: Qt 5, widget and network modules
--   Recommended, FFmpeg libraries, if you want to watch in-game videos: libavformat and libswscale. Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names. 
--   Optional:
-    - if you want to build scripting modules: LuaJIT
-    - to speed up recompilation: Ccache
+- CMake
+- SDL2 with devel packages: mixer, image, ttf
+- zlib and zlib-devel
+- Boost C++ libraries v1.48+: program-options, filesystem, system, thread, locale
+- Recommended, if you want to build launcher or map editor: Qt 5, widget and network modules
+- Recommended, FFmpeg libraries, if you want to watch in-game videos: libavformat and libswscale. Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names.
+- Optional:
+  - if you want to build scripting modules: LuaJIT
+  - to speed up recompilation: Ccache
 
 ### On Debian-based systems (e.g. Ubuntu)
 
@@ -41,7 +41,7 @@ NOTE: `fuzzylite-devel` package is no longer available in recent version of Fedo
 
 On Arch-based distributions, there is a development package available for VCMI on the AUR.
 
-It can be found at https://aur.archlinux.org/packages/vcmi-git/
+It can be found at <https://aur.archlinux.org/packages/vcmi-git/>
 
 Information about building packages from the Arch User Repository (AUR) can be found at the Arch wiki.
 
@@ -70,7 +70,7 @@ And put it into build directory. Then run `nix-shell` before running any build c
 
 We recommend the following directory structure:
 
-```
+```text
 .
 ├── vcmi -> contains sources and is under git control
 └── build -> contains build output, makefiles, object files,...
@@ -97,7 +97,7 @@ See [CMake](CMake.md) for a list of options
 
 ### Trigger build
 
-```
+```sh
 cmake --build . -j8
 ```
 
@@ -109,9 +109,9 @@ This will generate `vcmiclient`, `vcmiserver`, `vcmilauncher` as well as .so lib
 
 ### RPM package
 
-The first step is to prepare a RPM build environment. On Fedora systems you can follow this guide: http://fedoraproject.org/wiki/How_to_create_an_RPM_package#SPEC_file_overview
+The first step is to prepare a RPM build environment. On Fedora systems you can follow this guide: <http://fedoraproject.org/wiki/How_to_create_an_RPM_package#SPEC_file_overview>
 
-0. Enable RPMFusion free repo to access to ffmpeg libs:
+1. Enable RPMFusion free repo to access to ffmpeg libs:
 
 ```sh
 sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
@@ -120,33 +120,34 @@ sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-rele
 > [!NOTE]
 > The stock ffmpeg from Fedora repo is no good as it lacks a lots of codecs
 
-1. Perform a git clone from a tagged branch for the right Fedora version from https://github.com/rpmfusion/vcmi; for example for Fedora 38: <pre>git clone -b f38 --single-branch https://github.com/rpmfusion/vcmi.git</pre>
+2. Perform a git clone from a tagged branch for the right Fedora version from <https://github.com/rpmfusion/vcmi>; for example for Fedora 38: <pre>git clone -b f38 --single-branch https://github.com/rpmfusion/vcmi.git</pre>
 
-2. Copy all files to ~/rpmbuild/SPECS with command: <pre>cp vcmi/*  ~/rpmbuild/SPECS</pre>
+3. Copy all files to ~/rpmbuild/SPECS with command: <pre>cp vcmi/*  ~/rpmbuild/SPECS</pre>
 
-3. Fetch all sources by using spectool:
+4. Fetch all sources by using spectool:
 
 ```sh
 sudo dnf install rpmdevtools
 spectool -g -R ~/rpmbuild/SPECS/vcmi.spec
 ```
 
-4. Fetch all dependencies required to build the RPM:
+5. Fetch all dependencies required to build the RPM:
 
 ```sh
 sudo dnf install dnf-plugins-core
 sudo dnf builddep ~/rpmbuild/SPECS/vcmi.spec
 ```
 
-4. Go to ~/rpmbuild/SPECS and open terminal in this folder and type: 
+6. Go to ~/rpmbuild/SPECS and open terminal in this folder and type:
+
 ```sh
 rpmbuild -ba ~/rpmbuild/SPECS/vcmi.spec
 ```
 
-5. Generated RPM is in folder ~/rpmbuild/RPMS
+7. Generated RPM is in folder ~/rpmbuild/RPMS
 
 If you want to package the generated RPM above for different processor architectures and operating systems you can use the tool mock.
-Moreover, it is necessary to install mock-rpmfusion_free due to the packages ffmpeg-devel and ffmpeg-libs which aren't available in the standard RPM repositories(at least for Fedora). Go to ~/rpmbuild/SRPMS in terminal and type: 
+Moreover, it is necessary to install mock-rpmfusion_free due to the packages ffmpeg-devel and ffmpeg-libs which aren't available in the standard RPM repositories(at least for Fedora). Go to ~/rpmbuild/SRPMS in terminal and type:
 
 ```sh
 mock -r fedora-38-aarch64-rpmfusion_free path_to_source_RPM

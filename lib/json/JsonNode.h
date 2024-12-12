@@ -71,6 +71,9 @@ public:
 	explicit JsonNode(const char * string);
 	explicit JsonNode(const std::string & string);
 
+	/// Create tree from map
+	explicit JsonNode(const JsonMap & map);
+
 	/// Create tree from Json-formatted input
 	explicit JsonNode(const std::byte * data, size_t datasize, const std::string & fileName);
 	explicit JsonNode(const std::byte * data, size_t datasize, const JsonParsingSettings & parserSettings, const std::string & fileName);

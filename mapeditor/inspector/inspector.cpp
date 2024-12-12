@@ -28,6 +28,7 @@
 #include "messagewidget.h"
 #include "rewardswidget.h"
 #include "questwidget.h"
+#include "heroartifactswidget.h"
 #include "heroskillswidget.h"
 #include "herospellwidget.h"
 #include "portraitwidget.h"
@@ -91,6 +92,20 @@ void Initializer::initialize(CGDwelling * o)
 	if(!o) return;
 	
 	o->tempOwner = defaultPlayer;
+
+	if(o->ID == Obj::RANDOM_DWELLING || o->ID == Obj::RANDOM_DWELLING_LVL || o->ID == Obj::RANDOM_DWELLING_FACTION)
+	{
+		o->randomizationInfo = CGDwellingRandomizationInfo();
+		if(o->ID == Obj::RANDOM_DWELLING_LVL)
+		{
+			o->randomizationInfo->minLevel = o->subID;
+			o->randomizationInfo->maxLevel = o->subID;
+		}
+		if(o->ID == Obj::RANDOM_DWELLING_FACTION)
+		{
+			o->randomizationInfo->allowedFactions.insert(FactionID(o->subID));
+		}
+	}
 }
 
 void Initializer::initialize(CGGarrison * o)
@@ -319,6 +334,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	auto * delegate = new HeroSkillsDelegate(*o);
 	addProperty("Skills", PropertyEditorPlaceholder(), delegate, false);
 	addProperty("Spells", PropertyEditorPlaceholder(), new HeroSpellDelegate(*o), false);
+	addProperty("Artifacts", PropertyEditorPlaceholder(), new HeroArtifactsDelegate(*o), false);
 	
 	if(o->getHeroTypeID().hasValue() || o->ID == Obj::PRISON)
 	{ //Hero type

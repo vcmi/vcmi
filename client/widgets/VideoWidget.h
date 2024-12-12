@@ -14,6 +14,7 @@
 #include "../lib/filesystem/ResourcePath.h"
 #include "../lib/json/JsonNode.h"
 
+class IVideoHolder;
 class IVideoInstance;
 class CMultiLineLabel;
 
@@ -64,10 +65,10 @@ public:
 
 class VideoWidgetOnce final: public VideoWidgetBase
 {
-	std::function<void()> callback;
+	IVideoHolder * owner;
 
 	void onPlaybackFinished() final;
 public:
-	VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, const std::function<void()> & callback);
-	VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, float scaleFactor, const std::function<void()> & callback);
+	VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, IVideoHolder * owner);
+	VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, float scaleFactor, IVideoHolder * owner);
 };

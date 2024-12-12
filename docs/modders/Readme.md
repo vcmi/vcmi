@@ -8,7 +8,7 @@ All content of your mod should go into **Content** directory, e.g. **Mods/myMod/
 
 Example of how directory structure of your mod may look like:
 
-```
+```text
     Mods/
         myMod/
             mod.json
@@ -21,8 +21,8 @@ Example of how directory structure of your mod may look like:
                 sprites/ - animation, image sets (H3 .def files or VCMI .json files)
                 video/   - video files, .bik, .smk, .ogv .webm
 ```
-See [File Formats](File_Formats.md) page for more information on which formats are supported or recommended for vcmi
 
+See [File Formats](File_Formats.md) page for more information on which formats are supported or recommended for vcmi
 
 ## Creating mod file
 
@@ -30,7 +30,7 @@ All VCMI configuration files use [JSON format](http://en.wikipedia.org/wiki/Json
 Mod.json is main file in your mod and must be present in any mod. This file contains basic description of your mod, dependencies or conflicting mods (if present), list of new content and so on.
 Minimalistic version of this file:
 
-``` javascript
+```json
 {
     "name" : "My test mod",
     "description" : "My test mod that add a lot of useless stuff into the game",
@@ -45,6 +45,7 @@ See [Mod file Format](Mod_File_Format.md) for its full description.
 ## Creation of new objects
 
 In order to create new object use following steps:
+
 1. Create json file with definition of new object. See list of supported object types below.
 2. Add any resources needed for this object, such as images, animations or sounds.
 2. Add reference to new object in corresponding section of mod.json file
@@ -52,9 +53,11 @@ In order to create new object use following steps:
 ### List of supported new object types
 
 Random Map Generator:
+
 - [Random Map Template](Random_Map_Template.md)
 
 Game Entities:
+
 - [Artifact](Entities_Format/Artifact_Format.md)
 - [Creature Requirement](Entities_Format/Creature_Format.md)
 - [Creature Help](Entities_Format/Creature_Help.md)
@@ -66,6 +69,7 @@ Game Entities:
 - [Secondary Skill](Entities_Format/Secondary_Skill_Format.md)
 
 Map objects:
+
 - [Map Objects](Map_Object_Format.md)
 - - [Rewardable](Map_Objects/Rewardable.md)
 - - [Creature Bank](Map_Objects/Creature_Bank.md)
@@ -74,6 +78,7 @@ Map objects:
 - - [Boat](Map_Objects/Boat.md)
 
 Other:
+
 - [Terrain](Entities_Format/Terrain_Format.md)
 - [River](Entities_Format/River_Format.md)
 - [Road](Entities_Format/Road_Format.md)
@@ -96,7 +101,8 @@ VCMI uses strings to reference objects. Examples:
 ### Modifying existing objects
 
 Alternatively to creating new objects, you can edit existing objects. Normally, when creating new objects you specify object name as:
-``` javascript
+
+```json
 "newCreature" : {
     // creature parameters
 }
@@ -104,7 +110,7 @@ Alternatively to creating new objects, you can edit existing objects. Normally, 
 
 In order to access and modify existing object you need to specify mod that you wish to edit:
 
-``` javascript
+```json
 /// "core" specifier refers to objects that exist in H3
 "core:archer" : {
 	/// This will set health of Archer to 10
@@ -123,6 +129,7 @@ In order to access and modify existing object you need to specify mod that you w
 	"speed" : 10
 },
 ```
+
 Note that modification of existing objects does not requires a dependency on edited mod. Such definitions will only be used by game if corresponding mod is installed and active.
 
 This allows using objects editing not just for rebalancing mods but also to provide compatibility between two different mods or to add interaction between two mods.
@@ -132,6 +139,7 @@ This allows using objects editing not just for rebalancing mods but also to prov
 Any graphical replacer mods fall under this category. In VCMI directory **<mod name>/Content** acts as mod-specific game root directory. So for example file **<mod name>/Content/Data/AISHIELD.PNG** will replace file with same name from **H3Bitmap.lod** game archive.
 Any other files can be replaced in exactly same way.
 Note that replacing files from archives requires placing them into specific location:
+
 - H3Bitmap.lod -> Data
 - H3Sprite.lod -> Sprites
 - Heroes3.snd  -> Sounds
@@ -145,12 +153,13 @@ This includes archives added by expansions (e.g. **H3ab_bmp.lod** uses same rule
 
 Heroes III uses custom format for storing animation: def files. These files are used to store all in-game animations as well as for some GUI elements like buttons and for icon sets.
 These files can be replaced by another def file but in some cases original format can't be used. This includes but not limited to:
--   Replacing one (or several) icons in set
--   Replacing animation with fully-colored 32-bit images
+
+- Replacing one (or several) icons in set
+- Replacing animation with fully-colored 32-bit images
 In VCMI these animation files can also be replaced by json description of their content. See [Animation Format](Animation_Format.md) for full description of this format.
 Example: replacing single icon
 
-``` javascript
+```json
 {
 	// List of replaced images
 	"images" :
@@ -191,7 +200,7 @@ Same way we can also create special stable branch for every mod under "vcmi-mods
 ### Getting into vcmi-mods organization
 
 Before your mod can be accepted into official mod list you need to get it into repository under "vcmi-mods" organization umbrella. To do this contact one of mod repository maintainers. If needed you can get own team within "vcmi-mods" organization.
-Link to our mod will looks like that: https://github.com/vcmi-mods/adventure-ai-trace
+Link to our mod will looks like that: <https://github.com/vcmi-mods/adventure-ai-trace>
 
 ## Rules of repository
 
@@ -199,8 +208,10 @@ Link to our mod will looks like that: https://github.com/vcmi-mods/adventure-ai-
 
 For sanity reasons mod identifier must only contain lower-case English characters, numbers and hyphens.
 
-    my-mod-name
-    2000-new-maps
+```text
+my-mod-name
+2000-new-maps
+```
 
 Sub-mods can be named as you like, but we strongly encourage everyone to use proper identifiers for them as well.
 

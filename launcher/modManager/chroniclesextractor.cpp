@@ -45,7 +45,7 @@ int ChroniclesExtractor::getChronicleNo(QFile & file)
 {
 	if(!file.open(QIODevice::ReadOnly))
 	{
-		QMessageBox::critical(parent, tr("File cannot opened"), file.errorString());
+		QMessageBox::critical(parent, tr("The file cannot be opened"), file.errorString());
 		return 0;
 	}
 
@@ -53,7 +53,7 @@ int ChroniclesExtractor::getChronicleNo(QFile & file)
 	QByteArray magicFile = file.read(magic.length());
 	if(!magicFile.startsWith(magic))
 	{
-		QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select an gog installer file!"));
+		QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select a gog installer file!"));
 		return 0;
 	}
 
@@ -68,7 +68,7 @@ int ChroniclesExtractor::getChronicleNo(QFile & file)
 	}
 	if(!chronicle)
 	{
-		QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select an chronicle installer file!"));
+		QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select a Heroes Chronicles installer file!"));
 		return 0;
 	}
 	return chronicle;
@@ -84,7 +84,10 @@ bool ChroniclesExtractor::extractGogInstaller(QString file)
 
 	if(!errorText.isEmpty())
 	{
+		QString hashError = Innoextract::getHashError(file, {}, {}, {});
 		QMessageBox::critical(parent, tr("Extracting error!"), errorText);
+		if(!hashError.isEmpty())
+			QMessageBox::critical(parent, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
 		return false;
 	}
 
@@ -126,16 +129,14 @@ void ChroniclesExtractor::createBaseMod() const
 
 	for(auto & dataPath : VCMIDirs::get().dataPaths())
 	{
-		auto file = dataPath / "config" / "heroes" / "portraitsChronicles.json";
+		auto file = pathToQString(dataPath / "config" / "heroes" / "portraitsChronicles.json");
 		auto destFolder = VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "content" / "config";
-		if(boost::filesystem::exists(file))
+		auto destFile = pathToQString(destFolder / "portraitsChronicles.json");
+		if(QFile::exists(file))
 		{
-			boost::filesystem::create_directories(destFolder);
-#if BOOST_VERSION >= 107400
-			boost::filesystem::copy_file(file, destFolder / "portraitsChronicles.json", boost::filesystem::copy_options::overwrite_existing);
-#else
-			boost::filesystem::copy_file(file, destFolder / "portraitsChronicles.json", boost::filesystem::copy_option::overwrite_if_exists);
-#endif
+			QDir().mkpath(pathToQString(destFolder));
+			QFile::remove(destFile);
+			QFile::copy(file, destFile);
 		}
 	}
 }
@@ -232,16 +233,19 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 	for(QString f : exe)
 	{
 		extractionFile++;
-		QFile file(f);
+
+		if(!createTempDir())
+			continue;
+		
+		QString filepath = tempDir.filePath("chr.exe");
+		QFile(f).copy(filepath);
+		QFile file(filepath);
 
 		int chronicleNo = getChronicleNo(file);
 		if(!chronicleNo)
 			continue;
 
-		if(!createTempDir())
-			continue;
-
-		if(!extractGogInstaller(f))
+		if(!extractGogInstaller(filepath))
 			continue;
 		
 		createBaseMod();

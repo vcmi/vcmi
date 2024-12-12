@@ -43,7 +43,7 @@ void LoseConditions::initialize(MapController & c)
 
 	for(auto & s : conditionStringsLose)
 	{
-		ui->loseComboBox->addItem(QString::fromStdString(s));
+		ui->loseComboBox->addItem(tr(s.c_str()));
 	}
 	ui->standardLoseCheck->setChecked(false);
 

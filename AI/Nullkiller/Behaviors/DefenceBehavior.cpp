@@ -305,7 +305,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				continue;
 			}
 				
-			if(threat.turn == 0 || (path.turn() <= threat.turn && path.getHeroStrength() * SAFE_ATTACK_CONSTANT >= threat.danger))
+			if(threat.turn == 0 || (path.turn() <= threat.turn && path.getHeroStrength() * ai->settings->getSafeAttackRatio() >= threat.danger))
 			{
 				if(ai->arePathHeroesLocked(path))
 				{

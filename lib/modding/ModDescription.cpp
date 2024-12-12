@@ -120,8 +120,7 @@ const JsonNode & ModDescription::getLocalizedValue(const std::string & keyName) 
 
 const JsonNode & ModDescription::getValue(const std::string & keyName) const
 {
-	const JsonNode & localValue = getLocalValue(keyName);
-	if (localValue.isNull())
+	if (!isInstalled() || isUpdateAvailable())
 		return getRepositoryValue(keyName);
 	else
 		return getLocalValue(keyName);
@@ -214,6 +213,20 @@ bool ModDescription::affectsGameplay() const
 			return true;
 
 	return false;
+}
+
+bool ModDescription::isUpdateAvailable() const
+{
+	if (getRepositoryValue("version").isNull())
+		return false;
+
+	if (getLocalValue("version").isNull())
+		return false;
+
+	auto localVersion = CModVersion::fromString(getLocalValue("version").String());
+	auto repositoryVersion = CModVersion::fromString(getRepositoryValue("version").String());
+
+	return localVersion < repositoryVersion;
 }
 
 VCMI_LIB_NAMESPACE_END

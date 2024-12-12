@@ -259,7 +259,7 @@ std::vector<const CStack *> BattleSpellMechanics::getAffectedStacks(const Target
 
 	for(const Destination & dest : all)
 	{
-		if(dest.unitValue)
+		if(dest.unitValue && !dest.unitValue->hasBonusOfType(BonusType::INVINCIBLE))
 		{
 			//FIXME: remove and return battle::Unit
 			stacks.insert(battle()->battleGetStackByID(dest.unitValue->unitId(), false));

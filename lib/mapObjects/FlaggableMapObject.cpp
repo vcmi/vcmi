@@ -51,6 +51,12 @@ void FlaggableMapObject::onHeroVisit( const CGHeroInstance * h ) const
 	giveBonusTo(h->getOwner());
 }
 
+void FlaggableMapObject::markAsDeleted() const
+{
+	if(getOwner().isValidPlayer())
+		takeBonusFrom(getOwner());
+}
+
 void FlaggableMapObject::initObj(vstd::RNG & rand)
 {
 	if(getOwner().isValidPlayer())

@@ -7,7 +7,7 @@ Difficulty configuration is located in [config/difficulty.json](../config/diffic
 
 ## Format summary
 
-``` javascript
+```json
 {
 	"human": //parameters impacting human players only
 	{
@@ -50,7 +50,7 @@ For both types of bonuses, `source` should be specified as `OTHER`.
 
 ## Example
 
-```js
+```json
 { //will give 150% extra health to all players' creatures if specified in "battleBonuses" array
 	"type" : "STACK_HEALTH",
 	"val" : 150,

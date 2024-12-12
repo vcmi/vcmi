@@ -8,7 +8,7 @@ The purpose is to create visually attractive and consistent maps, which will als
 
 If not enough biomes are defined for [terrain type](Terrain_Format.md), map generator will fall back to using all available templates that match this terrain, which was original behavior before 1.5.0.
 
-``` json
+```json
 "obstacleSetId" : {
 	"biome" : {
 		"terrain" : "grass", // Id or vector of Ids this obstacle set can spawn at
@@ -38,5 +38,3 @@ Currently algorithm picks randomly:
 - One or two sets of **rocks** (small objects)
 - One of each remaining types of object (**structure**, **animal**, **other**), until enough number of sets is picked.
 - Obstacles marked as **other** are picked last, and are generally rare.
-
-

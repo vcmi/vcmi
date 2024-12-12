@@ -34,13 +34,12 @@ using namespace Goals;
 std::unique_ptr<ObjectGraph> Nullkiller::baseGraph;
 
 Nullkiller::Nullkiller()
-	:activeHero(nullptr), scanDepth(ScanDepth::MAIN_FULL), useHeroChain(true)
+	: activeHero(nullptr)
+	, scanDepth(ScanDepth::MAIN_FULL)
+	, useHeroChain(true)
+	, memory(std::make_unique<AIMemory>())
 {
-	memory = std::make_unique<AIMemory>();
-	settings = std::make_unique<Settings>();
 
-	useObjectGraph = settings->isObjectGraphAllowed();
-	openMap = settings->isOpenMap() || useObjectGraph;
 }
 
 bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
@@ -62,17 +61,23 @@ bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 		return false;
 	}
 
-	return cb->getStartInfo()->difficulty >= 3;
+	return true;
 }
 
 void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
 {
 	this->cb = cb;
 	this->gateway = gateway;
-	
-	playerID = gateway->playerID;
+	this->playerID = gateway->playerID;
 
-	if(openMap && !canUseOpenMap(cb, playerID))
+	settings = std::make_unique<Settings>(cb->getStartInfo()->difficulty);
+
+	if(canUseOpenMap(cb, playerID))
+	{
+		useObjectGraph = settings->isObjectGraphAllowed();
+		openMap = settings->isOpenMap() || useObjectGraph;
+	}
+	else
 	{
 		useObjectGraph = false;
 		openMap = false;

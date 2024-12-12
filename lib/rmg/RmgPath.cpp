@@ -116,8 +116,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 				if(!result.dArea->contains(pos))
 					return;
 				
-				float movementCost = moveCostFunction(currentNode, pos) + currentNode.dist2d(pos);
-				
+				float movementCost = moveCostFunction(currentNode, pos);
 				float distance = distances[currentNode] + movementCost; //we prefer to use already free paths
 				int bestDistanceSoFar = std::numeric_limits<int>::max();
 				auto it = distances.find(pos);
@@ -188,6 +187,23 @@ void Path::connect(const Path & path)
 const Area & Path::getPathArea() const
 {
 	return dPath;
+}
+
+Path::MoveCostFunction Path::createCurvedCostFunction(const Area & border)
+{
+	// Capture by value to ensure the Area object persists
+	return [border = border](const int3& src, const int3& dst) -> float
+	{
+		// Route main roads far from border
+		float ret = dst.dist2d(src);
+		float dist = border.distanceSqr(dst);
+
+		if(dist > 1.0f)
+		{
+			ret /= dist;
+		}
+		return ret;
+	};
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -12,6 +12,7 @@
 #include "CWindowObject.h"
 #include "../lib/ResourceSet.h"
 #include "../widgets/Images.h"
+#include "../widgets/IVideoHolder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -509,7 +510,7 @@ public:
 	CThievesGuildWindow(const CGObjectInstance * _owner);
 };
 
-class VideoWindow : public CWindowObject
+class VideoWindow : public CWindowObject, public IVideoHolder
 {
 	std::shared_ptr<VideoWidgetOnce> videoPlayer;
 	std::shared_ptr<CFilledTexture> backgroundAroundWindow;
@@ -517,6 +518,7 @@ class VideoWindow : public CWindowObject
 
 	std::function<void(bool)> closeCb;
 
+	void onVideoPlaybackFinished() override;
 	void exit(bool skipped);
 public:
 	VideoWindow(const VideoPath & video, const ImagePath & rim, bool showBackground, float scaleFactor, const std::function<void(bool)> & closeCb);

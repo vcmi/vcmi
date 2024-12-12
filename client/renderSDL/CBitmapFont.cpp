@@ -201,7 +201,7 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 		static const std::map<std::string, EScalingAlgorithm> filterNameToEnum = {
 			{ "nearest", EScalingAlgorithm::NEAREST},
 			{ "bilinear", EScalingAlgorithm::BILINEAR},
-			{ "xbrz", EScalingAlgorithm::XBRZ}
+			{ "xbrz", EScalingAlgorithm::XBRZ_ALPHA}
 		};
 
 		auto filterName = settings["video"]["fontUpscalingFilter"].String();

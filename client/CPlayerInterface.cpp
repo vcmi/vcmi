@@ -403,6 +403,18 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 	localState->erasePath(hero);
 }
 
+void CPlayerInterface::townRemoved(const CGTownInstance* town)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+
+	if(town->tempOwner == playerID)
+	{
+		localState->removeOwnedTown(town);
+		adventureInt->onTownChanged(town);
+	}
+}
+
+
 void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -1423,6 +1435,12 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj, const PlayerC
 	{
 		const CGHeroInstance * h = static_cast<const CGHeroInstance *>(obj);
 		heroKilled(h);
+	}
+
+	if(obj->ID == Obj::TOWN && obj->tempOwner == playerID)
+	{
+		const CGTownInstance * t = static_cast<const CGTownInstance *>(obj);
+		townRemoved(t);
 	}
 	GH.fakeMouseMove();
 }

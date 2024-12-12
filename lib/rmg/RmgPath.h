@@ -21,7 +21,8 @@ namespace rmg
 class Path
 {
 public:
-	const static std::function<float(const int3 &, const int3 &)> DEFAULT_MOVEMENT_FUNCTION;
+	using MoveCostFunction = std::function<float(const int3 &, const int3 &)>;
+	const static MoveCostFunction DEFAULT_MOVEMENT_FUNCTION;
 	
 	Path(const Area & area);
 	Path(const Area & area, const int3 & src);
@@ -42,6 +43,7 @@ public:
 	const Area & getPathArea() const;
 	
 	static Path invalid();
+	static MoveCostFunction createCurvedCostFunction(const Area & border);
 	
 private:
 	
