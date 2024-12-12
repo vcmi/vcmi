@@ -1060,10 +1060,10 @@ public:
 			if (target->getOwner() != PlayerColor::NEUTRAL && ai->cb->getPlayerRelations(ai->playerID, target->getOwner()) == PlayerRelations::ENEMIES)
 				evaluationContext.isEnemy = true;
 			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army);
-			evaluationContext.armyInvolvement += army->getArmyCost();
 			if(evaluationContext.danger > 0)
 				evaluationContext.skillReward += (float)evaluationContext.danger / (float)hero->getArmyStrength();
 		}
+		evaluationContext.armyInvolvement += army->getArmyCost();
 
 		vstd::amax(evaluationContext.armyLossPersentage, (float)path.getTotalArmyLoss() / (float)army->getArmyStrength());
 		addTileDanger(evaluationContext, path.targetTile(), path.turn(), path.getHeroStrength());
@@ -1368,13 +1368,14 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			arriveNextWeek = true;
 
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, explorePriority: %d isDefend: %d",
+		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, army-involvement: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, explorePriority: %d isDefend: %d",
 			priorityTier,
 			task->toString(),
 			evaluationContext.armyLossPersentage,
 			(int)evaluationContext.turn,
 			evaluationContext.movementCostByRole[HeroRole::MAIN],
 			evaluationContext.movementCostByRole[HeroRole::SCOUT],
+			evaluationContext.armyInvolvement,
 			goldRewardPerTurn,
 			evaluationContext.goldCost,
 			evaluationContext.armyReward,
@@ -1579,13 +1580,14 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	}
 
 #if NKAI_TRACE_LEVEL >= 2
-	logAi->trace("priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, result %f",
+	logAi->trace("priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, army-involvement: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, result %f",
 		priorityTier,
 		task->toString(),
 		evaluationContext.armyLossPersentage,
 		(int)evaluationContext.turn,
 		evaluationContext.movementCostByRole[HeroRole::MAIN],
 		evaluationContext.movementCostByRole[HeroRole::SCOUT],
+		evaluationContext.armyInvolvement,
 		goldRewardPerTurn,
 		evaluationContext.goldCost,
 		evaluationContext.armyReward,
