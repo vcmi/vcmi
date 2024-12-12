@@ -141,10 +141,6 @@
         <translation>Snímky obrazovky</translation>
     </message>
     <message>
-        <source>Install from file</source>
-        <translation type="vanished">Instalovat ze souboru</translation>
-    </message>
-    <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="391"/>
         <source>Uninstall</source>
         <translation>Odinstalovat</translation>
@@ -304,46 +300,6 @@
         <translation>Poznámky</translation>
     </message>
     <message>
-        <source>All supported files</source>
-        <translation type="vanished">Všechny podporované soubory</translation>
-    </message>
-    <message>
-        <source>Maps</source>
-        <translation type="vanished">Mapy</translation>
-    </message>
-    <message>
-        <source>Campaigns</source>
-        <translation type="vanished">Kampaně</translation>
-    </message>
-    <message>
-        <source>Configs</source>
-        <translation type="vanished">Nastavení</translation>
-    </message>
-    <message>
-        <source>Mods</source>
-        <translation type="vanished">Modifikace</translation>
-    </message>
-    <message>
-        <source>Gog files</source>
-        <translation type="vanished">Soubory GOG</translation>
-    </message>
-    <message>
-        <source>All files (*.*)</source>
-        <translation type="vanished">Všechny soubory (*.*)</translation>
-    </message>
-    <message>
-        <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation type="vanished">Vyberte soubory (konfigurace, modifikace, mapy, kampaně, soubory GOG) k instalaci...</translation>
-    </message>
-    <message>
-        <source>Replace config file?</source>
-        <translation type="vanished">Nahradit soubor nastavení?</translation>
-    </message>
-    <message>
-        <source>Do you want to replace %1?</source>
-        <translation type="vanished">Chcete nahradit %1?</translation>
-    </message>
-    <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="649"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>Stahování %1. %p% (%v MB z %m MB) dokončeno</translation>
@@ -377,8 +333,8 @@ Nainstalovat úspěšně stažené?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="791"/>
-        <source>Installing chronicles</source>
-        <translation>Instalování kronik</translation>
+        <source>Installing Heroes Chronicles</source>
+        <translation>Instalování Heroes Chronicles</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="853"/>
@@ -552,7 +508,13 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte režim zobrazení hry
+
+Okno - hra poběží v okně, které pokryje část vaší obrazovky.
+
+Celá obrazovka bez okrajů - hra poběží v okně na celou obrazovku, přizpůsobeném rozlišení vaší obrazovky.&quot;
+
+Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané rozlišení.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
@@ -740,22 +702,6 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Zapnuto</translation>
     </message>
     <message>
-        <source>Select display mode for game
-
-Windowed - game will run inside a window that covers part of your screen
-
-Borderless Windowed Mode - game will run in a window that covers entirely of your screen, using same resolution as your screen.
-
-Fullscreen Exclusive Mode - game will cover entirety of your screen and will use selected resolution.</source>
-        <translation type="vanished">Vyberte režim zobrazení pro hru
-
-V okně - hra bude běžet v okně zakrývajícím část vaší obrazovky
-
-Celá obrazovka bez okrajů-  hra poběží v okně, které zakryje vaši celou obrazovku se stejným rozlišením.
-
-Exkluzivní celá obrazovka - hra zakryje vaši celou obrazovku a použije vybrané rozlišení.</translation>
-    </message>
-    <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="200"/>
         <source>Reserved screen area</source>
         <translation>Vyhrazená část obrazovky</translation>
@@ -849,37 +795,25 @@ Exkluzivní celá obrazovka - hra zakryje vaši celou obrazovku a použije vybra
 <context>
     <name>ChroniclesExtractor</name>
     <message>
-        <source>File cannot opened</source>
-        <translation type="vanished">Soubor nelze otevřít</translation>
-    </message>
-    <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>Invalid file selected</source>
         <translation>Vybrán neplatný soubor</translation>
     </message>
     <message>
-        <source>You have to select an gog installer file!</source>
-        <translation type="vanished">Musíte vybrat instalační soubor GOG!</translation>
-    </message>
-    <message>
-        <source>You have to select an chronicle installer file!</source>
-        <translation type="vanished">Musíte vybrat instalační soubor kronik!</translation>
-    </message>
-    <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
         <source>The file cannot be opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor nelze otevřít</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <source>You have to select a gog installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Musíte vybrat instalační soubor GOG!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Musíte vybrat instalační soubor Heroes Chronicles!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="88"/>
@@ -889,7 +823,7 @@ Exkluzivní celá obrazovka - hra zakryje vaši celou obrazovku a použije vybra
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="90"/>
         <source>Hash error!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nesouhlasí kontrolní součet!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="107"/>
@@ -936,22 +870,6 @@ Exkluzivní celá obrazovka - hra zakryje vaši celou obrazovku a použije vybra
         <translation>Máte otázku? Našli jste chybu? Chcete pomoct? Připojte se k nám!</translation>
     </message>
     <message>
-        <source>Thank you for installing VCMI!
-
-Before you can start playing, there are a few more steps that need to be completed.
-
-Please keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
-
-Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation type="vanished">Děkujeme, že jste si nainstalovali VCMI!
-
-Než začnete hrát, je třeba dokončit několik kroků.
-
-Pamatujte, že pro používání VCMI musíte vlastnit originální herní soubory pro Heroes® of Might and Magic® III: Complete nebo The Shadow of Death.
-
-Heroes® of Might and Magic® III HD momentálně není podporována!</translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="248"/>
         <source>Locate Heroes III data files</source>
         <translation>Najít soubory dat Heroes III</translation>
@@ -960,10 +878,6 @@ Heroes® of Might and Magic® III HD momentálně není podporována!</translati
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="297"/>
         <source>Use offline installer from gog.com</source>
         <translation>Použít offline instalátor z gog.com</translation>
-    </message>
-    <message>
-        <source>You can manually copy directories Maps, Data and Mp3 from the original game directory to VCMI data directory that you can see on top of this page</source>
-        <translation type="vanished">Můžete ručně zkopírovat existující mapy, data a MP3 z originální složky hry do složky dat VCMI, kterou můžete vidět nahoře na této stránce</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="329"/>
@@ -1001,19 +915,9 @@ Heroes® of Might and Magic® III HD momentálně není podporována!</translati
         <translation>Kopírovat existující data</translation>
     </message>
     <message>
-        <source>If you own Heroes III on gog.com you can download backup offline installer from gog.com, and VCMI will import Heroes III data using offline installer. 
-Offline installer consists of two parts, .exe and .bin. Make sure you download both of them.</source>
-        <translation type="vanished">Pokud vlastníte Heroes III na gog.com, můžete odsud stáhnout záložní offline instalátor a VCMI z něj naimportuje data.
-Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahujete obě.</translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="689"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
         <translation>Můžete si nyní, nebo kdykoliv později, nainstalovat další mody pomocí VCMI Launcheru, podle svých preferencí</translation>
-    </message>
-    <message>
-        <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
-        <translation type="vanished">Instalovat modifikaci, která poskytuje různá vylepšení rozhraní, například lepší rozhraní pro náhodné mapy a volitelné akce v bitvách</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="673"/>
@@ -1028,7 +932,7 @@ Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahuj
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>Nainstalujte modifikaci, která přináší různá vylepšení, jako je lepší rozhraní pro náhodné mapy a možnost výběru akcí v bitvách</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="867"/>
@@ -1054,7 +958,13 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation type="unfinished"></translation>
+        <translation>Děkujeme, že jste nainstalovali VCMI!
+
+Než začnete hrát, je třeba dokončit několik kroků.
+
+Pamatujte, že pro používání VCMI musíte vlastnit originální herní soubory pro Heroes® of Might and Magic® III: Complete nebo The Shadow of Death.
+
+Heroes® of Might and Magic® III HD není podporována!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="212"/>
@@ -1065,7 +975,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
         <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
-        <translation type="unfinished"></translation>
+        <translation>Můžete ručně zkopírovat složky Maps, Data a Mp3 z instalačního adresáře hry do adresáře VCMI, který vidíte výše</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="347"/>
@@ -1091,7 +1001,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokud vlastníte Heroes III na gog.com, můžete si stáhnout záložní offline instalační program z gog.com. VCMI poté importuje data Heroes III pomocí tohoto offline instalačního programu. Offline instalační program se skládá ze dvou souborů: \&quot;.exe\&quot; a \&quot;.bin\&quot; – musíte stáhnout oba.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="557"/>
@@ -1169,28 +1079,26 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="392"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation type="unfinished"></translation>
+        <translation>Poskytli jste instalátor GOG Galaxy! Tento soubor neobsahuje hru. Prosím, stáhněte si záložní offline instalátor hry!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="486"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubory z Heroes III: HD Edition nejsou ve VCMI  podporovány.
+Vyberte prosím adresář s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="491"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translation>Byla nalezena neznámá nebo nepodporovaná verze Heroes III.
+Vyberte prosím adresář s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="347"/>
         <source>GOG data</source>
         <translation>Data GOG</translation>
-    </message>
-    <message>
-        <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation type="vanished">Poskytli jste instalátor GOG Galaxy! Tento soubor neobsahuje hru. Prosím, stáhněte si záložní offline instalátor hry!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
@@ -1200,7 +1108,7 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="415"/>
         <source>Hash error!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nesouhlasí kontrolní součet!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="418"/>
@@ -1216,7 +1124,8 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="462"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se detekovat platná data Heroes III ve vybraném adresáři.
+Vyberte prosím adresář s nainstalovanými daty Heroes III.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="465"/>
@@ -1225,24 +1134,6 @@ Please select the directory with installed Heroes III data.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="491"/>
         <source>Heroes III data not found!</source>
         <translation>Data Heroes III nenalezena!</translation>
-    </message>
-    <message>
-        <source>Failed to detect valid Heroes III data in chosen directory.
-Please select directory with installed Heroes III data.</source>
-        <translation type="vanished">Detekce platných dat Heroes III ve vybrané složce selhala.
-Prosíme vyberte složku s nainstalovanými daty Heroes III.</translation>
-    </message>
-    <message>
-        <source>Heroes III: HD Edition files are not supported by VCMI.
-Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="vanished">Soubory Heroes III HD Edice nejsou podporovány ve VCMI.
-Prosím vyberte složku s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
-    </message>
-    <message>
-        <source>Unknown or unsupported Heroes III version found.
-Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="vanished">Nalezena neznámá nebo nepodporovaná verze Heroes III.
-Prosím vyberte složku s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
     </message>
 </context>
 <context>
@@ -1277,31 +1168,37 @@ Důvod chyby: </translation>
         <source>SHA1 hash of provided files:
 Exe (%1 bytes):
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontrolní součet SHA1 zadaných souborů:
+Exe (%1 bajtů):
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="134"/>
         <source>
 Bin (%1 bytes):
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>
+Bin (%1 bajtů):
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="137"/>
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Interní proces kopírování selhal. Máte na zařízení dostatek místa?
+
+%1</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="146"/>
         <source>Exe</source>
-        <translation type="unfinished"></translation>
+        <translation>Exe</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="146"/>
         <source>Bin</source>
-        <translation type="unfinished"></translation>
+        <translation>Bin</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="155"/>
@@ -1309,7 +1206,10 @@ Bin (%1 bytes):
 %1
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Jazyk se neshoduje!
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="157"/>
@@ -1317,14 +1217,19 @@ Bin (%1 bytes):
 %1
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>V databázi byl nalezen pouze jeden soubor! Možná jsou soubory poškozené? Stáhněte je prosím znovu.
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="163"/>
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Neznámé soubory! Možná jsou soubory poškozené? Stáhněte je prosím znovu.
+
+%1</translation>
     </message>
 </context>
 <context>
@@ -1440,15 +1345,7 @@ Bin (%1 bytes):
     <message>
         <location filename="../mainwindow_moc.ui" line="209"/>
         <source>Game</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Map Editor</source>
-        <translation type="vanished">Editor map</translation>
-    </message>
-    <message>
-        <source>Start game</source>
-        <translation type="vanished">Spustit hru</translation>
+        <translation>Hra</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="53"/>
@@ -1458,12 +1355,12 @@ Bin (%1 bytes):
     <message>
         <location filename="../mainwindow_moc.cpp" line="264"/>
         <source>Replace config file?</source>
-        <translation type="unfinished">Nahradit soubor nastavení?</translation>
+        <translation>Chcete nahradit konfigurační soubor?</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="264"/>
         <source>Do you want to replace %1?</source>
-        <translation type="unfinished">Chcete nahradit %1?</translation>
+        <translation>Chcete nahradit %1?</translation>
     </message>
 </context>
 <context>
@@ -1513,13 +1410,9 @@ Bin (%1 bytes):
         <translation>Nejprve je třeba nainstalovat modifikaci</translation>
     </message>
     <message>
-        <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
-        <translation type="vanished">Modifikace není kompatibilní, prosím aktualizujte VCMI a použijte nejnovější verzi modifikace</translation>
-    </message>
-    <message>
         <location filename="../modManager/modstatecontroller.cpp" line="158"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifikace není kompatibilní, prosím aktualizujte VCMI a použijte nejnovější verzi modifikace</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="161"/>
@@ -1565,12 +1458,7 @@ Bin (%1 bytes):
         <location filename="../modManager/modstatecontroller.cpp" line="254"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mod is located in protected directory, please remove it manually:
-</source>
-        <translation type="vanished">Modifikace se nachází v zabezpečené složce, prosím odstraňte ji ručně:
+        <translation>Modifikace se nachází v chráněném adresáři, odstraňte ji prosím ručně:
 </translation>
     </message>
 </context>
@@ -1698,42 +1586,42 @@ Důvod: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Forma</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="49"/>
         <source>Import from Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Importovat ze schránky</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="81"/>
         <source>Rename Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Přejmenovat aktuální konfiguraci</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="101"/>
         <source>Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuální konfigurace</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="121"/>
         <source>Create New Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Vytvořit novou konfiguraci</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="140"/>
         <source>Export to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportovat do schránky</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="159"/>
         <source>Delete Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstranit aktuální konfiguraci</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="200"/>
         <source>Unsupported or corrupted game data detected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Byla zjištěna nepodporovaná nebo poškozená herní data!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="257"/>
@@ -1746,146 +1634,149 @@ Důvod: %2</translation>
         <location filename="../startGame/StartGameTab.ui" line="475"/>
         <location filename="../startGame/StartGameTab.ui" line="551"/>
         <source>?</source>
-        <translation type="unfinished"></translation>
+        <translation>?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="295"/>
         <source>Install Translation</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalovat překlad</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="352"/>
         <source>No soundtrack detected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nebyl detekován žádný soundtrack!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="393"/>
         <source>Armaggedon&apos;s Blade campaigns are missing!</source>
-        <translation type="unfinished"></translation>
+        <translation>Kampaně z Armaggedon&apos;s Blade chybí!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="453"/>
         <source>No video files detected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nebyl nalezen žádný videosoubor!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="494"/>
         <source>Activate Translation</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivovat překlad</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="513"/>
         <source>Import files</source>
-        <translation type="unfinished"></translation>
+        <translation>Importovat soubory</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="624"/>
         <source>Check For Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Zkontrolovat aktualizace</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="643"/>
         <source>Go to Downloads Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevřít stránku ke stažení</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="662"/>
         <source>Go to Changelog Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevřít stránku se změnami</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="681"/>
         <source>You are using the latest version</source>
-        <translation type="unfinished"></translation>
+        <translation>Používáte nejnovější verzi</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="718"/>
         <source>Game Data Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Herní soubory</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="736"/>
         <source>Mod Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Přednastavení modifikací</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="781"/>
         <source>Resume</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokračovat</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="830"/>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Hrát</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="874"/>
         <source>Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor</translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="141"/>
         <source>Update %n mods</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Aktualizovat %n modifikaci</numerusform>
+            <numerusform>Aktualizovat %n modifikace</numerusform>
+            <numerusform>Aktualizovat %n modifikací</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="145"/>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Heroes Chronicles:
+nainstalováno %n/%1</numerusform>
+            <numerusform>Heroes Chronicles:
+nainstalováno %n/%1</numerusform>
+            <numerusform>Heroes Chronicles:
+nainstalováno %n/%1</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="162"/>
         <source>Update to %1 available</source>
-        <translation type="unfinished"></translation>
+        <translation>Dostupná aktualizace na %1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="198"/>
         <source>All supported files</source>
-        <translation type="unfinished">Všechny podporované soubory</translation>
+        <translation>Všechny podporované soubory</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="199"/>
         <source>Maps</source>
-        <translation type="unfinished">Mapy</translation>
+        <translation>Mapy</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="200"/>
         <source>Campaigns</source>
-        <translation type="unfinished">Kampaně</translation>
+        <translation>Kampaně</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="201"/>
         <source>Configs</source>
-        <translation type="unfinished">Nastavení</translation>
+        <translation>Konfigurace</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="202"/>
         <source>Mods</source>
-        <translation type="unfinished">Modifikace</translation>
+        <translation>Modifikace</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="203"/>
         <source>Gog files</source>
-        <translation type="unfinished">Soubory GOG</translation>
+        <translation>Soubory GOG</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="206"/>
         <source>All files (*.*)</source>
-        <translation type="unfinished">Všechny soubory (*.*)</translation>
+        <translation>Všechny soubory (*.*)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="208"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished">Vyberte soubory (konfigurace, modifikace, mapy, kampaně, soubory GOG) k instalaci...</translation>
+        <translation>Vyberte soubory (konfigurace, modifikace, mapy, kampaně, soubory GOG) k instalaci...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="248"/>
@@ -1897,68 +1788,86 @@ Důvod: %2</translation>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Tato možnost vám umožňuje importovat další datové soubory do vaší instalace VCMI. V současnosti jsou podporovány následující možnosti:
+
+Mapy pro Heroes III (.h3m nebo .vmap).
+Kampaně pro Heroes III (.h3c nebo .vcmp).
+Heroes III Chronicles pomocí offline instalačního programu z GOG.com (.exe).
+Modifikace pro VCMI ve formátu zip (.zip).
+Konfigurační soubory pro VCMI (.json)
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="263"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vaše verze Heroes III používá jiný jazyk. VCMI poskytuje překlady hry do různých jazyků, které můžete použít. Použijte tuto možnost pro automatickou instalaci překladu do vašeho jazyka.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="273"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Překlad Heroes III do vašeho jazyka je nainstalován, ale byl vypnut. Použijte tuto možnost k jeho aktivaci.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="283"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You many want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation type="unfinished"></translation>
+        <translation>Je dostupná nová verze některých modifikací, které máte nainstalované. Použijte tuto možnost k automatické aktualizaci všech modifikací na nejnovější verzi.
+
+UPOZORNĚNÍ: Aktualizované verze modifikací nemusí být v některých případech kompatibilní s vašimi uloženými hrami. Doporučujeme odložit aktualizaci, dokud nedokončíte rozehrané hry.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="295"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokud vlastníte Heroes Chronicles na gog.com, můžete pomocí poskytnutých offline instalačních souborů  GOG importovat data Heroes Chronicles do VCMI jako vlastní kampaně.
+Pro import Heroes Chronicles si stáhněte offline instalační soubory každé kroniky, kterou chcete nainstalovat, zvolte možnost &apos;Importovat soubory&apos; a vyberte stažený soubor. Tím se vytvoří a nainstaluje modifikace pro VCMI obsahující importované data Heroes Chronicles</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="308"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translation>Ve vaší VCMI instalaci chybí zvukové soubory z Heroes III. VCMI bude fungovat, ale hudba a zvuky ve hře nebude dostupná.
+
+Pro vyřešení tohoto problému ručně zkopírujte chybějící MP3 soubory z Heroes III do složky s daty VCMI nebo znovu nainstalujte VCMI a reimportujte herní data z Heroes III</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="319"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translation>Ve vaší VCMI instalaci chybí video soubory z Heroes III. VCMI bude fungovat, ale herní videa nebudou dostupná.
+
+Pro vyřešení tohoto problému ručně zkopírujte soubor VIDEO.VID z Heroes III do složky s daty VCMI nebo znovu nainstalujte VCMI a reimportujte herní data z Heroes III</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="330"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com</source>
-        <translation type="unfinished"></translation>
+        <translation>Ve vaší VCMI instalaci chybí některé datové soubory z Heroes III. VCMI můžete spustit, ale hra nemusí fungovat správně nebo může docházet k pádům.
+
+Pro vyřešení tohoto problému znovu nainstalujte hru a reimportujte podporované datové soubory Heroes III. VCMI vyžaduje Heroes III: Complete Edition nebo Shadow of Death, které můžete získat například na gog.com</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="341"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translation>Ve vaší VCMI instalaci chybí některé datové soubory z Heroes III: Armageddon&apos;s Blade. VCMI bude fungovat, ale kampaně z Armageddon&apos;s Blade nebudou dostupné.
+
+Pro vyřešení tohoto problému ručně zkopírujte chybějící datové soubory z Heroes III do složky s daty VCMI nebo znovu nainstalujte VCMI a reimportujte herní data z Heroes III</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="366"/>
         <source>Enter preset name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zadejte název konfigurace:</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="406"/>
         <source>Rename preset &apos;%1&apos; to:</source>
-        <translation type="unfinished"></translation>
+        <translation>Přejmenovat konfiguraci &apos;%1&apos; na:</translation>
     </message>
 </context>
 <context>
@@ -1986,11 +1895,7 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot read JSON from url or incorrect JSON data</source>
-        <translation type="vanished">Nelze přečíst JSON z URL nebo nesprávná data JSON</translation>
+        <translation>Nelze načíst JSON z URL nebo data JSON nejsou správná</translation>
     </message>
 </context>
 </TS>
