@@ -58,7 +58,7 @@ void BuyArmy::accept(AIGateway * ai)
 
 		if(ci.count)
 		{
-			if (!town->getUpperArmy()->hasStackAtSlot(town->getUpperArmy()->getSlotFor(ci.creID)))
+			if (town->stacksCount() == GameConstants::ARMY_SIZE)
 			{
 				SlotID lowestValueSlot;
 				int lowestValue = std::numeric_limits<int>::max();
@@ -68,6 +68,9 @@ void BuyArmy::accept(AIGateway * ai)
 					{
 						int currentStackMarketValue =
 							slot.second->getCreatureID().toCreature()->getFullRecruitCost().marketValue() * slot.second->getCount();
+
+						if (slot.second->getCreatureID().toCreature()->getFactionID() == town->getFactionID())
+							continue;
 
 						if (currentStackMarketValue < lowestValue)
 						{
