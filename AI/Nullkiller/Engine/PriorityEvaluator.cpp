@@ -1006,7 +1006,7 @@ public:
 		Goals::ExecuteHeroChain & chain = dynamic_cast<Goals::ExecuteHeroChain &>(*task);
 		const AIPath & path = chain.getPath();
 
-		if (path.movementCost() == 0)
+		if (vstd::isAlmostZero(path.movementCost()))
 			return;
 
 		vstd::amax(evaluationContext.danger, path.getTotalDanger());
@@ -1446,7 +1446,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
-				if (evaluationContext.armyLossPersentage == 0 && evaluationContext.closestWayRatio < 1.0)
+				if (vstd::isAlmostZero(evaluationContext.armyLossPersentage) && evaluationContext.closestWayRatio < 1.0)
 					return 0;
 				score = 1000;
 				if (evaluationContext.movementCost > 0)
@@ -1461,7 +1461,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
-				if (evaluationContext.armyLossPersentage == 0 && evaluationContext.closestWayRatio < 1.0)
+				if (vstd::isAlmostZero(evaluationContext.armyLossPersentage) && evaluationContext.closestWayRatio < 1.0)
 					return 0;
 				score = 1000;
 				if (evaluationContext.movementCost > 0)
@@ -1486,7 +1486,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
-				if (evaluationContext.armyLossPersentage == 0 && evaluationContext.closestWayRatio < 1.0)
+				if (vstd::isAlmostZero(evaluationContext.armyLossPersentage) && evaluationContext.closestWayRatio < 1.0)
 					return 0;
 				score += evaluationContext.strategicalValue * 1000;
 				score += evaluationContext.goldReward;
