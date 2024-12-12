@@ -102,7 +102,7 @@ void StartGameTab::refreshGameData()
 	};
 
 	bool missingSoundtrack = !CResourceHandler::get()->existsResource(AudioPath::builtin("Music/MainMenu"));
-	bool missingVideoFiles = !CResourceHandler::get()->existsResource(VideoPath::builtin("Video/H3Intro"));
+	bool missingVideoFiles = !CResourceHandler::get()->existsResource(VideoPath::builtin("Video/H3Intro")) && !CResourceHandler::get()->existsResource(ResourcePath("Video/H3Intro", EResType::VIDEO_LOW_QUALITY));
 	bool missingGameFiles = false;
 	bool missingCampaings = false;
 

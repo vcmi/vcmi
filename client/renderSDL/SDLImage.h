@@ -60,7 +60,7 @@ public:
 	std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) const override;
 	std::shared_ptr<const ISharedImage> horizontalFlip() const override;
 	std::shared_ptr<const ISharedImage> verticalFlip() const override;
-	std::shared_ptr<const ISharedImage> scaleInteger(int factor, SDL_Palette * palette) const override;
+	std::shared_ptr<const ISharedImage> scaleInteger(int factor, SDL_Palette * palette, EImageBlitMode blitMode) const override;
 	std::shared_ptr<const ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const override;
 
 	friend class SDLImageLoader;

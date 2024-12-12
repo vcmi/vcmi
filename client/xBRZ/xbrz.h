@@ -44,6 +44,7 @@ enum class ColorFormat //from high bits -> low bits, 8 bit per channel
 {
     RGB,  //8 bit for each red, green, blue, upper 8 bits unused
     ARGB, //including alpha channel, BGRA byte order on little-endian machines
+    ARGB_CLAMPED, // like ARGB, but edges are treated as opaque, with same color as edge
     ARGB_UNBUFFERED, //like ARGB, but without the one-time buffer creation overhead (ca. 100 - 300 ms) at the expense of a slightly slower scaling time
 };
 

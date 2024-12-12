@@ -278,7 +278,7 @@ void SDLImageShared::optimizeSurface()
 	}
 }
 
-std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palette * palette) const
+std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palette * palette, EImageBlitMode mode) const
 {
 	if (factor <= 0)
 		throw std::runtime_error("Unable to scale by integer value of " + std::to_string(factor));
@@ -293,7 +293,13 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 	if(preScaleFactor == factor)
 		return shared_from_this();
 	else if(preScaleFactor == 1)
-		scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, factor, EScalingAlgorithm::XBRZ);
+	{
+		// dump heuristics to differentiate tileable UI elements from map object / combat assets
+		if (mode == EImageBlitMode::OPAQUE || mode == EImageBlitMode::COLORKEY || mode == EImageBlitMode::SIMPLE)
+			scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, factor, EScalingAlgorithm::XBRZ_OPAQUE);
+		else
+			scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, factor, EScalingAlgorithm::XBRZ_ALPHA);
+	}
 	else
 		scaled = CSDL_Ext::scaleSurface(surf, (surf->w / preScaleFactor) * factor, (surf->h / preScaleFactor) * factor);
 
@@ -589,12 +595,12 @@ void SDLImageRGB::scaleTo(const Point & size)
 
 void SDLImageIndexed::scaleInteger(int factor)
 {
-	image = image->scaleInteger(factor, currentPalette);
+	image = image->scaleInteger(factor, currentPalette, blitMode);
 }
 
 void SDLImageRGB::scaleInteger(int factor)
 {
-	image = image->scaleInteger(factor, nullptr);
+	image = image->scaleInteger(factor, nullptr, blitMode);
 }
 
 void SDLImageRGB::exportBitmap(const boost::filesystem::path & path) const

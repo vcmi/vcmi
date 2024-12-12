@@ -115,7 +115,7 @@ public:
 
 	virtual std::shared_ptr<const ISharedImage> horizontalFlip() const = 0;
 	virtual std::shared_ptr<const ISharedImage> verticalFlip() const = 0;
-	virtual std::shared_ptr<const ISharedImage> scaleInteger(int factor, SDL_Palette * palette) const = 0;
+	virtual std::shared_ptr<const ISharedImage> scaleInteger(int factor, SDL_Palette * palette, EImageBlitMode blitMode) const = 0;
 	virtual std::shared_ptr<const ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const = 0;
 
 
