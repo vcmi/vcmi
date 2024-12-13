@@ -382,7 +382,6 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 		if (shouldDisband)
 		{
 			disbandMalus = leastValuableStackValue / ci.creID.toCreature()->getFullRecruitCost();
-			logAi->info("Should disband %d %s at %s worth: %d", hero->getStack(leastValuableSlot).count, hero->getStack(leastValuableSlot).getCreatureID().toCreature()->getNamePluralTranslated(), town->getNameTranslated(), leastValuableStackValue.marketValue());
 			alreadyDisbanded.insert(leastValuableSlot);
 		}
 

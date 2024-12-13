@@ -70,14 +70,10 @@ void BuyArmy::accept(AIGateway * ai)
 							slot.second->getCreatureID().toCreature()->getFullRecruitCost().marketValue() * slot.second->getCount();
 
 						if (slot.second->getCreatureID().toCreature()->getFactionID() == town->getFactionID())
-						{
-							logAi->info("Skipped Dismissing %s due to same faction", slot.second->getCreatureID().toCreature()->getNamePluralTranslated());
 							continue;
-						}
 
 						if (currentStackMarketValue < lowestValue)
 						{
-							logAi->info("Marked %s for dismissal.", slot.second->getCreatureID().toCreature()->getNamePluralTranslated());
 							lowestValue = currentStackMarketValue;
 							lowestValueSlot = slot.first;
 						}
@@ -85,13 +81,11 @@ void BuyArmy::accept(AIGateway * ai)
 				}
 				if (lowestValueSlot.validSlot())
 				{
-					logAi->info("Dismiss %d %s at %s slot: %d", town->getUpperArmy()->getStackCount(lowestValueSlot), town->getUpperArmy()->getStack(lowestValueSlot).getCreatureID().toCreature()->getNamePluralTranslated(), town->getNameTranslated(), lowestValueSlot.getNum());
 					cb->dismissCreature(town->getUpperArmy(), lowestValueSlot);
 				}
 			}
 			if (town->getUpperArmy()->stacksCount() < GameConstants::ARMY_SIZE || town->getUpperArmy()->getSlotFor(ci.creID).validSlot()) //It is possible we don't scrap despite we wanted to due to not scrapping stacks that fit our faction
 			{
-				logAi->info("Buy %d %s at %s", ci.count, ci.creID.toCreature()->getNamePluralTranslated(), town->getNameTranslated());
 				cb->recruitCreatures(town, town->getUpperArmy(), ci.creID, ci.count, ci.level);
 			}
 			valueBought += ci.count * ci.creID.toCreature()->getAIValue();
