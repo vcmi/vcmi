@@ -158,7 +158,7 @@
 	"vcmi.broadcast.vote.start.contactsBlocked" : "Розпочато голосування за безумовні одночасні ходи на %s більше днів",
 	"vcmi.broadcast.vote.start.nextDay" : "Розпочато голосування за припинення одночасних ходів з наступного дня",
 	"vcmi.broadcast.vote.start.timer" : "Розпочато голосування за продовження таймера для всіх гравців на %s секунд",
-	"vcmi.broadcast.vote.hint" : "Введіть "!vote yes", щоб погодитися з цією зміною, або "!vote no", щоб проголосувати проти неї",
+	"vcmi.broadcast.vote.hint" : "Введіть \"!vote yes\", щоб погодитися з цією зміною, або \"!vote no\", щоб проголосувати проти неї",
 
 	"vcmi.lobby.login.title" : "Онлайн лобі VCMI",
 	"vcmi.lobby.login.username" : "Логін:",
