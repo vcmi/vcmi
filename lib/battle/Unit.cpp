@@ -111,13 +111,13 @@ const BattleHexArray & Unit::getHexes(BattleHex assumedPos) const
 
 const BattleHexArray & Unit::getHexes(BattleHex assumedPos, bool twoHex, BattleSide side)
 {
-	static BattleHexArray::ArrayOfBattleHexArrays cache[4];
+	static BattleHexArray::ArrayOfBattleHexArrays precomputed[4];
 	int index = side == BattleSide::ATTACKER ? 0 : 2;
 
-	if(!cache[index + twoHex][assumedPos].empty())
-		return cache[index + twoHex][assumedPos];
+	if(!precomputed[index + twoHex][assumedPos].empty())
+		return precomputed[index + twoHex][assumedPos];
 
-	// first run, initialize
+	// first run, compute
 
 	BattleHexArray hexes;
 	hexes.insert(assumedPos);
@@ -125,9 +125,9 @@ const BattleHexArray & Unit::getHexes(BattleHex assumedPos, bool twoHex, BattleS
 	if(twoHex)
 		hexes.insert(occupiedHex(assumedPos, twoHex, side));
 
-	cache[index + twoHex][assumedPos] = std::move(hexes);
+	precomputed[index + twoHex][assumedPos] = std::move(hexes);
 
-	return cache[index + twoHex][assumedPos];
+	return precomputed[index + twoHex][assumedPos];
 }
 
 BattleHex Unit::occupiedHex() const
