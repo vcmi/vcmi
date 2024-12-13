@@ -292,7 +292,7 @@ public:
 
 private:
 	StorageType internalStorage;
-	std::array<uint8_t, totalSize> presenceFlags = {};
+	std::bitset<totalSize> presenceFlags = {};
 
 	[[nodiscard]] inline bool BattleHexArray::isNotValidForInsertion(BattleHex hex) const
 	{

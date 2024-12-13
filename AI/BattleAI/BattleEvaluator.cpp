@@ -320,9 +320,9 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 	return stack->waited() ?  BattleAction::makeDefend(stack) : BattleAction::makeWait(stack);
 }
 
-uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start)
+uint64_t timeElapsed(std::chrono::time_point<std::chrono::steady_clock> start)
 {
-	auto end = std::chrono::high_resolution_clock::now();
+	auto end = std::chrono::steady_clock::now();
 
 	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
