@@ -1195,6 +1195,22 @@ void xbrz::scale(size_t factor, const uint32_t* src, uint32_t* trg, int srcWidth
             }
             break;
 
+        case ColorFormat::ARGB_CLAMPED:
+            switch (factor)
+            {
+                case 2:
+                    return scaleImage<Scaler2x<ColorGradientARGB>, ColorDistanceARGB, OobReaderDuplicate>(src, trg, srcWidth, srcHeight, cfg, yFirst, yLast);
+                case 3:
+                    return scaleImage<Scaler3x<ColorGradientARGB>, ColorDistanceARGB, OobReaderDuplicate>(src, trg, srcWidth, srcHeight, cfg, yFirst, yLast);
+                case 4:
+                    return scaleImage<Scaler4x<ColorGradientARGB>, ColorDistanceARGB, OobReaderDuplicate>(src, trg, srcWidth, srcHeight, cfg, yFirst, yLast);
+                case 5:
+                    return scaleImage<Scaler5x<ColorGradientARGB>, ColorDistanceARGB, OobReaderDuplicate>(src, trg, srcWidth, srcHeight, cfg, yFirst, yLast);
+                case 6:
+                    return scaleImage<Scaler6x<ColorGradientARGB>, ColorDistanceARGB, OobReaderDuplicate>(src, trg, srcWidth, srcHeight, cfg, yFirst, yLast);
+            }
+            break;
+
         case ColorFormat::ARGB:
             switch (factor)
             {
@@ -1238,6 +1254,7 @@ bool xbrz::equalColorTest(uint32_t col1, uint32_t col2, ColorFormat colFmt, doub
         case ColorFormat::RGB:
             return ColorDistanceRGB::dist(col1, col2, luminanceWeight) < equalColorTolerance;
         case ColorFormat::ARGB:
+        case ColorFormat::ARGB_CLAMPED:
             return ColorDistanceARGB::dist(col1, col2, luminanceWeight) < equalColorTolerance;
         case ColorFormat::ARGB_UNBUFFERED:
             return ColorDistanceUnbufferedARGB::dist(col1, col2, luminanceWeight) < equalColorTolerance;

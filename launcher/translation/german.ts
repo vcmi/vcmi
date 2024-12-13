@@ -476,8 +476,8 @@ Installation erfolgreich heruntergeladen?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="791"/>
-        <source>Installing chronicles</source>
-        <translation>Installation der Chronicles</translation>
+        <source>Installing Heroes Chronicles</source>
+        <translation type="unfinished">Installation der Chronicles</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="853"/>

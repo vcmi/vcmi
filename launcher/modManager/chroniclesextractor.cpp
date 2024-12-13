@@ -129,16 +129,14 @@ void ChroniclesExtractor::createBaseMod() const
 
 	for(auto & dataPath : VCMIDirs::get().dataPaths())
 	{
-		auto file = dataPath / "config" / "heroes" / "portraitsChronicles.json";
+		auto file = pathToQString(dataPath / "config" / "heroes" / "portraitsChronicles.json");
 		auto destFolder = VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "content" / "config";
-		if(boost::filesystem::exists(file))
+		auto destFile = pathToQString(destFolder / "portraitsChronicles.json");
+		if(QFile::exists(file))
 		{
-			boost::filesystem::create_directories(destFolder);
-#if BOOST_VERSION >= 107400
-			boost::filesystem::copy_file(file, destFolder / "portraitsChronicles.json", boost::filesystem::copy_options::overwrite_existing);
-#else
-			boost::filesystem::copy_file(file, destFolder / "portraitsChronicles.json", boost::filesystem::copy_option::overwrite_if_exists);
-#endif
+			QDir().mkpath(pathToQString(destFolder));
+			QFile::remove(destFile);
+			QFile::copy(file, destFile);
 		}
 	}
 }
@@ -235,16 +233,19 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 	for(QString f : exe)
 	{
 		extractionFile++;
-		QFile file(f);
+
+		if(!createTempDir())
+			continue;
+		
+		QString filepath = tempDir.filePath("chr.exe");
+		QFile(f).copy(filepath);
+		QFile file(filepath);
 
 		int chronicleNo = getChronicleNo(file);
 		if(!chronicleNo)
 			continue;
 
-		if(!createTempDir())
-			continue;
-
-		if(!extractGogInstaller(f))
+		if(!extractGogInstaller(filepath))
 			continue;
 		
 		createBaseMod();

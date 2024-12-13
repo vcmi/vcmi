@@ -77,6 +77,8 @@ MainWindow::MainWindow(QWidget * parent)
 
 	ui->setupUi(this);
 
+	setAcceptDrops(true);
+
 	setWindowIcon(QIcon{":/icons/menu-game.png"});
 	ui->modslistButton->setIcon(QIcon{":/icons/menu-mods.png"});
 	ui->settingsButton->setIcon(QIcon{":/icons/menu-settings.png"});
@@ -164,6 +166,10 @@ void MainWindow::switchToStartTab()
 	ui->startGameButton->setEnabled(true);
 	ui->startGameButton->setChecked(true);
 	ui->tabListWidget->setCurrentIndex(TabRows::START);
+
+	auto* startGameTabWidget = qobject_cast<StartGameTab*>(ui->tabListWidget->widget(TabRows::START));
+	if(startGameTabWidget)
+		startGameTabWidget->refreshState();
 }
 
 void MainWindow::switchToModsTab()
@@ -247,6 +253,9 @@ void MainWindow::dropEvent(QDropEvent* event)
 
 void MainWindow::manualInstallFile(QString filePath)
 {
+	if(filePath.endsWith(".zip", Qt::CaseInsensitive) || filePath.endsWith(".exe", Qt::CaseInsensitive))
+		switchToModsTab();
+
 	QString fileName = QFileInfo{filePath}.fileName();
 	if(filePath.endsWith(".zip", Qt::CaseInsensitive))
 		getModView()->downloadFile(fileName.toLower()
@@ -279,7 +288,7 @@ void MainWindow::manualInstallFile(QString filePath)
 		}
 	}
 	else
-		getModView()->downloadFile(fileName, QUrl::fromLocalFile(filePath), fileName);
+		getModView()->installFiles(QStringList{filePath});
 }
 
 ETranslationStatus MainWindow::getTranslationStatus()

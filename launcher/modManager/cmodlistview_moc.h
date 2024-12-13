@@ -37,6 +37,8 @@ class CModListView : public QWidget
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;
 
+	QStringList enqueuedModDownloads;
+
 	void setupModModel();
 	void setupFilterModel();
 	void setupModsView();
@@ -54,7 +56,6 @@ class CModListView : public QWidget
 
 	void installMods(QStringList archives);
 	void installMaps(QStringList maps);
-	void installFiles(QStringList mods);
 
 	QString genChangelogText(const ModState & mod);
 	QString genModInfoText(const ModState & mod);
@@ -112,7 +113,9 @@ public:
 	/// returns true if mod is currently installed
 	bool isModInstalled(const QString & modName);
 
+	void downloadMod(const ModState & mod);
 	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
+	void installFiles(QStringList mods);
 
 public slots:
 	void enableModByName(QString modName);

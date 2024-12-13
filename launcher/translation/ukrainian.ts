@@ -464,7 +464,7 @@ Install successfully downloaded?</source>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="791"/>
-        <source>Installing chronicles</source>
+        <source>Installing Heroes Chronicles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
