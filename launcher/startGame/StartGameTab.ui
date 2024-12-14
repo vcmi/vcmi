@@ -545,11 +545,6 @@
            <height>30</height>
           </size>
          </property>
-         <item>
-          <property name="text">
-           <string>Current Preset</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="7" column="0">
