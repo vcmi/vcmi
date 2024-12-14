@@ -1,10 +1,11 @@
 # VCMI Project Changelog
 
-## 1.5.7 -> 1.6.0 (in development)
+## 1.5.7 -> 1.6.0
 
 ### Major changes
 
 * Greatly improved decision-making of NullkillerAI
+* Implemented support for multiple mod presets allowing player to quickly switch between them in Launcher
 * Implemented handicap system, with options to reduce income and growth in addition to starting resources restriction
 * Game will now show statistics after scenario completion, such as resources or army strength over time
 * Implemented spell quick selection panel in combat
@@ -66,6 +67,7 @@
 * Mutare and Mutare Drake are now Overlord and not Warlock
 * Elixir of Life no longer affects siege machines
 * Banned skills known by hero now have minimal chance (1) instead of 0 to appear on levelup
+* The Transport Artifact victory condition fulfilled by the enemy AI will no longer trigger a victory for human players if "standard victory" is enabled on the map
 
 ### Video / Audio
 
@@ -178,6 +180,12 @@
 
 ### Launcher
 
+* Implemented support for multiple mod presets allowing player to quickly switch between them
+* Added new Start Game page to Launcher which is now used when starting the game
+* Added option to create empty mod preset to quickly disable all mods
+* Added button to update all installed mods to Start Game page
+* Added diagnostics to detect common issues with Heroes III data files
+* Added built-in help descriptions for functionalities such as data files import to better explain them to players
 * It is now always possible to disable or uninstall a mod. Any mods that depend on this mod will be automatically disabled
 * It is now always possible to update a mod, even if there are mods that depend on this mod.
 * It is now possible to enable mod that conflicts with already active mod. Conflicting mods will be automatically disabled
@@ -188,6 +196,8 @@
 * Launcher will now correctly show conflicts on both sides - if mod A is marked as conflicting with B, then information on this conflict will be shown in description of both mod A and mod B (instead of only in mod B)
 * Added Swedish translation
 * Added better diagnostics for gog installer extraction errors
+* It is no longer possible to start installation or update for a mod that is already being downloaded
+* Fixed detection of existing Heroes III Complete or Shadow of Death data files during import
 
 ### Map Editor
 
