@@ -1926,32 +1926,32 @@ Grund: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="49"/>
         <source>Import from Clipboard</source>
-        <translation>Aus Zwischenablage importieren</translation>
+        <translation>Aus Zwischenablage</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="81"/>
         <source>Rename Current Preset</source>
-        <translation>Aktuelle Voreinstellung umbenennen</translation>
+        <translation>Voreinstellung umbenennen</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="101"/>
         <source>Current Preset</source>
-        <translation>Aktuelle Voreinstellung</translation>
+        <translation>Voreinstellung</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="121"/>
         <source>Create New Preset</source>
-        <translation>Neue Voreinstellung erstellen</translation>
+        <translation>Voreinstellung erstellen</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="140"/>
         <source>Export to Clipboard</source>
-        <translation>In Zwischenablage exportieren</translation>
+        <translation>In Zwischenablage</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="159"/>
         <source>Delete Current Preset</source>
-        <translation>Aktuelle Voreinstellung löschen</translation>
+        <translation>Voreinstellung löschen</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="200"/>
@@ -2024,7 +2024,7 @@ Grund: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="718"/>
         <source>Game Data Files</source>
-        <translation>Spieldaten Dateien</translation>
+        <translation>Spieldateien</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="736"/>
