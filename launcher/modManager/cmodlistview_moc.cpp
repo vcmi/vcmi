@@ -43,7 +43,7 @@ void CModListView::setupModModel()
 
 	modStateModel = std::make_shared<ModStateModel>();
 	if (!cachedRepositoryData.isNull())
-		modStateModel->appendRepositories(cachedRepositoryData);
+		modStateModel->setRepositoryData(cachedRepositoryData);
 
 	modModel = new ModStateItemModel(modStateModel, this);
 	manager = std::make_unique<ModStateController>(modStateModel);
@@ -151,6 +151,8 @@ void CModListView::reload()
 
 void CModListView::loadRepositories()
 {
+	accumulatedRepositoryData.clear();
+
 	QStringList repositories;
 
 	if (settings["launcher"]["defaultRepositoryEnabled"].Bool())
@@ -731,7 +733,7 @@ void CModListView::installFiles(QStringList files)
 	QStringList maps;
 	QStringList images;
 	QStringList exe;
-	JsonNode repository;
+	bool repositoryFilesEnqueued = false;
 
 	// TODO: some better way to separate zip's with mods and downloaded repository files
 	for(QString filename : files)
@@ -754,9 +756,12 @@ void CModListView::installFiles(QStringList files)
 					auto modNameLower = boost::algorithm::to_lower_copy(modName);
 					auto modJsonUrl = modJson["mod"];
 					if(!modJsonUrl.isNull())
+					{
 						downloadFile(QString::fromStdString(modName + ".json"), QString::fromStdString(modJsonUrl.String()), tr("mods repository index"));
+						repositoryFilesEnqueued = true;
+					}
 
-					repository[modNameLower] = modJson;
+					accumulatedRepositoryData[modNameLower] = modJson;
 				}
 			}
 			else
@@ -764,16 +769,16 @@ void CModListView::installFiles(QStringList files)
 				// This is json of a single mod. Extract name of mod and add it to repo
 				auto modName = QFileInfo(filename).baseName().toStdString();
 				auto modNameLower = boost::algorithm::to_lower_copy(modName);
-				repository[modNameLower] = repoData;
+				accumulatedRepositoryData[modNameLower] = repoData;
 			}
 		}
 		else if(filename.endsWith(".png", Qt::CaseInsensitive))
 			images.push_back(filename);
 	}
 
-	if (!repository.isNull())
+	if (!accumulatedRepositoryData.isNull() && !repositoryFilesEnqueued)
 	{
-		manager->appendRepositories(repository);
+		manager->setRepositoryData(accumulatedRepositoryData);
 		modModel->reloadRepositories();
 
 		static const QString repositoryCachePath = CLauncherDirs::downloadsPath() + "/repositoryCache.json";

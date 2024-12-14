@@ -39,6 +39,7 @@ class StartGameTab : public QWidget
 	void refreshPresets();
 	void refreshGameData();
 
+	void changeEvent(QEvent *event) override;
 public:
 	explicit StartGameTab(QWidget * parent = nullptr);
 	~StartGameTab();

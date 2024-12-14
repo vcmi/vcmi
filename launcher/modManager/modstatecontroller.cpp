@@ -72,9 +72,9 @@ ModStateController::ModStateController(std::shared_ptr<ModStateModel> modList)
 
 ModStateController::~ModStateController() = default;
 
-void ModStateController::appendRepositories(const JsonNode & repomap)
+void ModStateController::setRepositoryData(const JsonNode & repomap)
 {
-	modList->appendRepositories(repomap);
+	modList->setRepositoryData(repomap);
 }
 
 bool ModStateController::addError(QString modname, QString message)
