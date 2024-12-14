@@ -477,7 +477,7 @@ Zainstalować pomyślnie pobrane?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="791"/>
         <source>Installing Heroes Chronicles</source>
-        <translation type="unfinished">Instalowanie Kronik</translation>
+        <translation>Instalowanie Kronik</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="853"/>
@@ -733,7 +733,13 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz tryb wyświetlania gry
+
+        Okno - gra będzie działać w oknie, które zajmie część ekranu.
+        
+        Tryb okna bez ramek - gra będzie działać w pełnoekranowym oknie, dopasowanym do rozdzielczości ekranu.
+        
+        Tryb pełnoekranowy - gra zajmie cały ekran i będzie korzystać z wybranej rozdzielczości.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
@@ -1040,22 +1046,22 @@ Pełny ekran klasyczny - gra przysłoni cały ekran uruchamiając się w wybrane
     </message>
     <message>
         <source>You have to select an chronicle installer file!</source>
-        <translation type="vanished">Należy wybrać instalator Kronik</translation>
+        <translation type="vanished">Należy wybrać instalator Kronik!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
         <source>The file cannot be opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik nie może zostać otwarty</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <source>You have to select a gog installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Należy wybrać plik instalatora Gog!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Należy wybrać plik instalatora Kronik!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="88"/>
@@ -1065,7 +1071,7 @@ Pełny ekran klasyczny - gra przysłoni cały ekran uruchamiając się w wybrane
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="90"/>
         <source>Hash error!</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd sumy kontrolnej!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="107"/>
@@ -1220,7 +1226,7 @@ Instalator offline składa się z dwóch części, .exe i .bin. Upewnij się, ż
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj mod, który wprowadza różne ulepszenia interfejsu, takie jak lepszy interfejs dla losowych map i możliwość wyboru akcji w bitwach</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="867"/>
@@ -1246,7 +1252,13 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation type="unfinished"></translation>
+        <translation>Dziękujemy za zainstalowanie VCMI!
+
+        Zanim będziesz mógł rozpocząć grę, musisz wykonać jeszcze kilka kroków.
+        
+        Pamiętaj, że aby korzystać z VCMI, musisz posiadać oryginalne pliki gry Heroes® of Might and Magic® III: Complete lub The Shadow of Death.
+        
+        Heroes® of Might and Magic® III HD nie jest obecnie obsługiwane!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="212"/>
@@ -1257,7 +1269,8 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
         <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
-        <translation type="unfinished"></translation>
+        <translation>Możesz ręcznie skopiować katalogi Maps, Data i Mp3 z oryginalnego folderu gry do katalogu danych VCMI, który widzisz na górze tej strony.
+        </translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="347"/>
@@ -1283,7 +1296,8 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jeśli posiadasz Heroes III na gog.com, możesz pobrać kopię zapasową instalatora offline z gog.com. VCMI zaimportuje dane z Heroes III, korzystając z tego instalatora offline.
+Instalator offline składa się z dwóch plików: &quot;.exe&quot; i &quot;.bin&quot; - musisz pobrać oba.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="557"/>
@@ -1362,13 +1376,15 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="486"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pliki Heroes III: HD Edition nie są obsługiwane przez VCMI.  
+Wybierz katalog z Heroes III: Complete Edition lub Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="491"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznana lub nieobsługiwana wersja Heroes III została wykryta.  
+Wybierz katalog z Heroes III: Complete Edition lub Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="347"/>
@@ -1378,12 +1394,12 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="392"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation type="unfinished"></translation>
+        <translation>Podany plik jest instalatorem GOG Galaxy! Ten plik nie zawiera gry. Proszę pobrać zapasowy instalator offline gry!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="415"/>
         <source>Hash error!</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd sumy kontrolnej!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="418"/>
@@ -1399,7 +1415,8 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="462"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieudane znalezienie poprawnych plików Heroes III w podanej lokalizacji.
+Proszę wybrać folder z zainstalowanymi danymi Heroes III.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="465"/>
@@ -1407,7 +1424,7 @@ Please select the directory with installed Heroes III data.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="486"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="491"/>
         <source>Heroes III data not found!</source>
-        <translation>Dane Heroes III nie znalezione!</translation>
+        <translation>Nie odnaleziono danych Heroes III!</translation>
     </message>
     <message>
         <source>Failed to detect valid Heroes III data in chosen directory.
@@ -1469,31 +1486,37 @@ powód błędu: </translation>
         <source>SHA1 hash of provided files:
 Exe (%1 bytes):
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>SHA1 suma kontrolna dostarczonych plików:
+Exe (%1 bajtów):
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="134"/>
         <source>
 Bin (%1 bytes):
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>
+Bin (%1 bajtów):
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="137"/>
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Wewnętrzny proces kopiowania nie powiódł się. Czy na urządzeniu jest wystarczająco dużo miejsca?
+
+%1</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="146"/>
         <source>Exe</source>
-        <translation type="unfinished"></translation>
+        <translation>Exe</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="146"/>
         <source>Bin</source>
-        <translation type="unfinished"></translation>
+        <translation>Bin</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="155"/>
@@ -1501,7 +1524,10 @@ Bin (%1 bytes):
 %1
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Niezgodność języka!
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="157"/>
@@ -1509,14 +1535,19 @@ Bin (%1 bytes):
 %1
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozpoznano tylko jeden plik! Być może pliki są uszkodzone? Proszę pobrać je ponownie.
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="163"/>
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznane pliki! Być może pliki są uszkodzone? Proszę pobrać je ponownie.
+        
+%1</translation>
     </message>
 </context>
 <context>
@@ -1632,7 +1663,7 @@ Bin (%1 bytes):
     <message>
         <location filename="../mainwindow_moc.ui" line="209"/>
         <source>Game</source>
-        <translation type="unfinished"></translation>
+        <translation>Gra</translation>
     </message>
     <message>
         <source>Map Editor</source>
@@ -1650,12 +1681,12 @@ Bin (%1 bytes):
     <message>
         <location filename="../mainwindow_moc.cpp" line="264"/>
         <source>Replace config file?</source>
-        <translation type="unfinished">Zastąpić plik konfiguracji?</translation>
+        <translation>Zastąpić plik konfiguracji?</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="264"/>
         <source>Do you want to replace %1?</source>
-        <translation type="unfinished">Czy chcesz zastąpić %1?</translation>
+        <translation>Czy chcesz zastąpić %1?</translation>
     </message>
 </context>
 <context>
@@ -1711,7 +1742,7 @@ Bin (%1 bytes):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="158"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod nie jest kompatybilny, proszę zaktualizować VCMI i odświeżyć listę modów</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="161"/>
@@ -1757,7 +1788,7 @@ Bin (%1 bytes):
         <location filename="../modManager/modstatecontroller.cpp" line="254"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Mod jest umiejscowiony w chronionym folderze, proszę go usunąć ręcznie:</translation>
     </message>
     <message>
         <source>Mod is located in protected directory, please remove it manually:</source>
@@ -1888,42 +1919,42 @@ Powód: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Forma</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="49"/>
         <source>Import from Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Importuj ze schowka</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="81"/>
         <source>Rename Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmień nazwę bieżącej listy</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="101"/>
         <source>Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Bieżąca lista</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="121"/>
         <source>Create New Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz nową listę</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="140"/>
         <source>Export to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyeksportuj do schowka</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="159"/>
         <source>Delete Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń bieżącą listę</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="200"/>
         <source>Unsupported or corrupted game data detected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykryto nieobsługiwane lub uszkodzone dane gry!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="257"/>
@@ -1936,146 +1967,149 @@ Powód: %2</translation>
         <location filename="../startGame/StartGameTab.ui" line="475"/>
         <location filename="../startGame/StartGameTab.ui" line="551"/>
         <source>?</source>
-        <translation type="unfinished"></translation>
+        <translation>?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="295"/>
         <source>Install Translation</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj tłumaczenie</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="352"/>
         <source>No soundtrack detected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie wykryto ścieżki dźwiękowej!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="393"/>
         <source>Armaggedon&apos;s Blade campaigns are missing!</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="453"/>
         <source>No video files detected!</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="494"/>
         <source>Activate Translation</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktywne tłumaczenie</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="513"/>
         <source>Import files</source>
-        <translation type="unfinished"></translation>
+        <translation>Importuj pliki</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="624"/>
         <source>Check For Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprawdź aktualizacje</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="643"/>
         <source>Go to Downloads Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Przejdź do strony pobierania</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="662"/>
         <source>Go to Changelog Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Przejdź do listy zmian</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="681"/>
         <source>You are using the latest version</source>
-        <translation type="unfinished"></translation>
+        <translation>Używasz aktualnej wersji</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="718"/>
         <source>Game Data Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Pliki gry</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="736"/>
         <source>Mod Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista modów użytkownika</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="781"/>
         <source>Resume</source>
-        <translation type="unfinished"></translation>
+        <translation>Wznów</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="830"/>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Graj</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="874"/>
         <source>Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor</translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="141"/>
         <source>Update %n mods</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Zaktualizuj %n mod</numerusform>
+            <numerusform>Zaktualizuj %n mody</numerusform>
+            <numerusform>Zaktualizuj %n modów</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="145"/>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Kroniki Heroes:
+%n/%1 zainstalowana</numerusform>
+            <numerusform>Kroniki Heroes:
+%n/%1 zainstalowane</numerusform>
+            <numerusform>Kroniki Heroes:
+%n/%1 zainstalowanych</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="162"/>
         <source>Update to %1 available</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizacja do %1 jest dostępna</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="198"/>
         <source>All supported files</source>
-        <translation type="unfinished">Wszystkie wspierane pliki</translation>
+        <translation>Wszystkie wspierane pliki</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="199"/>
         <source>Maps</source>
-        <translation type="unfinished">Mapy</translation>
+        <translation>Mapy</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="200"/>
         <source>Campaigns</source>
-        <translation type="unfinished">Kampanie</translation>
+        <translation>Kampanie</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="201"/>
         <source>Configs</source>
-        <translation type="unfinished">Konfiguracje</translation>
+        <translation>Konfiguracje</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="202"/>
         <source>Mods</source>
-        <translation type="unfinished">Mody</translation>
+        <translation>Mody</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="203"/>
         <source>Gog files</source>
-        <translation type="unfinished">Pliki Gog</translation>
+        <translation>Pliki Gog</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="206"/>
         <source>All files (*.*)</source>
-        <translation type="unfinished">Wszystkie pliki (*.*)</translation>
+        <translation>Wszystkie pliki (*.*)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="208"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished">Zaznacz pliki (konfiguracje, mody, mapy, kampanie, pliki gog) do zainstalowania...</translation>
+        <translation>Zaznacz pliki (konfiguracje, mody, mapy, kampanie, pliki gog) do zainstalowania...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="248"/>
@@ -2087,68 +2121,85 @@ Powód: %2</translation>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Ta opcja pozwala na zaimportowanie dodatkowych plików danych do Twojej instalacji VCMI. Obecnie obsługiwane są następujące opcje:
+
+- Mapy z Heroes III (.h3m lub .vmap).
+- Kampanie z Heroes III (.h3c lub .vcmp).
+- Heroes III Chronicles przy użyciu instalatora offline z GOG.com (.exe).
+- Mody VCMI w formacie zip (.zip).
+- Pliki konfiguracyjne VCMI (.json).</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="263"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
-        <translation type="unfinished"></translation>
+        <translation>Twoja wersja Heroes III używa innego języka. VCMI oferuje tłumaczenia gry na różne języki, które możesz wykorzystać. Skorzystaj z tej opcji, aby automatycznie zainstalować tłumaczenie na Twój język.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="273"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tłumaczenie Heroes III na Twój język jest zainstalowane, ale zostało wyłączone. Skorzystaj z tej opcji, aby je włączyć.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="283"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You many want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nowa wersja niektórych modów, które masz zainstalowane, jest już dostępna w repozytorium modów. Skorzystaj z tej opcji, aby automatycznie zaktualizować wszystkie mody do najnowszej wersji.
+
+UWAGA: W niektórych przypadkach zaktualizowane wersje modów mogą być niekompatybilne z Twoimi zapisami gry. Możesz chcieć odłożyć aktualizację modów do czasu ukończenia trwających rozgrywek.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="295"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Jeśli posiadasz Heroes Chronicles na gog.com, możesz użyć instalatorów offline dostarczanych przez GOG, aby zaimportować dane Heroes Chronicles do VCMI jako niestandardowe kampanie.  
+Aby zaimportować Heroes Chronicles, pobierz instalator offline każdej kroniki, którą chcesz zainstalować, wybierz opcję &apos;Importuj pliki&apos; i wskaż pobrany plik. To spowoduje wygenerowanie i zainstalowanie moda dla VCMI zawierającego zaimportowane Kroniki.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="308"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI wykryło brak plików muzycznych Heroes III w Twojej instalacji. VCMI będzie działać, ale muzyka w grze nie będzie dostępna.
+
+Aby rozwiązać ten problem, skopiuj brakujące pliki mp3 z Heroes III do katalogu danych VCMI ręcznie lub ponownie zainstaluj VCMI i ponownie zaimportuj pliki danych Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="319"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI wykryło brak plików wideo Heroes III w Twojej instalacji. VCMI będzie działać, ale scenki przerywnikowe w grze nie będą dostępne.
+
+Aby rozwiązać ten problem, skopiuj plik VIDEO.VID z Heroes III do katalogu danych VCMI ręcznie lub ponownie zainstaluj VCMI i ponownie zaimportuj pliki danych Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="330"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI wykryło brak niektórych plików danych Heroes III w Twojej instalacji. Możesz spróbować uruchomić VCMI, ale gra może nie działać poprawnie lub się zawiesić.
+
+Aby rozwiązać ten problem, zainstaluj grę ponownie i ponownie zaimportuj pliki danych, używając obsługiwanej wersji Heroes III. VCMI wymaga wersji Heroes III: Shadow of Death lub Complete Edition, którą możesz nabyć (na przykład) na gog.com.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="341"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI wykryło brak niektórych plików danych Heroes III w Twojej instalacji. Możesz spróbować uruchomić VCMI, ale gra może nie działać poprawnie lub się zawiesić.
+
+Aby rozwiązać ten problem, zainstaluj grę ponownie i ponownie zaimportuj pliki danych, używając obsługiwanej wersji Heroes III. VCMI wymaga wersji Heroes III: Shadow of Death lub Complete Edition, którą możesz nabyć (na przykład) na gog.com.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="366"/>
         <source>Enter preset name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wpisz nazwę listy modów:</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="406"/>
         <source>Rename preset &apos;%1&apos; to:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmień nazwę listy modów &apos;%1&apos; na:</translation>
     </message>
 </context>
 <context>
@@ -2176,7 +2227,7 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odczytać JSON z url lub JSON ma błędną zawartość</translation>
     </message>
     <message>
         <source>Cannot read JSON from url or incorrect JSON data</source>
