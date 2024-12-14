@@ -119,6 +119,58 @@ std::vector<BattleHex> BattleEvaluator::getBrokenWallMoatHexes() const
 	return result;
 }
 
+std::vector<BattleHex> BattleEvaluator::getCastleHexes()
+{
+	std::vector<BattleHex> result;
+
+	// Loop through all wall parts
+
+	std::vector<BattleHex> wallHexes;
+	wallHexes.push_back(50);
+	wallHexes.push_back(183);
+	wallHexes.push_back(182);
+	wallHexes.push_back(130);
+	wallHexes.push_back(78);
+	wallHexes.push_back(29);
+	wallHexes.push_back(12);
+	wallHexes.push_back(97);
+	wallHexes.push_back(45);
+	wallHexes.push_back(62);
+	wallHexes.push_back(112);
+	wallHexes.push_back(147);
+	wallHexes.push_back(165);
+
+	for (BattleHex wallHex : wallHexes) {
+		// Get the starting x-coordinate of the wall hex
+		int startX = wallHex.getX();
+
+		// Initialize current hex with the wall hex
+		BattleHex currentHex = wallHex;
+		while (currentHex.isValid()) {
+			// Check if the x-coordinate has wrapped (smaller than the starting x)
+			if (currentHex.getX() < startX) {
+				break;
+			}
+
+			// Add the hex to the result
+			result.push_back(currentHex);
+
+			// Move to the next hex to the right
+			currentHex = currentHex.cloneInDirection(BattleHex::RIGHT, false);
+		}
+	}
+
+	return result;
+}
+
+bool BattleEvaluator::hasWorkingTowers() const
+{
+	bool keepIntact = cb->getBattle(battleID)->battleGetWallState(EWallPart::KEEP) != EWallState::NONE && cb->getBattle(battleID)->battleGetWallState(EWallPart::KEEP) != EWallState::DESTROYED;
+	bool upperIntact = cb->getBattle(battleID)->battleGetWallState(EWallPart::UPPER_TOWER) != EWallState::NONE && cb->getBattle(battleID)->battleGetWallState(EWallPart::UPPER_TOWER) != EWallState::DESTROYED;
+	bool bottomIntact = cb->getBattle(battleID)->battleGetWallState(EWallPart::BOTTOM_TOWER) != EWallState::NONE && cb->getBattle(battleID)->battleGetWallState(EWallPart::BOTTOM_TOWER) != EWallState::DESTROYED;
+	return keepIntact || upperIntact || bottomIntact;
+}
+
 std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack *stack)
 {
 	//TODO: faerie dragon type spell should be selected by server
@@ -161,6 +213,19 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 
 	auto moveTarget = scoreEvaluator.findMoveTowardsUnreachable(stack, *targets, damageCache, hb);
 	float score = EvaluationResult::INEFFECTIVE_SCORE;
+	auto enemyMellee = hb->getUnitsIf([this](const battle::Unit* u) -> bool
+		{
+			return u->unitSide() == BattleSide::ATTACKER && !hb->battleCanShoot(u);
+		});
+	bool siegeDefense = stack->unitSide() == BattleSide::DEFENDER
+		&& !stack->canShoot()
+		&& hasWorkingTowers()
+		&& !enemyMellee.empty();
+	std::vector<BattleHex> castleHexes = getCastleHexes();
+	for (auto hex : castleHexes)
+	{
+		logAi->trace("Castlehex ID: %d Y: %d X: %d", hex, hex.getY(), hex.getX());
+	}
 
 	if(targets->possibleAttacks.empty() && bestSpellcast.has_value())
 	{
@@ -174,7 +239,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		logAi->trace("Evaluating attack for %s", stack->getDescription());
 #endif
 
-		auto evaluationResult = scoreEvaluator.findBestTarget(stack, *targets, damageCache, hb);
+		auto evaluationResult = scoreEvaluator.findBestTarget(stack, *targets, damageCache, hb, siegeDefense);
 		auto & bestAttack = evaluationResult.bestAttack;
 
 		cachedAttack.ap = bestAttack;
@@ -227,15 +292,13 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 						return BattleAction::makeDefend(stack);
 					}
 
-					auto enemyMellee = hb->getUnitsIf([this](const battle::Unit * u) -> bool
-						{
-							return u->unitSide() == BattleSide::ATTACKER && !hb->battleCanShoot(u);
+					bool isTargetOutsideFort = std::none_of(castleHexes.begin(), castleHexes.end(),
+						[&](const BattleHex& hex) {
+							return hex == bestAttack.from;
 						});
-
-					bool isTargetOutsideFort = bestAttack.dest.getY() < GameConstants::BFIELD_WIDTH - 4;
 					bool siegeDefense = stack->unitSide() == BattleSide::DEFENDER
 						&& !bestAttack.attack.shooting
-						&& hb->battleGetFortifications().hasMoat
+						&& hasWorkingTowers()
 						&& !enemyMellee.empty()
 						&& isTargetOutsideFort;
 
@@ -348,6 +411,28 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 {
 	auto reachability = cb->getBattle(battleID)->getReachability(stack);
 	auto avHexes = cb->getBattle(battleID)->battleGetAvailableHexes(reachability, stack, false);
+
+	auto enemyMellee = hb->getUnitsIf([this](const battle::Unit* u) -> bool
+		{
+			return u->unitSide() == BattleSide::ATTACKER && !hb->battleCanShoot(u);
+		});
+
+	bool siegeDefense = stack->unitSide() == BattleSide::DEFENDER
+		&& hasWorkingTowers()
+		&& !enemyMellee.empty();
+
+	if (siegeDefense)
+	{
+		vstd::erase_if(avHexes, [&](const BattleHex& hex) {
+			std::vector<BattleHex> castleHexes = getCastleHexes();
+
+			bool isOutsideWall = std::none_of(castleHexes.begin(), castleHexes.end(),
+				[&](const BattleHex& checkhex) {
+					return checkhex == hex;
+				});
+			return isOutsideWall;
+			});
+	}
 
 	if(!avHexes.size() || !hexes.size()) //we are blocked or dest is blocked
 	{
