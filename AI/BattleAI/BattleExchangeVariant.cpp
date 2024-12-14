@@ -218,7 +218,6 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 	bool siegeDefense)
 {
 	EvaluationResult result(targets.bestAction());
-	std::vector<BattleHex> castleHexes = BattleEvaluator::getCastleHexes();
 
 	if(!activeStack->waited() && !activeStack->acquireState()->hadMorale)
 	{
@@ -234,7 +233,7 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 
 		for(auto & ap : targets.possibleAttacks)
 		{
-			if (siegeDefense && std::find(castleHexes.begin(), castleHexes.end(), ap.from) == castleHexes.end())
+			if (siegeDefense && !hb->battleIsInsideWalls(ap.from))
 				continue;
 
 			float score = evaluateExchange(ap, 0, targets, damageCache, hbWaited);
@@ -269,7 +268,7 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 
 	for(auto & ap : targets.possibleAttacks)
 	{
-		if (siegeDefense && std::find(castleHexes.begin(), castleHexes.end(), ap.from) == castleHexes.end())
+		if (siegeDefense && !hb->battleIsInsideWalls(ap.from))
 			continue;
 
 		float score = evaluateExchange(ap, 0, targets, damageCache, hb);
