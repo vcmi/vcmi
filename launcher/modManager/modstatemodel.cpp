@@ -11,7 +11,6 @@
 #include "modstatemodel.h"
 
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/json/JsonUtils.h"
 #include "../../lib/modding/ModManager.h"
 
 ModStateModel::ModStateModel()
@@ -22,10 +21,9 @@ ModStateModel::ModStateModel()
 
 ModStateModel::~ModStateModel() = default;
 
-void ModStateModel::appendRepositories(const JsonNode & repositoriesList)
+void ModStateModel::setRepositoryData(const JsonNode & repositoriesList)
 {
-	JsonUtils::mergeCopy(*repositoryData, repositoriesList);
-
+	*repositoryData = repositoriesList;
 	modManager = std::make_unique<ModManager>(*repositoryData);
 }
 

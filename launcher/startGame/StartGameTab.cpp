@@ -20,6 +20,14 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/VCMIDirs.h"
 
+void StartGameTab::changeEvent(QEvent *event)
+{
+	if(event->type() == QEvent::LanguageChange)
+		ui->retranslateUi(this);
+
+	QWidget::changeEvent(event);
+}
+
 StartGameTab::StartGameTab(QWidget * parent)
 	: QWidget(parent)
 	, ui(new Ui::StartGameTab)

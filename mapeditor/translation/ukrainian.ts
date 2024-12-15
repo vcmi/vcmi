@@ -25,22 +25,22 @@
         <location filename="../inspector/artifactwidget.ui" line="29"/>
         <location filename="../inspector/artifactwidget.ui" line="44"/>
         <source>Artifact</source>
-        <translation type="unfinished"></translation>
+        <translation>Артефакт</translation>
     </message>
     <message>
         <location filename="../inspector/artifactwidget.ui" line="57"/>
         <source>Equip where:</source>
-        <translation type="unfinished"></translation>
+        <translation>Де поставити:</translation>
     </message>
     <message>
         <location filename="../inspector/artifactwidget.ui" line="73"/>
         <source>Save</source>
-        <translation type="unfinished">Зберегти</translation>
+        <translation>Зберегти</translation>
     </message>
     <message>
         <location filename="../inspector/artifactwidget.ui" line="86"/>
         <source>Cancel</source>
-        <translation type="unfinished">Скасувати</translation>
+        <translation>Скасувати</translation>
     </message>
 </context>
 <context>
@@ -48,27 +48,27 @@
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="34"/>
         <source>Timed events</source>
-        <translation type="unfinished"></translation>
+        <translation>Заплановані події</translation>
     </message>
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="60"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати</translation>
     </message>
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="73"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити</translation>
     </message>
     <message>
         <location filename="../mapsettings/eventsettings.cpp" line="147"/>
         <source>New event</source>
-        <translation type="unfinished"></translation>
+        <translation>Нова подія</translation>
     </message>
 </context>
 <context>
@@ -76,47 +76,47 @@
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="32"/>
         <source>Map name</source>
-        <translation type="unfinished">Назва мапи</translation>
+        <translation>Назва мапи</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="42"/>
         <source>Map description</source>
-        <translation type="unfinished">Опис мапи</translation>
+        <translation>Опис мапи</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="52"/>
         <source>Author</source>
-        <translation type="unfinished"></translation>
+        <translation>Автор</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="62"/>
         <source>Author contact (e.g. email)</source>
-        <translation type="unfinished"></translation>
+        <translation>Контакти автора (наприклад, електронна пошта)</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="72"/>
         <source>Map Creation Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Час створення мапи</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="86"/>
         <source>Map Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Версія мапи</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="120"/>
         <source>Limit maximum heroes level</source>
-        <translation type="unfinished">Обмежити максимальний рівень героїв</translation>
+        <translation>Обмежити максимальний рівень героїв</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="129"/>
         <source>Difficulty</source>
-        <translation type="unfinished">Складність</translation>
+        <translation>Складність</translation>
     </message>
 </context>
 <context>
@@ -132,27 +132,27 @@
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="29"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Артефакти</translation>
+        <translation>Артефакти</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="71"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="87"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="130"/>
         <source>Slot</source>
-        <translation type="unfinished"></translation>
+        <translation>Слот</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="135"/>
         <source>Artifact</source>
-        <translation type="unfinished"></translation>
+        <translation>Артефакт</translation>
     </message>
 </context>
 <context>
@@ -160,7 +160,7 @@
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="14"/>
         <source>Hero skills</source>
-        <translation type="unfinished"></translation>
+        <translation>Вміння героя</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="28"/>
@@ -173,27 +173,27 @@
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="97"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="113"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="153"/>
         <source>Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Вміння</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="158"/>
         <source>Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Рівень</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="166"/>
         <source>Customize skills</source>
-        <translation type="unfinished"></translation>
+        <translation>Користувацькі навички</translation>
     </message>
 </context>
 <context>
@@ -201,37 +201,37 @@
     <message>
         <location filename="../inspector/herospellwidget.ui" line="29"/>
         <source>Spells</source>
-        <translation type="unfinished">Закляття</translation>
+        <translation>Закляття</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="47"/>
         <source>Customize spells</source>
-        <translation type="unfinished"></translation>
+        <translation>Користувацькі заклинання</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="76"/>
         <source>Level 1</source>
-        <translation type="unfinished"></translation>
+        <translation>1-й рівень</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="114"/>
         <source>Level 2</source>
-        <translation type="unfinished"></translation>
+        <translation>2-й рівень</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="152"/>
         <source>Level 3</source>
-        <translation type="unfinished"></translation>
+        <translation>3-й рівень</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="190"/>
         <source>Level 4</source>
-        <translation type="unfinished"></translation>
+        <translation>4-й рівень</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="228"/>
         <source>Level 5</source>
-        <translation type="unfinished"></translation>
+        <translation>5-й рівень</translation>
     </message>
 </context>
 <context>
@@ -239,7 +239,7 @@
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="40"/>
@@ -298,7 +298,7 @@
         <location filename="../mainwindow.ui" line="63"/>
         <location filename="../mainwindow.ui" line="1032"/>
         <source>Open Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити останні</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="77"/>
@@ -358,12 +358,12 @@
     <message>
         <location filename="../mainwindow.ui" line="457"/>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Інструменти</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="821"/>
         <source>Painting</source>
-        <translation type="unfinished"></translation>
+        <translation>Малювання</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="873"/>
@@ -383,7 +383,7 @@
     <message>
         <location filename="../mainwindow.ui" line="990"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Попередній перегляд</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1024"/>
@@ -393,7 +393,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1037"/>
         <source>More...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ще...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1045"/>
@@ -563,7 +563,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1341"/>
         <source>Translations</source>
-        <translation type="unfinished"></translation>
+        <translation>Переклади</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1344"/>
@@ -847,12 +847,12 @@
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="137"/>
         <source>Timed</source>
-        <translation type="unfinished"></translation>
+        <translation>Заплановані</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="156"/>
         <source>Rumors</source>
-        <translation type="unfinished"></translation>
+        <translation>Чутки</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="179"/>
@@ -885,7 +885,7 @@
     <message>
         <location filename="../mapview.cpp" line="626"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо розмістити об&apos;єкт</translation>
     </message>
 </context>
 <context>
@@ -901,7 +901,7 @@
     <message>
         <location filename="../mapsettings/modsettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="32"/>
@@ -974,7 +974,7 @@
     <message>
         <location filename="../playerparams.ui" line="164"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="221"/>
@@ -1209,52 +1209,52 @@
     <message>
         <location filename="../inspector/questwidget.ui" line="338"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Артефакти</translation>
+        <translation>Артефакти</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="370"/>
         <source>Spells</source>
-        <translation type="unfinished">Закляття</translation>
+        <translation>Закляття</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="402"/>
         <source>Skills</source>
-        <translation type="unfinished"></translation>
+        <translation>Вміння</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="442"/>
         <source>Creatures</source>
-        <translation type="unfinished"></translation>
+        <translation>Істоти</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="491"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="498"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="538"/>
         <source>Heroes</source>
-        <translation type="unfinished">Герої</translation>
+        <translation>Герої</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="570"/>
         <source>Hero classes</source>
-        <translation type="unfinished"></translation>
+        <translation>Класи героїв</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="602"/>
         <source>Players</source>
-        <translation type="unfinished"></translation>
+        <translation>Гравці</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="38"/>
         <source>None</source>
-        <translation type="unfinished">Відсутня</translation>
+        <translation>Будь який</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="40"/>
