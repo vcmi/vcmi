@@ -19,6 +19,8 @@
 #include "../render/CDefFile.h"
 #include "../render/Graphics.h"
 #include "../xBRZ/xbrz.h"
+#include "../gui/CGuiHandler.h"
+#include "../render/IScreenHandler.h"
 
 #include <tbb/parallel_for.h>
 #include <SDL_surface.h>
@@ -275,6 +277,12 @@ void SDLImageShared::optimizeSurface()
 
 		margins.x += left;
 		margins.y += top;
+	}
+
+	if(preScaleFactor > 1 && preScaleFactor != GH.screenHandler().getScalingFactor())
+	{
+		margins.x = margins.x * GH.screenHandler().getScalingFactor() / preScaleFactor;
+		margins.y = margins.y * GH.screenHandler().getScalingFactor() / preScaleFactor;
 	}
 }
 
