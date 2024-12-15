@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="sv_SV">
+<TS version="2.1" language="sv_SE">
 <context>
     <name>AboutProjectView</name>
     <message>
@@ -88,89 +88,6 @@
     </message>
 </context>
 <context>
-    <name>CModListModel</name>
-    <message>
-        <source>Translation</source>
-        <translation type="vanished">Översättning</translation>
-    </message>
-    <message>
-        <source>Town</source>
-        <translation type="vanished">Stad</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation type="vanished">Test</translation>
-    </message>
-    <message>
-        <source>Templates</source>
-        <translation type="vanished">Modeller</translation>
-    </message>
-    <message>
-        <source>Spells</source>
-        <translation type="vanished">Trollformler</translation>
-    </message>
-    <message>
-        <source>Music</source>
-        <translation type="vanished">Musik</translation>
-    </message>
-    <message>
-        <source>Maps</source>
-        <translation type="vanished">Kartor</translation>
-    </message>
-    <message>
-        <source>Sounds</source>
-        <translation type="vanished">Ljud</translation>
-    </message>
-    <message>
-        <source>Skills</source>
-        <translation type="vanished">Färdigheter</translation>
-    </message>
-    <message>
-        <source>Other</source>
-        <translation type="vanished">Annan</translation>
-    </message>
-    <message>
-        <source>Objects</source>
-        <translation type="vanished">Objekt</translation>
-    </message>
-    <message>
-        <source>Mechanics</source>
-        <translation type="vanished">Mekanik</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation type="vanished">Gränssnitt</translation>
-    </message>
-    <message>
-        <source>Heroes</source>
-        <translation type="vanished">Hjälte</translation>
-    </message>
-    <message>
-        <source>Graphical</source>
-        <translation type="vanished">Grafik</translation>
-    </message>
-    <message>
-        <source>Expansion</source>
-        <translation type="vanished">Expansion/Tillägg</translation>
-    </message>
-    <message>
-        <source>Creatures</source>
-        <translation type="vanished">Varelser</translation>
-    </message>
-    <message>
-        <source>Compatibility</source>
-        <translation type="vanished">Kompatibilitet</translation>
-    </message>
-    <message>
-        <source>Artifacts</source>
-        <translation type="vanished">Artefakter</translation>
-    </message>
-    <message>
-        <source>AI</source>
-        <translation type="vanished">AI</translation>
-    </message>
-</context>
-<context>
     <name>CModListView</name>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="43"/>
@@ -208,11 +125,6 @@
         <translation>Inaktiv</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="105"/>
-        <source>Reload repositories</source>
-        <translation>Ladda om repositorier</translation>
-    </message>
-    <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
         <source>Description</source>
@@ -221,17 +133,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="209"/>
         <source>Changelog</source>
-        <translation>Förändringshistorik</translation>
+        <translation>Förändringslogg</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="231"/>
         <source>Screenshots</source>
         <translation>Skärmbilder</translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="327"/>
-        <source> %p% (%v KB out of %m KB)</source>
-        <translation> %p% (%v KB av %m KB)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="373"/>
@@ -264,6 +171,16 @@
         <translation>Installera</translation>
     </message>
     <message>
+        <location filename="../modManager/cmodlistview_moc.ui" line="327"/>
+        <source> %p% (%v KB out of %m KB)</source>
+        <translation> %p% (%v KB utav %m KB)</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.ui" line="105"/>
+        <source>Reload repositories</source>
+        <translation>Ladda om repositorier</translation>
+    </message>
+    <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="340"/>
         <source>Abort</source>
         <translation>Avbryt</translation>
@@ -283,7 +200,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="328"/>
         <source>Latest version</source>
-        <translation>Senaste version</translation>
+        <translation>Senaste versionen</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="332"/>
@@ -335,7 +252,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="189"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="827"/>
         <source>mods repository index</source>
-        <translation>Modd-repositorie-index</translation>
+        <translation>modd-repositorie-index</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="362"/>
@@ -363,35 +280,19 @@
         <translation>Modd-konflikter</translation>
     </message>
     <message>
-        <source>This mod can not be installed or enabled because the following dependencies are not present</source>
-        <translation type="vanished">Denna modd kan inte installeras eller aktiveras eftersom följande beroenden inte finns</translation>
-    </message>
-    <message>
-        <source>This mod can not be enabled because the following mods are incompatible with it</source>
-        <translation type="vanished">Denna modd kan inte aktiveras eftersom följande moddar är inkompatibla med den</translation>
-    </message>
-    <message>
-        <source>This mod cannot be disabled because it is required by the following mods</source>
-        <translation type="vanished">Denna modd kan inte inaktiveras eftersom den krävs för följande modd</translation>
-    </message>
-    <message>
-        <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
-        <translation type="vanished">Denna modd kan inte avinstalleras eller uppdateras eftersom den krävs för följande modd</translation>
-    </message>
-    <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
-        <translation type="unfinished"></translation>
+        <translation>Den här modden kan inte aktiveras eftersom den översätts till ett annat språk.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
-        <translation type="unfinished"></translation>
+        <translation>Den här modden kan inte aktiveras eftersom följande beroenden inte finns</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
-        <translation type="unfinished"></translation>
+        <translation>Den här modden kan inte installeras eftersom följande beroenden inte finns</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
@@ -446,7 +347,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="679"/>
         <source>Replace config file?</source>
-        <translation>Byt ut konfigurationsfilen?</translation>
+        <translation>Ersätt konfigurationsfilen?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="679"/>
@@ -456,7 +357,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="723"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
-        <translation>Laddar ner %1. %p% (%v MB av %m MB) slutfört</translation>
+        <translation>Laddar ner %1. %p% (%v MB utav %m MB) slutfört</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="748"/>
@@ -472,7 +373,7 @@ Encountered errors:
 </source>
         <translation>Det går inte att ladda ner alla filer.
 
-Fel påträffat:
+Fel påträffades:
 
 </translation>
     </message>
@@ -488,12 +389,12 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="865"/>
         <source>Installing chronicles</source>
-        <translation>Installera Chronicles</translation>
+        <translation>Installerar Heroes Chronicles</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="927"/>
         <source>Installing mod %1</source>
-        <translation>Installera modd %1</translation>
+        <translation>Installerar modd %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="971"/>
@@ -510,7 +411,7 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
         <source>screenshots</source>
-        <translation>skärmdumpar</translation>
+        <translation>skärmdumpar/skärmbilder</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1013"/>
@@ -524,89 +425,12 @@ Installation framgångsrikt nedladdad?</translation>
     </message>
 </context>
 <context>
-    <name>CModManager</name>
-    <message>
-        <source>Can not install submod</source>
-        <translation type="vanished">Det går inte att installera undermodd/submodd</translation>
-    </message>
-    <message>
-        <source>Mod is already installed</source>
-        <translation type="vanished">Modden är redan installerad</translation>
-    </message>
-    <message>
-        <source>Can not uninstall submod</source>
-        <translation type="vanished">Det går inte att avinstallera undermodd/submodd</translation>
-    </message>
-    <message>
-        <source>Mod is not installed</source>
-        <translation type="vanished">Modden är inte installerad</translation>
-    </message>
-    <message>
-        <source>Mod is already enabled</source>
-        <translation type="vanished">Modden är redan aktiverad</translation>
-    </message>
-    <message>
-        <source>Mod must be installed first</source>
-        <translation type="vanished">Modden måste installeras först</translation>
-    </message>
-    <message>
-        <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
-        <translation type="vanished">Modden är inte kompatibel. Vänligen uppdatera VCMI och kontrollera att du har den senaste kompatibla versionen av modden</translation>
-    </message>
-    <message>
-        <source>Required mod %1 is missing</source>
-        <translation type="vanished">Den obligatorisk modden %1 saknas</translation>
-    </message>
-    <message>
-        <source>Required mod %1 is not enabled</source>
-        <translation type="vanished">Den obligatoriska modden %1 är inte aktiverad</translation>
-    </message>
-    <message>
-        <source>This mod conflicts with %1</source>
-        <translation type="vanished">Denna modd är i konflikt med %1</translation>
-    </message>
-    <message>
-        <source>Mod is already disabled</source>
-        <translation type="vanished">Modden är redan inaktiverad</translation>
-    </message>
-    <message>
-        <source>This mod is needed to run %1</source>
-        <translation type="vanished">Denna modden krävs för att köra %1</translation>
-    </message>
-    <message>
-        <source>Mod archive is missing</source>
-        <translation type="vanished">Modd-arkiv saknas</translation>
-    </message>
-    <message>
-        <source>Mod with such name is already installed</source>
-        <translation type="vanished">En modd med samma namn är redan installerad</translation>
-    </message>
-    <message>
-        <source>Mod archive is invalid or corrupted</source>
-        <translation type="vanished">Modd-arkivet är ogiltigt eller korrupt</translation>
-    </message>
-    <message>
-        <source>Failed to extract mod data</source>
-        <translation type="vanished">Misslyckades att extrahera data från modd</translation>
-    </message>
-    <message>
-        <source>Data with this mod was not found</source>
-        <translation type="vanished">Modd-data för denna modd hittades inte</translation>
-    </message>
-    <message>
-        <source>Mod is located in protected directory, please remove it manually:
-</source>
-        <translation type="vanished">Modden är placerad i en skyddad mapp. Vänligen radera den manuellt:
-</translation>
-    </message>
-</context>
-<context>
     <name>CSettingsView</name>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="682"/>
         <location filename="../settingsView/csettingsview_moc.cpp" line="98"/>
         <source>Off</source>
-        <translation>Inaktiverad</translation>
+        <translation>Av</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="441"/>
@@ -614,9 +438,14 @@ Installation framgångsrikt nedladdad?</translation>
         <translation>Artificiell intelligens</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="96"/>
-        <source>On</source>
-        <translation>Aktiverad</translation>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1038"/>
+        <source>Interface Scaling</source>
+        <translation>Gränssnittsskalning</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="604"/>
+        <source>Neutral AI in battles</source>
+        <translation>Neutralt AI i strider</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
@@ -624,14 +453,14 @@ Installation framgångsrikt nedladdad?</translation>
         <translation>Fiendens AI i strider</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="451"/>
-        <source>Default repository</source>
-        <translation>Standard-repositorie</translation>
+        <location filename="../settingsView/csettingsview_moc.ui" line="751"/>
+        <source>Additional repository</source>
+        <translation>Ytterligare repositorie</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="764"/>
-        <source>VSync</source>
-        <translation>Vertikal-synkronisering (VSync)</translation>
+        <location filename="../settingsView/csettingsview_moc.ui" line="597"/>
+        <source>Adventure Map Allies</source>
+        <translation>Allierade på äventyrskartan</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="866"/>
@@ -646,12 +475,12 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1399"/>
         <source>Sticks Sensitivity</source>
-        <translation>Spak-känslighet</translation>
+        <translation>Styrspak-känslighet</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="908"/>
         <source>Automatic (Linear)</source>
-        <translation>Automatisk (linjär)</translation>
+        <translation>Automatisk (Linjär)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="274"/>
@@ -748,7 +577,7 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
         <source>Use Relative Pointer Mode</source>
-        <translation>Använd läge för relativ muspekare</translation>
+        <translation>Använd läge för relativ pekare</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="898"/>
@@ -766,14 +595,9 @@ Installation framgångsrikt nedladdad?</translation>
         <translation>Ingång/indata - Pekskärm</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1129"/>
-        <source>Network</source>
-        <translation>Nätverk</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
-        <source>Downscaling Filter</source>
-        <translation>Nerskalnings-filter</translation>
+        <location filename="../settingsView/csettingsview_moc.ui" line="774"/>
+        <source>Adventure Map Enemies</source>
+        <translation>Fiender på äventyskartan</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="926"/>
@@ -784,6 +608,11 @@ Installation framgångsrikt nedladdad?</translation>
         <location filename="../settingsView/csettingsview_moc.ui" line="139"/>
         <source>Reset</source>
         <translation>Återställ</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1129"/>
+        <source>Network</source>
+        <translation>Nätverk</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="741"/>
@@ -823,7 +652,7 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="873"/>
         <source>Controller Click Tolerance</source>
-        <translation>Tolerans för klick på styrenhet</translation>
+        <translation>Tolerans för klick på styrenhet/kontroll</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="281"/>
@@ -839,6 +668,76 @@ Installation framgångsrikt nedladdad?</translation>
         <location filename="../settingsView/csettingsview_moc.ui" line="267"/>
         <source>Sound Volume</source>
         <translation>Ljudvolym</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1195"/>
+        <source>Windowed</source>
+        <translation>Fönsterläge</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
+        <source>Borderless fullscreen</source>
+        <translation>Kantlös helskärm</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
+        <source>Exclusive fullscreen</source>
+        <translation>Exklusiv helskärm</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1003"/>
+        <source>Autosave limit (0 = off)</source>
+        <translation>Antal platser för automatisk-sparning (0 = inaktiverad)</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
+        <source>Downscaling Filter</source>
+        <translation>Nerskalnings-filter</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="781"/>
+        <source>Framerate Limit</source>
+        <translation>Gräns ​​för bildhastighet</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1413"/>
+        <source>Autosave prefix</source>
+        <translation>Prefix för automatisk-sparning</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="989"/>
+        <source>Mouse Click Tolerance</source>
+        <translation>Musklickstolerans</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="933"/>
+        <source>Sticks Acceleration</source>
+        <translation>Styrspaks-acceleration</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1354"/>
+        <source>empty = map name prefix</source>
+        <translation>tomt = kartnamnsprefix</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
+        <source>Refresh now</source>
+        <translation>Uppdatera nu</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="451"/>
+        <source>Default repository</source>
+        <translation>Standard-repositorie</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="795"/>
+        <source>Renderer</source>
+        <translation>Renderingsmotor</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="96"/>
+        <source>On</source>
+        <translation>På</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1182"/>
@@ -858,64 +757,9 @@ Kantlöst fönsterläge - spelet körs i ett fönster som täcker hela din skär
 Exklusivt helskärmsläge - spelet kommer att täcka hela skärmen och använda den valda upplösningen.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1195"/>
-        <source>Windowed</source>
-        <translation>Fönsterläge</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
-        <source>Borderless fullscreen</source>
-        <translation>Kantlös helskärm</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
-        <source>Exclusive fullscreen</source>
-        <translation>Exklusiv helskärm</translation>
-    </message>
-    <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="200"/>
         <source>Reserved screen area</source>
         <translation>Reserverat skärmområde</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="604"/>
-        <source>Neutral AI in battles</source>
-        <translation>Neutralt AI i strider</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1003"/>
-        <source>Autosave limit (0 = off)</source>
-        <translation>Antal platser för automatisk-sparning (0 = inaktiverad)</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="774"/>
-        <source>Adventure Map Enemies</source>
-        <translation>Fiender på äventyskartan</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1413"/>
-        <source>Autosave prefix</source>
-        <translation>Prefix för automatisk-sparning</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1354"/>
-        <source>empty = map name prefix</source>
-        <translation>tomt = kartnamnsprefix</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1038"/>
-        <source>Interface Scaling</source>
-        <translation>Gränssnittsskalning</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="781"/>
-        <source>Framerate Limit</source>
-        <translation>Gräns ​​för bildhastighet</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="795"/>
-        <source>Renderer</source>
-        <translation>Renderingsmotor</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="429"/>
@@ -923,34 +767,9 @@ Exklusivt helskärmsläge - spelet kommer att täcka hela skärmen och använda 
         <translation>Heroes III - Översättning</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="597"/>
-        <source>Adventure Map Allies</source>
-        <translation>Allierade på äventyrskartan</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="751"/>
-        <source>Additional repository</source>
-        <translation>Ytterligare repositorier</translation>
-    </message>
-    <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1233"/>
         <source>Check on startup</source>
         <translation>Kontrollera vid uppstart</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="989"/>
-        <source>Mouse Click Tolerance</source>
-        <translation>Musklickstolerans</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="933"/>
-        <source>Sticks Acceleration</source>
-        <translation>Styrspaks-acceleration</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
-        <source>Refresh now</source>
-        <translation>Uppdatera nu</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="982"/>
@@ -976,6 +795,11 @@ Exklusivt helskärmsläge - spelet kommer att täcka hela skärmen och använda 
         <location filename="../settingsView/csettingsview_moc.ui" line="222"/>
         <source>Autosave</source>
         <translation>Auto-spara</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="764"/>
+        <source>VSync</source>
+        <translation>Vertikal-synkronisering (VSync)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="649"/>
@@ -1044,7 +868,7 @@ Exklusivt helskärmsläge - spelet kommer att täcka hela skärmen och använda 
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>You have to select an chronicle installer file!</source>
-        <translation>Du måste välja en Chronicles-installationsfil!</translation>
+        <translation>Du måste välja en Heroes Chronicles-installationsfil!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="87"/>
@@ -1062,26 +886,10 @@ Exklusivt helskärmsläge - spelet kommer att täcka hela skärmen och använda 
 <context>
     <name>File size</name>
     <message>
-        <source>%1 B</source>
-        <translation type="vanished">%1 B</translation>
-    </message>
-    <message>
-        <source>%1 KiB</source>
-        <translation type="vanished">%1 KiB</translation>
-    </message>
-    <message>
         <location filename="../modManager/modstate.cpp" line="140"/>
         <location filename="../modManager/modstatemodel.cpp" line="95"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
-    </message>
-    <message>
-        <source>%1 GiB</source>
-        <translation type="vanished">%1 GiB</translation>
-    </message>
-    <message>
-        <source>%1 TiB</source>
-        <translation type="vanished">%1 TiB</translation>
     </message>
 </context>
 <context>
@@ -1112,77 +920,6 @@ Exklusivt helskärmsläge - spelet kommer att täcka hela skärmen och använda 
         <translation>Har du en fråga? Hittat en bugg? Vill du hjälpa till? Anslut dig till oss!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="248"/>
-        <source>Locate Heroes III data files</source>
-        <translation>Hitta Heroes III-datafiler</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="297"/>
-        <source>Use offline installer from gog.com</source>
-        <translation>Använd offline-installationsprogrammet från GOG.com</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
-        <source>You can manually copy directories Maps, Data and Mp3 from the original game directory to VCMI data directory that you can see on top of this page</source>
-        <translation>Du kan manuellt kopiera mapparna &apos;Maps&apos;, &apos;Data&apos; och &apos;Mp3&apos; från den ursprungliga spel-mappen till VCMI-datamappen som du kan se överst på den här sidan</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="329"/>
-        <source>Install gog.com files</source>
-        <translation>Installera filer från GOG.com</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="347"/>
-        <source>Manual Installation</source>
-        <translation>Manuell installation</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="388"/>
-        <source>Installing... %p%</source>
-        <translation>Installerar... %p%</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="417"/>
-        <source>If you already have Heroes III files on your device, you can select this directory and VCMI will copy the existing data automatically.</source>
-        <translation>Om du redan har Heroes III-filerna på din enhet kan du välja den här mappen och VCMI kommer automatiskt att kopiera befintliga data.</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="459"/>
-        <source>Copy existing files</source>
-        <translation>Kopiera befintliga filer</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="488"/>
-        <source>Your Heroes III data files have been successfully found.</source>
-        <translation>Dina Heroes III-datafiler har hittats.</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
-        <source>If you own Heroes III on gog.com you can download backup offline installer from gog.com, and VCMI will import Heroes III data using offline installer. 
-Offline installer consists of two parts, .exe and .bin. Make sure you download both of them.</source>
-        <translation>Om du äger Heroes III från GOG.com kan du ladda ner backup offline-installationsprogrammet från &apos;GOG.com&apos;. VCMI kommer att importera Heroes III-data med hjälp av offline-installationsprogrammet. Offline-installationsprogrammet består av två delar, en &apos;.exe&apos;- och en &apos;.bin&apos;fil. Se till att ladda ner båda.</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="622"/>
-        <source>Install a translation of Heroes III in your preferred language</source>
-        <translation>Installera en översättning av Heroes III på det språk du föredrar</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="867"/>
-        <source>Finish</source>
-        <translation>Slutför</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="155"/>
-        <source>VCMI on Github</source>
-        <translation>VCMI på &apos;Github&apos;</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="162"/>
-        <source>VCMI on Discord</source>
-        <translation>VCMI på &apos;Discord&apos;</translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="178"/>
         <source>Thank you for installing VCMI!
 
@@ -1200,10 +937,107 @@ Observera: för att använda VCMI måste du ha originaldatafilerna för Heroes®
 Heroes® of Might and Magic® III HD stöds för närvarande inte!</translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="248"/>
+        <source>Locate Heroes III data files</source>
+        <translation>Lokalisera Heroes III-datafiler</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="297"/>
+        <source>Use offline installer from gog.com</source>
+        <translation>Använd offline-installationsprogrammet från GOG.com</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
+        <source>You can manually copy directories Maps, Data and Mp3 from the original game directory to VCMI data directory that you can see on top of this page</source>
+        <translation>Du kan manuellt kopiera mapparna &apos;Maps&apos;, &apos;Data&apos; och &apos;Mp3&apos; från den ursprungliga spel-mappen till VCMI-datamappen som du kan se överst på den här sidan</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="329"/>
+        <source>Install gog.com files</source>
+        <translation>Installera filer från GOG.com</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="488"/>
+        <source>Your Heroes III data files have been successfully found.</source>
+        <translation>Dina Heroes III-datafiler har hittats</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="742"/>
+        <source>Interface Improvements</source>
+        <translation>Gränssnitts-förbättringar</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="622"/>
+        <source>Install a translation of Heroes III in your preferred language</source>
+        <translation>Installera en översättning av Heroes III på det språk du föredrar</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="388"/>
+        <source>Installing... %p%</source>
+        <translation>Installerar... %p%</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="417"/>
+        <source>If you already have Heroes III files on your device, you can select this directory and VCMI will copy the existing data automatically.</source>
+        <translation>Om du redan har Heroes III-filerna på din enhet kan du välja den här mappen och VCMI kommer automatiskt att kopiera befintliga data.</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="459"/>
+        <source>Copy existing files</source>
+        <translation>Kopiera befintliga filer</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
+        <source>If you own Heroes III on gog.com you can download backup offline installer from gog.com, and VCMI will import Heroes III data using offline installer. 
+Offline installer consists of two parts, .exe and .bin. Make sure you download both of them.</source>
+        <translation>Om du äger Heroes III från GOG.com kan du ladda ner backup offline-installationsprogrammet från &apos;GOG.com&apos;. VCMI kommer att importera Heroes III-data med hjälp av offline-installationsprogrammet. 
+Offline-installationsprogrammet består av två delar, en &apos;.exe&apos;- och en &apos;.bin&apos;fil. Se till att ladda ner båda.</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="689"/>
+        <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
+        <translation>Du kan välja att installera ytterligare moddar, antingen nu eller vid ett senare tillfälle med hjälp av VCMI Launchern</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
+        <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
+        <translation>Installera en modd som förbättrar olika användargränssnitt i spelet, såsom ett bättre användargränssnitt för slumpmässiga kartor och valbara åtgärder i strider</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="673"/>
+        <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
+        <translation>Installera en kompatibel version av &quot;Horn of the Abyss&quot; (en fantillverkad Heroes III-expansion som blivit portad av VCMI-teamet)</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
+        <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
+        <translation>Installera en kompatibel version av &quot;In The Wake of Gods&quot; (en fantillverkad Heroes III-expansion)</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="867"/>
+        <source>Finish</source>
+        <translation>Slutför</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="155"/>
+        <source>VCMI on Github</source>
+        <translation>VCMI på Github</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="162"/>
+        <source>VCMI on Discord</source>
+        <translation>VCMI på Discord</translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="212"/>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="564"/>
         <source>Next</source>
         <translation>Nästa</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="347"/>
+        <source>Manual Installation</source>
+        <translation>Manuell installation</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="360"/>
@@ -1242,34 +1076,9 @@ Heroes® of Might and Magic® III HD stöds för närvarande inte!</translation>
         <translation>Heroes III - Översättning</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="742"/>
-        <source>Interface Improvements</source>
-        <translation>Gränssnitts-förbättringar</translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="809"/>
         <source>In The Wake of Gods</source>
         <translation>I gudars kölvatten (In The Wake of Gods)</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="689"/>
-        <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
-        <translation>Du kan välja att installera ytterligare moddar, antingen nu eller vid ett senare tillfälle med hjälp av &apos;VCMI Launchern&apos;</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
-        <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
-        <translation>Installera en modd som förbättrar olika användargränssnitt i spelet, såsom ett bättre användargränssnitt för slumpmässiga kartor och valbara åtgärder i strider</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="673"/>
-        <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
-        <translation>Installera en kompatibel version av &quot;Horn of the Abyss&quot; (en fantillverkad Heroes III-expansion som blivit portad av VCMI-teamet)</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
-        <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
-        <translation>Installera en kompatibel version av &quot;In The Wake of Gods&quot; (en fantillverkad Heroes III-expansion)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="174"/>
@@ -1324,6 +1133,16 @@ Heroes® of Might and Magic® III HD stöds för närvarande inte!</translation>
         <translation>GOG-data</translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="383"/>
+        <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
+        <translation>Du har tillhandahållit installationsprogrammet för GOG Galaxy! Den här filen innehåller inte spelet. Ladda ner offline-installationsprogrammet för spelet!</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="399"/>
+        <source>Extracting error!</source>
+        <translation>Extraheringsfel!</translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
         <source>No Heroes III data!</source>
         <translation>Inga Heroes III-data!</translation>
@@ -1345,17 +1164,8 @@ Heroes® of Might and Magic® III HD stöds för närvarande inte!</translation>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="445"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select directory with installed Heroes III data.</source>
-        <translation>Misslyckades med att upptäcka giltiga Heroes III-data i den valda mappen. Vänligen välj en mapp där Heroes III-data finns installerat.</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="383"/>
-        <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation>Du har tillhandahållit installationsprogrammet för GOG Galaxy! Den här filen innehåller inte spelet. Ladda ner offline-installationsprogrammet för spelet!</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="399"/>
-        <source>Extracting error!</source>
-        <translation>Fel vid extrahering!</translation>
+        <translation>Misslyckades med att upptäcka giltiga Heroes III-data i den valda mappen.
+Vänligen välj en mapp där Heroes III-data finns installerat.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
@@ -1501,11 +1311,6 @@ Orsak till fel: </translation>
         <translation>VCMI-startprogram (VCMI Launcher)</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="53"/>
-        <source>Mods</source>
-        <translation>Moddar</translation>
-    </message>
-    <message>
         <location filename="../mainwindow_moc.ui" line="99"/>
         <source>Settings</source>
         <translation>Inställningar</translation>
@@ -1524,6 +1329,11 @@ Orsak till fel: </translation>
         <location filename="../mainwindow_moc.ui" line="259"/>
         <source>Start game</source>
         <translation>Starta spelet</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow_moc.ui" line="53"/>
+        <source>Mods</source>
+        <translation>Moddar</translation>
     </message>
 </context>
 <context>
@@ -1544,84 +1354,84 @@ Orsak till fel: </translation>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="126"/>
         <source>Can not install submod</source>
-        <translation type="unfinished">Det går inte att installera undermodd/submodd</translation>
+        <translation>Kan inte installera undermodd/submodd</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="129"/>
         <source>Mod is already installed</source>
-        <translation type="unfinished">Modden är redan installerad</translation>
+        <translation>Modden är redan installerad</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="138"/>
         <source>Can not uninstall submod</source>
-        <translation type="unfinished">Det går inte att avinstallera undermodd/submodd</translation>
+        <translation>Kan inte avinstallera undermodd/submodd</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="141"/>
         <source>Mod is not installed</source>
-        <translation type="unfinished">Modden är inte installerad</translation>
+        <translation>Modden är inte installerad</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="151"/>
         <source>Mod is already enabled</source>
-        <translation type="unfinished">Modden är redan aktiverad</translation>
+        <translation>Modden är redan aktiverad</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="154"/>
         <location filename="../modManager/modstatecontroller.cpp" line="180"/>
         <source>Mod must be installed first</source>
-        <translation type="unfinished">Modden måste installeras först</translation>
+        <translation>Modden måste installeras först</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="158"/>
         <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
-        <translation type="unfinished">Modden är inte kompatibel. Vänligen uppdatera VCMI och kontrollera att du har den senaste kompatibla versionen av modden</translation>
+        <translation>Modden är inte kompatibel. Vänligen uppdatera VCMI och kontrollera att du har den senaste kompatibla versionen av modden</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="161"/>
         <source>Can not enable translation mod for a different language!</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan inte aktivera översättnings-modd för ett annat språk!</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="166"/>
         <source>Required mod %1 is missing</source>
-        <translation type="unfinished">Den obligatorisk modden %1 saknas</translation>
+        <translation>Den obligatoriska modden %1 saknas</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="177"/>
         <source>Mod is already disabled</source>
-        <translation type="unfinished">Modden är redan inaktiverad</translation>
+        <translation>Modden är redan inaktiverad</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="190"/>
         <source>Mod archive is missing</source>
-        <translation type="unfinished">Modd-arkiv saknas</translation>
+        <translation>Modd-arkiv saknas</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="193"/>
         <source>Mod with such name is already installed</source>
-        <translation type="unfinished">En modd med samma namn är redan installerad</translation>
+        <translation>En modd med samma namn är redan installerad</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="198"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation type="unfinished">Modd-arkivet är ogiltigt eller korrupt</translation>
+        <translation>Modd-arkivet är ogiltigt eller korrupt</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="224"/>
         <source>Failed to extract mod data</source>
-        <translation type="unfinished">Misslyckades att extrahera data från modd</translation>
+        <translation>Misslyckades att extrahera modd-data</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="250"/>
         <source>Data with this mod was not found</source>
-        <translation type="unfinished">Modd-data för denna modd hittades inte</translation>
+        <translation>Modd-data för denna modd hittades inte</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="254"/>
         <source>Mod is located in protected directory, please remove it manually:
 </source>
-        <translation type="unfinished">Modden är placerad i en skyddad mapp. Vänligen radera den manuellt:
+        <translation>Modden är placerad i en skyddad mapp. Vänligen radera den manuellt:
 </translation>
     </message>
 </context>
@@ -1630,106 +1440,106 @@ Orsak till fel: </translation>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="36"/>
         <source>Translation</source>
-        <translation type="unfinished">Översättning</translation>
+        <translation>Översättning</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="37"/>
         <source>Town</source>
-        <translation type="unfinished">Stad</translation>
+        <translation>Stad</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="38"/>
         <source>Test</source>
-        <translation type="unfinished">Test</translation>
+        <translation>Test</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="39"/>
         <source>Templates</source>
-        <translation type="unfinished">Modeller</translation>
+        <translation>Mallar</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="40"/>
         <source>Spells</source>
-        <translation type="unfinished">Trollformler</translation>
+        <translation>Trollformler</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="41"/>
         <source>Music</source>
-        <translation type="unfinished">Musik</translation>
+        <translation>Musik</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="42"/>
         <source>Maps</source>
-        <translation type="unfinished">Kartor</translation>
+        <translation>Kartor</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="43"/>
         <source>Sounds</source>
-        <translation type="unfinished">Ljud</translation>
+        <translation>Ljud</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="44"/>
         <source>Skills</source>
-        <translation type="unfinished">Färdigheter</translation>
+        <translation>Färdigheter</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="45"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="63"/>
         <source>Other</source>
-        <translation type="unfinished">Övrigt</translation>
+        <translation>Övrigt</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="46"/>
         <source>Objects</source>
-        <translation type="unfinished">Objekt</translation>
+        <translation>Objekt</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="47"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="48"/>
         <source>Mechanics</source>
-        <translation type="unfinished">Mekanik</translation>
+        <translation>Mekanik</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="49"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="50"/>
         <source>Interface</source>
-        <translation type="unfinished">Gränssnitt</translation>
+        <translation>Gränssnitt</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="51"/>
         <source>Heroes</source>
-        <translation type="unfinished">Hjälte</translation>
+        <translation>Hjältar</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="52"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="53"/>
         <source>Graphical</source>
-        <translation type="unfinished">Grafik</translation>
+        <translation>Grafik</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Expansion</source>
-        <translation type="unfinished">Expansion/Tillägg</translation>
+        <translation>Expansion/Tillägg</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
         <source>Creatures</source>
-        <translation type="unfinished">Varelser</translation>
+        <translation>Varelser</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="56"/>
         <source>Compatibility</source>
-        <translation type="unfinished">Kompatibilitet</translation>
+        <translation>Kompatibilitet</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefakter</translation>
+        <translation>Artefakter</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="58"/>
         <source>AI</source>
-        <translation type="unfinished">AI</translation>
+        <translation>AI</translation>
     </message>
 </context>
 <context>
@@ -1737,7 +1547,7 @@ Orsak till fel: </translation>
     <message>
         <location filename="../main.cpp" line="122"/>
         <source>Error starting executable</source>
-        <translation>Fel vid start av körbar fil</translation>
+        <translation>Fel vid uppstart av körbar fil (.exe)</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="123"/>
