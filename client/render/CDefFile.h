@@ -43,8 +43,6 @@ public:
 	CDefFile(const AnimationPath & Name);
 	~CDefFile();
 
-	std::string fileName;
-
 	//load frame as SDL_Surface
 	void loadFrame(size_t frame, size_t group, IImageLoader &loader) const;
 	bool hasFrame(size_t frame, size_t group) const;

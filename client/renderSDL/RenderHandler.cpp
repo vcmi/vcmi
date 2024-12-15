@@ -245,7 +245,7 @@ std::shared_ptr<const ISharedImage> RenderHandler::loadImageFromFileUncached(con
 		return std::make_shared<SDLImageShared>(*locator.image, locator.preScaledFactor);
 	}
 
-	if (locator.defFile)
+	if(locator.defFile)
 	{
 		auto defFile = getAnimationFile(*locator.defFile);
 		int preScaledFactor = locator.preScaledFactor;

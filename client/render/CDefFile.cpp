@@ -38,8 +38,7 @@ enum class DefType : uint32_t
 
 CDefFile::CDefFile(const AnimationPath & Name):
 	data(nullptr),
-	palette(nullptr),
-	fileName(Name.getName())
+	palette(nullptr)
 {
 	data = CResourceHandler::get()->load(Name)->readAll().first;
 
