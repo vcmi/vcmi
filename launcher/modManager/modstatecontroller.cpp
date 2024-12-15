@@ -120,6 +120,9 @@ bool ModStateController::disableMod(QString modname)
 
 bool ModStateController::canInstallMod(QString modname)
 {
+	if (!modList->isModExists(modname))
+		return true; // for installation of unknown mods, e.g. via "Install from file" option
+
 	auto mod = modList->getMod(modname);
 
 	if(mod.isSubmod())

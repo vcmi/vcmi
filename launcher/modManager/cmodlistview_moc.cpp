@@ -860,7 +860,7 @@ void CModListView::installMods(QStringList archives)
 	// uninstall old version of mod, if installed
 	for(QString mod : modNames)
 	{
-		if(modStateModel->getMod(mod).isInstalled())
+		if(modStateModel->isModExists(mod) && modStateModel->getMod(mod).isInstalled())
 		{
 			logGlobal->info("Uninstalling old version of mod '%s'", mod.toStdString());
 			if (modStateModel->isModEnabled(mod))
