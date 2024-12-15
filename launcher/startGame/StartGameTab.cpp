@@ -23,7 +23,10 @@
 void StartGameTab::changeEvent(QEvent *event)
 {
 	if(event->type() == QEvent::LanguageChange)
+	{
 		ui->retranslateUi(this);
+		refreshState();
+	}
 
 	QWidget::changeEvent(event);
 }
