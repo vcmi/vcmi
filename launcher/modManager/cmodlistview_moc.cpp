@@ -27,12 +27,13 @@
 #include "../vcmiqt/jsonutils.h"
 #include "../helper.h"
 
-#include "../../lib/VCMIDirs.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/texts/Languages.h"
-#include "../../lib/modding/CModVersion.h"
+#include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/json/JsonUtils.h"
+#include "../../lib/modding/CModVersion.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/Languages.h"
 
 #include <future>
 
@@ -747,7 +748,7 @@ void CModListView::installFiles(QStringList files)
 		else if(filename.endsWith(".json", Qt::CaseInsensitive))
 		{
 			//download and merge additional files
-			const auto &repoData = JsonUtils::jsonFromFile(filename);
+			JsonNode repoData = JsonUtils::jsonFromFile(filename);
 			if(repoData["name"].isNull())
 			{
 				// This is main repository index. Download all referenced mods
@@ -769,7 +770,7 @@ void CModListView::installFiles(QStringList files)
 				// This is json of a single mod. Extract name of mod and add it to repo
 				auto modName = QFileInfo(filename).baseName().toStdString();
 				auto modNameLower = boost::algorithm::to_lower_copy(modName);
-				accumulatedRepositoryData[modNameLower] = repoData;
+				JsonUtils::merge(accumulatedRepositoryData[modNameLower], repoData);
 			}
 		}
 		else if(filename.endsWith(".png", Qt::CaseInsensitive))
