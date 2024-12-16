@@ -38,7 +38,13 @@ GlobalLobbyWidget::GlobalLobbyWidget(GlobalLobbyWindow * window)
 {
 	addCallback("closeWindow", [](int) { GH.windows().popWindows(1); });
 	addCallback("sendMessage", [this](int) { this->window->doSendChatMessage(); });
-	addCallback("createGameRoom", [this](int) { if (!CSH->inGame()) this->window->doCreateGameRoom(); });//TODO: button should be blocked instead
+	addCallback("createGameRoom", [this](int) {
+#ifndef VCMI_HTML5_BUILD
+		//TODO: button should be blocked instead
+		if (!CSH->inGame()) this->window->doCreateGameRoom();
+#endif
+	});
+
 
 	REGISTER_BUILDER("lobbyItemList", &GlobalLobbyWidget::buildItemList);
 

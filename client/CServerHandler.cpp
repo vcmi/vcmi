@@ -65,6 +65,9 @@ CServerHandler::~CServerHandler()
 	if (serverRunner)
 		serverRunner->shutdown();
 	networkHandler->stop();
+#ifdef VCMI_HTML5_BUILD
+	networkRemoteHandler->stop();
+#endif
 	try
 	{
 		if (serverRunner)
@@ -87,6 +90,9 @@ void CServerHandler::endNetwork()
 	if (client)
 		client->endNetwork();
 	networkHandler->stop();
+#ifdef VCMI_HTML5_BUILD
+	networkRemoteHandler->stop();
+#endif
 	{
 		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
 		threadNetwork.join();
@@ -95,6 +101,9 @@ void CServerHandler::endNetwork()
 
 CServerHandler::CServerHandler()
 	: networkHandler(INetworkHandler::createHandler())
+#ifdef VCMI_HTML5_BUILD
+	, networkRemoteHandler(INetworkHandler::createRemoteHandler())
+#endif
 	, lobbyClient(std::make_unique<GlobalLobbyClient>())
 	, gameChat(std::make_unique<GameChatHandler>())
 	, threadNetwork(&CServerHandler::threadRunNetwork, this)
@@ -114,7 +123,11 @@ void CServerHandler::threadRunNetwork()
 	logGlobal->info("Starting network thread");
 	setThreadName("runNetwork");
 	try {
+#ifdef VCMI_HTML5_BUILD
+		networkRemoteHandler->run();
+#else
 		networkHandler->run();
+#endif
 	}
 	catch (const TerminationRequestedException &)
 	{
@@ -166,11 +179,17 @@ INetworkHandler & CServerHandler::getNetworkHandler()
 {
 	return *networkHandler;
 }
+#ifdef VCMI_HTML5_BUILD
+INetworkHandler & CServerHandler::getNetworkRemoteHandler()
+{
+	return *networkRemoteHandler;
+}
+#endif
 
 void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 {
 	logNetwork->trace("\tLocal server startup has been requested");
-#ifdef VCMI_MOBILE
+#if defined(VCMI_MOBILE) || defined(VCMI_EMSCRIPTEN)
 	// mobile apps can't spawn separate processes - only thread mode is available
 	serverRunner.reset(new ServerThreadRunner());
 #else
@@ -206,6 +225,10 @@ void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 
 		Settings remotePort = settings.write["server"]["remotePort"];
 		remotePort->Integer() = port;
+#ifdef VCMI_HTML5_BUILD
+		networkRemoteHandler->connectToRemote(*this, addr, port);
+		return;
+#endif
 	}
 
 	networkHandler->connectToRemote(*this, addr, port);

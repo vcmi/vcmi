@@ -86,6 +86,11 @@ public:
 	/// Constructs default implementation
 	static std::unique_ptr<INetworkHandler> createHandler();
 
+#ifdef VCMI_HTML5_BUILD
+	/// Constructs implementation for remote neworking
+	static std::unique_ptr<INetworkHandler> createRemoteHandler();
+#endif
+
 	/// Creates an instance of TCP server that allows to receiving connections on a local port
 	virtual std::unique_ptr<INetworkServer> createServerTCP(INetworkServerListener & listener) = 0;
 

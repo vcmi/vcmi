@@ -15,7 +15,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+#if VCMI_HTML5_BUILD
+std::unique_ptr<INetworkHandler> INetworkHandler::createRemoteHandler()
+#else
 std::unique_ptr<INetworkHandler> INetworkHandler::createHandler()
+#endif
 {
 	return std::make_unique<NetworkHandler>();
 }

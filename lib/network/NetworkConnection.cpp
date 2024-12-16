@@ -17,7 +17,9 @@ NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, cons
 	, timer(std::make_shared<NetworkTimer>(*context))
 	, listener(listener)
 {
+#ifndef VCMI_EMSCRIPTEN
 	socket->set_option(boost::asio::ip::tcp::no_delay(true));
+#endif
 
 	// iOS throws exception on attempt to set buffer size
 	constexpr auto bufferSize = 4 * 1024 * 1024;

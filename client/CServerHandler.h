@@ -96,6 +96,9 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	friend class ApplyOnLobbyHandlerNetPackVisitor;
 
 	std::unique_ptr<INetworkHandler> networkHandler;
+#ifdef VCMI_HTML5_BUILD
+	std::unique_ptr<INetworkHandler> networkRemoteHandler;
+#endif
 	std::shared_ptr<INetworkConnection> networkConnection;
 	std::unique_ptr<GlobalLobbyClient> lobbyClient;
 	std::unique_ptr<GameChatHandler> gameChat;
@@ -151,6 +154,9 @@ public:
 	GameChatHandler & getGameChat();
 	GlobalLobbyClient & getGlobalLobby();
 	INetworkHandler & getNetworkHandler();
+#ifdef VCMI_HTML5_BUILD
+	INetworkHandler & getNetworkRemoteHandler();
+#endif
 
 	// Helpers for lobby state access
 	std::set<PlayerColor> getHumanColors();
