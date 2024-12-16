@@ -67,6 +67,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  else
 //#  warning "Unknown Apple target."?
 #  endif
+#elif defined(EMSCRIPTEN)
+#  define VCMI_UNIX
+#  define VCMI_XDG
+#  define VCMI_EMSCRIPTEN
 #else
 #  error "This platform isn't supported"
 #endif
@@ -155,9 +159,12 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #endif
 #define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
 //need to link boost thread dynamically to avoid https://stackoverflow.com/questions/35978572/boost-thread-interupt-does-not-work-when-crossing-a-dll-boundary
-//for example VCAI::finish() may freeze on thread join after interrupt when linking this statically
+#if defined(VCMI_EMSCRIPTEN)
+#define BOOST_THREAD_USE_LIB
+#else
 #ifndef BOOST_THREAD_USE_DLL
 #  define BOOST_THREAD_USE_DLL
+#endif
 #endif
 #define BOOST_BIND_NO_PLACEHOLDERS
 
@@ -369,7 +376,7 @@ namespace vstd
 		return it->second;
 	}
 
-	// given a map from keys to values, creates a new map from values to keys 
+	// given a map from keys to values, creates a new map from values to keys
 	template<typename K, typename V>
 	static std::map<V, K> reverseMap(const std::map<K, V>& m) {
 		std::map<V, K> r;

@@ -46,7 +46,17 @@
 #include "ObstacleHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 
+#ifdef VCMI_EMSCRIPTEN
+#include <emscripten.h>
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
+
+#ifdef VCMI_EMSCRIPTEN
+extern "C" const char* EMSCRIPTEN_KEEPALIVE getVCMIVersion() {
+	return  GameConstants::VCMI_VERSION.c_str();
+}
+#endif
 
 const CampaignScenarioID CampaignScenarioID::NONE(-1);
 const BattleID BattleID::NONE(-1);

@@ -458,6 +458,10 @@ SDL_Window * ScreenHandler::createWindowImpl(Point dimensions, int flags, bool c
 
 SDL_Window * ScreenHandler::createWindow()
 {
+#ifdef VCMI_EMSCRIPTEN
+	return createWindowImpl(getPreferredWindowResolution(), SDL_WINDOW_OPENGL, true);
+#endif
+
 #ifndef VCMI_MOBILE
 	Point dimensions = getPreferredWindowResolution();
 
@@ -515,6 +519,7 @@ void ScreenHandler::validateSettings()
 		}
 	}
 
+#ifndef VCMI_EMSCRIPTEN
 	if (getPreferredWindowMode() == EWindowMode::WINDOWED)
 	{
 		//we only check that our desired window size fits on screen
@@ -533,6 +538,7 @@ void ScreenHandler::validateSettings()
 			}
 		}
 	}
+#endif
 
 	if (getPreferredWindowMode() == EWindowMode::FULLSCREEN_EXCLUSIVE)
 	{
