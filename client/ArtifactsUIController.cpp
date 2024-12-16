@@ -60,10 +60,10 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 	{
 		auto askThread = new boost::thread([this, hero, art, slot, assemblyPossibilities, checkIgnored]() -> void
 			{
-				boost::mutex::scoped_lock askLock(askAssembleArtifactMutex);
+				ui_mutex::scoped_lock askLock(askAssembleArtifactMutex);
 				for(const auto combinedArt : assemblyPossibilities)
 				{
-					boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+					ui_mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 					if(checkIgnored)
 					{
 						if(vstd::contains(ignoredArtifacts, combinedArt->getId()))

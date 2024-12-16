@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "UiMutex.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 class Rect;
@@ -47,7 +49,7 @@ private:
 	std::unique_ptr<InputHandler> inputHandlerInstance;
 
 public:
-	boost::mutex interfaceMutex;
+	ui_mutex interfaceMutex;
 
 	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
