@@ -58,8 +58,8 @@ public:
 	struct StackUpgradeInfo
 	{
 		StackUpgradeInfo() = delete;
-		StackUpgradeInfo(UpgradeInfo && upgradeInfo)
-			: info(std::move(upgradeInfo))
+		StackUpgradeInfo(const UpgradeInfo & upgradeInfo)
+			: info(upgradeInfo)
 		{ }
 		UpgradeInfo info;
 		std::function<void(CreatureID)> callback;
@@ -759,7 +759,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, bool popup)
 	init();
 }
 
-CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> dismiss, UpgradeInfo && upgradeInfo, std::function<void(CreatureID)> callback)
+CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> dismiss, const UpgradeInfo & upgradeInfo, std::function<void(CreatureID)> callback)
 	: CWindowObject(BORDERED),
 	info(new UnitView())
 {
@@ -767,7 +767,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> d
 	info->creature = stack->getCreature();
 	info->creatureCount = stack->count;
 
-	info->upgradeInfo = std::make_optional(UnitView::StackUpgradeInfo(std::move(upgradeInfo)));
+	info->upgradeInfo = std::make_optional(UnitView::StackUpgradeInfo(upgradeInfo));
 	info->dismissInfo = std::make_optional(UnitView::StackDismissInfo());
 	info->upgradeInfo->callback = callback;
 	info->dismissInfo->callback = dismiss;

@@ -177,7 +177,7 @@ bool CGarrisonSlot::viewInfo()
 		elem->block(true);
 
 	redraw();
-	GH.windows().createAndPushWindow<CStackWindow>(myStack, dism, std::move(pom), upgr);
+	GH.windows().createAndPushWindow<CStackWindow>(myStack, dism, pom, upgr);
 	return true;
 }
 

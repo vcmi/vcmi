@@ -1847,7 +1847,7 @@ bool CGHeroInstance::isMissionCritical() const
 	return false;
 }
 
-void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const
+void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & stack) const
 {
 	TConstBonusListPtr lista = getBonuses(Selector::typeSubtype(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId())));
 	for(const auto & it : *lista)
@@ -1855,7 +1855,7 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &s
 		auto nid = CreatureID(it->additionalInfo[0]);
 		if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
 		{
-			info.addUpgrade(std::move(nid), nid.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost());
+			info.addUpgrade(nid, stack.getType());
 		}
 	}
 }

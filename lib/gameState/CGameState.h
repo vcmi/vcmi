@@ -49,7 +49,7 @@ public:
 
 	CreatureID oldID; //creature to be upgraded
 
-	const auto & getAvailableUpgrades() const
+	const std::vector<CreatureID> & getAvailableUpgrades() const
 	{
 		return upgradesIDs;
 	}
@@ -59,7 +59,7 @@ public:
 		return upgradesIDs.back();
 	}
 
-	const auto & getUpgradeCostsFor(CreatureID id) const
+	const ResourceSet & getUpgradeCostsFor(CreatureID id) const
 	{
 		auto idIt = std::find(upgradesIDs.begin(), upgradesIDs.end(), id);
 
@@ -68,12 +68,12 @@ public:
 		return upgradesCosts[std::distance(upgradesIDs.begin(), idIt)];
 	}
 
-	const auto & getUpgradeCosts() const
+	const std::vector<ResourceSet> & getUpgradeCosts() const
 	{
 		return upgradesCosts;
 	}
 
-	const auto & getNextUpgradeCosts() const
+	const ResourceSet & getNextUpgradeCosts() const
 	{
 		return upgradesCosts.back();
 	}
@@ -89,7 +89,7 @@ public:
 	}
 
 	// Adds a new upgrade and ensures alignment and sorted order
-	void addUpgrade(const CreatureID & upgradeID, ResourceSet && upgradeCost, bool available = true);
+	void addUpgrade(const CreatureID & upgradeID, const Creature * creature, int costModifier = 100);
 
 	auto size() const
 	{

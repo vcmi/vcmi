@@ -1234,7 +1234,7 @@ void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &s
 			{
 				if(vstd::contains(stack.getCreature()->upgrades, upgrID)) //possible upgrade
 				{
-					info.addUpgrade(upgrID, upgrID.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost());
+					info.addUpgrade(upgrID, stack.getType());
 				}
 			}
 		}

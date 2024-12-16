@@ -1779,11 +1779,12 @@ ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags)
 	return pickRandomArtifact(rand, flags, [](const ArtifactID &) { return true; });
 }
 
-void UpgradeInfo::addUpgrade(const CreatureID & upgradeID, ResourceSet && upgradeCost, bool available)
+void UpgradeInfo::addUpgrade(const CreatureID & upgradeID, const Creature * creature, int costModifier)
 {
-	isAvailable = available;
+	isAvailable = costModifier >= 0;
 	upgradesIDs.push_back(upgradeID);
 	
+	ResourceSet upgradeCost = (upgradeID.toCreature()->getFullRecruitCost() - creature->getFullRecruitCost()) * costModifier / 100;
 	upgradeCost.positive(); //upgrade cost can't be negative, ignore missing resources
 	upgradesCosts.push_back(std::move(upgradeCost));
 
