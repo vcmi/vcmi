@@ -36,7 +36,7 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 		logAi->trace("Checking dwelling level %d", level);
 		BuildingInfo nextToBuild = BuildingInfo();
 
-		for(int upgradeIndex : {1, 0})
+		for(int upgradeIndex : {2, 1, 0})
 		{
 			BuildingID building = BuildingID(BuildingID::getDwellingFromLevel(level, upgradeIndex));
 			if(!vstd::contains(buildings, building))
