@@ -41,6 +41,13 @@ set(lib_SRCS
 	VCMIDirs.cpp
 )
 
+if(ENABLE_HTML5_BUILD)
+	list(APPEND lib_SRCS
+		"html5/html5.cpp"
+		"html5/network/LoopNetwork.cpp"
+	)
+endif()
+
 set(lib_MAIN_SRCS
 
 	battle/AccessibilityInfo.cpp
@@ -751,10 +758,12 @@ else()
 endif()
 
 set_target_properties(vcmi PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
-target_link_libraries(vcmi PUBLIC
-	minizip::minizip ZLIB::ZLIB TBB::tbb
-	${SYSTEM_LIBS} Boost::boost Boost::thread Boost::filesystem Boost::program_options Boost::locale Boost::date_time
-)
+if(NOT EMSCRIPTEN)
+    target_link_libraries(vcmi PUBLIC
+	    minizip::minizip ZLIB::ZLIB TBB::tbb
+    	${SYSTEM_LIBS} Boost::boost Boost::thread Boost::filesystem Boost::program_options Boost::locale Boost::date_time
+    )
+endif()
 
 if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)
 	target_compile_definitions(vcmi PRIVATE STATIC_AI)

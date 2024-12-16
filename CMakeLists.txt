@@ -38,6 +38,7 @@ endif()
 
 # Platform-independent options
 
+option(ENABLE_HTML5_BUILD "Enable HTML5 subset of game" ON)
 option(ENABLE_CLIENT "Enable compilation of game client" ON)
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
@@ -56,6 +57,134 @@ option(ENABLE_COLORIZED_COMPILER_OUTPUT "Colorize compilation output (Clang/GNU)
 option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
 
 # Platform-specific options
+
+if(EMSCRIPTEN)
+	if(NOT CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+		message(FATAL_ERROR
+			"Only MinSizeRel is supported for emscripten"
+			"Use -DCMAKE_BUILD_TYPE=MinSizeRel when generate build configuration"
+		)
+	endif()
+	if(NOT UNIX)
+		message(FATAL_ERROR "Only UNIX build is supported for emscripten")
+	endif()
+
+	include(ExternalProject)
+	include(ProcessorCount)
+	ProcessorCount(N)
+
+	set(ENABLE_HTML5_BUILD ON)
+	ExternalProject_Add(boost-lib
+			PREFIX "boost"
+			URL "https://github.com/boostorg/boost/releases/download/boost-1.86.0/boost-1.86.0-cmake.zip"
+			BUILD_IN_SOURCE true
+			PATCH_COMMAND find . -name *.sh -execdir chmod u+x {} +
+			CONFIGURE_COMMAND ./bootstrap.sh
+			BUILD_COMMAND ./b2 install
+				--with-date_time
+				--with-filesystem
+				--with-locale
+				--with-program_options
+				--with-system
+				--with-thread
+				--with-chrono
+				--prefix=${CMAKE_BINARY_DIR}/boost
+				toolset=emscripten
+				link=static
+				variant=release
+				"-j${N}"
+			INSTALL_COMMAND ""
+			INSTALL_DIR ${CMAKE_BINARY_DIR}/boost
+	)
+	ExternalProject_Add(tbb-lib
+			PREFIX "tbb"
+			URL "https://github.com/oneapi-src/oneTBB/archive/refs/tags/v2022.0.0.zip"
+			BUILD_IN_SOURCE true
+			PATCH_COMMAND echo
+				"target_compile_options(tbb PRIVATE \"-fwasm-exceptions\")\\n"
+				"target_compile_options(tbbmalloc PRIVATE \"-fwasm-exceptions\")\\n"
+				"target_link_options(tbb PRIVATE \"-fwasm-exceptions\")\\n"
+				"target_link_options(tbbmalloc PRIVATE \"-fwasm-exceptions\")\\n"
+				>> CMakeLists.txt
+			CONFIGURE_COMMAND "emcmake"
+				"${CMAKE_COMMAND}"
+				"-G${CMAKE_GENERATOR}"
+				"-DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/tbb"
+				"-DBUILD_SHARED_LIBS=false"
+				"-DCMAKE_BUILD_TYPE=MinSizeRel"
+				"-DCMAKE_CXX_FLAGS=-fwasm-exceptions"
+				"-DLINK_FLAGS=-fwasm-exceptions"
+			BUILD_COMMAND "${CMAKE_MAKE_PROGRAM}" "tbb" "tbbmalloc"
+			INSTALL_COMMAND "${CMAKE_MAKE_PROGRAM}" "install" "tbb" "tbbmalloc"
+	)
+	ExternalProject_Add(vcmi-extras
+			PREFIX "vcmi-extras"
+			URL "https://vcmi.dos.zone/mods/vcmi-extras-1.5.zip"
+			BUILD_IN_SOURCE true
+			CONFIGURE_COMMAND ""
+			BUILD_COMMAND ""
+			INSTALL_COMMAND ""
+	)
+
+	set(emclient_LIBS boost_thread boost_system boost_program_options boost_locale boost_filesystem boost_date_time boost_atomic boost_chrono tbb tbbmalloc)
+
+	link_directories("${CMAKE_BINARY_DIR}/boost/lib")
+	link_directories("${CMAKE_BINARY_DIR}/tbb/lib")
+
+	set("RELEASE_OPT" "-Oz")
+	add_compile_options(
+		"-sUSE_SDL=2" "-sUSE_SDL_IMAGE=2" "-sUSE_SDL_MIXER=2" "-sUSE_SDL_TTF=2" "-sUSE_ZLIB=1" "-pthread"
+		"-fwasm-exceptions"
+		"${RELEASE_OPT}"
+	)
+	add_link_options(
+		"-sUSE_SDL=2" "-sUSE_SDL_IMAGE=2" "-sUSE_SDL_MIXER=2" "-sUSE_SDL_TTF=2" "-sUSE_ZLIB=1"
+		"-sSDL2_IMAGE_FORMATS=['bmp']"
+		"-sSTACK_SIZE=1Mb"
+		"-sTOTAL_MEMORY=384Mb"
+		"-sALLOW_MEMORY_GROWTH=1"
+		"-sPTHREAD_POOL_SIZE=24"
+		"-sPTHREAD_POOL_SIZE_STRICT=0"
+		"-sFORCE_FILESYSTEM=1"
+		"-sEXPORT_NAME=VCMI"
+		"-sMODULARIZE=1"
+		"-sINVOKE_RUN=0"
+		"-sEXPORTED_RUNTIME_METHODS=['addRunDependency', 'removeRunDependency', 'FS', \
+			'lengthBytesUTF8', 'stringToUTF8', 'UTF8ToString', 'callMain', 'run']"
+		"-sEXPORTED_FUNCTIONS=['_main', '_malloc', '_free']"
+		"-pthread"
+		"-fwasm-exceptions"
+		"-sMALLOC=mimalloc"
+		"${RELEASE_OPT}"
+		"--emit-symbols-map"
+		# for debugging
+		# "-O1"
+		# "--profiling-funcs"
+		# "-sASSERTIONS=2"
+	)
+	include_directories(
+		"${CMAKE_BINARY_DIR}/boost/include"
+		"${CMAKE_BINARY_DIR}/tbb/include"
+		"${CMAKE_CURRENT_LIST_DIR}/AI/FuzzyLite/fuzzylite"
+		"${CMAKE_CURRENT_LIST_DIR}/include"
+		"${CMAKE_CURRENT_LIST_DIR}/lib"
+		"${CMAKE_CURRENT_LIST_DIR}"
+	)
+
+	# to get empty Mp3 folder do: truncate -s 0 ./Mp3_empty
+	add_custom_target(html5
+		COMMAND "rm" "-rf" "html5"
+		COMMAND "mkdir" "html5"
+		COMMAND python3 "${EMSCRIPTEN_ROOT_PATH}/tools/file_packager.py"
+			"html5/vcmi.data" --no-node --from-emcc
+			--preload "${CMAKE_BINARY_DIR}/vcmi-extras/src/vcmi-extras@Mods/vcmi-extras"
+			--preload "${CMAKE_CURRENT_LIST_DIR}/config@config"
+			--preload "${CMAKE_CURRENT_LIST_DIR}/Mods@Mods"
+			--preload "${CMAKE_CURRENT_LIST_DIR}/data/Mp3_empty@Mp3"
+			--js-output="html5/vcmi.data.js"
+		COMMAND "cp" "bin/vcmiclient*" "html5/")
+	add_dependencies(html5 vcmiclient)
+endif()
 
 if(ANDROID)
 	set(ANDROID_TARGET_SDK_VERSION "34" CACHE STRING "Android target SDK version")
@@ -90,6 +219,40 @@ else()
 	option(ENABLE_SINGLE_APP_BUILD "Builds client and launcher as single executable" OFF)
 	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
 	option(ENABLE_LOBBY "Enable compilation of lobby server" OFF)
+endif()
+
+if (ENABLE_HTML5_BUILD)
+	set(ENABLE_STATIC_LIBS ON)
+	set(ENABLE_MONOLITHIC_INSTALL ON)
+	set(ENABLE_SINGLE_APP_BUILD OFF)
+	set(ENABLE_EDITOR OFF)
+	set(ENABLE_TEST OFF)
+	set(ENABLE_LOBBY OFF)
+	set(ENABLE_SERVER OFF)
+	set(COPY_CONFIG_ON_BUILD ON)
+	set(ENABLE_CLIENT ON)
+	set(ENABLE_ERM OFF)
+	set(ENABLE_LUA OFF)
+	set(ENABLE_TRANSLATIONS OFF)
+	set(ENABLE_NULLKILLER_AI ON)
+	set(ENABLE_MINIMAL_LIB OFF)
+	set(ENABLE_GOLDMASTER OFF)
+	set(ENABLE_PCH OFF)
+	set(ENABLE_STRICT_COMPILATION OFF)
+	set(ENABLE_CCACHE OFF)
+	set(ENABLE_MONOLITHIC_INSTALL ON)
+	set(ENABLE_EDITOR OFF)
+	set(ENABLE_LAUNCHER OFF)
+	add_definitions(
+		-DVCMI_NO_THREADED_LOAD
+		-DDISABLE_VIDEO
+		-DVCMI_HTML5_BUILD
+	)
+
+	if(NOT EMSCRIPTEN)
+		add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
+		add_link_options(-fsanitize=address)
+	endif()
 endif()
 
 # ERM depends on LUA implicitly
@@ -456,7 +619,9 @@ set(BOOST_COMPONENTS date_time filesystem locale program_options system thread)
 if(ENABLE_INNOEXTRACT)
 	list(APPEND BOOST_COMPONENTS iostreams)
 endif()
-find_package(Boost 1.48.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
+if(NOT EMSCRIPTEN)
+	find_package(Boost 1.48.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
+endif()
 
 find_package(ZLIB REQUIRED)
 # Conan compatibility
@@ -475,28 +640,30 @@ endif()
 if (ENABLE_CLIENT)
 	find_package(ffmpeg COMPONENTS avutil swscale avformat avcodec swresample)
 
-	find_package(SDL2 REQUIRED)
-	find_package(SDL2_image REQUIRED)
-	if(TARGET SDL2_image::SDL2_image)
-		add_library(SDL2::Image ALIAS SDL2_image::SDL2_image)
-	endif()
-	if(TARGET SDL2_image::SDL2_image-static)
-		add_library(SDL2::Image ALIAS SDL2_image::SDL2_image-static)
-	endif()
-	find_package(SDL2_mixer REQUIRED)
-	if(TARGET SDL2_mixer::SDL2_mixer)
-		add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer)
-	endif()
-	if(TARGET SDL2_mixer::SDL2_mixer-static)
-		add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer-static)
-	endif()
-	find_package(SDL2_ttf REQUIRED)
-	if(TARGET SDL2_ttf::SDL2_ttf)
-		add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
-	endif()
-	if(TARGET SDL2_ttf::SDL2_ttf-static)
-		add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf-static)
-	endif()
+    if(NOT EMSCRIPTEN)
+	    find_package(SDL2 REQUIRED)
+	    find_package(SDL2_image REQUIRED)
+	    if(TARGET SDL2_image::SDL2_image)
+		    add_library(SDL2::Image ALIAS SDL2_image::SDL2_image)
+	    endif()
+	    if(TARGET SDL2_image::SDL2_image-static)
+		    add_library(SDL2::Image ALIAS SDL2_image::SDL2_image-static)
+	    endif()
+	    find_package(SDL2_mixer REQUIRED)
+	    if(TARGET SDL2_mixer::SDL2_mixer)
+		    add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer)
+	    endif()
+	    if(TARGET SDL2_mixer::SDL2_mixer-static)
+		    add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer-static)
+	    endif()
+	    find_package(SDL2_ttf REQUIRED)
+	    if(TARGET SDL2_ttf::SDL2_ttf)
+		    add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
+	    endif()
+	    if(TARGET SDL2_ttf::SDL2_ttf-static)
+		    add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf-static)
+        endif()
+    endif()
 endif()
 
 if(ENABLE_LOBBY)
@@ -514,7 +681,7 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	endif()
 endif()
 
-if(NOT ENABLE_MINIMAL_LIB)
+if(NOT ENABLE_MINIMAL_LIB AND NOT EMSCRIPTEN)
 	find_package(TBB REQUIRED)
 endif()
 

@@ -466,9 +466,13 @@ endif()
 
 target_link_libraries(vcmiclientcommon PRIVATE vcmiservercommon)
 
-target_link_libraries(vcmiclientcommon PUBLIC
+if(NOT EMSCRIPTEN)
+    target_link_libraries(vcmiclientcommon PUBLIC
 		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
-)
+	)
+else()
+	target_link_libraries(vcmiclientcommon PRIVATE ${emclient_LIBS})
+endif()
 
 if(ffmpeg_LIBRARIES)
 	target_link_libraries(vcmiclientcommon PRIVATE

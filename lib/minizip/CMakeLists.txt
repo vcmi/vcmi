@@ -10,7 +10,11 @@ set(lib_SRCS
 		ioapi.c
 )
 
-add_library(minizip SHARED ${lib_SRCS})
+if(EMSCRIPTEN)
+	add_library(minizip STATIC ${lib_SRCS})
+else()
+	add_library(minizip SHARED ${lib_SRCS})
+endif()
 if(MSVC)
     set_target_properties(minizip PROPERTIES COMPILE_DEFINITIONS "MINIZIP_DLL;ZLIB_DLL;ZLIB_INTERNAL")
 endif()
