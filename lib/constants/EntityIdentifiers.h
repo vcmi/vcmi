@@ -366,6 +366,11 @@ public:
 			dwelling.advance(GameConstants::CREATURES_PER_TOWN - 1);
 	}
 
+	bool IsDwelling() const
+	{
+		return (DWELL_FIRST <= num && num <= DWELL_UP_LAST) || (DWELL_LVL_8 <= num && num <= DWELL_LVL_8_UP) || num == DWELL_UP2_FIRST;
+	}
+
 	bool IsSpecialOrGrail() const
 	{
 		return num == SPECIAL_1 || num == SPECIAL_2 || num == SPECIAL_3 || num == SPECIAL_4 || num == GRAIL;
