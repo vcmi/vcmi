@@ -41,37 +41,23 @@ void ChroniclesExtractor::removeTempDir()
 	tempDir.removeRecursively();
 }
 
-int ChroniclesExtractor::getChronicleNo(QFile & file)
+int ChroniclesExtractor::getChronicleNo()
 {
-	if(!file.open(QIODevice::ReadOnly))
+	for (size_t i = 1; i < chronicles.size(); ++i)
 	{
-		QMessageBox::critical(parent, tr("The file cannot be opened"), file.errorString());
-		return 0;
+		QString chronicleName = chronicles.at(i);
+
+		QStringList appDirCandidates = tempDir.entryList({"app"}, QDir::Filter::Dirs);
+		QDir appDir = tempDir.filePath(appDirCandidates.front());
+
+		QStringList chroniclesDirCandidates = appDir.entryList({chronicleName}, QDir::Filter::Dirs);
+
+		if (!chroniclesDirCandidates.empty())
+			return i;
 	}
 
-	QByteArray magic{"MZ"};
-	QByteArray magicFile = file.read(magic.length());
-	if(!magicFile.startsWith(magic))
-	{
-		QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select a gog installer file!"));
-		return 0;
-	}
-
-	QByteArray dataBegin = file.read(1'000'000);
-	int chronicle = 0;
-	for (const auto& kv : chronicles) {
-		if(dataBegin.contains(kv.second))
-		{
-			chronicle = kv.first;
-			break;
-		}
-	}
-	if(!chronicle)
-	{
-		QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select a Heroes Chronicles installer file!"));
-		return 0;
-	}
-	return chronicle;
+	QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select a Heroes Chronicles installer file!"));
+	return 0;
 }
 
 bool ChroniclesExtractor::extractGogInstaller(QString file)
@@ -147,14 +133,13 @@ void ChroniclesExtractor::createChronicleMod(int no)
 	dir.removeRecursively();
 	dir.mkpath(".");
 
-	QByteArray tmpChronicles = chronicles.at(no);
-	tmpChronicles.replace('\0', "");
+	QString tmpChronicles = chronicles.at(no);
 
 	QJsonObject mod
 	{
 		{ "modType", "Expansion" },
-		{ "name", QString::number(no) + " - " + QString(tmpChronicles) },
-		{ "description", tr("Heroes Chronicles") + " - " + QString::number(no) + " - " + QString(tmpChronicles) },
+		{ "name", QString::number(no) + " - " + tmpChronicles },
+		{ "description", tr("Heroes Chronicles") + " - " + QString::number(no) + " - " + tmpChronicles },
 		{ "author", "3DO" },
 		{ "version", "1.0" },
 		{ "contact", "vcmi.eu" },
@@ -171,8 +156,7 @@ void ChroniclesExtractor::createChronicleMod(int no)
 
 void ChroniclesExtractor::extractFiles(int no) const
 {
-	QByteArray tmpChronicles = chronicles.at(no);
-	tmpChronicles.replace('\0', "");
+	QString tmpChronicles = chronicles.at(no);
 
 	std::string chroniclesDir = "chronicles_" + std::to_string(no);
 	QDir tmpDir = tempDir.filePath(tempDir.entryList({"app"}, QDir::Filter::Dirs).front());
@@ -228,29 +212,46 @@ void ChroniclesExtractor::extractFiles(int no) const
 
 void ChroniclesExtractor::installChronicles(QStringList exe)
 {
+	logGlobal->info("Installing Chronicles");
+
 	extractionFile = -1;
 	fileCount = exe.size();
 	for(QString f : exe)
 	{
 		extractionFile++;
 
+		logGlobal->info("Creating temporary directory");
 		if(!createTempDir())
 			continue;
 		
+		logGlobal->info("Copying offline installer");
+		// FIXME: this is required at the moment for Android (and possibly iOS)
+		// Incoming file names are in content URI form, e.g. content://media/internal/chronicles.exe
+		// Qt can handle those like it does regular files
+		// however, innoextract fails to open such files
+		// so make a copy in directory to which vcmi always has full access and operate on it
 		QString filepath = tempDir.filePath("chr.exe");
 		QFile(f).copy(filepath);
 		QFile file(filepath);
 
-		int chronicleNo = getChronicleNo(file);
+		logGlobal->info("Extracting offline installer");
+		if(!extractGogInstaller(filepath))
+			continue;
+
+		logGlobal->info("Detecting Chronicle");
+		int chronicleNo = getChronicleNo();
 		if(!chronicleNo)
 			continue;
 
-		if(!extractGogInstaller(filepath))
-			continue;
-		
+		logGlobal->info("Creating base Chronicle mod");
 		createBaseMod();
+
+		logGlobal->info("Creating Chronicle mod");
 		createChronicleMod(chronicleNo);
 
+		logGlobal->info("Removing temporary directory");
 		removeTempDir();
 	}
+
+	logGlobal->info("Chronicles installed");
 }
