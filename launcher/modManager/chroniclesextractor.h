@@ -31,7 +31,7 @@ class ChroniclesExtractor : public QObject
 	void extractFiles(int no) const;
 
 	const QStringList chronicles = {
-		"", // fake	0th "chronicle", to create 1-based list
+		{}, // fake	0th "chronicle", to create 1-based list
 		"Warlords of the Wasteland",
 		"Conquest of the Underworld",
 		"Masters of the Elements",

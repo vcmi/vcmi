@@ -43,19 +43,21 @@ void ChroniclesExtractor::removeTempDir()
 
 int ChroniclesExtractor::getChronicleNo()
 {
-	for (size_t i = 1; i < chronicles.size(); ++i)
-	{
-		QString chronicleName = chronicles.at(i);
+	QStringList appDirCandidates = tempDir.entryList({"app"}, QDir::Filter::Dirs);
 
-		QStringList appDirCandidates = tempDir.entryList({"app"}, QDir::Filter::Dirs);
+	if (!appDirCandidates.empty())
+	{
 		QDir appDir = tempDir.filePath(appDirCandidates.front());
 
-		QStringList chroniclesDirCandidates = appDir.entryList({chronicleName}, QDir::Filter::Dirs);
+		for (size_t i = 1; i < chronicles.size(); ++i)
+		{
+			QString chronicleName = chronicles.at(i);
+			QStringList chroniclesDirCandidates = appDir.entryList({chronicleName}, QDir::Filter::Dirs);
 
-		if (!chroniclesDirCandidates.empty())
-			return i;
+			if (!chroniclesDirCandidates.empty())
+				return i;
+		}
 	}
-
 	QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select a Heroes Chronicles installer file!"));
 	return 0;
 }
@@ -138,8 +140,8 @@ void ChroniclesExtractor::createChronicleMod(int no)
 	QJsonObject mod
 	{
 		{ "modType", "Expansion" },
-		{ "name", QString::number(no) + " - " + tmpChronicles },
-		{ "description", tr("Heroes Chronicles") + " - " + QString::number(no) + " - " + tmpChronicles },
+		{ "name", QString("%1 - %2").arg(no).arg(tmpChronicles) },
+		{ "description", tr("Heroes Chronicles %1 - %2").arg(no).arg(tmpChronicles) },
 		{ "author", "3DO" },
 		{ "version", "1.0" },
 		{ "contact", "vcmi.eu" },

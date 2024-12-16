@@ -898,6 +898,11 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
         <source>Heroes Chronicles</source>
         <translation>Heroes Chronicles</translation>
     </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="144"/>
+        <source>Heroes Chronicles %1 - %2</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>File size</name>
