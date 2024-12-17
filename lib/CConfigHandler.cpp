@@ -15,6 +15,10 @@
 #include "VCMIDirs.h"
 #include "json/JsonUtils.h"
 
+#ifdef VCMI_HTML5_BUILD
+#include "html5/html5.h"
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 SettingsStorage settings;
@@ -89,8 +93,14 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 	if(!schema.empty())
 		JsonUtils::minimize(savedConf, schema);
 
-	std::fstream file(CResourceHandler::get()->getResourceName(JsonPath::builtin(dataFilename))->c_str(), std::ofstream::out | std::ofstream::trunc);
+	auto fileName = CResourceHandler::get()->getResourceName(JsonPath::builtin(dataFilename));
+	std::fstream file(fileName->c_str(), std::ofstream::out | std::ofstream::trunc);
 	file << savedConf.toString();
+	file.close();
+
+#ifdef VCMI_HTML5_BUILD
+	html5::fsUpdate(fileName->c_str());
+#endif
 }
 
 JsonNode & SettingsStorage::getNode(const std::vector<std::string> & path)

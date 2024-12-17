@@ -88,6 +88,10 @@
 #include <vcmi/events/GenericEvents.h>
 #include <vcmi/events/AdventureEvents.h>
 
+#ifdef VCMI_HTML5_BUILD
+#include "../lib/html5/html5.h"
+#endif
+
 #define COMPLAIN_RET_IF(cond, txt) do {if (cond){complain(txt); return;}} while(0)
 #define COMPLAIN_RET_FALSE_IF(cond, txt) do {if (cond){complain(txt); return false;}} while(0)
 #define COMPLAIN_RET(txt) {complain(txt); return false;}
@@ -1539,13 +1543,17 @@ void CGameHandler::save(const std::string & filename)
 
 	try
 	{
+		auto fileName = *CResourceHandler::get("local")->getResourceName(savePath);
 		{
-			CSaveFile save(*CResourceHandler::get("local")->getResourceName(savePath));
+			CSaveFile save(fileName);
 			saveCommonState(save);
 			logGlobal->info("Saving server state");
 			save << *this;
 		}
 		logGlobal->info("Game has been successfully saved!");
+#ifdef VCMI_HTML5_BUILD
+		html5::fsUpdate(fileName.c_str());
+#endif
 	}
 	catch(std::exception &e)
 	{

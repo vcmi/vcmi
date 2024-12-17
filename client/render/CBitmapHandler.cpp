@@ -18,6 +18,10 @@
 
 #include <SDL_image.h>
 
+#ifdef VCMI_HTML5_BUILD
+#include <html5/html5.h>
+#endif
+
 namespace BitmapHandler
 {
 	SDL_Surface * loadH3PCX(ui8 * data, size_t size);
@@ -127,10 +131,22 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(const ImagePath & path)
 		}
 		else
 		{ //loading via SDL_Image
-			ret = IMG_Load_RW(
-					  //create SDL_RW with our data (will be deleted by SDL)
-					  SDL_RWFromConstMem((void*)readFile.first.get(), (int)readFile.second),
-					  1); // mark it for auto-deleting
+#ifdef VCMI_HTML5_BUILD
+			if (html5::isPngImage(readFile.first.get(), (int)readFile.second)) {
+				ret = html5::loadPng(readFile.first.get(), (int)readFile.second);
+				if (!ret) {
+					logGlobal->error("Failed to open %s via sbt_image", path.getOriginalName());
+					return nullptr;
+				}
+			} else {
+#endif
+				ret = IMG_Load_RW(
+						  //create SDL_RW with our data (will be deleted by SDL)
+						  SDL_RWFromConstMem((void*)readFile.first.get(), (int)readFile.second),
+						  1); // mark it for auto-deleting
+#ifdef VCMI_HTML5_BUILD
+			}
+#endif
 			if (ret)
 			{
 				if (ret->format->palette)
