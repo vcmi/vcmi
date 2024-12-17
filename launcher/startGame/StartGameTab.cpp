@@ -48,6 +48,37 @@ StartGameTab::StartGameTab(QWidget * parent)
 #ifndef ENABLE_EDITOR
 	ui->buttonGameEditor->hide();
 #endif
+
+	auto clipboard = QGuiApplication::clipboard();
+
+	connect(clipboard, SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
+}
+
+void StartGameTab::clipboardDataChanged()
+{
+	ui->buttonPresetExport->setIcon(QIcon{});// reset icon, if any
+
+	auto clipboard = QGuiApplication::clipboard();
+	QString clipboardText = clipboard->text().trimmed();
+
+	if (clipboardText.isEmpty())
+	{
+		ui->buttonPresetImport->setEnabled(false);
+	}
+	else
+	{
+		// this *may* be json, try parsing it
+		if (clipboardText.startsWith('{'))
+		{
+			QByteArray presetBytes(clipboardText.toUtf8());
+			const JsonNode presetJson(reinterpret_cast<const std::byte*>(presetBytes.data()), presetBytes.size(), "preset in clipboard");
+			bool presetValid = !presetJson["name"].String().empty() && !presetJson["mods"].Vector().empty();
+
+			ui->buttonPresetImport->setEnabled(presetValid);
+		}
+		else
+			ui->buttonPresetImport->setEnabled(false);
+	}
 }
 
 StartGameTab::~StartGameTab()
@@ -70,6 +101,8 @@ void StartGameTab::refreshState()
 	refreshTranslation(getMainWindow()->getTranslationStatus());
 	refreshPresets();
 	refreshMods();
+
+	clipboardDataChanged();
 }
 
 void StartGameTab::refreshPresets()
@@ -361,6 +394,8 @@ void StartGameTab::on_buttonPresetExport_clicked()
 	JsonNode presetJson = getMainWindow()->getModView()->exportCurrentPreset();
 	QString presetString = QString::fromStdString(presetJson.toCompactString());
 	QGuiApplication::clipboard()->setText(presetString);
+
+	ui->buttonPresetExport->setIcon(QIcon{":/icons/mod-enabled.png"});
 }
 
 void StartGameTab::on_buttonPresetImport_clicked()
