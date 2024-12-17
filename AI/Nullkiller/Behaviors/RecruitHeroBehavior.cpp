@@ -98,7 +98,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 			for(auto hero : availableHeroes)
 			{
 				if ((town->visitingHero || town->garrisonHero) 
-					&& closestThreat < 0
+					&& closestThreat < 1
 					&& hero->getArmyCost() < GameConstants::HERO_GOLD_COST / 3.0)
 					continue;
 				auto score = ai->heroManager->evaluateHero(hero);
