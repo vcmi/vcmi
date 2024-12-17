@@ -1143,3 +1143,14 @@ QString CModListView::getActivePreset() const
 {
 	return modStateModel->getActivePreset();
 }
+
+JsonNode CModListView::exportCurrentPreset() const
+{
+	return modStateModel->exportCurrentPreset();
+}
+
+void CModListView::importPreset(const JsonNode & data)
+{
+	modStateModel->importPreset(data);
+	modStateModel->reloadLocalState();
+}

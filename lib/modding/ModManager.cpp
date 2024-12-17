@@ -385,6 +385,31 @@ std::string ModsPresetState::getActivePreset() const
 	return modConfig["activePreset"].String();
 }
 
+JsonNode ModsPresetState::exportCurrentPreset() const
+{
+	JsonNode data = getActivePresetConfig();
+	std::string presetName = getActivePreset();
+
+	data["name"] = JsonNode(presetName);
+
+	vstd::erase_if(data["settings"].Struct(), [&](const auto & pair){
+		return !vstd::contains(data["mods"].Vector(), JsonNode(pair.first));
+	});
+
+	return data;
+}
+
+void ModsPresetState::importPreset(const JsonNode & newConfig)
+{
+	std::string importedPresetName = newConfig["name"].String();
+
+	if (importedPresetName.empty())
+		throw std::runtime_error("Attempt to import invalid preset");
+
+	modConfig["presets"][importedPresetName] = newConfig;
+	modConfig["presets"][importedPresetName].Struct().erase("name");
+}
+
 ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode & repositoryList)
 {
 	JsonNode coreModConfig(JsonPath::builtin("config/gameConfig.json"));
@@ -794,6 +819,17 @@ std::vector<std::string> ModManager::getAllPresets() const
 std::string ModManager::getActivePreset() const
 {
 	return modsPreset->getActivePreset();
+}
+
+JsonNode ModManager::exportCurrentPreset() const
+{
+	return modsPreset->exportCurrentPreset();
+}
+
+void ModManager::importPreset(const JsonNode & data)
+{
+	modsPreset->importPreset(data);
+	modsPreset->saveConfigurationState();
 }
 
 VCMI_LIB_NAMESPACE_END

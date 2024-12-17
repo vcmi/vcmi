@@ -157,3 +157,13 @@ QString ModStateModel::getActivePreset() const
 {
 	return QString::fromStdString(modManager->getActivePreset());
 }
+
+JsonNode ModStateModel::exportCurrentPreset() const
+{
+	return modManager->exportCurrentPreset();
+}
+
+void ModStateModel::importPreset(const JsonNode & data)
+{
+	modManager->importPreset(data);
+}

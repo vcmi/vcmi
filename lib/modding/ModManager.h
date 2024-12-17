@@ -58,6 +58,9 @@ public:
 	std::vector<std::string> getAllPresets() const;
 	std::string getActivePreset() const;
 
+	JsonNode exportCurrentPreset() const;
+	void importPreset(const JsonNode & data);
+
 	void setModActive(const TModID & modName, bool isActive);
 
 	void addRootMod(const TModID & modName);
@@ -155,6 +158,9 @@ public:
 
 	std::vector<std::string> getAllPresets() const;
 	std::string getActivePreset() const;
+
+	JsonNode exportCurrentPreset() const;
+	void importPreset(const JsonNode & data);
 };
 
 VCMI_LIB_NAMESPACE_END

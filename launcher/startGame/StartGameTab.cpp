@@ -44,8 +44,6 @@ StartGameTab::StartGameTab(QWidget * parent)
 	refreshState();
 
 	ui->buttonGameResume->setVisible(false); // TODO: implement
-	ui->buttonPresetExport->setVisible(false); // TODO: implement
-	ui->buttonPresetImport->setVisible(false); // TODO: implement
 
 #ifndef ENABLE_EDITOR
 	ui->buttonGameEditor->hide();
@@ -360,12 +358,20 @@ void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
 
 void StartGameTab::on_buttonPresetExport_clicked()
 {
-	// TODO
+	JsonNode presetJson = getMainWindow()->getModView()->exportCurrentPreset();
+	QString presetString = QString::fromStdString(presetJson.toCompactString());
+	QGuiApplication::clipboard()->setText(presetString);
 }
 
 void StartGameTab::on_buttonPresetImport_clicked()
 {
-	// TODO
+	QString presetString = QGuiApplication::clipboard()->text();
+	QByteArray presetBytes(presetString.toUtf8());
+	JsonNode presetJson(reinterpret_cast<const std::byte*>(presetBytes.data()), presetBytes.size(), "imported preset");
+
+	getMainWindow()->getModView()->importPreset(presetJson);
+	getMainWindow()->switchToModsTab();
+	refreshPresets();
 }
 
 void StartGameTab::on_buttonPresetNew_clicked()
