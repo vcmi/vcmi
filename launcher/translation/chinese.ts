@@ -444,7 +444,7 @@
     </message>
     <message>
         <source>Do you want to replace %1?</source>
-        <translation type="vanished">你想要替换%1吗？</translation>
+        <translation type="vanished">您想要替换%1吗？</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="649"/>
@@ -481,7 +481,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="791"/>
         <source>Installing Heroes Chronicles</source>
-        <translation type="unfinished">安装历代记</translation>
+        <translation>安装历代记</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="853"/>
@@ -738,7 +738,13 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择游戏的显示模式：
+
+窗口化 - 游戏将在一个窗口中运行，占用屏幕的一部分。
+
+无边框全屏模式 - 游戏将在一个全屏窗口中运行，分辨率与屏幕匹配。
+
+独占全屏模式 - 游戏将覆盖整个屏幕，并使用选定的分辨率。</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
@@ -1051,17 +1057,17 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
         <source>The file cannot be opened</source>
-        <translation type="unfinished"></translation>
+        <translation>此文件无法被打开</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <source>You have to select a gog installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>您必须选择一个gog安装器文件！</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>您必须选择一个历代记安装文件！</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="88"/>
@@ -1071,7 +1077,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="90"/>
         <source>Hash error!</source>
-        <translation type="unfinished"></translation>
+        <translation>哈希错误！</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="107"/>
@@ -1079,6 +1085,11 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <location filename="../modManager/chroniclesextractor.cpp" line="159"/>
         <source>Heroes Chronicles</source>
         <translation>英雄无敌历代记</translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="144"/>
+        <source>Heroes Chronicles %1 - %2</source>
+        <translation type="unfinished">英雄无敌历代记 %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -1226,7 +1237,7 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>安装提供各种各样界面改进的模组，例如美化随机地图界面或添加战场行动选项</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="867"/>
@@ -1252,7 +1263,13 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation type="unfinished"></translation>
+        <translation>谢谢您安装VCMI！
+
+在您开始游戏之前，还有几个步骤需要完成。
+
+请记住，为了使用VCMI，您必须拥有《魔法门之英雄无敌3完整版》或《死亡阴影》的原始数据文件。
+
+目前不支持《英雄无敌3高清版》！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="212"/>
@@ -1263,7 +1280,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
         <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
-        <translation type="unfinished"></translation>
+        <translation>你可以从原始游戏里手动拷贝Maps, Data 和 Mp3目录到VCMI的数据目录下，数据目录可以从页面顶部找到</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="347"/>
@@ -1289,7 +1306,8 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation type="unfinished"></translation>
+        <translation>如果你已经在gog.com拥有了英雄无敌3，你可以从gog.com下载离线安装器。VCMI将会通过离线安装器导入英雄无敌3数据
+离线安装器包含两部分：exe文件和bin文件。请确保这两部分都已下载。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="557"/>
@@ -1369,13 +1387,15 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="486"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI不支持英雄无敌3高清版文件。
+请选择包含《英雄无敌3：完全版》或《英雄无敌3：死亡阴影》的目录。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="491"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translation>检测到未知或不支持的英雄无敌3版本。
+请选择包含《英雄无敌3：完全版》或《英雄无敌3：死亡阴影》的目录。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="347"/>
@@ -1385,12 +1405,12 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="392"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation type="unfinished"></translation>
+        <translation>您提供的是GOG Galaxy安装器！这个文件不包含游戏内容，请下载离线游戏安装器！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="415"/>
         <source>Hash error!</source>
-        <translation type="unfinished"></translation>
+        <translation>哈希错误！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="418"/>
@@ -1406,7 +1426,8 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="462"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-        <translation type="unfinished"></translation>
+        <translation>从所选目录检测有效的英雄无敌3数据失败。
+请选择已安装英雄无敌3的数据目录。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="465"/>
@@ -1476,31 +1497,37 @@ error reason: </source>
         <source>SHA1 hash of provided files:
 Exe (%1 bytes):
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>提供文件的SHA1哈希值：
+Exe（%1字节）：
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="134"/>
         <source>
 Bin (%1 bytes):
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>
+Bin (%1字节):
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="137"/>
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>内部错误：复制失败。设备上是否有足够的空间？
+
+%1</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="146"/>
         <source>Exe</source>
-        <translation type="unfinished"></translation>
+        <translation>Exe</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="146"/>
         <source>Bin</source>
-        <translation type="unfinished"></translation>
+        <translation>Bin</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="155"/>
@@ -1508,7 +1535,10 @@ Bin (%1 bytes):
 %1
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>语言不匹配！
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="157"/>
@@ -1516,14 +1546,19 @@ Bin (%1 bytes):
 %1
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>仅检测到一个文件！文件可能已损坏？请重新下载。
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="163"/>
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>未知文件！文件可能已损坏？请重新下载。
+
+%1</translation>
     </message>
 </context>
 <context>
@@ -1639,7 +1674,7 @@ Bin (%1 bytes):
     <message>
         <location filename="../mainwindow_moc.ui" line="209"/>
         <source>Game</source>
-        <translation type="unfinished"></translation>
+        <translation>游戏</translation>
     </message>
     <message>
         <source>Map Editor</source>
@@ -1657,12 +1692,12 @@ Bin (%1 bytes):
     <message>
         <location filename="../mainwindow_moc.cpp" line="264"/>
         <source>Replace config file?</source>
-        <translation type="unfinished">替换配置文件？</translation>
+        <translation>替换配置文件？</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="264"/>
         <source>Do you want to replace %1?</source>
-        <translation type="unfinished">你想要替换%1吗？</translation>
+        <translation>您想要替换%1吗？</translation>
     </message>
 </context>
 <context>
@@ -1718,7 +1753,7 @@ Bin (%1 bytes):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="158"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
-        <translation type="unfinished"></translation>
+        <translation>模组不兼容，请更新VCMI并获取模组最新版本</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="161"/>
@@ -1764,7 +1799,8 @@ Bin (%1 bytes):
         <location filename="../modManager/modstatecontroller.cpp" line="254"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>模组位于受保护的目录，请手动删除它:
+</translation>
     </message>
     <message>
         <source>Mod is located in protected directory, please remove it manually:
@@ -1897,42 +1933,42 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>表单</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="49"/>
         <source>Import from Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>从剪切板导入</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="81"/>
         <source>Rename Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>重命名当前预设</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="101"/>
         <source>Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>当前预设</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="121"/>
         <source>Create New Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>创建新预设</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="140"/>
         <source>Export to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>导出到剪切板</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="159"/>
         <source>Delete Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>删除当前预设</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="200"/>
         <source>Unsupported or corrupted game data detected!</source>
-        <translation type="unfinished"></translation>
+        <translation>检测到不支持或损坏的游戏数据！</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="257"/>
@@ -1945,142 +1981,143 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.ui" line="475"/>
         <location filename="../startGame/StartGameTab.ui" line="551"/>
         <source>?</source>
-        <translation type="unfinished"></translation>
+        <translation>?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="295"/>
         <source>Install Translation</source>
-        <translation type="unfinished"></translation>
+        <translation>安装翻译</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="352"/>
         <source>No soundtrack detected!</source>
-        <translation type="unfinished"></translation>
+        <translation>未检测到音轨！</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="393"/>
         <source>Armaggedon&apos;s Blade campaigns are missing!</source>
-        <translation type="unfinished"></translation>
+        <translation>末日之刃战役缺失！</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="453"/>
         <source>No video files detected!</source>
-        <translation type="unfinished"></translation>
+        <translation>未检测到视频文件！</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="494"/>
         <source>Activate Translation</source>
-        <translation type="unfinished"></translation>
+        <translation>已启用的翻译</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="513"/>
         <source>Import files</source>
-        <translation type="unfinished"></translation>
+        <translation>导入文件</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="624"/>
         <source>Check For Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>检查更新</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="643"/>
         <source>Go to Downloads Page</source>
-        <translation type="unfinished"></translation>
+        <translation>跳转到下载页面</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="662"/>
         <source>Go to Changelog Page</source>
-        <translation type="unfinished"></translation>
+        <translation>跳转到更新日志页面</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="681"/>
         <source>You are using the latest version</source>
-        <translation type="unfinished"></translation>
+        <translation>您已使用最新版</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="718"/>
         <source>Game Data Files</source>
-        <translation type="unfinished"></translation>
+        <translation>游戏数据文件</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="736"/>
         <source>Mod Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>模组预设</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="781"/>
         <source>Resume</source>
-        <translation type="unfinished"></translation>
+        <translation>恢复</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="830"/>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>进行游戏</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="874"/>
         <source>Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>编辑器</translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="141"/>
         <source>Update %n mods</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>更新%n模组</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="145"/>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>英雄无敌历代记：
+%n/%1 已安装</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="162"/>
         <source>Update to %1 available</source>
-        <translation type="unfinished"></translation>
+        <translation>可以更新到%1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="198"/>
         <source>All supported files</source>
-        <translation type="unfinished">所有支持的文件格式</translation>
+        <translation>所有支持的文件格式</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="199"/>
         <source>Maps</source>
-        <translation type="unfinished">地图</translation>
+        <translation>地图</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="200"/>
         <source>Campaigns</source>
-        <translation type="unfinished">战役</translation>
+        <translation>战役</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="201"/>
         <source>Configs</source>
-        <translation type="unfinished">配置</translation>
+        <translation>配置</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="202"/>
         <source>Mods</source>
-        <translation type="unfinished">模组</translation>
+        <translation>模组</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="203"/>
         <source>Gog files</source>
-        <translation type="unfinished">Gog文件</translation>
+        <translation>Gog文件</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="206"/>
         <source>All files (*.*)</source>
-        <translation type="unfinished">所有文件 (*.*)</translation>
+        <translation>所有文件 (*.*)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="208"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished">选择需要安装的文件（配置，模组，地图，战役，gog文件）...</translation>
+        <translation>选择需要安装的文件（配置，模组，地图，战役，gog文件）...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="248"/>
@@ -2092,68 +2129,86 @@ Reason: %2</source>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>此选项允许您将额外的数据文件导入到您的VCMI安装中。目前支持以下选项：
+
+ - 英雄无敌3地图文件(.h3m 或 .vmap)
+ - 英雄无敌3战役文件(.h3c 或 .vcmp)
+ - 英雄无敌3历代记文件，使用来自 GOG.com的离线备份安装程序(.exe)
+ - VCMI zip格式模组文件(.zip)
+ - VCMI配置文件(.json)
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="263"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
-        <translation type="unfinished"></translation>
+        <translation>您的英雄无敌3版本使用的是不同的语言。VCMI提供了多种语言的翻译，您可以使用这些翻译。使用此选项可以自动安装适合您语言的翻译。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="273"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
-        <translation type="unfinished"></translation>
+        <translation>您语言对应的英雄无敌3翻译已安装，但是被关闭了。使用这个选项来启用它。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="283"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You many want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation type="unfinished"></translation>
+        <translation>您已安装的一部分模组的现在可以从模组源里获取更新。使用此选项可以自动将您的所有模组更新到最新版本。
+
+警告：在某些情况下，模组的更新版本可能与您现有的存档不兼容。建议您在完成当前的游戏后再更新模组。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="295"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>如果您在gog.com上拥有英雄无敌历代记，您可以使用gog提供的离线备份安装程序将 英雄无敌历代记数据作为自定义战役导入到 VCMI中。
+要导入英雄无敌历代记，请下载您希望安装的每个历代记的离线备份安装程序，选择“导入文件”选项并选择已下载的文件。这将生成并安装一个包含已导入的历代记的VCMI模组</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="308"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI检测到您的安装中缺少英雄无敌3的音乐文件。VCMI可以运行，但游戏内音乐将不可用。
+
+要解决此问题，请手动将缺失的MP3文件从英雄无敌3复制到VCM 的数据文件目录，或重新安装VCMI 并重新导入英雄无敌3数据文件</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="319"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI检测到您的安装中缺少英雄无敌3的视频文件。VCMI可以运行，但游戏内过场动画将不可用。
+
+要解决此问题，请手动将英雄无敌3的VIDEO.VID文件复制到VCMI的数据文件目录，或重新安装VCMI并重新导入英雄无敌3的数据文件</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="330"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI检测到您的安装中缺少部分英雄无敌3的数据文件。您可以尝试运行VCMI，但游戏可能无法正常工作或崩溃。
+
+要解决此问题，请重新安装游戏并使用支持的英雄无敌3版本重新导入数据文件。VCMI需要英雄无敌3：死亡阴影或完全版才能运行，您可以（例如）从gog.com获取</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="341"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI检测到您的安装中缺少部分英雄无敌3：末日之刃的数据文件。VCMI可以运行，但末日之刃的战役将不可用。
+
+要解决此问题，请手动将缺失的英雄无敌3数据文件复制到VCMI的数据文件目录，或重新安装VCMI并重新导入英雄无敌3的数据文件</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="366"/>
         <source>Enter preset name:</source>
-        <translation type="unfinished"></translation>
+        <translation>输入预设名字：</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="406"/>
         <source>Rename preset &apos;%1&apos; to:</source>
-        <translation type="unfinished"></translation>
+        <translation>重命名预设&apos;%1&apos;为：</translation>
     </message>
 </context>
 <context>
@@ -2181,7 +2236,7 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translation type="unfinished"></translation>
+        <translation>无法从url中读取JSON或JSON数据不正确</translation>
     </message>
     <message>
         <source>Cannot read JSON from url or incorrect JSON data</source>

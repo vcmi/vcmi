@@ -27,12 +27,13 @@
 #include "../vcmiqt/jsonutils.h"
 #include "../helper.h"
 
-#include "../../lib/VCMIDirs.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/texts/Languages.h"
-#include "../../lib/modding/CModVersion.h"
+#include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/json/JsonUtils.h"
+#include "../../lib/modding/CModVersion.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/Languages.h"
 
 #include <future>
 
@@ -43,7 +44,7 @@ void CModListView::setupModModel()
 
 	modStateModel = std::make_shared<ModStateModel>();
 	if (!cachedRepositoryData.isNull())
-		modStateModel->appendRepositories(cachedRepositoryData);
+		modStateModel->setRepositoryData(cachedRepositoryData);
 
 	modModel = new ModStateItemModel(modStateModel, this);
 	manager = std::make_unique<ModStateController>(modStateModel);
@@ -151,6 +152,8 @@ void CModListView::reload()
 
 void CModListView::loadRepositories()
 {
+	accumulatedRepositoryData.clear();
+
 	QStringList repositories;
 
 	if (settings["launcher"]["defaultRepositoryEnabled"].Bool())
@@ -731,7 +734,7 @@ void CModListView::installFiles(QStringList files)
 	QStringList maps;
 	QStringList images;
 	QStringList exe;
-	JsonNode repository;
+	bool repositoryFilesEnqueued = false;
 
 	// TODO: some better way to separate zip's with mods and downloaded repository files
 	for(QString filename : files)
@@ -745,7 +748,7 @@ void CModListView::installFiles(QStringList files)
 		else if(filename.endsWith(".json", Qt::CaseInsensitive))
 		{
 			//download and merge additional files
-			const auto &repoData = JsonUtils::jsonFromFile(filename);
+			JsonNode repoData = JsonUtils::jsonFromFile(filename);
 			if(repoData["name"].isNull())
 			{
 				// This is main repository index. Download all referenced mods
@@ -754,9 +757,12 @@ void CModListView::installFiles(QStringList files)
 					auto modNameLower = boost::algorithm::to_lower_copy(modName);
 					auto modJsonUrl = modJson["mod"];
 					if(!modJsonUrl.isNull())
+					{
 						downloadFile(QString::fromStdString(modName + ".json"), QString::fromStdString(modJsonUrl.String()), tr("mods repository index"));
+						repositoryFilesEnqueued = true;
+					}
 
-					repository[modNameLower] = modJson;
+					accumulatedRepositoryData[modNameLower] = modJson;
 				}
 			}
 			else
@@ -764,34 +770,43 @@ void CModListView::installFiles(QStringList files)
 				// This is json of a single mod. Extract name of mod and add it to repo
 				auto modName = QFileInfo(filename).baseName().toStdString();
 				auto modNameLower = boost::algorithm::to_lower_copy(modName);
-				repository[modNameLower] = repoData;
+				JsonUtils::merge(accumulatedRepositoryData[modNameLower], repoData);
 			}
 		}
 		else if(filename.endsWith(".png", Qt::CaseInsensitive))
 			images.push_back(filename);
 	}
 
-	if (!repository.isNull())
+	if (!accumulatedRepositoryData.isNull() && !repositoryFilesEnqueued)
 	{
-		manager->appendRepositories(repository);
+		logGlobal->info("Installing repository: started");
+		manager->setRepositoryData(accumulatedRepositoryData);
 		modModel->reloadRepositories();
 
 		static const QString repositoryCachePath = CLauncherDirs::downloadsPath() + "/repositoryCache.json";
 		JsonUtils::jsonToFile(repositoryCachePath, modStateModel->getRepositoryData());
+		logGlobal->info("Installing repository: ended");
 	}
 
 	if(!mods.empty())
 	{
+		logGlobal->info("Installing mods: started");
 		installMods(mods);
 		modStateModel->reloadLocalState();
 		modModel->reloadRepositories();
+		logGlobal->info("Installing mods: ended");
 	}
 
 	if(!maps.empty())
+	{
+		logGlobal->info("Installing maps: started");
 		installMaps(maps);
+		logGlobal->info("Installing maps: ended");
+	}
 
 	if(!exe.empty())
 	{
+		logGlobal->info("Installing chronicles: started");
 		ui->progressBar->setFormat(tr("Installing Heroes Chronicles"));
 		ui->progressWidget->setVisible(true);
 		ui->pushButton->setEnabled(false);
@@ -802,6 +817,8 @@ void CModListView::installFiles(QStringList files)
 		{
 			ChroniclesExtractor ce(this, [&prog](float progress) { prog = progress; });
 			ce.installChronicles(exe);
+			modStateModel->reloadLocalState();
+			modModel->reloadRepositories();
 			enableModByName("chronicles");
 			return true;
 		});
@@ -821,6 +838,7 @@ void CModListView::installFiles(QStringList files)
 			modStateModel->reloadLocalState();
 			modModel->reloadRepositories();
 		}
+		logGlobal->info("Installing chronicles: ended");
 	}
 
 	if(!images.empty())
@@ -844,8 +862,9 @@ void CModListView::installMods(QStringList archives)
 	// uninstall old version of mod, if installed
 	for(QString mod : modNames)
 	{
-		if(modStateModel->getMod(mod).isInstalled())
+		if(modStateModel->isModExists(mod) && modStateModel->getMod(mod).isInstalled())
 		{
+			logGlobal->info("Uninstalling old version of mod '%s'", mod.toStdString());
 			if (modStateModel->isModEnabled(mod))
 				modsToEnable.push_back(mod);
 
@@ -860,17 +879,23 @@ void CModListView::installMods(QStringList archives)
 
 	for(int i = 0; i < modNames.size(); i++)
 	{
+		logGlobal->info("Installing mod '%s'", modNames[i].toStdString());
 		ui->progressBar->setFormat(tr("Installing mod %1").arg(modNames[i]));
 		manager->installMod(modNames[i], archives[i]);
 	}
 
 	if (!modsToEnable.empty())
+	{
 		manager->enableMods(modsToEnable);
+	}
 
 	checkManagerErrors();
 
 	for(QString archive : archives)
+	{
+		logGlobal->info("Erasing archive '%s'", archive.toStdString());
 		QFile::remove(archive);
+	}
 }
 
 void CModListView::installMaps(QStringList maps)
@@ -879,6 +904,7 @@ void CModListView::installMaps(QStringList maps)
 
 	for(QString map : maps)
 	{
+		logGlobal->info("Importing map '%s'", map.toStdString());
 		QFile(map).rename(destDir + map.section('/', -1, -1));
 	}
 }

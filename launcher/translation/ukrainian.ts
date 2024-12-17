@@ -380,17 +380,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="383"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
-        <translation type="unfinished"></translation>
+        <translation>Цю модифікацію не можливо увімкнути, оскільки це переклад на іншу мову</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
-        <translation type="unfinished"></translation>
+        <translation>Цю модифікацію не можна активувати, оскільки відсутні наступні залежності</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="385"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
-        <translation type="unfinished"></translation>
+        <translation>Цю модифікацію не можна встановити, оскільки відсутні наступні залежності</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="386"/>
@@ -465,7 +465,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="791"/>
         <source>Installing Heroes Chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановлюємо Хроніки Героїв</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="853"/>
@@ -613,7 +613,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
         <source>Downscaling Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Фільтр для зменьшення масштабу</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="597"/>
@@ -638,7 +638,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="908"/>
         <source>Automatic (Linear)</source>
-        <translation type="unfinished"></translation>
+        <translation>Автоматично (Лінійний)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="274"/>
@@ -655,42 +655,42 @@ Install successfully downloaded?</source>
         <location filename="../settingsView/csettingsview_moc.ui" line="539"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="1389"/>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Автоматично</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="75"/>
         <source>Mods Validation</source>
-        <translation type="unfinished"></translation>
+        <translation>Валідація модифікацій</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="88"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Немає</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="93"/>
         <source>xBRZ x2</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x2</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="98"/>
         <source>xBRZ x3</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x3</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="103"/>
         <source>xBRZ x4</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x4</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
         <source>Full</source>
-        <translation type="unfinished"></translation>
+        <translation>Повне</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="788"/>
         <source>Use scalable fonts</source>
-        <translation type="unfinished"></translation>
+        <translation>Використання векторних шрифтів</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="859"/>
@@ -700,17 +700,17 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1079"/>
         <source>Cursor Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Масштабування курсору</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1108"/>
         <source>Scalable</source>
-        <translation type="unfinished"></translation>
+        <translation>Векторні</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1144"/>
         <source>Miscellaneous</source>
-        <translation type="unfinished"></translation>
+        <translation>Інше</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1182"/>
@@ -721,17 +721,23 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished"></translation>
+        <translation>Виберіть режим відображення гри
+
+Віконний - гра запускатиметься у вікні, що займає частину екрана
+
+Безмежний віконний режим - гра запускається у вікні, яке займає весь екран, з тією ж роздільною здатністю, що і ваш екран.
+
+Повноекранний ексклюзивний режим - гра займатиме весь екран і використовуватиме вибрану роздільну здатність.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
         <source>Font Scaling (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Масштабування шрифтів ( експериментально)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1367"/>
         <source>Original</source>
-        <translation type="unfinished"></translation>
+        <translation>Оригінальні</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1406"/>
@@ -741,7 +747,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1439"/>
         <source>Basic</source>
-        <translation type="unfinished"></translation>
+        <translation>Базова</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
@@ -1016,39 +1022,44 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Обрано невірний файл</translation>
+        <translation>Обрано невірний файл</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
         <source>The file cannot be opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдається відкрити файл</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
         <source>You have to select a gog installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Вам необхідно вибрати файл інсталятора gog!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Вам необхідно вибрати інсталяційний файл Heroes Chronicles!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="88"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">Помилка видобування!</translation>
+        <translation>Помилка видобування!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="90"/>
         <source>Hash error!</source>
-        <translation type="unfinished"></translation>
+        <translation>Помилка хешу!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="107"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="108"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="159"/>
         <source>Heroes Chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Хроніки Героїв</translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="144"/>
+        <source>Heroes Chronicles %1 - %2</source>
+        <translation type="unfinished">Хроніки Героїв %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -1196,7 +1207,7 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановити різноманітні покращення інтерфейсу, такі як покращений інтерфейс випадкових карт та вибір варіантів дій у боях</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="867"/>
@@ -1222,7 +1233,13 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation type="unfinished"></translation>
+        <translation>Дякуємо, що встановили VCMI.
+
+Залишилося зробити ще кілька кроків, перш ніж ви зможете почати грати.
+
+Майте на увазі, що для використання VCMI вам потрібно мати оригінальні файли гри Heroes® of Might and Magic® III: Complete або The Shadow of Death.
+
+Heroes® of Might and Magic® III HD наразі не підтримується!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="212"/>
@@ -1233,7 +1250,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
         <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
-        <translation type="unfinished"></translation>
+        <translation>Ви можете вручну скопіювати теки Maps, Data та Mp3 з теки оригінальної гри до теки даних VCMI, яку ви можете побачити вгорі цієї сторінки</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="347"/>
@@ -1259,7 +1276,8 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation type="unfinished"></translation>
+        <translation>Якщо у вас є Heroes III на gog.com, ви можете завантажити резервну копію офлайн-інсталятора з gog.com, і VCMI імпортує дані Heroes III за допомогою офлайн-інсталятора. 
+Офлайн-інсталятор складається з двох частин, .exe та .bin. Переконайтеся, що ви завантажили обидві частини.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="557"/>
@@ -1338,13 +1356,15 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="486"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translation>Файли Heroes III: HD Edition не підтримуються VCMI.
+Будь ласка, виберіть теку з Heroes III: Complete Edition або Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="491"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translation>Знайдено невідому або не підтримувану версію Heroes III.
+Будь ласка, виберіть теку з Heroes III: Complete Edition або Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="347"/>
@@ -1354,12 +1374,12 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="392"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation type="unfinished"></translation>
+        <translation>Ви надали інсталятор GOG Galaxy! Цей файл не містить гри. Будь ласка, завантажте резервну копію інсталятора гри!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="415"/>
         <source>Hash error!</source>
-        <translation type="unfinished"></translation>
+        <translation>Помилка хешу!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="418"/>
@@ -1375,7 +1395,8 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="462"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдалося виявити файли Heroes III у вибраному каталозі.
+Будь ласка, виберіть теку зі встановленими даними Heroes III.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="465"/>
@@ -1427,49 +1448,55 @@ Please select directory with Heroes III: Complete Edition or Heroes III: Shadow 
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished">Помилка потоку під час розпакування файлів!
+        <translation>Помилка потоку під час розпакування файлів!
 причина помилки: </translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation type="unfinished">Не підтримуваний інсталятор Inno Setup!</translation>
+        <translation>Не підтримуваний інсталятор Inno Setup!</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="58"/>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI було створено без підтримки innoextract, яка необхідна для розпакування exe-файлів!</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="132"/>
         <source>SHA1 hash of provided files:
 Exe (%1 bytes):
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>SHA1 хеш наданих файлів:
+Exe (%1 байтів):
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="134"/>
         <source>
 Bin (%1 bytes):
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>
+Bin (%1 байтів):
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="137"/>
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдалося здійснити копіювання. Чи достатньо місця на пристрої?
+
+%1</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="146"/>
         <source>Exe</source>
-        <translation type="unfinished"></translation>
+        <translation>Exe</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="146"/>
         <source>Bin</source>
-        <translation type="unfinished"></translation>
+        <translation>Bin</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="155"/>
@@ -1477,7 +1504,10 @@ Bin (%1 bytes):
 %1
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Розбіжність у мові!
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="157"/>
@@ -1485,14 +1515,19 @@ Bin (%1 bytes):
 %1
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Тільки один файл відомий! Можливо, файли пошкоджені? Будь ласка, завантажте ще раз.
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="163"/>
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Невідомі файли! Можливо, файли пошкоджені? Будь ласка, завантажте ще раз.
+
+%1</translation>
     </message>
 </context>
 <context>
@@ -1613,7 +1648,7 @@ Bin (%1 bytes):
     <message>
         <location filename="../mainwindow_moc.ui" line="209"/>
         <source>Game</source>
-        <translation type="unfinished"></translation>
+        <translation>Гра</translation>
     </message>
     <message>
         <source>Map Editor</source>
@@ -1626,12 +1661,12 @@ Bin (%1 bytes):
     <message>
         <location filename="../mainwindow_moc.cpp" line="264"/>
         <source>Replace config file?</source>
-        <translation type="unfinished">Замінити файл налаштувань?</translation>
+        <translation>Замінити файл налаштувань?</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="264"/>
         <source>Do you want to replace %1?</source>
-        <translation type="unfinished">Ви дійсно хочете замінити %1?</translation>
+        <translation>Ви дійсно хочете замінити %1?</translation>
     </message>
 </context>
 <context>
@@ -1652,33 +1687,33 @@ Bin (%1 bytes):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="126"/>
         <source>Can not install submod</source>
-        <translation type="unfinished">Неможливо встановити вкладену модифікацію</translation>
+        <translation>Неможливо встановити вкладену модифікацію</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="129"/>
         <source>Mod is already installed</source>
-        <translation type="unfinished">Модифікація вже встановлена</translation>
+        <translation>Модифікація вже встановлена</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="138"/>
         <source>Can not uninstall submod</source>
-        <translation type="unfinished">Неможливо видалити вкладену модифікацію</translation>
+        <translation>Неможливо видалити вкладену модифікацію</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="141"/>
         <source>Mod is not installed</source>
-        <translation type="unfinished">Модифікація не встановлена</translation>
+        <translation>Модифікація не встановлена</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="151"/>
         <source>Mod is already enabled</source>
-        <translation type="unfinished">Модифікація вже увімкнена</translation>
+        <translation>Модифікація вже увімкнена</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="154"/>
         <location filename="../modManager/modstatecontroller.cpp" line="180"/>
         <source>Mod must be installed first</source>
-        <translation type="unfinished">Спочатку потрібно встановити модифікацію</translation>
+        <translation>Спочатку потрібно встановити модифікацію</translation>
     </message>
     <message>
         <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
@@ -1687,53 +1722,54 @@ Bin (%1 bytes):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="158"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
-        <translation type="unfinished"></translation>
+        <translation>Модифікація несумісна, будь ласка, оновіть VCMI та перевірте останні версії модифікацій</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="161"/>
         <source>Can not enable translation mod for a different language!</source>
-        <translation type="unfinished"></translation>
+        <translation>Не можливо увімкнути мод перекладу для іншої мови!</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="166"/>
         <source>Required mod %1 is missing</source>
-        <translation type="unfinished">Необхідна модифікація %1 відсутня</translation>
+        <translation>Необхідна модифікація %1 відсутня</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="177"/>
         <source>Mod is already disabled</source>
-        <translation type="unfinished">Модифікацію вже вимкнено</translation>
+        <translation>Модифікацію вже вимкнено</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="190"/>
         <source>Mod archive is missing</source>
-        <translation type="unfinished">Архів з модифікацією відсутній</translation>
+        <translation>Архів з модифікацією відсутній</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="193"/>
         <source>Mod with such name is already installed</source>
-        <translation type="unfinished">Модифікацію з такою назвою вже встановлено</translation>
+        <translation>Модифікацію з такою назвою вже встановлено</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="198"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation type="unfinished">Архів модифікації непридатний або пошкоджений</translation>
+        <translation>Архів модифікації непридатний або пошкоджений</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="224"/>
         <source>Failed to extract mod data</source>
-        <translation type="unfinished">Не вдалося видобути дані модифікації</translation>
+        <translation>Не вдалося видобути дані модифікації</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="250"/>
         <source>Data with this mod was not found</source>
-        <translation type="unfinished">Дані з цією модифікацією не знайдено</translation>
+        <translation>Дані з цією модифікацією не знайдено</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="254"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Модифікація знаходиться в захищеному каталозі, будь ласка, видаліть її вручну:
+</translation>
     </message>
     <message>
         <source>Mod is located in protected directory, please remove it manually:
@@ -1747,103 +1783,103 @@ Bin (%1 bytes):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="36"/>
         <source>Translation</source>
-        <translation type="unfinished">Переклад</translation>
+        <translation>Переклад</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="37"/>
         <source>Town</source>
-        <translation type="unfinished">Місто</translation>
+        <translation>Місто</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="38"/>
         <source>Test</source>
-        <translation type="unfinished">Тестування</translation>
+        <translation>Тестування</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="39"/>
         <source>Templates</source>
-        <translation type="unfinished">Шаблони</translation>
+        <translation>Шаблони</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="40"/>
         <source>Spells</source>
-        <translation type="unfinished">Закляття</translation>
+        <translation>Закляття</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="41"/>
         <source>Music</source>
-        <translation type="unfinished">Музика</translation>
+        <translation>Музика</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="42"/>
         <source>Maps</source>
-        <translation type="unfinished">Мапи</translation>
+        <translation>Мапи</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="43"/>
         <source>Sounds</source>
-        <translation type="unfinished">Звуки</translation>
+        <translation>Звуки</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="44"/>
         <source>Skills</source>
-        <translation type="unfinished">Вміння</translation>
+        <translation>Вміння</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="45"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="60"/>
         <source>Other</source>
-        <translation type="unfinished">Інше</translation>
+        <translation>Інше</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="46"/>
         <source>Objects</source>
-        <translation type="unfinished">Об&apos;єкти</translation>
+        <translation>Об&apos;єкти</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="47"/>
         <source>Mechanics</source>
-        <translation type="unfinished">Механіки</translation>
+        <translation>Механіки</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="48"/>
         <source>Interface</source>
-        <translation type="unfinished">Інтерфейс</translation>
+        <translation>Інтерфейс</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="49"/>
         <source>Heroes</source>
-        <translation type="unfinished">Герої</translation>
+        <translation>Герої</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="50"/>
         <source>Graphical</source>
-        <translation type="unfinished">Графічний</translation>
+        <translation>Графічний</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="51"/>
         <source>Expansion</source>
-        <translation type="unfinished">Розширення</translation>
+        <translation>Розширення</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="52"/>
         <source>Creatures</source>
-        <translation type="unfinished">Істоти</translation>
+        <translation>Істоти</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="53"/>
         <source>Compatibility</source>
-        <translation type="unfinished">Сумісність</translation>
+        <translation>Сумісність</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Артефакти</translation>
+        <translation>Артефакти</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
         <source>AI</source>
-        <translation type="unfinished">ШІ</translation>
+        <translation>ШІ</translation>
     </message>
 </context>
 <context>
@@ -1866,42 +1902,42 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="49"/>
         <source>Import from Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Імпортувати з буфера обміну</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="81"/>
         <source>Rename Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Перейменувати профіль</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="101"/>
         <source>Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Поточний профіль</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="121"/>
         <source>Create New Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Створити новий профіль</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="140"/>
         <source>Export to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Експорт у буфер обміну</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="159"/>
         <source>Delete Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити поточний профіль</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="200"/>
         <source>Unsupported or corrupted game data detected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Виявлено несумісні або пошкоджені дані гри!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="257"/>
@@ -1914,146 +1950,149 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.ui" line="475"/>
         <location filename="../startGame/StartGameTab.ui" line="551"/>
         <source>?</source>
-        <translation type="unfinished"></translation>
+        <translation>?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="295"/>
         <source>Install Translation</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановити переклад</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="352"/>
         <source>No soundtrack detected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Саундтрек не виявлено!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="393"/>
         <source>Armaggedon&apos;s Blade campaigns are missing!</source>
-        <translation type="unfinished"></translation>
+        <translation>Відсутні кампанії Клинка Армагедону!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="453"/>
         <source>No video files detected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Не виявлено відео файлів!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="494"/>
         <source>Activate Translation</source>
-        <translation type="unfinished"></translation>
+        <translation>Увімкнути переклад</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="513"/>
         <source>Import files</source>
-        <translation type="unfinished"></translation>
+        <translation>Імпортування файлів</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="624"/>
         <source>Check For Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Перевірити оновлення</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="643"/>
         <source>Go to Downloads Page</source>
-        <translation type="unfinished"></translation>
+        <translation>На сторінку завантажень</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="662"/>
         <source>Go to Changelog Page</source>
-        <translation type="unfinished"></translation>
+        <translation>На сторінку історії змін</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="681"/>
         <source>You are using the latest version</source>
-        <translation type="unfinished"></translation>
+        <translation>Ви вже використовуєте останню версію</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="718"/>
         <source>Game Data Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Файли Даних Гри</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="736"/>
         <source>Mod Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Профіль Модифікацій</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="781"/>
         <source>Resume</source>
-        <translation type="unfinished"></translation>
+        <translation>Продовжити</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="830"/>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Грати</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="874"/>
         <source>Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Редактор</translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="141"/>
         <source>Update %n mods</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Оновити %n модифікацію</numerusform>
+            <numerusform>Оновити %n модифікації</numerusform>
+            <numerusform>Оновити %n модифікацій</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="145"/>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Хроніки Героїв:
+%n/%1 встановлена</numerusform>
+            <numerusform>Хроніки Героїв:
+%n/%1 встановлено</numerusform>
+            <numerusform>Хроніки Героїв:
+%n/%1 встановлено</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="162"/>
         <source>Update to %1 available</source>
-        <translation type="unfinished"></translation>
+        <translation>Доступно оновлення до %1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="198"/>
         <source>All supported files</source>
-        <translation type="unfinished">Усі підтримувані файли</translation>
+        <translation>Усі підтримувані файли</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="199"/>
         <source>Maps</source>
-        <translation type="unfinished">Мапи</translation>
+        <translation>Мапи</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="200"/>
         <source>Campaigns</source>
-        <translation type="unfinished">Кампанії</translation>
+        <translation>Кампанії</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="201"/>
         <source>Configs</source>
-        <translation type="unfinished">Налаштування</translation>
+        <translation>Налаштування</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="202"/>
         <source>Mods</source>
-        <translation type="unfinished">Модифікації</translation>
+        <translation>Модифікації</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="203"/>
         <source>Gog files</source>
-        <translation type="unfinished"></translation>
+        <translation>Файл GOG</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="206"/>
         <source>All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Усі файли (*.*)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="208"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Виберіть файли (конфіги, моди, мапи, кампанії, gog-файли) для встановлення...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="248"/>
@@ -2065,68 +2104,86 @@ Reason: %2</source>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Ця опція дозволяє імпортувати додаткові файли даних до вашої інсталяції VCMI. Наразі підтримуються наступні варіанти:
+
+ - Мапи Heroes III (.h3m або .vmap).
+ - Кампанії Heroes III (.h3c або .vcmp).
+ - Хроніки Героїв використовуючи оффлайн інсталятор з GOG.com (.exe).
+ - Моди VCMI у форматі zip (.zip)
+ - Конфігураційні файли VCMI (.json)
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="263"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ваша версія Heroes III має іншу мову. VCMI надає переклади гри на різні мови, якими ви можете скористатися. За допомогою цієї опції ви можете автоматично інсталювати такий переклад на вашу мову.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="273"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Переклад Heroes III вашою мовою інстальовано, але його вимкнено. За допомогою цієї опції ви можете його увімкнути.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="283"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You many want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нові версії деяких модифікацій, які ви встановили, тепер доступні у репозиторії модифікацій. Скористайтеся цією опцією, щоб автоматично оновити всі ваші модифікації до останньої версії.
+
+УВАГА: У деяких випадках оновлені версії модифікацій можуть бути несумісними з вашими існуючими збереженнями. Можливо, ви схочете відкласти оновлення модів, поки не завершите поточні ігри.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="295"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-        <translation type="unfinished"></translation>
+        <translation>Якщо ви придбали Heroes Chronicles на gog.com, ви можете скористатися резервними копіями інсталяторів, наданими gog, щоб імпортувати дані Heroes Chronicles до VCMI як користувацькі кампанії.
+Щоб імпортувати Heroes Chronicles, завантажте резервну копію інсталятора кожної хроніки яку ви бажаєте встановити, виберіть опцію «Імпортувати файли», а потім виберіть завантажений файл. Це створить та встановить модифікацію для VCMI, яка містить імпортовану хроніку</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="308"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translation>Виявлено, що у вашій інсталяції відсутні музичні файли Heroes III. Ви можете запустити VCMI, але ігрова музика буде недоступна.
+
+Щоб усунути цю проблему, скопіюйте відсутні mp3-файли з Heroes III до теки даних VCMI вручну або переінсталюйте VCMI і повторно імпортуйте файли даних Heroes III</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="319"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translation>Виявлено, що у вашій інсталяції відсутні відеофайли Heroes III. Ви можете запустити VCMI, але деякі анімації у грі будуть відсутні.
+
+Щоб вирішити цю проблему, скопіюйте файл VIDEO.VID з Heroes III до теки з файлами даних VCMI вручну або переінсталюйте VCMI та повторно імпортуйте файли даних Heroes III</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="330"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com</source>
-        <translation type="unfinished"></translation>
+        <translation>Виявлено, що у вашій інсталяції відсутні деякі з файлів даних Heroes III. Ви можете спробувати запустити VCMI, але гра може не працювати належним чином або призвести до аварійного завершення.
+
+Щоб вирішити цю проблему, переінсталюйте гру та повторно імпортуйте файли даних, використовуючи підтримувану версію Heroes III. Для запуску VCMI потрібна Heroes III: Подих Смерті або повне видання, яке можна отримати (наприклад) з gog.com</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="341"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI виявив, що у вашій інсталяції відсутні деякі файли даних Heroes III: Клинок Армагеддону. VCMI працюватиме, але кампанії Клинка Армагеддону будуть недоступні.
+
+Щоб вирішити цю проблему, скопіюйте відсутні файли даних з Heroes III до теки з файлами даних VCMI вручну або переінсталюйте VCMI та повторно імпортуйте файли даних Heroes III</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="366"/>
         <source>Enter preset name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Введіть назву профілю:</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="406"/>
         <source>Rename preset &apos;%1&apos; to:</source>
-        <translation type="unfinished"></translation>
+        <translation>Перейменувати профіль &apos;%1&apos; на:</translation>
     </message>
 </context>
 <context>
@@ -2154,7 +2211,7 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдається прочитати JSON з url або невірні дані JSON</translation>
     </message>
     <message>
         <source>Cannot read JSON from url or incorrect JSON data</source>

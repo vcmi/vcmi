@@ -832,6 +832,11 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
         <source>Heroes Chronicles</source>
         <translation>Heroes Chronicles</translation>
     </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="144"/>
+        <source>Heroes Chronicles %1 - %2</source>
+        <translation type="unfinished">Heroes Chronicles %1 - %2</translation>
+    </message>
 </context>
 <context>
     <name>File size</name>

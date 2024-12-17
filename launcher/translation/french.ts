@@ -1055,6 +1055,11 @@ Mode exclusif plein écran - le jeu couvrira l&quot;intégralité de votre écra
         <source>Heroes Chronicles</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="144"/>
+        <source>Heroes Chronicles %1 - %2</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>File size</name>

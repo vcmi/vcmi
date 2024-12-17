@@ -72,9 +72,9 @@ ModStateController::ModStateController(std::shared_ptr<ModStateModel> modList)
 
 ModStateController::~ModStateController() = default;
 
-void ModStateController::appendRepositories(const JsonNode & repomap)
+void ModStateController::setRepositoryData(const JsonNode & repomap)
 {
-	modList->appendRepositories(repomap);
+	modList->setRepositoryData(repomap);
 }
 
 bool ModStateController::addError(QString modname, QString message)
@@ -120,6 +120,9 @@ bool ModStateController::disableMod(QString modname)
 
 bool ModStateController::canInstallMod(QString modname)
 {
+	if (!modList->isModExists(modname))
+		return true; // for installation of unknown mods, e.g. via "Install from file" option
+
 	auto mod = modList->getMod(modname);
 
 	if(mod.isSubmod())

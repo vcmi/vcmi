@@ -27,7 +27,7 @@ public:
 	ModStateModel();
 	~ModStateModel();
 
-	void appendRepositories(const JsonNode & repositoriesList);
+	void setRepositoryData(const JsonNode & repositoriesList);
 	void reloadLocalState();
 	const JsonNode & getRepositoryData() const;
 
