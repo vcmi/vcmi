@@ -15,6 +15,10 @@ const std::vector<std::vector<std::string>> contributors = {
    { "Idea",       "Michał Urbańczyk",     "Tow",                   "impono@gmail.com"             },
    { "Idea",       "Mateusz B.",           "Tow dragon",            "matcio1@gmail.com"            },
 
+#ifdef VCMI_EMSCRIPTEN
+   { "Web Version", "Alexander Guryanov",  "caiiiycuk",             "caiiiycuk@gmail.com"          },
+#endif
+
    { "Developing", "Andrea Palmate",       "afxgroup",              "andrea@amigasoft.net"         },
    { "Developing", "Alexander Shishkin",   "alexvins",              ""                             },
    { "Developing", "Rafal R.",             "ambtrip",               "ambtrip@wp.pl"                },
