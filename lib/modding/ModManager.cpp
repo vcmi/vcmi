@@ -207,7 +207,12 @@ const JsonNode & ModsPresetState::getActivePresetConfig() const
 
 TModList ModsPresetState::getActiveRootMods() const
 {
-	const JsonNode & modsToActivateJson = getActivePresetConfig()["mods"];
+	return getRootMods(getActivePreset());
+}
+
+TModList ModsPresetState::getRootMods(const std::string & presetName) const
+{
+	const JsonNode & modsToActivateJson = modConfig["presets"][presetName]["mods"];
 	auto modsToActivate = modsToActivateJson.convertTo<std::vector<TModID>>();
 	if (!vstd::contains(modsToActivate, ModScope::scopeBuiltin()))
 		modsToActivate.push_back(ModScope::scopeBuiltin());
@@ -399,7 +404,7 @@ JsonNode ModsPresetState::exportCurrentPreset() const
 	return data;
 }
 
-void ModsPresetState::importPreset(const JsonNode & newConfig)
+std::string ModsPresetState::importPreset(const JsonNode & newConfig)
 {
 	std::string importedPresetName = newConfig["name"].String();
 
@@ -408,6 +413,8 @@ void ModsPresetState::importPreset(const JsonNode & newConfig)
 
 	modConfig["presets"][importedPresetName] = newConfig;
 	modConfig["presets"][importedPresetName].Struct().erase("name");
+
+	return importedPresetName;
 }
 
 ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode & repositoryList)
@@ -826,10 +833,23 @@ JsonNode ModManager::exportCurrentPreset() const
 	return modsPreset->exportCurrentPreset();
 }
 
-void ModManager::importPreset(const JsonNode & data)
+std::tuple<std::string, TModList> ModManager::importPreset(const JsonNode & data)
 {
-	modsPreset->importPreset(data);
+	std::string presetName = modsPreset->importPreset(data);
+
+	TModList requiredMods = modsPreset->getRootMods(presetName);
+	TModList installedMods = modsState->getInstalledMods();
+
+	TModList missingMods;
+	for (const auto & modID : requiredMods)
+	{
+		if (!vstd::contains(installedMods, modID))
+			missingMods.push_back(modID);
+	}
+
 	modsPreset->saveConfigurationState();
+
+	return {presetName, missingMods};
 }
 
 VCMI_LIB_NAMESPACE_END

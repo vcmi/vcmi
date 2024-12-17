@@ -59,7 +59,10 @@ public:
 	std::string getActivePreset() const;
 
 	JsonNode exportCurrentPreset() const;
-	void importPreset(const JsonNode & data);
+
+	/// Imports preset from provided json
+	/// Returns name of imported preset on success
+	std::string importPreset(const JsonNode & data);
 
 	void setModActive(const TModID & modName, bool isActive);
 
@@ -75,6 +78,8 @@ public:
 
 	/// Returns list of currently active root mods (non-submod)
 	TModList getActiveRootMods() const;
+	/// Returns list of root mods present in specified preset
+	TModList getRootMods(const std::string & presetName) const;
 
 	/// Returns list of all known settings (submods) for a specified mod
 	std::map<TModID, bool> getModSettings(const TModID & modID) const;
@@ -160,7 +165,10 @@ public:
 	std::string getActivePreset() const;
 
 	JsonNode exportCurrentPreset() const;
-	void importPreset(const JsonNode & data);
+
+	/// Imports preset from provided json
+	/// Returns name of imported preset and list of mods that must be installed to activate preset
+	std::tuple<std::string, TModList> importPreset(const JsonNode & data);
 };
 
 VCMI_LIB_NAMESPACE_END

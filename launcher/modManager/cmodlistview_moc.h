@@ -37,6 +37,7 @@ class CModListView : public QWidget
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;
 	JsonNode accumulatedRepositoryData;
+	QString activatingPreset;
 
 	QStringList enqueuedModDownloads;
 

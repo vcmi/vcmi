@@ -163,7 +163,10 @@ JsonNode ModStateModel::exportCurrentPreset() const
 	return modManager->exportCurrentPreset();
 }
 
-void ModStateModel::importPreset(const JsonNode & data)
+std::tuple<QString, QStringList> ModStateModel::importPreset(const JsonNode & data)
 {
-	modManager->importPreset(data);
+	std::tuple<QString, QStringList> result;
+	const auto & [presetName, modList] = modManager->importPreset(data);
+
+	return {QString::fromStdString(presetName), stringListStdToQt(modList)};
 }

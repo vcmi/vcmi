@@ -857,6 +857,12 @@ void CModListView::installMods(QStringList archives)
 		modNames.push_back(modName);
 	}
 
+	if (!activatingPreset.isEmpty())
+	{
+		modStateModel->activatePreset(activatingPreset);
+		activatingPreset.clear();
+	}
+
 	// uninstall old version of mod, if installed
 	for(QString mod : modNames)
 	{
@@ -1151,6 +1157,17 @@ JsonNode CModListView::exportCurrentPreset() const
 
 void CModListView::importPreset(const JsonNode & data)
 {
-	modStateModel->importPreset(data);
-	modStateModel->reloadLocalState();
+	const auto & [presetName, modList] = modStateModel->importPreset(data);
+
+	if (modList.empty())
+	{
+		modStateModel->activatePreset(presetName);
+		modStateModel->reloadLocalState();
+	}
+	else
+	{
+		activatingPreset = presetName;
+		for (const auto & modID : modList)
+			doInstallMod(modID);
+	}
 }
