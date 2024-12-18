@@ -23,8 +23,6 @@ constexpr int NKAI_GRAPH_TRACE_LEVEL = 0;
 #include "Actions/SpecialAction.h"
 #include "Actors.h"
 
-#include <boost/container/small_vector.hpp>
-
 namespace NKAI
 {
 namespace AIPathfinding
