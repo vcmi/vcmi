@@ -167,19 +167,35 @@ ui32 ACreature::getMaxHealth() const
 	return std::max(1, value); //never 0
 }
 
-ui32 ACreature::getMovementRange(int turn) const
+ui32 ACreature::getMovementRange() const
 {
 	//war machines cannot move
-	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::SIEGE_WEAPON).And(Selector::turns(turn))))
-	{
+	if (getBonusBearer()->hasBonusOfType(BonusType::SIEGE_WEAPON))
 		return 0;
-	}
-	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::BIND_EFFECT).And(Selector::turns(turn))))
-	{
-		return 0;
-	}
 
-	return getBonusBearer()->valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)));
+	if (getBonusBearer()->hasBonusOfType(BonusType::BIND_EFFECT))
+		return 0;
+
+	return getBonusBearer()->valOfBonuses(BonusType::STACKS_SPEED);
+}
+
+ui32 ACreature::getMovementRange(int turn) const
+{
+	if (turn == 0)
+		return getMovementRange();
+
+	const std::string cachingStrSW = "type_SIEGE_WEAPON_turns_" + std::to_string(turn);
+	const std::string cachingStrBE = "type_BIND_EFFECT_turns_" + std::to_string(turn);
+	const std::string cachingStrSS = "type_STACKS_SPEED_turns_" + std::to_string(turn);
+
+	//war machines cannot move
+	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::SIEGE_WEAPON).And(Selector::turns(turn)), cachingStrSW))
+		return 0;
+
+	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::BIND_EFFECT).And(Selector::turns(turn)), cachingStrBE))
+		return 0;
+
+	return getBonusBearer()->valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)), cachingStrSS);
 }
 
 bool ACreature::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation
