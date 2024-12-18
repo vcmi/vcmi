@@ -14,6 +14,8 @@
 
 #include "../serializer/Serializeable.h"
 
+#include <tbb/concurrent_hash_map.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 using TNodes = std::set<CBonusSystemNode *>;
@@ -30,6 +32,19 @@ public:
 		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALTY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM,
 		TOWN_AND_VISITOR, BATTLE, COMMANDER, GLOBAL_EFFECTS, ALL_CREATURES, TOWN
 	};
+
+	struct HashStringCompare {
+		static size_t hash(const std::string& data)
+		{
+			std::hash<std::string> hasher;
+			return hasher(data);
+		}
+		static bool equal(const std::string& x, const std::string& y)
+		{
+			return x == y;
+		}
+	};
+
 private:
 	BonusList bonuses; //wielded bonuses (local or up-propagated here)
 	BonusList exportedBonuses; //bonuses coming from this node (wielded or propagated away)
@@ -49,8 +64,9 @@ private:
 	// Setting a value to cachingStr before getting any bonuses caches the result for later requests.
 	// This string needs to be unique, that's why it has to be set in the following manner:
 	// [property key]_[value] => only for selector
-	mutable std::map<std::string, TBonusListPtr > cachedRequests;
-	mutable boost::mutex sync;
+	using RequestsMap = tbb::concurrent_hash_map<std::string, std::pair<int64_t, TBonusListPtr>, HashStringCompare>;
+	mutable RequestsMap cachedRequests;
+	mutable std::shared_mutex sync;
 
 	void getAllBonusesRec(BonusList &out, const CSelector & selector) const;
 	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit) const;
