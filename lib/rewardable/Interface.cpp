@@ -116,7 +116,8 @@ void Rewardable::Interface::grantRewardBeforeLevelup(const Rewardable::VisitInfo
 	}
 
 	for(int i=0; i< info.reward.primary.size(); i++)
-		cb->changePrimSkill(hero, static_cast<PrimarySkill>(i), info.reward.primary[i], false);
+		if (info.reward.primary[i] != 0)
+			cb->changePrimSkill(hero, static_cast<PrimarySkill>(i), info.reward.primary[i], false);
 
 	TExpType expToGive = 0;
 
