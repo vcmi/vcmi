@@ -55,7 +55,7 @@ void CModListView::changeEvent(QEvent *event)
 	if(event->type() == QEvent::LanguageChange)
 	{
 		ui->retranslateUi(this);
-		modModel->reloadRepositories();
+		modModel->reloadViewModel();
 	}
 	QWidget::changeEvent(event);
 }
@@ -127,7 +127,7 @@ CModListView::CModListView(QWidget * parent)
 	ui->progressWidget->setVisible(false);
 	dlManager = nullptr;
 
-	modModel->reloadRepositories();
+	modModel->reloadViewModel();
 	if(settings["launcher"]["autoCheckRepositories"].Bool())
 		loadRepositories();
 
@@ -147,7 +147,7 @@ CModListView::CModListView(QWidget * parent)
 void CModListView::reload()
 {
 	modStateModel->reloadLocalState();
-	modModel->reloadRepositories();
+	modModel->reloadViewModel();
 }
 
 void CModListView::loadRepositories()
@@ -611,7 +611,7 @@ void CModListView::on_uninstallButton_clicked()
 		if(modStateModel->isModEnabled(modName))
 			manager->disableMod(modName);
 		manager->uninstallMod(modName);
-		modModel->reloadRepositories();
+		reload();
 	}
 	
 	checkManagerErrors();
@@ -781,7 +781,8 @@ void CModListView::installFiles(QStringList files)
 	{
 		logGlobal->info("Installing repository: started");
 		manager->setRepositoryData(accumulatedRepositoryData);
-		modModel->reloadRepositories();
+		modModel->reloadViewModel();
+		accumulatedRepositoryData.clear();
 
 		static const QString repositoryCachePath = CLauncherDirs::downloadsPath() + "/repositoryCache.json";
 		JsonUtils::jsonToFile(repositoryCachePath, modStateModel->getRepositoryData());
@@ -792,8 +793,7 @@ void CModListView::installFiles(QStringList files)
 	{
 		logGlobal->info("Installing mods: started");
 		installMods(mods);
-		modStateModel->reloadLocalState();
-		modModel->reloadRepositories();
+		reload();
 		logGlobal->info("Installing mods: ended");
 	}
 
@@ -817,8 +817,7 @@ void CModListView::installFiles(QStringList files)
 		{
 			ChroniclesExtractor ce(this, [&prog](float progress) { prog = progress; });
 			ce.installChronicles(exe);
-			modStateModel->reloadLocalState();
-			modModel->reloadRepositories();
+			reload();
 			enableModByName("chronicles");
 			return true;
 		});
@@ -835,8 +834,7 @@ void CModListView::installFiles(QStringList files)
 			ui->pushButton->setEnabled(true);
 			ui->progressWidget->setVisible(false);
 			//update
-			modStateModel->reloadLocalState();
-			modModel->reloadRepositories();
+			reload();
 		}
 		logGlobal->info("Installing chronicles: ended");
 	}
@@ -877,12 +875,16 @@ void CModListView::installMods(QStringList archives)
 		}
 	}
 
+	reload(); // FIXME: better way that won't reset selection
+
 	for(int i = 0; i < modNames.size(); i++)
 	{
 		logGlobal->info("Installing mod '%s'", modNames[i].toStdString());
 		ui->progressBar->setFormat(tr("Installing mod %1").arg(modNames[i]));
 		manager->installMod(modNames[i], archives[i]);
 	}
+
+	reload();
 
 	if (!modsToEnable.empty())
 	{
@@ -1128,7 +1130,7 @@ void CModListView::deletePreset(const QString & presetName)
 void CModListView::activatePreset(const QString & presetName)
 {
 	modStateModel->activatePreset(presetName);
-	modStateModel->reloadLocalState();
+	reload();
 }
 
 void CModListView::renamePreset(const QString & oldPresetName, const QString & newPresetName)

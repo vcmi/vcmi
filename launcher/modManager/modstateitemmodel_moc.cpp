@@ -195,7 +195,7 @@ QVariant ModStateItemModel::headerData(int section, Qt::Orientation orientation,
 	return QVariant();
 }
 
-void ModStateItemModel::reloadRepositories()
+void ModStateItemModel::reloadViewModel()
 {
 	beginResetModel();
 	endResetModel();
