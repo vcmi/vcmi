@@ -711,6 +711,9 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker) const
 	if (attacker->creatureIndex() == CreatureID::CATAPULT) //catapult cannot attack creatures
 		return false;
 
+	if (!attacker->canShoot())
+		return false;
+
 	//forgetfulness
 	TConstBonusListPtr forgetfulList = attacker->getBonuses(Selector::type()(BonusType::FORGETFULL));
 	if(!forgetfulList->empty())
@@ -722,8 +725,7 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker) const
 			return false;
 	}
 
-	return attacker->canShoot()	&& (!battleIsUnitBlocked(attacker)
-			|| attacker->hasBonusOfType(BonusType::FREE_SHOOTING));
+	return !battleIsUnitBlocked(attacker) || attacker->hasBonusOfType(BonusType::FREE_SHOOTING);
 }
 
 bool CBattleInfoCallback::battleCanTargetEmptyHex(const battle::Unit * attacker) const
