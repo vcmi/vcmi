@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "../lua/LuaExpressionEvaluator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,8 +26,10 @@ class DLL_LINKAGE DamageCalculator
 {
 	const CBattleInfoCallback & callback;
 	const BattleAttackInfo & info;
+    static std::unique_ptr<LuaExpressionEvaluator> attackSkillEvaluator;
+    static std::unique_ptr<LuaExpressionEvaluator> defenseSkillEvaluator;
 
-	int battleBonusValue(const IBonusBearer * bearer, const CSelector & selector) const;
+    int battleBonusValue(const IBonusBearer * bearer, const CSelector & selector) const;
 
 	DamageRange getCasualties(const DamageRange & damageDealt) const;
 	int64_t getCasualties(int64_t damageDealt) const;
@@ -42,6 +45,9 @@ class DLL_LINKAGE DamageCalculator
 	int getTargetDefenseBase() const;
 	int getTargetDefenseEffective() const;
 	int getTargetDefenseIgnored() const;
+
+    LuaExpressionEvaluator & getAttackSkillEvaluator() const;
+    LuaExpressionEvaluator & getDefenseSkillEvaluator() const;
 
 	double getAttackSkillFactor() const;
 	double getAttackOffenseArcheryFactor() const;

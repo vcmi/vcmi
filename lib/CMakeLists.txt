@@ -109,6 +109,8 @@ set(lib_MAIN_SRCS
 	gameState/RumorState.cpp
 	gameState/TavernHeroesPool.cpp
 	gameState/GameStatistics.cpp
+    
+    lua/LuaExpressionEvaluator.cpp
 
 	mapObjectConstructors/AObjectTypeHandler.cpp
 	mapObjectConstructors/CBankInstanceConstructor.cpp
@@ -491,6 +493,8 @@ set(lib_MAIN_HEADERS
 	gameState/GameStatistics.h
 	gameState/TavernSlot.h
 	gameState/QuestInfo.h
+    
+    lua/LuaExpressionEvaluator.h
 
 	mapObjectConstructors/AObjectTypeHandler.h
 	mapObjectConstructors/CBankInstanceConstructor.h

@@ -20,112 +20,10 @@
 #include "../IGameSettings.h"
 #include "../VCMI_Lib.h"
 
-#include <lua.hpp>
-
-class LuaExpressionEvaluator : boost::noncopyable
-{
-	lua_State * luaState = nullptr;
-	const std::string expression;
-	int compiledReference = -1;
-
-	void compile();
-	void registerLibrary();
-public:
-	LuaExpressionEvaluator(const std::string & expression);
-	~LuaExpressionEvaluator();
-
-	void setVariable(const std::string & name, double value);
-	double evaluate();
-};
-
-void LuaExpressionEvaluator::registerLibrary()
-{
-	const auto & luaMax = [](lua_State * state)
-	{
-		lua_Number a = luaL_checknumber(state, 1);
-		lua_Number b = luaL_checknumber(state, 2);
-		lua_pushnumber(state, std::max(a,b));
-		return 1;
-	};
-
-	const auto & luaMin = [](lua_State * state)
-	{
-		lua_Number a = luaL_checknumber(state, 1);
-		lua_Number b = luaL_checknumber(state, 2);
-		lua_pushnumber(state, std::min(a,b));
-		return 1;
-	};
-
-	const auto & luaClamp = [](lua_State * state)
-	{
-		lua_Number a = luaL_checknumber(state, 1);
-		lua_Number b = luaL_checknumber(state, 2);
-		lua_Number c = luaL_checknumber(state, 3);
-		lua_pushnumber(state, std::clamp(a,b,c));
-		return 1;
-	};
-
-	const luaL_Reg registry[] = {
-		{ "max", luaMax },
-		{ "min", luaMin },
-		{ "clamp", luaClamp },
-		{ nullptr,	nullptr }
-	};
-
-	lua_pushvalue(luaState, LUA_GLOBALSINDEX);
-	luaL_setfuncs(luaState,registry,0);
-}
-
-LuaExpressionEvaluator::LuaExpressionEvaluator(const std::string & expression)
-	: expression(expression)
-{
-	luaState = luaL_newstate();
-	registerLibrary();
-	compile();
-}
-
-LuaExpressionEvaluator::~LuaExpressionEvaluator()
-{
-	lua_close(luaState);
-}
-
-void LuaExpressionEvaluator::setVariable(const std::string & name, double value)
-{
-	lua_pushnumber(luaState, value);
-	lua_setglobal(luaState, name.c_str());
-}
-
-void LuaExpressionEvaluator::compile()
-{
-	int result = luaL_loadstring(luaState, expression.c_str());
-
-	if (result)
-	{
-		logGlobal->error("Lua compilation failure: %s", lua_tostring(luaState,-1));
-		lua_pop(luaState,1);
-	}
-
-	assert(result == LUA_OK);
-	compiledReference = luaL_ref(luaState, LUA_REGISTRYINDEX);
-}
-
-double LuaExpressionEvaluator::evaluate()
-{
-	lua_rawgeti(luaState, LUA_REGISTRYINDEX, compiledReference);
-	int errorCode = lua_pcall(luaState,0,1,0);
-	if (errorCode)
-	{
-		logGlobal->error("Lua evaluation failure: %s", lua_tostring(luaState,-1));
-		lua_pop(luaState,1);
-		return 0;
-	}
-
-	double result = lua_tonumber(luaState,-1);
-	lua_pop(luaState,1);
-	return result;
-}
-
 VCMI_LIB_NAMESPACE_BEGIN
+
+std::unique_ptr<LuaExpressionEvaluator> DamageCalculator::attackSkillEvaluator = nullptr;
+std::unique_ptr<LuaExpressionEvaluator> DamageCalculator::defenseSkillEvaluator = nullptr;
 
 DamageRange DamageCalculator::getBaseDamageSingle() const
 {
@@ -310,10 +208,29 @@ int DamageCalculator::getTargetDefenseIgnored() const
 	return 0;
 }
 
+LuaExpressionEvaluator & DamageCalculator::getAttackSkillEvaluator() const
+{
+    if(!attackSkillEvaluator)
+    {
+        const std::string & formula = VLC->engineSettings()->getValue(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FORMULA).String();
+        attackSkillEvaluator  = std::make_unique<LuaExpressionEvaluator>(formula);
+    }
+    return *attackSkillEvaluator;
+}
+
+LuaExpressionEvaluator & DamageCalculator::getDefenseSkillEvaluator() const
+{
+    if(!defenseSkillEvaluator)
+    {
+        const std::string & formula = VLC->engineSettings()->getValue(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FORMULA).String();
+        defenseSkillEvaluator = std::make_unique<LuaExpressionEvaluator>(formula);
+    }
+    return *defenseSkillEvaluator;
+}
+
 double DamageCalculator::getAttackSkillFactor() const
 {
-	static LuaExpressionEvaluator evaluator("return clamp((attack - defense) * 0.05, 0, 4)");
-
+	LuaExpressionEvaluator & evaluator = getAttackSkillEvaluator();
 	evaluator.setVariable("defense", getTargetDefenseEffective());
 	evaluator.setVariable("attack", getActorAttackEffective());
 	double result = evaluator.evaluate();
@@ -406,8 +323,7 @@ double DamageCalculator::getAttackRevengeFactor() const
 
 double DamageCalculator::getDefenseSkillFactor() const
 {
-	static LuaExpressionEvaluator evaluator("return clamp((defense - attack) * 0.025, 0, 0.7)");
-
+    LuaExpressionEvaluator & evaluator = getDefenseSkillEvaluator();
 	evaluator.setVariable("defense", getTargetDefenseEffective());
 	evaluator.setVariable("attack", getActorAttackEffective());
 	double result = evaluator.evaluate();
