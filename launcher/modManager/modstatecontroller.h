@@ -27,8 +27,6 @@ class ModStateController : public QObject, public boost::noncopyable
 	bool doInstallMod(QString mod, QString archivePath);
 	bool doUninstallMod(QString mod);
 
-	QVariantMap localMods;
-
 	QStringList recentErrors;
 	bool addError(QString modname, QString message);
 	bool removeModDir(QString mod);

@@ -43,6 +43,9 @@ void ImageScaled::scaleInteger(int factor)
 
 void ImageScaled::scaleTo(const Point & size)
 {
+	if (source)
+		source = source->scaleTo(size, nullptr);
+
 	if (body)
 		body = body->scaleTo(size * GH.screenHandler().getScalingFactor(), nullptr);
 }
