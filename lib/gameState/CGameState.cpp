@@ -52,6 +52,7 @@
 #include "../rmg/CMapGenerator.h"
 #include "../serializer/CMemorySerializer.h"
 #include "../spells/CSpellHandler.h"
+#include "UpgradeInfo.h"
 
 #include <vstd/RNG.h>
 
@@ -1777,25 +1778,6 @@ ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::function<bool(A
 ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags)
 {
 	return pickRandomArtifact(rand, flags, [](const ArtifactID &) { return true; });
-}
-
-void UpgradeInfo::addUpgrade(const CreatureID & upgradeID, const Creature * creature, int costModifier)
-{
-	isAvailable = costModifier >= 0;
-	upgradesIDs.push_back(upgradeID);
-	
-	ResourceSet upgradeCost = (upgradeID.toCreature()->getFullRecruitCost() - creature->getFullRecruitCost()) * costModifier / 100;
-	upgradeCost.positive(); //upgrade cost can't be negative, ignore missing resources
-	upgradesCosts.push_back(std::move(upgradeCost));
-
-	// sort from highest ID to smallest
-	size_t pos = upgradesIDs.size() - 1;
-	while(pos > 0 && upgradesIDs[pos] > upgradesIDs[pos - 1])
-	{
-		std::swap(upgradesIDs[pos], upgradesIDs[pos - 1]);
-		std::swap(upgradesCosts[pos], upgradesCosts[pos - 1]);
-		--pos;
-	}
 }
 
 VCMI_LIB_NAMESPACE_END

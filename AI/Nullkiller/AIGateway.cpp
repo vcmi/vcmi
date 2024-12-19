@@ -19,6 +19,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/gameState/UpgradeInfo.h"
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -805,7 +806,7 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 						myCb->upgradeCreature(obj, SlotID(i), upgID);
 						upgraded = true;
 						logAi->debug("Upgraded %d %s to %s", s->count, upgradeInfo.oldID.toCreature()->getNamePluralTranslated(), 
-							upgradeInfo.getNextUpgrade().toCreature()->getNamePluralTranslated());
+							upgradeInfo.getUpgrade().toCreature()->getNamePluralTranslated());
 					}
 					else
 						break;

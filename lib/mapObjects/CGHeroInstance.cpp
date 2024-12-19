@@ -25,6 +25,7 @@
 #include "../CSkillHandler.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
+#include "../gameState/UpgradeInfo.h"
 #include "../CCreatureHandler.h"
 #include "../mapping/CMap.h"
 #include "../StartInfo.h"

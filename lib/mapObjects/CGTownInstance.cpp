@@ -20,6 +20,7 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
+#include "../gameState/UpgradeInfo.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
 #include "../StartInfo.h"

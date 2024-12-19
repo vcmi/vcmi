@@ -22,6 +22,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/gameState/UpgradeInfo.h"
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Updaters.h"
 #include "../../lib/bonuses/Propagators.h"
@@ -770,7 +771,7 @@ void makePossibleUpgrades(const CArmedInstance * obj)
 					{
 						cb->upgradeCreature(obj, SlotID(i), upgID);
 						logAi->debug("Upgraded %d %s to %s", s->count, upgradeInfo.oldID.toCreature()->getNamePluralTranslated(), 
-							upgradeInfo.getNextUpgrade().toCreature()->getNamePluralTranslated());
+							upgradeInfo.getUpgrade().toCreature()->getNamePluralTranslated());
 					}
 					else
 						break;

@@ -53,6 +53,7 @@
 #include "../lib/gameState/CGameState.h"
 #include "../lib/gameState/SThievesGuildInfo.h"
 #include "../lib/gameState/TavernHeroesPool.h"
+#include "../lib/gameState/UpgradeInfo.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/IGameSettings.h"
 #include "ConditionalWait.h"
@@ -1159,7 +1160,7 @@ void CHillFortWindow::updateGarrisons()
 				LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
 				if(info.canUpgrade())	//we have upgrades here - update costs
 				{
-					costs[i] = info.getNextUpgradeCosts() * hero->getStackCount(SlotID(i));
+					costs[i] = info.getUpgradeCosts() * hero->getStackCount(SlotID(i));
 					totalSum += costs[i];
 				}
 			}
@@ -1271,7 +1272,7 @@ void CHillFortWindow::makeDeal(SlotID slot)
 					{
 						UpgradeInfo info(s->getCreatureID());
 						LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
-						LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.getNextUpgrade());
+						LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.getUpgrade());
 					}
 				}
 			}
@@ -1309,7 +1310,7 @@ CHillFortWindow::State CHillFortWindow::getState(SlotID slot)
 	if(!info.hasUpgrades())
 		return State::ALREADY_UPGRADED;
 
-	if(!(info.getNextUpgradeCosts() * hero->getStackCount(slot)).canBeAfforded(myRes))
+	if(!(info.getUpgradeCosts() * hero->getStackCount(slot)).canBeAfforded(myRes))
 		return State::UNAFFORDABLE;
 
 	return State::MAKE_UPGRADE;

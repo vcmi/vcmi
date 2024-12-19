@@ -38,71 +38,8 @@ class TavernHeroesPool;
 struct SThievesGuildInfo;
 class CRandomGenerator;
 class GameSettings;
-
-class UpgradeInfo
-{
-public:
-	UpgradeInfo() = delete;
-	UpgradeInfo(CreatureID base)
-		: oldID(base), isAvailable(true)
-	{ }
-
-	CreatureID oldID; //creature to be upgraded
-
-	const std::vector<CreatureID> & getAvailableUpgrades() const
-	{
-		return upgradesIDs;
-	}
-
-	const CreatureID & getNextUpgrade() const
-	{
-		return upgradesIDs.back();
-	}
-
-	const ResourceSet & getUpgradeCostsFor(CreatureID id) const
-	{
-		auto idIt = std::find(upgradesIDs.begin(), upgradesIDs.end(), id);
-
-		assert(idIt != upgradesIDs.end());
-
-		return upgradesCosts[std::distance(upgradesIDs.begin(), idIt)];
-	}
-
-	const std::vector<ResourceSet> & getUpgradeCosts() const
-	{
-		return upgradesCosts;
-	}
-
-	const ResourceSet & getNextUpgradeCosts() const
-	{
-		return upgradesCosts.back();
-	}
-
-	bool canUpgrade() const
-	{
-		return !upgradesIDs.empty() && isAvailable;
-	}
-
-	bool hasUpgrades() const
-	{
-		return !upgradesIDs.empty();
-	}
-
-	// Adds a new upgrade and ensures alignment and sorted order
-	void addUpgrade(const CreatureID & upgradeID, const Creature * creature, int costModifier = 100);
-
-	auto size() const
-	{
-		return upgradesIDs.size();
-	}
-
-private:
-	std::vector<CreatureID> upgradesIDs; //possible upgrades
-	std::vector<ResourceSet> upgradesCosts; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>; cost is for single unit (not entire stack)
-	bool isAvailable;		// flag for unavailableUpgrades like in miniHillFort from HoTA
-};
-
 class BattleInfo;
+class UpgradeInfo;
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult);
 
