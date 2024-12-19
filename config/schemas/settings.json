@@ -125,7 +125,7 @@
 				},
 				"autosaveCountLimit" : {
 					"type" : "number",
-					"default": 5
+					"default": 0
 				},
 				"useSavePrefix" : {
 					"type": "boolean",
