@@ -117,7 +117,7 @@ void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const Json
 	if (filename)
 	{
 		auto configData = CResourceHandler::get("initial")->load(JsonPath::builtin(URI))->readAll();
-		const JsonNode configInitial(reinterpret_cast<std::byte *>(configData.first.get()), configData.second);
+		const JsonNode configInitial(reinterpret_cast<std::byte *>(configData.first.get()), configData.second, URI);
 		filesystem->addLoader(new CMappedFileLoader(mountPoint, configInitial), false);
 	}
 }
@@ -183,9 +183,16 @@ void CResourceHandler::initialize()
 	knownLoaders["saves"] = new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath());
 	knownLoaders["config"] = new CFilesystemLoader("CONFIG/", VCMIDirs::get().userConfigPath());
 
+	if(boost::filesystem::is_directory(VCMIDirs::get().userDataPath() / "Generated"))
+		boost::filesystem::remove_all(VCMIDirs::get().userDataPath() / "Generated");
+	knownLoaders["gen_data"] = new CFilesystemLoader("DATA/", VCMIDirs::get().userDataPath() / "Generated" / "Data");
+	knownLoaders["gen_sprites"] = new CFilesystemLoader("SPRITES/", VCMIDirs::get().userDataPath() / "Generated" / "Sprites");
+
 	auto * localFS = new CFilesystemList();
 	localFS->addLoader(knownLoaders["saves"], true);
 	localFS->addLoader(knownLoaders["config"], true);
+	localFS->addLoader(knownLoaders["gen_data"], true);
+	localFS->addLoader(knownLoaders["gen_sprites"], true);
 
 	addFilesystem("root", "initial", createInitial());
 	addFilesystem("root", "data", new CFilesystemList());
@@ -205,6 +212,7 @@ ISimpleResourceLoader * CResourceHandler::get()
 
 ISimpleResourceLoader * CResourceHandler::get(const std::string & identifier)
 {
+	assert(knownLoaders.count(identifier));
 	return knownLoaders.at(identifier);
 }
 
@@ -212,7 +220,7 @@ void CResourceHandler::load(const std::string &fsConfigURI, bool extractArchives
 {
 	auto fsConfigData = get("initial")->load(JsonPath::builtin(fsConfigURI))->readAll();
 
-	const JsonNode fsConfig(reinterpret_cast<std::byte *>(fsConfigData.first.get()), fsConfigData.second);
+	const JsonNode fsConfig(reinterpret_cast<std::byte *>(fsConfigData.first.get()), fsConfigData.second, fsConfigURI);
 
 	addFilesystem("data", ModScope::scopeBuiltin(), createFileSystem("", fsConfig["filesystem"], extractArchives));
 }

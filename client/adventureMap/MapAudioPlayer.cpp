@@ -12,10 +12,12 @@
 
 #include "../CCallback.h"
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../mapView/mapHandler.h"
+#include "../media/IMusicPlayer.h"
+#include "../media/ISoundPlayer.h"
 
+#include "../../lib/CRandomGenerator.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CArmedInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -79,9 +81,9 @@ void MapAudioPlayer::addObject(const CGObjectInstance * obj)
 		{
 			for(int fy = 0; fy < obj->getHeight(); ++fy)
 			{
-				int3 currTile(obj->pos.x - fx, obj->pos.y - fy, obj->pos.z);
+				int3 currTile(obj->anchorPos().x - fx, obj->anchorPos().y - fy, obj->anchorPos().z);
 
-				if(LOCPLINT->cb->isInTheMap(currTile) && obj->coveringAt(currTile.x, currTile.y))
+				if(LOCPLINT->cb->isInTheMap(currTile) && obj->coveringAt(currTile))
 					objects[currTile.z][currTile.x][currTile.y].push_back(obj->id);
 			}
 		}
@@ -106,7 +108,7 @@ void MapAudioPlayer::addObject(const CGObjectInstance * obj)
 
 		for(const auto & tile : tiles)
 		{
-			int3 currTile = obj->pos + tile;
+			int3 currTile = obj->anchorPos() + tile;
 
 			if(LOCPLINT->cb->isInTheMap(currTile))
 				objects[currTile.z][currTile.x][currTile.y].push_back(obj->id);
@@ -135,8 +137,12 @@ std::vector<AudioPath> MapAudioPlayer::getAmbientSounds(const int3 & tile)
 		if (!object)
 			logGlobal->warn("Already removed object %d found on tile! (%d %d %d)", objectID.getNum(), tile.x, tile.y, tile.z);
 
-		if(object && object->getAmbientSound())
-			result.push_back(object->getAmbientSound().value());
+		if(object)
+		{
+			auto ambientSound = object->getAmbientSound(CRandomGenerator::getDefault());
+			if (ambientSound)
+				result.push_back(ambientSound.value());
+		}
 	}
 
 	if(CGI->mh->getMap()->isCoastalTile(tile))
@@ -176,7 +182,7 @@ void MapAudioPlayer::updateMusic()
 		const auto * tile = LOCPLINT->cb->getTile(currentSelection->visitablePos());
 
 		if (tile)
-			CCS->musich->playMusicFromSet("terrain", tile->terType->getJsonKey(), true, false);
+			CCS->musich->playMusicFromSet("terrain", tile->getTerrain()->getJsonKey(), true, false);
 	}
 
 	if(audioPlaying && enemyMakingTurn)

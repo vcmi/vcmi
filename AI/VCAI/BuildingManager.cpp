@@ -13,6 +13,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/mapObjects/MapObjects.h"
+#include "../../lib/entities/building/CBuilding.h"
 
 bool BuildingManager::tryBuildThisStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays)
 {
@@ -22,13 +23,13 @@ bool BuildingManager::tryBuildThisStructure(const CGTownInstance * t, BuildingID
 		return false;
 	}
 
-	if (!vstd::contains(t->town->buildings, building))
+	if (!vstd::contains(t->getTown()->buildings, building))
 		return false; // no such building in town
 
 	if (t->hasBuilt(building)) //Already built? Shouldn't happen in general
 		return true;
 
-	const CBuilding * buildPtr = t->town->buildings.at(building);
+	const CBuilding * buildPtr = t->getTown()->buildings.at(building);
 
 	auto toBuild = buildPtr->requirements.getFulfillmentCandidates([&](const BuildingID & buildID)
 	{
@@ -50,7 +51,7 @@ bool BuildingManager::tryBuildThisStructure(const CGTownInstance * t, BuildingID
 
 	for (const auto & buildID : toBuild)
 	{
-		const CBuilding * b = t->town->buildings.at(buildID);
+		const CBuilding * b = t->getTown()->buildings.at(buildID);
 
 		EBuildingState canBuild = cb->canBuildStructure(t, buildID);
 		if (canBuild == EBuildingState::ALLOWED)
@@ -142,9 +143,9 @@ static const std::vector<BuildingID> basicGoldSource = { BuildingID::TOWN_HALL, 
 static const std::vector<BuildingID> defence = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE };
 static const std::vector<BuildingID> capitolAndRequirements = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::CAPITOL };
 static const std::vector<BuildingID> unitsSource = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
-BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7 };
+BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7, BuildingID::DWELL_LVL_8 };
 static const std::vector<BuildingID> unitsUpgrade = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
-BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP };
+BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP, BuildingID::DWELL_LVL_8_UP };
 static const std::vector<BuildingID> unitGrowth = { BuildingID::HORDE_1, BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR };
 static const std::vector<BuildingID> _spells = { BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
 BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5 };
@@ -195,7 +196,7 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 		return true;
 
 	//workaround for mantis #2696 - build capitol with separate algorithm if it is available
-	if(vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) && getMaxPossibleGoldBuilding(t) == BuildingID::CAPITOL)
+	if(t->hasBuilt(BuildingID::CITY_HALL) && getMaxPossibleGoldBuilding(t) == BuildingID::CAPITOL)
 	{
 		if(tryBuildNextStructure(t, capitolAndRequirements))
 			return true;
@@ -219,7 +220,7 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 
 	//at the end, try to get and build any extra buildings with nonstandard slots (for example HotA 3rd level dwelling)
 	std::vector<BuildingID> extraBuildings;
-	for (auto buildingInfo : t->town->buildings)
+	for (auto buildingInfo : t->getTown()->buildings)
 	{
 		if (buildingInfo.first > BuildingID::DWELL_UP2_FIRST)
 			extraBuildings.push_back(buildingInfo.first);

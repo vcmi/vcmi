@@ -11,6 +11,7 @@
 
 #include "../GameConstants.h"
 #include "../campaign/CampaignConstants.h"
+#include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -28,7 +29,7 @@ struct CampaignHeroReplacement
 	std::vector<ArtifactPosition> transferrableArtifacts;
 };
 
-class CGameStateCampaign
+class CGameStateCampaign : public Serializeable
 {
 	CGameState * gameState;
 

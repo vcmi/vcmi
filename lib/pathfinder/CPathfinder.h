@@ -85,6 +85,7 @@ public:
 	const PathfinderOptions & options;
 	bool canCastFly;
 	bool canCastWaterWalk;
+	bool whirlpoolProtection;
 
 	CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options);
 	virtual ~CPathfinderHelper();

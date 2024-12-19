@@ -22,7 +22,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct Query;
 class IBattleState;
-class CRandomGenerator;
 class CreatureService;
 class CMap;
 class CGameInfoCallback;
@@ -59,6 +58,7 @@ public:
 	virtual const CMap * getMap() const = 0;
 	virtual const CGameInfoCallback * getCb() const = 0;
 
+	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) = 0;	//TODO: remove
 
 	virtual void genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) = 0;//TODO: type safety on query, use generic query packet when implemented
@@ -252,7 +252,7 @@ public:
 
 	const Caster * caster;
 
-	ui8 casterSide;
+	BattleSide casterSide;
 
 protected:
 	Mechanics();

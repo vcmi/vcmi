@@ -68,7 +68,7 @@ CConnection::CConnection(std::weak_ptr<INetworkConnection> networkConnection)
 
 CConnection::~CConnection() = default;
 
-void CConnection::sendPack(const CPack * pack)
+void CConnection::sendPack(const CPack & pack)
 {
 	boost::mutex::scoped_lock lock(writeMutex);
 
@@ -78,17 +78,18 @@ void CConnection::sendPack(const CPack * pack)
 		throw std::runtime_error("Attempt to send packet on a closed connection!");
 
 	packWriter->buffer.clear();
-	*serializer & pack;
+	(*serializer) & (&pack);
 
-	logNetwork->trace("Sending a pack of type %s", typeid(*pack).name());
+	logNetwork->trace("Sending a pack of type %s", typeid(pack).name());
 
 	connectionPtr->sendPacket(packWriter->buffer);
 	packWriter->buffer.clear();
+	serializer->savedPointers.clear();
 }
 
-CPack * CConnection::retrievePack(const std::vector<std::byte> & data)
+std::unique_ptr<CPack> CConnection::retrievePack(const std::vector<std::byte> & data)
 {
-	CPack * result;
+	std::unique_ptr<CPack> result;
 
 	packReader->buffer = &data;
 	packReader->position = 0;
@@ -101,7 +102,9 @@ CPack * CConnection::retrievePack(const std::vector<std::byte> & data)
 	if (packReader->position != data.size())
 		throw std::runtime_error("Failed to retrieve pack! Not all data has been read!");
 
-	logNetwork->trace("Received CPack of type %s", typeid(*result).name());
+	logNetwork->trace("Received CPack of type %s", typeid(result.get()).name());
+	deserializer->loadedPointers.clear();
+	deserializer->loadedSharedPointers.clear();
 	return result;
 }
 
@@ -132,7 +135,6 @@ void CConnection::enterLobbyConnectionMode()
 	deserializer->loadedPointers.clear();
 	serializer->savedPointers.clear();
 	disableSmartVectorMemberSerialization();
-	disableSmartPointerSerialization();
 	disableStackSendingByID();
 }
 
@@ -144,22 +146,9 @@ void CConnection::setCallback(IGameCallback * cb)
 void CConnection::enterGameplayConnectionMode(CGameState * gs)
 {
 	enableStackSendingByID();
-	disableSmartPointerSerialization();
 
 	setCallback(gs->callback);
 	enableSmartVectorMemberSerializatoin(gs);
-}
-
-void CConnection::disableSmartPointerSerialization()
-{
-	deserializer->smartPointerSerialization = false;
-	serializer->smartPointerSerialization = false;
-}
-
-void CConnection::enableSmartPointerSerialization()
-{
-	deserializer->smartPointerSerialization = true;
-	serializer->smartPointerSerialization = true;
 }
 
 void CConnection::disableSmartVectorMemberSerialization()

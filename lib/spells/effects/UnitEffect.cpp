@@ -164,10 +164,9 @@ EffectTarget UnitEffect::transformTargetByRange(const Mechanics * m, const Targe
 
 	if(m->alwaysHitFirstTarget())
 	{
+		//TODO: examine if adjustments needed related to INVINCIBLE bonus
 		if(!aimPoint.empty() && aimPoint.front().unitValue)
 			targets.insert(aimPoint.front().unitValue);
-		else
-			logGlobal->error("Spell-like attack with no primary target.");
 	}
 
 	EffectTarget effectTarget;
@@ -198,7 +197,7 @@ EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Targe
 
 	auto possibleTargets = m->battle()->battleGetUnitsIf([&](const battle::Unit * unit) -> bool
 	{
-		return isValidTarget(m, unit);
+		return isReceptive(m, unit) && isValidTarget(m, unit);
 	});
 
 	for(const auto *unit : possibleTargets)

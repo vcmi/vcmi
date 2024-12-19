@@ -19,6 +19,7 @@
 #include "../gui/Shortcut.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/ComboBox.h"
 #include "../widgets/Buttons.h"
@@ -32,7 +33,7 @@
 
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/json/JsonUtils.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
 InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config, int used, Point offset):
@@ -106,7 +107,7 @@ void InterfaceObjectConfigurable::loadCustomBuilders(const JsonNode & config)
 
 void InterfaceObjectConfigurable::build(const JsonNode &config)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 
 	logGlobal->debug("Building configurable interface object");
 	auto * items = &config;
@@ -284,7 +285,7 @@ EFonts InterfaceObjectConfigurable::readFont(const JsonNode & config) const
 			return EFonts::FONT_CALLI;
 	}
 	logGlobal->debug("Unknown font attribute");
-	return EFonts::FONT_TIMES;
+	return EFonts::FONT_MEDIUM;
 }
 
 std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(const JsonNode & config) const
@@ -333,7 +334,7 @@ std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNo
 	auto pic = std::make_shared<CPicture>(image, position.x, position.y);
 
 	if ( config["playerColored"].Bool() && LOCPLINT)
-		pic->colorize(LOCPLINT->playerID);
+		pic->setPlayerColor(LOCPLINT->playerID);
 	return pic;
 }
 
@@ -357,8 +358,9 @@ std::shared_ptr<CMultiLineLabel> InterfaceObjectConfigurable::buildMultiLineLabe
 	auto color = readColor(config["color"]);
 	auto text = readText(config["text"]);
 	Rect rect = readRect(config["rect"]);
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
 	if(!config["adoptHeight"].isNull() && config["adoptHeight"].Bool())
-		rect.h = graphics->fonts[font]->getLineHeight() * 2;
+		rect.h = fontPtr->getLineHeight() * 2;
 	return std::make_shared<CMultiLineLabel>(rect, font, alignment, color, text);
 }
 
@@ -371,7 +373,7 @@ std::shared_ptr<CToggleGroup> InterfaceObjectConfigurable::buildToggleGroup(cons
 	group->pos += position;
 	if(!config["items"].isNull())
 	{
-		OBJ_CONSTRUCTION_TARGETED(group.get());
+		OBJECT_CONSTRUCTION_TARGETED(group.get());
 		int itemIdx = -1;
 		for(const auto & item : config["items"].Vector())
 		{
@@ -566,16 +568,19 @@ std::shared_ptr<CAnimImage> InterfaceObjectConfigurable::buildImage(const JsonNo
 std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const JsonNode & config) const
 {
 	logGlobal->debug("Building widget CFilledTexture");
-	auto image = ImagePath::fromJson(config["image"]);
 	auto rect = readRect(config["rect"]);
 	auto playerColor = readPlayerColor(config["color"]);
 	if(playerColor.isValidPlayer())
 	{
-		auto result = std::make_shared<FilledTexturePlayerColored>(image, rect);
-		result->playerColored(playerColor);
+		auto result = std::make_shared<FilledTexturePlayerColored>(rect);
+		result->setPlayerColor(playerColor);
 		return result;
 	}
-	return std::make_shared<CFilledTexture>(image, rect);
+	else
+	{
+		auto image = ImagePath::fromJson(config["image"]);
+		return std::make_shared<CFilledTexture>(image, rect);
+	}
 }
 
 std::shared_ptr<ComboBox> InterfaceObjectConfigurable::buildComboBox(const JsonNode & config)

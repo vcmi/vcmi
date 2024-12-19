@@ -12,15 +12,13 @@
 
 #include "Images.h"
 
-#include <vcmi/spells/Service.h>
-#include <vcmi/spells/Spell.h>
-
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../render/Canvas.h"
 #include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
 #include "../render/Graphics.h"
 #include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
@@ -28,15 +26,22 @@
 #include "../CGameInfo.h"
 
 #include "../../lib/ArtifactUtils.h"
-#include "../../lib/CTownHandler.h"
-#include "../../lib/CHeroHandler.h"
+#include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/faction/CFaction.h"
+#include "../../lib/entities/faction/CTown.h"
+#include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/networkPacks/Component.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CArtifactInstance.h"
+
+#include <vcmi/spells/Service.h>
+#include <vcmi/spells/Spell.h>
+#include <vcmi/HeroTypeService.h>
+#include <vcmi/HeroType.h>
 
 CComponent::CComponent(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val, ESize imageSize, EFonts font)
 {
@@ -55,7 +60,7 @@ CComponent::CComponent(const Component & c, ESize imageSize, EFonts font)
 
 void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val, ESize imageSize, EFonts fnt, const std::string & ValText)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	addUsedEvents(SHOW_POPUP);
 
@@ -66,6 +71,7 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 	customSubtitle = ValText;
 	size = imageSize;
 	font = fnt;
+	newLine = false;
 
 	assert(size < sizeInvalid);
 
@@ -92,9 +98,11 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 		max = 80;
 
 	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(max, pos.w), font);
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const int height = static_cast<int>(fontPtr->getLineHeight());
+
 	for(auto & line : textLines)
 	{
-		int height = static_cast<int>(graphics->fonts[font]->getLineHeight());
 		auto label = std::make_shared<CLabel>(pos.w/2, pos.h + height/2, font, ETextAlignment::CENTER, Colors::WHITE, line);
 
 		pos.h += height;
@@ -222,15 +230,15 @@ std::string CComponent::getDescription() const
 		case ComponentType::CREATURE:
 			return "";
 		case ComponentType::ARTIFACT:
-			return VLC->artifacts()->getById(data.subType.as<ArtifactID>())->getDescriptionTranslated();
+			return CGI->artifacts()->getById(data.subType.as<ArtifactID>())->getDescriptionTranslated();
 		case ComponentType::SPELL_SCROLL:
 		{
-			auto description = VLC->arth->objects[ArtifactID::SPELL_SCROLL]->getDescriptionTranslated();
+			auto description = ArtifactID(ArtifactID::SPELL_SCROLL).toEntity(CGI)->getDescriptionTranslated();
 			ArtifactUtils::insertScrrollSpellName(description, data.subType.as<SpellID>());
 			return description;
 		}
 		case ComponentType::SPELL:
-			return VLC->spells()->getById(data.subType.as<SpellID>())->getDescriptionTranslated(std::max(0, data.value.value_or(0)));
+			return CGI->spells()->getById(data.subType.as<SpellID>())->getDescriptionTranslated(std::max(0, data.value.value_or(0)));
 		case ComponentType::MORALE:
 			return CGI->generaltexth->heroscrn[ 4 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0)];
 		case ComponentType::LUCK:
@@ -320,7 +328,7 @@ std::string CComponent::getSubtitle() const
 
 void CComponent::setSurface(const AnimationPath & defName, int imgPos)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	image = std::make_shared<CAnimImage>(defName, imgPos);
 }
 
@@ -431,7 +439,7 @@ int CComponentBox::getDistance(CComponent *left, CComponent *right)
 
 void CComponentBox::placeComponents(bool selectable)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	if (components.empty())
 		return;
 
@@ -439,7 +447,6 @@ void CComponentBox::placeComponents(bool selectable)
 	for(auto & comp : components)
 	{
 		addChild(comp.get());
-		comp->recActions = defActions; //FIXME: for some reason, received component might have recActions set to 0
 		comp->moveTo(Point(pos.x, pos.y));
 	}
 
@@ -466,7 +473,8 @@ void CComponentBox::placeComponents(bool selectable)
 
 		//start next row
 		if ((pos.w != 0 && rows.back().width + comp->pos.w + distance > pos.w) // row is full
-			|| rows.back().comps >= componentsInRow)
+			|| rows.back().comps >= componentsInRow
+			|| (prevComp && prevComp->newLine))
 		{
 			prevComp = nullptr;
 			rows.push_back (RowData (0,0,0));

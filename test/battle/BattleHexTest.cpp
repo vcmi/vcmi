@@ -92,16 +92,16 @@ TEST(BattleHexTest, getClosestTile)
 	possibilities.insert(119);
 	possibilities.insert(186);
 
-	EXPECT_EQ(mainHex.getClosestTile(0,mainHex,possibilities), 3);
+	EXPECT_EQ(mainHex.getClosestTile(BattleSide::ATTACKER,mainHex,possibilities), 3);
 	mainHex = 139;
-	EXPECT_EQ(mainHex.getClosestTile(1,mainHex,possibilities), 119);
+	EXPECT_EQ(mainHex.getClosestTile(BattleSide::DEFENDER,mainHex,possibilities), 119);
 	mainHex = 16;
-	EXPECT_EQ(mainHex.getClosestTile(1,mainHex,possibilities), 100);
+	EXPECT_EQ(mainHex.getClosestTile(BattleSide::DEFENDER,mainHex,possibilities), 100);
 	mainHex = 166;
-	EXPECT_EQ(mainHex.getClosestTile(0,mainHex,possibilities), 186);
+	EXPECT_EQ(mainHex.getClosestTile(BattleSide::ATTACKER,mainHex,possibilities), 186);
 	mainHex = 76;
-	EXPECT_EQ(mainHex.getClosestTile(1,mainHex,possibilities), 3);
-	EXPECT_EQ(mainHex.getClosestTile(0,mainHex,possibilities), 100);
+	EXPECT_EQ(mainHex.getClosestTile(BattleSide::DEFENDER,mainHex,possibilities), 3);
+	EXPECT_EQ(mainHex.getClosestTile(BattleSide::ATTACKER,mainHex,possibilities), 100);
 }
 
 TEST(BattleHexTest, moveEDir)

@@ -19,26 +19,15 @@
 #include <vcmi/spells/Service.h>
 
 #include "../renderSDL/SDL_Extensions.h"
-#include "../renderSDL/CBitmapFont.h"
-#include "../renderSDL/CBitmapHanFont.h"
-#include "../renderSDL/CTrueTypeFont.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
-#include "../render/IRenderHandler.h"
-#include "../gui/CGuiHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CBinaryReader.h"
 #include "../../lib/json/JsonNode.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModScope.h"
-#include "CGameInfo.h"
 #include "../lib/VCMI_Lib.h"
-#include "../CCallback.h"
-#include "../lib/CGeneralTextHandler.h"
-#include "../lib/vcmi_endian.h"
-#include "../lib/CStopWatch.h"
-#include "../lib/CHeroHandler.h"
 
 #include <SDL_surface.h>
 
@@ -127,103 +116,41 @@ void Graphics::initializeBattleGraphics()
 }
 Graphics::Graphics()
 {
-	loadFonts();
 	loadPaletteAndColors();
 	initializeBattleGraphics();
 	loadErmuToPicture();
-	initializeImageLists();
 
 	//(!) do not load any CAnimation here
 }
 
-void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
+void Graphics::setPlayerPalette(SDL_Palette * targetPalette, PlayerColor player)
 {
-	if(sur->format->palette)
+	SDL_Color palette[32];
+	if(player.isValidPlayer())
 	{
-		SDL_Color palette[32];
-		if(player.isValidPlayer())
-		{
-			for(int i=0; i<32; ++i)
-				palette[i] = CSDL_Ext::toSDL(playerColorPalette[player][i]);
-		}
-		else if(player == PlayerColor::NEUTRAL)
-		{
-			for(int i=0; i<32; ++i)
-				palette[i] = CSDL_Ext::toSDL(neutralColorPalette[i]);
-		}
-		else
-		{
-			logGlobal->error("Wrong player id in blueToPlayersAdv (%s)!", player.toString());
-			return;
-		}
-//FIXME: not all player colored images have player palette at last 32 indexes
-//NOTE: following code is much more correct but still not perfect (bugged with status bar)
-		CSDL_Ext::setColors(sur, palette, 224, 32);
-
-
-#if 0
-
-		SDL_Color * bluePalette = playerColorPalette + 32;
-
-		SDL_Palette * oldPalette = sur->format->palette;
-
-		SDL_Palette * newPalette = SDL_AllocPalette(256);
-
-		for(size_t destIndex = 0; destIndex < 256; destIndex++)
-		{
-			SDL_Color old = oldPalette->colors[destIndex];
-
-			bool found = false;
-
-			for(size_t srcIndex = 0; srcIndex < 32; srcIndex++)
-			{
-				if(old.b == bluePalette[srcIndex].b && old.g == bluePalette[srcIndex].g && old.r == bluePalette[srcIndex].r)
-				{
-					found = true;
-					newPalette->colors[destIndex] = palette[srcIndex];
-					break;
-				}
-			}
-			if(!found)
-				newPalette->colors[destIndex] = old;
-		}
-
-		SDL_SetSurfacePalette(sur, newPalette);
-
-		SDL_FreePalette(newPalette);
-
-#endif // 0
+		for(int i=0; i<32; ++i)
+			palette[i] = CSDL_Ext::toSDL(playerColorPalette[player][i]);
 	}
 	else
 	{
-		//TODO: implement. H3 method works only for images with palettes.
-		// Add some kind of player-colored overlay?
-		// Or keep palette approach here and replace only colors of specific value(s)
-		// Or just wait for OpenGL support?
-		logGlobal->warn("Image must have palette to be player-colored!");
+		for(int i=0; i<32; ++i)
+			palette[i] = CSDL_Ext::toSDL(neutralColorPalette[i]);
 	}
+
+	SDL_SetPaletteColors(targetPalette, palette, 224, 32);
 }
 
-void Graphics::loadFonts()
+void Graphics::setPlayerFlagColor(SDL_Palette * targetPalette, PlayerColor player)
 {
-	const JsonNode config(JsonPath::builtin("config/fonts.json"));
-
-	const JsonVector & bmpConf = config["bitmap"].Vector();
-	const JsonNode   & ttfConf = config["trueType"];
-	const JsonNode   & hanConf = config["bitmapHan"];
-
-	assert(bmpConf.size() == FONTS_NUMBER);
-
-	for (size_t i=0; i<FONTS_NUMBER; i++)
+	if(player.isValidPlayer())
 	{
-		std::string filename = bmpConf[i].String();
-
-		if (!hanConf[filename].isNull())
-			fonts[i] = std::make_shared<CBitmapHanFont>(hanConf[filename]);
-		else if (!ttfConf[filename].isNull()) // no ttf override
-			fonts[i] = std::make_shared<CTrueTypeFont>(ttfConf[filename]);
-		else
-			fonts[i] = std::make_shared<CBitmapFont>(filename);
+		SDL_Color color = CSDL_Ext::toSDL(playerColors[player.getNum()]);
+		SDL_SetPaletteColors(targetPalette, &color, 5, 1);
+	}
+	else
+	{
+		SDL_Color color = CSDL_Ext::toSDL(neutralColor);
+		SDL_SetPaletteColors(targetPalette, &color, 5, 1);
 	}
 }
 
@@ -243,52 +170,4 @@ void Graphics::loadErmuToPicture()
 		etp_idx ++;
 	}
 	assert (etp_idx == 44);
-}
-
-void Graphics::addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName)
-{
-	if (!imageName.empty())
-	{
-		JsonNode entry;
-		if (group != 0)
-			entry["group"].Integer() = group;
-		entry["frame"].Integer() = index;
-		entry["file"].String() = imageName;
-
-		imageLists["SPRITES/" + listName]["images"].Vector().push_back(entry);
-	}
-}
-
-void Graphics::addImageListEntries(const EntityService * service)
-{
-	auto cb = std::bind(&Graphics::addImageListEntry, this, _1, _2, _3, _4);
-
-	auto loopCb = [&](const Entity * entity, bool & stop)
-	{
-		entity->registerIcons(cb);
-	};
-
-	service->forEachBase(loopCb);
-}
-
-void Graphics::initializeImageLists()
-{
-	addImageListEntries(CGI->creatures());
-	addImageListEntries(CGI->heroTypes());
-	addImageListEntries(CGI->artifacts());
-	addImageListEntries(CGI->factions());
-	addImageListEntries(CGI->spells());
-	addImageListEntries(CGI->skills());
-}
-
-std::shared_ptr<CAnimation> Graphics::getAnimation(const AnimationPath & path)
-{
-	if (cachedAnimations.count(path) != 0)
-		return cachedAnimations.at(path);
-
-	auto newAnimation = GH.renderHandler().loadAnimation(path);
-
-	newAnimation->preload();
-	cachedAnimations[path] = newAnimation;
-	return newAnimation;
 }

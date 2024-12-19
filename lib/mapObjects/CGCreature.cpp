@@ -12,16 +12,19 @@
 #include "CGCreature.h"
 #include "CGHeroInstance.h"
 
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../CConfigHandler.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../IGameCallback.h"
+#include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../CRandomGenerator.h"
+#include "../entities/faction/CTownHandler.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,7 +33,7 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 	if(stacks.empty())
 	{
 		//should not happen...
-		logGlobal->error("Invalid stack at tile %s: subID=%d; id=%d", pos.toString(), getCreature(), id.getNum());
+		logGlobal->error("Invalid stack at tile %s: subID=%d; id=%d", anchorPos().toString(), getCreature(), id.getNum());
 		return "INVALID_STACK";
 	}
 
@@ -42,7 +45,7 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 	else
 		ms.appendLocalString(EMetaText::ARRAY_TXT, quantityTextIndex);
 	ms.appendRawString(" ");
-	ms.appendNamePlural(getCreature());
+	ms.appendNamePlural(getCreatureID());
 
 	return ms.toString();
 }
@@ -54,13 +57,25 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 		MetaString ms;
 		ms.appendNumber(stacks.begin()->second->count);
 		ms.appendRawString(" ");
-		ms.appendName(getCreature(), stacks.begin()->second->count);
+		ms.appendName(getCreatureID(), stacks.begin()->second->count);
 		return ms.toString();
 	}
 	else
 	{
 		return getHoverText(hero->tempOwner);
 	}
+}
+
+std::string CGCreature::getMonsterLevelText() const
+{
+	std::string monsterLevel = VLC->generaltexth->translate("vcmi.adventureMap.monsterLevel");
+	bool isRanged = getCreature()->getBonusBearer()->hasBonusOfType(BonusType::SHOOTER);
+	std::string attackTypeKey = isRanged ? "vcmi.adventureMap.monsterRangedType" : "vcmi.adventureMap.monsterMeleeType";
+	std::string attackType = VLC->generaltexth->translate(attackTypeKey);
+	boost::replace_first(monsterLevel, "%TOWN", getCreature()->getFactionID().toEntity(VLC)->getNameTranslated());
+	boost::replace_first(monsterLevel, "%LEVEL", std::to_string(getCreature()->getLevel()));
+	boost::replace_first(monsterLevel, "%ATTACK_TYPE", attackType);
+	return monsterLevel;
 }
 
 std::string CGCreature::getPopupText(const CGHeroInstance * hero) const
@@ -99,10 +114,13 @@ std::string CGCreature::getPopupText(const CGHeroInstance * hero) const
 
 	if (settings["general"]["enableUiEnhancements"].Bool())
 	{
+		hoverName += getMonsterLevelText();
 		hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.title");
 
 		int choice;
-		double ratio = (static_cast<double>(getArmyStrength()) / hero->getTotalStrength());
+		uint64_t armyStrength = getArmyStrength();
+		uint64_t heroStrength = hero->getTotalStrength();
+		double ratio = static_cast<double>(armyStrength) / heroStrength;
 		if (ratio < 0.1)  choice = 0;
 		else if (ratio < 0.25) choice = 1;
 		else if (ratio < 0.6)  choice = 2;
@@ -123,13 +141,16 @@ std::string CGCreature::getPopupText(const CGHeroInstance * hero) const
 
 std::string CGCreature::getPopupText(PlayerColor player) const
 {
-	return getHoverText(player);
+	std::string hoverName = getHoverText(player);
+	if (settings["general"]["enableUiEnhancements"].Bool())
+		hoverName += getMonsterLevelText();
+	return hoverName;
 }
 
 std::vector<Component> CGCreature::getPopupComponents(PlayerColor player) const
 {
 	return {
-		Component(ComponentType::CREATURE, getCreature())
+		Component(ComponentType::CREATURE, getCreatureID())
 	};
 }
 
@@ -161,8 +182,8 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
 			ynd.text.appendLocalString(EMetaText::ADVOB_TXT, 86);
-			ynd.text.replaceName(getCreature(), getStackCount(SlotID(0)));
-			cb->showBlockingDialog(&ynd);
+			ynd.text.replaceName(getCreatureID(), getStackCount(SlotID(0)));
+			cb->showBlockingDialog(this, &ynd);
 			break;
 		}
 	default: //join for gold
@@ -176,20 +197,25 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			std::string tmp = VLC->generaltexth->advobtxt[90];
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(getStackCount(SlotID(0))));
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(action));
-			boost::algorithm::replace_first(tmp,"%s",VLC->creatures()->getById(getCreature())->getNamePluralTranslated());
+			boost::algorithm::replace_first(tmp,"%s",getCreature()->getNamePluralTranslated());
 			ynd.text.appendRawString(tmp);
-			cb->showBlockingDialog(&ynd);
+			cb->showBlockingDialog(this, &ynd);
 			break;
 		}
 	}
 }
 
-CreatureID CGCreature::getCreature() const
+CreatureID CGCreature::getCreatureID() const
 {
 	return CreatureID(getObjTypeIndex().getNum());
 }
 
-void CGCreature::pickRandomObject(CRandomGenerator & rand)
+const CCreature * CGCreature::getCreature() const
+{
+	return getCreatureID().toCreature();
+}
+
+void CGCreature::pickRandomObject(vstd::RNG & rand)
 {
 	switch(ID.toEnum())
 	{
@@ -227,14 +253,14 @@ void CGCreature::pickRandomObject(CRandomGenerator & rand)
 	{
 		// Try to generate some debug information if sanity check failed
 		CreatureID creatureID(subID.getNum());
-		throw std::out_of_range("Failed to find handler for creature " + std::to_string(creatureID.getNum()) + ", identifer:" + creatureID.toEntity(VLC)->getJsonKey());
+		throw std::out_of_range("Failed to find handler for creature " + std::to_string(creatureID.getNum()) + ", identifier:" + creatureID.toEntity(VLC)->getJsonKey());
 	}
 
 	ID = MapObjectID::MONSTER;
 	setType(ID, subID);
 }
 
-void CGCreature::initObj(CRandomGenerator & rand)
+void CGCreature::initObj(vstd::RNG & rand)
 {
 	blockVisit = true;
 	switch(character)
@@ -258,7 +284,7 @@ void CGCreature::initObj(CRandomGenerator & rand)
 
 	stacks[SlotID(0)]->setType(getCreature());
 	TQuantity &amount = stacks[SlotID(0)]->count;
-	const Creature * c = VLC->creatures()->getById(getCreature());
+	const Creature * c = getCreature();
 	if(amount == 0)
 	{
 		amount = rand.nextInt(c->getAdvMapAmountMin(), c->getAdvMapAmountMax());
@@ -270,23 +296,23 @@ void CGCreature::initObj(CRandomGenerator & rand)
 		}
 	}
 
-	temppower = stacks[SlotID(0)]->count * static_cast<ui64>(1000);
+	temppower = stacks[SlotID(0)]->count * static_cast<int64_t>(1000);
 	refusedJoining = false;
 }
 
-void CGCreature::newTurn(CRandomGenerator & rand) const
+void CGCreature::newTurn(vstd::RNG & rand) const
 {//Works only for stacks of single type of size up to 2 millions
 	if (!notGrowingTeam)
 	{
-		if (stacks.begin()->second->count < VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
+		if (stacks.begin()->second->count < cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
 		{
-			ui32 power = static_cast<ui32>(temppower * (100 + VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT)) / 100);
-			cb->setObjPropertyValue(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP))); //set new amount
+			ui32 power = static_cast<ui32>(temppower * (100 + cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT)) / 100);
+			cb->setObjPropertyValue(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP))); //set new amount
 			cb->setObjPropertyValue(id, ObjProperty::MONSTER_POWER, power); //increase temppower
 		}
 	}
-	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
-		cb->setObjPropertyValue(id, ObjProperty::MONSTER_EXP, VLC->settings()->getInteger(EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE)); //for testing purpose
+	if (cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
+		cb->setObjPropertyValue(id, ObjProperty::MONSTER_EXP, cb->getSettings().getInteger(EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE)); //for testing purpose
 }
 void CGCreature::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
@@ -332,8 +358,8 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 	for(const auto & elem : h->Slots())
 	{
-		bool isOurUpgrade = vstd::contains(getCreature().toCreature()->upgrades, elem.second->getCreatureID());
-		bool isOurDowngrade = vstd::contains(elem.second->type->upgrades, getCreature());
+		bool isOurUpgrade = vstd::contains(getCreature()->upgrades, elem.second->getCreatureID());
+		bool isOurDowngrade = vstd::contains(elem.second->getCreature()->upgrades, getCreatureID());
 
 		if(isOurUpgrade || isOurDowngrade)
 			count += elem.second->count;
@@ -359,7 +385,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 		if(diplomacy * 2 + sympathy + 1 >= character)
 		{
-			int32_t recruitCost = VLC->creatures()->getById(getCreature())->getRecruitCost(EGameResID::GOLD);
+			int32_t recruitCost = getCreature()->getRecruitCost(EGameResID::GOLD);
 			int32_t stackCount = getStackCount(SlotID(0));
 			return recruitCost * stackCount; //join for gold
 		}
@@ -454,16 +480,16 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 		if (containsUpgradedStack()) //upgrade
 		{
 			SlotID slotID = SlotID(static_cast<si32>(std::floor(static_cast<float>(stacks.size()) / 2.0f)));
-			const auto & upgrades = getStack(slotID).type->upgrades;
+			const auto & upgrades = getStack(slotID).getCreature()->upgrades;
 			if(!upgrades.empty())
 			{
-				auto it = RandomGeneratorUtil::nextItem(upgrades, CRandomGenerator::getDefault());
+				auto it = RandomGeneratorUtil::nextItem(upgrades, cb->gameState()->getRandomGenerator());
 				cb->changeStackType(StackLocation(this, slotID), it->toCreature());
 			}
 		}
 	}
 
-	cb->startBattleI(h, this);
+	cb->startBattle(h, this);
 
 }
 
@@ -472,18 +498,18 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 	BlockingDialog ynd(true,false);
 	ynd.player = h->tempOwner;
 	ynd.text.appendLocalString(EMetaText::ADVOB_TXT,91);
-	ynd.text.replaceName(getCreature(), getStackCount(SlotID(0)));
-	cb->showBlockingDialog(&ynd);
+	ynd.text.replaceName(getCreatureID(), getStackCount(SlotID(0)));
+	cb->showBlockingDialog(this, &ynd);
 }
 
 void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner == 0)
+	if(result.winner == BattleSide::ATTACKER)
 	{
 		giveReward(hero);
 		cb->removeObject(this, hero->getOwner());
 	}
-	else if(result.winner > 1) // draw
+	else if(result.winner == BattleSide::NONE) // draw
 	{
 		// guarded reward is lost forever on draw
 		cb->removeObject(this, hero->getOwner());
@@ -492,10 +518,10 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 	{
 		//merge stacks into one
 		TSlots::const_iterator i;
-		const CCreature * cre = getCreature().toCreature();
+		const CCreature * cre = getCreature();
 		for(i = stacks.begin(); i != stacks.end(); i++)
 		{
-			if(cre->isMyUpgrade(i->second->type))
+			if(cre->isMyUpgrade(i->second->getCreature()))
 			{
 				cb->changeStackType(StackLocation(this, i->first), cre); //un-upgrade creatures
 			}
@@ -510,7 +536,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 			// TODO it's either overcomplicated (if we assume there'll be only one stack) or buggy (if we allow multiple stacks... but that'll also cause troubles elsewhere)
 			i = stacks.end();
 			i--;
-			SlotID slot = getSlotFor(i->second->type);
+			SlotID slot = getSlotFor(i->second->getCreature());
 			if(slot == i->first) //no reason to move stack to its own slot
 				break;
 			else
@@ -521,7 +547,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 	}
 }
 
-void CGCreature::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGCreature::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	auto action = takenAction(hero);
 	if(!refusedJoining && action >= JOIN_FOR_FREE) //higher means price
@@ -541,7 +567,7 @@ bool CGCreature::containsUpgradedStack() const
 	float c = 5325.181015f;
 	float d = 32788.727920f;
 
-	int val = static_cast<int>(std::floor(a * pos.x + b * pos.y + c * pos.z + d));
+	int val = static_cast<int>(std::floor(a * visitablePos().x + b * visitablePos().y + c * visitablePos().z + d));
 	return ((val % 32768) % 100) < 50;
 }
 
@@ -570,7 +596,7 @@ int CGCreature::getNumberOfStacks(const CGHeroInstance *hero) const
 	ui32 c = 1943276003u;
 	ui32 d = 3174620878u;
 
-	ui32 R1 = a * static_cast<ui32>(pos.x) + b * static_cast<ui32>(pos.y) + c * static_cast<ui32>(pos.z) + d;
+	ui32 R1 = a * static_cast<ui32>(visitablePos().x) + b * static_cast<ui32>(visitablePos().y) + c * static_cast<ui32>(visitablePos().z) + d;
 	ui32 R2 = (R1 >> 16) & 0x7fff;
 
 	int R4 = R2 % 100 + 1;
@@ -603,7 +629,7 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 
 	if(gainedArtifact != ArtifactID::NONE)
 	{
-		cb->giveHeroNewArtifact(h, gainedArtifact.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
+		cb->giveHeroNewArtifact(h, gainedArtifact, ArtifactPosition::FIRST_AVAILABLE);
 		iw.components.emplace_back(ComponentType::ARTIFACT, gainedArtifact);
 	}
 

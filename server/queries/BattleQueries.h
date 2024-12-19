@@ -11,6 +11,7 @@
 
 #include "CQuery.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../lib/battle/BattleSide.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class IBattleInfo;
@@ -20,16 +21,16 @@ VCMI_LIB_NAMESPACE_END
 class CBattleQuery : public CQuery
 {
 public:
-	std::array<const CArmedInstance *,2> belligerents;
-	std::array<int, 2> initialHeroMana;
+	BattleSideArray<const CArmedInstance *> belligerents;
+	BattleSideArray<int> initialHeroMana;
 
 	BattleID battleID;
 	std::optional<BattleResult> result;
 
 	CBattleQuery(CGameHandler * owner);
 	CBattleQuery(CGameHandler * owner, const IBattleInfo * Bi); //TODO
-	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
-	bool blocksPack(const CPack *pack) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
+	bool blocksPack(const CPackForServer *pack) const override;
 	void onRemoval(PlayerColor color) override;
 	void onExposure(QueryPtr topQuery) override;
 };
@@ -37,10 +38,10 @@ public:
 class CBattleDialogQuery : public CDialogQuery
 {
 	bool resultProcessed = false;
-public:
-	CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * Bi, std::optional<BattleResult> Br);
-
 	const IBattleInfo * bi;
 	std::optional<BattleResult> result;
+
+public:
+	CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * Bi, std::optional<BattleResult> Br);
 	void onRemoval(PlayerColor color) override;
 };

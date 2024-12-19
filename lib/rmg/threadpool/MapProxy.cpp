@@ -10,6 +10,7 @@
 
 #include "MapProxy.h"
 #include "../../TerrainHandler.h"
+#include "../../VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -36,21 +37,21 @@ void MapProxy::removeObject(CGObjectInstance * obj)
 	map.getEditManager()->removeObject(obj);
 }
 
-void MapProxy::drawTerrain(CRandomGenerator & generator, std::vector<int3> & tiles, TerrainId terrain)
+void MapProxy::drawTerrain(vstd::RNG & generator, std::vector<int3> & tiles, TerrainId terrain)
 {
 	Lock lock(mx);
 	map.getEditManager()->getTerrainSelection().setSelection(tiles);
 	map.getEditManager()->drawTerrain(terrain, map.getDecorationsPercentage(), &generator);
 }
 
-void MapProxy::drawRivers(CRandomGenerator & generator, std::vector<int3> & tiles, TerrainId terrain)
+void MapProxy::drawRivers(vstd::RNG & generator, std::vector<int3> & tiles, TerrainId terrain)
 {
 	Lock lock(mx);
 	map.getEditManager()->getTerrainSelection().setSelection(tiles);
 	map.getEditManager()->drawRiver(VLC->terrainTypeHandler->getById(terrain)->river, &generator);
 }
 
-void MapProxy::drawRoads(CRandomGenerator & generator, std::vector<int3> & tiles, RoadId roadType)
+void MapProxy::drawRoads(vstd::RNG & generator, std::vector<int3> & tiles, RoadId roadType)
 {
 	Lock lock(mx);
 	map.getEditManager()->getTerrainSelection().setSelection(tiles);

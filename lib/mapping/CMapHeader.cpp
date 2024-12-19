@@ -13,12 +13,12 @@
 #include "MapFormat.h"
 
 #include "../VCMI_Lib.h"
-#include "../CTownHandler.h"
-#include "../CGeneralTextHandler.h"
+#include "../entities/faction/CTownHandler.h"
+#include "../entities/hero/CHeroHandler.h"
 #include "../json/JsonUtils.h"
 #include "../modding/CModHandler.h"
-#include "../CHeroHandler.h"
-#include "../Languages.h"
+#include "../texts/CGeneralTextHandler.h"
+#include "../texts/Languages.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -163,7 +163,7 @@ void CMapHeader::registerMapStrings()
 	
 	std::string baseLanguage;
 	std::string language;
-	//english is preferrable as base language
+	//english is preferable as base language
 	if(mapBaseLanguages.count(Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier))
 		baseLanguage = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
 	else
@@ -189,7 +189,7 @@ void CMapHeader::registerMapStrings()
 		JsonUtils::mergeCopy(data, translations[language]);
 	
 	for(auto & s : data.Struct())
-		texts.registerString("map", TextIdentifier(s.first), s.second.String(), language);
+		texts.registerString("map", TextIdentifier(s.first), s.second.String());
 }
 
 std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized)
@@ -199,7 +199,7 @@ std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeade
 
 std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized, const std::string & language)
 {
-	mapHeader.texts.registerString(modContext, UID, localized, language);
+	mapHeader.texts.registerString(modContext, UID, localized);
 	mapHeader.translations.Struct()[language].Struct()[UID.get()].String() = localized;
 	return UID.get();
 }

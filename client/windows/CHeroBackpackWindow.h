@@ -17,10 +17,11 @@ class CHeroBackpackWindow : public CStatusbarWindow, public CWindowWithArtifacts
 {
 public:
 	CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<CArtifactsOfHeroPtr> & artsSets);
+	void notFocusedClick() override;
 	
 protected:
 	std::shared_ptr<CArtifactsOfHeroBackpack> arts;
-	std::shared_ptr<CButton> quitButton;
+	std::vector<std::unique_ptr<CButton>> buttons;
 	std::shared_ptr<CFilledTexture> stretchedBackground;
 	const int windowMargin = 5;
 
@@ -33,6 +34,7 @@ public:
 	CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot);
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
+	void notFocusedClick() override;
 
 private:
 	std::shared_ptr<CArtifactsOfHeroQuickBackpack> arts;

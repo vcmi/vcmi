@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 static const int32_t INVALID_UNIT_ID = -1000;
 
 BattleAction::BattleAction():
-	side(-1),
+	side(BattleSide::NONE),
 	stackNumber(-1),
 	actionType(EActionType::NO_ACTION)
 {
@@ -96,7 +96,7 @@ BattleAction BattleAction::makeMove(const battle::Unit * stack, BattleHex dest)
 	return ba;
 }
 
-BattleAction BattleAction::makeEndOFTacticPhase(ui8 side)
+BattleAction BattleAction::makeEndOFTacticPhase(BattleSide side)
 {
 	BattleAction ba;
 	ba.side = side;
@@ -104,7 +104,7 @@ BattleAction BattleAction::makeEndOFTacticPhase(ui8 side)
 	return ba;
 }
 
-BattleAction BattleAction::makeSurrender(ui8 side)
+BattleAction BattleAction::makeSurrender(BattleSide side)
 {
 	BattleAction ba;
 	ba.side = side;
@@ -112,7 +112,7 @@ BattleAction BattleAction::makeSurrender(ui8 side)
 	return ba;
 }
 
-BattleAction BattleAction::makeRetreat(ui8 side)
+BattleAction BattleAction::makeRetreat(BattleSide side)
 {
 	BattleAction ba;
 	ba.side = side;

@@ -17,12 +17,10 @@ class DLL_LINKAGE IBonusBearer
 {
 public:
 	//new bonusing node interface
-	// * selector is predicate that tests if HeroBonus matches our criteria
-	// * root is node on which call was made (nullptr will be replaced with this)
-	//interface
+	// * selector is predicate that tests if Bonus matches our criteria
 	IBonusBearer() = default;
 	virtual ~IBonusBearer() = default;
-	virtual TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const = 0;
+	virtual TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const = 0;
 	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;

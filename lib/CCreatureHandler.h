@@ -23,11 +23,15 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+namespace vstd
+{
+class RNG;
+}
+
 class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
 class JsonSerializeFormat;
-class CRandomGenerator;
 
 class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 {
@@ -91,10 +95,10 @@ public:
 
 		double timeBetweenFidgets, idleAnimationTime,
 			   walkAnimationTime, attackAnimationTime;
-		int upperRightMissleOffsetX, rightMissleOffsetX, lowerRightMissleOffsetX,
-		    upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
+		int upperRightMissileOffsetX, rightMissileOffsetX, lowerRightMissileOffsetX,
+		    upperRightMissileOffsetY, rightMissileOffsetY, lowerRightMissileOffsetY;
 
-		std::vector<double> missleFrameAngles;
+		std::vector<double> missileFrameAngles;
 		int attackClimaxFrame;
 
 		AnimationPath projectileImageName;
@@ -123,10 +127,11 @@ public:
 	std::string getNamePluralTextID() const override;
 	std::string getNameSingularTextID() const override;
 
-	FactionID getFaction() const override;
+	FactionID getFactionID() const override;
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
 	std::string getJsonKey() const override;
+	std::string getModScope() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	CreatureID getId() const override;
 	const IBonusBearer * getBonusBearer() const override;
@@ -161,8 +166,6 @@ public:
 	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range
 	bool isMyUpgrade(const CCreature *anotherCre) const;
 
-	bool valid() const;
-
 	void addBonus(int val, BonusType type);
 	void addBonus(int val, BonusType type, BonusSubtypeID subtype);
 	std::string nodeName() const override;
@@ -192,8 +195,6 @@ private:
 	void loadStackExperience(CCreature * creature, const JsonNode & input) const;
 	void loadCreatureJson(CCreature * creature, const JsonNode & config) const;
 
-	/// adding abilities from ZCRTRAIT.TXT
-	void loadBonuses(JsonNode & creature, std::string bonuses) const;
 	/// load all creatures from H3 files
 	void load();
 	void loadCommanders();
@@ -210,7 +211,7 @@ private:
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	CCreature * loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CCreature> loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
 
 public:
 	std::set<CreatureID> doubledCreatures; //they get double week
@@ -225,7 +226,7 @@ public:
 	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. SPELL_POWER also gives CASTS and RESISTANCE
 	std::vector <std::pair <std::shared_ptr<Bonus>, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
 
-	CreatureID pickRandomMonster(CRandomGenerator & rand, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
+	CreatureID pickRandomMonster(vstd::RNG & rand, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
 
 	CCreatureHandler();
 	~CCreatureHandler();

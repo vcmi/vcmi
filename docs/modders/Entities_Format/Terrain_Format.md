@@ -1,9 +1,11 @@
+# Terrain Format
+
 ## Format
 
-```jsonc
+```json
 "newTerrain" :
 {
-	// Two-letters unique indentifier for this terrain. Used in map format
+	// Two-letters unique identifier for this terrain. Used in map format
 	"shortIdentifier" : "mt",
 	
 	// Human-readable name of the terrain
@@ -11,7 +13,7 @@
 	
 	// Type(s) of this terrain.
 	// WATER - this terrain is water-like terrains that requires boat for movement
-	// ROCK - this terrain is unpassable "rock" terrain that is used for inacessible parts of underground layer
+	// ROCK - this terrain is unpassable "rock" terrain that is used for inaccessible parts of underground layer
 	// SUB - this terrain can be placed in underground map layer by RMG
 	// SURFACE - this terrain can be placed in surface map layer by RMG
 	"type" : [ "WATER", "SUB", "ROCK", "SURFACE" ],
@@ -48,8 +50,8 @@
 	// Color of terrain on minimap with unpassable objects. RGB triplet, 0-255 range
 	"minimapBlocked" : [ 150, 100, 50 ],
 	
-	// Music filename to play on this terrain on adventure map
-	"music" : "",
+	// List of music files to play on this terrain on adventure map. At least one file is required
+	"music" : [ "" ],
 	
 	"sounds" : {
 		// List of ambient sounds for this terrain

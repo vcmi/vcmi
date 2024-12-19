@@ -5,6 +5,17 @@
 	"description" : "Format used to define main mod file (mod.json) in VCMI",
 	"required" : [ "name", "description", "modType", "version", "author", "contact" ],
 	"definitions" : {
+		"fileListOrObject" : {
+			"oneOf" : [
+				{
+					"type" : "array",
+					"items" : { "type" : "string", "format" : "textFile" }
+				},
+				{
+					"type" : "object"
+				}
+			]
+		},
 		"localizable" : {
 			"type" : "object",
 			"additionalProperties" : false,
@@ -35,9 +46,8 @@
 					"description" : "If set to true, vcmi will skip validation of current translation json files"
 				},
 				"translations" : {
-					"type" : "array",
 					"description" : "List of files with translations for this language",
-					"items" : { "type" : "string", "format" : "textFile" }
+					"$ref" : "#/definitions/fileListOrObject"
 				}
 			}
 		}
@@ -112,6 +122,11 @@
 			"description" : "List of mods that are required to run this one",
 			"items" : { "type" : "string" }
 		},
+		"softDepends" : {
+			"type" : "array",
+			"description" : "List of mods if they are enabled, should be loaded before this one. This mod will overwrite any conflicting items from its soft dependency mods",
+			"items" : { "type" : "string" }
+		},
 		"conflicts" : {
 			"type" : "array",
 			"description" : "List of mods that can't be enabled in the same time as this one",
@@ -122,14 +137,17 @@
 			"description" : "If set to true, mod will not be enabled automatically on install"
 		},
 		"settings" : {
-			"type" : "object",
 			"description" : "List of changed game settings by mod",
-			"additionalProperties" : {
-				"type" : "object",
-				"properties" : { 
-					"type" : "object"
-				}
-			}
+			"oneOf" : [
+				{
+					"type" : "object",
+					"$ref" : "gameSettings.json"
+				},
+				{
+					"type" : "array",
+					"items" : { "type" : "string", "format" : "textFile" }
+				},
+			]
 		},
 		"filesystem" : {
 			"type" : "object",
@@ -211,94 +229,76 @@
 			"$ref" : "#/definitions/localizable"
 		},
 		"translations" : {
-			"type" : "array",
 			"description" : "List of files with translations for this language",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"factions" : {
-			"type" : "array",
 			"description" : "List of configuration files for towns/factions",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"heroClasses" : {
-			"type" : "array",
 			"description" : "List of configuration files for hero classes",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"heroes" : {
-			"type" : "array",
 			"description" : "List of configuration files for heroes",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"skills" : {
-			"type" : "array",
 			"description" : "List of configuration files for skills",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"creatures" : {
-			"type" : "array",
 			"description" : "List of configuration files for creatures",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"artifacts" : {
-			"type" : "array",
 			"description" : "List of configuration files for artifacts",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"spells" : {
-			"type" : "array",
 			"description" : "List of configuration files for spells",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"objects" : {
-			"type" : "array",
 			"description" : "List of configuration files for objects",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"biomes" : {
-			"type" : "array",
 			"description" : "List of configuration files for biomes",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"bonuses" : {
-			"type" : "array",
 			"description" : "List of configuration files for bonuses",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"terrains" : {
-			"type" : "array",
 			"description" : "List of configuration files for terrains",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"roads" : {
-			"type" : "array",
 			"description" : "List of configuration files for roads",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"rivers" : {
-			"type" : "array",
 			"description" : "List of configuration files for rivers",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"battlefields" : {
-			"type" : "array",
 			"description" : "List of configuration files for battlefields",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"obstacles" : {
-			"type" : "array",
 			"description" : "List of configuration files for obstacles",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"templates" : {
-			"type" : "array",
 			"description" : "List of configuration files for RMG templates",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"scripts" : {
-			"type" : "array",
 			"description" : "List of configuration files for scripts",
-			"items" : { "type" : "string", "format" : "textFile" }
+			"$ref" : "#/definitions/fileListOrObject"
 		}
 	}
 }

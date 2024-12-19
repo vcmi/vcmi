@@ -97,9 +97,10 @@ std::optional<const CGObjectInstance *> ObjectClusterizer::getBlocker(const AIPa
 	{
 		auto guardPos = ai->cb->getGuardingCreaturePosition(node.coord);
 
-		blockers = ai->cb->getVisitableObjs(node.coord);
+		if (ai->cb->isVisible(node.coord))
+			blockers = ai->cb->getVisitableObjs(node.coord);
 
-		if(guardPos.valid())
+		if(guardPos.valid() && ai->cb->isVisible(guardPos))
 		{
 			auto guard = ai->cb->getTopObj(ai->cb->getGuardingCreaturePosition(node.coord));
 
@@ -142,6 +143,13 @@ std::optional<const CGObjectInstance *> ObjectClusterizer::getBlocker(const AIPa
 		|| blocker->ID == Obj::BORDER_GATE
 		|| blocker->ID == Obj::SHIPYARD
 		|| (blocker->ID == Obj::QUEST_GUARD && node.actionIsBlocked))
+	{
+		return blocker;
+	}
+
+	auto danger = ai->dangerEvaluator->evaluateDanger(blocker);
+
+	if(danger > 0 && blocker->isBlockedVisitable() && isObjectRemovable(blocker))
 	{
 		return blocker;
 	}
@@ -467,9 +475,11 @@ void ObjectClusterizer::clusterizeObject(
 
 				heroesProcessed.insert(path.targetHero);
 
-				float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)));
+				float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), PriorityEvaluator::PriorityTier::HUNTER_GATHER);
 
-				if(priority < MIN_PRIORITY)
+				if(ai->settings->isUseFuzzy() && priority < MIN_PRIORITY)
+					continue;
+				else if (priority <= 0)
 					continue;
 
 				ClusterMap::accessor cluster;
@@ -488,12 +498,14 @@ void ObjectClusterizer::clusterizeObject(
 
 		heroesProcessed.insert(path.targetHero);
 
-		float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)));
+		float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), PriorityEvaluator::PriorityTier::HUNTER_GATHER);
 
-		if(priority < MIN_PRIORITY)
+		if (ai->settings->isUseFuzzy() && priority < MIN_PRIORITY)
+			continue;
+		else if (priority <= 0)
 			continue;
 
-		bool interestingObject = path.turn() <= 2 || priority > 0.5f;
+		bool interestingObject = path.turn() <= 2 || priority > (ai->settings->isUseFuzzy() ? 0.5f : 0);
 
 		if(interestingObject)
 		{

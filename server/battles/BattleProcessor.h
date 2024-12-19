@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/GameConstants.h"
+#include "../../lib/battle/BattleSide.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
@@ -19,6 +20,7 @@ class BattleAction;
 class int3;
 class CBattleInfoCallback;
 struct BattleResult;
+struct BattleLayout;
 class BattleID;
 VCMI_LIB_NAMESPACE_END
 
@@ -44,24 +46,22 @@ class BattleProcessor : boost::noncopyable
 	void engageIntoBattle(PlayerColor player);
 
 	bool checkBattleStateChanges(const CBattleInfoCallback & battle);
-	BattleID setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
+	BattleID setupBattle(int3 tile, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance *town);
 
 	bool makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 
-	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, int victoriusSide);
+	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide);
 
 public:
 	explicit BattleProcessor(CGameHandler * gameHandler);
 	~BattleProcessor();
 
 	/// Starts battle with specified parameters
-	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr);
-	/// Starts battle between two armies (which can also be heroes) at specified tile
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false);
+	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town);
 	/// Starts battle between two armies (which can also be heroes) at position of 2nd object
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false);
+	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2);
 	/// Restart ongoing battle and end previous battle
-	void restartBattlePrimary(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr);
+	void restartBattle(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town);
 
 	/// Processing of incoming battle action netpack
 	bool makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction & ba);

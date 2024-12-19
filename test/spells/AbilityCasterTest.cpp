@@ -33,7 +33,7 @@ public:
 protected:
 	void SetUp() override
 	{
-		ON_CALL(actualCaster, getAllBonuses(_, _, _, _)).WillByDefault(Invoke(&casterBonuses, &BonusBearerMock::getAllBonuses));
+		ON_CALL(actualCaster, getAllBonuses(_, _, _)).WillByDefault(Invoke(&casterBonuses, &BonusBearerMock::getAllBonuses));
 		ON_CALL(actualCaster, getTreeVersion()).WillByDefault(Invoke(&casterBonuses, &BonusBearerMock::getTreeVersion));
 	}
 
@@ -57,7 +57,7 @@ TEST_F(AbilityCasterTest, MagicAbilityAffectedByGenericBonus)
 
 	casterBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MAGIC_SCHOOL_SKILL, BonusSource::OTHER, 2, BonusSourceID(), BonusSubtypeID(SpellSchool::ANY)));
 
-	EXPECT_CALL(actualCaster, getAllBonuses(_, _, _, _)).Times(AtLeast(1));
+	EXPECT_CALL(actualCaster, getAllBonuses(_, _, _)).Times(AtLeast(1));
 	EXPECT_CALL(actualCaster, getTreeVersion()).Times(AtLeast(0));
 
 	setupSubject(1);
@@ -65,13 +65,13 @@ TEST_F(AbilityCasterTest, MagicAbilityAffectedByGenericBonus)
 	EXPECT_EQ(subject->getSpellSchoolLevel(&spellMock), 2);
 }
 
-TEST_F(AbilityCasterTest, MagicAbilityIngoresSchoolBonus)
+TEST_F(AbilityCasterTest, MagicAbilityIgnoresSchoolBonus)
 {
 	EXPECT_CALL(spellMock, getLevel()).WillRepeatedly(Return(1));
 
 	casterBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MAGIC_SCHOOL_SKILL, BonusSource::OTHER, 2, BonusSourceID(), BonusSubtypeID(SpellSchool::AIR)));
 
-	EXPECT_CALL(actualCaster, getAllBonuses(_, _, _, _)).Times(AtLeast(1));
+	EXPECT_CALL(actualCaster, getAllBonuses(_, _, _)).Times(AtLeast(1));
 	EXPECT_CALL(actualCaster, getTreeVersion()).Times(AtLeast(0));
 
 	setupSubject(1);

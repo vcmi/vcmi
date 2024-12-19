@@ -17,16 +17,17 @@
 #include "BattleFieldController.h"
 #include "BattleRenderer.h"
 
-#include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../media/ISoundPlayer.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
+#include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 
@@ -34,40 +35,37 @@ ImagePath BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual 
 {
 	auto getImageIndex = [&]() -> int
 	{
-		bool isTower = (what == EWallVisual::KEEP || what == EWallVisual::BOTTOM_TOWER || what == EWallVisual::UPPER_TOWER);
+		int health = static_cast<int>(state);
 
-		switch (state)
+		switch (what)
 		{
-		case EWallState::REINFORCED :
-			return 1;
-		case EWallState::INTACT :
-			if (town->hasBuilt(BuildingID::CASTLE))
-				return 2; // reinforced walls were damaged
-			else
-				return 1;
-		case EWallState::DAMAGED :
-			// towers don't have separate image here - INTACT and DAMAGED is 1, DESTROYED is 2
-			if (isTower)
-				return 1;
-			else
-				return 2;
-		case EWallState::DESTROYED :
-			if (isTower)
-				return 2;
-			else
+			case EWallVisual::KEEP:
+			case EWallVisual::BOTTOM_TOWER:
+			case EWallVisual::UPPER_TOWER:
+				if (health > 0)
+					return 1;
+				else
+					return 2;
+			default:
+			{
+				int healthTotal = town->fortificationsLevel().wallsHealth;
+				if (healthTotal == health)
+					return 1;
+				if (health > 0)
+					return 2;
 				return 3;
-		}
-		return 1;
+			}
+		};
 	};
 
-	const std::string & prefix = town->town->clientInfo.siegePrefix;
+	const std::string & prefix = town->getTown()->clientInfo.siegePrefix;
 	std::string addit = std::to_string(getImageIndex());
 
 	switch(what)
 	{
 	case EWallVisual::BACKGROUND_WALL:
 		{
-			auto faction = town->town->faction->getIndex();
+			auto faction = town->getFactionID();
 
 			if (faction == ETownType::RAMPART || faction == ETownType::NECROPOLIS || faction == ETownType::DUNGEON || faction == ETownType::STRONGHOLD)
 				return ImagePath::builtinTODO(prefix + "TPW1.BMP");
@@ -113,7 +111,7 @@ ImagePath BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual 
 
 void BattleSiegeController::showWallPiece(Canvas & canvas, EWallVisual::EWallVisual what)
 {
-	auto & ci = town->town->clientInfo;
+	auto & ci = town->getTown()->clientInfo;
 	auto const & pos = ci.siegePositions[what];
 
 	if ( wallPieceImages[what] && pos.isValid())
@@ -122,22 +120,21 @@ void BattleSiegeController::showWallPiece(Canvas & canvas, EWallVisual::EWallVis
 
 ImagePath BattleSiegeController::getBattleBackgroundName() const
 {
-	const std::string & prefix = town->town->clientInfo.siegePrefix;
+	const std::string & prefix = town->getTown()->clientInfo.siegePrefix;
 	return ImagePath::builtinTODO(prefix + "BACK.BMP");
 }
 
-bool BattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what) const
+bool BattleSiegeController::getWallPieceExistence(EWallVisual::EWallVisual what) const
 {
-	//FIXME: use this instead of buildings test?
-	//ui8 siegeLevel = owner.curInt->cb->battleGetSiegeLevel();
+	const auto & fortifications = town->fortificationsLevel();
 
 	switch (what)
 	{
-	case EWallVisual::MOAT:              return town->hasBuilt(BuildingID::CITADEL) && town->town->clientInfo.siegePositions.at(EWallVisual::MOAT).isValid();
-	case EWallVisual::MOAT_BANK:         return town->hasBuilt(BuildingID::CITADEL) && town->town->clientInfo.siegePositions.at(EWallVisual::MOAT_BANK).isValid();
-	case EWallVisual::KEEP_BATTLEMENT:   return town->hasBuilt(BuildingID::CITADEL) && owner.getBattle()->battleGetWallState(EWallPart::KEEP) != EWallState::DESTROYED;
-	case EWallVisual::UPPER_BATTLEMENT:  return town->hasBuilt(BuildingID::CASTLE) && owner.getBattle()->battleGetWallState(EWallPart::UPPER_TOWER) != EWallState::DESTROYED;
-	case EWallVisual::BOTTOM_BATTLEMENT: return town->hasBuilt(BuildingID::CASTLE) && owner.getBattle()->battleGetWallState(EWallPart::BOTTOM_TOWER) != EWallState::DESTROYED;
+	case EWallVisual::MOAT:              return fortifications.hasMoat && town->getTown()->clientInfo.siegePositions.at(EWallVisual::MOAT).isValid();
+	case EWallVisual::MOAT_BANK:         return fortifications.hasMoat && town->getTown()->clientInfo.siegePositions.at(EWallVisual::MOAT_BANK).isValid();
+	case EWallVisual::KEEP_BATTLEMENT:   return fortifications.citadelHealth > 0 && owner.getBattle()->battleGetWallState(EWallPart::KEEP) != EWallState::DESTROYED;
+	case EWallVisual::UPPER_BATTLEMENT:  return fortifications.upperTowerHealth > 0 && owner.getBattle()->battleGetWallState(EWallPart::UPPER_TOWER) != EWallState::DESTROYED;
+	case EWallVisual::BOTTOM_BATTLEMENT: return fortifications.lowerTowerHealth > 0 && owner.getBattle()->battleGetWallState(EWallPart::BOTTOM_TOWER) != EWallState::DESTROYED;
 	default:                             return true;
 	}
 }
@@ -179,16 +176,26 @@ BattleSiegeController::BattleSiegeController(BattleInterface & owner, const CGTo
 		if ( g == EWallVisual::GATE ) // gate is initially closed and has no image to display in this state
 			continue;
 
-		if ( !getWallPieceExistance(EWallVisual::EWallVisual(g)) )
+		if ( !getWallPieceExistence(EWallVisual::EWallVisual(g)) )
 			continue;
 
-		wallPieceImages[g] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::REINFORCED));
+		wallPieceImages[g] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::REINFORCED), EImageBlitMode::COLORKEY);
 	}
 }
 
-const CCreature *BattleSiegeController::getTurretCreature() const
+const CCreature *BattleSiegeController::getTurretCreature(BattleHex position) const
 {
-	return CGI->creh->objects[town->town->clientInfo.siegeShooter];
+	switch (position)
+	{
+		case BattleHex::CASTLE_CENTRAL_TOWER:
+			return town->fortificationsLevel().citadelShooter.toCreature();
+		case BattleHex::CASTLE_UPPER_TOWER:
+			return town->fortificationsLevel().upperTowerShooter.toCreature();
+		case BattleHex::CASTLE_BOTTOM_TOWER:
+			return town->fortificationsLevel().lowerTowerShooter.toCreature();
+	}
+
+	throw std::runtime_error("Unable to select shooter for tower at " + std::to_string(position.hex));
 }
 
 Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) const
@@ -211,8 +218,8 @@ Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) con
 	if (posID != 0)
 	{
 		return {
-			town->town->clientInfo.siegePositions[posID].x,
-			town->town->clientInfo.siegePositions[posID].y
+			town->getTown()->clientInfo.siegePositions[posID].x,
+			town->getTown()->clientInfo.siegePositions[posID].y
 		};
 	}
 
@@ -248,7 +255,7 @@ void BattleSiegeController::gateStateChanged(const EGateState state)
 		wallPieceImages[EWallVisual::GATE] = nullptr;
 
 	if (stateId != EWallState::NONE)
-		wallPieceImages[EWallVisual::GATE] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::GATE,  stateId));
+		wallPieceImages[EWallVisual::GATE] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::GATE,  stateId), EImageBlitMode::COLORKEY);
 
 	if (playSound)
 		CCS->soundh->playSound(soundBase::DRAWBRG);
@@ -256,10 +263,10 @@ void BattleSiegeController::gateStateChanged(const EGateState state)
 
 void BattleSiegeController::showAbsoluteObstacles(Canvas & canvas)
 {
-	if (getWallPieceExistance(EWallVisual::MOAT))
+	if (getWallPieceExistence(EWallVisual::MOAT))
 		showWallPiece(canvas, EWallVisual::MOAT);
 
-	if (getWallPieceExistance(EWallVisual::MOAT_BANK))
+	if (getWallPieceExistence(EWallVisual::MOAT_BANK))
 		showWallPiece(canvas, EWallVisual::MOAT_BANK);
 }
 
@@ -292,7 +299,7 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 	{
 		auto wallPiece = EWallVisual::EWallVisual(i);
 
-		if ( !getWallPieceExistance(wallPiece))
+		if ( !getWallPieceExistence(wallPiece))
 			continue;
 
 		if ( getWallPiecePosition(wallPiece) == BattleHex::INVALID)
@@ -357,7 +364,7 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 
 		auto wallState = EWallState(owner.getBattle()->battleGetWallState(attackInfo.attackedPart));
 
-		wallPieceImages[wallId] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState));
+		wallPieceImages[wallId] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState), EImageBlitMode::COLORKEY);
 	}
 }
 

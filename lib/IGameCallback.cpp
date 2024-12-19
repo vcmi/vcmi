@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "IGameCallback.h"
 
-#include "CHeroHandler.h" // for CHeroHandler
 #include "spells/CSpellHandler.h"// for CSpell
 #include "CSkillHandler.h"// for CSkill
 #include "CBonusTypeHandler.h"
@@ -19,7 +18,8 @@
 #include "bonuses/Limiters.h"
 #include "bonuses/Propagators.h"
 #include "bonuses/Updaters.h"
-
+#include "entities/building/CBuilding.h"
+#include "entities/hero/CHero.h"
 #include "networkPacks/ArtifactLocation.h"
 #include "serializer/CLoadFile.h"
 #include "serializer/CSaveFile.h"
@@ -27,6 +27,7 @@
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "mapObjects/CGMarket.h"
+#include "mapObjects/TownBuildingInstance.h"
 #include "mapObjects/CGTownInstance.h"
 #include "mapObjects/CObjectHandler.h"
 #include "mapObjects/CQuest.h"
@@ -40,7 +41,6 @@
 #include "gameState/QuestInfo.h"
 #include "mapping/CMap.h"
 #include "modding/CModHandler.h"
-#include "modding/CModInfo.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/CModVersion.h"
 #include "modding/ActiveModsInSaveList.h"
@@ -50,6 +50,8 @@
 #include "RoadHandler.h"
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -69,7 +71,7 @@ void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
-				if (tinfo->terType->isLand() && tinfo->terType->isPassable() && !tinfo->blocked) //land and free
+				if (tinfo->isLand() && tinfo->getTerrain()->isPassable() && !tinfo->blocked()) //land and free
 					tiles.emplace_back(xd, yd, zd);
 			}
 		}
@@ -103,8 +105,8 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 				if(distance <= radious)
 				{
 					if(!player
-						|| (mode == ETileVisibility::HIDDEN  && (*team->fogOfWarMap)[pos.z][xd][yd] == 0)
-						|| (mode == ETileVisibility::REVEALED && (*team->fogOfWarMap)[pos.z][xd][yd] == 1)
+						|| (mode == ETileVisibility::HIDDEN  && team->fogOfWarMap[pos.z][xd][yd] == 0)
+						|| (mode == ETileVisibility::REVEALED && team->fogOfWarMap[pos.z][xd][yd] == 1)
 					)
 						tiles.insert(int3(xd,yd,pos.z));
 				}
@@ -146,14 +148,14 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std:
 	}
 }
 
-void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand)
+void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand)
 {
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_TREASURE).toArtifact());
+		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_TREASURE));
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_MINOR).toArtifact());
+		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_MINOR));
 
-	out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_MAJOR).toArtifact());
+	out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_MAJOR));
 }
 
 void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)
@@ -177,8 +179,7 @@ CGameState * CPrivilegedInfoCallback::gameState()
 	return gs;
 }
 
-template<typename Loader>
-void CPrivilegedInfoCallback::loadCommonState(Loader & in)
+void CPrivilegedInfoCallback::loadCommonState(CLoadFile & in)
 {
 	logGlobal->info("Loading lib part of game...");
 	in.checkMagicBytes(SAVEGAME_MAGIC);
@@ -200,8 +201,7 @@ void CPrivilegedInfoCallback::loadCommonState(Loader & in)
 	in.serializer & gs;
 }
 
-template<typename Saver>
-void CPrivilegedInfoCallback::saveCommonState(Saver & out) const
+void CPrivilegedInfoCallback::saveCommonState(CSaveFile & out) const
 {
 	ActiveModsInSaveList activeMods;
 
@@ -216,10 +216,6 @@ void CPrivilegedInfoCallback::saveCommonState(Saver & out) const
 	logGlobal->info("\tSaving gamestate");
 	out.serializer & gs;
 }
-
-// hardly memory usage for `-gdwarf-4` flag
-template DLL_LINKAGE void CPrivilegedInfoCallback::loadCommonState<CLoadFile>(CLoadFile &);
-template DLL_LINKAGE void CPrivilegedInfoCallback::saveCommonState<CSaveFile>(CSaveFile &) const;
 
 TerrainTile * CNonConstInfoCallback::getTile(const int3 & pos)
 {
@@ -284,14 +280,16 @@ CArtifactSet * CNonConstInfoCallback::getArtSet(const ArtifactLocation & loc)
 			return hero;
 		}
 	}
-	else if(auto market = dynamic_cast<CGArtifactsAltar*>(getObjInstance(loc.artHolder)))
+	else if(auto market = getMarket(loc.artHolder))
 	{
-		return market;
+		if(auto artSet = market->getArtifactsStorage())
+			return artSet;
 	}
-	else
+	else if(auto army = getArmyInstance(loc.artHolder))
 	{
-		return nullptr;
+		return army->getStackPtr(loc.creature.value());
 	}
+	return nullptr;
 }
 
 bool IGameCallback::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)

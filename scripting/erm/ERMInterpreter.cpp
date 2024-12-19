@@ -1452,37 +1452,37 @@ bool ERMInterpreter::isATrigger( const ERM::TLine & line )
 	return false;
 }
 
-ERM::EVOtions ERMInterpreter::getExpType(const ERM::TVOption & opt)
+ERM::EVOptions ERMInterpreter::getExpType(const ERM::TVOption & opt)
 {
 	struct Visitor
 	{
-		ERM::EVOtions operator()(const boost::recursive_wrapper<ERM::TVExp>&) const
+		ERM::EVOptions operator()(const boost::recursive_wrapper<ERM::TVExp>&) const
 		{
-			return ERM::EVOtions::VEXP;
+			return ERM::EVOptions::VEXP;
 		}
-		ERM::EVOtions operator()(const ERM::TSymbol&) const
+		ERM::EVOptions operator()(const ERM::TSymbol&) const
 		{
-			return ERM::EVOtions::SYMBOL;
+			return ERM::EVOptions::SYMBOL;
 		}
-		ERM::EVOtions operator()(char) const
+		ERM::EVOptions operator()(char) const
 		{
-			return ERM::EVOtions::CHAR;
+			return ERM::EVOptions::CHAR;
 		}
-		ERM::EVOtions operator()(double) const
+		ERM::EVOptions operator()(double) const
 		{
-			return ERM::EVOtions::DOUBLE;
+			return ERM::EVOptions::DOUBLE;
 		}
-		ERM::EVOtions operator()(int) const
+		ERM::EVOptions operator()(int) const
 		{
-			return ERM::EVOtions::INT;
+			return ERM::EVOptions::INT;
 		}
-		ERM::EVOtions operator()(const ERM::Tcommand&) const
+		ERM::EVOptions operator()(const ERM::Tcommand&) const
 		{
-			return ERM::EVOtions::TCMD;
+			return ERM::EVOptions::TCMD;
 		}
-		ERM::EVOtions operator()(const ERM::TStringConstant&) const
+		ERM::EVOptions operator()(const ERM::TStringConstant&) const
 		{
-			return ERM::EVOtions::STRINGC;
+			return ERM::EVOptions::STRINGC;
 		}
 	};
 	const Visitor v;

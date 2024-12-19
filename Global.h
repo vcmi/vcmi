@@ -102,6 +102,12 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define STRONG_INLINE inline
 #endif
 
+// Required for building boost::stacktrace on macOS.
+// See https://github.com/boostorg/stacktrace/issues/88
+#if defined(VCMI_APPLE)
+#define _GNU_SOURCE
+#endif
+
 #define _USE_MATH_DEFINES
 
 #include <algorithm>
@@ -148,7 +154,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #endif
 #define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
 //need to link boost thread dynamically to avoid https://stackoverflow.com/questions/35978572/boost-thread-interupt-does-not-work-when-crossing-a-dll-boundary
-#define BOOST_THREAD_USE_DLL //for example VCAI::finish() may freeze on thread join after interrupt when linking this statically
+//for example VCAI::finish() may freeze on thread join after interrupt when linking this statically
+#ifndef BOOST_THREAD_USE_DLL
+#  define BOOST_THREAD_USE_DLL
+#endif
 #define BOOST_BIND_NO_PLACEHOLDERS
 
 #if BOOST_VERSION >= 106600
@@ -698,6 +707,33 @@ namespace vstd
 	Arithmetic lerp(const Arithmetic & a, const Arithmetic & b, const Floating & f)
 	{
 		return a + (b - a) * f;
+	}
+
+	/// Divides dividend by divisor and rounds result up
+	/// For use with integer-only arithmetic
+	template<typename Integer1, typename Integer2>
+	Integer1 divideAndCeil(const Integer1 & dividend, const Integer2 & divisor)
+	{
+		static_assert(std::is_integral_v<Integer1> && std::is_integral_v<Integer2>, "This function should only be used with integral types");
+		return (dividend + divisor - 1) / divisor;
+	}
+
+	/// Divides dividend by divisor and rounds result to nearest
+	/// For use with integer-only arithmetic
+	template<typename Integer1, typename Integer2>
+	Integer1 divideAndRound(const Integer1 & dividend, const Integer2 & divisor)
+	{
+		static_assert(std::is_integral_v<Integer1> && std::is_integral_v<Integer2>, "This function should only be used with integral types");
+		return (dividend + divisor / 2 - 1) / divisor;
+	}
+
+	/// Divides dividend by divisor and rounds result down
+	/// For use with integer-only arithmetic
+	template<typename Integer1, typename Integer2>
+	Integer1 divideAndFloor(const Integer1 & dividend, const Integer2 & divisor)
+	{
+		static_assert(std::is_integral_v<Integer1> && std::is_integral_v<Integer2>, "This function should only be used with integral types");
+		return dividend / divisor;
 	}
 
 	template<typename Floating>

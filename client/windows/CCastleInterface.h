@@ -150,7 +150,7 @@ class CCastleBuildings : public CIntObject
 
 	const CGHeroInstance* getHero();//Select hero for buildings usage
 
-	void enterBlacksmith(ArtifactID artifactID);//support for blacksmith + ballista yard
+	void enterBlacksmith(BuildingID building, ArtifactID artifactID);//support for blacksmith + ballista yard
 	void enterBuilding(BuildingID building);//for buildings with simple description + pic left-click messages
 	void enterCastleGate();
 	void enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades);//Rampart's fountains
@@ -167,12 +167,15 @@ public:
 
 	void enterDwelling(int level);
 	void enterTownHall();
+	void enterRewardable(BuildingID building);
 	void enterMagesGuild();
 	void enterAnyMarket();
 	void enterAnyThievesGuild();
+	void enterBank(BuildingID building);
 	void enterToTheQuickRecruitmentWindow();
 
-	void buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID = BuildingSubID::NONE, BuildingID upgrades = BuildingID::NONE);
+	bool buildingTryActivateCustomUI(BuildingID buildingToTest, BuildingID buildingTarget);
+	void buildingClicked(BuildingID building);
 	void addBuilding(BuildingID building);
 	void removeBuilding(BuildingID building);//FIXME: not tested!!!
 };
@@ -181,7 +184,7 @@ public:
 class CCreaInfo : public CIntObject
 {
 	const CGTownInstance * town;
-	const CCreature * creature;
+	CreatureID creature;
 	int level;
 	bool showAvailable;
 
@@ -376,9 +379,10 @@ class CMageGuildScreen : public CStatusbarWindow
 	{
 		const CSpell * spell;
 		std::shared_ptr<CAnimImage> image;
+		ObjectInstanceID townId;
 
 	public:
-		Scroll(Point position, const CSpell *Spell);
+		Scroll(Point position, const CSpell *Spell, ObjectInstanceID townId);
 		void clickPressed(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
@@ -390,8 +394,11 @@ class CMageGuildScreen : public CStatusbarWindow
 
 	std::shared_ptr<CMinorResDataBar> resdatabar;
 
+	ObjectInstanceID townId;
+
 public:
 	CMageGuildScreen(CCastleInterface * owner, const ImagePath & image);
+	void updateSpells(ObjectInstanceID tID);
 };
 
 /// The blacksmith window where you can buy available in town war machine

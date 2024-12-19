@@ -82,6 +82,9 @@ struct DLL_LINKAGE Reward final
 	/// fixed value, in form of percentage from max
 	si32 movePercentage;
 
+	/// Guards that must be defeated in order to access this reward, empty if not guarded
+	std::vector<CStackBasicDescriptor> guards;
+
 	/// list of bonuses, e.g. morale/luck
 	std::vector<Bonus> bonuses;
 
@@ -126,6 +129,8 @@ struct DLL_LINKAGE Reward final
 		h & removeObject;
 		h & manaPercentage;
 		h & movePercentage;
+		if (h.version >= Handler::Version::REWARDABLE_GUARDS)
+			h & guards;
 		h & heroExperience;
 		h & heroLevel;
 		h & manaDiff;

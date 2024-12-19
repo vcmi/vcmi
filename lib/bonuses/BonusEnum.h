@@ -33,7 +33,7 @@ class JsonNode;
 	BONUS_NAME(NEGATE_ALL_NATURAL_IMMUNITIES) \
 	BONUS_NAME(STACK_HEALTH) \
 	BONUS_NAME(GENERATE_RESOURCE) /*daily value, uses subtype (resource type)*/  \
-	BONUS_NAME(CREATURE_GROWTH) /*for legion artifacts: value - week growth bonus, subtype - monster level if aplicable*/  \
+	BONUS_NAME(CREATURE_GROWTH) /*for legion artifacts: value - week growth bonus, subtype - monster level if applicable*/  \
 	BONUS_NAME(WHIRLPOOL_PROTECTION) /*hero won't lose army when teleporting through whirlpool*/  \
 	BONUS_NAME(SPELL) /*hero knows spell, val - skill level (0 - 3), subtype - spell id*/  \
 	BONUS_NAME(SPELLS_OF_LEVEL) /*hero knows all spells of given level, val - skill level; subtype - level*/  \
@@ -150,7 +150,7 @@ class JsonNode;
 	BONUS_NAME(GARGOYLE) /* gargoyle is special than NON_LIVING, cannot be rised or healed */ \
 	BONUS_NAME(SPECIAL_ADD_VALUE_ENCHANT) /*specialty spell like Aenin has, increased effect of spell, additionalInfo = value to add*/\
 	BONUS_NAME(SPECIAL_FIXED_VALUE_ENCHANT) /*specialty spell like Melody has, constant spell effect (i.e. 3 luck), additionalInfo = value to fix.*/\
-	BONUS_NAME(TOWN_MAGIC_WELL) /*one-time pseudo-bonus to implement Magic Well in the town*/\
+	BONUS_NAME(THIEVES_GUILD_ACCESS) \
 	BONUS_NAME(LIMITED_SHOOTING_RANGE) /*limits range of shooting creatures, doesn't adjust any other mechanics (half vs full damage etc). val - range in hexes, additional info - optional new range for broken arrow mechanic */\
 	BONUS_NAME(LEARN_BATTLE_SPELL_CHANCE) /*skill-agnostic eagle eye chance. subtype = 0 - from enemy, 1 - TODO: from entire battlefield*/\
 	BONUS_NAME(LEARN_BATTLE_SPELL_LEVEL_LIMIT) /*skill-agnostic eagle eye limit, subtype - school (-1 for all), others TODO*/\
@@ -177,7 +177,11 @@ class JsonNode;
 	BONUS_NAME(ENEMY_ATTACK_REDUCTION) /*in % (value) eg. Nix (HotA)*/ \
 	BONUS_NAME(REVENGE) /*additional damage based on how many units in stack died - formula: sqrt((number of creatures at battle start + 1) * creature health) / (total health now + 1 creature health) - 1) * 100% */ \
 	BONUS_NAME(RESOURCES_CONSTANT_BOOST) /*Bonus that does not account for propagation and gives extra resources per day. val - resource amount, subtype - resource type*/ \
-	BONUS_NAME(RESOURCES_TOWN_MULTIPLYING_BOOST) /*Bonus that does not account for propagation and gives extra resources per day with amount multiplied by number of owned towns. val - base resource amount to be multipled times number of owned towns, subtype - resource type*/ \
+	BONUS_NAME(RESOURCES_TOWN_MULTIPLYING_BOOST) /*Bonus that does not account for propagation and gives extra resources per day with amount multiplied by number of owned towns. val - base resource amount to be multiplied times number of owned towns, subtype - resource type*/ \
+	BONUS_NAME(DISINTEGRATE) /* after death no corpse remains */ \
+	BONUS_NAME(INVINCIBLE) /* cannot be target of attacks or spells */ \
+	BONUS_NAME(MECHANICAL) /*eg. factory creatures, cannot be rised or healed, only neutral morale, repairable by engineer */ \
+	BONUS_NAME(PRISM_HEX_ATTACK_BREATH) /*eg. dragons*/	\
 	/* end of list */
 
 
@@ -212,7 +216,7 @@ class JsonNode;
 	BONUS_VALUE(INDEPENDENT_MIN) //used for SECONDARY_SKILL_PREMY bonus
 
 
-enum class BonusType
+enum class BonusType : uint8_t
 {
 #define BONUS_NAME(x) x,
     BONUS_LIST
@@ -220,21 +224,27 @@ enum class BonusType
 };
 namespace BonusDuration  //when bonus is automatically removed
 {
-	using Type = std::bitset<11>;
+	// We use uint16_t directly because std::bitset<11> eats whole 8 byte word.
+	using Type = uint16_t;
+	constexpr size_t Size = 11;
+
+	enum BonusDuration : Type {
+		PERMANENT = 1 << 0,
+		ONE_BATTLE = 1 << 1, //at the end of battle
+		ONE_DAY = 1 << 2,   //at the end of day
+		ONE_WEEK = 1 << 3, //at the end of week (bonus lasts till the end of week, thats NOT 7 days
+		N_TURNS = 1 << 4, //used during battles, after battle bonus is always removed
+		N_DAYS = 1 << 5,
+		UNTIL_BEING_ATTACKED = 1 << 6, /*removed after attack and counterattacks are performed*/
+		UNTIL_ATTACK = 1 << 7, /*removed after attack and counterattacks are performed*/
+		STACK_GETS_TURN = 1 << 8, /*removed when stack gets its turn - used for defensive stance*/
+		COMMANDER_KILLED = 1 << 9,
+		UNTIL_OWN_ATTACK = 1 << 10 /*removed after attack is performed (not counterattack)*/,
+	};
+
 	extern JsonNode toJson(const Type & duration);
-	constexpr Type PERMANENT = 1 << 0;
-	constexpr Type ONE_BATTLE = 1 << 1; //at the end of battle
-	constexpr Type ONE_DAY = 1 << 2;   //at the end of day
-	constexpr Type ONE_WEEK = 1 << 3; //at the end of week (bonus lasts till the end of week, thats NOT 7 days
-	constexpr Type N_TURNS = 1 << 4; //used during battles, after battle bonus is always removed
-	constexpr Type N_DAYS = 1 << 5;
-	constexpr Type UNTIL_BEING_ATTACKED = 1 << 6; /*removed after attack and counterattacks are performed*/
-	constexpr Type UNTIL_ATTACK = 1 << 7; /*removed after attack and counterattacks are performed*/
-	constexpr Type STACK_GETS_TURN = 1 << 8; /*removed when stack gets its turn - used for defensive stance*/
-	constexpr Type COMMANDER_KILLED = 1 << 9;
-	constexpr Type UNTIL_OWN_ATTACK = 1 << 10; /*removed after attack is performed (not counterattack)*/;
 };
-enum class BonusSource
+enum class BonusSource : uint8_t
 {
 #define BONUS_SOURCE(x) x,
     BONUS_SOURCE_LIST
@@ -242,13 +252,13 @@ enum class BonusSource
     NUM_BONUS_SOURCE /*This is a dummy value, which will be always last*/
 };
 
-enum class BonusLimitEffect
+enum class BonusLimitEffect : uint8_t
 {
     NO_LIMIT = 0,
     ONLY_DISTANCE_FIGHT=1, ONLY_MELEE_FIGHT, //used to mark bonuses for attack/defense primary skills from spells like Precision (distance only)
 };
 
-enum class BonusValueType
+enum class BonusValueType : uint8_t
 {
 #define BONUS_VALUE(x) x,
     BONUS_VALUE_LIST

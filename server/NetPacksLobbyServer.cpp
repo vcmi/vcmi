@@ -17,10 +17,12 @@
 #include "../lib/CRandomGenerator.h"
 
 #include "../lib/campaign/CampaignState.h"
+#include "../lib/entities/faction/CTownHandler.h"
+#include "../lib/entities/faction/CFaction.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
-#include "../lib/CTownHandler.h"
+#include "../lib/filesystem/Filesystem.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
@@ -32,7 +34,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
-	// Propogate options after every CLobbyPackToServer
+	// Propagate options after every CLobbyPackToServer
 	if(pack.isForServer())
 	{
 		srv.updateAndPropagateLobbyState();
@@ -107,6 +109,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyC
 
 void ApplyOnServerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
+	pack.c->getConnection()->close();
 	srv.clientDisconnected(pack.c);
 	result = true;
 }
@@ -126,10 +129,10 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientDisconnected(Lobb
 	}
 	else if(pack.c->connectionID == srv.hostClientId)
 	{
-		auto ph = std::make_unique<LobbyChangeHost>();
+		LobbyChangeHost ph;
 		auto newHost = srv.activeConnections.front();
-		ph->newHostConnectionId = newHost->connectionID;
-		srv.announcePack(std::move(ph));
+		ph.newHostConnectionId = newHost->connectionID;
+		srv.announcePack(ph);
 	}
 	srv.updateAndPropagateLobbyState();
 	
@@ -345,6 +348,12 @@ void ApplyOnServerNetPackVisitor::visitLobbySetPlayerName(LobbySetPlayerName & p
 	result = true;
 }
 
+void ApplyOnServerNetPackVisitor::visitLobbySetPlayerHandicap(LobbySetPlayerHandicap & pack)
+{
+	srv.setPlayerHandicap(pack.color, pack.handicap);
+	result = true;
+}
+
 void ApplyOnServerNetPackVisitor::visitLobbySetSimturns(LobbySetSimturns & pack)
 {
 	srv.si->simturnsInfo = pack.simturnsInfo;
@@ -374,7 +383,6 @@ void ApplyOnServerNetPackVisitor::visitLobbyForceSetPlayer(LobbyForceSetPlayer &
 	srv.si->playerInfos[pack.targetPlayerColor].connectedPlayerIDs.insert(pack.targetConnectedPlayer);
 	result = true;
 }
-
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 {
@@ -424,4 +432,33 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 			break;
 	}
 	result = true;
+}
+
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
+{
+	result = srv.isClientHost(pack.c->connectionID);
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
+{
+	if(pack.type == LobbyDelete::EType::SAVEGAME || pack.type == LobbyDelete::EType::RANDOMMAP)
+	{
+		auto res = ResourcePath(pack.name, pack.type == LobbyDelete::EType::SAVEGAME ? EResType::SAVEGAME : EResType::MAP);
+		auto file = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(res));
+		boost::filesystem::remove(file);
+		if(boost::filesystem::is_empty(file.parent_path()))
+			boost::filesystem::remove(file.parent_path());
+	}
+	else if(pack.type == LobbyDelete::EType::SAVEGAME_FOLDER)
+	{
+		auto res = ResourcePath("Saves/" + pack.name, EResType::DIRECTORY);
+		auto folder = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(res));
+		boost::filesystem::remove_all(folder);
+	}
+
+	LobbyUpdateState lus;
+	lus.state = srv;
+	lus.refreshList = true;
+	srv.announcePack(lus);
 }

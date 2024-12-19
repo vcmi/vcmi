@@ -45,7 +45,7 @@
      <item>
       <widget class="QCheckBox" name="supportedCheck">
        <property name="text">
-        <string>Suppported</string>
+        <string>Supported</string>
        </property>
       </widget>
      </item>

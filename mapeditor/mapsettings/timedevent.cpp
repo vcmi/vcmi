@@ -10,13 +10,16 @@
 #include "StdInc.h"
 #include "timedevent.h"
 #include "ui_timedevent.h"
+#include "eventsettings.h"
+#include "../mapeditorroles.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/constants/StringConstants.h"
 
-TimedEvent::TimedEvent(QListWidgetItem * t, QWidget *parent) :
+TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) : 
+	controller(c),
 	QDialog(parent),
-	target(t),
-	ui(new Ui::TimedEvent)
+	ui(new Ui::TimedEvent),
+	target(t)
 {
 	ui->setupUi(this);
 
@@ -27,12 +30,13 @@ TimedEvent::TimedEvent(QListWidgetItem * t, QWidget *parent) :
 	ui->eventMessageText->setPlainText(params.value("message").toString());
 	ui->eventAffectsCpu->setChecked(params.value("computerAffected").toBool());
 	ui->eventAffectsHuman->setChecked(params.value("humanAffected").toBool());
-	ui->eventFirstOccurance->setValue(params.value("firstOccurence").toInt());
-	ui->eventRepeatAfter->setValue(params.value("nextOccurence").toInt());
+	ui->eventFirstOccurrence->setValue(params.value("firstOccurrence").toInt() + 1);
+	ui->eventRepeatAfter->setValue(params.value("nextOccurrence").toInt());
 
+	auto playerList = params.value("players").toList();
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
-		bool isAffected = (1 << i) & params.value("players").toInt();
+		bool isAffected = playerList.contains(toQString(PlayerColor(i)));
 		auto * item = new QListWidgetItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[i]));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setCheckState(isAffected ? Qt::Checked : Qt::Unchecked);
@@ -49,7 +53,14 @@ TimedEvent::TimedEvent(QListWidgetItem * t, QWidget *parent) :
 		nval->setFlags(nval->flags() | Qt::ItemIsEditable);
 		ui->resources->setItem(i, 1, nval);
 	}
-
+	auto deletedObjectInstances = params.value("deletedObjectsInstances").toList();
+	for(auto const & idAsVariant : deletedObjectInstances)
+	{
+		auto id = ObjectInstanceID(idAsVariant.toInt());
+		auto obj = controller.map()->objects[id];
+		if(obj)
+			insertObjectToDelete(obj);
+	}
 	show();
 }
 
@@ -66,15 +77,15 @@ void TimedEvent::on_TimedEvent_finished(int result)
 	descriptor["message"] = ui->eventMessageText->toPlainText();
 	descriptor["humanAffected"] = QVariant::fromValue(ui->eventAffectsHuman->isChecked());
 	descriptor["computerAffected"] = QVariant::fromValue(ui->eventAffectsCpu->isChecked());
-	descriptor["firstOccurence"] = QVariant::fromValue(ui->eventFirstOccurance->value());
-	descriptor["nextOccurence"] = QVariant::fromValue(ui->eventRepeatAfter->value());
+	descriptor["firstOccurrence"] = QVariant::fromValue(ui->eventFirstOccurrence->value() - 1);
+	descriptor["nextOccurrence"] = QVariant::fromValue(ui->eventRepeatAfter->value());
 
-	int players = 0;
+	QVariantList players;
 	for(int i = 0; i < ui->playersAffected->count(); ++i)
 	{
 		auto * item = ui->playersAffected->item(i);
 		if(item->checkState() == Qt::Checked)
-			players |= 1 << i;
+			players.push_back(toQString(PlayerColor(i)));
 	}
 	descriptor["players"] = QVariant::fromValue(players);
 
@@ -87,10 +98,63 @@ void TimedEvent::on_TimedEvent_finished(int result)
 	}
 	descriptor["resources"] = res;
 
+	QVariantList deletedObjects;
+	for(int i = 0; i < ui->deletedObjects->count(); ++i)
+	{
+		auto const & item = ui->deletedObjects->item(i);
+		auto data = item->data(MapEditorRoles::ObjectInstanceIDRole);
+		auto id = ObjectInstanceID(data.value<int>());
+		deletedObjects.push_back(QVariant::fromValue(id.num));
+	}
+	descriptor["deletedObjectsInstances"] = QVariant::fromValue(deletedObjects);
+
 	target->setData(Qt::UserRole, descriptor);
 	target->setText(ui->eventNameText->text());
 }
 
+void TimedEvent::on_addObjectToDelete_clicked()
+{
+	for(int lvl : {0, 1})
+	{
+		auto & l = controller.scene(lvl)->objectPickerView;
+		l.highlight<const CGObjectInstance>();
+		l.update();
+		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &TimedEvent::onObjectPicked);
+	}
+	hide();
+	dynamic_cast<QWidget *>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->hide();
+}
+
+void TimedEvent::on_removeObjectToDelete_clicked()
+{
+	delete ui->deletedObjects->takeItem(ui->deletedObjects->currentRow());
+}
+
+void TimedEvent::onObjectPicked(const CGObjectInstance * obj)
+{
+	show();
+	dynamic_cast<QWidget *>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->show();
+
+	for(int lvl : {0, 1})
+	{
+		auto & l = controller.scene(lvl)->objectPickerView;
+		l.clear();
+		l.update();
+		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &TimedEvent::onObjectPicked);
+	}
+
+	if(!obj) 
+		return;
+	insertObjectToDelete(obj);
+}
+
+void TimedEvent::insertObjectToDelete(const CGObjectInstance * obj)
+{
+	QString objectLabel = QString("%1, x: %2, y: %3, z: %4").arg(QString::fromStdString(obj->getObjectName())).arg(obj->pos.x).arg(obj->pos.y).arg(obj->pos.z);
+	auto * item = new QListWidgetItem(objectLabel);
+	item->setData(MapEditorRoles::ObjectInstanceIDRole, QVariant::fromValue(obj->id.num));
+	ui->deletedObjects->addItem(item);
+}
 
 void TimedEvent::on_pushButton_clicked()
 {

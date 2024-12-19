@@ -15,12 +15,13 @@
 #include "Limiter.h"
 #include "Reward.h"
 
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../json/JsonRandom.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
-#include "../CRandomGenerator.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -75,7 +76,7 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 
 	auto loadString = [&](const JsonNode & entry, const TextIdentifier & textID){
 		if (entry.isString() && !entry.String().empty() && entry.String()[0] != '@')
-			VLC->generaltexth->registerString(entry.getModScope(), textID, entry.String());
+			VLC->generaltexth->registerString(entry.getModScope(), textID, entry);
 	};
 
 	parameters = objectConfig;
@@ -104,9 +105,10 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 	loadString(parameters["visitedTooltip"], TextIdentifier(objectName, "visitedTooltip"));
 	loadString(parameters["onVisitedMessage"], TextIdentifier(objectName, "onVisited"));
 	loadString(parameters["onEmptyMessage"], TextIdentifier(objectName, "onEmpty"));
+	loadString(parameters["onGuardedMessage"], TextIdentifier(objectName, "onGuarded"));
 }
 
-Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, const JsonNode & source) const
+Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, const JsonNode & source) const
 {
 	Rewardable::LimitersList result;
 	for (const auto & input : source.Vector())
@@ -121,7 +123,7 @@ Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Conf
 	return result;
 }
 
-void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, Rewardable::Limiter & limiter, const JsonNode & source) const
+void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, Rewardable::Limiter & limiter, const JsonNode & source) const
 {
 	auto const & variables = object.variables.values;
 	JsonRandom randomizer(cb);
@@ -153,7 +155,7 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRan
 	limiter.noneOf = configureSublimiters(object, rng, cb, source["noneOf"] );
 }
 
-void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, Rewardable::Reward & reward, const JsonNode & source) const
+void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, Rewardable::Reward & reward, const JsonNode & source) const
 {
 	auto const & variables = object.variables.values;
 	JsonRandom randomizer(cb);
@@ -172,6 +174,8 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRand
 
 	reward.removeObject = source["removeObject"].Bool();
 	reward.bonuses = randomizer.loadBonuses(source["bonuses"]);
+
+	reward.guards = randomizer.loadCreatures(source["guards"], rng, variables);
 
 	reward.primary = randomizer.loadPrimaries(source["primary"], rng, variables);
 	reward.secondary = randomizer.loadSecondaries(source["secondary"], rng, variables);
@@ -210,14 +214,14 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRand
 	}
 }
 
-void Rewardable::Info::configureResetInfo(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::ResetInfo & resetParameters, const JsonNode & source) const
+void Rewardable::Info::configureResetInfo(Rewardable::Configuration & object, vstd::RNG & rng, Rewardable::ResetInfo & resetParameters, const JsonNode & source) const
 {
 	resetParameters.period   = static_cast<ui32>(source["period"].Float());
 	resetParameters.visitors = source["visitors"].Bool();
 	resetParameters.rewards  = source["rewards"].Bool();
 }
 
-void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, const JsonNode & source) const
+void Rewardable::Info::configureVariables(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, const JsonNode & source) const
 {
 	JsonRandom randomizer(cb);
 
@@ -263,21 +267,69 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 
 void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variables & variables, const VisitInfo & info) const
 {
-	for (const auto & artifact : info.reward.artifacts )
-		target.replaceName(artifact);
+	if (!info.reward.guards.empty())
+	{
+		replaceTextPlaceholders(target, variables);
 
-	for (const auto & spell : info.reward.spells )
-		target.replaceName(spell);
+		CreatureID strongest = info.reward.guards.at(0).getId();
 
-	for (const auto & secondary : info.reward.secondary )
-		target.replaceName(secondary.first);
+		for (const auto & guard : info.reward.guards )
+		{
+			if (strongest.toEntity(VLC)->getFightValue() < guard.getId().toEntity(VLC)->getFightValue())
+				strongest = guard.getId();
+		}
+		target.replaceNamePlural(strongest); // FIXME: use singular if only 1 such unit is in guards
 
-	replaceTextPlaceholders(target, variables);
+		MetaString loot;
+
+		for (GameResID it : GameResID::ALL_RESOURCES())
+		{
+			if (info.reward.resources[it] != 0)
+			{
+				loot.appendRawString("%d %s");
+				loot.replaceNumber(info.reward.resources[it]);
+				loot.replaceName(it);
+			}
+		}
+
+		for (const auto & artifact : info.reward.artifacts )
+		{
+			loot.appendRawString("%s");
+			loot.replaceName(artifact);
+		}
+
+		for (const auto & spell : info.reward.spells )
+		{
+			loot.appendRawString("%s");
+			loot.replaceName(spell);
+		}
+
+		for (const auto & secondary : info.reward.secondary )
+		{
+			loot.appendRawString("%s");
+			loot.replaceName(secondary.first);
+		}
+
+		target.replaceRawString(loot.buildList());
+	}
+	else
+	{
+		for (const auto & artifact : info.reward.artifacts )
+			target.replaceName(artifact);
+
+		for (const auto & spell : info.reward.spells )
+			target.replaceName(spell);
+
+		for (const auto & secondary : info.reward.secondary )
+			target.replaceName(secondary.first);
+
+		replaceTextPlaceholders(target, variables);
+	}
 }
 
 void Rewardable::Info::configureRewards(
 		Rewardable::Configuration & object,
-		CRandomGenerator & rng,
+		vstd::RNG & rng,
 		IGameCallback * cb,
 		const JsonNode & source,
 		Rewardable::EEventType event,
@@ -298,7 +350,7 @@ void Rewardable::Info::configureRewards(
 			{
 				const JsonNode & preset = object.getPresetVariable("dice", diceID);
 				if (preset.isNull())
-					object.initVariable("dice", diceID, rng.getIntRange(0, 99)());
+					object.initVariable("dice", diceID, rng.nextInt(0, 99));
 				else
 					object.initVariable("dice", diceID, preset.Integer());
 
@@ -335,7 +387,7 @@ void Rewardable::Info::configureRewards(
 	}
 }
 
-void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb) const
+void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb) const
 {
 	object.info.clear();
 	object.variables.values.clear();
@@ -377,10 +429,22 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 		object.info.push_back(onEmpty);
 	}
 
+	if (!parameters["onGuardedMessage"].isNull())
+	{
+		Rewardable::VisitInfo onGuarded;
+		onGuarded.visitType = Rewardable::EEventType::EVENT_GUARDED;
+		onGuarded.message = loadMessage(parameters["onGuardedMessage"], TextIdentifier(objectTextID, "onGuarded"));
+		replaceTextPlaceholders(onGuarded.message, object.variables);
+
+		object.info.push_back(onGuarded);
+	}
+
 	configureResetInfo(object, rng, object.resetParameters, parameters["resetParameters"]);
 
 	object.canRefuse = parameters["canRefuse"].Bool();
 	object.showScoutedPreview = parameters["showScoutedPreview"].Bool();
+	object.guardsLayout = parameters["guardsLayout"].String();
+	object.coastVisitable = parameters["coastVisitable"].Bool();
 
 	if(parameters["showInInfobox"].isNull())
 		object.infoWindowType = EInfoWindowMode::AUTO;
@@ -460,6 +524,11 @@ bool Rewardable::Info::givesSpells() const
 bool Rewardable::Info::givesBonuses() const
 {
 	return testForKey(parameters, "bonuses");
+}
+
+bool Rewardable::Info::hasGuards() const
+{
+	return testForKey(parameters, "guards");
 }
 
 const JsonNode & Rewardable::Info::getParameters() const

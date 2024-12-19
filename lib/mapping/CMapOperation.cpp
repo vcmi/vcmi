@@ -12,11 +12,12 @@
 #include "CMapOperation.h"
 
 #include "../VCMI_Lib.h"
-#include "../CRandomGenerator.h"
 #include "../TerrainHandler.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "CMap.h"
 #include "MapEditUtils.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -87,7 +88,7 @@ void CComposedOperation::addOperation(std::unique_ptr<CMapOperation>&& operation
 	operations.push_back(std::move(operation));
 }
 
-CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, int decorationsPercentage, CRandomGenerator * gen):
+CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, int decorationsPercentage, vstd::RNG * gen):
 	CMapOperation(map),
 	terrainSel(std::move(terrainSel)),
 	terType(terType),
@@ -102,7 +103,7 @@ void CDrawTerrainOperation::execute()
 	for(const auto & pos : terrainSel.getSelectedItems())
 	{
 		auto & tile = map->getTile(pos);
-		tile.terType = const_cast<TerrainType*>(VLC->terrainTypeHandler->getById(terType));
+		tile.terrainType = terType;
 		invalidateTerrainViews(pos);
 	}
 
@@ -136,7 +137,7 @@ void CDrawTerrainOperation::updateTerrainTypes()
 		auto tiles = getInvalidTiles(centerPos);
 		auto updateTerrainType = [&](const int3& pos)
 		{
-			map->getTile(pos).terType = centerTile.terType;
+			map->getTile(pos).terrainType = centerTile.terrainType;
 			positions.insert(pos);
 			invalidateTerrainViews(pos);
 			//logGlobal->debug("Set additional terrain tile at pos '%s' to type '%s'", pos, centerTile.terType);
@@ -160,10 +161,10 @@ void CDrawTerrainOperation::updateTerrainTypes()
 			rect.forEach([&](const int3& posToTest)
 				{
 					auto & terrainTile = map->getTile(posToTest);
-					if(centerTile.terType->getId() != terrainTile.terType->getId())
+					if(centerTile.getTerrain() != terrainTile.getTerrain())
 					{
-						const auto * formerTerType = terrainTile.terType;
-						terrainTile.terType = centerTile.terType;
+						const auto formerTerType = terrainTile.terrainType;
+						terrainTile.terrainType = centerTile.terrainType;
 						auto testTile = getInvalidTiles(posToTest);
 
 						int nativeTilesCntNorm = testTile.nativeTiles.empty() ? std::numeric_limits<int>::max() : static_cast<int>(testTile.nativeTiles.size());
@@ -220,7 +221,7 @@ void CDrawTerrainOperation::updateTerrainTypes()
 							suitableTiles.insert(posToTest);
 						}
 
-						terrainTile.terType = formerTerType;
+						terrainTile.terrainType = formerTerType;
 					}
 				});
 
@@ -263,7 +264,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 {
 	for(const auto & pos : invalidatedTerViews)
 	{
-		const auto & patterns = VLC->terviewh->getTerrainViewPatterns(map->getTile(pos).terType->getId());
+		const auto & patterns = VLC->terviewh->getTerrainViewPatterns(map->getTile(pos).getTerrainID());
 
 		// Detect a pattern which fits best
 		int bestPattern = -1;
@@ -339,7 +340,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 
 CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainViewInner(const int3& pos, const TerrainViewPattern& pattern, int recDepth) const
 {
-	const auto * centerTerType = map->getTile(pos).terType;
+	const auto * centerTerType = map->getTile(pos).getTerrain();
 	int totalPoints = 0;
 	std::string transitionReplacement;
 
@@ -371,24 +372,24 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			}
 			else if(widthTooHigh)
 			{
-				terType = map->getTile(int3(currentPos.x - 1, currentPos.y, currentPos.z)).terType;
+				terType = map->getTile(int3(currentPos.x - 1, currentPos.y, currentPos.z)).getTerrain();
 			}
 			else if(heightTooHigh)
 			{
-				terType = map->getTile(int3(currentPos.x, currentPos.y - 1, currentPos.z)).terType;
+				terType = map->getTile(int3(currentPos.x, currentPos.y - 1, currentPos.z)).getTerrain();
 			}
 			else if(widthTooLess)
 			{
-				terType = map->getTile(int3(currentPos.x + 1, currentPos.y, currentPos.z)).terType;
+				terType = map->getTile(int3(currentPos.x + 1, currentPos.y, currentPos.z)).getTerrain();
 			}
 			else if(heightTooLess)
 			{
-				terType = map->getTile(int3(currentPos.x, currentPos.y + 1, currentPos.z)).terType;
+				terType = map->getTile(int3(currentPos.x, currentPos.y + 1, currentPos.z)).getTerrain();
 			}
 		}
 		else
 		{
-			terType = map->getTile(currentPos).terType;
+			terType = map->getTile(currentPos).getTerrain();
 			if(terType != centerTerType && (terType->isPassable() || centerTerType->isPassable()))
 			{
 				isAlien = true;
@@ -508,13 +509,13 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 {
 	//TODO: this is very expensive function for RMG, needs optimization
 	InvalidTiles tiles;
-	const auto * centerTerType = map->getTile(centerPos).terType;
+	const auto * centerTerType = map->getTile(centerPos).getTerrain();
 	auto rect = extendTileAround(centerPos);
 	rect.forEach([&](const int3& pos)
 		{
 			if(map->isInTheMap(pos))
 			{
-				const auto * terType = map->getTile(pos).terType;
+				const auto * terType = map->getTile(pos).getTerrain();
 				auto valid = validateTerrainView(pos, VLC->terviewh->getTerrainTypePatternById("n1")).result;
 
 				// Special validity check for rock & water
@@ -560,7 +561,7 @@ CDrawTerrainOperation::ValidationResult::ValidationResult(bool result, std::stri
 
 }
 
-CClearTerrainOperation::CClearTerrainOperation(CMap* map, CRandomGenerator* gen) : CComposedOperation(map)
+CClearTerrainOperation::CClearTerrainOperation(CMap* map, vstd::RNG* gen) : CComposedOperation(map)
 {
 	CTerrainSelection terrainSel(map);
 	terrainSel.selectRange(MapRect(int3(0, 0, 0), map->width, map->height));
@@ -614,7 +615,7 @@ std::string CInsertObjectOperation::getLabel() const
 CMoveObjectOperation::CMoveObjectOperation(CMap* map, CGObjectInstance* obj, const int3& targetPosition)
 	: CMapOperation(map),
 	obj(obj),
-	initialPos(obj->pos),
+	initialPos(obj->anchorPos()),
 	targetPos(targetPosition)
 {
 }

@@ -19,20 +19,20 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 namespace PathfinderUtil
 {
-	using FoW = std::unique_ptr<boost::multi_array<ui8, 3>>;
+	using FoW = boost::multi_array<ui8, 3>;
 	using ELayer = EPathfindingLayer;
 
 	template<EPathfindingLayer::Type layer>
 	EPathAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile & tinfo, const FoW & fow, const PlayerColor player, const CGameState * gs)
 	{
-		if(!(*fow)[pos.z][pos.x][pos.y])
+		if(!fow[pos.z][pos.x][pos.y])
 			return EPathAccessibility::BLOCKED;
 
 		switch(layer)
 		{
 		case ELayer::LAND:
 		case ELayer::SAIL:
-			if(tinfo.visitable)
+			if(tinfo.visitable())
 			{
 				if(tinfo.visitableObjects.front()->ID == Obj::SANCTUARY && tinfo.visitableObjects.back()->ID == Obj::HERO && tinfo.visitableObjects.back()->tempOwner != player) //non-owned hero stands on Sanctuary
 				{
@@ -51,7 +51,7 @@ namespace PathfinderUtil
 					}
 				}
 			}
-			else if(tinfo.blocked)
+			else if(tinfo.blocked())
 			{
 				return EPathAccessibility::BLOCKED;
 			}
@@ -64,7 +64,7 @@ namespace PathfinderUtil
 			break;
 
 		case ELayer::WATER:
-			if(tinfo.blocked || tinfo.terType->isLand())
+			if(tinfo.blocked() || tinfo.isLand())
 				return EPathAccessibility::BLOCKED;
 
 			break;

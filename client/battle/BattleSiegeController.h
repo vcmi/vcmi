@@ -83,7 +83,7 @@ class BattleSiegeController
 	BattleHex getWallPiecePosition(EWallVisual::EWallVisual what) const;
 
 	/// returns true if chosen wall piece should be present in current battle
-	bool getWallPieceExistance(EWallVisual::EWallVisual what) const;
+	bool getWallPieceExistence(EWallVisual::EWallVisual what) const;
 
 	void showWallPiece(Canvas & canvas, EWallVisual::EWallVisual what);
 
@@ -104,7 +104,7 @@ public:
 	/// queries from other battle controllers
 	bool isAttackableByCatapult(BattleHex hex) const;
 	ImagePath getBattleBackgroundName() const;
-	const CCreature *getTurretCreature() const;
+	const CCreature *getTurretCreature(BattleHex turretPosition) const;
 	Point getTurretCreaturePosition( BattleHex position ) const;
 
 	const CGTownInstance *getSiegedTown() const;

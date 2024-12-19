@@ -11,9 +11,11 @@
 #include "AIMovementAfterDestinationRule.h"
 #include "../Actions/BattleAction.h"
 #include "../Actions/QuestAction.h"
+#include "../Actions/WhirlpoolAction.h"
 #include "../../Goals/Invalid.h"
 #include "AIPreviousNodeRule.h"
 #include "../../../../lib/pathfinder/PathfinderOptions.h"
+#include "../../../../lib/pathfinder/CPathfinder.h"
 
 namespace NKAI
 {
@@ -34,7 +36,7 @@ namespace AIPathfinding
 		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const
 	{
-		if(nodeStorage->isMovementIneficient(source, destination))
+		if(nodeStorage->isMovementInefficient(source, destination))
 		{
 			destination.node->locked = true;
 			destination.blocked = true;
@@ -225,7 +227,7 @@ namespace AIPathfinding
 			return false;
 		}
 
-		auto danger = nodeStorage->evaluateDanger(destination.coord, nodeStorage->getHero(destination.node), true);
+		auto danger = ai->dangerEvaluator->evaluateDanger(destination.coord, nodeStorage->getHero(destination.node), true);
 
 		if(danger)
 		{
@@ -311,7 +313,7 @@ namespace AIPathfinding
 		}
 
 		auto hero = nodeStorage->getHero(source.node);
-		uint64_t danger = nodeStorage->evaluateDanger(destination.coord, hero, true);
+		uint64_t danger = ai->dangerEvaluator->evaluateDanger(destination.coord, hero, true);
 		uint64_t actualArmyValue = srcNode->actor->armyValue - srcNode->armyLoss;
 		uint64_t loss = nodeStorage->evaluateArmyLoss(hero, actualArmyValue, danger);
 

@@ -44,7 +44,7 @@ private:
 	void initCostBox();
 
 	// This just wraps a clickeable area. There's a weird layout scheme in the file and
-	// it's easier to just add a separate invisble box on top
+	// it's easier to just add a separate invisible box on top
 	class CCreatureClickArea : public CIntObject
 	{
 	public:

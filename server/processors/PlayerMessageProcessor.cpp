@@ -16,9 +16,10 @@
 #include "../CVCMIServer.h"
 #include "../TurnTimerHandler.h"
 
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -28,6 +29,8 @@
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/serializer/Connection.h"
+#include "../../lib/spells/CSpellHandler.h"
+#include "../lib/VCMIDirs.h"
 
 PlayerMessageProcessor::PlayerMessageProcessor(CGameHandler * gameHandler)
 	:gameHandler(gameHandler)
@@ -67,7 +70,7 @@ void PlayerMessageProcessor::commandExit(PlayerColor player, const std::vector<s
 	if(!isHost)
 		return;
 
-	broadcastSystemMessage("game was terminated");
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.gameTerminated"));
 	gameHandler->gameLobby()->setState(EServerState::SHUTDOWN);
 }
 
@@ -97,7 +100,7 @@ void PlayerMessageProcessor::commandKick(PlayerColor player, const std::vector<s
 			PlayerCheated pc;
 			pc.player = playerToKick;
 			pc.losingCheatCode = true;
-			gameHandler->sendAndApply(&pc);
+			gameHandler->sendAndApply(pc);
 			gameHandler->checkVictoryLossConditionsForPlayer(playerToKick);
 		}
 	}
@@ -112,7 +115,11 @@ void PlayerMessageProcessor::commandSave(PlayerColor player, const std::vector<s
 	if(words.size() == 2)
 	{
 		gameHandler->save("Saves/" + words[1]);
-		broadcastSystemMessage("game saved as " + words[1]);
+		MetaString str;
+		str.appendTextID("vcmi.broadcast.gameSavedAs");
+		str.appendRawString(" ");
+		str.appendRawString(words[1]);
+		broadcastSystemMessage(str);
 	}
 }
 
@@ -123,54 +130,70 @@ void PlayerMessageProcessor::commandCheaters(PlayerColor player, const std::vect
 	{
 		if(player.second.cheated)
 		{
-			broadcastSystemMessage("Player " + player.first.toString() + " is cheater!");
+			auto str = MetaString::createFromTextID("vcmi.broadcast.playerCheater");
+			str.replaceName(player.first);
+			broadcastSystemMessage(str);
 			playersCheated++;
 		}
 	}
 
 	if(!playersCheated)
-		broadcastSystemMessage("No cheaters registered!");
+		broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.noCheater"));
+}
+
+void PlayerMessageProcessor::commandStatistic(PlayerColor player, const std::vector<std::string> & words)
+{
+	bool isHost = gameHandler->gameLobby()->isPlayerHost(player);
+	if(!isHost)
+		return;
+
+	std::string path = gameHandler->gameState()->statistic.writeCsv();
+
+	auto str = MetaString::createFromTextID("vcmi.broadcast.statisticFile");
+	str.replaceRawString(path);
+	broadcastSystemMessage(str);
 }
 
 void PlayerMessageProcessor::commandHelp(PlayerColor player, const std::vector<std::string> & words)
 {
-	broadcastSystemMessage("Available commands to host:");
-	broadcastSystemMessage("'!exit' - immediately ends current game");
-	broadcastSystemMessage("'!kick <player>' - kick specified player from the game");
-	broadcastSystemMessage("'!save <filename>' - save game under specified filename");
-	broadcastSystemMessage("Available commands to all players:");
-	broadcastSystemMessage("'!help' - display this help");
-	broadcastSystemMessage("'!cheaters' - list players that entered cheat command during game");
-	broadcastSystemMessage("'!vote' - allows to change some game settings if all players vote for it");
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.commands"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.exit"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.kick"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.save"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.statistic"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.commandsAll"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.help"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.cheaters"));
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.help.vote"));
 }
 
 void PlayerMessageProcessor::commandVote(PlayerColor player, const std::vector<std::string> & words)
 {
 	if(words.size() < 2)
 	{
-		broadcastSystemMessage("'!vote simturns allow X' - allow simultaneous turns for specified number of days, or until contact");
-		broadcastSystemMessage("'!vote simturns force X' - force simultaneous turns for specified number of days, blocking player contacts");
-		broadcastSystemMessage("'!vote simturns abort' - abort simultaneous turns once this turn ends");
-		broadcastSystemMessage("'!vote timer prolong X' - prolong base timer for all players by specified number of seconds");
+		broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.allow"));
+		broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.force"));
+		broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.abort"));
+		broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.timer"));
 		return;
 	}
 
-	if(words[1] == "yes" || words[1] == "no")
+	if(words[1] == "yes" || words[1] == "no" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.yes").toString() || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.no").toString())
 	{
 		if(currentVote == ECurrentChatVote::NONE)
 		{
-			broadcastSystemMessage("No active voting!");
+			broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.noActive"));
 			return;
 		}
 
-		if(words[1] == "yes")
+		if(words[1] == "yes" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.yes").toString())
 		{
 			awaitingPlayers.erase(player);
 			if(awaitingPlayers.empty())
 				finishVoting();
 			return;
 		}
-		if(words[1] == "no")
+		if(words[1] == "no" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.no").toString())
 		{
 			abortVoting();
 			return;
@@ -225,28 +248,36 @@ void PlayerMessageProcessor::commandVote(PlayerColor player, const std::vector<s
 		}
 	}
 
-	broadcastSystemMessage("Voting command not recognized!");
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.notRecognized"));
 }
 
 void PlayerMessageProcessor::finishVoting()
 {
+	MetaString msg;
 	switch(currentVote)
 	{
 		case ECurrentChatVote::SIMTURNS_ALLOW:
-			broadcastSystemMessage("Voting successful. Simultaneous turns will run for " + std::to_string(currentVoteParameter) + " more days, or until contact");
+			msg.appendTextID("vcmi.broadcast.vote.success.untilContacts");
+			msg.replaceRawString(std::to_string(currentVoteParameter));
+			broadcastSystemMessage(msg);
 			gameHandler->turnOrder->setMaxSimturnsDuration(currentVoteParameter);
 			break;
 		case ECurrentChatVote::SIMTURNS_FORCE:
-			broadcastSystemMessage("Voting successful. Simultaneous turns will run for " + std::to_string(currentVoteParameter) + " more days. Contacts are blocked");
+			msg.appendTextID("vcmi.broadcast.vote.success.contactsBlocked");
+			msg.replaceRawString(std::to_string(currentVoteParameter));
+			broadcastSystemMessage(msg);
 			gameHandler->turnOrder->setMinSimturnsDuration(currentVoteParameter);
 			break;
 		case ECurrentChatVote::SIMTURNS_ABORT:
-			broadcastSystemMessage("Voting successful. Simultaneous turns will end on next day");
+			msg.appendTextID("vcmi.broadcast.vote.success.nextDay");
+			broadcastSystemMessage(msg);
 			gameHandler->turnOrder->setMinSimturnsDuration(0);
 			gameHandler->turnOrder->setMaxSimturnsDuration(0);
 			break;
 		case ECurrentChatVote::TIMER_PROLONG:
-			broadcastSystemMessage("Voting successful. Timer for all players has been prolonger for " + std::to_string(currentVoteParameter) + " seconds");
+			msg.appendTextID("vcmi.broadcast.vote.success.timer");
+			msg.replaceRawString(std::to_string(currentVoteParameter));
+			broadcastSystemMessage(msg);
 			gameHandler->turnTimerHandler->prolongTimers(currentVoteParameter * 1000);
 			break;
 	}
@@ -257,7 +288,7 @@ void PlayerMessageProcessor::finishVoting()
 
 void PlayerMessageProcessor::abortVoting()
 {
-	broadcastSystemMessage("Player voted against change. Voting aborted");
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.aborted"));
 	currentVote = ECurrentChatVote::NONE;
 }
 
@@ -266,25 +297,33 @@ void PlayerMessageProcessor::startVoting(PlayerColor initiator, ECurrentChatVote
 	currentVote = what;
 	currentVoteParameter = parameter;
 
+	MetaString msg;
 	switch(currentVote)
 	{
 		case ECurrentChatVote::SIMTURNS_ALLOW:
-			broadcastSystemMessage("Started voting to allow simultaneous turns for " + std::to_string(parameter) + " more days");
+			msg.appendTextID("vcmi.broadcast.vote.start.untilContacts");
+			msg.replaceRawString(std::to_string(parameter));
+			broadcastSystemMessage(msg);
 			break;
 		case ECurrentChatVote::SIMTURNS_FORCE:
-			broadcastSystemMessage("Started voting to force simultaneous turns for " + std::to_string(parameter) + " more days");
+			msg.appendTextID("vcmi.broadcast.vote.start.contactsBlocked");
+			msg.replaceRawString(std::to_string(parameter));
+			broadcastSystemMessage(msg);
 			break;
 		case ECurrentChatVote::SIMTURNS_ABORT:
-			broadcastSystemMessage("Started voting to end simultaneous turns starting from next day");
+			msg.appendTextID("vcmi.broadcast.vote.start.nextDay");
+			broadcastSystemMessage(msg);
 			break;
 		case ECurrentChatVote::TIMER_PROLONG:
-			broadcastSystemMessage("Started voting to prolong timer for all players by " + std::to_string(parameter) + " seconds");
+			msg.appendTextID("vcmi.broadcast.vote.start.timer");
+			msg.replaceRawString(std::to_string(parameter));
+			broadcastSystemMessage(msg);
 			break;
 		default:
 			return;
 	}
 
-	broadcastSystemMessage("Type '!vote yes' to agree to this change or '!vote no' to vote against it");
+	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.vote.hint"));
 	awaitingPlayers.clear();
 
 	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
@@ -318,6 +357,8 @@ void PlayerMessageProcessor::handleCommand(PlayerColor player, const std::string
 		commandSave(player, words);
 	if(words[0] == "!cheaters")
 		commandCheaters(player, words);
+	if(words[0] == "!statistic")
+		commandStatistic(player, words);
 }
 
 void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroInstance * hero)
@@ -327,7 +368,7 @@ void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroIns
 
 	///Give hero spellbook
 	if (!hero->hasSpellbook())
-		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 
 	///Give all spells with bonus (to allow banned spells)
 	GiveBonus giveBonus(GiveBonus::ETarget::OBJECT);
@@ -337,7 +378,7 @@ void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroIns
 	for (int level = 1; level <= GameConstants::SPELL_LEVELS; level++)
 	{
 		giveBonus.bonus.subtype = BonusCustomSubtype::spellLevel(level);
-		gameHandler->sendAndApply(&giveBonus);
+		gameHandler->sendAndApply(giveBonus);
 	}
 
 	///Give mana
@@ -345,7 +386,7 @@ void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroIns
 	sm.hid = hero->id;
 	sm.val = 999;
 	sm.absolute = true;
-	gameHandler->sendAndApply(&sm);
+	gameHandler->sendAndApply(sm);
 }
 
 void PlayerMessageProcessor::cheatBuildTown(PlayerColor player, const CGTownInstance * town)
@@ -353,7 +394,7 @@ void PlayerMessageProcessor::cheatBuildTown(PlayerColor player, const CGTownInst
 	if (!town)
 		return;
 
-	for (auto & build : town->town->buildings)
+	for (auto & build : town->getTown()->buildings)
 	{
 		if (!town->hasBuilt(build.first)
 			&& !build.second->getNameTranslated().empty()
@@ -405,11 +446,11 @@ void PlayerMessageProcessor::cheatGiveMachines(PlayerColor player, const CGHeroI
 		return;
 
 	if (!hero->getArt(ArtifactPosition::MACH1))
-		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::BALLISTA).toArtifact(), ArtifactPosition::MACH1);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID::BALLISTA, ArtifactPosition::MACH1);
 	if (!hero->getArt(ArtifactPosition::MACH2))
-		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::AMMO_CART).toArtifact(), ArtifactPosition::MACH2);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID::AMMO_CART, ArtifactPosition::MACH2);
 	if (!hero->getArt(ArtifactPosition::MACH3))
-		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::FIRST_AID_TENT).toArtifact(), ArtifactPosition::MACH3);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID::FIRST_AID_TENT, ArtifactPosition::MACH3);
 }
 
 void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)
@@ -423,7 +464,7 @@ void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHero
 		{
 			auto artID = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", word, false);
 			if(artID &&  VLC->arth->objects[*artID])
-				gameHandler->giveHeroNewArtifact(hero, ArtifactID(*artID).toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
+				gameHandler->giveHeroNewArtifact(hero, ArtifactID(*artID), ArtifactPosition::FIRST_AVAILABLE);
 		}
 	}
 	else
@@ -431,9 +472,21 @@ void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHero
 		for(int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
 		{
 			if(VLC->arth->objects[g]->canBePutAt(hero))
-				gameHandler->giveHeroNewArtifact(hero, ArtifactID(g).toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
+				gameHandler->giveHeroNewArtifact(hero, ArtifactID(g), ArtifactPosition::FIRST_AVAILABLE);
 		}
 	}
+}
+
+void PlayerMessageProcessor::cheatGiveScrolls(PlayerColor player, const CGHeroInstance * hero)
+{
+	if(!hero)
+		return;
+
+	for(const auto & spell : VLC->spellh->objects)
+		if(gameHandler->gameState()->isAllowed(spell->getId()) && !spell->isSpecial())
+		{
+			gameHandler->giveHeroNewScroll(hero, spell->getId(), ArtifactPosition::FIRST_AVAILABLE);
+		}
 }
 
 void PlayerMessageProcessor::cheatLevelup(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)
@@ -491,7 +544,7 @@ void PlayerMessageProcessor::cheatMovement(PlayerColor player, const CGHeroInsta
 		unlimited = true;
 	}
 
-	gameHandler->sendAndApply(&smp);
+	gameHandler->sendAndApply(smp);
 
 	GiveBonus gb(GiveBonus::ETarget::OBJECT);
 	gb.bonus.type = BonusType::FREE_SHIP_BOARDING;
@@ -536,7 +589,7 @@ void PlayerMessageProcessor::cheatVictory(PlayerColor player)
 	PlayerCheated pc;
 	pc.player = player;
 	pc.winningCheatCode = true;
-	gameHandler->sendAndApply(&pc);
+	gameHandler->sendAndApply(pc);
 }
 
 void PlayerMessageProcessor::cheatDefeat(PlayerColor player)
@@ -544,7 +597,7 @@ void PlayerMessageProcessor::cheatDefeat(PlayerColor player)
 	PlayerCheated pc;
 	pc.player = player;
 	pc.losingCheatCode = true;
-	gameHandler->sendAndApply(&pc);
+	gameHandler->sendAndApply(pc);
 }
 
 void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
@@ -560,12 +613,12 @@ void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
 	for(int z = 0; z < mapSize.z; z++)
 		for(int x = 0; x < mapSize.x; x++)
 			for(int y = 0; y < mapSize.y; y++)
-				if(!(*fowMap)[z][x][y] || fc.mode == ETileVisibility::HIDDEN)
+				if(!fowMap[z][x][y] || fc.mode == ETileVisibility::HIDDEN)
 					hlp_tab[lastUnc++] = int3(x, y, z);
 
 	fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);
 	delete [] hlp_tab;
-	gameHandler->sendAndApply(&fc);
+	gameHandler->sendAndApply(fc);
 }
 
 void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
@@ -583,7 +636,7 @@ void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
 
 				PlayerCheated pc;
 				pc.player = color;
-				gameHandler->sendAndApply(&pc);
+				gameHandler->sendAndApply(pc);
 			}
 		}
 	}
@@ -659,7 +712,8 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 		"vcmiolorin",              "vcmiexp",
 		"vcmiluck",                                   "nwcfollowthewhiterabbit", 
 		"vcmimorale",                                 "nwcmorpheus",
-		"vcmigod",                                    "nwctheone"
+		"vcmigod",                                    "nwctheone",
+		"vcmiscrolls"
 	};
 
 	if (!vstd::contains(townTargetedCheats, cheatName) && !vstd::contains(playerTargetedCheats, cheatName) && !vstd::contains(heroTargetedCheats, cheatName))
@@ -685,7 +739,7 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 
 		PlayerCheated pc;
 		pc.player = i.first;
-		gameHandler->sendAndApply(&pc);
+		gameHandler->sendAndApply(pc);
 
 		playerTargetedCheat = true;
 		parameters.erase(parameters.begin());
@@ -694,17 +748,17 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 			executeCheatCode(cheatName, i.first, ObjectInstanceID::NONE, parameters);
 
 		if (vstd::contains(townTargetedCheats, cheatName))
-			for (const auto & t : i.second.towns)
+			for (const auto & t : i.second.getTowns())
 				executeCheatCode(cheatName, i.first, t->id, parameters);
 
 		if (vstd::contains(heroTargetedCheats, cheatName))
-			for (const auto & h : i.second.heroes)
+			for (const auto & h : i.second.getHeroes())
 				executeCheatCode(cheatName, i.first, h->id, parameters);
 	}
 
 	PlayerCheated pc;
 	pc.player = player;
-	gameHandler->sendAndApply(&pc);
+	gameHandler->sendAndApply(pc);
 	
 	if (!playerTargetedCheat)
 		executeCheatCode(cheatName, player, currObj, words);
@@ -736,6 +790,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 	const auto & doCheatRevealPuzzle = [&]() { cheatPuzzleReveal(player); };
 	const auto & doCheatMaxLuck = [&]() { cheatMaxLuck(player, hero); };
 	const auto & doCheatMaxMorale = [&]() { cheatMaxMorale(player, hero); };
+	const auto & doCheatGiveScrolls = [&]() { cheatGiveScrolls(player, hero); };
 	const auto & doCheatTheOne = [&]()
 	{
 		if(!hero)
@@ -804,6 +859,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		{"nwcmorpheus",             doCheatMaxMorale      },
 		{"vcmigod",                 doCheatTheOne         },
 		{"nwctheone",               doCheatTheOne         },
+		{"vcmiscrolls",             doCheatGiveScrolls    },
 	};
 
 	assert(callbacks.count(cheatName));
@@ -811,11 +867,11 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		callbacks.at(cheatName)();
 }
 
-void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> connection, MetaString message)
+void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> connection, const MetaString & message)
 {
 	SystemMessage sm;
 	sm.text = message;
-	connection->sendPack(&sm);
+	connection->sendPack(sm);
 }
 
 void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message)
@@ -829,7 +885,7 @@ void PlayerMessageProcessor::broadcastSystemMessage(MetaString message)
 {
 	SystemMessage sm;
 	sm.text = message;
-	gameHandler->sendToAllClients(&sm);
+	gameHandler->sendToAllClients(sm);
 }
 
 void PlayerMessageProcessor::broadcastSystemMessage(const std::string & message)
@@ -842,5 +898,5 @@ void PlayerMessageProcessor::broadcastSystemMessage(const std::string & message)
 void PlayerMessageProcessor::broadcastMessage(PlayerColor playerSender, const std::string & message)
 {
 	PlayerMessageClient temp_message(playerSender, message);
-	gameHandler->sendAndApply(&temp_message);
+	gameHandler->sendAndApply(temp_message);
 }

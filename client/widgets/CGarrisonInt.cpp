@@ -17,7 +17,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../render/IImage.h"
-#include "../render/Graphics.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/CWindowWithArtifacts.h"
 #include "../windows/GUIClasses.h"
@@ -27,12 +26,12 @@
 #include "../../CCallback.h"
 
 #include "../../lib/ArtifactUtils.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
-#include "../../lib/TextOperations.h"
 #include "../../lib/gameState/CGameState.h"
 
 void CGarrisonSlot::setHighlight(bool on)
@@ -275,12 +274,12 @@ bool CGarrisonSlot::mustForceReselection() const
 	if (!LOCPLINT->makingTurn)
 		return true;
 
-	if (!creature || !selection->creature)
-		return false;
-
 	// Attempt to take creatures from ally (select theirs first)
 	if (!selection->our())
 		return true;
+	
+	if (!creature || !selection->creature)
+		return false;
 
 	// Attempt to swap creatures with ally (select ours first)
 	if (selection->creature != creature && withAlly)
@@ -371,10 +370,13 @@ void CGarrisonSlot::gesture(bool on, const Point & initialPosition, const Point 
 	if (!settings["input"]["radialWheelGarrisonSwipe"].Bool())
 		return;
 
+	if(GH.windows().topWindow<CIntObject>()->isPopupWindow())
+		return;
+
 	const auto * otherArmy = upg == EGarrisonType::UPPER ? owner->lowerArmy() : owner->upperArmy();
 
 	bool stackExists = myStack != nullptr;
-	bool hasSameUnit = stackExists && !owner->army(upg)->getCreatureSlots(myStack->type, ID).empty();
+	bool hasSameUnit = stackExists && !owner->army(upg)->getCreatureSlots(myStack->getCreature(), ID).empty();
 	bool hasOwnEmptySlots = stackExists && owner->army(upg)->getFreeSlot() != SlotID();
 	bool exchangeMode = stackExists && owner->upperArmy() && owner->lowerArmy();
 	bool hasOtherEmptySlots = exchangeMode && otherArmy->getFreeSlot() != SlotID();
@@ -399,7 +401,7 @@ void CGarrisonSlot::update()
 	{
 		addUsedEvents(LCLICK | SHOW_POPUP | GESTURE | HOVER);
 		myStack = getObj()->getStackPtr(ID);
-		creature = myStack ? myStack->type : nullptr;
+		creature = myStack ? myStack->getCreature() : nullptr;
 	}
 	else
 	{
@@ -427,20 +429,20 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, EGa
 	: ID(IID),
 	owner(Owner),
 	myStack(creature_),
-	creature(creature_ ? creature_->type : nullptr),
+	creature(creature_ ? creature_->getCreature() : nullptr),
 	upg(Upg)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	pos.x += x;
 	pos.y += y;
 
 	AnimationPath imgName = AnimationPath::builtin(owner->smallIcons ? "cprsmall" : "TWCRPORT");
 
-	creatureImage = std::make_shared<CAnimImage>(graphics->getAnimation(imgName), 0);
+	creatureImage = std::make_shared<CAnimImage>(imgName, 0);
 	creatureImage->disable();
 
-	selectionImage = std::make_shared<CAnimImage>(graphics->getAnimation(imgName), 1);
+	selectionImage = std::make_shared<CAnimImage>(imgName, 1);
 	selectionImage->disable();
 	selectionImage->center(creatureImage->pos.center());
 
@@ -535,7 +537,6 @@ bool CGarrisonSlot::handleSplittingShortcuts()
 void CGarrisonInt::addSplitBtn(std::shared_ptr<CButton> button)
 {
 	addChild(button.get());
-	button->recActions &= ~DISPOSE;
 	splitButtons.push_back(button);
 	button->block(getSelection() == nullptr);
 }
@@ -716,7 +717,7 @@ CGarrisonInt::CGarrisonInt(const Point & position, int inx, const Point & garsOf
 	, removableUnits(_removableUnits)
 	, layout(_layout)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	setArmy(s1, EGarrisonType::UPPER);
 	setArmy(s2, EGarrisonType::LOWER);

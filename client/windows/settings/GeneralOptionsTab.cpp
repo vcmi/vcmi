@@ -11,9 +11,10 @@
 #include "GeneralOptionsTab.h"
 
 #include "CGameInfo.h"
-#include "CMusicHandler.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
+#include "media/IMusicPlayer.h"
+#include "media/ISoundPlayer.h"
 #include "render/IScreenHandler.h"
 #include "windows/GUIClasses.h"
 
@@ -25,7 +26,7 @@
 #include "../../widgets/Slider.h"
 #include "../../widgets/TextControls.h"
 
-#include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/filesystem/ResourcePath.h"
 
 static void setIntSetting(std::string group, std::string field, int value)
@@ -93,10 +94,12 @@ GeneralOptionsTab::GeneralOptionsTab()
 		: InterfaceObjectConfigurable(),
 		  onFullscreenChanged(settings.listen["video"]["fullscreen"])
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 
-	addConditional("touchscreen", GH.input().hasTouchInputDevice());
+	addConditional("touchscreen", GH.input().getCurrentInputMode() == InputMode::TOUCH);
+	addConditional("keyboardMouse", GH.input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE);
+	addConditional("controller", GH.input().getCurrentInputMode() == InputMode::CONTROLLER);
 #ifdef VCMI_MOBILE
 	addConditional("mobile", true);
 	addConditional("desktop", false);
@@ -191,10 +194,8 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	build(config);
 
-	const auto & currentResolution = settings["video"]["resolution"];
-
 	std::shared_ptr<CLabel> scalingLabel = widget<CLabel>("scalingLabel");
-	scalingLabel->setText(scalingToLabelString(currentResolution["scaling"].Integer()));
+	scalingLabel->setText(scalingToLabelString(GH.screenHandler().getInterfaceScalingPercentage()));
 
 	std::shared_ptr<CLabel> longTouchLabel = widget<CLabel>("longTouchLabel");
 	if (longTouchLabel)

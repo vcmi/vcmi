@@ -18,9 +18,11 @@
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
 #include "../../mapObjects/CGTownInstance.h"
+#include "../../entities/building/TownFortifications.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 #include "../../serializer/JsonSerializeFormat.h"
-#include "../../CRandomGenerator.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -38,7 +40,7 @@ bool Catapult::applicable(Problem & problem, const Mechanics * m) const
 		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 	}
 
-	if(CGTownInstance::NONE == town->fortLevel())
+	if(town->fortificationsLevel().wallsHealth == 0)
 	{
 		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 	}
@@ -102,7 +104,7 @@ void Catapult::applyMassive(ServerCallback * server, const Mechanics * m) const
 			attackInfo->damageDealt += getRandomDamage(server);
 		}
 	}
-	server->apply(&ca);
+	server->apply(ca);
 
 	removeTowerShooters(server, m);
 }
@@ -118,7 +120,7 @@ void Catapult::applyTargeted(ServerCallback * server, const Mechanics * m, const
 		auto actualTarget = EWallPart::INVALID;
 
 		if ( m->battle()->isWallPartAttackable(desiredTarget) &&
-				server->getRNG()->getInt64Range(0, 99)() < getCatapultHitChance(desiredTarget))
+				server->getRNG()->nextInt(0, 99) < getCatapultHitChance(desiredTarget))
 		{
 			actualTarget = desiredTarget;
 		}
@@ -142,7 +144,7 @@ void Catapult::applyTargeted(ServerCallback * server, const Mechanics * m, const
 		ca.battleID = m->battle()->getBattle()->getBattleID();
 		ca.attacker = m->caster->getHeroCaster() ? -1 : m->caster->getCasterUnitId();
 		ca.attackedParts.push_back(attack);
-		server->apply(&ca);
+		server->apply(ca);
 		removeTowerShooters(server, m);
 	}
 }
@@ -172,7 +174,7 @@ int Catapult::getRandomDamage (ServerCallback * server) const
 {
 	std::array<int, 3> damageChances = { noDmg, hit, crit }; //dmgChance[i] - chance for doing i dmg when hit is successful
 	int totalChance = std::accumulate(damageChances.begin(), damageChances.end(), 0);
-	int damageRandom = server->getRNG()->getInt64Range(0, totalChance - 1)();
+	int damageRandom = server->getRNG()->nextInt(0, totalChance - 1);
 	int dealtDamage = 0;
 
 	//calculating dealt damage
@@ -226,7 +228,7 @@ void Catapult::removeTowerShooters(ServerCallback * server, const Mechanics * m)
 	}
 
 	if(!removeUnits.changedStacks.empty())
-		server->apply(&removeUnits);
+		server->apply(removeUnits);
 }
 
 std::vector<EWallPart> Catapult::getPotentialTargets(const Mechanics * m, bool bypassGateCheck, bool bypassTowerCheck) const

@@ -9,9 +9,11 @@
  */
 #pragma once
 #include "BattleHex.h"
+
+#include "../constants/EntityIdentifiers.h"
 #include "../filesystem/ResourcePath.h"
 #include "../networkPacks/BattleChanges.h"
-#include "../constants/EntityIdentifiers.h"
+#include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -20,7 +22,7 @@ class ObstacleChanges;
 class JsonSerializeFormat;
 class SpellID;
 
-struct DLL_LINKAGE CObstacleInstance
+struct DLL_LINKAGE CObstacleInstance : public Serializeable
 {
 	enum EObstacleType : ui8
 	{
@@ -48,7 +50,7 @@ struct DLL_LINKAGE CObstacleInstance
 	virtual SpellID getTrigger() const;
 
 	virtual std::vector<BattleHex> getAffectedTiles() const;
-	virtual bool visibleForSide(ui8 side, bool hasNativeStack) const; //0 attacker
+	virtual bool visibleForSide(BattleSide side, bool hasNativeStack) const; //0 attacker
 
 	virtual void battleTurnPassed(){};
 
@@ -78,7 +80,7 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 	int32_t casterSpellPower;
 	int32_t spellLevel;
 	int32_t minimalDamage; //How many damage should it do regardless of power and level of caster
-	si8 casterSide; //0 - obstacle created by attacker; 1 - by defender
+	BattleSide casterSide;
 
 	SpellID trigger;
 
@@ -100,7 +102,7 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 	SpellCreatedObstacle();
 
 	std::vector<BattleHex> getAffectedTiles() const override;
-	bool visibleForSide(ui8 side, bool hasNativeStack) const override;
+	bool visibleForSide(BattleSide side, bool hasNativeStack) const override;
 
 	bool blocksTiles() const override;
 	bool stopsMovement() const override;

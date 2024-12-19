@@ -11,12 +11,16 @@
 #pragma once
 
 #include "../GameConstants.h"
-#include "../CRandomGenerator.h"
 #include "MapEditUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CMapOperation;
+
+namespace vstd
+{
+class RNG;
+}
 
 /// The CMapUndoManager provides the functionality to save operations and undo/redo them.
 class DLL_LINKAGE CMapUndoManager : boost::noncopyable
@@ -64,19 +68,20 @@ class DLL_LINKAGE CMapEditManager : boost::noncopyable
 {
 public:
 	CMapEditManager(CMap * map);
+	~CMapEditManager();
 	CMap * getMap();
 
 	/// Clears the terrain. The free level is filled with water and the underground level with rock.
-	void clearTerrain(CRandomGenerator * gen = nullptr);
+	void clearTerrain(vstd::RNG * gen);
 
 	/// Draws terrain at the current terrain selection. The selection will be cleared automatically.
-	void drawTerrain(TerrainId terType, int decorationsPercentage, CRandomGenerator * gen = nullptr);
+	void drawTerrain(TerrainId terType, int decorationsPercentage, vstd::RNG * gen);
 
 	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
-	void drawRoad(RoadId roadType, CRandomGenerator * gen = nullptr);
+	void drawRoad(RoadId roadType, vstd::RNG * gen);
 	
 	/// Draws rivers at the current terrain selection. The selection will be cleared automatically.
-	void drawRiver(RiverId riverType, CRandomGenerator * gen = nullptr);
+	void drawRiver(RiverId riverType, vstd::RNG * gen);
 
 	void insertObject(CGObjectInstance * obj);
 	void insertObjects(std::set<CGObjectInstance *> & objects);
@@ -94,7 +99,7 @@ private:
 
 	CMap * map;
 	CMapUndoManager undoManager;
-	CRandomGenerator gen;
+	std::unique_ptr<vstd::RNG> gen;
 	CTerrainSelection terrainSel;
 	CObjectSelection objectSel;
 };

@@ -20,22 +20,16 @@
 
 CArtifactsOfHeroMain::CArtifactsOfHeroMain(const Point & position)
 {
-	init(
-		std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2),
-		std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2),
-		position,
-		std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
-	addGestureCallback(std::bind(&CArtifactsOfHeroBase::gestureArtPlace, this, _1, _2));
+	init(position, std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
+	setClickPressedArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::clickPressedArtPlace, this, _1, _2));
+	setShowPopupArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
+	enableGesture();
 }
 
 CArtifactsOfHeroMain::~CArtifactsOfHeroMain()
 {
-	CArtifactsOfHeroBase::putBackPickedArtifact();
-}
-
-void CArtifactsOfHeroMain::enableArtifactsCostumeSwitcher()
-{
-	addUsedEvents(AEventsReceiver::KEYBOARD);
+	if(curHero)
+		CArtifactsOfHeroBase::putBackPickedArtifact();
 }
 
 void CArtifactsOfHeroMain::keyPressed(EShortcut key)

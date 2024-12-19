@@ -1,4 +1,6 @@
-```jsonc
+# Battle Obstacle Format
+
+```json
 	// List of terrains on which this obstacle can be used
 	"allowedTerrains" : []
 	

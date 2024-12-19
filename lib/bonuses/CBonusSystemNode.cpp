@@ -107,10 +107,9 @@ void CBonusSystemNode::getAllBonusesRec(BonusList &out, const CSelector & select
 	}
 }
 
-TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root, const std::string &cachingStr) const
+TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr) const
 {
-	bool limitOnUs = (!root || root == this); //caching won't work when we want to limit bonuses against an external node
-	if (CBonusSystemNode::cachingEnabled && limitOnUs)
+	if (CBonusSystemNode::cachingEnabled)
 	{
 		// Exclusive access for one thread
 		boost::lock_guard<boost::mutex> lock(sync);
@@ -157,11 +156,11 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 	}
 	else
 	{
-		return getAllBonusesWithoutCaching(selector, limit, root);
+		return getAllBonusesWithoutCaching(selector, limit);
 	}
 }
 
-TConstBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root) const
+TConstBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit) const
 {
 	auto ret = std::make_shared<BonusList>();
 
@@ -169,29 +168,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector
 	BonusList beforeLimiting;
 	BonusList afterLimiting;
 	getAllBonusesRec(beforeLimiting, selector);
-
-	if(!root || root == this)
-	{
-		limitBonuses(beforeLimiting, afterLimiting);
-	}
-	else if(root)
-	{
-		//We want to limit our query against an external node. We get all its bonuses,
-		// add the ones we're considering and see if they're cut out by limiters
-		BonusList rootBonuses;
-		BonusList limitedRootBonuses;
-		getAllBonusesRec(rootBonuses, selector);
-
-		for(const auto & b : beforeLimiting)
-			rootBonuses.push_back(b);
-
-		root->limitBonuses(rootBonuses, limitedRootBonuses);
-
-		for(const auto & b : beforeLimiting)
-			if(vstd::contains(limitedRootBonuses, b))
-				afterLimiting.push_back(b);
-
-	}
+	limitBonuses(beforeLimiting, afterLimiting);
 	afterLimiting.getBonuses(*ret, selector, limit);
 	ret->stackBonuses();
 	return ret;
@@ -401,7 +378,7 @@ void CBonusSystemNode::propagateBonus(const std::shared_ptr<Bonus> & b, const CB
 			? source.getUpdatedBonus(b, b->propagationUpdater)
 			: b;
 		bonuses.push_back(propagated);
-		logBonus->trace("#$# %s #propagated to# %s",  propagated->Description(), nodeName());
+		logBonus->trace("#$# %s #propagated to# %s",  propagated->Description(nullptr), nodeName());
 	}
 
 	TNodes lchildren;
@@ -415,9 +392,9 @@ void CBonusSystemNode::unpropagateBonus(const std::shared_ptr<Bonus> & b)
 	if(b->propagator->shouldBeAttached(this))
 	{
 		if (bonuses -= b)
-			logBonus->trace("#$# %s #is no longer propagated to# %s",  b->Description(), nodeName());
+			logBonus->trace("#$# %s #is no longer propagated to# %s",  b->Description(nullptr), nodeName());
 		else
-			logBonus->warn("Attempt to remove #$# %s, which is not propagated to %s", b->Description(), nodeName());
+			logBonus->warn("Attempt to remove #$# %s, which is not propagated to %s", b->Description(nullptr), nodeName());
 
 		bonuses.remove_if([b](const auto & bonus)
 		{
@@ -646,13 +623,6 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 		if(undecided.size() == undecidedCount) //we haven't moved a single bonus -> limiters reached a stable state
 			return;
 	}
-}
-
-TBonusListPtr CBonusSystemNode::limitBonuses(const BonusList &allBonuses) const
-{
-	auto ret = std::make_shared<BonusList>();
-	limitBonuses(allBonuses, *ret);
-	return ret;
 }
 
 void CBonusSystemNode::treeHasChanged()

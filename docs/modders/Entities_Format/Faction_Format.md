@@ -1,49 +1,53 @@
+# Faction Format
+
+This page tells you what you need to do to make your faction work. For help, tips and advices, read the [faction help](Faction_Help.md).
+
 ## Required data
 
-In order to make functional town you also need:
+In order to make functional town, you also need:
 
 ### Images
 
--   Creature backgrounds images, 120x100 and 130x100 versions (2 images)
--   Set of puzzle map pieces (48 images)
--   Background scenery (1 image)
--   Mage guild window view (1 image)
--   Town hall background (1 image)
+- Creature backgrounds images, 120x100 and 130x100 versions (2 images)
+- Set of puzzle map pieces (48 images)
+- Background scenery (1 image)
+- Mage guild window view (1 image)
+- Town hall background (1 image)
 
--   Set of town icons, consists from all possible combinations of: (8
+- Set of town icons, consists from all possible combinations of: (8
     images total)
-    -   small and big icons
-    -   village and fort icons
-    -   built and normal icons
+  - small and big icons
+  - village and fort icons
+  - built and normal icons
 
--   Set for castle siege screen, consists from:
-    -   Background (1 image)
-    -   Destructible towers (3 parts, 3 images each)
-    -   Destructible walls (4 parts, 3 images each)
-    -   Static walls (3 images)
-    -   Town gates (5 images)
-    -   Moat (2 images)
+- Set for castle siege screen, consists from:
+  - Background (1 image)
+  - Destructible towers (3 parts, 3 images each)
+  - Destructible walls (4 parts, 3 images each)
+  - Static walls (3 images)
+  - Town gates (5 images)
+  - Moat (2 images)
 
 ### Animation
 
--   Adventure map images for village, town and capitol (3 def files)
+- Adventure map images for village, town and capitol (3 def files)
 
 ### Music
 
--   Town theme music track (1 music file)
+- Town theme music track (at least 1 music file)
 
 ### Buildings
 
 Each town requires a set of buildings (Around 30-45 buildings)
 
--   Town animation file (1 animation file)
--   Selection highlight (1 image)
--   Selection area (1 image)
--   Town hall icon (1 image)
+- Town animation file (1 animation file)
+- Selection highlight (1 image)
+- Selection area (1 image)
+- Town hall icon (1 image)
 
 ## Faction node (root entry for town configuration)
 
-```jsonc
+```json
 // Unique faction identifier.
 "myFaction" :
 {
@@ -104,7 +108,7 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 ## Town node
 
-```jsonc
+```json
 {
 	// Field that describes behavior of map object part of town. Town-specific part of object format
 	"mapObject" : 
@@ -150,8 +154,9 @@ Each town requires a set of buildings (Around 30-45 buildings)
 			}
 		}
 	},
-	// Path to town music theme, e.g. "music/castleTheme"
-	"musicTheme" : "",
+	// List of town music themes, e.g. [ "music/castleTheme" ]
+	// At least one music file is required
+	"musicTheme" : [ "" ],
 
 	// List of structures which represents visible graphical objects on town screen.
 	// See detailed description below
@@ -244,9 +249,6 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// maximum level of mage guild
 	"mageGuild" : 4,
 
-	// war machine produced in town
-	"warMachine" : "ballista"
-	
 	// Identifier of spell that will create effects for town moat during siege
 	"moatAbility" : "castleMoat"
 }
@@ -254,7 +256,7 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 ## Siege node
 
-```jsonc
+```json
 // Describes town siege screen
 // Comments in the end of each graphic position indicate specify required suffix for image
 // Note: one not included image is battlefield background with suffix "BACK"
@@ -339,99 +341,8 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 ## Building node
 
-```jsonc
-{
-	// Numeric identifier of this building
-	"id" : 0,
-	
-	// Localizable name of this building
-	"name" : "",
-	
-	// Localizable decsription of this building
-	"description" : "",
-	
-	// Optional, indicates that this building upgrades another base building
-	"upgrades" : "baseBuilding",
-	
-	// List of town buildings that must be built before this one. See below for full format
-	"requires" : [ "allOf", [ "mageGuild1" ], [ "tavern" ] ],
-	
-	// Resources needed to build building
-	"cost" : { ... }, 
-	
-	// TODO: Document me: Subtype for some special buildings
-	"type" : "",
-	
-	// TODO: Document me: Height for lookout towers and some grails
-	"height" : "average"
-	
-	// Resources produced each day by this building
-	"produce" : { ... }, 
-
-	//determine how this building can be built. Possible values are:
-	// normal  - default value. Fulfill requirements, use resources, spend one day
-	// auto    - building appears when all requirements are built
-	// special - building can not be built manually
-	// grail   - building reqires grail to be built
-	"mode" : "auto",
-	
-	// Buildings which bonuses should be overridden with bonuses of the current building
-	"overrides" : [ "anotherBuilding ]
-	
-	// Bonuses, provided by this special building on build using bonus system
-	"bonuses" : BONUS_FORMAT
-	
-	// Bonuses, provided by this special building on hero visit and applied to the visiting hero
-	"onVisitBonuses" : BONUS_FORMAT
-}
-```
-
-Building requirements can be described using logical expressions:
-
-```jsonc
-"requires" :
-[
-    "allOf", // Normal H3 "build all" mode
-    [ "mageGuild1" ],
-    [
-        "noneOf",  // available only when none of these building are built
-        [ "dwelling5A" ],
-        [ "dwelling5AUpgrade" ]
-    ],
-    [
-        "anyOf", // any non-zero number of these buildings must be built
-        [ "tavern" ],
-        [ "blacksmith" ]
-    ]
-]
-```
+See [Town Building Format](Town_Building_Format.md)
 
 ## Structure node
 
-```jsonc
-{
-	// Main animation file for this building
-	"animation" : "", 
-	
-	// Horizontal position on town screen
-	"x" : 0,
-	
-	// Vertical  position on town screen
-	"y" : 0,
-	
-	// used for blit order. Higher value places structure close to screen and drawn on top of buildings with lower values
-	"z" : 0, 
-	
-	// Path to image with golden border around building, displayed when building is selected
-	"border" : "", 
-	
-	// Path to image with area that indicate when building is selected
-	"area" : "",
-	
-	//TODO: describe me
-	"builds": "",
-	
-	// If upgrade, this building will replace parent animation but will not alter its behaviour
-	"hidden" : false 
-}
-```
+See [Town Building Format](Town_Building_Format.md)

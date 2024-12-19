@@ -13,6 +13,7 @@
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
 #include "modding/CModHandler.h"
+#include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

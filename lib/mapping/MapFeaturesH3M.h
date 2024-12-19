@@ -21,6 +21,7 @@ public:
 	static MapFormatFeaturesH3M getFeaturesROE();
 	static MapFormatFeaturesH3M getFeaturesAB();
 	static MapFormatFeaturesH3M getFeaturesSOD();
+	static MapFormatFeaturesH3M getFeaturesCHR();
 	static MapFormatFeaturesH3M getFeaturesWOG();
 	static MapFormatFeaturesH3M getFeaturesHOTA(uint32_t hotaVersion);
 
@@ -64,6 +65,7 @@ public:
 	bool levelROE = false;
 	bool levelAB = false;
 	bool levelSOD = false;
+	bool levelCHR = false;
 	bool levelWOG = false;
 	bool levelHOTA0 = false;
 	bool levelHOTA1 = false;

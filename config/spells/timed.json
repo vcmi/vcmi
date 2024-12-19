@@ -652,7 +652,7 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":["C07SPA1"],
+			"affect":[{"defName" : "C07SPA1", "transparency" : 0.5}],
 			"projectile":[{"defName":"C07SPA0"}]//???
 		},
 		"sounds": {
@@ -696,7 +696,7 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":[{"defName":"C10SPW", "verticalPosition":"bottom"}]
+			"affect":[{"defName":"C10SPW", "verticalPosition":"bottom", "transparency" : 0.5}]
 		},
 		"sounds": {
 			"cast": "PRAYER"
@@ -806,6 +806,7 @@
 			"noneOf" : {
 				"bonus.MIND_IMMUNITY" : "normal",
 				"bonus.NON_LIVING" : "normal",
+				"bonus.MECHANICAL" : "normal",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "absolute"
 			}
@@ -859,6 +860,7 @@
 			"noneOf" : {
 				"bonus.MIND_IMMUNITY" : "normal",
 				"bonus.NON_LIVING" : "normal",
+				"bonus.MECHANICAL" : "normal",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "absolute"
 			}
@@ -1155,6 +1157,7 @@
 			"noneOf" : {
 				"bonus.MIND_IMMUNITY" : "absolute",
 				"bonus.NON_LIVING" : "absolute",
+				"bonus.MECHANICAL" : "absolute",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "absolute"
 			}
@@ -1245,6 +1248,7 @@
 			"noneOf" : {
 				"bonus.MIND_IMMUNITY" : "normal",
 				"bonus.NON_LIVING" : "normal",
+				"bonus.MECHANICAL" : "normal",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "normal"
 			}
@@ -1311,7 +1315,8 @@
 				"bonus.SIEGE_WEAPON":"absolute",
 				"bonus.MIND_IMMUNITY":"normal",
 				"bonus.UNDEAD":"normal",
-				"bonus.NON_LIVING":"normal"
+				"bonus.NON_LIVING":"normal",
+				"bonus.MECHANICAL":"normal"
 			}
 		},
 		"flags" : {
@@ -1379,6 +1384,7 @@
 			"noneOf" : {
 				"bonus.MIND_IMMUNITY" : "normal",
 				"bonus.NON_LIVING" : "normal",
+				"bonus.MECHANICAL" : "normal",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "normal"
 			}
@@ -1437,6 +1443,7 @@
 			"noneOf" : {
 				"bonus.MIND_IMMUNITY" : "normal",
 				"bonus.NON_LIVING" : "normal",
+				"bonus.MECHANICAL" : "normal",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "absolute"
 			}

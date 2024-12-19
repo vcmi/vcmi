@@ -23,7 +23,7 @@ class CAnimation;
 class IImage;
 class Canvas;
 class IMapRendererContext;
-enum class EImageBlitMode;
+enum class EImageBlitMode : uint8_t;
 
 class MapTileStorage
 {
@@ -33,7 +33,8 @@ class MapTileStorage
 public:
 	explicit MapTileStorage(size_t capacity);
 	void load(size_t index, const AnimationPath & filename, EImageBlitMode blitMode);
-	std::shared_ptr<IImage> find(size_t fileIndex, size_t rotationIndex, size_t imageIndex);
+	std::shared_ptr<IImage> find(size_t fileIndex, size_t rotationIndex, size_t imageIndex, size_t groupIndex = 0);
+	int groupCount(size_t fileIndex, size_t rotationIndex, size_t imageIndex);
 };
 
 class MapRendererTerrain
@@ -77,7 +78,7 @@ class MapRendererObjects
 	std::shared_ptr<CAnimation> getFlagAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getOverlayAnimation(const CGObjectInstance * obj);
 
-	std::shared_ptr<CAnimation> getAnimation(const AnimationPath & filename, bool generateMovementGroups);
+	std::shared_ptr<CAnimation> getAnimation(const AnimationPath & filename, bool generateMovementGroups, bool enableOverlay);
 
 	std::shared_ptr<IImage> getImage(IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation> & animation) const;
 

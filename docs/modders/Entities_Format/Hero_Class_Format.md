@@ -1,13 +1,15 @@
+# Hero Class Format
+
 ## Required data
 
 In order to make functional hero class you also need:
 
--   Adventure animation (1 def file)
--   Battle animation, male and female version (2 def files)
+- Adventure animation (1 def file)
+- Battle animation, male and female version (2 def files)
 
 ## Format
 
-``` javascript
+```json
 // Unique identifier of hero class, camelCase
 "myClassName" :
 {

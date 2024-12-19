@@ -24,6 +24,7 @@
 #include "../../lib/TerrainHandler.h"
 
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/battle/BattleLayout.h"
 #include "../../lib/CStack.h"
 
 #include "../../lib/filesystem/ResourcePath.h"
@@ -62,42 +63,42 @@ public:
 		return true;
 	}
 
-	void apply(CPackForClient * pack) override
+	void apply(CPackForClient & pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void apply(BattleLogMessage * pack) override
+	void apply(BattleLogMessage & pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void apply(BattleStackMoved * pack) override
+	void apply(BattleStackMoved & pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void apply(BattleUnitsChanged * pack) override
+	void apply(BattleUnitsChanged & pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void apply(SetStackEffect * pack) override
+	void apply(SetStackEffect & pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void apply(StacksInjured * pack) override
+	void apply(StacksInjured & pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void apply(BattleObstaclesChanged * pack) override
+	void apply(BattleObstaclesChanged & pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void apply(CatapultAttack * pack) override
+	void apply(CatapultAttack & pack) override
 	{
 		gameState->apply(pack);
 	}
@@ -121,6 +122,10 @@ public:
 		return gameState.get();
 	}
 
+	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override
+	{
+	}
+
 	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode) override
 	{
 		return false;
@@ -142,9 +147,7 @@ public:
 		StartInfo si;
 		si.mapname = "anything";//does not matter, map service mocked
 		si.difficulty = 0;
-		si.mapfileChecksum = 0;
 		si.mode = EStartMode::NEW_GAME;
-		si.seedToBeUsed = 42;
 
 		std::unique_ptr<CMapHeader> header = mapService.loadMapHeader(ResourcePath(si.mapname));
 
@@ -173,8 +176,6 @@ public:
 				pset.heroNameTextId = pinfo.mainCustomHeroNameTextId;
 				pset.heroPortrait = HeroTypeID(pinfo.mainCustomHeroPortrait);
 			}
-
-			pset.handicap = PlayerSettings::NO_HANDICAP;
 		}
 
 
@@ -188,24 +189,25 @@ public:
 
 	void startTestBattle(const CGHeroInstance * attacker, const CGHeroInstance * defender)
 	{
-		const CGHeroInstance * heroes[2] = {attacker, defender};
-		const CArmedInstance * armedInstancies[2] = {attacker, defender};
+		BattleSideArray<const CGHeroInstance *> heroes = {attacker, defender};
+		BattleSideArray<const CArmedInstance *> armedInstancies = {attacker, defender};
 
 		int3 tile(4,4,0);
 
 		const auto & t = *gameCallback->getTile(tile);
 
-		auto terrain = t.terType->getId();
+		auto terrain = t.getTerrainID();
 		BattleField terType(0);
+		BattleLayout layout = BattleLayout::createDefaultLayout(gameState->callback, attacker, defender);
 
 		//send info about battles
 
-		BattleInfo * battle = BattleInfo::setupBattle(tile, terrain, terType, armedInstancies, heroes, false, nullptr);
+		BattleInfo * battle = BattleInfo::setupBattle(tile, terrain, terType, armedInstancies, heroes, layout, nullptr);
 
 		BattleStart bs;
 		bs.info = battle;
 		ASSERT_EQ(gameState->currentBattles.size(), 0);
-		gameCallback->sendAndApply(&bs);
+		gameCallback->sendAndApply(bs);
 		ASSERT_EQ(gameState->currentBattles.size(), 1);
 	}
 
@@ -230,17 +232,11 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
 	{
-		CArtifactInstance * a = new CArtifactInstance();
-		a->artType = const_cast<CArtifact *>(ArtifactID(ArtifactID::BALLISTA).toArtifact());
-
 		NewArtifact na;
-		na.art = a;
-		gameCallback->sendAndApply(&na);
-
-		PutArtifact pack;
-		pack.al = ArtifactLocation(defender->id, ArtifactPosition::MACH1);
-		pack.art = a;
-		gameCallback->sendAndApply(&pack);
+		na.artHolder = defender->id;
+		na.artId = ArtifactID::BALLISTA;
+		na.pos = ArtifactPosition::MACH1;
+		gameCallback->sendAndApply(na);
 	}
 
 	startTestBattle(attacker, defender);
@@ -251,13 +247,13 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 		info.count = 1;
 		info.type = CreatureID(69);
 		info.side = BattleSide::ATTACKER;
-		info.position = gameState->currentBattles.front()->getAvaliableHex(info.type, info.side);
+		info.position = gameState->currentBattles.front()->getAvailableHex(info.type, info.side);
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
-		gameCallback->sendAndApply(&pack);
+		gameCallback->sendAndApply(pack);
 	}
 
 	const CStack * att = nullptr;
@@ -324,17 +320,11 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 	attacker->mana = attacker->manaLimit();
 
 	{
-		CArtifactInstance * a = new CArtifactInstance();
-		a->artType = const_cast<CArtifact *>(ArtifactID(ArtifactID::SPELLBOOK).toArtifact());
-
 		NewArtifact na;
-		na.art = a;
-		gameCallback->sendAndApply(&na);
-
-		PutArtifact pack;
-		pack.al = ArtifactLocation(attacker->id, ArtifactPosition::SPELLBOOK);
-		pack.art = a;
-		gameCallback->sendAndApply(&pack);
+		na.artHolder = attacker->id;
+		na.artId = ArtifactID::SPELLBOOK;
+		na.pos = ArtifactPosition::SPELLBOOK;
+		gameCallback->sendAndApply(na);
 	}
 
 	startTestBattle(attacker, defender);
@@ -347,13 +337,13 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		info.count = 10;
 		info.type = CreatureID(13);
 		info.side = BattleSide::ATTACKER;
-		info.position = gameState->currentBattles.front()->getAvaliableHex(info.type, info.side);
+		info.position = gameState->currentBattles.front()->getAvailableHex(info.type, info.side);
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
-		gameCallback->sendAndApply(&pack);
+		gameCallback->sendAndApply(pack);
 	}
 
 	{
@@ -362,13 +352,13 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		info.count = 10;
 		info.type = CreatureID(13);
 		info.side = BattleSide::DEFENDER;
-		info.position = gameState->currentBattles.front()->getAvaliableHex(info.type, info.side);
+		info.position = gameState->currentBattles.front()->getAvailableHex(info.type, info.side);
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
-		gameCallback->sendAndApply(&pack);
+		gameCallback->sendAndApply(pack);
 	}
 
 	CStack * unit = gameState->currentBattles.front()->getStack(unitId);
@@ -410,16 +400,4 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 
 	EXPECT_EQ(unit->health.getCount(), 10);
 	EXPECT_EQ(unit->health.getResurrected(), 0);
-}
-
-TEST_F(CGameStateTest, updateEntity)
-{
-	using ::testing::SaveArg;
-	using ::testing::Eq;
-	using ::testing::_;
-
-	JsonNode actual;
-	EXPECT_CALL(services, updateEntity(Eq(Metatype::CREATURE), Eq(424242), _)).WillOnce(SaveArg<2>(&actual));
-	gameState->updateEntity(Metatype::CREATURE, 424242, JsonNode("TEST"));
-	EXPECT_EQ(actual.String(), "TEST");
 }

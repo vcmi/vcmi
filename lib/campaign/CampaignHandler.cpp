@@ -16,16 +16,16 @@
 #include "../filesystem/CCompressedStream.h"
 #include "../filesystem/CMemoryStream.h"
 #include "../filesystem/CBinaryReader.h"
-#include "../modding/IdentifierStorage.h"
+#include "../filesystem/CZipLoader.h"
 #include "../VCMI_Lib.h"
-#include "../CGeneralTextHandler.h"
-#include "../TextOperations.h"
-#include "../Languages.h"
 #include "../constants/StringConstants.h"
 #include "../mapping/CMapHeader.h"
 #include "../mapping/CMapService.h"
 #include "../modding/CModHandler.h"
+#include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
+#include "../texts/CGeneralTextHandler.h"
+#include "../texts/TextOperations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -37,16 +37,18 @@ void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & inpu
 		CBinaryReader reader(&stream);
 
 		readHeaderFromMemory(*ret, reader, filename, modName, encoding);
+		ret->overrideCampaign();
 
 		for(int g = 0; g < ret->numberOfScenarios; ++g)
 		{
 			auto scenarioID = static_cast<CampaignScenarioID>(ret->scenarios.size());
 			ret->scenarios[scenarioID] = readScenarioFromMemory(reader, *ret);
 		}
+		ret->overrideCampaignScenarios();
 	}
 	else // text format (json)
 	{
-		JsonNode jsonCampaign(reinterpret_cast<const std::byte*>(input.data()), input.size());
+		JsonNode jsonCampaign(reinterpret_cast<const std::byte*>(input.data()), input.size(), filename);
 		readHeaderFromJson(*ret, jsonCampaign, filename, modName, encoding);
 
 		for(auto & scenario : jsonCampaign["scenarios"].Vector())
@@ -61,8 +63,7 @@ std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 {
 	ResourcePath resourceID(name, EResType::CAMPAIGN);
 	std::string modName = VLC->modh->findResourceOrigin(resourceID);
-	std::string language = VLC->modh->getModLanguage(modName);
-	std::string encoding = Languages::getLanguageOptions(language).encoding;
+	std::string encoding = VLC->modh->findResourceEncoding(resourceID);
 	
 	auto ret = std::make_unique<Campaign>();
 	auto fileStream = CResourceHandler::get(modName)->load(resourceID);
@@ -77,8 +78,7 @@ std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string &
 {
 	ResourcePath resourceID(name, EResType::CAMPAIGN);
 	std::string modName = VLC->modh->findResourceOrigin(resourceID);
-	std::string language = VLC->modh->getModLanguage(modName);
-	std::string encoding = Languages::getLanguageOptions(language).encoding;
+	std::string encoding = VLC->modh->findResourceEncoding(resourceID);
 	
 	auto ret = std::make_unique<CampaignState>();
 	
@@ -126,14 +126,19 @@ static std::string convertMapName(std::string input)
 
 std::string CampaignHandler::readLocalizedString(CampaignHeader & target, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier)
 {
-	TextIdentifier stringID( "campaign", convertMapName(filename), identifier);
-
 	std::string input = TextOperations::toUnicode(reader.readBaseString(), encoding);
 
-	if (input.empty())
+	return readLocalizedString(target, input, filename, modName, identifier);
+}
+
+std::string CampaignHandler::readLocalizedString(CampaignHeader & target, std::string text, std::string filename, std::string modName, std::string identifier)
+{
+	TextIdentifier stringID( "campaign", convertMapName(filename), identifier);
+
+	if (text.empty())
 		return "";
 
-	target.getTexts().registerString(modName, stringID, input);
+	target.getTexts().registerString(modName, stringID, text);
 	return stringID.get();
 }
 
@@ -149,13 +154,21 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.version = CampaignVersion::VCMI;
 	ret.campaignRegions = CampaignRegions::fromJson(reader["regions"]);
 	ret.numberOfScenarios = reader["scenarios"].Vector().size();
-	ret.name.appendTextID(reader["name"].String());
-	ret.description.appendTextID(reader["description"].String());
-	ret.difficultyChoosenByPlayer = reader["allowDifficultySelection"].Bool();
+	ret.name.appendTextID(readLocalizedString(ret, reader["name"].String(), filename, modName, "name"));
+	ret.description.appendTextID(readLocalizedString(ret, reader["description"].String(), filename, modName, "description"));
+	ret.author.appendRawString(reader["author"].String());
+	ret.authorContact.appendRawString(reader["authorContact"].String());
+	ret.campaignVersion.appendRawString(reader["campaignVersion"].String());
+	ret.creationDateTime = reader["creationDateTime"].Integer();
+	ret.difficultyChosenByPlayer = reader["allowDifficultySelection"].Bool();
 	ret.music = AudioPath::fromJson(reader["music"]);
 	ret.filename = filename;
 	ret.modName = modName;
 	ret.encoding = encoding;
+	ret.loadingBackground = ImagePath::fromJson(reader["loadingBackground"]);
+	ret.videoRim = ImagePath::fromJson(reader["videoRim"]);
+	ret.introVideo = VideoPath::fromJson(reader["introVideo"]);
+	ret.outroVideo = VideoPath::fromJson(reader["outroVideo"]);
 }
 
 CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
@@ -382,13 +395,18 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 {
 	ret.version = static_cast<CampaignVersion>(reader.readUInt32());
 	ui8 campId = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
-	ret.loadLegacyData(campId);
+	if(ret.version != CampaignVersion::Chr) // For chronicles: Will be overridden later; Chronicles uses own logic (reusing OH3 ID's)
+		ret.loadLegacyData(campId);
 	ret.name.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "name"));
 	ret.description.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "description"));
+	ret.author.appendRawString("");
+	ret.authorContact.appendRawString("");
+	ret.campaignVersion.appendRawString("");
+	ret.creationDateTime = 0;
 	if (ret.version > CampaignVersion::RoE)
-		ret.difficultyChoosenByPlayer = reader.readInt8();
+		ret.difficultyChosenByPlayer = reader.readInt8();
 	else
-		ret.difficultyChoosenByPlayer = false;
+		ret.difficultyChosenByPlayer = false;
 
 	ret.music = prologMusicName(reader.readInt8());
 	ret.filename = filename;
@@ -580,32 +598,69 @@ CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & rea
 
 std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputStream> file, const std::string & filename, bool headerOnly)
 {
-	CCompressedStream stream(std::move(file), true);
+	std::array<ui8, 2> magic;
+	file->read(magic.data(), magic.size());
+	file->seek(0);
 
 	std::vector< std::vector<ui8> > ret;
 
-	try
+	static const std::array<ui8, 2> zipHeaderMagic{0x50, 0x4B};
+	if (magic == zipHeaderMagic) // ZIP archive - assume VCMP format
 	{
-		do
-		{
-			std::vector<ui8> block(stream.getSize());
-			stream.read(block.data(), block.size());
-			ret.push_back(block);
-			ret.back().shrink_to_fit();
-		}
-		while (!headerOnly && stream.getNextBlock());
-	}
-	catch (const DecompressionException & e)
-	{
-		// Some campaigns in French version from gog.com have trailing garbage bytes
-		// For example, slayer.h3c consist from 5 parts: header + 4 maps
-		// However file also contains ~100 "extra" bytes after those 5 parts are decompressed that do not represent gzip stream
-		// leading to exception "Incorrect header check"
-		// Since H3 handles these files correctly, simply log this as warning and proceed
-		logGlobal->warn("Failed to read file %s. Encountered error during decompression: %s", filename, e.what());
-	}
+		CInputStream * buffer(file.get());
+		auto ioApi = std::make_shared<CProxyROIOApi>(buffer);
+		CZipLoader loader("", "_", ioApi);
 
-	return ret;
+		// load header
+		JsonPath jsonPath = JsonPath::builtin(VCMP_HEADER_FILE_NAME);
+		if(!loader.existsResource(jsonPath))
+			throw std::runtime_error(jsonPath.getName() + " not found in " + filename);
+		auto data = loader.load(jsonPath)->readAll();
+		ret.emplace_back(data.first.get(), data.first.get() + data.second);
+
+		if(headerOnly)
+			return ret;
+
+		// load scenarios
+		JsonNode header(reinterpret_cast<const std::byte*>(data.first.get()), data.second, VCMP_HEADER_FILE_NAME);
+		for(auto scenario : header["scenarios"].Vector())
+		{
+			ResourcePath mapPath(scenario["map"].String(), EResType::MAP);
+			if(!loader.existsResource(mapPath))
+				throw std::runtime_error(mapPath.getName() + " not found in " + filename);
+			auto data = loader.load(mapPath)->readAll();
+			ret.emplace_back(data.first.get(), data.first.get() + data.second);
+		}
+
+		return ret;
+	}
+	else // H3C
+	{
+		CCompressedStream stream(std::move(file), true);
+
+		try
+		{
+			do
+			{
+				std::vector<ui8> block(stream.getSize());
+				stream.read(block.data(), block.size());
+				ret.push_back(block);
+				ret.back().shrink_to_fit();
+			}
+			while (!headerOnly && stream.getNextBlock());
+		}
+		catch (const DecompressionException & e)
+		{
+			// Some campaigns in French version from gog.com have trailing garbage bytes
+			// For example, slayer.h3c consist from 5 parts: header + 4 maps
+			// However file also contains ~100 "extra" bytes after those 5 parts are decompressed that do not represent gzip stream
+			// leading to exception "Incorrect header check"
+			// Since H3 handles these files correctly, simply log this as warning and proceed
+			logGlobal->warn("Failed to read file %s. Encountered error during decompression: %s", filename, e.what());
+		}
+
+		return ret;
+	}
 }
 
 VideoPath CampaignHandler::prologVideoName(ui8 index)

@@ -11,11 +11,15 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "../serializer/Serializeable.h"
 #include "CRmgTemplate.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CRandomGenerator;
+namespace vstd
+{
+class RNG;
+}
 
 enum class EPlayerType
 {
@@ -26,7 +30,7 @@ enum class EPlayerType
 
 /// The map gen options class holds values about general map generation settings
 /// e.g. the size of the map, the count of players,...
-class DLL_LINKAGE CMapGenOptions
+class DLL_LINKAGE CMapGenOptions : public Serializeable
 {
 public:
 	/// The player settings class maps the player color, starting town and human player flag.
@@ -73,10 +77,7 @@ public:
 			h & startingTown;
 			h & playerType;
 			h & team;
-			if (h.version >= Handler::Version::RELEASE_143)
-				h & startingHero;
-			else
-				startingHero = HeroTypeID::RANDOM;
+			h & startingHero;
 		}
 	};
 
@@ -147,7 +148,7 @@ public:
 	/// Finalizes the options. All random sizes for various properties will be overwritten by numbers from
 	/// a random number generator by keeping the options in a valid state. Check options should return true, otherwise
 	/// this function fails.
-	void finalize(CRandomGenerator & rand);
+	void finalize(vstd::RNG & rand);
 
 	/// Returns false if there is no template available which fits to the currently selected options.
 	bool checkOptions() const;
@@ -165,7 +166,7 @@ private:
 	PlayerColor getNextPlayerColor() const;
 	void updateCompOnlyPlayers();
 	void updatePlayers();
-	const CRmgTemplate * getPossibleTemplate(CRandomGenerator & rand) const;
+	const CRmgTemplate * getPossibleTemplate(vstd::RNG & rand) const;
 
 	si32 width;
 	si32 height;

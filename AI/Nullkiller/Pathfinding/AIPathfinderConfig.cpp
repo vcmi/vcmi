@@ -13,7 +13,7 @@
 #include "Rules/AIMovementAfterDestinationRule.h"
 #include "Rules/AIMovementToDestinationRule.h"
 #include "Rules/AIPreviousNodeRule.h"
-#include "../Engine//Nullkiller.h"
+#include "../Engine/Nullkiller.h"
 
 #include "../../../lib/pathfinder/CPathfinder.h"
 
@@ -44,10 +44,12 @@ namespace AIPathfinding
 		Nullkiller * ai,
 		std::shared_ptr<AINodeStorage> nodeStorage,
 		bool allowBypassObjects)
-		:PathfinderConfig(nodeStorage, makeRuleset(cb, ai, nodeStorage, allowBypassObjects)), aiNodeStorage(nodeStorage)
+		:PathfinderConfig(nodeStorage, cb, makeRuleset(cb, ai, nodeStorage, allowBypassObjects)), aiNodeStorage(nodeStorage)
 	{
 		options.canUseCast = true;
 		options.allowLayerTransitioningAfterBattle = true;
+		options.useTeleportWhirlpool = true;
+		options.forceUseTeleportWhirlpool = true;
 	}
 
 	AIPathfinderConfig::~AIPathfinderConfig() = default;

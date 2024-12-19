@@ -13,7 +13,6 @@
 #include "../GameConstants.h"
 #include "float3.h"
 #include "../int3.h"
-#include "../CRandomGenerator.h"
 #include "CRmgTemplate.h"
 #include "RmgArea.h"
 #include "RmgPath.h"
@@ -28,7 +27,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class RmgMap;
 class CMapGenerator;
 class Modificator;
-class CRandomGenerator;
 
 extern const std::function<bool(const int3 &)> AREA_NO_FILTER;
 
@@ -74,8 +72,9 @@ private:
 class Zone : public rmg::ZoneOptions
 {
 public:
-	Zone(RmgMap & map, CMapGenerator & generator, CRandomGenerator & rand);
+	Zone(RmgMap & map, CMapGenerator & generator, vstd::RNG & rand);
 	Zone(const Zone &) = delete;
+	~Zone();
 	
 	void setOptions(const rmg::ZoneOptions & options);
 	bool isUnderground() const;
@@ -93,6 +92,8 @@ public:
 	ThreadSafeProxy<const rmg::Area> freePaths() const;
 	ThreadSafeProxy<rmg::Area> areaUsed();
 	ThreadSafeProxy<const rmg::Area> areaUsed() const;
+	
+	rmg::Area areaForRoads() const;
 
 	void initFreeTiles();
 	void clearTiles();
@@ -127,14 +128,14 @@ public:
 	
 	void initModificators();
 	
-	CRandomGenerator & getRand();
+	vstd::RNG & getRand();
 public:
 	mutable boost::recursive_mutex areaMutex;
 	using Lock = boost::unique_lock<boost::recursive_mutex>;
 	
 protected:
 	CMapGenerator & generator;
-	CRandomGenerator rand;
+	std::unique_ptr<vstd::RNG> rand;
 	RmgMap & map;
 	TModificators modificators;
 	bool finished;
@@ -142,7 +143,7 @@ protected:
 	//placement info
 	int3 pos;
 	float3 center;
-	rmg::Area dArea; //irregular area assined to zone
+	rmg::Area dArea; //irregular area assigned to zone
 	rmg::Area dAreaPossible;
 	rmg::Area dAreaFree; //core paths of free tiles that all other objects will be linked to
 	rmg::Area dAreaUsed;

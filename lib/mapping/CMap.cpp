@@ -13,21 +13,23 @@
 #include "../CArtHandler.h"
 #include "../VCMI_Lib.h"
 #include "../CCreatureHandler.h"
-#include "../CTownHandler.h"
-#include "../CHeroHandler.h"
+#include "../GameSettings.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
+#include "../entities/hero/CHeroHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/CQuest.h"
 #include "../mapObjects/ObjectTemplate.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
 #include "CMapEditManager.h"
 #include "CMapOperation.h"
 #include "../serializer/JsonSerializeFormat.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,35 +45,67 @@ DisposedHero::DisposedHero() : heroId(0), portrait(255)
 }
 
 CMapEvent::CMapEvent()
-	: players(0)
-	, humanAffected(false)
+	: humanAffected(false)
 	, computerAffected(false)
-	, firstOccurence(0)
-	, nextOccurence(0)
+	, firstOccurrence(0)
+	, nextOccurrence(0)
 {
 
 }
 
-bool CMapEvent::earlierThan(const CMapEvent & other) const
+bool CMapEvent::occursToday(int currentDay) const
 {
-	return firstOccurence < other.firstOccurence;
+	if (currentDay == firstOccurrence + 1)
+		return true;
+
+	if (nextOccurrence == 0)
+		return false;
+
+	if (currentDay < firstOccurrence)
+		return false;
+
+	return (currentDay - firstOccurrence - 1) % nextOccurrence == 0;
 }
 
-bool CMapEvent::earlierThanOrEqual(const CMapEvent & other) const
+bool CMapEvent::affectsPlayer(PlayerColor color, bool isHuman) const
 {
-	return firstOccurence <= other.firstOccurence;
+	if (players.count(color) == 0)
+		return false;
+
+	if (!isHuman && !computerAffected)
+		return false;
+
+	if (isHuman && !humanAffected)
+		return false;
+
+	return true;
 }
 
 void CMapEvent::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("name", name);
 	handler.serializeStruct("message", message);
-	handler.serializeInt("players", players);
+	if (!handler.saving && handler.getCurrent()["players"].isNumber())
+	{
+		// compatibility for old maps
+		int playersMask = 0;
+		handler.serializeInt("players", playersMask);
+		for (int i = 0; i < 8; ++i)
+			if ((playersMask & (1 << i)) != 0)
+				players.insert(PlayerColor(i));
+	}
+	else
+	{
+		handler.serializeIdArray("players", players);
+	}
 	handler.serializeInt("humanAffected", humanAffected);
 	handler.serializeInt("computerAffected", computerAffected);
-	handler.serializeInt("firstOccurence", firstOccurence);
-	handler.serializeInt("nextOccurence", nextOccurence);
+	handler.serializeInt("firstOccurrence", firstOccurrence);
+	handler.serializeInt("nextOccurrence", nextOccurrence);
 	resources.serializeJson(handler, "resources");
+
+	auto deletedObjects = handler.enterArray("deletedObjectsInstances");
+	deletedObjects.serializeArray(deletedObjectsInstances);
 }
 
 void CCastleEvent::serializeJson(JsonSerializeFormat & handler)
@@ -100,32 +134,29 @@ void CCastleEvent::serializeJson(JsonSerializeFormat & handler)
 }
 
 TerrainTile::TerrainTile():
-	terType(nullptr),
+	riverType(River::NO_RIVER),
+	roadType(Road::NO_ROAD),
 	terView(0),
-	riverType(VLC->riverTypeHandler->getById(River::NO_RIVER)),
 	riverDir(0),
-	roadType(VLC->roadTypeHandler->getById(Road::NO_ROAD)),
 	roadDir(0),
-	extTileFlags(0),
-	visitable(false),
-	blocked(false)
+	extTileFlags(0)
 {
 }
 
 bool TerrainTile::entrableTerrain(const TerrainTile * from) const
 {
-	return entrableTerrain(from ? from->terType->isLand() : true, from ? from->terType->isWater() : true);
+	return entrableTerrain(from ? from->isLand() : true, from ? from->isWater() : true);
 }
 
 bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
 {
-	return terType->isPassable()
-			&& ((allowSea && terType->isWater())  ||  (allowLand && terType->isLand()));
+	return getTerrain()->isPassable()
+			&& ((allowSea && isWater())  ||  (allowLand && isLand()));
 }
 
 bool TerrainTile::isClear(const TerrainTile * from) const
 {
-	return entrableTerrain(from) && !blocked;
+	return entrableTerrain(from) && !blocked();
 }
 
 Obj TerrainTile::topVisitableId(bool excludeTop) const
@@ -146,7 +177,7 @@ CGObjectInstance * TerrainTile::topVisitableObj(bool excludeTop) const
 
 EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 {
-	if(terType->isWater() || !terType->isPassable())
+	if(isWater() || !getTerrain()->isPassable())
 		return EDiggingStatus::WRONG_TERRAIN;
 
 	int allowedBlocked = excludeTop ? 1 : 0;
@@ -163,8 +194,64 @@ bool TerrainTile::hasFavorableWinds() const
 
 bool TerrainTile::isWater() const
 {
-	return terType->isWater();
+	return getTerrain()->isWater();
 }
+
+bool TerrainTile::isLand() const
+{
+	return getTerrain()->isLand();
+}
+
+bool TerrainTile::visitable() const
+{
+	return !visitableObjects.empty();
+}
+
+bool TerrainTile::blocked() const
+{
+	return !blockingObjects.empty();
+}
+
+bool TerrainTile::hasRiver() const
+{
+	return getRiverID() != RiverId::NO_RIVER;
+}
+
+bool TerrainTile::hasRoad() const
+{
+	return getRoadID() != RoadId::NO_ROAD;
+}
+
+const TerrainType * TerrainTile::getTerrain() const
+{
+	return terrainType.toEntity(VLC);
+}
+
+const RiverType * TerrainTile::getRiver() const
+{
+	return riverType.toEntity(VLC);
+}
+
+const RoadType * TerrainTile::getRoad() const
+{
+	return roadType.toEntity(VLC);
+}
+
+TerrainId TerrainTile::getTerrainID() const
+{
+	return terrainType;
+}
+
+RiverId TerrainTile::getRiverID() const
+{
+	return riverType;
+}
+
+RoadId TerrainTile::getRoadID() const
+{
+	return roadType;
+}
+
 
 CMap::CMap(IGameCallback * cb)
 	: GameCallbackHolder(cb)
@@ -178,6 +265,9 @@ CMap::CMap(IGameCallback * cb)
 	allowedAbilities = VLC->skillh->getDefaultAllowed();
 	allowedArtifact = VLC->arth->getDefaultAllowed();
 	allowedSpells = VLC->spellh->getDefaultAllowed();
+
+	gameSettings = std::make_unique<GameSettings>();
+	gameSettings->loadBase(VLC->settingsHandler->getFullConfig());
 }
 
 CMap::~CMap()
@@ -198,26 +288,21 @@ CMap::~CMap()
 
 void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 {
-	const int zVal = obj->pos.z;
+	const int zVal = obj->anchorPos().z;
 	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{
-		int xVal = obj->pos.x - fx;
+		int xVal = obj->anchorPos().x - fx;
 		for(int fy = 0; fy < obj->getHeight(); ++fy)
 		{
-			int yVal = obj->pos.y - fy;
+			int yVal = obj->anchorPos().y - fy;
 			if(xVal>=0 && xVal < width && yVal>=0 && yVal < height)
 			{
 				TerrainTile & curt = terrain[zVal][xVal][yVal];
-				if(total || obj->visitableAt(xVal, yVal))
-				{
+				if(total || obj->visitableAt(int3(xVal, yVal, zVal)))
 					curt.visitableObjects -= obj;
-					curt.visitable = curt.visitableObjects.size();
-				}
-				if(total || obj->blockingAt(xVal, yVal))
-				{
+
+				if(total || obj->blockingAt(int3(xVal, yVal, zVal)))
 					curt.blockingObjects -= obj;
-					curt.blocked = curt.blockingObjects.size();
-				}
 			}
 		}
 	}
@@ -225,26 +310,21 @@ void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 
 void CMap::addBlockVisTiles(CGObjectInstance * obj)
 {
-	const int zVal = obj->pos.z;
+	const int zVal = obj->anchorPos().z;
 	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{
-		int xVal = obj->pos.x - fx;
+		int xVal = obj->anchorPos().x - fx;
 		for(int fy = 0; fy < obj->getHeight(); ++fy)
 		{
-			int yVal = obj->pos.y - fy;
+			int yVal = obj->anchorPos().y - fy;
 			if(xVal>=0 && xVal < width && yVal >= 0 && yVal < height)
 			{
 				TerrainTile & curt = terrain[zVal][xVal][yVal];
-				if(obj->visitableAt(xVal, yVal))
-				{
+				if(obj->visitableAt(int3(xVal, yVal, zVal)))
 					curt.visitableObjects.push_back(obj);
-					curt.visitable = true;
-				}
-				if(obj->blockingAt(xVal, yVal))
-				{
+
+				if(obj->blockingAt(int3(xVal, yVal, zVal)))
 					curt.blockingObjects.push_back(obj);
-					curt.blocked = true;
-				}
 			}
 		}
 	}
@@ -268,7 +348,7 @@ void CMap::calculateGuardingGreaturePositions()
 CGHeroInstance * CMap::getHero(HeroTypeID heroID)
 {
 	for(auto & elem : heroesOnMap)
-		if(elem->getHeroType() == heroID)
+		if(elem->getHeroTypeID() == heroID)
 			return elem;
 	return nullptr;
 }
@@ -300,11 +380,6 @@ bool CMap::isCoastalTile(const int3 & pos) const
 	}
 
 	return false;
-}
-
-bool CMap::isInTheMap(const int3 & pos) const
-{
-	return pos.x >= 0 && pos.y >= 0 && pos.z >= 0 && pos.x < width && pos.y < height && pos.z <= (twoLevel ? 1 : 0);
 }
 
 TerrainTile & CMap::getTile(const int3 & tile)
@@ -352,7 +427,7 @@ int3 CMap::guardingCreaturePosition (int3 pos) const
 	if (!isInTheMap(pos))
 		return int3(-1, -1, -1);
 	const TerrainTile &posTile = getTile(pos);
-	if (posTile.visitable)
+	if (posTile.visitable())
 	{
 		for (CGObjectInstance* obj : posTile.visitableObjects)
 		{
@@ -372,7 +447,7 @@ int3 CMap::guardingCreaturePosition (int3 pos) const
 			if (isInTheMap(pos))
 			{
 				const auto & tile = getTile(pos);
-                if (tile.visitable && (tile.isWater() == water))
+				if (tile.visitable() && (tile.isWater() == water))
 				{
 					for (CGObjectInstance* obj : tile.visitableObjects)
 					{
@@ -415,14 +490,14 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj type
 				bestMatch = object;
 			else
 			{
-				if (object->pos.dist2dSQ(pos) < bestMatch->pos.dist2dSQ(pos))
+				if (object->anchorPos().dist2dSQ(pos) < bestMatch->anchorPos().dist2dSQ(pos))
 					bestMatch = object;// closer than one we already found
 			}
 		}
 	}
 	assert(bestMatch != nullptr); // if this happens - victory conditions or map itself is very, very broken
 
-	logGlobal->error("Will use %s from %s", bestMatch->getObjectName(), bestMatch->pos.toString());
+	logGlobal->error("Will use %s from %s", bestMatch->getObjectName(), bestMatch->anchorPos().toString());
 	return bestMatch;
 }
 
@@ -494,10 +569,26 @@ void CMap::checkForObjectives()
 	}
 }
 
+void CMap::addNewArtifactInstance(CArtifactSet & artSet)
+{
+	for(const auto & [slot, slotInfo] : artSet.artifactsWorn)
+	{
+		if(!slotInfo.locked && slotInfo.getArt())
+			addNewArtifactInstance(slotInfo.artifact);
+	}
+	for(const auto & slotInfo : artSet.artifactsInBackpack)
+		addNewArtifactInstance(slotInfo.artifact);
+}
+
 void CMap::addNewArtifactInstance(ConstTransitivePtr<CArtifactInstance> art)
 {
+	assert(art);
+	assert(art->getId() == -1);
 	art->setId(static_cast<ArtifactInstanceID>(artInstances.size()));
 	artInstances.emplace_back(art);
+		
+	for(const auto & partInfo : art->getPartsInfo())
+		addNewArtifactInstance(partInfo.art);
 }
 
 void CMap::eraseArtifactInstance(CArtifactInstance * art)
@@ -505,6 +596,34 @@ void CMap::eraseArtifactInstance(CArtifactInstance * art)
 	//TODO: handle for artifacts removed in map editor
 	assert(artInstances[art->getId().getNum()] == art);
 	artInstances[art->getId().getNum()].dellNull();
+}
+
+void CMap::moveArtifactInstance(
+	CArtifactSet & srcSet, const ArtifactPosition & srcSlot,
+	CArtifactSet & dstSet, const ArtifactPosition & dstSlot)
+{
+	auto art = srcSet.getArt(srcSlot);
+	removeArtifactInstance(srcSet, srcSlot);
+	putArtifactInstance(dstSet, art, dstSlot);
+}
+
+void CMap::putArtifactInstance(CArtifactSet & set, CArtifactInstance * art, const ArtifactPosition & slot)
+{
+	art->addPlacementMap(set.putArtifact(slot, art));
+}
+
+void CMap::removeArtifactInstance(CArtifactSet & set, const ArtifactPosition & slot)
+{
+	auto art = set.getArt(slot);
+	assert(art);
+	set.removeArtifact(slot);
+	CArtifactSet::ArtPlacementMap partsMap;
+	for(auto & part : art->getPartsInfo())
+	{
+		if(part.slot != ArtifactPosition::PRE_FIRST)
+			partsMap.try_emplace(part.art, ArtifactPosition::PRE_FIRST);
+	}
+	art->addPlacementMap(partsMap);
 }
 
 void CMap::addNewQuestInstance(CQuest* quest)
@@ -535,7 +654,7 @@ void CMap::setUniqueInstanceName(CGObjectInstance * obj)
 	auto uid = uidCounter++;
 
 	boost::format fmt("%s_%d");
-	fmt % obj->typeName % uid;
+	fmt % obj->getTypeName() % uid;
 	obj->instanceName = fmt.str();
 }
 
@@ -562,7 +681,7 @@ void CMap::addNewObject(CGObjectInstance * obj)
 void CMap::moveObject(CGObjectInstance * obj, const int3 & pos)
 {
 	removeBlockVisTiles(obj);
-	obj->pos = pos;
+	obj->setAnchorPos(pos);
 	addBlockVisTiles(obj);
 }
 
@@ -571,7 +690,7 @@ void CMap::removeObject(CGObjectInstance * obj)
 	removeBlockVisTiles(obj);
 	instanceNames.erase(obj->instanceName);
 
-	//update indeces
+	//update indices
 
 	auto iter = std::next(objects.begin(), obj->id.getNum());
 	iter = objects.erase(iter);
@@ -582,7 +701,7 @@ void CMap::removeObject(CGObjectInstance * obj)
 
 	obj->afterRemoveFromMap(this);
 
-	//TOOD: Clean artifact instances (mostly worn by hero?) and quests related to this object
+	//TODO: Clean artifact instances (mostly worn by hero?) and quests related to this object
 	//This causes crash with undo/redo in editor
 }
 
@@ -730,7 +849,7 @@ void CMap::reindexObjects()
 		if (lhs->isRemovable() && !rhs->isRemovable())
 			return false;
 
-		return lhs->pos.y < rhs->pos.y;
+		return lhs->anchorPos().y < rhs->anchorPos().y;
 	});
 
 	// instanceNames don't change
@@ -738,6 +857,21 @@ void CMap::reindexObjects()
 	{
 		objects[i]->id = ObjectInstanceID(i);
 	}
+}
+
+const IGameSettings & CMap::getSettings() const
+{
+	return *gameSettings;
+}
+
+void CMap::overrideGameSetting(EGameSettings option, const JsonNode & input)
+{
+	return gameSettings->addOverride(option, input);
+}
+
+void CMap::overrideGameSettings(const JsonNode & input)
+{
+	return gameSettings->loadOverrides(input);
 }
 
 VCMI_LIB_NAMESPACE_END

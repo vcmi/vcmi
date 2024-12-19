@@ -13,8 +13,6 @@
 
 #include "../../../lib/GameConstants.h"
 #include "../../../lib/VCMI_Lib.h"
-#include "../../../lib/CTownHandler.h"
-#include "../../../lib/CBuildingHandler.h"
 #include "../Goals/AbstractGoal.h"
 
 namespace NKAI

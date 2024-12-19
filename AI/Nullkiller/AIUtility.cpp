@@ -14,11 +14,10 @@
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/gameState/QuestInfo.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 
 #include <vcmi/CreatureService.h>
 
@@ -147,21 +146,21 @@ bool HeroPtr::operator==(const HeroPtr & rhs) const
 	return h == rhs.get(true);
 }
 
-bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint64_t dangerStrength)
+bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint64_t dangerStrength, float safeAttackRatio)
 {
-	const ui64 heroStrength = h->getFightingStrength() * heroArmy->getArmyStrength();
+	const ui64 heroStrength = h->getHeroStrength() * heroArmy->getArmyStrength();
 
 	if(dangerStrength)
 	{
-		return heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength;
+		return heroStrength > dangerStrength * safeAttackRatio;
 	}
 
 	return true; //there's no danger
 }
 
-bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength)
+bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength, float safeAttackRatio)
 {
-	return isSafeToVisit(h, h, dangerStrength);
+	return isSafeToVisit(h, h, dangerStrength, safeAttackRatio);
 }
 
 bool isObjectRemovable(const CGObjectInstance * obj)
@@ -194,7 +193,7 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 {
 	// TODO: Such information should be provided by pathfinder
 	// Tile must be free or with unoccupied boat
-	if(!t->blocked)
+	if(!t->blocked())
 	{
 		return true;
 	}
@@ -268,8 +267,8 @@ bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2)
 
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2)
 {
-	auto art1 = a1->artType;
-	auto art2 = a2->artType;
+	auto art1 = a1->getType();
+	auto art2 = a2->getType();
 
 	if(art1->getPrice() == art2->getPrice())
 		return art1->valOfBonuses(BonusType::PRIMARY_SKILL) > art2->valOfBonuses(BonusType::PRIMARY_SKILL);
@@ -313,7 +312,7 @@ int getDuplicatingSlots(const CArmedInstance * army)
 
 	for(auto stack : army->Slots())
 	{
-		if(stack.second->type && army->getSlotFor(stack.second->type) != stack.first)
+		if(stack.second->getCreature() && army->getSlotFor(stack.second->getCreature()) != stack.first)
 			duplicatingSlots++;
 	}
 
@@ -388,7 +387,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	{
 		for(auto slot : h->Slots())
 		{
-			if(slot.second->type->hasUpgrades())
+			if(slot.second->getType()->hasUpgrades())
 				return true; //TODO: check price?
 		}
 		return false;
@@ -430,8 +429,15 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		return false;
 	}
 
-	if(obj->wasVisited(h)) //it must pointer to hero instance, heroPtr calls function wasVisited(ui8 player);
+	if(obj->wasVisited(h))
 		return false;
+
+	auto rewardable = dynamic_cast<const Rewardable::Interface *>(obj);
+
+	if(rewardable && rewardable->getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
+	{
+		return false;
+	}
 
 	return true;
 }
@@ -441,9 +447,9 @@ bool townHasFreeTavern(const CGTownInstance * town)
 	if(!town->hasBuilt(BuildingID::TAVERN)) return false;
 	if(!town->visitingHero) return true;
 
-	bool canMoveVisitingHeroToGarnison = !town->getUpperArmy()->stacksCount();
+	bool canMoveVisitingHeroToGarrison = !town->getUpperArmy()->stacksCount();
 
-	return canMoveVisitingHeroToGarnison;
+	return canMoveVisitingHeroToGarrison;
 }
 
 uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy)

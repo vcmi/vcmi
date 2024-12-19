@@ -31,15 +31,18 @@
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
+#include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
+#include "../render/IScreenHandler.h"
+#include "../render/AssetGenerator.h"
 #include "../CMT.h"
 #include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/StartInfo.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -57,10 +60,12 @@ AdventureMapInterface::AdventureMapInterface():
 	scrollingWasBlocked(false),
 	backgroundDimLevel(settings["adventure"]["backgroundDimLevel"].Integer())
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos.x = pos.y = 0;
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
+
+	AssetGenerator::createPaletteShiftedSprites();
 
 	shortcuts = std::make_shared<AdventureMapShortcuts>(*this);
 
@@ -178,7 +183,7 @@ void AdventureMapInterface::dim(Canvas & to)
 		{
 			if(!std::dynamic_pointer_cast<AdventureMapInterface>(window) && std::dynamic_pointer_cast<CIntObject>(window) && isBigWindow(window))
 			{
-				to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck")));
+				to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
 				return;
 			}
 		}
@@ -231,7 +236,7 @@ void AdventureMapInterface::handleMapScrollingUpdate(uint32_t timePassed)
 
 	bool cursorInScrollArea = scrollDelta != Point(0,0);
 	bool scrollingActive = cursorInScrollArea && shortcuts->optionMapScrollingActive() && !scrollingWasBlocked;
-	bool scrollingBlocked = GH.isKeyboardCtrlDown() || !settings["adventure"]["borderScroll"].Bool();
+	bool scrollingBlocked = GH.isKeyboardCtrlDown() || !settings["adventure"]["borderScroll"].Bool() || !GH.screenHandler().hasFocus();
 
 	if (!scrollingWasActive && scrollingBlocked)
 	{
@@ -399,7 +404,7 @@ void AdventureMapInterface::onCurrentPlayerChanged(PlayerColor playerID)
 		return;
 
 	currentPlayerID = playerID;
-	widget->setPlayer(playerID);
+	widget->setPlayerColor(playerID);
 }
 
 void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
@@ -451,7 +456,7 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 		widget->getInfoBar()->showDate();
 
 	onHeroChanged(nullptr);
-	Canvas canvas = Canvas::createFromSurface(screen);
+	Canvas canvas = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
 	showAll(canvas);
 	mapAudio->onPlayerTurnStarted();
 
@@ -555,7 +560,8 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		{
 			if(LOCPLINT->localState->hasPath(currentHero) &&
-			   LOCPLINT->localState->getPath(currentHero).endPos() == targetPosition)//we'll be moving
+			   LOCPLINT->localState->getPath(currentHero).endPos() == targetPosition &&
+			   !GH.isKeyboardShiftDown())//we'll be moving
 			{
 				assert(!CGI->mh->hasOngoingAnimations());
 				if(!CGI->mh->hasOngoingAnimations() && LOCPLINT->localState->getPath(currentHero).nextNode().turns == 0)
@@ -615,7 +621,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		case SpellID::DIMENSION_DOOR:
 			if(isValidAdventureSpellTarget(targetPosition))
 			{
-				if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && LOCPLINT->cb->isTileGuardedUnchecked(targetPosition))
+				if(LOCPLINT->cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && LOCPLINT->cb->isTileGuardedUnchecked(targetPosition))
 					CCS->curh->set(Cursor::Map::T1_ATTACK);
 				else
 					CCS->curh->set(Cursor::Map::TELEPORT);
@@ -897,7 +903,7 @@ void AdventureMapInterface::hotkeyZoom(int delta, bool useDeadZone)
 
 void AdventureMapInterface::onScreenResize()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	// remember our activation state and reactive after reconstruction
 	// since othervice activate() calls for created elements will bypass virtual dispatch
@@ -914,7 +920,7 @@ void AdventureMapInterface::onScreenResize()
 
 	widget = std::make_shared<AdventureMapWidget>(shortcuts);
 	widget->getMapView()->onViewMapActivated();
-	widget->setPlayer(currentPlayerID);
+	widget->setPlayerColor(currentPlayerID);
 	widget->updateActiveState();
 	widget->getMinimap()->update();
 	widget->getInfoBar()->showSelection();

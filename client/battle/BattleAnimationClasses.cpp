@@ -20,10 +20,11 @@
 #include "CreatureAnimation.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../media/ISoundPlayer.h"
+#include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
@@ -160,7 +161,7 @@ ECreatureAnimType AttackAnimation::findValidGroup( const std::vector<ECreatureAn
 const CCreature * AttackAnimation::getCreature() const
 {
 	if (attackingStack->unitType()->getId() == CreatureID::ARROW_TOWERS)
-		return owner.siegeController->getTurretCreature();
+		return owner.siegeController->getTurretCreature(attackingStack->initialPosition);
 	else
 		return attackingStack->unitType();
 }
@@ -355,9 +356,9 @@ bool MovementAnimation::init()
 		myAnim->setType(ECreatureAnimType::MOVING);
 	}
 
-	if (moveSoundHander == -1)
+	if (moveSoundHandler == -1)
 	{
-		moveSoundHander = CCS->soundh->playSound(stack->unitType()->sounds.move, -1);
+		moveSoundHandler = CCS->soundh->playSound(stack->unitType()->sounds.move, -1);
 	}
 
 	Point begPosition = owner.stacksController->getStackPositionAtHex(prevHex, stack);
@@ -398,12 +399,12 @@ void MovementAnimation::tick(uint32_t msPassed)
 		myAnim->pos.moveTo(coords);
 
 		// true if creature haven't reached the final destination hex
-		if ((curentMoveIndex + 1) < destTiles.size())
+		if ((currentMoveIndex + 1) < destTiles.size())
 		{
 			// update the next hex field which has to be reached by the stack
-			curentMoveIndex++;
+			currentMoveIndex++;
 			prevHex = nextHex;
-			nextHex = destTiles[curentMoveIndex];
+			nextHex = destTiles[currentMoveIndex];
 
 			// request re-initialization
 			initialized = false;
@@ -417,18 +418,18 @@ MovementAnimation::~MovementAnimation()
 {
 	assert(stack);
 
-	if(moveSoundHander != -1)
-		CCS->soundh->stopSound(moveSoundHander);
+	if(moveSoundHandler != -1)
+		CCS->soundh->stopSound(moveSoundHandler);
 }
 
 MovementAnimation::MovementAnimation(BattleInterface & owner, const CStack *stack, std::vector<BattleHex> _destTiles, int _distance)
 	: StackMoveAnimation(owner, stack, stack->getPosition(), _destTiles.front()),
 	  destTiles(_destTiles),
-	  curentMoveIndex(0),
+	  currentMoveIndex(0),
 	  begX(0), begY(0),
 	  distanceX(0), distanceY(0),
 	  progressPerSecond(0.0),
-	  moveSoundHander(-1),
+	  moveSoundHandler(-1),
 	  progress(0.0)
 {
 	logAnim->debug("Created MovementAnimation for %s", stack->getName());
@@ -649,7 +650,7 @@ void RangedAttackAnimation::setAnimationGroup()
 	Point shooterPos = stackAnimation(attackingStack)->pos.topLeft();
 	Point shotTarget = owner.stacksController->getStackPositionAtHex(dest, defendingStack);
 
-	//maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
+	//maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absolute value)
 	static const double straightAngle = 0.2;
 
 	double projectileAngle = -atan2(shotTarget.y - shooterPos.y, std::abs(shotTarget.x - shooterPos.x));
@@ -672,18 +673,18 @@ void RangedAttackAnimation::initializeProjectile()
 
 	if (getGroup() == getUpwardsGroup())
 	{
-		shotOrigin.x += ( -25 + shooterInfo->animation.upperRightMissleOffsetX ) * multiplier;
-		shotOrigin.y += shooterInfo->animation.upperRightMissleOffsetY;
+		shotOrigin.x += ( -25 + shooterInfo->animation.upperRightMissileOffsetX ) * multiplier;
+		shotOrigin.y += shooterInfo->animation.upperRightMissileOffsetY;
 	}
 	else if (getGroup() == getDownwardsGroup())
 	{
-		shotOrigin.x += ( -25 + shooterInfo->animation.lowerRightMissleOffsetX ) * multiplier;
-		shotOrigin.y += shooterInfo->animation.lowerRightMissleOffsetY;
+		shotOrigin.x += ( -25 + shooterInfo->animation.lowerRightMissileOffsetX ) * multiplier;
+		shotOrigin.y += shooterInfo->animation.lowerRightMissileOffsetY;
 	}
 	else if (getGroup() == getForwardGroup())
 	{
-		shotOrigin.x += ( -25 + shooterInfo->animation.rightMissleOffsetX ) * multiplier;
-		shotOrigin.y += shooterInfo->animation.rightMissleOffsetY;
+		shotOrigin.x += ( -25 + shooterInfo->animation.rightMissileOffsetX ) * multiplier;
+		shotOrigin.y += shooterInfo->animation.rightMissileOffsetY;
 	}
 	else
 	{
@@ -880,9 +881,10 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 	return maxFrames / 2;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects, float transparencyFactor, bool reversed):
 	BattleAnimation(owner),
-	animation(GH.renderHandler().loadAnimation(animationName)),
+	animation(GH.renderHandler().loadAnimation(animationName, EImageBlitMode::SIMPLE)),
+	transparencyFactor(transparencyFactor),
 	effectFlags(effects),
 	effectFinished(false),
 	reversed(reversed)
@@ -891,32 +893,32 @@ EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & 
 }
 
 EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<BattleHex> hex, int effects, bool reversed):
-	EffectAnimation(owner, animationName, effects, reversed)
+	EffectAnimation(owner, animationName, effects, 1.0f, reversed)
 {
 	battlehexes = hex;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex, int effects, bool reversed):
-	EffectAnimation(owner, animationName, effects, reversed)
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex, int effects, float transparencyFactor, bool reversed):
+	EffectAnimation(owner, animationName, effects, transparencyFactor, reversed)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
 }
 
 EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<Point> pos, int effects, bool reversed):
-	EffectAnimation(owner, animationName, effects, reversed)
+	EffectAnimation(owner, animationName, effects, 1.0f, reversed)
 {
 	positions = pos;
 }
 
 EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, int effects, bool reversed):
-	EffectAnimation(owner, animationName, effects, reversed)
+	EffectAnimation(owner, animationName, effects, 1.0f, reversed)
 {
 	positions.push_back(pos);
 }
 
 EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, BattleHex hex, int effects, bool reversed):
-	EffectAnimation(owner, animationName, effects, reversed)
+	EffectAnimation(owner, animationName, effects, 1.0f, reversed)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
@@ -925,8 +927,6 @@ EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & 
 
 bool EffectAnimation::init()
 {
-	animation->preload();
-
 	auto first = animation->getImage(0, 0, true);
 	if(!first)
 	{
@@ -952,6 +952,7 @@ bool EffectAnimation::init()
 	be.effectID = ID;
 	be.animation = animation;
 	be.currentFrame = 0;
+	be.transparencyFactor = transparencyFactor;
 	be.type = reversed ? BattleEffect::AnimType::REVERSE : BattleEffect::AnimType::DEFAULT;
 
 	for (size_t i = 0; i < std::max(battlehexes.size(), positions.size()); ++i)

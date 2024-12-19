@@ -19,7 +19,6 @@
 #include "../CMapGenerator.h"
 #include "../Functions.h"
 #include "../../TerrainHandler.h"
-#include "../../CRandomGenerator.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../TileInfo.h"
 #include "../threadpool/MapProxy.h"
@@ -73,7 +72,7 @@ void RockFiller::init()
 
 char RockFiller::dump(const int3 & t)
 {
-	if(!map.getTile(t).terType->isPassable())
+	if(!map.getTile(t).getTerrain()->isPassable())
 	{
 		return zone.area()->contains(t) ? 'R' : 'E';
 	}

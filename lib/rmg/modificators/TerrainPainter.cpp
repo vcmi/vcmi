@@ -20,7 +20,10 @@
 #include "../RmgMap.h"
 #include "../../VCMI_Lib.h"
 #include "../../TerrainHandler.h"
-#include "../../CTownHandler.h"
+#include "../../entities/faction/CFaction.h"
+#include "../../entities/faction/CTownHandler.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -76,7 +79,7 @@ void TerrainPainter::initTerrainType()
 			{
 				//Fill with all terain types by default
 				{
-					for (auto terrain : VLC->terrainTypeHandler->objects)
+					for (const auto & terrain : VLC->terrainTypeHandler->objects)
 					{
 						if (terrain->isLand() && terrain->isPassable())
 						{

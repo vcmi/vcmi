@@ -20,16 +20,16 @@
 #include "../widgets/MiscWidgets.h"
 #include "../windows/InfoWindows.h"
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../media/ISoundPlayer.h"
 #include "../render/IScreenHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
@@ -51,7 +51,7 @@ CInfoBar::EmptyVisibleInfo::EmptyVisibleInfo()
 
 CInfoBar::VisibleHeroInfo::VisibleHeroInfo(const CGHeroInstance * hero)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CPicture>(ImagePath::builtin("ADSTATHR"));
 
 	if(settings["gameTweaks"]["infoBarCreatureManagement"].Bool())
@@ -62,7 +62,7 @@ CInfoBar::VisibleHeroInfo::VisibleHeroInfo(const CGHeroInstance * hero)
 
 CInfoBar::VisibleTownInfo::VisibleTownInfo(const CGTownInstance * town)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CPicture>(ImagePath::builtin("ADSTATCS"));
 
 	if(settings["gameTweaks"]["infoBarCreatureManagement"].Bool())
@@ -73,7 +73,7 @@ CInfoBar::VisibleTownInfo::VisibleTownInfo(const CGTownInstance * town)
 
 CInfoBar::VisibleDateInfo::VisibleDateInfo()
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	animation = std::make_shared<CShowableAnim>(1, 0, getNewDayName(), CShowableAnim::PLAY_ONCE, 180);// H3 uses around 175-180 ms per frame
 	animation->setDuration(1500);
@@ -114,7 +114,7 @@ AnimationPath CInfoBar::VisibleDateInfo::getNewDayName()
 
 CInfoBar::VisibleEnemyTurnInfo::VisibleEnemyTurnInfo(PlayerColor player)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CPicture>(ImagePath::builtin("ADSTATNX"));
 	banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), player.getNum(), 0, 20, 51);
 	sand = std::make_shared<CShowableAnim>(99, 51, AnimationPath::builtin("HOURSAND"), 0, 100); // H3 uses around 100 ms per frame
@@ -123,7 +123,7 @@ CInfoBar::VisibleEnemyTurnInfo::VisibleEnemyTurnInfo(PlayerColor player)
 
 CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	//get amount of halls of each level
 	std::vector<int> halls(4, 0);
 	for(auto town : LOCPLINT->localState->getOwnedTowns())
@@ -180,7 +180,7 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 
 CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component> & compsToDisplay, std::string message, int textH, bool tiny)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	background = std::make_shared<CPicture>(ImagePath::builtin("ADSTATOT"), 1, 0);
 	auto fullRect = Rect(CInfoBar::offset, CInfoBar::offset, data_width - 2 * CInfoBar::offset, data_height - 2 * CInfoBar::offset);
@@ -250,14 +250,14 @@ void CInfoBar::playNewDaySound()
 
 void CInfoBar::reset()
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	state = EMPTY;
 	visibleInfo = std::make_shared<EmptyVisibleInfo>();
 }
 
 void CInfoBar::showSelection()
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	if(LOCPLINT->localState->getCurrentHero())
 	{
 		showHeroSelection(LOCPLINT->localState->getCurrentHero());
@@ -325,7 +325,7 @@ CInfoBar::CInfoBar(const Rect & position)
 	state(EMPTY),
 	listener(settings.listen["gameTweaks"]["infoBarCreatureManagement"])
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	pos.w = position.w;
 	pos.h = position.h;
 	listener(std::bind(&CInfoBar::OnInfoBarCreatureManagementChanged, this));
@@ -349,7 +349,7 @@ void CInfoBar::setTimer(uint32_t msToTrigger)
 
 void CInfoBar::showDate()
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	playNewDaySound();
 	state = DATE;
 	visibleInfo = std::make_shared<VisibleDateInfo>();
@@ -475,7 +475,7 @@ void CInfoBar::popAll()
 
 void CInfoBar::popComponents(bool remove)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	if(remove && !componentsQueue.empty())
 		componentsQueue.pop();
 	if(!componentsQueue.empty())
@@ -492,7 +492,7 @@ void CInfoBar::popComponents(bool remove)
 
 void CInfoBar::pushComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny, int timer)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	componentsQueue.emplace(VisibleComponentInfo::Cache(comps, message, textH, tiny), timer);
 }
 
@@ -503,7 +503,7 @@ bool CInfoBar::showingComponents()
 
 void CInfoBar::startEnemyTurn(PlayerColor color)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	state = AITURN;
 	visibleInfo = std::make_shared<VisibleEnemyTurnInfo>(color);
 	redraw();
@@ -511,7 +511,7 @@ void CInfoBar::startEnemyTurn(PlayerColor color)
 
 void CInfoBar::showHeroSelection(const CGHeroInstance * hero)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	if(!hero)
 	{
 		reset();
@@ -526,7 +526,7 @@ void CInfoBar::showHeroSelection(const CGHeroInstance * hero)
 
 void CInfoBar::showTownSelection(const CGTownInstance * town)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	if(!town)
 	{
 		reset();
@@ -541,7 +541,7 @@ void CInfoBar::showTownSelection(const CGTownInstance * town)
 
 void CInfoBar::showGameStatus()
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	state = GAME;
 	visibleInfo = std::make_shared<VisibleGameStatusInfo>();
 	setTimer(3000);

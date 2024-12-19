@@ -224,6 +224,7 @@ void MapViewController::updateState()
 		adventureContext->settingShowVisitable = settings["session"]["showVisitable"].Bool();
 		adventureContext->settingShowBlocked = settings["session"]["showBlocked"].Bool();
 		adventureContext->settingSpellRange = settings["session"]["showSpellRange"].Bool();
+		adventureContext->settingTextOverlay = GH.isKeyboardAltDown();
 	}
 }
 
@@ -316,7 +317,7 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj, const Playe
 	if(obj->isVisitable())
 		return context->isVisible(obj->visitablePos());
 	else
-		return context->isVisible(obj->pos);
+		return context->isVisible(obj->anchorPos());
 }
 
 bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & from, const int3 & dest)

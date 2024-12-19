@@ -46,7 +46,7 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	void handleRedrawCommand();
 
 	// Extracts all translateable game texts into Translation directory, separating files on per-mod basis
-	void handleTranslateGameCommand();
+	void handleTranslateGameCommand(bool onlyMissing);
 
 	// Extracts all translateable texts from maps and campaigns into Translation directory, separating files on per-mod basis
 	void handleTranslateMapsCommand();
@@ -66,7 +66,7 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	// Export file into Extracted directory
 	void handleExtractCommand(std::istringstream& singleWordBuffer);
 
-	// Print in console the current bonuses for curent army
+	// Print in console the current bonuses for current army
 	void handleBonusesCommand(std::istringstream & singleWordBuffer);
 
 	// Get what artifact is present on artifact slot with specified ID for hero with specified ID
@@ -83,6 +83,9 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 
 	// shows object graph
 	void handleVsLog(std::istringstream & singleWordBuffer);
+
+	// generate all assets
+	void handleGenerateAssets();
 
 	// Prints in Chat the given message
 	void printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType = ELogLevel::NOT_SET);

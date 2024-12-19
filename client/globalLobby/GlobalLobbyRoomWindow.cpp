@@ -26,14 +26,14 @@
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/ObjectLists.h"
 
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/MetaString.h"
 #include "../../lib/modding/CModHandler.h"
-#include "../../lib/modding/CModInfo.h"
+#include "../../lib/modding/ModDescription.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/MetaString.h"
 
 GlobalLobbyRoomAccountCard::GlobalLobbyRoomAccountCard(const GlobalLobbyAccount & accountDescription)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos.w = 130;
 	pos.h = 40;
 	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1);
@@ -51,7 +51,7 @@ GlobalLobbyRoomModCard::GlobalLobbyRoomModCard(const GlobalLobbyRoomModInfo & mo
 		{ ModVerificationStatus::FULL_MATCH, "compatible" }
 	};
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos.w = 200;
 	pos.h = 40;
 	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1);
@@ -66,7 +66,7 @@ GlobalLobbyRoomModCard::GlobalLobbyRoomModCard(const GlobalLobbyRoomModInfo & mo
 	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, statusColor, CGI->generaltexth->translate("vcmi.lobby.mod.state." + statusToString.at(modInfo.status)));
 }
 
-static const std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDescription, const std::vector<GlobalLobbyRoomModInfo> & modVerificationList)
+static std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDescription, const std::vector<GlobalLobbyRoomModInfo> & modVerificationList)
 {
 	bool publicRoom = roomDescription.statusID == "public";
 	bool privateRoom = roomDescription.statusID == "private";
@@ -114,10 +114,10 @@ static const std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDes
 
 GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const std::string & roomUUID)
 	: CWindowObject(BORDERED)
-	, roomUUID(roomUUID)
 	, window(window)
+	, roomUUID(roomUUID)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	pos.w = 400;
 	pos.h = 400;
@@ -128,14 +128,14 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 		GlobalLobbyRoomModInfo modInfo;
 		modInfo.status = modEntry.second;
 		if (modEntry.second == ModVerificationStatus::EXCESSIVE)
-			modInfo.version = CGI->modh->getModInfo(modEntry.first).getVerificationInfo().version.toString();
+			modInfo.version = CGI->modh->getModInfo(modEntry.first).getVersion().toString();
 		else
 			modInfo.version = roomDescription.modList.at(modEntry.first).version.toString();
 
 		if (modEntry.second == ModVerificationStatus::NOT_INSTALLED)
 			modInfo.modName = roomDescription.modList.at(modEntry.first).name;
 		else
-			modInfo.modName = CGI->modh->getModInfo(modEntry.first).getVerificationInfo().name;
+			modInfo.modName = CGI->modh->getModInfo(modEntry.first).getName();
 
 		modVerificationList.push_back(modInfo);
 	}
@@ -152,7 +152,7 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 	subtitleText.replaceRawString(roomDescription.description);
 	subtitleText.replaceRawString(roomDescription.hostAccountDisplayName);
 
-	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.preview.title").toString());
 	labelSubtitle = std::make_shared<CLabel>( pos.w / 2, 40, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, subtitleText.toString(), 400);
 
@@ -200,7 +200,7 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 	modListTitle = std::make_shared<CLabel>( 182, 59, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.preview.mods").toString());
 
 	buttonJoin->block(!errorMessage.empty());
-	filledBackground->playerColored(PlayerColor(1));
+	filledBackground->setPlayerColor(PlayerColor(1));
 	center();
 }
 

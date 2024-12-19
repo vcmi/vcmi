@@ -18,7 +18,7 @@
 #include "../../lib/CRandomGenerator.h"
 
 CStupidAI::CStupidAI()
-	: side(-1)
+	: side(BattleSide::NONE)
 	, wasWaitingForRealize(false)
 	, wasUnlockingGs(false)
 {
@@ -262,7 +262,7 @@ void CStupidAI::battleStacksEffectsSet(const BattleID & battleID, const SetStack
 	print("battleStacksEffectsSet called");
 }
 
-void CStupidAI::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side, bool replayAllowed)
+void CStupidAI::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide Side, bool replayAllowed)
 {
 	print("battleStart called");
 	side = Side;
@@ -296,7 +296,11 @@ BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stac
 	for(auto hex : hexes)
 	{
 		if(vstd::contains(avHexes, hex))
+		{
+			if(stack->position == hex)
+				return BattleAction::makeDefend(stack);
 			return BattleAction::makeMove(stack, hex);
+		}
 
 		if(stack->coversPos(hex))
 		{
@@ -336,7 +340,11 @@ BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stac
 			}
 
 			if(vstd::contains(avHexes, currentDest))
+			{
+				if(stack->position == currentDest)
+					return BattleAction::makeDefend(stack);
 				return BattleAction::makeMove(stack, currentDest);
+			}
 
 			currentDest = reachability.predecessors[currentDest];
 		}

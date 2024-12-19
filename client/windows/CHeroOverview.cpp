@@ -10,29 +10,31 @@
 #include "StdInc.h"
 #include "CHeroOverview.h"
 
+#include "../CCallback.h"
 #include "../CGameInfo.h"
+#include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
-#include "../render/Graphics.h"
 #include "../render/IImage.h"
 #include "../renderSDL/RenderHandler.h"
-#include "../widgets/CComponent.h"
+#include "../widgets/CComponentHolder.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 
-#include "../../lib/GameSettings.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/IGameSettings.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/entities/hero/CHeroClass.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 
 CHeroOverview::CHeroOverview(const HeroTypeID & h)
 	: CWindowObject(BORDERED | RCLICK_POPUP), hero { h }
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
     heroIdx = hero.getNum();
 
@@ -124,7 +126,7 @@ void CHeroOverview::genControls()
     r = Rect(302, 3 * borderOffset + yOffset + 62, 292, 32);
     backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
 
-    auto stacksCountChances = VLC->settings()->getVector(EGameSettings::HEROES_STARTING_STACKS_CHANCES);
+    auto stacksCountChances = CGI->engineSettings()->getVector(EGameSettings::HEROES_STARTING_STACKS_CHANCES);
 
     // army
     int space = (260 - 7 * 32) / 6;
@@ -204,7 +206,8 @@ void CHeroOverview::genControls()
     i = 0;
     for(auto & skill : (*CGI->heroh)[heroIdx]->secSkillsInit)
     {
-        imageSecSkills.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SECSK32"), (*CGI->skillh)[skill.first]->getIconIndex() * 3 + skill.second + 2, 0, 302, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset)));
+        secSkills.push_back(std::make_shared<CSecSkillPlace>(Point(302, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset)),
+            CSecSkillPlace::ImageSize::SMALL, skill.first, skill.second));
         labelSecSkillsNames.push_back(std::make_shared<CLabel>(334 + 2 * borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) - 5, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->levels[skill.second - 1]));
         labelSecSkillsNames.push_back(std::make_shared<CLabel>(334 + 2 * borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) + 10, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->skillh)[skill.first]->getNameTranslated()));
         i++;
@@ -225,12 +228,12 @@ void CHeroOverview::genControls()
         {
             if((*CGI->heroh)[heroIdx]->haveSpellBook)
             {
-                imageSpells.push_back(std::make_shared<CAnimImage>(GH.renderHandler().loadAnimation(AnimationPath::builtin("ARTIFACT")), 0, Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset), 32, 32), 0));
+                imageSpells.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ARTIFACT"), 0, Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset), 32, 32), 0));
             }
             i++;
         }
 
-        imageSpells.push_back(std::make_shared<CAnimImage>(GH.renderHandler().loadAnimation(AnimationPath::builtin("SPELLBON")), (*CGI->spellh)[spell]->getIconIndex(), Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset), 32, 32), 0));
+        imageSpells.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SPELLBON"), (*CGI->spellh)[spell]->getIconIndex(), Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset), 32, 32), 0));
         labelSpellsNames.push_back(std::make_shared<CLabel>(302 + (292 / 2) + 3 * borderOffset + 32 + borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) + 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->spellh)[spell]->getNameTranslated()));
         i++;
     }

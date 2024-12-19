@@ -10,7 +10,7 @@
 #pragma once
 
 #include "CSerializer.h"
-#include "CTypeList.h"
+#include "SerializerReflection.h"
 #include "ESerializationVersion.h"
 #include "../mapObjects/CGHeroInstance.h"
 
@@ -35,75 +35,50 @@ public:
 
 /// Main class for deserialization of classes from binary form
 /// Effectively revesed version of BinarySerializer
-class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
+class BinaryDeserializer : public CLoaderBase
 {
-	template<typename Ser,typename T>
-	struct LoadIfStackInstance
+	template<typename Fake, typename T>
+	static bool loadIfStackInstance(T &data)
 	{
-		static bool invoke(Ser &s, T &data)
-		{
+		return false;
+	}
+
+	template<typename Fake>
+	bool loadIfStackInstance(const CStackInstance* &data)
+	{
+		CArmedInstance * armyPtr = nullptr;
+		ObjectInstanceID armyID;
+		SlotID slot;
+		load(armyID);
+		load(slot);
+
+		if (armyID == ObjectInstanceID::NONE)
 			return false;
-		}
-	};
 
-	template<typename Ser>
-	struct LoadIfStackInstance<Ser, CStackInstance *>
-	{
-		static bool invoke(Ser &s, CStackInstance* &data)
+		if(reader->smartVectorMembersSerialization)
 		{
-			CArmedInstance *armedObj;
-			SlotID slot;
-			s.load(armedObj);
-			s.load(slot);
-			if(slot != SlotID::COMMANDER_SLOT_PLACEHOLDER)
-			{
-				assert(armedObj->hasStackAtSlot(slot));
-				data = armedObj->stacks[slot];
-			}
-			else
-			{
-				auto * hero = dynamic_cast<CGHeroInstance *>(armedObj);
-				assert(hero);
-				assert(hero->commander);
-				data = hero->commander;
-			}
-			return true;
+			if(const auto *info = reader->getVectorizedTypeInfo<CArmedInstance, ObjectInstanceID>())
+				armyPtr = reader->getVectorItemFromId<CArmedInstance, ObjectInstanceID>(*info, armyID);
 		}
-	};
 
-	template <typename T, typename Enable = void>
-	struct ClassObjectCreator
-	{
-		static T *invoke(IGameCallback *cb)
+		if(slot != SlotID::COMMANDER_SLOT_PLACEHOLDER)
 		{
-			static_assert(!std::is_base_of_v<GameCallbackHolder, T>, "Cannot call new upon map objects!");
-			static_assert(!std::is_abstract_v<T>, "Cannot call new upon abstract classes!");
-			return new T();
+			assert(armyPtr->hasStackAtSlot(slot));
+			data = armyPtr->stacks[slot];
 		}
-	};
-
-	template<typename T>
-	struct ClassObjectCreator<T, typename std::enable_if_t<std::is_abstract_v<T>>>
-	{
-		static T *invoke(IGameCallback *cb)
+		else
 		{
-			throw std::runtime_error("Something went really wrong during deserialization. Attempted creating an object of an abstract class " + std::string(typeid(T).name()));
+			auto * hero = dynamic_cast<CGHeroInstance *>(armyPtr);
+			assert(hero);
+			assert(hero->commander);
+			data = hero->commander;
 		}
-	};
+		return true;
+	}
 
-	template<typename T>
-	struct ClassObjectCreator<T, typename std::enable_if_t<std::is_base_of_v<GameCallbackHolder, T> && !std::is_abstract_v<T>>>
+	STRONG_INLINE uint32_t readAndCheckLength()
 	{
-		static T *invoke(IGameCallback *cb)
-		{
-			static_assert(!std::is_abstract_v<T>, "Cannot call new upon abstract classes!");
-			return new T(cb);
-		}
-	};
-
-	STRONG_INLINE ui32 readAndCheckLength()
-	{
-		ui32 length;
+		uint32_t length;
 		load(length);
 		//NOTE: also used for h3m's embedded in campaigns, so it may be quite large in some cases (e.g. XXL maps with multiple objects)
 		if(length > 1000000)
@@ -114,40 +89,6 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 		return length;
 	}
 
-	template <typename Type> class CPointerLoader;
-
-	class IPointerLoader
-	{
-	public:
-		virtual void * loadPtr(CLoaderBase &ar, IGameCallback * cb, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
-		virtual ~IPointerLoader() = default;
-
-		template<typename Type> static IPointerLoader *getApplier(const Type * t = nullptr)
-		{
-			return new CPointerLoader<Type>();
-		}
-	};
-
-	template <typename Type>
-	class CPointerLoader : public IPointerLoader
-	{
-	public:
-		void * loadPtr(CLoaderBase &ar, IGameCallback * cb, ui32 pid) const override //data is pointer to the ACTUAL POINTER
-		{
-			auto & s = static_cast<BinaryDeserializer &>(ar);
-
-			//create new object under pointer
-			Type * ptr = ClassObjectCreator<Type>::invoke(cb); //does new npT or throws for abstract classes
-			s.ptrAllocated(ptr, pid);
-
-			ptr->serialize(s);
-
-			return static_cast<void*>(ptr);
-		}
-	};
-
-	CApplier<IPointerLoader> applier;
-
 	int write(const void * data, unsigned size);
 
 public:
@@ -156,13 +97,20 @@ public:
 	bool reverseEndianness; //if source has different endianness than us, we reverse bytes
 	Version version;
 
-	std::map<ui32, void*> loadedPointers;
-	std::map<const void*, std::shared_ptr<void>> loadedSharedPointers;
+	std::vector<std::string> loadedStrings;
+	std::map<uint32_t, Serializeable*> loadedPointers;
+	std::map<const Serializeable*, std::shared_ptr<Serializeable>> loadedSharedPointers;
 	IGameCallback * cb = nullptr;
-	bool smartPointerSerialization;
-	bool saving;
+	static constexpr bool trackSerializedPointers = true;
+	static constexpr bool saving = false;
+	bool loadingGamestate = false;
 
-	BinaryDeserializer(IBinaryReader * r);
+	bool hasFeature(Version what) const
+	{
+		return version >= what;
+	};
+
+	DLL_LINKAGE BinaryDeserializer(IBinaryReader * r);
 
 	template<class T>
 	BinaryDeserializer & operator&(T & t)
@@ -171,10 +119,54 @@ public:
 		return * this;
 	}
 
-	template < class T, typename std::enable_if_t < std::is_fundamental_v<T> && !std::is_same_v<T, bool>, int  > = 0 >
+	int64_t loadEncodedInteger()
+	{
+		uint64_t valueUnsigned = 0;
+		uint_fast8_t offset = 0;
+
+		for (;;)
+		{
+			uint8_t byteValue;
+			load(byteValue);
+
+			if ((byteValue & 0x80) != 0)
+			{
+				valueUnsigned |= static_cast<uint64_t>(byteValue & 0x7f) << offset;
+				offset += 7;
+			}
+			else
+			{
+				valueUnsigned |= static_cast<uint64_t>(byteValue & 0x3f) << offset;
+				bool isNegative = (byteValue & 0x40) != 0;
+				if (isNegative)
+					return -static_cast<int64_t>(valueUnsigned);
+				else
+					return valueUnsigned;
+			}
+		}
+	}
+
+	template < class T, typename std::enable_if_t < std::is_floating_point_v<T>, int  > = 0 >
 	void load(T &data)
 	{
 		this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
+	}
+
+	template < class T, typename std::enable_if_t < std::is_integral_v<T> && !std::is_same_v<T, bool>, int  > = 0 >
+	void load(T &data)
+	{
+		if constexpr (sizeof(T) == 1)
+		{
+			this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
+		}
+		else
+		{
+			static_assert(!std::is_same_v<uint64_t, T>, "Serialization of unsigned 64-bit value may not work in some cases");
+			if (hasFeature(Version::COMPACT_INTEGER_SERIALIZATION))
+				data = loadEncodedInteger();
+			else
+				this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
+		}
 	}
 
 	template < typename T, typename std::enable_if_t < is_serializeable<BinaryDeserializer, T>::value, int  > = 0 >
@@ -188,15 +180,20 @@ public:
 	template < typename T, typename std::enable_if_t < std::is_array_v<T>, int  > = 0 >
 	void load(T &data)
 	{
-		ui32 size = std::size(data);
-		for(ui32 i = 0; i < size; i++)
+		uint32_t size = std::size(data);
+		for(uint32_t i = 0; i < size; i++)
 			load(data[i]);
+	}
+
+	void load(Version &data)
+	{
+		this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
 	}
 
 	template < typename T, typename std::enable_if_t < std::is_enum_v<T>, int  > = 0 >
 	void load(T &data)
 	{
-		si32 read;
+		int32_t read;
 		load( read );
 		data = static_cast<T>(read);
 	}
@@ -204,7 +201,7 @@ public:
 	template < typename T, typename std::enable_if_t < std::is_same_v<T, bool>, int > = 0 >
 	void load(T &data)
 	{
-		ui8 read;
+		uint8_t read;
 		load( read );
 		data = static_cast<bool>(read);
 	}
@@ -212,18 +209,18 @@ public:
 	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
 	void load(std::vector<T> &data)
 	{
-		ui32 length = readAndCheckLength();
+		uint32_t length = readAndCheckLength();
 		data.resize(length);
-		for(ui32 i=0;i<length;i++)
+		for(uint32_t i=0;i<length;i++)
 			load( data[i]);
 	}
 
 	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
 	void load(std::deque<T> & data)
 	{
-		ui32 length = readAndCheckLength();
+		uint32_t length = readAndCheckLength();
 		data.resize(length);
-		for(ui32 i = 0; i < length; i++)
+		for(uint32_t i = 0; i < length; i++)
 			load(data[i]);
 	}
 
@@ -238,25 +235,6 @@ public:
 			return;
 		}
 
-		loadPointerImpl(data);
-	}
-
-	template < typename T, typename std::enable_if_t < std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  > = 0 >
-	void loadPointerImpl(T &data)
-	{
-		using DataType = std::remove_pointer_t<T>;
-
-		typename DataType::IdentifierType index;
-		load(index);
-
-		auto * constEntity = index.toEntity(VLC);
-		auto * constData = dynamic_cast<const DataType *>(constEntity);
-		data = const_cast<DataType *>(constData);
-	}
-
-	template < typename T, typename std::enable_if_t < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  > = 0 >
-	void loadPointerImpl(T &data)
-	{
 		if(reader->smartVectorMembersSerialization)
 		{
 			typedef typename std::remove_const_t<typename std::remove_pointer_t<T>> TObjectType; //eg: const CGHeroInstance * => CGHeroInstance
@@ -276,13 +254,13 @@ public:
 
 		if(reader->sendStackInstanceByIds)
 		{
-			bool gotLoaded = LoadIfStackInstance<BinaryDeserializer,T>::invoke(* this, data);
+			bool gotLoaded = loadIfStackInstance<void>(data);
 			if(gotLoaded)
 				return;
 		}
 
-		ui32 pid = 0xffffffff; //pointer id (or maybe rather pointee id)
-		if(smartPointerSerialization)
+		uint32_t pid = 0xffffffff; //pointer id (or maybe rather pointee id)
+		if(trackSerializedPointers)
 		{
 			load( pid ); //get the id
 			auto i = loadedPointers.find(pid); //lookup
@@ -291,45 +269,43 @@ public:
 			{
 				// We already got this pointer
 				// Cast it in case we are loading it to a non-first base pointer
-				data = static_cast<T>(i->second);
+				data = dynamic_cast<T>(i->second);
 				return;
 			}
 		}
 		//get type id
-		ui16 tid;
+		uint16_t tid;
 		load( tid );
 
+		typedef typename std::remove_pointer_t<T> npT;
+		typedef typename std::remove_const_t<npT> ncpT;
 		if(!tid)
 		{
-			typedef typename std::remove_pointer_t<T> npT;
-			typedef typename std::remove_const_t<npT> ncpT;
 			data = ClassObjectCreator<ncpT>::invoke(cb);
 			ptrAllocated(data, pid);
 			load(*data);
 		}
 		else
 		{
-			auto * app = applier.getApplier(tid);
+			auto * app = CSerializationApplier::getInstance().getApplier(tid);
 			if(app == nullptr)
 			{
 				logGlobal->error("load %d %d - no loader exists", tid, pid);
 				data = nullptr;
 				return;
 			}
-			data = static_cast<T>(app->loadPtr(*this, cb, pid));
+			auto dataNonConst = dynamic_cast<ncpT*>(app->createPtr(*this, cb));
+			data = dataNonConst;
+			ptrAllocated(data, pid);
+			app->loadPtr(*this, cb, dataNonConst);
 		}
 	}
 
 	template <typename T>
-	void ptrAllocated(const T *ptr, ui32 pid)
+	void ptrAllocated(T *ptr, uint32_t pid)
 	{
-		if(smartPointerSerialization && pid != 0xffffffff)
-			loadedPointers[pid] = (void*)ptr; //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
-	}
-
-	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
-	{
-		applier.registerType(b, d);
+		if(trackSerializedPointers && pid != 0xffffffff)
+			loadedPointers[pid] = const_cast<Serializeable*>(dynamic_cast<const Serializeable*>(ptr)); //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
 	}
 
 	template <typename T>
@@ -339,7 +315,7 @@ public:
 		NonConstT *internalPtr;
 		load(internalPtr);
 
-		void * internalPtrDerived = static_cast<void*>(internalPtr);
+		const auto * internalPtrDerived = static_cast<Serializeable*>(internalPtr);
 
 		if(internalPtr)
 		{
@@ -354,7 +330,7 @@ public:
 			{
 				auto hlp = std::shared_ptr<NonConstT>(internalPtr);
 				data = hlp;
-				loadedSharedPointers[internalPtrDerived] = std::static_pointer_cast<void>(hlp);
+				loadedSharedPointers[internalPtrDerived] = std::static_pointer_cast<Serializeable>(hlp);
 			}
 		}
 		else
@@ -386,16 +362,16 @@ public:
 	template <typename T, size_t N>
 	void load(std::array<T, N> &data)
 	{
-		for(ui32 i = 0; i < N; i++)
+		for(uint32_t i = 0; i < N; i++)
 			load( data[i] );
 	}
 	template <typename T>
 	void load(std::set<T> &data)
 	{
-		ui32 length = readAndCheckLength();
+		uint32_t length = readAndCheckLength();
 		data.clear();
 		T ins;
-		for(ui32 i=0;i<length;i++)
+		for(uint32_t i=0;i<length;i++)
 		{
 			load( ins );
 			data.insert(ins);
@@ -404,10 +380,10 @@ public:
 	template <typename T, typename U>
 	void load(std::unordered_set<T, U> &data)
 	{
-		ui32 length = readAndCheckLength();
+		uint32_t length = readAndCheckLength();
 		data.clear();
 		T ins;
-		for(ui32 i=0;i<length;i++)
+		for(uint32_t i=0;i<length;i++)
 		{
 			load(ins);
 			data.insert(ins);
@@ -416,10 +392,10 @@ public:
 	template <typename T>
 	void load(std::list<T> &data)
 	{
-		ui32 length = readAndCheckLength();
+		uint32_t length = readAndCheckLength();
 		data.clear();
 		T ins;
-		for(ui32 i=0;i<length;i++)
+		for(uint32_t i=0;i<length;i++)
 		{
 			load(ins);
 			data.push_back(ins);
@@ -433,12 +409,25 @@ public:
 	}
 
 	template <typename T1, typename T2>
-	void load(std::map<T1,T2> &data)
+	void load(std::unordered_map<T1,T2> &data)
 	{
-		ui32 length = readAndCheckLength();
+		uint32_t length = readAndCheckLength();
 		data.clear();
 		T1 key;
-		for(ui32 i=0;i<length;i++)
+		for(uint32_t i=0;i<length;i++)
+		{
+			load(key);
+			load(data[key]);
+		}
+	}
+
+	template <typename T1, typename T2>
+	void load(std::map<T1,T2> &data)
+	{
+		uint32_t length = readAndCheckLength();
+		data.clear();
+		T1 key;
+		for(uint32_t i=0;i<length;i++)
 		{
 			load(key);
 			load(data[key]);
@@ -446,15 +435,39 @@ public:
 	}
 	void load(std::string &data)
 	{
-		ui32 length = readAndCheckLength();
-		data.resize(length);
-		this->read(static_cast<void *>(data.data()), length, false);
+		if (hasFeature(Version::COMPACT_STRING_SERIALIZATION))
+		{
+			int32_t length;
+			load(length);
+
+			if (length < 0)
+			{
+				int32_t stringID = -length - 1; // -1, -2 ... -> 0, 1 ...
+				data = loadedStrings[stringID];
+			}
+			if (length == 0)
+			{
+				data = {};
+			}
+			if (length > 0)
+			{
+				data.resize(length);
+				this->read(static_cast<void *>(data.data()), length, false);
+				loadedStrings.push_back(data);
+			}
+		}
+		else
+		{
+			uint32_t length = readAndCheckLength();
+			data.resize(length);
+			this->read(static_cast<void *>(data.data()), length, false);
+		}
 	}
 
 	template<typename... TN>
 	void load(std::variant<TN...> & data)
 	{
-		si32 which;
+		int32_t which;
 		load( which );
 		assert(which < sizeof...(TN));
 
@@ -469,7 +482,7 @@ public:
 	template<typename T>
 	void load(std::optional<T> & data)
 	{
-		ui8 present;
+		uint8_t present;
 		load( present );
 		if(present)
 		{
@@ -487,16 +500,16 @@ public:
 	template <typename T>
 	void load(boost::multi_array<T, 3> & data)
 	{
-		ui32 length = readAndCheckLength();
-		ui32 x;
-		ui32 y;
-		ui32 z;
+		uint32_t length = readAndCheckLength();
+		uint32_t x;
+		uint32_t y;
+		uint32_t z;
 		load(x);
 		load(y);
 		load(z);
 		data.resize(boost::extents[x][y][z]);
 		assert(length == data.num_elements()); //x*y*z should be equal to number of elements
-		for(ui32 i = 0; i < length; i++)
+		for(uint32_t i = 0; i < length; i++)
 			load(data.data()[i]);
 	}
 	template <std::size_t T>

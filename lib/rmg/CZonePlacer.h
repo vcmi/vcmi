@@ -16,9 +16,13 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+namespace vstd
+{
+class RNG;
+}
+
 class CZoneGraph;
 class CMap;
-class CRandomGenerator;
 class RmgMap;
 class Zone;
 
@@ -34,19 +38,19 @@ public:
 	explicit CZonePlacer(RmgMap & map);
 	int3 cords(const float3 & f) const;
 	float metric (const int3 &a, const int3 &b) const;
-	float getDistance(float distance) const; //additional scaling without 0 divison
+	float getDistance(float distance) const; //additional scaling without 0 division
 	~CZonePlacer() = default;
 
-	void placeZones(CRandomGenerator * rand);
+	void placeZones(vstd::RNG * rand);
 	void findPathsBetweenZones();
-	void placeOnGrid(CRandomGenerator* rand);
+	void placeOnGrid(vstd::RNG* rand);
 	float scaleForceBetweenZones(const std::shared_ptr<Zone> zoneA, const std::shared_ptr<Zone> zoneB) const;
-	void assignZones(CRandomGenerator * rand);
+	void assignZones(vstd::RNG * rand);
 
 	const TDistanceMap & getDistanceMap();
 	
 private:
-	void prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, CRandomGenerator * rand);
+	void prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, vstd::RNG * rand);
 	void attractConnectedZones(TZoneMap & zones, TForceVector & forces, TDistanceVector & distances) const;
 	void separateOverlappingZones(TZoneMap &zones, TForceVector &forces, TDistanceVector &overlaps);
 	void moveOneZone(TZoneMap & zones, TForceVector & totalForces, TDistanceVector & distances, TDistanceVector & overlaps);
@@ -54,7 +58,7 @@ private:
 private:
 	int width;
 	int height;
-	//metric coeficient
+	//metric coefficient
 	float mapSize;
 
 	float gravityConstant;

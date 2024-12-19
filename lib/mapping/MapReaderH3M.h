@@ -67,7 +67,7 @@ public:
 	void skipUnused(size_t amount);
 	void skipZero(size_t amount);
 
-	void readResourses(TResources & resources);
+	void readResources(TResources & resources);
 
 	bool readBool();
 

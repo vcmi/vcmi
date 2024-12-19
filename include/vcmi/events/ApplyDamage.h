@@ -36,7 +36,7 @@ public:
 
 	static Sub * getRegistry();
 
-	virtual int64_t getInitalDamage() const = 0;
+	virtual int64_t getInitialDamage() const = 0;
 	virtual int64_t getDamage() const = 0;
 	virtual void setDamage(int64_t value) = 0;
 	virtual const battle::Unit * getTarget() const = 0;

@@ -1,3 +1,5 @@
+# Game Identifiers
+
 ## List of all game identifiers
 
 This is a list of all game identifiers available to modders. Note that only identifiers from base game have been included. For identifiers from mods please look up corresponding mod
@@ -491,7 +493,7 @@ This is a list of all game identifiers available to modders. Note that only iden
 - hero.thorgrim
 - hero.thunar
 - hero.tiva
-- hero.torosar 
+- hero.torosar
 - hero.tyraxor
 - hero.tyris
 - hero.ufretin

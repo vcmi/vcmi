@@ -8,6 +8,7 @@ set(Nullkiller_SRCS
 		Pathfinding/Actions/QuestAction.cpp
 		Pathfinding/Actions/BuyArmyAction.cpp
 		Pathfinding/Actions/BoatActions.cpp
+		Pathfinding/Actions/WhirlpoolAction.cpp
 		Pathfinding/Actions/TownPortalAction.cpp
 		Pathfinding/Actions/AdventureSpellCastMovementActions.cpp
 		Pathfinding/Rules/AILayerTransitionRule.cpp
@@ -79,6 +80,7 @@ set(Nullkiller_HEADERS
 		Pathfinding/Actions/QuestAction.h
 		Pathfinding/Actions/BuyArmyAction.h
 		Pathfinding/Actions/BoatActions.h
+		Pathfinding/Actions/WhirlpoolAction.h
 		Pathfinding/Actions/TownPortalAction.h
 		Pathfinding/Actions/AdventureSpellCastMovementActions.h
 		Pathfinding/Rules/AILayerTransitionRule.h
@@ -155,11 +157,7 @@ else()
 endif()
 
 target_include_directories(Nullkiller PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(Nullkiller PUBLIC vcmi fuzzylite::fuzzylite TBB::tbb)
+target_link_libraries(Nullkiller PUBLIC vcmi fuzzylite::fuzzylite)
 
 vcmi_set_output_dir(Nullkiller "AI")
 enable_pch(Nullkiller)
-
-if(APPLE_IOS AND NOT USING_CONAN)
-	install(IMPORTED_RUNTIME_ARTIFACTS TBB::tbb LIBRARY DESTINATION ${LIB_DIR}) # CMake 3.21+
-endif()

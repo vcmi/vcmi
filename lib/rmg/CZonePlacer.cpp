@@ -11,22 +11,23 @@
 #include "StdInc.h"
 #include "CZonePlacer.h"
 
-#include "../CRandomGenerator.h"
-#include "../CTownHandler.h"
 #include "../TerrainHandler.h"
+#include "../entities/faction/CFaction.h"
+#include "../entities/faction/CTownHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
+#include "../VCMI_Lib.h"
 #include "CMapGenOptions.h"
 #include "RmgMap.h"
 #include "Zone.h"
 #include "Functions.h"
 #include "PenroseTiling.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 //#define ZONE_PLACEMENT_LOG true
-
-class CRandomGenerator;
 
 CZonePlacer::CZonePlacer(RmgMap & map)
 	: width(0), height(0), mapSize(0),
@@ -79,12 +80,21 @@ void CZonePlacer::findPathsBetweenZones()
 
 			for (auto & connection : connectedZoneIds)
 			{
-				if (connection.getConnectionType() == rmg::EConnectionType::REPULSIVE)
+				switch (connection.getConnectionType())
 				{
 					//Do not consider virtual connections for graph distance
-					continue;
+					case rmg::EConnectionType::REPULSIVE:
+					case rmg::EConnectionType::FORCE_PORTAL:
+						continue;
 				}
 				auto neighbor = connection.getOtherZoneId(current);
+
+				if (current == neighbor)
+				{
+					//Do not consider self-connections
+					continue;
+				}
+
 				if (!visited[neighbor])
 				{
 					visited[neighbor] = true;
@@ -96,7 +106,7 @@ void CZonePlacer::findPathsBetweenZones()
 	}
 }
 
-void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
+void CZonePlacer::placeOnGrid(vstd::RNG* rand)
 {
 	auto zones = map.getZones();
 	assert(zones.size());
@@ -117,7 +127,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 
 	auto getRandomEdge = [rand, gridSize](size_t& x, size_t& y)
 	{
-		switch (rand->nextInt() % 4)
+		switch (rand->nextInt(0, 3) % 4)
 		{
 		case 0:
 			x = 0;
@@ -149,7 +159,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 			else
 			{
 				//Random corner
-				if (rand->nextInt() % 2)
+				if (rand->nextInt(0, 1) == 1)
 				{
 					x = 0;
 				}
@@ -157,7 +167,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 				{
 					x = gridSize - 1;
 				}
-				if (rand->nextInt() % 2)
+				if (rand->nextInt(0, 1) == 1)
 				{
 					y = 0;
 				}
@@ -175,8 +185,8 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 			else
 			{
 				//One of 4 squares in the middle
-				x = (gridSize / 2) - 1 + rand->nextInt() % 2;
-				y = (gridSize / 2) - 1 + rand->nextInt() % 2;
+				x = (gridSize / 2) - 1 + rand->nextInt(0, 1);
+				y = (gridSize / 2) - 1 + rand->nextInt(0, 1);
 			}
 			break;
 		case ETemplateZoneType::JUNCTION:
@@ -307,7 +317,7 @@ float CZonePlacer::scaleForceBetweenZones(const std::shared_ptr<Zone> zoneA, con
 	}
 }
 
-void CZonePlacer::placeZones(CRandomGenerator * rand)
+void CZonePlacer::placeZones(vstd::RNG * rand)
 {
 	logGlobal->info("Starting zone placement");
 
@@ -431,7 +441,7 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 	}
 }
 
-void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, CRandomGenerator * rand)
+void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, vstd::RNG * rand)
 {
 	std::vector<float> totalSize = { 0, 0 }; //make sure that sum of zone sizes on surface and uderground match size of the map
 
@@ -551,8 +561,16 @@ void CZonePlacer::attractConnectedZones(TZoneMap & zones, TForceVector & forces,
 
 		for (const auto & connection : zone.second->getConnections())
 		{
-			if (connection.getConnectionType() == rmg::EConnectionType::REPULSIVE)
+			switch (connection.getConnectionType())
 			{
+				//Do not consider virtual connections for graph distance
+				case rmg::EConnectionType::REPULSIVE:
+				case rmg::EConnectionType::FORCE_PORTAL:
+					continue;
+			}
+			if (connection.getZoneA() == connection.getZoneB())
+			{
+				//Do not consider self-connections
 				continue;
 			}
 
@@ -693,7 +711,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 
 	boost::sort(misplacedZones, [](const Misplacement& lhs, Misplacement& rhs)
 	{
-		return lhs.first > rhs.first; //Largest dispalcement first
+		return lhs.first > rhs.first; //Largest displacement first
 	});
 
 #ifdef ZONE_PLACEMENT_LOG
@@ -709,11 +727,19 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		std::set<TRmgTemplateZoneId> connectedZones;
 		for (const auto& connection : firstZone->getConnections())
 		{
-			//FIXME: Should we also exclude fictive connections?
-			if (connection.getConnectionType() != rmg::EConnectionType::REPULSIVE)
+			switch (connection.getConnectionType())
 			{
-				connectedZones.insert(connection.getOtherZoneId(firstZone->getId()));
+				//Do not consider virtual connections for graph distance
+				case rmg::EConnectionType::REPULSIVE:
+				case rmg::EConnectionType::FORCE_PORTAL:
+					continue;
 			}
+			if (connection.getZoneA() == connection.getZoneB())
+			{
+				//Do not consider self-connections
+				continue;
+			}
+			connectedZones.insert(connection.getOtherZoneId(firstZone->getId()));
 		}
 
 		auto level = firstZone->getCenter().z;
@@ -823,7 +849,7 @@ float CZonePlacer::metric (const int3 &A, const int3 &B) const
 
 }
 
-void CZonePlacer::assignZones(CRandomGenerator * rand)
+void CZonePlacer::assignZones(vstd::RNG * rand)
 {
 	logGlobal->info("Starting zone colouring");
 
@@ -973,7 +999,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	{
 		moveZoneToCenterOfMass(zone.second);
 
-		//TODO: similiar for islands
+		//TODO: similar for islands
 		#define	CREATE_FULL_UNDERGROUND true //consider linking this with water amount
 		if (zone.second->isUnderground())
 		{

@@ -1,8 +1,6 @@
 set(editor_SRCS
 		StdInc.cpp
 		main.cpp
-		launcherdirs.cpp
-		jsonutils.cpp
 		mainwindow.cpp
 		BitmapHandler.cpp
 		maphandler.cpp
@@ -28,11 +26,16 @@ set(editor_SRCS
 		mapcontroller.cpp
 		validator.cpp
 		inspector/inspector.cpp
-		inspector/townbulidingswidget.cpp
+		inspector/townbuildingswidget.cpp
+		inspector/towneventdialog.cpp
+		inspector/towneventswidget.cpp
+		inspector/townspellswidget.cpp
 		inspector/armywidget.cpp
 		inspector/messagewidget.cpp
 		inspector/rewardswidget.cpp
 		inspector/questwidget.cpp
+		inspector/heroartifactswidget.cpp
+		inspector/artifactwidget.cpp
 		inspector/heroskillswidget.cpp
 		inspector/herospellwidget.cpp
 		inspector/PickObjectDelegate.cpp
@@ -42,8 +45,6 @@ set(editor_SRCS
 
 set(editor_HEADERS
 		StdInc.h
-		launcherdirs.h
-		jsonutils.h
 		mainwindow.h
 		BitmapHandler.h
 		maphandler.h
@@ -69,16 +70,22 @@ set(editor_HEADERS
 		mapcontroller.h
 		validator.h
 		inspector/inspector.h
-		inspector/townbulidingswidget.h
+		inspector/townbuildingswidget.h
+		inspector/towneventdialog.h
+		inspector/towneventswidget.h
+		inspector/townspellswidget.h
 		inspector/armywidget.h
 		inspector/messagewidget.h
 		inspector/rewardswidget.h
 		inspector/questwidget.h
+		inspector/heroartifactswidget.h
+		inspector/artifactwidget.h
 		inspector/heroskillswidget.h
 		inspector/herospellwidget.h
 		inspector/PickObjectDelegate.h
 		inspector/portraitwidget.h
 		resourceExtractor/ResourceConverter.h
+		mapeditorroles.h
 )
 
 set(editor_FORMS
@@ -97,11 +104,16 @@ set(editor_FORMS
 		playersettings.ui
 		playerparams.ui
 		validator.ui
-		inspector/townbulidingswidget.ui
+		inspector/townbuildingswidget.ui
+		inspector/towneventdialog.ui
+		inspector/towneventswidget.ui
+		inspector/townspellswidget.ui
 		inspector/armywidget.ui
 		inspector/messagewidget.ui
 		inspector/rewardswidget.ui
 		inspector/questwidget.ui
+		inspector/heroartifactswidget.ui
+		inspector/artifactwidget.ui
 		inspector/heroskillswidget.ui
 		inspector/herospellwidget.ui
 		inspector/portraitwidget.ui
@@ -186,6 +198,7 @@ endif()
 target_sources(vcmieditor PRIVATE
 	${editor_SRCS}
 	${editor_HEADERS}
+	${editor_FORMS}
 	${editor_RESOURCES}
 )
 
@@ -210,7 +223,11 @@ if(APPLE)
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmieditor)
 endif()
 
-target_link_libraries(vcmieditor vcmi Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+if(ENABLE_STATIC_LIBS OR NOT (ENABLE_EDITOR AND ENABLE_LAUNCHER))
+	target_compile_definitions(vcmieditor PRIVATE VCMIQT_STATIC)
+endif()
+
+target_link_libraries(vcmieditor vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmieditor
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )

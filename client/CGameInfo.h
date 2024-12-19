@@ -20,7 +20,6 @@ class CHeroHandler;
 class CCreatureHandler;
 class CSpellHandler;
 class CSkillHandler;
-class CBuildingHandler;
 class CObjectHandler;
 class CObjectClassesHandler;
 class CTownHandler;
@@ -36,26 +35,26 @@ class CMap;
 VCMI_LIB_NAMESPACE_END
 
 class CMapHandler;
-class CSoundHandler;
-class CMusicHandler;
+class ISoundPlayer;
+class IMusicPlayer;
 class CursorHandler;
-class IMainVideoPlayer;
+class IVideoPlayer;
 class CServerHandler;
 
 //a class for non-mechanical client GUI classes
 class CClientState
 {
 public:
-	CSoundHandler * soundh;
-	CMusicHandler * musich;
+	ISoundPlayer * soundh;
+	IMusicPlayer * musich;
 	CConsoleHandler * consoleh;
 	CursorHandler * curh;
-	IMainVideoPlayer * videoh;
+	IVideoPlayer * videoh;
 };
 extern CClientState * CCS;
 
 /// CGameInfo class
-/// for allowing different functions for accessing game informations
+/// for allowing different functions for accessing game information
 class CGameInfo final : public Services
 {
 public:
@@ -71,9 +70,7 @@ public:
 	const SkillService * skills() const override;
 	const BattleFieldService * battlefields() const override;
 	const ObstacleService * obstacles() const override;
-	const IGameSettings * settings() const override;
-
-	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
+	const IGameSettings * engineSettings() const override;
 
 	const spells::effects::Registry * spellEffects() const override;
 	spells::effects::Registry * spellEffects() override;

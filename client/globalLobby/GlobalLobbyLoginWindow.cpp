@@ -25,13 +25,13 @@
 #include "../widgets/TextControls.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/MetaString.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/MetaString.h"
 
 GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	: CWindowObject(BORDERED)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	pos.w = 284;
 	pos.h = 220;
@@ -40,7 +40,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	loginAs.appendTextID("vcmi.lobby.login.as");
 	loginAs.replaceRawString(CSH->getGlobalLobby().getAccountDisplayName());
 
-	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.login.title"));
 	labelUsernameTitle = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("vcmi.lobby.login.username"));
 	labelUsername = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, loginAs.toString(), 265);
@@ -65,7 +65,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	{
 		buttonLogin->block(true);
 		toggleMode->setSelected(0);
-		onLoginModeChanged(0); // call it manually to disable widgets - toggleMode will not emit this call if this is currenly selected option
+		onLoginModeChanged(0); // call it manually to disable widgets - toggleMode will not emit this call if this is currently selected option
 	}
 	else
 	{
@@ -73,7 +73,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 		onLoginModeChanged(1);
 	}
 
-	filledBackground->playerColored(PlayerColor(1));
+	filledBackground->setPlayerColor(PlayerColor(1));
 	inputUsername->setCallback([this](const std::string & text)
 	{
 		this->buttonLogin->block(text.empty());

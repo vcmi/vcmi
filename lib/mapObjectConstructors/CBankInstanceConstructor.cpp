@@ -11,9 +11,10 @@
 #include "CBankInstanceConstructor.h"
 
 #include "../json/JsonRandom.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
-#include "../CRandomGenerator.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -27,7 +28,7 @@ void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 	if (input.Struct().count("name") == 0)
 		logMod->warn("Bank %s missing name!", getJsonKey());
 
-	VLC->generaltexth->registerString(input.getModScope(), getNameTextID(), input["name"].String());
+	VLC->generaltexth->registerString(input.getModScope(), getNameTextID(), input["name"]);
 
 	levels = input["levels"].Vector();
 	bankResetDuration = static_cast<si32>(input["resetDuration"].Float());
@@ -36,7 +37,7 @@ void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 	regularUnitPlacement = input["regularUnitPlacement"].Bool();
 }
 
-BankConfig CBankInstanceConstructor::generateConfig(IGameCallback * cb, const JsonNode & level, CRandomGenerator & rng) const
+BankConfig CBankInstanceConstructor::generateLevelConfiguration(IGameCallback * cb, const JsonNode & level, vstd::RNG & rng) const
 {
 	BankConfig bc;
 	JsonRandom randomizer(cb);
@@ -53,13 +54,17 @@ BankConfig CBankInstanceConstructor::generateConfig(IGameCallback * cb, const Js
 	return bc;
 }
 
-void CBankInstanceConstructor::randomizeObject(CBank * bank, CRandomGenerator & rng) const
+void CBankInstanceConstructor::randomizeObject(CBank * bank, vstd::RNG & rng) const
 {
 	bank->resetDuration = bankResetDuration;
 	bank->blockVisit = blockVisit;
 	bank->coastVisitable = coastVisitable;
 	bank->regularUnitPlacement = regularUnitPlacement;
+	bank->setConfig(generateConfiguration(bank->cb, rng, bank->ID));
+}
 
+BankConfig CBankInstanceConstructor::generateConfiguration(IGameCallback * cb, vstd::RNG & rng, MapObjectID objectID) const
+{
 	si32 totalChance = 0;
 	for(const auto & node : levels)
 		totalChance += static_cast<si32>(node["chance"].Float());
@@ -73,11 +78,10 @@ void CBankInstanceConstructor::randomizeObject(CBank * bank, CRandomGenerator & 
 	{
 		cumulativeChance += static_cast<int>(node["chance"].Float());
 		if(selectedChance < cumulativeChance)
-		{
-			bank->setConfig(generateConfig(bank->cb, node, rng));
-			break;
-		}
+			return generateLevelConfiguration(cb, node, rng);
 	}
+
+	throw std::runtime_error("Failed to select bank configuration");
 }
 
 CBankInfo::CBankInfo(const JsonVector & Config) :
@@ -132,7 +136,7 @@ std::vector<PossibleReward<CStackBasicDescriptor>> CBankInfo::getPossibleCreatur
 {
 	JsonRandom::Variables emptyVariables;
 	JsonRandom randomizer(cb);
-	std::vector<PossibleReward<CStackBasicDescriptor>> aproximateReward;
+	std::vector<PossibleReward<CStackBasicDescriptor>> approximateReward;
 
 	for(const JsonNode & configEntry : config)
 	{
@@ -143,11 +147,11 @@ std::vector<PossibleReward<CStackBasicDescriptor>> CBankInfo::getPossibleCreatur
 		{
 			const auto * creature = stack.allowedCreatures.front();
 
-			aproximateReward.emplace_back(configEntry["chance"].Integer(), CStackBasicDescriptor(creature, (stack.minAmount + stack.maxAmount) / 2));
+			approximateReward.emplace_back(configEntry["chance"].Integer(), CStackBasicDescriptor(creature, (stack.minAmount + stack.maxAmount) / 2));
 		}
 	}
 
-	return aproximateReward;
+	return approximateReward;
 }
 
 bool CBankInfo::givesResources() const

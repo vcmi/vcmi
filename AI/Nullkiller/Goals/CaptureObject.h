@@ -31,7 +31,7 @@ namespace Goals
 		{
 			objid = obj->id.getNum();
 			tile = obj->visitablePos();
-			name = obj->typeName;
+			name = obj->getTypeName();
 		}
 
 		bool operator==(const CaptureObject & other) const override;

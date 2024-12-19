@@ -10,9 +10,11 @@
 #include "StdInc.h"
 #include "CRewardableConstructor.h"
 
+#include "../json/JsonUtils.h"
 #include "../mapObjects/CRewardableObject.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
+#include "../CConfigHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -22,7 +24,10 @@ void CRewardableConstructor::initTypeData(const JsonNode & config)
 	blockVisit = config["blockedVisitable"].Bool();
 
 	if (!config["name"].isNull())
-		VLC->generaltexth->registerString( config.getModScope(), getNameTextID(), config["name"].String());
+		VLC->generaltexth->registerString( config.getModScope(), getNameTextID(), config["name"]);
+
+	if (settings["mods"]["validation"].String() != "off")
+		JsonUtils::validate(config, "vcmi:rewardable", getJsonKey());
 	
 }
 
@@ -40,26 +45,40 @@ CGObjectInstance * CRewardableConstructor::create(IGameCallback * cb, std::share
 	return ret;
 }
 
-void CRewardableConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
+Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameCallback * cb, vstd::RNG & rand, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const
 {
-	if(auto * rewardableObject = dynamic_cast<CRewardableObject*>(object))
+	Rewardable::Configuration result;
+	result.variables.preset = presetVariables;
+	objectInfo.configureObject(result, rand, cb);
+
+	for(auto & rewardInfo : result.info)
 	{
-		objectInfo.configureObject(rewardableObject->configuration, rng, object->cb);
-		for(auto & rewardInfo : rewardableObject->configuration.info)
+		for (auto & bonus : rewardInfo.reward.bonuses)
 		{
-			for (auto & bonus : rewardInfo.reward.bonuses)
-			{
-				bonus.source = BonusSource::OBJECT_TYPE;
-				bonus.sid = BonusSourceID(rewardableObject->ID);
-			}
+			bonus.source = BonusSource::OBJECT_TYPE;
+			bonus.sid = BonusSourceID(objectID);
 		}
-		if (rewardableObject->configuration.info.empty())
-		{
-			if (objectInfo.getParameters()["rewards"].isNull())
-				logMod->error("Object %s has invalid configuration! No defined rewards found!", getJsonKey());
-			else
-				logMod->error("Object %s has invalid configuration! Make sure that defined appear chances are continious!", getJsonKey());
-		}
+	}
+
+	return result;
+}
+
+void CRewardableConstructor::configureObject(CGObjectInstance * object, vstd::RNG & rng) const
+{
+	auto * rewardableObject = dynamic_cast<CRewardableObject*>(object);
+
+	if (!rewardableObject)
+		throw std::runtime_error("Object " + std::to_string(object->getObjGroupIndex()) + ", " + std::to_string(object->getObjTypeIndex()) + " is not a rewardable object!" );
+
+	rewardableObject->configuration = generateConfiguration(object->cb, rng, object->ID, rewardableObject->configuration.variables.preset);
+	rewardableObject->initializeGuards();
+
+	if (rewardableObject->configuration.info.empty())
+	{
+		if (objectInfo.getParameters()["rewards"].isNull())
+			logMod->error("Object %s has invalid configuration! No defined rewards found!", getJsonKey());
+		else
+			logMod->error("Object %s has invalid configuration! Make sure that defined appear chances are continuous!", getJsonKey());
 	}
 }
 

@@ -26,11 +26,11 @@ class DLL_LINKAGE INativeTerrainProvider
 {
 public:
 	virtual TerrainId getNativeTerrain() const = 0;
-	virtual FactionID getFaction() const = 0;
+	virtual FactionID getFactionID() const = 0;
 	virtual bool isNativeTerrain(TerrainId terrain) const;
 };
 
-class DLL_LINKAGE Entity
+class DLL_LINKAGE Entity : boost::noncopyable
 {
 public:
 	using IconRegistar = std::function<void(int32_t index, int32_t group, const std::string & listName, const std::string & imageName)>;
@@ -40,6 +40,7 @@ public:
 	virtual int32_t getIndex() const = 0;
 	virtual int32_t getIconIndex() const = 0;
 	virtual std::string getJsonKey() const = 0;
+	virtual std::string getModScope() const = 0;
 	virtual std::string getNameTranslated() const = 0;
 	virtual std::string getNameTextID() const = 0;
 

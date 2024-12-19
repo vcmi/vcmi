@@ -11,7 +11,6 @@
 
 #include "CArmedInstance.h"
 #include "../ResourceSet.h"
-#include "../MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -35,7 +34,7 @@ public:
 	ArtifactID gainedArtifact; //ID of artifact gained to hero, -1 if none
 	bool neverFlees = false; //if true, the troops will never flee
 	bool notGrowingTeam = false; //if true, number of units won't grow
-	ui64 temppower = 0; //used to handle fractional stack growth for tiny stacks
+	int64_t temppower = 0; //used to handle fractional stack growth for tiny stacks
 
 	bool refusedJoining = false;
 
@@ -45,12 +44,13 @@ public:
 	std::string getPopupText(PlayerColor player) const override;
 	std::string getPopupText(const CGHeroInstance * hero) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
-	void initObj(CRandomGenerator & rand) override;
-	void pickRandomObject(CRandomGenerator & rand) override;
-	void newTurn(CRandomGenerator & rand) const override;
+	void initObj(vstd::RNG & rand) override;
+	void pickRandomObject(vstd::RNG & rand) override;
+	void newTurn(vstd::RNG & rand) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
-	CreatureID getCreature() const;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
+	CreatureID getCreatureID() const;
+	const CCreature * getCreature() const;
 
 	//stack formation depends on position,
 	bool containsUpgradedStack() const;
@@ -82,7 +82,7 @@ private:
 
 	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
 	void giveReward(const CGHeroInstance * h) const;
-
+	std::string getMonsterLevelText() const;
 };
 
 VCMI_LIB_NAMESPACE_END

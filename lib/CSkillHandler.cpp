@@ -14,14 +14,17 @@
 
 #include "CSkillHandler.h"
 
-#include "CGeneralTextHandler.h"
+#include "constants/StringConstants.h"
 #include "filesystem/Filesystem.h"
 #include "json/JsonBonus.h"
 #include "json/JsonUtils.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/ModUtility.h"
 #include "modding/ModScope.h"
-#include "constants/StringConstants.h"
+#include "texts/CGeneralTextHandler.h"
+#include "texts/CLegacyConfigParser.h"
+#include "texts/TextOperations.h"
+#include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -29,7 +32,9 @@ CSkill::CSkill(const SecondarySkill & id, std::string identifier, bool obligator
 	id(id),
 	identifier(std::move(identifier)),
 	obligatoryMajor(obligatoryMajor),
-	obligatoryMinor(obligatoryMinor)
+	obligatoryMinor(obligatoryMinor),
+	special(false),
+	onlyOnWaterMap(false)
 {
 	gainChance[0] = gainChance[1] = 0; //affects CHeroClassHandler::afterLoadFinalization()
 	levels.resize(NSecondarySkill::levels.size() - 1);
@@ -42,7 +47,12 @@ int32_t CSkill::getIndex() const
 
 int32_t CSkill::getIconIndex() const
 {
-	return getIndex(); //TODO: actual value with skill level
+	return getIndex() * 3 + 3; // Base master level
+}
+
+int32_t CSkill::getIconIndex(uint8_t skillMasterLevel) const
+{
+	return getIconIndex() + skillMasterLevel;
 }
 
 std::string CSkill::getNameTextID() const
@@ -59,6 +69,11 @@ std::string CSkill::getNameTranslated() const
 std::string CSkill::getJsonKey() const
 {
 	return modScope + ':' + identifier;
+}
+
+std::string CSkill::getModScope() const
+{
+	return modScope;
 }
 
 std::string CSkill::getDescriptionTextID(int level) const
@@ -114,7 +129,7 @@ CSkill::LevelInfo & CSkill::at(int level)
 DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInfo & info)
 {
 	for(int i=0; i < info.effects.size(); i++)
-		out << (i ? "," : "") << info.effects[i]->Description();
+		out << (i ? "," : "") << info.effects[i]->Description(nullptr);
 	return out << "])";
 }
 
@@ -190,7 +205,7 @@ const std::vector<std::string> & CSkillHandler::getTypeNames() const
 	return typeNames;
 }
 
-CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
@@ -199,12 +214,13 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 	major = json["obligatoryMajor"].Bool();
 	minor = json["obligatoryMinor"].Bool();
-	auto * skill = new CSkill(SecondarySkill((si32)index), identifier, major, minor);
+	auto skill = std::make_shared<CSkill>(SecondarySkill(index), identifier, major, minor);
 	skill->modScope = scope;
 
 	skill->onlyOnWaterMap = json["onlyOnWaterMap"].Bool();
+	skill->special = json["special"].Bool();
 
-	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"].String());
+	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
 	switch(json["gainChance"].getType())
 	{
 	case JsonNode::JsonType::DATA_INTEGER:
@@ -229,7 +245,7 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 			skill->addNewBonus(bonus, level);
 		}
 		CSkill::LevelInfo & skillAtLevel = skill->at(level);
-		VLC->generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"].String());
+		VLC->generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"]);
 		skillAtLevel.iconSmall = levelNode["images"]["small"].String();
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
@@ -262,7 +278,8 @@ std::set<SecondarySkill> CSkillHandler::getDefaultAllowed() const
 	std::set<SecondarySkill> result;
 
 	for (auto const & skill : objects)
-		result.insert(skill->getId());
+		if (!skill->special)
+			result.insert(skill->getId());
 
 	return result;
 }

@@ -18,6 +18,7 @@
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
 #include "render/IRenderHandler.h"
+#include "render/AssetGenerator.h"
 #include "ClientNetPackVisitors.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/gameState/CGameState.h"
@@ -30,15 +31,14 @@
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "render/CAnimation.h"
 #include "../CCallback.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ContentTypeHandler.h"
 #include "../lib/modding/ModUtility.h"
-#include "../lib/CHeroHandler.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/logging/VisualLogger.h"
-#include "CMT.h"
+#include "../lib/serializer/Connection.h"
 
 #ifdef SCRIPTING_ENABLED
 #include "../lib/ScriptHandler.h"
@@ -82,31 +82,37 @@ void ClientCommandManager::handleGoSoloCommand()
 		printCommandMessage("Game is not in playing state");
 		return;
 	}
-	PlayerColor color;
+
 	if(session["aiSolo"].Bool())
 	{
-		for(auto & elem : CSH->client->gameState()->players)
+		// unlikely it will work but just in case to be consistent
+		for(auto & color : CSH->getAllClientPlayers(CSH->logicConnection->connectionID))
 		{
-			if(elem.second.human)
-				CSH->client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
+			if(color.isValidPlayer() && CSH->client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			{
+				CSH->client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
+			}
 		}
 	}
 	else
 	{
-		color = LOCPLINT->playerID;
+		PlayerColor currentColor = LOCPLINT->playerID;
 		CSH->client->removeGUI();
-		for(auto & elem : CSH->client->gameState()->players)
+		
+		for(auto & color : CSH->getAllClientPlayers(CSH->logicConnection->connectionID))
 		{
-			if(elem.second.human)
+			if(color.isValidPlayer() && CSH->client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
-				auto AiToGive = CSH->client->aiNameForPlayer(*CSH->client->getPlayerSettings(elem.first), false, false);
-				printCommandMessage("Player " + elem.first.toString() + " will be lead by " + AiToGive, ELogLevel::INFO);
-				CSH->client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), elem.first);
+				auto AiToGive = CSH->client->aiNameForPlayer(*CSH->client->getPlayerSettings(color), false, false);
+				printCommandMessage("Player " + color.toString() + " will be lead by " + AiToGive, ELogLevel::INFO);
+				CSH->client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
 			}
 		}
+
 		GH.windows().totalRedraw();
-		giveTurn(color);
+		giveTurn(currentColor);
 	}
+
 	session["aiSolo"].Bool() = !session["aiSolo"].Bool();
 }
 
@@ -179,12 +185,12 @@ void ClientCommandManager::handleRedrawCommand()
 	GH.windows().totalRedraw();
 }
 
-void ClientCommandManager::handleTranslateGameCommand()
+void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 {
 	std::map<std::string, std::map<std::string, std::string>> textsByMod;
-	VLC->generaltexth->exportAllTexts(textsByMod);
+	VLC->generaltexth->exportAllTexts(textsByMod, onlyMissing);
 
-	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / ( onlyMissing ? "translationMissing" : "translation");
 	boost::filesystem::create_directories(outPath);
 
 	for(const auto & modEntry : textsByMod)
@@ -248,13 +254,20 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	logGlobal->info("Loading campaigns for export");
 	for (auto const & campaignName : campaignList)
 	{
-		loadedCampaigns.push_back(CampaignHandler::getCampaign(campaignName.getName()));
-		for (auto const & part : loadedCampaigns.back()->allScenarios())
-			loadedCampaigns.back()->getMap(part, nullptr);
+		try
+		{
+			loadedCampaigns.push_back(CampaignHandler::getCampaign(campaignName.getName()));
+			for (auto const & part : loadedCampaigns.back()->allScenarios())
+				loadedCampaigns.back()->getMap(part, nullptr);
+		}
+		catch(std::exception & e)
+		{
+			logGlobal->warn("Campaign %s is invalid. Message: %s", campaignName.getName(), e.what());
+		}
 	}
 
 	std::map<std::string, std::map<std::string, std::string>> textsByMod;
-	VLC->generaltexth->exportAllTexts(textsByMod);
+	VLC->generaltexth->exportAllTexts(textsByMod, false);
 
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
 	boost::filesystem::create_directories(outPath);
@@ -381,8 +394,7 @@ void ClientCommandManager::handleDef2bmpCommand(std::istringstream& singleWordBu
 {
 	std::string URI;
 	singleWordBuffer >> URI;
-	auto anim = GH.renderHandler().loadAnimation(AnimationPath::builtin(URI));
-	anim->preload();
+	auto anim = GH.renderHandler().loadAnimation(AnimationPath::builtin(URI), EImageBlitMode::SIMPLE);
 	anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
 }
 
@@ -447,7 +459,7 @@ void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffe
 	if(what == "hs")
 	{
 		for(const CGHeroInstance* h : LOCPLINT->cb->getHeroesInfo())
-			if(h->type->getIndex() == id1)
+			if(h->getHeroTypeID().getNum() == id1)
 				if(const CArtifactInstance* a = h->getArt(ArtifactPosition(id2)))
 					printCommandMessage(a->nodeName());
 	}
@@ -494,6 +506,12 @@ void ClientCommandManager::handleVsLog(std::istringstream & singleWordBuffer)
 	singleWordBuffer >> key;
 
 	logVisual->setKey(key);
+}
+
+void ClientCommandManager::handleGenerateAssets()
+{
+	AssetGenerator::generateAll();
+	printCommandMessage("All assets generated");
 }
 
 void ClientCommandManager::printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType)
@@ -580,7 +598,10 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 		handleRedrawCommand();
 
 	else if(message=="translate" || message=="translate game")
-		handleTranslateGameCommand();
+		handleTranslateGameCommand(false);
+
+	else if(message=="translate missing")
+		handleTranslateGameCommand(true);
 
 	else if(message=="translate maps")
 		handleTranslateMapsCommand();
@@ -617,6 +638,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName == "vslog")
 		handleVsLog(singleWordBuffer);
+
+	else if(message=="generate assets")
+		handleGenerateAssets();
 
 	else
 	{

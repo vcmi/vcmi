@@ -13,7 +13,7 @@
 
 #include "JsonValidator.h"
 
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../VCMI_Lib.h"
 #include "../bonuses/BonusParams.h"
 #include "../bonuses/Limiters.h"

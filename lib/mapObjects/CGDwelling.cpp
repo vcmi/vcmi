@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "CGDwelling.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../entities/faction/CTownHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -20,12 +21,13 @@
 #include "../networkPacks/StackLocation.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
-#include "../CTownHandler.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../CPlayerState.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../CConfigHandler.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -50,7 +52,7 @@ CGDwelling::CGDwelling(IGameCallback *cb):
 
 CGDwelling::~CGDwelling() = default;
 
-FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)
+FactionID CGDwelling::randomizeFaction(vstd::RNG & rand)
 {
 	if (ID == Obj::RANDOM_DWELLING_FACTION)
 		return FactionID(subID.getNum());
@@ -91,7 +93,7 @@ FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)
 
 		assert(linkedTown->ID == Obj::TOWN);
 		if(linkedTown->ID==Obj::TOWN)
-			return linkedTown->getFaction();
+			return linkedTown->getFactionID();
 	}
 
 	if(!randomizationInfo->allowedFactions.empty())
@@ -108,7 +110,7 @@ FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)
 	return *RandomGeneratorUtil::nextItem(potentialPicks, rand);
 }
 
-int CGDwelling::randomizeLevel(CRandomGenerator & rand)
+int CGDwelling::randomizeLevel(vstd::RNG & rand)
 {
 	if (ID == Obj::RANDOM_DWELLING_LVL)
 		return subID.getNum();
@@ -125,7 +127,7 @@ int CGDwelling::randomizeLevel(CRandomGenerator & rand)
 	return rand.nextInt(randomizationInfo->minLevel, randomizationInfo->maxLevel) - 1;
 }
 
-void CGDwelling::pickRandomObject(CRandomGenerator & rand)
+void CGDwelling::pickRandomObject(vstd::RNG & rand)
 {
 	if (ID == Obj::RANDOM_DWELLING || ID == Obj::RANDOM_DWELLING_LVL || ID == Obj::RANDOM_DWELLING_FACTION)
 	{
@@ -172,31 +174,21 @@ void CGDwelling::pickRandomObject(CRandomGenerator & rand)
 	}
 }
 
-void CGDwelling::initObj(CRandomGenerator & rand)
+void CGDwelling::initObj(vstd::RNG & rand)
 {
 	switch(ID.toEnum())
 	{
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR4:
+	case Obj::WAR_MACHINE_FACTORY:
 		{
 			getObjectHandler()->configureObject(this, rand);
-
-			if (getOwner() != PlayerColor::NEUTRAL)
-				cb->gameState()->players[getOwner()].dwellings.emplace_back(this);
-
 			assert(!creatures.empty());
 			assert(!creatures[0].second.empty());
 			break;
 		}
 	case Obj::REFUGEE_CAMP:
 		//is handled within newturn func
-		break;
-
-	case Obj::WAR_MACHINE_FACTORY:
-		creatures.resize(3);
-		creatures[0].second.emplace_back(CreatureID::BALLISTA);
-		creatures[1].second.emplace_back(CreatureID::FIRST_AID_TENT);
-		creatures[2].second.emplace_back(CreatureID::AMMO_CART);
 		break;
 
 	default:
@@ -209,19 +201,6 @@ void CGDwelling::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch (what)
 	{
-		case ObjProperty::OWNER: //change owner
-			if (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::CREATURE_GENERATOR2
-				|| ID == Obj::CREATURE_GENERATOR3 || ID == Obj::CREATURE_GENERATOR4)
-			{
-				if (tempOwner != PlayerColor::NEUTRAL)
-				{
-					std::vector<ConstTransitivePtr<CGDwelling> >* dwellings = &cb->gameState()->players[tempOwner].dwellings;
-					dwellings->erase (std::find(dwellings->begin(), dwellings->end(), this));
-				}
-				if (identifier.as<PlayerColor>().isValidPlayer())
-					cb->gameState()->players[identifier.as<PlayerColor>()].dwellings.emplace_back(this);
-			}
-			break;
 		case ObjProperty::AVAILABLE_CREATURE:
 			creatures.resize(1);
 			creatures[0].second.resize(1);
@@ -239,7 +218,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		iw.player = h->tempOwner;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 44); //{%s} \n\n The camp is deserted.  Perhaps you should try next week.
 		iw.text.replaceName(ID);
-		cb->sendAndApply(&iw);
+		cb->sendAndApply(iw);
 		return;
 	}
 
@@ -259,7 +238,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		else
 			bd.text.replaceLocalString(EMetaText::ARRAY_TXT, 173 + (int)Slots().begin()->second->getQuantityID()*3);
 		bd.text.replaceName(*Slots().begin()->second);
-		cb->showBlockingDialog(&bd);
+		cb->showBlockingDialog(this, &bd);
 		return;
 	}
 
@@ -295,10 +274,10 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		bd.flags |= BlockingDialog::SAFE_TO_AUTOACCEPT;
 	}
 
-	cb->showBlockingDialog(&bd);
+	cb->showBlockingDialog(this, &bd);
 }
 
-void CGDwelling::newTurn(CRandomGenerator & rand) const
+void CGDwelling::newTurn(vstd::RNG & rand) const
 {
 	if(cb->getDate(Date::DAY_OF_WEEK) != 1) //not first day of week
 		return;
@@ -324,9 +303,9 @@ void CGDwelling::newTurn(CRandomGenerator & rand) const
 			bool creaturesAccumulate = false;
 
 			if (tempOwner.isValidPlayer())
-				creaturesAccumulate = VLC->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED);
+				creaturesAccumulate = cb->getSettings().getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED);
 			else
-				creaturesAccumulate = VLC->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL);
+				creaturesAccumulate = cb->getSettings().getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL);
 
 			const CCreature * cre =creatures[i].second[0].toCreature();
 			TQuantity amount = cre->getGrowth() * (1 + cre->valOfBonuses(BonusType::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(cre->getLevel()));
@@ -339,7 +318,7 @@ void CGDwelling::newTurn(CRandomGenerator & rand) const
 	}
 
 	if(change)
-		cb->sendAndApply(&sac);
+		cb->sendAndApply(sac);
 
 	updateGuards();
 }
@@ -407,7 +386,7 @@ void CGDwelling::updateGuards() const
 				csc.slot = slot;
 				csc.count = crea->getGrowth() * 3;
 				csc.absoluteValue = true;
-				cb->sendAndApply(&csc);
+				cb->sendAndApply(csc);
 			}
 			else //slot is empty, create whole new stack
 			{
@@ -416,7 +395,7 @@ void CGDwelling::updateGuards() const
 				ns.slot = slot;
 				ns.type = crea->getId();
 				ns.count = crea->getGrowth() * 3;
-				cb->sendAndApply(&ns);
+				cb->sendAndApply(ns);
 			}
 		}
 	}
@@ -433,13 +412,13 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 		if(count) //there are available creatures
 		{
 
-			if (VLC->settings()->getBoolean(EGameSettings::DWELLINGS_MERGE_ON_RECRUIT))
+			if (cb->getSettings().getBoolean(EGameSettings::DWELLINGS_MERGE_ON_RECRUIT))
 			{
 				SlotID testSlot = h->getSlotFor(crid);
 				if(!testSlot.validSlot()) //no available slot - try merging army of visiting hero
 				{
 					std::pair<SlotID, SlotID> toMerge;
-					if (h->mergableStacks(toMerge))
+					if (h->mergeableStacks(toMerge))
 					{
 						cb->moveStack(StackLocation(h, toMerge.first), StackLocation(h, toMerge.second), -1); //merge toMerge.first into toMerge.second
 						assert(!h->hasStackAtSlot(toMerge.first)); //we have now a new free slot
@@ -473,7 +452,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 				iw.text.replaceNamePlural(crid);
 
 				cb->showInfoDialog(&iw);
-				cb->sendAndApply(&sac);
+				cb->sendAndApply(sac);
 				cb->addToSlot(StackLocation(h, slot), crs, count);
 			}
 		}
@@ -484,7 +463,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 422); //There are no %s here to recruit.
 			iw.text.replaceNamePlural(crid);
 			iw.player = h->tempOwner;
-			cb->sendAndApply(&iw);
+			cb->sendAndApply(iw);
 		}
 	}
 	else
@@ -498,7 +477,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 			sac.creatures[0].first = !h->getArt(ArtifactPosition::MACH1); //ballista
 			sac.creatures[1].first = !h->getArt(ArtifactPosition::MACH3); //first aid tent
 			sac.creatures[2].first = !h->getArt(ArtifactPosition::MACH2); //ammo cart
-			cb->sendAndApply(&sac);
+			cb->sendAndApply(sac);
 		}
 
 		auto windowMode = (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::REFUGEE_CAMP) ? EOpenWindowMode::RECRUITMENT_FIRST : EOpenWindowMode::RECRUITMENT_ALL;
@@ -508,19 +487,19 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 
 void CGDwelling::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if (result.winner == 0)
+	if (result.winner == BattleSide::ATTACKER)
 	{
 		onHeroVisit(hero);
 	}
 }
 
-void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	auto relations = cb->getPlayerRelations(getOwner(), hero->getOwner());
 	if(stacksCount() > 0  && relations == PlayerRelations::ENEMIES) //guards present
 	{
 		if(answer)
-			cb->startBattleI(hero, this);
+			cb->startBattle(hero, this);
 	}
 	else if(answer)
 	{
@@ -547,6 +526,35 @@ void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
 		serializeJsonOwner(handler);
 		break;
 	}
+}
+
+const IOwnableObject * CGDwelling::asOwnable() const
+{
+	switch (ID.toEnum())
+	{
+		case Obj::WAR_MACHINE_FACTORY:
+		case Obj::REFUGEE_CAMP:
+			return nullptr; // can't be owned
+		default:
+			return this;
+	}
+}
+
+ResourceSet CGDwelling::dailyIncome() const
+{
+	return {};
+}
+
+std::vector<CreatureID> CGDwelling::providedCreatures() const
+{
+	if (ID == Obj::WAR_MACHINE_FACTORY || ID == Obj::REFUGEE_CAMP)
+		return {};
+
+	std::vector<CreatureID> result;
+	for (const auto & level : creatures)
+		result.insert(result.end(), level.second.begin(), level.second.end());
+
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END

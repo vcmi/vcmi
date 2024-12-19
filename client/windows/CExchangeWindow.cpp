@@ -26,16 +26,15 @@
 #include "../widgets/TextControls.h"
 
 #include "../render/IRenderHandler.h"
-#include "../render/CAnimation.h"
 
 #include "../../CCallback.h"
 
-#include "../lib/mapObjects/CGHeroInstance.h"
-#include "../lib/CGeneralTextHandler.h"
-#include "../lib/CHeroHandler.h"
-#include "../lib/filesystem/Filesystem.h"
 #include "../lib/CSkillHandler.h"
-#include "../lib/TextOperations.h"
+#include "../lib/entities/hero/CHeroHandler.h"
+#include "../lib/filesystem/Filesystem.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
+#include "../lib/texts/CGeneralTextHandler.h"
+#include "../lib/texts/TextOperations.h"
 
 static const std::string QUICK_EXCHANGE_BG = "quick-exchange/TRADEQE";
 
@@ -50,7 +49,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 {
 	const bool qeLayout = isQuickExchangeLayoutAvailable();
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	addUsedEvents(KEYBOARD);
 
 	heroInst[0] = LOCPLINT->cb->getHero(hero1);
@@ -66,17 +65,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	titles[0] = std::make_shared<CLabel>(147, 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, genTitle(heroInst[0]));
 	titles[1] = std::make_shared<CLabel>(653, 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, genTitle(heroInst[1]));
 
-	auto PSKIL32 = GH.renderHandler().loadAnimation(AnimationPath::builtin("PSKIL32"));
-	PSKIL32->preload();
-
-	auto SECSK32 = GH.renderHandler().loadAnimation(AnimationPath::builtin("SECSK32"));
-
 	for(int g = 0; g < 4; ++g)
 	{
 		if (qeLayout)
-			primSkillImages.push_back(std::make_shared<CAnimImage>(PSKIL32, g, Rect(389, 12 + 26 * g, 22, 22)));
+			primSkillImages.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL32"), g, Rect(389, 12 + 26 * g, 22, 22)));
 		else
-			primSkillImages.push_back(std::make_shared<CAnimImage>(PSKIL32, g, 0, 385, 19 + 36 * g));
+			primSkillImages.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL32"), g, 0, 385, 19 + 36 * g));
 	}
 
 	for(int leftRight : {0, 1})
@@ -88,24 +82,32 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 
 		for(int m=0; m < hero->secSkills.size(); ++m)
-			secSkillIcons[leftRight].push_back(std::make_shared<CAnimImage>(SECSK32, 0, 0, 32 + 36 * m + 454 * leftRight, qeLayout ? 83 : 88));
+			secSkills[leftRight].push_back(std::make_shared<CSecSkillPlace>(Point(32 + 36 * m + 454 * leftRight, qeLayout ? 83 : 88), CSecSkillPlace::ImageSize::SMALL,
+				hero->secSkills[m].first, hero->secSkills[m].second));
 
-		specImages[leftRight] = std::make_shared<CAnimImage>(AnimationPath::builtin("UN32"), hero->type->imageIndex, 0, 67 + 490 * leftRight, qeLayout ? 41 : 45);
+		specImages[leftRight] = std::make_shared<CAnimImage>(AnimationPath::builtin("UN32"), hero->getHeroType()->imageIndex, 0, 67 + 490 * leftRight, qeLayout ? 41 : 45);
 
-		expImages[leftRight] = std::make_shared<CAnimImage>(PSKIL32, 4, 0, 103 + 490 * leftRight, qeLayout ? 41 : 45);
+		expImages[leftRight] = std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL32"), 4, 0, 103 + 490 * leftRight, qeLayout ? 41 : 45);
 		expValues[leftRight] = std::make_shared<CLabel>(119 + 490 * leftRight, qeLayout ? 66 : 71, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
-		manaImages[leftRight] = std::make_shared<CAnimImage>(PSKIL32, 5, 0, 139 + 490 * leftRight, qeLayout ? 41 : 45);
+		manaImages[leftRight] = std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL32"), 5, 0, 139 + 490 * leftRight, qeLayout ? 41 : 45);
 		manaValues[leftRight] = std::make_shared<CLabel>(155 + 490 * leftRight, qeLayout ? 66 : 71, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	}
 
 	artifs[0] = std::make_shared<CArtifactsOfHeroMain>(Point(-334, 151));
+	artifs[0]->clickPressedCallback = [this, hero = heroInst[0]](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(hero, artPlace.slot, true, false, false, cursorPosition);};
+	artifs[0]->showPopupCallback = [this, heroArts = artifs[0]](CArtPlace & artPlace, const Point & cursorPosition){showArtifactAssembling(*heroArts, artPlace, cursorPosition);};
+	artifs[0]->gestureCallback = [this, hero = heroInst[0]](const CArtPlace & artPlace, const Point & cursorPosition){showQuickBackpackWindow(hero, artPlace.slot, cursorPosition);};
 	artifs[0]->setHero(heroInst[0]);
 	artifs[1] = std::make_shared<CArtifactsOfHeroMain>(Point(98, 151));
+	artifs[1]->clickPressedCallback = [this, hero = heroInst[1]](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(hero, artPlace.slot, true, false, false, cursorPosition);};
+	artifs[1]->showPopupCallback = [this, heroArts = artifs[1]](CArtPlace & artPlace, const Point & cursorPosition){showArtifactAssembling(*heroArts, artPlace, cursorPosition);};
+	artifs[1]->gestureCallback = [this, hero = heroInst[1]](const CArtPlace & artPlace, const Point & cursorPosition){showQuickBackpackWindow(hero, artPlace.slot, cursorPosition);};
 	artifs[1]->setHero(heroInst[1]);
 
-	addSetAndCallbacks(artifs[0]);
-	addSetAndCallbacks(artifs[1]);
+
+	addSet(artifs[0]);
+	addSet(artifs[1]);
 
 	for(int g=0; g<4; ++g)
 	{
@@ -125,21 +127,6 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	{
 		const CGHeroInstance * hero = heroInst.at(b);
 
-		//secondary skill's clickable areas
-		for(int g=0; g<hero->secSkills.size(); ++g)
-		{
-			SecondarySkill skill = hero->secSkills[g].first;
-			int level = hero->secSkills[g].second; // <1, 3>
-			secSkillAreas[b].push_back(std::make_shared<LRClickableAreaWTextComp>());
-			secSkillAreas[b][g]->pos = Rect(Point(pos.x + 32 + g * 36 + b * 454 , pos.y + (qeLayout ? 83 : 88)), Point(32, 32) );
-			secSkillAreas[b][g]->component = Component(ComponentType::SEC_SKILL, skill, level);
-			secSkillAreas[b][g]->text = CGI->skillh->getByIndex(skill)->getDescriptionTranslated(level);
-
-			secSkillAreas[b][g]->hoverText = CGI->generaltexth->heroscrn[21];
-			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->generaltexth->levels[level - 1]);
-			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->skillh->getByIndex(skill)->getNameTranslated());
-		}
-
 		heroAreas[b] = std::make_shared<CHeroArea>(257 + 228 * b, 13, hero);
 		heroAreas[b]->addClickCallback([this, hero]() -> void
 									   {
@@ -150,7 +137,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		specialtyAreas[b] = std::make_shared<LRClickableAreaWText>();
 		specialtyAreas[b]->pos = Rect(Point(pos.x + 69 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		specialtyAreas[b]->hoverText = CGI->generaltexth->heroscrn[27];
-		specialtyAreas[b]->text = hero->type->getSpecialtyDescriptionTranslated();
+		specialtyAreas[b]->text = hero->getHeroType()->getSpecialtyDescriptionTranslated();
 
 		experienceAreas[b] = std::make_shared<LRClickableAreaWText>();
 		experienceAreas[b]->pos = Rect(Point(pos.x + 105 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
@@ -191,18 +178,52 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	if(qeLayout)
 	{
-		buttonMoveUnitsFromLeftToRight = std::make_shared<CButton>(Point(325, 118), AnimationPath::builtin("quick-exchange/armRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]), [this](){ this->moveUnitsShortcut(true); });
-		buttonMoveUnitsFromRightToLeft = std::make_shared<CButton>(Point(425, 118), AnimationPath::builtin("quick-exchange/armLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]), [this](){ this->moveUnitsShortcut(false); });
-		buttonMoveArtifactsFromLeftToRight = std::make_shared<CButton>(Point(325, 154), AnimationPath::builtin("quick-exchange/artRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]), [this](){ this->moveArtifactsCallback(true);});
-		buttonMoveArtifactsFromRightToLeft = std::make_shared<CButton>(Point(425, 154), AnimationPath::builtin("quick-exchange/artLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]), [this](){ this->moveArtifactsCallback(false);});
+		buttonMoveUnitsFromLeftToRight = std::make_shared<CButton>(
+			Point(325, 118),
+			AnimationPath::builtin("quick-exchange/armRight.DEF"),
+			CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.moveAllUnits")),
+			[this](){ this->moveUnitsShortcut(true); });
 
-		exchangeUnitsButton = std::make_shared<CButton>(Point(377, 118), AnimationPath::builtin("quick-exchange/swapAll.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[2]), [this](){ controller.swapArmy(); });
-		exchangeArtifactsButton  = std::make_shared<CButton>(Point(377, 154), AnimationPath::builtin("quick-exchange/swapAll.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[4]), [this](){ this->swapArtifactsCallback(); });
+		buttonMoveUnitsFromRightToLeft = std::make_shared<CButton>(
+			Point(425, 118),
+			AnimationPath::builtin("quick-exchange/armLeft.DEF"),
+			CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.moveAllUnits")),
+			[this](){ this->moveUnitsShortcut(false); });
 
-		backpackButtonLeft = std::make_shared<CButton>(Point(325, 518), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
+		buttonMoveArtifactsFromLeftToRight = std::make_shared<CButton>(
+			Point(325, 154), AnimationPath::builtin("quick-exchange/artRight.DEF"),
+			CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.moveAllArtifacts")),
+			[this](){ this->moveArtifactsCallback(true);});
+
+		buttonMoveArtifactsFromRightToLeft = std::make_shared<CButton>(
+			Point(425, 154), AnimationPath::builtin("quick-exchange/artLeft.DEF"),
+			CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.moveAllArtifacts")),
+			[this](){ this->moveArtifactsCallback(false);});
+
+		exchangeUnitsButton = std::make_shared<CButton>(
+			Point(377, 118),
+			AnimationPath::builtin("quick-exchange/swapAll.DEF"),
+			CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.swapAllUnits")),
+			[this](){ controller.swapArmy(); });
+
+		exchangeArtifactsButton  = std::make_shared<CButton>(
+			Point(377, 154),
+			AnimationPath::builtin("quick-exchange/swapAll.DEF"),
+			CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.swapAllArtifacts")),
+			[this](){ this->swapArtifactsCallback(); });
+
+		backpackButtonLeft = std::make_shared<CButton>(
+			Point(325, 518),
+			AnimationPath::builtin("heroBackpack"),
+			CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
 			[this](){ this->backpackShortcut(true); });
-		backpackButtonRight = std::make_shared<CButton>(Point(419, 518), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
+
+		backpackButtonRight = std::make_shared<CButton>(
+			Point(419, 518),
+			AnimationPath::builtin("heroBackpack"),
+			CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
 			[this](){ this->backpackShortcut(false); });
+
 		backpackButtonLeft->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 		backpackButtonRight->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 
@@ -226,21 +247,29 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 				std::make_shared<CButton>(
 					Point(484 + 35 * i, 154),
 					AnimationPath::builtin("quick-exchange/unitLeft.DEF"),
-					CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
-					std::bind(&CExchangeController::moveStack, &controller, false, SlotID(i))));
+					CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.moveUnit")),
+					[this, i]() { creatureArrowButtonCallback(false, SlotID(i)); }));
 			moveUnitFromRightToLeftButtons.back()->block(leftHeroBlock);
 
 			moveUnitFromLeftToRightButtons.push_back(
 				std::make_shared<CButton>(
 					Point(66 + 35 * i, 154),
 					AnimationPath::builtin("quick-exchange/unitRight.DEF"),
-					CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
-					std::bind(&CExchangeController::moveStack, &controller, true, SlotID(i))));
+					CButton::tooltip(CGI->generaltexth->translate("vcmi.quickExchange.moveUnit")),
+					[this, i]() { creatureArrowButtonCallback(true, SlotID(i)); }));
 			moveUnitFromLeftToRightButtons.back()->block(rightHeroBlock);
 		}
 	}
 
-	updateWidgets();
+	CExchangeWindow::update();
+}
+
+void CExchangeWindow::creatureArrowButtonCallback(bool leftToRight, SlotID slotId)
+{
+	if (GH.isKeyboardAltDown())
+		controller.moveArmy(leftToRight, slotId);
+	else
+		controller.moveStack(leftToRight, slotId);
 }
 
 void CExchangeWindow::moveArtifactsCallback(bool leftToRight)
@@ -328,7 +357,7 @@ void CExchangeWindow::updateGarrisons()
 {
 	garr->recreateSlots();
 
-	updateWidgets();
+	update();
 }
 
 bool CExchangeWindow::holdsGarrison(const CArmedInstance * army)
@@ -342,8 +371,10 @@ void CExchangeWindow::questLogShortcut()
 	LOCPLINT->showQuestLog();
 }
 
-void CExchangeWindow::updateWidgets()
+void CExchangeWindow::update()
 {
+	CWindowWithArtifacts::update();
+
 	for(size_t leftRight : {0, 1})
 	{
 		const CGHeroInstance * hero = heroInst.at(leftRight);
@@ -359,7 +390,7 @@ void CExchangeWindow::updateWidgets()
 			int id = hero->secSkills[m].first;
 			int level = hero->secSkills[m].second;
 
-			secSkillIcons[leftRight][m]->setFrame(2 + id * 3 + level);
+			secSkills[leftRight][m]->setSkill(id, level);
 		}
 
 		expValues[leftRight]->setText(TextOperations::formatMetric(hero->exp, 3));

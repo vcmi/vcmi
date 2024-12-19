@@ -30,6 +30,8 @@
 #include "WaterAdopter.h"
 #include "../RmgArea.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 void WaterProxy::process()
@@ -49,7 +51,7 @@ void WaterProxy::process()
 	for([[maybe_unused]] const auto & t : area->getTilesVector())
 	{
 		assert(map.isOnMap(t));
-		assert(map.getTile(t).terType->getId() == zone.getTerrainType());
+		assert(map.getTile(t).getTerrainID() == zone.getTerrainType());
 	}
 
 	// FIXME: Possible deadlock for 2 zones
@@ -64,7 +66,7 @@ void WaterProxy::process()
 		auto secondAreaPossible = z.second->areaPossible();
 		for(const auto & t : secondArea->getTilesVector())
 		{
-			if(map.getTile(t).terType->getId() == zone.getTerrainType())
+			if(map.getTile(t).getTerrainID() == zone.getTerrainType())
 			{
 				secondArea->erase(t);
 				secondAreaPossible->erase(t);
@@ -264,9 +266,9 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, bool createRoad, Rout
 	rmg::Object rmgObject(*boat);
 	rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 
-	auto waterAvailable = zone.areaPossible() + zone.freePaths();
+	auto waterAvailable = zone.areaForRoads();
 	rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
-	coast.intersect(land.areaPossible() + land.freePaths()); //having only available land tiles
+	coast.intersect(land.areaForRoads()); //having only available land tiles
 	auto boardingPositions = coast.getSubarea([&waterAvailable, this](const int3 & tile) //tiles where boarding is possible
 		{
 			//We don't want place boat right to any land object, especiallly the zone guard
@@ -330,10 +332,10 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, bool 
 	rmgObject.setTemplate(land.getTerrainType(), zone.getRand());
 	bool guarded = manager->addGuard(rmgObject, guard);
 	
-	auto waterAvailable = zone.areaPossible() + zone.freePaths();
+	auto waterAvailable = zone.areaForRoads();
 	waterAvailable.intersect(lake.area);
 	rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
-	coast.intersect(land.areaPossible() + land.freePaths()); //having only available land tiles
+	coast.intersect(land.areaForRoads()); //having only available land tiles
 	auto boardingPositions = coast.getSubarea([&waterAvailable](const int3 & tile) //tiles where boarding is possible
 	{
 		rmg::Area a({tile});

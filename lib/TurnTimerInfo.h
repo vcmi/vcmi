@@ -28,7 +28,7 @@ struct DLL_LINKAGE TurnTimerInfo
 	bool isEnabled() const;
 	bool isBattleEnabled() const;
 
-	void substractTimer(int timeMs);
+	void subtractTimer(int timeMs);
 	int valueMs() const;
 
 	bool operator == (const TurnTimerInfo & other) const;

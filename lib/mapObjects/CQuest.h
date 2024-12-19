@@ -11,7 +11,8 @@
 
 #include "CRewardableObject.h"
 #include "../ResourceSet.h"
-#include "../MetaString.h"
+#include "../serializer/Serializeable.h"
+#include "../texts/MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -36,7 +37,7 @@ enum class EQuestMission {
 	HOTA_REACH_DATE = 13,
 };
 
-class DLL_LINKAGE CQuest final
+class DLL_LINKAGE CQuest final : public Serializeable
 {
 public:
 
@@ -74,13 +75,13 @@ public:
 	CQuest(); //TODO: Remove constructor
 
 	static bool checkMissionArmy(const CQuest * q, const CCreatureSet * army);
-	virtual bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
-	virtual void getVisitText(IGameCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
-	virtual void getCompletionText(IGameCallback * cb, MetaString &text) const;
-	virtual void getRolloverText (IGameCallback * cb, MetaString &text, bool onHover) const; //hover or quest log entry
-	virtual void completeQuest(IGameCallback *, const CGHeroInstance * h) const;
-	virtual void addTextReplacements(IGameCallback * cb, MetaString &out, std::vector<Component> & components) const;
-	virtual void addKillTargetReplacements(MetaString &out) const;
+	bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
+	void getVisitText(IGameCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	void getCompletionText(IGameCallback * cb, MetaString &text) const;
+	void getRolloverText (IGameCallback * cb, MetaString &text, bool onHover) const; //hover or quest log entry
+	void completeQuest(IGameCallback *, const CGHeroInstance * h) const;
+	void addTextReplacements(IGameCallback * cb, MetaString &out, std::vector<Component> & components) const;
+	void addKillTargetReplacements(MetaString &out) const;
 	void defineQuestName();
 
 	bool operator== (const CQuest & quest) const
@@ -114,7 +115,7 @@ public:
 	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
 };
 
-class DLL_LINKAGE IQuestObject
+class DLL_LINKAGE IQuestObject : public virtual Serializeable
 {
 public:
 	CQuest * quest = new CQuest();
@@ -140,19 +141,19 @@ public:
 
 	std::string seerName;
 
-	void initObj(CRandomGenerator & rand) override;
+	void initObj(vstd::RNG & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 	std::string getPopupText(PlayerColor player) const override;
 	std::string getPopupText(const CGHeroInstance * hero) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
-	void newTurn(CRandomGenerator & rand) const override;
+	void newTurn(vstd::RNG & rand) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 	void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
 
-	virtual void init(CRandomGenerator & rand);
+	virtual void init(vstd::RNG & rand);
 	int checkDirection() const; //calculates the region of map where monster is placed
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
 	const CGHeroInstance *getHeroToKill(bool allowNull) const;
@@ -178,7 +179,7 @@ class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 public:
 	using CGSeerHut::CGSeerHut;
 
-	void init(CRandomGenerator & rand) override;
+	void init(vstd::RNG & rand) override;
 	
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	bool passableFor(PlayerColor color) const override;
@@ -226,9 +227,9 @@ class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
 public:
 	using CGKeys::CGKeys;
 
-	void initObj(CRandomGenerator & rand) override;
+	void initObj(vstd::RNG & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 
 	void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
 	void getRolloverText (MetaString &text, bool onHover) const;

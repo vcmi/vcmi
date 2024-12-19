@@ -19,16 +19,17 @@ NetworkServer::NetworkServer(INetworkServerListener & listener, const std::share
 {
 }
 
-void NetworkServer::start(uint16_t port)
+uint16_t NetworkServer::start(uint16_t port)
 {
 	acceptor = std::make_shared<NetworkAcceptor>(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
-	startAsyncAccept();
+	return startAsyncAccept();
 }
 
-void NetworkServer::startAsyncAccept()
+uint16_t NetworkServer::startAsyncAccept()
 {
 	auto upcomingConnection = std::make_shared<NetworkSocket>(*io);
 	acceptor->async_accept(*upcomingConnection, [this, upcomingConnection](const auto & ec) { connectionAccepted(upcomingConnection, ec); });
+	return acceptor->local_endpoint().port();
 }
 
 void NetworkServer::connectionAccepted(std::shared_ptr<NetworkSocket> upcomingConnection, const boost::system::error_code & ec)

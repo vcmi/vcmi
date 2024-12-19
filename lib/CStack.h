@@ -27,12 +27,12 @@ class DLL_LINKAGE CStack : public CBonusSystemNode, public battle::CUnitState, p
 {
 private:
 	ui32 ID = -1; //unique ID of stack
-	const CCreature * type = nullptr;
+	CreatureID typeID;
 	TerrainId nativeTerrain; //tmp variable to save native terrain value on battle init
 	ui32 baseAmount = -1;
 
 	PlayerColor owner; //owner - player color (255 for neutrals)
-	ui8 side = 1;
+	BattleSide side = BattleSide::NONE;
 
 	SlotID slot;  //slot - position in garrison (may be 255 for neutrals/called creatures)
 
@@ -41,8 +41,8 @@ public:
 	
 	BattleHex initialPosition; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 
-	CStack(const CStackInstance * base, const PlayerColor & O, int I, ui8 Side, const SlotID & S);
-	CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, ui8 Side, const SlotID & S = SlotID(255));
+	CStack(const CStackInstance * base, const PlayerColor & O, int I, BattleSide Side, const SlotID & S);
+	CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, BattleSide Side, const SlotID & S = SlotID(255));
 	CStack();
 	~CStack();
 
@@ -65,16 +65,16 @@ public:
 
 	BattleHex::EDir destShiftDir() const;
 
-	void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand) const; //requires bsa.damageAmout filled
+	void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand) const; //requires bsa.damageAmount filled
 	static void prepareAttacked(BattleStackAttacked & bsa,
 								vstd::RNG & rand,
-								const std::shared_ptr<battle::CUnitState> & customState); //requires bsa.damageAmout filled
+								const std::shared_ptr<battle::CUnitState> & customState); //requires bsa.damageAmount filled
 
 	const CCreature * unitType() const override;
 	int32_t unitBaseAmount() const override;
 
 	uint32_t unitId() const override;
-	ui8 unitSide() const override;
+	BattleSide unitSide() const override;
 	PlayerColor unitOwner() const override;
 	SlotID unitSlot() const override;
 
@@ -98,7 +98,7 @@ public:
 		//stackState is not serialized here
 		assert(isIndependentNode());
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & type;
+		h & typeID;
 		h & ID;
 		h & baseAmount;
 		h & owner;
@@ -133,7 +133,7 @@ public:
 			else if(!army || extSlot == SlotID() || !army->hasStackAtSlot(extSlot))
 			{
 				base = nullptr;
-				logGlobal->warn("%s doesn't have a base stack!", type->getNameSingularTranslated());
+				logGlobal->warn("%s doesn't have a base stack!", typeID.toEntity(VLC)->getNameSingularTranslated());
 			}
 			else
 			{

@@ -23,7 +23,7 @@ public:
 
 	void addNewBonus(const std::shared_ptr<Bonus> & b);
 
-	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root = nullptr, const std::string & cachingStr = "") const override;
+	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit, const std::string & cachingStr = "") const override;
 
 	int64_t getTreeVersion() const override;
 private:

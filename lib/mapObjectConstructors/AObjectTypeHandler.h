@@ -15,9 +15,13 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+namespace vstd
+{
+class RNG;
+}
+
 class ObjectTemplate;
 class CGObjectInstance;
-class CRandomGenerator;
 class IObjectInfo;
 class IGameCallback;
 
@@ -70,6 +74,8 @@ public:
 	/// returns full form of identifier of this object in form of modName:objectName
 	std::string getJsonKey() const;
 
+	std::string getModScope() const;
+
 	/// Returns object-specific name, if set
 	SObjectSounds getSounds() const;
 
@@ -84,7 +90,7 @@ public:
 
 	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
 	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
-	std::shared_ptr<const ObjectTemplate> getOverride(TerrainId terrainType, const CGObjectInstance * object) const;
+	virtual std::shared_ptr<const ObjectTemplate> getOverride(TerrainId terrainType, const CGObjectInstance * object) const;
 
 	BattleField getBattlefield() const;
 
@@ -114,7 +120,7 @@ public:
 
 	/// Configures object properties. Should be re-entrable, resetting state of the object if necessarily
 	/// This should set remaining properties, including randomized or depending on map
-	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const = 0;
+	virtual void configureObject(CGObjectInstance * object, vstd::RNG & rng) const = 0;
 
 	/// Returns object configuration, if available. Otherwise returns NULL
 	virtual std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const;

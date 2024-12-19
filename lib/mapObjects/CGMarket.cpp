@@ -11,19 +11,25 @@
 #include "StdInc.h"
 #include "CGMarket.h"
 
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../CCreatureHandler.h"
 #include "CGTownInstance.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../CSkillHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjectConstructors/CommonConstructors.h"
 #include "../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void CGMarket::initObj(CRandomGenerator & rand)
+ObjectInstanceID CGMarket::getObjInstanceID() const
+{
+	return id;
+}
+
+void CGMarket::initObj(vstd::RNG & rand)
 {
 	getObjectHandler()->configureObject(this, rand);
 }
@@ -33,14 +39,25 @@ void CGMarket::onHeroVisit(const CGHeroInstance * h) const
 	cb->showObjectWindow(this, EOpenWindowMode::MARKET_WINDOW, h, true);
 }
 
-int CGMarket::getMarketEfficiency() const
+std::string CGMarket::getPopupText(PlayerColor player) const
 {
-	return marketEfficiency;
+	if (!getMarketHandler()->hasDescription())
+		return getHoverText(player);
+
+	MetaString message = MetaString::createFromRawString("{%s}\r\n\r\n%s");
+	message.replaceName(ID);
+	message.replaceTextID(TextIdentifier(getObjectHandler()->getBaseTextID(), "description").get());
+	return message.toString();
 }
 
-bool CGMarket::allowsTrade(EMarketMode mode) const
+std::string CGMarket::getPopupText(const CGHeroInstance * hero) const
 {
-	return marketModes.count(mode);
+	return getPopupText(hero->getOwner());
+}
+
+int CGMarket::getMarketEfficiency() const
+{
+	return getMarketHandler()->getMarketEfficiency();
 }
 
 int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
@@ -48,11 +65,16 @@ int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 	return -1;
 }
 
-std::vector<TradeItemBuy> CGMarket::availableItemsIds(EMarketMode mode) const
+std::shared_ptr<MarketInstanceConstructor> CGMarket::getMarketHandler() const
 {
-	if(allowsTrade(mode))
-		return IMarket::availableItemsIds(mode);
-	return std::vector<TradeItemBuy>();
+	const auto & baseHandler = getObjectHandler();
+	const auto & ourHandler = std::dynamic_pointer_cast<MarketInstanceConstructor>(baseHandler);
+	return ourHandler;
+}
+
+std::set<EMarketMode> CGMarket::availableModes() const
+{
+	return getMarketHandler()->availableModes();
 }
 
 CGMarket::CGMarket(IGameCallback *cb):
@@ -63,16 +85,11 @@ std::vector<TradeItemBuy> CGBlackMarket::availableItemsIds(EMarketMode mode) con
 {
 	switch(mode)
 	{
-	case EMarketMode::ARTIFACT_RESOURCE:
-		return IMarket::availableItemsIds(mode);
 	case EMarketMode::RESOURCE_ARTIFACT:
 		{
 			std::vector<TradeItemBuy> ret;
-			for(const CArtifact *a : artifacts)
-				if(a)
-					ret.push_back(a->getId());
-				else
-					ret.push_back(ArtifactID{});
+			for(const auto & a : artifacts)
+				ret.push_back(a);
 			return ret;
 		}
 	default:
@@ -80,12 +97,12 @@ std::vector<TradeItemBuy> CGBlackMarket::availableItemsIds(EMarketMode mode) con
 	}
 }
 
-void CGBlackMarket::newTurn(CRandomGenerator & rand) const
+void CGBlackMarket::newTurn(vstd::RNG & rand) const
 {
-	int resetPeriod = VLC->settings()->getInteger(EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD);
+	int resetPeriod = cb->getSettings().getInteger(EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD);
 
 	bool isFirstDay = cb->getDate(Date::DAY) == 1;
-	bool regularResetTriggered = resetPeriod != 0 && ((cb->getDate(Date::DAY)-1) % resetPeriod) != 0;
+	bool regularResetTriggered = resetPeriod != 0 && ((cb->getDate(Date::DAY)-1) % resetPeriod) == 0;
 
 	if (!isFirstDay && !regularResetTriggered)
 		return;
@@ -93,7 +110,7 @@ void CGBlackMarket::newTurn(CRandomGenerator & rand) const
 	SetAvailableArtifacts saa;
 	saa.id = id;
 	cb->pickAllowedArtsSet(saa.arts, rand);
-	cb->sendAndApply(&saa);
+	cb->sendAndApply(saa);
 }
 
 std::vector<TradeItemBuy> CGUniversity::availableItemsIds(EMarketMode mode) const
@@ -108,14 +125,14 @@ std::vector<TradeItemBuy> CGUniversity::availableItemsIds(EMarketMode mode) cons
 	}
 }
 
+std::string CGUniversity::getSpeechTranslated() const
+{
+	return getMarketHandler()->getSpeechTranslated();
+}
+
 void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
 {
 	cb->showObjectWindow(this, EOpenWindowMode::UNIVERSITY_WINDOW, h, true);
-}
-
-ArtBearer::ArtBearer CGArtifactsAltar::bearerType() const
-{
-	return ArtBearer::ALTAR;
 }
 
 VCMI_LIB_NAMESPACE_END

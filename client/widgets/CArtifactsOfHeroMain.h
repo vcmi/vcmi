@@ -11,14 +11,11 @@
 
 #include "CArtifactsOfHeroBase.h"
 
-#include "../gui/Shortcut.h"
-
-class CArtifactsOfHeroMain : public CArtifactsOfHeroBase, public CKeyShortcut
+class CArtifactsOfHeroMain : public CArtifactsOfHeroBase
 {
 public:
 	CArtifactsOfHeroMain(const Point & position);
 	~CArtifactsOfHeroMain() override;
-	void enableArtifactsCostumeSwitcher();
 	void keyPressed(EShortcut key) override;
 	void keyReleased(EShortcut key) override;
 

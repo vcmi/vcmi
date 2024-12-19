@@ -22,24 +22,17 @@
 #include "../../../CCallback.h"
 
 #include "../../../lib/CArtifactInstance.h"
-#include "../../../lib/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../../../lib/mapObjects/CGMarket.h"
-#include "../../../lib/mapObjects/CGTownInstance.h"
+#include "../../../lib/mapObjects/IMarket.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 
-CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstance * hero)
+CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstance * hero, const std::string & title)
 	: CMarketBase(market, hero)
 	, CResourcesBuying(
 		[this](const std::shared_ptr<CTradeableItem> & resSlot){CArtifactsSelling::onSlotClickPressed(resSlot, offerTradePanel);},
 		[this](){CArtifactsSelling::updateSubtitles();})
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
-
-	std::string title;
-	if(const auto townMarket = dynamic_cast<const CGTownInstance*>(market))
-		title = (*CGI->townh)[townMarket->getFaction()]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
-	else if(const auto mapMarket = dynamic_cast<const CGMarket*>(market))
-		title = mapMarket->title;
+	OBJECT_CONSTRUCTION;
 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title));
 	labels.push_back(std::make_shared<CLabel>(155, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->getNameTranslated())));
@@ -56,14 +49,18 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 	// Hero's artifacts
 	heroArts = std::make_shared<CArtifactsOfHeroMarket>(Point(-361, 46), offerTradePanel->selectionWidth);
 	heroArts->setHero(hero);
-	heroArts->selectArtCallback = [this](const CArtPlace * artPlace)
+	heroArts->onSelectArtCallback = [this](const CArtPlace * artPlace)
 	{
 		assert(artPlace);
 		selectedHeroSlot = artPlace->slot;
 		CArtifactsSelling::highlightingChanged();
 		CIntObject::redraw();
 	};
-
+	heroArts->onClickNotTradableCallback = []()
+	{
+		// This item can't be traded
+		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21]);
+	};
 	CArtifactsSelling::updateShowcases();
 	CArtifactsSelling::deselect();
 }
@@ -81,7 +78,8 @@ void CArtifactsSelling::makeDeal()
 {
 	const auto art = hero->getArt(selectedHeroSlot);
 	assert(art);
-	LOCPLINT->cb->trade(market, EMarketMode::ARTIFACT_RESOURCE, art->getId(), GameResID(offerTradePanel->getSelectedItemId()), offerQty, hero);
+	LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::ARTIFACT_RESOURCE, art->getId(),
+		GameResID(offerTradePanel->getHighlightedItemId()), offerQty, hero);
 	CMarketTraderText::makeDeal();
 }
 
@@ -131,7 +129,7 @@ CMarketBase::MarketShowcasesParams CArtifactsSelling::getShowcasesParams() const
 		return MarketShowcasesParams
 		{
 			std::nullopt,
-			ShowcaseParams {std::to_string(offerQty), offerTradePanel->getSelectedItemId()}
+			ShowcaseParams {std::to_string(offerQty), offerTradePanel->getHighlightedItemId()}
 		};
 	else
 		return MarketShowcasesParams {std::nullopt, std::nullopt};
@@ -149,7 +147,7 @@ void CArtifactsSelling::highlightingChanged()
 	const auto art = hero->getArt(selectedHeroSlot);
 	if(art && offerTradePanel->isHighlighted())
 	{
-		market->getOffer(art->getTypeId(), offerTradePanel->getSelectedItemId(), bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
+		market->getOffer(art->getTypeId(), offerTradePanel->getHighlightedItemId(), bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
 		deal->block(!LOCPLINT->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
@@ -164,7 +162,7 @@ std::string CArtifactsSelling::getTraderText()
 		MetaString message = MetaString::createFromTextID("core.genrltxt.268");
 		message.replaceNumber(offerQty);
 		message.replaceRawString(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
-		message.replaceName(GameResID(offerTradePanel->getSelectedItemId()));
+		message.replaceName(GameResID(offerTradePanel->getHighlightedItemId()));
 		message.replaceName(art->getTypeId());
 		return message.toString();
 	}

@@ -34,13 +34,13 @@ void BuyArmy::accept(AIGateway * ai)
 	ui64 valueBought = 0;
 	//buy the stacks with largest AI value
 
-	auto upgradeSuccessfull = ai->makePossibleUpgrades(town);
+	auto upgradeSuccessful = ai->makePossibleUpgrades(town);
 
 	auto armyToBuy = ai->nullkiller->armyManager->getArmyAvailableToBuy(town->getUpperArmy(), town);
 
 	if(armyToBuy.empty())
 	{
-		if(upgradeSuccessfull)
+		if(upgradeSuccessful)
 			return;
 
 		throw cannotFulfillGoalException("No creatures to buy.");
@@ -58,7 +58,36 @@ void BuyArmy::accept(AIGateway * ai)
 
 		if(ci.count)
 		{
-			cb->recruitCreatures(town, town->getUpperArmy(), ci.creID, ci.count, ci.level);
+			if (town->getUpperArmy()->stacksCount() == GameConstants::ARMY_SIZE)
+			{
+				SlotID lowestValueSlot;
+				int lowestValue = std::numeric_limits<int>::max();
+				for (auto slot : town->getUpperArmy()->Slots())
+				{
+					if (slot.second->getCreatureID() != CreatureID::NONE)
+					{
+						int currentStackMarketValue =
+							slot.second->getCreatureID().toCreature()->getFullRecruitCost().marketValue() * slot.second->getCount();
+
+						if (slot.second->getCreatureID().toCreature()->getFactionID() == town->getFactionID())
+							continue;
+
+						if (currentStackMarketValue < lowestValue)
+						{
+							lowestValue = currentStackMarketValue;
+							lowestValueSlot = slot.first;
+						}
+					}
+				}
+				if (lowestValueSlot.validSlot())
+				{
+					cb->dismissCreature(town->getUpperArmy(), lowestValueSlot);
+				}
+			}
+			if (town->getUpperArmy()->stacksCount() < GameConstants::ARMY_SIZE || town->getUpperArmy()->getSlotFor(ci.creID).validSlot()) //It is possible we don't scrap despite we wanted to due to not scrapping stacks that fit our faction
+			{
+				cb->recruitCreatures(town, town->getUpperArmy(), ci.creID, ci.count, ci.level);
+			}
 			valueBought += ci.count * ci.creID.toCreature()->getAIValue();
 		}
 	}

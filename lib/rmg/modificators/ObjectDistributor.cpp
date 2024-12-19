@@ -25,6 +25,8 @@
 #include "../Functions.h"
 #include "../RmgObject.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 void ObjectDistributor::process()
@@ -43,7 +45,6 @@ void ObjectDistributor::init()
 
 void ObjectDistributor::distributeLimitedObjects()
 {
-	ObjectInfo oi;
 	auto zones = map.getZones();
 
 	for (auto primaryID : VLC->objtypeh->knownObjects())
@@ -79,6 +80,8 @@ void ObjectDistributor::distributeLimitedObjects()
 					RandomGeneratorUtil::randomShuffle(matchingZones, zone.getRand());
 					for (auto& zone : matchingZones)
 					{
+						ObjectInfo oi(primaryID, secondaryID);
+						
 						oi.generateObject = [cb=map.mapInstance->cb, primaryID, secondaryID]() -> CGObjectInstance *
 						{
 							return VLC->objtypeh->getHandlerFor(primaryID, secondaryID)->create(cb, nullptr);
@@ -157,7 +160,7 @@ void ObjectDistributor::distributePrisons()
 		}
 	}
 
-	size_t allowedPrisons = prisonHeroPlacer->getPrisonsRemaning();
+	size_t allowedPrisons = prisonHeroPlacer->getPrisonsRemaining();
 	for (int i = zones.size() - 1; i >= 0; i--)
 	{
 		auto zone = zones[i].second;

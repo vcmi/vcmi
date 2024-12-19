@@ -13,7 +13,6 @@
 #include "Registry.h"
 #include "../ISpellMechanics.h"
 
-#include "../../MetaString.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
@@ -206,10 +205,10 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 	}
 
 	if(!(sse.toAdd.empty() && sse.toUpdate.empty()))
-		server->apply(&sse);
+		server->apply(sse);
 
 	if(describe && !blm.lines.empty())
-		server->apply(&blm);
+		server->apply(blm);
 }
 
 void Timed::convertBonus(const Mechanics * m, int32_t & duration, std::vector<Bonus> & converted) const

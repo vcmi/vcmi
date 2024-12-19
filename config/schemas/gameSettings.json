@@ -1,0 +1,171 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI game settings format",
+	"description" : "Format used to define game settings in VCMI",
+	"additionalProperties" : false,
+	"properties" : {
+		"textData" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"heroClass"   : { "type" : "number" },
+				"artifact"    : { "type" : "number" },
+				"creature"    : { "type" : "number" },
+				"faction"     : { "type" : "number" },
+				"hero"        : { "type" : "number" },
+				"spell"       : { "type" : "number" },
+				"object"      : { "type" : "number" },
+				"terrain"     : { "type" : "number" },
+				"river"       : { "type" : "number" },
+				"road"        : { "type" : "number" }
+			}
+		},
+		"mapFormat" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"restorationOfErathia" : { "type" : "object" },
+				"armageddonsBlade" :     { "type" : "object" },
+				"shadowOfDeath" :        { "type" : "object" },
+				"chronicles" :           { "type" : "object" },
+				"jsonVCMI" :             { "type" : "object" },
+				"hornOfTheAbyss" :       { "type" : "object" },
+				"inTheWakeOfGods" :      { "type" : "object" }
+			}
+		},
+		"heroes" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"perPlayerOnMapCap"  :        { "type" : "number" },
+				"perPlayerTotalCap"  :        { "type" : "number" },
+				"retreatOnWinWithoutTroops" : { "type" : "boolean" },
+				"startingStackChances" :      { "type" : "array" },
+				"backpackSize" :              { "type" : "number" },
+				"tavernInvite" :              { "type" : "boolean" },
+				"minimalPrimarySkills" :      { "type" : "array" }
+			}
+		},
+		"towns" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"buildingsPerTurnCap"  :                 { "type" : "number" },
+				"startingDwellingChances" :              { "type" : "array" },
+				"spellResearch" :                        { "type" : "boolean" },
+				"spellResearchCost" :                    { "type" : "array" },
+				"spellResearchPerDay" :                  { "type" : "array" },
+				"spellResearchCostExponentPerResearch" : { "type" : "array" }
+			}
+		},
+		"combat": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"goodMoraleDice" :              { "type" : "array" },
+				"badMoraleDice" :               { "type" : "array" },
+				"goodLuckDice" :                { "type" : "array" },
+				"badLuckDice" :                 { "type" : "array" },
+				"backpackSize" :                { "type" : "number" },
+				"attackPointDamageFactor" :     { "type" : "number" },
+				"attackPointDamageFactorCap" :  { "type" : "number" },
+				"defensePointDamageFactor" :    { "type" : "number" },
+				"defensePointDamageFactorCap" : { "type" : "number" },
+				"oneHexTriggersObstacles" :     { "type" : "boolean" },
+				"layouts" :                     { "type" : "object" },
+				"areaShotCanTargetEmptyHex" :   { "type" : "boolean" }
+			}
+		},
+		"creatures": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"weeklyGrowthPercent" :     { "type" : "number" },
+				"weeklyGrowthCap" :         { "type" : "number" },
+				"dailyStackExperience" :    { "type" : "number" },
+				"allowRandomSpecialWeeks" : { "type" : "boolean" },
+				"allowAllForDoubleMonth" :  { "type" : "boolean" }
+			}
+		},
+		"dwellings": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"accumulateWhenNeutral" :  { "type" : "boolean" },
+				"accumulateWhenOwned" :  { "type" : "boolean" },
+				"mergeOnRecruit" :  { "type" : "boolean" }
+			}
+		},
+		"markets": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"blackMarketRestockPeriod" : { "type" : "number" }
+			}
+		},
+		"banks": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"showGuardsComposition" : { "type" : "boolean" }
+			}
+		},
+		"modules": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"stackExperience" : { "type" : "boolean" },
+				"stackArtifact" : { "type" : "boolean" },
+				"commanders" : { "type" : "boolean" }
+			}
+		},
+		"pathfinder": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"ignoreGuards" :            { "type" : "boolean" },
+				"useBoat" :                 { "type" : "boolean" },
+				"useMonolithTwoWay" :       { "type" : "boolean" },
+				"useMonolithOneWayUnique" : { "type" : "boolean" },
+				"useMonolithOneWayRandom" : { "type" : "boolean" },
+				"useWhirlpool" :            { "type" : "boolean" },
+				"originalFlyRules" :        { "type" : "boolean" }
+			}
+		},
+		"resources": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"weeklyBonusesAI" : { "type" : "object" }
+			}
+		},
+
+		"spells": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"dimensionDoorOnlyToUncoveredTiles" : { "type" : "boolean" },
+				"dimensionDoorExposesTerrainType" :   { "type" : "boolean" },
+				"dimensionDoorFailureSpendsPoints" :  { "type" : "boolean" },
+				"dimensionDoorTriggersGuards" :       { "type" : "boolean" },
+				"dimensionDoorTournamentRulesLimit" : { "type" : "boolean" }
+			}
+		},
+		"bonuses": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"global" : { "type" : "object" },
+				"perHero" : { "type" : "object" }
+			}
+		},
+		"interface": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"playerColoredBackground" : { "type" : "object" }
+			}
+		}
+	}
+}

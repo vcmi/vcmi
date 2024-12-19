@@ -46,7 +46,7 @@ private:
 	std::map<size_t, std::vector <size_t> > offset;
 
 	std::unique_ptr<ui8[]> data;
-	std::unique_ptr<QVector<QRgb>> palette;
+	QVector<QRgb> palette;
 
 public:
 	DefFile(std::string Name);
@@ -138,6 +138,44 @@ enum class DefType : uint32_t
 
 static FileCache animationCache;
 
+//First 8 colors in def palette used for transparency
+static constexpr std::array TARGET_PALETTE =
+{
+	qRgba(0, 0, 0, 0  ), // transparency                  ( used in most images )
+	qRgba(0, 0, 0, 64 ), // shadow border                 ( used in battle, adventure map def's )
+	qRgba(0, 0, 0, 64 ), // shadow border                 ( used in fog-of-war def's )
+	qRgba(0, 0, 0, 128), // shadow body                   ( used in fog-of-war def's )
+	qRgba(0, 0, 0, 128), // shadow body                   ( used in battle, adventure map def's )
+	qRgba(0, 0, 0, 0  ), // selection / owner flag        ( used in battle, adventure map def's )
+	qRgba(0, 0, 0, 128), // shadow body   below selection ( used in battle def's )
+	qRgba(0, 0, 0, 64 )  // shadow border below selection ( used in battle def's )
+};
+
+static constexpr std::array SOURCE_PALETTE =
+{
+	qRgba(0,   255, 255, 255),
+	qRgba(255, 150, 255, 255),
+	qRgba(255, 100, 255, 255),
+	qRgba(255, 50,  255, 255),
+	qRgba(255, 0,   255, 255),
+	qRgba(255, 255, 0,   255),
+	qRgba(180, 0,   255, 255),
+	qRgba(0,   255, 0,   255)
+};
+
+static bool colorsSimilar(const QRgb & lhs, const QRgb & rhs)
+{
+	// it seems that H3 does not requires exact match to replace colors -> (255, 103, 255) gets interpreted as shadow
+	// exact logic is not clear and requires extensive testing with image editing
+	// potential reason is that H3 uses 16-bit color format (565 RGB bits), meaning that 3 least significant bits are lost in red and blue component
+	static const int threshold = 8;
+	int diffR = qRed(lhs) - qRed(rhs);
+	int diffG = qGreen(lhs) - qGreen(rhs);
+	int diffB = qBlue(lhs) - qBlue(rhs);
+	int diffA = qAlpha(lhs) - qAlpha(rhs);
+	return std::abs(diffR) < threshold && std::abs(diffG) < threshold && std::abs(diffB) < threshold && std::abs(diffA) < threshold;
+};
+
 /*************************************************************************
  *  DefFile, class used for def loading                                  *
  *************************************************************************/
@@ -160,24 +198,12 @@ DefFile::DefFile(std::string Name):
 	};
 	#endif // 0
 
-	//First 8 colors in def palette used for transparency
-	constexpr std::array H3Palette =
-	{
-		qRgba(0, 0, 0,   0), // 100% - transparency
-		qRgba(0, 0, 0,  32), //  75% - shadow border,
-		qRgba(0, 0, 0,  64), // TODO: find exact value
-		qRgba(0, 0, 0, 128), // TODO: for transparency
-		qRgba(0, 0, 0, 128), //  50% - shadow body
-		qRgba(0, 0, 0,   0), // 100% - selection highlight
-		qRgba(0, 0, 0, 128), //  50% - shadow body   below selection
-		qRgba(0, 0, 0,  64)  // 75% - shadow border below selection
-	};
 	data = animationCache.getCachedFile(AnimationPath::builtin("SPRITES/" + Name));
 
-	palette = std::make_unique<QVector<QRgb>>(256);
+	palette = QVector<QRgb>(256);
 	int it = 0;
 
-	ui32 type = read_le_u32(data.get() + it);
+	//ui32 type = read_le_u32(data.get() + it);
 	it += 4;
 	//int width  = read_le_u32(data + it); it+=4;//not used
 	//int height = read_le_u32(data + it); it+=4;
@@ -191,59 +217,19 @@ DefFile::DefFile(std::string Name):
 		c[0] = data[it++];
 		c[1] = data[it++];
 		c[2] = data[it++];
-		(*palette)[i] = qRgba(c[0], c[1], c[2], 255);
+		palette[i] = qRgba(c[0], c[1], c[2], 255);
 	}
 
-	switch(static_cast<DefType>(type))
+	// these colors seems to be used unconditionally
+	palette[0] = TARGET_PALETTE[0];
+	palette[1] = TARGET_PALETTE[1];
+	palette[4] = TARGET_PALETTE[4];
+
+	// rest of special colors are used only if their RGB values are close to H3
+	for (uint32_t i = 0; i < 8; ++i)
 	{
-	case DefType::SPELL:
-		(*palette)[0] = H3Palette[0];
-		break;
-	case DefType::SPRITE:
-	case DefType::SPRITE_FRAME:
-		for(ui32 i= 0; i<8; i++)
-			(*palette)[i] = H3Palette[i];
-		break;
-	case DefType::CREATURE:
-		(*palette)[0] = H3Palette[0];
-		(*palette)[1] = H3Palette[1];
-		(*palette)[4] = H3Palette[4];
-		(*palette)[5] = H3Palette[5];
-		(*palette)[6] = H3Palette[6];
-		(*palette)[7] = H3Palette[7];
-		break;
-	case DefType::MAP:
-	case DefType::MAP_HERO:
-		(*palette)[0] = H3Palette[0];
-		(*palette)[1] = H3Palette[1];
-		(*palette)[4] = H3Palette[4];
-		//5 = owner flag, handled separately
-		break;
-	case DefType::TERRAIN:
-		(*palette)[0] = H3Palette[0];
-		(*palette)[1] = H3Palette[1];
-		(*palette)[2] = H3Palette[2];
-		(*palette)[3] = H3Palette[3];
-		(*palette)[4] = H3Palette[4];
-		break;
-	case DefType::CURSOR:
-		(*palette)[0] = H3Palette[0];
-		break;
-	case DefType::INTERFACE:
-		(*palette)[0] = H3Palette[0];
-		(*palette)[1] = H3Palette[1];
-		(*palette)[4] = H3Palette[4];
-		//player colors handled separately
-		//TODO: disallow colorizing other def types
-		break;
-	case DefType::BATTLE_HERO:
-		(*palette)[0] = H3Palette[0];
-		(*palette)[1] = H3Palette[1];
-		(*palette)[4] = H3Palette[4];
-		break;
-	default:
-		logAnim->error("Unknown def type %d in %s", type, Name);
-		break;
+		if (colorsSimilar(SOURCE_PALETTE[i], palette[i]))
+			palette[i] = TARGET_PALETTE[i];
 	}
 
 
@@ -421,7 +407,7 @@ std::shared_ptr<QImage> DefFile::loadFrame(size_t frame, size_t group) const
 	}
 	
 	
-	img->setColorTable(*palette);
+	img->setColorTable(palette);
 	return img;
 }
 
@@ -599,7 +585,7 @@ void Animation::init()
 		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
 		stream->read(textData.get(), stream->getSize());
 
-		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize());
+		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), resID.getName());
 
 		initFromJson(config);
 	}
@@ -709,14 +695,6 @@ void Animation::duplicateImage(const size_t sourceGroup, const size_t sourceFram
 
 	if(preloaded)
 		load(index, targetGroup);
-}
-
-void Animation::setCustom(std::string filename, size_t frame, size_t group)
-{
-	if(source[group].size() <= frame)
-		source[group].resize(frame+1);
-	source[group][frame]["file"].String() = filename;
-	//FIXME: update image if already loaded
 }
 
 std::shared_ptr<QImage> Animation::getImage(size_t frame, size_t group, bool verbose) const

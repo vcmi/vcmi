@@ -68,7 +68,7 @@ public:
 	virtual void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse){};//called when a specific effect is set to stacks
 	virtual void battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte){}; //called for various one-shot effects
 	virtual void battleStartBefore(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) {}; //called just before battle start
-	virtual void battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed){}; //called by engine when battle starts; side=0 - left, side=1 - right
+	virtual void battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side, bool replayAllowed){}; //called by engine when battle starts; side=0 - left, side=1 - right
 	virtual void battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units){};
 	virtual void battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles){};
 	virtual void battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca){}; //called when catapult makes an attack
@@ -90,7 +90,7 @@ public:
 	virtual void artifactAssembled(const ArtifactLocation &al){};
 	virtual void artifactDisassembled(const ArtifactLocation &al){};
 	virtual void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst){};
-	virtual void bulkArtMovementStart(size_t numOfArts) {};
+	virtual void bulkArtMovementStart(size_t totalNumOfArts, size_t possibleAssemblyNumOfArts) {};
 	virtual void askToAssembleArtifact(const ArtifactLocation & dst) {};
 
 	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start){};
@@ -105,11 +105,11 @@ public:
 	virtual void receivedResource(){};
 	virtual void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID){};
 	virtual void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level, QueryID queryID){}
-	virtual void showShipyardDialog(const IShipyard *obj){} //obj may be town or shipyard; state: 0 - can buid, 1 - lack of resources, 2 - dest tile is blocked, 3 - no water
+	virtual void showShipyardDialog(const IShipyard *obj){} //obj may be town or shipyard; state: 0 - can build, 1 - lack of resources, 2 - dest tile is blocked, 3 - no water
 
 	virtual void showPuzzleMap(){};
 	virtual void viewWorldMap(){};
-	virtual void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID){};
+	virtual void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID){};
 	virtual void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID){};
 	virtual void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor){};
 	virtual void showThievesGuildWindow (const CGObjectInstance * obj){};

@@ -12,6 +12,7 @@
 #include "CWindowObject.h"
 #include "../lib/ResourceSet.h"
 #include "../widgets/Images.h"
+#include "../widgets/IVideoHolder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -42,6 +43,11 @@ class CHeroArea;
 class CAnimImage;
 class CFilledTexture;
 class IImage;
+class VideoWidget;
+class VideoWidgetOnce;
+class GraphicalPrimitiveCanvas;
+class TransparentFilledRectangle;
+class CSecSkillPlace;
 
 enum class EUserEvent;
 
@@ -183,9 +189,14 @@ class CObjectListWindow : public CWindowObject
 	std::shared_ptr<CButton> ok;
 	std::shared_ptr<CButton> exit;
 
-	std::vector< std::pair<int, std::string> > items;//all items present in list
+	std::shared_ptr<CTextInput> searchBox;
+	std::shared_ptr<TransparentFilledRectangle> searchBoxRectangle;
+	std::shared_ptr<CLabel> searchBoxDescription;
 
-	void init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr);
+	std::vector< std::pair<int, std::string> > items; //all items present in list
+	std::vector< std::pair<int, std::string> > itemsVisible; //visible items present in list
+
+	void init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled);
 	void exitPressed();
 public:
 	size_t selected;//index of currently selected item
@@ -197,8 +208,8 @@ public:
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
 	/// Image can be nullptr
 	///item names will be taken from map objects
-	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {});
-	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {});
+	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false);
+	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false);
 
 	std::shared_ptr<CIntObject> genItem(size_t index);
 	void elementSelected();//call callback and close this window
@@ -237,6 +248,10 @@ public:
 	{
 	public:
 		std::shared_ptr<CFilledTexture> background;
+		std::shared_ptr<CSlider> slider;
+
+		const int MAX_LINES = 18;
+		const int ELEM_PER_LINES = 16;
 
 		HeroSelector(std::map<HeroTypeID, CGHeroInstance*> InviteableHeroes, std::function<void(CGHeroInstance*)> OnChoose);
 
@@ -246,6 +261,9 @@ public:
 
 		std::vector<std::shared_ptr<CAnimImage>> portraits;
 		std::vector<std::shared_ptr<LRClickableArea>> portraitAreas;
+
+		void recreate();
+		void sliderMove(int slidPos);
 	};
 
 	//recruitable heroes
@@ -265,6 +283,7 @@ public:
 	std::shared_ptr<CLabel> cost;
 	std::shared_ptr<CLabel> heroesForHire;
 	std::shared_ptr<CTextBox> heroDescription;
+	std::shared_ptr<VideoWidget> videoPlayer;
 
 	std::shared_ptr<CTextBox> rumor;
 	
@@ -276,7 +295,6 @@ public:
 	void addInvite();
 
 	CTavernWindow(const CGObjectInstance * TavernObj, const std::function<void()> & onWindowClosed);
-	~CTavernWindow();
 
 	void close() override;
 	void recruitb();
@@ -288,7 +306,7 @@ public:
 class CShipyardWindow : public CStatusbarWindow
 {
 	std::shared_ptr<CPicture> bgWater;
-	std::shared_ptr<CAnimImage> bgShip;
+	std::shared_ptr<CShowableAnim> bgShip;
 
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CLabel> costLabel;
@@ -350,31 +368,25 @@ public:
 	CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero, const std::function<void()> & onWindowClosed);
 };
 
-class CUniversityWindow : public CStatusbarWindow
+class CUniversityWindow final : public CStatusbarWindow, public IMarketHolder
 {
-	class CItem : public CIntObject
+	class CItem final : public CIntObject
 	{
-		std::shared_ptr<CAnimImage> icon;
-		std::shared_ptr<CAnimImage> topBar;
-		std::shared_ptr<CAnimImage> bottomBar;
+		std::shared_ptr<CSecSkillPlace> skill;
+		std::shared_ptr<CPicture> topBar;
+		std::shared_ptr<CPicture> bottomBar;
 		std::shared_ptr<CLabel> name;
 		std::shared_ptr<CLabel> level;
 	public:
 		SecondarySkill ID;//id of selected skill
 		CUniversityWindow * parent;
 
-		void showAll(Canvas & to) override;
-		void clickPressed(const Point & cursorPosition) override;
-		void showPopupWindow(const Point & cursorPosition) override;
-		void hover(bool on) override;
-		int state();//0=can't learn, 1=learned, 2=can learn
+		void update();
 		CItem(CUniversityWindow * _parent, int _ID, int X, int Y);
 	};
 
 	const CGHeroInstance * hero;
 	const IMarket * market;
-
-	std::shared_ptr<CAnimation> bars;
 
 	std::vector<std::shared_ptr<CItem>> items;
 
@@ -386,14 +398,17 @@ class CUniversityWindow : public CStatusbarWindow
 	std::function<void()> onWindowClosed;
 
 public:
-	CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market, const std::function<void()> & onWindowClosed);
+	CUniversityWindow(const CGHeroInstance * _hero, BuildingID building, const IMarket * _market, const std::function<void()> & onWindowClosed);
 
 	void makeDeal(SecondarySkill skill);
-	void close();
+	void close() override;
+
+	// IMarketHolder impl
+	void updateSecondarySkills() override;
 };
 
 /// Confirmation window for University
-class CUnivConfirmWindow : public CStatusbarWindow
+class CUnivConfirmWindow final : public CStatusbarWindow
 {
 	std::shared_ptr<CTextBox> clerkSpeech;
 	std::shared_ptr<CLabel> name;
@@ -435,9 +450,11 @@ public:
 class CHillFortWindow : public CStatusbarWindow, public IGarrisonHolder
 {
 private:
-	static const int slotsCount = 7;
+
+	enum class State { UNAFFORDABLE, ALREADY_UPGRADED, MAKE_UPGRADE, EMPTY, UNAVAILABLE };
+	static constexpr std::size_t slotsCount = 7;
 	//todo: mithril support
-	static const int resCount = 7;
+	static constexpr std::size_t resCount = 7;
 
 	const CGObjectInstance * fort;
 	const CGHeroInstance * hero;
@@ -449,7 +466,7 @@ private:
 	std::array<std::shared_ptr<CLabel>, resCount> totalLabels;
 
 	std::array<std::shared_ptr<CButton>, slotsCount> upgrade;//upgrade single creature
-	std::array<int, slotsCount + 1> currState;//current state of slot - to avoid calls to getState or updating buttons
+	std::array<State, slotsCount + 1> currState;//current state of slot - to avoid calls to getState or updating buttons
 
 	//there is a place for only 2 resources per slot
 	std::array< std::array<std::shared_ptr<CAnimImage>, 2>, slotsCount> slotIcons;
@@ -464,7 +481,7 @@ private:
 	std::string getTextForSlot(SlotID slot);
 
 	void makeDeal(SlotID slot);//-1 for upgrading all creatures
-	int getState(SlotID slot); //-1 = no creature 0=can't upgrade, 1=upgraded, 2=can upgrade
+	State getState(SlotID slot);
 public:
 	CHillFortWindow(const CGHeroInstance * visitor, const CGObjectInstance * object);
 	void updateGarrisons() override;//update buttons after garrison changes
@@ -493,3 +510,20 @@ public:
 	CThievesGuildWindow(const CGObjectInstance * _owner);
 };
 
+class VideoWindow : public CWindowObject, public IVideoHolder
+{
+	std::shared_ptr<VideoWidgetOnce> videoPlayer;
+	std::shared_ptr<CFilledTexture> backgroundAroundWindow;
+	std::shared_ptr<GraphicalPrimitiveCanvas> blackBackground;
+
+	std::function<void(bool)> closeCb;
+
+	void onVideoPlaybackFinished() override;
+	void exit(bool skipped);
+public:
+	VideoWindow(const VideoPath & video, const ImagePath & rim, bool showBackground, float scaleFactor, const std::function<void(bool)> & closeCb);
+
+	void clickPressed(const Point & cursorPosition) override;
+	void keyPressed(EShortcut key) override;
+	void notFocusedClick() override;
+};

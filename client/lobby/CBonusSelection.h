@@ -12,6 +12,7 @@
 #include "../windows/CWindowObject.h"
 
 #include "../lib/campaign/CampaignConstants.h"
+#include "../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -28,6 +29,9 @@ class CLabel;
 class CFlagBox;
 class ISelectionScreenInfo;
 class ExtraOptionsTab;
+class VideoWidgetOnce;
+class CBonusSelection;
+
 
 /// Campaign screen where you can choose one out of three starting bonuses
 class CBonusSelection : public CWindowObject
@@ -45,8 +49,10 @@ public:
 		CampaignScenarioID idOfMapAndRegion;
 		bool accessible; // false if region should be striped
 		bool selectable; // true if region should be selectable
+		bool labelOnly;
+		std::shared_ptr<CLabel> label;
 	public:
-		CRegion(CampaignScenarioID id, bool accessible, bool selectable, const CampaignRegions & campDsc);
+		CRegion(CampaignScenarioID id, bool accessible, bool selectable, bool labelOnly, const CampaignRegions & campDsc);
 		void updateState();
 		void clickReleased(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;

@@ -20,7 +20,7 @@ class ApplyDamageMock : public ApplyDamage
 {
 public:
 	MOCK_CONST_METHOD0(isEnabled, bool());
-	MOCK_CONST_METHOD0(getInitalDamage, int64_t());
+	MOCK_CONST_METHOD0(getInitialDamage, int64_t());
 	MOCK_CONST_METHOD0(getDamage, int64_t());
 	MOCK_METHOD1(setDamage, void(int64_t));
 	MOCK_CONST_METHOD0(getTarget, const battle::Unit *());

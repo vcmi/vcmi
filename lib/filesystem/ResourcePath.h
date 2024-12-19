@@ -28,7 +28,7 @@ class JsonSerializeFormat;
  * Font: .fnt
  * Image: .bmp, .jpg, .pcx, .png, .tga
  * Sound: .wav .82m
- * Video: .smk, .bik .mjpg .mpg .webm
+ * Video: .smk, .bik .ogv .webm
  * Music: .mp3, .ogg
  * Archive: .lod, .snd, .vid .pac .zip
  * Palette: .pal
@@ -46,6 +46,7 @@ enum class EResType
 	TTF_FONT,
 	IMAGE,
 	VIDEO,
+	VIDEO_LOW_QUALITY,
 	SOUND,
 	ARCHIVE_VID,
 	ARCHIVE_ZIP,

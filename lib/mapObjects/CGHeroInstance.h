@@ -12,7 +12,9 @@
 #include <vcmi/spells/Caster.h>
 
 #include "CArmedInstance.h"
+#include "IOwnableObject.h"
 
+#include "../entities/hero/EHeroGender.h"
 #include "../CArtHandler.h" // For CArtifactSet
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -23,7 +25,6 @@ class CGTownInstance;
 class CMap;
 struct TerrainTile;
 struct TurnInfo;
-enum class EHeroGender : int8_t;
 
 class DLL_LINKAGE CGHeroPlaceholder : public CGObjectInstance
 {
@@ -48,7 +49,7 @@ protected:
 };
 
 
-class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember, public ICreatureUpgrader
+class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember, public ICreatureUpgrader, public IOwnableObject
 {
 	// We serialize heroes into JSON for crossover
 	friend class CampaignState;
@@ -71,7 +72,6 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	const CHero * type;
 	TExpType exp; //experience points
 	ui32 level; //current level of hero
 
@@ -92,6 +92,7 @@ public:
 	static constexpr si32 UNINITIALIZED_MANA = -1;
 	static constexpr ui32 UNINITIALIZED_MOVEMENT = -1;
 	static constexpr auto UNINITIALIZED_EXPERIENCE = std::numeric_limits<TExpType>::max();
+	static const ui32 NO_PATROLLING;
 
 	//std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
 	//std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
@@ -99,10 +100,9 @@ public:
 
 	struct DLL_LINKAGE Patrol
 	{
-		Patrol(){patrolling=false;initialPos=int3();patrolRadius=-1;};
-		bool patrolling;
+		bool patrolling{false};
 		int3 initialPos;
-		ui32 patrolRadius;
+		ui32 patrolRadius{NO_PATROLLING};
 		template <typename Handler> void serialize(Handler &h)
 		{
 			h & patrolling;
@@ -165,8 +165,12 @@ public:
 	EAlignment getAlignment() const;
 	bool needsLastStack()const override;
 
+	ResourceSet dailyIncome() const override;
+	std::vector<CreatureID> providedCreatures() const override;
+	const IOwnableObject * asOwnable() const final;
+
 	//INativeTerrainProvider
-	FactionID getFaction() const override;
+	FactionID getFactionID() const override;
 	TerrainId getNativeTerrain() const override;
 	int getLowestCreatureSpeed() const;
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
@@ -187,13 +191,13 @@ public:
 	bool gainsLevel() const;
 
 	/// Returns the next primary skill on level up. Can only be called if hero can gain a level up.
-	PrimarySkill nextPrimarySkill(CRandomGenerator & rand) const;
+	PrimarySkill nextPrimarySkill(vstd::RNG & rand) const;
 
 	/// Returns the next secondary skill randomly on level up. Can only be called if hero can gain a level up.
-	std::optional<SecondarySkill> nextSecondarySkill(CRandomGenerator & rand) const;
+	std::optional<SecondarySkill> nextSecondarySkill(vstd::RNG & rand) const;
 
 	/// Gets 0, 1 or 2 secondary skills which are proposed on hero level up.
-	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills(CRandomGenerator & rand) const;
+	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills(vstd::RNG & rand) const;
 
 	ui8 getSecSkillLevel(const SecondarySkill & skill) const; //0 - no skill
 
@@ -219,27 +223,35 @@ public:
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false, const TurnInfo * ti = nullptr) const;
 
 	double getFightingStrength() const; // takes attack / defense skill into account
-	double getMagicStrength() const; // takes knowledge / spell power skill into account
+	double getMagicStrength() const; // takes knowledge / spell power skill but also current mana, whether the hero owns a spell-book and whether that books contains anything into account
+	double getMagicStrengthForCampaign() const; // takes knowledge / spell power skill into account
 	double getHeroStrength() const; // includes fighting and magic strength
+	double getHeroStrengthForCampaign() const; // includes fighting and the for-campaign-version of magic strength
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
+	int getBasePrimarySkillValue(PrimarySkill which) const; //the value of a base-skill without items or temporary bonuses
 
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
-	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack, CRandomGenerator & rand) const;
+	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack, vstd::RNG & rand) const;
 	EDiggingStatus diggingStatus() const;
 
 	//////////////////////////////////////////////////////////////////////////
 
-	HeroTypeID getHeroType() const;
+	const CHeroClass * getHeroClass() const;
+	HeroClassID getHeroClassID() const;
+
+	const CHero * getHeroType() const;
+	HeroTypeID getHeroTypeID() const;
 	void setHeroType(HeroTypeID type);
 
-	void initHero(CRandomGenerator & rand);
-	void initHero(CRandomGenerator & rand, const HeroTypeID & SUBID);
+	void initObj(vstd::RNG & rand) override;
+	void initHero(vstd::RNG & rand);
+	void initHero(vstd::RNG & rand, const HeroTypeID & SUBID);
 
-	ArtPlacementMap putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
-	void removeArtifact(ArtifactPosition pos) override;
-	void initExp(CRandomGenerator & rand);
-	void initArmy(CRandomGenerator & rand, IArmyDescriptor *dst = nullptr);
+	ArtPlacementMap putArtifact(const ArtifactPosition & pos, CArtifactInstance * art) override;
+	void removeArtifact(const ArtifactPosition & pos) override;
+	void initExp(vstd::RNG & rand);
+	void initArmy(vstd::RNG & rand, IArmyDescriptor *dst = nullptr);
 	void pushPrimSkill(PrimarySkill which, int val);
 	ui8 maxlevelsToMagicSchool() const;
 	ui8 maxlevelsToWisdom() const;
@@ -292,11 +304,15 @@ public:
 	void attachToBoat(CGBoat* newBoat);
 	void boatDeserializationFix();
 	void deserializationFix();
+	void updateAppearance();
 
-	void initObj(CRandomGenerator & rand) override;
-	void pickRandomObject(CRandomGenerator & rand) override;
+	void pickRandomObject(vstd::RNG & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	std::string getObjectName() const override;
+	std::string getHoverText(PlayerColor player) const override;
+	std::string getMovementPointsTextIfOwner(PlayerColor player) const;
+
+	TObjectTypeHandler getObjectHandler() const override;
 
 	void afterAddToMap(CMap * map) override;
 	void afterRemoveFromMap(CMap * map) override;
@@ -318,7 +334,7 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
-	void levelUpAutomatically(CRandomGenerator & rand);
+	void levelUpAutomatically(vstd::RNG & rand);
 
 public:
 	std::string getHeroTypeName() const;
@@ -346,7 +362,14 @@ public:
 		h & skillsInfo;
 		h & visitedTown;
 		h & boat;
-		h & type;
+		if (h.version < Handler::Version::REMOVE_TOWN_PTR)
+		{
+			HeroTypeID type;
+			bool isNull = false;
+			h & isNull;
+			if(!isNull)
+				h & type;
+		}
 		h & commander;
 		h & visitedObjects;
 		BONUS_TREE_DESERIALIZATION_FIX

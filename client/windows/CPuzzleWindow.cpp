@@ -11,20 +11,21 @@
 #include "CPuzzleWindow.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../adventureMap/CResDataBar.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../mapView/MapView.h"
+#include "../media/ISoundPlayer.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 
 #include "../../CCallback.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/CTownHandler.h"
+#include "../../lib/entities/faction/CFaction.h"
+#include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
 
 CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
@@ -32,7 +33,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	grailPos(GrailPos),
 	currentAlpha(ColorRGBA::ALPHA_OPAQUE)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	CCS->soundh->playSound(soundBase::OBELISK);
 
@@ -53,7 +54,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	{
 		const SPuzzleInfo & info = elem;
 
-		auto piece = std::make_shared<CPicture>(info.filename, info.x, info.y);
+		auto piece = std::make_shared<CPicture>(info.filename, info.position.x, info.position.y);
 
 		//piece that will slowly disappear
 		if(info.whenUncovered <= GameConstants::PUZZLE_MAP_PIECES * discoveredRatio)

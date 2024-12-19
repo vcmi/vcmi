@@ -34,7 +34,6 @@ class IBattleEventsReceiver;
 class IGameEventsReceiver;
 struct ArtifactLocation;
 class BattleStateInfoForRetreat;
-class IMarket;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -69,19 +68,21 @@ public:
 	//hero
 	virtual void moveHero(const CGHeroInstance *h, const std::vector<int3> & path, bool transit) =0; //moves hero alongside provided path
 	virtual void moveHero(const CGHeroInstance *h, const int3 & destination, bool transit) =0; //moves hero alongside provided path
-	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses given hero; true - successfuly, false - not successfuly
+	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses given hero; true - successfully, false - not successfully
 	virtual void dig(const CGObjectInstance *hero)=0;
 	virtual void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos = int3(-1, -1, -1))=0; //cast adventure map spell
 
 	//town
 	virtual void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero, const HeroTypeID & nextHero=HeroTypeID::NONE)=0;
 	virtual bool buildBuilding(const CGTownInstance *town, BuildingID buildingID)=0;
+	virtual bool visitTownBuilding(const CGTownInstance *town, BuildingID buildingID)=0;
 	virtual void recruitCreatures(const CGDwelling *obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1)=0;
 	virtual bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE)=0; //if newID==-1 then best possible upgrade will be made
+	virtual void spellResearch(const CGTownInstance *town, SpellID spellAtSlot, bool accepted)=0;
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 
-	virtual void trade(const IMarket * market, EMarketMode mode, TradeItemSell id1, TradeItemBuy id2, ui32 val1, const CGHeroInstance * hero = nullptr)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
-	virtual void trade(const IMarket * market, EMarketMode mode, const std::vector<TradeItemSell> & id1, const std::vector<TradeItemBuy> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero = nullptr)=0;
+	virtual void trade(const ObjectInstanceID marketId, EMarketMode mode, TradeItemSell id1, TradeItemBuy id2, ui32 val1, const CGHeroInstance * hero)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
+	virtual void trade(const ObjectInstanceID marketId, EMarketMode mode, const std::vector<TradeItemSell> & id1, const std::vector<TradeItemBuy> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero)=0;
 
 	virtual int selectionMade(int selection, QueryID queryID) =0;
 	virtual int sendQueryReply(std::optional<int32_t> reply, QueryID queryID) =0;
@@ -92,10 +93,14 @@ public:
 	//virtual bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)=0; //swaps artifacts between two given heroes
 	virtual bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2)=0;
 	virtual void scrollBackpackArtifacts(ObjectInstanceID hero, bool left) = 0;
+	virtual void sortBackpackArtifactsBySlot(const ObjectInstanceID hero) = 0;
+	virtual void sortBackpackArtifactsByCost(const ObjectInstanceID hero) = 0;
+	virtual void sortBackpackArtifactsByClass(const ObjectInstanceID hero) = 0;
 	virtual void manageHeroCostume(ObjectInstanceID hero, size_t costumeIndex, bool saveCostume) = 0;
-	virtual void assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)=0;
+	virtual void assembleArtifacts(const ObjectInstanceID & heroID, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)=0;
 	virtual void eraseArtifactByClient(const ArtifactLocation & al)=0;
 	virtual bool dismissCreature(const CArmedInstance *obj, SlotID stackPos)=0;
+	virtual void saveLocalState(const JsonNode & data)=0;
 	virtual void endTurn()=0;
 	virtual void buyArtifact(const CGHeroInstance *hero, ArtifactID aid)=0; //used to buy artifacts in towns (including spell book in the guild and war machines in blacksmith)
 	virtual void setFormation(const CGHeroInstance * hero, EArmyFormation mode)=0;
@@ -123,7 +128,7 @@ class CBattleCallback : public IBattleCallback
 	std::optional<PlayerColor> player;
 
 protected:
-	int sendRequest(const CPackForServer * request); //returns requestID (that'll be matched to requestID in PackageApplied)
+	int sendRequest(const CPackForServer & request); //returns requestID (that'll be matched to requestID in PackageApplied)
 	CClient *cl;
 
 public:
@@ -176,20 +181,26 @@ public:
 	int bulkMergeStacks(ObjectInstanceID armyId, SlotID srcSlot) override;
 	bool dismissHero(const CGHeroInstance * hero) override;
 	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2) override;
-	void assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo) override;
+	void assembleArtifacts(const ObjectInstanceID & heroID, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo) override;
 	void bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap, bool equipped = true, bool backpack = true) override;
 	void scrollBackpackArtifacts(ObjectInstanceID hero, bool left) override;
+	void sortBackpackArtifactsBySlot(const ObjectInstanceID hero) override;
+	void sortBackpackArtifactsByCost(const ObjectInstanceID hero) override;
+	void sortBackpackArtifactsByClass(const ObjectInstanceID hero) override;
 	void manageHeroCostume(ObjectInstanceID hero, size_t costumeIdx, bool saveCostume) override;
 	void eraseArtifactByClient(const ArtifactLocation & al) override;
 	bool buildBuilding(const CGTownInstance *town, BuildingID buildingID) override;
+	bool visitTownBuilding(const CGTownInstance *town, BuildingID buildingID) override;
 	void recruitCreatures(const CGDwelling * obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1) override;
 	bool dismissCreature(const CArmedInstance *obj, SlotID stackPos) override;
 	bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE) override;
+	void saveLocalState(const JsonNode & data) override;
 	void endTurn() override;
+	void spellResearch(const CGTownInstance *town, SpellID spellAtSlot, bool accepted) override;
 	void swapGarrisonHero(const CGTownInstance *town) override;
 	void buyArtifact(const CGHeroInstance *hero, ArtifactID aid) override;
-	void trade(const IMarket * market, EMarketMode mode, TradeItemSell id1, TradeItemBuy id2, ui32 val1, const CGHeroInstance * hero = nullptr) override;
-	void trade(const IMarket * market, EMarketMode mode, const std::vector<TradeItemSell> & id1, const std::vector<TradeItemBuy> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero = nullptr) override;
+	void trade(const ObjectInstanceID marketId, EMarketMode mode, TradeItemSell id1, TradeItemBuy id2, ui32 val1, const CGHeroInstance * hero = nullptr) override;
+	void trade(const ObjectInstanceID marketId, EMarketMode mode, const std::vector<TradeItemSell> & id1, const std::vector<TradeItemBuy> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero = nullptr) override;
 	void setFormation(const CGHeroInstance * hero, EArmyFormation mode) override;
 	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero, const HeroTypeID & nextHero=HeroTypeID::NONE) override;
 	void save(const std::string &fname) override;

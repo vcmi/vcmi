@@ -14,7 +14,6 @@
 #include "CObjectHandler.h"
 
 #include "CArmedInstance.h"
-#include "CBank.h"
 #include "CGDwelling.h"
 #include "CGHeroInstance.h"
 #include "CGMarket.h"

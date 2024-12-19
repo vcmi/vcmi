@@ -179,7 +179,10 @@
 			"description" : "stacking"
 		},
 		"description" : {
-			"type" : "string",
+			"anyOf" : [
+				{ "type" : "string" },
+				{ "type" : "number" }
+			],
 			"description" : "description"
 		}
 	}

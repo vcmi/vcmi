@@ -16,6 +16,29 @@
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
 
+QString toQString(const PlayerColor & player)
+{
+	return QString::fromStdString(player.toString());
+}
+
+QVariant toVariant(const std::set<PlayerColor> & players)
+{
+	QVariantList result;
+	for(auto const id : players)
+		result.push_back(toQString(id));
+	return result;
+}
+
+std::set<PlayerColor> playersFromVariant(const QVariant & v)
+{
+	std::set<PlayerColor> result;
+
+	for(auto const & id : v.toList())
+		result.insert(PlayerColor(PlayerColor::decode(id.toString().toStdString())));
+
+	return result;
+}
+
 QVariant toVariant(const TResources & resources)
 {
 	QVariantMap result;
@@ -30,7 +53,28 @@ TResources resourcesFromVariant(const QVariant & v)
 	for(auto r : v.toMap().keys())
 		vJson[r.toStdString()].Integer() = v.toMap().value(r).toInt();
 	return TResources(vJson);
+}
 
+QVariant toVariant(std::vector<ObjectInstanceID> objects)
+{
+	QVariantList result;
+	for(auto obj : objects)
+	{
+		result.push_back(QVariant::fromValue(obj.num));
+	}
+	return result;
+}
+
+std::vector<ObjectInstanceID> deletedObjectsIdsFromVariant(const QVariant & v)
+{
+	std::vector<ObjectInstanceID> result;
+	for(auto idAsVariant : v.toList())
+	{
+		auto id = idAsVariant.value<int>();
+		result.push_back(ObjectInstanceID(id));
+	}
+
+	return result;
 }
 
 QVariant toVariant(const CMapEvent & event)
@@ -38,12 +82,13 @@ QVariant toVariant(const CMapEvent & event)
 	QVariantMap result;
 	result["name"] = QString::fromStdString(event.name);
 	result["message"] = QString::fromStdString(event.message.toString());
-	result["players"] = QVariant::fromValue(event.players);
+	result["players"] = toVariant(event.players);
 	result["humanAffected"] = QVariant::fromValue(event.humanAffected);
 	result["computerAffected"] = QVariant::fromValue(event.computerAffected);
-	result["firstOccurence"] = QVariant::fromValue(event.firstOccurence);
-	result["nextOccurence"] = QVariant::fromValue(event.nextOccurence);
+	result["firstOccurrence"] = QVariant::fromValue(event.firstOccurrence);
+	result["nextOccurrence"] = QVariant::fromValue(event.nextOccurrence);
 	result["resources"] = toVariant(event.resources);
+	result["deletedObjectsInstances"] = toVariant(event.deletedObjectsInstances);
 	return QVariant(result);
 }
 
@@ -53,12 +98,13 @@ CMapEvent eventFromVariant(CMapHeader & mapHeader, const QVariant & variant)
 	auto v = variant.toMap();
 	result.name = v.value("name").toString().toStdString();
 	result.message.appendTextID(mapRegisterLocalizedString("map", mapHeader, TextIdentifier("header", "event", result.name, "message"), v.value("message").toString().toStdString()));
-	result.players = v.value("players").toInt();
+	result.players = playersFromVariant(v.value("players"));
 	result.humanAffected = v.value("humanAffected").toInt();
 	result.computerAffected = v.value("computerAffected").toInt();
-	result.firstOccurence = v.value("firstOccurence").toInt();
-	result.nextOccurence = v.value("nextOccurence").toInt();
+	result.firstOccurrence = v.value("firstOccurrence").toInt();
+	result.nextOccurrence = v.value("nextOccurrence").toInt();
 	result.resources = resourcesFromVariant(v.value("resources"));
+	result.deletedObjectsInstances = deletedObjectsIdsFromVariant(v.value("deletedObjectsInstances"));
 	return result;
 }
 
@@ -115,6 +161,6 @@ void EventSettings::on_timedEventRemove_clicked()
 
 void EventSettings::on_eventsList_itemActivated(QListWidgetItem *item)
 {
-	new TimedEvent(item, parentWidget());
+	new TimedEvent(*controller, item, parentWidget());
 }
 

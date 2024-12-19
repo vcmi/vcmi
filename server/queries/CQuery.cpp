@@ -14,26 +14,7 @@
 
 #include "../CGameHandler.h"
 
-#include "../../lib/serializer/Cast.h"
 #include "../../lib/networkPacks/PacksForServer.h"
-
-template <typename Container>
-std::string formatContainer(const Container & c, std::string delimeter = ", ", std::string opener = "(", std::string closer=")")
-{
-	std::string ret = opener;
-	auto itr = std::begin(c);
-	if(itr != std::end(c))
-	{
-		ret += std::to_string(*itr);
-		while(++itr != std::end(c))
-		{
-			ret += delimeter;
-			ret += std::to_string(*itr);
-		}
-	}
-	ret += closer;
-	return ret;
-}
 
 std::ostream & operator<<(std::ostream & out, const CQuery & query)
 {
@@ -100,12 +81,12 @@ void CQuery::onRemoval(PlayerColor color)
 
 }
 
-bool CQuery::blocksPack(const CPack * pack) const
+bool CQuery::blocksPack(const CPackForServer * pack) const
 {
 	return false;
 }
 
-void CQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 
 }
@@ -131,10 +112,10 @@ void CQuery::setReply(std::optional<int32_t> reply)
 
 }
 
-bool CQuery::blockAllButReply(const CPack * pack) const
+bool CQuery::blockAllButReply(const CPackForServer * pack) const
 {
 	//We accept only query replies from correct player
-	if(auto reply = dynamic_ptr_cast<QueryReply>(pack))
+	if(auto reply = dynamic_cast<const QueryReply*>(pack))
 		return !vstd::contains(players, reply->player);
 
 	return true;
@@ -151,7 +132,7 @@ bool CDialogQuery::endsByPlayerAnswer() const
 	return true;
 }
 
-bool CDialogQuery::blocksPack(const CPack * pack) const
+bool CDialogQuery::blocksPack(const CPackForServer * pack) const
 {
 	return blockAllButReply(pack);
 }
@@ -168,7 +149,7 @@ CGenericQuery::CGenericQuery(CGameHandler * gh, PlayerColor color, std::function
 	addPlayer(color);
 }
 
-bool CGenericQuery::blocksPack(const CPack * pack) const
+bool CGenericQuery::blocksPack(const CPackForServer * pack) const
 {
 	return blockAllButReply(pack);
 }

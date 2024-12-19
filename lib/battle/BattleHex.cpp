@@ -184,7 +184,7 @@ void BattleHex::checkAndPush(BattleHex tile, std::vector<BattleHex> & ret)
 		ret.push_back(tile);
 }
 
-BattleHex BattleHex::getClosestTile(ui8 side, BattleHex initialPos, std::set<BattleHex> & possibilities)
+BattleHex BattleHex::getClosestTile(BattleSide side, BattleHex initialPos, std::set<BattleHex> & possibilities)
 {
 	std::vector<BattleHex> sortedTiles (possibilities.begin(), possibilities.end()); //set can't be sorted properly :(
 	BattleHex initialHex = BattleHex(initialPos);

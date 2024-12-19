@@ -11,17 +11,18 @@
 
 #include "../GameConstants.h"
 #include "TavernSlot.h"
+#include "../serializer/Serializeable.h"
+
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
 class CTown;
-class CRandomGenerator;
 class CHeroClass;
 class CGameState;
 class CSimpleArmy;
 
-class DLL_LINKAGE TavernHeroesPool
+class DLL_LINKAGE TavernHeroesPool : public Serializeable
 {
 	struct TavernSlot
 	{
@@ -52,7 +53,7 @@ class DLL_LINKAGE TavernHeroesPool
 public:
 	~TavernHeroesPool();
 
-	/// Returns heroes currently availabe in tavern of a specific player
+	/// Returns heroes currently available in tavern of a specific player
 	std::vector<const CGHeroInstance *> getHeroesFor(PlayerColor color) const;
 
 	/// returns heroes in pool without heroes that are available in taverns

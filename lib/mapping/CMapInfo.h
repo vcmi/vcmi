@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../serializer/Serializeable.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct StartInfo;
@@ -21,7 +23,7 @@ class ResourcePath;
  * A class which stores the count of human players and all players, the filename,
  * scenario options, the map header information,...
  */
-class DLL_LINKAGE CMapInfo
+class DLL_LINKAGE CMapInfo : public Serializeable
 {
 public:
 	std::unique_ptr<CMapHeader> mapHeader; //may be nullptr if campaign

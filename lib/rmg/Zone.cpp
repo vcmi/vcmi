@@ -17,6 +17,10 @@
 #include "RmgPath.h"
 #include "modificators/ObjectManager.h"
 
+#include "../CRandomGenerator.h"
+
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 const std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
@@ -24,15 +28,17 @@ const std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
 	return true;
 };
 
-Zone::Zone(RmgMap & map, CMapGenerator & generator, CRandomGenerator & r)
+Zone::Zone(RmgMap & map, CMapGenerator & generator, vstd::RNG & r)
 	: finished(false)
 	, townType(ETownType::NEUTRAL)
 	, terrainType(ETerrainId::GRASS)
 	, map(map)
+	, rand(std::make_unique<CRandomGenerator>(r.nextInt()))
 	, generator(generator)
 {
-	rand.setSeed(r.nextInt());
 }
+
+Zone::~Zone() = default;
 
 bool Zone::isUnderground() const
 {
@@ -115,6 +121,11 @@ ThreadSafeProxy<const rmg::Area> Zone::areaUsed() const
 	return ThreadSafeProxy<const rmg::Area>(dAreaUsed, areaMutex);
 }
 
+rmg::Area Zone::areaForRoads() const
+{
+	return areaPossible() + freePaths();
+}
+
 void Zone::clearTiles()
 {
 	Lock lock(areaMutex);
@@ -132,7 +143,7 @@ void Zone::initFreeTiles()
 	});
 	dAreaPossible.assign(possibleTiles);
 	
-	if(dAreaFree.empty())
+	if(dAreaFree.empty() && getType() != ETemplateZoneType::SEALED)
 	{
 		// Fixme: This might fail fot water zone, which doesn't need to have a tile in its center of the mass
 		dAreaPossible.erase(pos);
@@ -269,7 +280,7 @@ void Zone::fractalize()
 	{
 		if (treasureValue > 250)
 		{
-			// A quater at max density - means more free space
+			// A quarter at max density - means more free space
 			marginFactor = (0.6f + ((std::max(0, (600 - treasureValue))) / (600.f - 250)) * 0.4f);
 
 			// Low value - dense obstacles
@@ -293,7 +304,6 @@ void Zone::fractalize()
 	logGlobal->trace("Zone %d: treasureValue %d blockDistance: %2.f, freeDistance: %2.f", getId(), treasureValue, blockDistance, freeDistance);
 
 	Lock lock(areaMutex);
-	// FIXME: Do not access Area directly
 
 	rmg::Area clearedTiles(dAreaFree);
 	rmg::Area possibleTiles(dAreaPossible);
@@ -341,6 +351,16 @@ void Zone::fractalize()
 				break;
 			tilesToIgnore.clear();
 		}
+	}
+	else if (type == ETemplateZoneType::SEALED)
+	{
+		//Completely block all the tiles in the zone
+		auto tiles = areaPossible()->getTiles();
+		for(const auto & t : tiles)
+			map.setOccupied(t, ETileType::BLOCKED);
+		possibleTiles.clear();
+		dAreaFree.clear();
+		return;
 	}
 	else
 	{
@@ -401,9 +421,9 @@ void Zone::initModificators()
 	}
 }
 
-CRandomGenerator& Zone::getRand()
+vstd::RNG& Zone::getRand()
 {
-	return rand;
+	return *rand;
 }
 
 VCMI_LIB_NAMESPACE_END

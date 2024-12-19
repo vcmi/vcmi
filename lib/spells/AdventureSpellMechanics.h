@@ -21,7 +21,7 @@ enum class ESpellCastResult
 	OK, // cast successful
 	CANCEL, // cast failed but it is not an error, no mana has been spent
 	PENDING,
-	ERROR// error occured, for example invalid request from player
+	ERROR// error occurred, for example invalid request from player
 };
 
 class AdventureSpellMechanics : public IAdventureSpellMechanics

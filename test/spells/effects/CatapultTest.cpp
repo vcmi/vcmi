@@ -14,6 +14,7 @@
 #include <vstd/RNG.h>
 
 #include "../../../lib/mapObjects/CGTownInstance.h"
+#include "../../../lib/json/JsonNode.h"
 
 
 namespace test
@@ -63,7 +64,7 @@ TEST_F(CatapultTest, NotApplicableInVillage)
 TEST_F(CatapultTest, NotApplicableForDefenderIfSmart)
 {
 	auto fakeTown = std::make_shared<CGTownInstance>(nullptr);
-	fakeTown->builtBuildings.insert(BuildingID::FORT);
+	fakeTown->addBuilding(BuildingID::FORT);
 	mechanicsMock.casterSide = BattleSide::DEFENDER;
 
 	EXPECT_CALL(*battleFake, getDefendedTown()).WillRepeatedly(Return(fakeTown.get()));
@@ -77,7 +78,7 @@ TEST_F(CatapultTest, NotApplicableForDefenderIfSmart)
 TEST_F(CatapultTest, DISABLED_ApplicableInTown)
 {
 	auto fakeTown = std::make_shared<CGTownInstance>(nullptr);
-	fakeTown->builtBuildings.insert(BuildingID::FORT);
+	fakeTown->addBuilding(BuildingID::FORT);
 
 	EXPECT_CALL(*battleFake, getDefendedTown()).WillRepeatedly(Return(fakeTown.get()));
 	EXPECT_CALL(mechanicsMock, adaptProblem(_, _)).Times(0);
@@ -107,7 +108,7 @@ protected:
 	{
 		EffectFixture::setUp();
 		fakeTown = std::make_shared<CGTownInstance>(nullptr);
-		fakeTown->builtBuildings.insert(BuildingID::FORT);
+		fakeTown->addBuilding(BuildingID::FORT);
 	}
 private:
 	std::shared_ptr<CGTownInstance> fakeTown;
@@ -133,7 +134,7 @@ TEST_F(CatapultApplyTest, DISABLED_DamageToIntactPart)
 	EXPECT_CALL(*battleFake, getWallState(_)).WillRepeatedly(Return(EWallState::DESTROYED));
 	EXPECT_CALL(*battleFake, getWallState(Eq(targetPart))).WillRepeatedly(Return(EWallState::INTACT));
 	EXPECT_CALL(*battleFake, setWallState(Eq(targetPart), Eq(EWallState::DAMAGED))).Times(1);
-	EXPECT_CALL(serverMock, apply(Matcher<CatapultAttack *>(_))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<CatapultAttack &>(_))).Times(1);
 
     EffectTarget target;
     target.emplace_back();

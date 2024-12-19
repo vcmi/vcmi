@@ -24,11 +24,10 @@ class CGStatusBar;
 class CTextBox;
 class CTabbedInt;
 class CAnimImage;
-class CAnimation;
 class CButton;
 class CFilledTexture;
 class CLabel;
-
+class VideoWidget;
 
 // TODO: Find new location for these enums
 enum class ESelectionScreen : ui8 {
@@ -48,6 +47,7 @@ class CMenuScreen : public CWindowObject
 	std::shared_ptr<CTabbedInt> tabs;
 
 	std::shared_ptr<CPicture> background;
+	std::shared_ptr<VideoWidget> videoPlayer;
 	std::vector<std::shared_ptr<CPicture>> images;
 
 	std::shared_ptr<CIntObject> createTab(size_t index);
@@ -57,9 +57,8 @@ public:
 
 	CMenuScreen(const JsonNode & configNode);
 
-	void show(Canvas & to) override;
 	void activate() override;
-	void deactivate() override;
+	void show(Canvas & to) override;
 
 	void switchToTab(size_t index);
 	void switchToTab(std::string name);
@@ -96,7 +95,9 @@ public:
 	void openLobby();
 	void hostTCP();
 	void joinTCP();
-	std::string getPlayerName();
+
+	/// Get all configured player names. The first name would always be present and initialized to its default value.
+	std::vector<std::string> getPlayersNames();
 
 	void onNameChange(std::string newText);
 };
@@ -118,7 +119,7 @@ class CMultiPlayers : public WindowBase
 	void enterSelectionScreen();
 
 public:
-	CMultiPlayers(const std::string & firstPlayer, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode);
+	CMultiPlayers(const std::vector<std::string> & playerNames, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode);
 };
 
 /// Manages the configuration of pregame GUI elements like campaign screen, main menu, loading screen,...
@@ -141,6 +142,8 @@ class CMainMenu : public CIntObject, public IUpdateable, public std::enable_shar
 {
 	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
+	std::vector<VideoPath> videoPlayList;
+
 	CMainMenu(); //Use CMainMenu::create
 
 public:
@@ -161,6 +164,8 @@ public:
 
 	static std::shared_ptr<CPicture> createPicture(const JsonNode & config);
 
+	void playIntroVideos();
+	void playMusic();
 };
 
 /// Simple window to enter the server's address.
@@ -191,6 +196,7 @@ class CLoadingScreen : virtual public CWindowObject, virtual public Load::Progre
 
 public:	
 	CLoadingScreen();
+	CLoadingScreen(ImagePath background);
 	~CLoadingScreen();
 
 	void tick(uint32_t msPassed) override;

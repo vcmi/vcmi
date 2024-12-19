@@ -38,19 +38,19 @@ public:
 
 	ObstacleCList getAllObstacles() const override;
 
-	PlayerColor getSidePlayer(ui8 side) const override;
-	const CArmedInstance * getSideArmy(ui8 side) const override;
-	const CGHeroInstance * getSideHero(ui8 side) const override;
+	PlayerColor getSidePlayer(BattleSide side) const override;
+	const CArmedInstance * getSideArmy(BattleSide side) const override;
+	const CGHeroInstance * getSideHero(BattleSide side) const override;
 
 	ui8 getTacticDist() const override;
-	ui8 getTacticsSide() const override;
+	BattleSide getTacticsSide() const override;
 
 	const CGTownInstance * getDefendedTown() const override;
 	EWallState getWallState(EWallPart partOfWall) const override;
 	EGateState getGateState() const override;
 
-	uint32_t getCastSpells(ui8 side) const override;
-	int32_t getEnchanterCounter(ui8 side) const override;
+	uint32_t getCastSpells(BattleSide side) const override;
+	int32_t getEnchanterCounter(BattleSide side) const override;
 
 	const IBonusBearer * getBonusBearer() const override;
 protected:

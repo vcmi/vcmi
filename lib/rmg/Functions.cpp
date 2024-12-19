@@ -15,13 +15,31 @@
 #include "TileInfo.h"
 #include "RmgPath.h"
 #include "../TerrainHandler.h"
-#include "../CTownHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../VCMI_Lib.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
+
+void replaceWithCurvedPath(rmg::Path & path, const Zone & zone, const int3 & src, bool onlyStraight)
+{
+	auto costFunction = rmg::Path::createCurvedCostFunction(zone.area()->getBorder());
+	auto pathArea = zone.areaForRoads();
+	rmg::Path curvedPath(pathArea);
+	curvedPath.connect(zone.freePaths().get());
+	curvedPath = curvedPath.search(src, onlyStraight, costFunction);
+	if (curvedPath.valid())
+	{
+		path = curvedPath;
+	}
+	else
+	{
+		logGlobal->warn("Failed to create curved path to %s", src.toString());
+	}
+}
 
 rmg::Tileset collectDistantTiles(const Zone& zone, int distance)
 {
@@ -34,7 +52,7 @@ rmg::Tileset collectDistantTiles(const Zone& zone, int distance)
 	return subarea.getTiles();
 }
 
-int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, TerrainId terrain)
+int chooseRandomAppearance(vstd::RNG & generator, si32 ObjID, TerrainId terrain)
 {
 	auto factories = VLC->objtypeh->knownSubObjects(ObjID);
 	vstd::erase_if(factories, [ObjID, &terrain](si32 f)

@@ -33,7 +33,7 @@ public:
 	bool hasNameTextID() const override;
 
 	void initializeObject(CGDwelling * object) const override;
-	void randomizeObject(CGDwelling * object, CRandomGenerator & rng) const override;
+	void randomizeObject(CGDwelling * object, vstd::RNG & rng) const override;
 
 	bool isBannedForRandomDwelling() const;
 	bool producesCreature(const CCreature * crea) const;

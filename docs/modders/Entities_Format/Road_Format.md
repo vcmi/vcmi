@@ -1,9 +1,11 @@
+# Road Format
+
 ## Format
 
-```jsonc
+```json
 "newRoad" :
 {
-	// Two-letters unique indentifier for this road. Used in map format
+	// Two-letters unique identifier for this road. Used in map format
 	"shortIdentifier" : "mr",
 	
 	// Human-readable name of the road

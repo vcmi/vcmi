@@ -14,19 +14,18 @@
 #include "CArtHandler.h"
 #include "CBonusTypeHandler.h"
 #include "CCreatureHandler.h"
-#include "CHeroHandler.h"
-#include "CTownHandler.h"
 #include "CConfigHandler.h"
 #include "RoadHandler.h"
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
-#include "CBuildingHandler.h"
 #include "spells/CSpellHandler.h"
 #include "spells/effects/Registry.h"
 #include "CSkillHandler.h"
-#include "CGeneralTextHandler.h"
+#include "entities/faction/CTownHandler.h"
+#include "entities/hero/CHeroClassHandler.h"
+#include "entities/hero/CHeroHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "modding/CModHandler.h"
-#include "modding/CModInfo.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/CModVersion.h"
 #include "IGameEventsReceiver.h"
@@ -136,40 +135,9 @@ const ObstacleService * LibClasses::obstacles() const
 	return obstacleHandler.get();
 }
 
-const IGameSettings * LibClasses::settings() const
+const IGameSettings * LibClasses::engineSettings() const
 {
 	return settingsHandler.get();
-}
-
-void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
-{
-	switch(metatype)
-	{
-	case Metatype::ARTIFACT:
-		arth->updateEntity(index, data);
-		break;
-	case Metatype::CREATURE:
-		creh->updateEntity(index, data);
-		break;
-	case Metatype::FACTION:
-		townh->updateEntity(index, data);
-		break;
-	case Metatype::HERO_CLASS:
-		heroclassesh->updateEntity(index, data);
-		break;
-	case Metatype::HERO_TYPE:
-		heroh->updateEntity(index, data);
-		break;
-	case Metatype::SKILL:
-		skillh->updateEntity(index, data);
-		break;
-	case Metatype::SPELL:
-		spellh->updateEntity(index, data);
-		break;
-	default:
-		logGlobal->error("Invalid Metatype id %d", static_cast<int32_t>(metatype));
-		break;
-	}
 }
 
 void LibClasses::loadFilesystem(bool extractArchives)
@@ -188,55 +156,44 @@ void LibClasses::loadModFilesystem()
 	CStopWatch loadTime;
 	modh = std::make_unique<CModHandler>();
 	identifiersHandler = std::make_unique<CIdentifierStorage>();
-	modh->loadMods();
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
 	modh->loadModFilesystems();
 	logGlobal->info("\tMod filesystems: %d ms", loadTime.getDiff());
 }
 
-static void logHandlerLoaded(const std::string & name, CStopWatch & timer)
-{
-	logGlobal->info("\t\t %s handler: %d ms", name, timer.getDiff());
-}
-
-template <class Handler> void createHandler(std::shared_ptr<Handler> & handler, const std::string &name, CStopWatch &timer)
+template <class Handler> void createHandler(std::shared_ptr<Handler> & handler)
 {
 	handler = std::make_shared<Handler>();
-	logHandlerLoaded(name, timer);
 }
 
 void LibClasses::init(bool onlyEssential)
 {
-	CStopWatch pomtime;
-	CStopWatch totalTime;
-
-	createHandler(settingsHandler, "Game Settings", pomtime);
+	createHandler(settingsHandler);
 	modh->initializeConfig();
 
-	createHandler(generaltexth, "General text", pomtime);
-	createHandler(bth, "Bonus type", pomtime);
-	createHandler(roadTypeHandler, "Road", pomtime);
-	createHandler(riverTypeHandler, "River", pomtime);
-	createHandler(terrainTypeHandler, "Terrain", pomtime);
-	createHandler(heroh, "Hero", pomtime);
-	createHandler(heroclassesh, "Hero classes", pomtime);
-	createHandler(arth, "Artifact", pomtime);
-	createHandler(creh, "Creature", pomtime);
-	createHandler(townh, "Town", pomtime);
-	createHandler(biomeHandler, "Obstacle set", pomtime);
-	createHandler(objh, "Object", pomtime);
-	createHandler(objtypeh, "Object types information", pomtime);
-	createHandler(spellh, "Spell", pomtime);
-	createHandler(skillh, "Skill", pomtime);
-	createHandler(terviewh, "Terrain view pattern", pomtime);
-	createHandler(tplh, "Template", pomtime); //templates need already resolved identifiers (refactor?)
+	createHandler(generaltexth);
+	createHandler(bth);
+	createHandler(roadTypeHandler);
+	createHandler(riverTypeHandler);
+	createHandler(terrainTypeHandler);
+	createHandler(heroh);
+	createHandler(heroclassesh);
+	createHandler(arth);
+	createHandler(creh);
+	createHandler(townh);
+	createHandler(biomeHandler);
+	createHandler(objh);
+	createHandler(objtypeh);
+	createHandler(spellh);
+	createHandler(skillh);
+	createHandler(terviewh);
+	createHandler(tplh); //templates need already resolved identifiers (refactor?)
 #if SCRIPTING_ENABLED
-	createHandler(scriptHandler, "Script", pomtime);
+	createHandler(scriptHandler);
 #endif
-	createHandler(battlefieldsHandler, "Battlefields", pomtime);
-	createHandler(obstacleHandler, "Obstacles", pomtime);
-	logGlobal->info("\tInitializing handlers: %d ms", totalTime.getDiff());
+	createHandler(battlefieldsHandler);
+	createHandler(obstacleHandler);
 
 	modh->load();
 	modh->afterLoad(onlyEssential);

@@ -60,9 +60,9 @@ protected:
 
 	CMapFormatJson();
 
-	static TerrainType * getTerrainByCode(const std::string & code);
-	static RiverType * getRiverByCode(const std::string & code);
-	static RoadType * getRoadByCode(const std::string & code);
+	static TerrainId getTerrainByCode(const std::string & code);
+	static RiverId getRiverByCode(const std::string & code);
+	static RoadId getRoadByCode(const std::string & code);
 
 	void serializeAllowedFactions(JsonSerializeFormat & handler, std::set<FactionID> & value) const;
 

@@ -11,10 +11,12 @@
 
 #include "bonuses/Bonus.h"
 #include "bonuses/CBonusSystemNode.h"
+#include "serializer/Serializeable.h"
 #include "GameConstants.h"
 #include "CArtHandler.h"
 #include "CArtifactInstance.h"
 #include "CCreatureHandler.h"
+#include "VCMI_Lib.h"
 
 #include <vcmi/Entity.h>
 
@@ -29,8 +31,8 @@ class JsonSerializeFormat;
 
 class DLL_LINKAGE CStackBasicDescriptor
 {
+	CreatureID typeID;
 public:
-	const CCreature *type = nullptr;
 	TQuantity count = -1; //exact quantity or quantity ID from CCreature::getQuantityID when getting info about enemy army
 
 	CStackBasicDescriptor();
@@ -39,29 +41,27 @@ public:
 	virtual ~CStackBasicDescriptor() = default;
 
 	const Creature * getType() const;
+	const CCreature * getCreature() const;
 	CreatureID getId() const;
 	TQuantity getCount() const;
 
 	virtual void setType(const CCreature * c);
-	
+
 	friend bool operator== (const CStackBasicDescriptor & l, const CStackBasicDescriptor & r);
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		if(h.saving)
 		{
-			auto idNumber = type ? type->getId() : CreatureID(CreatureID::NONE);
-			h & idNumber;
+			h & typeID;
 		}
 		else
 		{
-			CreatureID idNumber;
-			h & idNumber;
-			if(idNumber != CreatureID::NONE)
-				setType(dynamic_cast<const CCreature*>(VLC->creatures()->getById(idNumber)));
-			else
-				type = nullptr;
+			CreatureID creatureID;
+			h & creatureID;
+			setType(creatureID.toCreature());
 		}
+
 		h & count;
 	}
 
@@ -104,9 +104,11 @@ public:
 	//IConstBonusProvider
 	const IBonusBearer* getBonusBearer() const override;
 	//INativeTerrainProvider
-	FactionID getFaction() const override;
+	FactionID getFactionID() const override;
 
 	virtual ui64 getPower() const;
+	/// Returns total market value of resources needed to recruit this unit
+	virtual ui64 getMarketValue() const;
 	CCreature::CreatureQuantityId getQuantityID() const;
 	std::string getQuantityTXT(bool capitalized = true) const;
 	virtual int getExpRank() const;
@@ -124,8 +126,8 @@ public:
 	void setArmyObj(const CArmedInstance *ArmyObj);
 	virtual void giveStackExp(TExpType exp);
 	bool valid(bool allowUnrandomized) const;
-	ArtPlacementMap putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;//from CArtifactSet
-	void removeArtifact(ArtifactPosition pos) override;
+	ArtPlacementMap putArtifact(const ArtifactPosition & pos, CArtifactInstance * art) override;//from CArtifactSet
+	void removeArtifact(const ArtifactPosition & pos) override;
 	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
 	std::string nodeName() const override; //from CBonusSystemnode
 	void deserializationFix();
@@ -208,7 +210,7 @@ namespace NArmyFormation
 	static const std::vector<std::string> names{ "wide", "tight" };
 }
 
-class DLL_LINKAGE CCreatureSet : public IArmyDescriptor //seven combined creatures
+class DLL_LINKAGE CCreatureSet : public IArmyDescriptor, public virtual Serializeable //seven combined creatures
 {
 	CCreatureSet(const CCreatureSet &) = delete;
 	CCreatureSet &operator=(const CCreatureSet&);
@@ -266,12 +268,13 @@ public:
 	TMapCreatureSlot getCreatureMap() const;
 	TCreatureQueue getCreatureQueue(const SlotID & exclude) const;
 
-	bool mergableStacks(std::pair<SlotID, SlotID> & out, const SlotID & preferable = SlotID()) const; //looks for two same stacks, returns slot positions;
+	bool mergeableStacks(std::pair<SlotID, SlotID> & out, const SlotID & preferable = SlotID()) const; //looks for two same stacks, returns slot positions;
 	bool validTypes(bool allowUnrandomized = false) const; //checks if all types of creatures are set properly
 	bool slotEmpty(const SlotID & slot) const;
 	int stacksCount() const;
 	virtual bool needsLastStack() const; //true if last stack cannot be taken
 	ui64 getArmyStrength() const; //sum of AI values of creatures
+	ui64 getArmyCost() const; //sum of cost of creatures
 	ui64 getPower(const SlotID & slot) const; //value of specific stack
 	std::string getRoughAmount(const SlotID & slot, int mode = 0) const; //rough size of specific stack
 	std::string getArmyDescription() const;

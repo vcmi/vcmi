@@ -14,14 +14,6 @@
 #include "../../lib/CStack.h"
 #include "../../lib/battle/BattleAction.h"
 
-void CEmptyAI::saveGame(BinarySerializer & h)
-{
-}
-
-void CEmptyAI::loadGame(BinaryDeserializer & h)
-{
-}
-
 void CEmptyAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
 {
 	cb = CB;

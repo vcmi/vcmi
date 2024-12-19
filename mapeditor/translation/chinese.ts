@@ -20,6 +20,30 @@
     </message>
 </context>
 <context>
+    <name>ArtifactWidget</name>
+    <message>
+        <location filename="../inspector/artifactwidget.ui" line="29"/>
+        <location filename="../inspector/artifactwidget.ui" line="44"/>
+        <source>Artifact</source>
+        <translation>宝物</translation>
+    </message>
+    <message>
+        <location filename="../inspector/artifactwidget.ui" line="57"/>
+        <source>Equip where:</source>
+        <translation>装备位置：</translation>
+    </message>
+    <message>
+        <location filename="../inspector/artifactwidget.ui" line="73"/>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+    <message>
+        <location filename="../inspector/artifactwidget.ui" line="86"/>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+</context>
+<context>
     <name>EventSettings</name>
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="14"/>
@@ -42,7 +66,7 @@
         <translation>移除</translation>
     </message>
     <message>
-        <location filename="../mapsettings/eventsettings.cpp" line="101"/>
+        <location filename="../mapsettings/eventsettings.cpp" line="147"/>
         <source>New event</source>
         <translation>新事件</translation>
     </message>
@@ -65,12 +89,32 @@
         <translation>地图描述</translation>
     </message>
     <message>
-        <location filename="../mapsettings/generalsettings.ui" line="76"/>
+        <location filename="../mapsettings/generalsettings.ui" line="52"/>
+        <source>Author</source>
+        <translation>作者</translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/generalsettings.ui" line="62"/>
+        <source>Author contact (e.g. email)</source>
+        <translation>作者联系方式（例如电子邮件）</translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/generalsettings.ui" line="72"/>
+        <source>Map Creation Time</source>
+        <translation>地图创建时间</translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/generalsettings.ui" line="86"/>
+        <source>Map Version</source>
+        <translation>地图版本</translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/generalsettings.ui" line="120"/>
         <source>Limit maximum heroes level</source>
         <translation>限制英雄最大等级</translation>
     </message>
     <message>
-        <location filename="../mapsettings/generalsettings.ui" line="85"/>
+        <location filename="../mapsettings/generalsettings.ui" line="129"/>
         <source>Difficulty</source>
         <translation>难度</translation>
     </message>
@@ -81,6 +125,34 @@
         <location filename="../generatorprogress.ui" line="29"/>
         <source>Generating map</source>
         <translation>生成地图中</translation>
+    </message>
+</context>
+<context>
+    <name>HeroArtifactsWidget</name>
+    <message>
+        <location filename="../inspector/heroartifactswidget.ui" line="29"/>
+        <source>Artifacts</source>
+        <translation>宝物</translation>
+    </message>
+    <message>
+        <location filename="../inspector/heroartifactswidget.ui" line="71"/>
+        <source>Add</source>
+        <translation>添加</translation>
+    </message>
+    <message>
+        <location filename="../inspector/heroartifactswidget.ui" line="87"/>
+        <source>Remove</source>
+        <translation>移除</translation>
+    </message>
+    <message>
+        <location filename="../inspector/heroartifactswidget.ui" line="130"/>
+        <source>Slot</source>
+        <translation>装备槽</translation>
+    </message>
+    <message>
+        <location filename="../inspector/heroartifactswidget.ui" line="135"/>
+        <source>Artifact</source>
+        <translation>宝物</translation>
     </message>
 </context>
 <context>
@@ -223,423 +295,519 @@
         <translation>文件</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="70"/>
+        <location filename="../mainwindow.ui" line="63"/>
+        <location filename="../mainwindow.ui" line="1032"/>
+        <source>Open Recent</source>
+        <translation>打开最近</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="77"/>
         <source>Map</source>
         <translation>地图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="81"/>
+        <location filename="../mainwindow.ui" line="88"/>
         <source>Edit</source>
         <translation>编辑</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="94"/>
+        <location filename="../mainwindow.ui" line="101"/>
         <source>View</source>
         <translation>视图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="106"/>
+        <location filename="../mainwindow.ui" line="113"/>
         <source>Player</source>
         <translation>玩家</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="126"/>
+        <location filename="../mainwindow.ui" line="133"/>
         <source>Toolbar</source>
         <translation>工具栏</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="183"/>
+        <location filename="../mainwindow.ui" line="191"/>
         <source>Minimap</source>
         <translation>小地图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="256"/>
+        <location filename="../mainwindow.ui" line="264"/>
         <source>Map Objects View</source>
         <translation>地图物体视图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="300"/>
+        <location filename="../mainwindow.ui" line="308"/>
         <source>Browser</source>
         <translation>浏览器</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="378"/>
+        <location filename="../mainwindow.ui" line="386"/>
         <source>Inspector</source>
         <translation>检视器</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="420"/>
+        <location filename="../mainwindow.ui" line="428"/>
         <source>Property</source>
         <translation>属性</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="425"/>
+        <location filename="../mainwindow.ui" line="433"/>
         <source>Value</source>
         <translation>值</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="449"/>
+        <location filename="../mainwindow.ui" line="457"/>
         <source>Tools</source>
         <translation>工具</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="813"/>
+        <location filename="../mainwindow.ui" line="821"/>
         <source>Painting</source>
         <translation>绘制</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="865"/>
+        <location filename="../mainwindow.ui" line="873"/>
         <source>Terrains</source>
         <translation>地形</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="908"/>
+        <location filename="../mainwindow.ui" line="916"/>
         <source>Roads</source>
         <translation>道路</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="948"/>
+        <location filename="../mainwindow.ui" line="956"/>
         <source>Rivers</source>
         <translation>河流</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="982"/>
+        <location filename="../mainwindow.ui" line="990"/>
         <source>Preview</source>
         <translation>预览</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1016"/>
+        <location filename="../mainwindow.ui" line="1024"/>
         <source>Open</source>
         <translation>打开</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1024"/>
+        <location filename="../mainwindow.ui" line="1037"/>
+        <source>More...</source>
+        <translation>更多</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="1045"/>
         <source>Save</source>
         <translation>保存</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1032"/>
+        <location filename="../mainwindow.ui" line="1053"/>
         <source>New</source>
         <translation>新建</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1040"/>
+        <location filename="../mainwindow.ui" line="1061"/>
         <source>Save as...</source>
         <translation>另存为</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1043"/>
+        <location filename="../mainwindow.ui" line="1064"/>
         <source>Ctrl+Shift+S</source>
         <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1048"/>
+        <location filename="../mainwindow.ui" line="1069"/>
         <source>U/G</source>
         <translation>地上/地下</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1051"/>
-        <location filename="../mainwindow.cpp" line="806"/>
+        <location filename="../mainwindow.ui" line="1072"/>
+        <location filename="../mainwindow.cpp" line="958"/>
         <source>View underground</source>
         <translation>查看地下</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1062"/>
+        <location filename="../mainwindow.ui" line="1083"/>
         <source>Pass</source>
         <translation>可通行</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1070"/>
+        <location filename="../mainwindow.ui" line="1091"/>
         <source>Cut</source>
         <translation>剪切</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1078"/>
+        <location filename="../mainwindow.ui" line="1099"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1086"/>
+        <location filename="../mainwindow.ui" line="1107"/>
         <source>Paste</source>
         <translation>粘贴</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1094"/>
+        <location filename="../mainwindow.ui" line="1115"/>
         <source>Fill</source>
         <translation>填充</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1097"/>
+        <location filename="../mainwindow.ui" line="1118"/>
         <source>Fills the selection with obstacles</source>
         <translation>填充障碍物到选定区域</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1108"/>
+        <location filename="../mainwindow.ui" line="1129"/>
         <source>Grid</source>
         <translation>网格</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1119"/>
+        <location filename="../mainwindow.ui" line="1140"/>
         <source>General</source>
         <translation>通用</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1122"/>
+        <location filename="../mainwindow.ui" line="1143"/>
         <source>Map title and description</source>
         <translation>地图标题与描述</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1133"/>
+        <location filename="../mainwindow.ui" line="1154"/>
         <source>Players settings</source>
         <translation>玩家设置</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1144"/>
-        <location filename="../mainwindow.ui" line="1147"/>
+        <location filename="../mainwindow.ui" line="1165"/>
+        <location filename="../mainwindow.ui" line="1168"/>
         <source>Undo</source>
         <translation>撤销</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1161"/>
+        <location filename="../mainwindow.ui" line="1182"/>
         <source>Redo</source>
         <translation>重做</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1175"/>
+        <location filename="../mainwindow.ui" line="1196"/>
         <source>Erase</source>
         <translation>擦除</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1186"/>
+        <location filename="../mainwindow.ui" line="1207"/>
         <source>Neutral</source>
         <translation>中立</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1194"/>
+        <location filename="../mainwindow.ui" line="1215"/>
         <source>Validate</source>
         <translation>有效性验证</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1205"/>
-        <location filename="../mainwindow.cpp" line="1077"/>
-        <location filename="../mainwindow.cpp" line="1081"/>
-        <location filename="../mainwindow.cpp" line="1138"/>
+        <location filename="../mainwindow.ui" line="1226"/>
+        <location filename="../mainwindow.cpp" line="1229"/>
+        <location filename="../mainwindow.cpp" line="1233"/>
+        <location filename="../mainwindow.cpp" line="1290"/>
         <source>Update appearance</source>
         <translation>更新外观</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1216"/>
+        <location filename="../mainwindow.ui" line="1237"/>
         <source>Recreate obstacles</source>
         <translation>重建障碍物</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1227"/>
+        <location filename="../mainwindow.ui" line="1248"/>
         <source>Player 1</source>
         <translation>玩家1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1238"/>
+        <location filename="../mainwindow.ui" line="1259"/>
         <source>Player 2</source>
         <translation>玩家2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1249"/>
+        <location filename="../mainwindow.ui" line="1270"/>
         <source>Player 3</source>
         <translation>玩家3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1260"/>
+        <location filename="../mainwindow.ui" line="1281"/>
         <source>Player 4</source>
         <translation>玩家4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1271"/>
+        <location filename="../mainwindow.ui" line="1292"/>
         <source>Player 5</source>
         <translation>玩家5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1282"/>
+        <location filename="../mainwindow.ui" line="1303"/>
         <source>Player 6</source>
         <translation>玩家6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1293"/>
+        <location filename="../mainwindow.ui" line="1314"/>
         <source>Player 7</source>
         <translation>玩家7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1304"/>
+        <location filename="../mainwindow.ui" line="1325"/>
         <source>Player 8</source>
         <translation>玩家8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1312"/>
+        <location filename="../mainwindow.ui" line="1333"/>
         <source>Export as...</source>
         <translation>导出为</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1320"/>
+        <location filename="../mainwindow.ui" line="1341"/>
         <source>Translations</source>
         <translation>翻译</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1323"/>
+        <location filename="../mainwindow.ui" line="1344"/>
         <source>Ctrl+T</source>
         <translation>Ctrl+T</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1328"/>
-        <location filename="../mainwindow.ui" line="1331"/>
+        <location filename="../mainwindow.ui" line="1349"/>
+        <location filename="../mainwindow.ui" line="1352"/>
         <source>h3m converter</source>
         <translation>h3m转换器</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1336"/>
+        <location filename="../mainwindow.ui" line="1357"/>
         <source>Lock</source>
         <translation>锁定</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1339"/>
+        <location filename="../mainwindow.ui" line="1360"/>
         <source>Lock objects on map to avoid unnecessary changes</source>
         <translation>锁定地图上的物体防止误操作</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1342"/>
+        <location filename="../mainwindow.ui" line="1363"/>
         <source>Ctrl+L</source>
         <translation>Ctrl+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1347"/>
+        <location filename="../mainwindow.ui" line="1368"/>
         <source>Unlock</source>
         <translation>解锁</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1350"/>
+        <location filename="../mainwindow.ui" line="1371"/>
         <source>Unlock all objects on the map</source>
         <translation>解锁地图上的所有物体</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1353"/>
+        <location filename="../mainwindow.ui" line="1374"/>
         <source>Ctrl+Shift+L</source>
         <translation>Ctrl+Shift+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1358"/>
+        <location filename="../mainwindow.ui" line="1379"/>
         <source>Zoom in</source>
         <translation>放大</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1361"/>
+        <location filename="../mainwindow.ui" line="1382"/>
         <source>Ctrl+=</source>
         <translation>Ctrl+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1366"/>
+        <location filename="../mainwindow.ui" line="1387"/>
         <source>Zoom out</source>
         <translation>缩小</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1369"/>
+        <location filename="../mainwindow.ui" line="1390"/>
         <source>Ctrl+-</source>
         <translation>Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1374"/>
+        <location filename="../mainwindow.ui" line="1395"/>
         <source>Zoom reset</source>
         <translation>重置缩放</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1377"/>
+        <location filename="../mainwindow.ui" line="1398"/>
         <source>Ctrl+Shift+=</source>
         <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="280"/>
+        <location filename="../mainwindow.cpp" line="303"/>
         <source>Confirmation</source>
         <translation>确认</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="280"/>
+        <location filename="../mainwindow.cpp" line="303"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>未保存的改动会丢失，你确定要这么做吗？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="406"/>
+        <location filename="../mainwindow.cpp" line="441"/>
         <source>Open map</source>
         <translation>打开地图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="408"/>
+        <location filename="../mainwindow.cpp" line="443"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>所有支持的地图类型(*.vmap *.h3m);;VCMI地图(*.vmap);;英雄无敌3地图(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="459"/>
+        <location filename="../mainwindow.cpp" line="463"/>
+        <source>Recently Opened Files</source>
+        <translation>最近打开文件</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="591"/>
         <source>Save map</source>
         <translation>保存地图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="459"/>
+        <location filename="../mainwindow.cpp" line="591"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>VCMI地图(*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="648"/>
+        <location filename="../mainwindow.cpp" line="780"/>
         <source>Type</source>
         <translation>类型</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="810"/>
+        <location filename="../mainwindow.cpp" line="793"/>
+        <source>Towns</source>
+        <translation>城镇</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="794"/>
+        <source>Objects</source>
+        <translation>物体</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="795"/>
+        <source>Heroes</source>
+        <translation>英雄</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="796"/>
+        <source>Artifacts</source>
+        <translation>宝物</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="797"/>
+        <source>Resources</source>
+        <translation>资源</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="798"/>
+        <source>Banks</source>
+        <translation>宝屋</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="799"/>
+        <source>Dwellings</source>
+        <translation>巢穴</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="800"/>
+        <source>Grounds</source>
+        <translation>地面</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="801"/>
+        <source>Teleports</source>
+        <translation>传送门</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="802"/>
+        <source>Mines</source>
+        <translation>矿井</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="803"/>
+        <source>Triggers</source>
+        <translation>触发器</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="804"/>
+        <source>Monsters</source>
+        <translation>怪物</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="805"/>
+        <source>Quests</source>
+        <translation>任务</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="806"/>
+        <source>Wog Objects</source>
+        <translation>Wog物体</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="807"/>
+        <source>Obstacles</source>
+        <translation>障碍物</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="808"/>
+        <source>Other</source>
+        <translation>其他</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="962"/>
         <source>View surface</source>
         <translation>查看地上</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1077"/>
+        <location filename="../mainwindow.cpp" line="1229"/>
         <source>No objects selected</source>
         <translation>未选择任何物体</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1081"/>
+        <location filename="../mainwindow.cpp" line="1233"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>此操作无法被撤销，你确定要继续么？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1138"/>
+        <location filename="../mainwindow.cpp" line="1290"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>发生错误！%1 物体未完成更新</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1178"/>
+        <location filename="../mainwindow.cpp" line="1330"/>
         <source>Save to image</source>
         <translation>保存为图片</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1197"/>
+        <location filename="../mainwindow.cpp" line="1349"/>
         <source>Select maps to convert</source>
         <translation>选择待转换的地图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1199"/>
+        <location filename="../mainwindow.cpp" line="1351"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation>英雄无敌3地图文件(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1203"/>
+        <location filename="../mainwindow.cpp" line="1355"/>
         <source>Choose directory to save converted maps</source>
         <translation>选择保存转换地图的目录</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1216"/>
+        <location filename="../mainwindow.cpp" line="1368"/>
         <source>Operation completed</source>
         <translation>操作完成</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1216"/>
+        <location filename="../mainwindow.cpp" line="1368"/>
         <source>Successfully converted %1 maps</source>
         <translation>成功转换 %1 地图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1220"/>
+        <location filename="../mainwindow.cpp" line="1372"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation>转换地图失败，操作终止</translation>
     </message>
@@ -715,7 +883,7 @@
 <context>
     <name>MapView</name>
     <message>
-        <location filename="../mapview.cpp" line="625"/>
+        <location filename="../mapview.cpp" line="626"/>
         <source>Can&apos;t place object</source>
         <translation>无法放置物体</translation>
     </message>
@@ -824,7 +992,12 @@
         <translation>(默认)</translation>
     </message>
     <message>
-        <location filename="../playerparams.cpp" line="111"/>
+        <location filename="../playerparams.cpp" line="27"/>
+        <source>No team</source>
+        <translation>无队伍</translation>
+    </message>
+    <message>
+        <location filename="../playerparams.cpp" line="108"/>
         <source>Player ID: %1</source>
         <translation>玩家ID: %1</translation>
     </message>
@@ -889,40 +1062,69 @@
         <translation>高级</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="36"/>
+        <location filename="../inspector/inspector.cpp" line="40"/>
         <source>Compliant</source>
         <translation>屈服的</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="37"/>
+        <location filename="../inspector/inspector.cpp" line="41"/>
         <source>Friendly</source>
         <translation>友善的</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="38"/>
+        <location filename="../inspector/inspector.cpp" line="42"/>
         <source>Aggressive</source>
         <translation>好斗的</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="39"/>
+        <location filename="../inspector/inspector.cpp" line="43"/>
         <source>Hostile</source>
         <translation>有敌意的</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="40"/>
+        <location filename="../inspector/inspector.cpp" line="44"/>
         <source>Savage</source>
         <translation>野蛮的</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="843"/>
-        <location filename="../inspector/inspector.cpp" line="932"/>
+        <location filename="../inspector/inspector.cpp" line="357"/>
+        <location filename="../inspector/inspector.cpp" line="360"/>
+        <source>No patrol</source>
+        <translation>无巡逻</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../inspector/inspector.cpp" line="359"/>
+        <location filename="../inspector/inspector.cpp" line="360"/>
+        <source>%n tile(s)</source>
+        <translation>
+            <numerusform>%n格</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="875"/>
+        <location filename="../inspector/inspector.cpp" line="964"/>
         <source>neutral</source>
         <translation>中立</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="841"/>
+        <location filename="../inspector/inspector.cpp" line="873"/>
         <source>UNFLAGGABLE</source>
         <translation>没有旗帜</translation>
+    </message>
+    <message>
+        <location filename="../mapcontroller.cpp" line="385"/>
+        <source>Can&apos;t place object</source>
+        <translation>无法放置物体</translation>
+    </message>
+    <message>
+        <location filename="../mapcontroller.cpp" line="555"/>
+        <source>There can only be one grail object on the map.</source>
+        <translation>只能放置一个神器在地图上。</translation>
+    </message>
+    <message>
+        <location filename="../mapcontroller.cpp" line="561"/>
+        <source>Hero %1 cannot be created as NEUTRAL.</source>
+        <translation>英雄 %1 无法在中立阵营被创建。</translation>
     </message>
 </context>
 <context>
@@ -1048,12 +1250,12 @@
         <translation>玩家</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="34"/>
+        <location filename="../inspector/questwidget.cpp" line="38"/>
         <source>None</source>
         <translation>无</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="36"/>
+        <location filename="../inspector/questwidget.cpp" line="40"/>
         <source>Day %1</source>
         <translation>第 %1 日</translation>
     </message>
@@ -1321,18 +1523,18 @@
         <translation>玩家</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="45"/>
+        <location filename="../inspector/rewardswidget.cpp" line="49"/>
         <source>None</source>
         <translation>无</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="47"/>
+        <location filename="../inspector/rewardswidget.cpp" line="51"/>
         <source>Day %1</source>
         <translation>%1 天</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="234"/>
-        <location filename="../inspector/rewardswidget.cpp" line="605"/>
+        <location filename="../inspector/rewardswidget.cpp" line="238"/>
+        <location filename="../inspector/rewardswidget.cpp" line="609"/>
         <source>Reward %1</source>
         <translation>奖励 %1</translation>
     </message>
@@ -1394,46 +1596,263 @@
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="70"/>
-        <source>Day of first occurance</source>
+        <source>Day of first occurrence</source>
         <translation>首次发生天数</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="87"/>
+        <location filename="../mapsettings/timedevent.ui" line="91"/>
         <source>Repeat after (0 = no repeat)</source>
         <translation>重复周期 (0 = 不重复)</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="108"/>
+        <location filename="../mapsettings/timedevent.ui" line="112"/>
         <source>Affected players</source>
         <translation>生效玩家</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="131"/>
+        <location filename="../mapsettings/timedevent.ui" line="135"/>
         <source>Resources</source>
         <translation>资源</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="190"/>
+        <location filename="../mapsettings/timedevent.ui" line="194"/>
         <source>type</source>
         <translation>类型</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="195"/>
+        <location filename="../mapsettings/timedevent.ui" line="199"/>
         <source>qty</source>
         <translation>数量</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="203"/>
+        <location filename="../mapsettings/timedevent.ui" line="211"/>
+        <source>Objects to delete</source>
+        <translation>待移除的物体</translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/timedevent.ui" line="218"/>
+        <source>Add</source>
+        <translation>添加</translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/timedevent.ui" line="225"/>
+        <source>Remove</source>
+        <translation>移除</translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/timedevent.ui" line="235"/>
         <source>Ok</source>
         <translation>确定</translation>
     </message>
 </context>
 <context>
-    <name>TownBulidingsWidget</name>
+    <name>TownBuildingsWidget</name>
     <message>
-        <location filename="../inspector/townbulidingswidget.ui" line="29"/>
+        <location filename="../inspector/townbuildingswidget.ui" line="29"/>
         <source>Buildings</source>
         <translation>建筑</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townbuildingswidget.ui" line="53"/>
+        <source>Build all</source>
+        <translation>建造所有建筑</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townbuildingswidget.ui" line="60"/>
+        <source>Demolish all</source>
+        <translation>拆除所有建筑</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townbuildingswidget.ui" line="67"/>
+        <source>Enable all</source>
+        <translation>允许所有建筑</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townbuildingswidget.ui" line="74"/>
+        <source>Disable all</source>
+        <translation>禁止所有建筑</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townbuildingswidget.cpp" line="132"/>
+        <source>Type</source>
+        <translation>类型</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townbuildingswidget.cpp" line="132"/>
+        <source>Enabled</source>
+        <translation>已允许</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townbuildingswidget.cpp" line="132"/>
+        <source>Built</source>
+        <translation>已建造</translation>
+    </message>
+</context>
+<context>
+    <name>TownEventDialog</name>
+    <message>
+        <location filename="../inspector/towneventdialog.ui" line="23"/>
+        <source>Town event</source>
+        <translation>城镇事件</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.ui" line="42"/>
+        <source>General</source>
+        <translation>通用</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.ui" line="57"/>
+        <source>Event name</source>
+        <translation>事件名</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.ui" line="64"/>
+        <source>Type event message text</source>
+        <translation>输入事件信息文本</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.ui" line="85"/>
+        <source>Day of first occurrence</source>
+        <translation>首次发生天数</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.ui" line="99"/>
+        <source>Repeat after (0 = no repeat)</source>
+        <translation>重复周期 (0 = 不重复)</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.ui" line="123"/>
+        <source>Affected players</source>
+        <translation>生效玩家</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.ui" line="146"/>
+        <source>affects human</source>
+        <translation>人类玩家生效</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.ui" line="155"/>
+        <source>affects AI</source>
+        <translation>AI玩家生效</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.ui" line="166"/>
+        <source>Resources</source>
+        <translation>资源</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.ui" line="198"/>
+        <source>Buildings</source>
+        <translation>建筑</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.ui" line="219"/>
+        <source>Creatures</source>
+        <translation>生物</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.ui" line="258"/>
+        <source>OK</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.cpp" line="170"/>
+        <source>Creature level %1 / Creature level %1 Upgrade</source>
+        <translation>%1级生物 / 升级后的%1级生物</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.cpp" line="212"/>
+        <source>Day %1 - %2</source>
+        <translation>%1 - %2 日</translation>
+    </message>
+</context>
+<context>
+    <name>TownEventsWidget</name>
+    <message>
+        <location filename="../inspector/towneventswidget.ui" line="29"/>
+        <source>Town events</source>
+        <translation>城镇事件</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventswidget.ui" line="37"/>
+        <source>Timed events</source>
+        <translation>计时事件</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventswidget.ui" line="63"/>
+        <source>Add</source>
+        <translation>添加</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventswidget.ui" line="76"/>
+        <source>Remove</source>
+        <translation>移除</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventswidget.cpp" line="106"/>
+        <source>Day %1 - %2</source>
+        <translation>%1 - %2 日</translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventswidget.cpp" line="127"/>
+        <source>New event</source>
+        <translation>新事件</translation>
+    </message>
+</context>
+<context>
+    <name>TownSpellsWidget</name>
+    <message>
+        <location filename="../inspector/townspellswidget.ui" line="29"/>
+        <source>Spells</source>
+        <translation>魔法</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townspellswidget.ui" line="47"/>
+        <source>Customize spells</source>
+        <translation>自定义魔法</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townspellswidget.ui" line="76"/>
+        <source>Level 1</source>
+        <translation>1级</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townspellswidget.ui" line="93"/>
+        <location filename="../inspector/townspellswidget.ui" line="139"/>
+        <location filename="../inspector/townspellswidget.ui" line="185"/>
+        <location filename="../inspector/townspellswidget.ui" line="231"/>
+        <location filename="../inspector/townspellswidget.ui" line="277"/>
+        <source>Spell that may appear in mage guild</source>
+        <translation>允许出现在魔法行会的魔法</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townspellswidget.ui" line="100"/>
+        <location filename="../inspector/townspellswidget.ui" line="146"/>
+        <location filename="../inspector/townspellswidget.ui" line="192"/>
+        <location filename="../inspector/townspellswidget.ui" line="238"/>
+        <location filename="../inspector/townspellswidget.ui" line="284"/>
+        <source>Spell that must appear in mage guild</source>
+        <translation>必须出现在魔法行会的魔法</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townspellswidget.ui" line="122"/>
+        <source>Level 2</source>
+        <translation>2级</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townspellswidget.ui" line="168"/>
+        <source>Level 3</source>
+        <translation>3级</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townspellswidget.ui" line="214"/>
+        <source>Level 4</source>
+        <translation>4级</translation>
+    </message>
+    <message>
+        <location filename="../inspector/townspellswidget.ui" line="260"/>
+        <source>Level 5</source>
+        <translation>5级</translation>
     </message>
 </context>
 <context>
@@ -1450,7 +1869,7 @@
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="48"/>
-        <source>Suppported</source>
+        <source>Supported</source>
         <translation>已支持</translation>
     </message>
     <message>
@@ -1493,107 +1912,107 @@
         <translation>未加载地图</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="72"/>
+        <location filename="../validator.cpp" line="74"/>
         <source>No factions allowed for player %1</source>
         <translation>玩家 %1 没有可使用的种族</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="75"/>
+        <location filename="../validator.cpp" line="77"/>
         <source>No players allowed to play this map</source>
         <translation>该地图未设置任何玩家</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="77"/>
+        <location filename="../validator.cpp" line="79"/>
         <source>Map is allowed for one player and cannot be started</source>
         <translation>该地图只有一个玩家，无法开始游戏</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="79"/>
+        <location filename="../validator.cpp" line="81"/>
         <source>No human players allowed to play this map</source>
         <translation>该地图缺少人类玩家</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="95"/>
+        <location filename="../validator.cpp" line="97"/>
         <source>Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
         <translation>部队实例 %1 没有旗帜，需要设置为中立或任一玩家所有</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="101"/>
+        <location filename="../validator.cpp" line="103"/>
         <source>Object %1 is assigned to non-playable player %2</source>
         <translation>物体 %1 属于无法游戏的玩家 %2</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="108"/>
-        <source>Town %1 has undefined owner %2</source>
-        <translation>城镇 %1 拥有者 %2 未定义</translation>
-    </message>
-    <message>
-        <location filename="../validator.cpp" line="118"/>
-        <source>Prison %1 must be a NEUTRAL</source>
-        <translation>监狱 %1 需要为中立</translation>
-    </message>
-    <message>
-        <location filename="../validator.cpp" line="124"/>
-        <source>Hero %1 must have an owner</source>
-        <translation>英雄 %1 需要有一个所有者</translation>
-    </message>
-    <message>
-        <location filename="../validator.cpp" line="129"/>
-        <source>Hero %1 is prohibited by map settings</source>
-        <translation>英雄 %1 被地图设置禁止</translation>
-    </message>
-    <message>
-        <location filename="../validator.cpp" line="132"/>
-        <source>Hero %1 has duplicate on map</source>
-        <translation>英雄 %1 在地图上有多个</translation>
-    </message>
-    <message>
-        <location filename="../validator.cpp" line="135"/>
-        <source>Hero %1 has an empty type and must be removed</source>
-        <translation>英雄 %1 属于空类型，必须移除</translation>
-    </message>
-    <message>
-        <location filename="../validator.cpp" line="146"/>
-        <source>Spell scroll %1 is prohibited by map settings</source>
-        <translation>魔法卷轴 %1 被地图设置禁止</translation>
-    </message>
-    <message>
-        <location filename="../validator.cpp" line="149"/>
+        <location filename="../validator.cpp" line="148"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
-        <translation>魔法卷轴 %1 未和任一实例关联，需要被移除</translation>
+        <translation>魔法卷轴 %1 没有分配任何实例，需要被移除</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="155"/>
+        <location filename="../validator.cpp" line="154"/>
         <source>Artifact %1 is prohibited by map settings</source>
         <translation>宝物 %1 被地图设置禁止</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="164"/>
+        <location filename="../validator.cpp" line="168"/>
+        <source>Player %1 has no towns and heroes assigned</source>
+        <translation>玩家 %1 没有分配任何城镇或英雄</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="116"/>
+        <source>Prison %1 must be a NEUTRAL</source>
+        <translation>监狱 %1 需要为中立</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="121"/>
+        <source>Hero %1 must have an owner</source>
+        <translation>英雄 %1 需要有一个所有者</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="128"/>
+        <source>Hero %1 is prohibited by map settings</source>
+        <translation>英雄 %1 被地图设置禁止</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="131"/>
+        <source>Hero %1 has duplicate on map</source>
+        <translation>英雄 %1 在地图上有多个</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="134"/>
+        <source>Hero %1 has an empty type and must be removed</source>
+        <translation>英雄 %1 属于空类型，必须移除</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="145"/>
+        <source>Spell scroll %1 is prohibited by map settings</source>
+        <translation>魔法卷轴 %1 被地图设置禁止</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="170"/>
         <source>Player %1 doesn&apos;t have any starting town</source>
         <translation>玩家 %1 没有一座起始城镇</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="168"/>
+        <location filename="../validator.cpp" line="176"/>
         <source>Map name is not specified</source>
         <translation>地图名字为空</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="170"/>
+        <location filename="../validator.cpp" line="178"/>
         <source>Map description is not specified</source>
         <translation>地图描述为空</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="177"/>
+        <location filename="../validator.cpp" line="185"/>
         <source>Map contains object from mod &quot;%1&quot;, but doesn&apos;t require it</source>
         <translation>地图包含模组 %1 的物体，但没有声明依赖该模组</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="183"/>
+        <location filename="../validator.cpp" line="191"/>
         <source>Exception occurs during validation: %1</source>
         <translation>在验证地图期间发生异常：%1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="187"/>
+        <location filename="../validator.cpp" line="195"/>
         <source>Unknown exception occurs during validation</source>
         <translation>在验证地图期间发生未知异常</translation>
     </message>
@@ -1626,47 +2045,47 @@
         <translation>参数</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="36"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="38"/>
         <source>No special victory</source>
         <translation>无特殊胜利条件</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="37"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="39"/>
         <source>Capture artifact</source>
         <translation>获取宝物</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="38"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="40"/>
         <source>Hire creatures</source>
         <translation>雇佣生物</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="39"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="41"/>
         <source>Accumulate resources</source>
         <translation>获得资源</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="40"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
         <source>Construct building</source>
         <translation>建造神器</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="41"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
         <source>Capture town</source>
         <translation>占领城镇</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
         <source>Defeat hero</source>
         <translation>击败英雄</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="45"/>
         <source>Transport artifact</source>
         <translation>运送宝物</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="46"/>
         <source>Kill monster</source>
         <translation>击杀怪物</translation>
     </message>
@@ -1699,18 +2118,6 @@
         <translation>宽度</translation>
     </message>
     <message>
-        <source>S (36x36)</source>
-        <translation type="vanished">小(36x36)</translation>
-    </message>
-    <message>
-        <source>M (72x72)</source>
-        <translation type="vanished">中(72x72)</translation>
-    </message>
-    <message>
-        <source>L (108x108)</source>
-        <translation type="vanished">大(108x108)</translation>
-    </message>
-    <message>
         <location filename="../windownewmap.ui" line="179"/>
         <source>XL (144x144)</source>
         <translation>特大(144x144)</translation>
@@ -1726,7 +2133,7 @@
         <translation>玩家</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="751"/>
+        <location filename="../windownewmap.ui" line="858"/>
         <source>0</source>
         <translation>0</translation>
     </message>
@@ -1825,42 +2232,62 @@
         <translation>岛屿</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="716"/>
+        <location filename="../windownewmap.ui" line="713"/>
+        <source>Roads</source>
+        <translation>道路</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="728"/>
+        <source>Dirt</source>
+        <translation>泥土</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="748"/>
+        <source>Gravel</source>
+        <translation>砂砾</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="768"/>
+        <source>Cobblestone</source>
+        <translation>鹅卵石</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="813"/>
         <source>Template</source>
         <translation>模版</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="764"/>
+        <location filename="../windownewmap.ui" line="845"/>
         <source>Custom seed</source>
         <translation>自定义种子</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="778"/>
+        <location filename="../windownewmap.ui" line="875"/>
         <source>Generate random map</source>
         <translation>生成随机地图</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="812"/>
+        <location filename="../windownewmap.ui" line="909"/>
         <source>Ok</source>
         <translation>确定</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="831"/>
+        <location filename="../windownewmap.ui" line="928"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="246"/>
+        <location filename="../windownewmap.cpp" line="256"/>
         <source>No template</source>
         <translation>缺少模版</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="246"/>
-        <source>No template for parameters scecified. Random map cannot be generated.</source>
+        <location filename="../windownewmap.cpp" line="256"/>
+        <source>No template for parameters specified. Random map cannot be generated.</source>
         <translation>未指定任一模版作为参数，随机地图无法生成。</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="266"/>
+        <location filename="../windownewmap.cpp" line="276"/>
         <source>RMG failure</source>
         <translation>随机地图生成失败</translation>
     </message>
@@ -1868,27 +2295,27 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="110"/>
+        <location filename="../mainwindow.cpp" line="112"/>
         <source>Filepath of the map to open.</source>
         <translation>要打开的地图所在的文件路径。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="113"/>
+        <location filename="../mainwindow.cpp" line="115"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translation>将原始H3文件解压到特定目录。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="114"/>
+        <location filename="../mainwindow.cpp" line="116"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translation>数据文件解压后，将TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 und Un44切分为独立的PNG文件。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="115"/>
+        <location filename="../mainwindow.cpp" line="117"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translation>数据文件解压后，将每一张图片（Images目录）从pcx格式转化为png格式。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="116"/>
+        <location filename="../mainwindow.cpp" line="118"/>
         <source>Delete original files, for the ones split / converted.</source>
         <translation>当切分/转换完成后，原始文件将被删除。</translation>
     </message>

@@ -13,10 +13,9 @@
 #include "../eventsSDL/InputHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../ConditionalWait.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
-#include "../CVideoHandler.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
@@ -24,12 +23,13 @@
 #include "../widgets/Images.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/VideoWidget.h"
 #include "../render/Canvas.h"
 
 CTutorialWindow::CTutorialWindow(const TutorialMode & m)
 	: CWindowObject(BORDERED, ImagePath::builtin("DIBOXBCK")), mode { m }, page { 0 }
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	pos = Rect(pos.x, pos.y, 380, 400); //video: 320x240
 	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, pos.w, pos.h));
@@ -54,7 +54,10 @@ CTutorialWindow::CTutorialWindow(const TutorialMode & m)
 
 void CTutorialWindow::setContent()
 {
-	video = "tutorial/" + videos[page];
+	OBJECT_CONSTRUCTION;
+	auto video = VideoPath::builtin("tutorial/" + videos[page]);
+
+	videoPlayer = std::make_shared<VideoWidget>(Point(30, 120), video, false);
 
 	buttonLeft->block(page<1);
 	buttonRight->block(page>videos.size() - 2);
@@ -64,7 +67,7 @@ void CTutorialWindow::setContent()
 
 void CTutorialWindow::openWindowFirstTime(const TutorialMode & m)
 {
-	if(GH.input().hasTouchInputDevice() && !persistentStorage["gui"]["tutorialCompleted" + std::to_string(m)].Bool())
+	if(GH.input().getCurrentInputMode() == InputMode::TOUCH && !persistentStorage["gui"]["tutorialCompleted" + std::to_string(m)].Bool())
 	{
 		if(LOCPLINT)
 			LOCPLINT->showingDialog->setBusy();
@@ -97,27 +100,4 @@ void CTutorialWindow::previous()
 	setContent();
 	deactivate();
 	activate();
-}
-
-void CTutorialWindow::show(Canvas & to)
-{
-	CCS->videoh->update(pos.x + 30, pos.y + 120, to.getInternalSurface(), true, false,
-	[&]()
-	{
-		CCS->videoh->close();
-		CCS->videoh->open(VideoPath::builtin(video));
-	});
-
-	CIntObject::show(to);
-}
-
-void CTutorialWindow::activate()
-{
-	CCS->videoh->open(VideoPath::builtin(video));
-	CIntObject::activate();
-}
-
-void CTutorialWindow::deactivate()
-{
-	CCS->videoh->close();
 }

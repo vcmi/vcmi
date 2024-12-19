@@ -29,20 +29,13 @@ public:
 		INVALID = -1,
 		MOUNTAINS = 0,
 		TREES,
-		LAKES, // Inluding dry or lava lakes
+		LAKES, // Including dry or lava lakes
 		CRATERS, // Chasms, Canyons, etc.
 		ROCKS,
 		PLANTS, // Flowers, cacti, mushrooms, logs, shrubs, etc.
 		STRUCTURES, // Buildings, ruins, etc.
 		ANIMALS, // Living, or bones
 		OTHER // Crystals, shipwrecks, barrels, etc.
-	};
-
-	enum EMapLevel // TODO: Move somewhere to map definitions
-	{
-		ANY = -1,
-		SURFACE = 0,
-		UNDERGROUND = 1
 	};
 
 	ObstacleSet();
@@ -82,18 +75,18 @@ private:
 	std::vector<std::shared_ptr<const ObjectTemplate>> obstacles;
 };
 
-typedef std::vector<std::shared_ptr<ObstacleSet>> TObstacleTypes;
+using TObstacleTypes = std::vector<std::shared_ptr<ObstacleSet>>;
 
 class DLL_LINKAGE ObstacleSetFilter
 {
 public:
-	ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain, ObstacleSet::EMapLevel level, FactionID faction, EAlignment alignment);
-	ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain, ObstacleSet::EMapLevel level, FactionID faction, EAlignment alignment);
+	ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain, EMapLevel level, FactionID faction, EAlignment alignment);
+	ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain, EMapLevel level, FactionID faction, EAlignment alignment);
 
 	bool filter(const ObstacleSet &set) const;
 
 	void setType(ObstacleSet::EObstacleType type);
-	void setTypes(std::vector<ObstacleSet::EObstacleType> types);
+	void setTypes(const std::vector<ObstacleSet::EObstacleType> & types);
 	std::vector<ObstacleSet::EObstacleType> getAllowedTypes() const;
 	TerrainId getTerrain() const;
 
@@ -105,7 +98,7 @@ private:
 	EAlignment alignment;
 // TODO: Filter by faction,  surface/underground, etc.
 	const TerrainId terrain;
-	ObstacleSet::EMapLevel level;
+	EMapLevel level;
 };
 
 // TODO: Instantiate ObstacleSetHandler
@@ -117,8 +110,8 @@ public:
 	~ObstacleSetHandler() = default;
 
 	std::vector<JsonNode> loadLegacyData() override;
-	virtual void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 	std::shared_ptr<ObstacleSet> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index);
 
 	ObstacleSet::EObstacleType convertObstacleClass(MapObjectID id);

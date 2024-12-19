@@ -1,6 +1,17 @@
+# Secondary Skill Format
+
 ## Main format
 
-```jsonc
+```json
+{
+	// Skill be only be available on maps with water
+	"onlyOnWaterMap" : false,
+	// Skill is not available on maps at random
+	"special" : true
+}
+```
+
+```json
 {
 	"skillName":
 	{
@@ -44,7 +55,7 @@ level fields become optional if they equal "base" configuration.
 
 ## Skill level format
 
-```jsonc
+```json
 {
 	// Localizable description
 	// Use {xxx} for formatting
@@ -76,7 +87,7 @@ level fields become optional if they equal "base" configuration.
 The following modifies the tactics skill to grant an additional speed
 boost at advanced and expert levels.
 
-```jsonc
+```json
 "core:tactics" : {
 	"base" : {
 		"effects" : {

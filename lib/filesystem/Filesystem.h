@@ -101,7 +101,7 @@ public:
 	static void addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader);
 	
 	/**
-	 * @brief removeFilesystem removes previously added filesystem from global resouce holder
+	 * @brief removeFilesystem removes previously added filesystem from global resource holder
 	 * @param parent parent loader containing filesystem
 	 * @param identifier name of this loader
 	 * @return if filesystem was successfully removed

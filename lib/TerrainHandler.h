@@ -55,6 +55,7 @@ public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
 	std::string getJsonKey() const override;
+	std::string getModScope() const override;
 	void registerIcons(const IconRegistar & cb) const override {}
 	TerrainId getId() const override { return id;}
 	void updateFrom(const JsonNode & data) {};
@@ -67,7 +68,7 @@ public:
 	ColorRGBA minimapBlocked;
 	ColorRGBA minimapUnblocked;
 	std::string shortIdentifier;
-	AudioPath musicFilename;
+	std::vector<AudioPath> musicFilename;
 	AnimationPath tilesFilename;
 	std::string terrainViewPatterns;
 	AudioPath horseSound;
@@ -101,7 +102,7 @@ public:
 class DLL_LINKAGE TerrainTypeHandler : public CHandlerBase<TerrainId, TerrainType, TerrainType, TerrainTypeService>
 {
 public:
-	virtual TerrainType * loadFromJson(
+	std::shared_ptr<TerrainType> loadFromJson(
 		const std::string & scope,
 		const JsonNode & json,
 		const std::string & identifier,

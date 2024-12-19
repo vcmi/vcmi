@@ -12,9 +12,11 @@
 #include "CDrawRoadsOperation.h"
 #include "CMap.h"
 
-#include "../CRandomGenerator.h"
 #include "../RoadHandler.h"
 #include "../RiverHandler.h"
+#include "../VCMI_Lib.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -154,7 +156,7 @@ static bool ruleIsAny(const std::string & rule)
 #endif
 
 ///CDrawLinesOperation
-CDrawLinesOperation::CDrawLinesOperation(CMap * map, CTerrainSelection terrainSel, CRandomGenerator * gen):
+CDrawLinesOperation::CDrawLinesOperation(CMap * map, CTerrainSelection terrainSel, vstd::RNG * gen):
 	CMapOperation(map),
 	terrainSel(std::move(terrainSel)),
 	gen(gen)
@@ -162,14 +164,14 @@ CDrawLinesOperation::CDrawLinesOperation(CMap * map, CTerrainSelection terrainSe
 }
 
 ///CDrawRoadsOperation
-CDrawRoadsOperation::CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, RoadId roadType, CRandomGenerator * gen):
+CDrawRoadsOperation::CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, RoadId roadType, vstd::RNG * gen):
 	CDrawLinesOperation(map, terrainSel,gen),
 	roadType(roadType)
 {
 }
 
 ///CDrawRiversOperation
-CDrawRiversOperation::CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, RiverId riverType, CRandomGenerator * gen):
+CDrawRiversOperation::CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, RiverId riverType, vstd::RNG * gen):
 	CDrawLinesOperation(map, terrainSel, gen),
 	riverType(riverType)
 {
@@ -342,12 +344,12 @@ std::string CDrawRiversOperation::getLabel() const
 
 void CDrawRoadsOperation::executeTile(TerrainTile & tile)
 {
-	tile.roadType = const_cast<RoadType*>(VLC->roadTypeHandler->getByIndex(roadType.getNum()));
+	tile.roadType = roadType;
 }
 
 void CDrawRiversOperation::executeTile(TerrainTile & tile)
 {
-	tile.riverType = const_cast<RiverType*>(VLC->riverTypeHandler->getByIndex(riverType.getNum()));
+	tile.riverType = riverType;
 }
 
 bool CDrawRoadsOperation::canApplyPattern(const LinePattern & pattern) const
@@ -362,22 +364,22 @@ bool CDrawRiversOperation::canApplyPattern(const LinePattern & pattern) const
 
 bool CDrawRoadsOperation::needUpdateTile(const TerrainTile & tile) const
 {
-	return tile.roadType->getId() != Road::NO_ROAD;
+	return tile.hasRoad();
 }
 
 bool CDrawRiversOperation::needUpdateTile(const TerrainTile & tile) const
 {
-	return tile.riverType->getId() != River::NO_RIVER;
+	return tile.hasRiver();
 }
 
 bool CDrawRoadsOperation::tileHasSomething(const int3& pos) const
 {
-	return map->getTile(pos).roadType->getId() != Road::NO_ROAD;
+	return map->getTile(pos).hasRoad();
 }
 
 bool CDrawRiversOperation::tileHasSomething(const int3& pos) const
 {
-	return map->getTile(pos).riverType->getId() != River::NO_RIVER;
+	return map->getTile(pos).hasRiver();
 }
 
 void CDrawRoadsOperation::updateTile(TerrainTile & tile, const LinePattern & pattern, const int flip)

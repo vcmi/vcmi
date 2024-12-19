@@ -12,6 +12,7 @@
 
 #include <vcmi/events/EventBus.h>
 
+#include "../../lib/battle/BattleLayout.h"
 #include "../../lib/CStack.h"
 #include "../../lib/ScriptHandler.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -116,7 +117,7 @@ uint32_t StackWithBonuses::unitId() const
 	return id;
 }
 
-ui8 StackWithBonuses::unitSide() const
+BattleSide StackWithBonuses::unitSide() const
 {
 	return side;
 }
@@ -132,10 +133,10 @@ SlotID StackWithBonuses::unitSlot() const
 }
 
 TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, const CSelector & limit,
-	const CBonusSystemNode * root, const std::string & cachingStr) const
+	const std::string & cachingStr) const
 {
 	auto ret = std::make_shared<BonusList>();
-	TConstBonusListPtr originalList = origBearer->getAllBonuses(selector, limit, root, cachingStr);
+	TConstBonusListPtr originalList = origBearer->getAllBonuses(selector, limit, cachingStr);
 
 	vstd::copy_if(*originalList, std::back_inserter(*ret), [this](const std::shared_ptr<Bonus> & b)
 	{
@@ -467,7 +468,7 @@ int64_t HypotheticBattle::getActualDamage(const DamageRange & damage, int32_t at
 	return (damage.min + damage.max) / 2;
 }
 
-std::vector<SpellID> HypotheticBattle::getUsedSpells(ui8 side) const
+std::vector<SpellID> HypotheticBattle::getUsedSpells(BattleSide side) const
 {
 	// TODO
 	return {};
@@ -479,10 +480,9 @@ int3 HypotheticBattle::getLocation() const
 	return int3(-1, -1, -1);
 }
 
-bool HypotheticBattle::isCreatureBank() const
+BattleLayout HypotheticBattle::getLayout() const
 {
-	// TODO
-	return false;
+	return subject->getBattle()->getLayout();
 }
 
 int64_t HypotheticBattle::getTreeVersion() const
@@ -502,10 +502,18 @@ ServerCallback * HypotheticBattle::getServerCallback()
 	return serverCallback.get();
 }
 
+void HypotheticBattle::makeWait(const battle::Unit * activeStack)
+{
+	auto unit = getForUpdate(activeStack->unitId());
+
+	resetActiveUnit();
+	unit->waiting = true;
+	unit->waitedThisTurn = true;
+}
+
 HypotheticBattle::HypotheticServerCallback::HypotheticServerCallback(HypotheticBattle * owner_)
 	:owner(owner_)
 {
-
 }
 
 void HypotheticBattle::HypotheticServerCallback::complain(const std::string & problem)
@@ -523,44 +531,44 @@ vstd::RNG * HypotheticBattle::HypotheticServerCallback::getRNG()
 	return &rngStub;
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(CPackForClient * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(CPackForClient & pack)
 {
 	logAi->error("Package of type %s is not allowed in battle evaluation", typeid(pack).name());
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(BattleLogMessage * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(BattleLogMessage & pack)
 {
-	pack->applyBattle(owner);
+	pack.applyBattle(owner);
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(BattleStackMoved * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(BattleStackMoved & pack)
 {
-	pack->applyBattle(owner);
+	pack.applyBattle(owner);
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(BattleUnitsChanged * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(BattleUnitsChanged & pack)
 {
-	pack->applyBattle(owner);
+	pack.applyBattle(owner);
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(SetStackEffect * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(SetStackEffect & pack)
 {
-	pack->applyBattle(owner);
+	pack.applyBattle(owner);
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(StacksInjured * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(StacksInjured & pack)
 {
-	pack->applyBattle(owner);
+	pack.applyBattle(owner);
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(BattleObstaclesChanged * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(BattleObstaclesChanged & pack)
 {
-	pack->applyBattle(owner);
+	pack.applyBattle(owner);
 }
 
-void HypotheticBattle::HypotheticServerCallback::apply(CatapultAttack * pack)
+void HypotheticBattle::HypotheticServerCallback::apply(CatapultAttack & pack)
 {
-	pack->applyBattle(owner);
+	pack.applyBattle(owner);
 }
 
 HypotheticBattle::HypotheticEnvironment::HypotheticEnvironment(HypotheticBattle * owner_, const Environment * upperEnvironment)

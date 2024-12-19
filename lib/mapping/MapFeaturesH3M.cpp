@@ -25,6 +25,8 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::find(EMapFormat format, uint32_t hota
 			return getFeaturesAB();
 		case EMapFormat::SOD:
 			return getFeaturesSOD();
+		case EMapFormat::CHR:
+			return getFeaturesCHR();
 		case EMapFormat::WOG:
 			return getFeaturesWOG();
 		case EMapFormat::HOTA:
@@ -107,6 +109,16 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesSOD()
 	return result;
 }
 
+MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesCHR()
+{
+	MapFormatFeaturesH3M result = getFeaturesSOD();
+	result.levelCHR = true;
+
+	result.heroesPortraitsCount = 169; // +6x tarnum
+
+	return result;
+}
+
 MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesWOG()
 {
 	MapFormatFeaturesH3M result = getFeaturesSOD();
@@ -118,7 +130,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesWOG()
 MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 {
 	// even if changes are minimal, we might not be able to parse map header in map selection screen
-	// throw exception - to be catched by map selection screen & excluded as invalid
+	// throw exception - to be caught by map selection screen & excluded as invalid
 	if(hotaVersion > 3)
 		throw std::runtime_error("Invalid map format!");
 

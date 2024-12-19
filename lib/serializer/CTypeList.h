@@ -36,22 +36,15 @@ public:
 		return registry;
 	}
 
-	template<typename T, typename U>
-	void registerType()
-	{
-		registerType<T>();
-		registerType<U>();
-	}
-
 	template<typename T>
-	void registerType()
+	void registerType(uint16_t index)
 	{
 		const std::type_info & typeInfo = typeid(T);
 
 		if (typeInfos.count(typeInfo.name()) != 0)
 			return;
 
-		typeInfos[typeInfo.name()] = typeInfos.size() + 1;
+		typeInfos[typeInfo.name()] = index;
 	}
 
 	template<typename T>
@@ -66,39 +59,6 @@ public:
 			return 0;
 
 		return typeInfos.at(typeInfo.name());
-	}
-};
-
-/// Wrapper over CTypeList. Allows execution of templated class T for any type
-/// that was resgistered for this applier
-template<typename T>
-class CApplier : boost::noncopyable
-{
-	std::map<int32_t, std::unique_ptr<T>> apps;
-
-	template<typename RegisteredType>
-	void addApplier(ui16 ID)
-	{
-		if(!apps.count(ID))
-		{
-			RegisteredType * rtype = nullptr;
-			apps[ID].reset(T::getApplier(rtype));
-		}
-	}
-
-public:
-	T * getApplier(ui16 ID)
-	{
-		if(!apps.count(ID))
-			throw std::runtime_error("No applier found.");
-		return apps[ID].get();
-	}
-
-	template<typename Base, typename Derived>
-	void registerType(const Base * b = nullptr, const Derived * d = nullptr)
-	{
-		addApplier<Base>(CTypeList::getInstance().getTypeID<Base>(nullptr));
-		addApplier<Derived>(CTypeList::getInstance().getTypeID<Derived>(nullptr));
 	}
 };
 

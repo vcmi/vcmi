@@ -1,0 +1,34 @@
+{
+	"basepath" : "battle/rangeHighlights/green/",
+	"images" :
+	[
+		{ "frame" :  0, "file" : "empty.png"},                                                              // 000001 -> 00 empty frame
+			
+		// load single edges
+		{ "frame" :  1, "file" : "topLeft.png"},                                                            //000001 -> 01 topLeft
+		{ "frame" :  2, "file" : "topLeft.png", "verticalFlip" : true },                                    //000010 -> 02 topRight
+		{ "frame" :  3, "file" : "left.png",    "verticalFlip" : true },                                    //000100 -> 04 right
+		{ "frame" :  4, "file" : "topLeft.png", "verticalFlip" : true, "horizontalFlip" : true },           //001000 -> 08 bottomRight
+		{ "frame" :  5, "file" : "topLeft.png", "horizontalFlip" : true },                                  //010000 -> 16 bottomLeft
+		{ "frame" :  6, "file" : "left.png"},                                                               //100000 -> 32 left
+		
+		// load double edges
+		{ "frame" :  7, "file" : "top.png"},                                                                //000011 -> 03 top
+		{ "frame" :  8, "file" : "top.png",               "horizontalFlip" : true },                        //011000 -> 24 bottom
+		{ "frame" :  9, "file" : "topLeftHalfCorner.png", "verticalFlip" : true },                          //000110 -> 06 topRightHalfCorner
+		{ "frame" : 10, "file" : "topLeftHalfCorner.png", "verticalFlip" : true, "horizontalFlip" : true }, //001100 -> 12 bottomRightHalfCorner
+		{ "frame" : 11, "file" : "topLeftHalfCorner.png", "horizontalFlip" : true },                        //110000 -> 48 bottomLeftHalfCorner
+		{ "frame" : 12, "file" : "topLeftHalfCorner.png"},                                                  //100001 -> 33 topLeftHalfCorner
+		
+		// load halves
+		{ "frame" : 13, "file" : "leftHalf.png", "verticalFlip" : true},                                    //001110 -> 14 rightHalf
+		{ "frame" : 14, "file" : "leftHalf.png"},                                                           //110001 -> 49 leftHalf
+		
+		// load corners
+		{ "frame" : 15, "file" : "topLeftCorner.png", "verticalFlip" : true },                              //000111 -> 07 topRightCorner
+		{ "frame" : 16, "file" : "topLeftCorner.png", "verticalFlip" : true, "horizontalFlip" : true },     //011100 -> 28 bottomRightCorner
+		{ "frame" : 17, "file" : "topLeftCorner.png", "horizontalFlip" : true },                            //111000 -> 56 bottomLeftCorner
+		{ "frame" : 18, "file" : "topLeftCorner.png"}                                                       //100011 -> 35 topLeftCorner
+	]
+}
+

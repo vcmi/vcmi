@@ -44,14 +44,16 @@ void HeroSpellWidget::obtainData()
 void HeroSpellWidget::initSpellLists()
 {
 	QListWidget * spellLists[] = { ui->spellList1, ui->spellList2, ui->spellList3, ui->spellList4, ui->spellList5 };
-	auto spells = VLC->spellh->objects;
+
 	for (int i = 0; i < GameConstants::SPELL_LEVELS; i++)
 	{
-		std::vector<ConstTransitivePtr<CSpell>> spellsByLevel;
-		auto getSpellsByLevel = [i](auto spell) {
-			return spell->getLevel() == i + 1 && !spell->isSpecial() && !spell->isCreatureAbility();
-		};
-		vstd::copy_if(spells, std::back_inserter(spellsByLevel), getSpellsByLevel);
+		std::vector<const CSpell*> spellsByLevel;
+		for (auto const & spellID : VLC->spellh->getDefaultAllowed())
+		{
+			if (spellID.toSpell()->getLevel() == i + 1)
+				spellsByLevel.push_back(spellID.toSpell());
+		}
+
 		spellLists[i]->clear();
 		for (auto spell : spellsByLevel)
 		{

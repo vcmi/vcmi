@@ -14,7 +14,7 @@ struct ConversionOptions
 {
 	bool splitDefs = false;			// splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG's
 	bool convertPcxToPng = false;	// converts single Images (found in Images folder) from .pcx to png.
-	bool deleteOriginals = false;	// delete original files, for the ones splitted / converted.
+	bool deleteOriginals = false;	// delete original files, for the ones split / converted.
 };
 
 // Struct for holding all Resource Extractor / Converter options

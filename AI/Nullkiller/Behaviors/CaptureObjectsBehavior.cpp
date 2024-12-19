@@ -68,14 +68,6 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 		logAi->trace("Path found %s", path.toString());
 #endif
 
-		if(nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
-		{
-#if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.getHeroStrength());
-#endif
-			continue;
-		}
-
 		if(objToVisit && !force && !shouldVisit(nullkiller, path.targetHero, objToVisit))
 		{
 #if NKAI_TRACE_LEVEL >= 2
@@ -86,6 +78,9 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 
 		auto hero = path.targetHero;
 		auto danger = path.getTotalDanger();
+
+		if (hero->getOwner() != nullkiller->playerID)
+			continue;
 
 		if(nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT
 			&& (path.getTotalDanger() == 0 || path.turn() > 0)
@@ -119,7 +114,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 			continue;
 		}
 
-		auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
+		auto isSafe = isSafeToVisit(hero, path.heroArmy, danger, nullkiller->settings->getSafeAttackRatio());
 
 #if NKAI_TRACE_LEVEL >= 2
 		logAi->trace(
@@ -212,7 +207,7 @@ void CaptureObjectsBehavior::decomposeObjects(
 				vstd::concatenate(tasksLocal, getVisitGoals(paths, nullkiller, objToVisit, specificObjects));
 			}
 
-			std::lock_guard<std::mutex> lock(sync); // FIXME: consider using tbb::parallel_reduce instead to avoid mutex overhead
+			std::lock_guard lock(sync); // FIXME: consider using tbb::parallel_reduce instead to avoid mutex overhead
 			vstd::concatenate(result, tasksLocal);
 		});
 }

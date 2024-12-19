@@ -17,18 +17,18 @@
 #include "GlobalLobbyWindow.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../mainmenu/CMainMenu.h"
+#include "../media/ISoundPlayer.h"
 #include "../windows/InfoWindows.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/MetaString.h"
 #include "../../lib/json/JsonUtils.h"
-#include "../../lib/TextOperations.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/MetaString.h"
+#include "../../lib/texts/TextOperations.h"
 
 GlobalLobbyClient::GlobalLobbyClient()
 {
@@ -43,7 +43,7 @@ void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnectio
 {
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
-	JsonNode json(message.data(), message.size());
+	JsonNode json(message.data(), message.size(), "<lobby network packet>");
 
 	if(json["type"].String() == "accountCreated")
 		return receiveAccountCreated(json);

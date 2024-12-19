@@ -42,8 +42,8 @@ const std::vector<ApplyDamageProxy::CustomRegType> ApplyDamageProxy::REGISTER_CU
 		true
 	},
 	{
-		"getInitalDamage",
-		LuaMethodWrapper<ApplyDamage, decltype(&ApplyDamage::getInitalDamage), &ApplyDamage::getInitalDamage>::invoke,
+		"getInitialDamage",
+		LuaMethodWrapper<ApplyDamage, decltype(&ApplyDamage::getInitialDamage), &ApplyDamage::getInitialDamage>::invoke,
 		false
 	},
 	{

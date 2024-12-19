@@ -13,13 +13,11 @@
 #include "Registry.h"
 
 #include "../ISpellMechanics.h"
-#include "../../MetaString.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/BattleInfo.h"
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
 #include "../../CCreatureHandler.h"
-#include "../../CHeroHandler.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 
@@ -80,7 +78,7 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 
 				text.replaceNamePlural(elemental->creatureId());
 
-				if(caster->type->gender == EHeroGender::FEMALE)
+				if(caster->gender == EHeroGender::FEMALE)
 					text.replaceLocalString(EMetaText::GENERAL_TXT, 540);
 				else
 					text.replaceLocalString(EMetaText::GENERAL_TXT, 539);
@@ -160,7 +158,7 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 	}
 
 	if(!pack.changedStacks.empty())
-		server->apply(&pack);
+		server->apply(pack);
 }
 
 EffectTarget Summon::filterTarget(const Mechanics * m, const EffectTarget & target) const
@@ -192,7 +190,7 @@ EffectTarget Summon::transformTarget(const Mechanics * m, const Target & aimPoin
 
 	if(sameSummoned.empty() || !summonSameUnit)
 	{
-		BattleHex hex = m->battle()->getAvaliableHex(creature, m->casterSide);
+		BattleHex hex = m->battle()->getAvailableHex(creature, m->casterSide);
 		if(!hex.isValid())
 			logGlobal->error("No free space to summon creature!");
 		else

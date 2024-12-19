@@ -40,7 +40,7 @@ class DLL_LINKAGE INetworkServer : boost::noncopyable
 public:
 	virtual ~INetworkServer() = default;
 
-	virtual void start(uint16_t port) = 0;
+	virtual uint16_t start(uint16_t port) = 0;
 };
 
 /// Base interface that must be implemented by user of networking API to handle any connection callbacks

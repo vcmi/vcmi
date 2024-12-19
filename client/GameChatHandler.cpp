@@ -21,12 +21,11 @@
 #include "../CCallback.h"
 
 #include "../lib/networkPacks/PacksForLobby.h"
-#include "../lib/TextOperations.h"
 #include "../lib/mapObjects/CArmedInstance.h"
 #include "../lib/CConfigHandler.h"
-#include "../lib/MetaString.h"
 #include "../lib/VCMI_Lib.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
+#include "../lib/texts/TextOperations.h"
 
 const std::vector<GameChatMessage> & GameChatHandler::getChatHistory() const
 {
@@ -94,7 +93,7 @@ void GameChatHandler::onNewGameMessageReceived(PlayerColor sender, const std::st
 		playerName = LOCPLINT->cb->getStartInfo()->playerInfos.at(sender).name;
 
 	if (sender.isSpectator())
-		playerName = "Spectator"; // FIXME: translate? Provide nickname somewhere?
+		playerName = VLC->generaltexth->translate("vcmi.lobby.login.spectator");
 
 	chatHistory.push_back({playerName, messageText, timeFormatted});
 

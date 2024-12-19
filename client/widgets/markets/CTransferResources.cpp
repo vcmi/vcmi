@@ -21,8 +21,9 @@
 
 #include "../../../CCallback.h"
 
-#include "../../../lib/CGeneralTextHandler.h"
-#include "../../../lib/MetaString.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
+#include "../../../lib/mapObjects/IMarket.h"
+#include "../../../lib/texts/MetaString.h"
 
 CTransferResources::CTransferResources(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
@@ -30,7 +31,7 @@ CTransferResources::CTransferResources(const IMarket * market, const CGHeroInsta
 	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
 	, CMarketTraderText(Point(28, 48))
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[158]));
 	labels.emplace_back(std::make_shared<CLabel>(445, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[169]));
@@ -63,8 +64,8 @@ void CTransferResources::makeDeal()
 {
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
-		LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_PLAYER, GameResID(bidTradePanel->getSelectedItemId()),
-			PlayerColor(offerTradePanel->getSelectedItemId()), toTrade, hero);
+		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_PLAYER, GameResID(bidTradePanel->getHighlightedItemId()),
+			PlayerColor(offerTradePanel->getHighlightedItemId()), toTrade, hero);
 		CMarketTraderText::makeDeal();
 		deselect();
 	}
@@ -75,8 +76,8 @@ CMarketBase::MarketShowcasesParams CTransferResources::getShowcasesParams() cons
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 		return MarketShowcasesParams
 		{
-			ShowcaseParams {std::to_string(offerSlider->getValue()), bidTradePanel->getSelectedItemId()},
-			ShowcaseParams {CGI->generaltexth->capColors[offerTradePanel->getSelectedItemId()], offerTradePanel->getSelectedItemId()}
+			ShowcaseParams {std::to_string(offerSlider->getValue()), bidTradePanel->getHighlightedItemId()},
+			ShowcaseParams {CGI->generaltexth->capColors[offerTradePanel->getHighlightedItemId()], offerTradePanel->getHighlightedItemId()}
 		};
 	else
 		return MarketShowcasesParams {std::nullopt, std::nullopt};
@@ -86,7 +87,7 @@ void CTransferResources::highlightingChanged()
 {
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
-		offerSlider->setAmount(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getSelectedItemId())));
+		offerSlider->setAmount(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getHighlightedItemId())));
 		offerSlider->scrollTo(0);
 		offerSlider->block(false);
 		maxAmount->block(false);
@@ -101,8 +102,8 @@ std::string CTransferResources::getTraderText()
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.165");
-		message.replaceName(GameResID(bidTradePanel->getSelectedItemId()));
-		message.replaceName(PlayerColor(offerTradePanel->getSelectedItemId()));
+		message.replaceName(GameResID(bidTradePanel->getHighlightedItemId()));
+		message.replaceName(PlayerColor(offerTradePanel->getHighlightedItemId()));
 		return message.toString();
 	}
 	else

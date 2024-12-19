@@ -31,10 +31,14 @@
 #include "gui/WindowHandler.h"
 #include "widgets/Buttons.h"
 #include "widgets/TextControls.h"
+#include "media/CMusicHandler.h"
+#include "media/IVideoPlayer.h"
+#include "windows/GUIClasses.h"
 
 #include "../lib/CConfigHandler.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/serializer/Connection.h"
+#include "../lib/campaign/CampaignState.h"
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
@@ -202,8 +206,19 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 		
 	if(!lobby->bonusSel && handler.si->campState && handler.getState() == EClientState::LOBBY_CAMPAIGN)
 	{
-		lobby->bonusSel = std::make_shared<CBonusSelection>();
-		GH.windows().pushWindow(lobby->bonusSel);
+		auto bonusSel = std::make_shared<CBonusSelection>();
+		lobby->bonusSel = bonusSel;
+		if(!handler.si->campState->conqueredScenarios().size() && !handler.si->campState->getIntroVideo().empty() && CCS->videoh->open(handler.si->campState->getIntroVideo(), 1))
+		{
+			CCS->musich->stopMusic();
+			GH.windows().createAndPushWindow<VideoWindow>(handler.si->campState->getIntroVideo(), handler.si->campState->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : handler.si->campState->getVideoRim(), false, 1, [bonusSel](bool skipped){
+				if(!CSH->si->campState->getMusic().empty())
+					CCS->musich->playMusic(CSH->si->campState->getMusic(), true, false);
+				GH.windows().pushWindow(bonusSel);
+			});
+		}
+		else
+			GH.windows().pushWindow(bonusSel);
 	}
 
 	if(lobby->bonusSel)
@@ -211,7 +226,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	else
 		lobby->updateAfterStateChange();
 
-	if(pack.hostChanged)
+	if(pack.hostChanged || pack.refreshList)
 		lobby->toggleMode(handler.isHost());
 }
 

@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../constants/EntityIdentifiers.h"
+#include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -18,7 +19,7 @@ class CConnection;
 
 class ICPackVisitor;
 
-struct DLL_LINKAGE CPack
+struct DLL_LINKAGE CPack : public Serializeable
 {
 	/// Pointer to connection that pack received from
 	/// Only set & used on server
@@ -32,9 +33,6 @@ struct DLL_LINKAGE CPack
 		logNetwork->error("CPack serialized... this should not happen!");
 		throw std::runtime_error("CPack serialized... this should not happen!");
 	}
-
-	void applyGs(CGameState * gs)
-	{}
 
 	void visit(ICPackVisitor & cpackVisitor);
 
@@ -52,6 +50,8 @@ protected:
 
 struct DLL_LINKAGE CPackForClient : public CPack
 {
+	virtual void applyGs(CGameState * gs) = 0;
+
 protected:
 	void visitBasic(ICPackVisitor & cpackVisitor) override;
 };

@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "Problem.h"
 
+#include "../texts/MetaString.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace spells

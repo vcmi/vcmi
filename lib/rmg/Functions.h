@@ -19,7 +19,6 @@ class RmgMap;
 class ObjectManager;
 class ObjectTemplate;
 class CMapGenerator;
-class CRandomGenerator;
 
 class rmgException : public std::exception
 {
@@ -35,9 +34,11 @@ public:
 	}
 };
 
+void replaceWithCurvedPath(rmg::Path & path, const Zone & zone, const int3 & src, bool onlyStraight = true);
+
 rmg::Tileset collectDistantTiles(const Zone & zone, int distance);
 
-int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, TerrainId terrain);
+int chooseRandomAppearance(vstd::RNG & generator, si32 ObjID, TerrainId terrain);
 
 
 VCMI_LIB_NAMESPACE_END

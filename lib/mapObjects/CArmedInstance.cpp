@@ -11,12 +11,13 @@
 #include "StdInc.h"
 #include "CArmedInstance.h"
 
-#include "../CTownHandler.h"
 #include "../CCreatureHandler.h"
-#include "../CGeneralTextHandler.h"
-#include "../gameState/CGameState.h"
 #include "../CPlayerState.h"
-#include "../MetaString.h"
+#include "../entities/faction/CFaction.h"
+#include "../entities/faction/CTown.h"
+#include "../entities/faction/CTownHandler.h"
+#include "../gameState/CGameState.h"
+#include "../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -77,7 +78,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		const CStackInstance * inst = slot.second;
 		const auto * creature  = inst->getCreatureID().toEntity(VLC);
 
-		factions.insert(creature->getFaction());
+		factions.insert(creature->getFactionID());
 		// Check for undead flag instead of faction (undead mummies are neutral)
 		if (!hasUndead)
 		{

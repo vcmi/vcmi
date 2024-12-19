@@ -20,14 +20,11 @@
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
-#include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../render/Graphics.h"
 
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/TextOperations.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMap.h"
@@ -38,16 +35,17 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 
-#include "../../lib/serializer/CLoadFile.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/rmg/CMapGenOptions.h"
-#include "../../lib/Languages.h"
+#include "../../lib/serializer/CLoadFile.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 
-CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::string date, ResourcePath resource, ESelectionScreen tabType)
-	: CWindowObject(BORDERED | RCLICK_POPUP), resource(resource), mapName(mapName), fileName(fileName), date(date), tabType(tabType)
+CMapOverview::CMapOverview(const std::string & mapName, const std::string & fileName, const std::string & date, const std::string & author, const std::string & version, const ResourcePath & resource, ESelectionScreen tabType)
+	: CWindowObject(BORDERED | RCLICK_POPUP), resource(resource), mapName(mapName), fileName(fileName), date(date), author(author), version(version), tabType(tabType)
 {
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	widget = std::make_shared<CMapOverviewWidget>(*this);
 
@@ -62,16 +60,16 @@ CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::strin
 
 Canvas CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<CMap> & map, int layer) const
 {
-	Canvas canvas = Canvas(Point(map->width, map->height));
+	Canvas canvas = Canvas(Point(map->width, map->height), CanvasScalingPolicy::IGNORE);
 
 	for (int y = 0; y < map->height; ++y)
 		for (int x = 0; x < map->width; ++x)
 		{
 			TerrainTile & tile = map->getTile(int3(x, y, layer));
 
-			ColorRGBA color = tile.terType->minimapUnblocked;
-			if (tile.blocked && (!tile.visitable))
-				color = tile.terType->minimapBlocked;
+			ColorRGBA color = tile.getTerrain()->minimapUnblocked;
+			if (tile.blocked() && !tile.visitable())
+				color = tile.getTerrain()->minimapBlocked;
 
 			if(drawPlayerElements)
 				// if object at tile is owned - it will be colored as its owner
@@ -136,12 +134,12 @@ std::shared_ptr<CPicture> CMapOverviewWidget::buildDrawMinimap(const JsonNode & 
 		return nullptr;
 
 	Rect minimapRect = minimaps[id].getRenderArea();
-	double maxSideLenghtSrc = std::max(minimapRect.w, minimapRect.h);
-	double maxSideLenghtDst = std::max(rect.w, rect.h);
-	double resize = maxSideLenghtSrc / maxSideLenghtDst;
+	double maxSideLengthSrc = std::max(minimapRect.w, minimapRect.h);
+	double maxSideLengthDst = std::max(rect.w, rect.h);
+	double resize = maxSideLengthSrc / maxSideLengthDst;
 	Point newMinimapSize = Point(minimapRect.w / resize, minimapRect.h / resize);
 
-	Canvas canvasScaled = Canvas(Point(rect.w, rect.h));
+	Canvas canvasScaled = Canvas(Point(rect.w, rect.h), CanvasScalingPolicy::AUTO);
 	canvasScaled.drawScaled(minimaps[id], Point((rect.w - newMinimapSize.x) / 2, (rect.h - newMinimapSize.y) / 2), newMinimapSize);
 	std::shared_ptr<IImage> img = GH.renderHandler().createImage(canvasScaled.getInternalSurface());
 
@@ -203,6 +201,14 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 		}
 		else
 			w->setText(p.date);
+	}
+	if(auto w = widget<CLabel>("author"))
+	{
+		w->setText(p.author.empty() ? "-" : p.author);
+	}
+	if(auto w = widget<CLabel>("version"))
+	{
+		w->setText(p.version);
 	}
 	if(auto w = widget<CLabel>("noUnderground"))
 	{

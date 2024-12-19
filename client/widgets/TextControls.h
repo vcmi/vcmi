@@ -96,6 +96,7 @@ public:
 	CMultiLineLabel(Rect position, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const ColorRGBA & Color = Colors::WHITE, const std::string & Text = "");
 
 	void setText(const std::string & Txt) override;
+	std::vector<std::string> getLines();
 	void showAll(Canvas & to) override;
 
 	void setVisibleSize(Rect visibleSize, bool redrawElement = true);

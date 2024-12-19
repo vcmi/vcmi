@@ -15,11 +15,13 @@
 
 #include "filesystem/Filesystem.h"
 
-#include "GameConstants.h"
 #include "CCreatureHandler.h"
-#include "CGeneralTextHandler.h"
-#include "json/JsonUtils.h"
+#include "GameConstants.h"
+#include "VCMI_Lib.h"
+#include "modding/ModScope.h"
 #include "spells/CSpellHandler.h"
+#include "texts/CGeneralTextHandler.h"
+#include "json/JsonUtils.h"
 
 template class std::vector<VCMI_LIB_WRAP_NAMESPACE(CBonusType)>;
 
@@ -199,8 +201,10 @@ ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonu
 
 void CBonusTypeHandler::load()
 {
-	const JsonNode gameConf(JsonPath::builtin("config/gameConfig.json"));
-	const JsonNode config(JsonUtils::assembleFromFiles(gameConf["bonuses"].convertTo<std::vector<std::string>>()));
+	JsonNode gameConf(JsonPath::builtin("config/gameConfig.json"));
+	gameConf.setModScope(ModScope::scopeBuiltin());
+	JsonNode config(JsonUtils::assembleFromFiles(gameConf["bonuses"]));
+	config.setModScope("vcmi");
 	load(config);
 }
 
@@ -239,8 +243,8 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 
 	if (!dest.hidden)
 	{
-		VLC->generaltexth->registerString( "vcmi", dest.getNameTextID(), source["name"].String());
-		VLC->generaltexth->registerString( "vcmi", dest.getDescriptionTextID(), source["description"].String());
+		VLC->generaltexth->registerString( "vcmi", dest.getNameTextID(), source["name"]);
+		VLC->generaltexth->registerString( "vcmi", dest.getDescriptionTextID(), source["description"]);
 	}
 
 	const JsonNode & graphics = source["graphics"];

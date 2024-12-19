@@ -85,7 +85,7 @@ private:
 
 	static void setColor(EConsoleTextColor::EConsoleTextColor color); //sets color of text appropriate for given logging level
 
-	/// FIXME: Implement CConsoleHandler as singleton, move some logic into CLogConsoleTarget, etc... needs to be disussed:)
+	/// FIXME: Implement CConsoleHandler as singleton, move some logic into CLogConsoleTarget, etc... needs to be discussed:)
 	/// Without static, application will crash complaining about mutex deleted. In short: CConsoleHandler gets deleted before
 	/// the logging system.
 	static std::mutex smx;

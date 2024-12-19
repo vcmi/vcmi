@@ -17,10 +17,11 @@
 #include "BattleRenderer.h"
 #include "CreatureAnimation.h"
 
-#include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../media/ISoundPlayer.h"
+#include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 
@@ -46,24 +47,16 @@ void BattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 {
 	AnimationPath animationName = oi.getAnimation();
 
-	if (animationsCache.count(animationName) == 0)
+	if (oi.obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 	{
-		if (oi.obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
-		{
-			// obstacle uses single bitmap image for animations
-			auto animation = GH.renderHandler().createAnimation();
-			animation->setCustom(animationName.getName(), 0, 0);
-			animationsCache[animationName] = animation;
-			animation->preload();
-		}
-		else
-		{
-			auto animation = GH.renderHandler().loadAnimation(animationName);
-			animationsCache[animationName] = animation;
-			animation->preload();
-		}
+		// obstacle uses single bitmap image for animations
+		obstacleImages[oi.uniqueID] = GH.renderHandler().loadImage(animationName.toType<EResType::IMAGE>(), EImageBlitMode::SIMPLE);
 	}
-	obstacleAnimations[oi.uniqueID] = animationsCache[animationName];
+	else
+	{
+		obstacleAnimations[oi.uniqueID] = GH.renderHandler().loadAnimation(animationName, EImageBlitMode::SIMPLE);
+		obstacleImages[oi.uniqueID] = obstacleAnimations[oi.uniqueID]->getImage(0);
+	}
 }
 
 void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges> & obstacles)
@@ -85,9 +78,7 @@ void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges
 		if(animationPath.empty())
 			continue;
 
-		auto animation = GH.renderHandler().loadAnimation(animationPath);
-		animation->preload();
-
+		auto animation = GH.renderHandler().loadAnimation(animationPath, EImageBlitMode::SIMPLE);
 		auto first = animation->getImage(0, 0);
 		if(!first)
 			continue;
@@ -99,6 +90,7 @@ void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges
 		owner.stacksController->addNewAnim(new EffectAnimation(owner, animationPath, whereTo, obstacle["position"].Integer(), 0, true));
 
 		obstacleAnimations.erase(oi.id);
+		obstacleImages.erase(oi.id);
 		//so when multiple obstacles are removed, they show up one after another
 		owner.waitForAnimations();
 	}
@@ -110,12 +102,10 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 	{
 		auto side = owner.getBattle()->playerToSide(owner.curInt->playerID);
 
-		if(!oi->visibleForSide(side.value(), owner.getBattle()->battleHasNativeStack(side.value())))
+		if(!oi->visibleForSide(side, owner.getBattle()->battleHasNativeStack(side)))
 			continue;
 
-		auto animation = GH.renderHandler().loadAnimation(oi->getAppearAnimation());
-		animation->preload();
-
+		auto animation = GH.renderHandler().loadAnimation(oi->getAppearAnimation(), EImageBlitMode::SIMPLE);
 		auto first = animation->getImage(0, 0);
 		if(!first)
 			continue;
@@ -187,26 +177,22 @@ void BattleObstacleController::collectRenderableObjects(BattleRenderer & rendere
 void BattleObstacleController::tick(uint32_t msPassed)
 {
 	timePassed += msPassed / 1000.f;
+	int framesCount = timePassed * AnimationControls::getObstaclesSpeed();
+
+	for(auto & animation : obstacleAnimations)
+	{
+		int frameIndex = framesCount % animation.second->size(0);
+		obstacleImages[animation.first] = animation.second->getImage(frameIndex, 0);
+	}
 }
 
 std::shared_ptr<IImage> BattleObstacleController::getObstacleImage(const CObstacleInstance & oi)
 {
-	int framesCount = timePassed * AnimationControls::getObstaclesSpeed();
-	std::shared_ptr<CAnimation> animation;
-
 	// obstacle is not loaded yet, don't show anything
-	if (obstacleAnimations.count(oi.uniqueID) == 0)
+	if (obstacleImages.count(oi.uniqueID) == 0)
 		return nullptr;
 
-	animation = obstacleAnimations[oi.uniqueID];
-	assert(animation);
-
-	if(animation)
-	{
-		int frameIndex = framesCount % animation->size(0);
-		return animation->getImage(frameIndex, 0);
-	}
-	return nullptr;
+	return obstacleImages[oi.uniqueID];
 }
 
 Point BattleObstacleController::getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle)

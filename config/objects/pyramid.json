@@ -1,0 +1,76 @@
+{
+	"pyramid" : {
+		"index" :63,
+		"handler" : "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["MYSTERY"]
+			}
+		},
+		"types" : {
+			"pyramid" : {
+				"index" : 0,
+
+				"name" : "Pyramid",
+				"aiValue" : 8000,
+				"rmg" : {
+					"value"		: 5000,
+					"rarity"	: 20
+				},
+				
+				"variables" : {
+					"spell" : {
+						"gainedSpell" : {
+							"level": 5
+						}
+					}
+				},
+
+				"onGuardedMessage" : 105,
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"onVisited" : [
+					{
+						"message" : 107,
+						"bonuses" : [ { "type" : "LUCK", "val" : -2, "duration" : "ONE_BATTLE", "description" : 70 } ]
+					}
+				],
+				"guardsLayout" : "default",
+				"rewards" : [
+					{
+						"limiter" : {
+							"canLearnSpells" : [
+								"@gainedSpell"
+							]
+						},
+						"spells" : [
+							"@gainedSpell"
+						],
+						"message" : [ 106, "{%s}." ], // Upon defeating monsters, you learn new spell
+						"guards" : [
+							{ "amount" : 40, "type" : "goldGolem" },
+							{ "amount" : 10, "type" : "diamondGolem" },
+							{ "amount" : 10, "type" : "diamondGolem" }
+						]
+					}
+				],
+				"onEmpty" : [
+					{
+						"limiter" : {
+							"artifacts" : [
+								{
+									"type" : "spellBook"
+								}
+							]
+						},
+						"message" : [ 106, "{%s}. ", 108 ] // No Wisdom
+					},
+					{
+						"message" : [ 106, "{%s}. ", 109 ] // No spellbook
+					}
+				]
+
+			}
+		}
+	}
+}

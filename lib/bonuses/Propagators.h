@@ -12,11 +12,13 @@
 #include "Bonus.h"
 #include "CBonusSystemNode.h"
 
+#include "../serializer/Serializeable.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 extern DLL_LINKAGE const std::map<std::string, TPropagatorPtr> bonusPropagatorMap;
 
-class DLL_LINKAGE IPropagator
+class DLL_LINKAGE IPropagator : public Serializeable
 {
 public:
 	virtual ~IPropagator() = default;

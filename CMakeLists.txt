@@ -1,6 +1,6 @@
 # Minimum required version greatly affect CMake behavior
 # So cmake_minimum_required must be called before the project()
-# 3.16.0 is used since it's used by our currently oldest suppored system: Ubuntu-20.04
+# 3.16.0 is used since it's used by our currently oldest supported system: Ubuntu-20.04
 cmake_minimum_required(VERSION 3.16.0)
 
 project(VCMI)
@@ -180,11 +180,6 @@ else()
 	add_definitions(-DVCMI_NO_EXTRA_VERSION)
 endif(ENABLE_GITVERSION)
 
-# Precompiled header configuration
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0 )
-	set(ENABLE_PCH OFF) # broken
-endif()
-
 if(ENABLE_PCH)
 	macro(enable_pch name)
 		target_precompile_headers(${name} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:<StdInc.h$<ANGLE-R>>)
@@ -328,7 +323,6 @@ if(MINGW OR MSVC)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244") # 4244: conversion from 'xxx' to 'yyy', possible loss of data
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267") # 4267: conversion from 'xxx' to 'yyy', possible loss of data
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4275") # 4275: non dll-interface class 'xxx' used as base for dll-interface class
-		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4800") # 4800: implicit conversion from 'xxx' to bool. Possible information loss
 
 		if(ENABLE_STRICT_COMPILATION)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX") # Treats all compiler warnings as errors
@@ -360,13 +354,6 @@ if(MINGW OR MSVC)
 		check_library_exists(iconv libiconv_open "" ICONV_FOUND)
 		if(ICONV_FOUND)
 			set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
-		endif()
-
-		# Prevent compiler issues when building Debug
-		# Assembler might fail with "too many sections"
-		# With big-obj or 64-bit build will take hours
-		if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Og")
 		endif()
 	endif(MINGW)
 endif(MINGW OR MSVC)
@@ -403,7 +390,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT WIN32)
 			# For gcc 14+ we can use -fhardened instead
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_ASSERTIONS -fstack-protector-strong -fstack-clash-protection -fcf-protection=full")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_ASSERTIONS -fstack-protector-strong -fstack-clash-protection")
+			if (CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+				set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcf-protection=full")
+			endif()
 		endif()
 	endif()
 
@@ -483,24 +473,29 @@ if(NOT FORCE_BUNDLED_MINIZIP)
 endif()
 
 if (ENABLE_CLIENT)
-	set(FFMPEG_COMPONENTS avutil swscale avformat avcodec)
-	if(APPLE_IOS AND NOT USING_CONAN)
-		list(APPEND FFMPEG_COMPONENTS swresample)
-	endif()
-	find_package(ffmpeg COMPONENTS ${FFMPEG_COMPONENTS})
+	find_package(ffmpeg COMPONENTS avutil swscale avformat avcodec swresample)
 
 	find_package(SDL2 REQUIRED)
 	find_package(SDL2_image REQUIRED)
 	if(TARGET SDL2_image::SDL2_image)
 		add_library(SDL2::Image ALIAS SDL2_image::SDL2_image)
 	endif()
+	if(TARGET SDL2_image::SDL2_image-static)
+		add_library(SDL2::Image ALIAS SDL2_image::SDL2_image-static)
+	endif()
 	find_package(SDL2_mixer REQUIRED)
 	if(TARGET SDL2_mixer::SDL2_mixer)
 		add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer)
 	endif()
+	if(TARGET SDL2_mixer::SDL2_mixer-static)
+		add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer-static)
+	endif()
 	find_package(SDL2_ttf REQUIRED)
 	if(TARGET SDL2_ttf::SDL2_ttf)
 		add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
+	endif()
+	if(TARGET SDL2_ttf::SDL2_ttf-static)
+		add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf-static)
 	endif()
 endif()
 
@@ -519,7 +514,7 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	endif()
 endif()
 
-if(ENABLE_CLIENT)
+if(NOT ENABLE_MINIMAL_LIB)
 	find_package(TBB REQUIRED)
 endif()
 
@@ -663,6 +658,10 @@ if(NOT TARGET minizip::minizip)
 	add_library(minizip::minizip ALIAS minizip)
 endif()
 
+if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
+	add_subdirectory(vcmiqt)
+endif()
+
 if(ENABLE_LAUNCHER)
 	add_subdirectory(launcher)
 endif()
@@ -677,6 +676,7 @@ endif()
 
 if (ENABLE_CLIENT)
 	add_subdirectory(client)
+	add_subdirectory(clientapp)
 endif()
 
 if(ENABLE_SERVER)
@@ -722,6 +722,10 @@ endif()
 
 
 if(WIN32)
+	if(TBB_FOUND AND MSVC)
+		install_vcpkg_imported_tgt(TBB::tbb)
+	endif()
+
 	if(USING_CONAN)
 		#Conan imports enabled
 		vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}")
@@ -729,7 +733,9 @@ if(WIN32)
 				${dep_files}
 				"${CMAKE_SYSROOT}/bin/*.dll" 
 				"${CMAKE_SYSROOT}/lib/*.dll" 
-				"${CONAN_SYSTEM_LIBRARY_LOCATION}/*.dll")
+				"${CONAN_SYSTEM_LIBRARY_LOCATION}/libgcc_s_dw2-1.dll" # for 32-bit only?
+				"${CONAN_SYSTEM_LIBRARY_LOCATION}/libgcc_s_seh-1.dll" # for 64-bit only?
+				"${CONAN_SYSTEM_LIBRARY_LOCATION}/libstdc++-6.dll")
 	else()
 		file(GLOB dep_files
 				${dep_files}
@@ -839,10 +845,10 @@ if(WIN32)
 	endif()
 	# set the install/unistall icon used for the installer itself
 	# There is a bug in NSI that does not handle full unix paths properly.
-	set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/client\\\\vcmi.ico")
-	set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/client\\\\vcmi.ico")
+	set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/clientapp/icons\\\\vcmi.ico")
+	set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/clientapp/icons\\\\vcmi.ico")
 	# set the package header icon for MUI
-	set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/client\\\\vcmi.ico")
+	set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/clientapp/icons\\\\vcmi.ico")
 
 	set(CPACK_NSIS_MENU_LINKS "http://vcmi.eu/" "VCMI Web Site")
 

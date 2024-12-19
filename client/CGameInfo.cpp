@@ -92,14 +92,9 @@ const ObstacleService * CGameInfo::obstacles() const
 	return globalServices->obstacles();
 }
 
-const IGameSettings * CGameInfo::settings() const
+const IGameSettings * CGameInfo::engineSettings() const
 {
-	return globalServices->settings();
-}
-
-void CGameInfo::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
-{
-	logGlobal->error("CGameInfo::updateEntity call is not expected.");
+	return globalServices->engineSettings();
 }
 
 spells::effects::Registry * CGameInfo::spellEffects()

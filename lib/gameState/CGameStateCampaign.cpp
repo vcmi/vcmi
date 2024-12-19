@@ -14,6 +14,10 @@
 #include "QuestInfo.h"
 
 #include "../campaign/CampaignState.h"
+#include "../entities/building/CBuilding.h"
+#include "../entities/building/CBuildingHandler.h"
+#include "../entities/hero/CHeroClass.h"
+#include "../entities/hero/CHero.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
@@ -21,12 +25,13 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../StartInfo.h"
-#include "../CBuildingHandler.h"
-#include "../CHeroHandler.h"
 #include "../mapping/CMap.h"
 #include "../ArtifactUtils.h"
 #include "../CPlayerState.h"
 #include "../serializer/CMemorySerializer.h"
+
+#include <vstd/RNG.h>
+#include <vcmi/HeroTypeService.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -83,7 +88,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 					.And(Selector::subtype()(BonusSubtypeID(g)))
 					.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 
-				hero.hero->getLocalBonus(sel)->val = hero.hero->type->heroClass->primarySkillInitial[g.getNum()];
+				hero.hero->getLocalBonus(sel)->val = hero.hero->getHeroClass()->primarySkillInitial[g.getNum()];
 			}
 		}
 	}
@@ -93,7 +98,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 		//trimming sec skills
 		for(auto & hero : campaignHeroReplacements)
 		{
-			hero.hero->secSkills = hero.hero->type->secSkillsInit;
+			hero.hero->secSkills = hero.hero->getHeroType()->secSkillsInit;
 			hero.hero->recreateSecondarySkillsBonuses();
 		}
 	}
@@ -132,15 +137,19 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 
 				ArtifactLocation al(hero.hero->id, artifactPosition);
 
-				bool takeable = travelOptions.artifactsKeptByHero.count(art->artType->getId());
+				bool takeable = travelOptions.artifactsKeptByHero.count(art->getTypeId());
 				bool locked = hero.hero->getSlot(al.slot)->locked;
 
 				if (!locked && takeable)
+				{
+					logGlobal->debug("Artifact %s from slot %d of hero %s will be transferred to next scenario", art->getType()->getJsonKey(), al.slot.getNum(), hero.hero->getHeroTypeName());
 					hero.transferrableArtifacts.push_back(artifactPosition);
+				}
 
 				if (!locked && !takeable)
 				{
-					hero.hero->getArt(al.slot)->removeFrom(*hero.hero, al.slot);
+					logGlobal->debug("Removing artifact %s from slot %d of hero %s", art->getType()->getJsonKey(), al.slot.getNum(), hero.hero->getHeroTypeName());
+					gameState->map->removeArtifactInstance(*hero.hero, al.slot);
 					return true;
 				}
 				return false;
@@ -233,7 +242,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 
 	for(auto & replacement : campaignHeroReplacements)
 		if (replacement.heroPlaceholderId.hasValue())
-			heroesToRemove.insert(replacement.hero->getHeroType());
+			heroesToRemove.insert(replacement.hero->getHeroTypeID());
 
 	for(auto & heroID : heroesToRemove)
 	{
@@ -320,7 +329,7 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 			CArtifactInstance * scroll = ArtifactUtils::createScroll(SpellID(curBonus->info2));
 			const auto slot = ArtifactUtils::getArtAnyPosition(hero, scroll->getTypeId());
 			if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
-				scroll->putAt(*hero, slot);
+				gameState->map->putArtifactInstance(*hero, scroll, slot);
 			else
 				logGlobal->error("Cannot give starting scroll - no free slots!");
 			break;
@@ -361,9 +370,9 @@ void CGameStateCampaign::replaceHeroesPlaceholders()
 		heroToPlace->id = campaignHeroReplacement.heroPlaceholderId;
 		if(heroPlaceholder->tempOwner.isValidPlayer())
 			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
-		heroToPlace->pos = heroPlaceholder->pos;
-		heroToPlace->type = heroToPlace->getHeroType().toHeroType();
-		heroToPlace->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, heroToPlace->type->heroClass->getIndex())->getTemplates().front();
+		heroToPlace->setAnchorPos(heroPlaceholder->anchorPos());
+		heroToPlace->setHeroType(heroToPlace->getHeroTypeID());
+		heroToPlace->appearance = heroToPlace->getObjectHandler()->getTemplates().front();
 
 		gameState->map->removeBlockVisTiles(heroPlaceholder, true);
 		gameState->map->objects[heroPlaceholder->id.getNum()] = nullptr;
@@ -410,19 +419,21 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 		if (!donorHero)
 			throw std::runtime_error("Failed to find hero to take artifacts from! Scenario: " + gameState->map->name.toString());
 
-		for (auto const & artLocation : campaignHeroReplacement.transferrableArtifacts)
+		// process in reverse - 2nd artifact from a backpack must be processed before 1st one to avoid invalidation of artifact positions
+		for (auto const & artLocation : boost::adaptors::reverse(campaignHeroReplacement.transferrableArtifacts))
 		{
 			auto * artifact = donorHero->getArt(artLocation);
-			if (!donorHero)
-				throw std::runtime_error("Failed to find artifacts to transfer to travelling hero! Scenario: " + gameState->map->name.toString());
 
-			artifact->removeFrom(*donorHero, artLocation);
+			logGlobal->debug("Removing artifact %s from slot %d of hero %s for transfer", artifact->getType()->getJsonKey(), artLocation.getNum(), donorHero->getHeroTypeName());
+			gameState->map->removeArtifactInstance(*donorHero, artLocation);
 
 			if (receiver)
 			{
+				logGlobal->debug("Granting artifact %s to hero %s for transfer", artifact->getType()->getJsonKey(), receiver->getHeroTypeName());
+
 				const auto slot = ArtifactUtils::getArtAnyPosition(receiver, artifact->getTypeId());
 				if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
-					artifact->putAt(*receiver, slot);
+					gameState->map->putArtifactInstance(*receiver, artifact, slot);
 				else
 					logGlobal->error("Cannot transfer artifact - no free slots!");
 			}
@@ -533,7 +544,7 @@ void CGameStateCampaign::initHeroes()
 		}
 		assert(humanPlayer != PlayerColor::NEUTRAL);
 
-		std::vector<ConstTransitivePtr<CGHeroInstance> > & heroes = gameState->players[humanPlayer].heroes;
+		const auto & heroes = gameState->players[humanPlayer].getHeroes();
 
 		if (chosenBonus->info1 == 0xFFFD) //most powerful
 		{
@@ -552,11 +563,11 @@ void CGameStateCampaign::initHeroes()
 		}
 		else //specific hero
 		{
-			for (auto & heroe : heroes)
+			for (auto & hero : heroes)
 			{
-				if (heroe->getHeroType().getNum() == chosenBonus->info1)
+				if (hero->getHeroTypeID().getNum() == chosenBonus->info1)
 				{
-					giveCampaignBonusToHero(heroe);
+					giveCampaignBonusToHero(hero);
 					break;
 				}
 			}
@@ -646,14 +657,14 @@ void CGameStateCampaign::initTowns()
 		if (!owner->human)
 			continue;
 
-		if (town->pos != pi.posOfMainTown)
+		if (town->anchorPos() != pi.posOfMainTown)
 			continue;
 
 		BuildingID newBuilding;
 		if(gameState->scenarioOps->campState->formatVCMI())
 			newBuilding = BuildingID(chosenBonus->info1);
 		else
-			newBuilding = CBuildingHandler::campToERMU(chosenBonus->info1, town->getFaction(), town->builtBuildings);
+			newBuilding = CBuildingHandler::campToERMU(chosenBonus->info1, town->getFactionID(), town->getBuildings());
 
 		// Build granted building & all prerequisites - e.g. Mages Guild Lvl 3 should also give Mages Guild Lvl 1 & 2
 		while(true)
@@ -661,12 +672,12 @@ void CGameStateCampaign::initTowns()
 			if (newBuilding == BuildingID::NONE)
 				break;
 
-			if (town->builtBuildings.count(newBuilding) != 0)
+			if(town->hasBuilt(newBuilding))
 				break;
 
-			town->builtBuildings.insert(newBuilding);
+			town->addBuilding(newBuilding);
 
-			auto building = town->town->buildings.at(newBuilding);
+			auto building = town->getTown()->buildings.at(newBuilding);
 			newBuilding = building->upgrade;
 		}
 		break;

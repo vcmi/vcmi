@@ -37,12 +37,6 @@ namespace Goals
 		{
 			return new T(static_cast<T const &>(*this)); //casting enforces template instantiation
 		}
-		template<typename Handler> void serialize(Handler & h)
-		{
-			h & static_cast<AbstractGoal &>(*this);
-			//h & goalType & isElementar & isAbstract & priority;
-			//h & value & resID & objid & aid & tile & hero & town & bid;
-		}
 
 		bool operator==(const AbstractGoal & g) const override
 		{

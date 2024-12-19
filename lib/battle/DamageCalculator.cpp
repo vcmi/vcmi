@@ -17,7 +17,7 @@
 #include "../bonuses/Bonus.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../spells/CSpellHandler.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../VCMI_Lib.h"
 
 
@@ -145,7 +145,8 @@ int DamageCalculator::getActorAttackIgnored() const
 
 	if(multAttackReductionPercent > 0)
 	{
-		int reduction = (getActorAttackBase() * multAttackReductionPercent + 49) / 100; //using ints so 1.5 for 5 attack is rounded down as in HotA / h3assist etc. (keep in mind h3assist 1.2 shows wrong value for 15 attack points and unupg. nix)
+		//using ints so 1.5 for 5 attack is rounded down as in HotA / h3assist etc. (keep in mind h3assist 1.2 shows wrong value for 15 attack points and unupg. nix)
+		int reduction = vstd::divideAndRound( getActorAttackBase() * multAttackReductionPercent, 100);
 		return -std::min(reduction, getActorAttackBase());
 	}
 	return 0;
@@ -211,8 +212,9 @@ double DamageCalculator::getAttackSkillFactor() const
 
 	if(attackAdvantage > 0)
 	{
-		const double attackMultiplier = VLC->settings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR);
-		const double attackMultiplierCap = VLC->settings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP);
+		// FIXME: use cb to acquire these settings
+		const double attackMultiplier = VLC->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR);
+		const double attackMultiplierCap = VLC->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP);
 		const double attackFactor = std::min(attackMultiplier * attackAdvantage, attackMultiplierCap);
 
 		return attackFactor;
@@ -311,8 +313,9 @@ double DamageCalculator::getDefenseSkillFactor() const
 	//bonus from attack/defense skills
 	if(defenseAdvantage > 0) //decreasing dmg
 	{
-		const double defenseMultiplier = VLC->settings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR);
-		const double defenseMultiplierCap = VLC->settings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP);
+		// FIXME: use cb to acquire these settings
+		const double defenseMultiplier = VLC->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR);
+		const double defenseMultiplierCap = VLC->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP);
 
 		const double dec = std::min(defenseMultiplier * defenseAdvantage, defenseMultiplierCap);
 		return dec;

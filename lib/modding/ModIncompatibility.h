@@ -24,7 +24,7 @@ public:
 		messageMissingMods = _ss.str();
 	}
 	
-	ModIncompatibility(const ModList & _missingMods, ModList & _excessiveMods)
+	ModIncompatibility(const ModList & _missingMods, const ModList & _excessiveMods)
 		: ModIncompatibility(_missingMods)
 	{
 		std::ostringstream _ss;

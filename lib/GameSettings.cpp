@@ -33,86 +33,87 @@ std::vector<int> IGameSettings::getVector(EGameSettings option) const
 	return getValue(option).convertTo<std::vector<int>>();
 }
 
+GameSettings::GameSettings() = default;
 GameSettings::~GameSettings() = default;
 
-GameSettings::GameSettings()
-	: gameSettings(static_cast<size_t>(EGameSettings::OPTIONS_COUNT))
-{
-}
-
-void GameSettings::load(const JsonNode & input)
-{
-	struct SettingOption
-	{
-		EGameSettings setting;
-		std::string group;
-		std::string key;
+const std::vector<GameSettings::SettingOption> GameSettings::settingProperties = {
+		{EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION,                    "banks",     "showGuardsComposition"                },
+		{EGameSettings::BONUSES_GLOBAL,                                   "bonuses",   "global"                               },
+		{EGameSettings::BONUSES_PER_HERO,                                 "bonuses",   "perHero"                              },
+		{EGameSettings::COMBAT_AREA_SHOT_CAN_TARGET_EMPTY_HEX,            "combat",    "areaShotCanTargetEmptyHex"            },
+		{EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR,                "combat",    "attackPointDamageFactor"              },
+		{EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP,            "combat",    "attackPointDamageFactorCap"           },
+		{EGameSettings::COMBAT_BAD_LUCK_DICE,                             "combat",    "badLuckDice"                          },
+		{EGameSettings::COMBAT_BAD_MORALE_DICE,                           "combat",    "badMoraleDice"                        },
+		{EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR,               "combat",    "defensePointDamageFactor"             },
+		{EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP,           "combat",    "defensePointDamageFactorCap"          },
+		{EGameSettings::COMBAT_GOOD_LUCK_DICE,                            "combat",    "goodLuckDice"                         },
+		{EGameSettings::COMBAT_GOOD_MORALE_DICE,                          "combat",    "goodMoraleDice"                       },
+		{EGameSettings::COMBAT_LAYOUTS,                                   "combat",    "layouts"                              },
+		{EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES,                "combat",    "oneHexTriggersObstacles"              },
+		{EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH,             "creatures", "allowAllForDoubleMonth"               },
+		{EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS,             "creatures", "allowRandomSpecialWeeks"              },
+		{EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE,                 "creatures", "dailyStackExperience"                 },
+		{EGameSettings::CREATURES_WEEKLY_GROWTH_CAP,                      "creatures", "weeklyGrowthCap"                      },
+		{EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT,                  "creatures", "weeklyGrowthPercent"                  },
+		{EGameSettings::DIMENSION_DOOR_EXPOSES_TERRAIN_TYPE,              "spells",    "dimensionDoorExposesTerrainType"      },
+		{EGameSettings::DIMENSION_DOOR_FAILURE_SPENDS_POINTS,             "spells",    "dimensionDoorFailureSpendsPoints"     },
+		{EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES,           "spells",    "dimensionDoorOnlyToUncoveredTiles"    },
+		{EGameSettings::DIMENSION_DOOR_TOURNAMENT_RULES_LIMIT,            "spells",    "dimensionDoorTournamentRulesLimit"    },
+		{EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS,                   "spells",    "dimensionDoorTriggersGuards"          },
+		{EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL,                "dwellings", "accumulateWhenNeutral"                },
+		{EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED,                  "dwellings", "accumulateWhenOwned"                  },
+		{EGameSettings::DWELLINGS_MERGE_ON_RECRUIT,                       "dwellings", "mergeOnRecruit"                       },
+		{EGameSettings::HEROES_BACKPACK_CAP,                              "heroes",    "backpackSize"                         },
+		{EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS,                    "heroes",    "minimalPrimarySkills"                 },
+		{EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP,                     "heroes",    "perPlayerOnMapCap"                    },
+		{EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP,                      "heroes",    "perPlayerTotalCap"                    },
+		{EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS,             "heroes",    "retreatOnWinWithoutTroops"            },
+		{EGameSettings::HEROES_STARTING_STACKS_CHANCES,                   "heroes",    "startingStackChances"                 },
+		{EGameSettings::HEROES_TAVERN_INVITE,                             "heroes",    "tavernInvite"                         },
+		{EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE,                     "mapFormat", "armageddonsBlade"                     },
+		{EGameSettings::MAP_FORMAT_CHRONICLES,                            "mapFormat", "chronicles"                           },
+		{EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS,                     "mapFormat", "hornOfTheAbyss"                       },
+		{EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS,                   "mapFormat", "inTheWakeOfGods"                      },
+		{EGameSettings::MAP_FORMAT_JSON_VCMI,                             "mapFormat", "jsonVCMI"                             },
+		{EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA,                "mapFormat", "restorationOfErathia"                 },
+		{EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH,                       "mapFormat", "shadowOfDeath"                        },
+		{EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD,              "markets",   "blackMarketRestockPeriod"             },
+		{EGameSettings::MODULE_COMMANDERS,                                "modules",   "commanders"                           },
+		{EGameSettings::MODULE_STACK_ARTIFACT,                            "modules",   "stackArtifact"                        },
+		{EGameSettings::MODULE_STACK_EXPERIENCE,                          "modules",   "stackExperience"                      },
+		{EGameSettings::PATHFINDER_IGNORE_GUARDS,                         "pathfinder", "ignoreGuards"                        },
+		{EGameSettings::PATHFINDER_ORIGINAL_FLY_RULES,                    "pathfinder", "originalFlyRules"                    },
+		{EGameSettings::PATHFINDER_USE_BOAT,                              "pathfinder", "useBoat"                             },
+		{EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_RANDOM,           "pathfinder", "useMonolithOneWayRandom"             },
+		{EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_UNIQUE,           "pathfinder", "useMonolithOneWayUnique"             },
+		{EGameSettings::PATHFINDER_USE_MONOLITH_TWO_WAY,                  "pathfinder", "useMonolithTwoWay"                   },
+		{EGameSettings::PATHFINDER_USE_WHIRLPOOL,                         "pathfinder", "useWhirlpool"                        },
+		{EGameSettings::RESOURCES_WEEKLY_BONUSES_AI,                      "resources", "weeklyBonusesAI"                      },
+		{EGameSettings::TEXTS_ARTIFACT,                                   "textData",  "artifact"                             },
+		{EGameSettings::TEXTS_CREATURE,                                   "textData",  "creature"                             },
+		{EGameSettings::TEXTS_FACTION,                                    "textData",  "faction"                              },
+		{EGameSettings::TEXTS_HERO,                                       "textData",  "hero"                                 },
+		{EGameSettings::TEXTS_HERO_CLASS,                                 "textData",  "heroClass"                            },
+		{EGameSettings::TEXTS_OBJECT,                                     "textData",  "object"                               },
+		{EGameSettings::TEXTS_RIVER,                                      "textData",  "river"                                },
+		{EGameSettings::TEXTS_ROAD,                                       "textData",  "road"                                 },
+		{EGameSettings::TEXTS_SPELL,                                      "textData",  "spell"                                },
+		{EGameSettings::TEXTS_TERRAIN,                                    "textData",  "terrain"                              },
+		{EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP,                     "towns",     "buildingsPerTurnCap"                  },
+		{EGameSettings::TOWNS_STARTING_DWELLING_CHANCES,                  "towns",     "startingDwellingChances"              },
+		{EGameSettings::TOWNS_SPELL_RESEARCH,                             "towns",     "spellResearch"                        },
+		{EGameSettings::TOWNS_SPELL_RESEARCH_COST,                        "towns",     "spellResearchCost"                    },
+		{EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY,                     "towns",     "spellResearchPerDay"                  },
+		{EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH,  "towns",     "spellResearchCostExponentPerResearch" },
+		{EGameSettings::INTERFACE_PLAYER_COLORED_BACKGROUND,              "interface", "playerColoredBackground"              },
 	};
 
-	static const std::vector<SettingOption> optionPath = {
-		{EGameSettings::BONUSES_GLOBAL,                         "bonuses",   "global"                           },
-		{EGameSettings::BONUSES_PER_HERO,                       "bonuses",   "perHero"                          },
-		{EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR,      "combat",    "attackPointDamageFactor"          },
-		{EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP,  "combat",    "attackPointDamageFactorCap"       },
-		{EGameSettings::COMBAT_BAD_LUCK_DICE,                   "combat",    "badLuckDice"                      },
-		{EGameSettings::COMBAT_BAD_MORALE_DICE,                 "combat",    "badMoraleDice"                    },
-		{EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR,     "combat",    "defensePointDamageFactor"         },
-		{EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP, "combat",    "defensePointDamageFactorCap"      },
-		{EGameSettings::COMBAT_GOOD_LUCK_DICE,                  "combat",    "goodLuckDice"                     },
-		{EGameSettings::COMBAT_GOOD_MORALE_DICE,                "combat",    "goodMoraleDice"                   },
-		{EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES,      "combat",    "oneHexTriggersObstacles"          },
-		{EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH,   "creatures", "allowAllForDoubleMonth"           },
-		{EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS,   "creatures", "allowRandomSpecialWeeks"          },
-		{EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE,       "creatures", "dailyStackExperience"             },
-		{EGameSettings::CREATURES_WEEKLY_GROWTH_CAP,            "creatures", "weeklyGrowthCap"                  },
-		{EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT,        "creatures", "weeklyGrowthPercent"              },
-		{EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL,      "dwellings", "accumulateWhenNeutral"            },
-		{EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED,        "dwellings", "accumulateWhenOwned"              },
-		{EGameSettings::DWELLINGS_MERGE_ON_RECRUIT,             "dwellings", "mergeOnRecruit"                   },
-		{EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP,           "heroes",    "perPlayerOnMapCap"                },
-		{EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP,            "heroes",    "perPlayerTotalCap"                },
-		{EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS,   "heroes",    "retreatOnWinWithoutTroops"        },
-		{EGameSettings::HEROES_STARTING_STACKS_CHANCES,         "heroes",    "startingStackChances"             },
-		{EGameSettings::HEROES_BACKPACK_CAP,                    "heroes",    "backpackSize"                     },
-		{EGameSettings::HEROES_TAVERN_INVITE,                   "heroes",    "tavernInvite"                     },
-		{EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA,      "mapFormat", "restorationOfErathia"             },
-		{EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE,           "mapFormat", "armageddonsBlade"                 },
-		{EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH,             "mapFormat", "shadowOfDeath"                    },
-		{EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS,           "mapFormat", "hornOfTheAbyss"                   },
-		{EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS,         "mapFormat", "inTheWakeOfGods"                  },
-		{EGameSettings::MAP_FORMAT_JSON_VCMI,                   "mapFormat", "jsonVCMI"                         },
-		{EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD,    "markets",   "blackMarketRestockPeriod"         },
-		{EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION,          "banks",     "showGuardsComposition"            },
-		{EGameSettings::MODULE_COMMANDERS,                      "modules",   "commanders"                       },
-		{EGameSettings::MODULE_STACK_ARTIFACT,                  "modules",   "stackArtifact"                    },
-		{EGameSettings::MODULE_STACK_EXPERIENCE,                "modules",   "stackExperience"                  },
-		{EGameSettings::TEXTS_ARTIFACT,                         "textData",  "artifact"                         },
-		{EGameSettings::TEXTS_CREATURE,                         "textData",  "creature"                         },
-		{EGameSettings::TEXTS_FACTION,                          "textData",  "faction"                          },
-		{EGameSettings::TEXTS_HERO,                             "textData",  "hero"                             },
-		{EGameSettings::TEXTS_HERO_CLASS,                       "textData",  "heroClass"                        },
-		{EGameSettings::TEXTS_OBJECT,                           "textData",  "object"                           },
-		{EGameSettings::TEXTS_RIVER,                            "textData",  "river"                            },
-		{EGameSettings::TEXTS_ROAD,                             "textData",  "road"                             },
-		{EGameSettings::TEXTS_SPELL,                            "textData",  "spell"                            },
-		{EGameSettings::TEXTS_TERRAIN,                          "textData",  "terrain"                          },
-		{EGameSettings::PATHFINDER_IGNORE_GUARDS,               "pathfinder", "ignoreGuards"                    },
-		{EGameSettings::PATHFINDER_USE_BOAT,                    "pathfinder", "useBoat"                         },
-		{EGameSettings::PATHFINDER_USE_MONOLITH_TWO_WAY,        "pathfinder", "useMonolithTwoWay"               },
-		{EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_UNIQUE, "pathfinder", "useMonolithOneWayUnique"         },
-		{EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_RANDOM, "pathfinder", "useMonolithOneWayRandom"         },
-		{EGameSettings::PATHFINDER_USE_WHIRLPOOL,               "pathfinder", "useWhirlpool"                    },
-		{EGameSettings::PATHFINDER_ORIGINAL_FLY_RULES,          "pathfinder", "originalFlyRules"                },
-		{EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES, "spells",    "dimensionDoorOnlyToUncoveredTiles"},
-		{EGameSettings::DIMENSION_DOOR_EXPOSES_TERRAIN_TYPE,    "spells",    "dimensionDoorExposesTerrainType"  },
-		{EGameSettings::DIMENSION_DOOR_FAILURE_SPENDS_POINTS,   "spells",    "dimensionDoorFailureSpendsPoints" },
-		{EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS,         "spells",    "dimensionDoorTriggersGuards"      },
-		{EGameSettings::DIMENSION_DOOR_TOURNAMENT_RULES_LIMIT,  "spells",    "dimensionDoorTournamentRulesLimit"},
-		{EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP,           "towns",     "buildingsPerTurnCap"              },
-		{EGameSettings::TOWNS_STARTING_DWELLING_CHANCES,        "towns",     "startingDwellingChances"          },
-	};
+void GameSettings::loadBase(const JsonNode & input)
+{
+	JsonUtils::validate(input, "vcmi:gameSettings", input.getModScope());
 
-	for(const auto & option : optionPath)
+	for(const auto & option : settingProperties)
 	{
 		const JsonNode & optionValue = input[option.group][option.key];
 		size_t index = static_cast<size_t>(option.setting);
@@ -120,16 +121,59 @@ void GameSettings::load(const JsonNode & input)
 		if(optionValue.isNull())
 			continue;
 
-		JsonUtils::mergeCopy(gameSettings[index], optionValue);
+		JsonUtils::mergeCopy(baseSettings[index], optionValue);
 	}
+	actualSettings = baseSettings;
+}
+
+void GameSettings::loadOverrides(const JsonNode & input)
+{
+	for(const auto & option : settingProperties)
+	{
+		const JsonNode & optionValue = input[option.group][option.key];
+		if (!optionValue.isNull())
+			addOverride(option.setting, optionValue);
+	}
+}
+
+void GameSettings::addOverride(EGameSettings option, const JsonNode & input)
+{
+	size_t index = static_cast<size_t>(option);
+
+	overridenSettings[index] = input;
+	JsonNode newValue = baseSettings[index];
+	JsonUtils::mergeCopy(newValue, input);
+	actualSettings[index] = newValue;
 }
 
 const JsonNode & GameSettings::getValue(EGameSettings option) const
 {
 	auto index = static_cast<size_t>(option);
 
-	assert(!gameSettings.at(index).isNull());
-	return gameSettings.at(index);
+	assert(!actualSettings.at(index).isNull());
+	return actualSettings.at(index);
+}
+
+JsonNode GameSettings::getFullConfig() const
+{
+	JsonNode result;
+	for(const auto & option : settingProperties)
+		result[option.group][option.key] = getValue(option.setting);
+
+	return result;
+}
+
+JsonNode GameSettings::getAllOverrides() const
+{
+	JsonNode result;
+	for(const auto & option : settingProperties)
+	{
+		const JsonNode & value = overridenSettings[static_cast<int32_t>(option.setting)];
+		if (!value.isNull())
+			result[option.group][option.key] = value;
+	}
+
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END

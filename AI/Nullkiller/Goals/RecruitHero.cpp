@@ -68,10 +68,13 @@ void RecruitHero::accept(AIGateway * ai)
 		throw cannotFulfillGoalException("Town " + t->nodeName() + " is occupied. Cannot recruit hero!");
 
 	cb->recruitHero(t, heroToHire);
-	ai->nullkiller->heroManager->update();
 
-	if(t->visitingHero)
-		ai->moveHeroToTile(t->visitablePos(), t->visitingHero.get());
+	{
+		std::unique_lock lockGuard(ai->nullkiller->aiStateMutex);
+
+		ai->nullkiller->heroManager->update();
+		ai->nullkiller->objectClusterizer->reset();
+	}
 }
 
 }

@@ -20,25 +20,6 @@
 namespace NKAI
 {
 
-ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
-{
-	//this one is not fuzzy anymore, just calculate weighted average
-
-	auto objectInfo = bank->getObjectHandler()->getObjectInfo(bank->appearance);
-
-	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
-
-	ui64 totalStrength = 0;
-	ui8 totalChance = 0;
-	for(auto config : bankInfo->getPossibleGuards(bank->cb))
-	{
-		totalStrength += config.second.totalStrength * config.first;
-		totalChance += config.first;
-	}
-	return totalStrength / std::max<ui8>(totalChance, 1); //avoid division by zero
-
-}
-
 ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visitor, bool checkGuards)
 {
 	auto cb = ai->cb.get();
@@ -71,6 +52,15 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 			{
 				objectDanger += evaluateDanger(hero->visitedTown.get());
 			}
+			objectDanger *= ai->heroManager->getFightingStrengthCached(hero);
+		}
+		if (objWithID<Obj::TOWN>(dangerousObject))
+		{
+			auto town = dynamic_cast<const CGTownInstance*>(dangerousObject);
+			auto hero = town->garrisonHero;
+
+			if (hero)
+				objectDanger *= ai->heroManager->getFightingStrengthCached(hero);
 		}
 
 		if(objectDanger)
@@ -136,10 +126,10 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 		{
 			auto fortLevel = town->fortLevel();
 
-			if(fortLevel == CGTownInstance::EFortLevel::CASTLE)
-				danger += 10000;
+			if (fortLevel == CGTownInstance::EFortLevel::CASTLE)
+				danger = std::max(danger * 2, danger + 10000);
 			else if(fortLevel == CGTownInstance::EFortLevel::CITADEL)
-				danger += 4000;
+				danger = std::max(ui64(danger * 1.4), danger + 4000);
 		}
 
 		return danger;
@@ -158,30 +148,14 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 			return 0;
 		[[fallthrough]];
 	}
-	case Obj::MONSTER:
-	case Obj::GARRISON:
-	case Obj::GARRISON2:
-	case Obj::CREATURE_GENERATOR1:
-	case Obj::CREATURE_GENERATOR4:
-	case Obj::MINE:
-	case Obj::ABANDONED_MINE:
-	case Obj::PANDORAS_BOX:
-	case Obj::CRYPT: //crypt
-	case Obj::CREATURE_BANK: //crebank
-	case Obj::DRAGON_UTOPIA:
-	case Obj::SHIPWRECK: //shipwreck
-	case Obj::DERELICT_SHIP: //derelict ship
+	default:
 	{
 		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
-		return a->getArmyStrength();
+		if (a)
+			return a->getArmyStrength();
+		else
+			return 0;
 	}
-	case Obj::PYRAMID:
-	{
-		return estimateBankDanger(dynamic_cast<const CBank *>(obj));
-	}
-	default:
-		return 0;
 	}
 }
-
 }

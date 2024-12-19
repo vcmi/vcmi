@@ -17,7 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 template<class ObjectType>
 class CDefaultObjectTypeHandler : public AObjectTypeHandler
 {
-	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const final
+	void configureObject(CGObjectInstance * object, vstd::RNG & rng) const final
 	{
 		ObjectType * castedObject = dynamic_cast<ObjectType*>(object);
 
@@ -43,7 +43,7 @@ class CDefaultObjectTypeHandler : public AObjectTypeHandler
 
 protected:
 	virtual void initializeObject(ObjectType * object) const {}
-	virtual void randomizeObject(ObjectType * object, CRandomGenerator & rng) const {}
+	virtual void randomizeObject(ObjectType * object, vstd::RNG & rng) const {}
 	virtual ObjectType * createObject(IGameCallback * cb) const
 	{
 		return new ObjectType(cb);

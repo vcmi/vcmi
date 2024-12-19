@@ -14,7 +14,9 @@
 class CArtifactsOfHeroMarket : public CArtifactsOfHeroBase
 {
 public:
-	std::function<void(const CArtPlace*)> selectArtCallback;
+	std::function<void(const CArtPlace*)> onSelectArtCallback;
+	std::function<void()> onClickNotTradableCallback;
 
 	CArtifactsOfHeroMarket(const Point & position, const int selectionWidth);
+	void clickPressedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition) override;
 };

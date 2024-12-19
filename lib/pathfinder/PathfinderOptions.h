@@ -16,7 +16,7 @@ class IPathfindingRule;
 class CPathfinderHelper;
 class CGameState;
 class CGHeroInstance;
-
+class CGameInfoCallback;
 struct PathNodeInfo;
 struct CPathsInfo;
 
@@ -30,6 +30,7 @@ struct DLL_LINKAGE PathfinderOptions
 	bool useTeleportOneWay; // One-way monoliths with one known exit only
 	bool useTeleportOneWayRandom; // One-way monoliths with more than one known exit
 	bool useTeleportWhirlpool; // Force enabled if hero protected or unaffected (have one stack of one creature)
+	bool forceUseTeleportWhirlpool; // Force enabled if hero protected or unaffected (have one stack of one creature)
 
 							   /// TODO: Find out with client and server code, merge with normal teleporters.
 							   /// Likely proper implementation would require some refactoring of CGTeleport.
@@ -84,7 +85,7 @@ struct DLL_LINKAGE PathfinderOptions
 	/// </summary>
 	bool allowLayerTransitioningAfterBattle;
 
-	PathfinderOptions();
+	PathfinderOptions(const CGameInfoCallback * callback);
 };
 
 class DLL_LINKAGE PathfinderConfig
@@ -96,6 +97,7 @@ public:
 
 	PathfinderConfig(
 		std::shared_ptr<INodeStorage> nodeStorage,
+		const CGameInfoCallback * callback,
 		std::vector<std::shared_ptr<IPathfindingRule>> rules);
 	virtual ~PathfinderConfig() = default;
 

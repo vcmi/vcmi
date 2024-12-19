@@ -46,10 +46,10 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 			for(pos.y=0; pos.y < sizes.y; ++pos.y)
 			{
 				const TerrainTile & tile = gs->map->getTile(pos);
-				if(!tile.terType->isPassable())
+				if(!tile.getTerrain()->isPassable())
 					continue;
 				
-				if(tile.terType->isWater())
+				if(tile.getTerrain()->isWater())
 				{
 					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
 					if(useFlying)
@@ -308,7 +308,7 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 			{
 #ifdef VCMI_TRACE_PATHFINDER
 				logAi->trace(
-					"Block ineficient move %s:->%s, mask=%i, mp diff: %i",
+					"Block inefficient move %s:->%s, mask=%i, mp diff: %i",
 					source.coord.toString(),
 					destination.coord.toString(),
 					destinationNode->chainMask,

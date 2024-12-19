@@ -24,6 +24,7 @@
 #include "../windows/CKingdomInterface.h"
 #include "../windows/CSpellWindow.h"
 #include "../windows/CMarketWindow.h"
+#include "../windows/GUIClasses.h"
 #include "../windows/settings/SettingsMainWindow.h"
 #include "AdventureMapInterface.h"
 #include "AdventureOptions.h"
@@ -31,16 +32,19 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/pathfinder/CGPathNode.h"
+#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 
 AdventureMapShortcuts::AdventureMapShortcuts(AdventureMapInterface & owner)
 	: owner(owner)
 	, state(EAdventureState::NOT_INITIALIZED)
 	, mapLevel(0)
+	, searchLast("")
+	, searchPos(0)
 {}
 
 void AdventureMapShortcuts::setState(EAdventureState newState)
@@ -48,7 +52,7 @@ void AdventureMapShortcuts::setState(EAdventureState newState)
 	state = newState;
 }
 
-EAdventureState AdventureMapShortcuts::getState()
+EAdventureState AdventureMapShortcuts::getState() const
 {
 	return state;
 }
@@ -71,6 +75,8 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_QUEST_LOG,        optionCanViewQuests(),  [this]() { this->showQuestlog(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_SLEEP,     optionHeroSelected(),   [this]() { this->toggleSleepWake(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_GRID,      optionInMapView(),      [this]() { this->toggleGrid(); } },
+		{ EShortcut::ADVENTURE_TOGGLE_VISITABLE, optionInMapView(),      [this]() { this->toggleVisitable(); } },
+		{ EShortcut::ADVENTURE_TOGGLE_BLOCKED,   optionInMapView(),      [this]() { this->toggleBlocked(); } },
 		{ EShortcut::ADVENTURE_TRACK_HERO,       optionInMapView(),      [this]() { this->toggleTrackHero(); } },
 		{ EShortcut::ADVENTURE_SET_HERO_ASLEEP,  optionHeroAwake(),      [this]() { this->setHeroSleeping(); } },
 		{ EShortcut::ADVENTURE_SET_HERO_AWAKE,   optionHeroSleeping(),   [this]() { this->setHeroAwake(); } },
@@ -107,7 +113,9 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_MOVE_HERO_EE,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({+1,  0}); } },
 		{ EShortcut::ADVENTURE_MOVE_HERO_NW,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({-1, -1}); } },
 		{ EShortcut::ADVENTURE_MOVE_HERO_NN,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({ 0, -1}); } },
-		{ EShortcut::ADVENTURE_MOVE_HERO_NE,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({+1, -1}); } }
+		{ EShortcut::ADVENTURE_MOVE_HERO_NE,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({+1, -1}); } },
+		{ EShortcut::ADVENTURE_SEARCH,           optionSidePanelActive(),[this]() { this->search(false); } },
+		{ EShortcut::ADVENTURE_SEARCH_CONTINUE,  optionSidePanelActive(),[this]() { this->search(true); } }
 	};
 	return result;
 }
@@ -166,6 +174,18 @@ void AdventureMapShortcuts::toggleGrid()
 {
 	Settings s = settings.write["gameTweaks"];
 	s["showGrid"].Bool() = !settings["gameTweaks"]["showGrid"].Bool();
+}
+
+void AdventureMapShortcuts::toggleVisitable()
+{
+	Settings s = settings.write["session"];
+	s["showVisitable"].Bool() = !settings["session"]["showVisitable"].Bool();
+}
+
+void AdventureMapShortcuts::toggleBlocked()
+{
+	Settings s = settings.write["session"];
+	s["showBlocked"].Bool() = !settings["session"]["showBlocked"].Bool();
 }
 
 void AdventureMapShortcuts::toggleSleepWake()
@@ -311,7 +331,6 @@ void AdventureMapShortcuts::toMainMenu()
 		[]()
 		{
 			CSH->endGameplay();
-			GH.defActionsDef = 63;
 			CMM->menu->switchToTab("main");
 		},
 		0
@@ -325,7 +344,6 @@ void AdventureMapShortcuts::newGame()
 		[]()
 		{
 			CSH->endGameplay();
-			GH.defActionsDef = 63;
 			CMM->menu->switchToTab("new");
 		},
 		nullptr
@@ -445,6 +463,62 @@ void AdventureMapShortcuts::zoom( int distance)
 	owner.hotkeyZoom(distance, false);
 }
 
+void AdventureMapShortcuts::search(bool next)
+{
+	// get all relevant objects
+	std::vector<ObjectInstanceID> visitableObjInstances;
+	for(auto & obj : LOCPLINT->cb->getAllVisitableObjs())
+		if(obj->ID != MapObjectID::MONSTER && obj->ID != MapObjectID::HERO && obj->ID != MapObjectID::TOWN)
+			visitableObjInstances.push_back(obj->id);
+
+	// count of elements for each group (map is already sorted)
+	std::map<std::string, int> mapObjCount;
+	for(auto & obj : visitableObjInstances)
+		mapObjCount[{ LOCPLINT->cb->getObjInstance(obj)->getObjectName() }]++;
+
+	// convert to vector for indexed access
+	std::vector<std::pair<std::string, int>> textCountList;
+	for (auto itr = mapObjCount.begin(); itr != mapObjCount.end(); ++itr)
+		textCountList.push_back(*itr);
+
+	// get pos of last selection
+	int lastSel = 0;
+	for(int i = 0; i < textCountList.size(); i++)
+		if(textCountList[i].first == searchLast)
+			lastSel = i;
+
+	// create texts
+	std::vector<std::string> texts;
+	for(auto & obj : textCountList)
+		texts.push_back(obj.first + " (" + std::to_string(obj.second) + ")");
+
+	// function to center element from list on map
+	auto selectObjOnMap = [this, textCountList, visitableObjInstances](int index)
+		{
+			auto selObj = textCountList[index].first;
+
+			// filter for matching objects
+			std::vector<ObjectInstanceID> selVisitableObjInstances;
+			for(auto & obj : visitableObjInstances)
+				if(selObj == LOCPLINT->cb->getObjInstance(obj)->getObjectName())
+					selVisitableObjInstances.push_back(obj);
+			
+			if(searchPos + 1 < selVisitableObjInstances.size() && searchLast == selObj)
+				searchPos++;
+			else
+				searchPos = 0;
+
+			auto objInst = LOCPLINT->cb->getObjInstance(selVisitableObjInstances[searchPos]);
+			owner.centerOnObject(objInst);
+			searchLast = objInst->getObjectName();
+		};
+
+	if(next)
+		selectObjOnMap(lastSel);
+	else
+		GH.windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, CGI->generaltexth->translate("vcmi.adventureMap.search.hover"), CGI->generaltexth->translate("vcmi.adventureMap.search.help"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
+}
+
 void AdventureMapShortcuts::nextObject()
 {
 	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
@@ -518,7 +592,6 @@ bool AdventureMapShortcuts::optionCanVisitObject()
 	auto * hero = LOCPLINT->localState->getCurrentHero();
 	auto objects = LOCPLINT->cb->getVisitableObjs(hero->visitablePos());
 
-	//assert(vstd::contains(objects,hero));
 	return objects.size() > 1; // there is object other than our hero
 }
 

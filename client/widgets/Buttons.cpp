@@ -13,7 +13,6 @@
 #include "Images.h"
 #include "TextControls.h"
 
-#include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
@@ -23,13 +22,13 @@
 #include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
 #include "../gui/InterfaceObjectConfigurable.h"
+#include "../media/ISoundPlayer.h"
 #include "../windows/InfoWindows.h"
-#include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 
 void ButtonBase::update()
@@ -50,7 +49,8 @@ void ButtonBase::update()
 		// hero movement speed buttons: only three frames: normal, pressed and blocked/highlighted
 		if (state == EButtonState::HIGHLIGHTED && image->size() < 4)
 			image->setFrame(image->size()-1);
-		image->setFrame(stateToIndex[vstd::to_underlying(state)]);
+		else
+			image->setFrame(stateToIndex[vstd::to_underlying(state)]);
 	}
 
 	if (isActive())
@@ -67,9 +67,14 @@ void CButton::addCallback(const std::function<void()> & callback)
 	this->callback += callback;
 }
 
+void CButton::addPopupCallback(const std::function<void()> & callback)
+{
+	this->callbackPopup += callback;
+}
+
 void ButtonBase::setTextOverlay(const std::string & Text, EFonts font, ColorRGBA color)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	setOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, ETextAlignment::CENTER, color, Text));
 	update();
 }
@@ -88,14 +93,14 @@ void ButtonBase::setOverlay(const std::shared_ptr<CIntObject>& newOverlay)
 
 void ButtonBase::setImage(const AnimationPath & defName, bool playerColoredButton)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	configurable.reset();
 	image = std::make_shared<CAnimImage>(defName, vstd::to_underlying(getState()));
 	pos = image->pos;
 
 	if (playerColoredButton)
-		image->playerColored(LOCPLINT->playerID);
+		image->setPlayerColor(LOCPLINT->playerID);
 }
 
 const JsonNode & ButtonBase::getCurrentConfig() const
@@ -121,7 +126,7 @@ const JsonNode & ButtonBase::getCurrentConfig() const
 
 void ButtonBase::setConfigurable(const JsonPath & jsonName, bool playerColoredButton)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	config = std::make_unique<JsonNode>(jsonName);
 
@@ -130,7 +135,7 @@ void ButtonBase::setConfigurable(const JsonPath & jsonName, bool playerColoredBu
 	pos = configurable->pos;
 
 	if (playerColoredButton)
-		image->playerColored(LOCPLINT->playerID);
+		image->setPlayerColor(LOCPLINT->playerID);
 }
 
 void CButton::addHoverText(EButtonState state, const std::string & text)
@@ -158,7 +163,7 @@ void ButtonBase::setStateImpl(EButtonState newState)
 
 	if (configurable)
 	{
-		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+		OBJECT_CONSTRUCTION;
 		configurable = std::make_shared<InterfaceObjectConfigurable>(getCurrentConfig());
 		pos = configurable->pos;
 
@@ -289,6 +294,8 @@ void CButton::clickCancel(const Point & cursorPosition)
 
 void CButton::showPopupWindow(const Point & cursorPosition)
 {
+	callbackPopup();
+
 	if(!helpBox.empty()) //there is no point to show window with nothing inside...
 		CRClickPopup::createAndPush(helpBox);
 }
@@ -350,7 +357,6 @@ CButton::CButton(Point position, const AnimationPath &defName, const std::pair<s
 	hoverable(false),
 	soundDisabled(false)
 {
-	defActions = 255-DISPOSE;
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
 	hoverTexts[0] = help.first;
 }
@@ -358,7 +364,7 @@ CButton::CButton(Point position, const AnimationPath &defName, const std::pair<s
 void ButtonBase::setPlayerColor(PlayerColor player)
 {
 	if (image && image->isPlayerColored())
-		image->playerColored(player);
+		image->setPlayerColor(player);
 }
 
 void CButton::showAll(Canvas & to)
@@ -441,10 +447,13 @@ void CToggleBase::setAllowDeselection(bool on)
 }
 
 CToggleButton::CToggleButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help,
-							 CFunctionList<void(bool)> callback, EShortcut key, bool playerColoredButton):
+							 CFunctionList<void(bool)> callback, EShortcut key, bool playerColoredButton,
+				  			 CFunctionList<void()> callbackSelected):
   CButton(position, defName, help, 0, key, playerColoredButton),
-  CToggleBase(callback)
+  CToggleBase(callback),
+  callbackSelected(callbackSelected)
 {
+	addUsedEvents(DOUBLECLICK);
 }
 
 void CToggleButton::doSelect(bool on)
@@ -509,6 +518,12 @@ void CToggleButton::clickCancel(const Point & cursorPosition)
 		return;
 
 	doSelect(isSelected());
+}
+
+void CToggleButton::clickDouble(const Point & cursorPosition)
+{
+	if(callbackSelected)
+		callbackSelected();
 }
 
 void CToggleGroup::addCallback(const std::function<void(int)> & callback)

@@ -13,6 +13,7 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../TerrainHandler.h"
+#include "../VCMI_Lib.h"
 #include "CMap.h"
 #include "CMapOperation.h"
 
@@ -355,7 +356,7 @@ void CTerrainViewPatternUtils::printDebuggingInfoAboutTile(const CMap * map, con
 			{
 				auto debugTile = map->getTile(debugPos);
 
-				std::string terType = debugTile.terType->shortIdentifier;
+				std::string terType = debugTile.getTerrain()->shortIdentifier;
 				line += terType;
 				line.insert(line.end(), PADDED_LENGTH - terType.size(), ' ');
 			}

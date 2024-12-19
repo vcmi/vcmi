@@ -15,6 +15,8 @@
 #include "TurnTimerInfo.h"
 #include "ExtraOptionsInfo.h"
 #include "campaign/CampaignConstants.h"
+#include "serializer/Serializeable.h"
+#include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -50,9 +52,10 @@ struct DLL_LINKAGE SimturnsInfo
 		h & optionalTurns;
 		h & allowHumanWithAI;
 
-		static_assert(Handler::Version::RELEASE_143 < Handler::Version::CURRENT, "Please add ignoreAlliedContacts to serialization for 1.6");
-		// disabled to allow multiplayer compatibility between 1.5.2 and 1.5.1
-		// h & ignoreAlliedContacts
+		if (h.version >= Handler::Version::SAVE_COMPATIBILITY_FIXES)
+			h & ignoreAlliedContacts;
+		else
+			ignoreAlliedContacts = true;
 	}
 };
 
@@ -62,6 +65,20 @@ enum class PlayerStartingBonus : int8_t
 	ARTIFACT =  0,
 	GOLD     =  1,
 	RESOURCE =  2
+};
+
+struct DLL_LINKAGE Handicap {
+	TResources startBonus = TResources();
+	int percentIncome = 100;
+	int percentGrowth = 100;
+
+	template <typename Handler>
+	void serialize(Handler &h)
+	{
+		h & startBonus;
+		h & percentIncome;
+		h & percentGrowth;
+	}
 };
 
 /// Struct which describes the name, the color, the starting bonus of a player
@@ -76,8 +93,8 @@ struct DLL_LINKAGE PlayerSettings
 
 	std::string heroNameTextId;
 	PlayerColor color; //from 0 -
-	enum EHandicap {NO_HANDICAP, MILD, SEVERE};
-	EHandicap handicap;//0-no, 1-mild, 2-severe
+
+	Handicap handicap;
 
 	std::string name;
 	std::set<ui8> connectedPlayerIDs; //Empty - AI, or connectrd player ids
@@ -91,7 +108,14 @@ struct DLL_LINKAGE PlayerSettings
 		h & heroNameTextId;
 		h & bonus;
 		h & color;
-		h & handicap;
+		if (h.version >= Handler::Version::PLAYER_HANDICAP)
+			h & handicap;
+		else
+		{
+			enum EHandicap {NO_HANDICAP, MILD, SEVERE};
+			EHandicap handicapLegacy = NO_HANDICAP;
+			h & handicapLegacy;
+		}
 		h & name;
 		h & connectedPlayerIDs;
 		h & compOnly;
@@ -114,7 +138,7 @@ enum class EStartMode : int32_t
 };
 
 /// Struct which describes the difficulty, the turn time,.. of a heroes match.
-struct DLL_LINKAGE StartInfo
+struct DLL_LINKAGE StartInfo : public Serializeable
 {
 	EStartMode mode;
 	ui8 difficulty; //0=easy; 4=impossible
@@ -122,10 +146,7 @@ struct DLL_LINKAGE StartInfo
 	using TPlayerInfos = std::map<PlayerColor, PlayerSettings>;
 	TPlayerInfos playerInfos; //color indexed
 
-	ui32 seedToBeUsed; //0 if not sure (client requests server to decide, will be send in reply pack)
-	ui32 seedPostInit; //so we know that game is correctly synced at the start; 0 if not known yet
-	ui32 mapfileChecksum; //0 if not relevant
-	std::string startTimeIso8601;
+	time_t startTime;
 	std::string fileURI;
 	SimturnsInfo simturnsInfo;
 	TurnTimerInfo turnTimerInfo;
@@ -143,8 +164,8 @@ struct DLL_LINKAGE StartInfo
 	// TODO: Must be client-side
 	std::string getCampaignName() const;
 
-	/// Controls hardcoded check for "Steadwick's Fall" scenario from "Dungeon and Devils" campaign
-	bool isSteadwickFallCampaignMission() const;
+	/// Controls hardcoded check for handling of garrisons by AI in Restoration of Erathia campaigns to match H3 behavior
+	bool isRestorationOfErathiaCampaign() const;
 
 	template <typename Handler>
 	void serialize(Handler &h)
@@ -152,24 +173,37 @@ struct DLL_LINKAGE StartInfo
 		h & mode;
 		h & difficulty;
 		h & playerInfos;
-		h & seedToBeUsed;
-		h & seedPostInit;
-		h & mapfileChecksum;
-		h & startTimeIso8601;
+		if (h.version < Handler::Version::REMOVE_LIB_RNG)
+		{
+			uint32_t oldSeeds = 0;
+			h & oldSeeds;
+			h & oldSeeds;
+			h & oldSeeds;
+		}
+		if (h.version < Handler::Version::FOLDER_NAME_REWORK)
+		{
+			std::string startTimeLegacy;
+			h & startTimeLegacy;
+			struct std::tm tm;
+			std::istringstream ss(startTimeLegacy);
+			ss >> std::get_time(&tm, "%Y%m%dT%H%M%S");
+			startTime = mktime(&tm);
+		}
+		else
+			h & startTime;
 		h & fileURI;
 		h & simturnsInfo;
 		h & turnTimerInfo;
-		if(h.version >= Handler::Version::HAS_EXTRA_OPTIONS)
-			h & extraOptionsInfo;
-		else
-			extraOptionsInfo = ExtraOptionsInfo();
+		h & extraOptionsInfo;
 		h & mapname;
 		h & mapGenOptions;
 		h & campState;
 	}
 
-	StartInfo() : mode(EStartMode::INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
-		mapfileChecksum(0), startTimeIso8601(vstd::getDateTimeISO8601Basic(std::time(nullptr))), fileURI("")
+	StartInfo()
+		: mode(EStartMode::INVALID)
+		, difficulty(1)
+		, startTime(std::time(nullptr))
 	{
 
 	}

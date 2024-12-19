@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "ISpellMechanics.h"
 
-#include "../CRandomGenerator.h"
 #include "../VCMI_Lib.h"
 
 #include "../bonuses/Bonus.h"
@@ -37,9 +36,10 @@
 
 #include "CSpellHandler.h"
 
-#include "../CHeroHandler.h"//todo: remove
 #include "../IGameCallback.h"//todo: remove
 #include "../BattleFieldHandler.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -268,11 +268,9 @@ void BattleCast::cast(ServerCallback * server, Target target)
 		const std::string magicMirrorCacheStr = "type_MAGIC_MIRROR";
 		static const auto magicMirrorSelector = Selector::type()(BonusType::MAGIC_MIRROR);
 
-		auto rangeGen = server->getRNG()->getInt64Range(0, 99);
-
 		const int mirrorChance = mainTarget->valOfBonuses(magicMirrorSelector, magicMirrorCacheStr);
 
-		if(rangeGen() < mirrorChance)
+		if(server->getRNG()->nextInt(0, 99) < mirrorChance)
 		{
 			auto mirrorTargets = cb->battleGetUnitsIf([this](const battle::Unit * unit)
 			{
@@ -398,7 +396,7 @@ std::unique_ptr<ISpellMechanicsFactory> ISpellMechanicsFactory::get(const CSpell
 ///Mechanics
 Mechanics::Mechanics()
 	: caster(nullptr),
-	casterSide(0)
+	casterSide(BattleSide::NONE)
 {
 
 }
@@ -414,8 +412,7 @@ BaseMechanics::BaseMechanics(const IBattleCast * event):
 {
 	caster = event->getCaster();
 
-	//FIXME: do not crash on invalid side
-	casterSide = cb->playerToSide(caster->getCasterOwner()).value();
+	casterSide = cb->playerToSide(caster->getCasterOwner());
 
 	{
 		auto value = event->getSpellLevel();

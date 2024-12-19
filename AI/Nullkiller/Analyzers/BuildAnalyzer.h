@@ -22,7 +22,7 @@ class DLL_EXPORT BuildingInfo
 public:
 	BuildingID id;
 	TResources buildCost;
-	TResources buildCostWithPrerequisits;
+	TResources buildCostWithPrerequisites;
 	int creatureGrows;
 	uint8_t creatureLevel;
 	TResources creatureCost;

@@ -9,15 +9,11 @@
  */
 #include "StdInc.h"
 #include "BinarySerializer.h"
-#include "../registerTypes/RegisterTypes.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 BinarySerializer::BinarySerializer(IBinaryWriter * w): CSaverBase(w)
 {
-	saving=true;
-	smartPointerSerialization = true;
-	registerTypes(*this);
 }
 
 VCMI_LIB_NAMESPACE_END

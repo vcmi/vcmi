@@ -11,7 +11,6 @@
 #include "HeroMovementController.h"
 
 #include "CGameInfo.h"
-#include "CMusicHandler.h"
 #include "CPlayerInterface.h"
 #include "PlayerLocalState.h"
 #include "adventureMap/AdventureMapInterface.h"
@@ -19,10 +18,13 @@
 #include "gui/CGuiHandler.h"
 #include "gui/CursorHandler.h"
 #include "mapView/mapHandler.h"
+#include "media/ISoundPlayer.h"
 
 #include "../CCallback.h"
 
 #include "ConditionalWait.h"
+#include "../lib/CConfigHandler.h"
+#include "../lib/CRandomGenerator.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/networkPacks/PacksForClient.h"
@@ -152,8 +154,12 @@ void HeroMovementController::onTryMoveHero(const CGHeroInstance * hero, const Tr
 
 	if(details.result == TryMoveHero::EMBARK || details.result == TryMoveHero::DISEMBARK)
 	{
-		if(hero->getRemovalSound() && hero->tempOwner == LOCPLINT->playerID)
-			CCS->soundh->playSound(hero->getRemovalSound().value());
+		if (hero->tempOwner == LOCPLINT->playerID)
+		{
+			auto removalSound = hero->getRemovalSound(CRandomGenerator::getDefault());
+			if (removalSound)
+				CCS->soundh->playSound(removalSound.value());
+		}
 	}
 
 	bool directlyAttackingCreature =
@@ -285,14 +291,12 @@ AudioPath HeroMovementController::getMovementSoundFor(const CGHeroInstance * her
 	auto prevTile = LOCPLINT->cb->getTile(posPrev);
 	auto nextTile = LOCPLINT->cb->getTile(posNext);
 
-	auto prevRoad = prevTile->roadType;
-	auto nextRoad = nextTile->roadType;
-	bool movingOnRoad = prevRoad->getId() != Road::NO_ROAD && nextRoad->getId() != Road::NO_ROAD;
+	bool movingOnRoad = prevTile->hasRoad() && nextTile->hasRoad();
 
 	if(movingOnRoad)
-		return nextTile->terType->horseSound;
+		return nextTile->getTerrain()->horseSound;
 	else
-		return nextTile->terType->horseSoundPenalty;
+		return nextTile->getTerrain()->horseSoundPenalty;
 };
 
 void HeroMovementController::updateMovementSound(const CGHeroInstance * h, int3 posPrev, int3 nextCoord, EPathNodeAction moveType)
@@ -369,7 +373,7 @@ void HeroMovementController::sendMovementRequest(const CGHeroInstance * h, const
 	{
 		updateMovementSound(h, currNode.coord, nextNode.coord, nextNode.action);
 
-		assert(h->pos.z == nextNode.coord.z); // Z should change only if it's movement via teleporter and in this case this code shouldn't be executed at all
+		assert(h->anchorPos().z == nextNode.coord.z); // Z should change only if it's movement via teleporter and in this case this code shouldn't be executed at all
 
 		logGlobal->trace("Requesting hero movement to %s", nextNode.coord.toString());
 

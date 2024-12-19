@@ -53,7 +53,7 @@ TSubgoal VisitHero::whatToDoToAchieve()
 
 bool VisitHero::fulfillsMe(TSubgoal goal)
 {
-	//TODO: VisitObj shoudl not be used for heroes, but...
+	//TODO: VisitObj should not be used for heroes, but...
 	if(goal->goalType == VISIT_TILE)
 	{
 		auto obj = cb->getObj(ObjectInstanceID(objid));

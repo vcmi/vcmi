@@ -13,6 +13,7 @@
 #include "../Engine/Nullkiller.h"
 #include "../pforeach.h"
 #include "../../../lib/CRandomGenerator.h"
+#include "../../../lib/logging/VisualLogger.h"
 
 namespace NKAI
 {
@@ -22,6 +23,41 @@ const HitMapInfo HitMapInfo::NoThreat;
 double HitMapInfo::value() const
 {
 	return danger / std::sqrt(turn / 3.0f + 1);
+}
+
+void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
+{
+#if NKAI_TRACE_LEVEL >= 1
+	logVisual->updateWithLock(playerID.toString() + ".danger.max", [&data](IVisualLogBuilder & b)
+		{
+			foreach_tile_pos([&b, &data](const int3 & pos)
+				{
+					auto & treat = data.getTileThreat(pos).maximumDanger;
+					b.addText(pos, std::to_string(treat.danger));
+
+					if(treat.hero.validAndSet())
+					{
+						b.addText(pos, std::to_string(treat.turn));
+						b.addText(pos, treat.hero->getNameTranslated());
+					}
+				});
+		});
+
+	logVisual->updateWithLock(playerID.toString() + ".danger.fast", [&data](IVisualLogBuilder & b)
+		{
+			foreach_tile_pos([&b, &data](const int3 & pos)
+				{
+					auto & treat = data.getTileThreat(pos).fastestDanger;
+					b.addText(pos, std::to_string(treat.danger));
+
+					if(treat.hero.validAndSet())
+					{
+						b.addText(pos, std::to_string(treat.turn));
+						b.addText(pos, treat.hero->getNameTranslated());
+					}
+				});
+		});
+#endif
 }
 
 void DangerHitMapAnalyzer::updateHitMap()
@@ -52,6 +88,13 @@ void DangerHitMapAnalyzer::updateHitMap()
 			auto hero = dynamic_cast<const CGHeroInstance *>(obj);
 
 			heroes[hero->tempOwner][hero] = HeroRole::MAIN;
+		}
+		if(obj->ID == Obj::TOWN)
+		{
+			auto town = dynamic_cast<const CGTownInstance *>(obj);
+
+			if(town->garrisonHero)
+				heroes[town->garrisonHero->tempOwner][town->garrisonHero] = HeroRole::MAIN;
 		}
 	}
 
@@ -96,6 +139,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 				newThreat.hero = path.targetHero;
 				newThreat.turn = path.turn();
+				newThreat.threat = path.getHeroStrength() * (1 - path.movementCost() / 2.0);
 				newThreat.danger = path.getHeroStrength();
 
 				if(newThreat.value() > node.maximumDanger.value())
@@ -144,6 +188,8 @@ void DangerHitMapAnalyzer::updateHitMap()
 	}
 
 	logAi->trace("Danger hit map updated in %ld", timeElapsed(start));
+
+	logHitmap(ai->playerID, *this);
 }
 
 void DangerHitMapAnalyzer::calculateTileOwners()
@@ -270,8 +316,8 @@ uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & 
 
 	const auto& info = getTileThreat(tile);
 	
-	return (info.fastestDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.fastestDanger.danger))
-		|| (info.maximumDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.maximumDanger.danger));
+	return (info.fastestDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.fastestDanger.danger, ai->settings->getSafeAttackRatio()))
+		|| (info.maximumDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.maximumDanger.danger, ai->settings->getSafeAttackRatio()));
 }
 
 const HitMapNode & DangerHitMapAnalyzer::getObjectThreat(const CGObjectInstance * obj) const
@@ -302,6 +348,7 @@ std::set<const CGObjectInstance *> DangerHitMapAnalyzer::getOneTurnAccessibleObj
 void DangerHitMapAnalyzer::reset()
 {
 	hitMapUpToDate = false;
+	tileOwnersUpToDate = false;
 }
 
 }

@@ -60,7 +60,7 @@ void TurnTimerHandler::sendTimerUpdate(PlayerColor player)
 	TurnTimeUpdate ttu;
 	ttu.player = player;
 	ttu.turnTimer = timers[player];
-	gameHandler.sendAndApply(&ttu);
+	gameHandler.sendAndApply(ttu);
 	lastUpdate[player] = 0;
 }
 
@@ -256,7 +256,7 @@ void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 	if (!si->turnTimerInfo.isBattleEnabled())
 		return;
 
-	ui8 side = 0;
+	BattleSide side = BattleSide::NONE;
 	const CStack * stack = nullptr;
 	bool isTactisPhase = gs->getBattle(battleID)->battleTacticDist() > 0;
 	

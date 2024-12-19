@@ -183,7 +183,7 @@ CSlider::CSlider(Point position, int totalw, const SliderMovingFunctor & Moved, 
 	value(Value),
 	moved(Moved)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	setAmount(amount);
 	vstd::amax(value, 0);
 	vstd::amin(value, positions);

@@ -16,6 +16,7 @@ class Point;
 class CGObjectInstance;
 class ObjectInstanceID;
 struct TerrainTile;
+class ColorRGBA;
 struct CGPath;
 
 VCMI_LIB_NAMESPACE_END
@@ -67,6 +68,12 @@ public:
 	/// returns index of image for overlay on specific tile, or numeric_limits::max if none
 	virtual size_t overlayImageIndex(const int3 & coordinates) const = 0;
 
+	/// returns text that should be used as overlay for current tile
+	virtual std::string overlayText(const int3 & coordinates) const = 0;
+
+	/// returns text that should be used as overlay for current tile
+	virtual ColorRGBA overlayTextColor(const int3 & coordinates) const = 0;
+
 	/// returns animation frame for terrain
 	virtual size_t terrainImageIndex(size_t groupSize) const = 0;
 
@@ -80,7 +87,10 @@ public:
 	virtual bool showBorder() const = 0;
 
 	/// if true, world view overlay will be shown
-	virtual bool showOverlay() const = 0;
+	virtual bool showImageOverlay() const = 0;
+
+	// if true, new text overlay will be shown
+	virtual bool showTextOverlay() const = 0;
 
 	/// if true, map grid should be visible on map
 	virtual bool showGrid() const = 0;

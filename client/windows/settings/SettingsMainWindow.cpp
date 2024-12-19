@@ -18,7 +18,7 @@
 
 #include "CMT.h"
 #include "CGameInfo.h"
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "filesystem/ResourcePath.h"
@@ -33,7 +33,7 @@
 
 SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : InterfaceObjectConfigurable()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	const JsonNode config(JsonPath::builtin("config/widgets/settings/settingsMainContainer.json"));
 	addCallback("activateSettingsTab", [this](int tabId) { openTab(tabId); });
@@ -44,6 +44,8 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 	addCallback("returnToMainMenu", [this](int) { mainMenuButtonCallback(); });
 	addCallback("closeWindow", [this](int) { backButtonCallback(); });
 	build(config);
+
+	addUsedEvents(INPUT_MODE_CHANGE);
 
 	std::shared_ptr<CIntObject> background = widget<CIntObject>("background");
 	pos.w = background->pos.w;
@@ -144,7 +146,6 @@ void SettingsMainWindow::mainMenuButtonCallback()
 		{
 			close();
 			CSH->endGameplay();
-			GH.defActionsDef = 63;
 			CMM->menu->switchToTab("main");
 		},
 		0

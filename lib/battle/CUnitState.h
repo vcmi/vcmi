@@ -107,7 +107,7 @@ public:
 	void reset();
 
 	void damage(int64_t & amount);
-	void heal(int64_t & amount, EHealLevel level, EHealPower power);
+	HealInfo heal(int64_t & amount, EHealLevel level, EHealPower power);
 
 	int32_t getCount() const;
 	int32_t getFirstHPleft() const;
@@ -141,6 +141,7 @@ public:
 	bool drainedMana;
 	bool fear;
 	bool hadMorale;
+	bool castSpellThisTurn;
 	bool ghost;
 	bool ghostPending;
 	bool movedThisRound;
@@ -247,12 +248,12 @@ public:
 	void load(const JsonNode & data) override;
 
 	void damage(int64_t & amount) override;
-	void heal(int64_t & amount, EHealLevel level, EHealPower power) override;
+	HealInfo heal(int64_t & amount, EHealLevel level, EHealPower power) override;
 
 	void localInit(const IUnitEnvironment * env_);
 	void serializeJson(JsonSerializeFormat & handler);
 
-	FactionID getFaction() const override;
+	FactionID getFactionID() const override;
 
 	void afterAttack(bool ranged, bool counter);
 
@@ -282,14 +283,14 @@ public:
 	explicit CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_);
 
 	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit,
-		const CBonusSystemNode * root = nullptr, const std::string & cachingStr = "") const override;
+		const std::string & cachingStr = "") const override;
 
 	int64_t getTreeVersion() const override;
 
 	CUnitStateDetached & operator= (const CUnitState & other);
 
 	uint32_t unitId() const override;
-	ui8 unitSide() const override;
+	BattleSide unitSide() const override;
 
 	const CCreature * unitType() const override;
 	PlayerColor unitOwner() const override;

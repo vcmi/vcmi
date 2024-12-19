@@ -10,9 +10,7 @@
 #pragma once
 
 #include "../../../lib/VCMI_Lib.h"
-#include "../../../lib/CBuildingHandler.h"
 #include "../../../lib/CCreatureHandler.h"
-#include "../../../lib/CTownHandler.h"
 #include "../AIUtility.h"
 
 struct HeroPtr;
@@ -73,7 +71,6 @@ namespace Goals
 	public:
 		bool operator==(const TSubgoal & rhs) const;
 		bool operator<(const TSubgoal & rhs) const;
-		//TODO: serialize?
 	};
 
 	using TGoalVec = std::vector<TSubgoal>;
@@ -175,21 +172,5 @@ namespace Goals
 //		{
 //			return !(*this == g);
 //		}
-
-		template<typename Handler> void serialize(Handler & h)
-		{
-			h & goalType;
-			h & isElementar;
-			h & isAbstract;
-			h & priority;
-			h & value;
-			h & resID;
-			h & objid;
-			h & aid;
-			h & tile;
-			h & hero;
-			h & town;
-			h & bid;
-		}
 	};
 }

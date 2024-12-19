@@ -20,7 +20,7 @@ class CVCMIServer;
 class IServerRunner
 {
 public:
-	virtual void start(uint16_t port, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo) = 0;
+	virtual uint16_t start(uint16_t port, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo) = 0;
 	virtual void shutdown() = 0;
 	virtual void wait() = 0;
 	virtual int exitCode() = 0;
@@ -34,7 +34,7 @@ class ServerThreadRunner : public IServerRunner, boost::noncopyable
 	std::unique_ptr<CVCMIServer> server;
 	boost::thread threadRunLocalServer;
 public:
-	void start(uint16_t port, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo) override;
+	uint16_t start(uint16_t port, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo) override;
 	void shutdown() override;
 	void wait() override;
 	int exitCode() override;
@@ -44,10 +44,23 @@ public:
 };
 
 #ifndef VCMI_MOBILE
+// Enable support for running vcmiserver as separate process. Unavailable on mobile systems
+#define ENABLE_SERVER_PROCESS
+#endif
 
+#ifdef ENABLE_SERVER_PROCESS
+
+#if BOOST_VERSION >= 108600
+namespace boost::process {
+inline namespace v1 {
+class child;
+}
+}
+#else
 namespace boost::process {
 class child;
 }
+#endif
 
 /// Class that runs server instance as a child process
 /// Available only on desktop systems where process management is allowed
@@ -56,7 +69,7 @@ class ServerProcessRunner : public IServerRunner, boost::noncopyable
 	std::unique_ptr<boost::process::child> child;
 
 public:
-	void start(uint16_t port, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo) override;
+	uint16_t start(uint16_t port, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo) override;
 	void shutdown() override;
 	void wait() override;
 	int exitCode() override;

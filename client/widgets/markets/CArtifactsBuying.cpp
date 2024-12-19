@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "CArtifactsBuying.h"
 
-#include "../../gui/CGuiHandler.h"
 #include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
@@ -21,22 +20,16 @@
 
 #include "../../../CCallback.h"
 
-#include "../../../lib/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../../../lib/mapObjects/CGMarket.h"
-#include "../../../lib/mapObjects/CGTownInstance.h"
+#include "../../../lib/mapObjects/IMarket.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 
-CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance * hero)
+CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance * hero, const std::string & title)
 	: CMarketBase(market, hero)
 	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CArtifactsBuying::onSlotClickPressed(heroSlot, bidTradePanel);})
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
-	std::string title;
-	if(auto townMarket = dynamic_cast<const CGTownInstance*>(market))
-		title = (*CGI->townh)[townMarket->getFaction()]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
-	else
-		title = CGI->generaltexth->allTexts[349];
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title));
 	deal = std::make_shared<CButton>(dealButtonPos, AnimationPath::builtin("TPMRKB.DEF"),
 		CGI->generaltexth->zelp[595], [this](){CArtifactsBuying::makeDeal();}, EShortcut::MARKET_DEAL);
@@ -53,7 +46,7 @@ CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance 
 			CArtifactsBuying::onSlotClickPressed(newSlot, offerTradePanel);
 		}, [this]()
 		{
-			CMarketBase::updateSubtitlesForBid(EMarketMode::RESOURCE_ARTIFACT, bidTradePanel->getSelectedItemId());
+			CMarketBase::updateSubtitlesForBid(EMarketMode::RESOURCE_ARTIFACT, bidTradePanel->getHighlightedItemId());
 		}, market->availableItemsIds(EMarketMode::RESOURCE_ARTIFACT));
 	offerTradePanel->deleteSlotsCheck = [this](const std::shared_ptr<CTradeableItem> & slot)
 	{
@@ -73,10 +66,10 @@ void CArtifactsBuying::deselect()
 
 void CArtifactsBuying::makeDeal()
 {
-	if(ArtifactID(offerTradePanel->getSelectedItemId()).toArtifact()->canBePutAt(hero))
+	if(ArtifactID(offerTradePanel->getHighlightedItemId()).toArtifact()->canBePutAt(hero))
 	{
-		LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_ARTIFACT, GameResID(bidTradePanel->getSelectedItemId()),
-			ArtifactID(offerTradePanel->getSelectedItemId()), offerQty, hero);
+		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_ARTIFACT, GameResID(bidTradePanel->getHighlightedItemId()),
+			ArtifactID(offerTradePanel->getHighlightedItemId()), offerQty, hero);
 		CMarketTraderText::makeDeal();
 		deselect();
 	}
@@ -91,8 +84,8 @@ CMarketBase::MarketShowcasesParams CArtifactsBuying::getShowcasesParams() const
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 		return MarketShowcasesParams
 		{
-			ShowcaseParams {std::to_string(deal->isBlocked() ? 0 : bidQty), bidTradePanel->getSelectedItemId()},
-			ShowcaseParams {std::to_string(deal->isBlocked() ? 0 : offerQty), CGI->artifacts()->getByIndex(offerTradePanel->getSelectedItemId())->getIconIndex()}
+			ShowcaseParams {std::to_string(deal->isBlocked() ? 0 : bidQty), bidTradePanel->getHighlightedItemId()},
+			ShowcaseParams {std::to_string(deal->isBlocked() ? 0 : offerQty), CGI->artifacts()->getByIndex(offerTradePanel->getHighlightedItemId())->getIconIndex()}
 		};
 	else
 		return MarketShowcasesParams {std::nullopt, std::nullopt};
@@ -102,8 +95,8 @@ void CArtifactsBuying::highlightingChanged()
 {
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
-		market->getOffer(bidTradePanel->getSelectedItemId(), offerTradePanel->getSelectedItemId(), bidQty, offerQty, EMarketMode::RESOURCE_ARTIFACT);
-		deal->block(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getSelectedItemId())) < bidQty || !LOCPLINT->makingTurn);
+		market->getOffer(bidTradePanel->getHighlightedItemId(), offerTradePanel->getHighlightedItemId(), bidQty, offerQty, EMarketMode::RESOURCE_ARTIFACT);
+		deal->block(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getHighlightedItemId())) < bidQty || !LOCPLINT->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
 	CMarketTraderText::highlightingChanged();
@@ -114,10 +107,10 @@ std::string CArtifactsBuying::getTraderText()
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.267");
-		message.replaceName(ArtifactID(offerTradePanel->getSelectedItemId()));
+		message.replaceName(ArtifactID(offerTradePanel->getHighlightedItemId()));
 		message.replaceNumber(bidQty);
 		message.replaceTextID(bidQty == 1 ? "core.genrltxt.161" : "core.genrltxt.160");
-		message.replaceName(GameResID(bidTradePanel->getSelectedItemId()));
+		message.replaceName(GameResID(bidTradePanel->getHighlightedItemId()));
 		return message.toString();
 	}
 	else

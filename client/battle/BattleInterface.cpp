@@ -24,20 +24,21 @@
 #include "BattleRenderer.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../media/IMusicPlayer.h"
+#include "../media/ISoundPlayer.h"
 #include "../windows/CTutorialWindow.h"
 #include "../render/Canvas.h"
 #include "../adventureMap/AdventureMapInterface.h"
 
 #include "../../CCallback.h"
+#include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/CHeroHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -83,7 +84,7 @@ BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *
 	this->army2 = army2;
 
 	const CGTownInstance *town = getBattle()->battleGetDefendedTown();
-	if(town && town->hasFort())
+	if(town && town->fortificationsLevel().wallsHealth > 0)
 		siegeController.reset(new BattleSiegeController(*this, town));
 
 	windowObject = std::make_shared<BattleWindow>(*this);
@@ -112,7 +113,23 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 			onIntroSoundPlayed();
 	};
 
-	int battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
+	auto bfieldType = getBattle()->battleGetBattlefieldType();
+	const auto & battlefieldSound = bfieldType.getInfo()->musicFilename;
+
+	std::vector<soundBase::soundID> battleIntroSounds =
+	{
+		soundBase::battle00, soundBase::battle01,
+		soundBase::battle02, soundBase::battle03, soundBase::battle04,
+		soundBase::battle05, soundBase::battle06, soundBase::battle07
+	};
+
+	int battleIntroSoundChannel = -1;
+
+	if (!battlefieldSound.empty())
+		battleIntroSoundChannel = CCS->soundh->playSound(battlefieldSound);
+	else
+		battleIntroSoundChannel = CCS->soundh->playSoundFromSet(battleIntroSounds);
+
 	if (battleIntroSoundChannel != -1)
 	{
 		CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
@@ -136,7 +153,13 @@ void BattleInterface::onIntroSoundPlayed()
 	if (openingPlaying())
 		openingEnd();
 
-	CCS->musich->playMusicFromSet("battle", true, true);
+	auto bfieldType = getBattle()->battleGetBattlefieldType();
+	const auto & battlefieldMusic = bfieldType.getInfo()->musicFilename;
+
+	if (!battlefieldMusic.empty())
+		CCS->musich->playMusic(battlefieldMusic, true, true);
+	else
+		CCS->musich->playMusicFromSet("battle", true, true);
 }
 
 void BattleInterface::openingEnd()
@@ -205,19 +228,19 @@ void BattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedI
 {
 	stacksController->stacksAreAttacked(attackedInfos);
 
-	std::array<int, 2> killedBySide = {0, 0};
+	BattleSideArray<int> killedBySide;
 
 	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{
-		ui8 side = attackedInfo.defender->unitSide();
+		BattleSide side = attackedInfo.defender->unitSide();
 		killedBySide.at(side) += attackedInfo.amountKilled;
 	}
 
-	for(ui8 side = 0; side < 2; side++)
+	for(BattleSide side : { BattleSide::ATTACKER, BattleSide::DEFENDER })
 	{
-		if(killedBySide.at(side) > killedBySide.at(1-side))
+		if(killedBySide.at(side) > killedBySide.at(getBattle()->otherSide(side)))
 			setHeroAnimation(side, EHeroAnimType::DEFEAT);
-		else if(killedBySide.at(side) < killedBySide.at(1-side))
+		else if(killedBySide.at(side) < killedBySide.at(getBattle()->otherSide(side)))
 			setHeroAnimation(side, EHeroAnimType::VICTORY);
 	}
 }
@@ -247,14 +270,14 @@ void BattleInterface::giveCommand(EActionType action, BattleHex tile, SpellID sp
 	}
 
 	auto side = getBattle()->playerToSide(curInt->playerID);
-	if(!side)
+	if(side == BattleSide::NONE)
 	{
 		logGlobal->error("Player %s is not in battle", curInt->playerID.toString());
 		return;
 	}
 
 	BattleAction ba;
-	ba.side = side.value();
+	ba.side = side;
 	ba.actionType = action;
 	ba.aimToHex(tile);
 	ba.spell = spell;
@@ -385,7 +408,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		}
 		else
 		{
-			auto hero = sc->side ? defendingHero : attackingHero;
+			auto hero = sc->side == BattleSide::DEFENDER ? defendingHero : attackingHero;
 			assert(hero);
 
 			addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]()
@@ -442,11 +465,11 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	{
 		Point leftHero = Point(15, 30);
 		Point rightHero = Point(755, 30);
-		bool side = sc->side;
+		BattleSide side = sc->side;
 
 		addToAnimationStage(EAnimationEvents::AFTER_HIT, [=](){
-			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side ? "SP07_A.DEF" : "SP07_B.DEF"), leftHero));
-			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side ? "SP07_B.DEF" : "SP07_A.DEF"), rightHero));
+			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side == BattleSide::DEFENDER ? "SP07_A.DEF" : "SP07_B.DEF"), leftHero));
+			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side == BattleSide::DEFENDER ? "SP07_B.DEF" : "SP07_A.DEF"), rightHero));
 		});
 	}
 
@@ -459,7 +482,7 @@ void BattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 		fieldController->redrawBackgroundWithHexes();
 }
 
-void BattleInterface::setHeroAnimation(ui8 side, EHeroAnimType phase)
+void BattleInterface::setHeroAnimation(BattleSide side, EHeroAnimType phase)
 {
 	if(side == BattleSide::ATTACKER)
 	{
@@ -512,9 +535,9 @@ void BattleInterface::displaySpellAnimationQueue(const CSpell * spell, const CSp
 				flags |= EffectAnimation::SCREEN_FILL;
 
 			if (!destinationTile.isValid())
-				stacksController->addNewAnim(new EffectAnimation(*this, animation.resourceName, flags));
+				stacksController->addNewAnim(new EffectAnimation(*this, animation.resourceName, flags, animation.transparency));
 			else
-				stacksController->addNewAnim(new EffectAnimation(*this, animation.resourceName, destinationTile, flags));
+				stacksController->addNewAnim(new EffectAnimation(*this, animation.resourceName, destinationTile, flags, animation.transparency));
 		}
 	}
 }
@@ -632,7 +655,7 @@ void BattleInterface::tacticPhaseEnd()
 	tacticsMode = false;
 
 	auto side = tacticianInterface->cb->getBattle(battleID)->playerToSide(tacticianInterface->playerID);
-	auto action = BattleAction::makeEndOFTacticPhase(*side);
+	auto action = BattleAction::makeEndOFTacticPhase(side);
 
 	tacticianInterface->cb->battleMakeTacticAction(battleID, action);
 }
@@ -728,10 +751,10 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 			// FIXME: unsafe
 			// Run task in separate thread to avoid UI lock while AI is making turn (which might take some time)
 			// HOWEVER this thread won't atttempt to lock game state, potentially leading to races
-			boost::thread aiThread([battleID = this->battleID, curInt = this->curInt, activeStack]()
+			boost::thread aiThread([localBattleID = battleID, localCurInt = curInt, activeStack]()
 			{
 				setThreadName("autofightingAI");
-				curInt->autofightingAI->activeStack(battleID, activeStack);
+				localCurInt->autofightingAI->activeStack(localBattleID, activeStack);
 			});
 			aiThread.detach();
 		}
@@ -835,4 +858,11 @@ void BattleInterface::setStickyHeroWindowsVisibility(bool visible)
 	windowObject->hideStickyHeroWindows();
 	if(visible)
 		windowObject->showStickyHeroWindows();
+}
+
+void BattleInterface::setStickyQuickSpellWindowVisibility(bool visible)
+{
+	windowObject->hideStickyQuickSpellWindow();
+	if(visible)
+		windowObject->showStickyQuickSpellWindow();
 }

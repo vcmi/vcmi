@@ -23,13 +23,17 @@
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/battle/BattleLayout.h"
+#include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/CPlayerState.h"
+#include <vstd/RNG.h>
 
 BattleProcessor::BattleProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)
@@ -48,67 +52,59 @@ void BattleProcessor::engageIntoBattle(PlayerColor player)
 	pb.player = player;
 	pb.reason = PlayerBlocked::UPCOMING_BATTLE;
 	pb.startOrEnd = PlayerBlocked::BLOCKADE_STARTED;
-	gameHandler->sendAndApply(&pb);
+	gameHandler->sendAndApply(pb);
 }
 
-void BattleProcessor::restartBattlePrimary(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
-								const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank,
-								const CGTownInstance *town)
+void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
+								const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)
 {
 	auto battle = gameHandler->gameState()->getBattle(battleID);
 
-	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[0].color));
+	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->getSide(BattleSide::ATTACKER).color));
 	if(!lastBattleQuery)
-		lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[1].color));
+		lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->getSide(BattleSide::DEFENDER).color));
 
 	assert(lastBattleQuery);
 
 	//existing battle query for retying auto-combat
 	if(lastBattleQuery)
 	{
-		const CGHeroInstance*heroes[2];
-		heroes[0] = hero1;
-		heroes[1] = hero2;
+		BattleSideArray<const CGHeroInstance*> heroes{hero1, hero2};
 
-		for(int i : {0, 1})
+		for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 		{
 			if(heroes[i])
 			{
 				SetMana restoreInitialMana;
 				restoreInitialMana.val = lastBattleQuery->initialHeroMana[i];
 				restoreInitialMana.hid = heroes[i]->id;
-				gameHandler->sendAndApply(&restoreInitialMana);
+				gameHandler->sendAndApply(restoreInitialMana);
 			}
 		}
 
 		lastBattleQuery->result = std::nullopt;
 
-		assert(lastBattleQuery->belligerents[0] == battle->sides[0].armyObject);
-		assert(lastBattleQuery->belligerents[1] == battle->sides[1].armyObject);
+		assert(lastBattleQuery->belligerents[BattleSide::ATTACKER] == battle->getSide(BattleSide::ATTACKER).armyObject);
+		assert(lastBattleQuery->belligerents[BattleSide::DEFENDER] == battle->getSide(BattleSide::DEFENDER).armyObject);
 	}
 
 	BattleCancelled bc;
 	bc.battleID = battleID;
-	gameHandler->sendAndApply(&bc);
+	gameHandler->sendAndApply(bc);
 
-	startBattlePrimary(army1, army2, tile, hero1, hero2, creatureBank, town);
+	startBattle(army1, army2, tile, hero1, hero2, layout, town);
 }
 
-void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
-								const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank,
-								const CGTownInstance *town)
+void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
+								const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)
 {
 	assert(gameHandler->gameState()->getBattle(army1->getOwner()) == nullptr);
 	assert(gameHandler->gameState()->getBattle(army2->getOwner()) == nullptr);
 
-	const CArmedInstance *armies[2];
-	armies[0] = army1;
-	armies[1] = army2;
-	const CGHeroInstance*heroes[2];
-	heroes[0] = hero1;
-	heroes[1] = hero2;
+	BattleSideArray<const CArmedInstance *> armies{army1, army2};
+	BattleSideArray<const CGHeroInstance*>heroes{hero1, hero2};
 
-	auto battleID = setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
+	auto battleID = setupBattle(tile, armies, heroes, layout, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 
 	const auto * battle = gameHandler->gameState()->getBattle(battleID);
 	assert(battle);
@@ -122,13 +118,13 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 			GiveBonus giveBonus(GiveBonus::ETarget::OBJECT);
 			giveBonus.id = hero1->id;
 			giveBonus.bonus = bonus;
-			gameHandler->sendAndApply(&giveBonus);
+			gameHandler->sendAndApply(giveBonus);
 		}
 	}
 
-	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[0].color));
+	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->getSide(BattleSide::ATTACKER).color));
 	if(!lastBattleQuery)
-		lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[1].color));
+		lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->getSide(BattleSide::DEFENDER).color));
 
 	if (lastBattleQuery)
 	{
@@ -139,7 +135,7 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 		auto newBattleQuery = std::make_shared<CBattleQuery>(gameHandler, battle);
 
 		// store initial mana to reset if battle has been restarted
-		for(int i : {0, 1})
+		for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 			if(heroes[i])
 				newBattleQuery->initialHeroMana[i] = heroes[i]->mana;
 
@@ -149,48 +145,52 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 	flowProcessor->onBattleStarted(*battle);
 }
 
-void BattleProcessor::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank)
+void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInstance *army2)
 {
-	startBattlePrimary(army1, army2, tile,
-		army1->ID == Obj::HERO ? static_cast<const CGHeroInstance*>(army1) : nullptr,
-		army2->ID == Obj::HERO ? static_cast<const CGHeroInstance*>(army2) : nullptr,
-		creatureBank);
+	startBattle(army1, army2, army2->visitablePos(),
+		army1->ID == Obj::HERO ? dynamic_cast<const CGHeroInstance*>(army1) : nullptr,
+		army2->ID == Obj::HERO ? dynamic_cast<const CGHeroInstance*>(army2) : nullptr,
+		BattleLayout::createDefaultLayout(gameHandler, army1, army2),
+		nullptr);
 }
 
-void BattleProcessor::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank)
-{
-	startBattleI(army1, army2, army2->visitablePos(), creatureBank);
-}
-
-BattleID BattleProcessor::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town)
+BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance *town)
 {
 	const auto & t = *gameHandler->getTile(tile);
-	TerrainId terrain = t.terType->getId();
-	if (gameHandler->gameState()->map->isCoastalTile(tile)) //coastal tile is always ground
+	TerrainId terrain = t.getTerrainID();
+	if (town)
+		terrain = town->getNativeTerrain();
+	else if (gameHandler->gameState()->map->isCoastalTile(tile)) //coastal tile is always ground
 		terrain = ETerrainId::SAND;
 
-	BattleField terType = gameHandler->gameState()->battleGetBattlefieldType(tile, gameHandler->getRandomGenerator());
-	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
-		terType = BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.ship_to_ship"));
+	BattleField battlefieldType = gameHandler->gameState()->battleGetBattlefieldType(tile, gameHandler->getRandomGenerator());
+
+	if (town)
+	{
+		const TerrainType* terrainData = VLC->terrainTypeHandler->getById(terrain);
+		battlefieldType = BattleField(*RandomGeneratorUtil::nextItem(terrainData->battleFields, gameHandler->getRandomGenerator()));
+	}
+	else if (heroes[BattleSide::ATTACKER] && heroes[BattleSide::ATTACKER]->boat && heroes[BattleSide::DEFENDER] && heroes[BattleSide::DEFENDER]->boat)
+		battlefieldType = BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.ship_to_ship"));
 
 	//send info about battles
 	BattleStart bs;
-	bs.info = BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
+	bs.info = BattleInfo::setupBattle(tile, terrain, battlefieldType, armies, heroes, layout, town);
 	bs.battleID = gameHandler->gameState()->nextBattleID;
 
-	engageIntoBattle(bs.info->sides[0].color);
-	engageIntoBattle(bs.info->sides[1].color);
+	engageIntoBattle(bs.info->getSide(BattleSide::ATTACKER).color);
+	engageIntoBattle(bs.info->getSide(BattleSide::DEFENDER).color);
 
-	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(bs.info->sides[0].color));
+	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(bs.info->getSide(BattleSide::ATTACKER).color));
 	if(!lastBattleQuery)
-		lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(bs.info->sides[1].color));
-	bool isDefenderHuman = bs.info->sides[1].color.isValidPlayer() && gameHandler->getPlayerState(bs.info->sides[1].color)->isHuman();
-	bool isAttackerHuman = gameHandler->getPlayerState(bs.info->sides[0].color)->isHuman();
+		lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(bs.info->getSide(BattleSide::DEFENDER).color));
+	bool isDefenderHuman = bs.info->getSide(BattleSide::DEFENDER).color.isValidPlayer() && gameHandler->getPlayerState(bs.info->getSide(BattleSide::DEFENDER).color)->isHuman();
+	bool isAttackerHuman = gameHandler->getPlayerState(bs.info->getSide(BattleSide::ATTACKER).color)->isHuman();
 
 	bool onlyOnePlayerHuman = isDefenderHuman != isAttackerHuman;
 	bs.info->replayAllowed = lastBattleQuery == nullptr && onlyOnePlayerHuman;
 
-	gameHandler->sendAndApply(&bs);
+	gameHandler->sendAndApply(bs);
 
 	return bs.battleID;
 }
@@ -198,7 +198,7 @@ BattleID BattleProcessor::setupBattle(int3 tile, const CArmedInstance *armies[2]
 bool BattleProcessor::checkBattleStateChanges(const CBattleInfoCallback & battle)
 {
 	//check if drawbridge state need to be changes
-	if (battle.battleGetSiegeLevel() > 0)
+	if (battle.battleGetFortifications().wallsHealth > 0)
 		updateGateState(battle);
 
 	if (resultProcessor->battleIsEnding(battle))
@@ -268,7 +268,7 @@ void BattleProcessor::updateGateState(const CBattleInfoCallback & battle)
 	}
 
 	if (db.state != battle.battleGetGateState())
-		gameHandler->sendAndApply(&db);
+		gameHandler->sendAndApply(db);
 }
 
 bool BattleProcessor::makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction &ba)
@@ -284,7 +284,7 @@ bool BattleProcessor::makePlayerBattleAction(const BattleID & battleID, PlayerCo
 	return result;
 }
 
-void BattleProcessor::setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, int victoriusSide)
+void BattleProcessor::setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide)
 {
 	resultProcessor->setBattleResult(battle, resultType, victoriusSide);
 	resultProcessor->endBattle(battle);

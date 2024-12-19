@@ -15,17 +15,13 @@
 #include "modManager/cmodlistview_moc.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/Languages.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/Languages.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../helper.h"
 #include "../languages.h"
-
-#ifdef ENABLE_INNOEXTRACT
-#include "cli/extract.hpp"
-#include "setup/version.hpp"
-#endif
+#include "../innoextract.h"
 
 #ifdef VCMI_IOS
 #include "ios/selectdirectory.h"
@@ -299,13 +295,21 @@ bool FirstLaunchView::heroesDataDetect()
 QString FirstLaunchView::getHeroesInstallDir()
 {
 #ifdef VCMI_WINDOWS
-	QString gogPath = QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\GOG.com\\Games\\1207658787", QSettings::NativeFormat).value("path").toString();
-	if(!gogPath.isEmpty())
-		return gogPath;
+	QVector<QPair<QString, QString>> regKeys = {
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\GOG.com\\Games\\1207658787",                                            "path"    }, // Gog on x86 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\GOG.com\\Games\\1207658787",                               "path"    }, // Gog on x64 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic® III\\1.0",              "AppPath" }, // H3 Complete on x86 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\New World Computing\\Heroes of Might and Magic® III\\1.0", "AppPath" }, // H3 Complete on x64 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic III\\1.0",               "AppPath" }, // some localized H3 on x86 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\New World Computing\\Heroes of Might and Magic III\\1.0",  "AppPath" }, // some localized H3 on x64 system
+	};
 
-	QString cdPath = QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic® III\\1.0", QSettings::NativeFormat).value("AppPath").toString();
-	if(!cdPath.isEmpty())
-		return cdPath;
+	for(auto & regKey : regKeys)
+	{
+		QString path = QSettings(regKey.first, QSettings::NativeFormat).value(regKey.second).toString();
+		if(!path.isEmpty())
+			return path;
+	}
 #endif
 	return QString{};
 }
@@ -327,7 +331,7 @@ void FirstLaunchView::extractGogData()
 		QFile tmpFile(file);
 		if(!tmpFile.open(QIODevice::ReadOnly))
 		{
-			QMessageBox::critical(this, tr("File cannot opened"), tmpFile.errorString());
+			QMessageBox::critical(this, tr("File cannot be opened"), tmpFile.errorString());
 			return QString{};
 		}
 		QByteArray magicFile = tmpFile.read(magic.length());
@@ -363,13 +367,17 @@ void FirstLaunchView::extractGogData()
 			return; // should not happen - but avoid deleting wrong folder in any case
 
 		QString tmpFileExe = tempDir.filePath("h3_gog.exe");
+		QString tmpFileBin = tempDir.filePath("h3_gog-1.bin");
 		QFile(fileExe).copy(tmpFileExe);
-		QFile(fileBin).copy(tempDir.filePath("h3_gog-1.bin"));
+		QFile(fileBin).copy(tmpFileBin);
+
+		logGlobal->info("Installing exe '%s' ('%s')", tmpFileExe.toStdString(), fileExe.toStdString());
+		logGlobal->info("Installing bin '%s' ('%s')", tmpFileBin.toStdString(), fileBin.toStdString());
 
 		QString errorText{};
 
-		auto isGogGalaxyExe = [](QString fileExe) {
-			QFile file(fileExe);
+		auto isGogGalaxyExe = [](QString fileToTest) {
+			QFile file(fileToTest);
 			quint64 fileSize = file.size();
 
 			if(fileSize > 10 * 1024 * 1024)
@@ -379,51 +387,22 @@ void FirstLaunchView::extractGogData()
 				return false;
 			QByteArray data = file.readAll();
 
-			const QByteArray magicId{(const char*)u"GOG Galaxy", 20};
+			const QByteArray magicId{reinterpret_cast<const char*>(u"GOG Galaxy"), 20};
 			return data.contains(magicId);
 		};
 
 		if(isGogGalaxyExe(tmpFileExe))
-			errorText = tr("You've provided GOG Galaxy installer! This file doesn't contain the game. Please download the offline backup game installer!");
+			errorText = tr("You've provided a GOG Galaxy installer! This file doesn't contain the game. Please download the offline backup game installer!");
 
-		::extract_options o;
-		o.extract = true;
-
-		// standard settings
-		o.gog_galaxy = true;
-		o.codepage = 0U;
-		o.output_dir = tempDir.path().toStdString();
-		o.extract_temp = true;
-		o.extract_unknown = true;
-		o.filenames.set_expand(true);
-
-		o.preserve_file_times = true; // also correctly closes file -> without it: on Windows the files are not written completly
-
-		try
-		{
-			if(errorText.isEmpty())
-				process_file(tmpFileExe.toStdString(), o, [this](float progress) {
-					ui->progressBarGog->setValue(progress * 100);
-					qApp->processEvents();
-				});
-		}
-		catch(const std::ios_base::failure & e)
-		{
-			errorText = tr("Stream error while extracting files!\nerror reason: ");
-			errorText += e.what();
-		}
-		catch(const format_error & e)
-		{
-			errorText = e.what();
-		}
-		catch(const std::runtime_error & e)
-		{
-			errorText = e.what();
-		}
-		catch(const setup::version_error &)
-		{
-			errorText = tr("Not a supported Inno Setup installer!");
-		}
+		if(errorText.isEmpty())
+			errorText = Innoextract::extract(tmpFileExe, tempDir.path(), [this](float progress) {
+				ui->progressBarGog->setValue(progress * 100);
+				qApp->processEvents();
+			});
+		
+		QString hashError;
+		if(!errorText.isEmpty())
+			hashError = Innoextract::getHashError(tmpFileExe, tmpFileBin, fileExe, fileBin);
 
 		ui->progressBarGog->setVisible(false);
 		ui->pushButtonGogInstall->setVisible(true);
@@ -433,7 +412,11 @@ void FirstLaunchView::extractGogData()
 		if(!errorText.isEmpty() || dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
 		{
 			if(!errorText.isEmpty())
+			{
 				QMessageBox::critical(this, tr("Extracting error!"), errorText, QMessageBox::Ok, QMessageBox::Ok);
+				if(!hashError.isEmpty())
+					QMessageBox::critical(this, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
+			}
 			else
 				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
 			tempDir.removeRecursively();
@@ -479,7 +462,7 @@ void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 	QStringList dirMaps = sourceRoot.entryList({"maps"}, QDir::Filter::Dirs);
 	QStringList dirMp3 = sourceRoot.entryList({"mp3"}, QDir::Filter::Dirs);
 
-	const auto noDataMessage = tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data.");
+	const auto noDataMessage = tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select the directory with installed Heroes III data.");
 	if(dirData.empty())
 	{
 		QMessageBox::critical(this, tr("Heroes III data not found!"), noDataMessage);
@@ -503,12 +486,12 @@ void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 		if (!hdFiles.empty())
 		{
 			// HD Edition contains only RoE data so we can't use even unmodified files from it
-			QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Heroes III: HD Edition files are not supported by VCMI.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death."));
+			QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Heroes III: HD Edition files are not supported by VCMI.\nPlease select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death."));
 			return;
 		}
 
 		// RoE or some other unsupported edition. Demo version?
-		QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Unknown or unsupported Heroes III version found.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death."));
+		QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Unknown or unsupported Heroes III version found.\nPlease select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death."));
 		return;
 	}
 
@@ -569,15 +552,13 @@ void FirstLaunchView::modPresetUpdate()
 
 QString FirstLaunchView::findTranslationModName()
 {
-	if (!getModView())
+	auto * mainWindow = dynamic_cast<MainWindow *>(QApplication::activeWindow());
+	auto status = mainWindow->getTranslationStatus();
+
+	if (status == ETranslationStatus::ACTIVE || status == ETranslationStatus::NOT_AVAILABLE)
 		return QString();
 
 	QString preferredlanguage = QString::fromStdString(settings["general"]["language"].String());
-	QString installedlanguage = QString::fromStdString(settings["session"]["language"].String());
-
-	if (preferredlanguage == installedlanguage)
-		return QString();
-
 	return getModView()->getTranslationModName(preferredlanguage);
 }
 

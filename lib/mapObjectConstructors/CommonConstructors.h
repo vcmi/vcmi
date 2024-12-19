@@ -14,6 +14,7 @@
 
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGCreature.h"
+#include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/ObstacleSetHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -25,7 +26,6 @@ class CGHeroInstance;
 class CGMarket;
 class CHeroClass;
 class CGCreature;
-class CBank;
 class CGBoat;
 class CFaction;
 class CStackBasicDescriptor;
@@ -63,7 +63,7 @@ public:
 	std::map<std::string, LogicalExpression<BuildingID>> filters;
 
 	void initializeObject(CGTownInstance * object) const override;
-	void randomizeObject(CGTownInstance * object, CRandomGenerator & rng) const override;
+	void randomizeObject(CGTownInstance * object, vstd::RNG & rng) const override;
 	void afterLoadFinalization() override;
 
 	bool hasNameTextID() const override;
@@ -72,18 +72,21 @@ public:
 
 class CHeroInstanceConstructor : public CDefaultObjectTypeHandler<CGHeroInstance>
 {
-	JsonNode filtersJson;
-protected:
-	bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const override;
+	struct HeroFilter
+	{
+		HeroTypeID fixedHero;
+		bool allowMale;
+		bool allowFemale;
+	};
+
+	std::map<std::string, HeroFilter> filters;
+	const CHeroClass * heroClass = nullptr;
+
+	std::shared_ptr<const ObjectTemplate> getOverride(TerrainId terrainType, const CGObjectInstance * object) const override;
 	void initTypeData(const JsonNode & input) override;
 
 public:
-	const CHeroClass * heroClass = nullptr;
-	std::map<std::string, LogicalExpression<HeroTypeID>> filters;
-
-	void initializeObject(CGHeroInstance * object) const override;
-	void randomizeObject(CGHeroInstance * object, CRandomGenerator & rng) const override;
-	void afterLoadFinalization() override;
+	void randomizeObject(CGHeroInstance * object, vstd::RNG & rng) const override;
 
 	bool hasNameTextID() const override;
 	std::string getNameTextID() const override;
@@ -112,21 +115,23 @@ public:
 
 class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
 {
-protected:
-	void initTypeData(const JsonNode & config) override;
+	std::string descriptionTextID;
+	std::string speechTextID;
 	
 	std::set<EMarketMode> marketModes;
 	JsonNode predefinedOffer;
 	int marketEfficiency;
-	
-	std::string title;
-	std::string speech;
-	
+
+	void initTypeData(const JsonNode & config) override;
 public:
 	CGMarket * createObject(IGameCallback * cb) const override;
-	void initializeObject(CGMarket * object) const override;
-	void randomizeObject(CGMarket * object, CRandomGenerator & rng) const override;
+	void randomizeObject(CGMarket * object, vstd::RNG & rng) const override;
 
+	const std::set<EMarketMode> & availableModes() const;
+	bool hasDescription() const;
+
+	std::string getSpeechTranslated() const;
+	int getMarketEfficiency() const;
 };
 
 VCMI_LIB_NAMESPACE_END

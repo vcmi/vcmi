@@ -11,7 +11,7 @@
 #include "loseconditions.h"
 #include "ui_loseconditions.h"
 #include "../mapcontroller.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 LoseConditions::LoseConditions(QWidget *parent) :
 	AbstractSettings(parent),
@@ -43,7 +43,7 @@ void LoseConditions::initialize(MapController & c)
 
 	for(auto & s : conditionStringsLose)
 	{
-		ui->loseComboBox->addItem(QString::fromStdString(s));
+		ui->loseComboBox->addItem(tr(s.c_str()));
 	}
 	ui->standardLoseCheck->setChecked(false);
 

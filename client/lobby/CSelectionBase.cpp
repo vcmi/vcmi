@@ -20,14 +20,13 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../CMusicHandler.h"
-#include "../CVideoHandler.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../globalLobby/GlobalLobbyClient.h"
 #include "../mainmenu/CMainMenu.h"
+#include "../media/ISoundPlayer.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/CTextInput.h"
@@ -44,16 +43,16 @@
 #include "../render/IFont.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/CHeroHandler.h"
-#include "../../lib/CTownHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CThreadHelper.h"
-#include "../../lib/MetaString.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/entities/faction/CFaction.h"
+#include "../../lib/entities/faction/CTown.h"
+#include "../../lib/entities/faction/CTownHandler.h"
 
 ISelectionScreenInfo::ISelectionScreenInfo(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
@@ -81,7 +80,7 @@ PlayerInfo ISelectionScreenInfo::getPlayerInfo(PlayerColor color)
 CSelectionBase::CSelectionBase(ESelectionScreen type)
 	: CWindowObject(BORDERED | SHADOW_DISABLED), ISelectionScreenInfo(type)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos.w = 762;
 	pos.h = 584;
 	if(screenType == ESelectionScreen::campaignList)
@@ -102,14 +101,12 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 {
 	if(curTab && curTab->isActive())
 	{
-		curTab->deactivate();
-		curTab->recActions = 0;
+		curTab->disable();
 	}
 
 	if(curTab != tab)
 	{
-		tab->recActions = 255 - DISPOSE;
-		tab->activate();
+		tab->enable();
 		curTab = tab;
 	}
 	else
@@ -130,14 +127,14 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 InfoCard::InfoCard()
 	: showChat(true)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 	pos.x += 393;
 	pos.y += 6;
 
 	labelSaveDate = std::make_shared<CLabel>(310, 38, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
 	labelMapSize = std::make_shared<CLabel>(333, 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE);
-	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, "", 285);
+	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, "", SEL->screenType == ESelectionScreen::campaignList ? 325 : 285);
 	Rect descriptionRect(26, 149, 320, 115);
 	mapDescription = std::make_shared<CTextBox>("", descriptionRect, 1);
 	playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
@@ -190,8 +187,8 @@ InfoCard::InfoCard()
 		iconsVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT"), 0, 0, 24, 302);
 		iconsLossCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRLOSS"), 0, 0, 24, 359);
 
-		labelVictoryConditionText = std::make_shared<CLabel>(60, 307, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-		labelLossConditionText = std::make_shared<CLabel>(60, 366, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+		labelVictoryConditionText = std::make_shared<CLabel>(60, 307, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, "", 290);
+		labelLossConditionText = std::make_shared<CLabel>(60, 366, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, "", 290);
 
 		labelDifficulty = std::make_shared<CLabel>(62, 472, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 		labelDifficultyPercent = std::make_shared<CLabel>(311, 472, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
@@ -252,11 +249,13 @@ void InfoCard::changeSelection()
 	const std::array<std::string, 5> difficultyPercent = {"80%", "100%", "130%", "160%", "200%"};
 	labelDifficultyPercent->setText(difficultyPercent[SEL->getCurrentDifficulty()]);
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	// FIXME: We recreate them each time because CLabelGroup don't use smart pointers
 	labelGroupPlayers = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 	if(!showChat)
 		labelGroupPlayers->disable();
+
+	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
 
 	for(const auto & p : CSH->playerNames)
 	{
@@ -264,9 +263,9 @@ void InfoCard::changeSelection()
 		Point labelPosition;
 
 		if(slotsUsed < 4)
-			labelPosition = Point(24, 285 + slotsUsed * graphics->fonts[FONT_SMALL]->getLineHeight()); // left column
+			labelPosition = Point(24, 285 + slotsUsed * font->getLineHeight()); // left column
 		else
-			labelPosition = Point(193, 285 + (slotsUsed - 4) * graphics->fonts[FONT_SMALL]->getLineHeight()); // right column
+			labelPosition = Point(193, 285 + (slotsUsed - 4) * font->getLineHeight()); // right column
 
 		labelGroupPlayers->add(labelPosition.x, labelPosition.y, p.second.name);
 	}
@@ -356,11 +355,12 @@ void InfoCard::setChat(bool activateChat)
 CChatBox::CChatBox(const Rect & rect)
 	: CIntObject(KEYBOARD | TEXTINPUT)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 	pos += rect.topLeft();
 	setRedrawParent(true);
 
-	const int height = static_cast<int>(graphics->fonts[FONT_SMALL]->getLineHeight());
+	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+	const int height = font->getLineHeight();
 	Rect textInputArea(1, rect.h - height, rect.w - 1, height);
 	Rect chatHistoryArea(3, 1, rect.w - 3, rect.h - height - 1);
 	inputBackground = std::make_shared<TransparentFilledRectangle>(textInputArea, ColorRGBA(0,0,0,192));
@@ -397,19 +397,19 @@ void CChatBox::addNewMessage(const std::string & text)
 
 PvPBox::PvPBox(const Rect & rect)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 	pos += rect.topLeft();
 	setRedrawParent(true);
 
-	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, rect.w, rect.h));
-	backgroundTexture->playerColored(PlayerColor(1));
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, rect.w, rect.h));
+	backgroundTexture->setPlayerColor(PlayerColor(1));
 	backgroundBorder = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, rect.w, rect.h), ColorRGBA(0, 0, 0, 64), ColorRGBA(96, 96, 96, 255), 1);
 
 	townSelector = std::make_shared<TownSelector>(Point(5, 3));
 
 	auto getBannedTowns = [this](){
 		std::vector<FactionID> bannedTowns;
-		for(auto & town : townSelector->townsEnabled)
+		for(const auto & town : townSelector->townsEnabled)
 			if(!town.second)
 				bannedTowns.push_back(town.first);
 		return bannedTowns;
@@ -437,20 +437,27 @@ PvPBox::PvPBox(const Rect & rect)
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::LOBBY_RANDOM_TOWN_VS);
 	buttonRandomTownVs->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.randomTownVs.hover"), EFonts::FONT_SMALL, Colors::WHITE);
+
+	buttonHandicap = std::make_shared<CButton>(Point(190, 81), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.handicap")), [](){
+		if(!CSH->isHost())
+			return;
+		GH.windows().createAndPushWindow<OptionsTab::HandicapWindow>();
+	}, EShortcut::LOBBY_HANDICAP);
+	buttonHandicap->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.handicap"), EFonts::FONT_SMALL, Colors::WHITE);
 }
 
 TownSelector::TownSelector(const Point & loc)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 	pos += loc;
 	setRedrawParent(true);
 
 	int count = 0;
-	for(auto const & factionID : VLC->townh->getDefaultAllowed())
+	for(auto const & factionID : CGI->townh->getDefaultAllowed())
 	{
 		townsEnabled[factionID] = true;
 		count++;
-	};
+	}
 
 	auto divisionRoundUp = [](int x, int y){ return (x + (y - 1)) / y; };
 
@@ -466,7 +473,7 @@ TownSelector::TownSelector(const Point & loc)
 
 void TownSelector::updateListItems()
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 	int line = slider ? slider->getValue() : 0;
 	int x_offset = slider ? 0 : 8;
 	
@@ -475,20 +482,17 @@ void TownSelector::updateListItems()
 
 	int x = 0;
 	int y = 0;
-	CGI->factions()->forEach([this, &x, &y, line, x_offset](const Faction *entity, bool &stop){
-		if(!entity->hasTown())
-			return;
-
+	for (auto const & factionID : CGI->townh->getDefaultAllowed())
+	{
 		if(y >= line && (y - line) < 3)
 		{
-			FactionID factionID = entity->getFaction();
-			auto getImageIndex = [](FactionID factionID, bool enabled){ return (*CGI->townh)[factionID]->town->clientInfo.icons[true][!enabled] + 2; }; 
+			auto getImageIndex = [](FactionID targetFactionID, bool enabled){ return targetFactionID.toFaction()->town->clientInfo.icons[true][!enabled] + 2; };
 			towns[factionID] = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), getImageIndex(factionID, townsEnabled[factionID]), 0, x_offset + 48 * x, 32 * (y - line));
 			townsArea[factionID] = std::make_shared<LRClickableArea>(Rect(x_offset + 48 * x, 32 * (y - line), 48, 32), [this, getImageIndex, factionID](){
 				townsEnabled[factionID] = !townsEnabled[factionID];
 				towns[factionID]->setFrame(getImageIndex(factionID, townsEnabled[factionID]));
 				redraw();
-			}, [factionID](){ CRClickPopup::createAndPush((*CGI->townh)[factionID]->town->faction->getNameTranslated()); });
+			}, [factionID](){ CRClickPopup::createAndPush(factionID.toFaction()->town->faction->getNameTranslated()); });
 		}
 
 		if (x < 2)
@@ -498,7 +502,7 @@ void TownSelector::updateListItems()
 			x = 0;
 			y++;
 		}
-	});
+	}
 }
 
 void TownSelector::sliderMove(int slidPos)
@@ -515,25 +519,22 @@ CFlagBox::CFlagBox(const Rect & rect)
 	pos += rect.topLeft();
 	pos.w = rect.w;
 	pos.h = rect.h;
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	labelAllies = std::make_shared<CLabel>(0, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
 	labelEnemies = std::make_shared<CLabel>(133, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
-
-	iconsTeamFlags = GH.renderHandler().loadAnimation(AnimationPath::builtin("ITGFLAGS.DEF"));
-	iconsTeamFlags->preload();
 }
 
 void CFlagBox::recreate()
 {
 	flagsAllies.clear();
 	flagsEnemies.clear();
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	const int alliesX = 5 + (int)labelAllies->getWidth();
 	const int enemiesX = 5 + 133 + (int)labelEnemies->getWidth();
 	for(auto i = CSH->si->playerInfos.cbegin(); i != CSH->si->playerInfos.cend(); i++)
 	{
-		auto flag = std::make_shared<CAnimImage>(iconsTeamFlags, i->first.getNum(), 0);
+		auto flag = std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS.DEF"), i->first.getNum(), 0);
 		if(i->first == CSH->myFirstColor() || CSH->getPlayerTeamId(i->first) == CSH->getPlayerTeamId(CSH->myFirstColor()))
 		{
 			flag->moveTo(Point(pos.x + alliesX + (int)flagsAllies.size()*flag->pos.w, pos.y));
@@ -550,13 +551,13 @@ void CFlagBox::recreate()
 void CFlagBox::showPopupWindow(const Point & cursorPosition)
 {
 	if(SEL->getMapInfo())
-		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>(iconsTeamFlags);
+		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>();
 }
 
-CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> icons)
+CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox()
 	: CWindowObject(BORDERED | RCLICK_POPUP | SHADOW_DISABLED, ImagePath::builtin("DIBOXBCK"))
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	labelTeamAlignment = std::make_shared<CLabel>(128, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[657]);
 	labelGroupTeams = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
@@ -581,7 +582,7 @@ CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> ico
 		int curx = 128 - 9 * team.size();
 		for(const auto & player : team)
 		{
-			iconsFlags.push_back(std::make_shared<CAnimImage>(icons, player, 0, curx, 75 + 50 * curIdx));
+			iconsFlags.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS.DEF"), player, 0, curx, 75 + 50 * curIdx));
 			curx += 18;
 		}
 		++curIdx;

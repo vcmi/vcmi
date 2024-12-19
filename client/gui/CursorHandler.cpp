@@ -17,6 +17,7 @@
 #include "../renderSDL/CursorHardware.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
+#include "../render/IScreenHandler.h"
 #include "../render/IRenderHandler.h"
 
 #include "../../lib/CConfigHandler.h"
@@ -47,14 +48,11 @@ CursorHandler::CursorHandler()
 
 	cursors =
 	{
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRADVNTR")),
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT")),
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRDEFLT")),
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"))
+		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRADVNTR"), EImageBlitMode::COLORKEY),
+		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"), EImageBlitMode::COLORKEY),
+		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRDEFLT"), EImageBlitMode::COLORKEY),
+		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"), EImageBlitMode::COLORKEY)
 	};
-
-	for (auto & cursor : cursors)
-		cursor->preload();
 
 	set(Cursor::Map::POINTER);
 	showType = dynamic_cast<CursorSoftware *>(cursor.get()) ? Cursor::ShowType::SOFTWARE : Cursor::ShowType::HARDWARE;
@@ -104,8 +102,7 @@ void CursorHandler::dragAndDropCursor(std::shared_ptr<IImage> image)
 
 void CursorHandler::dragAndDropCursor (const AnimationPath & path, size_t index)
 {
-	auto anim = GH.renderHandler().loadAnimation(path);
-	anim->load(index);
+	auto anim = GH.renderHandler().loadAnimation(path, EImageBlitMode::COLORKEY);
 	dragAndDropCursor(anim->getImage(index));
 }
 
@@ -179,7 +176,7 @@ Point CursorHandler::getPivotOffsetMap(size_t index)
 
 	assert(offsets.size() == size_t(Cursor::Map::COUNT)); //Invalid number of pivot offsets for cursor
 	assert(index < offsets.size());
-	return offsets[index];
+	return offsets[index] * GH.screenHandler().getScalingFactor();
 }
 
 Point CursorHandler::getPivotOffsetCombat(size_t index)
@@ -209,12 +206,12 @@ Point CursorHandler::getPivotOffsetCombat(size_t index)
 
 	assert(offsets.size() == size_t(Cursor::Combat::COUNT)); //Invalid number of pivot offsets for cursor
 	assert(index < offsets.size());
-	return offsets[index];
+	return offsets[index] * GH.screenHandler().getScalingFactor();
 }
 
 Point CursorHandler::getPivotOffsetSpellcast()
 {
-	return { 18, 28};
+	return Point(18, 28) * GH.screenHandler().getScalingFactor();
 }
 
 Point CursorHandler::getPivotOffset()
@@ -314,4 +311,9 @@ void CursorHandler::changeCursor(Cursor::ShowType newShowType)
 			cursor->setImage(getCurrentImage(), getPivotOffset());
 			break;
 	}
+}
+
+void CursorHandler::onScreenResize()
+{
+	cursor->setImage(getCurrentImage(), getPivotOffset());
 }

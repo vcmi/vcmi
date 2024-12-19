@@ -11,7 +11,8 @@
 #pragma once
 
 #include "../ResourceSet.h"
-#include "../MetaString.h"
+#include "../texts/MetaString.h"
+#include "../int3.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,17 +31,19 @@ public:
 	CMapEvent();
 	virtual ~CMapEvent() = default;
 
-	bool earlierThan(const CMapEvent & other) const;
-	bool earlierThanOrEqual(const CMapEvent & other) const;
+	bool occursToday(int currentDay) const;
+	bool affectsPlayer(PlayerColor player, bool isHuman) const;
 
 	std::string name;
 	MetaString message;
 	TResources resources;
-	ui8 players; // affected players, bit field?
+	std::set<PlayerColor> players;
 	bool humanAffected;
 	bool computerAffected;
-	ui32 firstOccurence;
-	ui32 nextOccurence; /// specifies after how many days the event will occur the next time; 0 if event occurs only one time
+	ui32 firstOccurrence;
+	ui32 nextOccurrence; /// specifies after how many days the event will occur the next time; 0 if event occurs only one time
+
+	std::vector<ObjectInstanceID> deletedObjectsInstances;
 
 	template <typename Handler>
 	void serialize(Handler & h)
@@ -48,11 +51,26 @@ public:
 		h & name;
 		h & message;
 		h & resources;
-		h & players;
+		if (h.version >= Handler::Version::EVENTS_PLAYER_SET)
+		{
+			h & players;
+		}
+		else
+		{
+			ui8 playersMask = 0;
+			h & playersMask;
+			for (int i = 0; i < 8; ++i)
+				if ((playersMask & (1 << i)) != 0)
+					players.insert(PlayerColor(i));
+		}
 		h & humanAffected;
 		h & computerAffected;
-		h & firstOccurence;
-		h & nextOccurence;
+		h & firstOccurrence;
+		h & nextOccurrence;
+		if(h.version >= Handler::Version::EVENT_OBJECTS_DELETION)
+		{
+			h & deletedObjectsInstances;
+		}
 	}
 	
 	virtual void serializeJson(JsonSerializeFormat & handler);
@@ -93,20 +111,33 @@ struct DLL_LINKAGE TerrainTile
 	Obj topVisitableId(bool excludeTop = false) const;
 	CGObjectInstance * topVisitableObj(bool excludeTop = false) const;
 	bool isWater() const;
-	EDiggingStatus getDiggingStatus(const bool excludeTop = true) const;
+	bool isLand() const;
+	EDiggingStatus getDiggingStatus(bool excludeTop = true) const;
 	bool hasFavorableWinds() const;
 
-	const TerrainType * terType;
+	bool visitable() const;
+	bool blocked() const;
+
+	const TerrainType * getTerrain() const;
+	const RiverType * getRiver() const;
+	const RoadType * getRoad() const;
+
+	TerrainId getTerrainID() const;
+	RiverId getRiverID() const;
+	RoadId getRoadID() const;
+
+	bool hasRiver() const;
+	bool hasRoad() const;
+
+	TerrainId terrainType;
+	RiverId riverType;
+	RoadId roadType;
 	ui8 terView;
-	const RiverType * riverType;
 	ui8 riverDir;
-	const RoadType * roadType;
 	ui8 roadDir;
 	/// first two bits - how to rotate terrain graphic (next two - river graphic, next two - road);
 	///	7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favorable Winds effect
 	ui8 extTileFlags;
-	bool visitable;
-	bool blocked;
 
 	std::vector<CGObjectInstance *> visitableObjects;
 	std::vector<CGObjectInstance *> blockingObjects;
@@ -114,15 +145,49 @@ struct DLL_LINKAGE TerrainTile
 	template <typename Handler>
 	void serialize(Handler & h)
 	{
-		h & terType;
+		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			h & terrainType;
+		}
+		else
+		{
+			bool isNull = false;
+			h & isNull;
+			if (!isNull)
+				h & terrainType;
+		}
 		h & terView;
-		h & riverType;
+		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			h & riverType;
+		}
+		else
+		{
+			bool isNull = false;
+			h & isNull;
+			if (!isNull)
+				h & riverType;
+		}
 		h & riverDir;
-		h & roadType;
+		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			h & roadType;
+		}
+		else
+		{
+			bool isNull = false;
+			h & isNull;
+			if (!isNull)
+				h & roadType;
+		}
 		h & roadDir;
 		h & extTileFlags;
-		h & visitable;
-		h & blocked;
+		if (h.version < Handler::Version::REMOVE_VLC_POINTERS)
+		{
+			bool unused = false;
+			h & unused;
+			h & unused;
+		}
 		h & visitableObjects;
 		h & blockingObjects;
 	}

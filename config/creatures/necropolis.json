@@ -5,6 +5,13 @@
 		"level": 1,
 		"faction": "necropolis",
 		"upgrades": ["skeletonWarrior"],
+		"abilities" :
+		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CSKELE.DEF"
@@ -23,6 +30,13 @@
 		"index": 57,
 		"level": 1,
 		"faction": "necropolis",
+		"abilities" :
+		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CWSKEL.DEF"
@@ -43,6 +57,13 @@
 		"extraNames": [ "zombie" ], //FIXME: zombie is a name of upgrade but not in HOTRAITS
 		"faction" : "necropolis",
 		"upgrades": ["zombieLord"],
+		"abilities" :
+		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CZOMBI.DEF"
@@ -75,6 +96,10 @@
 		},
 		"abilities":
 		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			},
 			"castDisease" : 
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -90,6 +115,14 @@
 		"faction": "necropolis",
 		"abilities":
 		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
 			"regenerate" : 
 			{
 				"type" : "HP_REGENERATION",
@@ -118,6 +151,14 @@
 		"faction": "necropolis",
 		"abilities":
 		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
 			"regenerate" : 
 			{
 				"type" : "HP_REGENERATION",
@@ -149,6 +190,14 @@
 		"faction": "necropolis",
 		"abilities":
 		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
 			"noRetalitation" : 
 			{
 				"type" : "BLOCKS_RETALIATION"
@@ -177,6 +226,14 @@
 		"faction": "necropolis",
 		"abilities":
 		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
 			"noRetalitation" : 
 			{
 				"type" : "BLOCKS_RETALIATION"
@@ -208,8 +265,17 @@
 		"index": 64,
 		"level": 5,
 		"faction": "necropolis",
+		"shots" : 12,
 		"abilities":
 		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			},
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			},
 			"deathCloud" :
 			{
 				"type" : "SPELL_LIKE_ATTACK",
@@ -240,8 +306,17 @@
 		"index": 65,
 		"level": 5,
 		"faction": "necropolis",
+		"shots" : 24,
 		"abilities":
 		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			},
+			"shooter" :
+			{
+				"type" : "SHOOTER"
+			},
 			"deathCloud" :
 			{
 				"type" : "SPELL_LIKE_ATTACK",
@@ -271,8 +346,13 @@
 		"index": 66,
 		"level": 6,
 		"faction": "necropolis",
+		"doubleWide" : true,
 		"abilities":
 		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			},
 			"curses" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -299,8 +379,13 @@
 		"index": 67,
 		"level": 6,
 		"faction": "necropolis",
+		"doubleWide" : true,
 		"abilities":
 		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			},
 			"curses" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
@@ -331,11 +416,20 @@
 		"index": 68,
 		"level": 7,
 		"faction": "necropolis",
+		"doubleWide" : true,
 		"abilities" :
 		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			},
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
 			},
 			"decreaseMorale" :
 			{
@@ -345,6 +439,11 @@
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
 				"limiters" : [ "OPPOSITE_SIDE" ]
+			},
+			"KING_1" : // Will be affected by Slayer with no expertise
+			{
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"upgrades": ["ghostDragon"],
@@ -366,11 +465,26 @@
 		"index": 69,
 		"level": 7,
 		"faction": "necropolis",
+		"doubleWide" : true,
 		"abilities":
 		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			},
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
+			"age" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.age",
+				"val" : 20
 			},
 			"decreaseMorale" :
 			{
@@ -381,11 +495,10 @@
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
 				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
-			"age" :
+			"KING_1" : // Will be affected by Slayer with no expertise
 			{
-				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.age",
-				"val" : 20
+				"type" : "KING",
+				"val" : 0
 			}
 		},
 		"graphics" :

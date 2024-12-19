@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../lib/battle/BattleSide.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
 struct BattleHex;
@@ -35,7 +37,7 @@ class BattleFlowProcessor : boost::noncopyable
 	bool rollGoodMorale(const CBattleInfoCallback & battle, const CStack * stack);
 	bool tryMakeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack);
 
-	void summonGuardiansHelper(const CBattleInfoCallback & battle, std::vector<BattleHex> & output, const BattleHex & targetPosition, ui8 side, bool targetIsTwoHex);
+	void summonGuardiansHelper(const CBattleInfoCallback & battle, std::vector<BattleHex> & output, const BattleHex & targetPosition, BattleSide side, bool targetIsTwoHex);
 	void trySummonGuardians(const CBattleInfoCallback & battle, const CStack * stack);
 	void tryPlaceMoats(const CBattleInfoCallback & battle);
 	void castOpeningSpells(const CBattleInfoCallback & battle);

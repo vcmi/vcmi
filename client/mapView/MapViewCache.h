@@ -44,6 +44,7 @@ class MapViewCache
 	Point cachedSize;
 	Point cachedPosition;
 	int cachedLevel;
+	bool overlayWasVisible;
 
 	std::shared_ptr<MapViewModel> model;
 

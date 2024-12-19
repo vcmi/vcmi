@@ -89,14 +89,14 @@
 			"additionalProperties" : false,
 			"required" : [
 				"mapObject", "buildingsIcons", "buildings", "creatures", "guildWindow", "names",
-				"hallBackground", "hallSlots", "horde", "mageGuild", "moatAbility", "defaultTavern", "tavernVideo", "guildBackground", "musicTheme", "siege", "structures", "townBackground", "warMachine"
+				"hallBackground", "hallSlots", "horde", "mageGuild", "moatAbility", "defaultTavern", "tavernVideo", "guildBackground", "musicTheme", "siege", "structures", "townBackground"
 			],
 			"description" : "town",
 			"properties" : {
 				"creatures" : {
 					"type" : "array",
 					"minItems" : 7,
-					"maxItems" : 7,
+					"maxItems" : 8,
 					"description" : "List of creatures available for recruitment on each level",
 					"items" : {
 						"type" : "array",
@@ -133,10 +133,6 @@
 					"type" : "string",
 					"description" : "Primary resource for this town. Produced by Silo and offered as starting bonus"
 				},
-				"warMachine" : {
-					"type" : "string",
-					"description" : "Identifier of war machine produced by blacksmith in town"
-				},
 				"horde" : {
 					"type" : "array",
 					"maxItems" : 2,
@@ -151,9 +147,13 @@
 					"$ref" : "townSiege.json"
 				},
 				"musicTheme" : {
-					"type" : "string",
-					"description" : "Path to town music theme",
-					"format" : "musicFile"
+					"type" : "array",
+					"description" : "Path to town music themes",
+					"minItems" : 1,
+					"items" : { 
+						"type" : "string",
+						"format" : "musicFile"
+					}
 				},
 				"tavernVideo" : {
 					"type" : "string",

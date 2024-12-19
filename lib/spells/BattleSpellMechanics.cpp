@@ -19,7 +19,8 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/SetStackEffect.h"
 #include "../CStack.h"
-#include "../CRandomGenerator.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -192,16 +193,16 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 		return adaptProblem(ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL, problem);
 
 	const PlayerColor player = caster->getCasterOwner();
-	const auto side = battle()->playerToSide(player);
+	const BattleSide side = battle()->playerToSide(player);
 
-	if(!side)
+	if(side == BattleSide::NONE)
 		return adaptProblem(ESpellCastProblem::INVALID, problem);
 
 	//effect like Recanter's Cloak. Blocks also passive casting.
 	//TODO: check creature abilities to block
 	//TODO: check any possible caster
 
-	if(battle()->battleMaxSpellLevel(side.value()) < getSpellLevel() || battle()->battleMinSpellLevel(side.value()) > getSpellLevel())
+	if(battle()->battleMaxSpellLevel(side) < getSpellLevel() || battle()->battleMinSpellLevel(side) > getSpellLevel())
 		return adaptProblem(ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED, problem);
 
 	return effects->applicable(problem, this);
@@ -216,19 +217,27 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 
 	const battle::Unit * mainTarget = nullptr;
 
-	if (!getSpell()->canCastOnSelf())
+	if(spellTarget.front().unitValue)
 	{
-		if(spellTarget.front().unitValue)
-		{
-			mainTarget = target.front().unitValue;
-		}
-		else if(spellTarget.front().hexValue.isValid())
-		{
-			mainTarget = battle()->battleGetUnitByPos(target.front().hexValue, true);
-		}
+		mainTarget = target.front().unitValue;
+	}
+	else if(spellTarget.front().hexValue.isValid())
+	{
+		mainTarget = battle()->battleGetUnitByPos(target.front().hexValue, true);
+	}
 
-		if (mainTarget && mainTarget == caster)
+	if (!getSpell()->canCastOnSelf() && !getSpell()->canCastOnlyOnSelf())
+	{
+		if(mainTarget && mainTarget == caster)
 			return false; // can't cast on self
+
+		if(mainTarget && mainTarget->hasBonusOfType(BonusType::INVINCIBLE) && !getSpell()->getPositiveness())
+			return false;
+	}
+	else if(getSpell()->canCastOnlyOnSelf())
+	{
+		if(mainTarget && mainTarget != caster)
+			return false; // can't cast on others
 	}
 
 	return effects->applicable(problem, this, target, spellTarget);
@@ -250,7 +259,7 @@ std::vector<const CStack *> BattleSpellMechanics::getAffectedStacks(const Target
 
 	for(const Destination & dest : all)
 	{
-		if(dest.unitValue)
+		if(dest.unitValue && !dest.unitValue->hasBonusOfType(BonusType::INVINCIBLE))
 		{
 			//FIXME: remove and return battle::Unit
 			stacks.insert(battle()->battleGetStackByID(dest.unitValue->unitId(), false));
@@ -283,7 +292,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	const CGHeroInstance * otherHero = nullptr;
 	{
 		//check it there is opponent hero
-		const ui8 otherSide = battle()->otherSide(casterSide);
+		const BattleSide otherSide = battle()->otherSide(casterSide);
 
 		if(battle()->battleHasHero(otherSide))
 			otherHero = battle()->battleGetFightingHero(otherSide);
@@ -344,9 +353,9 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 		sc.affectedCres.insert(unit->unitId());
 
 	if(!castDescription.lines.empty())
-		server->apply(&castDescription);
+		server->apply(castDescription);
 
-	server->apply(&sc);
+	server->apply(sc);
 
 	for(auto & p : effectsToApply)
 		p.first->apply(server, this, p.second);
@@ -366,7 +375,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	// temporary(?) workaround to force animations to trigger
 	StacksInjured fakeEvent;
 	fakeEvent.battleID = battle()->getBattle()->getBattleID();
-	server->apply(&fakeEvent);
+	server->apply(fakeEvent);
 }
 
 void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target)
@@ -377,15 +386,13 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 
 	std::vector <const battle::Unit *> resisted;
 
-	auto rangeGen = rng.getInt64Range(0, 99);
-
 	auto filterResisted = [&, this](const battle::Unit * unit) -> bool
 	{
 		if(isNegativeSpell() && isMagicalEffect())
 		{
 			//magic resistance
 			const int prob = std::min(unit->magicResistance(), 100); //probability of resistance in %
-			if(rangeGen() < prob)
+			if(rng.nextInt(0, 99) < prob)
 				return true;
 		}
 		return false;
@@ -484,7 +491,7 @@ void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const std::v
 	}
 
 	if(!sse.toRemove.empty())
-		server->apply(&sse);
+		server->apply(sse);
 }
 
 bool BattleSpellMechanics::counteringSelector(const Bonus * bonus) const
@@ -506,62 +513,14 @@ std::set<BattleHex> BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex
 	using namespace SRSLPraserHelpers;
 
 	std::set<BattleHex> ret;
-	std::string rng = owner->getLevelInfo(getRangeLevel()).range + ','; //copy + artificial comma for easier handling
+	std::vector<int> rng = owner->getLevelInfo(getRangeLevel()).range;
 
-	if(rng.size() >= 2 && rng[0] != 'X') //there is at least one hex in range (+artificial comma)
+	for(auto & elem : rng)
 	{
-		std::string number1;
-		std::string number2;
-		int beg = 0;
-		int end = 0;
-		bool readingFirst = true;
-		for(auto & elem : rng)
-		{
-			if(std::isdigit(elem) ) //reading number
-			{
-				if(readingFirst)
-					number1 += elem;
-				else
-					number2 += elem;
-			}
-			else if(elem == ',') //comma
-			{
-				//calculating variables
-				if(readingFirst)
-				{
-					beg = std::stoi(number1);
-					number1 = "";
-				}
-				else
-				{
-					end = std::stoi(number2);
-					number2 = "";
-				}
-				//obtaining new hexes
-				std::set<ui16> curLayer;
-				if(readingFirst)
-				{
-					curLayer = getInRange(centralHex, beg, beg);
-				}
-				else
-				{
-					curLayer = getInRange(centralHex, beg, end);
-					readingFirst = true;
-				}
-				//adding obtained hexes
-				for(const auto & curLayer_it : curLayer)
-				{
-					ret.insert(curLayer_it);
-				}
-
-			}
-			else if(elem == '-') //dash
-			{
-				beg = std::stoi(number1);
-				number1 = "";
-				readingFirst = false;
-			}
-		}
+		std::set<ui16> curLayer = getInRange(centralHex, elem, elem);
+		//adding obtained hexes
+		for(const auto & curLayer_it : curLayer)
+			ret.insert(curLayer_it);
 	}
 
 	return ret;

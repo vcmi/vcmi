@@ -18,7 +18,6 @@ VCMI_LIB_NAMESPACE_END
 class CAnimImage;
 class CSlider;
 class CLabel;
-class CAnimation;
 
 /// Used as base for Tabs and List classes
 class CObjectList : public CIntObject
@@ -77,7 +76,7 @@ public:
 	//ItemOffset - distance between items in the list
 	//VisibleSize - maximal number of displayable at once items
 	//TotalSize
-	//Slider - slider style, bit field: 1 = present(disabled), 2=horisontal(vertical), 4=blue(brown)
+	//Slider - slider style, bit field: 1 = present(disabled), 2=horizontal(vertical), 4=blue(brown)
 	//SliderPos - position of slider, if present
 	CListBox(CreateFunc create, Point Pos, Point ItemOffset, size_t VisibleSize,
 		size_t TotalSize, size_t InitialPos=0, int Slider=0, Rect SliderPos=Rect() );

@@ -52,6 +52,7 @@ public:
 	std::string customSubtitle;
 	ESize size; //component size.
 	EFonts font; //Font size of label
+	bool newLine; //Line break after component
 
 	std::string getDescription() const;
 	std::string getSubtitle() const;

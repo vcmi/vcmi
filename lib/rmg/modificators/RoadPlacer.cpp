@@ -21,6 +21,7 @@
 #include "../../modding/IdentifierStorage.h"
 #include "../../modding/ModScope.h"
 #include "../../TerrainHandler.h"
+#include "../../VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -148,7 +149,7 @@ void RoadPlacer::drawRoads(bool secondary)
 	//Do not draw roads on underground rock or water
 	roads.erase_if([this](const int3& pos) -> bool
 	{
-		const auto* terrain = map.getTile(pos).terType;
+		const auto* terrain = map.getTile(pos).getTerrain();
 		return !terrain->isPassable() || !terrain->isLand();
 	});
 

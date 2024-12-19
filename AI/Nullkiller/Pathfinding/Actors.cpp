@@ -46,7 +46,7 @@ ChainActor::ChainActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t 
 	initialMovement = hero->movementPointsRemaining();
 	initialTurn = 0;
 	armyValue = getHeroArmyStrengthWithCommander(hero, hero);
-	heroFightingStrength = hero->getFightingStrength();
+	heroFightingStrength = hero->getHeroStrength();
 	tiCache.reset(new TurnInfo(hero));
 }
 
@@ -182,7 +182,7 @@ ExchangeResult HeroActor::tryExchangeNoLock(const ChainActor * specialActor, con
 		return &actor == specialActor;
 	});
 
-	result.actor = &(dynamic_cast<HeroActor *>(result.actor)->specialActors[index]);
+	result.actor = &(dynamic_cast<HeroActor *>(result.actor)->specialActors.at(index));
 
 	return result;
 }
@@ -217,7 +217,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 	ExchangeResult result;
 
 	{
-		boost::shared_lock<boost::shared_mutex> lock(sync, boost::try_to_lock);
+		boost::shared_lock lock(sync, boost::try_to_lock);
 
 		if(!lock.owns_lock())
 		{
@@ -237,7 +237,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 	}
 
 	{
-		boost::unique_lock<boost::shared_mutex> uniqueLock(sync, boost::try_to_lock);
+		boost::unique_lock uniqueLock(sync, boost::try_to_lock);
 
 		if(!uniqueLock.owns_lock())
 		{
@@ -374,10 +374,12 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 		for(auto & creatureToBuy : buyArmy)
 		{
 			auto targetSlot = target->getSlotFor(creatureToBuy.creID.toCreature());
-
-			target->addToSlot(targetSlot, creatureToBuy.creID, creatureToBuy.count);
-			target->armyCost += creatureToBuy.creID.toCreature()->getFullRecruitCost() * creatureToBuy.count;
-			target->requireBuyArmy = true;
+			if (targetSlot.validSlot())
+			{
+				target->addToSlot(targetSlot, creatureToBuy.creID, creatureToBuy.count);
+				target->armyCost += creatureToBuy.creID.toCreature()->getFullRecruitCost() * creatureToBuy.count;
+				target->requireBuyArmy = true;
+			}
 		}
 	}
 
@@ -440,7 +442,7 @@ int DwellingActor::getInitialTurn(bool waitForGrowth, int dayOfWeek)
 
 std::string DwellingActor::toString() const
 {
-	return dwelling->typeName + dwelling->visitablePos().toString();
+	return dwelling->getTypeName() + dwelling->visitablePos().toString();
 }
 
 CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, bool waitForGrowth)

@@ -31,7 +31,8 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/logging/VisualLogger.h"
+
+#include "MapOverlayLogVisualizer.h"
 
 BasicMapView::~BasicMapView() = default;
 
@@ -52,48 +53,11 @@ BasicMapView::BasicMapView(const Point & offset, const Point & dimensions)
 	, tilesCache(new MapViewCache(model))
 	, controller(new MapViewController(model, tilesCache))
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos += offset;
 	pos.w = dimensions.x;
 	pos.h = dimensions.y;
 }
-
-class VisualLoggerRenderer : public ILogVisualizer
-{
-private:
-	Canvas & target;
-	std::shared_ptr<MapViewModel> model;
-
-public:
-	VisualLoggerRenderer(Canvas & target, std::shared_ptr<MapViewModel> model) : target(target), model(model)
-	{
-	}
-
-	virtual void drawLine(int3 start, int3 end) override
-	{
-		const Point offset = Point(30, 30);
-
-		auto level = model->getLevel();
-
-		if(start.z != level || end.z != level)
-			return;
-
-		auto pStart = model->getTargetTileArea(start).topLeft();
-		auto pEnd = model->getTargetTileArea(end).topLeft();
-		auto viewPort = target.getRenderArea();
-
-		pStart.x += 3;
-		pEnd.x -= 3;
-
-		pStart += offset;
-		pEnd += offset;
-
-		if(viewPort.isInside(pStart) && viewPort.isInside(pEnd))
-		{
-			target.drawLine(pStart, pEnd, ColorRGBA(255, 255, 0), ColorRGBA(255, 0, 0));
-		}
-	}
-};
 
 void BasicMapView::render(Canvas & target, bool fullUpdate)
 {
@@ -101,7 +65,7 @@ void BasicMapView::render(Canvas & target, bool fullUpdate)
 	tilesCache->update(controller->getContext());
 	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
 
-	VisualLoggerRenderer r(target, model);
+	MapOverlayLogVisualizer r(target, model);
 	logVisual->visualize(r);
 }
 
@@ -141,7 +105,7 @@ void MapView::show(Canvas & to)
 MapView::MapView(const Point & offset, const Point & dimensions)
 	: BasicMapView(offset, dimensions)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	actions = std::make_shared<MapViewActions>(*this, model);
 	actions->setContext(controller->getContext());
 
@@ -187,7 +151,7 @@ void MapView::postSwipe(uint32_t msPassed)
 			std::pair<uint32_t, Point> firstAccepted;
 			uint32_t now = GH.input().getTicks();
 			for (auto & x : swipeHistory) {
-				if(now - x.first < postSwipeCatchIntervalMs) { // only the last x ms are catched
+				if(now - x.first < postSwipeCatchIntervalMs) { // only the last x ms are caught
 					if(firstAccepted.first == 0)
 						firstAccepted = x;
 					diff += x.second;

@@ -27,6 +27,14 @@ class Point;
 
 VCMI_LIB_NAMESPACE_END
 
+enum class EScalingAlgorithm : int8_t
+{
+	NEAREST,
+	BILINEAR,
+	XBRZ_OPAQUE, // xbrz, image edges are considered to have same color as pixel inside image
+	XBRZ_ALPHA // xbrz, image edges are considered to be transparent
+};
+
 namespace CSDL_Ext
 {
 
@@ -61,8 +69,6 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 	void fillRect(SDL_Surface * dst, const Rect & dstrect, const SDL_Color & color);
 	void fillRectBlended(SDL_Surface * dst, const Rect & dstrect, const SDL_Color & color);
 
-	void updateRect(SDL_Surface * surface, const Rect & rect);
-
 	void putPixelWithoutRefresh(SDL_Surface * ekran, const int & x, const int & y, const uint8_t & R, const uint8_t & G, const uint8_t & B, uint8_t A = 255);
 	void putPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const uint8_t & R, const uint8_t & G, const uint8_t & B, uint8_t A = 255);
 
@@ -73,32 +79,28 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 	bool isTransparent(SDL_Surface * srf, const Point & position); //checks if surface is transparent at given position
 
 	uint8_t * getPxPtr(const SDL_Surface * const & srf, const int x, const int y);
-	TColorPutter getPutterFor(SDL_Surface * const & dest, int incrementing); //incrementing: -1, 0, 1
-	TColorPutterAlpha getPutterAlphaFor(SDL_Surface * const & dest, int incrementing); //incrementing: -1, 0, 1
+	TColorPutter getPutterFor(SDL_Surface * const & dest);
 
-	template<int bpp>
-	int blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint); //blits 8 bpp surface with alpha channel to 24 bpp surface
-	int blit8bppAlphaTo24bpp(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint); //blits 8 bpp surface with alpha channel to 24 bpp surface
+	template<int bpp, bool useAlpha>
+	int blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint, uint8_t alpha); //blits 8 bpp surface with alpha channel to 24 bpp surface
+	int blit8bppAlphaTo24bpp(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint, uint8_t alpha); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	uint32_t colorTouint32_t(const SDL_Color * color); //little endian only
 
-	void drawLine(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color1, const SDL_Color & color2);
+	void drawLine(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color1, const SDL_Color & color2, int width);
 	void drawLineDashed(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color);
 
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color & color, int depth = 1);
 	void drawBorder(SDL_Surface * sur, const Rect & r, const SDL_Color & color, int depth = 1);
-	void setPlayerColor(SDL_Surface * sur, const PlayerColor & player); //sets correct color of flags; -1 for neutral
 
-	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod); //creates new surface, with flags/format same as in surface given
-	SDL_Surface * newSurface(int w, int h); //creates new surface, with flags/format same as in screen surface
+	SDL_Surface * newSurface(const Point & dimensions, SDL_Surface * mod); //creates new surface, with flags/format same as in surface given
+	SDL_Surface * newSurface(const Point & dimensions); //creates new surface, with flags/format same as in screen surface
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
 	template<int bpp>
 	SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value
 
-	//scale surface to required size.
-	//nearest neighbour algorithm
-	SDL_Surface * scaleSurfaceFast(SDL_Surface * surf, int width, int height);
-	// bilinear filtering. Uses fallback to scaleSurfaceFast in case of indexed surfaces
+	// bilinear filtering. Always returns rgba surface
 	SDL_Surface * scaleSurface(SDL_Surface * surf, int width, int height);
+	SDL_Surface * scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor, EScalingAlgorithm scaler);
 
 	template<int bpp>
 	void convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect);
@@ -117,11 +119,13 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 		SDL_Surface * surf;
 		Rect oldRect;
 
+		int getScalingFactor() const;
+
 	public:
 		CClipRectGuard(SDL_Surface * surface, const Rect & rect): surf(surface)
 		{
 			CSDL_Ext::getClipRect(surf, oldRect);
-			CSDL_Ext::setClipRect(surf, rect);
+			CSDL_Ext::setClipRect(surf, rect * getScalingFactor());
 		}
 
 		~CClipRectGuard()

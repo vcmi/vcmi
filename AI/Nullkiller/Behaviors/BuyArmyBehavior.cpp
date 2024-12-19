@@ -28,9 +28,6 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 
-	if(ai->cb->getDate(Date::DAY) == 1)
-		return tasks;
-		
 	auto heroes = cb->getHeroesInfo();
 
 	if(heroes.empty())
@@ -38,19 +35,23 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 		return tasks;
 	}
 
+	ai->dangerHitMap->updateHitMap();
+
 	for(auto town : cb->getTownsInfo())
 	{
+		uint8_t closestThreat = ai->dangerHitMap->getTileThreat(town->visitablePos()).fastestDanger.turn;
+
+		if (closestThreat >=2 && ai->buildAnalyzer->isGoldPressureHigh() && !town->hasBuilt(BuildingID::CITY_HALL) && cb->canBuildStructure(town, BuildingID::CITY_HALL) != EBuildingState::FORBIDDEN)
+		{
+			return tasks;
+		}
+		
 		auto townArmyAvailableToBuy = ai->armyManager->getArmyAvailableToBuyAsCCreatureSet(
 			town,
 			ai->getFreeResources());
 
 		for(const CGHeroInstance * targetHero : heroes)
 		{
-			if(ai->buildAnalyzer->isGoldPressureHigh()	&& !town->hasBuilt(BuildingID::CITY_HALL))
-			{
-				continue;
-			}
-
 			if(ai->heroManager->getHeroRole(targetHero) == HeroRole::MAIN)
 			{
 				auto reinforcement = ai->armyManager->howManyReinforcementsCanGet(
@@ -63,7 +64,7 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 
 				if(reinforcement)
 				{
-					tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(5)));
+					tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(reinforcement)));
 				}
 			}
 		}

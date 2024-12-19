@@ -19,8 +19,13 @@ class PlayerColor;
 class CGHeroInstance;
 class HeroTypeID;
 class ObjectInstanceID;
-class CRandomGenerator;
 class CHeroClass;
+class CRandomGenerator;
+
+namespace vstd
+{
+class RNG;
+}
 
 VCMI_LIB_NAMESPACE_END
 
@@ -46,7 +51,7 @@ class HeroPoolProcessor : boost::noncopyable
 
 	CGHeroInstance * pickHeroFor(bool isNative, const PlayerColor & player);
 
-	CRandomGenerator & getRandomGenerator(const PlayerColor & player);
+	vstd::RNG & getRandomGenerator(const PlayerColor & player);
 
 	TavernHeroSlot selectSlotForRole(const PlayerColor & player, TavernSlotRole roleID);
 
@@ -58,7 +63,7 @@ public:
 
 	void onNewWeek(const PlayerColor & color);
 
-	CRandomGenerator & getHeroSkillsRandomGenerator(const HeroTypeID & hero);
+	vstd::RNG & getHeroSkillsRandomGenerator(const HeroTypeID & hero);
 
 	/// Incoming net pack handling
 	bool hireHero(const ObjectInstanceID & objectID, const HeroTypeID & hid, const PlayerColor & player, const HeroTypeID & nextHero);

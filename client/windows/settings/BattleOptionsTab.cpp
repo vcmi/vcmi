@@ -14,13 +14,13 @@
 #include "../../gui/CGuiHandler.h"
 #include "../../../lib/CConfigHandler.h"
 #include "../../../lib/filesystem/ResourcePath.h"
-#include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
 BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 
 	const JsonNode config(JsonPath::builtin("config/widgets/settings/battleOptionsTab.json"));
@@ -64,6 +64,10 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	{
 		showStickyHeroWindowsChangedCallback(value, owner);
 	});
+	addCallback("showQuickSpellChanged", [this, owner](bool value)
+	{
+		showQuickSpellChangedCallback(value, owner);
+	});
 	addCallback("enableAutocombatSpellsChanged", [this](bool value)
 	{
 		enableAutocombatSpellsChangedCallback(value);
@@ -94,6 +98,9 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 
 	std::shared_ptr<CToggleButton> showStickyHeroInfoWindowsCheckbox = widget<CToggleButton>("showStickyHeroInfoWindowsCheckbox");
 	showStickyHeroInfoWindowsCheckbox->setSelected(settings["battle"]["stickyHeroInfoWindows"].Bool());
+
+	std::shared_ptr<CToggleButton> showQuickSpellCheckbox = widget<CToggleButton>("showQuickSpellCheckbox");
+	showQuickSpellCheckbox->setSelected(settings["battle"]["enableQuickSpellPanel"].Bool());
 
 	std::shared_ptr<CToggleButton> mouseShadowCheckbox = widget<CToggleButton>("mouseShadowCheckbox");
 	mouseShadowCheckbox->setSelected(settings["battle"]["mouseShadow"].Bool());
@@ -225,6 +232,19 @@ void BattleOptionsTab::showStickyHeroWindowsChangedCallback(bool value, BattleIn
 	else
 	{
 		parentBattleInterface->setStickyHeroWindowsVisibility(value);
+	}
+}
+
+void BattleOptionsTab::showQuickSpellChangedCallback(bool value, BattleInterface * parentBattleInterface)
+{
+	if(!parentBattleInterface)
+	{
+		Settings showQuickSpell = settings.write["battle"]["enableQuickSpellPanel"];
+		showQuickSpell->Bool() = value;
+	}
+	else
+	{
+		parentBattleInterface->setStickyQuickSpellWindowVisibility(value);
 	}
 }
 

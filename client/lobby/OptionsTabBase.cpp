@@ -18,11 +18,12 @@
 #include "../widgets/TextControls.h"
 #include "../CServerHandler.h"
 #include "../CGameInfo.h"
+#include "../render/AssetGenerator.h"
 
 #include "../../lib/StartInfo.h"
-#include "../../lib/Languages.h"
-#include "../../lib/MetaString.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/Languages.h"
+#include "../../lib/texts/MetaString.h"
 #include "../../lib/CConfigHandler.h"
 
 static std::string timeToString(int time)
@@ -68,6 +69,8 @@ std::vector<SimturnsInfo> OptionsTabBase::getSimturnsPresets() const
 
 OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 {
+	AssetGenerator::createAdventureOptionsCleanBackground();
+
 	recActions = 0;
 
 	auto setTimerPresetCallback = [this](int index){

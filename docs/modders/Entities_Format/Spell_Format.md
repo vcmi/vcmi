@@ -1,6 +1,8 @@
+# Spell Format
+
 ## Main format
 
-``` javascript
+```json
 {
 	"spellName":
 	{	
@@ -62,6 +64,12 @@
 		// If true, then creature capable of casting this spell can cast this spell on itself
 		// If false, then creature can only cast this spell on other units
 		"canCastOnSelf" : false,
+		
+		// If true, then creature capable of casting this spell can cast this spell only on itself
+		"canCastOnlyOnSelf" : false,
+
+		// If true the creature will not skip the turn after casting a spell
+		"canCastWithoutSkip": false,
 		
 		// If true, spell won't be available on a map without water
 		"onlyOnWaterMap" : true,
@@ -148,7 +156,7 @@
 
 TODO
 
-``` javascript
+```json
 {
 	"projectile": [
 		{"minimumAngle": 0 ,"defName":"C20SPX4"},
@@ -159,7 +167,7 @@ TODO
 	],
 	"cast" : []
 	"hit":["C20SPX"],
-	"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
+	"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom", "transparency" : 0.5}, "C11SPA1"]
 }
 ```
 
@@ -171,7 +179,7 @@ Json object with data common for all levels can be put here. These configuration
 
 This will make spell affect single target on all levels except expert, where it is massive spell.
 
-``` javascript
+```json
 "base":{
 	"range": 0
 },
@@ -184,7 +192,7 @@ This will make spell affect single target on all levels except expert, where it 
 
 TODO
 
-``` javascript
+```json
 
 {
 	//Mandatory, localizable description. Use {xxx} for formatting
@@ -254,7 +262,7 @@ Configurable spells ignore *offensive* flag, *effects* and *cumulativeEffects*. 
 
 TODO
 
-``` javascript
+```json
 
 "mod:effectId":{
 
@@ -275,7 +283,7 @@ TODO
 
 TODO
 
-``` javascript
+```json
 
 "mod:effectId":{
 
@@ -296,7 +304,7 @@ TODO
 
 Configurable version of Clone spell.
 
-``` javascript
+```json
 
 "mod:effectId":{
 
@@ -312,7 +320,7 @@ TODO
 
 If effect is automatic, spell behave like offensive spell (uses power, levelPower etc)
 
-``` javascript
+```json
 
 "mod:effectId":{
 
@@ -360,7 +368,7 @@ TODO
 If effect is automatic, spell behave like \[de\]buff spell (effect and
 cumulativeEffects ignored)
 
-``` javascript
+```json
 
 "mod:effectId":{
 
@@ -381,21 +389,21 @@ cumulativeEffects ignored)
 TODO
 
 - CREATURE target (only battle spells)
- - range 0: smart assumed single creature target
- - range "X" + smart modifier = enchanter casting, expert massive spells
- - range "X" + no smart modifier = armageddon, death ripple, destroy undead
- - any other range (including chain effect)
-  - smart modifier: smth like cloud of confusion in H4 (if I remember correctly :) )
-  - no smart modifier: like inferno, fireball etc. but target only creature
+- range 0: smart assumed single creature target
+- range "X" + smart modifier = enchanter casting, expert massive spells
+- range "X" + no smart modifier = armageddon, death ripple, destroy undead
+- any other range (including chain effect)
+- smart modifier: smth like cloud of confusion in H4 (if I remember correctly :) )
+- no smart modifier: like inferno, fireball etc. but target only creature
 
 - NO_TARGET
- - no target selection,(abilities, most adventure spells)
+- no target selection,(abilities, most adventure spells)
 
 - LOCATION
- - any tile on map/battlefield (inferno, fireball etc.), DD also here but with special handling
- - clearTarget - destination hex must be clear (unused so far)
- - clearAfffected - all affected hexes must be clear (forceField, fireWall)
+- any tile on map/battlefield (inferno, fireball etc.), DD also here but with special handling
+- clearTarget - destination hex must be clear (unused so far)
+- clearAfffected - all affected hexes must be clear (forceField, fireWall)
 
 - OBSTACLE target
- - range 0: any single obstacle
- - range X: all obstacles
+- range 0: any single obstacle
+- range X: all obstacles

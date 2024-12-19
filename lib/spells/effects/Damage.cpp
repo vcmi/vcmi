@@ -14,13 +14,12 @@
 #include "../CSpellHandler.h"
 #include "../ISpellMechanics.h"
 
-#include "../../MetaString.h"
 #include "../../CStack.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../networkPacks/PacksForClientBattle.h"
-#include "../../CGeneralTextHandler.h"
-#include "../../Languages.h"
+#include "../../texts/CGeneralTextHandler.h"
+#include "../../texts/Languages.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
 #include <vcmi/spells/Spell.h>
@@ -81,10 +80,10 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 	}
 
 	if(!stacksInjured.stacks.empty())
-		server->apply(&stacksInjured);
+		server->apply(stacksInjured);
 
 	if(!blm.lines.empty())
-		server->apply(&blm);
+		server->apply(blm);
 }
 
 bool Damage::isReceptive(const Mechanics * m, const battle::Unit * unit) const

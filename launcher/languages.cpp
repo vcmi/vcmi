@@ -11,8 +11,8 @@
 #include "languages.h"
 
 #include "../lib/CConfigHandler.h"
-#include "../lib/Languages.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/Languages.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 #include <QComboBox>
 #include <QListWidget>

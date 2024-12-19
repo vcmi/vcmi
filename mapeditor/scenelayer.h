@@ -83,7 +83,7 @@ public:
 	const std::set<int3> & selection() const;
 
 signals:
-	void selectionMade(bool anythingSlected);
+	void selectionMade(bool anythingSelected);
 
 private:
 	std::set<int3> area;
@@ -196,7 +196,7 @@ public:
 	SelectionMode selectionMode = SelectionMode::NOTHING;
 
 signals:
-	void selectionMade(bool anythingSlected);
+	void selectionMade(bool anythingSelected);
 	
 private:
 	std::set<CGObjectInstance *> selectedObjects;

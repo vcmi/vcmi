@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "CMessage.h"
 
-#include "../../lib/TextOperations.h"
-
 #include "../gui/CGuiHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
@@ -26,6 +24,8 @@
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../windows/InfoWindows.h"
+
+#include "../../lib/texts/TextOperations.h"
 
 constexpr int RIGHT_CLICK_POPUP_MIN_SIZE = 100;
 constexpr int SIDE_MARGIN = 11;
@@ -41,8 +41,7 @@ void CMessage::init()
 {
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		dialogBorders[i] = GH.renderHandler().loadAnimation(AnimationPath::builtin("DIALGBOX"));
-		dialogBorders[i]->preload();
+		dialogBorders[i] = GH.renderHandler().loadAnimation(AnimationPath::builtin("DIALGBOX"), EImageBlitMode::COLORKEY);
 
 		for(int j = 0; j < dialogBorders[i]->size(0); j++)
 		{
@@ -71,23 +70,24 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 
 	boost::algorithm::trim_right_if(text, boost::algorithm::is_any_of(std::string(" ")));
 
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
+
 	// each iteration generates one output line
 	while(text.length())
 	{
-		ui32 lineWidth = 0; //in characters or given char metric
 		ui32 wordBreak = -1; //last position for line break (last space character)
 		ui32 currPos = 0; //current position in text
 		bool opened = false; //set to true when opening brace is found
 		std::string color; //color found
 
 		size_t symbolSize = 0; // width of character, in bytes
-		size_t glyphWidth = 0; // width of printable glyph, pixels
+
+		std::string printableString;
 
 		// loops till line is full or end of text reached
-		while(currPos < text.length() && text[currPos] != 0x0a && lineWidth < maxLineWidth)
+		while(currPos < text.length() && text[currPos] != 0x0a && fontPtr->getStringWidth(printableString) <= maxLineWidth)
 		{
 			symbolSize = TextOperations::getUnicodeCharacterSize(text[currPos]);
-			glyphWidth = graphics->fonts[font]->getGlyphWidth(text.data() + currPos);
 
 			// candidate for line break
 			if(ui8(text[currPos]) <= ui8(' '))
@@ -117,15 +117,23 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 				color = "";
 			}
 			else
-				lineWidth += glyphWidth;
+				printableString.append(text.data() + currPos, symbolSize);
 			currPos += symbolSize;
 		}
 
-		// long line, create line break
+		// not all line has been processed - it turned out to be too long, so erase everything after last word break
+		// if string consists from a single word (or this is Chinese/Korean) - erase only last symbol to bring line back to allowed length
 		if(currPos < text.length() && (text[currPos] != 0x0a))
 		{
 			if(wordBreak != ui32(-1))
+			{
 				currPos = wordBreak;
+				if(boost::count(text.substr(0, currPos), '{') == boost::count(text.substr(0, currPos), '}'))
+				{
+					opened = false;
+					color = "";
+				}
+			}
 			else
 				currPos -= symbolSize;
 		}
@@ -176,9 +184,9 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 std::string CMessage::guessHeader(const std::string & msg)
 {
 	size_t begin = 0;
-	std::string delimeters = "{}";
-	size_t start = msg.find_first_of(delimeters[0], begin);
-	size_t end = msg.find_first_of(delimeters[1], start);
+	std::string delimiters = "{}";
+	size_t start = msg.find_first_of(delimiters[0], begin);
+	size_t end = msg.find_first_of(delimiters[1], start);
 	if(start > msg.size() || end > msg.size())
 		return "";
 	return msg.substr(begin, end);
@@ -186,9 +194,9 @@ std::string CMessage::guessHeader(const std::string & msg)
 
 int CMessage::guessHeight(const std::string & txt, int width, EFonts font)
 {
-	const auto f = graphics->fonts[font];
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
 	const auto lines = CMessage::breakText(txt, width, font);
-	size_t lineHeight = f->getLineHeight();
+	size_t lineHeight = fontPtr->getLineHeight();
 	return lineHeight * lines.size();
 }
 

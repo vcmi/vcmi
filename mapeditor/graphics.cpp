@@ -26,14 +26,14 @@
 #include "../lib/CThreadHelper.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "BitmapHandler.h"
 #include "../lib/CStopWatch.h"
+#include "../lib/entities/hero/CHeroClassHandler.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjects/CGObjectInstance.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
-#include "../lib/CHeroHandler.h"
 
 Graphics * graphics = nullptr;
 
@@ -48,9 +48,9 @@ void Graphics::loadPaletteAndColors()
 	for(int i = 0; i < 256; ++i)
 	{
 		QColor col;
-		col.setRed(pals[startPoint++]);
-		col.setGreen(pals[startPoint++]);
-		col.setBlue(pals[startPoint++]);
+		col.setRed(std::clamp(static_cast<int>(pals[startPoint++]), 0, 255));
+		col.setGreen(std::clamp(static_cast<int>(pals[startPoint++]), 0, 255));
+		col.setBlue(std::clamp(static_cast<int>(pals[startPoint++]), 0, 255));
 		col.setAlpha(255);
 		startPoint++;
 		playerColorPalette[i] = col.rgba();
@@ -124,7 +124,7 @@ void Graphics::load()
 
 void Graphics::loadHeroAnimations()
 {
-	for(auto & elem : VLC->heroclassesh->objects)
+	for(const auto & elem : VLC->heroclassesh->objects)
 	{
 		for(auto templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
 		{

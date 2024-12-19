@@ -23,10 +23,10 @@ public:
 
 	MetaString message;
 
-	void initObj(CRandomGenerator & rand) override;
+	void initObj(vstd::RNG & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{

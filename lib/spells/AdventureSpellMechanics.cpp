@@ -17,13 +17,14 @@
 
 #include "../CGameInfoCallback.h"
 #include "../CPlayerState.h"
-#include "../CRandomGenerator.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapping/CMap.h"
 #include "../networkPacks/PacksForClient.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -104,7 +105,7 @@ ESpellCastResult AdventureSpellMechanics::applyAdventureEffects(SpellCastEnviron
 			GiveBonus gb;
 			gb.id = ObjectInstanceID(parameters.caster->getCasterUnitId());
 			gb.bonus = b;
-			env->apply(&gb);
+			env->apply(gb);
 		}
 
 		return ESpellCastResult::OK;
@@ -135,7 +136,7 @@ void AdventureSpellMechanics::performCast(SpellCastEnvironment * env, const Adve
 	AdvmapSpellCast asc;
 	asc.casterID = ObjectInstanceID(parameters.caster->getCasterUnitId());
 	asc.spellID = owner->id;
-	env->apply(&asc);
+	env->apply(asc);
 
 	ESpellCastResult result = applyAdventureEffects(env, parameters);
 
@@ -187,13 +188,13 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	const auto schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
 
 	//check if spell works at all
-	if(env->getRNG()->getInt64Range(0, 99)() >= owner->getLevelPower(schoolLevel)) //power is % chance of success
+	if(env->getRNG()->nextInt(0, 99) >= owner->getLevelPower(schoolLevel)) //power is % chance of success
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 336); //%s tried to summon a boat, but failed.
 		parameters.caster->getCasterName(iw.text);
-		env->apply(&iw);
+		env->apply(iw);
 		return ESpellCastResult::OK;
 	}
 
@@ -208,7 +209,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 			if(b->hero || b->layer != EPathfindingLayer::SAIL)
 				continue; //we're looking for unoccupied boat
 
-			double nDist = b->pos.dist2d(parameters.caster->getHeroCaster()->visitablePos());
+			double nDist = b->visitablePos().dist2d(parameters.caster->getHeroCaster()->visitablePos());
 			if(!nearest || nDist < dist) //it's first boat or closer than previous
 			{
 				nearest = b;
@@ -225,24 +226,19 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 		cop.objid = nearest->id;
 		cop.nPos = summonPos;
 		cop.initiator = parameters.caster->getCasterOwner();
-		env->apply(&cop);
+		env->apply(cop);
 	}
 	else if(schoolLevel < 2) //none or basic level -> cannot create boat :(
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 335); //There are no boats to summon.
-		env->apply(&iw);
+		env->apply(iw);
 		return ESpellCastResult::ERROR;
 	}
 	else //create boat
 	{
-		NewObject no;
-		no.ID = Obj::BOAT;
-		no.subID = BoatId::NECROPOLIS;
-		no.targetPos = summonPos;
-		no.initiator = parameters.caster->getCasterOwner();
-		env->apply(&no);
+		env->createBoat(summonPos, BoatId::NECROPOLIS, parameters.caster->getCasterOwner());
 	}
 	return ESpellCastResult::OK;
 }
@@ -280,13 +276,13 @@ ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(SpellCastEnvironmen
 {
 	const auto schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
 	//check if spell works at all
-	if(env->getRNG()->getInt64Range(0, 99)() >= owner->getLevelPower(schoolLevel)) //power is % chance of success
+	if(env->getRNG()->nextInt(0, 99) >= owner->getLevelPower(schoolLevel)) //power is % chance of success
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 337); //%s tried to scuttle the boat, but failed
 		parameters.caster->getCasterName(iw.text);
-		env->apply(&iw);
+		env->apply(iw);
 		return ESpellCastResult::OK;
 	}
 
@@ -295,7 +291,7 @@ ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(SpellCastEnvironmen
 	RemoveObject ro;
 	ro.initiator = parameters.caster->getCasterOwner();
 	ro.objectID = t.visitableObjects.back()->id;
-	env->apply(&ro);
+	env->apply(ro);
 	return ESpellCastResult::OK;
 }
 
@@ -324,7 +320,7 @@ bool DimensionDoorMechanics::canBeCastImpl(spells::Problem & problem, const CGam
 	int castsAlreadyPerformedThisTurn = caster->getHeroCaster()->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(owner->id)), Selector::all, cachingStr.str())->size();
 	int castsLimit = owner->getLevelPower(schoolLevel);
 
-	bool isTournamentRulesLimitEnabled = VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TOURNAMENT_RULES_LIMIT);
+	bool isTournamentRulesLimitEnabled = cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TOURNAMENT_RULES_LIMIT);
 	if(isTournamentRulesLimitEnabled)
 	{
 		int3 mapSize = cb->getMapSize();
@@ -351,7 +347,7 @@ bool DimensionDoorMechanics::canBeCastAtImpl(spells::Problem & problem, const CG
 	if(!cb->isInTheMap(pos))
 		return false;
 
-	if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES))
+	if(cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES))
 	{
 		if(!cb->isVisible(pos, caster->getCasterOwner()))
 			return false;
@@ -371,14 +367,14 @@ bool DimensionDoorMechanics::canBeCastAtImpl(spells::Problem & problem, const CG
 	if(!isInScreenRange(casterPosition, pos))
 		return false;
 
-	if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_EXPOSES_TERRAIN_TYPE))
+	if(cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_EXPOSES_TERRAIN_TYPE))
 	{
 		if(!dest->isClear(curr))
 			return false;
 	}
 	else
 	{
-		if (dest->blocked)
+		if (dest->blocked())
 			return false;
 	}
 
@@ -400,18 +396,18 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 		iw.player = parameters.caster->getCasterOwner();
 
 		// tile is either blocked or not possible to move (e.g. water <-> land)
-		if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_FAILURE_SPENDS_POINTS))
+		if(env->getCb()->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_FAILURE_SPENDS_POINTS))
 		{
 			// SOD: DD to such "wrong" terrain results in mana and move points spending, but fails to move hero
 			iw.text = MetaString::createFromTextID("core.genrltxt.70"); // Dimension Door failed!
-			env->apply(&iw);
+			env->apply(iw);
 			// no return - resources will be spent
 		}
 		else
 		{
 			// HotA: game will show error message without taking mana or move points, even when DD into terra incognita
 			iw.text = MetaString::createFromTextID("vcmi.dimensionDoor.seaToLandError");
-			env->apply(&iw);
+			env->apply(iw);
 			return ESpellCastResult::CANCEL;
 		}
 	}
@@ -419,7 +415,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 	GiveBonus gb;
 	gb.id = ObjectInstanceID(parameters.caster->getCasterUnitId());
 	gb.bonus = Bonus(BonusDuration::ONE_DAY, BonusType::NONE, BonusSource::SPELL_EFFECT, 0, BonusSourceID(owner->id));
-	env->apply(&gb);
+	env->apply(gb);
 
 	SetMovePoints smp;
 	smp.hid = ObjectInstanceID(parameters.caster->getCasterUnitId());
@@ -427,7 +423,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 		smp.val = parameters.caster->getHeroCaster()->movementPointsRemaining() - movementCost;
 	else
 		smp.val = 0;
-	env->apply(&smp);
+	env->apply(smp);
 
 	return ESpellCastResult::OK;
 }
@@ -475,7 +471,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 			InfoWindow iw;
 			iw.player = parameters.caster->getCasterOwner();
 			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 123);
-			env->apply(&iw);
+			env->apply(iw);
 			return ESpellCastResult::CANCEL;
 		}
 	}
@@ -543,7 +539,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 135);
-		env->apply(&iw);
+		env->apply(iw);
 		return ESpellCastResult::ERROR;
 	}
 
@@ -572,7 +568,7 @@ void TownPortalMechanics::endCast(SpellCastEnvironment * env, const AdventureSpe
 		SetMovePoints smp;
 		smp.hid = ObjectInstanceID(parameters.caster->getCasterUnitId());
 		smp.val = std::max<ui32>(0, parameters.caster->getHeroCaster()->movementPointsRemaining() - moveCost);
-		env->apply(&smp);
+		env->apply(smp);
 	}
 }
 
@@ -591,7 +587,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 124);
-		env->apply(&iw);
+		env->apply(iw);
 		return ESpellCastResult::CANCEL;
 	}
 
@@ -602,7 +598,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 125);
-		env->apply(&iw);
+		env->apply(iw);
 		return ESpellCastResult::CANCEL;
 	}
 
@@ -647,7 +643,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 			InfoWindow iw;
 			iw.player = parameters.caster->getCasterOwner();
 			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 124);
-			env->apply(&iw);
+			env->apply(iw);
 			return ESpellCastResult::CANCEL;
 		}
 
@@ -673,11 +669,11 @@ const CGTownInstance * TownPortalMechanics::findNearestTown(SpellCastEnvironment
 		return nullptr;
 
 	auto nearest = pool.cbegin(); //nearest town's iterator
-	si32 dist = (*nearest)->pos.dist2dSQ(parameters.caster->getHeroCaster()->pos);
+	si32 dist = (*nearest)->visitablePos().dist2dSQ(parameters.caster->getHeroCaster()->visitablePos());
 
 	for(auto i = nearest + 1; i != pool.cend(); ++i)
 	{
-		si32 curDist = (*i)->pos.dist2dSQ(parameters.caster->getHeroCaster()->pos);
+		si32 curDist = (*i)->visitablePos().dist2dSQ(parameters.caster->getHeroCaster()->visitablePos());
 
 		if(curDist < dist)
 		{
@@ -696,9 +692,9 @@ std::vector <const CGTownInstance*> TownPortalMechanics::getPossibleTowns(SpellC
 
 	for(const auto & color : team->players)
 	{
-		for(auto currTown : env->getCb()->getPlayerState(color)->towns)
+		for(auto currTown : env->getCb()->getPlayerState(color)->getTowns())
 		{
-			ret.push_back(currTown.get());
+			ret.push_back(currTown);
 		}
 	}
 	return ret;
@@ -735,13 +731,13 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(SpellCastEnvironment * env
 		{
 			ObjectPosInfo posInfo(obj);
 
-			if((*fowMap)[posInfo.pos.z][posInfo.pos.x][posInfo.pos.y] == 0)
+			if(fowMap[posInfo.pos.z][posInfo.pos.x][posInfo.pos.y] == 0)
 				pack.objectPositions.push_back(posInfo);
 		}
 	}
 	pack.showTerrain = showTerrain(spellLevel);
 
-	env->apply(&pack);
+	env->apply(pack);
 
 	return ESpellCastResult::OK;
 }

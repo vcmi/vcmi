@@ -14,32 +14,29 @@
 #include "CMainMenu.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
-#include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../media/IMusicPlayer.h"
 #include "../render/Canvas.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/VideoWidget.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../windows/CWindowObject.h"
 
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 #include "../../lib/CArtHandler.h"
-#include "../../lib/CBuildingHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
-
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CSkillHandler.h"
-#include "../../lib/CTownHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/CCreatureHandler.h"
 
 #include "../../lib/campaign/CampaignHandler.h"
@@ -50,7 +47,7 @@
 CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 	: CWindowObject(BORDERED), campaignSet(name)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	for(const JsonNode & node : config[name]["images"].Vector())
 		images.push_back(CMainMenu::createPicture(node));
@@ -70,7 +67,8 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 	}
 
 	for(const JsonNode & node : config[name]["items"].Vector())
-		campButtons.push_back(std::make_shared<CCampaignButton>(node, config, campaignSet));
+		if(CResourceHandler::get()->existsResource(ResourcePath(node["file"].String(), EResType::CAMPAIGN)))
+			campButtons.push_back(std::make_shared<CCampaignButton>(node, config, campaignSet));
 }
 
 void CCampaignScreen::activate()
@@ -92,7 +90,7 @@ std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & butt
 CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const JsonNode & parentConfig, std::string campaignSet)
 	: campaignSet(campaignSet)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	pos.x += static_cast<int>(config["x"].Float());
 	pos.y += static_cast<int>(config["y"].Float());
@@ -100,7 +98,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 	pos.h = 116;
 
 	campFile = config["file"].String();
-	video = VideoPath::fromJson(config["video"]);
+	videoPath = VideoPath::fromJson(config["video"]);
 
 	status = CCampaignScreen::ENABLED;
 
@@ -127,7 +125,6 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 	{
 		addUsedEvents(LCLICK | HOVER);
 		graphicsImage = std::make_shared<CPicture>(ImagePath::fromJson(config["image"]));
-
 		hoverLabel = std::make_shared<CLabel>(pos.w / 2, pos.h + 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, "");
 		parent->addChild(hoverLabel.get());
 	}
@@ -136,30 +133,19 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 		graphicsCompleted = std::make_shared<CPicture>(ImagePath::builtin("CAMPCHK"));
 }
 
-void CCampaignScreen::CCampaignButton::show(Canvas & to)
-{
-	if(status == CCampaignScreen::DISABLED)
-		return;
-
-	CIntObject::show(to);
-
-	// Play the campaign button video when the mouse cursor is placed over the button
-	if(isHovered())
-		CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false); // plays sequentially frame by frame, starts at the beginning when the video is over
-}
-
 void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPosition)
 {
-	CCS->videoh->close();
 	CMainMenu::openCampaignLobby(campFile, campaignSet);
 }
 
 void CCampaignScreen::CCampaignButton::hover(bool on)
 {
-	if (on)
-		CCS->videoh->open(video);
+	OBJECT_CONSTRUCTION;
+
+	if (on && !videoPath.empty())
+		videoPlayer = std::make_shared<VideoWidget>(Point(), videoPath, false);
 	else
-		CCS->videoh->close();
+		videoPlayer.reset();
 
 	if(hoverLabel)
 	{

@@ -73,13 +73,12 @@ public:
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);
 
-	enum {ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, DISPOSE=16, SHARE_POS=32};
-	ui8 defActions; //which calls will be tried to be redirected to children
+	enum {NO_ACTIONS = 0, ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, SHARE_POS=16, ALL_ACTIONS=31};
 	ui8 recActions; //which calls we allow to receive from parent
 
 	/// deactivates if needed, blocks all automatic activity, allows only disposal
 	void disable();
-	/// activates if needed, all activity enabled (Warning: may not be symetric with disable if recActions was limited!)
+	/// activates if needed, all activity enabled (Warning: may not be symmetric with disable if recActions was limited!)
 	void enable();
 	/// deactivates or activates UI element based on flag
 	void setEnabled(bool on);
@@ -102,6 +101,8 @@ public:
 	void showAll(Canvas & to) override;
 	//request complete redraw of this object
 	void redraw() override;
+	// Move child object to foreground
+	void moveChildForeground(const CIntObject * childToMove);
 
 	/// returns true if this element is a popup window
 	/// called only for windows
@@ -121,6 +122,7 @@ public:
 	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center
 	const Rect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position
 	void fitToScreen(int borderWidth, bool propagate = true); //moves window to fit into screen
+	void fitToRect(Rect rect, int borderWidth, bool propagate = true); //moves window to fit into rect
 	void moveBy(const Point &p, bool propagate = true);
 	void moveTo(const Point &p, bool propagate = true);//move this to new position, coordinates are absolute (0,0 is topleft screen corner)
 
@@ -146,7 +148,6 @@ class WindowBase : public CIntObject
 {
 public:
 	WindowBase(int used_ = 0, Point pos_ = Point());
-protected:
 	virtual void close();
 };
 
@@ -163,6 +164,15 @@ public:
 
 	virtual bool holdsGarrison(const CArmedInstance * army) = 0;
 	virtual void updateGarrisons() = 0;
+};
+
+class IMarketHolder
+{
+public:
+	virtual void updateResources() {};
+	virtual void updateExperience() {};
+	virtual void updateSecondarySkills() {};
+	virtual void updateArtifacts() {};
 };
 
 class ITownHolder
@@ -201,3 +211,16 @@ class EmptyStatusBar : public IStatusBar
 	virtual void setEnteringMode(bool on){};
 	virtual void setEnteredText(const std::string & text){};
 };
+
+class ObjectConstruction : boost::noncopyable
+{
+public:
+	ObjectConstruction(CIntObject *obj);
+	~ObjectConstruction();
+};
+
+/// If used, all UI widgets created inside this scope will be added to children of 'this'
+#define OBJECT_CONSTRUCTION ObjectConstruction obj__i(this)
+
+/// If used, all UI widgets created inside this scope will be added to children of provided object
+#define OBJECT_CONSTRUCTION_TARGETED(obj) ObjectConstruction obj__i(obj)

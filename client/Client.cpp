@@ -13,6 +13,7 @@
 
 #include "CGameInfo.h"
 #include "CPlayerInterface.h"
+#include "PlayerLocalState.h"
 #include "CServerHandler.h"
 #include "ClientNetPackVisitors.h"
 #include "adventureMap/AdventureMapInterface.h"
@@ -29,13 +30,10 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/UnlockGuard.h"
 #include "../lib/battle/BattleInfo.h"
-#include "../lib/serializer/BinaryDeserializer.h"
-#include "../lib/serializer/BinarySerializer.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/registerTypes/RegisterTypesClientPacks.h"
 
 #include <memory>
 #include <vcmi/events/EventBus.h>
@@ -49,53 +47,6 @@
 #endif
 
 ThreadSafeVector<int> CClient::waitingRequest;
-
-template<typename T> class CApplyOnCL;
-
-class CBaseForCLApply
-{
-public:
-	virtual void applyOnClAfter(CClient * cl, CPack * pack) const =0;
-	virtual void applyOnClBefore(CClient * cl, CPack * pack) const =0;
-	virtual ~CBaseForCLApply(){}
-
-	template<typename U> static CBaseForCLApply * getApplier(const U * t = nullptr)
-	{
-		return new CApplyOnCL<U>();
-	}
-};
-
-template<typename T> class CApplyOnCL : public CBaseForCLApply
-{
-public:
-	void applyOnClAfter(CClient * cl, CPack * pack) const override
-	{
-		T * ptr = static_cast<T *>(pack);
-		ApplyClientNetPackVisitor visitor(*cl, *cl->gameState());
-		ptr->visit(visitor);
-	}
-	void applyOnClBefore(CClient * cl, CPack * pack) const override
-	{
-		T * ptr = static_cast<T *>(pack);
-		ApplyFirstClientNetPackVisitor visitor(*cl, *cl->gameState());
-		ptr->visit(visitor);
-	}
-};
-
-template<> class CApplyOnCL<CPack>: public CBaseForCLApply
-{
-public:
-	void applyOnClAfter(CClient * cl, CPack * pack) const override
-	{
-		logGlobal->error("Cannot apply on CL plain CPack!");
-		assert(0);
-	}
-	void applyOnClBefore(CClient * cl, CPack * pack) const override
-	{
-		logGlobal->error("Cannot apply on CL plain CPack!");
-		assert(0);
-	}
-};
 
 CPlayerEnvironment::CPlayerEnvironment(PlayerColor player_, CClient * cl_, std::shared_ptr<CCallback> mainCallback_)
 	: player(player_),
@@ -130,12 +81,9 @@ const CPlayerEnvironment::GameCb * CPlayerEnvironment::game() const
 	return mainCallback.get();
 }
 
-
 CClient::CClient()
 {
 	waitingRequest.clear();
-	applier = std::make_shared<CApplier<CBaseForCLApply>>();
-	registerTypesClientPacks(*applier);
 	gs = nullptr;
 }
 
@@ -203,135 +151,7 @@ void CClient::loadGame(CGameState * initializedGameState)
 	reinitScripting();
 
 	initPlayerEnvironments();
-	
-	// Loading of client state - disabled for now
-	// Since client no longer writes or loads its own state and instead receives it from server
-	// client state serializer will serialize its own copies of all pointers, e.g. heroes/towns/objects
-	// and on deserialize will create its own copies (instead of using copies from state received from server)
-	// Potential solutions:
-	// 1) Use server gamestate to deserialize pointers, so any pointer to same object will point to server instance and not our copy
-	// 2) Remove all serialization of pointers with instance ID's and restore them on load (including AI deserializer code)
-	// 3) Completely remove client savegame and send all information, like hero paths and sleeping status to server (either in form of hero properties or as some generic "client options" message
-#ifdef BROKEN_CLIENT_STATE_SERIALIZATION_HAS_BEEN_FIXED
-	// try to deserialize client data including sleepingHeroes
-	try
-	{
-		boost::filesystem::path clientSaveName = *CResourceHandler::get()->getResourceName(ResourcePath(CSH->si->mapname, EResType::CLIENT_SAVEGAME));
-
-		if(clientSaveName.empty())
-			throw std::runtime_error("Cannot open client part of " + CSH->si->mapname);
-
-		std::unique_ptr<CLoadFile> loader (new CLoadFile(clientSaveName));
-		serialize(loader->serializer, loader->serializer.version);
-
-		logNetwork->info("Client data loaded.");
-	}
-	catch(std::exception & e)
-	{
-		logGlobal->info("Cannot load client data for game %s. Error: %s", CSH->si->mapname, e.what());
-	}
-#endif
-
 	initPlayerInterfaces();
-}
-
-void CClient::serialize(BinarySerializer & h)
-{
-	assert(h.saving);
-	ui8 players = static_cast<ui8>(playerint.size());
-	h & players;
-
-	for(auto i = playerint.begin(); i != playerint.end(); i++)
-	{
-		logGlobal->trace("Saving player %s interface", i->first);
-		assert(i->first == i->second->playerID);
-		h & i->first;
-		h & i->second->dllName;
-		h & i->second->human;
-		i->second->saveGame(h);
-	}
-
-#if SCRIPTING_ENABLED
-	JsonNode scriptsState;
-	clientScripts->serializeState(h.saving, scriptsState);
-	h & scriptsState;
-#endif
-}
-
-void CClient::serialize(BinaryDeserializer & h)
-{
-	assert(!h.saving);
-	ui8 players = 0;
-	h & players;
-
-	for(int i = 0; i < players; i++)
-	{
-		std::string dllname;
-		PlayerColor pid;
-		bool isHuman = false;
-		auto prevInt = LOCPLINT;
-
-		h & pid;
-		h & dllname;
-		h & isHuman;
-		assert(dllname.length() == 0 || !isHuman);
-		if(pid == PlayerColor::NEUTRAL)
-		{
-			logGlobal->trace("Neutral battle interfaces are not serialized.");
-			continue;
-		}
-
-		logGlobal->trace("Loading player %s interface", pid);
-		std::shared_ptr<CGameInterface> nInt;
-		if(dllname.length())
-			nInt = CDynLibHandler::getNewAI(dllname);
-		else
-			nInt = std::make_shared<CPlayerInterface>(pid);
-
-		nInt->dllName = dllname;
-		nInt->human = isHuman;
-		nInt->playerID = pid;
-
-		bool shouldResetInterface = true;
-		// Client no longer handle this player at all
-		if(!vstd::contains(CSH->getAllClientPlayers(CSH->logicConnection->connectionID), pid))
-		{
-			logGlobal->trace("Player %s is not belong to this client. Destroying interface", pid);
-		}
-		else if(isHuman && !vstd::contains(CSH->getHumanColors(), pid))
-		{
-			logGlobal->trace("Player %s is no longer controlled by human. Destroying interface", pid);
-		}
-		else if(!isHuman && vstd::contains(CSH->getHumanColors(), pid))
-		{
-			logGlobal->trace("Player %s is no longer controlled by AI. Destroying interface", pid);
-		}
-		else
-		{
-			installNewPlayerInterface(nInt, pid);
-			shouldResetInterface = false;
-		}
-
-		// loadGame needs to be called after initGameInterface to load paths correctly
-		// initGameInterface is called in installNewPlayerInterface
-		nInt->loadGame(h);
-
-		if (shouldResetInterface)
-		{
-			nInt.reset();
-			LOCPLINT = prevInt;
-		}
-	}
-
-#if SCRIPTING_ENABLED
-	{
-		JsonNode scriptsState;
-		h & scriptsState;
-		clientScripts->serializeState(h.saving, scriptsState);
-	}
-#endif
-
-	logNetwork->trace("Loaded client part of save %d ms", CSH->th->getDiff());
 }
 
 void CClient::save(const std::string & fname)
@@ -343,7 +163,7 @@ void CClient::save(const std::string & fname)
 	}
 
 	SaveGame save_game(fname);
-	sendRequest(&save_game, PlayerColor::NEUTRAL);
+	sendRequest(save_game, PlayerColor::NEUTRAL);
 }
 
 void CClient::endNetwork()
@@ -476,7 +296,7 @@ void CClient::initPlayerInterfaces()
 	logNetwork->trace("Initialized player interfaces %d ms", CSH->th->getDiff());
 }
 
-std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman)
+std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman) const
 {
 	if(ps.name.size())
 	{
@@ -488,7 +308,7 @@ std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI, b
 	return aiNameForPlayer(battleAI, alliedToHuman);
 }
 
-std::string CClient::aiNameForPlayer(bool battleAI, bool alliedToHuman)
+std::string CClient::aiNameForPlayer(bool battleAI, bool alliedToHuman) const
 {
 	const int sensibleAILimit = settings["session"]["oneGoodAI"].Bool() ? 1 : PlayerColor::PLAYER_LIMIT_I;
 	std::string goodAdventureAI = alliedToHuman ? settings["server"]["alliedAI"].String() : settings["server"]["playerAI"].String();
@@ -528,41 +348,35 @@ void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> ba
 	}
 }
 
-void CClient::handlePack(CPack * pack)
+void CClient::handlePack(CPackForClient & pack)
 {
-	CBaseForCLApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack)); //find the applier
-	if(apply)
+	ApplyClientNetPackVisitor afterVisitor(*this, *gameState());
+	ApplyFirstClientNetPackVisitor beforeVisitor(*this, *gameState());
+
+	pack.visit(beforeVisitor);
+	logNetwork->trace("\tMade first apply on cl: %s", typeid(pack).name());
 	{
-		apply->applyOnClBefore(this, pack);
-		logNetwork->trace("\tMade first apply on cl: %s", typeid(*pack).name());
-		{
-			boost::unique_lock<boost::shared_mutex> lock(CGameState::mutex);
-			gs->apply(pack);
-		}
-		logNetwork->trace("\tApplied on gs: %s", typeid(*pack).name());
-		apply->applyOnClAfter(this, pack);
-		logNetwork->trace("\tMade second apply on cl: %s", typeid(*pack).name());
+		boost::unique_lock lock(CGameState::mutex);
+		gs->apply(pack);
 	}
-	else
-	{
-		logNetwork->error("Message %s cannot be applied, cannot find applier!", typeid(*pack).name());
-	}
-	delete pack;
+	logNetwork->trace("\tApplied on gs: %s", typeid(pack).name());
+	pack.visit(afterVisitor);
+	logNetwork->trace("\tMade second apply on cl: %s", typeid(pack).name());
 }
 
-int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
+int CClient::sendRequest(const CPackForServer & request, PlayerColor player)
 {
 	static ui32 requestCounter = 1;
 
 	ui32 requestID = requestCounter++;
-	logNetwork->trace("Sending a request \"%s\". It'll have an ID=%d.", typeid(*request).name(), requestID);
+	logNetwork->trace("Sending a request \"%s\". It'll have an ID=%d.", typeid(request).name(), requestID);
 
 	waitingRequest.pushBack(requestID);
-	request->requestID = requestID;
-	request->player = player;
+	request.requestID = requestID;
+	request.player = player;
 	CSH->logicConnection->sendPack(request);
 	if(vstd::contains(playerint, player))
-		playerint[player]->requestSent(request, requestID);
+		playerint[player]->requestSent(&request, requestID);
 
 	return requestID;
 }
@@ -571,8 +385,8 @@ void CClient::battleStarted(const BattleInfo * info)
 {
 	std::shared_ptr<CPlayerInterface> att;
 	std::shared_ptr<CPlayerInterface> def;
-	auto & leftSide = info->sides[0];
-	auto & rightSide = info->sides[1];
+	const auto & leftSide = info->getSide(BattleSide::LEFT_SIDE);
+	const auto & rightSide = info->getSide(BattleSide::RIGHT_SIDE);
 
 	for(auto & battleCb : battleCallbacks)
 	{
@@ -581,17 +395,17 @@ void CClient::battleStarted(const BattleInfo * info)
 	}
 
 	//If quick combat is not, do not prepare interfaces for battleint
-	auto callBattleStart = [&](PlayerColor color, ui8 side)
+	auto callBattleStart = [&](PlayerColor color, BattleSide side)
 	{
 		if(vstd::contains(battleints, color))
 			battleints[color]->battleStart(info->battleID, leftSide.armyObject, rightSide.armyObject, info->tile, leftSide.hero, rightSide.hero, side, info->replayAllowed);
 	};
 	
-	callBattleStart(leftSide.color, 0);
-	callBattleStart(rightSide.color, 1);
-	callBattleStart(PlayerColor::UNFLAGGABLE, 1);
+	callBattleStart(leftSide.color, BattleSide::LEFT_SIDE);
+	callBattleStart(rightSide.color, BattleSide::RIGHT_SIDE);
+	callBattleStart(PlayerColor::UNFLAGGABLE, BattleSide::RIGHT_SIDE);
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
-		callBattleStart(PlayerColor::SPECTATOR, 1);
+		callBattleStart(PlayerColor::SPECTATOR, BattleSide::RIGHT_SIDE);
 	
 	if(vstd::contains(playerint, leftSide.color) && playerint[leftSide.color]->human)
 		att = std::dynamic_pointer_cast<CPlayerInterface>(playerint[leftSide.color]);
@@ -608,9 +422,9 @@ void CClient::battleStarted(const BattleInfo * info)
 			{
 				auto side = interface->cb->getBattle(info->battleID)->playerToSide(interface->playerID);
 
-				if(interface->playerID == info->sides[info->tacticsSide].color)
+				if(interface->playerID == info->getSide(info->tacticsSide).color)
 				{
-					auto action = BattleAction::makeEndOFTacticPhase(*side);
+					auto action = BattleAction::makeEndOFTacticPhase(side);
 					interface->cb->battleMakeTacticAction(info->battleID, action);
 				}
 			}
@@ -642,7 +456,7 @@ void CClient::battleStarted(const BattleInfo * info)
 
 	if(info->tacticDistance)
 	{
-		auto tacticianColor = info->sides[info->tacticsSide].color;
+		auto tacticianColor = info->getSide(info->tacticsSide).color;
 
 		if (vstd::contains(battleints, tacticianColor))
 			battleints[tacticianColor]->yourTacticPhase(info->battleID, info->tacticDistance);
@@ -651,9 +465,11 @@ void CClient::battleStarted(const BattleInfo * info)
 
 void CClient::battleFinished(const BattleID & battleID)
 {
-	for(auto & side : gs->getBattle(battleID)->sides)
-		if(battleCallbacks.count(side.color))
-			battleCallbacks[side.color]->onBattleEnded(battleID);
+	for(auto side : { BattleSide::ATTACKER, BattleSide::DEFENDER })
+	{
+		if(battleCallbacks.count(gs->getBattle(battleID)->getSide(side).color))
+			battleCallbacks[gs->getBattle(battleID)->getSide(side).color]->onBattleEnded(battleID);
+	}
 
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
 		battleCallbacks[PlayerColor::SPECTATOR]->onBattleEnded(battleID);
@@ -678,10 +494,30 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 	}
 }
 
+void CClient::updatePath(const ObjectInstanceID & id)
+{
+	invalidatePaths();
+	auto hero = getHero(id);
+	updatePath(hero);
+}
+
+void CClient::updatePath(const CGHeroInstance * hero)
+{
+	if(LOCPLINT && hero)
+		LOCPLINT->localState->verifyPath(hero);
+}
+
 void CClient::invalidatePaths()
 {
 	boost::unique_lock<boost::mutex> pathLock(pathCacheMutex);
 	pathCache.clear();
+}
+
+vstd::RNG & CClient::getRandomGenerator()
+{
+	// Client should use CRandomGenerator::getDefault() for UI logic
+	// Gamestate should never call this method on client!
+	throw std::runtime_error("Illegal access to random number generator from client code!");
 }
 
 std::shared_ptr<const CPathsInfo> CClient::getPathsInfo(const CGHeroInstance * h)

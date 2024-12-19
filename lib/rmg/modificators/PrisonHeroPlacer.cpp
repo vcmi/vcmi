@@ -17,7 +17,9 @@
 #include "../../VCMI_Lib.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../mapObjects/MapObjects.h" 
+#include "../../mapObjects/MapObjects.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,7 +45,7 @@ void PrisonHeroPlacer::getAllowedHeroes()
 	}
 }
 
-int PrisonHeroPlacer::getPrisonsRemaning() const
+int PrisonHeroPlacer::getPrisonsRemaining() const
 {
 	return std::max<int>(allowedHeroes.size() - reservedHeroes, 0);
 }
@@ -51,7 +53,7 @@ int PrisonHeroPlacer::getPrisonsRemaning() const
 HeroTypeID PrisonHeroPlacer::drawRandomHero()
 {
 	RecursiveLock lock(externalAccessMutex);
-	if (getPrisonsRemaning() > 0)
+	if (getPrisonsRemaining() > 0)
 	{
 		RandomGeneratorUtil::randomShuffle(allowedHeroes, zone.getRand());
         HeroTypeID ret = allowedHeroes.back();

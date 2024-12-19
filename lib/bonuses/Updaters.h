@@ -10,12 +10,13 @@
 #pragma once
 
 #include "Bonus.h"
+#include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 // observers for updating bonuses based on certain events (e.g. hero gaining level)
 
-class DLL_LINKAGE IUpdater
+class DLL_LINKAGE IUpdater : public Serializeable
 {
 public:
 	virtual ~IUpdater() = default;

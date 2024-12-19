@@ -261,4 +261,5 @@ public:
 	void selectSlot(bool on);
 	bool isSelected() const;
 	void setSelectionWidth(int width);
+	void moveSelectionForeground();
 };

@@ -40,9 +40,7 @@
 /*********************** TBB.h ********************/
 
 #include "../../lib/VCMI_Lib.h"
-#include "../../lib/CBuildingHandler.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CTownHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -63,11 +61,6 @@ const int GOLD_MINE_PRODUCTION = 1000;
 const int WOOD_ORE_MINE_PRODUCTION = 2;
 const int RESOURCE_MINE_PRODUCTION = 1;
 const int ACTUAL_RESOURCE_COUNT = 7;
-const int ALLOWED_ROAMING_HEROES = 8;
-
-//implementation-dependent
-extern const float SAFE_ATTACK_CONSTANT;
-extern const int GOLD_RESERVE;
 
 extern thread_local CCallback * cb;
 
@@ -110,13 +103,6 @@ public:
 	const CGHeroInstance * get(bool doWeExpectNull = false) const;
 	const CGHeroInstance * get(const CPlayerSpecificInfoCallback * cb, bool doWeExpectNull = false) const;
 	bool validAndSet() const;
-
-
-	template<typename Handler> void serialize(Handler & handler)
-	{
-		handler & h;
-		handler & hid;
-	}
 };
 
 enum BattleState
@@ -141,12 +127,6 @@ struct ObjectIdRef
 	ObjectIdRef(const CGObjectInstance * obj);
 
 	bool operator<(const ObjectIdRef & rhs) const;
-
-
-	template<typename Handler> void serialize(Handler & h)
-	{
-		h & id;
-	}
 };
 
 template<Obj::Type id>
@@ -228,8 +208,8 @@ bool isBlockVisitObj(const int3 & pos);
 bool isWeeklyRevisitable(const Nullkiller * ai, const CGObjectInstance * obj);
 
 bool isObjectRemovable(const CGObjectInstance * obj); //FIXME FIXME: move logic to object property!
-bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength);
-bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet *, uint64_t dangerStrength);
+bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength, float safeAttackRatio);
+bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet *, uint64_t dangerStrength, float safeAttackRatio);
 
 bool compareHeroStrength(const CGHeroInstance * h1, const CGHeroInstance * h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);

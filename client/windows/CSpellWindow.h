@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CWindowObject.h"
+#include "../widgets/IVideoHolder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -19,7 +20,6 @@ class CSpell;
 VCMI_LIB_NAMESPACE_END
 
 class IImage;
-class CAnimation;
 class CAnimImage;
 class CPicture;
 class CLabel;
@@ -28,9 +28,11 @@ class CPlayerInterface;
 class CSpellWindow;
 class CTextInput;
 class TransparentFilledRectangle;
+class CToggleButton;
+class VideoWidgetOnce;
 
 /// The spell window
-class CSpellWindow : public CWindowObject
+class CSpellWindow : public CWindowObject, public IVideoHolder
 {
 	class SpellArea : public CIntObject
 	{
@@ -67,9 +69,6 @@ class CSpellWindow : public CWindowObject
 		InteractiveArea(const Rect &myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);
 	};
 
-	std::shared_ptr<CAnimation> spellIcons;
-	std::array<std::shared_ptr<CAnimation>, 4> schoolBorders; //[0]: air, [1]: fire, [2]: water, [3]: earth
-
 	std::shared_ptr<CPicture> leftCorner;
 	std::shared_ptr<CPicture> rightCorner;
 
@@ -85,6 +84,11 @@ class CSpellWindow : public CWindowObject
 	std::shared_ptr<CTextInput> searchBox;
 	std::shared_ptr<TransparentFilledRectangle> searchBoxRectangle;
 	std::shared_ptr<CLabel> searchBoxDescription;
+
+	std::shared_ptr<CToggleButton> showAllSpells;
+	std::shared_ptr<CLabel> showAllSpellsDescription;
+
+	std::shared_ptr<VideoWidgetOnce> video;
 
 	bool isBigSpellbook;
 	int spellsPerPage;
@@ -113,10 +117,13 @@ class CSpellWindow : public CWindowObject
 	void turnPageLeft();
 	void turnPageRight();
 
-	std::shared_ptr<IImage> createBigSpellBook();
+	void onVideoPlaybackFinished() override;
+
+	bool openOnBattleSpells;
+	std::function<void(SpellID)> onSpellSelect; //external processing of selected spell
 
 public:
-	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true);
+	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true, const std::function<void(SpellID)> & onSpellSelect = nullptr);
 	~CSpellWindow();
 
 	void fexitb();

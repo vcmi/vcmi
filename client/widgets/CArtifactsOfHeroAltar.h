@@ -16,6 +16,8 @@
 class CArtifactsOfHeroAltar : public CArtifactsOfHeroBase
 {
 public:
+	ObjectInstanceID altarId;
+
 	CArtifactsOfHeroAltar(const Point & position);
 	void deactivate() override;
 };

@@ -7,19 +7,21 @@ set(launcher_SRCS
 		StdInc.cpp
 		aboutProject/aboutproject_moc.cpp
 		modManager/cdownloadmanager_moc.cpp
-		modManager/cmodlist.cpp
-		modManager/cmodlistmodel_moc.cpp
+		modManager/modstateitemmodel_moc.cpp
 		modManager/cmodlistview_moc.cpp
-		modManager/cmodmanager.cpp
+		modManager/modstatecontroller.cpp
+		modManager/modstatemodel.cpp
+		modManager/modstate.cpp
 		modManager/imageviewer_moc.cpp
+		modManager/chroniclesextractor.cpp
 		settingsView/csettingsview_moc.cpp
+		startGame/StartGameTab.cpp
 		firstLaunch/firstlaunch_moc.cpp
 		main.cpp
 		helper.cpp
+		innoextract.cpp
 		mainwindow_moc.cpp
 		languages.cpp
-		launcherdirs.cpp
-		jsonutils.cpp
 		updatedialog_moc.cpp
 		prepare.cpp
 )
@@ -37,20 +39,22 @@ set(launcher_HEADERS
 		StdInc.h
 		aboutProject/aboutproject_moc.h
 		modManager/cdownloadmanager_moc.h
-		modManager/cmodlist.h
-		modManager/cmodlistmodel_moc.h
+		modManager/modstateitemmodel_moc.h
 		modManager/cmodlistview_moc.h
-		modManager/cmodmanager.h
+		modManager/modstatecontroller.h
+		modManager/modstatemodel.h
+		modManager/modstate.h
 		modManager/imageviewer_moc.h
+		modManager/chroniclesextractor.h
 		settingsView/csettingsview_moc.h
+		startGame/StartGameTab.h
 		firstLaunch/firstlaunch_moc.h
 		mainwindow_moc.h
 		languages.h
-		launcherdirs.h
-		jsonutils.h
 		updatedialog_moc.h
 		main.h
 		helper.h
+		innoextract.h
 		prepare.h
 )
 
@@ -61,6 +65,7 @@ set(launcher_FORMS
 		settingsView/csettingsview_moc.ui
 		firstLaunch/firstlaunch_moc.ui
 		mainwindow_moc.ui
+		startGame/StartGameTab.ui
 		updatedialog_moc.ui
 )
 
@@ -79,6 +84,7 @@ set(launcher_TS
 	"${translationsDir}/portuguese.ts"
 	"${translationsDir}/russian.ts"
 	"${translationsDir}/spanish.ts"
+	"${translationsDir}/swedish.ts"
 	"${translationsDir}/ukrainian.ts"
 	"${translationsDir}/vietnamese.ts"
 )
@@ -201,7 +207,11 @@ elseif(NOT APPLE_IOS)
 	target_link_libraries(vcmilauncher SDL2::SDL2)
 endif()
 
-target_link_libraries(vcmilauncher vcmi Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+if(ENABLE_STATIC_LIBS OR NOT (ENABLE_EDITOR AND ENABLE_LAUNCHER))
+	target_compile_definitions(vcmilauncher PRIVATE VCMIQT_STATIC)
+endif()
+
+target_link_libraries(vcmilauncher vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )

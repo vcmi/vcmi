@@ -15,27 +15,48 @@
 #include "../lib/CThreadHelper.h"
 #include "../server/CVCMIServer.h"
 
-#ifndef VCMI_MOBILE
+#ifdef ENABLE_SERVER_PROCESS
+
+#if BOOST_VERSION >= 108600
+// TODO: upgrade code to use v2 API instead of deprecated v1
+#include <boost/process/v1/child.hpp>
+#include <boost/process/v1/io.hpp>
+#else
 #include <boost/process/child.hpp>
 #include <boost/process/io.hpp>
 #endif
 
+#endif
+
+#include <future>
+
 ServerThreadRunner::ServerThreadRunner() = default;
 ServerThreadRunner::~ServerThreadRunner() = default;
 
-void ServerThreadRunner::start(uint16_t port, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo)
+uint16_t ServerThreadRunner::start(uint16_t cfgport, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo)
 {
-	server = std::make_unique<CVCMIServer>(port, connectToLobby, true);
+	// cfgport may be 0 -- the real port is returned after calling prepare()
+	server = std::make_unique<CVCMIServer>(cfgport, true);
 
 	if (startingInfo)
 	{
 		server->si = startingInfo; //Else use default
 	}
 
-	threadRunLocalServer = boost::thread([this]{
+	std::promise<uint16_t> promise;
+
+	threadRunLocalServer = boost::thread([this, connectToLobby, &promise]{
 		setThreadName("runServer");
+		uint16_t port = server->prepare(connectToLobby);
+		promise.set_value(port);
 		server->run();
 	});
+
+	logNetwork->trace("Waiting for server port...");
+	auto srvport = promise.get_future().get();
+	logNetwork->debug("Server port: %d", srvport);
+
+	return srvport;
 }
 
 void ServerThreadRunner::shutdown()
@@ -53,7 +74,7 @@ int ServerThreadRunner::exitCode()
 	return 0;
 }
 
-#ifndef VCMI_MOBILE
+#ifdef ENABLE_SERVER_PROCESS
 
 ServerProcessRunner::ServerProcessRunner() = default;
 ServerProcessRunner::~ServerProcessRunner() = default;
@@ -73,7 +94,7 @@ int ServerProcessRunner::exitCode()
 	return child->exit_code();
 }
 
-void ServerProcessRunner::start(uint16_t port, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo)
+uint16_t ServerProcessRunner::start(uint16_t port, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo)
 {
 	boost::filesystem::path serverPath = VCMIDirs::get().serverPath();
 	boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "server_log.txt";
@@ -88,6 +109,8 @@ void ServerProcessRunner::start(uint16_t port, bool connectToLobby, std::shared_
 
 	if (ec)
 		throw std::runtime_error("Failed to start server! Reason: " + ec.message());
+
+	return port;
 }
 
 #endif

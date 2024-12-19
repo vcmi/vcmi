@@ -27,8 +27,7 @@
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/gameState/QuestInfo.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/MetaString.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CQuest.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -74,12 +73,12 @@ CQuestMinimap::CQuestMinimap(const Rect & position)
 
 void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	icons.clear();
 
 	int3 tile;
 	if (q->obj)
-		tile = q->obj->pos;
+		tile = q->obj->visitablePos();
 	else
 		tile = q->tile;
 
@@ -105,7 +104,7 @@ void CQuestMinimap::update()
 void CQuestMinimap::iconClicked()
 {
 	if(currentQuest->obj)
-		adventureInt->centerOnTile(currentQuest->obj->pos);
+		adventureInt->centerOnTile(currentQuest->obj->visitablePos());
 	//moveAdvMapSelection();
 }
 
@@ -123,13 +122,13 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 	hideComplete(false),
 	quests(Quests)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	minimap = std::make_shared<CQuestMinimap>(Rect(12, 12, 169, 169));
 	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
 	description = std::make_shared<CTextBox>("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
 	ok = std::make_shared<CButton>(Point(539, 398), AnimationPath::builtin("IOKAY.DEF"), CGI->generaltexth->zelp[445], std::bind(&CQuestLog::close, this), EShortcut::GLOBAL_RETURN);
-	// Both button and lable are shifted to -2px by x and y to not make them actually look like they're on same line with quests list and ok button
+	// Both button and label are shifted to -2px by x and y to not make them actually look like they're on same line with quests list and ok button
 	hideCompleteButton = std::make_shared<CToggleButton>(Point(10, 396), AnimationPath::builtin("sysopchk.def"), CButton::tooltipLocalized("vcmi.questLog.hideComplete"), std::bind(&CQuestLog::toggleComplete, this, _1));
 	hideCompleteLabel = std::make_shared<CLabel>(46, 398, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("vcmi.questLog.hideComplete.hover"));
 	slider = std::make_shared<CSlider>(Point(166, 195), 191, std::bind(&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, 0, 0, Orientation::VERTICAL, CSlider::BROWN);
@@ -141,7 +140,7 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 
 void CQuestLog::recreateLabelList()
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	labels.clear();
 
 	bool completeMissing = true;
@@ -293,7 +292,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 				break;
 		}*/
 
-		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+		OBJECT_CONSTRUCTION;
 
 		std::vector<std::shared_ptr<CComponent>> comps;
 		for(auto & component : components)

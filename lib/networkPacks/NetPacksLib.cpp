@@ -12,13 +12,14 @@
 #include "PacksForClient.h"
 #include "PacksForClientBattle.h"
 #include "PacksForServer.h"
+#include "SaveLocalState.h"
+#include "SetRewardableConfiguration.h"
 #include "StackLocation.h"
 #include "PacksForLobby.h"
 #include "SetStackEffect.h"
 #include "NetPackVisitor.h"
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "CArtHandler.h"
-#include "CHeroHandler.h"
 #include "VCMI_Lib.h"
 #include "mapping/CMap.h"
 #include "spells/CSpellHandler.h"
@@ -27,20 +28,24 @@
 #include "gameState/TavernHeroesPool.h"
 #include "CStack.h"
 #include "battle/BattleInfo.h"
-#include "CTownHandler.h"
 #include "mapping/CMapInfo.h"
 #include "StartInfo.h"
 #include "CPlayerState.h"
 #include "TerrainHandler.h"
+#include "entities/building/CBuilding.h"
+#include "entities/building/TownFortifications.h"
+#include "mapObjects/CBank.h"
 #include "mapObjects/CGCreature.h"
 #include "mapObjects/CGMarket.h"
+#include "mapObjects/TownBuildingInstance.h"
 #include "mapObjects/CGTownInstance.h"
 #include "mapObjects/CQuest.h"
 #include "mapObjects/MiscObjects.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "campaign/CampaignState.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
+#include "mapObjects/FlaggableMapObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -88,6 +93,12 @@ bool CLobbyPackToServer::isForServer() const
 	return true;
 }
 
+void SaveLocalState::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSaveLocalState(*this);
+}
+
+
 void PackageApplied::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitPackageApplied(*this);
@@ -123,6 +134,16 @@ void EntitiesChanged::visitTyped(ICPackVisitor & visitor)
 	visitor.visitEntitiesChanged(*this);
 }
 
+void SetRewardableConfiguration::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetRewardableConfiguration(*this);
+}
+
+void SetBankConfiguration::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetBankConfiguration(*this);
+}
+
 void SetResources::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSetResources(*this);
@@ -148,6 +169,10 @@ void ChangeSpells::visitTyped(ICPackVisitor & visitor)
 	visitor.visitChangeSpells(*this);
 }
 
+void SetResearchedSpells::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetResearchedSpells(*this);
+}
 void SetMana::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSetMana(*this);
@@ -211,16 +236,6 @@ void AddQuest::visitTyped(ICPackVisitor & visitor)
 void UpdateArtHandlerLists::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitUpdateArtHandlerLists(*this);
-}
-
-void UpdateMapEvents::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitUpdateMapEvents(*this);
-}
-
-void UpdateCastleEvents::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitUpdateCastleEvents(*this);
 }
 
 void ChangeFormation::visitTyped(ICPackVisitor & visitor)
@@ -333,14 +348,9 @@ void PutArtifact::visitTyped(ICPackVisitor & visitor)
 	visitor.visitPutArtifact(*this);
 }
 
-void EraseArtifact::visitTyped(ICPackVisitor & visitor)
+void BulkEraseArtifacts::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitEraseArtifact(*this);
-}
-
-void MoveArtifact::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitMoveArtifact(*this);
 }
 
 void BulkMoveArtifacts::visitTyped(ICPackVisitor & visitor)
@@ -583,9 +593,19 @@ void BuildStructure::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBuildStructure(*this);
 }
 
+void VisitTownBuilding::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitVisitTownBuilding(*this);
+}
+
 void RazeStructure::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitRazeStructure(*this);
+}
+
+void SpellResearch::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSpellResearch(*this);
 }
 
 void RecruitCreatures::visitTyped(ICPackVisitor & visitor)
@@ -783,6 +803,11 @@ void LobbySetPlayerName::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbySetPlayerName(*this);
 }
 
+void LobbySetPlayerHandicap::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbySetPlayerHandicap(*this);
+}
+
 void LobbySetSimturns::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbySetSimturns(*this);
@@ -818,7 +843,12 @@ void LobbyPvPAction::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyPvPAction(*this);
 }
 
-void SetResources::applyGs(CGameState * gs) const
+void LobbyDelete::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyDelete(*this);
+}
+
+void SetResources::applyGs(CGameState *gs)
 {
 	assert(player.isValidPlayer());
 	if(abs)
@@ -833,14 +863,14 @@ void SetResources::applyGs(CGameState * gs) const
 	gs->getPlayerState(player)->resources.positive();
 }
 
-void SetPrimSkill::applyGs(CGameState * gs) const
+void SetPrimSkill::applyGs(CGameState *gs)
 {
 	CGHeroInstance * hero = gs->getHero(id);
 	assert(hero);
 	hero->setPrimarySkill(which, val, abs);
 }
 
-void SetSecSkill::applyGs(CGameState * gs) const
+void SetSecSkill::applyGs(CGameState *gs)
 {
 	CGHeroInstance *hero = gs->getHero(id);
 	hero->setSecSkillLevel(which, val, abs);
@@ -875,7 +905,7 @@ void SetCommanderProperty::applyGs(CGameState *gs)
 	}
 }
 
-void AddQuest::applyGs(CGameState * gs) const
+void AddQuest::applyGs(CGameState *gs)
 {
 	assert (vstd::contains(gs->players, player));
 	auto * vec = &gs->players[player].quests;
@@ -885,28 +915,17 @@ void AddQuest::applyGs(CGameState * gs) const
 		logNetwork->warn("Warning! Attempt to add duplicated quest");
 }
 
-void UpdateArtHandlerLists::applyGs(CGameState * gs) const
+void UpdateArtHandlerLists::applyGs(CGameState *gs)
 {
 	gs->allocatedArtifacts = allocatedArtifacts;
 }
 
-void UpdateMapEvents::applyGs(CGameState * gs) const
-{
-	gs->map->events = events;
-}
-
-void UpdateCastleEvents::applyGs(CGameState * gs) const
-{
-	auto * t = gs->getTown(town);
-	t->events = events;
-}
-
-void ChangeFormation::applyGs(CGameState * gs) const
+void ChangeFormation::applyGs(CGameState *gs)
 {
 	gs->getHero(hid)->setFormation(formation);
 }
 
-void HeroVisitCastle::applyGs(CGameState * gs) const
+void HeroVisitCastle::applyGs(CGameState *gs)
 {
 	CGHeroInstance *h = gs->getHero(hid);
 	CGTownInstance *t = gs->getTown(tid);
@@ -932,7 +951,17 @@ void ChangeSpells::applyGs(CGameState *gs)
 			hero->removeSpellFromSpellbook(sid);
 }
 
-void SetMana::applyGs(CGameState * gs) const
+void SetResearchedSpells::applyGs(CGameState *gs)
+{
+	CGTownInstance *town = gs->getTown(tid);
+
+	town->spells[level] = spells;
+	town->spellResearchCounterDay++;
+	if(accepted)
+		town->spellResearchAcceptedCounter++;
+}
+
+void SetMana::applyGs(CGameState *gs)
 {
 	CGHeroInstance * hero = gs->getHero(hid);
 
@@ -946,7 +975,7 @@ void SetMana::applyGs(CGameState * gs) const
 	vstd::amax(hero->mana, 0); //not less than 0
 }
 
-void SetMovePoints::applyGs(CGameState * gs) const
+void SetMovePoints::applyGs(CGameState *gs)
 {
 	CGHeroInstance *hero = gs->getHero(hid);
 
@@ -963,7 +992,7 @@ void FoWChange::applyGs(CGameState *gs)
 	TeamState * team = gs->getPlayerTeam(player);
 	auto & fogOfWarMap = team->fogOfWarMap;
 	for(const int3 & t : tiles)
-		(*fogOfWarMap)[t.z][t.x][t.y] = mode != ETileVisibility::HIDDEN;
+		fogOfWarMap[t.z][t.x][t.y] = mode != ETileVisibility::HIDDEN;
 
 	if (mode == ETileVisibility::HIDDEN) //do not hide too much
 	{
@@ -986,7 +1015,7 @@ void FoWChange::applyGs(CGameState *gs)
 			}
 		}
 		for(const int3 & t : tilesRevealed) //probably not the most optimal solution ever
-			(*fogOfWarMap)[t.z][t.x][t.y] = 1;
+			fogOfWarMap[t.z][t.x][t.y] = 1;
 	}
 }
 
@@ -1030,39 +1059,39 @@ void ChangeObjPos::applyGs(CGameState *gs)
 		return;
 	}
 	gs->map->removeBlockVisTiles(obj);
-	obj->pos = nPos + obj->getVisitableOffset();
+	obj->setAnchorPos(nPos + obj->getVisitableOffset());
 	gs->map->addBlockVisTiles(obj);
 }
 
-void ChangeObjectVisitors::applyGs(CGameState * gs) const
+void ChangeObjectVisitors::applyGs(CGameState *gs)
 {
 	switch (mode) {
-		case VISITOR_ADD:
+		case VISITOR_ADD_HERO:
+			gs->getPlayerTeam(gs->getHero(hero)->tempOwner)->scoutedObjects.insert(object);
 			gs->getHero(hero)->visitedObjects.insert(object);
 			gs->getPlayerState(gs->getHero(hero)->tempOwner)->visitedObjects.insert(object);
 			break;
-		case VISITOR_ADD_TEAM:
-			{
-				TeamState *ts = gs->getPlayerTeam(gs->getHero(hero)->tempOwner);
-				for(const auto & color : ts->players)
-				{
-					gs->getPlayerState(color)->visitedObjects.insert(object);
-				}
-			}
+		case VISITOR_ADD_PLAYER:
+			gs->getPlayerTeam(gs->getHero(hero)->tempOwner)->scoutedObjects.insert(object);
+			for(const auto & color : gs->getPlayerTeam(gs->getHero(hero)->tempOwner)->players)
+				gs->getPlayerState(color)->visitedObjects.insert(object);
+
 			break;
 		case VISITOR_CLEAR:
+			// remove visit info from all heroes, including those that are not present on map
 			for (CGHeroInstance * hero : gs->map->allHeroes)
-			{
 				if (hero)
-				{
-					hero->visitedObjects.erase(object); // remove visit info from all heroes, including those that are not present on map
-				}
-			}
+					hero->visitedObjects.erase(object);
 
 			for(auto &elem : gs->players)
-			{
 				elem.second.visitedObjects.erase(object);
-			}
+
+			for(auto &elem : gs->teams)
+				elem.second.scoutedObjects.erase(object);
+
+			break;
+		case VISITOR_SCOUTED:
+			gs->getPlayerTeam(gs->getHero(hero)->tempOwner)->scoutedObjects.insert(object);
 
 			break;
 		case VISITOR_GLOBAL:
@@ -1071,13 +1100,10 @@ void ChangeObjectVisitors::applyGs(CGameState * gs) const
 				gs->getPlayerState(gs->getHero(hero)->tempOwner)->visitedObjectsGlobal.insert({objectPtr->ID, objectPtr->subID});
 				break;
 			}
-		case VISITOR_REMOVE:
-			gs->getHero(hero)->visitedObjects.erase(object);
-			break;
 	}
 }
 
-void ChangeArtifactsCostume::applyGs(CGameState * gs) const
+void ChangeArtifactsCostume::applyGs(CGameState *gs)
 {
 	auto & allCostumes = gs->getPlayerState(player)->costumesArtifacts;
 	if(const auto & costume = allCostumes.find(costumeIdx); costume != allCostumes.end())
@@ -1086,7 +1112,7 @@ void ChangeArtifactsCostume::applyGs(CGameState * gs) const
 		allCostumes.try_emplace(costumeIdx, costumeSet);
 }
 
-void PlayerEndsGame::applyGs(CGameState * gs) const
+void PlayerEndsGame::applyGs(CGameState *gs)
 {
 	PlayerState *p = gs->getPlayerState(player);
 	if(victoryLossCheckResult.victory())
@@ -1159,7 +1185,6 @@ void RemoveBonus::applyGs(CGameState *gs)
 
 void RemoveObject::applyGs(CGameState *gs)
 {
-
 	CGObjectInstance *obj = gs->getObjInstance(objectID);
 	logGlobal->debug("removing object id=%d; address=%x; name=%s", objectID, (intptr_t)obj, obj->getObjectName());
 	//unblock tiles
@@ -1168,14 +1193,22 @@ void RemoveObject::applyGs(CGameState *gs)
 	if (initiator.isValidPlayer())
 		gs->getPlayerState(initiator)->destroyedObjects.insert(objectID);
 
+	if(obj->getOwner().isValidPlayer())
+	{
+		gs->getPlayerState(obj->getOwner())->removeOwnedObject(obj); //object removed via map event or hero got beaten
+
+		FlaggableMapObject* flaggableObject = dynamic_cast<FlaggableMapObject*>(obj);
+		if(flaggableObject)
+		{
+			flaggableObject->markAsDeleted();
+		}
+	}
+
 	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
 		auto * beatenHero = dynamic_cast<CGHeroInstance *>(obj);
 		assert(beatenHero);
-		PlayerState * p = gs->getPlayerState(beatenHero->tempOwner);
 		gs->map->heroesOnMap -= beatenHero;
-		p->heroes -= beatenHero;
-
 
 		auto * siegeNode = beatenHero->whereShouldBeAttachedOnSiege(gs);
 
@@ -1188,7 +1221,7 @@ void RemoveObject::applyGs(CGameState *gs)
 		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
 		vstd::erase_if(beatenHero->artifactsInBackpack, [](const ArtSlotInfo& asi)
 		{
-			return asi.artifact->artType->getId() == ArtifactID::GRAIL;
+			return asi.artifact->getTypeId() == ArtifactID::GRAIL;
 		});
 
 		if(beatenHero->visitedTown)
@@ -1325,7 +1358,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 
 	auto & fogOfWarMap = gs->getPlayerTeam(h->getOwner())->fogOfWarMap;
 	for(const int3 & t : fowRevealed)
-		(*fogOfWarMap)[t.z][t.x][t.y] = 1;
+		fogOfWarMap[t.z][t.x][t.y] = 1;
 }
 
 void NewStructures::applyGs(CGameState *gs)
@@ -1334,21 +1367,11 @@ void NewStructures::applyGs(CGameState *gs)
 
 	for(const auto & id : bid)
 	{
-		assert(t->town->buildings.at(id) != nullptr);
-		t->builtBuildings.insert(id);
-		t->updateAppearance();
-		auto currentBuilding = t->town->buildings.at(id);
-
-		if(currentBuilding->overrideBids.empty())
-			continue;
-
-		for(const auto & overrideBid : currentBuilding->overrideBids)
-		{
-			t->overriddenBuildings.insert(overrideBid);
-			t->deleteTownBonus(overrideBid);
-		}
+		assert(t->getTown()->buildings.at(id) != nullptr);
+		t->addBuilding(id);
 	}
-	t->builded = builded;
+	t->updateAppearance();
+	t->built = built;
 	t->recreateBuildingsBonuses();
 }
 
@@ -1357,7 +1380,7 @@ void RazeStructures::applyGs(CGameState *gs)
 	CGTownInstance *t = gs->getTown(tid);
 	for(const auto & id : bid)
 	{
-		t->builtBuildings.erase(id);
+		t->removeBuilding(id);
 
 		t->updateAppearance();
 	}
@@ -1365,14 +1388,14 @@ void RazeStructures::applyGs(CGameState *gs)
 	t->recreateBuildingsBonuses();
 }
 
-void SetAvailableCreatures::applyGs(CGameState * gs) const
+void SetAvailableCreatures::applyGs(CGameState *gs)
 {
 	auto * dw = dynamic_cast<CGDwelling *>(gs->getObjInstance(tid));
 	assert(dw);
 	dw->creatures = creatures;
 }
 
-void SetHeroesInTown::applyGs(CGameState * gs) const
+void SetHeroesInTown::applyGs(CGameState *gs)
 {
 	CGTownInstance *t = gs->getTown(tid);
 
@@ -1401,7 +1424,7 @@ void SetHeroesInTown::applyGs(CGameState * gs) const
 	}
 }
 
-void HeroRecruited::applyGs(CGameState * gs) const
+void HeroRecruited::applyGs(CGameState *gs)
 {
 	CGHeroInstance *h = gs->heroesPool->takeHeroFromPool(hid);
 	CGTownInstance *t = gs->getTown(tid);
@@ -1420,7 +1443,7 @@ void HeroRecruited::applyGs(CGameState * gs) const
 
 	h->setOwner(player);
 	h->pos = tile;
-	h->initObj(gs->getRandomGenerator());
+	h->updateAppearance();
 
 	if(h->id == ObjectInstanceID())
 	{
@@ -1431,7 +1454,7 @@ void HeroRecruited::applyGs(CGameState * gs) const
 		gs->map->objects[h->id.getNum()] = h;
 
 	gs->map->heroesOnMap.emplace_back(h);
-	p->heroes.emplace_back(h);
+	p->addOwnedObject(h);
 	h->attachTo(*p);
 	gs->map->addBlockVisTiles(h);
 
@@ -1439,7 +1462,7 @@ void HeroRecruited::applyGs(CGameState * gs) const
 		t->setVisitingHero(h);
 }
 
-void GiveHero::applyGs(CGameState * gs) const
+void GiveHero::applyGs(CGameState *gs)
 {
 	CGHeroInstance *h = gs->getHero(id);
 
@@ -1460,13 +1483,13 @@ void GiveHero::applyGs(CGameState * gs) const
 
 	auto oldVisitablePos = h->visitablePos();
 	gs->map->removeBlockVisTiles(h,true);
-	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->getIndex())->getTemplates().front();
+	h->updateAppearance();
 
 	h->setOwner(player);
 	h->setMovementPoints(h->movementPointsLimit(true));
-	h->pos = h->convertFromVisitablePos(oldVisitablePos);
+	h->setAnchorPos(h->convertFromVisitablePos(oldVisitablePos));
 	gs->map->heroesOnMap.emplace_back(h);
-	gs->getPlayerState(h->getOwner())->heroes.emplace_back(h);
+	gs->getPlayerState(h->getOwner())->addOwnedObject(h);
 
 	gs->map->addBlockVisTiles(h);
 	h->inTownGarrison = false;
@@ -1474,74 +1497,21 @@ void GiveHero::applyGs(CGameState * gs) const
 
 void NewObject::applyGs(CGameState *gs)
 {
-	TerrainId terrainType = ETerrainId::NONE;
+	newObject->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
 
-	if (!gs->isInTheMap(targetPos))
-	{
-		logGlobal->error("Attempt to create object outside map at %s!", targetPos.toString());
-		return;
-	}
-
-	const TerrainTile & t = gs->map->getTile(targetPos);
-	terrainType = t.terType->getId();
-
-	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
-
-	CGObjectInstance * o = handler->create(gs->callback, nullptr);
-	handler->configureObject(o, gs->getRandomGenerator());
-	assert(o->ID == this->ID);
-	
-	if (ID == Obj::MONSTER) //probably more options will be needed
-	{
-		//CStackInstance hlp;
-		auto * cre = dynamic_cast<CGCreature *>(o);
-		//cre->slots[0] = hlp;
-		assert(cre);
-		cre->notGrowingTeam = cre->neverFlees = false;
-		cre->character = 2;
-		cre->gainedArtifact = ArtifactID::NONE;
-		cre->identifier = -1;
-		cre->addToSlot(SlotID(0), new CStackInstance(subID.getNum(), -1)); //add placeholder stack
-	}
-
-	assert(!handler->getTemplates(terrainType).empty());
-	if (handler->getTemplates().empty())
-	{
-		logGlobal->error("Attempt to create object (%d %d) with no templates!", ID, subID.getNum());
-		return;
-	}
-
-	if (!handler->getTemplates(terrainType).empty())
-		o->appearance = handler->getTemplates(terrainType).front();
-	else
-		o->appearance = handler->getTemplates().front();
-
-	o->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
-	o->pos = targetPos + o->getVisitableOffset();
-
-	gs->map->objects.emplace_back(o);
-	gs->map->addBlockVisTiles(o);
-	o->initObj(gs->getRandomGenerator());
+	gs->map->objects.emplace_back(newObject);
+	gs->map->addBlockVisTiles(newObject);
 	gs->map->calculateGuardingGreaturePositions();
 
-	createdObjectID = o->id;
-
-	logGlobal->debug("Added object id=%d; address=%x; name=%s", o->id, (intptr_t)o, o->getObjectName());
+	logGlobal->debug("Added object id=%d; name=%s", newObject->id, newObject->getObjectName());
 }
 
 void NewArtifact::applyGs(CGameState *gs)
 {
-	assert(!vstd::contains(gs->map->artInstances, art));
-	assert(!art->getParentNodes().size());
-	assert(art->artType);
-
-	art->setType(art->artType);
-	if(art->isCombined())
-	{
-		for(const auto & part : art->artType->getConstituents())
-			art->addPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
-	}
+	auto art = ArtifactUtils::createArtifact(artId, spellId);
 	gs->map->addNewArtifactInstance(art);
+	PutArtifact pa(art->getId(), ArtifactLocation(artHolder, pos), false);
+	pa.applyGs(gs);
 }
 
 const CStackInstance * StackLocation::getStack()
@@ -1575,7 +1545,7 @@ struct GetBase
 	}
 };
 
-void ChangeStackCount::applyGs(CGameState * gs)
+void ChangeStackCount::applyGs(CGameState *gs)
 {
 	auto * srcObj = gs->getArmyInstance(army);
 	if(!srcObj)
@@ -1587,7 +1557,7 @@ void ChangeStackCount::applyGs(CGameState * gs)
 		srcObj->changeStackCount(slot, count);
 }
 
-void SetStackType::applyGs(CGameState * gs)
+void SetStackType::applyGs(CGameState *gs)
 {
 	auto * srcObj = gs->getArmyInstance(army);
 	if(!srcObj)
@@ -1596,7 +1566,7 @@ void SetStackType::applyGs(CGameState * gs)
 	srcObj->setStackType(slot, type);
 }
 
-void EraseStack::applyGs(CGameState * gs)
+void EraseStack::applyGs(CGameState *gs)
 {
 	auto * srcObj = gs->getArmyInstance(army);
 	if(!srcObj)
@@ -1605,7 +1575,7 @@ void EraseStack::applyGs(CGameState * gs)
 	srcObj->eraseStack(slot);
 }
 
-void SwapStacks::applyGs(CGameState * gs)
+void SwapStacks::applyGs(CGameState *gs)
 {
 	auto * srcObj = gs->getArmyInstance(srcArmy);
 	if(!srcObj)
@@ -1630,7 +1600,7 @@ void InsertNewStack::applyGs(CGameState *gs)
 		throw std::runtime_error("InsertNewStack: invalid army object " + std::to_string(army.getNum()) + ", possible game state corruption.");
 }
 
-void RebalanceStacks::applyGs(CGameState * gs)
+void RebalanceStacks::applyGs(CGameState *gs)
 {
 	auto * srcObj = gs->getArmyInstance(srcArmy);
 	if(!srcObj)
@@ -1645,7 +1615,7 @@ void RebalanceStacks::applyGs(CGameState * gs)
 
 	const CCreature * srcType = src.army->getCreature(src.slot);
 	TQuantity srcCount = src.army->getStackCount(src.slot);
-	bool stackExp = VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE);
+	bool stackExp = gs->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE);
 
 	if(srcCount == count) //moving whole stack
 	{
@@ -1659,30 +1629,31 @@ void RebalanceStacks::applyGs(CGameState * gs)
 			const auto dstHero = dynamic_cast<CGHeroInstance*>(dst.army.get());
 			auto srcStack = const_cast<CStackInstance*>(src.getStack());
 			auto dstStack = const_cast<CStackInstance*>(dst.getStack());
-			if(auto srcArt = srcStack->getArt(ArtifactPosition::CREATURE_SLOT))
+			if(srcStack->getArt(ArtifactPosition::CREATURE_SLOT))
 			{
 				if(auto dstArt = dstStack->getArt(ArtifactPosition::CREATURE_SLOT))
 				{
 					auto dstSlot = ArtifactUtils::getArtBackpackPosition(srcHero, dstArt->getTypeId());
 					if(srcHero && dstSlot != ArtifactPosition::PRE_FIRST)
 					{
-						dstArt->move(*dstStack, ArtifactPosition::CREATURE_SLOT, *srcHero, dstSlot);
+						gs->map->moveArtifactInstance(*dstStack, ArtifactPosition::CREATURE_SLOT, *srcHero, dstSlot);
 					}
-					//else - artifact cna be lost :/
+					//else - artifact can be lost :/
 					else
 					{
-						EraseArtifact ea;
-						ea.al = ArtifactLocation(dstHero->id, ArtifactPosition::CREATURE_SLOT);
-						ea.al.creature = dst.slot;
+						BulkEraseArtifacts ea;
+						ea.artHolder = dstHero->id;
+						ea.posPack.emplace_back(ArtifactPosition::CREATURE_SLOT);
+						ea.creature = dst.slot;
 						ea.applyGs(gs);
 						logNetwork->warn("Cannot move artifact! No free slots");
 					}
-					srcArt->move(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
+					gs->map->moveArtifactInstance(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
 					//TODO: choose from dialog
 				}
 				else //just move to the other slot before stack gets erased
 				{
-					srcArt->move(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
+					gs->map->moveArtifactInstance(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
 				}
 			}
 			if (stackExp)
@@ -1735,13 +1706,13 @@ void RebalanceStacks::applyGs(CGameState * gs)
 	CBonusSystemNode::treeHasChanged();
 }
 
-void BulkRebalanceStacks::applyGs(CGameState * gs)
+void BulkRebalanceStacks::applyGs(CGameState *gs)
 {
 	for(auto & move : moves)
 		move.applyGs(gs);
 }
 
-void BulkSmartRebalanceStacks::applyGs(CGameState * gs)
+void BulkSmartRebalanceStacks::applyGs(CGameState *gs)
 {
 	for(auto & move : moves)
 		move.applyGs(gs);
@@ -1752,62 +1723,58 @@ void BulkSmartRebalanceStacks::applyGs(CGameState * gs)
 
 void PutArtifact::applyGs(CGameState *gs)
 {
-	// Ensure that artifact has been correctly added via NewArtifact pack
-	assert(vstd::contains(gs->map->artInstances, art));
+	auto art = gs->getArtInstance(id);
 	assert(!art->getParentNodes().empty());
 	auto hero = gs->getHero(al.artHolder);
 	assert(hero);
 	assert(art && art->canBePutAt(hero, al.slot));
-	art->putAt(*hero, al.slot);
+	assert(ArtifactUtils::checkIfSlotValid(*hero, al.slot));
+	gs->map->putArtifactInstance(*hero, art, al.slot);
 }
 
-void EraseArtifact::applyGs(CGameState *gs)
+void BulkEraseArtifacts::applyGs(CGameState *gs)
 {
-	const auto artSet = gs->getArtSet(al.artHolder);
+	const auto artSet = gs->getArtSet(artHolder);
 	assert(artSet);
-	const auto slot = artSet->getSlot(al.slot);
-	if(slot->locked)
-	{
-		logGlobal->debug("Erasing locked artifact: %s", slot->artifact->artType->getNameTranslated());
-		DisassembledArtifact dis;
-		dis.al.artHolder = al.artHolder;
-		
-		for(auto & slotInfo : artSet->artifactsWorn)
+
+	std::sort(posPack.begin(), posPack.end(), [](const ArtifactPosition & slot0, const ArtifactPosition & slot1) -> bool
 		{
-			auto art = slotInfo.second.artifact;
-			if(art->isCombined() && art->isPart(slot->artifact))
-			{
-				dis.al.slot = artSet->getArtPos(art);
-				break;
-			}
-		}
-		assert((dis.al.slot != ArtifactPosition::PRE_FIRST) && "Failed to determine the assembly this locked artifact belongs to");
-		logGlobal->debug("Found the corresponding assembly: %s", artSet->getArt(dis.al.slot)->artType->getNameTranslated());
-		dis.applyGs(gs);
-	}
-	else
+			return slot0.num > slot1.num;
+		});
+
+	for(const auto & slot : posPack)
 	{
-		logGlobal->debug("Erasing artifact %s", slot->artifact->artType->getNameTranslated());
+		const auto slotInfo = artSet->getSlot(slot);
+		if(slotInfo->locked)
+		{
+			logGlobal->debug("Erasing locked artifact: %s", slotInfo->artifact->getType()->getNameTranslated());
+			DisassembledArtifact dis;
+			dis.al.artHolder = artHolder;
+
+			for(auto & slotInfoWorn : artSet->artifactsWorn)
+			{
+				auto art = slotInfoWorn.second.artifact;
+				if(art->isCombined() && art->isPart(slotInfo->artifact))
+				{
+					dis.al.slot = artSet->getArtPos(art);
+					break;
+				}
+			}
+			assert((dis.al.slot != ArtifactPosition::PRE_FIRST) && "Failed to determine the assembly this locked artifact belongs to");
+			logGlobal->debug("Found the corresponding assembly: %s", artSet->getArt(dis.al.slot)->getType()->getNameTranslated());
+			dis.applyGs(gs);
+		}
+		else
+		{
+			logGlobal->debug("Erasing artifact %s", slotInfo->artifact->getType()->getNameTranslated());
+		}
+		gs->map->removeArtifactInstance(*artSet, slot);
 	}
-	auto art = artSet->getArt(al.slot);
-	assert(art);
-	art->removeFrom(*artSet, al.slot);
 }
 
-void MoveArtifact::applyGs(CGameState * gs)
+void BulkMoveArtifacts::applyGs(CGameState *gs)
 {
-	auto srcHero = gs->getArtSet(src);
-	auto dstHero = gs->getArtSet(dst);
-	assert(srcHero);
-	assert(dstHero);
-	auto art = srcHero->getArt(src.slot);
-	assert(art && art->canBePutAt(dstHero, dst.slot));
-	art->move(*srcHero, src.slot, *dstHero, dst.slot);
-}
-
-void BulkMoveArtifacts::applyGs(CGameState * gs)
-{
-	const auto bulkArtsRemove = [](std::vector<LinkedSlots> & artsPack, CArtifactSet & artSet)
+	const auto bulkArtsRemove = [gs](std::vector<LinkedSlots> & artsPack, CArtifactSet & artSet)
 	{
 		std::vector<ArtifactPosition> packToRemove;
 		for(const auto & slotsPair : artsPack)
@@ -1818,20 +1785,16 @@ void BulkMoveArtifacts::applyGs(CGameState * gs)
 			});
 
 		for(const auto & slot : packToRemove)
-		{
-			auto * art = artSet.getArt(slot);
-			assert(art);
-			art->removeFrom(artSet, slot);
-		}
+			gs->map->removeArtifactInstance(artSet, slot);
 	};
 
-	const auto bulkArtsPut = [](std::vector<LinkedSlots> & artsPack, CArtifactSet & initArtSet, CArtifactSet & dstArtSet)
+	const auto bulkArtsPut = [gs](std::vector<LinkedSlots> & artsPack, CArtifactSet & initArtSet, CArtifactSet & dstArtSet)
 	{
 		for(const auto & slotsPair : artsPack)
 		{
 			auto * art = initArtSet.getArt(slotsPair.srcPos);
 			assert(art);
-			art->putAt(dstArtSet, slotsPair.dstPos);
+			gs->map->putArtifactInstance(dstArtSet, art, slotsPair.dstPos);
 		}
 	};
 	
@@ -1852,72 +1815,71 @@ void BulkMoveArtifacts::applyGs(CGameState * gs)
 
 void AssembledArtifact::applyGs(CGameState *gs)
 {
-	auto hero = gs->getHero(al.artHolder);
-	assert(hero);
-	const auto transformedArt = hero->getArt(al.slot);
+	auto artSet = gs->getArtSet(al.artHolder);
+	assert(artSet);
+	const auto transformedArt = artSet->getArt(al.slot);
 	assert(transformedArt);
-	assert(vstd::contains_if(ArtifactUtils::assemblyPossibilities(hero, transformedArt->getTypeId()), [=](const CArtifact * art)->bool
+	const auto builtArt = artId.toArtifact();
+	assert(vstd::contains_if(ArtifactUtils::assemblyPossibilities(artSet, transformedArt->getTypeId()), [=](const CArtifact * art)->bool
 		{
 			return art->getId() == builtArt->getId();
 		}));
 
-	const auto transformedArtSlot = hero->getSlotByInstance(transformedArt);
 	auto * combinedArt = new CArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
 
 	// Find slots for all involved artifacts
-	std::vector<ArtifactPosition> slotsInvolved;
-	for(const auto constituent : builtArt->getConstituents())
+	std::set<ArtifactPosition, std::greater<>> slotsInvolved = { al.slot };
+	CArtifactFittingSet fittingSet(*artSet);
+	auto parts = builtArt->getConstituents();
+	parts.erase(std::find(parts.begin(), parts.end(), transformedArt->getType()));
+	for(const auto constituent : parts)
 	{
-		ArtifactPosition slot;
-		if(transformedArt->getTypeId() == constituent->getId())
-			slot = transformedArtSlot;
-		else
-			slot = hero->getArtPos(constituent->getId(), false, false);
-
+		const auto slot = fittingSet.getArtPos(constituent->getId(), false, false);
+		fittingSet.lockSlot(slot);
 		assert(slot != ArtifactPosition::PRE_FIRST);
-		slotsInvolved.emplace_back(slot);
+		slotsInvolved.insert(slot);
 	}
-	std::sort(slotsInvolved.begin(), slotsInvolved.end(), std::greater<>());
 
 	// Find a slot for combined artifact
-	al.slot = transformedArtSlot;
-	for(const auto slot : slotsInvolved)
+	if(ArtifactUtils::isSlotEquipment(al.slot) && ArtifactUtils::isSlotBackpack(*slotsInvolved.begin()))
 	{
-		if(ArtifactUtils::isSlotEquipment(transformedArtSlot))
-		{
-
+		al.slot = ArtifactPosition::BACKPACK_START;
+	}
+	else if(ArtifactUtils::isSlotBackpack(al.slot))
+	{
+		for(const auto & slot : slotsInvolved)
 			if(ArtifactUtils::isSlotBackpack(slot))
+				al.slot = slot;
+	}
+	else
+	{
+		for(const auto & slot : slotsInvolved)
+			if(!vstd::contains(builtArt->getPossibleSlots().at(artSet->bearerType()), al.slot)
+				&& vstd::contains(builtArt->getPossibleSlots().at(artSet->bearerType()), slot))
 			{
-				al.slot = ArtifactPosition::BACKPACK_START;
+				al.slot = slot;
 				break;
 			}
-
-			if(!vstd::contains(combinedArt->artType->getPossibleSlots().at(hero->bearerType()), al.slot)
-				&& vstd::contains(combinedArt->artType->getPossibleSlots().at(hero->bearerType()), slot))
-				al.slot = slot;
-		}
-		else
-		{
-			if(ArtifactUtils::isSlotBackpack(slot))
-				al.slot = std::min(al.slot, slot);
-		}
 	}
 
 	// Delete parts from hero
-	for(const auto slot : slotsInvolved)
+	for(const auto & slot : slotsInvolved)
 	{
-		const auto constituentInstance = hero->getArt(slot);
-		constituentInstance->removeFrom(*hero, slot);
+		const auto constituentInstance = artSet->getArt(slot);
+		gs->map->removeArtifactInstance(*artSet, slot);
 
-		if(ArtifactUtils::isSlotEquipment(al.slot) && slot != al.slot)
-			combinedArt->addPart(constituentInstance, slot);
-		else
-			combinedArt->addPart(constituentInstance, ArtifactPosition::PRE_FIRST);
+		if(!combinedArt->getType()->isFused())
+		{
+			if(ArtifactUtils::isSlotEquipment(al.slot) && slot != al.slot)
+				combinedArt->addPart(constituentInstance, slot);
+			else
+				combinedArt->addPart(constituentInstance, ArtifactPosition::PRE_FIRST);
+		}
 	}
 
 	// Put new combined artifacts
-	combinedArt->putAt(*hero, al.slot);
+	gs->map->putArtifactInstance(*artSet, combinedArt, al.slot);
 }
 
 void DisassembledArtifact::applyGs(CGameState *gs)
@@ -1927,14 +1889,14 @@ void DisassembledArtifact::applyGs(CGameState *gs)
 	auto disassembledArt = hero->getArt(al.slot);
 	assert(disassembledArt);
 
-	auto parts = disassembledArt->getPartsInfo();
-	disassembledArt->removeFrom(*hero, al.slot);
+	const auto parts = disassembledArt->getPartsInfo();
+	gs->map->removeArtifactInstance(*hero, al.slot);
 	for(auto & part : parts)
 	{
 		// ArtifactPosition::PRE_FIRST is value of main part slot -> it'll replace combined artifact in its pos
 		auto slot = (ArtifactUtils::isSlotEquipment(part.slot) ? part.slot : al.slot);
 		disassembledArt->detachFrom(*part.art);
-		part.art->putAt(*hero, slot);
+		gs->map->putArtifactInstance(*hero, part.art, slot);
 	}
 	gs->map->eraseArtifactInstance(disassembledArt);
 }
@@ -1943,7 +1905,7 @@ void HeroVisit::applyGs(CGameState *gs)
 {
 }
 
-void SetAvailableArtifacts::applyGs(CGameState * gs) const
+void SetAvailableArtifacts::applyGs(CGameState *gs)
 {
 	if(id != ObjectInstanceID::NONE)
 	{
@@ -1972,39 +1934,34 @@ void NewTurn::applyGs(CGameState *gs)
 	gs->globalEffects.reduceBonusDurations(Bonus::OneWeek);
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
 
-	for(const NewTurn::Hero & h : heroes) //give mana/movement point
-	{
-		CGHeroInstance *hero = gs->getHero(h.id);
-		if(!hero)
-		{
-			logGlobal->error("Hero %d not found in NewTurn::applyGs", h.id.getNum());
-			continue;
-		}
+	for(auto & manaPack : heroesMana)
+		manaPack.applyGs(gs);
 
-		hero->setMovementPoints(h.move);
-		hero->mana = h.mana;
-	}
+	for(auto & movePack : heroesMovement)
+		movePack.applyGs(gs);
 
 	gs->heroesPool->onNewDay();
 
-	for(const auto & re : res)
+	for(auto & entry : playerIncome)
 	{
-		assert(re.first.isValidPlayer());
-		gs->getPlayerState(re.first)->resources = re.second;
-		gs->getPlayerState(re.first)->resources.amin(GameConstants::PLAYER_RESOURCES_CAP);
+		gs->getPlayerState(entry.first)->resources += entry.second;
+		gs->getPlayerState(entry.first)->resources.amin(GameConstants::PLAYER_RESOURCES_CAP);
 	}
 
-	for(const auto & creatureSet : cres) //set available creatures in towns
-		creatureSet.second.applyGs(gs);
+	for(auto & creatureSet : availableCreatures) //set available creatures in towns
+		creatureSet.applyGs(gs);
 
 	for(CGTownInstance* t : gs->map->towns)
-		t->builded = 0;
+	{
+		t->built = 0;
+		t->spellResearchCounterDay = 0;
+	}
 
-	if(gs->getDate(Date::DAY_OF_WEEK) == 1)
-		gs->updateRumor();
+	if(newRumor)
+		gs->currentRumor = *newRumor;
 }
 
-void SetObjectProperty::applyGs(CGameState * gs) const
+void SetObjectProperty::applyGs(CGameState *gs)
 {
 	CGObjectInstance *obj = gs->getObjInstance(id);
 	if(!obj)
@@ -2014,6 +1971,18 @@ void SetObjectProperty::applyGs(CGameState * gs) const
 	}
 
 	auto * cai = dynamic_cast<CArmedInstance *>(obj);
+
+	if(what == ObjProperty::OWNER && obj->asOwnable())
+	{
+		PlayerColor oldOwner = obj->getOwner();
+		PlayerColor newOwner = identifier.as<PlayerColor>();
+		if(oldOwner.isValidPlayer())
+			gs->getPlayerState(oldOwner)->removeOwnedObject(obj);;
+
+		if(newOwner.isValidPlayer())
+			gs->getPlayerState(newOwner)->addOwnedObject(obj);;
+	}
+
 	if(what == ObjProperty::OWNER && cai)
 	{
 		if(obj->ID == Obj::TOWN)
@@ -2025,17 +1994,13 @@ void SetObjectProperty::applyGs(CGameState * gs) const
 			if(oldOwner.isValidPlayer())
 			{
 				auto * state = gs->getPlayerState(oldOwner);
-				state->towns -= t;
-
-				if(state->towns.empty())
+				if(state->getTowns().empty())
 					state->daysWithoutCastle = 0;
 			}
 			if(identifier.as<PlayerColor>().isValidPlayer())
 			{
-				PlayerState * p = gs->getPlayerState(identifier.as<PlayerColor>());
-				p->towns.emplace_back(t);
-
 				//reset counter before NewTurn to avoid no town message if game loaded at turn when one already captured
+				PlayerState * p = gs->getPlayerState(identifier.as<PlayerColor>());
 				if(p->daysWithoutCastle)
 					p->daysWithoutCastle = std::nullopt;
 			}
@@ -2052,14 +2017,14 @@ void SetObjectProperty::applyGs(CGameState * gs) const
 	}
 }
 
-void HeroLevelUp::applyGs(CGameState * gs) const
+void HeroLevelUp::applyGs(CGameState *gs)
 {
 	auto * hero = gs->getHero(heroId);
 	assert(hero);
 	hero->levelUp(skills);
 }
 
-void CommanderLevelUp::applyGs(CGameState * gs) const
+void CommanderLevelUp::applyGs(CGameState *gs)
 {
 	auto * hero = gs->getHero(heroId);
 	assert(hero);
@@ -2068,7 +2033,7 @@ void CommanderLevelUp::applyGs(CGameState * gs) const
 	commander->levelUp();
 }
 
-void BattleStart::applyGs(CGameState * gs) const
+void BattleStart::applyGs(CGameState *gs)
 {
 	assert(battleID == gs->nextBattleID);
 
@@ -2080,17 +2045,17 @@ void BattleStart::applyGs(CGameState * gs) const
 	gs->nextBattleID = BattleID(gs->nextBattleID.getNum() + 1);
 }
 
-void BattleNextRound::applyGs(CGameState * gs) const
+void BattleNextRound::applyGs(CGameState *gs)
 {
 	gs->getBattle(battleID)->nextRound();
 }
 
-void BattleSetActiveStack::applyGs(CGameState * gs) const
+void BattleSetActiveStack::applyGs(CGameState *gs)
 {
 	gs->getBattle(battleID)->nextTurn(stack);
 }
 
-void BattleTriggerEffect::applyGs(CGameState * gs) const
+void BattleTriggerEffect::applyGs(CGameState *gs)
 {
 	CStack * st = gs->getBattle(battleID)->getStack(stackID);
 	assert(st);
@@ -2129,13 +2094,13 @@ void BattleTriggerEffect::applyGs(CGameState * gs) const
 	}
 }
 
-void BattleUpdateGateState::applyGs(CGameState * gs) const
+void BattleUpdateGateState::applyGs(CGameState *gs)
 {
 	if(gs->getBattle(battleID))
 		gs->getBattle(battleID)->si.gateState = state;
 }
 
-void BattleCancelled::applyGs(CGameState * gs) const
+void BattleCancelled::applyGs(CGameState *gs)
 {
 	auto currentBattle = boost::range::find_if(gs->currentBattles, [&](const auto & battle)
 	{
@@ -2146,7 +2111,7 @@ void BattleCancelled::applyGs(CGameState * gs) const
 	gs->currentBattles.erase(currentBattle);
 }
 
-void BattleResultAccepted::applyGs(CGameState * gs) const
+void BattleResultAccepted::applyGs(CGameState *gs)
 {
 	// Remove any "until next battle" bonuses
 	for(auto & res : heroResult)
@@ -2155,7 +2120,7 @@ void BattleResultAccepted::applyGs(CGameState * gs) const
 			res.hero->removeBonusesRecursive(Bonus::OneBattle);
 	}
 
-	if(winnerSide != 2)
+	if(winnerSide != BattleSide::NONE)
 	{
 		// Grow up growing artifacts
 		const auto hero = heroResult[winnerSide].hero;
@@ -2174,12 +2139,12 @@ void BattleResultAccepted::applyGs(CGameState * gs) const
 		}
 	}
 
-	if(VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
+	if(gs->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
-		if(heroResult[0].army)
-			heroResult[0].army->giveStackExp(heroResult[0].exp);
-		if(heroResult[1].army)
-			heroResult[1].army->giveStackExp(heroResult[1].exp);
+		if(heroResult[BattleSide::ATTACKER].army)
+			heroResult[BattleSide::ATTACKER].army->giveStackExp(heroResult[BattleSide::ATTACKER].exp);
+		if(heroResult[BattleSide::DEFENDER].army)
+			heroResult[BattleSide::DEFENDER].army->giveStackExp(heroResult[BattleSide::DEFENDER].exp);
 		CBonusSystemNode::treeHasChanged();
 	}
 
@@ -2212,7 +2177,7 @@ void BattleStackMoved::applyBattle(IBattleState * battleState)
 	battleState->moveUnit(stack, tilesToMove.back());
 }
 
-void BattleStackAttacked::applyGs(CGameState * gs)
+void BattleStackAttacked::applyGs(CGameState *gs)
 {
 	applyBattle(gs->getBattle(battleID));
 }
@@ -2222,7 +2187,7 @@ void BattleStackAttacked::applyBattle(IBattleState * battleState)
 	battleState->setUnitState(newState.id, newState.data, newState.healthDelta);
 }
 
-void BattleAttack::applyGs(CGameState * gs)
+void BattleAttack::applyGs(CGameState *gs)
 {
 	CStack * attacker = gs->getBattle(battleID)->getStack(stackAttacking);
 	assert(attacker);
@@ -2277,25 +2242,21 @@ void StartAction::applyGs(CGameState *gs)
 				st->waiting = false;
 				st->defendingAnim = false;
 				st->movedThisRound = true;
+				st->castSpellThisTurn = ba.actionType == EActionType::MONSTER_SPELL;
 				break;
 		}
 	}
 	else
 	{
 		if(ba.actionType == EActionType::HERO_SPELL)
-			gs->getBattle(battleID)->sides[ba.side].usedSpellsHistory.push_back(ba.spell);
+			gs->getBattle(battleID)->getSide(ba.side).usedSpellsHistory.push_back(ba.spell);
 	}
 }
 
-void BattleSpellCast::applyGs(CGameState * gs) const
+void BattleSpellCast::applyGs(CGameState *gs)
 {
-	if(castByHero)
-	{
-		if(side < 2)
-		{
-			gs->getBattle(battleID)->sides[side].castSpellsCount++;
-		}
-	}
+	if(castByHero && side != BattleSide::NONE)
+		gs->getBattle(battleID)->getSide(side).castSpellsCount++;
 }
 
 void SetStackEffect::applyGs(CGameState *gs)
@@ -2357,7 +2318,7 @@ void BattleUnitsChanged::applyBattle(IBattleState * battleState)
 	}
 }
 
-void BattleObstaclesChanged::applyGs(CGameState * gs)
+void BattleObstaclesChanged::applyGs(CGameState *gs)
 {
 	applyBattle(gs->getBattle(battleID));
 }
@@ -2388,7 +2349,7 @@ CatapultAttack::CatapultAttack() = default;
 
 CatapultAttack::~CatapultAttack() = default;
 
-void CatapultAttack::applyGs(CGameState * gs)
+void CatapultAttack::applyGs(CGameState *gs)
 {
 	applyBattle(gs->getBattle(battleID));
 }
@@ -2404,7 +2365,7 @@ void CatapultAttack::applyBattle(IBattleState * battleState)
 	if(!town)
 		return;
 
-	if(town->fortLevel() == CGTownInstance::NONE)
+	if(town->fortificationsLevel().wallsHealth == 0)
 		return;
 
 	for(const auto & part : attackedParts)
@@ -2414,7 +2375,7 @@ void CatapultAttack::applyBattle(IBattleState * battleState)
 	}
 }
 
-void BattleSetStackProperty::applyGs(CGameState * gs) const
+void BattleSetStackProperty::applyGs(CGameState *gs)
 {
 	CStack * stack = gs->getBattle(battleID)->getStack(stackID, false);
 	switch(which)
@@ -2429,7 +2390,7 @@ void BattleSetStackProperty::applyGs(CGameState * gs) const
 		}
 		case ENCHANTER_COUNTER:
 		{
-			auto & counter = gs->getBattle(battleID)->sides[gs->getBattle(battleID)->whatSide(stack->unitOwner())].enchanterCounter;
+			auto & counter = gs->getBattle(battleID)->getSide(gs->getBattle(battleID)->whatSide(stack->unitOwner())).enchanterCounter;
 			if(absolute)
 				counter = val;
 			else
@@ -2455,7 +2416,7 @@ void BattleSetStackProperty::applyGs(CGameState * gs) const
 	}
 }
 
-void PlayerCheated::applyGs(CGameState * gs) const
+void PlayerCheated::applyGs(CGameState *gs)
 {
 	if(!player.isValidPlayer())
 		return;
@@ -2465,43 +2426,76 @@ void PlayerCheated::applyGs(CGameState * gs) const
 	gs->getPlayerState(player)->cheated = true;
 }
 
-void PlayerStartsTurn::applyGs(CGameState * gs) const
+void PlayerStartsTurn::applyGs(CGameState *gs)
 {
 	//assert(gs->actingPlayers.count(player) == 0);//Legal - may happen after loading of deserialized map state
 	gs->actingPlayers.insert(player);
 }
 
-void PlayerEndsTurn::applyGs(CGameState * gs) const
+void PlayerEndsTurn::applyGs(CGameState *gs)
 {
 	assert(gs->actingPlayers.count(player) == 1);
 	gs->actingPlayers.erase(player);
 }
 
-void DaysWithoutTown::applyGs(CGameState * gs) const
+void DaysWithoutTown::applyGs(CGameState *gs)
 {
 	auto & playerState = gs->players[player];
 	playerState.daysWithoutCastle = daysWithoutCastle;
 }
 
-void TurnTimeUpdate::applyGs(CGameState *gs) const
+void TurnTimeUpdate::applyGs(CGameState *gs)
 {
 	auto & playerState = gs->players[player];
 	playerState.turnTimer = turnTimer;
 }
 
-void EntitiesChanged::applyGs(CGameState * gs)
+void EntitiesChanged::applyGs(CGameState *gs)
 {
 	for(const auto & change : changes)
 		gs->updateEntity(change.metatype, change.entityIndex, change.data);
 }
 
+void SetRewardableConfiguration::applyGs(CGameState *gs)
+{
+	auto * objectPtr = gs->getObjInstance(objectID);
+
+	if (!buildingID.hasValue())
+	{
+		auto * rewardablePtr = dynamic_cast<CRewardableObject *>(objectPtr);
+		assert(rewardablePtr);
+		rewardablePtr->configuration = configuration;
+		rewardablePtr->initializeGuards();
+	}
+	else
+	{
+		auto * townPtr = dynamic_cast<CGTownInstance*>(objectPtr);
+		TownBuildingInstance * buildingPtr = nullptr;
+
+		for (auto & building : townPtr->rewardableBuildings)
+			if (building.second->getBuildingType() == buildingID)
+				buildingPtr = building.second;
+
+		auto * rewardablePtr = dynamic_cast<TownRewardableBuildingInstance *>(buildingPtr);
+		assert(rewardablePtr);
+		rewardablePtr->configuration = configuration;
+	}
+}
+
+void SetBankConfiguration::applyGs(CGameState *gs)
+{
+	auto * objectPtr = gs->getObjInstance(objectID);
+	auto * bankPtr = dynamic_cast<CBank *>(objectPtr);
+
+	assert(bankPtr);
+
+	bankPtr->setConfig(configuration);
+}
+
 const CArtifactInstance * ArtSlotInfo::getArt() const
 {
 	if(locked)
-	{
-		logNetwork->warn("ArtifactLocation::getArt: This location is locked!");
 		return nullptr;
-	}
 	return artifact;
 }
 

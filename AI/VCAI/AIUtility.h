@@ -10,9 +10,7 @@
 #pragma once
 
 #include "../../lib/VCMI_Lib.h"
-#include "../../lib/CBuildingHandler.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CTownHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -27,11 +25,9 @@ using crstring = const std::string &;
 using dwellingContent = std::pair<ui32, std::vector<CreatureID>>;
 
 const int ACTUAL_RESOURCE_COUNT = 7;
-const int ALLOWED_ROAMING_HEROES = 8;
 
 //implementation-dependent
 extern const double SAFE_ATTACK_CONSTANT;
-extern const int GOLD_RESERVE;
 
 extern thread_local CCallback * cb;
 extern thread_local VCAI * ai;
@@ -68,14 +64,6 @@ public:
 
 	const CGHeroInstance * get(bool doWeExpectNull = false) const;
 	bool validAndSet() const;
-
-
-	template<typename Handler> void serialize(Handler & h)
-	{
-		h & this->h;
-		h & hid;
-		h & name;
-	}
 };
 
 enum BattleState
@@ -100,12 +88,6 @@ struct ObjectIdRef
 	ObjectIdRef(const CGObjectInstance * obj);
 
 	bool operator<(const ObjectIdRef & rhs) const;
-
-
-	template<typename Handler> void serialize(Handler & h)
-	{
-		h & id;
-	}
 };
 
 struct TimeCheck

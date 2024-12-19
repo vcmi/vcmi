@@ -25,8 +25,6 @@ struct PlayerSettings;
 class PlayerColor;
 class MetaString;
 
-template<typename T> class CApplier;
-
 VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
@@ -52,7 +50,6 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 
 	std::unique_ptr<INetworkHandler> networkHandler;
 
-	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
 	EServerState state = EServerState::LOBBY;
 
 	std::shared_ptr<CConnection> findConnection(const std::shared_ptr<INetworkConnection> &);
@@ -66,6 +63,8 @@ public:
 	/// List of all active connections
 	std::vector<std::shared_ptr<CConnection>> activeConnections;
 
+	uint16_t prepare(bool connectToLobby);
+
 	// INetworkListener impl
 	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage) override;
 	void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message) override;
@@ -74,7 +73,7 @@ public:
 
 	std::shared_ptr<CGameHandler> gh;
 
-	CVCMIServer(uint16_t port, bool connectToLobby, bool runByClient);
+	CVCMIServer(uint16_t port, bool runByClient);
 	~CVCMIServer();
 
 	void run();
@@ -83,14 +82,14 @@ public:
 	bool prepareToStartGame();
 	void prepareToRestart();
 	void startGameImmediately();
-	void startAcceptingIncomingConnections();
+	uint16_t startAcceptingIncomingConnections();
 
 	void threadHandleClient(std::shared_ptr<CConnection> c);
 
-	void announcePack(std::unique_ptr<CPackForLobby> pack);
+	void announcePack(CPackForLobby & pack);
 	bool passHost(int toConnectionId);
 
-	void announceTxt(MetaString txt, const std::string & playerName = "system");
+	void announceTxt(const MetaString & txt, const std::string & playerName = "system");
 	void announceTxt(const std::string & txt, const std::string & playerName = "system");
 
 	void setPlayerConnectedId(PlayerSettings & pset, ui8 player) const;
@@ -100,10 +99,10 @@ public:
 	void clientDisconnected(std::shared_ptr<CConnection> c);
 	void reconnectPlayer(int connId);
 
-	void announceMessage(MetaString txt);
+	void announceMessage(const MetaString & txt);
 	void announceMessage(const std::string & txt);
 
-	void handleReceivedPack(std::unique_ptr<CPackForLobby> pack);
+	void handleReceivedPack(CPackForLobby & pack);
 
 	void updateAndPropagateLobbyState();
 
@@ -115,6 +114,7 @@ public:
 	// Work with LobbyInfo
 	void setPlayer(PlayerColor clickedColor);
 	void setPlayerName(PlayerColor player, std::string name);
+	void setPlayerHandicap(PlayerColor player, Handicap handicap);
 	void optionNextHero(PlayerColor player, int dir); //dir == -1 or +1
 	void optionSetHero(PlayerColor player, HeroTypeID id);
 	HeroTypeID nextAllowedHero(PlayerColor player, HeroTypeID id, int direction);

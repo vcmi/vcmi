@@ -15,11 +15,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-BattleFieldInfo * BattleFieldHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 
-	auto * info = new BattleFieldInfo(BattleField(index), identifier);
+	auto info = std::make_shared<BattleFieldInfo>(BattleField(index), identifier);
 
 	info->modScope = scope;
 	info->graphics = ImagePath::fromJson(json["graphics"]);
@@ -39,6 +39,9 @@ BattleFieldInfo * BattleFieldHandler::loadFromJson(const std::string & scope, co
 	info->isSpecial = json["isSpecial"].Bool();
 	for(auto node : json["impassableHexes"].Vector())
 		info->impassableHexes.emplace_back(node.Integer());
+
+	info->openingSoundFilename = AudioPath::fromJson(json["openingSound"]);
+	info->musicFilename = AudioPath::fromJson(json["music"]);
 
 	return info;
 }
@@ -68,6 +71,11 @@ int32_t BattleFieldInfo::getIconIndex() const
 std::string BattleFieldInfo::getJsonKey() const
 {
 	return modScope + ':' + identifier;
+}
+
+std::string BattleFieldInfo::getModScope() const
+{
+	return modScope;
 }
 
 std::string BattleFieldInfo::getNameTextID() const

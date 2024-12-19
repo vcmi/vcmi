@@ -29,7 +29,7 @@
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
@@ -114,12 +114,12 @@ RandomMapTab::RandomMapTab():
 		GH.windows().createAndPushWindow<TeamAlignments>(*this);
 	});
 	
-	for(auto road : VLC->roadTypeHandler->objects)
+	for(const auto & road : VLC->roadTypeHandler->objects)
 	{
 		std::string cbRoadType = "selectRoad_" + road->getJsonKey();
-		addCallback(cbRoadType, [&, road](bool on)
+		addCallback(cbRoadType, [&, roadID = road->getId()](bool on)
 		{
-			mapGenOptions->setRoadEnabled(road->getId(), on);
+			mapGenOptions->setRoadEnabled(roadID, on);
 			updateMapInfoByHost();
 		});
 	}
@@ -263,7 +263,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		humanCountAllowed = tmpl->getHumanPlayers().getNumbers(); // Unused now?
 	}
 	
-	si8 playerLimit = opts->getMaxPlayersCount();
+	si8 playerLimit = opts->getPlayerLimit();
 	si8 humanOrCpuPlayerCount = opts->getHumanOrCpuPlayerCount();
 	si8 compOnlyPlayersCount = opts->getCompOnlyPlayerCount();
 
@@ -372,7 +372,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		else
 			w->setTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
-	for(auto r : VLC->roadTypeHandler->objects)
+	for(const auto & r : VLC->roadTypeHandler->objects)
 	{
 		// Workaround for vcmi-extras bug
 		std::string jsonKey = r->getJsonKey();
@@ -447,7 +447,7 @@ void TeamAlignmentsWidget::checkTeamCount()
 TeamAlignments::TeamAlignments(RandomMapTab & randomMapTab)
 	: CWindowObject(BORDERED)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	widget = std::make_shared<TeamAlignmentsWidget>(randomMapTab);
 	pos = widget->pos;
@@ -469,6 +469,8 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	variables["totalPlayers"].Integer() = totalPlayers;
 	
 	pos.w = variables["windowSize"]["x"].Integer() + totalPlayers * variables["cellMargin"]["x"].Integer();
+	auto widthExtend = std::max(pos.w, 220) - pos.w; // too small for buttons
+	pos.w += widthExtend;
 	pos.h = variables["windowSize"]["y"].Integer() + totalPlayers * variables["cellMargin"]["y"].Integer();
 	variables["backgroundRect"]["x"].Integer() = 0;
 	variables["backgroundRect"]["y"].Integer() = 0;
@@ -501,7 +503,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	
 	center(pos);
 	
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 	
 	// Window should have X * X columns, where X is max players allowed for current settings
 	// For random player count, X is 8
@@ -529,7 +531,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 		players.push_back(std::make_shared<CToggleGroup>([&, totalPlayers, plId](int sel)
 		{
 			variables["player_id"].Integer() = plId;
-			OBJ_CONSTRUCTION_TARGETED(players[plId].get());
+			OBJECT_CONSTRUCTION_TARGETED(players[plId].get());
 			for(int teamId = 0; teamId < totalPlayers; ++teamId)
 			{
 				auto button = std::dynamic_pointer_cast<CToggleButton>(players[plId]->buttons[teamId]);
@@ -549,17 +551,17 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 			}
 		}));
 		
-		OBJ_CONSTRUCTION_TARGETED(players.back().get());
+		OBJECT_CONSTRUCTION_TARGETED(players.back().get());
 
 		for(int teamId = 0; teamId < totalPlayers; ++teamId)
 		{
-			variables["point"]["x"].Integer() = variables["cellOffset"]["x"].Integer() + plId * variables["cellMargin"]["x"].Integer();
+			variables["point"]["x"].Integer() = variables["cellOffset"]["x"].Integer() + plId * variables["cellMargin"]["x"].Integer() + (widthExtend / 2);
 			variables["point"]["y"].Integer() = variables["cellOffset"]["y"].Integer() + teamId * variables["cellMargin"]["y"].Integer();
 			auto button = buildWidget(variables["button"]);
 			players.back()->addToggle(teamId, std::dynamic_pointer_cast<CToggleBase>(button));
 		}
 		
-		// plId is not neccessarily player color, just an index
+		// plId is not necessarily player color, just an index
 		auto team = settingsVec.at(plId).getTeam();
 		if(team == TeamID::NO_TEAM)
 		{
@@ -601,6 +603,12 @@ void RandomMapTab::loadOptions()
 		{
 			w->setItem(mapGenOptions->getMapTemplate());
 		}
+	} else
+	{
+		// Default settings
+		mapGenOptions->setRoadEnabled(RoadId(Road::DIRT_ROAD), true);
+		mapGenOptions->setRoadEnabled(RoadId(Road::GRAVEL_ROAD), true);
+		mapGenOptions->setRoadEnabled(RoadId(Road::COBBLESTONE_ROAD), true);
 	}
 	updateMapInfoByHost();
 

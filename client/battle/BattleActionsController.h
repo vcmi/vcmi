@@ -82,8 +82,10 @@ public:
 	/// initialize list of potential actions for new active stack
 	void activateStack();
 
-	/// returns true if UI is currently in target selection mode
-	bool spellcastingModeActive() const;
+	/// returns true if UI is currently in hero spell target selection mode
+	bool heroSpellcastingModeActive() const;
+	/// returns true if UI is currently in "F" hotkey creature spell target selection mode
+	bool creatureSpellcastingModeActive() const;
 
 	/// returns true if one of the following is true:
 	/// - we are casting spell by hero
@@ -120,7 +122,7 @@ public:
 	const std::vector<PossiblePlayerBattleAction> & getPossibleActions() const;
 	void removePossibleAction(PossiblePlayerBattleAction);
 	
-	/// inserts possible action in the beggining in order to prioritize it
+	/// inserts possible action in the beginning in order to prioritize it
 	void pushFrontPossibleAction(PossiblePlayerBattleAction);
 
 	/// resets possible actions to original state

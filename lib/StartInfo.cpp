@@ -10,10 +10,11 @@
 #include "StdInc.h"
 #include "StartInfo.h"
 
-#include "CGeneralTextHandler.h"
-#include "CTownHandler.h"
-#include "CHeroHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "VCMI_Lib.h"
+#include "entities/faction/CFaction.h"
+#include "entities/faction/CTownHandler.h"
+#include "entities/hero/CHeroHandler.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapping/CMapInfo.h"
 #include "campaign/CampaignState.h"
@@ -24,7 +25,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 PlayerSettings::PlayerSettings()
-	: bonus(PlayerStartingBonus::RANDOM), color(0), handicap(NO_HANDICAP), compOnly(false)
+	: bonus(PlayerStartingBonus::RANDOM), color(0), compOnly(false)
 {
 }
 
@@ -89,18 +90,22 @@ std::string StartInfo::getCampaignName() const
 		return VLC->generaltexth->allTexts[508];
 }
 
-bool StartInfo::isSteadwickFallCampaignMission() const
+bool StartInfo::isRestorationOfErathiaCampaign() const
 {
+	constexpr std::array roeCampaigns = {
+		"DATA/GOOD1",
+		"DATA/EVIL1",
+		"DATA/GOOD2",
+		"DATA/NEUTRAL1",
+		"DATA/EVIL2",
+		"DATA/GOOD3",
+		"DATA/SECRET1",
+	};
+
 	if (!campState)
 		return false;
 
-	if (campState->getFilename() != "DATA/EVIL1")
-		return false;
-
-	if (campState->currentScenario() != CampaignScenarioID(2))
-		return false;
-
-	return true;
+	return vstd::contains(roeCampaigns, campState->getFilename());
 }
 
 void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const

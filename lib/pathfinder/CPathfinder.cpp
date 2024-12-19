@@ -82,9 +82,8 @@ CPathfinder::CPathfinder(CGameState * _gs, std::shared_ptr<PathfinderConfig> con
 
 void CPathfinder::push(CGPathNode * node)
 {
-	if(node && !node->inPQ)
+	if(node && !node->inPQ())
 	{
-		node->inPQ = true;
 		node->pq = &this->pq;
 		auto handle = pq.push(node);
 		node->pqHandle = handle;
@@ -96,14 +95,13 @@ CGPathNode * CPathfinder::topAndPop()
 	auto * node = pq.top();
 
 	pq.pop();
-	node->inPQ = false;
 	node->pq = nullptr;
 	return node;
 }
 
 void CPathfinder::calculatePaths()
 {
-	//logGlobal->info("Calculating paths for hero %s (adress  %d) of player %d", hero->name, hero , hero->tempOwner);
+	//logGlobal->info("Calculating paths for hero %s (address  %d) of player %d", hero->name, hero , hero->tempOwner);
 
 	//initial tile - set cost on 0 and add to the queue
 	std::vector<CGPathNode *> initialNodes = config->nodeStorage->getInitialNodes();
@@ -175,7 +173,7 @@ void CPathfinder::calculatePaths()
 				if(!hlp->isPatrolMovementAllowed(neighbour->coord))
 					continue;
 
-				/// Check transition without tile accessability rules
+				/// Check transition without tile accessibility rules
 				if(source.node->layer != neighbour->layer && !isLayerTransitionPossible())
 					continue;
 
@@ -266,8 +264,7 @@ TeleporterTilesVector CPathfinderHelper::getCastleGates(const PathNodeInfo & sou
 {
 	TeleporterTilesVector allowedExits;
 
-	auto towns = getPlayerState(hero->tempOwner)->towns;
-	for(const auto & town : towns)
+	for(const auto & town : getPlayerState(hero->tempOwner)->getTowns())
 	{
 		if(town->id != source.nodeObject->id && town->visitingHero == nullptr
 			&& town->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO))
@@ -295,7 +292,7 @@ TeleporterTilesVector CPathfinderHelper::getTeleportExits(const PathNodeInfo & s
 	{
 		auto * town = dynamic_cast<const CGTownInstance *>(source.nodeObject);
 		assert(town);
-		if (town && town->getFaction() == FactionID::INFERNO)
+		if (town && town->getFactionID() == FactionID::INFERNO)
 		{
 			/// TODO: Find way to reuse CPlayerSpecificInfoCallback::getTownsInfo
 			/// This may be handy if we allow to use teleportation to friendly towns
@@ -468,7 +465,7 @@ bool CPathfinderHelper::addTeleportOneWayRandom(const CGTeleport * obj) const
 
 bool CPathfinderHelper::addTeleportWhirlpool(const CGWhirlpool * obj) const
 {
-	return options.useTeleportWhirlpool && hasBonusOfType(BonusType::WHIRLPOOL_PROTECTION) && obj;
+	return options.useTeleportWhirlpool && (whirlpoolProtection || options.forceUseTeleportWhirlpool) && obj;
 }
 
 int CPathfinderHelper::movementPointsAfterEmbark(int movement, int basicCost, bool disembark) const
@@ -507,6 +504,8 @@ CPathfinderHelper::CPathfinderHelper(CGameState * gs, const CGHeroInstance * Her
 	turnsInfo.reserve(16);
 	updateTurnInfo();
 	initializePatrol();
+
+	whirlpoolProtection = Hero->hasBonusOfType(BonusType::WHIRLPOOL_PROTECTION);
 
 	SpellID flySpell = SpellID::FLY;
 	canCastFly = Hero->canCastThisSpell(flySpell.toSpell());
@@ -597,25 +596,19 @@ void CPathfinderHelper::getNeighbours(
 			continue;
 
 		const TerrainTile & destTile = map->getTile(destCoord);
-		if(!destTile.terType->isPassable())
+		if(!destTile.getTerrain()->isPassable())
 			continue;
 
-// 		//we cannot visit things from blocked tiles
-// 		if(srcTile.blocked && !srcTile.visitable && destTile.visitable && srcTile.blockingObjects.front()->ID != HEROI_TYPE)
-// 		{
-// 			continue;
-// 		}
-
 		/// Following condition let us avoid diagonal movement over coast when sailing
-		if(srcTile.terType->isWater() && limitCoastSailing && destTile.terType->isWater() && dir.x && dir.y) //diagonal move through water
+		if(srcTile.isWater() && limitCoastSailing && destTile.isWater() && dir.x && dir.y) //diagonal move through water
 		{
 			const int3 horizontalNeighbour = srcCoord + int3{dir.x, 0, 0};
 			const int3 verticalNeighbour = srcCoord + int3{0, dir.y, 0};
-			if(map->getTile(horizontalNeighbour).terType->isLand() || map->getTile(verticalNeighbour).terType->isLand())
+			if(map->getTile(horizontalNeighbour).isLand() || map->getTile(verticalNeighbour).isLand())
 				continue;
 		}
 
-		if(indeterminate(onLand) || onLand == destTile.terType->isLand())
+		if(indeterminate(onLand) || onLand == destTile.isLand())
 		{
 			vec.push_back(destCoord);
 		}
@@ -663,13 +656,13 @@ int CPathfinderHelper::getMovementCost(
 
 	bool isSailLayer;
 	if(indeterminate(isDstSailLayer))
-		isSailLayer = hero->boat && hero->boat->layer == EPathfindingLayer::SAIL && dt->terType->isWater();
+		isSailLayer = hero->boat && hero->boat->layer == EPathfindingLayer::SAIL && dt->isWater();
 	else
 		isSailLayer = static_cast<bool>(isDstSailLayer);
 
 	bool isWaterLayer;
 	if(indeterminate(isDstWaterLayer))
-		isWaterLayer = ((hero->boat && hero->boat->layer == EPathfindingLayer::WATER) || ti->hasBonusOfType(BonusType::WATER_WALKING)) && dt->terType->isWater();
+		isWaterLayer = ((hero->boat && hero->boat->layer == EPathfindingLayer::WATER) || ti->hasBonusOfType(BonusType::WATER_WALKING)) && dt->isWater();
 	else
 		isWaterLayer = static_cast<bool>(isDstWaterLayer);
 	
@@ -704,7 +697,7 @@ int CPathfinderHelper::getMovementCost(
 	{
 		NeighbourTilesVector vec;
 
-		getNeighbours(*dt, dst, vec, ct->terType->isLand(), true);
+		getNeighbours(*dt, dst, vec, ct->isLand(), true);
 		for(const auto & elem : vec)
 		{
 			int fcost = getMovementCost(dst, elem, nullptr, nullptr, left, false);

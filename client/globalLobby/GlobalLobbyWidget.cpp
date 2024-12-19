@@ -16,10 +16,10 @@
 #include "GlobalLobbyRoomWindow.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../media/ISoundPlayer.h"
 #include "../render/Colors.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
@@ -30,8 +30,8 @@
 #include "../widgets/TextControls.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/Languages.h"
-#include "../../lib/MetaString.h"
+#include "../../lib/texts/Languages.h"
+#include "../../lib/texts/MetaString.h"
 
 GlobalLobbyWidget::GlobalLobbyWidget(GlobalLobbyWindow * window)
 	: window(window)
@@ -187,7 +187,7 @@ GlobalLobbyChannelCardBase::GlobalLobbyChannelCardBase(GlobalLobbyWindow * windo
 	pos.h = dimensions.y;
 	addUsedEvents(LCLICK);
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	if (window->isChannelOpen(channelType, channelName))
 		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), Colors::YELLOW, 2);
@@ -206,16 +206,16 @@ void GlobalLobbyChannelCardBase::clickPressed(const Point & cursorPosition)
 GlobalLobbyAccountCard::GlobalLobbyAccountCard(GlobalLobbyWindow * window, const GlobalLobbyAccount & accountDescription)
 	: GlobalLobbyChannelCardBase(window, Point(130, 40), "player", accountDescription.accountID, accountDescription.displayName)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, accountDescription.displayName, 120);
 	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, accountDescription.status);
 }
 
 GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const GlobalLobbyRoom & roomDescription)
-	: roomUUID(roomDescription.gameRoomID)
-	, window(window)
+	: window(window)
+	, roomUUID(roomDescription.gameRoomID)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	addUsedEvents(LCLICK);
 
 	bool hasInvite = CSH->getGlobalLobby().isInvitedToRoom(roomDescription.gameRoomID);
@@ -253,14 +253,14 @@ void GlobalLobbyRoomCard::clickPressed(const Point & cursorPosition)
 GlobalLobbyChannelCard::GlobalLobbyChannelCard(GlobalLobbyWindow * window, const std::string & channelName)
 	: GlobalLobbyChannelCardBase(window, Point(146, 40), "global", channelName, Languages::getLanguageOptions(channelName).nameNative)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	labelName = std::make_shared<CLabel>(5, 20, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, Languages::getLanguageOptions(channelName).nameNative);
 }
 
 GlobalLobbyMatchCard::GlobalLobbyMatchCard(GlobalLobbyWindow * window, const GlobalLobbyRoom & matchDescription)
 	: GlobalLobbyChannelCardBase(window, Point(130, 40), "match", matchDescription.gameRoomID, matchDescription.startDateFormatted)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	labelMatchDate = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, matchDescription.startDateFormatted);
 
 	MetaString opponentDescription;

@@ -15,7 +15,7 @@
 
 #include "../modManager/cmodlistview_moc.h"
 #include "../helper.h"
-#include "../jsonutils.h"
+#include "../vcmiqt/jsonutils.h"
 #include "../languages.h"
 
 #include <QFileInfo>
@@ -27,9 +27,7 @@
 #include <SDL2/SDL.h>
 #endif
 
-namespace
-{
-QString resolutionToString(const QSize & resolution)
+static QString resolutionToString(const QSize & resolution)
 {
 	return QString{"%1x%2"}.arg(resolution.width()).arg(resolution.height());
 }
@@ -42,11 +40,26 @@ static constexpr std::array cursorTypesList =
 
 static constexpr std::array upscalingFilterTypes =
 {
+	"auto",
+	"none",
+	"xbrz2",
+	"xbrz3",
+	"xbrz4"
+};
+
+static constexpr std::array downscalingFilterTypes =
+{
 	"nearest",
 	"linear",
 	"best"
 };
 
+MainWindow * CSettingsView::getMainWindow()
+{
+	foreach(QWidget *w, qApp->allWidgets())
+		if(QMainWindow* mainWin = qobject_cast<QMainWindow*>(w))
+			return dynamic_cast<MainWindow *>(mainWin);
+	return nullptr;
 }
 
 void CSettingsView::setDisplayList()
@@ -114,7 +127,12 @@ void CSettingsView::loadSettings()
 #endif
 	fillValidScalingRange();
 
-	ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
+	ui->buttonScalingAuto->setChecked(settings["video"]["resolution"]["scaling"].Integer() == 0);
+	if (settings["video"]["resolution"]["scaling"].Integer() == 0)
+		ui->spinBoxInterfaceScaling->setValue(100);
+	else
+		ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
+
 	ui->spinBoxFramerateLimit->setValue(settings["video"]["targetfps"].Float());
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
 	ui->sliderReservedArea->setValue(std::round(settings["video"]["reservedWidth"].Float() * 100));
@@ -142,9 +160,13 @@ void CSettingsView::loadSettings()
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
 	fillValidRenderers();
 
-	std::string upscalingFilter = settings["video"]["scalingMode"].String();
+	std::string upscalingFilter = settings["video"]["upscalingFilter"].String();
 	int upscalingFilterIndex = vstd::find_pos(upscalingFilterTypes, upscalingFilter);
 	ui->comboBoxUpscalingFilter->setCurrentIndex(upscalingFilterIndex);
+
+	std::string downscalingFilter = settings["video"]["downscalingFilter"].String();
+	int downscalingFilterIndex = vstd::find_pos(downscalingFilterTypes, downscalingFilter);
+	ui->comboBoxDownscalingFilter->setCurrentIndex(downscalingFilterIndex);
 
 	ui->sliderMusicVolume->setValue(settings["general"]["music"].Integer());
 	ui->sliderSoundVolume->setValue(settings["general"]["sound"].Integer());
@@ -157,6 +179,21 @@ void CSettingsView::loadSettings()
 	ui->sliderControllerSticksAcceleration->setValue(settings["input"]["controllerAxisScale"].Float() * 100);
 	ui->lineEditGameLobbyHost->setText(QString::fromStdString(settings["lobby"]["hostname"].String()));
 	ui->spinBoxNetworkPortLobby->setValue(settings["lobby"]["port"].Integer());
+	ui->buttonVSync->setChecked(settings["video"]["vsync"].Bool());
+
+	if (settings["video"]["fontsType"].String() == "auto")
+		ui->buttonFontAuto->setChecked(true);
+	else if (settings["video"]["fontsType"].String() == "original")
+		ui->buttonFontOriginal->setChecked(true);
+	else
+		ui->buttonFontScalable->setChecked(true);
+
+	if (settings["mods"]["validation"].String() == "off")
+		ui->buttonValidationOff->setChecked(true);
+	else if (settings["mods"]["validation"].String() == "basic")
+		ui->buttonValidationBasic->setChecked(true);
+	else
+		ui->buttonValidationFull->setChecked(true);
 
 	loadToggleButtonSettings();
 }
@@ -164,7 +201,6 @@ void CSettingsView::loadSettings()
 void CSettingsView::loadToggleButtonSettings()
 {
 	setCheckbuttonState(ui->buttonShowIntro, settings["video"]["showIntro"].Bool());
-	setCheckbuttonState(ui->buttonVSync, settings["video"]["vsync"].Bool());
 	setCheckbuttonState(ui->buttonAutoCheck, settings["launcher"]["autoCheckRepositories"].Bool());
 
 	setCheckbuttonState(ui->buttonRepositoryDefault, settings["launcher"]["defaultRepositoryEnabled"].Bool());
@@ -181,6 +217,15 @@ void CSettingsView::loadToggleButtonSettings()
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
 	setCheckbuttonState(ui->buttonCursorType, cursorTypeIndex);
+	ui->sliderScalingCursor->setDisabled(cursorType == "software"); // Not supported
+	ui->labelScalingCursorValue->setDisabled(cursorType == "software"); // Not supported
+
+	int fontScalingPercentage = settings["video"]["fontScalingFactor"].Float() * 100;
+	ui->sliderScalingFont->setValue(fontScalingPercentage / 5);
+
+	int cursorScalingPercentage = settings["video"]["cursorScalingFactor"].Float() * 100;
+	ui->sliderScalingCursor->setValue(cursorScalingPercentage / 5);
+
 }
 
 void CSettingsView::fillValidResolutions()
@@ -433,8 +478,7 @@ void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
 	QString selectedLanguage = ui->comboBoxLanguage->itemData(index).toString();
 	node->String() = selectedLanguage.toStdString();
 
-	if(auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow()))
-		mainWindow->updateTranslation();
+	getMainWindow()->updateTranslation();
 }
 
 void CSettingsView::changeEvent(QEvent *event)
@@ -460,47 +504,39 @@ void CSettingsView::on_buttonCursorType_toggled(bool value)
 	Settings node = settings.write["video"]["cursor"];
 	node->String() = cursorTypesList[value ? 1 : 0];
 	updateCheckbuttonText(ui->buttonCursorType);
+	ui->sliderScalingCursor->setDisabled(value == 1); // Not supported
+	ui->labelScalingCursorValue->setDisabled(value == 1); // Not supported
 }
 
 void CSettingsView::loadTranslation()
 {
 	QString baseLanguage = Languages::getHeroesDataLanguage();
 
-	auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow());
+	auto * mainWindow = getMainWindow();
 
 	if (!mainWindow)
 		return;
 
-	QString languageName = QString::fromStdString(settings["general"]["language"].String());
-	QString modName = mainWindow->getModView()->getTranslationModName(languageName);
-	bool translationExists = !modName.isEmpty();
-	bool translationNeeded = languageName != baseLanguage;
-	bool showTranslation = translationNeeded && translationExists;
+	auto translationStatus = mainWindow->getTranslationStatus();
+	bool showTranslation = translationStatus == ETranslationStatus::DISABLED || translationStatus == ETranslationStatus::NOT_INSTALLLED;
 
 	ui->labelTranslation->setVisible(showTranslation);
 	ui->labelTranslationStatus->setVisible(showTranslation);
 	ui->pushButtonTranslation->setVisible(showTranslation);
+	ui->pushButtonTranslation->setVisible(translationStatus != ETranslationStatus::ACTIVE);
 
-	if (!translationExists || !translationNeeded)
-		return;
-
-	bool translationAvailable = mainWindow->getModView()->isModAvailable(modName);
-	bool translationEnabled = mainWindow->getModView()->isModEnabled(modName);
-
-	ui->pushButtonTranslation->setVisible(!translationEnabled);
-
-	if (translationEnabled)
+	if (translationStatus == ETranslationStatus::ACTIVE)
 	{
 		ui->labelTranslationStatus->setText(tr("Active"));
 	}
 
-	if (!translationEnabled && !translationAvailable)
+	if (translationStatus == ETranslationStatus::DISABLED)
 	{
 		ui->labelTranslationStatus->setText(tr("Disabled"));
 		ui->pushButtonTranslation->setText(tr("Enable"));
 	}
 
-	if (translationAvailable)
+	if (translationStatus == ETranslationStatus::NOT_INSTALLLED)
 	{
 		ui->labelTranslationStatus->setText(tr("Not Installed"));
 		ui->pushButtonTranslation->setText(tr("Install"));
@@ -509,7 +545,7 @@ void CSettingsView::loadTranslation()
 
 void CSettingsView::on_pushButtonTranslation_clicked()
 {
-	auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow());
+	auto * mainWindow = getMainWindow();
 
 	assert(mainWindow);
 	if (!mainWindow)
@@ -568,12 +604,12 @@ void CSettingsView::on_lineEditRepositoryExtra_textEdited(const QString &arg1)
 void CSettingsView::on_spinBoxInterfaceScaling_valueChanged(int arg1)
 {
 	Settings node = settings.write["video"]["resolution"]["scaling"];
-	node->Float() = arg1;
+	node->Float() = ui->buttonScalingAuto->isChecked() ? 0 : arg1;
 }
 
 void CSettingsView::on_refreshRepositoriesButton_clicked()
 {
-	auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow());
+	auto * mainWindow = getMainWindow();
 
 	assert(mainWindow);
 	if (!mainWindow)
@@ -593,7 +629,6 @@ void CSettingsView::on_buttonVSync_toggled(bool value)
 	Settings node = settings.write["video"]["vsync"];
 	node->Bool() = value;
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
-	updateCheckbuttonText(ui->buttonVSync);
 }
 
 void CSettingsView::on_comboBoxEnemyPlayerAI_currentTextChanged(const QString &arg1)
@@ -649,8 +684,14 @@ void CSettingsView::on_buttonIgnoreSslErrors_clicked(bool checked)
 
 void CSettingsView::on_comboBoxUpscalingFilter_currentIndexChanged(int index)
 {
-	Settings node = settings.write["video"]["scalingMode"];
+	Settings node = settings.write["video"]["upscalingFilter"];
 	node->String() = upscalingFilterTypes[index];
+}
+
+void CSettingsView::on_comboBoxDownscalingFilter_currentIndexChanged(int index)
+{
+	Settings node = settings.write["video"]["downscalingFilter"];
+	node->String() = downscalingFilterTypes[index];
 }
 
 void CSettingsView::on_sliderMusicVolume_valueChanged(int value)
@@ -732,3 +773,72 @@ void CSettingsView::on_sliderControllerSticksSensitivity_valueChanged(int value)
 	Settings node = settings.write["input"]["controllerAxisSpeed"];
 	node->Integer() = value;
 }
+
+void CSettingsView::on_sliderScalingFont_valueChanged(int value)
+{
+	int actualValuePercentage = value * 5;
+	ui->labelScalingFontValue->setText(QString("%1%").arg(actualValuePercentage));
+	Settings node = settings.write["video"]["fontScalingFactor"];
+	node->Float() = actualValuePercentage / 100.0;
+}
+
+void CSettingsView::on_buttonFontAuto_clicked(bool checked)
+{
+	Settings node = settings.write["video"]["fontsType"];
+	node->String() = "auto";
+}
+
+void CSettingsView::on_buttonFontScalable_clicked(bool checked)
+{
+	Settings node = settings.write["video"]["fontsType"];
+	node->String() = "scalable";
+}
+
+void CSettingsView::on_buttonFontOriginal_clicked(bool checked)
+{
+	Settings node = settings.write["video"]["fontsType"];
+	node->String() = "original";
+}
+
+void CSettingsView::on_buttonValidationOff_clicked(bool checked)
+{
+	Settings node = settings.write["mods"]["validation"];
+	node->String() = "off";
+}
+
+void CSettingsView::on_buttonValidationBasic_clicked(bool checked)
+{
+	Settings node = settings.write["mods"]["validation"];
+	node->String() = "basic";
+}
+
+void CSettingsView::on_buttonValidationFull_clicked(bool checked)
+{
+	Settings node = settings.write["mods"]["validation"];
+	node->String() = "full";
+}
+
+void CSettingsView::on_sliderScalingCursor_valueChanged(int value)
+{
+	int actualValuePercentage = value * 5;
+	ui->labelScalingCursorValue->setText(QString("%1%").arg(actualValuePercentage));
+	Settings node = settings.write["video"]["cursorScalingFactor"];
+	node->Float() = actualValuePercentage / 100.0;
+}
+
+void CSettingsView::on_buttonScalingAuto_toggled(bool checked)
+{
+	if (checked)
+	{
+		ui->spinBoxInterfaceScaling->hide();
+	}
+	else
+	{
+		ui->spinBoxInterfaceScaling->show();
+		ui->spinBoxInterfaceScaling->setValue(100);
+	}
+	
+	Settings node = settings.write["video"]["resolution"]["scaling"];
+	node->Integer() = checked ? 0 : 100;
+}
+

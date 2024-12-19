@@ -13,9 +13,10 @@
 #include "TileInfo.h"
 #include "CMapGenOptions.h"
 #include "Zone.h"
+#include "../entities/faction/CTownHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
-#include "../CTownHandler.h"
+#include "../VCMI_Lib.h"
 #include "modificators/ObjectManager.h"
 #include "modificators/RoadPlacer.h"
 #include "modificators/TreasurePlacer.h"
@@ -83,7 +84,7 @@ void RmgMap::foreachDiagonalNeighbour(const int3 & pos, const std::function<void
 	}
 }
 
-void RmgMap::initTiles(CMapGenerator & generator, CRandomGenerator & rand)
+void RmgMap::initTiles(CMapGenerator & generator, vstd::RNG & rand)
 {
 	mapInstance->initTerrain();
 	

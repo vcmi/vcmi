@@ -15,7 +15,7 @@ TEST(battle_Unit_getSurroundingHexes, oneWide)
 {
 	BattleHex position(77);
 
-	auto actual = battle::Unit::getSurroundingHexes(position, false, 0);
+	auto actual = battle::Unit::getSurroundingHexes(position, false, BattleSide::ATTACKER);
 
 	EXPECT_EQ(actual, position.neighbouringTiles());
 }
@@ -24,7 +24,7 @@ TEST(battle_Unit_getSurroundingHexes, oneWideLeftCorner)
 {
 	BattleHex position(34);
 
-	auto actual = battle::Unit::getSurroundingHexes(position, false, 0);
+	auto actual = battle::Unit::getSurroundingHexes(position, false, BattleSide::ATTACKER);
 
 	EXPECT_EQ(actual, position.neighbouringTiles());
 }
@@ -33,7 +33,7 @@ TEST(battle_Unit_getSurroundingHexes, oneWideRightCorner)
 {
 	BattleHex position(117);
 
-	auto actual = battle::Unit::getSurroundingHexes(position, false, 0);
+	auto actual = battle::Unit::getSurroundingHexes(position, false, BattleSide::ATTACKER);
 
 	EXPECT_EQ(actual, position.neighbouringTiles());
 }

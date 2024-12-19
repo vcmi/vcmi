@@ -1,8 +1,10 @@
+# Bonus Format
+
 ## Full format
 
 All parameters but type are optional.
 
-``` javascript
+```json
 {
 	// Type of the bonus. See Bonus Types for full list
 	"type":         "BONUS_TYPE",
@@ -76,10 +78,10 @@ All parameters but type are optional.
 
 All string identifiers of items can be used in "subtype" field. This allows cross-referencing between the mods and make config file more readable.
 See [Game Identifiers](Game_Identifiers.md) for full list of available identifiers
- 
+
 ### Example
 
-``` javascript
+```json
 "bonus" :
 {
 	"type" : "HATE",

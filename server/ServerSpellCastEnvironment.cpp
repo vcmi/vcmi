@@ -39,42 +39,42 @@ vstd::RNG * ServerSpellCastEnvironment::getRNG()
 	return &gh->getRandomGenerator();
 }
 
-void ServerSpellCastEnvironment::apply(CPackForClient * pack)
+void ServerSpellCastEnvironment::apply(CPackForClient & pack)
 {
 	gh->sendAndApply(pack);
 }
 
-void ServerSpellCastEnvironment::apply(BattleLogMessage * pack)
+void ServerSpellCastEnvironment::apply(BattleLogMessage & pack)
 {
 	gh->sendAndApply(pack);
 }
 
-void ServerSpellCastEnvironment::apply(BattleStackMoved * pack)
+void ServerSpellCastEnvironment::apply(BattleStackMoved & pack)
 {
 	gh->sendAndApply(pack);
 }
 
-void ServerSpellCastEnvironment::apply(BattleUnitsChanged * pack)
+void ServerSpellCastEnvironment::apply(BattleUnitsChanged & pack)
 {
 	gh->sendAndApply(pack);
 }
 
-void ServerSpellCastEnvironment::apply(SetStackEffect * pack)
+void ServerSpellCastEnvironment::apply(SetStackEffect & pack)
 {
 	gh->sendAndApply(pack);
 }
 
-void ServerSpellCastEnvironment::apply(StacksInjured * pack)
+void ServerSpellCastEnvironment::apply(StacksInjured & pack)
 {
 	gh->sendAndApply(pack);
 }
 
-void ServerSpellCastEnvironment::apply(BattleObstaclesChanged * pack)
+void ServerSpellCastEnvironment::apply(BattleObstaclesChanged & pack)
 {
 	gh->sendAndApply(pack);
 }
 
-void ServerSpellCastEnvironment::apply(CatapultAttack * pack)
+void ServerSpellCastEnvironment::apply(CatapultAttack & pack)
 {
 	gh->sendAndApply(pack);
 }
@@ -94,10 +94,15 @@ bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, EMovem
 	return gh->moveHero(hid, dst, mode, false);
 }
 
+void ServerSpellCastEnvironment::createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator)
+{
+	return gh->createBoat(visitablePosition, type, initiator);
+}
+
 void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback)
 {
 	auto query = std::make_shared<CGenericQuery>(gh, color, callback);
 	request->queryID = query->queryID;
 	gh->queries->addQuery(query);
-	gh->sendAndApply(request);
+	gh->sendAndApply(*request);
 }

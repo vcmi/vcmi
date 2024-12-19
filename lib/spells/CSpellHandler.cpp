@@ -17,7 +17,6 @@
 
 #include <vcmi/spells/Caster.h>
 
-#include "../CGeneralTextHandler.h"
 #include "../filesystem/Filesystem.h"
 
 #include "../constants/StringConstants.h"
@@ -28,9 +27,11 @@
 #include "../json/JsonBonus.h"
 #include "../json/JsonUtils.h"
 #include "../mapObjects/CGHeroInstance.h" //todo: remove
-#include "../serializer/CSerializer.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"
+#include "../serializer/CSerializer.h"
+#include "../texts/CLegacyConfigParser.h"
+#include "../texts/CGeneralTextHandler.h"
 
 #include "ISpellMechanics.h"
 
@@ -78,6 +79,8 @@ CSpell::CSpell():
 	combat(false),
 	creatureAbility(false),
 	castOnSelf(false),
+	castOnlyOnSelf(false),
+	castWithoutSkip(false),
 	positiveness(ESpellPositiveness::NEUTRAL),
 	defaultProbability(0),
 	rising(false),
@@ -199,6 +202,11 @@ std::string CSpell::getJsonKey() const
 	return modScope + ':' + identifier;
 }
 
+std::string CSpell::getModScope() const
+{
+	return modScope;
+}
+
 int32_t CSpell::getIndex() const
 {
 	return id.toEnum();
@@ -290,6 +298,16 @@ bool CSpell::hasBattleEffects() const
 bool CSpell::canCastOnSelf() const
 {
 	return castOnSelf;
+}
+
+bool CSpell::canCastOnlyOnSelf() const
+{
+	return castOnlyOnSelf;
+}
+
+bool CSpell::canCastWithoutSkip() const
+{
+	return castWithoutSkip;
 }
 
 const std::string & CSpell::getIconImmune() const
@@ -414,6 +432,10 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 			ret *= 100 + bearer->valOfBonuses(BonusType::MORE_DAMAGE_FROM_SPELL, BonusSubtypeID(id));
 			ret /= 100;
 		}
+
+		//invincible
+		if(bearer->hasBonusOfType(BonusType::INVINCIBLE))
+			ret = 0;
 	}
 	ret = caster->getSpellBonus(this, ret, affectedCreature);
 	return ret;
@@ -522,6 +544,7 @@ void CSpell::serializeJson(JsonSerializeFormat & handler)
 ///CSpell::AnimationInfo
 CSpell::AnimationItem::AnimationItem() :
 	verticalPosition(VerticalPosition::TOP),
+	transparency(1),
 	pause(0)
 {
 
@@ -556,7 +579,7 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mo
 	const auto & levelInfo = spell->getLevelInfo(level);
 
 	smart = levelInfo.smartTarget;
-	massive = levelInfo.range == "X";
+	massive = levelInfo.range.empty();
 	clearAffected = levelInfo.clearAffected;
 	clearTarget = levelInfo.clearTarget;
 }
@@ -676,7 +699,65 @@ const std::vector<std::string> & CSpellHandler::getTypeNames() const
 	return typeNames;
 }
 
-CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::vector<int> CSpellHandler::spellRangeInHexes(std::string input) const
+{
+	std::set<BattleHex> ret;
+	std::string rng = input + ','; //copy + artificial comma for easier handling
+
+	if(rng.size() >= 2 && std::tolower(rng[0]) != 'x') //there is at least one hex in range (+artificial comma)
+	{
+		std::string number1;
+		std::string number2;
+		int beg = 0;
+		int end = 0;
+		bool readingFirst = true;
+		for(auto & elem : rng)
+		{
+			if(std::isdigit(elem) ) //reading number
+			{
+				if(readingFirst)
+					number1 += elem;
+				else
+					number2 += elem;
+			}
+			else if(elem == ',') //comma
+			{
+				//calculating variables
+				if(readingFirst)
+				{
+					beg = std::stoi(number1);
+					number1 = "";
+				}
+				else
+				{
+					end = std::stoi(number2);
+					number2 = "";
+				}
+				//obtaining new hexes
+				std::set<ui16> curLayer;
+				if(readingFirst)
+				{
+					ret.insert(beg);
+				}
+				else
+				{
+					for(int i = beg; i <= end; ++i)
+						ret.insert(i);
+				}
+			}
+			else if(elem == '-') //dash
+			{
+				beg = std::stoi(number1);
+				number1 = "";
+				readingFirst = false;
+			}
+		}
+	}
+
+	return std::vector<int>(ret.begin(), ret.end());
+}
+
+std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
@@ -685,7 +766,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 	SpellID id(static_cast<si32>(index));
 
-	auto * spell = new CSpell();
+	auto spell = std::make_shared<CSpell>();
 	spell->id = id;
 	spell->identifier = identifier;
 	spell->modScope = scope;
@@ -703,7 +784,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 		spell->combat = type == "combat";
 	}
 
-	VLC->generaltexth->registerString(scope, spell->getNameTextID(), json["name"].String());
+	VLC->generaltexth->registerString(scope, spell->getNameTextID(), json["name"]);
 
 	logMod->trace("%s: loading spell %s", __FUNCTION__, spell->getNameTranslated());
 
@@ -715,6 +796,8 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	}
 
 	spell->castOnSelf = json["canCastOnSelf"].Bool();
+	spell->castOnlyOnSelf = json["canCastOnlyOnSelf"].Bool();
+	spell->castWithoutSkip = json["canCastWithoutSkip"].Bool();
 	spell->level = static_cast<si32>(json["level"].Integer());
 	spell->power = static_cast<si32>(json["power"].Integer());
 
@@ -883,10 +966,15 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 				auto vPosStr = item["verticalPosition"].String();
 				if("bottom" == vPosStr)
 					newItem.verticalPosition = VerticalPosition::BOTTOM;
+
+				if (item["transparency"].isNumber())
+					newItem.transparency = item["transparency"].Float();
+				else
+					newItem.transparency = 1.0;
 			}
 			else if(item.isNumber())
 			{
-				newItem.pause = static_cast<int>(item.Float());
+				newItem.pause = item.Integer();
 			}
 
 			q.push_back(newItem);
@@ -923,14 +1011,14 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 		const si32 levelPower     = levelObject.power = static_cast<si32>(levelNode["power"].Integer());
 
 		if (!spell->isCreatureAbility())
-			VLC->generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"].String());
+			VLC->generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"]);
 
 		levelObject.cost          = static_cast<si32>(levelNode["cost"].Integer());
 		levelObject.AIValue       = static_cast<si32>(levelNode["aiValue"].Integer());
 		levelObject.smartTarget   = levelNode["targetModifier"]["smart"].Bool();
 		levelObject.clearTarget   = levelNode["targetModifier"]["clearTarget"].Bool();
 		levelObject.clearAffected = levelNode["targetModifier"]["clearAffected"].Bool();
-		levelObject.range         = levelNode["range"].String();
+		levelObject.range         = spellRangeInHexes(levelNode["range"].String());
 
 		for(const auto & elem : levelNode["effects"].Struct())
 		{

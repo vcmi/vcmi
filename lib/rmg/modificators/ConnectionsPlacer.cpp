@@ -26,6 +26,8 @@
 #include "WaterProxy.h"
 #include "TownPlacer.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 std::pair<Zone::Lock, Zone::Lock> ConnectionsPlacer::lockZones(std::shared_ptr<Zone> otherZone)
@@ -53,6 +55,17 @@ void ConnectionsPlacer::process()
 	{
 		for (auto& c : dConnections)
 		{
+			if (c.getZoneA() == c.getZoneB())
+			{
+				// Zone can always be connected to itself, but only by monolith pair
+				RecursiveLock lock(externalAccessMutex);
+				if (!vstd::contains(dCompleted, c))
+				{
+					placeMonolithConnection(c);
+					continue;
+				}
+			}
+
 			auto otherZone = map.getZones().at(c.getZoneB());
 			auto* cp = otherZone->getModificator<ConnectionsPlacer>();
 
@@ -71,6 +84,11 @@ void ConnectionsPlacer::process()
 			}
 		}
 	};
+
+	diningPhilosophers([this](const rmg::ZoneConnection& c)
+	{
+		forcePortalConnection(c);
+	});
 
 	diningPhilosophers([this](const rmg::ZoneConnection& c)
 	{
@@ -113,10 +131,19 @@ void ConnectionsPlacer::otherSideConnection(const rmg::ZoneConnection & connecti
 	dCompleted.push_back(connection);
 }
 
+void ConnectionsPlacer::forcePortalConnection(const rmg::ZoneConnection & connection)
+{
+	// This should always succeed
+	if (connection.getConnectionType() == rmg::EConnectionType::FORCE_PORTAL)
+	{
+		placeMonolithConnection(connection);
+	}
+}
+
 void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & connection)
 {
 	bool success = false;
-	auto otherZoneId = (connection.getZoneA() == zone.getId() ? connection.getZoneB() : connection.getZoneA());
+	auto otherZoneId = connection.getOtherZoneId(zone.getId());
 	auto & otherZone = map.getZones().at(otherZoneId);
 	bool createRoad = shouldGenerateRoad(connection);
 	
@@ -158,8 +185,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 							return 1.f / (1.f + border.distanceSqr(d));
 						};
 
-						auto ourArea = zone.areaPossible() + zone.freePaths();
-						auto theirArea = otherZone->areaPossible() + otherZone->freePaths();
+						auto ourArea = zone.areaForRoads();
+						auto theirArea = otherZone->areaForRoads();
 						theirArea.add(potentialPos);
 						rmg::Path ourPath(ourArea);
 						rmg::Path theirPath(theirArea);
@@ -251,24 +278,22 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			assert(zone.getModificator<ObjectManager>());
 			auto & manager = *zone.getModificator<ObjectManager>();
 			auto * monsterType = manager.chooseGuard(connection.getGuardStrength(), true);
-			
+		
 			rmg::Area border(zone.area()->getBorder());
 			border.unite(otherZone->area()->getBorder());
-			
-			auto costFunction = [&border](const int3 & s, const int3 & d)
-			{
-				return 1.f / (1.f + border.distanceSqr(d));
-			};
-			
-			auto ourArea = zone.areaPossible() + zone.freePaths();
-			auto theirArea = otherZone->areaPossible() + otherZone->freePaths();
+
+			auto localCostFunction = rmg::Path::createCurvedCostFunction(zone.area()->getBorder());
+			auto otherCostFunction = rmg::Path::createCurvedCostFunction(otherZone->area()->getBorder());
+
+			auto ourArea = zone.areaForRoads();
+			auto theirArea = otherZone->areaForRoads();
 			theirArea.add(guardPos);
 			rmg::Path ourPath(ourArea);
 			rmg::Path theirPath(theirArea);
 			ourPath.connect(zone.freePaths().get());
-			ourPath = ourPath.search(guardPos, true, costFunction);
+			ourPath = ourPath.search(guardPos, true, localCostFunction);
 			theirPath.connect(otherZone->freePaths().get());
-			theirPath = theirPath.search(guardPos, true, costFunction);
+			theirPath = theirPath.search(guardPos, true, otherCostFunction);
 			
 			if(ourPath.valid() && theirPath.valid())
 			{
@@ -300,10 +325,9 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 
 					assert(otherZone->getModificator<RoadPlacer>());
 					otherZone->getModificator<RoadPlacer>()->addRoadNode(roadNode);
-
-					assert(otherZone->getModificator<ConnectionsPlacer>());
-					otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
 				}
+				assert(otherZone->getModificator<ConnectionsPlacer>());
+				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
 
 				success = true;
 			}
@@ -391,11 +415,14 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			
 			if(path1.valid() && path2.valid())
 			{
-				zone.connectPath(path1);
-				otherZone->connectPath(path2);
-				
 				manager.placeObject(rmgGate1, guarded1, true, allowRoad);
 				managerOther.placeObject(rmgGate2, guarded2, true, allowRoad);
+
+				replaceWithCurvedPath(path1, zone, rmgGate1.getVisitablePosition());
+				replaceWithCurvedPath(path2, *otherZone, rmgGate2.getVisitablePosition());
+
+				zone.connectPath(path1);
+				otherZone->connectPath(path2);
 				
 				assert(otherZone->getModificator<ConnectionsPlacer>());
 				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
@@ -408,23 +435,30 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 	//4. place monoliths/portals
 	if(!success)
 	{
-		auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
-		auto * teleport1 = factory->create(map.mapInstance->cb, nullptr);
-		auto * teleport2 = factory->create(map.mapInstance->cb, nullptr);
-
-		RequiredObjectInfo obj1(teleport1, connection.getGuardStrength(), allowRoad);
-		RequiredObjectInfo obj2(teleport2, connection.getGuardStrength(), allowRoad);
-		zone.getModificator<ObjectManager>()->addRequiredObject(obj1);
-		otherZone->getModificator<ObjectManager>()->addRequiredObject(obj2);
-		
-		assert(otherZone->getModificator<ConnectionsPlacer>());
-		otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
-		
-		success = true;
+		placeMonolithConnection(connection);
 	}
+}
+
+void ConnectionsPlacer::placeMonolithConnection(const rmg::ZoneConnection & connection)
+{
+	auto otherZoneId = (connection.getZoneA() == zone.getId() ? connection.getZoneB() : connection.getZoneA());
+	auto & otherZone = map.getZones().at(otherZoneId);
+
+	bool allowRoad = shouldGenerateRoad(connection);
+
+	auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
+	auto * teleport1 = factory->create(map.mapInstance->cb, nullptr);
+	auto * teleport2 = factory->create(map.mapInstance->cb, nullptr);
+
+	RequiredObjectInfo obj1(teleport1, connection.getGuardStrength(), allowRoad);
+	RequiredObjectInfo obj2(teleport2, connection.getGuardStrength(), allowRoad);
+	zone.getModificator<ObjectManager>()->addRequiredObject(obj1);
+	otherZone->getModificator<ObjectManager>()->addRequiredObject(obj2);
+
+	dCompleted.push_back(connection);
 	
-	if(success)
-		dCompleted.push_back(connection);
+	assert(otherZone->getModificator<ConnectionsPlacer>());
+	otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
 }
 
 void ConnectionsPlacer::collectNeighbourZones()
@@ -444,7 +478,7 @@ void ConnectionsPlacer::collectNeighbourZones()
 bool ConnectionsPlacer::shouldGenerateRoad(const rmg::ZoneConnection& connection) const
 {
 	return connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE ||
-		(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM && zone.getRand().nextDouble() >= 0.5f);
+		(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM && zone.getRand().nextDouble(0, 1) >= 0.5f);
 }
 
 void ConnectionsPlacer::createBorder()

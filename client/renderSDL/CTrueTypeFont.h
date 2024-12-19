@@ -19,25 +19,29 @@ class CBitmapFont;
 
 using TTF_Font = struct _TTF_Font;
 
-class CTrueTypeFont : public IFont
+class CTrueTypeFont final : public IFont
 {
-	std::unique_ptr<CBitmapFont> fallbackFont;
 	const std::pair<std::unique_ptr<ui8[]>, ui64> data;
 
 	const std::unique_ptr<TTF_Font, void (*)(TTF_Font*)> font;
 	const bool blended;
+	const bool outline;
 	const bool dropShadow;
 
 	std::pair<std::unique_ptr<ui8[]>, ui64> loadData(const JsonNode & config);
 	TTF_Font * loadFont(const JsonNode & config);
-	int getFontStyle(const JsonNode & config);
+	int getPointSize(const JsonNode & config) const;
+	int getFontStyle(const JsonNode & config) const;
 
 	void renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const override;
+	size_t getFontAscentScaled() const override;
 public:
 	CTrueTypeFont(const JsonNode & fontConfig);
 	~CTrueTypeFont();
 
-	size_t getLineHeight() const override;
-	size_t getGlyphWidth(const char * data) const override;
-	size_t getStringWidth(const std::string & data) const override;
+	bool canRepresentCharacter(const char * data) const override;
+
+	size_t getLineHeightScaled() const override;
+	size_t getGlyphWidthScaled(const char * data) const override;
+	size_t getStringWidthScaled(const std::string & data) const override;
 };

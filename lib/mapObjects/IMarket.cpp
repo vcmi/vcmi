@@ -20,6 +20,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+bool IMarket::allowsTrade(const EMarketMode mode) const
+{
+	return vstd::contains(availableModes(), mode);
+}
+
 bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const
 {
 	switch(mode)
@@ -122,12 +127,7 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 	return true;
 }
 
-bool IMarket::allowsTrade(EMarketMode mode) const
-{
-	return false;
-}
-
-int IMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
+int IMarket::availableUnits(const EMarketMode mode, const int marketItemSerial) const
 {
 	switch(mode)
 	{
@@ -140,7 +140,22 @@ int IMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 	}
 }
 
-std::vector<TradeItemBuy> IMarket::availableItemsIds(EMarketMode mode) const
+IMarket::IMarket()
+	:altarArtifactsStorage(std::make_unique<CArtifactSetAltar>())
+{
+}
+
+IMarket::~IMarket() = default;
+
+CArtifactSet * IMarket::getArtifactsStorage() const
+{
+	if (availableModes().count(EMarketMode::ARTIFACT_EXP))
+		return altarArtifactsStorage.get();
+	else
+		return nullptr;
+}
+
+std::vector<TradeItemBuy> IMarket::availableItemsIds(const EMarketMode mode) const
 {
 	std::vector<TradeItemBuy> ret;
 	switch(mode)
@@ -148,23 +163,9 @@ std::vector<TradeItemBuy> IMarket::availableItemsIds(EMarketMode mode) const
 	case EMarketMode::RESOURCE_RESOURCE:
 	case EMarketMode::ARTIFACT_RESOURCE:
 	case EMarketMode::CREATURE_RESOURCE:
-		for (auto res : GameResID::ALL_RESOURCES())
+		for(const auto & res : GameResID::ALL_RESOURCES())
 			ret.push_back(res);
 	}
-	return ret;
-}
-
-IMarket::IMarket()
-{
-}
-
-std::vector<EMarketMode> IMarket::availableModes() const
-{
-	std::vector<EMarketMode> ret;
-	for (EMarketMode i = static_cast<EMarketMode>(0); i < EMarketMode::MARKET_AFTER_LAST_PLACEHOLDER; i = vstd::next(i, 1))
-	if(allowsTrade(i))
-		ret.push_back(i);
-
 	return ret;
 }
 

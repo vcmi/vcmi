@@ -12,7 +12,9 @@
 
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../CHeroHandler.h"
+
+#include <vcmi/HeroTypeService.h>
+#include <vcmi/HeroType.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -24,7 +26,7 @@ ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
 		if(detailed)
 			(*this)[elem.first] = *elem.second;
 		else
-			(*this)[elem.first] = CStackBasicDescriptor(elem.second->type, (int)elem.second->getQuantityID());
+			(*this)[elem.first] = CStackBasicDescriptor(elem.second->getCreature(), (int)elem.second->getQuantityID());
 	}
 }
 
@@ -40,12 +42,12 @@ int ArmyDescriptor::getStrength() const
 	if(isDetailed)
 	{
 		for(const auto & elem : *this)
-			ret += elem.second.type->getAIValue() * elem.second.count;
+			ret += elem.second.getType()->getAIValue() * elem.second.count;
 	}
 	else
 	{
 		for(const auto & elem : *this)
-			ret += elem.second.type->getAIValue() * CCreature::estimateCreatureCount(elem.second.count);
+			ret += elem.second.getType()->getAIValue() * CCreature::estimateCreatureCount(elem.second.count);
 	}
 	return static_cast<int>(ret);
 }
@@ -115,7 +117,7 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 
 	initFromArmy(h, detailed);
 
-	hclass = h->type->heroClass;
+	hclass = h->getHeroClass();
 	name = h->getNameTranslated();
 	portraitSource = h->getPortraitSource();
 
@@ -166,7 +168,7 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 {
 	initFromArmy(t, detailed);
 	army = ArmyDescriptor(t->getUpperArmy(), detailed);
-	built = t->builded;
+	built = t->built;
 	fortLevel = t->fortLevel();
 	name = t->getNameTranslated();
 	tType = t->getTown();

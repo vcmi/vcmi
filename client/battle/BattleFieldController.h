@@ -73,7 +73,7 @@ class BattleFieldController : public CIntObject
 	/// calculate if a hex is in range limit and return its index in range
 	bool IsHexInRangeLimit(BattleHex hex, std::vector<BattleHex> & rangeLimitHexes, int * hexIndexInRangeLimit);
 
-	/// get an array that has for each hex in range, an aray with all directions where an ouside neighbour hex exists
+	/// get an array that has for each hex in range, an array with all directions where an outside neighbour hex exists
 	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(std::vector<BattleHex> rangeHexes, std::vector<BattleHex> rangeLimitHexes);
 
 	/// calculates what image to use as range limit, depending on the direction of neighbors
@@ -82,10 +82,7 @@ class BattleFieldController : public CIntObject
 	std::vector<std::shared_ptr<IImage>> calculateRangeLimitHighlightImages(std::vector<std::vector<BattleHex::EDir>> hexesNeighbourDirections, std::shared_ptr<CAnimation> limitImages);
 
 	/// calculates all hexes for a range limit and what images to be shown as highlight for each of the hexes
-	void calculateRangeLimitAndHighlightImages(uint8_t distance, std::shared_ptr<CAnimation> rangeLimitImages, std::vector<BattleHex> & rangeLimitHexes, std::vector<std::shared_ptr<IImage>> & rangeLimitHexesHighligts);
-
-	/// to reduce the number of source images used, some images will be used as flipped versions of preloaded ones
-	void flipRangeLimitImagesIntoPositions(std::shared_ptr<CAnimation> images);
+	void calculateRangeLimitAndHighlightImages(uint8_t distance, std::shared_ptr<CAnimation> rangeLimitImages, std::vector<BattleHex> & rangeLimitHexes, std::vector<std::shared_ptr<IImage>> & rangeLimitHexesHighlights);
 
 	void showBackground(Canvas & canvas);
 	void showBackgroundImage(Canvas & canvas);

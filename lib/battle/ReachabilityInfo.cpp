@@ -15,7 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, BattleHex StartPosition):
-	perspective(static_cast<BattlePerspective::BattlePerspective>(Stack->unitSide())),
+	perspective(static_cast<BattleSide>(Stack->unitSide())),
 	startPosition(StartPosition),
 	doubleWide(Stack->doubleWide()),
 	side(Stack->unitSide()),
@@ -66,8 +66,24 @@ uint32_t ReachabilityInfo::distToNearestNeighbour(
 
 	if(attacker->doubleWide())
 	{
-		vstd::concatenate(attackableHexes, battle::Unit::getHexes(defender->occupiedHex(), true, attacker->unitSide()));
+		if(defender->doubleWide())
+		{
+			// It can be back to back attack  o==o  or head to head  =oo=.
+			// In case of back-to-back the distance between heads (unit positions) may be up to 3 tiles
+			vstd::concatenate(attackableHexes, battle::Unit::getHexes(defender->occupiedHex(), true, defender->unitSide()));
+		}
+		else
+		{
+			vstd::concatenate(attackableHexes, battle::Unit::getHexes(defender->getPosition(), true, defender->unitSide()));
+		}
 	}
+
+	vstd::removeDuplicates(attackableHexes);
+
+	vstd::erase_if(attackableHexes, [defender](BattleHex h) -> bool
+		{
+			return h.getY() != defender->getPosition().getY() || !h.isAvailable();
+		});
 
 	return distToNearestNeighbour(attackableHexes, chosenHex);
 }

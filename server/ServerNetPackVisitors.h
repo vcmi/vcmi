@@ -41,6 +41,8 @@ public:
 	void visitBulkSmartSplitStack(BulkSmartSplitStack & pack) override;
 	void visitDisbandCreature(DisbandCreature & pack) override;
 	void visitBuildStructure(BuildStructure & pack) override;
+	void visitSpellResearch(SpellResearch & pack) override;
+	void visitVisitTownBuilding(VisitTownBuilding & pack) override;
 	void visitRecruitCreatures(RecruitCreatures & pack) override;
 	void visitUpgradeCreature(UpgradeCreature & pack) override;
 	void visitGarrisonHeroSwap(GarrisonHeroSwap & pack) override;
@@ -60,4 +62,5 @@ public:
 	void visitDigWithHero(DigWithHero & pack) override;
 	void visitCastAdvSpell(CastAdvSpell & pack) override;
 	void visitPlayerMessage(PlayerMessage & pack) override;
+	void visitSaveLocalState(SaveLocalState & pack) override;
 };

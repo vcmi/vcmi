@@ -30,13 +30,14 @@ set(lib_SRCS
 	network/NetworkHandler.cpp
 	network/NetworkServer.cpp
 
+	texts/TextOperations.cpp
+
 	vstd/DateUtils.cpp
 	vstd/StringUtils.cpp
 
 	CConfigHandler.cpp
 	CConsoleHandler.cpp
 	CThreadHelper.cpp
-	TextOperations.cpp
 	VCMIDirs.cpp
 )
 
@@ -47,6 +48,7 @@ set(lib_MAIN_SRCS
 	battle/BattleAttackInfo.cpp
 	battle/BattleHex.cpp
 	battle/BattleInfo.cpp
+	battle/BattleLayout.cpp
 	battle/BattleProxy.cpp
 	battle/BattleStateInfoForRetreat.cpp
 	battle/CBattleInfoCallback.cpp
@@ -80,6 +82,16 @@ set(lib_MAIN_SRCS
 
 	constants/EntityIdentifiers.cpp
 
+	entities/building/CBuilding.cpp
+	entities/building/CBuildingHandler.cpp
+	entities/faction/CFaction.cpp
+	entities/faction/CTown.cpp
+	entities/faction/CTownHandler.cpp
+	entities/hero/CHero.cpp
+	entities/hero/CHeroClass.cpp
+	entities/hero/CHeroClassHandler.cpp
+	entities/hero/CHeroHandler.cpp
+
 	events/ApplyDamage.cpp
 	events/GameResumed.cpp
 	events/ObjectVisitEnded.cpp
@@ -92,8 +104,11 @@ set(lib_MAIN_SRCS
 
 	gameState/CGameState.cpp
 	gameState/CGameStateCampaign.cpp
+	gameState/HighScore.cpp
 	gameState/InfoAboutArmy.cpp
+	gameState/RumorState.cpp
 	gameState/TavernHeroesPool.cpp
+	gameState/GameStatistics.cpp
 
 	mapObjectConstructors/AObjectTypeHandler.cpp
 	mapObjectConstructors/CBankInstanceConstructor.cpp
@@ -101,6 +116,7 @@ set(lib_MAIN_SRCS
 	mapObjectConstructors/CommonConstructors.cpp
 	mapObjectConstructors/CRewardableConstructor.cpp
 	mapObjectConstructors/DwellingInstanceConstructor.cpp
+	mapObjectConstructors/FlaggableInstanceConstructor.cpp
 	mapObjectConstructors/HillFortInstanceConstructor.cpp
 	mapObjectConstructors/ShipyardInstanceConstructor.cpp
 
@@ -112,11 +128,12 @@ set(lib_MAIN_SRCS
 	mapObjects/CGMarket.cpp
 	mapObjects/CGObjectInstance.cpp
 	mapObjects/CGPandoraBox.cpp
-	mapObjects/CGTownBuilding.cpp
+	mapObjects/TownBuildingInstance.cpp
 	mapObjects/CGTownInstance.cpp
 	mapObjects/CObjectHandler.cpp
 	mapObjects/CQuest.cpp
 	mapObjects/CRewardableObject.cpp
+	mapObjects/FlaggableMapObject.cpp
 	mapObjects/IMarket.cpp
 	mapObjects/IObjectInterface.cpp
 	mapObjects/MiscObjects.cpp
@@ -140,10 +157,11 @@ set(lib_MAIN_SRCS
 
 	modding/ActiveModsInSaveList.cpp
 	modding/CModHandler.cpp
-	modding/CModInfo.cpp
 	modding/CModVersion.cpp
 	modding/ContentTypeHandler.cpp
 	modding/IdentifierStorage.cpp
+	modding/ModDescription.cpp
+	modding/ModManager.cpp
 	modding/ModUtility.cpp
 	modding/ModVerificationInfo.cpp
 
@@ -173,6 +191,8 @@ set(lib_MAIN_SRCS
 	rmg/TileInfo.cpp
 	rmg/Zone.cpp
 	rmg/Functions.cpp
+	rmg/ObjectInfo.cpp
+	rmg/ObjectConfig.cpp
 	rmg/RmgMap.cpp
 	rmg/PenroseTiling.cpp
 	rmg/modificators/Modificator.cpp
@@ -207,6 +227,7 @@ set(lib_MAIN_SRCS
 	serializer/JsonSerializeFormat.cpp
 	serializer/JsonSerializer.cpp
 	serializer/JsonUpdater.cpp
+	serializer/SerializerReflection.cpp
 
 	spells/AbilityCaster.cpp
 	spells/AdventureSpellMechanics.cpp
@@ -240,6 +261,11 @@ set(lib_MAIN_SRCS
 	spells/effects/RemoveObstacle.cpp
 	spells/effects/Sacrifice.cpp
 
+	texts/CGeneralTextHandler.cpp
+	texts/CLegacyConfigParser.cpp
+	texts/MetaString.cpp
+	texts/TextLocalizationContainer.cpp
+
 	ArtifactUtils.cpp
 	BasicTypes.cpp
 	BattleFieldHandler.cpp
@@ -247,25 +273,20 @@ set(lib_MAIN_SRCS
 	CArtHandler.cpp
 	CArtifactInstance.cpp
 	CBonusTypeHandler.cpp
-	CBuildingHandler.cpp
 	CCreatureHandler.cpp
 	CCreatureSet.cpp
 	CGameInfoCallback.cpp
 	CGameInterface.cpp
-	CGeneralTextHandler.cpp
-	CHeroHandler.cpp
 	CPlayerState.cpp
 	CRandomGenerator.cpp
 	CScriptingModule.cpp
 	CSkillHandler.cpp
 	CStack.cpp
-	CTownHandler.cpp
 	GameSettings.cpp
 	IGameCallback.cpp
 	IHandlerBase.cpp
 	LoadProgress.cpp
 	LogicalExpression.cpp
-	MetaString.cpp
 	ObstacleHandler.cpp
 	StartInfo.cpp
 	ResourceSet.cpp
@@ -334,10 +355,11 @@ set(lib_HEADERS
 	network/NetworkInterface.h
 	network/NetworkServer.h
 
+	texts/TextOperations.h
+
 	CConfigHandler.h
 	CConsoleHandler.h
 	CThreadHelper.h
-	TextOperations.h
 	VCMIDirs.h
 )
 
@@ -391,6 +413,8 @@ set(lib_MAIN_HEADERS
 	battle/BattleAttackInfo.h
 	battle/BattleHex.h
 	battle/BattleInfo.h
+	battle/BattleLayout.h
+	battle/BattleSide.h
 	battle/BattleStateInfoForRetreat.h
 	battle/BattleProxy.h
 	battle/CBattleInfoCallback.h
@@ -434,6 +458,18 @@ set(lib_MAIN_HEADERS
 	constants/NumericConstants.h
 	constants/StringConstants.h
 
+	entities/building/CBuilding.h
+	entities/building/CBuildingHandler.h
+	entities/building/TownFortifications.h
+	entities/faction/CFaction.h
+	entities/faction/CTown.h
+	entities/faction/CTownHandler.h
+	entities/hero/CHero.h
+	entities/hero/CHeroClass.h
+	entities/hero/CHeroClassHandler.h
+	entities/hero/CHeroHandler.h
+	entities/hero/EHeroGender.h
+
 	events/ApplyDamage.h
 	events/GameResumed.h
 	events/ObjectVisitEnded.h
@@ -447,9 +483,12 @@ set(lib_MAIN_HEADERS
 	gameState/CGameState.h
 	gameState/CGameStateCampaign.h
 	gameState/EVictoryLossCheckResult.h
+	gameState/HighScore.h
 	gameState/InfoAboutArmy.h
+	gameState/RumorState.h
 	gameState/SThievesGuildInfo.h
 	gameState/TavernHeroesPool.h
+	gameState/GameStatistics.h
 	gameState/TavernSlot.h
 	gameState/QuestInfo.h
 
@@ -461,6 +500,7 @@ set(lib_MAIN_HEADERS
 	mapObjectConstructors/CRewardableConstructor.h
 	mapObjectConstructors/DwellingInstanceConstructor.h
 	mapObjectConstructors/HillFortInstanceConstructor.h
+	mapObjectConstructors/FlaggableInstanceConstructor.h
 	mapObjectConstructors/IObjectInfo.h
 	mapObjectConstructors/RandomMapInfo.h
 	mapObjectConstructors/ShipyardInstanceConstructor.h
@@ -474,15 +514,18 @@ set(lib_MAIN_HEADERS
 	mapObjects/CGMarket.h
 	mapObjects/CGObjectInstance.h
 	mapObjects/CGPandoraBox.h
-	mapObjects/CGTownBuilding.h
+	mapObjects/TownBuildingInstance.h
 	mapObjects/CGTownInstance.h
 	mapObjects/CObjectHandler.h
 	mapObjects/CQuest.h
 	mapObjects/CRewardableObject.h
+	mapObjects/FlaggableMapObject.h
 	mapObjects/IMarket.h
 	mapObjects/IObjectInterface.h
+	mapObjects/IOwnableObject.h
 	mapObjects/MapObjects.h
 	mapObjects/MiscObjects.h
+	mapObjects/CompoundMapObjectID.h
 	mapObjects/ObjectTemplate.h
 	mapObjects/ObstacleSetHandler.h
 
@@ -505,11 +548,12 @@ set(lib_MAIN_HEADERS
 
 	modding/ActiveModsInSaveList.h
 	modding/CModHandler.h
-	modding/CModInfo.h
 	modding/CModVersion.h
 	modding/ContentTypeHandler.h
 	modding/IdentifierStorage.h
+	modding/ModDescription.h
 	modding/ModIncompatibility.h
+	modding/ModManager.h
 	modding/ModScope.h
 	modding/ModUtility.h
 	modding/ModVerificationInfo.h
@@ -527,7 +571,9 @@ set(lib_MAIN_HEADERS
 	networkPacks/PacksForClientBattle.h
 	networkPacks/PacksForLobby.h
 	networkPacks/PacksForServer.h
+	networkPacks/SetRewardableConfiguration.h
 	networkPacks/SetStackEffect.h
+	networkPacks/SaveLocalState.h
 	networkPacks/StackLocation.h
 	networkPacks/TradeItem.h
 
@@ -539,12 +585,6 @@ set(lib_MAIN_HEADERS
 	pathfinder/PathfinderUtil.h
 	pathfinder/PathfindingRules.h
 	pathfinder/TurnInfo.h
-
-	registerTypes/RegisterTypes.h
-	registerTypes/RegisterTypesClientPacks.h
-	registerTypes/RegisterTypesLobbyPacks.h
-	registerTypes/RegisterTypesMapObjects.h
-	registerTypes/RegisterTypesServerPacks.h
 
 	rewardable/Configuration.h
 	rewardable/Info.h
@@ -565,6 +605,8 @@ set(lib_MAIN_HEADERS
 	rmg/RmgMap.h
 	rmg/float3.h
 	rmg/Functions.h
+	rmg/ObjectInfo.h
+	rmg/ObjectConfig.h
 	rmg/PenroseTiling.h
 	rmg/modificators/Modificator.h
 	rmg/modificators/ObjectManager.h
@@ -600,8 +642,10 @@ set(lib_MAIN_HEADERS
 	serializer/JsonSerializeFormat.h
 	serializer/JsonSerializer.h
 	serializer/JsonUpdater.h
-	serializer/Cast.h
 	serializer/ESerializationVersion.h
+	serializer/RegisterTypes.h
+	serializer/Serializeable.h
+	serializer/SerializerReflection.h
 
 	spells/AbilityCaster.h
 	spells/AdventureSpellMechanics.h
@@ -635,6 +679,13 @@ set(lib_MAIN_HEADERS
 	spells/effects/RemoveObstacle.h
 	spells/effects/Sacrifice.h
 
+	texts/CGeneralTextHandler.h
+	texts/Languages.h
+	texts/CLegacyConfigParser.h
+	texts/MetaString.h
+	texts/TextIdentifier.h
+	texts/TextLocalizationContainer.h
+
 	AI_Base.h
 	ArtifactUtils.h
 	BattleFieldHandler.h
@@ -642,13 +693,10 @@ set(lib_MAIN_HEADERS
 	CArtHandler.h
 	CArtifactInstance.h
 	CBonusTypeHandler.h
-	CBuildingHandler.h
 	CCreatureHandler.h
 	CCreatureSet.h
 	CGameInfoCallback.h
 	CGameInterface.h
-	CGeneralTextHandler.h
-	CHeroHandler.h
 	ConstTransitivePtr.h
 	Color.h
 	CPlayerState.h
@@ -658,7 +706,6 @@ set(lib_MAIN_HEADERS
 	CSoundBase.h
 	CStack.h
 	CStopWatch.h
-	CTownHandler.h
 	ExceptionsCommon.h
 	ExtraOptionsInfo.h
 	FunctionList.h
@@ -668,12 +715,11 @@ set(lib_MAIN_HEADERS
 	IBonusTypeHandler.h
 	IGameCallback.h
 	IGameEventsReceiver.h
+	IGameSettings.h
 	IHandlerBase.h
 	int3.h
-	Languages.h
 	LoadProgress.h
 	LogicalExpression.h
-	MetaString.h
 	ObstacleHandler.h
 	Point.h
 	Rect.h
@@ -705,7 +751,7 @@ endif()
 
 set_target_properties(vcmi PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
 target_link_libraries(vcmi PUBLIC
-	minizip::minizip ZLIB::ZLIB
+	minizip::minizip ZLIB::ZLIB TBB::tbb
 	${SYSTEM_LIBS} Boost::boost Boost::thread Boost::filesystem Boost::program_options Boost::locale Boost::date_time
 )
 
@@ -746,6 +792,16 @@ if(WIN32)
 	)
 endif()
 
+# Use '-Wa,-mbig-obj' for files that generate very large object files
+# when compiling with MinGW lest you get "too many sections" assembler errors
+if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set_source_files_properties(
+		serializer/SerializerReflection.cpp
+		IGameCallback.cpp
+		PROPERTIES
+		COMPILE_OPTIONS "-Wa,-mbig-obj")
+endif()
+
 vcmi_set_output_dir(vcmi "")
 
 enable_pch(vcmi)
@@ -770,6 +826,8 @@ if(NOT ENABLE_STATIC_LIBS)
 endif()
 
 if(APPLE_IOS AND NOT USING_CONAN)
+	install(IMPORTED_RUNTIME_ARTIFACTS TBB::tbb LIBRARY DESTINATION ${LIB_DIR}) # CMake 3.21+
+
 	get_target_property(LINKED_LIBS vcmi LINK_LIBRARIES)
 	foreach(LINKED_LIB IN LISTS LINKED_LIBS)
 		if(NOT TARGET ${LINKED_LIB})

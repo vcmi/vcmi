@@ -15,6 +15,7 @@
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
+#include "../../entities/building/TownFortifications.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
@@ -61,10 +62,10 @@ bool Teleport::applicable(Problem & problem, const Mechanics * m, const EffectTa
 	if(!targetUnit)
 		return m->adaptProblem(ESpellCastProblem::WRONG_SPELL_TARGET, problem);
 
-	if(!targetHex.isValid() || !m->battle()->getAccesibility(targetUnit).accessible(targetHex, targetUnit))
+	if(!targetHex.isValid() || !m->battle()->getAccessibility(targetUnit).accessible(targetHex, targetUnit))
 		return m->adaptProblem(ESpellCastProblem::WRONG_SPELL_TARGET, problem);
 
-	if(m->battle()->battleGetSiegeLevel() && !(isWallPassable && isMoatPassable))
+	if(m->battle()->battleGetFortifications().wallsHealth > 0 && !(isWallPassable && isMoatPassable))
 	{
 		return !m->battle()->battleHasPenaltyOnLine(target[0].hexValue, target[1].hexValue, !isWallPassable, !isMoatPassable);
 	}
@@ -84,7 +85,7 @@ void Teleport::apply(ServerCallback * server, const Mechanics * m, const EffectT
 	tiles.push_back(destination);
 	pack.tilesToMove = tiles;
 	pack.teleporting = true;
-	server->apply(&pack);
+	server->apply(pack);
 
 	if(triggerObstacles)
 	{

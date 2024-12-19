@@ -19,13 +19,13 @@
 #include "../render/IImage.h"
 #include "../CGameInfo.h"
 
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback, bool alternativeLayout)
 	: callback(callback)
 	, hoverText(hoverText)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	inactiveImage = std::make_shared<CPicture>(ImagePath::builtin(alternativeLayout ? "radialMenu/itemInactiveAlt" : "radialMenu/itemInactive"), Point(0, 0));
 	selectedImage = std::make_shared<CPicture>(ImagePath::builtin(alternativeLayout ? "radialMenu/itemEmptyAlt" : "radialMenu/itemEmpty"), Point(0, 0));
@@ -45,7 +45,7 @@ void RadialMenuItem::setSelected(bool selected)
 RadialMenu::RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig, bool alternativeLayout):
 	centerPosition(positionToCenter), alternativeLayout(alternativeLayout)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos += positionToCenter;
 
 	Point itemSize = alternativeLayout ? Point(80, 70) : Point(70, 80);

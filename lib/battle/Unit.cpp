@@ -12,8 +12,7 @@
 #include "Unit.h"
 
 #include "../VCMI_Lib.h"
-#include "../CGeneralTextHandler.h"
-#include "../MetaString.h"
+#include "../texts/CGeneralTextHandler.h"
 
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
@@ -42,7 +41,7 @@ bool Unit::isTurret() const
 std::string Unit::getDescription() const
 {
 	boost::format fmt("Unit %d of side %d");
-	fmt % unitId() % unitSide();
+	fmt % unitId() % static_cast<int>(unitSide());
 	return fmt.str();
 }
 
@@ -59,7 +58,7 @@ std::vector<BattleHex> Unit::getSurroundingHexes(BattleHex assumedPosition) cons
 	return getSurroundingHexes(hex, doubleWide(), unitSide());
 }
 
-std::vector<BattleHex> Unit::getSurroundingHexes(BattleHex position, bool twoHex, ui8 side)
+std::vector<BattleHex> Unit::getSurroundingHexes(BattleHex position, bool twoHex, BattleSide side)
 {
 	std::vector<BattleHex> hexes;
 	if(twoHex)
@@ -136,7 +135,7 @@ std::vector<BattleHex> Unit::getHexes(BattleHex assumedPos) const
 	return getHexes(assumedPos, doubleWide(), unitSide());
 }
 
-std::vector<BattleHex> Unit::getHexes(BattleHex assumedPos, bool twoHex, ui8 side)
+std::vector<BattleHex> Unit::getHexes(BattleHex assumedPos, bool twoHex, BattleSide side)
 {
 	std::vector<BattleHex> hexes;
 	hexes.push_back(assumedPos);
@@ -157,7 +156,7 @@ BattleHex Unit::occupiedHex(BattleHex assumedPos) const
 	return occupiedHex(assumedPos, doubleWide(), unitSide());
 }
 
-BattleHex Unit::occupiedHex(BattleHex assumedPos, bool twoHex, ui8 side)
+BattleHex Unit::occupiedHex(BattleHex assumedPos, bool twoHex, BattleSide side)
 {
 	if(twoHex)
 	{

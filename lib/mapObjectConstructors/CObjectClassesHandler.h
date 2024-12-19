@@ -9,37 +9,15 @@
  */
 #pragma once
 
-#include "../constants/EntityIdentifiers.h"
+#include "../mapObjects/CompoundMapObjectID.h"
 #include "../IHandlerBase.h"
 #include "../json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CRandomGenerator;
 class AObjectTypeHandler;
 class ObjectTemplate;
 struct SObjectSounds;
-
-struct DLL_LINKAGE CompoundMapObjectID
-{
-	si32 primaryID;
-	si32 secondaryID;
-
-	CompoundMapObjectID(si32 primID, si32 secID) : primaryID(primID), secondaryID(secID) {};
-
-	bool operator<(const CompoundMapObjectID& other) const
-	{
-		if(this->primaryID != other.primaryID)
-			return this->primaryID < other.primaryID;
-		else
-			return this->secondaryID < other.secondaryID;
-	}
-
-	bool operator==(const CompoundMapObjectID& other) const
-	{
-		return (this->primaryID == other.primaryID) && (this->secondaryID == other.secondaryID);
-	}
-};
 
 class CGObjectInstance;
 
@@ -56,7 +34,7 @@ public:
 	std::string handlerName; // ID of handler that controls this object, should be determined using handlerConstructor map
 
 	JsonNode base;
-	std::vector<TObjectTypeHandler> objects;
+	std::vector<TObjectTypeHandler> objectTypeHandlers;
 
 	ObjectClass();
 	~ObjectClass();
@@ -70,10 +48,12 @@ public:
 class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase, boost::noncopyable
 {
 	/// list of object handlers, each of them handles only one type
-	std::vector< std::unique_ptr<ObjectClass> > objects;
+	std::vector< std::unique_ptr<ObjectClass> > mapObjectTypes;
 
-	/// map that is filled during contruction with all known handlers. Not serializeable due to usage of std::function
+	/// map that is filled during construction with all known handlers. Not serializeable due to usage of std::function
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
+
+	std::vector<std::pair<CompoundMapObjectID, std::function<void(CompoundMapObjectID)>>> objectIdHandlers;
 
 	/// container with H3 templates, used only during loading, no need to serialize it
 	using TTemplatesContainer = std::multimap<std::pair<MapObjectID, MapObjectSubID>, std::shared_ptr<const ObjectTemplate>>;
@@ -111,10 +91,14 @@ public:
 	TObjectTypeHandler getHandlerFor(MapObjectID type, MapObjectSubID subtype) const;
 	TObjectTypeHandler getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const;
 	TObjectTypeHandler getHandlerFor(CompoundMapObjectID compoundIdentifier) const;
+	CompoundMapObjectID getCompoundIdentifier(const std::string & scope, const std::string & type, const std::string & subtype) const;
+	CompoundMapObjectID getCompoundIdentifier(const std::string & objectName) const;
 
 	std::string getObjectName(MapObjectID type, MapObjectSubID subtype) const;
 
 	SObjectSounds getObjectSounds(MapObjectID type, MapObjectSubID subtype) const;
+
+	void resolveObjectCompoundId(const std::string & id, std::function<void(CompoundMapObjectID)> callback);
 
 	/// Returns handler string describing the handler (for use in client)
 	std::string getObjectHandlerName(MapObjectID type) const;

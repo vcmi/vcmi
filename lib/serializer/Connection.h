@@ -38,8 +38,6 @@ class DLL_LINKAGE CConnection : boost::noncopyable
 
 	void disableStackSendingByID();
 	void enableStackSendingByID();
-	void disableSmartPointerSerialization();
-	void enableSmartPointerSerialization();
 	void disableSmartVectorMemberSerialization();
 	void enableSmartVectorMemberSerializatoin(CGameState * gs);
 
@@ -53,8 +51,8 @@ public:
 	explicit CConnection(std::weak_ptr<INetworkConnection> networkConnection);
 	~CConnection();
 
-	void sendPack(const CPack * pack);
-	CPack * retrievePack(const std::vector<std::byte> & data);
+	void sendPack(const CPack & pack);
+	std::unique_ptr<CPack> retrievePack(const std::vector<std::byte> & data);
 
 	void enterLobbyConnectionMode();
 	void setCallback(IGameCallback * cb);

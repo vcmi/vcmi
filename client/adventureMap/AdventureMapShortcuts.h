@@ -33,6 +33,9 @@ class AdventureMapShortcuts
 	EAdventureState state;
 	int mapLevel;
 
+	std::string searchLast;
+	int searchPos;
+	
 	void showOverview();
 	void worldViewBack();
 	void worldViewScale1x();
@@ -42,6 +45,8 @@ class AdventureMapShortcuts
 	void showQuestlog();
 	void toggleTrackHero();
 	void toggleGrid();
+	void toggleVisitable();
+	void toggleBlocked();
 	void toggleSleepWake();
 	void setHeroSleeping();
 	void setHeroAwake();
@@ -69,6 +74,7 @@ class AdventureMapShortcuts
 	void nextTown();
 	void nextObject();
 	void zoom( int distance);
+	void search(bool next);
 	void moveHeroDirectional(const Point & direction);
 
 public:
@@ -94,6 +100,6 @@ public:
 	bool optionMapViewActive();
 
 	void setState(EAdventureState newState);
-	EAdventureState getState();
+	EAdventureState getState() const;
 	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
 };

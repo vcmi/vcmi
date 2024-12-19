@@ -12,6 +12,8 @@
 #include "../GameConstants.h"
 #include "../int3.h"
 #include "../filesystem/ResourcePath.h"
+#include "../serializer/Serializeable.h"
+#include "../mapObjects/CompoundMapObjectID.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -20,7 +22,7 @@ class CLegacyConfigParser;
 class JsonNode;
 class int3;
 
-class DLL_LINKAGE ObjectTemplate
+class DLL_LINKAGE ObjectTemplate : public Serializeable
 {
 	enum EBlockMapBits
 	{
@@ -45,6 +47,7 @@ public:
 	/// H3 ID/subID of this object
 	MapObjectID id;
 	MapObjectSubID subid;
+
 	/// print priority, objects with higher priority will be print first, below everything else
 	si32 printPriority;
 	/// animation file that should be used to display object
@@ -121,11 +124,9 @@ public:
 	// Checks if object can be placed on specific terrain
 	bool canBePlacedAt(TerrainId terrain) const;
 
-	ObjectTemplate();
-	//custom copy constructor is required
-	ObjectTemplate(const ObjectTemplate & other);
+	CompoundMapObjectID getCompoundID() const;
 
-	ObjectTemplate& operator=(const ObjectTemplate & rhs);
+	ObjectTemplate();
 
 	void readTxt(CLegacyConfigParser & parser);
 	void readMsk();

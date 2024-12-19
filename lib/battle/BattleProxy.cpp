@@ -65,17 +65,17 @@ IBattleInfo::ObstacleCList BattleProxy::getAllObstacles() const
 	return subject->battleGetAllObstacles();
 }
 
-PlayerColor BattleProxy::getSidePlayer(ui8 side) const
+PlayerColor BattleProxy::getSidePlayer(BattleSide side) const
 {
 	return subject->sideToPlayer(side);
 }
 
-const CArmedInstance * BattleProxy::getSideArmy(ui8 side) const
+const CArmedInstance * BattleProxy::getSideArmy(BattleSide side) const
 {
 	return subject->battleGetArmyObject(side);
 }
 
-const CGHeroInstance * BattleProxy::getSideHero(ui8 side) const
+const CGHeroInstance * BattleProxy::getSideHero(BattleSide side) const
 {
 	return subject->battleGetFightingHero(side);
 }
@@ -85,7 +85,7 @@ ui8 BattleProxy::getTacticDist() const
 	return subject->battleTacticDist();
 }
 
-ui8 BattleProxy::getTacticsSide() const
+BattleSide BattleProxy::getTacticsSide() const
 {
 	return subject->battleGetTacticsSide();
 }
@@ -105,12 +105,12 @@ EGateState BattleProxy::getGateState() const
 	return subject->battleGetGateState();
 }
 
-uint32_t BattleProxy::getCastSpells(ui8 side) const
+uint32_t BattleProxy::getCastSpells(BattleSide side) const
 {
 	return subject->battleCastSpells(side);
 }
 
-int32_t BattleProxy::getEnchanterCounter(ui8 side) const
+int32_t BattleProxy::getEnchanterCounter(BattleSide side) const
 {
 	return subject->battleGetEnchanterCounter(side);
 }

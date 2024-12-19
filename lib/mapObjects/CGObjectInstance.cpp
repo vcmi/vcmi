@@ -15,7 +15,7 @@
 #include "ObjectTemplate.h"
 
 #include "../gameState/CGameState.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
@@ -24,6 +24,8 @@
 #include "../mapping/CMap.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../serializer/JsonSerializeFormat.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -52,19 +54,24 @@ MapObjectSubID CGObjectInstance::getObjTypeIndex() const
 	return subID;
 }
 
-int3 CGObjectInstance::getPosition() const
+int3 CGObjectInstance::anchorPos() const
 {
 	return pos;
 }
 
 int3 CGObjectInstance::getTopVisiblePos() const
 {
-	return pos - appearance->getTopVisibleOffset();
+	return anchorPos() - appearance->getTopVisibleOffset();
 }
 
 void CGObjectInstance::setOwner(const PlayerColor & ow)
 {
 	tempOwner = ow;
+}
+
+void CGObjectInstance::setAnchorPos(int3 newPos)
+{
+	pos = newPos;
 }
 
 int CGObjectInstance::getWidth() const
@@ -77,32 +84,19 @@ int CGObjectInstance::getHeight() const
 	return appearance->getHeight();
 }
 
-bool CGObjectInstance::visitableAt(int x, int y) const
-{
-	return appearance->isVisitableAt(pos.x - x, pos.y - y);
-}
-bool CGObjectInstance::blockingAt(int x, int y) const
-{
-	return appearance->isBlockedAt(pos.x - x, pos.y - y);
-}
-
-bool CGObjectInstance::coveringAt(int x, int y) const
-{
-	return appearance->isVisibleAt(pos.x - x, pos.y - y);
-}
-
 bool CGObjectInstance::visitableAt(const int3 & testPos) const
 {
-	return pos.z == testPos.z && appearance->isVisitableAt(pos.x - testPos.x, pos.y - testPos.y);
+	return anchorPos().z == testPos.z && appearance->isVisitableAt(anchorPos().x - testPos.x, anchorPos().y - testPos.y);
 }
+
 bool CGObjectInstance::blockingAt(const int3 & testPos) const
 {
-	return pos.z == testPos.z && appearance->isBlockedAt(pos.x - testPos.x, pos.y - testPos.y);
+	return anchorPos().z == testPos.z && appearance->isBlockedAt(anchorPos().x - testPos.x, anchorPos().y - testPos.y);
 }
 
 bool CGObjectInstance::coveringAt(const int3 & testPos) const
 {
-	return pos.z == testPos.z && appearance->isVisibleAt(pos.x - testPos.x, pos.y - testPos.y);
+	return anchorPos().z == testPos.z && appearance->isVisibleAt(anchorPos().x - testPos.x, anchorPos().y - testPos.y);
 }
 
 std::set<int3> CGObjectInstance::getBlockedPos() const
@@ -113,7 +107,7 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 		for(int h=0; h<getHeight(); ++h)
 		{
 			if(appearance->isBlockedAt(w, h))
-				ret.insert(int3(pos.x - w, pos.y - h, pos.z));
+				ret.insert(int3(anchorPos().x - w, anchorPos().y - h, anchorPos().z));
 		}
 	}
 	return ret;
@@ -134,13 +128,13 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 	cb->gameState()->map->removeBlockVisTiles(this, true);
 	auto handler = VLC->objtypeh->getHandlerFor(newID, newSubID);
 
-	if(!handler->getTemplates(tile.terType->getId()).empty())
+	if(!handler->getTemplates(tile.getTerrainID()).empty())
 	{
-		appearance = handler->getTemplates(tile.terType->getId())[0];
+		appearance = handler->getTemplates(tile.getTerrainID())[0];
 	}
 	else
 	{
-		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", newID, newSubID, visitablePos().toString(), tile.terType->getNameTranslated());
+		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", newID, newSubID, visitablePos().toString(), tile.getTerrain()->getNameTranslated());
 		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
 	}
 
@@ -164,12 +158,12 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 	cb->gameState()->map->addBlockVisTiles(this);
 }
 
-void CGObjectInstance::pickRandomObject(CRandomGenerator & rand)
+void CGObjectInstance::pickRandomObject(vstd::RNG & rand)
 {
 	// no-op
 }
 
-void CGObjectInstance::initObj(CRandomGenerator & rand)
+void CGObjectInstance::initObj(vstd::RNG & rand)
 {
 	// no-op
 }
@@ -198,6 +192,16 @@ TObjectTypeHandler CGObjectInstance::getObjectHandler() const
 	return VLC->objtypeh->getHandlerFor(ID, subID);
 }
 
+std::string CGObjectInstance::getTypeName() const
+{
+	return getObjectHandler()->getTypeName();
+}
+
+std::string CGObjectInstance::getSubtypeName() const
+{
+	return getObjectHandler()->getSubTypeName();
+}
+
 void CGObjectInstance::setPropertyDer( ObjProperty what, ObjPropertyID identifier )
 {}
 
@@ -213,6 +217,8 @@ int CGObjectInstance::getSightRadius() const
 
 int3 CGObjectInstance::getVisitableOffset() const
 {
+	if (!isVisitable())
+		logGlobal->debug("Attempt to access visitable offset on a non-visitable object!");
 	return appearance->getVisitableOffset();
 }
 
@@ -232,7 +238,7 @@ std::string CGObjectInstance::getObjectName() const
 	return VLC->objtypeh->getObjectName(ID, subID);
 }
 
-std::optional<AudioPath> CGObjectInstance::getAmbientSound() const
+std::optional<AudioPath> CGObjectInstance::getAmbientSound(vstd::RNG & rng) const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).ambient;
 	if(!sounds.empty())
@@ -241,20 +247,20 @@ std::optional<AudioPath> CGObjectInstance::getAmbientSound() const
 	return std::nullopt;
 }
 
-std::optional<AudioPath> CGObjectInstance::getVisitSound() const
+std::optional<AudioPath> CGObjectInstance::getVisitSound(vstd::RNG & rng) const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).visit;
 	if(!sounds.empty())
-		return *RandomGeneratorUtil::nextItem(sounds, CRandomGenerator::getDefault());
+		return *RandomGeneratorUtil::nextItem(sounds, rng);
 
 	return std::nullopt;
 }
 
-std::optional<AudioPath> CGObjectInstance::getRemovalSound() const
+std::optional<AudioPath> CGObjectInstance::getRemovalSound(vstd::RNG & rng) const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).removal;
 	if(!sounds.empty())
-		return *RandomGeneratorUtil::nextItem(sounds, CRandomGenerator::getDefault());
+		return *RandomGeneratorUtil::nextItem(sounds, rng);
 
 	return std::nullopt;
 }
@@ -311,6 +317,9 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 
 int3 CGObjectInstance::visitablePos() const
 {
+	if (!isVisitable())
+		logGlobal->debug("Attempt to access visitable position on a non-visitable object!");
+
 	return pos - getVisitableOffset();
 }
 
@@ -351,8 +360,11 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 	//only save here, loading is handled by map loader
 	if(handler.saving)
 	{
-		handler.serializeString("type", typeName);
-		handler.serializeString("subtype", subTypeName);
+		std::string ourTypeName = getTypeName();
+		std::string ourSubtypeName = getSubtypeName();
+
+		handler.serializeString("type", ourTypeName);
+		handler.serializeString("subtype", ourSubtypeName);
 
 		handler.serializeInt("x", pos.x);
 		handler.serializeInt("y", pos.y);
@@ -391,6 +403,11 @@ void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
 BattleField CGObjectInstance::getBattlefield() const
 {
 	return VLC->objtypeh->getHandlerFor(ID, subID)->getBattlefield();
+}
+
+const IOwnableObject * CGObjectInstance::asOwnable() const
+{
+	return nullptr;
 }
 
 VCMI_LIB_NAMESPACE_END

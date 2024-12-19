@@ -9,8 +9,6 @@
  */
 #include "StdInc.h"
 #include "CObstacleInstance.h"
-#include "../CHeroHandler.h"
-#include "../CTownHandler.h"
 #include "../ObstacleHandler.h"
 #include "../VCMI_Lib.h"
 
@@ -53,7 +51,7 @@ std::vector<BattleHex> CObstacleInstance::getAffectedTiles() const
 	}
 }
 
-bool CObstacleInstance::visibleForSide(ui8 side, bool hasNativeStack) const
+bool CObstacleInstance::visibleForSide(BattleSide side, bool hasNativeStack) const
 {
 	//by default obstacle is visible for everyone
 	return true;
@@ -107,7 +105,6 @@ SpellID CObstacleInstance::getTrigger() const
 
 void CObstacleInstance::serializeJson(JsonSerializeFormat & handler)
 {
-	auto obstacleInfo = getInfo();
 	auto hidden = false;
 	auto needAnimationOffsetFix = obstacleType == CObstacleInstance::USUAL;
 	int animationYOffset = 0;
@@ -117,11 +114,7 @@ void CObstacleInstance::serializeJson(JsonSerializeFormat & handler)
 
 	//We need only a subset of obstacle info for correct render
 	handler.serializeInt("position", pos);
-	handler.serializeStruct("appearSound", obstacleInfo.appearSound);
-	handler.serializeStruct("appearAnimation", obstacleInfo.appearAnimation);
-	handler.serializeStruct("animation", obstacleInfo.animation);
 	handler.serializeInt("animationYOffset", animationYOffset);
-
 	handler.serializeBool("hidden", hidden);
 	handler.serializeBool("needAnimationOffsetFix", needAnimationOffsetFix);
 }
@@ -140,7 +133,7 @@ SpellCreatedObstacle::SpellCreatedObstacle()
 	: turnsRemaining(-1),
 	casterSpellPower(0),
 	spellLevel(0),
-	casterSide(0),
+	casterSide(BattleSide::NONE),
 	hidden(false),
 	passable(false),
 	trigger(false),
@@ -154,7 +147,7 @@ SpellCreatedObstacle::SpellCreatedObstacle()
 	obstacleType = SPELL_CREATED;
 }
 
-bool SpellCreatedObstacle::visibleForSide(ui8 side, bool hasNativeStack) const
+bool SpellCreatedObstacle::visibleForSide(BattleSide side, bool hasNativeStack) const
 {
 	//we hide mines and not discovered quicksands
 	//quicksands are visible to the caster or if owned unit stepped into that particular patch

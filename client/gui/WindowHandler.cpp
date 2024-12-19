@@ -111,7 +111,7 @@ void WindowHandler::totalRedrawImpl()
 {
 	logGlobal->debug("totalRedraw requested!");
 
-	Canvas target = Canvas::createFromSurface(screen2);
+	Canvas target = Canvas::createFromSurface(screen2, CanvasScalingPolicy::AUTO);
 
 	for(auto & elem : windowsStack)
 		elem->showAll(target);
@@ -134,7 +134,7 @@ void WindowHandler::simpleRedrawImpl()
 	if(windowsStack.size() > 1)
 		CSDL_Ext::blitAt(screen2, 0, 0, screen); //blit background
 
-	Canvas target = Canvas::createFromSurface(screen);
+	Canvas target = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
 
 	if(!windowsStack.empty())
 		windowsStack.back()->show(target); //blit active interface/window

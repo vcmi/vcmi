@@ -17,6 +17,7 @@
 #include "BattleSiegeController.h"
 #include "BattleStacksController.h"
 #include "BattleObstacleController.h"
+#include "BattleOverlayLogVisualizer.h"
 
 void BattleRenderer::collectObjects()
 {
@@ -73,4 +74,7 @@ void BattleRenderer::execute(BattleRenderer::RendererRef targetCanvas)
 	collectObjects();
 	sortObjects();
 	renderObjects(targetCanvas);
+
+	BattleOverlayLogVisualizer r(targetCanvas, owner);
+	logVisual->visualize(r);
 }

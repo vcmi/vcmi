@@ -28,7 +28,7 @@ void IObjectInterface::showInfoDialog(const ui32 txtID, const ui16 soundID, EInf
 	iw.player = getOwner();
 	iw.type = mode;
 	iw.text.appendLocalString(EMetaText::ADVOB_TXT,txtID);
-	cb->sendAndApply(&iw);
+	cb->sendAndApply(iw);
 }
 
 ///IObjectInterface
@@ -38,13 +38,13 @@ void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const
 void IObjectInterface::onHeroLeave(const CGHeroInstance * h) const
 {}
 
-void IObjectInterface::newTurn(CRandomGenerator & rand) const
+void IObjectInterface::newTurn(vstd::RNG & rand) const
 {}
 
-void IObjectInterface::initObj(CRandomGenerator & rand)
+void IObjectInterface::initObj(vstd::RNG & rand)
 {}
 
-void IObjectInterface::pickRandomObject(CRandomGenerator & rand)
+void IObjectInterface::pickRandomObject(vstd::RNG & rand)
 {}
 
 void IObjectInterface::setProperty(ObjProperty what, ObjPropertyID identifier)
@@ -68,7 +68,7 @@ void IObjectInterface::preInit()
 void IObjectInterface::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {}
 
-void IObjectInterface::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void IObjectInterface::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {}
 
 void IObjectInterface::garrisonDialogClosed(const CGHeroInstance *hero) const
@@ -90,10 +90,10 @@ int3 IBoatGenerator::bestLocation() const
 		if(!tile)
 			continue; // tile not visible / outside the map
 
-		if(!tile->terType->isWater())
+		if(!tile->isWater())
 			continue;
 
-		if (tile->blocked)
+		if (tile->blocked())
 		{
 			bool hasBoat = false;
 			for (auto const * object : tile->blockingObjects)
@@ -145,7 +145,7 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 			out.appendLocalString(EMetaText::ADVOB_TXT, 189);
 		break;
 	case NO_WATER:
-		logGlobal->error("Shipyard without water at tile %s! ", getObject()->getPosition().toString());
+		logGlobal->error("Shipyard without water at tile %s! ", getObject()->anchorPos().toString());
 		return;
 	}
 }

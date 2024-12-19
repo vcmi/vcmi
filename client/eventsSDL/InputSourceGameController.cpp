@@ -18,6 +18,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/ShortcutHandler.h"
+#include "../render/IScreenHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 
@@ -28,11 +29,6 @@ void InputSourceGameController::gameControllerDeleter(SDL_GameController * gameC
 }
 
 InputSourceGameController::InputSourceGameController():
-	configTriggerTreshold(settings["input"]["controllerTriggerTreshold"].Float()),
-	configAxisDeadZone(settings["input"]["controllerAxisDeadZone"].Float()),
-	configAxisFullZone(settings["input"]["controllerAxisFullZone"].Float()),
-	configAxisSpeed(settings["input"]["controllerAxisSpeed"].Float()),
-	configAxisScale(settings["input"]["controllerAxisScale"].Float()),
 	cursorAxisValueX(0),
 	cursorAxisValueY(0),
 	cursorPlanDisX(0.0),
@@ -43,7 +39,12 @@ InputSourceGameController::InputSourceGameController():
 	scrollAxisValueX(0),
 	scrollAxisValueY(0),
 	scrollPlanDisX(0.0),
-	scrollPlanDisY(0.0)
+	scrollPlanDisY(0.0),
+	configTriggerThreshold(settings["input"]["controllerTriggerThreshold"].Float()),
+	configAxisDeadZone(settings["input"]["controllerAxisDeadZone"].Float()),
+	configAxisFullZone(settings["input"]["controllerAxisFullZone"].Float()),
+	configAxisSpeed(settings["input"]["controllerAxisSpeed"].Float()),
+	configAxisScale(settings["input"]["controllerAxisScale"].Float())
 {
 	tryOpenAllGameControllers();
 }
@@ -127,7 +128,7 @@ void InputSourceGameController::handleEventDeviceRemapped(const SDL_ControllerDe
 	openGameController(device.which);
 }
 
-double InputSourceGameController::getRealAxisValue(int value)
+double InputSourceGameController::getRealAxisValue(int value) const
 {
 	double ratio = static_cast<double>(value) / SDL_JOYSTICK_AXIS_MAX;
 	double greenZone = configAxisFullZone - configAxisDeadZone;
@@ -142,7 +143,7 @@ double InputSourceGameController::getRealAxisValue(int value)
 
 void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GameControllerAxis axisID, int axisValue)
 {
-	if(getRealAxisValue(axisValue) > configTriggerTreshold)
+	if(getRealAxisValue(axisValue) > configTriggerThreshold)
 	{
 		if(!pressedAxes.count(axisID))
 		{
@@ -198,9 +199,10 @@ void InputSourceGameController::tryToConvertCursor()
 	assert(CCS->curh);
 	if(CCS->curh->getShowType() == Cursor::ShowType::HARDWARE)
 	{
+		int scalingFactor = GH.screenHandler().getScalingFactor();
 		const Point & cursorPosition = GH.getCursorPosition();
 		CCS->curh->changeCursor(Cursor::ShowType::SOFTWARE);
-		CCS->curh->cursorMove(cursorPosition.x, cursorPosition.y);
+		CCS->curh->cursorMove(cursorPosition.x * scalingFactor, cursorPosition.y * scalingFactor);
 		GH.input().setCursorPosition(cursorPosition);
 	}
 }
@@ -225,12 +227,13 @@ void InputSourceGameController::doCursorMove(int deltaX, int deltaY)
 		return;
 	const Point & screenSize = GH.screenDimensions();
 	const Point & cursorPosition = GH.getCursorPosition();
+	int scalingFactor = GH.screenHandler().getScalingFactor();
 	int newX = std::min(std::max(cursorPosition.x + deltaX, 0), screenSize.x);
 	int newY = std::min(std::max(cursorPosition.y + deltaY, 0), screenSize.y);
 	Point targetPosition{newX, newY};
 	GH.input().setCursorPosition(targetPosition);
 	if(CCS && CCS->curh)
-		CCS->curh->cursorMove(GH.getCursorPosition().x, GH.getCursorPosition().y);
+		CCS->curh->cursorMove(GH.getCursorPosition().x * scalingFactor, GH.getCursorPosition().y * scalingFactor);
 }
 
 int InputSourceGameController::getMoveDis(float planDis)
@@ -321,7 +324,7 @@ void InputSourceGameController::handleScrollUpdate(int32_t deltaTimeMs)
 	}
 }
 
-bool InputSourceGameController::isScrollAxisReleased()
+bool InputSourceGameController::isScrollAxisReleased() const
 {
-	return scrollAxisValueX == 0 && scrollAxisValueY == 0;
+	return vstd::isAlmostZero(scrollAxisValueX) && vstd::isAlmostZero(scrollAxisValueY);
 }

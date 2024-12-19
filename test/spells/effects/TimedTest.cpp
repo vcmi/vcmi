@@ -51,7 +51,7 @@ public:
 	{
 	}
 
-	void setDefaultExpectaions()
+	void setDefaultExpectations()
 	{
 		unitsFake.setDefaultBonusExpectations();
 		EXPECT_CALL(mechanicsMock, getSpellIndex()).WillRepeatedly(Return(spellIndex));
@@ -116,9 +116,9 @@ TEST_P(TimedApplyTest, DISABLED_ChangesBonuses)
 		EXPECT_CALL(*battleFake, updateUnitBonus(Eq(unitId),_)).WillOnce(SaveArg<1>(&actualBonus));
 	}
 
-	setDefaultExpectaions();
+	setDefaultExpectations();
 
-	EXPECT_CALL(serverMock, apply(Matcher<SetStackEffect *>(_))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<SetStackEffect &>(_))).Times(1);
 
 	subject->apply(&serverMock, &mechanicsMock, target);
 

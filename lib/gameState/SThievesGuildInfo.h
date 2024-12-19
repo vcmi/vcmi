@@ -20,7 +20,7 @@ struct DLL_LINKAGE SThievesGuildInfo
 
 	std::vector< std::vector< PlayerColor > > numOfTowns, numOfHeroes, gold, woodOre, mercSulfCrystGems, obelisks, artifacts, army, income; // [place] -> [colours of players]
 
-	std::map<PlayerColor, InfoAboutHero> colorToBestHero; //maps player's color to his best heros'
+	std::map<PlayerColor, InfoAboutHero> colorToBestHero; //maps player's color to his best hero's
 
 	std::map<PlayerColor, EAiTactic> personality; // color to personality // ai tactic
 	std::map<PlayerColor, CreatureID> bestCreature; // color to ID // id or -1 if not known

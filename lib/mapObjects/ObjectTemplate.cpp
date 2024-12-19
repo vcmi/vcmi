@@ -15,7 +15,7 @@
 #include "../VCMI_Lib.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CLegacyConfigParser.h"
 #include "../TerrainHandler.h"
 
 #include "../mapObjectConstructors/CRewardableConstructor.h"
@@ -57,54 +57,6 @@ ObjectTemplate::ObjectTemplate():
 	height(0),
 	visitable(false)
 {
-}
-
-ObjectTemplate::ObjectTemplate(const ObjectTemplate& other):
-	visitDir(other.visitDir),
-	allowedTerrains(other.allowedTerrains),
-	id(other.id),
-	subid(other.subid),
-	printPriority(other.printPriority),
-	animationFile(other.animationFile),
-	editorAnimationFile(other.editorAnimationFile),
-	stringID(other.stringID),
-	width(other.width),
-	height(other.height),
-	visitable(other.visitable),
-	blockedOffsets(other.blockedOffsets),
-	blockMapOffset(other.blockMapOffset),
-	visitableOffset(other.visitableOffset)
-{
-	//default copy constructor is failing with usedTiles this for unknown reason
-
-	usedTiles.resize(other.usedTiles.size());
-	for(size_t i = 0; i < usedTiles.size(); i++)
-		std::copy(other.usedTiles[i].begin(), other.usedTiles[i].end(), std::back_inserter(usedTiles[i]));
-}
-
-ObjectTemplate & ObjectTemplate::operator=(const ObjectTemplate & rhs)
-{
-	visitDir = rhs.visitDir;
-	allowedTerrains = rhs.allowedTerrains;
-	id = rhs.id;
-	subid = rhs.subid;
-	printPriority = rhs.printPriority;
-	animationFile = rhs.animationFile;
-	editorAnimationFile = rhs.editorAnimationFile;
-	stringID = rhs.stringID;
-	width = rhs.width;
-	height = rhs.height;
-	visitable = rhs.visitable;
-	blockedOffsets = rhs.blockedOffsets;
-	blockMapOffset = rhs.blockMapOffset;
-	visitableOffset = rhs.visitableOffset;
-
-	usedTiles.clear();
-	usedTiles.resize(rhs.usedTiles.size());
-	for(size_t i = 0; i < usedTiles.size(); i++)
-		std::copy(rhs.usedTiles[i].begin(), rhs.usedTiles[i].end(), std::back_inserter(usedTiles[i]));
-
-	return *this;
 }
 
 void ObjectTemplate::afterLoadFixup()
@@ -554,6 +506,11 @@ bool ObjectTemplate::canBePlacedAt(TerrainId terrainID) const
 		return terrain->isLand() && terrain->isPassable();
 	}
 	return vstd::contains(allowedTerrains, terrainID);
+}
+
+CompoundMapObjectID ObjectTemplate::getCompoundID() const
+{
+	return CompoundMapObjectID(id, subid);
 }
 
 void ObjectTemplate::recalculate()

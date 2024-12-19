@@ -12,9 +12,8 @@
 #include "playerparams.h"
 #include "ui_playerparams.h"
 #include "mapsettings/abstractsettings.h"
-#include "../lib/CTownHandler.h"
 #include "../lib/constants/StringConstants.h"
-
+#include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/mapping/CMap.h"
 
 PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) :
@@ -25,7 +24,7 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	ui->setupUi(this);
 	
 	//set colors and teams
-	ui->teamId->addItem("No team", QVariant(TeamID::NO_TEAM));
+	ui->teamId->addItem(tr("No team"), QVariant(TeamID::NO_TEAM));
 	for(int i = 0, index = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
 		if(i == playerId || !controller.map()->players[i].canAnyonePlay())
@@ -48,7 +47,7 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	//load factions
 	for(auto idx : VLC->townh->getAllowedFactions())
 	{
-		const CFaction * faction = VLC->townh->objects.at(idx);
+		const auto & faction = VLC->townh->objects.at(idx);
 		auto * item = new QListWidgetItem(QString::fromStdString(faction->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(idx.getNum()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
@@ -78,12 +77,10 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	{
 		if(auto town = dynamic_cast<CGTownInstance*>(controller.map()->objects[i].get()))
 		{
-			auto * ctown = town->town;
+			auto * ctown = town->getTown();
 			if(!ctown)
-			{
 				ctown = VLC->townh->randomTown;
-				town->town = ctown;
-			}
+
 			if(ctown && town->getOwner().getNum() == playerColor)
 			{
 				if(playerInfo.hasMainTown && playerInfo.posOfMainTown == town->pos)

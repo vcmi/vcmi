@@ -31,6 +31,7 @@ public:
 	
 	Obstacle obstacle;
 	si32 iconIndex;
+	std::string modScope;
 	std::string identifier;
 	AudioPath appearSound;
 	AnimationPath appearAnimation;
@@ -47,6 +48,7 @@ public:
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
 	std::string getJsonKey() const override;
+	std::string getModScope() const override;
 	std::string getNameTranslated() const override;
 	std::string getNameTextID() const override;
 	void registerIcons(const IconRegistar & cb) const override;
@@ -64,8 +66,8 @@ public:
 
 class ObstacleHandler: public CHandlerBase<Obstacle, ObstacleInfo, ObstacleInfo, ObstacleService>
 {
-public:	
-	ObstacleInfo * loadFromJson(const std::string & scope,
+public:
+	std::shared_ptr<ObstacleInfo> loadFromJson(const std::string & scope,
 										const JsonNode & json,
 										const std::string & identifier,
 										size_t index) override;

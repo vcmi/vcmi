@@ -21,6 +21,8 @@
 #include "Functions.h"
 #include "../TerrainHandler.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 using namespace rmg;
@@ -85,7 +87,7 @@ const rmg::Area & Object::Instance::getAccessibleArea() const
 void Object::Instance::setPosition(const int3 & position)
 {
 	dPosition = position;
-	dObject.pos = dPosition + dParent.getPosition();
+	dObject.setAnchorPos(dPosition + dParent.getPosition());
 	
 	dBlockedAreaCache.clear();
 	dAccessibleAreaCache.clear();
@@ -94,24 +96,24 @@ void Object::Instance::setPosition(const int3 & position)
 
 void Object::Instance::setPositionRaw(const int3 & position)
 {
-	if(!dObject.pos.valid())
+	if(!dObject.anchorPos().valid())
 	{
-		dObject.pos = dPosition + dParent.getPosition();
+		dObject.setAnchorPos(dPosition + dParent.getPosition());
 		dBlockedAreaCache.clear();
 		dAccessibleAreaCache.clear();
 		dParent.clearCachedArea();
 	}
 		
-	auto shift = position + dParent.getPosition() - dObject.pos;
+	auto shift = position + dParent.getPosition() - dObject.anchorPos();
 	
 	dAccessibleAreaCache.translate(shift);
 	dBlockedAreaCache.translate(shift);
 	
 	dPosition = position;
-	dObject.pos = dPosition + dParent.getPosition();
+	dObject.setAnchorPos(dPosition + dParent.getPosition());
 }
 
-void Object::Instance::setAnyTemplate(CRandomGenerator & rng)
+void Object::Instance::setAnyTemplate(vstd::RNG & rng)
 {
 	auto templates = dObject.getObjectHandler()->getTemplates();
 	if(templates.empty())
@@ -122,7 +124,7 @@ void Object::Instance::setAnyTemplate(CRandomGenerator & rng)
 	setPosition(getPosition(false));
 }
 
-void Object::Instance::setTemplate(TerrainId terrain, CRandomGenerator & rng)
+void Object::Instance::setTemplate(TerrainId terrain, vstd::RNG & rng)
 {
 	auto templates = dObject.getObjectHandler()->getMostSpecificTemplates(terrain);
 
@@ -326,7 +328,7 @@ const rmg::Area & Object::getVisitableArea() const
 	{
 		for(const auto & i : dInstances)
 		{
-			// FIXME: Account for bjects with multiple visitable tiles
+			// FIXME: Account for objects with multiple visitable tiles
 			dVisitableCache.add(i.getVisitablePosition());
 		}
 	}
@@ -366,7 +368,7 @@ void Object::setPosition(const int3 & position)
 		i.setPositionRaw(i.getPosition());
 }
 
-void Object::setTemplate(const TerrainId & terrain, CRandomGenerator & rng)
+void Object::setTemplate(const TerrainId & terrain, vstd::RNG & rng)
 {
 	for(auto& i : dInstances)
 		i.setTemplate(terrain, rng);
@@ -474,7 +476,7 @@ rmg::Area Object::Instance::getBorderAbove() const
 	return borderAbove;
 }
 
-void Object::Instance::finalize(RmgMap & map, CRandomGenerator & rng)
+void Object::Instance::finalize(RmgMap & map, vstd::RNG & rng)
 {
 	if(!map.isOnMap(getPosition(true)))
 		throw rmgException(boost::str(boost::format("Position of object %d at %s is outside the map") % dObject.id % getPosition(true).toString()));
@@ -482,7 +484,7 @@ void Object::Instance::finalize(RmgMap & map, CRandomGenerator & rng)
 	//If no specific template was defined for this object, select any matching
 	if (!dObject.appearance)
 	{
-		const auto * terrainType = map.getTile(getPosition(true)).terType;
+		const auto * terrainType = map.getTile(getPosition(true)).getTerrain();
 		auto templates = dObject.getObjectHandler()->getTemplates(terrainType->getId());
 		if (templates.empty())
 		{
@@ -495,12 +497,12 @@ void Object::Instance::finalize(RmgMap & map, CRandomGenerator & rng)
 	}
 
 	if (dObject.isVisitable() && !map.isOnMap(dObject.visitablePos()))
-		throw rmgException(boost::str(boost::format("Visitable tile %s of object %d at %s is outside the map") % dObject.visitablePos().toString() % dObject.id % dObject.pos.toString()));
+		throw rmgException(boost::str(boost::format("Visitable tile %s of object %d at %s is outside the map") % dObject.visitablePos().toString() % dObject.id % dObject.anchorPos().toString()));
 
 	for(const auto & tile : dObject.getBlockedPos())
 	{
 		if(!map.isOnMap(tile))
-			throw rmgException(boost::str(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % dObject.id % dObject.pos.toString()));
+			throw rmgException(boost::str(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % dObject.id % dObject.anchorPos().toString()));
 	}
 
 	for(const auto & tile : getBlockedArea().getTilesVector())
@@ -511,7 +513,7 @@ void Object::Instance::finalize(RmgMap & map, CRandomGenerator & rng)
 	map.getMapProxy()->insertObject(&dObject);
 }
 
-void Object::finalize(RmgMap & map, CRandomGenerator & rng)
+void Object::finalize(RmgMap & map, vstd::RNG & rng)
 {
 	if(dInstances.empty())
 		throw rmgException("Cannot finalize object without instances");

@@ -15,76 +15,24 @@
 #include "LobbyNetPackVisitors.h"
 #include "processors/PlayerMessageProcessor.h"
 
-#include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
-#include "../lib/MetaString.h"
-#include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
+#include "../lib/campaign/CampaignState.h"
+#include "../lib/entities/hero/CHeroHandler.h"
+#include "../lib/entities/hero/CHeroClass.h"
+#include "../lib/gameState/CGameState.h"
+#include "../lib/mapping/CMapDefines.h"
+#include "../lib/mapping/CMapInfo.h"
+#include "../lib/mapping/CMapHeader.h"
+#include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/CMemorySerializer.h"
 #include "../lib/serializer/Connection.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 // UUID generation
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/program_options.hpp>
-
-template<typename T> class CApplyOnServer;
-
-class CBaseForServerApply
-{
-public:
-	virtual bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const =0;
-	virtual void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const =0;
-	virtual ~CBaseForServerApply() {}
-	template<typename U> static CBaseForServerApply * getApplier(const U * t = nullptr)
-	{
-		return new CApplyOnServer<U>();
-	}
-};
-
-template <typename T> class CApplyOnServer : public CBaseForServerApply
-{
-public:
-	bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const override
-	{
-		T * ptr = static_cast<T *>(pack);
-		ClientPermissionsCheckerNetPackVisitor checker(*srv);
-		ptr->visit(checker);
-
-		if(checker.getResult())
-		{
-			ApplyOnServerNetPackVisitor applier(*srv);
-			ptr->visit(applier);
-			return applier.getResult();
-		}
-		else
-			return false;
-	}
-
-	void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const override
-	{
-		T * ptr = static_cast<T *>(pack);
-		ApplyOnServerAfterAnnounceNetPackVisitor applier(*srv);
-		ptr->visit(applier);
-	}
-};
-
-template <>
-class CApplyOnServer<CPack> : public CBaseForServerApply
-{
-public:
-	bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const override
-	{
-		logGlobal->error("Cannot apply plain CPack!");
-		assert(0);
-		return false;
-	}
-	void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const override
-	{
-		logGlobal->error("Cannot apply plain CPack!");
-		assert(0);
-	}
-};
 
 class CVCMIServerPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
@@ -102,13 +50,13 @@ public:
 
 	void visitForLobby(CPackForLobby & packForLobby) override
 	{
-		handler.handleReceivedPack(std::unique_ptr<CPackForLobby>(&packForLobby));
+		handler.handleReceivedPack(packForLobby);
 	}
 
 	void visitForServer(CPackForServer & serverPack) override
 	{
 		if (gh)
-			gh->handleReceivedPack(&serverPack);
+			gh->handleReceivedPack(serverPack);
 		else
 			logNetwork->error("Received pack for game server while in lobby!");
 	}
@@ -118,7 +66,7 @@ public:
 	}
 };
 
-CVCMIServer::CVCMIServer(uint16_t port, bool connectToLobby, bool runByClient)
+CVCMIServer::CVCMIServer(uint16_t port, bool runByClient)
 	: currentClientId(1)
 	, currentPlayerId(1)
 	, port(port)
@@ -126,26 +74,32 @@ CVCMIServer::CVCMIServer(uint16_t port, bool connectToLobby, bool runByClient)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	logNetwork->trace("CVCMIServer created! UUID: %s", uuid);
-	applier = std::make_shared<CApplier<CBaseForServerApply>>();
-	registerTypesLobbyPacks(*applier);
 
 	networkHandler = INetworkHandler::createHandler();
-
-	if(connectToLobby)
-		lobbyProcessor = std::make_unique<GlobalLobbyProcessor>(*this);
-	else
-		startAcceptingIncomingConnections();
 }
 
 CVCMIServer::~CVCMIServer() = default;
 
-void CVCMIServer::startAcceptingIncomingConnections()
-{
-	logNetwork->info("Port %d will be used", port);
+uint16_t CVCMIServer::prepare(bool connectToLobby) {
+	if(connectToLobby) {
+		lobbyProcessor = std::make_unique<GlobalLobbyProcessor>(*this);
+		return 0;
+	} else {
+		return startAcceptingIncomingConnections();
+	}
+}
 
+uint16_t CVCMIServer::startAcceptingIncomingConnections()
+{
+	port
+		? logNetwork->info("Port %d will be used", port)
+		: logNetwork->info("Randomly assigned port will be used");
+
+	// config port may be 0 => srvport will contain the OS-assigned port value
 	networkServer = networkHandler->createServerTCP(*this);
-	networkServer->start(port);
-	logNetwork->info("Listening for connections at port %d", port);
+	auto srvport = networkServer->start(port);
+	logNetwork->info("Listening for connections at port %d", srvport);
+	return srvport;
 }
 
 void CVCMIServer::onNewConnection(const std::shared_ptr<INetworkConnection> & connection)
@@ -245,7 +199,6 @@ void CVCMIServer::prepareToRestart()
 	}
 
 	* si = * gh->gs->initialOpts;
-	si->seedToBeUsed = si->seedPostInit = 0;
 	setState(EServerState::LOBBY);
 	if (si->campState)
 	{
@@ -279,9 +232,9 @@ bool CVCMIServer::prepareToStartGame()
 			{
 				//FIXME: UNGUARDED MULTITHREADED ACCESS!!!
 				currentProgress = progressTracking.get();
-				std::unique_ptr<LobbyLoadProgress> loadProgress(new LobbyLoadProgress);
-				loadProgress->progress = currentProgress;
-				announcePack(std::move(loadProgress));
+				LobbyLoadProgress loadProgress;
+				loadProgress.progress = currentProgress;
+				announcePack(loadProgress);
 			}
 			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 		}
@@ -292,7 +245,7 @@ bool CVCMIServer::prepareToStartGame()
 	{
 	case EStartMode::CAMPAIGN:
 		logNetwork->info("Preparing to start new campaign");
-		si->startTimeIso8601 = vstd::getDateTimeISO8601Basic(std::time(nullptr));
+		si->startTime = std::time(nullptr);
 		si->fileURI = mi->fileURI;
 		si->campState->setCurrentMap(campaignMap);
 		si->campState->setCurrentMapBonus(campaignBonus);
@@ -301,7 +254,7 @@ bool CVCMIServer::prepareToStartGame()
 
 	case EStartMode::NEW_GAME:
 		logNetwork->info("Preparing to start new game");
-		si->startTimeIso8601 = vstd::getDateTimeISO8601Basic(std::time(nullptr));
+		si->startTime = std::time(nullptr);
 		si->fileURI = mi->fileURI;
 		gh->init(si.get(), progressTracking);
 		break;
@@ -345,36 +298,32 @@ void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & con
 	logNetwork->error("Network error receiving a pack. Connection has been closed");
 
 	std::shared_ptr<CConnection> c = findConnection(connection);
-	if (!c)
-		return; // player have already disconnected via clientDisconnected call
 
-	vstd::erase(activeConnections, c);
-
-	if(activeConnections.empty() || hostClientId == c->connectionID)
+	// player may have already disconnected via clientDisconnected call
+	if (c)
 	{
-		setState(EServerState::SHUTDOWN);
-		return;
-	}
-
-	if(gh && getState() == EServerState::GAMEPLAY)
-	{
-		gh->handleClientDisconnection(c);
-
-		auto lcd = std::make_unique<LobbyClientDisconnected>();
-		lcd->c = c;
-		lcd->clientId = c->connectionID;
-		handleReceivedPack(std::move(lcd));
+		LobbyClientDisconnected lcd;
+		lcd.c = c;
+		lcd.clientId = c->connectionID;
+		handleReceivedPack(lcd);
 	}
 }
 
-void CVCMIServer::handleReceivedPack(std::unique_ptr<CPackForLobby> pack)
+void CVCMIServer::handleReceivedPack(CPackForLobby & pack)
 {
-	CBaseForServerApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack.get()));
-	if(apply->applyOnServerBefore(this, pack.get()))
-		announcePack(std::move(pack));
+	ClientPermissionsCheckerNetPackVisitor checker(*this);
+	pack.visit(checker);
+
+	if(checker.getResult())
+	{
+		ApplyOnServerNetPackVisitor applier(*this);
+		pack.visit(applier);
+		if (applier.getResult())
+			announcePack(pack);
+	}
 }
 
-void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
+void CVCMIServer::announcePack(CPackForLobby & pack)
 {
 	for(auto activeConnection : activeConnections)
 	{
@@ -382,18 +331,19 @@ void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 		// Until UUID set we only pass LobbyClientConnected to this client
 		//if(c->uuid == uuid && !dynamic_cast<LobbyClientConnected *>(pack.get()))
 		//	continue;
-		activeConnection->sendPack(pack.get());
+		activeConnection->sendPack(pack);
 	}
 
-	applier->getApplier(CTypeList::getInstance().getTypeID(pack.get()))->applyOnServerAfter(this, pack.get());
+	ApplyOnServerAfterAnnounceNetPackVisitor applier(*this);
+	pack.visit(applier);
 }
 
-void CVCMIServer::announceMessage(MetaString txt)
+void CVCMIServer::announceMessage(const MetaString & txt)
 {
 	logNetwork->info("Show message: %s", txt.toString());
-	auto cm = std::make_unique<LobbyShowMessage>();
-	cm->message = txt;
-	announcePack(std::move(cm));
+	LobbyShowMessage cm;
+	cm.message = txt;
+	announcePack(cm);
 }
 
 void CVCMIServer::announceMessage(const std::string & txt)
@@ -403,13 +353,13 @@ void CVCMIServer::announceMessage(const std::string & txt)
 	announceMessage(str);
 }
 
-void CVCMIServer::announceTxt(MetaString txt, const std::string & playerName)
+void CVCMIServer::announceTxt(const MetaString & txt, const std::string & playerName)
 {
 	logNetwork->info("%s says: %s", playerName, txt.toString());
-	auto cm = std::make_unique<LobbyChatMessage>();
-	cm->playerName = playerName;
-	cm->message = txt;
-	announcePack(std::move(cm));
+	LobbyChatMessage cm;
+	cm.playerName = playerName;
+	cm.message = txt;
+	announcePack(cm);
 }
 
 void CVCMIServer::announceTxt(const std::string & txt, const std::string & playerName)
@@ -474,8 +424,20 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 
 void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> connection)
 {
-	connection->getConnection()->close();
+	assert(vstd::contains(activeConnections, connection));
+	logGlobal->trace("Received disconnection request");
 	vstd::erase(activeConnections, connection);
+
+	if(activeConnections.empty() || hostClientId == connection->connectionID)
+	{
+		setState(EServerState::SHUTDOWN);
+		return;
+	}
+
+	if(gh && getState() == EServerState::GAMEPLAY)
+	{
+		gh->handleClientDisconnection(connection);
+	}
 
 //	PlayerReinitInterface startAiPack;
 //	startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;
@@ -510,7 +472,7 @@ void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> connection)
 //	}
 //
 //	if(!startAiPack.players.empty())
-//		gh->sendAndApply(&startAiPack);
+//		gh->sendAndApply(startAiPack);
 }
 
 void CVCMIServer::reconnectPlayer(int connId)
@@ -537,7 +499,7 @@ void CVCMIServer::reconnectPlayer(int connId)
 		}
 
 		if(!startAiPack.players.empty())
-			gh->sendAndApply(&startAiPack);
+			gh->sendAndApply(startAiPack);
 	}
 }
 
@@ -617,8 +579,6 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 				pset.heroNameTextId = pinfo.mainCustomHeroNameTextId;
 				pset.heroPortrait = pinfo.mainCustomHeroPortrait;
 			}
-
-			pset.handicap = PlayerSettings::NO_HANDICAP;
 		}
 
 		if(mi->isRandomMap && mapGenOpts)
@@ -669,9 +629,9 @@ void CVCMIServer::updateAndPropagateLobbyState()
 		}
 	}
 
-	auto lus = std::make_unique<LobbyUpdateState>();
-	lus->state = *this;
-	announcePack(std::move(lus));
+	LobbyUpdateState lus;
+	lus.state = *this;
+	announcePack(lus);
 }
 
 void CVCMIServer::setPlayer(PlayerColor clickedColor)
@@ -690,7 +650,7 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 	//identify clicked player
 	int clickedNameID = 0; //number of player - zero means AI, assume it initially
 	if(clicked.isControlledByHuman())
-		clickedNameID = *(clicked.connectedPlayerIDs.begin()); //if not AI - set appropiate ID
+		clickedNameID = *(clicked.connectedPlayerIDs.begin()); //if not AI - set appropriate ID
 
 	if(clickedNameID > 0 && playerToRestore.id == clickedNameID) //player to restore is about to being replaced -> put him back to the old place
 	{
@@ -752,10 +712,64 @@ void CVCMIServer::setPlayerName(PlayerColor color, std::string name)
 	if(player.connectedPlayerIDs.empty())
 		return;
 
-	int nameID = *(player.connectedPlayerIDs.begin()); //if not AI - set appropiate ID
+	int nameID = *(player.connectedPlayerIDs.begin()); //if not AI - set appropriate ID
 
 	playerNames[nameID].name = name;
 	setPlayerConnectedId(player, nameID);
+}
+
+void CVCMIServer::setPlayerHandicap(PlayerColor color, Handicap handicap)
+{
+	if(color == PlayerColor::CANNOT_DETERMINE)
+		return;
+
+	si->playerInfos[color].handicap = handicap;
+
+	int humanPlayer = 0;
+	for (const auto & pi : si->playerInfos)
+		if(pi.second.isControlledByHuman())
+			humanPlayer++;
+
+	if(humanPlayer < 2) // Singleplayer
+		return;
+
+	MetaString str;
+	str.appendTextID("vcmi.lobby.handicap");
+	str.appendRawString(" ");
+	str.appendName(color);
+	str.appendRawString(":");
+
+	if(handicap.startBonus.empty() && handicap.percentIncome == 100 && handicap.percentGrowth == 100)
+	{
+		str.appendRawString(" ");
+		str.appendTextID("core.genrltxt.523");
+		announceTxt(str);
+		return;
+	}
+
+	for(auto & res : EGameResID::ALL_RESOURCES())
+		if(handicap.startBonus[res] != 0)
+		{
+			str.appendRawString(" ");
+			str.appendName(res);
+			str.appendRawString(":");
+			str.appendRawString(std::to_string(handicap.startBonus[res]));
+		}
+	if(handicap.percentIncome != 100)
+	{
+		str.appendRawString(" ");
+		str.appendTextID("core.jktext.32");
+		str.appendRawString(":");
+		str.appendRawString(std::to_string(handicap.percentIncome) + "%");
+	}
+	if(handicap.percentGrowth != 100)
+	{
+		str.appendRawString(" ");
+		str.appendTextID("core.genrltxt.194");
+		str.appendRawString(":");
+		str.appendRawString(std::to_string(handicap.percentGrowth) + "%");
+	}
+	announceTxt(str);
 }
 
 void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
@@ -995,20 +1009,53 @@ ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 void CVCMIServer::multiplayerWelcomeMessage()
 {
 	int humanPlayer = 0;
-	for (auto & pi : si->playerInfos)
+	for (const auto & pi : si->playerInfos)
 		if(pi.second.isControlledByHuman())
 			humanPlayer++;
 
 	if(humanPlayer < 2) // Singleplayer
 		return;
 
-	gh->playerMessages->broadcastSystemMessage("Use '!help' to list available commands");
+	gh->playerMessages->broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.command"));
+
+	for (const auto & pi : si->playerInfos)
+		if(!pi.second.handicap.startBonus.empty() || pi.second.handicap.percentIncome != 100 || pi.second.handicap.percentGrowth != 100)
+		{
+			MetaString str;
+			str.appendTextID("vcmi.lobby.handicap");
+			str.appendRawString(" ");
+			str.appendName(pi.first);
+			str.appendRawString(":");
+			for(auto & res : EGameResID::ALL_RESOURCES())
+				if(pi.second.handicap.startBonus[res] != 0)
+				{
+					str.appendRawString(" ");
+					str.appendName(res);
+					str.appendRawString(":");
+					str.appendRawString(std::to_string(pi.second.handicap.startBonus[res]));
+				}
+			if(pi.second.handicap.percentIncome != 100)
+			{
+				str.appendRawString(" ");
+				str.appendTextID("core.jktext.32");
+				str.appendRawString(":");
+				str.appendRawString(std::to_string(pi.second.handicap.percentIncome) + "%");
+			}
+			if(pi.second.handicap.percentGrowth != 100)
+			{
+				str.appendRawString(" ");
+				str.appendTextID("core.genrltxt.194");
+				str.appendRawString(":");
+				str.appendRawString(std::to_string(pi.second.handicap.percentGrowth) + "%");
+			}
+			gh->playerMessages->broadcastSystemMessage(str);
+		}
 
 	std::vector<std::string> optionIds;
 	if(si->extraOptionsInfo.cheatsAllowed)
-		optionIds.push_back("vcmi.optionsTab.cheatAllowed.hover");
+		optionIds.emplace_back("vcmi.optionsTab.cheatAllowed.hover");
 	if(si->extraOptionsInfo.unlimitedReplay)
-		optionIds.push_back("vcmi.optionsTab.unlimitedReplay.hover");
+		optionIds.emplace_back("vcmi.optionsTab.unlimitedReplay.hover");
 
 	if(!optionIds.size()) // No settings to publish
 		return;

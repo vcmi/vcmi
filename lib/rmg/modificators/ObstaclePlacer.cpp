@@ -19,14 +19,13 @@
 #include "RiverPlacer.h"
 #include "../RmgMap.h"
 #include "../CMapGenerator.h"
-#include "../../CRandomGenerator.h"
 #include "../Functions.h"
+#include "../../entities/faction/CFaction.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/ObstacleProxy.h"
 #include "../../mapObjects/CGObjectInstance.h"
 #include "../../mapObjects/ObstacleSetHandler.h"
-#include "../../CTownHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -40,7 +39,7 @@ void ObstaclePlacer::process()
 
 	ObstacleSetFilter filter(ObstacleSet::EObstacleType::INVALID,
 							zone.getTerrainType(),
-							static_cast<ObstacleSet::EMapLevel>(zone.isUnderground()),
+							static_cast<EMapLevel>(zone.isUnderground()),
 							faction->getId(),
 							faction->alignment);
 
@@ -154,7 +153,7 @@ void ObstaclePlacer::postProcess(const rmg::Object & object)
 	riverManager = zone.getModificator<RiverPlacer>();
 	if(riverManager)
 	{
-		const auto objTypeName = object.instances().front()->object().typeName;
+		const auto objTypeName = object.instances().front()->object().getTypeName();
 		if(objTypeName == "mountain")
 			riverManager->riverSource().unite(object.getArea());
 		else if(objTypeName == "lake")

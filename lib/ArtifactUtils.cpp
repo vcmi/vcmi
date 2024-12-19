@@ -11,15 +11,46 @@
 #include "ArtifactUtils.h"
 
 #include "CArtHandler.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "spells/CSpellHandler.h"
 
-#include "mapping/CMap.h"
 #include "mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+DLL_LINKAGE bool ArtifactUtils::checkIfSlotValid(const CArtifactSet & artSet, const ArtifactPosition & slot)
+{
+	if(artSet.bearerType() == ArtBearer::HERO)
+	{
+		if(isSlotEquipment(slot) || isSlotBackpack(slot) || slot == ArtifactPosition::TRANSITION_POS)
+			return true;
+	}
+	else if(artSet.bearerType() == ArtBearer::ALTAR)
+	{
+		if(isSlotBackpack(slot))
+			return true;
+	}
+	else if(artSet.bearerType() == ArtBearer::COMMANDER)
+	{
+		if(vstd::contains(commanderSlots(), slot))
+			return true;
+	}
+	else if(artSet.bearerType() == ArtBearer::CREATURE)
+	{
+		if(slot == ArtifactPosition::CREATURE_SLOT)
+			return true;
+	}
+	return false;
+}
+
 DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtAnyPosition(const CArtifactSet * target, const ArtifactID & aid)
+{
+	if(auto targetSlot = getArtEquippedPosition(target, aid); targetSlot != ArtifactPosition::PRE_FIRST)
+		return targetSlot;
+	return getArtBackpackPosition(target, aid);
+}
+
+DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtEquippedPosition(const CArtifactSet * target, const ArtifactID & aid)
 {
 	const auto * art = aid.toArtifact();
 	for(const auto & slot : art->getPossibleSlots().at(target->bearerType()))
@@ -27,7 +58,7 @@ DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtAnyPosition(const CArtifactSet
 		if(art->canBePutAt(target, slot))
 			return slot;
 	}
-	return getArtBackpackPosition(target, aid);
+	return ArtifactPosition::PRE_FIRST;
 }
 
 DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtBackpackPosition(const CArtifactSet * target, const ArtifactID & aid)
@@ -153,7 +184,7 @@ DLL_LINKAGE bool ArtifactUtils::isBackpackFreeSlots(const CArtifactSet * target,
 {
 	if(target->bearerType() == ArtBearer::HERO)
 	{
-		const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
+		const auto backpackCap = VLC->engineSettings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
 		if(backpackCap < 0)
 			return true;
 		else
@@ -164,93 +195,75 @@ DLL_LINKAGE bool ArtifactUtils::isBackpackFreeSlots(const CArtifactSet * target,
 }
 
 DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
-	const CArtifactSet * artSet, const ArtifactID & aid)
+	const CArtifactSet * artSet, const ArtifactID & aid, const bool onlyEquiped)
 {
 	std::vector<const CArtifact*> arts;
 	const auto * art = aid.toArtifact();
 	if(art->isCombined())
 		return arts;
 
-	for(const auto artifact : art->getPartOf())
+	for(const auto combinedArt : art->getPartOf())
 	{
-		assert(artifact->isCombined());
+		assert(combinedArt->isCombined());
 		bool possible = true;
-
-		for(const auto constituent : artifact->getConstituents()) //check if all constituents are available
+		CArtifactFittingSet fittingSet(*artSet);
+		for(const auto part : combinedArt->getConstituents()) // check if all constituents are available
 		{
-			if(!artSet->hasArt(constituent->getId(), false, false, false))
+			const auto slot = fittingSet.getArtPos(part->getId(), onlyEquiped, false);
+			if(slot == ArtifactPosition::PRE_FIRST)
 			{
 				possible = false;
 				break;
 			}
+			fittingSet.lockSlot(slot);
 		}
 		if(possible)
-			arts.push_back(artifact);
+			arts.push_back(combinedArt);
 	}
 	return arts;
 }
 
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createScroll(const SpellID & sid)
+DLL_LINKAGE CArtifactInstance * ArtifactUtils::createScroll(const SpellID & spellId)
 {
-	auto ret = new CArtifactInstance(ArtifactID(ArtifactID::SPELL_SCROLL).toArtifact());
-	auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL,
-		BonusSource::ARTIFACT_INSTANCE, -1, BonusSourceID(ArtifactID(ArtifactID::SPELL_SCROLL)), BonusSubtypeID(sid));
-	ret->addNewBonus(bonus);
-	return ret;
+	return ArtifactUtils::createArtifact(ArtifactID::SPELL_SCROLL, spellId);
 }
 
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(const CArtifact * art)
+DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(const ArtifactID & artId, const SpellID & spellId)
 {
-	assert(art);
-
-	auto * artInst = new CArtifactInstance(art);
-	if(art->isCombined())
+	const std::function<CArtifactInstance*(const CArtifact*)> createArtInst =
+		[&createArtInst, &spellId](const CArtifact * art) -> CArtifactInstance*
 	{
-		for(const auto & part : art->getConstituents())
-			artInst->addPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
-	}
-	if(art->isGrowing())
-	{
-		auto bonus = std::make_shared<Bonus>();
-		bonus->type = BonusType::LEVEL_COUNTER;
-		bonus->val = 0;
-		artInst->addNewBonus(bonus);
-	}
-	return artInst;
-}
+		assert(art);
 
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(const ArtifactID & aid)
-{
-	return ArtifactUtils::createNewArtifactInstance(aid.toArtifact());
-}
-
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const ArtifactID & aid, SpellID spellID)
-{
-	CArtifactInstance * art = nullptr;
-	if(aid.getNum() >= 0)
-	{
-		if(spellID == SpellID::NONE)
+		auto * artInst = new CArtifactInstance(art);
+		if(art->isCombined() && !art->isFused())
 		{
-			art = ArtifactUtils::createNewArtifactInstance(aid);
+			for(const auto & part : art->getConstituents())
+				artInst->addPart(createArtInst(part), ArtifactPosition::PRE_FIRST);
 		}
-		else
+		if(art->isGrowing())
 		{
-			art = ArtifactUtils::createScroll(spellID);
+			auto bonus = std::make_shared<Bonus>();
+			bonus->type = BonusType::LEVEL_COUNTER;
+			bonus->val = 0;
+			artInst->addNewBonus(bonus);
 		}
+		if(art->isScroll())
+		{
+			artInst->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL,
+				BonusSource::ARTIFACT_INSTANCE, -1, BonusSourceID(ArtifactID(ArtifactID::SPELL_SCROLL)), BonusSubtypeID(spellId)));
+		}
+		return artInst;
+	};
+
+	if(artId.getNum() >= 0)
+	{
+		return createArtInst(artId.toArtifact());
 	}
 	else
 	{
-		art = new CArtifactInstance(); // random, empty
+		return new CArtifactInstance(); // random, empty
 	}
-	map->addNewArtifactInstance(art);
-	if(art->artType && art->isCombined())
-	{
-		for(auto & part : art->getPartsInfo())
-		{
-			map->addNewArtifactInstance(part.art);
-		}
-	}
-	return art;
 }
 
 DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description, const SpellID & sid)

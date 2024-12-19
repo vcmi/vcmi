@@ -23,7 +23,8 @@ public:
 	void init() override;
 	
 	void addConnection(const rmg::ZoneConnection& connection);
-	
+	void placeMonolithConnection(const rmg::ZoneConnection& connection);
+	void forcePortalConnection(const rmg::ZoneConnection & connection);
 	void selfSideDirectConnection(const rmg::ZoneConnection & connection);
 	void selfSideIndirectConnection(const rmg::ZoneConnection & connection);
 	void otherSideConnection(const rmg::ZoneConnection & connection);

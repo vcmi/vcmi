@@ -18,17 +18,17 @@
 #include "ExtraOptionsTab.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
-#include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../mainmenu/CPrologEpilogVideo.h"
+#include "../media/IMusicPlayer.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/VideoWidget.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../render/IImage.h"
@@ -38,24 +38,27 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
+#include "../adventureMap/AdventureMapInterface.h"
 
-#include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/CGeneralTextHandler.h"
-
-#include "../../lib/CBuildingHandler.h"
-
-#include "../../lib/CSkillHandler.h"
-#include "../../lib/CTownHandler.h"
-#include "../../lib/CHeroHandler.h"
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/CSkillHandler.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/building/CBuildingHandler.h"
+#include "../../lib/entities/faction/CFaction.h"
+#include "../../lib/entities/faction/CTown.h"
+#include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMapService.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/mapping/CMapHeader.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
-
 
 std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
 {
@@ -65,7 +68,7 @@ std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
 CBonusSelection::CBonusSelection()
 	: CWindowObject(BORDERED)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	setBackground(getCampaign()->getRegions().getBackgroundName());
 
@@ -85,16 +88,18 @@ CBonusSelection::CBonusSelection()
 	buttonVideo = std::make_shared<CButton>(Point(705, 214), AnimationPath::builtin("CBVIDEB.DEF"), CButton::tooltip(), playVideo, EShortcut::LOBBY_REPLAY_VIDEO);
 	buttonBack = std::make_shared<CButton>(Point(624, 536), AnimationPath::builtin("CBCANCB.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::goBack, this), EShortcut::GLOBAL_CANCEL);
 
-	campaignName = std::make_shared<CLabel>(481, 28, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->si->getCampaignName());
+	campaignName = std::make_shared<CLabel>(481, 28, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->si->getCampaignName(), 250);
 
 	iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 4, 0, 735, 26);
 
 	labelCampaignDescription = std::make_shared<CLabel>(481, 63, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[38]);
 	campaignDescription = std::make_shared<CTextBox>(getCampaign()->getDescriptionTranslated(), Rect(480, 86, 286, 117), 1);
 
-	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->mi->getNameTranslated());
+	bool videoButtonActive = CSH->getState() == EClientState::GAMEPLAY;
+	int availableSpace = videoButtonActive ? 225 : 285;
+	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->mi->getNameTranslated(), availableSpace );
 	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
-	mapDescription = std::make_shared<CTextBox>("", Rect(480, 278, 292, 108), 1);
+	mapDescription = std::make_shared<CTextBox>("", Rect(480, 278, 286, 108), 1);
 
 	labelChooseBonus = std::make_shared<CLabel>(475, 432, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[71]);
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, CSH, _1));
@@ -123,9 +128,11 @@ CBonusSelection::CBonusSelection()
 	for(auto scenarioID : getCampaign()->allScenarios())
 	{
 		if(getCampaign()->isAvailable(scenarioID))
-			regions.push_back(std::make_shared<CRegion>(scenarioID, true, true, getCampaign()->getRegions()));
+			regions.push_back(std::make_shared<CRegion>(scenarioID, true, true, false, getCampaign()->getRegions()));
 		else if(getCampaign()->isConquered(scenarioID)) //display as striped
-			regions.push_back(std::make_shared<CRegion>(scenarioID, false, false, getCampaign()->getRegions()));
+			regions.push_back(std::make_shared<CRegion>(scenarioID, false, false, false, getCampaign()->getRegions()));
+		else
+			regions.push_back(std::make_shared<CRegion>(scenarioID, false, false, true, getCampaign()->getRegions()));
 	}
 
 	if (!getCampaign()->getMusic().empty())
@@ -144,7 +151,7 @@ CBonusSelection::CBonusSelection()
 
 void CBonusSelection::createBonusesIcons()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	const CampaignScenario & scenario = getCampaign()->scenario(CSH->campaignMap);
 	const std::vector<CampaignBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, CSH, _1));
@@ -311,7 +318,10 @@ void CBonusSelection::createBonusesIcons()
 			break;
 		}
 
-		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), CButton::tooltip(desc.toString(), desc.toString()));
+		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), CButton::tooltip(desc.toString(), desc.toString()), nullptr, EShortcut::NONE, false, [this](){
+			if(buttonStart->isActive() && !buttonStart->isBlocked())	
+				CBonusSelection::startMap();
+		});
 
 		if(picNumber != -1)
 			bonusButton->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin(picName), picNumber));
@@ -380,10 +390,13 @@ void CBonusSelection::goBack()
 	if(CSH->getState() != EClientState::GAMEPLAY)
 	{
 		GH.windows().popWindows(2);
+		CMM->playMusic();
 	}
 	else
 	{
 		close();
+		if(adventureInt)
+			adventureInt->onAudioResumed();
 	}
 	// TODO: we can actually only pop bonus selection interface for custom campaigns
 	// Though this would require clearing CLobbyScreen::bonusSel pointer when poping this interface
@@ -470,10 +483,10 @@ void CBonusSelection::decreaseDifficulty()
 		CSH->setDifficulty(CSH->si->difficulty - 1);
 }
 
-CBonusSelection::CRegion::CRegion(CampaignScenarioID id, bool accessible, bool selectable, const CampaignRegions & campDsc)
-	: CIntObject(LCLICK | SHOW_POPUP), idOfMapAndRegion(id), accessible(accessible), selectable(selectable)
+CBonusSelection::CRegion::CRegion(CampaignScenarioID id, bool accessible, bool selectable, bool labelOnly, const CampaignRegions & campDsc)
+	: CIntObject(LCLICK | SHOW_POPUP), idOfMapAndRegion(id), accessible(accessible), selectable(selectable), labelOnly(labelOnly)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 
 	pos += campDsc.getPosition(id);
 
@@ -487,10 +500,20 @@ CBonusSelection::CRegion::CRegion(CampaignScenarioID id, bool accessible, bool s
 	graphicsStriped->disable();
 	pos.w = graphicsNotSelected->pos.w;
 	pos.h = graphicsNotSelected->pos.h;
+
+	auto labelPos = campDsc.getLabelPosition(id);
+	if(labelPos)
+	{
+		auto mapHeader = CSH->si->campState->getMapHeader(idOfMapAndRegion);
+		label = std::make_shared<CLabel>((*labelPos).x, (*labelPos).y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, mapHeader->name.toString());
+	}
 }
 
 void CBonusSelection::CRegion::updateState()
 {
+	if(labelOnly)
+		return;
+
 	if(!accessible)
 	{
 		graphicsNotSelected->disable();
@@ -513,7 +536,7 @@ void CBonusSelection::CRegion::updateState()
 
 void CBonusSelection::CRegion::clickReleased(const Point & cursorPosition)
 {
-	if(selectable && !graphicsNotSelected->getSurface()->isTransparent(cursorPosition - pos.topLeft()))
+	if(!labelOnly && selectable && !graphicsNotSelected->getSurface()->isTransparent(cursorPosition - pos.topLeft()))
 	{
 		CSH->setCampaignMap(idOfMapAndRegion);
 	}
@@ -523,7 +546,7 @@ void CBonusSelection::CRegion::showPopupWindow(const Point & cursorPosition)
 {
 	// FIXME: For some reason "down" is only ever contain indeterminate_value
 	auto & text = CSH->si->campState->scenario(idOfMapAndRegion).regionText;
-	if(!graphicsNotSelected->getSurface()->isTransparent(cursorPosition - pos.topLeft()) && !text.empty())
+	if(!labelOnly && !graphicsNotSelected->getSurface()->isTransparent(cursorPosition - pos.topLeft()) && !text.empty())
 	{
 		CRClickPopup::createAndPush(text.toString());
 	}

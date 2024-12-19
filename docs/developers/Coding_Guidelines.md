@@ -1,8 +1,10 @@
+# Coding Guidelines
+
 ## C++ Standard
 
 VCMI implementation bases on C++17 standard. Any feature is acceptable as long as it's will pass build on our CI, but there is list below on what is already being used.
 
-Any compiler supporting C++17 should work, but this has not been thoroughly tested. You can find information about extensions and compiler support at http://en.cppreference.com/w/cpp/compiler_support
+Any compiler supporting C++17 should work, but this has not been thoroughly tested. You can find information about extensions and compiler support at <http://en.cppreference.com/w/cpp/compiler_support>
 
 ## Style Guidelines
 
@@ -18,7 +20,7 @@ Inside a code block put the opening brace on the next line after the current sta
 
 Good:
 
-``` cpp
+```cpp
 if(a) 
 {
 	code();
@@ -28,7 +30,7 @@ if(a)
 
 Bad:
 
-``` cpp
+```cpp
 if(a) {
 	code();
 	code();
@@ -39,14 +41,14 @@ Avoid using unnecessary open/close braces, vertical space is usually limited:
 
 Good:
 
-``` cpp
+```cpp
 if(a)
 	code();
 ```
 
 Bad:
 
-``` cpp
+```cpp
 if(a) {
 	code();
 }
@@ -56,7 +58,7 @@ Unless there are either multiple hierarchical conditions being used or that the 
 
 Good:
 
-``` cpp
+```cpp
 if(a)
 {
 	if(b)
@@ -66,7 +68,7 @@ if(a)
 
 Bad:
 
-``` cpp
+```cpp
 if(a)
 	if(b)
 		code();
@@ -76,7 +78,7 @@ If there are brackets inside the body, outside brackets are required.
 
 Good:
 
-``` cpp
+```cpp
 if(a)
 {
 	for(auto elem : list)
@@ -88,7 +90,7 @@ if(a)
 
 Bad:
 
-``` cpp
+```cpp
 if(a)
 	for(auto elem : list)
 	{
@@ -100,7 +102,7 @@ If "else" branch has brackets then "if" should also have brackets even if it is 
 
 Good:
 
-``` cpp
+```cpp
 if(a)
 {
 	code();
@@ -116,7 +118,7 @@ else
 
 Bad:
 
-``` cpp
+```cpp
 if(a)
 	code();
 else
@@ -132,7 +134,7 @@ If you intentionally want to avoid usage of "else if" and keep if body indent ma
 
 Good:
 
-``` cpp
+```cpp
 if(a)
 {
 	code();
@@ -146,7 +148,7 @@ else
 
 Bad:
 
-``` cpp
+```cpp
 if(a)
 	code();
 else
@@ -158,7 +160,7 @@ When defining a method, use a new line for the brace, like this:
 
 Good:
 
-``` cpp
+```cpp
 void method()
 {
 }
@@ -166,7 +168,7 @@ void method()
 
 Bad:
 
-``` cpp
+```cpp
 void Method() {
 }
 ```
@@ -177,14 +179,14 @@ Use white space in expressions liberally, except in the presence of parenthesis.
 
 **Good:**
 
-``` cpp
+```cpp
 if(a + 5 > method(blah('a') + 4))
 	foo += 24;
 ```
 
 **Bad:**
 
-``` cpp
+```cpp
 if(a+5>method(blah('a')+4))
 foo+=24;
 ```
@@ -197,13 +199,13 @@ Use a space before and after the address or pointer character in a pointer decla
 
 Good:
 
-``` cpp
+```cpp
 CIntObject * images[100];
 ```
 
 Bad:
 
-``` cpp
+```cpp
 CIntObject* images[100]; or
 CIntObject *images[100];
 ```
@@ -212,14 +214,14 @@ Do not use spaces before parentheses.
 
 Good:
 
-``` cpp
+```cpp
 if(a)
 	code();
 ```
 
 Bad:
 
-``` cpp
+```cpp
 if (a)
 	code();
 ```
@@ -228,7 +230,7 @@ Do not use extra spaces around conditions inside parentheses.
 
 Good:
 
-``` cpp
+```cpp
 if(a && b)
 	code();
 
@@ -238,7 +240,7 @@ if(a && (b || c))
 
 Bad:
 
-``` cpp
+```cpp
 if( a && b )
 	code();
 
@@ -250,14 +252,14 @@ Do not use more than one space between operators.
 
 Good:
 
-``` cpp
+```cpp
 if((a && b) || (c + 1 == d))
 	code();
 ```
 
 Bad:
 
-``` cpp
+```cpp
 if((a && b)  ||  (c + 1 == d))
 	code();
 
@@ -271,14 +273,14 @@ When allocating objects, don't use parentheses for creating stack-based objects 
 
 Good:
 
-``` cpp
+```cpp
 std::vector<int> v; 
 CGBoat btn = new CGBoat();
 ```
 
 Bad:
 
-``` cpp
+```cpp
 std::vector<int> v(); // shouldn't compile anyway 
 CGBoat btn = new CGBoat;
 ```
@@ -287,14 +289,14 @@ Avoid overuse of parentheses:
 
 Good:
 
-``` cpp
+```cpp
 if(a && (b + 1))
 	return c == d;
 ```
 
 Bad:
 
-``` cpp
+```cpp
 if((a && (b + 1)))
 	return (c == d);
 ```
@@ -303,7 +305,7 @@ if((a && (b + 1)))
 
 Base class list must be on same line with class name.
 
-``` cpp
+```cpp
 class CClass : public CClassBaseOne, public CClassBaseOne
 {
 	int id;
@@ -319,7 +321,7 @@ When 'private:', 'public:' and other labels are not on the line after opening br
 
 Good:
 
-``` cpp
+```cpp
 class CClass
 {
 	int id;
@@ -331,7 +333,7 @@ public:
 
 Bad:
 
-``` cpp
+```cpp
 class CClass
 {
 	int id;
@@ -342,7 +344,7 @@ public:
 
 Good:
 
-``` cpp
+```cpp
 class CClass
 {
 protected:
@@ -355,7 +357,7 @@ public:
 
 Bad:
 
-``` cpp
+```cpp
 class CClass
 {
 
@@ -371,7 +373,7 @@ public:
 
 Constructor member and base class initialization must be on new line, indented with tab with leading colon.
 
-``` cpp
+```cpp
 CClass::CClass()
 	: CClassBaseOne(true, nullptr), id(0), bool parameters(false)
 {
@@ -385,7 +387,7 @@ Switch statements have the case at the same indentation as the switch.
 
 Good:
 
-``` cpp
+```cpp
 switch(alignment)
 {
 case EAlignment::EVIL:
@@ -405,7 +407,7 @@ default:
 
 Bad:
 
-``` cpp
+```cpp
 switch(alignment)
 {
 	case EAlignment::EVIL:
@@ -445,7 +447,7 @@ break;
 
 Good:
 
-``` cpp
+```cpp
 auto lambda = [this, a, &b](int3 & tile, int index) -> bool
 {
 	do_that();
@@ -454,7 +456,7 @@ auto lambda = [this, a, &b](int3 & tile, int index) -> bool
 
 Bad:
 
-``` cpp
+```cpp
 auto lambda = [this,a,&b](int3 & tile, int index)->bool{do_that();};
 ```
 
@@ -462,7 +464,7 @@ Empty parameter list is required even if function takes no arguments.
 
 Good:
 
-``` cpp
+```cpp
 auto lambda = []()
 {
 	do_that();
@@ -471,7 +473,7 @@ auto lambda = []()
 
 Bad:
 
-``` cpp
+```cpp
 auto lambda = []
 {
 	do_that();
@@ -482,7 +484,7 @@ Do not use inline lambda expressions inside if-else, for and other conditions.
 
 Good:
 
-``` cpp
+```cpp
 auto lambda = []()
 {
 	do_that();
@@ -495,7 +497,7 @@ if(lambda)
 
 Bad:
 
-``` cpp
+```cpp
 if([]()
 {
 	do_that();
@@ -509,7 +511,7 @@ Do not pass inline lambda expressions as parameter unless it's the last paramete
 
 Good:
 
-``` cpp
+```cpp
 auto lambda = []()
 {
 	do_that();
@@ -519,7 +521,7 @@ obj->someMethod(lambda, true);
 
 Bad:
 
-``` cpp
+```cpp
 obj->someMethod([]()
 {
 	do_that();
@@ -528,7 +530,7 @@ obj->someMethod([]()
 
 Good:
 
-``` cpp
+```cpp
 obj->someMethod(true, []()
 {
 	do_that();
@@ -541,7 +543,7 @@ Serialization of each element must be on it's own line since this make debugging
 
 Good:
 
-``` cpp
+```cpp
 template <typename Handler> void serialize(Handler & h, const int version)
 {
 	h & identifier;
@@ -553,7 +555,7 @@ template <typename Handler> void serialize(Handler & h, const int version)
 
 Bad:
 
-``` cpp
+```cpp
 template <typename Handler> void serialize(Handler & h, const int version)
 {
 	h & identifier & description & name & dependencies;
@@ -564,7 +566,7 @@ Save backward compatibility code is exception when extra brackets are always use
 
 Good:
 
-``` cpp
+```cpp
 template <typename Handler> void serialize(Handler & h, const int version)
 {
 	h & identifier;
@@ -584,7 +586,7 @@ template <typename Handler> void serialize(Handler & h, const int version)
 
 Bad:
 
-``` cpp
+```cpp
 template <typename Handler> void serialize(Handler & h, const int version)
 {
 	h & identifier;
@@ -602,7 +604,7 @@ template <typename Handler> void serialize(Handler & h, const int version)
 
 For any new files, please paste the following info block at the very top of the source file:
 
-``` cpp
+```cpp
 /*
  * Name_of_File.h, part of VCMI engine
  *
@@ -620,13 +622,13 @@ The above notice have to be included both in header and source files (.h/.cpp).
 
 For any header or source file code must be in following order:
 
-1.  Licensing information
-2.  pragma once preprocessor directive
-3.  include directives
-4.  Forward declarations
-5.  All other code
+1. Licensing information
+2. pragma once preprocessor directive
+3. include directives
+4. Forward declarations
+5. All other code
 
-``` cpp
+```cpp
 /*
  * Name_of_File.h, part of VCMI engine
  *
@@ -650,7 +652,7 @@ If you comment on the same line with code there must be one single space between
 
 Good:
 
-``` cpp
+```cpp
 if(a)
 {
 	code(); //Do something
@@ -663,7 +665,7 @@ else // Do something.
 
 Bad:
 
-``` cpp
+```cpp
 if(a)
 {
 	code();//Do something
@@ -678,7 +680,7 @@ If you add single-line comment on own line slashes must have same indent as code
 
 Good:
 
-``` cpp
+```cpp
 // Do something
 if(a)
 {
@@ -690,7 +692,7 @@ if(a)
 
 Bad:
 
-``` cpp
+```cpp
 			// Do something
 if(a)
 {
@@ -704,7 +706,7 @@ Avoid comments inside multi-line if-else conditions. If your conditions are too 
 
 Good:
 
-``` cpp
+```cpp
 bool isMyHeroAlive = a && b || (c + 1 > 15);
 bool canMyHeroMove = myTurn && hero.movePoints > 0;
 if(isMyHeroAlive && canMyHeroMove)
@@ -715,7 +717,7 @@ if(isMyHeroAlive && canMyHeroMove)
 
 Bad:
 
-``` cpp
+```cpp
 if((a && b || (c + 1 > 15)) //Check if hero still alive
 	&& myTurn && hero.movePoints > 0) //Check if hero can move
 {
@@ -725,7 +727,7 @@ if((a && b || (c + 1 > 15)) //Check if hero still alive
 
 You should write a comment before the class definition which describes shortly the class. 1-2 sentences are enough. Methods and class data members should be commented if they aren't self-describing only. Getters/Setters, simple methods where the purpose is clear or similar methods shouldn't be commented, because vertical space is usually limited. The style of documentation comments should be the three slashes-style: ///.
 
-``` cpp
+```cpp
 /// Returns true if a debug/trace log message will be logged, false if not.
 /// Useful if performance is important and concatenating the log message is a expensive task.
 bool isDebugEnabled() const;
@@ -736,7 +738,7 @@ The above example doesn't follow a strict scheme on how to comment a method. It 
 
 If you need a more detailed description for a method you can use such style:
 
-``` cpp
+```cpp
 /// <A short one line description>
 ///
 /// <Longer description>
@@ -747,7 +749,7 @@ If you need a more detailed description for a method you can use such style:
 /// @return Description of the return value
 ```
 
-A good essay about writing comments: http://ardalis.com/when-to-comment-your-code
+A good essay about writing comments: <http://ardalis.com/when-to-comment-your-code>
 
 ### Casing
 
@@ -759,7 +761,7 @@ The line length for c++ source code is 120 columns. If your function declaration
 
 ### Warnings
 
-Avoid use of #pragma to disable warnings. Compile at warning level 3. Avoid commiting code with new warnings.
+Avoid use of #pragma to disable warnings. Compile at warning level 3. Avoid committing code with new warnings.
 
 ### File/directory naming
 
@@ -773,7 +775,7 @@ Outdated. There is separate entry for [Logging API](Logging_API.md)
 
 If you want to trace the control flow of VCMI, then you should use the macro LOG_TRACE or LOG_TRACE_PARAMS. The first one prints a message when the function is entered or leaved. The name of the function will also be logged. In addition to this the second macro, let's you specify parameters which you want to print. You should print traces with parameters like this:
 
-``` cpp
+```cpp
 LOG_TRACE_PARAMS(logGlobal, "hero '%s', spellId '%d', pos '%s'.", hero, spellId, pos);
 ```
 
@@ -789,20 +791,20 @@ The name of the type should be logged first, e.g. {TYPE_NAME: members...}. The m
 
 Avoid code duplication or don't repeat yourself(DRY) is the most important aspect in programming. Code duplication of any kind can lead to inconsistency and is much harder to maintain. If one part of the system gets changed you have to change the code in several places. This process is error-prone and leads often to problems. Here you can read more about the DRY principle: [<http://en.wikipedia.org/wiki/Don%27t_repeat_yourself>](http://en.wikipedia.org/wiki/Don%27t_repeat_yourself)
 
-### Do not use uncommon abbrevations
+### Do not use uncommon abbreviations
 
-Do not use uncommon abbrevations for class, method, parameter and global object names.
+Do not use uncommon abbreviations for class, method, parameter and global object names.
 
 Bad:
 
-``` cpp
+```cpp
 CArt * getRandomArt(...)
 class CIntObject
 ```
 
 Good:
 
-``` cpp
+```cpp
 CArtifact * getRandomArtifact(...)
 class CInterfaceObject
 ```
@@ -825,7 +827,7 @@ The header StdInc.h should be included in every compilation unit. It has to be i
 
 Do not declare enumerations in global namespace. It is better to use strongly typed enum or to wrap them in class or namespace to avoid polluting global namespace:
 
-``` cpp
+```cpp
 enum class EAlignment
 {
 	GOOD,
@@ -846,7 +848,7 @@ namespace EAlignment
 
 If the comment duplicates the name of commented member, it's better if it wouldn't exist at all. It just increases maintenance cost. Bad:
 
-``` cpp
+```cpp
 size_t getHeroesCount(); //gets count of heroes (surprise?)
 ```
 
@@ -860,13 +862,13 @@ Don't return const objects or primitive types from functions -- it's pointless. 
 
 Bad:
 
-``` cpp
+```cpp
 const std::vector<CGObjectInstance *> guardingCreatures(int3 pos) const;
 ```
 
 Good:
 
-``` cpp
+```cpp
 std::vector<const CGObjectInstance *> guardingCreatures(int3 pos) const;
 ```
 

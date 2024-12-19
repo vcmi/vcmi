@@ -16,16 +16,16 @@
 #include "bonuses/CBonusSystemNode.h"
 #include "ResourceSet.h"
 #include "TurnTimerInfo.h"
-#include "ConstTransitivePtr.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class CGObjectInstance;
 class CGHeroInstance;
 class CGTownInstance;
 class CGDwelling;
 struct QuestInfo;
 
-struct DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player
+class DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player
 {
 	struct VisitedObjectGlobal
 	{
@@ -47,6 +47,11 @@ struct DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player
 		}
 	};
 
+	std::vector<CGObjectInstance*> ownedObjects;
+
+	template<typename T>
+	std::vector<T> getObjectsOfType() const;
+
 public:
 	PlayerColor color;
 	bool human; //true if human controlled player, false for AI
@@ -55,15 +60,12 @@ public:
 
 	/// list of objects that were "destroyed" by player, either via simple pick-up (e.g. resources) or defeated heroes or wandering monsters
 	std::set<ObjectInstanceID> destroyedObjects;
-
 	std::set<ObjectInstanceID> visitedObjects; // as a std::set, since most accesses here will be from visited status checks
 	std::set<VisitedObjectGlobal> visitedObjectsGlobal;
-	std::vector<ConstTransitivePtr<CGHeroInstance> > heroes;
-	std::vector<ConstTransitivePtr<CGTownInstance> > towns;
-	std::vector<ConstTransitivePtr<CGDwelling> > dwellings; //used for town growth
 	std::vector<QuestInfo> quests; //store info about all received quests
 	std::vector<Bonus> battleBonuses; //additional bonuses to be added during battle with neutrals
 	std::map<uint32_t, std::map<ArtifactPosition, ArtifactID>> costumesArtifacts;
+	std::unique_ptr<JsonNode> playerLocalSettings; // Json with client-defined data, such as order of heroes or current hero paths. Not used by client/lib
 
 	bool cheated;
 	bool enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
@@ -85,13 +87,24 @@ public:
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
 	std::string getJsonKey() const override;
+	std::string getModScope() const override;
 	std::string getNameTranslated() const override;
 	std::string getNameTextID() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 
+	std::vector<const CGHeroInstance* > getHeroes() const;
+	std::vector<const CGTownInstance* > getTowns() const;
+	std::vector<CGHeroInstance* > getHeroes();
+	std::vector<CGTownInstance* > getTowns();
+
+	std::vector<const CGObjectInstance* > getOwnedObjects() const;
+
+	void addOwnedObject(CGObjectInstance * object);
+	void removeOwnedObject(CGObjectInstance * object);
+
 	bool checkVanquished() const
 	{
-		return heroes.empty() && towns.empty();
+		return getHeroes().empty() && getTowns().empty();
 	}
 
 	template <typename Handler> void serialize(Handler &h)
@@ -102,9 +115,24 @@ public:
 		h & resources;
 		h & status;
 		h & turnTimer;
-		h & heroes;
-		h & towns;
-		h & dwellings;
+
+		if (h.version >= Handler::Version::LOCAL_PLAYER_STATE_DATA)
+			h & *playerLocalSettings;
+
+		if (h.version >= Handler::Version::PLAYER_STATE_OWNED_OBJECTS)
+		{
+			h & ownedObjects;
+		}
+		else
+		{
+			std::vector<const CGObjectInstance* > heroes;
+			std::vector<const CGObjectInstance* > towns;
+			std::vector<const CGObjectInstance* > dwellings;
+
+			h & heroes;
+			h & towns;
+			h & dwellings;
+		}
 		h & quests;
 		h & visitedObjects;
 		h & visitedObjectsGlobal;
@@ -112,13 +140,11 @@ public:
 		h & daysWithoutCastle;
 		h & cheated;
 		h & battleBonuses;
-		if (h.version >= Handler::Version::ARTIFACT_COSTUMES)
-			h & costumesArtifacts;
+		h & costumesArtifacts;
 		h & enteredLosingCheatCode;
 		h & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
-		if (h.version >= Handler::Version::DESTROYED_OBJECTS)
-			h & destroyedObjects;
+		h & destroyedObjects;
 	}
 };
 
@@ -128,7 +154,9 @@ public:
 	TeamID id; //position in gameState::teams
 	std::set<PlayerColor> players; // members of this team
 	//TODO: boost::array, bool if possible
-	std::unique_ptr<boost::multi_array<ui8, 3>> fogOfWarMap; //[z][x][y] true - visible, false - hidden
+	boost::multi_array<ui8, 3> fogOfWarMap; //[z][x][y] true - visible, false - hidden
+
+	std::set<ObjectInstanceID> scoutedObjects;
 
 	TeamState();
 
@@ -136,8 +164,23 @@ public:
 	{
 		h & id;
 		h & players;
+		if (h.version < Handler::Version::REMOVE_FOG_OF_WAR_POINTER)
+		{
+			struct Helper : public Serializeable
+			{
+				void serialize(Handler &h) const
+				{}
+			};
+			Helper helper;
+			auto ptrHelper = &helper;
+			h & ptrHelper;
+		}
+
 		h & fogOfWarMap;
 		h & static_cast<CBonusSystemNode&>(*this);
+
+		if (h.version >= Handler::Version::REWARDABLE_BANKS)
+			h & scoutedObjects;
 	}
 
 };

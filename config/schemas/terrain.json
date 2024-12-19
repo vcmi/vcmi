@@ -97,9 +97,13 @@
 		},
 		"music" :
 		{
-			"type" : "string",
-			"description" : "Music filename to play on this terrain on adventure map",
-			"format" : "musicFile"
+			"description" : "Music filenames to play on this terrain on adventure map",
+			"type" : "array",
+			"minItems" : 1,
+			"items" : {
+				"type" : "string",
+				"format" : "musicFile"
+			}
 		},
 		"sounds" :
 		{

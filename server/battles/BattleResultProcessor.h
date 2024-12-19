@@ -12,6 +12,7 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
+#include "../../lib/battle/BattleSide.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 struct SideInBattle;
@@ -34,7 +35,7 @@ struct CasualtiesAfterBattle
 	TSummoned summoned;
 	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack locations
 
-	CasualtiesAfterBattle(const CBattleInfoCallback & battle, uint8_t sideInBattle);
+	CasualtiesAfterBattle(const CBattleInfoCallback & battle, BattleSide sideInBattle);
 	void updateArmy(CGameHandler * gh);
 };
 
@@ -42,11 +43,11 @@ struct FinishingBattleHelper
 {
 	FinishingBattleHelper(const CBattleInfoCallback & battle, const BattleResult & result, int RemainingBattleQueriesCount);
 
-	inline bool isDraw() const {return winnerSide == 2;}
+	inline bool isDraw() const {return winnerSide == BattleSide::NONE;}
 
 	const CGHeroInstance *winnerHero, *loserHero;
 	PlayerColor victor, loser;
-	ui8 winnerSide;
+	BattleSide winnerSide;
 
 	int remainingBattleQueriesCount;
 
@@ -74,7 +75,7 @@ public:
 
 	bool battleIsEnding(const CBattleInfoCallback & battle) const;
 
-	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, int victoriusSide);
+	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide);
 	void endBattle(const CBattleInfoCallback & battle); //ends battle
 	void endBattleConfirm(const CBattleInfoCallback & battle);
 	void battleAfterLevelUp(const BattleID & battleID, const BattleResult & result);

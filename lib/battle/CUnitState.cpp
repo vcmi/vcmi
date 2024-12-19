@@ -14,7 +14,6 @@
 #include <vcmi/spells/Spell.h>
 
 #include "../CCreatureHandler.h"
-#include "../MetaString.h"
 
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
@@ -140,7 +139,7 @@ int32_t CRetaliations::total() const
 	if(noRetaliation.getHasBonus())
 		return 0;
 
-	//after dispell bonus should remain during current round
+	//after dispel bonus should remain during current round
 	int32_t val = 1 + totalProxy->totalValue();
 	vstd::amax(totalCache, val);
 	return totalCache;
@@ -228,7 +227,7 @@ void CHealth::damage(int64_t & amount)
 	addResurrected(getCount() - oldCount);
 }
 
-void CHealth::heal(int64_t & amount, EHealLevel level, EHealPower power)
+HealInfo CHealth::heal(int64_t & amount, EHealLevel level, EHealPower power)
 {
 	const int32_t unitHealth = owner->getMaxHealth();
 	const int32_t oldCount = getCount();
@@ -252,7 +251,7 @@ void CHealth::heal(int64_t & amount, EHealLevel level, EHealPower power)
 	vstd::abetween(amount, int64_t(0), maxHeal);
 
 	if(amount == 0)
-		return;
+		return {};
 
 	int64_t availableHealth = available();
 
@@ -263,6 +262,8 @@ void CHealth::heal(int64_t & amount, EHealLevel level, EHealPower power)
 		addResurrected(getCount() - oldCount);
 	else
 		assert(power == EHealPower::PERMANENT);
+
+	return HealInfo(amount, getCount() - oldCount);
 }
 
 void CHealth::setFromTotal(const int64_t totalHealth)
@@ -329,6 +330,7 @@ CUnitState::CUnitState():
 	drainedMana(false),
 	fear(false),
 	hadMorale(false),
+	castSpellThisTurn(false),
 	ghost(false),
 	ghostPending(false),
 	movedThisRound(false),
@@ -361,6 +363,7 @@ CUnitState & CUnitState::operator=(const CUnitState & other)
 	drainedMana = other.drainedMana;
 	fear = other.fear;
 	hadMorale = other.hadMorale;
+	castSpellThisTurn = other.castSpellThisTurn;
 	ghost = other.ghost;
 	ghostPending = other.ghostPending;
 	movedThisRound = other.movedThisRound;
@@ -413,9 +416,9 @@ int32_t CUnitState::creatureIconIndex() const
 	return unitType()->getIconIndex();
 }
 
-FactionID CUnitState::getFaction() const
+FactionID CUnitState::getFactionID() const
 {
-	return unitType()->getFaction();
+	return unitType()->getFactionID();
 }
 
 int32_t CUnitState::getCasterUnitId() const
@@ -531,7 +534,7 @@ bool CUnitState::hasClone() const
 
 bool CUnitState::canCast() const
 {
-	return casts.canUse(1);//do not check specific cast abilities here
+	return casts.canUse(1) && !castSpellThisTurn;//do not check specific cast abilities here
 }
 
 bool CUnitState::isCaster() const
@@ -747,6 +750,7 @@ void CUnitState::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeBool("drainedMana", drainedMana);
 	handler.serializeBool("fear", fear);
 	handler.serializeBool("hadMorale", hadMorale);
+	handler.serializeBool("castSpellThisTurn", castSpellThisTurn);
 	handler.serializeBool("ghost", ghost);
 	handler.serializeBool("ghostPending", ghostPending);
 	handler.serializeBool("moved", movedThisRound);
@@ -781,6 +785,7 @@ void CUnitState::reset()
 	drainedMana = false;
 	fear = false;
 	hadMorale = false;
+	castSpellThisTurn = false;
 	ghost = false;
 	ghostPending = false;
 	movedThisRound = false;
@@ -830,18 +835,21 @@ void CUnitState::damage(int64_t & amount)
 		health.damage(amount);
 	}
 
-	if(health.available() <= 0 && (cloned || summoned))
+	bool disintegrate = hasBonusOfType(BonusType::DISINTEGRATE);
+	if(health.available() <= 0 && (cloned || summoned || disintegrate))
 		ghostPending = true;
 }
 
-void CUnitState::heal(int64_t & amount, EHealLevel level, EHealPower power)
+HealInfo CUnitState::heal(int64_t & amount, EHealLevel level, EHealPower power)
 {
 	if(level == EHealLevel::HEAL && power == EHealPower::ONE_BATTLE)
 		logGlobal->error("Heal for one battle does not make sense");
 	else if(cloned)
 		logGlobal->error("Attempt to heal clone");
 	else
-		health.heal(amount, level, power);
+		return health.heal(amount, level, power);
+
+	return {};
 }
 
 void CUnitState::afterAttack(bool ranged, bool counter)
@@ -860,6 +868,7 @@ void CUnitState::afterNewRound()
 	waitedThisTurn = false;
 	movedThisRound = false;
 	hadMorale = false;
+	castSpellThisTurn = false;
 	fear = false;
 	drainedMana = false;
 	counterAttacks.reset();
@@ -897,9 +906,9 @@ CUnitStateDetached::CUnitStateDetached(const IUnitInfo * unit_, const IBonusBear
 {
 }
 
-TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root, const std::string & cachingStr) const
+TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector, const CSelector & limit, const std::string & cachingStr) const
 {
-	return bonus->getAllBonuses(selector, limit, root, cachingStr);
+	return bonus->getAllBonuses(selector, limit, cachingStr);
 }
 
 int64_t CUnitStateDetached::getTreeVersion() const
@@ -918,7 +927,7 @@ uint32_t CUnitStateDetached::unitId() const
 	return unit->unitId();
 }
 
-ui8 CUnitStateDetached::unitSide() const
+BattleSide CUnitStateDetached::unitSide() const
 {
 	return unit->unitSide();
 }

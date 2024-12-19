@@ -109,7 +109,7 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageToAliveUnit)
 	targetUnitState->localInit(&unitEnvironmentMock);
 	EXPECT_CALL(targetUnit, acquireState()).WillOnce(Return(targetUnitState));
 	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId),_, Lt(0))).Times(1);
-	EXPECT_CALL(serverMock, apply(Matcher<StacksInjured *>(_))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<StacksInjured &>(_))).Times(1);
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	setupDefaultRNG();
@@ -174,7 +174,7 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageByPercent)
 	EXPECT_CALL(targetUnit, acquireState()).WillOnce(Return(targetUnitState));
 
 	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId),_, Lt(0))).Times(1);
-	EXPECT_CALL(serverMock, apply(Matcher<StacksInjured *>(_))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<StacksInjured &>(_))).Times(1);
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	setupDefaultRNG();
@@ -218,7 +218,7 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageByCount)
 	EXPECT_CALL(targetUnit, acquireState()).WillOnce(Return(targetUnitState));
 
 	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Lt(0))).Times(1);
-	EXPECT_CALL(serverMock, apply(Matcher<StacksInjured *>(_))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<StacksInjured &>(_))).Times(1);
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	setupDefaultRNG();

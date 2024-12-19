@@ -16,9 +16,7 @@
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/VCMI_Lib.h"
-#include "../../lib/CBuildingHandler.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CTownHandler.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "Pathfinding/AIPathfinder.h"
@@ -59,15 +57,6 @@ public:
 	void attemptedAnsweringQuery(QueryID queryID, int answerRequestID);
 	void receivedAnswerConfirmation(int answerRequestID, int result);
 	void heroVisit(const CGObjectInstance * obj, bool started);
-
-
-	template<typename Handler> void serialize(Handler & h)
-	{
-		h & battle;
-		h & remainingQueries;
-		h & requestToQueryID;
-		h & havingTurn;
-	}
 };
 
 // The gateway is responsible for AI events handling. Copied from VCAI.h and refined a bit
@@ -104,7 +93,7 @@ public:
 	AIGateway();
 	virtual ~AIGateway();
 
-	//TODO: extract to apropriate goals
+	//TODO: extract to appropriate goals
 	void tryRealize(Goals::DigAtTile & g);
 	void tryRealize(Goals::Trade & g);
 
@@ -119,8 +108,6 @@ public:
 	void showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID) override; //all stacks operations between these objects become allowed, interface has to call onEnd when done
 	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
 	void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
-	void saveGame(BinarySerializer & h) override; //saving
-	void loadGame(BinaryDeserializer & h) override; //loading
 	void finish() override;
 
 	void availableCreaturesChanged(const CGDwelling * town) override;
@@ -169,7 +156,7 @@ public:
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
-	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed) override;
+	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, BattleSide side, bool replayAllowed) override;
 	void battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID) override;
 
 	void makeTurn();
@@ -202,17 +189,6 @@ public:
 	void answerQuery(QueryID queryID, int selection);
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
 	void requestActionASAP(std::function<void()> whatToDo);
-
-	template<typename Handler> void serializeInternal(Handler & h)
-	{
-		h & nullkiller->memory->knownTeleportChannels;
-		h & nullkiller->memory->knownSubterraneanGates;
-		h & destinationTeleport;
-		h & nullkiller->memory->visitableObjs;
-		h & nullkiller->memory->alreadyVisited;
-		h & status;
-		h & battlename;
-	}
 };
 
 }

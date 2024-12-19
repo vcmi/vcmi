@@ -71,15 +71,18 @@ public:
 	explicit JsonNode(const char * string);
 	explicit JsonNode(const std::string & string);
 
+	/// Create tree from map
+	explicit JsonNode(const JsonMap & map);
+
 	/// Create tree from Json-formatted input
-	explicit JsonNode(const std::byte * data, size_t datasize);
-	explicit JsonNode(const std::byte * data, size_t datasize, const JsonParsingSettings & parserSettings);
+	explicit JsonNode(const std::byte * data, size_t datasize, const std::string & fileName);
+	explicit JsonNode(const std::byte * data, size_t datasize, const JsonParsingSettings & parserSettings, const std::string & fileName);
 
 	/// Create tree from JSON file
 	explicit JsonNode(const JsonPath & fileURI);
 	explicit JsonNode(const JsonPath & fileURI, const JsonParsingSettings & parserSettings);
 	explicit JsonNode(const JsonPath & fileURI, const std::string & modName);
-	explicit JsonNode(const JsonPath & fileURI, bool & isValidSyntax);
+	explicit JsonNode(const JsonPath & fileURI, const std::string & modName, bool & isValidSyntax);
 
 	bool operator==(const JsonNode & other) const;
 	bool operator!=(const JsonNode & other) const;
@@ -152,16 +155,7 @@ public:
 	void serialize(Handler & h)
 	{
 		h & modScope;
-
-		if(h.version >= Handler::Version::JSON_FLAGS)
-		{
-			h & overrideFlag;
-		}
-		else
-		{
-			std::vector<std::string> oldFlags;
-			h & oldFlags;
-		}
+		h & overrideFlag;
 		h & data;
 	}
 };
@@ -196,7 +190,7 @@ void convert(std::map<std::string, Type> & value, const JsonNode & node)
 {
 	value.clear();
 	for(const JsonMap::value_type & entry : node.Struct())
-		value.insert(entry.first, entry.second.convertTo<Type>());
+		value.emplace(entry.first, entry.second.convertTo<Type>());
 }
 
 template<typename Type>

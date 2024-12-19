@@ -15,8 +15,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CRandomGenerator;
-
 class QuestArtifactPlacer : public Modificator
 {
 public:
@@ -33,7 +31,7 @@ public:
 	void rememberPotentialArtifactToReplace(CGObjectInstance* obj);
 	CGObjectInstance * drawObjectToReplace();
 	std::vector<CGObjectInstance*> getPossibleArtifactsToReplace() const;
-	void placeQuestArtifacts(CRandomGenerator & rand);
+	void placeQuestArtifacts(vstd::RNG & rand);
 	void dropReplacedArtifact(CGObjectInstance* obj);
 
 	size_t getMaxQuestArtifactCount() const;

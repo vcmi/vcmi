@@ -247,7 +247,7 @@ function UN:T(x, town, level, dwellingSlot, creature)
 	error ("UN:T is not implemented")
 end
 
--- count objects, get coordiantes
+-- count objects, get coordinates
 function UN:U(x, ...)
 	error ("UN:U is not implemented")
 end

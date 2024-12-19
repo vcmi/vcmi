@@ -82,11 +82,11 @@ This module responds to the following cache variables:
   SDL2_LIBRARY
     SDL2 Library (.dll, .so, .a, etc) path.
 
-  SDL2MAIN_LIBRAY
+  SDL2MAIN_LIBRARY
     SDL2main Library (.a) path.
 
   SDL2_BUILDING_LIBRARY
-    This flag is useful only when linking to SDL2_LIBRARIES insead of
+    This flag is useful only when linking to SDL2_LIBRARIES instead of
     SDL2::SDL2main. It is required only when building a library that links to
     SDL2_LIBRARIES, because only applications need main() (No need to also
     link to SDL2main).

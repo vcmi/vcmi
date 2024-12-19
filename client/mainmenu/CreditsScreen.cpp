@@ -22,12 +22,14 @@
 #include "../../AUTHORS.h"
 
 CreditsScreen::CreditsScreen(Rect rect)
-	: CIntObject(LCLICK), positionCounter(0)
+	: CIntObject(LCLICK), timePassed(0)
 {
 	pos.w = rect.w;
 	pos.h = rect.h;
 	setRedrawParent(true);
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
+
+	addUsedEvents(TIME);
 
 	std::string contributorsText = "";
 	std::string contributorsTask = "";
@@ -48,15 +50,15 @@ CreditsScreen::CreditsScreen(Rect rect)
 	credits->scrollTextTo(-600); // move all text below the screen
 }
 
-void CreditsScreen::show(Canvas & to)
+void CreditsScreen::tick(uint32_t msPassed)
 {
-	CIntObject::show(to);
-	positionCounter++;
-	if(positionCounter % 2 == 0)
-		credits->scrollTextBy(1);
+	static const int timeToScrollByOnePx = 20;
+	timePassed += msPassed;
+	int scrollPosition = timePassed / timeToScrollByOnePx - 600;
+	credits->scrollTextTo(scrollPosition);
 
 	//end of credits, close this screen
-	if(credits->textSize.y + 600 < positionCounter / 2)
+	if(credits->textSize.y < scrollPosition)
 		clickPressed(GH.getCursorPosition());
 }
 

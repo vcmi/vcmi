@@ -10,20 +10,21 @@
 
 #include "StdInc.h"
 #include "RiverHandler.h"
-#include "CGeneralTextHandler.h"
-#include "GameSettings.h"
+#include "texts/CGeneralTextHandler.h"
+#include "IGameSettings.h"
 #include "json/JsonNode.h"
+#include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 RiverTypeHandler::RiverTypeHandler()
 {
-	objects.push_back(new RiverType());
+	objects.emplace_back(new RiverType());
 
 	VLC->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
 
-RiverType * RiverTypeHandler::loadFromJson(
+std::shared_ptr<RiverType> RiverTypeHandler::loadFromJson(
 	const std::string & scope,
 	const JsonNode & json,
 	const std::string & identifier,
@@ -31,7 +32,7 @@ RiverType * RiverTypeHandler::loadFromJson(
 {
 	assert(identifier.find(':') == std::string::npos);
 
-	auto * info = new RiverType;
+	auto info = std::make_shared<RiverType>();
 
 	info->id              = RiverId(index);
 	info->identifier      = identifier;
@@ -49,7 +50,7 @@ RiverType * RiverTypeHandler::loadFromJson(
 		info->paletteAnimation.push_back(element);
 	}
 
-	VLC->generaltexth->registerString(scope, info->getNameTextID(), json["text"].String());
+	VLC->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
 	return info;
 }
@@ -62,7 +63,7 @@ const std::vector<std::string> & RiverTypeHandler::getTypeNames() const
 
 std::vector<JsonNode> RiverTypeHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_RIVER);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_RIVER);
 
 	objects.resize(dataSize);
 	return {};
@@ -71,6 +72,11 @@ std::vector<JsonNode> RiverTypeHandler::loadLegacyData()
 std::string RiverType::getJsonKey() const
 {
 	return modScope + ":" + identifier;
+}
+
+std::string RiverType::getModScope() const
+{
+	return modScope;
 }
 
 std::string RiverType::getNameTextID() const

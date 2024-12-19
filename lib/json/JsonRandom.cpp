@@ -12,10 +12,12 @@
 #include "JsonRandom.h"
 
 #include <vstd/StringUtils.h>
+#include <vstd/RNG.h>
+#include <vcmi/HeroClassService.h>
+#include <vcmi/HeroTypeService.h>
 
 #include "JsonBonus.h"
 
-#include "../CRandomGenerator.h"
 #include "../constants/StringConstants.h"
 #include "../VCMI_Lib.h"
 #include "../CArtHandler.h"
@@ -23,8 +25,9 @@
 #include "../CCreatureSet.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
-#include "../CHeroHandler.h"
 #include "../IGameCallback.h"
+#include "../entities/hero/CHero.h"
+#include "../entities/hero/CHeroClass.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
@@ -50,7 +53,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return variables.at(variableID);
 	}
 
-	si32 JsonRandom::loadValue(const JsonNode & value, CRandomGenerator & rng, const Variables & variables, si32 defaultValue)
+	si32 JsonRandom::loadValue(const JsonNode & value, vstd::RNG & rng, const Variables & variables, si32 defaultValue)
 	{
 		if(value.isNull())
 			return defaultValue;
@@ -63,7 +66,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		{
 			const auto & vector = value.Vector();
 
-			size_t index= rng.getIntRange(0, vector.size()-1)();
+			size_t index= rng.nextInt64(0, vector.size()-1);
 			return loadValue(vector[index], rng, variables, 0);
 		}
 		if(value.isStruct())
@@ -72,7 +75,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 				return loadValue(value["amount"], rng, variables, defaultValue);
 			si32 min = loadValue(value["min"], rng, variables, 0);
 			si32 max = loadValue(value["max"], rng, variables, 0);
-			return rng.getIntRange(min, max)();
+			return rng.nextInt64(min, max);
 		}
 		return defaultValue;
 	}
@@ -256,7 +259,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return valuesSet;
 	}
 
-	TResources JsonRandom::loadResources(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	TResources JsonRandom::loadResources(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		TResources ret;
 
@@ -274,7 +277,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return ret;
 	}
 
-	TResources JsonRandom::loadResource(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	TResources JsonRandom::loadResource(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		std::set<GameResID> defaultResources{
 			GameResID::WOOD,
@@ -295,7 +298,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return ret;
 	}
 
-	PrimarySkill JsonRandom::loadPrimary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	PrimarySkill JsonRandom::loadPrimary(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		std::set<PrimarySkill> defaultSkills{
 			PrimarySkill::ATTACK,
@@ -307,7 +310,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 	}
 
-	std::vector<si32> JsonRandom::loadPrimaries(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	std::vector<si32> JsonRandom::loadPrimaries(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		std::vector<si32> ret(GameConstants::PRIMARY_SKILLS, 0);
 		std::set<PrimarySkill> defaultSkills{
@@ -339,7 +342,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return ret;
 	}
 
-	SecondarySkill JsonRandom::loadSecondary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	SecondarySkill JsonRandom::loadSecondary(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		std::set<SecondarySkill> defaultSkills;
 		for(const auto & skill : VLC->skillh->objects)
@@ -350,7 +353,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 	}
 
-	std::map<SecondarySkill, si32> JsonRandom::loadSecondaries(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	std::map<SecondarySkill, si32> JsonRandom::loadSecondaries(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		std::map<SecondarySkill, si32> ret;
 		if(value.isStruct())
@@ -380,7 +383,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return ret;
 	}
 
-	ArtifactID JsonRandom::loadArtifact(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	ArtifactID JsonRandom::loadArtifact(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		std::set<ArtifactID> allowedArts;
 		for(const auto & artifact : VLC->arth->objects)
@@ -392,7 +395,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return cb->gameState()->pickRandomArtifact(rng, potentialPicks);
 	}
 
-	std::vector<ArtifactID> JsonRandom::loadArtifacts(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	std::vector<ArtifactID> JsonRandom::loadArtifacts(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		std::vector<ArtifactID> ret;
 		for (const JsonNode & entry : value.Vector())
@@ -402,7 +405,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return ret;
 	}
 
-	SpellID JsonRandom::loadSpell(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	SpellID JsonRandom::loadSpell(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		std::set<SpellID> defaultSpells;
 		for(const auto & spell : VLC->spellh->objects)
@@ -419,7 +422,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 	}
 
-	std::vector<SpellID> JsonRandom::loadSpells(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	std::vector<SpellID> JsonRandom::loadSpells(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		std::vector<SpellID> ret;
 		for (const JsonNode & entry : value.Vector())
@@ -429,7 +432,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return ret;
 	}
 
-	std::vector<PlayerColor> JsonRandom::loadColors(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	std::vector<PlayerColor> JsonRandom::loadColors(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		std::vector<PlayerColor> ret;
 		std::set<PlayerColor> defaultPlayers;
@@ -445,7 +448,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return ret;
 	}
 
-	std::vector<HeroTypeID> JsonRandom::loadHeroes(const JsonNode & value, CRandomGenerator & rng)
+	std::vector<HeroTypeID> JsonRandom::loadHeroes(const JsonNode & value, vstd::RNG & rng)
 	{
 		std::vector<HeroTypeID> ret;
 		for(auto & entry : value.Vector())
@@ -455,7 +458,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return ret;
 	}
 
-	std::vector<HeroClassID> JsonRandom::loadHeroClasses(const JsonNode & value, CRandomGenerator & rng)
+	std::vector<HeroClassID> JsonRandom::loadHeroClasses(const JsonNode & value, vstd::RNG & rng)
 	{
 		std::vector<HeroClassID> ret;
 		for(auto & entry : value.Vector())
@@ -465,7 +468,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		return ret;
 	}
 
-	CStackBasicDescriptor JsonRandom::loadCreature(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	CStackBasicDescriptor JsonRandom::loadCreature(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		CStackBasicDescriptor stack;
 
@@ -482,19 +485,19 @@ VCMI_LIB_NAMESPACE_BEGIN
 		else
 			logMod->warn("Failed to select suitable random creature!");
 
-		stack.type = pickedCreature.toCreature();
+		stack.setType(pickedCreature.toCreature());
 		stack.count = loadValue(value, rng, variables);
-		if (!value["upgradeChance"].isNull() && !stack.type->upgrades.empty())
+		if (!value["upgradeChance"].isNull() && !stack.getCreature()->upgrades.empty())
 		{
 			if (int(value["upgradeChance"].Float()) > rng.nextInt(99)) // select random upgrade
 			{
-				stack.type = RandomGeneratorUtil::nextItem(stack.type->upgrades, rng)->toCreature();
+				stack.setType(RandomGeneratorUtil::nextItem(stack.getCreature()->upgrades, rng)->toCreature());
 			}
 		}
 		return stack;
 	}
 
-	std::vector<CStackBasicDescriptor> JsonRandom::loadCreatures(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	std::vector<CStackBasicDescriptor> JsonRandom::loadCreatures(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		std::vector<CStackBasicDescriptor> ret;
 		for (const JsonNode & node : value.Vector())

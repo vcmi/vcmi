@@ -14,7 +14,7 @@
 class CArtifactsBuying : public CResourcesSelling, public CMarketTraderText
 {
 public:
-	CArtifactsBuying(const IMarket * market, const CGHeroInstance * hero);
+	CArtifactsBuying(const IMarket * market, const CGHeroInstance * hero, const std::string & title);
 	void deselect() override;
 	void makeDeal() override;
 

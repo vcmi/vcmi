@@ -41,7 +41,7 @@ public:
 	InterfaceObjectConfigurable(const JsonNode & config, int used=0, Point offset=Point());
 
 protected:
-	/// Set blocked status for all buttons assotiated with provided shortcut
+	/// Set blocked status for all buttons associated with provided shortcut
 	void setShortcutBlocked(EShortcut shortcut, bool isBlocked);
 
 	/// Registers provided callback to be called whenever specified shortcut is triggered

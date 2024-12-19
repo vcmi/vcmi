@@ -162,7 +162,7 @@ TGoalVec CompleteQuest::missionArmy() const
 
 	for(auto creature : q.quest->mission.creatures)
 	{
-		solutions.push_back(sptr(GatherTroops(creature.type->getId(), creature.count)));
+		solutions.push_back(sptr(GatherTroops(creature.getId(), creature.count)));
 	}
 
 	return solutions;

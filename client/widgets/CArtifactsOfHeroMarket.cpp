@@ -14,14 +14,34 @@
 
 CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position, const int selectionWidth)
 {
-	init(
-		std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2),
-		std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2),
-		position,
-		std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
-
+	init(position, std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
+	setClickPressedArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::clickPressedArtPlace, this, _1, _2));
 	for(const auto & [slot, artPlace] : artWorn)
 		artPlace->setSelectionWidth(selectionWidth);
 	for(auto artPlace : backpack)
 		artPlace->setSelectionWidth(selectionWidth);
 };
+
+void CArtifactsOfHeroMarket::clickPressedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
+{
+	if(auto ownedPlace = getArtPlace(cursorPosition))
+	{
+		if(ownedPlace->isLocked())
+			return;
+
+		if(const auto art = getArt(ownedPlace->slot))
+		{
+			if(onSelectArtCallback && art->getType()->isTradable())
+			{
+				unmarkSlots();
+				artPlace.selectSlot(true);
+				onSelectArtCallback(ownedPlace.get());
+			}
+			else
+			{
+				if(onClickNotTradableCallback)
+					onClickNotTradableCallback();
+			}
+		}
+	}
+}

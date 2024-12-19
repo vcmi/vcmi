@@ -13,7 +13,7 @@
 #include "../gui/CGuiHandler.h"
 
 #include "Images.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "ObjectLists.h"
 
 #include "../CPlayerInterface.h"
@@ -34,12 +34,14 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(size_t slotsColumnsMax, size_
 CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack()
 	: CArtifactsOfHeroBackpack(8, 8)
 {
-	const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
+	const auto backpackCap = LOCPLINT->cb->getSettings().getInteger(EGameSettings::HEROES_BACKPACK_CAP);
 	auto visibleCapacityMax = slotsRowsMax * slotsColumnsMax;
 	if(backpackCap >= 0)
 		visibleCapacityMax = visibleCapacityMax > backpackCap ? backpackCap : visibleCapacityMax;
 
 	initAOHbackpack(visibleCapacityMax, backpackCap < 0 || visibleCapacityMax < backpackCap);
+	setClickPressedArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::clickPressedArtPlace, this, _1, _2));
+	setShowPopupArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 }
 
 void CArtifactsOfHeroBackpack::onSliderMoved(int newVal)
@@ -73,7 +75,7 @@ size_t CArtifactsOfHeroBackpack::getSlotsNum()
 
 void CArtifactsOfHeroBackpack::initAOHbackpack(size_t slots, bool slider)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	backpack.resize(slots);
 	size_t artPlaceIdx = 0;
@@ -83,9 +85,7 @@ void CArtifactsOfHeroBackpack::initAOHbackpack(size_t slots, bool slider)
 			slotSizeWithMargin * (artPlaceIdx / slotsColumnsMax));
 		backpackSlotsBackgrounds.emplace_back(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/artifactSlotEmpty"), pos));
 		artPlace = std::make_shared<CArtPlace>(pos);
-		artPlace->setArtifact(nullptr);
-		artPlace->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
-		artPlace->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
+		artPlace->setArtifact(ArtifactID(ArtifactID::NONE));
 		artPlaceIdx++;
 	}
 
@@ -126,12 +126,11 @@ size_t CArtifactsOfHeroBackpack::calcRows(size_t slots)
 CArtifactsOfHeroQuickBackpack::CArtifactsOfHeroQuickBackpack(const ArtifactPosition filterBySlot)
 	: CArtifactsOfHeroBackpack(0, 0)
 {
-	assert(filterBySlot != ArtifactPosition::FIRST_AVAILABLE);
-
 	if(!ArtifactUtils::isSlotEquipment(filterBySlot))
 		return;
 
 	this->filterBySlot = filterBySlot;
+	setShowPopupArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 }
 
 void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
@@ -153,7 +152,7 @@ void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
 		std::map<const ArtifactID, const CArtifactInstance*> filteredArts;
 		for(auto & slotInfo : curHero->artifactsInBackpack)
 			if(slotInfo.artifact->getTypeId() != artInSlotId &&	!slotInfo.artifact->isScroll() &&
-				slotInfo.artifact->artType->canBePutAt(curHero, filterBySlot, true))
+				slotInfo.artifact->getType()->canBePutAt(curHero, filterBySlot, true))
 			{
 				filteredArts.insert(std::pair(slotInfo.artifact->getTypeId(), slotInfo.artifact));
 			}
@@ -174,11 +173,12 @@ void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
 		slotsColumnsMax = ceilf(sqrtf(requiredSlots));
 		slotsRowsMax = calcRows(requiredSlots);
 		initAOHbackpack(requiredSlots, false);
+		setClickPressedArtPlacesCallback(std::bind(&CArtifactsOfHeroBase::clickPressedArtPlace, this, _1, _2));
 		auto artPlace = backpack.begin();
 		for(auto & art : filteredArts)
-			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second));
+			setSlotData(*artPlace++, curHero->getArtPos(art.second));
 		for(auto & art : filteredScrolls)
-			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second));
+			setSlotData(*artPlace++, curHero->getArtPos(art.second));
 	}
 }
 

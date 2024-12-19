@@ -17,7 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cachingStr) const
 {
-	TConstBonusListPtr hlp = getAllBonuses(selector, nullptr, nullptr, cachingStr);
+	TConstBonusListPtr hlp = getAllBonuses(selector, nullptr, cachingStr);
 	return hlp->totalValue();
 }
 
@@ -34,12 +34,12 @@ bool IBonusBearer::hasBonus(const CSelector &selector, const CSelector &limit, c
 
 TConstBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr) const
 {
-	return getAllBonuses(selector, nullptr, nullptr, cachingStr);
+	return getAllBonuses(selector, nullptr, cachingStr);
 }
 
 TConstBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr) const
 {
-	return getAllBonuses(selector, limit, nullptr, cachingStr);
+	return getAllBonuses(selector, limit, cachingStr);
 }
 
 int IBonusBearer::valOfBonuses(BonusType type) const
@@ -84,11 +84,9 @@ bool IBonusBearer::hasBonusOfType(BonusType type, BonusSubtypeID subtype) const
 
 bool IBonusBearer::hasBonusFrom(BonusSource source, BonusSourceID sourceID) const
 {
-	boost::format fmt("source_%did_%s");
-	fmt % static_cast<int>(source) % sourceID.toString();
-
-	return hasBonus(Selector::source(source,sourceID), fmt.str());
+	return hasBonus(Selector::source(source,sourceID));
 }
+
 std::shared_ptr<const Bonus> IBonusBearer::getBonus(const CSelector &selector) const
 {
 	auto bonuses = getAllBonuses(selector, Selector::all);

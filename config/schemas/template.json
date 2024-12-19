@@ -12,7 +12,7 @@
 			"properties" : {
 				"type" : {
 					"type" : "string",
-					"enum" : ["playerStart", "cpuStart", "treasure", "junction"]
+					"enum" : ["playerStart", "cpuStart", "treasure", "junction", "sealed"]
 				},
 				"size" : { "type" : "number", "minimum" : 1 },
 				"owner" : {},
@@ -22,6 +22,7 @@
 				"minesLikeZone" : { "type" : "number" },
 				"terrainTypeLikeZone" : { "type" : "number" },
 				"treasureLikeZone" : { "type" : "number" },
+				"customObjectsLikeZone" : { "type" : "number" },
 				
 				"terrainTypes": {"$ref" : "#/definitions/stringArray"},
 				"bannedTerrains": {"$ref" : "#/definitions/stringArray"},
@@ -48,6 +49,51 @@
 							"density" : {"type" : "number", "minimum" : 1}
 						},
 						"additionalProperties" : false
+					}
+				},
+				"customObjects" : {
+					"type" : "object",
+					"properties": {
+						"bannedCategories": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": ["all", "dwelling", "creatureBank", "randomArtifact", "bonus", "resource", "resourceGenerator", "spellScroll", "pandorasBox", "questArtifact", "seerHut"]
+							}
+						},
+						"bannedObjects": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"commonObjects": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "string"
+									},
+									"rmg": {
+										"type": "object",
+										"properties": {
+											"value": {
+												"type": "integer"
+											},
+											"rarity": {
+												"type": "integer"
+											},
+											"zoneLimit": {
+												"type": "integer"
+											}
+										},
+										"required": ["value", "rarity"]
+									}
+								},
+								"required": ["id", "rmg"]
+							}
+						}
 					}
 				}
 			}
@@ -99,7 +145,7 @@
 				"type":
 				{
 					"type" : "string",
-					"enum" : ["wide", "fictive", "repulsive"]
+					"enum" : ["wide", "fictive", "repulsive", "forcePortal"]
 				}
 			}
 		},
@@ -130,6 +176,11 @@
 		"maxSize" : {
 			"description" : "Maximal size of the map, e.g. 'm+u' or '120x120x1",
 			"type": "string"
+		},
+		"settings" : {
+			"description" : "List of changed game settings by template",
+			"type" : "object",
+			"$ref" : "gameSettings.json"
 		},
 		"name" : {
 			"description" : "Optional name - useful to have several template variations with same name",

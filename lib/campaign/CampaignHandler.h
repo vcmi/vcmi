@@ -17,6 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CampaignHandler
 {
 	static std::string readLocalizedString(CampaignHeader & target, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier);
+	static std::string readLocalizedString(CampaignHeader & target, std::string text, std::string filename, std::string modName, std::string identifier);
 
 	static void readCampaign(Campaign * target, const std::vector<ui8> & stream, std::string filename, std::string modName, std::string encoding);
 
@@ -37,6 +38,7 @@ class DLL_LINKAGE CampaignHandler
 	static AudioPath prologMusicName(ui8 index);
 	static AudioPath prologVoiceName(ui8 index);
 
+	static constexpr auto VCMP_HEADER_FILE_NAME = "header.json";
 public:
 	static std::unique_ptr<Campaign> getHeader( const std::string & name); //name - name of appropriate file
 

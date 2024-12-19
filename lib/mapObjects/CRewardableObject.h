@@ -15,7 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 /// Base class that can handle granting rewards to visiting heroes.
-/// Inherits from CArmedInstance for proper trasfer of armies
+/// Inherits from CArmedInstance for proper transfer of armies
 class DLL_LINKAGE CRewardableObject : public CArmedInstance, public Rewardable::Interface
 {
 protected:
@@ -25,27 +25,26 @@ protected:
 	/// reward selected by player, no serialize
 	ui16 selectedReward = 0;
 	
-	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
-	void markAsVisited(const CGHeroInstance * hero) const;
+	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const override;
+	void markAsVisited(const CGHeroInstance * hero) const override;
+
+	const IObjectInterface * getObject() const override;
+	void markAsScouted(const CGHeroInstance * hero) const override;
 	
 	/// return true if this object was "cleared" before and no longer has rewards applicable to selected hero
 	/// unlike wasVisited, this method uses information not available to player owner, for example, if object was cleared by another player before
-	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
+	bool wasVisitedBefore(const CGHeroInstance * contextHero) const override;
 	
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 	
-	virtual void grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const;
-	virtual void selectRewardWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const;
-
-	virtual void grantAllRewardsWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32>& rewardIndices, bool markAsVisit) const;
-
-	std::vector<Component> loadComponents(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const;
-
 	std::string getDisplayTextImpl(PlayerColor player, const CGHeroInstance * hero, bool includeDescription) const;
 	std::string getDescriptionMessage(PlayerColor player, const CGHeroInstance * hero) const;
 	std::vector<Component> getPopupComponentsImpl(PlayerColor player, const CGHeroInstance * hero) const;
 
+	/// Returns true if this object is currently guarded
+	bool isGuarded() const;
 public:
+
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
 	bool wasVisited(PlayerColor player) const override;
 	bool wasVisited(const CGHeroInstance * h) const override;
@@ -56,16 +55,22 @@ public:
 	/// gives reward to player or ask for choice in case of multiple rewards
 	void onHeroVisit(const CGHeroInstance *h) const override;
 
+	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
+
 	///possibly resets object state
-	void newTurn(CRandomGenerator & rand) const override;
+	void newTurn(vstd::RNG & rand) const override;
 
 	/// gives second part of reward after hero level-ups for proper granting of spells/mana
 	void heroLevelUpDone(const CGHeroInstance *hero) const override;
 
 	/// applies player selection of reward
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 
-	void initObj(CRandomGenerator & rand) override;
+	void initObj(vstd::RNG & rand) override;
+
+	bool isCoastVisitable() const override;
+
+	void initializeGuards();
 	
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
@@ -89,14 +94,6 @@ public:
 };
 
 //TODO:
-
-// MAX
-// class DLL_LINKAGE CBank : public CArmedInstance
-// class DLL_LINKAGE CGPyramid : public CBank
-
-// EXTRA
-// class DLL_LINKAGE COPWBonus : public CGTownBuilding
-// class DLL_LINKAGE CTownBonus : public CGTownBuilding
 // class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
 // class DLL_LINKAGE CGKeymasterTent : public CGKeys
 // class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject

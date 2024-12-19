@@ -52,7 +52,7 @@ class UnitsFake
 public:
 	std::vector<std::shared_ptr<UnitFake>> allUnits;
 
-	UnitFake & add(ui8 side);
+	UnitFake & add(BattleSide side);
 
 	battle::Units getUnitsIf(battle::UnitFilter predicate) const;
 
@@ -81,9 +81,9 @@ public:
 #endif
 
 	template <typename T>
-	void accept(T * pack)
+	void accept(T & pack)
 	{
-		pack->applyBattle(this);
+		pack.applyBattle(this);
 	}
 
 	const IBattleInfo * getBattle() const override

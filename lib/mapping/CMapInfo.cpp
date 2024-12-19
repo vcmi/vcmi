@@ -19,14 +19,12 @@
 
 #include "../campaign/CampaignHandler.h"
 #include "../filesystem/Filesystem.h"
-#include "../serializer/CLoadFile.h"
-#include "../CGeneralTextHandler.h"
-#include "../TextOperations.h"
 #include "../rmg/CMapGenOptions.h"
+#include "../serializer/CLoadFile.h"
+#include "../texts/CGeneralTextHandler.h"
+#include "../texts/TextOperations.h"
 #include "../CCreatureHandler.h"
-#include "../GameSettings.h"
-#include "../CHeroHandler.h"
-#include "../Languages.h"
+#include "../IGameSettings.h"
 #include "../CConfigHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -168,17 +166,19 @@ int CMapInfo::getMapSizeFormatIconId() const
 	switch(mapHeader->version)
 	{
 		case EMapFormat::ROE:
-			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA)["iconIndex"].Integer();
+			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA)["iconIndex"].Integer();
 		case EMapFormat::AB:
-			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE)["iconIndex"].Integer();
+			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE)["iconIndex"].Integer();
 		case EMapFormat::SOD:
-			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH)["iconIndex"].Integer();
+			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH)["iconIndex"].Integer();
+		case EMapFormat::CHR:
+			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES)["iconIndex"].Integer();
 		case EMapFormat::WOG:
-			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS)["iconIndex"].Integer();
+			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS)["iconIndex"].Integer();
 		case EMapFormat::HOTA:
-			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS)["iconIndex"].Integer();
+			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS)["iconIndex"].Integer();
 		case EMapFormat::VCMI:
-			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["iconIndex"].Integer();
+			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["iconIndex"].Integer();
 	}
 	return 0;
 }

@@ -23,10 +23,11 @@
 #include "CreatureAnimation.h"
 
 #include "../CPlayerInterface.h"
-#include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../media/ISoundPlayer.h"
+#include "../render/AssetGenerator.h"
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
@@ -37,9 +38,9 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleHex.h"
+#include "../../lib/texts/TextOperations.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
-#include "../../lib/TextOperations.h"
 
 static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnimation> anim)
 {
@@ -79,24 +80,12 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	stackToActivate(nullptr),
 	animIDhelper(0)
 {
+	AssetGenerator::createCombatUnitNumberWindow();
 	//preparing graphics for displaying amounts of creatures
-	amountNormal     = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
-	amountPositive   = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
-	amountNegative   = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
-	amountEffNeutral = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
-
-	static const auto shifterNormal   = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.6f, 0.2f, 1.0f );
-	static const auto shifterPositive = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.2f, 1.0f, 0.2f );
-	static const auto shifterNegative = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 0.2f, 0.2f );
-	static const auto shifterNeutral  = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 1.0f, 0.2f );
-
-	// do not change border color
-	static const int32_t ignoredMask = 1 << 26;
-
-	amountNormal->adjustPalette(shifterNormal, ignoredMask);
-	amountPositive->adjustPalette(shifterPositive, ignoredMask);
-	amountNegative->adjustPalette(shifterNegative, ignoredMask);
-	amountEffNeutral->adjustPalette(shifterNeutral, ignoredMask);
+	amountNormal     = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowDefault"), EImageBlitMode::COLORKEY);
+	amountPositive   = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowPositive"), EImageBlitMode::COLORKEY);
+	amountNegative   = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowNegative"), EImageBlitMode::COLORKEY);
+	amountEffNeutral = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowNeutral"), EImageBlitMode::COLORKEY);
 
 	std::vector<const CStack*> stacks = owner.getBattle()->battleGetAllStacks(true);
 	for(const CStack * s : stacks)
@@ -191,7 +180,7 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 	{
 		assert(owner.siegeController);
 
-		const CCreature *turretCreature = owner.siegeController->getTurretCreature();
+		const CCreature *turretCreature = owner.siegeController->getTurretCreature(stack->initialPosition);
 
 		stackAnimation[stack->unitId()] = AnimationControls::getAnimation(turretCreature);
 		stackAnimation[stack->unitId()]->pos.h = turretCreatureAnimationHeight;
@@ -329,10 +318,10 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 			boxPosition = owner.fieldController->hexPositionLocal(frontPos).center() + Point(-8, -14);
 	}
 
-	Point textPosition = Point(amountBG->dimensions().x/2 + boxPosition.x, boxPosition.y + graphics->fonts[EFonts::FONT_TINY]->getLineHeight() - 6);
+	Point textPosition = Point(amountBG->dimensions().x/2 + boxPosition.x, boxPosition.y + amountBG->dimensions().y/2);
 
 	canvas.draw(amountBG, boxPosition);
-	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::TOPCENTER, TextOperations::formatMetric(stack->getCount(), 4));
+	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, TextOperations::formatMetric(stack->getCount(), 4));
 }
 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
@@ -438,7 +427,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 		// defender need to face in direction opposited to out attacker
 		bool needsReverse = shouldAttackFacingRight(attackedInfo.attacker, attackedInfo.defender) == facingRight(attackedInfo.defender);
 
-		// FIXME: this check is better, however not usable since stacksAreAttacked is called after net pack is applyed - petrification is already removed
+		// FIXME: this check is better, however not usable since stacksAreAttacked is called after net pack is applied - petrification is already removed
 		// if (needsReverse && !attackedInfo.defender->isFrozen())
 		if (needsReverse && stackAnimation[attackedInfo.defender->unitId()]->getType() != ECreatureAnimType::FROZEN)
 		{
@@ -647,7 +636,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [=]()
 		{
-			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, AudioPath::builtin("DRAINLIF"), attacker->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, AudioPath::builtin("DRAINLIF"), attacker->getPosition(), 0.5);
 		});
 	}
 
@@ -873,7 +862,8 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	spell = owner.actionsController->getCurrentSpell(hoveredHex);
 	caster = owner.actionsController->getCurrentSpellcaster();
 
-	if(caster && spell && owner.actionsController->currentActionSpellcasting(hoveredHex) ) //when casting spell
+	//casting spell or in explicit spellcasting mode that also handles SPELL_LIKE_ATTACK
+	if(caster && spell && (owner.actionsController->currentActionSpellcasting(hoveredHex) || owner.actionsController->creatureSpellcastingModeActive()))
 	{
 		spells::Target target;
 		target.emplace_back(hoveredHex);

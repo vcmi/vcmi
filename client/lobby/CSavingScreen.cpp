@@ -21,7 +21,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"
@@ -30,7 +30,7 @@
 CSavingScreen::CSavingScreen()
 	: CSelectionBase(ESelectionScreen::saveGame)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	center(pos);
 	localMi = std::make_shared<CMapInfo>();
 	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));

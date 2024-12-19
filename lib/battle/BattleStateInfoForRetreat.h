@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "BattleSide.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace battle
@@ -24,7 +26,7 @@ public:
 	bool canFlee;
 	bool canSurrender;
 	bool isLastTurnBeforeDie;
-	ui8 ourSide;
+	BattleSide ourSide;
 	std::vector<const battle::Unit *> ourStacks;
 	std::vector<const battle::Unit *> enemyStacks;
 	const CGHeroInstance * ourHero;

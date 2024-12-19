@@ -305,7 +305,7 @@ class ERMInterpreter
 
 	static bool isCMDATrigger(const ERM::Tcommand & cmd);
 	static bool isATrigger(const ERM::TLine & line);
-	static ERM::EVOtions getExpType(const ERM::TVOption & opt);
+	static ERM::EVOptions getExpType(const ERM::TVOption & opt);
 	ERM::TLine & retrieveLine(const VERMInterpreter::LinePointer & linePtr);
 	static ERM::TTriggerBase & retrieveTrigger(ERM::TLine & line);
 public:

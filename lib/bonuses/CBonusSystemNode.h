@@ -9,10 +9,10 @@
  */
 #pragma once
 
-#include "GameConstants.h"
-
 #include "BonusList.h"
 #include "IBonusBearer.h"
+
+#include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,7 +21,7 @@ using TCNodes = std::set<const CBonusSystemNode *>;
 using TNodesVector = std::vector<CBonusSystemNode *>;
 using TCNodesVector = std::vector<const CBonusSystemNode *>;
 
-class DLL_LINKAGE CBonusSystemNode : public virtual IBonusBearer, public boost::noncopyable
+class DLL_LINKAGE CBonusSystemNode : public virtual IBonusBearer, public virtual Serializeable, public boost::noncopyable
 {
 public:
 	enum ENodeTypes
@@ -47,14 +47,15 @@ private:
 	static std::atomic<int64_t> treeChanged;
 
 	// Setting a value to cachingStr before getting any bonuses caches the result for later requests.
-	// This string needs to be unique, that's why it has to be setted in the following manner:
+	// This string needs to be unique, that's why it has to be set in the following manner:
 	// [property key]_[value] => only for selector
 	mutable std::map<std::string, TBonusListPtr > cachedRequests;
 	mutable boost::mutex sync;
 
 	void getAllBonusesRec(BonusList &out, const CSelector & selector) const;
-	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;
+	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit) const;
 	std::shared_ptr<Bonus> getUpdatedBonus(const std::shared_ptr<Bonus> & b, const TUpdaterPtr & updater) const;
+	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
 
 	void getRedParents(TCNodes &out) const;  //retrieves list of red parent nodes (nodes bonuses propagate from)
 	void getRedAncestors(TCNodes &out) const;
@@ -84,9 +85,7 @@ public:
 	explicit CBonusSystemNode(ENodeTypes NodeType);
 	virtual ~CBonusSystemNode();
 
-	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
-	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convienence
-	TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
+	TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const override;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 
 	/// Returns first bonus matching selector

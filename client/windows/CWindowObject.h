@@ -42,7 +42,7 @@ public:
 	};
 
 	/*
-	 * options - EOpions enum
+	 * options - EOptions enum
 	 * imageName - name for background image, can be empty
 	 * centerAt - position of window center. Default - center of the screen
 	*/

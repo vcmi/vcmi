@@ -27,6 +27,7 @@ public:
 	MOCK_CONST_METHOD0(getIndex, int32_t());
 	MOCK_CONST_METHOD0(getIconIndex, int32_t());
 	MOCK_CONST_METHOD0(getJsonKey, std::string ());
+	MOCK_CONST_METHOD0(getModScope, std::string ());
 	MOCK_CONST_METHOD0(getName, const std::string &());
 	MOCK_CONST_METHOD0(getId, CreatureID());
 	MOCK_CONST_METHOD0(getBonusBearer, const IBonusBearer *());
@@ -43,7 +44,7 @@ public:
 	MOCK_CONST_METHOD0(getLevel, int32_t());
 	MOCK_CONST_METHOD0(getGrowth, int32_t());
 	MOCK_CONST_METHOD0(getHorde, int32_t());
-	MOCK_CONST_METHOD0(getFaction, FactionID());
+	MOCK_CONST_METHOD0(getFactionID, FactionID());
 
 	MOCK_CONST_METHOD0(getBaseAttack, int32_t());
 	MOCK_CONST_METHOD0(getBaseDefense, int32_t());

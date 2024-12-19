@@ -12,6 +12,7 @@
 
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
+#include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -26,7 +27,7 @@ using LimitersList = std::vector<std::shared_ptr<Rewardable::Limiter>>;
 
 /// Limiters of rewards. Rewards will be granted to hero only if he satisfies requirements
 /// Note: for this is only a test - it won't remove anything from hero (e.g. artifacts or creatures)
-struct DLL_LINKAGE Limiter final
+struct DLL_LINKAGE Limiter final : public Serializeable
 {
 	/// day of week, unused if 0, 1-7 will test for current day of week
 	si32 dayOfWeek;

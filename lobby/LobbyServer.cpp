@@ -12,11 +12,11 @@
 
 #include "LobbyDatabase.h"
 
-#include "../lib/Languages.h"
-#include "../lib/TextOperations.h"
 #include "../lib/json/JsonFormatException.h"
 #include "../lib/json/JsonNode.h"
 #include "../lib/json/JsonUtils.h"
+#include "../lib/texts/Languages.h"
+#include "../lib/texts/TextOperations.h"
 
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -213,7 +213,7 @@ static JsonNode loadLobbyGameRoomToJson(const LobbyGameRoom & gameRoom)
 	jsonEntry["playerLimit"].Integer() = gameRoom.playerLimit;
 	jsonEntry["ageSeconds"].Integer() = gameRoom.age.count();
 	if (!gameRoom.modsJson.empty()) // not present in match history
-		jsonEntry["mods"] = JsonNode(reinterpret_cast<const std::byte *>(gameRoom.modsJson.data()), gameRoom.modsJson.size());
+		jsonEntry["mods"] = JsonNode(reinterpret_cast<const std::byte *>(gameRoom.modsJson.data()), gameRoom.modsJson.size(), "<lobby "+gameRoom.roomID+">");
 
 	for(const auto & account : gameRoom.participants)
 		jsonEntry["participants"].Vector().push_back(loadLobbyAccountToJson(account));
@@ -348,7 +348,7 @@ JsonNode LobbyServer::parseAndValidateMessage(const std::vector<std::byte> & mes
 	JsonNode json;
 	try
 	{
-		JsonNode jsonTemp(message.data(), message.size());
+		JsonNode jsonTemp(message.data(), message.size(), "<lobby message>");
 		json = std::move(jsonTemp);
 	}
 	catch (const JsonFormatException & e)
@@ -595,7 +595,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	auto clientCookieStatus = database->getAccountCookieStatus(accountID, accountCookie);
 
 	if(clientCookieStatus == LobbyCookieStatus::INVALID)
-		return sendOperationFailed(connection, "Authentification failure");
+		return sendOperationFailed(connection, "Authentication failure");
 
 	database->updateAccountLoginTime(accountID);
 	database->setAccountOnline(accountID, true);
@@ -611,7 +611,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 		sendRecentChatHistory(connection, "global", language);
 
 	// send active game rooms list to new account
-	// and update acount list to everybody else including new account
+	// and update account list to everybody else including new account
 	broadcastActiveAccounts();
 	sendMessage(connection, prepareActiveGameRooms());
 	sendMatchesHistory(connection);

@@ -27,16 +27,16 @@ public:
 
 	// returns float3 with coordinates increased by corresponding coordinate of given float3
 	float3 operator+(const float3 & i) const { return float3(x + i.x, y + i.y, z + i.z); }
-	// returns float3 with coordinates increased by given numer
+	// returns float3 with coordinates increased by given number
 	float3 operator+(const float i) const { return float3(x + i, y + i, z + (si32)i); }
 	// returns float3 with coordinates decreased by corresponding coordinate of given float3
 	float3 operator-(const float3 & i) const { return float3(x - i.x, y - i.y, z - i.z); }
-	// returns float3 with coordinates decreased by given numer
+	// returns float3 with coordinates decreased by given number
 	float3 operator-(const float i) const { return float3(x - i, y - i, z - (si32)i); }
 
-	// returns float3 with plane coordinates decreased by given numer
+	// returns float3 with plane coordinates decreased by given number
 	float3 operator*(const float i) const {return float3(x * i, y * i, z);}
-	// returns float3 with plane coordinates decreased by given numer
+	// returns float3 with plane coordinates decreased by given number
 	float3 operator/(const float i) const {return float3(x / i, y / i, z);}
 
 	// returns opposite position

@@ -11,6 +11,7 @@
 #pragma once
 
 #include <QDialog>
+#include <set>
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CMap;
@@ -30,13 +31,18 @@ public:
 		bool critical;
 		
 		Issue(const QString & m, bool c): message(m), critical(c) {}
+
+		bool operator <(const Issue & other) const
+		{
+			return message < other.message;
+		}
 	};
 	
 public:
 	explicit Validator(const CMap * map, QWidget *parent = nullptr);
 	~Validator();
 	
-	static std::list<Issue> validate(const CMap * map);
+	static std::set<Issue> validate(const CMap * map);
 
 private:
 	Ui::Validator *ui;

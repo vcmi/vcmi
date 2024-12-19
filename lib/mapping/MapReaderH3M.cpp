@@ -393,7 +393,7 @@ void MapReaderH3M::skipZero(size_t amount)
 #endif
 }
 
-void MapReaderH3M::readResourses(TResources & resources)
+void MapReaderH3M::readResources(TResources & resources)
 {
 	for(int x = 0; x < features.resourcesCount; ++x)
 		resources[x] = reader->readInt32();
@@ -410,9 +410,11 @@ bool MapReaderH3M::readBool()
 int8_t MapReaderH3M::readInt8Checked(int8_t lowerLimit, int8_t upperLimit)
 {
 	int8_t result = readInt8();
-	assert(result >= lowerLimit);
-	assert(result <= upperLimit);
-	return std::clamp(result, lowerLimit, upperLimit);
+	int8_t resultClamped = std::clamp(result, lowerLimit, upperLimit);
+	if (result != resultClamped)
+		logGlobal->warn("Map contains out of range value %d! Expected %d-%d", static_cast<int>(result), static_cast<int>(lowerLimit), static_cast<int>(upperLimit));
+
+	return resultClamped;
 }
 
 uint8_t MapReaderH3M::readUInt8()

@@ -12,7 +12,7 @@
 #include "AObjectTypeHandler.h"
 
 #include "IObjectInfo.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../VCMI_Lib.h"
 #include "../json/JsonUtils.h"
 #include "../modding/IdentifierStorage.h"
@@ -27,6 +27,11 @@ AObjectTypeHandler::~AObjectTypeHandler() = default;
 std::string AObjectTypeHandler::getJsonKey() const
 {
 	return modScope + ':' + subTypeName;
+}
+
+std::string AObjectTypeHandler::getModScope() const
+{
+	return modScope;
 }
 
 si32 AObjectTypeHandler::getIndex() const
@@ -128,8 +133,6 @@ void AObjectTypeHandler::preInitObject(CGObjectInstance * obj) const
 {
 	obj->ID = Obj(type);
 	obj->subID = subtype;
-	obj->typeName = typeName;
-	obj->subTypeName = getJsonKey();
 	obj->blockVisit = blockVisit;
 	obj->removable = removable;
 }

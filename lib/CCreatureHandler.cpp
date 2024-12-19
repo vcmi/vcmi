@@ -10,23 +10,26 @@
 #include "StdInc.h"
 #include "CCreatureHandler.h"
 
-#include "CGeneralTextHandler.h"
 #include "ResourceSet.h"
+#include "entities/faction/CFaction.h"
+#include "entities/faction/CTownHandler.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
-#include "CRandomGenerator.h"
-#include "CTownHandler.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "constants/StringConstants.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "json/JsonBonus.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
+#include "texts/CGeneralTextHandler.h"
+#include "texts/CLegacyConfigParser.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "modding/CModHandler.h"
 #include "ExceptionsCommon.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -56,6 +59,11 @@ int32_t CCreature::getIconIndex() const
 std::string CCreature::getJsonKey() const
 {
 	return modScope + ':' + identifier;
+}
+
+std::string CCreature::getModScope() const
+{
+	return modScope;
 }
 
 void CCreature::registerIcons(const IconRegistar & cb) const
@@ -109,7 +117,7 @@ int32_t CCreature::getHorde() const
 	return hordeGrowth;
 }
 
-FactionID CCreature::getFaction() const
+FactionID CCreature::getFactionID() const
 {
 	return FactionID(faction);
 }
@@ -335,11 +343,6 @@ bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
 	return vstd::contains(upgrades, anotherCre->getId());
 }
 
-bool CCreature::valid() const
-{
-	return this == (*VLC->creh)[idNumber];
-}
-
 std::string CCreature::nodeName() const
 {
 	return "\"" + getNamePluralTextID() + "\"";
@@ -459,59 +462,9 @@ void CCreatureHandler::loadCommanders()
 	}
 }
 
-void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses) const
-{
-	auto makeBonusNode = [&](const std::string & type, double val = 0) -> JsonNode
-	{
-		JsonNode ret;
-		ret["type"].String() = type;
-		ret["val"].Float() = val;
-		return ret;
-	};
-
-	static const std::map<std::string, JsonNode> abilityMap =
-	{
-		{"FLYING_ARMY",            makeBonusNode("FLYING")},
-		{"SHOOTING_ARMY",          makeBonusNode("SHOOTER")},
-		{"SIEGE_WEAPON",           makeBonusNode("SIEGE_WEAPON")},
-		{"const_free_attack",      makeBonusNode("BLOCKS_RETALIATION")},
-		{"IS_UNDEAD",              makeBonusNode("UNDEAD")},
-		{"const_no_melee_penalty", makeBonusNode("NO_MELEE_PENALTY")},
-		{"const_jousting",         makeBonusNode("JOUSTING", 5)},
-		{"KING_1",                 makeBonusNode("KING")}, // Slayer with no expertise
-		{"KING_2",                 makeBonusNode("KING", 2)}, // Advanced Slayer or better
-		{"KING_3",                 makeBonusNode("KING", 3)}, // Expert Slayer only
-		{"const_no_wall_penalty",  makeBonusNode("NO_WALL_PENALTY")},
-		{"MULTI_HEADED",           makeBonusNode("ATTACKS_ALL_ADJACENT")},
-		{"IMMUNE_TO_MIND_SPELLS",  makeBonusNode("MIND_IMMUNITY")},
-		{"HAS_EXTENDED_ATTACK",    makeBonusNode("TWO_HEX_ATTACK_BREATH")}
-	};
-
-	auto hasAbility = [&](const std::string & name) -> bool 
-	{
-		return boost::algorithm::find_first(bonuses, name);
-	};
-
-	for(const auto & a : abilityMap)
-	{
-		if(hasAbility(a.first))
-			creature["abilities"][a.first] = a.second;
-	}
-	if(hasAbility("DOUBLE_WIDE"))
-		creature["doubleWide"].Bool() = true;
-
-	if(hasAbility("const_raises_morale"))
-	{
-		JsonNode node = makeBonusNode("MORALE");
-		node["val"].Float() = 1;
-		node["propagator"].String() = "HERO";
-		creature["abilities"]["const_raises_morale"] = node;
-	}
-}
-
 std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_CREATURE);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE);
 
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
@@ -578,7 +531,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 
 		// unused - ability text, not used since we no longer have original creature window
 		parser.readString();
-		loadBonuses(data, parser.readString()); //Attributes
+		parser.readString(); // unused - abilities, not used since we load them all from json configs
 
 		h3Data.push_back(data);
 	}
@@ -588,12 +541,12 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 	return h3Data;
 }
 
-CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
+std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
 
-	auto * cre = new CCreature();
+	auto cre = std::make_shared<CCreature>();
 
 	if(node["hasDoubleWeek"].Bool())
 	{
@@ -609,9 +562,9 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 
 	cre->cost = ResourceSet(node["cost"]);
 
-	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"].String());
-	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"].String());
-	VLC->generaltexth->registerString(scope, cre->getDescriptionTextID(), node["description"].String());
+	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);
+	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"]);
+	VLC->generaltexth->registerString(scope, cre->getDescriptionTextID(), node["description"]);
 
 	cre->addBonus(node["hitPoints"].Integer(), BonusType::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), BonusType::STACKS_SPEED);
@@ -636,9 +589,9 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	if(!node["shots"].isNull())
 		cre->addBonus(node["shots"].Integer(), BonusType::SHOTS);
 
-	loadStackExperience(cre, node["stackExperience"]);
-	loadJsonAnimation(cre, node["graphics"]);
-	loadCreatureJson(cre, node);
+	loadStackExperience(cre.get(), node["stackExperience"]);
+	loadJsonAnimation(cre.get(), node["graphics"]);
+	loadCreatureJson(cre.get(), node);
 
 	for(const auto & extraName : node["extraNames"].Vector())
 	{
@@ -696,7 +649,7 @@ const std::vector<std::string> & CCreatureHandler::getTypeNames() const
 
 void CCreatureHandler::loadCrExpMod()
 {
-	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values
+	if (VLC->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values
 	{
 		//Calculate rank exp values, formula appears complicated bu no parsing needed
 		expRanks.resize(8);
@@ -746,7 +699,7 @@ void CCreatureHandler::loadCrExpMod()
 
 void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 {
-	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience bonuses
+	if (VLC->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience bonuses
 	{
 		logGlobal->debug("\tLoading stack experience bonuses");
 		auto addBonusForAllCreatures = [&](std::shared_ptr<Bonus> b) {
@@ -757,7 +710,7 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 		auto addBonusForTier = [&](int tier, std::shared_ptr<Bonus> b) {
 			assert(vstd::iswithin(tier, 1, 7));
 			//bonuses from level 7 are given to high-level creatures too
-			auto max = tier == GameConstants::CREATURES_PER_TOWN ? std::numeric_limits<int>::max() : tier + 1;
+			auto max = tier == 7 ? std::numeric_limits<int>::max() : tier + 1;
 			auto limiter = std::make_shared<CreatureLevelLimiter>(tier, max);
 			b->addLimiter(limiter);
 			globalEffects.addNewBonus(b);
@@ -825,7 +778,7 @@ void CCreatureHandler::loadAnimationInfo(std::vector<JsonNode> &h3Data) const
 	parser.endLine(); // header
 	parser.endLine();
 
-	for(int dd = 0; dd < VLC->settings()->getInteger(EGameSettings::TEXTS_CREATURE); ++dd)
+	for(int dd = 0; dd < VLC->engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE); ++dd)
 	{
 		while (parser.isNextEntryEmpty() && parser.endLine()) // skip empty lines
 			;
@@ -884,15 +837,15 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 
 	const JsonNode & missile = graphics["missile"];
 	const JsonNode & offsets = missile["offset"];
-	cre->animation.upperRightMissleOffsetX = static_cast<int>(offsets["upperX"].Float());
-	cre->animation.upperRightMissleOffsetY = static_cast<int>(offsets["upperY"].Float());
-	cre->animation.rightMissleOffsetX =      static_cast<int>(offsets["middleX"].Float());
-	cre->animation.rightMissleOffsetY =      static_cast<int>(offsets["middleY"].Float());
-	cre->animation.lowerRightMissleOffsetX = static_cast<int>(offsets["lowerX"].Float());
-	cre->animation.lowerRightMissleOffsetY = static_cast<int>(offsets["lowerY"].Float());
+	cre->animation.upperRightMissileOffsetX = static_cast<int>(offsets["upperX"].Float());
+	cre->animation.upperRightMissileOffsetY = static_cast<int>(offsets["upperY"].Float());
+	cre->animation.rightMissileOffsetX =      static_cast<int>(offsets["middleX"].Float());
+	cre->animation.rightMissileOffsetY =      static_cast<int>(offsets["middleY"].Float());
+	cre->animation.lowerRightMissileOffsetX = static_cast<int>(offsets["lowerX"].Float());
+	cre->animation.lowerRightMissileOffsetY = static_cast<int>(offsets["lowerY"].Float());
 
 	cre->animation.attackClimaxFrame = static_cast<int>(missile["attackClimaxFrame"].Float());
-	cre->animation.missleFrameAngles = missile["frameAngles"].convertTo<std::vector<double> >();
+	cre->animation.missileFrameAngles = missile["frameAngles"].convertTo<std::vector<double> >();
 
 	cre->smallIconName = graphics["iconSmall"].String();
 	cre->largeIconName = graphics["iconLarge"].String();
@@ -1166,7 +1119,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.subtype = BonusSubtypeID(SpellID(SpellID::METEOR_SHOWER));
 				b.additionalInfo = 0;//normal immunity
 				break;
-			case 'N': //dispell beneficial spells
+			case 'N': //dispel beneficial spells
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::DISPEL_HELPFUL_SPELLS));
 				b.additionalInfo = 0;//normal immunity
@@ -1362,7 +1315,7 @@ CCreatureHandler::~CCreatureHandler()
 		p.first = nullptr;
 }
 
-CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier) const
+CreatureID CCreatureHandler::pickRandomMonster(vstd::RNG & rand, int tier) const
 {
 	std::vector<CreatureID> allowed;
 	for(const auto & creature : objects)

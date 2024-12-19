@@ -10,8 +10,9 @@
 
 #include "Bonus.h"
 
-#include "../GameConstants.h"
 #include "../battle/BattleHex.h"
+#include "../serializer/Serializeable.h"
+#include "../constants/Enumerations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -27,7 +28,7 @@ struct BonusLimitationContext
 	const BonusList & stillUndecided;
 };
 
-class DLL_LINKAGE ILimiter
+class DLL_LINKAGE ILimiter : public Serializeable
 {
 public:
 	enum class EDecision : uint8_t {ACCEPT, DISCARD, NOT_SURE};
@@ -93,7 +94,7 @@ public:
 class DLL_LINKAGE CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
 {
 public:
-	const CCreature * creature = nullptr;
+	CreatureID creatureID;
 	bool includeUpgrades = false;
 
 	CCreatureTypeLimiter() = default;
@@ -107,7 +108,16 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
-		h & creature;
+
+		if (h.version < Handler::Version::REMOVE_TOWN_PTR)
+		{
+			bool isNull = false;
+			h & isNull;
+			if(!isNull)
+				h & creatureID;
+		}
+		else
+			h & creatureID;
 		h & includeUpgrades;
 	}
 };

@@ -37,6 +37,7 @@ public:
 	void visitHeroVisitCastle(HeroVisitCastle & pack) override;
 	void visitSetMana(SetMana & pack) override;
 	void visitSetMovePoints(SetMovePoints & pack) override;
+	void visitSetResearchedSpells(SetResearchedSpells & pack) override;
 	void visitFoWChange(FoWChange & pack) override;
 	void visitChangeStackCount(ChangeStackCount & pack) override;
 	void visitSetStackType(SetStackType & pack) override;
@@ -47,8 +48,7 @@ public:
 	void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) override;
 	void visitBulkSmartRebalanceStacks(BulkSmartRebalanceStacks & pack) override;
 	void visitPutArtifact(PutArtifact & pack) override;
-	void visitEraseArtifact(EraseArtifact & pack) override;
-	void visitMoveArtifact(MoveArtifact & pack) override;
+	void visitEraseArtifact(BulkEraseArtifacts & pack) override;
 	void visitBulkMoveArtifacts(BulkMoveArtifacts & pack) override;
 	void visitAssembledArtifact(AssembledArtifact & pack) override;
 	void visitDisassembledArtifact(DisassembledArtifact & pack) override;

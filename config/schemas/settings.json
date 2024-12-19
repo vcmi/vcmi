@@ -3,7 +3,7 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "lobby", "gameTweaks" ],
+	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "lobby", "gameTweaks", "mods" ],
 	"definitions" : {
 		"logLevelEnum" : {
 			"type" : "string",
@@ -19,6 +19,7 @@
 			"additionalProperties" : false,
 			"required" : [
 				"playerName",
+				"multiPlayerNames",
 				"music",
 				"sound",
 				"saveRandomMaps",
@@ -47,6 +48,10 @@
 				"playerName" : {
 					"type" : "string",
 					"default" : "Player"
+				},
+				"multiPlayerNames" : {
+					"type" : "array",
+					"default" : []
 				},
 				"music" : {
 					"type" : "number",
@@ -144,6 +149,23 @@
 				}
 			}
 		},
+		
+		"mods" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"default" : {},
+			"required" : [ 
+				"validation"
+			],
+			"properties" : {
+				"validation" : {
+					"type" : "string",
+					"enum" : [ "off", "basic", "full" ],
+					"default" : "basic"
+				}
+			}
+		},
+		
 		"video" : {
 			"type" : "object",
 			"additionalProperties" : false,
@@ -161,7 +183,12 @@
 				"showfps",
 				"targetfps",
 				"vsync",
-				"scalingMode"
+				"fontsType",
+				"cursorScalingFactor",
+				"fontScalingFactor",
+				"upscalingFilter",
+				"fontUpscalingFilter",
+				"downscalingFilter"
 			],
 			"properties" : {
 				"resolution" : {
@@ -169,22 +196,19 @@
 					"additionalProperties" : false,
 					"required" : [ "width", "height", "scaling" ],
 					"properties" : {
-						"width"  : { "type" : "number" },
-						"height" : { "type" : "number" },
-						"scaling" : { "type" : "number" }
-					},
-					"defaultIOS" : {"width" : 800, "height" : 600, "scaling" : 200 },
-					"defaultAndroid" : {"width" : 800, "height" : 600, "scaling" : 200 },
-					"default" : {"width" : 800, "height" : 600, "scaling" : 100 }
+						"width"  :  { "type" : "number", "default" : 1280 },
+						"height" :  { "type" : "number", "default" :  720 },
+						"scaling" : { "type" : "number", "default" :    0 }
+					}
 				},
 				"reservedWidth" : {
 					"type" : "number",
-					"defaultIOS" : 0.1, // iOS camera cutout / notch is excluded from available area by SDL
+					"defaultIOS" : 0.1, // iOS camera cutout / notch is not excluded from available area by SDL, handle it this way
 					"default" : 0
 				},
 				"fullscreen" : {
 					"type" : "boolean",
-					"default" : false
+					"default" : true
 				},
 				"realFullscreen" : {
 					"type" : "boolean",
@@ -225,7 +249,30 @@
 					"type" : "boolean",
 					"default" : true
 				},
-				"scalingMode" : {
+				"fontsType" : {
+					"type" : "string",
+					"enum" : [ "auto", "original", "scalable" ],
+					"default" : "auto"
+				},
+				"cursorScalingFactor" : {
+					"type" : "number",
+					"default" : 1
+				},
+				"fontScalingFactor" : {
+					"type" : "number",
+					"default" : 1
+				},
+				"fontUpscalingFilter" : {
+					"type" : "string",
+					"enum" : [ "nearest", "bilinear", "xbrz" ],
+					"default" : "nearest"
+				},
+				"upscalingFilter" : {
+					"type" : "string",
+					"enum" : [ "auto", "none", "xbrz2", "xbrz3", "xbrz4" ],
+					"default" : "auto"
+				},
+				"downscalingFilter" : {
 					"type" : "string",
 					"enum" : [ "nearest", "linear", "best" ],
 					"default" : "best"
@@ -305,7 +352,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground", "backgroundDimSmallWindows" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "rightButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground", "backgroundDimSmallWindows" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -350,6 +397,10 @@
 					"type" : "boolean",
 					"default" : false
 				},
+				"rightButtonDrag" : {
+					"type" : "boolean",
+					"default" : false
+				},
 				"smoothDragging" : {
 					"type" : "boolean",
 					"default" : true
@@ -372,7 +423,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells", "endWithAutocombat", "queueSmallSlots", "queueSmallOutside" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells", "endWithAutocombat", "queueSmallSlots", "queueSmallOutside", "enableQuickSpellPanel" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -430,6 +481,10 @@
 				"queueSmallOutside" : {
 					"type": "boolean",
 					"default": false
+				},
+				"enableQuickSpellPanel" : {
+					"type": "boolean",
+					"default": true
 				}
 			}
 		},
@@ -437,7 +492,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "localHostname", "localPort", "remoteHostname", "remotePort", "playerAI", "alliedAI", "friendlyAI", "neutralAI", "enemyAI" ],
+			"required" : [ "localHostname", "localPort", "remoteHostname", "remotePort", "seed", "playerAI", "alliedAI", "friendlyAI", "neutralAI", "enemyAI" ],
 			"properties" : {
 				"localHostname" : {
 					"type" : "string",
@@ -455,6 +510,10 @@
 					"type" : "number",
 					"default" : 3030
 				},
+				"seed" : {
+					"type" : "number",
+					"default" : 0
+				},
 				"playerAI" : {
 					"type" : "string",
 					"default" : "Nullkiller"
@@ -469,7 +528,7 @@
 				},
 				"neutralAI" : {
 					"type" : "string",
-					"default" : "StupidAI"
+					"default" : "BattleAI"
 				},
 				"enemyAI" : {
 					"type" : "string",
@@ -537,7 +596,7 @@
 				},
 				"loggers" : {
 					"type" : "array",
-					"default" : [ { "domain" : "global", "level" : "trace" } ],
+					"default" : [ { "domain" : "global", "level" : "trace" }, { "domain" : "rng", "level" : "info" } ],
 					"items" : {
 						"type" : "object",
 						"additionalProperties" : false,
@@ -561,7 +620,6 @@
 				"defaultRepositoryURL", 
 				"extraRepositoryURL", 
 				"extraRepositoryEnabled", 
-				"enableInstalledMods", 
 				"autoCheckRepositories", 
 				"ignoreSslErrors",
 				"updateOnStartup", 
@@ -574,7 +632,7 @@
 				},
 				"defaultRepositoryURL" : {
 					"type" : "string",
-					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.5.json",
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.6.json",
 				},
 				"extraRepositoryEnabled" : {
 					"type" : "boolean",
@@ -587,10 +645,6 @@
 				"setupCompleted" : {
 					"type" : "boolean",
 					"default" : false
-				},
-				"enableInstalledMods" : {
-					"type" : "boolean",
-					"default" : true
 				},
 				"ignoreSslErrors" : {
 					"type" : "boolean",

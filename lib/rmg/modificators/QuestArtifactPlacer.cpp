@@ -17,7 +17,9 @@
 #include "../../VCMI_Lib.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../mapObjects/MapObjects.h" 
+#include "../../mapObjects/MapObjects.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -95,7 +97,7 @@ void QuestArtifactPlacer::findZonesForQuestArts()
 	logGlobal->trace("Number of nearby zones suitable for quest artifacts: %d", questArtZones.size());
 }
 
-void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator & rand)
+void QuestArtifactPlacer::placeQuestArtifacts(vstd::RNG & rand)
 {
 	for (const auto & artifactToPlace : questArtifactsToPlace)
 	{
@@ -110,7 +112,7 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator & rand)
 
 			logGlobal->trace("Replacing %s at %s with the quest artifact %s",
 				objectToReplace->getObjectName(),
-				objectToReplace->getPosition().toString(),
+				objectToReplace->anchorPos().toString(),
 				VLC->artifacts()->getById(artifactToPlace)->getNameTranslated());
 
 			//Update appearance. Terrain is irrelevant.
@@ -119,7 +121,7 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator & rand)
 			auto templates = handler->getTemplates();
 			//artifactToReplace->appearance = templates.front();
 			newObj->appearance  = templates.front();
-			newObj->pos = objectToReplace->pos;
+			newObj->setAnchorPos(objectToReplace->anchorPos());
 			mapProxy->insertObject(newObj);
 			mapProxy->removeObject(objectToReplace);
 			break;

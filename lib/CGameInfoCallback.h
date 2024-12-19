@@ -11,6 +11,7 @@
 
 #include "int3.h"
 #include "ResourceSet.h" // for Res
+#include "ConstTransitivePtr.h"
 
 #define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
@@ -18,12 +19,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class Player;
 class Team;
+class IGameSettings;
 
 struct InfoWindow;
 struct PlayerSettings;
 struct CPackForClient;
 struct TerrainTile;
-struct PlayerState;
+class PlayerState;
 class CTown;
 struct StartInfo;
 struct CPathsInfo;
@@ -48,6 +50,7 @@ class CGHeroInstance;
 class CGDwelling;
 class CGTeleport;
 class CGTownInstance;
+class IMarket;
 
 class DLL_LINKAGE IGameInfoCallback : boost::noncopyable
 {
@@ -56,7 +59,7 @@ public:
 
 //	//various
 	virtual int getDate(Date mode=Date::DAY) const = 0; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
-//	const StartInfo * getStartInfo(bool beforeRandomization = false)const;
+	virtual const StartInfo * getStartInfo(bool beforeRandomization = false) const = 0;
 	virtual bool isAllowed(SpellID id) const = 0;
 	virtual bool isAllowed(ArtifactID id) const = 0;
 	virtual bool isAllowed(SecondarySkill id) const = 0;
@@ -119,7 +122,7 @@ public:
 
 	//teleport
 //	std::vector<ObjectInstanceID> getVisibleTeleportObjects(std::vector<ObjectInstanceID> ids, PlayerColor player)  const;
-//	std::vector<ObjectInstanceID> getTeleportChannelEntraces(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
+//	std::vector<ObjectInstanceID> getTeleportChannelEntrances(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
 //	std::vector<ObjectInstanceID> getTeleportChannelExits(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
 //	ETeleportChannelType getTeleportChannelType(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
 //	bool isTeleportChannelImpassable(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
@@ -143,10 +146,11 @@ protected:
 public:
 	//various
 	int getDate(Date mode=Date::DAY)const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
-	virtual const StartInfo * getStartInfo(bool beforeRandomization = false)const;
+	const StartInfo * getStartInfo(bool beforeRandomization = false) const override;
 	bool isAllowed(SpellID id) const override;
 	bool isAllowed(ArtifactID id) const override;
 	bool isAllowed(SecondarySkill id) const override;
+	const IGameSettings & getSettings() const;
 
 	//player
 	std::optional<PlayerColor> getPlayerID() const override;
@@ -186,9 +190,11 @@ public:
 	const CGObjectInstance * getObj(ObjectInstanceID objid, bool verbose = true) const override;
 	virtual std::vector <const CGObjectInstance * > getBlockingObjs(int3 pos)const;
 	std::vector <const CGObjectInstance * > getVisitableObjs(int3 pos, bool verbose = true) const override;
+	std::vector<ConstTransitivePtr<CGObjectInstance>> getAllVisitableObjs() const;
 	virtual std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	virtual const CGObjectInstance * getTopObj (int3 pos) const;
 	virtual PlayerColor getOwner(ObjectInstanceID heroID) const;
+	virtual const IMarket * getMarket(ObjectInstanceID objid) const;
 
 	//map
 	virtual int3 guardingCreaturePosition (int3 pos) const;
@@ -221,7 +227,7 @@ public:
 
 	//teleport
 	virtual std::vector<ObjectInstanceID> getVisibleTeleportObjects(std::vector<ObjectInstanceID> ids, PlayerColor player)  const;
-	virtual std::vector<ObjectInstanceID> getTeleportChannelEntraces(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
+	virtual std::vector<ObjectInstanceID> getTeleportChannelEntrances(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
 	virtual std::vector<ObjectInstanceID> getTeleportChannelExits(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
 	virtual ETeleportChannelType getTeleportChannelType(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
 	virtual bool isTeleportChannelImpassable(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
@@ -245,7 +251,6 @@ public:
 	virtual const CGTownInstance* getTownBySerial(int serialId) const; // serial id is [0, number of towns)
 	virtual const CGHeroInstance* getHeroBySerial(int serialId, bool includeGarrisoned=true) const; // serial id is [0, number of heroes)
 	virtual std::vector <const CGHeroInstance *> getHeroesInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
-	virtual std::vector <const CGDwelling *> getMyDwellings() const; //returns all dwellings that belong to player
 	virtual std::vector <const CGObjectInstance * > getMyObjects() const; //returns all objects flagged by belonging player
 	virtual std::vector <QuestInfo> getMyQuests() const;
 

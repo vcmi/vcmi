@@ -14,6 +14,7 @@
 #include "../render/EFont.h"
 
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/FunctionList.h"
 
 class CLabel;
 class IImage;
@@ -49,7 +50,6 @@ class CTextInput final : public CFocusable
 	using TextEditedCallback = std::function<void(const std::string &)>;
 	using TextFilterCallback = std::function<void(std::string &, const std::string &)>;
 
-private:
 	std::string currentText;
 	std::string composedText;
 	ETextAlignment originalAlignment;
@@ -59,6 +59,7 @@ private:
 
 	TextEditedCallback onTextEdited;
 	TextFilterCallback onTextFiltering;
+	CFunctionList<void()> callbackPopup;
 
 	//Filter that will block all characters not allowed in filenames
 	static void filenameFilter(std::string & text, const std::string & oldText);
@@ -66,15 +67,16 @@ private:
 	//min-max should be set via something like std::bind
 	static void numberFilter(std::string & text, const std::string & oldText, int minValue, int maxValue);
 
-	std::string getVisibleText();
+	std::string getVisibleText() const;
 	void createLabel(bool giveFocusToInput);
 	void updateLabel();
 
 	void clickPressed(const Point & cursorPosition) final;
-	void textInputed(const std::string & enteredText) final;
+	void textInputted(const std::string & enteredText) final;
 	void textEdited(const std::string & enteredText) final;
 	void onFocusGot() final;
 	void onFocusLost() final;
+	void showPopupWindow(const Point & cursorPosition) final;
 
 	CTextInput(const Rect & Pos);
 public:
@@ -89,6 +91,9 @@ public:
 
 	/// Set callback that will be called whenever player enters new text
 	void setCallback(const TextEditedCallback & cb);
+
+	/// Set callback when player want to open popup
+	void setPopupCallback(const std::function<void()> & cb);
 
 	/// Enables filtering entered text that ensures that text is valid filename (existing or not)
 	void setFilterFilename();

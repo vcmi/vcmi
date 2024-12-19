@@ -13,6 +13,8 @@
 #include "StdInc.h"
 #include "PenroseTiling.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 
@@ -143,7 +145,7 @@ void PenroseTiling::split(Triangle& p, std::vector<Point2D>& points,
 	return;
 }
 
-std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, CRandomGenerator * rand)
+std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, vstd::RNG * rand)
 {
 	float scale = 173.2f / (numZones * 1.5f + 20);
 	float polyAngle = (2 * PI_CONSTANT) / POLY;
@@ -181,7 +183,7 @@ std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, CRandomG
 	for (auto & point : points)
 	{
 		point = point + Point2D(0.5f, 0.5f);
-	};
+	}
 
 	// For 8XM8 map, only 650 out of 15971 points are in the range
 

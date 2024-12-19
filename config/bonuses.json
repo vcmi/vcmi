@@ -399,6 +399,14 @@
 		}
 	},
 
+	"MECHANICAL":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/Mechanical"
+		}
+	},
+
 	"RANDOM_SPELLCASTER":
 	{
 		"graphics":
@@ -548,6 +556,14 @@
 		}
 	},
 
+	"PRISM_HEX_ATTACK_BREATH":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/PrismBreath"
+		}
+	},
+
 	"THREE_HEADED_ATTACK":
 	{
 		"graphics":
@@ -591,6 +607,24 @@
 		{
 			"icon":  "zvs/Lib1.res/MEGABREATH"
 		}
+	},
+
+	"DISINTEGRATE":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/DISINTEGRATE"
+		}
+
+	},
+
+	"INVINCIBLE":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/INVINCIBLE"
+		}
+
 	}
 }
 

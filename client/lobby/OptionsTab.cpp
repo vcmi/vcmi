@@ -14,12 +14,13 @@
 
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
-#include "../CMusicHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
+#include "../media/ISoundPlayer.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/ComboBox.h"
 #include "../widgets/CTextInput.h"
@@ -29,17 +30,22 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../windows/CHeroOverview.h"
 #include "../eventsSDL/InputHandler.h"
 
+#include "../../lib/entities/faction/CFaction.h"
+#include "../../lib/entities/faction/CTown.h"
+#include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/entities/hero/CHeroClass.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CArtHandler.h"
-#include "../../lib/CTownHandler.h"
-#include "../../lib/CHeroHandler.h"
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 
@@ -67,7 +73,7 @@ void OptionsTab::recreate()
 		selectionWindow->reopen();
 	}
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
 	{
 		if(pInfo.second.isControlledByHuman())
@@ -329,7 +335,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getDescription()
 OptionsTab::CPlayerOptionTooltipBox::CPlayerOptionTooltipBox(CPlayerSettingsHelper & helper)
 	: CWindowObject(BORDERED | RCLICK_POPUP), CPlayerSettingsHelper(helper)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	switch(selectionType)
 	{
@@ -401,7 +407,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 	textBonusDescription = std::make_shared<CTextBox>(getDescription(), Rect(10, 100, pos.w - 20, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
-OptionsTab::SelectionWindow::SelectionWindow(const PlayerColor & color, SelType _type)
+OptionsTab::SelectionWindow::SelectionWindow(const PlayerColor & color, SelType _type, int sliderPos)
 	: CWindowObject(BORDERED), color(color)
 {
 	addUsedEvents(LCLICK | SHOW_POPUP);
@@ -433,25 +439,31 @@ OptionsTab::SelectionWindow::SelectionWindow(const PlayerColor & color, SelType 
 	if(initialFaction.isValid())
 		allowedBonus.push_back(PlayerStartingBonus::RESOURCE);
 
-	recreate();
+	recreate(sliderPos);
 }
 
-int OptionsTab::SelectionWindow::calcLines(FactionID faction)
+std::tuple<int, int> OptionsTab::SelectionWindow::calcLines(FactionID faction)
 {
-	double additionalItems = 1; // random
+	int additionalItems = 1; // random
 
 	if(!faction.isValid())
-		return std::ceil(((double)allowedFactions.size() + additionalItems) / elementsPerLine);
+		return std::make_tuple(
+			std::ceil(((double)allowedFactions.size() + additionalItems) / MAX_ELEM_PER_LINES),
+			(allowedFactions.size() + additionalItems) % MAX_ELEM_PER_LINES
+		);
 
 	int count = 0;
 	for(auto & elemh : allowedHeroes)
 	{
-		CHero * type = VLC->heroh->objects[elemh];
+		const CHero * type = elemh.toHeroType();
 		if(type->heroClass->faction == faction)
 			count++;
 	}
 
-	return std::ceil(std::max((double)count + additionalItems, (double)allowedFactions.size() + additionalItems) / (double)elementsPerLine);
+	return std::make_tuple(
+		std::ceil(((double)count + additionalItems) / MAX_ELEM_PER_LINES),
+		(count + additionalItems) % MAX_ELEM_PER_LINES
+	);
 }
 
 void OptionsTab::SelectionWindow::apply()
@@ -481,48 +493,38 @@ void OptionsTab::SelectionWindow::setSelection()
 
 void OptionsTab::SelectionWindow::reopen()
 {
-	auto window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type));
-	close();
-	if(CSH->isMyColor(color) || CSH->isHost())
-		GH.windows().pushWindow(window);
+	if(type == SelType::HERO && SEL->getStartInfo()->playerInfos.find(color)->second.castle == FactionID::RANDOM)
+		close();
+	else{
+		auto window = std::make_shared<SelectionWindow>(color, type, slider ? slider->getValue() : 0);
+		close();
+		if(CSH->isMyColor(color) || CSH->isHost())
+			GH.windows().pushWindow(window);
+	}
 }
 
-void OptionsTab::SelectionWindow::recreate()
+void OptionsTab::SelectionWindow::recreate(int sliderPos)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	int amountLines = 1;
 	if(type == SelType::BONUS)
 		elementsPerLine = allowedBonus.size();
 	else
 	{
-		// try to make squarish
-		if(type == SelType::TOWN)
-			elementsPerLine = floor(sqrt(allowedFactions.size()));
-		if(type == SelType::HERO)
-		{
-			int count = 0;
-			for(auto & elem : allowedHeroes)
-			{
-				const CHero * type = elem.toHeroType();
-				if(type->heroClass->faction == selectedFaction)
-				{
-					count++;
-				}
-			}
-			elementsPerLine = floor(sqrt(count));
-		}
-
-		amountLines = calcLines((type > SelType::TOWN) ? selectedFaction : FactionID::RANDOM);
+		std::tie(amountLines, elementsPerLine) = calcLines((type > SelType::TOWN) ? selectedFaction : FactionID::RANDOM);
+		if(amountLines > 1 || elementsPerLine == 0)
+			elementsPerLine = MAX_ELEM_PER_LINES;
 	}
 
 	int x = (elementsPerLine) * (ICON_BIG_WIDTH-1);
-	int y = (amountLines) * (ICON_BIG_HEIGHT-1);
+	int y = (std::min(amountLines, MAX_LINES)) * (ICON_BIG_HEIGHT-1);
 
-	pos = Rect(0, 0, x, y);
+	int sliderWidth = ((amountLines > MAX_LINES) ? 16 : 0);
 
-	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), pos);
-	backgroundTexture->playerColored(PlayerColor(1));
+	pos = Rect(pos.x, pos.y, x + sliderWidth, y);
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w - sliderWidth, pos.h));
+	backgroundTexture->setPlayerColor(PlayerColor(1));
 	updateShadow();
 
 	if(type == SelType::TOWN)
@@ -531,7 +533,15 @@ void OptionsTab::SelectionWindow::recreate()
 		genContentHeroes();
 	if(type == SelType::BONUS)
 		genContentBonus();
-	genContentGrid(amountLines);
+	genContentGrid(std::min(amountLines, MAX_LINES));
+
+	if(!slider && amountLines > MAX_LINES)
+	{
+		slider = std::make_shared<CSlider>(Point(x, 0), y, std::bind(&OptionsTab::SelectionWindow::sliderMove, this, _1), MAX_LINES, amountLines, 0, Orientation::VERTICAL, CSlider::BLUE);
+		slider->setPanningStep(ICON_BIG_HEIGHT);
+		slider->setScrollBounds(Rect(-pos.w + slider->pos.w, 0, x + slider->pos.w, y));
+		slider->scrollTo(sliderPos);
+	}
 
 	center();
 }
@@ -569,22 +579,26 @@ void OptionsTab::SelectionWindow::genContentFactions()
 	if(selectedFaction == FactionID::RANDOM)
 		components.push_back(std::make_shared<CPicture>(ImagePath::builtin("lobby/townBorderSmallActivated"), 6, (ICON_SMALL_HEIGHT/2)));
 
+	factions.clear();
 	for(auto & elem : allowedFactions)
 	{
 		int x = i % elementsPerLine;
-		int y = i / elementsPerLine;
+		int y = (i / elementsPerLine) - (slider ? slider->getValue() : 0);
 
 		PlayerSettings set = PlayerSettings();
 		set.castle = elem;
 
 		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 
+		factions.push_back(elem);
+		i++;
+
+		if(y < 0 || y > MAX_LINES - 1)
+			continue;
+			
 		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
 		components.push_back(std::make_shared<CPicture>(ImagePath::builtin(selectedFaction == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig"), x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
 		drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, (selectedFaction == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
-		factions.push_back(elem);
-
-		i++;
 	}
 }
 
@@ -601,33 +615,36 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 	if(selectedHero == HeroTypeID::RANDOM)
 		components.push_back(std::make_shared<CPicture>(ImagePath::builtin("lobby/townBorderSmallActivated"), 6, (ICON_SMALL_HEIGHT/2)));
 
+	heroes.clear();
 	for(auto & elem : allowedHeroes)
 	{
-		CHero * type = VLC->heroh->objects[elem];
+		const CHero * type = elem.toHeroType();
 
-		if(type->heroClass->faction == selectedFaction)
-		{
+		if(type->heroClass->faction != selectedFaction)
+			continue;
 
-			int x = i % elementsPerLine;
-			int y = i / elementsPerLine;
+		int x = i % elementsPerLine;
+		int y = (i / elementsPerLine) - (slider ? slider->getValue() : 0);
 
-			PlayerSettings set = PlayerSettings();
-			set.hero = elem;
+		PlayerSettings set = PlayerSettings();
+		set.hero = elem;
 
-			CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
+		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
 
-			components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
-			drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, (selectedHero == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
-			ImagePath image = ImagePath::builtin("lobby/townBorderBig");
-			if(selectedHero == elem)
-				image = ImagePath::builtin("lobby/townBorderBigActivated");
-			if(unusableHeroes.count(elem))
-				image = ImagePath::builtin("lobby/townBorderBigGrayedOut");
-			components.push_back(std::make_shared<CPicture>(image, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
-			heroes.push_back(elem);
+		heroes.push_back(elem);
+		i++;
 
-			i++;
-		}
+		if(y < 0 || y > MAX_LINES - 1)
+			continue;
+
+		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
+		drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, (selectedHero == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+		ImagePath image = ImagePath::builtin("lobby/townBorderBig");
+		if(selectedHero == elem)
+			image = ImagePath::builtin("lobby/townBorderBigActivated");
+		if(unusableHeroes.count(elem))
+			image = ImagePath::builtin("lobby/townBorderBigGrayedOut");
+		components.push_back(std::make_shared<CPicture>(image, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
 	}
 }
 
@@ -658,7 +675,7 @@ void OptionsTab::SelectionWindow::genContentBonus()
 int OptionsTab::SelectionWindow::getElement(const Point & cursorPosition)
 {
 	int x = (cursorPosition.x - pos.x) / (ICON_BIG_WIDTH-1);
-	int y = (cursorPosition.y - pos.y) / (ICON_BIG_HEIGHT-1);
+	int y = (cursorPosition.y - pos.y) / (ICON_BIG_HEIGHT-1) + (slider ? slider->getValue() : 0);
 
 	return x + y * elementsPerLine;
 }
@@ -740,18 +757,23 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 		apply();
 }
 
-bool OptionsTab::SelectionWindow::receiveEvent(const Point & position, int eventType) const
+void OptionsTab::SelectionWindow::sliderMove(int slidPos)
 {
-	return true;  // capture click also outside of window
+	if(!slider)
+		return; // ignore spurious call when slider is being created
+	recreate();
+	redraw();
+}
+
+void OptionsTab::SelectionWindow::notFocusedClick()
+{
+	close();
 }
 
 void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition)
 {
-	if(!pos.isInside(cursorPosition))
-	{
-		close();
+	if(slider && slider->pos.isInside(cursorPosition))
 		return;
-	}
 
 	int elem = getElement(cursorPosition);
 
@@ -760,7 +782,7 @@ void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition)
 
 void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 {
-	if(!pos.isInside(cursorPosition))
+	if(!pos.isInside(cursorPosition) || (slider && slider->pos.isInside(cursorPosition)))
 		return;
 
 	int elem = getElement(cursorPosition);
@@ -768,11 +790,118 @@ void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 	setElement(elem, false);
 }
 
+OptionsTab::HandicapWindow::HandicapWindow()
+	: CWindowObject(BORDERED)
+{
+	OBJECT_CONSTRUCTION;
+
+	addUsedEvents(LCLICK);
+
+	pos = Rect(0, 0, 660, 100 + SEL->getStartInfo()->playerInfos.size() * 30);
+
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(pos);
+	backgroundTexture->setPlayerColor(PlayerColor(1));
+
+	labels.push_back(std::make_shared<CLabel>(pos.w / 2 + 8, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.handicap")));
+
+	enum Columns : int32_t
+	{
+		INCOME = 1000,
+		GROWTH = 2000,
+	};
+	auto columns = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS, Columns::INCOME, Columns::GROWTH};
+
+	int i = 0;
+	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
+	{
+		PlayerColor player = pInfo.first;
+		anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS"), player.getNum(), 0, 7, 57 + i * 30));
+		for(int j = 0; j < columns.size(); j++)
+		{
+			bool isIncome = int(columns[j]) == Columns::INCOME;
+			bool isGrowth = int(columns[j]) == Columns::GROWTH;
+			EGameResID resource = columns[j];
+
+			const PlayerSettings &ps = SEL->getStartInfo()->getIthPlayersSettings(player);
+
+			int xPos = 30 + j * 70;
+			xPos += j > 0 ? 10 : 0; // Gold field is larger
+
+			if(i == 0)
+			{
+				if(isIncome)
+					labels.push_back(std::make_shared<CLabel>(xPos, 38, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.jktext.32")));
+				else if(isGrowth)
+					labels.push_back(std::make_shared<CLabel>(xPos, 38, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.194")));
+				else
+					anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(resource), 0, 15 + xPos + (j == 0 ? 10 : 0), 35));
+			}
+
+			auto area = Rect(xPos, 60 + i * 30, j == 0 ? 60 : 50, 16);
+			textinputbackgrounds.push_back(std::make_shared<TransparentFilledRectangle>(area.resize(3), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64)));
+			textinputs[player][resource] = std::make_shared<CTextInput>(area, FONT_SMALL, ETextAlignment::CENTERLEFT, true);
+			textinputs[player][resource]->setText(std::to_string(isIncome ? ps.handicap.percentIncome : (isGrowth ? ps.handicap.percentGrowth : ps.handicap.startBonus[resource])));
+			textinputs[player][resource]->setCallback([this, player, resource, isIncome, isGrowth](const std::string & s){
+				// text input processing: add/remove sign when pressing "-"; remove non digits; cut length; fill empty field with 0
+				std::string tmp = s;
+				bool negative = std::count_if( s.begin(), s.end(), []( char c ){ return c == '-'; }) == 1 && !isIncome && !isGrowth;
+				tmp.erase(std::remove_if(tmp.begin(), tmp.end(), [](char c) { return !isdigit(c); }), tmp.end());
+				int maxLength = isIncome || isGrowth ? 3 : (resource == EGameResID::GOLD ? 6 : 5);
+				tmp = tmp.substr(0, maxLength);
+				textinputs[player][resource]->setText(tmp.length() == 0 ? "0" : (negative ? "-" : "") + std::to_string(stoi(tmp)));
+			});
+			textinputs[player][resource]->setPopupCallback([isIncome, isGrowth](){
+				// Help for the textinputs
+				if(isIncome)
+					CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.lobby.handicap.income"));
+				else if(isGrowth)
+					CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.lobby.handicap.growth"));
+				else
+					CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.lobby.handicap.resource"));
+			});
+			if(isIncome || isGrowth)
+				labels.push_back(std::make_shared<CLabel>(area.topRight().x, area.center().y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, "%"));
+		}
+		i++;
+	}
+	
+	buttons.push_back(std::make_shared<CButton>(Point(pos.w / 2 - 32, 60 + SEL->getStartInfo()->playerInfos.size() * 30), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){
+		for (const auto& player : textinputs)
+		{
+			TResources resources = TResources();
+			int income = 100;
+			int growth = 100;
+			for (const auto& resource : player.second)
+			{
+				bool isIncome = int(resource.first) == Columns::INCOME;
+				bool isGrowth = int(resource.first) == Columns::GROWTH;
+				if(isIncome)
+					income = std::stoi(resource.second->getText());
+				else if(isGrowth)
+					growth = std::stoi(resource.second->getText());
+				else
+					resources[resource.first] = std::stoi(resource.second->getText());
+			}
+			CSH->setPlayerHandicap(player.first, Handicap{resources, income, growth});
+		}
+	    		
+		close();
+	}, EShortcut::GLOBAL_RETURN));
+
+	updateShadow();
+	center();
+}
+
+void OptionsTab::HandicapWindow::notFocusedClick()
+{
+	close();
+}
+
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & playerSettings, SelType type)
 	: Scrollable(LCLICK | SHOW_POPUP, position, Orientation::HORIZONTAL)
 	, CPlayerSettingsHelper(playerSettings, type)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	image = std::make_shared<CAnimImage>(getImageName(), getImageIndex());
 	subtitle = std::make_shared<CLabel>(24, 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, getName(), 71);
@@ -853,8 +982,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	, parentTab(parent)
 	, name(S.name)
 {
-	OBJ_CONSTRUCTION;
-	defActions |= SHARE_POS;
+	OBJECT_CONSTRUCTION;
 
 	int serial = 0;
 	for(PlayerColor g = PlayerColor(0); g < s->color; ++g)
@@ -896,7 +1024,49 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 		labelPlayerNameEdit = std::make_shared<CTextInput>(Rect(6, 3, 95, 15), EFonts::FONT_SMALL, ETextAlignment::CENTER, false);
 		labelPlayerNameEdit->setText(name);
 	}
-	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
+
+	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 21, 45, 26), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
+
+	auto hasHandicap = [this](){ return s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 && s->handicap.percentGrowth == 100; };
+	std::string labelHandicapText = hasHandicap() ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString();
+	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(55, 23, 46, 24), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, labelHandicapText);
+	handicap = std::make_shared<LRClickableArea>(Rect(53, 23, 50, 24), [](){
+		if(!CSH->isHost())
+			return;
+		
+		GH.windows().createAndPushWindow<HandicapWindow>();
+	}, [this, hasHandicap](){
+		if(hasHandicap())
+			CRClickPopup::createAndPush(MetaString::createFromTextID("core.help.124.help").toString());
+		else
+		{
+			auto str = MetaString::createFromTextID("vcmi.lobby.handicap");
+			str.appendRawString(":\n");
+			for(auto & res : EGameResID::ALL_RESOURCES())
+				if(s->handicap.startBonus[res] != 0)
+				{
+					str.appendRawString("\n");
+					str.appendName(res);
+					str.appendRawString(": ");
+					str.appendRawString(std::to_string(s->handicap.startBonus[res]));
+				}
+			if(s->handicap.percentIncome != 100)
+			{
+				str.appendRawString("\n");
+				str.appendTextID("core.jktext.32");
+				str.appendRawString(": ");
+				str.appendRawString(std::to_string(s->handicap.percentIncome) + "%");
+			}
+			if(s->handicap.percentGrowth != 100)
+			{
+				str.appendRawString("\n");
+				str.appendTextID("core.genrltxt.194");
+				str.appendRawString(": ");
+				str.appendRawString(std::to_string(s->handicap.percentGrowth) + "%");
+			}
+			CRClickPopup::createAndPush(str.toString());
+		}
+	});
 
 	if(SEL->screenType == ESelectionScreen::newGame)
 	{

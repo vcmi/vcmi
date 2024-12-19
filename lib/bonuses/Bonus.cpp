@@ -14,19 +14,21 @@
 #include "Updaters.h"
 #include "Propagators.h"
 
-#include "../VCMI_Lib.h"
-#include "../spells/CSpellHandler.h"
+#include "../CArtHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
-#include "../CHeroHandler.h"
-#include "../CTownHandler.h"
-#include "../CGeneralTextHandler.h"
 #include "../CSkillHandler.h"
-#include "../CArtHandler.h"
+#include "../IGameCallback.h"
 #include "../TerrainHandler.h"
-#include "../constants/StringConstants.h"
+#include "../VCMI_Lib.h"
+#include "../mapObjects/CGObjectInstance.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../battle/BattleInfo.h"
+#include "../constants/StringConstants.h"
+#include "../entities/hero/CHero.h"
 #include "../modding/ModUtility.h"
+#include "../spells/CSpellHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -88,7 +90,7 @@ JsonNode CAddInfo::toJsonNode() const
 		return node;
 	}
 }
-std::string Bonus::Description(std::optional<si32> customValue) const
+std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32> customValue) const
 {
 	MetaString descriptionHelper = description;
 	auto valueToShow = customValue.value_or(val);
@@ -113,13 +115,17 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 			case BonusSource::HERO_SPECIAL:
 				descriptionHelper.appendTextID(sid.as<HeroTypeID>().toEntity(VLC)->getNameTextID());
 				break;
+			case BonusSource::OBJECT_INSTANCE:
+				const auto * object = cb->getObj(sid.as<ObjectInstanceID>());
+				if (object)
+					descriptionHelper.appendTextID(VLC->objtypeh->getObjectName(object->ID, object->subID));
 		}
 	}
 
 	if(descriptionHelper.empty())
 	{
 		// still no description - try to generate one based on duration
-		if ((duration & BonusDuration::ONE_BATTLE).any())
+		if ((duration & BonusDuration::ONE_BATTLE) != 0)
 		{
 			if (val > 0)
 				descriptionHelper.appendTextID("core.arraytxt.110"); //+%d Temporary until next battle"
@@ -248,7 +254,7 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 #define printField(field) out << "\t" #field ": " << (int)bonus.field << "\n"
 	printField(val);
 	out << "\tSubtype: " << bonus.subtype.toString() << "\n";
-	printField(duration.to_ulong());
+	printField(duration);
 	printField(source);
 	out << "\tSource ID: " << bonus.sid.toString() << "\n";
 	if(bonus.additionalInfo != CAddInfo::NONE)

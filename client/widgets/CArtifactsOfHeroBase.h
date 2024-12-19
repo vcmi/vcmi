@@ -9,13 +9,15 @@
  */
 #pragma once
 
-#include "CArtPlace.h"
+#include "CComponentHolder.h"
 #include "Scrollable.h"
+
+#include "../gui/Shortcut.h"
 
 class CButton;
 class BackpackScroller;
 
-class CArtifactsOfHeroBase : virtual public CIntObject
+class CArtifactsOfHeroBase : virtual public CIntObject, public CKeyShortcut
 {
 protected:
 	using ArtPlacePtr = std::shared_ptr<CArtPlace>;
@@ -23,7 +25,7 @@ protected:
 
 public:
 	using ArtPlaceMap = std::map<ArtifactPosition, ArtPlacePtr>;
-	using ClickFunctor = std::function<void(CArtifactsOfHeroBase&, CArtPlace&, const Point&)>;
+	using ClickFunctor = std::function<void(CArtPlace&, const Point&)>;
 
 	ClickFunctor clickPressedCallback;
 	ClickFunctor showPopupCallback;
@@ -31,22 +33,26 @@ public:
 	
 	CArtifactsOfHeroBase();
 	virtual void putBackPickedArtifact();
-	virtual void clickPrassedArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
-	virtual void showPopupArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
-	virtual void gestureArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
+	virtual void clickPressedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition);
+	virtual void showPopupArtPlace(CComponentHolder & artPlace, const Point & cursorPosition);
+	virtual void gestureArtPlace(CComponentHolder & artPlace, const Point & cursorPosition);
 	virtual void setHero(const CGHeroInstance * hero);
 	virtual const CGHeroInstance * getHero() const;
 	virtual void scrollBackpack(bool left);
-	virtual void markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved = true);
+	virtual void markPossibleSlots(const CArtifact * art, bool assumeDestRemoved = true);
 	virtual void unmarkSlots();
 	virtual ArtPlacePtr getArtPlace(const ArtifactPosition & slot);
+	virtual ArtPlacePtr getArtPlace(const Point & cursorPosition);
 	virtual void updateWornSlots();
 	virtual void updateBackpackSlots();
 	virtual void updateSlot(const ArtifactPosition & slot);
 	virtual const CArtifactInstance * getPickedArtifact();
-	void addGestureCallback(CArtPlace::ClickFunctor callback);
+	void enableGesture();
+	const CArtifactInstance * getArt(const ArtifactPosition & slot) const;
+	void enableKeyboardShortcuts();
+	void setClickPressedArtPlacesCallback(const CArtPlace::ClickFunctor & callback) const;
+	void setShowPopupArtPlacesCallback(const CArtPlace::ClickFunctor & callback) const;
 
-protected:
 	const CGHeroInstance * curHero;
 	ArtPlaceMap artWorn;
 	std::vector<ArtPlacePtr> backpack;
@@ -65,8 +71,8 @@ protected:
 		Point(381,295) //18
 	};
 
-	virtual void init(const CArtPlace::ClickFunctor & lClickCallback, const CArtPlace::ClickFunctor & showPopupCallback,
-		const Point & position, const BpackScrollFunctor & scrollCallback);
+protected:
+	virtual void init(const Point & position, const BpackScrollFunctor & scrollCallback);
 	// Assigns an artifacts to an artifact place depending on it's new slot ID
 	virtual void setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot);
 };

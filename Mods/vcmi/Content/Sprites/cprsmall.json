@@ -1,0 +1,8 @@
+{
+	"images" :
+	[
+		// Fix for swapped in H3 icons of Wight and Wraith
+		{ "frame" : 62, "defFile" : "cprsmall.def", "defFrame" : 63},
+		{ "frame" : 63, "defFile" : "cprsmall.def", "defFrame" : 62}
+	]
+}

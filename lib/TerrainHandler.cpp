@@ -10,31 +10,42 @@
 
 #include "StdInc.h"
 #include "TerrainHandler.h"
-#include "CGeneralTextHandler.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "json/JsonNode.h"
 #include "modding/IdentifierStorage.h"
+#include "texts/CGeneralTextHandler.h"
+#include "texts/CLegacyConfigParser.h"
+#include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 
-	auto * info = new TerrainType;
+	auto info = std::make_shared<TerrainType>();
 
 	info->id = TerrainId(index);
 	info->identifier = identifier;
 	info->modScope = scope;
 	info->moveCost = static_cast<int>(json["moveCost"].Integer());
-	info->musicFilename = AudioPath::fromJson(json["music"]);
+	if (json["music"].isVector())
+	{
+		for (auto const & entry : json["music"].Vector())
+			info->musicFilename.push_back(AudioPath::fromJson(entry));
+	}
+	else
+	{
+		info->musicFilename.push_back(AudioPath::fromJson(json["music"]));
+	}
+
 	info->tilesFilename = AnimationPath::fromJson(json["tiles"]);
 	info->horseSound = AudioPath::fromJson(json["horseSound"]);
 	info->horseSoundPenalty = AudioPath::fromJson(json["horseSoundPenalty"]);
 	info->transitionRequired = json["transitionRequired"].Bool();
 	info->terrainViewPatterns = json["terrainViewPatterns"].String();
 
-	VLC->generaltexth->registerString(scope, info->getNameTextID(), json["text"].String());
+	VLC->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
 	const JsonVector & unblockedVec = json["minimapUnblocked"].Vector();
 	info->minimapUnblocked =
@@ -122,7 +133,7 @@ const std::vector<std::string> & TerrainTypeHandler::getTypeNames() const
 
 std::vector<JsonNode> TerrainTypeHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_TERRAIN);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_TERRAIN);
 
 	objects.resize(dataSize);
 
@@ -178,6 +189,11 @@ bool TerrainType::isTransitionRequired() const
 std::string TerrainType::getJsonKey() const
 {
 	return modScope + ":" + identifier;
+}
+
+std::string TerrainType::getModScope() const
+{
+	return modScope;
 }
 
 std::string TerrainType::getNameTextID() const

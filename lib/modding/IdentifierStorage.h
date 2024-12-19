@@ -84,6 +84,8 @@ public:
 	void requestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const;
 	void requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback) const;
 
+	void requestIdentifierOptional(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const;
+
 	/// try to request ID. If ID with such name won't be loaded, callback function will not be called
 	void tryRequestIdentifier(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback) const;
 	void tryRequestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const;

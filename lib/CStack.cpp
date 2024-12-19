@@ -15,7 +15,7 @@
 #include <vcmi/Entity.h>
 #include <vcmi/ServerCallback.h>
 
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "battle/BattleInfo.h"
 #include "spells/CSpellHandler.h"
 #include "networkPacks/PacksForClientBattle.h"
@@ -24,11 +24,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 
 ///CStack
-CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, ui8 Side, const SlotID & S):
+CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, BattleSide Side, const SlotID & S):
 	CBonusSystemNode(STACK_BATTLE),
 	base(Base),
 	ID(I),
-	type(Base->type),
+	typeID(Base->getId()),
 	baseAmount(Base->count),
 	owner(O),
 	slot(S),
@@ -45,10 +45,10 @@ CStack::CStack():
 {
 }
 
-CStack::CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, ui8 Side, const SlotID & S):
+CStack::CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, BattleSide Side, const SlotID & S):
 	CBonusSystemNode(STACK_BATTLE),
 	ID(I),
-	type(stack->type),
+	typeID(stack->getId()),
 	baseAmount(stack->count),
 	owner(O),
 	slot(S),
@@ -60,7 +60,7 @@ CStack::CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I
 void CStack::localInit(BattleInfo * battleInfo)
 {
 	battle = battleInfo;
-	assert(type);
+	assert(typeID.hasValue());
 
 	exportBonuses();
 	if(base) //stack originating from "real" stack in garrison -> attach to it
@@ -72,7 +72,7 @@ void CStack::localInit(BattleInfo * battleInfo)
 		CArmedInstance * army = battle->battleGetArmyObject(side);
 		assert(army);
 		attachTo(*army);
-		attachToSource(*type);
+		attachToSource(*typeID.toCreature());
 	}
 	nativeTerrain = getNativeTerrain(); //save nativeTerrain in the variable on the battle start to avoid dead lock
 	CUnitState::localInit(this); //it causes execution of the CStack::isOnNativeTerrain where nativeTerrain will be considered
@@ -164,8 +164,8 @@ std::string CStack::nodeName() const
 	std::ostringstream oss;
 	oss << owner.toString();
 	oss << " battle stack [" << ID << "]: " << getCount() << " of ";
-	if(type)
-		oss << type->getNamePluralTextID();
+	if(typeID.hasValue())
+		oss << typeID.toEntity(VLC)->getNamePluralTextID();
 	else
 		oss << "[UNDEFINED TYPE]";
 
@@ -212,11 +212,9 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 
 			auto resurrectedAdd = static_cast<int32_t>(baseAmount - (resurrectedCount / resurrectFactor));
 
-			auto rangeGen = rand.getInt64Range(0, 99);
-
 			for(int32_t i = 0; i < resurrectedAdd; i++)
 			{
-				if(resurrectValue > rangeGen())
+				if(resurrectValue > rand.nextInt(0, 99))
 					resurrectedCount += 1;
 			}
 
@@ -298,12 +296,15 @@ std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, c
 
 bool CStack::isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
 {
+	if(defender->hasBonusOfType(BonusType::INVINCIBLE))
+		return false;
+		
 	return !meleeAttackHexes(attacker, defender, attackerPos, defenderPos).empty();
 }
 
 std::string CStack::getName() const
 {
-	return (getCount() == 1) ? type->getNameSingularTranslated() : type->getNamePluralTranslated(); //War machines can't use base
+	return (getCount() == 1) ? typeID.toEntity(VLC)->getNameSingularTranslated() : typeID.toEntity(VLC)->getNamePluralTranslated(); //War machines can't use base
 }
 
 bool CStack::canBeHealed() const
@@ -325,7 +326,7 @@ bool CStack::isOnTerrain(TerrainId terrain) const
 
 const CCreature * CStack::unitType() const
 {
-	return type;
+	return typeID.toCreature();
 }
 
 int32_t CStack::unitBaseAmount() const
@@ -351,7 +352,7 @@ bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 	const auto * ownerHero = battle->battleGetOwnerHero(unit);
 	if(ownerHero && ownerHero->artifactsWorn.find(ArtifactPosition::MACH2) != ownerHero->artifactsWorn.end())
 	{
-		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).artifact->artType->getId() == ArtifactID::AMMO_CART)
+		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).artifact->getTypeId() == ArtifactID::AMMO_CART)
 		{
 			return true;
 		}
@@ -369,7 +370,7 @@ uint32_t CStack::unitId() const
 	return ID;
 }
 
-ui8 CStack::unitSide() const
+BattleSide CStack::unitSide() const
 {
 	return side;
 }
@@ -400,7 +401,7 @@ void CStack::spendMana(ServerCallback * server, const int spellCost) const
 	ssp.which = BattleSetStackProperty::CASTS;
 	ssp.val = -spellCost;
 	ssp.absolute = false;
-	server->apply(&ssp);
+	server->apply(ssp);
 }
 
 VCMI_LIB_NAMESPACE_END

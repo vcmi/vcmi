@@ -9,8 +9,6 @@
  */
 #pragma once
 
-#include "MetaString.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE EVictoryLossCheckResult

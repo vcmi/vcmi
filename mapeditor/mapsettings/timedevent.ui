@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>620</width>
-    <height>371</height>
+    <width>730</width>
+    <height>422</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -67,12 +67,16 @@
          <item>
           <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>Day of first occurance</string>
+            <string>Day of first occurrence</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="eventFirstOccurance"/>
+          <widget class="QSpinBox" name="eventFirstOccurrence">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -196,6 +200,34 @@
         </property>
        </column>
       </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="deletedObjectsLabel">
+       <property name="text">
+        <string>Objects to delete</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="addObjectToDelete">
+       <property name="text">
+        <string>Add</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="removeObjectToDelete">
+       <property name="text">
+        <string>Remove</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QListWidget" name="deletedObjects"/>
      </item>
      <item>
       <widget class="QPushButton" name="pushButton">

@@ -25,7 +25,7 @@ public:
 	/**
 	 * Loads a resource with the given resource name.
 	 *
-	 * @param resourceName The unqiue resource name in space of the archive.
+	 * @param resourceName The unique resource name in space of the archive.
 	 * @return a input stream object
 	 */
 	virtual std::unique_ptr<CInputStream> load(const ResourcePath & resourceName) const = 0;

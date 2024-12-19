@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TownSpellsWidget</class>
+ <widget class="QDialog" name="TownSpellsWidget">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>600</width>
+    <height>480</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Spells</string>
+  </property>
+  <property name="layoutDirection">
+   <enum>Qt::LeftToRight</enum>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>10</number>
+   </property>
+   <property name="topMargin">
+    <number>5</number>
+   </property>
+   <item>
+    <widget class="QCheckBox" name="customizeSpells">
+     <property name="text">
+      <string>Customize spells</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <property name="documentMode">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="level1">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <attribute name="title">
+       <string>Level 1</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_level1">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <item>
+        <layout class="QGridLayout" name="gridLayout1">
+         <item row="0" column="0">
+          <widget class="QLabel" name="possibleSpellsText1">
+           <property name="text">
+            <string>Spell that may appear in mage guild</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="requiredSpellsText1">
+           <property name="text">
+            <string>Spell that must appear in mage guild</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QListWidget" name="possibleSpellList1"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QListWidget" name="requiredSpellList1"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="level2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <attribute name="title">
+       <string>Level 2</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_level2">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <item>
+        <layout class="QGridLayout" name="gridLayout2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="possibleSpellsText2">
+           <property name="text">
+            <string>Spell that may appear in mage guild</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="requiredSpellsText2">
+           <property name="text">
+            <string>Spell that must appear in mage guild</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QListWidget" name="possibleSpellList2"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QListWidget" name="requiredSpellList2"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="level3">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <attribute name="title">
+       <string>Level 3</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_level3">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <item>
+        <layout class="QGridLayout" name="gridLayout3">
+         <item row="0" column="0">
+          <widget class="QLabel" name="possibleSpellsText3">
+           <property name="text">
+            <string>Spell that may appear in mage guild</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="requiredSpellsText3">
+           <property name="text">
+            <string>Spell that must appear in mage guild</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QListWidget" name="possibleSpellList3"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QListWidget" name="requiredSpellList3"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="level4">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <attribute name="title">
+       <string>Level 4</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_level4">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <item>
+        <layout class="QGridLayout" name="gridLayout4">
+         <item row="0" column="0">
+          <widget class="QLabel" name="possibleSpellsText4">
+           <property name="text">
+            <string>Spell that may appear in mage guild</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="requiredSpellsText4">
+           <property name="text">
+            <string>Spell that must appear in mage guild</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QListWidget" name="possibleSpellList4"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QListWidget" name="requiredSpellList4"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="level5">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <attribute name="title">
+       <string>Level 5</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_level5">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <item>
+        <layout class="QGridLayout" name="gridLayout5">
+         <item row="0" column="0">
+          <widget class="QLabel" name="possibleSpellsText5">
+           <property name="text">
+            <string>Spell that may appear in mage guild</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="requiredSpellsText5">
+           <property name="text">
+            <string>Spell that must appear in mage guild</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QListWidget" name="possibleSpellList5"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QListWidget" name="requiredSpellList5"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

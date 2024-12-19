@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "InputSourceText.h"
 
-#include "../CMT.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/EventDispatcher.h"
 #include "../render/IScreenHandler.h"

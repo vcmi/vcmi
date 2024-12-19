@@ -21,7 +21,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/ResourceSet.h"
 
 CResDataBar::CResDataBar(const ImagePath & imageName, const Point & position)
@@ -29,9 +29,9 @@ CResDataBar::CResDataBar(const ImagePath & imageName, const Point & position)
 	pos.x += position.x;
 	pos.y += position.y;
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CPicture>(imageName, 0, 0);
-	background->colorize(LOCPLINT->playerID);
+	background->setPlayerColor(LOCPLINT->playerID);
 
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
@@ -84,7 +84,7 @@ void CResDataBar::showAll(Canvas & to)
 		to.drawText(pos.topLeft() + *datePosition, FONT_SMALL, Colors::WHITE, ETextAlignment::TOPLEFT, buildDateString());
 }
 
-void CResDataBar::colorize(PlayerColor player)
+void CResDataBar::setPlayerColor(PlayerColor player)
 {
-	background->colorize(player);
+	background->setPlayerColor(player);
 }

@@ -49,7 +49,7 @@ bool ExplorationHelper::scanSector(int scanRadius)
 {
 	int3 tile = int3(0, 0, ourPos.z);
 
-	const auto & slice = (*(ts->fogOfWarMap))[ourPos.z];
+	const auto & slice = ts->fogOfWarMap[ourPos.z];
 
 	for(tile.x = ourPos.x - scanRadius; tile.x <= ourPos.x + scanRadius; tile.x++)
 	{
@@ -75,13 +75,13 @@ bool ExplorationHelper::scanMap()
 
 	foreach_tile_pos([&](const int3 & pos)
 		{
-			if((*(ts->fogOfWarMap))[pos.z][pos.x][pos.y])
+			if(ts->fogOfWarMap[pos.z][pos.x][pos.y])
 			{
 				bool hasInvisibleNeighbor = false;
 
 				foreach_neighbour(cbp, pos, [&](CCallback * cbp, int3 neighbour)
 					{
-						if(!(*(ts->fogOfWarMap))[neighbour.z][neighbour.x][neighbour.y])
+						if(!ts->fogOfWarMap[neighbour.z][neighbour.x][neighbour.y])
 						{
 							hasInvisibleNeighbor = true;
 						}
@@ -107,7 +107,7 @@ bool ExplorationHelper::scanMap()
 	allowDeadEndCancellation = false;
 	logAi->debug("Exploration scan all possible tiles for hero %s", hero->getNameTranslated());
 
-	boost::multi_array<ui8, 3> potentialTiles = *ts->fogOfWarMap;
+	boost::multi_array<ui8, 3> potentialTiles = ts->fogOfWarMap;
 	std::vector<int3> tilesToExploreFrom = edgeTiles;
 
 	// WARNING: POTENTIAL BUG
@@ -175,7 +175,7 @@ void ExplorationHelper::scanTile(const int3 & tile)
 				continue;
 			}
 
-			if(isSafeToVisit(hero, path.heroArmy, path.getTotalDanger()))
+			if(isSafeToVisit(hero, path.heroArmy, path.getTotalDanger(), ai->settings->getSafeAttackRatio()))
 			{
 				bestGoal = goal;
 				bestValue = ourValue;
@@ -191,7 +191,7 @@ int ExplorationHelper::howManyTilesWillBeDiscovered(const int3 & pos) const
 	int ret = 0;
 	int3 npos = int3(0, 0, pos.z);
 
-	const auto & slice = (*(ts->fogOfWarMap))[pos.z];
+	const auto & slice = ts->fogOfWarMap[pos.z];
 
 	for(npos.x = pos.x - sightRadius; npos.x <= pos.x + sightRadius; npos.x++)
 	{

@@ -13,13 +13,15 @@
 #include "../mapping/CMap.h"
 #include "../mapping/MapFormat.h"
 #include "../VCMI_Lib.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
+#include "../CRandomGenerator.h"
+#include "../entities/faction/CTownHandler.h"
+#include "../entities/faction/CFaction.h"
+#include "../entities/hero/CHero.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../CArtHandler.h"
-#include "../CTownHandler.h"
-#include "../CHeroHandler.h"
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "CZonePlacer.h"
@@ -32,15 +34,18 @@
 #include "modificators/TreasurePlacer.h"
 #include "modificators/RoadPlacer.h"
 
+#include <vstd/RNG.h>
+#include <vcmi/HeroTypeService.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameCallback * cb, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
-	monolithIndex(0)
+	monolithIndex(0),
+	rand(std::make_unique<CRandomGenerator>(RandomSeed))
 {
 	loadConfig();
-	rand.setSeed(this->randomSeed);
-	mapGenOptions.finalize(rand);
+	mapGenOptions.finalize(*rand);
 	map = std::make_unique<RmgMap>(mapGenOptions, cb);
 	placer = std::make_shared<CZonePlacer>(*map);
 }
@@ -100,8 +105,9 @@ const CMapGenOptions& CMapGenerator::getMapGenOptions() const
 void CMapGenerator::initQuestArtsRemaining()
 {
 	//TODO: Move to QuestArtifactPlacer?
-	for (auto art : VLC->arth->objects)
+	for (auto artID : VLC->arth->getDefaultAllowed())
 	{
+		auto art = artID.toArtifact();
 		//Don't use parts of combined artifacts
 		if (art->aClass == CArtifact::ART_TREASURE && VLC->arth->legalArtifact(art->getId()) && art->getPartOf().empty())
 			questArtifacts.push_back(art->getId());
@@ -115,7 +121,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	try
 	{
 		addHeaderInfo();
-		map->initTiles(*this, rand);
+		map->initTiles(*this, *rand);
 		Load::Progress::step();
 		initQuestArtsRemaining();
 		genZones();
@@ -136,44 +142,65 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		throw;
 	}
 	Load::Progress::finish();
+
+	map->mapInstance->creationDateTime = std::time(nullptr);
+	map->mapInstance->author = MetaString::createFromTextID("core.genrltxt.740");
+	const auto * mapTemplate = mapGenOptions.getMapTemplate();
+	if(mapTemplate)
+		map->mapInstance->mapVersion = MetaString::createFromRawString(mapTemplate->getName());
+
 	return std::move(map->mapInstance);
 }
 
-std::string CMapGenerator::getMapDescription() const
+MetaString CMapGenerator::getMapDescription() const
 {
-	assert(map);
+	const TextIdentifier mainPattern("vcmi", "randomMap", "description");
+	const TextIdentifier isHuman("vcmi", "randomMap", "description", "isHuman");
+	const TextIdentifier townChoiceIs("vcmi", "randomMap", "description", "townChoice");
+	const std::array waterContent = {
+		TextIdentifier("vcmi", "randomMap", "description", "water", "none"),
+		TextIdentifier("vcmi", "randomMap", "description", "water", "normal"),
+		TextIdentifier("vcmi", "randomMap", "description", "water", "islands")
+	};
+	const std::array monsterStrength = {
+		TextIdentifier("vcmi", "randomMap", "description", "monster", "weak"),
+		TextIdentifier("vcmi", "randomMap", "description", "monster", "normal"),
+		TextIdentifier("vcmi", "randomMap", "description", "monster", "strong")
+	};
 
-	const std::string waterContentStr[3] = { "none", "normal", "islands" };
-	const std::string monsterStrengthStr[3] = { "weak", "normal", "strong" };
-
-	int monsterStrengthIndex = mapGenOptions.getMonsterStrength() - EMonsterStrength::GLOBAL_WEAK; //does not start from 0
 	const auto * mapTemplate = mapGenOptions.getMapTemplate();
+	int monsterStrengthIndex = mapGenOptions.getMonsterStrength() - EMonsterStrength::GLOBAL_WEAK; //does not start from 0
 
-	if(!mapTemplate)
-		throw rmgException("Map template for Random Map Generator is not found. Could not start the game.");
+	MetaString result = MetaString::createFromTextID(mainPattern.get());
 
-    std::stringstream ss;
-    ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, size %dx%d") +
-        ", levels %d, players %d, computers %d, water %s, monster %s, VCMI map") % mapTemplate->getName() %
-		map->width() % map->height() % static_cast<int>(map->levels()) % static_cast<int>(mapGenOptions.getHumanOrCpuPlayerCount()) %
-		static_cast<int>(mapGenOptions.getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions.getWaterContent()] %
-		monsterStrengthStr[monsterStrengthIndex]);
+	result.replaceRawString(mapTemplate->getName());
+	result.replaceNumber(map->width());
+	result.replaceNumber(map->height());
+	result.replaceNumber(map->levels());
+	result.replaceNumber(mapGenOptions.getHumanOrCpuPlayerCount());
+	result.replaceNumber(mapGenOptions.getCompOnlyPlayerCount());
+	result.replaceTextID(waterContent.at(mapGenOptions.getWaterContent()).get());
+	result.replaceTextID(monsterStrength.at(monsterStrengthIndex).get());
 
 	for(const auto & pair : mapGenOptions.getPlayersSettings())
 	{
 		const auto & pSettings = pair.second;
+
 		if(pSettings.getPlayerType() == EPlayerType::HUMAN)
 		{
-			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()] << " is human";
+			result.appendTextID(isHuman.get());
+			result.replaceName(pSettings.getColor());
 		}
+
 		if(pSettings.getStartingTown() != FactionID::RANDOM)
 		{
-			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()]
-			   << " town choice is " << (*VLC->townh)[pSettings.getStartingTown()]->getNameTranslated();
+			result.appendTextID(townChoiceIs.get());
+			result.replaceName(pSettings.getColor());
+			result.replaceName(pSettings.getStartingTown());
 		}
 	}
 
-	return ss.str();
+	return result;
 }
 
 void CMapGenerator::addPlayerInfo()
@@ -278,7 +305,7 @@ void CMapGenerator::addPlayerInfo()
 					logGlobal->error("Not enough places in team for %s player", ((j == CPUONLY) ? "CPU" : "CPU or human"));
 					assert (teamNumbers[j].size());
 				}
-				auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
+				auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], *rand);
 				player.team = TeamID(*itTeam);
 				teamNumbers[j].erase(itTeam);
 			}
@@ -298,8 +325,8 @@ void CMapGenerator::addPlayerInfo()
 
 void CMapGenerator::genZones()
 {
-	placer->placeZones(&rand);
-	placer->assignZones(&rand);
+	placer->placeZones(rand.get());
+	placer->assignZones(rand.get());
 
 	logGlobal->info("Zones generated successfully");
 }
@@ -420,9 +447,9 @@ void CMapGenerator::fillZones()
 			if (it.second->getType() != ETemplateZoneType::WATER)
 				treasureZones.push_back(it.second);
 	}
-	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);
+	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, *rand);
 
-	map->getMap(this).grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths()->getTiles(), rand);
+	map->getMap(this).grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths()->getTiles(), *rand);
 	map->getMap(this).reindexObjects();
 
 	logGlobal->info("Zones filled successfully");
@@ -438,11 +465,12 @@ void CMapGenerator::addHeaderInfo()
 	m.height = mapGenOptions.getHeight();
 	m.twoLevel = mapGenOptions.getHasTwoLevels();
 	m.name.appendLocalString(EMetaText::GENERAL_TXT, 740);
-	m.description.appendRawString(getMapDescription());
+	m.description = getMapDescription();
 	m.difficulty = EMapDifficulty::NORMAL;
 	addPlayerInfo();
 	m.waterMap = (mapGenOptions.getWaterContent() != EWaterContent::EWaterContent::NONE);
 	m.banWaterContent();
+	m.overrideGameSettings(mapGenOptions.getMapTemplate()->getMapSettings());
 }
 
 int CMapGenerator::getNextMonlithIndex()

@@ -17,8 +17,7 @@
 namespace NKAI
 {
 
-#define MIN_AI_STRENGTH (0.5f) //lower when combat AI gets smarter
-#define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
+constexpr float MIN_AI_STRENGTH = 0.5f; //lower when combat AI gets smarter
 
 engineBase::engineBase()
 {
@@ -207,12 +206,6 @@ float TacticalAdvantageEngine::getTacticalAdvantage(const CArmedInstance * we, c
 		enemyShooters->setValue(enemyStructure.shooters);
 		enemyFlyers->setValue(enemyStructure.flyers);
 		enemySpeed->setValue(enemyStructure.maxSpeed);
-
-		bool bank = dynamic_cast<const CBank *>(enemy);
-		if(bank)
-			bankPresent->setValue(1);
-		else
-			bankPresent->setValue(0);
 
 		const CGTownInstance * fort = dynamic_cast<const CGTownInstance *>(enemy);
 		if(fort)

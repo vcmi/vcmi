@@ -104,7 +104,7 @@ bool StartBatchCopyDataProgram(
 
 		":CLIENT_NOT_RUNNING"									"\n"
 		"echo %1% turned off..."								"\n"
-		"echo Attempt to move datas."							"\n"
+		"echo Attempt to move data."							"\n"
 		"echo From: %2%"										"\n"
 		"echo To: %4%"											"\n"
 		"echo Please resolve any conflicts..."					"\n"
@@ -118,7 +118,7 @@ bool StartBatchCopyDataProgram(
 			"pause"												"\n" // Press any key to continue...
 			"goto REMOVE_OLD_DIR"								"\n"
 		")"														"\n"
-		"echo Game data updated succefully."					"\n"
+		"echo Game data updated successfully."					"\n"
 		"echo Please update your shortcuts."					"\n"
 		"echo Press any key to start a game . . ."				"\n"
 		"pause > nul"											"\n"
@@ -138,7 +138,7 @@ bool StartBatchCopyDataProgram(
 	bathFile << (boost::format(base) % exeName % from % (from / "*.*") % to % startGameString.str()).str();
 	bathFile.close();
 
-	std::system(("start \"Updating VCMI datas\" /D \"" + to.string() + "\" \"" + bathFilename.string() + '\"').c_str());
+	std::system(("start \"Updating VCMI data\" /D \"" + to.string() + "\" \"" + bathFilename.string() + '\"').c_str());
 	// start won't block std::system
 	// /D start bat in other directory insteand of current directory.
 
@@ -239,7 +239,7 @@ void VCMIDirsWIN32::init()
 		if (bfs::current_path() == from)
 			bfs::current_path(to);
 
-		// TODO: Log fact that we moved files succefully.
+		// TODO: Log fact that we moved files successfully.
 		bfs::remove(from);
 		return true;
 	};
@@ -267,7 +267,7 @@ void VCMIDirsWIN32::init()
 	{
 		const bfs::path executablePath = getModulePath(nullptr);
 
-		// VCMI cann't determine executable path.
+		// VCMI can't determine executable path.
 		// Use standard way to move directory and exit function.
 		if (executablePath.empty())
 			return moveDirIfExists(from, to);
@@ -473,7 +473,7 @@ void VCMIDirsOSX::init()
 			const bfs::path& srcFilePath = file->path();
 			const bfs::path  dstFilePath = to / srcFilePath.filename();
 
-			// TODO: Aplication should ask user what to do when file exists:
+			// TODO: Application should ask user what to do when file exists:
 			// replace/ignore/stop process/replace all/ignore all
 			if (!bfs::exists(dstFilePath))
 				bfs::rename(srcFilePath, dstFilePath);

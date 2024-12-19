@@ -29,6 +29,8 @@
 #include "../Functions.h"
 #include "../RmgObject.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 void ObjectManager::process()
@@ -342,7 +344,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 {
 	int3 pos;
 	auto possibleArea = searchArea;
-	auto cachedArea = zone.areaPossible() + zone.freePaths();
+	auto cachedArea = zone.areaForRoads();
 	while(true)
 	{
 		pos = findPlaceForObject(possibleArea, obj, weightFunction, optimizer);
@@ -417,6 +419,9 @@ bool ObjectManager::createMonoliths()
 			return false;
 		}
 		
+		// Once it can be created, replace with curved path
+		replaceWithCurvedPath(path, zone, rmgObject.getVisitablePosition());
+		
 		zone.connectPath(path);
 		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 	}
@@ -446,6 +451,11 @@ bool ObjectManager::createRequiredObjects()
 		{
 			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
+		}
+		if (objInfo.createRoad)
+		{
+			// Once valid path can be created, replace with curved path
+			replaceWithCurvedPath(path, zone, rmgObject.getVisitablePosition());
 		}
 		
 		zone.connectPath(path);
@@ -481,7 +491,7 @@ bool ObjectManager::createRequiredObjects()
 										  [this, &rmgObject](const int3 & tile)
 		{
 			float dist = rmgObject.getArea().distanceSqr(zone.getPos());
-			dist *= (dist > 12.f * 12.f) ? 10.f : 1.f; //tiles closer 12 are preferrable
+			dist *= (dist > 12.f * 12.f) ? 10.f : 1.f; //tiles closer 12 are preferable
 			dist = 1000000.f - dist; //some big number
 			return dist + map.getNearestObjectDistance(tile);
 		}, guarded, false, OptimizeType::WEIGHT);
@@ -725,13 +735,13 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	CreatureID creId = CreatureID::NONE;
 	int amount = 0;
 	std::vector<CreatureID> possibleCreatures;
-	for(auto cre : VLC->creh->objects)
+	for(auto const & cre : VLC->creh->objects)
 	{
 		if(cre->special)
 			continue;
 		if(!cre->getAIValue()) //bug #2681
 			continue;
-		if(!vstd::contains(zone.getMonsterTypes(), cre->getFaction()))
+		if(!vstd::contains(zone.getMonsterTypes(), cre->getFactionID()))
 			continue;
 		if((static_cast<si32>(cre->getAIValue() * (cre->ammMin + cre->ammMax) / 2) < strength) && (strength < static_cast<si32>(cre->getAIValue()) * 100)) //at least one full monster. size between average size of given stack and 100
 		{

@@ -10,13 +10,14 @@
 #include "../StdInc.h"
 #include "../Engine/Nullkiller.h"
 #include "../Engine/Nullkiller.h"
+#include "../../../lib/entities/building/CBuilding.h"
 
 namespace NKAI
 {
 
 void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 {
-	auto townInfo = developmentInfo.town->town;
+	auto townInfo = developmentInfo.town->getTown();
 	auto creatures = townInfo->creatures;
 	auto buildings = townInfo->getAllBuildings();
 
@@ -30,17 +31,14 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 		}
 	}
 
-	BuildingID prefixes[] = {BuildingID::DWELL_UP_FIRST, BuildingID::DWELL_FIRST};
-
-	for(int level = 0; level < GameConstants::CREATURES_PER_TOWN; level++)
+	for(int level = 0; level < developmentInfo.town->getTown()->creatures.size(); level++)
 	{
 		logAi->trace("Checking dwelling level %d", level);
 		BuildingInfo nextToBuild = BuildingInfo();
 
-		for(BuildingID prefix : prefixes)
+		for(int upgradeIndex : {1, 0})
 		{
-			BuildingID building = BuildingID(prefix + level);
-
+			BuildingID building = BuildingID(BuildingID::getDwellingFromLevel(level, upgradeIndex));
 			if(!vstd::contains(buildings, building))
 				continue; // no such building in town
 
@@ -74,16 +72,23 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo)
 
 	if(developmentInfo.existingDwellings.size() >= 2 && ai->cb->getDate(Date::DAY_OF_WEEK) > boost::date_time::Friday)
 	{
-		otherBuildings.push_back({BuildingID::CITADEL, BuildingID::CASTLE});
 		otherBuildings.push_back({BuildingID::HORDE_1});
 		otherBuildings.push_back({BuildingID::HORDE_2});
 	}
+
+	otherBuildings.push_back({ BuildingID::CITADEL, BuildingID::CASTLE });
+	otherBuildings.push_back({ BuildingID::RESOURCE_SILO });
+	otherBuildings.push_back({ BuildingID::SPECIAL_1 });
+	otherBuildings.push_back({ BuildingID::SPECIAL_2 });
+	otherBuildings.push_back({ BuildingID::SPECIAL_3 });
+	otherBuildings.push_back({ BuildingID::SPECIAL_4 });
+	otherBuildings.push_back({ BuildingID::MARKETPLACE });
 
 	for(auto & buildingSet : otherBuildings)
 	{
 		for(auto & buildingID : buildingSet)
 		{
-			if(!developmentInfo.town->hasBuilt(buildingID) && developmentInfo.town->town->buildings.count(buildingID))
+			if(!developmentInfo.town->hasBuilt(buildingID) && developmentInfo.town->getTown()->buildings.count(buildingID))
 			{
 				developmentInfo.addBuildingToBuild(getBuildingOrPrerequisite(developmentInfo.town, buildingID));
 
@@ -100,10 +105,17 @@ int32_t convertToGold(const TResources & res)
 		+ 125 * (res[EGameResID::GEMS] + res[EGameResID::CRYSTAL] + res[EGameResID::MERCURY] + res[EGameResID::SULFUR]);
 }
 
+TResources withoutGold(TResources other)
+{
+	other[GameResID::GOLD] = 0;
+
+	return other;
+}
+
 TResources BuildAnalyzer::getResourcesRequiredNow() const
 {
 	auto resourcesAvailable = ai->getFreeResources();
-	auto result = requiredResources - resourcesAvailable;
+	auto result = withoutGold(armyCost) + requiredResources - resourcesAvailable;
 
 	result.positive();
 
@@ -113,7 +125,7 @@ TResources BuildAnalyzer::getResourcesRequiredNow() const
 TResources BuildAnalyzer::getTotalResourcesRequired() const
 {
 	auto resourcesAvailable = ai->getFreeResources();
-	auto result = totalDevelopmentCost - resourcesAvailable;
+	auto result = totalDevelopmentCost + withoutGold(armyCost) - resourcesAvailable;
 
 	result.positive();
 
@@ -135,6 +147,8 @@ void BuildAnalyzer::update()
 
 	auto towns = ai->cb->getTownsInfo();
 
+	float economyDevelopmentCost = 0;
+
 	for(const CGTownInstance* town : towns)
 	{
 		logAi->trace("Checking town %s", town->getNameTranslated());
@@ -147,6 +161,11 @@ void BuildAnalyzer::update()
 
 		requiredResources += developmentInfo.requiredResources;
 		totalDevelopmentCost += developmentInfo.townDevelopmentCost;
+		for(auto building : developmentInfo.toBuild)
+		{
+			if (building.dailyIncome[EGameResID::GOLD] > 0)
+				economyDevelopmentCost += building.buildCostWithPrerequisites[EGameResID::GOLD];
+		}
 		armyCost += developmentInfo.armyCost;
 
 		for(auto bi : developmentInfo.toBuild)
@@ -165,15 +184,7 @@ void BuildAnalyzer::update()
 
 	updateDailyIncome();
 
-	if(ai->cb->getDate(Date::DAY) == 1)
-	{
-		goldPressure = 1;
-	}
-	else
-	{
-		goldPressure = ai->getLockedResources()[EGameResID::GOLD] / 5000.0f
-			+ (float)armyCost[EGameResID::GOLD] / (1 + 2 * ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
-	}
+	goldPressure = (ai->getLockedResources()[EGameResID::GOLD] + (float)armyCost[EGameResID::GOLD] + economyDevelopmentCost) / (1 + 2 * ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
 
 	logAi->trace("Gold pressure: %f", goldPressure);
 }
@@ -192,7 +203,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	bool excludeDwellingDependencies) const
 {
 	BuildingID building = toBuild;
-	auto townInfo = town->town;
+	auto townInfo = town->getTown();
 
 	const CBuilding * buildPtr = townInfo->buildings.at(building);
 	const CCreature * creature = nullptr;
@@ -203,8 +214,8 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 	if(BuildingID::DWELL_FIRST <= toBuild && toBuild <= BuildingID::DWELL_UP_LAST)
 	{
-		creatureLevel = (toBuild - BuildingID::DWELL_FIRST) % GameConstants::CREATURES_PER_TOWN;
-		creatureUpgrade = (toBuild - BuildingID::DWELL_FIRST) / GameConstants::CREATURES_PER_TOWN;
+		creatureLevel = BuildingID::getLevelFromDwelling(toBuild);
+		creatureUpgrade = BuildingID::getUpgradedFromDwelling(toBuild);
 	}
 	else if(toBuild == BuildingID::HORDE_1 || toBuild == BuildingID::HORDE_1_UPGR)
 	{
@@ -230,6 +241,12 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 	logAi->trace("checking %s", info.name);
 	logAi->trace("buildInfo %s", info.toString());
+
+	int highestFort = 0;
+	for (auto twn : ai->cb->getTownsInfo())
+	{
+		highestFort = std::max(highestFort, (int)twn->fortLevel());
+	}
 
 	if(!town->hasBuilt(building))
 	{
@@ -267,7 +284,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 				BuildingInfo prerequisite = getBuildingOrPrerequisite(town, missingBuildings[0], excludeDwellingDependencies);
 
-				prerequisite.buildCostWithPrerequisits += info.buildCost;
+				prerequisite.buildCostWithPrerequisites += info.buildCost;
 				prerequisite.creatureCost = info.creatureCost;
 				prerequisite.creatureGrows = info.creatureGrows;
 				prerequisite.creatureLevel = info.creatureLevel;
@@ -275,7 +292,15 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 				prerequisite.baseCreatureID = info.baseCreatureID;
 				prerequisite.prerequisitesCount++;
 				prerequisite.armyCost = info.armyCost;
-				prerequisite.dailyIncome = info.dailyIncome;
+				bool haveSameOrBetterFort = false;
+				if (prerequisite.id == BuildingID::FORT && highestFort >= CGTownInstance::EFortLevel::FORT)
+					haveSameOrBetterFort = true;
+				if (prerequisite.id == BuildingID::CITADEL && highestFort >= CGTownInstance::EFortLevel::CITADEL)
+					haveSameOrBetterFort = true;
+				if (prerequisite.id == BuildingID::CASTLE && highestFort >= CGTownInstance::EFortLevel::CASTLE)
+					haveSameOrBetterFort = true;
+				if(!haveSameOrBetterFort)
+					prerequisite.dailyIncome = info.dailyIncome;
 
 				return prerequisite;
 			}
@@ -308,9 +333,7 @@ void BuildAnalyzer::updateDailyIncome()
 		const CGMine* mine = dynamic_cast<const CGMine*>(obj);
 
 		if(mine)
-		{
-			dailyIncome[mine->producedResource.getNum()] += mine->producedQuantity;
-		}
+			dailyIncome += mine->dailyIncome();
 	}
 
 	for(const CGTownInstance* town : towns)
@@ -323,7 +346,7 @@ bool BuildAnalyzer::hasAnyBuilding(int32_t alignment, BuildingID bid) const
 {
 	for(auto tdi : developmentInfos)
 	{
-		if(tdi.town->getFaction() == alignment && tdi.town->hasBuilt(bid))
+		if(tdi.town->getFactionID() == alignment && tdi.town->hasBuilt(bid))
 			return true;
 	}
 
@@ -340,7 +363,8 @@ void TownDevelopmentInfo::addExistingDwelling(const BuildingInfo & existingDwell
 
 void TownDevelopmentInfo::addBuildingToBuild(const BuildingInfo & nextToBuild)
 {
-	townDevelopmentCost += nextToBuild.buildCostWithPrerequisits;
+	townDevelopmentCost += nextToBuild.buildCostWithPrerequisites;
+	townDevelopmentCost += withoutGold(nextToBuild.armyCost);
 
 	if(nextToBuild.canBuild)
 	{
@@ -361,7 +385,7 @@ BuildingInfo::BuildingInfo()
 	creatureGrows = 0;
 	creatureID = CreatureID::NONE;
 	buildCost = 0;
-	buildCostWithPrerequisits = 0;
+	buildCostWithPrerequisites = 0;
 	prerequisitesCount = 0;
 	name.clear();
 	armyStrength = 0;
@@ -376,7 +400,7 @@ BuildingInfo::BuildingInfo(
 {
 	id = building->bid;
 	buildCost = building->resources;
-	buildCostWithPrerequisits = building->resources;
+	buildCostWithPrerequisites = building->resources;
 	dailyIncome = building->produce;
 	exists = town->hasBuilt(id);
 	prerequisitesCount = 1;

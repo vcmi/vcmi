@@ -15,10 +15,10 @@
 
 #include "../ArtifactUtils.h"
 #include "../CSoundBase.h"
-#include "../CGeneralTextHandler.h"
-#include "../CHeroHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "CGCreature.h"
 #include "../IGameCallback.h"
+#include "../entities/hero/CHeroHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../GameConstants.h"
@@ -31,7 +31,8 @@
 #include "../modding/ModUtility.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../spells/CSpellHandler.h"
-#include "../CRandomGenerator.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -109,7 +110,7 @@ bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 	{
 		for(count = 0, it = army->Slots().begin(); it != army->Slots().end(); ++it)
 		{
-			if(it->second->type == cre->type)
+			if(it->second->getType() == cre->getType())
 			{
 				count += it->second->count;
 				slotsCount++;
@@ -151,7 +152,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 		}
 		else
 		{
-			const auto * assembly = h->getAssemblyByConstituent(elem);
+			const auto * assembly = h->getCombinedArtWithPart(elem);
 			assert(assembly);
 			auto parts = assembly->getPartsInfo();
 
@@ -162,7 +163,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 			for(const auto & ci : parts)
 			{
 				if(ci.art->getTypeId() != elem)
-					cb->giveHeroNewArtifact(h, ci.art->artType, ArtifactPosition::BACKPACK_START);
+					cb->giveHeroNewArtifact(h, ci.art->getTypeId(), ArtifactPosition::BACKPACK_START);
 			}
 		}
 	}
@@ -430,7 +431,7 @@ void CGSeerHut::setObjToKill()
 	
 	if(getCreatureToKill(true))
 	{
-		quest->stackToKill = getCreatureToKill(false)->getCreature();
+		quest->stackToKill = getCreatureToKill(false)->getCreatureID();
 		assert(quest->stackToKill != CreatureID::NONE);
 		quest->stackDirection = checkDirection();
 	}
@@ -441,7 +442,7 @@ void CGSeerHut::setObjToKill()
 	}
 }
 
-void CGSeerHut::init(CRandomGenerator & rand)
+void CGSeerHut::init(vstd::RNG & rand)
 {
 	auto names = VLC->generaltexth->findStringsWithPrefix("core.seerhut.names");
 
@@ -455,7 +456,7 @@ void CGSeerHut::init(CRandomGenerator & rand)
 	configuration.selectMode = Rewardable::ESelectMode::SELECT_PLAYER;
 }
 
-void CGSeerHut::initObj(CRandomGenerator & rand)
+void CGSeerHut::initObj(vstd::RNG & rand)
 {
 	init(rand);
 	
@@ -562,7 +563,7 @@ void CGSeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	}
 }
 
-void CGSeerHut::newTurn(CRandomGenerator & rand) const
+void CGSeerHut::newTurn(vstd::RNG & rand) const
 {
 	CRewardableObject::newTurn(rand);
 	if(quest->lastDay >= 0 && quest->lastDay <= cb->getDate() - 1) //time is up
@@ -587,7 +588,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 			AddQuest aq;
 			aq.quest = QuestInfo (quest, this, visitablePos());
 			aq.player = h->tempOwner;
-			cb->sendAndApply(&aq); //TODO: merge with setObjProperty?
+			cb->sendAndApply(aq); //TODO: merge with setObjProperty?
 		}
 
 		if(firstVisit || failRequirements)
@@ -613,7 +614,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 
 int CGSeerHut::checkDirection() const
 {
-	int3 cord = getCreatureToKill(false)->pos;
+	int3 cord = getCreatureToKill(false)->visitablePos();
 	if(static_cast<double>(cord.x) / static_cast<double>(cb->getMapSize().x) < 0.34) //north
 	{
 		if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.34) //northwest
@@ -659,7 +660,7 @@ const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 	return dynamic_cast<const CGCreature *>(o);
 }
 
-void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	CRewardableObject::blockingDialogAnswered(hero, answer);
 	if(answer)
@@ -750,7 +751,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 }
 
-void CGQuestGuard::init(CRandomGenerator & rand)
+void CGQuestGuard::init(vstd::RNG & rand)
 {
 	blockVisit = true;
 	quest->textOption = rand.nextInt(3, 5);
@@ -810,7 +811,7 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 		cow.mode = ChangeObjectVisitors::VISITOR_GLOBAL;
 		cow.hero = h->id;
 		cow.object = id;
-		cb->sendAndApply(&cow);
+		cb->sendAndApply(cow);
 		txt_id=19;
 	}
 	else
@@ -818,7 +819,7 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 	h->showInfoDialog(txt_id);
 }
 
-void CGBorderGuard::initObj(CRandomGenerator & rand)
+void CGBorderGuard::initObj(vstd::RNG & rand)
 {
 	blockVisit = true;
 }
@@ -850,7 +851,7 @@ void CGBorderGuard::onHeroVisit(const CGHeroInstance * h) const
 		BlockingDialog bd (true, false);
 		bd.player = h->getOwner();
 		bd.text.appendLocalString (EMetaText::ADVOB_TXT, 17);
-		cb->showBlockingDialog (&bd);
+		cb->showBlockingDialog (this, &bd);
 	}
 	else
 	{
@@ -859,12 +860,12 @@ void CGBorderGuard::onHeroVisit(const CGHeroInstance * h) const
 		AddQuest aq;
 		aq.quest = QuestInfo (quest, this, visitablePos());
 		aq.player = h->tempOwner;
-		cb->sendAndApply (&aq);
+		cb->sendAndApply(aq);
 		//TODO: add this quest only once OR check for multiple instances later
 	}
 }
 
-void CGBorderGuard::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGBorderGuard::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if (answer)
 		cb->removeObject(this, hero->getOwner());
@@ -884,7 +885,7 @@ void CGBorderGate::onHeroVisit(const CGHeroInstance * h) const //TODO: passabili
 		AddQuest aq;
 		aq.quest = QuestInfo (quest, this, visitablePos());
 		aq.player = h->tempOwner;
-		cb->sendAndApply (&aq);
+		cb->sendAndApply(aq);
 	}
 }
 

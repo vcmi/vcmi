@@ -50,7 +50,7 @@ public:
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
 	void keyPressed(EShortcut key) override;
-	void textInputed(const std::string & enteredText) override;
+	void textInputted(const std::string & enteredText) override;
 	void textEdited(const std::string & enteredText) override;
 	bool captureThisKey(EShortcut key) override;
 

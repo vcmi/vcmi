@@ -1,16 +1,18 @@
+# Building VCMI for iOS
+
 ## Requirements
 
 1. **macOS**
 2. Xcode: <https://developer.apple.com/xcode/>
 3. CMake 3.21+: `brew install --cask cmake` or get from <https://cmake.org/download/>
 4. Optional:
-  - CCache to speed up recompilation: `brew install ccache`
+   - CCache to speed up recompilation: `brew install ccache`
 
 ## Obtaining source code
 
 Clone <https://github.com/vcmi/vcmi> with submodules. Example for command line:
 
-```
+```sh
 git clone --recurse-submodules https://github.com/vcmi/vcmi.git
 ```
 
@@ -34,9 +36,8 @@ There're a few [CMake presets](https://cmake.org/cmake/help/latest/manual/cmake-
 
 Open terminal and `cd` to the directory with source code. Configuration example for device with Conan:
 
-```
-cmake --preset ios-device-conan \
-  -D BUNDLE_IDENTIFIER_PREFIX=com.MY-NAME
+```sh
+cmake --preset ios-device-conan -D BUNDLE_IDENTIFIER_PREFIX=com.MY-NAME
 ```
 
 By default build directory containing Xcode project will appear at `../build-ios-device-conan`, but you can change it with `-B` option.
@@ -45,7 +46,7 @@ If you want to speed up the recompilation, add `-D ENABLE_CCACHE=ON`
 
 ### Building for device
 
-To be able to build for iOS device, you must also specify codesigning settings. If you don't know your development team ID, open the generated Xcode project, open project settings (click **VCMI** with blue icon on the very top in the left panel with files), select **vcmiclient** target, open **Signing & Capabilities** tab and select yout team. Now you can copy the value from **Build Settings** tab - `DEVELOPMENT_TEAM` variable (paste it in the Filter field on the right) - click the greenish value - Other... - copy. Now you can pass it in `CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM` variable when configuring the project to avoid selecting the team manually every time CMake re-generates the project.
+To be able to build for iOS device, you must also specify codesigning settings. If you don't know your development team ID, open the generated Xcode project, open project settings (click **VCMI** with blue icon on the very top in the left panel with files), select **vcmiclient** target, open **Signing & Capabilities** tab and select your team. Now you can copy the value from **Build Settings** tab - `DEVELOPMENT_TEAM` variable (paste it in the Filter field on the right) - click the greenish value - Other... - copy. Now you can pass it in `CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM` variable when configuring the project to avoid selecting the team manually every time CMake re-generates the project.
 
 Advanced users who know exact private key and provisioning profile to sign with, can use `CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY` and `CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER` variables instead. In this case you must also pass `-D CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_STYLE=Manual`.
 
@@ -59,7 +60,7 @@ You must also install game files, see [Installation on iOS](../players/Installat
 
 ### From command line
 
-```
+```sh
 cmake --build <path to build directory> --target vcmiclient -- -quiet
 ```
 

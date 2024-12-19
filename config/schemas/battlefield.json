@@ -24,6 +24,18 @@
 			"format" : "imageFile",
 			"description" : "Background image for this battlefield"
 		},
+		"music" :
+		{
+			"description" : "Optional, filename for custom music to play during combat on this terrain",
+			"type" : "string",
+			"format" : "musicFile"
+		},
+		"openingSound" :
+		{
+			"description" : "Optional, filename for custom sound to play during combat opening on this terrain",
+			"type" : "string",
+			"format" : "musicFile"
+		},
 		"impassableHexes" : {
 			"type" : "array",
 			"description" : "List of battle hexes that will be always blocked on this battlefield (e.g. ship to ship battles)",

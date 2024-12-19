@@ -34,13 +34,12 @@ using namespace Goals;
 std::unique_ptr<ObjectGraph> Nullkiller::baseGraph;
 
 Nullkiller::Nullkiller()
-	:activeHero(nullptr), scanDepth(ScanDepth::MAIN_FULL), useHeroChain(true)
+	: activeHero(nullptr)
+	, scanDepth(ScanDepth::MAIN_FULL)
+	, useHeroChain(true)
+	, memory(std::make_unique<AIMemory>())
 {
-	memory = std::make_unique<AIMemory>();
-	settings = std::make_unique<Settings>();
 
-	useObjectGraph = settings->isObjectGraphAllowed();
-	openMap = settings->isOpenMap() || useObjectGraph;
 }
 
 bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
@@ -62,17 +61,23 @@ bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 		return false;
 	}
 
-	return cb->getStartInfo()->difficulty >= 3;
+	return true;
 }
 
 void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
 {
 	this->cb = cb;
 	this->gateway = gateway;
-	
-	playerID = gateway->playerID;
+	this->playerID = gateway->playerID;
 
-	if(openMap && !canUseOpenMap(cb, playerID))
+	settings = std::make_unique<Settings>(cb->getStartInfo()->difficulty);
+
+	if(canUseOpenMap(cb, playerID))
+	{
+		useObjectGraph = settings->isObjectGraphAllowed();
+		openMap = settings->isOpenMap() || useObjectGraph;
+	}
+	else
 	{
 		useObjectGraph = false;
 		openMap = false;
@@ -122,11 +127,14 @@ void TaskPlan::merge(TSubgoal task)
 {
 	TGoalVec blockers;
 
+	if (task->asTask()->priority <= 0)
+		return;
+
 	for(auto & item : tasks)
 	{
 		for(auto objid : item.affectedObjects)
 		{
-			if(task == item.task || task->asTask()->isObjectAffected(objid))
+			if(task == item.task || task->asTask()->isObjectAffected(objid) || (task->asTask()->getHero() != nullptr && task->asTask()->getHero() == item.task->asTask()->getHero()))
 			{
 				if(item.task->asTask()->priority >= task->asTask()->priority)
 					return;
@@ -166,20 +174,19 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TGoalVec & tasks) const
 	return taskptr(*bestTask);
 }
 
-Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks) const
+Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks, int priorityTier) const
 {
 	TaskPlan taskPlan;
 
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, tasks.size()), [this, &tasks](const tbb::blocked_range<size_t> & r)
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, tasks.size()), [this, &tasks, priorityTier](const tbb::blocked_range<size_t> & r)
 		{
 			auto evaluator = this->priorityEvaluators->acquire();
 
 			for(size_t i = r.begin(); i != r.end(); i++)
 			{
 				auto task = tasks[i];
-
-				if(task->asTask()->priority <= 0)
-					task->asTask()->priority = evaluator->evaluate(task);
+				if (task->asTask()->priority <= 0 || priorityTier != PriorityEvaluator::PriorityTier::BUILDINGS)
+					task->asTask()->priority = evaluator->evaluate(task, priorityTier);
 			}
 		});
 
@@ -216,7 +223,7 @@ void Nullkiller::decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, i
 
 void Nullkiller::resetAiState()
 {
-	std::unique_lock<std::mutex> lockGuard(aiStateMutex);
+	std::unique_lock lockGuard(aiStateMutex);
 
 	lockedResources = TResources();
 	scanDepth = ScanDepth::MAIN_FULL;
@@ -236,7 +243,7 @@ void Nullkiller::updateAiState(int pass, bool fast)
 {
 	boost::this_thread::interruption_point();
 
-	std::unique_lock<std::mutex> lockGuard(aiStateMutex);
+	std::unique_lock lockGuard(aiStateMutex);
 
 	auto start = std::chrono::high_resolution_clock::now();
 
@@ -326,7 +333,7 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
 		if(lockReason != HeroLockedReason::NOT_LOCKED)
 		{
 #if NKAI_TRACE_LEVEL >= 1
-			logAi->trace("Hero %s is locked by STARTUP. Discarding %s", path.targetHero->getObjectName(), path.toString());
+			logAi->trace("Hero %s is locked by %d. Discarding %s", path.targetHero->getObjectName(), (int)lockReason,  path.toString());
 #endif
 			return true;
 		}
@@ -347,12 +354,24 @@ void Nullkiller::makeTurn()
 	boost::lock_guard<boost::mutex> sharedStorageLock(AISharedStorage::locker);
 
 	const int MAX_DEPTH = 10;
-	const float FAST_TASK_MINIMAL_PRIORITY = 0.7f;
 
 	resetAiState();
 
 	Goals::TGoalVec bestTasks;
 
+#if NKAI_TRACE_LEVEL >= 1
+	float totalHeroStrength = 0;
+	int totalTownLevel = 0;
+	for (auto heroInfo : cb->getHeroesInfo())
+	{
+		totalHeroStrength += heroInfo->getTotalStrength();
+	}
+	for (auto townInfo : cb->getTownsInfo())
+	{
+		totalTownLevel += townInfo->getTownLevel();
+	}
+	logAi->info("Beginning: Strength: %f Townlevel: %d Resources: %s", totalHeroStrength, totalTownLevel, cb->getResourceAmount().toString());
+#endif
 	for(int i = 1; i <= settings->getMaxPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
 		auto start = std::chrono::high_resolution_clock::now();
@@ -360,21 +379,30 @@ void Nullkiller::makeTurn()
 
 		Goals::TTask bestTask = taskptr(Goals::Invalid());
 
-		for(;i <= settings->getMaxPass(); i++)
+		while(true)
 		{
 			bestTasks.clear();
 
+			decompose(bestTasks, sptr(RecruitHeroBehavior()), 1);
 			decompose(bestTasks, sptr(BuyArmyBehavior()), 1);
 			decompose(bestTasks, sptr(BuildingBehavior()), 1);
 
 			bestTask = choseBestTask(bestTasks);
 
-			if(bestTask->priority >= FAST_TASK_MINIMAL_PRIORITY)
+			if(bestTask->priority > 0)
 			{
+#if NKAI_TRACE_LEVEL >= 1
+				logAi->info("Pass %d: Performing prio 0 task %s with prio: %d", i, bestTask->toString(), bestTask->priority);
+#endif
 				if(!executeTask(bestTask))
 					return;
 
-				updateAiState(i, true);
+				bool fastUpdate = true;
+
+				if (bestTask->getHero() != nullptr)
+					fastUpdate = false;
+
+				updateAiState(i, fastUpdate);
 			}
 			else
 			{
@@ -382,7 +410,6 @@ void Nullkiller::makeTurn()
 			}
 		}
 
-		decompose(bestTasks, sptr(RecruitHeroBehavior()), 1);
 		decompose(bestTasks, sptr(CaptureObjectsBehavior()), 1);
 		decompose(bestTasks, sptr(ClusterBehavior()), MAX_DEPTH);
 		decompose(bestTasks, sptr(DefenceBehavior()), MAX_DEPTH);
@@ -392,14 +419,26 @@ void Nullkiller::makeTurn()
 		if(!isOpenMap())
 			decompose(bestTasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
-		if(cb->getDate(Date::DAY) == 1 || heroManager->getHeroRoles().empty())
+		TTaskVec selectedTasks;
+#if NKAI_TRACE_LEVEL >= 1
+		int prioOfTask = 0;
+#endif
+		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::DEFEND; ++prio)
 		{
-			decompose(bestTasks, sptr(StartupBehavior()), 1);
+#if NKAI_TRACE_LEVEL >= 1
+			prioOfTask = prio;
+#endif
+			selectedTasks = buildPlan(bestTasks, prio);
+			if (!selectedTasks.empty() || settings->isUseFuzzy())
+				break;
 		}
 
-		auto selectedTasks = buildPlan(bestTasks);
+		std::sort(selectedTasks.begin(), selectedTasks.end(), [](const TTask& a, const TTask& b) 
+		{
+			return a->priority > b->priority;
+		});
 
-		logAi->debug("Decission madel in %ld", timeElapsed(start));
+		logAi->debug("Decision madel in %ld", timeElapsed(start));
 
 		if(selectedTasks.empty())
 		{
@@ -438,7 +477,7 @@ void Nullkiller::makeTurn()
 					bestTask->priority);
 			}
 
-			if(bestTask->priority < MIN_PRIORITY)
+			if((settings->isUseFuzzy() && bestTask->priority < MIN_PRIORITY) || (!settings->isUseFuzzy() && bestTask->priority <= 0))
 			{
 				auto heroes = cb->getHeroesInfo();
 				auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
@@ -463,7 +502,9 @@ void Nullkiller::makeTurn()
 
 				continue;
 			}
-
+#if NKAI_TRACE_LEVEL >= 1
+			logAi->info("Pass %d: Performing prio %d task %s with prio: %d", i, prioOfTask, bestTask->toString(), bestTask->priority);
+#endif
 			if(!executeTask(bestTask))
 			{
 				if(hasAnySuccess)
@@ -471,13 +512,27 @@ void Nullkiller::makeTurn()
 				else
 					return;
 			}
-
 			hasAnySuccess = true;
 		}
+
+		hasAnySuccess |= handleTrading();
 
 		if(!hasAnySuccess)
 		{
 			logAi->trace("Nothing was done this turn. Ending turn.");
+#if NKAI_TRACE_LEVEL >= 1
+			totalHeroStrength = 0;
+			totalTownLevel = 0;
+			for (auto heroInfo : cb->getHeroesInfo())
+			{
+				totalHeroStrength += heroInfo->getTotalStrength();
+			}
+			for (auto townInfo : cb->getTownsInfo())
+			{
+				totalTownLevel += townInfo->getTownLevel();
+			}
+			logAi->info("End: Strength: %f Townlevel: %d Resources: %s", totalHeroStrength, totalTownLevel, cb->getResourceAmount().toString());
+#endif
 			return;
 		}
 
@@ -552,6 +607,104 @@ TResources Nullkiller::getFreeResources() const
 void Nullkiller::lockResources(const TResources & res)
 {
 	lockedResources += res;
+}
+
+bool Nullkiller::handleTrading()
+{
+	bool haveTraded = false;
+	bool shouldTryToTrade = true;
+	int marketId = -1;
+	for (auto town : cb->getTownsInfo())
+	{
+		if (town->hasBuiltSomeTradeBuilding())
+		{
+			marketId = town->id;
+		}
+	}
+	if (marketId == -1)
+		return false;
+	if (const CGObjectInstance* obj = cb->getObj(ObjectInstanceID(marketId), false))
+	{
+		if (const auto* m = dynamic_cast<const IMarket*>(obj))
+		{
+			while (shouldTryToTrade)
+			{
+				shouldTryToTrade = false;
+				buildAnalyzer->update();
+				TResources required = buildAnalyzer->getTotalResourcesRequired();
+				TResources income = buildAnalyzer->getDailyIncome();
+				TResources available = cb->getResourceAmount();
+#if NKAI_TRACE_LEVEL >= 2
+				logAi->debug("Available %s", available.toString());
+				logAi->debug("Required  %s", required.toString());
+#endif
+				int mostWanted = -1;
+				int mostExpendable = -1;
+				float minRatio = std::numeric_limits<float>::max();
+				float maxRatio = std::numeric_limits<float>::min();
+
+				for (int i = 0; i < required.size(); ++i)
+				{
+					if (required[i] <= 0)
+						continue;
+					float ratio = static_cast<float>(available[i]) / required[i];
+
+					if (ratio < minRatio) {
+						minRatio = ratio;
+						mostWanted = i;
+					}
+				}
+
+				for (int i = 0; i < required.size(); ++i)
+				{
+					float ratio = available[i];
+					if (required[i] > 0)
+						ratio = static_cast<float>(available[i]) / required[i];
+					else
+						ratio = available[i];
+
+					bool okToSell = false;
+
+					if (i == GameResID::GOLD)
+					{
+						if (income[i] > 0 && !buildAnalyzer->isGoldPressureHigh())
+							okToSell = true;
+					}
+					else
+					{
+						if (required[i] <= 0 && income[i] > 0)
+							okToSell = true;
+					}
+
+					if (ratio > maxRatio && okToSell) {
+						maxRatio = ratio;
+						mostExpendable = i;
+					}
+				}
+#if NKAI_TRACE_LEVEL >= 2
+				logAi->debug("mostExpendable: %d mostWanted: %d", mostExpendable, mostWanted);
+#endif
+				if (mostExpendable == mostWanted || mostWanted == -1 || mostExpendable == -1)
+					return false;
+
+				int toGive;
+				int toGet;
+				m->getOffer(mostExpendable, mostWanted, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
+				//logAi->info("Offer is: I get %d of %s for %d of %s at %s", toGet, mostWanted, toGive, mostExpendable, obj->getObjectName());
+				//TODO trade only as much as needed
+				if (toGive && toGive <= available[mostExpendable]) //don't try to sell 0 resources
+				{
+					cb->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), toGive);
+#if NKAI_TRACE_LEVEL >= 1
+					logAi->info("Traded %d of %s for %d of %s at %s", toGive, mostExpendable, toGet, mostWanted, obj->getObjectName());
+#endif
+					haveTraded = true;
+					shouldTryToTrade = true;
+				}
+			}
+		}
+	}
+	return haveTraded;
 }
 
 }

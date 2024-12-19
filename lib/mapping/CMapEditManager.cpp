@@ -15,6 +15,8 @@
 #include "CDrawRoadsOperation.h"
 #include "CMapOperation.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 CMapUndoManager::CMapUndoManager() :
@@ -113,34 +115,35 @@ void CMapUndoManager::setUndoCallback(std::function<void(bool, bool)> functor)
 CMapEditManager::CMapEditManager(CMap * map)
 	: map(map), terrainSel(map), objectSel(map)
 {
-
 }
+
+CMapEditManager::~CMapEditManager() = default;
 
 CMap * CMapEditManager::getMap()
 {
 	return map;
 }
 
-void CMapEditManager::clearTerrain(CRandomGenerator * gen)
+void CMapEditManager::clearTerrain(vstd::RNG * customGen)
 {
-	execute(std::make_unique<CClearTerrainOperation>(map, gen ? gen : &(this->gen)));
+	execute(std::make_unique<CClearTerrainOperation>(map, customGen ? customGen : gen.get()));
 }
 
-void CMapEditManager::drawTerrain(TerrainId terType, int decorationsPercentage, CRandomGenerator * gen)
+void CMapEditManager::drawTerrain(TerrainId terType, int decorationsPercentage, vstd::RNG * customGen)
 {
-	execute(std::make_unique<CDrawTerrainOperation>(map, terrainSel, terType, decorationsPercentage, gen ? gen : &(this->gen)));
+	execute(std::make_unique<CDrawTerrainOperation>(map, terrainSel, terType, decorationsPercentage, customGen ? customGen : gen.get()));
 	terrainSel.clearSelection();
 }
 
-void CMapEditManager::drawRoad(RoadId roadType, CRandomGenerator* gen)
+void CMapEditManager::drawRoad(RoadId roadType, vstd::RNG* customGen)
 {
-	execute(std::make_unique<CDrawRoadsOperation>(map, terrainSel, roadType, gen ? gen : &(this->gen)));
+	execute(std::make_unique<CDrawRoadsOperation>(map, terrainSel, roadType, customGen ? customGen : gen.get()));
 	terrainSel.clearSelection();
 }
 
-void CMapEditManager::drawRiver(RiverId riverType, CRandomGenerator* gen)
+void CMapEditManager::drawRiver(RiverId riverType, vstd::RNG* customGen)
 {
-	execute(std::make_unique<CDrawRiversOperation>(map, terrainSel, riverType, gen ? gen : &(this->gen)));
+	execute(std::make_unique<CDrawRiversOperation>(map, terrainSel, riverType, customGen ? customGen : gen.get()));
 	terrainSel.clearSelection();
 }
 

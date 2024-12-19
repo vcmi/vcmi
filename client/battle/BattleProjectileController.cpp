@@ -15,6 +15,7 @@
 #include "BattleStacksController.h"
 #include "CreatureAnimation.h"
 
+#include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 #include "../gui/CGuiHandler.h"
@@ -159,12 +160,12 @@ const CCreature & BattleProjectileController::getShooter(const CStack * stack) c
 	const CCreature * creature = stack->unitType();
 
 	if(creature->getId() == CreatureID::ARROW_TOWERS)
-		creature = owner.siegeController->getTurretCreature();
+		creature = owner.siegeController->getTurretCreature(stack->initialPosition);
 
-	if(creature->animation.missleFrameAngles.empty())
+	if(creature->animation.missileFrameAngles.empty())
 	{
 		logAnim->error("Mod error: Creature '%s' on the Archer's tower is not a shooter. Mod should be fixed. Trying to use archer's data instead...", creature->getNameSingularTranslated());
-		creature = CGI->creh->objects[CreatureID::ARCHER];
+		creature = CreatureID(CreatureID::ARCHER).toCreature();
 	}
 
 	return *creature;
@@ -191,8 +192,7 @@ void BattleProjectileController::initStackProjectile(const CStack * stack)
 
 std::shared_ptr<CAnimation> BattleProjectileController::createProjectileImage(const AnimationPath & path )
 {
-	std::shared_ptr<CAnimation> projectile = GH.renderHandler().loadAnimation(path);
-	projectile->preload();
+	std::shared_ptr<CAnimation> projectile = GH.renderHandler().loadAnimation(path, EImageBlitMode::COLORKEY);
 
 	if(projectile->size(1) != 0)
 		logAnim->error("Expected empty group 1 in stack projectile");
@@ -277,7 +277,7 @@ int BattleProjectileController::computeProjectileFrameID( Point from, Point dest
 {
 	const CCreature & creature = getShooter(stack);
 
-	auto & angles = creature.animation.missleFrameAngles;
+	auto & angles = creature.animation.missileFrameAngles;
 	auto animation = getProjectileImage(stack);
 
 	// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used

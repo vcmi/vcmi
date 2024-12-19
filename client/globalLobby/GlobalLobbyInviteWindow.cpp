@@ -22,8 +22,8 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"
 
-#include "../../lib/MetaString.h"
 #include "../../lib/json/JsonNode.h"
+#include "../../lib/texts/MetaString.h"
 
 GlobalLobbyInviteAccountCard::GlobalLobbyInviteAccountCard(const GlobalLobbyAccount & accountDescription)
 	: accountID(accountDescription.accountID)
@@ -47,7 +47,7 @@ GlobalLobbyInviteAccountCard::GlobalLobbyInviteAccountCard(const GlobalLobbyAcco
 		}
 	}
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	if (thisAccountInvited)
 		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), Colors::WHITE, 1);
 	else
@@ -73,13 +73,13 @@ void GlobalLobbyInviteAccountCard::clickPressed(const Point & cursorPosition)
 GlobalLobbyInviteWindow::GlobalLobbyInviteWindow()
 	: CWindowObject(BORDERED)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	pos.w = 236;
 	pos.h = 420;
 
-	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
-	filledBackground->playerColored(PlayerColor(1));
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	filledBackground->setPlayerColor(PlayerColor(1));
 	labelTitle = std::make_shared<CLabel>(
 		pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.invite.header").toString()
 	);

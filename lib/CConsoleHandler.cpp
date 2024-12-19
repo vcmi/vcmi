@@ -13,6 +13,8 @@
 
 #include "CThreadHelper.h"
 
+#include <boost/stacktrace.hpp>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 std::mutex CConsoleHandler::smx;
@@ -138,39 +140,8 @@ static void createMemoryDump(MINIDUMP_EXCEPTION_INFORMATION * meinfo)
 			| MiniDumpWithThreadInfo);
 	}
 
-	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, dumpType, meinfo, 0, 0);
+	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, dumpType, meinfo, nullptr, nullptr);
 	MessageBoxA(0, "VCMI has crashed. We are sorry. File with information about encountered problem has been created.", "VCMI Crashhandler", MB_OK | MB_ICONERROR);
-}
-
-static void onTerminate()
-{
-	logGlobal->error("Disaster happened.");
-	try
-	{
-		std::exception_ptr eptr{std::current_exception()};
-		if (eptr)
-		{
-			std::rethrow_exception(eptr);
-		}
-		else
-		{
-			logGlobal->error("...but no current exception found!");
-		}
-	}
-	catch (const std::exception& exc)
-	{
-		logGlobal->error("Reason: %s", exc.what());
-	}
-	catch (...)
-	{
-		logGlobal->error("Reason: unknown exception!");
-	}
-
-	const DWORD threadId = ::GetCurrentThreadId();
-	logGlobal->error("Thread ID: %d", threadId);
-
-	createMemoryDump(nullptr);
-	std::abort();
 }
 
 LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
@@ -194,8 +165,48 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }
+
 #endif
 
+#ifdef NDEBUG
+[[noreturn]] static void onTerminate()
+{
+	logGlobal->error("Disaster happened.");
+	try
+	{
+		std::exception_ptr eptr{std::current_exception()};
+		if (eptr)
+		{
+			std::rethrow_exception(eptr);
+		}
+		else
+		{
+			logGlobal->error("...but no current exception found!");
+		}
+	}
+	catch (const std::exception& exc)
+	{
+		logGlobal->error("Reason: %s", exc.what());
+	}
+	catch (...)
+	{
+		logGlobal->error("Reason: unknown exception!");
+	}
+
+	logGlobal->error("Call stack information:");
+	std::stringstream stream;
+	stream << boost::stacktrace::stacktrace();
+	logGlobal->error("%s", stream.str());
+
+#ifdef VCMI_WINDOWS
+	const DWORD threadId = ::GetCurrentThreadId();
+	logGlobal->error("Thread ID: %d", threadId);
+
+	createMemoryDump(nullptr);
+#endif
+	std::abort();
+}
+#endif
 
 void CConsoleHandler::setColor(EConsoleTextColor::EConsoleTextColor color)
 {
@@ -287,12 +298,15 @@ CConsoleHandler::CConsoleHandler():
 
 	GetConsoleScreenBufferInfo(handleErr, &csbi);
 	defErrColor = csbi.wAttributes;
-#ifndef _DEBUG
+#ifdef NDEBUG
 	SetUnhandledExceptionFilter(onUnhandledException);
-	std::set_terminate(onTerminate);
 #endif
 #else
 	defColor = "\x1b[0m";
+#endif
+
+#ifdef NDEBUG
+	std::set_terminate(onTerminate);
 #endif
 }
 CConsoleHandler::~CConsoleHandler()

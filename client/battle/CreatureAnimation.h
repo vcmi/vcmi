@@ -12,7 +12,6 @@
 #include "../../lib/FunctionList.h"
 #include "../../lib/Color.h"
 #include "../widgets/Images.h"
-#include "../render/CAnimation.h"
 #include "../render/IImage.h"
 
 class CIntObject;
@@ -108,9 +107,7 @@ private:
 
 	void endAnimation();
 
-	void genSpecialPalette(IImage::SpecialPalette & target);
 public:
-
 	/// function(s) that will be called when animation ends, after reset to 1st frame
 	/// NOTE that these functions will be fired only once
 	CFunctionList<void()> onAnimationReset;

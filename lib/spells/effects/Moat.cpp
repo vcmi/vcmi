@@ -14,10 +14,12 @@
 #include "Registry.h"
 #include "../ISpellMechanics.h"
 
+#include "../../entities/building/CBuilding.h"
 #include "../../mapObjects/CGTownInstance.h"
 #include "../../bonuses/Limiters.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../entities/building/TownFortifications.h"
 #include "../../json/JsonBonus.h"
 #include "../../serializer/JsonSerializeFormat.h"
 #include "../../networkPacks/PacksForClient.h"
@@ -84,9 +86,9 @@ void Moat::convertBonus(const Mechanics * m, std::vector<Bonus> & converted) con
 		//Moat battlefield effect is always permanent
 		nb.duration = BonusDuration::ONE_BATTLE;
 
-		if(m->battle()->battleGetDefendedTown() && m->battle()->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
+		if(m->battle()->battleGetDefendedTown() && m->battle()->battleGetFortifications().hasMoat)
 		{
-			nb.sid = BonusSourceID(m->battle()->battleGetDefendedTown()->town->buildings.at(BuildingID::CITADEL)->getUniqueTypeID());
+			nb.sid = BonusSourceID(m->battle()->battleGetDefendedTown()->getTown()->buildings.at(BuildingID::CITADEL)->getUniqueTypeID());
 			nb.source = BonusSource::TOWN_STRUCTURE;
 		}
 		else
@@ -108,7 +110,7 @@ void Moat::apply(ServerCallback * server, const Mechanics * m, const EffectTarge
 {
 	assert(m->isMassive());
 	assert(m->battle()->battleGetDefendedTown());
-	if(m->isMassive() && m->battle()->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
+	if(m->isMassive() && m->battle()->battleGetFortifications().hasMoat)
 	{
 		EffectTarget moat;
 		placeObstacles(server, m, moat);
@@ -120,7 +122,7 @@ void Moat::apply(ServerCallback * server, const Mechanics * m, const EffectTarge
 			GiveBonus gb(GiveBonus::ETarget::BATTLE);
 			gb.id = m->battle()->getBattle()->getBattleID();
 			gb.bonus = b;
-			server->apply(&gb);
+			server->apply(gb);
 		}
 	}
 }
@@ -133,7 +135,7 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 	BattleObstaclesChanged pack;
 	pack.battleID = m->battle()->getBattle()->getBattleID();
 
-	auto all = m->battle()->battleGetAllObstacles(BattlePerspective::ALL_KNOWING);
+	auto all = m->battle()->battleGetAllObstacles(BattleSide::ALL_KNOWING);
 
 	int obstacleIdToGive = 1;
 	for(auto & one : all)
@@ -169,7 +171,7 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 	}
 
 	if(!pack.changes.empty())
-		server->apply(&pack);
+		server->apply(pack);
 }
 
 }

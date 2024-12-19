@@ -67,12 +67,6 @@ public:
 
 		///resource name
 		AnimationPath resourceName;
-
-		template <typename Handler> void serialize(Handler & h)
-		{
-			h & minimumAngle;
-			h & resourceName;
-		}
 	};
 
 	struct AnimationItem
@@ -80,17 +74,10 @@ public:
 		AnimationPath resourceName;
 		std::string effectName;
 		VerticalPosition verticalPosition;
+		float transparency;
 		int pause;
 
 		AnimationItem();
-
-		template <typename Handler> void serialize(Handler & h)
-		{
-			h & resourceName;
-			h & effectName;
-			h & verticalPosition;
-			h & pause;
-		}
 	};
 
 	using TAnimation = AnimationItem;
@@ -111,14 +98,6 @@ public:
 		///use selectProjectile to access
 		std::vector<ProjectileInfo> projectile;
 
-		template <typename Handler> void serialize(Handler & h)
-		{
-			h & projectile;
-			h & hit;
-			h & cast;
-			h & affect;
-		}
-
 		AnimationPath selectProjectile(const double angle) const;
 	} animationInfo;
 
@@ -132,27 +111,13 @@ public:
 		bool smartTarget = true;
 		bool clearTarget = false;
 		bool clearAffected = false;
-		std::string range = "0";
+		std::vector<int> range = { 0 };
 
 		//TODO: remove these two when AI will understand special effects
 		std::vector<std::shared_ptr<Bonus>> effects; //deprecated
 		std::vector<std::shared_ptr<Bonus>> cumulativeEffects; //deprecated
 
 		JsonNode battleEffects;
-
-		template <typename Handler> void serialize(Handler & h)
-		{
-			h & cost;
-			h & power;
-			h & AIValue;
-			h & smartTarget;
-			h & range;
-			h & effects;
-			h & cumulativeEffects;
-			h & clearTarget;
-			h & clearAffected;
-			h & battleEffects;
-		}
 	};
 
 	/** \brief Low level accessor. Don`t use it if absolutely necessary
@@ -203,6 +168,8 @@ public:
 
 	bool hasSchool(SpellSchool school) const override;
 	bool canCastOnSelf() const override;
+	bool canCastOnlyOnSelf() const override;
+	bool canCastWithoutSkip() const override;
 
 	/**
 	 * Calls cb for each school this spell belongs to
@@ -228,6 +195,7 @@ public:
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
 	std::string getJsonKey() const override;
+	std::string getModScope() const override;
 	SpellID getId() const override;
 
 	std::string getNameTextID() const override;
@@ -331,6 +299,8 @@ private:
 	bool combat; //is this spell combat (true) or adventure (false)
 	bool creatureAbility; //if true, only creatures can use this spell
 	bool castOnSelf; // if set, creature caster can cast this spell on itself
+	bool castOnlyOnSelf; // if set, creature caster can cast this spell on itself
+	bool castWithoutSkip; // if set the creature will not skip the turn after casting a spell
 	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
 
 	std::unique_ptr<spells::ISpellMechanicsFactory> mechanics;//(!) do not serialize
@@ -341,6 +311,8 @@ bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spe
 
 class DLL_LINKAGE CSpellHandler: public CHandlerBase<SpellID, spells::Spell, CSpell, spells::Service>
 {
+	std::vector<int> spellRangeInHexes(std::string rng) const;
+
 public:
 	///IHandler base
 	std::vector<JsonNode> loadLegacyData() override;
@@ -355,7 +327,7 @@ public:
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	CSpell * loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CSpell> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
 };
 
 VCMI_LIB_NAMESPACE_END

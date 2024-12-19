@@ -15,8 +15,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CRandomGenerator;
-
 class PrisonHeroPlacer : public Modificator
 {
 public:
@@ -25,7 +23,7 @@ public:
 	void process() override;
 	void init() override;
 
-	int getPrisonsRemaning() const;
+	int getPrisonsRemaining() const;
 	[[nodiscard]] HeroTypeID drawRandomHero();
 	void restoreDrawnHero(const HeroTypeID & hid);
 

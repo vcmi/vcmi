@@ -12,7 +12,6 @@
 #include "CInGameConsole.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../GameChatHandler.h"
@@ -21,6 +20,7 @@
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/TextAlignment.h"
+#include "../media/ISoundPlayer.h"
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
 #include "../render/IScreenHandler.h"
@@ -30,9 +30,8 @@
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CThreadHelper.h"
-#include "../../lib/TextOperations.h"
 #include "../../lib/mapObjects/CArmedInstance.h"
-#include "../../lib/MetaString.h"
+#include "../../lib/texts/TextOperations.h"
 
 CInGameConsole::CInGameConsole()
 	: CIntObject(KEYBOARD | TIME | TEXTINPUT)
@@ -221,7 +220,7 @@ void CInGameConsole::keyPressed (EShortcut key)
 	}
 }
 
-void CInGameConsole::textInputed(const std::string & inputtedText)
+void CInGameConsole::textInputted(const std::string & inputtedText)
 {
 	if (LOCPLINT->cingconsole != this)
 		return;

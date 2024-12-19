@@ -16,6 +16,7 @@ VCMI_LIB_NAMESPACE_END
 class AEventsReceiver;
 enum class MouseButton;
 enum class EShortcut;
+enum class InputMode;
 
 /// Class that receives events from event producers and dispatches it to UI elements that are interested in this event
 class EventDispatcher
@@ -29,11 +30,13 @@ class EventDispatcher
 	EventReceiversList keyinterested;
 	EventReceiversList motioninterested;
 	EventReceiversList draginterested;
+	EventReceiversList dragPopupInterested;
 	EventReceiversList timeinterested;
 	EventReceiversList wheelInterested;
 	EventReceiversList doubleClickInterested;
 	EventReceiversList textInterested;
 	EventReceiversList panningInterested;
+	EventReceiversList inputModeChangeInterested;
 
 	void handleLeftButtonClick(const Point & position, int tolerance, bool isPressed);
 	void handleDoubleButtonClick(const Point & position, int tolerance);
@@ -64,6 +67,7 @@ public:
 	void dispatchMouseMoved(const Point & distance, const Point & position);
 
 	void dispatchMouseDragged(const Point & currentPosition, const Point & lastUpdateDistance);
+	void dispatchMouseDraggedPopup(const Point & currentPosition, const Point & lastUpdateDistance);
 
 	void dispatchShowPopup(const Point & position, int tolerance);
 	void dispatchClosePopup(const Point & position);
@@ -76,4 +80,6 @@ public:
 	/// Text input events
 	void dispatchTextInput(const std::string & text);
 	void dispatchTextEditing(const std::string & text);
+
+	void dispatchInputModeChanged(const InputMode & modi);
 };

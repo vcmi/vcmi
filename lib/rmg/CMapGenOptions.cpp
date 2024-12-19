@@ -11,13 +11,15 @@
 #include "StdInc.h"
 #include "CMapGenOptions.h"
 
+#include "../entities/faction/CTownHandler.h"
+#include "../entities/faction/CFaction.h"
 #include "../mapping/CMapHeader.h"
 #include "CRmgTemplateStorage.h"
 #include "CRmgTemplate.h"
-#include "CRandomGenerator.h"
 #include "../VCMI_Lib.h"
-#include "../CTownHandler.h"
 #include "serializer/JsonSerializeFormat.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -28,9 +30,6 @@ CMapGenOptions::CMapGenOptions()
 	customizedPlayers(false)
 {
 	initPlayersMap();
-	setRoadEnabled(RoadId(Road::DIRT_ROAD), true);
-	setRoadEnabled(RoadId(Road::GRAVEL_ROAD), true);
-	setRoadEnabled(RoadId(Road::COBBLESTONE_ROAD), true);
 }
 
 si32 CMapGenOptions::getWidth() const
@@ -487,7 +486,7 @@ void CMapGenOptions::setPlayerTeam(const PlayerColor & color, const TeamID & tea
 	customizedPlayers = true;
 }
 
-void CMapGenOptions::finalize(CRandomGenerator & rand)
+void CMapGenOptions::finalize(vstd::RNG & rand)
 {
 	logGlobal->info("RMG map: %dx%d, %s underground", getWidth(), getHeight(), getHasTwoLevels() ? "WITH" : "NO");
 	logGlobal->info("RMG settings: players %d, teams %d, computer players %d, computer teams %d, water %d, monsters %d",
@@ -690,8 +689,7 @@ bool CMapGenOptions::checkOptions() const
 	}
 	else
 	{
-		CRandomGenerator gen;
-		return getPossibleTemplate(gen) != nullptr;
+		return !getPossibleTemplates().empty();
 	}
 }
 
@@ -750,7 +748,7 @@ std::vector<const CRmgTemplate *> CMapGenOptions::getPossibleTemplates() const
 	return templates;
 }
 
-const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand) const
+const CRmgTemplate * CMapGenOptions::getPossibleTemplate(vstd::RNG & rand) const
 {
 	auto templates = getPossibleTemplates();
 

@@ -28,18 +28,18 @@
 #include "../windows/CCastleInterface.h"
 #include "../windows/InfoWindows.h"
 #include "../render/Canvas.h"
-#include "../render/Graphics.h"
 
 #include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/IGameSettings.h"
+#include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/GameSettings.h"
-#include "../../lib/TextOperations.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 
 void CHoverableArea::hover (bool on)
 {
@@ -128,7 +128,7 @@ CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * hero)
 	clickFunctor(nullptr),
 	clickRFunctor(nullptr)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	pos.x += x;
 	pos.w = 58;
@@ -243,13 +243,13 @@ void CMinorResDataBar::showAll(Canvas & to)
 
 CMinorResDataBar::CMinorResDataBar()
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	pos.x = 7;
 	pos.y = 575;
 
 	background = std::make_shared<CPicture>(ImagePath::builtin("KRESBAR.bmp"));
-	background->colorize(LOCPLINT->playerID);
+	background->setPlayerColor(LOCPLINT->playerID);
 
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
@@ -259,7 +259,7 @@ CMinorResDataBar::~CMinorResDataBar() = default;
 
 void CArmyTooltip::init(const InfoAboutArmy &army)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name);
 
@@ -280,7 +280,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 			continue;
 		}
 
-		icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), slot.second.type->getIconIndex(), 0, slotsPos[slot.first.getNum()].x, slotsPos[slot.first.getNum()].y));
+		icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), slot.second.getType()->getIconIndex(), 0, slotsPos[slot.first.getNum()].x, slotsPos[slot.first.getNum()].y));
 
 		std::string subtitle;
 		if(army.army.isDetailed)
@@ -322,7 +322,7 @@ CArmyTooltip::CArmyTooltip(Point pos, const CArmedInstance * army):
 
 void CHeroTooltip::init(const InfoAboutHero & hero)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.getIconIndex(), 0, 3, 2);
 
 	if(hero.details)
@@ -354,13 +354,13 @@ CInteractableHeroTooltip::CInteractableHeroTooltip(Point pos, const CGHeroInstan
 {
 	init(InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED));
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	garrison = std::make_shared<CGarrisonInt>(pos + Point(0, 73), 4, Point(0, 0), hero, nullptr, true, true, CGarrisonInt::ESlotsLayout::REVERSED_TWO_ROWS);
 }
 
 void CInteractableHeroTooltip::init(const InfoAboutHero & hero)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.getIconIndex(), 0, 3, 2);
 	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero.name);
 
@@ -379,7 +379,7 @@ void CInteractableHeroTooltip::init(const InfoAboutHero & hero)
 
 void CTownTooltip::init(const InfoAboutTown & town)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	//order of icons in def: fort, citadel, castle, no fort
 	size_t fortIndex = town.fortLevel ? town.fortLevel - 1 : 3;
@@ -388,7 +388,7 @@ void CTownTooltip::init(const InfoAboutTown & town)
 
 	assert(town.tType);
 
-	size_t iconIndex = town.tType->clientInfo.icons[town.fortLevel > 0][town.built >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	size_t iconIndex = town.tType->clientInfo.icons[town.fortLevel > 0][town.built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	build = std::make_shared<CAnimImage>(AnimationPath::builtin("itpt"), iconIndex, 0, 3, 2);
 
@@ -435,13 +435,13 @@ CInteractableTownTooltip::CInteractableTownTooltip(Point pos, const CGTownInstan
 {
 	init(town);
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	garrison = std::make_shared<CGarrisonInt>(pos + Point(0, 73), 4, Point(0, 0), town->getUpperArmy(), nullptr, true, true, CGarrisonInt::ESlotsLayout::REVERSED_TWO_ROWS);
 }
 
 void CInteractableTownTooltip::init(const CGTownInstance * town)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	const InfoAboutTown townInfo = InfoAboutTown(town, true);
 	int townId = town->id;
@@ -464,19 +464,19 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 		for(auto & town : towns)
 		{
-			if(town->id == townId && town->builtBuildings.count(BuildingID::TAVERN))
+			if(town->id == townId && town->hasBuilt(BuildingID::TAVERN))
 				LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 		}
 	}, [town]{
-		if(!town->town->faction->getDescriptionTranslated().empty())
-			CRClickPopup::createAndPush(town->town->faction->getDescriptionTranslated());
+		if(!town->getFaction()->getDescriptionTranslated().empty())
+			CRClickPopup::createAndPush(town->getFaction()->getDescriptionTranslated());
 	});
 	fastMarket = std::make_shared<LRClickableArea>(Rect(143, 31, 30, 34), []()
 	{
 		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 		for(auto & town : towns)
 		{
-			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+			if(town->hasBuilt(BuildingID::MARKETPLACE))
 			{
 				GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 				return;
@@ -487,7 +487,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 
 	assert(townInfo.tType);
 
-	size_t iconIndex = townInfo.tType->clientInfo.icons[townInfo.fortLevel > 0][townInfo.built >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	size_t iconIndex = townInfo.tType->clientInfo.icons[townInfo.fortLevel > 0][townInfo.built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	build = std::make_shared<CAnimImage>(AnimationPath::builtin("itpt"), iconIndex, 0, 3, 2);
 	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, townInfo.name);
@@ -530,12 +530,11 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 
 CreatureTooltip::CreatureTooltip(Point pos, const CGCreature * creature)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
-	auto creatureID = creature->getCreature();
-	int32_t creatureIconIndex = CGI->creatures()->getById(creatureID)->getIconIndex();
+	int32_t creatureIconIndex = creature->getCreature()->getIconIndex();
 
-	creatureImage = std::make_shared<CAnimImage>(graphics->getAnimation(AnimationPath::builtin("TWCRPORT")), creatureIconIndex);
+	creatureImage = std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), creatureIconIndex);
 	creatureImage->center(Point(parent->pos.x + parent->pos.w / 2, parent->pos.y + creatureImage->pos.h / 2 + 11));
 
 	bool isHeroSelected = LOCPLINT->localState->getCurrentHero() != nullptr;
@@ -553,7 +552,7 @@ CreatureTooltip::CreatureTooltip(Point pos, const CGCreature * creature)
 
 void MoraleLuckBox::set(const AFactionMember * node)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	const std::array textId = {62, 88}; //eg %s \n\n\n {Current Luck Modifiers:}
 	const int noneTxtId = 108; //Russian version uses same text for neutral morale\luck
@@ -574,7 +573,8 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
 
 	if (morale && node && (node->getBonusBearer()->hasBonusOfType(BonusType::UNDEAD)
-			|| node->getBonusBearer()->hasBonusOfType(BonusType::NON_LIVING)))
+			|| node->getBonusBearer()->hasBonusOfType(BonusType::NON_LIVING)
+			|| node->getBonusBearer()->hasBonusOfType(BonusType::MECHANICAL)))
 	{
 		text += CGI->generaltexth->arraytxt[113]; //unaffected by morale
 		component.value = 0;
@@ -582,13 +582,13 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
 	{
 		auto noMorale = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_MORALE));
-		text += "\n" + noMorale->Description();
+		text += "\n" + noMorale->Description(LOCPLINT->cb.get());
 		component.value = 0;
 	}
 	else if (!morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_LUCK))
 	{
 		auto noLuck = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_LUCK));
-		text += "\n" + noLuck->Description();
+		text += "\n" + noLuck->Description(LOCPLINT->cb.get());
 		component.value = 0;
 	}
 	else
@@ -597,7 +597,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 		for(auto & bonus : * modifierList)
 		{
 			if(bonus->val) {
-				const std::string& description = bonus->Description();
+				const std::string& description = bonus->Description(LOCPLINT->cb.get());
 				//arraytxt already contains \n
 				if (description.size() && description[0] != '\n')
 					addInfo += '\n';
@@ -625,16 +625,15 @@ MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small)
 	small(Small)
 {
 	pos = r + pos.topLeft();
-	defActions = 255-DISPOSE;
 }
 
 CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool Animated)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	pos.x+=x;
 	pos.y+=y;
 
-	auto faction = cre->getFaction();
+	auto faction = cre->getFactionID();
 
 	assert(CGI->townh->size() > faction);
 
@@ -681,7 +680,7 @@ SelectableSlot::SelectableSlot(Rect area, Point oversize, const int width)
 	: LRClickableAreaWTextComp(area)
 	, selected(false)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	selection = std::make_shared<TransparentFilledRectangle>( Rect(-oversize, area.dimensions() + oversize * 2), Colors::TRANSPARENCY, Colors::YELLOW, width);
 	selectSlot(false);
@@ -710,7 +709,12 @@ bool SelectableSlot::isSelected() const
 
 void SelectableSlot::setSelectionWidth(int width)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	selection = std::make_shared<TransparentFilledRectangle>( selection->pos - pos.topLeft(), Colors::TRANSPARENCY, Colors::YELLOW, width);
 	selectSlot(selected);
+}
+
+void SelectableSlot::moveSelectionForeground()
+{
+	moveChildForeground(selection.get());
 }

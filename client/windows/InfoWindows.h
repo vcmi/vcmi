@@ -64,7 +64,6 @@ public:
 class CRClickPopup : public WindowBase
 {
 public:
-	void close() override;
 	bool isPopupWindow() const override;
 
 	static std::shared_ptr<WindowBase> createCustomInfoWindow(Point position, const CGObjectInstance * specific);
@@ -78,22 +77,29 @@ class CRClickPopupInt : public CRClickPopup
 {
 	std::shared_ptr<CIntObject> inner;
 
+	Point dragDistance;
+
 public:
 	CRClickPopupInt(const std::shared_ptr<CIntObject> & our);
 	~CRClickPopupInt();
+
+	void mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 };
 
 /// popup on adventure map for town\hero and other objects with customized popup content
 class CInfoBoxPopup : public CWindowObject
 {
 	std::shared_ptr<CIntObject> tooltip;
-	Point toScreen(Point pos);
+
+	Point dragDistance;
 
 public:
 	CInfoBoxPopup(Point position, const CGTownInstance * town);
 	CInfoBoxPopup(Point position, const CGHeroInstance * hero);
 	CInfoBoxPopup(Point position, const CGGarrison * garr);
 	CInfoBoxPopup(Point position, const CGCreature * creature);
+
+	void mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 };
 
 /// component selection window

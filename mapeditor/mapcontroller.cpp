@@ -13,6 +13,8 @@
 
 #include "../lib/ArtifactUtils.h"
 #include "../lib/GameConstants.h"
+#include "../lib/entities/hero/CHeroClass.h"
+#include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
@@ -21,11 +23,11 @@
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/ObstacleProxy.h"
 #include "../lib/modding/CModHandler.h"
-#include "../lib/modding/CModInfo.h"
+#include "../lib/modding/ModDescription.h"
 #include "../lib/TerrainHandler.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
-#include "../lib/CHeroHandler.h"
+#include "../lib/CRandomGenerator.h"
 #include "../lib/serializer/CMemorySerializer.h"
 #include "mapview.h"
 #include "scenelayer.h"
@@ -111,13 +113,6 @@ void MapController::repairMap(CMap * map) const
 	allImpactedObjects.insert(allImpactedObjects.end(), map->predefinedHeroes.begin(), map->predefinedHeroes.end());
 	for(auto obj : allImpactedObjects)
 	{
-		//setup proper names (hero name will be fixed later
-		if(obj->ID != Obj::HERO && obj->ID != Obj::PRISON && (obj->typeName.empty() || obj->subTypeName.empty()))
-		{
-			auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
-			obj->typeName = handler->getTypeName();
-			obj->subTypeName = handler->getSubTypeName();
-		}
 		//fix flags
 		if(obj->getOwner() == PlayerColor::UNFLAGGABLE)
 		{
@@ -126,7 +121,7 @@ void MapController::repairMap(CMap * map) const
 			   dynamic_cast<CGTownInstance*>(obj.get()) ||
 			   dynamic_cast<CGGarrison*>(obj.get()) ||
 			   dynamic_cast<CGShipyard*>(obj.get()) ||
-			   dynamic_cast<CGLighthouse*>(obj.get()) ||
+			   dynamic_cast<FlaggableMapObject*>(obj.get()) ||
 			   dynamic_cast<CGHeroInstance*>(obj.get()))
 				obj->tempOwner = PlayerColor::NEUTRAL;
 		}
@@ -137,26 +132,11 @@ void MapController::repairMap(CMap * map) const
 
 			// FIXME: How about custom scenarios where defeated hero cannot be hired again?
 
-			map->allowedHeroes.insert(nih->getHeroType());
+			map->allowedHeroes.insert(nih->getHeroTypeID());
 
-			auto type = VLC->heroh->objects[nih->subID];
+			auto const & type = VLC->heroh->objects[nih->subID];
 			assert(type->heroClass);
-			//TODO: find a way to get proper type name
-			if(obj->ID == Obj::HERO)
-			{
-				nih->typeName = "hero";
-				nih->subTypeName = type->heroClass->getJsonKey();
-			}
-			if(obj->ID == Obj::PRISON)
-			{
-				nih->typeName = "prison";
-				nih->subTypeName = "prison";
-				nih->subID = 0;
-			}
-			
-			if(obj->ID != Obj::RANDOM_HERO)
-				nih->type = type.get();
-			
+
 			if(nih->ID == Obj::HERO) //not prison
 				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 			//fix spellbook
@@ -164,7 +144,7 @@ void MapController::repairMap(CMap * map) const
 			{
 				nih->removeSpellFromSpellbook(SpellID::SPELLBOOK_PRESET);
 				if(!nih->getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook)
-					nih->putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createNewArtifactInstance(ArtifactID::SPELLBOOK));
+					nih->putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createArtifact(ArtifactID::SPELLBOOK));
 			}
 			
 		}
@@ -173,10 +153,11 @@ void MapController::repairMap(CMap * map) const
 		{
 			if(tnh->getTown())
 			{
-				vstd::erase_if(tnh->builtBuildings, [tnh](BuildingID bid)
+				for(const auto & building : tnh->getBuildings())
 				{
-					return !tnh->getTown()->buildings.count(bid);
-				});
+					if(!tnh->getTown()->buildings.count(building))
+						tnh->removeBuilding(building);
+				}
 				vstd::erase_if(tnh->forbiddenBuildings, [tnh](BuildingID bid)
 				{
 					return !tnh->getTown()->buildings.count(bid);
@@ -189,7 +170,7 @@ void MapController::repairMap(CMap * map) const
 			if(art->ID == Obj::SPELL_SCROLL && !art->storedArtifact)
 			{
 				std::vector<SpellID> out;
-				for(auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
+				for(auto const & spell : VLC->spellh->objects) //spellh size appears to be greater (?)
 				{
 					//if(map->isAllowedSpell(spell->id))
 					{
@@ -243,7 +224,7 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 
 void MapController::initObstaclePainters(CMap * map)
 {
-	for (auto terrain : VLC->terrainTypeHandler->objects)
+	for (auto const & terrain : VLC->terrainTypeHandler->objects)
 	{
 		auto terrainId = terrain->getId();
 		_obstaclePainters[terrainId] = std::make_unique<EditorObstaclePlacer>(map);
@@ -380,9 +361,16 @@ void MapController::pasteFromClipboard(int level)
 	if(_clipboardShiftIndex == int3::getDirs().size())
 		_clipboardShiftIndex = 0;
 	
+	QStringList errors;
 	for(auto & objUniquePtr : _clipboard)
 	{
 		auto * obj = CMemorySerializer::deepCopy(*objUniquePtr).release();
+		QString errorMsg;
+		if (!canPlaceObject(level, obj, errorMsg))
+		{
+			errors.push_back(std::move(errorMsg));
+			continue;
+		}
 		auto newPos = objUniquePtr->pos + shift;
 		if(_map->isInTheMap(newPos))
 			obj->pos = newPos;
@@ -393,6 +381,8 @@ void MapController::pasteFromClipboard(int level)
 		_scenes[level]->selectionObjectsView.selectObject(obj);
 		_mapHandler->invalidate(obj);
 	}
+	if(!errors.isEmpty())
+		QMessageBox::warning(main, QObject::tr("Can't place object"), errors.join('\n'));
 	
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->passabilityView.update();
@@ -439,10 +429,10 @@ void MapController::commitObstacleFill(int level)
 	for(auto & t : selection)
 	{
 		auto tl = _map->getTile(t);
-		if(tl.blocked || tl.visitable)
+		if(tl.blocked() || tl.visitable())
 			continue;
 		
-		auto terrain = tl.terType->getId();
+		auto terrain = tl.getTerrainID();
 		_obstaclePainters[terrain]->addBlockedTile(t);
 	}
 	
@@ -562,15 +552,13 @@ bool MapController::canPlaceObject(int level, CGObjectInstance * newObj, QString
 	
 	if(newObj->ID == Obj::GRAIL && objCounter >= 1) //special case for grail
 	{
-		auto typeName = QString::fromStdString(newObj->typeName);
-		auto subTypeName = QString::fromStdString(newObj->subTypeName);
-		error = QString("There can be only one grail object on the map");
+		error = QObject::tr("There can only be one grail object on the map.");
 		return false; //maplimit reached
 	}
 	
 	if(defaultPlayer == PlayerColor::NEUTRAL && (newObj->ID == Obj::HERO || newObj->ID == Obj::RANDOM_HERO))
 	{
-		error = "Hero cannot be created as NEUTRAL";
+		error = QObject::tr("Hero %1 cannot be created as NEUTRAL.").arg(QString::fromStdString(newObj->instanceName));
 		return false;
 	}
 	
@@ -612,16 +600,59 @@ ModCompatibilityInfo MapController::modAssessmentAll()
 ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 {
 	ModCompatibilityInfo result;
+
+	auto extractEntityMod = [&result](const auto & entity) 
+	{
+		auto modScope = entity->getModScope();
+		if(modScope != "core")
+			result[modScope] = VLC->modh->getModInfo(modScope).getVerificationInfo();
+	};
+
 	for(auto obj : map.objects)
 	{
-		if(obj->ID == Obj::HERO)
-			continue; //stub! 
-		
 		auto handler = obj->getObjectHandler();
-		auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
-		if(modName != "core")
-			result[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
+		auto modScope = handler->getModScope();
+		if(modScope != "core")
+			result[modScope] = VLC->modh->getModInfo(modScope).getVerificationInfo();
+
+		if(obj->ID == Obj::TOWN || obj->ID == Obj::RANDOM_TOWN)
+		{
+			auto town = dynamic_cast<CGTownInstance *>(obj.get());
+			for(const auto & spellID : town->possibleSpells)
+			{
+				if(spellID == SpellID::PRESET)
+					continue;
+				extractEntityMod(spellID.toEntity(VLC));
+			}
+
+			for(const auto & spellID : town->obligatorySpells)
+			{
+				extractEntityMod(spellID.toEntity(VLC));
+			}
+		}
+
+		if(obj->ID == Obj::HERO || obj->ID == Obj::RANDOM_HERO)
+		{
+			auto hero = dynamic_cast<CGHeroInstance *>(obj.get());
+			for(const auto & spellID : hero->getSpellsInSpellbook())
+			{
+				if(spellID == SpellID::PRESET || spellID == SpellID::SPELLBOOK_PRESET)
+					continue;
+				extractEntityMod(spellID.toEntity(VLC));
+			}
+
+			for(const auto & [_, slotInfo] : hero->artifactsWorn)
+			{
+				extractEntityMod(slotInfo.artifact->getTypeId().toEntity(VLC));
+			}
+
+			for(const auto & art : hero->artifactsInBackpack)
+			{
+				extractEntityMod(art.artifact->getTypeId().toEntity(VLC));
+			}
+		}
 	}
+
 	//TODO: terrains?
 	return result;
 }

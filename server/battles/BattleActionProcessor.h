@@ -19,11 +19,12 @@ class CBattleInfoCallback;
 struct BattleHex;
 class CStack;
 class PlayerColor;
-enum class BonusType;
+enum class BonusType : uint8_t;
 
 namespace battle
 {
 class Unit;
+struct HealInfo;
 class CUnitState;
 }
 
@@ -53,10 +54,13 @@ class BattleActionProcessor : boost::noncopyable
 	std::set<SpellID> getSpellsForAttackCasting(TConstBonusListPtr spells, const CStack *defender);
 
 	// damage, drain life & fire shield; returns amount of drained life
-	int64_t applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary);
+	void applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, battle::HealInfo & healInfo, int distance, bool secondary) const;
 
 	void sendGenericKilledLog(const CBattleInfoCallback & battle, const CStack * defender, int32_t killed, bool multiple);
-	void addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple);
+	void addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple) const;
+	void addGenericDamageLog(BattleLogMessage& blm, const std::shared_ptr<battle::CUnitState> &attackerState, int64_t damageDealt) const;
+	void addGenericDrainedLifeLog(BattleLogMessage& blm, const std::shared_ptr<battle::CUnitState> &attackerState, const CStack* defender, int64_t drainedLife) const;
+	void addGenericResurrectedLog(BattleLogMessage& blm, const std::shared_ptr<battle::CUnitState> &attackerState, const CStack* defender, int64_t resurrected) const;
 
 	bool canStackAct(const CBattleInfoCallback & battle, const CStack * stack);
 

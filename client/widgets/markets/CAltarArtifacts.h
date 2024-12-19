@@ -26,8 +26,7 @@ public:
 	void putBackArtifacts();
 
 private:
-	ObjectInstanceID altarId;
-	const CArtifactSet * altarArtifacts;
+	const CArtifactSet * altarArtifactsStorage;
 	std::shared_ptr<CButton> sacrificeBackpackButton;
 	std::shared_ptr<CArtifactsOfHeroAltar> heroArts;
 	std::map<std::shared_ptr<CTradeableItem>, const CArtifactInstance*> tradeSlotsMap;

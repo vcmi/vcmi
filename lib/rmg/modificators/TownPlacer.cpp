@@ -12,6 +12,7 @@
 #include "TownPlacer.h"
 #include "../CMapGenerator.h"
 #include "../RmgMap.h"
+#include "../../entities/faction/CTownHandler.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjects/CGTownInstance.h"
@@ -26,6 +27,8 @@
 #include "MinePlacer.h"
 #include "WaterAdopter.h"
 #include "../TileInfo.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -76,20 +79,18 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 
 		CGTownInstance * town = dynamic_cast<CGTownInstance *>(townFactory->create(map.mapInstance->cb, nullptr));
 		town->tempOwner = player;
-		town->builtBuildings.insert(BuildingID::FORT);
-		town->builtBuildings.insert(BuildingID::DEFAULT);
+		town->addBuilding(BuildingID::FORT);
+		town->addBuilding(BuildingID::DEFAULT);
 		
-		for(auto spell : VLC->spellh->objects) //add all regular spells to town
-		{
-			if(!spell->isSpecial() && !spell->isCreatureAbility())
-				town->possibleSpells.push_back(spell->id);
-		}
+
+		for(auto spellID : VLC->spellh->getDefaultAllowed()) //add all regular spells to town
+			town->possibleSpells.push_back(spellID);
 		
 		auto position = placeMainTown(manager, *town);
 		
 		totalTowns++;
 		//register MAIN town of zone only
-		map.registerZone(town->getFaction());
+		map.registerZone(town->getFactionID());
 		
 		if(player.isValidPlayer()) //configure info for owning player
 		{
@@ -202,20 +203,17 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 		
 		town->tempOwner = player;
 		if (hasFort)
-			town->builtBuildings.insert(BuildingID::FORT);
-		town->builtBuildings.insert(BuildingID::DEFAULT);
+			town->addBuilding(BuildingID::FORT);
+		town->addBuilding(BuildingID::DEFAULT);
 		
-		for(auto spell : VLC->spellh->objects) //add all regular spells to town
-		{
-			if(!spell->isSpecial() && !spell->isCreatureAbility())
-				town->possibleSpells.push_back(spell->id);
-		}
+		for(auto spellID : VLC->spellh->getDefaultAllowed()) //add all regular spells to town
+			town->possibleSpells.push_back(spellID);
 		
 		if(totalTowns <= 0)
 		{
 			//FIXME: discovered bug with small zones - getPos is close to map boarder and we have outOfMap exception
 			//register MAIN town of zone
-			map.registerZone(town->getFaction());
+			map.registerZone(town->getFactionID());
 			//first town in zone goes in the middle
 			placeMainTown(manager, *town);
 		}
