@@ -389,7 +389,7 @@ O download da instalação foi bem-sucedido?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="865"/>
         <source>Installing chronicles</source>
-        <translation>Instalando crônicas</translation>
+        <translation>Instalando as Crônicas dos Heróis</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="927"/>
@@ -880,7 +880,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
         <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="156"/>
         <source>Heroes Chronicles</source>
-        <translation>Heroes Chronicles</translation>
+        <translation>Crônicas dos Heróis</translation>
     </message>
 </context>
 <context>
