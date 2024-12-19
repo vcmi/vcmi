@@ -192,9 +192,6 @@ bool ModStateController::doInstallMod(QString modname, QString archivePath)
 	if(!QFile(archivePath).exists())
 		return addError(modname, tr("Mod archive is missing"));
 
-	if(localMods.contains(modname))
-		return addError(modname, tr("Mod with such name is already installed"));
-
 	std::vector<std::string> filesToExtract;
 	QString modDirName = ::detectModArchive(archivePath, modname, filesToExtract);
 	if(!modDirName.size())
@@ -237,8 +234,6 @@ bool ModStateController::doInstallMod(QString modname, QString archivePath)
 	QString upperLevel = modDirName.section('/', 0, 0);
 	if(upperLevel != modDirName)
 		removeModDir(destDir + upperLevel);
-	
-	modList->reloadLocalState();
 
 	return true;
 }
@@ -255,8 +250,6 @@ bool ModStateController::doUninstallMod(QString modname)
 	QDir modFullDir(modDir);
 	if(!removeModDir(modDir))
 		return addError(modname, tr("Mod is located in a protected directory, please remove it manually:\n") + modFullDir.absolutePath());
-
-	modList->reloadLocalState();
 
 	return true;
 }

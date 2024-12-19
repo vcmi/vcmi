@@ -322,6 +322,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <property name="value">
          <number>0</number>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
         <property name="textVisible">
          <bool>true</bool>
         </property>

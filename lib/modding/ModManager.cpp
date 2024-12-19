@@ -654,7 +654,7 @@ void ModManager::updatePreset(const ModDependenciesResolver & testResolver)
 	for (const auto & modID : newBrokenMods)
 	{
 		const auto & mod = getModDescription(modID);
-		if (vstd::contains(newActiveMods, mod.getTopParentID()))
+		if (mod.getTopParentID().empty() || vstd::contains(newActiveMods, mod.getTopParentID()))
 			modsPreset->setModActive(modID, false);
 	}
 
