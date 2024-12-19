@@ -371,6 +371,9 @@ void FirstLaunchView::extractGogData()
 		QFile(fileExe).copy(tmpFileExe);
 		QFile(fileBin).copy(tmpFileBin);
 
+		logGlobal->info("Installing exe '%s' ('%s')", tmpFileExe.toStdString(), fileExe.toStdString());
+		logGlobal->info("Installing bin '%s' ('%s')", tmpFileBin.toStdString(), fileBin.toStdString());
+
 		QString errorText{};
 
 		auto isGogGalaxyExe = [](QString fileToTest) {

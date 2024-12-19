@@ -1056,6 +1056,11 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <source>Heroes Chronicles</source>
         <translation>Хроніки Героїв</translation>
     </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="144"/>
+        <source>Heroes Chronicles %1 - %2</source>
+        <translation type="unfinished">Хроніки Героїв %1 - %2</translation>
+    </message>
 </context>
 <context>
     <name>File size</name>

@@ -23,7 +23,10 @@
 void StartGameTab::changeEvent(QEvent *event)
 {
 	if(event->type() == QEvent::LanguageChange)
+	{
 		ui->retranslateUi(this);
+		refreshState();
+	}
 
 	QWidget::changeEvent(event);
 }
@@ -216,7 +219,10 @@ void StartGameTab::on_buttonImportFiles_clicked()
 		QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (configs, mods, maps, campaigns, gog files) to install..."), QDir::homePath(), filter);
 
 		for(const auto & file : files)
+		{
+			logGlobal->info("Importing file %s", file.toStdString());
 			getMainWindow()->manualInstallFile(file);
+		}
 	};
 
 	// iOS can't display modal dialogs when called directly on button press

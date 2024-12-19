@@ -163,7 +163,7 @@ ModsPresetState::ModsPresetState()
 		CResourceHandler::get("local")->createResource(settingsPath.getOriginalName() + ".json");
 	}
 
-	if(modConfig["presets"].isNull())
+	if(modConfig["presets"].isNull() || modConfig["presets"].Struct().empty())
 	{
 		modConfig["activePreset"] = JsonNode("default");
 		if(modConfig["activeMods"].isNull())
@@ -171,6 +171,10 @@ ModsPresetState::ModsPresetState()
 		else
 			importInitialPreset(); // 1.5 format import
 	}
+
+	auto allPresets = getAllPresets();
+	if (!vstd::contains(allPresets, modConfig["activePreset"].String()))
+		modConfig["activePreset"] = JsonNode(allPresets.front());
 }
 
 void ModsPresetState::createInitialPreset()
