@@ -1400,8 +1400,10 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		case EventCondition::TRANSPORT:
 		{
 			const auto * t = getTown(condition.objectID);
-			return (t->visitingHero && t->visitingHero->getOwner() == player && t->visitingHero->hasArt(condition.objectType.as<ArtifactID>())) ||
-				   (t->garrisonHero && t->garrisonHero->getOwner() == player && t->garrisonHero->hasArt(condition.objectType.as<ArtifactID>()));
+			bool garrisonedWon = t->garrisonHero && t->garrisonHero->getOwner() == player && t->garrisonHero->hasArt(condition.objectType.as<ArtifactID>());
+			bool visitingWon = t->visitingHero && t->visitingHero->getOwner() == player && t->visitingHero->hasArt(condition.objectType.as<ArtifactID>());
+
+			return garrisonedWon || visitingWon;
 		}
 		case EventCondition::DAYS_PASSED:
 		{
@@ -1436,6 +1438,9 @@ PlayerColor CGameState::checkForStandardWin() const
 	TeamID winnerTeam = TeamID::NO_TEAM;
 	for(const auto & elem : players)
 	{
+		if(elem.second.status == EPlayerStatus::WINNER)
+			return elem.second.color;
+
 		if(elem.second.status == EPlayerStatus::INGAME && elem.first.isValidPlayer())
 		{
 			if(supposedWinner == PlayerColor::NEUTRAL)

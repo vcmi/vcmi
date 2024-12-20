@@ -163,7 +163,7 @@ ModsPresetState::ModsPresetState()
 		CResourceHandler::get("local")->createResource(settingsPath.getOriginalName() + ".json");
 	}
 
-	if(modConfig["presets"].isNull())
+	if(modConfig["presets"].isNull() || modConfig["presets"].Struct().empty())
 	{
 		modConfig["activePreset"] = JsonNode("default");
 		if(modConfig["activeMods"].isNull())
@@ -171,6 +171,10 @@ ModsPresetState::ModsPresetState()
 		else
 			importInitialPreset(); // 1.5 format import
 	}
+
+	auto allPresets = getAllPresets();
+	if (!vstd::contains(allPresets, modConfig["activePreset"].String()))
+		modConfig["activePreset"] = JsonNode(allPresets.front());
 }
 
 void ModsPresetState::createInitialPreset()
@@ -324,6 +328,61 @@ void ModsPresetState::saveConfigurationState() const
 {
 	std::fstream file(CResourceHandler::get()->getResourceName(ResourcePath("config/modSettings.json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
 	file << modConfig.toCompactString();
+}
+
+void ModsPresetState::createNewPreset(const std::string & presetName)
+{
+	if (modConfig["presets"][presetName].isNull())
+		modConfig["presets"][presetName]["mods"].Vector().emplace_back("vcmi");
+}
+
+void ModsPresetState::deletePreset(const std::string & presetName)
+{
+	if (modConfig["presets"].Struct().size() < 2)
+		throw std::runtime_error("Unable to delete last preset!");
+
+	modConfig["presets"].Struct().erase(presetName);
+}
+
+void ModsPresetState::activatePreset(const std::string & presetName)
+{
+	if (modConfig["presets"].Struct().count(presetName) == 0)
+		throw std::runtime_error("Unable to activate non-exinsting preset!");
+
+	modConfig["activePreset"].String() = presetName;
+}
+
+void ModsPresetState::renamePreset(const std::string & oldPresetName, const std::string & newPresetName)
+{
+	if (oldPresetName == newPresetName)
+		throw std::runtime_error("Unable to rename preset to the same name!");
+
+	if (modConfig["presets"].Struct().count(oldPresetName) == 0)
+		throw std::runtime_error("Unable to rename non-existing last preset!");
+
+	if (modConfig["presets"].Struct().count(newPresetName) != 0)
+		throw std::runtime_error("Unable to rename preset - preset with such name already exists!");
+
+	modConfig["presets"][newPresetName] = modConfig["presets"][oldPresetName];
+	modConfig["presets"].Struct().erase(oldPresetName);
+
+	if (modConfig["activePreset"].String() == oldPresetName)
+		modConfig["activePreset"].String() = newPresetName;
+}
+
+std::vector<std::string> ModsPresetState::getAllPresets() const
+{
+	std::vector<std::string> presets;
+
+	for (const auto & preset : modConfig["presets"].Struct())
+		presets.push_back(preset.first);
+
+	return presets;
+}
+
+std::string ModsPresetState::getActivePreset() const
+{
+	return modConfig["activePreset"].String();
 }
 
 ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode & repositoryList)
@@ -595,7 +654,7 @@ void ModManager::updatePreset(const ModDependenciesResolver & testResolver)
 	for (const auto & modID : newBrokenMods)
 	{
 		const auto & mod = getModDescription(modID);
-		if (vstd::contains(newActiveMods, mod.getTopParentID()))
+		if (mod.getTopParentID().empty() || vstd::contains(newActiveMods, mod.getTopParentID()))
 			modsPreset->setModActive(modID, false);
 	}
 
@@ -701,6 +760,40 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 	assert(!sortedValidMods.empty());
 	activeMods = sortedValidMods;
 	brokenMods.insert(brokenMods.end(), modsToResolve.begin(), modsToResolve.end());
+}
+
+void ModManager::createNewPreset(const std::string & presetName)
+{
+	modsPreset->createNewPreset(presetName);
+	modsPreset->saveConfigurationState();
+}
+
+void ModManager::deletePreset(const std::string & presetName)
+{
+	modsPreset->deletePreset(presetName);
+	modsPreset->saveConfigurationState();
+}
+
+void ModManager::activatePreset(const std::string & presetName)
+{
+	modsPreset->activatePreset(presetName);
+	modsPreset->saveConfigurationState();
+}
+
+void ModManager::renamePreset(const std::string & oldPresetName, const std::string & newPresetName)
+{
+	modsPreset->renamePreset(oldPresetName, newPresetName);
+	modsPreset->saveConfigurationState();
+}
+
+std::vector<std::string> ModManager::getAllPresets() const
+{
+	return modsPreset->getAllPresets();
+}
+
+std::string ModManager::getActivePreset() const
+{
+	return modsPreset->getActivePreset();
 }
 
 VCMI_LIB_NAMESPACE_END

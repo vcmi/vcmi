@@ -32,34 +32,31 @@ QString ModStateItemModel::modIndexToName(const QModelIndex & index) const
 
 QString ModStateItemModel::modTypeName(QString modTypeID) const
 {
-	static const QMap<QString, QString> modTypes = {
-		{"Translation", tr("Translation")},
-		{"Town",        tr("Town")       },
-		{"Test",        tr("Test")       },
-		{"Templates",   tr("Templates")  },
-		{"Spells",      tr("Spells")     },
-		{"Music",       tr("Music")      },
-		{"Maps",        tr("Maps")       },
-		{"Sounds",      tr("Sounds")     },
-		{"Skills",      tr("Skills")     },
-		{"Other",       tr("Other")      },
-		{"Objects",     tr("Objects")    },
-		{"Mechanical",  tr("Mechanics")  },
-		{"Mechanics",   tr("Mechanics")  },
-		{"Themes",      tr("Interface")  },
-		{"Interface",   tr("Interface")  },
-		{"Heroes",      tr("Heroes")     },
-		{"Graphic",     tr("Graphical")  },
-		{"Graphical",   tr("Graphical")  },
-		{"Expansion",   tr("Expansion")  },
-		{"Creatures",   tr("Creatures")  },
-		{"Compatibility", tr("Compatibility") },
-		{"Artifacts",   tr("Artifacts")  },
-		{"AI",          tr("AI")         },
+	static const QStringList modTypes = {
+		QT_TR_NOOP("Translation"),
+		QT_TR_NOOP("Town"),
+		QT_TR_NOOP("Test"),
+		QT_TR_NOOP("Templates"),
+		QT_TR_NOOP("Spells"),
+		QT_TR_NOOP("Music"),
+		QT_TR_NOOP("Maps"),
+		QT_TR_NOOP("Sounds"),
+		QT_TR_NOOP("Skills"),
+		QT_TR_NOOP("Other"),
+		QT_TR_NOOP("Objects"),
+		QT_TR_NOOP("Mechanics"),
+		QT_TR_NOOP("Interface"),
+		QT_TR_NOOP("Heroes"),
+		QT_TR_NOOP("Graphical"),
+		QT_TR_NOOP("Expansion"),
+		QT_TR_NOOP("Creatures"),
+		QT_TR_NOOP("Compatibility") ,
+		QT_TR_NOOP("Artifacts"),
+		QT_TR_NOOP("AI"),
 	};
 
 	if (modTypes.contains(modTypeID))
-		return modTypes[modTypeID];
+		return tr(modTypeID.toStdString().c_str());
 	return tr("Other");
 }
 
@@ -198,7 +195,7 @@ QVariant ModStateItemModel::headerData(int section, Qt::Orientation orientation,
 	return QVariant();
 }
 
-void ModStateItemModel::reloadRepositories()
+void ModStateItemModel::reloadViewModel()
 {
 	beginResetModel();
 	endResetModel();

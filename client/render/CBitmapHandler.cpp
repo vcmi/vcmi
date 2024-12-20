@@ -12,6 +12,7 @@
 
 #include "../renderSDL/SDL_Extensions.h"
 
+#include "../lib/ExceptionsCommon.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/vcmi_endian.h"
 
@@ -112,39 +113,46 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(const ImagePath & path)
 
 	SDL_Surface * ret=nullptr;
 
-	auto readFile = CResourceHandler::get()->load(path)->readAll();
+	try {
+		auto readFile = CResourceHandler::get()->load(path)->readAll();
 
-	if (isPCX(readFile.first.get()))
-	{//H3-style PCX
-		ret = loadH3PCX(readFile.first.get(), readFile.second);
-		if (!ret)
-		{
-			logGlobal->error("Failed to open %s as H3 PCX!", path.getOriginalName());
-			return nullptr;
-		}
-	}
-	else
-	{ //loading via SDL_Image
-		ret = IMG_Load_RW(
-				  //create SDL_RW with our data (will be deleted by SDL)
-				  SDL_RWFromConstMem((void*)readFile.first.get(), (int)readFile.second),
-				  1); // mark it for auto-deleting
-		if (ret)
-		{
-			if (ret->format->palette)
+		if (isPCX(readFile.first.get()))
+		{//H3-style PCX
+			ret = loadH3PCX(readFile.first.get(), readFile.second);
+			if (!ret)
 			{
-				// set correct value for alpha\unused channel
-				// NOTE: might be unnecessary with SDL2
-				for (int i=0; i < ret->format->palette->ncolors; i++)
-					ret->format->palette->colors[i].a = SDL_ALPHA_OPAQUE;
+				logGlobal->error("Failed to open %s as H3 PCX!", path.getOriginalName());
+				return nullptr;
 			}
 		}
 		else
-		{
-			logGlobal->error("Failed to open %s via SDL_Image", path.getOriginalName());
-			logGlobal->error("Reason: %s", IMG_GetError());
-			return nullptr;
+		{ //loading via SDL_Image
+			ret = IMG_Load_RW(
+					  //create SDL_RW with our data (will be deleted by SDL)
+					  SDL_RWFromConstMem((void*)readFile.first.get(), (int)readFile.second),
+					  1); // mark it for auto-deleting
+			if (ret)
+			{
+				if (ret->format->palette)
+				{
+					// set correct value for alpha\unused channel
+					// NOTE: might be unnecessary with SDL2
+					for (int i=0; i < ret->format->palette->ncolors; i++)
+						ret->format->palette->colors[i].a = SDL_ALPHA_OPAQUE;
+				}
+			}
+			else
+			{
+				logGlobal->error("Failed to open %s via SDL_Image", path.getOriginalName());
+				logGlobal->error("Reason: %s", IMG_GetError());
+				return nullptr;
+			}
 		}
+	}
+	catch (const DataLoadingException & e)
+	{
+		logGlobal->error("%s", e.what());
+		return nullptr;
 	}
 
 	// When modifying anything here please check two use cases:
