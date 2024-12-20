@@ -72,10 +72,15 @@ bool ChroniclesExtractor::extractGogInstaller(QString file)
 
 	if(!errorText.isEmpty())
 	{
+		logGlobal->error("Gog installer extractio failure! Reason: %s", errorText.toStdString());
+
 		QString hashError = Innoextract::getHashError(file, {}, {}, {});
 		QMessageBox::critical(parent, tr("Extracting error!"), errorText);
 		if(!hashError.isEmpty())
+		{
+			logGlobal->error("Hash error: %s", hashError.toStdString());
 			QMessageBox::critical(parent, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
+		}
 		return false;
 	}
 
@@ -226,15 +231,30 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 		if(!createTempDir())
 			continue;
 		
-		logGlobal->info("Copying offline installer");
 		// FIXME: this is required at the moment for Android (and possibly iOS)
 		// Incoming file names are in content URI form, e.g. content://media/internal/chronicles.exe
 		// Qt can handle those like it does regular files
 		// however, innoextract fails to open such files
 		// so make a copy in directory to which vcmi always has full access and operate on it
 		QString filepath = tempDir.filePath("chr.exe");
-		QFile(f).copy(filepath);
-		QFile file(filepath);
+		logGlobal->info("Copying offline installer from '%s' to '%s'", f.toStdString(), filepath.toStdString());
+		{
+			QFile sourceFile(f);
+			QFile targetFile(filepath);
+
+			sourceFile.open(QFile::ReadOnly);
+			targetFile.open(QFile::ReadWrite);
+			QByteArray data = sourceFile.readAll();
+			uint64_t written = targetFile.write(data);
+
+			logGlobal->info("Read %d bytes, written %d bytes", data.size(), written);
+
+			if (written == 0 || written != data.size())
+			{
+				QMessageBox::critical(parent, tr("File copy failure"), tr("Failed to copy gog installer to internal folder! %1 out of %2 bytes copied").arg(data.size()).arg(written));
+				continue;
+			}
+		}
 
 		logGlobal->info("Extracting offline installer");
 		if(!extractGogInstaller(filepath))
