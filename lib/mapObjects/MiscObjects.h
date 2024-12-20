@@ -214,14 +214,12 @@ class DLL_LINKAGE CGTeleport : public CGObjectInstance
 	bool isChannelEntrance(const ObjectInstanceID & id) const;
 	bool isChannelExit(const ObjectInstanceID & id) const;
 
-	std::vector<ObjectInstanceID> getAllEntrances(bool excludeCurrent = false) const;
-
 protected:
 	enum EType {UNKNOWN, ENTRANCE, EXIT, BOTH};
 	EType type = EType::UNKNOWN;
 
 	ObjectInstanceID getRandomExit(const CGHeroInstance * h) const;
-	std::vector<ObjectInstanceID> getAllExits(bool excludeCurrent = false) const;
+
 
 public:
 	using CGObjectInstance::CGObjectInstance;
@@ -230,6 +228,9 @@ public:
 
 	bool isEntrance() const;
 	bool isExit() const;
+
+	std::vector<ObjectInstanceID> getAllEntrances(bool excludeCurrent = false) const;
+	std::vector<ObjectInstanceID> getAllExits(bool excludeCurrent = false) const;
 
 	virtual void teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const = 0;
 
