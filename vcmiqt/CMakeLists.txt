@@ -8,6 +8,7 @@ set(vcmiqt_SRCS
 set(vcmiqt_HEADERS
 		StdInc.h
 
+		MessageBox.h
 		jsonutils.h
 		launcherdirs.h
 		convpathqstring.h
@@ -32,7 +33,7 @@ if(WIN32)
 	)
 endif()
 
-target_link_libraries(vcmiqt vcmi Qt${QT_VERSION_MAJOR}::Core)
+target_link_libraries(vcmiqt vcmi Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets)
 
 target_include_directories(vcmiqt PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
