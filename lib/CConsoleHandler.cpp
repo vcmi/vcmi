@@ -299,7 +299,9 @@ CConsoleHandler::CConsoleHandler():
 	GetConsoleScreenBufferInfo(handleErr, &csbi);
 	defErrColor = csbi.wAttributes;
 #ifdef NDEBUG
+#ifndef VCMI_ANDROID
 	SetUnhandledExceptionFilter(onUnhandledException);
+#endif
 #endif
 #else
 	defColor = "\x1b[0m";
