@@ -16,7 +16,7 @@
         android:allowBackup="false"
         android:installLocation="auto"
         android:icon="@mipmap/ic_launcher"
-        android:label="${applicationLabel}"
+        android:label="${appLabel}"
         android:testOnly="false"
         android:supportsRtl="true"
         android:usesCleartextTraffic="false">
@@ -77,14 +77,22 @@
         <activity
             android:name=".VcmiSDLActivity"
             android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
-            android:label="@string/app_name"
+			android:exported="true"
+        	android:icon="@mipmap/ic_client"
+            android:label="${appClientLabel}"
             android:launchMode="singleTop"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="sensorLandscape">
+		
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN"/>
+				<category android:name="android.intent.category.LAUNCHER"/>
+			</intent-filter>
+		</activity>
 
         <service
             android:name=".ServerService"
             android:process="eu.vcmi.vcmi.srv"
-            android:description="@string/server_name"
+            android:description="${appServerLabel}"
             android:exported="false"/>
     </application>
 
