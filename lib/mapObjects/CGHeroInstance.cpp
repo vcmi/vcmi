@@ -257,8 +257,7 @@ void CGHeroInstance::setMovementPoints(int points)
 
 int CGHeroInstance::movementPointsLimit(bool onLand) const
 {
-	TurnInfo ti(this);
-	return movementPointsLimitCached(onLand, &ti);
+	return valOfBonuses(BonusType::MOVEMENT, onLand ? BonusCustomSubtype::heroMovementLand : BonusCustomSubtype::heroMovementSea);
 }
 
 int CGHeroInstance::getLowestCreatureSpeed() const
@@ -274,7 +273,7 @@ void CGHeroInstance::updateArmyMovementBonus(bool onLand, const TurnInfo * ti) c
 		lowestCreatureSpeed = realLowestSpeed;
 		//Let updaters run again
 		treeHasChanged();
-		ti->updateHeroBonuses(BonusType::MOVEMENT, Selector::subtype()(onLand ? BonusCustomSubtype::heroMovementLand : BonusCustomSubtype::heroMovementSea));
+		ti->updateHeroBonuses(BonusType::MOVEMENT);
 	}
 }
 
@@ -406,7 +405,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 		putArtifact(ArtifactPosition::MACH4, artifact); //everyone has a catapult
 	}
 
-	if(!hasBonus(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)))
+	if(!hasBonusFrom(BonusSource::HERO_BASE_SKILL))
 	{
 		for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
 		{
@@ -682,7 +681,7 @@ void CGHeroInstance::pickRandomObject(vstd::RNG & rand)
 
 void CGHeroInstance::recreateSecondarySkillsBonuses()
 {
-	auto secondarySkillsBonuses = getBonuses(Selector::sourceType()(BonusSource::SECONDARY_SKILL));
+	auto secondarySkillsBonuses = getBonusesFrom(BonusSource::SECONDARY_SKILL);
 	for(const auto & bonus : *secondarySkillsBonuses)
 		removeBonus(bonus);
 
@@ -973,7 +972,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		// figure out what to raise - pick strongest creature meeting requirements
 		CreatureID creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
 		int requiredCasualtyLevel = 1;
-		TConstBonusListPtr improvedNecromancy = getBonuses(Selector::type()(BonusType::IMPROVED_NECROMANCY));
+		TConstBonusListPtr improvedNecromancy = getBonusesOfType(BonusType::IMPROVED_NECROMANCY);
 		if(!improvedNecromancy->empty())
 		{
 			int maxCasualtyLevel = 1;
@@ -1141,9 +1140,8 @@ void CGHeroInstance::pushPrimSkill( PrimarySkill which, int val )
 {
 	auto sel = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(which))
 		.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
-	if(hasBonus(sel))
-		removeBonuses(sel);
-		
+
+	removeBonuses(sel);
 	addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::HERO_BASE_SKILL, val, BonusSourceID(id), BonusSubtypeID(which)));
 }
 
@@ -1281,7 +1279,7 @@ const std::set<SpellID> & CGHeroInstance::getSpellsInSpellbook() const
 
 int CGHeroInstance::maxSpellLevel() const
 {
-	return std::min(GameConstants::SPELL_LEVELS, valOfBonuses(Selector::type()(BonusType::MAX_LEARNABLE_SPELL_LEVEL)));
+	return std::min(GameConstants::SPELL_LEVELS, valOfBonuses(BonusType::MAX_LEARNABLE_SPELL_LEVEL));
 }
 
 void CGHeroInstance::attachToBoat(CGBoat* newBoat)
@@ -1850,7 +1848,7 @@ bool CGHeroInstance::isMissionCritical() const
 
 void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & stack) const
 {
-	TConstBonusListPtr lista = getBonuses(Selector::typeSubtype(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId())));
+	TConstBonusListPtr lista = getBonusesOfType(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId()));
 	for(const auto & it : *lista)
 	{
 		auto nid = CreatureID(it->additionalInfo[0]);
@@ -1921,7 +1919,7 @@ const IOwnableObject * CGHeroInstance::asOwnable() const
 
 int CGHeroInstance::getBasePrimarySkillValue(PrimarySkill which) const
 {
-	std::string cachingStr = "type_PRIMARY_SKILL_base_" + std::to_string(static_cast<int>(which));
+	std::string cachingStr = "CGHeroInstance::getBasePrimarySkillValue" + std::to_string(static_cast<int>(which));
 	auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(which)).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 	auto minSkillValue = VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, which.getNum());
 	return std::max(valOfBonuses(selector, cachingStr), minSkillValue);

@@ -212,7 +212,7 @@ protected:
 	{
 		if(!m->isMagicalEffect()) //Always pass on non-magical
 			return true;
-		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(BonusType::LEVEL_SPELL_IMMUNITY));
+		TConstBonusListPtr levelImmunities = target->getBonusesOfType(BonusType::LEVEL_SPELL_IMMUNITY);
 		return levelImmunities->size() == 0 ||
 		levelImmunities->totalValue() < m->getSpellLevel() ||
 		m->getSpellLevel() <= 0;

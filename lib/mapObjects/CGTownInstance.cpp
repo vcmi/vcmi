@@ -161,7 +161,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 			ret.entries.emplace_back(subID, BuildingID::HORDE_2, creature->getHorde());
 
 	//statue-of-legion-like bonus: % to base+castle
-	TConstBonusListPtr bonuses2 = getBonuses(Selector::type()(BonusType::CREATURE_GROWTH_PERCENT));
+	TConstBonusListPtr bonuses2 = getBonusesOfType(BonusType::CREATURE_GROWTH_PERCENT);
 	for(const auto & b : *bonuses2)
 	{
 		const auto growth = b->val * (base + castleBonus) / 100;
@@ -173,7 +173,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
 	// Note: bonus uses 1-based levels (Pikeman is level 1), town list uses 0-based (Pikeman in 0-th creatures entry)
-	TConstBonusListPtr bonuses = getBonuses(Selector::typeSubtype(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(level+1)));
+	TConstBonusListPtr bonuses = getBonusesOfType(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(level+1));
 	for(const auto & b : *bonuses)
 		ret.entries.emplace_back(b->val, b->Description(cb));
 

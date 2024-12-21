@@ -158,7 +158,7 @@ int CTotalsProxy::getMeleeValue() const
 
 	if(treeVersion != meleeCachedLast)
 	{
-		auto bonuses = target->getBonuses(selector, limit);
+		auto bonuses = target->getBonuses(selector, limit, "CTotalsProxy::getMeleeValue");
 		meleeValue = initialValue + bonuses->totalValue();
 		meleeCachedLast = treeVersion;
 	}
@@ -174,7 +174,7 @@ int CTotalsProxy::getRangedValue() const
 
 	if(treeVersion != rangedCachedLast)
 	{
-		auto bonuses = target->getBonuses(selector, limit);
+		auto bonuses = target->getBonuses(selector, limit, "CTotalsProxy::getRangedValue");
 		rangedValue = initialValue + bonuses->totalValue();
 		rangedCachedLast = treeVersion;
 	}
@@ -183,10 +183,21 @@ int CTotalsProxy::getRangedValue() const
 }
 
 ///CCheckProxy
-CCheckProxy::CCheckProxy(const IBonusBearer * Target, CSelector Selector):
+CCheckProxy::CCheckProxy(const IBonusBearer * Target, BonusType bonusType):
+	target(Target),
+	selector(Selector::type()(bonusType)),
+	cachingStr("type_" + std::to_string(static_cast<int>(bonusType))),
+	cachedLast(0),
+	hasBonus(false)
+{
+
+}
+
+CCheckProxy::CCheckProxy(const IBonusBearer * Target, CSelector Selector, const std::string & cachingStr):
 	target(Target),
 	selector(std::move(Selector)),
 	cachedLast(0),
+	cachingStr(cachingStr),
 	hasBonus(false)
 {
 }
@@ -200,7 +211,7 @@ bool CCheckProxy::getHasBonus() const
 
 	if(treeVersion != cachedLast)
 	{
-		hasBonus = target->hasBonus(selector);
+		hasBonus = target->hasBonus(selector, cachingStr);
 		cachedLast = treeVersion;
 	}
 

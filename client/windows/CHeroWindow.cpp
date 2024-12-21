@@ -284,7 +284,7 @@ void CHeroWindow::update()
 
 	dismissButton->block(noDismiss);
 
-	if(curHero->valOfBonuses(Selector::type()(BonusType::BEFORE_BATTLE_REPOSITION)) == 0)
+	if(curHero->valOfBonuses(BonusType::BEFORE_BATTLE_REPOSITION) == 0)
 	{
 		tacticsButton->block(true);
 	}

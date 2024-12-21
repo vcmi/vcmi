@@ -715,10 +715,10 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker) const
 		return false;
 
 	//forgetfulness
-	TConstBonusListPtr forgetfulList = attacker->getBonuses(Selector::type()(BonusType::FORGETFULL));
+	TConstBonusListPtr forgetfulList = attacker->getBonusesOfType(BonusType::FORGETFULL);
 	if(!forgetfulList->empty())
 	{
-		int forgetful = forgetfulList->valOfBonuses(Selector::type()(BonusType::FORGETFULL));
+		int forgetful = forgetfulList->totalValue();
 
 		//advanced+ level
 		if(forgetful > 1)
@@ -1880,9 +1880,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const ba
 		{
 			const auto * kingMonster = getAliveEnemy([&](const CStack * stack) -> bool //look for enemy, non-shooting stack
 			{
-				const auto isKing = Selector::type()(BonusType::KING);
-
-				return stack->hasBonus(isKing);
+				return stack->hasBonusOfType(BonusType::KING);
 			});
 
 			if (!kingMonster)
@@ -1907,7 +1905,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand,const CStack 
 {
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
 
-	TConstBonusListPtr bl = caster->getBonuses(Selector::type()(BonusType::SPELLCASTER));
+	TConstBonusListPtr bl = caster->getBonusesOfType(BonusType::SPELLCASTER);
 	if (!bl->size())
 		return SpellID::NONE;
 
@@ -1971,7 +1969,7 @@ si8 CBattleInfoCallback::battleMinSpellLevel(BattleSide side) const
 	if(!node)
 		return 0;
 
-	auto b = node->getBonuses(Selector::type()(BonusType::BLOCK_MAGIC_BELOW));
+	auto b = node->getBonusesOfType(BonusType::BLOCK_MAGIC_BELOW);
 	if(b->size())
 		return b->totalValue();
 
@@ -1990,7 +1988,7 @@ si8 CBattleInfoCallback::battleMaxSpellLevel(BattleSide side) const
 		return GameConstants::SPELL_LEVELS;
 
 	//We can't "just get value" - it'd be 0 if there are bonuses (and all would be blocked)
-	auto b = node->getBonuses(Selector::type()(BonusType::BLOCK_MAGIC_ABOVE));
+	auto b = node->getBonusesOfType(BonusType::BLOCK_MAGIC_ABOVE);
 	if(b->size())
 		return b->totalValue();
 

@@ -43,7 +43,7 @@ TerrainId AFactionMember::getNativeTerrain() const
 
 int32_t AFactionMember::magicResistance() const
 {
-	si32 val = getBonusBearer()->valOfBonuses(Selector::type()(BonusType::MAGIC_RESISTANCE));
+	si32 val = getBonusBearer()->valOfBonuses(BonusType::MAGIC_RESISTANCE);
 	vstd::amin (val, 100);
 	return val;
 }
@@ -114,9 +114,7 @@ int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 		return 0;
 	}
 
-	static const auto moraleSelector = Selector::type()(BonusType::MORALE);
-	static const std::string cachingStrMor = "type_MORALE";
-	bonusList = getBonusBearer()->getBonuses(moraleSelector, cachingStrMor);
+	bonusList = getBonusBearer()->getBonusesOfType(BonusType::MORALE);
 
 	return std::clamp(bonusList->totalValue(), maxBadMorale, maxGoodMorale);
 }
@@ -140,9 +138,7 @@ int AFactionMember::luckValAndBonusList(TConstBonusListPtr & bonusList) const
 		return 0;
 	}
 
-	static const auto luckSelector = Selector::type()(BonusType::LUCK);
-	static const std::string cachingStrLuck = "type_LUCK";
-	bonusList = getBonusBearer()->getBonuses(luckSelector, cachingStrLuck);
+	bonusList = getBonusBearer()->getBonusesOfType(BonusType::LUCK);
 
 	return std::clamp(bonusList->totalValue(), maxBadLuck, maxGoodLuck);
 }

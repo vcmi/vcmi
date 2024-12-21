@@ -41,7 +41,7 @@ TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn):
 	maxMovePointsWater(-1),
 	turn(turn)
 {
-	bonuses = hero->getAllBonuses(Selector::days(turn), Selector::all, "");
+	bonuses = hero->getAllBonuses(Selector::days(turn), Selector::all, "all_days" + std::to_string(turn));
 	bonusCache = std::make_unique<BonusCache>(bonuses);
 	nativeTerrain = hero->getNativeTerrain();
 }
@@ -125,7 +125,7 @@ int TurnInfo::getMaxMovePoints(const EPathfindingLayer & layer) const
 	return layer == EPathfindingLayer::SAIL ? maxMovePointsWater : maxMovePointsLand;
 }
 
-void TurnInfo::updateHeroBonuses(BonusType type, const CSelector& sel) const
+void TurnInfo::updateHeroBonuses(BonusType type) const
 {
 	switch(type)
 	{
@@ -144,7 +144,7 @@ void TurnInfo::updateHeroBonuses(BonusType type, const CSelector& sel) const
 		bonusCache->pathfindingVal = bonuses->valOfBonuses(Selector::type()(BonusType::ROUGH_TERRAIN_DISCOUNT));
 		break;
 	default:
-		bonuses = hero->getAllBonuses(Selector::days(turn), Selector::all, "");
+		bonuses = hero->getAllBonuses(Selector::days(turn), Selector::all, "all_days" + std::to_string(turn));
 	}
 }
 
