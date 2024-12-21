@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../Global.h"
-#include <tbb/concurrent_hash_map.h> // Workaround for Qt / tbb name clash
 
 #define VCMI_EDITOR_NAME "VCMI Map Editor"
 
