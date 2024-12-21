@@ -356,6 +356,10 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 		return filter;
 
 	// else - autoselect
+#ifdef VCMI_MOBILE
+	// to help with performance - only if player explicitly enabled xbrz
+	return EUpscalingFilter::NONE;
+#else
 	Point outputResolution = getRenderResolution();
 	Point logicalResolution = getPreferredLogicalResolution();
 
@@ -371,6 +375,7 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 		return EUpscalingFilter::XBRZ_3; // resolutions below 2400p (including 1440p and 2160p / 4K)
 
 	return EUpscalingFilter::XBRZ_4; // Only for massive displays, e.g. 8K
+#endif
 }
 
 void ScreenHandler::selectUpscalingFilter()
