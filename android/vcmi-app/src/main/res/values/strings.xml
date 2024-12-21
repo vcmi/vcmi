@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">VCMI</string>
+    <string name="client_name">VCMI Client</string>
     <string name="server_name">VCMI Server</string>
+    <string name="app_name_debug">VCMI (debug)</string>
+    <string name="client_name_debug">VCMI Client (debug)</string>
+    <string name="server_name_debug">VCMI Server (debug)</string>
+    <string name="app_name_daily">VCMI (daily)</string>
+    <string name="client_name_daily">VCMI Client (daily)</string>
+    <string name="server_name_daily">VCMI Server (daily)</string>
 </resources>

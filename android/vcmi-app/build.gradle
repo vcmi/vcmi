@@ -56,7 +56,9 @@ android {
 			debuggable true
 			applicationIdSuffix '.debug'
 			manifestPlaceholders = [
-				applicationLabel: 'VCMI debug',
+				appLabel: '@string/app_name_debug',
+				appClientLabel: '@string/client_name_debug',
+				appServerLabel: '@string/server_name_debug',
 			]
 			ndk {
 				debugSymbolLevel 'full'
@@ -69,7 +71,9 @@ android {
 			signingConfig = signingConfigs[project.findProperty('signingConfig') ?: 'releaseSigning']
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 			manifestPlaceholders = [
-				applicationLabel: project.findProperty('applicationLabel') ?: 'VCMI',
+				appLabel: project.findProperty('appLabel') ?: '@string/app_name',
+				appClientLabel: project.findProperty('appClientLabel') ?: '@string/client_name',
+				appServerLabel: project.findProperty('appServerLabel') ?: '@string/server_name',
 			]
 			ndk {
 				debugSymbolLevel 'full'
