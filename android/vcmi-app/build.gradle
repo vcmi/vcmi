@@ -57,6 +57,7 @@ android {
 			applicationIdSuffix '.debug'
 			manifestPlaceholders = [
 				applicationLabel: 'VCMI debug',
+				applicationVariant: 'debug',
 			]
 			ndk {
 				debugSymbolLevel 'full'
@@ -70,6 +71,7 @@ android {
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 			manifestPlaceholders = [
 				applicationLabel: project.findProperty('applicationLabel') ?: 'VCMI',
+				applicationVariant: project.findProperty('applicationVariant') ?: '',
 			]
 			ndk {
 				debugSymbolLevel 'full'
