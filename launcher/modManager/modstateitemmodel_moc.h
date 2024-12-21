@@ -72,7 +72,7 @@ public:
 	explicit ModStateItemModel(std::shared_ptr<ModStateModel> model, QObject * parent);
 
 	/// CModListContainer overrides
-	void reloadRepositories();
+	void reloadViewModel();
 	void modChanged(QString modID);
 
 	QVariant data(const QModelIndex & index, int role) const override;
