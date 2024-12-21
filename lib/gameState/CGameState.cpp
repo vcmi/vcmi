@@ -52,6 +52,7 @@
 #include "../rmg/CMapGenerator.h"
 #include "../serializer/CMemorySerializer.h"
 #include "../spells/CSpellHandler.h"
+#include "UpgradeInfo.h"
 
 #include <vstd/RNG.h>
 
@@ -1088,10 +1089,11 @@ void CGameState::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, Upg
 	out = fillUpgradeInfo(obj->getStack(stackPos));
 }
 
-UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
+UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance & stack) const
 {
-	UpgradeInfo ret;
 	const CCreature *base = stack.getCreature();
+	
+	UpgradeInfo ret(base->getId());
 
 	if (stack.armyObj->ID == Obj::HERO)
 	{
@@ -1116,12 +1118,6 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 		auto town = dynamic_cast<const CGTownInstance *>(stack.armyObj);
 		town->fillUpgradeInfo(ret, stack);
 	}
-
-	if(!ret.newID.empty())
-		ret.oldID = base->getId();
-
-	for (ResourceSet &cost : ret.cost)
-		cost.positive(); //upgrade cost can't be negative, ignore missing resources
 
 	return ret;
 }

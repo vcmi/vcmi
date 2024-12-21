@@ -35,6 +35,7 @@
 #include "../../lib/IGameSettings.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/gameState/UpgradeInfo.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
@@ -57,6 +58,10 @@ public:
 	};
 	struct StackUpgradeInfo
 	{
+		StackUpgradeInfo() = delete;
+		StackUpgradeInfo(const UpgradeInfo & upgradeInfo)
+			: info(upgradeInfo)
+		{ }
 		UpgradeInfo info;
 		std::function<void(CreatureID)> callback;
 	};
@@ -355,15 +360,15 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 		// besides - should commander really be upgradeable?
 
 		auto & upgradeInfo = parent->info->upgradeInfo.value();
-		const size_t buttonsToCreate = std::min<size_t>(upgradeInfo.info.newID.size(), upgrade.size());
+		const size_t buttonsToCreate = std::min<size_t>(upgradeInfo.info.size(), upgrade.size());
 
 		for(size_t buttonIndex = 0; buttonIndex < buttonsToCreate; buttonIndex++)
 		{
-			TResources totalCost = upgradeInfo.info.cost[buttonIndex] * parent->info->creatureCount;
+			TResources totalCost = upgradeInfo.info.getAvailableUpgradeCosts().at(buttonIndex) * parent->info->creatureCount;
 
 			auto onUpgrade = [=]()
 			{
-				upgradeInfo.callback(upgradeInfo.info.newID[buttonIndex]);
+				upgradeInfo.callback(upgradeInfo.info.getAvailableUpgrades().at(buttonIndex));
 				parent->close();
 			};
 			auto onClick = [=]()
@@ -385,7 +390,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 			};
 			auto upgradeBtn = std::make_shared<CButton>(Point(221 + (int)buttonIndex * 40, 5), AnimationPath::builtin("stackWindow/upgradeButton"), CGI->generaltexth->zelp[446], onClick);
 
-			upgradeBtn->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), VLC->creh->objects[upgradeInfo.info.newID[buttonIndex]]->getIconIndex()));
+			upgradeBtn->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), VLC->creh->objects[upgradeInfo.info.getAvailableUpgrades()[buttonIndex]]->getIconIndex()));
 
 			if(buttonsToCreate == 1) // single upgrade available
 				upgradeBtn->assignedKey = EShortcut::RECRUITMENT_UPGRADE;
@@ -763,9 +768,8 @@ CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> d
 	info->creature = stack->getCreature();
 	info->creatureCount = stack->count;
 
-	info->upgradeInfo = std::make_optional(UnitView::StackUpgradeInfo());
+	info->upgradeInfo = std::make_optional(UnitView::StackUpgradeInfo(upgradeInfo));
 	info->dismissInfo = std::make_optional(UnitView::StackDismissInfo());
-	info->upgradeInfo->info = upgradeInfo;
 	info->upgradeInfo->callback = callback;
 	info->dismissInfo->callback = dismiss;
 	info->owner = dynamic_cast<const CGHeroInstance *> (stack->armyObj);

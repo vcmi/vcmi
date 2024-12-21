@@ -33,7 +33,7 @@ struct CPathsInfo;
 struct InfoAboutHero;
 struct InfoAboutTown;
 
-struct UpgradeInfo;
+class UpgradeInfo;
 struct SThievesGuildInfo;
 class CMapHeader;
 struct TeamState;
@@ -172,7 +172,7 @@ public:
 
 
 	//armed object
-	virtual void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out)const;
+	virtual void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const;
 
 	//hero
 	const CGHeroInstance * getHero(ObjectInstanceID objid) const override;

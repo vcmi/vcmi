@@ -22,6 +22,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/gameState/UpgradeInfo.h"
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Updaters.h"
 #include "../../lib/bonuses/Propagators.h"
@@ -754,12 +755,29 @@ void makePossibleUpgrades(const CArmedInstance * obj)
 	{
 		if(const CStackInstance * s = obj->getStackPtr(SlotID(i)))
 		{
-			UpgradeInfo ui;
-			cb->fillUpgradeInfo(obj, SlotID(i), ui);
-			if(ui.oldID != CreatureID::NONE && cb->getResourceAmount().canAfford(ui.cost[0] * s->count))
+			UpgradeInfo upgradeInfo(s->getId());
+			do
 			{
-				cb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
+				cb->fillUpgradeInfo(obj, SlotID(i), upgradeInfo);
+
+				if(upgradeInfo.hasUpgrades())
+				{
+					// creature at given slot might have alternative upgrades, pick best one
+					CreatureID upgID = *vstd::maxElementByFun(upgradeInfo.getAvailableUpgrades(), [](const CreatureID & id)
+						{
+							return id.toCreature()->getAIValue();
+						});
+					if(cb->getResourceAmount().canAfford(upgradeInfo.getUpgradeCostsFor(upgID) * s->count))
+					{
+						cb->upgradeCreature(obj, SlotID(i), upgID);
+						logAi->debug("Upgraded %d %s to %s", s->count, upgradeInfo.oldID.toCreature()->getNamePluralTranslated(), 
+							upgradeInfo.getUpgrade().toCreature()->getNamePluralTranslated());
+					}
+					else
+						break;
+				}
 			}
+			while(upgradeInfo.hasUpgrades());
 		}
 	}
 }
