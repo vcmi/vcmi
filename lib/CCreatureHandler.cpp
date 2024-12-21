@@ -454,8 +454,14 @@ void CCreatureHandler::loadCommanders()
 
 	for (auto ability : config["abilityRequirements"].Vector())
 	{
-		std::pair <std::shared_ptr<Bonus>, std::pair <ui8, ui8> > a;
-		a.first = JsonUtils::parseBonus (ability["ability"].Vector());
+		std::pair <std::vector<std::shared_ptr<Bonus> >, std::pair <ui8, ui8> > a;
+		JsonVector & abilities = ability["ability"].Vector();
+		a.first = std::vector<std::shared_ptr<Bonus> >();
+		if (abilities[0].isVector()) 
+			for (int i = 0; i < abilities.size(); i++) 
+				a.first.push_back(JsonUtils::parseBonus(abilities[i].Vector()));
+		else 
+			a.first.push_back(JsonUtils::parseBonus(ability["ability"].Vector()));
 		a.second.first =  static_cast<ui8>(ability["skills"].Vector()[0].Float());
 		a.second.second = static_cast<ui8>(ability["skills"].Vector()[1].Float());
 		skillRequirements.push_back (a);
@@ -1312,7 +1318,7 @@ int CCreatureHandler::stringToNumber(std::string & s) const
 CCreatureHandler::~CCreatureHandler()
 {
 	for(auto & p : skillRequirements)
-		p.first = nullptr;
+		p.first.clear();
 }
 
 CreatureID CCreatureHandler::pickRandomMonster(vstd::RNG & rand, int tier) const
