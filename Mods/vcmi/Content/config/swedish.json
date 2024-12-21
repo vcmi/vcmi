@@ -41,7 +41,7 @@
 	"vcmi.capitalColors.3" : "Grön",
 	"vcmi.capitalColors.4" : "Orange",
 	"vcmi.capitalColors.5" : "Lila",
-	"vcmi.capitalColors.6" : "Grönblå",
+	"vcmi.capitalColors.6" : "Turkos",
 	"vcmi.capitalColors.7" : "Rosa",
 
 	"vcmi.heroOverview.startingArmy"    : "Startarmé",
@@ -70,7 +70,7 @@
 	"vcmi.radialWheel.heroDismiss"       : "Avfärda hjälten",
 
 	"vcmi.radialWheel.moveTop"    : "Flytta längst upp",
-	"vcmi.radialWheel.moveUp"     : "Flytta upp",
+	"vcmi.radialWheel.moveUp"     : "Flytta uppåt",
 	"vcmi.radialWheel.moveDown"   : "Flytta nedåt",
 	"vcmi.radialWheel.moveBottom" : "Flytta längst ner",
 
@@ -762,5 +762,27 @@
 	"core.bonus.MECHANICAL.name"                         : "Mekanisk",
 	"core.bonus.MECHANICAL.description"                  : "Immun mot många effekter, reparerbar.",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name"            : "Prism-andedräkt",
-	"core.bonus.PRISM_HEX_ATTACK_BREATH.description"     : "Treriktad andedräkt."
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.description"     : "Treriktad andedräkt.",
+
+	"spell.core.castleMoat.name"            : "Vallgrav",
+	"spell.core.castleMoatTrigger.name"     : "Vallgrav",
+	"spell.core.catapultShot.name"          : "Katapultskott",
+	"spell.core.cyclopsShot.name"           : "Katapultskott",
+	"spell.core.dungeonMoat.name"           : "Kokande olja",
+	"spell.core.dungeonMoatTrigger.name"    : "Kokande olja",
+	"spell.core.fireWallTrigger.name"       : "Eldvägg",
+	"spell.core.firstAid.name"              : "Första hjälpen",
+	"spell.core.fortressMoat.name"          : "Kokande tjära",
+	"spell.core.fortressMoatTrigger.name"   : "Kokande tjära",
+	"spell.core.infernoMoat.name"           : "Lava",
+	"spell.core.infernoMoatTrigger.name"    : "Lava",
+	"spell.core.landMineTrigger.name"       : "Landmina",
+	"spell.core.necropolisMoat.name"        : "Vallgrav med ben",
+	"spell.core.necropolisMoatTrigger.name" : "Vallgrav med ben",
+	"spell.core.rampartMoat.name"           : "Törnbuske",
+	"spell.core.rampartMoatTrigger.name"    : "Törnbuske",
+	"spell.core.strongholdMoat.name"        : "Spetsiga pålar",
+	"spell.core.strongholdMoatTrigger.name" : "Spetsiga pålar",
+	"spell.core.summonDemons.name"          : "Sammankalla demoner",
+	"spell.core.towerMoat.name"             : "Landmina"
 }

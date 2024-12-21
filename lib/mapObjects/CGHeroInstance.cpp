@@ -1923,7 +1923,8 @@ int CGHeroInstance::getBasePrimarySkillValue(PrimarySkill which) const
 {
 	std::string cachingStr = "type_PRIMARY_SKILL_base_" + std::to_string(static_cast<int>(which));
 	auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(which)).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
-	return valOfBonuses(selector, cachingStr);
+	auto minSkillValue = VLC->engineSettings()->getVector(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS)[which.getNum()];
+	return std::max(valOfBonuses(selector, cachingStr), minSkillValue);
 }
 
 VCMI_LIB_NAMESPACE_END

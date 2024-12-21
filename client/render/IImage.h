@@ -111,12 +111,12 @@ public:
 	virtual bool isTransparent(const Point & coords) const = 0;
 	virtual void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const = 0;
 
-	virtual std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) const = 0;
+	[[nodiscard]] virtual std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) const = 0;
 
-	virtual std::shared_ptr<const ISharedImage> horizontalFlip() const = 0;
-	virtual std::shared_ptr<const ISharedImage> verticalFlip() const = 0;
-	virtual std::shared_ptr<const ISharedImage> scaleInteger(int factor, SDL_Palette * palette) const = 0;
-	virtual std::shared_ptr<const ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const = 0;
+	[[nodiscard]] virtual std::shared_ptr<const ISharedImage> horizontalFlip() const = 0;
+	[[nodiscard]] virtual std::shared_ptr<const ISharedImage> verticalFlip() const = 0;
+	[[nodiscard]] virtual std::shared_ptr<const ISharedImage> scaleInteger(int factor, SDL_Palette * palette, EImageBlitMode blitMode) const = 0;
+	[[nodiscard]] virtual std::shared_ptr<const ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const = 0;
 
 
 	virtual ~ISharedImage() = default;

@@ -27,7 +27,7 @@ public:
 	ModStateModel();
 	~ModStateModel();
 
-	void appendRepositories(const JsonNode & repositoriesList);
+	void setRepositoryData(const JsonNode & repositoriesList);
 	void reloadLocalState();
 	const JsonNode & getRepositoryData() const;
 
@@ -49,4 +49,12 @@ public:
 
 	bool isSubmod(QString modname);
 	QString getTopParent(QString modname) const;
+
+	void createNewPreset(const QString & presetName);
+	void deletePreset(const QString & presetName);
+	void activatePreset(const QString & presetName);
+	void renamePreset(const QString & oldPresetName, const QString & newPresetName);
+
+	QStringList getAllPresets() const;
+	QString getActivePreset() const;
 };

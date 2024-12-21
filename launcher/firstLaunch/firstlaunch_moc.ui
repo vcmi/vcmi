@@ -96,7 +96,7 @@
    <item>
     <widget class="QStackedWidget" name="installerTabs">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="pageLanguageSelect">
       <layout class="QGridLayout" name="gridLayout_3">
@@ -177,9 +177,9 @@
          <property name="text">
           <string>Thank you for installing VCMI!
 
-Before you can start playing, there are a few more steps that need to be completed.
+Before you can start playing, there are a few more steps to complete.
 
-Please keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
+Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</string>
          </property>
@@ -307,7 +307,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>You can manually copy directories Maps, Data and Mp3 from the original game directory to VCMI data directory that you can see on top of this page</string>
+            <string>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -501,8 +501,8 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>If you own Heroes III on gog.com you can download backup offline installer from gog.com, and VCMI will import Heroes III data using offline installer. 
-Offline installer consists of two parts, .exe and .bin. Make sure you download both of them.</string>
+            <string>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
+Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</string>
            </property>
            <property name="textFormat">
             <enum>Qt::PlainText</enum>
@@ -785,7 +785,7 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</string>
+            <string>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -809,9 +809,9 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
             <string>In The Wake of Gods</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/mod-disabled.png</normaloff>
-             <normalon>:icons/mod-enabled.png</normalon>:icons/mod-disabled.png</iconset>
+             <normalon>:icons/mod-enabled.png</normalon>:/icons/mod-disabled.png</iconset>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -876,6 +876,8 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -120,8 +120,7 @@ const JsonNode & ModDescription::getLocalizedValue(const std::string & keyName) 
 
 const JsonNode & ModDescription::getValue(const std::string & keyName) const
 {
-	const JsonNode & localValue = getLocalValue(keyName);
-	if (localValue.isNull())
+	if (!isInstalled() || isUpdateAvailable())
 		return getRepositoryValue(keyName);
 	else
 		return getLocalValue(keyName);

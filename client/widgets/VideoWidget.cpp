@@ -173,7 +173,7 @@ void VideoWidgetBase::tick(uint32_t msPassed)
 	{
 		videoInstance->tick(msPassed);
 
-		if(subTitle)
+		if(!videoInstance->videoEnded() && subTitle)
 			subTitle->setText(getSubTitleLine(videoInstance->timeStamp()));
 
 		if(videoInstance->videoEnded())

@@ -67,10 +67,10 @@ void HeroSkillsWidget::on_checkBox_toggled(bool checked)
 
 void HeroSkillsWidget::obtainData()
 {
-	ui->attack->setValue(hero.getPrimSkillLevel(PrimarySkill::ATTACK));
-	ui->defence->setValue(hero.getPrimSkillLevel(PrimarySkill::DEFENSE));
-	ui->power->setValue(hero.getPrimSkillLevel(PrimarySkill::SPELL_POWER));
-	ui->knowledge->setValue(hero.getPrimSkillLevel(PrimarySkill::KNOWLEDGE));
+	ui->attack->setValue(hero.getBasePrimarySkillValue(PrimarySkill::ATTACK));
+	ui->defence->setValue(hero.getBasePrimarySkillValue(PrimarySkill::DEFENSE));
+	ui->power->setValue(hero.getBasePrimarySkillValue(PrimarySkill::SPELL_POWER));
+	ui->knowledge->setValue(hero.getBasePrimarySkillValue(PrimarySkill::KNOWLEDGE));
 	
 	if(!hero.secSkills.empty() && hero.secSkills.front().first.getNum() == -1)
 		return;

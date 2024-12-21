@@ -167,14 +167,12 @@ void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 
 		result = evaluator.selectStackAction(stack);
 
-		if(autobattlePreferences.enableSpellsUsage && !skipCastUntilNextBattle && evaluator.canCastSpell())
+		if(autobattlePreferences.enableSpellsUsage && evaluator.canCastSpell())
 		{
 			auto spelCasted = evaluator.attemptCastingSpell(stack);
 
 			if(spelCasted)
 				return;
-			
-			skipCastUntilNextBattle = true;
 		}
 
 		logAi->trace("Spellcast attempt completed in %lld", timeElapsed(start));
@@ -256,8 +254,6 @@ void CBattleAI::battleStart(const BattleID & battleID, const CCreatureSet *army1
 {
 	LOG_TRACE(logAi);
 	side = Side;
-
-	skipCastUntilNextBattle = false;
 }
 
 void CBattleAI::print(const std::string &text) const

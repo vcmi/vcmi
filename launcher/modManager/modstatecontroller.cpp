@@ -72,9 +72,9 @@ ModStateController::ModStateController(std::shared_ptr<ModStateModel> modList)
 
 ModStateController::~ModStateController() = default;
 
-void ModStateController::appendRepositories(const JsonNode & repomap)
+void ModStateController::setRepositoryData(const JsonNode & repomap)
 {
-	modList->appendRepositories(repomap);
+	modList->setRepositoryData(repomap);
 }
 
 bool ModStateController::addError(QString modname, QString message)
@@ -120,6 +120,9 @@ bool ModStateController::disableMod(QString modname)
 
 bool ModStateController::canInstallMod(QString modname)
 {
+	if (!modList->isModExists(modname))
+		return true; // for installation of unknown mods, e.g. via "Install from file" option
+
 	auto mod = modList->getMod(modname);
 
 	if(mod.isSubmod())
@@ -155,7 +158,7 @@ bool ModStateController::canEnableMod(QString modname)
 
 	//check for compatibility
 	if(!mod.isCompatible())
-		return addError(modname, tr("Mod is not compatible, please update VCMI and checkout latest mod revisions"));
+		return addError(modname, tr("Mod is not compatible, please update VCMI and check the latest mod revisions"));
 
 	if (mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString())
 		return addError(modname, tr("Can not enable translation mod for a different language!"));
@@ -188,9 +191,6 @@ bool ModStateController::doInstallMod(QString modname, QString archivePath)
 
 	if(!QFile(archivePath).exists())
 		return addError(modname, tr("Mod archive is missing"));
-
-	if(localMods.contains(modname))
-		return addError(modname, tr("Mod with such name is already installed"));
 
 	std::vector<std::string> filesToExtract;
 	QString modDirName = ::detectModArchive(archivePath, modname, filesToExtract);
@@ -234,8 +234,6 @@ bool ModStateController::doInstallMod(QString modname, QString archivePath)
 	QString upperLevel = modDirName.section('/', 0, 0);
 	if(upperLevel != modDirName)
 		removeModDir(destDir + upperLevel);
-	
-	modList->reloadLocalState();
 
 	return true;
 }
@@ -251,9 +249,7 @@ bool ModStateController::doUninstallMod(QString modname)
 
 	QDir modFullDir(modDir);
 	if(!removeModDir(modDir))
-		return addError(modname, tr("Mod is located in protected directory, please remove it manually:\n") + modFullDir.absolutePath());
-
-	modList->reloadLocalState();
+		return addError(modname, tr("Mod is located in a protected directory, please remove it manually:\n") + modFullDir.absolutePath());
 
 	return true;
 }

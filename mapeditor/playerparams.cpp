@@ -24,7 +24,7 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	ui->setupUi(this);
 	
 	//set colors and teams
-	ui->teamId->addItem("No team", QVariant(TeamID::NO_TEAM));
+	ui->teamId->addItem(tr("No team"), QVariant(TeamID::NO_TEAM));
 	for(int i = 0, index = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
 		if(i == playerId || !controller.map()->players[i].canAnyonePlay())
@@ -202,12 +202,12 @@ void PlayerParams::on_townSelect_clicked()
 		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &PlayerParams::onTownPicked);
 	}
 	
-	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent())->hide();
+	controller.settingsDialog->hide();
 }
 
 void PlayerParams::onTownPicked(const CGObjectInstance * obj)
 {
-	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent())->show();
+	controller.settingsDialog->show();
 	
 	for(int lvl : {0, 1})
 	{

@@ -124,6 +124,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 	{
 		if (ai->cb->getHeroesInfo().size() == 0
 			|| treasureSourcesCount > ai->cb->getHeroesInfo().size() * 5
+			|| bestHeroToHire->getArmyCost() > GameConstants::HERO_GOLD_COST / 2.0
 			|| (ai->getFreeResources()[EGameResID::GOLD] > 10000 && !ai->buildAnalyzer->isGoldPressureHigh() && haveCapitol)
 			|| (ai->getFreeResources()[EGameResID::GOLD] > 30000 && !ai->buildAnalyzer->isGoldPressureHigh()))
 		{

@@ -55,8 +55,6 @@ class FirstLaunchView : public QWidget
 	bool checkCanInstallExtras();
 	bool checkCanInstallMod(const QString & modID);
 
-	void installMod(const QString & modID);
-
 public:
 	explicit FirstLaunchView(QWidget * parent = nullptr);
 
