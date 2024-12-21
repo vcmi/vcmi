@@ -23,7 +23,7 @@ ArtifactWidget::ArtifactWidget(CArtifactFittingSet & fittingSet, QWidget * paren
 
 	connect(ui->saveButton, &QPushButton::clicked, this, [this]() 
 	{
-		emit saveArtifact(ui->artifact->currentData().toInt(), ArtifactPosition(ui->possiblePositions->currentData().toInt()));
+		saveArtifact(ui->artifact->currentData().toInt(), ArtifactPosition(ui->possiblePositions->currentData().toInt()));
 		close();
 	});
 	connect(ui->cancelButton, &QPushButton::clicked, this, &ArtifactWidget::close);

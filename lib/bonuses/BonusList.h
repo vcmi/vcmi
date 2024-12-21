@@ -17,7 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE BonusList
 {
 public:
-	using TInternalContainer = std::vector<std::shared_ptr<Bonus>>;
+	using TInternalContainer = boost::container::small_vector<std::shared_ptr<Bonus>, 16>;
 
 private:
 	TInternalContainer bonuses;
@@ -43,7 +43,6 @@ public:
 	void clear();
 	bool empty() const { return bonuses.empty(); }
 	void resize(TInternalContainer::size_type sz, const std::shared_ptr<Bonus> & c = nullptr);
-	void reserve(TInternalContainer::size_type sz);
 	TInternalContainer::size_type capacity() const { return bonuses.capacity(); }
 	STRONG_INLINE std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) { return bonuses[n]; }
 	STRONG_INLINE const std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) const { return bonuses[n]; }

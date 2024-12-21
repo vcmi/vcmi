@@ -85,8 +85,8 @@ int AFactionMember::getPrimSkillLevel(PrimarySkill id) const
 	static const CSelector selectorAllSkills = Selector::type()(BonusType::PRIMARY_SKILL);
 	static const std::string keyAllSkills = "type_PRIMARY_SKILL";
 	auto allSkills = getBonusBearer()->getBonuses(selectorAllSkills, keyAllSkills);
-	auto ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(id)));
-	auto minSkillValue = VLC->engineSettings()->getVector(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS)[id.getNum()];
+	int ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(id)));
+	int minSkillValue = VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, id.getNum());
 	return std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect, sp=0 works in old saves
 }
 
@@ -167,19 +167,35 @@ ui32 ACreature::getMaxHealth() const
 	return std::max(1, value); //never 0
 }
 
-ui32 ACreature::getMovementRange(int turn) const
+ui32 ACreature::getMovementRange() const
 {
 	//war machines cannot move
-	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::SIEGE_WEAPON).And(Selector::turns(turn))))
-	{
+	if (getBonusBearer()->hasBonusOfType(BonusType::SIEGE_WEAPON))
 		return 0;
-	}
-	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::BIND_EFFECT).And(Selector::turns(turn))))
-	{
-		return 0;
-	}
 
-	return getBonusBearer()->valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)));
+	if (getBonusBearer()->hasBonusOfType(BonusType::BIND_EFFECT))
+		return 0;
+
+	return getBonusBearer()->valOfBonuses(BonusType::STACKS_SPEED);
+}
+
+ui32 ACreature::getMovementRange(int turn) const
+{
+	if (turn == 0)
+		return getMovementRange();
+
+	const std::string cachingStrSW = "type_SIEGE_WEAPON_turns_" + std::to_string(turn);
+	const std::string cachingStrBE = "type_BIND_EFFECT_turns_" + std::to_string(turn);
+	const std::string cachingStrSS = "type_STACKS_SPEED_turns_" + std::to_string(turn);
+
+	//war machines cannot move
+	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::SIEGE_WEAPON).And(Selector::turns(turn)), cachingStrSW))
+		return 0;
+
+	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::BIND_EFFECT).And(Selector::turns(turn)), cachingStrBE))
+		return 0;
+
+	return getBonusBearer()->valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)), cachingStrSS);
 }
 
 bool ACreature::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation

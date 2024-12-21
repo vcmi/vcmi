@@ -33,6 +33,11 @@ std::vector<int> IGameSettings::getVector(EGameSettings option) const
 	return getValue(option).convertTo<std::vector<int>>();
 }
 
+int IGameSettings::getVectorValue(EGameSettings option, size_t index) const
+{
+	return getValue(option)[index].Integer();
+}
+
 GameSettings::GameSettings() = default;
 GameSettings::~GameSettings() = default;
 

@@ -239,8 +239,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 	auto info = BuildingInfo(buildPtr, creature, baseCreatureID, town, ai);
 
-	logAi->trace("checking %s", info.name);
-	logAi->trace("buildInfo %s", info.toString());
+	//logAi->trace("checking %s buildInfo %s", info.name, info.toString());
 
 	int highestFort = 0;
 	for (auto twn : ai->cb->getTownsInfo())
@@ -258,7 +257,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 		}
 		else if(canBuild == EBuildingState::NO_RESOURCES)
 		{
-			logAi->trace("cant build. Not enough resources. Need %s", info.buildCost.toString());
+			//logAi->trace("cant build. Not enough resources. Need %s", info.buildCost.toString());
 			info.notEnoughRes = true;
 		}
 		else if(canBuild == EBuildingState::PREREQUIRES)

@@ -206,7 +206,7 @@ void ModStateItemModel::modChanged(QString modID)
 	int index = modNameToID.indexOf(modID);
 	QModelIndex parent = this->parent(createIndex(0, 0, index));
 	int row = modIndex[modIndexToName(parent)].indexOf(modID);
-	emit dataChanged(createIndex(row, 0, index), createIndex(row, 4, index));
+	dataChanged(createIndex(row, 0, index), createIndex(row, 4, index));
 }
 
 void ModStateItemModel::endResetModel()

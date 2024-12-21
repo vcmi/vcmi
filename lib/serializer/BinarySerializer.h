@@ -275,6 +275,15 @@ public:
 		for(uint32_t i=0;i<length;i++)
 			save(data[i]);
 	}
+	template <typename T, size_t N>
+	void save(const boost::container::small_vector<T, N>& data)
+	{
+		uint32_t length = data.size();
+		*this& length;
+		for (uint32_t i = 0; i < length; i++)
+			save(data[i]);
+	}
+
 	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
 	void save(const std::deque<T> & data)
 	{

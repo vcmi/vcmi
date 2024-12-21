@@ -49,6 +49,11 @@ class DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player
 
 	std::vector<CGObjectInstance*> ownedObjects;
 
+	std::vector<const CGTownInstance*> constOwnedTowns; //not serialized
+	std::vector<const CGHeroInstance*> constOwnedHeroes; //not serialized
+	std::vector<CGTownInstance*> ownedTowns; //not serialized
+	std::vector<CGHeroInstance*> ownedHeroes; //not serialized
+
 	template<typename T>
 	std::vector<T> getObjectsOfType() const;
 
@@ -92,15 +97,16 @@ public:
 	std::string getNameTextID() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 
-	std::vector<const CGHeroInstance* > getHeroes() const;
-	std::vector<const CGTownInstance* > getTowns() const;
-	std::vector<CGHeroInstance* > getHeroes();
-	std::vector<CGTownInstance* > getTowns();
+	const std::vector<const CGHeroInstance* > & getHeroes() const;
+	const std::vector<const CGTownInstance* > & getTowns() const;
+	const std::vector<CGHeroInstance* > & getHeroes();
+	const std::vector<CGTownInstance* > & getTowns();
 
 	std::vector<const CGObjectInstance* > getOwnedObjects() const;
 
 	void addOwnedObject(CGObjectInstance * object);
 	void removeOwnedObject(CGObjectInstance * object);
+	void postDeserialize();
 
 	bool checkVanquished() const
 	{
@@ -145,6 +151,9 @@ public:
 		h & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & destroyedObjects;
+
+		if (!h.saving)
+			postDeserialize();
 	}
 };
 

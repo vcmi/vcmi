@@ -134,6 +134,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <random>
 #include <regex>
 #include <set>
+#include <shared_mutex>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -168,6 +169,8 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/algorithm/string.hpp>
 #include <boost/crc.hpp>
 #include <boost/current_function.hpp>
+#include <boost/container/small_vector.hpp>
+#include <boost/container/static_vector.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/date_time/posix_time/time_formatters.hpp>
 #include <boost/filesystem.hpp>
@@ -269,6 +272,9 @@ using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 #define VCMI_LIB_USING_NAMESPACE
 #define VCMI_LIB_WRAP_NAMESPACE(x) ::x
 #endif
+
+// Qt defines 'emit' as macros, which conflicts with TBB definition of method with same name
+#define QT_NO_EMIT
 
 /* ---------------------------------------------------------------------------- */
 /* VCMI standard library */

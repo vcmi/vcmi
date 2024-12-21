@@ -48,12 +48,15 @@ template <class _ObjectID, class _ObjectBase, class _Object, class _ServiceBase>
 {
 	const _Object * getObjectImpl(const int32_t index) const
 	{
-		if(index < 0 || index >= objects.size())
+		try
+		{
+			return objects.at(index).get();
+		}
+		catch (const std::out_of_range&)
 		{
 			logMod->error("%s id %d is invalid", getTypeNames()[0], index);
 			throw std::runtime_error("Attempt to access invalid index " + std::to_string(index) + " of type " + getTypeNames().front());
 		}
-		return objects[index].get();
 	}
 
 public:

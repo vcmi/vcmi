@@ -101,6 +101,7 @@ public:
 	int64_t getInteger(EGameSettings option) const;
 	double getDouble(EGameSettings option) const;
 	std::vector<int> getVector(EGameSettings option) const;
+	int getVectorValue(EGameSettings option, size_t index) const;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -63,21 +63,9 @@ void CBonusSystemNode::getAllParents(TCNodes & out) const //retrieves list of pa
 
 void CBonusSystemNode::getAllBonusesRec(BonusList &out, const CSelector & selector) const
 {
-	//out has been reserved sufficient capacity at getAllBonuses() call
-
 	BonusList beforeUpdate;
 	TCNodes lparents;
 	getAllParents(lparents);
-
-	if(!lparents.empty())
-	{
-		//estimate on how many bonuses are missing yet - must be positive
-		beforeUpdate.reserve(std::max(out.capacity() - out.size(), bonuses.size()));
-	}
-	else
-	{
-		beforeUpdate.reserve(bonuses.size()); //at most all local bonuses
-	}
 
 	for(const auto * parent : lparents)
 	{
@@ -111,46 +99,64 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 {
 	if (CBonusSystemNode::cachingEnabled)
 	{
-		// Exclusive access for one thread
-		boost::lock_guard<boost::mutex> lock(sync);
-
-		// If the bonus system tree changes(state of a single node or the relations to each other) then
-		// cache all bonus objects. Selector objects doesn't matter.
-		if (cachedLast != treeChanged)
-		{
-			BonusList allBonuses;
-			allBonuses.reserve(cachedBonuses.capacity()); //we assume we'll get about the same number of bonuses
-
-			cachedBonuses.clear();
-			cachedRequests.clear();
-
-			getAllBonusesRec(allBonuses, Selector::all);
-			limitBonuses(allBonuses, cachedBonuses);
-			cachedBonuses.stackBonuses();
-
-			cachedLast = treeChanged;
-		}
-
 		// If a bonus system request comes with a caching string then look up in the map if there are any
 		// pre-calculated bonus results. Limiters can't be cached so they have to be calculated.
-		if(!cachingStr.empty())
+		if (cachedLast == treeChanged && !cachingStr.empty())
 		{
-			auto it = cachedRequests.find(cachingStr);
-			if(it != cachedRequests.end())
-			{
-				//Cached list contains bonuses for our query with applied limiters
-				return it->second;
-			}
+			RequestsMap::const_accessor accessor;
+
+			//Cached list contains bonuses for our query with applied limiters
+			if (cachedRequests.find(accessor, cachingStr) && accessor->second.first == cachedLast)
+				return accessor->second.second;
 		}
 
 		//We still don't have the bonuses (didn't returned them from cache)
 		//Perform bonus selection
 		auto ret = std::make_shared<BonusList>();
-		cachedBonuses.getBonuses(*ret, selector, limit);
+
+		if (cachedLast == treeChanged)
+		{
+			// Cached bonuses are up-to-date - use shared/read access and compute results
+			std::shared_lock lock(sync);
+			cachedBonuses.getBonuses(*ret, selector, limit);
+		}
+		else
+		{
+			// If the bonus system tree changes(state of a single node or the relations to each other) then
+			// cache all bonus objects. Selector objects doesn't matter.
+			std::lock_guard lock(sync);
+			if (cachedLast == treeChanged)
+			{
+				// While our thread was waiting, another one have updated bonus tree. Use cached bonuses.
+				cachedBonuses.getBonuses(*ret, selector, limit);
+			}
+			else
+			{
+				// Cached bonuses may be outdated - regenerate them
+				BonusList allBonuses;
+
+				cachedBonuses.clear();
+
+				getAllBonusesRec(allBonuses, Selector::all);
+				limitBonuses(allBonuses, cachedBonuses);
+				cachedBonuses.stackBonuses();
+				cachedLast = treeChanged;
+				cachedBonuses.getBonuses(*ret, selector, limit);
+			}
+		}
 
 		// Save the results in the cache
-		if(!cachingStr.empty())
-			cachedRequests[cachingStr] = ret;
+		if (!cachingStr.empty())
+		{
+			RequestsMap::accessor accessor;
+			if (cachedRequests.find(accessor, cachingStr))
+			{
+				accessor->second.second = ret;
+				accessor->second.first = cachedLast;
+			}
+			else
+				cachedRequests.emplace(cachingStr, std::pair<int64_t, TBonusListPtr>{ cachedLast, ret });
+		}
 
 		return ret;
 	}

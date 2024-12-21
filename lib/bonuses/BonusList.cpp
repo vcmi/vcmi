@@ -195,7 +195,6 @@ std::shared_ptr<const Bonus> BonusList::getFirst(const CSelector &selector) cons
 
 void BonusList::getBonuses(BonusList & out, const CSelector &selector, const CSelector &limit) const
 {
-	out.reserve(bonuses.size());
 	for(const auto & b : bonuses)
 	{
 		if(selector(b.get()) && (!limit || ((bool)limit && limit(b.get()))))
@@ -257,11 +256,6 @@ void BonusList::resize(BonusList::TInternalContainer::size_type sz, const std::s
 {
 	bonuses.resize(sz, c);
 	changed();
-}
-
-void BonusList::reserve(TInternalContainer::size_type sz)
-{
-	bonuses.reserve(sz);
 }
 
 void BonusList::insert(BonusList::TInternalContainer::iterator position, BonusList::TInternalContainer::size_type n, const std::shared_ptr<Bonus> & x)

@@ -325,7 +325,7 @@ const Skill * SecondarySkill::toEntity(const Services * services) const
 
 const CCreature * CreatureIDBase::toCreature() const
 {
-	return dynamic_cast<const CCreature *>(toEntity(VLC));
+	return (*VLC->creh)[num];
 }
 
 const Creature * CreatureIDBase::toEntity(const Services * services) const
