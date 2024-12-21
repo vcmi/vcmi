@@ -306,6 +306,7 @@ public:
 		DWELL_LVL_7_UP = DWELL_UP_LAST,
 
 		DWELL_UP2_FIRST = DWELL_LVL_7_UP + 1,
+		DWELL_LVL_1_UP2 = DWELL_UP2_FIRST, DWELL_LVL_2_UP2, DWELL_LVL_3_UP2, DWELL_LVL_4_UP2, DWELL_LVL_5_UP2, DWELL_LVL_6_UP2, DWELL_LVL_7_UP2, DWELL_LVL_8_UP2,
 
 //		//Special buildings for towns.
 		CASTLE_GATE   = SPECIAL_3, //Inferno
@@ -319,7 +320,8 @@ private:
 	{
 		std::vector<Type> dwellings = { DWELL_LVL_1, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LVL_7, DWELL_LVL_8 };
 		std::vector<Type> dwellingsUp = { DWELL_LVL_1_UP, DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP, DWELL_LVL_6_UP, DWELL_LVL_7_UP, DWELL_LVL_8_UP };
-		return {dwellings, dwellingsUp};
+		std::vector<Type> dwellingsUp2 = { DWELL_UP2_FIRST, DWELL_LVL_2_UP2, DWELL_LVL_3_UP2, DWELL_LVL_4_UP2, DWELL_LVL_5_UP2 , DWELL_LVL_6_UP2 , DWELL_LVL_7_UP2, DWELL_LVL_8_UP2 };
+		return {dwellings, dwellingsUp, dwellingsUp2 };
 	}
 
 public:
@@ -339,6 +341,8 @@ public:
 		}
 		if(dwelling >= BuildingIDBase::DWELL_LVL_8 && dwelling < BuildingIDBase::DWELL_LVL_8 + 5)
 			return 7;
+		else if (dwelling >= BuildingIDBase::DWELL_UP2_FIRST)
+			return (dwelling - DWELL_UP2_FIRST) % (GameConstants::CREATURES_PER_TOWN - 1);
 		else
 			return (dwelling - DWELL_FIRST) % (GameConstants::CREATURES_PER_TOWN - 1);
 	}
@@ -354,6 +358,8 @@ public:
 		}
 		if(dwelling >= BuildingIDBase::DWELL_LVL_8 && dwelling < BuildingIDBase::DWELL_LVL_8 + 5)
 			return dwelling - BuildingIDBase::DWELL_LVL_8;
+		else if (dwelling >= BuildingIDBase::DWELL_UP2_FIRST)
+			return (dwelling - DWELL_UP2_FIRST) / (GameConstants::CREATURES_PER_TOWN - 1);
 		else
 			return (dwelling - DWELL_FIRST) / (GameConstants::CREATURES_PER_TOWN - 1);
 	}
@@ -364,6 +370,11 @@ public:
 			dwelling.advance(1);
 		else
 			dwelling.advance(GameConstants::CREATURES_PER_TOWN - 1);
+	}
+
+	bool IsDwelling() const
+	{
+		return (DWELL_FIRST <= num && num <= DWELL_UP_LAST) || (DWELL_LVL_8 <= num && num <= DWELL_LVL_8_UP) || (num >= DWELL_UP2_FIRST && num < DWELL_LVL_8);
 	}
 
 	bool IsSpecialOrGrail() const
