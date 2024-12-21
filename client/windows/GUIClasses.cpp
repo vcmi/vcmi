@@ -1398,15 +1398,17 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 			bestHeroes.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), iter.second.getIconIndex(), 0, 260 + 66 * counter, 360));
 			//TODO: r-click info:
 			// - r-click on hero
-			// - r-click on primary skill label
 			if(iter.second.details)
 			{
-				primSkillHeaders.push_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[184], Rect(260 + 66*counter, 396, 52, 64),
-					0, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE));
-
-				for(int i=0; i<iter.second.details->primskills.size(); ++i)
+				std::vector<std::string> lines;
+				boost::split(lines, CGI->generaltexth->allTexts[184], boost::is_any_of("\n"));
+				for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
 				{
-					primSkillValues.push_back(std::make_shared<CLabel>(310 + 66 * counter, 407 + 11*i, FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE,
+					primSkillHeaders.push_back(std::make_shared<CLabel>(260 + 66 * counter, 407 + 11 * i, FONT_TINY, ETextAlignment::BOTTOMLEFT, Colors::WHITE, lines[i]));
+					primSkillHeadersArea.push_back(std::make_shared<LRClickableArea>(Rect(primSkillHeaders.back()->pos.x - pos.x, primSkillHeaders.back()->pos.y - pos.y - 11, 50, 11), nullptr, [i]{
+						CRClickPopup::createAndPush(CGI->generaltexth->arraytxt[2 + i]);
+					}));
+					primSkillValues.push_back(std::make_shared<CLabel>(310 + 66 * counter, 407 + 11 * i, FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE,
 							   std::to_string(iter.second.details->primskills[i])));
 				}
 			}
