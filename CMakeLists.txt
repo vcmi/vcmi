@@ -255,6 +255,10 @@ if(ENABLE_GOLDMASTER)
 	add_definitions(-DENABLE_GOLDMASTER)
 endif()
 
+# Qt defines 'emit' as macros, which conflicts with TBB definition of method with same name
+add_definitions(-DQT_NO_EMIT)
+
+
 if(APPLE_IOS)
 	set(CMAKE_MACOSX_RPATH 1)
 	set(CMAKE_OSX_DEPLOYMENT_TARGET 12.0)

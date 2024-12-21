@@ -273,9 +273,6 @@ using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 #define VCMI_LIB_WRAP_NAMESPACE(x) ::x
 #endif
 
-// Qt defines 'emit' as macros, which conflicts with TBB definition of method with same name
-#define QT_NO_EMIT
-
 /* ---------------------------------------------------------------------------- */
 /* VCMI standard library */
 /* ---------------------------------------------------------------------------- */
