@@ -202,12 +202,12 @@ void PlayerParams::on_townSelect_clicked()
 		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &PlayerParams::onTownPicked);
 	}
 	
-	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent())->hide();
+	controller.settingsDialog->hide();
 }
 
 void PlayerParams::onTownPicked(const CGObjectInstance * obj)
 {
-	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent())->show();
+	controller.settingsDialog->show();
 	
 	for(int lvl : {0, 1})
 	{
