@@ -15,12 +15,14 @@
 #include "../PlayerLocalState.h"
 
 #include "../adventureMap/AdventureMapInterface.h"
+#include "../adventureMap/CMinimap.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/Images.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/TextControls.h"
@@ -331,6 +333,83 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGCreature * creature)
 	fitToScreen(10);
 }
 
+TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * teleporter)
+	: CWindowObject(BORDERED | RCLICK_POPUP)
+{
+	OBJECT_CONSTRUCTION;
+	pos.w = 322;
+	pos.h = 200;
+
+	Rect areaSurface(11, 41, 144, 144);
+	Rect areaUnderground(167, 41, 144, 144);
+
+	Rect borderSurface(10, 40, 147, 147);
+	Rect borderUnderground(166, 40, 147, 147);
+
+	bool singleLevelMap = LOCPLINT->cb->getMapSize().y == 0;
+
+	if (singleLevelMap)
+	{
+		areaSurface.x += 144;
+		borderSurface.x += 144;
+	}
+
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+
+	backgroundSurface = std::make_shared<TransparentFilledRectangle>(borderSurface, Colors::TRANSPARENCY, Colors::YELLOW);
+	surface = std::make_shared<CMinimapInstance>(areaSurface.topLeft(), areaSurface.dimensions(), 0);
+
+	if (!singleLevelMap)
+	{
+		backgroundUnderground = std::make_shared<TransparentFilledRectangle>(borderUnderground, Colors::TRANSPARENCY, Colors::YELLOW);
+		undergroud = std::make_shared<CMinimapInstance>(areaUnderground.topLeft(), areaUnderground.dimensions(), 1);
+	}
+
+	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, teleporter->getPopupText(LOCPLINT->playerID));
+
+	const auto & entrances = teleporter->getAllEntrances();
+	const auto & exits = teleporter->getAllExits();
+
+	std::set<ObjectInstanceID> allTeleporters;
+	allTeleporters.insert(entrances.begin(), entrances.end());
+	allTeleporters.insert(exits.begin(), exits.end());
+
+	for (const auto exit : allTeleporters)
+	{
+		const auto * exitObject = LOCPLINT->cb->getObj(exit, false);
+
+		if (!exitObject)
+			continue;
+
+		int3 position = exitObject->visitablePos();
+
+		int positionX = 144 * position.x / LOCPLINT->cb->getMapSize().x;
+		int positionY = 144 * position.y / LOCPLINT->cb->getMapSize().y;
+
+		Point iconPosition(positionX, positionY);
+
+		iconPosition -= Point(8,8); // compensate for 16x16 icon half-size
+
+		if (position.z == 0)
+			iconPosition += areaSurface.topLeft();
+		else
+			iconPosition += areaUnderground.topLeft();
+
+		ImagePath image;
+
+		if (!vstd::contains(entrances, exit))
+			image = ImagePath::builtin("portalExit");
+		else if (!vstd::contains(exits, exit))
+			image = ImagePath::builtin("portalEntrance");
+		else
+			image = ImagePath::builtin("portalBidirectional");
+
+		iconsOverlay.push_back(std::make_shared<CPicture>(image, iconPosition));
+	}
+
+	center(position);
+}
+
 std::shared_ptr<WindowBase>
 CRClickPopup::createCustomInfoWindow(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
 {
@@ -354,6 +433,12 @@ CRClickPopup::createCustomInfoWindow(Point position, const CGObjectInstance * sp
 		case Obj::GARRISON:
 		case Obj::GARRISON2:
 			return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGGarrison *>(specific));
+		case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+		case Obj::MONOLITH_ONE_WAY_EXIT:
+		case Obj::MONOLITH_TWO_WAY:
+		case Obj::SUBTERRANEAN_GATE:
+		case Obj::WHIRLPOOL:
+			return std::make_shared<TeleporterPopup>(position, dynamic_cast<const CGTeleport *>(specific));
 		default:
 			return std::shared_ptr<WindowBase>();
 	}
