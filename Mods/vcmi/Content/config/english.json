@@ -762,5 +762,7 @@
 	"core.bonus.MECHANICAL.name": "Mechanical",
 	"core.bonus.MECHANICAL.description": "Immunity to many effects, repairable",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "Prism Breath",
-	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prism Breath Attack (three directions)"
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prism Breath Attack (three directions)",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.name": "${subtype.spellSchool} immunity",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description": "Immune to ${subtype.spellSchool}"
 }

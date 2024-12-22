@@ -678,7 +678,7 @@
 	"core.bonus.JOUSTING.name": "Champion Charge",
 	"core.bonus.JOUSTING.description": "+${val}% Schaden pro zurückgelegtem Feld",
 	"core.bonus.KING.name": "König",
-	"core.bonus.KING.description": "Anfällig für SLAYER Level ${val} oder höher",
+	"core.bonus.KING.description": "Anfällig für Drachentöter Level ${val} oder höher",
 	"core.bonus.LEVEL_SPELL_IMMUNITY.name": "Zauberimmunität 1-${val}",
 	"core.bonus.LEVEL_SPELL_IMMUNITY.description": "Immun gegen Zaubersprüche der Stufen 1-${val}",
 	"core.bonus.LIMITED_SHOOTING_RANGE.name" : "Begrenzte Schussweite",
@@ -762,5 +762,7 @@
 	"core.bonus.MECHANICAL.name": "Mechanisch",
 	"core.bonus.MECHANICAL.description": "Immunität gegen viele Effekte, reparierbar",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "Prisma-Atem",
-	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prisma-Atem-Angriff (drei Richtungen)"
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prisma-Atem-Angriff (drei Richtungen)",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.name": "${subtype.spellSchool}-Immunität",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description": "Immunität gegen ${subtype.spellSchool}"
 }

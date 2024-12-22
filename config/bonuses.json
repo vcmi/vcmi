@@ -532,6 +532,10 @@
 		}
 	},
 
+	"SPELL_SCHOOL_IMMUNITY":
+	{
+	},
+
 	"SPELL_RESISTANCE_AURA":
 	{
 		"graphics":
