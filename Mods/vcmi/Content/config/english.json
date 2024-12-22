@@ -764,5 +764,7 @@
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "Prism Breath",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prism Breath Attack (three directions)",
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.name": "${subtype.spellSchool} immunity",
-	"core.bonus.SPELL_SCHOOL_IMMUNITY.description": "Immune to ${subtype.spellSchool}"
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description": "Immune to ${subtype.spellSchool}",
+	"core.bonus.OPENING_BATTLE_SPELL.name": "Starts with spell",
+	"core.bonus.OPENING_BATTLE_SPELL.description": "Casts ${subtype.spell} on battle start"
 }

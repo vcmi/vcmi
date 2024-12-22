@@ -407,6 +407,14 @@
 		}
 	},
 
+	"OPENING_BATTLE_SPELL":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/E_SPDFIRE"
+		}
+	},
+
 	"RANDOM_SPELLCASTER":
 	{
 		"graphics":

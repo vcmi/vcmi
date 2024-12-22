@@ -764,5 +764,7 @@
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "Prisma-Atem",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prisma-Atem-Angriff (drei Richtungen)",
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.name": "${subtype.spellSchool}-Immunität",
-	"core.bonus.SPELL_SCHOOL_IMMUNITY.description": "Immunität gegen ${subtype.spellSchool}"
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description": "Immunität gegen ${subtype.spellSchool}",
+	"core.bonus.OPENING_BATTLE_SPELL.name": "Startet mit Zauber",
+	"core.bonus.OPENING_BATTLE_SPELL.description": "Wirkt ${subtype.spell} beim Start des Kampfes"
 }
