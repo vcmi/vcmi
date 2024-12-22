@@ -36,6 +36,9 @@ class CModListView : public QWidget
 	ModStateItemModel * modModel;
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;
+	JsonNode accumulatedRepositoryData;
+
+	QStringList enqueuedModDownloads;
 
 	void setupModModel();
 	void setupFilterModel();
@@ -52,20 +55,13 @@ class CModListView : public QWidget
 	// find mods unknown to mod list (not present in repo and not installed)
 	QStringList findUnavailableMods(QStringList candidates);
 
-	void manualInstallFile(QString filePath);
-	void downloadFile(QString file, QString url, QString description, qint64 sizeBytes = 0);
-	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
-
 	void installMods(QStringList archives);
 	void installMaps(QStringList maps);
-	void installFiles(QStringList mods);
 
 	QString genChangelogText(const ModState & mod);
 	QString genModInfoText(const ModState & mod);
 
 	void changeEvent(QEvent *event) override;
-	void dragEnterEvent(QDragEnterEvent* event) override;
-	void dropEvent(QDropEvent *event) override;
 
 public:
 	explicit CModListView(QWidget * parent = nullptr);
@@ -73,6 +69,8 @@ public:
 
 	void loadScreenshots();
 	void loadRepositories();
+
+	void reload();
 
 	void disableModInfo();
 
@@ -83,17 +81,42 @@ public:
 	/// install mod by name
 	void doInstallMod(const QString & modName);
 
+	/// update mod by name
+	void doUpdateMod(const QString & modName);
+
 	/// returns true if mod is available in repository and can be installed
 	bool isModAvailable(const QString & modName);
 
 	/// finds translation mod for specified languages. Returns empty string on error
 	QString getTranslationModName(const QString & language);
 
+	/// finds all already imported Heroes Chronicles mods (if any)
+	QStringList getInstalledChronicles();
+
+	/// finds all mods that can be updated
+	QStringList getUpdateableMods();
+
+	void createNewPreset(const QString & presetName);
+
+	void deletePreset(const QString & presetName);
+
+	void activatePreset(const QString & presetName);
+
+	void renamePreset(const QString & oldPresetName, const QString & newPresetName);
+
+	QStringList getAllPresets() const;
+
+	QString getActivePreset() const;
+
 	/// returns true if mod is currently enabled
 	bool isModEnabled(const QString & modName);
 
 	/// returns true if mod is currently installed
 	bool isModInstalled(const QString & modName);
+
+	void downloadMod(const ModState & mod);
+	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
+	void installFiles(QStringList mods);
 
 public slots:
 	void enableModByName(QString modName);
@@ -109,31 +132,17 @@ private slots:
 	void hideProgressBar();
 
 	void on_lineEdit_textChanged(const QString & arg1);
-
 	void on_comboBox_currentIndexChanged(int index);
-
 	void on_enableButton_clicked();
-
 	void on_disableButton_clicked();
-
 	void on_updateButton_clicked();
-
 	void on_uninstallButton_clicked();
-
 	void on_installButton_clicked();
-
-	void on_installFromFileButton_clicked();
-
 	void on_pushButton_clicked();
-
 	void on_refreshButton_clicked();
-
 	void on_allModsView_activated(const QModelIndex & index);
-
 	void on_tabWidget_currentChanged(int index);
-
 	void on_screenshotsList_clicked(const QModelIndex & index);
-
 	void on_allModsView_doubleClicked(const QModelIndex &index);
 
 private:

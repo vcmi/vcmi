@@ -43,7 +43,7 @@ void LoseConditions::initialize(MapController & c)
 
 	for(auto & s : conditionStringsLose)
 	{
-		ui->loseComboBox->addItem(QString::fromStdString(s));
+		ui->loseComboBox->addItem(tr(s.c_str()));
 	}
 	ui->standardLoseCheck->setChecked(false);
 
@@ -310,12 +310,12 @@ void LoseConditions::onObjectSelect()
 		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &LoseConditions::onObjectPicked);
 	}
 	
-	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->hide();
+	controller->settingsDialog->hide();
 }
 
 void LoseConditions::onObjectPicked(const CGObjectInstance * obj)
 {
-	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->show();
+	controller->settingsDialog->show();
 	
 	for(int lvl : {0, 1})
 	{

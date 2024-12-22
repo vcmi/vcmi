@@ -48,7 +48,7 @@ void VictoryConditions::initialize(MapController & c)
 
 	for(auto & s : conditionStringsWin)
 	{
-		ui->victoryComboBox->addItem(QString::fromStdString(s));
+		ui->victoryComboBox->addItem(tr(s.c_str()));
 	}
 	ui->standardVictoryCheck->setChecked(false);
 	ui->onlyForHumansCheck->setChecked(false);
@@ -528,12 +528,12 @@ void VictoryConditions::onObjectSelect()
 		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &VictoryConditions::onObjectPicked);
 	}
 	
-	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->hide();
+	controller->settingsDialog->hide();
 }
 
 void VictoryConditions::onObjectPicked(const CGObjectInstance * obj)
 {
-	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->show();
+	controller->settingsDialog->show();
 	
 	for(int lvl : {0, 1})
 	{

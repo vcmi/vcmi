@@ -24,21 +24,22 @@ class ChroniclesExtractor : public QObject
 
 	bool createTempDir();
 	void removeTempDir();
-	int getChronicleNo(QFile & file);
+	int getChronicleNo();
 	bool extractGogInstaller(QString filePath);
 	void createBaseMod() const;
 	void createChronicleMod(int no);
 	void extractFiles(int no) const;
 
-	const std::map<int, QByteArray> chronicles = {
-		{1, QByteArray{reinterpret_cast<const char*>(u"Warlords of the Wasteland"), 50}},
-		{2, QByteArray{reinterpret_cast<const char*>(u"Conquest of the Underworld"), 52}},
-		{3, QByteArray{reinterpret_cast<const char*>(u"Masters of the Elements"), 46}},
-		{4, QByteArray{reinterpret_cast<const char*>(u"Clash of the Dragons"), 40}},
-		{5, QByteArray{reinterpret_cast<const char*>(u"The World Tree"), 28}},
-		{6, QByteArray{reinterpret_cast<const char*>(u"The Fiery Moon"), 28}},
-		{7, QByteArray{reinterpret_cast<const char*>(u"Revolt of the Beastmasters"), 52}},
-		{8, QByteArray{reinterpret_cast<const char*>(u"The Sword of Frost"), 36}}
+	const QStringList chronicles = {
+		{}, // fake	0th "chronicle", to create 1-based list
+		"Warlords of the Wasteland",
+		"Conquest of the Underworld",
+		"Masters of the Elements",
+		"Clash of the Dragons",
+		"The World Tree",
+		"The Fiery Moon",
+		"Revolt of the Beastmasters",
+		"The Sword of Frost",
 	};
 public:
 	void installChronicles(QStringList exe);

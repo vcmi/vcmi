@@ -31,7 +31,8 @@ enum class EScalingAlgorithm : int8_t
 {
 	NEAREST,
 	BILINEAR,
-	XBRZ
+	XBRZ_OPAQUE, // xbrz, image edges are considered to have same color as pixel inside image
+	XBRZ_ALPHA // xbrz, image edges are considered to be transparent
 };
 
 namespace CSDL_Ext

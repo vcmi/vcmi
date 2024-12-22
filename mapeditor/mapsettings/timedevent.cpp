@@ -122,7 +122,7 @@ void TimedEvent::on_addObjectToDelete_clicked()
 		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &TimedEvent::onObjectPicked);
 	}
 	hide();
-	dynamic_cast<QWidget *>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->hide();
+	controller.settingsDialog->hide();
 }
 
 void TimedEvent::on_removeObjectToDelete_clicked()
@@ -133,7 +133,7 @@ void TimedEvent::on_removeObjectToDelete_clicked()
 void TimedEvent::onObjectPicked(const CGObjectInstance * obj)
 {
 	show();
-	dynamic_cast<QWidget *>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->show();
+	controller.settingsDialog->show();
 
 	for(int lvl : {0, 1})
 	{

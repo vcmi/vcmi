@@ -83,6 +83,8 @@ QString Innoextract::getHashError(QString exeFile, QString binFile, QString exeF
 	};
 	
 	std::vector<data> knownHashes = {
+	//	{ H3_COMPLETE, "english", 973162040,          0, "7cf1ecec73e8c2f2c2619415cd16749be5641942", ""                                         }, // setup_homm_3_complete_4.0_(10665).exe
+	//	{ H3_COMPLETE, "french",        ???,          0, "7e5a737c51530a1888033d188ab0635825ee622f", ""                                         }, // setup_homm_3_complete_french_4.0_(10665).exe
 		{ H3_COMPLETE, "english",    822520, 1005040617, "66646a353b06417fa12c6384405688c84a315cc1", "c624e2071f4e35386765ab044ad5860ac245b7f4" }, // setup_heroes_of_might_and_magic_3_complete_4.0_(28740).exe
 		{ H3_COMPLETE, "french",     824960,  997305870, "072f1d4466ff16444d8c7949c6530448a9c53cfa", "9b6b451d2bd2f8b4be159e62fa6d32e87ee10455" }, // setup_heroes_of_might_and_magic_3_complete_4.0_(french)_(28740).exe
 		{ H3_COMPLETE, "polish",     822288,  849286313, "74ffde00156dd5a8e237668f87213387f0dd9c7c", "2523cf9943043ae100186f89e4ebf7c28be09804" }, // setup_heroes_of_might_and_magic_3_complete_4.0_(polish)_(28740).exe

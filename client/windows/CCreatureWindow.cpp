@@ -498,15 +498,18 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 			{
 				if(index == 0 && skillID >= 100)
 				{
-					const auto bonus = CGI->creh->skillRequirements[skillID-100].first;
+					const auto bonuses = CGI->creh->skillRequirements[skillID-100].first;
 					const CStackInstance * stack = parent->info->commander;
-					auto icon = std::make_shared<CCommanderSkillIcon>(std::make_shared<CPicture>(stack->bonusToGraphics(bonus)), true,  [](){});
+					auto icon = std::make_shared<CCommanderSkillIcon>(std::make_shared<CPicture>(stack->bonusToGraphics(bonuses[0])), true, [](){});
 					icon->callback = [=]()
 					{
 						parent->setSelection(skillID, icon);
 					};
-					icon->text = stack->bonusToString(bonus, true);
-					icon->hoverText = stack->bonusToString(bonus, false);
+					for(int i = 0; i < bonuses.size(); i++) 
+					{
+						icon->text += stack->bonusToString(bonuses[i], true) + "\n";
+						icon->hoverText += stack->bonusToString(bonuses[i], false) + "\n";
+					}
 
 					return icon;
 				}

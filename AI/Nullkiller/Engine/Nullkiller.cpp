@@ -397,7 +397,12 @@ void Nullkiller::makeTurn()
 				if(!executeTask(bestTask))
 					return;
 
-				updateAiState(i, true);
+				bool fastUpdate = true;
+
+				if (bestTask->getHero() != nullptr)
+					fastUpdate = false;
+
+				updateAiState(i, fastUpdate);
 			}
 			else
 			{
