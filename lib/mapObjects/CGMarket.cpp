@@ -45,7 +45,7 @@ std::string CGMarket::getPopupText(PlayerColor player) const
 		return getHoverText(player);
 
 	MetaString message = MetaString::createFromRawString("{%s}\r\n\r\n%s");
-	message.replaceName(ID);
+	message.replaceTextID(TextIdentifier("object", getObjectHandler()->getModScope(), getObjectHandler()->getTypeName(), "name").get());
 	message.replaceTextID(TextIdentifier(getObjectHandler()->getBaseTextID(), "description").get());
 	return message.toString();
 }
