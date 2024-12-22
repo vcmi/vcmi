@@ -158,7 +158,7 @@ int CTotalsProxy::getMeleeValue() const
 
 	if(treeVersion != meleeCachedLast)
 	{
-		auto bonuses = target->getBonuses(selector, limit, "CTotalsProxy::getMeleeValue");
+		auto bonuses = target->getBonuses(selector, limit);
 		meleeValue = initialValue + bonuses->totalValue();
 		meleeCachedLast = treeVersion;
 	}
@@ -174,7 +174,7 @@ int CTotalsProxy::getRangedValue() const
 
 	if(treeVersion != rangedCachedLast)
 	{
-		auto bonuses = target->getBonuses(selector, limit, "CTotalsProxy::getRangedValue");
+		auto bonuses = target->getBonuses(selector, limit);
 		rangedValue = initialValue + bonuses->totalValue();
 		rangedCachedLast = treeVersion;
 	}

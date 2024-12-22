@@ -32,12 +32,9 @@ bool INativeTerrainProvider::isNativeTerrain(TerrainId terrain) const
 
 TerrainId AFactionMember::getNativeTerrain() const
 {
-	const std::string cachingStringNoTerrainPenalty = "type_TERRAIN_NATIVE_NONE";
-	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(BonusType::TERRAIN_NATIVE, BonusSubtypeID());
-
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
-	return getBonusBearer()->hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
+	return getBonusBearer()->hasBonusOfType(BonusType::TERRAIN_NATIVE)
 			 ? TerrainId::ANY_TERRAIN : getFactionID().toEntity(VLC)->getNativeTerrain();
 }
 
@@ -50,20 +47,12 @@ int32_t AFactionMember::magicResistance() const
 
 int AFactionMember::getAttack(bool ranged) const
 {
-	const std::string cachingStr = "type_PRIMARY_SKILLs_ATTACK";
-
-	static const auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
-
-	return getBonusBearer()->valOfBonuses(selector, cachingStr);
+	return getBonusBearer()->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
 }
 
 int AFactionMember::getDefense(bool ranged) const
 {
-	const std::string cachingStr = "type_PRIMARY_SKILLs_DEFENSE";
-
-	static const auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
-
-	return getBonusBearer()->valOfBonuses(selector, cachingStr);
+	return getBonusBearer()->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
 }
 
 int AFactionMember::getMinDamage(bool ranged) const
@@ -82,9 +71,7 @@ int AFactionMember::getMaxDamage(bool ranged) const
 
 int AFactionMember::getPrimSkillLevel(PrimarySkill id) const
 {
-	static const CSelector selectorAllSkills = Selector::type()(BonusType::PRIMARY_SKILL);
-	static const std::string keyAllSkills = "type_PRIMARY_SKILL";
-	auto allSkills = getBonusBearer()->getBonuses(selectorAllSkills, keyAllSkills);
+	auto allSkills = getBonusBearer()->getBonusesOfType(BonusType::PRIMARY_SKILL);
 	int ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(id)));
 	int minSkillValue = VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, id.getNum());
 	return std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect, sp=0 works in old saves
@@ -157,9 +144,7 @@ int AFactionMember::luckVal() const
 
 ui32 ACreature::getMaxHealth() const
 {
-	const std::string cachingStr = "type_STACK_HEALTH";
-	static const auto selector = Selector::type()(BonusType::STACK_HEALTH);
-	auto value = getBonusBearer()->valOfBonuses(selector, cachingStr);
+	auto value = getBonusBearer()->valOfBonuses(BonusType::STACK_HEALTH);
 	return std::max(1, value); //never 0
 }
 

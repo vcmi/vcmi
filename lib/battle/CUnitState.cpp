@@ -640,10 +640,10 @@ bool CUnitState::canMove(int turn) const
 		return false;
 
 	if (turn == 0)
-		return valOfBonuses(BonusType::NOT_ACTIVE);
+		return !hasBonusOfType(BonusType::NOT_ACTIVE);
 
 	std::string cachingStr = "type_NOT_ACTIVE_turns_" + std::to_string(turn);
-	return valOfBonuses(Selector::type()(BonusType::NOT_ACTIVE).And(Selector::turns(turn)), cachingStr); //eg. Ammo Cart or blinded creature
+	return !hasBonus(Selector::type()(BonusType::NOT_ACTIVE).And(Selector::turns(turn)), cachingStr); //eg. Ammo Cart or blinded creature
 }
 
 bool CUnitState::defended(int turn) const
