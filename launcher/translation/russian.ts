@@ -320,7 +320,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="344"/>
         <source>please upgrade mod</source>
-        <translation>обновите мод</translation>
+        <translation>обновите мод пожалуйста</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="173"/>
@@ -401,7 +401,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="649"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
-        <translation>Загрузка %1. %p% (%v MB из %m MB) завершена</translation>
+        <translation>Загрузка %1. %p% (%v MB из %m MB) завершено</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="674"/>
@@ -428,7 +428,7 @@ Encountered errors:
 Install successfully downloaded?</source>
         <translation>
 
-Установка успешно завершена?</translation>
+Установить успешно загруженные?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="791"/>
@@ -455,7 +455,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="934"/>
         <source>screenshots</source>
-        <translation>Скриншоты</translation>
+        <translation>скриншоты</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="940"/>
@@ -678,7 +678,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="764"/>
         <source>VSync</source>
-        <translation>VSync</translation>
+        <translation>Вертикальная синхронизация</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="898"/>
@@ -708,7 +708,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="926"/>
         <source>Show Tutorial again</source>
-        <translation>Показать обучение снова</translation>
+        <translation>Показать Обучение снова</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="139"/>
@@ -768,7 +768,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="267"/>
         <source>Sound Volume</source>
-        <translation>Громкость звуков</translation>
+        <translation>Громкость звука</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1195"/>
@@ -997,7 +997,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="297"/>
         <source>Use offline installer from gog.com</source>
-        <translation>Использовать автономный установщик с gog.com</translation>
+        <translation>Использовать оффлайн установщик с gog.com</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="329"/>
@@ -1078,9 +1078,9 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation>Спасибо за установку VCMI!
+        <translation>Благодарим вас за установку VCMI!
 
-Перед началом игры необходимо выполнить несколько шагов.
+Перед началом игры необходимо выполнить ещё несколько шагов.
 
 Помните, что для использования VCMI необходимо владеть оригинальными файлами Heroes® of Might and Magic® III: Complete или The Shadow of Death.
 
@@ -1095,7 +1095,7 @@ Heroes® of Might and Magic® III HD в настоящее время не по�
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
         <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
-        <translation>Вы можете вручную скопировать каталоги Maps, Data и Mp3 из оригинального каталога игры в каталог данных VCMI, который указан вверху этой страницы</translation>
+        <translation>Вы можете вручную скопировать каталоги Maps, Data и Mp3 из каталога оригинальной игры в каталог данных VCMI, который указан вверху этой страницы</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="347"/>
@@ -1121,8 +1121,8 @@ Heroes® of Might and Magic® III HD в настоящее время не по�
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation>Если у вас есть Heroes III на gog.com, вы можете скачать автономный установочный файл с gog.com. VCMI затем импортирует данные Heroes III с помощью этого установщика.
-Автономный установщик состоит из двух файлов: &quot;.exe&quot; и &quot;.bin&quot; — необходимо скачать оба.</translation>
+        <translation>Если у вас есть Heroes III на gog.com, вы можете скачать оффлайн установочный файл с gog.com. VCMI затем импортирует данные Heroes III с помощью этого установщика.
+Оффлайн установщик состоит из двух файлов: &quot;.exe&quot; и &quot;.bin&quot; — необходимо скачать оба.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="557"/>
@@ -1153,7 +1153,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="174"/>
         <source>Heroes III installation found!</source>
-        <translation>Установка Heroes III обнаружена!</translation>
+        <translation>Установленная Heroes III обнаружена!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="174"/>
@@ -1164,13 +1164,13 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="321"/>
         <source>Select %1 file...</source>
         <comment>param is file extension</comment>
-        <translation></translation>
+        <translation>Выберите файл %1...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="322"/>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
-        <translation></translation>
+        <translation>Вы должны выбрать файл %1!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="324"/>
@@ -1200,7 +1200,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="392"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation>Вы указали установщик GOG Galaxy! Этот файл не содержит игру. Пожалуйста, скачайте автономный установочный файл игры!</translation>
+        <translation>Вы указали установщик GOG Galaxy! Этот файл не содержит игру. Пожалуйста, скачайте оффлайн установочный файл игры!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="486"/>
@@ -1277,7 +1277,7 @@ error reason: </source>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation>Это неподдерживаемый установщик Inno Setup!</translation>
+        <translation>Неподдерживаемый установщик Inno Setup!</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="58"/>
@@ -1687,7 +1687,7 @@ Bin (%1 байт):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Artifacts</source>
-        <translation>Артефакт</translation>
+        <translation>Артефакты</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
@@ -1725,17 +1725,17 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="81"/>
         <source>Rename Current Preset</source>
-        <translation>Переименовать текущий пресет</translation>
+        <translation>Переименовать текущую предустановку</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="101"/>
         <source>Current Preset</source>
-        <translation>Текущий пресет</translation>
+        <translation>Текущая предустановка</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="121"/>
         <source>Create New Preset</source>
-        <translation>Создать новый пресет</translation>
+        <translation>Создать новую предустановку</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="140"/>
@@ -1745,7 +1745,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="159"/>
         <source>Delete Current Preset</source>
-        <translation>Удалить текущий пресет</translation>
+        <translation>Удалить текущую предустановку</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="200"/>
@@ -1818,12 +1818,12 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="718"/>
         <source>Game Data Files</source>
-        <translation>Игровые файлы данных</translation>
+        <translation>Файлы игровых данных</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="736"/>
         <source>Mod Preset</source>
-        <translation>Пресет мода</translation>
+        <translation>Предустановка модов</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="781"/>
@@ -1921,7 +1921,7 @@ Reason: %2</source>
 
 - Карты Heroes III (.h3m или .vmap).
 - Кампании Heroes III (.h3c или .vcmp).
-- Heroes Chronicles с использованием автономного установщика с GOG.com (.exe).
+- Heroes Chronicles с использованием оффлайн установщика с GOG.com (.exe).
 - Моды VCMI в формате zip (.zip)
 - Конфигурационные файлы VCMI (.json)
 </translation>
@@ -1940,8 +1940,8 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.cpp" line="283"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
-WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You many want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation>В репозитории модов доступна новая версия некоторых установленных модов. Используйте эту опцию для автоматического обновления всех ваших модов до последней версии.
+WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
+        <translation>В репозитории модов доступна новая версия некоторых установленных модов. Используйте эту опцию для автоматического обновления всех ваших модов до последних версий.
 
 ВНИМАНИЕ: В некоторых случаях обновлённые версии модов могут быть несовместимы с вашими сохранениями. Возможно, стоит отложить обновление модов до завершения текущих игр.</translation>
     </message>
@@ -1949,8 +1949,8 @@ WARNING: In some cases, updated versions of mods may not be compatible with your
         <location filename="../startGame/StartGameTab.cpp" line="295"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-        <translation>Если у вас есть Heroes Chronicles на gog.com, вы можете использовать автономные установочные файлы, предоставляемые gog, для импорта данных Heroes Chronicles в VCMI в виде пользовательских кампаний.
-Чтобы импортировать Heroes Chronicles, загрузите автономный установочный файл для каждой хроники, которую хотите установить, выберите опцию &apos;Импорт файлов&apos; и укажите загруженный файл. Это создаст и установит мод для VCMI, содержащий импортированные хроники.</translation>
+        <translation>Если у вас есть Heroes Chronicles на gog.com, вы можете использовать оффлайн установщики, предоставляемые gog, для импорта данных Heroes Chronicles в VCMI в виде пользовательских кампаний.
+Чтобы импортировать Heroes Chronicles, загрузите оффлайн установщик для каждой хроники, которую хотите установить, выберите опцию &apos;Импорт файлов&apos; и укажите загруженный файл. Это создаст и установит мод для VCMI, содержащий импортированные хроники.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="308"/>
@@ -1991,12 +1991,12 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="366"/>
         <source>Enter preset name:</source>
-        <translation>Введите имя пресета:</translation>
+        <translation>Введите имя предустановки:</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="406"/>
         <source>Rename preset &apos;%1&apos; to:</source>
-        <translation>Переименовать пресет &apos;%1&apos; в:</translation>
+        <translation>Переименовать предустановку &apos;%1&apos; на:</translation>
     </message>
 </context>
 <context>
