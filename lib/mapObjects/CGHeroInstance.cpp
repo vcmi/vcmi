@@ -704,19 +704,46 @@ void CGHeroInstance::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 		setStackCount(SlotID(0), identifier.getNum());
 }
 
+std::array<int, 4> CGHeroInstance::getPrimarySkills() const
+{
+	std::array<int, 4> result;
+
+	auto allSkills = getBonusBearer()->getBonusesOfType(BonusType::PRIMARY_SKILL);
+	for (auto skill : PrimarySkill::ALL_SKILLS())
+	{
+		int ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(skill)));
+		int minSkillValue = VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, skill.getNum());
+		result[skill] = std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect
+	}
+
+	return result;
+}
+
 double CGHeroInstance::getFightingStrength() const
 {
-	return sqrt((1.0 + 0.05*getPrimSkillLevel(PrimarySkill::ATTACK)) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::DEFENSE)));
+	const auto & primarySkills = getPrimarySkills();
+	return getFightingStrengthImpl(primarySkills);
+}
+
+double CGHeroInstance::getFightingStrengthImpl(const std::array<int, 4> & primarySkills) const
+{
+	return sqrt((1.0 + 0.05*primarySkills[PrimarySkill::ATTACK]) * (1.0 + 0.05*primarySkills[PrimarySkill::DEFENSE]));
 }
 
 double CGHeroInstance::getMagicStrength() const
+{
+	const auto & primarySkills = getPrimarySkills();
+	return getMagicStrengthImpl(primarySkills);
+}
+
+double CGHeroInstance::getMagicStrengthImpl(const std::array<int, 4> & primarySkills) const
 {
 	if (!hasSpellbook())
 		return 1;
 	bool atLeastOneCombatSpell = false;
 	for (auto spell : spells)
 	{
-		if (spellbookContainsSpell(spell) && spell.toSpell()->isCombat())
+		if (spell.toSpell()->isCombat())
 		{
 			atLeastOneCombatSpell = true;
 			break;
@@ -724,22 +751,40 @@ double CGHeroInstance::getMagicStrength() const
 	}
 	if (!atLeastOneCombatSpell)
 		return 1;
-	return sqrt((1.0 + 0.05*getPrimSkillLevel(PrimarySkill::KNOWLEDGE) * mana / manaLimit()) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::SPELL_POWER) * mana / manaLimit()));
-}
-
-double CGHeroInstance::getMagicStrengthForCampaign() const
-{
-	return sqrt((1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::KNOWLEDGE)) * (1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::SPELL_POWER)));
+	return sqrt((1.0 + 0.05*primarySkills[PrimarySkill::KNOWLEDGE] * mana / manaLimit()) * (1.0 + 0.05*primarySkills[PrimarySkill::SPELL_POWER] * mana / manaLimit()));
 }
 
 double CGHeroInstance::getHeroStrength() const
 {
-	return sqrt(pow(getFightingStrength(), 2.0) * pow(getMagicStrength(), 2.0));
+	const auto & primarySkills = getPrimarySkills();
+	return getFightingStrengthImpl(primarySkills) * getMagicStrengthImpl(primarySkills);
 }
 
-double CGHeroInstance::getHeroStrengthForCampaign() const
+uint64_t CGHeroInstance::getValueForDiplomacy() const
 {
-	return sqrt(pow(getFightingStrength(), 2.0) * pow(getMagicStrengthForCampaign(), 2.0));
+	// H3 formula for hero strength when considering diplomacy skill
+	uint64_t armyStrength = getArmyStrength();
+	double heroStrength = sqrt(
+		(1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::ATTACK)) *
+		(1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::DEFENSE))
+		);
+
+	return heroStrength * armyStrength;
+}
+
+uint32_t CGHeroInstance::getValueForCampaign() const
+{
+	/// Determined by testing H3: hero is preferred for transfer in campaigns if total sum of his primary skills and his secondary skill levels is greatest
+	uint32_t score = 0;
+	score += getPrimSkillLevel(PrimarySkill::ATTACK);
+	score += getPrimSkillLevel(PrimarySkill::DEFENSE);
+	score += getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+	score += getPrimSkillLevel(PrimarySkill::DEFENSE);
+
+	for (const auto& secondary : secSkills)
+		score += secondary.second;
+
+	return score;
 }
 
 ui64 CGHeroInstance::getTotalStrength() const
@@ -1653,11 +1698,11 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 		{
 			auto primarySkills = handler.enterStruct("primarySkills");
 
-			for(auto i = PrimarySkill::BEGIN; i < PrimarySkill::END; ++i)
+			for(auto skill : PrimarySkill::ALL_SKILLS())
 			{
-				int value = valOfBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(i)).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)));
+				int value = valOfBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(skill)).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)));
 
-				handler.serializeInt(NPrimarySkill::names[i.getNum()], value, 0);
+				handler.serializeInt(NPrimarySkill::names[skill.getNum()], value, 0);
 			}
 		}
 	}

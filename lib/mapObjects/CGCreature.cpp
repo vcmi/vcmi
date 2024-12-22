@@ -336,7 +336,7 @@ void CGCreature::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 {
 	//calculate relative strength of hero and creatures armies
-	double relStrength = static_cast<double>(h->getTotalStrength()) / getArmyStrength();
+	double relStrength = static_cast<double>(h->getValueForDiplomacy()) / getArmyStrength();
 
 	int powerFactor;
 	if(relStrength >= 7)

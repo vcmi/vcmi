@@ -230,8 +230,7 @@ public:
 	static const PrimarySkill SPELL_POWER;
 	static const PrimarySkill KNOWLEDGE;
 
-	static const PrimarySkill BEGIN;
-	static const PrimarySkill END;
+	static const std::array<PrimarySkill, 4> & ALL_SKILLS();
 
 	static const PrimarySkill EXPERIENCE;
 
