@@ -46,7 +46,7 @@ private:
 
 /// The logger is used to log messages to certain targets of a specific domain/name.
 /// It is thread-safe and can be used concurrently by several threads.
-class DLL_LINKAGE CLogger: public vstd::CLoggerBase
+class DLL_LINKAGE CLogger final: public vstd::CLoggerBase
 {
 public:
 	ELogLevel::ELogLevel getLevel() const;
@@ -70,7 +70,7 @@ public:
 
 private:
 	explicit CLogger(const CLoggerDomain & domain);
-	inline ELogLevel::ELogLevel getEffectiveLevel() const; /// Returns the log level applied on this logger whether directly or indirectly.
+	inline ELogLevel::ELogLevel getEffectiveLevel() const override; /// Returns the log level applied on this logger whether directly or indirectly.
 	inline void callTargets(const LogRecord & record) const;
 
 	CLoggerDomain domain;
