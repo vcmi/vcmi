@@ -78,6 +78,7 @@ private:
 	AIGateway * gateway;
 	bool openMap;
 	bool useObjectGraph;
+	bool pathfinderInvalidated;
 
 public:
 	static std::unique_ptr<ObjectGraph> baseGraph;
@@ -121,6 +122,7 @@ public:
 	bool isOpenMap() const { return openMap; }
 	bool isObjectGraphAllowed() const { return useObjectGraph; }
 	bool handleTrading();
+	void invalidatePathfinderData();
 
 private:
 	void resetAiState();

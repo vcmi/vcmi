@@ -37,6 +37,7 @@ Nullkiller::Nullkiller()
 	: activeHero(nullptr)
 	, scanDepth(ScanDepth::MAIN_FULL)
 	, useHeroChain(true)
+	, pathfinderInvalidated(false)
 	, memory(std::make_unique<AIMemory>())
 {
 
@@ -239,6 +240,11 @@ void Nullkiller::resetAiState()
 	}
 }
 
+void Nullkiller::invalidatePathfinderData()
+{
+	pathfinderInvalidated = true;
+}
+
 void Nullkiller::updateAiState(int pass, bool fast)
 {
 	boost::this_thread::interruption_point();
@@ -253,7 +259,10 @@ void Nullkiller::updateAiState(int pass, bool fast)
 	decomposer->reset();
 	buildAnalyzer->update();
 
-	if(!fast)
+	if (!pathfinderInvalidated)
+		logAi->trace("Skipping paths regeneration - up to date");
+
+	if(!fast && pathfinderInvalidated)
 	{
 		memory->removeInvisibleObjects(cb.get());
 
@@ -304,11 +313,13 @@ void Nullkiller::updateAiState(int pass, bool fast)
 		boost::this_thread::interruption_point();
 
 		objectClusterizer->clusterize();
+
+		pathfinderInvalidated = false;
 	}
 
 	armyManager->update();
 
-	logAi->debug("AI state updated in %ld", timeElapsed(start));
+	logAi->debug("AI state updated in %ld ms", timeElapsed(start));
 }
 
 bool Nullkiller::isHeroLocked(const CGHeroInstance * hero) const
@@ -379,7 +390,7 @@ void Nullkiller::makeTurn()
 
 		Goals::TTask bestTask = taskptr(Goals::Invalid());
 
-		while(true)
+		for(int j = 1; j <= settings->getMaxPriorityPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; j++)
 		{
 			bestTasks.clear();
 
