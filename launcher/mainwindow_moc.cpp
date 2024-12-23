@@ -18,6 +18,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/texts/Languages.h"
+#include "../lib/ExceptionsCommon.h"
 
 #include "updatedialog_moc.h"
 #include "main.h"
@@ -35,8 +36,15 @@ void MainWindow::load()
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console);
 	logConfig.configureDefault();
 
-	CResourceHandler::initialize();
-	CResourceHandler::load("config/filesystem.json");
+	try
+	{
+		CResourceHandler::initialize();
+		CResourceHandler::load("config/filesystem.json");
+	}
+	catch (const DataLoadingException & e)
+	{
+		QMessageBox::critical(this, tr("Error starting executable"), QString::fromStdString(e.what()));
+	}
 
 	Helper::loadSettings();
 }

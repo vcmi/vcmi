@@ -175,6 +175,8 @@ ModsPresetState::ModsPresetState()
 	auto allPresets = getAllPresets();
 	if (!vstd::contains(allPresets, modConfig["activePreset"].String()))
 		modConfig["activePreset"] = JsonNode(allPresets.front());
+
+	logGlobal->debug("Loading following mod settings: %s", modConfig.toCompactString());
 }
 
 void ModsPresetState::createInitialPreset()
@@ -454,7 +456,14 @@ ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode 
 
 const ModDescription & ModsStorage::getMod(const TModID & fullID) const
 {
-	return mods.at(fullID);
+	try {
+		return mods.at(fullID);
+	}
+	catch (const std::out_of_range & )
+	{
+		// rethrow with better error message
+		throw std::out_of_range("Failed to find mod " + fullID);
+	}
 }
 
 TModList ModsStorage::getAllMods() const
@@ -651,7 +660,7 @@ void ModManager::tryEnableMods(const TModList & modList)
 
 	for (const auto & modName : modList)
 		if (!vstd::contains(testResolver.getActiveMods(), modName))
-			throw std::runtime_error("Failed to enable mod! Mod " + modName + " remains disabled!");
+			logGlobal->error("Failed to enable mod '%s'! This may be caused by a recursive dependency!", modName);
 
 	updatePreset(testResolver);
 }

@@ -65,7 +65,7 @@ bool ModStateModel::isModExists(QString modName) const
 
 bool ModStateModel::isModInstalled(QString modName) const
 {
-	return getMod(modName).isInstalled();
+	return isModExists(modName) && getMod(modName).isInstalled();
 }
 
 bool ModStateModel::isModSettingEnabled(QString rootModName, QString modSettingName) const
