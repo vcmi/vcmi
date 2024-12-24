@@ -19,6 +19,7 @@
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/VCMIDirs.h"
+#include "../../vcmiqt/MessageBox.h"
 
 void StartGameTab::changeEvent(QEvent *event)
 {
@@ -258,7 +259,7 @@ void StartGameTab::on_buttonImportFiles_clicked()
 
 	// iOS can't display modal dialogs when called directly on button press
 	// https://bugreports.qt.io/browse/QTBUG-98651
-	QTimer::singleShot(0, this, importFunctor);
+	MessageBoxCustom::showDialog(this, importFunctor);
 }
 
 void StartGameTab::on_buttonInstallTranslation_clicked()
@@ -300,7 +301,7 @@ void StartGameTab::on_buttonHelpImportFiles_clicked()
 		" - VCMI configuration files (.json)\n"
 	);
 
-	QMessageBox::information(this, ui->buttonImportFiles->text(), message);
+	MessageBoxCustom::information(this, ui->buttonImportFiles->text(), message);
 }
 
 void StartGameTab::on_buttonInstallTranslationHelp_clicked()
@@ -310,7 +311,7 @@ void StartGameTab::on_buttonInstallTranslationHelp_clicked()
 		"VCMI provides translations of the game into various languages that you can use. "
 		"Use this option to automatically install such translation to your language."
 	);
-	QMessageBox::information(this, ui->buttonInstallTranslation->text(), message);
+	MessageBoxCustom::information(this, ui->buttonInstallTranslation->text(), message);
 }
 
 void StartGameTab::on_buttonActivateTranslationHelp_clicked()
@@ -320,7 +321,7 @@ void StartGameTab::on_buttonActivateTranslationHelp_clicked()
 		"Use this option to enable it."
 	);
 
-	QMessageBox::information(this, ui->buttonActivateTranslation->text(), message);
+	MessageBoxCustom::information(this, ui->buttonActivateTranslation->text(), message);
 }
 
 void StartGameTab::on_buttonUpdateModsHelp_clicked()
@@ -332,7 +333,7 @@ void StartGameTab::on_buttonUpdateModsHelp_clicked()
 		"You many want to postpone mod update until you finish any of your ongoing games."
 		);
 
-	QMessageBox::information(this, ui->buttonUpdateMods->text(), message);
+	MessageBoxCustom::information(this, ui->buttonUpdateMods->text(), message);
 }
 
 void StartGameTab::on_buttonChroniclesHelp_clicked()
@@ -345,7 +346,7 @@ void StartGameTab::on_buttonChroniclesHelp_clicked()
 		"This will generate and install mod for VCMI that contains imported chronicles"
 	);
 
-	QMessageBox::information(this, ui->labelChronicles->text(), message);
+	MessageBoxCustom::information(this, ui->labelChronicles->text(), message);
 }
 
 void StartGameTab::on_buttonMissingSoundtrackHelp_clicked()
@@ -356,7 +357,7 @@ void StartGameTab::on_buttonMissingSoundtrackHelp_clicked()
 		"To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually "
 		"or reinstall VCMI and re-import Heroes III data files"
 	);
-	QMessageBox::information(this, ui->labelMissingSoundtrack->text(), message);
+	MessageBoxCustom::information(this, ui->labelMissingSoundtrack->text(), message);
 }
 
 void StartGameTab::on_buttonMissingVideoHelp_clicked()
@@ -367,7 +368,7 @@ void StartGameTab::on_buttonMissingVideoHelp_clicked()
 		"To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually "
 		"or reinstall VCMI and re-import Heroes III data files"
 		);
-	QMessageBox::information(this, ui->labelMissingVideo->text(), message);
+	MessageBoxCustom::information(this, ui->labelMissingVideo->text(), message);
 }
 
 void StartGameTab::on_buttonMissingFilesHelp_clicked()
@@ -378,7 +379,7 @@ void StartGameTab::on_buttonMissingFilesHelp_clicked()
 		"To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. "
 		"VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com"
 	);
-	QMessageBox::information(this, ui->labelMissingFiles->text(), message);
+	MessageBoxCustom::information(this, ui->labelMissingFiles->text(), message);
 }
 
 void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
@@ -389,7 +390,7 @@ void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
 		"To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually "
 		"or reinstall VCMI and re-import Heroes III data files"
 	);
-	QMessageBox::information(this, ui->labelMissingCampaigns->text(), message);
+	MessageBoxCustom::information(this, ui->labelMissingCampaigns->text(), message);
 }
 
 void StartGameTab::on_buttonPresetExport_clicked()
@@ -414,21 +415,24 @@ void StartGameTab::on_buttonPresetImport_clicked()
 
 void StartGameTab::on_buttonPresetNew_clicked()
 {
-	bool ok;
-	QString presetName = QInputDialog::getText(
-		this,
-		ui->buttonPresetNew->text(),
-		tr("Enter preset name:"),
-		QLineEdit::Normal,
-		QString(),
-		&ok);
+	const auto & functor = [this](){
+		bool ok;
+		QString presetName = QInputDialog::getText(
+			this,
+			ui->buttonPresetNew->text(),
+			tr("Enter preset name:"),
+			QLineEdit::Normal,
+			QString(),
+			&ok);
 
-	if (ok && !presetName.isEmpty())
-	{
-		getMainWindow()->getModView()->createNewPreset(presetName);
-		getMainWindow()->getModView()->activatePreset(presetName);
-		refreshPresets();
-	}
+		if (ok && !presetName.isEmpty())
+		{
+			getMainWindow()->getModView()->createNewPreset(presetName);
+			getMainWindow()->getModView()->activatePreset(presetName);
+			refreshPresets();
+		}
+	};
+	MessageBoxCustom::showDialog(this, functor);
 }
 
 void StartGameTab::on_buttonPresetDelete_clicked()
@@ -452,21 +456,23 @@ void StartGameTab::on_comboBoxModPresets_currentTextChanged(const QString &prese
 
 void StartGameTab::on_buttonPresetRename_clicked()
 {
-	QString currentName = getMainWindow()->getModView()->getActivePreset();
+	const auto & functor = [this](){
+		QString currentName = getMainWindow()->getModView()->getActivePreset();
 
-	bool ok;
-	QString newName = QInputDialog::getText(
-		this,
-		ui->buttonPresetNew->text(),
-		tr("Rename preset '%1' to:").arg(currentName),
-		QLineEdit::Normal,
-		currentName,
-		&ok);
+		bool ok;
+		QString newName = QInputDialog::getText(
+			this,
+			ui->buttonPresetNew->text(),
+			tr("Rename preset '%1' to:").arg(currentName),
+			QLineEdit::Normal,
+			currentName,
+			&ok);
 
-	if (ok && !newName.isEmpty())
-	{
-		getMainWindow()->getModView()->renamePreset(currentName, newName);
-		refreshPresets();
-	}
+		if (ok && !newName.isEmpty())
+		{
+			getMainWindow()->getModView()->renamePreset(currentName, newName);
+			refreshPresets();
+		}
+	};
+	MessageBoxCustom::showDialog(this, functor);
 }
-
