@@ -32,7 +32,8 @@ namespace NKAI
 		retreatThresholdRelative(0.3),
 		retreatThresholdAbsolute(10000),
 		safeAttackRatio(1.1),
-		maxpass(10),
+		maxPass(10),
+		maxPriorityPass(10),
 		pathfinderBucketsCount(1),
 		pathfinderBucketSize(32),
 		allowObjectGraph(true),
@@ -48,7 +49,8 @@ namespace NKAI
 		maxRoamingHeroes = node["maxRoamingHeroes"].Integer();
 		mainHeroTurnDistanceLimit = node["mainHeroTurnDistanceLimit"].Integer();
 		scoutHeroTurnDistanceLimit = node["scoutHeroTurnDistanceLimit"].Integer();
-		maxpass = node["maxpass"].Integer();
+		maxPass = node["maxPass"].Integer();
+		maxPriorityPass = node["maxPriorityPass"].Integer();
 		pathfinderBucketsCount = node["pathfinderBucketsCount"].Integer();
 		pathfinderBucketSize = node["pathfinderBucketSize"].Integer();
 		maxGoldPressure = node["maxGoldPressure"].Float();

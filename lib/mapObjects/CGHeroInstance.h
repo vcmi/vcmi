@@ -62,6 +62,9 @@ private:
 	mutable int lowestCreatureSpeed;
 	ui32 movement; //remaining movement points
 
+	double getFightingStrengthImpl(const std::array<int, 4> & primarySkills) const;
+	double getMagicStrengthImpl(const std::array<int, 4> & primarySkills) const;
+
 public:
 
 	//////////////////////////////////////////////////////////////////////////
@@ -201,6 +204,7 @@ public:
 	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills(vstd::RNG & rand) const;
 
 	ui8 getSecSkillLevel(const SecondarySkill & skill) const; //0 - no skill
+	std::array<int, 4> getPrimarySkills() const;
 
 	/// Returns true if hero has free secondary skill slot.
 	bool canLearnSkill() const;
@@ -225,9 +229,11 @@ public:
 
 	double getFightingStrength() const; // takes attack / defense skill into account
 	double getMagicStrength() const; // takes knowledge / spell power skill but also current mana, whether the hero owns a spell-book and whether that books contains anything into account
-	double getMagicStrengthForCampaign() const; // takes knowledge / spell power skill into account
 	double getHeroStrength() const; // includes fighting and magic strength
-	double getHeroStrengthForCampaign() const; // includes fighting and the for-campaign-version of magic strength
+
+	uint32_t getValueForCampaign() const;
+	uint64_t getValueForDiplomacy() const;
+	
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
 	int getBasePrimarySkillValue(PrimarySkill which) const; //the value of a base-skill without items or temporary bonuses

@@ -214,7 +214,7 @@ bool ModStateController::doInstallMod(QString modname, QString archivePath)
 	
 	while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
 	{
-		emit extractionProgress(filesCounter, filesToExtract.size());
+		extractionProgress(filesCounter, filesToExtract.size());
 		qApp->processEvents();
 	}
 	

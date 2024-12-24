@@ -93,7 +93,7 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 	}
 
 	if (text.find("${val}") != std::string::npos)
-		boost::algorithm::replace_all(text, "${val}", std::to_string(bearer->valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
+		boost::algorithm::replace_all(text, "${val}", std::to_string(bearer->valOfBonuses(bonus->type, bonus->subtype)));
 
 	if (text.find("${subtype.creature}") != std::string::npos && bonus->subtype.as<CreatureID>().hasValue())
 		boost::algorithm::replace_all(text, "${subtype.creature}", bonus->subtype.as<CreatureID>().toCreature()->getNamePluralTranslated());

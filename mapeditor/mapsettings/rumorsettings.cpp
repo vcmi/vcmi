@@ -60,7 +60,7 @@ void RumorSettings::on_add_clicked()
 	item->setData(Qt::UserRole, QVariant(""));
 	item->setFlags(item->flags() | Qt::ItemIsEditable);
 	ui->rumors->addItem(item);
-	emit ui->rumors->itemActivated(item);
+	ui->rumors->itemActivated(item);
 }
 
 void RumorSettings::on_remove_clicked()

@@ -97,6 +97,8 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	if(!hero)
 		validateObject(details.id); //enemy hero may have left visible area
 
+	nullkiller->invalidatePathfinderData();
+
 	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));
 	const int3 to   = hero ? hero->convertToVisitablePos(details.end)   : (details.end   - int3(0,1,0));
 
@@ -358,6 +360,7 @@ void AIGateway::newObject(const CGObjectInstance * obj)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+	nullkiller->invalidatePathfinderData();
 	if(obj->isVisitable())
 		addVisitableObj(obj);
 }
@@ -582,6 +585,7 @@ void AIGateway::yourTurn(QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
+	nullkiller->invalidatePathfinderData();
 	status.addQuery(queryID, "YourTurn");
 	requestActionASAP([=](){ answerQuery(queryID, 0); });
 	status.startedTurn();

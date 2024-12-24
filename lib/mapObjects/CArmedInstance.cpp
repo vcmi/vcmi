@@ -38,9 +38,6 @@ void CArmedInstance::randomizeArmy(FactionID type)
 	}
 }
 
-// Take Angelic Alliance troop-mixing freedom of non-evil units into account.
-CSelector CArmedInstance::nonEvilAlignmentMixSelector = Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX);
-
 CArmedInstance::CArmedInstance(IGameCallback *cb)
 	:CArmedInstance(cb, false)
 {
@@ -49,7 +46,7 @@ CArmedInstance::CArmedInstance(IGameCallback *cb)
 CArmedInstance::CArmedInstance(IGameCallback *cb, bool isHypothetic):
 	CGObjectInstance(cb),
 	CBonusSystemNode(isHypothetic),
-	nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector),
+	nonEvilAlignmentMix(this, BonusType::NONEVIL_ALIGNMENT_MIX), // Take Angelic Alliance troop-mixing freedom of non-evil units into account.
 	battle(nullptr)
 {
 }
