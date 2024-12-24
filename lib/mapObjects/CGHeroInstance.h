@@ -14,6 +14,7 @@
 #include "CArmedInstance.h"
 #include "IOwnableObject.h"
 
+#include "../bonuses/BonusCache.h"
 #include "../entities/hero/EHeroGender.h"
 #include "../CArtHandler.h" // For CArtifactSet
 
@@ -58,12 +59,11 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 	friend class CMapFormatJson;
 
 private:
+	PrimarySkillsCache primarySkills;
+
 	std::set<SpellID> spells; //known spells (spell IDs)
 	mutable int lowestCreatureSpeed;
 	ui32 movement; //remaining movement points
-
-	double getFightingStrengthImpl(const std::array<int, 4> & primarySkills) const;
-	double getMagicStrengthImpl(const std::array<int, 4> & primarySkills) const;
 
 public:
 
@@ -204,7 +204,7 @@ public:
 	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills(vstd::RNG & rand) const;
 
 	ui8 getSecSkillLevel(const SecondarySkill & skill) const; //0 - no skill
-	std::array<int, 4> getPrimarySkills() const;
+	int getPrimSkillLevel(PrimarySkill id) const;
 
 	/// Returns true if hero has free secondary skill slot.
 	bool canLearnSkill() const;

@@ -293,6 +293,7 @@ CGHeroInstance::CGHeroInstance(IGameCallback * cb)
 	level(1),
 	exp(UNINITIALIZED_EXPERIENCE),
 	gender(EHeroGender::DEFAULT),
+	primarySkills(this),
 	lowestCreatureSpeed(0)
 {
 	setNodeType(HERO);
@@ -704,40 +705,20 @@ void CGHeroInstance::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 		setStackCount(SlotID(0), identifier.getNum());
 }
 
-std::array<int, 4> CGHeroInstance::getPrimarySkills() const
+int CGHeroInstance::getPrimSkillLevel(PrimarySkill id) const
 {
-	std::array<int, 4> result;
-
-	auto allSkills = getBonusBearer()->getBonusesOfType(BonusType::PRIMARY_SKILL);
-	for (auto skill : PrimarySkill::ALL_SKILLS())
-	{
-		int ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(skill)));
-		int minSkillValue = VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, skill.getNum());
-		result[skill] = std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect
-	}
-
-	return result;
+	return primarySkills.getSkills()[id];
 }
 
 double CGHeroInstance::getFightingStrength() const
 {
-	const auto & primarySkills = getPrimarySkills();
-	return getFightingStrengthImpl(primarySkills);
-}
-
-double CGHeroInstance::getFightingStrengthImpl(const std::array<int, 4> & primarySkills) const
-{
-	return sqrt((1.0 + 0.05*primarySkills[PrimarySkill::ATTACK]) * (1.0 + 0.05*primarySkills[PrimarySkill::DEFENSE]));
+	const auto & skillValues = primarySkills.getSkills();
+	return sqrt((1.0 + 0.05*skillValues[PrimarySkill::ATTACK]) * (1.0 + 0.05*skillValues[PrimarySkill::DEFENSE]));
 }
 
 double CGHeroInstance::getMagicStrength() const
 {
-	const auto & primarySkills = getPrimarySkills();
-	return getMagicStrengthImpl(primarySkills);
-}
-
-double CGHeroInstance::getMagicStrengthImpl(const std::array<int, 4> & primarySkills) const
-{
+	const auto & skillValues = primarySkills.getSkills();
 	if (!hasSpellbook())
 		return 1;
 	bool atLeastOneCombatSpell = false;
@@ -751,13 +732,12 @@ double CGHeroInstance::getMagicStrengthImpl(const std::array<int, 4> & primarySk
 	}
 	if (!atLeastOneCombatSpell)
 		return 1;
-	return sqrt((1.0 + 0.05*primarySkills[PrimarySkill::KNOWLEDGE] * mana / manaLimit()) * (1.0 + 0.05*primarySkills[PrimarySkill::SPELL_POWER] * mana / manaLimit()));
+	return sqrt((1.0 + 0.05*skillValues[PrimarySkill::KNOWLEDGE] * mana / manaLimit()) * (1.0 + 0.05*skillValues[PrimarySkill::SPELL_POWER] * mana / manaLimit()));
 }
 
 double CGHeroInstance::getHeroStrength() const
 {
-	const auto & primarySkills = getPrimarySkills();
-	return getFightingStrengthImpl(primarySkills) * getMagicStrengthImpl(primarySkills);
+	return getFightingStrength() * getMagicStrength();
 }
 
 uint64_t CGHeroInstance::getValueForDiplomacy() const
