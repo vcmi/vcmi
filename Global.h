@@ -166,6 +166,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 
 #include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/regex.hpp> 
 #include <boost/crc.hpp>
 #include <boost/current_function.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
@@ -364,6 +365,15 @@ namespace vstd
 		if (it == m.end())
 			return defaultValue;
 		return it->second;
+	}
+
+	// given a map from keys to values, creates a new map from values to keys 
+	template<typename K, typename V>
+	static std::map<V, K> reverseMap(const std::map<K, V>& m) {
+		std::map<V, K> r;
+ 		for (const auto& kv : m)
+			r[kv.second] = kv.first;
+		return r;
 	}
 
 	//returns first key that maps to given value if present, returns success via found if provided

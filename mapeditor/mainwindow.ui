@@ -71,6 +71,7 @@
     <addaction name="actionSave_as"/>
     <addaction name="actionExport"/>
     <addaction name="actionh3m_converter"/>
+    <addaction name="actionh3c_converter"/>
    </widget>
    <widget class="QMenu" name="menuMap">
     <property name="title">
@@ -1350,6 +1351,14 @@
    </property>
    <property name="toolTip">
     <string>h3m converter</string>
+   </property>
+  </action>
+  <action name="actionh3c_converter">
+   <property name="text">
+    <string>h3c converter</string>
+   </property>
+   <property name="toolTip">
+    <string>h3c converter</string>
    </property>
   </action>
   <action name="actionLock">
