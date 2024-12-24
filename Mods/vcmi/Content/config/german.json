@@ -607,6 +607,11 @@
 	
 	"mapObject.core.hillFort.object.description" : "Aufwertungen von Kreaturen. Die Stufen 1 - 4 sind billiger als in der zugehörigen Stadt.",
 	
+	"core.spellSchools.0": "Luft",
+	"core.spellSchools.1": "Feuer",
+	"core.spellSchools.2": "Wasser",
+	"core.spellSchools.3": "Erde",
+	
 	"core.bonus.ADDITIONAL_ATTACK.name": "Doppelschlag",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Greift zweimal an",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Zusätzliche Vergeltungsmaßnahmen",
@@ -678,7 +683,7 @@
 	"core.bonus.JOUSTING.name": "Champion Charge",
 	"core.bonus.JOUSTING.description": "+${val}% Schaden pro zurückgelegtem Feld",
 	"core.bonus.KING.name": "König",
-	"core.bonus.KING.description": "Anfällig für SLAYER Level ${val} oder höher",
+	"core.bonus.KING.description": "Anfällig für Drachentöter Level ${val} oder höher",
 	"core.bonus.LEVEL_SPELL_IMMUNITY.name": "Zauberimmunität 1-${val}",
 	"core.bonus.LEVEL_SPELL_IMMUNITY.description": "Immun gegen Zaubersprüche der Stufen 1-${val}",
 	"core.bonus.LIMITED_SHOOTING_RANGE.name" : "Begrenzte Schussweite",
@@ -762,5 +767,11 @@
 	"core.bonus.MECHANICAL.name": "Mechanisch",
 	"core.bonus.MECHANICAL.description": "Immunität gegen viele Effekte, reparierbar",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "Prisma-Atem",
-	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prisma-Atem-Angriff (drei Richtungen)"
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prisma-Atem-Angriff (drei Richtungen)",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.name": "Zauber-Immunität",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description": "Immunität gegen alle Zauber-Schulen",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.name.specific": "${subtype.spellSchool}-Immunität",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.specific": "Immunität gegen Zauber der ${subtype.spellSchool}-Schule",
+	"core.bonus.OPENING_BATTLE_SPELL.name": "Startet mit Zauber",
+	"core.bonus.OPENING_BATTLE_SPELL.description": "Wirkt ${subtype.spell} beim Start des Kampfes"
 }

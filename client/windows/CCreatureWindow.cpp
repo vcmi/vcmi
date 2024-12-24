@@ -39,6 +39,7 @@
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
+#include "../../lib/bonuses/Propagators.h"
 
 class CCreatureArtifactInstance;
 class CSelectableSkill;
@@ -855,6 +856,9 @@ void CStackWindow::initBonusesList()
 		bonusInfo.description = info->stackNode->bonusToString(b, true);
 		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
 		bonusInfo.bonusSource = b->source;
+
+		if(b->sid.getNum() != info->stackNode->getId() && b->propagator && b->propagator->getPropagatorType() == CBonusSystemNode::HERO) // Shows bonus with "propagator":"HERO" only at creature with bonus
+			continue;
 
 		//if it's possible to give any description or image for this kind of bonus
 		//TODO: figure out why half of bonuses don't have proper description

@@ -607,6 +607,11 @@
 	
 	"mapObject.core.hillFort.object.description" : "Upgrades creatures. Levels 1 - 4 are less expensive than in associated town.",
 	
+	"core.spellSchools.0": "Air",
+	"core.spellSchools.1": "Fire",
+	"core.spellSchools.2": "Water",
+	"core.spellSchools.3": "Earth",
+
 	"core.bonus.ADDITIONAL_ATTACK.name": "Double Strike",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Attacks twice",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Additional retaliations",
@@ -762,5 +767,11 @@
 	"core.bonus.MECHANICAL.name": "Mechanical",
 	"core.bonus.MECHANICAL.description": "Immunity to many effects, repairable",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "Prism Breath",
-	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prism Breath Attack (three directions)"
+	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prism Breath Attack (three directions)",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.name": "Spell immunity",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description": "Immune to all spell schools",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.name.specific": "${subtype.spellSchool} immunity",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.specific": "Immune to ${subtype.spellSchool} school",
+	"core.bonus.OPENING_BATTLE_SPELL.name": "Starts with spell",
+	"core.bonus.OPENING_BATTLE_SPELL.description": "Casts ${subtype.spell} on battle start"
 }
