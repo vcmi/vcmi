@@ -26,7 +26,7 @@ namespace battle
 CAmmo::CAmmo(const battle::Unit * Owner, CSelector totalSelector):
 	used(0),
 	owner(Owner),
-	totalProxy(Owner, std::move(totalSelector))
+	totalProxy(Owner, totalSelector)
 {
 	reset();
 }
@@ -34,7 +34,6 @@ CAmmo::CAmmo(const battle::Unit * Owner, CSelector totalSelector):
 CAmmo & CAmmo::operator= (const CAmmo & other)
 {
 	used = other.used;
-	totalProxy = other.totalProxy;
 	return *this;
 }
 
@@ -60,7 +59,7 @@ void CAmmo::reset()
 
 int32_t CAmmo::total() const
 {
-	return totalProxy->totalValue();
+	return totalProxy.getValue();
 }
 
 void CAmmo::use(int32_t amount)
@@ -87,13 +86,6 @@ CShots::CShots(const battle::Unit * Owner)
 	: CAmmo(Owner, Selector::type()(BonusType::SHOTS)),
 	shooter(Owner, BonusType::SHOOTER)
 {
-}
-
-CShots & CShots::operator=(const CShots & other)
-{
-	CAmmo::operator=(other);
-	shooter = other.shooter;
-	return *this;
 }
 
 bool CShots::isLimited() const
@@ -140,7 +132,7 @@ int32_t CRetaliations::total() const
 		return 0;
 
 	//after dispel bonus should remain during current round
-	int32_t val = 1 + totalProxy->totalValue();
+	int32_t val = 1 + totalProxy.getValue();
 	vstd::amax(totalCache, val);
 	return totalCache;
 }
@@ -341,12 +333,7 @@ CUnitState::CUnitState():
 	counterAttacks(this),
 	health(this),
 	shots(this),
-	totalAttacks(this, Selector::type()(BonusType::ADDITIONAL_ATTACK), 1),
-	minDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin)), 0),
-	maxDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax)), 0),
-	attack(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)), 0),
-	defence(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE)), 0),
-	inFrenzy(this, Selector::type()(BonusType::IN_FRENZY)),
+	bonusCache(this, generateBonusSelectors()),
 	cloneLifetimeMarker(this, Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::CLONE)))), "CUnitState::cloneLifetimeMarker"),
 	cloneID(-1)
 {
@@ -374,12 +361,7 @@ CUnitState & CUnitState::operator=(const CUnitState & other)
 	counterAttacks = other.counterAttacks;
 	health = other.health;
 	shots = other.shots;
-	totalAttacks = other.totalAttacks;
-	minDamage = other.minDamage;
-	maxDamage = other.maxDamage;
-	attack = other.attack;
-	defence = other.defence;
-	inFrenzy = other.inFrenzy;
+//	bonusCache = other.bonusCache;
 	cloneLifetimeMarker = other.cloneLifetimeMarker;
 	cloneID = other.cloneID;
 	position = other.position;
@@ -695,45 +677,62 @@ BattlePhases::Type CUnitState::battleQueuePhase(int turn) const
 
 int CUnitState::getTotalAttacks(bool ranged) const
 {
-	return ranged ? totalAttacks.getRangedValue() : totalAttacks.getMeleeValue();
+	return 1 + (ranged ?
+		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::TOTAL_ATTACKS_RANGED):
+		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::TOTAL_ATTACKS_MELEE));
 }
 
 int CUnitState::getMinDamage(bool ranged) const
 {
-	return ranged ? minDamage.getRangedValue() : minDamage.getMeleeValue();
+	return ranged ?
+		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::MIN_DAMAGE_RANGED):
+		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::MIN_DAMAGE_MELEE);
+
 }
 
 int CUnitState::getMaxDamage(bool ranged) const
 {
-	return ranged ? maxDamage.getRangedValue() : maxDamage.getMeleeValue();
+	return ranged ?
+		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::MAX_DAMAGE_RANGED):
+		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::MAX_DAMAGE_MELEE);
 }
 
 int CUnitState::getAttack(bool ranged) const
 {
-	int ret = ranged ? attack.getRangedValue() : attack.getMeleeValue();
+	int attack = ranged ?
+		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::ATTACK_RANGED):
+		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::ATTACK_MELEE);
 
-	if(!inFrenzy->empty())
+	int frenzy = bonusCache.cache.getBonusValue(UnitBonusValuesProxy::IN_FRENZY);
+	if(frenzy != 0)
 	{
-		double frenzyPower = static_cast<double>(inFrenzy->totalValue()) / 100;
-		frenzyPower *= static_cast<double>(ranged ? defence.getRangedValue() : defence.getMeleeValue());
-		ret += static_cast<int>(frenzyPower);
+		int defence = ranged ?
+			bonusCache.cache.getBonusValue(UnitBonusValuesProxy::DEFENCE_RANGED):
+			bonusCache.cache.getBonusValue(UnitBonusValuesProxy::DEFENCE_MELEE);
+
+		int frenzyBonus = frenzy * defence / 100;
+		attack += frenzyBonus;
 	}
 
-	vstd::amax(ret, 0);
-	return ret;
+	vstd::amax(attack, 0);
+	return attack;
 }
 
 int CUnitState::getDefense(bool ranged) const
 {
-	if(!inFrenzy->empty())
+	int frenzy = bonusCache.cache.getBonusValue(UnitBonusValuesProxy::IN_FRENZY);
+
+	if(frenzy != 0)
 	{
 		return 0;
 	}
 	else
 	{
-		int ret = ranged ? defence.getRangedValue() : defence.getMeleeValue();
-		vstd::amax(ret, 0);
-		return ret;
+		int defence = ranged ?
+						  bonusCache.cache.getBonusValue(UnitBonusValuesProxy::DEFENCE_RANGED):
+						  bonusCache.cache.getBonusValue(UnitBonusValuesProxy::DEFENCE_MELEE);
+		vstd::amax(defence, 0);
+		return defence;
 	}
 }
 
@@ -909,6 +908,33 @@ void CUnitState::onRemoved()
 	health.reset();
 	ghostPending = false;
 	ghost = true;
+}
+
+const UnitBonusValuesProxy::SelectorsArray * CUnitState::generateBonusSelectors()
+{
+	static const CSelector additionalAttack = Selector::type()(BonusType::ADDITIONAL_ATTACK);
+	static const CSelector selectorMelee = Selector::effectRange()(BonusLimitEffect::NO_LIMIT).Or(Selector::effectRange()(BonusLimitEffect::ONLY_MELEE_FIGHT));
+	static const CSelector selectorRanged = Selector::effectRange()(BonusLimitEffect::NO_LIMIT).Or(Selector::effectRange()(BonusLimitEffect::ONLY_DISTANCE_FIGHT));
+	static const CSelector minDamage = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin));
+	static const CSelector maxDamage = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin));
+	static const CSelector attack = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
+	static const CSelector defence = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
+
+	static const UnitBonusValuesProxy::SelectorsArray selectors = {
+		additionalAttack.And(selectorMelee), //TOTAL_ATTACKS_MELEE,
+		additionalAttack.And(selectorRanged), //TOTAL_ATTACKS_RANGED,
+		minDamage.And(selectorMelee), //MIN_DAMAGE_MELEE,
+		minDamage.And(selectorRanged), //MIN_DAMAGE_RANGED,
+		minDamage.And(selectorMelee), //MAX_DAMAGE_MELEE,
+		maxDamage.And(selectorRanged), //MAX_DAMAGE_RANGED,
+		attack.And(selectorRanged),//ATTACK_MELEE,
+		attack.And(selectorRanged),//ATTACK_RANGED,
+		defence.And(selectorRanged),//DEFENCE_MELEE,
+		defence.And(selectorRanged),//DEFENCE_RANGED,
+		Selector::type()(BonusType::IN_FRENZY),//IN_FRENZY,
+	};
+
+	return &selectors;
 }
 
 CUnitStateDetached::CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_):

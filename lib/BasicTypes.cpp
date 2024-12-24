@@ -69,14 +69,6 @@ int AFactionMember::getMaxDamage(bool ranged) const
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
 
-int AFactionMember::getPrimSkillLevel(PrimarySkill id) const
-{
-	auto allSkills = getBonusBearer()->getBonusesOfType(BonusType::PRIMARY_SKILL);
-	int ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(id)));
-	int minSkillValue = VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, id.getNum());
-	return std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect, sp=0 works in old saves
-}
-
 int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 {
 	int32_t maxGoodMorale = VLC->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE).size();

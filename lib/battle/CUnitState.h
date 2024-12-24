@@ -12,6 +12,7 @@
 
 #include "Unit.h"
 #include "../bonuses/CBonusProxy.h"
+#include "../bonuses/BonusCache.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -32,10 +33,6 @@ class DLL_LINKAGE CAmmo
 public:
 	explicit CAmmo(const battle::Unit * Owner, CSelector totalSelector);
 
-	//only copy construction is allowed for acquire(), serializeJson should be used for any other "assignment"
-	CAmmo(const CAmmo & other) = default;
-	CAmmo(CAmmo && other) = delete;
-
 	CAmmo & operator=(const CAmmo & other);
 	CAmmo & operator=(CAmmo && other) = delete;
 
@@ -50,15 +47,14 @@ public:
 protected:
 	int32_t used;
 	const battle::Unit * owner;
-	CBonusProxy totalProxy;
+	BonusValueCache totalProxy;
 };
 
 class DLL_LINKAGE CShots : public CAmmo
 {
 public:
 	explicit CShots(const battle::Unit * Owner);
-	CShots(const CShots & other) = default;
-	CShots & operator=(const CShots & other);
+
 	bool isLimited() const override;
 	int32_t total() const override;
 
@@ -73,16 +69,13 @@ class DLL_LINKAGE CCasts : public CAmmo
 {
 public:
 	explicit CCasts(const battle::Unit * Owner);
-	CCasts(const CCasts & other) = default;
-	CCasts & operator=(const CCasts & other) = default;
 };
 
 class DLL_LINKAGE CRetaliations : public CAmmo
 {
 public:
 	explicit CRetaliations(const battle::Unit * Owner);
-	CRetaliations(const CRetaliations & other) = default;
-	CRetaliations & operator=(const CRetaliations & other) = default;
+
 	bool isLimited() const override;
 	int32_t total() const override;
 	void reset() override;
@@ -132,6 +125,41 @@ private:
 	int32_t resurrected;
 };
 
+class UnitBonusValuesProxy
+{
+public:
+	enum ECacheKeys : uint8_t
+	{
+		TOTAL_ATTACKS_MELEE,
+		TOTAL_ATTACKS_RANGED,
+
+		MIN_DAMAGE_MELEE,
+		MIN_DAMAGE_RANGED,
+		MAX_DAMAGE_MELEE,
+		MAX_DAMAGE_RANGED,
+
+		ATTACK_MELEE,
+		ATTACK_RANGED,
+
+		DEFENCE_MELEE,
+		DEFENCE_RANGED,
+
+		IN_FRENZY,
+
+		TOTAL_KEYS,
+	};
+
+	static constexpr size_t KEYS_COUNT = static_cast<size_t>(ECacheKeys::TOTAL_KEYS);
+
+	BonusValuesArrayCache<ECacheKeys, KEYS_COUNT> cache;
+
+	using SelectorsArray = BonusValuesArrayCache<ECacheKeys, KEYS_COUNT>::SelectorsArray;
+
+	UnitBonusValuesProxy(const IBonusBearer * Target, const SelectorsArray * selectors):
+		cache(Target, selectors)
+	{}
+};
+
 class DLL_LINKAGE CUnitState : public Unit
 {
 public:
@@ -153,11 +181,6 @@ public:
 	CRetaliations counterAttacks;
 	CHealth health;
 	CShots shots;
-
-	CTotalsProxy totalAttacks;
-
-	CTotalsProxy minDamage;
-	CTotalsProxy maxDamage;
 
 	///id of alive clone of this stack clone if any
 	si32 cloneID;
@@ -266,12 +289,11 @@ public:
 	void onRemoved();
 
 private:
+	static const UnitBonusValuesProxy::SelectorsArray * generateBonusSelectors();
+
 	const IUnitEnvironment * env;
 
-	CTotalsProxy attack;
-	CTotalsProxy defence;
-	CBonusProxy inFrenzy;
-
+	UnitBonusValuesProxy bonusCache;
 	CCheckProxy cloneLifetimeMarker;
 
 	void reset();
@@ -282,12 +304,11 @@ class DLL_LINKAGE CUnitStateDetached : public CUnitState
 public:
 	explicit CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_);
 
-	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit,
-		const std::string & cachingStr = "") const override;
+	CUnitStateDetached & operator= (const CUnitState & other);
+
+	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit, const std::string & cachingStr = "") const override;
 
 	int64_t getTreeVersion() const override;
-
-	CUnitStateDetached & operator= (const CUnitState & other);
 
 	uint32_t unitId() const override;
 	BattleSide unitSide() const override;
@@ -296,7 +317,6 @@ public:
 	PlayerColor unitOwner() const override;
 
 	SlotID unitSlot() const override;
-
 
 	int32_t unitBaseAmount() const override;
 

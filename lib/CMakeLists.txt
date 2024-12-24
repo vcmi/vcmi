@@ -65,6 +65,7 @@ set(lib_MAIN_SRCS
 	battle/Unit.cpp
 
 	bonuses/Bonus.cpp
+	bonuses/BonusCache.cpp
 	bonuses/BonusEnum.cpp
 	bonuses/BonusList.cpp
 	bonuses/BonusParams.cpp
@@ -435,6 +436,7 @@ set(lib_MAIN_HEADERS
 	battle/Unit.h
 
 	bonuses/Bonus.h
+	bonuses/BonusCache.h
 	bonuses/BonusEnum.h
 	bonuses/BonusList.h
 	bonuses/BonusParams.h
