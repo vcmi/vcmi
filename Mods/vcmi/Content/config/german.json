@@ -607,6 +607,11 @@
 	
 	"mapObject.core.hillFort.object.description" : "Aufwertungen von Kreaturen. Die Stufen 1 - 4 sind billiger als in der zugehörigen Stadt.",
 	
+	"core.spellSchools.0": "Luft",
+	"core.spellSchools.1": "Feuer",
+	"core.spellSchools.2": "Wasser",
+	"core.spellSchools.3": "Erde",
+	
 	"core.bonus.ADDITIONAL_ATTACK.name": "Doppelschlag",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Greift zweimal an",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Zusätzliche Vergeltungsmaßnahmen",
@@ -763,8 +768,10 @@
 	"core.bonus.MECHANICAL.description": "Immunität gegen viele Effekte, reparierbar",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "Prisma-Atem",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "Prisma-Atem-Angriff (drei Richtungen)",
-	"core.bonus.SPELL_SCHOOL_IMMUNITY.name": "${subtype.spellSchool}-Immunität",
-	"core.bonus.SPELL_SCHOOL_IMMUNITY.description": "Immunität gegen ${subtype.spellSchool}",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.name": "Zauber-Immunität",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description": "Immunität gegen alle Zauber-Schulen",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.name.specific": "${subtype.spellSchool}-Immunität",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.specific": "Immunität gegen Zauber der ${subtype.spellSchool}-Schule",
 	"core.bonus.OPENING_BATTLE_SPELL.name": "Startet mit Zauber",
 	"core.bonus.OPENING_BATTLE_SPELL.description": "Wirkt ${subtype.spell} beim Start des Kampfes"
 }
