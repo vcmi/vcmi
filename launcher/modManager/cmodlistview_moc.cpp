@@ -932,7 +932,7 @@ void CModListView::on_pushButton_clicked()
 
 void CModListView::modelReset()
 {
-	selectMod(filterModel->rowCount() > 0 ? filterModel->index(0, 0) : QModelIndex());
+	ui->allModsView->setCurrentIndex(filterModel->rowCount() > 0 ? filterModel->index(0, 0) : QModelIndex());
 }
 
 void CModListView::checkManagerErrors()
