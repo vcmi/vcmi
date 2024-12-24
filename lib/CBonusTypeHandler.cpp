@@ -75,21 +75,13 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 	std::string textID = description ? bt.getDescriptionTextID() : bt.getNameTextID();
 	std::string text = VLC->generaltexth->translate(textID);
 
-	if (bonus->subtype.as<SpellSchool>().hasValue())
+	auto school = bonus->subtype.as<SpellSchool>();
+	if (school.hasValue() && school != SpellSchool::ANY)
 	{
-		auto school = bonus->subtype.as<SpellSchool>();
-		if(school != SpellSchool::ANY)
-		{
-			auto specificTextID = description ? bt.getDescriptionTextID() + ".specific" : bt.getNameTextID() + ".specific";
-			auto specificText = VLC->generaltexth->translate(specificTextID);
-
-			if(specificText.find("${subtype.spellSchool}") != std::string::npos)
-			{
-				auto schoolName = VLC->generaltexth->translate(TextIdentifier("core.spellSchools", school).get());
-				boost::algorithm::replace_all(specificText, "${subtype.spellSchool}", schoolName);
-				text = specificText;
-			}
-		}
+		std::string schoolName = school.encode(school.getNum());
+		std::string baseTextID = description ? bt.getDescriptionTextID() : bt.getNameTextID();
+		std::string fullTextID = baseTextID + '.' + schoolName;
+		text = VLC->generaltexth->translate(fullTextID);
 	}
 
 	if (text.find("${val}") != std::string::npos)
