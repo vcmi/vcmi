@@ -369,6 +369,14 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 
 	if (scaling <= 1.001f)
 		return EUpscalingFilter::NONE; // running at original resolution or even lower than that - no need for xbrz
+	else
+		return EUpscalingFilter::XBRZ_2;
+#endif
+
+#if 0
+// Old version, most optimal, but rather performance-heavy
+	if (scaling <= 1.001f)
+		return EUpscalingFilter::NONE; // running at original resolution or even lower than that - no need for xbrz
 	if (scaling <= 2.001f)
 		return EUpscalingFilter::XBRZ_2; // resolutions below 1200p (including 1080p / FullHD)
 	if (scaling <= 3.001f)
