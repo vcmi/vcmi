@@ -561,7 +561,7 @@ QStringList CModListView::getModsToInstall(QString mod)
 				potentialToInstall = modStateModel->getTopParent(potentialToInstall);
 		}
 
-		if (modStateModel->isModExists(potentialToInstall) && !modStateModel->isModInstalled(potentialToInstall))
+		if (!modStateModel->isModInstalled(potentialToInstall))
 			result.push_back(potentialToInstall);
 
 		if (modStateModel->isModExists(potentialToInstall))
@@ -818,7 +818,8 @@ void CModListView::installFiles(QStringList files)
 			ChroniclesExtractor ce(this, [&prog](float progress) { prog = progress; });
 			ce.installChronicles(exe);
 			reload();
-			enableModByName("chronicles");
+			if (modStateModel->isModExists("chronicles"))
+				enableModByName("chronicles");
 			return true;
 		});
 		

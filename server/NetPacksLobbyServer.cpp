@@ -445,7 +445,14 @@ void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 	if(pack.type == LobbyDelete::EType::SAVEGAME || pack.type == LobbyDelete::EType::RANDOMMAP)
 	{
 		auto res = ResourcePath(pack.name, pack.type == LobbyDelete::EType::SAVEGAME ? EResType::SAVEGAME : EResType::MAP);
-		auto file = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(res));
+		auto name = CResourceHandler::get()->getResourceName(res);
+		if (!name)
+		{
+			logGlobal->error("Failed to find resource with name '%s'", res.getOriginalName());
+			return;
+		}
+
+		auto file = boost::filesystem::canonical(*name);
 		boost::filesystem::remove(file);
 		if(boost::filesystem::is_empty(file.parent_path()))
 			boost::filesystem::remove(file.parent_path());
@@ -453,7 +460,13 @@ void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 	else if(pack.type == LobbyDelete::EType::SAVEGAME_FOLDER)
 	{
 		auto res = ResourcePath("Saves/" + pack.name, EResType::DIRECTORY);
-		auto folder = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(res));
+		auto name = CResourceHandler::get()->getResourceName(res);
+		if (!name)
+		{
+			logGlobal->error("Failed to find folder with name '%s'", res.getOriginalName());
+			return;
+		}
+		auto folder = boost::filesystem::canonical(*name);
 		boost::filesystem::remove_all(folder);
 	}
 
