@@ -94,7 +94,7 @@ void ChroniclesExtractor::createBaseMod() const
 		{ "modType", "Expansion" },
 		{ "name", tr("Heroes Chronicles") },
 		{ "description", tr("Heroes Chronicles") },
-		{ "author", "3DO" },
+		{ "author", "New World Computing, 3DO" },
 		{ "version", "1.0" },
 		{ "contact", "vcmi.eu" },
 		{ "heroes", QJsonArray({"config/portraitsChronicles.json"}) },
@@ -142,7 +142,7 @@ void ChroniclesExtractor::createChronicleMod(int no)
 		{ "modType", "Expansion" },
 		{ "name", QString("%1 - %2").arg(no).arg(tmpChronicles) },
 		{ "description", tr("Heroes Chronicles %1 - %2").arg(no).arg(tmpChronicles) },
-		{ "author", "3DO" },
+		{ "author", "New World Computing, 3DO" },
 		{ "version", "1.0" },
 		{ "contact", "vcmi.eu" },
 	};
