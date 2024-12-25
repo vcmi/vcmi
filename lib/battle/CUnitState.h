@@ -125,45 +125,6 @@ private:
 	int32_t resurrected;
 };
 
-class UnitBonusValuesProxy
-{
-public:
-	enum ECacheKeys : uint8_t
-	{
-		TOTAL_ATTACKS_MELEE,
-		TOTAL_ATTACKS_RANGED,
-
-		MIN_DAMAGE_MELEE,
-		MIN_DAMAGE_RANGED,
-		MAX_DAMAGE_MELEE,
-		MAX_DAMAGE_RANGED,
-
-		ATTACK_MELEE,
-		ATTACK_RANGED,
-
-		DEFENCE_MELEE,
-		DEFENCE_RANGED,
-
-		IN_FRENZY,
-		HYPNOTIZED,
-		FORGETFULL,
-		HAS_FREE_SHOOTING,
-		STACK_HEALTH,
-
-		TOTAL_KEYS,
-	};
-
-	static constexpr size_t KEYS_COUNT = static_cast<size_t>(ECacheKeys::TOTAL_KEYS);
-
-	BonusValuesArrayCache<ECacheKeys, KEYS_COUNT> cache;
-
-	using SelectorsArray = BonusValuesArrayCache<ECacheKeys, KEYS_COUNT>::SelectorsArray;
-
-	UnitBonusValuesProxy(const IBonusBearer * Target, const SelectorsArray * selectors):
-		cache(Target, selectors)
-	{}
-};
-
 class DLL_LINKAGE CUnitState : public Unit
 {
 public:
@@ -248,7 +209,7 @@ public:
 	int32_t getFirstHPleft() const override;
 	int64_t getAvailableHealth() const override;
 	int64_t getTotalHealth() const override;
-	int64_t getMaxHealth() const override;
+	uint32_t getMaxHealth() const override;
 
 	BattleHex getPosition() const override;
 	void setPosition(BattleHex hex) override;
