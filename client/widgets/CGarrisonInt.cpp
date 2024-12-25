@@ -33,6 +33,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/gameState/UpgradeInfo.h"
 
 void CGarrisonSlot::setHighlight(bool on)
 {
@@ -162,10 +163,10 @@ std::function<void()> CGarrisonSlot::getDismiss() const
 /// @return Whether the view should be refreshed
 bool CGarrisonSlot::viewInfo()
 {
-	UpgradeInfo pom;
+	UpgradeInfo pom(ID.getNum());
 	LOCPLINT->cb->fillUpgradeInfo(getObj(), ID, pom);
 
-	bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.oldID != CreatureID::NONE; //upgrade is possible
+	bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.canUpgrade(); //upgrade is possible
 	std::function<void(CreatureID)> upgr = nullptr;
 	auto dism = getDismiss();
 	if(canUpgrade) upgr = [=] (CreatureID newID) { LOCPLINT->cb->upgradeCreature(getObj(), ID, newID); };

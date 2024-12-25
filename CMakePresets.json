@@ -317,7 +317,7 @@
             "description": "VCMI Android daily build",
             "inherits": "android-conan-ninja-release",
             "cacheVariables": {
-                "ANDROID_GRADLE_PROPERTIES": "applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily"
+                "ANDROID_GRADLE_PROPERTIES": "applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily;applicationVariant=daily"
             }
         }
     ],

@@ -20,7 +20,6 @@ class CMinimap;
 
 class CMinimapInstance : public CIntObject
 {
-	CMinimap * parent;
 	std::unique_ptr<Canvas> minimap;
 	int level;
 
@@ -29,7 +28,8 @@ class CMinimapInstance : public CIntObject
 
 	void redrawMinimap();
 public:
-	CMinimapInstance(CMinimap * parent, int level);
+	CMinimapInstance(const Point & position, const Point & dimensions, int level);
+	~CMinimapInstance();
 
 	void showAll(Canvas & to) override;
 	void refreshTile(const int3 & pos);

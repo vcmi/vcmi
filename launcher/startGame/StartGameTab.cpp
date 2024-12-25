@@ -44,12 +44,41 @@ StartGameTab::StartGameTab(QWidget * parent)
 	refreshState();
 
 	ui->buttonGameResume->setVisible(false); // TODO: implement
-	ui->buttonPresetExport->setVisible(false); // TODO: implement
-	ui->buttonPresetImport->setVisible(false); // TODO: implement
 
 #ifndef ENABLE_EDITOR
 	ui->buttonGameEditor->hide();
 #endif
+
+	auto clipboard = QGuiApplication::clipboard();
+
+	connect(clipboard, SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
+}
+
+void StartGameTab::clipboardDataChanged()
+{
+	ui->buttonPresetExport->setIcon(QIcon{});// reset icon, if any
+
+	auto clipboard = QGuiApplication::clipboard();
+	QString clipboardText = clipboard->text().trimmed();
+
+	if (clipboardText.isEmpty())
+	{
+		ui->buttonPresetImport->setEnabled(false);
+	}
+	else
+	{
+		// this *may* be json, try parsing it
+		if (clipboardText.startsWith('{'))
+		{
+			QByteArray presetBytes(clipboardText.toUtf8());
+			const JsonNode presetJson(reinterpret_cast<const std::byte*>(presetBytes.data()), presetBytes.size(), "preset in clipboard");
+			bool presetValid = !presetJson["name"].String().empty() && !presetJson["mods"].Vector().empty();
+
+			ui->buttonPresetImport->setEnabled(presetValid);
+		}
+		else
+			ui->buttonPresetImport->setEnabled(false);
+	}
 }
 
 StartGameTab::~StartGameTab()
@@ -72,6 +101,8 @@ void StartGameTab::refreshState()
 	refreshTranslation(getMainWindow()->getTranslationStatus());
 	refreshPresets();
 	refreshMods();
+
+	clipboardDataChanged();
 }
 
 void StartGameTab::refreshPresets()
@@ -363,12 +394,22 @@ void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
 
 void StartGameTab::on_buttonPresetExport_clicked()
 {
-	// TODO
+	JsonNode presetJson = getMainWindow()->getModView()->exportCurrentPreset();
+	QString presetString = QString::fromStdString(presetJson.toCompactString());
+	QGuiApplication::clipboard()->setText(presetString);
+
+	ui->buttonPresetExport->setIcon(QIcon{":/icons/mod-enabled.png"});
 }
 
 void StartGameTab::on_buttonPresetImport_clicked()
 {
-	// TODO
+	QString presetString = QGuiApplication::clipboard()->text();
+	QByteArray presetBytes(presetString.toUtf8());
+	JsonNode presetJson(reinterpret_cast<const std::byte*>(presetBytes.data()), presetBytes.size(), "imported preset");
+
+	getMainWindow()->getModView()->importPreset(presetJson);
+	getMainWindow()->switchToModsTab();
+	refreshPresets();
 }
 
 void StartGameTab::on_buttonPresetNew_clicked()

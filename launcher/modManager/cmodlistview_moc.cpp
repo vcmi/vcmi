@@ -561,7 +561,7 @@ QStringList CModListView::getModsToInstall(QString mod)
 				potentialToInstall = modStateModel->getTopParent(potentialToInstall);
 		}
 
-		if (modStateModel->isModExists(potentialToInstall) && !modStateModel->isModInstalled(potentialToInstall))
+		if (!modStateModel->isModInstalled(potentialToInstall))
 			result.push_back(potentialToInstall);
 
 		if (modStateModel->isModExists(potentialToInstall))
@@ -818,7 +818,8 @@ void CModListView::installFiles(QStringList files)
 			ChroniclesExtractor ce(this, [&prog](float progress) { prog = progress; });
 			ce.installChronicles(exe);
 			reload();
-			enableModByName("chronicles");
+			if (modStateModel->isModExists("chronicles"))
+				enableModByName("chronicles");
 			return true;
 		});
 		
@@ -855,6 +856,12 @@ void CModListView::installMods(QStringList archives)
 		QString modName = archive.section('/', -1, -1).section('.', 0, 0);
 
 		modNames.push_back(modName);
+	}
+
+	if (!activatingPreset.isEmpty())
+	{
+		modStateModel->activatePreset(activatingPreset);
+		activatingPreset.clear();
 	}
 
 	// uninstall old version of mod, if installed
@@ -1146,4 +1153,26 @@ QStringList CModListView::getAllPresets() const
 QString CModListView::getActivePreset() const
 {
 	return modStateModel->getActivePreset();
+}
+
+JsonNode CModListView::exportCurrentPreset() const
+{
+	return modStateModel->exportCurrentPreset();
+}
+
+void CModListView::importPreset(const JsonNode & data)
+{
+	const auto & [presetName, modList] = modStateModel->importPreset(data);
+
+	if (modList.empty())
+	{
+		modStateModel->activatePreset(presetName);
+		modStateModel->reloadLocalState();
+	}
+	else
+	{
+		activatingPreset = presetName;
+		for (const auto & modID : modList)
+			doInstallMod(modID);
+	}
 }
