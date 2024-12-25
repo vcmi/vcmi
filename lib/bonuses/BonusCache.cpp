@@ -79,3 +79,59 @@ const std::array<std::atomic<int32_t>, 4> & PrimarySkillsCache::getSkills() cons
 		update();
 	return skills;
 }
+
+int BonusCachePerTurn::getValueUncached(int turns) const
+{
+	std::lock_guard lock(bonusListMutex);
+
+	int nodeTreeVersion = target->getTreeVersion();
+
+	if (bonusListVersion != nodeTreeVersion)
+	{
+		bonusList = target->getBonuses(selector);
+		bonusListVersion = nodeTreeVersion;
+	}
+
+	if (mode == BonusCacheMode::VALUE)
+	{
+		if (turns != 0)
+			return bonusList->valOfBonuses(Selector::turns(turns));
+		else
+			return bonusList->totalValue();
+	}
+	else
+	{
+		if (turns != 0)
+			return bonusList->getFirst(Selector::turns(turns)) != nullptr;
+		else
+			return !bonusList->empty();
+	}
+}
+
+int BonusCachePerTurn::getValue(int turns) const
+{
+	int nodeTreeVersion = target->getTreeVersion();
+
+	if (turns < cachedTurns)
+	{
+		auto & entry = cache[turns];
+		if (entry.version == nodeTreeVersion)
+		{
+			// best case: value is in cache and up-to-date
+			return entry.value;
+		}
+		else
+		{
+			// else - compute value and update it in the cache
+			int newValue = getValueUncached(turns);
+			entry.value = newValue;
+			entry.version = nodeTreeVersion;
+			return newValue;
+		}
+	}
+	else
+	{
+		// non-cacheable value - compute and return (should be 0 / close to 0 calls)
+		return getValueUncached(turns);
+	}
+}

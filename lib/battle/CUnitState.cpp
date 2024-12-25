@@ -333,6 +333,8 @@ CUnitState::CUnitState():
 	counterAttacks(this),
 	health(this),
 	shots(this),
+	stackSpeedPerTurn(this, Selector::type()(BonusType::STACKS_SPEED), BonusCacheMode::VALUE),
+	immobilizedPerTurn(this, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::BIND_EFFECT)), BonusCacheMode::PRESENCE),
 	bonusCache(this, generateBonusSelectors()),
 	cloneLifetimeMarker(this, Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::CLONE)))), "CUnitState::cloneLifetimeMarker"),
 	cloneID(-1)
@@ -573,11 +575,20 @@ void CUnitState::setPosition(BattleHex hex)
 
 int32_t CUnitState::getInitiative(int turn) const
 {
-	if (turn == 0)
-		return valOfBonuses(BonusType::STACKS_SPEED);
+	return stackSpeedPerTurn.getValue(turn);
+}
 
-	std::string cachingStr = "type_STACKS_SPEED_turns_" + std::to_string(turn);
-	return valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)), cachingStr);
+ui32 CUnitState::getMovementRange(int turn) const
+{
+	if (immobilizedPerTurn.getValue(0) != 0)
+		return 0;
+
+	return stackSpeedPerTurn.getValue(0);
+}
+
+ui32 CUnitState::getMovementRange() const
+{
+	return getMovementRange(0);
 }
 
 uint8_t CUnitState::getRangedFullDamageDistance() const

@@ -248,6 +248,9 @@ public:
 	uint8_t getRangedFullDamageDistance() const;
 	uint8_t getShootingRangeDistance() const;
 
+	ui32 getMovementRange(int turn) const override;
+	ui32 getMovementRange() const override;
+
 	bool canMove(int turn = 0) const override;
 	bool defended(int turn = 0) const override;
 	bool moved(int turn = 0) const override;
@@ -293,6 +296,8 @@ private:
 
 	const IUnitEnvironment * env;
 
+	BonusCachePerTurn immobilizedPerTurn;
+	BonusCachePerTurn stackSpeedPerTurn;
 	UnitBonusValuesProxy bonusCache;
 	CCheckProxy cloneLifetimeMarker;
 

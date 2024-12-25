@@ -12,12 +12,18 @@
 
 #include "BonusSelector.h"
 
+enum class BonusCacheMode
+{
+	VALUE, // total value of bonus will be cached
+	PRESENCE, // presence of bonus will be cached
+};
+
 /// Internal base class with no own cache
 class BonusCacheBase
 {
+protected:
 	const IBonusBearer * target;
 
-protected:
 	explicit BonusCacheBase(const IBonusBearer * target):
 		target(target)
 	{}
@@ -78,4 +84,27 @@ public:
 	PrimarySkillsCache(const IBonusBearer * target);
 
 	const std::array<std::atomic<int32_t>, 4> & getSkills() const;
+};
+
+/// Cache that tracks values for different values of bonus duration
+class BonusCachePerTurn : public BonusCacheBase
+{
+	static constexpr int cachedTurns = 8;
+
+	const CSelector selector;
+	mutable TConstBonusListPtr bonusList;
+	mutable std::mutex bonusListMutex;
+	mutable std::atomic<int64_t> bonusListVersion = 0;
+	mutable std::array<BonusCacheEntry, cachedTurns> cache;
+	const BonusCacheMode mode;
+
+	int getValueUncached(int turns) const;
+public:
+	BonusCachePerTurn(const IBonusBearer * target, const CSelector & selector, BonusCacheMode mode)
+		: BonusCacheBase(target)
+		, selector(selector)
+		, mode(mode)
+	{}
+
+	int getValue(int turns) const;
 };
