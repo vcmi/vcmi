@@ -1794,7 +1794,7 @@ Powód: %2</translation>
         <location filename="../startGame/StartGameTab.cpp" line="329"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
-WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You many want to postpone mod update until you finish any of your ongoing games.</source>
+WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
         <translation>Nowa wersja niektórych modów, które masz zainstalowane, jest już dostępna w repozytorium modów. Skorzystaj z tej opcji, aby automatycznie zaktualizować wszystkie mody do najnowszej wersji.
 
 UWAGA: W niektórych przypadkach zaktualizowane wersje modów mogą być niekompatybilne z Twoimi zapisami gry. Możesz chcieć odłożyć aktualizację modów do czasu ukończenia trwających rozgrywek.</translation>

@@ -1795,7 +1795,7 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.cpp" line="329"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
-WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You many want to postpone mod update until you finish any of your ongoing games.</source>
+WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
         <translation>Нові версії деяких модифікацій, які ви встановили, тепер доступні у репозиторії модифікацій. Скористайтеся цією опцією, щоб автоматично оновити всі ваші модифікації до останньої версії.
 
 УВАГА: У деяких випадках оновлені версії модифікацій можуть бути несумісними з вашими існуючими збереженнями. Можливо, ви схочете відкласти оновлення модів, поки не завершите поточні ігри.</translation>

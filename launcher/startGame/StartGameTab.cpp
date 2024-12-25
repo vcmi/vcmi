@@ -330,7 +330,7 @@ void StartGameTab::on_buttonUpdateModsHelp_clicked()
 		"A new version of some of the mods that you have installed is now available in mod repository. "
 		"Use this option to automatically update all your mods to latest version.\n\n"
 		"WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. "
-		"You many want to postpone mod update until you finish any of your ongoing games."
+		"You may want to postpone mod update until you finish any of your ongoing games."
 		);
 
 	MessageBoxCustom::information(this, ui->buttonUpdateMods->text(), message);
