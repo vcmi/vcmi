@@ -430,9 +430,10 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 {
 	callAllInterfaces(cl, &IGameEventsReceiver::gameOver, pack.player, pack.victoryLossCheckResult);
 
+	bool localHumanWinsGame = vstd::contains(cl.playerint, pack.player) && cl.getPlayerState(pack.player)->human && pack.victoryLossCheckResult.victory();
 	bool lastHumanEndsGame = CSH->howManyPlayerInterfaces() == 1 && vstd::contains(cl.playerint, pack.player) && cl.getPlayerState(pack.player)->human && !settings["session"]["spectate"].Bool();
 
-	if(lastHumanEndsGame)
+	if(lastHumanEndsGame || localHumanWinsGame)
 	{
 		assert(adventureInt);
 		if(adventureInt)

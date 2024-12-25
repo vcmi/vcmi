@@ -64,7 +64,7 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 
 				if(reinforcement)
 				{
-					tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(5)));
+					tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(reinforcement)));
 				}
 			}
 		}

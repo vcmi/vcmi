@@ -11,7 +11,6 @@
 #include "modstatemodel.h"
 
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/json/JsonUtils.h"
 #include "../../lib/modding/ModManager.h"
 
 ModStateModel::ModStateModel()
@@ -22,10 +21,9 @@ ModStateModel::ModStateModel()
 
 ModStateModel::~ModStateModel() = default;
 
-void ModStateModel::appendRepositories(const JsonNode & repositoriesList)
+void ModStateModel::setRepositoryData(const JsonNode & repositoriesList)
 {
-	JsonUtils::mergeCopy(*repositoryData, repositoriesList);
-
+	*repositoryData = repositoriesList;
 	modManager = std::make_unique<ModManager>(*repositoryData);
 }
 
@@ -127,4 +125,35 @@ QString ModStateModel::getTopParent(QString modname) const
 		return components.front();
 	else
 		return "";
+}
+
+void ModStateModel::createNewPreset(const QString & presetName)
+{
+	modManager->createNewPreset(presetName.toStdString());
+}
+
+void ModStateModel::deletePreset(const QString & presetName)
+{
+	modManager->deletePreset(presetName.toStdString());
+}
+
+void ModStateModel::activatePreset(const QString & presetName)
+{
+	modManager->activatePreset(presetName.toStdString());
+}
+
+void ModStateModel::renamePreset(const QString & oldPresetName, const QString & newPresetName)
+{
+	modManager->renamePreset(oldPresetName.toStdString(), newPresetName.toStdString());
+}
+
+QStringList ModStateModel::getAllPresets() const
+{
+	auto result = modManager->getAllPresets();
+	return stringListStdToQt(result);
+}
+
+QString ModStateModel::getActivePreset() const
+{
+	return QString::fromStdString(modManager->getActivePreset());
 }

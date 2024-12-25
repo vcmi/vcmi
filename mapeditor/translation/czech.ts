@@ -20,6 +20,30 @@
     </message>
 </context>
 <context>
+    <name>ArtifactWidget</name>
+    <message>
+        <location filename="../inspector/artifactwidget.ui" line="29"/>
+        <location filename="../inspector/artifactwidget.ui" line="44"/>
+        <source>Artifact</source>
+        <translation>Artefakt</translation>
+    </message>
+    <message>
+        <location filename="../inspector/artifactwidget.ui" line="57"/>
+        <source>Equip where:</source>
+        <translation>Umístění:</translation>
+    </message>
+    <message>
+        <location filename="../inspector/artifactwidget.ui" line="73"/>
+        <source>Save</source>
+        <translation>Uložit</translation>
+    </message>
+    <message>
+        <location filename="../inspector/artifactwidget.ui" line="86"/>
+        <source>Cancel</source>
+        <translation>Zrušit</translation>
+    </message>
+</context>
+<context>
     <name>EventSettings</name>
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="14"/>
@@ -42,7 +66,7 @@
         <translation>Odebrat</translation>
     </message>
     <message>
-        <location filename="../mapsettings/eventsettings.cpp" line="123"/>
+        <location filename="../mapsettings/eventsettings.cpp" line="147"/>
         <source>New event</source>
         <translation>Nová událost</translation>
     </message>
@@ -101,6 +125,34 @@
         <location filename="../generatorprogress.ui" line="29"/>
         <source>Generating map</source>
         <translation>Generování mapy</translation>
+    </message>
+</context>
+<context>
+    <name>HeroArtifactsWidget</name>
+    <message>
+        <location filename="../inspector/heroartifactswidget.ui" line="29"/>
+        <source>Artifacts</source>
+        <translation>Artefakty</translation>
+    </message>
+    <message>
+        <location filename="../inspector/heroartifactswidget.ui" line="71"/>
+        <source>Add</source>
+        <translation>Přidat</translation>
+    </message>
+    <message>
+        <location filename="../inspector/heroartifactswidget.ui" line="87"/>
+        <source>Remove</source>
+        <translation>Odebrat</translation>
+    </message>
+    <message>
+        <location filename="../inspector/heroartifactswidget.ui" line="130"/>
+        <source>Slot</source>
+        <translation>Slot</translation>
+    </message>
+    <message>
+        <location filename="../inspector/heroartifactswidget.ui" line="135"/>
+        <source>Artifact</source>
+        <translation>Artefakt</translation>
     </message>
 </context>
 <context>
@@ -243,423 +295,519 @@
         <translation>Soubor</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="70"/>
+        <location filename="../mainwindow.ui" line="63"/>
+        <location filename="../mainwindow.ui" line="1032"/>
+        <source>Open Recent</source>
+        <translation>Otevřít poslední</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="77"/>
         <source>Map</source>
         <translation>Mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="81"/>
+        <location filename="../mainwindow.ui" line="88"/>
         <source>Edit</source>
         <translation>Upravit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="94"/>
+        <location filename="../mainwindow.ui" line="101"/>
         <source>View</source>
         <translation>Zobrazit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="106"/>
+        <location filename="../mainwindow.ui" line="113"/>
         <source>Player</source>
         <translation>Hráč</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="126"/>
+        <location filename="../mainwindow.ui" line="133"/>
         <source>Toolbar</source>
         <translation>Panel nástrojů</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="183"/>
+        <location filename="../mainwindow.ui" line="191"/>
         <source>Minimap</source>
         <translation>Minimapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="256"/>
+        <location filename="../mainwindow.ui" line="264"/>
         <source>Map Objects View</source>
         <translation>Zobrazení objektů mapy</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="300"/>
+        <location filename="../mainwindow.ui" line="308"/>
         <source>Browser</source>
         <translation>Prohlížeč</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="378"/>
+        <location filename="../mainwindow.ui" line="386"/>
         <source>Inspector</source>
         <translation>Inspektor</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="420"/>
+        <location filename="../mainwindow.ui" line="428"/>
         <source>Property</source>
         <translation>Vlastnost</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="425"/>
+        <location filename="../mainwindow.ui" line="433"/>
         <source>Value</source>
         <translation>Hodnota</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="449"/>
+        <location filename="../mainwindow.ui" line="457"/>
         <source>Tools</source>
         <translation>Nástroje</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="813"/>
+        <location filename="../mainwindow.ui" line="821"/>
         <source>Painting</source>
         <translation>Malování</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="865"/>
+        <location filename="../mainwindow.ui" line="873"/>
         <source>Terrains</source>
         <translation>Krajiny</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="908"/>
+        <location filename="../mainwindow.ui" line="916"/>
         <source>Roads</source>
         <translation>Cesty</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="948"/>
+        <location filename="../mainwindow.ui" line="956"/>
         <source>Rivers</source>
         <translation>Řeky</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="982"/>
+        <location filename="../mainwindow.ui" line="990"/>
         <source>Preview</source>
         <translation>Náhled</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1016"/>
+        <location filename="../mainwindow.ui" line="1024"/>
         <source>Open</source>
         <translation>Otevřít</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1024"/>
+        <location filename="../mainwindow.ui" line="1037"/>
+        <source>More...</source>
+        <translation>Více...</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="1045"/>
         <source>Save</source>
         <translation>Uložit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1032"/>
+        <location filename="../mainwindow.ui" line="1053"/>
         <source>New</source>
         <translation>Nový</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1040"/>
+        <location filename="../mainwindow.ui" line="1061"/>
         <source>Save as...</source>
         <translation>Uložit jako...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1043"/>
+        <location filename="../mainwindow.ui" line="1064"/>
         <source>Ctrl+Shift+S</source>
         <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1048"/>
+        <location filename="../mainwindow.ui" line="1069"/>
         <source>U/G</source>
         <translation>P/Z</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1051"/>
-        <location filename="../mainwindow.cpp" line="835"/>
+        <location filename="../mainwindow.ui" line="1072"/>
+        <location filename="../mainwindow.cpp" line="958"/>
         <source>View underground</source>
         <translation>Zobrazit podzemí</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1062"/>
+        <location filename="../mainwindow.ui" line="1083"/>
         <source>Pass</source>
         <translation>Průchodnost</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1070"/>
+        <location filename="../mainwindow.ui" line="1091"/>
         <source>Cut</source>
         <translation>Vyjmout</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1078"/>
+        <location filename="../mainwindow.ui" line="1099"/>
         <source>Copy</source>
         <translation>Kopírovat</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1086"/>
+        <location filename="../mainwindow.ui" line="1107"/>
         <source>Paste</source>
         <translation>Vložit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1094"/>
+        <location filename="../mainwindow.ui" line="1115"/>
         <source>Fill</source>
         <translation>Vyplnit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1097"/>
+        <location filename="../mainwindow.ui" line="1118"/>
         <source>Fills the selection with obstacles</source>
         <translation>Vyplní výběr překážkami</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1108"/>
+        <location filename="../mainwindow.ui" line="1129"/>
         <source>Grid</source>
         <translation>Mřížka</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1119"/>
+        <location filename="../mainwindow.ui" line="1140"/>
         <source>General</source>
         <translation>Všeobecné</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1122"/>
+        <location filename="../mainwindow.ui" line="1143"/>
         <source>Map title and description</source>
         <translation>Název a popis mapy</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1133"/>
+        <location filename="../mainwindow.ui" line="1154"/>
         <source>Players settings</source>
         <translation>Hráčské nastavení</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1144"/>
-        <location filename="../mainwindow.ui" line="1147"/>
+        <location filename="../mainwindow.ui" line="1165"/>
+        <location filename="../mainwindow.ui" line="1168"/>
         <source>Undo</source>
         <translation>Zpět</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1161"/>
+        <location filename="../mainwindow.ui" line="1182"/>
         <source>Redo</source>
         <translation>Znovu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1175"/>
+        <location filename="../mainwindow.ui" line="1196"/>
         <source>Erase</source>
         <translation>Smazat</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1186"/>
+        <location filename="../mainwindow.ui" line="1207"/>
         <source>Neutral</source>
         <translation>Neutrální</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1194"/>
+        <location filename="../mainwindow.ui" line="1215"/>
         <source>Validate</source>
-        <translation>Posoudit</translation>
+        <translation>Ověřit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1205"/>
-        <location filename="../mainwindow.cpp" line="1106"/>
-        <location filename="../mainwindow.cpp" line="1110"/>
-        <location filename="../mainwindow.cpp" line="1167"/>
+        <location filename="../mainwindow.ui" line="1226"/>
+        <location filename="../mainwindow.cpp" line="1229"/>
+        <location filename="../mainwindow.cpp" line="1233"/>
+        <location filename="../mainwindow.cpp" line="1290"/>
         <source>Update appearance</source>
         <translation>Aktualizovat vzhled</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1216"/>
+        <location filename="../mainwindow.ui" line="1237"/>
         <source>Recreate obstacles</source>
         <translation>Přetvořit překážky</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1227"/>
+        <location filename="../mainwindow.ui" line="1248"/>
         <source>Player 1</source>
         <translation>Hráč 1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1238"/>
+        <location filename="../mainwindow.ui" line="1259"/>
         <source>Player 2</source>
         <translation>Hráč 2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1249"/>
+        <location filename="../mainwindow.ui" line="1270"/>
         <source>Player 3</source>
         <translation>Hráč 3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1260"/>
+        <location filename="../mainwindow.ui" line="1281"/>
         <source>Player 4</source>
         <translation>Hráč 4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1271"/>
+        <location filename="../mainwindow.ui" line="1292"/>
         <source>Player 5</source>
         <translation>Hráč 5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1282"/>
+        <location filename="../mainwindow.ui" line="1303"/>
         <source>Player 6</source>
         <translation>Hráč 6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1293"/>
+        <location filename="../mainwindow.ui" line="1314"/>
         <source>Player 7</source>
         <translation>Hráč 7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1304"/>
+        <location filename="../mainwindow.ui" line="1325"/>
         <source>Player 8</source>
         <translation>Hráč 8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1312"/>
+        <location filename="../mainwindow.ui" line="1333"/>
         <source>Export as...</source>
         <translation>Exportovat jako...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1320"/>
+        <location filename="../mainwindow.ui" line="1341"/>
         <source>Translations</source>
         <translation>Překlady</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1323"/>
+        <location filename="../mainwindow.ui" line="1344"/>
         <source>Ctrl+T</source>
         <translation>Ctrl+T</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1328"/>
-        <location filename="../mainwindow.ui" line="1331"/>
+        <location filename="../mainwindow.ui" line="1349"/>
+        <location filename="../mainwindow.ui" line="1352"/>
         <source>h3m converter</source>
         <translation>Převodník h3m</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1336"/>
+        <location filename="../mainwindow.ui" line="1357"/>
         <source>Lock</source>
         <translation>Zamknout</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1339"/>
+        <location filename="../mainwindow.ui" line="1360"/>
         <source>Lock objects on map to avoid unnecessary changes</source>
         <translation>Zamknout objekty na mapě pro zabránění nadbytečných změn</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1342"/>
+        <location filename="../mainwindow.ui" line="1363"/>
         <source>Ctrl+L</source>
         <translation>Ctrl+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1347"/>
+        <location filename="../mainwindow.ui" line="1368"/>
         <source>Unlock</source>
         <translation>Odemknout</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1350"/>
+        <location filename="../mainwindow.ui" line="1371"/>
         <source>Unlock all objects on the map</source>
         <translation>Odemknout objekty na mapě</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1353"/>
+        <location filename="../mainwindow.ui" line="1374"/>
         <source>Ctrl+Shift+L</source>
         <translation>Ctrl+Shift+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1358"/>
+        <location filename="../mainwindow.ui" line="1379"/>
         <source>Zoom in</source>
         <translation>Přiblížit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1361"/>
+        <location filename="../mainwindow.ui" line="1382"/>
         <source>Ctrl+=</source>
         <translation>Ctrl+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1366"/>
+        <location filename="../mainwindow.ui" line="1387"/>
         <source>Zoom out</source>
         <translation>Oddálit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1369"/>
+        <location filename="../mainwindow.ui" line="1390"/>
         <source>Ctrl+-</source>
         <translation>Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1374"/>
+        <location filename="../mainwindow.ui" line="1395"/>
         <source>Zoom reset</source>
         <translation>Zrušit přiblížení</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1377"/>
+        <location filename="../mainwindow.ui" line="1398"/>
         <source>Ctrl+Shift+=</source>
         <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="297"/>
+        <location filename="../mainwindow.cpp" line="303"/>
         <source>Confirmation</source>
         <translation>Potvrzení</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="297"/>
+        <location filename="../mainwindow.cpp" line="303"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>Neuložené změny budou ztraceny, jste si jisti?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="423"/>
+        <location filename="../mainwindow.cpp" line="441"/>
         <source>Open map</source>
         <translation>Otevřít mapu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="425"/>
+        <location filename="../mainwindow.cpp" line="443"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Všechny podporované mapy (*.vmap *.h3m);; Mapy VCMI(*.vmap);;Mapy HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="488"/>
+        <location filename="../mainwindow.cpp" line="463"/>
+        <source>Recently Opened Files</source>
+        <translation>Naposledny otevřené soubory</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="591"/>
         <source>Save map</source>
         <translation>Uložit mapu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="488"/>
+        <location filename="../mainwindow.cpp" line="591"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>Mapy VCMI (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="677"/>
+        <location filename="../mainwindow.cpp" line="780"/>
         <source>Type</source>
         <translation>Druh</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="839"/>
+        <location filename="../mainwindow.cpp" line="793"/>
+        <source>Towns</source>
+        <translation>Města</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="794"/>
+        <source>Objects</source>
+        <translation>Objekty</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="795"/>
+        <source>Heroes</source>
+        <translation>Hrdinové</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="796"/>
+        <source>Artifacts</source>
+        <translation>Artefakty</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="797"/>
+        <source>Resources</source>
+        <translation>Suroviny</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="798"/>
+        <source>Banks</source>
+        <translation>Zásobárny</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="799"/>
+        <source>Dwellings</source>
+        <translation>Obydlí</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="800"/>
+        <source>Grounds</source>
+        <translation>Země</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="801"/>
+        <source>Teleports</source>
+        <translation>Teleporty</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="802"/>
+        <source>Mines</source>
+        <translation>Doly</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="803"/>
+        <source>Triggers</source>
+        <translation>Spouštěče</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="804"/>
+        <source>Monsters</source>
+        <translation>Jednotky</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="805"/>
+        <source>Quests</source>
+        <translation>Úkoly</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="806"/>
+        <source>Wog Objects</source>
+        <translation>WoG objekty</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="807"/>
+        <source>Obstacles</source>
+        <translation>Překážky</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="808"/>
+        <source>Other</source>
+        <translation>Ostatní</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="962"/>
         <source>View surface</source>
         <translation>Zobrazit povrch</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1106"/>
+        <location filename="../mainwindow.cpp" line="1229"/>
         <source>No objects selected</source>
         <translation>Nejsou vybrány žádné objekty</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1110"/>
+        <location filename="../mainwindow.cpp" line="1233"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>Tento úkon je nezvratný. Chcete pokračovat?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1167"/>
+        <location filename="../mainwindow.cpp" line="1290"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>Nastaly chyby. Nebylo aktualizováno %1 objektů</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1207"/>
+        <location filename="../mainwindow.cpp" line="1330"/>
         <source>Save to image</source>
         <translation>Uložit do obrázku</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1226"/>
+        <location filename="../mainwindow.cpp" line="1349"/>
         <source>Select maps to convert</source>
         <translation>Vyberte mapy pro převod</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1228"/>
+        <location filename="../mainwindow.cpp" line="1351"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation>Mapy HoMM3 (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1232"/>
+        <location filename="../mainwindow.cpp" line="1355"/>
         <source>Choose directory to save converted maps</source>
         <translation>Vyberte složku pro uložení převedených map</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1245"/>
+        <location filename="../mainwindow.cpp" line="1368"/>
         <source>Operation completed</source>
         <translation>Operace dokončena</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1245"/>
+        <location filename="../mainwindow.cpp" line="1368"/>
         <source>Successfully converted %1 maps</source>
         <translation>Úspěšně převedeno %1 map</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1249"/>
+        <location filename="../mainwindow.cpp" line="1372"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation>Převod map selhal. Úkon zrušen</translation>
     </message>
@@ -844,6 +992,11 @@
         <translation>(výchozí)</translation>
     </message>
     <message>
+        <location filename="../playerparams.cpp" line="27"/>
+        <source>No team</source>
+        <translation>Bez týmu</translation>
+    </message>
+    <message>
         <location filename="../playerparams.cpp" line="108"/>
         <source>Player ID: %1</source>
         <translation>ID hráče: %1</translation>
@@ -909,39 +1062,39 @@
         <translation>Expert</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="39"/>
+        <location filename="../inspector/inspector.cpp" line="40"/>
         <source>Compliant</source>
         <translation>Ochotná</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="40"/>
+        <location filename="../inspector/inspector.cpp" line="41"/>
         <source>Friendly</source>
         <translation>Přátelská</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="41"/>
+        <location filename="../inspector/inspector.cpp" line="42"/>
         <source>Aggressive</source>
         <translation>Agresivní</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="42"/>
+        <location filename="../inspector/inspector.cpp" line="43"/>
         <source>Hostile</source>
         <translation>Nepřátelská</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="43"/>
+        <location filename="../inspector/inspector.cpp" line="44"/>
         <source>Savage</source>
         <translation>Brutální</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="341"/>
-        <location filename="../inspector/inspector.cpp" line="344"/>
+        <location filename="../inspector/inspector.cpp" line="357"/>
+        <location filename="../inspector/inspector.cpp" line="360"/>
         <source>No patrol</source>
         <translation>Bez hlídky</translation>
     </message>
     <message numerus="yes">
-        <location filename="../inspector/inspector.cpp" line="343"/>
-        <location filename="../inspector/inspector.cpp" line="344"/>
+        <location filename="../inspector/inspector.cpp" line="359"/>
+        <location filename="../inspector/inspector.cpp" line="360"/>
         <source>%n tile(s)</source>
         <translation>
             <numerusform>%n pole</numerusform>
@@ -950,13 +1103,13 @@
         </translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="859"/>
-        <location filename="../inspector/inspector.cpp" line="948"/>
+        <location filename="../inspector/inspector.cpp" line="875"/>
+        <location filename="../inspector/inspector.cpp" line="964"/>
         <source>neutral</source>
         <translation>neutrální</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="857"/>
+        <location filename="../inspector/inspector.cpp" line="873"/>
         <source>UNFLAGGABLE</source>
         <translation>NEOZNAČITELNÝ</translation>
     </message>
@@ -1474,7 +1627,22 @@
         <translation>množství</translation>
     </message>
     <message>
-        <location filename="../mapsettings/timedevent.ui" line="207"/>
+        <location filename="../mapsettings/timedevent.ui" line="211"/>
+        <source>Objects to delete</source>
+        <translation>Objekty k odstranění</translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/timedevent.ui" line="218"/>
+        <source>Add</source>
+        <translation>Přidat</translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/timedevent.ui" line="225"/>
+        <source>Remove</source>
+        <translation>Odebrat</translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/timedevent.ui" line="235"/>
         <source>Ok</source>
         <translation>Dobře</translation>
     </message>
@@ -2129,27 +2297,27 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="110"/>
+        <location filename="../mainwindow.cpp" line="112"/>
         <source>Filepath of the map to open.</source>
         <translation>Cesta k souboru mapy, kterou chcete otevřít.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="113"/>
+        <location filename="../mainwindow.cpp" line="115"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translation>Rozbalit originální archivy H3 do zvláštní složky.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="114"/>
+        <location filename="../mainwindow.cpp" line="116"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translation>Z rozbaleného archivu rozdělí TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 a Un44 do jednotlivých PNG.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="115"/>
+        <location filename="../mainwindow.cpp" line="117"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translation>Z rozbaleného archivu převede jednoduché obrázky (nalezené ve složce Images) z .pcx do png.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="116"/>
+        <location filename="../mainwindow.cpp" line="118"/>
         <source>Delete original files, for the ones split / converted.</source>
         <translation>Odstranit původní soubory pro ty, které byly rozděleny nebo převedeny.</translation>
     </message>

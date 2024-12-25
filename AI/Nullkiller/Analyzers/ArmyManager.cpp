@@ -309,6 +309,8 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 		? dynamic_cast<const CGTownInstance *>(dwelling)
 		: nullptr;
 
+	std::set<SlotID> alreadyDisbanded;
+
 	for(int i = dwelling->creatures.size() - 1; i >= 0; i--)
 	{
 		auto ci = infoFromDC(dwelling->creatures[i]);
@@ -322,18 +324,71 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 
 		if(!ci.count) continue;
 
+		// Calculate the market value of the new stack
+		TResources newStackValue = ci.creID.toCreature()->getFullRecruitCost() * ci.count;
+
 		SlotID dst = hero->getSlotFor(ci.creID);
+
+		// Keep track of the least valuable slot in the hero's army
+		SlotID leastValuableSlot;
+		TResources leastValuableStackValue;
+		leastValuableStackValue[6] = std::numeric_limits<int>::max();
+		bool shouldDisband = false;
 		if(!hero->hasStackAtSlot(dst)) //need another new slot for this stack
 		{
-			if(!freeHeroSlots) //no more place for stacks
-				continue;
+			if(!freeHeroSlots) // No free slots; consider replacing
+			{
+				// Check for the least valuable existing stack
+				for (auto& slot : hero->Slots())
+				{
+					if (alreadyDisbanded.find(slot.first) != alreadyDisbanded.end())
+						continue;
+
+					if(slot.second->getCreatureID() != CreatureID::NONE)
+					{
+						TResources currentStackValue = slot.second->getCreatureID().toCreature()->getFullRecruitCost() * slot.second->getCount();
+
+						if (town && slot.second->getCreatureID().toCreature()->getFactionID() == town->getFactionID())
+							continue;
+
+						if(currentStackValue.marketValue() < leastValuableStackValue.marketValue())
+						{
+							leastValuableStackValue = currentStackValue;
+							leastValuableSlot = slot.first;
+						}
+					}
+				}
+
+				// Decide whether to replace the least valuable stack
+				if(newStackValue.marketValue() <= leastValuableStackValue.marketValue())
+				{
+					continue; // Skip if the new stack isn't worth replacing
+				}
+				else
+				{
+					shouldDisband = true;
+				}
+			}
 			else
+			{
 				freeHeroSlots--; //new slot will be occupied
+			}
 		}
 
 		vstd::amin(ci.count, availableRes / ci.creID.toCreature()->getFullRecruitCost()); //max count we can afford
 
-		if(!ci.count) continue;
+		int disbandMalus = 0;
+		
+		if (shouldDisband)
+		{
+			disbandMalus = leastValuableStackValue / ci.creID.toCreature()->getFullRecruitCost();
+			alreadyDisbanded.insert(leastValuableSlot);
+		}
+
+		ci.count -= disbandMalus;
+
+		if(ci.count <= 0)
+			continue;
 
 		ci.level = i; //this is important for Dungeon Summoning Portal
 		creaturesInDwellings.push_back(ci);

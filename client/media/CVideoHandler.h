@@ -78,6 +78,8 @@ class CVideoInstance final : public IVideoInstance, public FFMpegStream
 	Point dimensions;
 
 	/// video playback start time point
+	bool startTimeInitialized;
+	bool deactivationStartTimeHandling;
 	std::chrono::steady_clock::time_point startTime;
 	std::chrono::steady_clock::time_point deactivationStartTime;
 
@@ -86,6 +88,7 @@ class CVideoInstance final : public IVideoInstance, public FFMpegStream
 	const int MAX_FRAMESKIP = 5;
 
 public:
+	CVideoInstance();
 	~CVideoInstance();
 
 	void openVideo();

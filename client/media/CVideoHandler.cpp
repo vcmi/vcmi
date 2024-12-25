@@ -327,6 +327,11 @@ bool CVideoInstance::videoEnded()
 	return getCurrentFrame() == nullptr;
 }
 
+CVideoInstance::CVideoInstance()
+	: startTimeInitialized(false), deactivationStartTimeHandling(false)
+{
+}
+
 CVideoInstance::~CVideoInstance()
 {
 	sws_freeContext(sws);
@@ -391,8 +396,11 @@ void CVideoInstance::tick(uint32_t msPassed)
 	if(videoEnded())
 		throw std::runtime_error("Video already ended!");
 
-	if(startTime == std::chrono::steady_clock::time_point())
+	if(!startTimeInitialized)
+	{
 		startTime = std::chrono::steady_clock::now();
+		startTimeInitialized = true;
+	}
 
 	auto nowTime = std::chrono::steady_clock::now();
 	double difference = std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - startTime).count() / 1000.0;
@@ -410,17 +418,18 @@ void CVideoInstance::tick(uint32_t msPassed)
 
 void CVideoInstance::activate()
 {
-	if(deactivationStartTime != std::chrono::steady_clock::time_point())
+	if(deactivationStartTimeHandling)
 	{
 		auto pauseDuration = std::chrono::steady_clock::now() - deactivationStartTime;
 		startTime += pauseDuration;
-		deactivationStartTime = std::chrono::steady_clock::time_point();
+		deactivationStartTimeHandling = false;
 	}
 }
 
 void CVideoInstance::deactivate()
 {
 	deactivationStartTime = std::chrono::steady_clock::now();
+	deactivationStartTimeHandling = true;
 }
 
 struct FFMpegFormatDescription

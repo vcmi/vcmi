@@ -43,6 +43,9 @@ void ImageScaled::scaleInteger(int factor)
 
 void ImageScaled::scaleTo(const Point & size)
 {
+	if (source)
+		source = source->scaleTo(size, nullptr);
+
 	if (body)
 		body = body->scaleTo(size * GH.screenHandler().getScalingFactor(), nullptr);
 }
@@ -137,7 +140,6 @@ void ImageScaled::prepareImages()
 
 	switch(blitMode)
 	{
-		case EImageBlitMode::SIMPLE:
 		case EImageBlitMode::WITH_SHADOW:
 		case EImageBlitMode::ONLY_SHADOW:
 		case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:

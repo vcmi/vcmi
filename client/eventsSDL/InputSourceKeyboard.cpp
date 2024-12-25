@@ -32,15 +32,22 @@ InputSourceKeyboard::InputSourceKeyboard()
 #endif
 }
 
-std::string InputSourceKeyboard::getKeyNameWithModifiers(const std::string & keyName) const
+std::string InputSourceKeyboard::getKeyNameWithModifiers(const std::string & keyName, bool keyUp)
 {
 	std::string result;
 
-	if (isKeyboardCtrlDown())
+	if(!keyUp)
+	{
+		wasKeyboardCtrlDown = isKeyboardCtrlDown();
+		wasKeyboardAltDown = isKeyboardAltDown();
+		wasKeyboardShiftDown = isKeyboardShiftDown();
+	}
+
+	if (wasKeyboardCtrlDown)
 		result += "Ctrl+";
-	if (isKeyboardAltDown())
+	if (wasKeyboardAltDown)
 		result += "Alt+";
-	if (isKeyboardShiftDown())
+	if (wasKeyboardShiftDown)
 		result += "Shift+";
 	result += keyName;
 
@@ -49,7 +56,7 @@ std::string InputSourceKeyboard::getKeyNameWithModifiers(const std::string & key
 
 void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 {
-	std::string keyName = getKeyNameWithModifiers(SDL_GetKeyName(key.keysym.sym));
+	std::string keyName = getKeyNameWithModifiers(SDL_GetKeyName(key.keysym.sym), false);
 	logGlobal->trace("keyboard: key '%s' pressed", keyName);
 	assert(key.state == SDL_PRESSED);
 
@@ -111,7 +118,7 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 	if(key.repeat != 0)
 		return; // ignore periodic event resends
 
-	std::string keyName = getKeyNameWithModifiers(SDL_GetKeyName(key.keysym.sym));
+	std::string keyName = getKeyNameWithModifiers(SDL_GetKeyName(key.keysym.sym), true);
 	logGlobal->trace("keyboard: key '%s' released", keyName);
 
 	if (SDL_IsTextInputActive() == SDL_TRUE)
