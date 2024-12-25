@@ -458,7 +458,7 @@
        <item row="14" column="4" colspan="2">
         <widget class="QSpinBox" name="spinBoxInterfaceScaling">
          <property name="suffix">
-          <string>%</string>
+          <string notr="true">%</string>
          </property>
          <property name="minimum">
           <number>50</number>
