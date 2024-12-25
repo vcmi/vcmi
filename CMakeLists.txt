@@ -25,6 +25,13 @@ if(APPLE)
 	endif()
 endif()
 
+if(POLICY CMP0142)
+  cmake_policy(SET CMP0142 NEW)
+endif()
+if(POLICY CMP0177)
+  cmake_policy(SET CMP0177 NEW)
+endif()
+
 ############################################
 #        User-provided options             #
 ############################################
