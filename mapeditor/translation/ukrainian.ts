@@ -1116,7 +1116,7 @@
     <message>
         <location filename="../mapcontroller.cpp" line="385"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Неможливо розмістити об&apos;єкт</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="555"/>
@@ -1275,7 +1275,7 @@
         <location filename="../inspector/rewardswidget.ui" line="821"/>
         <location filename="../inspector/rewardswidget.ui" line="1410"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Додати</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="43"/>
@@ -1283,7 +1283,7 @@
         <location filename="../inspector/rewardswidget.ui" line="828"/>
         <location filename="../inspector/rewardswidget.ui" line="1417"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Видалити</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="64"/>
@@ -1443,13 +1443,13 @@
         <location filename="../inspector/rewardswidget.ui" line="617"/>
         <location filename="../inspector/rewardswidget.ui" line="1321"/>
         <source>Skills</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вміння</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="657"/>
         <location filename="../inspector/rewardswidget.ui" line="1361"/>
         <source>Creatures</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Істоти</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="750"/>
@@ -1517,7 +1517,7 @@
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1489"/>
         <source>Hero classes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Класи героїв</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1521"/>
@@ -1546,7 +1546,7 @@
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="37"/>
@@ -1556,12 +1556,12 @@
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="63"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Додати</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="82"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Видалити</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.cpp" line="59"/>
@@ -1634,12 +1634,12 @@
     <message>
         <location filename="../mapsettings/timedevent.ui" line="218"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Додати</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="225"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Видалити</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="235"/>
@@ -1750,7 +1750,7 @@
     <message>
         <location filename="../inspector/towneventdialog.ui" line="219"/>
         <source>Creatures</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Істоти</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="258"/>
@@ -1778,17 +1778,17 @@
     <message>
         <location filename="../inspector/towneventswidget.ui" line="37"/>
         <source>Timed events</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Заплановані події</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.ui" line="63"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Додати</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.ui" line="76"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Видалити</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.cpp" line="106"/>
@@ -1798,7 +1798,7 @@
     <message>
         <location filename="../inspector/towneventswidget.cpp" line="127"/>
         <source>New event</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Нова подія</translation>
     </message>
 </context>
 <context>
@@ -1811,12 +1811,12 @@
     <message>
         <location filename="../inspector/townspellswidget.ui" line="47"/>
         <source>Customize spells</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Користувацькі заклинання</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="76"/>
         <source>Level 1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">1-й рівень</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="93"/>
@@ -1839,22 +1839,22 @@
     <message>
         <location filename="../inspector/townspellswidget.ui" line="122"/>
         <source>Level 2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">2-й рівень</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="168"/>
         <source>Level 3</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">3-й рівень</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="214"/>
         <source>Level 4</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">4-й рівень</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="260"/>
         <source>Level 5</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">5-й рівень</translation>
     </message>
 </context>
 <context>
@@ -2024,7 +2024,7 @@
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="40"/>
