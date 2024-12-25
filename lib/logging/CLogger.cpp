@@ -146,13 +146,16 @@ void CLogger::log(ELogLevel::ELogLevel level, const std::string & message) const
 
 void CLogger::log(ELogLevel::ELogLevel level, const boost::format & fmt) const
 {
-	try
+	if (getEffectiveLevel() <= level)
 	{
-		log(level, fmt.str());
-	}
-	catch(...)
-	{
-		log(ELogLevel::ERROR, "Invalid log format!");
+		try
+		{
+			log(level, fmt.str());
+		}
+		catch (...)
+		{
+			log(ELogLevel::ERROR, "Invalid log format!");
+		}
 	}
 }
 
