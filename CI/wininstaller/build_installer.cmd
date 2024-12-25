@@ -4,9 +4,10 @@ setlocal enabledelayedexpansion
 cls
 
 REM Define variables dynamically relative to the normalized base directory
-set AppVersion=1.6.0
-set AppBuild=ec25eb5
-set InstallerArch=x64
+set "AppVersion=1.6.0"
+set "AppBuild=cd67ced"
+set "InstallerArch=x64"
+set "VCMIFolder=VCMI"
 
 REM Define Inno Setup version
 set InnoSetupVer=6
@@ -64,6 +65,7 @@ REM Call Inno Setup Compiler
     /DAppBuild="%AppBuild%" ^
     /DInstallerArch="%InstallerArch%" ^
     /DSourceFilesPath="%SourceFilesPath%" ^
+    /DVCMIFolder="%VCMIFolder%" ^
     /DLangPath="%LangPath%" ^
     /DLicenseFile="%LicenseFile%" ^
     /DIconFile="%IconFile%" ^

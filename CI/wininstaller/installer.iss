@@ -1,26 +1,35 @@
-; VCMI Installer Script
+; VCMI Installer Script Instructions
 
-; How to Add a New Translation to the Installer
+; Steps to Add a New Translation to the Installer:
 
-; 1. Download your language's ISL file from the Inno Setup repository: 
+; 1. Download the ISL file for your language from the Inno Setup repository:
 ;    https://github.com/jrsoftware/issrc/tree/main/Files/Languages
-; 2. Add the necessary VCMI custom messages (refer to the end of English.isl for examples).
-; 3. If the Uninstall Wizard is used, modify the ConfirmUninstall message to align with 
-;    the English version. Ensure it is updated accordingly.
-; 4. Add the corresponding entry to the [Languages] section.
- 
-; Manual preprocessor definitions are provided using ISCC.exe parameters instead.
-
-; #define AppVersion "1.6.0"
-; #define AppBuild "2272707"
-; #define InstallerArch "x64"
 ; 
-; #define SourceFilesPath "C:\_VCMI_Source_v2\_files"
-; #define LangPath "C:\_VCMI_Source_v2\CI\wininstaller\lang"
-; #define LicenseFile "C:\_VCMI_Source_v2\license.txt"
-; #define IconFile "C:\_VCMI_Source_v2\clientapp\icons\vcmi.ico"
-; #define SmallLogo "C:\_VCMI_Source_v2\CI\wininstaller\vcmismalllogo.bmp"
-; #define WizardLogo "C:\_VCMI_Source_v2\CI\wininstaller\vcmilogo.bmp"
+; 2. Add the required VCMI custom messages to the downloaded ISL file.
+;    - Refer to the English.isl file for examples of the necessary custom messages.
+;    - Ensure all custom messages, including WindowsVersionNotSupported, are properly translated and aligned with the English version.
+; 3. Update the ConfirmUninstall message:
+;    - Custom Uninstall Wizard is used, ensure the ConfirmUninstall message is consistent with the English version and accurately reflects the intended functionality.
+; 4. Update the WindowsVersionNotSupported message:
+;    - Ensure the WindowsVersionNotSupported message is consistent with the English version and accurately reflects the intended functionality.
+; 5. Add the new language entry to the [Languages] section of the script:
+;    - Use the correct syntax to include the language and its corresponding ISL file in the installer configuration.
+
+
+; Manual preprocessor definitions are provided using ISCC.exe parameters.
+
+#define AppVersion "1.6.0"
+#define AppBuild "2272707"
+#define InstallerArch "x64"
+
+#define SourceFilesPath "C:\_VCMI_Source_v2\_files"
+#define LangPath "C:\_VCMI_Source_v2\CI\wininstaller\lang"
+#define LicenseFile "C:\_VCMI_Source_v2\license.txt"
+#define IconFile "C:\_VCMI_Source_v2\clientapp\icons\vcmi.ico"
+#define SmallLogo "C:\_VCMI_Source_v2\CI\wininstaller\vcmismalllogo.bmp"
+#define WizardLogo "C:\_VCMI_Source_v2\CI\wininstaller\vcmilogo.bmp"
+
+#define VCMIFolder "VCMI"
 
 #define VCMIFilesFolder "My Games\vcmi"
 #define InstallerName "VCMI_Installer"
@@ -32,17 +41,18 @@
 #define VCMIHome "https://vcmi.eu/"
 #define VCMIContact "https://discord.gg/chBT42V"
 
+
 [Setup]
-AppId=VCMI
-AppName=VCMI
+AppId={#VCMIFolder}
+AppName={#VCMIFolder}
 AppVersion={#AppVersion}.{#AppBuild}
-AppVerName=VCMI
+AppVerName={#VCMIFolder}
 AppPublisher={#VCMITeam}
 AppPublisherURL={#VCMIHome}
 AppSupportURL={#VCMIContact}
 AppComments={#AppComment}
 DefaultDirName={code:GetDefaultDir}
-DefaultGroupName=VCMI
+DefaultGroupName={#VCMIFolder}
 UninstallDisplayIcon={app}\VCMI_launcher.exe
 OutputBaseFilename={#InstallerName}_{#InstallerArch}_{#AppVersion}.{#AppBuild}
 PrivilegesRequiredOverridesAllowed=commandline dialog
@@ -70,11 +80,12 @@ WizardImageFile={#WizardLogo}
 ; Version informations
 MinVersion=6.1sp1
 VersionInfoCompany={#VCMITeam}
-VersionInfoDescription=VCMI {#AppVersion} Setup (Build {#AppBuild})
-VersionInfoProductName=VCMI
+VersionInfoDescription={#VCMIFolder} {#AppVersion} Setup (Build {#AppBuild})
+VersionInfoProductName={#VCMIFolder}
 VersionInfoCopyright={#VCMICopyright}
 VersionInfoVersion={#AppVersion} 
 VersionInfoOriginalFileName={#InstallerName}.exe
+
 
 [Languages]
 Name: "english"; MessagesFile: "{#LangPath}\English.isl"
@@ -95,8 +106,10 @@ Name: "turkish"; MessagesFile: "{#LangPath}\Turkish.isl"
 Name: "ukrainian"; MessagesFile: "{#LangPath}\Ukrainian.isl"
 Name: "vietnamese"; MessagesFile: "{#LangPath}\Vietnamese.isl"
 
+
 [Files]
 Source: "{#SourceFilesPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; BeforeInstall: PerformHeroes3FileCopy
+
 
 [Icons]
 Name: "{group}\{cm:ShortcutLauncher}"; Filename: "{app}\VCMI_launcher.exe"; Comment: "{cm:ShortcutLauncherComment}"
@@ -106,21 +119,27 @@ Name: "{group}\{cm:ShortcutDiscord}"; Filename: "{#VCMIContact}"; Comment: "{cm:
 
 Name: "{code:GetUserDesktopFolder}\{cm:ShortcutLauncher}"; Filename: "{app}\VCMI_launcher.exe"; Tasks: desktop; Comment: "{cm:ShortcutLauncherComment}"
 
-[Tasks]
-Name: "fileassociation_h3m"; Description: "{cm:AssociateH3MFiles}"; GroupDescription: "{cm:FileAssociations}"; Flags: unchecked
-Name: "fileassociation_vmap"; Description: "{cm:AssociateVMapFiles}"; GroupDescription: "{cm:FileAssociations}"
 
-Name: "desktop"; Description: "{cm:CreateDesktopShortcuts}"; GroupDescription: "{cm:ShortcutsOptions}"
-Name: "startmenu"; Description: "{cm:CreateStartMenuShortcuts}"; GroupDescription: "{cm:ShortcutsOptions}"
-Name: "firewallrules"; Description: "{cm:AddFirewallRules}"; GroupDescription: "{cm:FirewallOptions}"; Check: IsAdminInstallMode
+[Tasks]
+Name: "desktop"; Description: "{cm:CreateDesktopShortcuts}"; GroupDescription: "{cm:SystemIntegration}"
+Name: "startmenu"; Description: "{cm:CreateStartMenuShortcuts}"; GroupDescription: "{cm:SystemIntegration}"
+Name: "fileassociation_h3m"; Description: "{cm:AssociateH3MFiles}"; GroupDescription: "{cm:SystemIntegration}"; Flags: unchecked
+Name: "fileassociation_vcmimap"; Description: "{cm:AssociateVCMIMapFiles}"; GroupDescription: "{cm:SystemIntegration}"
+
+Name: "firewallrules"; Description: "{cm:AddFirewallRules}"; GroupDescription: "{cm:VCMISettings}"; Check: IsAdminInstallMode
+Name: "h3copyfiles"; Description: "{cm:CopyH3Files}"; GroupDescription: "{cm:VCMISettings}"; Check: IsHeroes3Installed
 
 
 [Registry]
-Root: HKCU; Subkey: "Software\VCMI"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\{#VCMIFolder}"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"; Flags: uninsdeletekey
 
-Root: HKCU; Subkey: "Software\Classes\.vmap"; ValueType: string; ValueName: ""; ValueData: "VCMI.vmap"; Flags: uninsdeletevalue; Tasks: fileassociation_vmap
-Root: HKCU; Subkey: "Software\Classes\VCMI.vmap"; ValueType: string; ValueName: ""; ValueData: "{cm:VMAPDescription}"; Flags: uninsdeletekey; Tasks: fileassociation_vmap
-Root: HKCU; Subkey: "Software\Classes\VCMI.vmap\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\VCMI_mapeditor.exe"" ""%1"""; Tasks: fileassociation_vmap
+Root: HKCU; Subkey: "Software\Classes\.vmap"; ValueType: string; ValueName: ""; ValueData: "VCMI.vmap"; Flags: uninsdeletevalue; Tasks: fileassociation_vcmimap
+Root: HKCU; Subkey: "Software\Classes\VCMI.vmap"; ValueType: string; ValueName: ""; ValueData: "{cm:VMAPDescription}"; Flags: uninsdeletekey; Tasks: fileassociation_vcmimap
+Root: HKCU; Subkey: "Software\Classes\VCMI.vmap\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\VCMI_mapeditor.exe"" ""%1"""; Tasks: fileassociation_vcmimap
+
+Root: HKCU; Subkey: "Software\Classes\.vcmp"; ValueType: string; ValueName: ""; ValueData: "VCMI.vcmp"; Flags: uninsdeletevalue; Tasks: fileassociation_vcmimap
+Root: HKCU; Subkey: "Software\Classes\VCMI.vcmp"; ValueType: string; ValueName: ""; ValueData: "{cm:VCMPDescription}"; Flags: uninsdeletekey; Tasks: fileassociation_vcmimap
+Root: HKCU; Subkey: "Software\Classes\VCMI.vcmp\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\VCMI_mapeditor.exe"" ""%1"""; Tasks: fileassociation_vcmimap
 
 Root: HKCU; Subkey: "Software\Classes\.h3m"; ValueType: string; ValueName: ""; ValueData: "VCMI.h3m"; Flags: uninsdeletevalue; Tasks: fileassociation_h3m
 Root: HKCU; Subkey: "Software\Classes\VCMI.h3m"; ValueType: string; ValueName: ""; ValueData: "{cm:H3MDescription}"; Flags: uninsdeletekey; Tasks: fileassociation_h3m
@@ -132,6 +151,7 @@ Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=vcmi_serv
 Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=vcmi_client dir=in action=allow program=""{app}\vcmi_client.exe"" enable=yes profile=public,private"; Flags: runhidden; Tasks: firewallrules; Check: IsAdmin
 
 Filename: "{app}\VCMI_launcher.exe"; Description: "{cm:RunVCMILauncherAfterInstall}"; Flags: nowait postinstall skipifsilent
+
 
 [UninstallRun]
 ; Kill VCMI processes
@@ -287,7 +307,7 @@ end;
 function GetCommonProgramFilesDir: String;
 begin
   // Check if the installer is running on a 64-bit system
-  if DirExists(ExpandConstant('{win}\syswow64')) then
+  if IsWin64 then
   begin
     if ExpandConstant('{#InstallerArch}') = 'x64' then
       // For 64-bit installer, return the 64-bit Program Files directory
@@ -306,16 +326,16 @@ function GetDefaultDir(Default: String): String;
 begin
   if IsAdmin then
     // Default to Program Files for admins
-    Result := GetCommonProgramFilesDir + '\VCMI'
+    Result := GetCommonProgramFilesDir + '\{#VCMIFolder}'
   else
     // Default to User AppData for non-admin users
-    Result := GlobalUserAppdataFolder + '\VCMI';
+    Result := GlobalUserAppdataFolder + '\{#VCMIFolder}';
 end;
 
 
-function GetUserDocsFolder: String;
+function GetUserFolderPath(Constant: String): String;
 var
-  UserDocsPath: String;
+  FolderPath: String;
   OriginalUserName: String;
   CurrentSessionUserName: String;
 begin
@@ -325,65 +345,65 @@ begin
   // Retrieve the original username
   OriginalUserName := '\' + GetUserNameString + '\';
 
-  // Expand the {userdocs} constant
-  UserDocsPath := ExpandConstant('{userdocs}');
+  // Expand the specified constant
+  FolderPath := ExpandConstant(Constant);
 
-  // Replace the original username with the current session username in the user docs path
-  StringChangeEx(UserDocsPath, OriginalUserName, CurrentSessionUserName, True);
-  
-  // Return the modified user docs folder path
-  Result := UserDocsPath;
+  // Replace the original username with the current session username in the path
+  StringChangeEx(FolderPath, OriginalUserName, CurrentSessionUserName, True);
+
+  // Return the modified folder path
+  Result := FolderPath;
+end;
+
+
+procedure OnTaskCheck(Sender: TObject);
+var
+  i: Integer;
+begin
+  // Loop through all tasks in the tasks list
+  for i := 0 to WizardForm.TasksList.Items.Count - 1 do
+  begin
+    // Check if the current task is "firewallrules"
+    if WizardForm.TasksList.Items[i] = ExpandConstant('{cm:AddFirewallRules}') then
+    begin
+      // Check if the "firewallrules" task is unchecked
+      if not WizardForm.TasksList.Checked[i] then
+      begin
+        // Show a custom warning message box
+        MsgBox(ExpandConstant('{cm:Warning}') + '!' + #13#10 + #13#10 + ExpandConstant('{cm:InstallForMeOnly1}') + #13#10 + ExpandConstant('{cm:InstallForMeOnly2}'), mbError, MB_OK);
+      end;
+      Exit; // Task found, exit the loop
+    end;
+  end;
+end;
+
+
+// Specific functions for user folders
+function GetUserDocsFolder: String;
+begin
+  Result := GetUserFolderPath('{userdocs}');
 end;
 
 
 function GetUserAppdataFolder: String;
-var
-  UserAppdataPath: String;
-  OriginalUserName: String;
-  CurrentSessionUserName: String;
 begin
-  // Retrieve the current username from the session
-  CurrentSessionUserName := '\' + GlobalUserName + '\';
-
-  // Retrieve the original username
-  OriginalUserName := '\' + GetUserNameString + '\';
-
-  // Expand the {userappdata} constant
-  UserAppdataPath := ExpandConstant('{userappdata}');
-
-  // Replace the original username with the current session username in the user Appdata path
-  StringChangeEx(UserAppdataPath, OriginalUserName, CurrentSessionUserName, True);
-  
-  // Return the modified user docs folder path
-  Result := UserAppdataPath;
+  Result := GetUserFolderPath('{userappdata}');
 end;
 
 
 function GetUserDesktopFolder(Default: String): String;
-var
-  UserDesktopPath: String;
-  OriginalUserName: String;
-  CurrentSessionUserName: String;
 begin
-  // Retrieve the current username from the session
-  CurrentSessionUserName := '\' + GlobalUserName + '\';
-
-  // Retrieve the original username
-  OriginalUserName := '\' + GetUserNameString + '\';
-
-  // Expand the {userdesktop} constant
-  UserDesktopPath := ExpandConstant('{userdesktop}');
-
-  // Replace the original username with the current session username
-  StringChangeEx(UserDesktopPath, OriginalUserName, CurrentSessionUserName, True);
-
-  // Return the modified user desktop folder path
-  Result := UserDesktopPath;
+  Result := GetUserFolderPath('{userdesktop}');
 end;
 
 
 function InitializeSetup(): Boolean;
+var
+  InstallPath: String;
 begin
+  // Check if the application is already installed
+  IsUpgrade := RegQueryStringValue(HKCU, 'Software\{#VCMIFolder}', 'InstallPath', InstallPath);
+ 
   // Initialize the global variable during setup
   GlobalUserName := GetCurrentSessionUserName();
   GlobalUserDocsFolder := GetUserDocsFolder();
@@ -406,10 +426,9 @@ end;
 
 procedure InitializeWizard();
 var
-  InstallPath, VCMIFolder, MapsFolder, DataFolder, Mp3Folder: String;
+  VCMIFolder, MapsFolder, DataFolder, Mp3Folder: String;
 begin
   // Check if the application is already installed
-  IsUpgrade := RegQueryStringValue(HKCU, 'Software\VCMI', 'InstallPath', InstallPath);
   if not IsUpgrade then
   begin
     // Create the install mode selection page only if it's not an upgrade
@@ -445,7 +464,6 @@ begin
   end;
  
   // Check for Heroes 3 installation paths
-  Heroes3Path := '';
   Heroes3Path := RegistryQueryPath('SOFTWARE\GOG.com\Games\1207658787', 'path');
   if Heroes3Path = '' then
     Heroes3Path := RegistryQueryPath('SOFTWARE\WOW6432Node\GOG.com\Games\1207658787', 'path');
@@ -457,17 +475,18 @@ begin
     Heroes3Path := RegistryQueryPath('SOFTWARE\New World Computing\Heroes of Might and Magic III\1.0', 'AppPath');
   if Heroes3Path = '' then
     Heroes3Path := RegistryQueryPath('SOFTWARE\WOW6432Node\New World Computing\Heroes of Might and Magic III\1.0', 'AppPath');
-    
-  // Paths in VCMI directory
-  VCMIFolder := GlobalUserDocsFolder + '\' + '{#VCMIFilesFolder}';
-  MapsFolder := VCMIFolder + '\Maps';
-  DataFolder := VCMIFolder + '\Data';
-  Mp3Folder := VCMIFolder + '\Mp3';
+  
+    // Attach an OnClick event handler to the tasks list
+  WizardForm.TasksList.OnClickCheck := @OnTaskCheck;
+  
+    // Enable word wrap for the ReadyMemo
+  WizardForm.ReadyMemo.ScrollBars := ssNone; // No scrollbars
+  WizardForm.ReadyMemo.WordWrap := True;
 
   // Create a custom label for the footer message
   FooterLabel := TLabel.Create(WizardForm);
   FooterLabel.Parent := WizardForm;
-  FooterLabel.Caption := 'VCMI v' + '{#AppVersion}' + '.' + '{#AppBuild}';
+  FooterLabel.Caption := '{#VCMIFolder} v' + '{#AppVersion}' + '.' + '{#AppBuild}';
   // Padding from the left edge
   FooterLabel.Left := 10;
   // Adjust to leave space for multiple lines
@@ -479,10 +498,22 @@ begin
 end;
 
 
+function IsHeroes3Installed(): Boolean;
+begin
+  Result := False;
+  
+  if (Heroes3Path <> '') then
+    Result := True;
+  
+end;
+
+
 function ShouldSkipPage(PageID: Integer): Boolean;
+var
+  CustomText: String;
 begin
   Result := False; // Default is not to skip the page
-
+  
   if IsUpgrade then
   begin
     if (PageID = wpLicense) or (PageID = wpSelectTasks) or (PageID = wpReady) then
@@ -521,9 +552,9 @@ begin
     end;
 
     if InstallModePage.SelectedValueIndex = 0 then
-      WizardForm.DirEdit.Text := GetCommonProgramFilesDir + '\VCMI'
+      WizardForm.DirEdit.Text := GetCommonProgramFilesDir + '\{#VCMIFolder}'
     else
-      WizardForm.DirEdit.Text := GlobalUserAppdataFolder + '\VCMI';
+      WizardForm.DirEdit.Text := GlobalUserAppdataFolder + '\{#VCMIFolder}';
   end;
 
   Result := True;
@@ -532,14 +563,14 @@ end;
 
 procedure PerformHeroes3FileCopy();
 var
-  VCMIFolder, VCMIMapsFolder, VCMIDataFolder, VCMIMp3Folder: String;
+  VCMIFilesFolder, VCMIMapsFolder, VCMIDataFolder, VCMIMp3Folder: String;
   Heroes3MapsFolder, Heroes3DataFolder, Heroes3Mp3Folder: String;
 begin
   // Define paths for VCMI and Heroes 3 directories
-  VCMIFolder := GlobalUserDocsFolder + '\' + '{#VCMIFilesFolder}';
-  VCMIMapsFolder := VCMIFolder + '\Maps';
-  VCMIDataFolder := VCMIFolder + '\Data';
-  VCMIMp3Folder := VCMIFolder + '\Mp3';
+  VCMIFilesFolder := GlobalUserDocsFolder + '\' + '{#VCMIFilesFolder}';
+  VCMIMapsFolder := VCMIFilesFolder + '\Maps';
+  VCMIDataFolder := VCMIFilesFolder + '\Data';
+  VCMIMp3Folder := VCMIFilesFolder + '\Mp3';
 
   Heroes3MapsFolder := Heroes3Path + '\Maps';
   Heroes3DataFolder := Heroes3Path + '\Data';
