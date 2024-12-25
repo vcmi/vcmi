@@ -240,7 +240,7 @@ VCMI uses an Inno Setup installer that supports multiple languages. To add a new
    - Add an entry for your language, specifying the corresponding ISL file.
 
 Example syntax for adding a language:
-```plaintext
+```text
 [Languages]
 Name: "english"; MessagesFile: "{#LangPath}\English.isl"
 Name: "czech"; MessagesFile: "{#LangPath}\Czech.isl"
