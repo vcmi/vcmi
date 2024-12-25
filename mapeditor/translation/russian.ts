@@ -2006,7 +2006,7 @@
     <message>
         <location filename="../validator.cpp" line="185"/>
         <source>Map contains object from mod &quot;%1&quot;, but doesn&apos;t require it</source>
-        <translation>Карта содержит объект из мода "%1", но не требует его</translation>
+        <translation>Карта содержит объект из мода &quot;%1&quot;, но не требует его</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="191"/>
