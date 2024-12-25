@@ -85,6 +85,7 @@ public:
 	const Area getEntrableArea() const;
 	const Area & getBorderAbove() const;
 	
+	bool isVisitable() const;
 	const int3 & getPosition() const;
 	void setPosition(const int3 & position);
 	void setTemplate(const TerrainId & terrain, vstd::RNG &);

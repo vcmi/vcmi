@@ -587,17 +587,22 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		Zone::Lock lock(zone.areaMutex);
 
 		zone.areaPossible()->subtract(object.getArea());
-		bool keepVisitable = zone.freePaths()->contains(object.getVisitablePosition());
+		bool keepVisitable = object.isVisitable() && zone.freePaths()->contains(object.getVisitablePosition());
 		zone.freePaths()->subtract(object.getArea()); //just to avoid areas overlapping
-		if(keepVisitable)
-			zone.freePaths()->add(object.getVisitablePosition());
 		zone.areaUsed()->unite(object.getArea());
-		zone.areaUsed()->erase(object.getVisitablePosition());
+		if (keepVisitable)
+		{
+			zone.freePaths()->add(object.getVisitablePosition());
+			zone.areaUsed()->erase(object.getVisitablePosition());
+		}
 
 		if(guarded) //We assume the monster won't be guarded
 		{
 			auto guardedArea = object.instances().back()->getAccessibleArea();
-			guardedArea.add(object.instances().back()->getVisitablePosition());
+			if (object.isVisitable())
+			{
+				guardedArea.add(object.instances().back()->getVisitablePosition());
+			}
 			auto areaToBlock = object.getAccessibleArea(true);
 			areaToBlock.subtract(guardedArea);
 			zone.areaPossible()->subtract(areaToBlock);
@@ -641,7 +646,10 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 	// TODO: Add multiple tiles in one operation to avoid multiple invalidation
 	for(auto * instance : object.instances())
 	{
-		objectsVisitableArea.add(instance->getVisitablePosition());
+		if (instance->object().isVisitable())
+		{
+			objectsVisitableArea.add(instance->getVisitablePosition());
+		}
 		objects.push_back(&instance->object());
 		if(auto * rp = zone.getModificator<RoadPlacer>())
 		{
