@@ -301,7 +301,7 @@ bfs::path VCMIDirsWIN32::userDataPath() const
 	wchar_t profileDir[MAX_PATH];
 
 	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
-		return bfs::path(profileDir) / "My Games" / "vcmi";
+		return bfs::path(profileDir) / "My Games" / "Vcmi 1.6";
 
 	return ".";
 }

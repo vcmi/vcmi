@@ -149,12 +149,14 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 		if(h->hasArt(elem))
 		{
 			cb->removeArtifact(ArtifactLocation(h->id, h->getArtPos(elem, false)));
+			continue;
 		}
-		else
+
+		// perhaps artifact is part of a combined artifact?
+		const auto * assembly = h->getCombinedArtWithPart(elem);
+		if (assembly)
 		{
-			const auto * assembly = h->getCombinedArtWithPart(elem);
-			assert(assembly);
-			auto parts = assembly->getPartsInfo();
+			auto parts = assembly->getPartsInfo(); // FIXME: causes crashes on Google Play
 
 			// Remove the assembly
 			cb->removeArtifact(ArtifactLocation(h->id, h->getArtPos(assembly)));
@@ -165,7 +167,11 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 				if(ci.art->getTypeId() != elem)
 					cb->giveHeroNewArtifact(h, ci.art->getTypeId(), ArtifactPosition::BACKPACK_START);
 			}
+
+			continue;
 		}
+
+		logGlobal->error("Failed to find artifact %s in inventory of hero %s", elem.toEntity(VLC)->getJsonKey(), h->getHeroTypeID());
 	}
 
 	cb->takeCreatures(h->id, mission.creatures);

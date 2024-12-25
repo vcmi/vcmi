@@ -85,6 +85,7 @@ class CHighScoreInputScreen : public CWindowObject, public IVideoHolder
 	HighScoreCalculation calc;
 	StatisticDataSet stat;
 
+	void stopMusicAndClose();
 	void onVideoPlaybackFinished() override;
 public:
 	CHighScoreInputScreen(bool won, HighScoreCalculation calc, const StatisticDataSet & statistic);

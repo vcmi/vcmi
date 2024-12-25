@@ -24,7 +24,7 @@ class CCreature;
 struct CGPath;
 class CCreatureSet;
 class CGObjectInstance;
-struct UpgradeInfo;
+class UpgradeInfo;
 class ConditionalWait;
 struct CPathsInfo;
 

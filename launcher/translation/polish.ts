@@ -1083,7 +1083,7 @@ Pełny ekran klasyczny - gra przysłoni cały ekran uruchamiając się w wybrane
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="144"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation type="unfinished">Heroes Kroniki %1 - %2</translation>
+        <translation>Heroes Kroniki %1 - %2</translation>
     </message>
 </context>
 <context>

@@ -216,9 +216,15 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 	}
 }
 
+void CHighScoreInputScreen::stopMusicAndClose()
+{
+	CMM->playMusic();
+	close();
+}
+
 void CHighScoreInputScreen::onVideoPlaybackFinished()
 {
-	close();
+	stopMusicAndClose();
 }
 
 int CHighScoreInputScreen::addEntry(std::string text) {
@@ -275,7 +281,7 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 
 	if(!won)
 	{
-		close();
+		stopMusicAndClose();
 		return;
 	}
 
@@ -291,7 +297,7 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 				GH.windows().createAndPushWindow<CHighScoreScreen>(calc.isCampaign ? CHighScoreScreen::HighScorePage::CAMPAIGN : CHighScoreScreen::HighScorePage::SCENARIO, pos);
 			}
 			else
-				close();
+				stopMusicAndClose();
 		});
 	}
 }

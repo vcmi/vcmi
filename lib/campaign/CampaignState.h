@@ -59,6 +59,7 @@ class DLL_LINKAGE CampaignRegions
 		}
 
 		static CampaignRegions::RegionDescription fromJson(const JsonNode & node);
+		static JsonNode toJson(CampaignRegions::RegionDescription & rd);
 	};
 
 	std::vector<RegionDescription> regions;
@@ -86,6 +87,7 @@ public:
 	}
 
 	static CampaignRegions fromJson(const JsonNode & node);
+	static JsonNode toJson(CampaignRegions cr);
 	static CampaignRegions getLegacy(int campId);
 };
 

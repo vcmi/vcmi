@@ -37,6 +37,7 @@ class CModListView : public QWidget
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;
 	JsonNode accumulatedRepositoryData;
+	QString activatingPreset;
 
 	QStringList enqueuedModDownloads;
 
@@ -97,16 +98,15 @@ public:
 	QStringList getUpdateableMods();
 
 	void createNewPreset(const QString & presetName);
-
 	void deletePreset(const QString & presetName);
-
 	void activatePreset(const QString & presetName);
-
 	void renamePreset(const QString & oldPresetName, const QString & newPresetName);
 
 	QStringList getAllPresets() const;
-
 	QString getActivePreset() const;
+
+	JsonNode exportCurrentPreset() const;
+	void importPreset(const JsonNode & data);
 
 	/// returns true if mod is currently enabled
 	bool isModEnabled(const QString & modName);

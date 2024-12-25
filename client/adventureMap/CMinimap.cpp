@@ -71,15 +71,17 @@ void CMinimapInstance::redrawMinimap()
 			minimap->drawPoint(Point(x, y), getTileColor(int3(x, y, level)));
 }
 
-CMinimapInstance::CMinimapInstance(CMinimap *Parent, int Level):
-	parent(Parent),
+CMinimapInstance::CMinimapInstance(const Point & position, const Point & dimensions, int Level):
 	minimap(new Canvas(Point(LOCPLINT->cb->getMapSize().x, LOCPLINT->cb->getMapSize().y), CanvasScalingPolicy::IGNORE)),
 	level(Level)
 {
-	pos.w = parent->pos.w;
-	pos.h = parent->pos.h;
+	pos += position;
+	pos.w = dimensions.x;
+	pos.h = dimensions.y;
 	redrawMinimap();
 }
+
+CMinimapInstance::~CMinimapInstance() = default;
 
 void CMinimapInstance::showAll(Canvas & to)
 {
@@ -203,7 +205,7 @@ void CMinimap::update()
 		return;
 
 	OBJECT_CONSTRUCTION;
-	minimap = std::make_shared<CMinimapInstance>(this, level);
+	minimap = std::make_shared<CMinimapInstance>(Point(0,0), pos.dimensions(), level);
 	redraw();
 }
 

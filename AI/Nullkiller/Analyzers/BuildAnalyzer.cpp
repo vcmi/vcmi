@@ -36,7 +36,7 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 		logAi->trace("Checking dwelling level %d", level);
 		BuildingInfo nextToBuild = BuildingInfo();
 
-		for(int upgradeIndex : {1, 0})
+		for(int upgradeIndex : {2, 1, 0})
 		{
 			BuildingID building = BuildingID(BuildingID::getDwellingFromLevel(level, upgradeIndex));
 			if(!vstd::contains(buildings, building))
@@ -212,7 +212,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	int creatureLevel = -1;
 	int creatureUpgrade = 0;
 
-	if(BuildingID::DWELL_FIRST <= toBuild && toBuild <= BuildingID::DWELL_UP_LAST)
+	if(toBuild.IsDwelling())
 	{
 		creatureLevel = BuildingID::getLevelFromDwelling(toBuild);
 		creatureUpgrade = BuildingID::getUpgradedFromDwelling(toBuild);
@@ -271,7 +271,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 			auto otherDwelling = [](const BuildingID & id) -> bool
 			{
-				return BuildingID::DWELL_FIRST <= id && id <= BuildingID::DWELL_UP_LAST;
+				return id.IsDwelling();
 			};
 
 			if(vstd::contains_if(missingBuildings, otherDwelling))
@@ -420,7 +420,7 @@ BuildingInfo::BuildingInfo(
 		}
 		else
 		{
-			if(BuildingID::DWELL_FIRST <= id && id <= BuildingID::DWELL_UP_LAST)
+			if(id.IsDwelling())
 			{
 				creatureGrows = creature->getGrowth();
 

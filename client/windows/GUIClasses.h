@@ -502,7 +502,8 @@ class CThievesGuildWindow : public CStatusbarWindow
 
 	std::vector<std::shared_ptr<CPicture>> banners;
 	std::vector<std::shared_ptr<CAnimImage>> bestHeroes;
-	std::vector<std::shared_ptr<CTextBox>> primSkillHeaders;
+	std::vector<std::shared_ptr<CLabel>> primSkillHeaders;
+	std::vector<std::shared_ptr<LRClickableArea>> primSkillHeadersArea;
 	std::vector<std::shared_ptr<CLabel>> primSkillValues;
 	std::vector<std::shared_ptr<CAnimImage>> bestCreatures;
 	std::vector<std::shared_ptr<CLabel>> personalities;

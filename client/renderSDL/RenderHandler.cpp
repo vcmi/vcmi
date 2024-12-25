@@ -239,13 +239,13 @@ std::shared_ptr<const ISharedImage> RenderHandler::loadImageImpl(const ImageLoca
 
 std::shared_ptr<const ISharedImage> RenderHandler::loadImageFromFileUncached(const ImageLocator & locator)
 {
-	if (locator.image)
+	if(locator.image)
 	{
 		// TODO: create EmptySharedImage class that will be instantiated if image does not exists or fails to load
 		return std::make_shared<SDLImageShared>(*locator.image, locator.preScaledFactor);
 	}
 
-	if (locator.defFile)
+	if(locator.defFile)
 	{
 		auto defFile = getAnimationFile(*locator.defFile);
 		int preScaledFactor = locator.preScaledFactor;
@@ -258,7 +258,14 @@ std::shared_ptr<const ISharedImage> RenderHandler::loadImageFromFileUncached(con
 			preScaledFactor = 1;
 			defFile = getAnimationFile(AnimationPath::builtin(tmpPath));
 		}
-		return std::make_shared<SDLImageShared>(defFile.get(), locator.defFrame, locator.defGroup, preScaledFactor);
+		if(defFile->hasFrame(locator.defFrame, locator.defGroup))
+			return std::make_shared<SDLImageShared>(defFile.get(), locator.defFrame, locator.defGroup, preScaledFactor);
+		else
+		{
+			logGlobal->error("Frame %d in group %d not found in file: %s", 
+				locator.defFrame, locator.defGroup, locator.defFile->getName().c_str());
+			return std::make_shared<SDLImageShared>(ImagePath::builtin("DEFAULT"), locator.preScaledFactor);
+		}
 	}
 
 	throw std::runtime_error("Invalid image locator received!");

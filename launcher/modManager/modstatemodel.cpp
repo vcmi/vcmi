@@ -65,7 +65,7 @@ bool ModStateModel::isModExists(QString modName) const
 
 bool ModStateModel::isModInstalled(QString modName) const
 {
-	return getMod(modName).isInstalled();
+	return isModExists(modName) && getMod(modName).isInstalled();
 }
 
 bool ModStateModel::isModSettingEnabled(QString rootModName, QString modSettingName) const
@@ -156,4 +156,17 @@ QStringList ModStateModel::getAllPresets() const
 QString ModStateModel::getActivePreset() const
 {
 	return QString::fromStdString(modManager->getActivePreset());
+}
+
+JsonNode ModStateModel::exportCurrentPreset() const
+{
+	return modManager->exportCurrentPreset();
+}
+
+std::tuple<QString, QStringList> ModStateModel::importPreset(const JsonNode & data)
+{
+	std::tuple<QString, QStringList> result;
+	const auto & [presetName, modList] = modManager->importPreset(data);
+
+	return {QString::fromStdString(presetName), stringListStdToQt(modList)};
 }

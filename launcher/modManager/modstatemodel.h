@@ -57,4 +57,7 @@ public:
 
 	QStringList getAllPresets() const;
 	QString getActivePreset() const;
+
+	JsonNode exportCurrentPreset() const;
+	std::tuple<QString, QStringList> importPreset(const JsonNode & data);
 };

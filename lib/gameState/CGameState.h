@@ -38,16 +38,8 @@ class TavernHeroesPool;
 struct SThievesGuildInfo;
 class CRandomGenerator;
 class GameSettings;
-
-struct UpgradeInfo
-{
-	CreatureID oldID; //creature to be upgraded
-	std::vector<CreatureID> newID; //possible upgrades
-	std::vector<ResourceSet> cost; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>; cost is for single unit (not entire stack)
-	UpgradeInfo(){oldID = CreatureID::NONE;};
-};
-
 class BattleInfo;
+class UpgradeInfo;
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult);
 

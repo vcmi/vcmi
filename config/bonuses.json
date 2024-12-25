@@ -407,6 +407,14 @@
 		}
 	},
 
+	"OPENING_BATTLE_SPELL":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/E_SPDFIRE"
+		}
+	},
+
 	"RANDOM_SPELLCASTER":
 	{
 		"graphics":
@@ -530,6 +538,10 @@
 		{
 			"icon":  "zvs/Lib1.res/E_SPDFIRE"
 		}
+	},
+
+	"SPELL_SCHOOL_IMMUNITY":
+	{
 	},
 
 	"SPELL_RESISTANCE_AURA":

@@ -23,6 +23,7 @@ class CHero;
 class CGBoat;
 class CGTownInstance;
 class CMap;
+class UpgradeInfo;
 struct TerrainTile;
 struct TurnInfo;
 

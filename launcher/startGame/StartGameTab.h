@@ -65,19 +65,14 @@ private slots:
 	void on_buttonMissingVideoHelp_clicked();
 	void on_buttonMissingFilesHelp_clicked();
 	void on_buttonMissingCampaignsHelp_clicked();
-
 	void on_buttonPresetExport_clicked();
-
 	void on_buttonPresetImport_clicked();
-
 	void on_buttonPresetNew_clicked();
-
 	void on_buttonPresetDelete_clicked();
-
 	void on_comboBoxModPresets_currentTextChanged(const QString &arg1);
-
 	void on_buttonPresetRename_clicked();
 
+	void clipboardDataChanged();
 private:
 	Ui::StartGameTab * ui;
 };

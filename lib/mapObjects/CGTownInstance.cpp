@@ -20,6 +20,7 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
+#include "../gameState/UpgradeInfo.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
 #include "../StartInfo.h"
@@ -1234,8 +1235,7 @@ void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &s
 			{
 				if(vstd::contains(stack.getCreature()->upgrades, upgrID)) //possible upgrade
 				{
-					info.newID.push_back(upgrID);
-					info.cost.push_back(upgrID.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost());
+					info.addUpgrade(upgrID, stack.getType());
 				}
 			}
 		}

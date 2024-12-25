@@ -50,12 +50,14 @@ void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & inpu
 	{
 		JsonNode jsonCampaign(reinterpret_cast<const std::byte*>(input.data()), input.size(), filename);
 		readHeaderFromJson(*ret, jsonCampaign, filename, modName, encoding);
+		ret->overrideCampaign();
 
 		for(auto & scenario : jsonCampaign["scenarios"].Vector())
 		{
 			auto scenarioID = static_cast<CampaignScenarioID>(ret->scenarios.size());
 			ret->scenarios[scenarioID] = readScenarioFromJson(scenario);
 		}
+		ret->overrideCampaignScenarios();
 	}
 }
 
@@ -171,6 +173,26 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.outroVideo = VideoPath::fromJson(reader["outroVideo"]);
 }
 
+JsonNode CampaignHandler::writeHeaderToJson(CampaignHeader & header)
+{
+	JsonNode node;
+	node["version"].Integer() = static_cast<ui64>(CampaignVersion::VCMI);
+	node["regions"] = CampaignRegions::toJson(header.campaignRegions);
+	node["name"].String() = header.name.toString();
+	node["description"].String() = header.description.toString();
+	node["author"].String() = header.author.toString();
+	node["authorContact"].String() = header.authorContact.toString();
+	node["campaignVersion"].String() = header.campaignVersion.toString();
+	node["creationDateTime"].Integer() = header.creationDateTime;
+	node["allowDifficultySelection"].Bool() = header.difficultyChosenByPlayer;
+	node["music"].String() = header.music.getName();
+	node["loadingBackground"].String() = header.loadingBackground.getName();
+	node["videoRim"].String() = header.videoRim.getName();
+	node["introVideo"].String() = header.introVideo.getName();
+	node["outroVideo"].String() = header.outroVideo.getName();
+	return node;
+}
+
 CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 {
 	auto prologEpilogReader = [](JsonNode & identifier) -> CampaignScenarioPrologEpilog
@@ -203,56 +225,86 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 	return ret;
 }
 
+JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
+{
+	auto prologEpilogWriter = [](const CampaignScenarioPrologEpilog & elem) -> JsonNode
+	{
+		JsonNode node;
+		if(elem.hasPrologEpilog)
+		{
+			node["video"].String() = elem.prologVideo.getName();
+			node["music"].String() = elem.prologMusic.getName();
+			node["voice"].String() = elem.prologVoice.getName();
+			node["text"].String() = elem.prologText.toString();
+		}
+		return node;
+	};
+
+	JsonNode node;
+	node["map"].String() = scenario.mapName;
+	for(auto & g : scenario.preconditionRegions)
+		node["preconditions"].Vector().push_back(JsonNode(static_cast<ui32>(g)));
+	node["color"].Integer() = scenario.regionColor;
+	node["difficulty"].Integer() = scenario.difficulty;
+	node["regionText"].String() = scenario.regionText.toString();
+	node["prolog"] = prologEpilogWriter(scenario.prolog);
+	node["epilog"] = prologEpilogWriter(scenario.epilog);
+
+	writeScenarioTravelToJson(node, scenario.travelOptions);
+
+	return node;
+}
+
+std::map<std::string, CampaignStartOptions> startOptionsMap = {
+	{"none", CampaignStartOptions::NONE},
+	{"bonus", CampaignStartOptions::START_BONUS},
+	{"crossover", CampaignStartOptions::HERO_CROSSOVER},
+	{"hero", CampaignStartOptions::HERO_OPTIONS}
+};
+
+std::map<std::string, CampaignBonusType> bonusTypeMap = {
+	{"spell", CampaignBonusType::SPELL},
+	{"creature", CampaignBonusType::MONSTER},
+	{"building", CampaignBonusType::BUILDING},
+	{"artifact", CampaignBonusType::ARTIFACT},
+	{"scroll", CampaignBonusType::SPELL_SCROLL},
+	{"primarySkill", CampaignBonusType::PRIMARY_SKILL},
+	{"secondarySkill", CampaignBonusType::SECONDARY_SKILL},
+	{"resource", CampaignBonusType::RESOURCE},
+	//{"prevHero", CScenarioTravel::STravelBonus::EBonusType::HEROES_FROM_PREVIOUS_SCENARIO},
+	//{"hero", CScenarioTravel::STravelBonus::EBonusType::HERO},
+};
+
+std::map<std::string, ui32> primarySkillsMap = {
+	{"attack", 0},
+	{"defence", 8},
+	{"spellpower", 16},
+	{"knowledge", 24},
+};
+
+std::map<std::string, ui16> heroSpecialMap = {
+	{"strongest", 0xFFFD},
+	{"generated", 0xFFFE},
+	{"random", 0xFFFF}
+};
+
+std::map<std::string, ui8> resourceTypeMap = {
+	//FD - wood+ore
+	//FE - mercury+sulfur+crystal+gem
+	{"wood", 0},
+	{"mercury", 1},
+	{"ore", 2},
+	{"sulfur", 3},
+	{"crystal", 4},
+	{"gems", 5},
+	{"gold", 6},
+	{"common", 0xFD},
+	{"rare", 0xFE}
+};
+
 CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 {
 	CampaignTravel ret;
-
-	std::map<std::string, CampaignStartOptions> startOptionsMap = {
-		{"none", CampaignStartOptions::NONE},
-		{"bonus", CampaignStartOptions::START_BONUS},
-		{"crossover", CampaignStartOptions::HERO_CROSSOVER},
-		{"hero", CampaignStartOptions::HERO_OPTIONS}
-	};
-	
-	std::map<std::string, CampaignBonusType> bonusTypeMap = {
-		{"spell", CampaignBonusType::SPELL},
-		{"creature", CampaignBonusType::MONSTER},
-		{"building", CampaignBonusType::BUILDING},
-		{"artifact", CampaignBonusType::ARTIFACT},
-		{"scroll", CampaignBonusType::SPELL_SCROLL},
-		{"primarySkill", CampaignBonusType::PRIMARY_SKILL},
-		{"secondarySkill", CampaignBonusType::SECONDARY_SKILL},
-		{"resource", CampaignBonusType::RESOURCE},
-		//{"prevHero", CScenarioTravel::STravelBonus::EBonusType::HEROES_FROM_PREVIOUS_SCENARIO},
-		//{"hero", CScenarioTravel::STravelBonus::EBonusType::HERO},
-	};
-	
-	std::map<std::string, ui32> primarySkillsMap = {
-		{"attack", 0},
-		{"defence", 8},
-		{"spellpower", 16},
-		{"knowledge", 24},
-	};
-	
-	std::map<std::string, ui16> heroSpecialMap = {
-		{"strongest", 0xFFFD},
-		{"generated", 0xFFFE},
-		{"random", 0xFFFF}
-	};
-	
-	std::map<std::string, ui8> resourceTypeMap = {
-		//FD - wood+ore
-		//FE - mercury+sulfur+crystal+gem
-		{"wood", 0},
-		{"mercury", 1},
-		{"ore", 2},
-		{"sulfur", 3},
-		{"crystal", 4},
-		{"gems", 5},
-		{"gold", 6},
-		{"common", 0xFD},
-		{"rare", 0xFE}
-	};
 	
 	for(auto & k : reader["heroKeeps"].Vector())
 	{
@@ -390,6 +442,109 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 	return ret;
 }
 
+void CampaignHandler::writeScenarioTravelToJson(JsonNode & node, const CampaignTravel & travel)
+{
+	if(travel.whatHeroKeeps.experience)
+		node["heroKeeps"].Vector().push_back(JsonNode("experience"));
+	if(travel.whatHeroKeeps.primarySkills)
+		node["heroKeeps"].Vector().push_back(JsonNode("primarySkills"));
+	if(travel.whatHeroKeeps.secondarySkills)
+		node["heroKeeps"].Vector().push_back(JsonNode("secondarySkills"));
+	if(travel.whatHeroKeeps.spells)
+		node["heroKeeps"].Vector().push_back(JsonNode("spells"));
+	if(travel.whatHeroKeeps.artifacts)
+		node["heroKeeps"].Vector().push_back(JsonNode("artifacts"));
+	for(auto & c : travel.monstersKeptByHero)
+		node["keepCreatures"].Vector().push_back(JsonNode(CreatureID::encode(c)));
+	for(auto & a : travel.artifactsKeptByHero)
+		node["keepArtifacts"].Vector().push_back(JsonNode(ArtifactID::encode(a)));
+	node["startOptions"].String() = vstd::reverseMap(startOptionsMap)[travel.startOptions];
+
+	switch(travel.startOptions)
+	{
+	case CampaignStartOptions::NONE:
+		break;
+	case CampaignStartOptions::START_BONUS:
+		{
+			node["playerColor"].String() = PlayerColor::encode(travel.playerColor);
+			for(auto & bonus : travel.bonusesToChoose)
+			{
+				JsonNode bnode;
+				bnode["what"].String() = vstd::reverseMap(bonusTypeMap)[bonus.type];
+				switch (bonus.type)
+				{
+					case CampaignBonusType::RESOURCE:
+						bnode["type"].String() = vstd::reverseMap(resourceTypeMap)[bonus.info1];
+						bnode["amount"].Integer() = bonus.info2;
+						break;
+					case CampaignBonusType::BUILDING:
+						bnode["type"].String() = EBuildingType::names[bonus.info1];
+						break;
+					default:
+						if(vstd::contains(vstd::reverseMap(heroSpecialMap), bonus.info1))
+							bnode["hero"].String() = vstd::reverseMap(heroSpecialMap)[bonus.info1];
+						else
+							bnode["hero"].String() = HeroTypeID::encode(bonus.info1);
+						bnode["amount"].Integer() = bonus.info3;
+						switch(bonus.type)
+						{
+							case CampaignBonusType::SPELL:
+								bnode["type"].String() = SpellID::encode(bonus.info2);
+								break;
+							case CampaignBonusType::MONSTER:
+								bnode["type"].String() = CreatureID::encode(bonus.info2);
+								break;
+							case CampaignBonusType::SECONDARY_SKILL:
+								bnode["type"].String() = SecondarySkill::encode(bonus.info2);
+								break;
+							case CampaignBonusType::ARTIFACT:
+								bnode["type"].String() = ArtifactID::encode(bonus.info2);
+								break;
+							case CampaignBonusType::SPELL_SCROLL:
+								bnode["type"].String() = SpellID::encode(bonus.info2);
+								break;
+							case CampaignBonusType::PRIMARY_SKILL:
+								for(auto & ps : primarySkillsMap)
+									bnode[ps.first].Integer() = (bonus.info2 >> ps.second) & 0xff;
+								break;
+							default:
+								bnode["type"].Integer() = bonus.info2;
+						}
+						break;
+				}
+				node["bonuses"].Vector().push_back(bnode);
+			}
+			break;
+		}
+	case CampaignStartOptions::HERO_CROSSOVER:
+		{
+			for(auto & bonus : travel.bonusesToChoose)
+			{
+				JsonNode bnode;
+				bnode["playerColor"].Integer() = bonus.info1;
+				bnode["scenario"].Integer() = bonus.info2;
+				node["bonuses"].Vector().push_back(bnode);
+			}
+			break;
+		}
+	case CampaignStartOptions::HERO_OPTIONS:
+		{
+			for(auto & bonus : travel.bonusesToChoose)
+			{
+				JsonNode bnode;
+				bnode["playerColor"].Integer() = bonus.info1;
+
+				if(vstd::contains(vstd::reverseMap(heroSpecialMap), bonus.info2))
+					bnode["hero"].String() = vstd::reverseMap(heroSpecialMap)[bonus.info2];
+				else
+					bnode["hero"].String() = HeroTypeID::encode(bonus.info2);
+				
+				node["bonuses"].Vector().push_back(bnode);
+			}
+			break;
+		}
+	}
+}
 
 void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding )
 {
