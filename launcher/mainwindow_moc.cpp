@@ -157,7 +157,7 @@ void MainWindow::enterSetup()
 	ui->tabListWidget->setCurrentIndex(TabRows::SETUP);
 }
 
-void MainWindow::exitSetup()
+void MainWindow::exitSetup(bool goToMods)
 {
 	Settings writer = settings.write["launcher"]["setupCompleted"];
 	writer->Bool() = true;
@@ -166,7 +166,10 @@ void MainWindow::exitSetup()
 	ui->settingsButton->setEnabled(true);
 	ui->aboutButton->setEnabled(true);
 	ui->modslistButton->setEnabled(true);
-	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
+	if (goToMods)
+		ui->tabListWidget->setCurrentIndex(TabRows::MODS);
+	else
+		ui->tabListWidget->setCurrentIndex(TabRows::START);
 }
 
 void MainWindow::switchToStartTab()
