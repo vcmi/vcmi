@@ -217,7 +217,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 44); //{%s} \n\n The camp is deserted.  Perhaps you should try next week.
-		iw.text.replaceName(ID);
+		iw.text.replaceName(ID, subID);
 		cb->sendAndApply(iw);
 		return;
 	}
@@ -260,7 +260,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	else if(ID == Obj::REFUGEE_CAMP)
 	{
 		bd.text.appendLocalString(EMetaText::ADVOB_TXT, 35); //{%s} Would you like to recruit %s?
-		bd.text.replaceName(ID);
+		bd.text.replaceName(ID, subID);
 		for(const auto & elem : creatures)
 			bd.text.replaceNamePlural(elem.second[0]);
 	}
