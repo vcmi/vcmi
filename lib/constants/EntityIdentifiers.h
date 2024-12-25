@@ -289,38 +289,37 @@ public:
 		HORDE_PLACEHOLDER1 = -30,
 		NONE = -1,
 		FIRST_REGULAR_ID = 0,
-		MAGES_GUILD_1 = 0,  MAGES_GUILD_2, MAGES_GUILD_3,     MAGES_GUILD_4,   MAGES_GUILD_5,
-		TAVERN,         SHIPYARD,      FORT,              CITADEL,         CASTLE,
-		VILLAGE_HALL,   TOWN_HALL,     CITY_HALL,         CAPITOL,         MARKETPLACE,
-		RESOURCE_SILO,  BLACKSMITH,    SPECIAL_1,         HORDE_1,         HORDE_1_UPGR,
-		SHIP,           SPECIAL_2,     SPECIAL_3,         SPECIAL_4,       HORDE_2,
-		HORDE_2_UPGR,   GRAIL,         EXTRA_TOWN_HALL,   EXTRA_CITY_HALL, EXTRA_CAPITOL,
-		DWELL_FIRST=30, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LAST=36,
-		DWELL_UP_FIRST=37,  DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP,
-		DWELL_LVL_6_UP, DWELL_UP_LAST=43, DWELL_LVL_8=150, DWELL_LVL_8_UP=151, //150-154 reserved for 8. creature with potential upgrades
+		MAGES_GUILD_1 = 0,  MAGES_GUILD_2,   MAGES_GUILD_3,     MAGES_GUILD_4,   MAGES_GUILD_5,
+		TAVERN,             SHIPYARD,        FORT,              CITADEL,         CASTLE,
+		VILLAGE_HALL,       TOWN_HALL,       CITY_HALL,         CAPITOL,         MARKETPLACE,
+		RESOURCE_SILO,      BLACKSMITH,      SPECIAL_1,         HORDE_1,         HORDE_1_UPGR,
+		SHIP,               SPECIAL_2,       SPECIAL_3,         SPECIAL_4,       HORDE_2,
+		HORDE_2_UPGR,       GRAIL,           EXTRA_TOWN_HALL,   EXTRA_CITY_HALL, EXTRA_CAPITOL,
 
-		DWELL_LVL_1 = DWELL_FIRST,
-		DWELL_LVL_7 = DWELL_LAST,
-		DWELL_LVL_1_UP = DWELL_UP_FIRST,
-		DWELL_LVL_7_UP = DWELL_UP_LAST,
+		DWELL_LVL_1=30,     DWELL_LVL_2,     DWELL_LVL_3,       DWELL_LVL_4,     DWELL_LVL_5,	  DWELL_LVL_6,     DWELL_LVL_7=36,
+		DWELL_LVL_1_UP=37,  DWELL_LVL_2_UP,  DWELL_LVL_3_UP,    DWELL_LVL_4_UP,  DWELL_LVL_5_UP,  DWELL_LVL_6_UP,  DWELL_LVL_7_UP=43,
+		DWELL_LVL_1_UP2,    DWELL_LVL_2_UP2, DWELL_LVL_3_UP2,	DWELL_LVL_4_UP2, DWELL_LVL_5_UP2, DWELL_LVL_6_UP2, DWELL_LVL_7_UP2,
+		DWELL_LVL_1_UP3,    DWELL_LVL_2_UP3, DWELL_LVL_3_UP3,	DWELL_LVL_4_UP3, DWELL_LVL_5_UP3, DWELL_LVL_6_UP3, DWELL_LVL_7_UP3,
+		DWELL_LVL_1_UP4,    DWELL_LVL_2_UP4, DWELL_LVL_3_UP4,	DWELL_LVL_4_UP4, DWELL_LVL_5_UP4, DWELL_LVL_6_UP4, DWELL_LVL_7_UP4,
+		DWELL_LVL_1_UP5,    DWELL_LVL_2_UP5, DWELL_LVL_3_UP5,	DWELL_LVL_4_UP5, DWELL_LVL_5_UP5, DWELL_LVL_6_UP5, DWELL_LVL_7_UP5,
 
-		DWELL_UP2_FIRST = DWELL_LVL_7_UP + 1,
-		DWELL_LVL_1_UP2 = DWELL_UP2_FIRST, DWELL_LVL_2_UP2, DWELL_LVL_3_UP2, DWELL_LVL_4_UP2, DWELL_LVL_5_UP2, DWELL_LVL_6_UP2, DWELL_LVL_7_UP2, DWELL_LVL_8_UP2,
-
-//		//Special buildings for towns.
-		CASTLE_GATE   = SPECIAL_3, //Inferno
-		FREELANCERS_GUILD = SPECIAL_2, //Stronghold
-		ARTIFACT_MERCHANT = SPECIAL_1,
-
+		//150-155 reserved for 8. creature with potential upgrades
+		DWELL_LVL_8=150, DWELL_LVL_8_UP=151, DWELL_LVL_8_UP2 = 152, DWELL_LVL_8_UP3 = 153, DWELL_LVL_8_UP4 = 154, DWELL_LVL_8_UP5 = 155,
 	};
 
 private:
-	static std::vector<std::vector<Type>> getDwellings()
+	static std::array<std::array<Type, 8>, 6> getDwellings()
 	{
-		std::vector<Type> dwellings = { DWELL_LVL_1, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LVL_7, DWELL_LVL_8 };
-		std::vector<Type> dwellingsUp = { DWELL_LVL_1_UP, DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP, DWELL_LVL_6_UP, DWELL_LVL_7_UP, DWELL_LVL_8_UP };
-		std::vector<Type> dwellingsUp2 = { DWELL_UP2_FIRST, DWELL_LVL_2_UP2, DWELL_LVL_3_UP2, DWELL_LVL_4_UP2, DWELL_LVL_5_UP2 , DWELL_LVL_6_UP2 , DWELL_LVL_7_UP2, DWELL_LVL_8_UP2 };
-		return {dwellings, dwellingsUp, dwellingsUp2 };
+		static const std::array<std::array<Type, 8>, 6> allDwellings = {{
+			{ DWELL_LVL_1, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LVL_7, DWELL_LVL_8 },
+			{ DWELL_LVL_1_UP, DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP, DWELL_LVL_6_UP, DWELL_LVL_7_UP, DWELL_LVL_8_UP },
+			{ DWELL_LVL_1_UP2, DWELL_LVL_2_UP2, DWELL_LVL_3_UP2, DWELL_LVL_4_UP2, DWELL_LVL_5_UP2, DWELL_LVL_6_UP2, DWELL_LVL_7_UP2, DWELL_LVL_8_UP2 },
+			{ DWELL_LVL_1_UP3, DWELL_LVL_2_UP3, DWELL_LVL_3_UP3, DWELL_LVL_4_UP3, DWELL_LVL_5_UP3, DWELL_LVL_6_UP3, DWELL_LVL_7_UP3, DWELL_LVL_8_UP3 },
+			{ DWELL_LVL_1_UP4, DWELL_LVL_2_UP4, DWELL_LVL_3_UP4, DWELL_LVL_4_UP4, DWELL_LVL_5_UP4, DWELL_LVL_6_UP4, DWELL_LVL_7_UP4, DWELL_LVL_8_UP4 },
+			{ DWELL_LVL_1_UP5, DWELL_LVL_2_UP5, DWELL_LVL_3_UP5, DWELL_LVL_4_UP5, DWELL_LVL_5_UP5, DWELL_LVL_6_UP5, DWELL_LVL_7_UP5, DWELL_LVL_8_UP5 }
+		}};
+
+		return allDwellings;
 	}
 
 public:
@@ -331,54 +330,45 @@ public:
 
 	static int getLevelFromDwelling(BuildingIDBase dwelling)
 	{
-		for(int i = 0; i < 2; i++)
+		for (const auto level : getDwellings())
 		{
-			auto tmp = getDwellings()[i];
-			auto it = std::find(tmp.begin(), tmp.end(), dwelling);
-			if (it != tmp.end())
-				return std::distance(tmp.begin(), it);
+			auto it = std::find(level.begin(), level.end(), dwelling);
+			if (it != level.end())
+				return std::distance(level.begin(), it);
 		}
-		if(dwelling >= BuildingIDBase::DWELL_LVL_8 && dwelling < BuildingIDBase::DWELL_LVL_8 + 5)
-			return 7;
-		else if (dwelling >= BuildingIDBase::DWELL_UP2_FIRST)
-			return (dwelling - DWELL_UP2_FIRST) % (GameConstants::CREATURES_PER_TOWN - 1);
-		else
-			return (dwelling - DWELL_FIRST) % (GameConstants::CREATURES_PER_TOWN - 1);
+
+		throw std::runtime_error("Call to getLevelFromDwelling with building '" + std::to_string(dwelling.num) +"' that is not dwelling!");
 	}
 
 	static int getUpgradedFromDwelling(BuildingIDBase dwelling)
 	{
-		for(int i = 0; i < 2; i++)
+		const auto & dwellings = getDwellings();
+
+		for(int i = 0; i < dwellings.size(); i++)
 		{
-			auto tmp = getDwellings()[i];
-			auto it = std::find(tmp.begin(), tmp.end(), dwelling);
-			if (it != tmp.end())
+			if (vstd::contains(dwellings[i], dwelling))
 				return i;
 		}
-		if(dwelling >= BuildingIDBase::DWELL_LVL_8 && dwelling < BuildingIDBase::DWELL_LVL_8 + 5)
-			return dwelling - BuildingIDBase::DWELL_LVL_8;
-		else if (dwelling >= BuildingIDBase::DWELL_UP2_FIRST)
-			return (dwelling - DWELL_UP2_FIRST) / (GameConstants::CREATURES_PER_TOWN - 1);
-		else
-			return (dwelling - DWELL_FIRST) / (GameConstants::CREATURES_PER_TOWN - 1);
+
+		throw std::runtime_error("Call to getUpgradedFromDwelling with building '" + std::to_string(dwelling.num) +"' that is not dwelling!");
 	}
 
 	static void advanceDwelling(BuildingIDBase & dwelling)
 	{
-		if(dwelling >= BuildingIDBase::DWELL_LVL_8 && dwelling < BuildingIDBase::DWELL_LVL_8 + 5)
-			dwelling.advance(1);
-		else
-			dwelling.advance(GameConstants::CREATURES_PER_TOWN - 1);
+		int level =	getLevelFromDwelling(dwelling);
+		int upgrade = getUpgradedFromDwelling(dwelling);
+
+		dwelling.setNum(getDwellingFromLevel(level, upgrade + 1));
 	}
 
 	bool IsDwelling() const
 	{
-		return (DWELL_FIRST <= num && num <= DWELL_UP_LAST) || (DWELL_LVL_8 <= num && num <= DWELL_LVL_8_UP) || (num >= DWELL_UP2_FIRST && num < DWELL_LVL_8);
-	}
-
-	bool IsSpecialOrGrail() const
-	{
-		return num == SPECIAL_1 || num == SPECIAL_2 || num == SPECIAL_3 || num == SPECIAL_4 || num == GRAIL;
+		for (const auto level : getDwellings())
+		{
+			if (vstd::contains(level, num))
+				return true;
+		}
+		return false;
 	}
 };
 
