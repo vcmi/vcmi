@@ -12,7 +12,7 @@
 
 #include "BonusSelector.h"
 
-enum class BonusCacheMode
+enum class BonusCacheMode : int8_t
 {
 	VALUE, // total value of bonus will be cached
 	PRESENCE, // presence of bonus will be cached
@@ -34,7 +34,7 @@ protected:
 		std::atomic<int64_t> value = 0;
 	};
 
-	int getBonusValueImpl(BonusCacheEntry & currentValue, const CSelector & selector) const;
+	int getBonusValueImpl(BonusCacheEntry & currentValue, const CSelector & selector, BonusCacheMode) const;
 };
 
 /// Cache that tracks a single query to bonus system
@@ -62,7 +62,13 @@ public:
 	int getBonusValue(EnumType which) const
 	{
 		auto index = static_cast<size_t>(which);
-		return getBonusValueImpl(cache[index], (*selectors)[index]);
+		return getBonusValueImpl(cache[index], (*selectors)[index], BonusCacheMode::VALUE);
+	}
+
+	int hasBonus(EnumType which) const
+	{
+		auto index = static_cast<size_t>(which);
+		return getBonusValueImpl(cache[index], (*selectors)[index], BonusCacheMode::PRESENCE);
 	}
 
 private:

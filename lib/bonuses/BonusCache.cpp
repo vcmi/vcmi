@@ -18,7 +18,7 @@
 #include "../VCMI_Lib.h"
 #include "../IGameSettings.h"
 
-int BonusCacheBase::getBonusValueImpl(BonusCacheEntry & currentValue, const CSelector & selector) const
+int BonusCacheBase::getBonusValueImpl(BonusCacheEntry & currentValue, const CSelector & selector, BonusCacheMode mode) const
 {
 	if (target->getTreeVersion() == currentValue.version)
 	{
@@ -28,7 +28,12 @@ int BonusCacheBase::getBonusValueImpl(BonusCacheEntry & currentValue, const CSel
 	{
 		// NOTE: following code theoretically can fail if bonus tree was changed by another thread between two following lines
 		// However, this situation should not be possible - gamestate modification should only happen in single-treaded mode with locked gamestate mutex
-		int newValue = target->valOfBonuses(selector);
+		int newValue;
+
+		if (mode == BonusCacheMode::VALUE)
+			newValue = target->valOfBonuses(selector);
+		else
+			newValue = target->hasBonus(selector);
 		currentValue.value = newValue;
 		currentValue.version = target->getTreeVersion();
 
@@ -42,7 +47,7 @@ BonusValueCache::BonusValueCache(const IBonusBearer * target, const CSelector se
 
 int BonusValueCache::getValue() const
 {
-	return getBonusValueImpl(value, selector);
+	return getBonusValueImpl(value, selector, BonusCacheMode::VALUE);
 }
 
 PrimarySkillsCache::PrimarySkillsCache(const IBonusBearer * target)

@@ -526,9 +526,16 @@ bool CUnitState::isCaster() const
 	return casts.total() > 0;//do not check specific cast abilities here
 }
 
+bool CUnitState::canShootBlocked() const
+{
+	return bonusCache.cache.getBonusValue(UnitBonusValuesProxy::HAS_FREE_SHOOTING);
+}
+
 bool CUnitState::canShoot() const
 {
-	return shots.canUse(1);
+	return
+		shots.canUse(1) &&
+		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::FORGETFULL) <= 1; //advanced+ level
 }
 
 bool CUnitState::isShooter() const
@@ -561,6 +568,11 @@ int64_t CUnitState::getAvailableHealth() const
 int64_t CUnitState::getTotalHealth() const
 {
 	return health.total();
+}
+
+int64_t CUnitState::getMaxHealth() const
+{
+	return std::max(1, bonusCache.cache.getBonusValue(UnitBonusValuesProxy::STACK_HEALTH));
 }
 
 BattleHex CUnitState::getPosition() const
@@ -684,6 +696,11 @@ BattlePhases::Type CUnitState::battleQueuePhase(int turn) const
 	{
 		return BattlePhases::NORMAL;
 	}
+}
+
+bool CUnitState::isHypnotized() const
+{
+	return bonusCache.cache.getBonusValue(UnitBonusValuesProxy::HYPNOTIZED);
 }
 
 int CUnitState::getTotalAttacks(bool ranged) const
@@ -943,6 +960,10 @@ const UnitBonusValuesProxy::SelectorsArray * CUnitState::generateBonusSelectors(
 		defence.And(selectorRanged),//DEFENCE_MELEE,
 		defence.And(selectorRanged),//DEFENCE_RANGED,
 		Selector::type()(BonusType::IN_FRENZY),//IN_FRENZY,
+		Selector::type()(BonusType::FORGETFULL),//FORGETFULL,
+		Selector::type()(BonusType::HYPNOTIZED),//HYPNOTIZED,
+		Selector::type()(BonusType::FREE_SHOOTING).Or(Selector::type()(BonusType::SIEGE_WEAPON)),//HAS_FREE_SHOOTING,
+		Selector::type()(BonusType::STACK_HEALTH),//STACK_HEALTH,
 	};
 
 	return &selectors;

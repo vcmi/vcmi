@@ -84,11 +84,14 @@ public:
 	bool isTurret() const;
 	virtual bool isValidTarget(bool allowDead = false) const = 0; //non-turret non-ghost stacks (can be attacked or be object of magic effect)
 
+	virtual bool isHypnotized() const = 0;
+
 	virtual bool isClone() const = 0;
 	virtual bool hasClone() const = 0;
 
 	virtual bool canCast() const = 0;
 	virtual bool isCaster() const = 0;
+	virtual bool canShootBlocked() const = 0;
 	virtual bool canShoot() const = 0;
 	virtual bool isShooter() const = 0;
 
