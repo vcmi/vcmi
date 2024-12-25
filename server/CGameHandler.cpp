@@ -2083,7 +2083,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	//Performs stuff that has to be done before new building is built
 	auto processBeforeBuiltStructure = [t, this](const BuildingID buildingID)
 	{
-		if(buildingID >= BuildingID::DWELL_FIRST) //dwelling
+		if(buildingID.IsDwelling())
 		{
 			int level = BuildingID::getLevelFromDwelling(buildingID);
 			int upgradeNumber = BuildingID::getUpgradedFromDwelling(buildingID);
