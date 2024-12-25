@@ -108,7 +108,7 @@ Name: "vietnamese"; MessagesFile: "{#LangPath}\Vietnamese.isl"
 
 
 [Files]
-Source: "{#SourceFilesPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: IsHeroes3Installed; BeforeInstall: PerformHeroes3FileCopy
+Source: "{#SourceFilesPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; BeforeInstall: PerformHeroes3FileCopy
 
 
 [Icons]
