@@ -25,7 +25,7 @@
 		{"ability": ["ENEMY_DEFENCE_REDUCTION", 50, null, 0 ], "skills": [0, 1]},
 		{"ability": ["FEAR", 0, null, 0 ], "skills": [0, 2]},
 		{"ability": ["ALWAYS_MAXIMUM_DAMAGE", 0, null, 0 ], "skills": [0, 3]},
-		{"ability": ["SHOOTER", 0, null, 0 ], "skills": [0, 4]},
+		{"ability": [["SHOOTER", 0, null, 0 ], ["NO_MELEE_PENALTY", 0, null, 0 ]], "skills": [0, 4]},
 		{"ability": ["BLOCKS_RETALIATION", 0, null, 0 ], "skills": [0,5]},
 		{"ability": ["UNLIMITED_RETALIATIONS", 0, null, 0 ], "skills": [1, 2]},
 		{"ability": ["ATTACKS_ALL_ADJACENT", 0, null, 0 ], "skills": [1, 3]},

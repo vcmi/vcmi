@@ -260,10 +260,13 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 	}
 	else if (skill >= 100)
 	{
-		scp.which = SetCommanderProperty::SPECIAL_SKILL;
-		scp.accumulatedBonus = *VLC->creh->skillRequirements.at(skill-100).first;
-		scp.additionalInfo = skill; //unnormalized
-		sendAndApply(scp);
+		for(auto & bonus : VLC->creh->skillRequirements.at(skill - 100).first) 
+		{
+			scp.which = SetCommanderProperty::SPECIAL_SKILL;
+			scp.accumulatedBonus = *bonus;
+			scp.additionalInfo = skill; //unnormalized
+			sendAndApply(scp);
+		}
 	}
 	expGiven(hero);
 }
