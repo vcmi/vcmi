@@ -108,7 +108,7 @@ Name: "vietnamese"; MessagesFile: "{#LangPath}\Vietnamese.isl"
 
 
 [Files]
-Source: "{#SourceFilesPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; BeforeInstall: PerformHeroes3FileCopy
+Source: "{#SourceFilesPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: IsHeroes3Installed; BeforeInstall: PerformHeroes3FileCopy
 
 
 [Icons]
@@ -563,28 +563,42 @@ end;
 
 procedure PerformHeroes3FileCopy();
 var
+  i: Integer;
   VCMIFilesFolder, VCMIMapsFolder, VCMIDataFolder, VCMIMp3Folder: String;
   Heroes3MapsFolder, Heroes3DataFolder, Heroes3Mp3Folder: String;
 begin
-  // Define paths for VCMI and Heroes 3 directories
-  VCMIFilesFolder := GlobalUserDocsFolder + '\' + '{#VCMIFilesFolder}';
-  VCMIMapsFolder := VCMIFilesFolder + '\Maps';
-  VCMIDataFolder := VCMIFilesFolder + '\Data';
-  VCMIMp3Folder := VCMIFilesFolder + '\Mp3';
+  // Loop through all tasks to find the "h3copyfiles" task
+  for i := 0 to WizardForm.TasksList.Items.Count - 1 do
+  begin
+    // Check if the current task is "h3copyfiles"
+    if WizardForm.TasksList.Items[i] = ExpandConstant('{cm:CopyH3Files}') then
+    begin
+      // Check if the "h3copyfiles" task is checked
+      if WizardForm.TasksList.Checked[i] then
+      begin
+        // Define paths for VCMI and Heroes 3 directories
+        VCMIFilesFolder := GlobalUserDocsFolder + '\' + '{#VCMIFilesFolder}';
+        VCMIMapsFolder := VCMIFilesFolder + '\Maps';
+        VCMIDataFolder := VCMIFilesFolder + '\Data';
+        VCMIMp3Folder := VCMIFilesFolder + '\Mp3';
 
-  Heroes3MapsFolder := Heroes3Path + '\Maps';
-  Heroes3DataFolder := Heroes3Path + '\Data';
-  Heroes3Mp3Folder := Heroes3Path + '\Mp3';
+        Heroes3MapsFolder := Heroes3Path + '\Maps';
+        Heroes3DataFolder := Heroes3Path + '\Data';
+        Heroes3Mp3Folder := Heroes3Path + '\Mp3';
 
-  // Copy folders if conditions are met
-  if (DirExists(Heroes3MapsFolder) and ((not DirExists(VCMIMapsFolder)) or (FolderSize(VCMIMapsFolder) < 1024 * 1024))) then
-    CopyFolderContents(Heroes3MapsFolder, VCMIMapsFolder, True);
+        // Copy folders if conditions are met
+        if (DirExists(Heroes3MapsFolder) and ((not DirExists(VCMIMapsFolder)) or (FolderSize(VCMIMapsFolder) < 1024 * 1024))) then
+          CopyFolderContents(Heroes3MapsFolder, VCMIMapsFolder, True);
 
-  if (DirExists(Heroes3DataFolder) and ((not DirExists(VCMIDataFolder)) or (FolderSize(VCMIDataFolder) < 1024 * 1024))) then
-    CopyFolderContents(Heroes3DataFolder, VCMIDataFolder, True);
+        if (DirExists(Heroes3DataFolder) and ((not DirExists(VCMIDataFolder)) or (FolderSize(VCMIDataFolder) < 1024 * 1024))) then
+          CopyFolderContents(Heroes3DataFolder, VCMIDataFolder, True);
 
-  if (DirExists(Heroes3Mp3Folder) and ((not DirExists(VCMIMp3Folder)) or (FolderSize(VCMIMp3Folder) < 1024 * 1024))) then
-    CopyFolderContents(Heroes3Mp3Folder, VCMIMp3Folder, True);
+        if (DirExists(Heroes3Mp3Folder) and ((not DirExists(VCMIMp3Folder)) or (FolderSize(VCMIMp3Folder) < 1024 * 1024))) then
+          CopyFolderContents(Heroes3Mp3Folder, VCMIMp3Folder, True);
+      end;
+      Exit; // Task found, exit the loop
+    end;
+  end;
 end;
 
 
