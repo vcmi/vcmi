@@ -145,6 +145,10 @@ public:
 		DEFENCE_RANGED,
 
 		IN_FRENZY,
+		HYPNOTIZED,
+		FORGETFULL,
+		HAS_FREE_SHOOTING,
+		STACK_HEALTH,
 
 		TOTAL_KEYS,
 	};
@@ -228,11 +232,14 @@ public:
 	bool isFrozen() const override;
 	bool isValidTarget(bool allowDead = false) const override;
 
+	bool isHypnotized() const override;
+
 	bool isClone() const override;
 	bool hasClone() const override;
 
 	bool canCast() const override;
 	bool isCaster() const override;
+	bool canShootBlocked() const override;
 	bool canShoot() const override;
 	bool isShooter() const override;
 
@@ -241,6 +248,7 @@ public:
 	int32_t getFirstHPleft() const override;
 	int64_t getAvailableHealth() const override;
 	int64_t getTotalHealth() const override;
+	int64_t getMaxHealth() const override;
 
 	BattleHex getPosition() const override;
 	void setPosition(BattleHex hex) override;

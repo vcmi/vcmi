@@ -57,10 +57,12 @@ public:
 	MOCK_CONST_METHOD0(isFrozen, bool());
 	MOCK_CONST_METHOD1(isValidTarget, bool(bool));
 
+	MOCK_CONST_METHOD0(isHypnotized, bool());
 	MOCK_CONST_METHOD0(isClone, bool());
 	MOCK_CONST_METHOD0(hasClone, bool());
 	MOCK_CONST_METHOD0(canCast, bool());
 	MOCK_CONST_METHOD0(isCaster, bool());
+	MOCK_CONST_METHOD0(canShootBlocked, bool());
 	MOCK_CONST_METHOD0(canShoot, bool());
 	MOCK_CONST_METHOD0(isShooter, bool());
 
