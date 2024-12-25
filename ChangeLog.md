@@ -1,5 +1,46 @@
 # VCMI Project Changelog
 
+## 1.6.0 -> 1.6.1
+
+### General
+
+* Right-click popup for Monoliths, Subterranean Gates and Whirlpools now shows location of all known entrances and exits.
+* Added support for importing and exporting mod presets in the launcher.
+* Added option to VCMI popup menu on Android to skip launcher and start game immediately.
+* Fixed defeat music not stopping when skipping defeat movie playback.
+* Launcher will now open start game tab instead of mods tab after initial setup if no mods were chosen for install
+
+### Performance
+
+* xbrz is no longer auto-selected on mobile platforms, and only xbrz2 can be auto-selected on PC platforms. Manual selection is unaffected.
+* Fixed a performance regression that more than doubled the time of random map generation.
+* Improved performance of the Nullkiller AI, which should now take turns up to twice as fast.
+* Minor xbrz performance improvements.
+
+### Stability
+
+* Fixed application freeze when clicking buttons with popup message on some versions of iOS
+* Fixed crash when trying to install a mod when no mod is selected
+* Fixed possible crash when trying to load non-existing frame from .def file
+* Fixed crash when right-clicking on modded market items, such as HotA's Junkman.
+* Fixed crash when trying to activate mod with recursive dependencies
+* Fixed crash when trying to activate Chronicles mod after failed import
+* Fixed crash when attempting to access a non-installed mod when repository checkout is off.
+* Show error message on failure to load filesystem instead of crashing in launcher
+* Added workaround for crash on attempt to delete non-existent save/map
+
+### Adventure AI
+
+* AI can now use all possible upgrades on Hill Fort, including alternative upgrades.
+* AI will now correctly identify and use 8th creature dwelling (e.g. Factory)
+* AI will now correctly identify 2nd level upgrades to dwellings (e.g. Cove) and score them accordingly.
+
+### Interface
+
+* Fixed poor alignment of hero primary skill descriptions in the Thieves' Guild menu.
+* Fixed missing description for spell school immunity in creature window
+* Fixed bonuses such as OPENING_BATTLE_SPELL not appearing in creature window.
+
 ## 1.5.7 -> 1.6.0
 
 ### Major changes
