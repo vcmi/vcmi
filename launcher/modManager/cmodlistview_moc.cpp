@@ -1013,7 +1013,7 @@ void CModListView::doInstallMod(const QString & modName)
 
 bool CModListView::isModAvailable(const QString & modName)
 {
-	return !modStateModel->isModInstalled(modName);
+	return modStateModel->isModExists(modName) && !modStateModel->isModInstalled(modName);
 }
 
 bool CModListView::isModEnabled(const QString & modName)

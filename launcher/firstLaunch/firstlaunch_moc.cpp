@@ -189,10 +189,10 @@ void FirstLaunchView::activateTabModPreset()
 	modPresetUpdate();
 }
 
-void FirstLaunchView::exitSetup()
+void FirstLaunchView::exitSetup(bool goToMods)
 {
 	if(auto * mainWindow = dynamic_cast<MainWindow *>(QApplication::activeWindow()))
-		mainWindow->exitSetup();
+		mainWindow->exitSetup(goToMods);
 }
 
 // Tab Language
@@ -548,7 +548,7 @@ void FirstLaunchView::modPresetUpdate()
 
 	// we can't install anything - either repository checkout is off or all recommended mods are already installed
 	if (!checkCanInstallTranslation() && !checkCanInstallExtras() && !checkCanInstallHota() && !checkCanInstallWog())
-		exitSetup();
+		exitSetup(false);
 }
 
 QString FirstLaunchView::findTranslationModName()
@@ -625,7 +625,8 @@ void FirstLaunchView::on_pushButtonPresetNext_clicked()
 	if (ui->buttonPresetHota->isChecked() && checkCanInstallHota())
 		modsToInstall.push_back("hota");
 
-	exitSetup();
+	bool goToMods = !modsToInstall.empty();
+	exitSetup(goToMods);
 
 	for (auto const & modName : modsToInstall)
 		getModView()->doInstallMod(modName);

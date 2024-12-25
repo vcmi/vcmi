@@ -62,7 +62,7 @@ public:
 	
 	void detectPreferredLanguage();
 	void enterSetup();
-	void exitSetup();
+	void exitSetup(bool goToMods);
 	void switchToModsTab();
 	void switchToStartTab();
 
