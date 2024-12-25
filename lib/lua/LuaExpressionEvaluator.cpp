@@ -12,6 +12,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+std::mutex LuaExpressionEvaluator::mutex;
+
 void LuaExpressionEvaluator::registerLibrary()
 {
     const auto & luaMax = [](lua_State * state)
@@ -53,6 +55,7 @@ void LuaExpressionEvaluator::registerLibrary()
 LuaExpressionEvaluator::LuaExpressionEvaluator(const std::string & expression)
         : expression(expression)
 {
+    std::lock_guard<std::mutex> lock(mutex);
     luaState = luaL_newstate();
     registerLibrary();
     compile();
@@ -60,13 +63,12 @@ LuaExpressionEvaluator::LuaExpressionEvaluator(const std::string & expression)
 
 LuaExpressionEvaluator::~LuaExpressionEvaluator()
 {
-    lua_close(luaState);
-}
-
-void LuaExpressionEvaluator::setVariable(const std::string & name, double value)
-{
-    lua_pushnumber(luaState, value);
-    lua_setglobal(luaState, name.c_str());
+    std::lock_guard<std::mutex> lock(mutex);
+    if (luaState)
+    {
+        lua_close(luaState);
+        luaState = nullptr;
+    }
 }
 
 void LuaExpressionEvaluator::compile()
@@ -83,8 +85,15 @@ void LuaExpressionEvaluator::compile()
     compiledReference = luaL_ref(luaState, LUA_REGISTRYINDEX);
 }
 
-double LuaExpressionEvaluator::evaluate()
+double LuaExpressionEvaluator::evaluate(const std::map<std::string, double>& param)
 {
+    std::lock_guard<std::mutex> lock(mutex);
+    for (auto &elem : param) 
+    {
+        lua_pushnumber(luaState, elem.second);
+        lua_setglobal(luaState, elem.first.c_str());
+    }
+
     lua_rawgeti(luaState, LUA_REGISTRYINDEX, compiledReference);
     int errorCode = lua_pcall(luaState,0,1,0);
     if (errorCode)

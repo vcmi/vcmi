@@ -231,9 +231,12 @@ LuaExpressionEvaluator & DamageCalculator::getDefenseSkillEvaluator() const
 double DamageCalculator::getAttackSkillFactor() const
 {
 	LuaExpressionEvaluator & evaluator = getAttackSkillEvaluator();
-	evaluator.setVariable("defense", getTargetDefenseEffective());
-	evaluator.setVariable("attack", getActorAttackEffective());
-	double result = evaluator.evaluate();
+	std::map<std::string, double> params =
+	{
+		{"defense", getTargetDefenseEffective()},
+		{"attack", getActorAttackEffective()}
+	};
+	double result = evaluator.evaluate(params);
 	return result;
 }
 
@@ -324,9 +327,12 @@ double DamageCalculator::getAttackRevengeFactor() const
 double DamageCalculator::getDefenseSkillFactor() const
 {
     LuaExpressionEvaluator & evaluator = getDefenseSkillEvaluator();
-	evaluator.setVariable("defense", getTargetDefenseEffective());
-	evaluator.setVariable("attack", getActorAttackEffective());
-	double result = evaluator.evaluate();
+	std::map<std::string, double> params =
+	{
+		{"defense", getTargetDefenseEffective()},
+		{"attack", getActorAttackEffective()}
+	};
+	double result = evaluator.evaluate(params);
 	return result;
 }
 
