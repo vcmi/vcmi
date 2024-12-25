@@ -528,14 +528,14 @@ bool CUnitState::isCaster() const
 
 bool CUnitState::canShootBlocked() const
 {
-	return bonusCache.cache.getBonusValue(UnitBonusValuesProxy::HAS_FREE_SHOOTING);
+	return bonusCache.getBonusValue(UnitBonusValuesProxy::HAS_FREE_SHOOTING);
 }
 
 bool CUnitState::canShoot() const
 {
 	return
 		shots.canUse(1) &&
-		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::FORGETFULL) <= 1; //advanced+ level
+		bonusCache.getBonusValue(UnitBonusValuesProxy::FORGETFULL) <= 1; //advanced+ level
 }
 
 bool CUnitState::isShooter() const
@@ -570,9 +570,9 @@ int64_t CUnitState::getTotalHealth() const
 	return health.total();
 }
 
-int64_t CUnitState::getMaxHealth() const
+uint32_t CUnitState::getMaxHealth() const
 {
-	return std::max(1, bonusCache.cache.getBonusValue(UnitBonusValuesProxy::STACK_HEALTH));
+	return std::max(1, bonusCache.getBonusValue(UnitBonusValuesProxy::STACK_HEALTH));
 }
 
 BattleHex CUnitState::getPosition() const
@@ -700,43 +700,43 @@ BattlePhases::Type CUnitState::battleQueuePhase(int turn) const
 
 bool CUnitState::isHypnotized() const
 {
-	return bonusCache.cache.getBonusValue(UnitBonusValuesProxy::HYPNOTIZED);
+	return bonusCache.getBonusValue(UnitBonusValuesProxy::HYPNOTIZED);
 }
 
 int CUnitState::getTotalAttacks(bool ranged) const
 {
 	return 1 + (ranged ?
-		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::TOTAL_ATTACKS_RANGED):
-		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::TOTAL_ATTACKS_MELEE));
+		bonusCache.getBonusValue(UnitBonusValuesProxy::TOTAL_ATTACKS_RANGED):
+		bonusCache.getBonusValue(UnitBonusValuesProxy::TOTAL_ATTACKS_MELEE));
 }
 
 int CUnitState::getMinDamage(bool ranged) const
 {
 	return ranged ?
-		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::MIN_DAMAGE_RANGED):
-		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::MIN_DAMAGE_MELEE);
+		bonusCache.getBonusValue(UnitBonusValuesProxy::MIN_DAMAGE_RANGED):
+		bonusCache.getBonusValue(UnitBonusValuesProxy::MIN_DAMAGE_MELEE);
 
 }
 
 int CUnitState::getMaxDamage(bool ranged) const
 {
 	return ranged ?
-		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::MAX_DAMAGE_RANGED):
-		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::MAX_DAMAGE_MELEE);
+		bonusCache.getBonusValue(UnitBonusValuesProxy::MAX_DAMAGE_RANGED):
+		bonusCache.getBonusValue(UnitBonusValuesProxy::MAX_DAMAGE_MELEE);
 }
 
 int CUnitState::getAttack(bool ranged) const
 {
 	int attack = ranged ?
-		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::ATTACK_RANGED):
-		bonusCache.cache.getBonusValue(UnitBonusValuesProxy::ATTACK_MELEE);
+		bonusCache.getBonusValue(UnitBonusValuesProxy::ATTACK_RANGED):
+		bonusCache.getBonusValue(UnitBonusValuesProxy::ATTACK_MELEE);
 
-	int frenzy = bonusCache.cache.getBonusValue(UnitBonusValuesProxy::IN_FRENZY);
+	int frenzy = bonusCache.getBonusValue(UnitBonusValuesProxy::IN_FRENZY);
 	if(frenzy != 0)
 	{
 		int defence = ranged ?
-			bonusCache.cache.getBonusValue(UnitBonusValuesProxy::DEFENCE_RANGED):
-			bonusCache.cache.getBonusValue(UnitBonusValuesProxy::DEFENCE_MELEE);
+			bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_RANGED):
+			bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_MELEE);
 
 		int frenzyBonus = frenzy * defence / 100;
 		attack += frenzyBonus;
@@ -748,7 +748,7 @@ int CUnitState::getAttack(bool ranged) const
 
 int CUnitState::getDefense(bool ranged) const
 {
-	int frenzy = bonusCache.cache.getBonusValue(UnitBonusValuesProxy::IN_FRENZY);
+	int frenzy = bonusCache.getBonusValue(UnitBonusValuesProxy::IN_FRENZY);
 
 	if(frenzy != 0)
 	{
@@ -757,8 +757,8 @@ int CUnitState::getDefense(bool ranged) const
 	else
 	{
 		int defence = ranged ?
-						  bonusCache.cache.getBonusValue(UnitBonusValuesProxy::DEFENCE_RANGED):
-						  bonusCache.cache.getBonusValue(UnitBonusValuesProxy::DEFENCE_MELEE);
+						  bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_RANGED):
+						  bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_MELEE);
 		vstd::amax(defence, 0);
 		return defence;
 	}

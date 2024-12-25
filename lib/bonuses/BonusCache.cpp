@@ -50,6 +50,35 @@ int BonusValueCache::getValue() const
 	return getBonusValueImpl(value, selector, BonusCacheMode::VALUE);
 }
 
+MagicSchoolMasteryCache::MagicSchoolMasteryCache(const IBonusBearer * target)
+	:target(target)
+{}
+
+void MagicSchoolMasteryCache::update() const
+{
+	static const CSelector allBonusesSelector = Selector::type()(BonusType::MAGIC_SCHOOL_SKILL);
+	static const std::array schoolsSelector = {
+		Selector::subtype()(SpellSchool::ANY),
+		Selector::subtype()(SpellSchool::AIR),
+		Selector::subtype()(SpellSchool::FIRE),
+		Selector::subtype()(SpellSchool::WATER),
+		Selector::subtype()(SpellSchool::EARTH),
+	};
+
+	auto list = target->getBonuses(allBonusesSelector);
+	for (int i = 0; i < schoolsSelector.size(); ++i)
+		schools[i] = list->valOfBonuses(schoolsSelector[i]);
+
+	version = target->getTreeVersion();
+}
+
+int32_t MagicSchoolMasteryCache::getMastery(const SpellSchool & school) const
+{
+	if (target->getTreeVersion() != version)
+		update();
+	return schools[school.num + 1];
+}
+
 PrimarySkillsCache::PrimarySkillsCache(const IBonusBearer * target)
 	:target(target)
 {}

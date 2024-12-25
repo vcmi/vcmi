@@ -48,7 +48,7 @@ public:
 };
 
 /// Cache that can track a list of queries to bonus system
-template<typename EnumType, size_t SIZE>
+template<size_t SIZE>
 class BonusValuesArrayCache : public BonusCacheBase
 {
 public:
@@ -59,15 +59,13 @@ public:
 		, selectors(selectors)
 	{}
 
-	int getBonusValue(EnumType which) const
+	int getBonusValue(int index) const
 	{
-		auto index = static_cast<size_t>(which);
 		return getBonusValueImpl(cache[index], (*selectors)[index], BonusCacheMode::VALUE);
 	}
 
-	int hasBonus(EnumType which) const
+	int hasBonus(int index) const
 	{
-		auto index = static_cast<size_t>(which);
 		return getBonusValueImpl(cache[index], (*selectors)[index], BonusCacheMode::PRESENCE);
 	}
 
@@ -76,6 +74,57 @@ private:
 
 	const SelectorsArray * selectors;
 	mutable CacheArray cache;
+};
+
+class UnitBonusValuesProxy
+{
+public:
+	enum ECacheKeys : int8_t
+	{
+		TOTAL_ATTACKS_MELEE,
+		TOTAL_ATTACKS_RANGED,
+
+		MIN_DAMAGE_MELEE,
+		MIN_DAMAGE_RANGED,
+		MAX_DAMAGE_MELEE,
+		MAX_DAMAGE_RANGED,
+
+		ATTACK_MELEE,
+		ATTACK_RANGED,
+
+		DEFENCE_MELEE,
+		DEFENCE_RANGED,
+
+		IN_FRENZY,
+		HYPNOTIZED,
+		FORGETFULL,
+		HAS_FREE_SHOOTING,
+		STACK_HEALTH,
+
+		TOTAL_KEYS,
+	};
+	static constexpr size_t KEYS_COUNT = static_cast<size_t>(ECacheKeys::TOTAL_KEYS);
+
+	using SelectorsArray = BonusValuesArrayCache<KEYS_COUNT>::SelectorsArray;
+
+	UnitBonusValuesProxy(const IBonusBearer * Target, const SelectorsArray * selectors):
+		cache(Target, selectors)
+	{}
+
+	int getBonusValue(ECacheKeys which) const
+	{
+		auto index = static_cast<size_t>(which);
+		return cache.getBonusValue(index);
+	}
+
+	int hasBonus(ECacheKeys which) const
+	{
+		auto index = static_cast<size_t>(which);
+		return cache.hasBonus(index);
+	}
+
+private:
+	BonusValuesArrayCache<KEYS_COUNT> cache;
 };
 
 /// Cache that tracks values of primary skill values in bonus system
@@ -90,6 +139,20 @@ public:
 	PrimarySkillsCache(const IBonusBearer * target);
 
 	const std::array<std::atomic<int32_t>, 4> & getSkills() const;
+};
+
+/// Cache that tracks values of spell school mastery in bonus system
+class MagicSchoolMasteryCache
+{
+	const IBonusBearer * target;
+	mutable std::atomic<int64_t> version = 0;
+	mutable std::array<std::atomic<int32_t>, 4+1> schools;
+
+	void update() const;
+public:
+	MagicSchoolMasteryCache(const IBonusBearer * target);
+
+	int32_t getMastery(const SpellSchool & school) const;
 };
 
 /// Cache that tracks values for different values of bonus duration

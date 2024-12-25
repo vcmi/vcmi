@@ -60,6 +60,8 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 
 private:
 	PrimarySkillsCache primarySkills;
+	MagicSchoolMasteryCache magicSchoolMastery;
+	BonusValueCache manaPerKnowledgeCached;
 
 	std::set<SpellID> spells; //known spells (spell IDs)
 	mutable int lowestCreatureSpeed;

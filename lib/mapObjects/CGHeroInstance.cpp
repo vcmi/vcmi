@@ -294,6 +294,8 @@ CGHeroInstance::CGHeroInstance(IGameCallback * cb)
 	exp(UNINITIALIZED_EXPERIENCE),
 	gender(EHeroGender::DEFAULT),
 	primarySkills(this),
+	magicSchoolMastery(this),
+	manaPerKnowledgeCached(this, Selector::type()(BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE)),
 	lowestCreatureSpeed(0)
 {
 	setNodeType(HERO);
@@ -789,7 +791,7 @@ int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, SpellSc
 
 	spell->forEachSchool([&, this](const SpellSchool & cnf, bool & stop)
 	{
-		int32_t thisSchool = valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, BonusSubtypeID(cnf)); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
+		int32_t thisSchool = magicSchoolMastery.getMastery(cnf); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
 		if(thisSchool > skill)
 		{
 			skill = thisSchool;
@@ -798,7 +800,7 @@ int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, SpellSc
 		}
 	});
 
-	vstd::amax(skill, valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, BonusSubtypeID(SpellSchool::ANY))); //any school bonus
+	vstd::amax(skill, magicSchoolMastery.getMastery(SpellSchool::ANY)); //any school bonus
 	vstd::amax(skill, valOfBonuses(BonusType::SPELL, BonusSubtypeID(spell->getId()))); //given by artifact or other effect
 
 	vstd::amax(skill, 0); //in case we don't know any school
@@ -1187,8 +1189,7 @@ std::string CGHeroInstance::nodeName() const
 
 si32 CGHeroInstance::manaLimit() const
 {
-	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE)
-		* (valOfBonuses(BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE))) / 100;
+	return getPrimSkillLevel(PrimarySkill::KNOWLEDGE) * manaPerKnowledgeCached.getValue() / 100;
 }
 
 HeroTypeID CGHeroInstance::getPortraitSource() const
