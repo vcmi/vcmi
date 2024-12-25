@@ -1432,7 +1432,10 @@ void MainWindow::on_actionh3c_converter_triggered()
 		}
 
 		auto mapName = campaign->scenario(scenario).mapName;
-		boost::replace_all(mapName, ".h3m", std::string("")) 
+		boost::replace_all(mapName, ".h3m", std::string(""))
+		boost::replace_all(mapName, ".H3m", std::string(""))
+		boost::replace_all(mapName, ".h3M", std::string(""))
+		boost::replace_all(mapName, ".H3M", std::string("")) 
 		mapName += ".vmap";
 
 		auto stream = saver->addFile(mapName);
