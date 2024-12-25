@@ -1432,7 +1432,8 @@ void MainWindow::on_actionh3c_converter_triggered()
 		}
 
 		auto mapName = campaign->scenario(scenario).mapName;
-		mapName = boost::replace_all_regex_copy(mapName, boost::regex(".[hH]3[mM]"), std::string("")) + ".vmap";
+		boost::replace_all(mapName, ".h3m", std::string("")) 
+		mapName += ".vmap";
 
 		auto stream = saver->addFile(mapName);
 		stream->write(reinterpret_cast<const ui8 *>(serializeBuffer.getBuffer().data()), serializeBuffer.getSize());

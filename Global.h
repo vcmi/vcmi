@@ -166,7 +166,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 
 #include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/regex.hpp> 
 #include <boost/crc.hpp>
 #include <boost/current_function.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
