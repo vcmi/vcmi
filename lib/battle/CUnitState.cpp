@@ -84,13 +84,13 @@ void CAmmo::serializeJson(JsonSerializeFormat & handler)
 ///CShots
 CShots::CShots(const battle::Unit * Owner)
 	: CAmmo(Owner, Selector::type()(BonusType::SHOTS)),
-	shooter(Owner, BonusType::SHOOTER)
+	shooter(Owner, Selector::type()(BonusType::SHOOTER))
 {
 }
 
 bool CShots::isLimited() const
 {
-	return !shooter.getHasBonus() || !env->unitHasAmmoCart(owner);
+	return !shooter.hasBonus() || !env->unitHasAmmoCart(owner);
 }
 
 void CShots::setEnv(const IUnitEnvironment * env_)
@@ -100,7 +100,7 @@ void CShots::setEnv(const IUnitEnvironment * env_)
 
 int32_t CShots::total() const
 {
-	if(shooter.getHasBonus())
+	if(shooter.hasBonus())
 		return CAmmo::total();
 	else
 		return 0;
@@ -116,19 +116,19 @@ CCasts::CCasts(const battle::Unit * Owner):
 CRetaliations::CRetaliations(const battle::Unit * Owner)
 	: CAmmo(Owner, Selector::type()(BonusType::ADDITIONAL_RETALIATION)),
 	totalCache(0),
-	noRetaliation(Owner, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::HYPNOTIZED)).Or(Selector::type()(BonusType::NO_RETALIATION)), "CRetaliations::noRetaliation"),
-	unlimited(Owner, BonusType::UNLIMITED_RETALIATIONS)
+	noRetaliation(Owner, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::HYPNOTIZED)).Or(Selector::type()(BonusType::NO_RETALIATION))),
+	unlimited(Owner, Selector::type()(BonusType::UNLIMITED_RETALIATIONS))
 {
 }
 
 bool CRetaliations::isLimited() const
 {
-	return !unlimited.getHasBonus() || noRetaliation.getHasBonus();
+	return !unlimited.hasBonus() || noRetaliation.hasBonus();
 }
 
 int32_t CRetaliations::total() const
 {
-	if(noRetaliation.getHasBonus())
+	if(noRetaliation.hasBonus())
 		return 0;
 
 	//after dispel bonus should remain during current round
@@ -336,7 +336,6 @@ CUnitState::CUnitState():
 	stackSpeedPerTurn(this, Selector::type()(BonusType::STACKS_SPEED), BonusCacheMode::VALUE),
 	immobilizedPerTurn(this, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::BIND_EFFECT)), BonusCacheMode::PRESENCE),
 	bonusCache(this, generateBonusSelectors()),
-	cloneLifetimeMarker(this, Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::CLONE)))), "CUnitState::cloneLifetimeMarker"),
 	cloneID(-1)
 {
 
@@ -360,11 +359,7 @@ CUnitState & CUnitState::operator=(const CUnitState & other)
 	waiting = other.waiting;
 	waitedThisTurn = other.waitedThisTurn;
 	casts = other.casts;
-	counterAttacks = other.counterAttacks;
 	health = other.health;
-	shots = other.shots;
-//	bonusCache = other.bonusCache;
-	cloneLifetimeMarker = other.cloneLifetimeMarker;
 	cloneID = other.cloneID;
 	position = other.position;
 	return *this;
@@ -913,7 +908,7 @@ void CUnitState::afterNewRound()
 
 	if(alive() && isClone())
 	{
-		if(!cloneLifetimeMarker.getHasBonus())
+		if(!bonusCache.hasBonus(UnitBonusValuesProxy::CLONE_MARKER))
 			makeGhost();
 	}
 }
@@ -964,6 +959,7 @@ const UnitBonusValuesProxy::SelectorsArray * CUnitState::generateBonusSelectors(
 		Selector::type()(BonusType::HYPNOTIZED),//HYPNOTIZED,
 		Selector::type()(BonusType::FREE_SHOOTING).Or(Selector::type()(BonusType::SIEGE_WEAPON)),//HAS_FREE_SHOOTING,
 		Selector::type()(BonusType::STACK_HEALTH),//STACK_HEALTH,
+		Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::CLONE))))
 	};
 
 	return &selectors;

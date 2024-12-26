@@ -46,7 +46,7 @@ CArmedInstance::CArmedInstance(IGameCallback *cb)
 CArmedInstance::CArmedInstance(IGameCallback *cb, bool isHypothetic):
 	CGObjectInstance(cb),
 	CBonusSystemNode(isHypothetic),
-	nonEvilAlignmentMix(this, BonusType::NONEVIL_ALIGNMENT_MIX), // Take Angelic Alliance troop-mixing freedom of non-evil units into account.
+	nonEvilAlignmentMix(this, Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX)), // Take Angelic Alliance troop-mixing freedom of non-evil units into account.
 	battle(nullptr)
 {
 }
@@ -86,7 +86,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 	size_t factionsInArmy = factions.size(); //town garrison seems to take both sets into account
 
-	if (nonEvilAlignmentMix.getHasBonus())
+	if (nonEvilAlignmentMix.hasBonus())
 	{
 		size_t mixableFactions = 0;
 

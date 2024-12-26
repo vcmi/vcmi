@@ -11,7 +11,6 @@
 #pragma once
 
 #include "Unit.h"
-#include "../bonuses/CBonusProxy.h"
 #include "../bonuses/BonusCache.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -62,7 +61,7 @@ public:
 private:
 	const IUnitEnvironment * env;
 
-	CCheckProxy shooter;
+	BonusValueCache shooter;
 };
 
 class DLL_LINKAGE CCasts : public CAmmo
@@ -84,8 +83,8 @@ public:
 private:
 	mutable int32_t totalCache;
 
-	CCheckProxy noRetaliation;
-	CCheckProxy unlimited;
+	BonusValueCache noRetaliation;
+	BonusValueCache unlimited;
 };
 
 class DLL_LINKAGE CHealth
@@ -268,7 +267,6 @@ private:
 	BonusCachePerTurn immobilizedPerTurn;
 	BonusCachePerTurn stackSpeedPerTurn;
 	UnitBonusValuesProxy bonusCache;
-	CCheckProxy cloneLifetimeMarker;
 
 	void reset();
 };

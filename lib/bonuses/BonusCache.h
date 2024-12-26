@@ -45,6 +45,7 @@ class BonusValueCache : public BonusCacheBase
 public:
 	BonusValueCache(const IBonusBearer * target, const CSelector selector);
 	int getValue() const;
+	bool hasBonus() const;
 };
 
 /// Cache that can track a list of queries to bonus system
@@ -100,6 +101,8 @@ public:
 		FORGETFULL,
 		HAS_FREE_SHOOTING,
 		STACK_HEALTH,
+
+		CLONE_MARKER,
 
 		TOTAL_KEYS,
 	};
