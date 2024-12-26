@@ -109,7 +109,8 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 			if(upgradeNumber < 0)
 				continue;
 
-			BuildingID bid(BuildingID::DWELL_FIRST + creature->getLevel() - 1 + upgradeNumber * t->getTown()->creatures.size());
+			BuildingID bid(BuildingID::getDwellingFromLevel(creature->getLevel(), upgradeNumber));
+
 			if(t->hasBuilt(bid) && ai->ah->freeResources().canAfford(creature->getFullRecruitCost())) //this assumes only creatures with dwellings are assigned to faction
 			{
 				solutions.push_back(sptr(BuyArmy(t, creature->getAIValue() * this->value).setobjid(objid)));

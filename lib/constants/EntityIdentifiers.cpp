@@ -97,8 +97,6 @@ const PrimarySkill PrimarySkill::ATTACK(0);
 const PrimarySkill PrimarySkill::DEFENSE(1);
 const PrimarySkill PrimarySkill::SPELL_POWER(2);
 const PrimarySkill PrimarySkill::KNOWLEDGE(3);
-const PrimarySkill PrimarySkill::BEGIN(0);
-const PrimarySkill PrimarySkill::END(4);
 const PrimarySkill PrimarySkill::EXPERIENCE(4);
 
 const BoatId BoatId::NONE(-1);
@@ -325,7 +323,7 @@ const Skill * SecondarySkill::toEntity(const Services * services) const
 
 const CCreature * CreatureIDBase::toCreature() const
 {
-	return dynamic_cast<const CCreature *>(toEntity(VLC));
+	return (*VLC->creh)[num];
 }
 
 const Creature * CreatureIDBase::toEntity(const Services * services) const
@@ -628,6 +626,18 @@ std::string BuildingTypeUniqueID::encode(const si32 index)
 std::string GameResID::entityType()
 {
 	return "resource";
+}
+
+const std::array<PrimarySkill, 4> & PrimarySkill::ALL_SKILLS()
+{
+	static const std::array allSkills = {
+		PrimarySkill(ATTACK),
+		PrimarySkill(DEFENSE),
+		PrimarySkill(SPELL_POWER),
+		PrimarySkill(KNOWLEDGE)
+	};
+
+	return allSkills;
 }
 
 const std::array<GameResID, 7> & GameResID::ALL_RESOURCES()

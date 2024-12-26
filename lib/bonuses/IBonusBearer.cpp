@@ -42,6 +42,27 @@ TConstBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const CSe
 	return getAllBonuses(selector, limit, cachingStr);
 }
 
+TConstBonusListPtr IBonusBearer::getBonusesFrom(BonusSource source) const
+{
+	std::string cachingStr = "source_" + std::to_string(static_cast<int>(source));
+	CSelector s = Selector::sourceTypeSel(source);
+	return getBonuses(s, cachingStr);
+}
+
+TConstBonusListPtr IBonusBearer::getBonusesOfType(BonusType type) const
+{
+	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type));
+	CSelector s = Selector::type()(type);
+	return getBonuses(s, cachingStr);
+}
+
+TConstBonusListPtr IBonusBearer::getBonusesOfType(BonusType type, BonusSubtypeID subtype) const
+{
+	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + subtype.toString();
+	CSelector s = Selector::type()(type);
+	return getBonuses(s, cachingStr);
+}
+
 int IBonusBearer::valOfBonuses(BonusType type) const
 {
 	//This part is performance-critical
@@ -84,7 +105,14 @@ bool IBonusBearer::hasBonusOfType(BonusType type, BonusSubtypeID subtype) const
 
 bool IBonusBearer::hasBonusFrom(BonusSource source, BonusSourceID sourceID) const
 {
-	return hasBonus(Selector::source(source,sourceID));
+	std::string cachingStr = "source_" + std::to_string(static_cast<int>(source)) + "_" + sourceID.toString();
+	return hasBonus(Selector::source(source,sourceID), cachingStr);
+}
+
+bool IBonusBearer::hasBonusFrom(BonusSource source) const
+{
+	std::string cachingStr = "source_" + std::to_string(static_cast<int>(source));
+	return hasBonus((Selector::sourceTypeSel(source)), cachingStr);
 }
 
 std::shared_ptr<const Bonus> IBonusBearer::getBonus(const CSelector &selector) const

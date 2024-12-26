@@ -182,14 +182,14 @@ void ObjectPickerLayer::select(const CGObjectInstance * obj)
 	if(obj && possibleObjects.count(obj))
 	{
 		clear();
-		emit selectionMade(obj);
+		selectionMade(obj);
 	}
 }
 
 void ObjectPickerLayer::discard()
 {
 	clear();
-	emit selectionMade(nullptr);
+	selectionMade(nullptr);
 }
 
 SelectionTerrainLayer::SelectionTerrainLayer(MapSceneBase * s): AbstractLayer(s)
@@ -277,7 +277,7 @@ const std::set<int3> & SelectionTerrainLayer::selection() const
 
 void SelectionTerrainLayer::onSelection()
 {
-	emit selectionMade(!area.empty());
+	selectionMade(!area.empty());
 }
 
 
@@ -610,7 +610,7 @@ void SelectionObjectsLayer::clear()
 
 void SelectionObjectsLayer::onSelection()
 {
-	emit selectionMade(!selectedObjects.empty());
+	selectionMade(!selectedObjects.empty());
 }
 
 void SelectionObjectsLayer::setLockObject(const CGObjectInstance * object, bool lock)

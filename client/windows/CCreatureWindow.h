@@ -19,7 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CCommanderInstance;
 class CStackInstance;
 class CStack;
-struct UpgradeInfo;
+class UpgradeInfo;
 
 VCMI_LIB_NAMESPACE_END
 

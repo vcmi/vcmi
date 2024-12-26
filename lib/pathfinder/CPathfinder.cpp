@@ -267,7 +267,7 @@ TeleporterTilesVector CPathfinderHelper::getCastleGates(const PathNodeInfo & sou
 	for(const auto & town : getPlayerState(hero->tempOwner)->getTowns())
 	{
 		if(town->id != source.nodeObject->id && town->visitingHero == nullptr
-			&& town->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO))
+			&& town->hasBuilt(BuildingSubID::CASTLE_GATE))
 		{
 			allowedExits.push_back(town->visitablePos());
 		}
@@ -596,11 +596,12 @@ void CPathfinderHelper::getNeighbours(
 			continue;
 
 		const TerrainTile & destTile = map->getTile(destCoord);
-		if(!destTile.getTerrain()->isPassable())
+		const TerrainType* terrain = destTile.getTerrain();
+		if(!terrain->isPassable())
 			continue;
 
 		/// Following condition let us avoid diagonal movement over coast when sailing
-		if(srcTile.isWater() && limitCoastSailing && destTile.isWater() && dir.x && dir.y) //diagonal move through water
+		if(srcTile.isWater() && limitCoastSailing && terrain->isWater() && dir.x && dir.y) //diagonal move through water
 		{
 			const int3 horizontalNeighbour = srcCoord + int3{dir.x, 0, 0};
 			const int3 verticalNeighbour = srcCoord + int3{0, dir.y, 0};
@@ -608,7 +609,7 @@ void CPathfinderHelper::getNeighbours(
 				continue;
 		}
 
-		if(indeterminate(onLand) || onLand == destTile.isLand())
+		if(indeterminate(onLand) || onLand == terrain->isLand())
 		{
 			vec.push_back(destCoord);
 		}

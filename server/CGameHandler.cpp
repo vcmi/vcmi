@@ -53,6 +53,7 @@
 #include "../lib/filesystem/Filesystem.h"
 
 #include "../lib/gameState/CGameState.h"
+#include "../lib/gameState/UpgradeInfo.h"
 
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
@@ -2082,7 +2083,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	//Performs stuff that has to be done before new building is built
 	auto processBeforeBuiltStructure = [t, this](const BuildingID buildingID)
 	{
-		if(buildingID >= BuildingID::DWELL_FIRST) //dwelling
+		if(buildingID.IsDwelling())
 		{
 			int level = BuildingID::getLevelFromDwelling(buildingID);
 			int upgradeNumber = BuildingID::getUpgradedFromDwelling(buildingID);
@@ -2414,19 +2415,18 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 	{
 		COMPLAIN_RET("Cannot upgrade, no stack at slot " + std::to_string(pos));
 	}
-	UpgradeInfo ui;
-	fillUpgradeInfo(obj, pos, ui);
+	UpgradeInfo upgradeInfo(obj->getStackPtr(pos)->getId());
+	fillUpgradeInfo(obj, pos, upgradeInfo);
 	PlayerColor player = obj->tempOwner;
 	const PlayerState *p = getPlayerState(player);
 	int crQuantity = obj->stacks.at(pos)->count;
-	int newIDpos= vstd::find_pos(ui.newID, upgID);//get position of new id in UpgradeInfo
 
 	//check if upgrade is possible
-	if ((ui.oldID == CreatureID::NONE || newIDpos == -1) && complain("That upgrade is not possible!"))
+	if (!upgradeInfo.hasUpgrades() && complain("That upgrade is not possible!"))
 	{
 		return false;
 	}
-	TResources totalCost = ui.cost.at(newIDpos) * crQuantity;
+	TResources totalCost = upgradeInfo.getUpgradeCostsFor(upgID) * crQuantity;
 
 	//check if player has enough resources
 	if (!p->resources.canAfford(totalCost))

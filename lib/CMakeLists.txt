@@ -109,6 +109,7 @@ set(lib_MAIN_SRCS
 	gameState/RumorState.cpp
 	gameState/TavernHeroesPool.cpp
 	gameState/GameStatistics.cpp
+	gameState/UpgradeInfo.cpp
 
 	mapObjectConstructors/AObjectTypeHandler.cpp
 	mapObjectConstructors/CBankInstanceConstructor.cpp

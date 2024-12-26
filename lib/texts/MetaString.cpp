@@ -393,11 +393,6 @@ void MetaString::replaceName(const FactionID & id)
 	replaceTextID(id.toEntity(VLC)->getNameTextID());
 }
 
-void MetaString::replaceName(const MapObjectID & id)
-{
-	replaceTextID(VLC->objtypeh->getObjectName(id, 0));
-}
-
 void MetaString::replaceName(const MapObjectID & id, const MapObjectSubID & subId)
 {
 	replaceTextID(VLC->objtypeh->getObjectName(id, subId));

@@ -45,6 +45,7 @@ public:
 
 	//load frame as SDL_Surface
 	void loadFrame(size_t frame, size_t group, IImageLoader &loader) const;
+	bool hasFrame(size_t frame, size_t group) const;
 
 	const std::map<size_t, size_t> getEntries() const;
 };

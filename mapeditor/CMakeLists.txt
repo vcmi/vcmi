@@ -223,6 +223,9 @@ if(APPLE)
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmieditor)
 endif()
 
+# Qt defines 'emit' as macros, which conflicts with TBB definition of method with same name
+target_compile_definitions(vcmieditor PRIVATE QT_NO_EMIT)
+
 if(ENABLE_STATIC_LIBS OR NOT (ENABLE_EDITOR AND ENABLE_LAUNCHER))
 	target_compile_definitions(vcmieditor PRIVATE VCMIQT_STATIC)
 endif()

@@ -198,7 +198,7 @@ void BattleFlowProcessor::castOpeningSpells(const CBattleInfoCallback & battle)
 		if (!h)
 			continue;
 
-		TConstBonusListPtr bl = h->getBonuses(Selector::type()(BonusType::OPENING_BATTLE_SPELL));
+		TConstBonusListPtr bl = h->getBonusesOfType(BonusType::OPENING_BATTLE_SPELL);
 
 		for (auto b : *bl)
 		{
@@ -629,7 +629,7 @@ bool BattleFlowProcessor::makeAutomaticAction(const CBattleInfoCallback & battle
 
 void BattleFlowProcessor::stackEnchantedTrigger(const CBattleInfoCallback & battle, const CStack * st)
 {
-	auto bl = *(st->getBonuses(Selector::type()(BonusType::ENCHANTED)));
+	auto bl = *(st->getBonusesOfType(BonusType::ENCHANTED));
 	for(auto b : bl)
 	{
 		if (!b->subtype.as<SpellID>().hasValue())
@@ -678,10 +678,10 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 	if (st->alive())
 	{
 		//unbind
-		if (st->hasBonus(Selector::type()(BonusType::BIND_EFFECT)))
+		if (st->hasBonusOfType(BonusType::BIND_EFFECT))
 		{
 			bool unbind = true;
-			BonusList bl = *(st->getBonuses(Selector::type()(BonusType::BIND_EFFECT)));
+			BonusList bl = *(st->getBonusesOfType(BonusType::BIND_EFFECT));
 			auto adjacent = battle.battleAdjacentUnits(st);
 
 			for (auto b : bl)

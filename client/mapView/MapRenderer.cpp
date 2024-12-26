@@ -135,7 +135,7 @@ int MapTileStorage::groupCount(size_t fileIndex, size_t rotationIndex, size_t im
 	const auto & animation = animations[fileIndex][rotationIndex];
 	if (animation)
 		for(int i = 0;; i++)
-			if(!animation->getImage(imageIndex, i, false))
+			if(animation->size(i) <= imageIndex)
 				return i;
 	return 1;
 }

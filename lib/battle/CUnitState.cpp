@@ -85,7 +85,7 @@ void CAmmo::serializeJson(JsonSerializeFormat & handler)
 ///CShots
 CShots::CShots(const battle::Unit * Owner)
 	: CAmmo(Owner, Selector::type()(BonusType::SHOTS)),
-	shooter(Owner, Selector::type()(BonusType::SHOOTER))
+	shooter(Owner, BonusType::SHOOTER)
 {
 }
 
@@ -124,8 +124,8 @@ CCasts::CCasts(const battle::Unit * Owner):
 CRetaliations::CRetaliations(const battle::Unit * Owner)
 	: CAmmo(Owner, Selector::type()(BonusType::ADDITIONAL_RETALIATION)),
 	totalCache(0),
-	noRetaliation(Owner, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::HYPNOTIZED)).Or(Selector::type()(BonusType::NO_RETALIATION))),
-	unlimited(Owner, Selector::type()(BonusType::UNLIMITED_RETALIATIONS))
+	noRetaliation(Owner, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::HYPNOTIZED)).Or(Selector::type()(BonusType::NO_RETALIATION)), "CRetaliations::noRetaliation"),
+	unlimited(Owner, BonusType::UNLIMITED_RETALIATIONS)
 {
 }
 
@@ -347,7 +347,7 @@ CUnitState::CUnitState():
 	attack(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)), 0),
 	defence(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE)), 0),
 	inFrenzy(this, Selector::type()(BonusType::IN_FRENZY)),
-	cloneLifetimeMarker(this, Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::CLONE))))),
+	cloneLifetimeMarker(this, Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::CLONE)))), "CUnitState::cloneLifetimeMarker"),
 	cloneID(-1)
 {
 
@@ -591,7 +591,11 @@ void CUnitState::setPosition(BattleHex hex)
 
 int32_t CUnitState::getInitiative(int turn) const
 {
-	return valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)));
+	if (turn == 0)
+		return valOfBonuses(BonusType::STACKS_SPEED);
+
+	std::string cachingStr = "type_STACKS_SPEED_turns_" + std::to_string(turn);
+	return valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)), cachingStr);
 }
 
 uint8_t CUnitState::getRangedFullDamageDistance() const
@@ -602,7 +606,7 @@ uint8_t CUnitState::getRangedFullDamageDistance() const
 	uint8_t rangedFullDamageDistance = GameConstants::BATTLE_SHOOTING_PENALTY_DISTANCE;
 
 	// overwrite full ranged damage distance with the value set in Additional info field of LIMITED_SHOOTING_RANGE bonus
-	if(this->hasBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE)))
+	if(hasBonusOfType(BonusType::LIMITED_SHOOTING_RANGE))
 	{
 		auto bonus = this->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
 		if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
@@ -620,7 +624,7 @@ uint8_t CUnitState::getShootingRangeDistance() const
 	uint8_t shootingRangeDistance = GameConstants::BATTLE_SHOOTING_RANGE_DISTANCE;
 
 	// overwrite full ranged damage distance with the value set in Additional info field of LIMITED_SHOOTING_RANGE bonus
-	if(this->hasBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE)))
+	if(hasBonusOfType(BonusType::LIMITED_SHOOTING_RANGE))
 	{
 		auto bonus = this->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
 		if(bonus != nullptr)
@@ -632,7 +636,14 @@ uint8_t CUnitState::getShootingRangeDistance() const
 
 bool CUnitState::canMove(int turn) const
 {
-	return alive() && !hasBonus(Selector::type()(BonusType::NOT_ACTIVE).And(Selector::turns(turn))); //eg. Ammo Cart or blinded creature
+	if (!alive())
+		return false;
+
+	if (turn == 0)
+		return !hasBonusOfType(BonusType::NOT_ACTIVE);
+
+	std::string cachingStr = "type_NOT_ACTIVE_turns_" + std::to_string(turn);
+	return !hasBonus(Selector::type()(BonusType::NOT_ACTIVE).And(Selector::turns(turn)), cachingStr); //eg. Ammo Cart or blinded creature
 }
 
 bool CUnitState::defended(int turn) const
