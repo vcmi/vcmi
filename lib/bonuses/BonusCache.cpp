@@ -50,6 +50,11 @@ int BonusValueCache::getValue() const
 	return getBonusValueImpl(value, selector, BonusCacheMode::VALUE);
 }
 
+bool BonusValueCache::hasBonus() const
+{
+	return getBonusValueImpl(value, selector, BonusCacheMode::PRESENCE);
+}
+
 MagicSchoolMasteryCache::MagicSchoolMasteryCache(const IBonusBearer * target)
 	:target(target)
 {}
