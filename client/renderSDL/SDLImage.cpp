@@ -278,12 +278,6 @@ void SDLImageShared::optimizeSurface()
 		margins.x += left;
 		margins.y += top;
 	}
-
-	if(preScaleFactor > 1 && preScaleFactor != GH.screenHandler().getScalingFactor())
-	{
-		margins.x = margins.x * GH.screenHandler().getScalingFactor() / preScaleFactor;
-		margins.y = margins.y * GH.screenHandler().getScalingFactor() / preScaleFactor;
-	}
 }
 
 std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palette * palette, EImageBlitMode mode) const
@@ -309,15 +303,15 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 			scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, factor, EScalingAlgorithm::XBRZ_ALPHA);
 	}
 	else
-		scaled = CSDL_Ext::scaleSurface(surf, (surf->w / preScaleFactor) * factor, (surf->h / preScaleFactor) * factor);
+		scaled = CSDL_Ext::scaleSurface(surf, (int) round((float)surf->w * factor / preScaleFactor), (int) round((float)surf->h * factor / preScaleFactor));
 
 	auto ret = std::make_shared<SDLImageShared>(scaled, preScaleFactor);
 
 	ret->fullSize.x = fullSize.x * factor;
 	ret->fullSize.y = fullSize.y * factor;
 
-	ret->margins.x = margins.x * factor;
-	ret->margins.y = margins.y * factor;
+	ret->margins.x = (int) round((float)margins.x * factor / preScaleFactor);
+	ret->margins.y = (int) round((float)margins.y * factor / preScaleFactor);
 	ret->optimizeSurface();
 
 	// erase our own reference
