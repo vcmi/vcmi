@@ -60,6 +60,11 @@ bool ImageScaled::isTransparent(const Point &coords) const
 	return source->isTransparent(coords);
 }
 
+Rect ImageScaled::contentRect() const
+{
+	return source->contentRect();
+}
+
 Point ImageScaled::dimensions() const
 {
 	return source->dimensions();

@@ -57,6 +57,7 @@ public:
 	void exportBitmap(const boost::filesystem::path & path, SDL_Palette * palette) const override;
 	Point dimensions() const override;
 	bool isTransparent(const Point & coords) const override;
+	Rect contentRect() const override;
 	[[nodiscard]] std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) const override;
 	[[nodiscard]] std::shared_ptr<const ISharedImage> horizontalFlip() const override;
 	[[nodiscard]] std::shared_ptr<const ISharedImage> verticalFlip() const override;
@@ -78,6 +79,7 @@ public:
 	SDLImageBase(const std::shared_ptr<const ISharedImage> & image, EImageBlitMode mode);
 
 	bool isTransparent(const Point & coords) const override;
+	Rect contentRect() const override;
 	Point dimensions() const override;
 	void setAlpha(uint8_t value) override;
 	void setBlitMode(EImageBlitMode mode) override;

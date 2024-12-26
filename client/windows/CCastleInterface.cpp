@@ -36,6 +36,7 @@
 #include "../render/IRenderHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/ColorFilter.h"
+#include "../render/IFont.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../adventureMap/CList.h"
 #include "../adventureMap/CResDataBar.h"
@@ -173,6 +174,8 @@ void CBuildingRect::show(Canvas & to)
 {
 	uint32_t stageDelay = BUILDING_APPEAR_TIMEPOINT;
 
+	bool showTextOverlay = GH.isKeyboardAltDown();
+
 	if(stateTimeCounter < BUILDING_APPEAR_TIMEPOINT)
 	{
 		setAlpha(255 * stateTimeCounter / stageDelay);
@@ -188,7 +191,7 @@ void CBuildingRect::show(Canvas & to)
 	{
 		if(stateTimeCounter >= BUILD_ANIMATION_FINISHED_TIMEPOINT)
 		{
-			if(parent->selectedBuilding == this)
+			if(parent->selectedBuilding == this || showTextOverlay)
 				to.draw(border, pos.topLeft());
 			return;
 		}
@@ -644,6 +647,54 @@ void CCastleBuildings::recreate()
 	};
 
 	boost::sort(children, buildSorter); //TODO: create building in blit order
+}
+
+void CCastleBuildings::drawOverlays(Canvas & to, std::vector<std::shared_ptr<CBuildingRect>> buildingRects)
+{
+	std::vector<Rect> textRects;
+	for(auto & buildingRect : buildingRects)
+	{
+		if(!buildingRect->border)
+			continue;
+
+		auto building = buildingRect->getBuilding();
+		if (!building)
+			continue;
+		int bid = building->bid;
+
+		auto overlay = town->getTown()->buildings.at(bid)->getNameTranslated();
+		const auto & font = GH.renderHandler().loadFont(FONT_TINY);
+
+		auto backColor = Colors::GREEN; // Other
+		if(bid >= 30)
+			backColor = Colors::PURPLE; // dwelling
+
+		auto contentRect = buildingRect->border->contentRect();
+		auto center = Rect(buildingRect->pos.x + contentRect.x, buildingRect->pos.y + contentRect.y, contentRect.w, contentRect.h).center();
+		Point dimensions(font->getStringWidth(overlay), font->getLineHeight());
+		Rect textRect = Rect(center - dimensions / 2, dimensions).resize(2);
+
+		while(!pos.resize(-5).isInside(Point(textRect.topLeft().x, textRect.center().y)))
+			textRect.x++;
+		while(!pos.resize(-5).isInside(Point(textRect.topRight().x, textRect.center().y)))
+			textRect.x--;
+		while(std::any_of(textRects.begin(), textRects.end(), [textRect](Rect existingTextRect) { return existingTextRect.resize(3).intersectionTest(textRect); }))
+			textRect.y++;
+		textRects.push_back(textRect);
+
+		to.drawColor(textRect, backColor);
+		to.drawBorder(textRect, Colors::BRIGHT_YELLOW);
+		to.drawText(textRect.center(), EFonts::FONT_TINY, Colors::BLACK, ETextAlignment::CENTER, overlay);
+	}
+}
+
+void CCastleBuildings::show(Canvas & to)
+{
+	CIntObject::show(to);
+
+	bool showTextOverlay = GH.isKeyboardAltDown();
+	if(showTextOverlay)
+		drawOverlays(to, buildings);
 }
 
 void CCastleBuildings::addBuilding(BuildingID building)
