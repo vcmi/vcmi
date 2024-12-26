@@ -1,3 +1,9 @@
+find_package(LuaJIT)
+
+if (LUAJIT_FOUND)
+	message(STATUS "LuaJIT found: ${LUAJIT_LIBRARIES}")
+endif()
+
 set(lib_SRCS
 	StdInc.cpp
 
@@ -109,8 +115,6 @@ set(lib_MAIN_SRCS
 	gameState/RumorState.cpp
 	gameState/TavernHeroesPool.cpp
 	gameState/GameStatistics.cpp
-    
-    lua/LuaExpressionEvaluator.cpp
 
 	mapObjectConstructors/AObjectTypeHandler.cpp
 	mapObjectConstructors/CBankInstanceConstructor.cpp
@@ -299,6 +303,12 @@ set(lib_MAIN_SRCS
 	TurnTimerInfo.cpp
 	VCMI_Lib.cpp
 )
+
+if (LUAJIT_FOUND)
+	list(APPEND lib_MAIN_SRCS
+		lua/LuaExpressionEvaluator.cpp
+	)
+endif()
 
 if (NOT ENABLE_MINIMAL_LIB)
 	list(APPEND lib_SRCS ${lib_MAIN_SRCS})
@@ -493,8 +503,6 @@ set(lib_MAIN_HEADERS
 	gameState/GameStatistics.h
 	gameState/TavernSlot.h
 	gameState/QuestInfo.h
-    
-    lua/LuaExpressionEvaluator.h
 
 	mapObjectConstructors/AObjectTypeHandler.h
 	mapObjectConstructors/CBankInstanceConstructor.h
@@ -741,6 +749,12 @@ set(lib_MAIN_HEADERS
 	VCMI_Lib.h
 )
 
+if (LUAJIT_FOUND)
+	list(APPEND lib_MAIN_HEADERS
+		lua/LuaExpressionEvaluator.h
+	)
+endif()
+
 if (NOT ENABLE_MINIMAL_LIB)
 	list(APPEND lib_HEADERS ${lib_MAIN_HEADERS})
 endif()
@@ -755,9 +769,14 @@ endif()
 
 set_target_properties(vcmi PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
 target_link_libraries(vcmi PUBLIC
-	minizip::minizip ZLIB::ZLIB TBB::tbb luajit::luajit
+	minizip::minizip ZLIB::ZLIB TBB::tbb
 	${SYSTEM_LIBS} Boost::boost Boost::thread Boost::filesystem Boost::program_options Boost::locale Boost::date_time
 )
+
+if (LUAJIT_FOUND)
+	target_link_libraries(vcmi PUBLIC luajit::luajit)
+    target_compile_definitions(vcmi PRIVATE HAVE_LUAJIT)
+endif()
 
 if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)
 	target_compile_definitions(vcmi PRIVATE STATIC_AI)
