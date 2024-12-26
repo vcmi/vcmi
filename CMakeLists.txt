@@ -524,7 +524,7 @@ if(TARGET luajit::luajit)
 	message(STATUS "Using LuaJIT provided by system")
 else()
 	message(STATUS "Cannot find LuaJIT! Fallback to using usual Lua.")
-	find_package(Lua REQUIRED)
+	find_package(Lua)
 	if(Lua_FOUND)
 		add_library(luajit::luajit UNKNOWN IMPORTED)
 		set_target_properties(luajit::luajit PROPERTIES
