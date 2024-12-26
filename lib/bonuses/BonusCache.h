@@ -12,6 +12,8 @@
 
 #include "BonusSelector.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 enum class BonusCacheMode : int8_t
 {
 	VALUE, // total value of bonus will be cached
@@ -180,3 +182,5 @@ public:
 
 	int getValue(int turns) const;
 };
+
+VCMI_LIB_NAMESPACE_END
