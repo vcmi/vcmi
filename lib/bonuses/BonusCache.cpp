@@ -18,6 +18,8 @@
 #include "../VCMI_Lib.h"
 #include "../IGameSettings.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 int BonusCacheBase::getBonusValueImpl(BonusCacheEntry & currentValue, const CSelector & selector, BonusCacheMode mode) const
 {
 	if (target->getTreeVersion() == currentValue.version)
@@ -174,3 +176,5 @@ int BonusCachePerTurn::getValue(int turns) const
 		return getValueUncached(turns);
 	}
 }
+
+VCMI_LIB_NAMESPACE_END
