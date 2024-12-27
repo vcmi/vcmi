@@ -36,7 +36,7 @@
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../CGameInfo.h"
 
-CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool fromCampaignSet)
+CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 	: CSelectionBase(screenType), bonusSel(nullptr)
 {
 	OBJECT_CONSTRUCTION;
@@ -116,7 +116,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool fromCampaignSet)
 			CSH->getGlobalLobby().activateInterface();
 	}, EShortcut::GLOBAL_CANCEL);
 
-	if(fromCampaignSet) // workaround to avoid confusing players by custom campaign list displaying for a few ms -> instead of this draw a black screen while "loading"
+	if(hideScreen) // workaround to avoid confusing players by custom campaign list displaying for a few ms -> instead of this draw a black screen while "loading"
 	{
 		blackScreen = std::make_shared<GraphicalPrimitiveCanvas>(Rect(Point(0, 0), pos.dimensions()));
 		blackScreen->addBox(Point(0, 0), pos.dimensions(), Colors::BLACK);

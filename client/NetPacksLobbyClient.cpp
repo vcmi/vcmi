@@ -78,7 +78,8 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 				GH.windows().popWindows(1);
 			}
 
-			GH.windows().createAndPushWindow<CLobbyScreen>(handler.screenType, handler.campaignStateToSend && !handler.campaignStateToSend->campaignSet.empty());
+			bool hideScreen = handler.campaignStateToSend && (!handler.campaignStateToSend->campaignSet.empty() || handler.campaignStateToSend->lastScenario());
+			GH.windows().createAndPushWindow<CLobbyScreen>(handler.screenType, hideScreen);
 		}
 		handler.setState(EClientState::LOBBY);
 	}
