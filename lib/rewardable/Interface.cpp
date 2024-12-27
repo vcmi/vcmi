@@ -38,10 +38,7 @@ std::vector<ui32> Rewardable::Interface::getAvailableRewards(const CGHeroInstanc
 		const Rewardable::VisitInfo & visit = configuration.info[i];
 
 		if(event == visit.visitType && (!hero || visit.limiter.heroAllowed(hero)))
-		{
-			logGlobal->trace("Reward %d is allowed", i);
 			ret.push_back(static_cast<ui32>(i));
-		}
 	}
 	return ret;
 }
@@ -119,7 +116,8 @@ void Rewardable::Interface::grantRewardBeforeLevelup(const Rewardable::VisitInfo
 	}
 
 	for(int i=0; i< info.reward.primary.size(); i++)
-		cb->changePrimSkill(hero, static_cast<PrimarySkill>(i), info.reward.primary[i], false);
+		if (info.reward.primary[i] != 0)
+			cb->changePrimSkill(hero, static_cast<PrimarySkill>(i), info.reward.primary[i], false);
 
 	TExpType expToGive = 0;
 

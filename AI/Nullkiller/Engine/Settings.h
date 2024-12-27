@@ -24,7 +24,8 @@ namespace NKAI
 		int maxRoamingHeroes;
 		int mainHeroTurnDistanceLimit;
 		int scoutHeroTurnDistanceLimit;
-		int maxpass;
+		int maxPass;
+		int maxPriorityPass;
 		int pathfinderBucketsCount;
 		int pathfinderBucketSize;
 		float maxGoldPressure;
@@ -41,7 +42,8 @@ namespace NKAI
 	public:
 		explicit Settings(int difficultyLevel);
 
-		int getMaxPass() const { return maxpass; }
+		int getMaxPass() const { return maxPass; }
+		int getMaxPriorityPass() const { return maxPriorityPass; }
 		float getMaxGoldPressure() const { return maxGoldPressure; }
 		float getRetreatThresholdRelative() const { return retreatThresholdRelative; }
 		float getRetreatThresholdAbsolute() const { return retreatThresholdAbsolute; }

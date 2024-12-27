@@ -134,6 +134,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <random>
 #include <regex>
 #include <set>
+#include <shared_mutex>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -168,6 +169,8 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/algorithm/string.hpp>
 #include <boost/crc.hpp>
 #include <boost/current_function.hpp>
+#include <boost/container/small_vector.hpp>
+#include <boost/container/static_vector.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/date_time/posix_time/time_formatters.hpp>
 #include <boost/filesystem.hpp>

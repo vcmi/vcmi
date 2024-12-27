@@ -19,6 +19,7 @@
 #include "../../lib/texts/Languages.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../vcmiqt/MessageBox.h"
 #include "../helper.h"
 #include "../languages.h"
 #include "../innoextract.h"
@@ -122,7 +123,7 @@ void FirstLaunchView::on_pushButtonDataCopy_clicked()
 #else
 	// iOS can't display modal dialogs when called directly on button press
 	// https://bugreports.qt.io/browse/QTBUG-98651
-	QTimer::singleShot(0, this, [this]{ copyHeroesData(); });
+	MessageBoxCustom::showDialog(this, [this]{ copyHeroesData(); });
 #endif
 }
 
@@ -130,7 +131,7 @@ void FirstLaunchView::on_pushButtonGogInstall_clicked()
 {
 	// iOS can't display modal dialogs when called directly on button press
 	// https://bugreports.qt.io/browse/QTBUG-98651
-	QTimer::singleShot(0, this, &FirstLaunchView::extractGogData);
+	MessageBoxCustom::showDialog(this, [this]{extractGogData();});
 }
 
 void FirstLaunchView::enterSetup()
@@ -188,10 +189,10 @@ void FirstLaunchView::activateTabModPreset()
 	modPresetUpdate();
 }
 
-void FirstLaunchView::exitSetup()
+void FirstLaunchView::exitSetup(bool goToMods)
 {
 	if(auto * mainWindow = dynamic_cast<MainWindow *>(QApplication::activeWindow()))
-		mainWindow->exitSetup();
+		mainWindow->exitSetup(goToMods);
 }
 
 // Tab Language
@@ -547,7 +548,7 @@ void FirstLaunchView::modPresetUpdate()
 
 	// we can't install anything - either repository checkout is off or all recommended mods are already installed
 	if (!checkCanInstallTranslation() && !checkCanInstallExtras() && !checkCanInstallHota() && !checkCanInstallWog())
-		exitSetup();
+		exitSetup(false);
 }
 
 QString FirstLaunchView::findTranslationModName()
@@ -624,7 +625,8 @@ void FirstLaunchView::on_pushButtonPresetNext_clicked()
 	if (ui->buttonPresetHota->isChecked() && checkCanInstallHota())
 		modsToInstall.push_back("hota");
 
-	exitSetup();
+	bool goToMods = !modsToInstall.empty();
+	exitSetup(goToMods);
 
 	for (auto const & modName : modsToInstall)
 		getModView()->doInstallMod(modName);

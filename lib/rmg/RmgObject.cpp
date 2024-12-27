@@ -255,6 +255,14 @@ Object::Instance & Object::addInstance(CGObjectInstance & object, const int3 & p
 	return dInstances.back();
 }
 
+bool Object::isVisitable() const
+{
+	return vstd::contains_if(dInstances, [](const Instance & instance)
+	{
+		return instance.object().isVisitable();
+	});
+}
+
 const int3 & Object::getPosition() const
 {
 	return dPosition;
@@ -464,6 +472,12 @@ uint32_t rmg::Object::getValue() const
 
 rmg::Area Object::Instance::getBorderAbove() const
 {
+	if (!object().isVisitable())
+	{
+		// TODO: Non-visitable objects don't need this, but theoretically could return valid area
+		return rmg::Area();
+	}
+
 	int3 visitablePos = getVisitablePosition();
 	auto areaVisitable = rmg::Area({visitablePos});
 	auto borderAbove = areaVisitable.getBorderOutside();

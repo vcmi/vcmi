@@ -222,7 +222,7 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 	std::vector<BuildingID> extraBuildings;
 	for (auto buildingInfo : t->getTown()->buildings)
 	{
-		if (buildingInfo.first > BuildingID::DWELL_UP2_FIRST)
+		if (buildingInfo.first.IsDwelling() && BuildingID::getUpgradedFromDwelling(buildingInfo.first) > 1)
 			extraBuildings.push_back(buildingInfo.first);
 	}
 	return tryBuildAnyStructure(t, extraBuildings);

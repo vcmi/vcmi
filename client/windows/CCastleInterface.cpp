@@ -157,7 +157,7 @@ void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 
 	BuildingID bid = getBuilding()->bid;
 	const CBuilding *bld = town->getTown()->buildings.at(bid);
-	if (bid < BuildingID::DWELL_FIRST)
+	if (!bid.IsDwelling())
 	{
 		CRClickPopup::createAndPush(CInfoWindow::genText(bld->getNameTranslated(), bld->getDescriptionTranslated()),
 									std::make_shared<CComponent>(ComponentType::BUILDING, BuildingTypeUniqueID(bld->town->faction->getId(), bld->bid)));
@@ -751,7 +751,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 		return true;
 	}
 
-	if (buildingToTest >= BuildingID::DWELL_FIRST)
+	if (buildingToTest.IsDwelling())
 	{
 		enterDwelling((BuildingID::getLevelFromDwelling(buildingToTest)));
 		return true;
@@ -815,7 +815,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 				case BuildingSubID::CASTLE_GATE:
 						if (LOCPLINT->makingTurn)
 						{
-							enterCastleGate();
+							enterCastleGate(buildingToTest);
 							return true;
 						}
 						return false;
@@ -902,7 +902,7 @@ void CCastleBuildings::enterBuilding(BuildingID building)
 	LOCPLINT->showInfoDialog( town->getTown()->buildings.find(building)->second->getDescriptionTranslated(), comps);
 }
 
-void CCastleBuildings::enterCastleGate()
+void CCastleBuildings::enterCastleGate(BuildingID building)
 {
 	if (!town->visitingHero)
 	{
@@ -929,7 +929,7 @@ void CCastleBuildings::enterCastleGate()
 		}
 	}
 
-	auto gateIcon = std::make_shared<CAnimImage>(town->getTown()->clientInfo.buildingsIcons, BuildingID::CASTLE_GATE);//will be deleted by selection window
+	auto gateIcon = std::make_shared<CAnimImage>(town->getTown()->clientInfo.buildingsIcons, building);//will be deleted by selection window
 	auto wnd = std::make_shared<CObjectListWindow>(availableTowns, gateIcon, CGI->generaltexth->jktexts[40],
 		CGI->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1), 0, images);
 	wnd->onPopup = [availableTowns](int index) { CRClickPopup::createAndPush(LOCPLINT->cb->getObjInstance(ObjectInstanceID(availableTowns[index])), GH.getCursorPosition()); };

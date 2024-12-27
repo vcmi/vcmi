@@ -73,7 +73,8 @@ private:
 class DLL_LINKAGE CCheckProxy
 {
 public:
-	CCheckProxy(const IBonusBearer * Target, CSelector Selector);
+	CCheckProxy(const IBonusBearer * Target, CSelector Selector, const std::string & cachingStr);
+	CCheckProxy(const IBonusBearer * Target, BonusType bonusType);
 	CCheckProxy(const CCheckProxy & other);
 	CCheckProxy& operator= (const CCheckProxy & other) = default;
 
@@ -81,6 +82,7 @@ public:
 
 private:
 	const IBonusBearer * target;
+	std::string cachingStr;
 	CSelector selector;
 
 	mutable int64_t cachedLast;

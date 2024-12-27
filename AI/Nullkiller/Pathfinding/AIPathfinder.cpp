@@ -106,7 +106,7 @@ void AIPathfinder::updatePaths(const std::map<const CGHeroInstance *, HeroRole> 
 
 	if(!pathfinderSettings.useHeroChain)
 	{
-		logAi->trace("Recalculated paths in %ld", timeElapsed(start));
+		logAi->trace("Recalculated paths in %ld ms", timeElapsed(start));
 
 		return;
 	}
@@ -141,7 +141,7 @@ void AIPathfinder::updatePaths(const std::map<const CGHeroInstance *, HeroRole> 
 		}
 	} while(storage->increaseHeroChainTurnLimit());
 
-	logAi->trace("Recalculated paths in %ld", timeElapsed(start));
+	logAi->trace("Recalculated paths in %ld ms", timeElapsed(start));
 }
 
 void AIPathfinder::updateGraphs(

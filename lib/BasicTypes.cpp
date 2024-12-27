@@ -32,38 +32,27 @@ bool INativeTerrainProvider::isNativeTerrain(TerrainId terrain) const
 
 TerrainId AFactionMember::getNativeTerrain() const
 {
-	const std::string cachingStringNoTerrainPenalty = "type_TERRAIN_NATIVE_NONE";
-	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(BonusType::TERRAIN_NATIVE, BonusSubtypeID());
-
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
-	return getBonusBearer()->hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
+	return getBonusBearer()->hasBonusOfType(BonusType::TERRAIN_NATIVE)
 			 ? TerrainId::ANY_TERRAIN : getFactionID().toEntity(VLC)->getNativeTerrain();
 }
 
 int32_t AFactionMember::magicResistance() const
 {
-	si32 val = getBonusBearer()->valOfBonuses(Selector::type()(BonusType::MAGIC_RESISTANCE));
+	si32 val = getBonusBearer()->valOfBonuses(BonusType::MAGIC_RESISTANCE);
 	vstd::amin (val, 100);
 	return val;
 }
 
 int AFactionMember::getAttack(bool ranged) const
 {
-	const std::string cachingStr = "type_PRIMARY_SKILLs_ATTACK";
-
-	static const auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
-
-	return getBonusBearer()->valOfBonuses(selector, cachingStr);
+	return getBonusBearer()->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
 }
 
 int AFactionMember::getDefense(bool ranged) const
 {
-	const std::string cachingStr = "type_PRIMARY_SKILLs_DEFENSE";
-
-	static const auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
-
-	return getBonusBearer()->valOfBonuses(selector, cachingStr);
+	return getBonusBearer()->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
 }
 
 int AFactionMember::getMinDamage(bool ranged) const
@@ -82,11 +71,9 @@ int AFactionMember::getMaxDamage(bool ranged) const
 
 int AFactionMember::getPrimSkillLevel(PrimarySkill id) const
 {
-	static const CSelector selectorAllSkills = Selector::type()(BonusType::PRIMARY_SKILL);
-	static const std::string keyAllSkills = "type_PRIMARY_SKILL";
-	auto allSkills = getBonusBearer()->getBonuses(selectorAllSkills, keyAllSkills);
-	auto ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(id)));
-	auto minSkillValue = VLC->engineSettings()->getVector(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS)[id.getNum()];
+	auto allSkills = getBonusBearer()->getBonusesOfType(BonusType::PRIMARY_SKILL);
+	int ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(id)));
+	int minSkillValue = VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, id.getNum());
 	return std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect, sp=0 works in old saves
 }
 
@@ -114,9 +101,7 @@ int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 		return 0;
 	}
 
-	static const auto moraleSelector = Selector::type()(BonusType::MORALE);
-	static const std::string cachingStrMor = "type_MORALE";
-	bonusList = getBonusBearer()->getBonuses(moraleSelector, cachingStrMor);
+	bonusList = getBonusBearer()->getBonusesOfType(BonusType::MORALE);
 
 	return std::clamp(bonusList->totalValue(), maxBadMorale, maxGoodMorale);
 }
@@ -140,9 +125,7 @@ int AFactionMember::luckValAndBonusList(TConstBonusListPtr & bonusList) const
 		return 0;
 	}
 
-	static const auto luckSelector = Selector::type()(BonusType::LUCK);
-	static const std::string cachingStrLuck = "type_LUCK";
-	bonusList = getBonusBearer()->getBonuses(luckSelector, cachingStrLuck);
+	bonusList = getBonusBearer()->getBonusesOfType(BonusType::LUCK);
 
 	return std::clamp(bonusList->totalValue(), maxBadLuck, maxGoodLuck);
 }
@@ -161,25 +144,39 @@ int AFactionMember::luckVal() const
 
 ui32 ACreature::getMaxHealth() const
 {
-	const std::string cachingStr = "type_STACK_HEALTH";
-	static const auto selector = Selector::type()(BonusType::STACK_HEALTH);
-	auto value = getBonusBearer()->valOfBonuses(selector, cachingStr);
+	auto value = getBonusBearer()->valOfBonuses(BonusType::STACK_HEALTH);
 	return std::max(1, value); //never 0
+}
+
+ui32 ACreature::getMovementRange() const
+{
+	//war machines cannot move
+	if (getBonusBearer()->hasBonusOfType(BonusType::SIEGE_WEAPON))
+		return 0;
+
+	if (getBonusBearer()->hasBonusOfType(BonusType::BIND_EFFECT))
+		return 0;
+
+	return getBonusBearer()->valOfBonuses(BonusType::STACKS_SPEED);
 }
 
 ui32 ACreature::getMovementRange(int turn) const
 {
-	//war machines cannot move
-	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::SIEGE_WEAPON).And(Selector::turns(turn))))
-	{
-		return 0;
-	}
-	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::BIND_EFFECT).And(Selector::turns(turn))))
-	{
-		return 0;
-	}
+	if (turn == 0)
+		return getMovementRange();
 
-	return getBonusBearer()->valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)));
+	const std::string cachingStrSW = "type_SIEGE_WEAPON_turns_" + std::to_string(turn);
+	const std::string cachingStrBE = "type_BIND_EFFECT_turns_" + std::to_string(turn);
+	const std::string cachingStrSS = "type_STACKS_SPEED_turns_" + std::to_string(turn);
+
+	//war machines cannot move
+	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::SIEGE_WEAPON).And(Selector::turns(turn)), cachingStrSW))
+		return 0;
+
+	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::BIND_EFFECT).And(Selector::turns(turn)), cachingStrBE))
+		return 0;
+
+	return getBonusBearer()->valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)), cachingStrSS);
 }
 
 bool ACreature::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation

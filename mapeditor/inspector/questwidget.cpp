@@ -428,8 +428,8 @@ bool QuestDelegate::eventFilter(QObject * object, QEvent * event)
 			return false;
 		if(event->type() == QEvent::Close)
 		{
-			emit commitData(ed);
-			emit closeEditor(ed);
+			commitData(ed);
+			closeEditor(ed);
 			return true;
 		}
 	}

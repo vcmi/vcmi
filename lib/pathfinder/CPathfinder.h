@@ -13,9 +13,6 @@
 #include "../IGameCallback.h"
 #include "../bonuses/BonusEnum.h"
 
-#include <boost/container/static_vector.hpp>
-#include <boost/container/small_vector.hpp>
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGWhirlpool;

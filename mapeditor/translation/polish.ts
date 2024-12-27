@@ -1096,10 +1096,10 @@
         <location filename="../inspector/inspector.cpp" line="359"/>
         <location filename="../inspector/inspector.cpp" line="360"/>
         <source>%n tile(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n pole</numerusform>
+            <numerusform>%n pola</numerusform>
+            <numerusform>%n pól</numerusform>
         </translation>
     </message>
     <message>

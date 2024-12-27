@@ -161,7 +161,7 @@ int DamageCalculator::getActorAttackSlayer() const
 		return 0;
 
 	auto slayerEffects = info.attacker->getBonuses(selectorSlayer, cachingStrSlayer);
-	auto slayerAffected = info.defender->unitType()->valOfBonuses(Selector::type()(BonusType::KING));
+	auto slayerAffected = info.defender->unitType()->valOfBonuses(BonusType::KING);
 
 	if(std::shared_ptr<const Bonus> slayerEffect = slayerEffects->getFirst(Selector::all))
 	{
@@ -269,26 +269,16 @@ double DamageCalculator::getAttackDoubleDamageFactor() const
 
 double DamageCalculator::getAttackJoustingFactor() const
 {
-	const std::string cachingStrJousting = "type_JOUSTING";
-	static const auto selectorJousting = Selector::type()(BonusType::JOUSTING);
-
-	const std::string cachingStrChargeImmunity = "type_CHARGE_IMMUNITY";
-	static const auto selectorChargeImmunity = Selector::type()(BonusType::CHARGE_IMMUNITY);
-
 	//applying jousting bonus
-	if(info.chargeDistance > 0 && info.attacker->hasBonus(selectorJousting, cachingStrJousting) && !info.defender->hasBonus(selectorChargeImmunity, cachingStrChargeImmunity))
-		return info.chargeDistance * (info.attacker->valOfBonuses(selectorJousting))/100.0;
+	if(info.chargeDistance > 0 && info.attacker->hasBonusOfType(BonusType::JOUSTING) && !info.defender->hasBonusOfType(BonusType::CHARGE_IMMUNITY))
+		return info.chargeDistance * (info.attacker->valOfBonuses(BonusType::JOUSTING))/100.0;
 	return 0.0;
 }
 
 double DamageCalculator::getAttackHateFactor() const
 {
 	//assume that unit have only few HATE features and cache them all
-	const std::string cachingStrHate = "type_HATE";
-	static const auto selectorHate = Selector::type()(BonusType::HATE);
-
-	auto allHateEffects = info.attacker->getBonuses(selectorHate, cachingStrHate);
-
+	auto allHateEffects = info.attacker->getBonusesOfType(BonusType::HATE);
 	return allHateEffects->valOfBonuses(Selector::subtype()(BonusSubtypeID(info.defender->creatureId()))) / 100.0;
 }
 
@@ -411,7 +401,7 @@ double DamageCalculator::getDefenseForgetfulnessFactor() const
 	{
 		//todo: set actual percentage in spell bonus configuration instead of just level; requires non trivial backward compatibility handling
 		//get list first, total value of 0 also counts
-		TConstBonusListPtr forgetfulList = info.attacker->getBonuses(Selector::type()(BonusType::FORGETFULL),"type_FORGETFULL");
+		TConstBonusListPtr forgetfulList = info.attacker->getBonusesOfType(BonusType::FORGETFULL);
 
 		if(!forgetfulList->empty())
 		{

@@ -25,6 +25,7 @@
 #include "../CSkillHandler.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
+#include "../gameState/UpgradeInfo.h"
 #include "../CCreatureHandler.h"
 #include "../mapping/CMap.h"
 #include "../StartInfo.h"
@@ -256,8 +257,7 @@ void CGHeroInstance::setMovementPoints(int points)
 
 int CGHeroInstance::movementPointsLimit(bool onLand) const
 {
-	TurnInfo ti(this);
-	return movementPointsLimitCached(onLand, &ti);
+	return valOfBonuses(BonusType::MOVEMENT, onLand ? BonusCustomSubtype::heroMovementLand : BonusCustomSubtype::heroMovementSea);
 }
 
 int CGHeroInstance::getLowestCreatureSpeed() const
@@ -273,7 +273,7 @@ void CGHeroInstance::updateArmyMovementBonus(bool onLand, const TurnInfo * ti) c
 		lowestCreatureSpeed = realLowestSpeed;
 		//Let updaters run again
 		treeHasChanged();
-		ti->updateHeroBonuses(BonusType::MOVEMENT, Selector::subtype()(onLand ? BonusCustomSubtype::heroMovementLand : BonusCustomSubtype::heroMovementSea));
+		ti->updateHeroBonuses(BonusType::MOVEMENT);
 	}
 }
 
@@ -405,7 +405,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 		putArtifact(ArtifactPosition::MACH4, artifact); //everyone has a catapult
 	}
 
-	if(!hasBonus(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)))
+	if(!hasBonusFrom(BonusSource::HERO_BASE_SKILL))
 	{
 		for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
 		{
@@ -681,7 +681,7 @@ void CGHeroInstance::pickRandomObject(vstd::RNG & rand)
 
 void CGHeroInstance::recreateSecondarySkillsBonuses()
 {
-	auto secondarySkillsBonuses = getBonuses(Selector::sourceType()(BonusSource::SECONDARY_SKILL));
+	auto secondarySkillsBonuses = getBonusesFrom(BonusSource::SECONDARY_SKILL);
 	for(const auto & bonus : *secondarySkillsBonuses)
 		removeBonus(bonus);
 
@@ -704,19 +704,46 @@ void CGHeroInstance::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 		setStackCount(SlotID(0), identifier.getNum());
 }
 
+std::array<int, 4> CGHeroInstance::getPrimarySkills() const
+{
+	std::array<int, 4> result;
+
+	auto allSkills = getBonusBearer()->getBonusesOfType(BonusType::PRIMARY_SKILL);
+	for (auto skill : PrimarySkill::ALL_SKILLS())
+	{
+		int ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(skill)));
+		int minSkillValue = VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, skill.getNum());
+		result[skill] = std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect
+	}
+
+	return result;
+}
+
 double CGHeroInstance::getFightingStrength() const
 {
-	return sqrt((1.0 + 0.05*getPrimSkillLevel(PrimarySkill::ATTACK)) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::DEFENSE)));
+	const auto & primarySkills = getPrimarySkills();
+	return getFightingStrengthImpl(primarySkills);
+}
+
+double CGHeroInstance::getFightingStrengthImpl(const std::array<int, 4> & primarySkills) const
+{
+	return sqrt((1.0 + 0.05*primarySkills[PrimarySkill::ATTACK]) * (1.0 + 0.05*primarySkills[PrimarySkill::DEFENSE]));
 }
 
 double CGHeroInstance::getMagicStrength() const
+{
+	const auto & primarySkills = getPrimarySkills();
+	return getMagicStrengthImpl(primarySkills);
+}
+
+double CGHeroInstance::getMagicStrengthImpl(const std::array<int, 4> & primarySkills) const
 {
 	if (!hasSpellbook())
 		return 1;
 	bool atLeastOneCombatSpell = false;
 	for (auto spell : spells)
 	{
-		if (spellbookContainsSpell(spell) && spell.toSpell()->isCombat())
+		if (spell.toSpell()->isCombat())
 		{
 			atLeastOneCombatSpell = true;
 			break;
@@ -724,22 +751,40 @@ double CGHeroInstance::getMagicStrength() const
 	}
 	if (!atLeastOneCombatSpell)
 		return 1;
-	return sqrt((1.0 + 0.05*getPrimSkillLevel(PrimarySkill::KNOWLEDGE) * mana / manaLimit()) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::SPELL_POWER) * mana / manaLimit()));
-}
-
-double CGHeroInstance::getMagicStrengthForCampaign() const
-{
-	return sqrt((1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::KNOWLEDGE)) * (1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::SPELL_POWER)));
+	return sqrt((1.0 + 0.05*primarySkills[PrimarySkill::KNOWLEDGE] * mana / manaLimit()) * (1.0 + 0.05*primarySkills[PrimarySkill::SPELL_POWER] * mana / manaLimit()));
 }
 
 double CGHeroInstance::getHeroStrength() const
 {
-	return sqrt(pow(getFightingStrength(), 2.0) * pow(getMagicStrength(), 2.0));
+	const auto & primarySkills = getPrimarySkills();
+	return getFightingStrengthImpl(primarySkills) * getMagicStrengthImpl(primarySkills);
 }
 
-double CGHeroInstance::getHeroStrengthForCampaign() const
+uint64_t CGHeroInstance::getValueForDiplomacy() const
 {
-	return sqrt(pow(getFightingStrength(), 2.0) * pow(getMagicStrengthForCampaign(), 2.0));
+	// H3 formula for hero strength when considering diplomacy skill
+	uint64_t armyStrength = getArmyStrength();
+	double heroStrength = sqrt(
+		(1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::ATTACK)) *
+		(1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::DEFENSE))
+		);
+
+	return heroStrength * armyStrength;
+}
+
+uint32_t CGHeroInstance::getValueForCampaign() const
+{
+	/// Determined by testing H3: hero is preferred for transfer in campaigns if total sum of his primary skills and his secondary skill levels is greatest
+	uint32_t score = 0;
+	score += getPrimSkillLevel(PrimarySkill::ATTACK);
+	score += getPrimSkillLevel(PrimarySkill::DEFENSE);
+	score += getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+	score += getPrimSkillLevel(PrimarySkill::DEFENSE);
+
+	for (const auto& secondary : secSkills)
+		score += secondary.second;
+
+	return score;
 }
 
 ui64 CGHeroInstance::getTotalStrength() const
@@ -972,7 +1017,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		// figure out what to raise - pick strongest creature meeting requirements
 		CreatureID creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
 		int requiredCasualtyLevel = 1;
-		TConstBonusListPtr improvedNecromancy = getBonuses(Selector::type()(BonusType::IMPROVED_NECROMANCY));
+		TConstBonusListPtr improvedNecromancy = getBonusesOfType(BonusType::IMPROVED_NECROMANCY);
 		if(!improvedNecromancy->empty())
 		{
 			int maxCasualtyLevel = 1;
@@ -1140,9 +1185,8 @@ void CGHeroInstance::pushPrimSkill( PrimarySkill which, int val )
 {
 	auto sel = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(which))
 		.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
-	if(hasBonus(sel))
-		removeBonuses(sel);
-		
+
+	removeBonuses(sel);
 	addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::HERO_BASE_SKILL, val, BonusSourceID(id), BonusSubtypeID(which)));
 }
 
@@ -1280,7 +1324,7 @@ const std::set<SpellID> & CGHeroInstance::getSpellsInSpellbook() const
 
 int CGHeroInstance::maxSpellLevel() const
 {
-	return std::min(GameConstants::SPELL_LEVELS, valOfBonuses(Selector::type()(BonusType::MAX_LEARNABLE_SPELL_LEVEL)));
+	return std::min(GameConstants::SPELL_LEVELS, valOfBonuses(BonusType::MAX_LEARNABLE_SPELL_LEVEL));
 }
 
 void CGHeroInstance::attachToBoat(CGBoat* newBoat)
@@ -1654,11 +1698,11 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 		{
 			auto primarySkills = handler.enterStruct("primarySkills");
 
-			for(auto i = PrimarySkill::BEGIN; i < PrimarySkill::END; ++i)
+			for(auto skill : PrimarySkill::ALL_SKILLS())
 			{
-				int value = valOfBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(i)).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)));
+				int value = valOfBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(skill)).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)));
 
-				handler.serializeInt(NPrimarySkill::names[i.getNum()], value, 0);
+				handler.serializeInt(NPrimarySkill::names[skill.getNum()], value, 0);
 			}
 		}
 	}
@@ -1847,16 +1891,15 @@ bool CGHeroInstance::isMissionCritical() const
 	return false;
 }
 
-void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const
+void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & stack) const
 {
-	TConstBonusListPtr lista = getBonuses(Selector::typeSubtype(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId())));
+	TConstBonusListPtr lista = getBonusesOfType(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId()));
 	for(const auto & it : *lista)
 	{
 		auto nid = CreatureID(it->additionalInfo[0]);
 		if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
 		{
-			info.newID.push_back(nid);
-			info.cost.push_back(nid.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost());
+			info.addUpgrade(nid, stack.getType());
 		}
 	}
 }
@@ -1921,9 +1964,9 @@ const IOwnableObject * CGHeroInstance::asOwnable() const
 
 int CGHeroInstance::getBasePrimarySkillValue(PrimarySkill which) const
 {
-	std::string cachingStr = "type_PRIMARY_SKILL_base_" + std::to_string(static_cast<int>(which));
+	std::string cachingStr = "CGHeroInstance::getBasePrimarySkillValue" + std::to_string(static_cast<int>(which));
 	auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(which)).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
-	auto minSkillValue = VLC->engineSettings()->getVector(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS)[which.getNum()];
+	auto minSkillValue = VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, which.getNum());
 	return std::max(valOfBonuses(selector, cachingStr), minSkillValue);
 }
 

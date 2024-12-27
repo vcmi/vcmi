@@ -20,6 +20,7 @@ class CGTownInstance;
 class CGHeroInstance;
 class CGGarrison;
 class CGCreature;
+class CGTeleport;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -29,6 +30,10 @@ class CSelectableComponent;
 class CTextBox;
 class CButton;
 class CFilledTexture;
+class FilledTexturePlayerColored;
+class TransparentFilledRectangle;
+class CMinimapInstance;
+class CLabel;
 
 /// text + comp. + ok button
 class CInfoWindow : public WindowBase
@@ -110,3 +115,21 @@ public:
 	void madeChoiceAndClose();
 	CSelWindow(const std::string & text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath,CFunctionList<void()> > > &Buttons, QueryID askID);
 };
+
+class TeleporterPopup : public CWindowObject
+{
+	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
+
+	std::shared_ptr<TransparentFilledRectangle> backgroundSurface;
+	std::shared_ptr<TransparentFilledRectangle> backgroundUnderground;
+
+	std::shared_ptr<CMinimapInstance> surface;
+	std::shared_ptr<CMinimapInstance> undergroud;
+
+	std::shared_ptr<CLabel> labelTitle;
+
+	std::vector<std::shared_ptr<CPicture>> iconsOverlay;
+public:
+	TeleporterPopup(const Point & position, const CGTeleport * teleporter);
+};
+

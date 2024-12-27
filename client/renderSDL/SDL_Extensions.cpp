@@ -671,10 +671,6 @@ SDL_Surface * CSDL_Ext::scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor
 	const uint32_t * srcPixels = static_cast<const uint32_t*>(intermediate->pixels);
 	uint32_t * dstPixels = static_cast<uint32_t*>(ret->pixels);
 
-	// avoid excessive granulation - xBRZ prefers at least 8-16 lines per task
-	// TODO: compare performance and size of images, recheck values for potentially better parameters
-	const int granulation = std::clamp(surf->h / 64 * 8, 8, 64);
-
 	switch (algorithm)
 	{
 		case EScalingAlgorithm::NEAREST:
@@ -687,11 +683,22 @@ SDL_Surface * CSDL_Ext::scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor
 		case EScalingAlgorithm::XBRZ_OPAQUE:
 		{
 			auto format = algorithm == EScalingAlgorithm::XBRZ_OPAQUE ? xbrz::ColorFormat::ARGB_CLAMPED : xbrz::ColorFormat::ARGB;
-			tbb::parallel_for(tbb::blocked_range<size_t>(0, intermediate->h, granulation), [factor, srcPixels, dstPixels, intermediate, format](const tbb::blocked_range<size_t> & r)
-			{
 
-				xbrz::scale(factor, srcPixels, dstPixels, intermediate->w, intermediate->h, format, {}, r.begin(), r.end());
-			});
+			if(intermediate->h < 32)
+			{
+				// for tiny images tbb incurs too high overhead
+				xbrz::scale(factor, srcPixels, dstPixels, intermediate->w, intermediate->h, format, {});
+			}
+			else
+			{
+				// xbrz recommends granulation of 16, but according to tests, for smaller images granulation of 4 is actually the best option
+				const int granulation = intermediate->h > 400 ? 16 : 4;
+				tbb::parallel_for(tbb::blocked_range<size_t>(0, intermediate->h, granulation), [factor, srcPixels, dstPixels, intermediate, format](const tbb::blocked_range<size_t> & r)
+				{
+					xbrz::scale(factor, srcPixels, dstPixels, intermediate->w, intermediate->h, format, {}, r.begin(), r.end());
+				});
+			}
+
 			break;
 		}
 		default:

@@ -122,7 +122,7 @@ void CDownloadManager::downloadFinished(QNetworkReply * reply)
 	}
 
 	if(downloadComplete)
-		emit finished(successful, failed, encounteredErrors);
+		finished(successful, failed, encounteredErrors);
 
 	file.reply->deleteLater();
 	file.reply = nullptr;
@@ -149,7 +149,7 @@ void CDownloadManager::downloadProgressChanged(qint64 bytesReceived, qint64 byte
 	if(received > total)
 		total = received;
 
-	emit downloadProgress(received, total);
+	downloadProgress(received, total);
 }
 
 bool CDownloadManager::downloadInProgress(const QUrl & url) const

@@ -46,7 +46,7 @@ struct DLL_LINKAGE TurnInfo
 	bool hasBonusOfType(const BonusType type, const BonusSubtypeID subtype) const;
 	int valOfBonuses(const BonusType type) const;
 	int valOfBonuses(const BonusType type, const BonusSubtypeID subtype) const;
-	void updateHeroBonuses(BonusType type, const CSelector& sel) const;
+	void updateHeroBonuses(BonusType type) const;
 	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 };
 

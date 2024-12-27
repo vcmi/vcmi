@@ -957,7 +957,7 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterS
 			creatureSpells.push_back(spellToCast.toSpell());
 	}
 
-	TConstBonusListPtr bl = casterStack->getBonuses(Selector::type()(BonusType::SPELLCASTER));
+	TConstBonusListPtr bl = casterStack->getBonusesOfType(BonusType::SPELLCASTER);
 
 	for(const auto & bonus : *bl)
 	{

@@ -399,8 +399,8 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	{
 		if(heroes[i])
 		{
-			battleRepositionHex[i] += heroes[i]->valOfBonuses(Selector::type()(BonusType::BEFORE_BATTLE_REPOSITION));
-			battleRepositionHexBlock[i] += heroes[i]->valOfBonuses(Selector::type()(BonusType::BEFORE_BATTLE_REPOSITION_BLOCK));
+			battleRepositionHex[i] += heroes[i]->valOfBonuses(BonusType::BEFORE_BATTLE_REPOSITION);
+			battleRepositionHexBlock[i] += heroes[i]->valOfBonuses(BonusType::BEFORE_BATTLE_REPOSITION_BLOCK);
 		}
 	}
 	int tacticsSkillDiffAttacker = battleRepositionHex[BattleSide::ATTACKER] - battleRepositionHexBlock[BattleSide::DEFENDER];
