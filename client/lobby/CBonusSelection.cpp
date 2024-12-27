@@ -542,6 +542,12 @@ void CBonusSelection::CRegion::updateState(bool disableAll)
 
 void CBonusSelection::CRegion::tick(uint32_t msPassed)
 {
+	if(!accessible)
+	{
+		removeUsedEvents(TIME);
+		return;
+	}
+
 	blinkAnim.msPassed += msPassed;
 	if(blinkAnim.msPassed >= 150)
 	{
