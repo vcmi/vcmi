@@ -12,13 +12,15 @@
 #include "CSelectionBase.h"
 
 class CBonusSelection;
+class GraphicalPrimitiveCanvas;
 
 class CLobbyScreen final : public CSelectionBase
 {
 public:
 	std::shared_ptr<CButton> buttonChat;
+	std::shared_ptr<GraphicalPrimitiveCanvas> blackScreen;
 
-	CLobbyScreen(ESelectionScreen type);
+	CLobbyScreen(ESelectionScreen type, bool fromCampaignSet = false);
 	~CLobbyScreen();
 	void toggleTab(std::shared_ptr<CIntObject> tab) final;
 	void startCampaign();

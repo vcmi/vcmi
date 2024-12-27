@@ -78,7 +78,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 				GH.windows().popWindows(1);
 			}
 
-			GH.windows().createAndPushWindow<CLobbyScreen>(handler.screenType);
+			GH.windows().createAndPushWindow<CLobbyScreen>(handler.screenType, handler.campaignStateToSend && !handler.campaignStateToSend->campaignSet.empty());
 		}
 		handler.setState(EClientState::LOBBY);
 	}
