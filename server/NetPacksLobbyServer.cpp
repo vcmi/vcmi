@@ -170,8 +170,10 @@ void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 
 	bool isCurrentMapConquerable = pack.ourCampaign->currentScenario() && pack.ourCampaign->isAvailable(*pack.ourCampaign->currentScenario());
 
-	for(auto scenarioID : pack.ourCampaign->allScenarios())
+	auto scenarios = pack.ourCampaign->allScenarios();
+	for(std::set<CampaignScenarioID>::reverse_iterator itr = scenarios.rbegin(); itr != scenarios.rend(); itr++) // reverse -> on multiple scenario selection set lowest id at the end
 	{
+		auto scenarioID = *itr;
 		if(pack.ourCampaign->isAvailable(scenarioID))
 		{
 			if(!isCurrentMapConquerable || (isCurrentMapConquerable && scenarioID == *pack.ourCampaign->currentScenario()))
