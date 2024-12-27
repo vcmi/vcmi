@@ -56,8 +56,11 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoEssentials::bat
 	}
 	else
 	{
-		if(!!getPlayerID() && *perspective != battleGetMySide())
-			logGlobal->warn("Unauthorized obstacles access attempt, assuming massive spell");
+		if(*perspective != BattleSide::ALL_KNOWING)
+		{
+			if(getPlayerID() && *perspective != battleGetMySide())
+				logGlobal->warn("Unauthorized obstacles access attempt, assuming massive spell");
+		}
 	}
 
 	for(const auto & obstacle : getBattle()->getAllObstacles())
