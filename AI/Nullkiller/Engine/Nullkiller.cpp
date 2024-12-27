@@ -528,6 +528,12 @@ void Nullkiller::makeTurn()
 #if NKAI_TRACE_LEVEL >= 1
 			logAi->info("Pass %d: Performing prio %d task %s with prio: %d", i, prioOfTask, bestTask->toString(), bestTask->priority);
 #endif
+			int totalMPBefore = 0;
+			int totalMPAfter = 0;
+			for (auto hero : cb->getHeroesInfo(true))
+			{
+				totalMPBefore += hero->movementPointsRemaining();
+			}
 			if(!executeTask(bestTask))
 			{
 				if(hasAnySuccess)
@@ -535,7 +541,12 @@ void Nullkiller::makeTurn()
 				else
 					return;
 			}
-			hasAnySuccess = true;
+			for (auto hero : cb->getHeroesInfo(true))
+			{
+				totalMPAfter +=	hero->movementPointsRemaining();
+			}
+			if(totalMPBefore > totalMPAfter)
+				hasAnySuccess = true;
 		}
 
 		hasAnySuccess |= handleTrading();
