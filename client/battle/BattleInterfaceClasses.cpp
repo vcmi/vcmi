@@ -908,7 +908,7 @@ BattleResultResources BattleResultWindow::getResources(const BattleResult & br)
 		case EBattleResult::SURRENDER:
 			resources.resultText.appendTextID("core.genrltxt.309");
 			resources.musicName = AudioPath::builtin("Music/Surrender Battle");
-			resources.prologueVideo = VideoPath();
+			resources.prologueVideo = VideoPath::builtin("SURRENDER.BIK");
 			resources.loopedVideo = VideoPath::builtin("SURRENDER.BIK");
 			break;
 		default:
