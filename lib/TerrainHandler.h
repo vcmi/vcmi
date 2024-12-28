@@ -83,14 +83,13 @@ public:
 
 	TerrainType() = default;
 
-	bool isLand() const;
-	bool isWater() const;
-	bool isRock() const;
+	inline bool isLand() const;
+	inline bool isWater() const;
+	inline bool isRock() const;
+	inline bool isPassable() const;
+	inline bool isSurface() const;
+	inline bool isUnderground() const;
 
-	bool isPassable() const;
-
-	bool isSurface() const;
-	bool isUnderground() const;
 	bool isTransitionRequired() const;
 };
 
