@@ -514,11 +514,7 @@ CPathfinderHelper::CPathfinderHelper(CGameState * gs, const CGHeroInstance * Her
 	canCastWaterWalk = Hero->canCastThisSpell(waterWalk.toSpell());
 }
 
-CPathfinderHelper::~CPathfinderHelper()
-{
-	for(auto * ti : turnsInfo)
-		delete ti;
-}
+CPathfinderHelper::~CPathfinderHelper() = default;
 
 void CPathfinderHelper::updateTurnInfo(const int Turn)
 {
@@ -526,10 +522,7 @@ void CPathfinderHelper::updateTurnInfo(const int Turn)
 	{
 		turn = Turn;
 		if(turn >= turnsInfo.size())
-		{
-			auto * ti = new TurnInfo(hero, turn);
-			turnsInfo.push_back(ti);
-		}
+			turnsInfo.push_back(hero->getTurnInfo(turn));
 	}
 }
 
@@ -561,12 +554,7 @@ bool CPathfinderHelper::isLayerAvailable(const EPathfindingLayer & layer) const
 
 const TurnInfo * CPathfinderHelper::getTurnInfo() const
 {
-	return turnsInfo[turn];
-}
-
-bool CPathfinderHelper::hasBonusOfType(const BonusType type) const
-{
-	return turnsInfo[turn]->hasBonusOfType(type);
+	return turnsInfo[turn].get();
 }
 
 int CPathfinderHelper::getMaxMovePoints(const EPathfindingLayer & layer) const
@@ -575,15 +563,16 @@ int CPathfinderHelper::getMaxMovePoints(const EPathfindingLayer & layer) const
 }
 
 void CPathfinderHelper::getNeighbours(
-	const TerrainTile & srcTile,
+	const TerrainTile & sourceTile,
 	const int3 & srcCoord,
 	NeighbourTilesVector & vec,
 	const boost::logic::tribool & onLand,
 	const bool limitCoastSailing) const
 {
 	CMap * map = gs->map;
+	const TerrainType * sourceTerrain = sourceTile.getTerrain();
 
-	static const int3 dirs[] = {
+	constexpr std::array dirs = {
 		int3(-1, +1, +0),	int3(0, +1, +0),	int3(+1, +1, +0),
 		int3(-1, +0, +0),	/* source pos */	int3(+1, +0, +0),
 		int3(-1, -1, +0),	int3(0, -1, +0),	int3(+1, -1, +0)
@@ -596,12 +585,12 @@ void CPathfinderHelper::getNeighbours(
 			continue;
 
 		const TerrainTile & destTile = map->getTile(destCoord);
-		const TerrainType* terrain = destTile.getTerrain();
-		if(!terrain->isPassable())
+		const TerrainType * destTerrain = destTile.getTerrain();
+		if(!destTerrain->isPassable())
 			continue;
 
 		/// Following condition let us avoid diagonal movement over coast when sailing
-		if(srcTile.isWater() && limitCoastSailing && terrain->isWater() && dir.x && dir.y) //diagonal move through water
+		if(sourceTerrain->isWater() && limitCoastSailing && destTerrain->isWater() && dir.x && dir.y) //diagonal move through water
 		{
 			const int3 horizontalNeighbour = srcCoord + int3{dir.x, 0, 0};
 			const int3 verticalNeighbour = srcCoord + int3{0, dir.y, 0};
@@ -609,7 +598,7 @@ void CPathfinderHelper::getNeighbours(
 				continue;
 		}
 
-		if(indeterminate(onLand) || onLand == terrain->isLand())
+		if(indeterminate(onLand) || onLand == destTerrain->isLand())
 		{
 			vec.push_back(destCoord);
 		}
@@ -663,54 +652,59 @@ int CPathfinderHelper::getMovementCost(
 
 	bool isWaterLayer;
 	if(indeterminate(isDstWaterLayer))
-		isWaterLayer = ((hero->boat && hero->boat->layer == EPathfindingLayer::WATER) || ti->hasBonusOfType(BonusType::WATER_WALKING)) && dt->isWater();
+		isWaterLayer = ((hero->boat && hero->boat->layer == EPathfindingLayer::WATER) || ti->hasWaterWalking()) && dt->isWater();
 	else
 		isWaterLayer = static_cast<bool>(isDstWaterLayer);
 	
-	bool isAirLayer = (hero->boat && hero->boat->layer == EPathfindingLayer::AIR) || ti->hasBonusOfType(BonusType::FLYING_MOVEMENT);
+	bool isAirLayer = (hero->boat && hero->boat->layer == EPathfindingLayer::AIR) || ti->hasFlyingMovement();
 
-	int ret = hero->getTileMovementCost(*dt, *ct, ti);
+	int movementCost = hero->getTileMovementCost(*dt, *ct, ti);
 	if(isSailLayer)
 	{
 		if(ct->hasFavorableWinds())
-			ret = static_cast<int>(ret * 2.0 / 3);
+			movementCost = static_cast<int>(movementCost * 2.0 / 3);
 	}
 	else if(isAirLayer)
-		vstd::amin(ret, GameConstants::BASE_MOVEMENT_COST + ti->valOfBonuses(BonusType::FLYING_MOVEMENT));
-	else if(isWaterLayer && ti->hasBonusOfType(BonusType::WATER_WALKING))
-		ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(BonusType::WATER_WALKING)) / 100.0);
+		vstd::amin(movementCost, GameConstants::BASE_MOVEMENT_COST + ti->getFlyingMovementValue());
+	else if(isWaterLayer && ti->hasWaterWalking())
+		movementCost = static_cast<int>(movementCost * (100.0 + ti->getWaterWalkingValue()) / 100.0);
 
 	if(src.x != dst.x && src.y != dst.y) //it's diagonal move
 	{
-		int old = ret;
-		ret = static_cast<int>(ret * M_SQRT2);
+		int old = movementCost;
+		movementCost = static_cast<int>(movementCost * M_SQRT2);
 		//diagonal move costs too much but normal move is possible - allow diagonal move for remaining move points
 		// https://heroes.thelazy.net/index.php/Movement#Diagonal_move_exception
-		if(ret > remainingMovePoints && remainingMovePoints >= old)
+		if(movementCost > remainingMovePoints && remainingMovePoints >= old)
 		{
 			return remainingMovePoints;
 		}
 	}
 
-	const int left = remainingMovePoints - ret;
-	constexpr auto maxCostOfOneStep = static_cast<int>(175 * M_SQRT2); // diagonal move on Swamp - 247 MP
-	if(checkLast && left > 0 && left <= maxCostOfOneStep) //it might be the last tile - if no further move possible we take all move points
+	//it might be the last tile - if no further move possible we take all move points
+	const int pointsLeft = remainingMovePoints - movementCost;
+	if(checkLast && pointsLeft > 0)
 	{
-		NeighbourTilesVector vec;
+		int minimalNextMoveCost = hero->getTileMovementCost(*dt, *ct, ti);
 
-		getNeighbours(*dt, dst, vec, ct->isLand(), true);
-		for(const auto & elem : vec)
-		{
-			int fcost = getMovementCost(dst, elem, nullptr, nullptr, left, false);
-			if(fcost <= left)
-			{
-				return ret;
-			}
-		}
-		ret = remainingMovePoints;
+		if (pointsLeft < minimalNextMoveCost)
+			return remainingMovePoints;
+
+//		NeighbourTilesVector vec;
+//
+//		getNeighbours(*dt, dst, vec, ct->isLand(), true);
+//		for(const auto & elem : vec)
+//		{
+//			int fcost = getMovementCost(dst, elem, nullptr, nullptr, pointsLeft, false);
+//			if(fcost <= pointsLeft)
+//			{
+//				return movementCost;
+//			}
+//		}
+//		movementCost = remainingMovePoints;
 	}
 
-	return ret;
+	return movementCost;
 }
 
 VCMI_LIB_NAMESPACE_END

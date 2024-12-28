@@ -25,8 +25,10 @@ class CGBoat;
 class CGTownInstance;
 class CMap;
 class UpgradeInfo;
+class TurnInfo;
+
 struct TerrainTile;
-struct TurnInfo;
+struct TurnInfoCache;
 
 class DLL_LINKAGE CGHeroPlaceholder : public CGObjectInstance
 {
@@ -62,9 +64,9 @@ private:
 	PrimarySkillsCache primarySkills;
 	MagicSchoolMasteryCache magicSchoolMastery;
 	BonusValueCache manaPerKnowledgeCached;
+	std::unique_ptr<TurnInfoCache> turnInfoCache;
 
 	std::set<SpellID> spells; //known spells (spell IDs)
-	mutable int lowestCreatureSpeed;
 	ui32 movement; //remaining movement points
 
 public:
@@ -224,10 +226,10 @@ public:
 	int movementPointsLimit(bool onLand) const;
 	//cached version is much faster, TurnInfo construction is costly
 	int movementPointsLimitCached(bool onLand, const TurnInfo * ti) const;
-	//update army movement bonus
-	void updateArmyMovementBonus(bool onLand, const TurnInfo * ti) const;
 
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false, const TurnInfo * ti = nullptr) const;
+
+	std::unique_ptr<TurnInfo> getTurnInfo(int days) const;
 
 	double getFightingStrength() const; // takes attack / defense skill into account
 	double getMagicStrength() const; // takes knowledge / spell power skill but also current mana, whether the hero owns a spell-book and whether that books contains anything into account

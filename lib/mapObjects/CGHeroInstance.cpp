@@ -73,31 +73,6 @@ void CGHeroPlaceholder::serializeJsonOptions(JsonSerializeFormat & handler)
 		handler.serializeInt("powerRank", powerRank.value());
 }
 
-static int lowestSpeed(const CGHeroInstance * chi)
-{
-	static const CSelector selectorSTACKS_SPEED = Selector::type()(BonusType::STACKS_SPEED);
-	static const std::string keySTACKS_SPEED = "type_" + std::to_string(static_cast<si32>(BonusType::STACKS_SPEED));
-
-	if(!chi->stacksCount())
-	{
-		if(chi->commander && chi->commander->alive)
-		{
-			return chi->commander->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED);
-		}
-
-		logGlobal->error("Hero %d (%s) has no army!", chi->id.getNum(), chi->getNameTranslated());
-		return 20;
-	}
-
-	auto i = chi->Slots().begin();
-	//TODO? should speed modifiers (eg from artifacts) affect hero movement?
-
-	int ret = (i++)->second->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED);
-	for(; i != chi->Slots().end(); i++)
-		ret = std::min(ret, i->second->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED));
-	return ret;
-}
-
 ui32 CGHeroInstance::getTileMovementCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const
 {
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
@@ -107,13 +82,10 @@ ui32 CGHeroInstance::getTileMovementCost(const TerrainTile & dest, const Terrain
 	{
 		ret = from.getRoad()->movementCost;
 	}
-	else if(ti->nativeTerrain != from.getTerrainID() &&//the terrain is not native
-			ti->nativeTerrain != ETerrainId::ANY_TERRAIN && //no special creature bonus
-			!ti->hasBonusOfType(BonusType::NO_TERRAIN_PENALTY, BonusSubtypeID(from.getTerrainID()))) //no special movement bonus
+	else if(ti->hasNoTerrainPenalty(from.getTerrainID())) //no special movement bonus
 	{
-
 		ret = VLC->terrainTypeHandler->getById(from.getTerrainID())->moveCost;
-		ret -= ti->valOfBonuses(BonusType::ROUGH_TERRAIN_DISCOUNT);
+		ret -= ti->getRoughTerrainDiscountValue();
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;
 	}
@@ -257,30 +229,44 @@ void CGHeroInstance::setMovementPoints(int points)
 
 int CGHeroInstance::movementPointsLimit(bool onLand) const
 {
-	return valOfBonuses(BonusType::MOVEMENT, onLand ? BonusCustomSubtype::heroMovementLand : BonusCustomSubtype::heroMovementSea);
+	auto ti = getTurnInfo(0);
+	return onLand ? ti->getMovePointsLimitLand() : ti->getMovePointsLimitWater();
 }
 
 int CGHeroInstance::getLowestCreatureSpeed() const
 {
-	return lowestCreatureSpeed;
+	static const CSelector selectorSTACKS_SPEED = Selector::type()(BonusType::STACKS_SPEED);
+	static const std::string cachingStr = "type_" + std::to_string(static_cast<si32>(BonusType::STACKS_SPEED));
+
+	if(stacksCount() != 0)
+	{
+		int minimalSpeed = std::numeric_limits<int>::max();
+		//TODO? should speed modifiers (eg from artifacts) affect hero movement?
+		for(const auto & slot : Slots())
+			minimalSpeed = std::min(minimalSpeed, slot.second->valOfBonuses(selectorSTACKS_SPEED, cachingStr));
+
+		return minimalSpeed;
+	}
+	else
+	{
+		if(commander && commander->alive)
+			return commander->valOfBonuses(selectorSTACKS_SPEED, cachingStr);
+	}
+
+	return 10;
 }
 
-void CGHeroInstance::updateArmyMovementBonus(bool onLand, const TurnInfo * ti) const
+std::unique_ptr<TurnInfo> CGHeroInstance::getTurnInfo(int days) const
 {
-	auto realLowestSpeed = lowestSpeed(this);
-	if(lowestCreatureSpeed != realLowestSpeed)
-	{
-		lowestCreatureSpeed = realLowestSpeed;
-		//Let updaters run again
-		treeHasChanged();
-		ti->updateHeroBonuses(BonusType::MOVEMENT);
-	}
+	return std::make_unique<TurnInfo>(turnInfoCache.get(), this, days);
 }
 
 int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) const
 {
-	updateArmyMovementBonus(onLand, ti);
-	return ti->valOfBonuses(BonusType::MOVEMENT, onLand ? BonusCustomSubtype::heroMovementLand : BonusCustomSubtype::heroMovementSea);
+	if (onLand)
+		return ti->getMovePointsLimitLand();
+	else
+		return ti->getMovePointsLimitWater();
 }
 
 CGHeroInstance::CGHeroInstance(IGameCallback * cb)
@@ -295,8 +281,8 @@ CGHeroInstance::CGHeroInstance(IGameCallback * cb)
 	gender(EHeroGender::DEFAULT),
 	primarySkills(this),
 	magicSchoolMastery(this),
-	manaPerKnowledgeCached(this, Selector::type()(BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE)),
-	lowestCreatureSpeed(0)
+	turnInfoCache(std::make_unique<TurnInfoCache>(this)),
+	manaPerKnowledgeCached(this, Selector::type()(BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE))
 {
 	setNodeType(HERO);
 	ID = Obj::HERO;
@@ -1365,11 +1351,11 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 	std::unique_ptr<TurnInfo> turnInfoLocal;
 	if(!ti)
 	{
-		turnInfoLocal = std::make_unique<TurnInfo>(this);
+		turnInfoLocal = getTurnInfo(0);
 		ti = turnInfoLocal.get();
 	}
 
-	if(!ti->hasBonusOfType(BonusType::FREE_SHIP_BOARDING))
+	if(!ti->hasFreeShipBoarding())
 		return 0; // take all MPs by default
 	
 	auto boatLayer = boat ? boat->layer : EPathfindingLayer::SAIL;
