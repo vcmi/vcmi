@@ -86,10 +86,10 @@ public:
 	void initTerrain();
 
 	CMapEditManager * getEditManager();
-	TerrainTile & getTile(const int3 & tile);
-	const TerrainTile & getTile(const int3 & tile) const;
+	inline TerrainTile & getTile(const int3 & tile);
+	inline const TerrainTile & getTile(const int3 & tile) const;
 	bool isCoastalTile(const int3 & pos) const;
-	bool isInTheMap(const int3 & pos) const;
+	inline bool isInTheMap(const int3 & pos) const;
 
 	bool canMoveBetween(const int3 &src, const int3 &dst) const;
 	bool checkForVisitableDir(const int3 & src, const TerrainTile * pom, const int3 & dst) const;
