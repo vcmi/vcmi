@@ -217,7 +217,7 @@ int64_t getArtifactScoreForHero(const CGHeroInstance * hero, const CArtifactInst
 int64_t getPotentialArtifactScore(const CArtifact * art);
 bool townHasFreeTavern(const CGTownInstance * town);
 
-uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy);
+uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy, int fortLevel = 0);
 
 uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start);
 

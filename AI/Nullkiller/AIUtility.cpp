@@ -774,9 +774,9 @@ bool townHasFreeTavern(const CGTownInstance * town)
 	return canMoveVisitingHeroToGarrison;
 }
 
-uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy)
+uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy, int fortLevel)
 {
-	auto armyStrength = heroArmy->getArmyStrength();
+	auto armyStrength = heroArmy->getArmyStrength(fortLevel);
 
 	if(hero && hero->commander && hero->commander->alive)
 	{
