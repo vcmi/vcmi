@@ -84,6 +84,7 @@ struct DLL_EXPORT EvaluationContext
 	bool isHero;
 	bool isEnemy;
 	int explorePriority;
+	float powerRatio;
 
 	EvaluationContext(const Nullkiller * ai);
 
