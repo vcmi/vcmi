@@ -12,7 +12,8 @@
 
 #include "../ResourceSet.h"
 #include "../texts/MetaString.h"
-#include "../int3.h"
+#include "../VCMI_Lib.h"
+#include "../TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -192,5 +193,82 @@ struct DLL_LINKAGE TerrainTile
 		h & blockingObjects;
 	}
 };
+
+inline bool TerrainTile::hasFavorableWinds() const
+{
+	return extTileFlags & 128;
+}
+
+inline bool TerrainTile::isWater() const
+{
+	return getTerrain()->isWater();
+}
+
+inline bool TerrainTile::isLand() const
+{
+	return getTerrain()->isLand();
+}
+
+inline bool TerrainTile::visitable() const
+{
+	return !visitableObjects.empty();
+}
+
+inline bool TerrainTile::blocked() const
+{
+	return !blockingObjects.empty();
+}
+
+inline bool TerrainTile::hasRiver() const
+{
+	return getRiverID() != RiverId::NO_RIVER;
+}
+
+inline bool TerrainTile::hasRoad() const
+{
+	return getRoadID() != RoadId::NO_ROAD;
+}
+
+inline const TerrainType * TerrainTile::getTerrain() const
+{
+	return terrainType.toEntity(VLC);
+}
+
+inline const RiverType * TerrainTile::getRiver() const
+{
+	return riverType.toEntity(VLC);
+}
+
+inline const RoadType * TerrainTile::getRoad() const
+{
+	return roadType.toEntity(VLC);
+}
+
+inline TerrainId TerrainTile::getTerrainID() const
+{
+	return terrainType;
+}
+
+inline RiverId TerrainTile::getRiverID() const
+{
+	return riverType;
+}
+
+inline RoadId TerrainTile::getRoadID() const
+{
+	return roadType;
+}
+
+inline bool TerrainTile::entrableTerrain(const TerrainTile * from) const
+{
+	const TerrainType * terrainFrom = from->getTerrain();
+	return entrableTerrain(terrainFrom->isLand(), terrainFrom->isWater());
+}
+
+inline bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
+{
+	const TerrainType * terrain = getTerrain();
+	return terrain->isPassable() && ((allowSea && terrain->isWater()) || (allowLand && terrain->isLand()));
+}
 
 VCMI_LIB_NAMESPACE_END

@@ -112,4 +112,34 @@ public:
 	std::vector<JsonNode> loadLegacyData() override;
 };
 
+inline bool TerrainType::isLand() const
+{
+	return !isWater();
+}
+
+inline bool TerrainType::isWater() const
+{
+	return passabilityType & PassabilityType::WATER;
+}
+
+inline bool TerrainType::isRock() const
+{
+	return passabilityType & PassabilityType::ROCK;
+}
+
+inline bool TerrainType::isPassable() const
+{
+	return !isRock();
+}
+
+inline bool TerrainType::isSurface() const
+{
+	return passabilityType & PassabilityType::SURFACE;
+}
+
+inline bool TerrainType::isUnderground() const
+{
+	return passabilityType & PassabilityType::SUBTERRANEAN;
+}
+
 VCMI_LIB_NAMESPACE_END
