@@ -214,6 +214,8 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonRelativeCursorMode, settings["general"]["userRelativePointer"].Bool());
 	setCheckbuttonState(ui->buttonHapticFeedback, settings["general"]["hapticFeedback"].Bool());
 
+	setCheckbuttonState(ui->buttonSaveBeforeBattle, settings["general"]["saveBeforeBattle"].Bool());
+
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
 	setCheckbuttonState(ui->buttonCursorType, cursorTypeIndex);
@@ -470,6 +472,13 @@ void CSettingsView::on_buttonAutoSave_toggled(bool value)
 	Settings node = settings.write["general"]["saveFrequency"];
 	node->Integer() = value ? 1 : 0;
 	updateCheckbuttonText(ui->buttonAutoSave);
+}
+
+void CSettingsView::on_buttonSaveBeforeBattle_toggled(bool value)
+{
+	Settings node = settings.write["general"]["saveBeforeBattle"];
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonSaveBeforeBattle);
 }
 
 void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)

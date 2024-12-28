@@ -69,7 +69,7 @@
          </property>
         </widget>
        </item>
-       <item row="60" column="0">
+       <item row="61" column="0">
         <widget class="QLabel" name="labelModsValidation">
          <property name="text">
           <string>Mods Validation</string>
@@ -301,7 +301,7 @@
          </property>
         </widget>
        </item>
-       <item row="60" column="5">
+       <item row="61" column="5">
         <widget class="QToolButton" name="buttonValidationFull">
          <property name="enabled">
           <bool>true</bool>
@@ -507,7 +507,7 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="1" colspan="5">
+       <item row="59" column="1" colspan="5">
         <widget class="QSpinBox" name="spinBoxNetworkPort">
          <property name="minimum">
           <number>1024</number>
@@ -667,7 +667,7 @@
          </property>
         </widget>
        </item>
-       <item row="60" column="1" colspan="2">
+       <item row="61" column="1" colspan="2">
         <widget class="QToolButton" name="buttonValidationOff">
          <property name="enabled">
           <bool>true</bool>
@@ -707,7 +707,7 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
+       <item row="59" column="0">
         <widget class="QLabel" name="labelNetworkPort">
          <property name="text">
           <string>Network port</string>
@@ -1133,7 +1133,7 @@
          </property>
         </widget>
        </item>
-       <item row="59" column="0">
+       <item row="60" column="0">
         <widget class="QLabel" name="labelMiscellaneous">
          <property name="font">
           <font>
@@ -1424,7 +1424,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
        <item row="12" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxResolution"/>
        </item>
-       <item row="60" column="3" colspan="2">
+       <item row="61" column="3" colspan="2">
         <widget class="QToolButton" name="buttonValidationBasic">
          <property name="enabled">
           <bool>true</bool>
@@ -1447,6 +1447,29 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
          <attribute name="buttonGroup">
           <string notr="true">buttonGroupValidation</string>
          </attribute>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="labelSaveBeforeBattle">
+         <property name="text">
+          <string>Save before battle</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1" colspan="5">
+        <widget class="QToolButton" name="buttonSaveBeforeBattle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>
