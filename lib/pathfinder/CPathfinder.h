@@ -16,7 +16,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGWhirlpool;
-struct TurnInfo;
+class TurnInfo;
 struct PathfinderOptions;
 
 // Optimized storage - tile can have 0-8 neighbour tiles
@@ -78,7 +78,7 @@ public:
 	int turn;
 	PlayerColor owner;
 	const CGHeroInstance * hero;
-	std::vector<TurnInfo *> turnsInfo;
+	std::vector<std::unique_ptr<TurnInfo>> turnsInfo;
 	const PathfinderOptions & options;
 	bool canCastFly;
 	bool canCastWaterWalk;
@@ -93,7 +93,7 @@ public:
 	void updateTurnInfo(const int turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer & layer) const;
 	const TurnInfo * getTurnInfo() const;
-	bool hasBonusOfType(BonusType type) const;
+	//bool hasBonusOfType(BonusType type) const;
 	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 
 	TeleporterTilesVector getCastleGates(const PathNodeInfo & source) const;

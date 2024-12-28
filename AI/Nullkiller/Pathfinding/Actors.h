@@ -73,7 +73,6 @@ public:
 	float heroFightingStrength;
 	uint8_t actorExchangeCount;
 	TResources armyCost;
-	std::shared_ptr<TurnInfo> tiCache;
 
 	ChainActor() = default;
 	virtual ~ChainActor() = default;
