@@ -143,17 +143,6 @@ TerrainTile::TerrainTile():
 {
 }
 
-bool TerrainTile::entrableTerrain(const TerrainTile * from) const
-{
-	return entrableTerrain(from ? from->isLand() : true, from ? from->isWater() : true);
-}
-
-bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
-{
-	return getTerrain()->isPassable()
-			&& ((allowSea && isWater())  ||  (allowLand && isLand()));
-}
-
 bool TerrainTile::isClear(const TerrainTile * from) const
 {
 	return entrableTerrain(from) && !blocked();
@@ -186,72 +175,6 @@ EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 	else
 		return EDiggingStatus::CAN_DIG;
 }
-
-bool TerrainTile::hasFavorableWinds() const
-{
-	return extTileFlags & 128;
-}
-
-bool TerrainTile::isWater() const
-{
-	return getTerrain()->isWater();
-}
-
-bool TerrainTile::isLand() const
-{
-	return getTerrain()->isLand();
-}
-
-bool TerrainTile::visitable() const
-{
-	return !visitableObjects.empty();
-}
-
-bool TerrainTile::blocked() const
-{
-	return !blockingObjects.empty();
-}
-
-bool TerrainTile::hasRiver() const
-{
-	return getRiverID() != RiverId::NO_RIVER;
-}
-
-bool TerrainTile::hasRoad() const
-{
-	return getRoadID() != RoadId::NO_ROAD;
-}
-
-const TerrainType * TerrainTile::getTerrain() const
-{
-	return terrainType.toEntity(VLC);
-}
-
-const RiverType * TerrainTile::getRiver() const
-{
-	return riverType.toEntity(VLC);
-}
-
-const RoadType * TerrainTile::getRoad() const
-{
-	return roadType.toEntity(VLC);
-}
-
-TerrainId TerrainTile::getTerrainID() const
-{
-	return terrainType;
-}
-
-RiverId TerrainTile::getRiverID() const
-{
-	return riverType;
-}
-
-RoadId TerrainTile::getRoadID() const
-{
-	return roadType;
-}
-
 
 CMap::CMap(IGameCallback * cb)
 	: GameCallbackHolder(cb)
@@ -365,7 +288,7 @@ bool CMap::isCoastalTile(const int3 & pos) const
 		return false;
 	}
 
-	if(isWaterTile(pos))
+	if(getTile(pos).isWater())
 		return false;
 
 	for(const auto & dir : dirs)
@@ -382,22 +305,6 @@ bool CMap::isCoastalTile(const int3 & pos) const
 	return false;
 }
 
-TerrainTile & CMap::getTile(const int3 & tile)
-{
-	assert(isInTheMap(tile));
-	return terrain[tile.z][tile.x][tile.y];
-}
-
-const TerrainTile & CMap::getTile(const int3 & tile) const
-{
-	assert(isInTheMap(tile));
-	return terrain[tile.z][tile.x][tile.y];
-}
-
-bool CMap::isWaterTile(const int3 &pos) const
-{
-	return isInTheMap(pos) && getTile(pos).isWater();
-}
 bool CMap::canMoveBetween(const int3 &src, const int3 &dst) const
 {
 	const TerrainTile * dstTile = &getTile(dst);
