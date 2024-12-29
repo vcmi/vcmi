@@ -15,9 +15,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void UpgradeInfo::addUpgrade(const CreatureID & upgradeID, const Creature * creature, int costPercentageModifier)
 {
-	if(vstd::contains(upgradesIDs, upgradeID))
-		return;
-
 	isAvailable = costPercentageModifier >= 0;
 
 	upgradesIDs.push_back(upgradeID);
