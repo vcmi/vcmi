@@ -17,13 +17,9 @@ namespace NKAI
 
 void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 {
-	auto townInfo = developmentInfo.town->getTown();
-	auto creatures = townInfo->creatures;
-	auto buildings = townInfo->getAllBuildings();
-
 	std::map<BuildingID, BuildingID> parentMap;
 
-	for(auto &pair : townInfo->buildings)
+	for(auto &pair : developmentInfo.town->getTown()->buildings)
 	{
 		if(pair.second->upgrade != BuildingID::NONE)
 		{
@@ -36,13 +32,14 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 		logAi->trace("Checking dwelling level %d", level);
 		BuildingInfo nextToBuild = BuildingInfo();
 
-		for(int upgradeIndex : {2, 1, 0})
+		BuildingID buildID = BuildingID(BuildingID::getDwellingFromLevel(level, 0));
+
+		for(; developmentInfo.town->getBuildings().count(buildID); BuildingID::advanceDwelling(buildID))
 		{
-			BuildingID building = BuildingID(BuildingID::getDwellingFromLevel(level, upgradeIndex));
-			if(!vstd::contains(buildings, building))
+			if(!developmentInfo.town->hasBuilt(buildID))
 				continue; // no such building in town
 
-			auto info = getBuildingOrPrerequisite(developmentInfo.town, building);
+			auto info = getBuildingOrPrerequisite(developmentInfo.town, buildID);
 
 			if(info.exists)
 			{

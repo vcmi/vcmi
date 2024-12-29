@@ -1813,12 +1813,13 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 		BuildingID buildingID;
 		if(fortSize == town->getTown()->creatures.size())
 		{
-			BuildingID dwelling = BuildingID::getDwellingFromLevel(i, 1);
+			BuildingID buildID = BuildingID(BuildingID::getDwellingFromLevel(i, 0));
 
-			if(town->hasBuilt(dwelling))
-				buildingID = BuildingID(BuildingID::getDwellingFromLevel(i, 1));
-			else
-				buildingID = BuildingID(BuildingID::getDwellingFromLevel(i, 0));
+			for(; town->getBuildings().count(buildID); BuildingID::advanceDwelling(buildID))
+			{
+				if(town->hasBuilt(buildID))
+					buildingID = buildID;
+			}
 		}
 		else
 		{
