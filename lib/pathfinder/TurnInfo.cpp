@@ -113,20 +113,20 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 
 	{
 		static const CSelector selector = Selector::type()(BonusType::FREE_SHIP_BOARDING);
-		const auto & bonuses = sharedCache->flyingMovement.getBonusList(target, selector);
+		const auto & bonuses = sharedCache->freeShipBoarding.getBonusList(target, selector);
 		freeShipBoardingTest = bonuses->getFirst(selector) != nullptr;
 	}
 
 	{
 		static const CSelector selector = Selector::type()(BonusType::ROUGH_TERRAIN_DISCOUNT);
-		const auto & bonuses = sharedCache->flyingMovement.getBonusList(target, selector);
+		const auto & bonuses = sharedCache->roughTerrainDiscount.getBonusList(target, selector);
 		roughTerrainDiscountValue = bonuses->getFirst(selector) != nullptr;
 	}
 
 	{
 		static const CSelector selector = Selector::typeSubtype(BonusType::MOVEMENT, BonusCustomSubtype::heroMovementSea);
 		const auto & vectorSea = target->cb->getSettings().getValue(EGameSettings::HEROES_MOVEMENT_POINTS_SEA).Vector();
-		const auto & bonuses = sharedCache->flyingMovement.getBonusList(target, selector);
+		const auto & bonuses = sharedCache->movementPointsLimitWater.getBonusList(target, selector);
 		int baseMovementPointsSea;
 		if (lowestSpeed < vectorSea.size())
 			baseMovementPointsSea = vectorSea[lowestSpeed].Integer();
@@ -139,7 +139,7 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 	{
 		static const CSelector selector = Selector::typeSubtype(BonusType::MOVEMENT, BonusCustomSubtype::heroMovementSea);
 		const auto & vectorLand = target->cb->getSettings().getValue(EGameSettings::HEROES_MOVEMENT_POINTS_LAND).Vector();
-		const auto & bonuses = sharedCache->flyingMovement.getBonusList(target, selector);
+		const auto & bonuses = sharedCache->movementPointsLimitLand.getBonusList(target, selector);
 		int baseMovementPointsLand;
 		if (lowestSpeed < vectorLand.size())
 			baseMovementPointsLand = vectorLand[lowestSpeed].Integer();
@@ -151,7 +151,7 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 
 	{
 		static const CSelector selector = Selector::type()(BonusType::NO_TERRAIN_PENALTY);
-		const auto & bonuses = sharedCache->flyingMovement.getBonusList(target, selector);
+		const auto & bonuses = sharedCache->noTerrainPenalty.getBonusList(target, selector);
 		for (const auto & bonus : *bonuses)
 		{
 			TerrainId affectedTerrain = bonus->subtype.as<TerrainId>();
