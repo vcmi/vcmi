@@ -59,7 +59,7 @@ TConstBonusListPtr IBonusBearer::getBonusesOfType(BonusType type) const
 TConstBonusListPtr IBonusBearer::getBonusesOfType(BonusType type, BonusSubtypeID subtype) const
 {
 	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + subtype.toString();
-	CSelector s = Selector::type()(type);
+	CSelector s = Selector::typeSubtype(type, subtype);
 	return getBonuses(s, cachingStr);
 }
 
@@ -105,7 +105,7 @@ bool IBonusBearer::hasBonusOfType(BonusType type, BonusSubtypeID subtype) const
 
 bool IBonusBearer::hasBonusFrom(BonusSource source, BonusSourceID sourceID) const
 {
-	std::string cachingStr = "source_" + std::to_string(static_cast<int>(source)) + "_" + sourceID.toString();
+	std::string cachingStr = "source_" + std::to_string(static_cast<int>(source)) + "_" + std::to_string(sourceID.getNum());
 	return hasBonus(Selector::source(source,sourceID), cachingStr);
 }
 

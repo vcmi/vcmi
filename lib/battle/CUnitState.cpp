@@ -939,16 +939,16 @@ const UnitBonusValuesProxy::SelectorsArray * CUnitState::generateBonusSelectors(
 	static const CSelector selectorMelee = Selector::effectRange()(BonusLimitEffect::NO_LIMIT).Or(Selector::effectRange()(BonusLimitEffect::ONLY_MELEE_FIGHT));
 	static const CSelector selectorRanged = Selector::effectRange()(BonusLimitEffect::NO_LIMIT).Or(Selector::effectRange()(BonusLimitEffect::ONLY_DISTANCE_FIGHT));
 	static const CSelector minDamage = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin));
-	static const CSelector maxDamage = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin));
+	static const CSelector maxDamage = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax));
 	static const CSelector attack = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
-	static const CSelector defence = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
+	static const CSelector defence = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
 
 	static const UnitBonusValuesProxy::SelectorsArray selectors = {
 		additionalAttack.And(selectorMelee), //TOTAL_ATTACKS_MELEE,
 		additionalAttack.And(selectorRanged), //TOTAL_ATTACKS_RANGED,
 		minDamage.And(selectorMelee), //MIN_DAMAGE_MELEE,
 		minDamage.And(selectorRanged), //MIN_DAMAGE_RANGED,
-		minDamage.And(selectorMelee), //MAX_DAMAGE_MELEE,
+		maxDamage.And(selectorMelee), //MAX_DAMAGE_MELEE,
 		maxDamage.And(selectorRanged), //MAX_DAMAGE_RANGED,
 		attack.And(selectorRanged),//ATTACK_MELEE,
 		attack.And(selectorRanged),//ATTACK_RANGED,
