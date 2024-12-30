@@ -382,6 +382,13 @@ bool SDLImageShared::isTransparent(const Point & coords) const
 		return true;
 }
 
+Rect SDLImageShared::contentRect() const
+{
+	auto tmpMargins = margins / preScaleFactor;
+	auto tmpSize = Point(surf->w, surf->h) / preScaleFactor;
+	return Rect(tmpMargins, tmpSize);
+}
+
 Point SDLImageShared::dimensions() const
 {
 	return fullSize / preScaleFactor;
@@ -613,6 +620,11 @@ void SDLImageRGB::exportBitmap(const boost::filesystem::path & path) const
 bool SDLImageBase::isTransparent(const Point & coords) const
 {
 	return image->isTransparent(coords);
+}
+
+Rect SDLImageBase::contentRect() const
+{
+	return image->contentRect();
 }
 
 Point SDLImageBase::dimensions() const
