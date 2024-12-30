@@ -235,9 +235,9 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 	if (!getBuilding())
 		return "";
 
-	int bid = getBuilding()->bid;
+	auto bid = getBuilding()->bid;
 
-	if (bid<30)//non-dwellings - only building name
+	if (!bid.IsDwelling())//non-dwellings - only building name
 		return town->getTown()->buildings.at(getBuilding()->bid)->getNameTranslated();
 	else//dwellings - recruit %creature%
 	{
@@ -660,13 +660,13 @@ void CCastleBuildings::drawOverlays(Canvas & to, std::vector<std::shared_ptr<CBu
 		auto building = buildingRect->getBuilding();
 		if (!building)
 			continue;
-		int bid = building->bid;
+		auto bid = building->bid;
 
 		auto overlay = town->getTown()->buildings.at(bid)->getNameTranslated();
 		const auto & font = GH.renderHandler().loadFont(FONT_TINY);
 
 		auto backColor = Colors::GREEN; // Other
-		if(bid >= 30)
+		if(bid.IsDwelling())
 			backColor = Colors::PURPLE; // dwelling
 
 		auto contentRect = buildingRect->border->contentRect();
