@@ -255,14 +255,14 @@ JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
 	return node;
 }
 
-std::map<std::string, CampaignStartOptions> startOptionsMap = {
+static const std::map<std::string, CampaignStartOptions> startOptionsMap = {
 	{"none", CampaignStartOptions::NONE},
 	{"bonus", CampaignStartOptions::START_BONUS},
 	{"crossover", CampaignStartOptions::HERO_CROSSOVER},
 	{"hero", CampaignStartOptions::HERO_OPTIONS}
 };
 
-std::map<std::string, CampaignBonusType> bonusTypeMap = {
+static const std::map<std::string, CampaignBonusType> bonusTypeMap = {
 	{"spell", CampaignBonusType::SPELL},
 	{"creature", CampaignBonusType::MONSTER},
 	{"building", CampaignBonusType::BUILDING},
@@ -275,20 +275,20 @@ std::map<std::string, CampaignBonusType> bonusTypeMap = {
 	//{"hero", CScenarioTravel::STravelBonus::EBonusType::HERO},
 };
 
-std::map<std::string, ui32> primarySkillsMap = {
+static const std::map<std::string, ui32> primarySkillsMap = {
 	{"attack", 0},
 	{"defence", 8},
 	{"spellpower", 16},
 	{"knowledge", 24},
 };
 
-std::map<std::string, ui16> heroSpecialMap = {
+static const std::map<std::string, ui16> heroSpecialMap = {
 	{"strongest", 0xFFFD},
 	{"generated", 0xFFFE},
 	{"random", 0xFFFF}
 };
 
-std::map<std::string, ui8> resourceTypeMap = {
+static const std::map<std::string, ui8> resourceTypeMap = {
 	//FD - wood+ore
 	//FE - mercury+sulfur+crystal+gem
 	{"wood", 0},
@@ -330,7 +330,7 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 			logGlobal->warn("VCMP Loading: keepArtifacts contains unresolved identifier %s", k.String());
 	}
 
-	ret.startOptions = startOptionsMap[reader["startOptions"].String()];
+	ret.startOptions = startOptionsMap.at(reader["startOptions"].String());
 	switch(ret.startOptions)
 	{
 	case CampaignStartOptions::NONE:
@@ -342,11 +342,11 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 			for(auto & bjson : reader["bonuses"].Vector())
 			{
 				CampaignBonus bonus;
-				bonus.type = bonusTypeMap[bjson["what"].String()];
+				bonus.type = bonusTypeMap.at(bjson["what"].String());
 				switch (bonus.type)
 				{
 					case CampaignBonusType::RESOURCE:
-						bonus.info1 = resourceTypeMap[bjson["type"].String()];
+						bonus.info1 = resourceTypeMap.at(bjson["type"].String());
 						bonus.info2 = bjson["amount"].Integer();
 						break;
 						
@@ -357,7 +357,7 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 						break;
 						
 					default:
-						if(int heroId = heroSpecialMap[bjson["hero"].String()])
+						if(int heroId = heroSpecialMap.at(bjson["hero"].String()))
 							bonus.info1 = heroId;
 						else
 							if(auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", bjson["hero"].String()))
@@ -420,7 +420,7 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 				bonus.type = CampaignBonusType::HERO;
 				bonus.info1 = bjson["playerColor"].Integer(); //player color
 				
-				if(int heroId = heroSpecialMap[bjson["hero"].String()])
+				if(int heroId = heroSpecialMap.at(bjson["hero"].String()))
 					bonus.info2 = heroId;
 				else
 					if (auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", bjson["hero"].String()))
