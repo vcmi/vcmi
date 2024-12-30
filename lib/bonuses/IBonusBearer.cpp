@@ -59,7 +59,7 @@ TConstBonusListPtr IBonusBearer::getBonusesOfType(BonusType type) const
 TConstBonusListPtr IBonusBearer::getBonusesOfType(BonusType type, BonusSubtypeID subtype) const
 {
 	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + subtype.toString();
-	CSelector s = Selector::type()(type);
+	CSelector s = Selector::typeSubtype(type, subtype);
 	return getBonuses(s, cachingStr);
 }
 
