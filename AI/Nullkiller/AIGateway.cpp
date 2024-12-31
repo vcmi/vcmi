@@ -805,7 +805,11 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 						{
 							return id.toCreature()->getAIValue();
 						});
-					if(nullkiller->getFreeResources().canAfford(upgradeInfo.getUpgradeCostsFor(upgID) * s->count))
+
+					int oldValue = s->getCreature()->getAIValue();
+					int newValue = upgID.toCreature()->getAIValue();
+
+					if(newValue > oldValue && nullkiller->getFreeResources().canAfford(upgradeInfo.getUpgradeCostsFor(upgID) * s->count))
 					{
 						myCb->upgradeCreature(obj, SlotID(i), upgID);
 						upgraded = true;
