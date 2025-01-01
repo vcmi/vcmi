@@ -933,6 +933,9 @@ void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 
 void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
 {
+	if (!SEL)
+		return;
+
 	if(SEL->screenType != ESelectionScreen::newGame)
 		return;
 	
