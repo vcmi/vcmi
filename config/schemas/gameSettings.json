@@ -68,10 +68,8 @@
 				"goodLuckDice" :                { "type" : "array" },
 				"badLuckDice" :                 { "type" : "array" },
 				"backpackSize" :                { "type" : "number" },
-				"attackPointDamageFactor" :     { "type" : "number" },
-				"attackPointDamageFactorCap" :  { "type" : "number" },
-				"defensePointDamageFactor" :    { "type" : "number" },
-				"defensePointDamageFactorCap" : { "type" : "number" },
+				"attackPointDamageFormula" :    { "type" : "string" },
+				"defensePointDamageFormula" :   { "type" : "string" },
 				"oneHexTriggersObstacles" :     { "type" : "boolean" },
 				"layouts" :                     { "type" : "object" },
 				"areaShotCanTargetEmptyHex" :   { "type" : "boolean" }
