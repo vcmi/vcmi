@@ -219,6 +219,8 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonRelativeCursorMode, settings["general"]["userRelativePointer"].Bool());
 	setCheckbuttonState(ui->buttonHapticFeedback, settings["general"]["hapticFeedback"].Bool());
 
+	setCheckbuttonState(ui->buttonHandleBackRightMouseButton, settings["input"]["handleBackRightMouseButton"].Bool());
+
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
 	setCheckbuttonState(ui->buttonCursorType, cursorTypeIndex);
@@ -851,5 +853,6 @@ void CSettingsView::on_buttonHandleBackRightMouseButton_toggled(bool checked)
 {
 	Settings node = settings.write["input"]["handleBackRightMouseButton"];
 	node->Bool() = checked;
+	updateCheckbuttonText(ui->buttonHandleBackRightMouseButton);
 }
 
