@@ -454,10 +454,19 @@ void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 			return;
 		}
 
-		auto file = boost::filesystem::canonical(*name);
-		boost::filesystem::remove(file);
-		if(boost::filesystem::is_empty(file.parent_path()))
-			boost::filesystem::remove(file.parent_path());
+		boost::system::error_code ec;
+		auto file = boost::filesystem::canonical(*name, ec);
+
+		if (ec)
+		{
+			logGlobal->error("Failed to delete file '%s'. Reason: %s", res.getOriginalName(), ec.message());
+		}
+		else
+		{
+			boost::filesystem::remove(file);
+			if(boost::filesystem::is_empty(file.parent_path()))
+				boost::filesystem::remove(file.parent_path());
+		}
 	}
 	else if(pack.type == LobbyDelete::EType::SAVEGAME_FOLDER)
 	{
@@ -468,8 +477,17 @@ void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 			logGlobal->error("Failed to find folder with name '%s'", res.getOriginalName());
 			return;
 		}
+
+		boost::system::error_code ec;
 		auto folder = boost::filesystem::canonical(*name);
-		boost::filesystem::remove_all(folder);
+		if (ec)
+		{
+			logGlobal->error("Failed to delete folder '%s'. Reason: %s", res.getOriginalName(), ec.message());
+		}
+		else
+		{
+			boost::filesystem::remove_all(folder);
+		}
 	}
 
 	LobbyUpdateState lus;
