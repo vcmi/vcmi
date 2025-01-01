@@ -404,6 +404,9 @@ std::shared_ptr<IImage> SDLImageShared::createImageReference(EImageBlitMode mode
 
 std::shared_ptr<const ISharedImage> SDLImageShared::horizontalFlip() const
 {
+	if (!surf)
+		return shared_from_this();
+
 	SDL_Surface * flipped = CSDL_Ext::horizontalFlip(surf);
 	auto ret = std::make_shared<SDLImageShared>(flipped, preScaleFactor);
 	ret->fullSize = fullSize;
@@ -416,6 +419,9 @@ std::shared_ptr<const ISharedImage> SDLImageShared::horizontalFlip() const
 
 std::shared_ptr<const ISharedImage> SDLImageShared::verticalFlip() const
 {
+	if (!surf)
+		return shared_from_this();
+
 	SDL_Surface * flipped = CSDL_Ext::verticalFlip(surf);
 	auto ret = std::make_shared<SDLImageShared>(flipped, preScaleFactor);
 	ret->fullSize = fullSize;
