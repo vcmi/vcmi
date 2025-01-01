@@ -94,6 +94,148 @@ bool CMessage::validateTags(
 	return true;
 }
 
+std::vector<CMessage::coloredline> CMessage::splitLineBySpaces(const std::string_view & line, size_t maxLineWidth, const EFonts font)
+{
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	std::vector<coloredline> result;
+
+	const auto findInStr =
+		[](const char& targetChar, const std::string_view& str) -> std::vector<std::string_view::const_iterator>
+		{
+			std::vector<std::string_view::const_iterator> results;
+			for (auto c = str.cbegin(); c < str.cend(); c++)
+			{
+				if (*c == targetChar)
+					results.push_back(c);
+			}
+			return results;
+		};
+
+	auto openingBraces = findInStr('{', line);
+	auto closingBraces = findInStr('}', line);
+	if(!validateTags(openingBraces, closingBraces))
+	{
+		logGlobal->error("CMessage: Line validation Invalid: %s", line);
+		return result;
+	}
+	if(!validateTags(findInStr('#', line), findInStr('|', line)))
+	{
+		logGlobal->error("CMessage: Line validation Invalid: %s", line);
+		return result;
+	}
+
+	const auto isIteratorInStr = [](const std::string_view::const_iterator & pos, const std::string_view & str) -> bool
+		{
+			const auto strBegin = str.data();
+			const auto strEnd = strBegin + str.size();
+			return strBegin <= &(*pos) && &(*pos) < strEnd;
+		};
+
+	std::string_view lastFoundColor;
+	const std::function<size_t(const std::string_view&)> findColorTags = [&](const std::string_view & str) -> size_t
+		{
+			if(closingBraces.empty())
+				return 0;
+
+			size_t foundWidth = 0;
+			if(openingBraces.size() == closingBraces.size())
+				if(isIteratorInStr(openingBraces.front(), str))
+				{
+					foundWidth += fontPtr->getStringWidth("{");
+					const auto colorTagBegin = std::next(openingBraces.front());
+					// Opened color tag brace found. Try to find color code.
+					if(*colorTagBegin == '#')
+					{
+						const auto colorTagEnd = std::find(colorTagBegin, closingBraces.front(), '|');
+						assert(colorTagEnd != closingBraces.front());
+						foundWidth += fontPtr->getStringWidth(std::string(&(*colorTagBegin), std::distance(colorTagBegin, std::next(colorTagEnd))));
+						//lastFoundColor = std::string_view(openingBracers.front(), std::next(colorTagEnd)); // Use this if C++20 is available
+						lastFoundColor = std::string_view(&(*openingBraces.front()), std::distance(openingBraces.front(), std::next(colorTagEnd)));
+					}
+					else
+					{
+						//lastFoundColor = std::string_view(openingBracers.front(), std::next(openingBracers.front())); // Use this if C++20 is available
+						lastFoundColor = std::string_view(&(*openingBraces.front()), std::distance(openingBraces.front(), std::next(openingBraces.front())));
+					}
+					openingBraces.erase(openingBraces.begin());
+				}
+				else
+				{
+					return foundWidth;
+				}
+
+			if(isIteratorInStr(closingBraces.front(), str))
+			{
+				closingBraces.erase(closingBraces.begin());
+				foundWidth += fontPtr->getStringWidth("}");
+				foundWidth += findColorTags(str);
+				lastFoundColor = std::string_view();
+			}
+			return foundWidth;
+		};
+
+	const std::function<void(const std::string_view&)> splitBySpaces = [&](const std::string_view & subLine)
+		{
+			// Trim spaces from beginning
+			const auto subLineBeginPos = subLine.find_first_not_of(' ');
+			if(subLineBeginPos == std::string::npos)
+				return;
+
+			const auto trimmedLine = subLine.substr(subLineBeginPos, subLine.length() - subLineBeginPos);
+			const auto lineBegin = trimmedLine.cbegin();
+			auto wordBegin = lineBegin;
+			const auto spaces = findInStr(' ', trimmedLine);
+			if(spaces.empty())
+			{
+				result.back().line = subLine;
+				return;
+			}
+
+			size_t lineWidth = 0;
+			//const auto curWord = std::string_view(wordBegin, spaces.front()); // Use this if C++20 is available
+			const auto curWord = std::string_view(&(*wordBegin), std::distance(wordBegin, spaces.front()));
+			// TODO std::string should be optimized to std::string_view
+			size_t nextWordWidth = fontPtr->getStringWidth(std::string(curWord)) - findColorTags(curWord);
+
+			for(auto space = spaces.cbegin(); space < spaces.cend(); space = std::next(space))
+			{
+				lineWidth += nextWordWidth;
+				const auto curColor = lastFoundColor;
+				const auto wordEnd = *space;
+				const auto nextSpace = std::next(space);
+				const auto nextWord = nextSpace == spaces.end() ? std::string_view(&(*wordEnd), std::distance(wordEnd, trimmedLine.end()))
+					// : std::string_view(wordEnd, *nextSpace); // Use this if C++20 is available
+					: std::string_view(&(*wordEnd), std::distance(wordEnd, *nextSpace));
+				nextWordWidth = fontPtr->getStringWidth(std::string(nextWord)) - findColorTags(nextWord);
+
+				if(lineWidth + nextWordWidth > maxLineWidth)
+				{
+					const auto resultLine = trimmedLine.substr(std::distance(trimmedLine.cbegin(), lineBegin), std::distance(lineBegin, wordEnd));
+					// Trim spaces from ending and place result line into result
+					result.back().line = resultLine.substr(0, resultLine.find_last_not_of(' ') + 1);
+					if(!curColor.empty())
+						result.back().closingTagNeeded = true;
+					result.emplace_back(std::string_view(), curColor);
+					splitBySpaces(trimmedLine.substr(std::distance(trimmedLine.cbegin(), wordEnd), std::distance(wordEnd, trimmedLine.end())));
+					return;
+				}
+				else
+				{
+					if(wordBegin == wordEnd)
+						lineWidth += fontPtr->getStringWidth(" ");
+					wordBegin = std::next(wordEnd);
+				}
+			}
+			//result.back().line = std::string_view(lineBegin, trimmedLine.cend()); // Use this if C++20 is available
+			result.back().line = std::string_view(&(*lineBegin), std::distance(lineBegin, trimmedLine.cend()));
+		};
+
+	result.emplace_back(std::string_view(), std::string_view());
+	splitBySpaces(line);
+
+	return result;
+}
+
 std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWidth, EFonts font)
 {
 	assert(maxLineWidth != 0);
