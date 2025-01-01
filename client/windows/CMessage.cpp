@@ -60,6 +60,40 @@ void CMessage::dispose()
 		item.reset();
 }
 
+bool CMessage::validateTags(
+	const std::vector<std::string_view::const_iterator> & openingTags,
+	const std::vector<std::string_view::const_iterator> & closingTags)
+{
+	if((openingTags.size() == closingTags.size()))
+	{
+		if(!openingTags.empty())
+		{
+			auto closingPos = closingTags.begin();
+			auto closingPrevPos = openingTags.front();
+			for(const auto & openingPos : openingTags)
+			{
+				if(openingPos >= *closingPos)
+				{
+					logGlobal->error("CMessage: Closing tag before opening tag");
+					return false;
+				}
+				if(openingPos < closingPrevPos)
+				{
+					logGlobal->error("CMessage: Tags inside another tags");
+					return false;
+				}
+				closingPrevPos = *closingPos++;
+			}
+		}
+	}
+	else
+	{
+		logGlobal->error("CMessage: Not Equal number opening and closing tags");
+		return false;
+	}
+	return true;
+}
+
 std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWidth, EFonts font)
 {
 	assert(maxLineWidth != 0);

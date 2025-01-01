@@ -32,6 +32,9 @@ public:
 	static void drawBorder(PlayerColor playerColor, Canvas & to, int w, int h, int x, int y);
 
 	static void drawIWindow(CInfoWindow * ret, std::string text, PlayerColor player);
+	static bool validateTags(
+		const std::vector<std::string_view::const_iterator> & openingTags,
+		const std::vector<std::string_view::const_iterator> & closingTags);
 
 	/// split text in lines
 	static std::vector<std::string> breakText(std::string text, size_t maxLineWidth, EFonts font);
