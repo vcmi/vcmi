@@ -4,8 +4,8 @@ setlocal enabledelayedexpansion
 cls
 
 REM Define variables dynamically relative to the normalized base directory
-set "AppVersion=1.6.0"
-set "AppBuild=cd67ced"
+set "AppVersion=1.6.1"
+set "AppBuild=1122334455A"
 set "InstallerArch=x64"
 set "VCMIFolder=VCMI"
 
@@ -23,6 +23,7 @@ for %%i in ("%BaseDir%") do set "BaseDir=%%~fi"
 
 REM Define specific subdirectories relative to the base directory
 set "SourceFilesPath=%BaseDir%bin\Release"
+set "UCRTFilesPath=%BaseDir%CI\wininstaller\ucrt"
 set "LangPath=%BaseDir%CI\wininstaller\lang"
 set "LicenseFile=%BaseDir%license.txt"
 set "IconFile=%BaseDir%clientapp\icons\vcmi.ico"
@@ -58,6 +59,11 @@ if not exist "%SourceFilesPath%" (
     pause
     goto :eof
 )
+if not exist "%UCRTFilesPath%" (
+    echo ERROR: UCRT files path not found: !UCRTFilesPath!
+    pause
+    goto :eof
+)
 
 REM Call Inno Setup Compiler
 "%ProgFiles%\Inno Setup %InnoSetupVer%\ISCC.exe" "%InstallerScript%" ^
@@ -65,6 +71,7 @@ REM Call Inno Setup Compiler
     /DAppBuild="%AppBuild%" ^
     /DInstallerArch="%InstallerArch%" ^
     /DSourceFilesPath="%SourceFilesPath%" ^
+    /DUCRTFilesPath="%UCRTFilesPath%" ^
     /DVCMIFolder="%VCMIFolder%" ^
     /DLangPath="%LangPath%" ^
     /DLicenseFile="%LicenseFile%" ^

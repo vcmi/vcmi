@@ -18,16 +18,17 @@
 
 ; Manual preprocessor definitions are provided using ISCC.exe parameters.
 
-#define AppVersion "1.6.0"
-#define AppBuild "2272707"
-#define InstallerArch "x64"
-
-#define SourceFilesPath "C:\_VCMI_Source_v2\_files"
-#define LangPath "C:\_VCMI_Source_v2\CI\wininstaller\lang"
-#define LicenseFile "C:\_VCMI_Source_v2\license.txt"
-#define IconFile "C:\_VCMI_Source_v2\clientapp\icons\vcmi.ico"
-#define SmallLogo "C:\_VCMI_Source_v2\CI\wininstaller\vcmismalllogo.bmp"
-#define WizardLogo "C:\_VCMI_Source_v2\CI\wininstaller\vcmilogo.bmp"
+; #define AppVersion "1.6.1"
+; #define AppBuild "1122334455A"
+; #define InstallerArch "x86"
+; 
+; #define SourceFilesPath "C:\_VCMI_Source_v2\_files_x86"
+; #define UCRTFilesPath "C:\_VCMI_Source_v2\CI\wininstaller\ucrt"
+; #define LangPath "C:\_VCMI_Source_v2\CI\wininstaller\lang"
+; #define LicenseFile "C:\_VCMI_Source_v2\license.txt"
+; #define IconFile "C:\_VCMI_Source_v2\clientapp\icons\vcmi.ico"
+; #define SmallLogo "C:\_VCMI_Source_v2\CI\wininstaller\vcmismalllogo.bmp"
+; #define WizardLogo "C:\_VCMI_Source_v2\CI\wininstaller\vcmilogo.bmp"
 
 #define VCMIFolder "VCMI"
 
@@ -43,7 +44,7 @@
 
 
 [Setup]
-AppId={#VCMIFolder}
+AppId={#VCMIFolder}.{#InstallerArch}
 AppName={#VCMIFolder}
 AppVersion={#AppVersion}.{#AppBuild}
 AppVerName={#VCMIFolder}
@@ -109,6 +110,7 @@ Name: "vietnamese"; MessagesFile: "{#LangPath}\Vietnamese.isl"
 
 [Files]
 Source: "{#SourceFilesPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; BeforeInstall: PerformHeroes3FileCopy
+Source: "{#UCRTFilesPath}\{#InstallerArch}\*"; DestDir: "{app}"; Flags: ignoreversion; Check: IsUCRTNeeded
 
 
 [Icons]
@@ -127,7 +129,7 @@ Name: "fileassociation_h3m"; Description: "{cm:AssociateH3MFiles}"; GroupDescrip
 Name: "fileassociation_vcmimap"; Description: "{cm:AssociateVCMIMapFiles}"; GroupDescription: "{cm:SystemIntegration}"
 
 Name: "firewallrules"; Description: "{cm:AddFirewallRules}"; GroupDescription: "{cm:VCMISettings}"; Check: IsAdminInstallMode
-Name: "h3copyfiles"; Description: "{cm:CopyH3Files}"; GroupDescription: "{cm:VCMISettings}"; Check: IsHeroes3Installed
+Name: "h3copyfiles"; Description: "{cm:CopyH3Files}"; GroupDescription: "{cm:VCMISettings}"; Check: IsHeroes3Installed and IsCopyFilesNeeded
 
 
 [Registry]
@@ -175,6 +177,8 @@ var
   GlobalUserDocsFolder: String;
   GlobalUserAppdataFolder: String;
 
+  VCMIMapsFolder, VCMIDataFolder, VCMIMp3Folder: String;
+  Heroes3MapsFolder, Heroes3DataFolder, Heroes3Mp3Folder: String;
   
 function RegistryQueryPath(Key, ValueName: String): String;
 begin
@@ -397,6 +401,49 @@ begin
 end;
 
 
+function IsUCRTNeeded: Boolean;
+var
+  FileName: String;
+begin
+  Result := False; // Default to not copying files
+
+  // Normalize and extract the file name from CurrentFileName
+  FileName := ExtractFileName(ExpandConstant(CurrentFileName));
+
+  // Check for file existence based on architecture
+  if IsWin64 then
+  begin
+    if ExpandConstant('{#InstallerArch}') = 'x64' then
+      // For 64-bit installer on 64-bit OS, check System32
+      Result := not FileExists(ExpandConstant('{win}\System32\' + FileName))
+    else
+      // For 32-bit installer on 64-bit OS, check SysWOW64
+      Result := not FileExists(ExpandConstant('{win}\SysWOW64\' + FileName));
+  end
+  else
+    // For 32-bit OS, always check System32
+    Result := not FileExists(ExpandConstant('{win}\System32\' + FileName));
+end;
+
+
+function IsHeroes3Installed(): Boolean;
+begin
+  Result := False;
+
+  if (Heroes3Path <> '') then
+    Result := True;
+
+end;
+
+
+function IsCopyFilesNeeded(): Boolean;
+begin
+  // Check if any of the required folders are not valid
+  Result := not (IsFolderValid(VCMIDataFolder) and IsFolderValid(VCMIMapsFolder) and IsFolderValid(VCMIMp3Folder));
+  
+end;
+
+
 function InitializeSetup(): Boolean;
 var
   InstallPath: String;
@@ -408,7 +455,32 @@ begin
   GlobalUserName := GetCurrentSessionUserName();
   GlobalUserDocsFolder := GetUserDocsFolder();
   GlobalUserAppdataFolder := GetUserAppdataFolder();
+
+  // Define paths for VCMI
+  VCMIMapsFolder := GlobalUserDocsFolder + '\' + '{#VCMIFilesFolder}' + '\Maps';
+  VCMIDataFolder := GlobalUserDocsFolder + '\' + '{#VCMIFilesFolder}' + '\Data';
+  VCMIMp3Folder := GlobalUserDocsFolder + '\' + '{#VCMIFilesFolder}' + '\Mp3';
   
+  // Check for Heroes 3 installation paths
+  Heroes3Path := RegistryQueryPath('SOFTWARE\GOG.com\Games\1207658787', 'path');
+  if Heroes3Path = '' then
+    Heroes3Path := RegistryQueryPath('SOFTWARE\WOW6432Node\GOG.com\Games\1207658787', 'path');
+  if Heroes3Path = '' then
+    Heroes3Path := RegistryQueryPath('SOFTWARE\New World Computing\Heroes of Might and Magic® III\1.0', 'AppPath');
+  if Heroes3Path = '' then
+    Heroes3Path := RegistryQueryPath('SOFTWARE\WOW6432Node\New World Computing\Heroes of Might and Magic® III\1.0', 'AppPath');
+  if Heroes3Path = '' then
+    Heroes3Path := RegistryQueryPath('SOFTWARE\New World Computing\Heroes of Might and Magic III\1.0', 'AppPath');
+  if Heroes3Path = '' then
+    Heroes3Path := RegistryQueryPath('SOFTWARE\WOW6432Node\New World Computing\Heroes of Might and Magic III\1.0', 'AppPath'); 
+  
+  if (Heroes3Path <> '') then
+  begin
+    Heroes3MapsFolder := Heroes3Path + '\Maps';
+    Heroes3DataFolder := Heroes3Path + '\Data';
+    Heroes3Mp3Folder := Heroes3Path + '\Mp3';
+  end;
+
   Result := True;
 end;
 
@@ -425,8 +497,6 @@ end;
 
 
 procedure InitializeWizard();
-var
-  VCMIFolder, MapsFolder, DataFolder, Mp3Folder: String;
 begin
   // Check if the application is already installed
   if not IsUpgrade then
@@ -462,19 +532,6 @@ begin
       InstallModePage.CheckListBox.Invalidate();
     end;
   end;
- 
-  // Check for Heroes 3 installation paths
-  Heroes3Path := RegistryQueryPath('SOFTWARE\GOG.com\Games\1207658787', 'path');
-  if Heroes3Path = '' then
-    Heroes3Path := RegistryQueryPath('SOFTWARE\WOW6432Node\GOG.com\Games\1207658787', 'path');
-  if Heroes3Path = '' then
-    Heroes3Path := RegistryQueryPath('SOFTWARE\New World Computing\Heroes of Might and Magic® III\1.0', 'AppPath');
-  if Heroes3Path = '' then
-    Heroes3Path := RegistryQueryPath('SOFTWARE\WOW6432Node\New World Computing\Heroes of Might and Magic® III\1.0', 'AppPath');
-  if Heroes3Path = '' then
-    Heroes3Path := RegistryQueryPath('SOFTWARE\New World Computing\Heroes of Might and Magic III\1.0', 'AppPath');
-  if Heroes3Path = '' then
-    Heroes3Path := RegistryQueryPath('SOFTWARE\WOW6432Node\New World Computing\Heroes of Might and Magic III\1.0', 'AppPath');
   
     // Attach an OnClick event handler to the tasks list
   WizardForm.TasksList.OnClickCheck := @OnTaskCheck;
@@ -498,19 +555,7 @@ begin
 end;
 
 
-function IsHeroes3Installed(): Boolean;
-begin
-  Result := False;
-  
-  if (Heroes3Path <> '') then
-    Result := True;
-  
-end;
-
-
 function ShouldSkipPage(PageID: Integer): Boolean;
-var
-  CustomText: String;
 begin
   Result := False; // Default is not to skip the page
   
@@ -529,7 +574,7 @@ procedure CurPageChanged(CurPageID: Integer);
 begin
   // Ensure the footer message is visible on every page
   FooterLabel.Visible := True;
-    
+  
 end;
 
 
@@ -564,8 +609,6 @@ end;
 procedure PerformHeroes3FileCopy();
 var
   i: Integer;
-  VCMIFilesFolder, VCMIMapsFolder, VCMIDataFolder, VCMIMp3Folder: String;
-  Heroes3MapsFolder, Heroes3DataFolder, Heroes3Mp3Folder: String;
 begin
   // Loop through all tasks to find the "h3copyfiles" task
   for i := 0 to WizardForm.TasksList.Items.Count - 1 do
@@ -576,25 +619,19 @@ begin
       // Check if the "h3copyfiles" task is checked
       if WizardForm.TasksList.Checked[i] then
       begin
-        // Define paths for VCMI and Heroes 3 directories
-        VCMIFilesFolder := GlobalUserDocsFolder + '\' + '{#VCMIFilesFolder}';
-        VCMIMapsFolder := VCMIFilesFolder + '\Maps';
-        VCMIDataFolder := VCMIFilesFolder + '\Data';
-        VCMIMp3Folder := VCMIFilesFolder + '\Mp3';
+        
+        if IsCopyFilesNeeded then
+        begin
+          // Copy folders if conditions are met
+          if (IsFolderValid(Heroes3MapsFolder) and not IsFolderValid(VCMIMapsFolder)) then
+            CopyFolderContents(Heroes3MapsFolder, VCMIMapsFolder, True);
 
-        Heroes3MapsFolder := Heroes3Path + '\Maps';
-        Heroes3DataFolder := Heroes3Path + '\Data';
-        Heroes3Mp3Folder := Heroes3Path + '\Mp3';
+          if (IsFolderValid(Heroes3DataFolder) and not IsFolderValid(VCMIDataFolder)) then
+            CopyFolderContents(Heroes3DataFolder, VCMIDataFolder, True);
 
-        // Copy folders if conditions are met
-        if (DirExists(Heroes3MapsFolder) and ((not DirExists(VCMIMapsFolder)) or (FolderSize(VCMIMapsFolder) < 1024 * 1024))) then
-          CopyFolderContents(Heroes3MapsFolder, VCMIMapsFolder, True);
-
-        if (DirExists(Heroes3DataFolder) and ((not DirExists(VCMIDataFolder)) or (FolderSize(VCMIDataFolder) < 1024 * 1024))) then
-          CopyFolderContents(Heroes3DataFolder, VCMIDataFolder, True);
-
-        if (DirExists(Heroes3Mp3Folder) and ((not DirExists(VCMIMp3Folder)) or (FolderSize(VCMIMp3Folder) < 1024 * 1024))) then
-          CopyFolderContents(Heroes3Mp3Folder, VCMIMp3Folder, True);
+          if (IsFolderValid(Heroes3Mp3Folder) and not IsFolderValid(VCMIMp3Folder)) then
+            CopyFolderContents(Heroes3Mp3Folder, VCMIMp3Folder, True);
+        end;
       end;
       Exit; // Task found, exit the loop
     end;
@@ -603,6 +640,7 @@ end;
 
 
 /// Uninstall ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 var
   DeleteUserDataCheckbox: TNewCheckBox;
@@ -680,6 +718,7 @@ procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep = usUninstall then
     PerformFileDeletion;
+  // Repeat delete process after uninstall due logs from killed processes during uninstall
   if CurUninstallStep = usPostUninstall then
     PerformFileDeletion;
 end;
