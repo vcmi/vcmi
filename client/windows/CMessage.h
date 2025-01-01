@@ -28,13 +28,30 @@ class CMessage
 	static SDL_Surface * drawDialogBox(int w, int h, PlayerColor playerColor = PlayerColor(1));
 
 public:
+	struct coloredline
+	{
+		std::string_view line;
+		std::string_view startColorTag;
+		bool closingTagNeeded;
+
+		coloredline(std::string_view line, std::string_view startColorTag) 
+			: line(line)
+			, startColorTag(startColorTag)
+			, closingTagNeeded(false)
+		{}
+	};
+
 	/// Draw border on exiting surface
 	static void drawBorder(PlayerColor playerColor, Canvas & to, int w, int h, int x, int y);
 
 	static void drawIWindow(CInfoWindow * ret, std::string text, PlayerColor player);
+	static bool validateTags(
+		const std::vector<std::string_view::const_iterator> & openingTags,
+		const std::vector<std::string_view::const_iterator> & closingTags);
+	static std::vector<coloredline> splitLineBySpaces(const std::string_view & line, size_t maxLineWidth, const EFonts font);
 
 	/// split text in lines
-	static std::vector<std::string> breakText(std::string text, size_t maxLineWidth, EFonts font);
+	static std::vector<std::string> breakText(const std::string_view & text, size_t maxLineWidth, const EFonts font);
 
 	/// Try to guess a header of a message
 	static std::string guessHeader(const std::string & msg);
