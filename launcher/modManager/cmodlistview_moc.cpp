@@ -1053,7 +1053,13 @@ QStringList CModListView::getUpdateableMods()
 	for(const auto & modName : modStateModel->getAllMods())
 	{
 		auto mod = modStateModel->getMod(modName);
-		if (mod.isUpdateAvailable())
+		if (!mod.isUpdateAvailable())
+			continue;
+
+		QStringList notInstalledDependencies = getModsToInstall(mod.getID());
+		QStringList unavailableDependencies = findUnavailableMods(notInstalledDependencies);
+
+		if (unavailableDependencies.empty())
 			result.push_back(modName);
 	}
 
