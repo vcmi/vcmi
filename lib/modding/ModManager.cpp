@@ -549,7 +549,7 @@ double ModManager::getInstalledModSizeMegabytes(const TModID & modName) const
 
 void ModManager::eraseMissingModsFromPreset()
 {
-	const TModList & installedMods = modsState->getInstalledMods();
+	const TModList & installedMods = getInstalledValidMods();
 	const TModList & rootMods = modsPreset->getActiveRootMods();
 
 	modsPreset->removeOldMods(installedMods);
@@ -572,7 +572,7 @@ void ModManager::eraseMissingModsFromPreset()
 
 void ModManager::addNewModsToPreset()
 {
-	const TModList & installedMods = modsState->getInstalledMods();
+	const TModList & installedMods = getInstalledValidMods();
 
 	for(const auto & modID : installedMods)
 	{
@@ -589,6 +589,19 @@ void ModManager::addNewModsToPreset()
 		if (!modSettings.count(settingID))
 			modsPreset->setSettingActive(rootMod, settingID, !modsStorage->getMod(modID).keepDisabled());
 	}
+}
+
+TModList ModManager::getInstalledValidMods() const
+{
+	TModList installedMods = modsState->getInstalledMods();
+	TModList validMods = modsStorage->getAllMods();
+
+	TModList result;
+	for (const auto & modID : installedMods)
+		if (vstd::contains(validMods, modID))
+			result.push_back(modID);
+
+	return result;
 }
 
 TModList ModManager::collectDependenciesRecursive(const TModID & modID) const
@@ -688,7 +701,7 @@ void ModManager::updatePreset(const ModDependenciesResolver & testResolver)
 
 	for (const auto & modID : newActiveMods)
 	{
-		assert(vstd::contains(modsState->getInstalledMods(), modID));
+		assert(vstd::contains(getInstalledValidMods(), modID));
 		modsPreset->setModActive(modID, true);
 	}
 
@@ -847,7 +860,7 @@ std::tuple<std::string, TModList> ModManager::importPreset(const JsonNode & data
 	std::string presetName = modsPreset->importPreset(data);
 
 	TModList requiredMods = modsPreset->getRootMods(presetName);
-	TModList installedMods = modsState->getInstalledMods();
+	TModList installedMods = getInstalledValidMods();
 
 	TModList missingMods;
 	for (const auto & modID : requiredMods)
