@@ -34,12 +34,11 @@ public:
 		std::string_view startColorTag;
 		bool closingTagNeeded;
 
-		coloredline(std::string_view line, std::string_view startColorTag)
+		coloredline(std::string_view line, std::string_view startColorTag) 
 			: line(line)
 			, startColorTag(startColorTag)
 			, closingTagNeeded(false)
-		{
-		}
+		{}
 	};
 
 	/// Draw border on exiting surface
@@ -52,7 +51,7 @@ public:
 	static std::vector<coloredline> splitLineBySpaces(const std::string_view & line, size_t maxLineWidth, const EFonts font);
 
 	/// split text in lines
-	static std::vector<std::string> breakText(std::string text, size_t maxLineWidth, EFonts font);
+	static std::vector<std::string> breakText(const std::string_view & text, size_t maxLineWidth, const EFonts font);
 
 	/// Try to guess a header of a message
 	static std::string guessHeader(const std::string & msg);
