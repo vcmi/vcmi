@@ -127,6 +127,7 @@ void CSettingsView::loadSettings()
 #endif
 #ifndef VCMI_ANDROID
 	ui->buttonHandleBackRightMouseButton->hide();
+	ui->labelHandleBackRightMouseButton->hide();
 #endif
 	fillValidScalingRange();
 
