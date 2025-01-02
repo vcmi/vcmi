@@ -271,6 +271,11 @@ const int3 & Object::getPosition() const
 int3 Object::getVisitablePosition() const
 {
 	assert(!dInstances.empty());
+
+	// FIXME: This doesn't take into account Hota monster offset
+	if (guarded)
+		return getGuardPos();
+
 	for(const auto & instance : dInstances)
 		if(!getArea().contains(instance.getVisitablePosition()))
 			return instance.getVisitablePosition();
