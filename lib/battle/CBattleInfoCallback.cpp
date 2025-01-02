@@ -176,7 +176,7 @@ bool CBattleInfoCallback::battleIsInsideWalls(BattleHex from) const
 bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest, bool checkWall, bool checkMoat) const
 {
 	if (!from.isAvailable() || !dest.isAvailable())
-		throw std::runtime_error("Invalid hex (" + std::to_string(from.hex) + " and " + std::to_string(dest.hex) + ") received in battleHasPenaltyOnLine!" );
+		throw std::runtime_error("Invalid hex (" + std::to_string(from) + " and " + std::to_string(dest) + ") received in battleHasPenaltyOnLine!" );
 
 	auto isTileBlocked = [&](BattleHex tile)
 	{
@@ -204,7 +204,7 @@ bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest,
 
 		while (next != dest)
 		{
-			next = BattleHexArray::neighbouringTilesCache[next].getClosestTile(direction, dest);
+			next = BattleHex::getClosestTile(next.getNeighbouringTiles(), direction, dest);
 			ret.insert(next);
 		}
 		assert(!ret.empty());
@@ -1077,9 +1077,9 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo & accessib
 		if(isInObstacle(curHex, obstacles, checkParams))
 			continue;
 
-		const int costToNeighbour = ret.distances.at(curHex.hex) + 1;
+		const int costToNeighbour = ret.distances.at(curHex) + 1;
 
-		for(BattleHex neighbour : BattleHexArray::neighbouringTilesCache[curHex.hex])
+		for(BattleHex neighbour : curHex.getNeighbouringTiles())
 		{
 			auto additionalCost = 0;
 
@@ -1093,13 +1093,13 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo & accessib
 				}
 			}
 
-			const int costFoundSoFar = ret.distances[neighbour.hex];
+			const int costFoundSoFar = ret.distances[neighbour];
 
-			if(accessibleCache[neighbour.hex] && costToNeighbour + additionalCost < costFoundSoFar)
+			if(accessibleCache[neighbour] && costToNeighbour + additionalCost < costFoundSoFar)
 			{
 				hexq.push(neighbour);
-				ret.distances[neighbour.hex] = costToNeighbour + additionalCost;
-				ret.predecessors[neighbour.hex] = curHex;
+				ret.distances[neighbour] = costToNeighbour + additionalCost;
+				ret.predecessors[neighbour] = curHex;
 			}
 		}
 	}
@@ -1222,7 +1222,7 @@ BattleHex CBattleInfoCallback::getAvailableHex(const CreatureID & creID, BattleS
 		return BattleHex::INVALID; //all tiles are covered
 	}
 
-	return occupyable.getClosestTile(side, pos);
+	return BattleHex::getClosestTile(occupyable, side, pos);
 }
 
 si8 CBattleInfoCallback::battleGetTacticDist() const
@@ -1353,7 +1353,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 	}
 	if(attacker->hasBonusOfType(BonusType::WIDE_BREATH))
 	{
-		BattleHexArray hexes = BattleHexArray::neighbouringTilesCache[destinationTile];
+		BattleHexArray hexes = destinationTile.getNeighbouringTiles();
 		for(int i = 0; i < hexes.size(); i++)
 		{
 			if(hexes.at(i) == attackOriginHex)
@@ -1426,9 +1426,9 @@ AttackableTiles CBattleInfoCallback::getPotentiallyShootableHexes(const battle::
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
 
-	if(attacker->hasBonusOfType(BonusType::SHOOTS_ALL_ADJACENT) && !BattleHexArray::neighbouringTilesCache[attackerPos].contains(destinationTile))
+	if(attacker->hasBonusOfType(BonusType::SHOOTS_ALL_ADJACENT) && !attackerPos.getNeighbouringTiles().contains(destinationTile))
 	{
-		at.hostileCreaturePositions.insert(BattleHexArray::neighbouringTilesCache[destinationTile]);
+		at.hostileCreaturePositions.insert(destinationTile.getNeighbouringTiles());
 		at.hostileCreaturePositions.insert(destinationTile);
 	}
 

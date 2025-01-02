@@ -709,7 +709,7 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 
 		if(!accessibility.accessible(changedStack->getPosition(), changedStack))
 		{
-			logNetwork->error("Cannot resurrect %s because hex %d is occupied!", changedStack->nodeName(), changedStack->getPosition().hex);
+			logNetwork->error("Cannot resurrect %s because hex %d is occupied!", changedStack->nodeName(), changedStack->getPosition());
 			return; //position is already occupied
 		}
 	}

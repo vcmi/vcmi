@@ -215,7 +215,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 				bestAttack.affectedUnits[0]->unitType()->getJsonKey(),
 				bestAttack.affectedUnits[0]->getCount(),
 				(int)bestAttack.from,
-				(int)bestAttack.attack.attacker->getPosition().hex,
+				(int)bestAttack.attack.attacker->getPosition(),
 				bestAttack.attack.chargeDistance,
 				bestAttack.attack.attacker->getMovementRange(0),
 				bestAttack.defenderDamageReduce,
@@ -252,7 +252,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 
 					if(siegeDefense)
 					{
-						logAi->trace("Evaluating exchange at %d self-defense", stack->getPosition().hex);
+						logAi->trace("Evaluating exchange at %d self-defense", stack->getPosition());
 
 						BattleAttackInfo bai(stack, stack, 0, false);
 						AttackPossibility apDefend(stack->getPosition(), stack->getPosition(), bai);
@@ -286,7 +286,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 				"Moving %s towards hex %s[%d], score: %2f",
 				stack->getDescription(),
 				moveTarget.cachedAttack->attack.defender->getDescription(),
-				moveTarget.cachedAttack->attack.defender->getPosition().hex,
+				moveTarget.cachedAttack->attack.defender->getPosition(),
 				moveTarget.score);
 
 			return goTowardsNearest(stack, moveTarget.positions, *targets);

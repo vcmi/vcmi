@@ -22,9 +22,13 @@ namespace GameConstants
 	const int BFIELD_SIZE = BFIELD_WIDTH * BFIELD_HEIGHT;
 }
 
+class BattleHexArray;
+
 // for battle stacks' positions
-struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class for better code design
+class DLL_LINKAGE BattleHex
 {
+public:
+
 	// helpers for siege
 	static constexpr si16 CASTLE_CENTRAL_TOWER = -2;
 	static constexpr si16 CASTLE_BOTTOM_TOWER = -3;
@@ -46,8 +50,8 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	static constexpr si16 GATE_OUTER = 95;
 	static constexpr si16 GATE_INNER = 96;
 
-	si16 hex;
 	static constexpr si16 INVALID = -1;
+
 	enum EDir
 	{
 		NONE = -1,
@@ -64,11 +68,25 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 		BOTTOM
 	};
 
-	BattleHex();
-	BattleHex(si16 _hex);
-	BattleHex(si16 x, si16 y);
-	BattleHex(std::pair<si16, si16> xy);
-	operator si16() const;
+	BattleHex() 
+		: hex(INVALID) 
+	{}
+	BattleHex(si16 _hex) 
+		: hex(_hex) 
+	{}
+	BattleHex(si16 x, si16 y)
+	{
+		setXY(x, y);
+	}
+	BattleHex(std::pair<si16, si16> xy)
+	{
+		setXY(xy);
+	}
+	operator si16() const
+	{
+		return hex;
+	}
+
 	inline bool isValid() const
 	{
 		return hex >= 0 && hex < GameConstants::BFIELD_SIZE;
@@ -79,19 +97,97 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 		return isValid() && getX() > 0 && getX() < GameConstants::BFIELD_WIDTH - 1;
 	}
 
-	void setX(si16 x);
-	void setY(si16 y);
-	void setXY(si16 x, si16 y, bool hasToBeValid = true);
-	void setXY(std::pair<si16, si16> xy);
-	si16 getX() const;
-	si16 getY() const;
-	std::pair<si16, si16> getXY() const;
-	BattleHex& moveInDirection(EDir dir, bool hasToBeValid = true);
-	BattleHex& operator+=(EDir dir);
-	BattleHex cloneInDirection(EDir dir, bool hasToBeValid = true) const;
-	BattleHex operator+(EDir dir) const;
+	void setX(si16 x)
+	{
+		setXY(x, getY());
+	}
 
-	static EDir mutualPosition(BattleHex hex1, BattleHex hex2);
+	void setY(si16 y)
+	{
+		setXY(getX(), y);
+	}
+
+	void setXY(si16 x, si16 y, bool hasToBeValid = true)
+	{
+		if(hasToBeValid)
+		{
+			if(x < 0 || x >= GameConstants::BFIELD_WIDTH || y < 0 || y >= GameConstants::BFIELD_HEIGHT)
+				throw std::runtime_error("Valid hex required");
+		}
+
+		hex = x + y * GameConstants::BFIELD_WIDTH;
+	}
+
+	void setXY(std::pair<si16, si16> xy)
+	{
+		setXY(xy.first, xy.second);
+	}
+
+	si16 getX() const
+	{
+		return hex % GameConstants::BFIELD_WIDTH;
+	}
+
+	si16 getY() const
+	{
+		return hex / GameConstants::BFIELD_WIDTH;
+	}
+
+	std::pair<si16, si16> getXY() const
+	{
+		return std::make_pair(getX(), getY());
+	}
+
+	BattleHex & moveInDirection(EDir dir, bool hasToBeValid = true)
+	{
+		si16 x = getX();
+		si16 y = getY();
+		switch(dir)
+		{
+		case TOP_LEFT:
+			setXY((y % 2) ? x - 1 : x, y - 1, hasToBeValid);
+			break;
+		case TOP_RIGHT:
+			setXY((y % 2) ? x : x + 1, y - 1, hasToBeValid);
+			break;
+		case RIGHT:
+			setXY(x + 1, y, hasToBeValid);
+			break;
+		case BOTTOM_RIGHT:
+			setXY((y % 2) ? x : x + 1, y + 1, hasToBeValid);
+			break;
+		case BOTTOM_LEFT:
+			setXY((y % 2) ? x - 1 : x, y + 1, hasToBeValid);
+			break;
+		case LEFT:
+			setXY(x - 1, y, hasToBeValid);
+			break;
+		case NONE:
+			break;
+		default:
+			throw std::runtime_error("Disaster: wrong direction in BattleHex::operator+=!\n");
+			break;
+		}
+		return *this;
+	}
+
+	BattleHex & operator+=(EDir dir)
+	{
+		return moveInDirection(dir);
+	}
+
+	BattleHex operator+(EDir dir) const
+	{
+		return cloneInDirection(dir);
+	}
+
+	BattleHex cloneInDirection(EDir dir, bool hasToBeValid = true) const
+	{
+		BattleHex result(hex);
+		result.moveInDirection(dir, hasToBeValid);
+		return result;
+	}
+
 	static uint8_t getDistance(BattleHex hex1, BattleHex hex2)
 	{
 		int y1 = hex1.getY();
@@ -108,17 +204,41 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 
 		return std::abs(xDst) + std::abs(yDst);
 	}
-	
+
+	static BattleHex getClosestTile(const BattleHexArray & hexes, BattleSide side, BattleHex initialPos);
+
+	//Constexpr defined array with all directions used in battle
+	static constexpr auto hexagonalDirections() 
+	{
+		return std::array<EDir,6>{TOP_LEFT, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT, LEFT};
+	}
+
+	static EDir mutualPosition(BattleHex hex1, BattleHex hex2)
+	{
+		for(auto dir : hexagonalDirections())
+			if(hex2 == hex1.cloneInDirection(dir, false))
+				return dir;
+		return NONE;
+	}
+
+	/// get (precomputed) all possible surrounding tiles
+	const BattleHexArray & getAllNeighbouringTiles() const;
+
+	/// get (precomputed) only valid and available surrounding tiles
+	const BattleHexArray & getNeighbouringTiles() const;
+
+	/// get (precomputed) only valid and available surrounding tiles for double wide creatures
+	const BattleHexArray & getNeighbouringTilesDblWide(BattleSide side) const;
+
 	template <typename Handler>
-	void serialize(Handler &h)
+	void serialize(Handler & h)
 	{
 		h & hex;
 	}
 
-	//Constexpr defined array with all directions used in battle
-	static constexpr auto hexagonalDirections() {
-		return std::array<EDir,6>{BattleHex::TOP_LEFT, BattleHex::TOP_RIGHT, BattleHex::RIGHT, BattleHex::BOTTOM_RIGHT, BattleHex::BOTTOM_LEFT, BattleHex::LEFT};
-	}
+private:
+
+	si16 hex;
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleHex & hex);

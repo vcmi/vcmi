@@ -10,6 +10,7 @@
 #pragma once
 
 #include "BattleConstants.h"
+#include "../lib/battle/BattleHex.h"
 #include "../gui/CIntObject.h"
 #include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
 #include "../ConditionalWait.h"
@@ -27,7 +28,6 @@ class BattleAction;
 class CGTownInstance;
 struct CatapultAttack;
 struct BattleTriggerEffect;
-struct BattleHex;
 struct InfoAboutHero;
 class ObstacleChanges;
 class CPlayerBattleCallback;

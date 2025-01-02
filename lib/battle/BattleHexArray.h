@@ -21,6 +21,7 @@ class DLL_LINKAGE BattleHexArray
 public:
 	static constexpr uint8_t totalSize = GameConstants::BFIELD_SIZE;
 	using StorageType = boost::container::small_vector<BattleHex, 8>;
+	using ArrayOfBattleHexArrays = std::array<BattleHexArray, totalSize>;
 
 	using value_type = BattleHex;
 	using size_type = StorageType::size_type;
@@ -33,11 +34,6 @@ public:
 	using const_iterator = typename StorageType::const_iterator;
 	using reverse_iterator = typename StorageType::reverse_iterator;
 	using const_reverse_iterator = typename StorageType::const_reverse_iterator;
-
-	using ArrayOfBattleHexArrays = std::array<BattleHexArray, GameConstants::BFIELD_SIZE>;
-
-	static const ArrayOfBattleHexArrays neighbouringTilesCache;
-	static const std::map<BattleSide, ArrayOfBattleHexArrays> neighbouringTilesDblWide;
 
 	BattleHexArray() = default;
 
@@ -59,28 +55,6 @@ public:
 	}
 	
 	BattleHexArray(std::initializer_list<BattleHex> initList) noexcept;
-
-	/// returns all tiles, unavailable tiles will be set as invalid
-	/// order of returned tiles matches EDir enum
-	static BattleHexArray getAllNeighbouringTiles(BattleHex hex)
-	{
-		static ArrayOfBattleHexArrays cache;
-		static bool initialized = false;
-
-		if(initialized)
-			return cache[hex.hex];
-
-		for(BattleHex h = 0; h < GameConstants::BFIELD_SIZE; h.hex++)
-		{
-			cache[h].resize(6);
-
-			for(auto dir : BattleHex::hexagonalDirections())
-				cache[h].set(dir, h.cloneInDirection(dir, false));
-		}
-		initialized = true;
-
-		return cache[hex.hex];
-	}
 
 	void checkAndPush(BattleHex tile)
 	{
@@ -125,8 +99,6 @@ public:
 		presenceFlags[hex] = 1;
 		return internalStorage.insert(pos, hex);
 	}
-
-	BattleHex getClosestTile(BattleSide side, BattleHex initialPos) const;
 
 	void insert(const BattleHexArray & other) noexcept;
 
@@ -183,6 +155,30 @@ public:
 			}
 		}
 		return filtered;
+	}
+
+	/// get (precomputed) all possible surrounding tiles
+	static const BattleHexArray & getAllNeighbouringTiles(BattleHex hex)
+	{
+		assert(hex.isValid());
+
+		return allNeighbouringTiles[hex];
+	}
+
+	/// get (precomputed) only valid and available surrounding tiles
+	static const BattleHexArray & getNeighbouringTiles(BattleHex hex)
+	{
+		assert(hex.isValid());
+
+		return neighbouringTiles[hex];
+	}
+
+	/// get (precomputed) only valid and available surrounding tiles for double wide creatures
+	static const BattleHexArray & getNeighbouringTilesDblWide(BattleHex hex, BattleSide side)
+	{
+		assert(hex.isValid() && (side == BattleSide::ATTACKER || BattleSide::DEFENDER));
+
+		return neighbouringTilesDblWide.at(side)[hex];
 	}
 
 	[[nodiscard]] inline bool contains(BattleHex hex) const noexcept
@@ -301,10 +297,13 @@ private:
 		return hex == BattleHex::CASTLE_CENTRAL_TOWER || hex == BattleHex::CASTLE_UPPER_TOWER || hex == BattleHex::CASTLE_BOTTOM_TOWER;
 	}
 
-	/// returns all valid neighbouring tiles
-	static ArrayOfBattleHexArrays calculateNeighbouringTiles();
-	static ArrayOfBattleHexArrays calculateNeighbouringTilesDblWide(BattleSide side);
-	static BattleHexArray generateNeighbouringTiles(BattleHex hex);
+	static const ArrayOfBattleHexArrays neighbouringTiles;
+	static const ArrayOfBattleHexArrays allNeighbouringTiles;
+	static const std::map<BattleSide, ArrayOfBattleHexArrays> neighbouringTilesDblWide;
+
+	static ArrayOfBattleHexArrays precalculateNeighbouringTiles();
+	static ArrayOfBattleHexArrays precalculateAllNeighbouringTiles();
+	static ArrayOfBattleHexArrays precalculateNeighbouringTilesDblWide(BattleSide side);
 };
 
 VCMI_LIB_NAMESPACE_END

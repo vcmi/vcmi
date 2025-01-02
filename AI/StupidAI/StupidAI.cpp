@@ -107,7 +107,8 @@ static bool willSecondHexBlockMoreEnemyShooters(std::shared_ptr<CBattleCallback>
 
 	for(int i = 0; i < 2; i++)
 	{
-		for (auto neighbour : BattleHexArray::neighbouringTilesCache[i ? h2.hex : h1.hex])
+		BattleHex hex = i ? h2 : h1;
+		for (auto neighbour : hex.getNeighbouringTiles())
 			if(const auto * s = cb->getBattle(battleID)->battleGetUnitByPos(neighbour))
 				if(s->isShooter())
 					shooters[i]++;

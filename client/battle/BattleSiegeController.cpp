@@ -195,7 +195,7 @@ const CCreature *BattleSiegeController::getTurretCreature(BattleHex position) co
 			return town->fortificationsLevel().lowerTowerShooter.toCreature();
 	}
 
-	throw std::runtime_error("Unable to select shooter for tower at " + std::to_string(position.hex));
+	throw std::runtime_error("Unable to select shooter for tower at " + std::to_string(position));
 }
 
 Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) const

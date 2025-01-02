@@ -11,6 +11,7 @@
 
 #include "NetPacksBase.h"
 #include "BattleChanges.h"
+#include "../battle/BattleHexArray.h"
 #include "../battle/BattleAction.h"
 #include "../texts/MetaString.h"
 
@@ -22,7 +23,6 @@ class CGHeroInstance;
 class CArmedInstance;
 class IBattleState;
 class BattleInfo;
-class BattleHexArray;
 
 struct DLL_LINKAGE BattleStart : public CPackForClient
 {

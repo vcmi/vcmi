@@ -25,7 +25,7 @@ bool AccessibilityInfo::tileAccessibleWithGate(BattleHex tile, BattleSide side) 
 		if(!destructibleEnemyTurns)
 			return false;
 
-		return destructibleEnemyTurns->at(tile.hex) >= 0;
+		return destructibleEnemyTurns->at(tile) >= 0;
 	}
 
 	if(accessibility != EAccessibility::ACCESSIBLE)

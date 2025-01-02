@@ -384,7 +384,7 @@ AttackPossibility AttackPossibility::evaluate(
 		affectedUnits = defenderUnits;
 		vstd::concatenate(affectedUnits, retaliatedUnits);
 
-		logAi->trace("Attacked battle units count %d, %d->%d", affectedUnits.size(), hex.hex, defHex.hex);
+		logAi->trace("Attacked battle units count %d, %d->%d", affectedUnits.size(), hex, defHex);
 
 		std::map<uint32_t, std::shared_ptr<battle::CUnitState>> defenderStates;
 

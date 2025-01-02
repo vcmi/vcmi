@@ -13,7 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
-struct BattleHex;
+class BattleHex;
 class BattleHexArray;
 class BattleAction;
 class CBattleInfoCallback;

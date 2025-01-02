@@ -44,7 +44,7 @@ uint32_t ReachabilityInfo::distToNearestNeighbour(
 
 	for(auto targetHex : targetHexes)
 	{
-		for(auto & n : BattleHexArray::neighbouringTilesCache[targetHex])
+		for(auto & n : targetHex.getNeighbouringTiles())
 		{
 			if(distances[n] < ret)
 			{
