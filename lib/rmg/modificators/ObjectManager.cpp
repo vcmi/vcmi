@@ -634,7 +634,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		for (auto id : adjacentZones)
 		{
 			auto otherZone = map.getZones().at(id);
-			if ((otherZone->getType() == ETemplateZoneType::WATER) == (zone.getType()	== ETemplateZoneType::WATER))
+			if ((otherZone->getType() == ETemplateZoneType::WATER) == (zone.getType() == ETemplateZoneType::WATER))
 			{
 				// Do not update other zone if only one is water
 				auto manager = otherZone->getModificator<ObjectManager>();
@@ -675,6 +675,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 
 			if (object.isGuarded())
 			{
+				// Do not route roads through guarded objects
 				rp->areaVisitable().add(instance->getVisitablePosition());
 			}
 		}
