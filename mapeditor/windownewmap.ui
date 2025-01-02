@@ -38,9 +38,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>20</y>
+     <y>10</y>
      <width>291</width>
-     <height>91</height>
+     <height>101</height>
     </rect>
    </property>
    <property name="title">
@@ -56,13 +56,6 @@
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_2" columnstretch="3,0,1">
-     <item row="1" column="0">
-      <widget class="QCheckBox" name="twoLevelCheck">
-       <property name="text">
-        <string>Two level map</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="2">
       <widget class="QLineEdit" name="widthTxt">
        <property name="maximumSize">
@@ -198,16 +191,46 @@
        </item>
       </layout>
      </item>
+     <item row="1" column="0">
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <item>
+        <spacer name="horizontalSpacer_7">
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Policy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>8</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="twoLevelCheck">
+         <property name="text">
+          <string>Two level map</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
     </layout>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="groupBox_5">
+  <widget class="QGroupBox" name="randomOptions">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>140</y>
+     <y>150</y>
      <width>431</width>
-     <height>361</height>
+     <height>351</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -223,7 +246,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
+      <y>60</y>
       <width>411</width>
       <height>91</height>
      </rect>
@@ -434,7 +457,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>170</y>
+      <y>210</y>
       <width>411</width>
       <height>51</height>
      </rect>
@@ -451,7 +474,32 @@
        <height>26</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1,1,1,1">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,1,1,1,1">
+      <item>
+       <spacer name="horizontalSpacer_9">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item>
        <widget class="QRadioButton" name="monsterOpt1">
         <property name="sizePolicy">
@@ -563,7 +611,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>120</y>
+      <y>160</y>
       <width>411</width>
       <height>51</height>
      </rect>
@@ -592,7 +640,20 @@
        <height>26</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,1,1,1,1">
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,1,1,1,1">
+      <item>
+       <spacer name="horizontalSpacer_8">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item>
        <widget class="QRadioButton" name="waterOpt1">
         <property name="sizePolicy">
@@ -692,7 +753,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>230</y>
+      <y>260</y>
       <width>411</width>
       <height>51</height>
      </rect>
@@ -721,7 +782,20 @@
        <height>26</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0,0,0,0,1">
+     <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0,0,0,0,0,1">
+      <item>
+       <spacer name="horizontalSpacer_10">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item>
        <widget class="QCheckBox" name="roadDirt">
         <property name="text">
@@ -785,11 +859,43 @@
      </layout>
     </widget>
    </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>310</y>
+      <width>171</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <item>
+      <widget class="QCheckBox" name="checkSeed">
+       <property name="text">
+        <string>Custom seed</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lineSeed">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="inputMethodHints">
+        <set>Qt::InputMethodHint::ImhDigitsOnly</set>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
    <widget class="QWidget" name="layoutWidget5">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>280</y>
+      <y>20</y>
       <width>411</width>
       <height>34</height>
      </rect>
@@ -829,38 +935,6 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>80</x>
-      <y>320</y>
-      <width>283</width>
-      <height>33</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_6">
-     <item>
-      <widget class="QCheckBox" name="checkSeed">
-       <property name="text">
-        <string>Custom seed</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="lineSeed">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="inputMethodHints">
-        <set>Qt::InputMethodHint::ImhDigitsOnly</set>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
   </widget>
   <widget class="QCheckBox" name="randomMapCheck">
    <property name="geometry">
@@ -878,10 +952,10 @@
   <widget class="QWidget" name="layoutWidget6">
    <property name="geometry">
     <rect>
-     <x>310</x>
+     <x>320</x>
      <y>20</y>
      <width>111</width>
-     <height>101</height>
+     <height>91</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">

@@ -367,7 +367,7 @@ void WindowNewMap::on_cpuCombo_activated(int index)
 void WindowNewMap::on_randomMapCheck_stateChanged(int arg1)
 {
 	randomMap = ui->randomMapCheck->isChecked();
-	ui->templateCombo->setEnabled(randomMap);
+	ui->randomOptions->setEnabled(randomMap);
 	updateTemplateList();
 }
 
