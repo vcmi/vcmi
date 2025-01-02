@@ -17,7 +17,7 @@ TEST(battle_Unit_getSurroundingHexes, oneWide)
 
 	auto actual = battle::Unit::getSurroundingHexes(position, false, BattleSide::ATTACKER);
 
-	EXPECT_EQ(actual, position.neighbouringTiles());
+	EXPECT_EQ(actual, position.getNeighbouringTiles());
 }
 
 TEST(battle_Unit_getSurroundingHexes, oneWideLeftCorner)
@@ -26,7 +26,7 @@ TEST(battle_Unit_getSurroundingHexes, oneWideLeftCorner)
 
 	auto actual = battle::Unit::getSurroundingHexes(position, false, BattleSide::ATTACKER);
 
-	EXPECT_EQ(actual, position.neighbouringTiles());
+	EXPECT_EQ(actual, position.getNeighbouringTiles());
 }
 
 TEST(battle_Unit_getSurroundingHexes, oneWideRightCorner)
@@ -35,7 +35,7 @@ TEST(battle_Unit_getSurroundingHexes, oneWideRightCorner)
 
 	auto actual = battle::Unit::getSurroundingHexes(position, false, BattleSide::ATTACKER);
 
-	EXPECT_EQ(actual, position.neighbouringTiles());
+	EXPECT_EQ(actual, position.getNeighbouringTiles());
 }
 
 TEST(battle_Unit_getSurroundingHexes, doubleWideAttacker)
@@ -44,7 +44,7 @@ TEST(battle_Unit_getSurroundingHexes, doubleWideAttacker)
 
 	auto actual = battle::Unit::getSurroundingHexes(position, true, BattleSide::ATTACKER);
 
-	static const std::vector<BattleHex> expected =
+	static const BattleHexArray expected =
 	{
 		60,
 		61,
@@ -65,7 +65,7 @@ TEST(battle_Unit_getSurroundingHexes, doubleWideLeftCorner)
 
 	auto actualAtt = battle::Unit::getSurroundingHexes(position, true, BattleSide::ATTACKER);
 
-	static const std::vector<BattleHex> expectedAtt =
+	static const BattleHexArray expectedAtt =
 	{
 		35,
 		53,
@@ -76,7 +76,7 @@ TEST(battle_Unit_getSurroundingHexes, doubleWideLeftCorner)
 
 	auto actualDef = battle::Unit::getSurroundingHexes(position, true, BattleSide::DEFENDER);
 
-	static const std::vector<BattleHex> expectedDef =
+	static const BattleHexArray expectedDef =
 	{
 		35,
 		36,
@@ -94,7 +94,7 @@ TEST(battle_Unit_getSurroundingHexes, doubleWideRightCorner)
 
 	auto actualAtt = battle::Unit::getSurroundingHexes(position, true, BattleSide::ATTACKER);
 
-	static const std::vector<BattleHex> expectedAtt =
+	static const BattleHexArray expectedAtt =
 	{
 		116,
 		117,
@@ -109,7 +109,7 @@ TEST(battle_Unit_getSurroundingHexes, doubleWideRightCorner)
 
 	auto actualDef = battle::Unit::getSurroundingHexes(position, true, BattleSide::DEFENDER);
 
-	static const std::vector<BattleHex> expectedDef =
+	static const BattleHexArray expectedDef =
 	{
 		116,
 		117,
@@ -128,7 +128,7 @@ TEST(battle_Unit_getSurroundingHexes, doubleWideDefender)
 
 	auto actual = battle::Unit::getSurroundingHexes(position, true, BattleSide::DEFENDER);
 
-	static const std::vector<BattleHex> expected =
+	static const BattleHexArray expected =
 	{
 		60,
 		61,

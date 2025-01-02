@@ -84,7 +84,7 @@ TEST_F(LuaSpellEffectAPITest, DISABLED_ApplicableOnLeftSideOfField)
 	BattleHex hex(2,2);
 
 	JsonNode first;
-	first.Vector().emplace_back(hex.hex);
+	first.Vector().emplace_back(static_cast<si16>(hex));
 	first.Vector().emplace_back();
 
 	JsonNode targets;
@@ -113,7 +113,7 @@ TEST_F(LuaSpellEffectAPITest, DISABLED_NotApplicableOnRightSideOfField)
 	BattleHex hex(11,2);
 
 	JsonNode first;
-	first.Vector().emplace_back(hex.hex);
+	first.Vector().emplace_back(static_cast<si16>(hex));
 	first.Vector().emplace_back(-1);
 
 	JsonNode targets;
@@ -138,13 +138,13 @@ TEST_F(LuaSpellEffectAPITest, DISABLED_ApplyMoveUnit)
 	BattleHex hex1(11,2);
 
 	JsonNode unit;
-	unit.Vector().emplace_back(hex1.hex);
+	unit.Vector().emplace_back(static_cast<si16>(hex1));
 	unit.Vector().emplace_back(42);
 
 	BattleHex hex2(5,4);
 
 	JsonNode destination;
-	destination.Vector().emplace_back(hex2.hex);
+	destination.Vector().emplace_back(static_cast<si16>(hex2));
 	destination.Vector().emplace_back(-1);
 
 	JsonNode targets;
@@ -163,7 +163,7 @@ TEST_F(LuaSpellEffectAPITest, DISABLED_ApplyMoveUnit)
 		EXPECT_EQ(pack.teleporting, true);
 		EXPECT_EQ(pack.distance, 0);
 
-		std::vector<BattleHex> toMove(1, hex2);
+		BattleHexArray toMove = { hex2 };
 
 		EXPECT_EQ(pack.tilesToMove, toMove);
 	};

@@ -13,7 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-BattleHex BattleHex::getClosestTile(const BattleHexArray & hexes, BattleSide side, BattleHex initialPos)
+BattleHex BattleHex::getClosestTile(BattleSide side, BattleHex initialPos, const BattleHexArray & hexes)
 {
 	if(hexes.empty())
 		return BattleHex();

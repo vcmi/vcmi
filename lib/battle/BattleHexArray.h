@@ -176,7 +176,7 @@ public:
 	/// get (precomputed) only valid and available surrounding tiles for double wide creatures
 	static const BattleHexArray & getNeighbouringTilesDblWide(BattleHex hex, BattleSide side)
 	{
-		assert(hex.isValid() && (side == BattleSide::ATTACKER || BattleSide::DEFENDER));
+		assert(hex.isValid() && (side == BattleSide::ATTACKER || side == BattleSide::DEFENDER));
 
 		return neighbouringTilesDblWide.at(side)[hex];
 	}
@@ -275,9 +275,17 @@ public:
 		return const_reverse_iterator(begin());
 	}
 
+	bool operator ==(const BattleHexArray & other) const noexcept
+	{
+		if(internalStorage != other.internalStorage || presenceFlags != other.presenceFlags)
+			return false;
+
+		return true;
+	}
+
 private:
 	StorageType internalStorage;
-	std::bitset<totalSize> presenceFlags = {};
+	std::bitset<totalSize> presenceFlags;
 
 	[[nodiscard]] inline bool isNotValidForInsertion(BattleHex hex) const
 	{
