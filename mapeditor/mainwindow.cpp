@@ -459,8 +459,6 @@ void MainWindow::on_actionOpenRecent_triggered()
 		RecentFileDialog(const QStringList& recentFiles, QWidget *parent)
 			: QDialog(parent), layout(new QVBoxLayout(this)), listWidget(new QListWidget(this))
 		{
-
-			parent->setWindowTitle(tr("Recently Opened Files"));
 			setMinimumWidth(600);
 
 			connect(listWidget, &QListWidget::itemActivated, this, [this](QListWidgetItem *item)
@@ -496,6 +494,7 @@ void MainWindow::on_actionOpenRecent_triggered()
 	};
 
 	RecentFileDialog d(recentFiles, this);
+	d.setWindowTitle(tr("Recently Opened Files"));
 	if(d.exec() == QDialog::Accepted && getAnswerAboutUnsavedChanges())
 	{
 		openMap(d.getSelectedFilePath());
