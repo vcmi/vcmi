@@ -50,14 +50,12 @@ void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & inpu
 	{
 		JsonNode jsonCampaign(reinterpret_cast<const std::byte*>(input.data()), input.size(), filename);
 		readHeaderFromJson(*ret, jsonCampaign, filename, modName, encoding);
-		ret->overrideCampaign();
 
 		for(auto & scenario : jsonCampaign["scenarios"].Vector())
 		{
 			auto scenarioID = static_cast<CampaignScenarioID>(ret->scenarios.size());
 			ret->scenarios[scenarioID] = readScenarioFromJson(scenario);
 		}
-		ret->overrideCampaignScenarios();
 	}
 }
 
