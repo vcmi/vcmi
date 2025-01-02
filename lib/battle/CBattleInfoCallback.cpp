@@ -204,7 +204,7 @@ bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest,
 
 		while (next != dest)
 		{
-			next = BattleHex::getClosestTile(next.getNeighbouringTiles(), direction, dest);
+			next = BattleHex::getClosestTile(direction, dest, next.getNeighbouringTiles());
 			ret.insert(next);
 		}
 		assert(!ret.empty());
@@ -1170,6 +1170,7 @@ BattleHexArray CBattleInfoCallback::getStoppers(BattleSide whichSidePerspective)
 std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(const battle::Unit * closest) const
 {
 	auto reachability = getReachability(closest);
+	auto avHexes = battleGetAvailableHexes(reachability, closest, false);
 
 	// I hate std::pairs with their undescriptive member names first / second
 	struct DistStack
@@ -1188,7 +1189,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 
 	for(const battle::Unit * st : possible)
 	{
-		for(BattleHex hex : battleGetAvailableHexes(reachability, closest, false))
+		for(BattleHex hex : avHexes)
 			if(CStack::isMeleeAttackPossible(closest, st, hex))
 			{
 				DistStack hlp = {reachability.distances[hex], hex, st};
@@ -1233,7 +1234,7 @@ BattleHex CBattleInfoCallback::getAvailableHex(const CreatureID & creID, BattleS
 		return BattleHex::INVALID; //all tiles are covered
 	}
 
-	return BattleHex::getClosestTile(occupyable, side, pos);
+	return BattleHex::getClosestTile(side, pos, occupyable);
 }
 
 si8 CBattleInfoCallback::battleGetTacticDist() const

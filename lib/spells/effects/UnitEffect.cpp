@@ -228,7 +228,7 @@ EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Targe
 		if(possibleHexes.empty())
 			break;
 
-		destHex = BattleHex::getClosestTile(possibleHexes, unit->unitSide(), destHex);
+		destHex = BattleHex::getClosestTile(unit->unitSide(), destHex, possibleHexes);
 	}
 
 	return effectTarget;

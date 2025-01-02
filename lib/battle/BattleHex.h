@@ -205,7 +205,7 @@ public:
 		return std::abs(xDst) + std::abs(yDst);
 	}
 
-	static BattleHex getClosestTile(const BattleHexArray & hexes, BattleSide side, BattleHex initialPos);
+	static BattleHex getClosestTile(BattleSide side, BattleHex initialPos, const BattleHexArray & hexes);
 
 	//Constexpr defined array with all directions used in battle
 	static constexpr auto hexagonalDirections() 
