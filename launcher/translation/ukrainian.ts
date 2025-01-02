@@ -492,7 +492,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
         <source>Handle back as right mouse button</source>
-        <translation type="unfinished"></translation>
+        <translation>Кнопка «Назад» як права кнопка миші</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1102"/>
@@ -823,7 +823,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="144"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation type="unfinished">Хроніки Героїв %1 - %2</translation>
+        <translation>Хроніки Героїв %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -1163,12 +1163,16 @@ error reason: </source>
 Exe (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
+            <numerusform>SHA1 хеш наданих файлів:
+Exe (%n байт):
+%1</numerusform>
+            <numerusform>SHA1 хеш наданих файлів:
+Exe (%n байти):
+%1</numerusform>
             <numerusform>SHA1 хеш наданих файлів:
 Exe (%n байтів):
 %1</numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1177,12 +1181,16 @@ Exe (%n байтів):
 Bin (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
+            <numerusform>
+Bin (%n байт):
+%1</numerusform>
+            <numerusform>
+Bin (%n байти):
+%1</numerusform>
             <numerusform>
 Bin (%n байтів):
 %1</numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -1359,7 +1367,7 @@ Bin (%n байтів):
     <message>
         <location filename="../mainwindow_moc.cpp" line="46"/>
         <source>Error starting executable</source>
-        <translation type="unfinished">Помилка запуску виконуваного файлу</translation>
+        <translation>Помилка запуску виконуваного файлу</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="287"/>
@@ -1456,7 +1464,7 @@ Bin (%n байтів):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="248"/>
         <source>Mod data was not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Не знайдено файли даних модифікації</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="252"/>
