@@ -407,7 +407,9 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 			{
 				for(int resType = 0; resType < GameConstants::RESOURCE_QUANTITY; ++resType)
 				{
-					auto resName = QString::fromStdString(GameConstants::RESOURCE_NAMES[resType]);
+					MetaString str;
+					str.appendName(GameResID(resType));
+					auto resName = QString::fromStdString(str.toString());
 					victoryTypeWidget->addItem(resName, QVariant::fromValue(resType));
 				}
 			}

@@ -37,7 +37,9 @@ TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) 
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
 		bool isAffected = playerList.contains(toQString(PlayerColor(i)));
-		auto * item = new QListWidgetItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[i]));
+		MetaString str;
+		str.appendName(PlayerColor(i));
+		auto * item = new QListWidgetItem(QString::fromStdString(str.toString()));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setCheckState(isAffected ? Qt::Checked : Qt::Unchecked);
 		ui->playersAffected->addItem(item);
@@ -46,8 +48,10 @@ TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) 
 	ui->resources->setRowCount(GameConstants::RESOURCE_QUANTITY);
 	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
-		auto name = QString::fromStdString(GameConstants::RESOURCE_NAMES[i]);
-		int val = params.value("resources").toMap().value(name).toInt();
+		MetaString str;
+		str.appendName(GameResID(i));
+		auto name = QString::fromStdString(str.toString());
+		int val = params.value("resources").toMap().value(QString::fromStdString(GameConstants::RESOURCE_NAMES[i])).toInt();
 		ui->resources->setItem(i, 0, new QTableWidgetItem(name));
 		auto nval = new QTableWidgetItem(QString::number(val));
 		nval->setFlags(nval->flags() | Qt::ItemIsEditable);
