@@ -60,12 +60,10 @@ const BattleHexArray & Unit::getSurroundingHexes(BattleHex assumedPosition) cons
 
 const BattleHexArray & Unit::getSurroundingHexes(BattleHex position, bool twoHex, BattleSide side)
 {
-	assert(position.isValid());			// check outside if position isValid
-	
 	if(!twoHex)
-		return BattleHexArray::neighbouringTilesCache[position];
+		return position.getNeighbouringTiles();
 
-	return BattleHexArray::neighbouringTilesDblWide.at(side).at(position);
+	return position.getNeighbouringTilesDblWide(side);
 }
 
 BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
@@ -88,7 +86,7 @@ BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
 			hexes.pop_back();
 
 		for(auto hex : hexes)
-			targetableHexes.insert(BattleHexArray::neighbouringTilesCache[hex]);
+			targetableHexes.insert(hex.getNeighbouringTiles());
 	}
 
 	return targetableHexes;

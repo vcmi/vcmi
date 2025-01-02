@@ -9,130 +9,63 @@
  */
 #include "StdInc.h"
 #include "BattleHex.h"
+#include "BattleHexArray.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-BattleHex::BattleHex() : hex(INVALID) {}
-
-BattleHex::BattleHex(si16 _hex) : hex(_hex) {}
-
-BattleHex::BattleHex(si16 x, si16 y)
+BattleHex BattleHex::getClosestTile(const BattleHexArray & hexes, BattleSide side, BattleHex initialPos)
 {
-	setXY(x, y);
-}
+	if(hexes.empty())
+		return BattleHex();
 
-BattleHex::BattleHex(std::pair<si16, si16> xy)
-{
-	setXY(xy);
-}
+	BattleHex initialHex = BattleHex(initialPos);
+	int closestDistance = std::numeric_limits<int>::max();
+	BattleHexArray closestTiles;
 
-BattleHex::operator si16() const
-{
-	return hex;
-}
-
-void BattleHex::setX(si16 x)
-{
-	setXY(x, getY());
-}
-
-void BattleHex::setY(si16 y)
-{
-	setXY(getX(), y);
-}
-
-void BattleHex::setXY(si16 x, si16 y, bool hasToBeValid)
-{
-	if(hasToBeValid)
+	for(auto hex : hexes)
 	{
-		if(x < 0 || x >= GameConstants::BFIELD_WIDTH || y < 0 || y >= GameConstants::BFIELD_HEIGHT)
-			throw std::runtime_error("Valid hex required");
+		int distance = initialHex.getDistance(initialHex, hex);
+		if(distance < closestDistance)
+		{
+			closestDistance = distance;
+			closestTiles.clear();
+			closestTiles.insert(hex);
+		}
+		else if(distance == closestDistance)
+			closestTiles.insert(hex);
 	}
 
-	hex = x + y * GameConstants::BFIELD_WIDTH;
-}
-
-void BattleHex::setXY(std::pair<si16, si16> xy)
-{
-	setXY(xy.first, xy.second);
-}
-
-si16 BattleHex::getX() const
-{
-	return hex % GameConstants::BFIELD_WIDTH;
-}
-
-si16 BattleHex::getY() const
-{
-	return hex / GameConstants::BFIELD_WIDTH;
-}
-
-std::pair<si16, si16> BattleHex::getXY() const
-{
-	return std::make_pair(getX(), getY());
-}
-
-BattleHex & BattleHex::moveInDirection(EDir dir, bool hasToBeValid)
-{
-	si16 x = getX();
-	si16 y = getY();
-	switch(dir)
+	auto compareHorizontal = [side, initialPos](const BattleHex & left, const BattleHex & right)
 	{
-	case TOP_LEFT:
-		setXY((y%2) ? x-1 : x, y-1, hasToBeValid);
-		break;
-	case TOP_RIGHT:
-		setXY((y%2) ? x : x+1, y-1, hasToBeValid);
-		break;
-	case RIGHT:
-		setXY(x+1, y, hasToBeValid);
-		break;
-	case BOTTOM_RIGHT:
-		setXY((y%2) ? x : x+1, y+1, hasToBeValid);
-		break;
-	case BOTTOM_LEFT:
-		setXY((y%2) ? x-1 : x, y+1, hasToBeValid);
-		break;
-	case LEFT:
-		setXY(x-1, y, hasToBeValid);
-		break;
-	case NONE:
-		break;
-	default:
-		throw std::runtime_error("Disaster: wrong direction in BattleHex::operator+=!\n");
-		break;
-	}
-	return *this;
+		if(left.getX() != right.getX())
+		{
+			return (side == BattleSide::ATTACKER) ? (left.getX() > right.getX()) : (left.getX() < right.getX());
+		}
+		return std::abs(left.getY() - initialPos.getY()) < std::abs(right.getY() - initialPos.getY());
+	};
+
+	auto bestTile = std::min_element(closestTiles.begin(), closestTiles.end(), compareHorizontal);
+	return (bestTile != closestTiles.end()) ? *bestTile : BattleHex();
 }
 
-BattleHex & BattleHex::operator+=(BattleHex::EDir dir)
+const BattleHexArray & BattleHex::getAllNeighbouringTiles() const
 {
-	return moveInDirection(dir);
+	return BattleHexArray::getAllNeighbouringTiles(*this);
 }
 
-BattleHex BattleHex::cloneInDirection(BattleHex::EDir dir, bool hasToBeValid) const
+const BattleHexArray & BattleHex::getNeighbouringTiles() const
 {
-	BattleHex result(hex);
-	result.moveInDirection(dir, hasToBeValid);
-	return result;
+	return BattleHexArray::getNeighbouringTiles(*this);
 }
 
-BattleHex BattleHex::operator+(BattleHex::EDir dir) const
+const BattleHexArray & BattleHex::getNeighbouringTilesDblWide(BattleSide side) const
 {
-	return cloneInDirection(dir);
-}
-
-BattleHex::EDir BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
-{
-	for(auto dir : hexagonalDirections())
-		if(hex2 == hex1.cloneInDirection(dir, false))
-			return dir;
-	return NONE;
+	return BattleHexArray::getNeighbouringTilesDblWide(*this, side);
 }
 
 std::ostream & operator<<(std::ostream & os, const BattleHex & hex)
 {
-	return os << boost::str(boost::format("{BattleHex: x '%d', y '%d', hex '%d'}") % hex.getX() % hex.getY() % hex.hex);
+	return os << boost::str(boost::format("{BattleHex: x '%d', y '%d', hex '%d'}") % hex.getX() % hex.getY() % static_cast<si16>(hex));
 }
 
 VCMI_LIB_NAMESPACE_END

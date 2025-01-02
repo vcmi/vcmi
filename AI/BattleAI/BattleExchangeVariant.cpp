@@ -967,7 +967,7 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getOneTurnReachableUn
 
 				if(hexStack && cb->battleMatchOwner(unit, hexStack, false))
 				{
-					for(BattleHex neighbour : BattleHexArray::neighbouringTilesCache[hex.hex])
+					for(BattleHex neighbour : hex.getNeighbouringTiles())
 					{
 						reachable = unitReachability.distances.at(neighbour) <= radius;
 
@@ -1028,7 +1028,7 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 					if(hexStack && cb->battleMatchOwner(unit, hexStack, false))
 					{
 						enemyUnit = true;
-						for(BattleHex neighbour : BattleHexArray::neighbouringTilesCache[hex.hex])
+						for(BattleHex neighbour : hex.getNeighbouringTiles())
 						{
 							reachable = unitReachability.distances.at(neighbour) <= unitSpeed;
 

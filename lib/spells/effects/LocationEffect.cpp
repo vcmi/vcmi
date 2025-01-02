@@ -11,6 +11,7 @@
 
 #include "LocationEffect.h"
 #include "../ISpellMechanics.h"
+#include "battle/BattleHexArray.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

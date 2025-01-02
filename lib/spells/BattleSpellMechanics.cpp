@@ -610,7 +610,7 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 			{
 				hexesToCheck.insert(stack->getPosition());
 
-				for(auto adjacent : BattleHexArray::neighbouringTilesCache[stack->getPosition().hex])
+				for(auto adjacent : stack->getPosition().getNeighbouringTiles())
 					hexesToCheck.insert(adjacent);
 			}
 

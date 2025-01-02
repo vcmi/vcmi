@@ -482,7 +482,7 @@ std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeigh
 	{
 		// get all neighbours and their directions
 		
-		const BattleHexArray & neighbouringTiles = BattleHexArray::getAllNeighbouringTiles(hex);
+		const BattleHexArray & neighbouringTiles = hex.getAllNeighbouringTiles();
 
 		std::vector<BattleHex::EDir> outsideNeighbourDirections;
 
@@ -492,9 +492,7 @@ std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeigh
 			if(!neighbouringTiles[direction].isAvailable())
 				continue;
 
-			auto it = std::find(wholeRangeHexes.begin(), wholeRangeHexes.end(), neighbouringTiles[direction]);
-
-			if(it == wholeRangeHexes.end())
+			if(!wholeRangeHexes.contains(neighbouringTiles[direction]))
 				outsideNeighbourDirections.push_back(BattleHex::EDir(direction)); // push direction
 		}
 
@@ -680,7 +678,7 @@ BattleHex BattleFieldController::getHexAtPosition(Point hoverPos)
 BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber)
 {
 	const bool doubleWide = owner.stacksController->getActiveStack()->doubleWide();
-	const BattleHexArray & neighbours = BattleHexArray::getAllNeighbouringTiles(myNumber);
+	const BattleHexArray & neighbours = myNumber.getAllNeighbouringTiles();
 	//   0 1
 	//  5 x 2
 	//   4 3
