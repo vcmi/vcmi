@@ -29,7 +29,9 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	{
 		if(i == playerId || !controller.map()->players[i].canAnyonePlay())
 		{
-			ui->playerColorCombo->addItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[i]), QVariant(i));
+			MetaString str;
+			str.appendName(PlayerColor(i));
+			ui->playerColorCombo->addItem(QString::fromStdString(str.toString()), QVariant(i));
 			if(i == playerId)
 				ui->playerColorCombo->setCurrentIndex(index);
 			++index;

@@ -407,12 +407,12 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	catch(const ModIncompatibility & e)
 	{
 		assert(e.whatExcessive().empty());
-		QMessageBox::warning(this, "Mods are required", QString::fromStdString(e.whatMissing()));
+		QMessageBox::warning(this, tr("Mods are required"), QString::fromStdString(e.whatMissing()));
 		return false;
 	}
 	catch(const std::exception & e)
 	{
-		QMessageBox::critical(this, "Failed to open map", tr(e.what()));
+		QMessageBox::critical(this, tr("Failed to open map"), tr(e.what()));
 		return false;
 	}
 	
@@ -459,8 +459,6 @@ void MainWindow::on_actionOpenRecent_triggered()
 		RecentFileDialog(const QStringList& recentFiles, QWidget *parent)
 			: QDialog(parent), layout(new QVBoxLayout(this)), listWidget(new QListWidget(this))
 		{
-
-			setWindowTitle(tr("Recently Opened Files"));
 			setMinimumWidth(600);
 
 			connect(listWidget, &QListWidget::itemActivated, this, [this](QListWidgetItem *item)
@@ -496,6 +494,7 @@ void MainWindow::on_actionOpenRecent_triggered()
 	};
 
 	RecentFileDialog d(recentFiles, this);
+	d.setWindowTitle(tr("Recently Opened Files"));
 	if(d.exec() == QDialog::Accepted && getAnswerAboutUnsavedChanges())
 	{
 		openMap(d.getSelectedFilePath());
@@ -548,10 +547,11 @@ void MainWindow::saveMap()
 	
 	if(!issues.empty())
 	{
+		auto mapValidationTitle = tr("Map validation");
 		if(critical)
-			QMessageBox::warning(this, "Map validation", "Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found");
+			QMessageBox::warning(this, mapValidationTitle, tr("Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found"));
 		else
-			QMessageBox::information(this, "Map validation", "Map has some errors. Open Validator from the Map menu to see issues found");
+			QMessageBox::information(this, mapValidationTitle, tr("Map has some errors. Open Validator from the Map menu to see issues found"));
 	}
 	
 	Translations::cleanupRemovedItems(*controller.map());
@@ -575,7 +575,7 @@ void MainWindow::saveMap()
 	}
 	catch(const std::exception & e)
 	{
-		QMessageBox::critical(this, "Failed to save map", e.what());
+		QMessageBox::critical(this, tr("Failed to save map"), e.what());
 		return;
 	}
 	
@@ -942,7 +942,7 @@ void MainWindow::loadObjectsTree()
 	}
 	catch(const std::exception &)
 	{
-		QMessageBox::critical(this, "Mods loading problem", "Critical error during Mods loading. Disable invalid mods and restart.");
+		QMessageBox::critical(this, tr("Mods loading problem"), tr("Critical error during Mods loading. Disable invalid mods and restart."));
 	}
 }
 

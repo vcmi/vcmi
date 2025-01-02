@@ -407,7 +407,9 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 			{
 				for(int resType = 0; resType < GameConstants::RESOURCE_QUANTITY; ++resType)
 				{
-					auto resName = QString::fromStdString(GameConstants::RESOURCE_NAMES[resType]);
+					MetaString str;
+					str.appendName(GameResID(resType));
+					auto resName = QString::fromStdString(str.toString());
 					victoryTypeWidget->addItem(resName, QVariant::fromValue(resType));
 				}
 			}
@@ -427,7 +429,7 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 
 			victorySelectWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victorySelectWidget);
-			victorySelectWidget->addItem("Any town", QVariant::fromValue(-1));
+			victorySelectWidget->addItem(tr("Any town"), QVariant::fromValue(-1));
 			for(int i : getObjectIndexes<const CGTownInstance>(*controller->map()))
 				victorySelectWidget->addItem(getTownName(*controller->map(), i).c_str(), QVariant::fromValue(i));
 			
