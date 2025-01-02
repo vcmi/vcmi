@@ -71,11 +71,11 @@ uint32_t ReachabilityInfo::distToNearestNeighbour(
 		{
 			// It can be back to back attack  o==o  or head to head  =oo=.
 			// In case of back-to-back the distance between heads (unit positions) may be up to 3 tiles
-			attackableHexes.merge(battle::Unit::getHexes(defender->occupiedHex(), true, defender->unitSide()));
+			attackableHexes.insert(battle::Unit::getHexes(defender->occupiedHex(), true, defender->unitSide()));
 		}
 		else
 		{
-			attackableHexes.merge(battle::Unit::getHexes(defender->getPosition(), true, defender->unitSide()));
+			attackableHexes.insert(battle::Unit::getHexes(defender->getPosition(), true, defender->unitSide()));
 		}
 	}
 

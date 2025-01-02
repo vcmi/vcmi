@@ -281,7 +281,7 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	if(settings["battle"]["stackRange"].Bool())
 	{
 		BattleHexArray hexesToShade = occupiableHexes;
-		hexesToShade.merge(attackableHexes);
+		hexesToShade.insert(attackableHexes);
 		for(BattleHex hex : hexesToShade)
 		{
 			showHighlightedHex(*backgroundWithHexes, cellShade, hex, false);

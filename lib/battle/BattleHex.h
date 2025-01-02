@@ -97,9 +97,8 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 		int y1 = hex1.getY();
 		int y2 = hex2.getY();
 
-		// FIXME: why there was * 0.5 instead of / 2?
-		int x1 = static_cast<int>(hex1.getX() + y1 / 2);
-		int x2 = static_cast<int>(hex2.getX() + y2 / 2);
+		int x1 = hex1.getX() + y1 / 2;
+		int x2 = hex2.getX() + y2 / 2;
 
 		int xDst = x2 - x1;
 		int yDst = y2 - y1;

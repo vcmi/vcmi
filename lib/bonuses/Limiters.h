@@ -10,7 +10,7 @@
 
 #include "Bonus.h"
 
-#include "../battle/BattleHex.h"
+#include "../battle/BattleHexArray.h"
 #include "../serializer/Serializeable.h"
 #include "../constants/Enumerations.h"
 

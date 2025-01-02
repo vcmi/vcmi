@@ -88,7 +88,7 @@ BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
 			hexes.pop_back();
 
 		for(auto hex : hexes)
-			targetableHexes.merge(BattleHexArray::neighbouringTilesCache[hex]);
+			targetableHexes.insert(BattleHexArray::neighbouringTilesCache[hex]);
 	}
 
 	return targetableHexes;

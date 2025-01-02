@@ -120,7 +120,7 @@ BattleHexArray BattleHexArray::generateNeighbouringTiles(BattleHex hex)
 	return ret;
 }
 
-void BattleHexArray::merge(const BattleHexArray & other) noexcept
+void BattleHexArray::insert(const BattleHexArray & other) noexcept
 {
 	for(auto hex : other)
 	{
