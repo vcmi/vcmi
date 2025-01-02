@@ -442,6 +442,7 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request) const
 	}
 
 	// error found. Try to generate some debug info
+	failedRequests.push_back(request);
 	showIdentifierResolutionErrorDetails(request);
 	return false;
 }
@@ -492,6 +493,17 @@ void CIdentifierStorage::debugDumpIdentifiers()
 		for(const auto & entry : category.second)
 			logMod->trace("- " + entry);
 	}
+}
+
+std::vector<std::string> CIdentifierStorage::getModsWithFailedRequests() const
+{
+	std::vector<std::string> result;
+
+	for (const auto & request : failedRequests)
+		if (!vstd::contains(result, request.localScope))
+			result.push_back(request.localScope);
+
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END
