@@ -418,12 +418,14 @@ bool ObjectManager::createMonoliths()
 			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
 		}
+
+		// Object must be placed first so that curved path won't go through occupied tiles
+		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 		
-		// Once it can be created, replace with curved path
+		// Once it can be created, replace with curved path.
 		replaceWithCurvedPath(path, zone, rmgObject.getVisitablePosition());
 		
 		zone.connectPath(path);
-		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 	}
 
 	vstd::erase_if(requiredObjects, [](const auto & objInfo)
@@ -452,6 +454,8 @@ bool ObjectManager::createRequiredObjects()
 			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
 		}
+
+		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 		if (objInfo.createRoad)
 		{
 			// Once valid path can be created, replace with curved path
@@ -459,7 +463,6 @@ bool ObjectManager::createRequiredObjects()
 		}
 		
 		zone.connectPath(path);
-		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 		
 		for(const auto & nearby : nearbyObjects)
 		{
