@@ -45,10 +45,6 @@ public:
 	*/
 	virtual int getDefense(bool ranged) const;
 	/**
-	 Returns primskill of creature or hero.
-	*/
-	int getPrimSkillLevel(PrimarySkill id) const;
-	/**
 	 Returns morale of creature or hero. Taking absolute bonuses into account.
 	 For now, uses range from EGameSettings
 	*/

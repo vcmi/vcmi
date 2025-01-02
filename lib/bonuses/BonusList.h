@@ -58,14 +58,14 @@ public:
 
 	// BonusList functions
 	void stackBonuses();
-	int totalValue() const;
+	int totalValue(int baseValue = 0) const;
 	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit = nullptr) const;
 	void getAllBonuses(BonusList &out) const;
 
 	//special find functions
 	std::shared_ptr<Bonus> getFirst(const CSelector &select);
 	std::shared_ptr<const Bonus> getFirst(const CSelector &select) const;
-	int valOfBonuses(const CSelector &select) const;
+	int valOfBonuses(const CSelector &select, int baseValue = 0) const;
 
 	// conversion / output
 	JsonNode toJsonNode() const;

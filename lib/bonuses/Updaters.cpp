@@ -111,18 +111,6 @@ ArmyMovementUpdater::ArmyMovementUpdater(int base, int divider, int multiplier, 
 
 std::shared_ptr<Bonus> ArmyMovementUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
-	if(b->type == BonusType::MOVEMENT && context.getNodeType() == CBonusSystemNode::HERO)
-	{
-		auto speed = static_cast<const CGHeroInstance &>(context).getLowestCreatureSpeed();
-		si32 armySpeed = speed * base / divider;
-		auto counted = armySpeed * multiplier;
-		auto newBonus = std::make_shared<Bonus>(*b);
-		newBonus->source = BonusSource::ARMY;
-		newBonus->val += vstd::amin(counted, max);
-		return newBonus;
-	}
-	if(b->type != BonusType::MOVEMENT)
-		logGlobal->error("ArmyMovementUpdater should only be used for MOVEMENT bonus!");
 	return b;
 }
 

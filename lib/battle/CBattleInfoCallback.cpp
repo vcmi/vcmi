@@ -714,18 +714,7 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker) const
 	if (!attacker->canShoot())
 		return false;
 
-	//forgetfulness
-	TConstBonusListPtr forgetfulList = attacker->getBonusesOfType(BonusType::FORGETFULL);
-	if(!forgetfulList->empty())
-	{
-		int forgetful = forgetfulList->totalValue();
-
-		//advanced+ level
-		if(forgetful > 1)
-			return false;
-	}
-
-	return !battleIsUnitBlocked(attacker) || attacker->hasBonusOfType(BonusType::FREE_SHOOTING);
+	return attacker->canShootBlocked() || !battleIsUnitBlocked(attacker);
 }
 
 bool CBattleInfoCallback::battleCanTargetEmptyHex(const battle::Unit * attacker) const
@@ -1731,9 +1720,6 @@ bool CBattleInfoCallback::battleHasShootingPenalty(const battle::Unit * shooter,
 bool CBattleInfoCallback::battleIsUnitBlocked(const battle::Unit * unit) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-
-	if(unit->hasBonusOfType(BonusType::SIEGE_WEAPON)) //siege weapons cannot be blocked
-		return false;
 
 	for(const auto * adjacent : battleAdjacentUnits(unit))
 	{

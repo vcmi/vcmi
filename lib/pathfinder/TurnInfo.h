@@ -10,43 +10,74 @@
 #pragma once
 
 #include "../bonuses/Bonus.h"
-#include "../GameConstants.h"
+#include "../bonuses/BonusSelector.h"
+#include "../bonuses/BonusCache.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
 
-struct DLL_LINKAGE TurnInfo
+class TurnInfoBonusList
 {
-	/// This is certainly not the best design ever and certainly can be improved
-	/// Unfortunately for pathfinder that do hundreds of thousands calls onus system add too big overhead
-	struct BonusCache {
-		std::set<TerrainId> noTerrainPenalty;
-		bool freeShipBoarding;
-		bool flyingMovement;
-		int flyingMovementVal;
-		bool waterWalking;
-		int waterWalkingVal;
-		int pathfindingVal;
+	TConstBonusListPtr bonusList;
+	std::mutex bonusListMutex;
+	std::atomic<int64_t> bonusListVersion = 0;
+public:
+	TConstBonusListPtr getBonusList(const CGHeroInstance * target, const CSelector & bonusSelector);
+};
 
-		BonusCache(const TConstBonusListPtr & bonusList);
-	};
-	std::unique_ptr<BonusCache> bonusCache;
+struct TurnInfoCache
+{
+	TurnInfoBonusList waterWalking;
+	TurnInfoBonusList flyingMovement;
+	TurnInfoBonusList noTerrainPenalty;
+	TurnInfoBonusList freeShipBoarding;
+	TurnInfoBonusList roughTerrainDiscount;
+	TurnInfoBonusList movementPointsLimitLand;
+	TurnInfoBonusList movementPointsLimitWater;
 
-	const CGHeroInstance * hero;
-	mutable TConstBonusListPtr bonuses;
-	mutable int maxMovePointsLand;
-	mutable int maxMovePointsWater;
-	TerrainId nativeTerrain;
-	int turn;
+	const CGHeroInstance * target;
 
-	TurnInfo(const CGHeroInstance * Hero, const int Turn = 0);
+	mutable std::atomic<int64_t> heroLowestSpeedVersion = 0;
+	mutable std::atomic<int64_t> heroLowestSpeedValue = 0;
+
+	explicit TurnInfoCache(const CGHeroInstance * target):
+		target(target)
+	{}
+};
+
+class DLL_LINKAGE TurnInfo
+{
+private:
+	const CGHeroInstance * target;
+
+	// stores cached values per each terrain
+	std::vector<bool> noterrainPenalty;
+
+	int flyingMovementValue;
+	int waterWalkingValue;
+	int roughTerrainDiscountValue;
+	int movePointsLimitLand;
+	int movePointsLimitWater;
+
+	bool waterWalkingTest;
+	bool flyingMovementTest;
+	bool freeShipBoardingTest;
+
+public:
+	int hasWaterWalking() const;
+	int hasFlyingMovement() const;
+	int hasNoTerrainPenalty(const TerrainId & terrain) const;
+	int hasFreeShipBoarding() const;
+
+	int getFlyingMovementValue() const;
+	int getWaterWalkingValue() const;
+	int getRoughTerrainDiscountValue() const;
+	int getMovePointsLimitLand() const;
+	int getMovePointsLimitWater() const;
+
+	TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, int Turn);
 	bool isLayerAvailable(const EPathfindingLayer & layer) const;
-	bool hasBonusOfType(const BonusType type) const;
-	bool hasBonusOfType(const BonusType type, const BonusSubtypeID subtype) const;
-	int valOfBonuses(const BonusType type) const;
-	int valOfBonuses(const BonusType type, const BonusSubtypeID subtype) const;
-	void updateHeroBonuses(BonusType type) const;
 	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 };
 

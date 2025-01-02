@@ -76,6 +76,8 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS,             "heroes",    "retreatOnWinWithoutTroops"            },
 		{EGameSettings::HEROES_STARTING_STACKS_CHANCES,                   "heroes",    "startingStackChances"                 },
 		{EGameSettings::HEROES_TAVERN_INVITE,                             "heroes",    "tavernInvite"                         },
+		{EGameSettings::HEROES_MOVEMENT_POINTS_LAND,                      "heroes",    "movementPointsLand"                   },
+		{EGameSettings::HEROES_MOVEMENT_POINTS_SEA,                       "heroes",    "movementPointsSea"                    },
 		{EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE,                     "mapFormat", "armageddonsBlade"                     },
 		{EGameSettings::MAP_FORMAT_CHRONICLES,                            "mapFormat", "chronicles"                           },
 		{EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS,                     "mapFormat", "hornOfTheAbyss"                       },

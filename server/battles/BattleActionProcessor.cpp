@@ -257,7 +257,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	}
 
 	//attack
-	int totalAttacks = stack->totalAttacks.getMeleeValue();
+	int totalAttacks = stack->getTotalAttacks(false);
 
 	//TODO: move to CUnitState
 	const auto * attackingHero = battle.battleGetFightingHero(ba.side);
@@ -378,7 +378,7 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 	}
 	//allow more than one additional attack
 
-	int totalRangedAttacks = stack->totalAttacks.getRangedValue();
+	int totalRangedAttacks = stack->getTotalAttacks(true);
 
 	//TODO: move to CUnitState
 	const auto * attackingHero = battle.battleGetFightingHero(ba.side);

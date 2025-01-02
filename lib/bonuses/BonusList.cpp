@@ -83,10 +83,10 @@ void BonusList::stackBonuses()
 	}
 }
 
-int BonusList::totalValue() const
+int BonusList::totalValue(int baseValue) const
 {
 	if (bonuses.empty())
-		return 0;
+		return baseValue;
 
 	struct BonusCollection
 	{
@@ -104,6 +104,7 @@ int BonusList::totalValue() const
 	};
 
 	BonusCollection accumulated;
+	accumulated.base = baseValue;
 	int indexMaxCount = 0;
 	int indexMinCount = 0;
 
@@ -208,12 +209,12 @@ void BonusList::getAllBonuses(BonusList &out) const
 		out.push_back(b);
 }
 
-int BonusList::valOfBonuses(const CSelector &select) const
+int BonusList::valOfBonuses(const CSelector &select, int baseValue) const
 {
 	BonusList ret;
 	CSelector limit = nullptr;
 	getBonuses(ret, select, limit);
-	return ret.totalValue();
+	return ret.totalValue(baseValue);
 }
 
 JsonNode BonusList::toJsonNode() const

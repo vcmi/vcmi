@@ -857,15 +857,6 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 		exchangeBattle->nextRound();
 	}
 
-	// avoid blocking path for stronger stack by weaker stack
-	// the method checks if all stacks can be placed around enemy
-	std::map<BattleHex, battle::Units> reachabilityMap;
-
-	auto hexes = ap.attack.defender->getSurroundingHexes();
-
-	for(auto hex : hexes)
-		reachabilityMap[hex] = getOneTurnReachableUnits(turn, hex);
-
 	auto score = v.getScore();
 
 	if(simulationTurnsCount < totalTurnsCount)
