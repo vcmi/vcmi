@@ -389,13 +389,10 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 void CTownHandler::loadBuildings(CTown * town, const JsonNode & source)
 {
-	if(source.isStruct())
+	for(const auto & node : source.Struct())
 	{
-		for(const auto & node : source.Struct())
-		{
-			if (!node.second.isNull())
-				loadBuilding(town, node.first, node.second);
-		}
+		if (!node.second.isNull())
+			loadBuilding(town, node.first, node.second);
 	}
 }
 
@@ -874,6 +871,9 @@ void CTownHandler::beforeValidate(JsonNode & object)
 
 	for (auto & building : object["town"]["buildings"].Struct())
 	{
+		if (building.second.isNull())
+			continue;
+
 		inheritBuilding(building.first, building.second);
 		if (building.second.Struct().count("type"))
 			inheritBuilding(building.second["type"].String(), building.second);
