@@ -211,7 +211,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 			return;
 		}
 
-		if(ev.key.keysym.scancode == SDL_SCANCODE_AC_BACK)
+		if(ev.key.keysym.scancode == SDL_SCANCODE_AC_BACK && !settings["input"]["handleBackRightMouseButton"].Bool())
 		{
 			boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 			handleQuit(true);

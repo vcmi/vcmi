@@ -101,6 +101,8 @@ private slots:
 
 	void on_buttonScalingAuto_toggled(bool checked);
 
+	void on_buttonHandleBackRightMouseButton_toggled(bool checked);
+
 private:
 	Ui::CSettingsView * ui;
 
