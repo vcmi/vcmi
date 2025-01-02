@@ -11,6 +11,7 @@
 #pragma once
 
 #include "BattleHex.h"
+#include <boost/container/small_vector.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -19,7 +20,7 @@ class DLL_LINKAGE BattleHexArray
 {
 public:
 	static constexpr uint8_t totalSize = GameConstants::BFIELD_SIZE;
-	using StorageType = std::vector<BattleHex>;
+	using StorageType = boost::container::small_vector<BattleHex, 8>;
 
 	using value_type = BattleHex;
 	using size_type = StorageType::size_type;
@@ -38,10 +39,7 @@ public:
 	static const ArrayOfBattleHexArrays neighbouringTilesCache;
 	static const std::map<BattleSide, ArrayOfBattleHexArrays> neighbouringTilesDblWide;
 
-	BattleHexArray() noexcept
-	{
-		internalStorage.reserve(totalSize);
-	}
+	BattleHexArray() = default;
 
 	template <typename Container, typename = std::enable_if_t<
 		std::is_convertible_v<typename Container::value_type, BattleHex>>>
@@ -95,9 +93,6 @@ public:
 
 	void insert(BattleHex hex) noexcept
 	{
-		/*if(isNotValidForInsertion(hex))
-			return;*/
-
 		if(contains(hex))
 			return;
 
@@ -107,9 +102,6 @@ public:
 
 	void set(size_type index, BattleHex hex)
 	{
-		/*if(isNotValidForInsertion(hex))
-			return;*/
-
 		if(index >= internalStorage.size())
 		{
 			logGlobal->error("Invalid BattleHexArray::set index parameter. It is " + std::to_string(index)
@@ -125,11 +117,8 @@ public:
 		internalStorage[index] = hex;
 	}
 
-	iterator BattleHexArray::insert(iterator pos, BattleHex hex) noexcept
+	iterator insert(iterator pos, BattleHex hex) noexcept
 	{
-		/*if(isNotValidForInsertion(hex))
-			return pos;*/
-
 		if(contains(hex))
 			return pos;
 
@@ -139,11 +128,11 @@ public:
 
 	BattleHex getClosestTile(BattleSide side, BattleHex initialPos) const;
 
-	void merge(const BattleHexArray & other) noexcept;
+	void insert(const BattleHexArray & other) noexcept;
 
 	template <typename Container, typename = std::enable_if_t<
 		std::is_convertible_v<typename Container::value_type, BattleHex>>>
-		void merge(const Container & container) noexcept
+		void insert(const Container & container) noexcept
 	{
 		for(auto value : container)
 		{
@@ -167,7 +156,7 @@ public:
 
 	inline std::vector<BattleHex> toVector() const noexcept
 	{
-		return internalStorage;
+		return std::vector<BattleHex>(internalStorage.begin(), internalStorage.end());
 	}
 
 	template <typename Predicate>
@@ -196,7 +185,7 @@ public:
 		return filtered;
 	}
 
-	[[nodiscard]] inline bool BattleHexArray::contains(BattleHex hex) const noexcept
+	[[nodiscard]] inline bool contains(BattleHex hex) const noexcept
 	{
 		if(hex.isValid())
 			return presenceFlags[hex];
@@ -220,22 +209,22 @@ public:
 		}
 	}
 
-	[[nodiscard]] inline const BattleHex & BattleHexArray::back() const noexcept
+	[[nodiscard]] inline const BattleHex & back() const noexcept
 	{
 		return internalStorage.back();
 	}
 
-	[[nodiscard]] inline const BattleHex & BattleHexArray::front() const noexcept
+	[[nodiscard]] inline const BattleHex & front() const noexcept
 	{
 		return internalStorage.front();
 	}
 
-	[[nodiscard]] inline const BattleHex & BattleHexArray::operator[](size_type index) const noexcept
+	[[nodiscard]] inline const BattleHex & operator[](size_type index) const noexcept
 	{
 		return internalStorage[index];
 	}
 
-	[[nodiscard]] inline const BattleHex & BattleHexArray::at(size_type index) const
+	[[nodiscard]] inline const BattleHex & at(size_type index) const
 	{
 		return internalStorage.at(index);
 	}
@@ -245,47 +234,47 @@ public:
 		return internalStorage.size();
 	}
 
-	[[nodiscard]] inline BattleHexArray::iterator BattleHexArray::begin() noexcept
+	[[nodiscard]] inline iterator begin() noexcept
 	{
 		return internalStorage.begin();
 	}
 
-	[[nodiscard]] inline BattleHexArray::const_iterator BattleHexArray::begin() const noexcept
+	[[nodiscard]] inline const_iterator begin() const noexcept
 	{
 		return internalStorage.begin();
 	}
 
-	[[nodiscard]] inline bool BattleHexArray::empty() const noexcept
+	[[nodiscard]] inline bool empty() const noexcept
 	{
 		return internalStorage.empty();
 	}
 
-	[[nodiscard]] inline BattleHexArray::iterator BattleHexArray::end() noexcept
+	[[nodiscard]] inline iterator end() noexcept
 	{
 		return internalStorage.end();
 	}
 
-	[[nodiscard]] inline BattleHexArray::const_iterator BattleHexArray::end() const noexcept
+	[[nodiscard]] inline const_iterator end() const noexcept
 	{
 		return internalStorage.end();
 	}
 
-	[[nodiscard]] inline BattleHexArray::reverse_iterator BattleHexArray::rbegin() noexcept
+	[[nodiscard]] inline reverse_iterator rbegin() noexcept
 	{
 		return reverse_iterator(end());
 	}
 
-	[[nodiscard]] inline BattleHexArray::const_reverse_iterator BattleHexArray::rbegin() const noexcept
+	[[nodiscard]] inline const_reverse_iterator rbegin() const noexcept
 	{
 		return const_reverse_iterator(end());
 	}
 
-	[[nodiscard]] inline BattleHexArray::reverse_iterator BattleHexArray::rend() noexcept
+	[[nodiscard]] inline reverse_iterator rend() noexcept
 	{
 		return reverse_iterator(begin());
 	}
 
-	[[nodiscard]] inline BattleHexArray::const_reverse_iterator BattleHexArray::rend() const noexcept
+	[[nodiscard]] inline const_reverse_iterator rend() const noexcept
 	{
 		return const_reverse_iterator(begin());
 	}
@@ -294,7 +283,7 @@ private:
 	StorageType internalStorage;
 	std::bitset<totalSize> presenceFlags = {};
 
-	[[nodiscard]] inline bool BattleHexArray::isNotValidForInsertion(BattleHex hex) const
+	[[nodiscard]] inline bool isNotValidForInsertion(BattleHex hex) const
 	{
 		if(isTower(hex))
 			return true;
@@ -313,8 +302,8 @@ private:
 	}
 
 	/// returns all valid neighbouring tiles
-	static BattleHexArray::ArrayOfBattleHexArrays calculateNeighbouringTiles();
-	static BattleHexArray::ArrayOfBattleHexArrays calculateNeighbouringTilesDblWide(BattleSide side);
+	static ArrayOfBattleHexArrays calculateNeighbouringTiles();
+	static ArrayOfBattleHexArrays calculateNeighbouringTilesDblWide(BattleSide side);
 	static BattleHexArray generateNeighbouringTiles(BattleHex hex);
 };
 

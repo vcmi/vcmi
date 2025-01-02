@@ -103,7 +103,7 @@ void Moat::convertBonus(const Mechanics * m, std::vector<Bonus> & converted) con
 		BattleHexArray flatMoatHexes;
 
 		for(const auto & moatPatch : moatHexes)
-			flatMoatHexes.merge(moatPatch);
+			flatMoatHexes.insert(moatPatch);
 
 		nb.limiter = std::make_shared<UnitOnHexLimiter>(std::move(flatMoatHexes));
 		converted.push_back(nb);
@@ -168,7 +168,7 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 		obstacle.appearSound = sideOptions.appearSound; //For dispellable moats
 		obstacle.appearAnimation = sideOptions.appearAnimation; //For dispellable moats
 		obstacle.animation = sideOptions.animation;
-		obstacle.customSize.merge(destination);
+		obstacle.customSize.insert(destination);
 		obstacle.animationYOffset = sideOptions.offsetY;
 		pack.changes.emplace_back();
 		obstacle.toInfo(pack.changes.back());

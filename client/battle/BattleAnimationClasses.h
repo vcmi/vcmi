@@ -143,7 +143,7 @@ class MovementAnimation : public StackMoveAnimation
 private:
 	int moveSoundHandler; // sound handler used when moving a unit
 
-	BattleHexArray destTiles; //full path, includes already passed hexes
+	const BattleHexArray & destTiles; //full path, includes already passed hexes
 	ui32 currentMoveIndex; // index of nextHex in destTiles
 
 	double begX, begY; // starting position
@@ -159,7 +159,7 @@ public:
 	bool init() override;
 	void tick(uint32_t msPassed) override;
 
-	MovementAnimation(BattleInterface & owner, const CStack *_stack, BattleHexArray _destTiles, int _distance);
+	MovementAnimation(BattleInterface & owner, const CStack *_stack, const BattleHexArray & _destTiles, int _distance);
 	~MovementAnimation();
 };
 
@@ -339,14 +339,14 @@ public:
 	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects = 0, float transparencyFactor = 1.f, bool reversed = false);
 
 	/// Create animation positioned at point(s). Note that positions must be are absolute, including battleint position offset
-	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos                 , int effects = 0, bool reversed = false);
-	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<Point> pos    , int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos                   , int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<Point> pos      , int effects = 0, bool reversed = false);
 
 	/// Create animation positioned at certain hex(es)
-	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex             , int effects = 0, float transparencyFactor = 1.0f, bool reversed = false);
-	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHexArray hex, int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex               , int effects = 0, float transparencyFactor = 1.0f, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, const BattleHexArray & hexes, int effects = 0, bool reversed = false);
 
-	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, BattleHex hex,   int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, BattleHex hex,     int effects = 0, bool reversed = false);
 	 ~EffectAnimation();
 
 	bool init() override;

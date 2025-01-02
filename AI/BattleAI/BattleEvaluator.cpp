@@ -431,7 +431,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, BattleHexAr
 				auto triggerIsNegative = triggerAbility->isNegative() || triggerAbility->isDamage();
 
 				if(triggerIsNegative)
-					obstacleHexes.merge(obst->getAffectedTiles());
+					obstacleHexes.insert(obst->getAffectedTiles());
 			}
 		}
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.

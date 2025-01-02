@@ -247,7 +247,7 @@ void CStupidAI::battleNewRound(const BattleID & battleID)
 	print("battleNewRound called");
 }
 
-void CStupidAI::battleStackMoved(const BattleID & battleID, const CStack * stack, BattleHexArray dest, int distance, bool teleport)
+void CStupidAI::battleStackMoved(const BattleID & battleID, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport)
 {
 	print("battleStackMoved called");
 }

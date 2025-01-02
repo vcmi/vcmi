@@ -630,7 +630,7 @@ BattleHexArray CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit *
 		for(auto hex : ret)
 			occupiable.insert(unit->occupiedHex(hex));
 
-		ret.merge(occupiable);
+		ret.insert(occupiable);
 	}
 
 
@@ -655,7 +655,7 @@ BattleHexArray CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit *
 
 			if(battleCanShoot(unit, otherSt->getPosition()))
 			{
-				attackable->merge(occupied);
+				attackable->insert(occupied);
 				continue;
 			}
 
@@ -1336,7 +1336,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 	}
 	if(attacker->hasBonusOfType(BonusType::ATTACKS_ALL_ADJACENT))
 	{
-		at.hostileCreaturePositions.merge(attacker->getSurroundingHexes(attackerPos));
+		at.hostileCreaturePositions.insert(attacker->getSurroundingHexes(attackerPos));
 	}
 	if(attacker->hasBonusOfType(BonusType::THREE_HEADED_ATTACK))
 	{
@@ -1428,7 +1428,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyShootableHexes(const battle::
 
 	if(attacker->hasBonusOfType(BonusType::SHOOTS_ALL_ADJACENT) && !BattleHexArray::neighbouringTilesCache[attackerPos].contains(destinationTile))
 	{
-		at.hostileCreaturePositions.merge(BattleHexArray::neighbouringTilesCache[destinationTile]);
+		at.hostileCreaturePositions.insert(BattleHexArray::neighbouringTilesCache[destinationTile]);
 		at.hostileCreaturePositions.insert(destinationTile);
 	}
 
