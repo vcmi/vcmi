@@ -419,7 +419,7 @@ void WindowNewMap::updateTemplateList()
 	if(templates.empty())
 		return;
 
-	ui->templateCombo->addItem("[default]", 0);
+	ui->templateCombo->addItem(tr("[default]"), 0);
 
 	for(auto * templ : templates)
 	{
