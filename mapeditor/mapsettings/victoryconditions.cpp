@@ -429,7 +429,7 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 
 			victorySelectWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victorySelectWidget);
-			victorySelectWidget->addItem("Any town", QVariant::fromValue(-1));
+			victorySelectWidget->addItem(tr("Any town"), QVariant::fromValue(-1));
 			for(int i : getObjectIndexes<const CGTownInstance>(*controller->map()))
 				victorySelectWidget->addItem(getTownName(*controller->map(), i).c_str(), QVariant::fromValue(i));
 			
