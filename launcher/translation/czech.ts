@@ -1348,7 +1348,7 @@ Bin (%1 bajtů):
     <message>
         <location filename="../mainwindow_moc.cpp" line="46"/>
         <source>Error starting executable</source>
-        <translation type="unfinished">Chyba při spouštění souboru</translation>
+        <translation>Chyba při spouštění souboru</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="284"/>
