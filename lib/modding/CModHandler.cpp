@@ -144,7 +144,7 @@ TModID CModHandler::findResourceOrigin(const ResourcePath & name) const
 			return "core";
 
 		if(CResourceHandler::get("mapEditor")->existsResource(name))
-			return "core"; // Workaround for loading maps via map editor
+			return "mapEditor"; // Workaround for loading maps via map editor
 	}
 	catch( const std::out_of_range & e)
 	{
@@ -188,6 +188,8 @@ std::string CModHandler::getModLanguage(const TModID& modId) const
 	if(modId == "core")
 		return VLC->generaltexth->getInstalledLanguage();
 	if(modId == "map")
+		return VLC->generaltexth->getPreferredLanguage();
+	if(modId == "mapEditor")
 		return VLC->generaltexth->getPreferredLanguage();
 	return getModInfo(modId).getBaseLanguage();
 }

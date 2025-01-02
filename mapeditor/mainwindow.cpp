@@ -24,7 +24,9 @@
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/CMemoryBuffer.h"
 #include "../lib/GameConstants.h"
+#include "../lib/campaign/CampaignHandler.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
@@ -32,6 +34,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
+#include "../lib/mapping/MapFormatJson.h"
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/RiverHandler.h"
@@ -396,6 +399,27 @@ std::unique_ptr<CMap> MainWindow::openMapInternal(const QString & filenameSelect
 	}
 	else
 		throw std::runtime_error("Corrupted map");
+}
+
+std::shared_ptr<CampaignState> MainWindow::openCampaignInternal(const QString & filenameSelect)
+{
+	QFileInfo fi(filenameSelect);
+	std::string fname = fi.fileName().toStdString();
+	std::string fdir = fi.dir().path().toStdString();
+	
+	ResourcePath resId("MAPEDITOR/" + fname, EResType::CAMPAIGN);
+	
+	//addFilesystem takes care about memory deallocation if case of failure, no memory leak here
+	auto * mapEditorFilesystem = new CFilesystemLoader("MAPEDITOR/", fdir, 0);
+	CResourceHandler::removeFilesystem("local", "mapEditor");
+	CResourceHandler::addFilesystem("local", "mapEditor", mapEditorFilesystem);
+	
+	if(!CResourceHandler::get("mapEditor")->existsResource(resId))
+		throw std::runtime_error("Cannot open campaign from this folder");
+	if(auto campaign = CampaignHandler::getCampaign(resId.getName()))
+		return campaign;
+	else
+		throw std::runtime_error("Corrupted campaign");
 }
 
 bool MainWindow::openMap(const QString & filenameSelect)
@@ -1373,6 +1397,53 @@ void MainWindow::on_actionh3m_converter_triggered()
 	}
 }
 
+void MainWindow::on_actionh3c_converter_triggered()
+{
+	auto campaignFile = QFileDialog::getOpenFileName(this, tr("Select campaign to convert"),
+		QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string()),
+		tr("HoMM3 campaigns (*.h3c)"));
+	if(campaignFile.isEmpty())
+		return;
+	
+	auto campaignFileDest = QFileDialog::getSaveFileName(this, tr("Select destination file"),
+		QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string()),
+		tr("VCMI campaigns (*.vcmp)"));
+	if(campaignFileDest.isEmpty())
+		return;
+	
+	QFileInfo fileInfo(campaignFileDest);
+	if(fileInfo.suffix().toLower() != "vcmp")
+		campaignFileDest += ".vcmp";
+	auto campaign = openCampaignInternal(campaignFile);
+
+	auto jsonCampaign = CampaignHandler::writeHeaderToJson(*campaign);
+	
+	std::shared_ptr<CIOApi> io(new CDefaultIOApi());
+	auto saver = std::make_shared<CZipSaver>(io, campaignFileDest.toStdString());
+	for(auto & scenario : campaign->allScenarios())
+	{
+		CMapService mapService;
+		auto map = campaign->getMap(scenario, nullptr);
+		controller.repairMap(map.get());
+		CMemoryBuffer serializeBuffer;
+		{
+			CMapSaverJson jsonSaver(&serializeBuffer);
+			jsonSaver.saveMap(map);
+		}
+
+		auto mapName = boost::algorithm::to_lower_copy(campaign->scenario(scenario).mapName);
+		mapName = boost::replace_all_copy(mapName, ".h3m", std::string("")) + ".vmap";
+
+		auto stream = saver->addFile(mapName);
+		stream->write(reinterpret_cast<const ui8 *>(serializeBuffer.getBuffer().data()), serializeBuffer.getSize());
+
+		jsonCampaign["scenarios"].Vector().push_back(CampaignHandler::writeScenarioToJson(campaign->scenario(scenario)));
+		jsonCampaign["scenarios"].Vector().back()["map"].String() = mapName;
+	}
+
+	auto jsonCampaignStr = jsonCampaign.toString();
+	saver->addFile("header.json")->write(reinterpret_cast<const ui8 *>(jsonCampaignStr.data()), jsonCampaignStr.length());
+}
 
 void MainWindow::on_actionLock_triggered()
 {
