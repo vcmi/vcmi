@@ -20,6 +20,7 @@
 #include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/constants/StringConstants.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 #include "townbuildingswidget.h"
 #include "towneventswidget.h"
@@ -913,8 +914,10 @@ QTableWidgetItem * Inspector::addProperty(const PlayerColor & value)
 	if(value == PlayerColor::NEUTRAL)
 		str = QObject::tr("neutral");
 	
+	MetaString playerStr;
+	playerStr.appendName(value);
 	if(value.isValidPlayer())
-		str = QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[value]);
+		str = QString::fromStdString(playerStr.toString());
 	
 	auto * item = new QTableWidgetItem(str);
 	item->setFlags(Qt::NoItemFlags);
@@ -924,7 +927,9 @@ QTableWidgetItem * Inspector::addProperty(const PlayerColor & value)
 
 QTableWidgetItem * Inspector::addProperty(const GameResID & value)
 {
-	auto * item = new QTableWidgetItem(QString::fromStdString(GameConstants::RESOURCE_NAMES[value.toEnum()]));
+	MetaString str;
+	str.appendName(value);
+	auto * item = new QTableWidgetItem(QString::fromStdString(str.toString()));
 	item->setFlags(Qt::NoItemFlags);
 	item->setData(Qt::UserRole, QVariant::fromValue(value.getNum()));
 	return item;
@@ -1003,5 +1008,9 @@ OwnerDelegate::OwnerDelegate(MapController & controller, bool addNeutral)
 		options.push_back({QObject::tr("neutral"), QVariant::fromValue(PlayerColor::NEUTRAL.getNum()) });
 	for(int p = 0; p < controller.map()->players.size(); ++p)
 		if(controller.map()->players[p].canAnyonePlay())
-			options.push_back({QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[p]), QVariant::fromValue(PlayerColor(p).getNum()) });
+		{
+			MetaString str;
+			str.appendName(PlayerColor(p));
+			options.push_back({QString::fromStdString(str.toString()), QVariant::fromValue(PlayerColor(p).getNum()) });
+		}
 }

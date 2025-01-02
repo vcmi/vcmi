@@ -67,8 +67,10 @@ void TownEventDialog::initPlayers()
 	auto playerList = params.value("players").toList();
 	for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
+		MetaString str;
+		str.appendName(PlayerColor(i));
 		bool isAffected = playerList.contains(toQString(PlayerColor(i)));
-		auto * item = new QListWidgetItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[i]));
+		auto * item = new QListWidgetItem(QString::fromStdString(str.toString()));
 		item->setData(MapEditorRoles::PlayerIDRole, QVariant::fromValue(i));
 		item->setCheckState(isAffected ? Qt::Checked : Qt::Unchecked);
 		ui->playersAffected->addItem(item);
@@ -81,13 +83,15 @@ void TownEventDialog::initResources()
 	auto resourcesMap = params.value("resources").toMap();
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
-		auto name = QString::fromStdString(GameConstants::RESOURCE_NAMES[i]);
+		MetaString str;
+		str.appendName(GameResID(i));
+		auto name = QString::fromStdString(str.toString());
 		auto * item = new QTableWidgetItem();
 		item->setFlags(item->flags() & ~Qt::ItemIsEditable);
 		item->setText(name);
 		ui->resourcesTable->setItem(i, 0, item);
 
-		int val = resourcesMap.value(name).toInt();
+		int val = resourcesMap.value(QString::fromStdString(GameConstants::RESOURCE_NAMES[i])).toInt();
 		auto * edit = new QSpinBox(ui->resourcesTable);
 		edit->setMaximum(i == GameResID::GOLD ? MAXIMUM_GOLD_CHANGE : MAXIMUM_RESOURCE_CHANGE);
 		edit->setMinimum(i == GameResID::GOLD ? -MAXIMUM_GOLD_CHANGE : -MAXIMUM_RESOURCE_CHANGE);
