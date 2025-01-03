@@ -5,11 +5,18 @@ import android.os.Build;
 import android.os.Messenger;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.content.ContentResolver;
+import android.net.Uri;
 
 import org.libsdl.app.SDL;
 import org.libsdl.app.SDLActivity;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 
 import eu.vcmi.vcmi.util.Log;
@@ -103,5 +110,30 @@ public class NativeMethods
             throw new RuntimeException("Broken server messenger");
         }
         return msg;
+    }
+
+    @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
+    public static void copyFileFromUri(String sourceFileUri, String destinationFile)
+    {
+        try
+        {
+            final Context ctx = SDL.getContext();
+            InputStream inputStream = new FileInputStream(ctx.getContentResolver().openFileDescriptor(Uri.parse(sourceFileUri), "r").getFileDescriptor());
+            OutputStream outputStream = new FileOutputStream(new File(destinationFile));
+            
+            byte[] buffer = new byte[1024];
+            int length;
+            
+            while ((length = inputStream.read(buffer)) >= 0) {
+                outputStream.write(buffer, 0, length);
+            }
+            
+            inputStream.close();
+            outputStream.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 }

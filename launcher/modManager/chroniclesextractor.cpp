@@ -13,6 +13,10 @@
 
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/CArchiveLoader.h"
+#if defined(VCMI_ANDROID)
+#include "../../lib/CAndroidVMHelper.h"
+#include <jni.h>
+#endif
 
 #include "../innoextract.h"
 
@@ -233,7 +237,14 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 		// however, innoextract fails to open such files
 		// so make a copy in directory to which vcmi always has full access and operate on it
 		QString filepath = tempDir.filePath("chr.exe");
+#ifdef VCMI_ANDROID
+        CAndroidVMHelper vmHelper;
+        vmHelper.callCustomMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;)V", [f, filepath](JNIEnv * env, jclass javaHelper, jmethodID methodId){
+			env->CallStaticVoidMethod(javaHelper, methodId, env->NewStringUTF(f.toStdString().c_str()), env->NewStringUTF(filepath.toStdString().c_str()));
+		});
+#else
 		QFile(f).copy(filepath);
+#endif
 		QFile file(filepath);
 
 		logGlobal->info("Extracting offline installer");
