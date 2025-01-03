@@ -368,7 +368,7 @@
        <widget class="QComboBox" name="humanCombo">
         <property name="minimumSize">
          <size>
-          <width>96</width>
+          <width>90</width>
           <height>0</height>
          </size>
         </property>
@@ -429,7 +429,7 @@
        <widget class="QLabel" name="label_3">
         <property name="minimumSize">
          <size>
-          <width>96</width>
+          <width>90</width>
           <height>0</height>
          </size>
         </property>
@@ -448,7 +448,7 @@
        <widget class="QComboBox" name="humanTeamsCombo">
         <property name="minimumSize">
          <size>
-          <width>0</width>
+          <width>90</width>
           <height>0</height>
          </size>
         </property>
@@ -470,6 +470,12 @@
       </item>
       <item row="0" column="2">
        <widget class="QLabel" name="label_6">
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
          <string>Human teams</string>
         </property>
@@ -518,32 +524,7 @@
        <height>26</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,1,1,1,1">
-      <item>
-       <spacer name="horizontalSpacer_9">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1,1,1">
       <item>
        <widget class="QRadioButton" name="monsterOpt1">
         <property name="sizePolicy">
@@ -551,6 +532,12 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>0</height>
+         </size>
         </property>
         <property name="maximumSize">
          <size>
@@ -574,6 +561,12 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>120</width>
@@ -592,6 +585,12 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>0</height>
+         </size>
         </property>
         <property name="maximumSize">
          <size>
@@ -612,6 +611,12 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>120</width>
@@ -622,31 +627,6 @@
          <string>Strong</string>
         </property>
        </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>
@@ -684,20 +664,7 @@
        <height>26</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,1,1,1,1">
-      <item>
-       <spacer name="horizontalSpacer_8">
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,1,1,1">
       <item>
        <widget class="QRadioButton" name="waterOpt1">
         <property name="sizePolicy">
@@ -705,6 +672,12 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>0</height>
+         </size>
         </property>
         <property name="maximumSize">
          <size>
@@ -728,6 +701,12 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>144</width>
@@ -746,6 +725,12 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>0</height>
+         </size>
         </property>
         <property name="maximumSize">
          <size>
@@ -766,6 +751,12 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>144</width>
@@ -776,19 +767,6 @@
          <string>Islands</string>
         </property>
        </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>
@@ -826,75 +804,57 @@
        <height>26</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0,0,0,0,0,1">
-      <item>
-       <spacer name="horizontalSpacer_10">
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
+     <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0,0,0">
       <item>
        <widget class="QCheckBox" name="roadDirt">
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
          <string>Dirt</string>
         </property>
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
+       <widget class="QCheckBox" name="roadGravel">
+        <property name="minimumSize">
          <size>
-          <width>40</width>
-          <height>20</height>
+          <width>90</width>
+          <height>0</height>
          </size>
         </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="roadGravel">
         <property name="text">
          <string>Gravel</string>
         </property>
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_6">
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
+       <widget class="QCheckBox" name="roadCobblestone">
+        <property name="minimumSize">
          <size>
-          <width>40</width>
-          <height>20</height>
+          <width>90</width>
+          <height>0</height>
          </size>
         </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="roadCobblestone">
         <property name="text">
          <string>Cobblestone</string>
         </property>
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_3">
+       <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Orientation::Horizontal</enum>
         </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Policy::Fixed</enum>
+        </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
+          <width>100</width>
           <height>20</height>
          </size>
         </property>
@@ -935,7 +895,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>96</width>
+          <width>90</width>
           <height>0</height>
          </size>
         </property>
@@ -971,6 +931,12 @@
       </item>
       <item row="1" column="0">
        <widget class="QCheckBox" name="checkSeed">
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
          <string>Custom seed</string>
         </property>
