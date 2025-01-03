@@ -295,7 +295,7 @@ void WindowNewMap::on_okButton_clicked()
 		}
 		
 		int seed = std::time(nullptr);
-		if(ui->checkSeed->isChecked() && !ui->lineSeed->value().isEmpty())
+		if(ui->checkSeed->isChecked() && !ui->lineSeed->value() != 0)
 			seed = ui->lineSeed->value();
 			
 		CMapGenerator generator(mapGenOptions, nullptr, seed);
