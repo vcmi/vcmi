@@ -23,6 +23,7 @@
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
+#include "../eventsSDL/InputHandler.h"
 
 #include "../../lib/IGameSettings.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
@@ -101,7 +102,7 @@ void CHeroOverview::genControls()
     r = Rect(borderOffset, 5 * borderOffset + yOffset + 148, 284, 130);
     backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
     labelHeroBiography = std::make_shared<CTextBox>((*CGI->heroh)[heroIdx]->getBiographyTranslated(), r.resize(-borderOffset), CSlider::EStyle::BROWN, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-    if(labelHeroBiography->slider)
+    if(labelHeroBiography->slider && GH.input().getCurrentInputMode() != InputMode::TOUCH)
         labelHeroBiography->slider->clearScrollBounds();
 
     // speciality name
@@ -119,7 +120,7 @@ void CHeroOverview::genControls()
     r = Rect(borderOffset, 7 * borderOffset + yOffset + 322, 284, 85);
     backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
 	labelSpecialityDescription = std::make_shared<CTextBox>((*CGI->heroh)[heroIdx]->getSpecialtyDescriptionTranslated(), r.resize(-borderOffset), CSlider::EStyle::BROWN, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-    if(labelSpecialityDescription->slider)
+    if(labelSpecialityDescription->slider && GH.input().getCurrentInputMode() != InputMode::TOUCH)
         labelSpecialityDescription->slider->clearScrollBounds();
 
     // army title
