@@ -13,6 +13,11 @@
 
 #include <QDir>
 
+#ifdef VCMI_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
+
 #include "../lib/CConfigHandler.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -264,11 +269,25 @@ void MainWindow::dropEvent(QDropEvent* event)
 
 void MainWindow::manualInstallFile(QString filePath)
 {
-	if(filePath.endsWith(".zip", Qt::CaseInsensitive) || filePath.endsWith(".exe", Qt::CaseInsensitive))
+#ifdef VCMI_ANDROID
+	QString realFilePath{};
+	if(filePath.contains("content://", Qt::CaseInsensitive))
+	{
+		auto path = QAndroidJniObject::fromString(filePath);
+		realFilePath = QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "getFilenameFromUri", "(Ljava/lang/String;)Ljava/lang/String;", path.object<jstring>()).toString();
+	}
+	else
+		realFilePath = filePath;
+
+#else
+	QString realFilePath = filePath;
+#endif
+
+	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive) || realFilePath.endsWith(".exe", Qt::CaseInsensitive))
 		switchToModsTab();
 
 	QString fileName = QFileInfo{filePath}.fileName();
-	if(filePath.endsWith(".zip", Qt::CaseInsensitive))
+	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive))
 	{
 		QString filenameClean = fileName.toLower()
 			// mod name currently comes from zip file -> remove suffixes from github zip download
@@ -278,7 +297,7 @@ void MainWindow::manualInstallFile(QString filePath)
 
 		getModView()->downloadFile(filenameClean, QUrl::fromLocalFile(filePath), "mods");
 	}
-	else if(filePath.endsWith(".json", Qt::CaseInsensitive))
+	else if(realFilePath.endsWith(".json", Qt::CaseInsensitive))
 	{
 		QDir configDir(QString::fromStdString(VCMIDirs::get().userConfigPath().string()));
 		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files); // case insensitive check
