@@ -13,7 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct BattleHex;
+class BattleHex;
 struct CObstacleInstance;
 class JsonNode;
 class ObstacleChanges;

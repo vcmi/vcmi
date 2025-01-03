@@ -16,8 +16,6 @@
 #include "../IHandlerBase.h"
 #include "../ConstTransitivePtr.h"
 #include "../int3.h"
-#include "../GameConstants.h"
-#include "../battle/BattleHex.h"
 #include "../bonuses/Bonus.h"
 #include "../filesystem/ResourcePath.h"
 #include "../json/JsonNode.h"

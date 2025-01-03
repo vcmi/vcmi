@@ -99,10 +99,12 @@ int BattleCbProxy::getUnitByPos(lua_State * L)
 	if(!S.tryGet(1, object))
 		return S.retVoid();
 
-	BattleHex hex;
+	si16 hexVal;
 
-	if(!S.tryGet(2, hex.hex))
+	if(!S.tryGet(2, hexVal))
 		return S.retNil();
+
+	BattleHex hex(hexVal);
 
 	bool onlyAlive;
 

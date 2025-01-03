@@ -30,7 +30,7 @@ void UnitEffect::adjustTargetTypes(std::vector<TargetType> & types) const
 
 }
 
-void UnitEffect::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
+void UnitEffect::adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const
 {
 	for(const auto & destnation : spellTarget)
 		hexes.insert(destnation.hexValue);
@@ -193,7 +193,7 @@ EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Targe
 		return EffectTarget();
 	}
 
-	std::set<BattleHex> possibleHexes;
+	BattleHexArray possibleHexes;
 
 	auto possibleTargets = m->battle()->battleGetUnitsIf([&](const battle::Unit * unit) -> bool
 	{

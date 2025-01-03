@@ -635,7 +635,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 
 	//initing necessary tables
 	auto accessibility = battle.getAccessibility(curStack);
-	std::set<BattleHex> passed;
+	BattleHexArray passed;
 	//Ignore obstacles on starting position
 	passed.insert(curStack->getPosition());
 	if(curStack->doubleWide())
@@ -665,7 +665,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 		canUseGate = true;
 	}
 
-	std::pair< std::vector<BattleHex>, int > path = battle.getPath(start, dest, curStack);
+	std::pair< BattleHexArray, int > path = battle.getPath(start, dest, curStack);
 
 	ret = path.second;
 
@@ -723,8 +723,8 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 			BattleStackMoved sm;
 			sm.battleID = battle.getBattle()->getBattleID();
 			sm.stack = curStack->unitId();
-			std::vector<BattleHex> tiles;
-			tiles.push_back(path.first[0]);
+			BattleHexArray tiles;
+			tiles.insert(path.first[0]);
 			sm.tilesToMove = tiles;
 			sm.distance = path.second;
 			sm.teleporting = false;
@@ -733,10 +733,10 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 	}
 	else //for non-flying creatures
 	{
-		std::vector<BattleHex> tiles;
+		BattleHexArray tiles;
 		const int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
 		int v = (int)path.first.size()-1;
-		path.first.push_back(start);
+		path.first.insert(start);
 
 		// check if gate need to be open or closed at some point
 		BattleHex openGateAtHex, gateMayCloseAtHex;
@@ -822,7 +822,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 				for (bool obstacleHit = false; (!obstacleHit) && (!gateStateChanging) && (v >= tilesToMove); --v)
 				{
 					BattleHex hex = path.first[v];
-					tiles.push_back(hex);
+					tiles.insert(hex);
 
 					if ((openGateAtHex.isValid() && openGateAtHex == hex) ||
 						(gateMayCloseAtHex.isValid() && gateMayCloseAtHex == hex))

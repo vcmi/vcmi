@@ -11,6 +11,7 @@
 
 #include "LocationEffect.h"
 #include "../ISpellMechanics.h"
+#include "battle/BattleHexArray.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -24,7 +25,7 @@ void LocationEffect::adjustTargetTypes(std::vector<TargetType> & types) const
 
 }
 
-void LocationEffect::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
+void LocationEffect::adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const
 {
 	for(const auto & destnation : spellTarget)
 		hexes.insert(destnation.hexValue);

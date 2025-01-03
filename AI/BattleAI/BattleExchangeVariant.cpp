@@ -21,7 +21,7 @@ AttackerValue::AttackerValue()
 MoveTarget::MoveTarget()
 	: positions(), cachedAttack(), score(EvaluationResult::INEFFECTIVE_SCORE)
 {
-	turnsToRich = 1;
+	turnsToReach = 1;
 }
 
 float BattleExchangeVariant::trackAttack(
@@ -361,7 +361,8 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 		float penaltyMultiplier = 1.0f; // Default multiplier, no penalty
 		float closestAllyDistance = std::numeric_limits<float>::max();
 
-		for (const battle::Unit* ally : hb->battleAliveUnits()) {
+		for (const battle::Unit* ally : hb->battleAliveUnits()) 
+		{
 			if (ally == activeStack) 
 				continue;
 			if (ally->unitSide() != activeStack->unitSide()) 
@@ -375,12 +376,13 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 		}
 
 		// If an ally is closer to the enemy, compute the penaltyMultiplier
-		if (closestAllyDistance < distance) {
+		if (closestAllyDistance < distance) 
+		{
 			penaltyMultiplier = closestAllyDistance / distance; // Ratio of distances
 		}
 
-		auto turnsToRich = (distance - 1) / speed + 1;
-		auto hexes = enemy->getSurroundingHexes();
+		auto turnsToReach = (distance - 1) / speed + 1;
+		const BattleHexArray & hexes = enemy->getSurroundingHexes();
 		auto enemySpeed = enemy->getMovementRange();
 		auto speedRatio = speed / static_cast<float>(enemySpeed);
 		auto multiplier = (speedRatio > 1 ? 1 : speedRatio) * penaltyMultiplier;
@@ -393,16 +395,16 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 
 			attack.shootersBlockedDmg = 0; // we do not want to count on it, it is not for sure
 
-			auto score = calculateExchange(attack, turnsToRich, targets, damageCache, hb);
+			auto score = calculateExchange(attack, turnsToReach, targets, damageCache, hb);
 
 			score.enemyDamageReduce *= multiplier;
 
 #if BATTLE_TRACE_LEVEL >= 1
-			logAi->trace("Multiplier: %f, turns: %d, current score %f, new score %f", multiplier, turnsToRich, result.score, scoreValue(score));
+			logAi->trace("Multiplier: %f, turns: %d, current score %f, new score %f", multiplier, turnsToReach, result.score, scoreValue(score));
 #endif
 
 			if(result.score < scoreValue(score)
-				|| (result.turnsToRich > turnsToRich && vstd::isAlmostEqual(result.score, scoreValue(score))))
+				|| (result.turnsToReach > turnsToReach && vstd::isAlmostEqual(result.score, scoreValue(score))))
 			{
 				result.score = scoreValue(score);
 				result.positions.clear();
@@ -411,10 +413,8 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 				logAi->trace("New high score");
 #endif
 
-				for(const BattleHex & initialEnemyHex : enemy->getAttackableHexes(activeStack))
+				for(BattleHex enemyHex : enemy->getAttackableHexes(activeStack))
 				{
-					BattleHex enemyHex = initialEnemyHex;
-
 					while(!flying && dists.distances[enemyHex] > speed && dists.predecessors.at(enemyHex).isValid())
 					{
 						enemyHex = dists.predecessors.at(enemyHex);
@@ -458,11 +458,11 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 						}
 					}
 
-					result.positions.push_back(enemyHex);
+					result.positions.insert(enemyHex);
 				}
 
 				result.cachedAttack = attack;
-				result.turnsToRich = turnsToRich;
+				result.turnsToReach = turnsToReach;
 			}
 		}
 	}
@@ -484,15 +484,15 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getAdjacentUnits(cons
 		queue.pop();
 		checkedStacks.push_back(stack);
 
-		auto hexes = stack->getSurroundingHexes();
+		auto const & hexes = stack->getSurroundingHexes();
 		for(auto hex : hexes)
 		{
-			auto neighbor = cb->battleGetUnitByPos(hex);
+			auto neighbour = cb->battleGetUnitByPos(hex);
 
-			if(neighbor && neighbor->unitSide() == stack->unitSide() && !vstd::contains(checkedStacks, neighbor))
+			if(neighbour && neighbour->unitSide() == stack->unitSide() && !vstd::contains(checkedStacks, neighbour))
 			{
-				queue.push(neighbor);
-				checkedStacks.push_back(neighbor);
+				queue.push(neighbour);
+				checkedStacks.push_back(neighbour);
 			}
 		}
 	}
@@ -511,7 +511,8 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 
 	auto hexes = ap.attack.defender->getSurroundingHexes();
 
-	if(!ap.attack.shooting) hexes.push_back(ap.from);
+	if(!ap.attack.shooting) 
+		hexes.insert(ap.from);
 
 	std::vector<const battle::Unit *> allReachableUnits = additionalUnits;
 	
@@ -861,9 +862,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	// the method checks if all stacks can be placed around enemy
 	std::map<BattleHex, battle::Units> reachabilityMap;
 
-	auto hexes = ap.attack.defender->getSurroundingHexes();
-
-	for(auto hex : hexes)
+	for(auto hex : ap.attack.defender->getSurroundingHexes())
 		reachabilityMap[hex] = getOneTurnReachableUnits(turn, hex);
 
 	auto score = v.getScore();
@@ -968,9 +967,9 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getOneTurnReachableUn
 
 				if(hexStack && cb->battleMatchOwner(unit, hexStack, false))
 				{
-					for(BattleHex neighbor : hex.neighbouringTiles())
+					for(BattleHex neighbour : hex.getNeighbouringTiles())
 					{
-						reachable = unitReachability.distances.at(neighbor) <= radius;
+						reachable = unitReachability.distances.at(neighbour) <= radius;
 
 						if(reachable) break;
 					}
@@ -1029,10 +1028,9 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 					if(hexStack && cb->battleMatchOwner(unit, hexStack, false))
 					{
 						enemyUnit = true;
-
-						for(BattleHex neighbor : hex.neighbouringTiles())
+						for(BattleHex neighbour : hex.getNeighbouringTiles())
 						{
-							reachable = unitReachability.distances.at(neighbor) <= unitSpeed;
+							reachable = unitReachability.distances.at(neighbour) <= unitSpeed;
 
 							if(reachable) break;
 						}
