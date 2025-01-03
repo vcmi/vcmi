@@ -63,7 +63,8 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 	connect(ui->mapOpt2, &QRadioButton::toggled, this, &WindowNewMap::on_mapOpt2_toggled);
 
 	on_mapOpt1_toggled(true);
-	
+	on_checkSeed_toggled(false);
+
 	// size combo
 	connect(ui->sizeCombo, QOverload<int>::of(&QComboBox::activated), this, &WindowNewMap::on_sizeCombo_activated);
 	
