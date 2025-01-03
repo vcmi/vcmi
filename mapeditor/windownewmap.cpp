@@ -58,6 +58,18 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 		ui->cpuTeamsCombo->setItemData(i, QVariant(cpuPlayers.at(i)));
 	}
 	
+	// map option radios
+	connect(ui->mapOpt1, &QRadioButton::toggled, this, &WindowNewMap::on_mapOpt1_toggled);
+	connect(ui->mapOpt2, &QRadioButton::toggled, this, &WindowNewMap::on_mapOpt2_toggled);
+
+	on_mapOpt1_toggled(true);
+	
+	// size combo
+	connect(ui->sizeCombo, QOverload<int>::of(&QComboBox::activated), this, &WindowNewMap::on_sizeCombo_activated);
+	
+	// spin boxes
+	connect(ui->widthTxt, QOverload<int>::of(&QSpinBox::valueChanged), this, &WindowNewMap::on_widthTxt_valueChanged);
+	connect(ui->heightTxt, QOverload<int>::of(&QSpinBox::valueChanged), this, &WindowNewMap::on_heightTxt_valueChanged);
 
 	bool useLoaded = loadUserSettings();
 	if (!useLoaded)
@@ -109,8 +121,8 @@ bool WindowNewMap::loadUserSettings()
 		handler.serializeStruct("lastSettings", mapGenOptions);
 		templ = const_cast<CRmgTemplate*>(mapGenOptions.getMapTemplate()); // Remember for later
 
-		ui->widthTxt->setText(QString::number(mapGenOptions.getWidth()));
-		ui->heightTxt->setText(QString::number(mapGenOptions.getHeight()));
+		ui->widthTxt->setValue(mapGenOptions.getWidth());
+		ui->heightTxt->setValue(mapGenOptions.getHeight());
 		for(const auto & sz : mapSizes)
 		{
 			if(sz.second.first == mapGenOptions.getWidth() &&
@@ -219,6 +231,18 @@ std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 	return map;
 }
 
+int getSelectedMapSize(QComboBox* comboBox, int dimension) {
+	QString selectedText = comboBox->currentText(); // Get the selected text
+	QRegularExpression regex(R"(\((\d+)x(\d+)\))"); // Regex for format (width x height)
+	QRegularExpressionMatch match = regex.match(selectedText);
+
+	if (match.hasMatch() && (dimension == 1 || dimension == 2)) {
+		return match.captured(dimension).toInt(); // Return width (1) or height (2)
+	}
+
+	return -1; // Return -1 if no match or invalid dimension
+}
+
 void WindowNewMap::on_okButton_clicked()
 {
 	EWaterContent::EWaterContent water = EWaterContent::RANDOM;
@@ -247,6 +271,17 @@ void WindowNewMap::on_okButton_clicked()
 	mapGenOptions.setRoadEnabled(Road::GRAVEL_ROAD, ui->roadGravel->isChecked());
 	mapGenOptions.setRoadEnabled(Road::COBBLESTONE_ROAD, ui->roadCobblestone->isChecked());
 	
+	if(ui->mapOpt1->isChecked())
+	{
+		mapGenOptions.setWidth(getSelectedMapSize(ui->sizeCombo, 1));
+		mapGenOptions.setHeight(getSelectedMapSize(ui->sizeCombo, 2));
+	}
+	else
+	{
+		mapGenOptions.setWidth(ui->widthTxt->value());
+		mapGenOptions.setHeight(ui->heightTxt->value());
+	}
+	
 	saveUserSettings();
 
 	std::unique_ptr<CMap> nmap;
@@ -260,8 +295,8 @@ void WindowNewMap::on_okButton_clicked()
 		}
 		
 		int seed = std::time(nullptr);
-		if(ui->checkSeed->isChecked() && !ui->lineSeed->text().isEmpty())
-			seed = ui->lineSeed->text().toInt();
+		if(ui->checkSeed->isChecked() && !ui->lineSeed->value().isEmpty())
+			seed = ui->lineSeed->value();
 			
 		CMapGenerator generator(mapGenOptions, nullptr, seed);
 		auto progressBarWnd = new GeneratorProgress(generator, this);
@@ -288,12 +323,6 @@ void WindowNewMap::on_okButton_clicked()
 	static_cast<MainWindow*>(parent())->controller.setMap(std::move(nmap));
 	static_cast<MainWindow*>(parent())->initializeMap(true);
 	close();
-}
-
-void WindowNewMap::on_sizeCombo_activated(int index)
-{
-	ui->widthTxt->setText(QString::number(mapSizes.at(index).first));
-	ui->heightTxt->setText(QString::number(mapSizes.at(index).second));
 }
 
 
@@ -387,23 +416,21 @@ void WindowNewMap::on_templateCombo_activated(int index)
 }
 
 
-void WindowNewMap::on_widthTxt_textChanged(const QString &arg1)
+void WindowNewMap::on_widthTxt_valueChanged(int value)
 {
-	int sz = arg1.toInt();
-	if(sz > 1)
+	if(value > 1)
 	{
-		mapGenOptions.setWidth(arg1.toInt());
+		mapGenOptions.setWidth(value);
 		updateTemplateList();
 	}
 }
 
 
-void WindowNewMap::on_heightTxt_textChanged(const QString &arg1)
+void WindowNewMap::on_heightTxt_valueChanged(int value)
 {
-	int sz = arg1.toInt();
-	if(sz > 1)
+	if(value > 1)
 	{
-		mapGenOptions.setHeight(arg1.toInt());
+		mapGenOptions.setHeight(value);
 		updateTemplateList();
 	}
 }
@@ -466,3 +493,30 @@ void WindowNewMap::on_cpuTeamsCombo_activated(int index)
 	updateTemplateList();
 }
 
+
+void WindowNewMap::on_sizeCombo_activated(int index) 
+{
+	mapGenOptions.setWidth(getSelectedMapSize(ui->sizeCombo, 1));
+	mapGenOptions.setHeight(getSelectedMapSize(ui->sizeCombo, 2));
+	updateTemplateList();
+}
+
+
+void WindowNewMap::on_mapOpt1_toggled(bool checked) 
+{
+	if (checked) {
+		ui->sizeGroup1->setEnabled(true);
+		ui->sizeGroup2->setEnabled(false);
+	}
+	updateTemplateList();
+}
+
+
+void WindowNewMap::on_mapOpt2_toggled(bool checked) 
+{
+	if (checked) {
+		ui->sizeGroup1->setEnabled(false);
+		ui->sizeGroup2->setEnabled(true);
+	}
+	updateTemplateList();
+}

@@ -11,6 +11,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QRegularExpression>
 
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/rmg/CMapGenOptions.h"
@@ -73,7 +74,7 @@ class WindowNewMap : public QDialog
 		{3, {CMapHeader::MAP_SIZE_XLARGE,	CMapHeader::MAP_SIZE_XLARGE}},
 		{4, {CMapHeader::MAP_SIZE_HUGE,		CMapHeader::MAP_SIZE_HUGE}},
 		{5, {CMapHeader::MAP_SIZE_XHUGE,	CMapHeader::MAP_SIZE_XHUGE}},
-		{6, {CMapHeader::MAP_SIZE_GIANT,	CMapHeader::MAP_SIZE_GIANT}},
+		{6, {CMapHeader::MAP_SIZE_GIANT,	CMapHeader::MAP_SIZE_GIANT}}
 	};
 
 public:
@@ -85,8 +86,6 @@ private slots:
 
 	void on_okButton_clicked();
 
-	void on_sizeCombo_activated(int index);
-
 	void on_twoLevelCheck_stateChanged(int arg1);
 
 	void on_humanCombo_activated(int index);
@@ -97,15 +96,21 @@ private slots:
 
 	void on_templateCombo_activated(int index);
 
-	void on_widthTxt_textChanged(const QString &arg1);
+	void on_widthTxt_valueChanged(int value);
 
-	void on_heightTxt_textChanged(const QString &arg1);
+	void on_heightTxt_valueChanged(int value);
 
 	void on_checkSeed_toggled(bool checked);
 
 	void on_humanTeamsCombo_activated(int index);
 
 	void on_cpuTeamsCombo_activated(int index);
+
+    void on_mapOpt1_toggled(bool checked);
+	
+    void on_mapOpt2_toggled(bool checked);
+	
+	void on_sizeCombo_activated(int index);
 
 private:
 
