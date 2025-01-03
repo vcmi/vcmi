@@ -33,6 +33,8 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 {
 	ui->setupUi(this);
 
+	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+
 	setAttribute(Qt::WA_DeleteOnClose);
 
 	setWindowModality(Qt::ApplicationModal);
