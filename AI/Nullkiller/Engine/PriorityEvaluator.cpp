@@ -692,6 +692,8 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 	case Obj::SHRINE_OF_MAGIC_GESTURE:
 		return 1.0f;
 	case Obj::SHRINE_OF_MAGIC_THOUGHT:
+	case Obj::PYRAMID:
+	case Obj::SEER_HUT:
 		return 2.0f;
 	case Obj::LIBRARY_OF_ENLIGHTENMENT:
 		return 8;
@@ -726,7 +728,6 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 				for(auto spellID : info.reward.spells)
 				{
 					const spells::Spell * spell = VLC->spells()->getById(spellID);
-						
 					if(hero->canLearnSpell(spell) && !hero->spellbookContainsSpell(spellID))
 					{
 						rewardValue += std::sqrt(spell->getLevel()) / 4.0f;

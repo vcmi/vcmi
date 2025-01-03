@@ -287,6 +287,15 @@ void Rewardable::Interface::grantAllRewardsWithMessage(const CGHeroInstance * co
 
 void Rewardable::Interface::doHeroVisit(const CGHeroInstance *h) const
 {
+	auto instance = dynamic_cast<const CGObjectInstance *>(this);
+	if(!instance)
+	{
+		logGlobal->error("MapObject at tile %s is not a valid CObjectInstance", 
+			getObject()->visitablePos().toString());
+		// throw ?
+		return;
+	}
+
 	if(!wasVisitedBefore(h))
 	{
 		auto rewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT);
@@ -297,7 +306,11 @@ void Rewardable::Interface::doHeroVisit(const CGHeroInstance *h) const
 				objectRemovalPossible = true;
 		}
 
-		logGlobal->debug("Visiting object with %d possible rewards", rewards.size());
+		logGlobal->debug("Visiting object %s with %d possible rewards at tile %s", 
+			instance->getObjectName(),
+			rewards.size(), 
+			getObject()->visitablePos().toString());
+
 		switch (rewards.size())
 		{
 			case 0: // no available rewards, e.g. visiting School of War without gold
@@ -306,7 +319,9 @@ void Rewardable::Interface::doHeroVisit(const CGHeroInstance *h) const
 				if (!emptyRewards.empty())
 					grantRewardWithMessage(h, emptyRewards[0], false);
 				else
-					logMod->warn("No applicable message for visiting empty object!");
+					logMod->warn("No applicable message for visiting object %s at tile %s that has no rewards",
+						instance->getObjectName(),
+						getObject()->visitablePos().toString());
 				break;
 			}
 			case 1: // one reward. Just give it with message
@@ -351,7 +366,9 @@ void Rewardable::Interface::doHeroVisit(const CGHeroInstance *h) const
 	}
 	else
 	{
-		logGlobal->debug("Revisiting already visited object");
+		logGlobal->debug("Revisiting already visited object %s at tile %s", 
+			instance->getObjectName(),
+			getObject()->visitablePos().toString());
 
 		if (!wasVisited(h->getOwner()))
 			markAsScouted(h);
@@ -360,7 +377,9 @@ void Rewardable::Interface::doHeroVisit(const CGHeroInstance *h) const
 		if (!visitedRewards.empty())
 			grantRewardWithMessage(h, visitedRewards[0], false);
 		else
-			logMod->warn("No applicable message for visiting already visited object!");
+			logMod->warn("No applicable message for visiting already visited object %s at tile %s", 
+				instance->getObjectName(),
+				getObject()->visitablePos().toString());
 	}
 }
 
