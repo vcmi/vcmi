@@ -383,7 +383,7 @@ O download da instalação foi bem-sucedido?</translation>
         <translation>Inteligência artificial</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1038"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1061"/>
         <source>Interface Scaling</source>
         <translation>Escala da interface</translation>
     </message>
@@ -393,7 +393,7 @@ O download da instalação foi bem-sucedido?</translation>
         <translation>IA neutra nas batalhas</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1019"/>
         <source>Enemy AI in battles</source>
         <translation>IA inimiga em batalhas</translation>
     </message>
@@ -418,7 +418,7 @@ O download da instalação foi bem-sucedido?</translation>
         <translation>IA de combate automático nas batalhas</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1399"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1422"/>
         <source>Sticks Sensitivity</source>
         <translation>Sensibilidade dos analógicos</translation>
     </message>
@@ -440,7 +440,7 @@ O download da instalação foi bem-sucedido?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="83"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="539"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1389"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1412"/>
         <source>Automatic</source>
         <translation>Automático</translation>
     </message>
@@ -485,22 +485,27 @@ O download da instalação foi bem-sucedido?</translation>
         <translation>Endereço da sala de espera on-line</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1079"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
+        <source>Handle back as right mouse button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1102"/>
         <source>Cursor Scaling</source>
         <translation>Escala do cursor</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1108"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1131"/>
         <source>Scalable</source>
         <translation>Escalável</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1144"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1167"/>
         <source>Miscellaneous</source>
         <translation>Diversos</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1182"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
         <source>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
@@ -517,22 +522,22 @@ Modo de janela sem bordas - o jogo será executado em uma janela de tela cheia, 
 Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolução selecionada.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1326"/>
         <source>Font Scaling (experimental)</source>
         <translation>Escala da fonte (experimental)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1367"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1390"/>
         <source>Original</source>
         <translation>Original</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1406"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1429"/>
         <source>Upscaling Filter</source>
         <translation>Filtro de aumento de escala</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1439"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1462"/>
         <source>Basic</source>
         <translation>Básico</translation>
     </message>
@@ -572,7 +577,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
         <translation>Redefinir</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1129"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1152"/>
         <source>Network</source>
         <translation>Rede</translation>
     </message>
@@ -587,7 +592,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
         <translation>Velocidade do ponteiro relativo</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1045"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1068"/>
         <source>Music Volume</source>
         <translation>Volume da música</translation>
     </message>
@@ -602,14 +607,9 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
         <translation>Entrada - mouse</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1226"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
         <source>Long Touch Duration</source>
         <translation>Duração do toque longo</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="461"/>
-        <source>%</source>
-        <translation>%</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="873"/>
@@ -632,22 +632,22 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
         <translation>Volume do som</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1195"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1218"/>
         <source>Windowed</source>
         <translation>Janela</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1223"/>
         <source>Borderless fullscreen</source>
         <translation>Tela cheia sem bordas</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1228"/>
         <source>Exclusive fullscreen</source>
         <translation>Tela cheia exclusiva</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1003"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1026"/>
         <source>Autosave limit (0 = off)</source>
         <translation>Limite de salvamento automático (0 = sem limite)</translation>
     </message>
@@ -662,7 +662,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
         <translation>Limite de taxa de quadros</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1413"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1436"/>
         <source>Autosave prefix</source>
         <translation>Prefixo do salvamento automático</translation>
     </message>
@@ -677,7 +677,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
         <translation>Aceleração dos analógicos</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1354"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1377"/>
         <source>empty = map name prefix</source>
         <translation>vazio = prefixo do mapa</translation>
     </message>
@@ -712,7 +712,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
         <translation>Tradução do Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1233"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
         <source>Check on startup</source>
         <translation>Verificar na inicialização</translation>
     </message>
@@ -732,7 +732,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
         <translation>Idioma do VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1420"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1443"/>
         <source>Resolution</source>
         <translation>Resolução</translation>
     </message>
@@ -767,27 +767,27 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
         <translation>Mostrar introdução</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="530"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="537"/>
         <source>Active</source>
         <translation>Ativo</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="535"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="542"/>
         <source>Disabled</source>
         <translation>Desativado</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="536"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="543"/>
         <source>Enable</source>
         <translation>Ativar</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="541"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="548"/>
         <source>Not Installed</source>
         <translation>Não instalado</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="542"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="549"/>
         <source>Install</source>
         <translation>Instalar</translation>
     </message>
@@ -1157,23 +1157,31 @@ Motivo do erro: </translation>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
         <translation>O VCMI foi compilado sem suporte ao innoextract, que é necessário para extrair arquivos EXE!</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../innoextract.cpp" line="134"/>
         <source>SHA1 hash of provided files:
-Exe (%1 bytes):
-%2</source>
-        <translation>Hash SHA1 dos arquivos fornecidos:
-Exe (%1 bytes):
-%2</translation>
+Exe (%n bytes):
+%1</source>
+        <comment>param is hash</comment>
+        <translation type="unfinished">
+            <numerusform>Hash SHA1 dos arquivos fornecidos:
+Exe (%n bytes):
+%1</numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../innoextract.cpp" line="136"/>
         <source>
-Bin (%1 bytes):
-%2</source>
-        <translation>
-Bin (%1 bytes):
-%2</translation>
+Bin (%n bytes):
+%1</source>
+        <comment>param is hash</comment>
+        <translation type="unfinished">
+            <numerusform>
+Bin (%n bytes):
+%1</numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="139"/>
@@ -1352,12 +1360,12 @@ Bin (%1 bytes):
         <translation type="unfinished">Erro ao iniciar o executável</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="284"/>
+        <location filename="../mainwindow_moc.cpp" line="287"/>
         <source>Replace config file?</source>
         <translation>Substituir arquivo de configuração?</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="284"/>
+        <location filename="../mainwindow_moc.cpp" line="287"/>
         <source>Do you want to replace %1?</source>
         <translation>Você deseja substituir %1?</translation>
     </message>
@@ -1445,8 +1453,8 @@ Bin (%1 bytes):
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="248"/>
-        <source>Data with this mod was not found</source>
-        <translation>Não foram encontrados dados com este mod</translation>
+        <source>Mod data was not found</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="252"/>

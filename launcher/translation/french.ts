@@ -389,7 +389,7 @@ Installer les téchargements réussis?</translation>
         <translation>Activé</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1019"/>
         <source>Enemy AI in battles</source>
         <translation>IA ennemie dans les batailles</translation>
     </message>
@@ -414,7 +414,7 @@ Installer les téchargements réussis?</translation>
         <translation>IA de combat automatique dans les batailles</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1399"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1422"/>
         <source>Sticks Sensitivity</source>
         <translation>Sensibilité au batons</translation>
     </message>
@@ -436,7 +436,7 @@ Installer les téchargements réussis?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="83"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="539"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1389"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1412"/>
         <source>Automatic</source>
         <translation>Automatique</translation>
     </message>
@@ -481,22 +481,27 @@ Installer les téchargements réussis?</translation>
         <translation>Adresse de la salle d&apos;attente en ligne</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1079"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
+        <source>Handle back as right mouse button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1102"/>
         <source>Cursor Scaling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1108"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1131"/>
         <source>Scalable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1144"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1167"/>
         <source>Miscellaneous</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1182"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
         <source>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
@@ -507,22 +512,22 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1326"/>
         <source>Font Scaling (experimental)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1367"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1390"/>
         <source>Original</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1406"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1429"/>
         <source>Upscaling Filter</source>
         <translation>Filtre d&apos;Agrandissement</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1439"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1462"/>
         <source>Basic</source>
         <translation type="unfinished"></translation>
     </message>
@@ -547,7 +552,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Entrée - Écran tactile</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1129"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1152"/>
         <source>Network</source>
         <translation>Réseau</translation>
     </message>
@@ -577,7 +582,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Vitesse de Pointeur Relatif</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1045"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1068"/>
         <source>Music Volume</source>
         <translation>Volume de la Musique</translation>
     </message>
@@ -592,14 +597,9 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Entrée - Sourie</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1226"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
         <source>Long Touch Duration</source>
         <translation>Durée de Touche Prolongée</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="461"/>
-        <source>%</source>
-        <translation>%</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="873"/>
@@ -622,17 +622,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Volume du Son</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1195"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1218"/>
         <source>Windowed</source>
         <translation>Fenêtré</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1223"/>
         <source>Borderless fullscreen</source>
         <translation>Fenêtré sans bord</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1228"/>
         <source>Exclusive fullscreen</source>
         <translation>Plein écran exclusif</translation>
     </message>
@@ -647,7 +647,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>IA neutre dans les batailles</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1003"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1026"/>
         <source>Autosave limit (0 = off)</source>
         <translation>Limite de sauvegarde auto (0 = désactivé)</translation>
     </message>
@@ -657,17 +657,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Ennemis de la carte d&quot;aventure</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1413"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1436"/>
         <source>Autosave prefix</source>
         <translation>Préfix de sauvegarde auto.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1354"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1377"/>
         <source>empty = map name prefix</source>
         <translation>vide = prefix du nom de carte</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1038"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1061"/>
         <source>Interface Scaling</source>
         <translation>Mise à l&quot;échelle de l&quot;interface</translation>
     </message>
@@ -697,7 +697,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Dépôt supplémentaire</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1233"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
         <source>Check on startup</source>
         <translation>Vérifier au démarrage</translation>
     </message>
@@ -732,7 +732,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Langue de VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1420"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1443"/>
         <source>Resolution</source>
         <translation>Résolution</translation>
     </message>
@@ -762,27 +762,27 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Montrer l&apos;intro</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="530"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="537"/>
         <source>Active</source>
         <translation>Actif</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="535"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="542"/>
         <source>Disabled</source>
         <translation>Désactivé</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="536"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="543"/>
         <source>Enable</source>
         <translation>Activé</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="541"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="548"/>
         <source>Not Installed</source>
         <translation>Pas Installé</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="542"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="549"/>
         <source>Install</source>
         <translation>Installer</translation>
     </message>
@@ -1142,19 +1142,27 @@ Raison de l&apos;erreur&#xa0;: </translation>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../innoextract.cpp" line="134"/>
         <source>SHA1 hash of provided files:
-Exe (%1 bytes):
-%2</source>
-        <translation type="unfinished"></translation>
+Exe (%n bytes):
+%1</source>
+        <comment>param is hash</comment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../innoextract.cpp" line="136"/>
         <source>
-Bin (%1 bytes):
-%2</source>
-        <translation type="unfinished"></translation>
+Bin (%n bytes):
+%1</source>
+        <comment>param is hash</comment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="139"/>
@@ -1323,12 +1331,12 @@ Bin (%1 bytes):
         <translation type="unfinished">Erreur lors du démarrage de l&apos;exécutable</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="284"/>
+        <location filename="../mainwindow_moc.cpp" line="287"/>
         <source>Replace config file?</source>
         <translation type="unfinished">Remplacer le fichier de configuration ?</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="284"/>
+        <location filename="../mainwindow_moc.cpp" line="287"/>
         <source>Do you want to replace %1?</source>
         <translation type="unfinished">Voulez vous remplacer %1 ?</translation>
     </message>
@@ -1416,8 +1424,8 @@ Bin (%1 bytes):
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="248"/>
-        <source>Data with this mod was not found</source>
-        <translation type="unfinished">Les données de ce mod n&apos;ont pas étés trouvées</translation>
+        <source>Mod data was not found</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="252"/>

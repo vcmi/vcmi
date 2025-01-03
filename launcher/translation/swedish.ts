@@ -383,7 +383,7 @@ Installation framgångsrikt nedladdad?</translation>
         <translation>Artificiell intelligens</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1038"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1061"/>
         <source>Interface Scaling</source>
         <translation>Gränssnittsskalning</translation>
     </message>
@@ -393,7 +393,7 @@ Installation framgångsrikt nedladdad?</translation>
         <translation>Neutralt AI i strider</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1019"/>
         <source>Enemy AI in battles</source>
         <translation>Fiendens AI i strider</translation>
     </message>
@@ -418,7 +418,7 @@ Installation framgångsrikt nedladdad?</translation>
         <translation>Automatiska AI-strider</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1399"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1422"/>
         <source>Sticks Sensitivity</source>
         <translation>Styrspak-känslighet</translation>
     </message>
@@ -440,7 +440,7 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="83"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="539"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1389"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1412"/>
         <source>Automatic</source>
         <translation>Automatisk</translation>
     </message>
@@ -485,22 +485,27 @@ Installation framgångsrikt nedladdad?</translation>
         <translation>Adressen till online-väntrummet</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1079"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
+        <source>Handle back as right mouse button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1102"/>
         <source>Cursor Scaling</source>
         <translation>Skalning av markör</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1108"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1131"/>
         <source>Scalable</source>
         <translation>Skalbar</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1144"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1167"/>
         <source>Miscellaneous</source>
         <translation>Övrigt</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1182"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
         <source>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
@@ -511,22 +516,22 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1326"/>
         <source>Font Scaling (experimental)</source>
         <translation>Skalning av teckensnitt (experimentell)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1367"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1390"/>
         <source>Original</source>
         <translation>Original</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1406"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1429"/>
         <source>Upscaling Filter</source>
         <translation>Uppskalnings-filter</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1439"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1462"/>
         <source>Basic</source>
         <translation>Grundläggande</translation>
     </message>
@@ -566,7 +571,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Återställ</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1129"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1152"/>
         <source>Network</source>
         <translation>Nätverk</translation>
     </message>
@@ -581,7 +586,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Relativ pekarhastighet</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1045"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1068"/>
         <source>Music Volume</source>
         <translation>Musikvolym</translation>
     </message>
@@ -596,14 +601,9 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Ingång/indata - Mus</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1226"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
         <source>Long Touch Duration</source>
         <translation>Utökad beröringslängd</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="461"/>
-        <source>%</source>
-        <translation>%</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="873"/>
@@ -626,22 +626,22 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Ljudvolym</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1195"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1218"/>
         <source>Windowed</source>
         <translation>Fönsterläge</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1223"/>
         <source>Borderless fullscreen</source>
         <translation>Kantlös helskärm</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1228"/>
         <source>Exclusive fullscreen</source>
         <translation>Exklusiv helskärm</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1003"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1026"/>
         <source>Autosave limit (0 = off)</source>
         <translation>Antal platser för automatisk-sparning (0 = inaktiverad)</translation>
     </message>
@@ -656,7 +656,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Gräns ​​för bildhastighet</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1413"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1436"/>
         <source>Autosave prefix</source>
         <translation>Prefix för automatisk-sparning</translation>
     </message>
@@ -671,7 +671,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Styrspaks-acceleration</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1354"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1377"/>
         <source>empty = map name prefix</source>
         <translation>tomt = kartnamnsprefix</translation>
     </message>
@@ -706,7 +706,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Heroes III - Översättning</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1233"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
         <source>Check on startup</source>
         <translation>Kontrollera vid uppstart</translation>
     </message>
@@ -726,7 +726,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>VCMI-språk</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1420"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1443"/>
         <source>Resolution</source>
         <translation>Upplösning</translation>
     </message>
@@ -761,27 +761,27 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Visa intro</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="530"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="537"/>
         <source>Active</source>
         <translation>Aktiv</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="535"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="542"/>
         <source>Disabled</source>
         <translation>Inaktiverad</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="536"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="543"/>
         <source>Enable</source>
         <translation>Aktivera</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="541"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="548"/>
         <source>Not Installed</source>
         <translation>Inte installerad</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="542"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="549"/>
         <source>Install</source>
         <translation>Installera</translation>
     </message>
@@ -1141,19 +1141,27 @@ Orsak till fel: </translation>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
         <translation>VCMI kompilerades utan stöd för innoextract, vilket behövs för att extrahera exe-filer!</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../innoextract.cpp" line="134"/>
         <source>SHA1 hash of provided files:
-Exe (%1 bytes):
-%2</source>
-        <translation type="unfinished"></translation>
+Exe (%n bytes):
+%1</source>
+        <comment>param is hash</comment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../innoextract.cpp" line="136"/>
         <source>
-Bin (%1 bytes):
-%2</source>
-        <translation type="unfinished"></translation>
+Bin (%n bytes):
+%1</source>
+        <comment>param is hash</comment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="139"/>
@@ -1317,12 +1325,12 @@ Bin (%1 bytes):
         <translation type="unfinished">Fel vid uppstart av körbar fil (.exe)</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="284"/>
+        <location filename="../mainwindow_moc.cpp" line="287"/>
         <source>Replace config file?</source>
         <translation type="unfinished">Byt ut konfigurationsfilen?</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="284"/>
+        <location filename="../mainwindow_moc.cpp" line="287"/>
         <source>Do you want to replace %1?</source>
         <translation type="unfinished">Vill du ersätta %1?</translation>
     </message>
@@ -1415,8 +1423,8 @@ Bin (%1 bytes):
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="248"/>
-        <source>Data with this mod was not found</source>
-        <translation>Modd-data för denna modd hittades inte</translation>
+        <source>Mod data was not found</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="252"/>
