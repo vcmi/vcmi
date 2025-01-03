@@ -133,7 +133,7 @@ public class NativeMethods
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            Log.e("Copy file error", e);
         }
     }
 }

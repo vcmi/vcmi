@@ -428,9 +428,13 @@ void FirstLaunchView::extractGogData()
 		{
 			if(!errorText.isEmpty())
 			{
+				logGlobal->error("Gog installer extraction failure! Reason: %s", errorText.toStdString());
 				QMessageBox::critical(this, tr("Extracting error!"), errorText, QMessageBox::Ok, QMessageBox::Ok);
 				if(!hashError.isEmpty())
+				{
+					logGlobal->error("Hash error: %s", hashError.toStdString());
 					QMessageBox::critical(this, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
+				}
 			}
 			else
 				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
