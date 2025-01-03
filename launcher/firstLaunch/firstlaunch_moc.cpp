@@ -29,6 +29,8 @@
 
 #include "iOS_utils.h"
 #elif defined(VCMI_ANDROID)
+#include "../../lib/CAndroidVMHelper.h"
+#include <jni.h>
 #include <QAndroidJniObject>
 #include <QtAndroid>
 
@@ -369,8 +371,20 @@ void FirstLaunchView::extractGogData()
 
 		QString tmpFileExe = tempDir.filePath("h3_gog.exe");
 		QString tmpFileBin = tempDir.filePath("h3_gog-1.bin");
+#ifdef VCMI_ANDROID
+		auto copyFunc = [](std::string src, std::string dst)
+		{
+			CAndroidVMHelper vmHelper;
+			vmHelper.callCustomMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;)V", [src, dst](JNIEnv * env, jclass javaHelper, jmethodID methodId){
+				env->CallStaticVoidMethod(javaHelper, methodId, env->NewStringUTF(src.c_str()), env->NewStringUTF(dst.c_str()));
+			}, true);
+		};
+		copyFunc(fileExe.toStdString(), tmpFileExe.toStdString());
+		copyFunc(fileBin.toStdString(), tmpFileBin.toStdString());
+#else
 		QFile(fileExe).copy(tmpFileExe);
 		QFile(fileBin).copy(tmpFileBin);
+#endif
 
 		logGlobal->info("Installing exe '%s' ('%s')", tmpFileExe.toStdString(), fileExe.toStdString());
 		logGlobal->info("Installing bin '%s' ('%s')", tmpFileBin.toStdString(), fileBin.toStdString());
@@ -414,9 +428,13 @@ void FirstLaunchView::extractGogData()
 		{
 			if(!errorText.isEmpty())
 			{
+				logGlobal->error("Gog installer extraction failure! Reason: %s", errorText.toStdString());
 				QMessageBox::critical(this, tr("Extracting error!"), errorText, QMessageBox::Ok, QMessageBox::Ok);
 				if(!hashError.isEmpty())
+				{
+					logGlobal->error("Hash error: %s", hashError.toStdString());
 					QMessageBox::critical(this, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
+				}
 			}
 			else
 				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);

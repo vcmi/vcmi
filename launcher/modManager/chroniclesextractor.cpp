@@ -13,6 +13,10 @@
 
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/CArchiveLoader.h"
+#if defined(VCMI_ANDROID)
+#include "../../lib/CAndroidVMHelper.h"
+#include <jni.h>
+#endif
 
 #include "../innoextract.h"
 
@@ -72,10 +76,15 @@ bool ChroniclesExtractor::extractGogInstaller(QString file)
 
 	if(!errorText.isEmpty())
 	{
+		logGlobal->error("Gog chronicles installer extraction failure! Reason: %s", errorText.toStdString());
+
 		QString hashError = Innoextract::getHashError(file, {}, {}, {});
 		QMessageBox::critical(parent, tr("Extracting error!"), errorText);
 		if(!hashError.isEmpty())
+		{
+			logGlobal->error("Hash error: %s", hashError.toStdString());
 			QMessageBox::critical(parent, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
+		}
 		return false;
 	}
 
@@ -226,14 +235,21 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 		if(!createTempDir())
 			continue;
 		
-		logGlobal->info("Copying offline installer");
 		// FIXME: this is required at the moment for Android (and possibly iOS)
 		// Incoming file names are in content URI form, e.g. content://media/internal/chronicles.exe
 		// Qt can handle those like it does regular files
 		// however, innoextract fails to open such files
 		// so make a copy in directory to which vcmi always has full access and operate on it
 		QString filepath = tempDir.filePath("chr.exe");
+		logGlobal->info("Copying offline installer from '%s' to '%s'", f.toStdString(), filepath.toStdString());
+#ifdef VCMI_ANDROID
+		CAndroidVMHelper vmHelper;
+		vmHelper.callCustomMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;)V", [f, filepath](JNIEnv * env, jclass javaHelper, jmethodID methodId){
+			env->CallStaticVoidMethod(javaHelper, methodId, env->NewStringUTF(f.toStdString().c_str()), env->NewStringUTF(filepath.toStdString().c_str()));
+		}, true);
+#else
 		QFile(f).copy(filepath);
+#endif
 		QFile file(filepath);
 
 		logGlobal->info("Extracting offline installer");
