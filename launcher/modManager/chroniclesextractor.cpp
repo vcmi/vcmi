@@ -246,7 +246,7 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 		CAndroidVMHelper vmHelper;
 		vmHelper.callCustomMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;)V", [f, filepath](JNIEnv * env, jclass javaHelper, jmethodID methodId){
 			env->CallStaticVoidMethod(javaHelper, methodId, env->NewStringUTF(f.toStdString().c_str()), env->NewStringUTF(filepath.toStdString().c_str()));
-		});
+		}, true);
 #else
 		QFile(f).copy(filepath);
 #endif

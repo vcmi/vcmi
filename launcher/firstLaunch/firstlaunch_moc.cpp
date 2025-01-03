@@ -377,7 +377,7 @@ void FirstLaunchView::extractGogData()
 			CAndroidVMHelper vmHelper;
 			vmHelper.callCustomMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;)V", [src, dst](JNIEnv * env, jclass javaHelper, jmethodID methodId){
 				env->CallStaticVoidMethod(javaHelper, methodId, env->NewStringUTF(src.c_str()), env->NewStringUTF(dst.c_str()));
-			});
+			}, true);
 		};
 		copyFunc(fileExe.toStdString(), tmpFileExe.toStdString());
 		copyFunc(fileBin.toStdString(), tmpFileBin.toStdString());
