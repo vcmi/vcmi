@@ -23,7 +23,6 @@ for %%i in ("%BaseDir%") do set "BaseDir=%%~fi"
 
 REM Define specific subdirectories relative to the base directory
 set "SourceFilesPath=%BaseDir%bin\Release"
-set "UCRTFilesPath=%BaseDir%CI\wininstaller\ucrt"
 set "LangPath=%BaseDir%CI\wininstaller\lang"
 set "LicenseFile=%BaseDir%license.txt"
 set "IconFile=%BaseDir%clientapp\icons\vcmi.ico"
@@ -36,6 +35,15 @@ if exist "%WinDir%\SysWow64" (
     set "ProgFiles=%programfiles(x86)%"
 ) else (
     set "ProgFiles=%programfiles%"
+)
+
+REM Dynamically locate the UCRT path
+set "UCRTBasePath=%ProgFiles%\Windows Kits\10\Redist"
+set "UCRTFilesPath="
+for /d %%d in ("%UCRTBasePath%\*") do (
+    if exist "%%d\ucrt\DLLs" (
+        set "UCRTFilesPath=%%d\ucrt\DLLs"
+    )
 )
 
 REM Verify Inno Setup is installed

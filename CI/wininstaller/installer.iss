@@ -18,17 +18,17 @@
 
 ; Manual preprocessor definitions are provided using ISCC.exe parameters.
 
-; #define AppVersion "1.6.1"
+; #define AppVersion "1.6.2"
 ; #define AppBuild "1122334455A"
-; #define InstallerArch "x86"
+; #define InstallerArch "x64"
 ; 
-; #define SourceFilesPath "C:\_VCMI_Source_v2\_files_x86"
-; #define UCRTFilesPath "C:\_VCMI_Source_v2\CI\wininstaller\ucrt"
-; #define LangPath "C:\_VCMI_Source_v2\CI\wininstaller\lang"
-; #define LicenseFile "C:\_VCMI_Source_v2\license.txt"
-; #define IconFile "C:\_VCMI_Source_v2\clientapp\icons\vcmi.ico"
-; #define SmallLogo "C:\_VCMI_Source_v2\CI\wininstaller\vcmismalllogo.bmp"
-; #define WizardLogo "C:\_VCMI_Source_v2\CI\wininstaller\vcmilogo.bmp"
+; #define SourceFilesPath "C:\_VCMI_source\bin\Release"
+; #define UCRTFilesPath "C:\Program Files (x86)\Windows Kits\10\Redist\10.0.22621.0\ucrt\DLLs"
+; #define LangPath "C:\_VCMI_Source\CI\wininstaller\lang"
+; #define LicenseFile "C:\_VCMI_Source\license.txt"
+; #define IconFile "C:\_VCMI_Source\clientapp\icons\vcmi.ico"
+; #define SmallLogo "C:\_VCMI_Source\CI\wininstaller\vcmismalllogo.bmp"
+; #define WizardLogo "C:\_VCMI_Source\CI\wininstaller\vcmilogo.bmp"
 
 #define VCMIFolder "VCMI"
 
