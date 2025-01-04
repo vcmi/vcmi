@@ -62,6 +62,8 @@ Translations::Translations(CMapHeader & mh, QWidget *parent) :
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	ui->setupUi(this);
 	
+	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+	
 	//fill languages list
 	std::set<int> indexFoundLang;
 	int foundLang = -1;
