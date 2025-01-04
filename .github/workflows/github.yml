@@ -395,7 +395,7 @@ jobs:
           run: |
             find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./test/googletest \
             -o -path ./osx  -prune -o -type f \
-            -not -name '*.png' -and -not -name '*.ttf' -and -not -name '*.wav' -and -not -name '*.webm' -and -not -name '*.ico' -and -not -name '*.bat' -and -not -name '*.cmd' -and -not -name '*.iss' -and -not -name '*.isl' -and -not -name '*.dll' -print0 | \
+            -not -name '*.png' -and -not -name '*.ttf' -and -not -name '*.wav' -and -not -name '*.webm' -and -not -name '*.ico' -and -not -name '*.bat' -and -not -name '*.cmd' -and -not -name '*.iss' -and -not -name '*.isl' -print0 | \
             { ! xargs -0 grep -l -z -P '\r\n'; }
 
         - name: Validate JSON
