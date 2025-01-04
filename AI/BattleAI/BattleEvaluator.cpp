@@ -702,7 +702,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				spells::BattleCast cast(state.get(), hero, spells::Mode::HERO, ps.spell);
 				cast.castEval(state->getServerCallback(), ps.dest);
 
-				auto allUnits = state->battleGetUnitsIf([](const battle::Unit * u) -> bool { return u->isValidTarget(); });
+				auto allUnits = state->battleGetUnitsIf([](const battle::Unit * u) -> bool { return u->isValidTarget(true); });
 
 				auto needFullEval = vstd::contains_if(allUnits, [&](const battle::Unit * u) -> bool
 					{
