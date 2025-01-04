@@ -228,7 +228,7 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_11">
      <item>
-      <widget class="QRadioButton" name="mapOpt1">
+      <widget class="QRadioButton" name="sizeStandardRadio">
        <property name="maximumSize">
         <size>
          <width>16777215</width>
@@ -259,7 +259,7 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_12">
      <item>
-      <widget class="QRadioButton" name="mapOpt2">
+      <widget class="QRadioButton" name="sizeCustomRadio">
        <property name="text">
         <string>Custom size</string>
        </property>

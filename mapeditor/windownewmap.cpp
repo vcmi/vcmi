@@ -57,20 +57,9 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 		ui->cpuTeamsCombo->addItem(!i ? randomString : QString::number(cpuPlayers.at(i)));
 		ui->cpuTeamsCombo->setItemData(i, QVariant(cpuPlayers.at(i)));
 	}
-	
-	// map option radios
-	connect(ui->mapOpt1, &QRadioButton::toggled, this, &WindowNewMap::on_mapOpt1_toggled);
-	connect(ui->mapOpt2, &QRadioButton::toggled, this, &WindowNewMap::on_mapOpt2_toggled);
 
-	on_mapOpt1_toggled(true);
+	on_sizeStandardRadio_toggled(true);
 	on_checkSeed_toggled(false);
-
-	// size combo
-	connect(ui->sizeCombo, QOverload<int>::of(&QComboBox::activated), this, &WindowNewMap::on_sizeCombo_activated);
-	
-	// spin boxes
-	connect(ui->widthTxt, QOverload<int>::of(&QSpinBox::valueChanged), this, &WindowNewMap::on_widthTxt_valueChanged);
-	connect(ui->heightTxt, QOverload<int>::of(&QSpinBox::valueChanged), this, &WindowNewMap::on_heightTxt_valueChanged);
 
 	bool useLoaded = loadUserSettings();
 	if (!useLoaded)
@@ -272,7 +261,7 @@ void WindowNewMap::on_okButton_clicked()
 	mapGenOptions.setRoadEnabled(Road::GRAVEL_ROAD, ui->roadGravel->isChecked());
 	mapGenOptions.setRoadEnabled(Road::COBBLESTONE_ROAD, ui->roadCobblestone->isChecked());
 	
-	if(ui->mapOpt1->isChecked())
+	if(ui->sizeStandardRadio->isChecked())
 	{
 		mapGenOptions.setWidth(getSelectedMapSize(ui->sizeCombo, 1));
 		mapGenOptions.setHeight(getSelectedMapSize(ui->sizeCombo, 2));
@@ -505,7 +494,7 @@ void WindowNewMap::on_cpuTeamsCombo_activated(int index)
 
 
 
-void WindowNewMap::on_mapOpt1_toggled(bool checked) 
+void WindowNewMap::on_sizeStandardRadio_toggled(bool checked) 
 {
 	if (checked) {
 		ui->sizeGroup1->setEnabled(true);
@@ -515,7 +504,7 @@ void WindowNewMap::on_mapOpt1_toggled(bool checked)
 }
 
 
-void WindowNewMap::on_mapOpt2_toggled(bool checked) 
+void WindowNewMap::on_sizeCustomRadio_toggled(bool checked) 
 {
 	if (checked) {
 		ui->sizeGroup1->setEnabled(false);

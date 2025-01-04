@@ -108,9 +108,9 @@ private slots:
 
 	void on_cpuTeamsCombo_activated(int index);
 
-	void on_mapOpt1_toggled(bool checked);
+	void on_sizeStandardRadio_toggled(bool checked);
 	
-	void on_mapOpt2_toggled(bool checked);
+	void on_sizeCustomRadio_toggled(bool checked);
 
 private:
 
