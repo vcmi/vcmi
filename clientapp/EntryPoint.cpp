@@ -38,7 +38,11 @@
 #include "../lib/ExceptionsCommon.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
+#include "../lib/modding/IdentifierStorage.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ModDescription.h"
 #include "../lib/texts/CGeneralTextHandler.h"
+#include "../lib/texts/MetaString.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 
@@ -71,7 +75,7 @@ static void mainLoop();
 
 static CBasicLogConfigurator *logConfig;
 
-void init()
+static void init()
 {
 	CStopWatch tmh;
 	try
@@ -90,6 +94,23 @@ void init()
 	// Debug code to load all maps on start
 	//ClientCommandManager commandController;
 	//commandController.processCommand("convert txt", false);
+}
+
+static void checkForModLoadingFailure()
+{
+	const auto & brokenMods = VLC->identifiersHandler->getModsWithFailedRequests();
+	if (!brokenMods.empty())
+	{
+		MetaString messageText;
+		messageText.appendTextID("vcmi.client.errors.modLoadingFailure");
+
+		for (const auto & modID : brokenMods)
+		{
+			messageText.appendRawString(VLC->modh->getModInfo(modID).getName());
+			messageText.appendEOL();
+		}
+		CInfoWindow::showInfoDialog(messageText.toString(), {});
+	}
 }
 
 static void prog_version()
@@ -386,6 +407,7 @@ int main(int argc, char * argv[])
 
 	if(!settings["session"]["headless"].Bool())
 	{
+		checkForModLoadingFailure();
 		mainLoop();
 	}
 	else

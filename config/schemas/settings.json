@@ -295,7 +295,8 @@
 				"controllerAxisDeadZone",
 				"controllerAxisFullZone",
 				"controllerAxisSpeed",
-				"controllerAxisScale"
+				"controllerAxisScale",
+				"handleBackRightMouseButton"
 			],
 			"properties" : {
 				"radialWheelGarrisonSwipe" : {
@@ -345,6 +346,10 @@
 				"controllerAxisScale" : {
 					"type" : "number",
 					"default" : 2
+				},
+				"handleBackRightMouseButton" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		},

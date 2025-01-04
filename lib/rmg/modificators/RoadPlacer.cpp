@@ -76,25 +76,35 @@ bool RoadPlacer::createRoad(const int3 & destination)
 
 	auto simpleRoutig = [this, &border](const int3& src, const int3& dst)
 	{
-		if(areaIsolated().contains(dst))
+		if(std::abs((src - dst).y) == 1)
 		{
-			return 1000.0f; //Do not route road behind objects that are not visitable from top, such as Monoliths
+			//Do not allow connections straight up through object not visitable from top
+			if(areaIsolated().contains(dst) || areaIsolated().contains(src))
+			{
+				return 1e12f;
+			}
 		}
 		else
 		{
-			float ret = dst.dist2d(src);
-
-			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
+			if(areaIsolated().contains(dst))
 			{
-				ret *= VISITABLE_PENALTY;
+				//Simply do not route road behind objects that are not visitable from top, such as Monoliths
+				return 1e6f;
 			}
-			float dist = border.distanceSqr(dst);
-			if(dist > 1.0f)
-			{
-				ret /= dist;
-			}
-			return ret;
 		}
+
+		float ret = dst.dist2d(src);
+
+		if (visitableTiles.contains(src) || visitableTiles.contains(dst))
+		{
+			ret *= VISITABLE_PENALTY;
+		}
+		float dist = border.distanceSqr(dst);
+		if(dist > 1.0f)
+		{
+			ret /= dist;
+		}
+		return ret;
 	};
 	
 	auto res = path.search(destination, true, simpleRoutig);

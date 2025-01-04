@@ -52,6 +52,7 @@ public:
 	void scaleTo(const Point & size) override;
 	void exportBitmap(const boost::filesystem::path & path) const override;
 	bool isTransparent(const Point & coords) const override;
+	Rect contentRect() const override;
 	Point dimensions() const override;
 	void setAlpha(uint8_t value) override;
 	void setBlitMode(EImageBlitMode mode) override;

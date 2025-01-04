@@ -59,7 +59,8 @@ public:
 		{
 			CreatureID creatureID;
 			h & creatureID;
-			setType(creatureID.toCreature());
+			if(creatureID != CreatureID::NONE)
+				setType(creatureID.toCreature());
 		}
 
 		h & count;

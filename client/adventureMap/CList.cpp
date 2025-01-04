@@ -471,8 +471,11 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 	int townLowerPos = (townIndex > towns.size() - 2) ? -1 : townIndex + 1;
 
 	auto updateList = [](){
-		for (auto ki : GH.windows().findWindows<CCastleInterface>())
-			ki->townChange(); //update list
+		for (auto ci : GH.windows().findWindows<CCastleInterface>())
+		{
+			ci->townlist->updateWidget();
+			ci->townlist->select(ci->town);
+		}
 	};
 
 	std::vector<RadialMenuConfig> menuElements = {

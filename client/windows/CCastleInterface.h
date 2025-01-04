@@ -159,6 +159,9 @@ class CCastleBuildings : public CIntObject
 	void openTownHall();
 
 	void recreate();
+
+	void drawOverlays(Canvas & to, std::vector<std::shared_ptr<CBuildingRect>> buildingRects);
+	void show(Canvas & to) override;
 public:
 	CBuildingRect * selectedBuilding;
 
