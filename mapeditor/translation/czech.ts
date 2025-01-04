@@ -1102,70 +1102,70 @@
         <translation>Expert</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="41"/>
+        <location filename="../inspector/inspector.cpp" line="949"/>
         <source>Compliant</source>
         <translation>Ochotná</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="42"/>
+        <location filename="../inspector/inspector.cpp" line="950"/>
         <source>Friendly</source>
         <translation>Přátelská</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="43"/>
+        <location filename="../inspector/inspector.cpp" line="951"/>
         <source>Aggressive</source>
         <translation>Agresivní</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="44"/>
+        <location filename="../inspector/inspector.cpp" line="952"/>
         <source>Hostile</source>
         <translation>Nepřátelská</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="45"/>
+        <location filename="../inspector/inspector.cpp" line="953"/>
         <source>Savage</source>
         <translation>Brutální</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="358"/>
-        <location filename="../inspector/inspector.cpp" line="361"/>
-        <location filename="../inspector/inspector.cpp" line="936"/>
+        <location filename="../inspector/inspector.cpp" line="349"/>
+        <location filename="../inspector/inspector.cpp" line="352"/>
+        <location filename="../inspector/inspector.cpp" line="927"/>
         <source>No patrol</source>
         <translation>Bez hlídky</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="301"/>
+        <location filename="../inspector/inspector.cpp" line="292"/>
         <source>POWER RANK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="301"/>
+        <location filename="../inspector/inspector.cpp" line="292"/>
         <source>HERO TYPE</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="324"/>
+        <location filename="../inspector/inspector.cpp" line="315"/>
         <source>Hero class</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="333"/>
+        <location filename="../inspector/inspector.cpp" line="324"/>
         <source>Portrait</source>
         <translation type="unfinished">Portrét</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="336"/>
+        <location filename="../inspector/inspector.cpp" line="327"/>
         <source>Skills</source>
         <translation type="unfinished">Dovednosti</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="338"/>
+        <location filename="../inspector/inspector.cpp" line="329"/>
         <source>Artifacts</source>
         <translation type="unfinished">Artefakty</translation>
     </message>
     <message numerus="yes">
-        <location filename="../inspector/inspector.cpp" line="360"/>
-        <location filename="../inspector/inspector.cpp" line="361"/>
+        <location filename="../inspector/inspector.cpp" line="351"/>
+        <location filename="../inspector/inspector.cpp" line="352"/>
         <source>%n tile(s)</source>
         <translation>
             <numerusform>%n pole</numerusform>
@@ -1174,223 +1174,223 @@
         </translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="373"/>
+        <location filename="../inspector/inspector.cpp" line="364"/>
         <source>Buildings</source>
         <translation type="unfinished">Budovy</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="375"/>
+        <location filename="../inspector/inspector.cpp" line="366"/>
         <source>Events</source>
         <translation type="unfinished">Události</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="406"/>
+        <location filename="../inspector/inspector.cpp" line="397"/>
         <source>Resource</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="437"/>
+        <location filename="../inspector/inspector.cpp" line="428"/>
         <source>Artifact reward</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="480"/>
+        <location filename="../inspector/inspector.cpp" line="471"/>
         <source>Quest</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="498"/>
+        <location filename="../inspector/inspector.cpp" line="489"/>
         <source>Identifier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="499"/>
+        <location filename="../inspector/inspector.cpp" line="490"/>
         <source>ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="500"/>
+        <location filename="../inspector/inspector.cpp" line="491"/>
         <source>SubID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="501"/>
+        <location filename="../inspector/inspector.cpp" line="492"/>
         <source>InstanceName</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="506"/>
+        <location filename="../inspector/inspector.cpp" line="497"/>
         <source>IsStatic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="876"/>
-        <location filename="../inspector/inspector.cpp" line="1005"/>
+        <location filename="../inspector/inspector.cpp" line="867"/>
+        <location filename="../inspector/inspector.cpp" line="1003"/>
         <source>neutral</source>
         <translation>neutrální</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="922"/>
+        <location filename="../inspector/inspector.cpp" line="913"/>
         <source>Army</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="923"/>
+        <location filename="../inspector/inspector.cpp" line="914"/>
         <source>Owner</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="924"/>
+        <location filename="../inspector/inspector.cpp" line="915"/>
         <source>Same as town</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="925"/>
+        <location filename="../inspector/inspector.cpp" line="916"/>
         <source>Removable units</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="926"/>
+        <location filename="../inspector/inspector.cpp" line="917"/>
         <source>Placeholder type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="927"/>
+        <location filename="../inspector/inspector.cpp" line="918"/>
         <source>Power rank</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="928"/>
+        <location filename="../inspector/inspector.cpp" line="919"/>
         <source>Hero type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="929"/>
+        <location filename="../inspector/inspector.cpp" line="920"/>
         <source>Experience</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="930"/>
+        <location filename="../inspector/inspector.cpp" line="921"/>
         <source>MALE</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="931"/>
+        <location filename="../inspector/inspector.cpp" line="922"/>
         <source>FEMALE</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="932"/>
+        <location filename="../inspector/inspector.cpp" line="923"/>
         <source>Gender</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="933"/>
+        <location filename="../inspector/inspector.cpp" line="924"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="934"/>
+        <location filename="../inspector/inspector.cpp" line="925"/>
         <source>Biography</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="935"/>
+        <location filename="../inspector/inspector.cpp" line="926"/>
         <source>Spells</source>
         <translation type="unfinished">Kouzla</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="937"/>
+        <location filename="../inspector/inspector.cpp" line="928"/>
         <source>Patrol radius</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="938"/>
+        <location filename="../inspector/inspector.cpp" line="929"/>
         <source>Town name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="939"/>
+        <location filename="../inspector/inspector.cpp" line="930"/>
         <source>Message</source>
         <translation type="unfinished">Zpráva</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="940"/>
+        <location filename="../inspector/inspector.cpp" line="931"/>
         <source>Spell</source>
         <translation type="unfinished">Kouzlo</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="941"/>
+        <location filename="../inspector/inspector.cpp" line="932"/>
         <source>Productivity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="942"/>
+        <location filename="../inspector/inspector.cpp" line="933"/>
         <source>Amount</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="943"/>
+        <location filename="../inspector/inspector.cpp" line="934"/>
         <source>Character</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="944"/>
+        <location filename="../inspector/inspector.cpp" line="935"/>
         <source>Never flees</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="945"/>
+        <location filename="../inspector/inspector.cpp" line="936"/>
         <source>Not growing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="946"/>
+        <location filename="../inspector/inspector.cpp" line="937"/>
         <source>Reward</source>
         <translation type="unfinished">Odměna</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="947"/>
+        <location filename="../inspector/inspector.cpp" line="938"/>
         <source>Remove after</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="948"/>
+        <location filename="../inspector/inspector.cpp" line="939"/>
         <source>Human trigger</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="949"/>
+        <location filename="../inspector/inspector.cpp" line="940"/>
         <source>Cpu trigger</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="950"/>
+        <location filename="../inspector/inspector.cpp" line="941"/>
         <source>First visit text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="951"/>
+        <location filename="../inspector/inspector.cpp" line="942"/>
         <source>Next visit text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="952"/>
+        <location filename="../inspector/inspector.cpp" line="943"/>
         <source>Completed text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="953"/>
+        <location filename="../inspector/inspector.cpp" line="944"/>
         <source>Repeat quest</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="954"/>
+        <location filename="../inspector/inspector.cpp" line="945"/>
         <source>Time limit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="874"/>
+        <location filename="../inspector/inspector.cpp" line="865"/>
         <source>UNFLAGGABLE</source>
         <translation>NEOZNAČITELNÝ</translation>
     </message>

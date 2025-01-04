@@ -36,15 +36,6 @@
 #include "PickObjectDelegate.h"
 #include "../mapcontroller.h"
 
-static QList<std::pair<QString, QVariant>> CharacterIdentifiers
-{
-	{QObject::tr("Compliant"), QVariant::fromValue(int(CGCreature::Character::COMPLIANT))},
-	{QObject::tr("Friendly"), QVariant::fromValue(int(CGCreature::Character::FRIENDLY))},
-	{QObject::tr("Aggressive"), QVariant::fromValue(int(CGCreature::Character::AGGRESSIVE))},
-	{QObject::tr("Hostile"), QVariant::fromValue(int(CGCreature::Character::HOSTILE))},
-	{QObject::tr("Savage"), QVariant::fromValue(int(CGCreature::Character::SAVAGE))},
-};
-
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
 Initializer::Initializer(CGObjectInstance * o, const PlayerColor & pl) : defaultPlayer(pl)
 {
@@ -429,7 +420,7 @@ void Inspector::updateProperties(CGCreature * o)
 	addProperty(reusedTr[MESSAGE], o->message, false);
 	{ //Character
 		auto * delegate = new InspectorDelegate;
-		delegate->options = CharacterIdentifiers;
+		delegate->options = characterIdentifiers;
 		addProperty<CGCreature::Character>(reusedTr[CHARACTER], (CGCreature::Character)o->character, delegate, false);
 	}
 	addProperty(reusedTr[NEVER_FLEES], o->neverFlees, false);
@@ -902,7 +893,7 @@ QTableWidgetItem * Inspector::addProperty(CGCreature::Character value)
 	item->setFlags(Qt::NoItemFlags);
 	item->setData(Qt::UserRole, QVariant::fromValue(int(value)));
 	
-	for(auto & i : CharacterIdentifiers)
+	for(auto & i : characterIdentifiers)
 	{
 		if(i.second.toInt() == value)
 		{
@@ -952,6 +943,14 @@ Inspector::Inspector(MapController & c, CGObjectInstance * o, QTableWidget * t):
 		{ COMPLETED_TEXT, QObject::tr("Completed text") },
 		{ REPEAT_QUEST, QObject::tr("Repeat quest") },
 		{ TIME_LIMIT, QObject::tr("Time limit") },
+	};
+
+	characterIdentifiers = {
+		{ QObject::tr("Compliant"), QVariant::fromValue(int(CGCreature::Character::COMPLIANT)) },
+		{ QObject::tr("Friendly"), QVariant::fromValue(int(CGCreature::Character::FRIENDLY)) },
+		{ QObject::tr("Aggressive"), QVariant::fromValue(int(CGCreature::Character::AGGRESSIVE)) },
+		{ QObject::tr("Hostile"), QVariant::fromValue(int(CGCreature::Character::HOSTILE)) },
+		{ QObject::tr("Savage"), QVariant::fromValue(int(CGCreature::Character::SAVAGE)) },
 	};
 }
 
