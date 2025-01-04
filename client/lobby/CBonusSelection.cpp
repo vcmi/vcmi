@@ -484,7 +484,7 @@ void CBonusSelection::decreaseDifficulty()
 }
 
 CBonusSelection::CRegion::CRegion(CampaignScenarioID id, bool accessible, bool selectable, bool labelOnly, const CampaignRegions & campDsc)
-	: CIntObject(LCLICK | SHOW_POPUP), idOfMapAndRegion(id), accessible(accessible), selectable(selectable), labelOnly(labelOnly)
+	: CIntObject(LCLICK | SHOW_POPUP | TIME), idOfMapAndRegion(id), accessible(accessible), selectable(selectable), labelOnly(labelOnly), blinkAnim({})
 {
 	OBJECT_CONSTRUCTION;
 
@@ -509,12 +509,18 @@ CBonusSelection::CRegion::CRegion(CampaignScenarioID id, bool accessible, bool s
 	}
 }
 
-void CBonusSelection::CRegion::updateState()
+void CBonusSelection::CRegion::updateState(bool disableAll)
 {
 	if(labelOnly)
 		return;
 
-	if(!accessible)
+	if(disableAll)
+	{
+		graphicsNotSelected->disable();
+		graphicsSelected->disable();
+		graphicsStriped->disable();
+	}
+	else if(!accessible)
 	{
 		graphicsNotSelected->disable();
 		graphicsSelected->disable();
@@ -532,6 +538,29 @@ void CBonusSelection::CRegion::updateState()
 		graphicsSelected->disable();
 		graphicsStriped->disable();
 	}
+}
+
+void CBonusSelection::CRegion::tick(uint32_t msPassed)
+{
+	if(!accessible)
+	{
+		removeUsedEvents(TIME);
+		return;
+	}
+
+	blinkAnim.msPassed += msPassed;
+	if(blinkAnim.msPassed >= 150)
+	{
+		blinkAnim.state = !blinkAnim.state;
+		blinkAnim.msPassed -= 150;
+		if(blinkAnim.state)
+			blinkAnim.count++;
+		else if(blinkAnim.count >= 3)
+			removeUsedEvents(TIME);
+	}
+	updateState(blinkAnim.state);
+	setRedrawParent(true);
+	redraw();
 }
 
 void CBonusSelection::CRegion::clickReleased(const Point & cursorPosition)

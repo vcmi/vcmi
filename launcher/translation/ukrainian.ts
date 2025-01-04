@@ -383,7 +383,7 @@ Install successfully downloaded?</source>
         <translation>Штучний інтелект</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1038"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1061"/>
         <source>Interface Scaling</source>
         <translation>Масштабування інтерфейсу</translation>
     </message>
@@ -393,7 +393,7 @@ Install successfully downloaded?</source>
         <translation>Нейтральний ШІ в боях</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1019"/>
         <source>Enemy AI in battles</source>
         <translation>Ворожий ШІ в боях</translation>
     </message>
@@ -423,7 +423,7 @@ Install successfully downloaded?</source>
         <translation>ШІ автобою</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1399"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1422"/>
         <source>Sticks Sensitivity</source>
         <translation>Чутливість стиків</translation>
     </message>
@@ -445,7 +445,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="83"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="539"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1389"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1412"/>
         <source>Automatic</source>
         <translation>Автоматично</translation>
     </message>
@@ -490,22 +490,27 @@ Install successfully downloaded?</source>
         <translation>Адреса онлайн-лобі</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1079"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
+        <source>Handle back as right mouse button</source>
+        <translation>Кнопка «Назад» як права кнопка миші</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1102"/>
         <source>Cursor Scaling</source>
         <translation>Масштабування курсору</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1108"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1131"/>
         <source>Scalable</source>
         <translation>Векторні</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1144"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1167"/>
         <source>Miscellaneous</source>
         <translation>Інше</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1182"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
         <source>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
@@ -522,22 +527,22 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
 Повноекранний ексклюзивний режим - гра займатиме весь екран і використовуватиме вибрану роздільну здатність.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1326"/>
         <source>Font Scaling (experimental)</source>
         <translation>Масштабування шрифтів ( експериментально)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1367"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1390"/>
         <source>Original</source>
         <translation>Оригінальні</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1406"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1429"/>
         <source>Upscaling Filter</source>
         <translation>Фільтр масштабування</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1439"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1462"/>
         <source>Basic</source>
         <translation>Базова</translation>
     </message>
@@ -577,7 +582,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Скинути</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1129"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1152"/>
         <source>Network</source>
         <translation>Мережа</translation>
     </message>
@@ -592,7 +597,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Швидкість відносного вказівника</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1045"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1068"/>
         <source>Music Volume</source>
         <translation>Гучність музики</translation>
     </message>
@@ -607,14 +612,9 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Введення - Миша</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1226"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
         <source>Long Touch Duration</source>
         <translation>Тривалість довгого дотику</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="461"/>
-        <source>%</source>
-        <translation>%</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="873"/>
@@ -637,22 +637,22 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Гучність звуку</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1195"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1218"/>
         <source>Windowed</source>
         <translation>У вікні</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1223"/>
         <source>Borderless fullscreen</source>
         <translation>Повноекранне вікно</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1228"/>
         <source>Exclusive fullscreen</source>
         <translation>Повноекранний (ексклюзивно)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1003"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1026"/>
         <source>Autosave limit (0 = off)</source>
         <translation>Кількість автозбережень</translation>
     </message>
@@ -662,7 +662,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Обмеження частоти кадрів</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1413"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1436"/>
         <source>Autosave prefix</source>
         <translation>Префікс назв автозбережень</translation>
     </message>
@@ -677,7 +677,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Прискорення стиків</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1354"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1377"/>
         <source>empty = map name prefix</source>
         <translation>(використовувати назву карти)</translation>
     </message>
@@ -712,7 +712,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Переклад Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1233"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
         <source>Check on startup</source>
         <translation>Перевіряти на старті</translation>
     </message>
@@ -732,7 +732,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Мова VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1420"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1443"/>
         <source>Resolution</source>
         <translation>Роздільна здатність</translation>
     </message>
@@ -767,27 +767,27 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>Вступні відео</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="530"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="537"/>
         <source>Active</source>
         <translation>Активні</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="535"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="542"/>
         <source>Disabled</source>
         <translation>Деактивований</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="536"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="543"/>
         <source>Enable</source>
         <translation>Активувати</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="541"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="548"/>
         <source>Not Installed</source>
         <translation>Не встановлено</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="542"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="549"/>
         <source>Install</source>
         <translation>Встановити</translation>
     </message>
@@ -823,7 +823,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="144"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation type="unfinished">Хроніки Героїв %1 - %2</translation>
+        <translation>Хроніки Героїв %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -1157,23 +1157,41 @@ error reason: </source>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
         <translation>VCMI було створено без підтримки innoextract, яка необхідна для розпакування exe-файлів!</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../innoextract.cpp" line="134"/>
         <source>SHA1 hash of provided files:
-Exe (%1 bytes):
-%2</source>
-        <translation>SHA1 хеш наданих файлів:
-Exe (%1 байтів):
-%2</translation>
+Exe (%n bytes):
+%1</source>
+        <comment>param is hash</comment>
+        <translation>
+            <numerusform>SHA1 хеш наданих файлів:
+Exe (%n байт):
+%1</numerusform>
+            <numerusform>SHA1 хеш наданих файлів:
+Exe (%n байти):
+%1</numerusform>
+            <numerusform>SHA1 хеш наданих файлів:
+Exe (%n байтів):
+%1</numerusform>
+        </translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../innoextract.cpp" line="136"/>
         <source>
-Bin (%1 bytes):
-%2</source>
+Bin (%n bytes):
+%1</source>
+        <comment>param is hash</comment>
         <translation>
-Bin (%1 байтів):
-%2</translation>
+            <numerusform>
+Bin (%n байт):
+%1</numerusform>
+            <numerusform>
+Bin (%n байти):
+%1</numerusform>
+            <numerusform>
+Bin (%n байтів):
+%1</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="139"/>
@@ -1349,15 +1367,15 @@ Bin (%1 байтів):
     <message>
         <location filename="../mainwindow_moc.cpp" line="46"/>
         <source>Error starting executable</source>
-        <translation type="unfinished">Помилка запуску виконуваного файлу</translation>
+        <translation>Помилка запуску виконуваного файлу</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="284"/>
+        <location filename="../mainwindow_moc.cpp" line="287"/>
         <source>Replace config file?</source>
         <translation>Замінити файл налаштувань?</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="284"/>
+        <location filename="../mainwindow_moc.cpp" line="287"/>
         <source>Do you want to replace %1?</source>
         <translation>Ви дійсно хочете замінити %1?</translation>
     </message>
@@ -1445,8 +1463,8 @@ Bin (%1 байтів):
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="248"/>
-        <source>Data with this mod was not found</source>
-        <translation>Дані з цією модифікацією не знайдено</translation>
+        <source>Mod data was not found</source>
+        <translation>Не знайдено файли даних модифікації</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="252"/>

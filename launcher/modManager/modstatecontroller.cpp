@@ -245,7 +245,7 @@ bool ModStateController::doUninstallMod(QString modname)
 	QString modDir = pathToQString(*CResourceHandler::get()->getResourceName(resID));
 
 	if(!QDir(modDir).exists())
-		return addError(modname, tr("Data with this mod was not found"));
+		return addError(modname, tr("Mod data was not found"));
 
 	QDir modFullDir(modDir);
 	if(!removeModDir(modDir))

@@ -1,5 +1,39 @@
 # VCMI Project Changelog
 
+## 1.6.1 -> 1.6.2
+
+### General
+
+* Holding Alt while in town will now highlight all interactive buildings in town
+* Fixed missing surrender video on battle results dialog
+* Game will no longer show custom campaigns dialog for short period when selecting Heroes III campaign
+* Added workaround for right mouse button being recognized as 'back' button on some Android devices
+* Fixed regression that caused second and further upgrades that were not functioning correctly
+* Fixed regression that sometime caused curved path that leads to a blocked monolith in random map generation
+* Fixed regression that broke several mechanics, such as issues with Legion artifacts or with Gelu/Dracon specialties
+* Fixed broken positioning for some images when selected scaling factor is different from prescaled texture factor
+
+### Stability
+
+* Game will now show list of mods with critical issues that might cause crash after game start
+* Fixed crash in map editor on attempt to copy wandering monster
+* Fixed crash on having unsupported mod (e.g. Era mod) in a preset
+* Fixed crash on attempt to update a mod that depends on unknown mod that is not installed or not available in repository
+* Fixed possible crash on attempt to flip an empty image
+* Fixed possible crash on attempt to remove old saves
+
+### Campaigns
+
+* Game will now select correct scenario in campaigns with multiple available scenarios
+* Added blink animation for campaign scenario selection
+
+### AI
+
+* Nullkiller AI will now only upgrade units if this would increase their AI value. Fixes possible freeze on upgrading units in some mods that can be upgraded in both directions
+* Nullkiller AI will no longer attempt to build Mage Guild of 4th or 5th levels in towns without such guild
+* Battle AI now correctly estimates damage for spells that completely eliminate a unit
+* Fixed bug preventing AI from casting damaging spells if his troops are unable to reach enemies, for example during siege
+
 ## 1.6.0 -> 1.6.1
 
 ### General

@@ -127,17 +127,17 @@ QString Innoextract::getHashError(QString exeFile, QString binFile, QString exeF
 	exeInfoOriginal = doHash(QFile(exeFileOriginal));
 	if(!binFileOriginal.isEmpty())
 		binInfoOriginal = doHash(QFile(binFileOriginal));
-	
+
 	if(exeInfo.hash.empty() || (!binFile.isEmpty() && binInfo.hash.empty()))
 		return QString{}; // hashing not possible -> previous error is enough
 
-	QString hashOutput = tr("SHA1 hash of provided files:\nExe (%1 bytes):\n%2").arg(QString::number(exeInfo.size), QString::fromStdString(exeInfo.hash));
+	QString hashOutput = tr("SHA1 hash of provided files:\nExe (%n bytes):\n%1", "param is hash", exeInfo.size).arg(QString::fromStdString(exeInfo.hash));
 	if(!binInfo.hash.empty())
-		hashOutput += tr("\nBin (%1 bytes):\n%2").arg(QString::number(binInfo.size), QString::fromStdString(binInfo.hash));
-	
+		hashOutput += tr("\nBin (%n bytes):\n%1", "param is hash", binInfo.size).arg(QString::fromStdString(binInfo.hash));
+
 	if((!exeInfoOriginal.hash.empty() && exeInfo.hash != exeInfoOriginal.hash) || (!binInfoOriginal.hash.empty() && !binFile.isEmpty() && !binFileOriginal.isEmpty() && binInfo.hash != binInfoOriginal.hash))
 		return tr("Internal copy process failed. Enough space on device?\n\n%1").arg(hashOutput);
-	
+
 	QString foundKnown;
 	QString exeLang;
 	QString binLang;

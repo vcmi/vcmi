@@ -21,6 +21,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../windows/InfoWindows.h"
 #include "../render/Colors.h"
 #include "../globalLobby/GlobalLobbyClient.h"
@@ -35,7 +36,7 @@
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../CGameInfo.h"
 
-CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
+CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 	: CSelectionBase(screenType), bonusSel(nullptr)
 {
 	OBJECT_CONSTRUCTION;
@@ -114,6 +115,12 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 		if (wasInLobbyRoom)
 			CSH->getGlobalLobby().activateInterface();
 	}, EShortcut::GLOBAL_CANCEL);
+
+	if(hideScreen) // workaround to avoid confusing players by custom campaign list displaying for a few ms -> instead of this draw a black screen while "loading"
+	{
+		blackScreen = std::make_shared<GraphicalPrimitiveCanvas>(Rect(Point(0, 0), pos.dimensions()));
+		blackScreen->addBox(Point(0, 0), pos.dimensions(), Colors::BLACK);
+	}
 }
 
 CLobbyScreen::~CLobbyScreen()

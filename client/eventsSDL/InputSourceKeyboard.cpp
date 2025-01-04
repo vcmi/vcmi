@@ -25,11 +25,13 @@
 #include <SDL_hints.h>
 
 InputSourceKeyboard::InputSourceKeyboard()
+: handleBackRightMouseButton(settings["input"]["handleBackRightMouseButton"].Bool())
 {
 #ifdef VCMI_MAC
 	// Ctrl+click should be treated as a right click on Mac OS X
 	SDL_SetHint(SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK, "1");
 #endif
+	SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, handleBackRightMouseButton ? "1" : "0");
 }
 
 std::string InputSourceKeyboard::getKeyNameWithModifiers(const std::string & keyName, bool keyUp)
@@ -80,6 +82,12 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 			return; // ignore periodic event resends
 	}
 
+	if(handleBackRightMouseButton && key.keysym.scancode ==  SDL_SCANCODE_AC_BACK) // on some android devices right mouse button is "back"
+	{
+		GH.events().dispatchShowPopup(GH.getCursorPosition(), settings["input"]["mouseToleranceDistance"].Integer());
+		return;
+	}
+
 	auto shortcutsVector = GH.shortcuts().translateKeycode(keyName);
 
 	if (vstd::contains(shortcutsVector, EShortcut::MAIN_MENU_LOBBY))
@@ -117,6 +125,12 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 {
 	if(key.repeat != 0)
 		return; // ignore periodic event resends
+
+	if(handleBackRightMouseButton && key.keysym.scancode ==  SDL_SCANCODE_AC_BACK) // on some android devices right mouse button is "back"
+	{
+		GH.events().dispatchClosePopup(GH.getCursorPosition());
+		return;
+	}
 
 	std::string keyName = getKeyNameWithModifiers(SDL_GetKeyName(key.keysym.sym), true);
 	logGlobal->trace("keyboard: key '%s' released", keyName);

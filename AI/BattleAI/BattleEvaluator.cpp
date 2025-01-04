@@ -702,7 +702,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				spells::BattleCast cast(state.get(), hero, spells::Mode::HERO, ps.spell);
 				cast.castEval(state->getServerCallback(), ps.dest);
 
-				auto allUnits = state->battleGetUnitsIf([](const battle::Unit * u) -> bool { return u->isValidTarget(); });
+				auto allUnits = state->battleGetUnitsIf([](const battle::Unit * u) -> bool { return u->isValidTarget(true); });
 
 				auto needFullEval = vstd::contains_if(allUnits, [&](const battle::Unit * u) -> bool
 					{
@@ -719,6 +719,10 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				{
 					state->makeWait(activeStack);
 				}
+
+				float stackActionScore = 0;
+				float damageToHostilesScore = 0;
+				float damageToFriendliesScore = 0;
 
 				if(needFullEval || !cachedAttack.ap)
 				{
@@ -737,11 +741,11 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					{
 						auto newStackAction = innerEvaluator.findBestTarget(activeStack, innerTargets, innerCache, state);
 
-						ps.value = std::max(moveTarget.score, newStackAction.score);
+						stackActionScore = std::max(moveTarget.score, newStackAction.score);
 					}
 					else
 					{
-						ps.value = moveTarget.score;
+						stackActionScore = moveTarget.score;
 					}
 				}
 				else
@@ -756,7 +760,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 					auto updatedAttack = AttackPossibility::evaluate(updatedBai, cachedAttack.ap->from, innerCache, state);
 
-					ps.value = scoreEvaluator.evaluateExchange(updatedAttack, cachedAttack.turn, *targets, innerCache, state);
+					stackActionScore = scoreEvaluator.evaluateExchange(updatedAttack, cachedAttack.turn, *targets, innerCache, state);
 				}
 				for(const auto & unit : allUnits)
 				{
@@ -790,11 +794,11 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 							if(ourUnit && goodEffect && isMagical)
 								continue;
 
-							ps.value += dpsReduce * scoreEvaluator.getPositiveEffectMultiplier();
+							damageToHostilesScore += dpsReduce * scoreEvaluator.getPositiveEffectMultiplier();
 						}
 						else
 							// discourage AI making collateral damage with spells
-							ps.value -= 4 * dpsReduce * scoreEvaluator.getNegativeEffectMultiplier();
+							damageToFriendliesScore -= 4 * dpsReduce * scoreEvaluator.getNegativeEffectMultiplier();
 
 #if BATTLE_TRACE_LEVEL >= 1
 						// Ensure ps.dest is not empty before accessing the first element
@@ -826,8 +830,17 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					}
 				}
 
+				if (vstd::isAlmostEqual(stackActionScore, static_cast<float>(EvaluationResult::INEFFECTIVE_SCORE)))
+				{
+					ps.value = damageToFriendliesScore + damageToHostilesScore;
+				}
+				else
+				{
+					ps.value = stackActionScore + damageToFriendliesScore + damageToHostilesScore;
+				}
+
 #if BATTLE_TRACE_LEVEL >= 1
-				logAi->trace("Total score: %2f", ps.value);
+				logAi->trace("Total score for %s: %2f (action: %2f, friedly damage: %2f, hostile damage: %2f)", ps.spell->getJsonKey(), ps.value, stackActionScore, damageToFriendliesScore, damageToHostilesScore);
 #endif
 			}
 #if BATTLE_TRACE_LEVEL == 0

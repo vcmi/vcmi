@@ -23,6 +23,15 @@ DLL_LINKAGE CConsoleHandler * console = nullptr;
 
 VCMI_LIB_NAMESPACE_END
 
+#if defined(NDEBUG) && !defined(VCMI_ANDROID)
+#define USE_ON_TERMINATE
+#endif
+
+#if defined(NDEBUG) && defined(VCMI_WINDOWS)
+#define USE_UNHANDLED_EXCEPTION_FILTER
+#define CREATE_MEMORY_DUMP
+#endif
+
 #ifndef VCMI_WINDOWS
 	using TColor = std::string;
 	#define CONSOLE_GREEN "\x1b[1;32m"
@@ -57,59 +66,7 @@ static TColor defColor;
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-#ifdef VCMI_WINDOWS
-
-void printWinError()
-{
-	//Get error code
-	int error = GetLastError();
-	if(!error)
-	{
-		logGlobal->error("No Win error information set.");
-		return;
-	}
-	logGlobal->error("Error %d encountered:", error);
-
-	//Get error description
-	char* pTemp = nullptr;
-	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
-		nullptr, error,  MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPSTR)&pTemp, 1, nullptr);
-	logGlobal->error(pTemp);
-	LocalFree( pTemp );
-}
-
-const char* exceptionName(DWORD exc)
-{
-#define EXC_CASE(EXC)	case EXCEPTION_##EXC : return "EXCEPTION_" #EXC
-	switch (exc)
-	{
-		EXC_CASE(ACCESS_VIOLATION);
-		EXC_CASE(DATATYPE_MISALIGNMENT);
-		EXC_CASE(BREAKPOINT);
-		EXC_CASE(SINGLE_STEP);
-		EXC_CASE(ARRAY_BOUNDS_EXCEEDED);
-		EXC_CASE(FLT_DENORMAL_OPERAND);
-		EXC_CASE(FLT_DIVIDE_BY_ZERO);
-		EXC_CASE(FLT_INEXACT_RESULT);
-		EXC_CASE(FLT_INVALID_OPERATION);
-		EXC_CASE(FLT_OVERFLOW);
-		EXC_CASE(FLT_STACK_CHECK);
-		EXC_CASE(FLT_UNDERFLOW);
-		EXC_CASE(INT_DIVIDE_BY_ZERO);
-		EXC_CASE(INT_OVERFLOW);
-		EXC_CASE(PRIV_INSTRUCTION);
-		EXC_CASE(IN_PAGE_ERROR);
-		EXC_CASE(ILLEGAL_INSTRUCTION);
-		EXC_CASE(NONCONTINUABLE_EXCEPTION);
-		EXC_CASE(STACK_OVERFLOW);
-		EXC_CASE(INVALID_DISPOSITION);
-		EXC_CASE(GUARD_PAGE);
-		EXC_CASE(INVALID_HANDLE);
-	default:
-		return "UNKNOWN EXCEPTION";
-	}
-#undef EXC_CASE
-}
+#ifdef CREATE_MEMORY_DUMP
 
 static void createMemoryDump(MINIDUMP_EXCEPTION_INFORMATION * meinfo)
 {
@@ -144,6 +101,42 @@ static void createMemoryDump(MINIDUMP_EXCEPTION_INFORMATION * meinfo)
 	MessageBoxA(0, "VCMI has crashed. We are sorry. File with information about encountered problem has been created.", "VCMI Crashhandler", MB_OK | MB_ICONERROR);
 }
 
+#endif
+
+#ifdef USE_UNHANDLED_EXCEPTION_FILTER
+const char* exceptionName(DWORD exc)
+{
+#define EXC_CASE(EXC)	case EXCEPTION_##EXC : return "EXCEPTION_" #EXC
+	switch (exc)
+	{
+		EXC_CASE(ACCESS_VIOLATION);
+		EXC_CASE(DATATYPE_MISALIGNMENT);
+		EXC_CASE(BREAKPOINT);
+		EXC_CASE(SINGLE_STEP);
+		EXC_CASE(ARRAY_BOUNDS_EXCEEDED);
+		EXC_CASE(FLT_DENORMAL_OPERAND);
+		EXC_CASE(FLT_DIVIDE_BY_ZERO);
+		EXC_CASE(FLT_INEXACT_RESULT);
+		EXC_CASE(FLT_INVALID_OPERATION);
+		EXC_CASE(FLT_OVERFLOW);
+		EXC_CASE(FLT_STACK_CHECK);
+		EXC_CASE(FLT_UNDERFLOW);
+		EXC_CASE(INT_DIVIDE_BY_ZERO);
+		EXC_CASE(INT_OVERFLOW);
+		EXC_CASE(PRIV_INSTRUCTION);
+		EXC_CASE(IN_PAGE_ERROR);
+		EXC_CASE(ILLEGAL_INSTRUCTION);
+		EXC_CASE(NONCONTINUABLE_EXCEPTION);
+		EXC_CASE(STACK_OVERFLOW);
+		EXC_CASE(INVALID_DISPOSITION);
+		EXC_CASE(GUARD_PAGE);
+		EXC_CASE(INVALID_HANDLE);
+	default:
+		return "UNKNOWN EXCEPTION";
+	}
+#undef EXC_CASE
+}
+
 LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 {
 	logGlobal->error("Disaster happened.");
@@ -161,14 +154,15 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 	//exception info to be placed in the dump
 	MINIDUMP_EXCEPTION_INFORMATION meinfo = {threadId, exception, TRUE};
 
+#ifdef CREATE_MEMORY_DUMP
 	createMemoryDump(&meinfo);
+#endif
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }
-
 #endif
 
-#ifdef NDEBUG
+#ifdef USE_ON_TERMINATE
 [[noreturn]] static void onTerminate()
 {
 	logGlobal->error("Disaster happened.");
@@ -198,7 +192,7 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 	stream << boost::stacktrace::stacktrace();
 	logGlobal->error("%s", stream.str());
 
-#ifdef VCMI_WINDOWS
+#ifdef CREATE_MEMORY_DUMP
 	const DWORD threadId = ::GetCurrentThreadId();
 	logGlobal->error("Thread ID: %d", threadId);
 
@@ -298,19 +292,19 @@ CConsoleHandler::CConsoleHandler():
 
 	GetConsoleScreenBufferInfo(handleErr, &csbi);
 	defErrColor = csbi.wAttributes;
-#ifdef NDEBUG
-#ifndef VCMI_ANDROID
-	SetUnhandledExceptionFilter(onUnhandledException);
-#endif
-#endif
 #else
 	defColor = "\x1b[0m";
 #endif
 
-#ifdef NDEBUG
+#ifdef USE_UNHANDLED_EXCEPTION_FILTER
+	SetUnhandledExceptionFilter(onUnhandledException);
+#endif
+
+#ifdef USE_ON_TERMINATE
 	std::set_terminate(onTerminate);
 #endif
 }
+
 CConsoleHandler::~CConsoleHandler()
 {
 	logGlobal->info("Killing console...");

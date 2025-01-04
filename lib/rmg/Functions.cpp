@@ -24,7 +24,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void replaceWithCurvedPath(rmg::Path & path, const Zone & zone, const int3 & src, bool onlyStraight)
+void replaceWithCurvedPath(rmg::Path & path, const Zone & zone, const int3 & src, bool onlyStraight /* = true */)
 {
 	auto costFunction = rmg::Path::createCurvedCostFunction(zone.area()->getBorder());
 	auto pathArea = zone.areaForRoads();

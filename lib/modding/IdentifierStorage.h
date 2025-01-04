@@ -58,6 +58,9 @@ class DLL_LINKAGE CIdentifierStorage
 	std::multimap<std::string, ObjectData> registeredObjects;
 	mutable std::vector<ObjectCallback> scheduledRequests;
 
+	/// All non-optional requests that have failed to resolve, for debug & error reporting
+	mutable std::vector<ObjectCallback> failedRequests;
+
 	ELoadingState state = ELoadingState::LOADING;
 
 	/// Helper method that dumps all registered identifier into log file
@@ -101,6 +104,9 @@ public:
 
 	/// called at the very end of loading to check for any missing ID's
 	void finalize();
+
+	/// Returns list of all mods, from which at least one identifier has failed to resolve
+	std::vector<std::string> getModsWithFailedRequests() const;
 };
 
 VCMI_LIB_NAMESPACE_END

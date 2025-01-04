@@ -51,9 +51,16 @@ public:
 		bool selectable; // true if region should be selectable
 		bool labelOnly;
 		std::shared_ptr<CLabel> label;
+		struct BlinkAnim
+		{
+			uint32_t msPassed;
+			uint32_t count;
+			bool state;
+		} blinkAnim;
 	public:
 		CRegion(CampaignScenarioID id, bool accessible, bool selectable, bool labelOnly, const CampaignRegions & campDsc);
-		void updateState();
+		void updateState(bool disableAll = false);
+		void tick(uint32_t msPassed) override;
 		void clickReleased(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
 	};

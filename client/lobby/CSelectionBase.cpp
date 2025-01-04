@@ -74,7 +74,14 @@ int ISelectionScreenInfo::getCurrentDifficulty()
 
 PlayerInfo ISelectionScreenInfo::getPlayerInfo(PlayerColor color)
 {
-	return getMapInfo()->mapHeader->players.at(color.getNum());
+	auto mapInfo = getMapInfo();
+	if (!mapInfo)
+		throw std::runtime_error("Attempt to get player info for invalid map!");
+
+	if (!mapInfo->mapHeader)
+		throw std::runtime_error("Attempt to get player info for invalid map header!");
+
+	return mapInfo->mapHeader->players.at(color.getNum());
 }
 
 CSelectionBase::CSelectionBase(ESelectionScreen type)
