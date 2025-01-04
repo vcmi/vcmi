@@ -12,6 +12,9 @@ set "VCMIFolder=VCMI"
 REM Define Inno Setup version
 set InnoSetupVer=6
 
+REM Uncomment this line and set custom UCRT source path, otherwise it will be detected automatically from installed Windows 10 SDK
+REM set "UCRTFilesPath=%ProgFiles%\Windows Kits\10\Redist\10.0.22621.0\ucrt\DLLs"
+
 REM Normally, there is no need to modify anything below this line.
 
 REM Determine the base directory two levels up from the installer location
@@ -37,13 +40,15 @@ if exist "%WinDir%\SysWow64" (
     set "ProgFiles=%programfiles%"
 )
 
-REM Dynamically locate the UCRT path
-set "UCRTBasePath=%ProgFiles%\Windows Kits\10\Redist"
-set "UCRTFilesPath="
-for /d %%d in ("%UCRTBasePath%\*") do (
-    if exist "%%d\ucrt\DLLs" (
-        set "UCRTFilesPath=%%d\ucrt\DLLs"
-    )
+REM Dynamically locate the UCRT path if not defined
+if not defined UCRTFilesPath (
+	set "UCRTBasePath=!ProgFiles!\Windows Kits\10\Redist"
+	set "UCRTFilesPath="
+	for /d %%d in ("!UCRTBasePath!\*") do (
+		if exist "%%d\ucrt\DLLs" (
+			set "UCRTFilesPath=%%d\ucrt\DLLs"
+		)
+	)
 )
 
 REM Verify Inno Setup is installed
