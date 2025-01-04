@@ -27,10 +27,12 @@
 * Game will now select correct scenario in campaigns with multiple available scenarios
 * Added blink animation for campaign scenario selection
 
-### Adventure AI
+### AI
 
-* AI will now only upgrade units if this would increase their AI value. Fixes possible freeze on upgrading units in some mods that can be upgraded in both directions
-* AI will no longer attempt to build Mage Guild of 4th or 5th levels in towns without such guild
+* Nullkiller AI will now only upgrade units if this would increase their AI value. Fixes possible freeze on upgrading units in some mods that can be upgraded in both directions
+* Nullkiller AI will no longer attempt to build Mage Guild of 4th or 5th levels in towns without such guild
+* Battle AI now correctly estimates damage for spells that completely eliminate a unit
+* Fixed bug preventing AI from casting damaging spells if his troops are unable to reach enemies, for example during siege
 
 ## 1.6.0 -> 1.6.1
 
