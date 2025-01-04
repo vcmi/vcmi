@@ -22,6 +22,9 @@ PlayerSettings::PlayerSettings(MapController & ctrl, QWidget *parent) :
 	controller(ctrl)
 {
 	ui->setupUi(this);
+	
+	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+	
 	show();
 
 	int players = 0;
