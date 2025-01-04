@@ -39,7 +39,7 @@ class CHeroOverview : public CWindowObject
     std::shared_ptr<CLabel> labelTitle;
     std::shared_ptr<CAnimImage> imageHero;
     std::shared_ptr<CLabel> labelHeroName;
-    std::shared_ptr<CMultiLineLabel> labelHeroBiography;
+    std::shared_ptr<CTextBox> labelHeroBiography;
     std::shared_ptr<CLabel> labelHeroClass;
     std::shared_ptr<CLabel> labelHeroSpeciality;
     std::shared_ptr<CAnimImage> imageSpeciality;
@@ -47,7 +47,7 @@ class CHeroOverview : public CWindowObject
     std::vector<std::shared_ptr<CAnimImage>> imageSkill;
     std::vector<std::shared_ptr<CLabel>> labelSkillFooter;
     std::shared_ptr<CLabel> labelSpecialityName;
-    std::shared_ptr<CMultiLineLabel> labelSpecialityDescription;
+    std::shared_ptr<CTextBox> labelSpecialityDescription;
 
     std::shared_ptr<CLabel> labelArmyTitle;
     std::vector<std::shared_ptr<CAnimImage>> imageArmy;
