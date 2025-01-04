@@ -1,6 +1,5 @@
 if(ENABLE_INNOEXTRACT)
 	add_subdirectory("lib/innoextract")
-	add_definitions(-DENABLE_INNOEXTRACT)
 endif()
 
 set(launcher_SRCS
@@ -219,6 +218,7 @@ vcmi_set_output_dir(vcmilauncher "")
 enable_pch(vcmilauncher)
 
 if(ENABLE_INNOEXTRACT)
+	target_compile_definitions(vcmilauncher PRIVATE ENABLE_INNOEXTRACT)
 	target_link_libraries(vcmilauncher innoextract)
 endif()
 
