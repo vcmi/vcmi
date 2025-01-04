@@ -44,11 +44,11 @@ REM Dynamically locate the UCRT path if not defined
 if not defined UCRTFilesPath (
 	set "UCRTBasePath=!ProgFiles!\Windows Kits\10\Redist"
 	set "UCRTFilesPath="
-    for /f "delims=" %%d in ('dir /b /ad /on "!UCRTBasePath!"') do (
-        if exist "!UCRTBasePath!\%%d\ucrt\DLLs" (
-            set "UCRTFilesPath=!UCRTBasePath!\%%d\ucrt\DLLs"
-        )
-    )
+	for /f "delims=" %%d in ('dir /b /ad /on "!UCRTBasePath!"') do (
+		if exist "!UCRTBasePath!\%%d\ucrt\DLLs" (
+			set "UCRTFilesPath=!UCRTBasePath!\%%d\ucrt\DLLs"
+		)
+	)
 )
 
 REM Verify Inno Setup is installed
