@@ -430,7 +430,7 @@ void Inspector::updateProperties(CGCreature * o)
 	{ //Character
 		auto * delegate = new InspectorDelegate;
 		delegate->options = CharacterIdentifiers;
-		addProperty<CGCreature::Character>("Character", (CGCreature::Character)o->character, delegate, false);
+		addProperty<CGCreature::Character>(reusedTr[CHARACTER], (CGCreature::Character)o->character, delegate, false);
 	}
 	addProperty(reusedTr[NEVER_FLEES], o->neverFlees, false);
 	addProperty(reusedTr[NOT_GROWING], o->notGrowingTeam, false);
