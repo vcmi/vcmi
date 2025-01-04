@@ -328,6 +328,13 @@ void WindowNewMap::on_okButton_clicked()
 	close();
 }
 
+void WindowNewMap::on_sizeCombo_activated(int index)
+{
+	mapGenOptions.setWidth(getSelectedMapSize(ui->sizeCombo, 1));
+	mapGenOptions.setHeight(getSelectedMapSize(ui->sizeCombo, 2));
+	updateTemplateList();
+}
+
 
 void WindowNewMap::on_twoLevelCheck_stateChanged(int arg1)
 {
@@ -345,8 +352,6 @@ void WindowNewMap::on_humanCombo_activated(int index)
 		humans = PlayerColor::PLAYER_LIMIT_I;
 		ui->humanCombo->setCurrentIndex(humans);
 	}
-
-	mapGenOptions.setHumanOrCpuPlayerCount(humans);
 
 	int teams = mapGenOptions.getTeamCount();
 	if(teams > humans - 1)
@@ -369,6 +374,8 @@ void WindowNewMap::on_humanCombo_activated(int index)
 		ui->cpuTeamsCombo->setCurrentIndex(cpuTeams + 1); //skip one element because first is random
 	}
 
+	mapGenOptions.setHumanOrCpuPlayerCount(humans);
+
 	updateTemplateList();
 }
 
@@ -384,15 +391,15 @@ void WindowNewMap::on_cpuCombo_activated(int index)
 		cpu = PlayerColor::PLAYER_LIMIT_I - humans;
 		ui->cpuCombo->setCurrentIndex(cpu + 1); //skip one element because first is random
 	}
-	
-	mapGenOptions.setCompOnlyPlayerCount(cpu);
-	
+
 	int cpuTeams = mapGenOptions.getCompOnlyTeamCount(); //comp only players - 1
 	if(cpuTeams > cpu - 1)
 	{
 		cpuTeams = cpu > 0 ? cpu - 1 : CMapGenOptions::RANDOM_SIZE;
 		ui->cpuTeamsCombo->setCurrentIndex(cpuTeams + 1); //skip one element because first is random
 	}
+
+	mapGenOptions.setCompOnlyPlayerCount(cpu);
 
 	updateTemplateList();
 }
@@ -496,13 +503,6 @@ void WindowNewMap::on_cpuTeamsCombo_activated(int index)
 	updateTemplateList();
 }
 
-
-void WindowNewMap::on_sizeCombo_activated(int index) 
-{
-	mapGenOptions.setWidth(getSelectedMapSize(ui->sizeCombo, 1));
-	mapGenOptions.setHeight(getSelectedMapSize(ui->sizeCombo, 2));
-	updateTemplateList();
-}
 
 
 void WindowNewMap::on_mapOpt1_toggled(bool checked) 

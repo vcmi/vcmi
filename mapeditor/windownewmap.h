@@ -86,6 +86,8 @@ private slots:
 
 	void on_okButton_clicked();
 
+	void on_sizeCombo_activated(int index);
+
 	void on_twoLevelCheck_stateChanged(int arg1);
 
 	void on_humanCombo_activated(int index);
@@ -109,8 +111,6 @@ private slots:
 	void on_mapOpt1_toggled(bool checked);
 	
 	void on_mapOpt2_toggled(bool checked);
-	
-	void on_sizeCombo_activated(int index);
 
 private:
 
