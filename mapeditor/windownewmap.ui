@@ -409,7 +409,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Human/Computer</string>
+         <string>Humans</string>
         </property>
        </widget>
       </item>
@@ -472,7 +472,7 @@
       <item row="0" column="2">
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>Computer only</string>
+         <string>Computers</string>
         </property>
        </widget>
       </item>
