@@ -408,6 +408,7 @@ TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * tele
 	}
 
 	center(position);
+	fitToScreen(10);
 }
 
 std::shared_ptr<WindowBase>

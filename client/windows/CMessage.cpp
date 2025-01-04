@@ -28,6 +28,7 @@
 #include "../../lib/texts/TextOperations.h"
 
 constexpr int RIGHT_CLICK_POPUP_MIN_SIZE = 100;
+constexpr int RIGHT_CLICK_POPUP_MAX_HEIGHT_TEXTONLY = 450;
 constexpr int SIDE_MARGIN = 11;
 constexpr int TOP_MARGIN = 20;
 constexpr int BOTTOM_MARGIN = 16;
@@ -260,9 +261,11 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 	if(ret->buttons.empty() && !ret->components)
 	{
 		// use more compact form for right-click popup with no buttons / components
+		if(ret->text->slider)
+			ret->text->resize(Point(ret->text->pos.w, std::min(ret->text->label->textSize.y, RIGHT_CLICK_POPUP_MAX_HEIGHT_TEXTONLY)));
 
-		ret->pos.w = std::max(RIGHT_CLICK_POPUP_MIN_SIZE, ret->text->label->textSize.x + 2 * SIDE_MARGIN);
-		ret->pos.h = std::max(RIGHT_CLICK_POPUP_MIN_SIZE, ret->text->label->textSize.y + TOP_MARGIN + BOTTOM_MARGIN);
+		ret->pos.w = std::max(RIGHT_CLICK_POPUP_MIN_SIZE, ret->text->pos.w + 2 * SIDE_MARGIN);
+		ret->pos.h = std::max(RIGHT_CLICK_POPUP_MIN_SIZE, ret->text->pos.h + TOP_MARGIN + BOTTOM_MARGIN);
 	}
 	else
 	{
