@@ -11,7 +11,6 @@
 #pragma once
 
 #include <QDialog>
-#include <QRegularExpression>
 
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/rmg/CMapGenOptions.h"
