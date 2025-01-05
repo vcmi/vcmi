@@ -222,7 +222,7 @@ std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 }
 
 int getSelectedMapSize(QComboBox* comboBox, int dimension) {
-	QString selectedText = comboBox->currentText(); // Get the selected text
+	QString selectedText = comboBox->currentText();
 	QRegularExpression regex(R"(\((\d+)x(\d+)\))"); // Regex for format (width x height)
 	QRegularExpressionMatch match = regex.match(selectedText);
 
