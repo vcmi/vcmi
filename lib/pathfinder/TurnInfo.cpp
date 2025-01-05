@@ -80,8 +80,8 @@ int TurnInfo::getMovePointsLimitWater() const
 }
 
 TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, int Turn)
-	: noterrainPenalty(VLC->terrainTypeHandler->size())
-	, target(target)
+	: target(target)
+	, noterrainPenalty(VLC->terrainTypeHandler->size())
 {
 	CSelector daySelector = Selector::days(Turn);
 
@@ -100,27 +100,27 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 	{
 		static const CSelector selector = Selector::type()(BonusType::WATER_WALKING);
 		const auto & bonuses = sharedCache->waterWalking.getBonusList(target, selector);
-		waterWalkingTest = bonuses->getFirst(selector) != nullptr;
-		waterWalkingValue = bonuses->valOfBonuses(selector);
+		waterWalkingTest = bonuses->getFirst(daySelector) != nullptr;
+		waterWalkingValue = bonuses->valOfBonuses(daySelector);
 	}
 
 	{
 		static const CSelector selector = Selector::type()(BonusType::FLYING_MOVEMENT);
 		const auto & bonuses = sharedCache->flyingMovement.getBonusList(target, selector);
-		flyingMovementTest = bonuses->getFirst(selector) != nullptr;
-		flyingMovementValue = bonuses->valOfBonuses(selector);
+		flyingMovementTest = bonuses->getFirst(daySelector) != nullptr;
+		flyingMovementValue = bonuses->valOfBonuses(daySelector);
 	}
 
 	{
 		static const CSelector selector = Selector::type()(BonusType::FREE_SHIP_BOARDING);
 		const auto & bonuses = sharedCache->freeShipBoarding.getBonusList(target, selector);
-		freeShipBoardingTest = bonuses->getFirst(selector) != nullptr;
+		freeShipBoardingTest = bonuses->getFirst(daySelector) != nullptr;
 	}
 
 	{
 		static const CSelector selector = Selector::type()(BonusType::ROUGH_TERRAIN_DISCOUNT);
 		const auto & bonuses = sharedCache->roughTerrainDiscount.getBonusList(target, selector);
-		roughTerrainDiscountValue = bonuses->getFirst(selector) != nullptr;
+		roughTerrainDiscountValue = bonuses->getFirst(daySelector) != nullptr;
 	}
 
 	{
@@ -133,7 +133,7 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 		else
 			baseMovementPointsSea = vectorSea.back().Integer();
 
-		movePointsLimitWater = bonuses->valOfBonuses(selector, baseMovementPointsSea);
+		movePointsLimitWater = bonuses->valOfBonuses(daySelector, baseMovementPointsSea);
 	}
 
 	{
@@ -146,7 +146,7 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 		else
 			baseMovementPointsLand = vectorLand.back().Integer();
 
-		movePointsLimitLand = bonuses->valOfBonuses(selector, baseMovementPointsLand);
+		movePointsLimitLand = bonuses->valOfBonuses(daySelector, baseMovementPointsLand);
 	}
 
 	{
@@ -157,6 +157,13 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 			TerrainId affectedTerrain = bonus->subtype.as<TerrainId>();
 			noterrainPenalty.at(affectedTerrain.num) = true;
 		}
+
+		const auto nativeTerrain = target->getNativeTerrain();
+		if (nativeTerrain.hasValue())
+			noterrainPenalty.at(nativeTerrain.num) = true;
+
+		if (nativeTerrain == ETerrainId::ANY_TERRAIN)
+			boost::range::fill(noterrainPenalty, true);
 	}
 }
 

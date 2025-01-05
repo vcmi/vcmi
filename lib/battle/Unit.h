@@ -115,8 +115,6 @@ public:
 	virtual BattleHex getPosition() const = 0;
 	virtual void setPosition(BattleHex hex) = 0;
 
-	virtual int32_t getInitiative(int turn = 0) const = 0;
-
 	virtual bool canMove(int turn = 0) const = 0; //if stack can move
 	virtual bool defended(int turn = 0) const = 0;
 	virtual bool moved(int turn = 0) const = 0; //if stack was already moved this turn

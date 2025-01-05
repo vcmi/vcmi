@@ -260,8 +260,6 @@ public:
 	void onRemoved();
 
 private:
-	static const UnitBonusValuesProxy::SelectorsArray * generateBonusSelectors();
-
 	const IUnitEnvironment * env;
 
 	BonusCachePerTurn immobilizedPerTurn;

@@ -82,7 +82,7 @@ ui32 CGHeroInstance::getTileMovementCost(const TerrainTile & dest, const Terrain
 	{
 		ret = from.getRoad()->movementCost;
 	}
-	else if(ti->hasNoTerrainPenalty(from.getTerrainID())) //no special movement bonus
+	else if(!ti->hasNoTerrainPenalty(from.getTerrainID())) //no special movement bonus
 	{
 		ret = VLC->terrainTypeHandler->getById(from.getTerrainID())->moveCost;
 		ret -= ti->getRoughTerrainDiscountValue();
@@ -235,22 +235,19 @@ int CGHeroInstance::movementPointsLimit(bool onLand) const
 
 int CGHeroInstance::getLowestCreatureSpeed() const
 {
-	static const CSelector selectorSTACKS_SPEED = Selector::type()(BonusType::STACKS_SPEED);
-	static const std::string cachingStr = "type_" + std::to_string(static_cast<si32>(BonusType::STACKS_SPEED));
-
 	if(stacksCount() != 0)
 	{
 		int minimalSpeed = std::numeric_limits<int>::max();
 		//TODO? should speed modifiers (eg from artifacts) affect hero movement?
 		for(const auto & slot : Slots())
-			minimalSpeed = std::min(minimalSpeed, slot.second->valOfBonuses(selectorSTACKS_SPEED, cachingStr));
+			minimalSpeed = std::min(minimalSpeed, slot.second->getInitiative());
 
 		return minimalSpeed;
 	}
 	else
 	{
 		if(commander && commander->alive)
-			return commander->valOfBonuses(selectorSTACKS_SPEED, cachingStr);
+			return commander->getInitiative();
 	}
 
 	return 10;
@@ -1348,13 +1345,6 @@ CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState * gs)
 
 int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark, const TurnInfo * ti) const
 {
-	std::unique_ptr<TurnInfo> turnInfoLocal;
-	if(!ti)
-	{
-		turnInfoLocal = getTurnInfo(0);
-		ti = turnInfoLocal.get();
-	}
-
 	if(!ti->hasFreeShipBoarding())
 		return 0; // take all MPs by default
 	

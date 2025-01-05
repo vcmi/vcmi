@@ -152,6 +152,19 @@ ui32 ACreature::getMovementRange() const
 	return getBonusBearer()->valOfBonuses(BonusType::STACKS_SPEED);
 }
 
+int32_t ACreature::getInitiative(int turn) const
+{
+	if (turn == 0)
+	{
+		return getBonusBearer()->valOfBonuses(BonusType::STACKS_SPEED);
+	}
+	else
+	{
+		const std::string cachingStrSS = "type_STACKS_SPEED_turns_" + std::to_string(turn);
+		return getBonusBearer()->valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)), cachingStrSS);
+	}
+}
+
 ui32 ACreature::getMovementRange(int turn) const
 {
 	if (turn == 0)

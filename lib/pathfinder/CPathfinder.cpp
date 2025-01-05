@@ -572,7 +572,7 @@ void CPathfinderHelper::getNeighbours(
 	CMap * map = gs->map;
 	const TerrainType * sourceTerrain = sourceTile.getTerrain();
 
-	constexpr std::array dirs = {
+	static constexpr std::array dirs = {
 		int3(-1, +1, +0),	int3(0, +1, +0),	int3(+1, +1, +0),
 		int3(-1, +0, +0),	/* source pos */	int3(+1, +0, +0),
 		int3(-1, -1, +0),	int3(0, -1, +0),	int3(+1, -1, +0)
@@ -689,19 +689,6 @@ int CPathfinderHelper::getMovementCost(
 
 		if (pointsLeft < minimalNextMoveCost)
 			return remainingMovePoints;
-
-//		NeighbourTilesVector vec;
-//
-//		getNeighbours(*dt, dst, vec, ct->isLand(), true);
-//		for(const auto & elem : vec)
-//		{
-//			int fcost = getMovementCost(dst, elem, nullptr, nullptr, pointsLeft, false);
-//			if(fcost <= pointsLeft)
-//			{
-//				return movementCost;
-//			}
-//		}
-//		movementCost = remainingMovePoints;
 	}
 
 	return movementCost;

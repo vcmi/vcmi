@@ -45,7 +45,7 @@ class BonusValueCache : public BonusCacheBase
 	CSelector selector;
 	mutable BonusCacheEntry value;
 public:
-	BonusValueCache(const IBonusBearer * target, const CSelector selector);
+	BonusValueCache(const IBonusBearer * target, const CSelector & selector);
 	int getValue() const;
 	bool hasBonus() const;
 };
@@ -112,8 +112,8 @@ public:
 
 	using SelectorsArray = BonusValuesArrayCache<KEYS_COUNT>::SelectorsArray;
 
-	UnitBonusValuesProxy(const IBonusBearer * Target, const SelectorsArray * selectors):
-		cache(Target, selectors)
+	UnitBonusValuesProxy(const IBonusBearer * Target):
+		cache(Target, generateSelectors())
 	{}
 
 	int getBonusValue(ECacheKeys which) const
@@ -129,6 +129,8 @@ public:
 	}
 
 private:
+	const SelectorsArray * generateSelectors();
+
 	BonusValuesArrayCache<KEYS_COUNT> cache;
 };
 

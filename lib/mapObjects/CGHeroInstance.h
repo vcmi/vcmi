@@ -227,7 +227,7 @@ public:
 	//cached version is much faster, TurnInfo construction is costly
 	int movementPointsLimitCached(bool onLand, const TurnInfo * ti) const;
 
-	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false, const TurnInfo * ti = nullptr) const;
+	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark, const TurnInfo * ti) const;
 
 	std::unique_ptr<TurnInfo> getTurnInfo(int days) const;
 
