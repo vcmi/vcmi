@@ -221,16 +221,15 @@ std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 	return map;
 }
 
-int getSelectedMapSize(QComboBox* comboBox, int dimension) {
-	QString selectedText = comboBox->currentText();
-	QRegularExpression regex(R"(\((\d+)x(\d+)\))"); // Regex for format (width x height)
-	QRegularExpressionMatch match = regex.match(selectedText);
+std::pair<int, int> getSelectedMapSize(QComboBox* comboBox, const std::map<int, std::pair<int, int>>& mapSizes) {
+	int selectedIndex = comboBox->currentIndex();
 
-	if (match.hasMatch() && (dimension == 1 || dimension == 2)) {
-		return match.captured(dimension).toInt(); // Return width (1) or height (2)
+	auto it = mapSizes.find(selectedIndex);
+	if (it != mapSizes.end()) {
+		return it->second; // Return the width and height pair
 	}
 
-	return -1; // Return -1 if no match or invalid dimension
+	return { 0, 0 };
 }
 
 void WindowNewMap::on_okButton_clicked()
@@ -263,8 +262,9 @@ void WindowNewMap::on_okButton_clicked()
 	
 	if(ui->sizeStandardRadio->isChecked())
 	{
-		mapGenOptions.setWidth(getSelectedMapSize(ui->sizeCombo, 1));
-		mapGenOptions.setHeight(getSelectedMapSize(ui->sizeCombo, 2));
+		auto size = getSelectedMapSize(ui->sizeCombo, mapSizes);
+		mapGenOptions.setWidth(size.first);
+		mapGenOptions.setHeight(size.second);
 	}
 	else
 	{
@@ -319,8 +319,9 @@ void WindowNewMap::on_okButton_clicked()
 
 void WindowNewMap::on_sizeCombo_activated(int index)
 {
-	mapGenOptions.setWidth(getSelectedMapSize(ui->sizeCombo, 1));
-	mapGenOptions.setHeight(getSelectedMapSize(ui->sizeCombo, 2));
+	auto size = getSelectedMapSize(ui->sizeCombo, mapSizes);
+	mapGenOptions.setWidth(size.first);
+	mapGenOptions.setHeight(size.second);
 	updateTemplateList();
 }
 
