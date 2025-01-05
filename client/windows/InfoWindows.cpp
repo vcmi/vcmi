@@ -31,12 +31,13 @@
 #include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../ConditionalWait.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "../ConditionalWait.h"
 
 CSelWindow::CSelWindow( const std::string & Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath, CFunctionList<void()>>> & Buttons, QueryID askID)
 {
@@ -333,12 +334,10 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGCreature * creature)
 	fitToScreen(10);
 }
 
-TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * teleporter)
-	: CWindowObject(BORDERED | RCLICK_POPUP)
+MinimapWithIcons::MinimapWithIcons(const Point & position)
 {
 	OBJECT_CONSTRUCTION;
-	pos.w = 322;
-	pos.h = 200;
+	pos += position;
 
 	Rect areaSurface(11, 41, 144, 144);
 	Rect areaUnderground(167, 41, 144, 144);
@@ -346,15 +345,13 @@ TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * tele
 	Rect borderSurface(10, 40, 147, 147);
 	Rect borderUnderground(166, 40, 147, 147);
 
-	bool singleLevelMap = LOCPLINT->cb->getMapSize().y == 0;
+	bool singleLevelMap = LOCPLINT->cb->getMapSize().z == 1;
 
 	if (singleLevelMap)
 	{
-		areaSurface.x += 144;
-		borderSurface.x += 144;
+		areaSurface.x += 78;
+		borderSurface.x += 78;
 	}
-
-	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 
 	backgroundSurface = std::make_shared<TransparentFilledRectangle>(borderSurface, Colors::TRANSPARENCY, Colors::YELLOW);
 	surface = std::make_shared<CMinimapInstance>(areaSurface.topLeft(), areaSurface.dimensions(), 0);
@@ -364,8 +361,43 @@ TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * tele
 		backgroundUnderground = std::make_shared<TransparentFilledRectangle>(borderUnderground, Colors::TRANSPARENCY, Colors::YELLOW);
 		undergroud = std::make_shared<CMinimapInstance>(areaUnderground.topLeft(), areaUnderground.dimensions(), 1);
 	}
+}
 
+void MinimapWithIcons::addIcon(const int3 & coordinates, const ImagePath & image )
+{
+	OBJECT_CONSTRUCTION;
+
+	Rect areaSurface(11, 41, 144, 144);
+	Rect areaUnderground(167, 41, 144, 144);
+	bool singleLevelMap = LOCPLINT->cb->getMapSize().z == 1;
+	if (singleLevelMap)
+		areaSurface.x += 78;
+
+	int positionX = 144 * coordinates.x / LOCPLINT->cb->getMapSize().x;
+	int positionY = 144 * coordinates.y / LOCPLINT->cb->getMapSize().y;
+
+	Point iconPosition(positionX, positionY);
+
+	iconPosition -= Point(8,8); // compensate for 16x16 icon half-size
+
+	if (coordinates.z == 0)
+		iconPosition += areaSurface.topLeft();
+	else
+		iconPosition += areaUnderground.topLeft();
+
+	iconsOverlay.push_back(std::make_shared<CPicture>(image, iconPosition));
+}
+
+TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * teleporter)
+	: CWindowObject(BORDERED | RCLICK_POPUP)
+{
+	OBJECT_CONSTRUCTION;
+	pos.w = 322;
+	pos.h = 200;
+
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, teleporter->getPopupText(LOCPLINT->playerID));
+	minimap = std::make_shared<MinimapWithIcons>(Point(0,0));
 
 	const auto & entrances = teleporter->getAllEntrances();
 	const auto & exits = teleporter->getAllExits();
@@ -382,19 +414,6 @@ TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * tele
 			continue;
 
 		int3 position = exitObject->visitablePos();
-
-		int positionX = 144 * position.x / LOCPLINT->cb->getMapSize().x;
-		int positionY = 144 * position.y / LOCPLINT->cb->getMapSize().y;
-
-		Point iconPosition(positionX, positionY);
-
-		iconPosition -= Point(8,8); // compensate for 16x16 icon half-size
-
-		if (position.z == 0)
-			iconPosition += areaSurface.topLeft();
-		else
-			iconPosition += areaUnderground.topLeft();
-
 		ImagePath image;
 
 		if (!vstd::contains(entrances, exit))
@@ -404,9 +423,47 @@ TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * tele
 		else
 			image = ImagePath::builtin("portalBidirectional");
 
-		iconsOverlay.push_back(std::make_shared<CPicture>(image, iconPosition));
+		minimap->addIcon(position, image);
 	}
+	center(position);
+	fitToScreen(10);
+}
 
+KeymasterPopup::KeymasterPopup(const Point & position, const CGKeys * keymasterOrGuard)
+	: CWindowObject(BORDERED | RCLICK_POPUP)
+{
+	OBJECT_CONSTRUCTION;
+	pos.w = 322;
+	pos.h = 220;
+
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, keymasterOrGuard->getObjectName());
+	labelDescription = std::make_shared<CLabel>(pos.w / 2, 40, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, keymasterOrGuard->getObjectDescription(LOCPLINT->playerID));
+	minimap = std::make_shared<MinimapWithIcons>(Point(0,20));
+
+	const auto allObjects = LOCPLINT->cb->getAllVisitableObjs();
+
+	for (const auto mapObject : allObjects)
+	{
+		if (!mapObject)
+			continue;
+
+		switch (mapObject->ID)
+		{
+			case Obj::KEYMASTER:
+				if (mapObject->subID == keymasterOrGuard->subID)
+					minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("keymaster"));
+				break;
+			case Obj::BORDERGUARD:
+				if (mapObject->subID == keymasterOrGuard->subID)
+					minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("borderguard"));
+				break;
+			case Obj::BORDER_GATE:
+				if (mapObject->subID == keymasterOrGuard->subID)
+					minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("bordergate"));
+				break;
+		}
+	}
 	center(position);
 	fitToScreen(10);
 }
@@ -440,6 +497,10 @@ CRClickPopup::createCustomInfoWindow(Point position, const CGObjectInstance * sp
 		case Obj::SUBTERRANEAN_GATE:
 		case Obj::WHIRLPOOL:
 			return std::make_shared<TeleporterPopup>(position, dynamic_cast<const CGTeleport *>(specific));
+		case Obj::KEYMASTER:
+		case Obj::BORDERGUARD:
+		case Obj::BORDER_GATE:
+			return std::make_shared<KeymasterPopup>(position, dynamic_cast<const CGKeys *>(specific));
 		default:
 			return std::shared_ptr<WindowBase>();
 	}

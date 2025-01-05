@@ -803,6 +803,11 @@ std::string CGKeys::getObjectName() const
 	return VLC->generaltexth->tentColors[subID.getNum()] + " " + CGObjectInstance::getObjectName();
 }
 
+std::string CGKeys::getObjectDescription(PlayerColor player) const
+{
+	return visitedTxt(wasMyColorVisited(player));
+}
+
 bool CGKeymasterTent::wasVisited (PlayerColor player) const
 {
 	return wasMyColorVisited (player);
