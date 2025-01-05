@@ -143,7 +143,7 @@ void TownEventsWidget::on_eventsList_itemActivated(QListWidgetItem* item)
 }
 
 
-TownEventsDelegate::TownEventsDelegate(CGTownInstance & town, MapController & c) : QStyledItemDelegate(), town(town), controller(c)
+TownEventsDelegate::TownEventsDelegate(CGTownInstance & town, MapController & c) : BaseInspectorItemDelegate(), town(town), controller(c)
 {
 }
 
@@ -169,9 +169,25 @@ void TownEventsDelegate::setModelData(QWidget * editor, QAbstractItemModel * mod
 	if (auto * ed = qobject_cast<TownEventsWidget *>(editor))
 	{
 		ed->commitChanges(controller);
+		updateModelData(model, index);
 	}
 	else
 	{
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
+}
+
+void TownEventsDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QStringList eventLists;
+	for (const auto & event : town.events)
+	{
+		auto eventName = QString::fromStdString(event.name);
+		eventLists += tr("Day %1 - %2").arg(event.firstOccurrence + 1, 3).arg(eventName);
+	}
+	QString text = QObject::tr("Town Events:\n") + eventLists.join(",\n");
+	QMap<int, QVariant> data;
+	data[Qt::DisplayRole] = QVariant(text);
+	data[Qt::ToolTipRole] = QVariant(text);
+	model->setItemData(index, data);
 }

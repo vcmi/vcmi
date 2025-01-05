@@ -84,6 +84,7 @@ set(editor_HEADERS
 		inspector/herospellwidget.h
 		inspector/PickObjectDelegate.h
 		inspector/portraitwidget.h
+		inspector/baseinspectoritemdelegate.h
 		resourceExtractor/ResourceConverter.h
 		mapeditorroles.h
 )

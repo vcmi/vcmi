@@ -101,7 +101,7 @@ void HeroSpellWidget::on_customizeSpells_toggled(bool checked)
 	initSpellLists();
 }
 
-HeroSpellDelegate::HeroSpellDelegate(CGHeroInstance & h) : hero(h), QStyledItemDelegate()
+HeroSpellDelegate::HeroSpellDelegate(CGHeroInstance & h) : hero(h), BaseInspectorItemDelegate()
 {
 }
 
@@ -127,9 +127,34 @@ void HeroSpellDelegate::setModelData(QWidget * editor, QAbstractItemModel * mode
 	if (auto * ed = qobject_cast<HeroSpellWidget *>(editor))
 	{
 		ed->commitChanges();
+		updateModelData(model, index);
 	}
 	else
 	{
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
+}
+
+void HeroSpellDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QMap<int, QVariant> data;
+	if(hero.spellbookContainsSpell(SpellID::PRESET))
+	{
+		QStringList textList;
+		textList += QObject::tr("Custom Spells:");
+		for(auto const & spellID : hero.getSpellsInSpellbook())
+		{
+			if(spellID != SpellID::PRESET)
+				textList += QString::fromStdString(spellID.toSpell()->getNameTranslated());
+		}
+		QString text = textList.join("\n");
+		data[Qt::DisplayRole] = QVariant(text);
+		data[Qt::ToolTipRole] = QVariant(text);
+	}
+	else
+	{
+		data[Qt::DisplayRole] = QObject::tr("Default Spells");
+		data[Qt::ToolTipRole] = QObject::tr("Default Spells");
+	}
+	model->setItemData(index, data);
 }

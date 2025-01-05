@@ -318,7 +318,7 @@ void TownBuildingsWidget::onItemChanged(const QStandardItem * item) {
 	connect(&model, &QStandardItemModel::itemChanged, this, &TownBuildingsWidget::onItemChanged);
 }
 
-TownBuildingsDelegate::TownBuildingsDelegate(CGTownInstance & t): town(t), QStyledItemDelegate()
+TownBuildingsDelegate::TownBuildingsDelegate(CGTownInstance & t): town(t), BaseInspectorItemDelegate()
 {
 }
 
@@ -353,6 +353,7 @@ void TownBuildingsDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
 		town.removeAllBuildings();
 		for(const auto & building : ed->getBuiltBuildings())
 			town.addBuilding(building);
+		updateModelData(model, index);
 	}
 	else
 	{
@@ -360,4 +361,33 @@ void TownBuildingsDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
 	}
 }
 
-
+void TownBuildingsDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QStringList textList;
+	textList += QObject::tr("Built buildings:");
+	auto * ctown = town.getTown();
+	if(!ctown)
+		ctown = VLC->townh->randomTown;
+	for(const auto & buildingID : town.getBuildings())
+	{
+		if(buildingID == BuildingID::DEFAULT)
+			continue;
+		auto name = QString::fromStdString(ctown->buildings.at(buildingID)->getNameTranslated());
+		if(name.isEmpty())
+			name = QString::fromStdString(defaultBuildingIdConversion(buildingID));
+		textList += name;
+	}
+	textList += QObject::tr("Forbidden buildings:");
+	for(const auto & buildingID : town.forbiddenBuildings)
+	{
+		auto name = QString::fromStdString(ctown->buildings.at(buildingID)->getNameTranslated());
+		if(name.isEmpty())
+			name = QString::fromStdString(defaultBuildingIdConversion(buildingID));
+		textList += name;
+	}
+	QString text = textList.join("\n");
+	QMap<int, QVariant> data;
+	data[Qt::DisplayRole] = QVariant(text);
+	data[Qt::ToolTipRole] = QVariant(text);
+	model->setItemData(index, data);
+}

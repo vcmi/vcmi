@@ -132,7 +132,7 @@ void TownSpellsWidget::on_customizeSpells_toggled(bool checked)
 	initSpellLists();
 }
 
-TownSpellsDelegate::TownSpellsDelegate(CGTownInstance & town) : QStyledItemDelegate(), town(town)
+TownSpellsDelegate::TownSpellsDelegate(CGTownInstance & town) : BaseInspectorItemDelegate(), town(town)
 {
 }
 
@@ -158,9 +158,46 @@ void TownSpellsDelegate::setModelData(QWidget * editor, QAbstractItemModel * mod
 	if (auto * ed = qobject_cast<TownSpellsWidget *>(editor))
 	{
 		ed->commitChanges();
+		updateModelData(model, index);
 	}
 	else
 	{
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
+}
+
+void TownSpellsDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QStringList textList;
+	QStringList requiredSpellsList;
+	QStringList possibleSpellsList;
+	if(vstd::contains(town.possibleSpells, SpellID::PRESET)) {
+		textList += QObject::tr("Custom Spells:");
+		textList += QObject::tr("Required:");
+		QStringList requiredSpellsList;
+		for(auto spellID : town.obligatorySpells)
+		{
+			auto spell = spellID.toEntity(VLC);
+			requiredSpellsList += QString::fromStdString(spell->getNameTranslated());
+		}
+		textList += requiredSpellsList.join(",");
+		textList += QObject::tr("Possible:");
+		for(auto spellID : town.possibleSpells)
+		{
+			if(spellID == SpellID::PRESET)
+				continue;
+			auto spell = spellID.toEntity(VLC);
+			possibleSpellsList += QString::fromStdString(spell->getNameTranslated());
+		}
+		textList += possibleSpellsList.join(",");
+	}
+	else
+	{
+		textList += QObject::tr("Default Spells");
+	}
+	QString text = textList.join("\n");
+	QMap<int, QVariant> data;
+	data[Qt::DisplayRole] = QVariant(text);
+	data[Qt::ToolTipRole] = QVariant(text);
+	model->setItemData(index, data);
 }

@@ -11,6 +11,7 @@
 #include "heroskillswidget.h"
 #include "ui_heroskillswidget.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "inspector.h"
 
@@ -115,7 +116,7 @@ void HeroSkillsWidget::commitChanges()
 	}
 }
 
-HeroSkillsDelegate::HeroSkillsDelegate(CGHeroInstance & h): hero(h), QStyledItemDelegate()
+HeroSkillsDelegate::HeroSkillsDelegate(CGHeroInstance & h): hero(h), BaseInspectorItemDelegate()
 {
 }
 
@@ -141,9 +142,38 @@ void HeroSkillsDelegate::setModelData(QWidget *editor, QAbstractItemModel *model
 	if(auto * ed = qobject_cast<HeroSkillsWidget *>(editor))
 	{
 		ed->commitChanges();
+		updateModelData(model, index);
 	}
 	else
 	{
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
+}
+
+void HeroSkillsDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QStringList textList;
+	textList += QString::fromStdString(VLC->generaltexth->primarySkillNames[PrimarySkill::ATTACK]) + ": " + QString::number(hero.getBasePrimarySkillValue(PrimarySkill::ATTACK));
+	textList += QString::fromStdString(VLC->generaltexth->primarySkillNames[PrimarySkill::DEFENSE]) + ": " + QString::number(hero.getBasePrimarySkillValue(PrimarySkill::DEFENSE));
+	textList += QString::fromStdString(VLC->generaltexth->primarySkillNames[PrimarySkill::SPELL_POWER]) + ": " + QString::number(hero.getBasePrimarySkillValue(PrimarySkill::SPELL_POWER));
+	textList += QString::fromStdString(VLC->generaltexth->primarySkillNames[PrimarySkill::KNOWLEDGE]) + ": " + QString::number(hero.getBasePrimarySkillValue(PrimarySkill::KNOWLEDGE));
+;
+	auto heroSecondarySkills = hero.secSkills;
+	if(heroSecondarySkills.size() == 1 && heroSecondarySkills[0].first == SecondarySkill::NONE) 
+	{
+		textList += QObject::tr("Default secondary skills:");
+		heroSecondarySkills = hero.getHeroType()->secSkillsInit;
+	}
+	else
+	{
+		textList += QObject::tr("Secondary skills:");
+	}
+	for(auto & [skill, skillLevel] : heroSecondarySkills)
+		textList += QString::fromStdString(VLC->skillh->getById(skill)->getNameTranslated()) + " " + LevelIdentifiers[skillLevel - 1].first;
+
+	QString text = textList.join("\n");
+	QMap<int, QVariant> data;
+	data[Qt::DisplayRole] = QVariant(text);
+	data[Qt::ToolTipRole] = QVariant(text);
+	model->setItemData(index, data);
 }

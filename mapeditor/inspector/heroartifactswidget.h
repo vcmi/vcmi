@@ -10,6 +10,7 @@
 #pragma once
 
 #include <QDialog>
+#include "baseinspectoritemdelegate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 namespace Ui {
@@ -48,17 +49,18 @@ private:
 	
 };
 
-class HeroArtifactsDelegate : public QStyledItemDelegate
+class HeroArtifactsDelegate : public BaseInspectorItemDelegate
 {
 	Q_OBJECT
 public:
-	using QStyledItemDelegate::QStyledItemDelegate;
+	using BaseInspectorItemDelegate::BaseInspectorItemDelegate;
 	
 	HeroArtifactsDelegate(CGHeroInstance &);
 	
 	QWidget * createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const override;
 	void setEditorData(QWidget * editor, const QModelIndex & index) const override;
 	void setModelData(QWidget * editor, QAbstractItemModel * model, const QModelIndex & index) const override;
+	void updateModelData(QAbstractItemModel * model, const QModelIndex & index) const override;
 	
 private:
 	CGHeroInstance & hero;
