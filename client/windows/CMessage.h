@@ -26,17 +26,19 @@ class CMessage
 {
 	/// Draw simple dialog box (borders and background only)
 	static SDL_Surface * drawDialogBox(int w, int h, PlayerColor playerColor = PlayerColor(1));
+	static std::vector<size_t> getAllPositionsInStr(const char & targetChar, const std::string_view & str);
 
 public:
 	struct coloredline
 	{
+		// Line begin and end positions in the original string
 		std::pair<size_t, size_t> line;
-		std::string_view startColorTag;
+		std::optional<std::pair<size_t, size_t>> colorTag;
 		bool closingTagNeeded;
 
-		coloredline(std::string_view startColorTag) 
+		coloredline(const std::optional<std::pair<size_t, size_t>> & colorTag = std::nullopt)
 			: line(std::make_pair(0, 0))
-			, startColorTag(startColorTag)
+			, colorTag(colorTag)
 			, closingTagNeeded(false)
 		{}
 	};
@@ -45,7 +47,7 @@ public:
 	static void drawBorder(PlayerColor playerColor, Canvas & to, int w, int h, int x, int y);
 
 	static void drawIWindow(CInfoWindow * ret, std::string text, PlayerColor player);
-	static bool validateTags(const std::vector<size_t> & openingTags, const std::vector<size_t> & closingTags);
+	static bool validateColorTags(const std::string & text);
 	static std::vector<coloredline> getPossibleLines(const std::string & line, size_t maxLineWidth, const EFonts font, const char & splitSymbol);
 
 	/// split text in lines
