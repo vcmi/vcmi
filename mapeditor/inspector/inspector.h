@@ -63,6 +63,8 @@ private:
 
 class Inspector
 {
+	QList<std::pair<QString, QVariant>> characterIdentifiers;
+
 protected:
 	struct PropertyEditorPlaceholder {};
 	

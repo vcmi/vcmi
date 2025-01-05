@@ -20,6 +20,7 @@
 #include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/constants/StringConstants.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 #include "townbuildingswidget.h"
 #include "towneventswidget.h"
@@ -34,15 +35,6 @@
 #include "portraitwidget.h"
 #include "PickObjectDelegate.h"
 #include "../mapcontroller.h"
-
-static QList<std::pair<QString, QVariant>> CharacterIdentifiers
-{
-	{QObject::tr("Compliant"), QVariant::fromValue(int(CGCreature::Character::COMPLIANT))},
-	{QObject::tr("Friendly"), QVariant::fromValue(int(CGCreature::Character::FRIENDLY))},
-	{QObject::tr("Aggressive"), QVariant::fromValue(int(CGCreature::Character::AGGRESSIVE))},
-	{QObject::tr("Hostile"), QVariant::fromValue(int(CGCreature::Character::HOSTILE))},
-	{QObject::tr("Savage"), QVariant::fromValue(int(CGCreature::Character::SAVAGE))},
-};
 
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
 Initializer::Initializer(CGObjectInstance * o, const PlayerColor & pl) : defaultPlayer(pl)
@@ -245,19 +237,19 @@ void Inspector::updateProperties(CArmedInstance * o)
 	if(!o) return;
 	
 	auto * delegate = new ArmyDelegate(*o);
-	addProperty("Army", PropertyEditorPlaceholder(), delegate, false);
+	addProperty(QObject::tr("Army"), PropertyEditorPlaceholder(), delegate, false);
 }
 
 void Inspector::updateProperties(CGDwelling * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
+	addProperty(QObject::tr("Owner"), o->tempOwner, new OwnerDelegate(controller), false);
 	
 	if (o->ID == Obj::RANDOM_DWELLING || o->ID == Obj::RANDOM_DWELLING_LVL)
 	{
 		auto * delegate = new PickObjectDelegate(controller, PickObjectDelegate::typedFilter<CGTownInstance>);
-		addProperty("Same as town", PropertyEditorPlaceholder(), delegate, false);
+		addProperty(QObject::tr("Same as town"), PropertyEditorPlaceholder(), delegate, false);
 	}
 }
 
@@ -265,29 +257,29 @@ void Inspector::updateProperties(FlaggableMapObject * o)
 {
 	if(!o) return;
 
-	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
+	addProperty(QObject::tr("Owner"), o->tempOwner, new OwnerDelegate(controller), false);
 }
 
 void Inspector::updateProperties(CGGarrison * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
-	addProperty("Removable units", o->removableUnits, false);
+	addProperty(QObject::tr("Owner"), o->tempOwner, new OwnerDelegate(controller), false);
+	addProperty(QObject::tr("Removable units"), o->removableUnits, false);
 }
 
 void Inspector::updateProperties(CGShipyard * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
+	addProperty(QObject::tr("Owner"), o->tempOwner, new OwnerDelegate(controller), false);
 }
 
 void Inspector::updateProperties(CGHeroPlaceholder * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
+	addProperty(QObject::tr("Owner"), o->tempOwner, new OwnerDelegate(controller), false);
 	
 	bool type = false;
 	if(o->heroType.has_value())
@@ -297,11 +289,11 @@ void Inspector::updateProperties(CGHeroPlaceholder * o)
 	
 	{
 		auto * delegate = new InspectorDelegate;
-		delegate->options = {{"POWER RANK", QVariant::fromValue(false)}, {"HERO TYPE", QVariant::fromValue(true)}};
-		addProperty("Placeholder type", delegate->options[type].first, delegate, false);
+		delegate->options = {{QObject::tr("POWER RANK"), QVariant::fromValue(false)}, {QObject::tr("HERO TYPE"), QVariant::fromValue(true)}};
+		addProperty(QObject::tr("Placeholder type"), delegate->options[type].first, delegate, false);
 	}
 	
-	addProperty("Power rank", o->powerRank.has_value() ? o->powerRank.value() : 0, type);
+	addProperty(QObject::tr("Power rank"), o->powerRank.has_value() ? o->powerRank.value() : 0, type);
 	
 	{
 		auto * delegate = new InspectorDelegate;
@@ -309,7 +301,7 @@ void Inspector::updateProperties(CGHeroPlaceholder * o)
 		{
 			delegate->options.push_back({QObject::tr(VLC->heroh->objects[i]->getNameTranslated().c_str()), QVariant::fromValue(VLC->heroh->objects[i]->getId().getNum())});
 		}
-		addProperty("Hero type", o->heroType.has_value() ? VLC->heroh->getById(o->heroType.value())->getNameTranslated() : "", delegate, !type);
+		addProperty(QObject::tr("Hero type"), o->heroType.has_value() ? VLC->heroh->getById(o->heroType.value())->getNameTranslated() : "", delegate, !type);
 	}
 }
 
@@ -318,23 +310,23 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	if(!o) return;
 	
 	auto isPrison = o->ID == Obj::PRISON;
-	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller, isPrison), isPrison); //field is not editable for prison
-	addProperty<int>("Experience", o->exp, false);
-	addProperty("Hero class", o->getHeroClassID().hasValue() ? o->getHeroClass()->getNameTranslated() : "", true);
+	addProperty(QObject::tr("Owner"), o->tempOwner, new OwnerDelegate(controller, isPrison), isPrison); //field is not editable for prison
+	addProperty<int>(QObject::tr("Experience"), o->exp, false);
+	addProperty(QObject::tr("Hero class"), o->getHeroClassID().hasValue() ? o->getHeroClass()->getNameTranslated() : "", true);
 	
 	{ //Gender
 		auto * delegate = new InspectorDelegate;
-		delegate->options = {{"MALE", QVariant::fromValue(int(EHeroGender::MALE))}, {"FEMALE", QVariant::fromValue(int(EHeroGender::FEMALE))}};
-		addProperty<std::string>("Gender", (o->gender == EHeroGender::FEMALE ? "FEMALE" : "MALE"), delegate , false);
+		delegate->options = {{QObject::tr("MALE"), QVariant::fromValue(int(EHeroGender::MALE))}, {QObject::tr("FEMALE"), QVariant::fromValue(int(EHeroGender::FEMALE))}};
+		addProperty<std::string>(QObject::tr("Gender"), (o->gender == EHeroGender::FEMALE ? QObject::tr("FEMALE") : QObject::tr("MALE")).toStdString(), delegate , false);
 	}
-	addProperty("Name", o->getNameTranslated(), false);
-	addProperty("Biography", o->getBiographyTranslated(), new MessageDelegate, false);
-	addProperty("Portrait", PropertyEditorPlaceholder(), new PortraitDelegate(*o), false);
+	addProperty(QObject::tr("Name"), o->getNameTranslated(), false);
+	addProperty(QObject::tr("Biography"), o->getBiographyTranslated(), new MessageDelegate, false);
+	addProperty(QObject::tr("Portrait"), PropertyEditorPlaceholder(), new PortraitDelegate(*o), false);
 	
 	auto * delegate = new HeroSkillsDelegate(*o);
-	addProperty("Skills", PropertyEditorPlaceholder(), delegate, false);
-	addProperty("Spells", PropertyEditorPlaceholder(), new HeroSpellDelegate(*o), false);
-	addProperty("Artifacts", PropertyEditorPlaceholder(), new HeroArtifactsDelegate(*o), false);
+	addProperty(QObject::tr("Skills"), PropertyEditorPlaceholder(), delegate, false);
+	addProperty(QObject::tr("Spells"), PropertyEditorPlaceholder(), new HeroSpellDelegate(*o), false);
+	addProperty(QObject::tr("Artifacts"), PropertyEditorPlaceholder(), new HeroArtifactsDelegate(*o), false);
 	
 	if(o->getHeroTypeID().hasValue() || o->ID == Obj::PRISON)
 	{ //Hero type
@@ -349,7 +341,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 				}
 			}
 		}
-		addProperty("Hero type", o->getHeroTypeID().hasValue() ? o->getHeroType()->getNameTranslated() : "", delegate, false);
+		addProperty(QObject::tr("Hero type"), o->getHeroTypeID().hasValue() ? o->getHeroType()->getNameTranslated() : "", delegate, false);
 	}
 	{
 		const int maxRadius = 60;
@@ -358,7 +350,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 		for(int i = 0; i <= maxRadius; ++i)
 			patrolDelegate->options.push_back({ QObject::tr("%n tile(s)", "", i), QVariant::fromValue(i)});
 		auto patrolRadiusText = o->patrol.patrolling ? QObject::tr("%n tile(s)", "", o->patrol.patrolRadius) : QObject::tr("No patrol");
-		addProperty("Patrol radius", patrolRadiusText, patrolDelegate, false);
+		addProperty(QObject::tr("Patrol radius"), patrolRadiusText, patrolDelegate, false);
 	}
 }
 
@@ -366,19 +358,19 @@ void Inspector::updateProperties(CGTownInstance * o)
 {
 	if(!o) return;
 	
-	addProperty("Town name", o->getNameTranslated(), false);
+	addProperty(QObject::tr("Town name"), o->getNameTranslated(), false);
 	
 	auto * delegate = new TownBuildingsDelegate(*o);
-	addProperty("Buildings", PropertyEditorPlaceholder(), delegate, false);
-	addProperty("Spells", PropertyEditorPlaceholder(), new TownSpellsDelegate(*o), false);
-	addProperty("Events", PropertyEditorPlaceholder(), new TownEventsDelegate(*o, controller), false);
+	addProperty(QObject::tr("Buildings"), PropertyEditorPlaceholder(), delegate, false);
+	addProperty(QObject::tr("Spells"), PropertyEditorPlaceholder(), new TownSpellsDelegate(*o), false);
+	addProperty(QObject::tr("Events"), PropertyEditorPlaceholder(), new TownEventsDelegate(*o, controller), false);
 }
 
 void Inspector::updateProperties(CGArtifact * o)
 {
 	if(!o) return;
 	
-	addProperty("Message", o->message, false);
+	addProperty(QObject::tr("Message"), o->message, false);
 	
 	CArtifactInstance * instance = o->storedArtifact;
 	if(instance)
@@ -392,7 +384,7 @@ void Inspector::updateProperties(CGArtifact * o)
 				if(controller.map()->allowedSpells.count(spell->id) != 0)
 					delegate->options.push_back({QObject::tr(spell->getNameTranslated().c_str()), QVariant::fromValue(int(spell->getId()))});
 			}
-			addProperty("Spell", VLC->spellh->getById(spellId)->getNameTranslated(), delegate, false);
+			addProperty(QObject::tr("Spell"), VLC->spellh->getById(spellId)->getNameTranslated(), delegate, false);
 		}
 	}
 }
@@ -401,42 +393,42 @@ void Inspector::updateProperties(CGMine * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
-	addProperty("Resource", o->producedResource);
-	addProperty("Productivity", o->producedQuantity);
+	addProperty(QObject::tr("Owner"), o->tempOwner, new OwnerDelegate(controller), false);
+	addProperty(QObject::tr("Resource"), o->producedResource);
+	addProperty(QObject::tr("Productivity"), o->producedQuantity);
 }
 
 void Inspector::updateProperties(CGResource * o)
 {
 	if(!o) return;
 	
-	addProperty("Amount", o->amount, false);
-	addProperty("Message", o->message, false);
+	addProperty(QObject::tr("Amount"), o->amount, false);
+	addProperty(QObject::tr("Message"), o->message, false);
 }
 
 void Inspector::updateProperties(CGSignBottle * o)
 {
 	if(!o) return;
 	
-	addProperty("Message", o->message, new MessageDelegate, false);
+	addProperty(QObject::tr("Message"), o->message, new MessageDelegate, false);
 }
 
 void Inspector::updateProperties(CGCreature * o)
 {
 	if(!o) return;
 	
-	addProperty("Message", o->message, false);
+	addProperty(QObject::tr("Message"), o->message, false);
 	{ //Character
 		auto * delegate = new InspectorDelegate;
-		delegate->options = CharacterIdentifiers;
+		delegate->options = characterIdentifiers;
 		addProperty<CGCreature::Character>("Character", (CGCreature::Character)o->character, delegate, false);
 	}
-	addProperty("Never flees", o->neverFlees, false);
-	addProperty("Not growing", o->notGrowingTeam, false);
-	addProperty("Artifact reward", o->gainedArtifact); //TODO: implement in setProperty
-	addProperty("Army", PropertyEditorPlaceholder(), true);
-	addProperty("Amount", o->stacks[SlotID(0)]->count, false);
-	//addProperty("Resources reward", o->resources); //TODO: implement in setProperty
+	addProperty(QObject::tr("Never flees"), o->neverFlees, false);
+	addProperty(QObject::tr("Not growing"), o->notGrowingTeam, false);
+	addProperty(QObject::tr("Artifact reward"), o->gainedArtifact); //TODO: implement in setProperty
+	addProperty(QObject::tr("Army"), PropertyEditorPlaceholder(), true);
+	addProperty(QObject::tr("Amount"), o->stacks[SlotID(0)]->count, false);
+	//addProperty(QObject::tr("Resources reward"), o->resources); //TODO: implement in setProperty
 }
 
 void Inspector::updateProperties(CRewardableObject * o)
@@ -444,23 +436,23 @@ void Inspector::updateProperties(CRewardableObject * o)
 	if(!o) return;
 		
 	auto * delegate = new RewardsDelegate(*controller.map(), *o);
-	addProperty("Reward", PropertyEditorPlaceholder(), delegate, false);
+	addProperty(QObject::tr("Reward"), PropertyEditorPlaceholder(), delegate, false);
 }
 
 void Inspector::updateProperties(CGPandoraBox * o)
 {
 	if(!o) return;
 	
-	addProperty("Message", o->message, new MessageDelegate, false);
+	addProperty(QObject::tr("Message"), o->message, new MessageDelegate, false);
 }
 
 void Inspector::updateProperties(CGEvent * o)
 {
 	if(!o) return;
 	
-	addProperty("Remove after", o->removeAfterVisit, false);
-	addProperty("Human trigger", o->humanActivate, false);
-	addProperty("Cpu trigger", o->computerActivate, false);
+	addProperty(QObject::tr("Remove after"), o->removeAfterVisit, false);
+	addProperty(QObject::tr("Human trigger"), o->humanActivate, false);
+	addProperty(QObject::tr("Cpu trigger"), o->computerActivate, false);
 	//ui8 availableFor; //players whom this event is available for
 }
 
@@ -468,15 +460,15 @@ void Inspector::updateProperties(CGSeerHut * o)
 {
 	if(!o || !o->quest) return;
 	
-	addProperty("First visit text", o->quest->firstVisitText, new MessageDelegate, false);
-	addProperty("Next visit text", o->quest->nextVisitText, new MessageDelegate, false);
-	addProperty("Completed text", o->quest->completedText, new MessageDelegate, false);
-	addProperty("Repeat quest", o->quest->repeatedQuest, false);
-	addProperty("Time limit", o->quest->lastDay, false);
+	addProperty(QObject::tr("First visit text"), o->quest->firstVisitText, new MessageDelegate, false);
+	addProperty(QObject::tr("Next visit text"), o->quest->nextVisitText, new MessageDelegate, false);
+	addProperty(QObject::tr("Completed text"), o->quest->completedText, new MessageDelegate, false);
+	addProperty(QObject::tr("Repeat quest"), o->quest->repeatedQuest, false);
+	addProperty(QObject::tr("Time limit"), o->quest->lastDay, false);
 	
 	{ //Quest
 		auto * delegate = new QuestDelegate(controller, *o->quest);
-		addProperty("Quest", PropertyEditorPlaceholder(), delegate, false);
+		addProperty(QObject::tr("Quest"), PropertyEditorPlaceholder(), delegate, false);
 	}
 }
 
@@ -484,8 +476,8 @@ void Inspector::updateProperties(CGQuestGuard * o)
 {
 	if(!o || !o->quest) return;
 	
-	addProperty("Reward", PropertyEditorPlaceholder(), nullptr, true);
-	addProperty("Repeat quest", o->quest->repeatedQuest, true);
+	addProperty(QObject::tr("Reward"), PropertyEditorPlaceholder(), nullptr, true);
+	addProperty(QObject::tr("Repeat quest"), o->quest->repeatedQuest, true);
 }
 
 void Inspector::updateProperties()
@@ -494,18 +486,18 @@ void Inspector::updateProperties()
 		return;
 	table->setRowCount(0); //cleanup table
 	
-	addProperty("Identifier", obj);
-	addProperty("ID", obj->ID.getNum());
-	addProperty("SubID", obj->subID);
-	addProperty("InstanceName", obj->instanceName);
+	addProperty(QObject::tr("Identifier"), obj);
+	addProperty(QObject::tr("ID"), obj->ID.getNum());
+	addProperty(QObject::tr("SubID"), obj->subID);
+	addProperty(QObject::tr("InstanceName"), obj->instanceName);
 	
 	if(obj->ID != Obj::HERO_PLACEHOLDER && !dynamic_cast<CGHeroInstance*>(obj))
 	{
 		auto factory = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
-		addProperty("IsStatic", factory->isStaticObject());
+		addProperty(QObject::tr("IsStatic"), factory->isStaticObject());
 	}
 	
-	addProperty("Owner", obj->tempOwner, new OwnerDelegate(controller), true);
+	addProperty(QObject::tr("Owner"), obj->tempOwner, new OwnerDelegate(controller), true);
 	
 	UPDATE_OBJ_PROPERTIES(CArmedInstance);
 	UPDATE_OBJ_PROPERTIES(CGResource);
@@ -552,7 +544,7 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	if(!obj)
 		return;
 	
-	if(key == "Owner")
+	if(key == QObject::tr("Owner"))
 		obj->tempOwner = PlayerColor(value.toInt());
 	
 	SET_PROPERTIES(CArmedInstance);
@@ -594,7 +586,7 @@ void Inspector::setProperty(CGPandoraBox * o, const QString & key, const QVarian
 {
 	if(!o) return;
 	
-	if(key == "Message")
+	if(key == QObject::tr("Message"))
 		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("guards", o->instanceName, "message"), value.toString().toStdString()));
 }
@@ -603,13 +595,13 @@ void Inspector::setProperty(CGEvent * o, const QString & key, const QVariant & v
 {
 	if(!o) return;
 	
-	if(key == "Remove after")
+	if(key == QObject::tr("Remove after"))
 		o->removeAfterVisit = value.toBool();
 	
-	if(key == "Human trigger")
+	if(key == QObject::tr("Human trigger"))
 		o->humanActivate = value.toBool();
 	
-	if(key == "Cpu trigger")
+	if(key == QObject::tr("Cpu trigger"))
 		o->computerActivate = value.toBool();
 }
 
@@ -617,7 +609,7 @@ void Inspector::setProperty(CGTownInstance * o, const QString & key, const QVari
 {
 	if(!o) return;
 	
-	if(key == "Town name")
+	if(key == QObject::tr("Town name"))
 		o->setNameTextId(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("town", o->instanceName, "name"), value.toString().toStdString()));
 }
@@ -626,7 +618,7 @@ void Inspector::setProperty(CGSignBottle * o, const QString & key, const QVarian
 {
 	if(!o) return;
 	
-	if(key == "Message")
+	if(key == QObject::tr("Message"))
 		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("sign", o->instanceName, "message"), value.toString().toStdString()));
 }
@@ -635,7 +627,7 @@ void Inspector::setProperty(CGMine * o, const QString & key, const QVariant & va
 {
 	if(!o) return;
 	
-	if(key == "Productivity")
+	if(key == QObject::tr("Productivity"))
 		o->producedQuantity = value.toString().toInt();
 }
 
@@ -643,11 +635,11 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 {
 	if(!o) return;
 	
-	if(key == "Message")
+	if(key == QObject::tr("Message"))
 		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("guards", o->instanceName, "message"), value.toString().toStdString()));
 	
-	if(o->storedArtifact && key == "Spell")
+	if(o->storedArtifact && key == QObject::tr("Spell"))
 	{
 		o->storedArtifact = ArtifactUtils::createScroll(SpellID(value.toInt()));
 	}
@@ -657,7 +649,7 @@ void Inspector::setProperty(CGDwelling * o, const QString & key, const QVariant 
 {
 	if(!o) return;
 	
-	if(key == "Same as town")
+	if(key == QObject::tr("Same as town"))
 	{
 		if (!o->randomizationInfo.has_value())
 			o->randomizationInfo = CGDwellingRandomizationInfo();
@@ -672,7 +664,7 @@ void Inspector::setProperty(CGGarrison * o, const QString & key, const QVariant 
 {
 	if(!o) return;
 	
-	if(key == "Removable units")
+	if(key == QObject::tr("Removable units"))
 		o->removableUnits = value.toBool();
 }
 
@@ -680,7 +672,7 @@ void Inspector::setProperty(CGHeroPlaceholder * o, const QString & key, const QV
 {
 	if(!o) return;
 
-	if(key == "Placeholder type")
+	if(key == QObject::tr("Placeholder type"))
 	{
 		if(value.toBool())
 		{
@@ -698,10 +690,10 @@ void Inspector::setProperty(CGHeroPlaceholder * o, const QString & key, const QV
 		updateProperties();
 	}
 	
-	if(key == "Power rank")
+	if(key == QObject::tr("Power rank"))
 		o->powerRank = value.toInt();
 	
-	if(key == "Hero type")
+	if(key == QObject::tr("Hero type"))
 	{
 		o->heroType = HeroTypeID(value.toInt());
 	}
@@ -711,21 +703,21 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 {
 	if(!o) return;
 	
-	if(key == "Gender")
+	if(key == QObject::tr("Gender"))
 		o->gender = EHeroGender(value.toInt());
 	
-	if(key == "Name")
+	if(key == QObject::tr("Name"))
 		o->nameCustomTextId = mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("hero", o->instanceName, "name"), value.toString().toStdString());
 	
-	if(key == "Biography")
+	if(key == QObject::tr("Biography"))
 		o->biographyCustomTextId = mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("hero", o->instanceName, "biography"), value.toString().toStdString());
 	
-	if(key == "Experience")
+	if(key == QObject::tr("Experience"))
 		o->exp = value.toString().toInt();
 	
-	if(key == "Hero type")
+	if(key == QObject::tr("Hero type"))
 	{
 		for(auto const & t : VLC->heroh->objects)
 		{
@@ -737,7 +729,7 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 		updateProperties(); //updating other properties after change
 	}
 
-	if(key == "Patrol radius")
+	if(key == QObject::tr("Patrol radius"))
 	{
 		auto radius = value.toInt();
 		o->patrol.patrolRadius = radius;
@@ -754,7 +746,7 @@ void Inspector::setProperty(CGResource * o, const QString & key, const QVariant 
 {
 	if(!o) return;
 	
-	if(key == "Amount")
+	if(key == QObject::tr("Amount"))
 		o->amount = value.toString().toInt();
 }
 
@@ -762,16 +754,16 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 {
 	if(!o) return;
 	
-	if(key == "Message")
+	if(key == QObject::tr("Message"))
 		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("monster", o->instanceName, "message"), value.toString().toStdString()));
-	if(key == "Character")
+	if(key == QObject::tr("Character"))
 		o->character = CGCreature::Character(value.toInt());
-	if(key == "Never flees")
+	if(key == QObject::tr("Never flees"))
 		o->neverFlees = value.toBool();
-	if(key == "Not growing")
+	if(key == QObject::tr("Not growing"))
 		o->notGrowingTeam = value.toBool();
-	if(key == "Amount")
+	if(key == QObject::tr("Amount"))
 		o->stacks[SlotID(0)]->count = value.toString().toInt();
 }
 
@@ -779,18 +771,18 @@ void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant &
 {
 	if(!o) return;
 	
-	if(key == "First visit text")
+	if(key == QObject::tr("First visit text"))
 		o->quest->firstVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("quest", o->instanceName, "firstVisit"), value.toString().toStdString()));
-	if(key == "Next visit text")
+	if(key == QObject::tr("Next visit text"))
 		o->quest->nextVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("quest", o->instanceName, "nextVisit"), value.toString().toStdString()));
-	if(key == "Completed text")
+	if(key == QObject::tr("Completed text"))
 		o->quest->completedText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("quest", o->instanceName, "completed"), value.toString().toStdString()));
-	if(key == "Repeat quest")
+	if(key == QObject::tr("Repeat quest"))
 		o->quest->repeatedQuest = value.toBool();
-	if(key == "Time limit")
+	if(key == QObject::tr("Time limit"))
 		o->quest->lastDay = value.toString().toInt();
 }
 
@@ -874,8 +866,10 @@ QTableWidgetItem * Inspector::addProperty(const PlayerColor & value)
 	if(value == PlayerColor::NEUTRAL)
 		str = QObject::tr("neutral");
 	
+	MetaString playerStr;
+	playerStr.appendName(value);
 	if(value.isValidPlayer())
-		str = QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[value]);
+		str = QString::fromStdString(playerStr.toString());
 	
 	auto * item = new QTableWidgetItem(str);
 	item->setFlags(Qt::NoItemFlags);
@@ -885,7 +879,9 @@ QTableWidgetItem * Inspector::addProperty(const PlayerColor & value)
 
 QTableWidgetItem * Inspector::addProperty(const GameResID & value)
 {
-	auto * item = new QTableWidgetItem(QString::fromStdString(GameConstants::RESOURCE_NAMES[value.toEnum()]));
+	MetaString str;
+	str.appendName(value);
+	auto * item = new QTableWidgetItem(QString::fromStdString(str.toString()));
 	item->setFlags(Qt::NoItemFlags);
 	item->setData(Qt::UserRole, QVariant::fromValue(value.getNum()));
 	return item;
@@ -897,7 +893,7 @@ QTableWidgetItem * Inspector::addProperty(CGCreature::Character value)
 	item->setFlags(Qt::NoItemFlags);
 	item->setData(Qt::UserRole, QVariant::fromValue(int(value)));
 	
-	for(auto & i : CharacterIdentifiers)
+	for(auto & i : characterIdentifiers)
 	{
 		if(i.second.toInt() == value)
 		{
@@ -913,6 +909,13 @@ QTableWidgetItem * Inspector::addProperty(CGCreature::Character value)
 
 Inspector::Inspector(MapController & c, CGObjectInstance * o, QTableWidget * t): obj(o), table(t), controller(c)
 {
+	characterIdentifiers = {
+		{ QObject::tr("Compliant"), QVariant::fromValue(int(CGCreature::Character::COMPLIANT)) },
+		{ QObject::tr("Friendly"), QVariant::fromValue(int(CGCreature::Character::FRIENDLY)) },
+		{ QObject::tr("Aggressive"), QVariant::fromValue(int(CGCreature::Character::AGGRESSIVE)) },
+		{ QObject::tr("Hostile"), QVariant::fromValue(int(CGCreature::Character::HOSTILE)) },
+		{ QObject::tr("Savage"), QVariant::fromValue(int(CGCreature::Character::SAVAGE)) },
+	};
 }
 
 /*
@@ -964,5 +967,9 @@ OwnerDelegate::OwnerDelegate(MapController & controller, bool addNeutral)
 		options.push_back({QObject::tr("neutral"), QVariant::fromValue(PlayerColor::NEUTRAL.getNum()) });
 	for(int p = 0; p < controller.map()->players.size(); ++p)
 		if(controller.map()->players[p].canAnyonePlay())
-			options.push_back({QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[p]), QVariant::fromValue(PlayerColor(p).getNum()) });
+		{
+			MetaString str;
+			str.appendName(PlayerColor(p));
+			options.push_back({QString::fromStdString(str.toString()), QVariant::fromValue(PlayerColor(p).getNum()) });
+		}
 }

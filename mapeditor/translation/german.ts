@@ -647,6 +647,16 @@
         <translation>Ungespeicherte Änderungen gehen verloren, sind sie sicher?</translation>
     </message>
     <message>
+        <location filename="../mainwindow.cpp" line="410"/>
+        <source>Mods are required</source>
+        <translation>Mods sind erforderlich</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="415"/>
+        <source>Failed to open map</source>
+        <translation>Karte konnte nicht geöffnet werden</translation>
+    </message>
+    <message>
         <location filename="../mainwindow.cpp" line="441"/>
         <source>Open map</source>
         <translation>Karte öffnen</translation>
@@ -657,9 +667,29 @@
         <translation>Alle unterstützten Karten (*.vmap *.h3m);;VCMI-Karten (*.vmap);;HoMM3-Karten (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="463"/>
+        <location filename="../mainwindow.cpp" line="497"/>
         <source>Recently Opened Files</source>
         <translation>Kürzlich geöffnete Dateien</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="550"/>
+        <source>Map validation</source>
+        <translation>Validierung der Karte</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="552"/>
+        <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
+        <translation>Die Karte hat kritische Probleme und wird höchstwahrscheinlich nicht spielbar sein. Öffnen Sie den Validator aus dem Kartenmenü, um die gefundenen Probleme zu sehen</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="554"/>
+        <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
+        <translation>Karte hat einige Fehler. Öffnen Sie den Validator aus dem Kartenmenü, um die gefundenen Probleme zu sehen</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="578"/>
+        <source>Failed to save map</source>
+        <translation>Karte konnte nicht gespeichert werden</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="591"/>
@@ -755,6 +785,16 @@
         <location filename="../mainwindow.cpp" line="808"/>
         <source>Other</source>
         <translation>Anderes</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="945"/>
+        <source>Mods loading problem</source>
+        <translation>Problem beim Laden von Mods</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="945"/>
+        <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
+        <translation>Kritischer Fehler beim Laden von Mods. Deaktivieren Sie ungültige Mods und starten Sie neu.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="962"/>
@@ -997,7 +1037,7 @@
         <translation>Kein Team</translation>
     </message>
     <message>
-        <location filename="../playerparams.cpp" line="108"/>
+        <location filename="../playerparams.cpp" line="110"/>
         <source>Player ID: %1</source>
         <translation>Spieler-ID: %1</translation>
     </message>
@@ -1062,39 +1102,70 @@
         <translation>Experte</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="40"/>
+        <location filename="../inspector/inspector.cpp" line="949"/>
         <source>Compliant</source>
         <translation>Konform</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="41"/>
+        <location filename="../inspector/inspector.cpp" line="950"/>
         <source>Friendly</source>
         <translation>Freundlich</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="42"/>
+        <location filename="../inspector/inspector.cpp" line="951"/>
         <source>Aggressive</source>
         <translation>Aggressiv</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="43"/>
+        <location filename="../inspector/inspector.cpp" line="952"/>
         <source>Hostile</source>
         <translation>Feindlich</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="44"/>
+        <location filename="../inspector/inspector.cpp" line="953"/>
         <source>Savage</source>
         <translation>Wild</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="357"/>
-        <location filename="../inspector/inspector.cpp" line="360"/>
+        <location filename="../inspector/inspector.cpp" line="349"/>
+        <location filename="../inspector/inspector.cpp" line="352"/>
+        <location filename="../inspector/inspector.cpp" line="927"/>
         <source>No patrol</source>
         <translation>Keine Streife</translation>
     </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="292"/>
+        <source>POWER RANK</source>
+        <translation>STÄRKE RANG</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="292"/>
+        <source>HERO TYPE</source>
+        <translation>HELDENTYP</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="315"/>
+        <source>Hero class</source>
+        <translation>Heldenklasse</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="324"/>
+        <source>Portrait</source>
+        <translation>Porträt</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="327"/>
+        <source>Skills</source>
+        <translation>Fertigkeiten</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="329"/>
+        <source>Artifacts</source>
+        <translation>Artefakte</translation>
+    </message>
     <message numerus="yes">
-        <location filename="../inspector/inspector.cpp" line="359"/>
-        <location filename="../inspector/inspector.cpp" line="360"/>
+        <location filename="../inspector/inspector.cpp" line="351"/>
+        <location filename="../inspector/inspector.cpp" line="352"/>
         <source>%n tile(s)</source>
         <translation>
             <numerusform>%n Kachel</numerusform>
@@ -1102,13 +1173,223 @@
         </translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="875"/>
-        <location filename="../inspector/inspector.cpp" line="964"/>
+        <location filename="../inspector/inspector.cpp" line="364"/>
+        <source>Buildings</source>
+        <translation>Gebäude</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="366"/>
+        <source>Events</source>
+        <translation>Ereignisse</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="397"/>
+        <source>Resource</source>
+        <translation>Ressource</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="428"/>
+        <source>Artifact reward</source>
+        <translation>Artefakt-Belohnung</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="471"/>
+        <source>Quest</source>
+        <translation>Aufgabe</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="489"/>
+        <source>Identifier</source>
+        <translation>Identifier</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="490"/>
+        <source>ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="491"/>
+        <source>SubID</source>
+        <translation>SubID</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="492"/>
+        <source>InstanceName</source>
+        <translation>InstanzName</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="497"/>
+        <source>IsStatic</source>
+        <translation>IstStatisch</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="867"/>
+        <location filename="../inspector/inspector.cpp" line="1003"/>
         <source>neutral</source>
         <translation>neutral</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="873"/>
+        <location filename="../inspector/inspector.cpp" line="913"/>
+        <source>Army</source>
+        <translation>Armee</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="914"/>
+        <source>Owner</source>
+        <translation>Besitzer</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="915"/>
+        <source>Same as town</source>
+        <translation>Wie die Stadt</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="916"/>
+        <source>Removable units</source>
+        <translation>Entfernbare Einheiten</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="917"/>
+        <source>Placeholder type</source>
+        <translation>Platzhalter-Typ</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="918"/>
+        <source>Power rank</source>
+        <translation>Stärke Rang</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="919"/>
+        <source>Hero type</source>
+        <translation>Helden-Typ</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="920"/>
+        <source>Experience</source>
+        <translation>Erfahrung</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="921"/>
+        <source>MALE</source>
+        <translation>MÄNNLICH</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="922"/>
+        <source>FEMALE</source>
+        <translation>WEIBLICH</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="923"/>
+        <source>Gender</source>
+        <translation>Geschlecht</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="924"/>
+        <source>Name</source>
+        <translation>Name</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="925"/>
+        <source>Biography</source>
+        <translation>Biografie</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="926"/>
+        <source>Spells</source>
+        <translation>Zaubersprüche</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="928"/>
+        <source>Patrol radius</source>
+        <translation>Patrouillenradius</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="929"/>
+        <source>Town name</source>
+        <translation>Stadtname</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="930"/>
+        <source>Message</source>
+        <translation>Nachricht</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="931"/>
+        <source>Spell</source>
+        <translation>Zauberspruch</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="932"/>
+        <source>Productivity</source>
+        <translation>Produktivität</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="933"/>
+        <source>Amount</source>
+        <translation>Menge</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="934"/>
+        <source>Character</source>
+        <translation>Charakter</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="935"/>
+        <source>Never flees</source>
+        <translation>Flieht niemals</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="936"/>
+        <source>Not growing</source>
+        <translation>Wächst nicht</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="937"/>
+        <source>Reward</source>
+        <translation>Belohnung</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="938"/>
+        <source>Remove after</source>
+        <translation>Nach Entfernen</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="939"/>
+        <source>Human trigger</source>
+        <translation>Menschlich-Auslöser</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="940"/>
+        <source>Cpu trigger</source>
+        <translation>CPU-Auslöser</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="941"/>
+        <source>First visit text</source>
+        <translation>Erster Besuch Text</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="942"/>
+        <source>Next visit text</source>
+        <translation>Nächster Besuch Text</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="943"/>
+        <source>Completed text</source>
+        <translation>Abgeschlossener Text</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="944"/>
+        <source>Repeat quest</source>
+        <translation>Wiederhole Quest</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="945"/>
+        <source>Time limit</source>
+        <translation>Zeitlimit</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="865"/>
         <source>UNFLAGGABLE</source>
         <translation>UNFLAGGBAR</translation>
     </message>
@@ -1534,8 +1815,8 @@
         <translation>Tag %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="238"/>
-        <location filename="../inspector/rewardswidget.cpp" line="609"/>
+        <location filename="../inspector/rewardswidget.cpp" line="242"/>
+        <location filename="../inspector/rewardswidget.cpp" line="613"/>
         <source>Reward %1</source>
         <translation>Belohnung %1</translation>
     </message>
@@ -1757,12 +2038,12 @@
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="170"/>
+        <location filename="../inspector/towneventdialog.cpp" line="174"/>
         <source>Creature level %1 / Creature level %1 Upgrade</source>
         <translation>Kreaturlevel %1 / Kreaturlevel %1 Aufgerüstet</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="212"/>
+        <location filename="../inspector/towneventdialog.cpp" line="216"/>
         <source>Day %1 - %2</source>
         <translation>Tag %1 - %2</translation>
     </message>
@@ -2090,6 +2371,11 @@
         <source>Kill monster</source>
         <translation>Monster töten</translation>
     </message>
+    <message>
+        <location filename="../mapsettings/victoryconditions.cpp" line="432"/>
+        <source>Any town</source>
+        <translation>Jede Stadt</translation>
+    </message>
 </context>
 <context>
     <name>WindowNewMap</name>
@@ -2291,6 +2577,11 @@
         <location filename="../windownewmap.cpp" line="276"/>
         <source>RMG failure</source>
         <translation>RMG-Fehler</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.cpp" line="422"/>
+        <source>[default]</source>
+        <translation>[Standard]</translation>
     </message>
 </context>
 <context>
