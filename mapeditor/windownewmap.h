@@ -67,13 +67,13 @@ class WindowNewMap : public QDialog
 
 	const std::map<int, std::pair<int, int>> mapSizes
 	{
-		{0, {CMapHeader::MAP_SIZE_SMALL, 	CMapHeader::MAP_SIZE_SMALL}},
-		{1, {CMapHeader::MAP_SIZE_MIDDLE,	CMapHeader::MAP_SIZE_MIDDLE}},
-		{2, {CMapHeader::MAP_SIZE_LARGE,	CMapHeader::MAP_SIZE_LARGE}},
-		{3, {CMapHeader::MAP_SIZE_XLARGE,	CMapHeader::MAP_SIZE_XLARGE}},
-		{4, {CMapHeader::MAP_SIZE_HUGE,		CMapHeader::MAP_SIZE_HUGE}},
-		{5, {CMapHeader::MAP_SIZE_XHUGE,	CMapHeader::MAP_SIZE_XHUGE}},
-		{6, {CMapHeader::MAP_SIZE_GIANT,	CMapHeader::MAP_SIZE_GIANT}}
+		{0, {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_SMALL}},
+		{1, {CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_MIDDLE}},
+		{2, {CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_LARGE}},
+		{3, {CMapHeader::MAP_SIZE_XLARGE, CMapHeader::MAP_SIZE_XLARGE}},
+		{4, {CMapHeader::MAP_SIZE_HUGE, CMapHeader::MAP_SIZE_HUGE}},
+		{5, {CMapHeader::MAP_SIZE_XHUGE, CMapHeader::MAP_SIZE_XHUGE}},
+		{6, {CMapHeader::MAP_SIZE_GIANT, CMapHeader::MAP_SIZE_GIANT}},
 	};
 
 public:
