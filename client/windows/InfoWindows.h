@@ -22,6 +22,7 @@ class CGGarrison;
 class CGCreature;
 class CGTeleport;
 class CGKeys;
+class CGObelisk;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -152,4 +153,15 @@ class KeymasterPopup : public CWindowObject
 
 public:
 	KeymasterPopup(const Point & position, const CGKeys * keymasterOrGuard);
+};
+
+class ObeliskPopup : public CWindowObject
+{
+	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
+	std::shared_ptr<MinimapWithIcons> minimap;
+	std::shared_ptr<CLabel> labelTitle;
+	std::shared_ptr<CLabel> labelDescription;
+
+public:
+	ObeliskPopup(const Point & position, const CGObelisk * obelisk);
 };

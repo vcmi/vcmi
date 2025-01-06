@@ -417,11 +417,11 @@ TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * tele
 		ImagePath image;
 
 		if (!vstd::contains(entrances, exit))
-			image = ImagePath::builtin("portalExit");
+			image = ImagePath::builtin("minimapIcons/portalExit");
 		else if (!vstd::contains(exits, exit))
-			image = ImagePath::builtin("portalEntrance");
+			image = ImagePath::builtin("minimapIcons/portalEntrance");
 		else
-			image = ImagePath::builtin("portalBidirectional");
+			image = ImagePath::builtin("minimapIcons/portalBidirectional");
 
 		minimap->addIcon(position, image);
 	}
@@ -452,17 +452,48 @@ KeymasterPopup::KeymasterPopup(const Point & position, const CGKeys * keymasterO
 		{
 			case Obj::KEYMASTER:
 				if (mapObject->subID == keymasterOrGuard->subID)
-					minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("keymaster"));
+					minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("minimapIcons/keymaster"));
 				break;
 			case Obj::BORDERGUARD:
 				if (mapObject->subID == keymasterOrGuard->subID)
-					minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("borderguard"));
+					minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("minimapIcons/borderguard"));
 				break;
 			case Obj::BORDER_GATE:
 				if (mapObject->subID == keymasterOrGuard->subID)
-					minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("bordergate"));
+					minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("minimapIcons/bordergate"));
 				break;
 		}
+	}
+	center(position);
+	fitToScreen(10);
+}
+
+ObeliskPopup::ObeliskPopup(const Point & position, const CGObelisk * obelisk)
+	: CWindowObject(BORDERED | RCLICK_POPUP)
+{
+	OBJECT_CONSTRUCTION;
+	pos.w = 322;
+	pos.h = 220;
+
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, obelisk->getObjectName());
+	labelDescription = std::make_shared<CLabel>(pos.w / 2, 40, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, obelisk->getObjectDescription(LOCPLINT->playerID));
+	minimap = std::make_shared<MinimapWithIcons>(Point(0,20));
+
+	const auto allObjects = LOCPLINT->cb->getAllVisitableObjs();
+
+	for (const auto mapObject : allObjects)
+	{
+		if (!mapObject)
+			continue;
+
+		if (mapObject->ID != Obj::OBELISK)
+			continue;
+
+		if (mapObject->wasVisited(LOCPLINT->playerID))
+			minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("minimapIcons/obeliskVisited"));
+		else
+			minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("minimapIcons/obelisk"));
 	}
 	center(position);
 	fitToScreen(10);
@@ -501,6 +532,8 @@ CRClickPopup::createCustomInfoWindow(Point position, const CGObjectInstance * sp
 		case Obj::BORDERGUARD:
 		case Obj::BORDER_GATE:
 			return std::make_shared<KeymasterPopup>(position, dynamic_cast<const CGKeys *>(specific));
+		case Obj::OBELISK:
+			return std::make_shared<ObeliskPopup>(position, dynamic_cast<const CGObelisk *>(specific));
 		default:
 			return std::shared_ptr<WindowBase>();
 	}
