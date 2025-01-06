@@ -17,8 +17,6 @@ VCMI_LIB_NAMESPACE_END
 
 class CBitmapFont;
 
-using TTF_Font = struct _TTF_Font;
-
 class CTrueTypeFont final : public IFont
 {
 	const std::pair<std::unique_ptr<ui8[]>, ui64> data;
