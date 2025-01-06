@@ -113,7 +113,9 @@ void CObstacleInstance::serializeJson(JsonSerializeFormat & handler)
 		animationYOffset -= 42;
 
 	//We need only a subset of obstacle info for correct render
-	handler.serializeInt("position", pos);
+	si16 posValue = pos.toInt();
+	handler.serializeInt("position", posValue);
+	pos = posValue;
 	handler.serializeInt("animationYOffset", animationYOffset);
 	handler.serializeBool("hidden", hidden);
 	handler.serializeBool("needAnimationOffsetFix", needAnimationOffsetFix);
@@ -188,7 +190,9 @@ void SpellCreatedObstacle::fromInfo(const ObstacleChanges & info)
 void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeInt("spell", ID);
-	handler.serializeInt("position", pos);
+	si16 posValue = pos.toInt();
+	handler.serializeInt("position", posValue);
+	pos = posValue;
 
 	handler.serializeInt("turnsRemaining", turnsRemaining);
 	handler.serializeInt("casterSpellPower", casterSpellPower);
@@ -215,9 +219,9 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 		JsonArraySerializer customSizeJson = handler.enterArray("customSize");
 		customSizeJson.syncSize(customSize, JsonNode::JsonType::DATA_INTEGER);
 
-		BattleHex hex;
 		for(size_t index = 0; index < customSizeJson.size(); index++)
 		{
+			si16 hex = customSize.at(index).toInt();
 			customSizeJson.serializeInt(index, hex);
 			customSize.set(index, hex);
 		}

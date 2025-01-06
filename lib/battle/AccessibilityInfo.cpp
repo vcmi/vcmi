@@ -18,14 +18,14 @@ VCMI_LIB_NAMESPACE_BEGIN
 bool AccessibilityInfo::tileAccessibleWithGate(BattleHex tile, BattleSide side) const
 {
 	//at(otherHex) != EAccessibility::ACCESSIBLE && (at(otherHex) != EAccessibility::GATE || side != BattleSide::DEFENDER)
-	const auto & accessibility = at(tile);
+	const auto & accessibility = at(tile.toInt());
 
 	if(accessibility == EAccessibility::ALIVE_STACK)
 	{
 		if(!destructibleEnemyTurns)
 			return false;
 
-		return destructibleEnemyTurns->at(tile) >= 0;
+		return destructibleEnemyTurns->at(tile.toInt()) >= 0;
 	}
 
 	if(accessibility != EAccessibility::ACCESSIBLE)

@@ -517,7 +517,7 @@ BattleHexArray BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex) con
 
 	for(auto & elem : rng)
 	{
-		std::set<ui16> curLayer = getInRange(centralHex, elem, elem);
+		std::set<ui16> curLayer = getInRange(centralHex.toInt(), elem, elem);
 		//adding obtained hexes
 		for(const auto & curLayer_it : curLayer)
 			ret.insert(curLayer_it);

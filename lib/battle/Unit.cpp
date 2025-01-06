@@ -53,7 +53,7 @@ const IBonusBearer* Unit::getBonusBearer() const
 
 const BattleHexArray & Unit::getSurroundingHexes(BattleHex assumedPosition) const
 {
-	BattleHex hex = (assumedPosition != BattleHex::INVALID) ? assumedPosition : getPosition(); //use hypothetical position
+	BattleHex hex = (assumedPosition.toInt() != BattleHex::INVALID) ? assumedPosition : getPosition(); //use hypothetical position
 
 	return getSurroundingHexes(hex, doubleWide(), unitSide());
 }
@@ -63,7 +63,7 @@ const BattleHexArray & Unit::getSurroundingHexes(BattleHex position, bool twoHex
 	if(!twoHex)
 		return position.getNeighbouringTiles();
 
-	return position.getNeighbouringTilesDblWide(side);
+	return position.getNeighbouringTilesDoubleWide(side);
 }
 
 BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
@@ -112,8 +112,8 @@ const BattleHexArray & Unit::getHexes(BattleHex assumedPos, bool twoHex, BattleS
 	static BattleHexArray::ArrayOfBattleHexArrays precomputed[4];
 	int index = side == BattleSide::ATTACKER ? 0 : 2;
 
-	if(!precomputed[index + twoHex][assumedPos].empty())
-		return precomputed[index + twoHex][assumedPos];
+	if(!precomputed[index + twoHex][assumedPos.toInt()].empty())
+		return precomputed[index + twoHex][assumedPos.toInt()];
 
 	// first run, compute
 
@@ -123,9 +123,9 @@ const BattleHexArray & Unit::getHexes(BattleHex assumedPos, bool twoHex, BattleS
 	if(twoHex)
 		hexes.insert(occupiedHex(assumedPos, twoHex, side));
 
-	precomputed[index + twoHex][assumedPos] = std::move(hexes);
+	precomputed[index + twoHex][assumedPos.toInt()] = std::move(hexes);
 
-	return precomputed[index + twoHex][assumedPos];
+	return precomputed[index + twoHex][assumedPos.toInt()];
 }
 
 BattleHex Unit::occupiedHex() const
@@ -143,9 +143,9 @@ BattleHex Unit::occupiedHex(BattleHex assumedPos, bool twoHex, BattleSide side)
 	if(twoHex)
 	{
 		if(side == BattleSide::ATTACKER)
-			return assumedPos - 1;
+			return assumedPos.toInt() - 1;
 		else
-			return assumedPos + 1;
+			return assumedPos.toInt() + 1;
 	}
 	else
 	{
@@ -201,7 +201,9 @@ void UnitInfo::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("count", count);
 	handler.serializeId("type", type, CreatureID(CreatureID::NONE));
 	handler.serializeInt("side", side);
-	handler.serializeInt("position", position);
+	si16 positionValue = position.toInt();
+	handler.serializeInt("position", positionValue);
+	position = positionValue;
 	handler.serializeBool("summoned", summoned);
 }
 

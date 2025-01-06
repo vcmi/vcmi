@@ -46,7 +46,7 @@ CStack * BattleInfo::generateNewStack(uint32_t id, const CStackInstance & base, 
 	assert(!owner.isValidPlayer() || (base.armyObj && base.armyObj->tempOwner == owner));
 
 	auto * ret = new CStack(&base, owner, id, side, slot);
-	ret->initialPosition = getAvailableHex(base.getCreatureID(), side, position); //TODO: what if no free tile on battlefield was found?
+	ret->initialPosition = getAvailableHex(base.getCreatureID(), side, position.toInt()); //TODO: what if no free tile on battlefield was found?
 	stacks.push_back(ret);
 	return ret;
 }
@@ -264,7 +264,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 
 					for(BattleHex blocked : obi.getBlocked(pos))
 					{
-						if(tileAccessibility[blocked] == EAccessibility::UNAVAILABLE) //for ship-to-ship battlefield - exclude hardcoded unavailable tiles
+						if(tileAccessibility[blocked.toInt()] == EAccessibility::UNAVAILABLE) //for ship-to-ship battlefield - exclude hardcoded unavailable tiles
 							return false;
 						if(blockedTiles.contains(blocked))
 							return false;

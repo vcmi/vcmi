@@ -310,7 +310,7 @@ ReachabilityInfo getReachabilityWithEnemyBypass(
 
 			for(auto & hex : unit->getHexes())
 				if(hex.isAvailable()) //towers can have <0 pos; we don't also want to overwrite side columns
-					params.destructibleEnemyTurns[hex] = turnsToKill * unit->getMovementRange();
+					params.destructibleEnemyTurns[hex.toInt()] = turnsToKill * unit->getMovementRange();
 		}
 
 		params.bypassEnemyStacks = true;
@@ -415,11 +415,11 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 
 				for(BattleHex enemyHex : enemy->getAttackableHexes(activeStack))
 				{
-					while(!flying && dists.distances[enemyHex] > speed && dists.predecessors.at(enemyHex).isValid())
+					while(!flying && dists.distances[enemyHex.toInt()] > speed && dists.predecessors.at(enemyHex.toInt()).isValid())
 					{
-						enemyHex = dists.predecessors.at(enemyHex);
+						enemyHex = dists.predecessors.at(enemyHex.toInt());
 
-						if(dists.accessibility[enemyHex] == EAccessibility::ALIVE_STACK)
+						if(dists.accessibility[enemyHex.toInt()] == EAccessibility::ALIVE_STACK)
 						{
 							auto defenderToBypass = hb->battleGetUnitByPos(enemyHex);
 
@@ -429,7 +429,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 								logAi->trace("Found target to bypass at %d", enemyHex.hex);
 #endif
 
-								auto attackHex = dists.predecessors[enemyHex];
+								auto attackHex = dists.predecessors[enemyHex.toInt()];
 								auto baiBypass = BattleAttackInfo(activeStack, defenderToBypass, 0, cb->battleCanShoot(activeStack));
 								auto attackBypass = AttackPossibility::evaluate(baiBypass, attackHex, damageCache, hb);
 
@@ -440,7 +440,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 
 								auto bypassScore = calculateExchange(
 									attackBypass,
-									dists.distances[attackHex],
+									dists.distances[attackHex.toInt()],
 									targets,
 									damageCache,
 									hb,
@@ -916,8 +916,7 @@ void BattleExchangeEvaluator::updateReachabilityMap(std::shared_ptr<HypotheticBa
 			}
 		}
 	}
-
-	for(BattleHex hex = BattleHex::TOP_LEFT; hex.isValid(); hex = hex + 1)
+	for(BattleHex hex = BattleHex::TOP_LEFT; hex.isValid(); ++hex)
 	{
 		reachabilityMap[hex] = getOneTurnReachableUnits(0, hex);
 	}
@@ -952,9 +951,9 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getOneTurnReachableUn
 
 			ReachabilityInfo unitReachability = reachabilityIter != reachabilityCache.end() ? reachabilityIter->second : turnBattle.getReachability(unit);
 
-			bool reachable = unitReachability.distances.at(hex) <= radius;
+			bool reachable = unitReachability.distances.at(hex.toInt()) <= radius;
 
-			if(!reachable && unitReachability.accessibility[hex] == EAccessibility::ALIVE_STACK)
+			if(!reachable && unitReachability.accessibility[hex.toInt()] == EAccessibility::ALIVE_STACK)
 			{
 				const battle::Unit * hexStack = cb->battleGetUnitByPos(hex);
 
@@ -962,7 +961,7 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getOneTurnReachableUn
 				{
 					for(BattleHex neighbour : hex.getNeighbouringTiles())
 					{
-						reachable = unitReachability.distances.at(neighbour) <= radius;
+						reachable = unitReachability.distances.at(neighbour.toInt()) <= radius;
 
 						if(reachable) break;
 					}
@@ -1009,12 +1008,12 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 			auto unitReachability = turnBattle.getReachability(unit);
 			auto unitSpeed = unit->getMovementRange(turn); // Cached value, to avoid performance hit
 
-			for(BattleHex hex = BattleHex::TOP_LEFT; hex.isValid(); hex = hex + 1)
+			for(BattleHex hex = BattleHex::TOP_LEFT; hex.isValid(); hex++)
 			{
 				bool enemyUnit = false;
-				bool reachable = unitReachability.distances.at(hex) <= unitSpeed;
+				bool reachable = unitReachability.distances.at(hex.toInt()) <= unitSpeed;
 
-				if(!reachable && unitReachability.accessibility[hex] == EAccessibility::ALIVE_STACK)
+				if(!reachable && unitReachability.accessibility[hex.toInt()] == EAccessibility::ALIVE_STACK)
 				{
 					const battle::Unit * hexStack = turnBattle.battleGetUnitByPos(hex);
 
@@ -1023,7 +1022,7 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 						enemyUnit = true;
 						for(BattleHex neighbour : hex.getNeighbouringTiles())
 						{
-							reachable = unitReachability.distances.at(neighbour) <= unitSpeed;
+							reachable = unitReachability.distances.at(neighbour.toInt()) <= unitSpeed;
 
 							if(reachable) break;
 						}

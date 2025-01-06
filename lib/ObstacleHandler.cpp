@@ -66,7 +66,7 @@ BattleHexArray ObstacleInfo::getBlocked(BattleHex hex) const
 	BattleHexArray ret;
 	for(int offset : blockedTiles)
 	{
-		BattleHex toBlock = hex + offset;
+		BattleHex toBlock = hex.toInt() + offset;
 		if((hex.getY() & 1) && !(toBlock.getY() & 1))
 			toBlock += BattleHex::LEFT;
 		

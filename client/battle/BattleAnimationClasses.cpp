@@ -174,7 +174,7 @@ AttackAnimation::AttackAnimation(BattleInterface & owner, const CStack *attacker
 	  attackingStack(attacker)
 {
 	assert(attackingStack && "attackingStack is nullptr in CBattleAttack::CBattleAttack !\n");
-	attackingStackPosBeforeReturn = attackingStack->getPosition();
+	attackingStackPosBeforeReturn = attackingStack->getPosition().toInt();
 }
 
 HittedAnimation::HittedAnimation(BattleInterface & owner, const CStack * stack)

@@ -50,7 +50,7 @@ PotentialTargets::PotentialTargets(
 
 		auto GenerateAttackInfo = [&](bool shooting, BattleHex hex) -> AttackPossibility
 		{
-			int distance = hex.isValid() ? reachability.distances[hex] : 0;
+			int distance = hex.isValid() ? reachability.distances[hex.toInt()] : 0;
 			auto bai = BattleAttackInfo(attackerInfo, defender, distance, shooting);
 
 			return AttackPossibility::evaluate(bai, hex, damageCache, state);

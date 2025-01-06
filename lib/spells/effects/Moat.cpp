@@ -43,9 +43,9 @@ static void serializeMoatHexes(JsonSerializeFormat & handler, const std::string 
 			JsonArraySerializer inner = outer.enterArray(outerIndex);
 			inner.syncSize(moatHexes.at(outerIndex), JsonNode::JsonType::DATA_INTEGER);
 
-			BattleHex hex;
 			for(size_t innerIndex = 0; innerIndex < inner.size(); innerIndex++)
 			{
+				si16 hex = moatHexes.at(outerIndex).at(innerIndex).toInt();
 				inner.serializeInt(innerIndex, hex);
 				moatHexes.at(outerIndex).set(innerIndex, hex);
 			}

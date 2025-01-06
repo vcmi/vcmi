@@ -522,7 +522,7 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			{
 				const auto * attacker = owner.stacksController->getActiveStack();
 				BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
-				int distance = attacker->position.isValid() ? owner.getBattle()->battleGetDistances(attacker, attacker->getPosition())[attackFromHex] : 0;
+				int distance = attacker->position.isValid() ? owner.getBattle()->battleGetDistances(attacker, attacker->getPosition())[attackFromHex.toInt()] : 0;
 				DamageEstimation retaliation;
 				BattleAttackInfo attackInfo(attacker, targetStack, distance, false );
 				DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(attackInfo, &retaliation);

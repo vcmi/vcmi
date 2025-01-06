@@ -34,7 +34,7 @@ void BattleHexArray::erase(iterator first, iterator last) noexcept
 {
 	for(auto it = first; it != last && it != internalStorage.end(); ++it)
 	{
-		presenceFlags[*it] = 0;
+		presenceFlags[it->toInt()] = 0;
 	}
 
 	internalStorage.erase(first, last);
@@ -43,7 +43,7 @@ void BattleHexArray::erase(iterator first, iterator last) noexcept
 void BattleHexArray::clear() noexcept
 {
 	for(auto hex : internalStorage)
-		presenceFlags[hex] = 0;
+		presenceFlags[hex.toInt()] = 0;
 
 	internalStorage.clear();
 }
@@ -83,7 +83,7 @@ BattleHexArray::ArrayOfBattleHexArrays BattleHexArray::precalculateAllNeighbouri
 	return ret;
 }
 
-BattleHexArray::ArrayOfBattleHexArrays BattleHexArray::precalculateNeighbouringTilesDblWide(BattleSide side)
+BattleHexArray::ArrayOfBattleHexArrays BattleHexArray::precalculateNeighbouringTilesDoubleWide(BattleSide side)
 {
 	ArrayOfBattleHexArrays ret;
 
@@ -123,10 +123,10 @@ BattleHexArray::ArrayOfBattleHexArrays BattleHexArray::precalculateNeighbouringT
 
 const BattleHexArray::ArrayOfBattleHexArrays BattleHexArray::neighbouringTiles = precalculateNeighbouringTiles();
 const BattleHexArray::ArrayOfBattleHexArrays BattleHexArray::allNeighbouringTiles = precalculateAllNeighbouringTiles();
-const std::map<BattleSide, BattleHexArray::ArrayOfBattleHexArrays> BattleHexArray::neighbouringTilesDblWide =
+const std::map<BattleSide, BattleHexArray::ArrayOfBattleHexArrays> BattleHexArray::neighbouringTilesDoubleWide =
 	{
-	   { BattleSide::ATTACKER, precalculateNeighbouringTilesDblWide(BattleSide::ATTACKER) },
-	   { BattleSide::DEFENDER, precalculateNeighbouringTilesDblWide(BattleSide::DEFENDER) }
+	   { BattleSide::ATTACKER, precalculateNeighbouringTilesDoubleWide(BattleSide::ATTACKER) },
+	   { BattleSide::DEFENDER, precalculateNeighbouringTilesDoubleWide(BattleSide::DEFENDER) }
 	};
 
 VCMI_LIB_NAMESPACE_END

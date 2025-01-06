@@ -84,7 +84,7 @@ TEST_F(LuaSpellEffectAPITest, DISABLED_ApplicableOnLeftSideOfField)
 	BattleHex hex(2,2);
 
 	JsonNode first;
-	first.Vector().emplace_back(static_cast<si16>(hex));
+	first.Vector().emplace_back(hex.toInt());
 	first.Vector().emplace_back();
 
 	JsonNode targets;
@@ -113,7 +113,7 @@ TEST_F(LuaSpellEffectAPITest, DISABLED_NotApplicableOnRightSideOfField)
 	BattleHex hex(11,2);
 
 	JsonNode first;
-	first.Vector().emplace_back(static_cast<si16>(hex));
+	first.Vector().emplace_back(hex.toInt());
 	first.Vector().emplace_back(-1);
 
 	JsonNode targets;
@@ -138,13 +138,13 @@ TEST_F(LuaSpellEffectAPITest, DISABLED_ApplyMoveUnit)
 	BattleHex hex1(11,2);
 
 	JsonNode unit;
-	unit.Vector().emplace_back(static_cast<si16>(hex1));
+	unit.Vector().emplace_back(hex1.toInt());
 	unit.Vector().emplace_back(42);
 
 	BattleHex hex2(5,4);
 
 	JsonNode destination;
-	destination.Vector().emplace_back(static_cast<si16>(hex2));
+	destination.Vector().emplace_back(hex2.toInt());
 	destination.Vector().emplace_back(-1);
 
 	JsonNode targets;

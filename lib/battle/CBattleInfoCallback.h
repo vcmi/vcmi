@@ -162,7 +162,7 @@ public:
 	ReachabilityInfo getReachability(const ReachabilityInfo::Parameters & params) const;
 	AccessibilityInfo getAccessibility() const;
 	AccessibilityInfo getAccessibility(const battle::Unit * stack) const; //Hexes occupied by stack will be marked as accessible.
-	AccessibilityInfo getAccessibility(const BattleHexArray * accessibleHexes) const; //given hexes will be marked as accessible
+	AccessibilityInfo getAccessibility(const BattleHexArray & accessibleHexes) const; //given hexes will be marked as accessible
 	std::pair<const battle::Unit *, BattleHex> getNearestStack(const battle::Unit * closest) const;
 
 	BattleHex getAvailableHex(const CreatureID & creID, BattleSide side, int initialPos = -1) const; //find place for adding new stack

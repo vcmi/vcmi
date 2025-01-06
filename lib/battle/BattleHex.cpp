@@ -48,24 +48,24 @@ BattleHex BattleHex::getClosestTile(BattleSide side, BattleHex initialPos, const
 	return (bestTile != closestTiles.end()) ? *bestTile : BattleHex();
 }
 
-const BattleHexArray & BattleHex::getAllNeighbouringTiles() const
+const BattleHexArray & BattleHex::getAllNeighbouringTiles() const noexcept
 {
 	return BattleHexArray::getAllNeighbouringTiles(*this);
 }
 
-const BattleHexArray & BattleHex::getNeighbouringTiles() const
+const BattleHexArray & BattleHex::getNeighbouringTiles() const noexcept
 {
 	return BattleHexArray::getNeighbouringTiles(*this);
 }
 
-const BattleHexArray & BattleHex::getNeighbouringTilesDblWide(BattleSide side) const
+const BattleHexArray & BattleHex::getNeighbouringTilesDoubleWide(BattleSide side) const noexcept
 {
-	return BattleHexArray::getNeighbouringTilesDblWide(*this, side);
+	return BattleHexArray::getNeighbouringTilesDoubleWide(*this, side);
 }
 
 std::ostream & operator<<(std::ostream & os, const BattleHex & hex)
 {
-	return os << boost::str(boost::format("{BattleHex: x '%d', y '%d', hex '%d'}") % hex.getX() % hex.getY() % static_cast<si16>(hex));
+	return os << boost::str(boost::format("{BattleHex: x '%d', y '%d', hex '%d'}") % hex.getX() % hex.getY() % hex.toInt());
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -839,7 +839,7 @@ void BattleFieldController::updateAccessibleHexes()
 
 bool BattleFieldController::stackCountOutsideHex(const BattleHex & number) const
 {
-	return stackCountOutsideHexes[number];
+	return stackCountOutsideHexes[number.toInt()];
 }
 
 void BattleFieldController::showAll(Canvas & to)

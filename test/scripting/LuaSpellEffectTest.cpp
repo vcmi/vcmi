@@ -154,11 +154,11 @@ TEST_F(LuaSpellEffectTest, ApplicableTargetRedirected)
 
 
 	JsonNode first;
-	first.Vector().emplace_back(static_cast<si16>(hex1));
+	first.Vector().emplace_back(hex1.toInt());
 	first.Vector().emplace_back(id1);
 
 	JsonNode second;
-	second.Vector().emplace_back(static_cast<si16>(hex2));
+	second.Vector().emplace_back(hex2.toInt());
 	second.Vector().emplace_back(-1);
 
 	JsonNode targets;
@@ -193,7 +193,7 @@ TEST_F(LuaSpellEffectTest, ApplyRedirected)
 	subject->apply(&serverMock, &mechanicsMock, target);
 
 	JsonNode first;
-	first.Vector().emplace_back(static_cast<si16>(hex1));
+	first.Vector().emplace_back(hex1.toInt());
 	first.Vector().emplace_back(id1);
 
 	JsonNode targets;

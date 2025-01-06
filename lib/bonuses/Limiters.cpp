@@ -238,7 +238,7 @@ JsonNode UnitOnHexLimiter::toJsonNode() const
 
 	root["type"].String() = "UNIT_ON_HEXES";
 	for(auto hex : applicableHexes)
-		root["parameters"].Vector().emplace_back(hex);
+		root["parameters"].Vector().emplace_back(hex.toInt());
 
 	return root;
 }

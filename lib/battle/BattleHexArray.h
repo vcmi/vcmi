@@ -60,7 +60,7 @@ public:
 	{
 		if(tile.isAvailable() && !contains(tile))
 		{
-			presenceFlags[tile] = 1;
+			presenceFlags[tile.toInt()] = true;
 			internalStorage.emplace_back(tile);
 		}
 	}
@@ -70,7 +70,7 @@ public:
 		if(contains(hex))
 			return;
 
-		presenceFlags[hex] = 1;
+		presenceFlags[hex.toInt()] = true;
 		internalStorage.emplace_back(hex);
 	}
 
@@ -87,7 +87,7 @@ public:
 		if(contains(hex))
 			return;
 
-		presenceFlags[hex] = 1;
+		presenceFlags[hex.toInt()] = true;
 		internalStorage[index] = hex;
 	}
 
@@ -96,7 +96,7 @@ public:
 		if(contains(hex))
 			return pos;
 
-		presenceFlags[hex] = 1;
+		presenceFlags[hex.toInt()] = true;
 		return internalStorage.insert(pos, hex);
 	}
 
@@ -122,7 +122,7 @@ public:
 	void erase(iterator first, iterator last) noexcept;
 	inline void pop_back() noexcept
 	{
-		presenceFlags[internalStorage.back()] = 0;
+		presenceFlags[internalStorage.back().toInt()] = false;
 		internalStorage.pop_back();
 	}
 
@@ -158,33 +158,33 @@ public:
 	}
 
 	/// get (precomputed) all possible surrounding tiles
-	static const BattleHexArray & getAllNeighbouringTiles(BattleHex hex)
+	static const BattleHexArray & getAllNeighbouringTiles(BattleHex hex) noexcept
 	{
 		assert(hex.isValid());
 
-		return allNeighbouringTiles[hex];
+		return allNeighbouringTiles[hex.toInt()];
 	}
 
 	/// get (precomputed) only valid and available surrounding tiles
-	static const BattleHexArray & getNeighbouringTiles(BattleHex hex)
+	static const BattleHexArray & getNeighbouringTiles(BattleHex hex) noexcept
 	{
 		assert(hex.isValid());
 
-		return neighbouringTiles[hex];
+		return neighbouringTiles[hex.toInt()];
 	}
 
 	/// get (precomputed) only valid and available surrounding tiles for double wide creatures
-	static const BattleHexArray & getNeighbouringTilesDblWide(BattleHex hex, BattleSide side)
+	static const BattleHexArray & getNeighbouringTilesDoubleWide(BattleHex hex, BattleSide side) noexcept
 	{
 		assert(hex.isValid() && (side == BattleSide::ATTACKER || side == BattleSide::DEFENDER));
 
-		return neighbouringTilesDblWide.at(side)[hex];
+		return neighbouringTilesDoubleWide.at(side)[hex.toInt()];
 	}
 
 	[[nodiscard]] inline bool contains(BattleHex hex) const noexcept
 	{
 		if(hex.isValid())
-			return presenceFlags[hex];
+			return presenceFlags[hex.toInt()];
 		/*
 		if(!isTower(hex))
 			logGlobal->warn("BattleHexArray::contains( %d ) - invalid BattleHex!", hex);
@@ -198,10 +198,10 @@ public:
 	void serialize(Serializer & s)
 	{
 		s & internalStorage;
-		if(!internalStorage.empty() && presenceFlags[internalStorage.front()] == 0)
+		if(!s.saving)
 		{
 			for(auto hex : internalStorage)
-				presenceFlags[hex] = 1;
+				presenceFlags[hex.toInt()] = true;
 		}
 	}
 
@@ -307,11 +307,11 @@ private:
 
 	static const ArrayOfBattleHexArrays neighbouringTiles;
 	static const ArrayOfBattleHexArrays allNeighbouringTiles;
-	static const std::map<BattleSide, ArrayOfBattleHexArrays> neighbouringTilesDblWide;
+	static const std::map<BattleSide, ArrayOfBattleHexArrays> neighbouringTilesDoubleWide;
 
 	static ArrayOfBattleHexArrays precalculateNeighbouringTiles();
 	static ArrayOfBattleHexArrays precalculateAllNeighbouringTiles();
-	static ArrayOfBattleHexArrays precalculateNeighbouringTilesDblWide(BattleSide side);
+	static ArrayOfBattleHexArrays precalculateNeighbouringTilesDoubleWide(BattleSide side);
 };
 
 VCMI_LIB_NAMESPACE_END

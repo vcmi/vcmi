@@ -45,7 +45,7 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 		const auto * town = callback.battleGetDefendedTown();
 		assert(town);
 
-		switch(info.attacker->getPosition())
+		switch(info.attacker->getPosition().toInt())
 		{
 		case BattleHex::CASTLE_CENTRAL_TOWER:
 			return town->getKeepDamageRange();

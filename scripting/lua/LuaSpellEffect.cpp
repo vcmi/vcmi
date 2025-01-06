@@ -98,7 +98,7 @@ bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m, const Ef
 	for(const auto & dest : target)
 	{
 		JsonNode targetData;
-		targetData.Vector().emplace_back(static_cast<si16>(dest.hexValue));
+		targetData.Vector().emplace_back(dest.hexValue.toInt());
 
 		if(dest.unitValue)
 			targetData.Vector().emplace_back(dest.unitValue->unitId());
@@ -141,7 +141,7 @@ void LuaSpellEffect::apply(ServerCallback * server, const Mechanics * m, const E
 	for(const auto & dest : target)
 	{
 		JsonNode targetData;
-		targetData.Vector().emplace_back(static_cast<si16>(dest.hexValue));
+		targetData.Vector().emplace_back(dest.hexValue.toInt());
 
 		if(dest.unitValue)
 			targetData.Vector().emplace_back(dest.unitValue->unitId());

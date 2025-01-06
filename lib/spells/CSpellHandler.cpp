@@ -754,7 +754,14 @@ std::vector<int> CSpellHandler::spellRangeInHexes(std::string input) const
 		}
 	}
 
-	return std::vector<int>(ret.begin(), ret.end());
+	std::vector<int> result;
+	result.reserve(ret.size());
+
+	std::transform(ret.begin(), ret.end(), std::back_inserter(result),
+		[](BattleHex hex) { return hex.toInt(); }
+	);
+
+	return result;
 }
 
 std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)

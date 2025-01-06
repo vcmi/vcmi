@@ -33,7 +33,7 @@ ReachabilityInfo::ReachabilityInfo()
 
 bool ReachabilityInfo::isReachable(BattleHex hex) const
 {
-	return distances[hex] < INFINITE_DIST;
+	return distances[hex.toInt()] < INFINITE_DIST;
 }
 
 uint32_t ReachabilityInfo::distToNearestNeighbour(
@@ -46,9 +46,9 @@ uint32_t ReachabilityInfo::distToNearestNeighbour(
 	{
 		for(auto & n : targetHex.getNeighbouringTiles())
 		{
-			if(distances[n] < ret)
+			if(distances[n.toInt()] < ret)
 			{
-				ret = distances[n];
+				ret = distances[n.toInt()];
 				if(chosenHex)
 					*chosenHex = n;
 			}

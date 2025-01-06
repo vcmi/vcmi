@@ -32,10 +32,11 @@ enum class EAccessibility
 
 
 using TAccessibilityArray = std::array<EAccessibility, GameConstants::BFIELD_SIZE>;
+using TBattlefieldTurnsArray = std::array<int8_t, GameConstants::BFIELD_SIZE>;
 
 struct DLL_LINKAGE AccessibilityInfo : TAccessibilityArray
 {
-	const std::array<int8_t, GameConstants::BFIELD_SIZE> * destructibleEnemyTurns = nullptr;
+	std::shared_ptr<const TBattlefieldTurnsArray> destructibleEnemyTurns; //used only as a view for destructibleEnemyTurns from ReachabilityInfo::Parameters
 
 	public:
 		bool accessible(BattleHex tile, const battle::Unit * stack) const; //checks for both tiles if stack is double wide

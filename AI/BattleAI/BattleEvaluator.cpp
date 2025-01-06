@@ -214,8 +214,8 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 				bestAttack.attackerState->unitType()->getJsonKey(),
 				bestAttack.affectedUnits[0]->unitType()->getJsonKey(),
 				bestAttack.affectedUnits[0]->getCount(),
-				(int)bestAttack.from,
-				(int)bestAttack.attack.attacker->getPosition(),
+				bestAttack.from.toInt(),
+				bestAttack.attack.attacker->getPosition().toInt(),
 				bestAttack.attack.chargeDistance,
 				bestAttack.attack.attacker->getMovementRange(0),
 				bestAttack.defenderDamageReduce,
@@ -355,7 +355,7 @@ BattleAction BattleEvaluator::moveOrAttack(const CStack * stack, BattleHex hex, 
 	}
 }
 
-BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, BattleHexArray hexes, const PotentialTargets & targets)
+BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const BattleHexArray & hexes, const PotentialTargets & targets)
 {
 	auto reachability = cb->getBattle(battleID)->getReachability(stack);
 	auto avHexes = cb->getBattle(battleID)->battleGetAvailableHexes(reachability, stack, false);
@@ -387,12 +387,12 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, BattleHexAr
 
 	std::sort(targetHexes.begin(), targetHexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
 		{
-			return reachability.distances[h1] < reachability.distances[h2];
+			return reachability.distances[h1.toInt()] < reachability.distances[h2.toInt()];
 		});
 
 	BattleHex bestNeighbour = hexes.front();
 
-	if(reachability.distances[bestNeighbour] > GameConstants::BFIELD_SIZE)
+	if(reachability.distances[bestNeighbour.toInt()] > GameConstants::BFIELD_SIZE)
 	{
 		logAi->trace("No reachable hexes.");
 		return BattleAction::makeDefend(stack);
@@ -468,7 +468,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, BattleHexAr
 				return moveOrAttack(stack, currentDest, targets);
 			}
 
-			currentDest = reachability.predecessors[currentDest];
+			currentDest = reachability.predecessors[currentDest.toInt()];
 		}
 	}
 	

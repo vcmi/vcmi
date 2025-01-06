@@ -24,7 +24,8 @@ namespace GameConstants
 
 class BattleHexArray;
 
-// for battle stacks' positions
+// for battle stacks' positions; valid hexes are from 0 to 186; available are only those not in first and last column
+// castle towers are -2, -3 and -4
 class DLL_LINKAGE BattleHex
 {
 public:
@@ -68,10 +69,10 @@ public:
 		BOTTOM
 	};
 
-	BattleHex() 
+	BattleHex() noexcept
 		: hex(INVALID) 
 	{}
-	BattleHex(si16 _hex) 
+	BattleHex(si16 _hex) noexcept
 		: hex(_hex) 
 	{}
 	BattleHex(si16 x, si16 y)
@@ -82,17 +83,13 @@ public:
 	{
 		setXY(xy);
 	}
-	operator si16() const
-	{
-		return hex;
-	}
 
-	inline bool isValid() const
+	[[nodiscard]] bool isValid() const noexcept
 	{
 		return hex >= 0 && hex < GameConstants::BFIELD_SIZE;
 	}
 	
-	bool isAvailable() const //valid position not in first or last column
+	[[nodiscard]] bool isAvailable() const noexcept //valid position not in first or last column
 	{
 		return isValid() && getX() > 0 && getX() < GameConstants::BFIELD_WIDTH - 1;
 	}
@@ -123,17 +120,17 @@ public:
 		setXY(xy.first, xy.second);
 	}
 
-	si16 getX() const
+	[[nodiscard]] si16 getX() const noexcept
 	{
 		return hex % GameConstants::BFIELD_WIDTH;
 	}
 
-	si16 getY() const
+	[[nodiscard]] si16 getY() const noexcept
 	{
 		return hex / GameConstants::BFIELD_WIDTH;
 	}
 
-	std::pair<si16, si16> getXY() const
+	[[nodiscard]] std::pair<si16, si16> getXY() const noexcept
 	{
 		return std::make_pair(getX(), getY());
 	}
@@ -171,24 +168,14 @@ public:
 		return *this;
 	}
 
-	BattleHex & operator+=(EDir dir)
-	{
-		return moveInDirection(dir);
-	}
-
-	BattleHex operator+(EDir dir) const
-	{
-		return cloneInDirection(dir);
-	}
-
-	BattleHex cloneInDirection(EDir dir, bool hasToBeValid = true) const
+	[[nodiscard]] BattleHex cloneInDirection(EDir dir, bool hasToBeValid = true) const
 	{
 		BattleHex result(hex);
 		result.moveInDirection(dir, hasToBeValid);
 		return result;
 	}
 
-	static uint8_t getDistance(BattleHex hex1, BattleHex hex2)
+	[[nodiscard]] static uint8_t getDistance(BattleHex hex1, BattleHex hex2) noexcept
 	{
 		int y1 = hex1.getY();
 		int y2 = hex2.getY();
@@ -205,15 +192,15 @@ public:
 		return std::abs(xDst) + std::abs(yDst);
 	}
 
-	static BattleHex getClosestTile(BattleSide side, BattleHex initialPos, const BattleHexArray & hexes);
+	[[nodiscard]] static BattleHex getClosestTile(BattleSide side, BattleHex initialPos, const BattleHexArray & hexes);
 
 	//Constexpr defined array with all directions used in battle
-	static constexpr auto hexagonalDirections() 
+	[[nodiscard]] static constexpr auto hexagonalDirections() noexcept
 	{
 		return std::array<EDir,6>{TOP_LEFT, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT, LEFT};
 	}
 
-	static EDir mutualPosition(BattleHex hex1, BattleHex hex2)
+	[[nodiscard]] static EDir mutualPosition(BattleHex hex1, BattleHex hex2)
 	{
 		for(auto dir : hexagonalDirections())
 			if(hex2 == hex1.cloneInDirection(dir, false))
@@ -222,13 +209,59 @@ public:
 	}
 
 	/// get (precomputed) all possible surrounding tiles
-	const BattleHexArray & getAllNeighbouringTiles() const;
+	[[nodiscard]] const BattleHexArray & getAllNeighbouringTiles() const noexcept;
 
 	/// get (precomputed) only valid and available surrounding tiles
-	const BattleHexArray & getNeighbouringTiles() const;
+	[[nodiscard]] const BattleHexArray & getNeighbouringTiles() const noexcept;
 
 	/// get (precomputed) only valid and available surrounding tiles for double wide creatures
-	const BattleHexArray & getNeighbouringTilesDblWide(BattleSide side) const;
+	[[nodiscard]] const BattleHexArray & getNeighbouringTilesDoubleWide(BattleSide side) const noexcept;
+
+	/// get integer hex value
+	[[nodiscard]] si16 toInt() const noexcept
+	{
+		return hex;
+	}
+
+	BattleHex & operator+=(EDir dir)
+	{
+		return moveInDirection(dir);
+	}
+
+	[[nodiscard]] BattleHex operator+(EDir dir) const
+	{
+		return cloneInDirection(dir);
+	}
+
+	// Prefix increment
+	BattleHex & operator++() noexcept
+	{
+		++hex;
+		return *this;
+	}
+
+	// Postfix increment
+	BattleHex operator++(int) noexcept
+	{
+		BattleHex temp = *this;
+		++hex;
+		return temp;
+	}
+
+	[[nodiscard]] bool operator ==(BattleHex other) const noexcept
+	{
+		return hex == other.hex;
+	}
+
+	[[nodiscard]] bool operator !=(BattleHex other) const noexcept
+	{
+		return hex != other.hex;
+	}
+
+	[[nodiscard]] bool operator <(BattleHex other) const noexcept
+	{
+		return hex < other.hex;
+	}
 
 	template <typename Handler>
 	void serialize(Handler & h)

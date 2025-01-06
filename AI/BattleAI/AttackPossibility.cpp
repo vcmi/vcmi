@@ -280,7 +280,7 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 	std::set<uint32_t> checkedUnits;
 
 	auto attacker = attackInfo.attacker;
-	const BattleHexArray & hexes = attacker->getSurroundingHexes(hex);
+	const auto & hexes = attacker->getSurroundingHexes(hex);
 	for(BattleHex tile : hexes)
 	{
 		auto st = state->battleGetUnitByPos(tile, true);

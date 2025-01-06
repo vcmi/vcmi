@@ -291,7 +291,7 @@ BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stac
 
 	std::sort(hexes.begin(), hexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
 	{
-		return reachability.distances[h1] < reachability.distances[h2];
+		return reachability.distances[h1.toInt()] < reachability.distances[h2.toInt()];
 	});
 
 	for(auto hex : hexes)
@@ -313,7 +313,7 @@ BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stac
 
 	BattleHex bestneighbour = hexes.front();
 
-	if(reachability.distances[bestneighbour] > GameConstants::BFIELD_SIZE)
+	if(reachability.distances[bestneighbour.toInt()] > GameConstants::BFIELD_SIZE)
 	{
 		return BattleAction::makeDefend(stack);
 	}
@@ -347,7 +347,7 @@ BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stac
 				return BattleAction::makeMove(stack, currentDest);
 			}
 
-			currentDest = reachability.predecessors[currentDest];
+			currentDest = reachability.predecessors[currentDest.toInt()];
 		}
 	}
 }

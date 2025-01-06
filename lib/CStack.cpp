@@ -252,8 +252,8 @@ BattleHexArray CStack::meleeAttackHexes(const battle::Unit * attacker, const bat
 	if (!defenderPos.isValid())
 		defenderPos = defender->getPosition();
 
-	BattleHex otherAttackerPos = attackerPos + (attacker->unitSide() == BattleSide::ATTACKER ? -1 : 1);
-	BattleHex otherDefenderPos = defenderPos + (defender->unitSide() == BattleSide::ATTACKER ? -1 : 1);
+	BattleHex otherAttackerPos = attackerPos.toInt() + (attacker->unitSide() == BattleSide::ATTACKER ? -1 : 1);
+	BattleHex otherDefenderPos = defenderPos.toInt() + (defender->unitSide() == BattleSide::ATTACKER ? -1 : 1);
 
 	if(BattleHex::mutualPosition(attackerPos, defenderPos) >= 0) //front <=> front
 	{
