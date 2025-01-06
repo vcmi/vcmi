@@ -24,7 +24,9 @@ Validator::Validator(const CMap * map, QWidget *parent) :
 	ui(new Ui::Validator)
 {
 	ui->setupUi(this);
-
+	
+	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+	
 	show();
 	
 	setAttribute(Qt::WA_DeleteOnClose);
