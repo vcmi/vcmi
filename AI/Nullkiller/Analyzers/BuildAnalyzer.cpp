@@ -18,35 +18,35 @@ namespace NKAI
 
 void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 {
-	std::map<BuildingID, BuildingID> parentMap;
-
-	for(auto &pair : developmentInfo.town->getTown()->buildings)
-	{
-		if(pair.second->upgrade != BuildingID::NONE)
-		{
-			parentMap[pair.second->upgrade] = pair.first;
-		}
-	}
-
 	for(int level = 0; level < developmentInfo.town->getTown()->creatures.size(); level++)
 	{
 		logAi->trace("Checking dwelling level %d", level);
+		std::vector<BuildingID> dwellingsInTown;
+
 		for(BuildingID buildID = BuildingID::getDwellingFromLevel(level, 0); buildID.hasValue(); BuildingID::advanceDwelling(buildID))
+			if(developmentInfo.town->getTown()->buildings.count(buildID) != 0)
+				dwellingsInTown.push_back(buildID);
+
+		// find best, already built dwelling
+		for (const auto & buildID : boost::adaptors::reverse(dwellingsInTown))
 		{
-			if(developmentInfo.town->getTown()->buildings.count(buildID) == 0)
-				continue; // no such building in town
-
-			auto info = getBuildingOrPrerequisite(developmentInfo.town, buildID);
-
-			if (!info.exists && !info.canBuild && !info.notEnoughRes)
+			if (!developmentInfo.town->hasBuilt(buildID))
 				continue;
 
-			if(info.exists)
-				developmentInfo.addExistingDwelling(info);
-			else
-				developmentInfo.addBuildingToBuild(info);
-
+			const auto & info = getBuildingOrPrerequisite(developmentInfo.town, buildID);
+			developmentInfo.addExistingDwelling(info);
 			break;
+		}
+
+		// find all non-built dwellings that can be built and add them for consideration
+		for (const auto & buildID : dwellingsInTown)
+		{
+			if (developmentInfo.town->hasBuilt(buildID))
+				continue;
+
+			const auto & info = getBuildingOrPrerequisite(developmentInfo.town, buildID);
+			if (info.canBuild || info.notEnoughRes)
+				developmentInfo.addBuildingToBuild(info);
 		}
 	}
 }
