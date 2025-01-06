@@ -11,6 +11,7 @@
 #include "../Engine/Nullkiller.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/entities/building/CBuilding.h"
+#include "../../../lib/IGameSettings.h"
 
 namespace NKAI
 {
@@ -30,30 +31,22 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 	for(int level = 0; level < developmentInfo.town->getTown()->creatures.size(); level++)
 	{
 		logAi->trace("Checking dwelling level %d", level);
-		BuildingInfo nextToBuild = BuildingInfo();
-
-		BuildingID buildID = BuildingID(BuildingID::getDwellingFromLevel(level, 0));
-
-		for(; developmentInfo.town->getBuildings().count(buildID); BuildingID::advanceDwelling(buildID))
+		for(BuildingID buildID = BuildingID::getDwellingFromLevel(level, 0); buildID.hasValue(); BuildingID::advanceDwelling(buildID))
 		{
-			if(!developmentInfo.town->hasBuilt(buildID))
+			if(developmentInfo.town->getTown()->buildings.count(buildID) == 0)
 				continue; // no such building in town
 
 			auto info = getBuildingOrPrerequisite(developmentInfo.town, buildID);
 
+			if (!info.exists && !info.canBuild && !info.notEnoughRes)
+				continue;
+
 			if(info.exists)
-			{
 				developmentInfo.addExistingDwelling(info);
+			else
+				developmentInfo.addBuildingToBuild(info);
 
-				break;
-			}
-
-			nextToBuild = info;
-		}
-
-		if(nextToBuild.id != BuildingID::NONE)
-		{
-			developmentInfo.addBuildingToBuild(nextToBuild);
+			break;
 		}
 	}
 }
@@ -148,6 +141,9 @@ void BuildAnalyzer::update()
 
 	for(const CGTownInstance* town : towns)
 	{
+		if(town->built >= cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
+			continue; // Not much point in trying anything - can't built in this town anymore today
+
 		logAi->trace("Checking town %s", town->getNameTranslated());
 
 		developmentInfos.push_back(TownDevelopmentInfo(town));
@@ -272,11 +268,11 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 			if(vstd::contains_if(missingBuildings, otherDwelling))
 			{
-				logAi->trace("cant build. Need other dwelling");
+				logAi->trace("cant build %d. Need other dwelling %d", toBuild.getNum(), missingBuildings.front().getNum());
 			}
 			else if(missingBuildings[0] != toBuild)
 			{
-				logAi->trace("cant build. Need %d", missingBuildings[0].num);
+				logAi->trace("cant build %d. Need %d", toBuild.getNum(), missingBuildings[0].num);
 
 				BuildingInfo prerequisite = getBuildingOrPrerequisite(town, missingBuildings[0], excludeDwellingDependencies);
 
@@ -307,10 +303,14 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 				return info;
 			}
 		}
+		else
+		{
+			logAi->trace("Cant build. Reason: %d", static_cast<int>(canBuild));
+		}
 	}
 	else
 	{
-		logAi->trace("exists");
+		logAi->trace("Dwelling %d exists", toBuild.getNum());
 		info.exists = true;
 	}
 
