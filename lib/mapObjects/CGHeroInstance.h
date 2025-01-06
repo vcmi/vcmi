@@ -14,6 +14,7 @@
 #include "CArmedInstance.h"
 #include "IOwnableObject.h"
 
+#include "../bonuses/BonusCache.h"
 #include "../entities/hero/EHeroGender.h"
 #include "../CArtHandler.h" // For CArtifactSet
 
@@ -24,8 +25,10 @@ class CGBoat;
 class CGTownInstance;
 class CMap;
 class UpgradeInfo;
+class TurnInfo;
+
 struct TerrainTile;
-struct TurnInfo;
+struct TurnInfoCache;
 
 class DLL_LINKAGE CGHeroPlaceholder : public CGObjectInstance
 {
@@ -58,12 +61,13 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 	friend class CMapFormatJson;
 
 private:
-	std::set<SpellID> spells; //known spells (spell IDs)
-	mutable int lowestCreatureSpeed;
-	ui32 movement; //remaining movement points
+	PrimarySkillsCache primarySkills;
+	MagicSchoolMasteryCache magicSchoolMastery;
+	BonusValueCache manaPerKnowledgeCached;
+	std::unique_ptr<TurnInfoCache> turnInfoCache;
 
-	double getFightingStrengthImpl(const std::array<int, 4> & primarySkills) const;
-	double getMagicStrengthImpl(const std::array<int, 4> & primarySkills) const;
+	std::set<SpellID> spells; //known spells (spell IDs)
+	ui32 movement; //remaining movement points
 
 public:
 
@@ -204,7 +208,7 @@ public:
 	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills(vstd::RNG & rand) const;
 
 	ui8 getSecSkillLevel(const SecondarySkill & skill) const; //0 - no skill
-	std::array<int, 4> getPrimarySkills() const;
+	int getPrimSkillLevel(PrimarySkill id) const;
 
 	/// Returns true if hero has free secondary skill slot.
 	bool canLearnSkill() const;
@@ -222,10 +226,10 @@ public:
 	int movementPointsLimit(bool onLand) const;
 	//cached version is much faster, TurnInfo construction is costly
 	int movementPointsLimitCached(bool onLand, const TurnInfo * ti) const;
-	//update army movement bonus
-	void updateArmyMovementBonus(bool onLand, const TurnInfo * ti) const;
 
-	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false, const TurnInfo * ti = nullptr) const;
+	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark, const TurnInfo * ti) const;
+
+	std::unique_ptr<TurnInfo> getTurnInfo(int days) const;
 
 	double getFightingStrength() const; // takes attack / defense skill into account
 	double getMagicStrength() const; // takes knowledge / spell power skill but also current mana, whether the hero owns a spell-book and whether that books contains anything into account

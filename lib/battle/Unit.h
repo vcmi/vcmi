@@ -84,11 +84,14 @@ public:
 	bool isTurret() const;
 	virtual bool isValidTarget(bool allowDead = false) const = 0; //non-turret non-ghost stacks (can be attacked or be object of magic effect)
 
+	virtual bool isHypnotized() const = 0;
+
 	virtual bool isClone() const = 0;
 	virtual bool hasClone() const = 0;
 
 	virtual bool canCast() const = 0;
 	virtual bool isCaster() const = 0;
+	virtual bool canShootBlocked() const = 0;
 	virtual bool canShoot() const = 0;
 	virtual bool isShooter() const = 0;
 
@@ -111,8 +114,6 @@ public:
 
 	virtual BattleHex getPosition() const = 0;
 	virtual void setPosition(BattleHex hex) = 0;
-
-	virtual int32_t getInitiative(int turn = 0) const = 0;
 
 	virtual bool canMove(int turn = 0) const = 0; //if stack can move
 	virtual bool defended(int turn = 0) const = 0;

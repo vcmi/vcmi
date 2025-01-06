@@ -404,7 +404,7 @@ PlayerColor CBattleInfoEssentials::battleGetOwner(const battle::Unit * unit) con
 
 	PlayerColor initialOwner = getBattle()->getSidePlayer(unit->unitSide());
 
-	if(unit->hasBonusOfType(BonusType::HYPNOTIZED))
+	if(unit->isHypnotized())
 		return otherPlayer(initialOwner);
 	else
 		return initialOwner;

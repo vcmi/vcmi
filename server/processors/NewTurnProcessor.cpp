@@ -584,7 +584,7 @@ std::vector<SetMovePoints> NewTurnProcessor::updateHeroesMovementPoints()
 	{
 		for (CGHeroInstance *h : elem.second.getHeroes())
 		{
-			auto ti = std::make_unique<TurnInfo>(h, 1);
+			auto ti = h->getTurnInfo(1);
 			// NOTE: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
 			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState()->map->getTile(h->visitablePos()).isLand(), ti.get());
 

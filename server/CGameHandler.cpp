@@ -846,8 +846,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, h, PathfinderOptions(this));
 	auto ti = pathfinderHelper->getTurnInfo();
 
-	const bool canFly = pathfinderHelper->hasBonusOfType(BonusType::FLYING_MOVEMENT) || (h->boat && h->boat->layer == EPathfindingLayer::AIR);
-	const bool canWalkOnSea = pathfinderHelper->hasBonusOfType(BonusType::WATER_WALKING) || (h->boat && h->boat->layer == EPathfindingLayer::WATER);
+	const bool canFly = ti->hasFlyingMovement() || (h->boat && h->boat->layer == EPathfindingLayer::AIR);
+	const bool canWalkOnSea = ti->hasWaterWalking() || (h->boat && h->boat->layer == EPathfindingLayer::WATER);
 	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movementPointsRemaining());
 
 	const bool movingOntoObstacle = t.blocked() && !t.visitable();

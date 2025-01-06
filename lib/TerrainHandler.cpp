@@ -151,36 +151,6 @@ std::vector<JsonNode> TerrainTypeHandler::loadLegacyData()
 	return result;
 }
 
-bool TerrainType::isLand() const
-{
-	return !isWater();
-}
-
-bool TerrainType::isWater() const
-{
-	return passabilityType & PassabilityType::WATER;
-}
-
-bool TerrainType::isRock() const
-{
-	return passabilityType & PassabilityType::ROCK;
-}
-
-bool TerrainType::isPassable() const
-{
-	return !isRock();
-}
-
-bool TerrainType::isSurface() const
-{
-	return passabilityType & PassabilityType::SURFACE;
-}
-
-bool TerrainType::isUnderground() const
-{
-	return passabilityType & PassabilityType::SUBTERRANEAN;
-}
-
 bool TerrainType::isTransitionRequired() const
 {
 	return transitionRequired;
