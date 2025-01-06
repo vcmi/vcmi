@@ -80,8 +80,6 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 		if(auto town = dynamic_cast<CGTownInstance*>(controller.map()->objects[i].get()))
 		{
 			auto * ctown = town->getTown();
-			if(!ctown)
-				ctown = VLC->townh->randomTown;
 
 			if(ctown && town->getOwner().getNum() == playerColor)
 			{

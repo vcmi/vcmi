@@ -332,11 +332,6 @@ void TownBuildingsDelegate::setEditorData(QWidget *editor, const QModelIndex &in
 	if(auto * ed = qobject_cast<TownBuildingsWidget *>(editor))
 	{
 		auto * ctown = town.getTown();
-		if(!ctown)
-			ctown = VLC->townh->randomTown;
-		if(!ctown)
-			throw std::runtime_error("No Town defined for type selected");
-		
 		ed->addBuildings(*ctown);
 	}
 	else
@@ -366,8 +361,6 @@ void TownBuildingsDelegate::updateModelData(QAbstractItemModel * model, const QM
 	QStringList textList;
 	textList += QObject::tr("Built buildings:");
 	auto * ctown = town.getTown();
-	if(!ctown)
-		ctown = VLC->townh->randomTown;
 	for(const auto & buildingID : town.getBuildings())
 	{
 		if(buildingID == BuildingID::DEFAULT)
