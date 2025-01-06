@@ -11,49 +11,42 @@
 #include "../Engine/Nullkiller.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/entities/building/CBuilding.h"
+#include "../../../lib/IGameSettings.h"
 
 namespace NKAI
 {
 
 void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 {
-	std::map<BuildingID, BuildingID> parentMap;
-
-	for(auto &pair : developmentInfo.town->getTown()->buildings)
-	{
-		if(pair.second->upgrade != BuildingID::NONE)
-		{
-			parentMap[pair.second->upgrade] = pair.first;
-		}
-	}
-
 	for(int level = 0; level < developmentInfo.town->getTown()->creatures.size(); level++)
 	{
 		logAi->trace("Checking dwelling level %d", level);
-		BuildingInfo nextToBuild = BuildingInfo();
+		std::vector<BuildingID> dwellingsInTown;
 
-		BuildingID buildID = BuildingID(BuildingID::getDwellingFromLevel(level, 0));
+		for(BuildingID buildID = BuildingID::getDwellingFromLevel(level, 0); buildID.hasValue(); BuildingID::advanceDwelling(buildID))
+			if(developmentInfo.town->getTown()->buildings.count(buildID) != 0)
+				dwellingsInTown.push_back(buildID);
 
-		for(; developmentInfo.town->getBuildings().count(buildID); BuildingID::advanceDwelling(buildID))
+		// find best, already built dwelling
+		for (const auto & buildID : boost::adaptors::reverse(dwellingsInTown))
 		{
-			if(!developmentInfo.town->hasBuilt(buildID))
-				continue; // no such building in town
+			if (!developmentInfo.town->hasBuilt(buildID))
+				continue;
 
-			auto info = getBuildingOrPrerequisite(developmentInfo.town, buildID);
-
-			if(info.exists)
-			{
-				developmentInfo.addExistingDwelling(info);
-
-				break;
-			}
-
-			nextToBuild = info;
+			const auto & info = getBuildingOrPrerequisite(developmentInfo.town, buildID);
+			developmentInfo.addExistingDwelling(info);
+			break;
 		}
 
-		if(nextToBuild.id != BuildingID::NONE)
+		// find all non-built dwellings that can be built and add them for consideration
+		for (const auto & buildID : dwellingsInTown)
 		{
-			developmentInfo.addBuildingToBuild(nextToBuild);
+			if (developmentInfo.town->hasBuilt(buildID))
+				continue;
+
+			const auto & info = getBuildingOrPrerequisite(developmentInfo.town, buildID);
+			if (info.canBuild || info.notEnoughRes)
+				developmentInfo.addBuildingToBuild(info);
 		}
 	}
 }
@@ -148,6 +141,9 @@ void BuildAnalyzer::update()
 
 	for(const CGTownInstance* town : towns)
 	{
+		if(town->built >= cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
+			continue; // Not much point in trying anything - can't built in this town anymore today
+
 		logAi->trace("Checking town %s", town->getNameTranslated());
 
 		developmentInfos.push_back(TownDevelopmentInfo(town));
@@ -272,11 +268,11 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 			if(vstd::contains_if(missingBuildings, otherDwelling))
 			{
-				logAi->trace("cant build. Need other dwelling");
+				logAi->trace("cant build %d. Need other dwelling %d", toBuild.getNum(), missingBuildings.front().getNum());
 			}
 			else if(missingBuildings[0] != toBuild)
 			{
-				logAi->trace("cant build. Need %d", missingBuildings[0].num);
+				logAi->trace("cant build %d. Need %d", toBuild.getNum(), missingBuildings[0].num);
 
 				BuildingInfo prerequisite = getBuildingOrPrerequisite(town, missingBuildings[0], excludeDwellingDependencies);
 
@@ -307,10 +303,14 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 				return info;
 			}
 		}
+		else
+		{
+			logAi->trace("Cant build. Reason: %d", static_cast<int>(canBuild));
+		}
 	}
 	else
 	{
-		logAi->trace("exists");
+		logAi->trace("Dwelling %d exists", toBuild.getNum());
 		info.exists = true;
 	}
 

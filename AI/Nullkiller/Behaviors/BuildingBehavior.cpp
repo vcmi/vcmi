@@ -59,17 +59,19 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 		{
 			closestThreat = std::min(closestThreat, threat.turn);
 		}
-		for (auto& buildingInfo : developmentInfo.toBuild)
+
+		if (closestThreat <= 1 && developmentInfo.town->fortLevel() < CGTownInstance::EFortLevel::CASTLE)
 		{
-			if (closestThreat <= 1 && developmentInfo.town->fortLevel() < CGTownInstance::EFortLevel::CASTLE && !buildingInfo.notEnoughRes)
+			for (auto& buildingInfo : developmentInfo.toBuild)
 			{
-				if (buildingInfo.id == BuildingID::CITADEL || buildingInfo.id == BuildingID::CASTLE)
+				if ( !buildingInfo.notEnoughRes && (buildingInfo.id == BuildingID::CITADEL || buildingInfo.id == BuildingID::CASTLE))
 				{
 					tasks.push_back(sptr(BuildThis(buildingInfo, developmentInfo)));
 					emergencyDefense = true;
 				}
 			}
 		}
+
 		if (!emergencyDefense)
 		{
 			for (auto& buildingInfo : developmentInfo.toBuild)

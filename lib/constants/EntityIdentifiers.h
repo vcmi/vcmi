@@ -325,7 +325,14 @@ private:
 public:
 	static Type getDwellingFromLevel(int level, int upgradeIndex)
 	{
-		return getDwellings()[upgradeIndex][level];
+		try
+		{
+			return getDwellings().at(upgradeIndex).at(level);
+		}
+		catch (const std::out_of_range & e)
+		{
+			return Type::NONE;
+		}
 	}
 
 	static int getLevelFromDwelling(BuildingIDBase dwelling)
