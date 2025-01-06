@@ -432,6 +432,9 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 			txt.appendTextID(VLC->townh->getById(randomFaction2[0])->getNameTextID());
 			srv.announceTxt(txt);
 			break;
+		// Silence -Wswitch
+		default:
+			break;
 	}
 	result = true;
 }

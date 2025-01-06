@@ -280,6 +280,8 @@ void PlayerMessageProcessor::finishVoting()
 			broadcastSystemMessage(msg);
 			gameHandler->turnTimerHandler->prolongTimers(currentVoteParameter * 1000);
 			break;
+		case ECurrentChatVote::NONE:
+			break;
 	}
 
 	currentVote = ECurrentChatVote::NONE;

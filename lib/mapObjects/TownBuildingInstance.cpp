@@ -121,6 +121,9 @@ void TownRewardableBuildingInstance::setProperty(ObjProperty what, ObjPropertyID
 		case ObjProperty::REWARD_SELECT:
 			selectedReward = identifier.getNum();
 			break;
+		// Silenct -Wswitch
+		default:
+			break;
 	}
 }
 

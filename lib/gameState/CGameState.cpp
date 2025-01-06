@@ -737,6 +737,10 @@ void CGameState::initStartingBonus()
 					logGlobal->error("Cannot give starting artifact - no free slots!");
 			}
 			break;
+
+		// Silence -Wswitch
+		default:
+			break;
 		}
 	}
 }
@@ -947,6 +951,9 @@ void CGameState::initMapObjects()
 				assert (q);
 				q->setObjToKill();
 			}
+			// Silence -Wswitch
+			default:
+				break;
 		}
 	}
 	CGSubterraneanGate::postInit(callback); //pairing subterranean gates

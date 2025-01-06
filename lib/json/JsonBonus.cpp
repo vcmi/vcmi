@@ -375,6 +375,9 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 		else
 			logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
 		break;
+	// Silence -Wswitch
+	default:
+		break;
 	}
 	return nullptr;
 }

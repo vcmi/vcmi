@@ -492,10 +492,13 @@ RumorState NewTurnProcessor::pickNewRumor()
 					newRumor.type = RumorState::TYPE_RAND;
 				[[fallthrough]];
 
-			case RumorState::TYPE_RAND:
+			case RumorState::TYPE_RAND: {
 				auto vector = VLC->generaltexth->findStringsWithPrefix("core.randtvrn");
 				rumorId = rand.nextInt((int)vector.size() - 1);
 
+			} break;
+			// Silence -Wswitch
+			default:
 				break;
 		}
 	}

@@ -1000,6 +1000,9 @@ AccessibilityInfo CBattleInfoCallback::getAccessibility() const
 		case EGateState::BLOCKED:
 			accessibility = EAccessibility::UNAVAILABLE;
 			break;
+		// Silence -Wswitch
+		default:
+			break;
 		}
 		ret[BattleHex::GATE_OUTER] = ret[BattleHex::GATE_INNER] = accessibility;
 	}
@@ -1886,6 +1889,9 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const ba
 			if (!kingMonster)
 				continue;
 		}
+			break;
+		// Silence -Wswitch
+		default:
 			break;
 		}
 		beneficialSpells.push_back(spellID);

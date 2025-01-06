@@ -562,6 +562,9 @@ void CMap::checkForObjectives()
 				//break; case EventCondition::IS_HUMAN:
 				//break; case EventCondition::DAYS_WITHOUT_TOWN:
 				//break; case EventCondition::STANDARD_WIN:
+				// Silence -Wswitch
+				default:
+					break;
 			}
 			return cond;
 		};

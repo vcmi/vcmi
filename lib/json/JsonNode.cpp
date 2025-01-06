@@ -185,6 +185,9 @@ void JsonNode::setModScope(const std::string & metadata, bool recursive)
 					node.second.setModScope(metadata);
 				}
 			}
+			// Silence -Wswitch
+			default:
+				break;
 		}
 	}
 }

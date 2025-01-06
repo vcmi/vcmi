@@ -1011,6 +1011,9 @@ void FoWChange::applyGs(CGameState *gs)
 					if(vstd::contains(team->players, o->tempOwner)) //check owned observators
 						gs->getTilesInRange(tilesRevealed, o->getSightCenter(), o->getSightRadius(), ETileVisibility::HIDDEN, o->tempOwner);
 					break;
+				// Silence -Wswitch
+				default:
+					break;
 				}
 			}
 		}

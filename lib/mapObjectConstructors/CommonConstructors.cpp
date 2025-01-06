@@ -295,6 +295,9 @@ CGMarket * MarketInstanceConstructor::createObject(IGameCallback * cb) const
 
 			case EMarketMode::RESOURCE_SKILL:
 				return new CGUniversity(cb);
+			// Silence -Wswitch
+			default:
+				break;
 		}
 	}
 	return new CGMarket(cb);

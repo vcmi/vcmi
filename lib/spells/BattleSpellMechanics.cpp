@@ -184,6 +184,9 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 				genProblem = ESpellCastProblem::NOT_ENOUGH_MANA;
 		}
 		break;
+	// Silence -Wswitch
+	default:
+		break;
 	}
 
 	if(genProblem != ESpellCastProblem::OK)

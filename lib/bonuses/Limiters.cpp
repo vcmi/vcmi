@@ -310,6 +310,9 @@ ILimiter::EDecision FactionLimiter::limit(const BonusLimitationContext &context)
 				return bearer->getFactionID() == context.b.sid.as<BuildingTypeUniqueID>().getFaction() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 
 			//TODO: other sources of bonuses
+			// Silenct -Wswitch
+			default:
+				break;
 		}
 	}
 	return ILimiter::EDecision::DISCARD; //Discard by default

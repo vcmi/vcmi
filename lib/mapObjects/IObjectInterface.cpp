@@ -147,6 +147,11 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 	case NO_WATER:
 		logGlobal->error("Shipyard without water at tile %s! ", getObject()->anchorPos().toString());
 		return;
+	case UNKNOWN:
+		logGlobal->error("Unknown shipyard status at tile %s! ", getObject()->anchorPos().toString());
+	// Silence -Wswitch
+	default:
+		break;
 	}
 }
 

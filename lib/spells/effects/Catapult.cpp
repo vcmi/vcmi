@@ -212,6 +212,9 @@ void Catapult::removeTowerShooters(ServerCallback * server, const Mechanics * m)
 		case EWallPart::UPPER_TOWER:
 			posRemove = BattleHex::CASTLE_UPPER_TOWER;
 			break;
+		// Silence -Wswitch
+		default:
+			break;
 		}
 
 		if(state == EWallState::DESTROYED) //HP enum subtraction not intuitive, consider using SiegeInfo::applyDamage

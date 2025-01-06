@@ -566,6 +566,9 @@ void CGSeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 			quest->activeForPlayers.clear();
 			break;
 		}
+		// Silence -Wswitch
+		default:
+			break;
 	}
 }
 
