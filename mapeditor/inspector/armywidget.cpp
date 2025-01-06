@@ -152,16 +152,15 @@ void ArmyDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, cons
 void ArmyDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
 {
 	QStringList textList;
-	for(auto i = army.stacks.begin(); i != army.stacks.end(); i++)
+	for(const auto & [_, stack] : army.stacks)
 	{
-		auto stack = i->second;
 		if(stack->count != 0 && stack->getCreature() != nullptr)
-			textList += QString::number(stack->count) + " " + QString::fromStdString(stack->getCreature()->getNamePluralTranslated());
+			textList += QString("%1 %2").arg(stack->count).arg(QString::fromStdString(stack->getCreature()->getNamePluralTranslated()));
 	}
 
 	QString text = textList.join("\n");
-	QMap<int, QVariant> data;
-	data[Qt::DisplayRole] = QVariant(text);
-	data[Qt::ToolTipRole] = QVariant(text);
-	model->setItemData(index, data);
+	model->setItemData(index, {
+		{Qt::DisplayRole, QVariant{text}},
+		{Qt::ToolTipRole, QVariant{text}}
+	});
 }

@@ -782,47 +782,47 @@ void RewardsDelegate::updateModelData(QAbstractItemModel * model, const QModelIn
 				continue;
 			MetaString str;
 			str.appendName(resource);
-			resourcesList += QString::fromStdString(str.toString()) + ": " + QString::number(vinfo.reward.resources[resource]);
+			resourcesList += QString("%1: %2").arg(QString::fromStdString(str.toString())).arg(vinfo.reward.resources[resource]);
 		}
-		textList += QObject::tr("Resources: ") + resourcesList.join(", ");
+		textList += QObject::tr("Resources: %1").arg(resourcesList.join(", "));
 		QStringList artifactsList;
 		for (auto artifact : vinfo.reward.artifacts)
 		{
 			artifactsList += QString::fromStdString(VLC->artifacts()->getById(artifact)->getNameTranslated());
 		}
-		textList += QObject::tr("Artifacts: ") + artifactsList.join(", ");
+		textList += QObject::tr("Artifacts: %1").arg(artifactsList.join(", "));
 		QStringList spellsList;
 		for (auto spell : vinfo.reward.spells)
 		{
 			spellsList += QString::fromStdString(VLC->spells()->getById(spell)->getNameTranslated());
 		}
-		textList += QObject::tr("Spells: ") + spellsList.join(", ");
+		textList += QObject::tr("Spells: %1").arg(spellsList.join(", "));
 		QStringList secondarySkillsList;
 		for(auto & [skill, skillLevel] : vinfo.reward.secondary)
 		{
-			secondarySkillsList += QString::fromStdString(VLC->skills()->getById(skill)->getNameTranslated()) + " (" + QString::number(skillLevel) + ")";
+			secondarySkillsList += QString("%1 (%2)").arg(QString::fromStdString(VLC->skills()->getById(skill)->getNameTranslated())).arg(skillLevel);
 		}
-		textList += QObject::tr("Secondary Skills: ") + secondarySkillsList.join(", ");
+		textList += QObject::tr("Secondary Skills: %1").arg(secondarySkillsList.join(", "));
 		QStringList creaturesList;
 		for (auto & creature : vinfo.reward.creatures)
 		{
-			creaturesList += QString::number(creature.count) + " " + QString::fromStdString(creature.getType()->getNamePluralTranslated());
+			creaturesList += QString("%1 %2").arg(creature.count).arg(QString::fromStdString(creature.getType()->getNamePluralTranslated()));
 		}
-		textList += QObject::tr("Creatures: ") + creaturesList.join(", ");
+		textList += QObject::tr("Creatures: %1").arg(creaturesList.join(", "));
 		if (vinfo.reward.spellCast.first != SpellID::NONE)
 		{
-			textList += QObject::tr("Spell Cast: ") + QString::fromStdString(VLC->spells()->getById(vinfo.reward.spellCast.first)->getNameTranslated()) + " (" + QString::number(vinfo.reward.spellCast.second) + ")";
+			textList += QObject::tr("Spell Cast: %1 (%2)").arg(QString::fromStdString(VLC->spells()->getById(vinfo.reward.spellCast.first)->getNameTranslated())).arg(vinfo.reward.spellCast.second);
 		}
 		QStringList bonusesList;
 		for (auto & bonus : vinfo.reward.bonuses)
 		{
-			bonusesList += QString::fromStdString(vstd::findKey(bonusDurationMap, bonus.duration)) + " " + QString::fromStdString(vstd::findKey(bonusNameMap, bonus.type)) + " (" + QString::number(bonus.val) + ")";
+			bonusesList += QString("%1 %2 (%3)").arg(QString::fromStdString(vstd::findKey(bonusDurationMap, bonus.duration))).arg(QString::fromStdString(vstd::findKey(bonusNameMap, bonus.type))).arg(bonus.val);
 		}
-		textList += QObject::tr("Bonuses: ") + bonusesList.join(", ");
+		textList += QObject::tr("Bonuses: %1").arg(bonusesList.join(", "));
 	}
 	QString text = textList.join("\n");
-	QMap<int, QVariant> data;
-	data[Qt::DisplayRole] = QVariant(text);
-	data[Qt::ToolTipRole] = QVariant(text);
-	model->setItemData(index, data);
+	model->setItemData(index, {
+		{Qt::DisplayRole, QVariant{text}},
+		{Qt::ToolTipRole, QVariant{text}}
+	});
 }

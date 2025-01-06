@@ -379,8 +379,8 @@ void TownBuildingsDelegate::updateModelData(QAbstractItemModel * model, const QM
 		textList += name;
 	}
 	QString text = textList.join("\n");
-	QMap<int, QVariant> data;
-	data[Qt::DisplayRole] = QVariant(text);
-	data[Qt::ToolTipRole] = QVariant(text);
-	model->setItemData(index, data);
+	model->setItemData(index, {
+		{Qt::DisplayRole, QVariant{text}},
+		{Qt::ToolTipRole, QVariant{text}}
+	});
 }

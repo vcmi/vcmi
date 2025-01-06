@@ -174,7 +174,6 @@ void TownSpellsDelegate::updateModelData(QAbstractItemModel * model, const QMode
 	if(vstd::contains(town.possibleSpells, SpellID::PRESET)) {
 		textList += QObject::tr("Custom Spells:");
 		textList += QObject::tr("Required:");
-		QStringList requiredSpellsList;
 		for(auto spellID : town.obligatorySpells)
 		{
 			auto spell = spellID.toEntity(VLC);
@@ -196,8 +195,8 @@ void TownSpellsDelegate::updateModelData(QAbstractItemModel * model, const QMode
 		textList += QObject::tr("Default Spells");
 	}
 	QString text = textList.join("\n");
-	QMap<int, QVariant> data;
-	data[Qt::DisplayRole] = QVariant(text);
-	data[Qt::ToolTipRole] = QVariant(text);
-	model->setItemData(index, data);
+	model->setItemData(index, {
+		{Qt::DisplayRole, QVariant{text}},
+		{Qt::ToolTipRole, QVariant{text}}
+	});
 }

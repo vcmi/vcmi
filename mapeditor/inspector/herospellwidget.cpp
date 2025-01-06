@@ -148,13 +148,11 @@ void HeroSpellDelegate::updateModelData(QAbstractItemModel * model, const QModel
 				textList += QString::fromStdString(spellID.toSpell()->getNameTranslated());
 		}
 		QString text = textList.join("\n");
-		data[Qt::DisplayRole] = QVariant(text);
-		data[Qt::ToolTipRole] = QVariant(text);
+		data[Qt::DisplayRole] = data[Qt::ToolTipRole] = QVariant(text);
 	}
 	else
 	{
-		data[Qt::DisplayRole] = QObject::tr("Default Spells");
-		data[Qt::ToolTipRole] = QObject::tr("Default Spells");
+		data[Qt::DisplayRole] = data[Qt::ToolTipRole] = QObject::tr("Default Spells");
 	}
 	model->setItemData(index, data);
 }
