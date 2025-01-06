@@ -364,6 +364,8 @@ void Inspector::updateProperties(CGTownInstance * o)
 	addProperty(QObject::tr("Buildings"), PropertyEditorPlaceholder(), delegate, false);
 	addProperty(QObject::tr("Spells"), PropertyEditorPlaceholder(), new TownSpellsDelegate(*o), false);
 	addProperty(QObject::tr("Events"), PropertyEditorPlaceholder(), new TownEventsDelegate(*o, controller), false);
+	if(o->ID == Obj::RANDOM_TOWN)
+		addProperty(QObject::tr("Same as player"), o->alignmentToPlayer, new OwnerDelegate(controller), false);
 }
 
 void Inspector::updateProperties(CGArtifact * o)
@@ -612,6 +614,9 @@ void Inspector::setProperty(CGTownInstance * o, const QString & key, const QVari
 	if(key == QObject::tr("Town name"))
 		o->setNameTextId(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("town", o->instanceName, "name"), value.toString().toStdString()));
+
+	if(key == QObject::tr("Same as player"))
+		o->alignmentToPlayer = PlayerColor(value.toInt());
 }
 
 void Inspector::setProperty(CGSignBottle * o, const QString & key, const QVariant & value)
