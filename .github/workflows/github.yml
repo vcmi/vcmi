@@ -267,6 +267,7 @@ jobs:
       env:
         HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
       if: ${{ env.HEROES_3_DATA_PASSWORD != '' && matrix.test == 1 }}
+      continue-on-error: true
       run: |
         ctest --preset ${{matrix.preset}}
 

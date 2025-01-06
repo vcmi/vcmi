@@ -71,6 +71,11 @@ public:
 		addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SIEGE_WEAPON, BonusSource::CREATURE_ABILITY, 1, BonusSourceID()));
 	}
 
+	bool isHypnotized() const override
+	{
+		return hasBonusOfType(BonusType::HYPNOTIZED);
+	}
+
 	void redirectBonusesToFake()
 	{
 		ON_CALL(*this, getAllBonuses(_, _, _)).WillByDefault(Invoke(&bonusFake, &BonusBearerMock::getAllBonuses));
@@ -262,7 +267,7 @@ TEST_F(AttackableHexesTest, DragonDragonBottomRightHead_BottomRightBreathFromHea
 	UnitFake & attacker = addDragon(35, BattleSide::ATTACKER);
 	UnitFake & defender = addDragon(attacker.getPosition().cloneInDirection(BattleHex::BOTTOM_RIGHT), BattleSide::DEFENDER);
 	UnitFake & next = addRegularMelee(defender.getPosition().cloneInDirection(BattleHex::BOTTOM_RIGHT), BattleSide::DEFENDER);
-	
+
 	auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
 
 	EXPECT_TRUE(vstd::contains(attacked, &next));
