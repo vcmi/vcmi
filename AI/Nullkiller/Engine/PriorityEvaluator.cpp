@@ -1223,7 +1223,7 @@ public:
 			if(bi.baseCreatureID == bi.creatureID)
 			{
 				evaluationContext.addNonCriticalStrategicalValue((0.5f + 0.1f * bi.creatureLevel) / (float)bi.prerequisitesCount);
-				evaluationContext.armyReward += bi.armyStrength;
+				evaluationContext.armyReward += bi.armyStrength * 1.5;
 			}
 			else
 			{
@@ -1244,9 +1244,25 @@ public:
 		else if(bi.id >= BuildingID::MAGES_GUILD_1 && bi.id <= BuildingID::MAGES_GUILD_5)
 		{
 			evaluationContext.skillReward += 2 * (bi.id - BuildingID::MAGES_GUILD_1);
-			for (auto hero : evaluationContext.evaluator.ai->cb->getHeroesInfo())
+			bool alreadyOwn = false;
+			int highestMageGuildPossible = BuildingID::MAGES_GUILD_3;
+			for (auto town : evaluationContext.evaluator.ai->cb->getTownsInfo())
 			{
-				evaluationContext.armyInvolvement += hero->getArmyCost();
+				if (town->hasBuilt(bi.id))
+					alreadyOwn = true;
+				if (evaluationContext.evaluator.ai->cb->canBuildStructure(town, BuildingID::MAGES_GUILD_5) != EBuildingState::FORBIDDEN)
+					highestMageGuildPossible = BuildingID::MAGES_GUILD_5;
+				else if (evaluationContext.evaluator.ai->cb->canBuildStructure(town, BuildingID::MAGES_GUILD_4) != EBuildingState::FORBIDDEN)
+					highestMageGuildPossible = BuildingID::MAGES_GUILD_4;
+			}
+			if (!alreadyOwn && evaluationContext.evaluator.ai->cb->canBuildStructure(buildThis.town, highestMageGuildPossible) != EBuildingState::FORBIDDEN)
+			{
+				for (auto hero : evaluationContext.evaluator.ai->cb->getHeroesInfo())
+				{
+					if(hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + hero->getPrimSkillLevel(PrimarySkill::KNOWLEDGE) > hero->getPrimSkillLevel(PrimarySkill::ATTACK) + hero->getPrimSkillLevel(PrimarySkill::DEFENSE)
+						&& hero->manaLimit() > 30)
+						evaluationContext.armyReward += hero->getArmyCost();
+				}
 			}
 		}
 		int sameTownBonus = 0;
