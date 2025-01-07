@@ -688,22 +688,31 @@ CLoadingScreen::CLoadingScreen(ImagePath background)
 	: CWindowObject(BORDERED, background)
 {
 	OBJECT_CONSTRUCTION;
-	
+
 	addUsedEvents(TIME);
-	
+
 	CCS->musich->stopMusic(5000);
-	
-	const auto & conf = CMainMenuConfig::get().getConfig()["loading"];
-	if(conf.isStruct())
+
+	const auto& conf = CMainMenuConfig::get().getConfig()["loading"];
+	const auto& nameConfig = conf["name"];
+
+	AnimationPath animationPath;
+	if (nameConfig.isVector() && !nameConfig.Vector().empty())
+		animationPath = AnimationPath::fromJson(*RandomGeneratorUtil::nextItem(nameConfig.Vector(), CRandomGenerator::getDefault()));
+
+	if (nameConfig.isString())
+		animationPath = AnimationPath::fromJson(nameConfig);
+
+	if (conf.isStruct())
 	{
 		const int posx = conf["x"].Integer();
 		const int posy = conf["y"].Integer();
 		const int blockSize = conf["size"].Integer();
 		const int blocksAmount = conf["amount"].Integer();
 		
-		for(int i = 0; i < blocksAmount; ++i)
+		for (int i = 0; i < blocksAmount; ++i)
 		{
-			progressBlocks.push_back(std::make_shared<CAnimImage>(AnimationPath::fromJson(conf["name"]), i, 0, posx + i * blockSize, posy));
+			progressBlocks.push_back(std::make_shared<CAnimImage>(animationPath, i, 0, posx + i * blockSize, posy));
 			progressBlocks.back()->deactivate();
 			progressBlocks.back()->visible = false;
 		}
