@@ -83,7 +83,7 @@ Alternatively, use Xcode or Apple Configurator (available for free on the Mac Ap
 
 2. Use Finder (macOS) or iTunes (Windows/macOS 10.14 or earlier). Mods can also be added by uploading the **Mods** directory.
 
-3. Follow [Apple’s guide](https://support.apple.com/en-us/HT210598) to place the files into the VCMI app. **Finder does not display copy progress**, so wait about 10 minutes for the process to finish.
+3. Follow [Apple’s guide](https://support.apple.com/en-us/HT210598) to place the files into the VCMI app. **Finder does not display copy progress in old macOS versions**, so wait about 10 minutes for the process to finish.
 
 ### Step 2.b: Using the Files App
 
