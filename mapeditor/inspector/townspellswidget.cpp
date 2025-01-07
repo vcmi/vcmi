@@ -194,9 +194,5 @@ void TownSpellsDelegate::updateModelData(QAbstractItemModel * model, const QMode
 	{
 		textList += QObject::tr("Default Spells");
 	}
-	QString text = textList.join("\n");
-	model->setItemData(index, {
-		{Qt::DisplayRole, QVariant{text}},
-		{Qt::ToolTipRole, QVariant{text}}
-	});
+	setModelTextData(model, index, textList);
 }

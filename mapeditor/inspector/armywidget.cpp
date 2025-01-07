@@ -158,9 +158,5 @@ void ArmyDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex
 			textList += QString("%1 %2").arg(stack->count).arg(QString::fromStdString(stack->getCreature()->getNamePluralTranslated()));
 	}
 
-	QString text = textList.join("\n");
-	model->setItemData(index, {
-		{Qt::DisplayRole, QVariant{text}},
-		{Qt::ToolTipRole, QVariant{text}}
-	});
+	setModelTextData(model, index, textList);
 }

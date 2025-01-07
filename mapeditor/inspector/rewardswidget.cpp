@@ -761,8 +761,7 @@ QWidget * RewardsDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
 
 void RewardsDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
 {
-	QStringList textList;
-	textList += QObject::tr("Rewards:");
+	QStringList textList(QObject::tr("Rewards:"));
 	for (const auto & vinfo : object.configuration.info)
 	{
 		textList += QObject::tr("Reward Message: %1").arg(QString::fromStdString(vinfo.message.toString()));
@@ -820,9 +819,5 @@ void RewardsDelegate::updateModelData(QAbstractItemModel * model, const QModelIn
 		}
 		textList += QObject::tr("Bonuses: %1").arg(bonusesList.join(", "));
 	}
-	QString text = textList.join("\n");
-	model->setItemData(index, {
-		{Qt::DisplayRole, QVariant{text}},
-		{Qt::ToolTipRole, QVariant{text}}
-	});
+	setModelTextData(model, index, textList);
 }

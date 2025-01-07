@@ -19,4 +19,12 @@ public:
     using QStyledItemDelegate::QStyledItemDelegate;
 
     virtual void updateModelData(QAbstractItemModel * model, const QModelIndex & index) const {};
+    void setModelTextData(QAbstractItemModel * model, const QModelIndex & index, const QStringList & list) const
+    {
+        QString text = list.join("\n");
+        model->setItemData(index, {
+            {Qt::DisplayRole, QVariant{text}},
+            {Qt::ToolTipRole, QVariant{text}}
+        });
+    };
 };

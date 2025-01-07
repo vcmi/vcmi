@@ -171,9 +171,5 @@ void HeroSkillsDelegate::updateModelData(QAbstractItemModel * model, const QMode
 	for(auto & [skill, skillLevel] : heroSecondarySkills)
 		textList += QString("%1 %2").arg(QString::fromStdString(VLC->skillh->getById(skill)->getNameTranslated())).arg(LevelIdentifiers[skillLevel - 1].first);
 
-	QString text = textList.join("\n");
-	model->setItemData(index, {
-		{Qt::DisplayRole, QVariant{text}},
-		{Qt::ToolTipRole, QVariant{text}}
-	});
+	setModelTextData(model, index, textList);
 }

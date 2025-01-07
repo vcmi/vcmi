@@ -157,9 +157,5 @@ void HeroArtifactsDelegate::updateModelData(QAbstractItemModel * model, const QM
 	{
 		textList += QString::fromStdString(art.artifact->getType()->getNameTranslated());
 	}
-	QString text = textList.join("\n");
-	model->setItemData(index, {
-		{Qt::DisplayRole, QVariant{text}},
-		{Qt::ToolTipRole, QVariant{text}}
-	});
+	setModelTextData(model, index, textList);
 }

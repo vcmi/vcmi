@@ -443,8 +443,7 @@ bool QuestDelegate::eventFilter(QObject * object, QEvent * event)
 
 void QuestDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
 {
-	QStringList textList;
-	textList += QObject::tr("Quest:");
+	QStringList textList(QObject::tr("Quest:"));
 	textList += QObject::tr("Day of Week: %1").arg(quest.mission.dayOfWeek);
 	textList += QObject::tr("Days Passed: %1").arg(quest.mission.daysPassed);
 	textList += QObject::tr("Hero Level: %1").arg(quest.mission.heroLevel);
@@ -517,9 +516,5 @@ void QuestDelegate::updateModelData(QAbstractItemModel * model, const QModelInde
 	}
 	textList += QObject::tr("Players: %1").arg(playersList.join(", "));
 
-	QString text = textList.join("\n");
-	model->setItemData(index, {
-		{Qt::DisplayRole, QVariant{text}},
-		{Qt::ToolTipRole, QVariant{text}}
-	});
+	setModelTextData(model, index, textList);
 }

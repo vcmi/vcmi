@@ -358,8 +358,7 @@ void TownBuildingsDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
 
 void TownBuildingsDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
 {
-	QStringList textList;
-	textList += QObject::tr("Built buildings:");
+	QStringList textList(QObject::tr("Built buildings:"));
 	auto * ctown = town.getTown();
 	for(const auto & buildingID : town.getBuildings())
 	{
@@ -378,9 +377,5 @@ void TownBuildingsDelegate::updateModelData(QAbstractItemModel * model, const QM
 			name = QString::fromStdString(defaultBuildingIdConversion(buildingID));
 		textList += name;
 	}
-	QString text = textList.join("\n");
-	model->setItemData(index, {
-		{Qt::DisplayRole, QVariant{text}},
-		{Qt::ToolTipRole, QVariant{text}}
-	});
+	setModelTextData(model, index, textList);
 }

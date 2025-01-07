@@ -179,16 +179,11 @@ void TownEventsDelegate::setModelData(QWidget * editor, QAbstractItemModel * mod
 
 void TownEventsDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
 {
-	QStringList eventList;
-	eventList += QObject::tr("Town Events:");
+	QStringList eventList(QObject::tr("Town Events:"));
 	for (const auto & event : town.events)
 	{
 		auto eventName = QString::fromStdString(event.name);
 		eventList += tr("Day %1 - %2").arg(event.firstOccurrence + 1).arg(eventName);
 	}
-	QString text = eventList.join("\n");
-	model->setItemData(index, {
-		{Qt::DisplayRole, QVariant{text}},
-		{Qt::ToolTipRole, QVariant{text}}
-	});
+	setModelTextData(model, index, eventList);
 }

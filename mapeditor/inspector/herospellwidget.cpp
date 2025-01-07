@@ -137,22 +137,19 @@ void HeroSpellDelegate::setModelData(QWidget * editor, QAbstractItemModel * mode
 
 void HeroSpellDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
 {
-	QMap<int, QVariant> data;
+	QStringList textList;
 	if(hero.spellbookContainsSpell(SpellID::PRESET))
 	{
-		QStringList textList;
 		textList += QObject::tr("Custom Spells:");
 		for(auto const & spellID : hero.getSpellsInSpellbook())
 		{
 			if(spellID != SpellID::PRESET)
 				textList += QString::fromStdString(spellID.toSpell()->getNameTranslated());
 		}
-		QString text = textList.join("\n");
-		data[Qt::DisplayRole] = data[Qt::ToolTipRole] = QVariant(text);
 	}
 	else
 	{
-		data[Qt::DisplayRole] = data[Qt::ToolTipRole] = QObject::tr("Default Spells");
+		textList += QObject::tr("Default Spells");
 	}
-	model->setItemData(index, data);
+	setModelTextData(model, index, textList);
 }
