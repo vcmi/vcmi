@@ -500,7 +500,7 @@ std::vector<std::string> CIdentifierStorage::getModsWithFailedRequests() const
 	std::vector<std::string> result;
 
 	for (const auto & request : failedRequests)
-		if (!vstd::contains(result, request.localScope))
+		if (!vstd::contains(result, request.localScope) && ModScope::isScopeReserved(request.localScope))
 			result.push_back(request.localScope);
 
 	return result;
