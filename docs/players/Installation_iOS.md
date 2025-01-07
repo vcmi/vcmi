@@ -7,7 +7,9 @@ You can run VCMI on iOS 12.0 and later, all devices are supported. If you wish t
 The easiest and recommended way to install on a non-jailbroken device is to install the [AltStore Classic](https://altstore.io/) or [Sideloadly](https://sideloadly.io/). We will use AltStore as an example below. Using this method means the VCMI certificate is auto-signed automatically.
 
 a) Install AltStore
+
 Follow the official instructions for your operating system:
+
 - [AltStore Windows Classic](https://faq.altstore.io/altstore-classic/how-to-install-altstore-windows)
 - [AltStore macOS](https://faq.altstore.io/altstore-classic/how-to-install-altstore-macos)
 
@@ -18,11 +20,15 @@ Follow the official instructions for your operating system:
 b) Download the VCMI-iOS.ipa file on your iOS device directly from the [latest releases](https://github.com/vcmi/vcmi/releases/latest).
 
 c) Install the IPA File
+
 To install the IPA file, choose one of the following methods:
+
 - In AltStore:
+  
   1. Go to **My Apps**.
   2. Press the **+** button in the top-left corner.
   3. Select `VCMI-iOS.ipa` to install.
+     
 - Alternatively, drag and drop the IPA file into your iOS device using iTunes.
 
 ## Step 2: Installing Heroes III data files
@@ -40,6 +46,7 @@ f) First, select the **.bin** file, then select the **.exe** file.
 g) The process may take a few seconds. Please be patient.
 
 ## Step 3: Configuration settings
+
 e) After installing VCMI, open the launcher and go to **Settings** in the left sidebar. Adjust the following video settings for the best experience:
 
 - Set **Reserved Screen Area** to **0%**.
@@ -61,6 +68,7 @@ To run on a non-jailbroken device, you need to sign the IPA file. Here are your 
 - **Sign on Any OS:** Use [Rust](https://github.com/indygreg/PyOxidizer/tree/main/tugger-code-signing) or an [alternative project in C++](https://github.com/zhlynn/zsign). Note: You will need signing assets (a private key and provisioning profile).
 
 ### Installing the IPA File
+
 - In AltStore: Go to **My Apps**, press the **+** button, and select `VCMI-iOS.ipa` to install.
 - Using iTunes: Drag and drop the IPA file into your iOS device.
 
@@ -102,8 +110,8 @@ You can also upload files with Xcode. You need to prepare "container" for that.
 4. Select your device
 5. Select VCMI
 6. In the bottom find "three dots" or "cogwheel" button (it should be next to + - buttons) - click it - select Download Container... 
-7. Place the game directories inside the downloaded container - AppData - Documents
-8. Click the "three dots" / "cogwheel" button in Xcode again - Replace Container... - select the downloaded container
+7. Place the game directories inside the downloaded container -> AppData -> Documents
+8. Click the "three dots" / "cogwheel" button in Xcode again -> Replace Container... -> select the downloaded container
 9. Wait until Xcode finishes copying, progress is visible (although it might be "indefinite")
 
 ## Game controls
@@ -119,10 +127,14 @@ You can start game directly (avoiding the launcher) by changing setting in iOS S
 Every 7 days you need to open Alt Store or the alternative. Clicking Update All or click Update App on both VCMI and the store separately works
 
 If you iTunes does not connect to your device over WiFi despite enabling the Sync over WiFi option, do the following on PC:
+
 a) Search for `cmd`. Right click on it and ‘Run as administrator’.
 b) Copy the command below. It stops the ‘Apple Mobile Device service’.
+
 -     net stop "Apple Mobile Device Service"
+  
 c) Copy the command below and restart the ‘Apple Mobile Device Service’.
+
 -     net start "Apple Mobile Device Service"
 
 In the event that you don't update the store in the alloted time and it expires, it won't load. Reloading the store is easy enough. Simply
