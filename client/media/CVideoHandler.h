@@ -42,7 +42,7 @@ class FFMpegStream : boost::noncopyable
 	AVFrame * frame = nullptr;
 
 protected:
-	void openContext();
+	bool openContext();
 	void openCodec(int streamIndex);
 
 	int findVideoStream() const;
@@ -91,7 +91,7 @@ public:
 	CVideoInstance();
 	~CVideoInstance();
 
-	void openVideo();
+	bool openVideo();
 	bool loadNextFrame();
 
 	double timeStamp() final;
