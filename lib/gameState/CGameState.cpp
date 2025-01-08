@@ -566,7 +566,7 @@ void CGameState::placeStartingHeroes()
 				continue;
 
 			HeroTypeID heroTypeId = pickNextHeroType(playerColor);
-			if(playerSettingPair.second.hero == HeroTypeID::NONE)
+			if(playerSettingPair.second.hero == HeroTypeID::NONE || playerSettingPair.second.hero == HeroTypeID::RANDOM)
 				playerSettingPair.second.hero = heroTypeId;
 
 			placeStartingHero(playerColor, HeroTypeID(heroTypeId), playerInfo.posOfMainTown);
