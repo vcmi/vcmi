@@ -111,9 +111,9 @@
 	},
 
 	"vietnamese": {
-		"name": "VCMI essential files",
+		"name": "VCMI - Tập tin chính",
 		"description": "Các tập tin cần thiết để chạy VCMI",
-		"author": "Vũ Đắc Hoàng Ân",
+		"author": "Hunter8x - Bé Còi",
 		"skipValidation": true,
 		"translations": [
 			"config/vietnamese.json"
