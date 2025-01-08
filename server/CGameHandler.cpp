@@ -4115,12 +4115,10 @@ void CGameHandler::changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerC
 
 		for (auto tile : observedTiles)
 			vstd::erase_if_present (fow.tiles, tile);
-
-		if (fow.tiles.empty())
-			return;
 	}
 
-	sendAndApply(fow);
+	if (!fow.tiles.empty())
+		sendAndApply(fow);
 }
 
 const CGHeroInstance * CGameHandler::getVisitingHero(const CGObjectInstance *obj)
