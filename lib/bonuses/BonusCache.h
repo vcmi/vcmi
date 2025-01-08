@@ -34,6 +34,19 @@ protected:
 	{
 		std::atomic<int64_t> version = 0;
 		std::atomic<int64_t> value = 0;
+
+		BonusCacheEntry() = default;
+		BonusCacheEntry(const BonusCacheEntry & other)
+			: version(other.version.load())
+			, value(other.value.load())
+		{
+		}
+		BonusCacheEntry & operator =(const BonusCacheEntry & other)
+		{
+			version = other.version.load();
+			value = other.value.load();
+			return *this;
+		}
 	};
 
 	int getBonusValueImpl(BonusCacheEntry & currentValue, const CSelector & selector, BonusCacheMode) const;
