@@ -229,7 +229,7 @@ void Nullkiller::resetAiState()
 	lockedResources = TResources();
 	scanDepth = ScanDepth::MAIN_FULL;
 	lockedHeroes.clear();
-	dangerHitMap->reset();
+	dangerHitMap->resetHitmap();
 	useHeroChain = true;
 	objectClusterizer->reset();
 
