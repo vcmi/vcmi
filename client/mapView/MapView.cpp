@@ -65,7 +65,7 @@ void BasicMapView::render(Canvas & target, bool fullUpdate)
 	tilesCache->update(controller->getContext());
 	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
 
-	MapOverlayLogVisualizer r(target, model);
+	MapOverlayLogVisualizer r(targetClipped, model);
 	logVisual->visualize(r);
 }
 
