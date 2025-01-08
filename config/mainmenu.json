@@ -6,7 +6,8 @@
 	"loading" :
 	{
 		"background" : ["loadbar"],
-		"x": 395, "y": 548, "size": 18, "amount": 20, "name": "loadprog"
+		"x": 395, "y": 548, "size": 18, "amount": 20,
+		"name": "loadprog"
 	},
 
 	//Multiplayer selection image
