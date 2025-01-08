@@ -649,12 +649,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="410"/>
         <source>Mods are required</source>
-        <translation type="unfinished"></translation>
+        <translation>Wymagane są mody</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="415"/>
         <source>Failed to open map</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się otworzyć mapy</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="441"/>
@@ -674,22 +674,22 @@
     <message>
         <location filename="../mainwindow.cpp" line="550"/>
         <source>Map validation</source>
-        <translation type="unfinished"></translation>
+        <translation>Walidacja mapy</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="552"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa ma krytyczne problemy i prawdopodobnie nie będzie grywalna. Otwórz Walidator z menu Mapy, aby zobaczyć znalezione problemy.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="554"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa zawiera błędy. Otwórz Walidator z menu Mapy, aby zobaczyć znalezione problemy.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="578"/>
         <source>Failed to save map</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się zapisać mapy</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="591"/>
@@ -789,12 +789,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="945"/>
         <source>Mods loading problem</source>
-        <translation type="unfinished"></translation>
+        <translation>Problem z ładowaniem modów</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="945"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
-        <translation type="unfinished"></translation>
+        <translation>Krytyczny błąd podczas ładowania modów. Wyłącz nieprawidłowe mody i uruchom ponownie.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="962"/>
@@ -1136,32 +1136,32 @@
     <message>
         <location filename="../inspector/inspector.cpp" line="292"/>
         <source>POWER RANK</source>
-        <translation type="unfinished"></translation>
+        <translation>RANKING SIŁY</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="292"/>
         <source>HERO TYPE</source>
-        <translation type="unfinished"></translation>
+        <translation>TYP BOHATERA</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="315"/>
         <source>Hero class</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasa bohatera</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="324"/>
         <source>Portrait</source>
-        <translation type="unfinished">Portret</translation>
+        <translation>Portret</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="327"/>
         <source>Skills</source>
-        <translation type="unfinished">Umiejętności</translation>
+        <translation>Umiejętności</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="329"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefakty</translation>
+        <translation>Artefakty</translation>
     </message>
     <message numerus="yes">
         <location filename="../inspector/inspector.cpp" line="351"/>
@@ -1176,52 +1176,52 @@
     <message>
         <location filename="../inspector/inspector.cpp" line="364"/>
         <source>Buildings</source>
-        <translation type="unfinished">Budynki</translation>
+        <translation>Budynki</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="366"/>
         <source>Events</source>
-        <translation type="unfinished">Zdarzenia</translation>
+        <translation>Zdarzenia</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="397"/>
         <source>Resource</source>
-        <translation type="unfinished"></translation>
+        <translation>Zasób</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="428"/>
         <source>Artifact reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Nagroda: Artefakt</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="471"/>
         <source>Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Misja</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="489"/>
         <source>Identifier</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="490"/>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="491"/>
         <source>SubID</source>
-        <translation type="unfinished"></translation>
+        <translation>SubID</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="492"/>
         <source>InstanceName</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa Instancji</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="497"/>
         <source>IsStatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Statyczny</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="867"/>
@@ -1232,162 +1232,162 @@
     <message>
         <location filename="../inspector/inspector.cpp" line="913"/>
         <source>Army</source>
-        <translation type="unfinished"></translation>
+        <translation>Armia</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="914"/>
         <source>Owner</source>
-        <translation type="unfinished"></translation>
+        <translation>Właściciel</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="915"/>
         <source>Same as town</source>
-        <translation type="unfinished"></translation>
+        <translation>Taki sam jak miasto</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="916"/>
         <source>Removable units</source>
-        <translation type="unfinished"></translation>
+        <translation>Jednostki do usunięcia</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="917"/>
         <source>Placeholder type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ zastępczy</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="918"/>
         <source>Power rank</source>
-        <translation type="unfinished"></translation>
+        <translation>Ranking siły</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="919"/>
         <source>Hero type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ bohatera</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="920"/>
         <source>Experience</source>
-        <translation type="unfinished"></translation>
+        <translation>Doświadczenie</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="921"/>
         <source>MALE</source>
-        <translation type="unfinished"></translation>
+        <translation>MĘŻCZYZNA</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="922"/>
         <source>FEMALE</source>
-        <translation type="unfinished"></translation>
+        <translation>KOBIETA</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="923"/>
         <source>Gender</source>
-        <translation type="unfinished"></translation>
+        <translation>Płeć</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="924"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="925"/>
         <source>Biography</source>
-        <translation type="unfinished"></translation>
+        <translation>Biografia</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="926"/>
         <source>Spells</source>
-        <translation type="unfinished">Zaklęcia</translation>
+        <translation>Zaklęcia</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="928"/>
         <source>Patrol radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Promień patrolu</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="929"/>
         <source>Town name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa miasta</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="930"/>
         <source>Message</source>
-        <translation type="unfinished">Wiadomość</translation>
+        <translation>Wiadomość</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="931"/>
         <source>Spell</source>
-        <translation type="unfinished">Zaklęcie</translation>
+        <translation>Zaklęcie</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="932"/>
         <source>Productivity</source>
-        <translation type="unfinished"></translation>
+        <translation>Produktywność</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="933"/>
         <source>Amount</source>
-        <translation type="unfinished"></translation>
+        <translation>Ilość</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="934"/>
         <source>Character</source>
-        <translation type="unfinished"></translation>
+        <translation>Charakter</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="935"/>
         <source>Never flees</source>
-        <translation type="unfinished"></translation>
+        <translation>Nigdy nie ucieka</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="936"/>
         <source>Not growing</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie rośnie</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="937"/>
         <source>Reward</source>
-        <translation type="unfinished">Nagroda</translation>
+        <translation>Nagroda</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="938"/>
         <source>Remove after</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń po</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="939"/>
         <source>Human trigger</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyzwalacz gracza</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="940"/>
         <source>Cpu trigger</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyzwalacz SI</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="941"/>
         <source>First visit text</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekst pierwszej wizyty</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="942"/>
         <source>Next visit text</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekst następnej wizyty</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="943"/>
         <source>Completed text</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekst po zakończeniu</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="944"/>
         <source>Repeat quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtarzaj misję</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="945"/>
         <source>Time limit</source>
-        <translation type="unfinished"></translation>
+        <translation>Limit czasu</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="865"/>
@@ -2375,7 +2375,7 @@
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="432"/>
         <source>Any town</source>
-        <translation type="unfinished"></translation>
+        <translation>Dowolne miasto</translation>
     </message>
 </context>
 <context>
@@ -2582,7 +2582,7 @@
     <message>
         <location filename="../windownewmap.cpp" line="422"/>
         <source>[default]</source>
-        <translation type="unfinished"></translation>
+        <translation>[domyślny]</translation>
     </message>
 </context>
 <context>
