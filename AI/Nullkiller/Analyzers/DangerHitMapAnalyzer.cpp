@@ -119,7 +119,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 		PathfinderSettings ps;
 
-		ps.scoutTurnDistanceLimit = ps.mainTurnDistanceLimit = ai->settings->getMainHeroTurnDistanceLimit();
+		ps.scoutTurnDistanceLimit = ps.mainTurnDistanceLimit = ai->settings->getThreatTurnDistanceLimit();
 		ps.useHeroChain = false;
 
 		ai->pathfinder->updatePaths(pair.second, ps);
