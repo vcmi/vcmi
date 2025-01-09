@@ -1393,7 +1393,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	{
 		float score = 0;
 		const bool amIInDanger = ai->cb->getTownsInfo().empty();
-		const float maxWillingToLose = amIInDanger ? 1 : ai->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio > 0 ? evaluationContext.powerRatio : 1.0;
+		const float maxWillingToLose = amIInDanger ? 1 : ai->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio > 0 ? ai->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio : 1.0;
 		float dangerThreshold = 1;
 		dangerThreshold *= evaluationContext.powerRatio > 0 ? evaluationContext.powerRatio : 1.0;
 
@@ -1402,10 +1402,11 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			arriveNextWeek = true;
 
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, army-involvement: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, explorePriority: %d isDefend: %d isEnemy: %d arriveNextWeek: %d powerRatio: %f",
+		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, maxWillingToLose: %f, turn: %d, turns main: %f, scout: %f, army-involvement: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, explorePriority: %d isDefend: %d isEnemy: %d arriveNextWeek: %d powerRatio: %f",
 			priorityTier,
 			task->toString(),
 			evaluationContext.armyLossPersentage,
+			maxWillingToLose,
 			(int)evaluationContext.turn,
 			evaluationContext.movementCostByRole[HeroRole::MAIN],
 			evaluationContext.movementCostByRole[HeroRole::SCOUT],
@@ -1450,14 +1451,14 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			}
 			case PriorityTier::INSTADEFEND: //Defend immediately threatened towns
 			{
+				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
+					return 0;
 				if (evaluationContext.closestWayRatio < 1.0)
 					return 0;
 				if (evaluationContext.isEnemy && evaluationContext.turn > 0)
 					return 0;
 				if (evaluationContext.isDefend && evaluationContext.threatTurns <= evaluationContext.turn)
 					score = evaluationContext.armyInvolvement;
-				if (evaluationContext.isEnemy && maxWillingToLose - evaluationContext.armyLossPersentage < 0)
-					return 0;
 				break;
 			}
 			case PriorityTier::KILL: //Take towns / kill heroes that are further away
