@@ -47,11 +47,10 @@ ChainActor::ChainActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t 
 	initialTurn = 0;
 	armyValue = getHeroArmyStrengthWithCommander(hero, hero);
 	heroFightingStrength = hero->getHeroStrength();
-	tiCache.reset(new TurnInfo(hero));
 }
 
 ChainActor::ChainActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * heroArmy)
-	:hero(carrier->hero), tiCache(carrier->tiCache), heroRole(carrier->heroRole), isMovable(true), creatureSet(heroArmy), chainMask(carrier->chainMask | other->chainMask),
+	:hero(carrier->hero), heroRole(carrier->heroRole), isMovable(true), creatureSet(heroArmy), chainMask(carrier->chainMask | other->chainMask),
 	baseActor(this), carrierParent(carrier), otherParent(other), heroFightingStrength(carrier->heroFightingStrength),
 	actorExchangeCount(carrier->actorExchangeCount + other->actorExchangeCount), armyCost(carrier->armyCost + other->armyCost), actorAction()
 {
@@ -75,7 +74,7 @@ int ChainActor::maxMovePoints(CGPathNode::ELayer layer)
 		throw std::logic_error("Asking movement points for static actor");
 #endif
 
-	return hero->movementPointsLimitCached(layer, tiCache.get());
+	return hero->movementPointsLimit(layer);
 }
 
 std::string ChainActor::toString() const
@@ -133,7 +132,6 @@ void ChainActor::setBaseActor(HeroActor * base)
 	heroFightingStrength = base->heroFightingStrength;
 	armyCost = base->armyCost;
 	actorAction = base->actorAction;
-	tiCache = base->tiCache;
 	actorExchangeCount = base->actorExchangeCount;
 }
 

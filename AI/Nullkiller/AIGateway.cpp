@@ -285,8 +285,8 @@ void AIGateway::tileRevealed(const std::unordered_set<int3> & pos)
 			addVisitableObj(obj);
 	}
 
-	if (nullkiller->settings->isUpdateHitmapOnTileReveal())
-		nullkiller->dangerHitMap->reset();
+	if (nullkiller->settings->isUpdateHitmapOnTileReveal() && !pos.empty())
+		nullkiller->dangerHitMap->resetTileOwners();
 }
 
 void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
@@ -389,9 +389,10 @@ void AIGateway::objectRemoved(const CGObjectInstance * obj, const PlayerColor & 
 	}
 
 	if(obj->ID == Obj::HERO && cb->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
-	{
-		nullkiller->dangerHitMap->reset();
-	}
+		nullkiller->dangerHitMap->resetHitmap();
+
+	if(obj->ID == Obj::TOWN)
+		nullkiller->dangerHitMap->resetTileOwners();
 }
 
 void AIGateway::showHillFortWindow(const CGObjectInstance * object, const CGHeroInstance * visitor)
@@ -507,7 +508,7 @@ void AIGateway::objectPropertyChanged(const SetObjectProperty * sop)
 			else if(relations == PlayerRelations::SAME_PLAYER && obj->ID == Obj::TOWN)
 			{
 				// reevaluate defence for a new town
-				nullkiller->dangerHitMap->reset();
+				nullkiller->dangerHitMap->resetHitmap();
 			}
 		}
 	}
@@ -1246,7 +1247,7 @@ void AIGateway::addVisitableObj(const CGObjectInstance * obj)
 
 	if(obj->ID == Obj::HERO && cb->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
 	{
-		nullkiller->dangerHitMap->reset();
+		nullkiller->dangerHitMap->resetHitmap();
 	}
 }
 

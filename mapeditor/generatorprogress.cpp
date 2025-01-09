@@ -19,10 +19,10 @@ GeneratorProgress::GeneratorProgress(Load::Progress & source, QWidget *parent) :
 	source(source)
 {
 	ui->setupUi(this);
+	
+	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
 
 	setAttribute(Qt::WA_DeleteOnClose);
-
-	setWindowFlags(Qt::Window);
 
 	show();
 }

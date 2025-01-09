@@ -74,7 +74,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="227"/>
         <source>Configuration files directory</source>
-        <translation>Verzeichnis der Konfiguarions-Dateien</translation>
+        <translation>Verzeichnis der Konfigurationsdateien</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="290"/>
@@ -492,7 +492,7 @@ Installation erfolgreich heruntergeladen?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
         <source>Handle back as right mouse button</source>
-        <translation type="unfinished"></translation>
+        <translation>Behandle &quot;Zurück&quot; als rechte Maustaste</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1102"/>
@@ -823,7 +823,7 @@ Exklusiver Vollbildmodus - das Spiel nimmt den gesamten Bildschirm ein und verwe
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="144"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation type="unfinished">Heroes Chronicles %1 - %2</translation>
+        <translation>Heroes Chronicles %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -1163,11 +1163,13 @@ Fehlerursache: </translation>
 Exe (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>SHA1-Hash der bereitgestellten Dateien:
 Exe (%n Bytes):
 %1</numerusform>
-            <numerusform></numerusform>
+            <numerusform>SHA1-Hash der bereitgestellten Dateien:
+Exe (%n Bytes):
+%1</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1176,11 +1178,13 @@ Exe (%n Bytes):
 Bin (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>
 Bin (%n Bytes):
 %1</numerusform>
-            <numerusform></numerusform>
+            <numerusform>
+Bin (%n Bytes):
+%1</numerusform>
         </translation>
     </message>
     <message>
@@ -1357,7 +1361,7 @@ Bin (%n Bytes):
     <message>
         <location filename="../mainwindow_moc.cpp" line="46"/>
         <source>Error starting executable</source>
-        <translation type="unfinished">Fehler beim Starten der ausführbaren Datei</translation>
+        <translation>Fehler beim Starten der ausführbaren Datei</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="287"/>
@@ -1454,7 +1458,7 @@ Bin (%n Bytes):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="248"/>
         <source>Mod data was not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod-Daten wurden nicht gefunden</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="252"/>

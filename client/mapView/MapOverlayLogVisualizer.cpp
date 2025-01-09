@@ -17,6 +17,7 @@
 #include "../render/Colors.h"
 #include "../render/EFont.h"
 #include "../render/IFont.h"
+#include "../render/IScreenHandler.h"
 #include "../render/IRenderHandler.h"
 #include "../render/Graphics.h"
 #include "../gui/TextAlignment.h"
@@ -30,24 +31,20 @@ MapOverlayLogVisualizer::MapOverlayLogVisualizer(Canvas & target, std::shared_pt
 
 void MapOverlayLogVisualizer::drawLine(int3 start, int3 end)
 {
-	const Point offset = Point(30, 30);
-
 	auto level = model->getLevel();
 
 	if(start.z != level || end.z != level)
 		return;
 
-	auto pStart = model->getTargetTileArea(start).topLeft();
-	auto pEnd = model->getTargetTileArea(end).topLeft();
-	auto viewPort = target.getRenderArea();
+	int scaling = GH.screenHandler().getScalingFactor();
+	auto pStart = model->getTargetTileArea(start).center();
+	auto pEnd = model->getTargetTileArea(end).center();
+	Rect viewPortRaw = target.getRenderArea();
+	Rect viewPort(viewPortRaw.topLeft() / scaling, viewPortRaw.dimensions() / scaling );
 
-	pStart.x += 3;
-	pEnd.x -= 3;
+	Point workaroundOffset(8,8); // not sure why it is needed. Removing leads to incorrect clipping near view edges
 
-	pStart += offset;
-	pEnd += offset;
-
-	if(viewPort.isInside(pStart) && viewPort.isInside(pEnd))
+	if(viewPort.isInside(pStart + workaroundOffset) && viewPort.isInside(pEnd + workaroundOffset))
 	{
 		target.drawLine(pStart, pEnd, ColorRGBA(255, 255, 0), ColorRGBA(255, 0, 0));
 	}

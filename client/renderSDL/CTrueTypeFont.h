@@ -11,13 +11,13 @@
 
 #include "../render/IFont.h"
 
+#include <SDL_ttf.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
 VCMI_LIB_NAMESPACE_END
 
 class CBitmapFont;
-
-using TTF_Font = struct _TTF_Font;
 
 class CTrueTypeFont final : public IFont
 {

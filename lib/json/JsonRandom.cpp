@@ -35,6 +35,21 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+std::string JsonRandomizationException::cleanupJson(const JsonNode & value)
+{
+	std::string result = value.toCompactString();
+	for (size_t i = 0; i < result.size(); ++i)
+		if (result[i] == '\n')
+			result[i] = ' ';
+
+	return result;
+}
+
+JsonRandomizationException::JsonRandomizationException(const std::string & message, const JsonNode & input)
+	: std::runtime_error(message + " Input was: " + cleanupJson(input))
+{}
+
+
 	si32 JsonRandom::loadVariable(const std::string & variableGroup, const std::string & value, const Variables & variables, si32 defaultValue)
 	{
 		if (value.empty() || value[0] != '@')
@@ -483,7 +498,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 		if (!potentialPicks.empty())
 			pickedCreature = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 		else
-			logMod->warn("Failed to select suitable random creature!");
+			throw JsonRandomizationException("No potential creatures to pick!", value);
+
+		if (!pickedCreature.hasValue())
+			throw JsonRandomizationException("Invalid creature picked!", value);
 
 		stack.setType(pickedCreature.toCreature());
 		stack.count = loadValue(value, rng, variables);

@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Unit.h"
-#include "../bonuses/CBonusProxy.h"
+#include "../bonuses/BonusCache.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -32,10 +32,6 @@ class DLL_LINKAGE CAmmo
 public:
 	explicit CAmmo(const battle::Unit * Owner, CSelector totalSelector);
 
-	//only copy construction is allowed for acquire(), serializeJson should be used for any other "assignment"
-	CAmmo(const CAmmo & other) = default;
-	CAmmo(CAmmo && other) = delete;
-
 	CAmmo & operator=(const CAmmo & other);
 	CAmmo & operator=(CAmmo && other) = delete;
 
@@ -50,15 +46,14 @@ public:
 protected:
 	int32_t used;
 	const battle::Unit * owner;
-	CBonusProxy totalProxy;
+	BonusValueCache totalProxy;
 };
 
 class DLL_LINKAGE CShots : public CAmmo
 {
 public:
 	explicit CShots(const battle::Unit * Owner);
-	CShots(const CShots & other) = default;
-	CShots & operator=(const CShots & other);
+
 	bool isLimited() const override;
 	int32_t total() const override;
 
@@ -66,23 +61,20 @@ public:
 private:
 	const IUnitEnvironment * env;
 
-	CCheckProxy shooter;
+	BonusValueCache shooter;
 };
 
 class DLL_LINKAGE CCasts : public CAmmo
 {
 public:
 	explicit CCasts(const battle::Unit * Owner);
-	CCasts(const CCasts & other) = default;
-	CCasts & operator=(const CCasts & other) = default;
 };
 
 class DLL_LINKAGE CRetaliations : public CAmmo
 {
 public:
 	explicit CRetaliations(const battle::Unit * Owner);
-	CRetaliations(const CRetaliations & other) = default;
-	CRetaliations & operator=(const CRetaliations & other) = default;
+
 	bool isLimited() const override;
 	int32_t total() const override;
 	void reset() override;
@@ -91,8 +83,8 @@ public:
 private:
 	mutable int32_t totalCache;
 
-	CCheckProxy noRetaliation;
-	CCheckProxy unlimited;
+	BonusValueCache noRetaliation;
+	BonusValueCache unlimited;
 };
 
 class DLL_LINKAGE CHealth
@@ -154,11 +146,6 @@ public:
 	CHealth health;
 	CShots shots;
 
-	CTotalsProxy totalAttacks;
-
-	CTotalsProxy minDamage;
-	CTotalsProxy maxDamage;
-
 	///id of alive clone of this stack clone if any
 	si32 cloneID;
 
@@ -205,11 +192,14 @@ public:
 	bool isFrozen() const override;
 	bool isValidTarget(bool allowDead = false) const override;
 
+	bool isHypnotized() const override;
+
 	bool isClone() const override;
 	bool hasClone() const override;
 
 	bool canCast() const override;
 	bool isCaster() const override;
+	bool canShootBlocked() const override;
 	bool canShoot() const override;
 	bool isShooter() const override;
 
@@ -218,12 +208,16 @@ public:
 	int32_t getFirstHPleft() const override;
 	int64_t getAvailableHealth() const override;
 	int64_t getTotalHealth() const override;
+	uint32_t getMaxHealth() const override;
 
 	BattleHex getPosition() const override;
 	void setPosition(BattleHex hex) override;
 	int32_t getInitiative(int turn = 0) const override;
 	uint8_t getRangedFullDamageDistance() const;
 	uint8_t getShootingRangeDistance() const;
+
+	ui32 getMovementRange(int turn) const override;
+	ui32 getMovementRange() const override;
 
 	bool canMove(int turn = 0) const override;
 	bool defended(int turn = 0) const override;
@@ -268,11 +262,9 @@ public:
 private:
 	const IUnitEnvironment * env;
 
-	CTotalsProxy attack;
-	CTotalsProxy defence;
-	CBonusProxy inFrenzy;
-
-	CCheckProxy cloneLifetimeMarker;
+	BonusCachePerTurn immobilizedPerTurn;
+	BonusCachePerTurn stackSpeedPerTurn;
+	UnitBonusValuesProxy bonusCache;
 
 	void reset();
 };
@@ -282,12 +274,11 @@ class DLL_LINKAGE CUnitStateDetached : public CUnitState
 public:
 	explicit CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_);
 
-	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit,
-		const std::string & cachingStr = "") const override;
+	CUnitStateDetached & operator= (const CUnitState & other);
+
+	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit, const std::string & cachingStr = "") const override;
 
 	int64_t getTreeVersion() const override;
-
-	CUnitStateDetached & operator= (const CUnitState & other);
 
 	uint32_t unitId() const override;
 	BattleSide unitSide() const override;
@@ -296,7 +287,6 @@ public:
 	PlayerColor unitOwner() const override;
 
 	SlotID unitSlot() const override;
-
 
 	int32_t unitBaseAmount() const override;
 

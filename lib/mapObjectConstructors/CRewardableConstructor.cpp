@@ -11,6 +11,7 @@
 #include "CRewardableConstructor.h"
 
 #include "../json/JsonUtils.h"
+#include "../json/JsonRandom.h"
 #include "../mapObjects/CRewardableObject.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
@@ -49,7 +50,14 @@ Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameCal
 {
 	Rewardable::Configuration result;
 	result.variables.preset = presetVariables;
-	objectInfo.configureObject(result, rand, cb);
+
+	try {
+		objectInfo.configureObject(result, rand, cb);
+	}
+	catch (const JsonRandomizationException & e)
+	{
+		throw std::runtime_error("Failed to generate configuration for object '" + getJsonKey() + "'! Reason: " + e.what());
+	}
 
 	for(auto & rewardInfo : result.info)
 	{

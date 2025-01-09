@@ -19,9 +19,11 @@
 #include "../render/IImage.h"
 #include "../renderSDL/RenderHandler.h"
 #include "../widgets/CComponentHolder.h"
+#include "../widgets/Slider.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
+#include "../eventsSDL/InputHandler.h"
 
 #include "../../lib/IGameSettings.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
@@ -99,7 +101,9 @@ void CHeroOverview::genControls()
     // hero biography
     r = Rect(borderOffset, 5 * borderOffset + yOffset + 148, 284, 130);
     backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
-    labelHeroBiography = std::make_shared<CMultiLineLabel>(r.resize(-borderOffset), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->heroh)[heroIdx]->getBiographyTranslated());
+    labelHeroBiography = std::make_shared<CTextBox>((*CGI->heroh)[heroIdx]->getBiographyTranslated(), r.resize(-borderOffset), CSlider::EStyle::BROWN, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+    if(labelHeroBiography->slider && GH.input().getCurrentInputMode() != InputMode::TOUCH)
+        labelHeroBiography->slider->clearScrollBounds();
 
     // speciality name
     r = Rect(2 * borderOffset + 44, 6 * borderOffset + yOffset + 278, 235, 44);
@@ -115,7 +119,9 @@ void CHeroOverview::genControls()
     // speciality description
     r = Rect(borderOffset, 7 * borderOffset + yOffset + 322, 284, 85);
     backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
-	labelSpecialityDescription = std::make_shared<CMultiLineLabel>(r.resize(-borderOffset), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->heroh)[heroIdx]->getSpecialtyDescriptionTranslated());
+	labelSpecialityDescription = std::make_shared<CTextBox>((*CGI->heroh)[heroIdx]->getSpecialtyDescriptionTranslated(), r.resize(-borderOffset), CSlider::EStyle::BROWN, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+    if(labelSpecialityDescription->slider && GH.input().getCurrentInputMode() != InputMode::TOUCH)
+        labelSpecialityDescription->slider->clearScrollBounds();
 
     // army title
     r = Rect(302, borderOffset + yOffset, 292, 30);

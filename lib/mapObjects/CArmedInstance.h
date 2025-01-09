@@ -11,8 +11,8 @@
 
 #include "CGObjectInstance.h"
 #include "../CCreatureSet.h"
-#include "../bonuses/CBonusProxy.h"
 #include "../bonuses/CBonusSystemNode.h"
+#include "../bonuses/BonusCache.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -23,8 +23,7 @@ class JsonSerializeFormat;
 class DLL_LINKAGE CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet, public IConstBonusProvider
 {
 private:
-	CCheckProxy nonEvilAlignmentMix;
-	static CSelector nonEvilAlignmentMixSelector;
+	BonusValueCache nonEvilAlignmentMix;
 
 public:
 	BattleInfo *battle; //set to the current battle, if engaged

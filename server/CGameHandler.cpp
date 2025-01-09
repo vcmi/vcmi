@@ -846,8 +846,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, h, PathfinderOptions(this));
 	auto ti = pathfinderHelper->getTurnInfo();
 
-	const bool canFly = pathfinderHelper->hasBonusOfType(BonusType::FLYING_MOVEMENT) || (h->boat && h->boat->layer == EPathfindingLayer::AIR);
-	const bool canWalkOnSea = pathfinderHelper->hasBonusOfType(BonusType::WATER_WALKING) || (h->boat && h->boat->layer == EPathfindingLayer::WATER);
+	const bool canFly = ti->hasFlyingMovement() || (h->boat && h->boat->layer == EPathfindingLayer::AIR);
+	const bool canWalkOnSea = ti->hasWaterWalking() || (h->boat && h->boat->layer == EPathfindingLayer::WATER);
 	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movementPointsRemaining());
 
 	const bool movingOntoObstacle = t.blocked() && !t.visitable();
@@ -4115,12 +4115,10 @@ void CGameHandler::changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerC
 
 		for (auto tile : observedTiles)
 			vstd::erase_if_present (fow.tiles, tile);
-
-		if (fow.tiles.empty())
-			return;
 	}
 
-	sendAndApply(fow);
+	if (!fow.tiles.empty())
+		sendAndApply(fow);
 }
 
 const CGHeroInstance * CGameHandler::getVisitingHero(const CGObjectInstance *obj)

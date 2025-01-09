@@ -67,13 +67,13 @@ class WindowNewMap : public QDialog
 
 	const std::map<int, std::pair<int, int>> mapSizes
 	{
-		{0, {CMapHeader::MAP_SIZE_SMALL, 	CMapHeader::MAP_SIZE_SMALL}},
-		{1, {CMapHeader::MAP_SIZE_MIDDLE,	CMapHeader::MAP_SIZE_MIDDLE}},
-		{2, {CMapHeader::MAP_SIZE_LARGE,	CMapHeader::MAP_SIZE_LARGE}},
-		{3, {CMapHeader::MAP_SIZE_XLARGE,	CMapHeader::MAP_SIZE_XLARGE}},
-		{4, {CMapHeader::MAP_SIZE_HUGE,		CMapHeader::MAP_SIZE_HUGE}},
-		{5, {CMapHeader::MAP_SIZE_XHUGE,	CMapHeader::MAP_SIZE_XHUGE}},
-		{6, {CMapHeader::MAP_SIZE_GIANT,	CMapHeader::MAP_SIZE_GIANT}},
+		{0, {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_SMALL}},
+		{1, {CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_MIDDLE}},
+		{2, {CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_LARGE}},
+		{3, {CMapHeader::MAP_SIZE_XLARGE, CMapHeader::MAP_SIZE_XLARGE}},
+		{4, {CMapHeader::MAP_SIZE_HUGE, CMapHeader::MAP_SIZE_HUGE}},
+		{5, {CMapHeader::MAP_SIZE_XHUGE, CMapHeader::MAP_SIZE_XHUGE}},
+		{6, {CMapHeader::MAP_SIZE_GIANT, CMapHeader::MAP_SIZE_GIANT}},
 	};
 
 public:
@@ -97,15 +97,19 @@ private slots:
 
 	void on_templateCombo_activated(int index);
 
-	void on_widthTxt_textChanged(const QString &arg1);
+	void on_widthTxt_valueChanged(int value);
 
-	void on_heightTxt_textChanged(const QString &arg1);
+	void on_heightTxt_valueChanged(int value);
 
 	void on_checkSeed_toggled(bool checked);
 
 	void on_humanTeamsCombo_activated(int index);
 
 	void on_cpuTeamsCombo_activated(int index);
+
+	void on_sizeStandardRadio_toggled(bool checked);
+	
+	void on_sizeCustomRadio_toggled(bool checked);
 
 private:
 

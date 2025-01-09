@@ -1,5 +1,36 @@
 # VCMI Project Changelog
 
+## 1.6.2 -> 1.6.3
+
+### Stability
+
+* Fixed possible crash on attempt to play corrupted video file
+* Fixed possible crash on invalid or corrupted game data
+* Fixed possible crash on invalid upscaling filter
+
+### Interface
+
+* Added right-click popup to Keymasters, Border Guards, and Border Gates that show all discovered objects of the same color
+* Added right-click popup to Obelisks that shows all discovered objects and their visitation status
+* Added support for randomly selected main menu backgrounds
+* Fixed display of long text in text-only right-click popups
+* Hero overview screen on map setup will now have scrollbars for hero desription when necessary
+* Fixed teleporter right-click popup appearing out of screen when interacting with teleporter near screen edge
+* Scenario Information window will now correctly replace random hero with actual starting hero
+
+### AI
+
+* Improved performance of Battle AI
+* Improved performance of pathfinding calculations
+* Reduced calculation of threat range, especially on low difficulties to improve performance
+* Fixed Nullkiller AI not considering nearby objects for visiting in some cases, breaking its exploration logic
+* Fixed Nullkiller AI not building town dwellings
+
+### Map Editor
+
+* Added option to convert .h3c files into .vcmp
+* It is now possible to configure town to have same faction as player
+
 ## 1.6.1 -> 1.6.2
 
 ### General
