@@ -38,11 +38,7 @@
 #include "../lib/ExceptionsCommon.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
-#include "../lib/modding/IdentifierStorage.h"
-#include "../lib/modding/CModHandler.h"
-#include "../lib/modding/ModDescription.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/texts/MetaString.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 
@@ -75,7 +71,7 @@ static void mainLoop();
 
 static CBasicLogConfigurator *logConfig;
 
-static void init()
+void init()
 {
 	CStopWatch tmh;
 	try
@@ -94,23 +90,6 @@ static void init()
 	// Debug code to load all maps on start
 	//ClientCommandManager commandController;
 	//commandController.processCommand("convert txt", false);
-}
-
-static void checkForModLoadingFailure()
-{
-	const auto & brokenMods = VLC->identifiersHandler->getModsWithFailedRequests();
-	if (!brokenMods.empty())
-	{
-		MetaString messageText;
-		messageText.appendTextID("vcmi.client.errors.modLoadingFailure");
-
-		for (const auto & modID : brokenMods)
-		{
-			messageText.appendRawString(VLC->modh->getModInfo(modID).getName());
-			messageText.appendEOL();
-		}
-		CInfoWindow::showInfoDialog(messageText.toString(), {});
-	}
 }
 
 static void prog_version()
@@ -157,6 +136,7 @@ int main(int argc, char * argv[])
 		("version,v", "display version information and exit")
 		("testmap", po::value<std::string>(), "")
 		("testsave", po::value<std::string>(), "")
+		("logLocation", po::value<std::string>(), "new location for log file")
 		("spectate,s", "enable spectator interface for AI-only games")
 		("spectate-ignore-hero", "wont follow heroes on adventure map")
 		("spectate-hero-speed", po::value<int>(), "hero movement speed on adventure map")
@@ -224,7 +204,13 @@ int main(int argc, char * argv[])
 #endif
 
 	setThreadNameLoggingOnly("MainGUI");
-	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
+
+	boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
+	if(vm.count("logLocation"))
+	{
+		logPath = vm["logLocation"].as<std::string>() + "/VCMI_Client_log.txt";
+	}
+	
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
 	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_VERSION);
@@ -407,7 +393,6 @@ int main(int argc, char * argv[])
 
 	if(!settings["session"]["headless"].Bool())
 	{
-		checkForModLoadingFailure();
 		mainLoop();
 	}
 	else
