@@ -14,7 +14,7 @@
 
 void QueriesProcessor::popQuery(PlayerColor player, QueryPtr query)
 {
-	LOG_TRACE_PARAMS(logGlobal, "player='%s', query='%s'", player % query);
+	LOG_TRACE_PARAMS(logGlobal, "player='%s', query='%s'", player % query->toString());
 	if(topQuery(player) != query)
 	{
 		logGlobal->trace("Cannot remove, not a top!");
@@ -33,7 +33,7 @@ void QueriesProcessor::popQuery(PlayerColor player, QueryPtr query)
 
 void QueriesProcessor::popQuery(const CQuery &query)
 {
-	LOG_TRACE_PARAMS(logGlobal, "query='%s'", query);
+	LOG_TRACE_PARAMS(logGlobal, "query='%s'", query.toString());
 
 	assert(query.players.size());
 	for(auto player : query.players)
@@ -70,7 +70,7 @@ void QueriesProcessor::addQuery(QueryPtr query)
 
 void QueriesProcessor::addQuery(PlayerColor player, QueryPtr query)
 {
-	LOG_TRACE_PARAMS(logGlobal, "player='%d', query='%s'", player.getNum() % query);
+	LOG_TRACE_PARAMS(logGlobal, "player='%d', query='%s'", player.getNum() % query->toString());
 	query->onAdding(player);
 	queries[player].push_back(query);
 }
@@ -82,7 +82,7 @@ QueryPtr QueriesProcessor::topQuery(PlayerColor player)
 
 void QueriesProcessor::popIfTop(QueryPtr query)
 {
-	LOG_TRACE_PARAMS(logGlobal, "query='%d'", query);
+	LOG_TRACE_PARAMS(logGlobal, "query='%d'", query->toString());
 	if(!query)
 		logGlobal->error("The query is nullptr! Ignoring.");
 

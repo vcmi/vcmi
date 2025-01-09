@@ -520,7 +520,7 @@ void ObjectClusterizer::clusterizeObject(
 		logAi->trace("Path %s added to %s objects. Turn: %d, priority: %f",
 			path.toString(),
 			interestingObject ? "near" : "far",
-			path.turn(),
+			static_cast<int>(path.turn()),
 			priority);
 #endif
 	}
