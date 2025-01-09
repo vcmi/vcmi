@@ -28,6 +28,7 @@ namespace NKAI
 		: maxRoamingHeroes(8),
 		mainHeroTurnDistanceLimit(10),
 		scoutHeroTurnDistanceLimit(5),
+		threatTurnDistanceLimit(5),
 		maxGoldPressure(0.3f),
 		retreatThresholdRelative(0.3),
 		retreatThresholdAbsolute(10000),

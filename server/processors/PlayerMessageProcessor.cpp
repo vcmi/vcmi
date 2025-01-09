@@ -618,7 +618,9 @@ void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
 
 	fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);
 	delete [] hlp_tab;
-	gameHandler->sendAndApply(fc);
+
+	if (!fc.tiles.empty())
+		gameHandler->sendAndApply(fc);
 }
 
 void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
