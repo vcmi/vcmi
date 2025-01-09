@@ -205,7 +205,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		}
 
 		std::vector<int> pathsToDefend;
-		std::map<const CGHeroInstance *, std::vector<int>> defferedPaths;
+		HeroMap<std::vector<int>> defferedPaths;
 
 		for(int i = 0; i < paths.size(); i++)
 		{

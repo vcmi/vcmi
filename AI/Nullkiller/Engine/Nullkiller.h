@@ -71,7 +71,7 @@ private:
 	const CGHeroInstance * activeHero;
 	int3 targetTile;
 	ObjectInstanceID targetObject;
-	std::map<const CGHeroInstance *, HeroLockedReason> lockedHeroes;
+	HeroMap<HeroLockedReason> lockedHeroes;
 	ScanDepth scanDepth;
 	TResources lockedResources;
 	bool useHeroChain;

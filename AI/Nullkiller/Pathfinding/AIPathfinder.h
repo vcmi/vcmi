@@ -14,6 +14,7 @@
 #include "ObjectGraph.h"
 #include "GraphPaths.h"
 #include "../AIUtility.h"
+#include "../Helpers/HeroMap.h"
 
 namespace NKAI
 {
@@ -47,8 +48,8 @@ public:
 	AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai);
 	void calculatePathInfo(std::vector<AIPath> & paths, const int3 & tile, bool includeGraph = false) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & tile) const;
-	void updatePaths(const std::map<const CGHeroInstance *, HeroRole> & heroes, PathfinderSettings pathfinderSettings);
-	void updateGraphs(const std::map<const CGHeroInstance *, HeroRole> & heroes, uint8_t mainScanDepth, uint8_t scoutScanDepth);
+	void updatePaths(const HeroMap<HeroRole> & heroes, PathfinderSettings pathfinderSettings);
+	void updateGraphs(const HeroMap<HeroRole> & heroes, uint8_t mainScanDepth, uint8_t scoutScanDepth);
 	void calculateQuickPathsWithBlocker(std::vector<AIPath> & result, const std::vector<const CGHeroInstance *> & heroes, const int3 & tile);
 	void init();
 

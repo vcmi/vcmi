@@ -79,7 +79,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 	enemyHeroAccessibleObjects.clear();
 	townThreats.clear();
 
-	std::map<PlayerColor, std::map<const CGHeroInstance *, HeroRole>> heroes;
+	std::map<PlayerColor, HeroMap<HeroRole>> heroes;
 
 	for(const CGObjectInstance * obj : ai->memory->visitableObjs)
 	{
@@ -205,8 +205,8 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 		hitMap.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
 
 	std::vector<std::unique_ptr<CGHeroInstance>> temporaryHeroes;
-	std::map<const CGHeroInstance *, const CGTownInstance *> heroTownMap;
-	std::map<const CGHeroInstance *, HeroRole> townHeroes;
+	HeroMap<const CGTownInstance *> heroTownMap;
+	HeroMap<HeroRole> townHeroes;
 
 	auto addTownHero = [&](const CGTownInstance * town)
 	{

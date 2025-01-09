@@ -142,6 +142,7 @@ set(Nullkiller_HEADERS
 		Helpers/ArmyFormation.h
 		Helpers/ExplorationHelper.h
 		Helpers/FakeRandomGenerator.h
+		Helpers/HeroMap.h
 		AIGateway.h
 )
 

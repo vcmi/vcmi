@@ -1013,7 +1013,7 @@ public:
 		evaluationContext.movementCost += path.movementCost();
 		evaluationContext.closestWayRatio = chain.closestWayRatio;
 
-		std::map<const CGHeroInstance *, float> costsPerHero;
+		HeroMap<float> costsPerHero;
 
 		for(auto & node : path.nodes)
 		{
