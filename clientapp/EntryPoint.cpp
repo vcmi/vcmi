@@ -157,6 +157,7 @@ int main(int argc, char * argv[])
 		("version,v", "display version information and exit")
 		("testmap", po::value<std::string>(), "")
 		("testsave", po::value<std::string>(), "")
+		("logLocation", po::value<std::string>(), "new location for log files")
 		("spectate,s", "enable spectator interface for AI-only games")
 		("spectate-ignore-hero", "wont follow heroes on adventure map")
 		("spectate-hero-speed", po::value<int>(), "hero movement speed on adventure map")
@@ -224,7 +225,9 @@ int main(int argc, char * argv[])
 #endif
 
 	setThreadNameLoggingOnly("MainGUI");
-	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
+	boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
+	if(vm.count("logLocation"))
+		logPath = vm["logLocation"].as<std::string>() + "/VCMI_Client_log.txt";
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
 	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_VERSION);
