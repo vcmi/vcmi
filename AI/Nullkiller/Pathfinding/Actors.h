@@ -82,6 +82,7 @@ public:
 	void setBaseActor(HeroActor * base);
 	virtual const CGObjectInstance * getActorObject() const	{ return hero; }
 	int maxMovePoints(EPathfindingLayer layer);
+	int bucketIndex() const { return initialPosition.x + initialPosition.y + initialPosition.z; }
 
 protected:
 	virtual ExchangeResult tryExchangeNoLock(const ChainActor * specialActor, const ChainActor * other) const;

@@ -297,7 +297,7 @@ public:
 
 	inline int getBucket(const ChainActor * actor) const
 	{
-		return ((uintptr_t)actor * 395) % getBucketCount();
+		return ((uintptr_t)actor->bucketIndex() * 395) % getBucketCount();
 	}
 
 	void calculateTownPortalTeleportations(std::vector<CGPathNode *> & neighbours);
