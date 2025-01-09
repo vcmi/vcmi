@@ -11,8 +11,8 @@
 #include "DangerHitMapAnalyzer.h"
 
 #include "../Engine/Nullkiller.h"
+#include "../Helpers/FakeRandomGenerator.h"
 #include "../pforeach.h"
-#include "../../../lib/CRandomGenerator.h"
 #include "../../../lib/logging/VisualLogger.h"
 
 namespace NKAI
@@ -211,7 +211,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 	auto addTownHero = [&](const CGTownInstance * town)
 	{
 			auto townHero = temporaryHeroes.emplace_back(std::make_unique<CGHeroInstance>(town->cb)).get();
-			CRandomGenerator rng;
+			FakeRandomGenerator rng;
 			auto visitablePos = town->visitablePos();
 			
 			townHero->setOwner(ai->playerID); // lets avoid having multiple colors
