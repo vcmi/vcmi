@@ -207,9 +207,8 @@ int main(int argc, char * argv[])
 
 	boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
 	if(vm.count("logLocation"))
-	{
 		logPath = vm["logLocation"].as<std::string>() + "/VCMI_Client_log.txt";
-	}
+	
 	
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
