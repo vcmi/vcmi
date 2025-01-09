@@ -492,7 +492,7 @@ Zainstalować pomyślnie pobrane?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
         <source>Handle back as right mouse button</source>
-        <translation type="unfinished"></translation>
+        <translation>Przycisk wstecz jako prawy przycisk myszy</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1102"/>
@@ -1360,7 +1360,7 @@ Bin (%n bajtów):
     <message>
         <location filename="../mainwindow_moc.cpp" line="46"/>
         <source>Error starting executable</source>
-        <translation type="unfinished">Błąd podczas uruchamiania pliku wykonywalnego</translation>
+        <translation>Błąd podczas uruchamiania pliku wykonywalnego</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="287"/>
@@ -1457,7 +1457,7 @@ Bin (%n bajtów):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="248"/>
         <source>Mod data was not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono danych moda</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="252"/>
