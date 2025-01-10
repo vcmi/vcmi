@@ -123,13 +123,29 @@ struct ReachabilityData
 	std::set<uint32_t> enemyUnitsReachingAttacker;
 };
 
+class ReachabilityMapCache
+{
+	struct PerTurnData{
+		std::bitset<GameConstants::BFIELD_SIZE> isValid;
+		std::array<battle::Units, GameConstants::BFIELD_SIZE> hexes;
+	};
+
+	std::map<uint32_t, ReachabilityInfo> unitReachabilityMap; // unit ID -> reachability
+	std::map<uint32_t, PerTurnData> hexReachabilityPerTurn;
+
+	//const ReachabilityInfo & update();
+	battle::Units computeOneTurnReachableUnits(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env, const std::vector<battle::Units> & turnOrder, uint8_t turn, BattleHex hex);
+public:
+	const battle::Units & getOneTurnReachableUnits(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env, const std::vector<battle::Units> & turnOrder, uint8_t turn, BattleHex hex);
+	void update(const std::vector<battle::Units> & turnOrder, std::shared_ptr<HypotheticBattle> hb);
+};
+
 class BattleExchangeEvaluator
 {
 private:
 	std::shared_ptr<CBattleInfoCallback> cb;
 	std::shared_ptr<Environment> env;
-	std::map<uint32_t, ReachabilityInfo> reachabilityCache;
-	std::array<std::vector<const battle::Unit *>, GameConstants::BFIELD_SIZE> reachabilityMap;
+	mutable ReachabilityMapCache reachabilityMap;
 	std::vector<battle::Units> turnOrder;
 	float negativeEffectMultiplier;
 	int simulationTurnsCount;
@@ -169,7 +185,7 @@ public:
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb) const;
 
-	std::vector<const battle::Unit *> getOneTurnReachableUnits(uint8_t turn, BattleHex hex) const;
+	const battle::Units & getOneTurnReachableUnits(uint8_t turn, BattleHex hex) const;
 	void updateReachabilityMap(std::shared_ptr<HypotheticBattle> hb);
 
 	ReachabilityData getExchangeUnits(
