@@ -13,7 +13,7 @@
 #include <vcmi/Entity.h>
 #include "GameConstants.h"
 #include "IHandlerBase.h"
-#include "battle/BattleHex.h"
+#include "battle/BattleHexArray.h"
 #include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -54,7 +54,7 @@ public:
 	void registerIcons(const IconRegistar & cb) const override;
 	Obstacle getId() const override;
 	
-	std::vector<BattleHex> getBlocked(BattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
+	BattleHexArray getBlocked(BattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
 	
 	bool isAppropriate(const TerrainId terrainType, const BattleField & specialBattlefield) const;
 };

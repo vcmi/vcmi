@@ -47,6 +47,7 @@ set(lib_MAIN_SRCS
 	battle/BattleAction.cpp
 	battle/BattleAttackInfo.cpp
 	battle/BattleHex.cpp
+	battle/BattleHexArray.cpp
 	battle/BattleInfo.cpp
 	battle/BattleLayout.cpp
 	battle/BattleProxy.cpp
@@ -413,6 +414,7 @@ set(lib_MAIN_HEADERS
 	battle/BattleAction.h
 	battle/BattleAttackInfo.h
 	battle/BattleHex.h
+	battle/BattleHexArray.h
 	battle/BattleInfo.h
 	battle/BattleLayout.h
 	battle/BattleSide.h

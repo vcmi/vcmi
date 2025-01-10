@@ -508,16 +508,16 @@ bool BattleSpellMechanics::counteringSelector(const Bonus * bonus) const
 	return false;
 }
 
-std::set<BattleHex> BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex) const
+BattleHexArray BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex) const
 {
 	using namespace SRSLPraserHelpers;
 
-	std::set<BattleHex> ret;
+	BattleHexArray ret;
 	std::vector<int> rng = owner->getLevelInfo(getRangeLevel()).range;
 
 	for(auto & elem : rng)
 	{
-		std::set<ui16> curLayer = getInRange(centralHex, elem, elem);
+		std::set<ui16> curLayer = getInRange(centralHex.toInt(), elem, elem);
 		//adding obtained hexes
 		for(const auto & curLayer_it : curLayer)
 			ret.insert(curLayer_it);
@@ -604,14 +604,12 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 		if(fast)
 		{
 			auto stacks = battle()->battleGetAllStacks();
-			std::set<BattleHex> hexesToCheck;
+			BattleHexArray hexesToCheck;
 
 			for(auto stack : stacks)
 			{
 				hexesToCheck.insert(stack->getPosition());
-
-				for(auto adjacent : stack->getPosition().neighbouringTiles())
-					hexesToCheck.insert(adjacent);
+				hexesToCheck.insert(stack->getPosition().getNeighbouringTiles());
 			}
 
 			for(auto hex : hexesToCheck)
@@ -661,17 +659,17 @@ bool BattleSpellMechanics::isReceptive(const battle::Unit * target) const
 	return targetCondition->isReceptive(this, target);
 }
 
-std::vector<BattleHex> BattleSpellMechanics::rangeInHexes(BattleHex centralHex) const
+BattleHexArray BattleSpellMechanics::rangeInHexes(BattleHex centralHex) const
 {
 	if(isMassive() || !centralHex.isValid())
-		return std::vector<BattleHex>(1, BattleHex::INVALID);
+		return BattleHexArray();
 
 	Target aimPoint;
 	aimPoint.push_back(Destination(centralHex));
 
 	Target spellTarget = transformSpellTarget(aimPoint);
 
-	std::set<BattleHex> effectRange;
+	BattleHexArray effectRange;
 
 	effects->forEachEffect(getEffectLevel(), [&](const effects::Effect * effect, bool & stop)
 	{
@@ -681,12 +679,7 @@ std::vector<BattleHex> BattleSpellMechanics::rangeInHexes(BattleHex centralHex) 
 		}
 	});
 
-	std::vector<BattleHex> ret;
-	ret.reserve(effectRange.size());
-
-	std::copy(effectRange.begin(), effectRange.end(), std::back_inserter(ret));
-
-	return ret;
+	return effectRange;
 }
 
 const Spell * BattleSpellMechanics::getSpell() const

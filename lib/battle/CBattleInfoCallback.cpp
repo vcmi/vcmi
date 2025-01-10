@@ -43,19 +43,15 @@ static BattleHex lineToWallHex(int line) //returns hex with wall in given line (
 
 static bool sameSideOfWall(BattleHex pos1, BattleHex pos2)
 {
-	const int wallInStackLine = lineToWallHex(pos1.getY());
-	const int wallInDestLine = lineToWallHex(pos2.getY());
-
-	const bool stackLeft = pos1 < wallInStackLine;
-	const bool destLeft = pos2 < wallInDestLine;
+	const bool stackLeft = pos1 < lineToWallHex(pos1.getY());
+	const bool destLeft = pos2 < lineToWallHex(pos2.getY());
 
 	return stackLeft == destLeft;
 }
 
 static bool isInsideWalls(BattleHex pos)
 {
-	const int wallInStackLine = lineToWallHex(pos.getY());
-	return wallInStackLine < pos;
+	return lineToWallHex(pos.getY()) < pos;
 }
 
 // parts of wall
@@ -79,9 +75,10 @@ static const std::pair<int, EWallPart> wallParts[] =
 
 static EWallPart hexToWallPart(BattleHex hex)
 {
+	si16 hexValue = hex.toInt();
 	for(const auto & elem : wallParts)
 	{
-		if(elem.first == hex)
+		if(elem.first == hexValue)
 			return elem.second;
 	}
 
@@ -147,25 +144,25 @@ ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster *
 	return ESpellCastProblem::OK;
 }
 
-std::pair< std::vector<BattleHex>, int > CBattleInfoCallback::getPath(BattleHex start, BattleHex dest, const battle::Unit * stack) const
+std::pair< BattleHexArray, int > CBattleInfoCallback::getPath(BattleHex start, BattleHex dest, const battle::Unit * stack) const
 {
 	auto reachability = getReachability(stack);
 
-	if(reachability.predecessors[dest] == -1) //cannot reach destination
+	if(reachability.predecessors[dest.toInt()] == -1) //cannot reach destination
 	{
-		return std::make_pair(std::vector<BattleHex>(), 0);
+		return std::make_pair(BattleHexArray(), 0);
 	}
 
 	//making the Path
-	std::vector<BattleHex> path;
+	BattleHexArray path;
 	BattleHex curElem = dest;
 	while(curElem != start)
 	{
-		path.push_back(curElem);
-		curElem = reachability.predecessors[curElem];
+		path.insert(curElem);
+		curElem = reachability.predecessors[curElem.toInt()];
 	}
 
-	return std::make_pair(path, reachability.distances[dest]);
+	return std::make_pair(path, reachability.distances[dest.toInt()]);
 }
 
 bool CBattleInfoCallback::battleIsInsideWalls(BattleHex from) const
@@ -176,7 +173,7 @@ bool CBattleInfoCallback::battleIsInsideWalls(BattleHex from) const
 bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest, bool checkWall, bool checkMoat) const
 {
 	if (!from.isAvailable() || !dest.isAvailable())
-		throw std::runtime_error("Invalid hex (" + std::to_string(from.hex) + " and " + std::to_string(dest.hex) + ") received in battleHasPenaltyOnLine!" );
+		throw std::runtime_error("Invalid hex (" + std::to_string(from.toInt()) + " and " + std::to_string(dest.toInt()) + ") received in battleHasPenaltyOnLine!" );
 
 	auto isTileBlocked = [&](BattleHex tile)
 	{
@@ -191,23 +188,21 @@ bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest,
 		return isWallPartAttackable(wallPart);
 	};
 	// Count wall penalty requirement by shortest path, not by arbitrary line, to avoid various OH3 bugs
-	auto getShortestPath = [](BattleHex from, BattleHex dest) -> std::vector<BattleHex>
+	auto getShortestPath = [](BattleHex from, BattleHex dest) -> BattleHexArray
 	{
 		//Out early
 		if(from == dest)
 			return {};
 
-		std::vector<BattleHex> ret;
+		BattleHexArray ret;
 		auto next = from;
 		//Not a real direction, only to indicate to which side we should search closest tile
 		auto direction = from.getX() > dest.getX() ? BattleSide::DEFENDER : BattleSide::ATTACKER;
 
 		while (next != dest)
 		{
-			auto tiles = next.neighbouringTiles();
-			std::set<BattleHex> possibilities = {tiles.begin(), tiles.end()};
-			next = BattleHex::getClosestTile(direction, dest, possibilities);
-			ret.push_back(next);
+			next = BattleHex::getClosestTile(direction, dest, next.getNeighbouringTiles());
+			ret.insert(next);
 		}
 		assert(!ret.empty());
 		ret.pop_back(); //Remove destination hex
@@ -227,7 +222,7 @@ bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest,
 
 		auto obstacles = battleGetAllObstaclesOnPos(hex, false);
 
-		if(hex != BattleHex::GATE_BRIDGE || (battleIsGatePassable()))
+		if(hex.toInt() != BattleHex::GATE_BRIDGE || (battleIsGatePassable()))
 			for(const auto & obst : obstacles)
 				if(obst->obstacleType ==  CObstacleInstance::MOAT)
 					pathHasMoat |= true;
@@ -318,9 +313,9 @@ PossiblePlayerBattleAction CBattleInfoCallback::getCasterAction(const CSpell * s
 	return PossiblePlayerBattleAction(spellSelMode, spell->id);
 }
 
-std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const battle::Unit * attacker, BattleHex destinationTile, BattleHex attackerPos) const
+BattleHexArray CBattleInfoCallback::battleGetAttackedHexes(const battle::Unit * attacker, BattleHex destinationTile, BattleHex attackerPos) const
 {
-	std::set<BattleHex> attackedHexes;
+	BattleHexArray attackedHexes;
 	RETURN_IF_NOT_BATTLE(attackedHexes);
 
 	AttackableTiles at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
@@ -347,7 +342,7 @@ const CStack* CBattleInfoCallback::battleGetStackByPos(BattleHex pos, bool onlyA
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
 	for(const auto * s : battleGetAllStacks(true))
-		if(vstd::contains(s->getHexes(), pos) && (!onlyAlive || s->alive()))
+		if(s->getHexes().contains(pos) && (!onlyAlive || s->alive()))
 			return s;
 
 	return nullptr;
@@ -569,21 +564,21 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & turns,
 		battleGetTurnOrder(turns, maxUnits, maxTurns, actualTurn + 1, sideThatLastMoved);
 }
 
-std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit, bool obtainMovementRange) const
+BattleHexArray CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit, bool obtainMovementRange) const
 {
 
-	RETURN_IF_NOT_BATTLE(std::vector<BattleHex>());
+	RETURN_IF_NOT_BATTLE(BattleHexArray());
 	if(!unit->getPosition().isValid()) //turrets
-		return std::vector<BattleHex>();
+		return BattleHexArray();
 
 	auto reachability = getReachability(unit);
 
 	return battleGetAvailableHexes(reachability, unit, obtainMovementRange);
 }
 
-std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const ReachabilityInfo & cache, const battle::Unit * unit, bool obtainMovementRange) const
+BattleHexArray CBattleInfoCallback::battleGetAvailableHexes(const ReachabilityInfo & cache, const battle::Unit * unit, bool obtainMovementRange) const
 {
-	std::vector<BattleHex> ret;
+	BattleHexArray ret;
 
 	RETURN_IF_NOT_BATTLE(ret);
 	if(!unit->getPosition().isValid()) //turrets
@@ -612,28 +607,27 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const Reacha
 				continue;
 		}
 
-		ret.emplace_back(i);
+		ret.insert(i);
 	}
 
 	return ret;
 }
 
-std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit, bool obtainMovementRange, bool addOccupiable, std::vector<BattleHex> * attackable) const
+BattleHexArray CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit, bool obtainMovementRange, bool addOccupiable, BattleHexArray * attackable) const
 {
-	std::vector<BattleHex> ret = battleGetAvailableHexes(unit, obtainMovementRange);
+	BattleHexArray ret = battleGetAvailableHexes(unit, obtainMovementRange);
 
 	if(ret.empty())
 		return ret;
 
 	if(addOccupiable && unit->doubleWide())
 	{
-		std::vector<BattleHex> occupiable;
+		BattleHexArray occupiable;
 
-		occupiable.reserve(ret.size());
 		for(auto hex : ret)
-			occupiable.push_back(unit->occupiedHex(hex));
+			occupiable.insert(unit->occupiedHex(hex));
 
-		vstd::concatenate(ret, occupiable);
+		ret.insert(occupiable);
 	}
 
 
@@ -643,36 +637,33 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle
 		{
 			// Return true if given hex has at least one available neighbour.
 			// Available hexes are already present in ret vector.
-			auto availableNeighbor = boost::find_if(ret, [=] (BattleHex availableHex)
+			auto availableNeighbour = boost::find_if(ret, [=] (BattleHex availableHex)
 			{
 				return BattleHex::mutualPosition(hex, availableHex) >= 0;
 			});
-			return availableNeighbor != ret.end();
+			return availableNeighbour != ret.end();
 		};
 		for(const auto * otherSt : battleAliveUnits(otherSide(unit->unitSide())))
 		{
 			if(!otherSt->isValidTarget(false))
 				continue;
 
-			std::vector<BattleHex> occupied = otherSt->getHexes();
+			const BattleHexArray & occupied = otherSt->getHexes();
 
 			if(battleCanShoot(unit, otherSt->getPosition()))
 			{
-				attackable->insert(attackable->end(), occupied.begin(), occupied.end());
+				attackable->insert(occupied);
 				continue;
 			}
 
 			for(BattleHex he : occupied)
 			{
 				if(meleeAttackable(he))
-					attackable->push_back(he);
+					attackable->insert(he);
 			}
 		}
 	}
 
-	//adding occupiable likely adds duplicates to ret -> clean it up
-	boost::sort(ret);
-	ret.erase(boost::unique(ret).end(), ret.end());
 	return ret;
 }
 
@@ -792,7 +783,7 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * 
 {
 	RETURN_IF_NOT_BATTLE({});
 	auto reachability = battleGetDistances(attacker, attacker->getPosition());
-	int movementRange = attackerPosition.isValid() ? reachability[attackerPosition] : 0;
+	int movementRange = attackerPosition.isValid() ? reachability[attackerPosition.toInt()] : 0;
 	return battleEstimateDamage(attacker, defender, movementRange, retaliationDmg);
 }
 
@@ -857,8 +848,8 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::battl
 	RETURN_IF_NOT_BATTLE(obstacles);
 	for(auto & obs : battleGetAllObstacles())
 	{
-		if(vstd::contains(obs->getBlockedTiles(), tile)
-				|| (!onlyBlocking && vstd::contains(obs->getAffectedTiles(), tile)))
+		if(obs->getBlockedTiles().contains(tile)
+				|| (!onlyBlocking && obs->getAffectedTiles().contains(tile)))
 		{
 			obstacles.push_back(obs);
 		}
@@ -866,18 +857,18 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::battl
 	return obstacles;
 }
 
-std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAllAffectedObstaclesByStack(const battle::Unit * unit, const std::set<BattleHex> & passed) const
+std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAllAffectedObstaclesByStack(const battle::Unit * unit, const BattleHexArray & passed) const
 {
 	auto affectedObstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
 	RETURN_IF_NOT_BATTLE(affectedObstacles);
 	if(unit->alive())
 	{
-		if(!passed.count(unit->getPosition()))
+		if(!passed.contains(unit->getPosition()))
 			affectedObstacles = battleGetAllObstaclesOnPos(unit->getPosition(), false);
 		if(unit->doubleWide())
 		{
 			BattleHex otherHex = unit->occupiedHex();
-			if(otherHex.isValid() && !passed.count(otherHex))
+			if(otherHex.isValid() && !passed.contains(otherHex))
 				for(auto & i : battleGetAllObstaclesOnPos(otherHex, false))
 					if(!vstd::contains(affectedObstacles, i))
 						affectedObstacles.push_back(i);
@@ -891,7 +882,7 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAl
 	return affectedObstacles;
 }
 
-bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & spellEnv, const battle::Unit & unit, const std::set<BattleHex> & passed) const
+bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & spellEnv, const battle::Unit & unit, const BattleHexArray & passed) const
 {
 	if(!unit.alive())
 		return false;
@@ -961,8 +952,8 @@ AccessibilityInfo CBattleInfoCallback::getAccessibility() const
 	//removing accessibility for side columns of hexes
 	for(int y = 0; y < GameConstants::BFIELD_HEIGHT; y++)
 	{
-		ret[BattleHex(GameConstants::BFIELD_WIDTH - 1, y)] = EAccessibility::SIDE_COLUMN;
-		ret[BattleHex(0, y)] = EAccessibility::SIDE_COLUMN;
+		ret[BattleHex(GameConstants::BFIELD_WIDTH - 1, y).toInt()] = EAccessibility::SIDE_COLUMN;
+		ret[BattleHex(0, y).toInt()] = EAccessibility::SIDE_COLUMN;
 	}
 
 	//special battlefields with logically unavailable tiles
@@ -970,10 +961,8 @@ AccessibilityInfo CBattleInfoCallback::getAccessibility() const
 
 	if(bFieldType != BattleField::NONE)
 	{
-		std::vector<BattleHex> impassableHexes = bFieldType.getInfo()->impassableHexes;
-
-		for(auto hex : impassableHexes)
-			ret[hex] = EAccessibility::UNAVAILABLE;
+		for(auto hex : bFieldType.getInfo()->impassableHexes)
+			ret[hex.toInt()] = EAccessibility::UNAVAILABLE;
 	}
 
 	//gate -> should be before stacks
@@ -998,14 +987,14 @@ AccessibilityInfo CBattleInfoCallback::getAccessibility() const
 	{
 		for(auto hex : unit->getHexes())
 			if(hex.isAvailable()) //towers can have <0 pos; we don't also want to overwrite side columns
-				ret[hex] = EAccessibility::ALIVE_STACK;
+				ret[hex.toInt()] = EAccessibility::ALIVE_STACK;
 	}
 
 	//obstacles
 	for(const auto &obst : battleGetAllObstacles())
 	{
 		for(auto hex : obst->getBlockedTiles())
-			ret[hex] = EAccessibility::OBSTACLE;
+			ret[hex.toInt()] = EAccessibility::OBSTACLE;
 	}
 
 	//walls
@@ -1028,7 +1017,7 @@ AccessibilityInfo CBattleInfoCallback::getAccessibility() const
 		for(const auto & elem : lockedIfNotDestroyed)
 		{
 			if(battleGetWallState(elem.first) != EWallState::DESTROYED)
-				ret[elem.second] = EAccessibility::DESTRUCTIBLE_WALL;
+				ret[elem.second.toInt()] = EAccessibility::DESTRUCTIBLE_WALL;
 		}
 	}
 
@@ -1040,17 +1029,17 @@ AccessibilityInfo CBattleInfoCallback::getAccessibility(const battle::Unit * sta
 	return getAccessibility(battle::Unit::getHexes(stack->getPosition(), stack->doubleWide(), stack->unitSide()));
 }
 
-AccessibilityInfo CBattleInfoCallback::getAccessibility(const std::vector<BattleHex> & accessibleHexes) const
+AccessibilityInfo CBattleInfoCallback::getAccessibility(const BattleHexArray & accessibleHexes) const
 {
 	auto ret = getAccessibility();
 	for(auto hex : accessibleHexes)
 		if(hex.isValid())
-			ret[hex] = EAccessibility::ACCESSIBLE;
+			ret[hex.toInt()] = EAccessibility::ACCESSIBLE;
 
 	return ret;
 }
 
-ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibility, const ReachabilityInfo::Parameters & params) const
+ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo & accessibility, const ReachabilityInfo::Parameters & params) const
 {
 	ReachabilityInfo ret;
 	ret.accessibility = accessibility;
@@ -1062,7 +1051,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 	if(!params.startPosition.isValid()) //if got call for arrow turrets
 		return ret;
 
-	const std::set<BattleHex> obstacles = getStoppers(params.perspective);
+	const BattleHexArray obstacles = getStoppers(params.perspective);
 	auto checkParams = params;
 	checkParams.ignoreKnownAccessible = true; //Ignore starting hexes obstacles
 
@@ -1070,7 +1059,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 
 	//first element
 	hexq.push(params.startPosition);
-	ret.distances[params.startPosition] = 0;
+	ret.distances[params.startPosition.toInt()] = 0;
 
 	std::array<bool, GameConstants::BFIELD_SIZE> accessibleCache{};
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; hex++)
@@ -1085,32 +1074,29 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 		if(isInObstacle(curHex, obstacles, checkParams))
 			continue;
 
-		const int costToNeighbour = ret.distances.at(curHex.hex) + 1;
+		const int costToNeighbour = ret.distances.at(curHex.toInt()) + 1;
 
-		for(BattleHex neighbour : BattleHex::neighbouringTilesCache[curHex.hex])
+		for(BattleHex neighbour : curHex.getNeighbouringTiles())
 		{
-			if(neighbour.isValid())
+			auto additionalCost = 0;
+
+			if(params.bypassEnemyStacks)
 			{
-				auto additionalCost = 0;
+				auto enemyToBypass = params.destructibleEnemyTurns.at(neighbour.toInt());
 
-				if(params.bypassEnemyStacks)
+				if(enemyToBypass >= 0)
 				{
-					auto enemyToBypass = params.destructibleEnemyTurns.find(neighbour);
-
-					if(enemyToBypass != params.destructibleEnemyTurns.end())
-					{
-						additionalCost = enemyToBypass->second;
-					}
+					additionalCost = enemyToBypass;
 				}
+			}
 
-				const int costFoundSoFar = ret.distances[neighbour.hex];
+			const int costFoundSoFar = ret.distances[neighbour.toInt()];
 
-				if(accessibleCache[neighbour.hex] && costToNeighbour + additionalCost < costFoundSoFar)
-				{
-					hexq.push(neighbour);
-					ret.distances[neighbour.hex] = costToNeighbour + additionalCost;
-					ret.predecessors[neighbour.hex] = curHex;
-				}
+			if(accessibleCache[neighbour.toInt()] && costToNeighbour + additionalCost < costFoundSoFar)
+			{
+				hexq.push(neighbour);
+				ret.distances[neighbour.toInt()] = costToNeighbour + additionalCost;
+				ret.predecessors[neighbour.toInt()] = curHex;
 			}
 		}
 	}
@@ -1120,17 +1106,16 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 
 bool CBattleInfoCallback::isInObstacle(
 	BattleHex hex,
-	const std::set<BattleHex> & obstacles,
+	const BattleHexArray & obstacleHexes,
 	const ReachabilityInfo::Parameters & params) const
 {
-	auto occupiedHexes = battle::Unit::getHexes(hex, params.doubleWide, params.side);
 
-	for(auto occupiedHex : occupiedHexes)
+	for(auto occupiedHex : battle::Unit::getHexes(hex, params.doubleWide, params.side))
 	{
-		if(params.ignoreKnownAccessible && vstd::contains(params.knownAccessible, occupiedHex))
+		if(params.ignoreKnownAccessible && params.knownAccessible->contains(occupiedHex))
 			continue;
 
-		if(vstd::contains(obstacles, occupiedHex))
+		if(obstacleHexes.contains(occupiedHex))
 		{
 			if(occupiedHex == BattleHex::GATE_BRIDGE)
 			{
@@ -1145,9 +1130,9 @@ bool CBattleInfoCallback::isInObstacle(
 	return false;
 }
 
-std::set<BattleHex> CBattleInfoCallback::getStoppers(BattleSide whichSidePerspective) const
+BattleHexArray CBattleInfoCallback::getStoppers(BattleSide whichSidePerspective) const
 {
-	std::set<BattleHex> ret;
+	BattleHexArray ret;
 	RETURN_IF_NOT_BATTLE(ret);
 
 	for(auto &oi : battleGetAllObstacles(whichSidePerspective))
@@ -1155,7 +1140,7 @@ std::set<BattleHex> CBattleInfoCallback::getStoppers(BattleSide whichSidePerspec
 		if(!battleIsObstacleVisibleForSide(*oi, whichSidePerspective))
 			continue;
 
-		for(const auto & hex : oi->getStoppingTile())
+		for(auto hex : oi->getStoppingTile())
 		{
 			if(hex == BattleHex::GATE_BRIDGE && oi->obstacleType == CObstacleInstance::MOAT)
 			{
@@ -1193,7 +1178,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 		for(BattleHex hex : avHexes)
 			if(CStack::isMeleeAttackPossible(closest, st, hex))
 			{
-				DistStack hlp = {reachability.distances[hex], hex, st};
+				DistStack hlp = {reachability.distances[hex.toInt()], hex, st};
 				stackPairs.push_back(hlp);
 			}
 	}
@@ -1225,7 +1210,7 @@ BattleHex CBattleInfoCallback::getAvailableHex(const CreatureID & creID, BattleS
 
 	auto accessibility = getAccessibility();
 
-	std::set<BattleHex> occupyable;
+	BattleHexArray occupyable;
 	for(int i = 0; i < accessibility.size(); i++)
 		if(accessibility.accessible(i, twoHex, side))
 			occupyable.insert(i);
@@ -1278,24 +1263,27 @@ ReachabilityInfo CBattleInfoCallback::getReachability(const battle::Unit * unit)
 	return getReachability(params);
 }
 
-ReachabilityInfo CBattleInfoCallback::getReachability(const ReachabilityInfo::Parameters &params) const
+ReachabilityInfo CBattleInfoCallback::getReachability(const ReachabilityInfo::Parameters & params) const
 {
 	if(params.flying)
 		return getFlyingReachability(params);
 	else
 	{
-		auto accessibility = getAccessibility(params.knownAccessible);
+		auto accessibility = getAccessibility(* params.knownAccessible);
 
-		accessibility.destructibleEnemyTurns = params.destructibleEnemyTurns;
+		accessibility.destructibleEnemyTurns = std::shared_ptr<const TBattlefieldTurnsArray>(
+			& params.destructibleEnemyTurns,
+			[](const TBattlefieldTurnsArray *) { }
+		);
 
 		return makeBFS(accessibility, params);
 	}
 }
 
-ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityInfo::Parameters &params) const
+ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityInfo::Parameters & params) const
 {
 	ReachabilityInfo ret;
-	ret.accessibility = getAccessibility(params.knownAccessible);
+	ret.accessibility = getAccessibility(* params.knownAccessible);
 
 	for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
 	{
@@ -1338,9 +1326,9 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
 
-	BattleHex attackOriginHex = (attackerPos != BattleHex::INVALID) ? attackerPos : attacker->getPosition(); //real or hypothetical (cursor) position
+	BattleHex attackOriginHex = (attackerPos.toInt() != BattleHex::INVALID) ? attackerPos : attacker->getPosition(); //real or hypothetical (cursor) position
 	
-	defenderPos = (defenderPos != BattleHex::INVALID) ? defenderPos : defender->getPosition(); //real or hypothetical (cursor) position
+	defenderPos = (defenderPos.toInt() != BattleHex::INVALID) ? defenderPos : defender->getPosition(); //real or hypothetical (cursor) position
 	
 	bool reverse = isToReverse(attacker, defender, attackerPos, defenderPos);
 	if(reverse && attacker->doubleWide())
@@ -1349,11 +1337,11 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 	}
 	if(attacker->hasBonusOfType(BonusType::ATTACKS_ALL_ADJACENT))
 	{
-		boost::copy(attacker->getSurroundingHexes(attackerPos), vstd::set_inserter(at.hostileCreaturePositions));
+		at.hostileCreaturePositions.insert(attacker->getSurroundingHexes(attackerPos));
 	}
 	if(attacker->hasBonusOfType(BonusType::THREE_HEADED_ATTACK))
 	{
-		std::vector<BattleHex> hexes = attacker->getSurroundingHexes(attackerPos);
+		const BattleHexArray & hexes = attacker->getSurroundingHexes(attackerPos);
 		for(BattleHex tile : hexes)
 		{
 			if((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition(tile, attackOriginHex) > -1)) //adjacent both to attacker's head and attacked tile
@@ -1366,12 +1354,12 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 	}
 	if(attacker->hasBonusOfType(BonusType::WIDE_BREATH))
 	{
-		std::vector<BattleHex> hexes = destinationTile.neighbouringTiles();
-		for(int i = 0; i<hexes.size(); i++)
+		BattleHexArray hexes = destinationTile.getNeighbouringTiles();
+		for(int i = 0; i < hexes.size(); i++)
 		{
 			if(hexes.at(i) == attackOriginHex)
 			{
-				hexes.erase(hexes.begin() + i);
+				hexes.erase(i);
 				i = 0;
 			}
 		}
@@ -1439,11 +1427,10 @@ AttackableTiles CBattleInfoCallback::getPotentiallyShootableHexes(const battle::
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
 
-	if(attacker->hasBonusOfType(BonusType::SHOOTS_ALL_ADJACENT) && !vstd::contains(attackerPos.neighbouringTiles(), destinationTile))
+	if(attacker->hasBonusOfType(BonusType::SHOOTS_ALL_ADJACENT) && !attackerPos.getNeighbouringTiles().contains(destinationTile))
 	{
-		std::vector<BattleHex> targetHexes = destinationTile.neighbouringTiles();
-		targetHexes.push_back(destinationTile);
-		boost::copy(targetHexes, vstd::set_inserter(at.hostileCreaturePositions));
+		at.hostileCreaturePositions.insert(destinationTile.getNeighbouringTiles());
+		at.hostileCreaturePositions.insert(destinationTile);
 	}
 
 	return at;
@@ -1480,9 +1467,9 @@ std::vector<const battle::Unit*> CBattleInfoCallback::getAttackedBattleUnits(
 
 		for (BattleHex hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()))
 		{
-			if (vstd::contains(at.hostileCreaturePositions, hex))
+			if (at.hostileCreaturePositions.contains(hex))
 				return true;
-			if (vstd::contains(at.friendlyCreaturePositions, hex))
+			if (at.friendlyCreaturePositions.contains(hex))
 				return true;
 		}
 		return false;
@@ -1671,15 +1658,15 @@ bool CBattleInfoCallback::isWallPartAttackable(EWallPart wallPart) const
 	return false;
 }
 
-std::vector<BattleHex> CBattleInfoCallback::getAttackableBattleHexes() const
+BattleHexArray CBattleInfoCallback::getAttackableBattleHexes() const
 {
-	std::vector<BattleHex> attackableBattleHexes;
+	BattleHexArray attackableBattleHexes;
 	RETURN_IF_NOT_BATTLE(attackableBattleHexes);
 
 	for(const auto & wallPartPair : wallParts)
 	{
 		if(isWallPartAttackable(wallPartPair.second))
-			attackableBattleHexes.emplace_back(wallPartPair.first);
+			attackableBattleHexes.insert(wallPartPair.first);
 	}
 
 	return attackableBattleHexes;

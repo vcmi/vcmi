@@ -242,25 +242,25 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 	bsa.newState.operation = UnitChanges::EOperation::RESET_STATE;
 }
 
-std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
+BattleHexArray CStack::meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
 {
 	int mask = 0;
-	std::vector<BattleHex> res;
+	BattleHexArray res;
 
 	if (!attackerPos.isValid())
 		attackerPos = attacker->getPosition();
 	if (!defenderPos.isValid())
 		defenderPos = defender->getPosition();
 
-	BattleHex otherAttackerPos = attackerPos + (attacker->unitSide() == BattleSide::ATTACKER ? -1 : 1);
-	BattleHex otherDefenderPos = defenderPos + (defender->unitSide() == BattleSide::ATTACKER ? -1 : 1);
+	BattleHex otherAttackerPos = attackerPos.toInt() + (attacker->unitSide() == BattleSide::ATTACKER ? -1 : 1);
+	BattleHex otherDefenderPos = defenderPos.toInt() + (defender->unitSide() == BattleSide::ATTACKER ? -1 : 1);
 
 	if(BattleHex::mutualPosition(attackerPos, defenderPos) >= 0) //front <=> front
 	{
 		if((mask & 1) == 0)
 		{
 			mask |= 1;
-			res.push_back(defenderPos);
+			res.insert(defenderPos);
 		}
 	}
 	if (attacker->doubleWide() //back <=> front
@@ -269,7 +269,7 @@ std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, c
 		if((mask & 1) == 0)
 		{
 			mask |= 1;
-			res.push_back(defenderPos);
+			res.insert(defenderPos);
 		}
 	}
 	if (defender->doubleWide()//front <=> back
@@ -278,7 +278,7 @@ std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, c
 		if((mask & 2) == 0)
 		{
 			mask |= 2;
-			res.push_back(otherDefenderPos);
+			res.insert(otherDefenderPos);
 		}
 	}
 	if (defender->doubleWide() && attacker->doubleWide()//back <=> back
@@ -287,7 +287,7 @@ std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, c
 		if((mask & 2) == 0)
 		{
 			mask |= 2;
-			res.push_back(otherDefenderPos);
+			res.insert(otherDefenderPos);
 		}
 	}
 

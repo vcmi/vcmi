@@ -278,7 +278,7 @@ CGHeroInstance * CMap::getHero(HeroTypeID heroID)
 
 bool CMap::isCoastalTile(const int3 & pos) const
 {
-	//todo: refactoring: extract neighbor tile iterator and use it in GameState
+	//todo: refactoring: extract neighbour tile iterator and use it in GameState
 	static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
 

@@ -185,7 +185,7 @@ BattleSiegeController::BattleSiegeController(BattleInterface & owner, const CGTo
 
 const CCreature *BattleSiegeController::getTurretCreature(BattleHex position) const
 {
-	switch (position)
+	switch (position.toInt())
 	{
 		case BattleHex::CASTLE_CENTRAL_TOWER:
 			return town->fortificationsLevel().citadelShooter.toCreature();
@@ -195,14 +195,14 @@ const CCreature *BattleSiegeController::getTurretCreature(BattleHex position) co
 			return town->fortificationsLevel().lowerTowerShooter.toCreature();
 	}
 
-	throw std::runtime_error("Unable to select shooter for tower at " + std::to_string(position.hex));
+	throw std::runtime_error("Unable to select shooter for tower at " + std::to_string(position.toInt()));
 }
 
 Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) const
 {
 	// Turret positions are read out of the config/wall_pos.txt
 	int posID = 0;
-	switch (position)
+	switch (position.toInt())
 	{
 	case BattleHex::CASTLE_CENTRAL_TOWER: // keep creature
 		posID = EWallVisual::CREATURE_KEEP;

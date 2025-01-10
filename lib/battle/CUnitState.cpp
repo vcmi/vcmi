@@ -800,7 +800,9 @@ void CUnitState::serializeJson(JsonSerializeFormat & handler)
 
 	handler.serializeInt("cloneID", cloneID);
 
-	handler.serializeInt("position", position);
+	si16 posValue = position.toInt();
+	handler.serializeInt("position", posValue);
+	position = posValue;
 }
 
 void CUnitState::localInit(const IUnitEnvironment * env_)

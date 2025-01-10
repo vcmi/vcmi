@@ -24,21 +24,21 @@ const ObstacleInfo & CObstacleInstance::getInfo() const
 	return *Obstacle(ID).getInfo();
 }
 
-std::vector<BattleHex> CObstacleInstance::getBlockedTiles() const
+BattleHexArray CObstacleInstance::getBlockedTiles() const
 {
 	if(blocksTiles())
 		return getAffectedTiles();
-	return std::vector<BattleHex>();
+	return BattleHexArray();
 }
 
-std::vector<BattleHex> CObstacleInstance::getStoppingTile() const
+BattleHexArray CObstacleInstance::getStoppingTile() const
 {
 	if(stopsMovement())
 		return getAffectedTiles();
-	return std::vector<BattleHex>();
+	return BattleHexArray();
 }
 
-std::vector<BattleHex> CObstacleInstance::getAffectedTiles() const
+BattleHexArray CObstacleInstance::getAffectedTiles() const
 {
 	switch(obstacleType)
 	{
@@ -47,7 +47,7 @@ std::vector<BattleHex> CObstacleInstance::getAffectedTiles() const
 		return getInfo().getBlocked(pos);
 	default:
 		assert(0);
-		return std::vector<BattleHex>();
+		return BattleHexArray();
 	}
 }
 
@@ -113,7 +113,9 @@ void CObstacleInstance::serializeJson(JsonSerializeFormat & handler)
 		animationYOffset -= 42;
 
 	//We need only a subset of obstacle info for correct render
-	handler.serializeInt("position", pos);
+	si16 posValue = pos.toInt();
+	handler.serializeInt("position", posValue);
+	pos = posValue;
 	handler.serializeInt("animationYOffset", animationYOffset);
 	handler.serializeBool("hidden", hidden);
 	handler.serializeBool("needAnimationOffsetFix", needAnimationOffsetFix);
@@ -188,7 +190,9 @@ void SpellCreatedObstacle::fromInfo(const ObstacleChanges & info)
 void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeInt("spell", ID);
-	handler.serializeInt("position", pos);
+	si16 posValue = pos.toInt();
+	handler.serializeInt("position", posValue);
+	pos = posValue;
 
 	handler.serializeInt("turnsRemaining", turnsRemaining);
 	handler.serializeInt("casterSpellPower", casterSpellPower);
@@ -216,11 +220,15 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 		customSizeJson.syncSize(customSize, JsonNode::JsonType::DATA_INTEGER);
 
 		for(size_t index = 0; index < customSizeJson.size(); index++)
-			customSizeJson.serializeInt(index, customSize.at(index));
+		{
+			si16 hex = customSize.at(index).toInt();
+			customSizeJson.serializeInt(index, hex);
+			customSize.set(index, hex);
+		}
 	}
 }
 
-std::vector<BattleHex> SpellCreatedObstacle::getAffectedTiles() const
+BattleHexArray SpellCreatedObstacle::getAffectedTiles() const
 {
 	return customSize;
 }

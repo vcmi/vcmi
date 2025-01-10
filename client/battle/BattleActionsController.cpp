@@ -522,7 +522,7 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			{
 				const auto * attacker = owner.stacksController->getActiveStack();
 				BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
-				int distance = attacker->position.isValid() ? owner.getBattle()->battleGetDistances(attacker, attacker->getPosition())[attackFromHex] : 0;
+				int distance = attacker->position.isValid() ? owner.getBattle()->battleGetDistances(attacker, attacker->getPosition())[attackFromHex.toInt()] : 0;
 				DamageEstimation retaliation;
 				BattleAttackInfo attackInfo(attacker, targetStack, distance, false );
 				DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(attackInfo, &retaliation);
@@ -723,11 +723,11 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 		{
 			if(owner.stacksController->getActiveStack()->doubleWide())
 			{
-				std::vector<BattleHex> acc = owner.getBattle()->battleGetAvailableHexes(owner.stacksController->getActiveStack(), false);
+				BattleHexArray acc = owner.getBattle()->battleGetAvailableHexes(owner.stacksController->getActiveStack(), false);
 				BattleHex shiftedDest = targetHex.cloneInDirection(owner.stacksController->getActiveStack()->destShiftDir(), false);
-				if(vstd::contains(acc, targetHex))
+				if(acc.contains(targetHex))
 					owner.giveCommand(EActionType::WALK, targetHex);
-				else if(vstd::contains(acc, shiftedDest))
+				else if(acc.contains(shiftedDest))
 					owner.giveCommand(EActionType::WALK, shiftedDest);
 			}
 			else
@@ -1008,12 +1008,12 @@ bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell,
 
 bool BattleActionsController::canStackMoveHere(const CStack * stackToMove, BattleHex myNumber) const
 {
-	std::vector<BattleHex> acc = owner.getBattle()->battleGetAvailableHexes(stackToMove, false);
+	BattleHexArray acc = owner.getBattle()->battleGetAvailableHexes(stackToMove, false);
 	BattleHex shiftedDest = myNumber.cloneInDirection(stackToMove->destShiftDir(), false);
 
-	if (vstd::contains(acc, myNumber))
+	if (acc.contains(myNumber))
 		return true;
-	else if (stackToMove->doubleWide() && vstd::contains(acc, shiftedDest))
+	else if (stackToMove->doubleWide() && acc.contains(shiftedDest))
 		return true;
 	else
 		return false;

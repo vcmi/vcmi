@@ -491,7 +491,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 	owner.waitForAnimations();
 }
 
-void BattleStacksController::stackTeleported(const CStack *stack, std::vector<BattleHex> destHex, int distance)
+void BattleStacksController::stackTeleported(const CStack *stack, const BattleHexArray & destHex, int distance)
 {
 	assert(destHex.size() > 0);
 	//owner.checkForAnimations(); // NOTE: at this point spellcast animations were added, but not executed
@@ -508,7 +508,7 @@ void BattleStacksController::stackTeleported(const CStack *stack, std::vector<Ba
 	// animations will be executed by spell
 }
 
-void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance)
+void BattleStacksController::stackMoved(const CStack *stack, const BattleHexArray & destHex, int distance)
 {
 	assert(destHex.size() > 0);
 	owner.checkForAnimations();

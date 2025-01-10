@@ -16,7 +16,7 @@ struct BattleLogMessage;
 struct BattleAttack;
 class BattleAction;
 class CBattleInfoCallback;
-struct BattleHex;
+class BattleHex;
 class CStack;
 class PlayerColor;
 enum class BonusType : uint8_t;
