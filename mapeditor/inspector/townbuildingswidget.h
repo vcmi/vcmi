@@ -11,6 +11,7 @@
 
 #include "../StdInc.h"
 #include <QDialog>
+#include "baseinspectoritemdelegate.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 
 namespace Ui {
@@ -66,17 +67,18 @@ private:
 	mutable QStandardItemModel model;
 };
 
-class TownBuildingsDelegate : public QStyledItemDelegate
+class TownBuildingsDelegate : public BaseInspectorItemDelegate
 {
 	Q_OBJECT
 public:
-	using QStyledItemDelegate::QStyledItemDelegate;
+	using BaseInspectorItemDelegate::BaseInspectorItemDelegate;
 	
 	TownBuildingsDelegate(CGTownInstance &);
 	
 	QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 	void setEditorData(QWidget *editor, const QModelIndex &index) const override;
 	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
+	void updateModelData(QAbstractItemModel * model, const QModelIndex & index) const override;
 	
 private:
 	CGTownInstance & town;
