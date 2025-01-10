@@ -231,7 +231,7 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 		if(mainTarget && mainTarget == caster)
 			return false; // can't cast on self
 
-		if(mainTarget && mainTarget->hasBonusOfType(BonusType::INVINCIBLE) && !getSpell()->getPositiveness())
+		if(mainTarget && mainTarget->isInvincible() && !getSpell()->getPositiveness())
 			return false;
 	}
 	else if(getSpell()->canCastOnlyOnSelf())
@@ -259,7 +259,7 @@ std::vector<const CStack *> BattleSpellMechanics::getAffectedStacks(const Target
 
 	for(const Destination & dest : all)
 	{
-		if(dest.unitValue && !dest.unitValue->hasBonusOfType(BonusType::INVINCIBLE))
+		if(dest.unitValue && !dest.unitValue->isInvincible())
 		{
 			//FIXME: remove and return battle::Unit
 			stacks.insert(battle()->battleGetStackByID(dest.unitValue->unitId(), false));

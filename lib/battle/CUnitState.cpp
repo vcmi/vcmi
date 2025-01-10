@@ -700,6 +700,11 @@ bool CUnitState::isHypnotized() const
 	return bonusCache.getBonusValue(UnitBonusValuesProxy::HYPNOTIZED);
 }
 
+bool CUnitState::isInvincible() const
+{
+	return bonusCache.getBonusValue(UnitBonusValuesProxy::INVINCIBLE);
+}
+
 int CUnitState::getTotalAttacks(bool ranged) const
 {
 	return 1 + (ranged ?

@@ -193,6 +193,7 @@ public:
 	bool isValidTarget(bool allowDead = false) const override;
 
 	bool isHypnotized() const override;
+	bool isInvincible() const override;
 
 	bool isClone() const override;
 	bool hasClone() const override;

@@ -675,7 +675,7 @@ bool CBattleInfoCallback::battleCanAttack(const battle::Unit * stack, const batt
 	if (!stack || !target)
 		return false;
 
-	if(target->hasBonusOfType(BonusType::INVINCIBLE))
+	if(target->isInvincible())
 		return false;
 
 	if(!battleMatchOwner(stack, target))
@@ -744,7 +744,7 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHe
 		if(!defender)
 			return false;
 
-		if(defender->hasBonusOfType(BonusType::INVINCIBLE))
+		if(defender->isInvincible())
 			return false;
 	}
 
@@ -810,7 +810,7 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 	if (!bai.defender->ableToRetaliate())
 		return ret;
 
-	if (bai.attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION) || bai.attacker->hasBonusOfType(BonusType::INVINCIBLE))
+	if (bai.attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION) || bai.attacker->isInvincible())
 		return ret;
 
 	//TODO: rewrite using boost::numeric::interval

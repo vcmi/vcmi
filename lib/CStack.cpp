@@ -298,7 +298,7 @@ BattleHexArray CStack::meleeAttackHexes(const battle::Unit * attacker, const bat
 
 bool CStack::isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
 {
-	if(defender->hasBonusOfType(BonusType::INVINCIBLE))
+	if(defender->isInvincible())
 		return false;
 		
 	return !meleeAttackHexes(attacker, defender, attackerPos, defenderPos).empty();

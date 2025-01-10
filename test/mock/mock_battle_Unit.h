@@ -58,6 +58,7 @@ public:
 	MOCK_CONST_METHOD1(isValidTarget, bool(bool));
 
 	MOCK_CONST_METHOD0(isHypnotized, bool());
+	MOCK_CONST_METHOD0(isInvincible, bool());
 	MOCK_CONST_METHOD0(isClone, bool());
 	MOCK_CONST_METHOD0(hasClone, bool());
 	MOCK_CONST_METHOD0(canCast, bool());
