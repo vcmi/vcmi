@@ -10,6 +10,7 @@
 #pragma once
 
 #include "bonuses/Bonus.h"
+#include "bonuses/BonusCache.h"
 #include "bonuses/CBonusSystemNode.h"
 #include "serializer/Serializeable.h"
 #include "GameConstants.h"
@@ -71,6 +72,9 @@ public:
 
 class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public ACreature
 {
+	BonusValueCache nativeTerrain;
+	BonusValueCache initiative;
+
 protected:
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
 
@@ -119,7 +123,7 @@ public:
 	CreatureID getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
 	virtual void init();
-	CStackInstance();
+	CStackInstance(bool isHypothetic = false);
 	CStackInstance(const CreatureID & id, TQuantity count, bool isHypothetic = false);
 	CStackInstance(const CCreature *cre, TQuantity count, bool isHypothetic = false);
 	virtual ~CStackInstance() = default;
@@ -135,6 +139,9 @@ public:
 	std::string nodeName() const override; //from CBonusSystemnode
 	void deserializationFix();
 	PlayerColor getOwner() const override;
+
+	int32_t getInitiative(int turn = 0) const final;
+	TerrainId getNativeTerrain() const final;
 };
 
 class DLL_LINKAGE CCommanderInstance : public CStackInstance
