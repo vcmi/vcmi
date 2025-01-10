@@ -129,7 +129,7 @@ private:
 	std::shared_ptr<CBattleInfoCallback> cb;
 	std::shared_ptr<Environment> env;
 	std::map<uint32_t, ReachabilityInfo> reachabilityCache;
-	std::map<BattleHex, std::vector<const battle::Unit *>> reachabilityMap;
+	std::array<std::vector<const battle::Unit *>, GameConstants::BFIELD_SIZE> reachabilityMap;
 	std::vector<battle::Units> turnOrder;
 	float negativeEffectMultiplier;
 	int simulationTurnsCount;
