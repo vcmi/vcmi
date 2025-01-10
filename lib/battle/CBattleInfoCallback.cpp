@@ -1716,18 +1716,22 @@ bool CBattleInfoCallback::battleIsUnitBlocked(const battle::Unit * unit) const
 	return false;
 }
 
-std::set<const battle::Unit *> CBattleInfoCallback::battleAdjacentUnits(const battle::Unit * unit) const
+battle::Units CBattleInfoCallback::battleAdjacentUnits(const battle::Unit * unit) const
 {
-	std::set<const battle::Unit *> ret;
-	RETURN_IF_NOT_BATTLE(ret);
+	RETURN_IF_NOT_BATTLE({});
 
-	for(auto hex : unit->getSurroundingHexes())
+	const auto & hexes = unit->getSurroundingHexes();
+
+	const auto & units = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
-		if(const auto * neighbour = battleGetUnitByPos(hex, true))
-			ret.insert(neighbour);
-	}
+		const auto & unitHexes = unit->getHexes();
+		for (const auto & hex : unitHexes)
+			if (hexes.contains(hex))
+				return true;
+		return false;
+	});
 
-	return ret;
+	return units;
 }
 
 SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const battle::Unit * caster, const battle::Unit * subject) const
