@@ -1201,7 +1201,9 @@ public:
 		if (bi.id == BuildingID::MARKETPLACE || bi.dailyIncome[EGameResID::WOOD] > 0)
 			evaluationContext.isTradeBuilding = true;
 
+#if NKAI_TRACE_LEVEL >= 1
 		logAi->trace("Building costs for %s : %s MarketValue: %d",bi.toString(), evaluationContext.buildingCost.toString(), evaluationContext.buildingCost.marketValue());
+#endif
 
 		if(bi.creatureID != CreatureID::NONE)
 		{

@@ -151,7 +151,9 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 
 void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town, const Nullkiller * ai) const
 {
+#if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Evaluating defence for %s", town->getNameTranslated());
+#endif
 
 	auto threatNode = ai->dangerHitMap->getObjectThreat(town);
 	std::vector<HitMapInfo> threats = ai->dangerHitMap->getTownThreats(town);
@@ -164,8 +166,9 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	}
 	if(!threatNode.fastestDanger.hero)
 	{
+#if NKAI_TRACE_LEVEL >= 1
 		logAi->trace("No threat found for town %s", town->getNameTranslated());
-
+#endif
 		return;
 	}
 	
@@ -173,7 +176,9 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 	if(reinforcement)
 	{
+#if NKAI_TRACE_LEVEL >= 1
 		logAi->trace("Town %s can buy defence army %lld", town->getNameTranslated(), reinforcement);
+#endif
 		tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(0.5f)));
 	}
 
@@ -181,13 +186,14 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 	for(auto & threat : threats)
 	{
+#if NKAI_TRACE_LEVEL >= 1
 		logAi->trace(
 			"Town %s has threat %lld in %s turns, hero: %s",
 			town->getNameTranslated(),
 			threat.danger,
 			std::to_string(threat.turn),
 			threat.hero ? threat.hero->getNameTranslated() : std::string("<no hero>"));
-
+#endif
 		handleCounterAttack(town, threat, threatNode.maximumDanger, ai, tasks);
 
 		if(isThreatUnderControl(town, threat, ai, paths))
@@ -199,7 +205,9 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 		if(paths.empty())
 		{
+#if NKAI_TRACE_LEVEL >= 1
 			logAi->trace("No ways to defend town %s", town->getNameTranslated());
+#endif
 
 			continue;
 		}
