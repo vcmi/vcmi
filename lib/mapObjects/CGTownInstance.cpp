@@ -730,7 +730,7 @@ void CGTownInstance::updateMoraleBonusFromArmy()
 	if (garrisonHero)
 	{
 		b->val = 0;
-		CBonusSystemNode::treeHasChanged();
+		nodeHasChanged();
 	}
 	else
 		CArmedInstance::updateMoraleBonusFromArmy();

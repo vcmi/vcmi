@@ -953,7 +953,7 @@ TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector,
 	return bonus->getAllBonuses(selector, limit, cachingStr);
 }
 
-int64_t CUnitStateDetached::getTreeVersion() const
+int32_t CUnitStateDetached::getTreeVersion() const
 {
 	return bonus->getTreeVersion();
 }

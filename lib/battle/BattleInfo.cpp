@@ -693,7 +693,7 @@ void BattleInfo::moveUnit(uint32_t id, BattleHex destination)
 	sta->position = destination;
 	//Bonuses can be limited by unit placement, so, change tree version 
 	//to force updating a bonus. TODO: update version only when such bonuses are present
-	CBonusSystemNode::treeHasChanged();
+	nodeHasChanged();
 }
 
 void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta)
@@ -890,7 +890,7 @@ void BattleInfo::addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool fo
 				stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, value.turnsRemain);
 			}
 		}
-		CBonusSystemNode::treeHasChanged();
+		sta->nodeHasChanged();
 	}
 }
 

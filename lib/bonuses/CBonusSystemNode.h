@@ -56,15 +56,16 @@ private:
 	ENodeTypes nodeType;
 	bool isHypotheticNode;
 
-	static const bool cachingEnabled;
 	mutable BonusList cachedBonuses;
-	mutable int64_t cachedLast;
-	static std::atomic<int64_t> treeChanged;
+	mutable int32_t cachedLast;
+	std::atomic<int32_t> nodeChanged;
+
+	void invalidateChildrenNodes(int32_t changeCounter);
 
 	// Setting a value to cachingStr before getting any bonuses caches the result for later requests.
 	// This string needs to be unique, that's why it has to be set in the following manner:
 	// [property key]_[value] => only for selector
-	using RequestsMap = tbb::concurrent_hash_map<std::string, std::pair<int64_t, TBonusListPtr>, HashStringCompare>;
+	using RequestsMap = tbb::concurrent_hash_map<std::string, std::pair<int32_t, TBonusListPtr>, HashStringCompare>;
 	mutable RequestsMap cachedRequests;
 	mutable std::shared_mutex sync;
 
@@ -79,8 +80,6 @@ private:
 
 	void getAllParents(TCNodes & out) const;
 
-	void newChildAttached(CBonusSystemNode & child);
-	void childDetached(CBonusSystemNode & child);
 	void propagateBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & source);
 	void unpropagateBonus(const std::shared_ptr<Bonus> & b);
 	bool actsAsBonusSourceOnly() const;
@@ -136,9 +135,9 @@ public:
 	void setNodeType(CBonusSystemNode::ENodeTypes type);
 	const TCNodesVector & getParentNodes() const;
 
-	static void treeHasChanged();
+	void nodeHasChanged();
 
-	int64_t getTreeVersion() const override;
+	int32_t getTreeVersion() const override;
 
 	virtual PlayerColor getOwner() const
 	{

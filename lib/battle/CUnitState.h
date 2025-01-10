@@ -279,7 +279,7 @@ public:
 
 	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit, const std::string & cachingStr = "") const override;
 
-	int64_t getTreeVersion() const override;
+	int32_t getTreeVersion() const override;
 
 	uint32_t unitId() const override;
 	BattleSide unitSide() const override;

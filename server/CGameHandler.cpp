@@ -378,7 +378,6 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 		scp.which = SetCommanderProperty::EXPERIENCE;
 		scp.amount = amountToGain;
 		sendAndApply(scp);
-		CBonusSystemNode::treeHasChanged();
 	}
 
 	expGiven(hero);
