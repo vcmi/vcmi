@@ -76,7 +76,13 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 {
 	OBJECT_CONSTRUCTION;
 
-	background = std::make_shared<CPicture>(ImagePath::fromJson(config["background"]));
+	const auto& bgConfig = config["background"];
+	if (bgConfig.isVector() && !bgConfig.Vector().empty())
+		background = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(bgConfig.Vector(), CRandomGenerator::getDefault())));
+
+	if (bgConfig.isString())
+		background = std::make_shared<CPicture>(ImagePath::fromJson(bgConfig));
+
 	if(config["scalable"].Bool())
 		background->scaleTo(GH.screenDimensions());
 

@@ -1289,6 +1289,11 @@ std::string CGObelisk::getHoverText(PlayerColor player) const
 	return getObjectName() + " " + visitedTxt(wasVisited(player));
 }
 
+std::string CGObelisk::getObjectDescription(PlayerColor player) const
+{
+	return visitedTxt(wasVisited(player));
+}
+
 void CGObelisk::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch(what)

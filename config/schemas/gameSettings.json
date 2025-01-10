@@ -44,7 +44,9 @@
 				"startingStackChances" :      { "type" : "array" },
 				"backpackSize" :              { "type" : "number" },
 				"tavernInvite" :              { "type" : "boolean" },
-				"minimalPrimarySkills" :      { "type" : "array" }
+				"minimalPrimarySkills" :      { "type" : "array" },
+				"movementPointsLand" :        { "type" : "array" },
+				"movementPointsSea" :         { "type" : "array" }
 			}
 		},
 		"towns" : {

@@ -350,7 +350,7 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 	};
 
 	auto filterName = settings["video"]["upscalingFilter"].String();
-	auto filter = upscalingFilterTypes.at(filterName);
+	auto filter = upscalingFilterTypes.count(filterName) ? upscalingFilterTypes.at(filterName) : EUpscalingFilter::AUTO;
 
 	if (filter != EUpscalingFilter::AUTO)
 		return filter;

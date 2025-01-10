@@ -199,7 +199,8 @@ public:
 
 	bool wasMyColorVisited(const PlayerColor & player) const;
 
-	std::string getObjectName() const override; //depending on color
+	std::string getObjectName() const override;
+	std::string getObjectDescription(PlayerColor player) const;
 	std::string getHoverText(PlayerColor player) const override;
 
 	template <typename Handler> void serialize(Handler &h)

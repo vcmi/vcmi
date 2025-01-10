@@ -27,6 +27,13 @@ struct Bonus;
 struct Component;
 class CStackBasicDescriptor;
 
+class JsonRandomizationException : public std::runtime_error
+{
+	std::string cleanupJson(const JsonNode & value);
+public:
+	JsonRandomizationException(const std::string & message, const JsonNode & input);
+};
+
 class JsonRandom : public GameCallbackHolder
 {
 public:

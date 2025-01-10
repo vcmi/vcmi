@@ -1134,6 +1134,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		eventsHandler.syncSize(events, JsonNode::JsonType::DATA_VECTOR);
 		eventsHandler.serializeStruct(events);
 	}
+	handler.serializeId("alignmentToPlayer", alignmentToPlayer, PlayerColor::NEUTRAL);
 }
 
 const CFaction * CGTownInstance::getFaction() const

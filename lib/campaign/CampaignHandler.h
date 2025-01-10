@@ -26,6 +26,9 @@ class DLL_LINKAGE CampaignHandler
 	static CampaignScenario readScenarioFromJson(JsonNode & reader);
 	static CampaignTravel readScenarioTravelFromJson(JsonNode & reader);
 
+	//writer for VCMI campaigns (*.vcmp)
+	static void writeScenarioTravelToJson(JsonNode & node, const CampaignTravel & travel);
+
 	//parsers for original H3C campaigns
 	static void readHeaderFromMemory(CampaignHeader & target, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding);
 	static CampaignScenario readScenarioFromMemory(CBinaryReader & reader, CampaignHeader & header);
@@ -43,6 +46,10 @@ public:
 	static std::unique_ptr<Campaign> getHeader( const std::string & name); //name - name of appropriate file
 
 	static std::shared_ptr<CampaignState> getCampaign(const std::string & name); //name - name of appropriate file
+
+	//writer for VCMI campaigns (*.vcmp)
+	static JsonNode writeHeaderToJson(CampaignHeader & header);
+	static JsonNode writeScenarioToJson(const CampaignScenario & scenario);
 };
 
 VCMI_LIB_NAMESPACE_END

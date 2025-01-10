@@ -55,9 +55,11 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	ui->lResources->setRowCount(GameConstants::RESOURCE_QUANTITY - 1);
 	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY - 1; ++i)
 	{
+		MetaString str;
+		str.appendName(GameResID(i));
 		for(auto * w : {ui->rResources, ui->lResources})
 		{
-			auto * item = new QTableWidgetItem(QString::fromStdString(GameConstants::RESOURCE_NAMES[i]));
+			auto * item = new QTableWidgetItem(QString::fromStdString(str.toString()));
 			item->setData(Qt::UserRole, QVariant::fromValue(i));
 			w->setItem(i, 0, item);
 			auto * spinBox = new QSpinBox;
@@ -163,7 +165,9 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	//fill players
 	for(auto color = PlayerColor(0); color < PlayerColor::PLAYER_LIMIT; ++color)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[color.getNum()]));
+		MetaString str;
+		str.appendName(color);
+		auto * item = new QListWidgetItem(QString::fromStdString(str.toString()));
 		item->setData(Qt::UserRole, QVariant::fromValue(color.getNum()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(Qt::Unchecked);

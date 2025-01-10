@@ -367,6 +367,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 			// final node
 			n.coord = tile;
 			n.cost = targetNode.cost;
+			n.turns = static_cast<ui8>(targetNode.cost);
 			n.danger = danger;
 			n.parentIndex = path.nodes.size();
 			path.nodes.push_back(n);

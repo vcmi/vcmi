@@ -20,8 +20,6 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/texts/TextOperations.h"
 
-#include <SDL_ttf.h>
-
 std::pair<std::unique_ptr<ui8[]>, ui64> CTrueTypeFont::loadData(const JsonNode & config)
 {
 	std::string filename = "Data/" + config["file"].String();
