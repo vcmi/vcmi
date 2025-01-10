@@ -33,7 +33,7 @@ public:
 	int64_t getEffectValue(const Spell * spell) const override;
 	PlayerColor getCasterOwner() const override;
 	void getCasterName(MetaString & text) const override;
-	void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override;
+	void getCastDescription(const Spell * spell, const battle::Units & attacked, MetaString & text) const override;
 	void spendMana(ServerCallback * server, const int32_t spellCost) const override;
 	const CGHeroInstance * getHeroCaster() const override;
 	int32_t manaLimit() const override;

@@ -112,13 +112,13 @@ private:
 
 struct ReachabilityData
 {
-	std::map<int, std::vector<const battle::Unit *>> units;
+	std::map<int, battle::Units> units;
 
 	// shooters which are within mellee attack and mellee units
-	std::vector<const battle::Unit *> melleeAccessible;
+	battle::Units melleeAccessible;
 
 	// far shooters
-	std::vector<const battle::Unit *> shooters;
+	battle::Units shooters;
 
 	std::set<uint32_t> enemyUnitsReachingAttacker;
 };
@@ -158,7 +158,7 @@ private:
 		PotentialTargets & targets,
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb,
-		std::vector<const battle::Unit *> additionalUnits = {}) const;
+		battle::Units additionalUnits = {}) const;
 
 	bool canBeHitThisTurn(const AttackPossibility & ap);
 
@@ -193,7 +193,7 @@ public:
 		uint8_t turn,
 		PotentialTargets & targets,
 		std::shared_ptr<HypotheticBattle> hb,
-		std::vector<const battle::Unit *> additionalUnits = {}) const;
+		battle::Units additionalUnits = {}) const;
 
 	bool checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * unit, BattleHex position);
 
@@ -203,7 +203,7 @@ public:
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb);
 
-	std::vector<const battle::Unit *> getAdjacentUnits(const battle::Unit * unit) const;
+	battle::Units getAdjacentUnits(const battle::Unit * unit) const;
 
 	float getPositiveEffectMultiplier() const { return 1; }
 	float getNegativeEffectMultiplier() const { return negativeEffectMultiplier; }

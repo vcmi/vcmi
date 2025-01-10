@@ -856,7 +856,7 @@ void CGHeroInstance::getCasterName(MetaString & text) const
 	text.replaceRawString(getNameTranslated());
 }
 
-void CGHeroInstance::getCastDescription(const spells::Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const
+void CGHeroInstance::getCastDescription(const spells::Spell * spell, const battle::Units & attacked, MetaString & text) const
 {
 	const bool singleTarget = attacked.size() == 1;
 	const int textIndex = singleTarget ? 195 : 196;

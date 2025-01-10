@@ -183,7 +183,7 @@ public:
 	PlayerColor getCasterOwner() const override;
 	const CGHeroInstance * getHeroCaster() const override;
 	void getCasterName(MetaString & text) const override;
-	void getCastDescription(const spells::Spell * spell, const std::vector<const Unit *> & attacked, MetaString & text) const override;
+	void getCastDescription(const spells::Spell * spell, const battle::Units & attacked, MetaString & text) const override;
 	int32_t manaLimit() const override;
 
 	bool ableToRetaliate() const override;

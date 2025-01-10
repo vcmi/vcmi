@@ -147,7 +147,7 @@ public:
 
 	AttackableTiles getPotentiallyShootableHexes(const  battle::Unit* attacker, BattleHex destinationTile, BattleHex attackerPos) const;
 
-	std::vector<const battle::Unit *> getAttackedBattleUnits(
+	battle::Units getAttackedBattleUnits(
 		const battle::Unit* attacker,
 		const  battle::Unit * defender,
 		BattleHex destinationTile,

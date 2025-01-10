@@ -57,7 +57,7 @@ void BonusCaster::getCasterName(MetaString & text) const
 	}
 }
 
-void BonusCaster::getCastDescription(const Spell * spell, const std::vector<const battle::Unit*> & attacked, MetaString & text) const
+void BonusCaster::getCastDescription(const Spell * spell, const battle::Units & attacked, MetaString & text) const
 {
 	const bool singleTarget = attacked.size() == 1;
 	const int textIndex = singleTarget ? 195 : 196;

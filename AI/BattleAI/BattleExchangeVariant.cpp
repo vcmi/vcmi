@@ -471,10 +471,10 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 	return result;
 }
 
-std::vector<const battle::Unit *> BattleExchangeEvaluator::getAdjacentUnits(const battle::Unit * blockerUnit) const
+battle::Units BattleExchangeEvaluator::getAdjacentUnits(const battle::Unit * blockerUnit) const
 {
 	std::queue<const battle::Unit *> queue;
-	std::vector<const battle::Unit *> checkedStacks;
+	battle::Units checkedStacks;
 
 	queue.push(blockerUnit);
 
@@ -506,7 +506,7 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 	uint8_t turn,
 	PotentialTargets & targets,
 	std::shared_ptr<HypotheticBattle> hb,
-	std::vector<const battle::Unit *> additionalUnits) const
+	battle::Units additionalUnits) const
 {
 	ReachabilityData result;
 
@@ -515,7 +515,7 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 	if(!ap.attack.shooting) 
 		hexes.insert(ap.from);
 
-	std::vector<const battle::Unit *> allReachableUnits = additionalUnits;
+	battle::Units allReachableUnits = additionalUnits;
 	
 	for(auto hex : hexes)
 	{
@@ -636,7 +636,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	PotentialTargets & targets,
 	DamageCache & damageCache,
 	std::shared_ptr<HypotheticBattle> hb,
-	std::vector<const battle::Unit *> additionalUnits) const
+	battle::Units additionalUnits) const
 {
 #if BATTLE_TRACE_LEVEL>=1
 	logAi->trace("Battle exchange at %d", ap.attack.shooting ? ap.dest.hex : ap.from.hex);
@@ -649,8 +649,8 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 		return BattleScore(EvaluationResult::INEFFECTIVE_SCORE, 0);
 	}
 
-	std::vector<const battle::Unit *> ourStacks;
-	std::vector<const battle::Unit *> enemyStacks;
+	battle::Units ourStacks;
+	battle::Units enemyStacks;
 
 	if(hb->battleGetUnitByID(ap.attack.defender->unitId())->alive())
 		enemyStacks.push_back(ap.attack.defender);

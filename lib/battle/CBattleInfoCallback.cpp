@@ -383,11 +383,9 @@ battle::Units CBattleInfoCallback::battleAliveUnits(BattleSide side) const
 
 using namespace battle;
 
-//T is battle::Unit descendant
-template <typename T>
-const T * takeOneUnit(std::vector<const T*> & allUnits, const int turn, BattleSide & sideThatLastMoved, int phase)
+static const battle::Unit * takeOneUnit(battle::Units & allUnits, const int turn, BattleSide & sideThatLastMoved, int phase)
 {
-	const T * returnedUnit = nullptr;
+	const battle::Unit * returnedUnit = nullptr;
 	size_t currentUnitIndex = 0;
 
 	for(size_t i = 0; i < allUnits.size(); i++)
@@ -1168,7 +1166,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 
 	std::vector<DistStack> stackPairs;
 
-	std::vector<const battle::Unit *> possible = battleGetUnitsIf([=](const battle::Unit * unit)
+	battle::Units possible = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
 		return unit->isValidTarget(false) && unit != closest;
 	});
@@ -1436,7 +1434,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyShootableHexes(const battle::
 	return at;
 }
 
-std::vector<const battle::Unit*> CBattleInfoCallback::getAttackedBattleUnits(
+battle::Units CBattleInfoCallback::getAttackedBattleUnits(
 	const battle::Unit * attacker,
 	const  battle::Unit * defender,
 	BattleHex destinationTile,
@@ -1444,7 +1442,7 @@ std::vector<const battle::Unit*> CBattleInfoCallback::getAttackedBattleUnits(
 	BattleHex attackerPos,
 	BattleHex defenderPos) const
 {
-	std::vector<const battle::Unit*> units;
+	battle::Units units;
 	RETURN_IF_NOT_BATTLE(units);
 
 	if(attackerPos == BattleHex::INVALID)

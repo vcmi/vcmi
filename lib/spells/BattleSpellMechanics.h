@@ -18,6 +18,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct BattleSpellCast;
 
+namespace battle
+{
+	using Units = boost::container::small_vector<const Unit *, 4>;
+}
+
 namespace spells
 {
 
@@ -66,14 +71,14 @@ private:
 	std::shared_ptr<effects::Effects> effects;
 	std::shared_ptr<IReceptiveCheck> targetCondition;
 
-	std::vector<const battle::Unit *> affectedUnits;
+	battle::Units affectedUnits;
 	effects::Effects::EffectsToApply effectsToApply;
 
 	void beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target);
 
 	std::set<const battle::Unit *> collectTargets() const;
 
-	void doRemoveEffects(ServerCallback * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector);
+	void doRemoveEffects(ServerCallback * server, const battle::Units & targets, const CSelector & selector);
 
 	BattleHexArray spellRangeInHexes(BattleHex centralHex) const;
 

@@ -473,7 +473,7 @@ std::set<const battle::Unit *> BattleSpellMechanics::collectTargets() const
 	return result;
 }
 
-void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector)
+void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const battle::Units & targets, const CSelector & selector)
 {
 	SetStackEffect sse;
 	sse.battleID = battle()->getBattle()->getBattleID();
