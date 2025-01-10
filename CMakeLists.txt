@@ -25,6 +25,13 @@ if(APPLE)
 	endif()
 endif()
 
+if(POLICY CMP0142)
+  cmake_policy(SET CMP0142 NEW)
+endif()
+if(POLICY CMP0177)
+  cmake_policy(SET CMP0177 NEW)
+endif()
+
 ############################################
 #        User-provided options             #
 ############################################
@@ -870,7 +877,9 @@ elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 	# Workaround for this issue:
 	# CPack Error: Error executing: /usr/bin/hdiutil detach "/Volumes/VCMI"
 	# https://github.com/actions/runner-images/issues/7522#issuecomment-1564467252
-	set(CPACK_COMMAND_HDIUTIL "/usr/bin/sudo /usr/bin/hdiutil")
+	if(DEFINED ENV{GITHUB_RUN_ID})
+		set(CPACK_COMMAND_HDIUTIL "/usr/bin/sudo /usr/bin/hdiutil")
+	endif()
 	# CMake code for CPACK_DMG_DS_STORE executed before DS_STORE_SETUP_SCRIPT
 	# So we can keep both enabled and this shouldn't hurt
 	# set(CPACK_DMG_DS_STORE "${CMAKE_SOURCE_DIR}/osx/dmg_DS_Store")
