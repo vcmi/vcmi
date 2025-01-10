@@ -35,6 +35,7 @@ CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, Battle
 	side(Side)
 {
 	health.init(); //???
+	doubleWideCached = battle::CUnitState::doubleWide();
 }
 
 CStack::CStack():
@@ -55,6 +56,7 @@ CStack::CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I
 	side(Side)
 {
 	health.init(); //???
+	doubleWideCached = battle::CUnitState::doubleWide();
 }
 
 void CStack::localInit(BattleInfo * battleInfo)
@@ -402,6 +404,32 @@ void CStack::spendMana(ServerCallback * server, const int spellCost) const
 	ssp.val = -spellCost;
 	ssp.absolute = false;
 	server->apply(ssp);
+}
+
+void CStack::postDeserialize(const CArmedInstance * army, const SlotID & extSlot)
+{
+	if(extSlot == SlotID::COMMANDER_SLOT_PLACEHOLDER)
+	{
+		const auto * hero = dynamic_cast<const CGHeroInstance *>(army);
+		assert(hero);
+		base = hero->commander;
+	}
+	else if(slot == SlotID::SUMMONED_SLOT_PLACEHOLDER || slot == SlotID::ARROW_TOWERS_SLOT || slot == SlotID::WAR_MACHINES_SLOT)
+	{
+		//no external slot possible, so no base stack
+		base = nullptr;
+	}
+	else if(!army || extSlot == SlotID() || !army->hasStackAtSlot(extSlot))
+	{
+		base = nullptr;
+		logGlobal->warn("%s doesn't have a base stack!", typeID.toEntity(VLC)->getNameSingularTranslated());
+	}
+	else
+	{
+		base = &army->getStack(extSlot);
+	}
+
+	doubleWideCached = battle::CUnitState::doubleWide();
 }
 
 VCMI_LIB_NAMESPACE_END

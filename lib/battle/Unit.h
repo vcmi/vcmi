@@ -64,6 +64,8 @@ class CUnitState;
 
 class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer, public ACreature
 {
+	static BattleHexArray::ArrayOfBattleHexArrays precomputeUnitHexes(BattleSide side, bool twoHex);
+
 public:
 	virtual ~Unit();
 

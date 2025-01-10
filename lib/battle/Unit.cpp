@@ -107,24 +107,34 @@ const BattleHexArray & Unit::getHexes(BattleHex assumedPos) const
 	return getHexes(assumedPos, doubleWide(), unitSide());
 }
 
+BattleHexArray::ArrayOfBattleHexArrays Unit::precomputeUnitHexes(BattleSide side, bool twoHex)
+{
+	BattleHexArray::ArrayOfBattleHexArrays result;
+
+	for (BattleHex assumedPos = 0; assumedPos < GameConstants::BFIELD_SIZE; ++assumedPos)
+	{
+		BattleHexArray hexes;
+		hexes.insert(assumedPos);
+
+		if(twoHex)
+			hexes.insert(occupiedHex(assumedPos, twoHex, side));
+
+		result[assumedPos.toInt()] = std::move(hexes);
+	}
+
+	return result;
+}
+
 const BattleHexArray & Unit::getHexes(BattleHex assumedPos, bool twoHex, BattleSide side)
 {
-	static BattleHexArray::ArrayOfBattleHexArrays precomputed[4];
+	static const std::array<BattleHexArray::ArrayOfBattleHexArrays, 4> precomputed = {
+		precomputeUnitHexes(BattleSide::ATTACKER, false),
+		precomputeUnitHexes(BattleSide::ATTACKER, true),
+		precomputeUnitHexes(BattleSide::DEFENDER, false),
+		precomputeUnitHexes(BattleSide::DEFENDER, true),
+	};
+
 	int index = side == BattleSide::ATTACKER ? 0 : 2;
-
-	if(!precomputed[index + twoHex][assumedPos.toInt()].empty())
-		return precomputed[index + twoHex][assumedPos.toInt()];
-
-	// first run, compute
-
-	BattleHexArray hexes;
-	hexes.insert(assumedPos);
-
-	if(twoHex)
-		hexes.insert(occupiedHex(assumedPos, twoHex, side));
-
-	precomputed[index + twoHex][assumedPos.toInt()] = std::move(hexes);
-
 	return precomputed[index + twoHex][assumedPos.toInt()];
 }
 

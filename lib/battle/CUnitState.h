@@ -269,7 +269,7 @@ private:
 	void reset();
 };
 
-class DLL_LINKAGE CUnitStateDetached : public CUnitState
+class DLL_LINKAGE CUnitStateDetached final : public CUnitState
 {
 public:
 	explicit CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_);
