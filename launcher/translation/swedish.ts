@@ -246,7 +246,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="810"/>
         <source>Installing Heroes Chronicles</source>
-        <translation>Installerar Heroes Chronicles</translation>
+        <translation>Installerar Hjältarnas krönikor (Heroes Chronicles)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="174"/>
@@ -1084,13 +1084,15 @@ Säkerhetskopian (offline backup installers) består av två delar - en &apos;.e
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="490"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation>Vänligen välj mappen med Heroes III: Complete Edition eller Heroes III: Shadow of Death.</translation>
+        <translation>Heroes III: HD Edition-filer stöds inte av VCMI.
+Vänligen välj mappen med Heroes III: Complete Edition eller Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="495"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation>Vänligen välj mappen med Heroes III: Complete Edition eller Heroes III: Shadow of Death.</translation>
+        <translation>Okänd eller ej stödd Heroes III-version hittades.
+Vänligen välj mappen med Heroes III: Complete Edition eller Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="348"/>
@@ -1116,7 +1118,8 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="466"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-        <translation>Vänligen välj mappen där du installerade Heroes III.</translation>
+        <translation>Lyckades inte upptäcka giltiga Heroes III-data i vald mapp.
+Vänligen välj mappen där du installerade Heroes III.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
@@ -1179,7 +1182,7 @@ Bin (%n bytes):
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-        <translation>Intern kopieringsprocess misslyckades. Tillräckligt med utrymme på enheten?
+        <translation>Intern kopieringsprocess misslyckades. Finns det tillräckligt med utrymme på enheten?
 
 %1</translation>
     </message>
@@ -1210,7 +1213,7 @@ Bin (%n bytes):
 %1
 
 %2</source>
-        <translation>Endast en fil känd! Filerna kanske är skadade? Vänligen ladda ner igen.
+        <translation>Endast en fil känd! Filerna kanske är skadade? Prova med att ladda ner filen/filerna igen och försök igen.
 %1
 
 %2</translation>
@@ -1220,7 +1223,7 @@ Bin (%n bytes):
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-        <translation>Okända filer! Filerna kanske är skadade? Vänligen ladda ner igen.
+        <translation>Okända filer! Filerna kanske är skadade? Prova med att ladda ner filen/filerna igen och försök igen.
 
 %1</translation>
     </message>
@@ -1348,7 +1351,7 @@ Bin (%n bytes):
     <message>
         <location filename="../mainwindow_moc.cpp" line="287"/>
         <source>Replace config file?</source>
-        <translation>Byt ut konfigurationsfilen?</translation>
+        <translation>Vill du byta ut konfigurationsfilen?</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="287"/>
@@ -1410,7 +1413,7 @@ Bin (%n bytes):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="161"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
-        <translation>Modden är inte kompatibel. Vänligen uppdatera VCMI och kontrollera de senaste moddrevisionerna</translation>
+        <translation>Modden är inte kompatibel. Vänligen uppdatera VCMI och kontrollera att du har de senaste moddrevisionerna</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="164"/>
@@ -1830,7 +1833,7 @@ För att lösa problemet måste du installera om spelet och importera datafilern
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
         <translation>VCMI har upptäckt att några av datafilerna för Heroes III: Harmageddons klinga (Armageddon&apos;s Blade) saknas i din installation. VCMI kommer att fungera men kampanjen Harmageddons klinga kommer inte att vara tillgänglig.
 
-För att lösa problemet måste du kopiera de saknade datafilerna från Heroes III till VCMI:s datafilsmapp manuellt eller installera om VCMI och importera Heroes III datafiler på nytt</translation>
+För att lösa problemet måste du kopiera de saknade datafilerna från Heroes III till VCMI:s datafilsmapp manuellt eller installera om VCMI och importera Heroes III-datafiler på nytt</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="423"/>
