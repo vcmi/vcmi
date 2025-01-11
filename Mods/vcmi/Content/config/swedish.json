@@ -220,7 +220,7 @@
 	"vcmi.lobby.pvp.randomTownVs.help"    : "Skriv två slumpade städer i chatten",
 	"vcmi.lobby.pvp.versus"               : "vs.",
 
-	"vcmi.client.errors.invalidMap"       : "{Ogiltig karta eller kampanj}\n\nStartade inte spelet! Vald karta eller kampanj kan vara ogiltig eller skadad. Orsak:\n%s",
+	"vcmi.client.errors.invalidMap"       : "{Ogiltig karta eller kampanj}\n\nMisslyckades med att starta spelet! Vald karta eller kampanj kan vara ogiltig eller skadad. Orsak:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{Saknade datafiler}\n\nKampanjernas datafiler hittades inte! Du kanske använder ofullständiga eller skadade Heroes 3-datafiler. Vänligen installera om speldata.",
 	"vcmi.client.errors.modLoadingFailure": "{Moddladdningsfel}\n\nKritiska fel upptäcktes vid laddning av moddar! Spelet kanske inte fungerar korrekt eller kraschar! Vänligen uppdatera eller inaktivera följande moddar:\n\n",
 	"vcmi.server.errors.disconnected"     : "{Nätverksfel}\n\nAnslutningen till spelservern har förlorats!",
