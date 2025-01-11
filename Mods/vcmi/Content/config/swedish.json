@@ -21,7 +21,7 @@
 	"vcmi.adventureMap.confirmRestartGame"               : "Är du säker på att du vill starta om spelet?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "Det finns inga tillgängliga marknadsplatser!",
 	"vcmi.adventureMap.noTownWithTavern"                 : "Det finns inga tillgängliga städer med värdshus!",
-	"vcmi.adventureMap.spellUnknownProblem"              : "Det finns ett okänt problem med den här formeln! Ingen mer information är tillgänglig.",
+	"vcmi.adventureMap.spellUnknownProblem"              : "Det finns ett okänt problem med den här trollformeln! Ingen mer information är tillgänglig.",
 	"vcmi.adventureMap.playerAttacked"                   : "Spelare har blivit attackerad: %s",
 	"vcmi.adventureMap.moveCostDetails"                  : "Förflyttningspoängs-kostnad: %TURNS tur(er) + %POINTS poäng - Återstående poäng: %REMAINING",
 	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Förflyttningspoängs-kostnad: %POINTS poäng - Återstående poäng: %REMAINING",
@@ -152,7 +152,7 @@
 	"vcmi.broadcast.vote.success.contactsBlocked" : "Omröstningen lyckades. Simultana turomgångar kommer att pågå i %s fler dagar. Närkontakter är blockerade",
 	"vcmi.broadcast.vote.success.nextDay"         : "Omröstningen lyckades. Simultana turomgångar kommer att avslutas nästa dag",
 	"vcmi.broadcast.vote.success.timer"           : "Omröstningen lyckades. Timern för alla spelare har förlängts med %s sekunder",
-	"vcmi.broadcast.vote.aborted"                 : "Spelare röstade mot förändring. Omröstningen avbröts",
+	"vcmi.broadcast.vote.aborted"                 : "Spelare röstade emot förändring. Omröstningen avbröts",
 	"vcmi.broadcast.vote.start.untilContacts"     : "Började rösta för att tillåta samtidiga turomgångar i ytterligare %s dagar",
 	"vcmi.broadcast.vote.start.contactsBlocked"   : "Började rösta för att tvinga fram simultana turomgångar i ytterligare %s fler dagar",
 	"vcmi.broadcast.vote.start.nextDay"           : "Började rösta för att avsluta samtidiga turomgångar från och med nästa dag",
@@ -170,7 +170,7 @@
 	"vcmi.lobby.header.rooms"             : "Spelrum - %d",
 	"vcmi.lobby.header.channels"          : "Chattkanaler",
 	"vcmi.lobby.header.chat.global"       : "Global spelchatt - %s", // %s -> språknamn
-	"vcmi.lobby.header.chat.match"        : "Chatt från föregående spel på %s", // %s -> datum och tid för spelstart
+	"vcmi.lobby.header.chat.match"        : "Chatt från föregående spel - %s", // %s -> datum och tid för spelstart
 	"vcmi.lobby.header.chat.player"       : "Privat chatt med %s", // %s -> smeknamn på en annan spelare
 	"vcmi.lobby.header.history"           : "Dina tidigare spel",
 	"vcmi.lobby.header.players"           : "Spelare online - %d",
@@ -181,7 +181,7 @@
 	"vcmi.lobby.room.players.limit"       : "Begränsning av spelare",
 	"vcmi.lobby.room.description.public"  : "Alla spelare kan gå med i det offentliga rummet.",
 	"vcmi.lobby.room.description.private" : "Endast inbjudna spelare kan gå med i ett privat rum.",
-	"vcmi.lobby.room.description.new"     : "För att starta spelet, välj ett scenario eller skapa en slumpmässig karta.",
+	"vcmi.lobby.room.description.new"     : "För att starta spelet måste du välja ett scenario eller skapa en slumpmässig karta.",
 	"vcmi.lobby.room.description.load"    : "Använd ett av dina sparade spel för att starta spelet.",
 	"vcmi.lobby.room.description.limit"   : "Upp till %d spelare kan komma in i ditt rum (dig inkluderad).",
 	"vcmi.lobby.invite.header"            : "Bjud in spelare",
@@ -197,7 +197,7 @@
 	"vcmi.lobby.preview.error.full"       : "Rummet är redan fullt.",
 	"vcmi.lobby.preview.error.busy"       : "Rummet tar inte längre emot nya spelare.",
 	"vcmi.lobby.preview.error.invite"     : "Du blev inte inbjuden till det här rummet.",
-	"vcmi.lobby.preview.error.mods"       : "Du använder en annan uppsättning moddar.",
+	"vcmi.lobby.preview.error.mods"       : "Du använder en annan modduppsättning.",
 	"vcmi.lobby.preview.error.version"    : "Du använder en annan version av VCMI.",
 	"vcmi.lobby.room.new"                 : "Nytt spel",
 	"vcmi.lobby.room.load"                : "Ladda spel",
@@ -208,9 +208,9 @@
 	"vcmi.lobby.room.state.busy"          : "I spel",
 	"vcmi.lobby.room.state.invited"       : "Inbjuden",
 	"vcmi.lobby.mod.state.compatible"     : "Kompatibel",
-	"vcmi.lobby.mod.state.disabled"       : "Måste vara aktiverat",
+	"vcmi.lobby.mod.state.disabled"       : "Måste aktiveras",
 	"vcmi.lobby.mod.state.version"        : "Versioner matchar inte",
-	"vcmi.lobby.mod.state.excessive"      : "Måste vara inaktiverat",
+	"vcmi.lobby.mod.state.excessive"      : "Måste inaktiveras",
 	"vcmi.lobby.mod.state.missing"        : "Ej installerad",
 	"vcmi.lobby.pvp.coin.hover"           : "Mynt",
 	"vcmi.lobby.pvp.coin.help"            : "Singla slant",
@@ -221,7 +221,7 @@
 	"vcmi.lobby.pvp.versus"               : "vs.",
 
 	"vcmi.client.errors.invalidMap"       : "{Ogiltig karta eller kampanj}\n\nMisslyckades med att starta spelet! Vald karta eller kampanj kan vara ogiltig eller skadad. Orsak:\n%s",
-	"vcmi.client.errors.missingCampaigns" : "{Saknade datafiler}\n\nKampanjernas datafiler hittades inte! Du kanske använder ofullständiga eller skadade Heroes 3-datafiler. Vänligen installera om speldata.",
+	"vcmi.client.errors.missingCampaigns" : "{Saknade datafiler}\n\nDatafiler för kampanjen hittades inte! Du kanske använder ofullständiga eller skadade Heroes 3-datafiler. Vänligen installera om speldata.",
 	"vcmi.client.errors.modLoadingFailure": "{Moddladdningsfel}\n\nKritiska fel upptäcktes vid laddning av moddar! Spelet kanske inte fungerar korrekt eller kraschar! Vänligen uppdatera eller inaktivera följande moddar:\n\n",
 	"vcmi.server.errors.disconnected"     : "{Nätverksfel}\n\nAnslutningen till spelservern har förlorats!",
 	"vcmi.server.errors.playerLeft"       : "{Spelare har lämnat}\n\n%s-spelare har kopplat bort sig från spelet!", //%s -> spelarens färg
