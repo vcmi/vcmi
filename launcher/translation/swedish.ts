@@ -16,7 +16,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
         <source>VCMI on Github</source>
-        <translation>VCMI på Github</translation>
+        <translation>VCMI på GitHub</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="54"/>
@@ -59,7 +59,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="107"/>
         <source>Data Directories</source>
-        <translation>Datafilsregister</translation>
+        <translation>Datamappar</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="168"/>
@@ -141,11 +141,6 @@
         <translation>Skärmbilder</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="335"/>
-        <source> %p% (%v KB out of %m KB)</source>
-        <translation> %p% (%v KB av %m KB)</translation>
-    </message>
-    <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
         <source>Uninstall</source>
         <translation>Avinstallera</translation>
@@ -169,6 +164,11 @@
         <location filename="../modManager/cmodlistview_moc.ui" line="521"/>
         <source>Install</source>
         <translation>Installera</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.ui" line="335"/>
+        <source> %p% (%v KB out of %m KB)</source>
+        <translation> %p% (%v KB utav %m KB)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="108"/>
@@ -242,11 +242,6 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="345"/>
         <source>please upgrade mod</source>
         <translation>vänligen uppdatera modd</translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="810"/>
-        <source>Installing Heroes Chronicles</source>
-        <translation>Installerar Hjältarnas krönikor (Heroes Chronicles)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="174"/>
@@ -335,6 +330,11 @@ Install successfully downloaded?</source>
         <translation>
 
 Installation framgångsrikt nedladdad?</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="810"/>
+        <source>Installing Heroes Chronicles</source>
+        <translation>Installerar Hjältarnas krönikor (Heroes Chronicles)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="890"/>
@@ -564,7 +564,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="774"/>
         <source>Adventure Map Enemies</source>
-        <translation>Fiender på äventyskartan</translation>
+        <translation>Fiender på äventyrskartan</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="926"/>
@@ -870,17 +870,17 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="297"/>
         <source>Use offline installer from gog.com</source>
-        <translation>Använd offline-installationsprogrammet från GOG.com</translation>
+        <translation>Använd offline-installationsprogrammet från gog.com</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="329"/>
         <source>Install gog.com files</source>
-        <translation>Installera filer från GOG.com</translation>
+        <translation>Installera filer från gog.com</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="488"/>
         <source>Your Heroes III data files have been successfully found.</source>
-        <translation>Dina Heroes III-datafiler har hittats</translation>
+        <translation>Dina Heroes III-datafiler har hittats framgångsrikt.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="742"/>
@@ -910,7 +910,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="689"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
-        <translation>Du kan välja att installera ytterligare moddar, antingen nu eller vid ett senare tillfälle med hjälp av VCMI Launchern</translation>
+        <translation>Du kan välja att installera ytterligare moddar, antingen nu eller vid ett senare tillfälle med hjälp av VCMI-startprogrammet (VCMI Launcher)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="673"/>
@@ -923,6 +923,11 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
         <translation>Installera en kompatibel version av &quot;In The Wake of Gods&quot; (en fantillverkad Heroes III-expansion)</translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
+        <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
+        <translation>Installera modd som ger olika gränssnittsförbättringar, till exempel ett bättre gränssnitt för slumpmässiga kartor och valbara åtgärder i strider</translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="867"/>
         <source>Finish</source>
         <translation>Slutför</translation>
@@ -930,7 +935,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="155"/>
         <source>VCMI on Github</source>
-        <translation>VCMI på Github</translation>
+        <translation>VCMI på GitHub</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="162"/>
@@ -961,6 +966,11 @@ Heroes® of Might and Magic® III HD stöds för närvarande inte!</translation>
         <translation>Nästa</translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
+        <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
+        <translation>Du kan manuellt kopiera mapparna Maps, Data och Mp3 från den ursprungliga spelmappen till VCMI-datamappen som du kan se överst på den här sidan</translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="347"/>
         <source>Manual Installation</source>
         <translation>Manuell installation</translation>
@@ -981,16 +991,10 @@ Heroes® of Might and Magic® III HD stöds för närvarande inte!</translation>
         <translation>Kopiera befintliga data</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
-        <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
-        <translation>Du kan manuellt kopiera mapparna Maps, Data och Mp3 från den ursprungliga spelmappen till VCMI-datamappen som du kan se överst på den här sidan</translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation>Om du äger Heroes III från GOG kan du ladda ner en säkerhetskopia av spelet från &apos;gog.com&apos;. VCMI kommer att importera Heroes III-data med hjälp av säkerhetskopian (offline backup installers). 
-Säkerhetskopian (offline backup installers) består av två delar - en &apos;.exe&apos;-och en &apos;.bin&apos;-fil. Se till att ladda ner båda.</translation>
+        <translation>Om du äger Heroes III från GOG kan du ladda ner en säkerhetskopia (offline backup installers) från gog.com som består av två filer (en .exe-och en .bin-fil). När dessa två filer finns på datorn kan VCMI börja importera nödvändiga Heroes III-data ifrån dessa två filer</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="557"/>
@@ -1014,11 +1018,6 @@ Säkerhetskopian (offline backup installers) består av två delar - en &apos;.e
         <translation>Heroes III - Översättning</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
-        <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
-        <translation>Installera modd som ger olika gränssnittsförbättringar, till exempel ett bättre gränssnitt för slumpmässiga kartor och valbara åtgärder i strider</translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="809"/>
         <source>In The Wake of Gods</source>
         <translation>I gudars kölvatten (In The Wake of Gods)</translation>
@@ -1037,7 +1036,7 @@ Säkerhetskopian (offline backup installers) består av två delar - en &apos;.e
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="322"/>
         <source>Select %1 file...</source>
         <comment>param is file extension</comment>
-        <translation>Välj filen %1 ...</translation>
+        <translation>Välj filen %1...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="323"/>
@@ -1068,17 +1067,12 @@ Säkerhetskopian (offline backup installers) består av två delar - en &apos;.e
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="351"/>
         <source>GOG installer</source>
-        <translation>GOG-Installationsprogram</translation>
+        <translation>GOG-installationsprogram</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="396"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
         <translation>Du har tillhandahållit en GOG Galaxy-installationsfil! Den här filen innehåller inte spelet. Vänligen ladda ner säkerhetskopian av spelet (offline backup installers)!</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="419"/>
-        <source>Hash error!</source>
-        <translation>Hashfel!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="490"/>
@@ -1103,6 +1097,11 @@ Vänligen välj mappen med Heroes III: Complete Edition eller Heroes III: Shadow
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="417"/>
         <source>Extracting error!</source>
         <translation>Extraheringsfel!</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="419"/>
+        <source>Hash error!</source>
+        <translation>Hashfel!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="422"/>
@@ -1163,9 +1162,17 @@ Orsak till fel: </translation>
 Exe (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation>SHA1-hash av tillhandahållna filer:
-Exe (%n bytes):
-%1</translation>
+        <translation>
+            <numerusform>SHA1-hash av tillhandahållna filer:
+Exe (%n byte):
+%1</numerusform>
+            <numerusform>SHA1-hash av tillhandahållna filer:
+Exe (%n byte):¶
+%1</numerusform>
+            <numerusform>SHA1-hash av tillhandahållna filer:
+Exe (%n byte):¶
+%1</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <location filename="../innoextract.cpp" line="136"/>
@@ -1174,8 +1181,16 @@ Bin (%n bytes):
 %1</source>
         <comment>param is hash</comment>
         <translation>
-Bin (%n bytes):
-%1</translation>
+            <numerusform>
+Bin (%n byte):
+%1</numerusform>
+            <numerusform>
+Bin (%n byte):
+%1</numerusform>
+            <numerusform>
+Bin (%n byte):
+%1</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="139"/>
@@ -1318,7 +1333,7 @@ Bin (%n bytes):
     <message>
         <location filename="../languages.cpp" line="61"/>
         <source>Auto (%1)</source>
-        <translation>Auto (%1)</translation>
+        <translation>Automatiskt (%1)</translation>
     </message>
 </context>
 <context>
@@ -1344,6 +1359,11 @@ Bin (%n bytes):
         <translation>Spel</translation>
     </message>
     <message>
+        <location filename="../mainwindow_moc.ui" line="104"/>
+        <source>Mods</source>
+        <translation>Moddar</translation>
+    </message>
+    <message>
         <location filename="../mainwindow_moc.cpp" line="46"/>
         <source>Error starting executable</source>
         <translation>Fel vid uppstart av körbar fil</translation>
@@ -1357,11 +1377,6 @@ Bin (%n bytes):
         <location filename="../mainwindow_moc.cpp" line="287"/>
         <source>Do you want to replace %1?</source>
         <translation>Vill du byta ut %1?</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow_moc.ui" line="104"/>
-        <source>Mods</source>
-        <translation>Moddar</translation>
     </message>
 </context>
 <context>
@@ -1539,7 +1554,7 @@ Bin (%n bytes):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="51"/>
         <source>Expansion</source>
-        <translation>Expansion/Tillägg</translation>
+        <translation>Expansion</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="52"/>
@@ -1700,14 +1715,24 @@ Orsak: %2</translation>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="184"/>
         <source>Update %n mods</source>
-        <translation>Uppdatera %n moddar</translation>
+        <translation>
+            <numerusform>Uppdatera %n moddar</numerusform>
+            <numerusform>Uppdatera %n moddar</numerusform>
+            <numerusform>Uppdatera %n moddar</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="188"/>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
-        <translation>Hjältarnas krönikor (Heroes Chronicles):
-%n/%1 installerad</translation>
+        <translation>
+            <numerusform>Hjältarnas krönikor (Heroes Chronicles):
+%n/%1 installerad</numerusform>
+            <numerusform>Hjältarnas krönikor (Heroes Chronicles):
+%n/%1 installerad</numerusform>
+            <numerusform>Hjältarnas krönikor (Heroes Chronicles):
+%n/%1 installerad</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="205"/>
