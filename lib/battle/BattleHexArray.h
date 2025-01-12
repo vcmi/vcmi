@@ -113,11 +113,11 @@ public:
 	}
 
 	void clear() noexcept;
-	inline void erase(size_type index) noexcept
+	inline void erase(BattleHex target) noexcept
 	{
-		assert(index < totalSize);
-		internalStorage[index] = BattleHex::INVALID;
-		presenceFlags[index] = 0;
+		assert(contains(target));
+		vstd::erase(internalStorage, target);
+		presenceFlags[target.toInt()] = 0;
 	}
 	void erase(iterator first, iterator last) noexcept;
 	inline void pop_back() noexcept
@@ -160,17 +160,23 @@ public:
 	/// get (precomputed) all possible surrounding tiles
 	static const BattleHexArray & getAllNeighbouringTiles(BattleHex hex) noexcept
 	{
-		assert(hex.isValid());
+		static const BattleHexArray invalid;
 
-		return allNeighbouringTiles[hex.toInt()];
+		if (hex.isValid())
+			return allNeighbouringTiles[hex.toInt()];
+		else
+			return invalid;
 	}
 
 	/// get (precomputed) only valid and available surrounding tiles
 	static const BattleHexArray & getNeighbouringTiles(BattleHex hex) noexcept
 	{
-		assert(hex.isValid());
+		static const BattleHexArray invalid;
 
-		return neighbouringTiles[hex.toInt()];
+		if (hex.isValid())
+			return neighbouringTiles[hex.toInt()];
+		else
+			return invalid;
 	}
 
 	/// get (precomputed) only valid and available surrounding tiles for double wide creatures

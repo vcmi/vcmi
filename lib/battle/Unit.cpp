@@ -134,8 +134,24 @@ const BattleHexArray & Unit::getHexes(BattleHex assumedPos, bool twoHex, BattleS
 		precomputeUnitHexes(BattleSide::DEFENDER, true),
 	};
 
-	int index = side == BattleSide::ATTACKER ? 0 : 2;
-	return precomputed[index + twoHex][assumedPos.toInt()];
+	static const std::array<BattleHexArray, 5> invalidHexes = {
+		BattleHexArray({BattleHex( 0)}),
+		BattleHexArray({BattleHex(-1)}),
+		BattleHexArray({BattleHex(-2)}),
+		BattleHexArray({BattleHex(-3)}),
+		BattleHexArray({BattleHex(-4)})
+	};
+
+	if (assumedPos.isValid())
+	{
+		int index = side == BattleSide::ATTACKER ? 0 : 2;
+		return precomputed[index + twoHex][assumedPos.toInt()];
+	}
+	else
+	{
+		// Towers and such
+		return invalidHexes.at(-assumedPos.toInt());
+	}
 }
 
 BattleHex Unit::occupiedHex() const

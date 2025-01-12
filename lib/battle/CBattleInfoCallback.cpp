@@ -1353,14 +1353,9 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 	if(attacker->hasBonusOfType(BonusType::WIDE_BREATH))
 	{
 		BattleHexArray hexes = destinationTile.getNeighbouringTiles();
-		for(int i = 0; i < hexes.size(); i++)
-		{
-			if(hexes.at(i) == attackOriginHex)
-			{
-				hexes.erase(i);
-				i = 0;
-			}
-		}
+		if (hexes.contains(attackOriginHex))
+			hexes.erase(attackOriginHex);
+
 		for(BattleHex tile : hexes)
 		{
 			//friendly stacks can also be damaged by Dragon Breath
