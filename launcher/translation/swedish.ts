@@ -1169,9 +1169,6 @@ Exe (%n byte):
             <numerusform>SHA1-hash av tillhandahållna filer:
 Exe (%n byte):¶
 %1</numerusform>
-            <numerusform>SHA1-hash av tillhandahållna filer:
-Exe (%n byte):¶
-%1</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1181,9 +1178,6 @@ Bin (%n bytes):
 %1</source>
         <comment>param is hash</comment>
         <translation>
-            <numerusform>
-Bin (%n byte):
-%1</numerusform>
             <numerusform>
 Bin (%n byte):
 %1</numerusform>
@@ -1718,7 +1712,6 @@ Orsak: %2</translation>
         <translation>
             <numerusform>Uppdatera %n moddar</numerusform>
             <numerusform>Uppdatera %n moddar</numerusform>
-            <numerusform>Uppdatera %n moddar</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1726,8 +1719,6 @@ Orsak: %2</translation>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
         <translation>
-            <numerusform>Hjältarnas krönikor (Heroes Chronicles):
-%n/%1 installerad</numerusform>
             <numerusform>Hjältarnas krönikor (Heroes Chronicles):
 %n/%1 installerad</numerusform>
             <numerusform>Hjältarnas krönikor (Heroes Chronicles):
