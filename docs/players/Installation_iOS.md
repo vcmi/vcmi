@@ -135,7 +135,7 @@ c) Copy the command below and restart the ‘Apple Mobile Device Service’.
 
 net start "Apple Mobile Device Service"
 
-In the event that you don't update the store in the alloted time and it expires, it won't load. Reloading the store is easy enough. Simply
+In case you don't update the store in the alloted time and it expires, it won't load. Reloading the store is easy enough. Simply
 
 - Connect you iOS device to your PC/MAC
 - Complete step 9 of the AltStore Manual (trust your Apple ID) again
