@@ -259,8 +259,37 @@ CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 	for(const JsonNode & node : config["images"].Vector())
 		images.push_back(CMainMenu::createPicture(node));
 
-	for(const JsonNode & node : config["buttons"].Vector())
-	{
+	for (const JsonNode& node : config["buttons"].Vector()) {
+		auto tokens = node["command"].String().find(' ');
+		std::pair<std::string, std::string> commandParts = {
+			node["command"].String().substr(0, tokens),
+			(tokens == std::string::npos) ? "" : node["command"].String().substr(tokens + 1)
+		};
+
+		if (commandParts.first == "campaigns") {
+			const auto& campaign = CMainMenuConfig::get().getCampaigns()[commandParts.second];
+
+			if (!campaign.isStruct()) {
+				logGlobal->warn("Campaign set %s not found", commandParts.second);
+				continue;
+			}
+
+			bool fileExists = false;
+			for (const auto& item : campaign["items"].Vector()) {
+				std::string filename = item["file"].String();
+
+				if (CResourceHandler::get()->existsResource(ResourcePath(filename + ".h3c"))) {
+					fileExists = true;
+					break; 
+				}
+			}
+
+			if (!fileExists) {
+				logGlobal->warn("No valid files found for campaign set %s", commandParts.second);
+				continue;
+			}
+		}
+
 		buttons.push_back(createButton(parent, node));
 		buttons.back()->setHoverable(true);
 		buttons.back()->setRedrawParent(true);
@@ -475,6 +504,12 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 
 	if (multiplayerConfig.isString())
 		picture = std::make_shared<CPicture>(ImagePath::fromJson(multiplayerConfig), 16, 77);
+
+	if (!picture)
+	{
+		picture = std::make_shared<CPicture>(ImagePath::builtin("MUMAP.bmp"), 16, 77);
+		logGlobal->error("Failed to load multiplayer picture");
+	}
 
 	textTitle = std::make_shared<CTextBox>("", Rect(7, 18, 440, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE);
 	textTitle->setText(CGI->generaltexth->zelp[263].second);
