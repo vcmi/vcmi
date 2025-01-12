@@ -124,7 +124,7 @@ You can start game directly (avoiding the launcher) by changing setting in iOS S
 
 ## Troubleshooting: Keeping your Alternative Store updated
 
-If you iTunes does not connect to your device over WiFi despite enabling the Sync over WiFi option, every 7 days you need to open Alt Store or the alternative. Clicking Update All or click Update App on both VCMI and the store separately works. Do the following on PC:
+If iTunes does not connect to your device over WiFi despite enabling the Sync over WiFi option, every 7 days you need to open Alt Store or the alternative. Clicking Update All or click Update App on both VCMI and the store separately works. Do the following on PC:
 
 a) Search for `cmd`. Right click on it and ‘Run as administrator’.
 b) Copy the command below. It stops the ‘Apple Mobile Device service’.
