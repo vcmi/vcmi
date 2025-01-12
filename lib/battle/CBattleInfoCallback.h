@@ -95,7 +95,7 @@ public:
 	bool battleCanShoot(const battle::Unit * attacker, BattleHex dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleCanShoot(const battle::Unit * attacker) const; //determines if stack with given ID shoot in principle
 	bool battleIsUnitBlocked(const battle::Unit * unit) const; //returns true if there is neighboring enemy stack
-	std::set<const battle::Unit *> battleAdjacentUnits(const battle::Unit * unit) const;
+	battle::Units battleAdjacentUnits(const battle::Unit * unit) const;
 
 	DamageEstimation calculateDmgRange(const BattleAttackInfo & info) const;
 
@@ -147,7 +147,7 @@ public:
 
 	AttackableTiles getPotentiallyShootableHexes(const  battle::Unit* attacker, BattleHex destinationTile, BattleHex attackerPos) const;
 
-	std::vector<const battle::Unit *> getAttackedBattleUnits(
+	battle::Units getAttackedBattleUnits(
 		const battle::Unit* attacker,
 		const  battle::Unit * defender,
 		BattleHex destinationTile,

@@ -64,6 +64,8 @@ class CUnitState;
 
 class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer, public ACreature
 {
+	static BattleHexArray::ArrayOfBattleHexArrays precomputeUnitHexes(BattleSide side, bool twoHex);
+
 public:
 	virtual ~Unit();
 
@@ -85,6 +87,7 @@ public:
 	virtual bool isValidTarget(bool allowDead = false) const = 0; //non-turret non-ghost stacks (can be attacked or be object of magic effect)
 
 	virtual bool isHypnotized() const = 0;
+	virtual bool isInvincible() const = 0;
 
 	virtual bool isClone() const = 0;
 	virtual bool hasClone() const = 0;

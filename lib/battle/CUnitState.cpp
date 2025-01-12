@@ -464,7 +464,7 @@ void CUnitState::getCasterName(MetaString & text) const
 	addNameReplacement(text, true);
 }
 
-void CUnitState::getCastDescription(const spells::Spell * spell, const std::vector<const Unit *> & attacked, MetaString & text) const
+void CUnitState::getCastDescription(const spells::Spell * spell, const battle::Units & attacked, MetaString & text) const
 {
 	text.appendLocalString(EMetaText::GENERAL_TXT, 565);//The %s casts %s
 	//todo: use text 566 for single creature
@@ -698,6 +698,11 @@ BattlePhases::Type CUnitState::battleQueuePhase(int turn) const
 bool CUnitState::isHypnotized() const
 {
 	return bonusCache.getBonusValue(UnitBonusValuesProxy::HYPNOTIZED);
+}
+
+bool CUnitState::isInvincible() const
+{
+	return bonusCache.getBonusValue(UnitBonusValuesProxy::INVINCIBLE);
 }
 
 int CUnitState::getTotalAttacks(bool ranged) const

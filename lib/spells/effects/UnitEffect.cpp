@@ -223,7 +223,8 @@ EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Targe
 			effectTarget.emplace_back();
 
 		for(auto hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()))
-			possibleHexes.erase(hex.toInt());
+			if (possibleHexes.contains(hex))
+				possibleHexes.erase(hex);
 
 		if(possibleHexes.empty())
 			break;

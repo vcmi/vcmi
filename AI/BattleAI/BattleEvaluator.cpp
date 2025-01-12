@@ -756,7 +756,9 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 					auto updatedAttack = AttackPossibility::evaluate(updatedBai, cachedAttack.ap->from, innerCache, state);
 
-					stackActionScore = scoreEvaluator.evaluateExchange(updatedAttack, cachedAttack.turn, *targets, innerCache, state);
+					BattleExchangeEvaluator innerEvaluator(scoreEvaluator);
+
+					stackActionScore = innerEvaluator.evaluateExchange(updatedAttack, cachedAttack.turn, *targets, innerCache, state);
 				}
 				for(const auto & unit : allUnits)
 				{

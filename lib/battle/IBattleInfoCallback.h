@@ -27,7 +27,7 @@ namespace battle
 {
 	class IUnitInfo;
 	class Unit;
-	using Units = std::vector<const Unit *>;
+	using Units = boost::container::small_vector<const Unit *, 4>;
 	using UnitFilter = std::function<bool(const Unit *)>;
 }
 

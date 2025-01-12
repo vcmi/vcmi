@@ -92,8 +92,8 @@ void DamageCache::buildDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleS
 			return u->isValidTarget();
 		});
 
-	std::vector<const battle::Unit *> ourUnits;
-	std::vector<const battle::Unit *> enemyUnits;
+	battle::Units ourUnits;
+	battle::Units enemyUnits;
 
 	for(auto stack : stacks)
 	{
@@ -346,9 +346,9 @@ AttackPossibility AttackPossibility::evaluate(
 		if (!attackInfo.shooting)
 			ap.attackerState->setPosition(hex);
 
-		std::vector<const battle::Unit *> defenderUnits;
-		std::vector<const battle::Unit *> retaliatedUnits = {attacker};
-		std::vector<const battle::Unit *> affectedUnits;
+		battle::Units defenderUnits;
+		battle::Units retaliatedUnits = {attacker};
+		battle::Units affectedUnits;
 
 		if (attackInfo.shooting)
 			defenderUnits = state->getAttackedBattleUnits(attacker, defender, defHex, true, hex, defender->getPosition());
@@ -384,7 +384,9 @@ AttackPossibility AttackPossibility::evaluate(
 		affectedUnits = defenderUnits;
 		vstd::concatenate(affectedUnits, retaliatedUnits);
 
+#if BATTLE_TRACE_LEVEL>=1
 		logAi->trace("Attacked battle units count %d, %d->%d", affectedUnits.size(), hex, defHex);
+#endif
 
 		std::map<uint32_t, std::shared_ptr<battle::CUnitState>> defenderStates;
 

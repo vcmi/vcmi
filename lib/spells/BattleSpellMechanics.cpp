@@ -231,7 +231,7 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 		if(mainTarget && mainTarget == caster)
 			return false; // can't cast on self
 
-		if(mainTarget && mainTarget->hasBonusOfType(BonusType::INVINCIBLE) && !getSpell()->getPositiveness())
+		if(mainTarget && mainTarget->isInvincible() && !getSpell()->getPositiveness())
 			return false;
 	}
 	else if(getSpell()->canCastOnlyOnSelf())
@@ -259,7 +259,7 @@ std::vector<const CStack *> BattleSpellMechanics::getAffectedStacks(const Target
 
 	for(const Destination & dest : all)
 	{
-		if(dest.unitValue && !dest.unitValue->hasBonusOfType(BonusType::INVINCIBLE))
+		if(dest.unitValue && !dest.unitValue->isInvincible())
 		{
 			//FIXME: remove and return battle::Unit
 			stacks.insert(battle()->battleGetStackByID(dest.unitValue->unitId(), false));
@@ -473,7 +473,7 @@ std::set<const battle::Unit *> BattleSpellMechanics::collectTargets() const
 	return result;
 }
 
-void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector)
+void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const battle::Units & targets, const CSelector & selector)
 {
 	SetStackEffect sse;
 	sse.battleID = battle()->getBattle()->getBattleID();

@@ -434,7 +434,7 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 		}
 
 		//invincible
-		if(bearer->hasBonusOfType(BonusType::INVINCIBLE))
+		if(affectedCreature->isInvincible())
 			ret = 0;
 	}
 	ret = caster->getSpellBonus(this, ret, affectedCreature);
