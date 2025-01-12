@@ -1503,6 +1503,11 @@ void NewObject::applyGs(CGameState *gs)
 	gs->map->addBlockVisTiles(newObject);
 	gs->map->calculateGuardingGreaturePositions();
 
+	// attach newly spawned wandering monster to global bonus system node
+	auto newArmy = dynamic_cast<CArmedInstance*>(newObject);
+	if (newArmy)
+		newArmy->whatShouldBeAttached().attachTo(newArmy->whereShouldBeAttached(gs));
+
 	logGlobal->debug("Added object id=%d; name=%s", newObject->id, newObject->getObjectName());
 }
 

@@ -93,7 +93,9 @@ public:
 		h & static_cast<CArtifactSet&>(*this);
 		h & _armyObj;
 		h & experience;
-		BONUS_TREE_DESERIALIZATION_FIX
+
+		if(!h.saving)
+			deserializationFix();
 	}
 
 	void serializeJson(JsonSerializeFormat & handler);
