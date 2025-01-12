@@ -427,7 +427,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 							if(defenderToBypass)
 							{
 #if BATTLE_TRACE_LEVEL >= 1
-								logAi->trace("Found target to bypass at %d", enemyHex.hex);
+								logAi->trace("Found target to bypass at %d", enemyHex.toInt());
 #endif
 
 								auto attackHex = dists.predecessors[enemyHex.toInt()];
@@ -639,7 +639,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	battle::Units additionalUnits) const
 {
 #if BATTLE_TRACE_LEVEL>=1
-	logAi->trace("Battle exchange at %d", ap.attack.shooting ? ap.dest.hex : ap.from.hex);
+	logAi->trace("Battle exchange at %d", ap.attack.shooting ? ap.dest.toInt() : ap.from.toInt());
 #endif
 
 	if(cb->battleGetMySide() == BattleSide::LEFT_SIDE
@@ -1063,7 +1063,7 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 	}
 
 #if BATTLE_TRACE_LEVEL>=1
-	logAi->trace("Position %d, blocking score %f", position.hex, blockingScore);
+	logAi->trace("Position %d, blocking score %f", position.toInt(), blockingScore);
 #endif
 
 	return blockingScore > BLOCKING_THRESHOLD;

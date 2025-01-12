@@ -489,7 +489,7 @@ AttackPossibility AttackPossibility::evaluate(
 		logAi->trace("BattleAI AP: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
 			attackInfo.attacker->unitType()->getJsonKey(),
 			attackInfo.defender->unitType()->getJsonKey(),
-			(int)ap.dest, (int)ap.from, (int)ap.affectedUnits.size(),
+			ap.dest.toInt(), ap.from.toInt(), (int)ap.affectedUnits.size(),
 			ap.defenderDamageReduce, ap.attackerDamageReduce, ap.collateralDamageReduce, ap.shootersBlockedDmg);
 #endif
 
@@ -504,7 +504,7 @@ AttackPossibility AttackPossibility::evaluate(
 	logAi->trace("BattleAI best AP: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
 		attackInfo.attacker->unitType()->getJsonKey(),
 		attackInfo.defender->unitType()->getJsonKey(),
-		(int)bestAp.dest, (int)bestAp.from, (int)bestAp.affectedUnits.size(),
+		bestAp.dest.toInt(), bestAp.from.toInt(), (int)bestAp.affectedUnits.size(),
 		bestAp.defenderDamageReduce, bestAp.attackerDamageReduce, bestAp.collateralDamageReduce, bestAp.shootersBlockedDmg);
 #endif
 

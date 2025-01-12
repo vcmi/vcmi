@@ -65,7 +65,7 @@ const BattleHexArray & BattleHex::getNeighbouringTilesDoubleWide(BattleSide side
 
 std::ostream & operator<<(std::ostream & os, const BattleHex & hex)
 {
-	return os << boost::str(boost::format("{BattleHex: x '%d', y '%d', hex '%d'}") % hex.getX() % hex.getY() % hex.toInt());
+	return os << hex.toInt();
 }
 
 VCMI_LIB_NAMESPACE_END

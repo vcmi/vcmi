@@ -687,7 +687,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				else
 				{
 					auto psFirst = ps.dest.front();
-					auto strWhere = psFirst.unitValue ? psFirst.unitValue->getDescription() : std::to_string(psFirst.hexValue.hex);
+					auto strWhere = psFirst.unitValue ? psFirst.unitValue->getDescription() : std::to_string(psFirst.hexValue.toInt());
 
 					logAi->trace("Evaluating %s at %s", ps.spell->getNameTranslated(), strWhere);
 				}
@@ -805,7 +805,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 							logAi->trace(
 								"Spell %s to %d affects %s (%d), dps: %2f oldHealth: %d newHealth: %d",
 								ps.spell->getNameTranslated(),
-								ps.dest.at(0).hexValue.hex,  // Safe to access .at(0) now
+								ps.dest.at(0).hexValue.toInt(),  // Safe to access .at(0) now
 								unit->creatureId().toCreature()->getNameSingularTranslated(),
 								unit->getCount(),
 								dpsReduce,

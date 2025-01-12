@@ -131,6 +131,20 @@ public:
 		return std::vector<BattleHex>(internalStorage.begin(), internalStorage.end());
 	}
 
+	[[nodiscard]] std::string toString(std::string delimiter = ", ") const noexcept
+	{
+		std::string result = "[";
+		for(auto it = internalStorage.begin(); it != internalStorage.end(); ++it)
+		{
+			if(it != internalStorage.begin())
+				result += delimiter;
+			result += std::to_string(it->toInt());
+		}
+		result += "]";
+
+		return result;
+	}
+
 	template <typename Predicate>
 	iterator findIf(Predicate predicate) noexcept
 	{
@@ -295,7 +309,7 @@ private:
 
 	[[nodiscard]] inline bool isNotValidForInsertion(BattleHex hex) const
 	{
-		if(isTower(hex))
+		if(hex.isTower())
 			return true;
 		if(!hex.isValid())
 		{
@@ -304,11 +318,6 @@ private:
 		}
 
 		return contains(hex) || internalStorage.size() >= totalSize;
-	}
-
-	[[nodiscard]] inline bool isTower(BattleHex hex) const
-	{
-		return hex == BattleHex::CASTLE_CENTRAL_TOWER || hex == BattleHex::CASTLE_UPPER_TOWER || hex == BattleHex::CASTLE_BOTTOM_TOWER;
 	}
 
 	static const ArrayOfBattleHexArrays neighbouringTiles;

@@ -94,6 +94,11 @@ public:
 		return isValid() && getX() > 0 && getX() < GameConstants::BFIELD_WIDTH - 1;
 	}
 
+	[[nodiscard]] inline bool isTower() const noexcept
+	{
+		return hex == BattleHex::CASTLE_CENTRAL_TOWER || hex == BattleHex::CASTLE_UPPER_TOWER || hex == BattleHex::CASTLE_BOTTOM_TOWER;
+	}
+
 	void setX(si16 x)
 	{
 		setXY(x, getY());
