@@ -109,7 +109,7 @@ You can also upload files with Xcode. You need to prepare "container" for that.
 3. Open Devices and Simulators window: Cmd+Shift+2 or Menu - Window - Devices and Simulators
 4. Select your device
 5. Select VCMI
-6. In the bottom find "three dots" or "cogwheel" button (it should be next to + - buttons) - click it - select Download Container... 
+6. In the bottom find "three dots" or "cogwheel" button (it should be next to + - buttons) - click it - select Download Container...
 7. Place the game directories inside the downloaded container -> AppData -> Documents
 8. Click the "three dots" / "cogwheel" button in Xcode again -> Replace Container... -> select the downloaded container
 9. Wait until Xcode finishes copying, progress is visible (although it might be "indefinite")
@@ -124,18 +124,16 @@ You can start game directly (avoiding the launcher) by changing setting in iOS S
 
 ## Troubleshooting: Keeping your Alternative Store updated
 
-Every 7 days you need to open Alt Store or the alternative. Clicking Update All or click Update App on both VCMI and the store separately works
-
-If you iTunes does not connect to your device over WiFi despite enabling the Sync over WiFi option, do the following on PC:
+If you iTunes does not connect to your device over WiFi despite enabling the Sync over WiFi option, every 7 days you need to open Alt Store or the alternative. Clicking Update All or click Update App on both VCMI and the store separately works. Do the following on PC:
 
 a) Search for `cmd`. Right click on it and ‘Run as administrator’.
 b) Copy the command below. It stops the ‘Apple Mobile Device service’.
 
--     net stop "Apple Mobile Device Service"
+net stop "Apple Mobile Device Service"
   
 c) Copy the command below and restart the ‘Apple Mobile Device Service’.
 
--     net start "Apple Mobile Device Service"
+net start "Apple Mobile Device Service"
 
 In the event that you don't update the store in the alloted time and it expires, it won't load. Reloading the store is easy enough. Simply
 
