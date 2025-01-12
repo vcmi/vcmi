@@ -649,12 +649,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="410"/>
         <source>Mods are required</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyžadované modifikace</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="415"/>
         <source>Failed to open map</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevření mapy se nezdařilo</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="441"/>
@@ -674,22 +674,22 @@
     <message>
         <location filename="../mainwindow.cpp" line="550"/>
         <source>Map validation</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontrola mapy</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="552"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa obsahuje kritické problémy a pravděpodobně nebude hratelná. Otevřete Validátor z nabídky Mapa, abyste zobrazili nalezené chyby</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="554"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa obsahuje chyby. Otevřete Validátor z nabídky Mapa, abyste zobrazili nalezené problémy</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="578"/>
         <source>Failed to save map</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se uložit mapu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="591"/>
@@ -789,12 +789,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="945"/>
         <source>Mods loading problem</source>
-        <translation type="unfinished"></translation>
+        <translation>Problém s načítáním modifikací</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="945"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kritická chyba při načítání modifikací. Deaktivujte neplatné modifikace a restartujte.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="962"/>
@@ -1136,32 +1136,32 @@
     <message>
         <location filename="../inspector/inspector.cpp" line="292"/>
         <source>POWER RANK</source>
-        <translation type="unfinished"></translation>
+        <translation>Hodnocení síly</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="292"/>
         <source>HERO TYPE</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ hrdiny</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="315"/>
         <source>Hero class</source>
-        <translation type="unfinished"></translation>
+        <translation>Rasa hrdiny</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="324"/>
         <source>Portrait</source>
-        <translation type="unfinished">Portrét</translation>
+        <translation>Portrét</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="327"/>
         <source>Skills</source>
-        <translation type="unfinished">Dovednosti</translation>
+        <translation>Dovednosti</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="329"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefakty</translation>
+        <translation>Artefakty</translation>
     </message>
     <message numerus="yes">
         <location filename="../inspector/inspector.cpp" line="351"/>
@@ -1176,52 +1176,52 @@
     <message>
         <location filename="../inspector/inspector.cpp" line="364"/>
         <source>Buildings</source>
-        <translation type="unfinished">Budovy</translation>
+        <translation>Budovy</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="366"/>
         <source>Events</source>
-        <translation type="unfinished">Události</translation>
+        <translation>Události</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="397"/>
         <source>Resource</source>
-        <translation type="unfinished"></translation>
+        <translation>Surovina</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="428"/>
         <source>Artifact reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Odměna: artefakt</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="471"/>
         <source>Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Úkol</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="489"/>
         <source>Identifier</source>
-        <translation type="unfinished"></translation>
+        <translation>Identifikátor</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="490"/>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="491"/>
         <source>SubID</source>
-        <translation type="unfinished"></translation>
+        <translation>SubID</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="492"/>
         <source>InstanceName</source>
-        <translation type="unfinished"></translation>
+        <translation>Jméno instance</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="497"/>
         <source>IsStatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Statický</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="867"/>
@@ -1232,162 +1232,162 @@
     <message>
         <location filename="../inspector/inspector.cpp" line="913"/>
         <source>Army</source>
-        <translation type="unfinished"></translation>
+        <translation>Armáda</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="914"/>
         <source>Owner</source>
-        <translation type="unfinished"></translation>
+        <translation>Vlastník</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="915"/>
         <source>Same as town</source>
-        <translation type="unfinished"></translation>
+        <translation>Stejná jako město</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="916"/>
         <source>Removable units</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstranitelné jednotky</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="917"/>
         <source>Placeholder type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ výplně</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="918"/>
         <source>Power rank</source>
-        <translation type="unfinished"></translation>
+        <translation>Hodnocení síly</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="919"/>
         <source>Hero type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ hrdiny</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="920"/>
         <source>Experience</source>
-        <translation type="unfinished"></translation>
+        <translation>Zkušenosti</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="921"/>
         <source>MALE</source>
-        <translation type="unfinished"></translation>
+        <translation>Muž</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="922"/>
         <source>FEMALE</source>
-        <translation type="unfinished"></translation>
+        <translation>Žena</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="923"/>
         <source>Gender</source>
-        <translation type="unfinished"></translation>
+        <translation>Pohlaví</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="924"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Jméno</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="925"/>
         <source>Biography</source>
-        <translation type="unfinished"></translation>
+        <translation>Životopis</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="926"/>
         <source>Spells</source>
-        <translation type="unfinished">Kouzla</translation>
+        <translation>Kouzla</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="928"/>
         <source>Patrol radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Poloměr hlídky</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="929"/>
         <source>Town name</source>
-        <translation type="unfinished"></translation>
+        <translation>Jméno města</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="930"/>
         <source>Message</source>
-        <translation type="unfinished">Zpráva</translation>
+        <translation>Zpráva</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="931"/>
         <source>Spell</source>
-        <translation type="unfinished">Kouzlo</translation>
+        <translation>Kouzlo</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="932"/>
         <source>Productivity</source>
-        <translation type="unfinished"></translation>
+        <translation>Produktivita</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="933"/>
         <source>Amount</source>
-        <translation type="unfinished"></translation>
+        <translation>Množství</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="934"/>
         <source>Character</source>
-        <translation type="unfinished"></translation>
+        <translation>Postava</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="935"/>
         <source>Never flees</source>
-        <translation type="unfinished"></translation>
+        <translation>Nikdy neutíká</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="936"/>
         <source>Not growing</source>
-        <translation type="unfinished"></translation>
+        <translation>Neroste</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="937"/>
         <source>Reward</source>
-        <translation type="unfinished">Odměna</translation>
+        <translation>Odměna</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="938"/>
         <source>Remove after</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstranit po</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="939"/>
         <source>Human trigger</source>
-        <translation type="unfinished"></translation>
+        <translation>Lidský spouštěč</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="940"/>
         <source>Cpu trigger</source>
-        <translation type="unfinished"></translation>
+        <translation>AI spouštěč</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="941"/>
         <source>First visit text</source>
-        <translation type="unfinished"></translation>
+        <translation>Text při první návštěvě</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="942"/>
         <source>Next visit text</source>
-        <translation type="unfinished"></translation>
+        <translation>Text při další návštěvě</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="943"/>
         <source>Completed text</source>
-        <translation type="unfinished"></translation>
+        <translation>Text při dokončení</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="944"/>
         <source>Repeat quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Opakovatelný úkol</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="945"/>
         <source>Time limit</source>
-        <translation type="unfinished"></translation>
+        <translation>Časový limit</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="865"/>
@@ -2375,7 +2375,7 @@
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="432"/>
         <source>Any town</source>
-        <translation type="unfinished"></translation>
+        <translation>Libovolné město</translation>
     </message>
 </context>
 <context>
@@ -2582,7 +2582,7 @@
     <message>
         <location filename="../windownewmap.cpp" line="422"/>
         <source>[default]</source>
-        <translation type="unfinished"></translation>
+        <translation>[výchozí]</translation>
     </message>
 </context>
 <context>

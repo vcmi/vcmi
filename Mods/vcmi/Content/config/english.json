@@ -783,5 +783,27 @@
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.water": "This unit is immune to all Water school spells",
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.earth": "This unit is immune to all Earth school spells",
 	"core.bonus.OPENING_BATTLE_SPELL.name": "Starts with spell",
-	"core.bonus.OPENING_BATTLE_SPELL.description": "Casts ${subtype.spell} on battle start"
+	"core.bonus.OPENING_BATTLE_SPELL.description": "Casts ${subtype.spell} on battle start",
+	
+	"spell.core.castleMoat.name" : "Moat",
+	"spell.core.castleMoatTrigger.name" : "Moat",
+	"spell.core.catapultShot.name" : "Catapult shot",
+	"spell.core.cyclopsShot.name" : "Siege shot",
+	"spell.core.dungeonMoat.name" : "Boiling Oil",
+	"spell.core.dungeonMoatTrigger.name" : "Boiling Oil",
+	"spell.core.fireWallTrigger.name" : "Fire Wall",
+	"spell.core.firstAid.name" : "First Aid",
+	"spell.core.fortressMoat.name" : "Boiling Tar",
+	"spell.core.fortressMoatTrigger.name" : "Boiling Tar",
+	"spell.core.infernoMoat.name" : "Lava",
+	"spell.core.infernoMoatTrigger.name" : "Lava",
+	"spell.core.landMineTrigger.name" : "Land Mine",
+	"spell.core.necropolisMoat.name" : "Boneyard",
+	"spell.core.necropolisMoatTrigger.name" : "Boneyard",
+	"spell.core.rampartMoat.name" : "Brambles",
+	"spell.core.rampartMoatTrigger.name" : "Brambles",
+	"spell.core.strongholdMoat.name" : "Wooden Spikes",
+	"spell.core.strongholdMoatTrigger.name" : "Wooden Spikes",
+	"spell.core.summonDemons.name" : "Summon Demons",
+	"spell.core.towerMoat.name" : "Land Mine"
 }

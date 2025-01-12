@@ -222,6 +222,7 @@
 
 	"vcmi.client.errors.invalidMap" : "{Neplatná mapa nebo kampaň}\n\nChyba při startu hry! Vybraná mapa nebo kampaň může být neplatná nebo poškozená. Důvod:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{Chybějící datové soubory}\n\nDatové soubory kampaně nebyly nalezeny! Možná máte nekompletní nebo poškozené datové soubory Heroes 3. Prosíme, přeinstalujte hru.",
+	"vcmi.client.errors.modLoadingFailure" : "{Chyba při načítání modifikací}\n\nPři načítání modifikací byly nalezeny kritické problémy! Hra nemusí fungovat správně nebo může spadnout! Aktualizujte nebo deaktivujte následující modifikace:\n\n",
 	"vcmi.server.errors.disconnected" : "{Chyba sítě}\n\nPřipojení k hernímu serveru bylo ztraceno!",
 	"vcmi.server.errors.playerLeft" : "{Hráč opustil hru}\n\nHráč %s se odpojil ze hry!", //%s -> player color
 	"vcmi.server.errors.existingProcess" : "Již běží jiný server VCMI. Prosím, ukončete ho před startem nové hry.",
