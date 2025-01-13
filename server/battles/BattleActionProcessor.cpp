@@ -679,7 +679,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 		return obst->obstacleType == CObstacleInstance::MOAT;
 	});
 
-	auto isGateDrawbridgeHex = [&](BattleHex hex) -> bool
+	auto isGateDrawbridgeHex = [&](const BattleHex & hex) -> bool
 	{
 		if (hasWideMoat && hex == BattleHex::GATE_BRIDGE)
 			return true;
@@ -691,7 +691,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 		return false;
 	};
 
-	auto occupyGateDrawbridgeHex = [&](BattleHex hex) -> bool
+	auto occupyGateDrawbridgeHex = [&](const BattleHex & hex) -> bool
 	{
 		if (isGateDrawbridgeHex(hex))
 			return true;
@@ -744,7 +744,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 		{
 			for (int i = (int)path.first.size()-1; i >= 0; i--)
 			{
-				auto needOpenGates = [&](BattleHex hex) -> bool
+				auto needOpenGates = [&](const BattleHex & hex) -> bool
 				{
 					if (hasWideMoat && hex == BattleHex::GATE_BRIDGE)
 						return true;
@@ -911,7 +911,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 	return ret;
 }
 
-void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter)
+void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, bool first, bool ranged, bool counter)
 {
 	if(defender && first && !counter)
 		handleAttackBeforeCasting(battle, ranged, attacker, defender);

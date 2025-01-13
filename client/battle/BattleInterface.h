@@ -163,7 +163,7 @@ public:
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 	void requestAutofightingAIToTakeAction();
 
-	void giveCommand(EActionType action, BattleHex tile = BattleHex(), SpellID spell = SpellID::NONE);
+	void giveCommand(EActionType action, const BattleHex & tile = BattleHex(), SpellID spell = SpellID::NONE);
 	void sendCommand(BattleAction command, const CStack * actor = nullptr);
 
 	const CGHeroInstance *getActiveHero(); //returns hero that can currently cast a spell
@@ -215,10 +215,10 @@ public:
 
 	void displayBattleLog(const std::vector<MetaString> & battleLog);
 
-	void displaySpellAnimationQueue(const CSpell * spell, const CSpell::TAnimationQueue & q, BattleHex destinationTile, bool isHit);
-	void displaySpellCast(const CSpell * spell, BattleHex destinationTile); //displays spell`s cast animation
-	void displaySpellEffect(const CSpell * spell, BattleHex destinationTile); //displays spell`s affected animation
-	void displaySpellHit(const CSpell * spell, BattleHex destinationTile); //displays spell`s affected animation
+	void displaySpellAnimationQueue(const CSpell * spell, const CSpell::TAnimationQueue & q, const BattleHex & destinationTile, bool isHit);
+	void displaySpellCast(const CSpell * spell, const BattleHex & destinationTile); //displays spell`s cast animation
+	void displaySpellEffect(const CSpell * spell, const BattleHex & destinationTile); //displays spell`s affected animation
+	void displaySpellHit(const CSpell * spell, const BattleHex & destinationTile); //displays spell`s affected animation
 
 	void endAction(const BattleAction & action);
 

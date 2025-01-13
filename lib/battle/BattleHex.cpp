@@ -13,7 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-BattleHex BattleHex::getClosestTile(BattleSide side, BattleHex initialPos, const BattleHexArray & hexes)
+BattleHex BattleHex::getClosestTile(BattleSide side, const BattleHex & initialPos, const BattleHexArray & hexes)
 {
 	if(hexes.empty())
 		return BattleHex();
@@ -22,7 +22,7 @@ BattleHex BattleHex::getClosestTile(BattleSide side, BattleHex initialPos, const
 	int closestDistance = std::numeric_limits<int>::max();
 	BattleHexArray closestTiles;
 
-	for(auto hex : hexes)
+	for(const auto & hex : hexes)
 	{
 		int distance = initialHex.getDistance(initialHex, hex);
 		if(distance < closestDistance)

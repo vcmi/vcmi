@@ -40,7 +40,7 @@ SideInBattle & BattleInfo::getSide(BattleSide side)
 }
 
 ///BattleInfo
-CStack * BattleInfo::generateNewStack(uint32_t id, const CStackInstance & base, BattleSide side, const SlotID & slot, BattleHex position)
+CStack * BattleInfo::generateNewStack(uint32_t id, const CStackInstance & base, BattleSide side, const SlotID & slot, const BattleHex & position)
 {
 	PlayerColor owner = getSide(side).color;
 	assert(!owner.isValidPlayer() || (base.armyObj && base.armyObj->tempOwner == owner));
@@ -51,7 +51,7 @@ CStack * BattleInfo::generateNewStack(uint32_t id, const CStackInstance & base, 
 	return ret;
 }
 
-CStack * BattleInfo::generateNewStack(uint32_t id, const CStackBasicDescriptor & base, BattleSide side, const SlotID & slot, BattleHex position)
+CStack * BattleInfo::generateNewStack(uint32_t id, const CStackBasicDescriptor & base, BattleSide side, const SlotID & slot, const BattleHex & position)
 {
 	PlayerColor owner = getSide(side).color;
 	auto * ret = new CStack(&base, owner, id, side, slot);
@@ -231,7 +231,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 				obstPtr->uniqueID = static_cast<si32>(currentBattle->obstacles.size());
 				currentBattle->obstacles.push_back(obstPtr);
 
-				for(BattleHex blocked : obstPtr->getBlockedTiles())
+				for(const BattleHex & blocked : obstPtr->getBlockedTiles())
 					blockedTiles.insert(blocked);
 				tilesToBlock -= Obstacle(obstPtr->ID).getInfo()->blockedTiles.size() / 2;
 			}
@@ -251,7 +251,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
 				const ObstacleInfo &obi = *Obstacle(obid).getInfo();
 
-				auto validPosition = [&](BattleHex pos) -> bool
+				auto validPosition = [&](const BattleHex & pos) -> bool
 				{
 					if(obi.height >= pos.getY())
 						return false;
@@ -262,7 +262,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 					if(blockedTiles.contains(pos))
 						return false;
 
-					for(BattleHex blocked : obi.getBlocked(pos))
+					for(const BattleHex & blocked : obi.getBlocked(pos))
 					{
 						if(tileAccessibility[blocked.toInt()] == EAccessibility::UNAVAILABLE) //for ship-to-ship battlefield - exclude hardcoded unavailable tiles
 							return false;
@@ -284,7 +284,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 				obstPtr->uniqueID = static_cast<si32>(currentBattle->obstacles.size());
 				currentBattle->obstacles.push_back(obstPtr);
 
-				for(BattleHex blocked : obstPtr->getBlockedTiles())
+				for(const BattleHex & blocked : obstPtr->getBlockedTiles())
 					blockedTiles.insert(blocked);
 				tilesToBlock -= static_cast<int>(obi.blockedTiles.size());
 			}
@@ -297,7 +297,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 
 	//adding war machines
 	//Checks if hero has artifact and create appropriate stack
-	auto handleWarMachine = [&](BattleSide side, const ArtifactPosition & artslot, BattleHex hex)
+	auto handleWarMachine = [&](BattleSide side, const ArtifactPosition & artslot, const BattleHex & hex)
 	{
 		const CArtifactInstance * warMachineArt = heroes[side]->getArt(artslot);
 
@@ -682,7 +682,7 @@ void BattleInfo::addUnit(uint32_t id, const JsonNode & data)
 	ret->summoned = info.summoned;
 }
 
-void BattleInfo::moveUnit(uint32_t id, BattleHex destination)
+void BattleInfo::moveUnit(uint32_t id, const BattleHex & destination)
 {
 	auto * sta = getStack(id);
 	if(!sta)

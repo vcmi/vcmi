@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 BattleHexArray::BattleHexArray(std::initializer_list<BattleHex> initList) noexcept 
 	: BattleHexArray()
 {
-	for(auto hex : initList)
+	for(const auto & hex : initList)
 	{
 		insert(hex);
 	}
@@ -24,7 +24,7 @@ BattleHexArray::BattleHexArray(std::initializer_list<BattleHex> initList) noexce
 
 void BattleHexArray::insert(const BattleHexArray & other) noexcept
 {
-	for(auto hex : other)
+	for(const auto & hex : other)
 	{
 		insert(hex);
 	}
@@ -34,7 +34,7 @@ void BattleHexArray::erase(iterator first, iterator last) noexcept
 {
 	for(auto it = first; it != last && it != internalStorage.end(); ++it)
 	{
-		presenceFlags[it->toInt()] = 0;
+		presenceFlags[it->toInt()] = false;
 	}
 
 	internalStorage.erase(first, last);
@@ -42,8 +42,8 @@ void BattleHexArray::erase(iterator first, iterator last) noexcept
 
 void BattleHexArray::clear() noexcept
 {
-	for(auto hex : internalStorage)
-		presenceFlags[hex.toInt()] = 0;
+	for(const auto & hex : internalStorage)
+		presenceFlags[hex.toInt()] = false;
 
 	internalStorage.clear();
 }

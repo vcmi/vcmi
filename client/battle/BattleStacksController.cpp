@@ -733,7 +733,7 @@ bool BattleStacksController::facingRight(const CStack * stack) const
 	return stackFacingRight.at(stack->unitId());
 }
 
-Point BattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CStack * stack) const
+Point BattleStacksController::getStackPositionAtHex(const BattleHex & hexNum, const CStack * stack) const
 {
 	Point ret(-500, -500); //returned value
 	if(stack && stack->initialPosition < 0) //creatures in turrets

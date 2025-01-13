@@ -160,7 +160,7 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 		{
 			BattleHexArray avHexes = cb->getBattle(battleID)->battleGetAvailableHexes(stack, false);
 
-			for (BattleHex hex : avHexes)
+			for (const BattleHex & hex : avHexes)
 			{
 				if(CStack::isMeleeAttackPossible(stack, s, hex))
 				{
@@ -289,12 +289,12 @@ BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stac
 		return BattleAction::makeDefend(stack);
 	}
 
-	std::sort(hexes.begin(), hexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
+	std::sort(hexes.begin(), hexes.end(), [&](const BattleHex & h1, const BattleHex & h2) -> bool
 	{
 		return reachability.distances[h1.toInt()] < reachability.distances[h2.toInt()];
 	});
 
-	for(auto hex : hexes)
+	for(const auto & hex : hexes)
 	{
 		if(avHexes.contains(hex))
 		{
@@ -322,7 +322,7 @@ BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stac
 	{
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.
-		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [&](BattleHex hex) -> int
+		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [&](const BattleHex & hex) -> int
 		{
 			return BattleHex::getDistance(bestneighbour, hex);
 		});

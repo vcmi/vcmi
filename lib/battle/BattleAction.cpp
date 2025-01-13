@@ -43,7 +43,7 @@ BattleAction BattleAction::makeDefend(const battle::Unit * stack)
 	return ba;
 }
 
-BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, BattleHex destination, BattleHex attackFrom, bool returnAfterAttack)
+BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom, bool returnAfterAttack)
 {
 	BattleAction ba;
 	ba.side = stack->unitSide(); //FIXME: will it fail if stack mind controlled?
@@ -86,7 +86,7 @@ BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, con
 	return ba;
 }
 
-BattleAction BattleAction::makeMove(const battle::Unit * stack, BattleHex dest)
+BattleAction BattleAction::makeMove(const battle::Unit * stack, const BattleHex & dest)
 {
 	BattleAction ba;
 	ba.side = stack->unitSide();

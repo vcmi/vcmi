@@ -183,7 +183,7 @@ BattleSiegeController::BattleSiegeController(BattleInterface & owner, const CGTo
 	}
 }
 
-const CCreature *BattleSiegeController::getTurretCreature(BattleHex position) const
+const CCreature *BattleSiegeController::getTurretCreature(const BattleHex & position) const
 {
 	switch (position.toInt())
 	{
@@ -322,7 +322,7 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 	}
 }
 
-bool BattleSiegeController::isAttackableByCatapult(BattleHex hex) const
+bool BattleSiegeController::isAttackableByCatapult(const BattleHex & hex) const
 {
 	if (owner.tacticsMode)
 		return false;

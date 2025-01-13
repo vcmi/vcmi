@@ -55,7 +55,7 @@ class BattleFieldController : public CIntObject
 	/// hexes that when in front of a unit cause it's amount box to move back
 	std::array<bool, GameConstants::BFIELD_SIZE> stackCountOutsideHexes;
 
-	void showHighlightedHex(Canvas & to, std::shared_ptr<IImage> highlight, BattleHex hex, bool darkBorder);
+	void showHighlightedHex(Canvas & to, std::shared_ptr<IImage> highlight, const BattleHex & hex, bool darkBorder);
 
 	BattleHexArray getHighlightedHexesForActiveStack();
 	BattleHexArray getMovementRangeForHoveredStack();
@@ -65,13 +65,13 @@ class BattleFieldController : public CIntObject
 	// Range limit highlight helpers
 
 	/// get all hexes within a certain distance of given hex
-	BattleHexArray getRangeHexes(BattleHex sourceHex, uint8_t distance);
+	BattleHexArray getRangeHexes(const BattleHex & sourceHex, uint8_t distance);
 
 	/// get only hexes at the limit of a range
-	BattleHexArray getRangeLimitHexes(BattleHex hoveredHex, const BattleHexArray & hexRange, uint8_t distanceToLimit);
+	BattleHexArray getRangeLimitHexes(const BattleHex & hoveredHex, const BattleHexArray & hexRange, uint8_t distanceToLimit);
 
 	/// calculate if a hex is in range limit and return its index in range
-	bool IsHexInRangeLimit(BattleHex hex, const BattleHexArray & rangeLimitHexes, int * hexIndexInRangeLimit);
+	bool IsHexInRangeLimit(const BattleHex & hex, const BattleHexArray & rangeLimitHexes, int * hexIndexInRangeLimit);
 
 	/// get an array that has for each hex in range, an array with all directions where an outside neighbour hex exists
 	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(const BattleHexArray & rangeHexes, const BattleHexArray & rangeLimitHexes);
@@ -94,7 +94,7 @@ class BattleFieldController : public CIntObject
 
 	/// Checks whether selected pixel is transparent, uses local coordinates of a hex
 	bool isPixelInHex(Point const & position);
-	size_t selectBattleCursor(BattleHex myNumber);
+	size_t selectBattleCursor(const BattleHex & myNumber);
 
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
@@ -118,10 +118,10 @@ public:
 	void renderBattlefield(Canvas & canvas);
 
 	/// Returns position of hex relative to owner (BattleInterface)
-	Rect hexPositionLocal(BattleHex hex) const;
+	Rect hexPositionLocal(const BattleHex & hex) const;
 
 	/// Returns position of hex relative to game window
-	Rect hexPositionAbsolute(BattleHex hex) const;
+	Rect hexPositionAbsolute(const BattleHex & hex) const;
 
 	/// Returns ID of currently hovered hex or BattleHex::INVALID if none
 	BattleHex getHoveredHex();
@@ -135,7 +135,7 @@ public:
 	/// returns true if stack should render its stack count image in default position - outside own hex
 	bool stackCountOutsideHex(const BattleHex & number) const;
 
-	BattleHex::EDir selectAttackDirection(BattleHex myNumber);
+	BattleHex::EDir selectAttackDirection(const BattleHex & myNumber);
 
-	BattleHex fromWhichHexAttack(BattleHex myNumber);
+	BattleHex fromWhichHexAttack(const BattleHex & myNumber);
 };

@@ -116,7 +116,7 @@ public:
 	virtual int getTotalAttacks(bool ranged) const = 0;
 
 	virtual BattleHex getPosition() const = 0;
-	virtual void setPosition(BattleHex hex) = 0;
+	virtual void setPosition(const BattleHex & hex) = 0;
 
 	virtual bool canMove(int turn = 0) const = 0; //if stack can move
 	virtual bool defended(int turn = 0) const = 0;
@@ -131,19 +131,19 @@ public:
 
 	virtual std::string getDescription() const;
 
-	const BattleHexArray & getSurroundingHexes(BattleHex assumedPosition = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
+	const BattleHexArray & getSurroundingHexes(const BattleHex & assumedPosition = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
 	BattleHexArray getAttackableHexes(const Unit * attacker) const;
-	static const BattleHexArray & getSurroundingHexes(BattleHex position, bool twoHex, BattleSide side);
+	static const BattleHexArray & getSurroundingHexes(const BattleHex & position, bool twoHex, BattleSide side);
 
-	bool coversPos(BattleHex position) const; //checks also if unit is double-wide
+	bool coversPos(const BattleHex & position) const; //checks also if unit is double-wide
 
 	const BattleHexArray & getHexes() const; //up to two occupied hexes, starting from front
-	const BattleHexArray & getHexes(BattleHex assumedPos) const; //up to two occupied hexes, starting from front
-	static const BattleHexArray & getHexes(BattleHex assumedPos, bool twoHex, BattleSide side);
+	const BattleHexArray & getHexes(const BattleHex & assumedPos) const; //up to two occupied hexes, starting from front
+	static const BattleHexArray & getHexes(const BattleHex & assumedPos, bool twoHex, BattleSide side);
 
 	BattleHex occupiedHex() const; //returns number of occupied hex (not the position) if stack is double wide; otherwise -1
-	BattleHex occupiedHex(BattleHex assumedPos) const; //returns number of occupied hex (not the position) if stack is double wide and would stand on assumedPos; otherwise -1
-	static BattleHex occupiedHex(BattleHex assumedPos, bool twoHex, BattleSide side);
+	BattleHex occupiedHex(const BattleHex & assumedPos) const; //returns number of occupied hex (not the position) if stack is double wide and would stand on assumedPos; otherwise -1
+	static BattleHex occupiedHex(const BattleHex & assumedPos, bool twoHex, BattleSide side);
 
 	///MetaStrings
 	void addText(MetaString & text, EMetaText type, int32_t serial, const boost::logic::tribool & plural = boost::logic::indeterminate) const;

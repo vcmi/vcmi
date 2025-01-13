@@ -163,7 +163,7 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 	else
 		summonGuardiansHelper(battle, targetHexes, stack->getPosition(), stack->unitSide(), targetIsBig);
 
-	for(auto hex : targetHexes)
+	for(const auto & hex : targetHexes)
 	{
 		if(accessibility.accessible(hex, guardianIsBig, stack->unitSide())) //without this multiple creatures can occupy one hex
 		{

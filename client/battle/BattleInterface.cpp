@@ -261,7 +261,7 @@ void BattleInterface::newRound()
 	round++;
 }
 
-void BattleInterface::giveCommand(EActionType action, BattleHex tile, SpellID spell)
+void BattleInterface::giveCommand(EActionType action, const BattleHex & tile, SpellID spell)
 {
 	const CStack * actor = nullptr;
 	if(action != EActionType::HERO_SPELL && action != EActionType::RETREAT && action != EActionType::SURRENDER)
@@ -506,7 +506,7 @@ void BattleInterface::displayBattleLog(const std::vector<MetaString> & battleLog
 	}
 }
 
-void BattleInterface::displaySpellAnimationQueue(const CSpell * spell, const CSpell::TAnimationQueue & q, BattleHex destinationTile, bool isHit)
+void BattleInterface::displaySpellAnimationQueue(const CSpell * spell, const CSpell::TAnimationQueue & q, const BattleHex & destinationTile, bool isHit)
 {
 	for(const CSpell::TAnimation & animation : q)
 	{
@@ -542,19 +542,19 @@ void BattleInterface::displaySpellAnimationQueue(const CSpell * spell, const CSp
 	}
 }
 
-void BattleInterface::displaySpellCast(const CSpell * spell, BattleHex destinationTile)
+void BattleInterface::displaySpellCast(const CSpell * spell, const BattleHex & destinationTile)
 {
 	if(spell)
 		displaySpellAnimationQueue(spell, spell->animationInfo.cast, destinationTile, false);
 }
 
-void BattleInterface::displaySpellEffect(const CSpell * spell, BattleHex destinationTile)
+void BattleInterface::displaySpellEffect(const CSpell * spell, const BattleHex & destinationTile)
 {
 	if(spell)
 		displaySpellAnimationQueue(spell, spell->animationInfo.affect, destinationTile, false);
 }
 
-void BattleInterface::displaySpellHit(const CSpell * spell, BattleHex destinationTile)
+void BattleInterface::displaySpellHit(const CSpell * spell, const BattleHex & destinationTile)
 {
 	if(spell)
 		displaySpellAnimationQueue(spell, spell->animationInfo.hit, destinationTile, true);

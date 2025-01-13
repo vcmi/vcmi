@@ -55,7 +55,7 @@ Obstacle ObstacleInfo::getId() const
 	return obstacle;
 }
 
-BattleHexArray ObstacleInfo::getBlocked(BattleHex hex) const
+BattleHexArray ObstacleInfo::getBlocked(const BattleHex & hex) const
 {
 	if(isAbsoluteObstacle)
 	{

@@ -141,7 +141,7 @@ public:
 
 	void addUnit(uint32_t id, const JsonNode & data) override;
 	void setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta) override;
-	void moveUnit(uint32_t id, BattleHex destination) override;
+	void moveUnit(uint32_t id, const BattleHex & destination) override;
 	void removeUnit(uint32_t id) override;
 	void updateUnit(uint32_t id, const JsonNode & data) override;
 

@@ -44,24 +44,24 @@ class BattleActionsController
 	/// stack that has been selected as first target for multi-target spells (Teleport & Sacrifice)
 	const CStack * selectedStack;
 
-	bool isCastingPossibleHere (const CSpell * spell, const CStack *shere, BattleHex myNumber);
-	bool canStackMoveHere (const CStack *sactive, BattleHex MyNumber) const; //TODO: move to BattleState / callback
+	bool isCastingPossibleHere (const CSpell * spell, const CStack *shere, const BattleHex & myNumber);
+	bool canStackMoveHere (const CStack *sactive, const BattleHex & MyNumber) const; //TODO: move to BattleState / callback
 	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack) const; //called when stack gets its turn
 	void reorderPossibleActionsPriority(const CStack * stack, const CStack * targetStack);
 
-	bool actionIsLegal(PossiblePlayerBattleAction action, BattleHex hoveredHex);
+	bool actionIsLegal(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 
-	void actionSetCursor(PossiblePlayerBattleAction action, BattleHex hoveredHex);
-	void actionSetCursorBlocked(PossiblePlayerBattleAction action, BattleHex hoveredHex);
+	void actionSetCursor(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
+	void actionSetCursorBlocked(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 
-	std::string actionGetStatusMessage(PossiblePlayerBattleAction action, BattleHex hoveredHex);
-	std::string actionGetStatusMessageBlocked(PossiblePlayerBattleAction action, BattleHex hoveredHex);
+	std::string actionGetStatusMessage(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
+	std::string actionGetStatusMessageBlocked(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 
-	void actionRealize(PossiblePlayerBattleAction action, BattleHex hoveredHex);
+	void actionRealize(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 
-	PossiblePlayerBattleAction selectAction(BattleHex myNumber);
+	PossiblePlayerBattleAction selectAction(const BattleHex & myNumber);
 
-	const CStack * getStackForHex(BattleHex myNumber) ;
+	const CStack * getStackForHex(const BattleHex & myNumber) ;
 
 	/// attempts to initialize spellcasting action for stack
 	/// will silently return if stack is not a spellcaster
@@ -71,7 +71,7 @@ class BattleActionsController
 	const CSpell * getHeroSpellToCast() const;
 
 	/// if current stack is spellcaster, returns spell being cast, or null othervice
-	const CSpell * getStackSpellToCast(BattleHex hoveredHex);
+	const CSpell * getStackSpellToCast(const BattleHex & hoveredHex);
 
 	/// returns true if current stack is a spellcaster
 	bool isActiveStackSpellcaster() const;
@@ -91,7 +91,7 @@ public:
 	/// - we are casting spell by hero
 	/// - we are casting spell by creature in targeted mode (F hotkey)
 	/// - current creature is spellcaster and preferred action for current hex is spellcast
-	bool currentActionSpellcasting(BattleHex hoveredHex);
+	bool currentActionSpellcasting(const BattleHex & hoveredHex);
 
 	/// enter targeted spellcasting mode for creature, e.g. via "F" hotkey
 	void enterCreatureCastingMode();
@@ -103,19 +103,19 @@ public:
 	void endCastingSpell();
 
 	/// update cursor and status bar according to new active hex
-	void onHexHovered(BattleHex hoveredHex);
+	void onHexHovered(const BattleHex & hoveredHex);
 
 	/// called when cursor is no longer over battlefield and cursor/battle log should be reset
 	void onHoverEnded();
 
 	/// performs action according to selected hex
-	void onHexLeftClicked(BattleHex clickedHex);
+	void onHexLeftClicked(const BattleHex & clickedHex);
 
 	/// performs action according to selected hex
-	void onHexRightClicked(BattleHex clickedHex);
+	void onHexRightClicked(const BattleHex & clickedHex);
 
 	const spells::Caster * getCurrentSpellcaster() const;
-	const CSpell * getCurrentSpell(BattleHex hoveredHex);
+	const CSpell * getCurrentSpell(const BattleHex & hoveredHex);
 	spells::Mode getCurrentCastMode() const;
 
 	/// methods to work with array of possible actions, needed to control special creatures abilities
