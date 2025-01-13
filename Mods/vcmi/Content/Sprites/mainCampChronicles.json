@@ -1,0 +1,18 @@
+{
+	"basepath" : "mainmenu/",
+	"images" :
+	[
+		{
+			"frame": 0,
+			"file" : "chronicles-normal"
+		},
+		{
+			"frame": 1,
+			"file" : "chronicles-down"
+		},
+		{
+			"frame": 2,
+			"file" : "chronicles-hover"
+		}
+	]
+}
