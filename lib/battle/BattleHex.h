@@ -28,7 +28,7 @@ class BattleHexArray;
  * @brief Represents a battlefield hexagonal tile.
  *
  * Valid hexes are within the range 0 to 186, excluding some invalid values, ex. castle towers (-2, -3, -4).
- * Available hexes are those in the first or last column.
+ * Available hexes are those valid ones but NOT in the first or last column.
  */
 class DLL_LINKAGE BattleHex
 {

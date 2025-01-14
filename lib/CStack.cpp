@@ -167,7 +167,7 @@ std::string CStack::nodeName() const
 	oss << owner.toString();
 	oss << " battle stack [" << ID << "]: " << getCount() << " of ";
 	if(typeID.hasValue())
-		oss << typeID.toCreature()->getNamePluralTranslated();
+		oss << typeID.toEntity(VLC)->getJsonKey();
 	else
 		oss << "[UNDEFINED TYPE]";
 

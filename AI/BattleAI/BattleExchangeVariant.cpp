@@ -349,7 +349,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 		logAi->trace(
 			"Checking movement towards %d of %s",
 			enemy->getCount(),
-			enemy->creatureId().toCreature()->getNameSingularTranslated());
+			VLC->creatures()->getById(enemy->creatureId())->getJsonKey());
 
 		auto distance = dists.distToNearestNeighbour(activeStack, enemy);
 
