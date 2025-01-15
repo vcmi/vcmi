@@ -22,6 +22,10 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 
+#ifdef VCMI_EMSCRIPTEN
+#include <emscripten.h>
+#endif
+
 #include <SDL_mixer.h>
 
 void CMusicHandler::onVolumeChange(const JsonNode & volumeNode)
@@ -226,6 +230,11 @@ MusicEntry::MusicEntry(CMusicHandler * owner, std::string setName, const AudioPa
 
 MusicEntry::~MusicEntry()
 {
+#ifdef VCMI_EMSCRIPTEN
+	if (pendingMusic == this) {
+		pendingMusic = nullptr;
+	}
+#endif
 	if(playing && loop > 0)
 	{
 		assert(0);
@@ -244,6 +253,30 @@ MusicEntry::~MusicEntry()
 	if(music)
 		Mix_FreeMusic(music);
 }
+
+#ifdef VCMI_EMSCRIPTEN
+MusicEntry* MusicEntry::pendingMusic = nullptr;
+
+void playPendingMusic() {
+	if (MusicEntry::pendingMusic) {
+		try
+		{
+			auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(MusicEntry::pendingMusic->currentName));
+			MusicEntry::pendingMusic->music = Mix_LoadMUS_RW(musicFile, SDL_TRUE);
+			MusicEntry::pendingMusic->play();
+		}
+		catch(std::exception &e)
+		{
+			logGlobal->error("Failed to load async music %s", MusicEntry::pendingMusic->currentName.getOriginalName());
+			logGlobal->error("Exception: %s", e.what());
+		}
+	}
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE playMusic() {
+	playPendingMusic();
+}
+#endif
 
 void MusicEntry::load(const AudioPath & musicURI)
 {
@@ -265,6 +298,16 @@ void MusicEntry::load(const AudioPath & musicURI)
 
 	try
 	{
+#ifdef VCMI_EMSCRIPTEN
+		auto resourceName = CResourceHandler::get()->getResourceName(currentName);
+		if (resourceName.has_value() && boost::filesystem::file_size(resourceName.value()) == 0) {
+			MAIN_THREAD_EM_ASM((
+				Module.loadMusic($0);
+			), resourceName.value().c_str());
+			logGlobal->trace("Loading music %s from (%s)\n", currentName.getOriginalName(), resourceName.value().c_str());
+			return;
+		}
+#endif
 		std::unique_ptr<CInputStream> stream = CResourceHandler::get()->load(currentName);
 
 		if(musicURI.getName() == "BLADEFWCAMPAIGN") // handle defect MP3 file - ffprobe says: Skipping 52 bytes of junk at 0.
@@ -297,6 +340,14 @@ bool MusicEntry::play()
 		const auto & iter = RandomGeneratorUtil::nextItem(set, CRandomGenerator::getDefault());
 		load(*iter);
 	}
+
+#ifdef VCMI_EMSCRIPTEN
+	if (!music) {
+		loop += 1;
+		pendingMusic = this;
+		return false;
+	}
+#endif
 
 	logGlobal->trace("Playing music file %s", currentName.getOriginalName());
 
