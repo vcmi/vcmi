@@ -11,7 +11,6 @@
 
 #include "./stb_image.h"
 
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 void html5::fsUpdate(const char *path) {
@@ -40,7 +39,12 @@ stbi_uc *vcmi_png_palette;
 int vcmi_png_palette_len;
 int vcmi_png_palette_n;
 
-SDL_Surface *html5::loadPng(unsigned char *bytes, int length) {
+std::unordered_map<std::string, SDL_Surface*> generatedSurfaces;
+
+SDL_Surface *html5::loadPng(unsigned char *bytes, int length, const char *filename) {
+    if (generatedSurfaces.find(filename) != generatedSurfaces.end()) {
+        return generatedSurfaces[filename];
+    }
     int width, height, n;
     vcmi_png_palette_indexes = nullptr;
     vcmi_png_palette = nullptr;
@@ -75,7 +79,7 @@ SDL_Surface *html5::loadPng(unsigned char *bytes, int length) {
 
             data = stbi_load_from_memory((stbi_uc const *) bytes, length, &width,
                                          &height, &n, 3);
-            n = 2;
+            n = 3;
         } else if (n == 2) {
             // grey + alpha
             stbi_image_free(data);
@@ -97,6 +101,25 @@ SDL_Surface *html5::loadPng(unsigned char *bytes, int length) {
         }
         stbi_image_free(data);
         return surface;
+    }
+}
+
+void html5::savePng(SDL_Surface *surf, const char* filename) {
+    SDL_Surface *copy = SDL_CreateRGBSurfaceWithFormat(0, surf->w, surf->h, surf->format->BitsPerPixel, surf->format->format);
+    if (surf->format->palette) {
+        SDL_SetSurfacePalette(copy, surf->format->palette);
+    }
+    SDL_BlitSurface(surf, NULL, copy, NULL);
+    generatedSurfaces[filename] = copy;
+    FILE *f = fopen(filename, "wb");
+    if (f) {
+        unsigned char pngMagic[] = {
+            // png magic
+            0x89, 0x50, 0x4E, 0x47,
+            // is pcx test
+            0, 0, 0, 0, 0, 0, 0, 0};
+        fwrite(pngMagic, 1, sizeof(pngMagic), f);
+        fclose(f);
     }
 }
 

@@ -133,7 +133,8 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(const ImagePath & path)
 		{ //loading via SDL_Image
 #ifdef VCMI_HTML5_BUILD
 			if (html5::isPngImage(readFile.first.get(), (int)readFile.second)) {
-				ret = html5::loadPng(readFile.first.get(), (int)readFile.second);
+				ret = html5::loadPng(readFile.first.get(), (int)readFile.second,
+					CResourceHandler::get()->getResourceName(path)->string().c_str());
 				if (!ret) {
 					logGlobal->error("Failed to open %s via sbt_image", path.getOriginalName());
 					return nullptr;

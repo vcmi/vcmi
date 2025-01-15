@@ -22,6 +22,10 @@
 #include "../gui/CGuiHandler.h"
 #include "../render/IScreenHandler.h"
 
+#ifdef VCMI_HTML5_BUILD
+#include "html5/html5.h"
+#endif
+
 #include <tbb/parallel_for.h>
 #include <SDL_surface.h>
 #include <SDL_image.h>
@@ -364,7 +368,11 @@ void SDLImageShared::exportBitmap(const boost::filesystem::path& path, SDL_Palet
 
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
+#ifdef VCMI_HTML5_BUILD
+	html5::savePng(surf, path.string().c_str());
+#else
 	IMG_SavePNG(surf, path.string().c_str());
+#endif
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, originalPalette);
 }
