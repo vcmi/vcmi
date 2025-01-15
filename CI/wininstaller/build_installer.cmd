@@ -9,6 +9,12 @@ set "AppBuild=1122334455A"
 set "InstallerArch=x64"
 set "VCMIFolder=VCMI"
 
+REM Override defaults with optional parameters
+if not "%~1"=="" set "AppVersion=%~1"
+if not "%~2"=="" set "AppBuild=%~2"
+if not "%~3"=="" set "InstallerArch=%~3"
+if not "%~4"=="" set "VCMIFolder=%~4"
+
 REM Define Inno Setup version
 set InnoSetupVer=6
 
