@@ -15,11 +15,7 @@
 #include "../../lib/filesystem/CArchiveLoader.h"
 
 #include "../innoextract.h"
-
-#ifdef VCMI_ANDROID
-#include <QAndroidJniObject>
-#include <QtAndroid>
-#endif
+#include "../helper.h"
 
 ChroniclesExtractor::ChroniclesExtractor(QWidget *p, std::function<void(float percent)> cb) :
 	parent(p), cb(cb)
@@ -243,15 +239,8 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 		// so make a copy in directory to which vcmi always has full access and operate on it
 		QString filepath = tempDir.filePath("chr.exe");
 		logGlobal->info("Copying offline installer from '%s' to '%s'", f.toStdString(), filepath.toStdString());
-#ifdef VCMI_ANDROID
-		{
-			auto srcStr = QAndroidJniObject::fromString(f);
-			auto dstStr = QAndroidJniObject::fromString(filepath);
-			QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;)V", srcStr.object<jstring>(), dstStr.object<jstring>());
-		};
-#else
-		QFile(f).copy(filepath);
-#endif
+
+		Helper::performNativeCopy(f, filepath);
 		QFile file(filepath);
 
 		logGlobal->info("Extracting offline installer");

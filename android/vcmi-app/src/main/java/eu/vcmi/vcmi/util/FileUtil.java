@@ -1,16 +1,14 @@
 package eu.vcmi.vcmi.util;
 
 import android.app.Activity;
-import android.content.Context;
-import android.net.Uri;
 import android.content.ContentResolver;
-import android.provider.OpenableColumns;
+import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
+import android.provider.OpenableColumns;
 
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
-
-import org.libsdl.app.SDL;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,8 +16,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 import java.lang.Exception;
+import java.util.List;
 
 import eu.vcmi.vcmi.Const;
 import eu.vcmi.vcmi.Storage;
@@ -115,12 +113,11 @@ public class FileUtil
     }
 
     @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
-    private static void copyFileFromUri(String sourceFileUri, String destinationFile)
+    private static void copyFileFromUri(String sourceFileUri, String destinationFile, Context context)
     {
         try
         {
-            final Context ctx = SDL.getContext();
-            final InputStream inputStream = new FileInputStream(ctx.getContentResolver().openFileDescriptor(Uri.parse(sourceFileUri), "r").getFileDescriptor());
+            final InputStream inputStream = new FileInputStream(context.getContentResolver().openFileDescriptor(Uri.parse(sourceFileUri), "r").getFileDescriptor());
             final OutputStream outputStream = new FileOutputStream(new File(destinationFile));
 
             copyStream(inputStream, outputStream);
@@ -132,14 +129,12 @@ public class FileUtil
     }
 
     @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
-    private static String getFilenameFromUri(String sourceFileUri)
+    private static String getFilenameFromUri(String sourceFileUri, Context context)
     {
+        String fileName = "";
         try
         {
-            String fileName = "";
-
-            final Context ctx = SDL.getContext();
-            ContentResolver contentResolver = ctx.getContentResolver();
+            ContentResolver contentResolver = context.getContentResolver();
             Cursor cursor = contentResolver.query(Uri.parse(sourceFileUri), null, null, null, null);
 
             if (cursor != null && cursor.moveToFirst()) {
@@ -149,14 +144,12 @@ public class FileUtil
                 }
                 cursor.close();
             }
-
-            return fileName;
         }
         catch (Exception e)
         {
             Log.e("getFilenameFromUri failed: ", e);
-
-            return "";
         }
+
+        return fileName;
     }
 }

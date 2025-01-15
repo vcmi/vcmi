@@ -17,11 +17,6 @@
 #include <QCryptographicHash>
 #include <QRegularExpression>
 
-#ifdef VCMI_ANDROID
-#include <QAndroidJniObject>
-#include <QtAndroid>
-#endif
-
 #include "modstatemodel.h"
 #include "modstateitemmodel_moc.h"
 #include "modstatecontroller.h"
@@ -744,18 +739,8 @@ void CModListView::installFiles(QStringList files)
 	// TODO: some better way to separate zip's with mods and downloaded repository files
 	for(QString filename : files)
 	{
-#ifdef VCMI_ANDROID
-		QString realFilename{};
-		if(filename.contains("content://", Qt::CaseInsensitive))
-		{
-			auto path = QAndroidJniObject::fromString(filename);
-			realFilename = QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "getFilenameFromUri", "(Ljava/lang/String;)Ljava/lang/String;", path.object<jstring>()).toString();
-		}
-		else
-			realFilename = filename;
-#else
-		QString realFilename = filename;
-#endif
+		QString realFilename = Helper::getRealPath(filename);
+
 		if(realFilename.endsWith(".zip", Qt::CaseInsensitive))
 			mods.push_back(filename);
 		else if(realFilename.endsWith(".h3m", Qt::CaseInsensitive) || realFilename.endsWith(".h3c", Qt::CaseInsensitive) || realFilename.endsWith(".vmap", Qt::CaseInsensitive) || realFilename.endsWith(".vcmp", Qt::CaseInsensitive))

@@ -71,14 +71,14 @@ You can also see a more detailed walkthrough on CMake configuration at [How to b
 
 ## Docker
 
-For developing it's also possible to use docker to build an android APK. As requirement only a installed docker is needed. The container image contains all other prerequisites.
+For developing it's also possible to use Docker to build android APK. The only requirement is to have Docker installed. The container image contains all the other prerequisites.
 
 To build using docker just open a terminal with `vcmi` as working directory.
 
 Build the image with (only needed once):
-`docker build -f docker/BuildAndroid.dockerfile -t vcmi-android-build .`
+`docker build -f docker/BuildAndroid-aarch64.dockerfile -t vcmi-android-build .`
 
 After building the image you can compile vcmi with:
 `docker run -it --rm -v $PWD/:/vcmi vcmi-android-build`
 
-The current dockerfile is ARM64 only but can adjusted manually for ARM32.
+The current dockerfile is aarch64 only but can adjusted manually for armv7.

@@ -13,11 +13,6 @@
 
 #include <QDir>
 
-#ifdef VCMI_ANDROID
-#include <QAndroidJniObject>
-#include <QtAndroid>
-#endif
-
 #include "../lib/CConfigHandler.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -269,19 +264,7 @@ void MainWindow::dropEvent(QDropEvent* event)
 
 void MainWindow::manualInstallFile(QString filePath)
 {
-#ifdef VCMI_ANDROID
-	QString realFilePath{};
-	if(filePath.contains("content://", Qt::CaseInsensitive))
-	{
-		auto path = QAndroidJniObject::fromString(filePath);
-		realFilePath = QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "getFilenameFromUri", "(Ljava/lang/String;)Ljava/lang/String;", path.object<jstring>()).toString();
-	}
-	else
-		realFilePath = filePath;
-
-#else
-	QString realFilePath = filePath;
-#endif
+	QString realFilePath = Helper::getRealPath(filePath);
 
 	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive) || realFilePath.endsWith(".exe", Qt::CaseInsensitive))
 		switchToModsTab();

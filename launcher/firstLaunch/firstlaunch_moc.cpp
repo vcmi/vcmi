@@ -369,19 +369,9 @@ void FirstLaunchView::extractGogData()
 
 		QString tmpFileExe = tempDir.filePath("h3_gog.exe");
 		QString tmpFileBin = tempDir.filePath("h3_gog-1.bin");
-#ifdef VCMI_ANDROID
-		auto copy = [](QString src, QString dst)
-		{
-			auto srcStr = QAndroidJniObject::fromString(src);
-			auto dstStr = QAndroidJniObject::fromString(dst);
-			QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;)V", srcStr.object<jstring>(), dstStr.object<jstring>());
-		};
-		copy(fileExe, tmpFileExe);
-		copy(fileBin, tmpFileBin);
-#else
-		QFile(fileExe).copy(tmpFileExe);
-		QFile(fileBin).copy(tmpFileBin);
-#endif
+
+		Helper::performNativeCopy(fileExe, tmpFileExe);
+		Helper::performNativeCopy(fileBin, tmpFileBin);
 
 		logGlobal->info("Installing exe '%s' ('%s')", tmpFileExe.toStdString(), fileExe.toStdString());
 		logGlobal->info("Installing bin '%s' ('%s')", tmpFileBin.toStdString(), fileBin.toStdString());

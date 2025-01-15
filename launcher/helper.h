@@ -1,5 +1,5 @@
 /*
- * jsonutils.h, part of VCMI engine
+ * helper.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,10 +9,14 @@
  */
 #pragma once
 
+#include <QString>
+
 class QObject;
 
 namespace Helper
 {
 void loadSettings();
 void enableScrollBySwiping(QObject * scrollTarget);
+QString getRealPath(QString path);
+void performNativeCopy(QString src, QString dst);
 }
