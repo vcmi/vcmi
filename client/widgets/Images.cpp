@@ -53,8 +53,8 @@ CPicture::CPicture( const ImagePath & bmpname )
 	: CPicture(bmpname, Point(0,0))
 {}
 
-CPicture::CPicture( const ImagePath & bmpname, const Point & position )
-	: bg(GH.renderHandler().loadImage(bmpname, EImageBlitMode::COLORKEY))
+CPicture::CPicture( const ImagePath & bmpname, const Point & position, EImageBlitMode mode )
+	: bg(GH.renderHandler().loadImage(bmpname, mode))
 	, needRefresh(false)
 {
 	pos.x += position.x;
@@ -73,6 +73,10 @@ CPicture::CPicture( const ImagePath & bmpname, const Point & position )
 
 	addUsedEvents(SHOW_POPUP);
 }
+
+CPicture::CPicture( const ImagePath & bmpname, const Point & position )
+	:CPicture(bmpname, position, EImageBlitMode::COLORKEY)
+{}
 
 CPicture::CPicture(const ImagePath & bmpname, const Rect &SrcRect, int x, int y)
 	: CPicture(bmpname, Point(x,y))

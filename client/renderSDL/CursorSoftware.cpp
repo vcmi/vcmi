@@ -65,7 +65,7 @@ void CursorSoftware::updateTexture()
 
 	CSDL_Ext::fillSurface(cursorSurface, CSDL_Ext::toSDL(Colors::TRANSPARENCY));
 
-	cursorImage->draw(cursorSurface, Point(0,0));
+	cursorImage->draw(cursorSurface, Point(0,0), nullptr, GH.screenHandler().getScalingFactor());
 	SDL_UpdateTexture(cursorTexture, nullptr, cursorSurface->pixels, cursorSurface->pitch);
 	needUpdate = false;
 }

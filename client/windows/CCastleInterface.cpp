@@ -570,9 +570,8 @@ CCastleBuildings::CCastleBuildings(const CGTownInstance* Town):
 {
 	OBJECT_CONSTRUCTION;
 
-	background = std::make_shared<CPicture>(town->getTown()->clientInfo.townBackground);
+	background = std::make_shared<CPicture>(town->getTown()->clientInfo.townBackground, Point(0,0), EImageBlitMode::OPAQUE);
 	background->needRefresh = true;
-	background->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
 

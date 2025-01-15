@@ -21,6 +21,7 @@ class CAnimImage;
 class CLabel;
 class CAnimation;
 class IImage;
+enum class EImageBlitMode : uint8_t;
 
 // Image class
 class CPicture : public CIntObject
@@ -49,6 +50,7 @@ public:
 
 	/// Loads image from specified file name
 	CPicture(const ImagePath & bmpname);
+	CPicture(const ImagePath & bmpname, const Point & position, EImageBlitMode mode);
 	CPicture(const ImagePath & bmpname, const Point & position);
 	CPicture(const ImagePath & bmpname, int x, int y);
 

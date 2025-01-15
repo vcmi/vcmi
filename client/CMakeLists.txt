@@ -99,7 +99,7 @@ set(vcmiclientcommon_SRCS
 	renderSDL/CursorHardware.cpp
 	renderSDL/CursorSoftware.cpp
 	renderSDL/FontChain.cpp
-	renderSDL/ImageScaled.cpp
+	renderSDL/ScalableImage.cpp
 	renderSDL/RenderHandler.cpp
 	renderSDL/SDLImage.cpp
 	renderSDL/SDLImageLoader.cpp
@@ -307,7 +307,7 @@ set(vcmiclientcommon_HEADERS
 	renderSDL/CursorHardware.h
 	renderSDL/CursorSoftware.h
 	renderSDL/FontChain.h
-	renderSDL/ImageScaled.h
+	renderSDL/ScalableImage.h
 	renderSDL/RenderHandler.h
 	renderSDL/SDLImage.h
 	renderSDL/SDLImageLoader.h

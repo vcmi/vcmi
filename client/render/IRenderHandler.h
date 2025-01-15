@@ -20,6 +20,7 @@ struct SDL_Surface;
 class IFont;
 class IImage;
 class CAnimation;
+class SDLImageShared;
 enum class EImageBlitMode : uint8_t;
 enum EFonts : int8_t;
 
@@ -32,9 +33,12 @@ public:
 	virtual void onLibraryLoadingFinished(const Services * services) = 0;
 
 	/// Loads image using given path
-	virtual std::shared_ptr<IImage> loadImage(const ImageLocator & locator, EImageBlitMode mode) = 0;
+	virtual std::shared_ptr<IImage> loadImage(const ImageLocator & locator) = 0;
 	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) = 0;
 	virtual std::shared_ptr<IImage> loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode) = 0;
+
+	/// Loads single image without scaling support
+	virtual std::shared_ptr<SDLImageShared> loadSingleImage(const ImageLocator & locator) = 0;
 
 	/// temporary compatibility method. Creates IImage from existing SDL_Surface
 	/// Surface will be shared, caller must still free it with SDL_FreeSurface

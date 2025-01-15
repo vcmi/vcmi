@@ -87,8 +87,7 @@ std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, b
 	if(imageName.empty())
 		return nullptr;
 
-	auto image = std::make_shared<CPicture>(imageName);
-	image->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
+	auto image = std::make_shared<CPicture>(imageName, Point(0,0), EImageBlitMode::OPAQUE);
 	if(playerColored)
 		image->setPlayerColor(LOCPLINT->playerID);
 	return image;
@@ -116,8 +115,7 @@ void CWindowObject::updateShadow()
 void CWindowObject::setShadow(bool on)
 {
 	//size of shadow
-	int sizeOriginal = 8;
-	int size = sizeOriginal * GH.screenHandler().getScalingFactor();
+	int size = 8;
 
 	if(on == !shadowParts.empty())
 		return;
@@ -182,9 +180,9 @@ void CWindowObject::setShadow(bool on)
 		//FIXME: do something with this points
 		Point shadowStart;
 		if (options & BORDERED)
-			shadowStart = Point(sizeOriginal - 14, sizeOriginal - 14);
+			shadowStart = Point(size - 14, size - 14);
 		else
-			shadowStart = Point(sizeOriginal, sizeOriginal);
+			shadowStart = Point(size, size);
 
 		Point shadowPos;
 		if (options & BORDERED)
@@ -200,8 +198,8 @@ void CWindowObject::setShadow(bool on)
 
 		//create base 8x8 piece of shadow
 		SDL_Surface * shadowCorner = CSDL_Ext::copySurface(shadowCornerTempl);
-		SDL_Surface * shadowBottom = CSDL_Ext::scaleSurface(shadowBottomTempl, (fullsize.x - sizeOriginal) * GH.screenHandler().getScalingFactor(), size);
-		SDL_Surface * shadowRight  = CSDL_Ext::scaleSurface(shadowRightTempl,  size, (fullsize.y - sizeOriginal) * GH.screenHandler().getScalingFactor());
+		SDL_Surface * shadowBottom = CSDL_Ext::scaleSurface(shadowBottomTempl, (fullsize.x - size), size);
+		SDL_Surface * shadowRight  = CSDL_Ext::scaleSurface(shadowRightTempl,  size, (fullsize.y - size));
 
 		blitAlphaCol(shadowBottom, 0);
 		blitAlphaRow(shadowRight, 0);

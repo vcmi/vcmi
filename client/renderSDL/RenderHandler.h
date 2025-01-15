@@ -17,7 +17,7 @@ VCMI_LIB_NAMESPACE_END
 
 class CDefFile;
 class SDLImageShared;
-class ISharedImage;
+class ScalableImageShared;
 
 class RenderHandler : public IRenderHandler
 {
@@ -25,28 +25,22 @@ class RenderHandler : public IRenderHandler
 
 	std::map<AnimationPath, std::shared_ptr<CDefFile>> animationFiles;
 	std::map<AnimationPath, AnimationLayoutMap> animationLayouts;
-	std::map<ImageLocator, std::shared_ptr<const ISharedImage>> imageFiles;
+	std::map<SharedImageLocator, std::shared_ptr<ScalableImageShared>> imageFiles;
 	std::map<EFonts, std::shared_ptr<const IFont>> fonts;
 
 	std::shared_ptr<CDefFile> getAnimationFile(const AnimationPath & path);
-	std::optional<ResourcePath> getPathForScaleFactor(const ResourcePath & path, const std::string & factor);
-	std::pair<ResourcePath, int> getScalePath(const ResourcePath & p);
-	AnimationLayoutMap & getAnimationLayout(const AnimationPath & path);
-	void initFromJson(AnimationLayoutMap & layout, const JsonNode & config);
+	AnimationLayoutMap & getAnimationLayout(const AnimationPath & path, int scalingFactor, EImageBlitMode mode);
+	void initFromJson(AnimationLayoutMap & layout, const JsonNode & config, EImageBlitMode mode);
 
 	void addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName);
 	void addImageListEntries(const EntityService * service);
-	void storeCachedImage(const ImageLocator & locator, std::shared_ptr<const ISharedImage> image);
+	void storeCachedImage(const ImageLocator & locator, std::shared_ptr<ScalableImageShared> image);
 
-	std::shared_ptr<const ISharedImage> loadImageImpl(const ImageLocator & config);
+	std::shared_ptr<ScalableImageShared> loadImageImpl(const ImageLocator & config);
 
-	std::shared_ptr<const ISharedImage> loadImageFromFileUncached(const ImageLocator & locator);
-	std::shared_ptr<const ISharedImage> loadImageFromFile(const ImageLocator & locator);
+	std::shared_ptr<SDLImageShared> loadImageFromFileUncached(const ImageLocator & locator);
 
-	std::shared_ptr<const ISharedImage> transformImage(const ImageLocator & locator, std::shared_ptr<const ISharedImage> image);
-	std::shared_ptr<const ISharedImage> scaleImage(const ImageLocator & locator, std::shared_ptr<const ISharedImage> image);
-
-	ImageLocator getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group);
+	ImageLocator getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group, EImageBlitMode mode);
 
 	int getScalingFactor() const;
 
@@ -55,9 +49,11 @@ public:
 	// IRenderHandler implementation
 	void onLibraryLoadingFinished(const Services * services) override;
 
-	std::shared_ptr<IImage> loadImage(const ImageLocator & locator, EImageBlitMode mode) override;
+	std::shared_ptr<IImage> loadImage(const ImageLocator & locator) override;
 	std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) override;
 	std::shared_ptr<IImage> loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode) override;
+
+	std::shared_ptr<SDLImageShared> loadSingleImage(const ImageLocator & locator) override;
 
 	std::shared_ptr<CAnimation> loadAnimation(const AnimationPath & path, EImageBlitMode mode) override;
 

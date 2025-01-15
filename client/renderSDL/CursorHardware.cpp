@@ -59,7 +59,7 @@ void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivot
 
 	CSDL_Ext::fillSurface(cursorSurface, CSDL_Ext::toSDL(Colors::TRANSPARENCY));
 
-	image->draw(cursorSurface, Point(0,0));
+	image->draw(cursorSurface, Point(0,0), nullptr, GH.screenHandler().getScalingFactor());
 	auto cursorSurfaceScaled = CSDL_Ext::scaleSurface(cursorSurface, cursorDimensionsScaled.x, cursorDimensionsScaled.y );
 
 	auto oldCursor = cursor;
