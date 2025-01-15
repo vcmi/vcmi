@@ -1458,7 +1458,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (evaluationContext.isEnemy && evaluationContext.turn > 0)
 					return 0;
 				if (evaluationContext.isDefend && evaluationContext.threatTurns <= evaluationContext.turn)
-					score = evaluationContext.armyInvolvement;
+					score = evaluationContext.armyInvolvement / (evaluationContext.turn + 1);
 				break;
 			}
 			case PriorityTier::KILL: //Take towns / kill heroes that are further away
