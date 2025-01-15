@@ -1513,7 +1513,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 
 		{
 			skill->val += static_cast<si32>(value);
 		}
-		CBonusSystemNode::treeHasChanged();
+		nodeHasChanged();
 	}
 	else if(primarySkill == PrimarySkill::EXPERIENCE)
 	{
@@ -1550,7 +1550,7 @@ void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)
 	}
 
 	//update specialty and other bonuses that scale with level
-	treeHasChanged();
+	nodeHasChanged();
 }
 
 void CGHeroInstance::levelUpAutomatically(vstd::RNG & rand)

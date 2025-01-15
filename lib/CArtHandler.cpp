@@ -703,8 +703,9 @@ void CArtHandler::afterLoadFinalization()
 			assert(bonus->source == BonusSource::ARTIFACT);
 			bonus->sid = BonusSourceID(art->id);
 		}
+		art->nodeHasChanged();
 	}
-	CBonusSystemNode::treeHasChanged();
+
 }
 
 CArtifactInstance * CArtifactSet::getArt(const ArtifactPosition & pos, bool excludeLocked) const

@@ -170,7 +170,7 @@ TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, c
 	return ret;
 }
 
-int64_t StackWithBonuses::getTreeVersion() const
+int32_t StackWithBonuses::getTreeVersion() const
 {
 	auto result = owner->getTreeVersion();
 
@@ -485,7 +485,7 @@ BattleLayout HypotheticBattle::getLayout() const
 	return subject->getBattle()->getLayout();
 }
 
-int64_t HypotheticBattle::getTreeVersion() const
+int32_t HypotheticBattle::getTreeVersion() const
 {
 	return getBonusBearer()->getTreeVersion() + bonusTreeVersion;
 }

@@ -41,7 +41,7 @@ public:
 	TConstBonusListPtr getBonusesOfType(BonusType type) const;
 	TConstBonusListPtr getBonusesOfType(BonusType type, BonusSubtypeID subtype) const;
 
-	virtual int64_t getTreeVersion() const = 0;
+	virtual int32_t getTreeVersion() const = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

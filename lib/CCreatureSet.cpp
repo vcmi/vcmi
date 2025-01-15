@@ -670,14 +670,18 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 	}
 }
 
-CStackInstance::CStackInstance()
-	: armyObj(_armyObj)
+CStackInstance::CStackInstance(bool isHypothetic)
+	: CBonusSystemNode(isHypothetic),
+	armyObj(_armyObj),
+	nativeTerrain(this, Selector::type()(BonusType::TERRAIN_NATIVE)),
+	initiative(this, Selector::type()(BonusType::STACKS_SPEED))
+
 {
 	init();
 }
 
-CStackInstance::CStackInstance(const CreatureID & id, TQuantity Count, bool isHypothetic):
-	CBonusSystemNode(isHypothetic), armyObj(_armyObj)
+CStackInstance::CStackInstance(const CreatureID & id, TQuantity Count, bool isHypothetic)
+	: CStackInstance(false)
 {
 	init();
 	setType(id);
@@ -685,7 +689,7 @@ CStackInstance::CStackInstance(const CreatureID & id, TQuantity Count, bool isHy
 }
 
 CStackInstance::CStackInstance(const CCreature *cre, TQuantity Count, bool isHypothetic)
-	: CBonusSystemNode(isHypothetic), armyObj(_armyObj)
+	: CStackInstance(false)
 {
 	init();
 	setType(cre);
@@ -832,6 +836,22 @@ std::string CStackInstance::nodeName() const
 PlayerColor CStackInstance::getOwner() const
 {
 	return _armyObj ? _armyObj->getOwner() : PlayerColor::NEUTRAL;
+}
+
+int32_t CStackInstance::getInitiative(int turn) const
+{
+	if (turn == 0)
+		return initiative.getValue();
+
+	return ACreature::getInitiative(turn);
+}
+
+TerrainId CStackInstance::getNativeTerrain() const
+{
+	if (nativeTerrain.hasBonus())
+		return TerrainId::ANY_TERRAIN;
+
+	return getFactionID().toEntity(VLC)->getNativeTerrain();
 }
 
 void CStackInstance::deserializationFix()

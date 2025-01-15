@@ -21,8 +21,6 @@ public:
 
 private:
 	TInternalContainer bonuses;
-	bool belongsToTree;
-	void changed() const;
 
 public:
 	using const_reference = TInternalContainer::const_reference;
@@ -31,10 +29,7 @@ public:
 	using const_iterator = TInternalContainer::const_iterator;
 	using iterator = TInternalContainer::iterator;
 
-	BonusList(bool BelongsToTree = false);
-	BonusList(const BonusList &bonusList);
-	BonusList(BonusList && other) noexcept;
-	BonusList& operator=(const BonusList &bonusList);
+	BonusList() = default;
 
 	// wrapper functions of the STL vector container
 	TInternalContainer::size_type size() const { return bonuses.size(); }
