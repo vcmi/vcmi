@@ -14,6 +14,7 @@
 #include "../CGameInfo.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Colors.h"
+#include "../render/IImage.h"
 #include "../render/IScreenHandler.h"
 
 #include "../../lib/CConfigHandler.h"

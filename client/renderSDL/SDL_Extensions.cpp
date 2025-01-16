@@ -14,6 +14,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../render/Graphics.h"
+#include "../render/IImage.h"
 #include "../render/IScreenHandler.h"
 #include "../render/Colors.h"
 #include "../CMT.h"
@@ -633,7 +634,7 @@ void CSDL_Ext::convertToGrayscale( SDL_Surface * surf, const Rect & rect )
 // scaling via bilinear interpolation algorithm.
 // NOTE: best results are for scaling in range 50%...200%.
 // And upscaling looks awful right now - should be fixed somehow
-SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface * surf, int width, int height)
+SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface * surf, int width, int height, EScalingAlgorithm algorithm)
 {
 	if(!surf || !width || !height)
 		return nullptr;
@@ -644,11 +645,14 @@ SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface * surf, int width, int height)
 	SDL_Surface * intermediate = SDL_ConvertSurface(surf, screen->format, 0);
 	SDL_Surface * ret = newSurface(Point(width, height), intermediate);
 
-#if SDL_VERSION_ATLEAST(2,0,16)
-	SDL_SoftStretchLinear(intermediate, nullptr, ret, nullptr);
-#else
-	SDL_SoftStretch(intermediate, nullptr, ret, nullptr);
-#endif
+	const uint32_t * srcPixels = static_cast<const uint32_t*>(intermediate->pixels);
+	uint32_t * dstPixels = static_cast<uint32_t*>(ret->pixels);
+
+	if (algorithm == EScalingAlgorithm::NEAREST)
+		xbrz::nearestNeighborScale(srcPixels, intermediate->w, intermediate->h, dstPixels, ret->w, ret->h);
+	else
+		xbrz::bilinearScale(srcPixels, intermediate->w, intermediate->h, dstPixels, ret->w, ret->h);
+
 	SDL_FreeSurface(intermediate);
 
 	return ret;
@@ -797,11 +801,6 @@ void CSDL_Ext::getClipRect(SDL_Surface * src, Rect & other)
 	SDL_GetClipRect(src, &rect);
 
 	other = CSDL_Ext::fromSDL(rect);
-}
-
-int CSDL_Ext::CClipRectGuard::getScalingFactor() const
-{
-	return GH.screenHandler().getScalingFactor();
 }
 
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<3>(int, int);

@@ -26,7 +26,6 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../render/IRenderHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
@@ -857,7 +856,7 @@ void BattleFieldController::tick(uint32_t msPassed)
 
 void BattleFieldController::show(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+	CanvasClipRectGuard guard(to, pos);
 
 	renderBattlefield(to);
 

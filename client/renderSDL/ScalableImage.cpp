@@ -20,6 +20,7 @@
 #include "../render/Graphics.h"
 #include "../render/IRenderHandler.h"
 #include "../render/IScreenHandler.h"
+#include "../render/CanvasImage.h"
 
 #include "../../lib/constants/EntityIdentifiers.h"
 
@@ -292,9 +293,15 @@ ScalableImageInstance::ScalableImageInstance(const std::shared_ptr<ScalableImage
 	assert(image);
 }
 
-void ScalableImageInstance::scaleTo(const Point & size)
+void ScalableImageInstance::scaleTo(const Point & size, EScalingAlgorithm algorithm)
 {
-	assert(0);
+	scaledImage = nullptr;
+
+	auto newScaledImage = GH.renderHandler().createImage(dimensions(), CanvasScalingPolicy::AUTO);
+
+	newScaledImage->getCanvas().draw(*this, Point(0, 0));
+	newScaledImage->scaleTo(size, algorithm);
+	scaledImage = newScaledImage;
 }
 
 void ScalableImageInstance::exportBitmap(const boost::filesystem::path & path) const
@@ -314,6 +321,8 @@ Rect ScalableImageInstance::contentRect() const
 
 Point ScalableImageInstance::dimensions() const
 {
+	if (scaledImage)
+		return scaledImage->dimensions() / GH.screenHandler().getScalingFactor();
 	return image->dimensions();
 }
 
@@ -324,7 +333,10 @@ void ScalableImageInstance::setAlpha(uint8_t value)
 
 void ScalableImageInstance::draw(SDL_Surface * where, const Point & pos, const Rect * src, int scalingFactor) const
 {
-	image->draw(where, pos, src, parameters, scalingFactor);
+	if (scaledImage)
+		scaledImage->draw(where, pos, src, scalingFactor);
+	else
+		image->draw(where, pos, src, parameters, scalingFactor);
 }
 
 void ScalableImageInstance::setOverlayColor(const ColorRGBA & color)
@@ -335,7 +347,7 @@ void ScalableImageInstance::setOverlayColor(const ColorRGBA & color)
 		parameters.setOverlayColor(image->getPalette(), color);
 }
 
-void ScalableImageInstance::playerColored(PlayerColor player)
+void ScalableImageInstance::playerColored(const PlayerColor & player)
 {
 	parameters.player = player;
 

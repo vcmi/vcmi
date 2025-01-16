@@ -88,6 +88,7 @@ set(vcmiclientcommon_SRCS
 	render/CBitmapHandler.cpp
 	render/CDefFile.cpp
 	render/Canvas.cpp
+	render/CanvasImage.cpp
 	render/ColorFilter.cpp
 	render/Colors.cpp
 	render/Graphics.cpp
@@ -290,6 +291,7 @@ set(vcmiclientcommon_HEADERS
 	render/CBitmapHandler.h
 	render/CDefFile.h
 	render/Canvas.h
+	render/CanvasImage.h
 	render/ColorFilter.h
 	render/Colors.h
 	render/EFont.h

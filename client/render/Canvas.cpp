@@ -11,6 +11,7 @@
 #include "Canvas.h"
 
 #include "../gui/CGuiHandler.h"
+#include "../media/IVideoPlayer.h"
 #include "../render/IRenderHandler.h"
 #include "../render/IScreenHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
@@ -100,6 +101,16 @@ void Canvas::applyGrayscale()
 Canvas::~Canvas()
 {
 	SDL_FreeSurface(surface);
+}
+
+void Canvas::draw(IVideoInstance & video, const Point & pos)
+{
+	video.show(pos, surface);
+}
+
+void Canvas::draw(const IImage& image, const Point & pos)
+{
+	image.draw(surface, transformPos(pos), nullptr, getScalingFactor());
 }
 
 void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos)
@@ -222,12 +233,18 @@ void Canvas::fillTexture(const std::shared_ptr<IImage>& image)
 	}
 }
 
-SDL_Surface * Canvas::getInternalSurface() const
-{
-	return surface;
-}
-
 Rect Canvas::getRenderArea() const
 {
 	return renderArea;
+}
+
+CanvasClipRectGuard::CanvasClipRectGuard(Canvas & canvas, const Rect & rect): surf(canvas.surface)
+{
+	CSDL_Ext::getClipRect(surf, oldRect);
+	CSDL_Ext::setClipRect(surf, rect * GH.screenHandler().getScalingFactor());
+}
+
+CanvasClipRectGuard::~CanvasClipRectGuard()
+{
+	CSDL_Ext::setClipRect(surf, oldRect);
 }

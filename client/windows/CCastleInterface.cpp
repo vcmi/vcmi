@@ -973,7 +973,7 @@ void CCastleBuildings::enterCastleGate(BuildingID building)
 			if(settings["general"]["enableUiEnhancements"].Bool())
 			{
 				auto image = GH.renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->getTown()->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
-				image->scaleTo(Point(35, 23));
+				image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
 				images.push_back(image);
 			}
 		}

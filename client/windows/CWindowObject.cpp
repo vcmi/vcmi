@@ -23,6 +23,7 @@
 #include "../render/IScreenHandler.h"
 #include "../render/IRenderHandler.h"
 #include "../render/Canvas.h"
+#include "../render/CanvasImage.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
@@ -128,55 +129,6 @@ void CWindowObject::setShadow(bool on)
 
 	if(on)
 	{
-
-		//helper to set last row
-		auto blitAlphaRow = [](SDL_Surface *surf, size_t row)
-		{
-			uint8_t * ptr = (uint8_t*)surf->pixels + surf->pitch * (row);
-
-			for (size_t i=0; i< surf->w; i++)
-			{
-				Channels::px<4>::a.set(ptr, 128);
-				ptr+=4;
-			}
-		};
-
-		// helper to set last column
-		auto blitAlphaCol = [](SDL_Surface *surf, size_t col)
-		{
-			uint8_t * ptr = (uint8_t*)surf->pixels + 4 * (col);
-
-			for (size_t i=0; i< surf->h; i++)
-			{
-				Channels::px<4>::a.set(ptr, 128);
-				ptr+= surf->pitch;
-			}
-		};
-
-		static SDL_Surface * shadowCornerTempl = nullptr;
-		static SDL_Surface * shadowBottomTempl = nullptr;
-		static SDL_Surface * shadowRightTempl = nullptr;
-
-		//one-time initialization
-		if(!shadowCornerTempl)
-		{
-			//create "template" surfaces
-			shadowCornerTempl = CSDL_Ext::createSurfaceWithBpp<4>(size, size);
-			shadowBottomTempl = CSDL_Ext::createSurfaceWithBpp<4>(1, size);
-			shadowRightTempl  = CSDL_Ext::createSurfaceWithBpp<4>(size, 1);
-
-			//fill with shadow body color
-			CSDL_Ext::fillSurface(shadowCornerTempl, { 0, 0, 0, 192 } );
-			CSDL_Ext::fillSurface(shadowBottomTempl, { 0, 0, 0, 192 } );
-			CSDL_Ext::fillSurface(shadowRightTempl,  { 0, 0, 0, 192 } );
-
-			//fill last row and column with more transparent color
-			blitAlphaCol(shadowRightTempl , size-1);
-			blitAlphaCol(shadowCornerTempl, size-1);
-			blitAlphaRow(shadowBottomTempl, size-1);
-			blitAlphaRow(shadowCornerTempl, size-1);
-		}
-
 		//FIXME: do something with this points
 		Point shadowStart;
 		if (options & BORDERED)
@@ -196,26 +148,36 @@ void CWindowObject::setShadow(bool on)
 		else
 			fullsize = Point(pos.w, pos.h);
 
-		//create base 8x8 piece of shadow
-		SDL_Surface * shadowCorner = CSDL_Ext::copySurface(shadowCornerTempl);
-		SDL_Surface * shadowBottom = CSDL_Ext::scaleSurface(shadowBottomTempl, (fullsize.x - size), size);
-		SDL_Surface * shadowRight  = CSDL_Ext::scaleSurface(shadowRightTempl,  size, (fullsize.y - size));
+		Point sizeCorner(size, size);
+		Point sizeRight(fullsize.x - size, size);
+		Point sizeBottom(size, fullsize.y - size);
 
-		blitAlphaCol(shadowBottom, 0);
-		blitAlphaRow(shadowRight, 0);
+		//create base 8x8 piece of shadow
+		auto imageCorner = GH.renderHandler().createImage(sizeCorner, CanvasScalingPolicy::AUTO);
+		auto imageRight  = GH.renderHandler().createImage(sizeRight,  CanvasScalingPolicy::AUTO);
+		auto imageBottom = GH.renderHandler().createImage(sizeBottom, CanvasScalingPolicy::AUTO);
+
+		Canvas canvasCorner = imageCorner->getCanvas();
+		Canvas canvasRight = imageRight->getCanvas();
+		Canvas canvasBottom = imageBottom->getCanvas();
+
+		canvasCorner.drawColor(Rect(Point(0,0), sizeCorner), { 0, 0, 0, 128 });
+		canvasRight.drawColor(Rect(Point(0,0), sizeRight), { 0, 0, 0, 128 });
+		canvasBottom.drawColor(Rect(Point(0,0), sizeBottom), { 0, 0, 0, 128 });
+
+		canvasCorner.drawColor(Rect(Point(0,0), sizeCorner - Point(1,1)), { 0, 0, 0, 192 });
+		canvasRight.drawColor(Rect(Point(0,0),   sizeRight - Point(0,1)), { 0, 0, 0, 192 });
+		canvasBottom.drawColor(Rect(Point(0,0), sizeBottom - Point(1,0)), { 0, 0, 0, 192 });
 
 		//generate "shadow" object with these 3 pieces in it
 		{
 			OBJECT_CONSTRUCTION;
 
-			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowCorner), Point(shadowPos.x,   shadowPos.y)));
-			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowRight ),  Point(shadowPos.x,   shadowStart.y)));
-			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowBottom), Point(shadowStart.x, shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( imageCorner, Point(shadowPos.x,   shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( imageRight, Point(shadowStart.x, shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( imageBottom,  Point(shadowPos.x,   shadowStart.y)));
 
 		}
-		SDL_FreeSurface(shadowCorner);
-		SDL_FreeSurface(shadowBottom);
-		SDL_FreeSurface(shadowRight);
 	}
 }
 

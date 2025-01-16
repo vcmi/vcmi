@@ -17,6 +17,7 @@
 #include "../gui/CGuiHandler.h"
 
 #include "../render/CAnimation.h"
+#include "../render/CanvasImage.h"
 #include "../render/CDefFile.h"
 #include "../render/Colors.h"
 #include "../render/ColorFilter.h"
@@ -308,14 +309,9 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageB
 	return loadImage(locator);
 }
 
-std::shared_ptr<IImage> RenderHandler::createImage(SDL_Surface * source)
+std::shared_ptr<CanvasImage> RenderHandler::createImage(const Point & size, CanvasScalingPolicy scalingPolicy)
 {
-	auto baseImage = std::make_shared<SDLImageShared>(source);
-	SharedImageLocator locator;
-	locator.layer = EImageBlitMode::SIMPLE;
-	auto scalableImage = std::make_shared<ScalableImageShared>(locator, baseImage);
-
-	return scalableImage->createImageReference();
+	return std::make_shared<CanvasImage>(size, scalingPolicy);
 }
 
 std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path, EImageBlitMode mode)

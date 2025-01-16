@@ -18,6 +18,7 @@ struct SDL_Renderer;
 struct SDL_Texture;
 struct SDL_Surface;
 struct SDL_Color;
+enum class EScalingAlgorithm : int8_t;
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -26,14 +27,6 @@ class Rect;
 class Point;
 
 VCMI_LIB_NAMESPACE_END
-
-enum class EScalingAlgorithm : int8_t
-{
-	NEAREST,
-	BILINEAR,
-	XBRZ_OPAQUE, // xbrz, image edges are considered to have same color as pixel inside image
-	XBRZ_ALPHA // xbrz, image edges are considered to be transparent
-};
 
 namespace CSDL_Ext
 {
@@ -99,7 +92,7 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 	SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value
 
 	// bilinear filtering. Always returns rgba surface
-	SDL_Surface * scaleSurface(SDL_Surface * surf, int width, int height);
+	SDL_Surface * scaleSurface(SDL_Surface * surf, int width, int height, EScalingAlgorithm scaler);
 	SDL_Surface * scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor, EScalingAlgorithm scaler);
 
 	template<int bpp>

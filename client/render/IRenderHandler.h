@@ -20,8 +20,10 @@ struct SDL_Surface;
 class IFont;
 class IImage;
 class CAnimation;
+class CanvasImage;
 class SDLImageShared;
 enum class EImageBlitMode : uint8_t;
+enum class CanvasScalingPolicy;
 enum EFonts : int8_t;
 
 class IRenderHandler : public boost::noncopyable
@@ -40,9 +42,8 @@ public:
 	/// Loads single image without scaling support
 	virtual std::shared_ptr<SDLImageShared> loadSingleImage(const ImageLocator & locator) = 0;
 
-	/// temporary compatibility method. Creates IImage from existing SDL_Surface
-	/// Surface will be shared, caller must still free it with SDL_FreeSurface
-	virtual std::shared_ptr<IImage> createImage(SDL_Surface * source) = 0;
+	/// Creates image which can be used as target for drawing on
+	virtual std::shared_ptr<CanvasImage> createImage(const Point & size, CanvasScalingPolicy scalingPolicy) = 0;
 
 	/// Loads animation using given path
 	virtual std::shared_ptr<CAnimation> loadAnimation(const AnimationPath & path, EImageBlitMode mode) = 0;

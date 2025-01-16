@@ -62,6 +62,14 @@ enum class EImageBlitMode : uint8_t
 	ONLY_OVERLAY,
 };
 
+enum class EScalingAlgorithm : int8_t
+{
+	NEAREST,
+	BILINEAR,
+	XBRZ_OPAQUE, // xbrz, image edges are considered to have same color as pixel inside image. Only for integer scaling
+	XBRZ_ALPHA // xbrz, image edges are considered to be transparent. Only for integer scaling
+};
+
 /// Base class for images for use in client code.
 /// This class represents current state of image, with potential transformations applied, such as player coloring
 class IImage
@@ -70,12 +78,12 @@ public:
 	//draws image on surface "where" at position
 	virtual void draw(SDL_Surface * where, const Point & pos, const Rect * src, int scalingFactor) const = 0;
 
-	virtual void scaleTo(const Point & size) = 0;
+	virtual void scaleTo(const Point & size, EScalingAlgorithm algorithm) = 0;
 
 	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
 
 	//Change palette to specific player
-	virtual void playerColored(PlayerColor player) = 0;
+	virtual void playerColored(const PlayerColor & player) = 0;
 
 	//test transparency of specific pixel
 	virtual bool isTransparent(const Point & coords) const = 0;

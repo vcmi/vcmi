@@ -18,6 +18,7 @@
 struct SDL_Palette;
 
 class ScalableImageInstance;
+class CanvasImage;
 
 struct ScalableImageParameters : boost::noncopyable
 {
@@ -99,6 +100,7 @@ class ScalableImageInstance final : public IImage
 	friend class ScalableImageShared;
 
 	std::shared_ptr<ScalableImageShared> image;
+	std::shared_ptr<CanvasImage> scaledImage;
 
 	ScalableImageParameters parameters;
 	EImageBlitMode blitMode;
@@ -106,7 +108,7 @@ class ScalableImageInstance final : public IImage
 public:
 	ScalableImageInstance(const std::shared_ptr<ScalableImageShared> & image, EImageBlitMode blitMode);
 
-	void scaleTo(const Point & size) override;
+	void scaleTo(const Point & size, EScalingAlgorithm algorithm) override;
 	void exportBitmap(const boost::filesystem::path & path) const override;
 	bool isTransparent(const Point & coords) const override;
 	Rect contentRect() const override;
@@ -114,7 +116,7 @@ public:
 	void setAlpha(uint8_t value) override;
 	void draw(SDL_Surface * where, const Point & pos, const Rect * src, int scalingFactor) const override;
 	void setOverlayColor(const ColorRGBA & color) override;
-	void playerColored(PlayerColor player) override;
+	void playerColored(const PlayerColor & player) override;
 	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
 	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;
 

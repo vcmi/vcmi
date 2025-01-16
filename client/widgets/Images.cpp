@@ -13,7 +13,6 @@
 #include "MiscWidgets.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../render/AssetGenerator.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
@@ -122,7 +121,7 @@ void CPicture::setAlpha(uint8_t value)
 
 void CPicture::scaleTo(Point size)
 {
-	bg->scaleTo(size);
+	bg->scaleTo(size, EScalingAlgorithm::BILINEAR);
 
 	pos.w = bg->width();
 	pos.h = bg->height();
@@ -164,7 +163,7 @@ CFilledTexture::CFilledTexture(const ImagePath & imageName, Rect position, Rect 
 
 void CFilledTexture::showAll(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+	CanvasClipRectGuard guard(to, pos);
 
 	for (int y=pos.top(); y < pos.bottom(); y+= imageArea.h)
 	{
@@ -270,7 +269,7 @@ void CAnimImage::showAll(Canvas & to)
 		if(auto img = anim->getImage(targetFrame, group))
 		{
 			if(isScaled())
-				img->scaleTo(scaledSize);
+				img->scaleTo(scaledSize, EScalingAlgorithm::BILINEAR);
 
 			to.draw(img, pos.topLeft());
 		}

@@ -20,7 +20,7 @@
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
-#include "../render/Canvas.h"
+#include "../render/CanvasImage.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../render/Graphics.h"
@@ -58,9 +58,10 @@ CMapOverview::CMapOverview(const std::string & mapName, const std::string & file
 	fitToScreen(10);
 }
 
-Canvas CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<CMap> & map, int layer) const
+std::shared_ptr<CanvasImage> CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<CMap> & map, int layer) const
 {
-	Canvas canvas = Canvas(Point(map->width, map->height), CanvasScalingPolicy::IGNORE);
+	auto canvasImage = GH.renderHandler().createImage(Point(map->width, map->height), CanvasScalingPolicy::IGNORE);
+	auto canvas = canvasImage->getCanvas();
 
 	for (int y = 0; y < map->height; ++y)
 		for (int x = 0; x < map->width; ++x)
@@ -91,12 +92,12 @@ Canvas CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<CMap> & map, in
 			canvas.drawPoint(Point(x, y), color);
 		}
 	
-	return canvas;
+	return canvasImage;
 }
 
-std::vector<Canvas> CMapOverviewWidget::createMinimaps(ResourcePath resource) const
+std::vector<std::shared_ptr<CanvasImage>> CMapOverviewWidget::createMinimaps(ResourcePath resource) const
 {
-	auto ret = std::vector<Canvas>();
+	std::vector<std::shared_ptr<CanvasImage>> ret;
 
 	CMapService mapService;
 	std::unique_ptr<CMap> map;
@@ -113,9 +114,9 @@ std::vector<Canvas> CMapOverviewWidget::createMinimaps(ResourcePath resource) co
 	return createMinimaps(map);
 }
 
-std::vector<Canvas> CMapOverviewWidget::createMinimaps(std::unique_ptr<CMap> & map) const
+std::vector<std::shared_ptr<CanvasImage>> CMapOverviewWidget::createMinimaps(std::unique_ptr<CMap> & map) const
 {
-	auto ret = std::vector<Canvas>();
+	std::vector<std::shared_ptr<CanvasImage>> ret;
 
 	for(int i = 0; i < (map->twoLevel ? 2 : 1); i++)
 		ret.push_back(createMinimapForLayer(map, i));
@@ -133,16 +134,15 @@ std::shared_ptr<CPicture> CMapOverviewWidget::buildDrawMinimap(const JsonNode & 
 	if(id >= minimaps.size())
 		return nullptr;
 
-	Rect minimapRect = minimaps[id].getRenderArea();
-	double maxSideLengthSrc = std::max(minimapRect.w, minimapRect.h);
+	Point minimapRect = minimaps[id]->dimensions();
+	double maxSideLengthSrc = std::max(minimapRect.x, minimapRect.y);
 	double maxSideLengthDst = std::max(rect.w, rect.h);
 	double resize = maxSideLengthSrc / maxSideLengthDst;
-	Point newMinimapSize = Point(minimapRect.w / resize, minimapRect.h / resize);
+	Point newMinimapSize = Point(minimapRect.x / resize, minimapRect.y / resize);
 
-	std::shared_ptr<IImage> img = GH.renderHandler().createImage(minimaps[id].getInternalSurface());
-	img->scaleTo(newMinimapSize);
+	minimaps[id]->scaleTo(newMinimapSize, EScalingAlgorithm::NEAREST); // for sharp-looking minimap
 
-	return std::make_shared<CPicture>(img, Point(rect.x, rect.y));
+	return std::make_shared<CPicture>(minimaps[id], Point(rect.x, rect.y));
 }
 
 CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
