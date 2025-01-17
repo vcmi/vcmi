@@ -61,125 +61,227 @@ void CMessage::dispose()
 		item.reset();
 }
 
-std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWidth, EFonts font)
+std::vector<size_t> CMessage::getAllPositionsInStr(const char & targetChar, const std::string_view & str)
 {
-	assert(maxLineWidth != 0);
-	if(maxLineWidth == 0)
-		return {text};
-
-	std::vector<std::string> ret;
-
-	boost::algorithm::trim_right_if(text, boost::algorithm::is_any_of(std::string(" ")));
-
-	const auto & fontPtr = GH.renderHandler().loadFont(font);
-
-	// each iteration generates one output line
-	while(text.length())
+	std::vector<size_t> results;
+	for(size_t pos = 0; pos < str.size(); pos++)
 	{
-		ui32 wordBreak = -1; //last position for line break (last space character)
-		ui32 currPos = 0; //current position in text
-		bool opened = false; //set to true when opening brace is found
-		std::string color; //color found
+		if(str[pos] == targetChar)
+			results.push_back(pos);
+	}
+	return results;
+};
 
-		size_t symbolSize = 0; // width of character, in bytes
+bool CMessage::validateColorBraces(const std::string & text)
+{
+	const auto openingBraces = getAllPositionsInStr('{', text);
+	const auto closingBraces = getAllPositionsInStr('}', text);
 
-		std::string printableString;
-
-		// loops till line is full or end of text reached
-		while(currPos < text.length() && text[currPos] != 0x0a && fontPtr->getStringWidth(printableString) <= maxLineWidth)
-		{
-			symbolSize = TextOperations::getUnicodeCharacterSize(text[currPos]);
-
-			// candidate for line break
-			if(ui8(text[currPos]) <= ui8(' '))
-				wordBreak = currPos;
-
-			/* We don't count braces in string length. */
-			if(text[currPos] == '{')
-			{
-				opened = true;
-
-				std::smatch match;
-				std::regex expr("^\\{(.*?)\\|");
-				std::string tmp = text.substr(currPos);
-				if(std::regex_search(tmp, match, expr))
-				{
-					std::string colorText = match[1].str();
-					if(auto c = Colors::parseColor(colorText))
-					{
-						color = colorText + "|";
-						currPos += colorText.length() + 1;
-					}
-				}
-			}
-			else if(text[currPos] == '}')
-			{
-				opened = false;
-				color = "";
-			}
-			else
-				printableString.append(text.data() + currPos, symbolSize);
-			currPos += symbolSize;
-		}
-
-		// not all line has been processed - it turned out to be too long, so erase everything after last word break
-		// if string consists from a single word (or this is Chinese/Korean) - erase only last symbol to bring line back to allowed length
-		if(currPos < text.length() && (text[currPos] != 0x0a))
-		{
-			if(wordBreak != ui32(-1))
-			{
-				currPos = wordBreak;
-				if(boost::count(text.substr(0, currPos), '{') == boost::count(text.substr(0, currPos), '}'))
-				{
-					opened = false;
-					color = "";
-				}
-			}
-			else
-				currPos -= symbolSize;
-		}
-
-		//non-blank line
-		if(currPos != 0)
-		{
-			ret.push_back(text.substr(0, currPos));
-
-			if(opened)
-				/* Close the brace for the current line. */
-				ret.back() += '}';
-
-			text.erase(0, currPos);
-		}
-		else if(text[currPos] == 0x0a)
-		{
-			ret.push_back(""); //add empty string, no extra actions needed
-		}
-
-		if(text.length() != 0 && text[0] == 0x0a)
-		{
-			/* Remove LF */
-			text.erase(0, 1);
-		}
-		else
-		{
-			// trim only if line does not starts with LF
-			// FIXME: necessary? All lines will be trimmed before returning anyway
-			boost::algorithm::trim_left_if(text, boost::algorithm::is_any_of(std::string(" ")));
-		}
-
-		if(opened)
-		{
-			/* Add an opening brace for the next line. */
-			if(text.length() != 0)
-				text.insert(0, "{" + color);
-		}
+	if(openingBraces.size() != closingBraces.size())
+	{
+		logGlobal->error("CMessage: Not Equal number opening and closing tags");
+		return false;
 	}
 
-	/* Trim whitespaces of every line. */
-	for(auto & elem : ret)
-		boost::algorithm::trim(elem);
+	if(openingBraces.empty())
+		return true;
 
-	return ret;
+	auto closingPos = closingBraces.begin();
+	size_t closingPrevPos = 0;
+	for(const auto & openingPos : openingBraces)
+	{
+		if(openingPos >= *closingPos)
+		{
+			logGlobal->error("CMessage: Line validation Invalid: Closing tag before opening tag %s", text);
+			return false;
+		}
+		if(openingPos < closingPrevPos)
+		{
+			logGlobal->error("CMessage: Line validation Invalid: Tags inside another tags %s", text);
+			return false;
+		}
+		closingPrevPos = *closingPos++;
+	}
+	return true;
+}
+
+std::vector<CMessage::coloredline> CMessage::getPossibleLines(
+	const std::string & line, size_t maxLineWidth, const EFonts font, const char & splitSymbol)
+{
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	std::vector<coloredline> result;
+	std::string_view lastFoundColor;
+	const std::function<size_t(const std::string_view&)> findColorTags = [&](const std::string_view & subLine) -> size_t
+		{
+			size_t foundWidth = 0;
+			if(lastFoundColor.empty())
+			{
+				if(const auto colorTextBegin = subLine.find('{'); colorTextBegin != std::string::npos)
+				{
+					foundWidth += fontPtr->getStringWidth("{");
+					// Opened color tag brace found. Try to find color tag.
+					if(const auto colorTagEnd = subLine.find('|'); colorTagEnd != std::string::npos)
+					{
+						assert(subLine.find('}') > colorTagEnd);
+						lastFoundColor = subLine.substr(colorTextBegin, colorTagEnd - colorTextBegin + 1);
+						foundWidth += fontPtr->getStringWidth(std::string(lastFoundColor));
+					}
+					else
+					{
+						lastFoundColor = subLine.substr(colorTextBegin, 1);
+					}
+				}
+				else
+				{
+					return foundWidth;
+				}
+			}
+			if(const auto colorTextEnd = subLine.find('}'); colorTextEnd != std::string::npos)
+			{
+				foundWidth += fontPtr->getStringWidth("}");
+				lastFoundColor = std::string_view();
+				foundWidth += findColorTags(subLine.substr(colorTextEnd + 1, subLine.length() - colorTextEnd - 1));
+			}
+			return foundWidth;
+		};
+
+	const std::function<void(const std::string_view&)> splitBySymbol = [&](const std::string_view & subLine)
+		{
+			// Trim splitSymbols from beginning and ending
+			const auto subLineBeginPos = subLine.find_first_not_of(splitSymbol);
+			if(subLineBeginPos == std::string::npos)
+				return;
+			const auto subLineEndPos = subLine.find_last_not_of(splitSymbol);
+			if(subLineEndPos == std::string::npos)
+				return;
+
+			const auto trimmedLine = subLine.substr(subLineBeginPos, subLineEndPos - subLineBeginPos + 1);
+			size_t wordBegin = 0;
+			const auto splitPossibles = getAllPositionsInStr(splitSymbol, trimmedLine);
+			if(splitPossibles.empty())
+			{
+				result.back().line = std::make_pair(trimmedLine.data() - line.data(), trimmedLine.length());
+				return;
+			}
+
+			size_t lineWidth = 0;
+			const auto curWord = trimmedLine.substr(wordBegin, splitPossibles.front());
+			size_t nextWordWidth = fontPtr->getStringWidth(std::string(curWord)) - findColorTags(curWord);
+
+			for(auto splitPos = splitPossibles.cbegin(); splitPos < splitPossibles.cend(); splitPos = std::next(splitPos))
+			{
+				lineWidth += nextWordWidth;
+				const auto curColor = lastFoundColor;
+				const auto wordEnd = *splitPos;
+				const auto nextSplitPos = std::next(splitPos);
+				const auto nextWord = nextSplitPos == splitPossibles.end() ? trimmedLine.substr(wordEnd, trimmedLine.length() - wordEnd)
+					 : trimmedLine.substr(wordEnd, *nextSplitPos - wordEnd);
+				nextWordWidth = fontPtr->getStringWidth(std::string(nextWord)) - findColorTags(nextWord);
+
+				if(lineWidth + nextWordWidth > maxLineWidth)
+				{
+					const auto resultLine = trimmedLine.substr(0, wordEnd);
+					// Trim splitSymbols from ending and place result line into result
+					result.back().line = std::make_pair(resultLine.data() - line.data(), resultLine.find_last_not_of(splitSymbol) + 1);
+					if(curColor.empty())
+					{
+						result.emplace_back();
+					}
+					else
+					{
+						result.back().closingTagNeeded = true;
+						result.emplace_back(std::optional<std::pair<size_t, size_t>>({ curColor.data() - line.data(), curColor.length() }));
+					}
+					splitBySymbol(trimmedLine.substr(wordEnd, trimmedLine.length() - wordEnd));
+					return;
+				}
+				else
+				{
+					if(wordBegin == wordEnd)
+						lineWidth += fontPtr->getStringWidth(std::string(1, splitSymbol));
+					wordBegin = wordEnd + 1;
+				}
+			}
+			result.back().line = std::make_pair(trimmedLine.data() - line.data(), trimmedLine.length());
+		};
+
+	result.emplace_back();
+	splitBySymbol(line);
+
+	return result;
+}
+
+std::vector<std::string> CMessage::breakText(const std::string & text, size_t maxLineWidth, const EFonts font)
+{
+	std::vector<std::string> result;
+	if(maxLineWidth == 0)
+		return result;
+	if(!validateColorBraces(text))
+		return result;
+
+	// Detect end of line symbol. If '\r\n', remove '\r'.
+	// Texts with '\r\n' are very rare (Credits case), so rare string copying should not be a problem.
+	std::string preparedText;
+	auto preparedTextPtr = &text;
+	auto breakSymbol = '\n';
+	if(text.find("\r\n") != std::string::npos)
+	{
+		preparedText = text;
+		preparedTextPtr = &preparedText;
+		preparedText.erase(std::remove(preparedText.begin(), preparedText.end(), '\r'), preparedText.end());
+	}
+	else if(text.find('\r') != std::string::npos)
+	{
+		breakSymbol = '\r';
+	}
+
+	// Split text by lines
+	auto possibleLines = getPossibleLines(*preparedTextPtr, 0, font, breakSymbol);
+
+	// Add additional empty lines if needed. In Case "....\n\n...."
+	const auto possibleLinesOrigin = possibleLines;
+	auto curLine = possibleLinesOrigin.cbegin();
+	auto insertionIterator = possibleLines.cbegin();
+	size_t nextLineBeginEstimate = 0;
+	auto newLines = curLine->line.first - nextLineBeginEstimate;
+
+	for(auto nextLine = std::next(curLine);; nextLine = std::next(nextLine))
+	{
+		for(size_t newBreak = 0; newBreak < newLines; newBreak++)
+		{
+			const auto newLine = possibleLines.emplace(insertionIterator);
+			newLine->line.first = nextLineBeginEstimate + newBreak;
+			insertionIterator = std::next(newLine);
+		}
+		if(nextLine >= possibleLinesOrigin.cend())
+			break;
+
+		nextLineBeginEstimate = curLine->line.first + curLine->line.second + 1;
+		newLines = nextLine->line.first - nextLineBeginEstimate;
+		assert(nextLineBeginEstimate <= nextLine->line.first);
+		curLine = nextLine;
+		insertionIterator = std::next(insertionIterator);
+	}
+
+	// Split lines by spaces and fill result
+	const auto makeNewLine = [](const auto & lineBreak, const auto & srcStr, auto & emptyLine)
+		{
+			const auto colorTag = lineBreak.colorTag ?
+				std::string_view(srcStr).substr(lineBreak.colorTag.value().first, lineBreak.colorTag.value().second)
+				: std::string_view();
+			emptyLine = std::string(colorTag) + srcStr.substr(lineBreak.line.first, lineBreak.line.second);
+			if(lineBreak.closingTagNeeded)
+				emptyLine.append("}");
+		};
+
+	for(const auto & lineBreak : possibleLines)
+	{	
+		std::string line;
+		makeNewLine(lineBreak, *preparedTextPtr, line);
+		for(const auto & breakBySpace : getPossibleLines(line, maxLineWidth, font, ' '))
+			makeNewLine(breakBySpace, line, result.emplace_back());
+	}
+	return result;
 }
 
 std::string CMessage::guessHeader(const std::string & msg)
