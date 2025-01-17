@@ -22,10 +22,18 @@
 #include "../lib/GameSettings.h"
 #include "../lib/IGameSettings.h"
 #include "../lib/json/JsonNode.h"
+#include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/RiverHandler.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/TerrainHandler.h"
+
+void AssetGenerator::clear()
+{
+	// clear to avoid non updated sprites after mod change (if base imnages are used)
+	if(boost::filesystem::is_directory(VCMIDirs::get().userDataPath() / "Generated"))
+		boost::filesystem::remove_all(VCMIDirs::get().userDataPath() / "Generated");
+}
 
 void AssetGenerator::generateAll()
 {
