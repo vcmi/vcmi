@@ -72,7 +72,7 @@ void performNativeCopy(QString src, QString dst)
 	auto dstStr = QAndroidJniObject::fromString(dst);
 	QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;Landroid/content/Context;)V", srcStr.object<jstring>(), dstStr.object<jstring>(), QtAndroid::androidContext().object());
 #else
-	QFile(src).copy(dst);
+	QFile::copy(src, dst);
 #endif
 }
 }
