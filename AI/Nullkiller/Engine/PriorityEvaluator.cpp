@@ -890,7 +890,9 @@ public:
 
 		Goals::StayAtTown& stayAtTown = dynamic_cast<Goals::StayAtTown&>(*task);
 
-		evaluationContext.armyReward += evaluationContext.evaluator.getManaRecoveryArmyReward(stayAtTown.getHero());
+		if(stayAtTown.town->mageGuildLevel() > 0)
+			evaluationContext.armyReward += evaluationContext.evaluator.getManaRecoveryArmyReward(stayAtTown.getHero());
+
 		if (evaluationContext.armyReward == 0)
 			evaluationContext.isDefend = true;
 		else
@@ -1465,6 +1467,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				//FALL_THROUGH
 			case PriorityTier::FAR_KILL:
 			{
+				if (!evaluationContext.isEnemy)
+					return 0;
 				if (evaluationContext.turn > 0 && evaluationContext.isHero)
 					return 0;
 				if (arriveNextWeek && evaluationContext.isEnemy)
@@ -1476,21 +1480,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
 				score *= evaluationContext.closestWayRatio;
-				if (evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
-				break;
-			}
-			case PriorityTier::UPGRADE:
-			{
-				if (!evaluationContext.isArmyUpgrade)
-					return 0;
-				if (evaluationContext.enemyHeroDangerRatio > dangerThreshold)
-					return 0;
-				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
-					return 0;
-				if (vstd::isAlmostZero(evaluationContext.armyLossPersentage) && evaluationContext.closestWayRatio < 1.0)
-					return 0;
-				score = 1000;
 				if (evaluationContext.movementCost > 0)
 					score /= evaluationContext.movementCost;
 				break;
@@ -1521,8 +1510,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (evaluationContext.isDefend && (evaluationContext.enemyHeroDangerRatio < dangerThreshold || evaluationContext.threatTurns > 0 || evaluationContext.turn > 0))
 					return 0;
 				if (evaluationContext.explorePriority == 3)
-					return 0;
-				if (evaluationContext.isArmyUpgrade)
 					return 0;
 				if ((evaluationContext.enemyHeroDangerRatio > 0 && arriveNextWeek) || evaluationContext.enemyHeroDangerRatio > dangerThreshold)
 					return 0;
