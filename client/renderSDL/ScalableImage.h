@@ -15,6 +15,9 @@
 
 #include "../../lib/Color.h"
 
+#include <tbb/concurrent_queue.h>
+#include <tbb/task_arena.h>
+
 struct SDL_Palette;
 
 class ScalableImageInstance;
@@ -44,9 +47,27 @@ struct ScalableImageParameters : boost::noncopyable
 	void adjustPalette(const SDL_Palette * originalPalette, EImageBlitMode blitMode, const ColorFilter & shifter, uint32_t colorsToSkipMask);
 };
 
+class ImageScaler
+{
+	ImageScaler();
+
+	tbb::task_arena arena;
+public:
+	static ImageScaler & getInstance()
+	{
+		static ImageScaler scaler;
+		return scaler;
+	}
+
+	void enqueueTask(const std::function<void()> & task)
+	{
+		arena.enqueue(task);
+	}
+};
+
 class ScalableImageShared final : public std::enable_shared_from_this<ScalableImageShared>, boost::noncopyable
 {
-	static constexpr int maxScaling = 4;
+	static constexpr int scalingSize = 5; // 0-4 range. TODO: switch to either 2-4 or 1-4
 	static constexpr int maxFlips = 4;
 
 	using FlippedImages = std::array<std::shared_ptr<const ISharedImage>, maxFlips>;
@@ -63,17 +84,24 @@ class ScalableImageShared final : public std::enable_shared_from_this<ScalableIm
 		/// Upscaled overlay (player color, selection highlight) of our image, may be null
 		FlippedImages overlay;
 
-		// player-colored images of this particular scale. These are never flipped in h3
+		/// player-colored images of this particular scale, mostly for UI. These are never flipped in h3
 		PlayerColoredImages playerColored;
 	};
 
-	// 1x image, usually indexed. Array of 4 images for every potential flip
+	/// 1x image, usually indexed. Array of 4 images for every potential flip
 	FlippedImages base;
 
-	// 1x-4x images. 1x versions are only used if dedicated image is present, othervice palette transform is applied to base image
-	std::array<ScaledImage, maxScaling> scaled;
+	/// 1x-4x images. 1x are currently unused, but can be used for providing non-palette version of these images
+	std::array<ScaledImage, scalingSize> scaled;
 
+	/// Locator of this image, for loading additional (e.g. upscaled) images
 	const SharedImageLocator locator;
+
+	/// Contains all upscaling tasks related to this image that finished processing and can be applied
+	tbb::concurrent_queue<std::function<void()>> upscalingQueue;
+
+	/// Number of images that are currently being upscaled
+	int scheduledUpscalingEvents = 0;
 
 	std::shared_ptr<const ISharedImage> loadOrGenerateImage(EImageBlitMode mode, int8_t scalingFactor, PlayerColor color) const;
 
