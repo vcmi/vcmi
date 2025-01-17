@@ -574,13 +574,13 @@
         <location filename="../mainwindow.ui" line="1350"/>
         <location filename="../mainwindow.ui" line="1353"/>
         <source>h3m converter</source>
-        <translation>Převodník h3m</translation>
+        <translation>Konvertor kampaní</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1358"/>
         <location filename="../mainwindow.ui" line="1361"/>
         <source>h3c converter</source>
-        <translation type="unfinished">Převodník h3m {3c?}</translation>
+        <translation>Konvertor map</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1366"/>
@@ -860,22 +860,22 @@
     <message>
         <location filename="../mainwindow.cpp" line="1402"/>
         <source>Select campaign to convert</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte kampaň ke konverzi</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1404"/>
         <source>HoMM3 campaigns (*.h3c)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kampaně HoMM3 (*.h3m)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1408"/>
         <source>Select destination file</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte cílový soubor</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1410"/>
         <source>VCMI campaigns (*.vcmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kampaně VCMI (*.vcmp)</translation>
     </message>
 </context>
 <context>
@@ -918,7 +918,7 @@
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="156"/>
         <source>Rumors</source>
-        <translation>Klepy</translation>
+        <translation>Pověsti</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="179"/>
@@ -943,7 +943,7 @@
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="322"/>
         <source>Ok</source>
-        <translation>Dobře</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -951,7 +951,7 @@
     <message>
         <location filename="../mapview.cpp" line="626"/>
         <source>Can&apos;t place object</source>
-        <translation>Nelze umístit objekt</translation>
+        <translation>Objekt nezle umístit</translation>
     </message>
 </context>
 <context>
@@ -1015,12 +1015,12 @@
     <message>
         <location filename="../playerparams.ui" line="89"/>
         <source>Human/CPU</source>
-        <translation>Člověk/CPU</translation>
+        <translation>Člověk/PC</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="76"/>
         <source>CPU only</source>
-        <translation>Pouze CPU</translation>
+        <translation>Pouze PC</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="96"/>
@@ -1073,7 +1073,7 @@
     <message>
         <location filename="../playersettings.ui" line="20"/>
         <source>Player settings</source>
-        <translation>Hráčské nastavení</translation>
+        <translation>Nastavení hráčů</translation>
     </message>
     <message>
         <location filename="../playersettings.ui" line="63"/>
@@ -1088,7 +1088,7 @@
     <message>
         <location filename="../playersettings.ui" line="117"/>
         <source>Ok</source>
-        <translation>Dobře</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -1130,12 +1130,12 @@
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="164"/>
         <source>Default secondary skills:</source>
-        <translation type="unfinished"></translation>
+        <translation>Výchozí dovednosti:</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="169"/>
         <source>Secondary skills:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dovednosti:</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="931"/>
@@ -1373,7 +1373,7 @@
         <location filename="../inspector/inspector.cpp" line="369"/>
         <location filename="../inspector/inspector.cpp" line="619"/>
         <source>Same as player</source>
-        <translation type="unfinished"></translation>
+        <translation>Stejná jako hráč</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="376"/>
@@ -1416,7 +1416,7 @@
     <message>
         <location filename="../inspector/inspector.cpp" line="917"/>
         <source>Select town</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyber město</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="429"/>
@@ -1493,7 +1493,7 @@
     <message>
         <location filename="../mapcontroller.cpp" line="385"/>
         <source>Can&apos;t place object</source>
-        <translation>Nelze umístit objekt</translation>
+        <translation>Objekt nelze umístit</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="555"/>
@@ -1509,167 +1509,167 @@
         <location filename="../inspector/herospellwidget.cpp" line="143"/>
         <location filename="../inspector/townspellswidget.cpp" line="175"/>
         <source>Custom Spells:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vlastní kouzla:</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.cpp" line="152"/>
         <location filename="../inspector/townspellswidget.cpp" line="195"/>
         <source>Default Spells</source>
-        <translation type="unfinished"></translation>
+        <translation>Výchozí kouzla</translation>
     </message>
     <message>
         <location filename="../inspector/portraitwidget.cpp" line="143"/>
         <source>Default</source>
-        <translation type="unfinished">Výchozí</translation>
+        <translation>Výchozí</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="446"/>
         <source>Quest:</source>
-        <translation type="unfinished"></translation>
+        <translation>Úkol:</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="447"/>
         <source>Day of Week: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Den v týdnu: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="448"/>
         <source>Days Passed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Uplynulé dny: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="449"/>
         <location filename="../inspector/rewardswidget.cpp" line="768"/>
         <source>Hero Level: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Úroveň hrdiny: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="450"/>
         <location filename="../inspector/rewardswidget.cpp" line="769"/>
         <source>Hero Experience: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zkušenosti hrdiny: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="451"/>
         <source>Mana Points: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Magická energie: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="452"/>
         <location filename="../inspector/rewardswidget.cpp" line="771"/>
         <source>Mana Percentage: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Podíl magické energie: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="453"/>
         <location filename="../inspector/rewardswidget.cpp" line="774"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
-        <translation type="unfinished"></translation>
+        <translation>Primární dovednosti: %1/%2/%3/%4</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="466"/>
         <location filename="../inspector/rewardswidget.cpp" line="786"/>
         <source>Resources: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Suroviny: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="473"/>
         <location filename="../inspector/rewardswidget.cpp" line="792"/>
         <source>Artifacts: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Artefakty: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="480"/>
         <location filename="../inspector/rewardswidget.cpp" line="798"/>
         <source>Spells: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kouzla: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="487"/>
         <location filename="../inspector/rewardswidget.cpp" line="804"/>
         <source>Secondary Skills: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Dovednosti: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="494"/>
         <location filename="../inspector/rewardswidget.cpp" line="810"/>
         <source>Creatures: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Jednotky: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="501"/>
         <source>Heroes: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hrdinové: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="508"/>
         <source>Hero Classes: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Rasy hrdinů: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="517"/>
         <source>Players: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hráči: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="764"/>
         <source>Rewards:</source>
-        <translation type="unfinished"></translation>
+        <translation>Odměny:</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="767"/>
         <source>Reward Message: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zpráva o odměně: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="770"/>
         <source>Mana Diff: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Spotřeba magické energie: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="772"/>
         <source>Move Points: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Body pohybu:%1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="773"/>
         <source>Move Percentage: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Podíl pohybu: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="813"/>
         <source>Spell Cast: %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Seslané kouzlo: %1 (%2)</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="820"/>
         <source>Bonuses: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Bonusy: %1</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.cpp" line="361"/>
         <source>Built buildings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Postavené budovy:</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.cpp" line="372"/>
         <source>Forbidden buildings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zakázané budovy:</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.cpp" line="182"/>
         <source>Town Events:</source>
-        <translation type="unfinished"></translation>
+        <translation>Události města:</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.cpp" line="176"/>
         <source>Required:</source>
-        <translation type="unfinished"></translation>
+        <translation>Požadováno:</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.cpp" line="183"/>
         <source>Possible:</source>
-        <translation type="unfinished"></translation>
+        <translation>Možné:</translation>
     </message>
 </context>
 <context>
@@ -1968,7 +1968,7 @@
         <location filename="../inspector/rewardswidget.ui" line="504"/>
         <location filename="../inspector/rewardswidget.ui" line="1208"/>
         <source>Resources</source>
-        <translation>Zdroje</translation>
+        <translation>Suroviny</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="553"/>
@@ -2094,7 +2094,7 @@
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="37"/>
         <source>Tavern rumors</source>
-        <translation>Městské klepy</translation>
+        <translation>Městské pověsti</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="63"/>
@@ -2109,7 +2109,7 @@
     <message>
         <location filename="../mapsettings/rumorsettings.cpp" line="59"/>
         <source>New rumor</source>
-        <translation>Nový klep</translation>
+        <translation>Nová pověst</translation>
     </message>
 </context>
 <context>
@@ -2187,7 +2187,7 @@
     <message>
         <location filename="../mapsettings/timedevent.ui" line="235"/>
         <source>Ok</source>
-        <translation>Dobře</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -2316,7 +2316,7 @@
     <message>
         <location filename="../inspector/towneventswidget.cpp" line="186"/>
         <source>Day %1 - %2</source>
-        <translation type="unfinished">Den %1 - %2</translation>
+        <translation>Den %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -2610,7 +2610,7 @@
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="40"/>
         <source>Hire creatures</source>
-        <translation>Najmout bojovníky</translation>
+        <translation>Najmout jednotky</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="41"/>
@@ -2635,12 +2635,12 @@
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="45"/>
         <source>Transport artifact</source>
-        <translation>Přesunout artefakt</translation>
+        <translation>Dopravit artefakt</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="46"/>
         <source>Kill monster</source>
-        <translation>Zabít příšeru</translation>
+        <translation>Zabít jednotky</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="432"/>
@@ -2742,37 +2742,37 @@
     <message>
         <location filename="../windownewmap.ui" line="444"/>
         <source>Human teams</source>
-        <translation>Lidské týmy</translation>
+        <translation>Týmy lidí</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="431"/>
         <source>Computer teams</source>
-        <translation>Počítačové týmy</translation>
+        <translation>Týmy počítače</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="239"/>
         <source>Standard size</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardní velikost</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="264"/>
         <source>Custom size</source>
-        <translation type="unfinished"></translation>
+        <translation>Vlastní velikost</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="289"/>
         <source>Underground</source>
-        <translation type="unfinished"></translation>
+        <translation>Podzemí</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="412"/>
         <source>Humans</source>
-        <translation type="unfinished"></translation>
+        <translation>Lidé</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="475"/>
         <source>Computers</source>
-        <translation type="unfinished"></translation>
+        <translation>Počítače</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="541"/>
@@ -2798,7 +2798,7 @@
     <message>
         <location filename="../windownewmap.ui" line="681"/>
         <source>Water content</source>
-        <translation>Vodní obsah</translation>
+        <translation>Množství vody</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="742"/>
@@ -2849,7 +2849,7 @@
     <message>
         <location filename="../windownewmap.ui" line="1025"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Ok</source>
