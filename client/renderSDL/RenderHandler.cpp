@@ -158,14 +158,14 @@ int RenderHandler::getScalingFactor() const
 	return GH.screenHandler().getScalingFactor();
 }
 
-ImageLocator RenderHandler::getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group, EImageBlitMode mode)
+ImageLocator RenderHandler::getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group, int scaling, EImageBlitMode mode)
 {
-	const auto & layout = getAnimationLayout(path, 1, mode);
+	const auto & layout = getAnimationLayout(path, scaling, mode);
 	if (!layout.count(group))
-		return ImageLocator(ImagePath::builtin("DEFAULT"), mode);
+		return ImageLocator();
 
 	if (frame >= layout.at(group).size())
-		return ImageLocator(ImagePath::builtin("DEFAULT"), mode);
+		return ImageLocator();
 
 	const auto & locator = layout.at(group).at(frame);
 	if (locator.image || locator.defFile)
@@ -216,9 +216,9 @@ void RenderHandler::storeCachedImage(const ImageLocator & locator, std::shared_p
 	imageFiles[locator] = image;
 }
 
-std::shared_ptr<SDLImageShared> RenderHandler::loadSingleImage(const ImageLocator & locator)
+std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocator & locator)
 {
-	assert(locator.scalingFactor != 0);
+	assert(locator.scalingFactor > 1);
 
 	static constexpr std::array scaledDataPath = {
 		"", // 0x
@@ -236,39 +236,42 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadSingleImage(const ImageLocato
 		"SPRITES4X/",
 	};
 
-	if(locator.image)
-	{
-		std::string imagePathString = locator.image->getName();
-
-		if(locator.layer == EImageBlitMode::ONLY_OVERLAY)
-			imagePathString += "-OVERLAY";
-		if(locator.layer == EImageBlitMode::ONLY_SHADOW)
-			imagePathString += "-SHADOW";
-
-		auto imagePath = ImagePath::builtin(imagePathString);
-		auto imagePathSprites = ImagePath::builtin(imagePathString).addPrefix(scaledSpritesPath.at(locator.scalingFactor));
-		auto imagePathData = ImagePath::builtin(imagePathString).addPrefix(scaledDataPath.at(locator.scalingFactor));
-
-		if(CResourceHandler::get()->existsResource(imagePathSprites))
-			return std::make_shared<SDLImageShared>(imagePathSprites);
-
-		if(CResourceHandler::get()->existsResource(imagePathData))
-			return std::make_shared<SDLImageShared>(imagePathData);
-
-		if(CResourceHandler::get()->existsResource(imagePath))
-			return std::make_shared<SDLImageShared>(imagePath);
-	}
+	ImagePath pathToLoad;
 
 	if(locator.defFile)
 	{
-		AnimationPath defFilePath = locator.defFile->addPrefix(scaledSpritesPath.at(locator.scalingFactor));
-		auto defFile = getAnimationFile(defFilePath);
+		auto remappedLocator = getLocatorForAnimationFrame(*locator.defFile, locator.defFrame, locator.defGroup, locator.scalingFactor, locator.layer);
+		// we expect that .def's are only used for 1x data, upscaled assets should use standalone images
+		if (!remappedLocator.image)
+			return nullptr;
 
-		if(defFile && defFile->hasFrame(locator.defFrame, locator.defGroup))
-		{
-			return std::make_shared<SDLImageShared>(defFile.get(), locator.defFrame, locator.defGroup);
-		}
+		pathToLoad = *remappedLocator.image;
 	}
+
+	if(!locator.image)
+		return nullptr;
+
+	pathToLoad = *locator.image;
+
+	std::string imagePathString = pathToLoad.getName();
+
+	if(locator.layer == EImageBlitMode::ONLY_OVERLAY)
+		imagePathString += "-OVERLAY";
+	if(locator.layer == EImageBlitMode::ONLY_SHADOW)
+		imagePathString += "-SHADOW";
+
+	auto imagePath = ImagePath::builtin(imagePathString);
+	auto imagePathSprites = ImagePath::builtin(imagePathString).addPrefix(scaledSpritesPath.at(locator.scalingFactor));
+	auto imagePathData = ImagePath::builtin(imagePathString).addPrefix(scaledDataPath.at(locator.scalingFactor));
+
+	if(CResourceHandler::get()->existsResource(imagePathSprites))
+		return std::make_shared<SDLImageShared>(imagePathSprites);
+
+	if(CResourceHandler::get()->existsResource(imagePathData))
+		return std::make_shared<SDLImageShared>(imagePathData);
+
+	if(CResourceHandler::get()->existsResource(imagePath))
+		return std::make_shared<SDLImageShared>(imagePath);
 
 	return nullptr;
 }
@@ -299,8 +302,11 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator)
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode)
 {
-	ImageLocator locator = getLocatorForAnimationFrame(path, frame, group, mode);
-	return loadImage(locator);
+	ImageLocator locator = getLocatorForAnimationFrame(path, frame, group, 1, mode);
+	if (!locator.empty())
+		return loadImage(locator);
+	else
+		return loadImage(ImageLocator(ImagePath::builtin("DEFAULT"), mode));
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageBlitMode mode)

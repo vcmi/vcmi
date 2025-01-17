@@ -39,8 +39,8 @@ public:
 	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) = 0;
 	virtual std::shared_ptr<IImage> loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode) = 0;
 
-	/// Loads single image without scaling support
-	virtual std::shared_ptr<SDLImageShared> loadSingleImage(const ImageLocator & locator) = 0;
+	/// Loads single upscaled image without auto-scaling support
+	virtual std::shared_ptr<SDLImageShared> loadScaledImage(const ImageLocator & locator) = 0;
 
 	/// Creates image which can be used as target for drawing on
 	virtual std::shared_ptr<CanvasImage> createImage(const Point & size, CanvasScalingPolicy scalingPolicy) = 0;

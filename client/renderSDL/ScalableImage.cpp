@@ -397,7 +397,7 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 	loadingLocator.playerColored = color;
 
 	// best case - requested image is already available in filesystem
-	auto loadedImage = GH.renderHandler().loadSingleImage(loadingLocator);
+	auto loadedImage = GH.renderHandler().loadScaledImage(loadingLocator);
 	if (loadedImage)
 		return loadedImage;
 
@@ -406,7 +406,7 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 	for (int8_t scaling = 4; scaling > 1; --scaling)
 	{
 		loadingLocator.scalingFactor = scaling;
-		auto loadedImage = GH.renderHandler().loadSingleImage(loadingLocator);
+		auto loadedImage = GH.renderHandler().loadScaledImage(loadingLocator);
 		if (loadedImage)
 			return loadedImage->scaleTo(targetSize, nullptr);
 	}
@@ -445,7 +445,7 @@ void ScalableImageShared::loadScaledImages(int8_t scalingFactor, PlayerColor col
 		}
 	}
 
-	if (color != PlayerColor::CANNOT_DETERMINE && scaled[scalingFactor].playerColored[color.getNum()] == nullptr)
+	if (color.isValidPlayer() && scaled[scalingFactor].playerColored[color.getNum()] == nullptr)
 	{
 		switch(locator.layer)
 		{

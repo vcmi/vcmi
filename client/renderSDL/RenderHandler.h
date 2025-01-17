@@ -40,7 +40,7 @@ class RenderHandler : public IRenderHandler
 
 	std::shared_ptr<SDLImageShared> loadImageFromFileUncached(const ImageLocator & locator);
 
-	ImageLocator getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group, EImageBlitMode mode);
+	ImageLocator getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group, int scaling, EImageBlitMode mode);
 
 	int getScalingFactor() const;
 
@@ -53,7 +53,7 @@ public:
 	std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) override;
 	std::shared_ptr<IImage> loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode) override;
 
-	std::shared_ptr<SDLImageShared> loadSingleImage(const ImageLocator & locator) override;
+	std::shared_ptr<SDLImageShared> loadScaledImage(const ImageLocator & locator) override;
 
 	std::shared_ptr<CAnimation> loadAnimation(const AnimationPath & path, EImageBlitMode mode) override;
 

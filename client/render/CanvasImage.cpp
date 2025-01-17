@@ -33,7 +33,7 @@ void CanvasImage::draw(SDL_Surface * where, const Point & pos, const Rect * src,
 
 void CanvasImage::scaleTo(const Point & size, EScalingAlgorithm algorithm)
 {
-	Point scaledSize = scalingPolicy == CanvasScalingPolicy::IGNORE ? size : (size * GH.screenHandler().getScalingFactor());
+	Point scaledSize = size * GH.screenHandler().getScalingFactor();
 
 	auto newSurface = CSDL_Ext::scaleSurface(surface, scaledSize.x, scaledSize.y, algorithm);
 	SDL_FreeSurface(surface);
