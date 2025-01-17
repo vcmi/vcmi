@@ -119,7 +119,8 @@ if(EMSCRIPTEN)
 	)
 	ExternalProject_Add(vcmi-extras
 			PREFIX "vcmi-extras"
-			URL "https://vcmi.dos.zone/mods/vcmi-extras-1.5.zip"
+			GIT_REPOSITORY "https://github.com/vcmi-mods/vcmi-extras"
+			GIT_TAG "vcmi-1.6"
 			BUILD_IN_SOURCE true
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ""
@@ -177,7 +178,8 @@ if(EMSCRIPTEN)
 		COMMAND "mkdir" "html5"
 		COMMAND python3 "${EMSCRIPTEN_ROOT_PATH}/tools/file_packager.py"
 			"html5/vcmi.data" --no-node --from-emcc
-			--preload "${CMAKE_BINARY_DIR}/vcmi-extras/src/vcmi-extras@Mods/vcmi-extras"
+			--preload "${CMAKE_BINARY_DIR}/vcmi-extras/src/vcmi-extras/Mods@Mods/vcmi-extras/Mods"
+			--preload "${CMAKE_BINARY_DIR}/vcmi-extras/src/vcmi-extras/mod.json@Mods/vcmi-extras/mod.json"
 			--preload "${CMAKE_CURRENT_LIST_DIR}/config@config"
 			--preload "${CMAKE_CURRENT_LIST_DIR}/Mods@Mods"
 			--preload "${CMAKE_CURRENT_LIST_DIR}/data/Mp3_empty@Mp3"
@@ -621,26 +623,23 @@ if(ENABLE_INNOEXTRACT)
 endif()
 if(NOT EMSCRIPTEN)
 	find_package(Boost 1.48.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
-endif()
-
-find_package(ZLIB REQUIRED)
-# Conan compatibility
-if(TARGET zlib::zlib)
-	add_library(ZLIB::ZLIB ALIAS zlib::zlib)
-endif()
-
-option(FORCE_BUNDLED_MINIZIP "Force bundled Minizip library" OFF)
-if(NOT FORCE_BUNDLED_MINIZIP)
-	find_package(minizip)
-	if(TARGET minizip::minizip)
-		add_definitions(-DUSE_SYSTEM_MINIZIP)
+	find_package(ZLIB REQUIRED)
+	# Conan compatibility
+	if(TARGET zlib::zlib)
+		add_library(ZLIB::ZLIB ALIAS zlib::zlib)
+	endif()
+	option(FORCE_BUNDLED_MINIZIP "Force bundled Minizip library" OFF)
+	if(NOT FORCE_BUNDLED_MINIZIP)
+		find_package(minizip)
+		if(TARGET minizip::minizip)
+			add_definitions(-DUSE_SYSTEM_MINIZIP)
+		endif()
 	endif()
 endif()
 
 if (ENABLE_CLIENT)
-	find_package(ffmpeg COMPONENTS avutil swscale avformat avcodec swresample)
-
-    if(NOT EMSCRIPTEN)
+	if(NOT EMSCRIPTEN)
+		find_package(ffmpeg COMPONENTS avutil swscale avformat avcodec swresample)
 	    find_package(SDL2 REQUIRED)
 	    find_package(SDL2_image REQUIRED)
 	    if(TARGET SDL2_image::SDL2_image)
