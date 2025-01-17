@@ -47,7 +47,7 @@ public:
 	static void drawBorder(PlayerColor playerColor, Canvas & to, int w, int h, int x, int y);
 
 	static void drawIWindow(CInfoWindow * ret, std::string text, PlayerColor player);
-	static bool validateColorTags(const std::string & text);
+	static bool validateColorBraces(const std::string & text);
 	static std::vector<coloredline> getPossibleLines(const std::string & line, size_t maxLineWidth, const EFonts font, const char & splitSymbol);
 
 	/// split text in lines

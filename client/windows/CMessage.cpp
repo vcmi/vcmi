@@ -71,47 +71,35 @@ std::vector<size_t> CMessage::getAllPositionsInStr(const char & targetChar, cons
 	return results;
 };
 
-bool CMessage::validateColorTags(const std::string & text)
+bool CMessage::validateColorBraces(const std::string & text)
 {
-	const auto validateTagsPositions = [](const auto & openingTags, const auto & closingTags) -> bool
-		{
-			if(openingTags.size() != closingTags.size())
-			{
-				logGlobal->error("CMessage: Not Equal number opening and closing tags");
-				return false;
-			}
+	const auto openingBraces = getAllPositionsInStr('{', text);
+	const auto closingBraces = getAllPositionsInStr('}', text);
 
-			if(openingTags.empty())
-				return true;
-
-			auto closingPos = closingTags.begin();
-			size_t closingPrevPos = 0;
-			for(const auto & openingPos : openingTags)
-			{
-				if(openingPos >= *closingPos)
-				{
-					logGlobal->error("CMessage: Closing tag before opening tag");
-					return false;
-				}
-				if(openingPos < closingPrevPos)
-				{
-					logGlobal->error("CMessage: Tags inside another tags");
-					return false;
-				}
-				closingPrevPos = *closingPos++;
-			}
-			return true;
-		};
-
-	if(!validateTagsPositions(getAllPositionsInStr('{', text), getAllPositionsInStr('}', text)))
+	if(openingBraces.size() != closingBraces.size())
 	{
-		logGlobal->error("CMessage: Line validation Invalid: %s", text);
+		logGlobal->error("CMessage: Not Equal number opening and closing tags");
 		return false;
 	}
-	if(!validateTagsPositions(getAllPositionsInStr('#', text), getAllPositionsInStr('|', text)))
+
+	if(openingBraces.empty())
+		return true;
+
+	auto closingPos = closingBraces.begin();
+	size_t closingPrevPos = 0;
+	for(const auto & openingPos : openingBraces)
 	{
-		logGlobal->error("CMessage: Line validation Invalid: %s", text);
-		return false;
+		if(openingPos >= *closingPos)
+		{
+			logGlobal->error("CMessage: Line validation Invalid: Closing tag before opening tag %s", text);
+			return false;
+		}
+		if(openingPos < closingPrevPos)
+		{
+			logGlobal->error("CMessage: Line validation Invalid: Tags inside another tags %s", text);
+			return false;
+		}
+		closingPrevPos = *closingPos++;
 	}
 	return true;
 }
@@ -130,14 +118,12 @@ std::vector<CMessage::coloredline> CMessage::getPossibleLines(
 				if(const auto colorTextBegin = subLine.find('{'); colorTextBegin != std::string::npos)
 				{
 					foundWidth += fontPtr->getStringWidth("{");
-					// Opened color tag brace found. Try to find color code.
-					if(const auto colorTagBegin = colorTextBegin + 1; subLine[colorTagBegin] == '#')
+					// Opened color tag brace found. Try to find color tag.
+					if(const auto colorTagEnd = subLine.find('|'); colorTagEnd != std::string::npos)
 					{
-						const auto colorTagEnd = subLine.find('|');
-						assert(colorTagEnd != std::string::npos);
 						assert(subLine.find('}') > colorTagEnd);
-						foundWidth += fontPtr->getStringWidth(std::string(subLine.substr(colorTextBegin, colorTextBegin - colorTagEnd + 1)));
-						lastFoundColor = subLine.substr(colorTextBegin, colorTextBegin - colorTagEnd + 1);
+						lastFoundColor = subLine.substr(colorTextBegin, colorTagEnd - colorTextBegin + 1);
+						foundWidth += fontPtr->getStringWidth(std::string(lastFoundColor));
 					}
 					else
 					{
@@ -229,7 +215,7 @@ std::vector<std::string> CMessage::breakText(const std::string & text, size_t ma
 	std::vector<std::string> result;
 	if(maxLineWidth == 0)
 		return result;
-	if(!validateColorTags(text))
+	if(!validateColorBraces(text))
 		return result;
 
 	// Detect end of line symbol. If '\r\n', remove '\r'.
