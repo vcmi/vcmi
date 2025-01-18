@@ -1,18 +1,25 @@
 package eu.vcmi.vcmi.util;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.Exception;
 import java.util.List;
 
+import eu.vcmi.vcmi.Const;
 import eu.vcmi.vcmi.Storage;
 
 /**
@@ -103,5 +110,46 @@ public class FileUtil
         {
             target.write(buffer, 0, read);
         }
+    }
+
+    @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
+    private static void copyFileFromUri(String sourceFileUri, String destinationFile, Context context)
+    {
+        try
+        {
+            final InputStream inputStream = new FileInputStream(context.getContentResolver().openFileDescriptor(Uri.parse(sourceFileUri), "r").getFileDescriptor());
+            final OutputStream outputStream = new FileOutputStream(new File(destinationFile));
+
+            copyStream(inputStream, outputStream);
+        }
+        catch (IOException e)
+        {
+            Log.e("copyFileFromUri failed: ", e);
+        }
+    }
+
+    @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
+    private static String getFilenameFromUri(String sourceFileUri, Context context)
+    {
+        String fileName = "";
+        try
+        {
+            ContentResolver contentResolver = context.getContentResolver();
+            Cursor cursor = contentResolver.query(Uri.parse(sourceFileUri), null, null, null, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (nameIndex != -1) {
+                    fileName = cursor.getString(nameIndex);
+                }
+                cursor.close();
+            }
+        }
+        catch (Exception e)
+        {
+            Log.e("getFilenameFromUri failed: ", e);
+        }
+
+        return fileName;
     }
 }

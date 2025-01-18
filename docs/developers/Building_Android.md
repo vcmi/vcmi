@@ -68,3 +68,17 @@ cmake --build ../build
 ```
 
 You can also see a more detailed walkthrough on CMake configuration at [How to build VCMI (macOS)](./Building_macOS.md).
+
+## Docker
+
+For developing it's also possible to use Docker to build android APK. The only requirement is to have Docker installed. The container image contains all the other prerequisites.
+
+To build using docker just open a terminal with `vcmi` as working directory.
+
+Build the image with (only needed once):
+`docker build -f docker/BuildAndroid-aarch64.dockerfile -t vcmi-android-build .`
+
+After building the image you can compile vcmi with:
+`docker run -it --rm -v $PWD/:/vcmi vcmi-android-build`
+
+The current dockerfile is aarch64 only but can adjusted manually for armv7.

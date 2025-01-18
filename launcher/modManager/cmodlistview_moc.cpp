@@ -739,13 +739,15 @@ void CModListView::installFiles(QStringList files)
 	// TODO: some better way to separate zip's with mods and downloaded repository files
 	for(QString filename : files)
 	{
-		if(filename.endsWith(".zip", Qt::CaseInsensitive))
+		QString realFilename = Helper::getRealPath(filename);
+
+		if(realFilename.endsWith(".zip", Qt::CaseInsensitive))
 			mods.push_back(filename);
-		else if(filename.endsWith(".h3m", Qt::CaseInsensitive) || filename.endsWith(".h3c", Qt::CaseInsensitive) || filename.endsWith(".vmap", Qt::CaseInsensitive) || filename.endsWith(".vcmp", Qt::CaseInsensitive))
+		else if(realFilename.endsWith(".h3m", Qt::CaseInsensitive) || realFilename.endsWith(".h3c", Qt::CaseInsensitive) || realFilename.endsWith(".vmap", Qt::CaseInsensitive) || realFilename.endsWith(".vcmp", Qt::CaseInsensitive))
 			maps.push_back(filename);
-		if(filename.endsWith(".exe", Qt::CaseInsensitive))
+		if(realFilename.endsWith(".exe", Qt::CaseInsensitive))
 			exe.push_back(filename);
-		else if(filename.endsWith(".json", Qt::CaseInsensitive))
+		else if(realFilename.endsWith(".json", Qt::CaseInsensitive))
 		{
 			//download and merge additional files
 			JsonNode repoData = JsonUtils::jsonFromFile(filename);
@@ -773,7 +775,7 @@ void CModListView::installFiles(QStringList files)
 				JsonUtils::merge(accumulatedRepositoryData[modNameLower], repoData);
 			}
 		}
-		else if(filename.endsWith(".png", Qt::CaseInsensitive))
+		else if(realFilename.endsWith(".png", Qt::CaseInsensitive))
 			images.push_back(filename);
 	}
 

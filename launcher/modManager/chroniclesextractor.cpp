@@ -15,6 +15,7 @@
 #include "../../lib/filesystem/CArchiveLoader.h"
 
 #include "../innoextract.h"
+#include "../helper.h"
 
 ChroniclesExtractor::ChroniclesExtractor(QWidget *p, std::function<void(float percent)> cb) :
 	parent(p), cb(cb)
@@ -72,10 +73,15 @@ bool ChroniclesExtractor::extractGogInstaller(QString file)
 
 	if(!errorText.isEmpty())
 	{
+		logGlobal->error("Gog chronicles installer extraction failure! Reason: %s", errorText.toStdString());
+
 		QString hashError = Innoextract::getHashError(file, {}, {}, {});
 		QMessageBox::critical(parent, tr("Extracting error!"), errorText);
 		if(!hashError.isEmpty())
+		{
+			logGlobal->error("Hash error: %s", hashError.toStdString());
 			QMessageBox::critical(parent, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
+		}
 		return false;
 	}
 
@@ -226,14 +232,15 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 		if(!createTempDir())
 			continue;
 		
-		logGlobal->info("Copying offline installer");
 		// FIXME: this is required at the moment for Android (and possibly iOS)
 		// Incoming file names are in content URI form, e.g. content://media/internal/chronicles.exe
 		// Qt can handle those like it does regular files
 		// however, innoextract fails to open such files
 		// so make a copy in directory to which vcmi always has full access and operate on it
 		QString filepath = tempDir.filePath("chr.exe");
-		QFile(f).copy(filepath);
+		logGlobal->info("Copying offline installer from '%s' to '%s'", f.toStdString(), filepath.toStdString());
+
+		Helper::performNativeCopy(f, filepath);
 		QFile file(filepath);
 
 		logGlobal->info("Extracting offline installer");

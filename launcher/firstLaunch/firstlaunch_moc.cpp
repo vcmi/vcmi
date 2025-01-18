@@ -369,8 +369,9 @@ void FirstLaunchView::extractGogData()
 
 		QString tmpFileExe = tempDir.filePath("h3_gog.exe");
 		QString tmpFileBin = tempDir.filePath("h3_gog-1.bin");
-		QFile(fileExe).copy(tmpFileExe);
-		QFile(fileBin).copy(tmpFileBin);
+
+		Helper::performNativeCopy(fileExe, tmpFileExe);
+		Helper::performNativeCopy(fileBin, tmpFileBin);
 
 		logGlobal->info("Installing exe '%s' ('%s')", tmpFileExe.toStdString(), fileExe.toStdString());
 		logGlobal->info("Installing bin '%s' ('%s')", tmpFileBin.toStdString(), fileBin.toStdString());
@@ -414,9 +415,13 @@ void FirstLaunchView::extractGogData()
 		{
 			if(!errorText.isEmpty())
 			{
+				logGlobal->error("Gog installer extraction failure! Reason: %s", errorText.toStdString());
 				QMessageBox::critical(this, tr("Extracting error!"), errorText, QMessageBox::Ok, QMessageBox::Ok);
 				if(!hashError.isEmpty())
+				{
+					logGlobal->error("Hash error: %s", hashError.toStdString());
 					QMessageBox::critical(this, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
+				}
 			}
 			else
 				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
@@ -641,4 +646,3 @@ void FirstLaunchView::on_pushButtonGithub_clicked()
 {
 	QDesktopServices::openUrl(QUrl("https://github.com/vcmi/vcmi"));
 }
-
