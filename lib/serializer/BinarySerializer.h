@@ -301,28 +301,25 @@ public:
 	template <typename T>
 	void save(const std::set<T> &data)
 	{
-		auto & d = const_cast<std::set<T> &>(data);
-		uint32_t length = d.size();
+		uint32_t length = data.size();
 		save(length);
-		for(auto i = d.begin(); i != d.end(); i++)
+		for(auto i = data.begin(); i != data.end(); i++)
 			save(*i);
 	}
 	template <typename T, typename U>
 	void save(const std::unordered_set<T, U> &data)
 	{
-		auto & d = const_cast<std::unordered_set<T, U> &>(data);
-		uint32_t length = d.size();
+		uint32_t length = data.size();
 		*this & length;
-		for(auto i = d.begin(); i != d.end(); i++)
+		for(auto i = data.begin(); i != data.end(); i++)
 			save(*i);
 	}
 	template <typename T>
 	void save(const std::list<T> &data)
 	{
-		auto & d = const_cast<std::list<T> &>(data);
-		uint32_t length = d.size();
+		uint32_t length = data.size();
 		*this & length;
-		for(auto i = d.begin(); i != d.end(); i++)
+		for(auto i = data.begin(); i != data.end(); i++)
 			save(*i);
 	}
 
