@@ -1092,19 +1092,24 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 				}
 				if(!emptySlotFound) //try to put that atifact in already occupied slot
 				{
+					int64_t artifactScore = getArtifactScoreForHero(target, artifact);
+
 					for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
 					{
 						auto otherSlot = target->getSlot(slot);
 						if(otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
 						{
+							int64_t otherArtifactScore = getArtifactScoreForHero(target, otherSlot->artifact);
+							logAi->trace( "Comparing artifacts of %s: %s vs %s. Score: %d vs %d", target->getHeroTypeName(), artifact->getType()->getJsonKey(), otherSlot->artifact->getType()->getJsonKey(), artifactScore, otherArtifactScore);
+
 							//if that artifact is better than what we have, pick it
-							if(compareArtifacts(artifact, otherSlot->artifact)
-								&& artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
+							//combined artifacts are not always allowed to move
+							if(artifactScore > otherArtifactScore && artifact->canBePutAt(target, slot, true))
 							{
 								logAi->trace(
 									"Exchange artifacts %s <-> %s",
-									artifact->getType()->getNameTranslated(),
-									otherSlot->artifact->getType()->getNameTranslated());
+									artifact->getType()->getJsonKey(),
+									otherSlot->artifact->getType()->getJsonKey());
 
 								if(!otherSlot->artifact->canBePutAt(artHolder, location.slot, true))
 								{

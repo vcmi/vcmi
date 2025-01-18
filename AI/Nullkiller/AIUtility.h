@@ -213,7 +213,8 @@ bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet *, uint64_t dang
 
 bool compareHeroStrength(const CGHeroInstance * h1, const CGHeroInstance * h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
-bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
+int64_t getArtifactScoreForHero(const CGHeroInstance * hero, const CArtifactInstance * artifact);
+int64_t getPotentialArtifactScore(const CArtifact * art);
 bool townHasFreeTavern(const CGTownInstance * town);
 
 uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy);

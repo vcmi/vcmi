@@ -250,36 +250,7 @@ static uint64_t evaluateArtifactArmyValue(const CArtifact * art)
 	if(art->getId() == ArtifactID::SPELL_SCROLL)
 		return 1500;
 
-	auto statsValue =
-		10 * art->valOfBonuses(BonusType::MOVEMENT, BonusCustomSubtype::heroMovementLand)
-		+ 1200 * art->valOfBonuses(BonusType::STACKS_SPEED)
-		+ 700 * art->valOfBonuses(BonusType::MORALE)
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK))
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE))
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::KNOWLEDGE))
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::SPELL_POWER))
-		+ 500 * art->valOfBonuses(BonusType::LUCK);
-
-	auto classValue = 0;
-
-	switch(art->aClass)
-	{
-	case CArtifact::EartClass::ART_TREASURE:
-		//FALL_THROUGH
-	case CArtifact::EartClass::ART_MINOR:
-		classValue = 1000;
-		break;
-
-	case CArtifact::EartClass::ART_MAJOR:
-		classValue = 3000;
-		break;
-	case CArtifact::EartClass::ART_RELIC:
-	case CArtifact::EartClass::ART_SPECIAL:
-		classValue = 8000;
-		break;
-	}
-
-	return statsValue > classValue ? statsValue : classValue;
+	return getPotentialArtifactScore(art);
 }
 
 uint64_t RewardEvaluator::getArmyReward(
