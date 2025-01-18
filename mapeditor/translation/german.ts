@@ -580,7 +580,7 @@
         <location filename="../mainwindow.ui" line="1358"/>
         <location filename="../mainwindow.ui" line="1361"/>
         <source>h3c converter</source>
-        <translation type="unfinished">h3m-Konverter {3c?}</translation>
+        <translation>h3c-Konverter</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1366"/>
@@ -860,22 +860,22 @@
     <message>
         <location filename="../mainwindow.cpp" line="1402"/>
         <source>Select campaign to convert</source>
-        <translation type="unfinished"></translation>
+        <translation>Kampagne zur Konvertierung auswählen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1404"/>
         <source>HoMM3 campaigns (*.h3c)</source>
-        <translation type="unfinished"></translation>
+        <translation>HoMM3-Kampagnen (*.h3c)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1408"/>
         <source>Select destination file</source>
-        <translation type="unfinished"></translation>
+        <translation>Zieldatei auswählen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1410"/>
         <source>VCMI campaigns (*.vcmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI-Kampagnen (*.vcmp)</translation>
     </message>
 </context>
 <context>
@@ -1130,12 +1130,12 @@
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="164"/>
         <source>Default secondary skills:</source>
-        <translation type="unfinished"></translation>
+        <translation>Standard-Sekundärfähigkeiten:</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="169"/>
         <source>Secondary skills:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekundärfähigkeiten:</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="931"/>
@@ -1372,7 +1372,7 @@
         <location filename="../inspector/inspector.cpp" line="369"/>
         <location filename="../inspector/inspector.cpp" line="619"/>
         <source>Same as player</source>
-        <translation type="unfinished"></translation>
+        <translation>Gleich wie der Spieler</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="376"/>
@@ -1415,7 +1415,7 @@
     <message>
         <location filename="../inspector/inspector.cpp" line="917"/>
         <source>Select town</source>
-        <translation type="unfinished"></translation>
+        <translation>Stadt auswählen</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="429"/>
@@ -1508,167 +1508,167 @@
         <location filename="../inspector/herospellwidget.cpp" line="143"/>
         <location filename="../inspector/townspellswidget.cpp" line="175"/>
         <source>Custom Spells:</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Zaubersprüche:</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.cpp" line="152"/>
         <location filename="../inspector/townspellswidget.cpp" line="195"/>
         <source>Default Spells</source>
-        <translation type="unfinished"></translation>
+        <translation>Standard-Zaubersprüche</translation>
     </message>
     <message>
         <location filename="../inspector/portraitwidget.cpp" line="143"/>
         <source>Default</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="446"/>
         <source>Quest:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufgabe:</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="447"/>
         <source>Day of Week: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tag der Woche: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="448"/>
         <source>Days Passed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Verstrichene Tage: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="449"/>
         <location filename="../inspector/rewardswidget.cpp" line="768"/>
         <source>Hero Level: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Heldenstufe: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="450"/>
         <location filename="../inspector/rewardswidget.cpp" line="769"/>
         <source>Hero Experience: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Heldenerfahrung: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="451"/>
         <source>Mana Points: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Mana-Punkte: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="452"/>
         <location filename="../inspector/rewardswidget.cpp" line="771"/>
         <source>Mana Percentage: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Mana-Prozentsatz: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="453"/>
         <location filename="../inspector/rewardswidget.cpp" line="774"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
-        <translation type="unfinished"></translation>
+        <translation>Primäre Fertigkeiten: %1/%2/%3/%4</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="466"/>
         <location filename="../inspector/rewardswidget.cpp" line="786"/>
         <source>Resources: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ressourcen: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="473"/>
         <location filename="../inspector/rewardswidget.cpp" line="792"/>
         <source>Artifacts: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Artefakte: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="480"/>
         <location filename="../inspector/rewardswidget.cpp" line="798"/>
         <source>Spells: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaubersprüche: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="487"/>
         <location filename="../inspector/rewardswidget.cpp" line="804"/>
         <source>Secondary Skills: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekundäre Fertigkeiten: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="494"/>
         <location filename="../inspector/rewardswidget.cpp" line="810"/>
         <source>Creatures: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kreaturen: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="501"/>
         <source>Heroes: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Helden: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="508"/>
         <source>Hero Classes: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Helden-Klassen: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="517"/>
         <source>Players: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Spieler: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="764"/>
         <source>Rewards:</source>
-        <translation type="unfinished"></translation>
+        <translation>Belohnungen:</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="767"/>
         <source>Reward Message: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Belohnungsmeldung: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="770"/>
         <source>Mana Diff: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Mana-Differenz: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="772"/>
         <source>Move Points: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Bewegungspunkte: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="773"/>
         <source>Move Percentage: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozentsatz der Bewegung: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="813"/>
         <source>Spell Cast: %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zauberspruch gewirkt: %1 (%2)</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="820"/>
         <source>Bonuses: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Boni: %1</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.cpp" line="361"/>
         <source>Built buildings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gebaute Gebäude:</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.cpp" line="372"/>
         <source>Forbidden buildings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbotene Gebäude:</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.cpp" line="182"/>
         <source>Town Events:</source>
-        <translation type="unfinished"></translation>
+        <translation>Stadt-Ereignisse:</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.cpp" line="176"/>
         <source>Required:</source>
-        <translation type="unfinished"></translation>
+        <translation>Erforderlich:</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.cpp" line="183"/>
         <source>Possible:</source>
-        <translation type="unfinished"></translation>
+        <translation>Möglich:</translation>
     </message>
 </context>
 <context>
@@ -2315,7 +2315,7 @@
     <message>
         <location filename="../inspector/towneventswidget.cpp" line="186"/>
         <source>Day %1 - %2</source>
-        <translation type="unfinished">Tag %1 - %2</translation>
+        <translation>Tag %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -2751,27 +2751,27 @@
     <message>
         <location filename="../windownewmap.ui" line="239"/>
         <source>Standard size</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardgröße</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="264"/>
         <source>Custom size</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Größe</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="289"/>
         <source>Underground</source>
-        <translation type="unfinished"></translation>
+        <translation>Untergrund</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="412"/>
         <source>Humans</source>
-        <translation type="unfinished"></translation>
+        <translation>Menschen</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="475"/>
         <source>Computers</source>
-        <translation type="unfinished"></translation>
+        <translation>Computer</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="541"/>
@@ -2848,7 +2848,7 @@
     <message>
         <location filename="../windownewmap.ui" line="1025"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Ok</source>
