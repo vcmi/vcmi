@@ -68,7 +68,12 @@ In order to make functional artifact you also need:
 		"artifact3"
 	],
 	
-	// Optional, by default is false. Set to true if components are supposed to be fused. 
+    // Optional, by default is false. Set to true if components are supposed to be fused.
+	// When artifact is fused, all its components are removed and hero receives fused artifact in their place.
+	// As result of this, fused artifact:
+	// - can not be disassembled
+	// - does not locks slots of its components, like normal artifact
+	// - does not inherits bonuses from its constituent parts
 	"fusedComponents" : true,
 
 	// Creature id to use on battle field. If set, this artifact is war machine
