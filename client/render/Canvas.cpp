@@ -218,7 +218,7 @@ void Canvas::fillTexture(const std::shared_ptr<IImage>& image)
 	for (int y=0; y < surface->h; y+= imageArea.h)
 	{
 		for (int x=0; x < surface->w; x+= imageArea.w)
-			image->draw(surface, Point(renderArea.x + x, renderArea.y + y));
+			image->draw(surface, Point(renderArea.x + x * getScalingFactor(), renderArea.y + y * getScalingFactor()));
 	}
 }
 
