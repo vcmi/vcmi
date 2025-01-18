@@ -38,7 +38,7 @@ endif()
 
 # Platform-independent options
 
-option(ENABLE_HTML5_BUILD "Enable HTML5 subset of game" ON)
+option(ENABLE_HTML5_BUILD "Enable HTML5 subset of game" OFF)
 option(ENABLE_CLIENT "Enable compilation of game client" ON)
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
