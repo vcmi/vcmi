@@ -80,6 +80,12 @@ void MapViewActions::showPopupWindow(const Point & cursorPosition)
 		adventureInt->onTileRightClicked(tile);
 }
 
+void MapViewActions::closePopupWindow(bool alreadyClosed)
+{
+	if(alreadyClosed)
+		dragActive = false;
+}
+
 void MapViewActions::mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
 	handleHover(cursorPosition);
@@ -103,6 +109,7 @@ void MapViewActions::mouseDragged(const Point & cursorPosition, const Point & la
 
 void MapViewActions::mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
+	dragActive = true;
 	owner.onMapSwiped(lastUpdateDistance);
 }
 

@@ -201,10 +201,20 @@ void EventDispatcher::dispatchShowPopup(const Point & position, int tolerance)
 
 void EventDispatcher::dispatchClosePopup(const Point & position)
 {
-	if (GH.windows().isTopWindowPopup())
-		GH.windows().popWindows(1);
+	bool popupOpen = GH.windows().isTopWindowPopup(); // popup can already be closed for mouse dragging with RMB
 
-	assert(!GH.windows().isTopWindowPopup());
+	auto hlp = rclickable;
+
+	for(auto & i : hlp)
+	{
+		if(!vstd::contains(rclickable, i))
+			continue;
+
+		i->closePopupWindow(!popupOpen);
+	}
+
+	if(popupOpen)
+		GH.windows().popWindows(1);
 }
 
 void EventDispatcher::handleLeftButtonClick(const Point & position, int tolerance, bool isPressed)

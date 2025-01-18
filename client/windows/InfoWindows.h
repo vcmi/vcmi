@@ -93,20 +93,27 @@ public:
 	void mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 };
 
+/// adventure map popup
+class AdventureMapPopup : public CWindowObject
+{
+	Point dragDistance;
+
+public:
+	template<typename... Args>
+	AdventureMapPopup(Args&&... args);
+	void mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance) override;
+};
+
 /// popup on adventure map for town\hero and other objects with customized popup content
-class CInfoBoxPopup : public CWindowObject
+class CInfoBoxPopup : public AdventureMapPopup
 {
 	std::shared_ptr<CIntObject> tooltip;
-
-	Point dragDistance;
 
 public:
 	CInfoBoxPopup(Point position, const CGTownInstance * town);
 	CInfoBoxPopup(Point position, const CGHeroInstance * hero);
 	CInfoBoxPopup(Point position, const CGGarrison * garr);
 	CInfoBoxPopup(Point position, const CGCreature * creature);
-
-	void mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 };
 
 /// component selection window
@@ -134,7 +141,7 @@ public:
 	void addIcon(const int3 & coordinates, const ImagePath & image);
 };
 
-class TeleporterPopup : public CWindowObject
+class TeleporterPopup : public AdventureMapPopup
 {
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
 	std::shared_ptr<MinimapWithIcons> minimap;
@@ -144,7 +151,7 @@ public:
 	TeleporterPopup(const Point & position, const CGTeleport * teleporter);
 };
 
-class KeymasterPopup : public CWindowObject
+class KeymasterPopup : public AdventureMapPopup
 {
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
 	std::shared_ptr<MinimapWithIcons> minimap;
@@ -155,7 +162,7 @@ public:
 	KeymasterPopup(const Point & position, const CGKeys * keymasterOrGuard);
 };
 
-class ObeliskPopup : public CWindowObject
+class ObeliskPopup : public AdventureMapPopup
 {
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
 	std::shared_ptr<MinimapWithIcons> minimap;
