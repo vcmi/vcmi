@@ -16,6 +16,7 @@ VCMI_LIB_NAMESPACE_END
 class AssetGenerator
 {
 public:
+	static void clear();
 	static void generateAll();
 	static void createAdventureOptionsCleanBackground();
 	static void createBigSpellBook();
