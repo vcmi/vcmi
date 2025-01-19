@@ -72,7 +72,7 @@ In order to make functional artifact you also need:
 	// When artifact is fused, all its components are removed and hero receives fused artifact in their place.
 	// As result of this, fused artifact:
 	// - can not be disassembled
-	// - does not locks slots of its components, like normal artifact
+	// - unlike combined artifacts, fused artifact does not locks slots of its components
 	// - does not inherits bonuses from its constituent parts
 	"fusedComponents" : true,
 
