@@ -443,14 +443,10 @@ void Nullkiller::makeTurn()
 			decompose(bestTasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
 		TTaskVec selectedTasks;
-#if NKAI_TRACE_LEVEL >= 1
 		int prioOfTask = 0;
-#endif
-		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::DEFEND; ++prio)
+		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 		{
-#if NKAI_TRACE_LEVEL >= 1
 			prioOfTask = prio;
-#endif
 			selectedTasks = buildPlan(bestTasks, prio);
 			if (!selectedTasks.empty() || settings->isUseFuzzy())
 				break;
@@ -528,12 +524,6 @@ void Nullkiller::makeTurn()
 #if NKAI_TRACE_LEVEL >= 1
 			logAi->info("Pass %d: Performing prio %d task %s with prio: %d", i, prioOfTask, bestTask->toString(), bestTask->priority);
 #endif
-			int totalMPBefore = 0;
-			int totalMPAfter = 0;
-			for (auto hero : cb->getHeroesInfo(true))
-			{
-				totalMPBefore += hero->movementPointsRemaining();
-			}
 			if(!executeTask(bestTask))
 			{
 				if(hasAnySuccess)
@@ -541,12 +531,10 @@ void Nullkiller::makeTurn()
 				else
 					return;
 			}
-			for (auto hero : cb->getHeroesInfo(true))
+			else
 			{
-				totalMPAfter +=	hero->movementPointsRemaining();
-			}
-			if(totalMPBefore > totalMPAfter)
 				hasAnySuccess = true;
+			}
 		}
 
 		hasAnySuccess |= handleTrading();

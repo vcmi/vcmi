@@ -477,7 +477,7 @@ void ObjectClusterizer::clusterizeObject(
 
 				heroesProcessed.insert(path.targetHero);
 
-				for (int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::DEFEND; ++prio)
+				for (int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 				{
 					priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
 				}
@@ -503,7 +503,7 @@ void ObjectClusterizer::clusterizeObject(
 
 		heroesProcessed.insert(path.targetHero);
 
-		for (int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::DEFEND; ++prio)
+		for (int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 		{
 			priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
 		}
