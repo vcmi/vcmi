@@ -93,7 +93,7 @@ static void init()
 
 	// Debug code to load all maps on start
 	//ClientCommandManager commandController;
-	//commandController.processCommand("convert txt", false);
+	//commandController.processCommand("translate maps", false);
 }
 
 static void checkForModLoadingFailure()
