@@ -212,10 +212,17 @@ void CAnimation::createFlippedGroup(const size_t sourceGroup, const size_t targe
 
 ImageLocator CAnimation::getImageLocator(size_t frame, size_t group) const
 {
-	const ImageLocator & locator = source.at(group).at(frame);
+	try
+	{
+		const ImageLocator & locator = source.at(group).at(frame);
 
-	if (!locator.empty())
-		return locator;
+		if (!locator.empty())
+			return locator;
+	}
+	catch (std::out_of_range &)
+	{
+		throw std::runtime_error("Frame " + std::to_string(frame) + " of group " + std::to_string(group) + " is missing from animation " + name.getOriginalName() );
+	}
 
 	return ImageLocator(name, frame, group);
 }

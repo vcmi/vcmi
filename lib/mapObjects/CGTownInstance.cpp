@@ -394,8 +394,15 @@ void CGTownInstance::initializeConfigurableBuildings(vstd::RNG & rand)
 {
 	for(const auto & kvp : getTown()->buildings)
 	{
-		if(!kvp.second->rewardableObjectInfo.getParameters().isNull())
+		if(kvp.second->rewardableObjectInfo.getParameters().isNull())
+			continue;
+
+		try {
 			rewardableBuildings[kvp.first] = new TownRewardableBuildingInstance(this, kvp.second->bid, rand);
+		}
+		catch (std::runtime_error & e) {
+			throw std::runtime_error("Failed to load rewardable building data for " + kvp.second->getJsonKey() + " Reason: " + e.what());
+		}
 	}
 }
 
