@@ -1191,7 +1191,7 @@ public:
 		Goals::BuildThis & buildThis = dynamic_cast<Goals::BuildThis &>(*task);
 		auto & bi = buildThis.buildingInfo;
 		
-		evaluationContext.goldReward += 7 * bi.dailyIncome[EGameResID::GOLD] / 2; // 7 day income but half we already have
+		evaluationContext.goldReward += 7 * bi.dailyIncome.marketValue() / 2; // 7 day income but half we already have
 		evaluationContext.heroRole = HeroRole::MAIN;
 		evaluationContext.movementCostByRole[evaluationContext.heroRole] += bi.prerequisitesCount;
 		int32_t cost = bi.buildCost[EGameResID::GOLD];
