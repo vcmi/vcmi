@@ -890,6 +890,11 @@ public:
 
 		Goals::StayAtTown& stayAtTown = dynamic_cast<Goals::StayAtTown&>(*task);
 
+		if (stayAtTown.getHero() != nullptr && stayAtTown.getHero()->movementPointsRemaining() < 100)
+		{
+			return;
+		}
+
 		if(stayAtTown.town->mageGuildLevel() > 0)
 			evaluationContext.armyReward += evaluationContext.evaluator.getManaRecoveryArmyReward(stayAtTown.getHero());
 
@@ -1211,6 +1216,19 @@ public:
 		evaluationContext.goldCost += cost;
 		evaluationContext.closestWayRatio = 1;
 		evaluationContext.buildingCost += bi.buildCostWithPrerequisites;
+
+		bool alreadyOwn = false;
+		int highestMageGuildPossible = BuildingID::MAGES_GUILD_3;
+		for (auto town : evaluationContext.evaluator.ai->cb->getTownsInfo())
+		{
+			if (town->hasBuilt(bi.id))
+				alreadyOwn = true;
+			if (evaluationContext.evaluator.ai->cb->canBuildStructure(town, BuildingID::MAGES_GUILD_5) != EBuildingState::FORBIDDEN)
+				highestMageGuildPossible = BuildingID::MAGES_GUILD_5;
+			else if (evaluationContext.evaluator.ai->cb->canBuildStructure(town, BuildingID::MAGES_GUILD_4) != EBuildingState::FORBIDDEN)
+				highestMageGuildPossible = BuildingID::MAGES_GUILD_4;
+		}
+
 		if (bi.id == BuildingID::MARKETPLACE || bi.dailyIncome[EGameResID::WOOD] > 0)
 			evaluationContext.isTradeBuilding = true;
 
@@ -1236,6 +1254,8 @@ public:
 					evaluationContext.armyReward += bi.armyStrength - evaluationContext.evaluator.ai->armyManager->evaluateStackPower(bi.baseCreatureID.toCreature(), bi.creatureGrows);
 				else //This is for prerequisite-buildings
 					evaluationContext.armyReward += evaluationContext.evaluator.ai->armyManager->evaluateStackPower(bi.baseCreatureID.toCreature(), bi.creatureGrows);
+				if(alreadyOwn)
+					evaluationContext.armyReward /= bi.buildCostWithPrerequisites.marketValue();
 			}
 		}
 		else if(bi.id == BuildingID::CITADEL || bi.id == BuildingID::CASTLE)
@@ -1246,17 +1266,6 @@ public:
 		else if(bi.id >= BuildingID::MAGES_GUILD_1 && bi.id <= BuildingID::MAGES_GUILD_5)
 		{
 			evaluationContext.skillReward += 2 * (bi.id - BuildingID::MAGES_GUILD_1);
-			bool alreadyOwn = false;
-			int highestMageGuildPossible = BuildingID::MAGES_GUILD_3;
-			for (auto town : evaluationContext.evaluator.ai->cb->getTownsInfo())
-			{
-				if (town->hasBuilt(bi.id))
-					alreadyOwn = true;
-				if (evaluationContext.evaluator.ai->cb->canBuildStructure(town, BuildingID::MAGES_GUILD_5) != EBuildingState::FORBIDDEN)
-					highestMageGuildPossible = BuildingID::MAGES_GUILD_5;
-				else if (evaluationContext.evaluator.ai->cb->canBuildStructure(town, BuildingID::MAGES_GUILD_4) != EBuildingState::FORBIDDEN)
-					highestMageGuildPossible = BuildingID::MAGES_GUILD_4;
-			}
 			if (!alreadyOwn && evaluationContext.evaluator.ai->cb->canBuildStructure(buildThis.town, highestMageGuildPossible) != EBuildingState::FORBIDDEN)
 			{
 				for (auto hero : evaluationContext.evaluator.ai->cb->getHeroesInfo())
@@ -1394,6 +1403,20 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	else
 	{
 		float score = 0;
+		bool currentPositionThreatened = false;
+		if (task->hero)
+		{
+			auto currentTileThreat = ai->dangerHitMap->getTileThreat(task->hero->visitablePos());
+			if (currentTileThreat.fastestDanger.turn < 1 && currentTileThreat.fastestDanger.danger > task->hero->getTotalStrength())
+				currentPositionThreatened = true;
+		}
+		if (priorityTier == PriorityTier::FAR_HUNTER_GATHER && currentPositionThreatened == false)
+		{
+#if NKAI_TRACE_LEVEL >= 2
+			logAi->trace("Skip FAR_HUNTER_GATHER because hero is not threatened.");
+#endif
+			return 0;
+		}
 		const bool amIInDanger = ai->cb->getTownsInfo().empty();
 		const float maxWillingToLose = amIInDanger ? 1 : ai->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio > 0 ? ai->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio : 1.0;
 		float dangerThreshold = 1;
@@ -1404,7 +1427,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			arriveNextWeek = true;
 
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, maxWillingToLose: %f, turn: %d, turns main: %f, scout: %f, army-involvement: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, explorePriority: %d isDefend: %d isEnemy: %d arriveNextWeek: %d powerRatio: %f",
+		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, maxWillingToLose: %f, turn: %d, turns main: %f, scout: %f, army-involvement: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, dangerThreshold: %f explorePriority: %d isDefend: %d isEnemy: %d arriveNextWeek: %d powerRatio: %f",
 			priorityTier,
 			task->toString(),
 			evaluationContext.armyLossPersentage,
@@ -1426,6 +1449,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			evaluationContext.conquestValue,
 			evaluationContext.closestWayRatio,
 			evaluationContext.enemyHeroDangerRatio,
+			dangerThreshold,
 			evaluationContext.explorePriority,
 			evaluationContext.isDefend,
 			evaluationContext.isEnemy,
@@ -1453,6 +1477,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			}
 			case PriorityTier::INSTADEFEND: //Defend immediately threatened towns
 			{
+				//No point defending if we don't have defensive-structures
+				if (evaluationContext.defenseValue < 2)
+					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
 				if (evaluationContext.closestWayRatio < 1.0)
@@ -1467,8 +1494,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				//FALL_THROUGH
 			case PriorityTier::FAR_KILL:
 			{
-				if (!evaluationContext.isEnemy)
-					return 0;
 				if (evaluationContext.turn > 0 && evaluationContext.isHero)
 					return 0;
 				if (arriveNextWeek && evaluationContext.isEnemy)
@@ -1503,15 +1528,15 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				//FALL_THROUGH
 			case PriorityTier::FAR_HUNTER_GATHER:
 			{
-				if (evaluationContext.enemyHeroDangerRatio > dangerThreshold && !evaluationContext.isDefend)
+				if (evaluationContext.enemyHeroDangerRatio > dangerThreshold && !evaluationContext.isDefend && priorityTier != PriorityTier::FAR_HUNTER_GATHER)
 					return 0;
 				if (evaluationContext.buildingCost.marketValue() > 0)
 					return 0;
-				if (evaluationContext.isDefend && (evaluationContext.enemyHeroDangerRatio < dangerThreshold || evaluationContext.threatTurns > 0 || evaluationContext.turn > 0))
+				if (priorityTier != PriorityTier::FAR_HUNTER_GATHER && evaluationContext.isDefend && (evaluationContext.enemyHeroDangerRatio > dangerThreshold || evaluationContext.threatTurns > 0 || evaluationContext.turn > 0))
 					return 0;
 				if (evaluationContext.explorePriority == 3)
 					return 0;
-				if ((evaluationContext.enemyHeroDangerRatio > 0 && arriveNextWeek) || evaluationContext.enemyHeroDangerRatio > dangerThreshold)
+				if (priorityTier != PriorityTier::FAR_HUNTER_GATHER && ((evaluationContext.enemyHeroDangerRatio > 0 && arriveNextWeek) || evaluationContext.enemyHeroDangerRatio > dangerThreshold))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
@@ -1529,6 +1554,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					score = 1000;
 					if (evaluationContext.movementCost > 0)
 						score /= evaluationContext.movementCost;
+					if(PriorityTier::FAR_HUNTER_GATHER && evaluationContext.enemyHeroDangerRatio > 0)
+						score /= evaluationContext.enemyHeroDangerRatio;
 				}
 				break;
 			}
