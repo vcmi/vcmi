@@ -111,9 +111,12 @@ flatpak run --command=vcmibuilder eu.vcmi.VCMI --data /path/to/h3/data`
 
 ### Install data using gog.com offline installer
 
-Download both files for the "offline backup game installers" and extract them using innoextract tool
+Download both files for the "offline backup game installers" and extract them using innoextract tool.
 
 You can select both downloaded files in launcher to extract automatically.
+
+gog.com download page:
+![GoG-Installer](images/gog_offline_installer.png)
 
 Alternatively you can use the classic way:
 
