@@ -92,19 +92,6 @@ std::unique_ptr<CMapHeader> CMapLoaderH3M::loadMapHeader()
 
 void CMapLoaderH3M::init()
 {
-	//TODO: get rid of double input process
-	si64 temp_size = inputStream->getSize();
-	inputStream->seek(0);
-
-	auto * temp_buffer = new ui8[temp_size];
-	inputStream->read(temp_buffer, temp_size);
-
-	// Compute checksum
-	boost::crc_32_type result;
-	result.process_bytes(temp_buffer, temp_size);
-	map->checksum = result.checksum();
-
-	delete[] temp_buffer;
 	inputStream->seek(0);
 
 	readHeader();

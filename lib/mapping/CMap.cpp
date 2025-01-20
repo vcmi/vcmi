@@ -178,7 +178,6 @@ EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 
 CMap::CMap(IGameCallback * cb)
 	: GameCallbackHolder(cb)
-	, checksum(0)
 	, grailPos(-1, -1, -1)
 	, grailRadius(0)
 	, waterMap(false)
