@@ -116,6 +116,22 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 		objectTemplate.subid = mappedType.subID;
 	}
 
+	if (VLC->objtypeh->knownObjects().count(objectTemplate.id) == 0)
+	{
+		logGlobal->warn("Unknown object found: %d | %d", objectTemplate.id, objectTemplate.subid);
+
+		objectTemplate.id = Obj::NOTHING;
+		objectTemplate.subid = {};
+	}
+	else
+	{
+		if (VLC->objtypeh->knownSubObjects(objectTemplate.id).count(objectTemplate.subid) == 0)
+		{
+			logGlobal->warn("Unknown subobject found: %d | %d", objectTemplate.id, objectTemplate.subid);
+			objectTemplate.subid = {};
+		}
+	}
+
 	if (objectTemplate.id == Obj::TOWN || objectTemplate.id == Obj::RANDOM_DWELLING_FACTION)
 		objectTemplate.subid = remap(FactionID(objectTemplate.subid));
 
