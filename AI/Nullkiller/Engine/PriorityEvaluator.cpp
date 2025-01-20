@@ -1554,7 +1554,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					score = 1000;
 					if (evaluationContext.movementCost > 0)
 						score /= evaluationContext.movementCost;
-					if(PriorityTier::FAR_HUNTER_GATHER && evaluationContext.enemyHeroDangerRatio > 0)
+					if(priorityTier == PriorityTier::FAR_HUNTER_GATHER && evaluationContext.enemyHeroDangerRatio > 0)
 						score /= evaluationContext.enemyHeroDangerRatio;
 				}
 				break;
