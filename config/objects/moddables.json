@@ -96,13 +96,15 @@
 			}
 		},
 		"types" : {
-			"wood" :    { "index" : 0, "aiValue" : 1400, "rmg" : { "value" : 1400, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTwood0.def" } } },
-			"mercury" : { "index" : 1, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTmerc0.def" } } },
-			"ore" :     { "index" : 2, "aiValue" : 1400, "rmg" : { "value" : 1400, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTore0.def"  } } },
-			"sulfur" :  { "index" : 3, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTsulf0.def" } } },
-			"crystal" : { "index" : 4, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTcrys0.def" } } },
-			"gems" :    { "index" : 5, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgems0.def" } } },
-			"gold" :    { "index" : 6, "aiValue" : 750, "rmg" : { "value" : 750,  "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgold0.def" } } }
+			"wood" :    { "index" : 0, "aiValue" : 1400, "resource" : "wood", "amounts" : [ 6,7,8,9,10], "rmg" : { "value" : 1400, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTwood0.def" } } },
+			"ore" :     { "index" : 2, "aiValue" : 1400, "resource" : "ore",  "amounts" : [ 6,7,8,9,10], "rmg" : { "value" : 1400, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTore0.def"  } } },
+
+			"mercury" : { "index" : 1, "aiValue" : 2000, "resource" : "mercury", "amounts" : [ 3,4,5], "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTmerc0.def" } } },
+			"sulfur" :  { "index" : 3, "aiValue" : 2000, "resource" : "sulfur",  "amounts" : [ 3,4,5], "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTsulf0.def" } } },
+			"crystal" : { "index" : 4, "aiValue" : 2000, "resource" : "crystal", "amounts" : [ 3,4,5], "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTcrys0.def" } } },
+			"gems" :    { "index" : 5, "aiValue" : 2000, "resource" : "gems",    "amounts" : [ 3,4,5], "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgems0.def" } } },
+
+			"gold" :    { "index" : 6, "aiValue" : 750,  "resource" : "gold", "amounts" : [ 5,6,7,8,9,10], "amountMultiplier" : 100, "rmg" : { "value" : 750,  "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgold0.def" } } }
 		}
 	},
 	

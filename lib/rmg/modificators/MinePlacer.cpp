@@ -12,6 +12,7 @@
 #include "../RmgMap.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../mapObjects/CGResource.h"
 #include "../../mapObjects/MiscObjects.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../RmgPath.h"
@@ -91,7 +92,6 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 			for(int rc = zone.getRand().nextInt(1, extraRes); rc > 0; --rc)
 			{
 				auto * resource = dynamic_cast<CGResource *>(VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(map.mapInstance->cb, nullptr));
-				resource->amount = CGResource::RANDOM_AMOUNT;
 
 				RequiredObjectInfo roi;
 				roi.obj = resource;

@@ -17,6 +17,7 @@
 #include "../lib/int3.h"
 #include "../lib/GameConstants.h"
 #include "../lib/mapObjects/CGCreature.h"
+#include "../lib/mapObjects/CGResource.h"
 #include "../lib/mapObjects/MapObjects.h"
 #include "../lib/mapObjects/FlaggableMapObject.h"
 #include "../lib/mapObjects/CRewardableObject.h"
@@ -43,7 +44,6 @@ public:
 	DECLARE_OBJ_TYPE(CGTownInstance);
 	DECLARE_OBJ_TYPE(CGArtifact);
 	DECLARE_OBJ_TYPE(CGMine);
-	DECLARE_OBJ_TYPE(CGResource);
 	DECLARE_OBJ_TYPE(CGDwelling);
 	DECLARE_OBJ_TYPE(CGGarrison);
 	DECLARE_OBJ_TYPE(CGHeroPlaceholder);

@@ -14,7 +14,7 @@
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
-#include "../../../lib/mapObjects/MapObjects.h"
+#include "../../../lib/mapObjects/CGResource.h"
 #include "../../../lib/mapping/CMapDefines.h"
 #include "../../../lib/RoadHandler.h"
 #include "../../../lib/CCreatureHandler.h"
@@ -508,7 +508,7 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target, cons
 	{
 		auto resource = dynamic_cast<const CGResource *>(target);
 		TResources res;
-		res[resource->resourceID()] = resource->amount;
+		res[resource->resourceID()] = resource->getAmount();
 		
 		return getResourceRequirementStrength(res);
 	}
