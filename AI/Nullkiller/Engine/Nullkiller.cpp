@@ -547,6 +547,9 @@ void Nullkiller::makeTurn()
 			return;
 		}
 
+		for (auto heroInfo : cb->getHeroesInfo())
+			gateway->pickBestArtifacts(heroInfo);
+
 		if(i == settings->getMaxPass())
 		{
 			logAi->warn("Maxpass exceeded. Terminating AI turn.");
