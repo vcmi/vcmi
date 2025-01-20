@@ -484,9 +484,9 @@
 			// if enabled, pathfinder will take use of any bidirectional monoliths 
 			"useMonolithTwoWay" : true,
 			// if enabled, pathfinder will take use of one-way monolith that only have one known exit
-			"useMonolithOneWayUnique" : false,
+			"useMonolithOneWayUnique" : true,
 			// if enabled, pathfinder will take use of one-way monoliths with multiple exits.
-			"useMonolithOneWayRandom" : false,
+			"useMonolithOneWayRandom" : true,
 			// if enabled and hero has whirlpool protection effect, pathfinder will take use of whirpools
 			"useWhirlpool" : true,
 			// if enabled flying will work like in original game, otherwise nerf similar to HotA flying is applied

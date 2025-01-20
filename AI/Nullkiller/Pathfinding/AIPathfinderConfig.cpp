@@ -50,6 +50,8 @@ namespace AIPathfinding
 		options.allowLayerTransitioningAfterBattle = true;
 		options.useTeleportWhirlpool = true;
 		options.forceUseTeleportWhirlpool = true;
+		options.useTeleportOneWay = true;
+		options.useTeleportOneWayRandom = true;
 	}
 
 	AIPathfinderConfig::~AIPathfinderConfig() = default;
