@@ -1024,7 +1024,7 @@ AccessibilityInfo CBattleInfoCallback::getAccessibility() const
 
 AccessibilityInfo CBattleInfoCallback::getAccessibility(const battle::Unit * stack) const
 {
-	return getAccessibility(battle::Unit::getHexes(stack->getPosition(), stack->doubleWide(), stack->unitSide()));
+	return getAccessibility(stack->getHexes());
 }
 
 AccessibilityInfo CBattleInfoCallback::getAccessibility(const BattleHexArray & accessibleHexes) const
@@ -1458,7 +1458,7 @@ battle::Units CBattleInfoCallback::getAttackedBattleUnits(
 		if (unit->isGhost() || !unit->alive())
 			return false;
 
-		for (const BattleHex & hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()))
+		for (const BattleHex & hex : unit->getHexes())
 		{
 			if (at.hostileCreaturePositions.contains(hex))
 				return true;

@@ -68,19 +68,13 @@ const BattleHexArray & Unit::getSurroundingHexes(const BattleHex & position, boo
 
 BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
 {
-	const BattleHexArray & defenderHexes = battle::Unit::getHexes(
-		getPosition(),
-		doubleWide(),
-		unitSide());
+	const BattleHexArray & defenderHexes = getHexes();
 	
 	BattleHexArray targetableHexes;
 
 	for(const auto & defenderHex : defenderHexes)
 	{
-		auto hexes = battle::Unit::getHexes(
-			defenderHex,
-			attacker->doubleWide(),
-			unitSide());
+		auto hexes = battle::Unit::getHexes(defenderHex);
 
 		if(hexes.size() == 2 && BattleHex::getDistance(hexes.front(), hexes.back()) != 1)
 			hexes.pop_back();

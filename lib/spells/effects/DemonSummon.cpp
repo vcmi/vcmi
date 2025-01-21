@@ -107,7 +107,7 @@ bool DemonSummon::isValidTarget(const Mechanics * m, const battle::Unit * unit) 
 		return false;
 
 	//check if alive unit blocks rising
-	for(const BattleHex & hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()))
+	for(const BattleHex & hex : unit->getHexes())
 	{
 		auto blocking = m->battle()->battleGetUnitsIf([hex, unit](const battle::Unit * other)
 		{
