@@ -182,6 +182,9 @@ void CPlayerInterface::closeAllDialogs()
 		if(infoWindow && infoWindow->ID != QueryID::NONE)
 			break;
 
+		if (topWindow == nullptr)
+			throw std::runtime_error("Invalid or non-existing top window! Total windows: " + std::to_string(GH.windows().count()));
+
 		topWindow->close();
 	}
 }

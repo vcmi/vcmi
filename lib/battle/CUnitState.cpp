@@ -525,7 +525,7 @@ bool CUnitState::isCaster() const
 
 bool CUnitState::canShootBlocked() const
 {
-	return bonusCache.getBonusValue(UnitBonusValuesProxy::HAS_FREE_SHOOTING);
+	return bonusCache.hasBonus(UnitBonusValuesProxy::HAS_FREE_SHOOTING);
 }
 
 bool CUnitState::canShoot() const

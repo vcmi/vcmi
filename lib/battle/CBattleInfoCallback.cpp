@@ -1717,6 +1717,8 @@ battle::Units CBattleInfoCallback::battleAdjacentUnits(const battle::Unit * unit
 
 	const auto & units = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
+		if (unit->isDead())
+			return false;
 		const auto & unitHexes = unit->getHexes();
 		for (const auto & hex : unitHexes)
 			if (hexes.contains(hex))

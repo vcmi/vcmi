@@ -67,7 +67,11 @@ void ResourceSet::positive()
 void ResourceSet::applyHandicap(int percentage)
 {
 	for(auto & elem : *this)
-		elem = vstd::divideAndCeil(elem * percentage, 100);
+	{
+		int64_t newAmount = vstd::divideAndCeil(static_cast<int64_t>(elem) * percentage, 100);
+		int64_t cap = GameConstants::PLAYER_RESOURCES_CAP;
+		elem = std::min(cap, newAmount);
+	}
 }
 
 static bool canAfford(const ResourceSet &res, const ResourceSet &price)

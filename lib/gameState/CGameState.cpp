@@ -884,41 +884,45 @@ void CGameState::initTowns()
 		//init spells
 		vti->spells.resize(GameConstants::SPELL_LEVELS);
 		vti->possibleSpells -= SpellID::PRESET;
+
 		for(ui32 z=0; z<vti->obligatorySpells.size();z++)
 		{
 			const auto * s = vti->obligatorySpells[z].toSpell();
 			vti->spells[s->getLevel()-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}
+
+		vstd::erase_if(vti->possibleSpells, [&](const SpellID & spellID)
+		{
+			const auto * spell = spellID.toSpell();
+
+			if (spell->getProbability(vti->getFactionID()) == 0)
+				return true;
+
+			if (spell->isSpecial() || spell->isCreatureAbility())
+				return true;
+
+			if (!isAllowed(spellID))
+				return true;
+
+			return false;
+		});
+
+		std::vector<int> spellWeights;
+		for (auto & spellID : vti->possibleSpells)
+			spellWeights.push_back(spellID.toSpell()->getProbability(vti->getFactionID()));
+
+
 		while(!vti->possibleSpells.empty())
 		{
-			ui32 total=0;
-			int sel = -1;
+			size_t index = RandomGeneratorUtil::nextItemWeighted(spellWeights, getRandomGenerator());
 
-			for(ui32 ps=0;ps<vti->possibleSpells.size();ps++)
-				total += vti->possibleSpells[ps].toSpell()->getProbability(vti->getFactionID());
-
-			if (total == 0) // remaining spells have 0 probability
-				break;
-
-			auto r = getRandomGenerator().nextInt(total - 1);
-			for(ui32 ps=0; ps<vti->possibleSpells.size();ps++)
-			{
-				r -= vti->possibleSpells[ps].toSpell()->getProbability(vti->getFactionID());
-				if(r<0)
-				{
-					sel = ps;
-					break;
-				}
-			}
-			if(sel<0)
-				sel=0;
-
-			const auto * s = vti->possibleSpells[sel].toSpell();
+			const auto * s = vti->possibleSpells[index].toSpell();
 			vti->spells[s->getLevel()-1].push_back(s->id);
-			vti->possibleSpells -= s->id;
+
+			vti->possibleSpells.erase(vti->possibleSpells.begin() + index);
+			spellWeights.erase(spellWeights.begin() + index);
 		}
-		vti->possibleSpells.clear();
 	}
 }
 

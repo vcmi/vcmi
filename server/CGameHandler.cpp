@@ -3517,8 +3517,6 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		addStatistics(peg.statistic); // add last turn befor win / loss
 		sendAndApply(peg);
 
-		turnOrder->onPlayerEndsGame(player);
-
 		if (victoryLossCheckResult.victory())
 		{
 			//one player won -> all enemies lost
@@ -3546,6 +3544,9 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		}
 		else
 		{
+			// give turn to next player(s)
+			turnOrder->onPlayerEndsGame(player);
+
 			//copy heroes vector to avoid iterator invalidation as removal change PlayerState
 			auto hlp = p->getHeroes();
 			for (auto h : hlp) //eliminate heroes

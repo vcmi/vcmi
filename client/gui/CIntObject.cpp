@@ -343,6 +343,9 @@ WindowBase::WindowBase(int used_, Point pos_)
 void WindowBase::close()
 {
 	if(!GH.windows().isTopWindow(this))
-		throw std::runtime_error("Only top interface can be closed");
+	{
+		auto topWindow = GH.windows().topWindow<IShowActivatable>().get();
+		throw std::runtime_error(std::string("Only top interface can be closed! Top window is ") + typeid(*this).name() + " but attempted to close " + typeid(*topWindow).name());
+	}
 	GH.windows().popWindows(1);
 }

@@ -390,7 +390,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 			return reachability.distances[h1.toInt()] < reachability.distances[h2.toInt()];
 		});
 
-	BattleHex bestNeighbour = hexes.front();
+	BattleHex bestNeighbour = targetHexes.front();
 
 	if(reachability.distances[bestNeighbour.toInt()] > GameConstants::BFIELD_SIZE)
 	{
