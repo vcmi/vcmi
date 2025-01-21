@@ -443,10 +443,14 @@ void Nullkiller::makeTurn()
 			decompose(bestTasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
 		TTaskVec selectedTasks;
+#if NKAI_TRACE_LEVEL >= 1
 		int prioOfTask = 0;
+#endif
 		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 		{
+#if NKAI_TRACE_LEVEL >= 1
 			prioOfTask = prio;
+#endif
 			selectedTasks = buildPlan(bestTasks, prio);
 			if (!selectedTasks.empty() || settings->isUseFuzzy())
 				break;
@@ -720,7 +724,7 @@ bool Nullkiller::handleTrading()
 				if (toGive && toGive <= available[mostExpendable]) //don't try to sell 0 resources
 				{
 					cb->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), toGive);
-#if NKAI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 2
 					logAi->info("Traded %d of %s for %d of %s at %s", toGive, mostExpendable, toGet, mostWanted, obj->getObjectName());
 #endif
 					haveTraded = true;
