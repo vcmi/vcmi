@@ -21,8 +21,11 @@
 #include "../render/IScreenHandler.h"
 
 #include <tbb/parallel_for.h>
-#include <SDL_surface.h>
+#include <tbb/task_arena.h>
+
 #include <SDL_image.h>
+#include <SDL_surface.h>
+#include <SDL_version.h>
 
 class SDLImageLoader;
 
@@ -88,8 +91,70 @@ SDLImageShared::SDLImageShared(const ImagePath & filename)
 	}
 }
 
+void SDLImageShared::scaledDraw(SDL_Surface * where, SDL_Palette * palette, const Point & scaleTo, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const
+{
+	assert(upscalingInProgress == false);
+	if (!surf)
+		return;
+
+	Rect sourceRect(0, 0, surf->w, surf->h);
+	Point destShift(0, 0);
+	Point destScale = Point(surf->w, surf->h) * scaleTo / dimensions();
+	Point marginsScaled = margins * scaleTo / dimensions();
+
+	if(src)
+	{
+		Rect srcUnscaled(Point(src->topLeft() * dimensions() / scaleTo), Point(src->dimensions() * dimensions() / scaleTo));
+
+		if(srcUnscaled.x < margins.x)
+			destShift.x += marginsScaled.x - src->x;
+
+		if(srcUnscaled.y < margins.y)
+			destShift.y += marginsScaled.y - src->y;
+
+		sourceRect = Rect(srcUnscaled).intersect(Rect(margins.x, margins.y, surf->w, surf->h));
+
+		destScale.x = std::min(destScale.x, sourceRect.w * scaleTo.x / dimensions().x);
+		destScale.y = std::min(destScale.y, sourceRect.h * scaleTo.y / dimensions().y);
+
+		sourceRect -= margins;
+	}
+	else
+		destShift = marginsScaled;
+
+	destShift += dest;
+
+	SDL_SetSurfaceColorMod(surf, colorMultiplier.r, colorMultiplier.g, colorMultiplier.b);
+	SDL_SetSurfaceAlphaMod(surf, alpha);
+
+	if (alpha != SDL_ALPHA_OPAQUE || (mode != EImageBlitMode::OPAQUE && surf->format->Amask != 0))
+		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
+	else
+		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
+
+	if (palette && surf->format->palette)
+		SDL_SetSurfacePalette(surf, palette);
+
+	SDL_Rect srcRect = CSDL_Ext::toSDL(sourceRect);
+	SDL_Rect dstRect = CSDL_Ext::toSDL(Rect(destShift, destScale));
+
+	if (sourceRect.dimensions() * scaleTo / dimensions() != destScale)
+		logGlobal->info("???");
+
+	SDL_Surface * tempSurface = SDL_ConvertSurface(surf, where->format, 0);
+	int result = SDL_BlitScaled(tempSurface, &srcRect, where, &dstRect);
+
+	SDL_FreeSurface(tempSurface);
+	if (result != 0)
+		logGlobal->error("SDL_BlitScaled failed! %s", SDL_GetError());
+
+	if (surf->format->palette)
+		SDL_SetSurfacePalette(surf, originalPalette);
+}
+
 void SDLImageShared::draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const
 {
+	assert(upscalingInProgress == false);
 	if (!surf)
 		return;
 
@@ -140,6 +205,7 @@ void SDLImageShared::draw(SDL_Surface * where, SDL_Palette * palette, const Poin
 
 void SDLImageShared::optimizeSurface()
 {
+	assert(upscalingInProgress == false);
 	if (!surf)
 		return;
 
@@ -155,6 +221,7 @@ void SDLImageShared::optimizeSurface()
 
 std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palette * palette, EImageBlitMode mode) const
 {
+	assert(upscalingInProgress == false);
 	if (factor <= 0)
 		throw std::runtime_error("Unable to scale by integer value of " + std::to_string(factor));
 
@@ -164,32 +231,50 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
 
-	SDLImageScaler scaler(surf, Rect(margins, fullSize));
-
-	// dump heuristics to differentiate tileable UI elements from map object / combat assets
+	// simple heuristics to differentiate tileable UI elements from map object / combat assets
+	EScalingAlgorithm algorithm;
 	if (mode == EImageBlitMode::OPAQUE || mode == EImageBlitMode::COLORKEY || mode == EImageBlitMode::SIMPLE)
-		scaler.scaleSurfaceIntegerFactor(GH.screenHandler().getScalingFactor(), EScalingAlgorithm::XBRZ_OPAQUE);
+		algorithm = EScalingAlgorithm::XBRZ_OPAQUE;
 	else
-		scaler.scaleSurfaceIntegerFactor(GH.screenHandler().getScalingFactor(), EScalingAlgorithm::XBRZ_ALPHA);
+		algorithm = EScalingAlgorithm::XBRZ_ALPHA;
 
-	SDL_Surface * scaled = scaler.acquireResultSurface();
-
-	auto ret = std::make_shared<SDLImageShared>(scaled);
-
-	ret->fullSize = scaler.getResultDimensions().dimensions();
-	ret->margins = scaler.getResultDimensions().topLeft();
-
-	// erase our own reference
-	SDL_FreeSurface(scaled);
+	auto result = std::make_shared<SDLImageShared>(this, factor, algorithm);
 
 	if (surf->format->palette)
 		SDL_SetSurfacePalette(surf, originalPalette);
 
-	return ret;
+	return result;
+}
+
+SDLImageShared::SDLImageShared(const SDLImageShared * from, int integerScaleFactor, EScalingAlgorithm algorithm)
+{
+	static tbb::task_arena upscalingArena;
+
+	upscalingInProgress = true;
+
+	auto scaler = std::make_shared<SDLImageScaler>(from->surf, Rect(from->margins, from->fullSize));
+
+	const auto & scalingTask = [this, algorithm, scaler]()
+	{
+		scaler->scaleSurfaceIntegerFactor(GH.screenHandler().getScalingFactor(), algorithm);
+		surf = scaler->acquireResultSurface();
+		fullSize = scaler->getResultDimensions().dimensions();
+		margins = scaler->getResultDimensions().topLeft();
+
+		upscalingInProgress = false;
+	};
+
+	upscalingArena.enqueue(scalingTask);
+}
+
+bool SDLImageShared::isLoading() const
+{
+	return upscalingInProgress;
 }
 
 std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Palette * palette) const
 {
+	assert(upscalingInProgress == false);
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
 
@@ -221,6 +306,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, 
 
 void SDLImageShared::exportBitmap(const boost::filesystem::path& path, SDL_Palette * palette) const
 {
+	assert(upscalingInProgress == false);
 	if (!surf)
 		return;
 
@@ -233,6 +319,7 @@ void SDLImageShared::exportBitmap(const boost::filesystem::path& path, SDL_Palet
 
 bool SDLImageShared::isTransparent(const Point & coords) const
 {
+	assert(upscalingInProgress == false);
 	if (surf)
 		return CSDL_Ext::isTransparent(surf, coords.x - margins.x, coords.y	- margins.y);
 	else
@@ -241,6 +328,7 @@ bool SDLImageShared::isTransparent(const Point & coords) const
 
 Rect SDLImageShared::contentRect() const
 {
+	assert(upscalingInProgress == false);
 	auto tmpMargins = margins;
 	auto tmpSize = Point(surf->w, surf->h);
 	return Rect(tmpMargins, tmpSize);
@@ -248,6 +336,7 @@ Rect SDLImageShared::contentRect() const
 
 const SDL_Palette * SDLImageShared::getPalette() const
 {
+	assert(upscalingInProgress == false);
 	if (!surf)
 		return nullptr;
 	return surf->format->palette;
@@ -255,11 +344,13 @@ const SDL_Palette * SDLImageShared::getPalette() const
 
 Point SDLImageShared::dimensions() const
 {
+	assert(upscalingInProgress == false);
 	return fullSize;
 }
 
 std::shared_ptr<const ISharedImage> SDLImageShared::horizontalFlip() const
 {
+	assert(upscalingInProgress == false);
 	if (!surf)
 		return shared_from_this();
 
@@ -275,6 +366,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::horizontalFlip() const
 
 std::shared_ptr<const ISharedImage> SDLImageShared::verticalFlip() const
 {
+	assert(upscalingInProgress == false);
 	if (!surf)
 		return shared_from_this();
 
@@ -291,6 +383,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::verticalFlip() const
 // Keep the original palette, in order to do color switching operation
 void SDLImageShared::savePalette()
 {
+	assert(upscalingInProgress == false);
 	// For some images that don't have palette, skip this
 	if(surf->format->palette == nullptr)
 		return;

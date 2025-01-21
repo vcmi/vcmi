@@ -230,7 +230,7 @@ Rect ScalableImageShared::contentRect() const
 
 void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Rect * src, const ScalableImageParameters & parameters, int scalingFactor)
 {
-	const auto & flipAndDraw = [&](FlippedImages & images, const ColorRGBA & colorMultiplier, uint8_t alphaValue){
+	const auto & getFlippedImage = [&](FlippedImages & images){
 		int index = 0;
 		if (parameters.flipVertical)
 		{
@@ -248,7 +248,12 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 			index |= 2;
 		}
 
-		images[index]->draw(where, parameters.palette, dest, src, colorMultiplier, alphaValue, locator.layer);
+		return images[index];
+	};
+
+	const auto & flipAndDraw = [&](FlippedImages & images, const ColorRGBA & colorMultiplier, uint8_t alphaValue){
+
+		getFlippedImage(images)->draw(where, parameters.palette, dest, src, colorMultiplier, alphaValue, locator.layer);
 	};
 
 	if (scalingFactor == 1)
@@ -257,12 +262,23 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 	}
 	else
 	{
+		bool shadowLoading = scaled.at(scalingFactor).shadow.at(0) && scaled.at(scalingFactor).shadow.at(0)->isLoading();
+		bool bodyLoading = scaled.at(scalingFactor).body.at(0) && scaled.at(scalingFactor).body.at(0)->isLoading();
+		bool overlayLoading = scaled.at(scalingFactor).overlay.at(0) && scaled.at(scalingFactor).overlay.at(0)->isLoading();
+		bool playerLoading = parameters.player.isValidPlayer() && scaled.at(scalingFactor).playerColored.at(parameters.player.getNum()) && scaled.at(scalingFactor).playerColored.at(parameters.player.getNum())->isLoading();
+
+		if (shadowLoading || bodyLoading || overlayLoading || playerLoading)
+		{
+			getFlippedImage(base)->scaledDraw(where, parameters.palette, dimensions() * scalingFactor, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
+			return;
+		}
+
 		if (scaled.at(scalingFactor).shadow.at(0))
 			flipAndDraw(scaled.at(scalingFactor).shadow, Colors::WHITE_TRUE, parameters.alphaValue);
 
 		if (parameters.player.isValidPlayer())
 		{
-			scaled.at(scalingFactor).playerColored[parameters.player.getNum()]->draw(where, parameters.palette, dest, src, Colors::WHITE_TRUE, parameters.alphaValue, locator.layer);
+			scaled.at(scalingFactor).playerColored.at(parameters.player.getNum())->draw(where, parameters.palette, dest, src, Colors::WHITE_TRUE, parameters.alphaValue, locator.layer);
 		}
 		else
 		{

@@ -27,13 +27,15 @@ struct SDL_Palette;
 class SDLImageShared final : public ISharedImage, public std::enable_shared_from_this<SDLImageShared>, boost::noncopyable
 {
 	//Surface without empty borders
-	SDL_Surface * surf;
+	SDL_Surface * surf = nullptr;
 
-	SDL_Palette * originalPalette;
+	SDL_Palette * originalPalette = nullptr;
 	//size of left and top borders
 	Point margins;
 	//total size including borders
 	Point fullSize;
+
+	std::atomic_bool upscalingInProgress = false;
 
 	// Keep the original palette, in order to do color switching operation
 	void savePalette();
@@ -47,14 +49,19 @@ public:
 	SDLImageShared(const ImagePath & filename);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface
 	SDLImageShared(SDL_Surface * from);
+	/// Creates image at specified scaling factor from source image
+	SDLImageShared(const SDLImageShared * from, int integerScaleFactor, EScalingAlgorithm algorithm);
 	~SDLImageShared();
 
+	void scaledDraw(SDL_Surface * where, SDL_Palette * palette, const Point & scaling, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;
 	void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;
 
 	void exportBitmap(const boost::filesystem::path & path, SDL_Palette * palette) const override;
 	Point dimensions() const override;
 	bool isTransparent(const Point & coords) const override;
 	Rect contentRect() const override;
+
+	bool isLoading() const override;
 
 	const SDL_Palette * getPalette() const override;
 

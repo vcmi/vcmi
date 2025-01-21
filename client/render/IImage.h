@@ -116,7 +116,12 @@ public:
 	virtual void exportBitmap(const boost::filesystem::path & path, SDL_Palette * palette) const = 0;
 	virtual bool isTransparent(const Point & coords) const = 0;
 	virtual Rect contentRect() const = 0;
+
+	virtual void scaledDraw(SDL_Surface * where, SDL_Palette * palette, const Point & scaling, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const = 0;
 	virtual void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const = 0;
+
+	/// Returns true if this image is still loading and can't be used
+	virtual bool isLoading() const = 0;
 
 	virtual ~ISharedImage() = default;
 
