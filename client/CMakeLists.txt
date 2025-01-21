@@ -104,6 +104,7 @@ set(vcmiclientcommon_SRCS
 	renderSDL/RenderHandler.cpp
 	renderSDL/SDLImage.cpp
 	renderSDL/SDLImageLoader.cpp
+	renderSDL/SDLImageScaler.cpp
 	renderSDL/SDLRWwrapper.cpp
 	renderSDL/ScreenHandler.cpp
 	renderSDL/SDL_Extensions.cpp
@@ -313,6 +314,7 @@ set(vcmiclientcommon_HEADERS
 	renderSDL/RenderHandler.h
 	renderSDL/SDLImage.h
 	renderSDL/SDLImageLoader.h
+	renderSDL/SDLImageScaler.h
 	renderSDL/SDLRWwrapper.h
 	renderSDL/ScreenHandler.h
 	renderSDL/SDL_Extensions.h

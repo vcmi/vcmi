@@ -11,6 +11,8 @@
 #include "CBitmapFont.h"
 
 #include "SDL_Extensions.h"
+#include "SDLImageScaler.h"
+
 #include "../CGameInfo.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Colors.h"
@@ -207,9 +209,10 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 
 		auto filterName = settings["video"]["fontUpscalingFilter"].String();
 		EScalingAlgorithm algorithm = filterNameToEnum.at(filterName);
-		auto scaledSurface = CSDL_Ext::scaleSurfaceIntegerFactor(atlasImage, GH.screenHandler().getScalingFactor(), algorithm);
+		SDLImageScaler scaler(atlasImage);
+		scaler.scaleSurfaceIntegerFactor(GH.screenHandler().getScalingFactor(), algorithm);
 		SDL_FreeSurface(atlasImage);
-		atlasImage = scaledSurface;
+		atlasImage = scaler.acquireResultSurface();
 	}
 
 	logGlobal->debug("Loaded BMP font: '%s', height %d, ascent %d",

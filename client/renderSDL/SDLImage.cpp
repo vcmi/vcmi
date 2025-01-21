@@ -11,14 +11,12 @@
 #include "SDLImage.h"
 
 #include "SDLImageLoader.h"
+#include "SDLImageScaler.h"
 #include "SDL_Extensions.h"
 
 #include "../render/ColorFilter.h"
-#include "../render/Colors.h"
 #include "../render/CBitmapHandler.h"
 #include "../render/CDefFile.h"
-#include "../render/Graphics.h"
-#include "../xBRZ/xbrz.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/IScreenHandler.h"
 
@@ -145,82 +143,14 @@ void SDLImageShared::optimizeSurface()
 	if (!surf)
 		return;
 
-	int left = surf->w;
-	int top = surf->h;
-	int right = 0;
-	int bottom = 0;
+	SDLImageOptimizer optimizer(surf, Rect(margins, fullSize));
 
-	// locate fully-transparent area around image
-	// H3 hadles this on format level, but mods or images scaled in runtime do not
-	if (surf->format->palette)
-	{
-		for (int y = 0; y < surf->h; ++y)
-		{
-			const uint8_t * row = static_cast<uint8_t *>(surf->pixels) + y * surf->pitch;
-			for (int x = 0; x < surf->w; ++x)
-			{
-				if (row[x] != 0)
-				{
-					// opaque or can be opaque (e.g. disabled shadow)
-					top = std::min(top, y);
-					left = std::min(left, x);
-					right = std::max(right, x);
-					bottom = std::max(bottom, y);
-				}
-			}
-		}
-	}
-	else
-	{
-		for (int y = 0; y < surf->h; ++y)
-		{
-			for (int x = 0; x < surf->w; ++x)
-			{
-				ColorRGBA color;
-				SDL_GetRGBA(CSDL_Ext::getPixel(surf, x, y), surf->format, &color.r, &color.g, &color.b, &color.a);
+	optimizer.optimizeSurface(surf);
+	SDL_FreeSurface(surf);
 
-				if (color.a != SDL_ALPHA_TRANSPARENT)
-				{
-					 // opaque
-					top = std::min(top, y);
-					left = std::min(left, x);
-					right = std::max(right, x);
-					bottom = std::max(bottom, y);
-				}
-			}
-		}
-	}
-
-	if (left == surf->w)
-	{
-		// empty image - simply delete it
-		SDL_FreeSurface(surf);
-		surf = nullptr;
-		return;
-	}
-
-	if (left != 0 || top != 0 || right != surf->w - 1 || bottom != surf->h - 1)
-	{
-		// non-zero border found
-		Rect newDimensions(left, top, right - left + 1, bottom - top + 1);
-		SDL_Rect rectSDL = CSDL_Ext::toSDL(newDimensions);
-		auto newSurface = CSDL_Ext::newSurface(newDimensions.dimensions(), surf);
-		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
-		SDL_BlitSurface(surf, &rectSDL, newSurface, nullptr);
-
-		if (SDL_HasColorKey(surf))
-		{
-			uint32_t colorKey;
-			SDL_GetColorKey(surf, &colorKey);
-			SDL_SetColorKey(newSurface, SDL_TRUE, colorKey);
-		}
-
-		SDL_FreeSurface(surf);
-		surf = newSurface;
-
-		margins.x += left;
-		margins.y += top;
-	}
+	surf = optimizer.acquireResultSurface();
+	margins = optimizer.getResultDimensions().topLeft();
+	fullSize = optimizer.getResultDimensions().dimensions();
 }
 
 std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palette * palette, EImageBlitMode mode) const
@@ -234,22 +164,20 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
 
-	SDL_Surface * scaled = nullptr;
+	SDLImageScaler scaler(surf, Rect(margins, fullSize));
 
 	// dump heuristics to differentiate tileable UI elements from map object / combat assets
 	if (mode == EImageBlitMode::OPAQUE || mode == EImageBlitMode::COLORKEY || mode == EImageBlitMode::SIMPLE)
-		scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, factor, EScalingAlgorithm::XBRZ_OPAQUE);
+		scaler.scaleSurfaceIntegerFactor(GH.screenHandler().getScalingFactor(), EScalingAlgorithm::XBRZ_OPAQUE);
 	else
-		scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, factor, EScalingAlgorithm::XBRZ_ALPHA);
+		scaler.scaleSurfaceIntegerFactor(GH.screenHandler().getScalingFactor(), EScalingAlgorithm::XBRZ_ALPHA);
+
+	SDL_Surface * scaled = scaler.acquireResultSurface();
 
 	auto ret = std::make_shared<SDLImageShared>(scaled);
 
-	ret->fullSize.x = fullSize.x * factor;
-	ret->fullSize.y = fullSize.y * factor;
-
-	ret->margins.x = (int) round((float)margins.x * factor);
-	ret->margins.y = (int) round((float)margins.y * factor);
-	ret->optimizeSurface();
+	ret->fullSize = scaler.getResultDimensions().dimensions();
+	ret->margins = scaler.getResultDimensions().topLeft();
 
 	// erase our own reference
 	SDL_FreeSurface(scaled);
@@ -262,13 +190,14 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 
 std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Palette * palette) const
 {
-	float scaleX = static_cast<float>(size.x) / fullSize.x;
-	float scaleY = static_cast<float>(size.y) / fullSize.y;
-
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
 
-	auto scaled = CSDL_Ext::scaleSurface(surf, (int)(surf->w * scaleX), (int)(surf->h * scaleY), EScalingAlgorithm::BILINEAR);
+	SDLImageScaler scaler(surf, Rect(margins, fullSize));
+
+	scaler.scaleSurface(size, EScalingAlgorithm::XBRZ_ALPHA);
+
+	auto scaled = scaler.acquireResultSurface();
 
 	if (scaled->format && scaled->format->palette) // fix color keying, because SDL loses it at this point
 		CSDL_Ext::setColorKey(scaled, scaled->format->palette->colors[0]);
@@ -278,12 +207,8 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, 
 		CSDL_Ext::setDefaultColorKey(scaled);//just in case
 
 	auto ret = std::make_shared<SDLImageShared>(scaled);
-
-	ret->fullSize.x = (int) round((float)fullSize.x * scaleX);
-	ret->fullSize.y = (int) round((float)fullSize.y * scaleY);
-
-	ret->margins.x = (int) round((float)margins.x * scaleX);
-	ret->margins.y = (int) round((float)margins.y * scaleY);
+	ret->fullSize = scaler.getResultDimensions().dimensions();
+	ret->margins = scaler.getResultDimensions().topLeft();
 
 	// erase our own reference
 	SDL_FreeSurface(scaled);

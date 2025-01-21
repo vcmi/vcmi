@@ -15,9 +15,6 @@
 
 #include "../../lib/Color.h"
 
-#include <tbb/concurrent_queue.h>
-#include <tbb/task_arena.h>
-
 struct SDL_Palette;
 
 class ScalableImageInstance;
@@ -45,24 +42,6 @@ struct ScalableImageParameters : boost::noncopyable
 	void setOverlayColor(const SDL_Palette * originalPalette, const ColorRGBA & color);
 	void preparePalette(const SDL_Palette * originalPalette, EImageBlitMode blitMode);
 	void adjustPalette(const SDL_Palette * originalPalette, EImageBlitMode blitMode, const ColorFilter & shifter, uint32_t colorsToSkipMask);
-};
-
-class ImageScaler
-{
-	ImageScaler();
-
-	tbb::task_arena arena;
-public:
-	static ImageScaler & getInstance()
-	{
-		static ImageScaler scaler;
-		return scaler;
-	}
-
-	void enqueueTask(const std::function<void()> & task)
-	{
-		arena.enqueue(task);
-	}
 };
 
 class ScalableImageShared final : public std::enable_shared_from_this<ScalableImageShared>, boost::noncopyable
@@ -96,12 +75,6 @@ class ScalableImageShared final : public std::enable_shared_from_this<ScalableIm
 
 	/// Locator of this image, for loading additional (e.g. upscaled) images
 	const SharedImageLocator locator;
-
-	/// Contains all upscaling tasks related to this image that finished processing and can be applied
-	tbb::concurrent_queue<std::function<void()>> upscalingQueue;
-
-	/// Number of images that are currently being upscaled
-	int scheduledUpscalingEvents = 0;
 
 	std::shared_ptr<const ISharedImage> loadOrGenerateImage(EImageBlitMode mode, int8_t scalingFactor, PlayerColor color) const;
 

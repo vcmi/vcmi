@@ -13,6 +13,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../render/IScreenHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
+#include "../renderSDL/SDLImageScaler.h"
 
 #include <SDL_image.h>
 #include <SDL_surface.h>
@@ -35,9 +36,10 @@ void CanvasImage::scaleTo(const Point & size, EScalingAlgorithm algorithm)
 {
 	Point scaledSize = size * GH.screenHandler().getScalingFactor();
 
-	auto newSurface = CSDL_Ext::scaleSurface(surface, scaledSize.x, scaledSize.y, algorithm);
+	SDLImageScaler scaler(surface);
+	scaler.scaleSurface(scaledSize, algorithm);
 	SDL_FreeSurface(surface);
-	surface = newSurface;
+	surface = scaler.acquireResultSurface();
 }
 
 void CanvasImage::exportBitmap(const boost::filesystem::path & path) const

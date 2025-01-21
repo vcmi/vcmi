@@ -248,10 +248,11 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 		pathToLoad = *remappedLocator.image;
 	}
 
-	if(!locator.image)
-		return nullptr;
+	if(locator.image)
+		pathToLoad = *locator.image;
 
-	pathToLoad = *locator.image;
+	if (pathToLoad.empty())
+		return nullptr;
 
 	std::string imagePathString = pathToLoad.getName();
 

@@ -18,7 +18,6 @@ struct SDL_Renderer;
 struct SDL_Texture;
 struct SDL_Surface;
 struct SDL_Color;
-enum class EScalingAlgorithm : int8_t;
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -90,10 +89,6 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
 	template<int bpp>
 	SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value
-
-	// bilinear filtering. Always returns rgba surface
-	SDL_Surface * scaleSurface(SDL_Surface * surf, int width, int height, EScalingAlgorithm scaler);
-	SDL_Surface * scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor, EScalingAlgorithm scaler);
 
 	template<int bpp>
 	void convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect);

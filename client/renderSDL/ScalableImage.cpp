@@ -260,7 +260,7 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 		if (scaled.at(scalingFactor).shadow.at(0))
 			flipAndDraw(scaled.at(scalingFactor).shadow, Colors::WHITE_TRUE, parameters.alphaValue);
 
-		if (parameters.player != PlayerColor::CANNOT_DETERMINE)
+		if (parameters.player.isValidPlayer())
 		{
 			scaled.at(scalingFactor).playerColored[parameters.player.getNum()]->draw(where, parameters.palette, dest, src, Colors::WHITE_TRUE, parameters.alphaValue, locator.layer);
 		}
@@ -351,7 +351,7 @@ void ScalableImageInstance::playerColored(const PlayerColor & player)
 {
 	parameters.player = player;
 
-	if (!parameters.palette)
+	if (parameters.palette)
 		parameters.playerColored(player);
 
 	image->preparePlayerColoredImage(player);
