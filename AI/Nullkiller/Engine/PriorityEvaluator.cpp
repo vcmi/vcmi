@@ -1077,6 +1077,8 @@ public:
 				evaluationContext.isHero = true;
 			if (target->getOwner().isValidPlayer() && ai->cb->getPlayerRelations(ai->playerID, target->getOwner()) == PlayerRelations::ENEMIES)
 				evaluationContext.isEnemy = true;
+			if (target->ID == Obj::TOWN)
+				evaluationContext.defenseValue = dynamic_cast<const CGTownInstance*>(target)->fortLevel();
 			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army);
 			if(evaluationContext.danger > 0)
 				evaluationContext.skillReward += (float)evaluationContext.danger / (float)hero->getArmyStrength();
@@ -1465,6 +1467,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (evaluationContext.movementCost >= 1)
 					return 0;
+				if (evaluationContext.defenseValue < 2 && evaluationContext.enemyHeroDangerRatio > dangerThreshold)
+					return 0;
 				if(evaluationContext.conquestValue > 0)
 					score = evaluationContext.armyInvolvement;
 				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > dangerThreshold && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !ai->cb->getTownsInfo().empty()))
@@ -1487,13 +1491,30 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (evaluationContext.isEnemy && evaluationContext.turn > 0)
 					return 0;
 				if (evaluationContext.isDefend && evaluationContext.threatTurns <= evaluationContext.turn)
-					score = evaluationContext.armyInvolvement / (evaluationContext.turn + 1);
+				{
+					const float OPTIMAL_PERCENTAGE = 0.75f; // We want army to be 75% of the threat
+					float optimalStrength = evaluationContext.threat * OPTIMAL_PERCENTAGE;
+
+					// Calculate how far the army is from optimal strength
+					float deviation = std::abs(evaluationContext.armyInvolvement - optimalStrength);
+
+					// Convert deviation to a percentage of the threat to normalize it
+					float deviationPercentage = deviation / evaluationContext.threat;
+
+					// Calculate score: 1.0 is perfect, decreasing as deviation increases
+					score = 1.0f / (1.0f + deviationPercentage);
+
+					// Apply turn penalty to still prefer earlier moves when scores are close
+					score = score / (evaluationContext.turn + 1);
+				}
 				break;
 			}
 			case PriorityTier::KILL: //Take towns / kill heroes that are further away
 				//FALL_THROUGH
 			case PriorityTier::FAR_KILL:
 			{
+				if (evaluationContext.defenseValue < 2 && evaluationContext.enemyHeroDangerRatio > dangerThreshold)
+					return 0;
 				if (evaluationContext.turn > 0 && evaluationContext.isHero)
 					return 0;
 				if (arriveNextWeek && evaluationContext.isEnemy)
