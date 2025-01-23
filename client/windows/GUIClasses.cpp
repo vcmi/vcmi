@@ -1369,7 +1369,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 			}
 		}
 		else
-			rowHeaders.push_back(std::make_shared<CLabel>(135, y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, text));
+			rowHeaders.push_back(std::make_shared<CLabel>(135, y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, text, 220));
 	}
 
 	for(int g=1; g<tgi.playerColors.size(); ++g)
