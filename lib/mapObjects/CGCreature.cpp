@@ -182,7 +182,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
 			ynd.text.appendLocalString(EMetaText::ADVOB_TXT, 86);
-			ynd.text.replaceName(getCreatureID(), getStackCount(SlotID(0)));
+			ynd.text.replaceName(getCreatureID(), getJoiningAmount());
 			cb->showBlockingDialog(this, &ynd);
 			break;
 		}
@@ -195,7 +195,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			ynd.player = h->tempOwner;
 			ynd.components.emplace_back(ComponentType::RESOURCE, GameResID(GameResID::GOLD), action);
 			std::string tmp = VLC->generaltexth->advobtxt[90];
-			boost::algorithm::replace_first(tmp, "%d", std::to_string(getStackCount(SlotID(0))));
+			boost::algorithm::replace_first(tmp, "%d", std::to_string(getJoiningAmount()));
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(action));
 			boost::algorithm::replace_first(tmp,"%s",getCreature()->getNamePluralTranslated());
 			ynd.text.appendRawString(tmp);
@@ -213,6 +213,11 @@ CreatureID CGCreature::getCreatureID() const
 const CCreature * CGCreature::getCreature() const
 {
 	return getCreatureID().toCreature();
+}
+
+TQuantity CGCreature::getJoiningAmount() const
+{
+	return std::max(1L, getStackCount(SlotID(0)) * cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE) / 100);
 }
 
 void CGCreature::pickRandomObject(vstd::RNG & rand)
@@ -378,9 +383,9 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	if(charisma < character)
 		return FIGHT;
 
-	if (allowJoin)
+	if (allowJoin && cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE) > 0)
 	{
-		if(diplomacy + sympathy + 1 >= character)
+		if((cb->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_JOINING_FOR_FREE) || character == Character::COMPLIANT) && diplomacy + sympathy + 1 >= character)
 			return JOIN_FOR_FREE;
 
 		if(diplomacy * 2 + sympathy + 1 >= character)
@@ -448,6 +453,10 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 			cb->giveResource(h->tempOwner,EGameResID::GOLD,-cost);
 
 		giveReward(h);
+
+		for(std::pair<const SlotID, CStackInstance*> stack : this->stacks)
+			stack.second->count = getJoiningAmount();
+
 		cb->tryJoiningArmy(this, h, true, true);
 	}
 }
