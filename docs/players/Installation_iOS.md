@@ -27,7 +27,6 @@ To install the IPA file, choose one of the following methods:
   1. Go to **My Apps**.
   2. Press the **+** button in the top-left corner.
   3. Select `VCMI-iOS.ipa` to install.
-     
 - Alternatively, drag and drop the IPA file into your iOS device using iTunes.
 
 ## Step 2: Installing Heroes III data files
