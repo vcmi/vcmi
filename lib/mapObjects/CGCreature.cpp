@@ -217,7 +217,7 @@ const CCreature * CGCreature::getCreature() const
 
 TQuantity CGCreature::getJoiningAmount() const
 {
-	return std::max(1L, getStackCount(SlotID(0)) * cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE) / 100);
+	return std::max(static_cast<int64_t>(1), getStackCount(SlotID(0)) * cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE) / 100);
 }
 
 void CGCreature::pickRandomObject(vstd::RNG & rand)
