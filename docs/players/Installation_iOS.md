@@ -24,7 +24,6 @@ c) Install the IPA File
 To install the IPA file, choose one of the following methods:
 
 - In AltStore:
-  
   1. Go to **My Apps**.
   2. Press the **+** button in the top-left corner.
   3. Select `VCMI-iOS.ipa` to install.
