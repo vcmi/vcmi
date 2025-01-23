@@ -188,6 +188,8 @@ struct DLL_LINKAGE CPathsInfo
 	const CGHeroInstance * hero;
 	int3 hpos;
 	int3 sizes;
+	/// Bonus tree version for which this information can be considered to be valid
+	int heroBonusTreeVersion = 0;
 	boost::multi_array<CGPathNode, 4> nodes; //[layer][level][w][h]
 
 	CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_);

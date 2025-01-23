@@ -38,6 +38,7 @@ namespace NKAI
 		pathfinderBucketsCount(1),
 		pathfinderBucketSize(32),
 		allowObjectGraph(true),
+		useOneWayMonoliths(false),
 		useTroopsFromGarrisons(false),
 		updateHitmapOnTileReveal(false),
 		openMap(true),
@@ -64,5 +65,6 @@ namespace NKAI
 		openMap = node["openMap"].Bool();
 		useFuzzy = node["useFuzzy"].Bool();
 		useTroopsFromGarrisons = node["useTroopsFromGarrisons"].Bool();
+		useOneWayMonoliths = node["useOneWayMonoliths"].Bool();
 	}
 }

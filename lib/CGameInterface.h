@@ -56,6 +56,7 @@ class CSaveFile;
 class BattleStateInfo;
 struct ArtifactLocation;
 class BattleStateInfoForRetreat;
+struct CPathsInfo;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -108,6 +109,9 @@ public:
 	virtual void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain){};
 
 	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) = 0;
+
+	/// Invalidates and destroys all paths for all heroes
+	virtual void invalidatePaths(){};
 };
 
 class DLL_LINKAGE CDynLibHandler

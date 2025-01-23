@@ -17,6 +17,7 @@ class CArmedInstance;
 class JsonNode;
 struct CGPath;
 class int3;
+struct CPathsInfo;
 
 VCMI_LIB_NAMESPACE_END
 

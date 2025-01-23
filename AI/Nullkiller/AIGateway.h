@@ -159,6 +159,8 @@ public:
 	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, BattleSide side, bool replayAllowed) override;
 	void battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID) override;
 
+	void invalidatePaths() override;
+
 	void makeTurn();
 
 	void buildArmyIn(const CGTownInstance * t);

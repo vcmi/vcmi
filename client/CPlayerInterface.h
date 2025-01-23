@@ -27,6 +27,7 @@ class CGObjectInstance;
 class UpgradeInfo;
 class ConditionalWait;
 struct CPathsInfo;
+class PathfinderCache;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -64,6 +65,7 @@ class CPlayerInterface : public CGameInterface, public IUpdateable
 	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
 
 	std::unique_ptr<HeroMovementController> movementController;
+	std::unique_ptr<PathfinderCache> pathfinderCache;
 public: // TODO: make private
 	std::unique_ptr<ArtifactsUIController> artifactController;
 	std::shared_ptr<Environment> env;
@@ -198,6 +200,8 @@ public: // public interface for use by client via LOCPLINT access
 	void gamePause(bool pause);
 	void endNetwork();
 	void closeAllDialogs();
+	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
+	void invalidatePaths() override;
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
