@@ -202,30 +202,30 @@ void ScalableImageParameters::adjustPalette(const SDL_Palette * originalPalette,
 ScalableImageShared::ScalableImageShared(const SharedImageLocator & locator, const std::shared_ptr<const ISharedImage> & baseImage)
 	:locator(locator)
 {
-	base[0] = baseImage;
-	assert(base[0] != nullptr);
+	scaled[1].body[0] = baseImage;
+	assert(scaled[1].body[0] != nullptr);
 
 	loadScaledImages(GH.screenHandler().getScalingFactor(), PlayerColor::CANNOT_DETERMINE);
 }
 
 Point ScalableImageShared::dimensions() const
 {
-	return base[0]->dimensions();
+	return scaled[1].body[0]->dimensions();
 }
 
 void ScalableImageShared::exportBitmap(const boost::filesystem::path & path, const ScalableImageParameters & parameters) const
 {
-	base[0]->exportBitmap(path, parameters.palette);
+	scaled[1].body[0]->exportBitmap(path, parameters.palette);
 }
 
 bool ScalableImageShared::isTransparent(const Point & coords) const
 {
-	return base[0]->isTransparent(coords);
+	return scaled[1].body[0]->isTransparent(coords);
 }
 
 Rect ScalableImageShared::contentRect() const
 {
-	return base[0]->contentRect();
+	return scaled[1].body[0]->contentRect();
 }
 
 void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Rect * src, const ScalableImageParameters & parameters, int scalingFactor)
@@ -256,44 +256,37 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 		getFlippedImage(images)->draw(where, parameters.palette, dest, src, colorMultiplier, alphaValue, locator.layer);
 	};
 
-	if (scalingFactor == 1)
+	bool shadowLoading = scaled.at(scalingFactor).shadow.at(0) && scaled.at(scalingFactor).shadow.at(0)->isLoading();
+	bool bodyLoading = scaled.at(scalingFactor).body.at(0) && scaled.at(scalingFactor).body.at(0)->isLoading();
+	bool overlayLoading = scaled.at(scalingFactor).overlay.at(0) && scaled.at(scalingFactor).overlay.at(0)->isLoading();
+	bool playerLoading = parameters.player != PlayerColor::CANNOT_DETERMINE && scaled.at(scalingFactor).playerColored.at(1+parameters.player.getNum()) && scaled.at(scalingFactor).playerColored.at(1+parameters.player.getNum())->isLoading();
+
+	if (shadowLoading || bodyLoading || overlayLoading || playerLoading)
 	{
-		flipAndDraw(base, parameters.colorMultiplier, parameters.alphaValue);
+		getFlippedImage(scaled[1].body)->scaledDraw(where, parameters.palette, dimensions() * scalingFactor, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
+		return;
+	}
+
+	if (scaled.at(scalingFactor).shadow.at(0))
+		flipAndDraw(scaled.at(scalingFactor).shadow, Colors::WHITE_TRUE, parameters.alphaValue);
+
+	if (parameters.player != PlayerColor::CANNOT_DETERMINE && scaled.at(scalingFactor).playerColored.at(1+parameters.player.getNum()))
+	{
+		scaled.at(scalingFactor).playerColored.at(1+parameters.player.getNum())->draw(where, parameters.palette, dest, src, Colors::WHITE_TRUE, parameters.alphaValue, locator.layer);
 	}
 	else
 	{
-		bool shadowLoading = scaled.at(scalingFactor).shadow.at(0) && scaled.at(scalingFactor).shadow.at(0)->isLoading();
-		bool bodyLoading = scaled.at(scalingFactor).body.at(0) && scaled.at(scalingFactor).body.at(0)->isLoading();
-		bool overlayLoading = scaled.at(scalingFactor).overlay.at(0) && scaled.at(scalingFactor).overlay.at(0)->isLoading();
-		bool playerLoading = parameters.player.isValidPlayer() && scaled.at(scalingFactor).playerColored.at(parameters.player.getNum()) && scaled.at(scalingFactor).playerColored.at(parameters.player.getNum())->isLoading();
-
-		if (shadowLoading || bodyLoading || overlayLoading || playerLoading)
-		{
-			getFlippedImage(base)->scaledDraw(where, parameters.palette, dimensions() * scalingFactor, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
-			return;
-		}
-
-		if (scaled.at(scalingFactor).shadow.at(0))
-			flipAndDraw(scaled.at(scalingFactor).shadow, Colors::WHITE_TRUE, parameters.alphaValue);
-
-		if (parameters.player.isValidPlayer())
-		{
-			scaled.at(scalingFactor).playerColored.at(parameters.player.getNum())->draw(where, parameters.palette, dest, src, Colors::WHITE_TRUE, parameters.alphaValue, locator.layer);
-		}
-		else
-		{
-			if (scaled.at(scalingFactor).body.at(0))
-				flipAndDraw(scaled.at(scalingFactor).body, parameters.colorMultiplier, parameters.alphaValue);
-		}
-
-		if (scaled.at(scalingFactor).overlay.at(0))
-			flipAndDraw(scaled.at(scalingFactor).overlay, parameters.ovelayColorMultiplier, static_cast<int>(parameters.alphaValue) * parameters.ovelayColorMultiplier.a / 255);
+		if (scaled.at(scalingFactor).body.at(0))
+			flipAndDraw(scaled.at(scalingFactor).body, parameters.colorMultiplier, parameters.alphaValue);
 	}
+
+	if (scaled.at(scalingFactor).overlay.at(0))
+		flipAndDraw(scaled.at(scalingFactor).overlay, parameters.ovelayColorMultiplier, static_cast<int>(parameters.alphaValue) * parameters.ovelayColorMultiplier.a / 255);
 }
 
 const SDL_Palette * ScalableImageShared::getPalette() const
 {
-	return base[0]->getPalette();
+	return scaled[1].body[0]->getPalette();
 }
 
 std::shared_ptr<ScalableImageInstance> ScalableImageShared::createImageReference()
@@ -400,7 +393,7 @@ void ScalableImageInstance::verticalFlip()
 	parameters.flipVertical = !parameters.flipVertical;
 }
 
-std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EImageBlitMode mode, int8_t scalingFactor, PlayerColor color) const
+std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EImageBlitMode mode, int8_t scalingFactor, PlayerColor color, ImageType upscalingSource) const
 {
 	ImageLocator loadingLocator;
 
@@ -417,68 +410,90 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 	if (loadedImage)
 		return loadedImage;
 
+	if (scalingFactor == 1)
+	{
+		// optional images for 1x resolution - only try load them, don't attempt to generate
+		// this block should never be called for 'body' layer - that image is loaded unconditionally before construction
+		assert(mode == EImageBlitMode::ONLY_SHADOW || mode == EImageBlitMode::ONLY_OVERLAY || color != PlayerColor::CANNOT_DETERMINE);
+		return nullptr;
+	}
+
 	// alternatively, find largest pre-scaled image, load it and rescale to desired scaling
-	Point targetSize = base[0]->dimensions() * scalingFactor;
-	for (int8_t scaling = 4; scaling > 1; --scaling)
+	for (int8_t scaling = 4; scaling > 0; --scaling)
 	{
 		loadingLocator.scalingFactor = scaling;
 		auto loadedImage = GH.renderHandler().loadScaledImage(loadingLocator);
 		if (loadedImage)
-			return loadedImage->scaleTo(targetSize, nullptr);
+		{
+			if (scaling == 1)
+			{
+				if (mode == EImageBlitMode::ONLY_SHADOW || mode == EImageBlitMode::ONLY_OVERLAY || color != PlayerColor::CANNOT_DETERMINE)
+				{
+					ScalableImageParameters parameters(getPalette(), mode);
+					return loadedImage->scaleInteger(scalingFactor, parameters.palette, mode);
+				}
+			}
+			else
+			{
+				Point targetSize = scaled[1].body[0]->dimensions() * scalingFactor;
+				return loadedImage->scaleTo(targetSize, nullptr);
+			}
+		}
 	}
 
-	// if all else fails - use base (presumably, indexed) image and convert it to desired form
 	ScalableImageParameters parameters(getPalette(), mode);
+	// if all else fails - use base (presumably, indexed) image and convert it to desired form
 	if (color != PlayerColor::CANNOT_DETERMINE)
 		parameters.playerColored(color);
-	return base[0]->scaleInteger(scalingFactor, parameters.palette, mode);
+
+	if (upscalingSource)
+		return upscalingSource->scaleInteger(scalingFactor, parameters.palette, mode);
+	else
+		return scaled[1].body[0]->scaleInteger(scalingFactor, parameters.palette, mode);
 }
 
 void ScalableImageShared::loadScaledImages(int8_t scalingFactor, PlayerColor color)
 {
-	if (scalingFactor == 1)
-		return; // no op. TODO: consider loading 1x images for mods, as alternative to palette-based animations
-
-	if (scaled[scalingFactor].body[0] == nullptr)
+	if (scaled[scalingFactor].body[0] == nullptr && scalingFactor != 1)
 	{
 		switch(locator.layer)
 		{
 			case EImageBlitMode::OPAQUE:
 			case EImageBlitMode::COLORKEY:
 			case EImageBlitMode::SIMPLE:
-				scaled[scalingFactor].body[0] = loadOrGenerateImage(locator.layer, scalingFactor, PlayerColor::CANNOT_DETERMINE);
+				scaled[scalingFactor].body[0] = loadOrGenerateImage(locator.layer, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].body[0]);
 				break;
 
 			case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
 			case EImageBlitMode::ONLY_BODY:
-				scaled[scalingFactor].body[0] = loadOrGenerateImage(EImageBlitMode::ONLY_BODY, scalingFactor, PlayerColor::CANNOT_DETERMINE);
+				scaled[scalingFactor].body[0] = loadOrGenerateImage(EImageBlitMode::ONLY_BODY, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].body[0]);
 				break;
 
 			case EImageBlitMode::WITH_SHADOW:
 			case EImageBlitMode::ONLY_BODY_IGNORE_OVERLAY:
-				scaled[scalingFactor].body[0] = loadOrGenerateImage(EImageBlitMode::ONLY_BODY_IGNORE_OVERLAY, scalingFactor, PlayerColor::CANNOT_DETERMINE);
+				scaled[scalingFactor].body[0] = loadOrGenerateImage(EImageBlitMode::ONLY_BODY_IGNORE_OVERLAY, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].body[0]);
 				break;
 		}
 	}
 
-	if (color.isValidPlayer() && scaled[scalingFactor].playerColored[color.getNum()] == nullptr)
+	if (color != PlayerColor::CANNOT_DETERMINE && scaled[scalingFactor].playerColored[1+color.getNum()] == nullptr)
 	{
 		switch(locator.layer)
 		{
 			case EImageBlitMode::OPAQUE:
 			case EImageBlitMode::COLORKEY:
 			case EImageBlitMode::SIMPLE:
-				scaled[scalingFactor].playerColored[color.getNum()] = loadOrGenerateImage(locator.layer, scalingFactor, color);
+				scaled[scalingFactor].playerColored[1+color.getNum()] = loadOrGenerateImage(locator.layer, scalingFactor, color, scaled[1].playerColored[1+color.getNum()]);
 				break;
 
 			case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
 			case EImageBlitMode::ONLY_BODY:
-				scaled[scalingFactor].playerColored[color.getNum()] = loadOrGenerateImage(EImageBlitMode::ONLY_BODY, scalingFactor, color);
+				scaled[scalingFactor].playerColored[1+color.getNum()] = loadOrGenerateImage(EImageBlitMode::ONLY_BODY, scalingFactor, color, scaled[1].playerColored[1+color.getNum()]);
 				break;
 
 			case EImageBlitMode::WITH_SHADOW:
 			case EImageBlitMode::ONLY_BODY_IGNORE_OVERLAY:
-				scaled[scalingFactor].playerColored[color.getNum()] = loadOrGenerateImage(EImageBlitMode::ONLY_BODY_IGNORE_OVERLAY, scalingFactor, color);
+				scaled[scalingFactor].playerColored[1+color.getNum()] = loadOrGenerateImage(EImageBlitMode::ONLY_BODY_IGNORE_OVERLAY, scalingFactor, color, scaled[1].playerColored[1+color.getNum()]);
 				break;
 		}
 	}
@@ -490,7 +505,7 @@ void ScalableImageShared::loadScaledImages(int8_t scalingFactor, PlayerColor col
 			case EImageBlitMode::WITH_SHADOW:
 			case EImageBlitMode::ONLY_SHADOW:
 			case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
-				scaled[scalingFactor].shadow[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SHADOW, scalingFactor, PlayerColor::CANNOT_DETERMINE);
+				scaled[scalingFactor].shadow[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SHADOW, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].shadow[0]);
 				break;
 			default:
 				break;
@@ -503,7 +518,7 @@ void ScalableImageShared::loadScaledImages(int8_t scalingFactor, PlayerColor col
 		{
 			case EImageBlitMode::ONLY_OVERLAY:
 			case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
-				scaled[scalingFactor].overlay[0] = loadOrGenerateImage(EImageBlitMode::ONLY_OVERLAY, scalingFactor, PlayerColor::CANNOT_DETERMINE);
+				scaled[scalingFactor].overlay[0] = loadOrGenerateImage(EImageBlitMode::ONLY_OVERLAY, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].overlay[0]);
 				break;
 			default:
 				break;

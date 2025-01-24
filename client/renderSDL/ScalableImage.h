@@ -46,11 +46,12 @@ struct ScalableImageParameters : boost::noncopyable
 
 class ScalableImageShared final : public std::enable_shared_from_this<ScalableImageShared>, boost::noncopyable
 {
-	static constexpr int scalingSize = 5; // 0-4 range. TODO: switch to either 2-4 or 1-4
+	static constexpr int scalingSize = 5; // 0-4 range. TODO: switch to 1-4 since there is no '0' scaling
 	static constexpr int maxFlips = 4;
 
-	using FlippedImages = std::array<std::shared_ptr<const ISharedImage>, maxFlips>;
-	using PlayerColoredImages = std::array<std::shared_ptr<const ISharedImage>, PlayerColor::PLAYER_LIMIT_I>;
+	using ImageType = std::shared_ptr<const ISharedImage>;
+	using FlippedImages = std::array<ImageType, maxFlips>;
+	using PlayerColoredImages = std::array<ImageType, PlayerColor::PLAYER_LIMIT_I + 1>; // all valid colors+neutral
 
 	struct ScaledImage
 	{
@@ -67,16 +68,13 @@ class ScalableImageShared final : public std::enable_shared_from_this<ScalableIm
 		PlayerColoredImages playerColored;
 	};
 
-	/// 1x image, usually indexed. Array of 4 images for every potential flip
-	FlippedImages base;
-
-	/// 1x-4x images. 1x are currently unused, but can be used for providing non-palette version of these images
+	/// 1x-4x images. body for 1x scaling is guaranteed to be loaded
 	std::array<ScaledImage, scalingSize> scaled;
 
 	/// Locator of this image, for loading additional (e.g. upscaled) images
 	const SharedImageLocator locator;
 
-	std::shared_ptr<const ISharedImage> loadOrGenerateImage(EImageBlitMode mode, int8_t scalingFactor, PlayerColor color) const;
+	std::shared_ptr<const ISharedImage> loadOrGenerateImage(EImageBlitMode mode, int8_t scalingFactor, PlayerColor color, ImageType upscalingSource) const;
 
 	void loadScaledImages(int8_t scalingFactor, PlayerColor color);
 
