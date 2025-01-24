@@ -84,6 +84,6 @@ RoadType::RoadType():
 	id(Road::NO_ROAD),
 	identifier("empty"),
 	modScope("core"),
-	movementCost(GameConstants::BASE_MOVEMENT_COST)
+	movementCost(0)
 {}
 VCMI_LIB_NAMESPACE_END

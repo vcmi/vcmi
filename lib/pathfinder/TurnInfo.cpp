@@ -69,6 +69,11 @@ int TurnInfo::getRoughTerrainDiscountValue() const
 	return roughTerrainDiscountValue;
 }
 
+int TurnInfo::getMovementCostBase() const
+{
+	return moveCostBaseValue;
+}
+
 int TurnInfo::getMovePointsLimitLand() const
 {
 	return movePointsLimitLand;
@@ -121,6 +126,13 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 		static const CSelector selector = Selector::type()(BonusType::ROUGH_TERRAIN_DISCOUNT);
 		const auto & bonuses = sharedCache->roughTerrainDiscount.getBonusList(target, selector);
 		roughTerrainDiscountValue = bonuses->valOfBonuses(daySelector);
+	}
+
+	{
+		static const CSelector selector = Selector::type()(BonusType::BASE_TILE_MOVEMENT_COST);
+		const auto & bonuses = sharedCache->baseTileMovementCost.getBonusList(target, selector);
+		int baseMovementCost = target->cb->getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
+		moveCostBaseValue = bonuses->valOfBonuses(daySelector, baseMovementCost);
 	}
 
 	{

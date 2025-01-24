@@ -16,8 +16,10 @@
 #include "TurnInfo.h"
 
 #include "../gameState/CGameState.h"
+#include "../IGameSettings.h"
 #include "../CPlayerState.h"
 #include "../TerrainHandler.h"
+#include "../RoadHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
@@ -658,14 +660,17 @@ int CPathfinderHelper::getMovementCost(
 	
 	bool isAirLayer = (hero->boat && hero->boat->layer == EPathfindingLayer::AIR) || ti->hasFlyingMovement();
 
-	int movementCost = hero->getTileMovementCost(*dt, *ct, ti);
+	int movementCost = getTileMovementCost(*dt, *ct, ti);
 	if(isSailLayer)
 	{
 		if(ct->hasFavorableWinds())
 			movementCost = static_cast<int>(movementCost * 2.0 / 3);
 	}
 	else if(isAirLayer)
-		vstd::amin(movementCost, GameConstants::BASE_MOVEMENT_COST + ti->getFlyingMovementValue());
+	{
+		int baseCost = getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
+		vstd::amin(movementCost, baseCost + ti->getFlyingMovementValue());
+	}
 	else if(isWaterLayer && ti->hasWaterWalking())
 		movementCost = static_cast<int>(movementCost * (100.0 + ti->getWaterWalkingValue()) / 100.0);
 
@@ -685,13 +690,35 @@ int CPathfinderHelper::getMovementCost(
 	const int pointsLeft = remainingMovePoints - movementCost;
 	if(checkLast && pointsLeft > 0)
 	{
-		int minimalNextMoveCost = hero->getTileMovementCost(*dt, *ct, ti);
+		int minimalNextMoveCost = getTileMovementCost(*dt, *ct, ti);
 
 		if (pointsLeft < minimalNextMoveCost)
 			return remainingMovePoints;
 	}
 
 	return movementCost;
+}
+
+ui32 CPathfinderHelper::getTileMovementCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const
+{
+	//if there is road both on dest and src tiles - use src road movement cost
+	if(dest.hasRoad() && from.hasRoad())
+		return from.getRoad()->movementCost;
+
+	int baseMovementCost = ti->getMovementCostBase();
+	int terrainMoveCost = from.getTerrain()->moveCost;
+	int terrainDiscout = ti->getRoughTerrainDiscountValue();
+
+	int costWithPathfinding = std::max(baseMovementCost, terrainMoveCost - terrainDiscout);
+
+	//if hero can move without penalty - either all-native army, or creatures like Nomads in army
+	if(ti->hasNoTerrainPenalty(from.getTerrainID()))
+	{
+		int baseCost = getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
+		return std::min(baseCost, costWithPathfinding);
+	}
+
+	return costWithPathfinding;
 }
 
 VCMI_LIB_NAMESPACE_END
