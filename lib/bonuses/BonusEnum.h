@@ -182,6 +182,7 @@ class JsonNode;
 	BONUS_NAME(INVINCIBLE) /* cannot be target of attacks or spells */ \
 	BONUS_NAME(MECHANICAL) /*eg. factory creatures, cannot be rised or healed, only neutral morale, repairable by engineer */ \
 	BONUS_NAME(PRISM_HEX_ATTACK_BREATH) /*eg. dragons*/	\
+	BONUS_NAME(BASE_TILE_MOVEMENT_COST) /*minimal cost for moving offroad*/	\
 	/* end of list */
 
 

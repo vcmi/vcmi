@@ -384,7 +384,8 @@ bool DimensionDoorMechanics::canBeCastAtImpl(spells::Problem & problem, const CG
 ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	const auto schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
-	const int movementCost = GameConstants::BASE_MOVEMENT_COST * ((schoolLevel >= 3) ? 2 : 3);
+	const int baseCost = env->getCb()->getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
+	const int movementCost = baseCost * ((schoolLevel >= 3) ? 2 : 3);
 
 	int3 casterPosition = parameters.caster->getHeroCaster()->getSightCenter();
 	const TerrainTile * dest = env->getCb()->getTile(parameters.pos);
@@ -447,7 +448,7 @@ TownPortalMechanics::TownPortalMechanics(const CSpell * s):
 ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	const CGTownInstance * destination = nullptr;
-	const int moveCost = movementCost(parameters);
+	const int moveCost = movementCost(env, parameters);
 	
 	if(!parameters.caster->getHeroCaster())
 	{
@@ -548,7 +549,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 
 void TownPortalMechanics::endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
-	const int moveCost = movementCost(parameters);
+	const int moveCost = movementCost(env, parameters);
 	const CGTownInstance * destination = nullptr;
 
 	if(parameters.caster->getSpellSchoolLevel(owner) < 2)
@@ -591,7 +592,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 		return ESpellCastResult::CANCEL;
 	}
 
-	const int moveCost = movementCost(parameters);
+	const int moveCost = movementCost(env, parameters);
 
 	if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < moveCost)
 	{
@@ -700,12 +701,13 @@ std::vector <const CGTownInstance*> TownPortalMechanics::getPossibleTowns(SpellC
 	return ret;
 }
 
-int32_t TownPortalMechanics::movementCost(const AdventureSpellCastParameters & parameters) const
+int32_t TownPortalMechanics::movementCost(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	if(parameters.caster != parameters.caster->getHeroCaster()) //if caster is not hero
 		return 0;
 	
-	return GameConstants::BASE_MOVEMENT_COST * ((parameters.caster->getSpellSchoolLevel(owner) >= 3) ? 2 : 3);
+	int baseMovementCost = env->getCb()->getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
+	return baseMovementCost * ((parameters.caster->getSpellSchoolLevel(owner) >= 3) ? 2 : 3);
 }
 
 ///ViewMechanics

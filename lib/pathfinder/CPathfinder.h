@@ -66,6 +66,9 @@ private:
 
 class DLL_LINKAGE CPathfinderHelper : private CGameInfoCallback
 {
+	/// returns base movement cost for movement between specific tiles. Does not accounts for diagonal movement or last tile exception
+	ui32 getTileMovementCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const;
+
 public:
 	enum EPatrolState
 	{

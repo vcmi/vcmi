@@ -156,9 +156,15 @@ Allows affected heroes to learn spells from each other during hero exchange
 
 ### ROUGH_TERRAIN_DISCOUNT
 
-Reduces movement points penalty when moving on terrains with movement cost over 100 points. Can not reduce movement cost below 100 points
+Reduces movement point penalty when moving on terrain with movement cost higher than base movement cost Cannot reduce movement cost lower than base movement cost. See the `movementCostBase` parameter in the game config and the `BASE_TILE_MOVEMENT_COST` bonus type. Used for the Pathfinding skill
 
 - val: penalty reduction, in movement points per tile.
+
+### BASE_TILE_MOVEMENT_COST
+
+Change the minimum cost required to move from one tile to another while off-road by the specified value. Has no effect on road movement. Used for pathfinding in HotA
+
+- val: positive value increases the minimum cost, negative value decreases it.
 
 ### WANDERING_CREATURES_JOIN_BONUS
 
