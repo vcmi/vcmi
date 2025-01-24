@@ -218,9 +218,6 @@ public:
 	void setSecSkillLevel(const SecondarySkill & which, int val, bool abs); // abs == 0 - changes by value; 1 - sets to value
 	void levelUp(const std::vector<SecondarySkill> & skills);
 
-	/// returns base movement cost for movement between specific tiles. Does not accounts for diagonal movement or last tile exception
-	ui32 getTileMovementCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const;
-
 	void setMovementPoints(int points);
 	int movementPointsRemaining() const;
 	int movementPointsLimit(bool onLand) const;

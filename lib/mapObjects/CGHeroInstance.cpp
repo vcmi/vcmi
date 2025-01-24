@@ -73,25 +73,6 @@ void CGHeroPlaceholder::serializeJsonOptions(JsonSerializeFormat & handler)
 		handler.serializeInt("powerRank", powerRank.value());
 }
 
-ui32 CGHeroInstance::getTileMovementCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const
-{
-	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
-
-	//if there is road both on dest and src tiles - use src road movement cost
-	if(dest.hasRoad() && from.hasRoad())
-	{
-		ret = from.getRoad()->movementCost;
-	}
-	else if(!ti->hasNoTerrainPenalty(from.getTerrainID())) //no special movement bonus
-	{
-		ret = VLC->terrainTypeHandler->getById(from.getTerrainID())->moveCost;
-		ret -= ti->getRoughTerrainDiscountValue();
-		if(ret < GameConstants::BASE_MOVEMENT_COST)
-			ret = GameConstants::BASE_MOVEMENT_COST;
-	}
-	return static_cast<ui32>(ret);
-}
-
 FactionID CGHeroInstance::getFactionID() const
 {
 	return getHeroClass()->faction;

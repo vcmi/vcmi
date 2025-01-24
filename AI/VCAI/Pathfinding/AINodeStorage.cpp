@@ -17,6 +17,7 @@
 #include "../../../lib/pathfinder/CPathfinder.h"
 #include "../../../lib/pathfinder/PathfinderOptions.h"
 #include "../../../lib/pathfinder/PathfinderUtil.h"
+#include "../../../lib/IGameSettings.h"
 #include "../../../lib/CPlayerState.h"
 
 AINodeStorage::AINodeStorage(const int3 & Sizes)
@@ -246,7 +247,8 @@ void AINodeStorage::calculateTownPortalTeleportations(
 
 		// TODO: Copy/Paste from TownPortalMechanics
 		auto skillLevel = hero->getSpellSchoolLevel(townPortal);
-		auto movementCost = GameConstants::BASE_MOVEMENT_COST * (skillLevel >= 3 ? 2 : 3);
+		int baseCost = hero->cb->getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
+		auto movementCost = baseCost * (skillLevel >= 3 ? 2 : 3);
 
 		if(hero->movementPointsRemaining() < movementCost)
 		{
