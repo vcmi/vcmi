@@ -127,11 +127,15 @@ If iTunes does not connect to your device over WiFi despite enabling the Sync ov
 1. Search for `cmd`. Right click on it and ‘Run as administrator’.
 2. Copy the command below. It stops the ‘Apple Mobile Device service’.
 
+```sh
 net stop "Apple Mobile Device Service"
-  
+```
+
 3. Copy the command below and restart the ‘Apple Mobile Device Service’.
 
+```sh
 net start "Apple Mobile Device Service"
+```
 
 In case you don't update the store in the alloted time and it expires, it won't load. Reloading the store is easy enough. Simply
 
