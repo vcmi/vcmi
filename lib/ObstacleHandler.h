@@ -54,7 +54,7 @@ public:
 	void registerIcons(const IconRegistar & cb) const override;
 	Obstacle getId() const override;
 	
-	BattleHexArray getBlocked(BattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
+	BattleHexArray getBlocked(const BattleHex & hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
 	
 	bool isAppropriate(const TerrainId terrainType, const BattleField & specialBattlefield) const;
 };

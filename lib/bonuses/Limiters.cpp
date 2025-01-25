@@ -221,7 +221,7 @@ ILimiter::EDecision UnitOnHexLimiter::limit(const BonusLimitationContext &contex
 
 	auto accept = false;
 
-	for (auto hex : stack->getHexes())
+	for (const auto & hex : stack->getHexes())
 		accept |= applicableHexes.contains(hex);
 
 	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
@@ -237,7 +237,7 @@ JsonNode UnitOnHexLimiter::toJsonNode() const
 	JsonNode root;
 
 	root["type"].String() = "UNIT_ON_HEXES";
-	for(auto hex : applicableHexes)
+	for(const auto & hex : applicableHexes)
 		root["parameters"].Vector().emplace_back(hex.toInt());
 
 	return root;

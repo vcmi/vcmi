@@ -64,7 +64,7 @@ BattleRenderer::BattleRenderer(BattleInterface & owner):
 {
 }
 
-void BattleRenderer::insert(EBattleFieldLayer layer, BattleHex tile, BattleRenderer::RenderFunctor functor)
+void BattleRenderer::insert(EBattleFieldLayer layer, const BattleHex & tile, BattleRenderer::RenderFunctor functor)
 {
 	objects.push_back({functor, layer, tile});
 }

@@ -358,7 +358,7 @@ const CSpell * BattleActionsController::getHeroSpellToCast( ) const
 	return nullptr;
 }
 
-const CSpell * BattleActionsController::getStackSpellToCast(BattleHex hoveredHex)
+const CSpell * BattleActionsController::getStackSpellToCast(const BattleHex & hoveredHex)
 {
 	if (heroSpellToCast)
 		return nullptr;
@@ -383,14 +383,14 @@ const CSpell * BattleActionsController::getStackSpellToCast(BattleHex hoveredHex
 	return action.spell().toSpell();
 }
 
-const CSpell * BattleActionsController::getCurrentSpell(BattleHex hoveredHex)
+const CSpell * BattleActionsController::getCurrentSpell(const BattleHex & hoveredHex)
 {
 	if (getHeroSpellToCast())
 		return getHeroSpellToCast();
 	return getStackSpellToCast(hoveredHex);
 }
 
-const CStack * BattleActionsController::getStackForHex(BattleHex hoveredHex)
+const CStack * BattleActionsController::getStackForHex(const BattleHex & hoveredHex)
 {
 	const CStack * shere = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
 	if(shere)
@@ -398,7 +398,7 @@ const CStack * BattleActionsController::getStackForHex(BattleHex hoveredHex)
 	return owner.getBattle()->battleGetStackByPos(hoveredHex, false);
 }
 
-void BattleActionsController::actionSetCursor(PossiblePlayerBattleAction action, BattleHex targetHex)
+void BattleActionsController::actionSetCursor(PossiblePlayerBattleAction action, const BattleHex & targetHex)
 {
 	switch (action.get())
 	{
@@ -479,7 +479,7 @@ void BattleActionsController::actionSetCursor(PossiblePlayerBattleAction action,
 	assert(0);
 }
 
-void BattleActionsController::actionSetCursorBlocked(PossiblePlayerBattleAction action, BattleHex targetHex)
+void BattleActionsController::actionSetCursorBlocked(PossiblePlayerBattleAction action, const BattleHex & targetHex)
 {
 	switch (action.get())
 	{
@@ -500,7 +500,7 @@ void BattleActionsController::actionSetCursorBlocked(PossiblePlayerBattleAction 
 	assert(0);
 }
 
-std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattleAction action, BattleHex targetHex)
+std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattleAction action, const BattleHex & targetHex)
 {
 	const CStack * targetStack = getStackForHex(targetHex);
 
@@ -589,7 +589,7 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 	return "";
 }
 
-std::string BattleActionsController::actionGetStatusMessageBlocked(PossiblePlayerBattleAction action, BattleHex targetHex)
+std::string BattleActionsController::actionGetStatusMessageBlocked(PossiblePlayerBattleAction action, const BattleHex & targetHex)
 {
 	switch (action.get())
 	{
@@ -611,7 +611,7 @@ std::string BattleActionsController::actionGetStatusMessageBlocked(PossiblePlaye
 	}
 }
 
-bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, BattleHex targetHex)
+bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, const BattleHex & targetHex)
 {
 	const CStack * targetStack = getStackForHex(targetHex);
 	bool targetStackOwned = targetStack && targetStack->unitOwner() == owner.curInt->playerID;
@@ -706,7 +706,7 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 	return false;
 }
 
-void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, BattleHex targetHex)
+void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, const BattleHex & targetHex)
 {
 	const CStack * targetStack = getStackForHex(targetHex);
 
@@ -846,7 +846,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 	return;
 }
 
-PossiblePlayerBattleAction BattleActionsController::selectAction(BattleHex targetHex)
+PossiblePlayerBattleAction BattleActionsController::selectAction(const BattleHex & targetHex)
 {
 	assert(owner.stacksController->getActiveStack() != nullptr);
 	assert(!possibleActions.empty());
@@ -870,7 +870,7 @@ PossiblePlayerBattleAction BattleActionsController::selectAction(BattleHex targe
 	return possibleActions.front();
 }
 
-void BattleActionsController::onHexHovered(BattleHex hoveredHex)
+void BattleActionsController::onHexHovered(const BattleHex & hoveredHex)
 {
 	if (owner.openingPlaying())
 	{
@@ -926,7 +926,7 @@ void BattleActionsController::onHoverEnded()
 	currentConsoleMsg.clear();
 }
 
-void BattleActionsController::onHexLeftClicked(BattleHex clickedHex)
+void BattleActionsController::onHexLeftClicked(const BattleHex & clickedHex)
 {
 	if (owner.stacksController->getActiveStack() == nullptr)
 		return;
@@ -983,7 +983,7 @@ spells::Mode BattleActionsController::getCurrentCastMode() const
 
 }
 
-bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell, const CStack *targetStack, BattleHex targetHex)
+bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell, const CStack *targetStack, const BattleHex & targetHex)
 {
 	assert(currentSpell);
 	if (!currentSpell)
@@ -1006,7 +1006,7 @@ bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell,
 	return m->canBeCastAt(target, problem);
 }
 
-bool BattleActionsController::canStackMoveHere(const CStack * stackToMove, BattleHex myNumber) const
+bool BattleActionsController::canStackMoveHere(const CStack * stackToMove, const BattleHex & myNumber) const
 {
 	BattleHexArray acc = owner.getBattle()->battleGetAvailableHexes(stackToMove, false);
 	BattleHex shiftedDest = myNumber.cloneInDirection(stackToMove->destShiftDir(), false);
@@ -1057,7 +1057,7 @@ void BattleActionsController::activateStack()
 	}
 }
 
-void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
+void BattleActionsController::onHexRightClicked(const BattleHex & clickedHex)
 {
 	bool isCurrentStackInSpellcastMode = creatureSpellcastingModeActive();
 
@@ -1095,7 +1095,7 @@ bool BattleActionsController::creatureSpellcastingModeActive() const
 	return !possibleActions.empty() && std::all_of(possibleActions.begin(), possibleActions.end(), spellcastModePredicate);
 }
 
-bool BattleActionsController::currentActionSpellcasting(BattleHex hoveredHex)
+bool BattleActionsController::currentActionSpellcasting(const BattleHex & hoveredHex)
 {
 	if (heroSpellToCast)
 		return true;

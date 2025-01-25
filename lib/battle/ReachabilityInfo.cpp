@@ -14,7 +14,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, BattleHex StartPosition):
+ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, const BattleHex & StartPosition):
 	perspective(static_cast<BattleSide>(Stack->unitSide())),
 	startPosition(StartPosition),
 	doubleWide(Stack->doubleWide()),
@@ -31,7 +31,7 @@ ReachabilityInfo::ReachabilityInfo()
 	predecessors.fill(BattleHex::INVALID);
 }
 
-bool ReachabilityInfo::isReachable(BattleHex hex) const
+bool ReachabilityInfo::isReachable(const BattleHex & hex) const
 {
 	return distances[hex.toInt()] < INFINITE_DIST;
 }
@@ -42,7 +42,7 @@ uint32_t ReachabilityInfo::distToNearestNeighbour(
 {
 	uint32_t ret = 1000000;
 
-	for(auto targetHex : targetHexes)
+	for(const auto & targetHex : targetHexes)
 	{
 		for(auto & n : targetHex.getNeighbouringTiles())
 		{
@@ -79,7 +79,7 @@ uint32_t ReachabilityInfo::distToNearestNeighbour(
 		}
 	}
 
-	vstd::erase_if(attackableHexes, [defender](BattleHex h) -> bool
+	vstd::erase_if(attackableHexes, [defender](const BattleHex & h) -> bool
 		{
 			return h.getY() != defender->getPosition().getY() || !h.isAvailable();
 		});

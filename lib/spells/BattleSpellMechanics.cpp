@@ -508,7 +508,7 @@ bool BattleSpellMechanics::counteringSelector(const Bonus * bonus) const
 	return false;
 }
 
-BattleHexArray BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex) const
+BattleHexArray BattleSpellMechanics::spellRangeInHexes(const BattleHex & centralHex) const
 {
 	using namespace SRSLPraserHelpers;
 
@@ -612,7 +612,7 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 				hexesToCheck.insert(stack->getPosition().getNeighbouringTiles());
 			}
 
-			for(auto hex : hexesToCheck)
+			for(const auto & hex : hexesToCheck)
 			{
 				if(hex.isAvailable())
 				{
@@ -659,7 +659,7 @@ bool BattleSpellMechanics::isReceptive(const battle::Unit * target) const
 	return targetCondition->isReceptive(this, target);
 }
 
-BattleHexArray BattleSpellMechanics::rangeInHexes(BattleHex centralHex) const
+BattleHexArray BattleSpellMechanics::rangeInHexes(const BattleHex & centralHex) const
 {
 	if(isMassive() || !centralHex.isValid())
 		return BattleHexArray();

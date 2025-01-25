@@ -56,7 +56,7 @@ public:
 	bool hasWorkingTowers() const;
 	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps); //for offensive damaging spells only
 	void print(const std::string & text) const;
-	BattleAction moveOrAttack(const CStack * stack, BattleHex hex, const PotentialTargets & targets);
+	BattleAction moveOrAttack(const CStack * stack, const BattleHex & hex, const PotentialTargets & targets);
 
 	BattleEvaluator(
 		std::shared_ptr<Environment> env,

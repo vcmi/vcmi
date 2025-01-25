@@ -15,7 +15,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-bool AccessibilityInfo::tileAccessibleWithGate(BattleHex tile, BattleSide side) const
+bool AccessibilityInfo::tileAccessibleWithGate(const BattleHex & tile, BattleSide side) const
 {
 	//at(otherHex) != EAccessibility::ACCESSIBLE && (at(otherHex) != EAccessibility::GATE || side != BattleSide::DEFENDER)
 	const auto & accessibility = at(tile.toInt());
@@ -35,12 +35,12 @@ bool AccessibilityInfo::tileAccessibleWithGate(BattleHex tile, BattleSide side) 
 	return true;
 }
 
-bool AccessibilityInfo::accessible(BattleHex tile, const battle::Unit * stack) const
+bool AccessibilityInfo::accessible(const BattleHex & tile, const battle::Unit * stack) const
 {
 	return accessible(tile, stack->doubleWide(), stack->unitSide());
 }
 
-bool AccessibilityInfo::accessible(BattleHex tile, bool doubleWide, BattleSide side) const
+bool AccessibilityInfo::accessible(const BattleHex & tile, bool doubleWide, BattleSide side) const
 {
 	// All hexes that stack would cover if standing on tile have to be accessible.
 	//do not use getHexes for speed reasons

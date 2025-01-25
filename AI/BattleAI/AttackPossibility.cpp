@@ -72,7 +72,7 @@ void DamageCache::buildObstacleDamageCache(std::shared_ptr<HypotheticBattle> hb,
 
 			auto damageDealt = stack->getAvailableHealth() - updated->getAvailableHealth();
 
-			for(auto hex : affectedHexes)
+			for(const auto & hex : affectedHexes)
 			{
 				obstacleDamage[hex][stack->unitId()] = damageDealt;
 			}
@@ -129,7 +129,7 @@ int64_t DamageCache::getDamage(const battle::Unit * attacker, const battle::Unit
 	return damageCache[attacker->unitId()][defender->unitId()] * attacker->getCount();
 }
 
-int64_t DamageCache::getObstacleDamage(BattleHex hex, const battle::Unit * defender)
+int64_t DamageCache::getObstacleDamage(const BattleHex & hex, const battle::Unit * defender)
 {
 	if(parent)
 		return parent->getObstacleDamage(hex, defender);
@@ -166,7 +166,7 @@ int64_t DamageCache::getOriginalDamage(const battle::Unit * attacker, const batt
 	return getDamage(attacker, defender, hb);
 }
 
-AttackPossibility::AttackPossibility(BattleHex from, BattleHex dest, const BattleAttackInfo & attack)
+AttackPossibility::AttackPossibility(const BattleHex & from, const BattleHex & dest, const BattleAttackInfo & attack)
 	: from(from), dest(dest), attack(attack)
 {
 	this->attack.attackerPos = from;
@@ -281,7 +281,7 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 
 	auto attacker = attackInfo.attacker;
 	const auto & hexes = attacker->getSurroundingHexes(hex);
-	for(BattleHex tile : hexes)
+	for(const BattleHex & tile : hexes)
 	{
 		auto st = state->battleGetUnitByPos(tile, true);
 		if(!st || !state->battleMatchOwner(st, attacker))
@@ -332,7 +332,7 @@ AttackPossibility AttackPossibility::evaluate(
 	else
 		defenderHex = CStack::meleeAttackHexes(attacker, defender, hex);
 
-	for(BattleHex defHex : defenderHex)
+	for(const BattleHex & defHex : defenderHex)
 	{
 		if(defHex == hex) // should be impossible but check anyway
 			continue;
@@ -489,7 +489,7 @@ AttackPossibility AttackPossibility::evaluate(
 		logAi->trace("BattleAI AP: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
 			attackInfo.attacker->unitType()->getJsonKey(),
 			attackInfo.defender->unitType()->getJsonKey(),
-			(int)ap.dest, (int)ap.from, (int)ap.affectedUnits.size(),
+			ap.dest.toInt(), ap.from.toInt(), (int)ap.affectedUnits.size(),
 			ap.defenderDamageReduce, ap.attackerDamageReduce, ap.collateralDamageReduce, ap.shootersBlockedDmg);
 #endif
 
@@ -504,7 +504,7 @@ AttackPossibility AttackPossibility::evaluate(
 	logAi->trace("BattleAI best AP: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
 		attackInfo.attacker->unitType()->getJsonKey(),
 		attackInfo.defender->unitType()->getJsonKey(),
-		(int)bestAp.dest, (int)bestAp.from, (int)bestAp.affectedUnits.size(),
+		bestAp.dest.toInt(), bestAp.from.toInt(), (int)bestAp.affectedUnits.size(),
 		bestAp.defenderDamageReduce, bestAp.attackerDamageReduce, bestAp.collateralDamageReduce, bestAp.shootersBlockedDmg);
 #endif
 

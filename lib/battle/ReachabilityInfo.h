@@ -42,7 +42,7 @@ struct DLL_LINKAGE ReachabilityInfo
 		{
 			destructibleEnemyTurns.fill(-1);
 		}
-		Parameters(const battle::Unit * Stack, BattleHex StartPosition);
+		Parameters(const battle::Unit * Stack, const BattleHex & StartPosition);
 	};
 
 	Parameters params;
@@ -52,7 +52,7 @@ struct DLL_LINKAGE ReachabilityInfo
 
 	ReachabilityInfo();
 
-	bool isReachable(BattleHex hex) const;
+	bool isReachable(const BattleHex & hex) const;
 
 	uint32_t distToNearestNeighbour(
 		const BattleHexArray & targetHexes,

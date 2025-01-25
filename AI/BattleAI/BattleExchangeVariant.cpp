@@ -349,7 +349,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 		logAi->trace(
 			"Checking movement towards %d of %s",
 			enemy->getCount(),
-			enemy->creatureId().toCreature()->getNameSingularTranslated());
+			VLC->creatures()->getById(enemy->creatureId())->getJsonKey());
 
 		auto distance = dists.distToNearestNeighbour(activeStack, enemy);
 
@@ -427,7 +427,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 							if(defenderToBypass)
 							{
 #if BATTLE_TRACE_LEVEL >= 1
-								logAi->trace("Found target to bypass at %d", enemyHex.hex);
+								logAi->trace("Found target to bypass at %d", enemyHex.toInt());
 #endif
 
 								auto attackHex = dists.predecessors[enemyHex.toInt()];
@@ -486,7 +486,7 @@ battle::Units BattleExchangeEvaluator::getAdjacentUnits(const battle::Unit * blo
 		checkedStacks.push_back(stack);
 
 		auto const & hexes = stack->getSurroundingHexes();
-		for(auto hex : hexes)
+		for(const auto & hex : hexes)
 		{
 			auto neighbour = cb->battleGetUnitByPos(hex);
 
@@ -517,14 +517,14 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 
 	battle::Units allReachableUnits = additionalUnits;
 	
-	for(auto hex : hexes)
+	for(const auto & hex : hexes)
 	{
 		vstd::concatenate(allReachableUnits, getOneTurnReachableUnits(turn, hex));
 	}
 
 	if(!ap.attack.attacker->isTurret())
 	{
-		for(auto hex : ap.attack.attacker->getHexes())
+		for(const auto & hex : ap.attack.attacker->getHexes())
 		{
 			auto unitsReachingAttacker = getOneTurnReachableUnits(turn, hex);
 			for(auto unit : unitsReachingAttacker)
@@ -577,7 +577,7 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 
 		if(!accessible)
 		{
-			for(auto hex : unit->getSurroundingHexes())
+			for(const auto & hex : unit->getSurroundingHexes())
 			{
 				if(ap.attack.defender->coversPos(hex))
 				{
@@ -639,7 +639,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	battle::Units additionalUnits) const
 {
 #if BATTLE_TRACE_LEVEL>=1
-	logAi->trace("Battle exchange at %d", ap.attack.shooting ? ap.dest.hex : ap.from.hex);
+	logAi->trace("Battle exchange at %d", ap.attack.shooting ? ap.dest.toInt() : ap.from.toInt());
 #endif
 
 	if(cb->battleGetMySide() == BattleSide::LEFT_SIDE
@@ -927,7 +927,7 @@ void BattleExchangeEvaluator::updateReachabilityMap(std::shared_ptr<HypotheticBa
 	reachabilityMap.update(turnOrder, hb);
 }
 
-const battle::Units & ReachabilityMapCache::getOneTurnReachableUnits(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env, const std::vector<battle::Units> & turnOrder, uint8_t turn, BattleHex hex)
+const battle::Units & ReachabilityMapCache::getOneTurnReachableUnits(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env, const std::vector<battle::Units> & turnOrder, uint8_t turn, const BattleHex & hex)
 {
 	auto & turnData = hexReachabilityPerTurn[turn];
 
@@ -940,7 +940,7 @@ const battle::Units & ReachabilityMapCache::getOneTurnReachableUnits(std::shared
 	return turnData.hexes[hex.toInt()];
 }
 
-battle::Units ReachabilityMapCache::computeOneTurnReachableUnits(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env, const std::vector<battle::Units> & turnOrder, uint8_t turn, BattleHex hex)
+battle::Units ReachabilityMapCache::computeOneTurnReachableUnits(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env, const std::vector<battle::Units> & turnOrder, uint8_t turn, const BattleHex & hex)
 {
 	battle::Units result;
 
@@ -977,7 +977,7 @@ battle::Units ReachabilityMapCache::computeOneTurnReachableUnits(std::shared_ptr
 
 				if(hexStack && cb->battleMatchOwner(unit, hexStack, false))
 				{
-					for(BattleHex neighbour : hex.getNeighbouringTiles())
+					for(const BattleHex & neighbour : hex.getNeighbouringTiles())
 					{
 						reachable = unitReachability.distances.at(neighbour.toInt()) <= radius;
 
@@ -996,13 +996,13 @@ battle::Units ReachabilityMapCache::computeOneTurnReachableUnits(std::shared_ptr
 	return result;
 }
 
-const battle::Units & BattleExchangeEvaluator::getOneTurnReachableUnits(uint8_t turn, BattleHex hex) const
+const battle::Units & BattleExchangeEvaluator::getOneTurnReachableUnits(uint8_t turn, const BattleHex & hex) const
 {
 	return reachabilityMap.getOneTurnReachableUnits(cb, env, turnOrder, turn, hex);
 }
 
 // avoid blocking path for stronger stack by weaker stack
-bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * activeUnit, BattleHex position)
+bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * activeUnit, const BattleHex & position)
 {
 	const int BLOCKING_THRESHOLD = 70;
 	const int BLOCKING_OWN_ATTACK_PENALTY = 100;
@@ -1031,7 +1031,7 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 			auto unitReachability = turnBattle.getReachability(unit);
 			auto unitSpeed = unit->getMovementRange(turn); // Cached value, to avoid performance hit
 
-			for(BattleHex hex = BattleHex::TOP_LEFT; hex.isValid(); hex++)
+			for(BattleHex hex = BattleHex::TOP_LEFT; hex.isValid(); ++hex)
 			{
 				bool enemyUnit = false;
 				bool reachable = unitReachability.distances.at(hex.toInt()) <= unitSpeed;
@@ -1043,7 +1043,7 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 					if(hexStack && cb->battleMatchOwner(unit, hexStack, false))
 					{
 						enemyUnit = true;
-						for(BattleHex neighbour : hex.getNeighbouringTiles())
+						for(const BattleHex & neighbour : hex.getNeighbouringTiles())
 						{
 							reachable = unitReachability.distances.at(neighbour.toInt()) <= unitSpeed;
 
@@ -1063,7 +1063,7 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 	}
 
 #if BATTLE_TRACE_LEVEL>=1
-	logAi->trace("Position %d, blocking score %f", position.hex, blockingScore);
+	logAi->trace("Position %d, blocking score %f", position.toInt(), blockingScore);
 #endif
 
 	return blockingScore > BLOCKING_THRESHOLD;

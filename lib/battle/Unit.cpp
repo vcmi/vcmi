@@ -51,14 +51,14 @@ const IBonusBearer* Unit::getBonusBearer() const
 	return this;
 }
 
-const BattleHexArray & Unit::getSurroundingHexes(BattleHex assumedPosition) const
+const BattleHexArray & Unit::getSurroundingHexes(const BattleHex & assumedPosition) const
 {
 	BattleHex hex = (assumedPosition.toInt() != BattleHex::INVALID) ? assumedPosition : getPosition(); //use hypothetical position
 
 	return getSurroundingHexes(hex, doubleWide(), unitSide());
 }
 
-const BattleHexArray & Unit::getSurroundingHexes(BattleHex position, bool twoHex, BattleSide side)
+const BattleHexArray & Unit::getSurroundingHexes(const BattleHex & position, bool twoHex, BattleSide side)
 {
 	if(!twoHex)
 		return position.getNeighbouringTiles();
@@ -68,31 +68,25 @@ const BattleHexArray & Unit::getSurroundingHexes(BattleHex position, bool twoHex
 
 BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
 {
-	const BattleHexArray & defenderHexes = battle::Unit::getHexes(
-		getPosition(),
-		doubleWide(),
-		unitSide());
+	const BattleHexArray & defenderHexes = getHexes();
 	
 	BattleHexArray targetableHexes;
 
-	for(auto defenderHex : defenderHexes)
+	for(const auto & defenderHex : defenderHexes)
 	{
-		auto hexes = battle::Unit::getHexes(
-			defenderHex,
-			attacker->doubleWide(),
-			unitSide());
+		auto hexes = battle::Unit::getHexes(defenderHex);
 
 		if(hexes.size() == 2 && BattleHex::getDistance(hexes.front(), hexes.back()) != 1)
 			hexes.pop_back();
 
-		for(auto hex : hexes)
+		for(const auto & hex : hexes)
 			targetableHexes.insert(hex.getNeighbouringTiles());
 	}
 
 	return targetableHexes;
 }
 
-bool Unit::coversPos(BattleHex pos) const
+bool Unit::coversPos(const BattleHex & pos) const
 {
 	return getPosition() == pos || (doubleWide() && (occupiedHex() == pos));
 }
@@ -102,7 +96,7 @@ const BattleHexArray & Unit::getHexes() const
 	return getHexes(getPosition(), doubleWide(), unitSide());
 }
 
-const BattleHexArray & Unit::getHexes(BattleHex assumedPos) const
+const BattleHexArray & Unit::getHexes(const BattleHex & assumedPos) const
 {
 	return getHexes(assumedPos, doubleWide(), unitSide());
 }
@@ -125,7 +119,7 @@ BattleHexArray::ArrayOfBattleHexArrays Unit::precomputeUnitHexes(BattleSide side
 	return result;
 }
 
-const BattleHexArray & Unit::getHexes(BattleHex assumedPos, bool twoHex, BattleSide side)
+const BattleHexArray & Unit::getHexes(const BattleHex & assumedPos, bool twoHex, BattleSide side)
 {
 	static const std::array<BattleHexArray::ArrayOfBattleHexArrays, 4> precomputed = {
 		precomputeUnitHexes(BattleSide::ATTACKER, false),
@@ -159,12 +153,12 @@ BattleHex Unit::occupiedHex() const
 	return occupiedHex(getPosition(), doubleWide(), unitSide());
 }
 
-BattleHex Unit::occupiedHex(BattleHex assumedPos) const
+BattleHex Unit::occupiedHex(const BattleHex & assumedPos) const
 {
 	return occupiedHex(assumedPos, doubleWide(), unitSide());
 }
 
-BattleHex Unit::occupiedHex(BattleHex assumedPos, bool twoHex, BattleSide side)
+BattleHex Unit::occupiedHex(const BattleHex & assumedPos, bool twoHex, BattleSide side)
 {
 	if(twoHex)
 	{

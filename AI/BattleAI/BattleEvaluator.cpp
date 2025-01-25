@@ -327,7 +327,7 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::steady_clock> start)
 	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 
-BattleAction BattleEvaluator::moveOrAttack(const CStack * stack, BattleHex hex, const PotentialTargets & targets)
+BattleAction BattleEvaluator::moveOrAttack(const CStack * stack, const BattleHex & hex, const PotentialTargets & targets)
 {
 	auto additionalScore = 0;
 	std::optional<AttackPossibility> attackOnTheWay;
@@ -371,21 +371,19 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 
 	if (siegeDefense)
 	{
-		vstd::erase_if(avHexes, [&](const BattleHex& hex) {
+		vstd::erase_if(avHexes, [&](const BattleHex & hex) {
 			return !cb->getBattle(battleID)->battleIsInsideWalls(hex);
 		});
 	}
 
-	if(!avHexes.size() || !hexes.size()) //we are blocked or dest is blocked
+	if(avHexes.empty() || hexes.empty()) //we are blocked or dest is blocked
 	{
 		return BattleAction::makeDefend(stack);
 	}
 
 	BattleHexArray targetHexes = hexes;
 
-	vstd::erase_if(targetHexes, [](const BattleHex & hex) { return !hex.isValid(); });
-
-	std::sort(targetHexes.begin(), targetHexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
+	std::sort(targetHexes.begin(), targetHexes.end(), [&](const BattleHex & h1, const BattleHex & h2) -> bool
 		{
 			return reachability.distances[h1.toInt()] < reachability.distances[h2.toInt()];
 		});
@@ -399,9 +397,9 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 	}
 
 	// this turn
-	for(auto hex : targetHexes)
+	for(const auto & hex : targetHexes)
 	{
-		if(vstd::contains(avHexes, hex))
+		if(avHexes.contains(hex))
 		{
 			return moveOrAttack(stack, hex, targets);
 		}
@@ -436,14 +434,14 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 		}
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.
-		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [&](BattleHex hex) -> int
+		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [&](const BattleHex & hex) -> int
 		{
 			const int NEGATIVE_OBSTACLE_PENALTY = 100; // avoid landing on negative obstacle (moat, fire wall, etc)
 			const int BLOCKED_STACK_PENALTY = 100; // avoid landing on moat
 
 			auto distance = BattleHex::getDistance(bestNeighbour, hex);
 
-			if(vstd::contains(obstacleHexes, hex))
+			if(obstacleHexes.contains(hex))
 				distance += NEGATIVE_OBSTACLE_PENALTY;
 
 			return scoreEvaluator.checkPositionBlocksOurStacks(*hb, stack, hex) ? BLOCKED_STACK_PENALTY + distance : distance;
@@ -462,7 +460,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 				return BattleAction::makeDefend(stack);
 			}
 
-			if(vstd::contains(avHexes, currentDest)
+			if(avHexes.contains(currentDest)
 				&& !scoreEvaluator.checkPositionBlocksOurStacks(*hb, stack, currentDest))
 			{
 				return moveOrAttack(stack, currentDest, targets);
@@ -687,7 +685,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				else
 				{
 					auto psFirst = ps.dest.front();
-					auto strWhere = psFirst.unitValue ? psFirst.unitValue->getDescription() : std::to_string(psFirst.hexValue.hex);
+					auto strWhere = psFirst.unitValue ? psFirst.unitValue->getDescription() : std::to_string(psFirst.hexValue.toInt());
 
 					logAi->trace("Evaluating %s at %s", ps.spell->getNameTranslated(), strWhere);
 				}
@@ -805,7 +803,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 							logAi->trace(
 								"Spell %s to %d affects %s (%d), dps: %2f oldHealth: %d newHealth: %d",
 								ps.spell->getNameTranslated(),
-								ps.dest.at(0).hexValue.hex,  // Safe to access .at(0) now
+								ps.dest.at(0).hexValue.toInt(),  // Safe to access .at(0) now
 								unit->creatureId().toCreature()->getNameSingularTranslated(),
 								unit->getCount(),
 								dpsReduce,

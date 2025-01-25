@@ -360,7 +360,7 @@ void HypotheticBattle::addUnit(uint32_t id, const JsonNode & data)
 	stackStates[newUnit->unitId()] = newUnit;
 }
 
-void HypotheticBattle::moveUnit(uint32_t id, BattleHex destination)
+void HypotheticBattle::moveUnit(uint32_t id, const BattleHex & destination)
 {
 	std::shared_ptr<StackWithBonuses> changed = getForUpdate(id);
 	changed->position = destination;

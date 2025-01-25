@@ -143,7 +143,7 @@ public:
 	void tick(uint32_t msPassed);
 
 	/// returns position of animation needed to place stack in specific hex
-	Point getStackPositionAtHex(BattleHex hexNum, const CStack * creature) const;
+	Point getStackPositionAtHex(const BattleHex & hexNum, const CStack * creature) const;
 
 	friend class BattleAnimation; // for exposing pendingAnims/creAnims/creDir to animations
 };

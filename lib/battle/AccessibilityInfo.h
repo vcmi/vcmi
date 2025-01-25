@@ -39,10 +39,10 @@ struct DLL_LINKAGE AccessibilityInfo : TAccessibilityArray
 	std::shared_ptr<const TBattlefieldTurnsArray> destructibleEnemyTurns; //used only as a view for destructibleEnemyTurns from ReachabilityInfo::Parameters
 
 	public:
-		bool accessible(BattleHex tile, const battle::Unit * stack) const; //checks for both tiles if stack is double wide
-		bool accessible(BattleHex tile, bool doubleWide, BattleSide side) const; //checks for both tiles if stack is double wide
+		bool accessible(const BattleHex & tile, const battle::Unit * stack) const; //checks for both tiles if stack is double wide
+		bool accessible(const BattleHex & tile, bool doubleWide, BattleSide side) const; //checks for both tiles if stack is double wide
 	private:
-		bool tileAccessibleWithGate(BattleHex tile, BattleSide side) const;
+		bool tileAccessibleWithGate(const BattleHex & tile, BattleSide side) const;
 };
 
 VCMI_LIB_NAMESPACE_END
