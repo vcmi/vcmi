@@ -225,13 +225,6 @@ void Initializer::initialize(CGMine * o)
 	}
 }
 
-void Initializer::initialize(CGResource * o)
-{
-	if(!o) return;
-	
-	o->amount = CGResource::RANDOM_AMOUNT;
-}
-
 //===============IMPLEMENT PROPERTIES SETUP===============================
 void Inspector::updateProperties(CArmedInstance * o)
 {

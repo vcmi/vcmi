@@ -31,7 +31,9 @@
 #include "../filesystem/Filesystem.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjectConstructors/CommonConstructors.h"
 #include "../mapObjects/CGCreature.h"
+#include "../mapObjects/CGResource.h"
 #include "../mapObjects/MapObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../modding/ModScope.h"
@@ -39,8 +41,6 @@
 #include "../networkPacks/ArtifactLocation.h"
 #include "../spells/CSpellHandler.h"
 #include "../texts/TextOperations.h"
-
-#include <boost/crc.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -92,19 +92,6 @@ std::unique_ptr<CMapHeader> CMapLoaderH3M::loadMapHeader()
 
 void CMapLoaderH3M::init()
 {
-	//TODO: get rid of double input process
-	si64 temp_size = inputStream->getSize();
-	inputStream->seek(0);
-
-	auto * temp_buffer = new ui8[temp_size];
-	inputStream->read(temp_buffer, temp_size);
-
-	// Compute checksum
-	boost::crc_32_type result;
-	result.process_bytes(temp_buffer, temp_size);
-	map->checksum = result.checksum();
-
-	delete[] temp_buffer;
 	inputStream->seek(0);
 
 	readHeader();
@@ -1315,11 +1302,15 @@ CGObjectInstance * CMapLoaderH3M::readResource(const int3 & mapPosition, std::sh
 	readMessageAndGuards(object->message, object, mapPosition);
 
 	object->amount = reader->readUInt32();
-	if(GameResID(objectTemplate->subid) == GameResID(EGameResID::GOLD))
+
+	if (objectTemplate->id != Obj::RANDOM_RESOURCE)
 	{
-		// Gold is multiplied by 100.
-		object->amount *= CGResource::GOLD_AMOUNT_MULTIPLIER;
+		const auto & baseHandler = VLC->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid);
+		const auto & ourHandler = std::dynamic_pointer_cast<ResourceInstanceConstructor>(baseHandler);
+
+		object->amount *= ourHandler->getAmountMultiplier();
 	}
+
 	reader->skipZero(4);
 	return object;
 }

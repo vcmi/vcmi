@@ -48,6 +48,17 @@ std::string CreatureInstanceConstructor::getNameTextID() const
 	return VLC->creatures()->getByIndex(getSubIndex())->getNamePluralTextID();
 }
 
+void ResourceInstanceConstructor::initTypeData(const JsonNode & input)
+{
+	config = input;
+
+	resourceType = GameResID::GOLD; //set up fallback
+	VLC->identifiers()->requestIdentifierOptional("resource", input["resource"], [&](si32 index)
+	{
+		resourceType = GameResID(index);
+	});
+}
+
 bool ResourceInstanceConstructor::hasNameTextID() const
 {
 	return true;
@@ -55,7 +66,33 @@ bool ResourceInstanceConstructor::hasNameTextID() const
 
 std::string ResourceInstanceConstructor::getNameTextID() const
 {
-	return TextIdentifier("core", "restypes", getSubIndex()).get();
+	return TextIdentifier("core", "restypes", resourceType.getNum()).get();
+}
+
+GameResID ResourceInstanceConstructor::getResourceType() const
+{
+	return resourceType;
+}
+
+int ResourceInstanceConstructor::getAmountMultiplier() const
+{
+	if (config["amountMultiplier"].isNull())
+		return 1;
+	return config["amountMultiplier"].Integer();
+}
+
+void ResourceInstanceConstructor::randomizeObject(CGResource * object, vstd::RNG & rng) const
+{
+	if (object->amount != CGResource::RANDOM_AMOUNT)
+		return;
+
+	JsonRandom randomizer(object->cb);
+	JsonRandom::Variables dummy;
+
+	if (!config["amounts"].isNull())
+		object->amount = randomizer.loadValue(config["amounts"], rng, dummy, 0) * getAmountMultiplier();
+	else
+		object->amount = 5 * getAmountMultiplier();
 }
 
 void CTownInstanceConstructor::initTypeData(const JsonNode & input)

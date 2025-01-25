@@ -15,7 +15,7 @@
 #include "../Goals/RecruitHero.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
-#include "lib/mapObjects/MapObjects.h" //for victory conditions
+#include "../../../lib/mapObjects/CGResource.h"
 #include "../Engine/Nullkiller.h"
 
 namespace NKAI
