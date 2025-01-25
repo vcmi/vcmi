@@ -33,7 +33,8 @@ To install the IPA file, choose one of the following methods:
 
 d) If you purchased HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the required files directly on your device.
 
-![image](https://github.com/user-attachments/assets/8fef1026-9db6-418b-adc9-0bcd39e93adf)
+gog.com download page:
+![GoG-Installer](images/gog_offline_installer.png)
 
 e) Launch the VCMI app on your device. The launcher will prompt you to upload two files to complete the installation.
 
