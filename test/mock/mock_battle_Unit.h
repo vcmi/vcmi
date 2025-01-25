@@ -76,7 +76,7 @@ public:
 	MOCK_CONST_METHOD1(getTotalAttacks, int(bool));
 
 	MOCK_CONST_METHOD0(getPosition, BattleHex());
-	MOCK_METHOD1(setPosition, void(BattleHex));
+	MOCK_METHOD1(setPosition, void(const BattleHex&));
 	MOCK_CONST_METHOD1(getInitiative, int32_t(int));
 
 	MOCK_CONST_METHOD1(canMove, bool(int));
