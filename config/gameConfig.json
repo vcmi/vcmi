@@ -440,7 +440,11 @@
 			// NOTE: on HotA maps, this setting has no effect. Value provided in map will be used instead.
 			"allowRandomSpecialWeeks" : true,
 			// if enabled, every creature can get double growth month, ignoring predefined list
-			"allowAllForDoubleMonth" : false
+			"allowAllForDoubleMonth" : false,
+			// if enabled creatures may join player for free, disabling it removes free joining globally unless creature is set to join in map editor
+			"allowJoiningForFree" : true,
+			// percent of stack amount that joins player per each successful join (does not decrease cost when joining for gold), if 0 or lower creatures never join for free or gold
+			"joiningPercentage" : 100
 		},
 		
 		"dwellings" :
