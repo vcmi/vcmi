@@ -222,8 +222,6 @@ void CClient::initMapHandler()
 		CGI->mh = std::make_shared<CMapHandler>(gs->map);
 		logNetwork->trace("Creating mapHandler: %d ms", CSH->th->getDiff());
 	}
-
-	pathCache.clear();
 }
 
 void CClient::initPlayerEnvironments()
@@ -494,52 +492,13 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 	}
 }
 
-void CClient::updatePath(const ObjectInstanceID & id)
-{
-	invalidatePaths();
-	auto hero = getHero(id);
-	updatePath(hero);
-}
 
-void CClient::updatePath(const CGHeroInstance * hero)
-{
-	if(LOCPLINT && hero)
-		LOCPLINT->localState->verifyPath(hero);
-}
-
-void CClient::invalidatePaths()
-{
-	boost::unique_lock<boost::mutex> pathLock(pathCacheMutex);
-	pathCache.clear();
-}
 
 vstd::RNG & CClient::getRandomGenerator()
 {
 	// Client should use CRandomGenerator::getDefault() for UI logic
 	// Gamestate should never call this method on client!
 	throw std::runtime_error("Illegal access to random number generator from client code!");
-}
-
-std::shared_ptr<const CPathsInfo> CClient::getPathsInfo(const CGHeroInstance * h)
-{
-	assert(h);
-	boost::unique_lock<boost::mutex> pathLock(pathCacheMutex);
-
-	auto iter = pathCache.find(h);
-
-	if(iter == std::end(pathCache))
-	{
-		auto paths = std::make_shared<CPathsInfo>(getMapSize(), h);
-
-		gs->calculatePaths(h, *paths.get());
-
-		pathCache[h] = paths;
-		return paths;
-	}
-	else
-	{
-		return iter->second;
-	}
 }
 
 #if SCRIPTING_ENABLED

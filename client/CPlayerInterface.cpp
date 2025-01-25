@@ -97,6 +97,8 @@
 #include "../lib/networkPacks/PacksForServer.h"
 
 #include "../lib/pathfinder/CGPathNode.h"
+#include "../lib/pathfinder/PathfinderCache.h"
+#include "../lib/pathfinder/PathfinderOptions.h"
 
 #include "../lib/serializer/CTypeList.h"
 #include "../lib/serializer/ESerializationVersion.h"
@@ -156,6 +158,7 @@ CPlayerInterface::~CPlayerInterface()
 	if (LOCPLINT == this)
 		LOCPLINT = nullptr;
 }
+
 void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
 {
 	cb = CB;
@@ -164,7 +167,18 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	CCS->musich->loadTerrainMusicThemes();
 	initializeHeroTownList();
 
+	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), PathfinderOptions(cb.get()));
 	adventureInt.reset(new AdventureMapInterface());
+}
+
+std::shared_ptr<const CPathsInfo> CPlayerInterface::getPathsInfo(const CGHeroInstance * h)
+{
+	return pathfinderCache->getPathsInfo(h);
+}
+
+void CPlayerInterface::invalidatePaths()
+{
+	pathfinderCache->invalidatePaths();
 }
 
 void CPlayerInterface::closeAllDialogs()
@@ -467,6 +481,8 @@ void CPlayerInterface::heroSecondarySkillChanged(const CGHeroInstance * hero, in
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	for (auto cuw : GH.windows().findWindows<IMarketHolder>())
 		cuw->updateSecondarySkills();
+
+	localState->verifyPath(hero);
 }
 
 void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -583,6 +599,8 @@ void CPlayerInterface::garrisonsChanged(std::vector<const CArmedInstance *> objs
 
 		if (hero)
 		{
+			localState->verifyPath(hero);
+
 			adventureInt->onHeroChanged(hero);
 			if(hero->inTownGarrison && hero->visitedTown != town)
 				adventureInt->onTownChanged(hero->visitedTown);

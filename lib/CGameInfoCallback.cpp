@@ -473,7 +473,7 @@ std::vector <const CGObjectInstance *> CGameInfoCallback::getVisitableObjs(int3 
 
 	for(const CGObjectInstance * obj : t->visitableObjects)
 	{
-		if(getPlayerID() || obj->ID != Obj::EVENT) //hide events from players
+		if(!getPlayerID().has_value() || obj->ID != Obj::EVENT) //hide events from players
 			ret.push_back(obj);
 	}
 
@@ -945,14 +945,9 @@ void CGameInfoCallback::getVisibleTilesInRange(std::unordered_set<int3> &tiles, 
 	gs->getTilesInRange(tiles, pos, radious, ETileVisibility::REVEALED, *getPlayerID(),  distanceFormula);
 }
 
-void CGameInfoCallback::calculatePaths(const std::shared_ptr<PathfinderConfig> & config)
+void CGameInfoCallback::calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const
 {
 	gs->calculatePaths(config);
-}
-
-void CGameInfoCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out)
-{
-	gs->calculatePaths(hero, out);
 }
 
 const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID aid ) const

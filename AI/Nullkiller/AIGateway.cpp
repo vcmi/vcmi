@@ -1296,7 +1296,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 	else
 	{
 		CGPath path;
-		cb->getPathsInfo(h.get())->getPath(path, dst);
+		nullkiller->getPathsInfo(h.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
 			logAi->error("Hero %s cannot reach %s.", h->getNameTranslated(), dst.toString());
@@ -1806,6 +1806,11 @@ void AIStatus::setChannelProbing(bool ongoing)
 bool AIStatus::channelProbing()
 {
 	return ongoingChannelProbing;
+}
+
+void AIGateway::invalidatePaths()
+{
+	nullkiller->invalidatePaths();
 }
 
 }

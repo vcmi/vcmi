@@ -157,7 +157,6 @@ public:
 	//client-specific functionalities (pathfinding)
 	virtual bool canMoveBetween(const int3 &a, const int3 &b);
 	virtual int3 getGuardingCreaturePosition(int3 tile);
-	virtual std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
 
 	std::optional<PlayerColor> getPlayerID() const override;
 

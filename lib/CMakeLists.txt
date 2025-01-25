@@ -172,6 +172,7 @@ set(lib_MAIN_SRCS
 	pathfinder/CGPathNode.cpp
 	pathfinder/CPathfinder.cpp
 	pathfinder/NodeStorage.cpp
+	pathfinder/PathfinderCache.cpp
 	pathfinder/PathfinderOptions.cpp
 	pathfinder/PathfindingRules.cpp
 	pathfinder/TurnInfo.cpp
@@ -584,6 +585,7 @@ set(lib_MAIN_HEADERS
 	pathfinder/CGPathNode.h
 	pathfinder/CPathfinder.h
 	pathfinder/NodeStorage.h
+	pathfinder/PathfinderCache.h
 	pathfinder/PathfinderOptions.h
 	pathfinder/PathfinderUtil.h
 	pathfinder/PathfindingRules.h

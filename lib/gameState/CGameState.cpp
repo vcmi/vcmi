@@ -1144,15 +1144,9 @@ void CGameState::apply(CPackForClient & pack)
 	pack.applyGs(this);
 }
 
-void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)
+void CGameState::calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const
 {
-	calculatePaths(std::make_shared<SingleHeroPathfinderConfig>(out, this, hero));
-}
-
-void CGameState::calculatePaths(const std::shared_ptr<PathfinderConfig> & config)
-{
-	//FIXME: creating pathfinder is costly, maybe reset / clear is enough?
-	CPathfinder pathfinder(this, config);
+	CPathfinder pathfinder(const_cast<CGameState*>(this), config);
 	pathfinder.calculatePaths();
 }
 
