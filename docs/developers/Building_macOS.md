@@ -25,7 +25,7 @@ There're 2 ways to get dependencies automatically.
 
 ### Conan package manager
 
-Please find detailed instructions [here](./Conan.md). Note that the link points to the state of the current branch, for the latest release check the same document in the [master branch](https://github.com/vcmi/vcmi/blob/master/docs/developers/Сonan.md).
+Please find detailed instructions [here](./Conan.md). Note that the link points to the state of the current branch, for the latest release check the same document in the [master branch](https://github.com/vcmi/vcmi/blob/master/docs/developers/Conan.md).
 
 On the step where you need to replace **PROFILE**, choose:
 
@@ -76,7 +76,7 @@ Note that if you wish to use Qt Creator IDE, you should skip this step and confi
 
 ## Building project
 
-You must also install game files to be able to run the built version, see [Installation on macOS](players/Installation_macOS.md).
+You must also install game files to be able to run the built version, see [Installation on macOS](../players/Installation_macOS.md).
 
 ### From Xcode IDE
 

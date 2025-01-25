@@ -63,7 +63,7 @@ Stable VCMI version is available in RPM Fusion repository. Learn how to enable i
 
 Latest public release build can be installed via Flatpak.
 
-Depending on your distribution, you may need to install flatpak itself. You can find guide for your distribution here: <https://www.flatpak.org/setup/>
+Depending on your distribution, you may need to install flatpak itself. You can find guide for your distribution here: <https://flatpak.org/setup/>
 Once you have flatpak, you can install VCMI package which can be found here: <https://flathub.org/apps/details/eu.vcmi.VCMI>
 
 ### Other distributions
