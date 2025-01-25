@@ -24,7 +24,6 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../eventsSDL/InputHandler.h"
 
 #include "../../CCallback.h"
@@ -76,7 +75,7 @@ void BasicMapView::tick(uint32_t msPassed)
 
 void BasicMapView::show(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+	CanvasClipRectGuard guard(to, pos);
 	render(to, false);
 
 	controller->afterRender();
@@ -84,7 +83,7 @@ void BasicMapView::show(Canvas & to)
 
 void BasicMapView::showAll(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+	CanvasClipRectGuard guard(to, pos);
 	render(to, true);
 }
 

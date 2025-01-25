@@ -11,19 +11,22 @@
 #include "RenderHandler.h"
 
 #include "SDLImage.h"
-#include "ImageScaled.h"
+#include "ScalableImage.h"
 #include "FontChain.h"
 
 #include "../gui/CGuiHandler.h"
 
 #include "../render/CAnimation.h"
+#include "../render/CanvasImage.h"
 #include "../render/CDefFile.h"
 #include "../render/Colors.h"
 #include "../render/ColorFilter.h"
 #include "../render/IScreenHandler.h"
 #include "../../lib/json/JsonUtils.h"
+#include "../../lib/CThreadHelper.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/VCMIDirs.h"
+#include "../../lib/constants/StringConstants.h"
 
 #include <vcmi/ArtifactService.h>
 #include <vcmi/CreatureService.h>
@@ -55,60 +58,7 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 	return result;
 }
 
-std::optional<ResourcePath> RenderHandler::getPathForScaleFactor(const ResourcePath & path, const std::string & factor)
-{
-	if(path.getType() == EResType::IMAGE)
-	{
-		auto p = ImagePath::builtin(path.getName());
-		if(CResourceHandler::get()->existsResource(p.addPrefix("SPRITES" + factor + "X/")))
-			return std::optional<ResourcePath>(p.addPrefix("SPRITES" + factor + "X/"));
-		if(CResourceHandler::get()->existsResource(p.addPrefix("DATA" + factor + "X/")))
-			return std::optional<ResourcePath>(p.addPrefix("DATA" + factor + "X/"));
-	}
-	else
-	{
-		auto p = AnimationPath::builtin(path.getName());
-		auto pJson = p.toType<EResType::JSON>();
-		if(CResourceHandler::get()->existsResource(p.addPrefix("SPRITES" + factor + "X/")))
-			return std::optional<ResourcePath>(p.addPrefix("SPRITES" + factor + "X/"));
-		if(CResourceHandler::get()->existsResource(pJson))
-			return std::optional<ResourcePath>(p);
-		if(CResourceHandler::get()->existsResource(pJson.addPrefix("SPRITES" + factor + "X/")))
-			return std::optional<ResourcePath>(p.addPrefix("SPRITES" + factor + "X/"));
-	}
-
-	return std::nullopt;
-}
-
-std::pair<ResourcePath, int> RenderHandler::getScalePath(const ResourcePath & p)
-{
-	auto path = p;
-	int scaleFactor = 1;
-	if(getScalingFactor() > 1)
-	{
-		std::vector<int> factorsToCheck = {getScalingFactor(), 4, 3, 2};
-		for(auto factorToCheck : factorsToCheck)
-		{
-			std::string name = boost::algorithm::to_upper_copy(p.getName());
-			boost::replace_all(name, "SPRITES/", std::string("SPRITES") + std::to_string(factorToCheck) + std::string("X/"));
-			boost::replace_all(name, "DATA/", std::string("DATA") + std::to_string(factorToCheck) + std::string("X/"));
-			ResourcePath scaledPath = ImagePath::builtin(name);
-			if(p.getType() != EResType::IMAGE)
-				scaledPath = AnimationPath::builtin(name);
-			auto tmpPath = getPathForScaleFactor(scaledPath, std::to_string(factorToCheck));
-			if(tmpPath)
-			{
-				path = *tmpPath;
-				scaleFactor = factorToCheck;
-				break;
-			}
-		}
-	}
-
-	return std::pair<ResourcePath, int>(path, scaleFactor);
-};
-
-void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & config)
+void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & config, EImageBlitMode mode)
 {
 	std::string basepath;
 	basepath = config["basepath"].String();
@@ -128,7 +78,7 @@ void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & c
 			JsonNode toAdd = frame;
 			JsonUtils::inherit(toAdd, base);
 			toAdd["file"].String() = basepath + frame.String();
-			source[groupID].emplace_back(toAdd);
+			source[groupID].emplace_back(toAdd, mode);
 		}
 	}
 
@@ -149,15 +99,26 @@ void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & c
 		if (toAdd.Struct().count("defFile"))
 			toAdd["defFile"].String() = basepath + node["defFile"].String();
 
-		source[group][frame] = ImageLocator(toAdd);
+		source[group][frame] = ImageLocator(toAdd, mode);
 	}
 }
 
-RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const AnimationPath & path)
+RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const AnimationPath & path, int scalingFactor, EImageBlitMode mode)
 {
-	auto tmp = getScalePath(path);
-	auto animPath = AnimationPath::builtin(tmp.first.getName());
-	AnimationPath actualPath = boost::starts_with(animPath.getName(), "SPRITES") ? animPath : animPath.addPrefix("SPRITES/");
+	static constexpr std::array scaledSpritesPath = {
+		"", // 0x
+		"SPRITES/",
+		"SPRITES2X/",
+		"SPRITES3X/",
+		"SPRITES4X/",
+	};
+
+	std::string pathString = path.getName();
+
+	if (boost::starts_with(pathString, "SPRITES/"))
+		pathString = pathString.substr(std::string("SPRITES/").length());
+
+	AnimationPath actualPath = AnimationPath::builtin(scaledSpritesPath.at(scalingFactor) + pathString);
 
 	auto it = animationLayouts.find(actualPath);
 
@@ -184,14 +145,10 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
 		stream->read(textData.get(), stream->getSize());
 
-		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), animPath.getOriginalName());
+		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), path.getOriginalName());
 
-		initFromJson(result, config);
+		initFromJson(result, config, mode);
 	}
-
-	for(auto & g : result)
-		for(auto & i : g.second)
-			i.preScaledFactor = tmp.second;
 
 	animationLayouts[actualPath] = result;
 	return animationLayouts[actualPath];
@@ -202,209 +159,174 @@ int RenderHandler::getScalingFactor() const
 	return GH.screenHandler().getScalingFactor();
 }
 
-ImageLocator RenderHandler::getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group)
+ImageLocator RenderHandler::getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group, int scaling, EImageBlitMode mode)
 {
-	const auto & layout = getAnimationLayout(path);
+	const auto & layout = getAnimationLayout(path, scaling, mode);
 	if (!layout.count(group))
-		return ImageLocator(ImagePath::builtin("DEFAULT"));
+		return ImageLocator();
 
 	if (frame >= layout.at(group).size())
-		return ImageLocator(ImagePath::builtin("DEFAULT"));
+		return ImageLocator();
 
 	const auto & locator = layout.at(group).at(frame);
 	if (locator.image || locator.defFile)
 		return locator;
 
-	return ImageLocator(path, frame, group);
+	return ImageLocator(path, frame, group, mode);
 }
 
-std::shared_ptr<const ISharedImage> RenderHandler::loadImageImpl(const ImageLocator & locator)
+std::shared_ptr<ScalableImageShared> RenderHandler::loadImageImpl(const ImageLocator & locator)
 {
 	auto it = imageFiles.find(locator);
 	if (it != imageFiles.end())
 		return it->second;
 
-	// TODO: order should be different:
-	// 1) try to find correctly scaled image
-	// 2) if fails -> try to find correctly transformed
-	// 3) if also fails -> try to find image from correct file
-	// 4) load missing part of the sequence
-	// TODO: check whether (load -> transform -> scale) or (load -> scale -> transform) order should be used for proper loading of pre-scaled data
-	auto imageFromFile = loadImageFromFile(locator.copyFile());
-	auto transformedImage = transformImage(locator.copyFileTransform(), imageFromFile);
-	auto scaledImage = scaleImage(locator.copyFileTransformScale(), transformedImage);
+	auto sdlImage = loadImageFromFileUncached(locator);
+	auto scaledImage = std::make_shared<ScalableImageShared>(locator, sdlImage);
 
+	storeCachedImage(locator, scaledImage);
 	return scaledImage;
 }
 
-std::shared_ptr<const ISharedImage> RenderHandler::loadImageFromFileUncached(const ImageLocator & locator)
+std::shared_ptr<SDLImageShared> RenderHandler::loadImageFromFileUncached(const ImageLocator & locator)
 {
 	if(locator.image)
 	{
 		// TODO: create EmptySharedImage class that will be instantiated if image does not exists or fails to load
-		return std::make_shared<SDLImageShared>(*locator.image, locator.preScaledFactor);
+		return std::make_shared<SDLImageShared>(*locator.image);
 	}
 
 	if(locator.defFile)
 	{
 		auto defFile = getAnimationFile(*locator.defFile);
-		int preScaledFactor = locator.preScaledFactor;
-		if(!defFile) // no prescale for this frame
-		{
-			auto tmpPath = (*locator.defFile).getName();
-			boost::algorithm::replace_all(tmpPath, "SPRITES2X/", "SPRITES/");
-			boost::algorithm::replace_all(tmpPath, "SPRITES3X/", "SPRITES/");
-			boost::algorithm::replace_all(tmpPath, "SPRITES4X/", "SPRITES/");
-			preScaledFactor = 1;
-			defFile = getAnimationFile(AnimationPath::builtin(tmpPath));
-		}
 		if(defFile->hasFrame(locator.defFrame, locator.defGroup))
-			return std::make_shared<SDLImageShared>(defFile.get(), locator.defFrame, locator.defGroup, preScaledFactor);
+			return std::make_shared<SDLImageShared>(defFile.get(), locator.defFrame, locator.defGroup);
 		else
 		{
 			logGlobal->error("Frame %d in group %d not found in file: %s", 
 				locator.defFrame, locator.defGroup, locator.defFile->getName().c_str());
-			return std::make_shared<SDLImageShared>(ImagePath::builtin("DEFAULT"), locator.preScaledFactor);
+			return std::make_shared<SDLImageShared>(ImagePath::builtin("DEFAULT"));
 		}
 	}
 
 	throw std::runtime_error("Invalid image locator received!");
 }
 
-void RenderHandler::storeCachedImage(const ImageLocator & locator, std::shared_ptr<const ISharedImage> image)
+void RenderHandler::storeCachedImage(const ImageLocator & locator, std::shared_ptr<ScalableImageShared> image)
 {
 	imageFiles[locator] = image;
-
-#if 0
-	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "imageCache" / (locator.toString() + ".png");
-	boost::filesystem::path outDir = outPath;
-	outDir.remove_filename();
-	boost::filesystem::create_directories(outDir);
-	image->exportBitmap(outPath , nullptr);
-#endif
 }
 
-std::shared_ptr<const ISharedImage> RenderHandler::loadImageFromFile(const ImageLocator & locator)
+std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocator & locator)
 {
-	if (imageFiles.count(locator))
-		return imageFiles.at(locator);
+	static constexpr std::array scaledDataPath = {
+		"", // 0x
+		"DATA/",
+		"DATA2X/",
+		"DATA3X/",
+		"DATA4X/",
+	};
 
-	auto result = loadImageFromFileUncached(locator);
-	storeCachedImage(locator, result);
-	return result;
+	static constexpr std::array scaledSpritesPath = {
+		"", // 0x
+		"SPRITES/",
+		"SPRITES2X/",
+		"SPRITES3X/",
+		"SPRITES4X/",
+	};
+
+	ImagePath pathToLoad;
+
+	if(locator.defFile)
+	{
+		auto remappedLocator = getLocatorForAnimationFrame(*locator.defFile, locator.defFrame, locator.defGroup, locator.scalingFactor, locator.layer);
+		// we expect that .def's are only used for 1x data, upscaled assets should use standalone images
+		if (!remappedLocator.image)
+			return nullptr;
+
+		pathToLoad = *remappedLocator.image;
+	}
+
+	if(locator.image)
+		pathToLoad = *locator.image;
+
+	if (pathToLoad.empty())
+		return nullptr;
+
+	std::string imagePathString = pathToLoad.getName();
+
+	if(locator.layer == EImageBlitMode::ONLY_OVERLAY)
+		imagePathString += "-OVERLAY";
+	if(locator.layer == EImageBlitMode::ONLY_SHADOW)
+		imagePathString += "-SHADOW";
+	if(locator.playerColored.isValidPlayer())
+		imagePathString += "-" + boost::to_upper_copy(GameConstants::PLAYER_COLOR_NAMES[locator.playerColored.getNum()]);
+	if(locator.playerColored == PlayerColor::NEUTRAL)
+		imagePathString += "-NEUTRAL";
+
+	auto imagePath = ImagePath::builtin(imagePathString);
+	auto imagePathSprites = ImagePath::builtin(imagePathString).addPrefix(scaledSpritesPath.at(locator.scalingFactor));
+	auto imagePathData = ImagePath::builtin(imagePathString).addPrefix(scaledDataPath.at(locator.scalingFactor));
+
+	if(CResourceHandler::get()->existsResource(imagePathSprites))
+		return std::make_shared<SDLImageShared>(imagePathSprites);
+
+	if(CResourceHandler::get()->existsResource(imagePathData))
+		return std::make_shared<SDLImageShared>(imagePathData);
+
+	if(CResourceHandler::get()->existsResource(imagePath))
+		return std::make_shared<SDLImageShared>(imagePath);
+
+	return nullptr;
 }
 
-std::shared_ptr<const ISharedImage> RenderHandler::transformImage(const ImageLocator & locator, std::shared_ptr<const ISharedImage> image)
-{
-	if (imageFiles.count(locator))
-		return imageFiles.at(locator);
-
-	auto result = image;
-
-	if (locator.verticalFlip)
-		result = result->verticalFlip();
-
-	if (locator.horizontalFlip)
-		result = result->horizontalFlip();
-
-	storeCachedImage(locator, result);
-	return result;
-}
-
-std::shared_ptr<const ISharedImage> RenderHandler::scaleImage(const ImageLocator & locator, std::shared_ptr<const ISharedImage> image)
-{
-	if (imageFiles.count(locator))
-		return imageFiles.at(locator);
-
-	auto handle = image->createImageReference(locator.layer);
-
-	assert(locator.scalingFactor != 1); // should be filtered-out before
-	if (locator.playerColored != PlayerColor::CANNOT_DETERMINE)
-		handle->playerColored(locator.playerColored);
-
-	handle->scaleInteger(locator.scalingFactor);
-
-	auto result = handle->getSharedImage();
-	storeCachedImage(locator, result);
-	return result;
-}
-
-std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, EImageBlitMode mode)
+std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator)
 {
 	ImageLocator adjustedLocator = locator;
 
-	if(adjustedLocator.image)
-	{
-		std::string imgPath = (*adjustedLocator.image).getName();
-		if(adjustedLocator.layer == EImageBlitMode::ONLY_OVERLAY)
-			imgPath += "-OVERLAY";
-		if(adjustedLocator.layer == EImageBlitMode::ONLY_SHADOW)
-			imgPath += "-SHADOW";
-
-		if(CResourceHandler::get()->existsResource(ImagePath::builtin(imgPath)) ||
-		   CResourceHandler::get()->existsResource(ImagePath::builtin(imgPath).addPrefix("DATA/")) ||
-		   CResourceHandler::get()->existsResource(ImagePath::builtin(imgPath).addPrefix("SPRITES/")))
-			adjustedLocator.image = ImagePath::builtin(imgPath);
-	}
-
-	if(adjustedLocator.defFile && adjustedLocator.scalingFactor == 0)
-	{
-		auto tmp = getScalePath(*adjustedLocator.defFile);
-		adjustedLocator.defFile = AnimationPath::builtin(tmp.first.getName());
-		adjustedLocator.preScaledFactor = tmp.second;
-	}
-	if(adjustedLocator.image && adjustedLocator.scalingFactor == 0)
-	{
-		auto tmp = getScalePath(*adjustedLocator.image);
-		adjustedLocator.image = ImagePath::builtin(tmp.first.getName());
-		adjustedLocator.preScaledFactor = tmp.second;
-	}
-
-	if (adjustedLocator.scalingFactor == 0 && getScalingFactor() != 1 )
-	{
-		auto unscaledLocator = adjustedLocator;
-		auto scaledLocator = adjustedLocator;
-
-		unscaledLocator.scalingFactor = 1;
-		scaledLocator.scalingFactor = getScalingFactor();
-		auto unscaledImage = loadImageImpl(unscaledLocator);
-
-		return std::make_shared<ImageScaled>(scaledLocator, unscaledImage, mode);
-	}
+	std::shared_ptr<ScalableImageInstance> result;
 
 	if (adjustedLocator.scalingFactor == 0)
 	{
 		auto scaledLocator = adjustedLocator;
 		scaledLocator.scalingFactor = getScalingFactor();
 
-		return loadImageImpl(scaledLocator)->createImageReference(mode);
+		result = loadImageImpl(scaledLocator)->createImageReference();
 	}
 	else
-		return loadImageImpl(adjustedLocator)->createImageReference(mode);
+		result = loadImageImpl(adjustedLocator)->createImageReference();
+
+	if (locator.horizontalFlip)
+		result->horizontalFlip();
+	if (locator.verticalFlip)
+		result->verticalFlip();
+
+	return result;
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode)
 {
-	auto tmp = getScalePath(path);
-	ImageLocator locator = getLocatorForAnimationFrame(AnimationPath::builtin(tmp.first.getName()), frame, group);
-	locator.preScaledFactor = tmp.second;
-	return loadImage(locator, mode);
+	ImageLocator locator = getLocatorForAnimationFrame(path, frame, group, 1, mode);
+	if (!locator.empty())
+		return loadImage(locator);
+	else
+		return loadImage(ImageLocator(ImagePath::builtin("DEFAULT"), mode));
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageBlitMode mode)
 {
-	ImageLocator locator(path);
-	return loadImage(locator, mode);
+	ImageLocator locator(path, mode);
+	return loadImage(locator);
 }
 
-std::shared_ptr<IImage> RenderHandler::createImage(SDL_Surface * source)
+std::shared_ptr<CanvasImage> RenderHandler::createImage(const Point & size, CanvasScalingPolicy scalingPolicy)
 {
-	return std::make_shared<SDLImageShared>(source)->createImageReference(EImageBlitMode::SIMPLE);
+	return std::make_shared<CanvasImage>(size, scalingPolicy);
 }
 
 std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path, EImageBlitMode mode)
 {
-	return std::make_shared<CAnimation>(path, getAnimationLayout(path), mode);
+	return std::make_shared<CAnimation>(path, getAnimationLayout(path, 1, mode), mode);
 }
 
 void RenderHandler::addImageListEntries(const EntityService * service)
@@ -416,7 +338,7 @@ void RenderHandler::addImageListEntries(const EntityService * service)
 			if (imageName.empty())
 				return;
 
-			auto & layout = getAnimationLayout(AnimationPath::builtin("SPRITES/" + listName));
+			auto & layout = getAnimationLayout(AnimationPath::builtin("SPRITES/" + listName), 1, EImageBlitMode::SIMPLE);
 
 			JsonNode entry;
 			entry["file"].String() = imageName;
@@ -424,7 +346,7 @@ void RenderHandler::addImageListEntries(const EntityService * service)
 			if (index >= layout[group].size())
 				layout[group].resize(index + 1);
 
-			layout[group][index] = ImageLocator(entry);
+			layout[group][index] = ImageLocator(entry, EImageBlitMode::SIMPLE);
 		});
 	});
 }

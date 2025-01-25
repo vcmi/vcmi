@@ -381,12 +381,12 @@ Point CVideoInstance::size()
 	return dimensions / GH.screenHandler().getScalingFactor();
 }
 
-void CVideoInstance::show(const Point & position, Canvas & canvas)
+void CVideoInstance::show(const Point & position, SDL_Surface * to)
 {
 	if(sws == nullptr)
 		throw std::runtime_error("No video to show!");
 
-	CSDL_Ext::blitSurface(surface, canvas.getInternalSurface(), position * GH.screenHandler().getScalingFactor());
+	CSDL_Ext::blitSurface(surface, to, position * GH.screenHandler().getScalingFactor());
 }
 
 double FFMpegStream::getCurrentFrameEndTime() const

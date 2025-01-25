@@ -88,6 +88,7 @@ set(vcmiclientcommon_SRCS
 	render/CBitmapHandler.cpp
 	render/CDefFile.cpp
 	render/Canvas.cpp
+	render/CanvasImage.cpp
 	render/ColorFilter.cpp
 	render/Colors.cpp
 	render/Graphics.cpp
@@ -99,10 +100,11 @@ set(vcmiclientcommon_SRCS
 	renderSDL/CursorHardware.cpp
 	renderSDL/CursorSoftware.cpp
 	renderSDL/FontChain.cpp
-	renderSDL/ImageScaled.cpp
+	renderSDL/ScalableImage.cpp
 	renderSDL/RenderHandler.cpp
 	renderSDL/SDLImage.cpp
 	renderSDL/SDLImageLoader.cpp
+	renderSDL/SDLImageScaler.cpp
 	renderSDL/SDLRWwrapper.cpp
 	renderSDL/ScreenHandler.cpp
 	renderSDL/SDL_Extensions.cpp
@@ -290,6 +292,7 @@ set(vcmiclientcommon_HEADERS
 	render/CBitmapHandler.h
 	render/CDefFile.h
 	render/Canvas.h
+	render/CanvasImage.h
 	render/ColorFilter.h
 	render/Colors.h
 	render/EFont.h
@@ -307,10 +310,11 @@ set(vcmiclientcommon_HEADERS
 	renderSDL/CursorHardware.h
 	renderSDL/CursorSoftware.h
 	renderSDL/FontChain.h
-	renderSDL/ImageScaled.h
+	renderSDL/ScalableImage.h
 	renderSDL/RenderHandler.h
 	renderSDL/SDLImage.h
 	renderSDL/SDLImageLoader.h
+	renderSDL/SDLImageScaler.h
 	renderSDL/SDLRWwrapper.h
 	renderSDL/ScreenHandler.h
 	renderSDL/SDL_Extensions.h

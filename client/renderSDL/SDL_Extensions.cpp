@@ -14,6 +14,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../render/Graphics.h"
+#include "../render/IImage.h"
 #include "../render/IScreenHandler.h"
 #include "../render/Colors.h"
 #include "../CMT.h"
@@ -630,86 +631,6 @@ void CSDL_Ext::convertToGrayscale( SDL_Surface * surf, const Rect & rect )
 	}
 }
 
-// scaling via bilinear interpolation algorithm.
-// NOTE: best results are for scaling in range 50%...200%.
-// And upscaling looks awful right now - should be fixed somehow
-SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface * surf, int width, int height)
-{
-	if(!surf || !width || !height)
-		return nullptr;
-
-	// TODO: use xBRZ if possible? E.g. when scaling to 150% do 100% -> 200% via xBRZ and then linear downscale 200% -> 150%?
-	// Need to investigate which is optimal	for performance and for visuals
-
-	SDL_Surface * intermediate = SDL_ConvertSurface(surf, screen->format, 0);
-	SDL_Surface * ret = newSurface(Point(width, height), intermediate);
-
-#if SDL_VERSION_ATLEAST(2,0,16)
-	SDL_SoftStretchLinear(intermediate, nullptr, ret, nullptr);
-#else
-	SDL_SoftStretch(intermediate, nullptr, ret, nullptr);
-#endif
-	SDL_FreeSurface(intermediate);
-
-	return ret;
-}
-
-SDL_Surface * CSDL_Ext::scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor, EScalingAlgorithm algorithm)
-{
-	if(surf == nullptr || factor == 0)
-		return nullptr;
-
-	int newWidth = surf->w * factor;
-	int newHight = surf->h * factor;
-
-	SDL_Surface * intermediate = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ARGB8888, 0);
-	SDL_Surface * ret = newSurface(Point(newWidth, newHight), intermediate);
-
-	assert(intermediate->pitch == intermediate->w * 4);
-	assert(ret->pitch == ret->w * 4);
-
-	const uint32_t * srcPixels = static_cast<const uint32_t*>(intermediate->pixels);
-	uint32_t * dstPixels = static_cast<uint32_t*>(ret->pixels);
-
-	switch (algorithm)
-	{
-		case EScalingAlgorithm::NEAREST:
-			xbrz::nearestNeighborScale(srcPixels, intermediate->w, intermediate->h, dstPixels, ret->w, ret->h);
-			break;
-		case EScalingAlgorithm::BILINEAR:
-			xbrz::bilinearScale(srcPixels, intermediate->w, intermediate->h, dstPixels, ret->w, ret->h);
-			break;
-		case EScalingAlgorithm::XBRZ_ALPHA:
-		case EScalingAlgorithm::XBRZ_OPAQUE:
-		{
-			auto format = algorithm == EScalingAlgorithm::XBRZ_OPAQUE ? xbrz::ColorFormat::ARGB_CLAMPED : xbrz::ColorFormat::ARGB;
-
-			if(intermediate->h < 32)
-			{
-				// for tiny images tbb incurs too high overhead
-				xbrz::scale(factor, srcPixels, dstPixels, intermediate->w, intermediate->h, format, {});
-			}
-			else
-			{
-				// xbrz recommends granulation of 16, but according to tests, for smaller images granulation of 4 is actually the best option
-				const int granulation = intermediate->h > 400 ? 16 : 4;
-				tbb::parallel_for(tbb::blocked_range<size_t>(0, intermediate->h, granulation), [factor, srcPixels, dstPixels, intermediate, format](const tbb::blocked_range<size_t> & r)
-				{
-					xbrz::scale(factor, srcPixels, dstPixels, intermediate->w, intermediate->h, format, {}, r.begin(), r.end());
-				});
-			}
-
-			break;
-		}
-		default:
-			throw std::runtime_error("invalid scaling algorithm!");
-	}
-
-	SDL_FreeSurface(intermediate);
-
-	return ret;
-}
-
 void CSDL_Ext::blitSurface(SDL_Surface * src, const Rect & srcRectInput, SDL_Surface * dst, const Point & dstPoint)
 {
 	SDL_Rect srcRect = CSDL_Ext::toSDL(srcRectInput);
@@ -797,11 +718,6 @@ void CSDL_Ext::getClipRect(SDL_Surface * src, Rect & other)
 	SDL_GetClipRect(src, &rect);
 
 	other = CSDL_Ext::fromSDL(rect);
-}
-
-int CSDL_Ext::CClipRectGuard::getScalingFactor() const
-{
-	return GH.screenHandler().getScalingFactor();
 }
 
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<3>(int, int);

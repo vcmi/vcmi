@@ -98,7 +98,7 @@ public:
 	bool videoEnded() final;
 	Point size() final;
 
-	void show(const Point & position, Canvas & canvas) final;
+	void show(const Point & position, SDL_Surface * to) final;
 	void tick(uint32_t msPassed) final;
 	void activate() final;
 	void deactivate() final;

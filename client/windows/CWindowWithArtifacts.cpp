@@ -236,7 +236,7 @@ void CWindowWithArtifacts::setCursorAnimation(const CArtifactInstance & artInst)
 	{
 		assert(artInst.getScrollSpellID().num >= 0);
 		auto image = GH.renderHandler().loadImage(AnimationPath::builtin("spellscr"), artInst.getScrollSpellID().num, 0, EImageBlitMode::COLORKEY);
-		image->scaleTo(Point(44,34));
+		image->scaleTo(Point(44,34), EScalingAlgorithm::BILINEAR);
 
 		CCS->curh->dragAndDropCursor(image);
 	}

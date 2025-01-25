@@ -11,6 +11,7 @@
 #include "Canvas.h"
 
 #include "../gui/CGuiHandler.h"
+#include "../media/IVideoPlayer.h"
 #include "../render/IRenderHandler.h"
 #include "../render/IScreenHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
@@ -102,11 +103,21 @@ Canvas::~Canvas()
 	SDL_FreeSurface(surface);
 }
 
+void Canvas::draw(IVideoInstance & video, const Point & pos)
+{
+	video.show(pos, surface);
+}
+
+void Canvas::draw(const IImage& image, const Point & pos)
+{
+	image.draw(surface, transformPos(pos), nullptr, getScalingFactor());
+}
+
 void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos)
 {
 	assert(image);
 	if (image)
-		image->draw(surface, transformPos(pos));
+		image->draw(surface, transformPos(pos), nullptr, getScalingFactor());
 }
 
 void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos, const Rect & sourceRect)
@@ -114,7 +125,7 @@ void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos, const
 	Rect realSourceRect = sourceRect * getScalingFactor();
 	assert(image);
 	if (image)
-		image->draw(surface, transformPos(pos), &realSourceRect);
+		image->draw(surface, transformPos(pos), &realSourceRect, getScalingFactor());
 }
 
 void Canvas::draw(const Canvas & image, const Point & pos)
@@ -218,16 +229,22 @@ void Canvas::fillTexture(const std::shared_ptr<IImage>& image)
 	for (int y=0; y < surface->h; y+= imageArea.h)
 	{
 		for (int x=0; x < surface->w; x+= imageArea.w)
-			image->draw(surface, Point(renderArea.x + x * getScalingFactor(), renderArea.y + y * getScalingFactor()));
+			image->draw(surface, Point(renderArea.x + x * getScalingFactor(), renderArea.y + y * getScalingFactor()), nullptr, getScalingFactor());
 	}
-}
-
-SDL_Surface * Canvas::getInternalSurface()
-{
-	return surface;
 }
 
 Rect Canvas::getRenderArea() const
 {
 	return renderArea;
+}
+
+CanvasClipRectGuard::CanvasClipRectGuard(Canvas & canvas, const Rect & rect): surf(canvas.surface)
+{
+	CSDL_Ext::getClipRect(surf, oldRect);
+	CSDL_Ext::setClipRect(surf, rect * GH.screenHandler().getScalingFactor());
+}
+
+CanvasClipRectGuard::~CanvasClipRectGuard()
+{
+	CSDL_Ext::setClipRect(surf, oldRect);
 }
