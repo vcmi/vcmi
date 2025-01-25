@@ -55,6 +55,7 @@
 #include "../lib/gameState/TavernHeroesPool.h"
 #include "../lib/gameState/UpgradeInfo.h"
 #include "../lib/texts/CGeneralTextHandler.h"
+#include "../lib/texts/TextOperations.h"
 #include "../lib/IGameSettings.h"
 #include "ConditionalWait.h"
 #include "../lib/CConfigHandler.h"
@@ -1594,7 +1595,7 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 
 		itemsVisible.clear();
 		for(auto & item : items)
-			if(boost::algorithm::contains(boost::algorithm::to_lower_copy(item.second), boost::algorithm::to_lower_copy(text)))
+			if(TextOperations::textSearchSimilar(text, item.second))
 				itemsVisible.push_back(item);
 
 		selected = 0;

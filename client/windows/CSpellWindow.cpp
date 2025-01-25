@@ -41,6 +41,7 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
+#include "../../lib/texts/TextOperations.h"
 #include "../../lib/GameConstants.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -242,7 +243,7 @@ void CSpellWindow::processSpells()
 	mySpells.reserve(CGI->spellh->objects.size());
 	for(auto const & spell : CGI->spellh->objects)
 	{
-		bool searchTextFound = !searchBox || boost::algorithm::contains(boost::algorithm::to_lower_copy(spell->getNameTranslated()), boost::algorithm::to_lower_copy(searchBox->getText()));
+		bool searchTextFound = !searchBox || TextOperations::textSearchSimilar(searchBox->getText(), spell->getNameTranslated());
 
 		if(onSpellSelect)
 		{
