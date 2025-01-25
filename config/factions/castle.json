@@ -191,7 +191,7 @@
 							{
 								"message" : "@core.genrltxt.580",
 								"movePoints" : 400,
-								"bonuses" : [ { "type" : "MOVEMENT", "subtype" : "heroMovementLand",  "val" : 400, "valueType" : "ADDITIVE_VALUE", "duration" : "ONE_WEEK"} ]
+								"bonuses" : [ { "type" : "MOVEMENT", "subtype" : "heroMovementLand",  "val" : 400, "stacking" : "stables", "valueType" : "ADDITIVE_VALUE", "duration" : "ONE_WEEK"} ]
 							}
 						]
 					}
