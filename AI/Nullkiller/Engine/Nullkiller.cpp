@@ -274,7 +274,7 @@ void Nullkiller::updateAiState(int pass, bool fast)
 		heroManager->update();
 		logAi->trace("Updating paths");
 
-		std::map<const CGHeroInstance *, HeroRole> activeHeroes;
+		HeroMap<HeroRole> activeHeroes;
 
 		for(auto hero : cb->getHeroesInfo())
 		{

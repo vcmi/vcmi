@@ -141,6 +141,8 @@ set(Nullkiller_HEADERS
 		Behaviors/ExplorationBehavior.h
 		Helpers/ArmyFormation.h
 		Helpers/ExplorationHelper.h
+		Helpers/FakeRandomGenerator.h
+		Helpers/HeroMap.h
 		AIGateway.h
 )
 

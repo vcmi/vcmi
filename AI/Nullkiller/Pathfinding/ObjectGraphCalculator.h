@@ -30,8 +30,8 @@ private:
 	const Nullkiller * ai;
 	std::mutex syncLock;
 
-	std::map<const CGHeroInstance *, HeroRole> actors;
-	std::map<const CGHeroInstance *, const CGObjectInstance *> actorObjectMap;
+	HeroMap<HeroRole> actors;
+	HeroMap<const CGObjectInstance *> actorObjectMap;
 
 	std::vector<std::unique_ptr<CGBoat>> temporaryBoats;
 	std::vector<std::unique_ptr<CGHeroInstance>> temporaryActorHeroes;

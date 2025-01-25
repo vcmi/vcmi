@@ -10,10 +10,10 @@
 #include "StdInc.h"
 #include "ObjectGraphCalculator.h"
 #include "AIPathfinderConfig.h"
-#include "../../../lib/CRandomGenerator.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
+#include "../Helpers/FakeRandomGenerator.h"
 #include "../../../lib/logging/VisualLogger.h"
 #include "Actions/QuestAction.h"
 #include "../pforeach.h"
@@ -288,7 +288,7 @@ void ObjectGraphCalculator::addObjectActor(const CGObjectInstance * obj)
 {
 	auto objectActor = temporaryActorHeroes.emplace_back(std::make_unique<CGHeroInstance>(obj->cb)).get();
 
-	CRandomGenerator rng;
+	FakeRandomGenerator rng;
 	auto visitablePos = obj->visitablePos();
 
 	objectActor->setOwner(ai->playerID); // lets avoid having multiple colors
@@ -326,7 +326,7 @@ void ObjectGraphCalculator::addJunctionActor(const int3 & visitablePos, bool isV
 	auto internalCb = temporaryActorHeroes.front()->cb;
 	auto objectActor = temporaryActorHeroes.emplace_back(std::make_unique<CGHeroInstance>(internalCb)).get();
 
-	CRandomGenerator rng;
+	FakeRandomGenerator rng;
 
 	objectActor->setOwner(ai->playerID); // lets avoid having multiple colors
 	objectActor->initHero(rng, static_cast<HeroTypeID>(0));

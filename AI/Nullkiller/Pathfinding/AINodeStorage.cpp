@@ -179,7 +179,7 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const EPathfindingLayer layer, 
 	const ChainActor * actor)
 {
-	int bucketIndex = ((uintptr_t)actor + static_cast<uint32_t>(layer)) % ai->settings->getPathfinderBucketsCount();
+	int bucketIndex = (actor->bucketIndex() + static_cast<uint32_t>(layer)) % ai->settings->getPathfinderBucketsCount();
 	int bucketOffset = bucketIndex * ai->settings->getPathfinderBucketSize();
 	auto chains = nodes.get(pos);
 
@@ -502,9 +502,6 @@ public:
 
 	void execute(const tbb::blocked_range<size_t>& r)
 	{
-		std::random_device randomDevice;
-		std::mt19937 randomEngine(randomDevice());
-
 		for(int i = r.begin(); i != r.end(); i++)
 		{
 			auto & pos = tiles[i];
@@ -523,8 +520,6 @@ public:
 					continue;
 
 				newChains.clear();
-
-				std::shuffle(existingChains.begin(), existingChains.end(), randomEngine);
 
 				for(AIPathNode * node : existingChains)
 				{
@@ -582,9 +577,6 @@ public:
 
 bool AINodeStorage::calculateHeroChain()
 {
-	std::random_device randomDevice;
-	std::mt19937 randomEngine(randomDevice());
-
 	heroChainPass = EHeroChainPass::CHAIN;
 	heroChain.clear();
 
@@ -593,8 +585,6 @@ bool AINodeStorage::calculateHeroChain()
 	if(data.size() > 100)
 	{
 		boost::mutex resultMutex;
-
-		std::shuffle(data.begin(), data.end(), randomEngine);
 
 		tbb::parallel_for(tbb::blocked_range<size_t>(0, data.size()), [&](const tbb::blocked_range<size_t>& r)
 		{
@@ -963,7 +953,7 @@ bool AINodeStorage::isDistanceLimitReached(const PathNodeInfo & source, CDestina
 	return false;
 }
 
-void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
+void AINodeStorage::setHeroes(HeroMap<HeroRole> heroes)
 {
 	playerID = ai->playerID;
 
@@ -1174,7 +1164,7 @@ struct TownPortalFinder
 template<class TVector>
 void AINodeStorage::calculateTownPortal(
 	const ChainActor * actor,
-	const std::map<const CGHeroInstance *, int> & maskMap,
+	const HeroMap<int> & maskMap,
 	const std::vector<CGPathNode *> & initialNodes,
 	TVector & output)
 {
@@ -1237,7 +1227,7 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 			actorsOfInitial.insert(aiNode->actor->baseActor);
 	}
 
-	std::map<const CGHeroInstance *, int> maskMap;
+	HeroMap<int> maskMap;
 
 	for(std::shared_ptr<ChainActor> basicActor : actors)
 	{

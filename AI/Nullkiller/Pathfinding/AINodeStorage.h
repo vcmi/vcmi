@@ -19,6 +19,7 @@ constexpr int NKAI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualizat
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
 #include "../Engine/FuzzyHelper.h"
+#include "../Helpers/HeroMap.h"
 #include "../Goals/AbstractGoal.h"
 #include "Actions/SpecialAction.h"
 #include "Actors.h"
@@ -271,7 +272,7 @@ public:
 	std::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
 	void calculateChainInfo(std::vector<AIPath> & result, const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
-	void setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes);
+	void setHeroes(HeroMap<HeroRole> heroes);
 	void setScoutTurnDistanceLimit(uint8_t distanceLimit) { turnDistanceLimit[HeroRole::SCOUT] = distanceLimit; }
 	void setMainTurnDistanceLimit(uint8_t distanceLimit) { turnDistanceLimit[HeroRole::MAIN] = distanceLimit; }
 	void setTownsAndDwellings(
@@ -296,7 +297,7 @@ public:
 
 	inline int getBucket(const ChainActor * actor) const
 	{
-		return ((uintptr_t)actor * 395) % getBucketCount();
+		return ((uintptr_t)actor->bucketIndex() * 395) % getBucketCount();
 	}
 
 	void calculateTownPortalTeleportations(std::vector<CGPathNode *> & neighbours);
@@ -344,7 +345,7 @@ private:
 	template<class TVector>
 	void calculateTownPortal(
 		const ChainActor * actor,
-		const std::map<const CGHeroInstance *, int> & maskMap,
+		const HeroMap<int> & maskMap,
 		const std::vector<CGPathNode *> & initialNodes,
 		TVector & output);
 };
