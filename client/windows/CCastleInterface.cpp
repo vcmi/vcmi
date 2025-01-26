@@ -24,6 +24,7 @@
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../media/IMusicPlayer.h"
+#include "../media/ISoundPlayer.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
@@ -1435,6 +1436,9 @@ void CCastleInterface::townChange()
 
 void CCastleInterface::addBuilding(BuildingID bid)
 {
+	if (town->getTown()->buildings.at(bid)->mode != CBuilding::BUILD_AUTO)
+		CCS->soundh->playSound(soundBase::newBuilding);
+
 	deactivate();
 	builds->addBuilding(bid);
 	recreateIcons();
