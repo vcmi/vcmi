@@ -70,6 +70,8 @@ set(test_SRCS
 		spells/targetConditions/ResistanceConditionTest.cpp
  		spells/targetConditions/SpellEffectConditionTest.cpp
  		spells/targetConditions/TargetConditionItemFixture.cpp
+
+		uncategorized/GameSettingsTest.cpp
 		
 		mock/BattleFake.cpp
  		mock/mock_IGameCallback.cpp
