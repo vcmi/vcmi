@@ -199,6 +199,7 @@
 	"vcmi.lobby.preview.error.invite" : "You were not invited to this room.",
 	"vcmi.lobby.preview.error.mods" : "You are using different set of mods.",
 	"vcmi.lobby.preview.error.version" : "You are using different version of VCMI.",
+	"vcmi.lobby.channel.add" : "Add Channel",
 	"vcmi.lobby.room.new" : "New Game",
 	"vcmi.lobby.room.load" : "Load Game",
 	"vcmi.lobby.room.type" : "Room Type",

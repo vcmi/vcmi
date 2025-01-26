@@ -81,9 +81,11 @@ namespace RandomGeneratorUtil
 
 		for (size_t i = 0; i < container.size(); ++i)
 		{
-			roll -= container[i];
-			if(roll < 0)
+			int chance = container[i];
+			if(roll < chance)
 				return i;
+
+			roll -= chance;
 		}
 		return container.size() - 1;
 	}

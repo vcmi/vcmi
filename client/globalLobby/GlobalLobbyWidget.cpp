@@ -11,9 +11,10 @@
 #include "StdInc.h"
 #include "GlobalLobbyWidget.h"
 
+#include "GlobalLobbyAddChannelWindow.h"
 #include "GlobalLobbyClient.h"
-#include "GlobalLobbyWindow.h"
 #include "GlobalLobbyRoomWindow.h"
+#include "GlobalLobbyWindow.h"
 
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
@@ -72,6 +73,18 @@ GlobalLobbyWidget::CreateFunc GlobalLobbyWidget::getItemListConstructorFunc(cons
 
 		if(index < channels.size())
 			return std::make_shared<GlobalLobbyChannelCard>(this->window, channels[index]);
+
+		if(index == channels.size())
+		{
+			const auto buttonCallback = [](){
+				GH.windows().createAndPushWindow<GlobalLobbyAddChannelWindow>();
+			};
+
+			auto result = std::make_shared<CButton>(Point(0,0), AnimationPath::builtin("lobbyAddChannel"), CButton::tooltip(), buttonCallback);
+			result->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/addChannel")));
+			return result;
+		}
+
 		return std::make_shared<CIntObject>();
 	};
 
@@ -255,6 +268,13 @@ GlobalLobbyChannelCard::GlobalLobbyChannelCard(GlobalLobbyWindow * window, const
 {
 	OBJECT_CONSTRUCTION;
 	labelName = std::make_shared<CLabel>(5, 20, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, Languages::getLanguageOptions(channelName).nameNative);
+
+	if (CSH->getGlobalLobby().getActiveChannels().size() > 1)
+	{
+		pos.w = 110;
+		buttonClose = std::make_shared<CButton>(Point(113, 7), AnimationPath::builtin("lobbyCloseChannel"), CButton::tooltip(), [channelName](){CSH->getGlobalLobby().closeChannel(channelName);});
+		buttonClose->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/closeChannel")));
+	}
 }
 
 GlobalLobbyMatchCard::GlobalLobbyMatchCard(GlobalLobbyWindow * window, const GlobalLobbyRoom & matchDescription)
