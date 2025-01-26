@@ -22,11 +22,16 @@
 #include "../render/Colors.h"
 #include "../render/ColorFilter.h"
 #include "../render/IScreenHandler.h"
-#include "../../lib/json/JsonUtils.h"
+
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CThreadHelper.h"
-#include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/faction/CTown.h"
+#include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/json/JsonUtils.h"
 
 #include <vcmi/ArtifactService.h>
 #include <vcmi/CreatureService.h>
@@ -351,6 +356,58 @@ void RenderHandler::addImageListEntries(const EntityService * service)
 	});
 }
 
+static void detectOverlappingBuildings(RenderHandler * renderHandler, const Faction * factionBase)
+{
+	if (!factionBase->hasTown())
+		return;
+
+	auto faction = dynamic_cast<const CFaction*>(factionBase);
+
+	for (const auto & left : faction->town->clientInfo.structures)
+	{
+		for (const auto & right : faction->town->clientInfo.structures)
+		{
+			if (left->identifier <= right->identifier)
+				continue; // only a<->b comparison is needed, not a<->a or b<->a
+
+			if (left->building && right->building && left->building->getBase() == right->building->getBase())
+				continue; // upgrades of the same buildings are expected to overlap
+
+			if (left->pos.z != right->pos.z)
+				continue; // buildings already have different z-index and have well-defined overlap logic
+
+			auto leftImage = renderHandler->loadImage(left->defName, 0, 0, EImageBlitMode::SIMPLE);
+			auto rightImage = renderHandler->loadImage(right->defName, 0, 0, EImageBlitMode::SIMPLE);
+
+			Rect leftRect( left->pos.x, left->pos.y, leftImage->width(), leftImage->height());
+			Rect rightRect( right->pos.x, right->pos.y, rightImage->width(), rightImage->height());
+
+			Rect intersection = leftRect.intersect(rightRect);
+
+			Point intersectionPosition;
+			bool intersectionFound = false;
+
+			for (int y = 0; y < intersection.h && !intersectionFound; ++y)
+			{
+				for (int x = 0; x < intersection.w && !intersectionFound; ++x)
+				{
+					Point leftPoint = Point(x,y) - leftRect.topLeft() + intersection.topLeft();
+					Point rightPoint = Point(x,y) - rightRect.topLeft() + intersection.topLeft();
+
+					if (!leftImage->isTransparent(leftPoint) && !rightImage->isTransparent(rightPoint))
+					{
+						intersectionFound = true;
+						intersectionPosition = intersection.topLeft() + Point(x,y);
+					}
+				}
+			}
+
+			if (intersectionFound)
+				logMod->warn("Town %s: Detected overlapping buildings '%s' and '%s' at (%d, %d) with same z-index!", faction->getJsonKey(), left->identifier, right->identifier, intersectionPosition.x, intersectionPosition.y);
+		}
+	}
+};
+
 void RenderHandler::onLibraryLoadingFinished(const Services * services)
 {
 	addImageListEntries(services->creatures());
@@ -359,6 +416,14 @@ void RenderHandler::onLibraryLoadingFinished(const Services * services)
 	addImageListEntries(services->factions());
 	addImageListEntries(services->spells());
 	addImageListEntries(services->skills());
+
+	if (settings["mods"]["validation"].String() == "full")
+	{
+		services->factions()->forEach([this](const Faction * factionBase, bool & stop)
+		{
+			detectOverlappingBuildings(this, factionBase);
+		});
+	}
 }
 
 std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
