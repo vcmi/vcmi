@@ -164,10 +164,10 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	cb = CB;
 	env = ENV;
 
+	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), PathfinderOptions(cb.get()));
 	CCS->musich->loadTerrainMusicThemes();
 	initializeHeroTownList();
 
-	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), PathfinderOptions(cb.get()));
 	adventureInt.reset(new AdventureMapInterface());
 }
 
@@ -628,7 +628,6 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID build
 			switch(what)
 			{
 			case 1:
-				CCS->soundh->playSound(soundBase::newBuilding);
 				castleInt->addBuilding(buildingID);
 				break;
 			case 2:
@@ -1415,7 +1414,6 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 		&& LOCPLINT->castleInt
 		&&  obj->visitablePos() == LOCPLINT->castleInt->town->bestLocation())
 	{
-		CCS->soundh->playSound(soundBase::newBuilding);
 		LOCPLINT->castleInt->addBuilding(BuildingID::SHIP);
 	}
 }
