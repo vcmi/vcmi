@@ -51,7 +51,7 @@ static bool sameSideOfWall(const BattleHex & pos1, const BattleHex & pos2)
 
 static bool isInsideWalls(const BattleHex & pos)
 {
-	return lineToWallHex(pos.getY()) < pos;
+	return lineToWallHex(pos.getY()) <= pos;
 }
 
 // parts of wall

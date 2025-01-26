@@ -267,6 +267,12 @@ public:
 		return hex < other.hex;
 	}
 
+	[[nodiscard]] bool operator <=(const BattleHex & other) const noexcept
+	{
+		return hex <= other.hex;
+	}
+
+
 	template <typename Handler>
 	void serialize(Handler & h)
 	{
