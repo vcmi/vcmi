@@ -43,7 +43,7 @@ class SDLImageScaler : boost::noncopyable
 
 public:
 	SDLImageScaler(SDL_Surface * surf);
-	SDLImageScaler(SDL_Surface * surf, const Rect & virtualDimensions);
+	SDLImageScaler(SDL_Surface * surf, const Rect & virtualDimensions, bool optimizeImage);
 	~SDLImageScaler();
 
 	/// Performs upscaling or downscaling to a requested dimensions

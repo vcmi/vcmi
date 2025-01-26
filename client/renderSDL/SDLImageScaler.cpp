@@ -196,16 +196,25 @@ void SDLImageScaler::scaleSurfaceIntegerFactor(int factor, EScalingAlgorithm alg
 }
 
 SDLImageScaler::SDLImageScaler(SDL_Surface * surf)
-	:SDLImageScaler(surf, Rect(0,0,surf->w, surf->h))
+	:SDLImageScaler(surf, Rect(0,0,surf->w, surf->h), false)
 {
 }
 
-SDLImageScaler::SDLImageScaler(SDL_Surface * surf, const Rect & virtualDimensions)
+SDLImageScaler::SDLImageScaler(SDL_Surface * surf, const Rect & virtualDimensions, bool optimizeImage)
 {
-	SDLImageOptimizer optimizer(surf, virtualDimensions);
-	optimizer.optimizeSurface(screen);
-	intermediate = optimizer.acquireResultSurface();
-	virtualDimensionsInput = optimizer.getResultDimensions();
+	if (optimizeImage)
+	{
+		SDLImageOptimizer optimizer(surf, virtualDimensions);
+		optimizer.optimizeSurface(screen);
+		intermediate = optimizer.acquireResultSurface();
+		virtualDimensionsInput = optimizer.getResultDimensions();
+	}
+	else
+	{
+		intermediate = surf;
+		intermediate->refcount += 1;
+		virtualDimensionsInput = virtualDimensions;
+	}
 
 	if (intermediate == surf)
 	{

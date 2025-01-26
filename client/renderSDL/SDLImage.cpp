@@ -252,7 +252,7 @@ SDLImageShared::SDLImageShared(const SDLImageShared * from, int integerScaleFact
 
 	upscalingInProgress = true;
 
-	auto scaler = std::make_shared<SDLImageScaler>(from->surf, Rect(from->margins, from->fullSize));
+	auto scaler = std::make_shared<SDLImageScaler>(from->surf, Rect(from->margins, from->fullSize), true);
 
 	const auto & scalingTask = [this, algorithm, scaler]()
 	{
@@ -278,7 +278,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, 
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
 
-	SDLImageScaler scaler(surf, Rect(margins, fullSize));
+	SDLImageScaler scaler(surf, Rect(margins, fullSize), true);
 
 	scaler.scaleSurface(size, EScalingAlgorithm::XBRZ_ALPHA);
 
