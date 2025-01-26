@@ -109,14 +109,14 @@
 				"dwellingLvl4":   { "animation" : "TBCSDW_3.def", "x" : 176, "y" : 101, "border" : "TOCSSWD1.bmp", "area" : "TZCSSWD1.bmp" },
 				"dwellingLvl5":   { "animation" : "TBCSDW_4.def", "x" : 563, "y" : 211, "z" : 1,  "border" : "TOCSMON1.bmp", "area" : "TZCSMON1.bmp" },
 				"dwellingLvl6":   { "animation" : "TBCSDW_5.def", "x" : 174, "y" : 190, "z" : -1, "border" : "TOCSC101.bmp", "area" : "TZCSCAV1.bmp" },
-				"dwellingLvl7":   { "animation" : "TBCSDW_6.def", "x" : 303, "y" : 0,   "z" : -1, "border" : "TOCSANG1.bmp", "area" : "TZCSANG1.bmp" },
+				"dwellingLvl7":   { "animation" : "TBCSDW_6.def", "x" : 303, "y" : 0,   "z" : -2, "border" : "TOCSANG1.bmp", "area" : "TZCSANG1.bmp" },
 				"dwellingUpLvl1": { "animation" : "TBCSUP_0.def", "x" : 304, "y" : 65,  "z" : -1, "border" : "TOCSPIK2.bmp", "area" : "TZCSPIK2.bmp" },
 				"dwellingUpLvl2": { "animation" : "TBCSUP_1.def", "x" : 360, "y" : 115, "border" : "TOCSCRS2.bmp", "area" : "TZCSCRS2.bmp" },
 				"dwellingUpLvl3": { "animation" : "TBCSUP_2.def", "x" : 76,  "y" : 35,  "z" : -1, "border" : "TOCSGR2N.bmp", "area" : "TZCSGR2N.bmp" },
 				"dwellingUpLvl4": { "animation" : "TBCSUP_3.def", "x" : 176, "y" : 85,  "border" : "TOCSSWD2.bmp", "area" : "TZCSSWD2.bmp" },
 				"dwellingUpLvl5": { "animation" : "TBCSUP_4.def", "x" : 563, "y" : 173, "z" : 1,  "border" : "TOCSMON2.bmp", "area" : "TZCSMON2.bmp" },
 				"dwellingUpLvl6": { "animation" : "TBCSUP_5.def", "x" : 160, "y" : 190, "z" : -1, "border" : "TOCSCAV2.bmp", "area" : "TZCSCAV2.bmp" },
-				"dwellingUpLvl7": { "animation" : "TBCSUP_6.def", "x" : 303, "y" : 0,   "z" : -1, "border" : "TOCSANG2.bmp", "area" : "TZCSANG2.bmp" }
+				"dwellingUpLvl7": { "animation" : "TBCSUP_6.def", "x" : 303, "y" : 0,   "z" : -2, "border" : "TOCSANG2.bmp", "area" : "TZCSANG2.bmp" }
 			},
 
 			"musicTheme" : [ "music/CstleTown" ],
