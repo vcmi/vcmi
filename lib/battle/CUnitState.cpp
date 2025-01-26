@@ -605,17 +605,18 @@ uint8_t CUnitState::getRangedFullDamageDistance() const
 	if(!isShooter())
 		return 0;
 
-	uint8_t rangedFullDamageDistance = GameConstants::BATTLE_SHOOTING_PENALTY_DISTANCE;
-
 	// overwrite full ranged damage distance with the value set in Additional info field of LIMITED_SHOOTING_RANGE bonus
 	if(hasBonusOfType(BonusType::LIMITED_SHOOTING_RANGE))
 	{
 		auto bonus = this->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
 		if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
-			rangedFullDamageDistance = bonus->additionalInfo[0];
+			return bonus->additionalInfo[0];
 	}
 
-	return rangedFullDamageDistance;
+	if (hasBonusOfType(BonusType::NO_DISTANCE_PENALTY))
+		return GameConstants::BATTLE_SHOOTING_RANGE_DISTANCE;
+
+	return GameConstants::BATTLE_SHOOTING_PENALTY_DISTANCE;
 }
 
 uint8_t CUnitState::getShootingRangeDistance() const
