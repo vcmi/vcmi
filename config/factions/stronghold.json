@@ -80,9 +80,9 @@
 			"structures" :
 			{
 				"extraAnimation": { "animation" : "TBSTEXT3.def", "x" : 23,  "y" : 20 },
-				"mageGuild1":     { "animation" : "TBSTMAGE.def", "x" : 473, "y" : 67,  "z" : -1, "border" : "TOSMAG1.bmp",  "area" : "TZSMAG1.bmp" },
-				"mageGuild2":     { "animation" : "TBSTMAG2.def", "x" : 473, "y" : 37,  "z" : -1, "border" : "TOSMAG2.bmp",  "area" : "TZSMAG2.bmp" },
-				"mageGuild3":     { "animation" : "TBSTMAG3.def", "x" : 473, "y" : 1,   "z" : -1, "border" : "TOSMAG3.bmp",  "area" : "TZSMAG3.bmp" },
+				"mageGuild1":     { "animation" : "TBSTMAGE.def", "x" : 473, "y" : 67,  "z" : -2, "border" : "TOSMAG1.bmp",  "area" : "TZSMAG1.bmp" },
+				"mageGuild2":     { "animation" : "TBSTMAG2.def", "x" : 473, "y" : 37,  "z" : -2, "border" : "TOSMAG2.bmp",  "area" : "TZSMAG2.bmp" },
+				"mageGuild3":     { "animation" : "TBSTMAG3.def", "x" : 473, "y" : 1,   "z" : -2, "border" : "TOSMAG3.bmp",  "area" : "TZSMAG3.bmp" },
 				"tavern":         { "animation" : "TBSTTVRN.def", "x" : 170, "y" : 280, "z" : 2,  "border" : "TOSTAV.bmp",   "area" : "TZSTAV.bmp" },
 				"fort":           { "animation" : "TBSTCSTL.def", "x" : 402, "y" : 148, "z" : -1, "border" : "TOSCA1.bmp",   "area" : "TZSCA1.bmp" },
 				"citadel":        { "animation" : "TBSTCAS2.def", "x" : 402, "y" : 114, "z" : -1, "border" : "TOSCA2.bmp",   "area" : "TZSCA2.bmp" },
@@ -100,7 +100,7 @@
 				"special2":       { "animation" : "TBSTEXT0.def", "x" : 473, "y" : 282, "z" : 3,  "border" : "TOSMRK1C.bmp", "area" : "TZSMRK1C.bmp" },
 				"special3":       { "animation" : "TBSTEXT1.def", "x" : 617, "y" : 286, "z" : 1,  "border" : "TOSBLK2.bmp",  "area" : "TZSBLK2.bmp" },
 				"special4":       { "animation" : "TBSTEXT2.def", "x" : 313, "y" : 13,  "z" : -1, "border" : "TOSVAH.bmp",   "area" : "TZSVAH.bmp" },
-				"grail":          { "animation" : "TBSTHOLY.def", "x" : 321, "y" : 105, "z" : 2,  "border" : "TOSHOLYA.bmp", "area" : "TZSHOLYA.bmp" },
+				"grail":          { "animation" : "TBSTHOLY.def", "x" : 321, "y" : 105, "z" : 3,  "border" : "TOSHOLYA.bmp", "area" : "TZSHOLYA.bmp" },
 				"dwellingLvl1":   { "animation" : "TBSTDW_0.def", "x" : 373, "y" : 239, "border" : "TOSGOB1.bmp",  "area" : "TZSGOB1.bmp" },
 				"dwellingLvl2":   { "animation" : "TBSTDW_1.def", "x" : 266, "y" : 246, "z" : 1,  "border" : "TOSWOL1.bmp",  "area" : "TZSWOL1.bmp" },
 				"dwellingLvl3":   { "animation" : "TBSTDW_2.def", "x" : 566, "y" : 232, "z" : 2,  "border" : "TOSORC1.bmp",  "area" : "TZSORC1.bmp" },
