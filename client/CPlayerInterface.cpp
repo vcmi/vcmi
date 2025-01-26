@@ -164,10 +164,10 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	cb = CB;
 	env = ENV;
 
+	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), PathfinderOptions(cb.get()));
 	CCS->musich->loadTerrainMusicThemes();
 	initializeHeroTownList();
 
-	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), PathfinderOptions(cb.get()));
 	adventureInt.reset(new AdventureMapInterface());
 }
 
