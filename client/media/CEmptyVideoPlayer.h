@@ -17,12 +17,14 @@ public:
 	/// Load video from specified path
 	std::unique_ptr<IVideoInstance> open(const VideoPath & name, float scaleFactor) override
 	{
+		logGlobal->debug("Failed to open video. Reason: video support disabled in build");
 		return nullptr;
 	};
 
 	/// Extracts audio data from provided video in wav format
 	std::pair<std::unique_ptr<ui8[]>, si64> getAudio(const VideoPath & videoToOpen) override
 	{
+		logGlobal->debug("Failed to open video. Reason: video support disabled in build");
 		return {nullptr, 0};
 	};
 };

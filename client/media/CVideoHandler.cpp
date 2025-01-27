@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CVideoHandler.h"
 
-#ifndef DISABLE_VIDEO
+#ifdef ENABLE_VIDEO
 
 #include "ISoundPlayer.h"
 
@@ -671,6 +671,8 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 
 std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, float scaleFactor)
 {
+	logGlobal->trace("Opening video: %s", name.getOriginalName());
+
 	auto result = std::make_unique<CVideoInstance>();
 
 	if (!result->openInput(name))
@@ -687,6 +689,8 @@ std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, float
 
 std::pair<std::unique_ptr<ui8[]>, si64> CVideoPlayer::getAudio(const VideoPath & videoToOpen)
 {
+	logGlobal->trace("Opening video: %s", videoToOpen.getOriginalName());
+
 	AudioPath audioPath = videoToOpen.toType<EResType::SOUND>();
 	AudioPath audioPathVideoDir = audioPath.addPrefix("VIDEO/");
 

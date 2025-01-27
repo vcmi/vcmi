@@ -474,12 +474,11 @@ target_link_libraries(vcmiclientcommon PUBLIC
 		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
 )
 
-if(ffmpeg_LIBRARIES)
+if(ENABLE_VIDEO)
+	target_compile_definitions(vcmiclientcommon PRIVATE ENABLE_VIDEO)
 	target_link_libraries(vcmiclientcommon PRIVATE
 		${ffmpeg_LIBRARIES}
 	)
-else()
-	target_compile_definitions(vcmiclientcommon PRIVATE DISABLE_VIDEO)
 endif()
 
 target_include_directories(vcmiclientcommon PUBLIC
