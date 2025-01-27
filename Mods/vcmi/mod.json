@@ -1,6 +1,14 @@
 {
 	"name" : "VCMI essential files",
 	"description" : "Essential files required for VCMI to run correctly",
+	"version" : "1.5",
+	"author" : "VCMI Team",
+	"contact" : "http://forum.vcmi.eu/index.php",
+	"modType" : "Graphical",
+
+	"factions" : [ "config/towerFactions" ],
+	"creatures" : [ "config/towerCreature" ],
+	"spells" : [ "config/spells" ],
 
 	"chinese" : {
 		"name" : "VCMI essential files",
@@ -119,15 +127,6 @@
 			"config/vietnamese.json"
 		]
 	},
-
-	"version" : "1.5",
-	"author" : "VCMI Team",
-	"contact" : "http://forum.vcmi.eu/index.php",
-	"modType" : "Graphical",
-
-	"factions" : [ "config/towerFactions" ],
-	"creatures" : [ "config/towerCreature" ],
-	"spells" : [ "config/spells" ],
 
 	"translations" : [
 		"config/english.json"
