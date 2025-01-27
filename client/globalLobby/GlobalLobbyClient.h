@@ -92,6 +92,8 @@ public:
 	void sendClientRegister(const std::string & accountName);
 	void sendClientLogin();
 	void sendOpenRoom(const std::string & mode, int playerLimit);
+	void addChannel(const std::string & channel);
+	void closeChannel(const std::string & channel);
 
 	void sendProxyConnectionLogin(const NetworkConnectionPtr & netConnection);
 	void resetMatchState();

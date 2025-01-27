@@ -113,24 +113,32 @@ size_t FontChain::getGlyphWidthScaled(const char * data) const
 
 std::vector<FontChain::TextChunk> FontChain::splitTextToChunks(const std::string & data) const
 {
+	// U+FFFD - replacement character (question mark in rhombus)
+	static const std::string replacementCharacter = u8"�";
+
 	std::vector<TextChunk> chunks;
+
+	const auto & selectFont = [this](const char * characterPtr) -> const IFont *
+	{
+		for(const auto & font : chain)
+			if (font->canRepresentCharacter(characterPtr))
+				return font.get();
+		return nullptr;
+	};
 
 	for (size_t i = 0; i < data.size(); i += TextOperations::getUnicodeCharacterSize(data[i]))
 	{
-		const IFont * currentFont = nullptr;
-		for(const auto & font : chain)
+		std::string symbol = data.substr(i, TextOperations::getUnicodeCharacterSize(data[i]));
+		const IFont * currentFont = selectFont(symbol.data());
+
+		if (currentFont == nullptr)
 		{
-			if (font->canRepresentCharacter(data.data() + i))
-			{
-				currentFont = font.get();
-				break;
-			}
+			symbol = replacementCharacter;
+			currentFont = selectFont(symbol.data());
 		}
 
 		if (currentFont == nullptr)
-			continue; // not representable
-
-		std::string symbol = data.substr(i, TextOperations::getUnicodeCharacterSize(data[i]));
+			continue; // Still nothing - neither desired character nor fallback can be rendered
 
 		if (chunks.empty() || chunks.back().font != currentFont)
 			chunks.push_back({currentFont, symbol});

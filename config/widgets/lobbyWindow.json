@@ -69,7 +69,7 @@
 		
 		{
 			"type": "areaFilled",
-			"rect": {"x": 270, "y": 50, "w": 150, "h": 140}
+			"rect": {"x": 270, "y": 50, "w": 150, "h": 180}
 		},
 		{
 			"name" : "headerChannelList",
@@ -82,27 +82,27 @@
 			"itemType" : "channel",
 			"position" : { "x" : 272, "y" : 68 },
 			"itemOffset" : { "x" : 0, "y" : 40 },
-			"visibleAmount" : 3
+			"visibleAmount" : 4
 		},
 		
 		{
 			"type": "areaFilled",
-			"rect": {"x": 270, "y": 210, "w": 150, "h": 380}
+			"rect": {"x": 270, "y": 250, "w": 150, "h": 340}
 		},
 		{
 			"name" : "headerMatchList",
 			"type": "labelTitle",
-			"position": {"x": 280, "y": 213}
+			"position": {"x": 280, "y": 253}
 		},
 		{
 			"type" : "lobbyItemList",
 			"name" : "matchList",
 			"itemType" : "match",
-			"position" : { "x" : 272, "y" : 228 },
+			"position" : { "x" : 272, "y" : 268 },
 			"itemOffset" : { "x" : 0, "y" : 40 },
 			"sliderPosition" : { "x" : 130, "y" : 0 },
-			"sliderSize" : { "x" : 360, "y" : 360 },
-			"visibleAmount" : 9
+			"sliderSize" : { "x" : 320, "y" : 320 },
+			"visibleAmount" : 8
 		},
 
 		{

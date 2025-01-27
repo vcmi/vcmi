@@ -673,7 +673,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "mapPreview", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode" ],
+			"required" : [ "mapPreview", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode", "languageRooms" ],
 			"properties" : {
 				"mapPreview" : {
 					"type" : "boolean",
@@ -698,6 +698,10 @@
 				"roomMode" : {
 					"type" : "number",
 					"default" : 0
+				},
+				"languageRooms" : {
+					"type" : "array",
+					"default" : []
 				}
 			}
 		},

@@ -109,6 +109,7 @@ set(vcmiclientcommon_SRCS
 	renderSDL/ScreenHandler.cpp
 	renderSDL/SDL_Extensions.cpp
 
+	globalLobby/GlobalLobbyAddChannelWindow.cpp
 	globalLobby/GlobalLobbyClient.cpp
 	globalLobby/GlobalLobbyInviteWindow.cpp
 	globalLobby/GlobalLobbyLoginWindow.cpp
@@ -322,6 +323,7 @@ set(vcmiclientcommon_HEADERS
 
 	globalLobby/GlobalLobbyClient.h
 	globalLobby/GlobalLobbyDefines.h
+	globalLobby/GlobalLobbyAddChannelWindow.h
 	globalLobby/GlobalLobbyInviteWindow.h
 	globalLobby/GlobalLobbyLoginWindow.h
 	globalLobby/GlobalLobbyRoomWindow.h
