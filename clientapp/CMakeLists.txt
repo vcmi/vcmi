@@ -42,6 +42,11 @@ target_include_directories(vcmiclient
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+if(ENABLE_VIDEO)
+	target_compile_definitions(vcmiclient PRIVATE ENABLE_VIDEO)
+endif()
+
+
 if(WIN32)
 	target_sources(vcmiclient PRIVATE "VCMI_client.rc")
 	set_target_properties(vcmiclient
@@ -55,11 +60,6 @@ if(WIN32)
 		target_link_libraries(vcmiclient SDL2::SDL2main)
 	endif()
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
-
-	if(NOT ffmpeg_LIBRARIES)
-		target_compile_definitions(vcmiclient PRIVATE DISABLE_VIDEO)
-	endif()
-
 
 	# TODO: very hacky, find proper solution to copy AI dlls into bin dir
 	if(MSVC)

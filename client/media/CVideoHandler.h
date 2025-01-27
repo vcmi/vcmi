@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#ifndef DISABLE_VIDEO
+#ifdef ENABLE_VIDEO
 
 #include "../lib/Point.h"
 #include "IVideoPlayer.h"

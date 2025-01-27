@@ -308,7 +308,7 @@ int main(int argc, char * argv[])
 	CSH = new CServerHandler();
 	
 	// Initialize video
-#ifdef DISABLE_VIDEO
+#ifndef ENABLE_VIDEO
 	CCS->videoh = new CEmptyVideoPlayer();
 #else
 	if (!settings["session"]["headless"].Bool() && !vm.count("disable-video"))
