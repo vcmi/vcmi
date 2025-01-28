@@ -1164,12 +1164,16 @@ powód błędu: </translation>
 Exe (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
+            <numerusform>SHA1 suma kontrolna dostarczonych plików:
+Exe (%n bajt):
+%1</numerusform>
+            <numerusform>SHA1 suma kontrolna dostarczonych plików:
+Exe (%n bajty):
+%1</numerusform>
             <numerusform>SHA1 suma kontrolna dostarczonych plików:
 Exe (%n bajtów):
 %1</numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1178,12 +1182,13 @@ Exe (%n bajtów):
 Bin (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
-            <numerusform>
-Bin (%n bajtów):
+        <translation>
+            <numerusform>Bin (%n bajt):
 %1</numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Bin (%n bajty):
+%1</numerusform>
+            <numerusform>Bin (%n bajtów):
+%1</numerusform>
         </translation>
     </message>
     <message>
