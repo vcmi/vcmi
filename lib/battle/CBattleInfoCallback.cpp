@@ -49,11 +49,6 @@ static bool sameSideOfWall(const BattleHex & pos1, const BattleHex & pos2)
 	return stackLeft == destLeft;
 }
 
-static bool isInsideWalls(const BattleHex & pos)
-{
-	return lineToWallHex(pos.getY()) <= pos;
-}
-
 // parts of wall
 static const std::pair<int, EWallPart> wallParts[] =
 {
@@ -167,7 +162,20 @@ std::pair< BattleHexArray, int > CBattleInfoCallback::getPath(const BattleHex & 
 
 bool CBattleInfoCallback::battleIsInsideWalls(const BattleHex & from) const
 {
-	return isInsideWalls(from);
+	BattleHex wallPos = lineToWallHex(from.getY());
+
+	if (from < wallPos)
+		return false;
+
+	if (wallPos < from)
+		return true;
+
+	// edge case - this is the wall. (or drawbridge)
+	// since this method is used exclusively to determine behavior of defenders,
+	// consider it inside walls, unless this is intact drawbridge - to prevent defenders standing on it and opening the gates
+	if (from == BattleHex::GATE_INNER)
+		return battleGetGateState() == EGateState::DESTROYED;
+	return true;
 }
 
 bool CBattleInfoCallback::battleHasPenaltyOnLine(const BattleHex & from, const BattleHex & dest, bool checkWall, bool checkMoat) const
