@@ -25,6 +25,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CThreadHelper.h"
+#include "../../lib/ExceptionsCommon.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/entities/building/CBuilding.h"
@@ -146,13 +147,20 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 
 	for(auto & loader : configList)
 	{
-		auto stream = loader->load(jsonResource);
-		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
-		stream->read(textData.get(), stream->getSize());
+		try {
+			auto stream = loader->load(jsonResource);
+			std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
+			stream->read(textData.get(), stream->getSize());
 
-		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), path.getOriginalName());
+			const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), path.getOriginalName());
 
-		initFromJson(result, config, mode);
+			initFromJson(result, config, mode);
+		}
+		catch (const DataLoadingException & e)
+		{
+			// FIXME: sometimes triggered by generated animation assets, e.g. lava/water tiles
+			logGlobal->error("Failed to load animation file! Reason: %s", e.what());
+		}
 	}
 
 	animationLayouts[actualPath] = result;
