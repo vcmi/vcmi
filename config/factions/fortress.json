@@ -84,7 +84,7 @@
 				"mageGuild2":     { "animation" : "TBFRMAG2.def", "x" : 0,   "y" : 177, "z" : -1, "border" : "TOFMAG2A.bmp", "area" : "TZFMAG2A.bmp" },
 				"mageGuild3":     { "animation" : "TBFRMAG3.def", "x" : 0,   "y" : 135, "z" : -1, "border" : "TOFMAG3A.bmp", "area" : "TZFMAG3A.bmp" },
 				"tavern":         { "animation" : "TBFRTVRN.def", "x" : 634, "y" : 219, "z" : 3,  "border" : "TOFTAVA.bmp",  "area" : "TZFTAVA.bmp" },
-				"shipyard":       { "animation" : "TBFRDOCK.def", "x" : 197, "y" : 294, "border" : "TOFDCK2.bmp",  "area" : "TZFDCK2.bmp" },
+				"shipyard":       { "animation" : "TBFRDOCK.def", "x" : 197, "y" : 294, "z" : 1,  "border" : "TOFDCK2.bmp",  "area" : "TZFDCK2.bmp" },
 				"fort":           { "animation" : "TBFRCSTL.def", "x" : 368, "y" : 118, "z" : -2, "border" : "TOFCAS1.bmp",  "area" : "TZFCAS1.bmp" },
 				"citadel":        { "animation" : "TBFRCAS2.def", "x" : 368, "y" : 98,  "z" : -2, "border" : "TOFCAS2.bmp",  "area" : "TZFCAS2.bmp" },
 				"castle":         { "animation" : "TBFRCAS3.def", "x" : 368, "y" : 55,  "z" : -2, "border" : "TOFCAS3.bmp",  "area" : "TZFCAS3.bmp" },
