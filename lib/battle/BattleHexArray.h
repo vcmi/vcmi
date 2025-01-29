@@ -12,6 +12,7 @@
 
 #include "BattleHex.h"
 #include <boost/container/small_vector.hpp>
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -41,9 +42,9 @@ public:
 	using pointer = value_type *;
 	using const_pointer = const value_type *;
 	using difference_type = typename StorageType::difference_type;
-	using iterator = typename StorageType::iterator;
+//	using iterator = typename StorageType::iterator;
 	using const_iterator = typename StorageType::const_iterator;
-	using reverse_iterator = typename StorageType::reverse_iterator;
+//	using reverse_iterator = typename StorageType::reverse_iterator;
 	using const_reverse_iterator = typename StorageType::const_reverse_iterator;
 
 	BattleHexArray() = default;
@@ -71,7 +72,7 @@ public:
 	{
 		if(tile.isAvailable() && !contains(tile))
 		{
-			presenceFlags[tile.toInt()] = true;
+			presenceFlags.set(tile.toInt());
 			internalStorage.emplace_back(tile);
 		}
 	}
@@ -81,7 +82,7 @@ public:
 		if(contains(hex))
 			return;
 
-		presenceFlags[hex.toInt()] = true;
+		presenceFlags.set(hex.toInt());
 		internalStorage.emplace_back(hex);
 	}
 
@@ -98,18 +99,18 @@ public:
 		if(contains(hex))
 			return;
 
-		presenceFlags[hex.toInt()] = true;
+		presenceFlags.set(hex.toInt());
 		internalStorage[index] = hex;
 	}
 
-	iterator insert(iterator pos, const BattleHex & hex) noexcept
-	{
-		if(contains(hex))
-			return pos;
-
-		presenceFlags[hex.toInt()] = true;
-		return internalStorage.insert(pos, hex);
-	}
+//	iterator insert(iterator pos, const BattleHex & hex) noexcept
+//	{
+//		if(contains(hex))
+//			return pos;
+//
+//		presenceFlags.set(hex.toInt());
+//		return internalStorage.insert(pos, hex);
+//	}
 
 	void insert(const BattleHexArray & other) noexcept;
 
@@ -123,17 +124,44 @@ public:
 		}
 	}
 
+	template<typename Predicate>
+	void sort(Predicate pred)
+	{
+		std::sort(internalStorage.begin(), internalStorage.end(), pred);
+	}
+
+	template<typename Predicate>
+	void erase_if(Predicate pred)
+	{
+		vstd::erase_if(internalStorage, pred);
+		// reinit presence flags
+		presenceFlags = {};
+		for(const auto & hex : internalStorage)
+			presenceFlags.set(hex.toInt()) = true;
+	}
+
+	void shuffle(vstd::RNG & rand)
+	{
+		int64_t n = internalStorage.size();
+
+		for(int64_t i = n - 1; i > 0; --i)
+		{
+			auto randIndex = rand.nextInt64(0, i);
+			std::swap(internalStorage[i], internalStorage[randIndex]);
+		}
+	}
+
 	void clear() noexcept;
 	inline void erase(const BattleHex & target) noexcept
 	{
 		assert(contains(target));
 		vstd::erase(internalStorage, target);
-		presenceFlags[target.toInt()] = false;
+		presenceFlags.reset(target.toInt());
 	}
-	void erase(iterator first, iterator last) noexcept;
+//	void erase(iterator first, iterator last) noexcept;
 	inline void pop_back() noexcept
 	{
-		presenceFlags[internalStorage.back().toInt()] = false;
+		presenceFlags.reset(internalStorage.back().toInt());
 		internalStorage.pop_back();
 	}
 
@@ -156,11 +184,11 @@ public:
 		return result;
 	}
 
-	template <typename Predicate>
-	iterator findIf(Predicate predicate) noexcept
-	{
-		return std::find_if(begin(), end(), predicate);
-	}
+//	template <typename Predicate>
+//	iterator findIf(Predicate predicate) noexcept
+//	{
+//		return std::find_if(begin(), end(), predicate);
+//	}
 
 	template <typename Predicate>
 	const_iterator findIf(Predicate predicate) const noexcept
@@ -216,7 +244,7 @@ public:
 	[[nodiscard]] inline bool contains(const BattleHex & hex) const noexcept
 	{
 		if(hex.isValid())
-			return presenceFlags[hex.toInt()];
+			return presenceFlags.test(hex.toInt());
 		
 		return true;
 	}
@@ -228,7 +256,7 @@ public:
 		if(!s.saving)
 		{
 			for(const auto & hex : internalStorage)
-				presenceFlags[hex.toInt()] = true;
+				presenceFlags.set(hex.toInt()) = true;
 		}
 	}
 
@@ -257,10 +285,10 @@ public:
 		return internalStorage.size();
 	}
 
-	[[nodiscard]] inline iterator begin() noexcept
-	{
-		return internalStorage.begin();
-	}
+//	[[nodiscard]] inline iterator begin() noexcept
+//	{
+//		return internalStorage.begin();
+//	}
 
 	[[nodiscard]] inline const_iterator begin() const noexcept
 	{
@@ -272,30 +300,30 @@ public:
 		return internalStorage.empty();
 	}
 
-	[[nodiscard]] inline iterator end() noexcept
-	{
-		return internalStorage.end();
-	}
+//	[[nodiscard]] inline iterator end() noexcept
+//	{
+//		return internalStorage.end();
+//	}
 
 	[[nodiscard]] inline const_iterator end() const noexcept
 	{
 		return internalStorage.end();
 	}
 
-	[[nodiscard]] inline reverse_iterator rbegin() noexcept
-	{
-		return reverse_iterator(end());
-	}
+//	[[nodiscard]] inline reverse_iterator rbegin() noexcept
+//	{
+//		return reverse_iterator(end());
+//	}
 
 	[[nodiscard]] inline const_reverse_iterator rbegin() const noexcept
 	{
 		return const_reverse_iterator(end());
 	}
 
-	[[nodiscard]] inline reverse_iterator rend() noexcept
-	{
-		return reverse_iterator(begin());
-	}
+//	[[nodiscard]] inline reverse_iterator rend() noexcept
+//	{
+//		return reverse_iterator(begin());
+//	}
 
 	[[nodiscard]] inline const_reverse_iterator rend() const noexcept
 	{

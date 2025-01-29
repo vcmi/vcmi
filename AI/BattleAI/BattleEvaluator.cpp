@@ -371,7 +371,8 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 
 	if (siegeDefense)
 	{
-		vstd::erase_if(avHexes, [&](const BattleHex & hex) {
+		avHexes.erase_if([&](const BattleHex & hex)
+		{
 			return !cb->getBattle(battleID)->battleIsInsideWalls(hex);
 		});
 	}
@@ -383,7 +384,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 
 	BattleHexArray targetHexes = hexes;
 
-	std::sort(targetHexes.begin(), targetHexes.end(), [&](const BattleHex & h1, const BattleHex & h2) -> bool
+	targetHexes.sort([&](const BattleHex & h1, const BattleHex & h2) -> bool
 		{
 			return reachability.distances[h1.toInt()] < reachability.distances[h2.toInt()];
 		});

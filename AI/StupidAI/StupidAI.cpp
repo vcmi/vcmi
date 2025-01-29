@@ -289,7 +289,7 @@ BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stac
 		return BattleAction::makeDefend(stack);
 	}
 
-	std::sort(hexes.begin(), hexes.end(), [&](const BattleHex & h1, const BattleHex & h2) -> bool
+	hexes.sort([&](const BattleHex & h1, const BattleHex & h2) -> bool
 	{
 		return reachability.distances[h1.toInt()] < reachability.distances[h2.toInt()];
 	});

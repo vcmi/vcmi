@@ -194,7 +194,7 @@ void Obstacle::apply(ServerCallback * server, const Mechanics * m, const EffectT
 			for(const auto & destination : target)
 				insertAvailable(destination.hexValue, availableTiles);
 
-		RandomGeneratorUtil::randomShuffle(availableTiles, *server->getRNG());
+		availableTiles.shuffle(*server->getRNG());
 		const int patchesToPut = std::min(patchCount, static_cast<int>(availableTiles.size()));
 		EffectTarget randomTarget;
 		randomTarget.reserve(patchesToPut);
