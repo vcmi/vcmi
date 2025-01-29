@@ -127,27 +127,29 @@ size_t CTrueTypeFont::getStringWidthScaled(const std::string & text) const
 
 void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
 {
-	if (color.r != 0 && color.g != 0 && color.b != 0) // not black - add shadow
-	{
-		if (outline)
-			renderText(surface, data, Colors::BLACK, pos - Point(1,1) * getScalingFactor());
+	if (data.empty())
+		return;
 
-		if (dropShadow || outline)
-			renderText(surface, data, Colors::BLACK, pos + Point(1,1) * getScalingFactor());
-	}
+	if (outline)
+		renderTextImpl(surface, data, Colors::BLACK, pos - Point(1,1) * getScalingFactor());
 
-	if (!data.empty())
-	{
-		SDL_Surface * rendered;
-		if (blended)
-			rendered = TTF_RenderUTF8_Blended(font.get(), data.c_str(), CSDL_Ext::toSDL(color));
-		else
-			rendered = TTF_RenderUTF8_Solid(font.get(), data.c_str(), CSDL_Ext::toSDL(color));
+	if (dropShadow || outline)
+		renderTextImpl(surface, data, Colors::BLACK, pos + Point(1,1) * getScalingFactor());
 
-		assert(rendered);
+	renderTextImpl(surface, data, color, pos);
+}
 
-		CSDL_Ext::blitSurface(rendered, surface, pos);
-		SDL_FreeSurface(rendered);
-	}
+void CTrueTypeFont::renderTextImpl(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
+{
+	SDL_Surface * rendered;
+	if (blended)
+		rendered = TTF_RenderUTF8_Blended(font.get(), data.c_str(), CSDL_Ext::toSDL(color));
+	else
+		rendered = TTF_RenderUTF8_Solid(font.get(), data.c_str(), CSDL_Ext::toSDL(color));
+
+	assert(rendered);
+
+	CSDL_Ext::blitSurface(rendered, surface, pos);
+	SDL_FreeSurface(rendered);
 }
 

@@ -467,8 +467,7 @@ void LobbyServer::receiveRequestChatHistory(const NetworkConnectionPtr & connect
 
 	if (channelType == "global")
 	{
-		// can only be sent on connection, initiated by server
-		sendOperationFailed(connection, "Operation not supported!");
+		sendRecentChatHistory(connection, channelType, channelName);
 	}
 
 	if (channelType == "match")
@@ -588,6 +587,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	std::string accountCookie = json["accountCookie"].String();
 	std::string language = json["language"].String();
 	std::string version = json["version"].String();
+	const auto & languageRooms = json["languageRooms"].Vector();
 
 	if(!database->isAccountIDExists(accountID))
 		return sendOperationFailed(connection, "Account not found");
@@ -606,9 +606,18 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 
 	logGlobal->info("%s: Logged in as %s", accountID, displayName);
 	sendClientLoginSuccess(connection, accountCookie, displayName);
-	sendRecentChatHistory(connection, "global", "english");
-	if (language != "english")
-		sendRecentChatHistory(connection, "global", language);
+
+	if (!languageRooms.empty())
+	{
+		for (const auto & entry : languageRooms)
+			sendRecentChatHistory(connection, "global", entry.String());
+	}
+	else
+	{
+		sendRecentChatHistory(connection, "global", "english");
+		if (language != "english")
+			sendRecentChatHistory(connection, "global", language);
+	}
 
 	// send active game rooms list to new account
 	// and update account list to everybody else including new account
