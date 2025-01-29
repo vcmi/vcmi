@@ -128,6 +128,16 @@
 		]
 	},
 
+	"hungarian" : {
+		"name" : "VCMI - alapvető fájlok",
+		"description" : "Alapvető fájlok a VCMI helyes működéséhez",
+		"author" : "VCMI csapat",
+		"skipValidation" : true,
+		"translations" : [
+			"config/hungarian.json"
+		]
+	},
+
 	"translations" : [
 		"config/english.json"
 	],
