@@ -18,7 +18,6 @@
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
 #include "render/IRenderHandler.h"
-#include "render/AssetGenerator.h"
 #include "ClientNetPackVisitors.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/gameState/CGameState.h"
@@ -510,7 +509,7 @@ void ClientCommandManager::handleVsLog(std::istringstream & singleWordBuffer)
 
 void ClientCommandManager::handleGenerateAssets()
 {
-	AssetGenerator::generateAll();
+	GH.renderHandler().exportGeneratedAssets();
 	printCommandMessage("All assets generated");
 }
 

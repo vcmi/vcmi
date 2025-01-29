@@ -306,6 +306,10 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, 
 
 void SDLImageShared::exportBitmap(const boost::filesystem::path& path, SDL_Palette * palette) const
 {
+	auto directory = path;
+	directory.remove_filename();
+	boost::filesystem::create_directories(directory);
+
 	assert(upscalingInProgress == false);
 	if (!surf)
 		return;

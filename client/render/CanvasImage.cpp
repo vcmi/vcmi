@@ -14,6 +14,7 @@
 #include "../render/IScreenHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../renderSDL/SDLImageScaler.h"
+#include "../renderSDL/SDLImage.h"
 
 #include <SDL_image.h>
 #include <SDL_surface.h>
@@ -60,4 +61,9 @@ Rect CanvasImage::contentRect() const
 Point CanvasImage::dimensions() const
 {
 	return {surface->w, surface->h};
+}
+
+std::shared_ptr<ISharedImage> CanvasImage::toSharedImage()
+{
+	return std::make_shared<SDLImageShared>(surface);
 }
