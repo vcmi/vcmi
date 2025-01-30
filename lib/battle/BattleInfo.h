@@ -121,7 +121,7 @@ public:
 	void nextTurn(uint32_t unitId) override;
 
 	void addUnit(uint32_t id, const JsonNode & data) override;
-	void moveUnit(uint32_t id, BattleHex destination) override;
+	void moveUnit(uint32_t id, const BattleHex & destination) override;
 	void setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta) override;
 	void removeUnit(uint32_t id) override;
 	void updateUnit(uint32_t id, const JsonNode & data) override;
@@ -145,8 +145,8 @@ public:
 	using CBattleInfoEssentials::battleGetFightingHero;
 	CGHeroInstance * battleGetFightingHero(BattleSide side) const;
 
-	CStack * generateNewStack(uint32_t id, const CStackInstance & base, BattleSide side, const SlotID & slot, BattleHex position);
-	CStack * generateNewStack(uint32_t id, const CStackBasicDescriptor & base, BattleSide side, const SlotID & slot, BattleHex position);
+	CStack * generateNewStack(uint32_t id, const CStackInstance & base, BattleSide side, const SlotID & slot, const BattleHex & position);
+	CStack * generateNewStack(uint32_t id, const CStackBasicDescriptor & base, BattleSide side, const SlotID & slot, const BattleHex & position);
 
 	const SideInBattle & getSide(BattleSide side) const;
 	SideInBattle & getSide(BattleSide side);

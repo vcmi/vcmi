@@ -110,7 +110,7 @@ void HeroArtifactsWidget::commitChanges()
 	}
 }
 
-HeroArtifactsDelegate::HeroArtifactsDelegate(CGHeroInstance & h) : QStyledItemDelegate(), hero(h)
+HeroArtifactsDelegate::HeroArtifactsDelegate(CGHeroInstance & h) : BaseInspectorItemDelegate(), hero(h)
 {
 }
 
@@ -136,9 +136,26 @@ void HeroArtifactsDelegate::setModelData(QWidget * editor, QAbstractItemModel * 
 	if (auto * ed = qobject_cast<HeroArtifactsWidget *>(editor))
 	{
 		ed->commitChanges();
+		updateModelData(model, index);
 	}
 	else
 	{
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
+}
+
+void HeroArtifactsDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QStringList textList;
+	for(const auto & [artPosition, artSlotInfo] : hero.artifactsWorn)
+	{
+		auto slotText = NArtifactPosition::namesHero[artPosition.num];
+		textList += QString("%1: %2").arg(QString::fromStdString(slotText)).arg(QString::fromStdString(artSlotInfo.artifact->getType()->getNameTranslated()));
+	}
+	textList += QString("%1:").arg(QString::fromStdString(NArtifactPosition::backpack));
+	for(const auto & art : hero.artifactsInBackpack)
+	{
+		textList += QString::fromStdString(art.artifact->getType()->getNameTranslated());
+	}
+	setModelTextData(model, index, textList);
 }

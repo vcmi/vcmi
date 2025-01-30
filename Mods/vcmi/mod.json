@@ -1,6 +1,14 @@
 {
 	"name" : "VCMI essential files",
 	"description" : "Essential files required for VCMI to run correctly",
+	"version" : "1.5",
+	"author" : "VCMI Team",
+	"contact" : "http://forum.vcmi.eu/index.php",
+	"modType" : "Graphical",
+
+	"factions" : [ "config/towerFactions" ],
+	"creatures" : [ "config/towerCreature" ],
+	"spells" : [ "config/spells" ],
 
 	"chinese" : {
 		"name" : "VCMI essential files",
@@ -120,14 +128,15 @@
 		]
 	},
 
-	"version" : "1.5",
-	"author" : "VCMI Team",
-	"contact" : "http://forum.vcmi.eu/index.php",
-	"modType" : "Graphical",
-
-	"factions" : [ "config/towerFactions" ],
-	"creatures" : [ "config/towerCreature" ],
-	"spells" : [ "config/spells" ],
+	"hungarian" : {
+		"name" : "VCMI - alapvető fájlok",
+		"description" : "Alapvető fájlok a VCMI helyes működéséhez",
+		"author" : "VCMI csapat",
+		"skipValidation" : true,
+		"translations" : [
+			"config/hungarian.json"
+		]
+	},
 
 	"translations" : [
 		"config/english.json"

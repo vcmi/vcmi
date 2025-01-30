@@ -149,11 +149,6 @@ public:
 	void battleFinished(const BattleID & battleID);
 	void startPlayerBattleAction(const BattleID & battleID, PlayerColor color);
 
-	void invalidatePaths(); // clears this->pathCache()
-	void updatePath(const ObjectInstanceID & heroID); // invalidatePaths and update displayed hero path 
-	void updatePath(const CGHeroInstance * hero);
-	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
-
 	friend class CCallback; //handling players actions
 	friend class CBattleCallback; //handling players actions
 
@@ -234,9 +229,6 @@ private:
 	std::shared_ptr<scripting::PoolImpl> clientScripts;
 #endif
 	std::unique_ptr<events::EventBus> clientEventBus;
-
-	mutable boost::mutex pathCacheMutex;
-	std::map<const CGHeroInstance *, std::shared_ptr<CPathsInfo>> pathCache;
 
 	void reinitScripting();
 };

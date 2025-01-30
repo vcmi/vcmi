@@ -24,6 +24,8 @@
 #include "../Goals/Composition.h"
 #include "../../../lib/CPlayerState.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/pathfinder/PathfinderCache.h"
+#include "../../lib/pathfinder/PathfinderOptions.h"
 
 namespace NKAI
 {
@@ -42,6 +44,8 @@ Nullkiller::Nullkiller()
 {
 
 }
+
+Nullkiller::~Nullkiller() = default;
 
 bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 {
@@ -72,6 +76,14 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
 	this->playerID = gateway->playerID;
 
 	settings = std::make_unique<Settings>(cb->getStartInfo()->difficulty);
+
+	PathfinderOptions pathfinderOptions(cb.get());
+
+	pathfinderOptions.useTeleportTwoWay = true;
+	pathfinderOptions.useTeleportOneWay = settings->isOneWayMonolithUsageAllowed();
+	pathfinderOptions.useTeleportOneWayRandom = settings->isOneWayMonolithUsageAllowed();
+
+	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), pathfinderOptions);
 
 	if(canUseOpenMap(cb, playerID))
 	{
@@ -547,6 +559,9 @@ void Nullkiller::makeTurn()
 			return;
 		}
 
+		for (auto heroInfo : cb->getHeroesInfo())
+			gateway->pickBestArtifacts(heroInfo);
+
 		if(i == settings->getMaxPass())
 		{
 			logAi->warn("Maxpass exceeded. Terminating AI turn.");
@@ -716,6 +731,16 @@ bool Nullkiller::handleTrading()
 		}
 	}
 	return haveTraded;
+}
+
+std::shared_ptr<const CPathsInfo> Nullkiller::getPathsInfo(const CGHeroInstance * h) const
+{
+	return pathfinderCache->getPathsInfo(h);
+}
+
+void Nullkiller::invalidatePaths()
+{
+	pathfinderCache->invalidatePaths();
 }
 
 }

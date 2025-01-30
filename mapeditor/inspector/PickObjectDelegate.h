@@ -11,6 +11,7 @@
 #pragma once
 
 #include <QItemDelegate>
+#include "baseinspectoritemdelegate.h"
 
 class MapController;
 
@@ -20,7 +21,7 @@ class CGObjectInstance;
 
 VCMI_LIB_NAMESPACE_END
 
-class PickObjectDelegate : public QItemDelegate
+class PickObjectDelegate : public BaseInspectorItemDelegate
 {
 	Q_OBJECT
 public:

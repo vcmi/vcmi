@@ -54,8 +54,8 @@ void logHexNumbers()
 #if BATTLE_TRACE_LEVEL >= 1
 	logVisual->updateWithLock("hexes", [](IVisualLogBuilder & b)
 		{
-			for(BattleHex hex = BattleHex(0); hex < GameConstants::BFIELD_SIZE; hex = BattleHex(hex + 1))
-				b.addText(hex, std::to_string(hex.hex));
+			for(BattleHex hex = BattleHex(0); hex < GameConstants::BFIELD_SIZE; ++hex)
+				b.addText(hex, std::to_string(hex.toInt()));
 		});
 #endif
 }

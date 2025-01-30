@@ -86,7 +86,7 @@ void VideoWidgetBase::playVideo(const VideoPath & fileToPlay)
 void VideoWidgetBase::show(Canvas & to)
 {
 	if(videoInstance)
-		videoInstance->show(pos.topLeft(), to);
+		to.draw(*videoInstance, pos.topLeft());
 	if(subTitle)
 		subTitle->showAll(to);
 }
@@ -162,7 +162,7 @@ void VideoWidgetBase::deactivate()
 void VideoWidgetBase::showAll(Canvas & to)
 {
 	if(videoInstance)
-		videoInstance->show(pos.topLeft(), to);
+		to.draw(*videoInstance, pos.topLeft());
 	if(subTitle)
 		subTitle->showAll(to);
 }

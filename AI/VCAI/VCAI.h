@@ -26,6 +26,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct QuestInfo;
+class PathfinderCache;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -80,6 +81,7 @@ public:
 	std::vector<ObjectInstanceID> teleportChannelProbingList; //list of teleport channel exits that not visible and need to be (re-)explored
 	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<HeroPtr, std::set<const CGTownInstance *>> townVisitsThisWeek;
+	std::unique_ptr<PathfinderCache> pathfinderCache;
 
 	//part of mainLoop, but accessible from outside
 	std::vector<Goals::TSubgoal> basicGoals;
@@ -254,6 +256,8 @@ public:
 	std::vector<HeroPtr> getMyHeroes() const;
 	HeroPtr primaryHero() const;
 	void checkHeroArmy(HeroPtr h);
+	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h) const;
+	void invalidatePaths() override;
 
 	void requestSent(const CPackForServer * pack, int requestID) override;
 	void answerQuery(QueryID queryID, int selection);

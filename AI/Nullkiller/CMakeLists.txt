@@ -157,7 +157,7 @@ else()
 endif()
 
 target_include_directories(Nullkiller PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(Nullkiller PUBLIC vcmi fuzzylite::fuzzylite)
+target_link_libraries(Nullkiller PUBLIC vcmi fuzzylite::fuzzylite TBB::tbb)
 
 vcmi_set_output_dir(Nullkiller "AI")
 enable_pch(Nullkiller)

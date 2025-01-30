@@ -32,8 +32,8 @@ protected:
 
 	struct BonusCacheEntry
 	{
-		std::atomic<int64_t> version = 0;
-		std::atomic<int64_t> value = 0;
+		std::atomic<int32_t> version = 0;
+		std::atomic<int32_t> value = 0;
 
 		BonusCacheEntry() = default;
 		BonusCacheEntry(const BonusCacheEntry & other)
@@ -116,6 +116,7 @@ public:
 		FORGETFULL,
 		HAS_FREE_SHOOTING,
 		STACK_HEALTH,
+		INVINCIBLE,
 
 		CLONE_MARKER,
 
@@ -151,7 +152,7 @@ private:
 class PrimarySkillsCache
 {
 	const IBonusBearer * target;
-	mutable std::atomic<int64_t> version = 0;
+	mutable std::atomic<int32_t> version = 0;
 	mutable std::array<std::atomic<int32_t>, 4> skills;
 
 	void update() const;
@@ -165,7 +166,7 @@ public:
 class MagicSchoolMasteryCache
 {
 	const IBonusBearer * target;
-	mutable std::atomic<int64_t> version = 0;
+	mutable std::atomic<int32_t> version = 0;
 	mutable std::array<std::atomic<int32_t>, 4+1> schools;
 
 	void update() const;
@@ -183,7 +184,7 @@ class BonusCachePerTurn : public BonusCacheBase
 	const CSelector selector;
 	mutable TConstBonusListPtr bonusList;
 	mutable std::mutex bonusListMutex;
-	mutable std::atomic<int64_t> bonusListVersion = 0;
+	mutable std::atomic<int32_t> bonusListVersion = 0;
 	mutable std::array<BonusCacheEntry, cachedTurns> cache;
 	const BonusCacheMode mode;
 

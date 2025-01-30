@@ -14,7 +14,7 @@
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
-#include "../../../lib/mapObjects/MapObjects.h"
+#include "../../../lib/mapObjects/CGResource.h"
 #include "../../../lib/mapping/CMapDefines.h"
 #include "../../../lib/RoadHandler.h"
 #include "../../../lib/CCreatureHandler.h"
@@ -250,36 +250,7 @@ static uint64_t evaluateArtifactArmyValue(const CArtifact * art)
 	if(art->getId() == ArtifactID::SPELL_SCROLL)
 		return 1500;
 
-	auto statsValue =
-		10 * art->valOfBonuses(BonusType::MOVEMENT, BonusCustomSubtype::heroMovementLand)
-		+ 1200 * art->valOfBonuses(BonusType::STACKS_SPEED)
-		+ 700 * art->valOfBonuses(BonusType::MORALE)
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK))
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE))
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::KNOWLEDGE))
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::SPELL_POWER))
-		+ 500 * art->valOfBonuses(BonusType::LUCK);
-
-	auto classValue = 0;
-
-	switch(art->aClass)
-	{
-	case CArtifact::EartClass::ART_TREASURE:
-		//FALL_THROUGH
-	case CArtifact::EartClass::ART_MINOR:
-		classValue = 1000;
-		break;
-
-	case CArtifact::EartClass::ART_MAJOR:
-		classValue = 3000;
-		break;
-	case CArtifact::EartClass::ART_RELIC:
-	case CArtifact::EartClass::ART_SPECIAL:
-		classValue = 8000;
-		break;
-	}
-
-	return statsValue > classValue ? statsValue : classValue;
+	return getPotentialArtifactScore(art);
 }
 
 uint64_t RewardEvaluator::getArmyReward(
@@ -537,7 +508,7 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target, cons
 	{
 		auto resource = dynamic_cast<const CGResource *>(target);
 		TResources res;
-		res[resource->resourceID()] = resource->amount;
+		res[resource->resourceID()] = resource->getAmount();
 		
 		return getResourceRequirementStrength(res);
 	}
@@ -1191,7 +1162,7 @@ public:
 		Goals::BuildThis & buildThis = dynamic_cast<Goals::BuildThis &>(*task);
 		auto & bi = buildThis.buildingInfo;
 		
-		evaluationContext.goldReward += 7 * bi.dailyIncome[EGameResID::GOLD] / 2; // 7 day income but half we already have
+		evaluationContext.goldReward += 7 * bi.dailyIncome.marketValue() / 2; // 7 day income but half we already have
 		evaluationContext.heroRole = HeroRole::MAIN;
 		evaluationContext.movementCostByRole[evaluationContext.heroRole] += bi.prerequisitesCount;
 		int32_t cost = bi.buildCost[EGameResID::GOLD];
@@ -1201,7 +1172,9 @@ public:
 		if (bi.id == BuildingID::MARKETPLACE || bi.dailyIncome[EGameResID::WOOD] > 0)
 			evaluationContext.isTradeBuilding = true;
 
+#if NKAI_TRACE_LEVEL >= 1
 		logAi->trace("Building costs for %s : %s MarketValue: %d",bi.toString(), evaluationContext.buildingCost.toString(), evaluationContext.buildingCost.marketValue());
+#endif
 
 		if(bi.creatureID != CreatureID::NONE)
 		{

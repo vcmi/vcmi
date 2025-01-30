@@ -274,7 +274,7 @@ void CHighScoreInputScreen::show(Canvas & to)
 
 void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 {
-	if(statisticButton->pos.isInside(cursorPosition))
+	if(statisticButton && statisticButton->pos.isInside(cursorPosition))
 		return;
 
 	OBJECT_CONSTRUCTION;
@@ -288,7 +288,7 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 	if(!input)
 	{
 		input = std::make_shared<CHighScoreInput>(calc.parameters[0].playerName,
-		[&] (std::string text) 
+		[&] (std::string text)
 		{
 			if(!text.empty())
 			{

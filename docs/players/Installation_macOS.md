@@ -19,6 +19,9 @@ Please report about gameplay problem on forums: [Help & Bugs](https://forum.vcmi
 
 If you bought HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the files directly from the browser and install them in the launcher. Select the .bin file first, then the .exe file. This may take a few seconds. Please be patient.
 
+gog.com download page:
+![GoG-Installer](images/gog_offline_installer.png)
+
 ### Step 2.b: Installing by the classic way
 
 1. Find a way to unpack Windows Heroes III or GOG installer. For example, use `vcmibuilder` script inside app bundle or install the game with [CrossOver](https://www.codeweavers.com/crossover) or [Kegworks](https://github.com/Kegworks-App/Kegworks).

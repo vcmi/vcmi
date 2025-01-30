@@ -22,7 +22,6 @@
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
 #include "../render/Graphics.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
@@ -178,7 +177,7 @@ void CMinimap::mouseDragged(const Point & cursorPosition, const Point & lastUpda
 
 void CMinimap::showAll(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), aiShield->pos);
+	CanvasClipRectGuard guard(to, aiShield->pos);
 	CIntObject::showAll(to);
 
 	if(minimap)

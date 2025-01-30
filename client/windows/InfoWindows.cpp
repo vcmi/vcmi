@@ -269,7 +269,14 @@ void CRClickPopupInt::mouseDraggedPopup(const Point & cursorPosition, const Poin
 		close();
 }
 
-void CInfoBoxPopup::mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance)
+template<typename... Args>
+AdventureMapPopup::AdventureMapPopup(Args&&... args) :
+	CWindowObject(std::forward<Args>(args)...), dragDistance(Point(0, 0))
+{
+	addUsedEvents(DRAG_POPUP);
+}
+
+void AdventureMapPopup::mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
 	if(!settings["adventure"]["rightButtonDrag"].Bool())
 		return;
@@ -282,7 +289,7 @@ void CInfoBoxPopup::mouseDraggedPopup(const Point & cursorPosition, const Point 
 
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
-	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("TOWNQVBK"), position)
+	: AdventureMapPopup(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("TOWNQVBK"), position)
 {
 	InfoAboutTown iah;
 	LOCPLINT->cb->getTownInfo(town, iah, LOCPLINT->localState->getCurrentArmy()); //todo: should this be nearest hero?
@@ -296,7 +303,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
-	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("HEROQVBK"), position)
+	: AdventureMapPopup(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("HEROQVBK"), position)
 {
 	InfoAboutHero iah;
 	LOCPLINT->cb->getHeroInfo(hero, iah, LOCPLINT->localState->getCurrentArmy()); //todo: should this be nearest hero?
@@ -310,7 +317,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
-	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("TOWNQVBK"), position)
+	: AdventureMapPopup(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("TOWNQVBK"), position)
 {
 	InfoAboutTown iah;
 	LOCPLINT->cb->getTownInfo(garr, iah);
@@ -324,7 +331,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGCreature * creature)
-	: CWindowObject(RCLICK_POPUP | BORDERED, ImagePath::builtin("DIBOXBCK"), position)
+	: AdventureMapPopup(RCLICK_POPUP | BORDERED, ImagePath::builtin("DIBOXBCK"), position)
 {
 	OBJECT_CONSTRUCTION;
 	tooltip = std::make_shared<CreatureTooltip>(Point(9, 10), creature);
@@ -389,7 +396,7 @@ void MinimapWithIcons::addIcon(const int3 & coordinates, const ImagePath & image
 }
 
 TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * teleporter)
-	: CWindowObject(BORDERED | RCLICK_POPUP)
+	: AdventureMapPopup(BORDERED | RCLICK_POPUP)
 {
 	OBJECT_CONSTRUCTION;
 	pos.w = 322;
@@ -430,7 +437,7 @@ TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * tele
 }
 
 KeymasterPopup::KeymasterPopup(const Point & position, const CGKeys * keymasterOrGuard)
-	: CWindowObject(BORDERED | RCLICK_POPUP)
+	: AdventureMapPopup(BORDERED | RCLICK_POPUP)
 {
 	OBJECT_CONSTRUCTION;
 	pos.w = 322;
@@ -469,7 +476,7 @@ KeymasterPopup::KeymasterPopup(const Point & position, const CGKeys * keymasterO
 }
 
 ObeliskPopup::ObeliskPopup(const Point & position, const CGObelisk * obelisk)
-	: CWindowObject(BORDERED | RCLICK_POPUP)
+	: AdventureMapPopup(BORDERED | RCLICK_POPUP)
 {
 	OBJECT_CONSTRUCTION;
 	pos.w = 322;

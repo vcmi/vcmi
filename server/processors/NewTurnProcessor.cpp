@@ -258,13 +258,14 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 		for (GameResID i : GameResID::ALL_RESOURCES())
 		{
 			const std::string & name = GameConstants::RESOURCE_NAMES[i];
-			int weeklyBonus = difficultyConfig[name].Integer();
-			int dayOfWeek = gameHandler->gameState()->getDate(Date::DAY_OF_WEEK);
-			int dailyIncome = incomeHandicapped[i];
-			int amountTillToday = dailyIncome * weeklyBonus * (dayOfWeek-1) / 7 / 100;
-			int amountAfterToday = dailyIncome * weeklyBonus * dayOfWeek / 7 / 100;
-			int dailyBonusToday = amountAfterToday - amountTillToday;
-			incomeHandicapped[static_cast<GameResID>(i)] += dailyBonusToday;
+			int64_t weeklyBonus = difficultyConfig[name].Integer();
+			int64_t dayOfWeek = gameHandler->gameState()->getDate(Date::DAY_OF_WEEK);
+			int64_t dailyIncome = incomeHandicapped[i];
+			int64_t amountTillToday = dailyIncome * weeklyBonus * (dayOfWeek-1) / 7 / 100;
+			int64_t amountAfterToday = dailyIncome * weeklyBonus * dayOfWeek / 7 / 100;
+			int64_t dailyBonusToday = amountAfterToday - amountTillToday;
+			int64_t totalIncomeToday = std::min(GameConstants::PLAYER_RESOURCES_CAP, incomeHandicapped[i] + dailyBonusToday);
+			incomeHandicapped[i] = totalIncomeToday;
 		}
 	}
 

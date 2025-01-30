@@ -24,6 +24,7 @@
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../media/IMusicPlayer.h"
+#include "../media/ISoundPlayer.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
@@ -570,9 +571,8 @@ CCastleBuildings::CCastleBuildings(const CGTownInstance* Town):
 {
 	OBJECT_CONSTRUCTION;
 
-	background = std::make_shared<CPicture>(town->getTown()->clientInfo.townBackground);
+	background = std::make_shared<CPicture>(town->getTown()->clientInfo.townBackground, Point(0,0), EImageBlitMode::OPAQUE);
 	background->needRefresh = true;
-	background->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
 
@@ -974,7 +974,7 @@ void CCastleBuildings::enterCastleGate(BuildingID building)
 			if(settings["general"]["enableUiEnhancements"].Bool())
 			{
 				auto image = GH.renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->getTown()->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
-				image->scaleTo(Point(35, 23));
+				image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
 				images.push_back(image);
 			}
 		}
@@ -1436,6 +1436,9 @@ void CCastleInterface::townChange()
 
 void CCastleInterface::addBuilding(BuildingID bid)
 {
+	if (town->getTown()->buildings.at(bid)->mode != CBuilding::BUILD_AUTO)
+		CCS->soundh->playSound(soundBase::newBuilding);
+
 	deactivate();
 	builds->addBuilding(bid);
 	recreateIcons();

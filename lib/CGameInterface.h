@@ -56,6 +56,7 @@ class CSaveFile;
 class BattleStateInfo;
 struct ArtifactLocation;
 class BattleStateInfoForRetreat;
+struct CPathsInfo;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -108,6 +109,9 @@ public:
 	virtual void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain){};
 
 	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) = 0;
+
+	/// Invalidates and destroys all paths for all heroes
+	virtual void invalidatePaths(){};
 };
 
 class DLL_LINKAGE CDynLibHandler
@@ -151,7 +155,7 @@ public:
 	void actionFinished(const BattleID & battleID, const BattleAction &action) override;
 	void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse) override;
 	void battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles) override;
-	void battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
+	void battleStackMoved(const BattleID & battleID, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport) override;
 	void battleAttack(const BattleID & battleID, const BattleAttack *ba) override;
 	void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc) override;
 	void battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID) override;

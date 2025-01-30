@@ -20,6 +20,7 @@
 #include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/constants/StringConstants.h"
+#include "../lib/CPlayerState.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 
 #include "townbuildingswidget.h"
@@ -224,13 +225,6 @@ void Initializer::initialize(CGMine * o)
 	}
 }
 
-void Initializer::initialize(CGResource * o)
-{
-	if(!o) return;
-	
-	o->amount = CGResource::RANDOM_AMOUNT;
-}
-
 //===============IMPLEMENT PROPERTIES SETUP===============================
 void Inspector::updateProperties(CArmedInstance * o)
 {
@@ -249,7 +243,7 @@ void Inspector::updateProperties(CGDwelling * o)
 	if (o->ID == Obj::RANDOM_DWELLING || o->ID == Obj::RANDOM_DWELLING_LVL)
 	{
 		auto * delegate = new PickObjectDelegate(controller, PickObjectDelegate::typedFilter<CGTownInstance>);
-		addProperty(QObject::tr("Same as town"), PropertyEditorPlaceholder(), delegate, false);
+		addProperty(QObject::tr("Same as town"), o->randomizationInfo, delegate, false);
 	}
 }
 
@@ -855,6 +849,7 @@ QTableWidgetItem * Inspector::addProperty(const QString & value)
 {
 	auto * item = new QTableWidgetItem(value);
 	item->setFlags(Qt::NoItemFlags);
+	item->setToolTip(value);
 	return item;
 }
 
@@ -907,6 +902,17 @@ QTableWidgetItem * Inspector::addProperty(CGCreature::Character value)
 		}
 	}
 	
+	return item;
+}
+
+QTableWidgetItem * Inspector::addProperty(const std::optional<CGDwellingRandomizationInfo> & value)
+{
+	QString text = QObject::tr("Select town");
+	if(value.has_value() && !value->instanceId.empty())
+		text = QString::fromStdString(value->instanceId);
+
+	auto * item = new QTableWidgetItem(text);
+	item->setFlags(Qt::NoItemFlags);
 	return item;
 }
 

@@ -203,6 +203,7 @@ const UnitBonusValuesProxy::SelectorsArray * UnitBonusValuesProxy::generateSelec
 		Selector::type()(BonusType::FORGETFULL),//FORGETFULL,
 		Selector::type()(BonusType::FREE_SHOOTING).Or(Selector::type()(BonusType::SIEGE_WEAPON)),//HAS_FREE_SHOOTING,
 		Selector::type()(BonusType::STACK_HEALTH),//STACK_HEALTH,
+		Selector::type()(BonusType::INVINCIBLE),//INVINCIBLE,
 		Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::CLONE))))
 	};
 

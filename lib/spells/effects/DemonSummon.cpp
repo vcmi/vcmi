@@ -65,7 +65,7 @@ void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const Effe
 			continue;
 		}
 
-		auto hex = m->battle()->getAvailableHex(targetStack->creatureId(), m->casterSide, targetStack->getPosition());
+		auto hex = m->battle()->getAvailableHex(targetStack->creatureId(), m->casterSide, targetStack->getPosition().toInt());
 
 		if(!hex.isValid())
 		{
@@ -107,7 +107,7 @@ bool DemonSummon::isValidTarget(const Mechanics * m, const battle::Unit * unit) 
 		return false;
 
 	//check if alive unit blocks rising
-	for(const BattleHex & hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()))
+	for(const BattleHex & hex : unit->getHexes())
 	{
 		auto blocking = m->battle()->battleGetUnitsIf([hex, unit](const battle::Unit * other)
 		{

@@ -264,11 +264,13 @@ void MainWindow::dropEvent(QDropEvent* event)
 
 void MainWindow::manualInstallFile(QString filePath)
 {
-	if(filePath.endsWith(".zip", Qt::CaseInsensitive) || filePath.endsWith(".exe", Qt::CaseInsensitive))
+	QString realFilePath = Helper::getRealPath(filePath);
+
+	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive) || realFilePath.endsWith(".exe", Qt::CaseInsensitive))
 		switchToModsTab();
 
 	QString fileName = QFileInfo{filePath}.fileName();
-	if(filePath.endsWith(".zip", Qt::CaseInsensitive))
+	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive))
 	{
 		QString filenameClean = fileName.toLower()
 			// mod name currently comes from zip file -> remove suffixes from github zip download
@@ -278,7 +280,7 @@ void MainWindow::manualInstallFile(QString filePath)
 
 		getModView()->downloadFile(filenameClean, QUrl::fromLocalFile(filePath), "mods");
 	}
-	else if(filePath.endsWith(".json", Qt::CaseInsensitive))
+	else if(realFilePath.endsWith(".json", Qt::CaseInsensitive))
 	{
 		QDir configDir(QString::fromStdString(VCMIDirs::get().userConfigPath().string()));
 		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files); // case insensitive check

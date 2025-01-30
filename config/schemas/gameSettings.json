@@ -87,7 +87,9 @@
 				"weeklyGrowthCap" :         { "type" : "number" },
 				"dailyStackExperience" :    { "type" : "number" },
 				"allowRandomSpecialWeeks" : { "type" : "boolean" },
-				"allowAllForDoubleMonth" :  { "type" : "boolean" }
+				"allowAllForDoubleMonth" :  { "type" : "boolean" },
+				"allowJoiningForFree" :     { "type" : "boolean" },
+				"joiningPercentage" :       { "type" : "number" }
 			}
 		},
 		"dwellings": {

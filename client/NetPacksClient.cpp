@@ -168,7 +168,6 @@ void ApplyClientNetPackVisitor::visitSetMana(SetMana & pack)
 void ApplyClientNetPackVisitor::visitSetMovePoints(SetMovePoints & pack)
 {
 	const CGHeroInstance *h = cl.getHero(pack.hid);
-	cl.updatePath(h);
 	callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroMovePointsChanged, h);
 }
 
@@ -194,7 +193,7 @@ void ApplyClientNetPackVisitor::visitFoWChange(FoWChange & pack)
 				i.second->tileHidden(pack.tiles);
 		}
 	}
-	cl.invalidatePaths();
+	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 }
 
 static void dispatchGarrisonChange(CClient & cl, ObjectInstanceID army1, ObjectInstanceID army2)
@@ -235,33 +234,21 @@ void ApplyClientNetPackVisitor::visitSetStackType(SetStackType & pack)
 void ApplyClientNetPackVisitor::visitEraseStack(EraseStack & pack)
 {
 	dispatchGarrisonChange(cl, pack.army, ObjectInstanceID());
-	cl.updatePath(pack.army); //it is possible to remove last non-native unit for current terrain and lose movement penalty
 }
 
 void ApplyClientNetPackVisitor::visitSwapStacks(SwapStacks & pack)
 {
 	dispatchGarrisonChange(cl, pack.srcArmy, pack.dstArmy);
-
-	if(pack.srcArmy != pack.dstArmy)
-		cl.updatePath(pack.dstArmy); // adding/removing units may change terrain type penalty based on creature native terrains
 }
 
 void ApplyClientNetPackVisitor::visitInsertNewStack(InsertNewStack & pack)
 {
 	dispatchGarrisonChange(cl, pack.army, ObjectInstanceID());
-
-	cl.updatePath(pack.army); // adding/removing units may change terrain type penalty based on creature native terrains
 }
 
 void ApplyClientNetPackVisitor::visitRebalanceStacks(RebalanceStacks & pack)
 {
 	dispatchGarrisonChange(cl, pack.srcArmy, pack.dstArmy);
-
-	if(pack.srcArmy != pack.dstArmy)
-	{
-		cl.updatePath(pack.srcArmy); // adding/removing units may change terrain type penalty based on creature native terrains
-		cl.updatePath(pack.dstArmy);
-	}
 }
 
 void ApplyClientNetPackVisitor::visitBulkRebalanceStacks(BulkRebalanceStacks & pack)
@@ -272,12 +259,6 @@ void ApplyClientNetPackVisitor::visitBulkRebalanceStacks(BulkRebalanceStacks & p
 			? ObjectInstanceID()
 			: pack.moves[0].dstArmy;
 		dispatchGarrisonChange(cl, pack.moves[0].srcArmy, destArmy);
-
-		if(pack.moves[0].srcArmy != destArmy)
-		{
-			cl.updatePath(destArmy); // adding/removing units may change terrain type penalty based on creature native terrains
-			cl.updatePath(pack.moves[0].srcArmy);
-		}
 	}
 }
 
@@ -303,7 +284,6 @@ void ApplyClientNetPackVisitor::visitPutArtifact(PutArtifact & pack)
 
 void ApplyClientNetPackVisitor::visitEraseArtifact(BulkEraseArtifacts & pack)
 {
-	cl.updatePath(pack.artHolder);
 	for(const auto & slotErase : pack.posPack)
 		callInterfaceIfPresent(cl, cl.getOwner(pack.artHolder), &IGameEventsReceiver::artifactRemoved, ArtifactLocation(pack.artHolder, slotErase));
 }
@@ -323,9 +303,6 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 				callInterfaceIfPresent(cl, pack.interfaceOwner, &IGameEventsReceiver::askToAssembleArtifact, dstLoc);
 			if(pack.interfaceOwner != dstOwner)
 				callInterfaceIfPresent(cl, dstOwner, &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
-
-			cl.updatePath(pack.srcArtHolder); // hero might have equipped/unequipped Angel Wings
-			cl.updatePath(pack.dstArtHolder);
 		}
 	};
 
@@ -354,15 +331,11 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 void ApplyClientNetPackVisitor::visitAssembledArtifact(AssembledArtifact & pack)
 {
 	callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::artifactAssembled, pack.al);
-
-	cl.updatePath(pack.al.artHolder); // hero might have equipped/unequipped Angel Wings
 }
 
 void ApplyClientNetPackVisitor::visitDisassembledArtifact(DisassembledArtifact & pack)
 {
 	callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::artifactDisassembled, pack.al);
-
-	cl.updatePath(pack.al.artHolder); // hero might have equipped/unequipped Angel Wings
 }
 
 void ApplyClientNetPackVisitor::visitHeroVisit(HeroVisit & pack)
@@ -374,7 +347,7 @@ void ApplyClientNetPackVisitor::visitHeroVisit(HeroVisit & pack)
 
 void ApplyClientNetPackVisitor::visitNewTurn(NewTurn & pack)
 {
-	cl.invalidatePaths();
+	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 
 	if(pack.newWeekNotification)
 	{
@@ -387,7 +360,8 @@ void ApplyClientNetPackVisitor::visitNewTurn(NewTurn & pack)
 
 void ApplyClientNetPackVisitor::visitGiveBonus(GiveBonus & pack)
 {
-	cl.invalidatePaths();
+	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
+
 	switch(pack.who)
 	{
 	case GiveBonus::ETarget::OBJECT:
@@ -423,7 +397,7 @@ void ApplyClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 		CGI->mh->onObjectFadeIn(obj, pack.initiator);
 		CGI->mh->waitForOngoingAnimations();
 	}
-	cl.invalidatePaths();
+	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 }
 
 void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
@@ -490,7 +464,6 @@ void ApplyClientNetPackVisitor::visitPlayerReinitInterface(PlayerReinitInterface
 
 void ApplyClientNetPackVisitor::visitRemoveBonus(RemoveBonus & pack)
 {
-	cl.invalidatePaths();
 	switch(pack.who)
 	{
 	case GiveBonus::ETarget::OBJECT:
@@ -531,7 +504,8 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 
 void ApplyClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 {
-	cl.invalidatePaths();
+	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
+
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
 		i->second->objectRemovedAfter();
 }
@@ -561,7 +535,7 @@ void ApplyFirstClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 {
 	const CGHeroInstance *h = cl.getHero(pack.id);
-	cl.invalidatePaths();
+	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 
 	if(CGI->mh)
 	{
@@ -976,7 +950,8 @@ void ApplyClientNetPackVisitor::visitPlayerMessageClient(PlayerMessageClient & p
 
 void ApplyClientNetPackVisitor::visitAdvmapSpellCast(AdvmapSpellCast & pack)
 {
-	cl.invalidatePaths();
+	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
+
 	auto caster = cl.getHero(pack.casterID);
 	if(caster)
 		//consider notifying other interfaces that see hero?
@@ -1068,7 +1043,7 @@ void ApplyClientNetPackVisitor::visitCenterView(CenterView & pack)
 
 void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 {
-	cl.invalidatePaths();
+	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 
 	const CGObjectInstance *obj = pack.newObject;
 	if(CGI->mh)
@@ -1101,5 +1076,5 @@ void ApplyClientNetPackVisitor::visitSetAvailableArtifacts(SetAvailableArtifacts
 
 void ApplyClientNetPackVisitor::visitEntitiesChanged(EntitiesChanged & pack)
 {
-	cl.invalidatePaths();
+	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 }

@@ -21,7 +21,6 @@
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../adventureMap/CMinimap.h"
 #include "../render/Canvas.h"
-#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CArtHandler.h"
@@ -61,7 +60,7 @@ void CQuestIcon::clickPressed(const Point & cursorPosition)
 
 void CQuestIcon::showAll(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), parent->pos);
+	CanvasClipRectGuard guard(to, parent->pos);
 	CAnimImage::showAll(to);
 }
 

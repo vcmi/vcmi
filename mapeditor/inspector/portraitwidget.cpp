@@ -102,7 +102,7 @@ void PortraitWidget::on_buttonPrev_clicked()
 	drawPortrait();
 }
 
-PortraitDelegate::PortraitDelegate(CGHeroInstance & h): hero(h), QStyledItemDelegate()
+PortraitDelegate::PortraitDelegate(CGHeroInstance & h): hero(h), BaseInspectorItemDelegate()
 {
 }
 
@@ -128,9 +128,21 @@ void PortraitDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, 
 	if(auto * ed = qobject_cast<PortraitWidget *>(editor))
 	{
 		ed->commitChanges();
+		updateModelData(model, index);
 	}
 	else
 	{
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
+}
+
+void PortraitDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QMap<int, QVariant> data;
+	if(hero.customPortraitSource == HeroTypeID::NONE)
+		data[Qt::DisplayRole] = QObject::tr("Default");
+	else
+		data[Qt::DisplayRole] = QString::fromStdString(hero.customPortraitSource.toHeroType()->getNameTranslated());
+	
+	model->setItemData(index, data);
 }

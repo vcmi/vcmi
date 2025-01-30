@@ -106,7 +106,7 @@ void ProxyCaster::getCasterName(MetaString & text) const
 		actualCaster->getCasterName(text);
 }
 
-void ProxyCaster::getCastDescription(const Spell * spell, const std::vector<const battle::Unit*> & attacked, MetaString & text) const
+void ProxyCaster::getCastDescription(const Spell * spell, const battle::Units & attacked, MetaString & text) const
 {
 	if(actualCaster)
 		actualCaster->getCastDescription(spell, attacked, text);

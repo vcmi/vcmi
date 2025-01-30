@@ -223,7 +223,7 @@ bool ExplorationHelper::hasReachableNeighbor(const int3 & pos) const
 		if(cbp->isInTheMap(tile))
 		{
 			auto isAccessible = useCPathfinderAccessibility
-				? ai->cb->getPathsInfo(hero)->getPathInfo(tile)->reachable()
+				? ai->getPathsInfo(hero)->getPathInfo(tile)->reachable()
 				: ai->pathfinder->isTileAccessible(hero, tile);
 
 			if(isAccessible)

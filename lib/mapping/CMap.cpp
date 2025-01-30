@@ -178,7 +178,6 @@ EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 
 CMap::CMap(IGameCallback * cb)
 	: GameCallbackHolder(cb)
-	, checksum(0)
 	, grailPos(-1, -1, -1)
 	, grailRadius(0)
 	, waterMap(false)
@@ -278,7 +277,7 @@ CGHeroInstance * CMap::getHero(HeroTypeID heroID)
 
 bool CMap::isCoastalTile(const int3 & pos) const
 {
-	//todo: refactoring: extract neighbor tile iterator and use it in GameState
+	//todo: refactoring: extract neighbour tile iterator and use it in GameState
 	static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
 

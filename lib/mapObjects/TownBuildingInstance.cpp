@@ -68,11 +68,6 @@ TownRewardableBuildingInstance::TownRewardableBuildingInstance(IGameCallback *cb
 TownRewardableBuildingInstance::TownRewardableBuildingInstance(CGTownInstance * town, const BuildingID & index, vstd::RNG & rand)
 	: TownBuildingInstance(town, index)
 {
-	initObj(rand);
-}
-
-void TownRewardableBuildingInstance::initObj(vstd::RNG & rand)
-{
 	assert(town && town->getTown());
 	configuration = generateConfiguration(rand);
 }

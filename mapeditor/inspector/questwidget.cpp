@@ -391,7 +391,7 @@ void QuestWidget::on_lCreatureRemove_clicked()
 		ui->lCreatures->removeRow(i);
 }
 
-QuestDelegate::QuestDelegate(MapController & c, CQuest & t): controller(c), quest(t), QStyledItemDelegate()
+QuestDelegate::QuestDelegate(MapController & c, CQuest & t): controller(c), quest(t), BaseInspectorItemDelegate()
 {
 }
 
@@ -417,6 +417,7 @@ void QuestDelegate::setModelData(QWidget * editor, QAbstractItemModel * model, c
 	if(auto *ed = qobject_cast<QuestWidget *>(editor))
 	{
 		ed->commitChanges();
+		updateModelData(model, index);
 	}
 	else
 	{
@@ -438,4 +439,82 @@ bool QuestDelegate::eventFilter(QObject * object, QEvent * event)
 		}
 	}
 	return QStyledItemDelegate::eventFilter(object, event);
+}
+
+void QuestDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QStringList textList(QObject::tr("Quest:"));
+	textList += QObject::tr("Day of Week: %1").arg(quest.mission.dayOfWeek);
+	textList += QObject::tr("Days Passed: %1").arg(quest.mission.daysPassed);
+	textList += QObject::tr("Hero Level: %1").arg(quest.mission.heroLevel);
+	textList += QObject::tr("Hero Experience: %1").arg(quest.mission.heroExperience);
+	textList += QObject::tr("Mana Points: %1").arg(quest.mission.manaPoints);
+	textList += QObject::tr("Mana Percentage: %1").arg(quest.mission.manaPercentage);
+	textList += QObject::tr("Primary Skills: %1/%2/%3/%4").arg(quest.mission.primary[0]).arg(quest.mission.primary[1]).arg(quest.mission.primary[2]).arg(quest.mission.primary[3]);
+
+	QStringList resourcesList;
+	for(GameResID resource = GameResID::WOOD; resource < GameResID::COUNT ; resource++)
+	{
+		if(resource == GameResID::MITHRIL)
+			continue;
+		if(quest.mission.resources[resource] == 0)
+			continue;
+		MetaString str;
+		str.appendName(resource);
+		resourcesList += QString("%1: %2").arg(QString::fromStdString(str.toString())).arg(quest.mission.resources[resource]);
+	}
+	textList += QObject::tr("Resources: %1").arg(resourcesList.join(", "));
+
+	QStringList artifactsList;
+	for(auto artifact : quest.mission.artifacts)
+	{
+		artifactsList += QString::fromStdString(VLC->artifacts()->getById(artifact)->getNameTranslated());
+	}
+	textList += QObject::tr("Artifacts: %1").arg(artifactsList.join(", "));
+
+	QStringList spellsList;
+	for(auto spell : quest.mission.spells)
+	{
+		spellsList += QString::fromStdString(VLC->spells()->getById(spell)->getNameTranslated());
+	}
+	textList += QObject::tr("Spells: %1").arg(spellsList.join(", "));
+
+	QStringList secondarySkillsList;
+	for(auto & [skill, skillLevel] : quest.mission.secondary)
+	{
+		secondarySkillsList += QString("%1 (%2)").arg(QString::fromStdString(VLC->skills()->getById(skill)->getNameTranslated())).arg(skillLevel);
+	}
+	textList += QObject::tr("Secondary Skills: %1").arg(secondarySkillsList.join(", "));
+
+	QStringList creaturesList;
+	for(auto & creature : quest.mission.creatures)
+	{
+		creaturesList += QString("%1 %2").arg(creature.count).arg(QString::fromStdString(creature.getType()->getNamePluralTranslated()));
+	}
+	textList += QObject::tr("Creatures: %1").arg(creaturesList.join(", "));
+
+	QStringList heroesList;
+	for(auto & hero : quest.mission.heroes)
+	{
+		heroesList += QString::fromStdString(VLC->heroTypes()->getById(hero)->getNameTranslated());
+	}
+	textList += QObject::tr("Heroes: %1").arg(heroesList.join(", "));
+
+	QStringList heroClassesList;
+	for(auto & heroClass : quest.mission.heroClasses)
+	{
+		heroClassesList += QString::fromStdString(VLC->heroClasses()->getById(heroClass)->getNameTranslated());
+	}
+	textList += QObject::tr("Hero Classes: %1").arg(heroClassesList.join(", "));
+
+	QStringList playersList;
+	for(auto & player : quest.mission.players)
+	{
+		MetaString str;
+		str.appendName(player);
+		playersList += QString::fromStdString(str.toString());
+	}
+	textList += QObject::tr("Players: %1").arg(playersList.join(", "));
+
+	setModelTextData(model, index, textList);
 }

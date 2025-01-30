@@ -70,6 +70,14 @@ namespace TextOperations
 	/// get formatted time (without date)
 	/// timeOffset - optional parameter to modify current time by specified time in seconds
 	DLL_LINKAGE std::string getCurrentFormattedTimeLocal(std::chrono::seconds timeOffset = {});
+
+	/// Algorithm for detection of typos in words
+	/// Determines how 'different' two strings are - how many changes must be done to turn one string into another one
+	/// https://en.wikipedia.org/wiki/Levenshtein_distance#Iterative_with_two_matrix_rows
+	DLL_LINKAGE int getLevenshteinDistance(const std::string & s, const std::string & t);
+
+	/// Check if texts have similarity when typing into search boxes
+	DLL_LINKAGE bool textSearchSimilar(const std::string & s, const std::string & t);
 };
 
 template<typename Arithmetic>

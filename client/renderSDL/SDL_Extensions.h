@@ -27,14 +27,6 @@ class Point;
 
 VCMI_LIB_NAMESPACE_END
 
-enum class EScalingAlgorithm : int8_t
-{
-	NEAREST,
-	BILINEAR,
-	XBRZ_OPAQUE, // xbrz, image edges are considered to have same color as pixel inside image
-	XBRZ_ALPHA // xbrz, image edges are considered to be transparent
-};
-
 namespace CSDL_Ext
 {
 
@@ -97,10 +89,6 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
 	template<int bpp>
 	SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value
-
-	// bilinear filtering. Always returns rgba surface
-	SDL_Surface * scaleSurface(SDL_Surface * surf, int width, int height);
-	SDL_Surface * scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor, EScalingAlgorithm scaler);
 
 	template<int bpp>
 	void convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect);

@@ -50,6 +50,7 @@ public:
 	virtual void clickReleased(const Point & cursorPosition, bool lastActivated);
 	virtual void clickCancel(const Point & cursorPosition) {}
 	virtual void showPopupWindow(const Point & cursorPosition) {}
+	virtual void closePopupWindow(bool alreadyClosed) {}
 	virtual void clickDouble(const Point & cursorPosition) {}
 	virtual void notFocusedClick() {};
 

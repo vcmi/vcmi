@@ -39,6 +39,7 @@ GlobalLobbyWindow::GlobalLobbyWindow()
 	doOpenChannel("global", "english", Languages::getLanguageOptions("english").nameNative);
 
 	widget->getChannelListHeader()->setText(MetaString::createFromTextID("vcmi.lobby.header.channels").toString());
+	widget->getChannelList()->resize(CSH->getGlobalLobby().getActiveChannels().size()+1);
 }
 
 bool GlobalLobbyWindow::isChannelOpen(const std::string & testChannelType, const std::string & testChannelName) const
@@ -180,6 +181,21 @@ void GlobalLobbyWindow::onMatchesHistory(const std::vector<GlobalLobbyRoom> & hi
 	MetaString text = MetaString::createFromTextID("vcmi.lobby.header.history");
 	text.replaceNumber(history.size());
 	widget->getMatchListHeader()->setText(text.toString());
+}
+
+void GlobalLobbyWindow::refreshActiveChannels()
+{
+	const auto & activeChannels = CSH->getGlobalLobby().getActiveChannels();
+
+	if (activeChannels.size()+1 == widget->getChannelList()->size())
+		widget->getChannelList()->reset();
+	else
+		widget->getChannelList()->resize(activeChannels.size()+1);
+
+	if (currentChannelType == "global" && !vstd::contains(activeChannels, currentChannelName) && !activeChannels.empty())
+	{
+		doOpenChannel("global", activeChannels.front(), Languages::getLanguageOptions(activeChannels.front()).nameNative);
+	}
 }
 
 void GlobalLobbyWindow::onInviteReceived(const std::string & invitedRoomID)

@@ -93,7 +93,7 @@ public:
 	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit,
 		const std::string & cachingStr = "") const override;
 
-	int64_t getTreeVersion() const override;
+	int32_t getTreeVersion() const override;
 
 	void addUnitBonus(const std::vector<Bonus> & bonus);
 	void updateUnitBonus(const std::vector<Bonus> & bonus);
@@ -141,7 +141,7 @@ public:
 
 	void addUnit(uint32_t id, const JsonNode & data) override;
 	void setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta) override;
-	void moveUnit(uint32_t id, BattleHex destination) override;
+	void moveUnit(uint32_t id, const BattleHex & destination) override;
 	void removeUnit(uint32_t id) override;
 	void updateUnit(uint32_t id, const JsonNode & data) override;
 
@@ -162,7 +162,7 @@ public:
 	int3 getLocation() const override;
 	BattleLayout getLayout() const override;
 
-	int64_t getTreeVersion() const;
+	int32_t getTreeVersion() const;
 
 	void makeWait(const battle::Unit * activeStack);
 

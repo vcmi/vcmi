@@ -54,9 +54,9 @@ struct AttackerValue
 struct MoveTarget
 {
 	float score;
-	std::vector<BattleHex> positions;
+	BattleHexArray positions;
 	std::optional<AttackPossibility> cachedAttack;
-	uint8_t turnsToRich;
+	uint8_t turnsToReach;
 
 	MoveTarget();
 };
@@ -112,15 +112,32 @@ private:
 
 struct ReachabilityData
 {
-	std::map<int, std::vector<const battle::Unit *>> units;
+	std::map<int, battle::Units> units;
 
 	// shooters which are within mellee attack and mellee units
-	std::vector<const battle::Unit *> melleeAccessible;
+	battle::Units melleeAccessible;
 
 	// far shooters
-	std::vector<const battle::Unit *> shooters;
+	battle::Units shooters;
 
 	std::set<uint32_t> enemyUnitsReachingAttacker;
+};
+
+class ReachabilityMapCache
+{
+	struct PerTurnData{
+		std::bitset<GameConstants::BFIELD_SIZE> isValid;
+		std::array<battle::Units, GameConstants::BFIELD_SIZE> hexes;
+	};
+
+	std::map<uint32_t, ReachabilityInfo> unitReachabilityMap; // unit ID -> reachability
+	std::map<uint32_t, PerTurnData> hexReachabilityPerTurn;
+
+	//const ReachabilityInfo & update();
+	battle::Units computeOneTurnReachableUnits(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env, const std::vector<battle::Units> & turnOrder, uint8_t turn, const BattleHex & hex);
+public:
+	const battle::Units & getOneTurnReachableUnits(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env, const std::vector<battle::Units> & turnOrder, uint8_t turn, const BattleHex & hex);
+	void update(const std::vector<battle::Units> & turnOrder, std::shared_ptr<HypotheticBattle> hb);
 };
 
 class BattleExchangeEvaluator
@@ -128,8 +145,7 @@ class BattleExchangeEvaluator
 private:
 	std::shared_ptr<CBattleInfoCallback> cb;
 	std::shared_ptr<Environment> env;
-	std::map<uint32_t, ReachabilityInfo> reachabilityCache;
-	std::map<BattleHex, std::vector<const battle::Unit *>> reachabilityMap;
+	mutable ReachabilityMapCache reachabilityMap;
 	std::vector<battle::Units> turnOrder;
 	float negativeEffectMultiplier;
 	int simulationTurnsCount;
@@ -142,7 +158,7 @@ private:
 		PotentialTargets & targets,
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb,
-		std::vector<const battle::Unit *> additionalUnits = {}) const;
+		battle::Units additionalUnits = {}) const;
 
 	bool canBeHitThisTurn(const AttackPossibility & ap);
 
@@ -169,7 +185,7 @@ public:
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb) const;
 
-	std::vector<const battle::Unit *> getOneTurnReachableUnits(uint8_t turn, BattleHex hex) const;
+	const battle::Units & getOneTurnReachableUnits(uint8_t turn, const BattleHex & hex) const;
 	void updateReachabilityMap(std::shared_ptr<HypotheticBattle> hb);
 
 	ReachabilityData getExchangeUnits(
@@ -177,9 +193,9 @@ public:
 		uint8_t turn,
 		PotentialTargets & targets,
 		std::shared_ptr<HypotheticBattle> hb,
-		std::vector<const battle::Unit *> additionalUnits = {}) const;
+		battle::Units additionalUnits = {}) const;
 
-	bool checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * unit, BattleHex position);
+	bool checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * unit, const BattleHex & position);
 
 	MoveTarget findMoveTowardsUnreachable(
 		const battle::Unit * activeStack,
@@ -187,7 +203,7 @@ public:
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb);
 
-	std::vector<const battle::Unit *> getAdjacentUnits(const battle::Unit * unit) const;
+	battle::Units getAdjacentUnits(const battle::Unit * unit) const;
 
 	float getPositiveEffectMultiplier() const { return 1; }
 	float getNegativeEffectMultiplier() const { return negativeEffectMultiplier; }

@@ -82,7 +82,7 @@ Notes:
 
 #### Joining a game room
 
-See [#Proxy mode](proxy-mode)
+See [#Proxy mode](#proxy-mode)
 
 #### Leaving a game room
 

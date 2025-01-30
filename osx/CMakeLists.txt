@@ -41,6 +41,11 @@ if(APPLE_MACOS)
 	vcmi_install_conan_deps("${bundleContentsDir}")
 
 	# perform ad-hoc codesigning
+	# Intel Macs don't need it
+	if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+		return()
+	endif()
+
 	set(executablesToSign vcmiserver)
 	if(ENABLE_EDITOR)
 		list(APPEND executablesToSign vcmieditor)

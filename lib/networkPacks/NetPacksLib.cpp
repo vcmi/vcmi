@@ -901,6 +901,7 @@ void SetCommanderProperty::applyGs(CGameState *gs)
 			break;
 		case EXPERIENCE:
 			commander->giveStackExp(amount); //TODO: allow setting exp for stacks via netpacks
+			commander->nodeHasChanged();
 			break;
 	}
 }
@@ -1503,6 +1504,11 @@ void NewObject::applyGs(CGameState *gs)
 	gs->map->addBlockVisTiles(newObject);
 	gs->map->calculateGuardingGreaturePositions();
 
+	// attach newly spawned wandering monster to global bonus system node
+	auto newArmy = dynamic_cast<CArmedInstance*>(newObject);
+	if (newArmy)
+		newArmy->whatShouldBeAttached().attachTo(newArmy->whereShouldBeAttached(gs));
+
 	logGlobal->debug("Added object id=%d; name=%s", newObject->id, newObject->getObjectName());
 }
 
@@ -1703,7 +1709,9 @@ void RebalanceStacks::applyGs(CGameState *gs)
 		}
 	}
 
-	CBonusSystemNode::treeHasChanged();
+	srcObj->nodeHasChanged();
+	if (srcObj != dstObj)
+		dstObj->nodeHasChanged();
 }
 
 void BulkRebalanceStacks::applyGs(CGameState *gs)
@@ -2142,10 +2150,16 @@ void BattleResultAccepted::applyGs(CGameState *gs)
 	if(gs->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
 		if(heroResult[BattleSide::ATTACKER].army)
+		{
 			heroResult[BattleSide::ATTACKER].army->giveStackExp(heroResult[BattleSide::ATTACKER].exp);
+			heroResult[BattleSide::ATTACKER].army->nodeHasChanged();
+		}
 		if(heroResult[BattleSide::DEFENDER].army)
+		{
 			heroResult[BattleSide::DEFENDER].army->giveStackExp(heroResult[BattleSide::DEFENDER].exp);
-		CBonusSystemNode::treeHasChanged();
+			heroResult[BattleSide::DEFENDER].army->nodeHasChanged();
+		}
+
 	}
 
 	auto currentBattle = boost::range::find_if(gs->currentBattles, [&](const auto & battle)

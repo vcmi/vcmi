@@ -54,6 +54,11 @@ public:
 		return Point(x*mul, y*mul);
 	}
 
+	constexpr Point operator/(const Point &b) const
+	{
+		return Point(x/b.x,y/b.y);
+	}
+
 	constexpr Point operator*(const Point &b) const
 	{
 		return Point(x*b.x,y*b.y);

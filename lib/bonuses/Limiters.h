@@ -10,7 +10,7 @@
 
 #include "Bonus.h"
 
-#include "../battle/BattleHex.h"
+#include "../battle/BattleHexArray.h"
 #include "../serializer/Serializeable.h"
 #include "../constants/Enumerations.h"
 
@@ -263,9 +263,9 @@ public:
 class DLL_LINKAGE UnitOnHexLimiter : public ILimiter //works only on selected hexes
 {
 public:
-	std::set<BattleHex> applicableHexes;
+	BattleHexArray applicableHexes;
 
-	UnitOnHexLimiter(const std::set<BattleHex> & applicableHexes = {});
+	UnitOnHexLimiter(const BattleHexArray & applicableHexes = {});
 	EDecision limit(const BonusLimitationContext &context) const override;
 	JsonNode toJsonNode() const override;
 

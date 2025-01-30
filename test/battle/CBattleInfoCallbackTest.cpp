@@ -76,6 +76,11 @@ public:
 		return hasBonusOfType(BonusType::HYPNOTIZED);
 	}
 
+	bool isInvincible() const override
+	{
+		return hasBonusOfType(BonusType::INVINCIBLE);
+	}
+
 	void redirectBonusesToFake()
 	{
 		ON_CALL(*this, getAllBonuses(_, _, _)).WillByDefault(Invoke(&bonusFake, &BonusBearerMock::getAllBonuses));

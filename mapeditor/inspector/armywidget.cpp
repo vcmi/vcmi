@@ -115,7 +115,7 @@ ArmyWidget::~ArmyWidget()
 
 
 
-ArmyDelegate::ArmyDelegate(CArmedInstance & t): army(t), QStyledItemDelegate()
+ArmyDelegate::ArmyDelegate(CArmedInstance & t): army(t), BaseInspectorItemDelegate()
 {
 }
 
@@ -141,9 +141,22 @@ void ArmyDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, cons
 	if(auto * ed = qobject_cast<ArmyWidget *>(editor))
 	{
 		ed->commitChanges();
+		updateModelData(model, index);
 	}
 	else
 	{
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
+}
+
+void ArmyDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QStringList textList;
+	for(const auto & [_, stack] : army.stacks)
+	{
+		if(stack->count != 0 && stack->getCreature() != nullptr)
+			textList += QString("%1 %2").arg(stack->count).arg(QString::fromStdString(stack->getCreature()->getNamePluralTranslated()));
+	}
+
+	setModelTextData(model, index, textList);
 }

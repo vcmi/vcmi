@@ -357,7 +357,7 @@ int32_t CSpell::getLevelPower(const int32_t skillLevel) const
 
 si32 CSpell::getProbability(const FactionID & factionId) const
 {
-	if(!vstd::contains(probabilities,factionId))
+	if(!vstd::contains(probabilities, factionId))
 	{
 		return defaultProbability;
 	}
@@ -434,7 +434,7 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 		}
 
 		//invincible
-		if(bearer->hasBonusOfType(BonusType::INVINCIBLE))
+		if(affectedCreature->isInvincible())
 			ret = 0;
 	}
 	ret = caster->getSpellBonus(this, ret, affectedCreature);
@@ -701,7 +701,7 @@ const std::vector<std::string> & CSpellHandler::getTypeNames() const
 
 std::vector<int> CSpellHandler::spellRangeInHexes(std::string input) const
 {
-	std::set<BattleHex> ret;
+	BattleHexArray ret;
 	std::string rng = input + ','; //copy + artificial comma for easier handling
 
 	if(rng.size() >= 2 && std::tolower(rng[0]) != 'x') //there is at least one hex in range (+artificial comma)
@@ -754,7 +754,14 @@ std::vector<int> CSpellHandler::spellRangeInHexes(std::string input) const
 		}
 	}
 
-	return std::vector<int>(ret.begin(), ret.end());
+	std::vector<int> result;
+	result.reserve(ret.size());
+
+	std::transform(ret.begin(), ret.end(), std::back_inserter(result),
+		[](const BattleHex & hex) { return hex.toInt(); }
+	);
+
+	return result;
 }
 
 std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)

@@ -12,6 +12,7 @@
 
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/CGameInfoCallback.h"
+#include "../../lib/battle/BattleHexArray.h"
 
 namespace spells
 {
@@ -22,7 +23,7 @@ public:
 	MOCK_CONST_METHOD2(adaptProblem, bool(ESpellCastProblem, Problem &));
 	MOCK_CONST_METHOD1(adaptGenericProblem, bool(Problem &));
 
-	MOCK_CONST_METHOD1(rangeInHexes, std::vector<BattleHex>(BattleHex));
+	MOCK_CONST_METHOD1(rangeInHexes, BattleHexArray(const BattleHex&));
 	MOCK_CONST_METHOD1(getAffectedStacks, std::vector<const CStack *>(const Target &));
 
 	MOCK_CONST_METHOD1(canBeCast, bool(Problem &));

@@ -45,7 +45,7 @@ public:
 	MOCK_METHOD1(nextTurn, void(uint32_t));
 	MOCK_METHOD2(addUnit, void(uint32_t, const JsonNode &));
 	MOCK_METHOD3(setUnitState, void(uint32_t, const JsonNode &, int64_t));
-	MOCK_METHOD2(moveUnit, void(uint32_t, BattleHex));
+	MOCK_METHOD2(moveUnit, void(uint32_t, const BattleHex &));
 	MOCK_METHOD1(removeUnit, void(uint32_t));
 	MOCK_METHOD2(updateUnit, void(uint32_t, const JsonNode &));
 	MOCK_METHOD2(addUnitBonus, void(uint32_t, const std::vector<Bonus> &));
