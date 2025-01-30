@@ -30,16 +30,6 @@ void BattleHexArray::insert(const BattleHexArray & other) noexcept
 	}
 }
 
-void BattleHexArray::erase(iterator first, iterator last) noexcept
-{
-	for(auto it = first; it != last && it != internalStorage.end(); ++it)
-	{
-		presenceFlags[it->toInt()] = false;
-	}
-
-	internalStorage.erase(first, last);
-}
-
 void BattleHexArray::clear() noexcept
 {
 	for(const auto & hex : internalStorage)
