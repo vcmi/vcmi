@@ -42,9 +42,7 @@ public:
 	using pointer = value_type *;
 	using const_pointer = const value_type *;
 	using difference_type = typename StorageType::difference_type;
-//	using iterator = typename StorageType::iterator;
 	using const_iterator = typename StorageType::const_iterator;
-//	using reverse_iterator = typename StorageType::reverse_iterator;
 	using const_reverse_iterator = typename StorageType::const_reverse_iterator;
 
 	BattleHexArray() = default;
@@ -103,15 +101,6 @@ public:
 		internalStorage[index] = hex;
 	}
 
-//	iterator insert(iterator pos, const BattleHex & hex) noexcept
-//	{
-//		if(contains(hex))
-//			return pos;
-//
-//		presenceFlags.set(hex.toInt());
-//		return internalStorage.insert(pos, hex);
-//	}
-
 	void insert(const BattleHexArray & other) noexcept;
 
 	template <typename Container, typename = std::enable_if_t<
@@ -131,7 +120,7 @@ public:
 	}
 
 	template<typename Predicate>
-	void erase_if(Predicate pred)
+	void eraseIf(Predicate pred)
 	{
 		vstd::erase_if(internalStorage, pred);
 		// reinit presence flags
@@ -158,7 +147,7 @@ public:
 		vstd::erase(internalStorage, target);
 		presenceFlags.reset(target.toInt());
 	}
-//	void erase(iterator first, iterator last) noexcept;
+
 	inline void pop_back() noexcept
 	{
 		presenceFlags.reset(internalStorage.back().toInt());
@@ -183,12 +172,6 @@ public:
 
 		return result;
 	}
-
-//	template <typename Predicate>
-//	iterator findIf(Predicate predicate) noexcept
-//	{
-//		return std::find_if(begin(), end(), predicate);
-//	}
 
 	template <typename Predicate>
 	const_iterator findIf(Predicate predicate) const noexcept
@@ -285,11 +268,6 @@ public:
 		return internalStorage.size();
 	}
 
-//	[[nodiscard]] inline iterator begin() noexcept
-//	{
-//		return internalStorage.begin();
-//	}
-
 	[[nodiscard]] inline const_iterator begin() const noexcept
 	{
 		return internalStorage.begin();
@@ -300,30 +278,15 @@ public:
 		return internalStorage.empty();
 	}
 
-//	[[nodiscard]] inline iterator end() noexcept
-//	{
-//		return internalStorage.end();
-//	}
-
 	[[nodiscard]] inline const_iterator end() const noexcept
 	{
 		return internalStorage.end();
 	}
 
-//	[[nodiscard]] inline reverse_iterator rbegin() noexcept
-//	{
-//		return reverse_iterator(end());
-//	}
-
 	[[nodiscard]] inline const_reverse_iterator rbegin() const noexcept
 	{
 		return const_reverse_iterator(end());
 	}
-
-//	[[nodiscard]] inline reverse_iterator rend() noexcept
-//	{
-//		return reverse_iterator(begin());
-//	}
 
 	[[nodiscard]] inline const_reverse_iterator rend() const noexcept
 	{

@@ -79,7 +79,7 @@ uint32_t ReachabilityInfo::distToNearestNeighbour(
 		}
 	}
 
-	attackableHexes.erase_if([defender](const BattleHex & h) -> bool
+	attackableHexes.eraseIf([defender](const BattleHex & h) -> bool
 		{
 			return h.getY() != defender->getPosition().getY() || !h.isAvailable();
 		});
