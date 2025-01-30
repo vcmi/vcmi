@@ -1,5 +1,70 @@
 # VCMI Project Changelog
 
+## 1.6.3 -> 1.6.4
+
+### General
+
+* xbrz image upscaling is now performed in background threads to avoid freezes in UI
+* Fixed a bug which caused importing data to fail on some Android devices.
+* It is now possible to add or remove per-language channels in lobby.
+* Fixed bug causing broken water tile animation when player opens launcher while game is running
+* Fixed smooth map dragging not working with right click drag
+* Game will no longer play sound on new chat message in global chat unless lobby UI is currently open
+* Fixed new building sound playing twice on costructing some buildings, such as town hall
+
+### AI
+
+* Significantly improved Battle AI performance
+* Slightly improved performance of Nullkiller AI
+* Improved scoring of on-map artifacts by Nullkiller AI
+* Nullkiller AI will now select artefact loadouts based on the hero's army, skills, spells, and mana points.
+* Nullkiller AI will now consider building resource silos in towns.
+* Fixed possible bug which could lead to AI avoiding map locations with placed events
+
+### Stability
+
+* Fixed a crash that could occur when winning a game by capturing a city that was set as a victory condition without first killing all enemies.
+* Fixed a possible crash on some platforms when opening the creature window if the hero has equipped artefacts that provide spell immunity.
+* Fixed crash when renaming preset to same name as before
+* Fixed possible crash when opening mod screenshots tab without selected mod
+* Fixed possible crash when loading game with broken mods active
+* Fixed crash on loading some user-made maps with objects that have unknown to VCMI map object ID or subID
+* Fixed crash on loading map in Wake of Gods format with pre-placed Mithril resource pile on map
+
+### Mechanics
+
+* Fixed war machines or units under the Bow of the Sharpshooter effect being unable to fire when blocked by enemy units.
+* Enemy corpses will no longer block adjacent enemy ranged units from using ranged attacks.
+* Spells banned on the map can no longer appear in towns.
+* Arrow towers will now consider units standing on wall tiles as inside town for target selection
+* Fixed possible integer overflow when player has more than 20 million gold or other resources.
+* Fixed the loading of vcmp campaigns when a specific hero is used in the bonuses of a scenario.
+* Fixed regression causing movement bonus from Stables (adventure map objects) and Stables (Castle town building) to stack with each other.
+* Fixed regression causing Pathfinding skill to reduce movement costs by only 1 movement point
+* Fixed bug causing hero paths not updating immediately after leveling up Pathfinding skill
+
+### Interface
+
+* Fixed multiple cases where town buidings were not ordered correctly and overlapping each other on town screen
+* Object search functionality is now case-insensitive and can search for similar strings to protect from typos
+* Thieves Guild will now show icons instead of text for resources comparison
+* Added support for custom images in multiplayer mode selection
+* TCP host/join dialogue now displays correct text in header
+* Main menu buttons for unavailable campaigns automatically hidden
+* Fixed graphical artefact near 3DO video when resolution is high and interface scaling is low
+
+### Map Editor
+
+* Object properties now show actual values instead of '...'.
+* Hovering over object properties now shows tooltip with full value
+
+### Modding
+
+* It is now possible to configure amount of creatures that would join on successful diplomacy check
+* It is now possible to disable joining for free for diplomacy
+* It is now possible to use images with `-shadow` or `-overlay` suffixes for 1x / unscaled mode
+* It is now possible to load pregenerated player-colored interface images using suffixes like `-red` or `-blue` in place of palette-based effects
+
 ## 1.6.2 -> 1.6.3
 
 ### Stability
