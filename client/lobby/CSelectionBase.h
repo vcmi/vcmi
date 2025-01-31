@@ -71,6 +71,9 @@ public:
 	std::shared_ptr<CButton> buttonBack;
 	std::shared_ptr<CButton> buttonSimturns;
 
+	std::shared_ptr<CPicture> logo;
+	std::shared_ptr<CPicture> sublogo;
+
 	std::shared_ptr<SelectionTab> tabSel;
 	std::shared_ptr<OptionsTab> tabOpt;
 	std::shared_ptr<TurnOptionsTab> tabTurnOptions;

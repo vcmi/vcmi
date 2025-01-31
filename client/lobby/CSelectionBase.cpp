@@ -93,13 +93,27 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	if(screenType == ESelectionScreen::campaignList)
 	{
 		setBackground(ImagePath::builtin("CamCust.bmp"));
+		pos = background->center();
 	}
 	else
 	{
-		const JsonVector & bgNames = CMainMenuConfig::get().getConfig()["game-select"].Vector();
+		const JsonNode& gameSelectConfig = CMainMenuConfig::get().getConfig()["scenario-selection"];
+		const JsonVector& bgNames = gameSelectConfig["background"].Vector();
+
 		setBackground(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(bgNames, CRandomGenerator::getDefault())));
+		pos = background->center();
+
+		// Set logo
+		const auto& logoConfig = gameSelectConfig["logo"];
+		if (!logoConfig.isNull() && logoConfig["name"].isVector() && !logoConfig["name"].Vector().empty())
+			logo = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(logoConfig["name"].Vector(), CRandomGenerator::getDefault())), Point(logoConfig["x"].Integer(), logoConfig["y"].Integer()));
+
+		// Set sublogo
+		const auto& sublogoConfig = gameSelectConfig["sublogo"];
+		if (!sublogoConfig.isNull() && sublogoConfig["name"].isVector() && !sublogoConfig["name"].Vector().empty())
+			sublogo = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(sublogoConfig["name"].Vector(), CRandomGenerator::getDefault())), Point(sublogoConfig["x"].Integer(), sublogoConfig["y"].Integer()));
 	}
-	pos = background->center();
+	
 	card = std::make_shared<InfoCard>();
 	buttonBack = std::make_shared<CButton>(Point(581, 535), AnimationPath::builtin("SCNRBACK.DEF"), CGI->generaltexth->zelp[105], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }

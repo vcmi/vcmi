@@ -88,6 +88,18 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 
 	pos = background->center();
 
+	const auto& logoConfig = config["logo"];
+	if (!logoConfig.isNull() && logoConfig["name"].isVector() && !logoConfig["name"].Vector().empty()) {
+		auto logoImage = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(logoConfig["name"].Vector(), CRandomGenerator::getDefault())), Point(logoConfig["x"].Integer(), logoConfig["y"].Integer()));
+		images.push_back(logoImage);
+	}
+
+	const auto& sublogoConfig = config["sublogo"];
+	if (!sublogoConfig.isNull() && sublogoConfig["name"].isVector() && !sublogoConfig["name"].Vector().empty()) {
+		auto logoImage = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(sublogoConfig["name"].Vector(), CRandomGenerator::getDefault())), Point(sublogoConfig["x"].Integer(), sublogoConfig["y"].Integer()));
+		images.push_back(logoImage);
+	}
+
 	if(!config["video"].isNull())
 	{
 		Point videoPosition(config["video"]["x"].Integer(), config["video"]["y"].Integer());
@@ -300,8 +312,8 @@ CMainMenuConfig::CMainMenuConfig()
 	: campaignSets(JsonPath::builtin("config/campaignSets.json"))
 	, config(JsonPath::builtin("config/mainmenu.json"))
 {
-	if (config["game-select"].Vector().empty())
-		handleFatalError("Main menu config is invalid or corrupted. Please disable any mods or reinstall VCMI", false);
+	if (!config["scenario-selection"].isStruct())
+		handleFatalError("The main menu configuration file mainmenu.json is invalid or corrupted. Please check the file for errors, verify your mod setup, or reinstall VCMI to resolve the issue.", false);
 }
 
 const CMainMenuConfig & CMainMenuConfig::get()
@@ -501,15 +513,6 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	const auto& multiplayerConfig = CMainMenuConfig::get().getConfig()["multiplayer"];
 	if (multiplayerConfig.isVector() && !multiplayerConfig.Vector().empty())
 		picture = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(multiplayerConfig.Vector(), CRandomGenerator::getDefault())), 16, 77);
-
-	if (multiplayerConfig.isString())
-		picture = std::make_shared<CPicture>(ImagePath::fromJson(multiplayerConfig), 16, 77);
-
-	if (!picture)
-	{
-		picture = std::make_shared<CPicture>(ImagePath::builtin("MUMAP.bmp"), 16, 77);
-		logGlobal->error("Failed to load multiplayer picture");
-	}
 
 	textTitle = std::make_shared<CTextBox>("", Rect(7, 18, 440, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE);
 	textTitle->setText(CGI->generaltexth->zelp[263].second);
@@ -729,25 +732,51 @@ CLoadingScreen::CLoadingScreen(ImagePath background)
 	CCS->musich->stopMusic(5000);
 
 	const auto& conf = CMainMenuConfig::get().getConfig()["loading"];
-	const auto& nameConfig = conf["name"];
 
-	AnimationPath animationPath;
-	if (nameConfig.isVector() && !nameConfig.Vector().empty())
-		animationPath = AnimationPath::fromJson(*RandomGeneratorUtil::nextItem(nameConfig.Vector(), CRandomGenerator::getDefault()));
+	// Load background
+	const auto& backgroundConfig = conf["background"];
+	if (backgroundConfig.isVector() && !backgroundConfig.Vector().empty())
+		this->background = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(backgroundConfig.Vector(), CRandomGenerator::getDefault())));
 
-	if (nameConfig.isString())
-		animationPath = AnimationPath::fromJson(nameConfig);
+	// Load logo
+	const auto& logoConfig = conf["logo"];
+	if (!logoConfig.isNull() && logoConfig["name"].isVector() && !logoConfig["name"].Vector().empty()) {
+		this->logo = std::make_shared<CPicture>(
+			ImagePath::fromJson(*RandomGeneratorUtil::nextItem(logoConfig["name"].Vector(), CRandomGenerator::getDefault())),
+			Point(logoConfig["x"].Integer(), logoConfig["y"].Integer())
+			);
+	}
 
-	if (conf.isStruct())
-	{
-		const int posx = conf["x"].Integer();
-		const int posy = conf["y"].Integer();
-		const int blockSize = conf["size"].Integer();
-		const int blocksAmount = conf["amount"].Integer();
-		
-		for (int i = 0; i < blocksAmount; ++i)
+	// Load sublogo
+	const auto& sublogoConfig = conf["sublogo"];
+	if (!sublogoConfig.isNull() && sublogoConfig["name"].isVector() && !sublogoConfig["name"].Vector().empty()) {
+		this->sublogo = std::make_shared<CPicture>(
+			ImagePath::fromJson(*RandomGeneratorUtil::nextItem(sublogoConfig["name"].Vector(), CRandomGenerator::getDefault())),
+			Point(sublogoConfig["x"].Integer(), sublogoConfig["y"].Integer())
+			);
+	}
+
+	// Load loadframe
+	const auto& loadframeConfig = conf["loadframe"];
+	if (loadframeConfig.isStruct()) {
+		this->loadFrame = std::make_shared<CPicture>(
+			ImagePath::fromJson(*RandomGeneratorUtil::nextItem(loadframeConfig["name"].Vector(), CRandomGenerator::getDefault())),
+			loadframeConfig["x"].Integer(),
+			loadframeConfig["y"].Integer()
+			);
+	}
+
+	// Load loadbar
+	const auto& loadbarConfig = conf["loadbar"];
+	if (loadbarConfig.isStruct()) {
+		AnimationPath loadbarPath = AnimationPath::fromJson(*RandomGeneratorUtil::nextItem(loadbarConfig["name"].Vector(), CRandomGenerator::getDefault()));
+		const int posx = loadbarConfig["x"].Integer();
+		const int posy = loadbarConfig["y"].Integer();
+		const int blockSize = loadbarConfig["size"].Integer();
+		const int blocksAmount = loadbarConfig["amount"].Integer();
+		for (int i = 0; i < blocksAmount; ++i) 
 		{
-			progressBlocks.push_back(std::make_shared<CAnimImage>(animationPath, i, 0, posx + i * blockSize, posy));
+			progressBlocks.push_back(std::make_shared<CAnimImage>(loadbarPath, i, 0, posx + i * blockSize, posy));
 			progressBlocks.back()->deactivate();
 			progressBlocks.back()->visible = false;
 		}
