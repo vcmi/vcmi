@@ -107,9 +107,6 @@ void AdventureMapInterface::onHeroMovementStarted(const CGHeroInstance * hero)
 
 void AdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 {
-	if (h)
-		LOCPLINT->localState->verifyPath(h);
-
 	widget->getHeroList()->updateElement(h);
 
 	if (h && h == LOCPLINT->localState->getCurrentHero() && !widget->getInfoBar()->showingComponents())
