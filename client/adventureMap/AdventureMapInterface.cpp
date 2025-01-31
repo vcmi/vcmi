@@ -546,7 +546,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 	{
 		isHero = true;
 
-		const CGPathNode *pn = LOCPLINT->cb->getPathsInfo(currentHero)->getPathInfo(targetPosition);
+		const CGPathNode *pn = LOCPLINT->getPathsInfo(currentHero)->getPathInfo(targetPosition);
 		if(currentHero == topBlocking) //clicked selected hero
 		{
 			LOCPLINT->openHeroWindow(currentHero);
@@ -685,7 +685,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		std::array<Cursor::Map, 4> cursorVisit     = { Cursor::Map::T1_VISIT,      Cursor::Map::T2_VISIT,      Cursor::Map::T3_VISIT,      Cursor::Map::T4_VISIT,      };
 		std::array<Cursor::Map, 4> cursorSailVisit = { Cursor::Map::T1_SAIL_VISIT, Cursor::Map::T2_SAIL_VISIT, Cursor::Map::T3_SAIL_VISIT, Cursor::Map::T4_SAIL_VISIT, };
 
-		const CGPathNode * pathNode = LOCPLINT->cb->getPathsInfo(hero)->getPathInfo(targetPosition);
+		const CGPathNode * pathNode = LOCPLINT->getPathsInfo(hero)->getPathInfo(targetPosition);
 		assert(pathNode);
 
 		if((GH.isKeyboardAltDown() || settings["gameTweaks"]["forceMovementInfo"].Bool()) && pathNode->reachable()) //overwrite status bar text with movement info

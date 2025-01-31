@@ -32,9 +32,54 @@
 
 GlobalLobbyClient::GlobalLobbyClient()
 {
-	activeChannels.emplace_back("english");
-	if (CGI->generaltexth->getPreferredLanguage() != "english")
-		activeChannels.emplace_back(CGI->generaltexth->getPreferredLanguage());
+	auto customChannels = settings["lobby"]["languageRooms"].convertTo<std::vector<std::string>>();
+
+	if (customChannels.empty())
+	{
+		activeChannels.emplace_back("english");
+		if (CGI->generaltexth->getPreferredLanguage() != "english")
+			activeChannels.emplace_back(CGI->generaltexth->getPreferredLanguage());
+	}
+	else
+	{
+		activeChannels = customChannels;
+	}
+}
+
+void GlobalLobbyClient::addChannel(const std::string & channel)
+{
+	activeChannels.emplace_back(channel);
+
+	auto lobbyWindowPtr = lobbyWindow.lock();
+	if(lobbyWindowPtr)
+		lobbyWindowPtr->refreshActiveChannels();
+
+	JsonNode toSend;
+	toSend["type"].String() = "requestChatHistory";
+	toSend["channelType"].String() = "global";
+	toSend["channelName"].String() = channel;
+	CSH->getGlobalLobby().sendMessage(toSend);
+
+	Settings languageRooms = settings.write["lobby"]["languageRooms"];
+
+	languageRooms->Vector().clear();
+	for (const auto & lang : activeChannels)
+		languageRooms->Vector().push_back(JsonNode(lang));
+}
+
+void GlobalLobbyClient::closeChannel(const std::string & channel)
+{
+	vstd::erase(activeChannels, channel);
+
+	auto lobbyWindowPtr = lobbyWindow.lock();
+	if(lobbyWindowPtr)
+		lobbyWindowPtr->refreshActiveChannels();
+
+	Settings languageRooms = settings.write["lobby"]["languageRooms"];
+
+	languageRooms->Vector().clear();
+	for (const auto & lang : activeChannels)
+		languageRooms->Vector().push_back(JsonNode(lang));
 }
 
 GlobalLobbyClient::~GlobalLobbyClient() = default;
@@ -171,7 +216,7 @@ void GlobalLobbyClient::receiveChatMessage(const JsonNode & json)
 		lobbyWindowPtr->onGameChatMessage(message.displayName, message.messageText, message.timeFormatted, channelType, channelName);
 		lobbyWindowPtr->refreshChatText();
 
-		if(channelType == "player" || lobbyWindowPtr->isChannelOpen(channelType, channelName))
+		if(channelType == "player" || (lobbyWindowPtr->isChannelOpen(channelType, channelName) && lobbyWindowPtr->isActive()))
 			CCS->soundh->playSound(AudioPath::builtin("CHAT"));
 	}
 }
@@ -347,6 +392,10 @@ void GlobalLobbyClient::sendClientLogin()
 	toSend["accountCookie"].String() = getAccountCookie();
 	toSend["language"].String() = CGI->generaltexth->getPreferredLanguage();
 	toSend["version"].String() = VCMI_VERSION_STRING;
+
+	for (const auto & language : activeChannels)
+		toSend["languageRooms"].Vector().push_back(JsonNode(language));
+
 	sendMessage(toSend);
 }
 

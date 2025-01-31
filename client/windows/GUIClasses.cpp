@@ -55,8 +55,10 @@
 #include "../lib/gameState/TavernHeroesPool.h"
 #include "../lib/gameState/UpgradeInfo.h"
 #include "../lib/texts/CGeneralTextHandler.h"
+#include "../lib/texts/TextOperations.h"
 #include "../lib/IGameSettings.h"
 #include "ConditionalWait.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/CSoundBase.h"
@@ -1349,14 +1351,33 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 
 		std::string text = CGI->generaltexth->jktexts[24+g];
 		boost::algorithm::trim_if(text,boost::algorithm::is_any_of("\""));
-		rowHeaders.push_back(std::make_shared<CLabel>(135, y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, text));
+		if(settings["general"]["enableUiEnhancements"].Bool() && g >= 2 && g <= 4) // add icons instead of text (text is OH3 behavior)
+		{
+			auto addicon = [this, y](GameResID res, int x){ columnHeaderIcons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), res, 0, x, y - 10)); };
+			if(g == 2) // gold
+				addicon(GameResID::GOLD, 125);
+			else if(g == 3) // wood, ore
+			{
+				addicon(GameResID::WOOD, 110);
+				addicon(GameResID::ORE, 140);
+			}
+			else if(g == 4) // mercury, sulfur, crystal, gems
+			{
+				addicon(GameResID::MERCURY, 80);
+				addicon(GameResID::SULFUR, 110);
+				addicon(GameResID::CRYSTAL, 140);
+				addicon(GameResID::GEMS, 170);
+			}
+		}
+		else
+			rowHeaders.push_back(std::make_shared<CLabel>(135, y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, text, 220));
 	}
 
 	for(int g=1; g<tgi.playerColors.size(); ++g)
 		columnBackgrounds.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PRSTRIPS"), g-1, 0, 250 + 66*g, 7));
 
 	for(int g=0; g<tgi.playerColors.size(); ++g)
-		columnHeaders.push_back(std::make_shared<CLabel>(283 + 66*g, 24, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[16+g]));
+		columnHeaders.push_back(std::make_shared<CLabel>(283 + 66*g, 21, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[16+g]));
 
 	//printing flags
 	for(int g = 0; g < std::size(fields); ++g) //by lines
@@ -1574,7 +1595,7 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 
 		itemsVisible.clear();
 		for(auto & item : items)
-			if(boost::algorithm::contains(boost::algorithm::to_lower_copy(item.second), boost::algorithm::to_lower_copy(text)))
+			if(TextOperations::textSearchSimilar(text, item.second))
 				itemsVisible.push_back(item);
 
 		selected = 0;
@@ -1684,7 +1705,7 @@ VideoWindow::VideoWindow(const VideoPath & video, const ImagePath & rim, bool sh
 		blackBackground = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y));
 		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, scaleFactor, this);
 		pos = center(Rect(0, 0, videoPlayer->pos.w, videoPlayer->pos.h));
-		blackBackground->addBox(Point(0, 0), Point(pos.x, pos.y), Colors::BLACK);
+		blackBackground->addBox(Point(0, 0), Point(videoPlayer->pos.w, videoPlayer->pos.h), Colors::BLACK);
 	}
 
 	if(backgroundAroundWindow)

@@ -231,7 +231,7 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 		if(mainTarget && mainTarget == caster)
 			return false; // can't cast on self
 
-		if(mainTarget && mainTarget->hasBonusOfType(BonusType::INVINCIBLE) && !getSpell()->getPositiveness())
+		if(mainTarget && mainTarget->isInvincible() && !getSpell()->getPositiveness())
 			return false;
 	}
 	else if(getSpell()->canCastOnlyOnSelf())
@@ -259,7 +259,7 @@ std::vector<const CStack *> BattleSpellMechanics::getAffectedStacks(const Target
 
 	for(const Destination & dest : all)
 	{
-		if(dest.unitValue && !dest.unitValue->hasBonusOfType(BonusType::INVINCIBLE))
+		if(dest.unitValue && !dest.unitValue->isInvincible())
 		{
 			//FIXME: remove and return battle::Unit
 			stacks.insert(battle()->battleGetStackByID(dest.unitValue->unitId(), false));
@@ -473,7 +473,7 @@ std::set<const battle::Unit *> BattleSpellMechanics::collectTargets() const
 	return result;
 }
 
-void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector)
+void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const battle::Units & targets, const CSelector & selector)
 {
 	SetStackEffect sse;
 	sse.battleID = battle()->getBattle()->getBattleID();
@@ -508,16 +508,16 @@ bool BattleSpellMechanics::counteringSelector(const Bonus * bonus) const
 	return false;
 }
 
-std::set<BattleHex> BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex) const
+BattleHexArray BattleSpellMechanics::spellRangeInHexes(const BattleHex & centralHex) const
 {
 	using namespace SRSLPraserHelpers;
 
-	std::set<BattleHex> ret;
+	BattleHexArray ret;
 	std::vector<int> rng = owner->getLevelInfo(getRangeLevel()).range;
 
 	for(auto & elem : rng)
 	{
-		std::set<ui16> curLayer = getInRange(centralHex, elem, elem);
+		std::set<ui16> curLayer = getInRange(centralHex.toInt(), elem, elem);
 		//adding obtained hexes
 		for(const auto & curLayer_it : curLayer)
 			ret.insert(curLayer_it);
@@ -604,17 +604,15 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 		if(fast)
 		{
 			auto stacks = battle()->battleGetAllStacks();
-			std::set<BattleHex> hexesToCheck;
+			BattleHexArray hexesToCheck;
 
 			for(auto stack : stacks)
 			{
 				hexesToCheck.insert(stack->getPosition());
-
-				for(auto adjacent : stack->getPosition().neighbouringTiles())
-					hexesToCheck.insert(adjacent);
+				hexesToCheck.insert(stack->getPosition().getNeighbouringTiles());
 			}
 
-			for(auto hex : hexesToCheck)
+			for(const auto & hex : hexesToCheck)
 			{
 				if(hex.isAvailable())
 				{
@@ -661,17 +659,17 @@ bool BattleSpellMechanics::isReceptive(const battle::Unit * target) const
 	return targetCondition->isReceptive(this, target);
 }
 
-std::vector<BattleHex> BattleSpellMechanics::rangeInHexes(BattleHex centralHex) const
+BattleHexArray BattleSpellMechanics::rangeInHexes(const BattleHex & centralHex) const
 {
 	if(isMassive() || !centralHex.isValid())
-		return std::vector<BattleHex>(1, BattleHex::INVALID);
+		return BattleHexArray();
 
 	Target aimPoint;
 	aimPoint.push_back(Destination(centralHex));
 
 	Target spellTarget = transformSpellTarget(aimPoint);
 
-	std::set<BattleHex> effectRange;
+	BattleHexArray effectRange;
 
 	effects->forEachEffect(getEffectLevel(), [&](const effects::Effect * effect, bool & stop)
 	{
@@ -681,12 +679,7 @@ std::vector<BattleHex> BattleSpellMechanics::rangeInHexes(BattleHex centralHex) 
 		}
 	});
 
-	std::vector<BattleHex> ret;
-	ret.reserve(effectRange.size());
-
-	std::copy(effectRange.begin(), effectRange.end(), std::back_inserter(ret));
-
-	return ret;
+	return effectRange;
 }
 
 const Spell * BattleSpellMechanics::getSpell() const

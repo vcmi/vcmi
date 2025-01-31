@@ -468,7 +468,7 @@ void StartGameTab::on_buttonPresetRename_clicked()
 			currentName,
 			&ok);
 
-		if (ok && !newName.isEmpty())
+		if (ok && !newName.isEmpty() && newName != currentName)
 		{
 			getMainWindow()->getModView()->renamePreset(currentName, newName);
 			refreshPresets();

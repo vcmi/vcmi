@@ -12,6 +12,7 @@
 #include "CursorHardware.h"
 
 #include "SDL_Extensions.h"
+#include "SDLImageScaler.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../render/IScreenHandler.h"
@@ -59,8 +60,11 @@ void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivot
 
 	CSDL_Ext::fillSurface(cursorSurface, CSDL_Ext::toSDL(Colors::TRANSPARENCY));
 
-	image->draw(cursorSurface, Point(0,0));
-	auto cursorSurfaceScaled = CSDL_Ext::scaleSurface(cursorSurface, cursorDimensionsScaled.x, cursorDimensionsScaled.y );
+	image->draw(cursorSurface, Point(0,0), nullptr, GH.screenHandler().getScalingFactor());
+
+	SDLImageScaler scaler(cursorSurface);
+	scaler.scaleSurface(cursorDimensionsScaled, EScalingAlgorithm::BILINEAR);
+	SDL_Surface	* cursorSurfaceScaled = scaler.acquireResultSurface();
 
 	auto oldCursor = cursor;
 	cursor = SDL_CreateColorCursor(cursorSurfaceScaled, pivotOffsetScaled.x, pivotOffsetScaled.y);

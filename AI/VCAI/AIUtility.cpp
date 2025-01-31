@@ -133,8 +133,8 @@ bool HeroPtr::operator==(const HeroPtr & rhs) const
 
 bool CDistanceSorter::operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs) const
 {
-	const CGPathNode * ln = ai->myCb->getPathsInfo(hero)->getPathInfo(lhs->visitablePos());
-	const CGPathNode * rn = ai->myCb->getPathsInfo(hero)->getPathInfo(rhs->visitablePos());
+	const CGPathNode * ln = ai->getPathsInfo(hero)->getPathInfo(lhs->visitablePos());
+	const CGPathNode * rn = ai->getPathsInfo(hero)->getPathInfo(rhs->visitablePos());
 
 	return ln->getCost() < rn->getCost();
 }

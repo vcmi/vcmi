@@ -35,10 +35,10 @@ public:
 	static BattleAction makeHeal(const battle::Unit * healer, const battle::Unit * healed);
 	static BattleAction makeDefend(const battle::Unit * stack);
 	static BattleAction makeWait(const battle::Unit * stack);
-	static BattleAction makeMeleeAttack(const battle::Unit * stack, BattleHex destination, BattleHex attackFrom, bool returnAfterAttack = true);
+	static BattleAction makeMeleeAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom, bool returnAfterAttack = true);
 	static BattleAction makeShotAttack(const battle::Unit * shooter, const battle::Unit * target);
 	static BattleAction makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, const SpellID & spellID);
-	static BattleAction makeMove(const battle::Unit * stack, BattleHex dest);
+	static BattleAction makeMove(const battle::Unit * stack, const BattleHex & dest);
 	static BattleAction makeEndOFTacticPhase(BattleSide side);
 	static BattleAction makeRetreat(BattleSide side);
 	static BattleAction makeSurrender(BattleSide side);

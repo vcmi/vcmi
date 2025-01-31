@@ -63,7 +63,7 @@ Stable VCMI version is available in RPM Fusion repository. Learn how to enable i
 
 Latest public release build can be installed via Flatpak.
 
-Depending on your distribution, you may need to install flatpak itself. You can find guide for your distribution here: <https://www.flatpak.org/setup/>
+Depending on your distribution, you may need to install flatpak itself. You can find guide for your distribution here: <https://flatpak.org/setup/>
 Once you have flatpak, you can install VCMI package which can be found here: <https://flathub.org/apps/details/eu.vcmi.VCMI>
 
 ### Other distributions
@@ -111,9 +111,12 @@ flatpak run --command=vcmibuilder eu.vcmi.VCMI --data /path/to/h3/data`
 
 ### Install data using gog.com offline installer
 
-Download both files for the "offline backup game installers" and extract them using innoextract tool
+Download both files for the "offline backup game installers" and extract them using innoextract tool.
 
 You can select both downloaded files in launcher to extract automatically.
+
+gog.com download page:
+![GoG-Installer](images/gog_offline_installer.png)
 
 Alternatively you can use the classic way:
 

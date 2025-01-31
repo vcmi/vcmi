@@ -11,13 +11,14 @@
 #include "StdInc.h"
 #include "ScreenHandler.h"
 
+#include "../eventsSDL/NotificationHandler.h"
+#include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "CMT.h"
+
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/constants/StringConstants.h"
-#include "../gui/CGuiHandler.h"
-#include "../eventsSDL/NotificationHandler.h"
-#include "../gui/WindowHandler.h"
-#include "CMT.h"
-#include "SDL_Extensions.h"
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"

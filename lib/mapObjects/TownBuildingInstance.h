@@ -81,8 +81,6 @@ public:
 	/// gives second part of reward after hero level-ups for proper granting of spells/mana
 	void heroLevelUpDone(const CGHeroInstance *hero) const override;
 	
-	void initObj(vstd::RNG & rand) override;
-	
 	/// applies player selection of reward
 	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 	

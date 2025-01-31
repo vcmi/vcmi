@@ -464,7 +464,7 @@ void CUnitState::getCasterName(MetaString & text) const
 	addNameReplacement(text, true);
 }
 
-void CUnitState::getCastDescription(const spells::Spell * spell, const std::vector<const Unit *> & attacked, MetaString & text) const
+void CUnitState::getCastDescription(const spells::Spell * spell, const battle::Units & attacked, MetaString & text) const
 {
 	text.appendLocalString(EMetaText::GENERAL_TXT, 565);//The %s casts %s
 	//todo: use text 566 for single creature
@@ -525,7 +525,7 @@ bool CUnitState::isCaster() const
 
 bool CUnitState::canShootBlocked() const
 {
-	return bonusCache.getBonusValue(UnitBonusValuesProxy::HAS_FREE_SHOOTING);
+	return bonusCache.hasBonus(UnitBonusValuesProxy::HAS_FREE_SHOOTING);
 }
 
 bool CUnitState::canShoot() const
@@ -577,7 +577,7 @@ BattleHex CUnitState::getPosition() const
 	return position;
 }
 
-void CUnitState::setPosition(BattleHex hex)
+void CUnitState::setPosition(const BattleHex & hex)
 {
 	position = hex;
 }
@@ -605,17 +605,18 @@ uint8_t CUnitState::getRangedFullDamageDistance() const
 	if(!isShooter())
 		return 0;
 
-	uint8_t rangedFullDamageDistance = GameConstants::BATTLE_SHOOTING_PENALTY_DISTANCE;
-
 	// overwrite full ranged damage distance with the value set in Additional info field of LIMITED_SHOOTING_RANGE bonus
 	if(hasBonusOfType(BonusType::LIMITED_SHOOTING_RANGE))
 	{
 		auto bonus = this->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
 		if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
-			rangedFullDamageDistance = bonus->additionalInfo[0];
+			return bonus->additionalInfo[0];
 	}
 
-	return rangedFullDamageDistance;
+	if (hasBonusOfType(BonusType::NO_DISTANCE_PENALTY))
+		return GameConstants::BATTLE_SHOOTING_RANGE_DISTANCE;
+
+	return GameConstants::BATTLE_SHOOTING_PENALTY_DISTANCE;
 }
 
 uint8_t CUnitState::getShootingRangeDistance() const
@@ -698,6 +699,11 @@ BattlePhases::Type CUnitState::battleQueuePhase(int turn) const
 bool CUnitState::isHypnotized() const
 {
 	return bonusCache.getBonusValue(UnitBonusValuesProxy::HYPNOTIZED);
+}
+
+bool CUnitState::isInvincible() const
+{
+	return bonusCache.getBonusValue(UnitBonusValuesProxy::INVINCIBLE);
 }
 
 int CUnitState::getTotalAttacks(bool ranged) const
@@ -800,7 +806,9 @@ void CUnitState::serializeJson(JsonSerializeFormat & handler)
 
 	handler.serializeInt("cloneID", cloneID);
 
-	handler.serializeInt("position", position);
+	si16 posValue = position.toInt();
+	handler.serializeInt("position", posValue);
+	position = posValue;
 }
 
 void CUnitState::localInit(const IUnitEnvironment * env_)
@@ -946,7 +954,7 @@ TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector,
 	return bonus->getAllBonuses(selector, limit, cachingStr);
 }
 
-int64_t CUnitStateDetached::getTreeVersion() const
+int32_t CUnitStateDetached::getTreeVersion() const
 {
 	return bonus->getTreeVersion();
 }

@@ -105,10 +105,6 @@ void TownEventDialog::initResources()
 void TownEventDialog::initBuildings()
 {
 	auto * ctown = town.getTown();
-	if (!ctown)
-		ctown = VLC->townh->randomTown;
-	if (!ctown)
-		throw std::runtime_error("No Town defined for type selected");
 	auto allBuildings = ctown->getAllBuildings();
 	while (!allBuildings.empty())
 	{

@@ -18,7 +18,6 @@
 #include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
 #include "../adventureMap/CInGameConsole.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../render/Canvas.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
@@ -298,7 +297,7 @@ void CMultiLineLabel::showAll(Canvas & to)
 	Point lineStart = getTextLocation().topLeft() - visibleSize + Point(0, beginLine * fontPtr->getLineHeight());
 	Point lineSize = Point(getTextLocation().w, fontPtr->getLineHeight());
 
-	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), getTextLocation()); // to properly trim text that is too big to fit
+	CanvasClipRectGuard guard(to, getTextLocation()); // to properly trim text that is too big to fit
 
 	for(int i = beginLine; i < std::min(totalLines, endLine); i++)
 	{

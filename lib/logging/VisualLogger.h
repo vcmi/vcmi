@@ -26,7 +26,7 @@ public:
 class IBattleOverlayLogVisualizer
 {
 public:
-	virtual void drawText(BattleHex tile, int lineNumber, const std::string & text) = 0;
+	virtual void drawText(const BattleHex & tile, int lineNumber, const std::string & text) = 0;
 };
 
 class DLL_LINKAGE IVisualLogBuilder
@@ -34,7 +34,7 @@ class DLL_LINKAGE IVisualLogBuilder
 public:
 	virtual void addLine(int3 start, int3 end) = 0;
 	virtual void addText(int3 tile, const std::string & text, const std::optional<ColorRGBA> & color = {}) = 0;
-	virtual void addText(BattleHex tile, const std::string & text) = 0;
+	virtual void addText(const BattleHex & tile, const std::string & text) = 0;
 
 	void addText(int3 tile, const std::string & text, PlayerColor background);
 };
@@ -89,7 +89,7 @@ private:
 			mapLines.emplace_back(start, end);
 		}
 
-		void addText(BattleHex tile, const std::string & text) override
+		void addText(const BattleHex & tile, const std::string & text) override
 		{
 			battleTexts.emplace_back(tile, text, std::optional<ColorRGBA>());
 		}

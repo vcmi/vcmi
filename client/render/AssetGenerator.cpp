@@ -14,6 +14,7 @@
 #include "../render/IImage.h"
 #include "../render/IImageLoader.h"
 #include "../render/Canvas.h"
+#include "../render/CanvasImage.h"
 #include "../render/ColorFilter.h"
 #include "../render/IRenderHandler.h"
 #include "../render/CAnimation.h"
@@ -22,10 +23,18 @@
 #include "../lib/GameSettings.h"
 #include "../lib/IGameSettings.h"
 #include "../lib/json/JsonNode.h"
+#include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/RiverHandler.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/TerrainHandler.h"
+
+void AssetGenerator::clear()
+{
+	// clear to avoid non updated sprites after mod change (if base imnages are used)
+	if(boost::filesystem::is_directory(VCMIDirs::get().userDataPath() / "Generated"))
+		boost::filesystem::remove_all(VCMIDirs::get().userDataPath() / "Generated");
+}
 
 void AssetGenerator::generateAll()
 {
@@ -50,12 +59,13 @@ void AssetGenerator::createAdventureOptionsCleanBackground()
 		return;
 	ResourcePath savePath(filename, EResType::IMAGE);
 
-	auto locator = ImageLocator(ImagePath::builtin("ADVOPTBK"));
-	locator.scalingFactor = 1;
+	auto locator = ImageLocator(ImagePath::builtin("ADVOPTBK"), EImageBlitMode::OPAQUE);
 
-	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
+	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator);
 
-	Canvas canvas = Canvas(Point(575, 585), CanvasScalingPolicy::IGNORE);
+	auto image = GH.renderHandler().createImage(Point(575, 585), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+
 	canvas.draw(img, Point(0, 0), Rect(0, 0, 575, 585));
 	canvas.draw(img, Point(54, 121), Rect(54, 123, 335, 1));
 	canvas.draw(img, Point(158, 84), Rect(156, 84, 2, 37));
@@ -63,8 +73,6 @@ void AssetGenerator::createAdventureOptionsCleanBackground()
 	canvas.draw(img, Point(310, 84), Rect(308, 84, 2, 37));
 	canvas.draw(img, Point(53, 567), Rect(53, 520, 339, 3));
 	canvas.draw(img, Point(53, 520), Rect(53, 264, 339, 47));
-
-	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
 	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 }
@@ -80,11 +88,11 @@ void AssetGenerator::createBigSpellBook()
 		return;
 	ResourcePath savePath(filename, EResType::IMAGE);
 
-	auto locator = ImageLocator(ImagePath::builtin("SpelBack"));
-	locator.scalingFactor = 1;
+	auto locator = ImageLocator(ImagePath::builtin("SpelBack"), EImageBlitMode::OPAQUE);
 
-	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
-	Canvas canvas = Canvas(Point(800, 600), CanvasScalingPolicy::IGNORE);
+	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator);
+	auto image = GH.renderHandler().createImage(Point(800, 600), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
 	// edges
 	canvas.draw(img, Point(0, 0), Rect(15, 38, 90, 45));
 	canvas.draw(img, Point(0, 460), Rect(15, 400, 90, 141));
@@ -127,8 +135,6 @@ void AssetGenerator::createBigSpellBook()
 	canvas.draw(img, Point(575, 465), Rect(417, 406, 37, 45));
 	canvas.draw(img, Point(667, 465), Rect(478, 406, 37, 47));
 
-	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
-
 	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 }
 
@@ -144,10 +150,9 @@ void AssetGenerator::createPlayerColoredBackground(const PlayerColor & player)
 
 	ResourcePath savePath(filename, EResType::IMAGE);
 
-	auto locator = ImageLocator(ImagePath::builtin("DiBoxBck"));
-	locator.scalingFactor = 1;
+	auto locator = ImageLocator(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE);
 
-	std::shared_ptr<IImage> texture = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
+	std::shared_ptr<IImage> texture = GH.renderHandler().loadImage(locator);
 
 	// transform to make color of brown DIBOX.PCX texture match color of specified player
 	auto filterSettings = VLC->settingsHandler->getFullConfig()["interface"]["playerColoredBackground"];
@@ -191,10 +196,10 @@ void AssetGenerator::createCombatUnitNumberWindow()
 	   !CResourceHandler::get("local")->createResource(savePathNegative.getOriginalName() + ".png"))
 		return;
 
-	auto locator = ImageLocator(ImagePath::builtin("CMNUMWIN"));
-	locator.scalingFactor = 1;
+	auto locator = ImageLocator(ImagePath::builtin("CMNUMWIN"), EImageBlitMode::OPAQUE);
+	locator.layer = EImageBlitMode::OPAQUE;
 
-	std::shared_ptr<IImage> texture = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
+	std::shared_ptr<IImage> texture = GH.renderHandler().loadImage(locator);
 
 	static const auto shifterNormal   = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.6f, 0.2f, 1.0f );
 	static const auto shifterPositive = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.2f, 1.0f, 0.2f );
@@ -225,12 +230,12 @@ void AssetGenerator::createCampaignBackground()
 		return;
 	ResourcePath savePath(filename, EResType::IMAGE);
 
-	auto locator = ImageLocator(ImagePath::builtin("CAMPBACK"));
-	locator.scalingFactor = 1;
+	auto locator = ImageLocator(ImagePath::builtin("CAMPBACK"), EImageBlitMode::OPAQUE);
 
-	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
-	Canvas canvas = Canvas(Point(800, 600), CanvasScalingPolicy::IGNORE);
-	
+	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator);
+	auto image = GH.renderHandler().createImage(Point(800, 600), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+
 	canvas.draw(img, Point(0, 0), Rect(0, 0, 800, 600));
 
 	// left image
@@ -255,12 +260,9 @@ void AssetGenerator::createCampaignBackground()
 	canvas.draw(img, Point(404, 414), Rect(313, 74, 197, 114));
 
 	// skull
-	auto locatorSkull = ImageLocator(ImagePath::builtin("CAMPNOSC"));
-	locatorSkull.scalingFactor = 1;
-	std::shared_ptr<IImage> imgSkull = GH.renderHandler().loadImage(locatorSkull, EImageBlitMode::OPAQUE);
+	auto locatorSkull = ImageLocator(ImagePath::builtin("CAMPNOSC"), EImageBlitMode::OPAQUE);
+	std::shared_ptr<IImage> imgSkull = GH.renderHandler().loadImage(locatorSkull);
 	canvas.draw(imgSkull, Point(562, 509), Rect(178, 108, 43, 19));
-
-	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
 	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 }
@@ -282,11 +284,11 @@ void AssetGenerator::createChroniclesCampaignImages()
 			continue;
 		ResourcePath savePath(filename, EResType::IMAGE);
 
-		auto locator = ImageLocator(imgPathBg);
-		locator.scalingFactor = 1;
+		auto locator = ImageLocator(imgPathBg, EImageBlitMode::OPAQUE);
 
-		std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
-		Canvas canvas = Canvas(Point(200, 116), CanvasScalingPolicy::IGNORE);
+		std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator);
+		auto image = GH.renderHandler().createImage(Point(800, 600), CanvasScalingPolicy::IGNORE);
+		Canvas canvas = image->getCanvas();
 		
 		switch (i)
 		{
@@ -315,9 +317,8 @@ void AssetGenerator::createChroniclesCampaignImages()
 			canvas.draw(img, Point(0, 0), Rect(268, 210, 200, 116));
 
 			//skull
-			auto locatorSkull = ImageLocator(ImagePath::builtin("CampSP1"));
-			locatorSkull.scalingFactor = 1;
-			std::shared_ptr<IImage> imgSkull = GH.renderHandler().loadImage(locatorSkull, EImageBlitMode::OPAQUE);
+			auto locatorSkull = ImageLocator(ImagePath::builtin("CampSP1"), EImageBlitMode::OPAQUE);
+			std::shared_ptr<IImage> imgSkull = GH.renderHandler().loadImage(locatorSkull);
 			canvas.draw(imgSkull, Point(162, 94), Rect(162, 94, 41, 22));
 			canvas.draw(img, Point(162, 94), Rect(424, 304, 14, 4));
 			canvas.draw(img, Point(162, 98), Rect(424, 308, 10, 4));
@@ -325,8 +326,6 @@ void AssetGenerator::createChroniclesCampaignImages()
 			canvas.draw(img, Point(154, 106), Rect(424, 316, 10, 4));
 			break;
 		}
-
-		std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
 		image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 	}
@@ -395,8 +394,7 @@ void AssetGenerator::createPaletteShiftedSprites()
 					return;
 
 				auto imgLoc = anim->getImageLocator(j, 0);
-				imgLoc.scalingFactor = 1;
-				auto img = GH.renderHandler().loadImage(imgLoc, EImageBlitMode::COLORKEY);
+				auto img = GH.renderHandler().loadImage(imgLoc);
 				for(int k = 0; k < paletteAnimations[i].size(); k++)
 				{
 					auto element = paletteAnimations[i][k];
@@ -412,9 +410,9 @@ void AssetGenerator::createPaletteShiftedSprites()
 					}
 				}
 				
-				Canvas canvas = Canvas(Point(32, 32), CanvasScalingPolicy::IGNORE);
+				auto image = GH.renderHandler().createImage(Point(32, 32), CanvasScalingPolicy::IGNORE);
+				Canvas canvas = image->getCanvas();
 				canvas.draw(img, Point((32 - img->dimensions().x) / 2, (32 - img->dimensions().y) / 2));
-				std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 				image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 
 				JsonNode node(JsonMap{

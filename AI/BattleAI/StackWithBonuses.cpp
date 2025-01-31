@@ -170,7 +170,7 @@ TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, c
 	return ret;
 }
 
-int64_t StackWithBonuses::getTreeVersion() const
+int32_t StackWithBonuses::getTreeVersion() const
 {
 	auto result = owner->getTreeVersion();
 
@@ -360,7 +360,7 @@ void HypotheticBattle::addUnit(uint32_t id, const JsonNode & data)
 	stackStates[newUnit->unitId()] = newUnit;
 }
 
-void HypotheticBattle::moveUnit(uint32_t id, BattleHex destination)
+void HypotheticBattle::moveUnit(uint32_t id, const BattleHex & destination)
 {
 	std::shared_ptr<StackWithBonuses> changed = getForUpdate(id);
 	changed->position = destination;
@@ -485,7 +485,7 @@ BattleLayout HypotheticBattle::getLayout() const
 	return subject->getBattle()->getLayout();
 }
 
-int64_t HypotheticBattle::getTreeVersion() const
+int32_t HypotheticBattle::getTreeVersion() const
 {
 	return getBonusBearer()->getTreeVersion() + bonusTreeVersion;
 }

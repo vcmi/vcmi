@@ -742,6 +742,7 @@ void RewardsDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, c
 	if(auto * ed = qobject_cast<RewardsWidget *>(editor))
 	{
 		ed->commitChanges();
+		updateModelData(model, index);
 	}
 	else
 	{
@@ -756,4 +757,67 @@ RewardsDelegate::RewardsDelegate(CMap & m, CRewardableObject & t): map(m), objec
 QWidget * RewardsDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
 	return new RewardsWidget(map, object, parent);
+}
+
+void RewardsDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QStringList textList(QObject::tr("Rewards:"));
+	for (const auto & vinfo : object.configuration.info)
+	{
+		textList += QObject::tr("Reward Message: %1").arg(QString::fromStdString(vinfo.message.toString()));
+		textList += QObject::tr("Hero Level: %1").arg(vinfo.reward.heroLevel);
+		textList += QObject::tr("Hero Experience: %1").arg(vinfo.reward.heroExperience);
+		textList += QObject::tr("Mana Diff: %1").arg(vinfo.reward.manaDiff);
+		textList += QObject::tr("Mana Percentage: %1").arg(vinfo.reward.manaPercentage);
+		textList += QObject::tr("Move Points: %1").arg(vinfo.reward.movePoints);
+		textList += QObject::tr("Move Percentage: %1").arg(vinfo.reward.movePercentage);
+		textList += QObject::tr("Primary Skills: %1/%2/%3/%4").arg(vinfo.reward.primary[0]).arg(vinfo.reward.primary[1]).arg(vinfo.reward.primary[2]).arg(vinfo.reward.primary[3]);
+		QStringList resourcesList;
+		for(GameResID resource = GameResID::WOOD; resource < GameResID::COUNT ; resource++)
+		{
+			if(resource == GameResID::MITHRIL)
+				continue; // translated as "Abandoned"?
+			if(vinfo.reward.resources[resource] == 0)
+				continue;
+			MetaString str;
+			str.appendName(resource);
+			resourcesList += QString("%1: %2").arg(QString::fromStdString(str.toString())).arg(vinfo.reward.resources[resource]);
+		}
+		textList += QObject::tr("Resources: %1").arg(resourcesList.join(", "));
+		QStringList artifactsList;
+		for (auto artifact : vinfo.reward.artifacts)
+		{
+			artifactsList += QString::fromStdString(VLC->artifacts()->getById(artifact)->getNameTranslated());
+		}
+		textList += QObject::tr("Artifacts: %1").arg(artifactsList.join(", "));
+		QStringList spellsList;
+		for (auto spell : vinfo.reward.spells)
+		{
+			spellsList += QString::fromStdString(VLC->spells()->getById(spell)->getNameTranslated());
+		}
+		textList += QObject::tr("Spells: %1").arg(spellsList.join(", "));
+		QStringList secondarySkillsList;
+		for(auto & [skill, skillLevel] : vinfo.reward.secondary)
+		{
+			secondarySkillsList += QString("%1 (%2)").arg(QString::fromStdString(VLC->skills()->getById(skill)->getNameTranslated())).arg(skillLevel);
+		}
+		textList += QObject::tr("Secondary Skills: %1").arg(secondarySkillsList.join(", "));
+		QStringList creaturesList;
+		for (auto & creature : vinfo.reward.creatures)
+		{
+			creaturesList += QString("%1 %2").arg(creature.count).arg(QString::fromStdString(creature.getType()->getNamePluralTranslated()));
+		}
+		textList += QObject::tr("Creatures: %1").arg(creaturesList.join(", "));
+		if (vinfo.reward.spellCast.first != SpellID::NONE)
+		{
+			textList += QObject::tr("Spell Cast: %1 (%2)").arg(QString::fromStdString(VLC->spells()->getById(vinfo.reward.spellCast.first)->getNameTranslated())).arg(vinfo.reward.spellCast.second);
+		}
+		QStringList bonusesList;
+		for (auto & bonus : vinfo.reward.bonuses)
+		{
+			bonusesList += QString("%1 %2 (%3)").arg(QString::fromStdString(vstd::findKey(bonusDurationMap, bonus.duration))).arg(QString::fromStdString(vstd::findKey(bonusNameMap, bonus.type))).arg(bonus.val);
+		}
+		textList += QObject::tr("Bonuses: %1").arg(bonusesList.join(", "));
+	}
+	setModelTextData(model, index, textList);
 }

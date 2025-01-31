@@ -77,7 +77,6 @@ class GlobalLobbyRoomCard : public CIntObject
 	std::shared_ptr<CLabel> labelRoomSize;
 	std::shared_ptr<CLabel> labelRoomStatus;
 	std::shared_ptr<CLabel> labelDescription;
-	std::shared_ptr<CButton> buttonJoin;
 	std::shared_ptr<CPicture> iconRoomSize;
 
 	void clickPressed(const Point & cursorPosition) override;
@@ -88,6 +87,7 @@ public:
 class GlobalLobbyChannelCard : public GlobalLobbyChannelCardBase
 {
 	std::shared_ptr<CLabel> labelName;
+	std::shared_ptr<CButton> buttonClose;
 
 public:
 	GlobalLobbyChannelCard(GlobalLobbyWindow * window, const std::string & channelName);

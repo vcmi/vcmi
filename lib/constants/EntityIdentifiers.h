@@ -405,6 +405,8 @@ public:
 	enum Type
 	{
 		NO_OBJ = -1,
+
+		NOTHING = 0,
 		ALTAR_OF_SACRIFICE [[deprecated]] = 2,
 		ANCHOR_POINT = 3,
 		ARENA = 4,

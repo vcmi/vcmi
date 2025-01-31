@@ -670,15 +670,15 @@ namespace vstd
 		return false;
 	}
 
-	template<typename T>
-	void removeDuplicates(std::vector<T> &vec)
+	template <typename Container>
+	void removeDuplicates(Container &vec)
 	{
 		std::sort(vec.begin(), vec.end());
 		vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
 	}
 
-	template <typename T>
-	void concatenate(std::vector<T> &dest, const std::vector<T> &src)
+	template <typename Container>
+	void concatenate(Container &dest, const Container &src)
 	{
 		dest.reserve(dest.size() + src.size());
 		dest.insert(dest.end(), src.begin(), src.end());

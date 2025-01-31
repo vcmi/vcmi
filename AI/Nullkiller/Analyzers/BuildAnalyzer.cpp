@@ -20,7 +20,9 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 {
 	for(int level = 0; level < developmentInfo.town->getTown()->creatures.size(); level++)
 	{
+#if NKAI_TRACE_LEVEL >= 1
 		logAi->trace("Checking dwelling level %d", level);
+#endif
 		std::vector<BuildingID> dwellingsInTown;
 
 		for(BuildingID buildID = BuildingID::getDwellingFromLevel(level, 0); buildID.hasValue(); BuildingID::advanceDwelling(buildID))
@@ -143,9 +145,9 @@ void BuildAnalyzer::update()
 	{
 		if(town->built >= cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
 			continue; // Not much point in trying anything - can't built in this town anymore today
-
+#if NKAI_TRACE_LEVEL >= 1
 		logAi->trace("Checking town %s", town->getNameTranslated());
-
+#endif
 		developmentInfos.push_back(TownDevelopmentInfo(town));
 		TownDevelopmentInfo & developmentInfo = developmentInfos.back();
 
@@ -161,10 +163,10 @@ void BuildAnalyzer::update()
 		}
 		armyCost += developmentInfo.armyCost;
 
+#if NKAI_TRACE_LEVEL >= 1
 		for(auto bi : developmentInfo.toBuild)
-		{
 			logAi->trace("Building preferences %s", bi.toString());
-		}
+#endif
 	}
 
 	std::sort(developmentInfos.begin(), developmentInfos.end(), [](const TownDevelopmentInfo & t1, const TownDevelopmentInfo & t2) -> bool
@@ -179,7 +181,9 @@ void BuildAnalyzer::update()
 
 	goldPressure = (ai->getLockedResources()[EGameResID::GOLD] + (float)armyCost[EGameResID::GOLD] + economyDevelopmentCost) / (1 + 2 * ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
 
+#if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Gold pressure: %f", goldPressure);
+#endif
 }
 
 void BuildAnalyzer::reset()
@@ -268,12 +272,15 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 			if(vstd::contains_if(missingBuildings, otherDwelling))
 			{
+#if NKAI_TRACE_LEVEL >= 1
 				logAi->trace("cant build %d. Need other dwelling %d", toBuild.getNum(), missingBuildings.front().getNum());
+#endif
 			}
 			else if(missingBuildings[0] != toBuild)
 			{
+#if NKAI_TRACE_LEVEL >= 1
 				logAi->trace("cant build %d. Need %d", toBuild.getNum(), missingBuildings[0].num);
-
+#endif
 				BuildingInfo prerequisite = getBuildingOrPrerequisite(town, missingBuildings[0], excludeDwellingDependencies);
 
 				prerequisite.buildCostWithPrerequisites += info.buildCost;
@@ -298,19 +305,24 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 			}
 			else
 			{
+#if NKAI_TRACE_LEVEL >= 1
 				logAi->trace("Cant build. The building requires itself as prerequisite");
-
+#endif
 				return info;
 			}
 		}
 		else
 		{
+#if NKAI_TRACE_LEVEL >= 1
 			logAi->trace("Cant build. Reason: %d", static_cast<int>(canBuild));
+#endif
 		}
 	}
 	else
 	{
+#if NKAI_TRACE_LEVEL >= 1
 		logAi->trace("Dwelling %d exists", toBuild.getNum());
+#endif
 		info.exists = true;
 	}
 

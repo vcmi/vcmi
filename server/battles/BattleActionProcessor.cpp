@@ -276,7 +276,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	for (int i = 0; i < totalAttacks; ++i)
 	{
 		//first strike
-		if(i == 0 && firstStrike && retaliation && !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION) && !stack->hasBonusOfType(BonusType::INVINCIBLE))
+		if(i == 0 && firstStrike && retaliation && !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION) && !stack->isInvincible())
 		{
 			makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), true, false, true);
 		}
@@ -303,7 +303,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		//we check retaliation twice, so if it unblocked during attack it will work only on next attack
 		if(stack->alive()
 			&& !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION)
-			&& !stack->hasBonusOfType(BonusType::INVINCIBLE)
+			&& !stack->isInvincible()
 			&& (i == 0 && !firstStrike)
 			&& retaliation && destinationStack->ableToRetaliate())
 		{
@@ -635,7 +635,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 
 	//initing necessary tables
 	auto accessibility = battle.getAccessibility(curStack);
-	std::set<BattleHex> passed;
+	BattleHexArray passed;
 	//Ignore obstacles on starting position
 	passed.insert(curStack->getPosition());
 	if(curStack->doubleWide())
@@ -665,7 +665,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 		canUseGate = true;
 	}
 
-	std::pair< std::vector<BattleHex>, int > path = battle.getPath(start, dest, curStack);
+	std::pair< BattleHexArray, int > path = battle.getPath(start, dest, curStack);
 
 	ret = path.second;
 
@@ -679,7 +679,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 		return obst->obstacleType == CObstacleInstance::MOAT;
 	});
 
-	auto isGateDrawbridgeHex = [&](BattleHex hex) -> bool
+	auto isGateDrawbridgeHex = [&](const BattleHex & hex) -> bool
 	{
 		if (hasWideMoat && hex == BattleHex::GATE_BRIDGE)
 			return true;
@@ -691,7 +691,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 		return false;
 	};
 
-	auto occupyGateDrawbridgeHex = [&](BattleHex hex) -> bool
+	auto occupyGateDrawbridgeHex = [&](const BattleHex & hex) -> bool
 	{
 		if (isGateDrawbridgeHex(hex))
 			return true;
@@ -723,8 +723,8 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 			BattleStackMoved sm;
 			sm.battleID = battle.getBattle()->getBattleID();
 			sm.stack = curStack->unitId();
-			std::vector<BattleHex> tiles;
-			tiles.push_back(path.first[0]);
+			BattleHexArray tiles;
+			tiles.insert(path.first[0]);
 			sm.tilesToMove = tiles;
 			sm.distance = path.second;
 			sm.teleporting = false;
@@ -733,10 +733,10 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 	}
 	else //for non-flying creatures
 	{
-		std::vector<BattleHex> tiles;
+		BattleHexArray tiles;
 		const int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
 		int v = (int)path.first.size()-1;
-		path.first.push_back(start);
+		path.first.insert(start);
 
 		// check if gate need to be open or closed at some point
 		BattleHex openGateAtHex, gateMayCloseAtHex;
@@ -744,7 +744,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 		{
 			for (int i = (int)path.first.size()-1; i >= 0; i--)
 			{
-				auto needOpenGates = [&](BattleHex hex) -> bool
+				auto needOpenGates = [&](const BattleHex & hex) -> bool
 				{
 					if (hasWideMoat && hex == BattleHex::GATE_BRIDGE)
 						return true;
@@ -822,7 +822,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 				for (bool obstacleHit = false; (!obstacleHit) && (!gateStateChanging) && (v >= tilesToMove); --v)
 				{
 					BattleHex hex = path.first[v];
-					tiles.push_back(hex);
+					tiles.insert(hex);
 
 					if ((openGateAtHex.isValid() && openGateAtHex == hex) ||
 						(gateMayCloseAtHex.isValid() && gateMayCloseAtHex == hex))
@@ -911,7 +911,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 	return ret;
 }
 
-void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter)
+void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, bool first, bool ranged, bool counter)
 {
 	if(defender && first && !counter)
 		handleAttackBeforeCasting(battle, ranged, attacker, defender);

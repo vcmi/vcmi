@@ -137,7 +137,6 @@ public:
 
 	void reindexObjects();
 
-	ui32 checksum;
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;

@@ -115,7 +115,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	
 	b->description = bonusDescription;
 
-	CBonusSystemNode::treeHasChanged();
+	nodeHasChanged();
 
 	//-1 modifier for any Undead unit in army
 	auto undeadModifier = getExportedBonusList().getFirst(Selector::source(BonusSource::ARMY, BonusCustomSource::undeadMoraleDebuff));

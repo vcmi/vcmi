@@ -11,6 +11,7 @@
 
 #include "NetPacksBase.h"
 #include "BattleChanges.h"
+#include "../battle/BattleHexArray.h"
 #include "../battle/BattleAction.h"
 #include "../texts/MetaString.h"
 
@@ -170,10 +171,10 @@ struct DLL_LINKAGE BattleStackMoved : public CPackForClient
 {
 	BattleID battleID = BattleID::NONE;
 	ui32 stack = 0;
-	std::vector<BattleHex> tilesToMove;
+	BattleHexArray tilesToMove;
 	int distance = 0;
 	bool teleporting = false;
-
+	
 	void applyGs(CGameState * gs) override;
 	void applyBattle(IBattleState * battleState);
 

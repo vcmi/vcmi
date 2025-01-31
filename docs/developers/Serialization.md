@@ -33,7 +33,7 @@ It's not "really" portable, yet it works properly across all platforms we curren
 
 #### Pointers
 
-Storing pointers mechanics can be and almost always is customized. See [#Additional features](additional-features).
+Storing pointers mechanics can be and almost always is customized. See [#Additional features](#additional-features).
 
 In the most basic form storing pointer simply sends the object state and loading pointer allocates an object (using "new" operator) and fills its state with the stored data.
 

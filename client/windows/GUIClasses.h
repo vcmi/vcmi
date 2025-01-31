@@ -498,6 +498,7 @@ class CThievesGuildWindow : public CStatusbarWindow
 	std::vector<std::shared_ptr<CLabel>> rowHeaders;
 	std::vector<std::shared_ptr<CAnimImage>> columnBackgrounds;
 	std::vector<std::shared_ptr<CLabel>> columnHeaders;
+	std::vector<std::shared_ptr<CAnimImage>> columnHeaderIcons;
 	std::vector<std::shared_ptr<CAnimImage>> cells;
 
 	std::vector<std::shared_ptr<CPicture>> banners;

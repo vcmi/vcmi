@@ -739,13 +739,15 @@ void CModListView::installFiles(QStringList files)
 	// TODO: some better way to separate zip's with mods and downloaded repository files
 	for(QString filename : files)
 	{
-		if(filename.endsWith(".zip", Qt::CaseInsensitive))
+		QString realFilename = Helper::getRealPath(filename);
+
+		if(realFilename.endsWith(".zip", Qt::CaseInsensitive))
 			mods.push_back(filename);
-		else if(filename.endsWith(".h3m", Qt::CaseInsensitive) || filename.endsWith(".h3c", Qt::CaseInsensitive) || filename.endsWith(".vmap", Qt::CaseInsensitive) || filename.endsWith(".vcmp", Qt::CaseInsensitive))
+		else if(realFilename.endsWith(".h3m", Qt::CaseInsensitive) || realFilename.endsWith(".h3c", Qt::CaseInsensitive) || realFilename.endsWith(".vmap", Qt::CaseInsensitive) || realFilename.endsWith(".vcmp", Qt::CaseInsensitive))
 			maps.push_back(filename);
-		if(filename.endsWith(".exe", Qt::CaseInsensitive))
+		if(realFilename.endsWith(".exe", Qt::CaseInsensitive))
 			exe.push_back(filename);
-		else if(filename.endsWith(".json", Qt::CaseInsensitive))
+		else if(realFilename.endsWith(".json", Qt::CaseInsensitive))
 		{
 			//download and merge additional files
 			JsonNode repoData = JsonUtils::jsonFromFile(filename);
@@ -773,7 +775,7 @@ void CModListView::installFiles(QStringList files)
 				JsonUtils::merge(accumulatedRepositoryData[modNameLower], repoData);
 			}
 		}
-		else if(filename.endsWith(".png", Qt::CaseInsensitive))
+		else if(realFilename.endsWith(".png", Qt::CaseInsensitive))
 			images.push_back(filename);
 	}
 
@@ -953,38 +955,38 @@ void CModListView::on_tabWidget_currentChanged(int index)
 
 void CModListView::loadScreenshots()
 {
-	if(ui->tabWidget->currentIndex() == 2)
-	{
-		if(!ui->allModsView->currentIndex().isValid())
-		{
-			// select the first mod, so we can access its data
-			ui->allModsView->setCurrentIndex(filterModel->index(0, 0));
-		}
+	if(ui->tabWidget->currentIndex() != 2)
+		return;
+
+	assert(ui->allModsView->currentIndex().isValid());
+
+
+	if (!ui->allModsView->currentIndex().isValid())
+		return;
 		
-		ui->screenshotsList->clear();
-		QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
-		assert(modStateModel->isModExists(modName)); //should be filtered out by check above
+	ui->screenshotsList->clear();
+	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
+	assert(modStateModel->isModExists(modName)); //should be filtered out by check above
 
-		for(QString url : modStateModel->getMod(modName).getScreenshots())
+	for(QString url : modStateModel->getMod(modName).getScreenshots())
+	{
+		// URL must be encoded to something else to get rid of symbols illegal in file names
+		const auto hashed = QCryptographicHash::hash(url.toUtf8(), QCryptographicHash::Md5);
+		const auto fileName = QString{QLatin1String{"%1.png"}}.arg(QLatin1String{hashed.toHex()});
+
+		const auto fullPath = QString{QLatin1String{"%1/%2"}}.arg(CLauncherDirs::downloadsPath(), fileName);
+		QPixmap pixmap(fullPath);
+		if(pixmap.isNull())
 		{
-			// URL must be encoded to something else to get rid of symbols illegal in file names
-			const auto hashed = QCryptographicHash::hash(url.toUtf8(), QCryptographicHash::Md5);
-			const auto fileName = QString{QLatin1String{"%1.png"}}.arg(QLatin1String{hashed.toHex()});
-
-			const auto fullPath = QString{QLatin1String{"%1/%2"}}.arg(CLauncherDirs::downloadsPath(), fileName);
-			QPixmap pixmap(fullPath);
-			if(pixmap.isNull())
-			{
-				// image file not exists or corrupted - try to redownload
-				downloadFile(fileName, url, tr("screenshots"));
-			}
-			else
-			{
-				// managed to load cached image
-				QIcon icon(pixmap);
-				auto * item = new QListWidgetItem(icon, QString(tr("Screenshot %1")).arg(ui->screenshotsList->count() + 1));
-				ui->screenshotsList->addItem(item);
-			}
+			// image file not exists or corrupted - try to redownload
+			downloadFile(fileName, url, tr("screenshots"));
+		}
+		else
+		{
+			// managed to load cached image
+			QIcon icon(pixmap);
+			auto * item = new QListWidgetItem(icon, QString(tr("Screenshot %1")).arg(ui->screenshotsList->count() + 1));
+			ui->screenshotsList->addItem(item);
 		}
 	}
 }

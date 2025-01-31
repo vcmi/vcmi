@@ -355,13 +355,15 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 						break;
 						
 					default:
-						if(int heroId = heroSpecialMap.at(bjson["hero"].String()))
-							bonus.info1 = heroId;
+						auto heroIdentifier = bjson["hero"].String();
+						auto it = heroSpecialMap.find(heroIdentifier);
+						if(it != heroSpecialMap.end())
+							bonus.info1 = it->second;
 						else
-							if(auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", bjson["hero"].String()))
+							if(auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", heroIdentifier))
 								bonus.info1 = identifier.value();
 							else
-								logGlobal->warn("VCMP Loading: unresolved hero identifier %s", bjson["hero"].String());
+								logGlobal->warn("VCMP Loading: unresolved hero identifier %s", heroIdentifier);
 	
 						bonus.info3 = bjson["amount"].Integer();
 						
@@ -417,14 +419,16 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 				CampaignBonus bonus;
 				bonus.type = CampaignBonusType::HERO;
 				bonus.info1 = bjson["playerColor"].Integer(); //player color
-				
-				if(int heroId = heroSpecialMap.at(bjson["hero"].String()))
-					bonus.info2 = heroId;
+
+				auto heroIdentifier = bjson["hero"].String();
+				auto it = heroSpecialMap.find(heroIdentifier);
+				if(it != heroSpecialMap.end())
+					bonus.info2 = it->second;
 				else
-					if (auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", bjson["hero"].String()))
+					if (auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", heroIdentifier))
 						bonus.info2 = identifier.value();
 					else
-						logGlobal->warn("VCMP Loading: unresolved hero identifier %s", bjson["hero"].String());
+						logGlobal->warn("VCMP Loading: unresolved hero identifier %s", heroIdentifier);
 			
 				ret.bonusesToChoose.push_back(bonus);
 			}

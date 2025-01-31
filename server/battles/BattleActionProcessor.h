@@ -16,7 +16,7 @@ struct BattleLogMessage;
 struct BattleAttack;
 class BattleAction;
 class CBattleInfoCallback;
-struct BattleHex;
+class BattleHex;
 class CStack;
 class PlayerColor;
 enum class BonusType : uint8_t;
@@ -42,7 +42,7 @@ class BattleActionProcessor : boost::noncopyable
 	CGameHandler * gameHandler;
 
 	int moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest); //returned value - travelled distance
-	void makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter);
+	void makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, bool first, bool ranged, bool counter);
 
 	void handleAttackBeforeCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender);
 

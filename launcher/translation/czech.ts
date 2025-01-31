@@ -487,7 +487,7 @@ Nainstalovat úspěšně stažené?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
         <source>Handle back as right mouse button</source>
-        <translation type="unfinished"></translation>
+        <translation>Funkci tlačítka zpět namapovat na pravé tlačítko myši</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1102"/>
@@ -1162,12 +1162,16 @@ Důvod chyby: </translation>
 Exe (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Kontrolní součet SHA1 zadaných souborů:
 Exe (%n bajtů):
 %1</numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Kontrolní součet SHA1 zadaných souborů:¶
+Exe (%n bajtů):¶
+%1</numerusform>
+            <numerusform>Kontrolní součet SHA1 zadaných souborů:¶
+Exe (%n bajtů):¶
+%1</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1176,12 +1180,16 @@ Exe (%n bajtů):
 Bin (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>
 Bin (%n bajtů):
 %1</numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>
+Bin (%n bajtů):
+%1</numerusform>
+            <numerusform>
+Bin (%n bajtů):
+%1</numerusform>
         </translation>
     </message>
     <message>
@@ -1455,7 +1463,7 @@ Bin (%n bajtů):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="248"/>
         <source>Mod data was not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Data modifikace nebyla nalezena</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="252"/>

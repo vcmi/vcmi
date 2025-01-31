@@ -120,7 +120,7 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 	{
 		static const CSelector selector = Selector::type()(BonusType::ROUGH_TERRAIN_DISCOUNT);
 		const auto & bonuses = sharedCache->roughTerrainDiscount.getBonusList(target, selector);
-		roughTerrainDiscountValue = bonuses->getFirst(daySelector) != nullptr;
+		roughTerrainDiscountValue = bonuses->valOfBonuses(daySelector);
 	}
 
 	{
