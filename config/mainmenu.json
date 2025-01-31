@@ -38,7 +38,8 @@
 		//}
 		
 	},
-
+	
+	//Multiplayer selection image
 	"multiplayer" : ["mumap"],
 
 	//Main menu window, consists of several sub-menus aka items
@@ -46,7 +47,6 @@
 	{
 		"background" : ["gamselbk"],
 		
-		/// Left side logos
 		//"logo": {
 		//	"name": ["logo/logo0", "logo/logo1", "logo/logo2"], 
 		//	"x": 20, "y": 20
