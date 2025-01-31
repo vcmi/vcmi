@@ -126,7 +126,7 @@ public:
 		// reinit presence flags
 		presenceFlags = {};
 		for(const auto & hex : internalStorage)
-			presenceFlags.set(hex.toInt()) = true;
+			presenceFlags.set(hex.toInt());
 	}
 
 	void shuffle(vstd::RNG & rand)
@@ -239,7 +239,7 @@ public:
 		if(!s.saving)
 		{
 			for(const auto & hex : internalStorage)
-				presenceFlags.set(hex.toInt()) = true;
+				presenceFlags.set(hex.toInt());
 		}
 	}
 
