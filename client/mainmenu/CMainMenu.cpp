@@ -290,7 +290,7 @@ CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 			for (const auto& item : campaign["items"].Vector()) {
 				std::string filename = item["file"].String();
 
-				if (CResourceHandler::get()->existsResource(ResourcePath(filename + ".h3c"))) {
+				if (CResourceHandler::get()->existsResource(ResourcePath(filename, EResType::CAMPAIGN))) {
 					fileExists = true;
 					break; 
 				}
