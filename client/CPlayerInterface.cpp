@@ -62,6 +62,7 @@
 #include "windows/CTutorialWindow.h"
 #include "windows/GUIClasses.h"
 #include "windows/InfoWindows.h"
+#include "windows/settings/SettingsMainWindow.h"
 
 #include "../CCallback.h"
 
@@ -187,6 +188,7 @@ void CPlayerInterface::closeAllDialogs()
 	while(true)
 	{
 		auto adventureWindow = GH.windows().topWindow<AdventureMapInterface>();
+		auto settingsWindow = GH.windows().topWindow<SettingsMainWindow>();
 		auto infoWindow = GH.windows().topWindow<CInfoWindow>();
 		auto topWindow = GH.windows().topWindow<WindowBase>();
 
@@ -196,10 +198,16 @@ void CPlayerInterface::closeAllDialogs()
 		if(infoWindow && infoWindow->ID != QueryID::NONE)
 			break;
 
-		if (topWindow == nullptr)
-			throw std::runtime_error("Invalid or non-existing top window! Total windows: " + std::to_string(GH.windows().count()));
+		if (settingsWindow)
+		{
+			settingsWindow->close();
+			continue;
+		}
 
-		topWindow->close();
+		if (topWindow)
+			topWindow->close();
+		else
+			GH.windows().popWindows(1); // does not inherits from WindowBase, e.g. settings dialog
 	}
 }
 
