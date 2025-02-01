@@ -32,7 +32,6 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/VideoWidget.h"
 #include "../adventureMap/AdventureMapInterface.h"
-#include "../render/AssetGenerator.h"
 
 #include "../../CCallback.h"
 
@@ -118,7 +117,6 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	if(isBigSpellbook)
 	{
-		AssetGenerator::createBigSpellBook();
 		background = std::make_shared<CPicture>(ImagePath::builtin("SpellBookLarge"), 0, 0);
 		updateShadow();
 	}

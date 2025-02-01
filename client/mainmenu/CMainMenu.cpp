@@ -38,7 +38,6 @@
 #include "../widgets/VideoWidget.h"
 #include "../windows/InfoWindows.h"
 #include "../CServerHandler.h"
-#include "../render/AssetGenerator.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
@@ -427,9 +426,6 @@ void CMainMenu::openCampaignLobby(std::shared_ptr<CampaignState> campaign)
 void CMainMenu::openCampaignScreen(std::string name)
 {
 	auto const & config = CMainMenuConfig::get().getCampaigns();
-
-	AssetGenerator::createCampaignBackground();
-	AssetGenerator::createChroniclesCampaignImages();
 
 	if(!vstd::contains(config.Struct(), name))
 	{

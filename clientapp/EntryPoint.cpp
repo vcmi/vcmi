@@ -27,7 +27,6 @@
 #include "../client/media/CMusicHandler.h"
 #include "../client/media/CSoundHandler.h"
 #include "../client/media/CVideoHandler.h"
-#include "../client/render/AssetGenerator.h"
 #include "../client/render/Graphics.h"
 #include "../client/render/IRenderHandler.h"
 #include "../client/render/IScreenHandler.h"
@@ -234,8 +233,6 @@ int main(int argc, char * argv[])
 	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_VERSION);
 	logGlobal->info("Creating console and configuring logger: %d ms", pomtime.getDiff());
 	logGlobal->info("The log file will be saved to %s", logPath);
-
-	AssetGenerator::clear();
 
 	// Init filesystem and settings
 	try
