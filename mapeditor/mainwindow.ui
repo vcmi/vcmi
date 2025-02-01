@@ -1067,7 +1067,7 @@
   </action>
   <action name="actionLevel">
    <property name="text">
-    <string>U/G</string>
+    <string>View underground</string>
    </property>
    <property name="toolTip">
     <string>View underground</string>
