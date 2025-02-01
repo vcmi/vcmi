@@ -199,6 +199,7 @@
 	"vcmi.lobby.preview.error.invite" : "Nebyl jste pozván do této mísnosti.",
 	"vcmi.lobby.preview.error.mods" : "Použváte jinou sadu modifikací.",
 	"vcmi.lobby.preview.error.version" : "Používáte jinou verzi VCMI.",
+	"vcmi.lobby.channel.add" : "Přidat kanál",
 	"vcmi.lobby.room.new" : "Nová hra",
 	"vcmi.lobby.room.load" : "Načíst hru",
 	"vcmi.lobby.room.type" : "Druh místnosti",
