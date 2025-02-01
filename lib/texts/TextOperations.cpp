@@ -161,12 +161,24 @@ uint32_t TextOperations::getUnicodeCodepoint(char data, const std::string & enco
 
 std::string TextOperations::toUnicode(const std::string &text, const std::string &encoding)
 {
-	return boost::locale::conv::to_utf<char>(text, encoding);
+	try {
+		return boost::locale::conv::to_utf<char>(text, encoding);
+	}
+	catch (const boost::locale::conv::conversion_error &)
+	{
+		throw std::runtime_error("Failed to convert text '" + text + "' from encoding " + encoding );
+	}
 }
 
 std::string TextOperations::fromUnicode(const std::string &text, const std::string &encoding)
 {
-	return boost::locale::conv::from_utf<char>(text, encoding);
+	try {
+		return boost::locale::conv::from_utf<char>(text, encoding);
+	}
+	catch (const boost::locale::conv::conversion_error &)
+	{
+		throw std::runtime_error("Failed to convert text '" + text + "' to encoding " + encoding );
+	}
 }
 
 void TextOperations::trimRightUnicode(std::string & text, const size_t amount)
