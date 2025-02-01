@@ -683,18 +683,24 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & m
 		// |    - -   |   - -    |    - -   |   - o o  |  o o -   |   - -    |    - -   |   o o
 
 		for (size_t i : { 1, 2, 3})
-			attackAvailability[i] = occupiableHexes.contains(neighbours[i]) && occupiableHexes.contains(neighbours[i].cloneInDirection(BattleHex::RIGHT, false));
+		{
+			BattleHex target = neighbours[i].cloneInDirection(BattleHex::RIGHT, false);
+			attackAvailability[i] = neighbours[i].isValid() && occupiableHexes.contains(neighbours[i]) && target.isValid() && occupiableHexes.contains(target);
+		}
 
 		for (size_t i : { 4, 5, 0})
-			attackAvailability[i] = occupiableHexes.contains(neighbours[i]) && occupiableHexes.contains(neighbours[i].cloneInDirection(BattleHex::LEFT, false));
+		{
+			BattleHex target = neighbours[i].cloneInDirection(BattleHex::LEFT, false);
+			attackAvailability[i] = neighbours[i].isValid() && occupiableHexes.contains(neighbours[i]) && target.isValid() && occupiableHexes.contains(target);
+		}
 
-		attackAvailability[6] = occupiableHexes.contains(neighbours[0]) && occupiableHexes.contains(neighbours[1]);
-		attackAvailability[7] = occupiableHexes.contains(neighbours[3]) && occupiableHexes.contains(neighbours[4]);
+		attackAvailability[6] = neighbours[0].isValid() && neighbours[1].isValid() && occupiableHexes.contains(neighbours[0]) && occupiableHexes.contains(neighbours[1]);
+		attackAvailability[7] = neighbours[3].isValid() && neighbours[4].isValid() && occupiableHexes.contains(neighbours[3]) && occupiableHexes.contains(neighbours[4]);
 	}
 	else
 	{
 		for (size_t i = 0; i < 6; ++i)
-			attackAvailability[i] = occupiableHexes.contains(neighbours[i]);
+			attackAvailability[i] = neighbours[i].isValid() && occupiableHexes.contains(neighbours[i]);
 
 		attackAvailability[6] = false;
 		attackAvailability[7] = false;
@@ -739,7 +745,7 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & m
 
 BattleHex BattleFieldController::fromWhichHexAttack(const BattleHex & attackTarget)
 {
-	BattleHex::EDir direction = selectAttackDirection(getHoveredHex());
+	BattleHex::EDir direction = selectAttackDirection(attackTarget);
 
 	const CStack * attacker = owner.stacksController->getActiveStack();
 
