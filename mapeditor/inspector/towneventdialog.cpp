@@ -230,10 +230,10 @@ QVariantMap TownEventDialog::resourcesToVariant()
 	auto res = params.value("resources").toMap();
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
-		auto * itemType = ui->resourcesTable->item(i, 0);
+		auto itemType = QString::fromStdString(GameConstants::RESOURCE_NAMES[i]);
 		auto * itemQty = static_cast<QSpinBox *> (ui->resourcesTable->cellWidget(i, 1));
 
-		res[itemType->text()] = QVariant::fromValue(itemQty->value());
+		res[itemType] = QVariant::fromValue(itemQty->value());
 	}
 	return res;
 }

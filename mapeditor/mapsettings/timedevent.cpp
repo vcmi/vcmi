@@ -96,9 +96,9 @@ void TimedEvent::on_TimedEvent_finished(int result)
 	auto res = target->data(Qt::UserRole).toMap().value("resources").toMap();
 	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
-		auto * itemType = ui->resources->item(i, 0);
+		auto itemType = QString::fromStdString(GameConstants::RESOURCE_NAMES[i]);
 		auto * itemQty = ui->resources->item(i, 1);
-		res[itemType->text()] = QVariant::fromValue(itemQty->text().toInt());
+		res[itemType] = QVariant::fromValue(itemQty->text().toInt());
 	}
 	descriptor["resources"] = res;
 
