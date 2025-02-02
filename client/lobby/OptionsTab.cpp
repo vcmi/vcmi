@@ -68,6 +68,9 @@ void OptionsTab::recreate()
 	entries.clear();
 	humanPlayers = 0;
 
+	for (auto heroOverview : GH.windows().findWindows<CHeroOverview>())
+		heroOverview->close();
+
 	for (auto selectionWindow : GH.windows().findWindows<SelectionWindow>())
 	{
 		selectionWindow->reopen();

@@ -116,6 +116,7 @@ void GlobalLobbyLoginWindow::onLogin()
 		onConnectionSuccess();
 
 	buttonClose->block(true);
+	buttonLogin->block(true);
 }
 
 void GlobalLobbyLoginWindow::onConnectionSuccess()
@@ -142,4 +143,5 @@ void GlobalLobbyLoginWindow::onConnectionFailed(const std::string & reason)
 
 	labelStatus->setText(formatter.toString());
 	buttonClose->block(false);
+	buttonLogin->block(false);
 }
