@@ -208,4 +208,55 @@ void NetworkConnection::close()
 	//NOTE: ignoring error code, intended
 }
 
+InternalConnection::InternalConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkContext> & context)
+	: listener(listener)
+	, io(context)
+{
+}
+
+void InternalConnection::receivePacket(const std::vector<std::byte> & message)
+{
+	io->post([self = shared_from_this(), message](){
+		self->listener.onPacketReceived(self, message);
+	});
+}
+
+void InternalConnection::disconnect()
+{
+	io->post([self = shared_from_this()](){
+		self->listener.onDisconnected(self, "Internal connection has been terminated");
+		self->otherSideWeak.reset();
+	});
+}
+
+void InternalConnection::connectTo(std::shared_ptr<IInternalConnection> connection)
+{
+	otherSideWeak = connection;
+}
+
+void InternalConnection::sendPacket(const std::vector<std::byte> & message)
+{
+	auto otherSide = otherSideWeak.lock();
+
+	if (otherSide)
+		otherSide->receivePacket(message);
+	else
+		throw std::runtime_error("Failed to send packet! Connection has been deleted!");
+}
+
+void InternalConnection::setAsyncWritesEnabled(bool on)
+{
+	// no-op
+}
+
+void InternalConnection::close()
+{
+	auto otherSide = otherSideWeak.lock();
+
+	if (otherSide)
+		otherSide->disconnect();
+
+	otherSideWeak.reset();
+}
+
 VCMI_LIB_NAMESPACE_END

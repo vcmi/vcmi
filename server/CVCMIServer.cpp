@@ -1077,3 +1077,8 @@ INetworkHandler & CVCMIServer::getNetworkHandler()
 {
 	return *networkHandler;
 }
+
+INetworkServer & CVCMIServer::getNetworkServer()
+{
+	return *networkServer;
+}

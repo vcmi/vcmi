@@ -206,9 +206,13 @@ void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 
 		Settings remotePort = settings.write["server"]["remotePort"];
 		remotePort->Integer() = port;
-	}
 
-	networkHandler->connectToRemote(*this, addr, port);
+		networkHandler->connectToRemote(*this, addr, port);
+	}
+	else
+	{
+		serverRunner->connect(*networkHandler, *this, addr, port);
+	}
 }
 
 void CServerHandler::onConnectionFailed(const std::string & errorMessage)
@@ -245,7 +249,7 @@ void CServerHandler::onTimer()
 	}
 
 	assert(isServerLocal());
-	networkHandler->connectToRemote(*this, getLocalHostname(), getLocalPort());
+	serverRunner->connect(*networkHandler, *this, getLocalHostname(), getLocalPort());
 }
 
 void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netConnection)

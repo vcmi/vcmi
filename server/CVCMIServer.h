@@ -107,6 +107,7 @@ public:
 	void updateAndPropagateLobbyState();
 
 	INetworkHandler & getNetworkHandler();
+	INetworkServer & getNetworkServer();
 
 	void setState(EServerState value);
 	EServerState getState() const;

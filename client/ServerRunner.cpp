@@ -13,6 +13,7 @@
 
 #include "../lib/VCMIDirs.h"
 #include "../lib/CThreadHelper.h"
+#include "../lib/network/NetworkInterface.h"
 #include "../server/CVCMIServer.h"
 
 #ifdef ENABLE_SERVER_PROCESS
@@ -74,6 +75,11 @@ int ServerThreadRunner::exitCode()
 	return 0;
 }
 
+void ServerThreadRunner::connect(INetworkHandler & network, INetworkClientListener & listener, const std::string & host, uint16_t port)
+{
+	network.createInternalConnection(listener, server->getNetworkServer());
+}
+
 #ifdef ENABLE_SERVER_PROCESS
 
 ServerProcessRunner::ServerProcessRunner() = default;
@@ -111,6 +117,11 @@ uint16_t ServerProcessRunner::start(uint16_t port, bool connectToLobby, std::sha
 		throw std::runtime_error("Failed to start server! Reason: " + ec.message());
 
 	return port;
+}
+
+void ServerProcessRunner::connect(INetworkHandler & network, INetworkClientListener & listener, const std::string & host, uint16_t port)
+{
+	network.connectToRemote(listener, host, port);
 }
 
 #endif
