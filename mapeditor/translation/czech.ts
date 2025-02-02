@@ -2661,10 +2661,6 @@
         <translation>Velikost mapy</translation>
     </message>
     <message>
-        <source>Two level map</source>
-        <translation type="vanished">Dvouvrstvá mapa</translation>
-    </message>
-    <message>
         <location filename="../windownewmap.ui" line="200"/>
         <source>Height</source>
         <translation>Výška</translation>
@@ -2688,14 +2684,6 @@
         <location filename="../windownewmap.ui" line="324"/>
         <source>Players</source>
         <translation>Hráči</translation>
-    </message>
-    <message>
-        <source>0</source>
-        <translation type="vanished">0</translation>
-    </message>
-    <message>
-        <source>Human/Computer</source>
-        <translation type="vanished">Hráč/počítač</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="93"/>
@@ -2734,10 +2722,6 @@
         <location filename="../windownewmap.ui" line="714"/>
         <source>Random</source>
         <translation>Náhodně</translation>
-    </message>
-    <message>
-        <source>Computer only</source>
-        <translation type="vanished">Pouze počítač</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="444"/>
@@ -2850,10 +2834,6 @@
         <location filename="../windownewmap.ui" line="1025"/>
         <source>OK</source>
         <translation>OK</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation type="vanished">Dobře</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="1044"/>
