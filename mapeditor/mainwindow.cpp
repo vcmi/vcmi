@@ -979,10 +979,12 @@ void MainWindow::on_actionLevel_triggered()
 		ui->minimapView->setScene(controller.miniScene(mapLevel));
 		if (mapLevel == 0)
 		{
+			ui->actionLevel->setText(tr("View underground"));
 			ui->actionLevel->setToolTip(tr("View underground"));
 		}
 		else
 		{
+			ui->actionLevel->setText(tr("View surface"));
 			ui->actionLevel->setToolTip(tr("View surface"));
 		}
 	}
