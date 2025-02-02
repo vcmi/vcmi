@@ -92,7 +92,7 @@ int main(int argc, const char * argv[])
 			port = opts["port"].as<uint16_t>();
 
 		CVCMIServer server(port, runByClient);
-		server.prepare(connectToLobby);
+		server.prepare(connectToLobby, true);
 		server.run();
 
 		// CVCMIServer destructor must be called here - before VLC cleanup

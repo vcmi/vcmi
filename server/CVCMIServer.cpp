@@ -80,26 +80,33 @@ CVCMIServer::CVCMIServer(uint16_t port, bool runByClient)
 
 CVCMIServer::~CVCMIServer() = default;
 
-uint16_t CVCMIServer::prepare(bool connectToLobby) {
+uint16_t CVCMIServer::prepare(bool connectToLobby, bool listenForConnections) {
 	if(connectToLobby) {
 		lobbyProcessor = std::make_unique<GlobalLobbyProcessor>(*this);
 		return 0;
 	} else {
-		return startAcceptingIncomingConnections();
+		return startAcceptingIncomingConnections(listenForConnections);
 	}
 }
 
-uint16_t CVCMIServer::startAcceptingIncomingConnections()
+uint16_t CVCMIServer::startAcceptingIncomingConnections(bool listenForConnections)
 {
+	networkServer = networkHandler->createServerTCP(*this);
+
 	port
 		? logNetwork->info("Port %d will be used", port)
 		: logNetwork->info("Randomly assigned port will be used");
 
 	// config port may be 0 => srvport will contain the OS-assigned port value
-	networkServer = networkHandler->createServerTCP(*this);
-	auto srvport = networkServer->start(port);
-	logNetwork->info("Listening for connections at port %d", srvport);
-	return srvport;
+
+	if (listenForConnections)
+	{
+		auto srvport = networkServer->start(port);
+		logNetwork->info("Listening for connections at port %d", srvport);
+		return srvport;
+	}
+	else
+		return 0;
 }
 
 void CVCMIServer::onNewConnection(const std::shared_ptr<INetworkConnection> & connection)
@@ -206,7 +213,7 @@ void CVCMIServer::prepareToRestart()
 		campaignMap = si->campState->currentScenario().value_or(CampaignScenarioID(0));
 		campaignBonus = si->campState->getBonusID(campaignMap).value_or(-1);
 	}
-	
+
 	for(auto activeConnection : activeConnections)
 		activeConnection->enterLobbyConnectionMode();
 
@@ -239,7 +246,7 @@ bool CVCMIServer::prepareToStartGame()
 			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 		}
 	});
-	
+
 	gh = std::make_shared<CGameHandler>(this);
 	switch(si->mode)
 	{
@@ -273,10 +280,10 @@ bool CVCMIServer::prepareToStartGame()
 		assert(0);
 		break;
 	}
-	
+
 	current.finish();
 	progressTrackingThread.join();
-	
+
 	return true;
 }
 
@@ -398,7 +405,7 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 	}
 
 	logNetwork->info("Connection with client %d established. UUID: %s", c->connectionID, c->uuid);
-	
+
 	for(auto & name : names)
 	{
 		logNetwork->info("Client %d player: %s", c->connectionID, name);
@@ -479,22 +486,22 @@ void CVCMIServer::reconnectPlayer(int connId)
 {
 	PlayerReinitInterface startAiPack;
 	startAiPack.playerConnectionId = connId;
-	
+
 	if(gh && si && getState() == EServerState::GAMEPLAY)
 	{
 		for(auto it = playerNames.begin(); it != playerNames.end(); ++it)
 		{
 			if(it->second.connection != connId)
 				continue;
-			
+
 			int id = it->first;
 			auto * playerSettings = si->getPlayersSettings(id);
 			if(!playerSettings)
 				continue;
-			
+
 			std::string messageText = boost::str(boost::format("%s (cid %d) is connected") % playerSettings->name % connId);
 			gh->playerMessages->broadcastMessage(playerSettings->color, messageText);
-			
+
 			startAiPack.players.push_back(playerSettings->color);
 		}
 

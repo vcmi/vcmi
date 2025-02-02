@@ -63,7 +63,7 @@ public:
 	/// List of all active connections
 	std::vector<std::shared_ptr<CConnection>> activeConnections;
 
-	uint16_t prepare(bool connectToLobby);
+	uint16_t prepare(bool connectToLobby, bool listenForConnections);
 
 	// INetworkListener impl
 	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage) override;
@@ -82,7 +82,7 @@ public:
 	bool prepareToStartGame();
 	void prepareToRestart();
 	void startGameImmediately();
-	uint16_t startAcceptingIncomingConnections();
+	uint16_t startAcceptingIncomingConnections(bool listenForConnections);
 
 	void threadHandleClient(std::shared_ptr<CConnection> c);
 

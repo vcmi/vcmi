@@ -34,7 +34,7 @@
 ServerThreadRunner::ServerThreadRunner() = default;
 ServerThreadRunner::~ServerThreadRunner() = default;
 
-uint16_t ServerThreadRunner::start(uint16_t cfgport, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo)
+uint16_t ServerThreadRunner::start(uint16_t cfgport, bool listenForConnections, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo)
 {
 	// cfgport may be 0 -- the real port is returned after calling prepare()
 	server = std::make_unique<CVCMIServer>(cfgport, true);
@@ -46,9 +46,9 @@ uint16_t ServerThreadRunner::start(uint16_t cfgport, bool connectToLobby, std::s
 
 	std::promise<uint16_t> promise;
 
-	threadRunLocalServer = boost::thread([this, connectToLobby, &promise]{
+	threadRunLocalServer = boost::thread([this, connectToLobby, listenForConnections, &promise]{
 		setThreadName("runServer");
-		uint16_t port = server->prepare(connectToLobby);
+		uint16_t port = server->prepare(connectToLobby, listenForConnections);
 		promise.set_value(port);
 		server->run();
 	});
@@ -100,7 +100,7 @@ int ServerProcessRunner::exitCode()
 	return child->exit_code();
 }
 
-uint16_t ServerProcessRunner::start(uint16_t port, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo)
+uint16_t ServerProcessRunner::start(uint16_t port, bool listenForConnections, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo)
 {
 	boost::filesystem::path serverPath = VCMIDirs::get().serverPath();
 	boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "server_log.txt";
