@@ -464,7 +464,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1141"/>
         <source>General</source>
-        <translation>Všeobecné</translation>
+        <translation>Nastavení</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1144"/>
@@ -474,7 +474,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1155"/>
         <source>Players settings</source>
-        <translation>Hráčské nastavení</translation>
+        <translation>Hráči</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1166"/>
@@ -500,7 +500,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1216"/>
         <source>Validate</source>
-        <translation>Ověřit</translation>
+        <translation>Validátor</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1227"/>
@@ -2457,7 +2457,7 @@
     <message>
         <location filename="../validator.ui" line="17"/>
         <source>Map validation results</source>
-        <translation>Výsledky ověření mapy</translation>
+        <translation>Výsledky validátoru</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="54"/>
