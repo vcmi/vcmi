@@ -6,6 +6,8 @@
 
 * Fixed corrupted graphics of generated assets like water tiles on mobile systems
 * All generated assets are now used directly from memory without saving them to disk
+* Launcher will now correctly show screenshots for already installed mods
+* Fixed broken icons in commander information dialog
 
 ### Stability
 
@@ -15,7 +17,6 @@
 * Fixed crash on accepting next turn in multiplayer when local player has game settings window open
 * Fixed crash in multiplayer when one player changes his starting options while another player has hero overview window open
 * Fixed crash on double-clicking login to global lobby button
-* Fixed possible crash on game shutdown
 
 ## 1.6.3 -> 1.6.4
 
