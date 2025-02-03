@@ -773,9 +773,13 @@ CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> d
 	info->creature = stack->getCreature();
 	info->creatureCount = stack->count;
 
-	info->upgradeInfo = std::make_optional(UnitView::StackUpgradeInfo(upgradeInfo));
+	if(upgradeInfo.canUpgrade())
+	{
+		info->upgradeInfo = std::make_optional(UnitView::StackUpgradeInfo(upgradeInfo));
+		info->upgradeInfo->callback = callback;
+	}
+	
 	info->dismissInfo = std::make_optional(UnitView::StackDismissInfo());
-	info->upgradeInfo->callback = callback;
 	info->dismissInfo->callback = dismiss;
 	info->owner = dynamic_cast<const CGHeroInstance *> (stack->armyObj);
 	init();
