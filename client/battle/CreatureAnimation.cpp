@@ -200,8 +200,8 @@ CreatureAnimation::CreatureAnimation(const AnimationPath & name_, TSpeedControll
 	  speedController(controller),
 	  once(false)
 {
-	forward = GH.renderHandler().loadAnimation(name_, EImageBlitMode::WITH_SHADOW_AND_OVERLAY);
-	reverse = GH.renderHandler().loadAnimation(name_, EImageBlitMode::WITH_SHADOW_AND_OVERLAY);
+	forward = GH.renderHandler().loadAnimation(name_, EImageBlitMode::WITH_SHADOW_AND_SELECTION);
+	reverse = GH.renderHandler().loadAnimation(name_, EImageBlitMode::WITH_SHADOW_AND_SELECTION);
 
 	// if necessary, add one frame into vcmi-only group DEAD
 	if(forward->size(size_t(ECreatureAnimType::DEAD)) == 0)
