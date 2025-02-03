@@ -134,7 +134,6 @@ CGuiHandler::~CGuiHandler()
 	// enforce deletion order on shutdown
 	// all UI elements including adventure map must be destroyed before Gui Handler
 	// proper solution would be removal of adventureInt global
-	windowHandlerInstance->clear();
 	adventureInt.reset();
 }
 
