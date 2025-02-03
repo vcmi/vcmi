@@ -71,7 +71,7 @@ QStringList ModState::getConflicts() const
 
 QStringList ModState::getScreenshots() const
 {
-	return stringListStdToQt(impl.getLocalizedValue("screenshots").convertTo<std::vector<std::string>>());
+	return stringListStdToQt(impl.getRepositoryValue("screenshots").convertTo<std::vector<std::string>>());
 }
 
 QString ModState::getBaseLanguage() const
