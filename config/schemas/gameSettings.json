@@ -45,6 +45,7 @@
 				"backpackSize" :              { "type" : "number" },
 				"tavernInvite" :              { "type" : "boolean" },
 				"minimalPrimarySkills" :      { "type" : "array" },
+				"movementCostBase"  :         { "type" : "number" },
 				"movementPointsLand" :        { "type" : "array" },
 				"movementPointsSea" :         { "type" : "array" }
 			}

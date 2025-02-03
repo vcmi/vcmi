@@ -20,6 +20,7 @@
 #include "../../../lib/pathfinder/CPathfinder.h"
 #include "../../../lib/pathfinder/PathfinderUtil.h"
 #include "../../../lib/pathfinder/PathfinderOptions.h"
+#include "../../../lib/IGameSettings.h"
 #include "../../../lib/CPlayerState.h"
 
 namespace NKAI
@@ -1097,7 +1098,9 @@ struct TownPortalFinder
 
 		// TODO: Copy/Paste from TownPortalMechanics
 		townPortalSkillLevel = MasteryLevel::Type(hero->getSpellSchoolLevel(townPortal));
-		movementNeeded = GameConstants::BASE_MOVEMENT_COST * (townPortalSkillLevel >= MasteryLevel::EXPERT ? 2 : 3);
+
+		int baseCost = hero->cb->getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
+		movementNeeded = baseCost * (townPortalSkillLevel >= MasteryLevel::EXPERT ? 2 : 3);
 	}
 
 	bool actorCanCastTownPortal()
