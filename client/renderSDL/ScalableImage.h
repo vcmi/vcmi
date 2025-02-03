@@ -39,7 +39,7 @@ struct ScalableImageParameters : boost::noncopyable
 	void setShadowTransparency(const SDL_Palette * originalPalette, float factor);
 	void shiftPalette(const SDL_Palette * originalPalette, uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove);
 	void playerColored(PlayerColor player);
-	void setOverlayColor(const SDL_Palette * originalPalette, const ColorRGBA & color);
+	void setOverlayColor(const SDL_Palette * originalPalette, const ColorRGBA & color, bool includeShadow);
 	void preparePalette(const SDL_Palette * originalPalette, EImageBlitMode blitMode);
 	void adjustPalette(const SDL_Palette * originalPalette, EImageBlitMode blitMode, const ColorFilter & shifter, uint32_t colorsToSkipMask);
 };
