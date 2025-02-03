@@ -186,9 +186,9 @@ void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 	si->difficulty = lastDifficulty.Integer();
 
 	logNetwork->trace("\tStarting local server");
-	uint16_t srvport = serverRunner->start(getLocalPort(), connectToLobby, si);
+	serverRunner->start(loadMode == ELoadMode::MULTI, connectToLobby, si);
 	logNetwork->trace("\tConnecting to local server");
-	connectToServer(getLocalHostname(), srvport);
+	connectToServer(getLocalHostname(), getLocalPort());
 	logNetwork->trace("\tWaiting for connection");
 }
 
@@ -206,9 +206,13 @@ void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 
 		Settings remotePort = settings.write["server"]["remotePort"];
 		remotePort->Integer() = port;
-	}
 
-	networkHandler->connectToRemote(*this, addr, port);
+		networkHandler->connectToRemote(*this, addr, port);
+	}
+	else
+	{
+		serverRunner->connect(*networkHandler, *this);
+	}
 }
 
 void CServerHandler::onConnectionFailed(const std::string & errorMessage)
@@ -245,7 +249,7 @@ void CServerHandler::onTimer()
 	}
 
 	assert(isServerLocal());
-	networkHandler->connectToRemote(*this, getLocalHostname(), getLocalPort());
+	serverRunner->connect(*networkHandler, *this);
 }
 
 void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netConnection)

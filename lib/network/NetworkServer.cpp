@@ -57,6 +57,18 @@ void NetworkServer::onDisconnected(const std::shared_ptr<INetworkConnection> & c
 	}
 }
 
+void NetworkServer::receiveInternalConnection(std::shared_ptr<IInternalConnection> remoteConnection)
+{
+	auto localConnection = std::make_shared<InternalConnection>(*this, io);
+
+	connections.insert(localConnection);
+
+	localConnection->connectTo(remoteConnection);
+	remoteConnection->connectTo(localConnection);
+
+	listener.onNewConnection(localConnection);
+}
+
 void NetworkServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message)
 {
 	listener.onPacketReceived(connection, message);

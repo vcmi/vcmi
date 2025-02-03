@@ -73,6 +73,17 @@ void NetworkHandler::createTimer(INetworkTimerListener & listener, std::chrono::
 	});
 }
 
+void NetworkHandler::createInternalConnection(INetworkClientListener & listener, INetworkServer & server)
+{
+	auto localConnection = std::make_shared<InternalConnection>(listener, io);
+
+	server.receiveInternalConnection(localConnection);
+
+	io->post([&listener, localConnection](){
+		listener.onConnectionEstablished(localConnection);
+	});
+}
+
 void NetworkHandler::stop()
 {
 	io->stop();
