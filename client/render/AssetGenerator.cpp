@@ -29,36 +29,60 @@
 #include "../lib/RoadHandler.h"
 #include "../lib/TerrainHandler.h"
 
-void AssetGenerator::clear()
+AssetGenerator::AssetGenerator()
+{
+}
+
+void AssetGenerator::initialize()
 {
 	// clear to avoid non updated sprites after mod change (if base imnages are used)
 	if(boost::filesystem::is_directory(VCMIDirs::get().userDataPath() / "Generated"))
 		boost::filesystem::remove_all(VCMIDirs::get().userDataPath() / "Generated");
-}
 
-void AssetGenerator::generateAll()
-{
-	createBigSpellBook();
-	createAdventureOptionsCleanBackground();
-	for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
-		createPlayerColoredBackground(PlayerColor(i));
-	createCombatUnitNumberWindow();
-	createCampaignBackground();
-	createChroniclesCampaignImages();
+	imageFiles[ImagePath::builtin("AdventureOptionsBackgroundClear.png")] = [this](){ return createAdventureOptionsCleanBackground();};
+	imageFiles[ImagePath::builtin("SpellBookLarge.png")] = [this](){ return createBigSpellBook();};
+
+	imageFiles[ImagePath::builtin("combatUnitNumberWindowDefault.png")]  = [this](){ return createCombatUnitNumberWindow(0.6f, 0.2f, 1.0f);};
+	imageFiles[ImagePath::builtin("combatUnitNumberWindowNeutral.png")]  = [this](){ return createCombatUnitNumberWindow(1.0f, 1.0f, 2.0f);};
+	imageFiles[ImagePath::builtin("combatUnitNumberWindowPositive.png")] = [this](){ return createCombatUnitNumberWindow(0.2f, 1.0f, 0.2f);};
+	imageFiles[ImagePath::builtin("combatUnitNumberWindowNegative.png")] = [this](){ return createCombatUnitNumberWindow(1.0f, 0.2f, 0.2f);};
+
+	imageFiles[ImagePath::builtin("CampaignBackground8.png")] = [this](){ return createCampaignBackground();};
+
+	for (PlayerColor color(0); color < PlayerColor::PLAYER_LIMIT; ++color)
+		imageFiles[ImagePath::builtin("DialogBoxBackground_" + color.toString())] = [this, color](){ return createPlayerColoredBackground(color);};
+
+	for(int i = 1; i < 9; i++)
+		imageFiles[ImagePath::builtin("CampaignHc" + std::to_string(i) + "Image.png")] = [this, i](){ return createChroniclesCampaignImages(i);};
+
 	createPaletteShiftedSprites();
 }
 
-void AssetGenerator::createAdventureOptionsCleanBackground()
+std::shared_ptr<ISharedImage> AssetGenerator::generateImage(const ImagePath & image)
 {
-	std::string filename = "data/AdventureOptionsBackgroundClear.png";
+	if (imageFiles.count(image))
+		return imageFiles.at(image)()->toSharedImage(); // TODO: cache?
+	else
+		return nullptr;
+}
 
-	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
-		return;
+std::map<ImagePath, std::shared_ptr<ISharedImage>> AssetGenerator::generateAllImages()
+{
+	std::map<ImagePath, std::shared_ptr<ISharedImage>> result;
 
-	if(!CResourceHandler::get("local")->createResource(filename))
-		return;
-	ResourcePath savePath(filename, EResType::IMAGE);
+	for (const auto & entry : imageFiles)
+		result[entry.first] = entry.second()->toSharedImage();
 
+	return result;
+}
+
+std::map<AnimationPath, AssetGenerator::AnimationLayoutMap> AssetGenerator::generateAllAnimations()
+{
+	return animationFiles;
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createAdventureOptionsCleanBackground()
+{
 	auto locator = ImageLocator(ImagePath::builtin("ADVOPTBK"), EImageBlitMode::OPAQUE);
 
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator);
@@ -74,20 +98,11 @@ void AssetGenerator::createAdventureOptionsCleanBackground()
 	canvas.draw(img, Point(53, 567), Rect(53, 520, 339, 3));
 	canvas.draw(img, Point(53, 520), Rect(53, 264, 339, 47));
 
-	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+	return image;
 }
 
-void AssetGenerator::createBigSpellBook()
+AssetGenerator::CanvasPtr AssetGenerator::createBigSpellBook()
 {
-	std::string filename = "data/SpellBookLarge.png";
-
-	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
-		return;
-
-	if(!CResourceHandler::get("local")->createResource(filename))
-		return;
-	ResourcePath savePath(filename, EResType::IMAGE);
-
 	auto locator = ImageLocator(ImagePath::builtin("SpelBack"), EImageBlitMode::OPAQUE);
 
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator);
@@ -135,21 +150,11 @@ void AssetGenerator::createBigSpellBook()
 	canvas.draw(img, Point(575, 465), Rect(417, 406, 37, 45));
 	canvas.draw(img, Point(667, 465), Rect(478, 406, 37, 47));
 
-	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+	return image;
 }
 
-void AssetGenerator::createPlayerColoredBackground(const PlayerColor & player)
+AssetGenerator::CanvasPtr AssetGenerator::createPlayerColoredBackground(const PlayerColor & player)
 {
-	std::string filename = "data/DialogBoxBackground_" + player.toString() + ".png";
-
-	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
-		return;
-
-	if(!CResourceHandler::get("local")->createResource(filename))
-		return;
-
-	ResourcePath savePath(filename, EResType::IMAGE);
-
 	auto locator = ImageLocator(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE);
 
 	std::shared_ptr<IImage> texture = GH.renderHandler().loadImage(locator);
@@ -169,71 +174,44 @@ void AssetGenerator::createPlayerColoredBackground(const PlayerColor & player)
 
 	assert(player.isValidPlayer());
 	if (!player.isValidPlayer())
-	{
-		logGlobal->error("Unable to colorize to invalid player color %d!", player.getNum());
-		return;
-	}
+		throw std::runtime_error("Unable to colorize to invalid player color" + std::to_string(player.getNum()));
 
 	texture->adjustPalette(filters[player.getNum()], 0);
-	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+
+	auto image = GH.renderHandler().createImage(texture->dimensions(), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+	canvas.draw(texture, Point(0,0));
+
+	return image;
 }
 
-void AssetGenerator::createCombatUnitNumberWindow()
+AssetGenerator::CanvasPtr AssetGenerator::createCombatUnitNumberWindow(float multR, float multG, float multB)
 {
-	std::string filenameToSave = "data/combatUnitNumberWindow";
-
-	ResourcePath savePathDefault(filenameToSave + "Default.png", EResType::IMAGE);
-	ResourcePath savePathNeutral(filenameToSave + "Neutral.png", EResType::IMAGE);
-	ResourcePath savePathPositive(filenameToSave + "Positive.png", EResType::IMAGE);
-	ResourcePath savePathNegative(filenameToSave + "Negative.png", EResType::IMAGE);
-
-	if(CResourceHandler::get()->existsResource(savePathDefault)) // overridden by mod, no generation
-		return;
-
-	if(!CResourceHandler::get("local")->createResource(savePathDefault.getOriginalName() + ".png") ||
-	   !CResourceHandler::get("local")->createResource(savePathNeutral.getOriginalName() + ".png") ||
-	   !CResourceHandler::get("local")->createResource(savePathPositive.getOriginalName() + ".png") ||
-	   !CResourceHandler::get("local")->createResource(savePathNegative.getOriginalName() + ".png"))
-		return;
-
 	auto locator = ImageLocator(ImagePath::builtin("CMNUMWIN"), EImageBlitMode::OPAQUE);
 	locator.layer = EImageBlitMode::OPAQUE;
 
 	std::shared_ptr<IImage> texture = GH.renderHandler().loadImage(locator);
 
-	static const auto shifterNormal   = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.6f, 0.2f, 1.0f );
-	static const auto shifterPositive = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.2f, 1.0f, 0.2f );
-	static const auto shifterNegative = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 0.2f, 0.2f );
-	static const auto shifterNeutral  = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 1.0f, 0.2f );
+	const auto shifter= ColorFilter::genRangeShifter(0.f, 0.f, 0.f, multR, multG, multB);
 
 	// do not change border color
 	static const int32_t ignoredMask = 1 << 26;
 
-	texture->adjustPalette(shifterNormal, ignoredMask);
-	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePathDefault));
-	texture->adjustPalette(shifterPositive, ignoredMask);
-	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePathPositive));
-	texture->adjustPalette(shifterNegative, ignoredMask);
-	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePathNegative));
-	texture->adjustPalette(shifterNeutral, ignoredMask);
-	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePathNeutral));
+	texture->adjustPalette(shifter, ignoredMask);
+
+	auto image = GH.renderHandler().createImage(texture->dimensions(), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+	canvas.draw(texture, Point(0,0));
+
+	return image;
 }
 
-void AssetGenerator::createCampaignBackground()
+AssetGenerator::CanvasPtr AssetGenerator::createCampaignBackground()
 {
-	std::string filename = "data/CampaignBackground8.png";
-
-	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
-		return;
-
-	if(!CResourceHandler::get("local")->createResource(filename))
-		return;
-	ResourcePath savePath(filename, EResType::IMAGE);
-
 	auto locator = ImageLocator(ImagePath::builtin("CAMPBACK"), EImageBlitMode::OPAQUE);
 
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator);
-	auto image = GH.renderHandler().createImage(Point(800, 600), CanvasScalingPolicy::IGNORE);
+	auto image = GH.renderHandler().createImage(Point(200, 116), CanvasScalingPolicy::IGNORE);
 	Canvas canvas = image->getCanvas();
 
 	canvas.draw(img, Point(0, 0), Rect(0, 0, 800, 600));
@@ -264,171 +242,112 @@ void AssetGenerator::createCampaignBackground()
 	std::shared_ptr<IImage> imgSkull = GH.renderHandler().loadImage(locatorSkull);
 	canvas.draw(imgSkull, Point(562, 509), Rect(178, 108, 43, 19));
 
-	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+	return image;
 }
 
-void AssetGenerator::createChroniclesCampaignImages()
+AssetGenerator::CanvasPtr AssetGenerator::createChroniclesCampaignImages(int chronicle)
 {
-	for(int i = 1; i < 9; i++)
+	auto imgPathBg = ImagePath::builtin("data/chronicles_" + std::to_string(chronicle) + "/GamSelBk");
+	auto locator = ImageLocator(imgPathBg, EImageBlitMode::OPAQUE);
+
+	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator);
+	auto image = GH.renderHandler().createImage(Point(800, 600), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+
+	std::array sourceRect = {
+		Rect(149, 144, 200, 116),
+		Rect(156, 150, 200, 116),
+		Rect(171, 153, 200, 116),
+		Rect(35, 358, 200, 116),
+		Rect(216, 248, 200, 116),
+		Rect(58, 234, 200, 116),
+		Rect(184, 219, 200, 116),
+		Rect(268, 210, 200, 116),
+	};
+	
+	canvas.draw(img, Point(0, 0), sourceRect.at(chronicle-1));
+
+	if (chronicle == 8)
 	{
-		std::string filename = "data/CampaignHc" + std::to_string(i) + "Image.png";
-
-		if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
-			continue;
-			
-		auto imgPathBg = ImagePath::builtin("data/chronicles_" + std::to_string(i) + "/GamSelBk");
-		if(!CResourceHandler::get()->existsResource(imgPathBg)) // Chronicle episode not installed
-			continue;
-
-		if(!CResourceHandler::get("local")->createResource(filename))
-			continue;
-		ResourcePath savePath(filename, EResType::IMAGE);
-
-		auto locator = ImageLocator(imgPathBg, EImageBlitMode::OPAQUE);
-
-		std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator);
-		auto image = GH.renderHandler().createImage(Point(800, 600), CanvasScalingPolicy::IGNORE);
-		Canvas canvas = image->getCanvas();
-		
-		switch (i)
-		{
-		case 1:
-			canvas.draw(img, Point(0, 0), Rect(149, 144, 200, 116));
-			break;
-		case 2:
-			canvas.draw(img, Point(0, 0), Rect(156, 150, 200, 116));
-			break;
-		case 3:
-			canvas.draw(img, Point(0, 0), Rect(171, 153, 200, 116));
-			break;
-		case 4:
-			canvas.draw(img, Point(0, 0), Rect(35, 358, 200, 116));
-			break;
-		case 5:
-			canvas.draw(img, Point(0, 0), Rect(216, 248, 200, 116));
-			break;
-		case 6:
-			canvas.draw(img, Point(0, 0), Rect(58, 234, 200, 116));
-			break;
-		case 7:
-			canvas.draw(img, Point(0, 0), Rect(184, 219, 200, 116));
-			break;
-		case 8:
-			canvas.draw(img, Point(0, 0), Rect(268, 210, 200, 116));
-
-			//skull
-			auto locatorSkull = ImageLocator(ImagePath::builtin("CampSP1"), EImageBlitMode::OPAQUE);
-			std::shared_ptr<IImage> imgSkull = GH.renderHandler().loadImage(locatorSkull);
-			canvas.draw(imgSkull, Point(162, 94), Rect(162, 94, 41, 22));
-			canvas.draw(img, Point(162, 94), Rect(424, 304, 14, 4));
-			canvas.draw(img, Point(162, 98), Rect(424, 308, 10, 4));
-			canvas.draw(img, Point(158, 102), Rect(424, 312, 10, 4));
-			canvas.draw(img, Point(154, 106), Rect(424, 316, 10, 4));
-			break;
-		}
-
-		image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+		//skull
+		auto locatorSkull = ImageLocator(ImagePath::builtin("CampSP1"), EImageBlitMode::OPAQUE);
+		std::shared_ptr<IImage> imgSkull = GH.renderHandler().loadImage(locatorSkull);
+		canvas.draw(imgSkull, Point(162, 94), Rect(162, 94, 41, 22));
+		canvas.draw(img, Point(162, 94), Rect(424, 304, 14, 4));
+		canvas.draw(img, Point(162, 98), Rect(424, 308, 10, 4));
+		canvas.draw(img, Point(158, 102), Rect(424, 312, 10, 4));
+		canvas.draw(img, Point(154, 106), Rect(424, 316, 10, 4));
 	}
+
+	return image;
 }
 
 void AssetGenerator::createPaletteShiftedSprites()
 {
-	std::vector<std::string> tiles;
-	std::vector<std::vector<std::variant<TerrainPaletteAnimation, RiverPaletteAnimation>>> paletteAnimations;
 	for(auto entity : VLC->terrainTypeHandler->objects)
 	{
-		if(entity->paletteAnimation.size())
-		{
-			tiles.push_back(entity->tilesFilename.getName());
-			std::vector<std::variant<TerrainPaletteAnimation, RiverPaletteAnimation>> tmpAnim;
-			for(auto & animEntity : entity->paletteAnimation)
-				tmpAnim.push_back(animEntity);
-			paletteAnimations.push_back(tmpAnim);
-		}
+		if(entity->paletteAnimation.empty())
+			continue;
+
+		std::vector<PaletteAnimation> paletteShifts;
+		for(auto & animEntity : entity->paletteAnimation)
+			paletteShifts.push_back({animEntity.start, animEntity.length});
+
+		generatePaletteShiftedAnimation(entity->tilesFilename, paletteShifts);
+
 	}
 	for(auto entity : VLC->riverTypeHandler->objects)
 	{
-		if(entity->paletteAnimation.size())
-		{
-			tiles.push_back(entity->tilesFilename.getName());
-			std::vector<std::variant<TerrainPaletteAnimation, RiverPaletteAnimation>> tmpAnim;
-			for(auto & animEntity : entity->paletteAnimation)
-				tmpAnim.push_back(animEntity);
-			paletteAnimations.push_back(tmpAnim);
-		}
-	}
+		if(entity->paletteAnimation.empty())
+			continue;
 
-	for(int i = 0; i < tiles.size(); i++)
+		std::vector<PaletteAnimation> paletteShifts;
+		for(auto & animEntity : entity->paletteAnimation)
+			paletteShifts.push_back({animEntity.start, animEntity.length});
+
+		generatePaletteShiftedAnimation(entity->tilesFilename, paletteShifts);
+	}
+}
+
+void AssetGenerator::generatePaletteShiftedAnimation(const AnimationPath & sprite, const std::vector<PaletteAnimation> & paletteAnimations)
+{
+	AnimationLayoutMap layout;
+
+	auto animation = GH.renderHandler().loadAnimation(sprite, EImageBlitMode::COLORKEY);
+
+	int paletteTransformLength = 1;
+	for (const auto & transform : paletteAnimations)
+		paletteTransformLength = std::lcm(paletteTransformLength, transform.length);
+
+	for(int tileIndex = 0; tileIndex < animation->size(); tileIndex++)
 	{
-		auto sprite = tiles[i];
-
-		JsonNode config;
-		config["basepath"].String() = sprite + "_Shifted/";
-		config["images"].Vector();
-
-		auto filename = AnimationPath::builtin(sprite).addPrefix("SPRITES/");
-		auto filenameNew = AnimationPath::builtin(sprite + "_Shifted").addPrefix("SPRITES/");
-
-		if(CResourceHandler::get()->existsResource(ResourcePath(filenameNew.getName(), EResType::JSON))) // overridden by mod, no generation
-			return;
-		
-		auto anim = GH.renderHandler().loadAnimation(filename, EImageBlitMode::COLORKEY);
-		for(int j = 0; j < anim->size(); j++)
+		for(int paletteIndex = 0; paletteIndex < paletteTransformLength; paletteIndex++)
 		{
-			int maxLen = 1;
-			for(int k = 0; k < paletteAnimations[i].size(); k++)
-			{
-				auto element = paletteAnimations[i][k];
-				if(std::holds_alternative<TerrainPaletteAnimation>(element))
-					maxLen = std::lcm(maxLen, std::get<TerrainPaletteAnimation>(element).length);
-				else
-					maxLen = std::lcm(maxLen, std::get<RiverPaletteAnimation>(element).length);
-			}
-			for(int l = 0; l < maxLen; l++)
-			{
-				std::string spriteName = sprite + boost::str(boost::format("%02d") % j) + "_" + std::to_string(l) + ".png";
-				std::string filenameNewImg = "sprites/" + sprite + "_Shifted" + "/" + spriteName;
-				ResourcePath savePath(filenameNewImg, EResType::IMAGE);
+			ImagePath spriteName = ImagePath::builtin(sprite.getName() + boost::str(boost::format("%02d") % tileIndex) + "_" + std::to_string(paletteIndex) + ".png");
+			layout[paletteIndex].push_back(ImageLocator(spriteName, EImageBlitMode::SIMPLE));
 
-				if(!CResourceHandler::get("local")->createResource(filenameNewImg))
-					return;
-
-				auto imgLoc = anim->getImageLocator(j, 0);
-				auto img = GH.renderHandler().loadImage(imgLoc);
-				for(int k = 0; k < paletteAnimations[i].size(); k++)
-				{
-					auto element = paletteAnimations[i][k];
-					if(std::holds_alternative<TerrainPaletteAnimation>(element))
-					{
-						auto tmp = std::get<TerrainPaletteAnimation>(element);
-						img->shiftPalette(tmp.start, tmp.length, l % tmp.length);
-					}
-					else
-					{
-						auto tmp = std::get<RiverPaletteAnimation>(element);
-						img->shiftPalette(tmp.start, tmp.length, l % tmp.length);
-					}
-				}
-				
-				auto image = GH.renderHandler().createImage(Point(32, 32), CanvasScalingPolicy::IGNORE);
-				Canvas canvas = image->getCanvas();
-				canvas.draw(img, Point((32 - img->dimensions().x) / 2, (32 - img->dimensions().y) / 2));
-				image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
-
-				JsonNode node(JsonMap{
-					{ "group", JsonNode(l) },
-					{ "frame", JsonNode(j) },
-					{ "file", JsonNode(spriteName) }
-				});
-				config["images"].Vector().push_back(node);
-			}
+			imageFiles[spriteName]  = [=](){ return createPaletteShiftedImage(sprite, paletteAnimations, tileIndex, paletteIndex);};
 		}
-
-		ResourcePath savePath(filenameNew.getOriginalName(), EResType::JSON);
-		if(!CResourceHandler::get("local")->createResource(filenameNew.getOriginalName() + ".json"))
-			return;
-
-		std::fstream file(CResourceHandler::get("local")->getResourceName(savePath)->c_str(), std::ofstream::out | std::ofstream::trunc);
-		file << config.toString();
 	}
+
+	AnimationPath shiftedPath = AnimationPath::builtin("SPRITES/" + sprite.getName() + "_SHIFTED");
+	animationFiles[shiftedPath] = layout;
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createPaletteShiftedImage(const AnimationPath & source, const std::vector<PaletteAnimation> & palette, int frameIndex, int paletteShiftCounter)
+{
+	auto animation = GH.renderHandler().loadAnimation(source, EImageBlitMode::COLORKEY);
+
+	auto imgLoc = animation->getImageLocator(frameIndex, 0);
+	auto img = GH.renderHandler().loadImage(imgLoc);
+
+	for(const auto & element : palette)
+		img->shiftPalette(element.start, element.length, paletteShiftCounter % element.length);
+
+	auto image = GH.renderHandler().createImage(Point(32, 32), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+	canvas.draw(img, Point((32 - img->dimensions().x) / 2, (32 - img->dimensions().y) / 2));
+
+	return image;
+
 }

@@ -13,7 +13,6 @@
 #include "MiscWidgets.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../render/AssetGenerator.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../render/CAnimation.h"
@@ -184,8 +183,6 @@ FilledTexturePlayerColored::FilledTexturePlayerColored(Rect position)
 
 void FilledTexturePlayerColored::setPlayerColor(PlayerColor player)
 {
-	AssetGenerator::createPlayerColoredBackground(player);
-
 	ImagePath imagePath = ImagePath::builtin("DialogBoxBackground_" + player.toString() + ".bmp");
 
 	texture = GH.renderHandler().loadImage(imagePath, EImageBlitMode::COLORKEY);

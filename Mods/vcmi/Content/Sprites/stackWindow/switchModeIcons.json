@@ -1,7 +1,7 @@
 {
 	"images" :
 	[
-		{ "frame" : 0, "file" : "SECSK32:69"},
-		{ "frame" : 1, "file" : "SECSK32:28"}
+		{ "frame" : 0, "defFile" : "SECSK32", "defFrame" : 69 },
+		{ "frame" : 1, "defFile" : "SECSK32", "defFrame" : 28 }
 	]
 }

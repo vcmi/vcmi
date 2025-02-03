@@ -18,8 +18,9 @@ VCMI_LIB_NAMESPACE_END
 class CDefFile;
 class SDLImageShared;
 class ScalableImageShared;
+class AssetGenerator;
 
-class RenderHandler : public IRenderHandler
+class RenderHandler final : public IRenderHandler
 {
 	using AnimationLayoutMap = std::map<size_t, std::vector<ImageLocator>>;
 
@@ -27,6 +28,7 @@ class RenderHandler : public IRenderHandler
 	std::map<AnimationPath, AnimationLayoutMap> animationLayouts;
 	std::map<SharedImageLocator, std::shared_ptr<ScalableImageShared>> imageFiles;
 	std::map<EFonts, std::shared_ptr<const IFont>> fonts;
+	std::unique_ptr<AssetGenerator> assetGenerator;
 
 	std::shared_ptr<CDefFile> getAnimationFile(const AnimationPath & path);
 	AnimationLayoutMap & getAnimationLayout(const AnimationPath & path, int scalingFactor, EImageBlitMode mode);
@@ -38,13 +40,15 @@ class RenderHandler : public IRenderHandler
 
 	std::shared_ptr<ScalableImageShared> loadImageImpl(const ImageLocator & config);
 
-	std::shared_ptr<SDLImageShared> loadImageFromFileUncached(const ImageLocator & locator);
+	std::shared_ptr<ISharedImage> loadImageFromFileUncached(const ImageLocator & locator);
 
 	ImageLocator getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group, int scaling, EImageBlitMode mode);
 
 	int getScalingFactor() const;
 
 public:
+	RenderHandler();
+	~RenderHandler();
 
 	// IRenderHandler implementation
 	void onLibraryLoadingFinished(const Services * services) override;
@@ -61,4 +65,6 @@ public:
 
 	/// Returns font with specified identifer
 	std::shared_ptr<const IFont> loadFont(EFonts font) override;
+
+	void exportGeneratedAssets() override;
 };

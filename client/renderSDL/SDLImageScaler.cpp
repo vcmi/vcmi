@@ -120,6 +120,9 @@ const Rect & SDLImageOptimizer::getResultDimensions() const
 
 void SDLImageScaler::scaleSurface(Point targetDimensions, EScalingAlgorithm algorithm)
 {
+	if (!intermediate)
+		return; // may happen on scaling of empty images
+
 	if(!targetDimensions.x || !targetDimensions.y)
 		throw std::runtime_error("invalid scaling dimensions!");
 
@@ -144,6 +147,9 @@ void SDLImageScaler::scaleSurface(Point targetDimensions, EScalingAlgorithm algo
 
 void SDLImageScaler::scaleSurfaceIntegerFactor(int factor, EScalingAlgorithm algorithm)
 {
+	if (!intermediate)
+		return; // may happen on scaling of empty images
+
 	if(factor == 0)
 		throw std::runtime_error("invalid scaling factor!");
 

@@ -345,7 +345,7 @@ void WindowBase::close()
 	if(!GH.windows().isTopWindow(this))
 	{
 		auto topWindow = GH.windows().topWindow<IShowActivatable>().get();
-		throw std::runtime_error(std::string("Only top interface can be closed! Top window is ") + typeid(*this).name() + " but attempted to close " + typeid(*topWindow).name());
+		throw std::runtime_error(std::string("Only top interface can be closed! Top window is ") + typeid(*topWindow).name() + " but attempted to close " + typeid(*this).name());
 	}
 	GH.windows().popWindows(1);
 }
