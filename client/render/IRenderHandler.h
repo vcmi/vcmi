@@ -50,4 +50,6 @@ public:
 
 	/// Returns font with specified identifer
 	virtual std::shared_ptr<const IFont> loadFont(EFonts font) = 0;
+
+	virtual void exportGeneratedAssets() = 0;
 };

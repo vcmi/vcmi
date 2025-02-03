@@ -16,6 +16,7 @@
 
 #include "../gui/CGuiHandler.h"
 
+#include "../render/AssetGenerator.h"
 #include "../render/CAnimation.h"
 #include "../render/CanvasImage.h"
 #include "../render/CDefFile.h"
@@ -42,6 +43,13 @@
 #include <vcmi/Services.h>
 #include <vcmi/SkillService.h>
 #include <vcmi/spells/Service.h>
+
+RenderHandler::RenderHandler()
+	:assetGenerator(std::make_unique<AssetGenerator>())
+{
+}
+
+RenderHandler::~RenderHandler() = default;
 
 std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & path)
 {
@@ -201,12 +209,28 @@ std::shared_ptr<ScalableImageShared> RenderHandler::loadImageImpl(const ImageLoc
 	return scaledImage;
 }
 
-std::shared_ptr<SDLImageShared> RenderHandler::loadImageFromFileUncached(const ImageLocator & locator)
+std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const ImageLocator & locator)
 {
 	if(locator.image)
 	{
-		// TODO: create EmptySharedImage class that will be instantiated if image does not exists or fails to load
-		return std::make_shared<SDLImageShared>(*locator.image);
+		auto imagePath = *locator.image;
+		auto imagePathSprites = imagePath.addPrefix("SPRITES/");
+		auto imagePathData = imagePath.addPrefix("DATA/");
+
+		if(CResourceHandler::get()->existsResource(imagePathSprites))
+			return std::make_shared<SDLImageShared>(imagePathSprites);
+
+		if(CResourceHandler::get()->existsResource(imagePathData))
+			return std::make_shared<SDLImageShared>(imagePathData);
+
+		if(CResourceHandler::get()->existsResource(imagePath))
+			return std::make_shared<SDLImageShared>(imagePath);
+
+		auto generated = assetGenerator->generateImage(imagePath);
+		if (generated)
+			return generated;
+
+		return std::make_shared<SDLImageShared>(ImagePath::builtin("DEFAULT"));
 	}
 
 	if(locator.defFile)
@@ -423,6 +447,10 @@ static void detectOverlappingBuildings(RenderHandler * renderHandler, const Fact
 
 void RenderHandler::onLibraryLoadingFinished(const Services * services)
 {
+	assert(animationLayouts.empty());
+	assetGenerator->initialize();
+	animationLayouts = assetGenerator->generateAllAnimations();
+
 	addImageListEntries(services->creatures());
 	addImageListEntries(services->heroTypes());
 	addImageListEntries(services->artifacts());
@@ -468,4 +496,10 @@ std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
 
 	fonts[font] = loadedFont;
 	return loadedFont;
+}
+
+void RenderHandler::exportGeneratedAssets()
+{
+	for (const auto & entry : assetGenerator->generateAllImages())
+		entry.second->exportBitmap(VCMIDirs::get().userDataPath() / "Generated" / (entry.first.getOriginalName() + ".png"), nullptr);
 }
