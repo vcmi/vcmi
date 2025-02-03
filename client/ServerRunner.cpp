@@ -14,6 +14,7 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/network/NetworkInterface.h"
+#include "../lib/CConfigHandler.h"
 #include "../server/CVCMIServer.h"
 
 #ifdef ENABLE_SERVER_PROCESS
@@ -34,10 +35,11 @@
 ServerThreadRunner::ServerThreadRunner() = default;
 ServerThreadRunner::~ServerThreadRunner() = default;
 
-uint16_t ServerThreadRunner::start(uint16_t cfgport, bool listenForConnections, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo)
+void ServerThreadRunner::start(bool listenForConnections, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo)
 {
 	// cfgport may be 0 -- the real port is returned after calling prepare()
-	server = std::make_unique<CVCMIServer>(cfgport, true);
+	uint16_t port = settings["server"]["localPort"].Integer();
+	server = std::make_unique<CVCMIServer>(port, true);
 
 	if (startingInfo)
 	{
@@ -54,10 +56,8 @@ uint16_t ServerThreadRunner::start(uint16_t cfgport, bool listenForConnections, 
 	});
 
 	logNetwork->trace("Waiting for server port...");
-	auto srvport = promise.get_future().get();
-	logNetwork->debug("Server port: %d", srvport);
-
-	return srvport;
+	serverPort = promise.get_future().get();
+	logNetwork->debug("Server port: %d", serverPort);
 }
 
 void ServerThreadRunner::shutdown()
@@ -75,7 +75,7 @@ int ServerThreadRunner::exitCode()
 	return 0;
 }
 
-void ServerThreadRunner::connect(INetworkHandler & network, INetworkClientListener & listener, const std::string & host, uint16_t port)
+void ServerThreadRunner::connect(INetworkHandler & network, INetworkClientListener & listener)
 {
 	network.createInternalConnection(listener, server->getNetworkServer());
 }
@@ -100,8 +100,9 @@ int ServerProcessRunner::exitCode()
 	return child->exit_code();
 }
 
-uint16_t ServerProcessRunner::start(uint16_t port, bool listenForConnections, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo)
+void ServerProcessRunner::start(bool listenForConnections, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo)
 {
+	uint16_t port = settings["server"]["localPort"].Integer();
 	boost::filesystem::path serverPath = VCMIDirs::get().serverPath();
 	boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "server_log.txt";
 	std::vector<std::string> args;
@@ -115,12 +116,13 @@ uint16_t ServerProcessRunner::start(uint16_t port, bool listenForConnections, bo
 
 	if (ec)
 		throw std::runtime_error("Failed to start server! Reason: " + ec.message());
-
-	return port;
 }
 
-void ServerProcessRunner::connect(INetworkHandler & network, INetworkClientListener & listener, const std::string & host, uint16_t port)
+void ServerProcessRunner::connect(INetworkHandler & network, INetworkClientListener & listener)
 {
+	std::string host = settings["server"]["localHostname"].String();
+	uint16_t port = settings["server"]["localPort"].Integer();
+
 	network.connectToRemote(listener, host, port);
 }
 
