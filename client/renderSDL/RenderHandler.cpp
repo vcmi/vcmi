@@ -379,7 +379,7 @@ void RenderHandler::addImageListEntries(const EntityService * service)
 			if (imageName.empty())
 				return;
 
-			auto & layout = getAnimationLayout(AnimationPath::builtin("SPRITES/" + listName), 1, EImageBlitMode::SIMPLE);
+			auto & layout = getAnimationLayout(AnimationPath::builtin("SPRITES/" + listName), 1, EImageBlitMode::COLORKEY);
 
 			JsonNode entry;
 			entry["file"].String() = imageName;
@@ -417,8 +417,8 @@ static void detectOverlappingBuildings(RenderHandler * renderHandler, const Fact
 			if (left->pos.z != right->pos.z)
 				continue; // buildings already have different z-index and have well-defined overlap logic
 
-			auto leftImage = renderHandler->loadImage(left->defName, 0, 0, EImageBlitMode::SIMPLE);
-			auto rightImage = renderHandler->loadImage(right->defName, 0, 0, EImageBlitMode::SIMPLE);
+			auto leftImage = renderHandler->loadImage(left->defName, 0, 0, EImageBlitMode::COLORKEY);
+			auto rightImage = renderHandler->loadImage(right->defName, 0, 0, EImageBlitMode::COLORKEY);
 
 			Rect leftRect( left->pos.x, left->pos.y, leftImage->width(), leftImage->height());
 			Rect rightRect( right->pos.x, right->pos.y, rightImage->width(), rightImage->height());
