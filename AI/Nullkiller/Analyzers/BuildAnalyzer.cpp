@@ -291,6 +291,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 				prerequisite.baseCreatureID = info.baseCreatureID;
 				prerequisite.prerequisitesCount++;
 				prerequisite.armyCost = info.armyCost;
+				prerequisite.armyStrength = info.armyStrength;
 				bool haveSameOrBetterFort = false;
 				if (prerequisite.id == BuildingID::FORT && highestFort >= CGTownInstance::EFortLevel::FORT)
 					haveSameOrBetterFort = true;
