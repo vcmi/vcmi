@@ -216,22 +216,25 @@ InternalConnection::InternalConnection(INetworkConnectionListener & listener, co
 
 void InternalConnection::receivePacket(const std::vector<std::byte> & message)
 {
-	io->post([self = shared_from_this(), message](){
-		self->listener.onPacketReceived(self, message);
+	io->post([self = std::static_pointer_cast<InternalConnection>(shared_from_this()), message](){
+		if (self->connectionActive)
+			self->listener.onPacketReceived(self, message);
 	});
 }
 
 void InternalConnection::disconnect()
 {
-	io->post([self = shared_from_this()](){
+	io->post([self = std::static_pointer_cast<InternalConnection>(shared_from_this())](){
 		self->listener.onDisconnected(self, "Internal connection has been terminated");
 		self->otherSideWeak.reset();
+		self->connectionActive = false;
 	});
 }
 
 void InternalConnection::connectTo(std::shared_ptr<IInternalConnection> connection)
 {
 	otherSideWeak = connection;
+	connectionActive = true;
 }
 
 void InternalConnection::sendPacket(const std::vector<std::byte> & message)
@@ -240,8 +243,6 @@ void InternalConnection::sendPacket(const std::vector<std::byte> & message)
 
 	if (otherSide)
 		otherSide->receivePacket(message);
-	else
-		throw std::runtime_error("Failed to send packet! Connection has been deleted!");
 }
 
 void InternalConnection::setAsyncWritesEnabled(bool on)
@@ -257,6 +258,7 @@ void InternalConnection::close()
 		otherSide->disconnect();
 
 	otherSideWeak.reset();
+	connectionActive = false;
 }
 
 VCMI_LIB_NAMESPACE_END
