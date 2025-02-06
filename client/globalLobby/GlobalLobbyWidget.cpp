@@ -28,6 +28,7 @@
 #include "../widgets/Images.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 
 #include "../../lib/CConfigHandler.h"
@@ -125,6 +126,15 @@ std::shared_ptr<CIntObject> GlobalLobbyWidget::buildItemList(const JsonNode & co
 	int initialPos = 0;
 
 	auto result = std::make_shared<CListBox>(callback, position, itemOffset, visibleAmount, totalAmount, initialPos, sliderMode, Rect(sliderPosition, sliderSize));
+
+	if (result->getSlider())
+	{
+		Point scrollBoundsDimensions(sliderPosition.x + result->getSlider()->pos.w, result->getSlider()->pos.h);
+		Point scrollBoundsOffset = -sliderPosition;
+
+		result->getSlider()->setScrollBounds(Rect(scrollBoundsOffset, scrollBoundsDimensions));
+		result->getSlider()->setPanningStep(itemOffset.length());
+	}
 
 	result->setRedrawParent(true);
 	return result;
