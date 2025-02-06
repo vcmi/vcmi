@@ -610,9 +610,6 @@ float RewardEvaluator::getConquestValue(const CGObjectInstance* target) const
 			? getEnemyHeroStrategicalValue(dynamic_cast<const CGHeroInstance*>(target))
 			: 0;
 
-	case Obj::KEYMASTER:
-		return 0.6f;
-
 	default:
 		return 0;
 	}
