@@ -247,7 +247,7 @@ AssetGenerator::CanvasPtr AssetGenerator::createCampaignBackground()
 
 AssetGenerator::CanvasPtr AssetGenerator::createChroniclesCampaignImages(int chronicle)
 {
-	auto imgPathBg = ImagePath::builtin("data/chronicles_" + std::to_string(chronicle) + "/GamSelBk");
+	auto imgPathBg = ImagePath::builtin("chronicles_" + std::to_string(chronicle) + "/GamSelBk");
 	auto locator = ImageLocator(imgPathBg, EImageBlitMode::OPAQUE);
 
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator);
