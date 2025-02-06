@@ -533,7 +533,7 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	BattleHexArray hoveredMoveHexes  = getHighlightedHexesForMovementTarget();
 
 	BattleHex hoveredHex = getHoveredHex();
-	BattleHexArray hoveredMouseHex = hoveredHex.isValid() ? BattleHexArray({ hoveredHex }) : BattleHexArray();
+	BattleHexArray hoveredMouseHex = hoveredHex.isAvailable() ? BattleHexArray({ hoveredHex }) : BattleHexArray();
 
 	const CStack * hoveredStack = getHoveredStack();
 	if(!hoveredStack && hoveredHex == BattleHex::INVALID)
