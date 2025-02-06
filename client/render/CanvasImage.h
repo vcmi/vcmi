@@ -16,6 +16,7 @@ class CanvasImage : public IImage
 {
 public:
 	CanvasImage(const Point & size, CanvasScalingPolicy scalingPolicy);
+	~CanvasImage();
 
 	Canvas getCanvas();
 
