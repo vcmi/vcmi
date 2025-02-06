@@ -1460,7 +1460,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		{
 			case PriorityTier::INSTAKILL: //Take towns / kill heroes in immediate reach
 			{
-				if (evaluationContext.turn > 0)
+				if (evaluationContext.turn > 0 || evaluationContext.isExchange)
 					return 0;
 				if (evaluationContext.movementCost >= 1)
 					return 0;
@@ -1594,7 +1594,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			}
 			case PriorityTier::DEFEND: //Defend whatever if nothing else is to do
 			{
-				if (evaluationContext.enemyHeroDangerRatio > dangerThreshold && evaluationContext.isExchange)
+				if (evaluationContext.enemyHeroDangerRatio > dangerThreshold)
 					return 0;
 				if (evaluationContext.isDefend || evaluationContext.isArmyUpgrade)
 					score = evaluationContext.armyInvolvement;
