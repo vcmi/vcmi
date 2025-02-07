@@ -761,7 +761,10 @@
 				},
 				"simpleObjectSelection" : {
 					"type": "boolean",
-					"default": true
+					"default": true,
+					"defaultIOS": true,
+					"defaultAndroid": true,
+					"defaultDesktop" : false
 				},
 				"skipAdventureMapAnimations": {
 					"type": "boolean",
