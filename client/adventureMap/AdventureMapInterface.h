@@ -75,9 +75,6 @@ private:
 	/// updates active state of game window whenever game state changes
 	void adjustActiveness();
 
-	/// checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or nullptr else
-	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const;
-
 	/// check and if necessary reacts on scrolling by moving cursor to screen edge
 	void handleMapScrollingUpdate(uint32_t msPassed);
 
