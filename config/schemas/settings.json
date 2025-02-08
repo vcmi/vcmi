@@ -188,7 +188,8 @@
 				"fontScalingFactor",
 				"upscalingFilter",
 				"fontUpscalingFilter",
-				"downscalingFilter"
+				"downscalingFilter",
+				"allowPortrait"
 			],
 			"properties" : {
 				"resolution" : {
@@ -276,6 +277,10 @@
 					"type" : "string",
 					"enum" : [ "nearest", "linear", "best" ],
 					"default" : "best"
+				},
+				"allowPortrait" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		},
