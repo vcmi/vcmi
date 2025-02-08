@@ -321,7 +321,7 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 
 	if(settings["battle"]["showHealthBar"].Bool())
 	{
-		float health = CGI->creatures()->getByIndex(stack->creatureIndex())->getMaxHealth();
+		float health = stack->getMaxHealth();
 		float healthRemaining = std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * health, .0f);
 		Rect r(boxPosition.x, boxPosition.y - 3, amountBG->width(), 4);
 		canvas.drawColor(r, Colors::RED);

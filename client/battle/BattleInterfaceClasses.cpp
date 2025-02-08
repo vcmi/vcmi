@@ -636,7 +636,7 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	auto attack = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getAttack(stack->isShooter())) + "(" + std::to_string(stack->getAttack(stack->isShooter())) + ")";
 	auto defense = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getDefense(stack->isShooter())) + "(" + std::to_string(stack->getDefense(stack->isShooter())) + ")";
 	auto damage = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getMinDamage(stack->isShooter())) + "-" + std::to_string(stack->getMaxDamage(stack->isShooter()));
-	auto health = CGI->creatures()->getByIndex(stack->creatureIndex())->getMaxHealth();
+	auto health = stack->getMaxHealth();
 	auto morale = stack->moraleVal();
 	auto luck = stack->luckVal();
 
