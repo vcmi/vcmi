@@ -38,6 +38,7 @@
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/texts/TextOperations.h"
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
 
@@ -318,6 +319,15 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 
 	Point textPosition = Point(amountBG->dimensions().x/2 + boxPosition.x, boxPosition.y + amountBG->dimensions().y/2);
 
+	if(settings["general"]["enableUiEnhancements"].Bool()) // combat health bar
+	{
+		float health = CGI->creatures()->getByIndex(stack->creatureIndex())->getMaxHealth();
+		float healthRemaining = std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * health, .0f);
+		Rect r(boxPosition.x, boxPosition.y - 3, amountBG->width(), 4);
+		canvas.drawColor(r, Colors::RED);
+		canvas.drawColor(Rect(r.x, r.y, (r.w / health) * healthRemaining, r.h), Colors::GREEN);
+		canvas.drawBorder(r, Colors::YELLOW);
+	}
 	canvas.draw(amountBG, boxPosition);
 	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, TextOperations::formatMetric(stack->getCount(), 4));
 }
