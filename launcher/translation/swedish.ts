@@ -1223,7 +1223,7 @@ Bin (%n byte):
 %1
 
 %2</source>
-        <translation>Endast en fil kändes igen! Filerna kanske är skadade? Prova med att ladda ner filen/filerna igen och försök igen.
+        <translation>Endast en fil kändes igen! Filerna kanske är skadade? Prova med att ladda ner filen/filerna på nytt och försök igen.
 %1
 
 %2</translation>
