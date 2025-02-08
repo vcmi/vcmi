@@ -20,6 +20,7 @@
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
+#include "../render/IScreenHandler.h"
 #include "../CServerHandler.h"
 #include "../globalLobby/GlobalLobbyClient.h"
 
@@ -65,6 +66,7 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 		case TouchState::RELATIVE_MODE:
 		{
 			Point screenSize = GH.screenDimensions();
+			int scalingFactor = GH.screenHandler().getScalingFactor();
 
 			Point moveDistance {
 				static_cast<int>(screenSize.x * params.relativeModeSpeedFactor * tfinger.dx),
@@ -73,7 +75,7 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 
 			GH.input().moveCursorPosition(moveDistance);
 			if (CCS && CCS->curh)
-				CCS->curh->cursorMove(GH.getCursorPosition().x, GH.getCursorPosition().y);
+				CCS->curh->cursorMove(GH.getCursorPosition().x * scalingFactor, GH.getCursorPosition().y * scalingFactor);
 
 			break;
 		}
