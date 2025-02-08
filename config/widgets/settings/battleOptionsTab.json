@@ -115,6 +115,9 @@
 					"text": "vcmi.battleOptions.rangeLimitHighlightOnHover.hover",
 				},
 				{
+					"text": "vcmi.battleOptions.showHealthBar.hover",
+				},
+				{
 					"text": "vcmi.battleOptions.showStickyHeroInfoWindows.hover",
 				},
 				{
@@ -125,9 +128,6 @@
 				},
 				{
 					"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
-				},
-				{
-					"text": "vcmi.battleOptions.showHealthBar.hover",
 				}
 			]
 		},
@@ -158,6 +158,11 @@
 					"callback": "rangeLimitHighlightOnHoverChanged"
 				},
 				{
+					"name": "showHealthBarCheckbox",
+					"help": "vcmi.battleOptions.showHealthBar",
+					"callback": "showHealthBarChanged"
+				},
+				{
 					"name": "showStickyHeroInfoWindowsCheckbox",
 					"help": "vcmi.battleOptions.showStickyHeroInfoWindows",
 					"callback": "showStickyHeroWindowsChanged"
@@ -176,11 +181,6 @@
 					"name": "skipBattleIntroMusicCheckbox",
 					"help": "vcmi.battleOptions.skipBattleIntroMusic",
 					"callback": "skipBattleIntroMusicChanged"
-				},
-				{
-					"name": "showHealthBarCheckbox",
-					"help": "vcmi.battleOptions.showHealthBar",
-					"callback": "showHealthBarChanged"
 				}
 			]
 		},
