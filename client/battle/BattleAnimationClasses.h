@@ -11,6 +11,7 @@
 
 #include "../../lib/battle/BattleHexArray.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/Color.h"
 #include "BattleConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -113,8 +114,10 @@ public:
 
 class ColorTransformAnimation : public BattleStackAnimation
 {
-	std::vector<ColorFilter> steps;
+	std::vector<ColorRGBA> effectColors;
+	std::vector<float> transparency;
 	std::vector<float> timePoints;
+
 	const CSpell * spell;
 
 	float totalProgress;

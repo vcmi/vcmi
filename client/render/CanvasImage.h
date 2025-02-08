@@ -32,6 +32,7 @@ public:
 	void setAlpha(uint8_t value) override{};
 	void playerColored(const PlayerColor & player) override{};
 	void setOverlayColor(const ColorRGBA & color) override{};
+	void setEffectColor(const ColorRGBA & color) override{};
 	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override{};
 	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override{};
 

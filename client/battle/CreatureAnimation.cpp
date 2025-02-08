@@ -24,11 +24,6 @@ static const ColorRGBA creatureBlueBorder = { 0, 255, 255, 255 };
 static const ColorRGBA creatureGoldBorder = { 255, 255, 0, 255 };
 static const ColorRGBA creatureNoBorder  =  { 0, 0, 0, 0 };
 
-static ColorRGBA genShadow(ui8 alpha)
-{
-	return ColorRGBA(0, 0, 0, alpha);
-}
-
 ColorRGBA AnimationControls::getBlueBorder()
 {
 	return creatureBlueBorder;
@@ -192,7 +187,6 @@ void CreatureAnimation::setType(ECreatureAnimType type)
 CreatureAnimation::CreatureAnimation(const AnimationPath & name_, TSpeedController controller)
 	: name(name_),
 	  speed(0.1f),
-	  shadowAlpha(128),
 	  currentFrame(0),
 	  animationEnd(-1),
 	  elapsedTime(0),
@@ -324,11 +318,8 @@ static ColorRGBA genBorderColor(ui8 alpha, const ColorRGBA & base)
 	return ColorRGBA(base.r, base.g, base.b, ui8(base.a * alpha / 256));
 }
 
-void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, bool facingRight)
+void CreatureAnimation::nextFrame(Canvas & canvas, const ColorRGBA & effectColor, uint8_t transparency, bool facingRight)
 {
-	ColorRGBA shadowTest = shifter.shiftColor(genShadow(128));
-	shadowAlpha = shadowTest.a;
-
 	size_t frame = static_cast<size_t>(floor(currentFrame));
 
 	std::shared_ptr<IImage> image;
@@ -345,7 +336,8 @@ void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, 
 		else
 			image->setOverlayColor(Colors::TRANSPARENCY);
 
-		image->adjustPalette(shifter, 0);
+		image->setEffectColor(effectColor);
+		image->setAlpha(transparency);
 
 		canvas.draw(image, pos.topLeft(), Rect(0, 0, pos.w, pos.h));
 	}

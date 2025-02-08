@@ -51,6 +51,7 @@ enum class EImageBlitMode : uint8_t
 	WITH_SHADOW_AND_FLAG_COLOR,
 
 	/// RGBA, contains only body, with shadow and overlay disabled
+	GRAYSCALE_BODY_HIDE_SELECTION,
 	ONLY_BODY_HIDE_SELECTION,
 	ONLY_BODY_HIDE_FLAG_COLOR,
 
@@ -104,8 +105,8 @@ public:
 
 	virtual void setAlpha(uint8_t value) = 0;
 
-	//only indexed bitmaps with 7 special colors
 	virtual void setOverlayColor(const ColorRGBA & color) = 0;
+	virtual void setEffectColor(const ColorRGBA & color) = 0;
 
 	virtual ~IImage() = default;
 };
