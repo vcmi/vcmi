@@ -45,8 +45,6 @@ CHighScoreScreen::CHighScoreScreen(HighScorePage highscorepage, int highlighted)
 	OBJECT_CONSTRUCTION;
 	pos = center(Rect(0, 0, 800, 600));
 
-	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
-
 	addHighScores();
 	addButtons();
 }
@@ -174,6 +172,12 @@ void CHighScoreScreen::buttonExitClick()
 	CMM->playMusic();
 }
 
+void CHighScoreScreen::showAll(Canvas & to)
+{
+	to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
+	CWindowObject::showAll(to);
+}
+
 CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc, const StatisticDataSet & statistic)
 	: CWindowObject(BORDERED), won(won), calc(calc), stat(statistic)
 {
@@ -182,7 +186,6 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 	OBJECT_CONSTRUCTION;
 	pos = center(Rect(0, 0, 800, 600));
 
-	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
 	background = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), Colors::BLACK);
 
 	if(won)
@@ -269,6 +272,12 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 
 void CHighScoreInputScreen::show(Canvas & to)
 {
+	CWindowObject::showAll(to);
+}
+
+void CHighScoreInputScreen::showAll(Canvas & to)
+{
+	to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
 	CWindowObject::showAll(to);
 }
 
