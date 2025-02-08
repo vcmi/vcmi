@@ -18,8 +18,6 @@
 	"vcmi.adventureMap.noTownWithTavern"       : "Нет союзных городов с тавернами!",
 	"vcmi.adventureMap.spellUnknownProblem"    : "Неизвестная проблема с заклинанием, дополнительная информация недоступна.",
 	"vcmi.adventureMap.playerAttacked"         : "Игрок атакован: %s",
-	"vcmi.adventureMap.moveCostDetails"        : "Очки движения - Стоимость: %TURNS ходов + %POINTS очков, Останется: %REMAINING очков",
-	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Очки движения - Стоимость: %POINTS очков, Останется: %REMAINING очков",
 
 	"vcmi.capitalColors.0" : "Красный",
 	"vcmi.capitalColors.1" : "Синий",

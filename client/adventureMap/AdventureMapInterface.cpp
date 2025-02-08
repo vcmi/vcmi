@@ -47,6 +47,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/pathfinder/CGPathNode.h"
+#include "../../lib/pathfinder/TurnInfo.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
 
@@ -776,13 +777,26 @@ void AdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & he
 {
 	const int maxMovementPointsAtStartOfLastTurn = pathNode.turns > 0 ? hero.movementPointsLimit(pathNode.layer == EPathfindingLayer::LAND) : hero.movementPointsRemaining();
 	const int movementPointsLastTurnCost = maxMovementPointsAtStartOfLastTurn - pathNode.moveRemains;
-	const int remainingPointsAfterMove = pathNode.turns == 0 ? pathNode.moveRemains : 0;
+	const int remainingPointsAfterMove = pathNode.moveRemains;
+
+	int totalMovementCost = 0;
+	for (int i = 0; i <= pathNode.turns; ++i)
+	{
+		auto turnInfo = hero.getTurnInfo(i);
+		if (pathNode.layer == EPathfindingLayer::SAIL)
+			totalMovementCost += turnInfo->getMovePointsLimitWater();
+		else
+			totalMovementCost += turnInfo->getMovePointsLimitLand();
+	}
+
+	totalMovementCost -= pathNode.moveRemains;
 
 	std::string result = VLC->generaltexth->translate("vcmi.adventureMap", pathNode.turns > 0 ? "moveCostDetails" : "moveCostDetailsNoTurns");
 
 	boost::replace_first(result, "%TURNS", std::to_string(pathNode.turns));
 	boost::replace_first(result, "%POINTS", std::to_string(movementPointsLastTurnCost));
 	boost::replace_first(result, "%REMAINING", std::to_string(remainingPointsAfterMove));
+	boost::replace_first(result, "%TOTAL", std::to_string(totalMovementCost));
 
 	GH.statusbar()->write(result);
 }

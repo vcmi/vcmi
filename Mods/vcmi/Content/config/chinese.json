@@ -23,8 +23,6 @@
 	"vcmi.adventureMap.noTownWithTavern"       : "没有酒馆可供查看。",
 	"vcmi.adventureMap.spellUnknownProblem"    : "无此魔法的信息。",
 	"vcmi.adventureMap.playerAttacked"         : "玩家遭受攻击: %s",
-	"vcmi.adventureMap.moveCostDetails"        : "移动点数 - 花费: %TURNS 轮 + %POINTS 点移动力, 剩余移动力: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns" : "移动点数 - 花费: %POINTS 点移动力, 剩余移动力: %REMAINING",
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(移动点数: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "抱歉，重放对手行动功能目前暂未实现！",
 

@@ -23,8 +23,6 @@
 	"vcmi.adventureMap.noTownWithTavern"                 : "Det finns inga tillgängliga städer med värdshus!",
 	"vcmi.adventureMap.spellUnknownProblem"              : "Det finns ett okänt problem med den här trollformeln! Ingen mer information är tillgänglig.",
 	"vcmi.adventureMap.playerAttacked"                   : "Spelare har blivit attackerad: %s",
-	"vcmi.adventureMap.moveCostDetails"                  : "Förflyttningspoängs-kostnad: %TURNS tur(er) + %POINTS poäng - Återstående poäng: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Förflyttningspoängs-kostnad: %POINTS poäng - Återstående poäng: %REMAINING",
 	"vcmi.adventureMap.movementPointsHeroInfo"           : "(Förflyttningspoäng: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Tyvärr, att spela om motståndarens tur är inte implementerat ännu!",
 

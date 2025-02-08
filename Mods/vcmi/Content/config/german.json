@@ -23,8 +23,6 @@
 	"vcmi.adventureMap.noTownWithTavern"                 : "Keine Stadt mit Taverne verfügbar!",
 	"vcmi.adventureMap.spellUnknownProblem"              : "Unbekanntes Problem mit diesem Zauberspruch, keine weiteren Informationen verfügbar.",
 	"vcmi.adventureMap.playerAttacked"                   : "Spieler wurde attackiert: %s",
-	"vcmi.adventureMap.moveCostDetails"                  : "Bewegungspunkte - Kosten: %TURNS Runden + %POINTS Punkte, Verbleibende Punkte: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Bewegungspunkte - Kosten: %POINTS Punkte, Verbleibende Punkte: %REMAINING",
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Bewegungspunkte: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Das Wiederholen des gegnerischen Zuges ist aktuell noch nicht implementiert!",
 
