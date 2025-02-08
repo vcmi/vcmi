@@ -319,7 +319,7 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 
 	Point textPosition = Point(amountBG->dimensions().x/2 + boxPosition.x, boxPosition.y + amountBG->dimensions().y/2);
 
-	if(settings["general"]["enableUiEnhancements"].Bool()) // combat health bar
+	if(settings["battle"]["showHealthBar"].Bool())
 	{
 		float health = CGI->creatures()->getByIndex(stack->creatureIndex())->getMaxHealth();
 		float healthRemaining = std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * health, .0f);
