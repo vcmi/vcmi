@@ -249,6 +249,8 @@ void TurnOrderProcessor::doStartNewDay()
 	assert(awaitingPlayers.empty());
 	assert(actingPlayers.empty());
 
+	gameHandler->onNewTurn();
+
 	bool activePlayer = false;
 	for (auto player : actedPlayers)
 	{
@@ -264,7 +266,6 @@ void TurnOrderProcessor::doStartNewDay()
 
 	std::swap(actedPlayers, awaitingPlayers);
 
-	gameHandler->onNewTurn();
 	updateAndNotifyContactStatus();
 	tryStartTurnsForPlayers();
 }

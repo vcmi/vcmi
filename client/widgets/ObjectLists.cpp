@@ -168,6 +168,11 @@ std::shared_ptr<CIntObject> CListBox::getItem(size_t which)
 	return std::shared_ptr<CIntObject>();
 }
 
+std::shared_ptr<CSlider> CListBox::getSlider()
+{
+	return slider;
+}
+
 size_t CListBox::getIndexOf(std::shared_ptr<CIntObject> item)
 {
 	size_t i=first;

@@ -691,7 +691,7 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 			if (spellBonuses->empty())
 				throw std::runtime_error("Failed to find effects for spell " + effect.toSpell()->getJsonKey());
 
-			int duration = spellBonuses->front()->duration;
+			int duration = spellBonuses->front()->turnsRemain;
 
 			icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
 			if(settings["general"]["enableUiEnhancements"].Bool())

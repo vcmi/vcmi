@@ -50,7 +50,7 @@
 	},
 	"chr":
 	{
-		"images" : [ {"x": 0, "y": 0, "name":"data/CampaignBackground8"} ],
+		"images" : [ {"x": 0, "y": 0, "name":"CampaignBackground8"} ],
 		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN" },
 		"items":
 		[

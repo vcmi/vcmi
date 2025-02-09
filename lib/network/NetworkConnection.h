@@ -51,6 +51,7 @@ class InternalConnection final : public IInternalConnection, public std::enable_
 	std::weak_ptr<IInternalConnection> otherSideWeak;
 	std::shared_ptr<NetworkContext> io;
 	INetworkConnectionListener & listener;
+	bool connectionActive = false;
 public:
 	InternalConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkContext> & context);
 

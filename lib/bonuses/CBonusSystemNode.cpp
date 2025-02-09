@@ -188,6 +188,7 @@ std::shared_ptr<Bonus> CBonusSystemNode::getUpdatedBonus(const std::shared_ptr<B
 CBonusSystemNode::CBonusSystemNode(bool isHypotetic):
 	nodeType(UNKNOWN),
 	cachedLast(0),
+	nodeChanged(0),
 	isHypotheticNode(isHypotetic)
 {
 }
@@ -195,6 +196,7 @@ CBonusSystemNode::CBonusSystemNode(bool isHypotetic):
 CBonusSystemNode::CBonusSystemNode(ENodeTypes NodeType):
 	nodeType(NodeType),
 	cachedLast(0),
+	nodeChanged(0),
 	isHypotheticNode(false)
 {
 }
