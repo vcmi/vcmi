@@ -719,6 +719,7 @@
 				"skipBattleIntroMusic",
 				"infoBarCreatureManagement",
 				"enableLargeSpellbook",
+				"simpleObjectSelection",
 				"skipAdventureMapAnimations"
 			],
 			"properties" : {
@@ -757,6 +758,13 @@
 				"enableLargeSpellbook" : {
 					"type": "boolean",
 					"default": true
+				},
+				"simpleObjectSelection" : {
+					"type": "boolean",
+					"default": true,
+					"defaultIOS": true,
+					"defaultAndroid": true,
+					"defaultDesktop" : false
 				},
 				"skipAdventureMapAnimations": {
 					"type": "boolean",
