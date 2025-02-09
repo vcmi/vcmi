@@ -24,6 +24,7 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<CArtifactsOfHeroPtr> & artsSets)
 	: CWindowWithArtifacts(&artsSets)
@@ -43,16 +44,23 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	};
 	addSet(arts);
 	arts->setHero(hero);
+
+	std::string sortByValue = VLC->generaltexth->translate("vcmi.heroWindow.sortBackpackByCost.hover");
+	std::string sortBySlot = VLC->generaltexth->translate("vcmi.heroWindow.sortBackpackBySlot.hover");
+	std::string sortByClass = VLC->generaltexth->translate("vcmi.heroWindow.sortBackpackByClass.hover");
 	
-	buttons.emplace_back(std::make_unique<CButton>(Point(), AnimationPath::builtin("ALTFILL.DEF"),
+	buttons.emplace_back(std::make_shared<CButton>(Point(), AnimationPath::builtin("heroBackpackSort"),
 		CButton::tooltipLocalized("vcmi.heroWindow.sortBackpackByCost"),
 		[hero]() { LOCPLINT->cb->sortBackpackArtifactsByCost(hero->id); }));
-	buttons.emplace_back(std::make_unique<CButton>(Point(), AnimationPath::builtin("ALTFILL.DEF"),
+	buttons.back()->setTextOverlay(sortByValue, EFonts::FONT_SMALL, Colors::YELLOW);
+	buttons.emplace_back(std::make_shared<CButton>(Point(), AnimationPath::builtin("heroBackpackSort"),
 		CButton::tooltipLocalized("vcmi.heroWindow.sortBackpackBySlot"),
 		[hero]() { LOCPLINT->cb->sortBackpackArtifactsBySlot(hero->id); }));
-	buttons.emplace_back(std::make_unique<CButton>(Point(), AnimationPath::builtin("ALTFILL.DEF"),
+	buttons.back()->setTextOverlay(sortBySlot, EFonts::FONT_SMALL, Colors::YELLOW);
+	buttons.emplace_back(std::make_shared<CButton>(Point(), AnimationPath::builtin("heroBackpackSort"),
 		CButton::tooltipLocalized("vcmi.heroWindow.sortBackpackByClass"),
 		[hero]() { LOCPLINT->cb->sortBackpackArtifactsByClass(hero->id); }));
+	buttons.back()->setTextOverlay(sortByClass, EFonts::FONT_SMALL, Colors::YELLOW);
 
 	pos.w = stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
 	pos.h = stretchedBackground->pos.h = arts->pos.h + buttons.back()->pos.h + 3 * windowMargin;
