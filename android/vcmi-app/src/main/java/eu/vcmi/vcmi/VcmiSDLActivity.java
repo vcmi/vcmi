@@ -107,6 +107,8 @@ public class VcmiSDLActivity extends SDLActivity
         mLayout = layout;
 
         setContentView(outerLayout);
+
+        VcmiSDLActivity.this.setWindowStyle(true); // set fullscreen
     }
 
     @Override

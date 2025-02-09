@@ -211,6 +211,10 @@ ScreenHandler::ScreenHandler()
 	// NOTE: requires SDL 2.24.
 	SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitor");
 #endif
+	if(settings["video"]["allowPortrait"].Bool())
+		SDL_SetHint(SDL_HINT_ORIENTATIONS, "Portrait PortraitUpsideDown LandscapeLeft LandscapeRight");
+	else
+		SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER))
 	{
@@ -482,7 +486,7 @@ SDL_Window * ScreenHandler::createWindow()
 #endif
 
 #ifdef VCMI_ANDROID
-	return createWindowImpl(Point(), SDL_WINDOW_FULLSCREEN, false);
+	return createWindowImpl(Point(), SDL_WINDOW_RESIZABLE, false);
 #endif
 }
 

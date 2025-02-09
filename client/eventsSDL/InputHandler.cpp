@@ -236,6 +236,14 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 			}
 #endif
 				break;
+			case SDL_WINDOWEVENT_SIZE_CHANGED:
+#ifdef VCMI_ANDROID
+			{
+				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+				GH.onScreenResize(true);
+			}
+#endif
+				break;
 			case SDL_WINDOWEVENT_FOCUS_GAINED:
 			{
 				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
