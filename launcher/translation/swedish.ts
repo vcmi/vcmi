@@ -472,7 +472,7 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
         <source>Full</source>
-        <translation>Hela</translation>
+        <translation>Fullständig</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="788"/>
@@ -487,7 +487,7 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
         <source>Handle back as right mouse button</source>
-        <translation>Hantera tillbaka som höger musknapp</translation>
+        <translation>Koppla funktionen för bakåtknappen till höger musknapp</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1102"/>
@@ -684,7 +684,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
         <source>Refresh now</source>
-        <translation>Uppdatera nu</translation>
+        <translation>Uppfräscha nu</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="451"/>
@@ -709,7 +709,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="429"/>
         <source>Heroes III Translation</source>
-        <translation>Heroes III - Översättning</translation>
+        <translation>Översättning av Heroes III</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
@@ -719,7 +719,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="982"/>
         <source>Fullscreen</source>
-        <translation>Helskärm</translation>
+        <translation>Visningsläge</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="212"/>
@@ -739,7 +739,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="222"/>
         <source>Autosave</source>
-        <translation>Auto-spara</translation>
+        <translation>Automatisk-sparfunktion i spelet</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="764"/>
@@ -749,7 +749,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="649"/>
         <source>Display index</source>
-        <translation>Visa index</translation>
+        <translation>Visningsindex/Displayindex</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="713"/>
@@ -870,7 +870,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="297"/>
         <source>Use offline installer from gog.com</source>
-        <translation>Använd offline-installationsprogrammet från gog.com</translation>
+        <translation>Använd &quot;Offline Backup Game Installers&quot; från gog.com</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="329"/>
@@ -900,7 +900,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="417"/>
         <source>If you already have Heroes III files on your device, you can select this directory and VCMI will copy the existing data automatically.</source>
-        <translation>Om du redan har Heroes III-filerna på din enhet kan du välja den här mappen och VCMI kommer automatiskt att kopiera befintliga data.</translation>
+        <translation>Ange destinationsmappen för en redan befintlig Heroes III-installation på din enhet så kopierar VCMI automatiskt över de nödvändiga filerna som behövs för att spela Heroes III inuti VCMI.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="459"/>
@@ -994,7 +994,8 @@ Heroes® of Might and Magic® III HD stöds för närvarande inte!</translation>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation>Om du äger Heroes III från GOG kan du ladda ner en säkerhetskopia (offline backup installers) från gog.com som består av två filer (en .exe-och en .bin-fil). När dessa två filer finns på datorn kan VCMI börja importera nödvändiga Heroes III-data ifrån dessa två filer</translation>
+        <translation>Om du äger Heroes III på gog.com så kan du ladda ner en säkerhetskopia (offline backup game installers) av spelet från gog.com som består av två filer (en .exe-och en .bin-fil). 
+När dessa två filer finns på din enhet kan VCMI börja importera nödvändiga Heroes III-data ifrån dessa två filer.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="557"/>
@@ -1005,7 +1006,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="594"/>
         <source>Install VCMI Mod Preset</source>
-        <translation>Installera VCMI Modd-förinställningar</translation>
+        <translation>Installera VCMI-modd-förinställningar</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="710"/>
@@ -1015,7 +1016,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="643"/>
         <source>Heroes III Translation</source>
-        <translation>Heroes III - Översättning</translation>
+        <translation>Översättning av Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="809"/>
@@ -1036,13 +1037,13 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="322"/>
         <source>Select %1 file...</source>
         <comment>param is file extension</comment>
-        <translation>Välj filen %1...</translation>
+        <translation>Välj %1-filen...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="323"/>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
-        <translation>Du behöver välja filen %1!</translation>
+        <translation>Du behöver välja %1-filen!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="325"/>
@@ -1067,12 +1068,12 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="351"/>
         <source>GOG installer</source>
-        <translation>GOG-installationsprogram</translation>
+        <translation>Offline Backup Game Installers (gog.com)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="396"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation>Du har tillhandahållit en GOG Galaxy-installationsfil! Den här filen innehåller inte spelet. Vänligen ladda ner säkerhetskopian av spelet (offline backup installers)!</translation>
+        <translation>Du har tillhandahållit en installationsfil av GOG Galaxy! Den här filen innehåller inte spelet. Vänligen ladda ner säkerhetskopian av spelet (offline backup game installers)!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="490"/>
@@ -1163,7 +1164,7 @@ Exe (%n bytes):
 %1</source>
         <comment>param is hash</comment>
         <translation>
-            <numerusform>SHA1-hash av tillhandahållna filer:
+            <numerusform>SHA1-hash av tillhandahållen fil:
 Exe (%n byte):
 %1</numerusform>
             <numerusform>SHA1-hash av tillhandahållna filer:
@@ -1222,7 +1223,7 @@ Bin (%n byte):
 %1
 
 %2</source>
-        <translation>Endast en fil känd! Filerna kanske är skadade? Prova med att ladda ner filen/filerna igen och försök igen.
+        <translation>Endast en fil kändes igen! Filerna kanske är skadade? Prova med att ladda ner filen/filerna på nytt och försök igen.
 %1
 
 %2</translation>
@@ -1365,12 +1366,12 @@ Bin (%n byte):
     <message>
         <location filename="../mainwindow_moc.cpp" line="287"/>
         <source>Replace config file?</source>
-        <translation>Vill du byta ut konfigurationsfilen?</translation>
+        <translation>Vill du ersätta/skriva över konfigurationsfilen?</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="287"/>
         <source>Do you want to replace %1?</source>
-        <translation>Vill du byta ut %1?</translation>
+        <translation>Vill du ersätta/skriva över %1?</translation>
     </message>
 </context>
 <context>
@@ -1447,7 +1448,7 @@ Bin (%n byte):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="198"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation>Modd-arkivet är ogiltigt eller korrupt</translation>
+        <translation>Modd-arkivet är ogiltigt eller felaktigt</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="224"/>
@@ -1679,7 +1680,7 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="657"/>
         <source>You are using the latest version</source>
-        <translation>Du använder den senaste versionen</translation>
+        <translation>Du har den senaste versionen</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="37"/>
@@ -1710,7 +1711,7 @@ Orsak: %2</translation>
         <location filename="../startGame/StartGameTab.cpp" line="184"/>
         <source>Update %n mods</source>
         <translation>
-            <numerusform>Uppdatera %n moddar</numerusform>
+            <numerusform>Uppdatera %n modd</numerusform>
             <numerusform>Uppdatera %n moddar</numerusform>
         </translation>
     </message>
@@ -1722,13 +1723,13 @@ Orsak: %2</translation>
             <numerusform>Hjältarnas krönikor (Heroes Chronicles):
 %n/%1 installerad</numerusform>
             <numerusform>Hjältarnas krönikor (Heroes Chronicles):
-%n/%1 installerad</numerusform>
+%n/%1 installerade</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="205"/>
         <source>Update to %1 available</source>
-        <translation>Uppdatering till %1 tillgänglig</translation>
+        <translation>Uppdatering tillgänglig (%1)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="241"/>
@@ -1792,7 +1793,7 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="309"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
-        <translation>Din Heroes III-version använder ett annat språk. VCMI tillhandahåller översättningar av spelet till olika språk som du kan använda. Använd det här alternativet för att automatiskt installera en sådan översättning till ditt språk.</translation>
+        <translation>Din Heroes III-version använder ett annat språk. VCMI tillhandahåller översättningar av spelet till olika språk som du kan använda. Använd det här alternativet för att automatiskt installera en sådan översättning till ditt valda språk.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="319"/>
@@ -1804,7 +1805,7 @@ Orsak: %2</translation>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation>En ny version av några av de moddar som du har installerat finns nu tillgängliga i moddarkivet. Använd det här alternativet för att automatiskt uppdatera alla dina moddar till den senaste versionen.
+        <translation>En ny version av några av de moddar som du har installerat finns nu tillgängliga i moddrepositoriet. Använd det här alternativet för att automatiskt uppdatera alla dina moddar till den senaste versionen.
 
 VARNING: I vissa fall kanske uppdaterade versioner av moddar inte är kompatibla med dina befintliga spelsparfiler. Du kanske vill skjuta upp modd-uppdateringen tills du har avslutat något av dina pågående spel.</translation>
     </message>
@@ -1812,8 +1813,8 @@ VARNING: I vissa fall kanske uppdaterade versioner av moddar inte är kompatibla
         <location filename="../startGame/StartGameTab.cpp" line="341"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-        <translation>Om du äger Hjältarnas krönikor (Heroes Chronicles) på gog.com kan du använda offline backup-installationsprogram som tillhandahålls av GOG för att importera Heroes Chronicles data till VCMI så att man kan spela dem som egna kampanjer.
-För att importera Hjältarnas krönikor (Heroes Chronicles) ska du först ladda ner offline backup installerare av varje krönika som du vill installera. Välj alternativet &apos;Importera filer&apos; och välj nedladdad fil. Detta kommer att generera och installera modden för VCMI som innehåller importerade krönikor</translation>
+        <translation>Om du äger Hjältarnas krönikor (Heroes Chronicles) på gog.com så kan du använda &quot;offline backup game installers&quot; som tillhandahålls av GOG för att importera Heroes Chronicles data till VCMI så att man kan spela dem i VCMI.
+För att importera Hjältarnas krönikor (Heroes Chronicles) ska du först ladda ner &quot;offline backup game installers&quot; av varje krönika som du vill installera. Välj alternativet &apos;Importera filer&apos; och välj nedladdad fil. Detta kommer att generera och installera modden för VCMI som innehåller importerade krönikor</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="354"/>
@@ -1887,7 +1888,7 @@ För att lösa problemet måste du kopiera de saknade datafilerna från Heroes I
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translation>Kan inte läsa JSON från URL eller felaktiga JSON-data</translation>
+        <translation>Misslyckades med att läsa in JSON från URL (JSON-data kan vara felaktiga)</translation>
     </message>
 </context>
 </TS>
