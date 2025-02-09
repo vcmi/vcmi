@@ -363,6 +363,8 @@
 	"vcmi.battleOptions.endWithAutocombat.help" : "{Přeskočit bitvu}\n\nAutomatický boj okamžitě dohraje bitvu do konce.",
 	"vcmi.battleOptions.showQuickSpell.hover" : "Zobrazit rychlý panel kouzel",
 	"vcmi.battleOptions.showQuickSpell.help" : "{Zobrazit rychlý panel kouzel}\n\nZobrazí panel pro rychlý výběr kouzel.",
+	"vcmi.battleOptions.showHealthBar.hover": "Zobrazit ukazatel zdraví",
+	"vcmi.battleOptions.showHealthBar.help": "{Zobrazit ukazatel zdraví}\n\nZobrazí ukazatel, který znázorňuje, kolik zdraví zbývá, než jednotka zemře.",
 
 	"vcmi.adventureMap.revisitObject.hover" : "Znovu navštívit objekt",
 	"vcmi.adventureMap.revisitObject.help" : "{Znovu navštívit objekt}\n\nPokud hrdina právě stojí na objektu na mapě, může toto místo znovu navštívit.",
