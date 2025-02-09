@@ -1447,9 +1447,20 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 			}
 		}
 
+		int fortLevel = 0;
+		auto visitableObjects = cb->getVisitableObjs(pos);
+		for (auto obj : visitableObjects)
+		{
+			if (objWithID<Obj::TOWN>(obj))
+			{
+				auto town = dynamic_cast<const CGTownInstance*>(obj);
+				fortLevel = town->fortLevel();
+			}
+		}
+
 		path.targetObjectArmyLoss = evaluateArmyLoss(
 			path.targetHero,
-			getHeroArmyStrengthWithCommander(path.targetHero, path.heroArmy),
+			getHeroArmyStrengthWithCommander(path.targetHero, path.heroArmy, fortLevel),
 			path.targetObjectDanger);
 
 		path.chainMask = node.actor->chainMask;

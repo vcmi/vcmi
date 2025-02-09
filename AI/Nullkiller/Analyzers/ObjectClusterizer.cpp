@@ -459,6 +459,8 @@ void ObjectClusterizer::clusterizeObject(
 			continue;
 		}
 
+		float priority = 0;
+
 		if(path.nodes.size() > 1)
 		{
 			auto blocker = getBlocker(path);
@@ -475,7 +477,10 @@ void ObjectClusterizer::clusterizeObject(
 
 				heroesProcessed.insert(path.targetHero);
 
-				float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), PriorityEvaluator::PriorityTier::HUNTER_GATHER);
+				for (int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
+				{
+					priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
+				}
 
 				if(ai->settings->isUseFuzzy() && priority < MIN_PRIORITY)
 					continue;
@@ -498,7 +503,10 @@ void ObjectClusterizer::clusterizeObject(
 
 		heroesProcessed.insert(path.targetHero);
 
-		float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), PriorityEvaluator::PriorityTier::HUNTER_GATHER);
+		for (int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
+		{
+			priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
+		}
 
 		if (ai->settings->isUseFuzzy() && priority < MIN_PRIORITY)
 			continue;
