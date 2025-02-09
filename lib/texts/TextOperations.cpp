@@ -307,7 +307,10 @@ bool TextOperations::textSearchSimilar(const std::string & s, const std::string 
 	if(boost::algorithm::contains(haystack, needle))
 		return true;
 
-	for(int i = 0; i < haystack.size() - needle.size(); i++)
+	if(needle.size() > haystack.size())
+		return false;
+
+	for(int i = 0; i < haystack.size() - needle.size() + 1; i++)
 	{
 		auto dist = getLevenshteinDistance(haystack.substr(i, needle.size()), needle);
 		if(needle.size() > 2 && dist <= 1)
