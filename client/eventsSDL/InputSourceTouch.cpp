@@ -333,8 +333,8 @@ void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 	float newX = thisX - otherX;
 	float newY = thisY - otherY;
 
-	double distanceOld = std::sqrt(oldX * oldX + oldY + oldY);
-	double distanceNew = std::sqrt(newX * newX + newY + newY);
+	double distanceOld = std::sqrt(oldX * oldX + oldY * oldY);
+	double distanceNew = std::sqrt(newX * newX + newY * newY);
 
 	if (distanceOld > params.pinchSensitivityThreshold)
 		GH.events().dispatchGesturePinch(lastTapPosition, distanceNew / distanceOld);
