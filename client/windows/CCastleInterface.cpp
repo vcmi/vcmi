@@ -20,6 +20,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
+#include "../eventsSDL/InputHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
@@ -175,7 +176,7 @@ void CBuildingRect::show(Canvas & to)
 {
 	uint32_t stageDelay = BUILDING_APPEAR_TIMEPOINT;
 
-	bool showTextOverlay = GH.isKeyboardAltDown();
+	bool showTextOverlay = GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2;
 
 	if(stateTimeCounter < BUILDING_APPEAR_TIMEPOINT)
 	{
@@ -692,7 +693,7 @@ void CCastleBuildings::show(Canvas & to)
 {
 	CIntObject::show(to);
 
-	bool showTextOverlay = GH.isKeyboardAltDown();
+	bool showTextOverlay = GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2;
 	if(showTextOverlay)
 		drawOverlays(to, buildings);
 }

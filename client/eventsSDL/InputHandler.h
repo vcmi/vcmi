@@ -90,6 +90,9 @@ public:
 	/// returns true if system has active touchscreen
 	bool hasTouchInputDevice() const;
 
+	/// returns number of fingers on touchscreen
+	int getNumTouchFingers() const;
+
 	/// Calls provided functor in main thread on next execution frame
 	void dispatchMainThread(const std::function<void()> & functor);
 
