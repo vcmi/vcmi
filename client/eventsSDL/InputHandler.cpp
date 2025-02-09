@@ -389,6 +389,13 @@ bool InputHandler::hasTouchInputDevice() const
 	return fingerHandler->hasTouchInputDevice();
 }
 
+int InputHandler::getNumTouchFingers() const
+{
+	if(currentInputMode != InputMode::TOUCH)
+		return 0;
+	return fingerHandler->getNumTouchFingers();
+}
+
 void InputHandler::dispatchMainThread(const std::function<void()> & functor)
 {
 	auto heapFunctor = new std::function<void()>(functor);

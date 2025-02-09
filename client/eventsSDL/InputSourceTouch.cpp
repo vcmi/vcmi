@@ -34,7 +34,7 @@
 #include <SDL_timer.h>
 
 InputSourceTouch::InputSourceTouch()
-	: lastTapTimeTicks(0), lastLeftClickTimeTicks(0)
+	: lastTapTimeTicks(0), lastLeftClickTimeTicks(0), numTouchFingers(0)
 {
 	params.useRelativeMode = settings["general"]["userRelativePointer"].Bool();
 	params.relativeModeSpeedFactor = settings["general"]["relativePointerSpeedMultiplier"].Float();
@@ -114,6 +114,8 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 
 void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinger)
 {
+	numTouchFingers = SDL_GetNumTouchFingers(tfinger.touchId);
+
 	// FIXME: better place to update potentially changed settings?
 	params.longTouchTimeMilliseconds = settings["general"]["longTouchTimeMilliseconds"].Float();
 	params.hapticFeedbackEnabled = settings["general"]["hapticFeedback"].Bool();
@@ -172,6 +174,8 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 
 void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 {
+	numTouchFingers = SDL_GetNumTouchFingers(tfinger.touchId);
+
 	switch(state)
 	{
 		case TouchState::RELATIVE_MODE:
@@ -278,6 +282,11 @@ Point InputSourceTouch::convertTouchToMouse(float x, float y)
 bool InputSourceTouch::hasTouchInputDevice() const
 {
 	return SDL_GetNumTouchDevices() > 0;
+}
+
+int InputSourceTouch::getNumTouchFingers() const
+{
+	return numTouchFingers;
 }
 
 void InputSourceTouch::emitPanningEvent(const SDL_TouchFingerEvent & tfinger)
