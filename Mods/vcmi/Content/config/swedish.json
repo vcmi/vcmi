@@ -363,6 +363,8 @@
 	"vcmi.battleOptions.endWithAutocombat.help"          : "{Slutför striden så fort som möjligt}\n\nAI för auto-strid spelar striden åt dig för att striden ska slutföras så fort som möjligt.",
 	"vcmi.battleOptions.showQuickSpell.hover"            : "Snabb åtkomst till dina trollformler",
 	"vcmi.battleOptions.showQuickSpell.help"             : "{Visa snabbtrollformels-panelen}\n\nVisar en snabbvalspanel vid sidan av stridsfönstret där du har snabb åtkomst till några av dina trollformler",
+	"vcmi.battleOptions.showHealthBar.hover"             : "Visa hälsoindikator",
+	"vcmi.battleOptions.showHealthBar.help"              : "{Visa hälsoindikator}\n\nVisar en indikator som visar hur mycket hälsa som återstår innan enheten stupar.",
 
 	"vcmi.adventureMap.revisitObject.hover" : "Gör ett återbesök",
 	"vcmi.adventureMap.revisitObject.help"  : "{Återbesök kartobjekt}\n\nEn hjälte som för närvarande står på ett kartobjekt kan göra ett återbesök (utan att först behöva avlägsna sig från kartobjektet för att sedan göra ett återbesök).",
