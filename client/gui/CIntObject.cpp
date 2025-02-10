@@ -238,15 +238,8 @@ void CIntObject::redraw()
 		}
 		else
 		{
-			Canvas buffer = Canvas::createFromSurface(screenBuf, CanvasScalingPolicy::AUTO);
-
+			Canvas buffer = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
 			showAll(buffer);
-			if(screenBuf != screen)
-			{
-				Canvas screenBuffer = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
-
-				showAll(screenBuffer);
-			}
 		}
 	}
 }

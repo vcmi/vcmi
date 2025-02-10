@@ -131,8 +131,6 @@ void AdventureMapInterface::activate()
 
 	adjustActiveness();
 
-	screenBuf = screen;
-	
 	if(LOCPLINT)
 	{
 		LOCPLINT->cingconsole->activate();
@@ -453,8 +451,7 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 		widget->getInfoBar()->showDate();
 
 	onHeroChanged(nullptr);
-	Canvas canvas = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
-	showAll(canvas);
+	GH.windows().totalRedraw();
 	mapAudio->onPlayerTurnStarted();
 
 	if(settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())

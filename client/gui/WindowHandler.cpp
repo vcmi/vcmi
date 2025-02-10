@@ -42,9 +42,6 @@ void WindowHandler::pushWindow(std::shared_ptr<IShowActivatable> newInt)
 	if (vstd::contains(windowsStack, newInt))
 		throw std::runtime_error("Attempt to add already existing window to stack!");
 
-	//a new interface will be present, we'll need to use buffer surface (unless it's advmapint that will alter screenBuf on activate anyway)
-	screenBuf = screen2;
-
 	if(!windowsStack.empty())
 		windowsStack.back()->deactivate();
 	windowsStack.push_back(newInt);
@@ -111,11 +108,10 @@ void WindowHandler::totalRedrawImpl()
 {
 	logGlobal->debug("totalRedraw requested!");
 
-	Canvas target = Canvas::createFromSurface(screen2, CanvasScalingPolicy::AUTO);
+	Canvas target = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
 
 	for(auto & elem : windowsStack)
 		elem->showAll(target);
-	CSDL_Ext::blitAt(screen2, 0, 0, screen);
 }
 
 void WindowHandler::simpleRedraw()
@@ -130,10 +126,6 @@ void WindowHandler::simpleRedraw()
 
 void WindowHandler::simpleRedrawImpl()
 {
-	//update only top interface and draw background
-	if(windowsStack.size() > 1)
-		CSDL_Ext::blitAt(screen2, 0, 0, screen); //blit background
-
 	Canvas target = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
 
 	if(!windowsStack.empty())

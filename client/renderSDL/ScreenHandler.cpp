@@ -35,8 +35,6 @@ static SDL_Window * mainWindow = nullptr;
 SDL_Renderer * mainRenderer = nullptr;
 SDL_Texture * screenTexture = nullptr;
 SDL_Surface * screen = nullptr; //main screen surface
-SDL_Surface * screen2 = nullptr; //and hlp surface (used to store not-active interfaces layer)
-SDL_Surface * screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 
 static const std::string NAME = GameConstants::VCMI_VERSION; //application name
 static constexpr Point heroes3Resolution = Point(800, 600);
@@ -434,18 +432,6 @@ void ScreenHandler::initializeScreenBuffers()
 		throw std::runtime_error("Unable to create screen texture");
 	}
 
-	screen2 = CSDL_Ext::copySurface(screen);
-
-	if(nullptr == screen2)
-	{
-		throw std::runtime_error("Unable to copy surface\n");
-	}
-
-	if (GH.windows().count() > 1)
-		screenBuf = screen2;
-	else
-		screenBuf = screen;
-
 	clearScreen();
 }
 
@@ -590,15 +576,6 @@ int ScreenHandler::getPreferredRenderingDriver() const
 
 void ScreenHandler::destroyScreenBuffers()
 {
-	// screenBuf is not a separate surface, but points to either screen or screen2 - just set to null
-	screenBuf = nullptr;
-
-	if(nullptr != screen2)
-	{
-		SDL_FreeSurface(screen2);
-		screen2 = nullptr;
-	}
-
 	if(nullptr != screen)
 	{
 		SDL_FreeSurface(screen);
