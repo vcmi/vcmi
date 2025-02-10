@@ -116,6 +116,15 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 		objectTemplate.subid = mappedType.subID;
 	}
 
+	if (objectTemplate.id == Obj::TOWN || objectTemplate.id == Obj::RANDOM_DWELLING_FACTION)
+		objectTemplate.subid = remap(FactionID(objectTemplate.subid));
+
+	if (objectTemplate.id == Obj::MONSTER)
+		objectTemplate.subid = remap(CreatureID(objectTemplate.subid));
+
+	if (objectTemplate.id == Obj::ARTIFACT)
+		objectTemplate.subid = remap(ArtifactID(objectTemplate.subid));
+
 	if (VLC->objtypeh->knownObjects().count(objectTemplate.id) == 0)
 	{
 		logGlobal->warn("Unknown object found: %d | %d", objectTemplate.id, objectTemplate.subid);
@@ -131,15 +140,6 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 			objectTemplate.subid = {};
 		}
 	}
-
-	if (objectTemplate.id == Obj::TOWN || objectTemplate.id == Obj::RANDOM_DWELLING_FACTION)
-		objectTemplate.subid = remap(FactionID(objectTemplate.subid));
-
-	if (objectTemplate.id == Obj::MONSTER)
-		objectTemplate.subid = remap(CreatureID(objectTemplate.subid));
-
-	if (objectTemplate.id == Obj::ARTIFACT)
-		objectTemplate.subid = remap(ArtifactID(objectTemplate.subid));
 }
 
 BuildingID MapIdentifiersH3M::remapBuilding(std::optional<FactionID> owner, BuildingID input) const
