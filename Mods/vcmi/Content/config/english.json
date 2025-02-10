@@ -23,9 +23,9 @@
 	"vcmi.adventureMap.noTownWithTavern"                 : "There are no available towns with taverns!",
 	"vcmi.adventureMap.spellUnknownProblem"              : "There is an unknown problem with this spell! No more information is available.",
 	"vcmi.adventureMap.playerAttacked"                   : "Player has been attacked: %s",
-	"vcmi.adventureMap.moveCostDetails"                  : "Movement points - Cost: %TURNS turns + %POINTS points, Remaining points: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Movement points - Cost: %POINTS points, Remaining points: %REMAINING",
-	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Movement points: %REMAINING / %POINTS)",
+	"vcmi.adventureMap.moveCostDetails"                  : "Moving here will cost {%TOTAL} points in total ({%TURNS} turns and {%POINTS} points). {%REMAINING} points will remain after moving.",
+	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Moving here will cost {%POINTS} points. {%REMAINING} points will remain after moving.",
+	"vcmi.adventureMap.movementPointsHeroInfo"           : "(Movement points: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Sorry, replay opponent turn is not implemented yet!",
 
 	"vcmi.bonusSource.artifact" : "Artifact",

@@ -23,8 +23,8 @@
 	"vcmi.adventureMap.noTownWithTavern"    : "Немає доступного міста з таверною!",
 	"vcmi.adventureMap.spellUnknownProblem" : "Невідома проблема з цим заклинанням, більше інформації немає.",
 	"vcmi.adventureMap.playerAttacked"      : "Гравця атаковано: %s",
-	"vcmi.adventureMap.moveCostDetails" : "Очки руху - Вартість: %TURNS ходів + %POINTS очок. Залишок очок: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Очки руху - Вартість: %POINTS очок, Залишок очок: %REMAINING",
+	"vcmi.adventureMap.moveCostDetails"     : "Переміщення сюди коштуватиме {%TOTAL} очок загалом ({%TURNS} ходів і {%POINTS} очок). Після переміщення залишиться {%REMAINING} очок.",
+	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Переміщення сюди коштуватиме {%TOTAL} очок. Після переміщення залишиться {%REMAINING} очок.",
 	"vcmi.adventureMap.movementPointsHeroInfo" : "(Очки руху: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Вибачте, функція повтору ходу суперника ще не реалізована!",
 
