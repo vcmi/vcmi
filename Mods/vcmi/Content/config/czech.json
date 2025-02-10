@@ -23,8 +23,6 @@
 	"vcmi.adventureMap.noTownWithTavern"       : "Nejsou dostupná žádná města s putykou!",
 	"vcmi.adventureMap.spellUnknownProblem"    : "Neznámý problém s tímto kouzlem! Další informace nejsou k dispozici.",
 	"vcmi.adventureMap.playerAttacked"         : "Hráč byl napaden: %s",
-	"vcmi.adventureMap.moveCostDetails"        : "Body pohybu - Cena: %TURNS tahů + %POINTS bodů, zbylé body: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Body pohybu - Cena: %POINTS bodů, zbylé body: %REMAINING",
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Body pohybu: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Omlouváme se, přehrání tahu soupeře ještě není implementováno!",
 

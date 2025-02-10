@@ -23,8 +23,6 @@
 	"vcmi.adventureMap.noTownWithTavern": "Thành không có sẵn quán rượu!",
 	"vcmi.adventureMap.spellUnknownProblem": "Phép này có lỗi! Không có thông tin nào khác.",
 	"vcmi.adventureMap.playerAttacked": "Người chơi bị tấn công: %s",
-	"vcmi.adventureMap.moveCostDetails": "Điểm di chuyển - Cần: %TURNS lượt + %POINTS điểm, Còn lại: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns": "Điểm di chuyển - Cần: %POINTS điểm, Còn lại: %REMAINING",
 	"vcmi.adventureMap.movementPointsHeroInfo": "(Điểm di chuyển: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented": "Xin lỗi, lượt chơi lại của đối thủ vẫn chưa được triển khai!",
 

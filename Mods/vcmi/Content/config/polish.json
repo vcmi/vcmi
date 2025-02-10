@@ -23,8 +23,6 @@
 	"vcmi.adventureMap.noTownWithTavern"       : "Brak dostępnego miasta z karczmą!",
 	"vcmi.adventureMap.spellUnknownProblem"    : "Nieznany problem z zaklęciem, brak dodatkowych informacji.",
 	"vcmi.adventureMap.playerAttacked"         : "Gracz został zaatakowany: %s",
-	"vcmi.adventureMap.moveCostDetails"        : "Punkty ruchu - Koszt: %TURNS tury + %POINTS punktów, Pozostanie: %REMAINING punktów",
-	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Punkty ruchu - Koszt: %POINTS punktów, Pozostanie: %REMAINING punktów",
 	"vcmi.adventureMap.movementPointsHeroInfo" : "(Punkty ruchu: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Wybacz, powtórka ruchu wroga nie została jeszcze zaimplementowana!",
 

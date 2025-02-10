@@ -23,8 +23,6 @@
 	"vcmi.adventureMap.noTownWithTavern"                 : "Nincsenek elérhető kocsmával rendelkező városok!",
 	"vcmi.adventureMap.spellUnknownProblem"              : "Ismeretlen probléma van ezzel a varázslattal! További információ nem érhető el.",
 	"vcmi.adventureMap.playerAttacked"                   : "A játékost megtámadták: %s",
-	"vcmi.adventureMap.moveCostDetails"                  : "Mozgáspontok - Költség: %TURNS kör + %POINTS pont, Hátralévő pontok: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Mozgáspontok - Költség: %POINTS pont, Hátralévő pontok: %REMAINING",
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Mozgáspontok: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Sajnáljuk, az ellenfél körének visszajátszása még nincs megvalósítva!",
 

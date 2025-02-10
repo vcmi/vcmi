@@ -23,8 +23,6 @@
 	"vcmi.adventureMap.noTownWithTavern"                 : "Não há cidades disponíveis com tavernas!",
 	"vcmi.adventureMap.spellUnknownProblem"              : "Há um problema desconhecido com este feitiço! Não há mais informações disponíveis.",
 	"vcmi.adventureMap.playerAttacked"                   : "O jogador foi atacado: %s",
-	"vcmi.adventureMap.moveCostDetails"                  : "Pontos de movimento - Custo: %TURNS turnos + %POINTS pontos, Pontos restantes: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Pontos de movimento - Custo: %POINTS pontos, Pontos restantes: %REMAINING",
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Pontos de movimento: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Desculpe, a repetição do turno do oponente ainda não está implementada!",
 
