@@ -19,7 +19,6 @@
 #include "BattleStacksController.h"
 #include "CreatureAnimation.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../GameEngine.h"

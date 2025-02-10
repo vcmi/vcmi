@@ -13,7 +13,6 @@
 #include "StdInc.h"
 #include "../Global.h"
 
-#include "../client/CGameInfo.h"
 #include "../client/ClientCommandManager.h"
 #include "../client/CMT.h"
 #include "../client/CPlayerInterface.h"
@@ -81,7 +80,6 @@ static void init()
 	try
 	{
 		loadDLLClasses();
-		CGI->setFromLib();
 	}
 	catch (const DataLoadingException & e)
 	{
@@ -261,6 +259,7 @@ int main(int argc, char * argv[])
 	};
 
 	setSettingBool("session/onlyai", "onlyAI");
+	setSettingBool("session/disableVideo", "disable-video");
 	if(vm.count("headless"))
 	{
 		session["headless"].Bool() = true;
@@ -308,7 +307,6 @@ int main(int argc, char * argv[])
 	if(!settings["session"]["headless"].Bool())
 		ENGINE->init();
 
-	CGI = new CGameInfo(); //contains all global information about game (texts, lodHandlers, map handler etc.)
 	CSH = new CServerHandler();
 	
 #ifndef VCMI_NO_THREADED_LOAD
@@ -344,7 +342,7 @@ int main(int argc, char * argv[])
 	{
 		pomtime.getDiff();
 		graphics = new Graphics(); // should be before curh
-		ENGINE->renderHandler().onLibraryLoadingFinished(CGI);
+		ENGINE->renderHandler().onLibraryLoadingFinished(VLC);
 
 		CMessage::init();
 		logGlobal->info("Message handler: %d ms", pomtime.getDiff());
@@ -489,9 +487,9 @@ void handleQuit(bool ask)
 	}
 
 	if (LOCPLINT)
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
+		LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[69], quitApplication, nullptr);
 	else
-		CInfoWindow::showYesNoDialog(CGI->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
+		CInfoWindow::showYesNoDialog(VLC->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
 }
 
 /// Notify user about encountered fatal error and terminate the game

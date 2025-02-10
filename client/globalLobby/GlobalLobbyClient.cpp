@@ -16,7 +16,6 @@
 #include "GlobalLobbyObserver.h"
 #include "GlobalLobbyWindow.h"
 
-#include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
@@ -29,6 +28,7 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/MetaString.h"
 #include "../../lib/texts/TextOperations.h"
+#include "../../lib/VCMI_Lib.h"
 
 GlobalLobbyClient::GlobalLobbyClient()
 {
@@ -37,8 +37,8 @@ GlobalLobbyClient::GlobalLobbyClient()
 	if (customChannels.empty())
 	{
 		activeChannels.emplace_back("english");
-		if (CGI->generaltexth->getPreferredLanguage() != "english")
-			activeChannels.emplace_back(CGI->generaltexth->getPreferredLanguage());
+		if (VLC->generaltexth->getPreferredLanguage() != "english")
+			activeChannels.emplace_back(VLC->generaltexth->getPreferredLanguage());
 	}
 	else
 	{
@@ -379,7 +379,7 @@ void GlobalLobbyClient::sendClientRegister(const std::string & accountName)
 	JsonNode toSend;
 	toSend["type"].String() = "clientRegister";
 	toSend["displayName"].String() = accountName;
-	toSend["language"].String() = CGI->generaltexth->getPreferredLanguage();
+	toSend["language"].String() = VLC->generaltexth->getPreferredLanguage();
 	toSend["version"].String() = VCMI_VERSION_STRING;
 	sendMessage(toSend);
 }
@@ -390,7 +390,7 @@ void GlobalLobbyClient::sendClientLogin()
 	toSend["type"].String() = "clientLogin";
 	toSend["accountID"].String() = getAccountID();
 	toSend["accountCookie"].String() = getAccountCookie();
-	toSend["language"].String() = CGI->generaltexth->getPreferredLanguage();
+	toSend["language"].String() = VLC->generaltexth->getPreferredLanguage();
 	toSend["version"].String() = VCMI_VERSION_STRING;
 
 	for (const auto & language : activeChannels)

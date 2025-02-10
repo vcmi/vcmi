@@ -15,7 +15,6 @@
 #include "../../widgets/TextControls.h"
 #include "../../windows/InfoWindows.h"
 
-#include "../../CGameInfo.h"
 #include "../../CPlayerInterface.h"
 
 #include "../../../CCallback.h"
@@ -139,9 +138,9 @@ int CTradeableItem::getIndex()
 		return id;
 	case EType::ARTIFACT_TYPE:
 	case EType::ARTIFACT:
-		return CGI->artifacts()->getByIndex(id)->getIconIndex();
+		return VLC->artifacts()->getByIndex(id)->getIconIndex();
 	case EType::CREATURE:
-		return CGI->creatures()->getByIndex(id)->getIconIndex();
+		return VLC->creatures()->getByIndex(id)->getIconIndex();
 	default:
 		return -1;
 	}
@@ -164,20 +163,20 @@ void CTradeableItem::hover(bool on)
 	switch(type)
 	{
 	case EType::CREATURE:
-		ENGINE->statusbar()->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->getNamePluralTranslated()));
+		ENGINE->statusbar()->write(boost::str(boost::format(VLC->generaltexth->allTexts[481]) % VLC->creh->objects[id]->getNamePluralTranslated()));
 		break;
 	case EType::ARTIFACT_TYPE:
 	case EType::ARTIFACT:
 		if(id < 0)
-			ENGINE->statusbar()->write(CGI->generaltexth->zelp[582].first);
+			ENGINE->statusbar()->write(VLC->generaltexth->zelp[582].first);
 		else
-			ENGINE->statusbar()->write(CGI->artifacts()->getByIndex(id)->getNameTranslated());
+			ENGINE->statusbar()->write(VLC->artifacts()->getByIndex(id)->getNameTranslated());
 		break;
 	case EType::RESOURCE:
-		ENGINE->statusbar()->write(CGI->generaltexth->restypes[id]);
+		ENGINE->statusbar()->write(VLC->generaltexth->restypes[id]);
 		break;
 	case EType::PLAYER:
-		ENGINE->statusbar()->write(CGI->generaltexth->capColors[id]);
+		ENGINE->statusbar()->write(VLC->generaltexth->capColors[id]);
 		break;
 	}
 }
@@ -191,7 +190,7 @@ void CTradeableItem::showPopupWindow(const Point & cursorPosition)
 	case EType::ARTIFACT_TYPE:
 	case EType::ARTIFACT:
 		if (id >= 0)
-			CRClickPopup::createAndPush(CGI->artifacts()->getByIndex(id)->getDescriptionTranslated());
+			CRClickPopup::createAndPush(VLC->artifacts()->getByIndex(id)->getDescriptionTranslated());
 		break;
 	}
 }
@@ -316,7 +315,7 @@ PlayersPanel::PlayersPanel(const CTradeableItem::ClickPressedFunctor & clickPres
 		slot = std::make_shared<CTradeableItem>(Rect(slotsPos[slotNum], slotDimension), EType::PLAYER, players[slotNum].num, slotNum);
 		slot->clickPressedCallback = clickPressedCallback;
 		slot->setSelectionWidth(selectionWidth);
-		slot->subtitle->setText(CGI->generaltexth->capColors[players[slotNum].num]);
+		slot->subtitle->setText(VLC->generaltexth->capColors[players[slotNum].num]);
 		slotNum++;
 	}
 	showcaseSlot = std::make_shared<CTradeableItem>(Rect(selectedPos, slotDimension), EType::PLAYER, 0, 0);

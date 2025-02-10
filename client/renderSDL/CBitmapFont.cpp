@@ -13,7 +13,6 @@
 #include "SDL_Extensions.h"
 #include "SDLImageScaler.h"
 
-#include "../CGameInfo.h"
 #include "../GameEngine.h"
 #include "../render/Colors.h"
 #include "../render/IImage.h"

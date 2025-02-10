@@ -18,7 +18,6 @@
 #include "BattleStacksController.h"
 #include "BattleWindow.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
@@ -462,7 +461,7 @@ std::vector<std::tuple<SpellID, bool>> QuickSpellPanel::getSpells() const
 		if(spellIds[i] != SpellID::NONE)
 			continue;
 
-		for(const auto & availableSpellID : CGI->spellh->getDefaultAllowed())
+		for(const auto & availableSpellID : VLC->spellh->getDefaultAllowed())
 		{
 			const auto * availableSpell = availableSpellID.toSpell();
 			if(!availableSpell->isAdventure() && !availableSpell->isCreatureAbility() && hero->canCastThisSpell(availableSpell) && !vstd::contains(spellIds, availableSpell->getId()))
@@ -572,10 +571,10 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.getIconIndex(), 0, 10, 6));
 
 	//primary stats
-	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 87, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[381] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[382] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[383] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[380] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 87, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[381] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[382] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[383] + ":"));
 
 	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(attack)));
 	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(defense)));
@@ -583,14 +582,14 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(knowledge)));
 
 	//morale+luck
-	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[384] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[385] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[384] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[385] + ":"));
 
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("IMRL22"), morale + 3, 0, 47, 131));
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ILCK22"), luck + 3, 0, 47, 143));
 
 	//spell points
-	labels.push_back(std::make_shared<CLabel>(39, 174, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[387]));
+	labels.push_back(std::make_shared<CLabel>(39, 174, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->allTexts[387]));
 	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
 }
 
@@ -633,9 +632,9 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), stack->creatureId() + 2, 0, 10, 6));
 	labels.push_back(std::make_shared<CLabel>(10 + 58, 6 + 64, FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, TextOperations::formatMetric(stack->getCount(), 4)));
 
-	auto attack = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getAttack(stack->isShooter())) + "(" + std::to_string(stack->getAttack(stack->isShooter())) + ")";
-	auto defense = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getDefense(stack->isShooter())) + "(" + std::to_string(stack->getDefense(stack->isShooter())) + ")";
-	auto damage = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getMinDamage(stack->isShooter())) + "-" + std::to_string(stack->getMaxDamage(stack->isShooter()));
+	auto attack = std::to_string(VLC->creatures()->getByIndex(stack->creatureIndex())->getAttack(stack->isShooter())) + "(" + std::to_string(stack->getAttack(stack->isShooter())) + ")";
+	auto defense = std::to_string(VLC->creatures()->getByIndex(stack->creatureIndex())->getDefense(stack->isShooter())) + "(" + std::to_string(stack->getDefense(stack->isShooter())) + ")";
+	auto damage = std::to_string(VLC->creatures()->getByIndex(stack->creatureIndex())->getMinDamage(stack->isShooter())) + "-" + std::to_string(stack->getMaxDamage(stack->isShooter()));
 	auto health = stack->getMaxHealth();
 	auto morale = stack->moraleVal();
 	auto luck = stack->luckVal();
@@ -644,10 +643,10 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	auto healthRemaining = TextOperations::formatMetric(std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * health, (si64)0), 4);
 
 	//primary stats*/
-	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 87, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[381] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[386] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[389] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[380] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 87, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[381] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[386] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[389] + ":"));
 
 	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, attack));
 	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, defense));
@@ -655,15 +654,15 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(health)));
 
 	//morale+luck
-	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[384] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[385] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[384] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[385] + ":"));
 
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("IMRL22"), morale + 3, 0, 47, 131));
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ILCK22"), luck + 3, 0, 47, 143));
 
 	//extra information
 	labels.push_back(std::make_shared<CLabel>(9, 168, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->translate("vcmi.battleWindow.killed") + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 180, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[389] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 180, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[389] + ":"));
 
 	labels.push_back(std::make_shared<CLabel>(69, 180, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(killed)));
 	labels.push_back(std::make_shared<CLabel>(69, 192, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, healthRemaining));
@@ -702,7 +701,7 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	}
 
 	if(spells.size() == 0)
-		labelsMultiline.push_back(std::make_shared<CMultiLineLabel>(Rect(firstPos.x, firstPos.y, 48, 36), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[674]));
+		labelsMultiline.push_back(std::make_shared<CMultiLineLabel>(Rect(firstPos.x, firstPos.y, 48, 36), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->allTexts[674]));
 	if(spells.size() > 3)
 		labelsMultiline.push_back(std::make_shared<CMultiLineLabel>(Rect(firstPos.x + offset.x * 2, firstPos.y + offset.y * 2 - 4, 48, 36), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "..."));
 }
@@ -750,30 +749,30 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	{
 		repeat = std::make_shared<CButton>(Point(24, 505), AnimationPath::builtin("icn6432.def"), std::make_pair("", ""), [&](){ bRepeatf();}, EShortcut::GLOBAL_CANCEL);
 		repeat->setBorderColor(Colors::METALLIC_GOLD);
-		labels.push_back(std::make_shared<CLabel>(232, 520, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.battleResultsWindow.applyResultsLabel")));
+		labels.push_back(std::make_shared<CLabel>(232, 520, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->translate("vcmi.battleResultsWindow.applyResultsLabel")));
 	}
 
 	if(br.winner == BattleSide::ATTACKER)
 	{
-		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
+		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->allTexts[410]));
 	}
 	else
 	{
-		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
+		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->allTexts[411]));
 	}
 	
 	if(br.winner == BattleSide::DEFENDER)
 	{
-		labels.push_back(std::make_shared<CLabel>(412, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
+		labels.push_back(std::make_shared<CLabel>(412, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->allTexts[410]));
 	}
 	else
 	{
-		labels.push_back(std::make_shared<CLabel>(408, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
+		labels.push_back(std::make_shared<CLabel>(408, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->allTexts[411]));
 	}
 
-	labels.push_back(std::make_shared<CLabel>(232, 302, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,  CGI->generaltexth->allTexts[407]));
-	labels.push_back(std::make_shared<CLabel>(232, 332, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[408]));
-	labels.push_back(std::make_shared<CLabel>(232, 428, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[409]));
+	labels.push_back(std::make_shared<CLabel>(232, 302, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,  VLC->generaltexth->allTexts[407]));
+	labels.push_back(std::make_shared<CLabel>(232, 332, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->allTexts[408]));
+	labels.push_back(std::make_shared<CLabel>(232, 428, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->allTexts[409]));
 
 	std::string sideNames[2] = {"N/A", "N/A"};
 
@@ -817,7 +816,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	{
 		if(br.casualties[step].size()==0)
 		{
-			labels.push_back(std::make_shared<CLabel>(235, 360 + 97 * static_cast<int>(step), FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[523]));
+			labels.push_back(std::make_shared<CLabel>(235, 360 + 97 * static_cast<int>(step), FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->allTexts[523]));
 		}
 		else
 		{
@@ -825,7 +824,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 			int yPos = 344 + static_cast<int>(step) * 97;
 			for(auto & elem : br.casualties[step])
 			{
-				auto creature = CGI->creatures()->getByIndex(elem.first);
+				auto creature = VLC->creatures()->getByIndex(elem.first);
 				if (creature->getId() == CreatureID::ARROW_TOWERS )
 					continue; // do not show destroyed towers in battle results
 

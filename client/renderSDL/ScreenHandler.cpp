@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "ScreenHandler.h"
 
-#include "../CGameInfo.h"
 #include "../CMT.h"
 #include "../eventsSDL/NotificationHandler.h"
 #include "../GameEngine.h"

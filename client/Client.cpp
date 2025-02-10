@@ -11,7 +11,6 @@
 #include "Global.h"
 #include "Client.h"
 
-#include "CGameInfo.h"
 #include "CPlayerInterface.h"
 #include "PlayerLocalState.h"
 #include "CServerHandler.h"
@@ -91,7 +90,7 @@ CClient::~CClient() = default;
 
 const Services * CClient::services() const
 {
-	return VLC; //todo: this should be CGI
+	return VLC; //todo: this should be VLC
 }
 
 const CClient::BattleCb * CClient::battle(const BattleID & battleID) const
@@ -168,8 +167,8 @@ void CClient::save(const std::string & fname)
 
 void CClient::endNetwork()
 {
-	if (CGI->mh)
-		CGI->mh->endNetwork();
+	if (MAPHANDLER)
+		MAPHANDLER->endNetwork();
 
 	if (CPlayerInterface::battleInt)
 		CPlayerInterface::battleInt->endNetwork();
@@ -197,7 +196,7 @@ void CClient::endGame()
 		logNetwork->info("Ending current game!");
 		removeGUI();
 
-		CGI->mh.reset();
+		MAPHANDLER.reset();
 		vstd::clear_pointer(gs);
 
 		logNetwork->info("Deleted mapHandler and gameState.");
@@ -219,7 +218,7 @@ void CClient::initMapHandler()
 	// During loading CPlayerInterface from serialized state it's depend on MH
 	if(!settings["session"]["headless"].Bool())
 	{
-		CGI->mh = std::make_shared<CMapHandler>(gs->map);
+		MAPHANDLER = std::make_unique<CMapHandler>(gs->map);
 		logNetwork->trace("Creating mapHandler: %d ms", CSH->th->getDiff());
 	}
 }

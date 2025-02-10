@@ -14,7 +14,6 @@
 #include "CIntObject.h"
 #include "CursorHandler.h"
 
-#include "../CGameInfo.h"
 #include "../render/Canvas.h"
 #include "../render/IScreenHandler.h"
 #include "../render/Colors.h"

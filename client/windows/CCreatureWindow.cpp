@@ -13,7 +13,6 @@
 #include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../render/Canvas.h"
 #include "../widgets/Buttons.h"
@@ -221,7 +220,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 	std::vector<SpellID> spells = battleStack->activeSpells();
 	for(SpellID effect : spells)
 	{
-		const spells::Spell * spell = CGI->spells()->getById(effect);
+		const spells::Spell * spell = VLC->spells()->getById(effect);
 
 		std::string spellText;
 
@@ -231,7 +230,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 
 		if (hasGraphics)
 		{
-			spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
+			spellText = VLC->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
 			boost::replace_first(spellText, "%s", spell->getNameTranslated());
 			//FIXME: support permanent duration
 			auto spellBonuses = battleStack->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)));
@@ -275,18 +274,18 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 		};
 		
 		std::map<BonusSource, std::string> bonusNames = {
-			{BonusSource::ARTIFACT,          CGI->generaltexth->translate("vcmi.bonusSource.artifact")},
-			{BonusSource::ARTIFACT_INSTANCE, CGI->generaltexth->translate("vcmi.bonusSource.artifact")},
-			{BonusSource::CREATURE_ABILITY,  CGI->generaltexth->translate("vcmi.bonusSource.creature")},
-			{BonusSource::SPELL_EFFECT,      CGI->generaltexth->translate("vcmi.bonusSource.spell")},
-			{BonusSource::SECONDARY_SKILL,   CGI->generaltexth->translate("vcmi.bonusSource.hero")},
-			{BonusSource::HERO_SPECIAL,      CGI->generaltexth->translate("vcmi.bonusSource.hero")},
-			{BonusSource::STACK_EXPERIENCE,  CGI->generaltexth->translate("vcmi.bonusSource.commander")},
-			{BonusSource::COMMANDER,         CGI->generaltexth->translate("vcmi.bonusSource.commander")},
+			{BonusSource::ARTIFACT,          VLC->generaltexth->translate("vcmi.bonusSource.artifact")},
+			{BonusSource::ARTIFACT_INSTANCE, VLC->generaltexth->translate("vcmi.bonusSource.artifact")},
+			{BonusSource::CREATURE_ABILITY,  VLC->generaltexth->translate("vcmi.bonusSource.creature")},
+			{BonusSource::SPELL_EFFECT,      VLC->generaltexth->translate("vcmi.bonusSource.spell")},
+			{BonusSource::SECONDARY_SKILL,   VLC->generaltexth->translate("vcmi.bonusSource.hero")},
+			{BonusSource::HERO_SPECIAL,      VLC->generaltexth->translate("vcmi.bonusSource.hero")},
+			{BonusSource::STACK_EXPERIENCE,  VLC->generaltexth->translate("vcmi.bonusSource.commander")},
+			{BonusSource::COMMANDER,         VLC->generaltexth->translate("vcmi.bonusSource.commander")},
 		};
 
 		auto c = bonusColors.count(bi.bonusSource) ? bonusColors[bi.bonusSource] : ColorRGBA(192, 192, 192);
-		std::string t = bonusNames.count(bi.bonusSource) ? bonusNames[bi.bonusSource] : CGI->generaltexth->translate("vcmi.bonusSource.other");
+		std::string t = bonusNames.count(bi.bonusSource) ? bonusNames[bi.bonusSource] : VLC->generaltexth->translate("vcmi.bonusSource.other");
 		int maxLen = 50;
 		EFonts f = FONT_TINY;
 		Point pText = p + Point(4, 38);
@@ -354,9 +353,9 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 		};
 		auto onClick = [=] ()
 		{
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[12], onDismiss, nullptr);
+			LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[12], onDismiss, nullptr);
 		};
-		dismiss = std::make_shared<CButton>(Point(5, 5),AnimationPath::builtin("IVIEWCR2.DEF"), CGI->generaltexth->zelp[445], onClick, EShortcut::HERO_DISMISS);
+		dismiss = std::make_shared<CButton>(Point(5, 5),AnimationPath::builtin("IVIEWCR2.DEF"), VLC->generaltexth->zelp[445], onClick, EShortcut::HERO_DISMISS);
 	}
 
 	if(parent->info->upgradeInfo && !parent->info->commander)
@@ -386,14 +385,14 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 
 				if(LOCPLINT->cb->getResourceAmount().canAfford(totalCost))
 				{
-					LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[207], onUpgrade, nullptr, resComps);
+					LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[207], onUpgrade, nullptr, resComps);
 				}
 				else
 				{
-					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314], resComps);
+					LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[314], resComps);
 				}
 			};
-			auto upgradeBtn = std::make_shared<CButton>(Point(221 + (int)buttonIndex * 40, 5), AnimationPath::builtin("stackWindow/upgradeButton"), CGI->generaltexth->zelp[446], onClick);
+			auto upgradeBtn = std::make_shared<CButton>(Point(221 + (int)buttonIndex * 40, 5), AnimationPath::builtin("stackWindow/upgradeButton"), VLC->generaltexth->zelp[446], onClick);
 
 			upgradeBtn->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), VLC->creh->objects[upgradeInfo.info.getAvailableUpgrades()[buttonIndex]]->getIconIndex()));
 
@@ -426,7 +425,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 		parent->switchButtons[parent->activeTab]->disable();
 	}
 
-	exit = std::make_shared<CButton>(Point(382, 5), AnimationPath::builtin("hsbtns.def"), CGI->generaltexth->zelp[447], [=](){ parent->close(); }, EShortcut::GLOBAL_RETURN);
+	exit = std::make_shared<CButton>(Point(382, 5), AnimationPath::builtin("hsbtns.def"), VLC->generaltexth->zelp[447], [=](){ parent->close(); }, EShortcut::GLOBAL_RETURN);
 }
 
 CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, int yOffset)
@@ -508,7 +507,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 			{
 				if(index == 0 && skillID >= 100)
 				{
-					const auto bonuses = CGI->creh->skillRequirements[skillID-100].first;
+					const auto bonuses = VLC->creh->skillRequirements[skillID-100].first;
 					const CStackInstance * stack = parent->info->commander;
 					auto icon = std::make_shared<CCommanderSkillIcon>(std::make_shared<CPicture>(stack->bonusToGraphics(bonuses[0])), true, [](){});
 					icon->callback = [=]()
@@ -552,15 +551,15 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 	statNames =
 	{
-		CGI->generaltexth->primarySkillNames[0], //ATTACK
-		CGI->generaltexth->primarySkillNames[1],//DEFENCE
-		CGI->generaltexth->allTexts[198],//SHOTS
-		CGI->generaltexth->allTexts[199],//DAMAGE
+		VLC->generaltexth->primarySkillNames[0], //ATTACK
+		VLC->generaltexth->primarySkillNames[1],//DEFENCE
+		VLC->generaltexth->allTexts[198],//SHOTS
+		VLC->generaltexth->allTexts[199],//DAMAGE
 
-		CGI->generaltexth->allTexts[388],//HEALTH
-		CGI->generaltexth->allTexts[200],//HEALTH_LEFT
-		CGI->generaltexth->zelp[441].first,//SPEED
-		CGI->generaltexth->allTexts[399]//MANA
+		VLC->generaltexth->allTexts[388],//HEALTH
+		VLC->generaltexth->allTexts[200],//HEALTH_LEFT
+		VLC->generaltexth->zelp[441].first,//SPEED
+		VLC->generaltexth->allTexts[399]//MANA
 	};
 
 	statFormats =
@@ -658,10 +657,10 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 			auto area = std::make_shared<LRClickableAreaWTextComp>(Rect(pos.x, pos.y, 44, 44), ComponentType::EXPERIENCE);
 			expArea = area;
-			area->text = CGI->generaltexth->allTexts[2];
+			area->text = VLC->generaltexth->allTexts[2];
 			area->component.value = commander->getExpRank();
 			boost::replace_first(area->text, "%d", std::to_string(commander->getExpRank()));
-			boost::replace_first(area->text, "%d", std::to_string(CGI->heroh->reqExp(commander->getExpRank() + 1)));
+			boost::replace_first(area->text, "%d", std::to_string(VLC->heroh->reqExp(commander->getExpRank() + 1)));
 			boost::replace_first(area->text, "%d", std::to_string(commander->experience));
 		}
 		else
@@ -959,31 +958,31 @@ std::string CStackWindow::generateStackExpDescription()
 	if (!vstd::iswithin(tier, 1, 7))
 		tier = 0;
 	int number;
-	std::string expText = CGI->generaltexth->translate("vcmi.stackExperience.description");
+	std::string expText = VLC->generaltexth->translate("vcmi.stackExperience.description");
 	boost::replace_first(expText, "%s", creature->getNamePluralTranslated());
-	boost::replace_first(expText, "%s", CGI->generaltexth->translate("vcmi.stackExperience.rank", rank));
+	boost::replace_first(expText, "%s", VLC->generaltexth->translate("vcmi.stackExperience.rank", rank));
 	boost::replace_first(expText, "%i", std::to_string(rank));
 	boost::replace_first(expText, "%i", std::to_string(stack->experience));
-	number = static_cast<int>(CGI->creh->expRanks[tier][rank] - stack->experience);
+	number = static_cast<int>(VLC->creh->expRanks[tier][rank] - stack->experience);
 	boost::replace_first(expText, "%i", std::to_string(number));
 
-	number = CGI->creh->maxExpPerBattle[tier]; //percent
+	number = VLC->creh->maxExpPerBattle[tier]; //percent
 	boost::replace_first(expText, "%i%", std::to_string(number));
-	number *= CGI->creh->expRanks[tier].back() / 100; //actual amount
+	number *= VLC->creh->expRanks[tier].back() / 100; //actual amount
 	boost::replace_first(expText, "%i", std::to_string(number));
 
 	boost::replace_first(expText, "%i", std::to_string(stack->count)); //Number of Creatures in stack
 
-	int expmin = std::max(CGI->creh->expRanks[tier][std::max(rank-1, 0)], (ui32)1);
+	int expmin = std::max(VLC->creh->expRanks[tier][std::max(rank-1, 0)], (ui32)1);
 	number = static_cast<int>((stack->count * (stack->experience - expmin)) / expmin); //Maximum New Recruits without losing current Rank
 	boost::replace_first(expText, "%i", std::to_string(number)); //TODO
 
 	boost::replace_first(expText, "%.2f", std::to_string(1)); //TODO Experience Multiplier
-	number = CGI->creh->expAfterUpgrade;
+	number = VLC->creh->expAfterUpgrade;
 	boost::replace_first(expText, "%.2f", std::to_string(number) + "%"); //Upgrade Multiplier
 
-	expmin = CGI->creh->expRanks[tier][9];
-	int expmax = CGI->creh->expRanks[tier][10];
+	expmin = VLC->creh->expRanks[tier][9];
+	int expmax = VLC->creh->expRanks[tier][10];
 	number = expmax - expmin;
 	boost::replace_first(expText, "%i", std::to_string(number)); //Experience after Rank 10
 	number = (stack->count * (expmax - expmin)) / expmin;
@@ -1005,7 +1004,7 @@ std::string CStackWindow::getCommanderSkillDescription(int skillIndex, int skill
 
 	std::string textID = TextIdentifier("vcmi", "commander", "skill", skillNames.at(skillIndex), skillLevel).get();
 
-	return CGI->generaltexth->translate(textID);
+	return VLC->generaltexth->translate(textID);
 }
 
 void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIcon> newIcon)

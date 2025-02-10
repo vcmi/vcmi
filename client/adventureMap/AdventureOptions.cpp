@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "AdventureOptions.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../lobby/CCampaignInfoScreen.h"
@@ -22,6 +21,7 @@
 #include "../widgets/Buttons.h"
 
 #include "../../CCallback.h"
+#include "../../lib/VCMI_Lib.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
@@ -46,7 +46,7 @@ AdventureOptions::AdventureOptions()
 	scenInfo->addCallback(AdventureOptions::showScenarioInfo);
 	
 	replay = std::make_shared<CButton>(Point(24, 257), AnimationPath::builtin("ADVTURN.DEF"), CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_REPLAY_TURN);
-	replay->addCallback([]{ LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.replayOpponentTurnNotImplemented")); });
+	replay->addCallback([]{ LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.replayOpponentTurnNotImplemented")); });
 
 	exit = std::make_shared<CButton>(Point(203, 313), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(), std::bind(&AdventureOptions::close, this), EShortcut::GLOBAL_RETURN);
 }

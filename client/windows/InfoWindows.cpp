@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "InfoWindows.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 

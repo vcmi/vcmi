@@ -16,7 +16,6 @@
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
-#include "../../CGameInfo.h"
 #include "../../CPlayerInterface.h"
 
 #include "../../../CCallback.h"
@@ -35,9 +34,9 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 	OBJECT_CONSTRUCTION;
 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title));
-	labels.push_back(std::make_shared<CLabel>(155, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->getNameTranslated())));
+	labels.push_back(std::make_shared<CLabel>(155, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(VLC->generaltexth->allTexts[271]) % hero->getNameTranslated())));
 	deal = std::make_shared<CButton>(dealButtonPos, AnimationPath::builtin("TPMRKB.DEF"),
-		CGI->generaltexth->zelp[595], [this](){CArtifactsSelling::makeDeal();}, EShortcut::MARKET_DEAL);
+		VLC->generaltexth->zelp[595], [this](){CArtifactsSelling::makeDeal();}, EShortcut::MARKET_DEAL);
 	bidSelectedSlot = std::make_shared<CTradeableItem>(Rect(Point(123, 470), Point(69, 66)), EType::ARTIFACT_TYPE, 0, 0);
 
 	// Market resources panel
@@ -59,7 +58,7 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 	heroArts->onClickNotTradableCallback = []()
 	{
 		// This item can't be traded
-		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21]);
+		LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[21]);
 	};
 	CArtifactsSelling::updateShowcases();
 	CArtifactsSelling::deselect();
@@ -90,7 +89,7 @@ void CArtifactsSelling::updateShowcases()
 	{
 		bidSelectedSlot->image->enable();
 		bidSelectedSlot->setID(art->getTypeId().num);
-		bidSelectedSlot->image->setFrame(CGI->artifacts()->getByIndex(art->getTypeId())->getIconIndex());
+		bidSelectedSlot->image->setFrame(VLC->artifacts()->getByIndex(art->getTypeId())->getIconIndex());
 		bidSelectedSlot->subtitle->setText(std::to_string(bidQty));
 	}
 	else
@@ -161,13 +160,13 @@ std::string CArtifactsSelling::getTraderText()
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.268");
 		message.replaceNumber(offerQty);
-		message.replaceRawString(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
+		message.replaceRawString(offerQty == 1 ? VLC->generaltexth->allTexts[161] : VLC->generaltexth->allTexts[160]);
 		message.replaceName(GameResID(offerTradePanel->getHighlightedItemId()));
 		message.replaceName(art->getTypeId());
 		return message.toString();
 	}
 	else
 	{
-		return madeTransaction ? CGI->generaltexth->allTexts[162] : CGI->generaltexth->allTexts[163];
+		return madeTransaction ? VLC->generaltexth->allTexts[162] : VLC->generaltexth->allTexts[163];
 	}
 }

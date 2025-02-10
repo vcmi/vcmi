@@ -13,7 +13,6 @@
 
 #include "InputHandler.h"
 
-#include "../CGameInfo.h"
 #include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/EventDispatcher.h"

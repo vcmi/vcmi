@@ -40,7 +40,6 @@
 #include "../windows/InfoWindows.h"
 #include "../CServerHandler.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../Client.h"
 #include "../CMT.h"
@@ -59,6 +58,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/CRandomGenerator.h"
+#include "../../lib/VCMI_Lib.h"
 
 std::shared_ptr<CMainMenu> CMM;
 ISelectionScreenInfo * SEL = nullptr;
@@ -206,7 +206,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 			break;
 			case 4: //exit
 			{
-				return []() { CInfoWindow::showYesNoDialog(CGI->generaltexth->allTexts[69], std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1)); };
+				return []() { CInfoWindow::showYesNoDialog(VLC->generaltexth->allTexts[69], std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1)); };
 			}
 			break;
 			case 5: //highscores
@@ -226,7 +226,7 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 
 	std::pair<std::string, std::string> help;
 	if(!button["help"].isNull() && button["help"].Float() > 0)
-		help = CGI->generaltexth->zelp[(size_t)button["help"].Float()];
+		help = VLC->generaltexth->zelp[(size_t)button["help"].Float()];
 
 	int posx = static_cast<int>(button["x"].Float());
 	if(posx < 0)
@@ -446,7 +446,7 @@ void CMainMenu::openCampaignScreen(std::string name)
 
 	if (!campaignsFound)
 	{
-		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.client.errors.missingCampaigns"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
+		CInfoWindow::showInfoDialog(VLC->generaltexth->translate("vcmi.client.errors.missingCampaigns"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 		return;
 	}
 
@@ -458,7 +458,7 @@ void CMainMenu::startTutorial()
 	ResourcePath tutorialMap("Maps/Tutorial.tut", EResType::MAP);
 	if(!CResourceHandler::get()->existsResource(tutorialMap))
 	{
-		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("core.genrltxt.742"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
+		CInfoWindow::showInfoDialog(VLC->generaltexth->translate("core.genrltxt.742"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 		return;
 	}
 		
@@ -509,20 +509,20 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	}
 
 	textTitle = std::make_shared<CTextBox>("", Rect(7, 18, 440, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE);
-	textTitle->setText(CGI->generaltexth->zelp[263].second);
+	textTitle->setText(VLC->generaltexth->zelp[263].second);
 
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 465, 440, 18), 7, 465));
 	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), background->getSurface());
 	playerName->setText(getPlayersNames()[0]);
 	playerName->setCallback(std::bind(&CMultiMode::onNameChange, this, _1));
 
-	buttonHotseat = std::make_shared<CButton>(Point(373, 78 + 57 * 0), AnimationPath::builtin("MUBHOT.DEF"), CGI->generaltexth->zelp[266], std::bind(&CMultiMode::hostTCP, this, EShortcut::MAIN_MENU_HOTSEAT), EShortcut::MAIN_MENU_HOTSEAT);
-	buttonLobby = std::make_shared<CButton>(Point(373, 78 + 57 * 1), AnimationPath::builtin("MUBONL.DEF"), CGI->generaltexth->zelp[265], std::bind(&CMultiMode::openLobby, this), EShortcut::MAIN_MENU_LOBBY);
+	buttonHotseat = std::make_shared<CButton>(Point(373, 78 + 57 * 0), AnimationPath::builtin("MUBHOT.DEF"), VLC->generaltexth->zelp[266], std::bind(&CMultiMode::hostTCP, this, EShortcut::MAIN_MENU_HOTSEAT), EShortcut::MAIN_MENU_HOTSEAT);
+	buttonLobby = std::make_shared<CButton>(Point(373, 78 + 57 * 1), AnimationPath::builtin("MUBONL.DEF"), VLC->generaltexth->zelp[265], std::bind(&CMultiMode::openLobby, this), EShortcut::MAIN_MENU_LOBBY);
 
-	buttonHost = std::make_shared<CButton>(Point(373, 78 + 57 * 3), AnimationPath::builtin("MUBHOST.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.hostTCP"), ""), std::bind(&CMultiMode::hostTCP, this, EShortcut::MAIN_MENU_HOST_GAME), EShortcut::MAIN_MENU_HOST_GAME);
-	buttonJoin = std::make_shared<CButton>(Point(373, 78 + 57 * 4), AnimationPath::builtin("MUBJOIN.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.joinTCP"), ""), std::bind(&CMultiMode::joinTCP, this, EShortcut::MAIN_MENU_JOIN_GAME), EShortcut::MAIN_MENU_JOIN_GAME);
+	buttonHost = std::make_shared<CButton>(Point(373, 78 + 57 * 3), AnimationPath::builtin("MUBHOST.DEF"), CButton::tooltip(VLC->generaltexth->translate("vcmi.mainMenu.hostTCP"), ""), std::bind(&CMultiMode::hostTCP, this, EShortcut::MAIN_MENU_HOST_GAME), EShortcut::MAIN_MENU_HOST_GAME);
+	buttonJoin = std::make_shared<CButton>(Point(373, 78 + 57 * 4), AnimationPath::builtin("MUBJOIN.DEF"), CButton::tooltip(VLC->generaltexth->translate("vcmi.mainMenu.joinTCP"), ""), std::bind(&CMultiMode::joinTCP, this, EShortcut::MAIN_MENU_JOIN_GAME), EShortcut::MAIN_MENU_JOIN_GAME);
 
-	buttonCancel = std::make_shared<CButton>(Point(373, 424), AnimationPath::builtin("MUBCANC.DEF"), CGI->generaltexth->zelp[288], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
+	buttonCancel = std::make_shared<CButton>(Point(373, 424), AnimationPath::builtin("MUBCANC.DEF"), VLC->generaltexth->zelp[288], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 void CMultiMode::openLobby()
@@ -551,7 +551,7 @@ std::vector<std::string> CMultiMode::getPlayersNames()
 
 	std::string playerNameStr = settings["general"]["playerName"].String();
 	if (playerNameStr == "Player")
-		playerNameStr = CGI->generaltexth->translate("core.genrltxt.434");
+		playerNameStr = VLC->generaltexth->translate("core.genrltxt.434");
 	playerNames.push_back(playerNameStr);
 
 	for (const auto & playerName : settings["general"]["multiPlayerNames"].Vector())
@@ -583,14 +583,14 @@ CMultiPlayers::CMultiPlayers(const std::vector<std::string>& playerNames, ESelec
 	switch (shortcut)
 	{
 	case EShortcut::MAIN_MENU_HOTSEAT:
-		text = CGI->generaltexth->allTexts[446];
+		text = VLC->generaltexth->allTexts[446];
 		boost::replace_all(text, "\t", "\n");
 		break;
 	case EShortcut::MAIN_MENU_HOST_GAME:
-		text = CGI->generaltexth->translate("vcmi.mainMenu.hostTCP");
+		text = VLC->generaltexth->translate("vcmi.mainMenu.hostTCP");
 		break;
 	case EShortcut::MAIN_MENU_JOIN_GAME:
-		text = CGI->generaltexth->translate("vcmi.mainMenu.joinTCP");
+		text = VLC->generaltexth->translate("vcmi.mainMenu.joinTCP");
 		break;
 	}
 
@@ -602,8 +602,8 @@ CMultiPlayers::CMultiPlayers(const std::vector<std::string>& playerNames, ESelec
 		inputNames[i]->setCallback(std::bind(&CMultiPlayers::onChange, this, _1));
 	}
 
-	buttonOk = std::make_shared<CButton>(Point(95, 338), AnimationPath::builtin("MUBCHCK.DEF"), CGI->generaltexth->zelp[560], std::bind(&CMultiPlayers::enterSelectionScreen, this), EShortcut::GLOBAL_ACCEPT);
-	buttonCancel = std::make_shared<CButton>(Point(205, 338), AnimationPath::builtin("MUBCANC.DEF"), CGI->generaltexth->zelp[561], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
+	buttonOk = std::make_shared<CButton>(Point(95, 338), AnimationPath::builtin("MUBCHCK.DEF"), VLC->generaltexth->zelp[560], std::bind(&CMultiPlayers::enterSelectionScreen, this), EShortcut::GLOBAL_ACCEPT);
+	buttonCancel = std::make_shared<CButton>(Point(205, 338), AnimationPath::builtin("MUBCANC.DEF"), VLC->generaltexth->zelp[561], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 381, 348, 18), 7, 381));
 
 	for(int i = 0; i < playerNames.size(); i++)
@@ -660,16 +660,16 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 	textTitle = std::make_shared<CTextBox>("", Rect(20, 10, 205, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE);
 	inputAddress = std::make_shared<CTextInput>(Rect(25, 68, 175, 16), background->getSurface());
 	inputPort = std::make_shared<CTextInput>(Rect(25, 115, 175, 16), background->getSurface());
-	buttonOk = std::make_shared<CButton>(Point(26, 142), AnimationPath::builtin("MUBCHCK.DEF"), CGI->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::connectToServer, this), EShortcut::GLOBAL_ACCEPT);
+	buttonOk = std::make_shared<CButton>(Point(26, 142), AnimationPath::builtin("MUBCHCK.DEF"), VLC->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::connectToServer, this), EShortcut::GLOBAL_ACCEPT);
 	if(host && !settings["session"]["donotstartserver"].Bool())
 	{
-		textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
+		textTitle->setText(VLC->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
 		buttonOk->block(true);
 		startConnection();
 	}
 	else
 	{
-		textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverAddressEnter"));
+		textTitle->setText(VLC->generaltexth->translate("vcmi.mainMenu.serverAddressEnter"));
 		inputAddress->setCallback(std::bind(&CSimpleJoinScreen::onChange, this, _1));
 		inputPort->setCallback(std::bind(&CSimpleJoinScreen::onChange, this, _1));
 		inputPort->setFilterNumber(0, 65535);
@@ -679,13 +679,13 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 	inputPort->setText(std::to_string(host ? CSH->getLocalPort() : CSH->getRemotePort()));
 	buttonOk->block(inputAddress->getText().empty() || inputPort->getText().empty());
 
-	buttonCancel = std::make_shared<CButton>(Point(142, 142), AnimationPath::builtin("MUBCANC.DEF"), CGI->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), EShortcut::GLOBAL_CANCEL);
+	buttonCancel = std::make_shared<CButton>(Point(142, 142), AnimationPath::builtin("MUBCANC.DEF"), VLC->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
 }
 
 void CSimpleJoinScreen::connectToServer()
 {
-	textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
+	textTitle->setText(VLC->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
 	buttonOk->block(true);
 	ENGINE->input().stopTextInput();
 
@@ -694,7 +694,7 @@ void CSimpleJoinScreen::connectToServer()
 
 void CSimpleJoinScreen::leaveScreen()
 {
-	textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverClosing"));
+	textTitle->setText(VLC->generaltexth->translate("vcmi.mainMenu.serverClosing"));
 	CSH->setState(EClientState::CONNECTION_CANCELLED);
 }
 

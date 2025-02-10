@@ -17,11 +17,11 @@
 #include "OtherOptionsTab.h"
 
 #include "CMT.h"
-#include "CGameInfo.h"
-#include "texts/CGeneralTextHandler.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
+#include "../../../lib/VCMI_Lib.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
-#include "filesystem/ResourcePath.h"
+#include "../../../lib/filesystem/ResourcePath.h"
 #include "GameEngine.h"
 #include "gui/WindowHandler.h"
 #include "render/Canvas.h"
@@ -120,7 +120,7 @@ void SettingsMainWindow::close()
 void SettingsMainWindow::quitGameButtonCallback()
 {
 	LOCPLINT->showYesNoDialog(
-		CGI->generaltexth->allTexts[578],
+		VLC->generaltexth->allTexts[578],
 		[this]()
 		{
 			close();
@@ -141,7 +141,7 @@ void SettingsMainWindow::backButtonCallback()
 void SettingsMainWindow::mainMenuButtonCallback()
 {
 	LOCPLINT->showYesNoDialog(
-		CGI->generaltexth->allTexts[578],
+		VLC->generaltexth->allTexts[578],
 		[this]()
 		{
 			close();
@@ -167,7 +167,7 @@ void SettingsMainWindow::saveGameButtonCallback()
 void SettingsMainWindow::restartGameButtonCallback()
 {
 	LOCPLINT->showYesNoDialog(
-		CGI->generaltexth->allTexts[67],
+		VLC->generaltexth->allTexts[67],
 		[this]()
 		{
 			close();

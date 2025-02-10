@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "GeneralOptionsTab.h"
 
-#include "CGameInfo.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "media/IMusicPlayer.h"
@@ -28,6 +27,7 @@
 
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/filesystem/ResourcePath.h"
+#include "../../../lib/VCMI_Lib.h"
 
 static void setIntSetting(std::string group, std::string field, int value)
 {
@@ -48,7 +48,7 @@ static std::string scalingToEntryString( int scaling)
 
 static std::string scalingToLabelString( int scaling)
 {
-	std::string string = CGI->generaltexth->translate("vcmi.systemOptions.scalingButton.hover");
+	std::string string = VLC->generaltexth->translate("vcmi.systemOptions.scalingButton.hover");
 	boost::replace_all(string, "%p", std::to_string(scaling));
 
 	return string;
@@ -56,7 +56,7 @@ static std::string scalingToLabelString( int scaling)
 
 static std::string longTouchToEntryString( int duration)
 {
-	std::string string = CGI->generaltexth->translate("vcmi.systemOptions.longTouchMenu.entry");
+	std::string string = VLC->generaltexth->translate("vcmi.systemOptions.longTouchMenu.entry");
 	boost::replace_all(string, "%d", std::to_string(duration));
 
 	return string;
@@ -64,7 +64,7 @@ static std::string longTouchToEntryString( int duration)
 
 static std::string longTouchToLabelString( int duration)
 {
-	std::string string = CGI->generaltexth->translate("vcmi.systemOptions.longTouchButton.hover");
+	std::string string = VLC->generaltexth->translate("vcmi.systemOptions.longTouchButton.hover");
 	boost::replace_all(string, "%d", std::to_string(duration));
 
 	return string;
@@ -82,7 +82,7 @@ static std::string resolutionToEntryString( int w, int h)
 
 static std::string resolutionToLabelString( int w, int h)
 {
-	std::string string = CGI->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover");
+	std::string string = VLC->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover");
 
 	boost::replace_all(string, "%w", std::to_string(w));
 	boost::replace_all(string, "%h", std::to_string(h));
@@ -293,8 +293,8 @@ void GeneralOptionsTab::selectGameResolution()
 		++i;
 	}
 	ENGINE->windows().createAndPushWindow<CObjectListWindow>(items, nullptr,
-								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
-								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
+								   VLC->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
+								   VLC->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
 								   [this](int index)
 								   {
 									   setGameResolution(index);
@@ -376,8 +376,8 @@ void GeneralOptionsTab::selectGameScaling()
 	ENGINE->windows().createAndPushWindow<CObjectListWindow>(
 		items,
 		nullptr,
-		CGI->generaltexth->translate("vcmi.systemOptions.scalingMenu.hover"),
-		CGI->generaltexth->translate("vcmi.systemOptions.scalingMenu.help"),
+		VLC->generaltexth->translate("vcmi.systemOptions.scalingMenu.hover"),
+		VLC->generaltexth->translate("vcmi.systemOptions.scalingMenu.help"),
 		[this](int index)
 		{
 			setGameScaling(index);
@@ -425,8 +425,8 @@ void GeneralOptionsTab::selectLongTouchDuration()
 	ENGINE->windows().createAndPushWindow<CObjectListWindow>(
 		items,
 		nullptr,
-		CGI->generaltexth->translate("vcmi.systemOptions.longTouchMenu.hover"),
-		CGI->generaltexth->translate("vcmi.systemOptions.longTouchMenu.help"),
+		VLC->generaltexth->translate("vcmi.systemOptions.longTouchMenu.hover"),
+		VLC->generaltexth->translate("vcmi.systemOptions.longTouchMenu.help"),
 		[this](int index)
 		{
 			setLongTouchDuration(index);

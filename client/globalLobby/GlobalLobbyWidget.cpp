@@ -16,7 +16,6 @@
 #include "GlobalLobbyRoomWindow.h"
 #include "GlobalLobbyWindow.h"
 
-#include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
 #include "../gui/WindowHandler.h"

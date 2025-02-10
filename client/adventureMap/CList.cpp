@@ -19,7 +19,6 @@
 #include "../widgets/RadialMenu.h"
 #include "../windows/InfoWindows.h"
 #include "../windows/CCastleInterface.h"
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../GameEngine.h"
@@ -265,7 +264,7 @@ void CHeroList::CHeroItem::showTooltip()
 
 std::string CHeroList::CHeroItem::getHoverText()
 {
-	return boost::str(boost::format(CGI->generaltexth->allTexts[15]) % hero->getNameTranslated() % hero->getClassNameTranslated()) + hero->getMovementPointsTextIfOwner(hero->getOwner());
+	return boost::str(boost::format(VLC->generaltexth->allTexts[15]) % hero->getNameTranslated() % hero->getClassNameTranslated()) + hero->getMovementPointsTextIfOwner(hero->getOwner());
 }
 
 void CHeroList::CHeroItem::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
@@ -315,7 +314,7 @@ void CHeroList::CHeroItem::keyPressed(EShortcut key)
 
 	if(key == EShortcut::LIST_HERO_DISMISS)
 	{
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], [=](){ LOCPLINT->cb->dismissHero(hero); }, nullptr);
+		LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[22], [=](){ LOCPLINT->cb->dismissHero(hero); }, nullptr);
 		return;
 	}
 

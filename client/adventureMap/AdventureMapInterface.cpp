@@ -25,7 +25,6 @@
 #include "../mapView/MapView.h"
 #include "../windows/InfoWindows.h"
 #include "../widgets/RadialMenu.h"
-#include "../CGameInfo.h"
 #include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
 #include "../gui/Shortcut.h"
@@ -566,8 +565,8 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 			   LOCPLINT->localState->getPath(currentHero).endPos() == destinationTile &&
 			   !ENGINE->isKeyboardShiftDown())//we'll be moving
 			{
-				assert(!CGI->mh->hasOngoingAnimations());
-				if(!CGI->mh->hasOngoingAnimations() && LOCPLINT->localState->getPath(currentHero).nextNode().turns == 0)
+				assert(!MAPHANDLER->hasOngoingAnimations());
+				if(!MAPHANDLER->hasOngoingAnimations() && LOCPLINT->localState->getPath(currentHero).nextNode().turns == 0)
 					LOCPLINT->moveHero(currentHero, LOCPLINT->localState->getPath(currentHero));
 				return;
 			}
@@ -652,7 +651,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 	}
 	else if(isTargetPositionVisible)
 	{
-		std::string tileTooltipText = CGI->mh->getTerrainDescr(targetPosition, false);
+		std::string tileTooltipText = MAPHANDLER->getTerrainDescr(targetPosition, false);
 		if (ENGINE->isKeyboardCmdDown())
 			tileTooltipText.append(" (" + std::to_string(targetPosition.x) + ", " + std::to_string(targetPosition.y) + ")");
 		ENGINE->statusbar()->write(tileTooltipText);
@@ -821,7 +820,7 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 		const TerrainTile * tile = LOCPLINT->cb->getTile(mapPos);
 		if(tile)
 		{
-			std::string hlp = CGI->mh->getTerrainDescr(mapPos, true);
+			std::string hlp = MAPHANDLER->getTerrainDescr(mapPos, true);
 			CRClickPopup::createAndPush(hlp);
 		}
 		return;
@@ -853,7 +852,7 @@ void AdventureMapInterface::exitCastingMode()
 void AdventureMapInterface::hotkeyAbortCastingMode()
 {
 	exitCastingMode();
-	LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
+	LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[731]); //Spell cancelled
 }
 
 void AdventureMapInterface::performSpellcasting(const int3 & dest)

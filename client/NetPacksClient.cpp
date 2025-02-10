@@ -12,7 +12,6 @@
 
 #include "Client.h"
 #include "CPlayerInterface.h"
-#include "CGameInfo.h"
 #include "windows/GUIClasses.h"
 #include "windows/CCastleInterface.h"
 #include "mapView/mapHandler.h"
@@ -382,20 +381,20 @@ void ApplyClientNetPackVisitor::visitGiveBonus(GiveBonus & pack)
 void ApplyFirstClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.objid);
-	if(CGI && CGI->mh)
+	if(VLC && MAPHANDLER)
 	{
-		CGI->mh->onObjectFadeOut(obj, pack.initiator);
-		CGI->mh->waitForOngoingAnimations();
+		MAPHANDLER->onObjectFadeOut(obj, pack.initiator);
+		MAPHANDLER->waitForOngoingAnimations();
 	}
 }
 
 void ApplyClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.objid);
-	if(CGI && CGI->mh)
+	if(VLC && MAPHANDLER)
 	{
-		CGI->mh->onObjectFadeIn(obj, pack.initiator);
-		CGI->mh->waitForOngoingAnimations();
+		MAPHANDLER->onObjectFadeIn(obj, pack.initiator);
+		MAPHANDLER->waitForOngoingAnimations();
 	}
 	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 }
@@ -486,8 +485,8 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 {
 	const CGObjectInstance *o = cl.getObj(pack.objectID);
 
-	if(CGI->mh)
-		CGI->mh->onObjectFadeOut(o, pack.initiator);
+	if(MAPHANDLER)
+		MAPHANDLER->onObjectFadeOut(o, pack.initiator);
 
 	//notify interfaces about removal
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
@@ -498,8 +497,8 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 			i->second->objectRemoved(o, pack.initiator);
 	}
 
-	if(CGI->mh)
-		CGI->mh->waitForOngoingAnimations();
+	if(MAPHANDLER)
+		MAPHANDLER->waitForOngoingAnimations();
 }
 
 void ApplyClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
@@ -514,21 +513,21 @@ void ApplyFirstClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 {
 	CGHeroInstance *h = gs.getHero(pack.id);
 
-	if(CGI->mh)
+	if(MAPHANDLER)
 	{
 		switch (pack.result)
 		{
 			case TryMoveHero::EMBARK:
-				CGI->mh->onBeforeHeroEmbark(h, pack.start, pack.end);
+				MAPHANDLER->onBeforeHeroEmbark(h, pack.start, pack.end);
 				break;
 			case TryMoveHero::TELEPORTATION:
-				CGI->mh->onBeforeHeroTeleported(h, pack.start, pack.end);
+				MAPHANDLER->onBeforeHeroTeleported(h, pack.start, pack.end);
 				break;
 			case TryMoveHero::DISEMBARK:
-				CGI->mh->onBeforeHeroDisembark(h, pack.start, pack.end);
+				MAPHANDLER->onBeforeHeroDisembark(h, pack.start, pack.end);
 				break;
 		}
-		CGI->mh->waitForOngoingAnimations();
+		MAPHANDLER->waitForOngoingAnimations();
 	}
 }
 
@@ -537,21 +536,21 @@ void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 	const CGHeroInstance *h = cl.getHero(pack.id);
 	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 
-	if(CGI->mh)
+	if(MAPHANDLER)
 	{
 		switch(pack.result)
 		{
 			case TryMoveHero::SUCCESS:
-				CGI->mh->onHeroMoved(h, pack.start, pack.end);
+				MAPHANDLER->onHeroMoved(h, pack.start, pack.end);
 				break;
 			case TryMoveHero::EMBARK:
-				CGI->mh->onAfterHeroEmbark(h, pack.start, pack.end);
+				MAPHANDLER->onAfterHeroEmbark(h, pack.start, pack.end);
 				break;
 			case TryMoveHero::TELEPORTATION:
-				CGI->mh->onAfterHeroTeleported(h, pack.start, pack.end);
+				MAPHANDLER->onAfterHeroTeleported(h, pack.start, pack.end);
 				break;
 			case TryMoveHero::DISEMBARK:
-				CGI->mh->onAfterHeroDisembark(h, pack.start, pack.end);
+				MAPHANDLER->onAfterHeroDisembark(h, pack.start, pack.end);
 				break;
 		}
 	}
@@ -586,10 +585,10 @@ void ApplyClientNetPackVisitor::visitNewStructures(NewStructures & pack)
 	}
 
 	// invalidate section of map view with our object and force an update
-	if(CGI->mh)
+	if(MAPHANDLER)
 	{
-		CGI->mh->onObjectInstantRemove(town, town->getOwner());
-		CGI->mh->onObjectInstantAdd(town, town->getOwner());
+		MAPHANDLER->onObjectInstantRemove(town, town->getOwner());
+		MAPHANDLER->onObjectInstantAdd(town, town->getOwner());
 	}
 }
 void ApplyClientNetPackVisitor::visitRazeStructures(RazeStructures & pack)
@@ -601,10 +600,10 @@ void ApplyClientNetPackVisitor::visitRazeStructures(RazeStructures & pack)
 	}
 
 	// invalidate section of map view with our object and force an update
-	if(CGI->mh)
+	if(MAPHANDLER)
 	{
-		CGI->mh->onObjectInstantRemove(town, town->getOwner());
-		CGI->mh->onObjectInstantAdd(town, town->getOwner());
+		MAPHANDLER->onObjectInstantRemove(town, town->getOwner());
+		MAPHANDLER->onObjectInstantAdd(town, town->getOwner());
 	}
 }
 
@@ -655,15 +654,15 @@ void ApplyClientNetPackVisitor::visitHeroRecruited(HeroRecruited & pack)
 		if(const CGTownInstance *t = gs.getTown(pack.tid))
 			callInterfaceIfPresent(cl, h->getOwner(), &IGameEventsReceiver::heroInGarrisonChange, t);
 	}
-	if(CGI->mh)
-		CGI->mh->onObjectInstantAdd(h, h->getOwner());
+	if(MAPHANDLER)
+		MAPHANDLER->onObjectInstantAdd(h, h->getOwner());
 }
 
 void ApplyClientNetPackVisitor::visitGiveHero(GiveHero & pack)
 {
 	CGHeroInstance *h = gs.getHero(pack.id);
-	if(CGI->mh)
-		CGI->mh->onObjectInstantAdd(h, h->getOwner());
+	if(MAPHANDLER)
+		MAPHANDLER->onObjectInstantAdd(h, h->getOwner());
 	callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroCreated, h);
 }
 
@@ -689,10 +688,10 @@ void ApplyFirstClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & 
 	}
 
 	// invalidate section of map view with our object and force an update with new flag color
-	if(pack.what == ObjProperty::OWNER && CGI->mh)
+	if(pack.what == ObjProperty::OWNER && MAPHANDLER)
 	{
 		auto object = gs.getObjInstance(pack.id);
-		CGI->mh->onObjectInstantRemove(object, object->getOwner());
+		MAPHANDLER->onObjectInstantRemove(object, object->getOwner());
 	}
 }
 
@@ -706,10 +705,10 @@ void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 	}
 
 	// invalidate section of map view with our object and force an update with new flag color
-	if(pack.what == ObjProperty::OWNER && CGI->mh)
+	if(pack.what == ObjProperty::OWNER && MAPHANDLER)
 	{
 		auto object = gs.getObjInstance(pack.id);
-		CGI->mh->onObjectInstantAdd(object, object->getOwner());
+		MAPHANDLER->onObjectInstantAdd(object, object->getOwner());
 	}
 }
 
@@ -1046,8 +1045,8 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 
 	const CGObjectInstance *obj = pack.newObject;
-	if(CGI->mh)
-		CGI->mh->onObjectFadeIn(obj, pack.initiator);
+	if(MAPHANDLER)
+		MAPHANDLER->onObjectFadeIn(obj, pack.initiator);
 
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
 	{
@@ -1055,8 +1054,8 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 			i->second->newObject(obj);
 	}
 
-	if(CGI->mh)
-		CGI->mh->waitForOngoingAnimations();
+	if(MAPHANDLER)
+		MAPHANDLER->waitForOngoingAnimations();
 }
 
 void ApplyClientNetPackVisitor::visitSetAvailableArtifacts(SetAvailableArtifacts & pack)

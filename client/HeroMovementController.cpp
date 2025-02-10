@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "HeroMovementController.h"
 
-#include "CGameInfo.h"
 #include "CPlayerInterface.h"
 #include "PlayerLocalState.h"
 #include "adventureMap/AdventureMapInterface.h"
@@ -185,7 +184,7 @@ void HeroMovementController::onTryMoveHero(const CGHeroInstance * hero, const Tr
 
 	// We are in network thread
 	// Block netpack processing until movement animation is over
-	CGI->mh->waitForOngoingAnimations();
+	MAPHANDLER->waitForOngoingAnimations();
 
 	//move finished
 	adventureInt->onHeroChanged(hero);

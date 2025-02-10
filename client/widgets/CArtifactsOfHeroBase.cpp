@@ -16,10 +16,8 @@
 #include "Buttons.h"
 
 #include "../CPlayerInterface.h"
-#include "../CGameInfo.h"
 
 #include "../../CCallback.h"
-
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"

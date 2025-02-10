@@ -13,7 +13,6 @@
 #include "mapHandler.h"
 
 #include "../CCallback.h"
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 
@@ -23,6 +22,8 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapping/CMap.h"
+
+std::unique_ptr<CMapHandler> MAPHANDLER = nullptr;
 
 bool CMapHandler::hasOngoingAnimations()
 {
@@ -53,7 +54,7 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 	const TerrainTile & t = map->getTile(pos);
 
 	if(t.hasFavorableWinds())
-		return CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS, 0);
+		return VLC->objtypeh->getObjectName(Obj::FAVORABLE_WINDS, 0);
 
 	std::string result = t.getTerrain()->getNameTranslated();
 
@@ -70,7 +71,7 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 	{
 		return boost::str(
 			boost::format(rightClick ? "%s\r\n%s" : "%s %s") // New line for the Message Box, space for the Status Bar
-			% result % CGI->generaltexth->allTexts[330]
+			% result % VLC->generaltexth->allTexts[330]
 		); // 'digging ok'
 	}
 
@@ -235,11 +236,11 @@ void CMapHandler::removeMapObserver(IMapObjectObserver * object)
 
 IMapObjectObserver::IMapObjectObserver()
 {
-	CGI->mh->addMapObserver(this);
+	MAPHANDLER->addMapObserver(this);
 }
 
 IMapObjectObserver::~IMapObjectObserver()
 {
-	if (CGI && CGI->mh)
-		CGI->mh->removeMapObserver(this);
+	if (VLC && MAPHANDLER)
+		MAPHANDLER->removeMapObserver(this);
 }

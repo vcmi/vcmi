@@ -13,7 +13,6 @@
 #include "CSelectionBase.h"
 #include "CLobbyScreen.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
@@ -47,6 +46,7 @@
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/UnlockGuard.h"
+#include "../../lib/VCMI_Lib.h"
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
 {
@@ -169,7 +169,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		pos = background->pos;
 		inputName = std::make_shared<CTextInput>(inputNameRect, Point(-32, -25), ImagePath::builtin("GSSTRIP.bmp"));
 		inputName->setFilterFilename();
-		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[510]);
+		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->allTexts[510]);
 
 		// TODO: Global constants?
 		constexpr std::array sizes = {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_XLARGE, 0};
@@ -177,7 +177,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		constexpr std::array filterShortcuts = { EShortcut::MAPS_SIZE_S, EShortcut::MAPS_SIZE_M, EShortcut::MAPS_SIZE_L, EShortcut::MAPS_SIZE_XL, EShortcut::MAPS_SIZE_ALL };
 
 		for(int i = 0; i < 5; i++)
-			buttonsSortBy.push_back(std::make_shared<CButton>(Point(158 + 47 * i, 46), AnimationPath::builtin(filterIconNmes[i]), CGI->generaltexth->zelp[54 + i], std::bind(&SelectionTab::filter, this, sizes[i], true), filterShortcuts[i]));
+			buttonsSortBy.push_back(std::make_shared<CButton>(Point(158 + 47 * i, 46), AnimationPath::builtin(filterIconNmes[i]), VLC->generaltexth->zelp[54 + i], std::bind(&SelectionTab::filter, this, sizes[i], true), filterShortcuts[i]));
 
 		constexpr std::array xpos = {23, 55, 88, 121, 306, 339};
 		constexpr std::array sortIconNames = {"SCBUTT1.DEF", "SCBUTT2.DEF", "SCBUTCP.DEF", "SCBUTT3.DEF", "SCBUTT4.DEF", "SCBUTT5.DEF"};
@@ -188,7 +188,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 			if(criteria == _name)
 				criteria = generalSortingBy;
 
-			buttonsSortBy.push_back(std::make_shared<CButton>(Point(xpos[i], 86), AnimationPath::builtin(sortIconNames[i]), CGI->generaltexth->zelp[107 + i], std::bind(&SelectionTab::sortBy, this, criteria), sortShortcuts[i]));
+			buttonsSortBy.push_back(std::make_shared<CButton>(Point(xpos[i], 86), AnimationPath::builtin(sortIconNames[i]), VLC->generaltexth->zelp[107 + i], std::bind(&SelectionTab::sortBy, this, criteria), sortShortcuts[i]));
 		}
 	}
 
@@ -198,19 +198,19 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	switch(tabType)
 	{
 	case ESelectionScreen::newGame:
-		tabTitle = "{" + CGI->generaltexth->arraytxt[229] + "}";
-		tabTitleDelete = "{red|" + CGI->generaltexth->translate("vcmi.lobby.deleteMapTitle") + "}";
+		tabTitle = "{" + VLC->generaltexth->arraytxt[229] + "}";
+		tabTitleDelete = "{red|" + VLC->generaltexth->translate("vcmi.lobby.deleteMapTitle") + "}";
 		break;
 	case ESelectionScreen::loadGame:
-		tabTitle = "{" + CGI->generaltexth->arraytxt[230] + "}";
-		tabTitleDelete = "{red|" + CGI->generaltexth->translate("vcmi.lobby.deleteSaveGameTitle") + "}";
+		tabTitle = "{" + VLC->generaltexth->arraytxt[230] + "}";
+		tabTitleDelete = "{red|" + VLC->generaltexth->translate("vcmi.lobby.deleteSaveGameTitle") + "}";
 		break;
 	case ESelectionScreen::saveGame:
 		positionsToShow = 16;
-		tabTitle = "{" + CGI->generaltexth->arraytxt[231] + "}";
+		tabTitle = "{" + VLC->generaltexth->arraytxt[231] + "}";
 		break;
 	case ESelectionScreen::campaignList:
-		tabTitle = "{" + CGI->generaltexth->allTexts[726] + "}";
+		tabTitle = "{" + VLC->generaltexth->allTexts[726] + "}";
 		setRedrawParent(true); // we use parent background so we need to make sure it's will be redrawn too
 		pos.w = parent->pos.w;
 		pos.h = parent->pos.h;
@@ -227,13 +227,13 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 	if(enableUiEnhancements)
 	{
-		auto sortByDate = std::make_shared<CButton>(Point(371, 85), AnimationPath::builtin("selectionTabSortDate"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate), EShortcut::MAPS_SORT_CHANGEDATE);
+		auto sortByDate = std::make_shared<CButton>(Point(371, 85), AnimationPath::builtin("selectionTabSortDate"), CButton::tooltip("", VLC->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate), EShortcut::MAPS_SORT_CHANGEDATE);
 		sortByDate->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/selectionTabSortDate")));
 		buttonsSortBy.push_back(sortByDate);
 
 		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::newGame)
 		{
-			buttonDeleteMode = std::make_shared<CButton>(Point(367, 18), AnimationPath::builtin("lobby/deleteButton"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.deleteMode")), [this, tabTitle, tabTitleDelete](){
+			buttonDeleteMode = std::make_shared<CButton>(Point(367, 18), AnimationPath::builtin("lobby/deleteButton"), CButton::tooltip("", VLC->generaltexth->translate("vcmi.lobby.deleteMode")), [this, tabTitle, tabTitleDelete](){
 				deleteMode = !deleteMode;
 				if(deleteMode)
 					labelTabTitle->setText(tabTitleDelete);
@@ -346,14 +346,14 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 			}
 
 			if(!curItems[py]->isFolder)
-				CInfoWindow::showYesNoDialog(CGI->generaltexth->translate("vcmi.lobby.deleteFile") + "\n\n" + curItems[py]->fullFileURI, std::vector<std::shared_ptr<CComponent>>(), [this, py](){
+				CInfoWindow::showYesNoDialog(VLC->generaltexth->translate("vcmi.lobby.deleteFile") + "\n\n" + curItems[py]->fullFileURI, std::vector<std::shared_ptr<CComponent>>(), [this, py](){
 					LobbyDelete ld;
 					ld.type = tabType == ESelectionScreen::newGame ? LobbyDelete::EType::RANDOMMAP : LobbyDelete::EType::SAVEGAME;
 					ld.name = curItems[py]->fileURI;
 					CSH->sendLobbyPack(ld);
 				}, nullptr);
 			else
-				CInfoWindow::showYesNoDialog(CGI->generaltexth->translate("vcmi.lobby.deleteFolder") + "\n\n" + curFolder + curItems[py]->folderName, std::vector<std::shared_ptr<CComponent>>(), [this, py](){
+				CInfoWindow::showYesNoDialog(VLC->generaltexth->translate("vcmi.lobby.deleteFolder") + "\n\n" + curFolder + curItems[py]->folderName, std::vector<std::shared_ptr<CComponent>>(), [this, py](){
 					LobbyDelete ld;
 					ld.type = LobbyDelete::EType::SAVEGAME_FOLDER;
 					ld.name = curFolder + curItems[py]->folderName;
@@ -773,7 +773,7 @@ void SelectionTab::selectFileName(std::string fname)
 	selectAbs(-1);
 
 	if(tabType == ESelectionScreen::saveGame && inputName->getText().empty())
-		inputName->setText(CGI->generaltexth->translate("core.genrltxt.11"));
+		inputName->setText(VLC->generaltexth->translate("core.genrltxt.11"));
 }
 
 void SelectionTab::selectNewestFile()
@@ -840,19 +840,19 @@ bool SelectionTab::isMapSupported(const CMapInfo & info)
 	switch (info.mapHeader->version)
 	{
 		case EMapFormat::ROE:
-			return CGI->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA)["supported"].Bool();
+			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA)["supported"].Bool();
 		case EMapFormat::AB:
-			return CGI->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE)["supported"].Bool();
+			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE)["supported"].Bool();
 		case EMapFormat::SOD:
-			return CGI->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH)["supported"].Bool();
+			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH)["supported"].Bool();
 		case EMapFormat::CHR:
-			return CGI->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES)["supported"].Bool();
+			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES)["supported"].Bool();
 		case EMapFormat::WOG:
-			return CGI->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS)["supported"].Bool();
+			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS)["supported"].Bool();
 		case EMapFormat::HOTA:
-			return CGI->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS)["supported"].Bool();
+			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS)["supported"].Bool();
 		case EMapFormat::VCMI:
-			return CGI->engineSettings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["supported"].Bool();
+			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["supported"].Bool();
 	}
 	return false;
 }

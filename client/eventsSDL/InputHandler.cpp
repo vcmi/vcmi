@@ -26,7 +26,6 @@
 #include "../media/ISoundPlayer.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
-#include "../CGameInfo.h"
 
 #include "../../lib/CConfigHandler.h"
 

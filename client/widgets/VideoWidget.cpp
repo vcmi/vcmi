@@ -12,7 +12,6 @@
 #include "TextControls.h"
 #include "IVideoHolder.h"
 
-#include "../CGameInfo.h"
 #include "../GameEngine.h"
 #include "../media/ISoundPlayer.h"
 #include "../media/IVideoPlayer.h"

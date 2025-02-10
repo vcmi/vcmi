@@ -16,7 +16,6 @@
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
-#include "../../CGameInfo.h"
 #include "../../CPlayerInterface.h"
 
 #include "../../../CCallback.h"
@@ -33,18 +32,18 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 	OBJECT_CONSTRUCTION;
 
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("ALTSACR.DEF"),
-		CGI->generaltexth->zelp[584], [this]() {CAltarCreatures::makeDeal();}, EShortcut::MARKET_DEAL);
+		VLC->generaltexth->zelp[584], [this]() {CAltarCreatures::makeDeal();}, EShortcut::MARKET_DEAL);
 	labels.emplace_back(std::make_shared<CLabel>(155, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW,
-		boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->getNameTranslated())));
-	labels.emplace_back(std::make_shared<CLabel>(450, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[479]));
-	texts.emplace_back(std::make_unique<CTextBox>(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
+		boost::str(boost::format(VLC->generaltexth->allTexts[272]) % hero->getNameTranslated())));
+	labels.emplace_back(std::make_shared<CLabel>(450, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->allTexts[479]));
+	texts.emplace_back(std::make_unique<CTextBox>(VLC->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
 	offerSlider->moveTo(pos.topLeft() + Point(231, 481));
-	maxAmount->setHelp(CGI->generaltexth->zelp[578]);
+	maxAmount->setHelp(VLC->generaltexth->zelp[578]);
 
 	unitsOnAltar.resize(GameConstants::ARMY_SIZE, 0);
 	expPerUnit.resize(GameConstants::ARMY_SIZE, 0);
 	sacrificeAllButton = std::make_shared<CButton>(
-		Point(393, 520), AnimationPath::builtin("ALTARMY.DEF"), CGI->generaltexth->zelp[579], std::bind(&CExperienceAltar::sacrificeAll, this), EShortcut::MARKET_SACRIFICE_ALL);
+		Point(393, 520), AnimationPath::builtin("ALTARMY.DEF"), VLC->generaltexth->zelp[579], std::bind(&CExperienceAltar::sacrificeAll, this), EShortcut::MARKET_SACRIFICE_ALL);
 
 	// Hero creatures panel
 	assert(bidTradePanel);
@@ -175,9 +174,9 @@ CMarketBase::MarketShowcasesParams CAltarCreatures::getShowcasesParams() const
 	std::optional<ShowcaseParams> bidSelected = std::nullopt;
 	std::optional<ShowcaseParams> offerSelected = std::nullopt;
 	if(bidTradePanel->isHighlighted())
-		bidSelected = ShowcaseParams {std::to_string(offerSlider->getValue()), CGI->creatures()->getByIndex(bidTradePanel->getHighlightedItemId())->getIconIndex()};
+		bidSelected = ShowcaseParams {std::to_string(offerSlider->getValue()), VLC->creatures()->getByIndex(bidTradePanel->getHighlightedItemId())->getIconIndex()};
 	if(offerTradePanel->isHighlighted() && offerSlider->getValue() > 0)
-		offerSelected = ShowcaseParams {offerTradePanel->highlightedSlot->subtitle->getText(), CGI->creatures()->getByIndex(offerTradePanel->getHighlightedItemId())->getIconIndex()};
+		offerSelected = ShowcaseParams {offerTradePanel->highlightedSlot->subtitle->getText(), VLC->creatures()->getByIndex(offerTradePanel->getHighlightedItemId())->getIconIndex()};
 	return MarketShowcasesParams {bidSelected, offerSelected};
 }
 
@@ -214,7 +213,7 @@ void CAltarCreatures::updateAltarSlot(const std::shared_ptr<CTradeableItem> & sl
 	const auto [oppositeSlot, oppositePanel] = getOpposite(slot);
 	slot->setID(units > 0 ? oppositeSlot->id : CreatureID::NONE);
 	slot->subtitle->setText(units > 0 ?
-		boost::str(boost::format(CGI->generaltexth->allTexts[122]) % std::to_string(hero->calculateXp(units * expPerUnit[slot->serial]))) : "");
+		boost::str(boost::format(VLC->generaltexth->allTexts[122]) % std::to_string(hero->calculateXp(units * expPerUnit[slot->serial]))) : "");
 }
 
 void CAltarCreatures::onOfferSliderMoved(int newVal)

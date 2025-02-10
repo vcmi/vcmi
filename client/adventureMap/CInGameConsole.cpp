@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "CInGameConsole.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../GameChatHandler.h"

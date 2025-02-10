@@ -17,7 +17,6 @@
 #include "BattleRenderer.h"
 #include "CreatureAnimation.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../media/ISoundPlayer.h"

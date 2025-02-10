@@ -14,7 +14,6 @@
 #include "AdventureMapInterface.h"
 
 #include "../widgets/Images.h"
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../gui/MouseButton.h"
@@ -159,13 +158,13 @@ void CMinimap::clickPressed(const Point & cursorPosition)
 
 void CMinimap::showPopupWindow(const Point & cursorPosition)
 {
-	CRClickPopup::createAndPush(CGI->generaltexth->zelp[291].second);
+	CRClickPopup::createAndPush(VLC->generaltexth->zelp[291].second);
 }
 
 void CMinimap::hover(bool on)
 {
 	if(on)
-		ENGINE->statusbar()->write(CGI->generaltexth->zelp[291].first);
+		ENGINE->statusbar()->write(VLC->generaltexth->zelp[291].first);
 	else
 		ENGINE->statusbar()->clear();
 }

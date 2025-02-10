@@ -12,7 +12,6 @@
 
 #include <vcmi/Artifact.h>
 
-#include "CGameInfo.h"
 #include "CServerHandler.h"
 #include "HeroMovementController.h"
 #include "PlayerLocalState.h"
@@ -330,7 +329,7 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 			adventureInt->onHotseatWaitStarted(playerID);
 
 			makingTurn = true;
-			std::string msg = CGI->generaltexth->allTexts[13];
+			std::string msg = VLC->generaltexth->allTexts[13];
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
 			cmp.push_back(std::make_shared<CComponent>(ComponentType::FLAG, playerID));
@@ -1458,7 +1457,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj, const PlayerC
 			ENGINE->sound().playSound(removalSound.value());
 		}
 	}
-	CGI->mh->waitForOngoingAnimations();
+	MAPHANDLER->waitForOngoingAnimations();
 
 	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)
 	{
@@ -1497,7 +1496,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 			LOCPLINT = this;
 			ENGINE->curInt = this;
 			adventureInt->onCurrentPlayerChanged(playerID);
-			std::string msg = CGI->generaltexth->translate("vcmi.adventureMap.playerAttacked");
+			std::string msg = VLC->generaltexth->translate("vcmi.adventureMap.playerAttacked");
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
 			cmp.push_back(std::make_shared<CComponent>(ComponentType::FLAG, playerID));
@@ -1576,7 +1575,7 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 	if (player == playerID)
 	{
 		if (victoryLossCheckResult.loss())
-			showInfoDialog(CGI->generaltexth->allTexts[95]);
+			showInfoDialog(VLC->generaltexth->allTexts[95]);
 
 		assert(ENGINE->curInt == LOCPLINT);
 		auto previousInterface = LOCPLINT; //without multiple player interfaces some of lines below are useless, but for hotseat we wanna swap player interface temporarily
@@ -1664,7 +1663,7 @@ void CPlayerInterface::tryDigging(const CGHeroInstance * h)
 	if(msgToShow < 0)
 		cb->dig(h);
 	else
-		showInfoDialog(CGI->generaltexth->allTexts[msgToShow]);
+		showInfoDialog(VLC->generaltexth->allTexts[msgToShow]);
 }
 
 void CPlayerInterface::battleNewRoundFirst(const BattleID & battleID)
@@ -1817,7 +1816,7 @@ void CPlayerInterface::waitForAllDialogs()
 void CPlayerInterface::proposeLoadingGame()
 {
 	showYesNoDialog(
-		CGI->generaltexth->allTexts[68],
+		VLC->generaltexth->allTexts[68],
 		[]()
 		{
 			CSH->endGameplay();
@@ -1835,7 +1834,7 @@ bool CPlayerInterface::capturedAllEvents()
 		return true;
 	}
 
-	bool needToLockAdventureMap = adventureInt && adventureInt->isActive() && CGI->mh->hasOngoingAnimations();
+	bool needToLockAdventureMap = adventureInt && adventureInt->isActive() && MAPHANDLER->hasOngoingAnimations();
 	bool quickCombatOngoing = isAutoFightOn && !battleInt;
 
 	if (ignoreEvents || needToLockAdventureMap || quickCombatOngoing )

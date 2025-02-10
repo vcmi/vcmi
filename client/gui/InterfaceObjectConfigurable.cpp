@@ -12,7 +12,6 @@
 
 #include "InterfaceObjectConfigurable.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../gui/ShortcutHandler.h"
@@ -35,6 +34,7 @@
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/VCMI_Lib.h"
 
 InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config, int used, Point offset):
 	InterfaceObjectConfigurable(used, offset)
@@ -185,7 +185,7 @@ std::string InterfaceObjectConfigurable::readText(const JsonNode & config) const
 	if(s.empty())
 		return s;
 	logGlobal->debug("Reading text from translations by key: %s", s);
-	return CGI->generaltexth->translate(s);
+	return VLC->generaltexth->translate(s);
 }
 
 Point InterfaceObjectConfigurable::readPosition(const JsonNode & config) const
@@ -303,8 +303,8 @@ std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(co
 		if(config.getType() == JsonNode::JsonType::DATA_STRING)
 		{
 			logGlobal->debug("Reading hint text (help) from generaltext handler:%sd", config.String());
-			result.first  = CGI->generaltexth->translate( config.String(), "hover");
-			result.second = CGI->generaltexth->translate( config.String(), "help");
+			result.first  = VLC->generaltexth->translate( config.String(), "hover");
+			result.second = VLC->generaltexth->translate( config.String(), "help");
 		}
 	}
 	return result;

@@ -9,14 +9,11 @@
  */
 
 #include "StdInc.h"
-
 #include "CPrologEpilogVideo.h"
-#include "../CGameInfo.h"
+
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
-//#include "../gui/WindowHandler.h"
 #include "../GameEngine.h"
-//#include "../gui/FramerateManager.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/VideoWidget.h"
 #include "../widgets/Images.h"

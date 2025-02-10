@@ -25,7 +25,6 @@
 #include "../render/Canvas.h"
 #include "../render/CanvasImage.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"

@@ -18,7 +18,6 @@
 #include "BattleStacksController.h"
 #include "BattleRenderer.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../media/ISoundPlayer.h"
@@ -83,7 +82,7 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 			break;
 		case BonusType::MORALE:
 		{
-			std::string hlp = CGI->generaltexth->allTexts[33];
+			std::string hlp = VLC->generaltexth->allTexts[33];
 			boost::algorithm::replace_first(hlp,"%s",(stack->getName()));
 			displayEffect(EBattleEffect::GOOD_MORALE, AudioPath::builtin("GOODMRLE"), stack->getPosition());
 			owner.appendBattleLog(hlp);

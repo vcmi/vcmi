@@ -16,13 +16,13 @@
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
-#include "../../CGameInfo.h"
 #include "../../CPlayerInterface.h"
 
 #include "../../../CCallback.h"
 
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/IMarket.h"
+#include "../../../lib/VCMI_Lib.h"
 
 CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
@@ -34,9 +34,9 @@ CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance 
 {
 	OBJECT_CONSTRUCTION;
 
-	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[158]));
+	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->allTexts[158]));
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
-		CGI->generaltexth->zelp[595], [this]() {CMarketResources::makeDeal(); }, EShortcut::MARKET_DEAL);
+		VLC->generaltexth->zelp[595], [this]() {CMarketResources::makeDeal(); }, EShortcut::MARKET_DEAL);
 
 	// Player's resources
 	assert(bidTradePanel);
@@ -99,7 +99,7 @@ void CMarketResources::updateSubtitles()
 {
 	CMarketBase::updateSubtitlesForBid(EMarketMode::RESOURCE_RESOURCE, bidTradePanel->getHighlightedItemId());
 	if(bidTradePanel->highlightedSlot)
-		offerTradePanel->slots[bidTradePanel->highlightedSlot->serial]->subtitle->setText(CGI->generaltexth->allTexts[164]); // n/a
+		offerTradePanel->slots[bidTradePanel->highlightedSlot->serial]->subtitle->setText(VLC->generaltexth->allTexts[164]); // n/a
 }
 
 std::string CMarketResources::getTraderText()
@@ -109,15 +109,15 @@ std::string CMarketResources::getTraderText()
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.157");
 		message.replaceNumber(offerQty);
-		message.replaceRawString(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
+		message.replaceRawString(offerQty == 1 ? VLC->generaltexth->allTexts[161] : VLC->generaltexth->allTexts[160]);
 		message.replaceName(GameResID(bidTradePanel->getHighlightedItemId()));
 		message.replaceNumber(bidQty);
-		message.replaceRawString(bidQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
+		message.replaceRawString(bidQty == 1 ? VLC->generaltexth->allTexts[161] : VLC->generaltexth->allTexts[160]);
 		message.replaceName(GameResID(offerTradePanel->getHighlightedItemId()));
 		return message.toString();
 	}
 	else
 	{
-		return madeTransaction ? CGI->generaltexth->allTexts[162] : CGI->generaltexth->allTexts[163];
+		return madeTransaction ? VLC->generaltexth->allTexts[162] : VLC->generaltexth->allTexts[163];
 	}
 }

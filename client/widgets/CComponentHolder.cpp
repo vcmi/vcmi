@@ -20,7 +20,6 @@
 #include "../render/Colors.h"
 #include "../render/IRenderHandler.h"
 #include "../CPlayerInterface.h"
-#include "../CGameInfo.h"
 
 #include "../../CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -168,7 +167,7 @@ void CCommanderArtPlace::returnArtToHeroCallback()
 	ArtifactPosition freeSlot = ArtifactUtils::getArtBackpackPosition(commanderOwner, getArtifactId());
 	if(freeSlot == ArtifactPosition::PRE_FIRST)
 	{
-		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.152"));
+		LOCPLINT->showInfoDialog(VLC->generaltexth->translate("core.genrltxt.152"));
 	}
 	else
 	{
@@ -188,7 +187,7 @@ void CCommanderArtPlace::returnArtToHeroCallback()
 void CCommanderArtPlace::clickPressed(const Point & cursorPosition)
 {
 	if(getArtifactId() != ArtifactID::NONE && text.size())
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.commanderWindow.artifactMessage"), [this]() { returnArtToHeroCallback(); }, []() {});
+		LOCPLINT->showYesNoDialog(VLC->generaltexth->translate("vcmi.commanderWindow.artifactMessage"), [this]() { returnArtToHeroCallback(); }, []() {});
 }
 
 void CCommanderArtPlace::showPopupWindow(const Point & cursorPosition)
@@ -203,18 +202,18 @@ void CArtPlace::lockSlot(bool on)
 	if(on)
 	{
 		image->setFrame(ArtifactID::ART_LOCK);
-		hoverText = CGI->generaltexth->allTexts[507];
+		hoverText = VLC->generaltexth->allTexts[507];
 	}
 	else if(artId != ArtifactID::NONE)
 	{
 		image->setFrame(imageIndex);
-		auto hoverText = MetaString::createFromRawString(CGI->generaltexth->heroscrn[1]);
+		auto hoverText = MetaString::createFromRawString(VLC->generaltexth->heroscrn[1]);
 		hoverText.replaceName(artId);
 		this->hoverText = hoverText.toString();
 	}
 	else
 	{
-		hoverText = CGI->generaltexth->allTexts[507];
+		hoverText = VLC->generaltexth->allTexts[507];
 	}
 }
 
@@ -298,8 +297,8 @@ void CSecSkillPlace::setLevel(const uint8_t level)
 		const auto secSkill = skillId.toSkill();
 		image->setFrame(secSkill->getIconIndex(level - 1));
 		image->enable();
-		auto hoverText = MetaString::createFromRawString(CGI->generaltexth->heroscrn[21]);
-		hoverText.replaceRawString(CGI->generaltexth->levels[level - 1]);
+		auto hoverText = MetaString::createFromRawString(VLC->generaltexth->heroscrn[21]);
+		hoverText.replaceRawString(VLC->generaltexth->levels[level - 1]);
 		hoverText.replaceTextID(secSkill->getNameTextID());
 		this->hoverText = hoverText.toString();
 		component.value = level;

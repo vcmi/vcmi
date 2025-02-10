@@ -180,7 +180,6 @@ set(vcmiclientcommon_SRCS
 
 	ArtifactsUIController.cpp
 	GameEngine.cpp
-	CGameInfo.cpp
 	CPlayerInterface.cpp
 	PlayerLocalState.cpp
 	CServerHandler.cpp
@@ -395,7 +394,6 @@ set(vcmiclientcommon_HEADERS
 	xBRZ/xbrz_tools.h
 
 	ArtifactsUIController.h
-	CGameInfo.h
 	CMT.h
 	CPlayerInterface.h
 	GameEngine.h

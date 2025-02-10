@@ -23,7 +23,6 @@
 #include "BattleStacksController.h"
 #include "BattleRenderer.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
@@ -257,7 +256,7 @@ void BattleInterface::newRoundFirst()
 
 void BattleInterface::newRound()
 {
-	console->addText(CGI->generaltexth->allTexts[412]);
+	console->addText(VLC->generaltexth->allTexts[412]);
 	round++;
 }
 

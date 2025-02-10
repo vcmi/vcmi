@@ -13,7 +13,6 @@
 
 #include "CMainMenu.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
@@ -82,7 +81,7 @@ std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & butt
 {
 	std::pair<std::string, std::string> help;
 	if(!button["help"].isNull() && button["help"].Float() > 0)
-		help = CGI->generaltexth->zelp[(size_t)button["help"].Float()];
+		help = VLC->generaltexth->zelp[(size_t)button["help"].Float()];
 
 	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), AnimationPath::fromJson(button["name"]), help, [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }

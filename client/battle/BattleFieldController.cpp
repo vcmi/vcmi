@@ -21,7 +21,6 @@
 #include "BattleProjectileController.h"
 #include "BattleRenderer.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"

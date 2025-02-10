@@ -23,7 +23,6 @@
 #include "CreatureAnimation.h"
 
 #include "../CPlayerInterface.h"
-#include "../CGameInfo.h"
 #include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../media/ISoundPlayer.h"
@@ -263,7 +262,7 @@ std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack *
 
 	for(const auto & spellID : activeSpells)
 	{
-		auto positiveness = CGI->spells()->getByIndex(spellID)->getPositiveness();
+		auto positiveness = VLC->spells()->getByIndex(spellID)->getPositiveness();
 		if(!boost::logic::indeterminate(positiveness))
 		{
 			if(positiveness)

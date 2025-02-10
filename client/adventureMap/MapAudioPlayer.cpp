@@ -11,7 +11,6 @@
 #include "MapAudioPlayer.h"
 
 #include "../CCallback.h"
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../mapView/mapHandler.h"
@@ -132,7 +131,7 @@ std::vector<AudioPath> MapAudioPlayer::getAmbientSounds(const int3 & tile)
 
 	for(auto & objectID : objects[tile.z][tile.x][tile.y])
 	{
-		const auto & object = CGI->mh->getMap()->objects[objectID.getNum()];
+		const auto & object = MAPHANDLER->getMap()->objects[objectID.getNum()];
 
 		assert(object);
 		if (!object)
@@ -146,7 +145,7 @@ std::vector<AudioPath> MapAudioPlayer::getAmbientSounds(const int3 & tile)
 		}
 	}
 
-	if(CGI->mh->getMap()->isCoastalTile(tile))
+	if(MAPHANDLER->getMap()->isCoastalTile(tile))
 		result.emplace_back(AudioPath::builtin("LOOPOCEA"));
 
 	return result;
@@ -206,7 +205,7 @@ MapAudioPlayer::MapAudioPlayer()
 
 	objects.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 
-	for(const auto & obj : CGI->mh->getMap()->objects)
+	for(const auto & obj : MAPHANDLER->getMap()->objects)
 	{
 		if (obj)
 			addObject(obj);

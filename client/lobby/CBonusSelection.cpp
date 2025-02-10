@@ -17,7 +17,6 @@
 #include "CSelectionBase.h"
 #include "ExtraOptionsTab.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../mainmenu/CMainMenu.h"
@@ -92,29 +91,29 @@ CBonusSelection::CBonusSelection()
 
 	iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 4, 0, 735, 26);
 
-	labelCampaignDescription = std::make_shared<CLabel>(481, 63, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[38]);
+	labelCampaignDescription = std::make_shared<CLabel>(481, 63, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, VLC->generaltexth->allTexts[38]);
 	campaignDescription = std::make_shared<CTextBox>(getCampaign()->getDescriptionTranslated(), Rect(480, 86, 286, 117), 1);
 
 	bool videoButtonActive = CSH->getState() == EClientState::GAMEPLAY;
 	int availableSpace = videoButtonActive ? 225 : 285;
 	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->mi->getNameTranslated(), availableSpace );
-	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
+	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, VLC->generaltexth->allTexts[496]);
 	mapDescription = std::make_shared<CTextBox>("", Rect(480, 278, 286, 108), 1);
 
-	labelChooseBonus = std::make_shared<CLabel>(475, 432, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[71]);
+	labelChooseBonus = std::make_shared<CLabel>(475, 432, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[71]);
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, CSH, _1));
 
 	flagbox = std::make_shared<CFlagBox>(Rect(486, 407, 335, 23));
 
 	std::vector<std::string> difficulty;
-	std::string difficultyString = CGI->generaltexth->allTexts[492];
+	std::string difficultyString = VLC->generaltexth->allTexts[492];
 	boost::split(difficulty, difficultyString, boost::is_any_of(" "));
 	labelDifficulty = std::make_shared<CLabel>(724, settings["general"]["enableUiEnhancements"].Bool() ? 457 : 432, FONT_MEDIUM, ETextAlignment::TOPCENTER, Colors::WHITE, difficulty.back());
 
 	for(size_t b = 0; b < difficultyIcons.size(); ++b)
 	{
 		difficultyIcons[b] = std::make_shared<CAnimImage>(AnimationPath::builtinTODO("GSPBUT" + std::to_string(b + 3) + ".DEF"), 0, 0, 709, settings["general"]["enableUiEnhancements"].Bool() ? 480 : 455);
-		difficultyIconAreas[b] = std::make_shared<LRClickableArea>(difficultyIcons[b]->pos - pos.topLeft(), nullptr, [b]() { CRClickPopup::createAndPush(CGI->generaltexth->zelp[24 + b].second); });
+		difficultyIconAreas[b] = std::make_shared<LRClickableArea>(difficultyIcons[b]->pos - pos.topLeft(), nullptr, [b]() { CRClickPopup::createAndPush(VLC->generaltexth->zelp[24 + b].second); });
 	}
 
 	if(getCampaign()->playerSelectedDifficulty())
@@ -145,8 +144,8 @@ CBonusSelection::CBonusSelection()
 		tabExtraOptions->recActions = UPDATE | SHOWALL | LCLICK | RCLICK_POPUP;
 		tabExtraOptions->recreate(true);
 		tabExtraOptions->setEnabled(false);
-		buttonExtraOptions = std::make_shared<CButton>(Point(643, 431), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], [this]{ tabExtraOptions->setEnabled(!tabExtraOptions->isActive()); ENGINE->windows().totalRedraw(); }, EShortcut::LOBBY_EXTRA_OPTIONS);
-		buttonExtraOptions->setTextOverlay(CGI->generaltexth->translate("vcmi.optionsTab.extraOptions.hover"), FONT_SMALL, Colors::WHITE);
+		buttonExtraOptions = std::make_shared<CButton>(Point(643, 431), AnimationPath::builtin("GSPBUT2.DEF"), VLC->generaltexth->zelp[46], [this]{ tabExtraOptions->setEnabled(!tabExtraOptions->isActive()); ENGINE->windows().totalRedraw(); }, EShortcut::LOBBY_EXTRA_OPTIONS);
+		buttonExtraOptions->setTextOverlay(VLC->generaltexth->translate("vcmi.optionsTab.extraOptions.hover"), FONT_SMALL, Colors::WHITE);
 	}
 }
 
@@ -213,8 +212,8 @@ void CBonusSelection::createBonusesIcons()
 			picName = graphics->ERMUtoPicture[faction][buildID];
 			picNumber = -1;
 
-			if(vstd::contains((*CGI->townh)[faction]->town->buildings, buildID))
-				desc.appendTextID((*CGI->townh)[faction]->town->buildings.find(buildID)->second->getNameTextID());
+			if(vstd::contains((*VLC->townh)[faction]->town->buildings, buildID))
+				desc.appendTextID((*VLC->townh)[faction]->town->buildings.find(buildID)->second->getNameTextID());
 			break;
 		}
 		case CampaignBonusType::ARTIFACT:
@@ -248,7 +247,7 @@ void CBonusSelection::createBonusesIcons()
 			for(int v = 0; v < toPrint.size(); ++v)
 			{
 				substitute += std::to_string(toPrint[v].second);
-				substitute += " " + CGI->generaltexth->primarySkillNames[toPrint[v].first];
+				substitute += " " + VLC->generaltexth->primarySkillNames[toPrint[v].first];
 				if(v != toPrint.size() - 1)
 				{
 					substitute += ", ";
@@ -314,7 +313,7 @@ void CBonusSelection::createBonusesIcons()
 			else
 			{
 				desc.appendLocalString(EMetaText::GENERAL_TXT, 715); // Start with %s
-				desc.replaceTextID(CGI->heroh->objects[bonDescs[i].info2]->getNameTextID());
+				desc.replaceTextID(VLC->heroh->objects[bonDescs[i].info2]->getNameTextID());
 			}
 			break;
 		}
@@ -450,7 +449,7 @@ void CBonusSelection::startMap()
 	if(LOCPLINT) // we're currently ingame, so ask for starting new map and end game
 	{
 		close();
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [=]()
+		LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[67], [=]()
 		{
 			showPrologVideo();
 		}, 0);
@@ -465,7 +464,7 @@ void CBonusSelection::restartMap()
 {
 	close();
 	LOCPLINT->showYesNoDialog(
-		CGI->generaltexth->allTexts[67],
+		VLC->generaltexth->allTexts[67],
 		[=]()
 		{
 			ENGINE->dispatchMainThread(

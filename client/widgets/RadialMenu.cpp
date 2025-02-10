@@ -17,9 +17,9 @@
 #include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../render/IImage.h"
-#include "../CGameInfo.h"
 
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/VCMI_Lib.h"
 
 RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback, bool alternativeLayout)
 	: callback(callback)
@@ -72,7 +72,7 @@ void RadialMenu::addItem(const Point & offset, bool enabled, const std::string &
 	if (!enabled)
 		return;
 
-	auto item = std::make_shared<RadialMenuItem>(path, CGI->generaltexth->translate(hoverText), callback, alternativeLayout);
+	auto item = std::make_shared<RadialMenuItem>(path, VLC->generaltexth->translate(hoverText), callback, alternativeLayout);
 
 	item->moveBy(offset);
 

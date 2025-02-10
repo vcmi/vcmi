@@ -23,7 +23,6 @@
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"

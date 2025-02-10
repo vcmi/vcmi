@@ -11,7 +11,6 @@
 #include "CSoundHandler.h"
 
 #include "../GameEngine.h"
-#include "../CGameInfo.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/CRandomGenerator.h"

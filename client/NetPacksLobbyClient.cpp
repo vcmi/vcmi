@@ -25,7 +25,6 @@
 
 #include "CServerHandler.h"
 #include "GameChatHandler.h"
-#include "CGameInfo.h"
 #include "Client.h"
 #include "GameEngine.h"
 #include "gui/WindowHandler.h"

@@ -14,7 +14,6 @@
 #include "IMapRendererContext.h"
 #include "mapHandler.h"
 
-#include "../CGameInfo.h"
 #include "../GameEngine.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"

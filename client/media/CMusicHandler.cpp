@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "CMusicHandler.h"
 
-#include "../CGameInfo.h"
 #include "../eventsSDL/InputHandler.h"
 #include "../GameEngine.h"
 #include "../renderSDL/SDLRWwrapper.h"
@@ -21,6 +20,7 @@
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/VCMI_Lib.h"
 
 void CMusicHandler::onVolumeChange(const JsonNode & volumeNode)
 {
@@ -63,13 +63,13 @@ CMusicHandler::CMusicHandler():
 
 void CMusicHandler::loadTerrainMusicThemes()
 {
-	for(const auto & terrain : CGI->terrainTypeHandler->objects)
+	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
 		for(const auto & filename : terrain->musicFilename)
 			addEntryToSet("terrain_" + terrain->getJsonKey(), filename);
 	}
 
-	for(const auto & faction : CGI->townh->objects)
+	for(const auto & faction : VLC->townh->objects)
 	{
 		if (!faction || !faction->hasTown())
 			continue;

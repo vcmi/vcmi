@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "TurnTimerWidget.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleStacksController.h"

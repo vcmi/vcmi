@@ -12,7 +12,6 @@
 #include "CScenarioInfoScreen.h"
 #include "OptionsTab.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../gui/Shortcut.h"
@@ -24,6 +23,7 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
+#include "../../lib/VCMI_Lib.h"
 
 CScenarioInfoScreen::CScenarioInfoScreen()
 {
@@ -45,7 +45,7 @@ CScenarioInfoScreen::CScenarioInfoScreen()
 	card->changeSelection();
 
 	card->iconDifficulty->setSelected(getCurrentDifficulty());
-	buttonBack = std::make_shared<CButton>(Point(584, 535), AnimationPath::builtin("SCNRBACK.DEF"), CGI->generaltexth->zelp[105], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
+	buttonBack = std::make_shared<CButton>(Point(584, 535), AnimationPath::builtin("SCNRBACK.DEF"), VLC->generaltexth->zelp[105], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 CScenarioInfoScreen::~CScenarioInfoScreen()

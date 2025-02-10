@@ -17,7 +17,6 @@
 #include "BattleFieldController.h"
 #include "BattleRenderer.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../media/ISoundPlayer.h"

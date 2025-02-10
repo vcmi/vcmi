@@ -16,7 +16,6 @@
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
-#include "../../CGameInfo.h"
 #include "../../CPlayerInterface.h"
 
 #include "../../../CCallback.h"
@@ -37,9 +36,9 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
 		VLC->generaltexth->translate("object.core.freelancersGuild.name")));
 	labels.emplace_back(std::make_shared<CLabel>(155, 103, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
-		boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->getNameTranslated())));
+		boost::str(boost::format(VLC->generaltexth->allTexts[272]) % hero->getNameTranslated())));
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
-		CGI->generaltexth->zelp[595], [this]() {CFreelancerGuild::makeDeal();}, EShortcut::MARKET_DEAL);
+		VLC->generaltexth->zelp[595], [this]() {CFreelancerGuild::makeDeal();}, EShortcut::MARKET_DEAL);
 	offerSlider->moveTo(pos.topLeft() + Point(232, 489));
 
 	// Hero creatures panel
@@ -80,7 +79,7 @@ CMarketBase::MarketShowcasesParams CFreelancerGuild::getShowcasesParams() const
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 		return MarketShowcasesParams
 		{
-			ShowcaseParams {std::to_string(bidQty * offerSlider->getValue()), CGI->creatures()->getByIndex(bidTradePanel->getHighlightedItemId())->getIconIndex()},
+			ShowcaseParams {std::to_string(bidQty * offerSlider->getValue()), VLC->creatures()->getByIndex(bidTradePanel->getHighlightedItemId())->getIconIndex()},
 			ShowcaseParams {std::to_string(offerQty * offerSlider->getValue()), offerTradePanel->getHighlightedItemId()}
 		};
 	else
@@ -108,7 +107,7 @@ std::string CFreelancerGuild::getTraderText()
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.269");
 		message.replaceNumber(offerQty);
-		message.replaceRawString(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
+		message.replaceRawString(offerQty == 1 ? VLC->generaltexth->allTexts[161] : VLC->generaltexth->allTexts[160]);
 		message.replaceName(GameResID(offerTradePanel->getHighlightedItemId()));
 		message.replaceNumber(bidQty);
 		if(bidQty == 1)
@@ -119,6 +118,6 @@ std::string CFreelancerGuild::getTraderText()
 	}
 	else
 	{
-		return madeTransaction ? CGI->generaltexth->allTexts[162] : CGI->generaltexth->allTexts[163];
+		return madeTransaction ? VLC->generaltexth->allTexts[162] : VLC->generaltexth->allTexts[163];
 	}
 }

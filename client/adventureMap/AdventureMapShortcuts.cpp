@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "AdventureMapShortcuts.h"
 
-#include "../CGameInfo.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
@@ -289,14 +288,14 @@ void AdventureMapShortcuts::endTurn()
 
 				if(!LOCPLINT->localState->hasPath(hero))
 				{
-					LOCPLINT->showYesNoDialog( CGI->generaltexth->allTexts[55], [this](){ owner.hotkeyEndingTurn(); }, nullptr);
+					LOCPLINT->showYesNoDialog( VLC->generaltexth->allTexts[55], [this](){ owner.hotkeyEndingTurn(); }, nullptr);
 					return;
 				}
 
 				auto path = LOCPLINT->localState->getPath(hero);
 				if (path.nodes.size() < 2 || path.nodes[path.nodes.size() - 2].turns)
 				{
-					LOCPLINT->showYesNoDialog( CGI->generaltexth->allTexts[55], [this](){ owner.hotkeyEndingTurn(); }, nullptr);
+					LOCPLINT->showYesNoDialog( VLC->generaltexth->allTexts[55], [this](){ owner.hotkeyEndingTurn(); }, nullptr);
 					return;
 				}
 			}
@@ -316,7 +315,7 @@ void AdventureMapShortcuts::showThievesGuild()
 	if(itr != LOCPLINT->localState->getOwnedTowns().end())
 		LOCPLINT->showThievesGuildWindow(*itr);
 	else
-		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
+		LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
 }
 
 void AdventureMapShortcuts::showScenarioInfo()
@@ -327,7 +326,7 @@ void AdventureMapShortcuts::showScenarioInfo()
 void AdventureMapShortcuts::toMainMenu()
 {
 	LOCPLINT->showYesNoDialog(
-		CGI->generaltexth->allTexts[578],
+		VLC->generaltexth->allTexts[578],
 		[]()
 		{
 			CSH->endGameplay();
@@ -340,7 +339,7 @@ void AdventureMapShortcuts::toMainMenu()
 void AdventureMapShortcuts::newGame()
 {
 	LOCPLINT->showYesNoDialog(
-		CGI->generaltexth->allTexts[578],
+		VLC->generaltexth->allTexts[578],
 		[]()
 		{
 			CSH->endGameplay();
@@ -353,7 +352,7 @@ void AdventureMapShortcuts::newGame()
 void AdventureMapShortcuts::quitGame()
 {
 	LOCPLINT->showYesNoDialog(
-		CGI->generaltexth->allTexts[578],
+		VLC->generaltexth->allTexts[578],
 		[]()
 		{
 			ENGINE->dispatchMainThread( []()
@@ -391,7 +390,7 @@ void AdventureMapShortcuts::viewPuzzleMap()
 void AdventureMapShortcuts::restartGame()
 {
 	LOCPLINT->showYesNoDialog(
-		CGI->generaltexth->translate("vcmi.adventureMap.confirmRestartGame"),
+		VLC->generaltexth->translate("vcmi.adventureMap.confirmRestartGame"),
 		[]()
 		{
 			ENGINE->dispatchMainThread(
@@ -440,7 +439,7 @@ void AdventureMapShortcuts::showMarketplace()
 	if(townWithMarket) //if any town has marketplace, open window
 		ENGINE->windows().createAndPushWindow<CMarketWindow>(townWithMarket, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 	else //if not - complain
-		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
+		LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 }
 
 void AdventureMapShortcuts::firstTown()
@@ -516,7 +515,7 @@ void AdventureMapShortcuts::search(bool next)
 	if(next)
 		selectObjOnMap(lastSel);
 	else
-		ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, CGI->generaltexth->translate("vcmi.adventureMap.search.hover"), CGI->generaltexth->translate("vcmi.adventureMap.search.help"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
+		ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, VLC->generaltexth->translate("vcmi.adventureMap.search.hover"), VLC->generaltexth->translate("vcmi.adventureMap.search.help"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
 }
 
 void AdventureMapShortcuts::nextObject()
@@ -537,12 +536,12 @@ void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 	if(!h)
 		return;
 
-	if (CGI->mh->hasOngoingAnimations())
+	if (MAPHANDLER->hasOngoingAnimations())
 		return;
 
 	int3 dst = h->visitablePos() + int3(direction.x, direction.y, 0);
 
-	if (!CGI->mh->isInMap((dst)))
+	if (!MAPHANDLER->isInMap((dst)))
 		return;
 
 	if ( !LOCPLINT->localState->setPath(h, dst))
@@ -559,7 +558,7 @@ void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 
 bool AdventureMapShortcuts::optionCanViewQuests()
 {
-	return optionInMapView() && !CGI->mh->getMap()->quests.empty();
+	return optionInMapView() && !MAPHANDLER->getMap()->quests.empty();
 }
 
 bool AdventureMapShortcuts::optionCanToggleLevel()

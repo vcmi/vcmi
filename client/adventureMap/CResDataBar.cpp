@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "CResDataBar.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
@@ -23,6 +22,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/ResourceSet.h"
+#include "../../lib/VCMI_Lib.h"
 
 CResDataBar::CResDataBar(const ImagePath & imageName, const Point & position)
 {
@@ -61,9 +61,9 @@ std::string CResDataBar::buildDateString()
 	std::string pattern = "%s: %d, %s: %d, %s: %d";
 
 	auto formatted = boost::format(pattern)
-		% CGI->generaltexth->translate("core.genrltxt.62") % LOCPLINT->cb->getDate(Date::MONTH)
-		% CGI->generaltexth->translate("core.genrltxt.63") % LOCPLINT->cb->getDate(Date::WEEK)
-		% CGI->generaltexth->translate("core.genrltxt.64") % LOCPLINT->cb->getDate(Date::DAY_OF_WEEK);
+		% VLC->generaltexth->translate("core.genrltxt.62") % LOCPLINT->cb->getDate(Date::MONTH)
+		% VLC->generaltexth->translate("core.genrltxt.63") % LOCPLINT->cb->getDate(Date::WEEK)
+		% VLC->generaltexth->translate("core.genrltxt.64") % LOCPLINT->cb->getDate(Date::DAY_OF_WEEK);
 
 	return boost::str(formatted);
 }

@@ -20,7 +20,6 @@
 #include "../windows/CCreatureWindow.h"
 #include "../windows/CWindowWithArtifacts.h"
 #include "../windows/GUIClasses.h"
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
@@ -55,17 +54,17 @@ void CGarrisonSlot::hover (bool on)
 			{
 				if(owner->getSelection() == this)
 				{
-					temp = CGI->generaltexth->tcommands[4]; //View %s
+					temp = VLC->generaltexth->tcommands[4]; //View %s
 					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 				}
 				else if (owner->getSelection()->creature == creature)
 				{
-					temp = CGI->generaltexth->tcommands[2]; //Combine %s armies
+					temp = VLC->generaltexth->tcommands[2]; //Combine %s armies
 					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 				}
 				else if (owner->getSelection()->creature)
 				{
-					temp = CGI->generaltexth->tcommands[7]; //Exchange %s with %s
+					temp = VLC->generaltexth->tcommands[7]; //Exchange %s with %s
 					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->getNameSingularTranslated());
 					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 				}
@@ -85,15 +84,15 @@ void CGarrisonSlot::hover (bool on)
 
 				if(isHeroOnMap)
 				{
-					temp = CGI->generaltexth->allTexts[481]; //Select %s
+					temp = VLC->generaltexth->allTexts[481]; //Select %s
 				}
 				else if(upg == EGarrisonType::UPPER)
 				{
-					temp = CGI->generaltexth->tcommands[12]; //Select %s (in garrison)
+					temp = VLC->generaltexth->tcommands[12]; //Select %s (in garrison)
 				}
 				else // Hero is visiting some object (town, mine, etc)
 				{
-					temp = CGI->generaltexth->tcommands[32]; //Select %s (visiting)
+					temp = VLC->generaltexth->tcommands[32]; //Select %s (visiting)
 				}
 				boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 			}
@@ -108,17 +107,17 @@ void CGarrisonSlot::hover (bool on)
 				  && owner->getSelection()->upg != upg	//we're moving it to the other garrison
 				  )
 				{
-					temp = CGI->generaltexth->tcommands[5]; //Cannot move last army to garrison
+					temp = VLC->generaltexth->tcommands[5]; //Cannot move last army to garrison
 				}
 				else
 				{
-					temp = CGI->generaltexth->tcommands[6]; //Move %s
+					temp = VLC->generaltexth->tcommands[6]; //Move %s
 					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->getNameSingularTranslated());
 				}
 			}
 			else
 			{
-				temp = CGI->generaltexth->tcommands[11]; //Empty
+				temp = VLC->generaltexth->tcommands[11]; //Empty
 			}
 		}
 		ENGINE->statusbar()->write(temp);
@@ -514,7 +513,7 @@ bool CGarrisonSlot::handleSplittingShortcuts()
 	{
 		auto dismiss = getDismiss();
 		if(dismiss)
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[12], dismiss, nullptr);
+			LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[12], dismiss, nullptr);
 	}
 	else if(isAlt)
 	{

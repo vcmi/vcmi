@@ -23,7 +23,6 @@
 #include "media/CVideoHandler.h"
 #include "media/CEmptyVideoPlayer.h"
 
-#include "CGameInfo.h"
 #include "CPlayerInterface.h"
 #include "adventureMap/AdventureMapInterface.h"
 #include "render/Canvas.h"
@@ -73,20 +72,16 @@ void GameEngine::init()
 #ifndef ENABLE_VIDEO
 	videoPlayerInstance = std::make_unique<CEmptyVideoPlayer>();
 #else
-	if (!settings["session"]["headless"].Bool())
-		videoPlayerInstance = std::make_unique<CVideoPlayer>();
-	else
+	if (settings["session"]["disableVideo"].Bool())
 		videoPlayerInstance = std::make_unique<CEmptyVideoPlayer>();
+	else
+		videoPlayerInstance = std::make_unique<CVideoPlayer>();
 #endif
 
-	if(!settings["session"]["headless"].Bool())
-	{
-		soundPlayerInstance = std::make_unique<CSoundHandler>();
-		musicPlayerInstance = std::make_unique<CMusicHandler>();
-		sound().setVolume((ui32)settings["general"]["sound"].Float());
-		music().setVolume((ui32)settings["general"]["music"].Float());
-	}
-
+	soundPlayerInstance = std::make_unique<CSoundHandler>();
+	musicPlayerInstance = std::make_unique<CMusicHandler>();
+	sound().setVolume((ui32)settings["general"]["sound"].Float());
+	music().setVolume((ui32)settings["general"]["music"].Float());
 	cursorHandlerInstance = std::make_unique<CursorHandler>();
 }
 

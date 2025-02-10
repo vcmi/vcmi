@@ -19,7 +19,6 @@
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 #include "../GameEngine.h"
-#include "../CGameInfo.h"
 
 #include "../../lib/CStack.h"
 #include "../../lib/mapObjects/CGTownInstance.h"

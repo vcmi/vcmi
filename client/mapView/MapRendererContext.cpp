@@ -15,7 +15,6 @@
 #include "mapHandler.h"
 
 #include "../../CCallback.h"
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 
@@ -92,7 +91,7 @@ bool MapRendererBaseContext::tileAnimated(const int3 & coordinates) const
 
 const TerrainTile & MapRendererBaseContext::getMapTile(const int3 & coordinates) const
 {
-	return CGI->mh->getMap()->getTile(coordinates);
+	return MAPHANDLER->getMap()->getTile(coordinates);
 }
 
 const MapRendererBaseContext::MapObjectsList & MapRendererBaseContext::getObjects(const int3 & coordinates) const
@@ -103,7 +102,7 @@ const MapRendererBaseContext::MapObjectsList & MapRendererBaseContext::getObject
 
 const CGObjectInstance * MapRendererBaseContext::getObject(ObjectInstanceID objectID) const
 {
-	return CGI->mh->getMap()->objects.at(objectID.getNum());
+	return MAPHANDLER->getMap()->objects.at(objectID.getNum());
 }
 
 const CGPath * MapRendererBaseContext::currentPath() const

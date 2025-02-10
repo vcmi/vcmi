@@ -14,7 +14,6 @@
 #include "InputHandler.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../CGameInfo.h"
 #include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
 #include "../gui/EventDispatcher.h"

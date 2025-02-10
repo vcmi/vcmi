@@ -14,7 +14,6 @@
 #include "CLobbyScreen.h"
 #include "SelectionTab.h"
 
-#include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
 #include "../gui/MouseButton.h"

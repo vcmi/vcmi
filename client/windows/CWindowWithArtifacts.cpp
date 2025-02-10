@@ -26,7 +26,6 @@
 #include "../widgets/CComponent.h"
 
 #include "../CPlayerInterface.h"
-#include "../CGameInfo.h"
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -99,7 +98,7 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, c
 			for(const auto & artSlot : ArtifactUtils::unmovableSlots())
 				if(slot == artSlot)
 				{
-					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21]);
+					LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[21]);
 					break;
 				}
 		}
@@ -217,13 +216,13 @@ bool CWindowWithArtifacts::checkSpecialArts(const CArtifactInstance & artInst, c
 	if(artId == ArtifactID::CATAPULT)
 	{
 		// The Catapult must be equipped
-		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[312],
+		LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[312],
 			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, ArtifactID(ArtifactID::CATAPULT))));
 		return false;
 	}
 	if(isTrade && !artInst.getType()->isTradable())
 	{
-		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21],
+		LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[21],
 			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, artId)));
 		return false;
 	}
@@ -258,14 +257,14 @@ void CWindowWithArtifacts::putPickedArtifact(const CGHeroInstance & curHero, con
 		if(pickedArt->getType()->isBig())
 		{
 			// War machines cannot go to backpack
-			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % pickedArt->getType()->getNameTranslated()));
+			LOCPLINT->showInfoDialog(boost::str(boost::format(VLC->generaltexth->allTexts[153]) % pickedArt->getType()->getNameTranslated()));
 		}
 		else
 		{
 			if(ArtifactUtils::isBackpackFreeSlots(heroArtOwner))
 				LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
 			else
-				LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.152"));
+				LOCPLINT->showInfoDialog(VLC->generaltexth->translate("core.genrltxt.152"));
 		}
 	}
 	// Check if artifact transfer is possible

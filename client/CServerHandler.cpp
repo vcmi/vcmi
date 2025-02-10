@@ -11,7 +11,6 @@
 
 #include "CServerHandler.h"
 #include "Client.h"
-#include "CGameInfo.h"
 #include "ServerRunner.h"
 #include "GameChatHandler.h"
 #include "CPlayerInterface.h"
@@ -26,7 +25,6 @@
 #include "windows/GUIClasses.h"
 #include "media/CMusicHandler.h"
 #include "media/IVideoPlayer.h"
-
 
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CPrologEpilogVideo.h"
@@ -59,6 +57,8 @@
 #include "LobbyClientNetPackVisitors.h"
 
 #include <vcmi/events/EventBus.h>
+
+CServerHandler * CSH = nullptr;
 
 CServerHandler::~CServerHandler()
 {
@@ -144,7 +144,7 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	{
 		std::string playerName = settings["general"]["playerName"].String();
 		if(playerName == "Player")
-			playerName = CGI->generaltexth->translate("core.genrltxt.434");
+			playerName = VLC->generaltexth->translate("core.genrltxt.434");
 		localPlayerNames.push_back(playerName);
 	}
 
@@ -230,7 +230,7 @@ void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 	{
 		// remote server refused connection - show error message
 		setState(EClientState::NONE);
-		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.mainMenu.serverConnectionFailed"), {});
+		CInfoWindow::showInfoDialog(VLC->generaltexth->translate("vcmi.mainMenu.serverConnectionFailed"), {});
 	}
 }
 
@@ -894,7 +894,7 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 	{
 		endGameplay();
 		CMM->menu->switchToTab("main");
-		showServerError(CGI->generaltexth->translate("vcmi.server.errors.disconnected"));
+		showServerError(VLC->generaltexth->translate("vcmi.server.errors.disconnected"));
 	}
 	else
 	{
@@ -923,7 +923,7 @@ void CServerHandler::waitForServerShutdown()
 	{
 		if (getState() == EClientState::CONNECTING)
 		{
-			showServerError(CGI->generaltexth->translate("vcmi.server.errors.existingProcess"));
+			showServerError(VLC->generaltexth->translate("vcmi.server.errors.existingProcess"));
 			setState(EClientState::CONNECTION_CANCELLED); // stop attempts to reconnect
 		}
 		logNetwork->error("Error: server failed to close correctly or crashed!");

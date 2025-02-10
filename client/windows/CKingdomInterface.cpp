@@ -14,7 +14,6 @@
 #include "CPlayerState.h"
 #include "InfoWindows.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../adventureMap/CResDataBar.h"
@@ -134,12 +133,12 @@ std::string InfoBoxAbstractHeroData::getValueText()
 	case HERO_PRIMARY_SKILL:
 		return std::to_string(getValue());
 	case HERO_SPECIAL:
-		return CGI->generaltexth->jktexts[5];
+		return VLC->generaltexth->jktexts[5];
 	case HERO_SECONDARY_SKILL:
 		{
 			si64 value = getValue();
 			if (value)
-				return CGI->generaltexth->levels[value];
+				return VLC->generaltexth->levels[value];
 			else
 				return "";
 		}
@@ -154,16 +153,16 @@ std::string InfoBoxAbstractHeroData::getNameText()
 	switch (type)
 	{
 	case HERO_PRIMARY_SKILL:
-		return CGI->generaltexth->primarySkillNames[getSubID()];
+		return VLC->generaltexth->primarySkillNames[getSubID()];
 	case HERO_MANA:
-		return CGI->generaltexth->allTexts[387];
+		return VLC->generaltexth->allTexts[387];
 	case HERO_EXPERIENCE:
-		return CGI->generaltexth->jktexts[6];
+		return VLC->generaltexth->jktexts[6];
 	case HERO_SPECIAL:
-		return CGI->heroh->objects[getSubID()]->getSpecialtyNameTranslated();
+		return VLC->heroh->objects[getSubID()]->getSpecialtyNameTranslated();
 	case HERO_SECONDARY_SKILL:
 		if (getValue())
-			return CGI->skillh->getByIndex(getSubID())->getNameTranslated();
+			return VLC->skillh->getByIndex(getSubID())->getNameTranslated();
 		else
 			return "";
 	default:
@@ -226,7 +225,7 @@ size_t InfoBoxAbstractHeroData::getImageIndex()
 	switch (type)
 	{
 	case HERO_SPECIAL:
-		return CGI->heroh->objects[getSubID()]->imageIndex;
+		return VLC->heroh->objects[getSubID()]->imageIndex;
 	case HERO_PRIMARY_SKILL:
 		return getSubID();
 	case HERO_MANA:
@@ -253,17 +252,17 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr
 	switch (type)
 	{
 	case HERO_SPECIAL:
-		text = CGI->heroh->objects[getSubID()]->getSpecialtyDescriptionTranslated();
+		text = VLC->heroh->objects[getSubID()]->getSpecialtyDescriptionTranslated();
 		break;
 	case HERO_PRIMARY_SKILL:
-		text = CGI->generaltexth->arraytxt[2+getSubID()];
+		text = VLC->generaltexth->arraytxt[2+getSubID()];
 		comp = std::make_shared<CComponent>(ComponentType::PRIM_SKILL, PrimarySkill(getSubID()), getValue());
 		break;
 	case HERO_MANA:
-		text = CGI->generaltexth->allTexts[149];
+		text = VLC->generaltexth->allTexts[149];
 		break;
 	case HERO_EXPERIENCE:
-		text = CGI->generaltexth->allTexts[241];
+		text = VLC->generaltexth->allTexts[241];
 		break;
 	case HERO_SECONDARY_SKILL:
 		{
@@ -271,7 +270,7 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr
 			int  subID = getSubID();
 			if(value)
 			{
-				text = CGI->skillh->getByIndex(subID)->getDescriptionTranslated((int)value);
+				text = VLC->skillh->getByIndex(subID)->getDescriptionTranslated((int)value);
 				comp = std::make_shared<CComponent>(ComponentType::SEC_SKILL, SecondarySkill(subID), (int)value);
 			}
 			break;
@@ -341,19 +340,19 @@ std::string InfoBoxHeroData::getHoverText()
 	switch (type)
 	{
 	case HERO_PRIMARY_SKILL:
-		return boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % CGI->generaltexth->primarySkillNames[index]);
+		return boost::str(boost::format(VLC->generaltexth->heroscrn[1]) % VLC->generaltexth->primarySkillNames[index]);
 	case HERO_MANA:
-		return CGI->generaltexth->heroscrn[22];
+		return VLC->generaltexth->heroscrn[22];
 	case HERO_EXPERIENCE:
-		return CGI->generaltexth->heroscrn[9];
+		return VLC->generaltexth->heroscrn[9];
 	case HERO_SPECIAL:
-		return CGI->generaltexth->heroscrn[27];
+		return VLC->generaltexth->heroscrn[27];
 	case HERO_SECONDARY_SKILL:
 		if (hero->secSkills.size() > index)
 		{
-			std::string level = CGI->generaltexth->levels[hero->secSkills[index].second-1];
-			std::string skill = CGI->skillh->getByIndex(hero->secSkills[index].first)->getNameTranslated();
-			return boost::str(boost::format(CGI->generaltexth->heroscrn[21]) % level % skill);
+			std::string level = VLC->generaltexth->levels[hero->secSkills[index].second-1];
+			std::string skill = VLC->skillh->getByIndex(hero->secSkills[index].first)->getNameTranslated();
+			return boost::str(boost::format(VLC->generaltexth->heroscrn[21]) % level % skill);
 		}
 		else
 		{
@@ -386,15 +385,15 @@ void InfoBoxHeroData::prepareMessage(std::string & text, std::shared_ptr<CCompon
 	switch(type)
 	{
 	case HERO_MANA:
-		text = CGI->generaltexth->allTexts[205];
+		text = VLC->generaltexth->allTexts[205];
 		boost::replace_first(text, "%s", hero->getNameTranslated());
 		boost::replace_first(text, "%d", std::to_string(hero->mana));
 		boost::replace_first(text, "%d", std::to_string(hero->manaLimit()));
 		break;
 	case HERO_EXPERIENCE:
-		text = CGI->generaltexth->allTexts[2];
+		text = VLC->generaltexth->allTexts[2];
 		boost::replace_first(text, "%d", std::to_string(hero->level));
-		boost::replace_first(text, "%d", std::to_string(CGI->heroh->reqExp(hero->level+1)));
+		boost::replace_first(text, "%d", std::to_string(VLC->heroh->reqExp(hero->level+1)));
 		boost::replace_first(text, "%d", std::to_string(hero->exp));
 		break;
 	default:
@@ -599,13 +598,13 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	for(int i=0; i<7; i++)
 	{
 		std::string value = std::to_string(minesCount[i]);
-		auto data = std::make_shared<InfoBoxCustom>(value, "", AnimationPath::builtin("OVMINES"), i, CGI->generaltexth->translate("core.minename", i));
+		auto data = std::make_shared<InfoBoxCustom>(value, "", AnimationPath::builtin("OVMINES"), i, VLC->generaltexth->translate("core.minename", i));
 		minesBox[i] = std::make_shared<InfoBox>(Point(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL, data);
 		minesBox[i]->removeUsedEvents(LCLICK|SHOW_POPUP); //fixes #890 - mines boxes ignore clicks
 	}
 	incomeArea = std::make_shared<CHoverableArea>();
 	incomeArea->pos = Rect(pos.x+580, pos.y+31+footerPos, 136, 68);
-	incomeArea->hoverText = CGI->generaltexth->allTexts[255];
+	incomeArea->hoverText = VLC->generaltexth->allTexts[255];
 	incomeAmount = std::make_shared<CLabel>(628, footerPos + 70, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, std::to_string(totalIncome));
 }
 
@@ -614,14 +613,14 @@ void CKingdomInterface::generateButtons()
 	ui32 footerPos = OVERVIEW_SIZE * 116;
 
 	//Main control buttons
-	btnHeroes = std::make_shared<CButton>(Point(748, 28+footerPos), AnimationPath::builtin("OVBUTN1.DEF"), CButton::tooltip(CGI->generaltexth->overview[11], CGI->generaltexth->overview[6]),
+	btnHeroes = std::make_shared<CButton>(Point(748, 28+footerPos), AnimationPath::builtin("OVBUTN1.DEF"), CButton::tooltip(VLC->generaltexth->overview[11], VLC->generaltexth->overview[6]),
 		std::bind(&CKingdomInterface::activateTab, this, 0), EShortcut::KINGDOM_HEROES_TAB);
 	btnHeroes->block(true);
 
-	btnTowns = std::make_shared<CButton>(Point(748, 64+footerPos), AnimationPath::builtin("OVBUTN6.DEF"), CButton::tooltip(CGI->generaltexth->overview[12], CGI->generaltexth->overview[7]),
+	btnTowns = std::make_shared<CButton>(Point(748, 64+footerPos), AnimationPath::builtin("OVBUTN6.DEF"), CButton::tooltip(VLC->generaltexth->overview[12], VLC->generaltexth->overview[7]),
 		std::bind(&CKingdomInterface::activateTab, this, 1), EShortcut::KINGDOM_TOWNS_TAB);
 
-	btnExit = std::make_shared<CButton>(Point(748,99+footerPos), AnimationPath::builtin("OVBUTN1.DEF"), CButton::tooltip(CGI->generaltexth->allTexts[600]),
+	btnExit = std::make_shared<CButton>(Point(748,99+footerPos), AnimationPath::builtin("OVBUTN1.DEF"), CButton::tooltip(VLC->generaltexth->allTexts[600]),
 		std::bind(&CKingdomInterface::close, this), EShortcut::GLOBAL_RETURN);
 	btnExit->setImageOrder(3, 4, 5, 6);
 
@@ -680,8 +679,8 @@ CKingdHeroList::CKingdHeroList(size_t maxSize, const CreateHeroItemFunctor & onC
 	OBJECT_CONSTRUCTION;
 	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"),16,0);
 	title->setPlayerColor(LOCPLINT->playerID);
-	heroLabel = std::make_shared<CLabel>(150, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[0]);
-	skillsLabel = std::make_shared<CLabel>(500, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[1]);
+	heroLabel = std::make_shared<CLabel>(150, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->overview[0]);
+	skillsLabel = std::make_shared<CLabel>(500, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->overview[1]);
 
 	ui32 townCount = LOCPLINT->cb->howManyHeroes(false);
 	ui32 size = OVERVIEW_SIZE*116 + 19;
@@ -724,9 +723,9 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 	OBJECT_CONSTRUCTION;
 	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"), 16, 0);
 	title->setPlayerColor(LOCPLINT->playerID);
-	townLabel = std::make_shared<CLabel>(146, 10,FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[3]);
-	garrHeroLabel = std::make_shared<CLabel>(375, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[4]);
-	visitHeroLabel = std::make_shared<CLabel>(608, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[5]);
+	townLabel = std::make_shared<CLabel>(146, 10,FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->overview[3]);
+	garrHeroLabel = std::make_shared<CLabel>(375, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->overview[4]);
+	visitHeroLabel = std::make_shared<CLabel>(608, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->overview[5]);
 
 	ui32 townCount = LOCPLINT->cb->howManyTowns();
 	ui32 size = OVERVIEW_SIZE*116 + 19;
@@ -825,7 +824,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 				return;
 			}
 		}
-		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
+		LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 	});
 	fastTown = std::make_shared<LRClickableArea>(Rect(67, 6, 165, 20), [&]()
 	{
@@ -953,11 +952,11 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	{
 		int stringID[3] = {259, 261, 262};
 
-		std::string hover = CGI->generaltexth->overview[13+it];
-		std::string overlay = CGI->generaltexth->overview[8+it];
+		std::string hover = VLC->generaltexth->overview[13+it];
+		std::string overlay = VLC->generaltexth->overview[8+it];
 
 		auto button = std::make_shared<CToggleButton>(Point(364+(int)it*112, 46), AnimationPath::builtin("OVBUTN3"), CButton::tooltip(hover, overlay), 0);
-		button->setTextOverlay(CGI->generaltexth->allTexts[stringID[it]], FONT_SMALL, Colors::YELLOW);
+		button->setTextOverlay(VLC->generaltexth->allTexts[stringID[it]], FONT_SMALL, Colors::YELLOW);
 		artButtons->addToggle((int)it, button);
 	}
 	artButtons->addCallback(std::bind(&CTabbedInt::setActive, artsTabs, _1));
@@ -970,7 +969,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	heroArea = std::make_shared<CHeroArea>(5, 6, hero);
 
 	name = std::make_shared<CLabel>(73, 7, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero->getNameTranslated());
-	artsText = std::make_shared<CLabel>(320, 55, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[2]);
+	artsText = std::make_shared<CLabel>(320, 55, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->overview[2]);
 
 	for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 	{

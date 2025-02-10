@@ -23,7 +23,6 @@
 #include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
 #include "../widgets/TextControls.h"
-#include "../CGameInfo.h"
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/entities/building/CBuilding.h"
@@ -37,6 +36,7 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CArtifactInstance.h"
+#include "../../lib/VCMI_Lib.h"
 
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Spell.h>
@@ -158,7 +158,7 @@ std::vector<AnimationPath> CComponent::getFileName() const
 		case ComponentType::LUCK:
 			return gen(luckArr);
 		case ComponentType::BUILDING:
-			return std::vector<AnimationPath>(4, (*CGI->townh)[data.subType.as<BuildingTypeUniqueID>().getFaction()]->town->clientInfo.buildingsIcons);
+			return std::vector<AnimationPath>(4, (*VLC->townh)[data.subType.as<BuildingTypeUniqueID>().getFaction()]->town->clientInfo.buildingsIcons);
 		case ComponentType::HERO_PORTRAIT:
 			return gen(heroArr);
 		case ComponentType::FLAG:
@@ -188,9 +188,9 @@ size_t CComponent::getIndex() const
 		case ComponentType::RESOURCE_PER_DAY:
 			return data.subType.getNum();
 		case ComponentType::CREATURE:
-			return CGI->creatures()->getById(data.subType.as<CreatureID>())->getIconIndex();
+			return VLC->creatures()->getById(data.subType.as<CreatureID>())->getIconIndex();
 		case ComponentType::ARTIFACT:
-			return CGI->artifacts()->getById(data.subType.as<ArtifactID>())->getIconIndex();
+			return VLC->artifacts()->getById(data.subType.as<ArtifactID>())->getIconIndex();
 		case ComponentType::SPELL_SCROLL:
 		case ComponentType::SPELL:
 			return (size < large) ? data.subType.getNum() + 1 : data.subType.getNum();
@@ -201,7 +201,7 @@ size_t CComponent::getIndex() const
 		case ComponentType::BUILDING:
 			return data.subType.as<BuildingTypeUniqueID>().getBuilding();
 		case ComponentType::HERO_PORTRAIT:
-			return CGI->heroTypes()->getById(data.subType.as<HeroTypeID>())->getIconIndex();
+			return VLC->heroTypes()->getById(data.subType.as<HeroTypeID>())->getIconIndex();
 		case ComponentType::FLAG:
 			return data.subType.getNum();
 		default:
@@ -215,38 +215,38 @@ std::string CComponent::getDescription() const
 	switch(data.type)
 	{
 		case ComponentType::PRIM_SKILL:
-			return CGI->generaltexth->arraytxt[2+data.subType.getNum()];
+			return VLC->generaltexth->arraytxt[2+data.subType.getNum()];
 		case ComponentType::EXPERIENCE:
 		case ComponentType::LEVEL:
-			return CGI->generaltexth->allTexts[241];
+			return VLC->generaltexth->allTexts[241];
 		case ComponentType::MANA:
-			return CGI->generaltexth->allTexts[149];
+			return VLC->generaltexth->allTexts[149];
 		case ComponentType::SEC_SKILL:
-			return CGI->skillh->getByIndex(data.subType.getNum())->getDescriptionTranslated(data.value.value_or(0));
+			return VLC->skillh->getByIndex(data.subType.getNum())->getDescriptionTranslated(data.value.value_or(0));
 		case ComponentType::RESOURCE:
 		case ComponentType::RESOURCE_PER_DAY:
-			return CGI->generaltexth->allTexts[242];
+			return VLC->generaltexth->allTexts[242];
 		case ComponentType::NONE:
 		case ComponentType::CREATURE:
 			return "";
 		case ComponentType::ARTIFACT:
-			return CGI->artifacts()->getById(data.subType.as<ArtifactID>())->getDescriptionTranslated();
+			return VLC->artifacts()->getById(data.subType.as<ArtifactID>())->getDescriptionTranslated();
 		case ComponentType::SPELL_SCROLL:
 		{
-			auto description = ArtifactID(ArtifactID::SPELL_SCROLL).toEntity(CGI)->getDescriptionTranslated();
+			auto description = ArtifactID(ArtifactID::SPELL_SCROLL).toEntity(VLC)->getDescriptionTranslated();
 			ArtifactUtils::insertScrrollSpellName(description, data.subType.as<SpellID>());
 			return description;
 		}
 		case ComponentType::SPELL:
-			return CGI->spells()->getById(data.subType.as<SpellID>())->getDescriptionTranslated(std::max(0, data.value.value_or(0)));
+			return VLC->spells()->getById(data.subType.as<SpellID>())->getDescriptionTranslated(std::max(0, data.value.value_or(0)));
 		case ComponentType::MORALE:
-			return CGI->generaltexth->heroscrn[ 4 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0)];
+			return VLC->generaltexth->heroscrn[ 4 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0)];
 		case ComponentType::LUCK:
-			return CGI->generaltexth->heroscrn[ 7 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0)];
+			return VLC->generaltexth->heroscrn[ 7 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0)];
 		case ComponentType::BUILDING:
 		{
 			auto index = data.subType.as<BuildingTypeUniqueID>();
-			return (*CGI->townh)[index.getFaction()]->town->buildings[index.getBuilding()]->getDescriptionTranslated();
+			return (*VLC->townh)[index.getFaction()]->town->buildings[index.getBuilding()]->getDescriptionTranslated();
 		}
 		case ComponentType::HERO_PORTRAIT:
 			return "";
@@ -267,41 +267,41 @@ std::string CComponent::getSubtitle() const
 	{
 		case ComponentType::PRIM_SKILL:
 			if (data.value)
-				return boost::str(boost::format("%+d %s") % data.value.value_or(0) % CGI->generaltexth->primarySkillNames[data.subType.getNum()]);
+				return boost::str(boost::format("%+d %s") % data.value.value_or(0) % VLC->generaltexth->primarySkillNames[data.subType.getNum()]);
 			else
-				return CGI->generaltexth->primarySkillNames[data.subType.getNum()];
+				return VLC->generaltexth->primarySkillNames[data.subType.getNum()];
 		case ComponentType::EXPERIENCE:
 			return std::to_string(data.value.value_or(0));
 		case ComponentType::LEVEL:
 		{
-			std::string level = CGI->generaltexth->allTexts[442];
+			std::string level = VLC->generaltexth->allTexts[442];
 			boost::replace_first(level, "1", std::to_string(data.value.value_or(0)));
 			return level;
 		}
 		case ComponentType::MANA:
-			return boost::str(boost::format("%+d %s") % data.value.value_or(0) % CGI->generaltexth->allTexts[387]);
+			return boost::str(boost::format("%+d %s") % data.value.value_or(0) % VLC->generaltexth->allTexts[387]);
 		case ComponentType::SEC_SKILL:
-			return CGI->generaltexth->levels[data.value.value_or(0)-1] + "\n" + CGI->skillh->getById(data.subType.as<SecondarySkill>())->getNameTranslated();
+			return VLC->generaltexth->levels[data.value.value_or(0)-1] + "\n" + VLC->skillh->getById(data.subType.as<SecondarySkill>())->getNameTranslated();
 		case ComponentType::RESOURCE:
 			return std::to_string(data.value.value_or(0));
 		case ComponentType::RESOURCE_PER_DAY:
-			return boost::str(boost::format(CGI->generaltexth->allTexts[3]) % data.value.value_or(0));
+			return boost::str(boost::format(VLC->generaltexth->allTexts[3]) % data.value.value_or(0));
 		case ComponentType::CREATURE:
 		{
-			auto creature = CGI->creh->getById(data.subType.as<CreatureID>());
+			auto creature = VLC->creh->getById(data.subType.as<CreatureID>());
 			if(data.value)
 				return std::to_string(*data.value) + " " + (*data.value > 1 ? creature->getNamePluralTranslated() : creature->getNameSingularTranslated());
 			else
 				return creature->getNamePluralTranslated();
 		}
 		case ComponentType::ARTIFACT:
-			return CGI->artifacts()->getById(data.subType.as<ArtifactID>())->getNameTranslated();
+			return VLC->artifacts()->getById(data.subType.as<ArtifactID>())->getNameTranslated();
 		case ComponentType::SPELL_SCROLL:
 		case ComponentType::SPELL:
 			if (data.value.value_or(0) < 0)
-				return "{#A9A9A9|" + CGI->spells()->getById(data.subType.as<SpellID>())->getNameTranslated() + "}";
+				return "{#A9A9A9|" + VLC->spells()->getById(data.subType.as<SpellID>())->getNameTranslated() + "}";
 			else
-				return CGI->spells()->getById(data.subType.as<SpellID>())->getNameTranslated();
+				return VLC->spells()->getById(data.subType.as<SpellID>())->getNameTranslated();
 		case ComponentType::NONE:
 		case ComponentType::MORALE:
 		case ComponentType::LUCK:
@@ -310,16 +310,16 @@ std::string CComponent::getSubtitle() const
 		case ComponentType::BUILDING:
 			{
 				auto index = data.subType.as<BuildingTypeUniqueID>();
-				auto building = (*CGI->townh)[index.getFaction()]->town->buildings[index.getBuilding()];
+				auto building = (*VLC->townh)[index.getFaction()]->town->buildings[index.getBuilding()];
 				if(!building)
 				{
-					logGlobal->error("Town of faction %s has no building #%d", (*CGI->townh)[index.getFaction()]->town->faction->getNameTranslated(), index.getBuilding().getNum());
+					logGlobal->error("Town of faction %s has no building #%d", (*VLC->townh)[index.getFaction()]->town->faction->getNameTranslated(), index.getBuilding().getNum());
 					return (boost::format("Missing building #%d") % index.getBuilding().getNum()).str();
 				}
 				return building->getNameTranslated();
 			}
 		case ComponentType::FLAG:
-			return CGI->generaltexth->capColors[data.subType.as<PlayerColor>().getNum()];
+			return VLC->generaltexth->capColors[data.subType.as<PlayerColor>().getNum()];
 		default:
 			assert(0);
 			return "";
@@ -524,7 +524,7 @@ void CComponentBox::placeComponents(bool selectable)
 				{
 					Point orPos = Point(currentX - freeSpace, currentY) + getOrTextPos(prevComp.get(), iter->get());
 
-					orLabels.push_back(std::make_shared<CLabel>(orPos.x, orPos.y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[4]));
+					orLabels.push_back(std::make_shared<CLabel>(orPos.x, orPos.y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->allTexts[4]));
 				}
 				currentX += getDistance(prevComp.get(), iter->get());
 			}

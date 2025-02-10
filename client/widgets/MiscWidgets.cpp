@@ -17,7 +17,6 @@
 
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
-#include "../CGameInfo.h"
 #include "../PlayerLocalState.h"
 #include "../gui/WindowHandler.h"
 #include "../eventsSDL/InputHandler.h"
@@ -216,9 +215,9 @@ std::string CMinorResDataBar::buildDateString()
 	std::string pattern = "%s: %d, %s: %d, %s: %d";
 
 	auto formatted = boost::format(pattern)
-		% CGI->generaltexth->translate("core.genrltxt.62") % LOCPLINT->cb->getDate(Date::MONTH)
-		% CGI->generaltexth->translate("core.genrltxt.63") % LOCPLINT->cb->getDate(Date::WEEK)
-		% CGI->generaltexth->translate("core.genrltxt.64") % LOCPLINT->cb->getDate(Date::DAY_OF_WEEK);
+		% VLC->generaltexth->translate("core.genrltxt.62") % LOCPLINT->cb->getDate(Date::MONTH)
+		% VLC->generaltexth->translate("core.genrltxt.63") % LOCPLINT->cb->getDate(Date::WEEK)
+		% VLC->generaltexth->translate("core.genrltxt.64") % LOCPLINT->cb->getDate(Date::DAY_OF_WEEK);
 
 	return boost::str(formatted);
 }
@@ -298,7 +297,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 				}
 				else
 				{
-					subtitle = CGI->generaltexth->arraytxt[171 + 3*(slot.second.count)];
+					subtitle = VLC->generaltexth->arraytxt[171 + 3*(slot.second.count)];
 				}
 			}
 		}
@@ -482,7 +481,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 				return;
 			}
 		}
-		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
+		LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 	});
 
 	assert(townInfo.tType);
@@ -576,16 +575,16 @@ void MoraleLuckBox::set(const AFactionMember * node)
 		component.value = morale ? node->moraleValAndBonusList(modifierList) : node->luckValAndBonusList(modifierList);
 
 	int mrlt = (component.value>0)-(component.value<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
-	hoverText = CGI->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
+	hoverText = VLC->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
 	component.type = componentType[morale];
-	text = CGI->generaltexth->arraytxt[textId[morale]];
-	boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
+	text = VLC->generaltexth->arraytxt[textId[morale]];
+	boost::algorithm::replace_first(text,"%s",VLC->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
 
 	if (morale && node && (node->getBonusBearer()->hasBonusOfType(BonusType::UNDEAD)
 			|| node->getBonusBearer()->hasBonusOfType(BonusType::NON_LIVING)
 			|| node->getBonusBearer()->hasBonusOfType(BonusType::MECHANICAL)))
 	{
-		text += CGI->generaltexth->arraytxt[113]; //unaffected by morale
+		text += VLC->generaltexth->arraytxt[113]; //unaffected by morale
 		component.value = 0;
 	}
 	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
@@ -614,7 +613,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 			}
 		}
 		text = addInfo.empty() 
-			? text + CGI->generaltexth->arraytxt[noneTxtId] 
+			? text + VLC->generaltexth->arraytxt[noneTxtId] 
 			: text + addInfo;
 	}
 	std::string imageName;
@@ -644,7 +643,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 
 	auto faction = cre->getFactionID();
 
-	assert(CGI->townh->size() > faction);
+	assert(VLC->townh->size() > faction);
 
 	if (cre->animDefName.empty())
 	{
@@ -656,9 +655,9 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 	}
 
 	if(Big)
-		bg = std::make_shared<CPicture>((*CGI->townh)[faction]->creatureBg130);
+		bg = std::make_shared<CPicture>((*VLC->townh)[faction]->creatureBg130);
 	else
-		bg = std::make_shared<CPicture>((*CGI->townh)[faction]->creatureBg120);
+		bg = std::make_shared<CPicture>((*VLC->townh)[faction]->creatureBg120);
 	anim = std::make_shared<CCreatureAnim>(0, 0, cre->animDefName);
 	anim->clipRect(cre->isDoubleWide()?170:150, 155, bg->pos.w, bg->pos.h);
 	anim->startPreview(cre->hasBonusOfType(BonusType::SIEGE_WEAPON));

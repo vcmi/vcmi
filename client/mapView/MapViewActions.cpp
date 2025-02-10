@@ -14,7 +14,6 @@
 #include "MapView.h"
 #include "MapViewModel.h"
 
-#include "../CGameInfo.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
