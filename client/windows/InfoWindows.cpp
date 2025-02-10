@@ -248,14 +248,14 @@ CRClickPopupInt::CRClickPopupInt(const std::shared_ptr<CIntObject> & our) :
 {
 	addUsedEvents(DRAG_POPUP);
 
-	CCS->curh->hide();
+	ENGINE->cursor().hide();
 	inner = our;
 	addChild(our.get(), false);
 }
 
 CRClickPopupInt::~CRClickPopupInt()
 {
-	CCS->curh->show();
+	ENGINE->cursor().show();
 }
 
 void CRClickPopupInt::mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance)

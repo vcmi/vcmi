@@ -13,6 +13,7 @@
 #include "../CCallback.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../GameEngine.h"
 #include "../mapView/mapHandler.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
@@ -164,7 +165,7 @@ void MapAudioPlayer::updateAmbientSounds()
 
 	int3 pos = currentSelection->getSightCenter();
 	std::unordered_set<int3> tiles;
-	LOCPLINT->cb->getVisibleTilesInRange(tiles, pos, CCS->soundh->ambientGetRange(), int3::DIST_CHEBYSHEV);
+	LOCPLINT->cb->getVisibleTilesInRange(tiles, pos, ENGINE->sound().ambientGetRange(), int3::DIST_CHEBYSHEV);
 	for(int3 tile : tiles)
 	{
 		int dist = pos.dist(tile, int3::DIST_CHEBYSHEV);
@@ -172,7 +173,7 @@ void MapAudioPlayer::updateAmbientSounds()
 		for(auto & soundName : getAmbientSounds(tile))
 			updateSounds(soundName, dist);
 	}
-	CCS->soundh->ambientUpdateChannels(currentSounds);
+	ENGINE->sound().ambientUpdateChannels(currentSounds);
 }
 
 void MapAudioPlayer::updateMusic()
@@ -182,12 +183,12 @@ void MapAudioPlayer::updateMusic()
 		const auto * tile = LOCPLINT->cb->getTile(currentSelection->visitablePos());
 
 		if (tile)
-			CCS->musich->playMusicFromSet("terrain", tile->getTerrain()->getJsonKey(), true, false);
+			ENGINE->music().playMusicFromSet("terrain", tile->getTerrain()->getJsonKey(), true, false);
 	}
 
 	if(audioPlaying && enemyMakingTurn)
 	{
-		CCS->musich->playMusicFromSet("enemy-turn", true, false);
+		ENGINE->music().playMusicFromSet("enemy-turn", true, false);
 	}
 }
 
@@ -214,8 +215,8 @@ MapAudioPlayer::MapAudioPlayer()
 
 MapAudioPlayer::~MapAudioPlayer()
 {
-	CCS->soundh->ambientStopAllChannels();
-	CCS->musich->stopMusic(1000);
+	ENGINE->sound().ambientStopAllChannels();
+	ENGINE->music().stopMusic(1000);
 }
 
 void MapAudioPlayer::onSelectionChanged(const CArmedInstance * newSelection)
@@ -227,8 +228,8 @@ void MapAudioPlayer::onSelectionChanged(const CArmedInstance * newSelection)
 void MapAudioPlayer::onAudioPaused()
 {
 	audioPlaying = false;
-	CCS->soundh->ambientStopAllChannels();
-	CCS->musich->stopMusic(1000);
+	ENGINE->sound().ambientStopAllChannels();
+	ENGINE->music().stopMusic(1000);
 }
 
 void MapAudioPlayer::onAudioResumed()
@@ -255,6 +256,6 @@ void MapAudioPlayer::onPlayerTurnEnded()
 {
 	playerMakingTurn = false;
 	enemyMakingTurn = false;
-	CCS->soundh->ambientStopAllChannels();
-	CCS->musich->stopMusic(1000);
+	ENGINE->sound().ambientStopAllChannels();
+	ENGINE->music().stopMusic(1000);
 }

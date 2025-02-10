@@ -18,6 +18,11 @@
 #include "gui/EventDispatcher.h"
 #include "eventsSDL/InputHandler.h"
 
+#include "media/CMusicHandler.h"
+#include "media/CSoundHandler.h"
+#include "media/CVideoHandler.h"
+#include "media/CEmptyVideoPlayer.h"
+
 #include "CGameInfo.h"
 #include "CPlayerInterface.h"
 #include "adventureMap/AdventureMapInterface.h"
@@ -64,6 +69,25 @@ void GameEngine::init()
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
 	inputHandlerInstance = std::make_unique<InputHandler>(); // Must be after windowHandlerInstance and shortcutsHandlerInstance
 	framerateManagerInstance = std::make_unique<FramerateManager>(settings["video"]["targetfps"].Integer());
+
+#ifndef ENABLE_VIDEO
+	videoPlayerInstance = std::make_unique<CEmptyVideoPlayer>();
+#else
+	if (!settings["session"]["headless"].Bool())
+		videoPlayerInstance = std::make_unique<CVideoPlayer>();
+	else
+		videoPlayerInstance = std::make_unique<CEmptyVideoPlayer>();
+#endif
+
+	if(!settings["session"]["headless"].Bool())
+	{
+		soundPlayerInstance = std::make_unique<CSoundHandler>();
+		musicPlayerInstance = std::make_unique<CMusicHandler>();
+		sound().setVolume((ui32)settings["general"]["sound"].Float());
+		music().setVolume((ui32)settings["general"]["music"].Float());
+	}
+
+	cursorHandlerInstance = std::make_unique<CursorHandler>();
 }
 
 void GameEngine::handleEvents()
@@ -98,7 +122,7 @@ void GameEngine::renderFrame()
 		screenHandlerInstance->updateScreenTexture();
 
 		windows().onFrameRendered();
-		CCS->curh->update();
+		ENGINE->cursor().update();
 	}
 
 	screenHandlerInstance->presentScreenTexture();
@@ -229,5 +253,5 @@ void GameEngine::onScreenResize(bool resolutionChanged)
 		screenHandler().onScreenResize();
 
 	windows().onScreenResize();
-	CCS->curh->onScreenResize();
+	ENGINE->cursor().onScreenResize();
 }

@@ -41,18 +41,6 @@ class CursorHandler;
 class IVideoPlayer;
 class CServerHandler;
 
-//a class for non-mechanical client GUI classes
-class CClientState
-{
-public:
-	ISoundPlayer * soundh;
-	IMusicPlayer * musich;
-	CConsoleHandler * consoleh;
-	CursorHandler * curh;
-	IVideoPlayer * videoh;
-};
-extern CClientState * CCS;
-
 /// CGameInfo class
 /// for allowing different functions for accessing game information
 class CGameInfo final : public Services

@@ -137,7 +137,7 @@ CBonusSelection::CBonusSelection()
 	}
 
 	if (!getCampaign()->getMusic().empty())
-		CCS->musich->playMusic( getCampaign()->getMusic(), true, false);
+		ENGINE->music().playMusic( getCampaign()->getMusic(), true, false);
 
 	if(CSH->getState() != EClientState::GAMEPLAY && settings["general"]["enableUiEnhancements"].Bool())
 	{

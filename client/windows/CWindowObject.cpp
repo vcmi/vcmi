@@ -44,7 +44,7 @@ CWindowObject::CWindowObject(int options_, const ImagePath & imageName, Point ce
 		assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
 	if (options & RCLICK_POPUP)
-		CCS->curh->hide();
+		ENGINE->cursor().hide();
 
 	if (background)
 		pos = background->center(centerAt);
@@ -64,7 +64,7 @@ CWindowObject::CWindowObject(int options_, const ImagePath & imageName):
 		assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
 	if(options & RCLICK_POPUP)
-		CCS->curh->hide();
+		ENGINE->cursor().hide();
 
 	if(background)
 		pos = background->center();
@@ -78,7 +78,7 @@ CWindowObject::CWindowObject(int options_, const ImagePath & imageName):
 CWindowObject::~CWindowObject()
 {
 	if(options & RCLICK_POPUP)
-		CCS->curh->show();
+		ENGINE->cursor().show();
 }
 
 std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, bool playerColored)

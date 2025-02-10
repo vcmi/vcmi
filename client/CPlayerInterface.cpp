@@ -166,7 +166,7 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	env = ENV;
 
 	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), PathfinderOptions(cb.get()));
-	CCS->musich->loadTerrainMusicThemes();
+	ENGINE->music().loadTerrainMusicThemes();
 	initializeHeroTownList();
 
 	adventureInt.reset(new AdventureMapInterface());
@@ -447,7 +447,7 @@ void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectI
 	{
 		auto visitSound = visitedObj->getVisitSound(CRandomGenerator::getDefault());
 		if (visitSound)
-			CCS->soundh->playSound(visitSound.value());
+			ENGINE->sound().playSound(visitSound.value());
 	}
 }
 
@@ -457,7 +457,7 @@ void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 	localState->addWanderingHero(hero);
 	adventureInt->onHeroChanged(hero);
 	if(castleInt)
-		CCS->soundh->playSound(soundBase::newBuilding);
+		ENGINE->sound().playSound(soundBase::newBuilding);
 }
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
@@ -521,7 +521,7 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill psk
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
-	CCS->soundh->playSound(soundBase::heroNewLevel);
+	ENGINE->sound().playSound(soundBase::heroNewLevel);
 	ENGINE->windows().createAndPushWindow<CLevelWindow>(hero, pskill, skills, [=](ui32 selection)
 	{
 		cb->selectionMade(selection, queryID);
@@ -532,7 +532,7 @@ void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, 
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
-	CCS->soundh->playSound(soundBase::heroNewLevel);
+	ENGINE->sound().playSound(soundBase::heroNewLevel);
 	ENGINE->windows().createAndPushWindow<CStackWindow>(commander, skills, [=](ui32 selection)
 	{
 		cb->selectionMade(selection, queryID);
@@ -1008,7 +1008,7 @@ void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &t
 		movementController->requestMovementAbort();
 
 		if (makingTurn && ENGINE->windows().count() > 0 && LOCPLINT == this)
-			CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
+			ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
 		return;
 	}
 
@@ -1050,7 +1050,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 
 	if ((makingTurn || (battleInt && battleInt->curInt && battleInt->curInt.get() == this)) && ENGINE->windows().count() > 0 && LOCPLINT == this)
 	{
-		CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
+		ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->setBusy();
 		movementController->requestMovementAbort(); // interrupt movement to show dialog
 		ENGINE->windows().pushWindow(temp);
@@ -1084,7 +1084,7 @@ void CPlayerInterface::showBlockingDialog(const std::string &text, const std::ve
 	waitWhileDialog();
 
 	movementController->requestMovementAbort();
-	CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
+	ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
 
 	if (!selection && cancel) //simple yes/no dialog
 	{
@@ -1432,7 +1432,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
-	CCS->curh->hide();
+	ENGINE->cursor().hide();
 	adventureInt->centerOnTile(pos);
 	if (focusTime)
 	{
@@ -1443,7 +1443,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 			boost::this_thread::sleep_for(boost::chrono::milliseconds(focusTime));
 		}
 	}
-	CCS->curh->show();
+	ENGINE->cursor().show();
 }
 
 void CPlayerInterface::objectRemoved(const CGObjectInstance * obj, const PlayerColor & initiator)
@@ -1455,7 +1455,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj, const PlayerC
 		if (removalSound)
 		{
 			waitWhileDialog();
-			CCS->soundh->playSound(removalSound.value());
+			ENGINE->sound().playSound(removalSound.value());
 		}
 	}
 	CGI->mh->waitForOngoingAnimations();
@@ -1632,7 +1632,7 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, SpellID sp
 
 	auto castSoundPath = spellID.toSpell()->getCastSound();
 	if(!castSoundPath.empty())
-		CCS->soundh->playSound(castSoundPath);
+		ENGINE->sound().playSound(castSoundPath);
 }
 
 void CPlayerInterface::tryDigging(const CGHeroInstance * h)

@@ -257,7 +257,7 @@ void CButton::clickPressed(const Point & cursorPosition)
 	{
 		if (!soundDisabled)
 		{
-			CCS->soundh->playSound(soundBase::button);
+			ENGINE->sound().playSound(soundBase::button);
 			ENGINE->input().hapticFeedback();
 		}
 		setState(EButtonState::PRESSED);
@@ -484,7 +484,7 @@ void CToggleButton::clickPressed(const Point & cursorPosition)
 
 	if (canActivate())
 	{
-		CCS->soundh->playSound(soundBase::button);
+		ENGINE->sound().playSound(soundBase::button);
 		ENGINE->input().hapticFeedback();
 		setState(EButtonState::PRESSED);
 	}

@@ -158,7 +158,7 @@ void HeroMovementController::onTryMoveHero(const CGHeroInstance * hero, const Tr
 		{
 			auto removalSound = hero->getRemovalSound(CRandomGenerator::getDefault());
 			if (removalSound)
-				CCS->soundh->playSound(removalSound.value());
+				ENGINE->sound().playSound(removalSound.value());
 		}
 	}
 
@@ -270,7 +270,7 @@ void HeroMovementController::endMove(const CGHeroInstance * hero)
 	currentlyMovingHero = nullptr;
 	stopMovementSound();
 	adventureInt->onHeroChanged(hero);
-	CCS->curh->show();
+	ENGINE->cursor().show();
 }
 
 AudioPath HeroMovementController::getMovementSoundFor(const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType)
@@ -309,10 +309,10 @@ void HeroMovementController::updateMovementSound(const CGHeroInstance * h, int3 
 		currentMovementSoundName = newSoundName;
 
 		if(currentMovementSoundChannel != -1)
-			CCS->soundh->stopSound(currentMovementSoundChannel);
+			ENGINE->sound().stopSound(currentMovementSoundChannel);
 
 		if(!currentMovementSoundName.empty())
-			currentMovementSoundChannel = CCS->soundh->playSound(currentMovementSoundName, -1, true);
+			currentMovementSoundChannel = ENGINE->sound().playSound(currentMovementSoundName, -1, true);
 		else
 			currentMovementSoundChannel = -1;
 	}
@@ -321,7 +321,7 @@ void HeroMovementController::updateMovementSound(const CGHeroInstance * h, int3 
 void HeroMovementController::stopMovementSound()
 {
 	if(currentMovementSoundChannel != -1)
-		CCS->soundh->stopSound(currentMovementSoundChannel);
+		ENGINE->sound().stopSound(currentMovementSoundChannel);
 	currentMovementSoundChannel = -1;
 	currentMovementSoundName = AudioPath();
 }
@@ -344,7 +344,7 @@ void HeroMovementController::requestMovementStart(const CGHeroInstance * h, cons
 	duringMovement = true;
 	currentlyMovingHero = h;
 
-	CCS->curh->hide();
+	ENGINE->cursor().hide();
 	sendMovementRequest(h, path);
 }
 

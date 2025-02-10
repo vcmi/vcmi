@@ -154,7 +154,7 @@ void CWindowWithArtifacts::activate()
 
 void CWindowWithArtifacts::deactivate()
 {
-	CCS->curh->dragAndDropCursor(nullptr);
+	ENGINE->cursor().dragAndDropCursor(nullptr);
 	CWindowObject::deactivate();
 }
 
@@ -179,7 +179,7 @@ void CWindowWithArtifacts::update()
 		else
 		{
 			artSet->unmarkSlots();
-			CCS->curh->dragAndDropCursor(nullptr);
+			ENGINE->cursor().dragAndDropCursor(nullptr);
 		}
 
 		// Make sure the status bar is updated so it does not display old text
@@ -238,11 +238,11 @@ void CWindowWithArtifacts::setCursorAnimation(const CArtifactInstance & artInst)
 		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("spellscr"), artInst.getScrollSpellID().num, 0, EImageBlitMode::COLORKEY);
 		image->scaleTo(Point(44,34), EScalingAlgorithm::BILINEAR);
 
-		CCS->curh->dragAndDropCursor(image);
+		ENGINE->cursor().dragAndDropCursor(image);
 	}
 	else
 	{
-		CCS->curh->dragAndDropCursor(AnimationPath::builtin("artifact"), artInst.getType()->getIconIndex());
+		ENGINE->cursor().dragAndDropCursor(AnimationPath::builtin("artifact"), artInst.getType()->getIconIndex());
 	}
 }
 

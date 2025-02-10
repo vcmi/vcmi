@@ -627,7 +627,7 @@ void ScreenHandler::presentScreenTexture()
 {
 	SDL_RenderClear(mainRenderer);
 	SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
-	CCS->curh->render();
+	ENGINE->cursor().render();
 	SDL_RenderPresent(mainRenderer);
 }
 

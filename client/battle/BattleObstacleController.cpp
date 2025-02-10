@@ -113,7 +113,7 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 		//we assume here that effect graphics have the same size as the usual obstacle image
 		// -> if we know how to blit obstacle, let's blit the effect in the same place
 		Point whereTo = getObstaclePosition(first, *oi);
-		CCS->soundh->playSound( oi->getAppearSound() );
+		ENGINE->sound().playSound( oi->getAppearSound() );
 		owner.stacksController->addNewAnim(new EffectAnimation(owner, oi->getAppearAnimation(), whereTo, oi->pos));
 
 		//so when multiple obstacles are added, they show up one after another

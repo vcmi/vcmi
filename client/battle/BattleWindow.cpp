@@ -541,7 +541,7 @@ void BattleWindow::bOptionsf()
 	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
 
-	CCS->curh->set(Cursor::Map::POINTER);
+	ENGINE->cursor().set(Cursor::Map::POINTER);
 
 	ENGINE->windows().createAndPushWindow<SettingsMainWindow>(&owner);
 }
@@ -598,7 +598,7 @@ void BattleWindow::bFleef()
 void BattleWindow::reallyFlee()
 {
 	owner.giveCommand(EActionType::RETREAT);
-	CCS->curh->set(Cursor::Map::POINTER);
+	ENGINE->cursor().set(Cursor::Map::POINTER);
 }
 
 void BattleWindow::reallySurrender()
@@ -610,7 +610,7 @@ void BattleWindow::reallySurrender()
 	else
 	{
 		owner.giveCommand(EActionType::SURRENDER);
-		CCS->curh->set(Cursor::Map::POINTER);
+		ENGINE->cursor().set(Cursor::Map::POINTER);
 	}
 }
 
@@ -722,7 +722,7 @@ void BattleWindow::bSpellf()
 	if(!myHero)
 		return;
 
-	CCS->curh->set(Cursor::Map::POINTER);
+	ENGINE->cursor().set(Cursor::Map::POINTER);
 
 	ESpellCastProblem spellCastProblem = owner.getBattle()->battleCanCastSpell(myHero, spells::Mode::HERO);
 

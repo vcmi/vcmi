@@ -73,7 +73,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 
 void CCampaignScreen::activate()
 {
-	CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, false);
+	ENGINE->music().playMusic(AudioPath::builtin("Music/MainMenu"), true, false);
 
 	CWindowObject::activate();
 }

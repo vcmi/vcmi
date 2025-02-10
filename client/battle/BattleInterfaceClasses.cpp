@@ -337,7 +337,7 @@ void BattleHero::heroLeftClicked()
 
 	if(owner.getBattle()->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
-		CCS->curh->set(Cursor::Map::POINTER);
+		ENGINE->cursor().set(Cursor::Map::POINTER);
 		ENGINE->windows().createAndPushWindow<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
 	}
 }
@@ -843,7 +843,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	description = std::make_shared<CTextBox>(resources.resultText.toString(), Rect(69, 203, 330, 68), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	videoPlayer = std::make_shared<VideoWidget>(Point(107, 70), resources.prologueVideo, resources.loopedVideo, false);
 
-	CCS->musich->playMusic(resources.musicName, false, true);
+	ENGINE->music().playMusic(resources.musicName, false, true);
 }
 
 BattleResultResources BattleResultWindow::getResources(const BattleResult & br)

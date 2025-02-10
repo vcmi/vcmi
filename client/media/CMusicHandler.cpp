@@ -56,7 +56,7 @@ CMusicHandler::CMusicHandler():
 	{
 		Mix_HookMusicFinished([]()
 		{
-			CCS->musich->musicFinishedCallback();
+			ENGINE->music().musicFinishedCallback();
 		});
 	}
 }

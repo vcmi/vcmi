@@ -482,7 +482,7 @@ void OptionsTab::SelectionWindow::apply()
 	if(ENGINE->windows().isTopWindow(this))
 	{
 		ENGINE->input().hapticFeedback();
-		CCS->soundh->playSound(soundBase::button);
+		ENGINE->sound().playSound(soundBase::button);
 
 		close();
 

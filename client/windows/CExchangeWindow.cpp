@@ -371,7 +371,7 @@ bool CExchangeWindow::holdsGarrison(const CArmedInstance * army)
 
 void CExchangeWindow::questLogShortcut()
 {
-	CCS->curh->dragAndDropCursor(nullptr);
+	ENGINE->cursor().dragAndDropCursor(nullptr);
 	LOCPLINT->showQuestLog();
 }
 

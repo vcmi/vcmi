@@ -126,13 +126,13 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 	int battleIntroSoundChannel = -1;
 
 	if (!battlefieldSound.empty())
-		battleIntroSoundChannel = CCS->soundh->playSound(battlefieldSound);
+		battleIntroSoundChannel = ENGINE->sound().playSound(battlefieldSound);
 	else
-		battleIntroSoundChannel = CCS->soundh->playSoundFromSet(battleIntroSounds);
+		battleIntroSoundChannel = ENGINE->sound().playSoundFromSet(battleIntroSounds);
 
 	if (battleIntroSoundChannel != -1)
 	{
-		CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
+		ENGINE->sound().setCallback(battleIntroSoundChannel, onIntroPlayed);
 
 		if (settings["gameTweaks"]["skipBattleIntroMusic"].Bool())
 			openingEnd();
@@ -157,9 +157,9 @@ void BattleInterface::onIntroSoundPlayed()
 	const auto & battlefieldMusic = bfieldType.getInfo()->musicFilename;
 
 	if (!battlefieldMusic.empty())
-		CCS->musich->playMusic(battlefieldMusic, true, true);
+		ENGINE->music().playMusic(battlefieldMusic, true, true);
 	else
-		CCS->musich->playMusicFromSet("battle", true, true);
+		ENGINE->music().playMusicFromSet("battle", true, true);
 }
 
 void BattleInterface::openingEnd()
@@ -301,7 +301,7 @@ void BattleInterface::sendCommand(BattleAction command, const CStack * actor)
 		stacksController->setActiveStack(nullptr);
 		//next stack will be activated when action ends
 	}
-	CCS->curh->set(Cursor::Combat::POINTER);
+	ENGINE->cursor().set(Cursor::Combat::POINTER);
 }
 
 const CGHeroInstance * BattleInterface::getActiveHero()
@@ -337,7 +337,7 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 	checkForAnimations();
 	stacksController->setActiveStack(nullptr);
 
-	CCS->curh->set(Cursor::Map::POINTER);
+	ENGINE->cursor().set(Cursor::Map::POINTER);
 	curInt->waitWhileDialog();
 
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-skip-battle-result"].Bool())
@@ -371,7 +371,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		stacksController->deactivateStack();
 	}
 
-	CCS->curh->set(Cursor::Combat::BLOCKED);
+	ENGINE->cursor().set(Cursor::Combat::BLOCKED);
 
 	const SpellID spellID = sc->spellID;
 
@@ -390,7 +390,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 					EAnimationEvents::BEFORE_HIT;//FIXME: recheck whether this should be on projectile spawning
 
 		addToAnimationStage(group, [=]() {
-			CCS->soundh->playSound(castSoundPath);
+			ENGINE->sound().playSound(castSoundPath);
 		});
 	}
 
@@ -447,7 +447,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	if (!sc->resistedCres.empty())
 	{
 		addToAnimationStage(EAnimationEvents::HIT, [=](){
-			CCS->soundh->playSound(AudioPath::builtin("MAGICRES"));
+			ENGINE->sound().playSound(AudioPath::builtin("MAGICRES"));
 		});
 	}
 

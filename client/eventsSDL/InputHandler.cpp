@@ -248,8 +248,8 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 			{
 				boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 				if(settings["general"]["audioMuteFocus"].Bool()) {
-					CCS->musich->setVolume(settings["general"]["music"].Integer());
-					CCS->soundh->setVolume(settings["general"]["sound"].Integer());
+					ENGINE->music().setVolume(settings["general"]["music"].Integer());
+					ENGINE->sound().setVolume(settings["general"]["sound"].Integer());
 				}
 			}
 				break;
@@ -257,8 +257,8 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 			{
 				boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 				if(settings["general"]["audioMuteFocus"].Bool()) {
-					CCS->musich->setVolume(0);
-					CCS->soundh->setVolume(0);
+					ENGINE->music().setVolume(0);
+					ENGINE->sound().setVolume(0);
 				}
 			}
 				break;
@@ -293,8 +293,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	if(ev.type == SDL_MOUSEMOTION)
 	{
 		boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-		if (CCS && CCS->curh)
-			CCS->curh->cursorMove(ev.motion.x, ev.motion.y);
+		ENGINE->cursor().cursorMove(ev.motion.x, ev.motion.y);
 	}
 
 	{

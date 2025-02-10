@@ -144,7 +144,7 @@ void MapViewActions::handleHover(const Point & cursorPosition)
 
 	if(!context->isInMap(tile))
 	{
-		CCS->curh->set(Cursor::Map::POINTER);
+		ENGINE->cursor().set(Cursor::Map::POINTER);
 		return;
 	}
 
@@ -156,6 +156,6 @@ void MapViewActions::hover(bool on)
 	if(!on)
 	{
 		ENGINE->statusbar()->clear();
-		CCS->curh->set(Cursor::Map::POINTER);
+		ENGINE->cursor().set(Cursor::Map::POINTER);
 	}
 }

@@ -339,7 +339,7 @@ CMainMenu::~CMainMenu()
 void CMainMenu::playIntroVideos()
 {
 	auto playVideo = [](std::string video, bool rim, float scaleFactor, std::function<void(bool)> cb){
-		if(CCS->videoh->open(VideoPath::builtin(video), scaleFactor))
+		if(ENGINE->video().open(VideoPath::builtin(video), scaleFactor))
 			ENGINE->windows().createAndPushWindow<VideoWindow>(VideoPath::builtin(video), rim ? ImagePath::builtin("INTRORIM") : ImagePath::builtin(""), true, scaleFactor, [cb](bool skipped){ cb(skipped); });
 		else
 			cb(true);
@@ -362,7 +362,7 @@ void CMainMenu::playIntroVideos()
 
 void CMainMenu::playMusic()
 {
-	CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
+	ENGINE->music().playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
 }
 
 void CMainMenu::activate()
@@ -723,7 +723,7 @@ CLoadingScreen::CLoadingScreen(ImagePath background)
 
 	addUsedEvents(TIME);
 
-	CCS->musich->stopMusic(5000);
+	ENGINE->music().stopMusic(5000);
 
 	const auto& conf = CMainMenuConfig::get().getConfig()["loading"];
 	const auto& nameConfig = conf["name"];

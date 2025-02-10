@@ -195,14 +195,12 @@ void InputSourceGameController::handleEventAxisMotion(const SDL_ControllerAxisEv
 
 void InputSourceGameController::tryToConvertCursor()
 {
-	assert(CCS);
-	assert(CCS->curh);
-	if(CCS->curh->getShowType() == Cursor::ShowType::HARDWARE)
+	if(ENGINE->cursor().getShowType() == Cursor::ShowType::HARDWARE)
 	{
 		int scalingFactor = ENGINE->screenHandler().getScalingFactor();
 		const Point & cursorPosition = ENGINE->getCursorPosition();
-		CCS->curh->changeCursor(Cursor::ShowType::SOFTWARE);
-		CCS->curh->cursorMove(cursorPosition.x * scalingFactor, cursorPosition.y * scalingFactor);
+		ENGINE->cursor().changeCursor(Cursor::ShowType::SOFTWARE);
+		ENGINE->cursor().cursorMove(cursorPosition.x * scalingFactor, cursorPosition.y * scalingFactor);
 		ENGINE->input().setCursorPosition(cursorPosition);
 	}
 }
@@ -232,8 +230,7 @@ void InputSourceGameController::doCursorMove(int deltaX, int deltaY)
 	int newY = std::min(std::max(cursorPosition.y + deltaY, 0), screenSize.y);
 	Point targetPosition{newX, newY};
 	ENGINE->input().setCursorPosition(targetPosition);
-	if(CCS && CCS->curh)
-		CCS->curh->cursorMove(ENGINE->getCursorPosition().x * scalingFactor, ENGINE->getCursorPosition().y * scalingFactor);
+	ENGINE->cursor().cursorMove(ENGINE->getCursorPosition().x * scalingFactor, ENGINE->getCursorPosition().y * scalingFactor);
 }
 
 int InputSourceGameController::getMoveDis(float planDis)

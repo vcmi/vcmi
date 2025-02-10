@@ -222,7 +222,7 @@ GlobalLobbyChannelCardBase::GlobalLobbyChannelCardBase(GlobalLobbyWindow * windo
 
 void GlobalLobbyChannelCardBase::clickPressed(const Point & cursorPosition)
 {
-	CCS->soundh->playSound(soundBase::button);
+	ENGINE->sound().playSound(soundBase::button);
 	window->doOpenChannel(channelType, channelName, channelDescription);
 }
 

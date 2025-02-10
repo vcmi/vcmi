@@ -209,12 +209,12 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	{
 		auto bonusSel = std::make_shared<CBonusSelection>();
 		lobby->bonusSel = bonusSel;
-		if(!handler.si->campState->conqueredScenarios().size() && !handler.si->campState->getIntroVideo().empty() && CCS->videoh->open(handler.si->campState->getIntroVideo(), 1))
+		if(!handler.si->campState->conqueredScenarios().size() && !handler.si->campState->getIntroVideo().empty() && ENGINE->video().open(handler.si->campState->getIntroVideo(), 1))
 		{
-			CCS->musich->stopMusic();
+			ENGINE->music().stopMusic();
 			ENGINE->windows().createAndPushWindow<VideoWindow>(handler.si->campState->getIntroVideo(), handler.si->campState->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : handler.si->campState->getVideoRim(), false, 1, [bonusSel](bool skipped){
 				if(!CSH->si->campState->getMusic().empty())
-					CCS->musich->playMusic(CSH->si->campState->getMusic(), true, false);
+					ENGINE->music().playMusic(CSH->si->campState->getMusic(), true, false);
 				ENGINE->windows().pushWindow(bonusSel);
 			});
 		}

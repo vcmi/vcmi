@@ -20,6 +20,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../GameEngine.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/Canvas.h"
 #include "../render/CAnimation.h"
@@ -50,7 +51,7 @@ void BattleEffectsController::displayEffect(EBattleEffect effect, const AudioPat
 
 	AnimationPath customAnim = AnimationPath::builtinTODO(graphics->battleACToDef[effectID][0]);
 
-	CCS->soundh->playSound( soundFile );
+	ENGINE->sound().playSound( soundFile );
 
 	owner.stacksController->addNewAnim(new EffectAnimation(owner, customAnim, destTile, 0, transparencyFactor));
 }

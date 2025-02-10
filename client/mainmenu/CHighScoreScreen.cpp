@@ -204,12 +204,12 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 		for (int i = 0; i < 5; i++)
 			texts.push_back(std::make_shared<CMultiLineLabel>(Rect(textareaW * i + border - (textareaW / 2), 530, textareaW, 100), FONT_HIGH_SCORE, ETextAlignment::TOPCENTER, Colors::WHITE, t[i]));
  
-		CCS->musich->playMusic(AudioPath::builtin("music/Win Scenario"), true, true);
+		ENGINE->music().playMusic(AudioPath::builtin("music/Win Scenario"), true, true);
 	}
 	else
 	{
 		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), VideoPath::builtin("LOSEGAME.SMK"), true, this);
-		CCS->musich->playMusic(AudioPath::builtin("music/UltimateLose"), false, true);
+		ENGINE->music().playMusic(AudioPath::builtin("music/UltimateLose"), false, true);
 	}
 
 	if (settings["general"]["enableUiEnhancements"].Bool())

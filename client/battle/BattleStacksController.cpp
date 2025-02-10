@@ -472,7 +472,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 			{
 				auto spell = attackedInfo.spellEffect.toSpell();
 				if (!spell->getCastSound().empty())
-					CCS->soundh->playSound(spell->getCastSound());
+					ENGINE->sound().playSound(spell->getCastSound());
 
 
 				owner.displaySpellEffect(spell, attackedInfo.defender->getPosition());

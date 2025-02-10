@@ -236,10 +236,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 		audioMuteFocusCheckbox->setSelected(settings["general"]["audioMuteFocus"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
-	musicSlider->scrollTo(CCS->musich->getVolume());
+	musicSlider->scrollTo(ENGINE->music().getVolume());
 
 	std::shared_ptr<CSlider> volumeSlider = widget<CSlider>("soundVolumeSlider");
-	volumeSlider->scrollTo(CCS->soundh->getVolume());
+	volumeSlider->scrollTo(ENGINE->sound().getVolume());
 
 	std::shared_ptr<CToggleGroup> creatureGrowthAsDwellingPicker = widget<CToggleGroup>("availableCreaturesAsDwellingPicker");
 	creatureGrowthAsDwellingPicker->setSelected(settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].Bool());
@@ -248,10 +248,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	compactTownCreatureInfo->setSelected(settings["gameTweaks"]["compactTownCreatureInfo"].Bool());
 
 	std::shared_ptr<CLabel> musicVolumeLabel = widget<CLabel>("musicValueLabel");
-	musicVolumeLabel->setText(std::to_string(CCS->musich->getVolume()) + "%");
+	musicVolumeLabel->setText(std::to_string(ENGINE->music().getVolume()) + "%");
 
 	std::shared_ptr<CLabel> soundVolumeLabel = widget<CLabel>("soundValueLabel");
-	soundVolumeLabel->setText(std::to_string(CCS->soundh->getVolume()) + "%");
+	soundVolumeLabel->setText(std::to_string(ENGINE->sound().getVolume()) + "%");
 
 	updateResolutionSelector();
 }

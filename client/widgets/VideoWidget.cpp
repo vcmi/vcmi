@@ -66,7 +66,7 @@ void VideoWidgetBase::playVideo(const VideoPath & fileToPlay)
 		}
 	}
 
-	videoInstance = CCS->videoh->open(videoFile, scaleFactor * preScaleFactor);
+	videoInstance = ENGINE->video().open(videoFile, scaleFactor * preScaleFactor);
 	if (videoInstance)
 	{
 		pos.w = videoInstance->size().x;
@@ -96,7 +96,7 @@ void VideoWidgetBase::loadAudio(const VideoPath & fileToPlay)
 	if (!playAudio)
 		return;
 
-	audioData = CCS->videoh->getAudio(fileToPlay);
+	audioData = ENGINE->video().getAudio(fileToPlay);
 }
 
 void VideoWidgetBase::startAudio()
@@ -104,11 +104,11 @@ void VideoWidgetBase::startAudio()
 	if(audioData.first == nullptr)
 		return;
 
-	audioHandle = CCS->soundh->playSound(audioData);
+	audioHandle = ENGINE->sound().playSound(audioData);
 
 	if(audioHandle != -1)
 	{
-		CCS->soundh->setCallback(
+		ENGINE->sound().setCallback(
 			audioHandle,
 			[this]()
 			{
@@ -122,8 +122,8 @@ void VideoWidgetBase::stopAudio()
 {
 	if(audioHandle != -1)
 	{
-		CCS->soundh->resetCallback(audioHandle);
-		CCS->soundh->stopSound(audioHandle);
+		ENGINE->sound().resetCallback(audioHandle);
+		ENGINE->sound().stopSound(audioHandle);
 		audioHandle = -1;
 	}
 }
@@ -144,7 +144,7 @@ void VideoWidgetBase::activate()
 {
 	CIntObject::activate();
 	if(audioHandle != -1)
-		CCS->soundh->resumeSound(audioHandle);
+		ENGINE->sound().resumeSound(audioHandle);
 	else
 		startAudio();
 	if(videoInstance)
@@ -154,7 +154,7 @@ void VideoWidgetBase::activate()
 void VideoWidgetBase::deactivate()
 {
 	CIntObject::deactivate();
-	CCS->soundh->pauseSound(audioHandle);
+	ENGINE->sound().pauseSound(audioHandle);
 	if(videoInstance)
 		videoInstance->deactivate();
 }

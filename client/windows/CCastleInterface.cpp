@@ -1453,7 +1453,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	recreateIcons();
 	if (!from)
 		adventureInt->onAudioPaused();
-	CCS->musich->playMusicFromSet("faction", town->getFaction()->getJsonKey(), true, false);
+	ENGINE->music().playMusicFromSet("faction", town->getFaction()->getJsonKey(), true, false);
 }
 
 CCastleInterface::~CCastleInterface()
@@ -1516,7 +1516,7 @@ void CCastleInterface::townChange()
 void CCastleInterface::addBuilding(BuildingID bid)
 {
 	if (town->getTown()->buildings.at(bid)->mode != CBuilding::BUILD_AUTO)
-		CCS->soundh->playSound(soundBase::newBuilding);
+		ENGINE->sound().playSound(soundBase::newBuilding);
 
 	deactivate();
 	builds->addBuilding(bid);

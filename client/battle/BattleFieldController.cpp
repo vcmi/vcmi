@@ -857,19 +857,19 @@ void BattleFieldController::show(Canvas & to)
 
 	if (isActive() && isGesturing() && getHoveredHex() != BattleHex::INVALID)
 	{
-		auto combatCursorIndex = CCS->curh->get<Cursor::Combat>();
+		auto combatCursorIndex = ENGINE->cursor().get<Cursor::Combat>();
 		if (combatCursorIndex)
 		{
 			auto combatImageIndex = static_cast<size_t>(*combatCursorIndex);
-			to.draw(attackCursors->getImage(combatImageIndex), hexPositionAbsolute(getHoveredHex()).center() - CCS->curh->getPivotOffsetCombat(combatImageIndex));
+			to.draw(attackCursors->getImage(combatImageIndex), hexPositionAbsolute(getHoveredHex()).center() - ENGINE->cursor().getPivotOffsetCombat(combatImageIndex));
 			return;
 		}
 
-		auto spellCursorIndex = CCS->curh->get<Cursor::Spellcast>();
+		auto spellCursorIndex = ENGINE->cursor().get<Cursor::Spellcast>();
 		if (spellCursorIndex)
 		{
 			auto spellImageIndex = static_cast<size_t>(*spellCursorIndex);
-			to.draw(spellCursors->getImage(spellImageIndex), hexPositionAbsolute(getHoveredHex()).center() - CCS->curh->getPivotOffsetSpellcast());
+			to.draw(spellCursors->getImage(spellImageIndex), hexPositionAbsolute(getHoveredHex()).center() - ENGINE->cursor().getPivotOffsetSpellcast());
 			return;
 		}
 

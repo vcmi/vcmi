@@ -110,7 +110,7 @@ void TurnTimerWidget::updateNotifications(PlayerColor player, int timeMs)
 	int newTimeSeconds = timeMs / 1000;
 
 	if (newTimeSeconds != lastSoundCheckSeconds && notificationThresholds.count(newTimeSeconds))
-		CCS->soundh->playSound(AudioPath::builtin("WE5"));
+		ENGINE->sound().playSound(AudioPath::builtin("WE5"));
 
 	lastSoundCheckSeconds = newTimeSeconds;
 }

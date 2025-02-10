@@ -213,7 +213,7 @@ void BattleActionsController::enterCreatureCastingMode()
 			owner.giveCommand(EActionType::MONSTER_SPELL, BattleHex::INVALID, spell->getId());
 			selectedStack = nullptr;
 
-			CCS->curh->set(Cursor::Combat::POINTER);
+			ENGINE->cursor().set(Cursor::Combat::POINTER);
 		}
 		return;
 	}
@@ -403,15 +403,15 @@ void BattleActionsController::actionSetCursor(PossiblePlayerBattleAction action,
 	switch (action.get())
 	{
 		case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
-			CCS->curh->set(Cursor::Combat::POINTER);
+			ENGINE->cursor().set(Cursor::Combat::POINTER);
 			return;
 
 		case PossiblePlayerBattleAction::MOVE_TACTICS:
 		case PossiblePlayerBattleAction::MOVE_STACK:
 			if (owner.stacksController->getActiveStack()->hasBonusOfType(BonusType::FLYING))
-				CCS->curh->set(Cursor::Combat::FLY);
+				ENGINE->cursor().set(Cursor::Combat::FLY);
 			else
-				CCS->curh->set(Cursor::Combat::MOVE);
+				ENGINE->cursor().set(Cursor::Combat::MOVE);
 			return;
 
 		case PossiblePlayerBattleAction::ATTACK:
@@ -433,16 +433,16 @@ void BattleActionsController::actionSetCursor(PossiblePlayerBattleAction action,
 
 			assert(sectorCursor.count(direction) > 0);
 			if (sectorCursor.count(direction))
-				CCS->curh->set(sectorCursor.at(direction));
+				ENGINE->cursor().set(sectorCursor.at(direction));
 
 			return;
 		}
 
 		case PossiblePlayerBattleAction::SHOOT:
 			if (owner.getBattle()->battleHasShootingPenalty(owner.stacksController->getActiveStack(), targetHex))
-				CCS->curh->set(Cursor::Combat::SHOOT_PENALTY);
+				ENGINE->cursor().set(Cursor::Combat::SHOOT_PENALTY);
 			else
-				CCS->curh->set(Cursor::Combat::SHOOT);
+				ENGINE->cursor().set(Cursor::Combat::SHOOT);
 			return;
 
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
@@ -450,30 +450,30 @@ void BattleActionsController::actionSetCursor(PossiblePlayerBattleAction action,
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 		case PossiblePlayerBattleAction::FREE_LOCATION:
 		case PossiblePlayerBattleAction::OBSTACLE:
-			CCS->curh->set(Cursor::Spellcast::SPELL);
+			ENGINE->cursor().set(Cursor::Spellcast::SPELL);
 			return;
 
 		case PossiblePlayerBattleAction::TELEPORT:
-			CCS->curh->set(Cursor::Combat::TELEPORT);
+			ENGINE->cursor().set(Cursor::Combat::TELEPORT);
 			return;
 
 		case PossiblePlayerBattleAction::SACRIFICE:
-			CCS->curh->set(Cursor::Combat::SACRIFICE);
+			ENGINE->cursor().set(Cursor::Combat::SACRIFICE);
 			return;
 
 		case PossiblePlayerBattleAction::HEAL:
-			CCS->curh->set(Cursor::Combat::HEAL);
+			ENGINE->cursor().set(Cursor::Combat::HEAL);
 			return;
 
 		case PossiblePlayerBattleAction::CATAPULT:
-			CCS->curh->set(Cursor::Combat::SHOOT_CATAPULT);
+			ENGINE->cursor().set(Cursor::Combat::SHOOT_CATAPULT);
 			return;
 
 		case PossiblePlayerBattleAction::CREATURE_INFO:
-			CCS->curh->set(Cursor::Combat::QUERY);
+			ENGINE->cursor().set(Cursor::Combat::QUERY);
 			return;
 		case PossiblePlayerBattleAction::HERO_INFO:
-			CCS->curh->set(Cursor::Combat::HERO);
+			ENGINE->cursor().set(Cursor::Combat::HERO);
 			return;
 	}
 	assert(0);
@@ -488,13 +488,13 @@ void BattleActionsController::actionSetCursorBlocked(PossiblePlayerBattleAction 
 		case PossiblePlayerBattleAction::TELEPORT:
 		case PossiblePlayerBattleAction::SACRIFICE:
 		case PossiblePlayerBattleAction::FREE_LOCATION:
-			CCS->curh->set(Cursor::Combat::BLOCKED);
+			ENGINE->cursor().set(Cursor::Combat::BLOCKED);
 			return;
 		default:
 			if (targetHex == -1)
-				CCS->curh->set(Cursor::Combat::POINTER);
+				ENGINE->cursor().set(Cursor::Combat::POINTER);
 			else
-				CCS->curh->set(Cursor::Combat::BLOCKED);
+				ENGINE->cursor().set(Cursor::Combat::BLOCKED);
 			return;
 	}
 	assert(0);
@@ -888,7 +888,7 @@ void BattleActionsController::onHexHovered(const BattleHex & hoveredHex)
 			ENGINE->statusbar()->clearIfMatching(currentConsoleMsg);
 
 		currentConsoleMsg.clear();
-		CCS->curh->set(Cursor::Combat::BLOCKED);
+		ENGINE->cursor().set(Cursor::Combat::BLOCKED);
 		return;
 	}
 
@@ -918,7 +918,7 @@ void BattleActionsController::onHexHovered(const BattleHex & hoveredHex)
 
 void BattleActionsController::onHoverEnded()
 {
-	CCS->curh->set(Cursor::Combat::POINTER);
+	ENGINE->cursor().set(Cursor::Combat::POINTER);
 
 	if (!currentConsoleMsg.empty())
 		ENGINE->statusbar()->clearIfMatching(currentConsoleMsg);

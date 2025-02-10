@@ -58,8 +58,8 @@ InputSourceTouch::InputSourceTouch()
 
 void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfinger)
 {
-	if (CCS && CCS->curh && settings["video"]["cursor"].String() == "software" && state != TouchState::RELATIVE_MODE)
-		CCS->curh->cursorMove(ENGINE->getCursorPosition().x, ENGINE->getCursorPosition().y);
+	if (settings["video"]["cursor"].String() == "software" && state != TouchState::RELATIVE_MODE)
+		ENGINE->cursor().cursorMove(ENGINE->getCursorPosition().x, ENGINE->getCursorPosition().y);
 
 	switch(state)
 	{
@@ -74,8 +74,7 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 			};
 
 			ENGINE->input().moveCursorPosition(moveDistance);
-			if (CCS && CCS->curh)
-				CCS->curh->cursorMove(ENGINE->getCursorPosition().x * scalingFactor, ENGINE->getCursorPosition().y * scalingFactor);
+			ENGINE->cursor().cursorMove(ENGINE->getCursorPosition().x * scalingFactor, ENGINE->getCursorPosition().y * scalingFactor);
 
 			break;
 		}

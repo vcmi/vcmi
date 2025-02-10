@@ -230,22 +230,22 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 
 void CInfoBar::playNewDaySound()
 {
-	int volume = CCS->soundh->getVolume();
+	int volume = ENGINE->sound().getVolume();
 	int handle = -1;
 	if(volume == 0)
-		CCS->soundh->setVolume(settings["general"]["sound"].Integer());
+		ENGINE->sound().setVolume(settings["general"]["sound"].Integer());
 
 	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) != 1) // not first day of the week
-		handle = CCS->soundh->playSound(soundBase::newDay);
+		handle = ENGINE->sound().playSound(soundBase::newDay);
 	else if(LOCPLINT->cb->getDate(Date::WEEK) != 1) // not first week in month
-		handle = CCS->soundh->playSound(soundBase::newWeek);
+		handle = ENGINE->sound().playSound(soundBase::newWeek);
 	else if(LOCPLINT->cb->getDate(Date::MONTH) != 1) // not first month
-		handle = CCS->soundh->playSound(soundBase::newMonth);
+		handle = ENGINE->sound().playSound(soundBase::newMonth);
 	else
-		handle = CCS->soundh->playSound(soundBase::newDay);
+		handle = ENGINE->sound().playSound(soundBase::newDay);
 
 	if(volume == 0)
-		CCS->soundh->setCallback(handle, [&]() { if(!ENGINE->screenHandler().hasFocus()) CCS->soundh->setVolume(0); });
+		ENGINE->sound().setCallback(handle, [&]() { if(!ENGINE->screenHandler().hasFocus()) ENGINE->sound().setVolume(0); });
 }
 
 void CInfoBar::reset()

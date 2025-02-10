@@ -26,8 +26,11 @@ class IScreenHandler;
 class WindowHandler;
 class EventDispatcher;
 class InputHandler;
+class ISoundPlayer;
+class IMusicPlayer;
+class CursorHandler;
+class IVideoPlayer;
 
-// Handles GUI logic and drawing
 class GameEngine
 {
 private:
@@ -46,6 +49,11 @@ private:
 	std::unique_ptr<EventDispatcher> eventDispatcherInstance;
 	std::unique_ptr<InputHandler> inputHandlerInstance;
 
+	std::unique_ptr<ISoundPlayer> soundPlayerInstance;
+	std::unique_ptr<IMusicPlayer> musicPlayerInstance;
+	std::unique_ptr<CursorHandler> cursorHandlerInstance;
+	std::unique_ptr<IVideoPlayer> videoPlayerInstance;
+
 public:
 	boost::mutex interfaceMutex;
 
@@ -56,6 +64,11 @@ public:
 	FramerateManager & framerate();
 	EventDispatcher & events();
 	InputHandler & input();
+
+	ISoundPlayer & sound() { return *soundPlayerInstance; }
+	IMusicPlayer & music() { return *musicPlayerInstance; }
+	CursorHandler & cursor() { return *cursorHandlerInstance; }
+	IVideoPlayer & video() { return *videoPlayerInstance; }
 
 	/// Returns current logical screen dimensions
 	/// May not match size of window if user has UI scaling different from 100%
@@ -73,9 +86,6 @@ public:
 	bool isKeyboardCmdDown() const;
 	/// returns true if Shift is currently pressed down
 	bool isKeyboardShiftDown() const;
-
-	void startTextInput(const Rect & where);
-	void stopTextInput();
 
 	IScreenHandler & screenHandler();
 	IRenderHandler & renderHandler();

@@ -13,7 +13,6 @@
 #include "../lib/VCMI_Lib.h"
 
 CGameInfo * CGI;
-CClientState * CCS = nullptr;
 CServerHandler * CSH;
 
 

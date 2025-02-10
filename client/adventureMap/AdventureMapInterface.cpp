@@ -149,7 +149,7 @@ void AdventureMapInterface::activate()
 void AdventureMapInterface::deactivate()
 {
 	CIntObject::deactivate();
-	CCS->curh->set(Cursor::Map::POINTER);
+	ENGINE->cursor().set(Cursor::Map::POINTER);
 
 	if(LOCPLINT)
 		LOCPLINT->cingconsole->deactivate();
@@ -254,30 +254,30 @@ void AdventureMapInterface::handleMapScrollingUpdate(uint32_t timePassed)
 	if(scrollDelta.x > 0)
 	{
 		if(scrollDelta.y < 0)
-			CCS->curh->set(Cursor::Map::SCROLL_NORTHEAST);
+			ENGINE->cursor().set(Cursor::Map::SCROLL_NORTHEAST);
 		if(scrollDelta.y > 0)
-			CCS->curh->set(Cursor::Map::SCROLL_SOUTHEAST);
+			ENGINE->cursor().set(Cursor::Map::SCROLL_SOUTHEAST);
 		if(scrollDelta.y == 0)
-			CCS->curh->set(Cursor::Map::SCROLL_EAST);
+			ENGINE->cursor().set(Cursor::Map::SCROLL_EAST);
 	}
 	if(scrollDelta.x < 0)
 	{
 		if(scrollDelta.y < 0)
-			CCS->curh->set(Cursor::Map::SCROLL_NORTHWEST);
+			ENGINE->cursor().set(Cursor::Map::SCROLL_NORTHWEST);
 		if(scrollDelta.y > 0)
-			CCS->curh->set(Cursor::Map::SCROLL_SOUTHWEST);
+			ENGINE->cursor().set(Cursor::Map::SCROLL_SOUTHWEST);
 		if(scrollDelta.y == 0)
-			CCS->curh->set(Cursor::Map::SCROLL_WEST);
+			ENGINE->cursor().set(Cursor::Map::SCROLL_WEST);
 	}
 
 	if (scrollDelta.x == 0)
 	{
 		if(scrollDelta.y < 0)
-			CCS->curh->set(Cursor::Map::SCROLL_NORTH);
+			ENGINE->cursor().set(Cursor::Map::SCROLL_NORTH);
 		if(scrollDelta.y > 0)
-			CCS->curh->set(Cursor::Map::SCROLL_SOUTH);
+			ENGINE->cursor().set(Cursor::Map::SCROLL_SOUTH);
 		if(scrollDelta.y == 0)
-			CCS->curh->set(Cursor::Map::POINTER);
+			ENGINE->cursor().set(Cursor::Map::POINTER);
 	}
 
 	scrollingWasActive = scrollingActive;
@@ -610,32 +610,32 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		{
 		case SpellID::SCUTTLE_BOAT:
 			if(isValidAdventureSpellTarget(targetPosition))
-				CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
+				ENGINE->cursor().set(Cursor::Map::SCUTTLE_BOAT);
 			else
-				CCS->curh->set(Cursor::Map::POINTER);
+				ENGINE->cursor().set(Cursor::Map::POINTER);
 			return;
 
 		case SpellID::DIMENSION_DOOR:
 			if(isValidAdventureSpellTarget(targetPosition))
 			{
 				if(LOCPLINT->cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && LOCPLINT->cb->isTileGuardedUnchecked(targetPosition))
-					CCS->curh->set(Cursor::Map::T1_ATTACK);
+					ENGINE->cursor().set(Cursor::Map::T1_ATTACK);
 				else
-					CCS->curh->set(Cursor::Map::TELEPORT);
+					ENGINE->cursor().set(Cursor::Map::TELEPORT);
 				return;
 			}
 			else
-				CCS->curh->set(Cursor::Map::POINTER);
+				ENGINE->cursor().set(Cursor::Map::POINTER);
 			return;
 		default:
-			CCS->curh->set(Cursor::Map::POINTER);
+			ENGINE->cursor().set(Cursor::Map::POINTER);
 			return;
 		}
 	}
 
 	if(!isTargetPositionVisible)
 	{
-		CCS->curh->set(Cursor::Map::POINTER);
+		ENGINE->cursor().set(Cursor::Map::POINTER);
 		return;
 	}
 
@@ -663,14 +663,14 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		if(objAtTile)
 		{
 			if(objAtTile->ID == Obj::TOWN && objRelations != PlayerRelations::ENEMIES)
-				CCS->curh->set(Cursor::Map::TOWN);
+				ENGINE->cursor().set(Cursor::Map::TOWN);
 			else if(objAtTile->ID == Obj::HERO && objRelations == PlayerRelations::SAME_PLAYER)
-				CCS->curh->set(Cursor::Map::HERO);
+				ENGINE->cursor().set(Cursor::Map::HERO);
 			else
-				CCS->curh->set(Cursor::Map::POINTER);
+				ENGINE->cursor().set(Cursor::Map::POINTER);
 		}
 		else
-			CCS->curh->set(Cursor::Map::POINTER);
+			ENGINE->cursor().set(Cursor::Map::POINTER);
 	}
 	else if(const CGHeroInstance * hero = LOCPLINT->localState->getCurrentHero())
 	{
@@ -694,17 +694,17 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		{
 			if(objAtTile->ID == Obj::TOWN && objRelations != PlayerRelations::ENEMIES)
 			{
-				CCS->curh->set(Cursor::Map::TOWN);
+				ENGINE-> cursor().set(Cursor::Map::TOWN);
 				return;
 			}
 			else if(objAtTile->ID == Obj::HERO && objRelations == PlayerRelations::SAME_PLAYER)
 			{
-				CCS->curh->set(Cursor::Map::HERO);
+				ENGINE-> cursor().set(Cursor::Map::HERO);
 				return;
 			}
 			else if (objAtTile->ID == Obj::SHIPYARD && objRelations != PlayerRelations::ENEMIES)
 			{
-				CCS->curh->set(Cursor::Map::T1_SAIL);
+				ENGINE-> cursor().set(Cursor::Map::T1_SAIL);
 				return;
 			}
 
@@ -719,9 +719,9 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		case EPathNodeAction::NORMAL:
 		case EPathNodeAction::TELEPORT_NORMAL:
 			if(pathNode->layer == EPathfindingLayer::LAND)
-				CCS->curh->set(cursorMove[turns]);
+				ENGINE->cursor().set(cursorMove[turns]);
 			else
-				CCS->curh->set(cursorSail[turns]);
+				ENGINE->cursor().set(cursorSail[turns]);
 			break;
 
 		case EPathNodeAction::VISIT:
@@ -730,12 +730,12 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 			if(objAtTile && objAtTile->ID == Obj::HERO)
 			{
 				if(LOCPLINT->localState->getCurrentArmy()  == objAtTile)
-					CCS->curh->set(Cursor::Map::HERO);
+					ENGINE->cursor().set(Cursor::Map::HERO);
 				else
-					CCS->curh->set(cursorExchange[turns]);
+					ENGINE->cursor().set(cursorExchange[turns]);
 			}
 			else if(pathNode->layer == EPathfindingLayer::LAND)
-				CCS->curh->set(cursorVisit[turns]);
+				ENGINE->cursor().set(cursorVisit[turns]);
 			else if (pathNode->layer == EPathfindingLayer::SAIL &&
 					 objAtTile &&
 					 objAtTile->isCoastVisitable() &&
@@ -743,27 +743,27 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 					 pathNode->theNodeBefore->layer == EPathfindingLayer::LAND )
 			{
 				// exception - when visiting shipwreck located on coast from land - show 'horse' cursor, not 'ship' cursor
-				CCS->curh->set(cursorVisit[turns]);
+				ENGINE->cursor().set(cursorVisit[turns]);
 			}
 			else
-				CCS->curh->set(cursorSailVisit[turns]);
+				ENGINE->cursor().set(cursorSailVisit[turns]);
 			break;
 
 		case EPathNodeAction::BATTLE:
 		case EPathNodeAction::TELEPORT_BATTLE:
-			CCS->curh->set(cursorAttack[turns]);
+			ENGINE->cursor().set(cursorAttack[turns]);
 			break;
 
 		case EPathNodeAction::EMBARK:
-			CCS->curh->set(cursorSail[turns]);
+			ENGINE->cursor().set(cursorSail[turns]);
 			break;
 
 		case EPathNodeAction::DISEMBARK:
-			CCS->curh->set(cursorDisembark[turns]);
+			ENGINE->cursor().set(cursorDisembark[turns]);
 			break;
 
 		default:
-				CCS->curh->set(Cursor::Map::POINTER);
+				ENGINE->cursor().set(Cursor::Map::POINTER);
 			break;
 		}
 	}

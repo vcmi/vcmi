@@ -308,32 +308,9 @@ int main(int argc, char * argv[])
 	if(!settings["session"]["headless"].Bool())
 		ENGINE->init();
 
-	CCS = new CClientState();
 	CGI = new CGameInfo(); //contains all global information about game (texts, lodHandlers, map handler etc.)
 	CSH = new CServerHandler();
 	
-	// Initialize video
-#ifndef ENABLE_VIDEO
-	CCS->videoh = new CEmptyVideoPlayer();
-#else
-	if (!settings["session"]["headless"].Bool() && !vm.count("disable-video"))
-		CCS->videoh = new CVideoPlayer();
-	else
-		CCS->videoh = new CEmptyVideoPlayer();
-#endif
-
-	logGlobal->info("\tInitializing video: %d ms", pomtime.getDiff());
-
-	if(!settings["session"]["headless"].Bool())
-	{
-		//initializing audio
-		CCS->soundh = new CSoundHandler();
-		CCS->soundh->setVolume((ui32)settings["general"]["sound"].Float());
-		CCS->musich = new CMusicHandler();
-		CCS->musich->setVolume((ui32)settings["general"]["music"].Float());
-		logGlobal->info("Initializing screen and sound handling: %d ms", pomtime.getDiff());
-	}
-
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
 	boost::thread loading([]()
@@ -369,13 +346,10 @@ int main(int argc, char * argv[])
 		graphics = new Graphics(); // should be before curh
 		ENGINE->renderHandler().onLibraryLoadingFinished(CGI);
 
-		CCS->curh = new CursorHandler();
-		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());
-
 		CMessage::init();
 		logGlobal->info("Message handler: %d ms", pomtime.getDiff());
 
-		CCS->curh->show();
+		ENGINE->cursor().show();
 	}
 
 	logGlobal->info("Initialization of VCMI (together): %d ms", total.getDiff());
@@ -474,17 +448,6 @@ static void mainLoop()
 
 	if(!settings["session"]["headless"].Bool())
 	{
-		// cleanup, mostly to remove false leaks from analyzer
-		if(CCS)
-		{
-			delete CCS->consoleh;
-			delete CCS->curh;
-			delete CCS->videoh;
-			delete CCS->musich;
-			delete CCS->soundh;
-
-			vstd::clear_pointer(CCS);
-		}
 		CMessage::dispose();
 
 		vstd::clear_pointer(graphics);
@@ -523,14 +486,6 @@ void handleQuit(bool ask)
 		}
 
 		return;
-	}
-
-	// FIXME: avoids crash if player attempts to close game while opening is still playing
-	// use cursor handler as indicator that loading is not done yet
-	// proper solution would be to abort init thread (or wait for it to finish)
-	if (!CCS->curh)
-	{
-		quitApplicationImmediately(0);
 	}
 
 	if (LOCPLINT)

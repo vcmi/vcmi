@@ -217,7 +217,7 @@ void GlobalLobbyClient::receiveChatMessage(const JsonNode & json)
 		lobbyWindowPtr->refreshChatText();
 
 		if(channelType == "player" || (lobbyWindowPtr->isChannelOpen(channelType, channelName) && lobbyWindowPtr->isActive()))
-			CCS->soundh->playSound(AudioPath::builtin("CHAT"));
+			ENGINE->sound().playSound(AudioPath::builtin("CHAT"));
 	}
 }
 
@@ -342,7 +342,7 @@ void GlobalLobbyClient::receiveInviteReceived(const JsonNode & json)
 		lobbyWindowPtr->refreshChatText();
 	}
 
-	CCS->soundh->playSound(AudioPath::builtin("CHAT"));
+	ENGINE->sound().playSound(AudioPath::builtin("CHAT"));
 }
 
 void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)

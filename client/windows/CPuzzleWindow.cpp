@@ -35,7 +35,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 {
 	OBJECT_CONSTRUCTION;
 
-	CCS->soundh->playSound(soundBase::OBELISK);
+	ENGINE->sound().playSound(soundBase::OBELISK);
 
 	quitb = std::make_shared<CButton>(Point(670, 538), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CPuzzleWindow::close, this), EShortcut::GLOBAL_RETURN);
 	quitb->setBorderColor(Colors::METALLIC_GOLD);
