@@ -111,7 +111,7 @@ void CGuiHandler::renderFrame()
 		CCS->curh->update();
 	}
 
-	screenHandlerInstance->presetScreenTexture();
+	screenHandlerInstance->presentScreenTexture();
 	framerate().framerateDelay(); // holds a constant FPS
 }
 

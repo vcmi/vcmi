@@ -9,11 +9,7 @@
  */
 #pragma once
 
-struct SDL_Texture;
 struct SDL_Renderer;
-struct SDL_Surface;
-
-extern SDL_Texture * screenTexture;
 extern SDL_Renderer * mainRenderer;
 
 /// Notify user about encountered fatal error and terminate the game

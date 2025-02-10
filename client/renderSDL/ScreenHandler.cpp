@@ -34,9 +34,7 @@
 #include <SDL.h>
 
 // TODO: should be made into a private members of ScreenHandler
-static SDL_Window * mainWindow = nullptr;
 SDL_Renderer * mainRenderer = nullptr;
-SDL_Texture * screenTexture = nullptr;
 
 static const std::string NAME = GameConstants::VCMI_VERSION; //application name
 static constexpr Point heroes3Resolution = Point(800, 600);
@@ -633,7 +631,7 @@ void ScreenHandler::updateScreenTexture()
 	SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
 }
 
-void ScreenHandler::presetScreenTexture()
+void ScreenHandler::presentScreenTexture()
 {
 	SDL_RenderClear(mainRenderer);
 	SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);

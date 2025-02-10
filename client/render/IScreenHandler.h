@@ -38,7 +38,7 @@ public:
 	virtual void updateScreenTexture() = 0;
 
 	/// Presents screen texture on the screen
-	virtual void presetScreenTexture() = 0;
+	virtual void presentScreenTexture() = 0;
 
 	/// Returns list of resolutions supported by current screen
 	virtual std::vector<Point> getSupportedResolutions() const = 0;

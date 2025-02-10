@@ -44,7 +44,9 @@ enum class EUpscalingFilter
 /// This class is responsible for management of game window and its main rendering surface
 class ScreenHandler final : public IScreenHandler
 {
-	SDL_Surface * screen = nullptr; //main screen surface
+	SDL_Window * mainWindow = nullptr;
+	SDL_Texture * screenTexture = nullptr;
+	SDL_Surface * screen = nullptr;
 
 	EUpscalingFilter upscalingFilter = EUpscalingFilter::AUTO;
 
@@ -118,7 +120,7 @@ public:
 
 	Canvas getScreenCanvas() const final;
 	void updateScreenTexture() final;
-	void presetScreenTexture() final;
+	void presentScreenTexture() final;
 
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;
