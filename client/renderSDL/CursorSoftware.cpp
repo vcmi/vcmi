@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CursorSoftware.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/IScreenHandler.h"
 #include "../render/Colors.h"
 #include "../render/IImage.h"
@@ -59,16 +59,16 @@ void CursorSoftware::createTexture(const Point & dimensions)
 void CursorSoftware::updateTexture()
 {
 	if (!cursorSurface)
-		createTexture(cursorImage->dimensions() * GH.screenHandler().getScalingFactor());
+		createTexture(cursorImage->dimensions() * ENGINE->screenHandler().getScalingFactor());
 
 	Point currentSize = Point(cursorSurface->w, cursorSurface->h);
 
-	if (currentSize != cursorImage->dimensions() * GH.screenHandler().getScalingFactor())
-		createTexture(cursorImage->dimensions() * GH.screenHandler().getScalingFactor());
+	if (currentSize != cursorImage->dimensions() * ENGINE->screenHandler().getScalingFactor())
+		createTexture(cursorImage->dimensions() * ENGINE->screenHandler().getScalingFactor());
 
 	CSDL_Ext::fillSurface(cursorSurface, CSDL_Ext::toSDL(Colors::TRANSPARENCY));
 
-	cursorImage->draw(cursorSurface, Point(0,0), nullptr, GH.screenHandler().getScalingFactor());
+	cursorImage->draw(cursorSurface, Point(0,0), nullptr, ENGINE->screenHandler().getScalingFactor());
 	SDL_UpdateTexture(cursorTexture, nullptr, cursorSurface->pixels, cursorSurface->pitch);
 	needUpdate = false;
 }

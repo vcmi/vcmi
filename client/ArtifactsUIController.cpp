@@ -18,7 +18,7 @@
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 
-#include "gui/CGuiHandler.h"
+#include "GameEngine.h"
 #include "gui/WindowHandler.h"
 #include "widgets/CComponent.h"
 #include "windows/CWindowWithArtifacts.h"
@@ -63,7 +63,7 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 				boost::mutex::scoped_lock askLock(askAssembleArtifactMutex);
 				for(const auto combinedArt : assemblyPossibilities)
 				{
-					boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+					boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 					if(checkIgnored)
 					{
 						if(vstd::contains(ignoredArtifacts, combinedArt->getId()))
@@ -126,7 +126,7 @@ bool ArtifactsUIController::askToDisassemble(const CGHeroInstance * hero, const 
 
 void ArtifactsUIController::artifactRemoved()
 {
-	for(const auto & artWin : GH.windows().findWindows<CWindowWithArtifacts>())
+	for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
 		artWin->update();
 	LOCPLINT->waitWhileDialog();
 }
@@ -138,7 +138,7 @@ void ArtifactsUIController::artifactMoved()
 		numOfMovedArts--;
 
 	if(numOfMovedArts == 0)
-		for(const auto & artWin : GH.windows().findWindows<CWindowWithArtifacts>())
+		for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
 		{
 			artWin->update();
 		}
@@ -159,12 +159,12 @@ void ArtifactsUIController::bulkArtMovementStart(size_t totalNumOfArts, size_t p
 
 void ArtifactsUIController::artifactAssembled()
 {
-	for(const auto & artWin : GH.windows().findWindows<CWindowWithArtifacts>())
+	for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
 		artWin->update();
 }
 
 void ArtifactsUIController::artifactDisassembled()
 {
-	for(const auto & artWin : GH.windows().findWindows<CWindowWithArtifacts>())
+	for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
 		artWin->update();
 }

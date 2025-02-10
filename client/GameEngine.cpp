@@ -1,5 +1,5 @@
 /*
- * CGuiHandler.cpp, part of VCMI engine
+ * GameEngine.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,51 +8,52 @@
  *
  */
 #include "StdInc.h"
-#include "CGuiHandler.h"
+#include "GameEngine.h"
 
-#include "CIntObject.h"
-#include "CursorHandler.h"
-#include "ShortcutHandler.h"
-#include "FramerateManager.h"
-#include "WindowHandler.h"
-#include "EventDispatcher.h"
-#include "../eventsSDL/InputHandler.h"
+#include "gui/CIntObject.h"
+#include "gui/CursorHandler.h"
+#include "gui/ShortcutHandler.h"
+#include "gui/FramerateManager.h"
+#include "gui/WindowHandler.h"
+#include "gui/EventDispatcher.h"
+#include "eventsSDL/InputHandler.h"
 
-#include "../CGameInfo.h"
-#include "../adventureMap/AdventureMapInterface.h"
-#include "../render/Canvas.h"
-#include "../render/Colors.h"
-#include "../render/Graphics.h"
-#include "../render/IFont.h"
-#include "../render/EFont.h"
-#include "../renderSDL/ScreenHandler.h"
-#include "../renderSDL/RenderHandler.h"
-#include "../CPlayerInterface.h"
-#include "../battle/BattleInterface.h"
+#include "CGameInfo.h"
+#include "CPlayerInterface.h"
+#include "adventureMap/AdventureMapInterface.h"
+#include "render/Canvas.h"
+#include "render/Colors.h"
+#include "render/Graphics.h"
+#include "render/IFont.h"
+#include "render/EFont.h"
+#include "renderSDL/ScreenHandler.h"
+#include "renderSDL/RenderHandler.h"
+#include "CMT.h"
+#include "battle/BattleInterface.h"
 
-#include "../../lib/CThreadHelper.h"
-#include "../../lib/CConfigHandler.h"
+#include "../lib/CThreadHelper.h"
+#include "../lib/CConfigHandler.h"
 
 #include <SDL_render.h>
 
-CGuiHandler GH;
+std::unique_ptr<GameEngine> ENGINE;
 
 static thread_local bool inGuiThread = false;
 
 ObjectConstruction::ObjectConstruction(CIntObject *obj)
 {
-	GH.createdObj.push_front(obj);
-	GH.captureChildren = true;
+	ENGINE->createdObj.push_front(obj);
+	ENGINE->captureChildren = true;
 }
 
 ObjectConstruction::~ObjectConstruction()
 {
-	assert(!GH.createdObj.empty());
-	GH.createdObj.pop_front();
-	GH.captureChildren = !GH.createdObj.empty();
+	assert(!ENGINE->createdObj.empty());
+	ENGINE->createdObj.pop_front();
+	ENGINE->captureChildren = !ENGINE->createdObj.empty();
 }
 
-void CGuiHandler::init()
+void GameEngine::init()
 {
 	inGuiThread = true;
 
@@ -65,7 +66,7 @@ void CGuiHandler::init()
 	framerateManagerInstance = std::make_unique<FramerateManager>(settings["video"]["targetfps"].Integer());
 }
 
-void CGuiHandler::handleEvents()
+void GameEngine::handleEvents()
 {
 	events().dispatchTimer(framerate().getElapsedMilliseconds());
 
@@ -76,27 +77,17 @@ void CGuiHandler::handleEvents()
 	input().processEvents();
 }
 
-void CGuiHandler::fakeMouseMove()
+void GameEngine::fakeMouseMove()
 {
 	dispatchMainThread([](){
-		GH.events().dispatchMouseMoved(Point(0, 0), GH.getCursorPosition());
+		ENGINE->events().dispatchMouseMoved(Point(0, 0), ENGINE->getCursorPosition());
 	});
 }
 
-void CGuiHandler::startTextInput(const Rect & whereInput)
-{
-	input().startTextInput(whereInput);
-}
-
-void CGuiHandler::stopTextInput()
-{
-	input().stopTextInput();
-}
-
-void CGuiHandler::renderFrame()
+void GameEngine::renderFrame()
 {
 	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+		boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 		if (nullptr != curInt)
 			curInt->update();
@@ -114,14 +105,14 @@ void CGuiHandler::renderFrame()
 	framerate().framerateDelay(); // holds a constant FPS
 }
 
-CGuiHandler::CGuiHandler()
+GameEngine::GameEngine()
 	: captureChildren(false)
 	, curInt(nullptr)
 	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
 {
 }
 
-CGuiHandler::~CGuiHandler()
+GameEngine::~GameEngine()
 {
 	// enforce deletion order on shutdown
 	// all UI elements including adventure map must be destroyed before Gui Handler
@@ -129,51 +120,51 @@ CGuiHandler::~CGuiHandler()
 	adventureInt.reset();
 }
 
-ShortcutHandler & CGuiHandler::shortcuts()
+ShortcutHandler & GameEngine::shortcuts()
 {
 	assert(shortcutsHandlerInstance);
 	return *shortcutsHandlerInstance;
 }
 
-FramerateManager & CGuiHandler::framerate()
+FramerateManager & GameEngine::framerate()
 {
 	assert(framerateManagerInstance);
 	return *framerateManagerInstance;
 }
 
-bool CGuiHandler::isKeyboardCtrlDown() const
+bool GameEngine::isKeyboardCtrlDown() const
 {
 	return inputHandlerInstance->isKeyboardCtrlDown();
 }
 
-bool CGuiHandler::isKeyboardCmdDown() const
+bool GameEngine::isKeyboardCmdDown() const
 {
 	return inputHandlerInstance->isKeyboardCmdDown();
 }
 
-bool CGuiHandler::isKeyboardAltDown() const
+bool GameEngine::isKeyboardAltDown() const
 {
 	return inputHandlerInstance->isKeyboardAltDown();
 }
 
-bool CGuiHandler::isKeyboardShiftDown() const
+bool GameEngine::isKeyboardShiftDown() const
 {
 	return inputHandlerInstance->isKeyboardShiftDown();
 }
 
-const Point & CGuiHandler::getCursorPosition() const
+const Point & GameEngine::getCursorPosition() const
 {
 	return inputHandlerInstance->getCursorPosition();
 }
 
-Point CGuiHandler::screenDimensions() const
+Point GameEngine::screenDimensions() const
 {
 	return screenHandlerInstance->getLogicalResolution();
 }
 
-void CGuiHandler::drawFPSCounter()
+void GameEngine::drawFPSCounter()
 {
-	Canvas target = GH.screenHandler().getScreenCanvas();
+	Canvas target = screenHandler().getScreenCanvas();
 	Rect targetArea(0, screenDimensions().y - 20, 48, 11);
 	std::string fps = std::to_string(framerate().getFramerate())+" FPS";
 
@@ -181,43 +172,43 @@ void CGuiHandler::drawFPSCounter()
 	target.drawText(targetArea.center(), EFonts::FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, fps);
 }
 
-bool CGuiHandler::amIGuiThread()
+bool GameEngine::amIGuiThread()
 {
 	return inGuiThread;
 }
 
-void CGuiHandler::dispatchMainThread(const std::function<void()> & functor)
+void GameEngine::dispatchMainThread(const std::function<void()> & functor)
 {
 	inputHandlerInstance->dispatchMainThread(functor);
 }
 
-IScreenHandler & CGuiHandler::screenHandler()
+IScreenHandler & GameEngine::screenHandler()
 {
 	return *screenHandlerInstance;
 }
 
-IRenderHandler & CGuiHandler::renderHandler()
+IRenderHandler & GameEngine::renderHandler()
 {
 	return *renderHandlerInstance;
 }
 
-EventDispatcher & CGuiHandler::events()
+EventDispatcher & GameEngine::events()
 {
 	return *eventDispatcherInstance;
 }
 
-InputHandler & CGuiHandler::input()
+InputHandler & GameEngine::input()
 {
 	return *inputHandlerInstance;
 }
 
-WindowHandler & CGuiHandler::windows()
+WindowHandler & GameEngine::windows()
 {
 	assert(windowHandlerInstance);
 	return *windowHandlerInstance;
 }
 
-std::shared_ptr<IStatusBar> CGuiHandler::statusbar()
+std::shared_ptr<IStatusBar> GameEngine::statusbar()
 {
 	auto locked = currentStatusBar.lock();
 
@@ -227,12 +218,12 @@ std::shared_ptr<IStatusBar> CGuiHandler::statusbar()
 	return locked;
 }
 
-void CGuiHandler::setStatusbar(std::shared_ptr<IStatusBar> newStatusBar)
+void GameEngine::setStatusbar(std::shared_ptr<IStatusBar> newStatusBar)
 {
 	currentStatusBar = newStatusBar;
 }
 
-void CGuiHandler::onScreenResize(bool resolutionChanged)
+void GameEngine::onScreenResize(bool resolutionChanged)
 {
 	if(resolutionChanged)
 		screenHandler().onScreenResize();

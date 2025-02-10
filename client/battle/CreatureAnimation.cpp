@@ -13,7 +13,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/ColorFilter.h"
@@ -195,8 +195,8 @@ CreatureAnimation::CreatureAnimation(const AnimationPath & name_, TSpeedControll
 	  once(false)
 {
 
-	forward = GH.renderHandler().loadAnimation(name_, EImageBlitMode::WITH_SHADOW_AND_SELECTION);
-	reverse = GH.renderHandler().loadAnimation(name_, EImageBlitMode::WITH_SHADOW_AND_SELECTION);
+	forward = ENGINE->renderHandler().loadAnimation(name_, EImageBlitMode::WITH_SHADOW_AND_SELECTION);
+	reverse = ENGINE->renderHandler().loadAnimation(name_, EImageBlitMode::WITH_SHADOW_AND_SELECTION);
 
 	if (forward->size(size_t(ECreatureAnimType::DEATH)) == 0)
 		throw std::runtime_error("Animation '" + name_.getOriginalName() + "' has empty death animation!");

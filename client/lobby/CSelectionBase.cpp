@@ -21,7 +21,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../globalLobby/GlobalLobbyClient.h"
@@ -128,7 +128,7 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 		tabSel->filter(0, true);
 	}
 
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 InfoCard::InfoCard()
@@ -262,7 +262,7 @@ void InfoCard::changeSelection()
 	if(!showChat)
 		labelGroupPlayers->disable();
 
-	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
 
 	for(const auto & p : CSH->playerNames)
 	{
@@ -356,7 +356,7 @@ void InfoCard::setChat(bool activateChat)
 	}
 
 	showChat = activateChat;
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 CChatBox::CChatBox(const Rect & rect)
@@ -366,7 +366,7 @@ CChatBox::CChatBox(const Rect & rect)
 	pos += rect.topLeft();
 	setRedrawParent(true);
 
-	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
 	const int height = font->getLineHeight();
 	Rect textInputArea(1, rect.h - height, rect.w - 1, height);
 	Rect chatHistoryArea(3, 1, rect.w - 3, rect.h - height - 1);
@@ -448,7 +448,7 @@ PvPBox::PvPBox(const Rect & rect)
 	buttonHandicap = std::make_shared<CButton>(Point(190, 81), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.handicap")), [](){
 		if(!CSH->isHost())
 			return;
-		GH.windows().createAndPushWindow<OptionsTab::HandicapWindow>();
+		ENGINE->windows().createAndPushWindow<OptionsTab::HandicapWindow>();
 	}, EShortcut::LOBBY_HANDICAP);
 	buttonHandicap->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.handicap"), EFonts::FONT_SMALL, Colors::WHITE);
 }
@@ -558,7 +558,7 @@ void CFlagBox::recreate()
 void CFlagBox::showPopupWindow(const Point & cursorPosition)
 {
 	if(SEL->getMapInfo())
-		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>();
+		ENGINE->windows().createAndPushWindow<CFlagBoxTooltipBox>();
 }
 
 CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox()

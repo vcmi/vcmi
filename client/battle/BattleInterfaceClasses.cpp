@@ -21,7 +21,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
@@ -113,7 +113,7 @@ std::vector<std::string> BattleConsole::splitText(const std::string &text)
 
 	boost::split(lines, text, boost::is_any_of("\n"));
 
-	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
 	for(const auto & line : lines)
 	{
 		if (font->getStringWidth(text) < pos.w)
@@ -180,7 +180,7 @@ void BattleConsole::clickPressed(const Point & cursorPosition)
 {
 	if(owner.makingTurn() && !owner.openingPlaying())
 	{
-		GH.windows().createAndPushWindow<BattleConsoleWindow>(boost::algorithm::join(logEntries, "\n"));
+		ENGINE->windows().createAndPushWindow<BattleConsoleWindow>(boost::algorithm::join(logEntries, "\n"));
 	}
 }
 
@@ -191,12 +191,12 @@ void BattleConsole::setEnteringMode(bool on)
 	if (on)
 	{
 		assert(enteringText == false);
-		GH.startTextInput(pos);
+		ENGINE->input().startTextInput(pos);
 	}
 	else
 	{
 		assert(enteringText == true);
-		GH.stopTextInput();
+		ENGINE->input().stopTextInput();
 	}
 	enteringText = on;
 	redraw();
@@ -338,7 +338,7 @@ void BattleHero::heroLeftClicked()
 	if(owner.getBattle()->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
 		CCS->curh->set(Cursor::Map::POINTER);
-		GH.windows().createAndPushWindow<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
+		ENGINE->windows().createAndPushWindow<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
 	}
 }
 
@@ -348,7 +348,7 @@ void BattleHero::heroRightClicked()
 		return;
 
 	Point windowPosition;
-	if(GH.screenDimensions().x < 1000)
+	if(ENGINE->screenDimensions().x < 1000)
 	{
 		windowPosition.x = (!defender) ? owner.fieldController->pos.left() + 1 : owner.fieldController->pos.right() - 79;
 		windowPosition.y = owner.fieldController->pos.y + 135;
@@ -364,7 +364,7 @@ void BattleHero::heroRightClicked()
 	{
 		auto h = defender ? owner.defendingHeroInstance : owner.attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
-		GH.windows().createAndPushWindow<HeroInfoWindow>(targetHero, &windowPosition);
+		ENGINE->windows().createAndPushWindow<HeroInfoWindow>(targetHero, &windowPosition);
 	}
 }
 
@@ -398,7 +398,7 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	else
 		animationPath = hero->getHeroClass()->imageBattleMale;
 
-	animation = GH.renderHandler().loadAnimation(animationPath, EImageBlitMode::WITH_SHADOW);
+	animation = ENGINE->renderHandler().loadAnimation(animationPath, EImageBlitMode::WITH_SHADOW);
 
 	pos.w = 64;
 	pos.h = 136;
@@ -409,9 +409,9 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 		animation->verticalFlip();
 
 	if(defender)
-		flagAnimation = GH.renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGR"), EImageBlitMode::COLORKEY);
+		flagAnimation = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGR"), EImageBlitMode::COLORKEY);
 	else
-		flagAnimation = GH.renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGL"), EImageBlitMode::COLORKEY);
+		flagAnimation = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGL"), EImageBlitMode::COLORKEY);
 
 	flagAnimation->playerColored(hero->tempOwner);
 
@@ -507,8 +507,8 @@ void QuickSpellPanel::create()
 		});
 		button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), id != SpellID::NONE ? id.num + 1 : 0));
 		button->addPopupCallback([this, i, hero](){
-			GH.input().hapticFeedback();
-			GH.windows().createAndPushWindow<CSpellWindow>(hero, owner.curInt.get(), true, [this, i](SpellID spell){
+			ENGINE->input().hapticFeedback();
+			ENGINE->windows().createAndPushWindow<CSpellWindow>(hero, owner.curInt.get(), true, [this, i](SpellID spell){
 				Settings configID = persistentStorage.write["quickSpell"][std::to_string(i)];
 				configID->String() = spell == SpellID::NONE ? "" : spell.toSpell()->identifier;
 				create();
@@ -522,7 +522,7 @@ void QuickSpellPanel::create()
 		{
 			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 7 + 50 * i, 48, 36), ColorRGBA(0, 0, 0, 172)));
 		}
-		if(GH.input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE)
+		if(ENGINE->input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE)
 			labels.push_back(std::make_shared<CLabel>(7, 10 + 50 * i, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, config["keyboard"]["battleSpellShortcut" + std::to_string(i)].String()));
 
 		buttons.push_back(button);
@@ -946,8 +946,8 @@ void BattleResultWindow::buttonPressed(int button)
 
 	close();
 
-	if(GH.windows().topWindow<BattleWindow>())
-		GH.windows().popWindows(1); //pop battle interface if present
+	if(ENGINE->windows().topWindow<BattleWindow>())
+		ENGINE->windows().popWindows(1); //pop battle interface if present
 
 	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
 	//so we can be sure that there is no dialogs left on GUI stack.
@@ -976,7 +976,7 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	{
 		int32_t queueSmallOutsideYOffset = 65;
 		bool queueSmallOutside = settings["battle"]["queueSmallOutside"].Bool() && (pos.y - queueSmallOutsideYOffset) >= 0;
-		queueSize = std::clamp(static_cast<int>(settings["battle"]["queueSmallSlots"].Float()), 1, queueSmallOutside ? GH.screenDimensions().x / 41 : 19);
+		queueSize = std::clamp(static_cast<int>(settings["battle"]["queueSmallSlots"].Float()), 1, queueSmallOutside ? ENGINE->screenDimensions().x / 41 : 19);
 
 		pos.w = queueSize * 41;
 		pos.h = 49;
@@ -1107,7 +1107,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 		if(currentTurn && !owner->embedded)
 		{
 			std::string tmp = std::to_string(*currentTurn);
-			const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+			const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
 			int len = font->getStringWidth(tmp);
 			roundRect->pos.w = len + 6;
 			round->pos = Rect(roundRect->pos.center().x, roundRect->pos.center().y, 0, 0);
@@ -1170,5 +1170,5 @@ void StackQueue::StackBox::showPopupWindow(const Point & cursorPosition)
 	auto stacks = owner->owner.getBattle()->battleGetAllStacks();
 	for(const CStack * stack : stacks)
 		if(boundUnitID.has_value() && stack->unitId() == *boundUnitID)
-			GH.windows().createAndPushWindow<CStackWindow>(stack, true);
+			ENGINE->windows().createAndPushWindow<CStackWindow>(stack, true);
 }

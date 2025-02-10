@@ -16,7 +16,7 @@
 
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
@@ -111,7 +111,7 @@ RandomMapTab::RandomMapTab():
 	//new callbacks available only from mod
 	addCallback("teamAlignments", [&](int)
 	{
-		GH.windows().createAndPushWindow<TeamAlignments>(*this);
+		ENGINE->windows().createAndPushWindow<TeamAlignments>(*this);
 	});
 	
 	for(const auto & road : VLC->roadTypeHandler->objects)
@@ -489,14 +489,14 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 		}
 		randomMapTab.updateMapInfoByHost();
 
-		for(auto & window : GH.windows().findWindows<TeamAlignments>())
-			GH.windows().popWindow(window);
+		for(auto & window : ENGINE->windows().findWindows<TeamAlignments>())
+			ENGINE->windows().popWindow(window);
 	});
 	
 	addCallback("cancel", [&](int)
 	{
-		for(auto & window : GH.windows().findWindows<TeamAlignments>())
-			GH.windows().popWindow(window);
+		for(auto & window : ENGINE->windows().findWindows<TeamAlignments>())
+			ENGINE->windows().popWindow(window);
 	});
 	
 	build(config);

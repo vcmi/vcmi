@@ -15,7 +15,7 @@
 #include "CPlayerInterface.h"
 #include "PlayerLocalState.h"
 #include "CServerHandler.h"
-#include "gui/CGuiHandler.h"
+#include "GameEngine.h"
 #include "gui/WindowHandler.h"
 #include "render/IRenderHandler.h"
 #include "ClientNetPackVisitors.h"
@@ -74,7 +74,7 @@ void ClientCommandManager::handleGoSoloCommand()
 {
 	Settings session = settings.write["session"];
 
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	if(!CSH->client)
 	{
@@ -108,7 +108,7 @@ void ClientCommandManager::handleGoSoloCommand()
 			}
 		}
 
-		GH.windows().totalRedraw();
+		ENGINE->windows().totalRedraw();
 		giveTurn(currentColor);
 	}
 
@@ -127,7 +127,7 @@ void ClientCommandManager::handleControlaiCommand(std::istringstream& singleWord
 	singleWordBuffer >> colorName;
 	boost::to_lower(colorName);
 
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	if(!CSH->client)
 	{
@@ -152,7 +152,7 @@ void ClientCommandManager::handleControlaiCommand(std::istringstream& singleWord
 		CSH->client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
 	}
 
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 	if(color != PlayerColor::NEUTRAL)
 		giveTurn(color);
 }
@@ -181,7 +181,7 @@ void ClientCommandManager::handleSetBattleAICommand(std::istringstream& singleWo
 
 void ClientCommandManager::handleRedrawCommand()
 {
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
@@ -393,7 +393,7 @@ void ClientCommandManager::handleDef2bmpCommand(std::istringstream& singleWordBu
 {
 	std::string URI;
 	singleWordBuffer >> URI;
-	auto anim = GH.renderHandler().loadAnimation(AnimationPath::builtin(URI), EImageBlitMode::SIMPLE);
+	auto anim = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin(URI), EImageBlitMode::SIMPLE);
 	anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
 }
 
@@ -509,7 +509,7 @@ void ClientCommandManager::handleVsLog(std::istringstream & singleWordBuffer)
 
 void ClientCommandManager::handleGenerateAssets()
 {
-	GH.renderHandler().exportGeneratedAssets();
+	ENGINE->renderHandler().exportGeneratedAssets();
 	printCommandMessage("All assets generated");
 }
 
@@ -542,7 +542,7 @@ void ClientCommandManager::printCommandMessage(const std::string &commandMessage
 
 	if(currentCallFromIngameConsole)
 	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+		boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 		if(LOCPLINT && LOCPLINT->cingconsole)
 		{
 			LOCPLINT->cingconsole->addMessage("", "System", commandMessage);

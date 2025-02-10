@@ -20,7 +20,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../adventureMap/AdventureMapInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
@@ -135,7 +135,7 @@ void MapView::onMapScrolled(const Point & distance)
 void MapView::onMapSwiped(const Point & viewPosition)
 {
 	if(settings["adventure"]["smoothDragging"].Bool())
-		swipeHistory.push_back(std::pair<uint32_t, Point>(GH.input().getTicks(), viewPosition));
+		swipeHistory.push_back(std::pair<uint32_t, Point>(ENGINE->input().getTicks(), viewPosition));
 
 	controller->setViewCenter(model->getMapViewCenter() + viewPosition, model->getLevel());
 }
@@ -148,7 +148,7 @@ void MapView::postSwipe(uint32_t msPassed)
 		{
 			Point diff = Point(0, 0);
 			std::pair<uint32_t, Point> firstAccepted;
-			uint32_t now = GH.input().getTicks();
+			uint32_t now = ENGINE->input().getTicks();
 			for (auto & x : swipeHistory) {
 				if(now - x.first < postSwipeCatchIntervalMs) { // only the last x ms are caught
 					if(firstAccepted.first == 0)

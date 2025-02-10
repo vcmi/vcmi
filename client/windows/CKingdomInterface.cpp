@@ -18,7 +18,7 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../adventureMap/CResDataBar.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
@@ -821,7 +821,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 		{
 			if(town->hasBuilt(BuildingID::MARKETPLACE))
 			{
-				GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+				ENGINE->windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 				return;
 			}
 		}
@@ -829,7 +829,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	});
 	fastTown = std::make_shared<LRClickableArea>(Rect(67, 6, 165, 20), [&]()
 	{
-		GH.windows().createAndPushWindow<CCastleInterface>(town);
+		ENGINE->windows().createAndPushWindow<CCastleInterface>(town);
 	});
 }
 

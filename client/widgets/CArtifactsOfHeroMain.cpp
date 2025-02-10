@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CArtifactsOfHeroMain.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 
 #include "../CPlayerInterface.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"

@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CSoundHandler.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../CGameInfo.h"
 
 #include "../lib/filesystem/Filesystem.h"
@@ -319,7 +319,7 @@ void CSoundHandler::soundFinishedCallback(int channel)
 
 	if(!callback.empty())
 	{
-		GH.dispatchMainThread(
+		ENGINE->dispatchMainThread(
 			[callback]()
 			{
 				for(const auto & entry : callback)

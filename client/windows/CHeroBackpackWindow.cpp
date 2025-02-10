@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CHeroBackpackWindow.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 
 #include "../widgets/Buttons.h"

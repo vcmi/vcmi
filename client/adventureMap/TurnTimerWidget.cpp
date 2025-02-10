@@ -14,7 +14,7 @@
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleStacksController.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/Graphics.h"
 #include "../widgets/Images.h"

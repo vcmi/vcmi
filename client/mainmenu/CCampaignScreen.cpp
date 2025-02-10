@@ -16,7 +16,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../media/IMusicPlayer.h"
 #include "../render/Canvas.h"

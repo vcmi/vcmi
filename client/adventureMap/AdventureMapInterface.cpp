@@ -27,7 +27,7 @@
 #include "../widgets/RadialMenu.h"
 #include "../CGameInfo.h"
 #include "../gui/CursorHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
@@ -61,8 +61,8 @@ AdventureMapInterface::AdventureMapInterface():
 {
 	OBJECT_CONSTRUCTION;
 	pos.x = pos.y = 0;
-	pos.w = GH.screenDimensions().x;
-	pos.h = GH.screenDimensions().y;
+	pos.w = ENGINE->screenDimensions().x;
+	pos.h = ENGINE->screenDimensions().y;
 
 	shortcuts = std::make_shared<AdventureMapShortcuts>(*this);
 
@@ -137,7 +137,7 @@ void AdventureMapInterface::activate()
 		LOCPLINT->cingconsole->pos = this->pos;
 	}
 
-	GH.fakeMouseMove(); //to restore the cursor
+	ENGINE->fakeMouseMove(); //to restore the cursor
 
 	// workaround for an edge case:
 	// if player unequips Angel Wings / Boots of Levitation of currently active hero
@@ -174,19 +174,19 @@ void AdventureMapInterface::dim(Canvas & to)
 	auto const isBigWindow = [&](std::shared_ptr<CIntObject> window) { return window->pos.w >= 800 && window->pos.h >= 600; }; // OH3 fullscreen
 
 	if(settings["adventure"]["hideBackground"].Bool())
-		for (auto window : GH.windows().findWindows<CIntObject>())
+		for (auto window : ENGINE->windows().findWindows<CIntObject>())
 		{
 			if(!std::dynamic_pointer_cast<AdventureMapInterface>(window) && std::dynamic_pointer_cast<CIntObject>(window) && isBigWindow(window))
 			{
-				to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
+				to.fillTexture(ENGINE->renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
 				return;
 			}
 		}
-	for (auto window : GH.windows().findWindows<CIntObject>())
+	for (auto window : ENGINE->windows().findWindows<CIntObject>())
 	{
 		if (!std::dynamic_pointer_cast<AdventureMapInterface>(window) && !std::dynamic_pointer_cast<RadialMenu>(window) && !window->isPopupWindow() && (settings["adventure"]["backgroundDimSmallWindows"].Bool() || isBigWindow(window) || shortcuts->getState() == EAdventureState::HOTSEAT_WAIT))
 		{
-			Rect targetRect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y);
+			Rect targetRect(0, 0, ENGINE->screenDimensions().x, ENGINE->screenDimensions().y);
 			ColorRGBA colorToFill(0, 0, 0, std::clamp<int>(backgroundDimLevel, 0, 255));
 			if(backgroundDimLevel > 0)
 				to.drawColorBlended(targetRect, colorToFill);
@@ -212,26 +212,26 @@ void AdventureMapInterface::handleMapScrollingUpdate(uint32_t timePassed)
 	int32_t scrollSpeedPixels = settings["adventure"]["scrollSpeedPixels"].Float();
 	int32_t scrollDistance = scrollSpeedPixels * timePassed / 1000;
 
-	Point cursorPosition = GH.getCursorPosition();
+	Point cursorPosition = ENGINE->getCursorPosition();
 	Point scrollDirection;
 
 	if (cursorPosition.x < borderScrollWidth)
 		scrollDirection.x = -1;
 
-	if (cursorPosition.x > GH.screenDimensions().x - borderScrollWidth)
+	if (cursorPosition.x > ENGINE->screenDimensions().x - borderScrollWidth)
 		scrollDirection.x = +1;
 
 	if (cursorPosition.y < borderScrollWidth)
 		scrollDirection.y = -1;
 
-	if (cursorPosition.y > GH.screenDimensions().y - borderScrollWidth)
+	if (cursorPosition.y > ENGINE->screenDimensions().y - borderScrollWidth)
 		scrollDirection.y = +1;
 
 	Point scrollDelta = scrollDirection * scrollDistance;
 
 	bool cursorInScrollArea = scrollDelta != Point(0,0);
 	bool scrollingActive = cursorInScrollArea && shortcuts->optionMapScrollingActive() && !scrollingWasBlocked;
-	bool scrollingBlocked = GH.isKeyboardCtrlDown() || !settings["adventure"]["borderScroll"].Bool() || !GH.screenHandler().hasFocus();
+	bool scrollingBlocked = ENGINE->isKeyboardCtrlDown() || !settings["adventure"]["borderScroll"].Bool() || !ENGINE->screenHandler().hasFocus();
 
 	if (!scrollingWasActive && scrollingBlocked)
 	{
@@ -299,7 +299,7 @@ void AdventureMapInterface::keyPressed(EShortcut key)
 		hotkeyAbortCastingMode();
 
 	//fake mouse use to trigger onTileHovered()
-	GH.fakeMouseMove();
+	ENGINE->fakeMouseMove();
 }
 
 void AdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
@@ -451,15 +451,15 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 		widget->getInfoBar()->showDate();
 
 	onHeroChanged(nullptr);
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 	mapAudio->onPlayerTurnStarted();
 
-	if(settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
+	if(settings["session"]["autoSkip"].Bool() && !ENGINE->isKeyboardShiftDown())
 	{
-		if(auto iw = GH.windows().topWindow<CInfoWindow>())
+		if(auto iw = ENGINE->windows().topWindow<CInfoWindow>())
 			iw->close();
 
-		GH.dispatchMainThread([this]()
+		ENGINE->dispatchMainThread([this]()
 		{
 			hotkeyEndingTurn();
 		});
@@ -564,7 +564,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 
 			if(LOCPLINT->localState->hasPath(currentHero) &&
 			   LOCPLINT->localState->getPath(currentHero).endPos() == destinationTile &&
-			   !GH.isKeyboardShiftDown())//we'll be moving
+			   !ENGINE->isKeyboardShiftDown())//we'll be moving
 			{
 				assert(!CGI->mh->hasOngoingAnimations());
 				if(!CGI->mh->hasOngoingAnimations() && LOCPLINT->localState->getPath(currentHero).nextNode().turns == 0)
@@ -573,7 +573,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 			}
 			else
 			{
-				if(GH.isKeyboardShiftDown()) //normal click behaviour (as no hero selected)
+				if(ENGINE->isKeyboardShiftDown()) //normal click behaviour (as no hero selected)
 				{
 					if(canSelect)
 						LOCPLINT->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
@@ -646,19 +646,19 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
 		std::string text = LOCPLINT->localState->getCurrentHero() ? objAtTile->getHoverText(LOCPLINT->localState->getCurrentHero()) : objAtTile->getHoverText(LOCPLINT->playerID);
 		boost::replace_all(text,"\n"," ");
-		if (GH.isKeyboardCmdDown())
+		if (ENGINE->isKeyboardCmdDown())
 			text.append(" (" + std::to_string(targetPosition.x) + ", " + std::to_string(targetPosition.y) + ")");
-		GH.statusbar()->write(text);
+		ENGINE->statusbar()->write(text);
 	}
 	else if(isTargetPositionVisible)
 	{
 		std::string tileTooltipText = CGI->mh->getTerrainDescr(targetPosition, false);
-		if (GH.isKeyboardCmdDown())
+		if (ENGINE->isKeyboardCmdDown())
 			tileTooltipText.append(" (" + std::to_string(targetPosition.x) + ", " + std::to_string(targetPosition.y) + ")");
-		GH.statusbar()->write(tileTooltipText);
+		ENGINE->statusbar()->write(tileTooltipText);
 	}
 
-	if(LOCPLINT->localState->getCurrentArmy()->ID == Obj::TOWN || GH.isKeyboardShiftDown())
+	if(LOCPLINT->localState->getCurrentArmy()->ID == Obj::TOWN || ENGINE->isKeyboardShiftDown())
 	{
 		if(objAtTile)
 		{
@@ -685,7 +685,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		const CGPathNode * pathNode = LOCPLINT->getPathsInfo(hero)->getPathInfo(targetPosition);
 		assert(pathNode);
 
-		if((GH.isKeyboardAltDown() || settings["gameTweaks"]["forceMovementInfo"].Bool()) && pathNode->reachable()) //overwrite status bar text with movement info
+		if((ENGINE->isKeyboardAltDown() || settings["gameTweaks"]["forceMovementInfo"].Bool()) && pathNode->reachable()) //overwrite status bar text with movement info
 		{
 			showMoveDetailsInStatusbar(*hero, *pathNode);
 		}
@@ -794,7 +794,7 @@ void AdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & he
 	boost::replace_first(result, "%REMAINING", std::to_string(remainingPointsAfterMove));
 	boost::replace_first(result, "%TOTAL", std::to_string(totalMovementCost));
 
-	GH.statusbar()->write(result);
+	ENGINE->statusbar()->write(result);
 }
 
 void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
@@ -827,7 +827,7 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 		return;
 	}
 
-	CRClickPopup::createAndPush(obj, GH.getCursorPosition(), ETextAlignment::CENTER);
+	CRClickPopup::createAndPush(obj, ENGINE->getCursorPosition(), ETextAlignment::CENTER);
 }
 
 void AdventureMapInterface::enterCastingMode(const CSpell * sp)
@@ -920,8 +920,8 @@ void AdventureMapInterface::onScreenResize()
 
 	widget.reset();
 	pos.x = pos.y = 0;
-	pos.w = GH.screenDimensions().x;
-	pos.h = GH.screenDimensions().y;
+	pos.w = ENGINE->screenDimensions().x;
+	pos.h = ENGINE->screenDimensions().y;
 
 	widget = std::make_shared<AdventureMapWidget>(shortcuts);
 	widget->getMapView()->onViewMapActivated();

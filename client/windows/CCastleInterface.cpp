@@ -19,11 +19,12 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../GameEngine.h"
 #include "../PlayerLocalState.h"
-#include "../eventsSDL/InputHandler.h"
-#include "../gui/CGuiHandler.h"
+
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
+#include "../eventsSDL/InputHandler.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
 #include "../widgets/MiscWidgets.h"
@@ -99,10 +100,10 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	}
 
 	if(!str->borderName.empty())
-		border = GH.renderHandler().loadImage(str->borderName, EImageBlitMode::COLORKEY);
+		border = ENGINE->renderHandler().loadImage(str->borderName, EImageBlitMode::COLORKEY);
 
 	if(!str->areaName.empty())
-		area = GH.renderHandler().loadImage(str->areaName, EImageBlitMode::SIMPLE);
+		area = ENGINE->renderHandler().loadImage(str->areaName, EImageBlitMode::SIMPLE);
 }
 
 const CBuilding * CBuildingRect::getBuilding()
@@ -132,7 +133,7 @@ void CBuildingRect::hover(bool on)
 		  || (*parent->selectedBuilding)<(*this)) //or we are on top
 		{
 			parent->selectedBuilding = this;
-			GH.statusbar()->write(getSubtitle());
+			ENGINE->statusbar()->write(getSubtitle());
 		}
 	}
 	else
@@ -140,7 +141,7 @@ void CBuildingRect::hover(bool on)
 		if(parent->selectedBuilding == this)
 		{
 			parent->selectedBuilding = nullptr;
-			GH.statusbar()->clear();
+			ENGINE->statusbar()->clear();
 		}
 	}
 }
@@ -169,7 +170,7 @@ void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 	else
 	{
 		int level = BuildingID::getLevelFromDwelling(bid);
-		GH.windows().createAndPushWindow<CDwellingInfoBox>(parent->pos.x+parent->pos.w / 2, parent->pos.y+parent->pos.h  /2, town, level);
+		ENGINE->windows().createAndPushWindow<CDwellingInfoBox>(parent->pos.x+parent->pos.w / 2, parent->pos.y+parent->pos.h  /2, town, level);
 	}
 }
 
@@ -177,7 +178,7 @@ void CBuildingRect::show(Canvas & to)
 {
 	uint32_t stageDelay = BUILDING_APPEAR_TIMEPOINT;
 
-	bool showTextOverlay = GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2;
+	bool showTextOverlay = ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2;
 
 	if(stateTimeCounter < BUILDING_APPEAR_TIMEPOINT)
 	{
@@ -420,7 +421,7 @@ void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & f
 			std::vector<RadialMenuConfig> menuElements = {
 				{ RadialMenuConfig::ITEM_WW, true, "upgradeCreatures", "vcmi.radialWheel.upgradeCreatures", [upgradeAll](){ upgradeAll(); } },
 			};
-			GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
+			ENGINE->windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
 		}
 		return;
 	}
@@ -447,14 +448,14 @@ void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & f
 	else
 		menuElements.push_back(dismissSlot);
 
-	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
+	ENGINE->windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
 }
 
 void CHeroGSlot::hover(bool on)
 {
 	if(!on)
 	{
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 		return;
 	}
 	std::shared_ptr<CHeroGSlot> other = upg ? owner->garrisonedHero : owner->visitingHero;
@@ -499,7 +500,7 @@ void CHeroGSlot::hover(bool on)
 		}
 	}
 	if(temp.size())
-		GH.statusbar()->write(temp);
+		ENGINE->statusbar()->write(temp);
 }
 
 void CHeroGSlot::clickPressed(const Point & cursorPosition)
@@ -513,7 +514,7 @@ void CHeroGSlot::clickPressed(const Point & cursorPosition)
 	{
 		setHighlight(false);
 
-		if(other->hero && !GH.isKeyboardShiftDown())
+		if(other->hero && !ENGINE->isKeyboardShiftDown())
 			LOCPLINT->showHeroExchange(hero->id, other->hero->id);
 		else
 			LOCPLINT->openHeroWindow(hero);
@@ -538,7 +539,7 @@ void CHeroGSlot::showPopupWindow(const Point & cursorPosition)
 {
 	if(hero)
 	{
-		GH.windows().createAndPushWindow<CInfoBoxPopup>(pos.center(), hero);
+		ENGINE->windows().createAndPushWindow<CInfoBoxPopup>(pos.center(), hero);
 	}
 }
 
@@ -741,7 +742,7 @@ void CCastleBuildings::drawOverlays(Canvas & to, std::vector<std::shared_ptr<CBu
 		auto bid = building->bid;
 
 		auto overlay = town->getTown()->buildings.at(bid)->getNameTranslated();
-		const auto & font = GH.renderHandler().loadFont(FONT_TINY);
+		const auto & font = ENGINE->renderHandler().loadFont(FONT_TINY);
 
 		auto backColor = Colors::GREEN; // Other
 		if(bid.isDwelling())
@@ -770,7 +771,7 @@ void CCastleBuildings::show(Canvas & to)
 {
 	CIntObject::show(to);
 
-	bool showTextOverlay = GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2;
+	bool showTextOverlay = ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2;
 	if(showTextOverlay)
 		drawOverlays(to, buildings);
 }
@@ -848,26 +849,26 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 		switch (*b->marketModes.begin())
 		{
 			case EMarketMode::CREATURE_UNDEAD:
-				GH.windows().createAndPushWindow<CTransformerWindow>(town, getHero(), nullptr);
+				ENGINE->windows().createAndPushWindow<CTransformerWindow>(town, getHero(), nullptr);
 				return true;
 
 			case EMarketMode::RESOURCE_SKILL:
 				if (getHero())
-					GH.windows().createAndPushWindow<CUniversityWindow>(getHero(), buildingTarget, town, nullptr);
+					ENGINE->windows().createAndPushWindow<CUniversityWindow>(getHero(), buildingTarget, town, nullptr);
 				return true;
 
 			case EMarketMode::RESOURCE_RESOURCE:
 				// can't use allied marketplace
 				if (town->getOwner() == LOCPLINT->playerID)
 				{
-					GH.windows().createAndPushWindow<CMarketWindow>(town, getHero(), nullptr, *b->marketModes.begin());
+					ENGINE->windows().createAndPushWindow<CMarketWindow>(town, getHero(), nullptr, *b->marketModes.begin());
 					return true;
 				}
 				else
 					return false;
 			default:
 				if(getHero())
-					GH.windows().createAndPushWindow<CMarketWindow>(town, getHero(), nullptr, *b->marketModes.begin());
+					ENGINE->windows().createAndPushWindow<CMarketWindow>(town, getHero(), nullptr, *b->marketModes.begin());
 				else
 					LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 				return true;
@@ -917,7 +918,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 		case BuildingID::FORT:
 		case BuildingID::CITADEL:
 		case BuildingID::CASTLE:
-				GH.windows().createAndPushWindow<CFortScreen>(town);
+				ENGINE->windows().createAndPushWindow<CFortScreen>(town);
 				return true;
 
 		case BuildingID::VILLAGE_HALL:
@@ -1022,7 +1023,7 @@ void CCastleBuildings::enterBlacksmith(BuildingID building, ArtifactID artifactI
 	}
 
 	CreatureID creatureID = artifactID.toArtifact()->getWarMachine();
-	GH.windows().createAndPushWindow<CBlacksmithDialog>(possible, creatureID, artifactID, hero->id);
+	ENGINE->windows().createAndPushWindow<CBlacksmithDialog>(possible, creatureID, artifactID, hero->id);
 }
 
 void CCastleBuildings::enterBuilding(BuildingID building)
@@ -1051,7 +1052,7 @@ void CCastleBuildings::enterCastleGate(BuildingID building)
 			availableTowns.push_back(t->id.getNum());//add to the list
 			if(settings["general"]["enableUiEnhancements"].Bool())
 			{
-				auto image = GH.renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->getTown()->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
+				auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->getTown()->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
 				image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
 				images.push_back(image);
 			}
@@ -1061,8 +1062,8 @@ void CCastleBuildings::enterCastleGate(BuildingID building)
 	auto gateIcon = std::make_shared<CAnimImage>(town->getTown()->clientInfo.buildingsIcons, building);//will be deleted by selection window
 	auto wnd = std::make_shared<CObjectListWindow>(availableTowns, gateIcon, CGI->generaltexth->jktexts[40],
 		CGI->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1), 0, images);
-	wnd->onPopup = [availableTowns](int index) { CRClickPopup::createAndPush(LOCPLINT->cb->getObjInstance(ObjectInstanceID(availableTowns[index])), GH.getCursorPosition()); };
-	GH.windows().pushWindow(wnd);
+	wnd->onPopup = [availableTowns](int index) { CRClickPopup::createAndPush(LOCPLINT->cb->getObjInstance(ObjectInstanceID(availableTowns[index])), ENGINE->getCursorPosition()); };
+	ENGINE->windows().pushWindow(wnd);
 }
 
 void CCastleBuildings::enterDwelling(int level)
@@ -1078,7 +1079,7 @@ void CCastleBuildings::enterDwelling(int level)
 	{
 		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 	};
-	GH.windows().createAndPushWindow<CRecruitmentWindow>(town, level, town->getUpperArmy(), recruitCb, nullptr, -87);
+	ENGINE->windows().createAndPushWindow<CRecruitmentWindow>(town, level, town->getUpperArmy(), recruitCb, nullptr, -87);
 }
 
 void CCastleBuildings::enterToTheQuickRecruitmentWindow()
@@ -1090,7 +1091,7 @@ void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 	const auto hasSomeoneToRecruit = std::any_of(beginIt, afterLastIt,
 		[](const auto & creatureInfo) { return creatureInfo.first > 0; });
 	if(hasSomeoneToRecruit)
-		GH.windows().createAndPushWindow<QuickRecruitmentWindow>(town, pos);
+		ENGINE->windows().createAndPushWindow<QuickRecruitmentWindow>(town, pos);
 	else
 		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.townHall.noCreaturesToRecruit"), {});
 }
@@ -1174,8 +1175,8 @@ void CCastleBuildings::enterTownHall()
 		else
 		{
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[673]);
-			assert(GH.windows().topWindow<CInfoWindow>() != nullptr);
-			GH.windows().topWindow<CInfoWindow>()->buttons[0]->addCallback(std::bind(&CCastleBuildings::openTownHall, this));
+			assert(ENGINE->windows().topWindow<CInfoWindow>() != nullptr);
+			ENGINE->windows().topWindow<CInfoWindow>()->buttons[0]->addCallback(std::bind(&CCastleBuildings::openTownHall, this));
 		}
 	}
 	else
@@ -1187,12 +1188,12 @@ void CCastleBuildings::enterTownHall()
 void CCastleBuildings::openMagesGuild()
 {
 	auto mageGuildBackground = LOCPLINT->castleInt->town->getTown()->clientInfo.guildBackground;
-	GH.windows().createAndPushWindow<CMageGuildScreen>(LOCPLINT->castleInt, mageGuildBackground);
+	ENGINE->windows().createAndPushWindow<CMageGuildScreen>(LOCPLINT->castleInt, mageGuildBackground);
 }
 
 void CCastleBuildings::openTownHall()
 {
-	GH.windows().createAndPushWindow<CHallInterface>(town);
+	ENGINE->windows().createAndPushWindow<CHallInterface>(town);
 }
 
 void CCastleBuildings::enterAnyThievesGuild()
@@ -1228,7 +1229,7 @@ void CCastleBuildings::enterAnyMarket()
 {
 	if(town->hasBuilt(BuildingID::MARKETPLACE))
 	{
-		GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+		ENGINE->windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 		return;
 	}
 
@@ -1237,7 +1238,7 @@ void CCastleBuildings::enterAnyMarket()
 	{
 		if(town->hasBuilt(BuildingID::MARKETPLACE))
 		{
-			GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+			ENGINE->windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 			return;
 		}
 	}
@@ -1307,11 +1308,11 @@ void CCreaInfo::hover(bool on)
 
 	if(on)
 	{
-		GH.statusbar()->write(message.toString());
+		ENGINE->statusbar()->write(message.toString());
 	}
 	else
 	{
-		GH.statusbar()->clearIfMatching(message.toString());
+		ENGINE->statusbar()->clearIfMatching(message.toString());
 	}
 }
 
@@ -1322,7 +1323,7 @@ void CCreaInfo::clickPressed(const Point & cursorPosition)
 	{
 		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 	};
-	GH.windows().createAndPushWindow<CRecruitmentWindow>(town, level, town->getUpperArmy(), recruitCb, nullptr, offset);
+	ENGINE->windows().createAndPushWindow<CRecruitmentWindow>(town, level, town->getUpperArmy(), recruitCb, nullptr, offset);
 }
 
 std::string CCreaInfo::genGrowthText()
@@ -1345,7 +1346,7 @@ std::string CCreaInfo::genGrowthText()
 void CCreaInfo::showPopupWindow(const Point & cursorPosition)
 {
 	if (showAvailable)
-		GH.windows().createAndPushWindow<CDwellingInfoBox>(GH.screenDimensions().x / 2, GH.screenDimensions().y / 2, town, level);
+		ENGINE->windows().createAndPushWindow<CDwellingInfoBox>(ENGINE->screenDimensions().x / 2, ENGINE->screenDimensions().y / 2, town, level);
 	else
 		CRClickPopup::createAndPush(genGrowthText(), std::make_shared<CComponent>(ComponentType::CREATURE, creature));
 }
@@ -1386,11 +1387,11 @@ void CTownInfo::hover(bool on)
 	if(on)
 	{
 		if(building )
-			GH.statusbar()->write(building->getNameTranslated());
+			ENGINE->statusbar()->write(building->getNameTranslated());
 	}
 	else
 	{
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 	}
 }
 
@@ -1509,7 +1510,7 @@ void CCastleInterface::townChange()
 	if ( dest == town )
 		return;
 	close();
-	GH.windows().createAndPushWindow<CCastleInterface>(dest, town);
+	ENGINE->windows().createAndPushWindow<CCastleInterface>(dest, town);
 }
 
 void CCastleInterface::addBuilding(BuildingID bid)
@@ -1586,7 +1587,7 @@ void CCastleInterface::keyPressed(EShortcut key)
 		townlist->selectNext();
 		break;
 	case EShortcut::TOWN_OPEN_FORT:
-		GH.windows().createAndPushWindow<CFortScreen>(town);
+		ENGINE->windows().createAndPushWindow<CFortScreen>(town);
 		break;
 	case EShortcut::TOWN_OPEN_MARKET:
 		builds->enterAnyMarket();
@@ -1683,22 +1684,22 @@ void CHallInterface::CBuildingBox::hover(bool on)
 		else
 			toPrint = CGI->generaltexth->hcommands[static_cast<int>(state)];
 		boost::algorithm::replace_first(toPrint,"%s",building->getNameTranslated());
-		GH.statusbar()->write(toPrint);
+		ENGINE->statusbar()->write(toPrint);
 	}
 	else
 	{
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 	}
 }
 
 void CHallInterface::CBuildingBox::clickPressed(const Point & cursorPosition)
 {
-	GH.windows().createAndPushWindow<CBuildWindow>(town,building,state,0);
+	ENGINE->windows().createAndPushWindow<CBuildWindow>(town,building,state,0);
 }
 
 void CHallInterface::CBuildingBox::showPopupWindow(const Point & cursorPosition)
 {
-	GH.windows().createAndPushWindow<CBuildWindow>(town,building,state,1);
+	ENGINE->windows().createAndPushWindow<CBuildWindow>(town,building,state,1);
 }
 
 CHallInterface::CHallInterface(const CGTownInstance * Town):
@@ -1823,7 +1824,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 void CBuildWindow::buyFunc()
 {
 	LOCPLINT->cb->buildBuilding(town,building->bid);
-	GH.windows().popWindows(2); //we - build window and hall screen
+	ENGINE->windows().popWindows(2); //we - build window and hall screen
 }
 
 std::string CBuildWindow::getTextForState(EBuildingState state)
@@ -1900,11 +1901,11 @@ void LabeledValue::hover(bool on)
 {
 	if(on)
 	{
-		GH.statusbar()->write(hoverText);
+		ENGINE->statusbar()->write(hoverText);
 	}
 	else
 	{
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 	}
 }
 
@@ -2076,9 +2077,9 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 void CFortScreen::RecruitArea::hover(bool on)
 {
 	if(on)
-		GH.statusbar()->write(hoverText);
+		ENGINE->statusbar()->write(hoverText);
 	else
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 }
 
 void CFortScreen::RecruitArea::creaturesChangedEventHandler()
@@ -2098,7 +2099,7 @@ void CFortScreen::RecruitArea::clickPressed(const Point & cursorPosition)
 void CFortScreen::RecruitArea::showPopupWindow(const Point & cursorPosition)
 {
 	if (getMyCreature() != nullptr)
-		GH.windows().createAndPushWindow<CStackWindow>(getMyCreature(), true);
+		ENGINE->windows().createAndPushWindow<CStackWindow>(getMyCreature(), true);
 }
 
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & imagename)
@@ -2223,7 +2224,7 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		temp->buttons[2]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/close")));
 		temp->buttons[2]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.abort")); });
 
-		GH.windows().pushWindow(temp);
+		ENGINE->windows().pushWindow(temp);
 	}
 	else
 		LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
@@ -2237,9 +2238,9 @@ void CMageGuildScreen::Scroll::showPopupWindow(const Point & cursorPosition)
 void CMageGuildScreen::Scroll::hover(bool on)
 {
 	if(on)
-		GH.statusbar()->write(spell->getNameTranslated());
+		ENGINE->statusbar()->write(spell->getNameTranslated());
 	else
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 
 }
 

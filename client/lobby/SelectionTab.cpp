@@ -16,7 +16,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
@@ -456,7 +456,7 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 			creationDateTime = curItems[py]->campaign->getCreationDateTime() ? TextOperations::getFormattedDateTimeLocal(curItems[py]->campaign->getCreationDateTime()) : curItems[py]->date;
 		}
 
-		GH.windows().createAndPushWindow<CMapOverview>(
+		ENGINE->windows().createAndPushWindow<CMapOverview>(
 			curItems[py]->name,
 			curItems[py]->fullFileURI,
 			creationDateTime,
@@ -722,7 +722,7 @@ bool SelectionTab::receiveEvent(const Point & position, int eventType) const
 
 int SelectionTab::getLine() const
 {
-	Point clickPos = GH.getCursorPosition() - pos.topLeft();
+	Point clickPos = ENGINE->getCursorPosition() - pos.topLeft();
 	return getLine(clickPos);
 }
 

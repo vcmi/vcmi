@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CArtifactsOfHeroBackpack.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 
 #include "Images.h"
 #include "IGameSettings.h"

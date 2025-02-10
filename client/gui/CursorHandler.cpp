@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CursorHandler.h"
 
-#include "CGuiHandler.h"
+#include "GameEngine.h"
 #include "FramerateManager.h"
 #include "../renderSDL/CursorSoftware.h"
 #include "../renderSDL/CursorHardware.h"
@@ -48,10 +48,10 @@ CursorHandler::CursorHandler()
 
 	cursors =
 	{
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRADVNTR"), EImageBlitMode::COLORKEY),
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"), EImageBlitMode::COLORKEY),
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRDEFLT"), EImageBlitMode::COLORKEY),
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"), EImageBlitMode::COLORKEY)
+		ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRADVNTR"), EImageBlitMode::COLORKEY),
+		ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"), EImageBlitMode::COLORKEY),
+		ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRDEFLT"), EImageBlitMode::COLORKEY),
+		ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"), EImageBlitMode::COLORKEY)
 	};
 
 	set(Cursor::Map::POINTER);
@@ -102,7 +102,7 @@ void CursorHandler::dragAndDropCursor(std::shared_ptr<IImage> image)
 
 void CursorHandler::dragAndDropCursor (const AnimationPath & path, size_t index)
 {
-	auto anim = GH.renderHandler().loadAnimation(path, EImageBlitMode::COLORKEY);
+	auto anim = ENGINE->renderHandler().loadAnimation(path, EImageBlitMode::COLORKEY);
 	dragAndDropCursor(anim->getImage(index));
 }
 
@@ -176,7 +176,7 @@ Point CursorHandler::getPivotOffsetMap(size_t index)
 
 	assert(offsets.size() == size_t(Cursor::Map::COUNT)); //Invalid number of pivot offsets for cursor
 	assert(index < offsets.size());
-	return offsets[index] * GH.screenHandler().getScalingFactor();
+	return offsets[index] * ENGINE->screenHandler().getScalingFactor();
 }
 
 Point CursorHandler::getPivotOffsetCombat(size_t index)
@@ -206,12 +206,12 @@ Point CursorHandler::getPivotOffsetCombat(size_t index)
 
 	assert(offsets.size() == size_t(Cursor::Combat::COUNT)); //Invalid number of pivot offsets for cursor
 	assert(index < offsets.size());
-	return offsets[index] * GH.screenHandler().getScalingFactor();
+	return offsets[index] * ENGINE->screenHandler().getScalingFactor();
 }
 
 Point CursorHandler::getPivotOffsetSpellcast()
 {
-	return Point(18, 28) * GH.screenHandler().getScalingFactor();
+	return Point(18, 28) * ENGINE->screenHandler().getScalingFactor();
 }
 
 Point CursorHandler::getPivotOffset()
@@ -242,7 +242,7 @@ void CursorHandler::updateSpellcastCursor()
 {
 	static const float frameDisplayDuration = 0.1f; // H3 uses 100 ms per frame
 
-	frameTime += GH.framerate().getElapsedMilliseconds() / 1000.f;
+	frameTime += ENGINE->framerate().getElapsedMilliseconds() / 1000.f;
 	size_t newFrame = frame;
 
 	while (frameTime >= frameDisplayDuration)

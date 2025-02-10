@@ -22,7 +22,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
@@ -888,7 +888,7 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 
 EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects, float transparencyFactor, bool reversed):
 	BattleAnimation(owner),
-	animation(GH.renderHandler().loadAnimation(animationName, EImageBlitMode::SIMPLE)),
+	animation(ENGINE->renderHandler().loadAnimation(animationName, EImageBlitMode::SIMPLE)),
 	transparencyFactor(transparencyFactor),
 	effectFlags(effects),
 	effectFinished(false),

@@ -19,7 +19,7 @@
 #include "../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../adventureMap/AdventureMapInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../eventsSDL/InputHandler.h"
 
@@ -129,7 +129,7 @@ void MapViewController::modifyTileSize(int stepsChange, bool useDeadZone)
 		bool isInDeadZone = targetTileSize != actualZoom || actualZoom == Point(defaultTileSize, defaultTileSize);
 
 		if(!wasInDeadZone && isInDeadZone)
-			GH.input().hapticFeedback();
+			ENGINE->input().hapticFeedback();
 
 		wasInDeadZone = isInDeadZone;
 
@@ -224,7 +224,7 @@ void MapViewController::updateState()
 		adventureContext->settingShowVisitable = settings["session"]["showVisitable"].Bool();
 		adventureContext->settingShowBlocked = settings["session"]["showBlocked"].Bool();
 		adventureContext->settingSpellRange = settings["session"]["showSpellRange"].Bool();
-		adventureContext->settingTextOverlay = GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2;
+		adventureContext->settingTextOverlay = ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2;
 	}
 }
 
@@ -302,7 +302,7 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj, const Playe
 	if(initiator != LOCPLINT->playerID && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
-	if(!GH.windows().isTopWindow(adventureInt))
+	if(!ENGINE->windows().isTopWindow(adventureInt))
 		return false;
 
 	// do not focus on actions of other players except for AI with simturns off
@@ -328,7 +328,7 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 	if(obj->getOwner() != LOCPLINT->playerID && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
-	if(!GH.windows().isTopWindow(adventureInt))
+	if(!ENGINE->windows().isTopWindow(adventureInt))
 		return false;
 
 	// do not focus on actions of other players except for AI with simturns off
@@ -588,7 +588,7 @@ bool MapViewController::hasOngoingAnimations()
 
 void MapViewController::waitForOngoingAnimations()
 {
-	auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+	auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 	animationWait.waitWhileBusy();
 }
 

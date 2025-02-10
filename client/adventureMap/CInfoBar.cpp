@@ -22,7 +22,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/IScreenHandler.h"
@@ -245,7 +245,7 @@ void CInfoBar::playNewDaySound()
 		handle = CCS->soundh->playSound(soundBase::newDay);
 
 	if(volume == 0)
-		CCS->soundh->setCallback(handle, [&]() { if(!GH.screenHandler().hasFocus()) CCS->soundh->setVolume(0); });
+		CCS->soundh->setCallback(handle, [&]() { if(!ENGINE->screenHandler().hasFocus()) CCS->soundh->setVolume(0); });
 }
 
 void CInfoBar::reset()
@@ -281,7 +281,7 @@ void CInfoBar::tick(uint32_t msPassed)
 	{
 		timerCounter = 0;
 		removeUsedEvents(TIME);
-		if(GH.windows().isTopWindow(adventureInt))
+		if(ENGINE->windows().isTopWindow(adventureInt))
 			popComponents(true);
 	}
 	else
@@ -314,9 +314,9 @@ void CInfoBar::showPopupWindow(const Point & cursorPosition)
 void CInfoBar::hover(bool on)
 {
 	if(on)
-		GH.statusbar()->write(CGI->generaltexth->zelp[292].first);
+		ENGINE->statusbar()->write(CGI->generaltexth->zelp[292].first);
 	else
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 }
 
 CInfoBar::CInfoBar(const Rect & position)

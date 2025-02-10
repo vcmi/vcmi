@@ -12,7 +12,7 @@
 
 #include "CComponent.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 
 #include "../CMT.h"
@@ -44,9 +44,9 @@
 void CHoverableArea::hover (bool on)
 {
 	if (on)
-		GH.statusbar()->write(hoverText);
+		ENGINE->statusbar()->write(hoverText);
 	else
-		GH.statusbar()->clearIfMatching(hoverText);
+		ENGINE->statusbar()->clearIfMatching(hoverText);
 }
 
 CHoverableArea::CHoverableArea()
@@ -170,9 +170,9 @@ void CHeroArea::showPopupWindow(const Point & cursorPosition)
 void CHeroArea::hover(bool on)
 {
 	if (on && hero)
-		GH.statusbar()->write(hero->getObjectName());
+		ENGINE->statusbar()->write(hero->getObjectName());
 	else
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 }
 
 void LRClickableAreaOpenTown::clickPressed(const Point & cursorPosition)
@@ -191,7 +191,7 @@ void LRClickableArea::clickPressed(const Point & cursorPosition)
 	if(onClick)
 	{
 		onClick();
-		GH.input().hapticFeedback();
+		ENGINE->input().hapticFeedback();
 	}
 }
 
@@ -478,7 +478,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 		{
 			if(town->hasBuilt(BuildingID::MARKETPLACE))
 			{
-				GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+				ENGINE->windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 				return;
 			}
 		}
@@ -648,7 +648,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 
 	if (cre->animDefName.empty())
 	{
-		GH.dispatchMainThread([cre]()
+		ENGINE->dispatchMainThread([cre]()
 		{
 			handleFatalError("Creature " + cre->getJsonKey() + " has no valid combat animation!", false);
 		});

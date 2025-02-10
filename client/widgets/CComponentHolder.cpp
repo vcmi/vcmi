@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CComponentHolder.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 
 #include "CComponent.h"

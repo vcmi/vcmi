@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CAltarArtifacts.h"
 
-#include "../../gui/CGuiHandler.h"
+#include "../../GameEngine.h"
 #include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
@@ -223,7 +223,7 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 		const auto slot = altarArtifactsStorage->getArtPos(tradeSlotsMap.at(altarSlot));
 		assert(slot != ArtifactPosition::PRE_FIRST);
 		LOCPLINT->cb->swapArtifacts(ArtifactLocation(heroArts->altarId, slot),
-			ArtifactLocation(hero->id, GH.isKeyboardCtrlDown() ? ArtifactPosition::FIRST_AVAILABLE : ArtifactPosition::TRANSITION_POS));
+			ArtifactLocation(hero->id, ENGINE->isKeyboardCtrlDown() ? ArtifactPosition::FIRST_AVAILABLE : ArtifactPosition::TRANSITION_POS));
 		tradeSlotsMap.erase(altarSlot);
 	}
 }

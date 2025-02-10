@@ -18,7 +18,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
@@ -51,8 +51,8 @@ void CHeroSwitcher::clickPressed(const Point & cursorPosition)
 	else
 	{
 		const CGHeroInstance * buf = hero;
-		GH.windows().popWindows(1);
-		GH.windows().createAndPushWindow<CHeroWindow>(buf);
+		ENGINE->windows().popWindows(1);
+		ENGINE->windows().createAndPushWindow<CHeroWindow>(buf);
 	}
 }
 
@@ -269,7 +269,7 @@ void CHeroWindow::update()
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;
 
-	for(auto cew : GH.windows().findWindows<CExchangeWindow>())
+	for(auto cew : ENGINE->windows().findWindows<CExchangeWindow>())
 	{
 		if (cew->holdsGarrison(curHero))
 			noDismiss = true;
@@ -318,7 +318,7 @@ void CHeroWindow::dismissCurrent()
 
 void CHeroWindow::createBackpackWindow()
 {
-	GH.windows().createAndPushWindow<CHeroBackpackWindow>(curHero, artSets);
+	ENGINE->windows().createAndPushWindow<CHeroBackpackWindow>(curHero, artSets);
 }
 
 void CHeroWindow::commanderWindow()
@@ -338,7 +338,7 @@ void CHeroWindow::commanderWindow()
 	}
 	else
 	{
-		GH.windows().createAndPushWindow<CStackWindow>(curHero->commander, false);
+		ENGINE->windows().createAndPushWindow<CStackWindow>(curHero->commander, false);
 	}
 }
 

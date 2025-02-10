@@ -16,7 +16,7 @@
 #include "GlobalLobbyWidget.h"
 
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CTextInput.h"
 #include "../widgets/Slider.h"
@@ -94,7 +94,7 @@ void GlobalLobbyWindow::doSendChatMessage()
 
 void GlobalLobbyWindow::doCreateGameRoom()
 {
-	GH.windows().createAndPushWindow<GlobalLobbyServerSetup>();
+	ENGINE->windows().createAndPushWindow<GlobalLobbyServerSetup>();
 }
 
 void GlobalLobbyWindow::doInviteAccount(const std::string & accountID)

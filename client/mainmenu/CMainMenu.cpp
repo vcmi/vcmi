@@ -21,7 +21,8 @@
 #include "../media/IVideoPlayer.h"
 #include "../gui/CursorHandler.h"
 #include "../windows/GUIClasses.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../eventsSDL/InputHandler.h"
 #include "../gui/ShortcutHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
@@ -64,7 +65,7 @@ ISelectionScreenInfo * SEL = nullptr;
 
 static void do_quit()
 {
-	GH.dispatchMainThread([]()
+	ENGINE->dispatchMainThread([]()
 	{
 		handleQuit(false);
 	});
@@ -83,7 +84,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 		background = std::make_shared<CPicture>(ImagePath::fromJson(bgConfig));
 
 	if(config["scalable"].Bool())
-		background->scaleTo(GH.screenDimensions());
+		background->scaleTo(ENGINE->screenDimensions());
 
 	pos = background->center();
 
@@ -179,7 +180,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 0:
 					return []() { CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::NONE); };
 				case 1:
-					return []() { GH.windows().createAndPushWindow<CMultiMode>(ESelectionScreen::newGame); };
+					return []() { ENGINE->windows().createAndPushWindow<CMultiMode>(ESelectionScreen::newGame); };
 				case 2:
 					return []() { CMainMenu::openLobby(ESelectionScreen::campaignList, true, {}, ELoadMode::NONE); };
 				case 3:
@@ -194,7 +195,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 0:
 					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::SINGLE); };
 				case 1:
-					return []() { GH.windows().createAndPushWindow<CMultiMode>(ESelectionScreen::loadGame); };
+					return []() { ENGINE->windows().createAndPushWindow<CMultiMode>(ESelectionScreen::loadGame); };
 				case 2:
 					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::CAMPAIGN); };
 				case 3:
@@ -235,7 +236,7 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 	if(posy < 0)
 		posy = pos.h + posy;
 
-	EShortcut shortcut = GH.shortcuts().findShortcut(button["shortcut"].String());
+	EShortcut shortcut = ENGINE->shortcuts().findShortcut(button["shortcut"].String());
 
 	if (shortcut == EShortcut::NONE && !button["shortcut"].String().empty())
 	{
@@ -321,8 +322,8 @@ const JsonNode & CMainMenuConfig::getCampaigns() const
 
 CMainMenu::CMainMenu()
 {
-	pos.w = GH.screenDimensions().x;
-	pos.h = GH.screenDimensions().y;
+	pos.w = ENGINE->screenDimensions().x;
+	pos.h = ENGINE->screenDimensions().y;
 
 	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
 	OBJECT_CONSTRUCTION;
@@ -331,15 +332,15 @@ CMainMenu::CMainMenu()
 
 CMainMenu::~CMainMenu()
 {
-	if(GH.curInt == this)
-		GH.curInt = nullptr;
+	if(ENGINE->curInt == this)
+		ENGINE->curInt = nullptr;
 }
 
 void CMainMenu::playIntroVideos()
 {
 	auto playVideo = [](std::string video, bool rim, float scaleFactor, std::function<void(bool)> cb){
 		if(CCS->videoh->open(VideoPath::builtin(video), scaleFactor))
-			GH.windows().createAndPushWindow<VideoWindow>(VideoPath::builtin(video), rim ? ImagePath::builtin("INTRORIM") : ImagePath::builtin(""), true, scaleFactor, [cb](bool skipped){ cb(skipped); });
+			ENGINE->windows().createAndPushWindow<VideoWindow>(VideoPath::builtin(video), rim ? ImagePath::builtin("INTRORIM") : ImagePath::builtin(""), true, scaleFactor, [cb](bool skipped){ cb(skipped); });
 		else
 			cb(true);
 	};
@@ -367,7 +368,7 @@ void CMainMenu::playMusic()
 void CMainMenu::activate()
 {
 	// check if screen was resized while main menu was inactive - e.g. in gameplay mode
-	if (pos.dimensions() != GH.screenDimensions())
+	if (pos.dimensions() != ENGINE->screenDimensions())
 		onScreenResize();
 
 	CIntObject::activate();
@@ -375,8 +376,8 @@ void CMainMenu::activate()
 
 void CMainMenu::onScreenResize()
 {
-	pos.w = GH.screenDimensions().x;
-	pos.h = GH.screenDimensions().y;
+	pos.w = ENGINE->screenDimensions().x;
+	pos.h = ENGINE->screenDimensions().y;
 
 	menu = nullptr;
 	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
@@ -389,16 +390,16 @@ void CMainMenu::update()
 	if(CMM != this->shared_from_this()) //don't update if you are not a main interface
 		return;
 
-	if(GH.windows().count() == 0)
+	if(ENGINE->windows().count() == 0)
 	{
-		GH.windows().pushWindow(CMM);
-		GH.windows().pushWindow(menu);
+		ENGINE->windows().pushWindow(CMM);
+		ENGINE->windows().pushWindow(menu);
 		menu->switchToTab(menu->getActiveTab());
 	}
 
 	// Handles mouse and key input
-	GH.handleEvents();
-	GH.windows().simpleRedraw();
+	ENGINE->handleEvents();
+	ENGINE->windows().simpleRedraw();
 }
 
 void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode)
@@ -406,7 +407,7 @@ void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vec
 	CSH->resetStateForLobby(screenType == ESelectionScreen::newGame ? EStartMode::NEW_GAME : EStartMode::LOAD_GAME, screenType, EServerMode::LOCAL, names);
 	CSH->loadMode = loadMode;
 
-	GH.windows().createAndPushWindow<CSimpleJoinScreen>(host);
+	ENGINE->windows().createAndPushWindow<CSimpleJoinScreen>(host);
 }
 
 void CMainMenu::openCampaignLobby(const std::string & campaignFileName, std::string campaignSet)
@@ -420,7 +421,7 @@ void CMainMenu::openCampaignLobby(std::shared_ptr<CampaignState> campaign)
 {
 	CSH->resetStateForLobby(EStartMode::CAMPAIGN, ESelectionScreen::campaignList, EServerMode::LOCAL, {});
 	CSH->campaignStateToSend = campaign;
-	GH.windows().createAndPushWindow<CSimpleJoinScreen>();
+	ENGINE->windows().createAndPushWindow<CSimpleJoinScreen>();
 }
 
 void CMainMenu::openCampaignScreen(std::string name)
@@ -449,7 +450,7 @@ void CMainMenu::openCampaignScreen(std::string name)
 		return;
 	}
 
-	GH.windows().createAndPushWindow<CCampaignScreen>(config, name);
+	ENGINE->windows().createAndPushWindow<CCampaignScreen>(config, name);
 }
 
 void CMainMenu::startTutorial()
@@ -469,7 +470,7 @@ void CMainMenu::startTutorial()
 
 void CMainMenu::openHighScoreScreen()
 {
-	GH.windows().createAndPushWindow<CHighScoreScreen>(CHighScoreScreen::HighScorePage::SCENARIO);
+	ENGINE->windows().createAndPushWindow<CHighScoreScreen>(CHighScoreScreen::HighScorePage::SCENARIO);
 	return;
 }
 
@@ -534,14 +535,14 @@ void CMultiMode::hostTCP(EShortcut shortcut)
 {
 	auto savedScreenType = screenType;
 	close();
-	GH.windows().createAndPushWindow<CMultiPlayers>(getPlayersNames(), savedScreenType, true, ELoadMode::MULTI, shortcut);
+	ENGINE->windows().createAndPushWindow<CMultiPlayers>(getPlayersNames(), savedScreenType, true, ELoadMode::MULTI, shortcut);
 }
 
 void CMultiMode::joinTCP(EShortcut shortcut)
 {
 	auto savedScreenType = screenType;
 	close();
-	GH.windows().createAndPushWindow<CMultiPlayers>(getPlayersNames(), savedScreenType, false, ELoadMode::MULTI, shortcut);
+	ENGINE->windows().createAndPushWindow<CMultiPlayers>(getPlayersNames(), savedScreenType, false, ELoadMode::MULTI, shortcut);
 }
 
 std::vector<std::string> CMultiMode::getPlayersNames()
@@ -686,7 +687,7 @@ void CSimpleJoinScreen::connectToServer()
 {
 	textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
 	buttonOk->block(true);
-	GH.stopTextInput();
+	ENGINE->input().stopTextInput();
 
 	startConnection(inputAddress->getText(), boost::lexical_cast<ui16>(inputPort->getText()));
 }

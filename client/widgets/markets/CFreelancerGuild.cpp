@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CFreelancerGuild.h"
 
-#include "../../gui/CGuiHandler.h"
+#include "../../GameEngine.h"
 #include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"

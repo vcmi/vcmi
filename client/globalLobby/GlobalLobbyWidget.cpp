@@ -18,7 +18,7 @@
 
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/Colors.h"
@@ -38,7 +38,7 @@
 GlobalLobbyWidget::GlobalLobbyWidget(GlobalLobbyWindow * window)
 	: window(window)
 {
-	addCallback("closeWindow", [](int) { GH.windows().popWindows(1); });
+	addCallback("closeWindow", [](int) { ENGINE->windows().popWindows(1); });
 	addCallback("sendMessage", [this](int) { this->window->doSendChatMessage(); });
 	addCallback("createGameRoom", [this](int) { if (!CSH->inGame()) this->window->doCreateGameRoom(); });//TODO: button should be blocked instead
 
@@ -78,7 +78,7 @@ GlobalLobbyWidget::CreateFunc GlobalLobbyWidget::getItemListConstructorFunc(cons
 		if(index == channels.size())
 		{
 			const auto buttonCallback = [](){
-				GH.windows().createAndPushWindow<GlobalLobbyAddChannelWindow>();
+				ENGINE->windows().createAndPushWindow<GlobalLobbyAddChannelWindow>();
 			};
 
 			auto result = std::make_shared<CButton>(Point(0,0), AnimationPath::builtin("lobbyAddChannel"), CButton::tooltip(), buttonCallback);
@@ -270,7 +270,7 @@ GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const Globa
 
 void GlobalLobbyRoomCard::clickPressed(const Point & cursorPosition)
 {
-	GH.windows().createAndPushWindow<GlobalLobbyRoomWindow>(window, roomUUID);
+	ENGINE->windows().createAndPushWindow<GlobalLobbyRoomWindow>(window, roomUUID);
 }
 
 GlobalLobbyChannelCard::GlobalLobbyChannelCard(GlobalLobbyWindow * window, const std::string & channelName)

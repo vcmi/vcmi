@@ -20,7 +20,7 @@
 #include "adventureMap/CInGameConsole.h"
 #include "battle/BattleInterface.h"
 #include "battle/BattleWindow.h"
-#include "gui/CGuiHandler.h"
+#include "GameEngine.h"
 #include "gui/WindowHandler.h"
 #include "widgets/MiscWidgets.h"
 #include "CMT.h"
@@ -161,7 +161,7 @@ void ApplyClientNetPackVisitor::visitSetMana(SetMana & pack)
 	if(settings["session"]["headless"].Bool())
 		return;
 
-	for(auto window : GH.windows().findWindows<BattleWindow>())
+	for(auto window : ENGINE->windows().findWindows<BattleWindow>())
 		window->heroManaPointsChanged(h);
 }
 
@@ -173,7 +173,7 @@ void ApplyClientNetPackVisitor::visitSetMovePoints(SetMovePoints & pack)
 
 void ApplyClientNetPackVisitor::visitSetResearchedSpells(SetResearchedSpells & pack)
 {
-	for(const auto & win : GH.windows().findWindows<CMageGuildScreen>())
+	for(const auto & win : ENGINE->windows().findWindows<CMageGuildScreen>())
 		win->updateSpells(pack.tid);
 }
 
@@ -412,7 +412,7 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 		assert(adventureInt);
 		if(adventureInt)
 		{
-			GH.windows().popWindows(GH.windows().count());
+			ENGINE->windows().popWindows(ENGINE->windows().count());
 			adventureInt.reset();
 		}
 

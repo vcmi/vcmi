@@ -14,7 +14,7 @@
 #include "../CGameInfo.h"
 #include "../CMT.h"
 #include "../eventsSDL/NotificationHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"

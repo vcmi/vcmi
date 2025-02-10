@@ -15,7 +15,7 @@
 #include "CExchangeWindow.h"
 #include "CHeroBackpackWindow.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
 
@@ -83,7 +83,7 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, c
 		if(allowExchange || hero->id == heroArtOwner->id)
 			putPickedArtifact(*hero, slot);
 	}
-	else if(GH.isKeyboardShiftDown())
+	else if(ENGINE->isKeyboardShiftDown())
 	{
 		showQuickBackpackWindow(hero, slot, cursorPosition);
 	}
@@ -136,8 +136,8 @@ void CWindowWithArtifacts::showQuickBackpackWindow(const CGHeroInstance * hero, 
 	if(!ArtifactUtils::isSlotEquipment(slot))
 		return;
 
-	GH.windows().createAndPushWindow<CHeroQuickBackpackWindow>(hero, slot);
-	auto backpackWindow = GH.windows().topWindow<CHeroQuickBackpackWindow>();
+	ENGINE->windows().createAndPushWindow<CHeroQuickBackpackWindow>(hero, slot);
+	auto backpackWindow = ENGINE->windows().topWindow<CHeroQuickBackpackWindow>();
 	backpackWindow->moveTo(cursorPosition - Point(1, 1));
 	backpackWindow->fitToScreen(15);
 }
@@ -183,7 +183,7 @@ void CWindowWithArtifacts::update()
 		}
 
 		// Make sure the status bar is updated so it does not display old text
-		if(auto artPlace = artSet->getArtPlace(GH.getCursorPosition()))
+		if(auto artPlace = artSet->getArtPlace(ENGINE->getCursorPosition()))
 			artPlace->hover(true);
 	}
 	redraw();
@@ -211,7 +211,7 @@ bool CWindowWithArtifacts::checkSpecialArts(const CArtifactInstance & artInst, c
 	
 	if(artId == ArtifactID::SPELLBOOK)
 	{
-		GH.windows().createAndPushWindow<CSpellWindow>(&hero, LOCPLINT, LOCPLINT->battleInt.get());
+		ENGINE->windows().createAndPushWindow<CSpellWindow>(&hero, LOCPLINT, LOCPLINT->battleInt.get());
 		return false;
 	}
 	if(artId == ArtifactID::CATAPULT)
@@ -235,7 +235,7 @@ void CWindowWithArtifacts::setCursorAnimation(const CArtifactInstance & artInst)
 	if(artInst.isScroll() && settings["general"]["enableUiEnhancements"].Bool())
 	{
 		assert(artInst.getScrollSpellID().num >= 0);
-		auto image = GH.renderHandler().loadImage(AnimationPath::builtin("spellscr"), artInst.getScrollSpellID().num, 0, EImageBlitMode::COLORKEY);
+		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("spellscr"), artInst.getScrollSpellID().num, 0, EImageBlitMode::COLORKEY);
 		image->scaleTo(Point(44,34), EScalingAlgorithm::BILINEAR);
 
 		CCS->curh->dragAndDropCursor(image);
@@ -281,7 +281,7 @@ void CWindowWithArtifacts::onClickPressedCommonArtifact(const CGHeroInstance & c
 	auto srcLoc = ArtifactLocation(curHero.id, slot);
 	auto dstLoc = ArtifactLocation(curHero.id, ArtifactPosition::TRANSITION_POS);
 
-	if(GH.isKeyboardCmdDown())
+	if(ENGINE->isKeyboardCmdDown())
 	{
 		for(const auto & anotherSet : artSets)
 		{
@@ -299,7 +299,7 @@ void CWindowWithArtifacts::onClickPressedCommonArtifact(const CGHeroInstance & c
 			}
 		}
 	}
-	else if(GH.isKeyboardAltDown())
+	else if(ENGINE->isKeyboardAltDown())
 	{
 		const auto artId = curHero.getArt(slot)->getTypeId();
 		if(ArtifactUtils::isSlotEquipment(slot))

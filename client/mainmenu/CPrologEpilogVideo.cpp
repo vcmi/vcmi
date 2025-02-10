@@ -15,7 +15,7 @@
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
 //#include "../gui/WindowHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 //#include "../gui/FramerateManager.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/VideoWidget.h"
@@ -29,7 +29,7 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	addUsedEvents(LCLICK | TIME);
 	pos = center(Rect(0, 0, 800, 600));
 
-	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
+	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, ENGINE->screenDimensions().x, ENGINE->screenDimensions().y));
 
 	//TODO: remove hardcoded paths. Some of campaigns video actually consist from 2 parts
 	// however, currently our campaigns format expects only	a single video file
@@ -79,7 +79,7 @@ void CPrologEpilogVideo::tick(uint32_t msPassed)
 		++positionCounter;
 	}
 	else if(elapsedTimeMilliseconds > (voiceDurationMilliseconds == 0 ? 8000 : 3000) && voiceStopped) // pause after completed scrolling (longer for intros missing voice)
-		clickPressed(GH.getCursorPosition());
+		clickPressed(ENGINE->getCursorPosition());
 }
 
 void CPrologEpilogVideo::show(Canvas & to)

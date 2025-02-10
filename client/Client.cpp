@@ -18,7 +18,7 @@
 #include "ClientNetPackVisitors.h"
 #include "adventureMap/AdventureMapInterface.h"
 #include "battle/BattleInterface.h"
-#include "gui/CGuiHandler.h"
+#include "GameEngine.h"
 #include "gui/WindowHandler.h"
 #include "mapView/mapHandler.h"
 
@@ -192,7 +192,7 @@ void CClient::endGame()
 	for(auto & i : playerint)
 		i.second->finish();
 
-	GH.curInt = nullptr;
+	ENGINE->curInt = nullptr;
 	{
 		logNetwork->info("Ending current game!");
 		removeGUI();
@@ -483,7 +483,7 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 	if (!battleint->human)
 	{
 		// we want to avoid locking gamestate and causing UI to freeze while AI is making turn
-		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 		battleint->activeStack(battleID, gs->getBattle(battleID)->battleGetStackByID(gs->getBattle(battleID)->activeStack, false));
 	}
 	else
@@ -519,8 +519,8 @@ void CClient::reinitScripting()
 void CClient::removeGUI() const
 {
 	// CClient::endGame
-	GH.curInt = nullptr;
-	GH.windows().clear();
+	ENGINE->curInt = nullptr;
+	ENGINE->windows().clear();
 	adventureInt.reset();
 	logGlobal->info("Removed GUI.");
 
@@ -530,7 +530,7 @@ void CClient::removeGUI() const
 #ifdef VCMI_ANDROID
 extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jclass cls)
 {
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	logGlobal->info("Received emergency save game request");
 	if(!LOCPLINT || !LOCPLINT->cb)

@@ -13,7 +13,7 @@
 #include "CStatisticScreen.h"
 #include "../CGameInfo.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../eventsSDL/InputHandler.h"
 #include "../gui/Shortcut.h"
@@ -58,7 +58,7 @@ CStatisticScreen::CStatisticScreen(const StatisticDataSet & stat)
 	buttonSelect = std::make_shared<CToggleButton>(Point(10, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){ onSelectButton(); });
 	buttonSelect->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.selectView"), EFonts::FONT_SMALL, Colors::YELLOW);
 
-	buttonCsvSave = std::make_shared<CToggleButton>(Point(150, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){ GH.input().copyToClipBoard(statistic.toCsv("\t"));	});
+	buttonCsvSave = std::make_shared<CToggleButton>(Point(150, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){ ENGINE->input().copyToClipBoard(statistic.toCsv("\t"));	});
 	buttonCsvSave->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.tsvCopy"), EFonts::FONT_SMALL, Colors::YELLOW);
 
 	mainContent = getContent(OVERVIEW, EGameResID::NONE);
@@ -69,7 +69,7 @@ void CStatisticScreen::onSelectButton()
 	std::vector<std::string> texts;
 	for(auto & val : contentInfo)
 		texts.emplace_back(CGI->generaltexth->translate(std::get<0>(val.second)));
-	GH.windows().createAndPushWindow<StatisticSelector>(texts, [this](int selectedIndex)
+	ENGINE->windows().createAndPushWindow<StatisticSelector>(texts, [this](int selectedIndex)
 	{
 		OBJECT_CONSTRUCTION;
 		if(!std::get<1>(contentInfo[static_cast<Content>(selectedIndex)]))
@@ -82,7 +82,7 @@ void CStatisticScreen::onSelectButton()
 			for(const auto & res : possibleRes)
 				resourceText.emplace_back(CGI->generaltexth->translate(TextIdentifier("core.restypes", res.getNum()).get()));
 			
-			GH.windows().createAndPushWindow<StatisticSelector>(resourceText, [this, content, possibleRes](int index)
+			ENGINE->windows().createAndPushWindow<StatisticSelector>(resourceText, [this, content, possibleRes](int index)
 			{
 				OBJECT_CONSTRUCTION;
 				mainContent = getContent(content, possibleRes[index]);
@@ -129,10 +129,10 @@ TIcons CStatisticScreen::extractIcons() const
 	auto tmpData = statistic.data;
 	std::sort(tmpData.begin(), tmpData.end(), [](const StatisticDataSetEntry & v1, const StatisticDataSetEntry & v2){ return v1.player == v2.player ? v1.day < v2.day : v1.player < v2.player; });
 
-	auto imageTown = GH.renderHandler().loadImage(AnimationPath::builtin("cradvntr"), 3, 0, EImageBlitMode::COLORKEY);
-	auto imageBattle = GH.renderHandler().loadImage(AnimationPath::builtin("cradvntr"), 5, 0, EImageBlitMode::COLORKEY);
-	auto imageDefeated = GH.renderHandler().loadImage(AnimationPath::builtin("crcombat"), 0, 0, EImageBlitMode::COLORKEY);
-	auto imageGrail = GH.renderHandler().loadImage(AnimationPath::builtin("vwsymbol"), 2, 0, EImageBlitMode::COLORKEY);
+	auto imageTown = ENGINE->renderHandler().loadImage(AnimationPath::builtin("cradvntr"), 3, 0, EImageBlitMode::COLORKEY);
+	auto imageBattle = ENGINE->renderHandler().loadImage(AnimationPath::builtin("cradvntr"), 5, 0, EImageBlitMode::COLORKEY);
+	auto imageDefeated = ENGINE->renderHandler().loadImage(AnimationPath::builtin("crcombat"), 0, 0, EImageBlitMode::COLORKEY);
+	auto imageGrail = ENGINE->renderHandler().loadImage(AnimationPath::builtin("vwsymbol"), 2, 0, EImageBlitMode::COLORKEY);
 
 	std::map<PlayerColor, bool> foundDefeated;
 	std::map<PlayerColor, bool> foundGrail;

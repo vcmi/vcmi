@@ -20,7 +20,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/CIntObject.h"
 #include "../gui/WindowHandler.h"
 #include "../windows/CCreatureWindow.h"
@@ -149,7 +149,7 @@ void BattleActionsController::endCastingSpell()
 		possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack()); //restore actions after they were cleared
 
 	selectedStack = nullptr;
-	GH.fakeMouseMove();
+	ENGINE->fakeMouseMove();
 }
 
 bool BattleActionsController::isActiveStackSpellcaster() const
@@ -183,7 +183,7 @@ void BattleActionsController::enterCreatureCastingMode()
 		};
 
 		vstd::erase_if(possibleActions, actionFilterPredicate);
-		GH.fakeMouseMove();
+		ENGINE->fakeMouseMove();
 		return;
 	}
 
@@ -226,7 +226,7 @@ void BattleActionsController::enterCreatureCastingMode()
 	};
 
 	vstd::erase_if(possibleActions, actionFilterPredicate);
-	GH.fakeMouseMove();
+	ENGINE->fakeMouseMove();
 }
 
 std::vector<PossiblePlayerBattleAction> BattleActionsController::getPossibleActionsForStack(const CStack *stack) const
@@ -345,7 +345,7 @@ void BattleActionsController::castThisSpell(SpellID spellID)
 	{
 		possibleActions.clear();
 		possibleActions.push_back (spellSelMode); //only this one action can be performed at the moment
-		GH.fakeMouseMove();//update cursor
+		ENGINE->fakeMouseMove();//update cursor
 	}
 
 	owner.windowObject->blockUI(true);
@@ -771,7 +771,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 
 		case PossiblePlayerBattleAction::CREATURE_INFO:
 		{
-			GH.windows().createAndPushWindow<CStackWindow>(targetStack, false);
+			ENGINE->windows().createAndPushWindow<CStackWindow>(targetStack, false);
 			return;
 		}
 
@@ -875,7 +875,7 @@ void BattleActionsController::onHexHovered(const BattleHex & hoveredHex)
 	if (owner.openingPlaying())
 	{
 		currentConsoleMsg = VLC->generaltexth->translate("vcmi.battleWindow.pressKeyToSkipIntro");
-		GH.statusbar()->write(currentConsoleMsg);
+		ENGINE->statusbar()->write(currentConsoleMsg);
 		return;
 	}
 
@@ -885,7 +885,7 @@ void BattleActionsController::onHexHovered(const BattleHex & hoveredHex)
 	if (hoveredHex == BattleHex::INVALID)
 	{
 		if (!currentConsoleMsg.empty())
-			GH.statusbar()->clearIfMatching(currentConsoleMsg);
+			ENGINE->statusbar()->clearIfMatching(currentConsoleMsg);
 
 		currentConsoleMsg.clear();
 		CCS->curh->set(Cursor::Combat::BLOCKED);
@@ -908,10 +908,10 @@ void BattleActionsController::onHexHovered(const BattleHex & hoveredHex)
 	}
 
 	if (!currentConsoleMsg.empty())
-		GH.statusbar()->clearIfMatching(currentConsoleMsg);
+		ENGINE->statusbar()->clearIfMatching(currentConsoleMsg);
 
 	if (!newConsoleMsg.empty())
-		GH.statusbar()->write(newConsoleMsg);
+		ENGINE->statusbar()->write(newConsoleMsg);
 
 	currentConsoleMsg = newConsoleMsg;
 }
@@ -921,7 +921,7 @@ void BattleActionsController::onHoverEnded()
 	CCS->curh->set(Cursor::Combat::POINTER);
 
 	if (!currentConsoleMsg.empty())
-		GH.statusbar()->clearIfMatching(currentConsoleMsg);
+		ENGINE->statusbar()->clearIfMatching(currentConsoleMsg);
 
 	currentConsoleMsg.clear();
 }
@@ -939,7 +939,7 @@ void BattleActionsController::onHexLeftClicked(const BattleHex & clickedHex)
 		return;
 	
 	actionRealize(action, clickedHex);
-	GH.statusbar()->clear();
+	ENGINE->statusbar()->clear();
 }
 
 void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterStack)
@@ -1071,7 +1071,7 @@ void BattleActionsController::onHexRightClicked(const BattleHex & clickedHex)
 	auto selectedStack = owner.getBattle()->battleGetStackByPos(clickedHex, true);
 
 	if (selectedStack != nullptr)
-		GH.windows().createAndPushWindow<CStackWindow>(selectedStack, true);
+		ENGINE->windows().createAndPushWindow<CStackWindow>(selectedStack, true);
 
 	if (clickedHex == BattleHex::HERO_ATTACKER && owner.attackingHero)
 		owner.attackingHero->heroRightClicked();

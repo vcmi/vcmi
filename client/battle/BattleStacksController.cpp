@@ -24,7 +24,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/Colors.h"
@@ -81,10 +81,10 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	animIDhelper(0)
 {
 	//preparing graphics for displaying amounts of creatures
-	amountNormal     = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowDefault"), EImageBlitMode::COLORKEY);
-	amountPositive   = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowPositive"), EImageBlitMode::COLORKEY);
-	amountNegative   = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowNegative"), EImageBlitMode::COLORKEY);
-	amountEffNeutral = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowNeutral"), EImageBlitMode::COLORKEY);
+	amountNormal     = ENGINE->renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowDefault"), EImageBlitMode::COLORKEY);
+	amountPositive   = ENGINE->renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowPositive"), EImageBlitMode::COLORKEY);
+	amountNegative   = ENGINE->renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowNegative"), EImageBlitMode::COLORKEY);
+	amountEffNeutral = ENGINE->renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowNeutral"), EImageBlitMode::COLORKEY);
 
 	std::vector<const CStack*> stacks = owner.getBattle()->battleGetAllStacks(true);
 	for(const CStack * s : stacks)
@@ -842,7 +842,7 @@ void BattleStacksController::updateHoveredStacks()
 	}
 
 	if(mouseHoveredStacks != newStacks)
-		GH.windows().totalRedraw(); //fix for frozen stack info window and blue border in action bar
+		ENGINE->windows().totalRedraw(); //fix for frozen stack info window and blue border in action bar
 
 	mouseHoveredStacks = newStacks;
 }

@@ -13,7 +13,7 @@
 #include "IVideoHolder.h"
 
 #include "../CGameInfo.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../media/ISoundPlayer.h"
 #include "../media/IVideoPlayer.h"
 #include "../render/Canvas.h"
@@ -49,9 +49,9 @@ void VideoWidgetBase::playVideo(const VideoPath & fileToPlay)
 
 	float preScaleFactor = 1;
 	VideoPath videoFile = fileToPlay;
-	if(GH.screenHandler().getScalingFactor() > 1)
+	if(ENGINE->screenHandler().getScalingFactor() > 1)
 	{
-		std::vector<int> factorsToCheck = {GH.screenHandler().getScalingFactor(), 4, 3, 2};
+		std::vector<int> factorsToCheck = {ENGINE->screenHandler().getScalingFactor(), 4, 3, 2};
 		for(auto factorToCheck : factorsToCheck)
 		{
 			std::string name = boost::algorithm::to_upper_copy(videoFile.getName());

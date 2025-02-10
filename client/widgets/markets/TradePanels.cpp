@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "TradePanels.h"
 
-#include "../../gui/CGuiHandler.h"
+#include "../../GameEngine.h"
 #include "../../render/Canvas.h"
 #include "../../widgets/TextControls.h"
 #include "../../windows/InfoWindows.h"
@@ -157,27 +157,27 @@ void CTradeableItem::hover(bool on)
 {
 	if(!on || id == -1)
 	{
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 		return;
 	}
 
 	switch(type)
 	{
 	case EType::CREATURE:
-		GH.statusbar()->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->getNamePluralTranslated()));
+		ENGINE->statusbar()->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->getNamePluralTranslated()));
 		break;
 	case EType::ARTIFACT_TYPE:
 	case EType::ARTIFACT:
 		if(id < 0)
-			GH.statusbar()->write(CGI->generaltexth->zelp[582].first);
+			ENGINE->statusbar()->write(CGI->generaltexth->zelp[582].first);
 		else
-			GH.statusbar()->write(CGI->artifacts()->getByIndex(id)->getNameTranslated());
+			ENGINE->statusbar()->write(CGI->artifacts()->getByIndex(id)->getNameTranslated());
 		break;
 	case EType::RESOURCE:
-		GH.statusbar()->write(CGI->generaltexth->restypes[id]);
+		ENGINE->statusbar()->write(CGI->generaltexth->restypes[id]);
 		break;
 	case EType::PLAYER:
-		GH.statusbar()->write(CGI->generaltexth->capColors[id]);
+		ENGINE->statusbar()->write(CGI->generaltexth->capColors[id]);
 		break;
 	}
 }

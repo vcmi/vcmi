@@ -13,7 +13,7 @@
 
 #include "../../eventsSDL/InputHandler.h"
 #include "../../../lib/filesystem/ResourcePath.h"
-#include "../../gui/CGuiHandler.h"
+#include "../../GameEngine.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 #include "../../widgets/Images.h"
@@ -37,9 +37,9 @@ AdventureOptionsTab::AdventureOptionsTab()
 	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 
-	addConditional("touchscreen", GH.input().getCurrentInputMode() == InputMode::TOUCH);
-	addConditional("keyboardMouse", GH.input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE);
-	addConditional("controller", GH.input().getCurrentInputMode() == InputMode::CONTROLLER);
+	addConditional("touchscreen", ENGINE->input().getCurrentInputMode() == InputMode::TOUCH);
+	addConditional("keyboardMouse", ENGINE->input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE);
+	addConditional("controller", ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER);
 #ifdef VCMI_MOBILE
 	addConditional("mobile", true);
 	addConditional("desktop", false);

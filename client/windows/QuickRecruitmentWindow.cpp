@@ -14,7 +14,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/CreatureCostBox.h"
 #include "../widgets/Slider.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../../CCallback.h"
 #include "../../lib/ResourceSet.h"

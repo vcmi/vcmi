@@ -21,7 +21,7 @@
 #include "../PlayerLocalState.h"
 
 #include "../battle/BattleInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../media/IVideoPlayer.h"
@@ -512,7 +512,7 @@ void CSpellWindow::turnPageRight()
 {
 	OBJECT_CONSTRUCTION;
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		video = std::make_shared<VideoWidgetOnce>(Point(13, 14), VideoPath::builtin("PGTRNRGH.SMK"), false, this);
+		video = std::make_shared<VideoWidgetOnce>(Point(13, 14), VideoPath::builtin("PGTRNRENGINE->SMK"), false, this);
 }
 
 void CSpellWindow::onVideoPlaybackFinished()
@@ -646,7 +646,7 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 		else //adventure spell
 		{
 			const CGHeroInstance * h = owner->myHero;
-			GH.windows().popWindows(1);
+			ENGINE->windows().popWindows(1);
 
 			auto guard = vstd::makeScopeGuard([this]()
 			{

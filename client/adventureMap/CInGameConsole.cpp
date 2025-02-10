@@ -16,7 +16,7 @@
 #include "../CServerHandler.h"
 #include "../GameChatHandler.h"
 #include "../ClientCommandManager.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/TextAlignment.h"
@@ -82,7 +82,7 @@ void CInGameConsole::tick(uint32_t msPassed)
 	);
 
 	if(sizeBefore != texts.size())
-		GH.windows().totalRedraw(); // FIXME: ingame console has no parent widget set
+		ENGINE->windows().totalRedraw(); // FIXME: ingame console has no parent widget set
 }
 
 void CInGameConsole::addMessageSilent(const std::string & timeFormatted, const std::string & senderName, const std::string & messageText)
@@ -111,14 +111,14 @@ void CInGameConsole::addMessage(const std::string & timeFormatted, const std::st
 {
 	addMessageSilent(timeFormatted, senderName, messageText);
 
-	GH.windows().totalRedraw(); // FIXME: ingame console has no parent widget set
+	ENGINE->windows().totalRedraw(); // FIXME: ingame console has no parent widget set
 
 	int volume = CCS->soundh->getVolume();
 	if(volume == 0)
 		CCS->soundh->setVolume(settings["general"]["sound"].Integer());
 	int handle = CCS->soundh->playSound(AudioPath::builtin("CHAT"));
 	if(volume == 0)
-		CCS->soundh->setCallback(handle, [&]() { if(!GH.screenHandler().hasFocus()) CCS->soundh->setVolume(0); });
+		CCS->soundh->setCallback(handle, [&]() { if(!ENGINE->screenHandler().hasFocus()) CCS->soundh->setVolume(0); });
 }
 
 bool CInGameConsole::captureThisKey(EShortcut key)
@@ -253,7 +253,7 @@ void CInGameConsole::showRecentChatHistory()
 	for (int i = firstEntryToShow; i < history.size(); ++i)
 		addMessageSilent(history[i].dateFormatted, history[i].senderName, history[i].messageText);
 
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 void CInGameConsole::startEnteringText()
@@ -264,20 +264,20 @@ void CInGameConsole::startEnteringText()
 	if(isEnteringText())
 	{
 		// force-reset text input to re-show on-screen keyboard
-		GH.statusbar()->setEnteringMode(false);
-		GH.statusbar()->setEnteringMode(true);
-		GH.statusbar()->setEnteredText(enteredText);
+		ENGINE->statusbar()->setEnteringMode(false);
+		ENGINE->statusbar()->setEnteringMode(true);
+		ENGINE->statusbar()->setEnteredText(enteredText);
 		return;
 	}
 		
 	assert(currentStatusBar.expired());//effectively, nullptr check
 
-	currentStatusBar = GH.statusbar();
+	currentStatusBar = ENGINE->statusbar();
 
 	enteredText = "_";
 
-	GH.statusbar()->setEnteringMode(true);
-	GH.statusbar()->setEnteredText(enteredText);
+	ENGINE->statusbar()->setEnteringMode(true);
+	ENGINE->statusbar()->setEnteredText(enteredText);
 
 	showRecentChatHistory();
 }

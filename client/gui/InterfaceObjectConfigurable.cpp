@@ -14,7 +14,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/ShortcutHandler.h"
 #include "../gui/Shortcut.h"
 #include "../render/Graphics.h"
@@ -320,7 +320,7 @@ EShortcut InterfaceObjectConfigurable::readHotkey(const JsonNode & config) const
 		return EShortcut::NONE;
 	}
 
-	EShortcut result = GH.shortcuts().findShortcut(config.String());
+	EShortcut result = ENGINE->shortcuts().findShortcut(config.String());
 	if (result == EShortcut::NONE)
 		logGlobal->error("Invalid hotkey '%s' in interface configuration!", config.String());
 	return result;
@@ -358,7 +358,7 @@ std::shared_ptr<CMultiLineLabel> InterfaceObjectConfigurable::buildMultiLineLabe
 	auto color = readColor(config["color"]);
 	auto text = readText(config["text"]);
 	Rect rect = readRect(config["rect"]);
-	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 	if(!config["adoptHeight"].isNull() && config["adoptHeight"].Bool())
 		rect.h = fontPtr->getLineHeight() * 2;
 	return std::make_shared<CMultiLineLabel>(rect, font, alignment, color, text);

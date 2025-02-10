@@ -1,5 +1,5 @@
 /*
- * CGuiHandler.h, part of VCMI engine
+ * GameEngine.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -28,7 +28,7 @@ class EventDispatcher;
 class InputHandler;
 
 // Handles GUI logic and drawing
-class CGuiHandler
+class GameEngine
 {
 private:
 	/// Fake no-op version status bar, for use in windows that have no status bar
@@ -92,8 +92,8 @@ public:
 	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
 	std::list<CIntObject *> createdObj; //stack of objs being created
 
-	CGuiHandler();
-	~CGuiHandler();
+	GameEngine();
+	~GameEngine();
 
 	void init();
 	void renderFrame();
@@ -111,4 +111,4 @@ public:
 	void dispatchMainThread(const std::function<void()> & functor);
 };
 
-extern CGuiHandler GH; //global gui handler
+extern std::unique_ptr<GameEngine> ENGINE; //global gui handler

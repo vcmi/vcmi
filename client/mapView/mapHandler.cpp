@@ -15,7 +15,7 @@
 #include "../CCallback.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/TerrainHandler.h"

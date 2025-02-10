@@ -13,7 +13,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../adventureMap/CResDataBar.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../mapView/MapView.h"

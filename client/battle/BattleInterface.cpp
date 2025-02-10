@@ -26,7 +26,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
@@ -97,7 +97,7 @@ BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *
 	adventureInt->onAudioPaused();
 	ongoingAnimationsState.setBusy();
 
-	GH.windows().pushWindow(windowObject);
+	ENGINE->windows().pushWindow(windowObject);
 	windowObject->blockUI(true);
 	windowObject->updateQueue();
 
@@ -191,7 +191,7 @@ BattleInterface::~BattleInterface()
 void BattleInterface::redrawBattlefield()
 {
 	fieldController->redrawBackgroundWithHexes();
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 void BattleInterface::stackReset(const CStack * stack)
@@ -352,7 +352,7 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 	{
 		curInt->cb->selectionMade(selection, queryID);
 	};
-	GH.windows().pushWindow(wnd);
+	ENGINE->windows().pushWindow(wnd);
 
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
 	CPlayerInterface::battleInt.reset();
@@ -586,7 +586,7 @@ void BattleInterface::activateStack()
 	windowObject->blockUI(false);
 	fieldController->redrawBackgroundWithHexes();
 	actionsController->activateStack();
-	GH.fakeMouseMove();
+	ENGINE->fakeMouseMove();
 }
 
 bool BattleInterface::makingTurn() const
@@ -813,7 +813,7 @@ void BattleInterface::onAnimationsFinished()
 void BattleInterface::waitForAnimations()
 {
 	{
-		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 		ongoingAnimationsState.waitWhileBusy();
 	}
 

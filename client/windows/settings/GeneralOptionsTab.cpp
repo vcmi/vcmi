@@ -19,7 +19,7 @@
 #include "windows/GUIClasses.h"
 
 #include "../../eventsSDL/InputHandler.h"
-#include "../../gui/CGuiHandler.h"
+#include "../../GameEngine.h"
 #include "../../gui/WindowHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/Images.h"
@@ -97,9 +97,9 @@ GeneralOptionsTab::GeneralOptionsTab()
 	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 
-	addConditional("touchscreen", GH.input().getCurrentInputMode() == InputMode::TOUCH);
-	addConditional("keyboardMouse", GH.input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE);
-	addConditional("controller", GH.input().getCurrentInputMode() == InputMode::CONTROLLER);
+	addConditional("touchscreen", ENGINE->input().getCurrentInputMode() == InputMode::TOUCH);
+	addConditional("keyboardMouse", ENGINE->input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE);
+	addConditional("controller", ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER);
 #ifdef VCMI_MOBILE
 	addConditional("mobile", true);
 	addConditional("desktop", false);
@@ -195,7 +195,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 	build(config);
 
 	std::shared_ptr<CLabel> scalingLabel = widget<CLabel>("scalingLabel");
-	scalingLabel->setText(scalingToLabelString(GH.screenHandler().getInterfaceScalingPercentage()));
+	scalingLabel->setText(scalingToLabelString(ENGINE->screenHandler().getInterfaceScalingPercentage()));
 
 	std::shared_ptr<CLabel> longTouchLabel = widget<CLabel>("longTouchLabel");
 	if (longTouchLabel)
@@ -271,14 +271,14 @@ void GeneralOptionsTab::updateResolutionSelector()
 
 	if (resolutionLabel)
 	{
-		Point resolution = GH.screenHandler().getRenderResolution();
+		Point resolution = ENGINE->screenHandler().getRenderResolution();
 		resolutionLabel->setText(resolutionToLabelString(resolution.x, resolution.y));
 	}
 }
 
 void GeneralOptionsTab::selectGameResolution()
 {
-	supportedResolutions = GH.screenHandler().getSupportedResolutions();
+	supportedResolutions = ENGINE->screenHandler().getSupportedResolutions();
 
 	std::vector<std::string> items;
 	size_t currentResolutionIndex = 0;
@@ -292,7 +292,7 @@ void GeneralOptionsTab::selectGameResolution()
 		items.push_back(std::move(resolutionStr));
 		++i;
 	}
-	GH.windows().createAndPushWindow<CObjectListWindow>(items, nullptr,
+	ENGINE->windows().createAndPushWindow<CObjectListWindow>(items, nullptr,
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
 								   [this](int index)
@@ -317,8 +317,8 @@ void GeneralOptionsTab::setGameResolution(int index)
 
 	widget<CLabel>("resolutionLabel")->setText(resolutionToLabelString(resolution.x, resolution.y));
 
-	GH.dispatchMainThread([](){
-		GH.onScreenResize(true);
+	ENGINE->dispatchMainThread([](){
+		ENGINE->onScreenResize(true);
 	});
 }
 
@@ -341,8 +341,8 @@ void GeneralOptionsTab::setFullscreenMode(bool on, bool exclusive)
 
 	updateResolutionSelector();
 
-	GH.dispatchMainThread([](){
-		GH.onScreenResize(true);
+	ENGINE->dispatchMainThread([](){
+		ENGINE->onScreenResize(true);
 	});
 }
 
@@ -353,7 +353,7 @@ void GeneralOptionsTab::selectGameScaling()
 	// generate list of all possible scaling values, with 10% step
 	// also add one value over maximum, so if player can use scaling up to 123.456% he will be able to select 130%
 	// and let screen handler clamp that value to actual maximum
-	auto [minimalScaling, maximalScaling] = GH.screenHandler().getSupportedScalingRange();
+	auto [minimalScaling, maximalScaling] = ENGINE->screenHandler().getSupportedScalingRange();
 	for (int i = 0; i <= maximalScaling + 10 - 1; i += 10)
 	{
 		if (i >= minimalScaling)
@@ -373,7 +373,7 @@ void GeneralOptionsTab::selectGameScaling()
 		++i;
 	}
 
-	GH.windows().createAndPushWindow<CObjectListWindow>(
+	ENGINE->windows().createAndPushWindow<CObjectListWindow>(
 		items,
 		nullptr,
 		CGI->generaltexth->translate("vcmi.systemOptions.scalingMenu.hover"),
@@ -400,8 +400,8 @@ void GeneralOptionsTab::setGameScaling(int index)
 
 	widget<CLabel>("scalingLabel")->setText(scalingToLabelString(scaling));
 
-	GH.dispatchMainThread([](){
-		GH.onScreenResize(true);
+	ENGINE->dispatchMainThread([](){
+		ENGINE->onScreenResize(true);
 	});
 }
 
@@ -422,7 +422,7 @@ void GeneralOptionsTab::selectLongTouchDuration()
 		++i;
 	}
 
-	GH.windows().createAndPushWindow<CObjectListWindow>(
+	ENGINE->windows().createAndPushWindow<CObjectListWindow>(
 		items,
 		nullptr,
 		CGI->generaltexth->translate("vcmi.systemOptions.longTouchMenu.hover"),

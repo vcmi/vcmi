@@ -24,7 +24,7 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../windows/InfoWindows.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../battle/BattleInterface.h"
 

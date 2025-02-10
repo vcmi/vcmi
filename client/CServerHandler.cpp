@@ -15,7 +15,7 @@
 #include "ServerRunner.h"
 #include "GameChatHandler.h"
 #include "CPlayerInterface.h"
-#include "gui/CGuiHandler.h"
+#include "GameEngine.h"
 #include "gui/WindowHandler.h"
 
 #include "globalLobby/GlobalLobbyClient.h"
@@ -71,7 +71,7 @@ CServerHandler::~CServerHandler()
 			serverRunner->wait();
 		serverRunner.reset();
 		{
-			auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+			auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 			threadNetwork.join();
 		}
 	}
@@ -88,7 +88,7 @@ void CServerHandler::endNetwork()
 		client->endNetwork();
 	networkHandler->stop();
 	{
-		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 		threadNetwork.join();
 	}
 }
@@ -218,7 +218,7 @@ void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 {
 	assert(getState() == EClientState::CONNECTING);
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	if (isServerLocal())
 	{
@@ -236,15 +236,15 @@ void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 
 void CServerHandler::onTimer()
 {
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	if(getState() == EClientState::CONNECTION_CANCELLED)
 	{
 		logNetwork->info("Connection aborted by player!");
 		serverRunner->wait();
 		serverRunner.reset();
-		if (GH.windows().topWindow<CSimpleJoinScreen>() != nullptr)
-			GH.windows().popWindows(1);
+		if (ENGINE->windows().topWindow<CSimpleJoinScreen>() != nullptr)
+			ENGINE->windows().popWindows(1);
 		return;
 	}
 
@@ -256,7 +256,7 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 {
 	assert(getState() == EClientState::CONNECTING);
 
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	networkConnection = netConnection;
 
@@ -278,7 +278,7 @@ void CServerHandler::applyPackOnLobbyScreen(CPackForLobby & pack)
 {
 	ApplyOnLobbyScreenNetPackVisitor visitor(*this, dynamic_cast<CLobbyScreen *>(SEL));
 	pack.visit(visitor);
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 std::set<PlayerColor> CServerHandler::getHumanColors()
@@ -546,9 +546,9 @@ void CServerHandler::sendGuiAction(ui8 action) const
 void CServerHandler::sendRestartGame() const
 {
 	if(si->campState && !si->campState->getLoadingBackground().empty())
-		GH.windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
+		ENGINE->windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
 	else
-		GH.windows().createAndPushWindow<CLoadingScreen>();
+		ENGINE->windows().createAndPushWindow<CLoadingScreen>();
 	
 	LobbyRestartGame endGame;
 	sendLobbyPack(endGame);
@@ -594,9 +594,9 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 	if(!settings["session"]["headless"].Bool())
 	{
 		if(si->campState && !si->campState->getLoadingBackground().empty())
-			GH.windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
+			ENGINE->windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
 		else
-			GH.windows().createAndPushWindow<CLoadingScreen>();
+			ENGINE->windows().createAndPushWindow<CLoadingScreen>();
 	}
 	
 	LobbyPrepareStartGame lpsg;
@@ -653,7 +653,7 @@ void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victo
 
 		endGameplay();
 		CMM->menu->switchToTab("main");
-		GH.windows().createAndPushWindow<CHighScoreInputScreen>(victory, scenarioHighScores, statistic);
+		ENGINE->windows().createAndPushWindow<CHighScoreInputScreen>(victory, scenarioHighScores, statistic);
 	}
 }
 
@@ -669,14 +669,14 @@ void CServerHandler::endGameplay()
 
 	if(CMM)
 	{
-		GH.curInt = CMM.get();
+		ENGINE->curInt = CMM.get();
 		CMM->enable();
 		CMM->playMusic();
 	}
 	else
 	{
 		auto mainMenu = CMainMenu::create();
-		GH.curInt = mainMenu.get();
+		ENGINE->curInt = mainMenu.get();
 		mainMenu->playMusic();
 	}
 }
@@ -713,8 +713,8 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 			entry->Bool() = true;
 		}
 
-		GH.windows().pushWindow(CMM);
-		GH.windows().pushWindow(CMM->menu);
+		ENGINE->windows().pushWindow(CMM);
+		ENGINE->windows().pushWindow(CMM->menu);
 
 		if(!ourCampaign->isCampaignFinished())
 			CMM->openCampaignLobby(ourCampaign);
@@ -724,18 +724,18 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 			if(!ourCampaign->getOutroVideo().empty() && CCS->videoh->open(ourCampaign->getOutroVideo(), 1))
 			{
 				CCS->musich->stopMusic();
-				GH.windows().createAndPushWindow<VideoWindow>(ourCampaign->getOutroVideo(), ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim(), false, 1, [campaignScoreCalculator, statistic](bool skipped){
-					GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
+				ENGINE->windows().createAndPushWindow<VideoWindow>(ourCampaign->getOutroVideo(), ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim(), false, 1, [campaignScoreCalculator, statistic](bool skipped){
+					ENGINE->windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
 				});
 			}
 			else
-				GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
+				ENGINE->windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
 		}
 	};
 
 	if(epilogue.hasPrologEpilog)
 	{
-		GH.windows().createAndPushWindow<CPrologEpilogVideo>(epilogue, finisher);
+		ENGINE->windows().createAndPushWindow<CPrologEpilogVideo>(epilogue, finisher);
 	}
 	else
 	{
@@ -745,8 +745,8 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 
 void CServerHandler::showServerError(const std::string & txt) const
 {
-	if(auto w = GH.windows().topWindow<CLoadingScreen>())
-		GH.windows().popWindow(w);
+	if(auto w = ENGINE->windows().topWindow<CLoadingScreen>())
+		ENGINE->windows().popWindow(w);
 	
 	CInfoWindow::showInfoDialog(txt, {});
 }
@@ -803,7 +803,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 
 	boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 
-	while(!settings["session"]["headless"].Bool() && !GH.windows().topWindow<CLobbyScreen>())
+	while(!settings["session"]["headless"].Bool() && !ENGINE->windows().topWindow<CLobbyScreen>())
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 
 	while(!mi || mapInfo->fileURI != mi->fileURI)
@@ -857,7 +857,7 @@ public:
 
 void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message)
 {
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	if(getState() == EClientState::DISCONNECTING)
 		return;
@@ -869,7 +869,7 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 
 void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	if (connection != networkConnection)
 	{

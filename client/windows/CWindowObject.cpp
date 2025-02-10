@@ -13,7 +13,7 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -69,7 +69,7 @@ CWindowObject::CWindowObject(int options_, const ImagePath & imageName):
 	if(background)
 		pos = background->center();
 	else
-		center(GH.screenDimensions() / 2);
+		center(ENGINE->screenDimensions() / 2);
 
 	if(!(options & SHADOW_DISABLED))
 		setShadow(true);
@@ -153,9 +153,9 @@ void CWindowObject::setShadow(bool on)
 		Point sizeBottom(size, fullsize.y - size);
 
 		//create base 8x8 piece of shadow
-		auto imageCorner = GH.renderHandler().createImage(sizeCorner, CanvasScalingPolicy::AUTO);
-		auto imageRight  = GH.renderHandler().createImage(sizeRight,  CanvasScalingPolicy::AUTO);
-		auto imageBottom = GH.renderHandler().createImage(sizeBottom, CanvasScalingPolicy::AUTO);
+		auto imageCorner = ENGINE->renderHandler().createImage(sizeCorner, CanvasScalingPolicy::AUTO);
+		auto imageRight  = ENGINE->renderHandler().createImage(sizeRight,  CanvasScalingPolicy::AUTO);
+		auto imageBottom = ENGINE->renderHandler().createImage(sizeBottom, CanvasScalingPolicy::AUTO);
 
 		Canvas canvasCorner = imageCorner->getCanvas();
 		Canvas canvasRight = imageRight->getCanvas();
@@ -188,7 +188,7 @@ void CWindowObject::showAll(Canvas & to)
 		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
 
 	CIntObject::showAll(to);
-	if ((options & BORDERED) && (pos.dimensions() != GH.screenDimensions()))
+	if ((options & BORDERED) && (pos.dimensions() != ENGINE->screenDimensions()))
 		CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 

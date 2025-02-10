@@ -13,7 +13,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"

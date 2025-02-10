@@ -16,7 +16,7 @@
 #include "../PlayerLocalState.h"
 #include "../lobby/CCampaignInfoScreen.h"
 #include "../lobby/CScenarioInfoScreen.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
@@ -55,11 +55,11 @@ void AdventureOptions::showScenarioInfo()
 {
 	if(LOCPLINT->cb->getStartInfo()->campState)
 	{
-		GH.windows().createAndPushWindow<CCampaignInfoScreen>();
+		ENGINE->windows().createAndPushWindow<CCampaignInfoScreen>();
 	}
 	else
 	{
-		GH.windows().createAndPushWindow<CScenarioInfoScreen>();
+		ENGINE->windows().createAndPushWindow<CScenarioInfoScreen>();
 	}
 }
 

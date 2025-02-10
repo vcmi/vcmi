@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CArtifactsOfHeroBase.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 
 #include "Buttons.h"

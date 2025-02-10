@@ -19,7 +19,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../windows/CSpellWindow.h"
@@ -131,9 +131,9 @@ void BattleWindow::createQueue()
 	std::string queueSize = settings["battle"]["queueSize"].String();
 
 	if(queueSize == "auto")
-		embedQueue = GH.screenDimensions().y < 700;
+		embedQueue = ENGINE->screenDimensions().y < 700;
 	else
-		embedQueue = GH.screenDimensions().y < 700 || queueSize == "small";
+		embedQueue = ENGINE->screenDimensions().y < 700 || queueSize == "small";
 
 	queue = std::make_shared<StackQueue>(embedQueue, owner);
 	if(!embedQueue && showQueue)
@@ -210,7 +210,7 @@ void BattleWindow::hideStickyQuickSpellWindow()
 
 	setPositionInfoWindow();
 	createTimerInfoWindows();
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 void BattleWindow::showStickyQuickSpellWindow()
@@ -220,7 +220,7 @@ void BattleWindow::showStickyQuickSpellWindow()
 
 	auto hero = owner.getBattle()->battleGetMyHero();
 
-	if(GH.screenDimensions().x >= 1050 && hero != nullptr && hero->hasSpellbook())
+	if(ENGINE->screenDimensions().x >= 1050 && hero != nullptr && hero->hasSpellbook())
 	{
 		quickSpellWindow->enable();
 		quickSpellWindow->isEnabled = true;
@@ -233,7 +233,7 @@ void BattleWindow::showStickyQuickSpellWindow()
 
 	setPositionInfoWindow();
 	createTimerInfoWindows();
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 void BattleWindow::createTimerInfoWindows()
@@ -249,7 +249,7 @@ void BattleWindow::createTimerInfoWindows()
 
 		if (attacker.isValidPlayer())
 		{
-			if (GH.screenDimensions().x >= 1000)
+			if (ENGINE->screenDimensions().x >= 1000)
 				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(-92 + xOffsetAttacker, 1), attacker);
 			else
 				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(1, 135), attacker);
@@ -257,7 +257,7 @@ void BattleWindow::createTimerInfoWindows()
 
 		if (defender.isValidPlayer())
 		{
-			if (GH.screenDimensions().x >= 1000)
+			if (ENGINE->screenDimensions().x >= 1000)
 				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w + 16, 1), defender);
 			else
 				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w - 78, 135), defender);
@@ -314,7 +314,7 @@ void BattleWindow::hideQueue()
 		pos = center();
 	}
 	setPositionInfoWindow();
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 void BattleWindow::showQueue()
@@ -328,7 +328,7 @@ void BattleWindow::showQueue()
 	createQueue();
 	updateQueue();
 	setPositionInfoWindow();
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 void BattleWindow::toggleStickyHeroWindowsVisibility()
@@ -353,7 +353,7 @@ void BattleWindow::hideStickyHeroWindows()
 	if(defenderHeroWindow)
 		defenderHeroWindow->disable();
 
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 void BattleWindow::showStickyHeroWindows()
@@ -366,7 +366,7 @@ void BattleWindow::showStickyHeroWindows()
 
 
 	createStickyHeroInfoWindows();
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 void BattleWindow::updateQueue()
@@ -380,28 +380,28 @@ void BattleWindow::setPositionInfoWindow()
 	int xOffsetAttacker = quickSpellWindow->isEnabled ? -53 : 0;
 	if(defenderHeroWindow)
 	{
-		Point position = (GH.screenDimensions().x >= 1000)
+		Point position = (ENGINE->screenDimensions().x >= 1000)
 				? Point(pos.x + pos.w + 15, pos.y + 60)
 				: Point(pos.x + pos.w -79, pos.y + 195);
 		defenderHeroWindow->moveTo(position);
 	}
 	if(attackerHeroWindow)
 	{
-		Point position = (GH.screenDimensions().x >= 1000)
+		Point position = (ENGINE->screenDimensions().x >= 1000)
 				? Point(pos.x - 93 + xOffsetAttacker, pos.y + 60)
 				: Point(pos.x + 1, pos.y + 195);
 		attackerHeroWindow->moveTo(position);
 	}
 	if(defenderStackWindow)
 	{
-		Point position = (GH.screenDimensions().x >= 1000)
+		Point position = (ENGINE->screenDimensions().x >= 1000)
 				? Point(pos.x + pos.w + 15, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y + 60)
 				: Point(pos.x + pos.w -79, defenderHeroWindow ? defenderHeroWindow->pos.y : pos.y + 195);
 		defenderStackWindow->moveTo(position);
 	}
 	if(attackerStackWindow)
 	{
-		Point position = (GH.screenDimensions().x >= 1000)
+		Point position = (ENGINE->screenDimensions().x >= 1000)
 				? Point(pos.x - 93 + xOffsetAttacker, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y + 60)
 				: Point(pos.x + 1, attackerHeroWindow ? attackerHeroWindow->pos.y : pos.y + 195);
 		attackerStackWindow->moveTo(position);
@@ -457,14 +457,14 @@ void BattleWindow::heroManaPointsChanged(const CGHeroInstance * hero)
 
 void BattleWindow::activate()
 {
-	GH.setStatusbar(console);
+	ENGINE->setStatusbar(console);
 	CIntObject::activate();
 	LOCPLINT->cingconsole->activate();
 }
 
 void BattleWindow::deactivate()
 {
-	GH.setStatusbar(nullptr);
+	ENGINE->setStatusbar(nullptr);
 	CIntObject::deactivate();
 	LOCPLINT->cingconsole->deactivate();
 }
@@ -543,7 +543,7 @@ void BattleWindow::bOptionsf()
 
 	CCS->curh->set(Cursor::Map::POINTER);
 
-	GH.windows().createAndPushWindow<SettingsMainWindow>(&owner);
+	ENGINE->windows().createAndPushWindow<SettingsMainWindow>(&owner);
 }
 
 void BattleWindow::bSurrenderf()
@@ -728,7 +728,7 @@ void BattleWindow::bSpellf()
 
 	if(spellCastProblem == ESpellCastProblem::OK)
 	{
-		GH.windows().createAndPushWindow<CSpellWindow>(myHero, owner.curInt.get());
+		ENGINE->windows().createAndPushWindow<CSpellWindow>(myHero, owner.curInt.get());
 	}
 	else if (spellCastProblem == ESpellCastProblem::MAGIC_IS_BLOCKED)
 	{
@@ -866,7 +866,7 @@ void BattleWindow::bOpenActiveUnit()
 	const auto * unit = owner.stacksController->getActiveStack();
 
 	if (unit)
-		GH.windows().createAndPushWindow<CStackWindow>(unit, false);
+		ENGINE->windows().createAndPushWindow<CStackWindow>(unit, false);
 }
 
 void BattleWindow::bOpenHoveredUnit()
@@ -877,7 +877,7 @@ void BattleWindow::bOpenHoveredUnit()
 	{
 		const auto * unit = owner.getBattle()->battleGetStackByID(units[0]);
 		if (unit)
-			GH.windows().createAndPushWindow<CStackWindow>(unit, false);
+			ENGINE->windows().createAndPushWindow<CStackWindow>(unit, false);
 	}
 }
 
@@ -923,7 +923,7 @@ void BattleWindow::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
-	if (GH.screenDimensions().x != 800 || GH.screenDimensions().y !=600)
+	if (ENGINE->screenDimensions().x != 800 || ENGINE->screenDimensions().y !=600)
 		CMessage::drawBorder(owner.curInt->playerID, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
@@ -935,7 +935,7 @@ void BattleWindow::show(Canvas & to)
 
 void BattleWindow::close()
 {
-	if(!GH.windows().isTopWindow(this))
+	if(!ENGINE->windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
-	GH.windows().popWindows(1);
+	ENGINE->windows().popWindows(1);
 }

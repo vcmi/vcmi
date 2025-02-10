@@ -15,7 +15,7 @@
 
 #include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
 

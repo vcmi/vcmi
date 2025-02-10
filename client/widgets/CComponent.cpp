@@ -12,7 +12,7 @@
 
 #include "Images.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
@@ -98,7 +98,7 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 		max = 80;
 
 	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(max, pos.w), font);
-	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 	const int height = static_cast<int>(fontPtr->getLineHeight());
 
 	for(auto & line : textLines)

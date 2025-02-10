@@ -17,7 +17,7 @@
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/Images.h"
@@ -67,11 +67,11 @@ void CTutorialWindow::setContent()
 
 void CTutorialWindow::openWindowFirstTime(const TutorialMode & m)
 {
-	if(GH.input().getCurrentInputMode() == InputMode::TOUCH && !persistentStorage["gui"]["tutorialCompleted" + std::to_string(m)].Bool())
+	if(ENGINE->input().getCurrentInputMode() == InputMode::TOUCH && !persistentStorage["gui"]["tutorialCompleted" + std::to_string(m)].Bool())
 	{
 		if(LOCPLINT)
 			LOCPLINT->showingDialog->setBusy();
-		GH.windows().pushWindow(std::make_shared<CTutorialWindow>(m));
+		ENGINE->windows().pushWindow(std::make_shared<CTutorialWindow>(m));
 
 		Settings s = persistentStorage.write["gui"]["tutorialCompleted" + std::to_string(m)];
 		s->Bool() = true;

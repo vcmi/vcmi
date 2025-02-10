@@ -13,7 +13,7 @@
 
 #include "../lobby/SelectionTab.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
@@ -51,7 +51,7 @@ CMapOverview::CMapOverview(const std::string & mapName, const std::string & file
 
 	updateShadow();
 
-	center(GH.getCursorPosition()); //center on mouse
+	center(ENGINE->getCursorPosition()); //center on mouse
 #ifdef VCMI_MOBILE
 	moveBy({0, -pos.h / 2});
 #endif
@@ -60,7 +60,7 @@ CMapOverview::CMapOverview(const std::string & mapName, const std::string & file
 
 std::shared_ptr<CanvasImage> CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<CMap> & map, int layer) const
 {
-	auto canvasImage = GH.renderHandler().createImage(Point(map->width, map->height), CanvasScalingPolicy::IGNORE);
+	auto canvasImage = ENGINE->renderHandler().createImage(Point(map->width, map->height), CanvasScalingPolicy::IGNORE);
 	auto canvas = canvasImage->getCanvas();
 
 	for (int y = 0; y < map->height; ++y)

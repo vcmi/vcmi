@@ -13,7 +13,7 @@
 
 #include "CMainMenu.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/ObjectLists.h"
 
@@ -59,7 +59,7 @@ void CreditsScreen::tick(uint32_t msPassed)
 
 	//end of credits, close this screen
 	if(credits->textSize.y < scrollPosition)
-		clickPressed(GH.getCursorPosition());
+		clickPressed(ENGINE->getCursorPosition());
 }
 
 void CreditsScreen::clickPressed(const Point & cursorPosition)

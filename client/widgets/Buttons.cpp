@@ -18,7 +18,7 @@
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../eventsSDL/InputHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
 #include "../gui/InterfaceObjectConfigurable.h"
@@ -258,7 +258,7 @@ void CButton::clickPressed(const Point & cursorPosition)
 		if (!soundDisabled)
 		{
 			CCS->soundh->playSound(soundBase::button);
-			GH.input().hapticFeedback();
+			ENGINE->input().hapticFeedback();
 		}
 		setState(EButtonState::PRESSED);
 
@@ -320,9 +320,9 @@ void CButton::hover (bool on)
 	if(!name.empty() && !isBlocked()) //if there is no name, there is nothing to display also
 	{
 		if (on)
-			GH.statusbar()->write(name);
+			ENGINE->statusbar()->write(name);
 		else
-			GH.statusbar()->clearIfMatching(name);
+			ENGINE->statusbar()->clearIfMatching(name);
 	}
 }
 
@@ -485,7 +485,7 @@ void CToggleButton::clickPressed(const Point & cursorPosition)
 	if (canActivate())
 	{
 		CCS->soundh->playSound(soundBase::button);
-		GH.input().hapticFeedback();
+		ENGINE->input().hapticFeedback();
 		setState(EButtonState::PRESSED);
 	}
 }

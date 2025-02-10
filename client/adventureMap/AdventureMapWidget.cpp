@@ -17,7 +17,7 @@
 #include "CResDataBar.h"
 #include "AdventureState.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../mapView/MapView.h"
 #include "../render/IImage.h"
@@ -37,8 +37,8 @@ AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> s
 	, mapLevel(0)
 {
 	pos.x = pos.y = 0;
-	pos.w = GH.screenDimensions().x;
-	pos.h = GH.screenDimensions().y;
+	pos.w = ENGINE->screenDimensions().x;
+	pos.h = ENGINE->screenDimensions().y;
 
 	REGISTER_BUILDER("adventureInfobar",         &AdventureMapWidget::buildInfobox         );
 	REGISTER_BUILDER("adventureMapImage",        &AdventureMapWidget::buildMapImage        );

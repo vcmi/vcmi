@@ -15,7 +15,7 @@
 #include "PlayerLocalState.h"
 #include "adventureMap/AdventureMapInterface.h"
 #include "eventsSDL/InputHandler.h"
-#include "gui/CGuiHandler.h"
+#include "GameEngine.h"
 #include "gui/CursorHandler.h"
 #include "mapView/mapHandler.h"
 #include "media/ISoundPlayer.h"
@@ -235,7 +235,7 @@ void HeroMovementController::onMoveHeroApplied()
 	if(waitingForQueryApplyReply)
 		return;
 
-	if(GH.input().ignoreEventsUntilInput())
+	if(ENGINE->input().ignoreEventsUntilInput())
 		stoppingMovement = true;
 
 	assert(currentlyMovingHero);

@@ -19,7 +19,7 @@
 #include "../client/CPlayerInterface.h"
 #include "../client/CServerHandler.h"
 #include "../client/eventsSDL/InputHandler.h"
-#include "../client/gui/CGuiHandler.h"
+#include "../client/GameEngine.h"
 #include "../client/gui/CursorHandler.h"
 #include "../client/gui/WindowHandler.h"
 #include "../client/mainmenu/CMainMenu.h"
@@ -303,8 +303,10 @@ int main(int argc, char * argv[])
 
 	srand ( (unsigned int)time(nullptr) );
 
+	ENGINE = std::make_unique<GameEngine>();
+
 	if(!settings["session"]["headless"].Bool())
-		GH.init();
+		ENGINE->init();
 
 	CCS = new CClientState();
 	CGI = new CGameInfo(); //contains all global information about game (texts, lodHandlers, map handler etc.)
@@ -365,7 +367,7 @@ int main(int argc, char * argv[])
 	{
 		pomtime.getDiff();
 		graphics = new Graphics(); // should be before curh
-		GH.renderHandler().onLibraryLoadingFinished(CGI);
+		ENGINE->renderHandler().onLibraryLoadingFinished(CGI);
 
 		CCS->curh = new CursorHandler();
 		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());
@@ -397,7 +399,7 @@ int main(int argc, char * argv[])
 	else
 	{
 		auto mmenu = CMainMenu::create();
-		GH.curInt = mmenu.get();
+		ENGINE->curInt = mmenu.get();
 
 		bool playIntroVideo = !settings["session"]["headless"].Bool() && !vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool();
 		if(playIntroVideo)
@@ -435,8 +437,8 @@ static void mainLoop()
 
 	while(1) //main SDL events loop
 	{
-		GH.input().fetchEvents();
-		GH.renderFrame();
+		ENGINE->input().fetchEvents();
+		ENGINE->renderFrame();
 	}
 }
 
@@ -463,7 +465,7 @@ static void mainLoop()
 		if(CSH->client)
 			CSH->endGameplay();
 
-		GH.windows().clear();
+		ENGINE->windows().clear();
 	}
 
 	vstd::clear_pointer(CSH);
@@ -494,7 +496,7 @@ static void mainLoop()
 	//vstd::clear_pointer(console);// should be removed after everything else since used by logging
 
 	if(!settings["session"]["headless"].Bool())
-		GH.screenHandler().close();
+		ENGINE->screenHandler().close();
 
 	if(logConfig != nullptr)
 	{

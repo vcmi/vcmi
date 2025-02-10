@@ -16,7 +16,7 @@
 #include "../widgets/Images.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Colors.h"
@@ -141,7 +141,7 @@ void CMinimap::moveAdvMapSelection(const Point & positionGlobal)
 	adventureInt->centerOnTile(newLocation);
 
 	if (!(adventureInt->isActive()))
-		GH.windows().totalRedraw(); //redraw this as well as inactive adventure map
+		ENGINE->windows().totalRedraw(); //redraw this as well as inactive adventure map
 	else
 		redraw();//redraw only this
 }
@@ -165,9 +165,9 @@ void CMinimap::showPopupWindow(const Point & cursorPosition)
 void CMinimap::hover(bool on)
 {
 	if(on)
-		GH.statusbar()->write(CGI->generaltexth->zelp[291].first);
+		ENGINE->statusbar()->write(CGI->generaltexth->zelp[291].first);
 	else
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 }
 
 void CMinimap::mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance)

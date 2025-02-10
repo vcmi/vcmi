@@ -14,7 +14,7 @@
 #include "InputHandler.h"
 
 #include "../CGameInfo.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/ShortcutHandler.h"
@@ -147,7 +147,7 @@ void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcu
 	{
 		if(!pressedAxes.count(axisID))
 		{
-			GH.events().dispatchShortcutPressed(shortcutsVector);
+			ENGINE->events().dispatchShortcutPressed(shortcutsVector);
 			pressedAxes.insert(axisID);
 		}
 	}
@@ -155,7 +155,7 @@ void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcu
 	{
 		if(pressedAxes.count(axisID))
 		{
-			GH.events().dispatchShortcutReleased(shortcutsVector);
+			ENGINE->events().dispatchShortcutReleased(shortcutsVector);
 			pressedAxes.erase(axisID);
 		}
 	}
@@ -168,8 +168,8 @@ void InputSourceGameController::handleEventAxisMotion(const SDL_ControllerAxisEv
 	SDL_GameControllerAxis axisID = static_cast<SDL_GameControllerAxis>(axis.axis);
 	std::string axisName = SDL_GameControllerGetStringForAxis(axisID);
 
-	auto axisActions = GH.shortcuts().translateJoystickAxis(axisName);
-	auto buttonActions = GH.shortcuts().translateJoystickButton(axisName);
+	auto axisActions = ENGINE->shortcuts().translateJoystickAxis(axisName);
+	auto buttonActions = ENGINE->shortcuts().translateJoystickButton(axisName);
 
 	for(const auto & action : axisActions)
 	{
@@ -199,41 +199,41 @@ void InputSourceGameController::tryToConvertCursor()
 	assert(CCS->curh);
 	if(CCS->curh->getShowType() == Cursor::ShowType::HARDWARE)
 	{
-		int scalingFactor = GH.screenHandler().getScalingFactor();
-		const Point & cursorPosition = GH.getCursorPosition();
+		int scalingFactor = ENGINE->screenHandler().getScalingFactor();
+		const Point & cursorPosition = ENGINE->getCursorPosition();
 		CCS->curh->changeCursor(Cursor::ShowType::SOFTWARE);
 		CCS->curh->cursorMove(cursorPosition.x * scalingFactor, cursorPosition.y * scalingFactor);
-		GH.input().setCursorPosition(cursorPosition);
+		ENGINE->input().setCursorPosition(cursorPosition);
 	}
 }
 
 void InputSourceGameController::handleEventButtonDown(const SDL_ControllerButtonEvent & button)
 {
 	std::string buttonName = SDL_GameControllerGetStringForButton(static_cast<SDL_GameControllerButton>(button.button));
-	const auto & shortcutsVector = GH.shortcuts().translateJoystickButton(buttonName);
-	GH.events().dispatchShortcutPressed(shortcutsVector);
+	const auto & shortcutsVector = ENGINE->shortcuts().translateJoystickButton(buttonName);
+	ENGINE->events().dispatchShortcutPressed(shortcutsVector);
 }
 
 void InputSourceGameController::handleEventButtonUp(const SDL_ControllerButtonEvent & button)
 {
 	std::string buttonName = SDL_GameControllerGetStringForButton(static_cast<SDL_GameControllerButton>(button.button));
-	const auto & shortcutsVector = GH.shortcuts().translateJoystickButton(buttonName);
-	GH.events().dispatchShortcutReleased(shortcutsVector);
+	const auto & shortcutsVector = ENGINE->shortcuts().translateJoystickButton(buttonName);
+	ENGINE->events().dispatchShortcutReleased(shortcutsVector);
 }
 
 void InputSourceGameController::doCursorMove(int deltaX, int deltaY)
 {
 	if(deltaX == 0 && deltaY == 0)
 		return;
-	const Point & screenSize = GH.screenDimensions();
-	const Point & cursorPosition = GH.getCursorPosition();
-	int scalingFactor = GH.screenHandler().getScalingFactor();
+	const Point & screenSize = ENGINE->screenDimensions();
+	const Point & cursorPosition = ENGINE->getCursorPosition();
+	int scalingFactor = ENGINE->screenHandler().getScalingFactor();
 	int newX = std::min(std::max(cursorPosition.x + deltaX, 0), screenSize.x);
 	int newY = std::min(std::max(cursorPosition.y + deltaY, 0), screenSize.y);
 	Point targetPosition{newX, newY};
-	GH.input().setCursorPosition(targetPosition);
+	ENGINE->input().setCursorPosition(targetPosition);
 	if(CCS && CCS->curh)
-		CCS->curh->cursorMove(GH.getCursorPosition().x * scalingFactor, GH.getCursorPosition().y * scalingFactor);
+		CCS->curh->cursorMove(ENGINE->getCursorPosition().x * scalingFactor, ENGINE->getCursorPosition().y * scalingFactor);
 }
 
 int InputSourceGameController::getMoveDis(float planDis)
@@ -298,12 +298,12 @@ void InputSourceGameController::handleScrollUpdate(int32_t deltaTimeMs)
 	else if(!scrollAxisMoved && !isScrollAxisReleased())
 	{
 		scrollAxisMoved = true;
-		scrollCurrent = scrollStart = GH.input().getCursorPosition();
-		GH.events().dispatchGesturePanningStarted(scrollStart);
+		scrollCurrent = scrollStart = ENGINE->input().getCursorPosition();
+		ENGINE->events().dispatchGesturePanningStarted(scrollStart);
 	}
 	else if(scrollAxisMoved && isScrollAxisReleased())
 	{
-		GH.events().dispatchGesturePanningEnded(scrollStart, scrollCurrent);
+		ENGINE->events().dispatchGesturePanningEnded(scrollStart, scrollCurrent);
 		scrollAxisMoved = false;
 		scrollPlanDisX = scrollPlanDisY = 0;
 		return;
@@ -320,7 +320,7 @@ void InputSourceGameController::handleScrollUpdate(int32_t deltaTimeMs)
 		scrollCurrent.x += moveDisX;
 		scrollCurrent.y += moveDisY;
 		Point distance(moveDisX, moveDisY);
-		GH.events().dispatchGesturePanning(scrollStart, scrollCurrent, distance);
+		ENGINE->events().dispatchGesturePanning(scrollStart, scrollCurrent, distance);
 	}
 }
 

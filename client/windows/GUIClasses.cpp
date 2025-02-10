@@ -20,7 +20,7 @@
 #include "../Client.h"
 #include "../CPlayerInterface.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
@@ -90,7 +90,7 @@ void CRecruitmentWindow::CCreatureCard::clickPressed(const Point & cursorPositio
 
 void CRecruitmentWindow::CCreatureCard::showPopupWindow(const Point & cursorPosition)
 {
-	GH.windows().createAndPushWindow<CStackWindow>(creature, true);
+	ENGINE->windows().createAndPushWindow<CStackWindow>(creature, true);
 }
 
 void CRecruitmentWindow::CCreatureCard::showAll(Canvas & to)
@@ -421,7 +421,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 
 	portrait = std::make_shared<CHeroArea>(170, 66, hero);
 	portrait->addClickCallback(nullptr);
-	portrait->addRClickCallback([hero](){ GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(hero)); });
+	portrait->addRClickCallback([hero](){ ENGINE->windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(hero)); });
 	ok = std::make_shared<CButton>(Point(297, 413), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CLevelWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 
 	//%s has gained a level.
@@ -557,7 +557,7 @@ void CTavernWindow::addInvite()
 
 		inviteHero = std::make_shared<CLabel>(170, 444, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.tavernWindow.inviteHero"));
 		inviteHeroImage = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), imageIndex, 0, 245, 428);
-		inviteHeroImageArea = std::make_shared<LRClickableArea>(Rect(245, 428, 48, 32), [this](){ GH.windows().createAndPushWindow<HeroSelector>(inviteableHeroes, [this](CGHeroInstance* h){ heroToInvite = h; addInvite(); }); }, [this](){ GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(heroToInvite)); });
+		inviteHeroImageArea = std::make_shared<LRClickableArea>(Rect(245, 428, 48, 32), [this](){ ENGINE->windows().createAndPushWindow<HeroSelector>(inviteableHeroes, [this](CGHeroInstance* h){ heroToInvite = h; addInvite(); }); }, [this](){ ENGINE->windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(heroToInvite)); });
 	}
 }
 
@@ -572,7 +572,7 @@ void CTavernWindow::recruitb()
 
 void CTavernWindow::thievesguildb()
 {
-	GH.windows().createAndPushWindow<CThievesGuildWindow>(tavernObj);
+	ENGINE->windows().createAndPushWindow<CThievesGuildWindow>(tavernObj);
 }
 
 void CTavernWindow::close()
@@ -628,7 +628,7 @@ void CTavernWindow::HeroPortrait::showPopupWindow(const Point & cursorPosition)
 	clickPressed(cursorPosition);
 
 	if(h)
-		GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
+		ENGINE->windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
 }
 
 CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H, std::function<void()> OnChoose)
@@ -666,9 +666,9 @@ void CTavernWindow::HeroPortrait::hover(bool on)
 {
 	//Hoverable::hover(on);
 	if(on)
-		GH.statusbar()->write(hoverName);
+		ENGINE->statusbar()->write(hoverName);
 	else
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 }
 
 CTavernWindow::HeroSelector::HeroSelector(std::map<HeroTypeID, CGHeroInstance*> InviteableHeroes, std::function<void(CGHeroInstance*)> OnChoose)
@@ -718,7 +718,7 @@ void CTavernWindow::HeroSelector::recreate()
 		if(y >= 0 && y <= MAX_LINES - 1)
 		{
 			portraits.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), (*CGI->heroh)[h.first]->imageIndex, 0, x * 48, y * 32));
-			portraitAreas.push_back(std::make_shared<LRClickableArea>(Rect(x * 48, y * 32, 48, 32), [this, h](){ close(); onChoose(inviteableHeroes[h.first]); }, [this, h](){ GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(inviteableHeroes[h.first])); }));
+			portraitAreas.push_back(std::make_shared<LRClickableArea>(Rect(x * 48, y * 32, 48, 32), [this, h](){ close(); onChoose(inviteableHeroes[h.first]); }, [this, h](){ ENGINE->windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(inviteableHeroes[h.first])); }));
 		}
 
 		if(x > 0 && x % 15 == 0)
@@ -906,7 +906,7 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 			bool canLearn = parent->hero->canLearnSkill(ID);
 
 			if(!skillKnown && canLearn)
-				GH.windows().createAndPushWindow<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
+				ENGINE->windows().createAndPushWindow<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
 		});
 	update();
 }
@@ -1701,7 +1701,7 @@ VideoWindow::VideoWindow(const VideoPath & video, const ImagePath & rim, bool sh
 	}
 	else
 	{
-		blackBackground = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y));
+		blackBackground = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, ENGINE->screenDimensions().x, ENGINE->screenDimensions().y));
 		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, scaleFactor, this);
 		pos = center(Rect(0, 0, videoPlayer->pos.w, videoPlayer->pos.h));
 		blackBackground->addBox(Point(0, 0), Point(videoPlayer->pos.w, videoPlayer->pos.h), Colors::BLACK);
@@ -1711,7 +1711,7 @@ VideoWindow::VideoWindow(const VideoPath & video, const ImagePath & rim, bool sh
 void VideoWindow::showAll(Canvas & to)
 {
 	if(showBackground)
-		to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
+		to.fillTexture(ENGINE->renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
 	CWindowObject::showAll(to);
 }
 

@@ -17,7 +17,7 @@
 #include "../render/ColorFilter.h"
 #include "../render/CBitmapHandler.h"
 #include "../render/CDefFile.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/IScreenHandler.h"
 
 #include <tbb/parallel_for.h>
@@ -256,7 +256,7 @@ SDLImageShared::SDLImageShared(const SDLImageShared * from, int integerScaleFact
 
 	const auto & scalingTask = [this, algorithm, scaler]()
 	{
-		scaler->scaleSurfaceIntegerFactor(GH.screenHandler().getScalingFactor(), algorithm);
+		scaler->scaleSurfaceIntegerFactor(ENGINE->screenHandler().getScalingFactor(), algorithm);
 		surf = scaler->acquireResultSurface();
 		fullSize = scaler->getResultDimensions().dimensions();
 		margins = scaler->getResultDimensions().topLeft();

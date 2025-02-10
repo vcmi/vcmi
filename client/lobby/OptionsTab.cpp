@@ -14,7 +14,7 @@
 
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Graphics.h"
@@ -68,10 +68,10 @@ void OptionsTab::recreate()
 	entries.clear();
 	humanPlayers = 0;
 
-	for (auto heroOverview : GH.windows().findWindows<CHeroOverview>())
+	for (auto heroOverview : ENGINE->windows().findWindows<CHeroOverview>())
 		heroOverview->close();
 
-	for (auto selectionWindow : GH.windows().findWindows<SelectionWindow>())
+	for (auto selectionWindow : ENGINE->windows().findWindows<SelectionWindow>())
 	{
 		selectionWindow->reopen();
 	}
@@ -479,9 +479,9 @@ std::tuple<int, int> OptionsTab::SelectionWindow::calcLines(FactionID faction)
 
 void OptionsTab::SelectionWindow::apply()
 {
-	if(GH.windows().isTopWindow(this))
+	if(ENGINE->windows().isTopWindow(this))
 	{
-		GH.input().hapticFeedback();
+		ENGINE->input().hapticFeedback();
 		CCS->soundh->playSound(soundBase::button);
 
 		close();
@@ -510,7 +510,7 @@ void OptionsTab::SelectionWindow::reopen()
 		auto window = std::make_shared<SelectionWindow>(color, type, slider ? slider->getValue() : 0);
 		close();
 		if(CSH->isMyColor(color) || CSH->isHost())
-			GH.windows().pushWindow(window);
+			ENGINE->windows().pushWindow(window);
 	}
 }
 
@@ -712,7 +712,7 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 			if(!doApply)
 			{
 				CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
-				GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+				ENGINE->windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
 			}
 			else
 				selectedFaction = set.castle;
@@ -741,9 +741,9 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 			{
 				CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
 				if(settings["general"]["enableUiEnhancements"].Bool() && helper.playerSettings.hero.isValid() && helper.playerSettings.heroNameTextId.empty())
-					GH.windows().createAndPushWindow<CHeroOverview>(helper.playerSettings.hero);
+					ENGINE->windows().createAndPushWindow<CHeroOverview>(helper.playerSettings.hero);
 				else
-					GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+					ENGINE->windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
 			}
 			else
 				selectedHero = set.hero;
@@ -758,7 +758,7 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 		if(!doApply)
 		{
 			CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::BONUS);
-			GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+			ENGINE->windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
 		}
 		else
 			selectedBonus = set.bonus;
@@ -937,9 +937,9 @@ void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 		return;
 
 	if(settings["general"]["enableUiEnhancements"].Bool() && CPlayerSettingsHelper::selectionType == HERO && playerSettings.hero.isValid() && playerSettings.heroNameTextId.empty())
-		GH.windows().createAndPushWindow<CHeroOverview>(playerSettings.hero);
+		ENGINE->windows().createAndPushWindow<CHeroOverview>(playerSettings.hero);
 	else
-		GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
+		ENGINE->windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
 }
 
 void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
@@ -962,8 +962,8 @@ void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
 	if(selectionType == SelType::BONUS && foreignPlayer)
 		return;
 
-	GH.input().hapticFeedback();
-	GH.windows().createAndPushWindow<SelectionWindow>(playerSettings.color, selectionType);
+	ENGINE->input().hapticFeedback();
+	ENGINE->windows().createAndPushWindow<SelectionWindow>(playerSettings.color, selectionType);
 }
 
 void OptionsTab::SelectedBox::scrollBy(int distance)
@@ -1048,7 +1048,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 		if(!CSH->isHost())
 			return;
 		
-		GH.windows().createAndPushWindow<HandicapWindow>();
+		ENGINE->windows().createAndPushWindow<HandicapWindow>();
 	}, [this, hasHandicap](){
 		if(hasHandicap())
 			CRClickPopup::createAndPush(MetaString::createFromTextID("core.help.124.help").toString());

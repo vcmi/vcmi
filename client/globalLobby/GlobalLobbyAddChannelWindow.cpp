@@ -14,7 +14,7 @@
 #include "GlobalLobbyClient.h"
 
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
@@ -46,7 +46,7 @@ GlobalLobbyAddChannelWindowCard::GlobalLobbyAddChannelWindowCard(const std::stri
 void GlobalLobbyAddChannelWindowCard::clickPressed(const Point & cursorPosition)
 {
 	CSH->getGlobalLobby().addChannel(languageID);
-	GH.windows().popWindows(1);
+	ENGINE->windows().popWindows(1);
 }
 
 GlobalLobbyAddChannelWindow::GlobalLobbyAddChannelWindow()

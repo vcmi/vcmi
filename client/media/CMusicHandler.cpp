@@ -12,7 +12,7 @@
 
 #include "../CGameInfo.h"
 #include "../eventsSDL/InputHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../renderSDL/SDLRWwrapper.h"
 
 #include "../../lib/entities/faction/CFaction.h"
@@ -185,7 +185,7 @@ void CMusicHandler::musicFinishedCallback()
 	// 1) SDL thread waiting to acquire music lock in this method (while keeping internal SDL mutex locked)
 	// 2) VCMI thread waiting to acquire internal SDL mutex (while keeping music mutex locked)
 
-	GH.dispatchMainThread(
+	ENGINE->dispatchMainThread(
 		[this]()
 		{
 			boost::unique_lock lockGuard(mutex);
@@ -325,7 +325,7 @@ bool MusicEntry::play()
 		}
 	}
 
-	startTime = GH.input().getTicks();
+	startTime = ENGINE->input().getTicks();
 
 	playing = true;
 	return true;
@@ -337,7 +337,7 @@ bool MusicEntry::stop(int fade_ms)
 	{
 		playing = false;
 		loop = 0;
-		uint32_t endTime = GH.input().getTicks();
+		uint32_t endTime = ENGINE->input().getTicks();
 		assert(startTime != uint32_t(-1));
 		float playDuration = (endTime - startTime + startPosition) / 1000.f;
 		owner->trackPositions[currentName] = playDuration;

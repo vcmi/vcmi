@@ -16,7 +16,7 @@
 
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../adventureMap/CMinimap.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
@@ -156,7 +156,7 @@ CInfoWindow::~CInfoWindow() = default;
 
 void CInfoWindow::showInfoDialog(const std::string & text, const TCompsInfo & components, PlayerColor player)
 {
-	GH.windows().pushWindow(CInfoWindow::create(text, player, components));
+	ENGINE->windows().pushWindow(CInfoWindow::create(text, player, components));
 }
 
 void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & components, const CFunctionList<void()> & onYes, const CFunctionList<void()> & onNo, PlayerColor player)
@@ -170,7 +170,7 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & c
 	temp->buttons[0]->addCallback(onYes);
 	temp->buttons[1]->addCallback(onNo);
 
-	GH.windows().pushWindow(temp);
+	ENGINE->windows().pushWindow(temp);
 }
 
 std::shared_ptr<CInfoWindow> CInfoWindow::create(const std::string & text, PlayerColor playerID, const TCompsInfo & components)
@@ -197,13 +197,13 @@ void CRClickPopup::createAndPush(const std::string & txt, const CInfoWindow::TCo
 		player = PlayerColor(1);
 
 	auto temp = std::make_shared<CInfoWindow>(txt, player, comps);
-	temp->center(GH.getCursorPosition()); //center on mouse
+	temp->center(ENGINE->getCursorPosition()); //center on mouse
 #ifdef VCMI_MOBILE
 	temp->moveBy({0, -temp->pos.h / 2});
 #endif
 	temp->fitToScreen(10);
 
-	GH.windows().createAndPushWindow<CRClickPopupInt>(temp);
+	ENGINE->windows().createAndPushWindow<CRClickPopupInt>(temp);
 }
 
 void CRClickPopup::createAndPush(const std::string & txt, const std::shared_ptr<CComponent> & component)
@@ -219,7 +219,7 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 	auto iWin = createCustomInfoWindow(p, obj); //try get custom infowindow for this obj
 	if(iWin)
 	{
-		GH.windows().pushWindow(iWin);
+		ENGINE->windows().pushWindow(iWin);
 	}
 	else
 	{

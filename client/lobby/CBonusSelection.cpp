@@ -35,7 +35,7 @@
 #include "../render/IRenderHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Graphics.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../adventureMap/AdventureMapInterface.h"
@@ -76,7 +76,7 @@ CBonusSelection::CBonusSelection()
 
 	const auto & playVideo = [this]()
 	{
-		GH.windows().createAndPushWindow<CPrologEpilogVideo>(
+		ENGINE->windows().createAndPushWindow<CPrologEpilogVideo>(
 			getCampaign()->scenario(CSH->campaignMap).prolog,
 			[this]() { redraw(); } );
 	};
@@ -145,7 +145,7 @@ CBonusSelection::CBonusSelection()
 		tabExtraOptions->recActions = UPDATE | SHOWALL | LCLICK | RCLICK_POPUP;
 		tabExtraOptions->recreate(true);
 		tabExtraOptions->setEnabled(false);
-		buttonExtraOptions = std::make_shared<CButton>(Point(643, 431), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], [this]{ tabExtraOptions->setEnabled(!tabExtraOptions->isActive()); GH.windows().totalRedraw(); }, EShortcut::LOBBY_EXTRA_OPTIONS);
+		buttonExtraOptions = std::make_shared<CButton>(Point(643, 431), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], [this]{ tabExtraOptions->setEnabled(!tabExtraOptions->isActive()); ENGINE->windows().totalRedraw(); }, EShortcut::LOBBY_EXTRA_OPTIONS);
 		buttonExtraOptions->setTextOverlay(CGI->generaltexth->translate("vcmi.optionsTab.extraOptions.hover"), FONT_SMALL, Colors::WHITE);
 	}
 }
@@ -397,7 +397,7 @@ void CBonusSelection::goBack()
 {
 	if(CSH->getState() != EClientState::GAMEPLAY)
 	{
-		GH.windows().popWindows(2);
+		ENGINE->windows().popWindows(2);
 		CMM->playMusic();
 	}
 	else
@@ -433,7 +433,7 @@ void CBonusSelection::startMap()
 		const CampaignScenario & scenario = getCampaign()->scenario(CSH->campaignMap);
 		if(scenario.prolog.hasPrologEpilog)
 		{
-			GH.windows().createAndPushWindow<CPrologEpilogVideo>(scenario.prolog, exitCb);
+			ENGINE->windows().createAndPushWindow<CPrologEpilogVideo>(scenario.prolog, exitCb);
 		}
 		else
 		{
@@ -468,7 +468,7 @@ void CBonusSelection::restartMap()
 		CGI->generaltexth->allTexts[67],
 		[=]()
 		{
-			GH.dispatchMainThread(
+			ENGINE->dispatchMainThread(
 				[]()
 				{
 					CSH->sendRestartGame();

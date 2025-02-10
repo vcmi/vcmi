@@ -22,7 +22,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
@@ -66,9 +66,9 @@ void CList::CListItem::clickPressed(const Point & cursorPosition)
 void CList::CListItem::hover(bool on)
 {
 	if (on)
-		GH.statusbar()->write(getHoverText());
+		ENGINE->statusbar()->write(getHoverText());
 	else
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 }
 
 void CList::CListItem::onSelect(bool on)
@@ -260,7 +260,7 @@ void CHeroList::CHeroItem::open()
 
 void CHeroList::CHeroItem::showTooltip()
 {
-	CRClickPopup::createAndPush(hero, GH.getCursorPosition());
+	CRClickPopup::createAndPush(hero, ENGINE->getCursorPosition());
 }
 
 std::string CHeroList::CHeroItem::getHoverText()
@@ -300,7 +300,7 @@ void CHeroList::CHeroItem::gesture(bool on, const Point & initialPosition, const
 		} },
 	};
 
-	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements, true);
+	ENGINE->windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements, true);
 }
 
 void CHeroList::CHeroItem::keyPressed(EShortcut key)
@@ -471,7 +471,7 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 	int townLowerPos = (townIndex > towns.size() - 2) ? -1 : townIndex + 1;
 
 	auto updateList = [](){
-		for (auto ci : GH.windows().findWindows<CCastleInterface>())
+		for (auto ci : ENGINE->windows().findWindows<CCastleInterface>())
 		{
 			ci->townlist->updateWidget();
 			ci->townlist->select(ci->town);
@@ -495,7 +495,7 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 		} },
 	};
 
-	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements, true);
+	ENGINE->windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements, true);
 }
 
 void CTownList::CTownItem::keyPressed(EShortcut key)
@@ -540,7 +540,7 @@ void CTownList::CTownItem::keyPressed(EShortcut key)
 		break;
 	}
 
-	for (auto ki : GH.windows().findWindows<CCastleInterface>())
+	for (auto ki : ENGINE->windows().findWindows<CCastleInterface>())
 		ki->townChange(); //update list
 }
 

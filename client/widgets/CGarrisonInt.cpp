@@ -14,7 +14,7 @@
 #include "TextControls.h"
 #include "RadialMenu.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../render/IImage.h"
 #include "../windows/CCreatureWindow.h"
@@ -121,11 +121,11 @@ void CGarrisonSlot::hover (bool on)
 				temp = CGI->generaltexth->tcommands[11]; //Empty
 			}
 		}
-		GH.statusbar()->write(temp);
+		ENGINE->statusbar()->write(temp);
 	}
 	else
 	{
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 	}
 }
 
@@ -178,7 +178,7 @@ bool CGarrisonSlot::viewInfo()
 		elem->block(true);
 
 	redraw();
-	GH.windows().createAndPushWindow<CStackWindow>(myStack, dism, pom, upgr);
+	ENGINE->windows().createAndPushWindow<CStackWindow>(myStack, dism, pom, upgr);
 	return true;
 }
 
@@ -187,7 +187,7 @@ bool CGarrisonSlot::viewInfo()
 bool CGarrisonSlot::highlightOrDropArtifact()
 {
 	bool artSelected = false;
-	if (auto chw = GH.windows().topWindow<CWindowWithArtifacts>()) //dirty solution
+	if (auto chw = ENGINE->windows().topWindow<CWindowWithArtifacts>()) //dirty solution
 	{
 		const auto pickedArtInst = chw->getPickedArtifact();
 
@@ -262,7 +262,7 @@ bool CGarrisonSlot::split()
 		owner->splitStacks(selection, owner->army(upg), ID, amountRight);
 	};
 
-	GH.windows().createAndPushWindow<CSplitWindow>(selection->creature,  splitFunctor, minLeft, minRight, countLeft, countRight);
+	ENGINE->windows().createAndPushWindow<CSplitWindow>(selection->creature,  splitFunctor, minLeft, minRight, countLeft, countRight);
 	return true;
 }
 
@@ -300,7 +300,7 @@ void CGarrisonSlot::showPopupWindow(const Point & cursorPosition)
 {
 	if(creature)
 	{
-		GH.windows().createAndPushWindow<CStackWindow>(myStack, true);
+		ENGINE->windows().createAndPushWindow<CStackWindow>(myStack, true);
 	}
 }
 
@@ -338,7 +338,7 @@ void CGarrisonSlot::clickPressed(const Point & cursorPosition)
 				lastHeroStackSelected = true;
 			}
 
-			if((owner->getSplittingMode() || GH.isKeyboardShiftDown()) // split window
+			if((owner->getSplittingMode() || ENGINE->isKeyboardShiftDown()) // split window
 				&& (!creature || creature == selection->creature))
 			{
 				refr = split();
@@ -371,7 +371,7 @@ void CGarrisonSlot::gesture(bool on, const Point & initialPosition, const Point 
 	if (!settings["input"]["radialWheelGarrisonSwipe"].Bool())
 		return;
 
-	if(GH.windows().topWindow<CIntObject>()->isPopupWindow())
+	if(ENGINE->windows().topWindow<CIntObject>()->isPopupWindow())
 		return;
 
 	const auto * otherArmy = upg == EGarrisonType::UPPER ? owner->lowerArmy() : owner->upperArmy();
@@ -393,7 +393,7 @@ void CGarrisonSlot::gesture(bool on, const Point & initialPosition, const Point 
 	};
 
 	if (hasAnyEmptySlots || hasSameUnit)
-		GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
+		ENGINE->windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
 }
 
 void CGarrisonSlot::update()
@@ -487,9 +487,9 @@ void CGarrisonSlot::splitIntoParts(EGarrisonType type, int amount)
 
 bool CGarrisonSlot::handleSplittingShortcuts()
 {
-	const bool isAlt = GH.isKeyboardAltDown();
-	const bool isLShift = GH.isKeyboardShiftDown();
-	const bool isLCtrl = GH.isKeyboardCmdDown();
+	const bool isAlt = ENGINE->isKeyboardAltDown();
+	const bool isLShift = ENGINE->isKeyboardShiftDown();
+	const bool isLCtrl = ENGINE->isKeyboardCmdDown();
 
 	if(!isAlt && !isLShift && !isLCtrl)
 		return false; // This is only case when return false

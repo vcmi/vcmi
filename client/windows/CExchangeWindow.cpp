@@ -15,7 +15,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
@@ -266,11 +266,11 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 void CExchangeWindow::creatureArrowButtonCallback(bool leftToRight, SlotID slotId)
 {
-	if (GH.isKeyboardAltDown())
+	if (ENGINE->isKeyboardAltDown())
 		controller.moveArmy(leftToRight, slotId);
-	else if (GH.isKeyboardCtrlDown())
+	else if (ENGINE->isKeyboardCtrlDown())
 		controller.moveSingleStackCreature(leftToRight, slotId, true);
-	else if (GH.isKeyboardShiftDown())
+	else if (ENGINE->isKeyboardShiftDown())
 		controller.moveSingleStackCreature(leftToRight, slotId, false);
 	else
 		controller.moveStack(leftToRight, slotId);
@@ -278,15 +278,15 @@ void CExchangeWindow::creatureArrowButtonCallback(bool leftToRight, SlotID slotI
 
 void CExchangeWindow::moveArtifactsCallback(bool leftToRight)
 {
-	bool moveEquipped = !GH.isKeyboardShiftDown();
-	bool moveBackpack = !GH.isKeyboardCmdDown();
+	bool moveEquipped = !ENGINE->isKeyboardShiftDown();
+	bool moveBackpack = !ENGINE->isKeyboardCmdDown();
 	controller.moveArtifacts(leftToRight, moveEquipped, moveBackpack);
 };
 
 void CExchangeWindow::swapArtifactsCallback()
 {
-	bool moveEquipped = !GH.isKeyboardShiftDown();
-	bool moveBackpack = !GH.isKeyboardCmdDown();
+	bool moveEquipped = !ENGINE->isKeyboardShiftDown();
+	bool moveBackpack = !ENGINE->isKeyboardCmdDown();
 	controller.swapArtifacts(moveEquipped, moveBackpack);
 }
 
@@ -300,7 +300,7 @@ void CExchangeWindow::moveUnitsShortcut(bool leftToRight)
 
 void CExchangeWindow::backpackShortcut(bool leftHero)
 {
-	GH.windows().createAndPushWindow<CHeroBackpackWindow>(heroInst[leftHero ? 0 : 1], artSets);
+	ENGINE->windows().createAndPushWindow<CHeroBackpackWindow>(heroInst[leftHero ? 0 : 1], artSets);
 };
 
 void CExchangeWindow::keyPressed(EShortcut key)

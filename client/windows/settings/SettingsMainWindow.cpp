@@ -22,7 +22,7 @@
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "filesystem/ResourcePath.h"
-#include "gui/CGuiHandler.h"
+#include "GameEngine.h"
 #include "gui/WindowHandler.h"
 #include "render/Canvas.h"
 #include "lobby/CSavingScreen.h"
@@ -110,11 +110,11 @@ void SettingsMainWindow::openTab(size_t index)
 
 void SettingsMainWindow::close()
 {
-	if(!GH.windows().isTopWindow(this))
+	if(!ENGINE->windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
 	
 	LOCPLINT->gamePause(false);
-	GH.windows().popWindows(1);
+	ENGINE->windows().popWindows(1);
 }
 
 void SettingsMainWindow::quitGameButtonCallback()
@@ -124,7 +124,7 @@ void SettingsMainWindow::quitGameButtonCallback()
 		[this]()
 		{
 			close();
-			GH.dispatchMainThread( []()
+			ENGINE->dispatchMainThread( []()
 			{
 				handleQuit(false);
 			});
@@ -161,7 +161,7 @@ void SettingsMainWindow::loadGameButtonCallback()
 void SettingsMainWindow::saveGameButtonCallback()
 {
 	close();
-	GH.windows().createAndPushWindow<CSavingScreen>();
+	ENGINE->windows().createAndPushWindow<CSavingScreen>();
 }
 
 void SettingsMainWindow::restartGameButtonCallback()
@@ -171,7 +171,7 @@ void SettingsMainWindow::restartGameButtonCallback()
 		[this]()
 		{
 			close();
-			GH.dispatchMainThread([](){
+			ENGINE->dispatchMainThread([](){
 				CSH->sendRestartGame();
 			});
 		},

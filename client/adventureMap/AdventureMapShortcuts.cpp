@@ -16,7 +16,7 @@
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../PlayerLocalState.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../lobby/CSavingScreen.h"
@@ -122,7 +122,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 
 void AdventureMapShortcuts::showOverview()
 {
-	GH.windows().createAndPushWindow<CKingdomInterface>();
+	ENGINE->windows().createAndPushWindow<CKingdomInterface>();
 }
 
 void AdventureMapShortcuts::worldViewBack()
@@ -236,17 +236,17 @@ void AdventureMapShortcuts::showSpellbook()
 
 	owner.centerOnObject(LOCPLINT->localState->getCurrentHero());
 
-	GH.windows().createAndPushWindow<CSpellWindow>(LOCPLINT->localState->getCurrentHero(), LOCPLINT, false);
+	ENGINE->windows().createAndPushWindow<CSpellWindow>(LOCPLINT->localState->getCurrentHero(), LOCPLINT, false);
 }
 
 void AdventureMapShortcuts::adventureOptions()
 {
-	GH.windows().createAndPushWindow<AdventureOptions>();
+	ENGINE->windows().createAndPushWindow<AdventureOptions>();
 }
 
 void AdventureMapShortcuts::systemOptions()
 {
-	GH.windows().createAndPushWindow<SettingsMainWindow>();
+	ENGINE->windows().createAndPushWindow<SettingsMainWindow>();
 }
 
 void AdventureMapShortcuts::firstHero()
@@ -356,7 +356,7 @@ void AdventureMapShortcuts::quitGame()
 		CGI->generaltexth->allTexts[578],
 		[]()
 		{
-			GH.dispatchMainThread( []()
+			ENGINE->dispatchMainThread( []()
 			{
 				handleQuit(false);
 			});
@@ -367,7 +367,7 @@ void AdventureMapShortcuts::quitGame()
 
 void AdventureMapShortcuts::saveGame()
 {
-	GH.windows().createAndPushWindow<CSavingScreen>();
+	ENGINE->windows().createAndPushWindow<CSavingScreen>();
 }
 
 void AdventureMapShortcuts::loadGame()
@@ -394,7 +394,7 @@ void AdventureMapShortcuts::restartGame()
 		CGI->generaltexth->translate("vcmi.adventureMap.confirmRestartGame"),
 		[]()
 		{
-			GH.dispatchMainThread(
+			ENGINE->dispatchMainThread(
 				[]()
 				{
 					CSH->sendRestartGame();
@@ -438,7 +438,7 @@ void AdventureMapShortcuts::showMarketplace()
 	}
 
 	if(townWithMarket) //if any town has marketplace, open window
-		GH.windows().createAndPushWindow<CMarketWindow>(townWithMarket, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+		ENGINE->windows().createAndPushWindow<CMarketWindow>(townWithMarket, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 	else //if not - complain
 		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 }
@@ -516,7 +516,7 @@ void AdventureMapShortcuts::search(bool next)
 	if(next)
 		selectObjOnMap(lastSel);
 	else
-		GH.windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, CGI->generaltexth->translate("vcmi.adventureMap.search.hover"), CGI->generaltexth->translate("vcmi.adventureMap.search.help"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
+		ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, CGI->generaltexth->translate("vcmi.adventureMap.search.hover"), CGI->generaltexth->translate("vcmi.adventureMap.search.help"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
 }
 
 void AdventureMapShortcuts::nextObject()

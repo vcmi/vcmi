@@ -13,7 +13,7 @@
 #include "CHighScoreScreen.h"
 #include "CStatisticScreen.h"
 #include "CMainMenu.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 #include "../media/IMusicPlayer.h"
@@ -174,7 +174,7 @@ void CHighScoreScreen::buttonExitClick()
 
 void CHighScoreScreen::showAll(Canvas & to)
 {
-	to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
+	to.fillTexture(ENGINE->renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
 	CWindowObject::showAll(to);
 }
 
@@ -214,7 +214,7 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 
 	if (settings["general"]["enableUiEnhancements"].Bool())
 	{
-		statisticButton = std::make_shared<CButton>(Point(726, 10), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.statisticWindow.statistics")), [this](){ GH.windows().createAndPushWindow<CStatisticScreen>(stat); }, EShortcut::HIGH_SCORES_STATISTICS);
+		statisticButton = std::make_shared<CButton>(Point(726, 10), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.statisticWindow.statistics")), [this](){ ENGINE->windows().createAndPushWindow<CStatisticScreen>(stat); }, EShortcut::HIGH_SCORES_STATISTICS);
 		texts.push_back(std::make_shared<CLabel>(716, 25, EFonts::FONT_HIGH_SCORE, ETextAlignment::CENTERRIGHT, Colors::WHITE, CGI->generaltexth->translate("vcmi.statisticWindow.statistics") + ":"));
 	}
 }
@@ -277,7 +277,7 @@ void CHighScoreInputScreen::show(Canvas & to)
 
 void CHighScoreInputScreen::showAll(Canvas & to)
 {
-	to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
+	to.fillTexture(ENGINE->renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
 	CWindowObject::showAll(to);
 }
 
@@ -303,7 +303,7 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 			{
 				int pos = addEntry(text);
 				close();
-				GH.windows().createAndPushWindow<CHighScoreScreen>(calc.isCampaign ? CHighScoreScreen::HighScorePage::CAMPAIGN : CHighScoreScreen::HighScorePage::SCENARIO, pos);
+				ENGINE->windows().createAndPushWindow<CHighScoreScreen>(calc.isCampaign ? CHighScoreScreen::HighScorePage::CAMPAIGN : CHighScoreScreen::HighScorePage::SCENARIO, pos);
 			}
 			else
 				stopMusicAndClose();
