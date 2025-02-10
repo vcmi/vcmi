@@ -16,8 +16,6 @@ struct SDL_Surface;
 extern SDL_Texture * screenTexture;
 extern SDL_Renderer * mainRenderer;
 
-extern SDL_Surface *screen;
-
 /// Notify user about encountered fatal error and terminate the game
 /// Defined in clientapp EntryPoint
 /// TODO: decide on better location for this method

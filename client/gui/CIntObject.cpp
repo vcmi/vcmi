@@ -15,6 +15,7 @@
 #include "EventDispatcher.h"
 #include "Shortcut.h"
 #include "../render/Canvas.h"
+#include "../render/IScreenHandler.h"
 #include "../windows/CMessage.h"
 #include "../CMT.h"
 
@@ -238,7 +239,7 @@ void CIntObject::redraw()
 		}
 		else
 		{
-			Canvas buffer = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
+			Canvas buffer = GH.screenHandler().getScreenCanvas();
 			showAll(buffer);
 		}
 	}

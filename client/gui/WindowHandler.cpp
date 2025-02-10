@@ -17,6 +17,7 @@
 #include "../CMT.h"
 #include "../CGameInfo.h"
 #include "../render/Canvas.h"
+#include "../render/IScreenHandler.h"
 #include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
 
@@ -108,7 +109,7 @@ void WindowHandler::totalRedrawImpl()
 {
 	logGlobal->debug("totalRedraw requested!");
 
-	Canvas target = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
+	Canvas target = GH.screenHandler().getScreenCanvas();
 
 	for(auto & elem : windowsStack)
 		elem->showAll(target);
@@ -126,7 +127,7 @@ void WindowHandler::simpleRedraw()
 
 void WindowHandler::simpleRedrawImpl()
 {
-	Canvas target = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
+	Canvas target = GH.screenHandler().getScreenCanvas();
 
 	if(!windowsStack.empty())
 		windowsStack.back()->show(target); //blit active interface/window

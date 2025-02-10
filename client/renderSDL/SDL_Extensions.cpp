@@ -71,24 +71,29 @@ void CSDL_Ext::setAlpha(SDL_Surface * bg, int value)
 
 SDL_Surface * CSDL_Ext::newSurface(const Point & dimensions)
 {
-	return newSurface(dimensions, screen);
+	return newSurface(dimensions, nullptr);
 }
 
 SDL_Surface * CSDL_Ext::newSurface(const Point & dimensions, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
-	SDL_Surface * ret = SDL_CreateRGBSurface(0,dimensions.x,dimensions.y,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
+	SDL_Surface * ret = nullptr;
+
+	if (mod != nullptr)
+		ret = SDL_CreateRGBSurface(0,dimensions.x,dimensions.y,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
+	else
+		ret = SDL_CreateRGBSurfaceWithFormat(0,dimensions.x,dimensions.y,32,SDL_PixelFormatEnum::SDL_PIXELFORMAT_ARGB8888);
 
 	if(ret == nullptr)
 	{
 		const char * error = SDL_GetError();
 
-		std::string messagePattern = "Failed to create SDL Surface of size %d x %d, %d bpp. Reason: %s";
-		std::string message = boost::str(boost::format(messagePattern) % dimensions.x % dimensions.y % mod->format->BitsPerPixel % error);
+		std::string messagePattern = "Failed to create SDL Surface of size %d x %d. Reason: %s";
+		std::string message = boost::str(boost::format(messagePattern) % dimensions.x % dimensions.y % error);
 
 		handleFatalError(message, true);
 	}
 
-	if (mod->format->palette)
+	if (mod && mod->format->palette)
 	{
 		assert(ret->format->palette);
 		assert(ret->format->palette->ncolors >= mod->format->palette->ncolors);

@@ -11,11 +11,14 @@
 #include "StdInc.h"
 #include "ScreenHandler.h"
 
+#include "../CGameInfo.h"
+#include "../CMT.h"
 #include "../eventsSDL/NotificationHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../render/Canvas.h"
 #include "../renderSDL/SDL_Extensions.h"
-#include "CMT.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/constants/StringConstants.h"
@@ -34,7 +37,6 @@
 static SDL_Window * mainWindow = nullptr;
 SDL_Renderer * mainRenderer = nullptr;
 SDL_Texture * screenTexture = nullptr;
-SDL_Surface * screen = nullptr; //main screen surface
 
 static const std::string NAME = GameConstants::VCMI_VERSION; //application name
 static constexpr Point heroes3Resolution = Point(800, 600);
@@ -618,6 +620,24 @@ void ScreenHandler::clearScreen()
 {
 	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
 	SDL_RenderClear(mainRenderer);
+	SDL_RenderPresent(mainRenderer);
+}
+
+Canvas ScreenHandler::getScreenCanvas() const
+{
+	return Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
+}
+
+void ScreenHandler::updateScreenTexture()
+{
+	SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
+}
+
+void ScreenHandler::presetScreenTexture()
+{
+	SDL_RenderClear(mainRenderer);
+	SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
+	CCS->curh->render();
 	SDL_RenderPresent(mainRenderer);
 }
 

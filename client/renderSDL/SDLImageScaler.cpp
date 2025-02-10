@@ -211,7 +211,7 @@ SDLImageScaler::SDLImageScaler(SDL_Surface * surf, const Rect & virtualDimension
 	if (optimizeImage)
 	{
 		SDLImageOptimizer optimizer(surf, virtualDimensions);
-		optimizer.optimizeSurface(screen);
+		optimizer.optimizeSurface(nullptr);
 		intermediate = optimizer.acquireResultSurface();
 		virtualDimensionsInput = optimizer.getResultDimensions();
 	}

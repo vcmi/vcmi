@@ -20,6 +20,7 @@
 
 #include "../CGameInfo.h"
 #include "../adventureMap/AdventureMapInterface.h"
+#include "../render/Canvas.h"
 #include "../render/Colors.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
@@ -104,21 +105,13 @@ void CGuiHandler::renderFrame()
 		if (settings["video"]["showfps"].Bool())
 			drawFPSCounter();
 
-		SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
-	}
-
-	SDL_RenderClear(mainRenderer);
-	SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
-
-	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-
-		CCS->curh->render();
+		screenHandlerInstance->updateScreenTexture();
 
 		windows().onFrameRendered();
+		CCS->curh->update();
 	}
 
-	SDL_RenderPresent(mainRenderer);
+	screenHandlerInstance->presetScreenTexture();
 	framerate().framerateDelay(); // holds a constant FPS
 }
 
@@ -181,19 +174,12 @@ Point CGuiHandler::screenDimensions() const
 
 void CGuiHandler::drawFPSCounter()
 {
-	int scaling = screenHandlerInstance->getScalingFactor();
-	int x = 7 * scaling;
-	int y = screen->h-20 * scaling;
-	int width3digitFPSIncludingPadding = 48 * scaling;
-	int heightFPSTextIncludingPadding = 11 * scaling;
-	SDL_Rect overlay = { x, y, width3digitFPSIncludingPadding, heightFPSTextIncludingPadding};
-	uint32_t black = SDL_MapRGB(screen->format, 10, 10, 10);
-	SDL_FillRect(screen, &overlay, black);
-
+	Canvas target = GH.screenHandler().getScreenCanvas();
+	Rect targetArea(0, screenDimensions().y - 20, 48, 11);
 	std::string fps = std::to_string(framerate().getFramerate())+" FPS";
 
-	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
-	font->renderTextLeft(screen, fps, Colors::WHITE, Point(8 * scaling, screen->h-22 * scaling));
+	target.drawColor(targetArea, ColorRGBA(10, 10, 10));
+	target.drawText(targetArea.center(), EFonts::FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, fps);
 }
 
 bool CGuiHandler::amIGuiThread()
