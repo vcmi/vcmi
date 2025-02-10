@@ -27,7 +27,6 @@
 #include "../render/EFont.h"
 #include "../renderSDL/ScreenHandler.h"
 #include "../renderSDL/RenderHandler.h"
-#include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
 

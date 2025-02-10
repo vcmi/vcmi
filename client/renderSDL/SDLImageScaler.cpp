@@ -12,7 +12,6 @@
 
 #include "SDL_Extensions.h"
 
-#include "../CMT.h"
 #include "../xBRZ/xbrz.h"
 
 #include <tbb/parallel_for.h>

@@ -324,10 +324,21 @@ void SDLImageShared::exportBitmap(const boost::filesystem::path& path, SDL_Palet
 bool SDLImageShared::isTransparent(const Point & coords) const
 {
 	assert(upscalingInProgress == false);
-	if (surf)
-		return CSDL_Ext::isTransparent(surf, coords.x - margins.x, coords.y	- margins.y);
-	else
+	if (!surf)
 		return true;
+
+	Point test = coords - margins;
+
+	if (test.x < 0 || test.y < 0 || test.x >= surf->w || test.y >= surf->h)
+		return true;
+
+	SDL_Color color;
+	SDL_GetRGBA(CSDL_Ext::getPixel(surf, test.x, test.y), surf->format, &color.r, &color.g, &color.b, &color.a);
+
+	bool pixelTransparent = color.a < 128;
+	bool pixelCyan = (color.r == 0 && color.g == 255 && color.b == 255);
+
+	return pixelTransparent || pixelCyan;
 }
 
 Rect SDLImageShared::contentRect() const

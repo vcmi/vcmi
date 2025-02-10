@@ -34,7 +34,6 @@
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../render/IScreenHandler.h"
-#include "../CMT.h"
 #include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
 

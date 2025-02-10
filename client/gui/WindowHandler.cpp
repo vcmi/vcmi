@@ -14,12 +14,10 @@
 #include "CIntObject.h"
 #include "CursorHandler.h"
 
-#include "../CMT.h"
 #include "../CGameInfo.h"
 #include "../render/Canvas.h"
 #include "../render/IScreenHandler.h"
 #include "../render/Colors.h"
-#include "../renderSDL/SDL_Extensions.h"
 
 void WindowHandler::popWindow(std::shared_ptr<IShowActivatable> top)
 {

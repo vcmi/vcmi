@@ -17,7 +17,6 @@
 #include "../render/Canvas.h"
 #include "../render/IScreenHandler.h"
 #include "../windows/CMessage.h"
-#include "../CMT.h"
 
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),
