@@ -18,6 +18,7 @@
 
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../media/ISoundPlayer.h"
@@ -58,7 +59,7 @@ void GlobalLobbyClient::addChannel(const std::string & channel)
 	toSend["type"].String() = "requestChatHistory";
 	toSend["channelType"].String() = "global";
 	toSend["channelName"].String() = channel;
-	CSH->getGlobalLobby().sendMessage(toSend);
+	GAME->server().getGlobalLobby().sendMessage(toSend);
 
 	Settings languageRooms = settings.write["lobby"]["languageRooms"];
 
@@ -349,15 +350,15 @@ void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)
 {
 	if (json["proxyMode"].Bool())
 	{
-		CSH->resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOBBY_GUEST, { CSH->getGlobalLobby().getAccountDisplayName() });
-		CSH->loadMode = ELoadMode::MULTI;
+		GAME->server().resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOBBY_GUEST, { GAME->server().getGlobalLobby().getAccountDisplayName() });
+		GAME->server().loadMode = ELoadMode::MULTI;
 
 		std::string hostname = getServerHost();
 		uint16_t port = getServerPort();
-		CSH->connectToServer(hostname, port);
+		GAME->server().connectToServer(hostname, port);
 	}
 
-	// NOTE: must be set after CSH->resetStateForLobby call
+	// NOTE: must be set after GAME->server().resetStateForLobby call
 	currentGameRoomUUID = json["gameRoomID"].String();
 }
 
@@ -449,7 +450,7 @@ void GlobalLobbyClient::connect()
 {
 	std::string hostname = getServerHost();
 	uint16_t port = getServerPort();
-	CSH->getNetworkHandler().connectToRemote(*this, hostname, port);
+	GAME->server().getNetworkHandler().connectToRemote(*this, hostname, port);
 }
 
 bool GlobalLobbyClient::isLoggedIn() const
@@ -531,7 +532,7 @@ const std::vector<GlobalLobbyChannelMessage> & GlobalLobbyClient::getChannelHist
 			toSend["type"].String() = "requestChatHistory";
 			toSend["channelType"].String() = channelType;
 			toSend["channelName"].String() = channelName;
-			CSH->getGlobalLobby().sendMessage(toSend);
+			GAME->server().getGlobalLobby().sendMessage(toSend);
 		}
 		return emptyVector;
 	}
@@ -647,7 +648,7 @@ void GlobalLobbyClient::sendMatchChatMessage(const std::string & messageText)
 
 	assert(TextOperations::isValidUnicodeString(messageText));
 
-	CSH->getGlobalLobby().sendMessage(toSend);
+	GAME->server().getGlobalLobby().sendMessage(toSend);
 }
 
 bool GlobalLobbyClient::isInvitedToRoom(const std::string & gameRoomID)
@@ -655,7 +656,7 @@ bool GlobalLobbyClient::isInvitedToRoom(const std::string & gameRoomID)
 	if (activeInvites.count(gameRoomID) > 0)
 		return true;
 
-	const auto & gameRoom = CSH->getGlobalLobby().getActiveRoomByName(gameRoomID);
+	const auto & gameRoom = GAME->server().getGlobalLobby().getActiveRoomByName(gameRoomID);
 	for (auto const & invited : gameRoom.invited)
 	{
 		if (invited.accountID == getAccountID())

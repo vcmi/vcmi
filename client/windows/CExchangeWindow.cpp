@@ -15,6 +15,7 @@
 #include "../CPlayerInterface.h"
 
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
@@ -51,8 +52,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	OBJECT_CONSTRUCTION;
 	addUsedEvents(KEYBOARD);
 
-	heroInst[0] = LOCPLINT->cb->getHero(hero1);
-	heroInst[1] = LOCPLINT->cb->getHero(hero2);
+	heroInst[0] = GAME->interface()->cb->getHero(hero1);
+	heroInst[1] = GAME->interface()->cb->getHero(hero2);
 
 	auto genTitle = [](const CGHeroInstance * h)
 	{
@@ -130,7 +131,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		heroAreas[b]->addClickCallback([this, hero]() -> void
 									   {
 										   if(getPickedArtifact() == nullptr)
-											   LOCPLINT->openHeroWindow(hero);
+											   GAME->interface()->openHeroWindow(hero);
 									   });
 
 		specialtyAreas[b] = std::make_shared<LRClickableAreaWText>();
@@ -160,7 +161,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	quit = std::make_shared<CButton>(Point(732, 567), AnimationPath::builtin("IOKAY.DEF"), VLC->generaltexth->zelp[600], std::bind(&CExchangeWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 	if(queryID.getNum() > 0)
-		quit->addCallback([=](){ LOCPLINT->cb->selectionMade(0, queryID); });
+		quit->addCallback([=](){ GAME->interface()->cb->selectionMade(0, queryID); });
 
 	questlogButton[0] = std::make_shared<CButton>(Point( 10, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(VLC->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questLogShortcut, this));
 	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(VLC->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questLogShortcut, this));
@@ -226,8 +227,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		backpackButtonLeft->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 		backpackButtonRight->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 
-		auto leftHeroBlock = heroInst[0]->tempOwner != LOCPLINT->cb->getPlayerID();
-		auto rightHeroBlock = heroInst[1]->tempOwner != LOCPLINT->cb->getPlayerID();
+		auto leftHeroBlock = heroInst[0]->tempOwner != GAME->interface()->cb->getPlayerID();
+		auto rightHeroBlock = heroInst[1]->tempOwner != GAME->interface()->cb->getPlayerID();
 
 		buttonMoveUnitsFromLeftToRight->block(leftHeroBlock);
 		buttonMoveUnitsFromRightToLeft->block(rightHeroBlock);
@@ -371,7 +372,7 @@ bool CExchangeWindow::holdsGarrison(const CArmedInstance * army)
 void CExchangeWindow::questLogShortcut()
 {
 	ENGINE->cursor().dragAndDropCursor(nullptr);
-	LOCPLINT->showQuestLog();
+	GAME->interface()->showQuestLog();
 }
 
 void CExchangeWindow::update()

@@ -21,6 +21,7 @@
 
 #include "../battle/BattleInterface.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../media/IVideoPlayer.h"
@@ -602,7 +603,7 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 		auto spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
 		{
-			LOCPLINT->showInfoDialog(boost::str(boost::format(VLC->generaltexth->allTexts[206]) % spellCost % owner->myHero->mana));
+			GAME->interface()->showInfoDialog(boost::str(boost::format(VLC->generaltexth->allTexts[206]) % spellCost % owner->myHero->mana));
 			return;
 		}
 
@@ -619,10 +620,10 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 		const bool inCastle = owner->myInt->castleInt != nullptr;
 
 		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
-		if((combatSpell != inCombat) || inCastle || (!combatSpell && !LOCPLINT->makingTurn))
+		if((combatSpell != inCombat) || inCastle || (!combatSpell && !GAME->interface()->makingTurn))
 		{
 			std::vector<std::shared_ptr<CComponent>> hlp(1, std::make_shared<CComponent>(ComponentType::SPELL, mySpell->id));
-			LOCPLINT->showInfoDialog(mySpell->getDescriptionTranslated(schoolLevel), hlp);
+			GAME->interface()->showInfoDialog(mySpell->getDescriptionTranslated(schoolLevel), hlp);
 		}
 		else if(combatSpell)
 		{
@@ -637,9 +638,9 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 				std::vector<std::string> texts;
 				problem.getAll(texts);
 				if(!texts.empty())
-					LOCPLINT->showInfoDialog(texts.front());
+					GAME->interface()->showInfoDialog(texts.front());
 				else
-					LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
+					GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
 			}
 		}
 		else //adventure spell
@@ -656,7 +657,7 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 			});
 
 			spells::detail::ProblemImpl problem;
-			if (mySpell->getAdventureMechanics().canBeCast(problem, LOCPLINT->cb.get(), owner->myHero))
+			if (mySpell->getAdventureMechanics().canBeCast(problem, GAME->interface()->cb.get(), owner->myHero))
 			{
 				if(mySpell->getTargetType() == spells::AimType::LOCATION)
 					adventureInt->enterCastingMode(mySpell);
@@ -670,9 +671,9 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 				std::vector<std::string> texts;
 				problem.getAll(texts);
 				if(!texts.empty())
-					LOCPLINT->showInfoDialog(texts.front());
+					GAME->interface()->showInfoDialog(texts.front());
 				else
-					LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
+					GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
 			}
 		}
 	}

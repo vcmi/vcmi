@@ -21,6 +21,7 @@
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../globalLobby/GlobalLobbyClient.h"
@@ -148,8 +149,8 @@ InfoCard::InfoCard()
 	chat = std::make_shared<CChatBox>(Rect(18, 126, 335, 143));
 	pvpBox = std::make_shared<PvPBox>(Rect(17, 396, 338, 105));
 
-	buttonInvitePlayers = std::make_shared<CButton>(Point(20, 365), AnimationPath::builtin("pregameInvitePlayers"), VLC->generaltexth->zelp[105], [](){ CSH->getGlobalLobby().activateRoomInviteInterface(); }, EShortcut::LOBBY_INVITE_PLAYERS );
-	buttonOpenGlobalLobby = std::make_shared<CButton>(Point(188, 365), AnimationPath::builtin("pregameReturnToLobby"), VLC->generaltexth->zelp[105], [](){ CSH->getGlobalLobby().activateInterface(); }, EShortcut::MAIN_MENU_LOBBY );
+	buttonInvitePlayers = std::make_shared<CButton>(Point(20, 365), AnimationPath::builtin("pregameInvitePlayers"), VLC->generaltexth->zelp[105], [](){ GAME->server().getGlobalLobby().activateRoomInviteInterface(); }, EShortcut::LOBBY_INVITE_PLAYERS );
+	buttonOpenGlobalLobby = std::make_shared<CButton>(Point(188, 365), AnimationPath::builtin("pregameReturnToLobby"), VLC->generaltexth->zelp[105], [](){ GAME->server().getGlobalLobby().activateInterface(); }, EShortcut::MAIN_MENU_LOBBY );
 
 	buttonInvitePlayers->setTextOverlay  (MetaString::createFromTextID("vcmi.lobby.invite.header").toString(), EFonts::FONT_SMALL, Colors::WHITE);
 	buttonOpenGlobalLobby->setTextOverlay(MetaString::createFromTextID("vcmi.lobby.backToLobby").toString(), EFonts::FONT_SMALL, Colors::WHITE);
@@ -204,7 +205,7 @@ InfoCard::InfoCard()
 		disableLabelRedraws();
 	}
 	setChat(false);
-	if (CSH->inLobbyRoom())
+	if (GAME->server().inLobbyRoom())
 		setChat(true); // FIXME: less ugly version?
 }
 
@@ -264,7 +265,7 @@ void InfoCard::changeSelection()
 
 	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
 
-	for(const auto & p : CSH->playerNames)
+	for(const auto & p : GAME->server().playerNames)
 	{
 		int slotsUsed = labelGroupPlayers->currentSize();
 		Point labelPosition;
@@ -316,7 +317,7 @@ void InfoCard::setChat(bool activateChat)
 			pvpBox->enable();
 			playerListBg->enable();
 		}
-		if (CSH->inLobbyRoom())
+		if (GAME->server().inLobbyRoom())
 		{
 			buttonInvitePlayers->enable();
 			buttonOpenGlobalLobby->enable();
@@ -387,7 +388,7 @@ void CChatBox::keyPressed(EShortcut key)
 {
 	if(key == EShortcut::GLOBAL_ACCEPT && inputBox->getText().size())
 	{
-		CSH->sendMessage(inputBox->getText());
+		GAME->server().sendMessage(inputBox->getText());
 		inputBox->setText("");
 	}
 	else
@@ -425,7 +426,7 @@ PvPBox::PvPBox(const Rect & rect)
 	buttonFlipCoin = std::make_shared<CButton>(Point(190, 6), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", VLC->generaltexth->translate("vcmi.lobby.pvp.coin.help")), [](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::COIN;
-		CSH->sendLobbyPack(lpa);
+		GAME->server().sendLobbyPack(lpa);
 	}, EShortcut::LOBBY_FLIP_COIN);
 	buttonFlipCoin->setTextOverlay(VLC->generaltexth->translate("vcmi.lobby.pvp.coin.hover"), EFonts::FONT_SMALL, Colors::WHITE);
 
@@ -433,7 +434,7 @@ PvPBox::PvPBox(const Rect & rect)
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::RANDOM_TOWN;
 		lpa.bannedTowns = getBannedTowns();
-		CSH->sendLobbyPack(lpa);
+		GAME->server().sendLobbyPack(lpa);
 	}, EShortcut::LOBBY_RANDOM_TOWN);
 	buttonRandomTown->setTextOverlay(VLC->generaltexth->translate("vcmi.lobby.pvp.randomTown.hover"), EFonts::FONT_SMALL, Colors::WHITE);
 
@@ -441,12 +442,12 @@ PvPBox::PvPBox(const Rect & rect)
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::RANDOM_TOWN_VS;
 		lpa.bannedTowns = getBannedTowns();
-		CSH->sendLobbyPack(lpa);
+		GAME->server().sendLobbyPack(lpa);
 	}, EShortcut::LOBBY_RANDOM_TOWN_VS);
 	buttonRandomTownVs->setTextOverlay(VLC->generaltexth->translate("vcmi.lobby.pvp.randomTownVs.hover"), EFonts::FONT_SMALL, Colors::WHITE);
 
 	buttonHandicap = std::make_shared<CButton>(Point(190, 81), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", VLC->generaltexth->translate("vcmi.lobby.handicap")), [](){
-		if(!CSH->isHost())
+		if(!GAME->server().isHost())
 			return;
 		ENGINE->windows().createAndPushWindow<OptionsTab::HandicapWindow>();
 	}, EShortcut::LOBBY_HANDICAP);
@@ -539,10 +540,10 @@ void CFlagBox::recreate()
 	OBJECT_CONSTRUCTION;
 	const int alliesX = 5 + (int)labelAllies->getWidth();
 	const int enemiesX = 5 + 133 + (int)labelEnemies->getWidth();
-	for(auto i = CSH->si->playerInfos.cbegin(); i != CSH->si->playerInfos.cend(); i++)
+	for(auto i = GAME->server().si->playerInfos.cbegin(); i != GAME->server().si->playerInfos.cend(); i++)
 	{
 		auto flag = std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS.DEF"), i->first.getNum(), 0);
-		if(i->first == CSH->myFirstColor() || CSH->getPlayerTeamId(i->first) == CSH->getPlayerTeamId(CSH->myFirstColor()))
+		if(i->first == GAME->server().myFirstColor() || GAME->server().getPlayerTeamId(i->first) == GAME->server().getPlayerTeamId(GAME->server().myFirstColor()))
 		{
 			flag->moveTo(Point(pos.x + alliesX + (int)flagsAllies.size()*flag->pos.w, pos.y));
 			flagsAllies.push_back(flag);

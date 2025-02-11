@@ -20,6 +20,7 @@
 #include "../CPlayerInterface.h"
 
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
@@ -116,7 +117,7 @@ void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
 
 	if(card)
 	{
-		si32 maxAmount = card->creature->maxAmount(LOCPLINT->cb->getResourceAmount());
+		si32 maxAmount = card->creature->maxAmount(GAME->interface()->cb->getResourceAmount());
 
 		vstd::amin(maxAmount, card->amount);
 
@@ -156,11 +157,11 @@ void CRecruitmentWindow::buy()
 	if(!dstslot.validSlot() && (selected->creature->warMachine == ArtifactID::NONE)) //no available slot
 	{
 		std::pair<SlotID, SlotID> toMerge;
-		bool allowMerge = LOCPLINT->cb->getSettings().getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED);
+		bool allowMerge = GAME->interface()->cb->getSettings().getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED);
 
 		if (allowMerge && dst->mergeableStacks(toMerge))
 		{
-			LOCPLINT->cb->mergeStacks( dst, dst, toMerge.first, toMerge.second);
+			GAME->interface()->cb->mergeStacks( dst, dst, toMerge.first, toMerge.second);
 		}
 		else
 		{
@@ -175,7 +176,7 @@ void CRecruitmentWindow::buy()
 				txt = VLC->generaltexth->allTexts[17]; //There is no room in the garrison for this army.
 			}
 
-			LOCPLINT->showInfoDialog(txt);
+			GAME->interface()->showInfoDialog(txt);
 			return;
 		}
 	}
@@ -304,7 +305,7 @@ void CRecruitmentWindow::sliderMoved(int to)
 	if(!selected)
 		return;
 
-	buyButton->block(!to || !LOCPLINT->makingTurn);
+	buyButton->block(!to || !GAME->interface()->makingTurn);
 	availableValue->setText(std::to_string(selected->amount - to));
 	toRecruitValue->setText(std::to_string(to));
 
@@ -403,7 +404,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 {
 	OBJECT_CONSTRUCTION;
 
-	LOCPLINT->showingDialog->setBusy();
+	GAME->interface()->showingDialog->setBusy();
 
 	if(!skills.empty())
 	{
@@ -445,7 +446,7 @@ void CLevelWindow::close()
 	if (box && box->selectedIndex() != -1)
 		cb(box->selectedIndex());
 
-	LOCPLINT->showingDialog->setFree();
+	GAME->interface()->showingDialog->setFree();
 
 	CWindowObject::close();
 }
@@ -458,7 +459,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 {
 	OBJECT_CONSTRUCTION;
 
-	std::vector<const CGHeroInstance*> h = LOCPLINT->cb->getAvailableHeroes(TavernObj);
+	std::vector<const CGHeroInstance*> h = GAME->interface()->cb->getAvailableHeroes(TavernObj);
 	if(h.size() < 2)
 		h.resize(2, nullptr);
 
@@ -478,37 +479,37 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	heroDescription = std::make_shared<CTextBox>("", Rect(30, 373, 233, 35), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	heroesForHire = std::make_shared<CLabel>(145, 283, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->jktexts[38]);
 
-	rumor = std::make_shared<CTextBox>(LOCPLINT->cb->getTavernRumor(tavernObj), Rect(32, 188, 330, 66), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	rumor = std::make_shared<CTextBox>(GAME->interface()->cb->getTavernRumor(tavernObj), Rect(32, 188, 330, 66), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 	cancel = std::make_shared<CButton>(Point(310, 428), AnimationPath::builtin("ICANCEL.DEF"), CButton::tooltip(VLC->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), EShortcut::GLOBAL_CANCEL);
 	recruit = std::make_shared<CButton>(Point(272, 355), AnimationPath::builtin("TPTAV01.DEF"), CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), EShortcut::GLOBAL_ACCEPT);
 	thiefGuild = std::make_shared<CButton>(Point(22, 428), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(VLC->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), EShortcut::ADVENTURE_THIEVES_GUILD);
 
-	if(!LOCPLINT->makingTurn)
+	if(!GAME->interface()->makingTurn)
 	{
 		recruit->block(true);
 	}
-	else if(LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //not enough gold
+	else if(GAME->interface()->cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //not enough gold
 	{
 		recruit->addHoverText(EButtonState::NORMAL, VLC->generaltexth->tavernInfo[0]); //Cannot afford a Hero
 		recruit->block(true);
 	}
-	else if(LOCPLINT->cb->howManyHeroes(true) >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP))
+	else if(GAME->interface()->cb->howManyHeroes(true) >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP))
 	{
 		MetaString message;
 		message.appendTextID("core.tvrninfo.1");
-		message.replaceNumber(LOCPLINT->cb->howManyHeroes(true));
+		message.replaceNumber(GAME->interface()->cb->howManyHeroes(true));
 
 		//Cannot recruit. You already have %d Heroes.
 		recruit->addHoverText(EButtonState::NORMAL, message.toString());
 		recruit->block(true);
 	}
-	else if(LOCPLINT->cb->howManyHeroes(false) >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+	else if(GAME->interface()->cb->howManyHeroes(false) >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 	{
 		MetaString message;
 		message.appendTextID("core.tvrninfo.1");
-		message.replaceNumber(LOCPLINT->cb->howManyHeroes(false));
+		message.replaceNumber(GAME->interface()->cb->howManyHeroes(false));
 
 		recruit->addHoverText(EButtonState::NORMAL, message.toString());
 		recruit->block(true);
@@ -523,8 +524,8 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 		if(selected == -1)
 			recruit->block(true);
 	}
-	if(LOCPLINT->castleInt)
-		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), LOCPLINT->castleInt->town->getTown()->clientInfo.tavernVideo, false);
+	if(GAME->interface()->castleInt)
+		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), GAME->interface()->castleInt->town->getTown()->clientInfo.tavernVideo, false);
 	else if(const auto * townObj = dynamic_cast<const CGTownInstance *>(TavernObj))
 		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), townObj->getTown()->clientInfo.tavernVideo, false);
 	else
@@ -537,10 +538,10 @@ void CTavernWindow::addInvite()
 {
 	OBJECT_CONSTRUCTION;
 
-	if(!LOCPLINT->cb->getSettings().getBoolean(EGameSettings::HEROES_TAVERN_INVITE))
+	if(!GAME->interface()->cb->getSettings().getBoolean(EGameSettings::HEROES_TAVERN_INVITE))
 		return;
 
-	const auto & heroesPool = CSH->client->gameState()->heroesPool;
+	const auto & heroesPool = GAME->server().client->gameState()->heroesPool;
 	for(auto & elem : heroesPool->unusedHeroesFromPool())
 	{
 		bool heroAvailable = heroesPool->isHeroAvailableFor(elem.first, tavernObj->getOwner());
@@ -565,7 +566,7 @@ void CTavernWindow::recruitb()
 	const CGHeroInstance *toBuy = (selected ? h2 : h1)->h;
 	const CGObjectInstance *obj = tavernObj;
 
-	LOCPLINT->cb->recruitHero(obj, toBuy, heroToInvite ? heroToInvite->getHeroTypeID() : HeroTypeID::NONE);
+	GAME->interface()->cb->recruitHero(obj, toBuy, heroToInvite ? heroToInvite->getHeroTypeID() : HeroTypeID::NONE);
 	close();
 }
 
@@ -769,7 +770,7 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 
 	for(GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i)
 	{
-		if(cost[i] > LOCPLINT->cb->getResourceAmount(i))
+		if(cost[i] > GAME->interface()->cb->getResourceAmount(i))
 		{
 			build->block(true);
 			break;
@@ -824,7 +825,7 @@ void CTransformerWindow::makeDeal()
 	for(auto & elem : items)
 	{
 		if(!elem->left)
-			LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_UNDEAD, SlotID(elem->id), {}, {}, hero);
+			GAME->interface()->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_UNDEAD, SlotID(elem->id), {}, {}, hero);
 	}
 }
 
@@ -905,7 +906,7 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 			bool canLearn = parent->hero->canLearnSkill(ID);
 
 			if(!skillKnown && canLearn)
-				ENGINE->windows().createAndPushWindow<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
+				ENGINE->windows().createAndPushWindow<CUnivConfirmWindow>(parent, ID, GAME->interface()->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
 		});
 	update();
 }
@@ -991,7 +992,7 @@ void CUniversityWindow::updateSecondarySkills()
 
 void CUniversityWindow::makeDeal(SecondarySkill skill)
 {
-	LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_SKILL, GameResID(GameResID::GOLD), skill, 1, hero);
+	GAME->interface()->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_SKILL, GameResID(GameResID::GOLD), skill, 1, hero);
 }
 
 CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkill SKILL, bool available)
@@ -1158,7 +1159,7 @@ void CHillFortWindow::updateGarrisons()
 			if(const CStackInstance * s = hero->getStackPtr(SlotID(i)))
 			{
 				UpgradeInfo info(s->getCreature()->getId());
-				LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
+				GAME->interface()->cb->fillUpgradeInfo(hero, SlotID(i), info);
 				if(info.canUpgrade())	//we have upgrades here - update costs
 				{
 					costs[i] = info.getUpgradeCosts() * hero->getStackCount(SlotID(i));
@@ -1176,7 +1177,7 @@ void CHillFortWindow::updateGarrisons()
 	//"Upgrade all" slot
 	State newState = State::MAKE_UPGRADE;
 	{
-		TResources myRes = LOCPLINT->cb->getResourceAmount();
+		TResources myRes = GAME->interface()->cb->getResourceAmount();
 
 		bool allUpgraded = true;//All creatures are upgraded?
 		for(int i=0; i<slotsCount; i++)
@@ -1253,15 +1254,15 @@ void CHillFortWindow::makeDeal(SlotID slot)
 	switch(currState[slot.getNum()])
 	{
 		case State::ALREADY_UPGRADED:
-			LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[313 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
+			GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[313 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
 		case State::UNAFFORDABLE:
-			LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[314 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
+			GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[314 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
 		case State::UNAVAILABLE:
 		{
 			std::string message = VLC->generaltexth->translate(dynamic_cast<const HillFort *>(fort)->getUnavailableUpgradeMessage());
-			LOCPLINT->showInfoDialog(message, std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
+			GAME->interface()->showInfoDialog(message, std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
 		}
 		case State::MAKE_UPGRADE:
@@ -1272,8 +1273,8 @@ void CHillFortWindow::makeDeal(SlotID slot)
 					if(const CStackInstance * s = hero->getStackPtr(SlotID(i)))
 					{
 						UpgradeInfo info(s->getCreatureID());
-						LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
-						LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.getUpgrade());
+						GAME->interface()->cb->fillUpgradeInfo(hero, SlotID(i), info);
+						GAME->interface()->cb->upgradeCreature(hero, SlotID(i), info.getUpgrade());
 					}
 				}
 			}
@@ -1298,13 +1299,13 @@ std::string CHillFortWindow::getTextForSlot(SlotID slot)
 
 CHillFortWindow::State CHillFortWindow::getState(SlotID slot)
 {
-	TResources myRes = LOCPLINT->cb->getResourceAmount();
+	TResources myRes = GAME->interface()->cb->getResourceAmount();
 
 	if(hero->slotEmpty(slot))
 		return State::EMPTY;
 
 	UpgradeInfo info(hero->getStackPtr(slot)->getCreatureID());
-	LOCPLINT->cb->fillUpgradeInfo(hero, slot, info);
+	GAME->interface()->cb->fillUpgradeInfo(hero, slot, info);
 	if(info.hasUpgrades() && !info.canUpgrade())
 		return State::UNAVAILABLE;  // Hill Fort may limit level of upgradeable creatures, e.g. mini Hill Fort from HOTA
 
@@ -1324,7 +1325,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	OBJECT_CONSTRUCTION;
 
 	SThievesGuildInfo tgi; //info to be displayed
-	LOCPLINT->cb->getThievesGuildInfo(tgi, owner);
+	GAME->interface()->cb->getThievesGuildInfo(tgi, owner);
 
 	exitb = std::make_shared<CButton>(Point(748, 556), AnimationPath::builtin("TPMAGE1"), CButton::tooltip(VLC->generaltexth->allTexts[600]), [&](){ close();}, EShortcut::GLOBAL_RETURN);
 	statusbar = CGStatusBar::create(3, 555, ImagePath::builtin("TStatBar.bmp"), 742);
@@ -1530,7 +1531,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	items.reserve(_items.size());
 
 	for(int id : _items)
-		items.push_back(std::make_pair(id, LOCPLINT->cb->getObjInstance(ObjectInstanceID(id))->getObjectName()));
+		items.push_back(std::make_pair(id, GAME->interface()->cb->getObjInstance(ObjectInstanceID(id))->getObjectName()));
 	itemsVisible = items;
 
 	init(titleWidget_, _title, _descr, searchBoxEnabled);

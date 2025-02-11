@@ -20,6 +20,7 @@
 #include "battle/BattleInterface.h"
 #include "battle/BattleWindow.h"
 #include "GameEngine.h"
+#include "GameInstance.h"
 #include "gui/WindowHandler.h"
 #include "widgets/MiscWidgets.h"
 #include "CMT.h"
@@ -108,7 +109,7 @@ void callBattleInterfaceIfPresentForBothSides(CClient & cl, const BattleID & bat
 
 	callOnlyThatBattleInterface(cl, cl.gameState()->getBattle(battleID)->getSide(BattleSide::ATTACKER).color, ptr, std::forward<Args2>(args)...);
 	callOnlyThatBattleInterface(cl, cl.gameState()->getBattle(battleID)->getSide(BattleSide::DEFENDER).color, ptr, std::forward<Args2>(args)...);
-	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool() && LOCPLINT->battleInt)
+	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool() && GAME->interface()->battleInt)
 	{
 		callOnlyThatBattleInterface(cl, PlayerColor::SPECTATOR, ptr, std::forward<Args2>(args)...);
 	}
@@ -180,9 +181,9 @@ void ApplyClientNetPackVisitor::visitFoWChange(FoWChange & pack)
 {
 	for(auto &i : cl.playerint)
 	{
-		if(cl.getPlayerRelations(i.first, pack.player) == PlayerRelations::SAME_PLAYER && pack.waitForDialogs && LOCPLINT == i.second.get())
+		if(cl.getPlayerRelations(i.first, pack.player) == PlayerRelations::SAME_PLAYER && pack.waitForDialogs && GAME->interface() == i.second.get())
 		{
-			LOCPLINT->waitWhileDialog();
+			GAME->interface()->waitWhileDialog();
 		}
 		if(cl.getPlayerRelations(i.first, pack.player) != PlayerRelations::ENEMIES)
 		{
@@ -381,21 +382,15 @@ void ApplyClientNetPackVisitor::visitGiveBonus(GiveBonus & pack)
 void ApplyFirstClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.objid);
-	if(VLC && MAPHANDLER)
-	{
-		MAPHANDLER->onObjectFadeOut(obj, pack.initiator);
-		MAPHANDLER->waitForOngoingAnimations();
-	}
+	GAME->map().onObjectFadeOut(obj, pack.initiator);
+	GAME->map().waitForOngoingAnimations();
 }
 
 void ApplyClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.objid);
-	if(VLC && MAPHANDLER)
-	{
-		MAPHANDLER->onObjectFadeIn(obj, pack.initiator);
-		MAPHANDLER->waitForOngoingAnimations();
-	}
+	GAME->map().onObjectFadeIn(obj, pack.initiator);
+	GAME->map().waitForOngoingAnimations();
 	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 }
 
@@ -404,7 +399,7 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 	callAllInterfaces(cl, &IGameEventsReceiver::gameOver, pack.player, pack.victoryLossCheckResult);
 
 	bool localHumanWinsGame = vstd::contains(cl.playerint, pack.player) && cl.getPlayerState(pack.player)->human && pack.victoryLossCheckResult.victory();
-	bool lastHumanEndsGame = CSH->howManyPlayerInterfaces() == 1 && vstd::contains(cl.playerint, pack.player) && cl.getPlayerState(pack.player)->human && !settings["session"]["spectate"].Bool();
+	bool lastHumanEndsGame = GAME->server().howManyPlayerInterfaces() == 1 && vstd::contains(cl.playerint, pack.player) && cl.getPlayerState(pack.player)->human && !settings["session"]["spectate"].Bool();
 
 	if(lastHumanEndsGame || localHumanWinsGame)
 	{
@@ -415,7 +410,7 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 			adventureInt.reset();
 		}
 
-		CSH->showHighScoresAndEndGameplay(pack.player, pack.victoryLossCheckResult.victory(), pack.statistic);
+		GAME->server().showHighScoresAndEndGameplay(pack.player, pack.victoryLossCheckResult.victory(), pack.statistic);
 	}
 
 	// In auto testing pack.mode we always close client if red pack.player won or lose
@@ -445,14 +440,14 @@ void ApplyClientNetPackVisitor::visitPlayerReinitInterface(PlayerReinitInterface
 	
 	for(auto player : pack.players)
 	{
-		auto & plSettings = CSH->si->getIthPlayersSettings(player);
+		auto & plSettings = GAME->server().si->getIthPlayersSettings(player);
 		if(pack.playerConnectionId == PlayerSettings::PLAYER_AI)
 		{
 			plSettings.connectedPlayerIDs.clear();
 			cl.initPlayerEnvironments();
 			initInterfaces();
 		}
-		else if(pack.playerConnectionId == CSH->logicConnection->connectionID)
+		else if(pack.playerConnectionId == GAME->server().logicConnection->connectionID)
 		{
 			plSettings.connectedPlayerIDs.insert(pack.playerConnectionId);
 			cl.playerint.clear();
@@ -485,8 +480,7 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 {
 	const CGObjectInstance *o = cl.getObj(pack.objectID);
 
-	if(MAPHANDLER)
-		MAPHANDLER->onObjectFadeOut(o, pack.initiator);
+	GAME->map().onObjectFadeOut(o, pack.initiator);
 
 	//notify interfaces about removal
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
@@ -497,8 +491,7 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 			i->second->objectRemoved(o, pack.initiator);
 	}
 
-	if(MAPHANDLER)
-		MAPHANDLER->waitForOngoingAnimations();
+	GAME->map().waitForOngoingAnimations();
 }
 
 void ApplyClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
@@ -513,21 +506,17 @@ void ApplyFirstClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 {
 	CGHeroInstance *h = gs.getHero(pack.id);
 
-	if(MAPHANDLER)
+	switch (pack.result)
 	{
-		switch (pack.result)
-		{
-			case TryMoveHero::EMBARK:
-				MAPHANDLER->onBeforeHeroEmbark(h, pack.start, pack.end);
-				break;
-			case TryMoveHero::TELEPORTATION:
-				MAPHANDLER->onBeforeHeroTeleported(h, pack.start, pack.end);
-				break;
-			case TryMoveHero::DISEMBARK:
-				MAPHANDLER->onBeforeHeroDisembark(h, pack.start, pack.end);
-				break;
-		}
-		MAPHANDLER->waitForOngoingAnimations();
+		case TryMoveHero::EMBARK:
+			GAME->map().onBeforeHeroEmbark(h, pack.start, pack.end);
+			break;
+		case TryMoveHero::TELEPORTATION:
+			GAME->map().onBeforeHeroTeleported(h, pack.start, pack.end);
+			break;
+		case TryMoveHero::DISEMBARK:
+			GAME->map().onBeforeHeroDisembark(h, pack.start, pack.end);
+			break;
 	}
 }
 
@@ -536,23 +525,20 @@ void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 	const CGHeroInstance *h = cl.getHero(pack.id);
 	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 
-	if(MAPHANDLER)
+	switch(pack.result)
 	{
-		switch(pack.result)
-		{
-			case TryMoveHero::SUCCESS:
-				MAPHANDLER->onHeroMoved(h, pack.start, pack.end);
-				break;
-			case TryMoveHero::EMBARK:
-				MAPHANDLER->onAfterHeroEmbark(h, pack.start, pack.end);
-				break;
-			case TryMoveHero::TELEPORTATION:
-				MAPHANDLER->onAfterHeroTeleported(h, pack.start, pack.end);
-				break;
-			case TryMoveHero::DISEMBARK:
-				MAPHANDLER->onAfterHeroDisembark(h, pack.start, pack.end);
-				break;
-		}
+		case TryMoveHero::SUCCESS:
+			GAME->map().onHeroMoved(h, pack.start, pack.end);
+			break;
+		case TryMoveHero::EMBARK:
+			GAME->map().onAfterHeroEmbark(h, pack.start, pack.end);
+			break;
+		case TryMoveHero::TELEPORTATION:
+			GAME->map().onAfterHeroTeleported(h, pack.start, pack.end);
+			break;
+		case TryMoveHero::DISEMBARK:
+			GAME->map().onAfterHeroDisembark(h, pack.start, pack.end);
+			break;
 	}
 
 	PlayerColor player = h->tempOwner;
@@ -585,12 +571,10 @@ void ApplyClientNetPackVisitor::visitNewStructures(NewStructures & pack)
 	}
 
 	// invalidate section of map view with our object and force an update
-	if(MAPHANDLER)
-	{
-		MAPHANDLER->onObjectInstantRemove(town, town->getOwner());
-		MAPHANDLER->onObjectInstantAdd(town, town->getOwner());
-	}
+	GAME->map().onObjectInstantRemove(town, town->getOwner());
+	GAME->map().onObjectInstantAdd(town, town->getOwner());
 }
+
 void ApplyClientNetPackVisitor::visitRazeStructures(RazeStructures & pack)
 {
 	CGTownInstance * town = gs.getTown(pack.tid);
@@ -600,11 +584,8 @@ void ApplyClientNetPackVisitor::visitRazeStructures(RazeStructures & pack)
 	}
 
 	// invalidate section of map view with our object and force an update
-	if(MAPHANDLER)
-	{
-		MAPHANDLER->onObjectInstantRemove(town, town->getOwner());
-		MAPHANDLER->onObjectInstantAdd(town, town->getOwner());
-	}
+	GAME->map().onObjectInstantRemove(town, town->getOwner());
+	GAME->map().onObjectInstantAdd(town, town->getOwner());
 }
 
 void ApplyClientNetPackVisitor::visitSetAvailableCreatures(SetAvailableCreatures & pack)
@@ -654,15 +635,13 @@ void ApplyClientNetPackVisitor::visitHeroRecruited(HeroRecruited & pack)
 		if(const CGTownInstance *t = gs.getTown(pack.tid))
 			callInterfaceIfPresent(cl, h->getOwner(), &IGameEventsReceiver::heroInGarrisonChange, t);
 	}
-	if(MAPHANDLER)
-		MAPHANDLER->onObjectInstantAdd(h, h->getOwner());
+	GAME->map().onObjectInstantAdd(h, h->getOwner());
 }
 
 void ApplyClientNetPackVisitor::visitGiveHero(GiveHero & pack)
 {
 	CGHeroInstance *h = gs.getHero(pack.id);
-	if(MAPHANDLER)
-		MAPHANDLER->onObjectInstantAdd(h, h->getOwner());
+	GAME->map().onObjectInstantAdd(h, h->getOwner());
 	callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroCreated, h);
 }
 
@@ -688,10 +667,10 @@ void ApplyFirstClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & 
 	}
 
 	// invalidate section of map view with our object and force an update with new flag color
-	if(pack.what == ObjProperty::OWNER && MAPHANDLER)
+	if(pack.what == ObjProperty::OWNER)
 	{
 		auto object = gs.getObjInstance(pack.id);
-		MAPHANDLER->onObjectInstantRemove(object, object->getOwner());
+		GAME->map().onObjectInstantRemove(object, object->getOwner());
 	}
 }
 
@@ -705,10 +684,10 @@ void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 	}
 
 	// invalidate section of map view with our object and force an update with new flag color
-	if(pack.what == ObjProperty::OWNER && MAPHANDLER)
+	if(pack.what == ObjProperty::OWNER)
 	{
 		auto object = gs.getObjInstance(pack.id);
-		MAPHANDLER->onObjectInstantAdd(object, object->getOwner());
+		GAME->map().onObjectInstantAdd(object, object->getOwner());
 	}
 }
 
@@ -912,7 +891,7 @@ void ApplyClientNetPackVisitor::visitSystemMessage(SystemMessage & pack)
 	// usually used to receive error messages from server
 	logNetwork->error("System message: %s", pack.text.toString());
 
-	CSH->getGameChat().onNewSystemMessageReceived(pack.text.toString());
+	GAME->server().getGameChat().onNewSystemMessageReceived(pack.text.toString());
 }
 
 void ApplyClientNetPackVisitor::visitPlayerBlocked(PlayerBlocked & pack)
@@ -944,7 +923,7 @@ void ApplyClientNetPackVisitor::visitPlayerMessageClient(PlayerMessageClient & p
 {
 	logNetwork->debug("pack.player %s sends a message: %s", pack.player.toString(), pack.text);
 
-	CSH->getGameChat().onNewGameMessageReceived(pack.player, pack.text);
+	GAME->server().getGameChat().onNewGameMessageReceived(pack.player, pack.text);
 }
 
 void ApplyClientNetPackVisitor::visitAdvmapSpellCast(AdvmapSpellCast & pack)
@@ -1045,8 +1024,7 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 
 	const CGObjectInstance *obj = pack.newObject;
-	if(MAPHANDLER)
-		MAPHANDLER->onObjectFadeIn(obj, pack.initiator);
+	GAME->map().onObjectFadeIn(obj, pack.initiator);
 
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
 	{
@@ -1054,8 +1032,7 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 			i->second->newObject(obj);
 	}
 
-	if(MAPHANDLER)
-		MAPHANDLER->waitForOngoingAnimations();
+	GAME->map().waitForOngoingAnimations();
 }
 
 void ApplyClientNetPackVisitor::visitSetAvailableArtifacts(SetAvailableArtifacts & pack)

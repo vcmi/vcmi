@@ -24,6 +24,7 @@
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../windows/InfoWindows.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../battle/BattleInterface.h"
 
@@ -353,7 +354,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 		};
 		auto onClick = [=] ()
 		{
-			LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[12], onDismiss, nullptr);
+			GAME->interface()->showYesNoDialog(VLC->generaltexth->allTexts[12], onDismiss, nullptr);
 		};
 		dismiss = std::make_shared<CButton>(Point(5, 5),AnimationPath::builtin("IVIEWCR2.DEF"), VLC->generaltexth->zelp[445], onClick, EShortcut::HERO_DISMISS);
 	}
@@ -383,13 +384,13 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 					resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal));
 				}
 
-				if(LOCPLINT->cb->getResourceAmount().canAfford(totalCost))
+				if(GAME->interface()->cb->getResourceAmount().canAfford(totalCost))
 				{
-					LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[207], onUpgrade, nullptr, resComps);
+					GAME->interface()->showYesNoDialog(VLC->generaltexth->allTexts[207], onUpgrade, nullptr, resComps);
 				}
 				else
 				{
-					LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[314], resComps);
+					GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[314], resComps);
 				}
 			};
 			auto upgradeBtn = std::make_shared<CButton>(Point(221 + (int)buttonIndex * 40, 5), AnimationPath::builtin("stackWindow/upgradeButton"), VLC->generaltexth->zelp[446], onClick);
@@ -455,7 +456,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 
 		auto icon = std::make_shared<CCommanderSkillIcon>(std::make_shared<CPicture>(getSkillImage(index), skillPos.x, skillPos.y), false, [=]()
 		{
-			LOCPLINT->showInfoDialog(getSkillDescription(index));
+			GAME->interface()->showInfoDialog(getSkillDescription(index));
 		});
 
 		icon->text = getSkillDescription(index); //used to handle right click description via LRClickableAreaWText::ClickRight()
@@ -590,7 +591,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 	name = std::make_shared<CLabel>(215, 13, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, parent->info->getName());
 
-	const BattleInterface* battleInterface = LOCPLINT->battleInt.get();
+	const BattleInterface* battleInterface = GAME->interface()->battleInt.get();
 	const CStack* battleStack = parent->info->stack;
 
 	int dmgMultiply = 1;
@@ -887,8 +888,8 @@ void CStackWindow::initSections()
 {
 	OBJECT_CONSTRUCTION;
 
-	bool showArt = LOCPLINT->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_ARTIFACT) && info->commander == nullptr && info->stackNode;
-	bool showExp = (LOCPLINT->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE) || info->commander != nullptr) && info->stackNode;
+	bool showArt = GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_ARTIFACT) && info->commander == nullptr && info->stackNode;
+	bool showExp = (GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE) || info->commander != nullptr) && info->stackNode;
 
 	mainSection = std::make_shared<MainSection>(this, pos.h, showExp, showArt);
 
@@ -1087,7 +1088,7 @@ void CStackWindow::removeStackArtifact(ArtifactPosition pos)
 	{
 		auto artLoc = ArtifactLocation(info->owner->id, pos);
 		artLoc.creature = info->stackNode->armyObj->findStack(info->stackNode);
-		LOCPLINT->cb->swapArtifacts(artLoc, ArtifactLocation(info->owner->id, slot));
+		GAME->interface()->cb->swapArtifacts(artLoc, ArtifactLocation(info->owner->id, slot));
 		stackArtifactButton.reset();
 		stackArtifact.reset();
 		redraw();

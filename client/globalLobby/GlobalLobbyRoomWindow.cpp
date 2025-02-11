@@ -17,6 +17,7 @@
 
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../widgets/Buttons.h"
@@ -71,8 +72,8 @@ static std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDescripti
 	bool publicRoom = roomDescription.statusID == "public";
 	bool privateRoom = roomDescription.statusID == "private";
 	bool gameStarted = !publicRoom && !privateRoom;
-	bool hasInvite = CSH->getGlobalLobby().isInvitedToRoom(roomDescription.gameRoomID);
-	bool alreadyInRoom = CSH->inGame();
+	bool hasInvite = GAME->server().getGlobalLobby().isInvitedToRoom(roomDescription.gameRoomID);
+	bool alreadyInRoom = GAME->server().inGame();
 
 	if (alreadyInRoom)
 		return "vcmi.lobby.preview.error.playing";
@@ -122,7 +123,7 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 	pos.w = 400;
 	pos.h = 400;
 
-	GlobalLobbyRoom roomDescription = CSH->getGlobalLobby().getActiveRoomByName(roomUUID);
+	GlobalLobbyRoom roomDescription = GAME->server().getGlobalLobby().getActiveRoomByName(roomUUID);
 	for(const auto & modEntry : ModVerificationInfo::verifyListAgainstLocalMods(roomDescription.modList))
 	{
 		GlobalLobbyRoomModInfo modInfo;

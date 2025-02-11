@@ -11,6 +11,7 @@
 #include "TradePanels.h"
 
 #include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "../../render/Canvas.h"
 #include "../../widgets/TextControls.h"
 #include "../../windows/InfoWindows.h"
@@ -304,7 +305,7 @@ PlayersPanel::PlayersPanel(const CTradeableItem::ClickPressedFunctor & clickPres
 	std::vector<PlayerColor> players;
 	for(auto player = PlayerColor(0); player < PlayerColor::PLAYER_LIMIT_I; player++)
 	{
-		if(player != LOCPLINT->playerID && LOCPLINT->cb->getPlayerStatus(player) == EPlayerStatus::INGAME)
+		if(player != GAME->interface()->playerID && GAME->interface()->cb->getPlayerStatus(player) == EPlayerStatus::INGAME)
 			players.emplace_back(player);
 	}
 

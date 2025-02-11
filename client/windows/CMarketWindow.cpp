@@ -12,6 +12,7 @@
 #include "CMarketWindow.h"
 
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 
 #include "../widgets/Buttons.h"
@@ -121,7 +122,7 @@ void CMarketWindow::createChangeModeButtons(EMarketMode currentMode, const IMark
 		if(modeButton == EMarketMode::RESOURCE_RESOURCE || modeButton == EMarketMode::RESOURCE_PLAYER)
 		{
 			if(const auto town = dynamic_cast<const CGTownInstance*>(market))
-				return town->getOwner() == LOCPLINT->playerID;
+				return town->getOwner() == GAME->interface()->playerID;
 			else
 				return true;
 		}
@@ -184,10 +185,10 @@ void CMarketWindow::initWidgetInternals(const EMarketMode mode, const std::pair<
 
 std::string CMarketWindow::getMarketTitle(const ObjectInstanceID marketId, const EMarketMode mode) const
 {
-	assert(LOCPLINT->cb->getMarket(marketId));
-	assert(vstd::contains(LOCPLINT->cb->getMarket(marketId)->availableModes(), mode));
+	assert(GAME->interface()->cb->getMarket(marketId));
+	assert(vstd::contains(GAME->interface()->cb->getMarket(marketId)->availableModes(), mode));
 
-	if(const auto town = LOCPLINT->cb->getTown(marketId))
+	if(const auto town = GAME->interface()->cb->getTown(marketId))
 	{
 		for(const auto & buildingId : town->getBuildings())
 		{
@@ -195,7 +196,7 @@ std::string CMarketWindow::getMarketTitle(const ObjectInstanceID marketId, const
 				return building->getNameTranslated();
 		}
 	}
-	return LOCPLINT->cb->getObj(marketId)->getObjectName();
+	return GAME->interface()->cb->getObj(marketId)->getObjectName();
 }
 
 void CMarketWindow::createArtifactsBuying(const IMarket * market, const CGHeroInstance * hero)

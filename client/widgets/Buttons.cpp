@@ -18,6 +18,7 @@
 #include "../battle/BattleInterfaceClasses.h"
 #include "../eventsSDL/InputHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
 #include "../gui/InterfaceObjectConfigurable.h"
@@ -100,7 +101,7 @@ void ButtonBase::setImage(const AnimationPath & defName, bool playerColoredButto
 	pos = image->pos;
 
 	if (playerColoredButton)
-		image->setPlayerColor(LOCPLINT->playerID);
+		image->setPlayerColor(GAME->interface()->playerID);
 }
 
 const JsonNode & ButtonBase::getCurrentConfig() const
@@ -135,7 +136,7 @@ void ButtonBase::setConfigurable(const JsonPath & jsonName, bool playerColoredBu
 	pos = configurable->pos;
 
 	if (playerColoredButton)
-		image->setPlayerColor(LOCPLINT->playerID);
+		image->setPlayerColor(GAME->interface()->playerID);
 }
 
 void CButton::addHoverText(EButtonState state, const std::string & text)

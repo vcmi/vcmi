@@ -27,6 +27,7 @@
 #include "GameChatHandler.h"
 #include "Client.h"
 #include "GameEngine.h"
+#include "GameInstance.h"
 #include "gui/WindowHandler.h"
 #include "widgets/Buttons.h"
 #include "widgets/TextControls.h"
@@ -212,8 +213,8 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 		{
 			ENGINE->music().stopMusic();
 			ENGINE->windows().createAndPushWindow<VideoWindow>(handler.si->campState->getIntroVideo(), handler.si->campState->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : handler.si->campState->getVideoRim(), false, 1, [bonusSel](bool skipped){
-				if(!CSH->si->campState->getMusic().empty())
-					ENGINE->music().playMusic(CSH->si->campState->getMusic(), true, false);
+				if(!GAME->server().si->campState->getMusic().empty())
+					ENGINE->music().playMusic(GAME->server().si->campState->getMusic(), true, false);
 				ENGINE->windows().pushWindow(bonusSel);
 			});
 		}

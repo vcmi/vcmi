@@ -75,5 +75,3 @@ public:
 
 	static bool compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b);
 };
-
-extern std::unique_ptr<CMapHandler> MAPHANDLER;

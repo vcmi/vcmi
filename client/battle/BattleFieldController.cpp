@@ -27,6 +27,7 @@
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 #include "../adventureMap/CInGameConsole.h"
 #include "../client/render/CAnimation.h"
@@ -148,7 +149,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 void BattleFieldController::activate()
 {
-	LOCPLINT->cingconsole->pos = this->pos;
+	GAME->interface()->cingconsole->pos = this->pos;
 	CIntObject::activate();
 }
 

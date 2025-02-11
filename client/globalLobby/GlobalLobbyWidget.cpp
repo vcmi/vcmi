@@ -18,6 +18,7 @@
 
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/Colors.h"
@@ -39,7 +40,7 @@ GlobalLobbyWidget::GlobalLobbyWidget(GlobalLobbyWindow * window)
 {
 	addCallback("closeWindow", [](int) { ENGINE->windows().popWindows(1); });
 	addCallback("sendMessage", [this](int) { this->window->doSendChatMessage(); });
-	addCallback("createGameRoom", [this](int) { if (!CSH->inGame()) this->window->doCreateGameRoom(); });//TODO: button should be blocked instead
+	addCallback("createGameRoom", [this](int) { if (!GAME->server().inGame()) this->window->doCreateGameRoom(); });//TODO: button should be blocked instead
 
 	REGISTER_BUILDER("lobbyItemList", &GlobalLobbyWidget::buildItemList);
 
@@ -51,7 +52,7 @@ GlobalLobbyWidget::CreateFunc GlobalLobbyWidget::getItemListConstructorFunc(cons
 {
 	const auto & createAccountCardCallback = [this](size_t index) -> std::shared_ptr<CIntObject>
 	{
-		const auto & accounts = CSH->getGlobalLobby().getActiveAccounts();
+		const auto & accounts = GAME->server().getGlobalLobby().getActiveAccounts();
 
 		if(index < accounts.size())
 			return std::make_shared<GlobalLobbyAccountCard>(this->window, accounts[index]);
@@ -60,7 +61,7 @@ GlobalLobbyWidget::CreateFunc GlobalLobbyWidget::getItemListConstructorFunc(cons
 
 	const auto & createRoomCardCallback = [this](size_t index) -> std::shared_ptr<CIntObject>
 	{
-		const auto & rooms = CSH->getGlobalLobby().getActiveRooms();
+		const auto & rooms = GAME->server().getGlobalLobby().getActiveRooms();
 
 		if(index < rooms.size())
 			return std::make_shared<GlobalLobbyRoomCard>(this->window, rooms[index]);
@@ -69,7 +70,7 @@ GlobalLobbyWidget::CreateFunc GlobalLobbyWidget::getItemListConstructorFunc(cons
 
 	const auto & createChannelCardCallback = [this](size_t index) -> std::shared_ptr<CIntObject>
 	{
-		const auto & channels = CSH->getGlobalLobby().getActiveChannels();
+		const auto & channels = GAME->server().getGlobalLobby().getActiveChannels();
 
 		if(index < channels.size())
 			return std::make_shared<GlobalLobbyChannelCard>(this->window, channels[index]);
@@ -90,7 +91,7 @@ GlobalLobbyWidget::CreateFunc GlobalLobbyWidget::getItemListConstructorFunc(cons
 
 	const auto & createMatchCardCallback = [this](size_t index) -> std::shared_ptr<CIntObject>
 	{
-		const auto & matches = CSH->getGlobalLobby().getMatchesHistory();
+		const auto & matches = GAME->server().getGlobalLobby().getMatchesHistory();
 
 		if(index < matches.size())
 			return std::make_shared<GlobalLobbyMatchCard>(this->window, matches[index]);
@@ -240,7 +241,7 @@ GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const Globa
 	OBJECT_CONSTRUCTION;
 	addUsedEvents(LCLICK);
 
-	bool hasInvite = CSH->getGlobalLobby().isInvitedToRoom(roomDescription.gameRoomID);
+	bool hasInvite = GAME->server().getGlobalLobby().isInvitedToRoom(roomDescription.gameRoomID);
 
 	auto roomSizeText = MetaString::createFromRawString("%d/%d");
 	roomSizeText.replaceNumber(roomDescription.participants.size());
@@ -278,10 +279,10 @@ GlobalLobbyChannelCard::GlobalLobbyChannelCard(GlobalLobbyWindow * window, const
 	OBJECT_CONSTRUCTION;
 	labelName = std::make_shared<CLabel>(5, 20, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, Languages::getLanguageOptions(channelName).nameNative);
 
-	if (CSH->getGlobalLobby().getActiveChannels().size() > 1)
+	if (GAME->server().getGlobalLobby().getActiveChannels().size() > 1)
 	{
 		pos.w = 110;
-		buttonClose = std::make_shared<CButton>(Point(113, 7), AnimationPath::builtin("lobbyCloseChannel"), CButton::tooltip(), [channelName](){CSH->getGlobalLobby().closeChannel(channelName);});
+		buttonClose = std::make_shared<CButton>(Point(113, 7), AnimationPath::builtin("lobbyCloseChannel"), CButton::tooltip(), [channelName](){GAME->server().getGlobalLobby().closeChannel(channelName);});
 		buttonClose->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/closeChannel")));
 	}
 }
@@ -299,7 +300,7 @@ GlobalLobbyMatchCard::GlobalLobbyMatchCard(GlobalLobbyWindow * window, const Glo
 
 	if (matchDescription.participants.size() == 2)
 	{
-		std::string ourAccountID = CSH->getGlobalLobby().getAccountID();
+		std::string ourAccountID = GAME->server().getGlobalLobby().getAccountID();
 
 		opponentDescription.appendTextID("vcmi.lobby.match.duel");
 		// Find display name of our one and only opponent in this game

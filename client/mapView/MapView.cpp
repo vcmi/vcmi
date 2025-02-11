@@ -20,6 +20,7 @@
 #include "../CPlayerInterface.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
@@ -113,7 +114,7 @@ MapView::MapView(const Point & offset, const Point & dimensions)
 
 void MapView::onMapLevelSwitched()
 {
-	if(LOCPLINT->cb->getMapSize().z > 1)
+	if(GAME->interface()->cb->getMapSize().z > 1)
 	{
 		if(model->getLevel() == 0)
 			controller->setViewCenter(model->getMapViewCenter(), 1);

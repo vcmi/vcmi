@@ -22,7 +22,8 @@
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "../../../lib/filesystem/ResourcePath.h"
-#include "GameEngine.h"
+#include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "gui/WindowHandler.h"
 #include "render/Canvas.h"
 #include "lobby/CSavingScreen.h"
@@ -61,9 +62,9 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 	std::shared_ptr<CButton> restartButton = widget<CButton>("restartButton");
 	assert(restartButton);
 
-	loadButton->block(CSH->isGuest());
-	saveButton->block(CSH->isGuest() || parentBattleUi);
-	restartButton->block(CSH->isGuest() || parentBattleUi);
+	loadButton->block(GAME->server().isGuest());
+	saveButton->block(GAME->server().isGuest() || parentBattleUi);
+	restartButton->block(GAME->server().isGuest() || parentBattleUi);
 
 	int defaultTabIndex = 0;
 	if(parentBattleUi != nullptr)
@@ -78,7 +79,7 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 	std::shared_ptr<CToggleGroup> mainTabs = widget<CToggleGroup>("settingsTabs");
 	mainTabs->setSelected(defaultTabIndex);
 	
-	LOCPLINT->gamePause(true);
+	GAME->interface()->gamePause(true);
 }
 
 std::shared_ptr<CIntObject> SettingsMainWindow::createTab(size_t index)
@@ -113,13 +114,13 @@ void SettingsMainWindow::close()
 	if(!ENGINE->windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
 	
-	LOCPLINT->gamePause(false);
+	GAME->interface()->gamePause(false);
 	ENGINE->windows().popWindows(1);
 }
 
 void SettingsMainWindow::quitGameButtonCallback()
 {
-	LOCPLINT->showYesNoDialog(
+	GAME->interface()->showYesNoDialog(
 		VLC->generaltexth->allTexts[578],
 		[this]()
 		{
@@ -140,12 +141,12 @@ void SettingsMainWindow::backButtonCallback()
 
 void SettingsMainWindow::mainMenuButtonCallback()
 {
-	LOCPLINT->showYesNoDialog(
+	GAME->interface()->showYesNoDialog(
 		VLC->generaltexth->allTexts[578],
 		[this]()
 		{
 			close();
-			CSH->endGameplay();
+			GAME->server().endGameplay();
 			CMM->menu->switchToTab("main");
 		},
 		0
@@ -155,7 +156,7 @@ void SettingsMainWindow::mainMenuButtonCallback()
 void SettingsMainWindow::loadGameButtonCallback()
 {
 	close();
-	LOCPLINT->proposeLoadingGame();
+	GAME->interface()->proposeLoadingGame();
 }
 
 void SettingsMainWindow::saveGameButtonCallback()
@@ -166,13 +167,13 @@ void SettingsMainWindow::saveGameButtonCallback()
 
 void SettingsMainWindow::restartGameButtonCallback()
 {
-	LOCPLINT->showYesNoDialog(
+	GAME->interface()->showYesNoDialog(
 		VLC->generaltexth->allTexts[67],
 		[this]()
 		{
 			close();
 			ENGINE->dispatchMainThread([](){
-				CSH->sendRestartGame();
+				GAME->server().sendRestartGame();
 			});
 		},
 		0
@@ -181,7 +182,7 @@ void SettingsMainWindow::restartGameButtonCallback()
 
 void SettingsMainWindow::showAll(Canvas & to)
 {
-	auto color = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1);
+	auto color = GAME->interface() ? GAME->interface()->playerID : PlayerColor(1);
 	if(settings["session"]["spectate"].Bool())
 		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
 

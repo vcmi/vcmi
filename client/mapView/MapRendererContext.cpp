@@ -17,6 +17,7 @@
 #include "../../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
+#include "../GameInstance.h"
 
 #include "../../lib/Point.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -53,20 +54,20 @@ uint32_t MapRendererBaseContext::getObjectRotation(ObjectInstanceID objectID) co
 
 int3 MapRendererBaseContext::getMapSize() const
 {
-	return LOCPLINT->cb->getMapSize();
+	return GAME->interface()->cb->getMapSize();
 }
 
 bool MapRendererBaseContext::isInMap(const int3 & coordinates) const
 {
-	return LOCPLINT->cb->isInTheMap(coordinates);
+	return GAME->interface()->cb->isInTheMap(coordinates);
 }
 
 bool MapRendererBaseContext::isVisible(const int3 & coordinates) const
 {
 	if(settingsSessionSpectate)
-		return LOCPLINT->cb->isInTheMap(coordinates);
+		return GAME->interface()->cb->isInTheMap(coordinates);
 	else
-		return LOCPLINT->cb->isVisible(coordinates);
+		return GAME->interface()->cb->isVisible(coordinates);
 }
 
 bool MapRendererBaseContext::isActiveHero(const CGObjectInstance * obj) const
@@ -74,9 +75,9 @@ bool MapRendererBaseContext::isActiveHero(const CGObjectInstance * obj) const
 	if(obj->ID == Obj::HERO)
 	{
 		assert(dynamic_cast<const CGHeroInstance *>(obj) != nullptr);
-		if(LOCPLINT->localState->getCurrentHero() != nullptr)
+		if(GAME->interface()->localState->getCurrentHero() != nullptr)
 		{
-			if(obj->id == LOCPLINT->localState->getCurrentHero()->id)
+			if(obj->id == GAME->interface()->localState->getCurrentHero()->id)
 				return true;
 		}
 	}
@@ -91,7 +92,7 @@ bool MapRendererBaseContext::tileAnimated(const int3 & coordinates) const
 
 const TerrainTile & MapRendererBaseContext::getMapTile(const int3 & coordinates) const
 {
-	return MAPHANDLER->getMap()->getTile(coordinates);
+	return GAME->map().getMap()->getTile(coordinates);
 }
 
 const MapRendererBaseContext::MapObjectsList & MapRendererBaseContext::getObjects(const int3 & coordinates) const
@@ -102,7 +103,7 @@ const MapRendererBaseContext::MapObjectsList & MapRendererBaseContext::getObject
 
 const CGObjectInstance * MapRendererBaseContext::getObject(ObjectInstanceID objectID) const
 {
-	return MAPHANDLER->getMap()->objects.at(objectID.getNum());
+	return GAME->map().getMap()->objects.at(objectID.getNum());
 }
 
 const CGPath * MapRendererBaseContext::currentPath() const
@@ -227,15 +228,15 @@ MapRendererAdventureContext::MapRendererAdventureContext(const MapRendererContex
 
 const CGPath * MapRendererAdventureContext::currentPath() const
 {
-	const auto * hero = LOCPLINT->localState->getCurrentHero();
+	const auto * hero = GAME->interface()->localState->getCurrentHero();
 
 	if(!hero)
 		return nullptr;
 
-	if(!LOCPLINT->localState->hasPath(hero))
+	if(!GAME->interface()->localState->hasPath(hero))
 		return nullptr;
 
-	return &LOCPLINT->localState->getPath(hero);
+	return &GAME->interface()->localState->getPath(hero);
 }
 
 size_t MapRendererAdventureContext::objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const
@@ -295,10 +296,10 @@ ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates
 
 	const auto * object = tile.visitableObjects.back();
 
-	if (object->getOwner() == LOCPLINT->playerID)
+	if (object->getOwner() == GAME->interface()->playerID)
 		return { 0, 192, 0};
 
-	if (LOCPLINT->cb->getPlayerRelations(object->getOwner(), LOCPLINT->playerID) == PlayerRelations::ALLIES)
+	if (GAME->interface()->cb->getPlayerRelations(object->getOwner(), GAME->interface()->playerID) == PlayerRelations::ALLIES)
 		return { 0, 128, 255};
 
 	if (object->getOwner().isValidPlayer())
@@ -307,7 +308,7 @@ ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates
 	if (object->ID == MapObjectID::MONSTER)
 		return { 255, 0, 0};
 
-	auto hero = LOCPLINT->localState->getCurrentHero();
+	auto hero = GAME->interface()->localState->getCurrentHero();
 
 	if (hero)
 	{
@@ -316,7 +317,7 @@ ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates
 	}
 	else
 	{
-		if (object->wasVisited(LOCPLINT->playerID))
+		if (object->wasVisited(GAME->interface()->playerID))
 			return { 160, 160, 160 };
 	}
 
@@ -353,7 +354,7 @@ bool MapRendererAdventureContext::showSpellRange(const int3 & position) const
 	if (!settingSpellRange)
 		return false;
 
-	auto hero = LOCPLINT->localState->getCurrentHero();
+	auto hero = GAME->interface()->localState->getCurrentHero();
 
 	if (!hero)
 		return false;
@@ -586,7 +587,7 @@ double MapRendererPuzzleMapContext::objectTransparency(ObjectInstanceID objectID
 
 bool MapRendererPuzzleMapContext::isVisible(const int3 & coordinates) const
 {
-	return LOCPLINT->cb->isInTheMap(coordinates);
+	return GAME->interface()->cb->isInTheMap(coordinates);
 }
 
 bool MapRendererPuzzleMapContext::filterGrayscale() const

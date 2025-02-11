@@ -22,6 +22,7 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
@@ -249,12 +250,12 @@ std::shared_ptr<CIntObject> CHeroList::CHeroItem::genSelection()
 void CHeroList::CHeroItem::select(bool on)
 {
 	if(on)
-		LOCPLINT->localState->setSelection(hero);
+		GAME->interface()->localState->setSelection(hero);
 }
 
 void CHeroList::CHeroItem::open()
 {
-	LOCPLINT->openHeroWindow(hero);
+	GAME->interface()->openHeroWindow(hero);
 }
 
 void CHeroList::CHeroItem::showTooltip()
@@ -275,7 +276,7 @@ void CHeroList::CHeroItem::gesture(bool on, const Point & initialPosition, const
 	if(!hero)
 		return;
 
-	auto & heroes = LOCPLINT->localState->getWanderingHeroes();
+	auto & heroes = GAME->interface()->localState->getWanderingHeroes();
 
 	if(heroes.size() < 2)
 		return;
@@ -288,14 +289,14 @@ void CHeroList::CHeroItem::gesture(bool on, const Point & initialPosition, const
 		{ RadialMenuConfig::ITEM_ALT_NN, heroUpper != nullptr, "altUpTop", "vcmi.radialWheel.moveTop", [heroPos]()
 		{
 			for (size_t i = heroPos; i > 0; i--)
-				LOCPLINT->localState->swapWanderingHero(i, i - 1);
+				GAME->interface()->localState->swapWanderingHero(i, i - 1);
 		} },
-		{ RadialMenuConfig::ITEM_ALT_NW, heroUpper != nullptr, "altUp", "vcmi.radialWheel.moveUp", [heroPos](){LOCPLINT->localState->swapWanderingHero(heroPos, heroPos - 1); } },
-		{ RadialMenuConfig::ITEM_ALT_SW, heroLower != nullptr, "altDown", "vcmi.radialWheel.moveDown", [heroPos](){ LOCPLINT->localState->swapWanderingHero(heroPos, heroPos + 1); } },
+		{ RadialMenuConfig::ITEM_ALT_NW, heroUpper != nullptr, "altUp", "vcmi.radialWheel.moveUp", [heroPos](){GAME->interface()->localState->swapWanderingHero(heroPos, heroPos - 1); } },
+		{ RadialMenuConfig::ITEM_ALT_SW, heroLower != nullptr, "altDown", "vcmi.radialWheel.moveDown", [heroPos](){ GAME->interface()->localState->swapWanderingHero(heroPos, heroPos + 1); } },
 		{ RadialMenuConfig::ITEM_ALT_SS, heroLower != nullptr, "altDownBottom", "vcmi.radialWheel.moveBottom", [heroPos, heroes]()
 		{
 			for (int i = heroPos; i < heroes.size() - 1; i++)
-				LOCPLINT->localState->swapWanderingHero(i, i + 1);
+				GAME->interface()->localState->swapWanderingHero(i, i + 1);
 		} },
 	};
 
@@ -310,11 +311,11 @@ void CHeroList::CHeroItem::keyPressed(EShortcut key)
 	if(parent->selected != this->shared_from_this())
 		return;
 
-	auto & heroes = LOCPLINT->localState->getWanderingHeroes();
+	auto & heroes = GAME->interface()->localState->getWanderingHeroes();
 
 	if(key == EShortcut::LIST_HERO_DISMISS)
 	{
-		LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[22], [=](){ LOCPLINT->cb->dismissHero(hero); }, nullptr);
+		GAME->interface()->showYesNoDialog(VLC->generaltexth->allTexts[22], [=](){ GAME->interface()->cb->dismissHero(hero); }, nullptr);
 		return;
 	}
 
@@ -329,32 +330,32 @@ void CHeroList::CHeroItem::keyPressed(EShortcut key)
 	{
 	case EShortcut::LIST_HERO_UP:
 		if(heroUpper)
-			LOCPLINT->localState->swapWanderingHero(heroPos, heroPos - 1);
+			GAME->interface()->localState->swapWanderingHero(heroPos, heroPos - 1);
 		break;
 
 	case EShortcut::LIST_HERO_DOWN:
 		if(heroLower)
-			LOCPLINT->localState->swapWanderingHero(heroPos, heroPos + 1);
+			GAME->interface()->localState->swapWanderingHero(heroPos, heroPos + 1);
 		break;
 
 	case EShortcut::LIST_HERO_TOP:
 		if(heroUpper)
 			for (size_t i = heroPos; i > 0; i--)
-				LOCPLINT->localState->swapWanderingHero(i, i - 1);
+				GAME->interface()->localState->swapWanderingHero(i, i - 1);
 		break;
 
 	case EShortcut::LIST_HERO_BOTTOM:
 		if(heroLower)
 			for (int i = heroPos; i < heroes.size() - 1; i++)
-				LOCPLINT->localState->swapWanderingHero(i, i + 1);
+				GAME->interface()->localState->swapWanderingHero(i, i + 1);
 		break;
 	}
 }
 
 std::shared_ptr<CIntObject> CHeroList::createItem(size_t index)
 {
-	if (LOCPLINT->localState->getWanderingHeroes().size() > index)
-		return std::make_shared<CHeroItem>(this, LOCPLINT->localState->getWanderingHero(index));
+	if (GAME->interface()->localState->getWanderingHeroes().size() > index)
+		return std::make_shared<CHeroItem>(this, GAME->interface()->localState->getWanderingHero(index));
 	return std::make_shared<CEmptyHeroItem>();
 }
 
@@ -366,7 +367,7 @@ CHeroList::CHeroList(int visibleItemsCount, Rect widgetPosition, Point firstItem
 
 void CHeroList::select(const CGHeroInstance * hero)
 {
-	selectIndex(vstd::find_pos(LOCPLINT->localState->getWanderingHeroes(), hero));
+	selectIndex(vstd::find_pos(GAME->interface()->localState->getWanderingHeroes(), hero));
 }
 
 void CHeroList::updateElement(const CGHeroInstance * hero)
@@ -376,7 +377,7 @@ void CHeroList::updateElement(const CGHeroInstance * hero)
 
 void CHeroList::updateWidget()
 {
-	const auto & heroes = LOCPLINT->localState->getWanderingHeroes();
+	const auto & heroes = GAME->interface()->localState->getWanderingHeroes();
 
 	listBox->resize(heroes.size());
 
@@ -398,16 +399,16 @@ void CHeroList::updateWidget()
 		}
 	}
 
-	if (LOCPLINT->localState->getCurrentHero())
-		select(LOCPLINT->localState->getCurrentHero());
+	if (GAME->interface()->localState->getCurrentHero())
+		select(GAME->interface()->localState->getCurrentHero());
 
 	CList::update();
 }
 
 std::shared_ptr<CIntObject> CTownList::createItem(size_t index)
 {
-	if (LOCPLINT->localState->getOwnedTowns().size() > index)
-		return std::make_shared<CTownItem>(this, LOCPLINT->localState->getOwnedTown(index));
+	if (GAME->interface()->localState->getOwnedTowns().size() > index)
+		return std::make_shared<CTownItem>(this, GAME->interface()->localState->getOwnedTown(index));
 	return std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), 0);
 }
 
@@ -430,7 +431,7 @@ std::shared_ptr<CIntObject> CTownList::CTownItem::genSelection()
 
 void CTownList::CTownItem::update()
 {
-	size_t iconIndex = town->getTown()->clientInfo.icons[town->hasFort()][town->built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	size_t iconIndex = town->getTown()->clientInfo.icons[town->hasFort()][town->built >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	picture->setFrame(iconIndex + 2);
 	redraw();
@@ -439,12 +440,12 @@ void CTownList::CTownItem::update()
 void CTownList::CTownItem::select(bool on)
 {
 	if(on)
-		LOCPLINT->localState->setSelection(town);
+		GAME->interface()->localState->setSelection(town);
 }
 
 void CTownList::CTownItem::open()
 {
-	LOCPLINT->openTownWindow(town);
+	GAME->interface()->openTownWindow(town);
 }
 
 void CTownList::CTownItem::showTooltip()
@@ -457,7 +458,7 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 	if(!on)
 		return;
 
-	const std::vector<const CGTownInstance *> towns = LOCPLINT->localState->getOwnedTowns();
+	const std::vector<const CGTownInstance *> towns = GAME->interface()->localState->getOwnedTowns();
 	size_t townIndex = vstd::find_pos(towns, town);
 
 	if(townIndex + 1 > towns.size() || !towns.at(townIndex))
@@ -481,15 +482,15 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 		{ RadialMenuConfig::ITEM_ALT_NN, townUpperPos > -1, "altUpTop", "vcmi.radialWheel.moveTop", [updateList, townIndex]()
 		{
 			for (int i = townIndex; i > 0; i--)
-				LOCPLINT->localState->swapOwnedTowns(i, i - 1);
+				GAME->interface()->localState->swapOwnedTowns(i, i - 1);
 			updateList();
 		} },
-		{ RadialMenuConfig::ITEM_ALT_NW, townUpperPos > -1, "altUp", "vcmi.radialWheel.moveUp", [updateList, townIndex, townUpperPos](){LOCPLINT->localState->swapOwnedTowns(townIndex, townUpperPos); updateList(); } },
-		{ RadialMenuConfig::ITEM_ALT_SW, townLowerPos > -1, "altDown", "vcmi.radialWheel.moveDown", [updateList, townIndex, townLowerPos](){ LOCPLINT->localState->swapOwnedTowns(townIndex, townLowerPos); updateList(); } },
+		{ RadialMenuConfig::ITEM_ALT_NW, townUpperPos > -1, "altUp", "vcmi.radialWheel.moveUp", [updateList, townIndex, townUpperPos](){GAME->interface()->localState->swapOwnedTowns(townIndex, townUpperPos); updateList(); } },
+		{ RadialMenuConfig::ITEM_ALT_SW, townLowerPos > -1, "altDown", "vcmi.radialWheel.moveDown", [updateList, townIndex, townLowerPos](){ GAME->interface()->localState->swapOwnedTowns(townIndex, townLowerPos); updateList(); } },
 		{ RadialMenuConfig::ITEM_ALT_SS, townLowerPos > -1, "altDownBottom", "vcmi.radialWheel.moveBottom", [updateList, townIndex, towns]()
 		{
 			for (int i = townIndex; i < towns.size() - 1; i++)
-				LOCPLINT->localState->swapOwnedTowns(i, i + 1);
+				GAME->interface()->localState->swapOwnedTowns(i, i + 1);
 			updateList();
 		} },
 	};
@@ -502,7 +503,7 @@ void CTownList::CTownItem::keyPressed(EShortcut key)
 	if(parent->selected != this->shared_from_this())
 		return;
 
-	const std::vector<const CGTownInstance *> towns = LOCPLINT->localState->getOwnedTowns();
+	const std::vector<const CGTownInstance *> towns = GAME->interface()->localState->getOwnedTowns();
 	size_t townIndex = vstd::find_pos(towns, town);
 
 	if(townIndex + 1 > towns.size() || !towns.at(townIndex))
@@ -518,24 +519,24 @@ void CTownList::CTownItem::keyPressed(EShortcut key)
 	{
 	case EShortcut::LIST_TOWN_UP:
 		if(townUpperPos > -1)
-			LOCPLINT->localState->swapOwnedTowns(townIndex, townUpperPos);
+			GAME->interface()->localState->swapOwnedTowns(townIndex, townUpperPos);
 		break;
 
 	case EShortcut::LIST_TOWN_DOWN:
 		if(townLowerPos > -1)
-			LOCPLINT->localState->swapOwnedTowns(townIndex, townLowerPos);
+			GAME->interface()->localState->swapOwnedTowns(townIndex, townLowerPos);
 		break;
 
 	case EShortcut::LIST_TOWN_TOP:
 		if(townUpperPos > -1)
 			for (int i = townIndex; i > 0; i--)
-				LOCPLINT->localState->swapOwnedTowns(i, i - 1);
+				GAME->interface()->localState->swapOwnedTowns(i, i - 1);
 		break;
 
 	case EShortcut::LIST_TOWN_BOTTOM:
 		if(townLowerPos > -1)
 			for (int i = townIndex; i < towns.size() - 1; i++)
-				LOCPLINT->localState->swapOwnedTowns(i, i + 1);
+				GAME->interface()->localState->swapOwnedTowns(i, i + 1);
 		break;
 	}
 
@@ -556,7 +557,7 @@ CTownList::CTownList(int visibleItemsCount, Rect widgetPosition, Point firstItem
 
 void CTownList::select(const CGTownInstance * town)
 {
-	selectIndex(vstd::find_pos(LOCPLINT->localState->getOwnedTowns(), town));
+	selectIndex(vstd::find_pos(GAME->interface()->localState->getOwnedTowns(), town));
 }
 
 void CTownList::updateElement(const CGTownInstance * town)
@@ -566,7 +567,7 @@ void CTownList::updateElement(const CGTownInstance * town)
 
 void CTownList::updateWidget()
 {
-	auto & towns = LOCPLINT->localState->getOwnedTowns();
+	auto & towns = GAME->interface()->localState->getOwnedTowns();
 
 	listBox->resize(towns.size());
 
@@ -588,8 +589,8 @@ void CTownList::updateWidget()
 		}
 	}
 
-	if (LOCPLINT->localState->getCurrentTown())
-		select(LOCPLINT->localState->getCurrentTown());
+	if (GAME->interface()->localState->getCurrentTown())
+		select(GAME->interface()->localState->getCurrentTown());
 
 	CList::update();
 }

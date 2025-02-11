@@ -18,6 +18,7 @@
 #include "adventureMap/AdventureMapInterface.h"
 #include "battle/BattleInterface.h"
 #include "GameEngine.h"
+#include "GameInstance.h"
 #include "gui/WindowHandler.h"
 #include "mapView/mapHandler.h"
 
@@ -115,18 +116,18 @@ events::EventBus * CClient::eventBus() const
 
 void CClient::newGame(CGameState * initializedGameState)
 {
-	CSH->th->update();
+	GAME->server().th->update();
 	CMapService mapService;
 	assert(initializedGameState);
 	gs = initializedGameState;
 	gs->preInit(VLC, this);
-	logNetwork->trace("\tCreating gamestate: %i", CSH->th->getDiff());
+	logNetwork->trace("\tCreating gamestate: %i", GAME->server().th->getDiff());
 	if(!initializedGameState)
 	{
 		Load::ProgressAccumulator progressTracking;
-		gs->init(&mapService, CSH->si.get(), progressTracking, settings["general"]["saveRandomMaps"].Bool());
+		gs->init(&mapService, GAME->server().si.get(), progressTracking, settings["general"]["saveRandomMaps"].Bool());
 	}
-	logNetwork->trace("Initializing GameState (together): %d ms", CSH->th->getDiff());
+	logNetwork->trace("Initializing GameState (together): %d ms", GAME->server().th->getDiff());
 
 	initMapHandler();
 	reinitScripting();
@@ -142,7 +143,7 @@ void CClient::loadGame(CGameState * initializedGameState)
 	gs = initializedGameState;
 
 	gs->preInit(VLC, this);
-	gs->updateOnLoad(CSH->si.get());
+	gs->updateOnLoad(GAME->server().si.get());
 	logNetwork->info("Game loaded, initialize interfaces.");
 
 	initMapHandler();
@@ -167,8 +168,7 @@ void CClient::save(const std::string & fname)
 
 void CClient::endNetwork()
 {
-	if (MAPHANDLER)
-		MAPHANDLER->endNetwork();
+	GAME->map().endNetwork();
 
 	if (CPlayerInterface::battleInt)
 		CPlayerInterface::battleInt->endNetwork();
@@ -196,7 +196,7 @@ void CClient::endGame()
 		logNetwork->info("Ending current game!");
 		removeGUI();
 
-		MAPHANDLER.reset();
+		GAME->setMapInstance(nullptr);
 		vstd::clear_pointer(gs);
 
 		logNetwork->info("Deleted mapHandler and gameState.");
@@ -218,8 +218,8 @@ void CClient::initMapHandler()
 	// During loading CPlayerInterface from serialized state it's depend on MH
 	if(!settings["session"]["headless"].Bool())
 	{
-		MAPHANDLER = std::make_unique<CMapHandler>(gs->map);
-		logNetwork->trace("Creating mapHandler: %d ms", CSH->th->getDiff());
+		GAME->setMapInstance(std::make_unique<CMapHandler>(gs->map));
+		logNetwork->trace("Creating mapHandler: %d ms", GAME->server().th->getDiff());
 	}
 }
 
@@ -227,7 +227,7 @@ void CClient::initPlayerEnvironments()
 {
 	playerEnvironments.clear();
 
-	auto allPlayers = CSH->getAllClientPlayers(CSH->logicConnection->connectionID);
+	auto allPlayers = GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID);
 	bool hasHumanPlayer = false;
 	for(auto & color : allPlayers)
 	{
@@ -257,7 +257,7 @@ void CClient::initPlayerInterfaces()
 	for(auto & playerInfo : gs->scenarioOps->playerInfos)
 	{
 		PlayerColor color = playerInfo.first;
-		if(!vstd::contains(CSH->getAllClientPlayers(CSH->logicConnection->connectionID), color))
+		if(!vstd::contains(GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID), color))
 			continue;
 
 		if(!vstd::contains(playerint, color))
@@ -287,10 +287,10 @@ void CClient::initPlayerInterfaces()
 		installNewPlayerInterface(std::make_shared<CPlayerInterface>(PlayerColor::SPECTATOR), PlayerColor::SPECTATOR, true);
 	}
 
-	if(CSH->getAllClientPlayers(CSH->logicConnection->connectionID).count(PlayerColor::NEUTRAL))
+	if(GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID).count(PlayerColor::NEUTRAL))
 		installNewBattleInterface(CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String()), PlayerColor::NEUTRAL);
 
-	logNetwork->trace("Initialized player interfaces %d ms", CSH->th->getDiff());
+	logNetwork->trace("Initialized player interfaces %d ms", GAME->server().th->getDiff());
 }
 
 std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman) const
@@ -371,7 +371,7 @@ int CClient::sendRequest(const CPackForServer & request, PlayerColor player)
 	waitingRequest.pushBack(requestID);
 	request.requestID = requestID;
 	request.player = player;
-	CSH->logicConnection->sendPack(request);
+	GAME->server().logicConnection->sendPack(request);
 	if(vstd::contains(playerint, player))
 		playerint[player]->requestSent(&request, requestID);
 
@@ -523,7 +523,7 @@ void CClient::removeGUI() const
 	adventureInt.reset();
 	logGlobal->info("Removed GUI.");
 
-	LOCPLINT = nullptr;
+	GAME->setInterfaceInstance(nullptr);
 }
 
 #ifdef VCMI_ANDROID
@@ -532,19 +532,19 @@ extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveT
 	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	logGlobal->info("Received emergency save game request");
-	if(!LOCPLINT || !LOCPLINT->cb)
+	if(!GAME->interface() || !GAME->interface()->cb)
 	{
 		logGlobal->info("... but no active player interface found!");
 		return false;
 	}
 
-	if (!CSH || !CSH->logicConnection)
+	if (!GAME->server().logicConnection)
 	{
 		logGlobal->info("... but no active connection found!");
 		return false;
 	}
 
-	LOCPLINT->cb->save("Saves/_Android_Autosave");
+	GAME->interface()->cb->save("Saves/_Android_Autosave");
 	return true;
 }
 #endif

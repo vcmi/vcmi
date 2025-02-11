@@ -22,6 +22,7 @@
 #include "../gui/CursorHandler.h"
 #include "../windows/GUIClasses.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../eventsSDL/InputHandler.h"
 #include "../gui/ShortcutHandler.h"
 #include "../gui/Shortcut.h"
@@ -404,8 +405,8 @@ void CMainMenu::update()
 
 void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode)
 {
-	CSH->resetStateForLobby(screenType == ESelectionScreen::newGame ? EStartMode::NEW_GAME : EStartMode::LOAD_GAME, screenType, EServerMode::LOCAL, names);
-	CSH->loadMode = loadMode;
+	GAME->server().resetStateForLobby(screenType == ESelectionScreen::newGame ? EStartMode::NEW_GAME : EStartMode::LOAD_GAME, screenType, EServerMode::LOCAL, names);
+	GAME->server().loadMode = loadMode;
 
 	ENGINE->windows().createAndPushWindow<CSimpleJoinScreen>(host);
 }
@@ -419,8 +420,8 @@ void CMainMenu::openCampaignLobby(const std::string & campaignFileName, std::str
 
 void CMainMenu::openCampaignLobby(std::shared_ptr<CampaignState> campaign)
 {
-	CSH->resetStateForLobby(EStartMode::CAMPAIGN, ESelectionScreen::campaignList, EServerMode::LOCAL, {});
-	CSH->campaignStateToSend = campaign;
+	GAME->server().resetStateForLobby(EStartMode::CAMPAIGN, ESelectionScreen::campaignList, EServerMode::LOCAL, {});
+	GAME->server().campaignStateToSend = campaign;
 	ENGINE->windows().createAndPushWindow<CSimpleJoinScreen>();
 }
 
@@ -465,7 +466,7 @@ void CMainMenu::startTutorial()
 	auto mapInfo = std::make_shared<CMapInfo>();
 	mapInfo->mapInit(tutorialMap.getName());
 	CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::NONE);
-	CSH->startMapAfterConnection(mapInfo);
+	GAME->server().startMapAfterConnection(mapInfo);
 }
 
 void CMainMenu::openHighScoreScreen()
@@ -528,7 +529,7 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 void CMultiMode::openLobby()
 {
 	close();
-	CSH->getGlobalLobby().activateInterface();
+	GAME->server().getGlobalLobby().activateInterface();
 }
 
 void CMultiMode::hostTCP(EShortcut shortcut)
@@ -675,8 +676,8 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 		inputPort->setFilterNumber(0, 65535);
 		inputAddress->giveFocus();
 	}
-	inputAddress->setText(host ? CSH->getLocalHostname() : CSH->getRemoteHostname());
-	inputPort->setText(std::to_string(host ? CSH->getLocalPort() : CSH->getRemotePort()));
+	inputAddress->setText(host ? GAME->server().getLocalHostname() : GAME->server().getRemoteHostname());
+	inputPort->setText(std::to_string(host ? GAME->server().getLocalPort() : GAME->server().getRemotePort()));
 	buttonOk->block(inputAddress->getText().empty() || inputPort->getText().empty());
 
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), AnimationPath::builtin("MUBCANC.DEF"), VLC->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), EShortcut::GLOBAL_CANCEL);
@@ -695,7 +696,7 @@ void CSimpleJoinScreen::connectToServer()
 void CSimpleJoinScreen::leaveScreen()
 {
 	textTitle->setText(VLC->generaltexth->translate("vcmi.mainMenu.serverClosing"));
-	CSH->setState(EClientState::CONNECTION_CANCELLED);
+	GAME->server().setState(EClientState::CONNECTION_CANCELLED);
 }
 
 void CSimpleJoinScreen::onChange(const std::string & newText)
@@ -706,9 +707,9 @@ void CSimpleJoinScreen::onChange(const std::string & newText)
 void CSimpleJoinScreen::startConnection(const std::string & addr, ui16 port)
 {
 	if(addr.empty())
-		CSH->startLocalServerAndConnect(false);
+		GAME->server().startLocalServerAndConnect(false);
 	else
-		CSH->connectToServer(addr, port);
+		GAME->server().connectToServer(addr, port);
 }
 
 CLoadingScreen::CLoadingScreen()

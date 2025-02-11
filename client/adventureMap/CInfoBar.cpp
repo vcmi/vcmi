@@ -22,6 +22,7 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/IScreenHandler.h"
@@ -78,10 +79,10 @@ CInfoBar::VisibleDateInfo::VisibleDateInfo()
 	animation->setDuration(1500);
 
 	std::string labelText;
-	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) == 1 && LOCPLINT->cb->getDate(Date::DAY) != 1) // monday of any week but first - show new week info
-		labelText = VLC->generaltexth->allTexts[63] + " " + std::to_string(LOCPLINT->cb->getDate(Date::WEEK));
+	if(GAME->interface()->cb->getDate(Date::DAY_OF_WEEK) == 1 && GAME->interface()->cb->getDate(Date::DAY) != 1) // monday of any week but first - show new week info
+		labelText = VLC->generaltexth->allTexts[63] + " " + std::to_string(GAME->interface()->cb->getDate(Date::WEEK));
 	else
-		labelText = VLC->generaltexth->allTexts[64] + " " + std::to_string(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK));
+		labelText = VLC->generaltexth->allTexts[64] + " " + std::to_string(GAME->interface()->cb->getDate(Date::DAY_OF_WEEK));
 
 	label = std::make_shared<CLabel>(95, 31, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, labelText);
 
@@ -90,13 +91,13 @@ CInfoBar::VisibleDateInfo::VisibleDateInfo()
 
 AnimationPath CInfoBar::VisibleDateInfo::getNewDayName()
 {
-	if(LOCPLINT->cb->getDate(Date::DAY) == 1)
+	if(GAME->interface()->cb->getDate(Date::DAY) == 1)
 		return AnimationPath::builtin("NEWDAY");
 
-	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) != 1)
+	if(GAME->interface()->cb->getDate(Date::DAY_OF_WEEK) != 1)
 		return AnimationPath::builtin("NEWDAY");
 
-	switch(LOCPLINT->cb->getDate(Date::WEEK))
+	switch(GAME->interface()->cb->getDate(Date::WEEK))
 	{
 	case 1:
 		return AnimationPath::builtin("NEWWEEK1");
@@ -125,7 +126,7 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	OBJECT_CONSTRUCTION;
 	//get amount of halls of each level
 	std::vector<int> halls(4, 0);
-	for(auto town : LOCPLINT->localState->getOwnedTowns())
+	for(auto town : GAME->interface()->localState->getOwnedTowns())
 	{
 		int hallLevel = town->hallLevel();
 		//negative value means no village hall, unlikely but possible
@@ -139,9 +140,9 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	//generate list of allies and enemies
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		if(LOCPLINT->cb->getPlayerStatus(PlayerColor(i), false) == EPlayerStatus::INGAME)
+		if(GAME->interface()->cb->getPlayerStatus(PlayerColor(i), false) == EPlayerStatus::INGAME)
 		{
-			if(LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, PlayerColor(i)) != PlayerRelations::ENEMIES)
+			if(GAME->interface()->cb->getPlayerRelations(GAME->interface()->playerID, PlayerColor(i)) != PlayerRelations::ENEMIES)
 				allies.push_back(PlayerColor(i));
 			else
 				enemies.push_back(PlayerColor(i));
@@ -234,11 +235,11 @@ void CInfoBar::playNewDaySound()
 	if(volume == 0)
 		ENGINE->sound().setVolume(settings["general"]["sound"].Integer());
 
-	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) != 1) // not first day of the week
+	if(GAME->interface()->cb->getDate(Date::DAY_OF_WEEK) != 1) // not first day of the week
 		handle = ENGINE->sound().playSound(soundBase::newDay);
-	else if(LOCPLINT->cb->getDate(Date::WEEK) != 1) // not first week in month
+	else if(GAME->interface()->cb->getDate(Date::WEEK) != 1) // not first week in month
 		handle = ENGINE->sound().playSound(soundBase::newWeek);
-	else if(LOCPLINT->cb->getDate(Date::MONTH) != 1) // not first month
+	else if(GAME->interface()->cb->getDate(Date::MONTH) != 1) // not first month
 		handle = ENGINE->sound().playSound(soundBase::newMonth);
 	else
 		handle = ENGINE->sound().playSound(soundBase::newDay);
@@ -250,22 +251,22 @@ void CInfoBar::playNewDaySound()
 void CInfoBar::reset()
 {
 	OBJECT_CONSTRUCTION;
-	state = EMPTY;
+	state = EState::EMPTY;
 	visibleInfo = std::make_shared<EmptyVisibleInfo>();
 }
 
 void CInfoBar::showSelection()
 {
 	OBJECT_CONSTRUCTION;
-	if(LOCPLINT->localState->getCurrentHero())
+	if(GAME->interface()->localState->getCurrentHero())
 	{
-		showHeroSelection(LOCPLINT->localState->getCurrentHero());
+		showHeroSelection(GAME->interface()->localState->getCurrentHero());
 		return;
 	}
 
-	if(LOCPLINT->localState->getCurrentTown())
+	if(GAME->interface()->localState->getCurrentTown())
 	{
-		showTownSelection(LOCPLINT->localState->getCurrentTown());
+		showTownSelection(GAME->interface()->localState->getCurrentTown());
 		return;
 	}
 
@@ -294,12 +295,12 @@ void CInfoBar::clickReleased(const Point & cursorPosition, bool lastActivated)
 	timerCounter = 0;
 	removeUsedEvents(TIME); //expiration trigger from just clicked element is not valid anymore
 
-	if(state == HERO || state == TOWN)
+	if(state == EState::HERO || state == EState::TOWN)
 	{
 		if(lastActivated)
 			showGameStatus();
 	}
-	else if(state == GAME)
+	else if(state == EState::GAME)
 		showDate();
 	else
 		popComponents(true);
@@ -321,7 +322,7 @@ void CInfoBar::hover(bool on)
 CInfoBar::CInfoBar(const Rect & position)
 	: CIntObject(LCLICK | SHOW_POPUP | HOVER, position.topLeft()),
 	timerCounter(0),
-	state(EMPTY),
+	state(EState::EMPTY),
 	listener(settings.listen["gameTweaks"]["infoBarCreatureManagement"])
 {
 	OBJECT_CONSTRUCTION;
@@ -350,7 +351,7 @@ void CInfoBar::showDate()
 {
 	OBJECT_CONSTRUCTION;
 	playNewDaySound();
-	state = DATE;
+	state = EState::DATE;
 	visibleInfo = std::make_shared<VisibleDateInfo>();
 	setTimer(3000); // confirmed to match H3
 	redraw();
@@ -479,7 +480,7 @@ void CInfoBar::popComponents(bool remove)
 		componentsQueue.pop();
 	if(!componentsQueue.empty())
 	{
-		state = COMPONENT;
+		state = EState::COMPONENT;
 		const auto & extracted = componentsQueue.front();
 		visibleInfo = std::make_shared<VisibleComponentInfo>(extracted.first);
 		setTimer(extracted.second);
@@ -497,13 +498,13 @@ void CInfoBar::pushComponents(const std::vector<Component> & comps, std::string 
 
 bool CInfoBar::showingComponents()
 {
-	return state == COMPONENT;
+	return state == EState::COMPONENT;
 }
 
 void CInfoBar::startEnemyTurn(PlayerColor color)
 {
 	OBJECT_CONSTRUCTION;
-	state = AITURN;
+	state = EState::AITURN;
 	visibleInfo = std::make_shared<VisibleEnemyTurnInfo>(color);
 	redraw();
 }
@@ -517,7 +518,7 @@ void CInfoBar::showHeroSelection(const CGHeroInstance * hero)
 	}
 	else
 	{
-		state = HERO;
+		state = EState::HERO;
 		visibleInfo = std::make_shared<VisibleHeroInfo>(hero);
 	}
 	redraw();
@@ -532,7 +533,7 @@ void CInfoBar::showTownSelection(const CGTownInstance * town)
 	}
 	else
 	{
-		state = TOWN;
+		state = EState::TOWN;
 		visibleInfo = std::make_shared<VisibleTownInfo>(town);
 	}
 	redraw();
@@ -541,7 +542,7 @@ void CInfoBar::showTownSelection(const CGTownInstance * town)
 void CInfoBar::showGameStatus()
 {
 	OBJECT_CONSTRUCTION;
-	state = GAME;
+	state = EState::GAME;
 	visibleInfo = std::make_shared<VisibleGameStatusInfo>();
 	setTimer(3000);
 	redraw();

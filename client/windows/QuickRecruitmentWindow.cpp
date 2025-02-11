@@ -15,6 +15,7 @@
 #include "../widgets/CreatureCostBox.h"
 #include "../widgets/Slider.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../../CCallback.h"
 #include "../../lib/ResourceSet.h"
@@ -80,7 +81,7 @@ void QuickRecruitmentWindow::initWindow(Rect startupPosition)
 
 void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePurchaseCard> > cards)
 {
-	auto allAvailableResources = LOCPLINT->cb->getResourceAmount();
+	auto allAvailableResources = GAME->interface()->cb->getResourceAmount();
 	for(auto i : boost::adaptors::reverse(cards))
 	{
 		si32 maxAmount = i->creatureOnTheCard->maxAmount(allAvailableResources);
@@ -96,7 +97,7 @@ void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePur
 		i->slider->scrollToMax();
 		allAvailableResources -= (i->creatureOnTheCard->getFullRecruitCost() * maxAmount);
 	}
-	maxButton->block(allAvailableResources == LOCPLINT->cb->getResourceAmount());
+	maxButton->block(allAvailableResources == GAME->interface()->cb->getResourceAmount());
 }
 
 
@@ -115,7 +116,7 @@ void QuickRecruitmentWindow::purchaseUnits()
 						level = i;
 				i++;
 			}
-			auto onRecruit = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level); };
+			auto onRecruit = [=](CreatureID id, int count){ GAME->interface()->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level); };
 			CreatureID crid =  selected->creatureOnTheCard->getId();
 			SlotID dstslot = town -> getSlotFor(crid);
 			if(!dstslot.validSlot())
@@ -137,7 +138,7 @@ int QuickRecruitmentWindow::getAvailableCreatures()
 
 void QuickRecruitmentWindow::updateAllSliders()
 {
-	auto allAvailableResources = LOCPLINT->cb->getResourceAmount();
+	auto allAvailableResources = GAME->interface()->cb->getResourceAmount();
 	for(auto i : boost::adaptors::reverse(cards))
 		allAvailableResources -= (i->creatureOnTheCard->getFullRecruitCost() * i->slider->getValue());
 	for(auto i : cards)
@@ -152,8 +153,8 @@ void QuickRecruitmentWindow::updateAllSliders()
 			i->slider->setAmount(i->maxAmount);
 		i->slider->scrollTo(i->slider->getValue());
 	}
-	totalCost->createItems(LOCPLINT->cb->getResourceAmount() - allAvailableResources);
-	totalCost->set(LOCPLINT->cb->getResourceAmount() - allAvailableResources);
+	totalCost->createItems(GAME->interface()->cb->getResourceAmount() - allAvailableResources);
+	totalCost->set(GAME->interface()->cb->getResourceAmount() - allAvailableResources);
 }
 
 QuickRecruitmentWindow::QuickRecruitmentWindow(const CGTownInstance * townd, Rect startupPosition)

@@ -14,6 +14,7 @@
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -89,7 +90,7 @@ std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, b
 
 	auto image = std::make_shared<CPicture>(imageName, Point(0,0), EImageBlitMode::OPAQUE);
 	if(playerColored)
-		image->setPlayerColor(LOCPLINT->playerID);
+		image->setPlayerColor(GAME->interface()->playerID);
 	return image;
 }
 
@@ -182,7 +183,7 @@ void CWindowObject::setShadow(bool on)
 
 void CWindowObject::showAll(Canvas & to)
 {
-	auto color = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1);
+	auto color = GAME->interface() ? GAME->interface()->playerID : PlayerColor(1);
 	if(settings["session"]["spectate"].Bool())
 		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
 

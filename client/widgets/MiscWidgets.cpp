@@ -13,6 +13,7 @@
 #include "CComponent.h"
 
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 
 #include "../CMT.h"
@@ -60,7 +61,7 @@ CHoverableArea::~CHoverableArea()
 void LRClickableAreaWText::clickPressed(const Point & cursorPosition)
 {
 	if(!text.empty())
-		LOCPLINT->showInfoDialog(text);
+		GAME->interface()->showInfoDialog(text);
 }
 void LRClickableAreaWText::showPopupWindow(const Point & cursorPosition)
 {
@@ -93,7 +94,7 @@ void LRClickableAreaWText::init()
 void LRClickableAreaWTextComp::clickPressed(const Point & cursorPosition)
 {
 	std::vector<std::shared_ptr<CComponent>> comp(1, createComponent());
-	LOCPLINT->showInfoDialog(text, comp);
+	GAME->interface()->showInfoDialog(text, comp);
 }
 
 LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, ComponentType BaseType)
@@ -139,7 +140,7 @@ CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * hero)
 		portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero->getIconIndex());
 		clickFunctor = [hero]() -> void
 		{
-			LOCPLINT->openHeroWindow(hero);
+			GAME->interface()->openHeroWindow(hero);
 		};
 	}
 }
@@ -177,7 +178,7 @@ void CHeroArea::hover(bool on)
 void LRClickableAreaOpenTown::clickPressed(const Point & cursorPosition)
 {
 	if(town)
-		LOCPLINT->openTownWindow(town);
+		GAME->interface()->openTownWindow(town);
 }
 
 LRClickableAreaOpenTown::LRClickableAreaOpenTown(const Rect & Pos, const CGTownInstance * Town)
@@ -215,9 +216,9 @@ std::string CMinorResDataBar::buildDateString()
 	std::string pattern = "%s: %d, %s: %d, %s: %d";
 
 	auto formatted = boost::format(pattern)
-		% VLC->generaltexth->translate("core.genrltxt.62") % LOCPLINT->cb->getDate(Date::MONTH)
-		% VLC->generaltexth->translate("core.genrltxt.63") % LOCPLINT->cb->getDate(Date::WEEK)
-		% VLC->generaltexth->translate("core.genrltxt.64") % LOCPLINT->cb->getDate(Date::DAY_OF_WEEK);
+		% VLC->generaltexth->translate("core.genrltxt.62") % GAME->interface()->cb->getDate(Date::MONTH)
+		% VLC->generaltexth->translate("core.genrltxt.63") % GAME->interface()->cb->getDate(Date::WEEK)
+		% VLC->generaltexth->translate("core.genrltxt.64") % GAME->interface()->cb->getDate(Date::DAY_OF_WEEK);
 
 	return boost::str(formatted);
 }
@@ -228,7 +229,7 @@ void CMinorResDataBar::showAll(Canvas & to)
 
 	for (GameResID i=EGameResID::WOOD; i<=EGameResID::GOLD; ++i)
 	{
-		std::string text = std::to_string(LOCPLINT->cb->getResourceAmount(i));
+		std::string text = std::to_string(GAME->interface()->cb->getResourceAmount(i));
 
 		Point target(pos.x + 50 + 76 * GameResID(i), pos.y + pos.h/2);
 
@@ -248,7 +249,7 @@ CMinorResDataBar::CMinorResDataBar()
 	pos.y = 575;
 
 	background = std::make_shared<CPicture>(ImagePath::builtin("KRESBAR.bmp"));
-	background->setPlayerColor(LOCPLINT->playerID);
+	background->setPlayerColor(GAME->interface()->playerID);
 
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
@@ -387,7 +388,7 @@ void CTownTooltip::init(const InfoAboutTown & town)
 
 	assert(town.tType);
 
-	size_t iconIndex = town.tType->clientInfo.icons[town.fortLevel > 0][town.built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	size_t iconIndex = town.tType->clientInfo.icons[town.fortLevel > 0][town.built >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	build = std::make_shared<CAnimImage>(AnimationPath::builtin("itpt"), iconIndex, 0, 3, 2);
 
@@ -451,7 +452,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 	fort = std::make_shared<CAnimImage>(AnimationPath::builtin("ITMCLS"), fortIndex, 0, 105, 31);
 	fastArmyPurchase = std::make_shared<LRClickableArea>(Rect(105, 31, 34, 34), [townId]()
 	{
-		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+		std::vector<const CGTownInstance*> towns = GAME->interface()->cb->getTownsInfo(true);
 		for(auto & town : towns)
 		{
 			if(town->id == townId)
@@ -460,11 +461,11 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 	});
 	fastTavern = std::make_shared<LRClickableArea>(Rect(3, 2, 58, 64), [townId]()
 	{
-		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+		std::vector<const CGTownInstance*> towns = GAME->interface()->cb->getTownsInfo(true);
 		for(auto & town : towns)
 		{
 			if(town->id == townId && town->hasBuilt(BuildingID::TAVERN))
-				LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
+				GAME->interface()->showTavernWindow(town, nullptr, QueryID::NONE);
 		}
 	}, [town]{
 		if(!town->getFaction()->getDescriptionTranslated().empty())
@@ -472,7 +473,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 	});
 	fastMarket = std::make_shared<LRClickableArea>(Rect(143, 31, 30, 34), []()
 	{
-		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+		std::vector<const CGTownInstance*> towns = GAME->interface()->cb->getTownsInfo(true);
 		for(auto & town : towns)
 		{
 			if(town->hasBuilt(BuildingID::MARKETPLACE))
@@ -481,12 +482,12 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 				return;
 			}
 		}
-		LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
+		GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 	});
 
 	assert(townInfo.tType);
 
-	size_t iconIndex = townInfo.tType->clientInfo.icons[townInfo.fortLevel > 0][townInfo.built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	size_t iconIndex = townInfo.tType->clientInfo.icons[townInfo.fortLevel > 0][townInfo.built >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	build = std::make_shared<CAnimImage>(AnimationPath::builtin("itpt"), iconIndex, 0, 3, 2);
 	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, townInfo.name);
@@ -496,7 +497,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 		hall = std::make_shared<CAnimImage>(AnimationPath::builtin("ITMTLS"), townInfo.details->hallLevel, 0, 67, 31);
 		fastTownHall = std::make_shared<LRClickableArea>(Rect(67, 31, 34, 34), [townId]()
 		{
-			std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+			std::vector<const CGTownInstance*> towns = GAME->interface()->cb->getTownsInfo(true);
 			for(auto & town : towns)
 			{
 				if(town->id == townId)
@@ -536,15 +537,15 @@ CreatureTooltip::CreatureTooltip(Point pos, const CGCreature * creature)
 	creatureImage = std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), creatureIconIndex);
 	creatureImage->center(Point(parent->pos.x + parent->pos.w / 2, parent->pos.y + creatureImage->pos.h / 2 + 11));
 
-	bool isHeroSelected = LOCPLINT->localState->getCurrentHero() != nullptr;
+	bool isHeroSelected = GAME->interface()->localState->getCurrentHero() != nullptr;
 	std::string textContent = isHeroSelected
-			? creature->getPopupText(LOCPLINT->localState->getCurrentHero())
-			: creature->getPopupText(LOCPLINT->playerID);
+			? creature->getPopupText(GAME->interface()->localState->getCurrentHero())
+			: creature->getPopupText(GAME->interface()->playerID);
 
 	//TODO: window is bigger than OH3
 	//TODO: vertical alignment does not match H3. Commented below example that matches H3 for creatures count but supports only 1 line:
 	/*std::shared_ptr<CLabel> = std::make_shared<CLabel>(parent->pos.w / 2, 103,
-			FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, creature->getHoverText(LOCPLINT->playerID));*/
+			FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, creature->getHoverText(GAME->interface()->playerID));*/
 
 	tooltipTextbox = std::make_shared<CTextBox>(textContent, Rect(15, 95, 230, 150), 0, FONT_SMALL, ETextAlignment::TOPCENTER, Colors::WHITE);
 }
@@ -590,13 +591,13 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
 	{
 		auto noMorale = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_MORALE));
-		text += "\n" + noMorale->Description(LOCPLINT->cb.get());
+		text += "\n" + noMorale->Description(GAME->interface()->cb.get());
 		component.value = 0;
 	}
 	else if (!morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_LUCK))
 	{
 		auto noLuck = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_LUCK));
-		text += "\n" + noLuck->Description(LOCPLINT->cb.get());
+		text += "\n" + noLuck->Description(GAME->interface()->cb.get());
 		component.value = 0;
 	}
 	else
@@ -605,7 +606,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 		for(auto & bonus : * modifierList)
 		{
 			if(bonus->val) {
-				const std::string& description = bonus->Description(LOCPLINT->cb.get());
+				const std::string& description = bonus->Description(GAME->interface()->cb.get());
 				//arraytxt already contains \n
 				if (description.size() && description[0] != '\n')
 					addInfo += '\n';

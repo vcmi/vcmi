@@ -16,6 +16,7 @@
 #include "CHeroBackpackWindow.h"
 
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
 
@@ -72,7 +73,7 @@ const CArtifactInstance * CWindowWithArtifacts::getPickedArtifact() const
 void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, const ArtifactPosition & slot,
 	bool allowExchange, bool altarTrading, bool closeWindow, const Point & cursorPosition)
 {
-	if(!LOCPLINT->makingTurn)
+	if(!GAME->interface()->makingTurn)
 		return;
 	if(hero == nullptr)
 		return;
@@ -88,7 +89,7 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, c
 	}
 	else if(auto art = hero->getArt(slot))
 	{
-		if(hero->getOwner() == LOCPLINT->playerID)
+		if(hero->getOwner() == GAME->interface()->playerID)
 		{
 			if(checkSpecialArts(*art, *hero, altarTrading))
 				onClickPressedCommonArtifact(*hero, slot, closeWindow);
@@ -98,7 +99,7 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, c
 			for(const auto & artSlot : ArtifactUtils::unmovableSlots())
 				if(slot == artSlot)
 				{
-					LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[21]);
+					GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[21]);
 					break;
 				}
 		}
@@ -108,7 +109,7 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, c
 void CWindowWithArtifacts::swapArtifactAndClose(const CArtifactsOfHeroBase & artsInst, const ArtifactPosition & slot,
 	const ArtifactLocation & dstLoc)
 {
-	LOCPLINT->cb->swapArtifacts(ArtifactLocation(artsInst.getHero()->id, slot), dstLoc);
+	GAME->interface()->cb->swapArtifacts(ArtifactLocation(artsInst.getHero()->id, slot), dstLoc);
 	close();
 }
 
@@ -117,9 +118,9 @@ void CWindowWithArtifacts::showArtifactAssembling(const CArtifactsOfHeroBase & a
 {
 	if(artsInst.getArt(artPlace.slot))
 	{
-		if(LOCPLINT->artifactController->askToDisassemble(artsInst.getHero(), artPlace.slot))
+		if(GAME->interface()->artifactController->askToDisassemble(artsInst.getHero(), artPlace.slot))
 			return;
-		if(LOCPLINT->artifactController->askToAssemble(artsInst.getHero(), artPlace.slot))
+		if(GAME->interface()->artifactController->askToAssemble(artsInst.getHero(), artPlace.slot))
 			return;
 		if(artPlace.text.size())
 			artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
@@ -199,7 +200,7 @@ void CWindowWithArtifacts::markPossibleSlots() const
 				continue;
 
 			if(getHeroPickedArtifact() == hero || !std::dynamic_pointer_cast<CArtifactsOfHeroKingdom>(artSet))
-				artSet->markPossibleSlots(pickedArtInst->getType(), hero->tempOwner == LOCPLINT->playerID);
+				artSet->markPossibleSlots(pickedArtInst->getType(), hero->tempOwner == GAME->interface()->playerID);
 		}
 	}
 }
@@ -210,19 +211,19 @@ bool CWindowWithArtifacts::checkSpecialArts(const CArtifactInstance & artInst, c
 	
 	if(artId == ArtifactID::SPELLBOOK)
 	{
-		ENGINE->windows().createAndPushWindow<CSpellWindow>(&hero, LOCPLINT, LOCPLINT->battleInt.get());
+		ENGINE->windows().createAndPushWindow<CSpellWindow>(&hero, GAME->interface(), GAME->interface()->battleInt.get());
 		return false;
 	}
 	if(artId == ArtifactID::CATAPULT)
 	{
 		// The Catapult must be equipped
-		LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[312],
+		GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[312],
 			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, ArtifactID(ArtifactID::CATAPULT))));
 		return false;
 	}
 	if(isTrade && !artInst.getType()->isTradable())
 	{
-		LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[21],
+		GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[21],
 			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, artId)));
 		return false;
 	}
@@ -257,20 +258,20 @@ void CWindowWithArtifacts::putPickedArtifact(const CGHeroInstance & curHero, con
 		if(pickedArt->getType()->isBig())
 		{
 			// War machines cannot go to backpack
-			LOCPLINT->showInfoDialog(boost::str(boost::format(VLC->generaltexth->allTexts[153]) % pickedArt->getType()->getNameTranslated()));
+			GAME->interface()->showInfoDialog(boost::str(boost::format(VLC->generaltexth->allTexts[153]) % pickedArt->getType()->getNameTranslated()));
 		}
 		else
 		{
 			if(ArtifactUtils::isBackpackFreeSlots(heroArtOwner))
-				LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
+				GAME->interface()->cb->swapArtifacts(srcLoc, dstLoc);
 			else
-				LOCPLINT->showInfoDialog(VLC->generaltexth->translate("core.genrltxt.152"));
+				GAME->interface()->showInfoDialog(VLC->generaltexth->translate("core.genrltxt.152"));
 		}
 	}
 	// Check if artifact transfer is possible
-	else if(pickedArt->canBePutAt(&curHero, dstLoc.slot, true) && (!curHero.getArt(targetSlot) || curHero.tempOwner == LOCPLINT->playerID))
+	else if(pickedArt->canBePutAt(&curHero, dstLoc.slot, true) && (!curHero.getArt(targetSlot) || curHero.tempOwner == GAME->interface()->playerID))
 	{
-		LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
+		GAME->interface()->cb->swapArtifacts(srcLoc, dstLoc);
 	}
 }
 
@@ -311,5 +312,5 @@ void CWindowWithArtifacts::onClickPressedCommonArtifact(const CGHeroInstance & c
 		close();
 	}
 	if(dstLoc.slot != ArtifactPosition::PRE_FIRST)
-		LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
+		GAME->interface()->cb->swapArtifacts(srcLoc, dstLoc);
 }

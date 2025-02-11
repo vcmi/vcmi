@@ -14,6 +14,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
@@ -33,7 +34,7 @@ CSavingScreen::CSavingScreen()
 	OBJECT_CONSTRUCTION;
 	center(pos);
 	localMi = std::make_shared<CMapInfo>();
-	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));
+	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*GAME->interface()->cb->getMapHeader()));
 
 	tabSel = std::make_shared<SelectionTab>(screenType);
 	tabSel->callOnSelect = std::bind(&CSavingScreen::changeSelection, this, _1);
@@ -42,7 +43,7 @@ CSavingScreen::CSavingScreen()
 		
 	buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRSAV.DEF"), VLC->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
 	
-	LOCPLINT->gamePause(true);
+	GAME->interface()->gamePause(true);
 }
 
 const CMapInfo * CSavingScreen::getMapInfo()
@@ -54,7 +55,7 @@ const StartInfo * CSavingScreen::getStartInfo()
 {
 	if (localMi)
 		return localMi->scenarioOptionsOfSave;
-	return LOCPLINT->cb->getStartInfo();
+	return GAME->interface()->cb->getStartInfo();
 }
 
 void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
@@ -69,7 +70,7 @@ void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
 
 void CSavingScreen::close()
 {
-	LOCPLINT->gamePause(false);
+	GAME->interface()->gamePause(false);
 	CSelectionBase::close();
 }
 
@@ -84,7 +85,7 @@ void CSavingScreen::saveGame()
 	{
 		Settings lastSave = settings.write["general"]["lastSave"];
 		lastSave->String() = path;
-		LOCPLINT->cb->save(path);
+		GAME->interface()->cb->save(path);
 		close();
 	};
 
@@ -92,7 +93,7 @@ void CSavingScreen::saveGame()
 	{
 		std::string hlp = VLC->generaltexth->allTexts[493]; //%s exists. Overwrite?
 		boost::algorithm::replace_first(hlp, "%s", tabSel->inputName->getText());
-		LOCPLINT->showYesNoDialog(hlp, overWrite, nullptr);
+		GAME->interface()->showYesNoDialog(hlp, overWrite, nullptr);
 	}
 	else
 	{

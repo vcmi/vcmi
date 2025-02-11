@@ -13,6 +13,7 @@
 #include "../CPlayerInterface.h"
 #include "../adventureMap/CResDataBar.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../mapView/MapView.h"
@@ -47,7 +48,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	title = std::make_shared<CLabel>(700, 95, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->allTexts[463]);
 	resDataBar = std::make_shared<CResDataBar>(ImagePath::builtin("ARESBAR.bmp"), 3, 575, 32, 2, 85, 85);
 
-	int faction = LOCPLINT->cb->getStartInfo()->playerInfos.find(LOCPLINT->playerID)->second.castle;
+	int faction = GAME->interface()->cb->getStartInfo()->playerInfos.find(GAME->interface()->playerID)->second.castle;
 
 	auto & puzzleMap = (*VLC->townh)[faction]->puzzleMap;
 

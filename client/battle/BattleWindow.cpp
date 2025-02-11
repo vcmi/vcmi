@@ -19,6 +19,7 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../windows/CSpellWindow.h"
@@ -55,8 +56,8 @@ BattleWindow::BattleWindow(BattleInterface & Owner):
 
 	PlayerColor defenderColor = owner.getBattle()->getBattle()->getSidePlayer(BattleSide::DEFENDER);
 	PlayerColor attackerColor = owner.getBattle()->getBattle()->getSidePlayer(BattleSide::ATTACKER);
-	bool isDefenderHuman = defenderColor.isValidPlayer() && LOCPLINT->cb->getStartInfo()->playerInfos.at(defenderColor).isControlledByHuman();
-	bool isAttackerHuman = attackerColor.isValidPlayer() && LOCPLINT->cb->getStartInfo()->playerInfos.at(attackerColor).isControlledByHuman();
+	bool isDefenderHuman = defenderColor.isValidPlayer() && GAME->interface()->cb->getStartInfo()->playerInfos.at(defenderColor).isControlledByHuman();
+	bool isAttackerHuman = attackerColor.isValidPlayer() && GAME->interface()->cb->getStartInfo()->playerInfos.at(attackerColor).isControlledByHuman();
 	onlyOnePlayerHuman = isDefenderHuman != isAttackerHuman;
 
 	REGISTER_BUILDER("battleConsole", &BattleWindow::buildBattleConsole);
@@ -241,7 +242,7 @@ void BattleWindow::createTimerInfoWindows()
 
 	int xOffsetAttacker = quickSpellWindow->isEnabled ? -53 : 0;
 
-	if(LOCPLINT->cb->getStartInfo()->turnTimerInfo.battleTimer != 0 || LOCPLINT->cb->getStartInfo()->turnTimerInfo.unitTimer != 0)
+	if(GAME->interface()->cb->getStartInfo()->turnTimerInfo.battleTimer != 0 || GAME->interface()->cb->getStartInfo()->turnTimerInfo.unitTimer != 0)
 	{
 		PlayerColor attacker = owner.getBattle()->sideToPlayer(BattleSide::ATTACKER);
 		PlayerColor defender = owner.getBattle()->sideToPlayer(BattleSide::DEFENDER);
@@ -458,14 +459,14 @@ void BattleWindow::activate()
 {
 	ENGINE->setStatusbar(console);
 	CIntObject::activate();
-	LOCPLINT->cingconsole->activate();
+	GAME->interface()->cingconsole->activate();
 }
 
 void BattleWindow::deactivate()
 {
 	ENGINE->setStatusbar(nullptr);
 	CIntObject::deactivate();
-	LOCPLINT->cingconsole->deactivate();
+	GAME->interface()->cingconsole->deactivate();
 }
 
 bool BattleWindow::captureThisKey(EShortcut key)
@@ -745,13 +746,13 @@ void BattleWindow::bSpellf()
 			std::string heroName = myHero->hasArt(artID, true) ? myHero->getNameTranslated() : owner.enemyHero().name;
 
 			//%s wields the %s, an ancient artifact which creates a p dead to all magic.
-			LOCPLINT->showInfoDialog(boost::str(boost::format(VLC->generaltexth->allTexts[683])
+			GAME->interface()->showInfoDialog(boost::str(boost::format(VLC->generaltexth->allTexts[683])
 										% heroName % VLC->artifacts()->getByIndex(artID)->getNameTranslated()));
 		}
 		else if(blockingBonus->source == BonusSource::OBJECT_TYPE)
 		{
 			if(blockingBonus->sid.as<MapObjectID>() == Obj::GARRISON || blockingBonus->sid.as<MapObjectID>() == Obj::GARRISON2)
-				LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[684]);
+				GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[684]);
 		}
 	}
 	else
@@ -890,7 +891,7 @@ void BattleWindow::endWithAutocombat()
 	if(!owner.makingTurn() || owner.tacticsMode)
 		return;
 
-	LOCPLINT->showYesNoDialog(
+	GAME->interface()->showYesNoDialog(
 		VLC->generaltexth->translate("vcmi.battleWindow.endWithAutocombat"),
 		[this]()
 		{
@@ -929,7 +930,7 @@ void BattleWindow::showAll(Canvas & to)
 void BattleWindow::show(Canvas & to)
 {
 	CIntObject::show(to);
-	LOCPLINT->cingconsole->show(to);
+	GAME->interface()->cingconsole->show(to);
 }
 
 void BattleWindow::close()

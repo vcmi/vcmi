@@ -16,6 +16,7 @@
 #include "PlayerLocalState.h"
 #include "CServerHandler.h"
 #include "GameEngine.h"
+#include "GameInstance.h"
 #include "gui/WindowHandler.h"
 #include "render/IRenderHandler.h"
 #include "ClientNetPackVisitors.h"
@@ -50,7 +51,7 @@ void ClientCommandManager::handleQuitCommand()
 
 void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuffer)
 {
-	if(!CSH->client)
+	if(!GAME->server().client)
 	{
 		printCommandMessage("Game is not in playing state");
 		return;
@@ -58,7 +59,7 @@ void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuff
 
 	std::string saveFilename;
 	singleWordBuffer >> saveFilename;
-	CSH->client->save(saveFilename);
+	GAME->server().client->save(saveFilename);
 	printCommandMessage("Game saved as: " + saveFilename);
 }
 
@@ -67,7 +68,7 @@ void ClientCommandManager::handleLoadCommand(std::istringstream& singleWordBuffe
 	// TODO: this code should end the running game and manage to call startGame instead
 	//std::string fname;
 	//singleWordBuffer >> fname;
-	//CSH->client->loadGame(fname);
+	//GAME->server().client->loadGame(fname);
 }
 
 void ClientCommandManager::handleGoSoloCommand()
@@ -76,7 +77,7 @@ void ClientCommandManager::handleGoSoloCommand()
 
 	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
-	if(!CSH->client)
+	if(!GAME->server().client)
 	{
 		printCommandMessage("Game is not in playing state");
 		return;
@@ -85,26 +86,26 @@ void ClientCommandManager::handleGoSoloCommand()
 	if(session["aiSolo"].Bool())
 	{
 		// unlikely it will work but just in case to be consistent
-		for(auto & color : CSH->getAllClientPlayers(CSH->logicConnection->connectionID))
+		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
 		{
-			if(color.isValidPlayer() && CSH->client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			if(color.isValidPlayer() && GAME->server().client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
-				CSH->client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
+				GAME->server().client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
 			}
 		}
 	}
 	else
 	{
-		PlayerColor currentColor = LOCPLINT->playerID;
-		CSH->client->removeGUI();
+		PlayerColor currentColor = GAME->interface()->playerID;
+		GAME->server().client->removeGUI();
 		
-		for(auto & color : CSH->getAllClientPlayers(CSH->logicConnection->connectionID))
+		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
 		{
-			if(color.isValidPlayer() && CSH->client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			if(color.isValidPlayer() && GAME->server().client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
-				auto AiToGive = CSH->client->aiNameForPlayer(*CSH->client->getPlayerSettings(color), false, false);
+				auto AiToGive = GAME->server().client->aiNameForPlayer(*GAME->server().client->getPlayerSettings(color), false, false);
 				printCommandMessage("Player " + color.toString() + " will be lead by " + AiToGive, ELogLevel::INFO);
-				CSH->client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
+				GAME->server().client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
 			}
 		}
 
@@ -129,17 +130,17 @@ void ClientCommandManager::handleControlaiCommand(std::istringstream& singleWord
 
 	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
-	if(!CSH->client)
+	if(!GAME->server().client)
 	{
 		printCommandMessage("Game is not in playing state");
 		return;
 	}
 
 	PlayerColor color;
-	if(LOCPLINT)
-		color = LOCPLINT->playerID;
+	if(GAME->interface())
+		color = GAME->interface()->playerID;
 
-	for(auto & elem : CSH->client->gameState()->players)
+	for(auto & elem : GAME->server().client->gameState()->players)
 	{
 		if(!elem.first.isValidPlayer()
 			|| elem.second.human
@@ -148,8 +149,8 @@ void ClientCommandManager::handleControlaiCommand(std::istringstream& singleWord
 			continue;
 		}
 
-		CSH->client->removeGUI();
-		CSH->client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
+		GAME->server().client->removeGUI();
+		GAME->server().client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
 	}
 
 	ENGINE->windows().totalRedraw();
@@ -436,12 +437,12 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 		ss << b;
 		return ss.str();
 	};
-		printCommandMessage("Bonuses of " + LOCPLINT->localState->getCurrentArmy()->getObjectName() + "\n");
-		printCommandMessage(format(*LOCPLINT->localState->getCurrentArmy()->getAllBonuses(Selector::all, Selector::all)) + "\n");
+		printCommandMessage("Bonuses of " + GAME->interface()->localState->getCurrentArmy()->getObjectName() + "\n");
+		printCommandMessage(format(*GAME->interface()->localState->getCurrentArmy()->getAllBonuses(Selector::all, Selector::all)) + "\n");
 
 	printCommandMessage("\nInherited bonuses:\n");
 	TCNodes parents;
-		LOCPLINT->localState->getCurrentArmy()->getParents(parents);
+		GAME->interface()->localState->getCurrentArmy()->getParents(parents);
 	for(const CBonusSystemNode *parent : parents)
 	{
 		printCommandMessage(std::string("\nBonuses from ") + typeid(*parent).name() + "\n" + format(*parent->getAllBonuses(Selector::all, Selector::all)) + "\n");
@@ -457,7 +458,7 @@ void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffe
 
 	if(what == "hs")
 	{
-		for(const CGHeroInstance* h : LOCPLINT->cb->getHeroesInfo())
+		for(const CGHeroInstance* h : GAME->interface()->cb->getHeroesInfo())
 			if(h->getHeroTypeID().getNum() == id1)
 				if(const CArtifactInstance* a = h->getArt(ArtifactPosition(id2)))
 					printCommandMessage(a->nodeName());
@@ -466,7 +467,7 @@ void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffe
 
 void ClientCommandManager::handleMpCommand()
 {
-	if(const CGHeroInstance* h = LOCPLINT->localState->getCurrentHero())
+	if(const CGHeroInstance* h = GAME->interface()->localState->getCurrentHero())
 		printCommandMessage(std::to_string(h->movementPointsRemaining()) + "; max: " + std::to_string(h->movementPointsLimit(true)) + "/" + std::to_string(h->movementPointsLimit(false)) + "\n");
 }
 
@@ -543,9 +544,9 @@ void ClientCommandManager::printCommandMessage(const std::string &commandMessage
 	if(currentCallFromIngameConsole)
 	{
 		boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-		if(LOCPLINT && LOCPLINT->cingconsole)
+		if(GAME->interface() && GAME->interface()->cingconsole)
 		{
-			LOCPLINT->cingconsole->addMessage("", "System", commandMessage);
+			GAME->interface()->cingconsole->addMessage("", "System", commandMessage);
 		}
 	}
 }
@@ -556,7 +557,7 @@ void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
 	yt.player = colorIdentifier;
 	yt.queryID = QueryID::NONE;
 
-	ApplyClientNetPackVisitor visitor(*CSH->client, *CSH->client->gameState());
+	ApplyClientNetPackVisitor visitor(*GAME->server().client, *GAME->server().client->gameState());
 	yt.visit(visitor);
 }
 
@@ -626,7 +627,7 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 	else if(commandName == "tell")
 		handleTellCommand(singleWordBuffer);
 
-	else if(commandName == "mp" && LOCPLINT)
+	else if(commandName == "mp" && GAME->interface())
 		handleMpCommand();
 
 	else if (commandName == "set")

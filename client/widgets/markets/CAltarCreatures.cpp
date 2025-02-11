@@ -12,6 +12,7 @@
 #include "CAltarCreatures.h"
 
 #include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
@@ -156,7 +157,7 @@ void CAltarCreatures::makeDeal()
 		}
 	}
 
-	LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_EXP, ids, {}, toSacrifice, hero);
+	GAME->interface()->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_EXP, ids, {}, toSacrifice, hero);
 
 	for(int & units : unitsOnAltar)
 		units = 0;
@@ -204,7 +205,7 @@ void CAltarCreatures::sacrificeAll()
 	offerTradePanel->update();
 	updateShowcases();
 
-	deal->block(calcExpAltarForHero() == 0 || !LOCPLINT->makingTurn);
+	deal->block(calcExpAltarForHero() == 0 || !GAME->interface()->makingTurn);
 }
 
 void CAltarCreatures::updateAltarSlot(const std::shared_ptr<CTradeableItem> & slot)
@@ -222,7 +223,7 @@ void CAltarCreatures::onOfferSliderMoved(int newVal)
 		unitsOnAltar[bidTradePanel->highlightedSlot->serial] = newVal;
 	if(offerTradePanel->isHighlighted())
 		updateAltarSlot(offerTradePanel->highlightedSlot);
-	deal->block(calcExpAltarForHero() == 0 || !LOCPLINT->makingTurn);
+	deal->block(calcExpAltarForHero() == 0 || !GAME->interface()->makingTurn);
 	highlightingChanged();
 	redraw();
 }

@@ -58,8 +58,6 @@
 
 #include <vcmi/events/EventBus.h>
 
-CServerHandler * CSH = nullptr;
-
 CServerHandler::~CServerHandler()
 {
 	if (serverRunner)

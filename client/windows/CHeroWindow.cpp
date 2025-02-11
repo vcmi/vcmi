@@ -18,6 +18,7 @@
 #include "../CPlayerInterface.h"
 
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
@@ -76,7 +77,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	OBJECT_CONSTRUCTION;
 	curHero = hero;
 
-	banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), LOCPLINT->playerID.getNum(), 0, 606, 8);
+	banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), GAME->interface()->playerID.getNum(), 0, 606, 8);
 	name = std::make_shared<CLabel>(190, 38, EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW);
 	title = std::make_shared<CLabel>(190, 65, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
@@ -86,7 +87,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 	if(settings["general"]["enableUiEnhancements"].Bool())
 	{
-		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
+		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(heroscrn[0]), [=](){ GAME->interface()->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
 		backpackButton = std::make_shared<CButton>(Point(424, 429), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"), [=](){ createBackpackWindow(); }, EShortcut::HERO_BACKPACK);
 		backpackButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 		dismissButton = std::make_shared<CButton>(Point(534, 429), AnimationPath::builtin("hsbtns2.def"), CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
@@ -96,7 +97,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 		dismissLabel = std::make_shared<CTextBox>(VLC->generaltexth->jktexts[8], Rect(370, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 		questlogLabel = std::make_shared<CTextBox>(VLC->generaltexth->jktexts[9], Rect(510, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 		dismissButton = std::make_shared<CButton>(Point(454, 429), AnimationPath::builtin("hsbtns2.def"), CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
-		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
+		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(heroscrn[0]), [=](){ GAME->interface()->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
 	}
 
 	formations = std::make_shared<CToggleGroup>(0);
@@ -110,8 +111,8 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	}
 
 	//right list of heroes
-	for(int i=0; i < std::min(LOCPLINT->cb->howManyHeroes(false), 8); i++)
-		heroList.push_back(std::make_shared<CHeroSwitcher>(this, Point(612, 87 + i * 54), LOCPLINT->cb->getHeroBySerial(i, false)));
+	for(int i=0; i < std::min(GAME->interface()->cb->howManyHeroes(false), 8); i++)
+		heroList.push_back(std::make_shared<CHeroSwitcher>(this, Point(612, 87 + i * 54), GAME->interface()->cb->getHeroBySerial(i, false)));
 
 	//areas
 	portraitArea = std::make_shared<LRClickableAreaWText>(Rect(18, 18, 58, 64));
@@ -198,7 +199,7 @@ void CHeroWindow::update()
 		OBJECT_CONSTRUCTION;
 		if(!garr)
 		{
-			bool removableTroops = curHero->getOwner() == LOCPLINT->playerID;
+			bool removableTroops = curHero->getOwner() == GAME->interface()->playerID;
 			std::string helpBox = heroscrn[32];
 			boost::algorithm::replace_first(helpBox, "%s", VLC->generaltexth->allTexts[43]);
 
@@ -217,7 +218,7 @@ void CHeroWindow::update()
 			enableKeyboardShortcuts();
 		}
 
-		int serial = LOCPLINT->cb->getHeroSerial(curHero, false);
+		int serial = GAME->interface()->cb->getHeroSerial(curHero, false);
 
 		listSelection.reset();
 		if(serial >= 0)
@@ -275,7 +276,7 @@ void CHeroWindow::update()
 	}
 
 	//if player only have one hero and no towns
-	if(!LOCPLINT->cb->howManyTowns() && LOCPLINT->cb->howManyHeroes() == 1)
+	if(!GAME->interface()->cb->howManyTowns() && GAME->interface()->cb->howManyHeroes() == 1)
 		noDismiss = true;
 
 	if(curHero->isMissionCritical())
@@ -296,7 +297,7 @@ void CHeroWindow::update()
 	formations->resetCallback();
 	//setting formations
 	formations->setSelected(curHero->formation == EArmyFormation::TIGHT ? 1 : 0);
-	formations->addCallback([=](int value){ LOCPLINT->cb->setFormation(curHero, static_cast<EArmyFormation>(value));});
+	formations->addCallback([=](int value){ GAME->interface()->cb->setFormation(curHero, static_cast<EArmyFormation>(value));});
 
 	morale->set(curHero);
 	luck->set(curHero);
@@ -306,11 +307,11 @@ void CHeroWindow::update()
 
 void CHeroWindow::dismissCurrent()
 {
-	LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[22], [this]()
+	GAME->interface()->showYesNoDialog(VLC->generaltexth->allTexts[22], [this]()
 		{
 			arts->putBackPickedArtifact();
 			close();
-			LOCPLINT->cb->dismissHero(curHero);
+			GAME->interface()->cb->dismissHero(curHero);
 			arts->setHero(nullptr);
 		}, nullptr);
 }
@@ -332,7 +333,7 @@ void CHeroWindow::commanderWindow()
 		{
 			ArtifactLocation dst(curHero->id, freeSlot);
 			dst.creature = SlotID::COMMANDER_SLOT_PLACEHOLDER;
-			LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero->id, ArtifactPosition::TRANSITION_POS), dst);
+			GAME->interface()->cb->swapArtifacts(ArtifactLocation(hero->id, ArtifactPosition::TRANSITION_POS), dst);
 		}
 	}
 	else

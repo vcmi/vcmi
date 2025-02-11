@@ -20,6 +20,7 @@
 #include "../CPlayerInterface.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../eventsSDL/InputHandler.h"
 
@@ -174,7 +175,7 @@ void MapViewController::tick(uint32_t timeDelta)
 		if(!hero)
 			hero = boat->hero;
 
-		double heroMoveTime = LOCPLINT->playerID == hero->getOwner() ?
+		double heroMoveTime = GAME->interface()->playerID == hero->getOwner() ?
 			settings["adventure"]["heroMoveTime"].Float() :
 			settings["adventure"]["enemyMoveTime"].Float();
 
@@ -285,10 +286,10 @@ bool MapViewController::isEventInstant(const CGObjectInstance * obj, const Playe
 	if (!initiator.isValidPlayer())
 		return true; // skip effects such as new monsters on new month
 
-	if(initiator != LOCPLINT->playerID && settings["adventure"]["enemyMoveTime"].Float() <= 0)
+	if(initiator != GAME->interface()->playerID && settings["adventure"]["enemyMoveTime"].Float() <= 0)
 		return true; // instant movement speed
 
-	if(initiator == LOCPLINT->playerID && settings["adventure"]["heroMoveTime"].Float() <= 0)
+	if(initiator == GAME->interface()->playerID && settings["adventure"]["heroMoveTime"].Float() <= 0)
 		return true; // instant movement speed
 
 	return false;
@@ -299,18 +300,18 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj, const Playe
 	if(adventureContext == nullptr)
 		return false;
 
-	if(initiator != LOCPLINT->playerID && settings["adventure"]["enemyMoveTime"].Float() < 0)
+	if(initiator != GAME->interface()->playerID && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
 	if(!ENGINE->windows().isTopWindow(adventureInt))
 		return false;
 
 	// do not focus on actions of other players except for AI with simturns off
-	if (initiator != LOCPLINT->playerID && initiator.isValidPlayer())
+	if (initiator != GAME->interface()->playerID && initiator.isValidPlayer())
 	{
-		if (LOCPLINT->makingTurn)
+		if (GAME->interface()->makingTurn)
 			return false;
-		if (LOCPLINT->cb->getStartInfo()->playerInfos.at(initiator).isControlledByHuman() && !settings["session"]["adventureTrackHero"].Bool())
+		if (GAME->interface()->cb->getStartInfo()->playerInfos.at(initiator).isControlledByHuman() && !settings["session"]["adventureTrackHero"].Bool())
 			return false;
 	}
 
@@ -325,18 +326,18 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 	if(adventureContext == nullptr)
 		return false;
 
-	if(obj->getOwner() != LOCPLINT->playerID && settings["adventure"]["enemyMoveTime"].Float() < 0)
+	if(obj->getOwner() != GAME->interface()->playerID && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
 	if(!ENGINE->windows().isTopWindow(adventureInt))
 		return false;
 
 	// do not focus on actions of other players except for AI with simturns off
-	if (obj->getOwner() != LOCPLINT->playerID)
+	if (obj->getOwner() != GAME->interface()->playerID)
 	{
-		if (LOCPLINT->makingTurn)
+		if (GAME->interface()->makingTurn)
 			return false;
-		if (LOCPLINT->cb->getStartInfo()->playerInfos.at(obj->getOwner()).isControlledByHuman() && !settings["session"]["adventureTrackHero"].Bool())
+		if (GAME->interface()->cb->getStartInfo()->playerInfos.at(obj->getOwner()).isControlledByHuman() && !settings["session"]["adventureTrackHero"].Bool())
 			return false;
 	}
 
@@ -542,7 +543,7 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 		return;
 	}
 
-	double movementTime = LOCPLINT->playerID == obj->tempOwner ?
+	double movementTime = GAME->interface()->playerID == obj->tempOwner ?
 		settings["adventure"]["heroMoveTime"].Float() :
 		settings["adventure"]["enemyMoveTime"].Float();
 

@@ -27,6 +27,7 @@
 #include "../widgets/RadialMenu.h"
 #include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
@@ -69,7 +70,7 @@ AdventureMapInterface::AdventureMapInterface():
 	shortcuts->setState(EAdventureState::MAKING_TURN);
 	widget->getMapView()->onViewMapActivated();
 
-	if(LOCPLINT->cb->getStartInfo()->turnTimerInfo.turnTimer != 0)
+	if(GAME->interface()->cb->getStartInfo()->turnTimerInfo.turnTimer != 0)
 		watches = std::make_shared<TurnTimerWidget>(Point(24, 24));
 	
 	addUsedEvents(KEYBOARD | TIME);
@@ -105,7 +106,7 @@ void AdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 {
 	widget->getHeroList()->updateElement(h);
 
-	if (h && h == LOCPLINT->localState->getCurrentHero() && !widget->getInfoBar()->showingComponents())
+	if (h && h == GAME->interface()->localState->getCurrentHero() && !widget->getInfoBar()->showingComponents())
 		widget->getInfoBar()->showSelection();
 
 	widget->updateActiveState();
@@ -115,7 +116,7 @@ void AdventureMapInterface::onTownChanged(const CGTownInstance * town)
 {
 	widget->getTownList()->updateElement(town);
 
-	if (town && town == LOCPLINT->localState->getCurrentTown() && !widget->getInfoBar()->showingComponents())
+	if (town && town == GAME->interface()->localState->getCurrentTown() && !widget->getInfoBar()->showingComponents())
 		widget->getInfoBar()->showSelection();
 }
 
@@ -130,10 +131,10 @@ void AdventureMapInterface::activate()
 
 	adjustActiveness();
 
-	if(LOCPLINT)
+	if(GAME->interface())
 	{
-		LOCPLINT->cingconsole->activate();
-		LOCPLINT->cingconsole->pos = this->pos;
+		GAME->interface()->cingconsole->activate();
+		GAME->interface()->cingconsole->pos = this->pos;
 	}
 
 	ENGINE->fakeMouseMove(); //to restore the cursor
@@ -141,8 +142,8 @@ void AdventureMapInterface::activate()
 	// workaround for an edge case:
 	// if player unequips Angel Wings / Boots of Levitation of currently active hero
 	// game will correctly invalidate paths but current route will not be updated since verifyPath() is not called for current hero
-	if (LOCPLINT->makingTurn && LOCPLINT->localState->getCurrentHero())
-		LOCPLINT->localState->verifyPath(LOCPLINT->localState->getCurrentHero());
+	if (GAME->interface()->makingTurn && GAME->interface()->localState->getCurrentHero())
+		GAME->interface()->localState->verifyPath(GAME->interface()->localState->getCurrentHero());
 }
 
 void AdventureMapInterface::deactivate()
@@ -150,22 +151,22 @@ void AdventureMapInterface::deactivate()
 	CIntObject::deactivate();
 	ENGINE->cursor().set(Cursor::Map::POINTER);
 
-	if(LOCPLINT)
-		LOCPLINT->cingconsole->deactivate();
+	if(GAME->interface())
+		GAME->interface()->cingconsole->deactivate();
 }
 
 void AdventureMapInterface::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 	dim(to);
-	LOCPLINT->cingconsole->show(to);
+	GAME->interface()->cingconsole->show(to);
 }
 
 void AdventureMapInterface::show(Canvas & to)
 {
 	CIntObject::show(to);
 	dim(to);
-	LOCPLINT->cingconsole->show(to);
+	GAME->interface()->cingconsole->show(to);
 }
 
 void AdventureMapInterface::dim(Canvas & to)
@@ -330,7 +331,7 @@ void AdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 		widget->getHeroList()->select(hero);
 		widget->getTownList()->select(nullptr);
 
-		LOCPLINT->localState->verifyPath(hero);
+		GAME->interface()->localState->verifyPath(hero);
 		onHeroChanged(hero);
 	}
 
@@ -408,7 +409,7 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	onCurrentPlayerChanged(playerID);
 
 	setState(EAdventureState::MAKING_TURN);
-	if(playerID == LOCPLINT->playerID || settings["session"]["spectate"].Bool())
+	if(playerID == GAME->interface()->playerID || settings["session"]["spectate"].Bool())
 	{
 		widget->getMinimap()->setAIRadar(false);
 		widget->getInfoBar()->showSelection();
@@ -420,9 +421,9 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	const CGHeroInstance * heroToSelect = nullptr;
 
 	// find first non-sleeping hero
-	for (auto hero : LOCPLINT->localState->getWanderingHeroes())
+	for (auto hero : GAME->interface()->localState->getWanderingHeroes())
 	{
-		if (!LOCPLINT->localState->isHeroSleeping(hero))
+		if (!GAME->interface()->localState->isHeroSleeping(hero))
 		{
 			heroToSelect = hero;
 			break;
@@ -432,21 +433,21 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	//select first hero if available.
 	if (heroToSelect != nullptr)
 	{
-		LOCPLINT->localState->setSelection(heroToSelect);
+		GAME->interface()->localState->setSelection(heroToSelect);
 	}
-	else if (LOCPLINT->localState->getOwnedTowns().size())
+	else if (GAME->interface()->localState->getOwnedTowns().size())
 	{
-		LOCPLINT->localState->setSelection(LOCPLINT->localState->getOwnedTown(0));
+		GAME->interface()->localState->setSelection(GAME->interface()->localState->getOwnedTown(0));
 	}
 	else
 	{
-		LOCPLINT->localState->setSelection(LOCPLINT->localState->getWanderingHero(0));
+		GAME->interface()->localState->setSelection(GAME->interface()->localState->getWanderingHero(0));
 	}
 
-	onSelectionChanged(LOCPLINT->localState->getCurrentArmy());
+	onSelectionChanged(GAME->interface()->localState->getCurrentArmy());
 
 	//show new day animation and sound on infobar, except for 1st day of the game
-	if (LOCPLINT->cb->getDate(Date::DAY) != 1)
+	if (GAME->interface()->cb->getDate(Date::DAY) != 1)
 		widget->getInfoBar()->showDate();
 
 	onHeroChanged(nullptr);
@@ -472,11 +473,11 @@ void AdventureMapInterface::hotkeyEndingTurn()
 
 	if(!settings["general"]["startTurnAutosave"].Bool())
 	{
-		LOCPLINT->performAutosave();
+		GAME->interface()->performAutosave();
 	}
 
-	LOCPLINT->makingTurn = false;
-	LOCPLINT->cb->endTurn();
+	GAME->interface()->makingTurn = false;
+	GAME->interface()->cb->endTurn();
 
 	mapAudio->onPlayerTurnEnded();
 
@@ -485,9 +486,9 @@ void AdventureMapInterface::hotkeyEndingTurn()
 	// So find first player other than ours that is acting at the moment and update UI as if he had started turn
 	for (auto player = PlayerColor(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 	{
-		if (player != LOCPLINT->playerID && LOCPLINT->cb->isPlayerMakingTurn(player))
+		if (player != GAME->interface()->playerID && GAME->interface()->cb->isPlayerMakingTurn(player))
 		{
-			onEnemyTurnStarted(player, LOCPLINT->cb->getStartInfo()->playerInfos.at(player).isControlledByHuman());
+			onEnemyTurnStarted(player, GAME->interface()->cb->getStartInfo()->playerInfos.at(player).isControlledByHuman());
 			break;
 		}
 	}
@@ -495,7 +496,7 @@ void AdventureMapInterface::hotkeyEndingTurn()
 
 const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPos)
 {
-	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mapPos);  //blocking objects at tile
+	std::vector < const CGObjectInstance * > bobjs = GAME->interface()->cb->getBlockingObjs(mapPos);  //blocking objects at tile
 
 	if (bobjs.empty())
 		return nullptr;
@@ -508,7 +509,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 	if(!shortcuts->optionMapViewActive())
 		return;
 
-	const CGObjectInstance *topBlocking = LOCPLINT->cb->isVisible(targetPosition) ? getActiveObject(targetPosition) : nullptr;
+	const CGObjectInstance *topBlocking = GAME->interface()->cb->isVisible(targetPosition) ? getActiveObject(targetPosition) : nullptr;
 
 	if(spellBeingCasted)
 	{
@@ -520,39 +521,39 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 		return;
 	}
 
-	if(!LOCPLINT->cb->isVisible(targetPosition))
+	if(!GAME->interface()->cb->isVisible(targetPosition))
 		return;
 
 	//check if we can select this object
-	bool canSelect = topBlocking && topBlocking->ID == Obj::HERO && topBlocking->tempOwner == LOCPLINT->playerID;
-	canSelect |= topBlocking && topBlocking->ID == Obj::TOWN && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, topBlocking->tempOwner) != PlayerRelations::ENEMIES;
+	bool canSelect = topBlocking && topBlocking->ID == Obj::HERO && topBlocking->tempOwner == GAME->interface()->playerID;
+	canSelect |= topBlocking && topBlocking->ID == Obj::TOWN && GAME->interface()->cb->getPlayerRelations(GAME->interface()->playerID, topBlocking->tempOwner) != PlayerRelations::ENEMIES;
 
-	if(LOCPLINT->localState->getCurrentArmy()->ID != Obj::HERO) //hero is not selected (presumably town)
+	if(GAME->interface()->localState->getCurrentArmy()->ID != Obj::HERO) //hero is not selected (presumably town)
 	{
-		if(LOCPLINT->localState->getCurrentArmy() == topBlocking) //selected town clicked
-			LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(topBlocking));
+		if(GAME->interface()->localState->getCurrentArmy() == topBlocking) //selected town clicked
+			GAME->interface()->openTownWindow(static_cast<const CGTownInstance*>(topBlocking));
 		else if(canSelect)
-			LOCPLINT->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
+			GAME->interface()->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
 	}
-	else if(const CGHeroInstance * currentHero = LOCPLINT->localState->getCurrentHero()) //hero is selected
+	else if(const CGHeroInstance * currentHero = GAME->interface()->localState->getCurrentHero()) //hero is selected
 	{
-		const CGPathNode *pn = LOCPLINT->getPathsInfo(currentHero)->getPathInfo(targetPosition);
+		const CGPathNode *pn = GAME->interface()->getPathsInfo(currentHero)->getPathInfo(targetPosition);
 
 		const auto shipyard = dynamic_cast<const IShipyard *>(topBlocking);
 
 		if(currentHero == topBlocking) //clicked selected hero
 		{
-			LOCPLINT->openHeroWindow(currentHero);
+			GAME->interface()->openHeroWindow(currentHero);
 			return;
 		}
 		else if(canSelect && pn->turns == 255 ) //selectable object at inaccessible tile
 		{
-			LOCPLINT->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
+			GAME->interface()->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
 			return;
 		}
-		else if(shipyard != nullptr && pn->turns == 255 && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, topBlocking->tempOwner) != PlayerRelations::ENEMIES)
+		else if(shipyard != nullptr && pn->turns == 255 && GAME->interface()->cb->getPlayerRelations(GAME->interface()->playerID, topBlocking->tempOwner) != PlayerRelations::ENEMIES)
 		{
-			LOCPLINT->showShipyardDialogOrProblemPopup(shipyard);
+			GAME->interface()->showShipyardDialogOrProblemPopup(shipyard);
 		}
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		{
@@ -561,13 +562,13 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 			if(topBlocking && topBlocking->isVisitable() && !topBlocking->visitableAt(destinationTile) && settings["gameTweaks"]["simpleObjectSelection"].Bool())
 				destinationTile = topBlocking->visitablePos();
 
-			if(LOCPLINT->localState->hasPath(currentHero) &&
-			   LOCPLINT->localState->getPath(currentHero).endPos() == destinationTile &&
+			if(GAME->interface()->localState->hasPath(currentHero) &&
+			   GAME->interface()->localState->getPath(currentHero).endPos() == destinationTile &&
 			   !ENGINE->isKeyboardShiftDown())//we'll be moving
 			{
-				assert(!MAPHANDLER->hasOngoingAnimations());
-				if(!MAPHANDLER->hasOngoingAnimations() && LOCPLINT->localState->getPath(currentHero).nextNode().turns == 0)
-					LOCPLINT->moveHero(currentHero, LOCPLINT->localState->getPath(currentHero));
+				assert(!GAME->map().hasOngoingAnimations());
+				if(!GAME->map().hasOngoingAnimations() && GAME->interface()->localState->getPath(currentHero).nextNode().turns == 0)
+					GAME->interface()->moveHero(currentHero, GAME->interface()->localState->getPath(currentHero));
 				return;
 			}
 			else
@@ -575,11 +576,11 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 				if(ENGINE->isKeyboardShiftDown()) //normal click behaviour (as no hero selected)
 				{
 					if(canSelect)
-						LOCPLINT->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
+						GAME->interface()->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
 				}
 				else //remove old path and find a new one if we clicked on accessible tile
 				{
-					LOCPLINT->localState->setPath(currentHero, destinationTile);
+					GAME->interface()->localState->setPath(currentHero, destinationTile);
 					onHeroChanged(currentHero);
 				}
 			}
@@ -597,10 +598,10 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		return;
 
 	//may occur just at the start of game (fake move before full initialization)
-	if(!LOCPLINT->localState->getCurrentArmy())
+	if(!GAME->interface()->localState->getCurrentArmy())
 		return;
 
-	bool isTargetPositionVisible = LOCPLINT->cb->isVisible(targetPosition);
+	bool isTargetPositionVisible = GAME->interface()->cb->isVisible(targetPosition);
 	const CGObjectInstance *objAtTile = isTargetPositionVisible ? getActiveObject(targetPosition) : nullptr;
 
 	if(spellBeingCasted)
@@ -617,7 +618,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		case SpellID::DIMENSION_DOOR:
 			if(isValidAdventureSpellTarget(targetPosition))
 			{
-				if(LOCPLINT->cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && LOCPLINT->cb->isTileGuardedUnchecked(targetPosition))
+				if(GAME->interface()->cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && GAME->interface()->cb->isTileGuardedUnchecked(targetPosition))
 					ENGINE->cursor().set(Cursor::Map::T1_ATTACK);
 				else
 					ENGINE->cursor().set(Cursor::Map::TELEPORT);
@@ -642,8 +643,8 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 
 	if(objAtTile)
 	{
-		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
-		std::string text = LOCPLINT->localState->getCurrentHero() ? objAtTile->getHoverText(LOCPLINT->localState->getCurrentHero()) : objAtTile->getHoverText(LOCPLINT->playerID);
+		objRelations = GAME->interface()->cb->getPlayerRelations(GAME->interface()->playerID, objAtTile->tempOwner);
+		std::string text = GAME->interface()->localState->getCurrentHero() ? objAtTile->getHoverText(GAME->interface()->localState->getCurrentHero()) : objAtTile->getHoverText(GAME->interface()->playerID);
 		boost::replace_all(text,"\n"," ");
 		if (ENGINE->isKeyboardCmdDown())
 			text.append(" (" + std::to_string(targetPosition.x) + ", " + std::to_string(targetPosition.y) + ")");
@@ -651,13 +652,13 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 	}
 	else if(isTargetPositionVisible)
 	{
-		std::string tileTooltipText = MAPHANDLER->getTerrainDescr(targetPosition, false);
+		std::string tileTooltipText = GAME->map().getTerrainDescr(targetPosition, false);
 		if (ENGINE->isKeyboardCmdDown())
 			tileTooltipText.append(" (" + std::to_string(targetPosition.x) + ", " + std::to_string(targetPosition.y) + ")");
 		ENGINE->statusbar()->write(tileTooltipText);
 	}
 
-	if(LOCPLINT->localState->getCurrentArmy()->ID == Obj::TOWN || ENGINE->isKeyboardShiftDown())
+	if(GAME->interface()->localState->getCurrentArmy()->ID == Obj::TOWN || ENGINE->isKeyboardShiftDown())
 	{
 		if(objAtTile)
 		{
@@ -671,7 +672,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		else
 			ENGINE->cursor().set(Cursor::Map::POINTER);
 	}
-	else if(const CGHeroInstance * hero = LOCPLINT->localState->getCurrentHero())
+	else if(const CGHeroInstance * hero = GAME->interface()->localState->getCurrentHero())
 	{
 		std::array<Cursor::Map, 4> cursorMove      = { Cursor::Map::T1_MOVE,       Cursor::Map::T2_MOVE,       Cursor::Map::T3_MOVE,       Cursor::Map::T4_MOVE,       };
 		std::array<Cursor::Map, 4> cursorAttack    = { Cursor::Map::T1_ATTACK,     Cursor::Map::T2_ATTACK,     Cursor::Map::T3_ATTACK,     Cursor::Map::T4_ATTACK,     };
@@ -681,7 +682,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		std::array<Cursor::Map, 4> cursorVisit     = { Cursor::Map::T1_VISIT,      Cursor::Map::T2_VISIT,      Cursor::Map::T3_VISIT,      Cursor::Map::T4_VISIT,      };
 		std::array<Cursor::Map, 4> cursorSailVisit = { Cursor::Map::T1_SAIL_VISIT, Cursor::Map::T2_SAIL_VISIT, Cursor::Map::T3_SAIL_VISIT, Cursor::Map::T4_SAIL_VISIT, };
 
-		const CGPathNode * pathNode = LOCPLINT->getPathsInfo(hero)->getPathInfo(targetPosition);
+		const CGPathNode * pathNode = GAME->interface()->getPathsInfo(hero)->getPathInfo(targetPosition);
 		assert(pathNode);
 
 		if((ENGINE->isKeyboardAltDown() || settings["gameTweaks"]["forceMovementInfo"].Bool()) && pathNode->reachable()) //overwrite status bar text with movement info
@@ -708,7 +709,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 			}
 
 			if(objAtTile->isVisitable() && !objAtTile->visitableAt(targetPosition) && settings["gameTweaks"]["simpleObjectSelection"].Bool())
-				pathNode = LOCPLINT->getPathsInfo(hero)->getPathInfo(objAtTile->visitablePos());
+				pathNode = GAME->interface()->getPathsInfo(hero)->getPathInfo(objAtTile->visitablePos());
 		}
 
 		int turns = pathNode->turns;
@@ -728,7 +729,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		case EPathNodeAction::TELEPORT_BLOCKING_VISIT:
 			if(objAtTile && objAtTile->ID == Obj::HERO)
 			{
-				if(LOCPLINT->localState->getCurrentArmy()  == objAtTile)
+				if(GAME->interface()->localState->getCurrentArmy()  == objAtTile)
 					ENGINE->cursor().set(Cursor::Map::HERO);
 				else
 					ENGINE->cursor().set(cursorExchange[turns]);
@@ -807,7 +808,7 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 		return;
 	}
 
-	if(!LOCPLINT->cb->isVisible(mapPos))
+	if(!GAME->interface()->cb->isVisible(mapPos))
 	{
 		CRClickPopup::createAndPush(VLC->generaltexth->allTexts[61]); //Uncharted Territory
 		return;
@@ -817,10 +818,10 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 	if(!obj)
 	{
 		// Bare or undiscovered terrain
-		const TerrainTile * tile = LOCPLINT->cb->getTile(mapPos);
+		const TerrainTile * tile = GAME->interface()->cb->getTile(mapPos);
 		if(tile)
 		{
-			std::string hlp = MAPHANDLER->getTerrainDescr(mapPos, true);
+			std::string hlp = GAME->map().getTerrainDescr(mapPos, true);
 			CRClickPopup::createAndPush(hlp);
 		}
 		return;
@@ -852,14 +853,14 @@ void AdventureMapInterface::exitCastingMode()
 void AdventureMapInterface::hotkeyAbortCastingMode()
 {
 	exitCastingMode();
-	LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[731]); //Spell cancelled
+	GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[731]); //Spell cancelled
 }
 
 void AdventureMapInterface::performSpellcasting(const int3 & dest)
 {
 	SpellID id = spellBeingCasted->id;
 	exitCastingMode();
-	LOCPLINT->cb->castSpell(LOCPLINT->localState->getCurrentHero(), id, dest);
+	GAME->interface()->cb->castSpell(GAME->interface()->localState->getCurrentHero(), id, dest);
 }
 
 Rect AdventureMapInterface::terrainAreaPixels() const
@@ -929,8 +930,8 @@ void AdventureMapInterface::onScreenResize()
 	widget->getMinimap()->update();
 	widget->getInfoBar()->showSelection();
 
-	if (LOCPLINT && LOCPLINT->localState->getCurrentArmy())
-		widget->getMapView()->onCenteredObject(LOCPLINT->localState->getCurrentArmy());
+	if (GAME->interface() && GAME->interface()->localState->getCurrentArmy())
+		widget->getMapView()->onCenteredObject(GAME->interface()->localState->getCurrentArmy());
 
 	adjustActiveness();
 
@@ -942,5 +943,5 @@ bool AdventureMapInterface::isValidAdventureSpellTarget(int3 targetPosition) con
 {
 	spells::detail::ProblemImpl problem;
 
-	return spellBeingCasted->getAdventureMechanics().canBeCastAt(problem, LOCPLINT->cb.get(), LOCPLINT->localState->getCurrentHero(), targetPosition);
+	return spellBeingCasted->getAdventureMechanics().canBeCastAt(problem, GAME->interface()->cb.get(), GAME->interface()->localState->getCurrentHero(), targetPosition);
 }

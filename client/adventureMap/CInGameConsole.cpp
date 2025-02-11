@@ -16,6 +16,7 @@
 #include "../GameChatHandler.h"
 #include "../ClientCommandManager.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/TextAlignment.h"
@@ -46,7 +47,7 @@ void CInGameConsole::showAll(Canvas & to)
 
 void CInGameConsole::show(Canvas & to)
 {
-	if (LOCPLINT->cingconsole != this)
+	if (GAME->interface()->cingconsole != this)
 		return;
 
 	int number = 0;
@@ -142,7 +143,7 @@ bool CInGameConsole::captureThisKey(EShortcut key)
 
 void CInGameConsole::keyPressed (EShortcut key)
 {
-	if (LOCPLINT->cingconsole != this)
+	if (GAME->interface()->cingconsole != this)
 		return;
 
 	if(!isEnteringText() && key != EShortcut::GAME_ACTIVATE_CONSOLE)
@@ -221,7 +222,7 @@ void CInGameConsole::keyPressed (EShortcut key)
 
 void CInGameConsole::textInputted(const std::string & inputtedText)
 {
-	if (LOCPLINT->cingconsole != this)
+	if (GAME->interface()->cingconsole != this)
 		return;
 
 	if(!isEnteringText())
@@ -242,7 +243,7 @@ void CInGameConsole::textEdited(const std::string & inputtedText)
 
 void CInGameConsole::showRecentChatHistory()
 {
-	auto const & history = CSH->getGameChat().getChatHistory();
+	auto const & history = GAME->server().getGameChat().getChatHistory();
 
 	texts.clear();
 
@@ -303,7 +304,7 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 			clientCommandThread.detach();
 		}
 		else
-			CSH->getGameChat().sendMessageGameplay(txt);
+			GAME->server().getGameChat().sendMessageGameplay(txt);
 	}
 	enteredText.clear();
 

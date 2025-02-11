@@ -15,6 +15,7 @@
 #include "../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/TerrainHandler.h"
@@ -67,7 +68,7 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 		}
 	}
 
-	if(LOCPLINT->cb->getTileDigStatus(pos, false) == EDiggingStatus::CAN_DIG)
+	if(GAME->interface()->cb->getTileDigStatus(pos, false) == EDiggingStatus::CAN_DIG)
 	{
 		return boost::str(
 			boost::format(rightClick ? "%s\r\n%s" : "%s %s") // New line for the Message Box, space for the Status Bar
@@ -236,11 +237,11 @@ void CMapHandler::removeMapObserver(IMapObjectObserver * object)
 
 IMapObjectObserver::IMapObjectObserver()
 {
-	MAPHANDLER->addMapObserver(this);
+	GAME->map().addMapObserver(this);
 }
 
 IMapObjectObserver::~IMapObjectObserver()
 {
 	if (VLC && MAPHANDLER)
-		MAPHANDLER->removeMapObserver(this);
+		GAME->map().removeMapObserver(this);
 }

@@ -12,6 +12,7 @@
 #include "CTransferResources.h"
 
 #include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
@@ -64,7 +65,7 @@ void CTransferResources::makeDeal()
 {
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
-		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_PLAYER, GameResID(bidTradePanel->getHighlightedItemId()),
+		GAME->interface()->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_PLAYER, GameResID(bidTradePanel->getHighlightedItemId()),
 			PlayerColor(offerTradePanel->getHighlightedItemId()), toTrade, hero);
 		CMarketTraderText::makeDeal();
 		deselect();
@@ -87,11 +88,11 @@ void CTransferResources::highlightingChanged()
 {
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
-		offerSlider->setAmount(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getHighlightedItemId())));
+		offerSlider->setAmount(GAME->interface()->cb->getResourceAmount(GameResID(bidTradePanel->getHighlightedItemId())));
 		offerSlider->scrollTo(0);
 		offerSlider->block(false);
 		maxAmount->block(false);
-		deal->block(!LOCPLINT->makingTurn);
+		deal->block(!GAME->interface()->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
 	CMarketTraderText::highlightingChanged();

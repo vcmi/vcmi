@@ -19,6 +19,7 @@
 #include "../client/CServerHandler.h"
 #include "../client/eventsSDL/InputHandler.h"
 #include "../client/GameEngine.h"
+#include "../client/GameInstance.h"
 #include "../client/gui/CursorHandler.h"
 #include "../client/gui/WindowHandler.h"
 #include "../client/mainmenu/CMainMenu.h"
@@ -307,7 +308,7 @@ int main(int argc, char * argv[])
 	if(!settings["session"]["headless"].Bool())
 		ENGINE->init();
 
-	CSH = new CServerHandler();
+	GAME = std::make_unique<GameInstance>();
 	
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
@@ -347,6 +348,7 @@ int main(int argc, char * argv[])
 		CMessage::init();
 		logGlobal->info("Message handler: %d ms", pomtime.getDiff());
 
+		ENGINE->cursor().init();
 		ENGINE->cursor().show();
 	}
 
@@ -360,13 +362,13 @@ int main(int argc, char * argv[])
 	{
 		session["testmap"].String() = vm["testmap"].as<std::string>();
 		session["onlyai"].Bool() = true;
-		boost::thread(&CServerHandler::debugStartTest, CSH, session["testmap"].String(), false);
+		boost::thread(&CServerHandler::debugStartTest, &GAME->server(), session["testmap"].String(), false);
 	}
 	else if(vm.count("testsave"))
 	{
 		session["testsave"].String() = vm["testsave"].as<std::string>();
 		session["onlyai"].Bool() = true;
-		boost::thread(&CServerHandler::debugStartTest, CSH, session["testsave"].String(), true);
+		boost::thread(&CServerHandler::debugStartTest, &GAME->server(), session["testsave"].String(), true);
 	}
 	else
 	{
@@ -430,18 +432,17 @@ static void mainLoop()
 
 [[noreturn]] static void quitApplication()
 {
-	CSH->endNetwork();
+	GAME->server().endNetwork();
 
 	if(!settings["session"]["headless"].Bool())
 	{
-		if(CSH->client)
-			CSH->endGameplay();
+		if(GAME->server().client)
+			GAME->server().endGameplay();
 
 		ENGINE->windows().clear();
 	}
 
-	vstd::clear_pointer(CSH);
-
+	GAME.reset();
 	CMM.reset();
 
 	if(!settings["session"]["headless"].Bool())
@@ -466,6 +467,8 @@ static void mainLoop()
 		logConfig = nullptr;
 	}
 
+	ENGINE.reset();
+
 	std::cout << "Ending...\n";
 	quitApplicationImmediately(0);
 }
@@ -486,8 +489,8 @@ void handleQuit(bool ask)
 		return;
 	}
 
-	if (LOCPLINT)
-		LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[69], quitApplication, nullptr);
+	if (GAME->interface())
+		GAME->interface()->showYesNoDialog(VLC->generaltexth->allTexts[69], quitApplication, nullptr);
 	else
 		CInfoWindow::showYesNoDialog(VLC->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
 }

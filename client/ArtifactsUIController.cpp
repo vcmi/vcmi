@@ -18,6 +18,7 @@
 #include "../lib/mapObjects/CGHeroInstance.h"
 
 #include "GameEngine.h"
+#include "GameInstance.h"
 #include "gui/WindowHandler.h"
 #include "widgets/CComponent.h"
 #include "windows/CWindowWithArtifacts.h"
@@ -30,7 +31,7 @@ ArtifactsUIController::ArtifactsUIController()
 
 bool ArtifactsUIController::askToAssemble(const ArtifactLocation & al, const bool onlyEquipped, const bool checkIgnored)
 {
-	if(auto hero = LOCPLINT->cb->getHero(al.artHolder))
+	if(auto hero = GAME->interface()->cb->getHero(al.artHolder))
 	{
 		if(hero->getArt(al.slot) == nullptr)
 		{
@@ -49,7 +50,7 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 	const auto art = hero->getArt(slot);
 	assert(art);
 
-	if(hero->tempOwner != LOCPLINT->playerID)
+	if(hero->tempOwner != GAME->interface()->playerID)
 		return false;
 
 	if(numOfArtsAskAssembleSession != 0)
@@ -79,13 +80,13 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 					else
 						message.appendRawString(VLC->generaltexth->allTexts[732]); // You possess all of the components needed to assemble the
 					message.replaceName(ArtifactID(combinedArt->getId()));
-					LOCPLINT->showYesNoDialog(message.toString(), [&assembleConfirmed, hero, slot, combinedArt]()
+					GAME->interface()->showYesNoDialog(message.toString(), [&assembleConfirmed, hero, slot, combinedArt]()
 						{
 							assembleConfirmed = true;
-							LOCPLINT->cb.get()->assembleArtifacts(hero->id, slot, true, combinedArt->getId());
+							GAME->interface()->cb->assembleArtifacts(hero->id, slot, true, combinedArt->getId());
 						}, nullptr, {std::make_shared<CComponent>(ComponentType::ARTIFACT, combinedArt->getId())});
 
-					LOCPLINT->waitWhileDialog();
+					GAME->interface()->waitWhileDialog();
 					if(assembleConfirmed)
 						break;
 				}
@@ -102,7 +103,7 @@ bool ArtifactsUIController::askToDisassemble(const CGHeroInstance * hero, const 
 	const auto art = hero->getArt(slot);
 	assert(art);
 
-	if(hero->tempOwner != LOCPLINT->playerID)
+	if(hero->tempOwner != GAME->interface()->playerID)
 		return false;
 
 	if(art->hasParts())
@@ -114,9 +115,9 @@ bool ArtifactsUIController::askToDisassemble(const CGHeroInstance * hero, const 
 		message.appendEOL();
 		message.appendEOL();
 		message.appendRawString(VLC->generaltexth->allTexts[733]); // Do you wish to disassemble this artifact?
-		LOCPLINT->showYesNoDialog(message.toString(), [hero, slot]()
+		GAME->interface()->showYesNoDialog(message.toString(), [hero, slot]()
 			{
-				LOCPLINT->cb->assembleArtifacts(hero->id, slot, false, ArtifactID());
+				GAME->interface()->cb->assembleArtifacts(hero->id, slot, false, ArtifactID());
 			}, nullptr);
 		return true;
 	}
@@ -127,7 +128,7 @@ void ArtifactsUIController::artifactRemoved()
 {
 	for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
 		artWin->update();
-	LOCPLINT->waitWhileDialog();
+	GAME->interface()->waitWhileDialog();
 }
 
 void ArtifactsUIController::artifactMoved()
@@ -141,7 +142,7 @@ void ArtifactsUIController::artifactMoved()
 		{
 			artWin->update();
 		}
-	LOCPLINT->waitWhileDialog();
+	GAME->interface()->waitWhileDialog();
 }
 
 void ArtifactsUIController::bulkArtMovementStart(size_t totalNumOfArts, size_t possibleAssemblyNumOfArts)

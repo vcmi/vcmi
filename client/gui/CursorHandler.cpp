@@ -41,24 +41,26 @@ CursorHandler::CursorHandler()
 	, frameTime(0.f)
 	, showing(false)
 	, pos(0,0)
+	, dndObject(nullptr)
+	, type(Cursor::Type::DEFAULT)
 {
-
-	type = Cursor::Type::DEFAULT;
-	dndObject = nullptr;
-
-	cursors =
-	{
-		ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRADVNTR"), EImageBlitMode::COLORKEY),
-		ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"), EImageBlitMode::COLORKEY),
-		ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRDEFLT"), EImageBlitMode::COLORKEY),
-		ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"), EImageBlitMode::COLORKEY)
-	};
-
-	set(Cursor::Map::POINTER);
 	showType = dynamic_cast<CursorSoftware *>(cursor.get()) ? Cursor::ShowType::SOFTWARE : Cursor::ShowType::HARDWARE;
 }
 
 CursorHandler::~CursorHandler() = default;
+
+void CursorHandler::init()
+{
+	cursors =
+	{
+			ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRADVNTR"), EImageBlitMode::COLORKEY),
+			ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"), EImageBlitMode::COLORKEY),
+			ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRDEFLT"), EImageBlitMode::COLORKEY),
+			ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"), EImageBlitMode::COLORKEY)
+	};
+
+	set(Cursor::Map::POINTER);
+}
 
 void CursorHandler::changeGraphic(Cursor::Type type, size_t index)
 {

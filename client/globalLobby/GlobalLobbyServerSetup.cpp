@@ -15,6 +15,7 @@
 
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../widgets/Buttons.h"
@@ -128,12 +129,12 @@ void GlobalLobbyServerSetup::onGameModeChanged(int value)
 void GlobalLobbyServerSetup::onCreate()
 {
 	if(toggleGameMode->getSelected() == 0)
-		CSH->resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOBBY_HOST, { CSH->getGlobalLobby().getAccountDisplayName() });
+		GAME->server().resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOBBY_HOST, { GAME->server().getGlobalLobby().getAccountDisplayName() });
 	else
-		CSH->resetStateForLobby(EStartMode::LOAD_GAME, ESelectionScreen::loadGame, EServerMode::LOBBY_HOST, { CSH->getGlobalLobby().getAccountDisplayName() });
+		GAME->server().resetStateForLobby(EStartMode::LOAD_GAME, ESelectionScreen::loadGame, EServerMode::LOBBY_HOST, { GAME->server().getGlobalLobby().getAccountDisplayName() });
 
-	CSH->loadMode = ELoadMode::MULTI;
-	CSH->startLocalServerAndConnect(true);
+	GAME->server().loadMode = ELoadMode::MULTI;
+	GAME->server().startLocalServerAndConnect(true);
 
 	buttonCreate->block(true);
 	buttonClose->block(true);

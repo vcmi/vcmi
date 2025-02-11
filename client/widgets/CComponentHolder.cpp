@@ -11,6 +11,7 @@
 #include "CComponentHolder.h"
 
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 
 #include "CComponent.h"
@@ -167,7 +168,7 @@ void CCommanderArtPlace::returnArtToHeroCallback()
 	ArtifactPosition freeSlot = ArtifactUtils::getArtBackpackPosition(commanderOwner, getArtifactId());
 	if(freeSlot == ArtifactPosition::PRE_FIRST)
 	{
-		LOCPLINT->showInfoDialog(VLC->generaltexth->translate("core.genrltxt.152"));
+		GAME->interface()->showInfoDialog(VLC->generaltexth->translate("core.genrltxt.152"));
 	}
 	else
 	{
@@ -177,7 +178,7 @@ void CCommanderArtPlace::returnArtToHeroCallback()
 
 		if(getArtifactId().toArtifact()->canBePutAt(commanderOwner, freeSlot, true))
 		{
-			LOCPLINT->cb->swapArtifacts(src, dst);
+			GAME->interface()->cb->swapArtifacts(src, dst);
 			setArtifact(ArtifactID(ArtifactID::NONE));
 			parent->redraw();
 		}
@@ -187,7 +188,7 @@ void CCommanderArtPlace::returnArtToHeroCallback()
 void CCommanderArtPlace::clickPressed(const Point & cursorPosition)
 {
 	if(getArtifactId() != ArtifactID::NONE && text.size())
-		LOCPLINT->showYesNoDialog(VLC->generaltexth->translate("vcmi.commanderWindow.artifactMessage"), [this]() { returnArtToHeroCallback(); }, []() {});
+		GAME->interface()->showYesNoDialog(VLC->generaltexth->translate("vcmi.commanderWindow.artifactMessage"), [this]() { returnArtToHeroCallback(); }, []() {});
 }
 
 void CCommanderArtPlace::showPopupWindow(const Point & cursorPosition)

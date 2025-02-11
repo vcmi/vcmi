@@ -12,6 +12,7 @@
 #include "CFreelancerGuild.h"
 
 #include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
@@ -68,7 +69,7 @@ void CFreelancerGuild::makeDeal()
 {
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
-		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_RESOURCE, SlotID(bidTradePanel->highlightedSlot->serial), GameResID(offerTradePanel->getHighlightedItemId()), bidQty * toTrade, hero);
+		GAME->interface()->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_RESOURCE, SlotID(bidTradePanel->highlightedSlot->serial), GameResID(offerTradePanel->getHighlightedItemId()), bidQty * toTrade, hero);
 		CMarketTraderText::makeDeal();
 		deselect();
 	}
@@ -95,7 +96,7 @@ void CFreelancerGuild::highlightingChanged()
 		offerSlider->scrollTo(0);
 		offerSlider->block(false);
 		maxAmount->block(false);
-		deal->block(!LOCPLINT->makingTurn);
+		deal->block(!GAME->interface()->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
 	CMarketTraderText::highlightingChanged();

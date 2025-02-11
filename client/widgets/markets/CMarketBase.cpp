@@ -14,6 +14,7 @@
 
 #include "../Images.h"
 #include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
@@ -188,7 +189,7 @@ CResourcesSelling::CResourcesSelling(const CTradeableItem::ClickPressedFunctor &
 void CResourcesSelling::updateSubtitles() const
 {
 	for(const auto & slot : bidTradePanel->slots)
-		slot->subtitle->setText(std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(slot->serial))));
+		slot->subtitle->setText(std::to_string(GAME->interface()->cb->getResourceAmount(static_cast<EGameResID>(slot->serial))));
 }
 
 CMarketSlider::CMarketSlider(const CSlider::SliderMovingFunctor & movingCallback)

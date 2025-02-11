@@ -16,6 +16,7 @@
 #include "../widgets/Images.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Colors.h"
@@ -31,7 +32,7 @@
 
 ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
 {
-	const TerrainTile * tile = LOCPLINT->cb->getTile(pos, false);
+	const TerrainTile * tile = GAME->interface()->cb->getTile(pos, false);
 
 	// if tile is not visible it will be black on minimap
 	if(!tile)
@@ -62,7 +63,7 @@ void CMinimapInstance::refreshTile(const int3 &tile)
 
 void CMinimapInstance::redrawMinimap()
 {
-	int3 mapSizes = LOCPLINT->cb->getMapSize();
+	int3 mapSizes = GAME->interface()->cb->getMapSize();
 
 	for (int y = 0; y < mapSizes.y; ++y)
 		for (int x = 0; x < mapSizes.x; ++x)
@@ -70,7 +71,7 @@ void CMinimapInstance::redrawMinimap()
 }
 
 CMinimapInstance::CMinimapInstance(const Point & position, const Point & dimensions, int Level):
-	minimap(new Canvas(Point(LOCPLINT->cb->getMapSize().x, LOCPLINT->cb->getMapSize().y), CanvasScalingPolicy::IGNORE)),
+	minimap(new Canvas(Point(GAME->interface()->cb->getMapSize().x, GAME->interface()->cb->getMapSize().y), CanvasScalingPolicy::IGNORE)),
 	level(Level)
 {
 	pos += position;
@@ -92,10 +93,10 @@ CMinimap::CMinimap(const Rect & position)
 {
 	OBJECT_CONSTRUCTION;
 
-	double maxSideLengthSrc = std::max(LOCPLINT->cb->getMapSize().x, LOCPLINT->cb->getMapSize().y);
+	double maxSideLengthSrc = std::max(GAME->interface()->cb->getMapSize().x, GAME->interface()->cb->getMapSize().y);
 	double maxSideLengthDst = std::max(position.w, position.h);
 	double resize = maxSideLengthSrc / maxSideLengthDst;
-	Point newMinimapSize(LOCPLINT->cb->getMapSize().x/ resize, LOCPLINT->cb->getMapSize().y / resize);
+	Point newMinimapSize(GAME->interface()->cb->getMapSize().x/ resize, LOCPLINT->cb->getMapSize().y / resize);
 	Point offset = Point((std::max(newMinimapSize.x, newMinimapSize.y) - newMinimapSize.x) / 2, (std::max(newMinimapSize.x, newMinimapSize.y) - newMinimapSize.y) / 2);
 
 	pos.x += offset.x;
@@ -113,7 +114,7 @@ int3 CMinimap::pixelToTile(const Point & cursorPos) const
 	double dx = static_cast<double>(cursorPos.x) / pos.w;
 	double dy = static_cast<double>(cursorPos.y) / pos.h;
 
-	int3 mapSizes = LOCPLINT->cb->getMapSize();
+	int3 mapSizes = GAME->interface()->cb->getMapSize();
 
 	int tileX(std::round(mapSizes.x * dx));
 	int tileY(std::round(mapSizes.y * dy));
@@ -123,7 +124,7 @@ int3 CMinimap::pixelToTile(const Point & cursorPos) const
 
 Point CMinimap::tileToPixels(const int3 &tile) const
 {
-	int3 mapSizes = LOCPLINT->cb->getMapSize();
+	int3 mapSizes = GAME->interface()->cb->getMapSize();
 
 	double stepX = static_cast<double>(pos.w) / mapSizes.x;
 	double stepY = static_cast<double>(pos.h) / mapSizes.y;
@@ -181,7 +182,7 @@ void CMinimap::showAll(Canvas & to)
 
 	if(minimap)
 	{
-		int3 mapSizes = LOCPLINT->cb->getMapSize();
+		int3 mapSizes = GAME->interface()->cb->getMapSize();
 
 		//draw radar
 		Rect radar =

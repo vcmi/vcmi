@@ -16,6 +16,7 @@
 #include "../../widgets/TextControls.h"
 
 #include "../../CPlayerInterface.h"
+#include "../../GameInstance.h"
 
 #include "../../../CCallback.h"
 
@@ -67,14 +68,14 @@ void CArtifactsBuying::makeDeal()
 {
 	if(ArtifactID(offerTradePanel->getHighlightedItemId()).toArtifact()->canBePutAt(hero))
 	{
-		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_ARTIFACT, GameResID(bidTradePanel->getHighlightedItemId()),
+		GAME->interface()->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_ARTIFACT, GameResID(bidTradePanel->getHighlightedItemId()),
 			ArtifactID(offerTradePanel->getHighlightedItemId()), offerQty, hero);
 		CMarketTraderText::makeDeal();
 		deselect();
 	}
 	else
 	{
-		LOCPLINT->showInfoDialog(VLC->generaltexth->translate("core.genrltxt.326"));
+		GAME->interface()->showInfoDialog(VLC->generaltexth->translate("core.genrltxt.326"));
 	}
 }
 
@@ -95,7 +96,7 @@ void CArtifactsBuying::highlightingChanged()
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
 		market->getOffer(bidTradePanel->getHighlightedItemId(), offerTradePanel->getHighlightedItemId(), bidQty, offerQty, EMarketMode::RESOURCE_ARTIFACT);
-		deal->block(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getHighlightedItemId())) < bidQty || !LOCPLINT->makingTurn);
+		deal->block(GAME->interface()->cb->getResourceAmount(GameResID(bidTradePanel->getHighlightedItemId())) < bidQty || !GAME->interface()->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
 	CMarketTraderText::highlightingChanged();

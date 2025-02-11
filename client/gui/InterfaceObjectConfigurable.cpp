@@ -14,6 +14,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/ShortcutHandler.h"
 #include "../gui/Shortcut.h"
 #include "../render/Graphics.h"
@@ -333,8 +334,8 @@ std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNo
 	auto position = readPosition(config["position"]);
 	auto pic = std::make_shared<CPicture>(image, position.x, position.y);
 
-	if ( config["playerColored"].Bool() && LOCPLINT)
-		pic->setPlayerColor(LOCPLINT->playerID);
+	if ( config["playerColored"].Bool() && GAME->interface())
+		pic->setPlayerColor(GAME->interface()->playerID);
 	return pic;
 }
 

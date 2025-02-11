@@ -15,6 +15,7 @@
 #include "../render/Colors.h"
 #include "../render/EFont.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/TextAlignment.h"
 #include "../widgets/Images.h"
 
@@ -31,7 +32,7 @@ CResDataBar::CResDataBar(const ImagePath & imageName, const Point & position)
 
 	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CPicture>(imageName, 0, 0);
-	background->setPlayerColor(LOCPLINT->playerID);
+	background->setPlayerColor(GAME->interface()->playerID);
 
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
@@ -61,9 +62,9 @@ std::string CResDataBar::buildDateString()
 	std::string pattern = "%s: %d, %s: %d, %s: %d";
 
 	auto formatted = boost::format(pattern)
-		% VLC->generaltexth->translate("core.genrltxt.62") % LOCPLINT->cb->getDate(Date::MONTH)
-		% VLC->generaltexth->translate("core.genrltxt.63") % LOCPLINT->cb->getDate(Date::WEEK)
-		% VLC->generaltexth->translate("core.genrltxt.64") % LOCPLINT->cb->getDate(Date::DAY_OF_WEEK);
+		% VLC->generaltexth->translate("core.genrltxt.62") % GAME->interface()->cb->getDate(Date::MONTH)
+		% VLC->generaltexth->translate("core.genrltxt.63") % GAME->interface()->cb->getDate(Date::WEEK)
+		% VLC->generaltexth->translate("core.genrltxt.64") % GAME->interface()->cb->getDate(Date::DAY_OF_WEEK);
 
 	return boost::str(formatted);
 }
@@ -75,7 +76,7 @@ void CResDataBar::showAll(Canvas & to)
 	//TODO: all this should be labels, but they require proper text update on change
 	for (auto & entry : resourcePositions)
 	{
-		std::string text = std::to_string(LOCPLINT->cb->getResourceAmount(entry.first));
+		std::string text = std::to_string(GAME->interface()->cb->getResourceAmount(entry.first));
 
 		to.drawText(pos.topLeft() + entry.second, FONT_SMALL, Colors::WHITE, ETextAlignment::TOPLEFT, text);
 	}

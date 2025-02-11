@@ -18,6 +18,7 @@
 #include "../PlayerLocalState.h"
 #include "../adventureMap/CResDataBar.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
@@ -111,7 +112,7 @@ void InfoBox::clickPressed(const Point & cursorPosition)
 	data->prepareMessage(text, comp);
 
 	if(comp)
-		LOCPLINT->showInfoDialog(text, CInfoWindow::TCompsInfo(1, comp));
+		GAME->interface()->showInfoDialog(text, CInfoWindow::TCompsInfo(1, comp));
 }
 
 IInfoBoxData::IInfoBoxData(InfoType Type)
@@ -466,7 +467,7 @@ CKingdomInterface::CKingdomInterface()
 
 	tabArea = std::make_shared<CTabbedInt>(std::bind(&CKingdomInterface::createMainTab, this, _1), Point(4,4));
 
-	std::vector<const CGObjectInstance * > ownedObjects = LOCPLINT->cb->getMyObjects();
+	std::vector<const CGObjectInstance * > ownedObjects = GAME->interface()->cb->getMyObjects();
 	generateObjectsList(ownedObjects);
 	generateMinesList(ownedObjects);
 	generateButtons();
@@ -590,10 +591,10 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 		totalIncome += mapObject->asOwnable()->dailyIncome()[EGameResID::GOLD];
 
 	//if player has some modded boosts we want to show that as well
-	const auto * playerSettings = LOCPLINT->cb->getPlayerSettings(LOCPLINT->playerID);
-	const auto & towns = LOCPLINT->cb->getTownsInfo(true);
-	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * playerSettings->handicap.percentIncome / 100;
-	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * towns.size() * playerSettings->handicap.percentIncome / 100;
+	const auto * playerSettings = GAME->interface()->cb->getPlayerSettings(GAME->interface()->playerID);
+	const auto & towns = GAME->interface()->cb->getTownsInfo(true);
+	totalIncome += GAME->interface()->cb->getPlayerState(GAME->interface()->playerID)->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * playerSettings->handicap.percentIncome / 100;
+	totalIncome += GAME->interface()->cb->getPlayerState(GAME->interface()->playerID)->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * towns.size() * playerSettings->handicap.percentIncome / 100;
 
 	for(int i=0; i<7; i++)
 	{
@@ -671,22 +672,22 @@ void CKingdomInterface::updateGarrisons()
 
 bool CKingdomInterface::holdsGarrison(const CArmedInstance * army)
 {
-	return army->getOwner() == LOCPLINT->playerID;
+	return army->getOwner() == GAME->interface()->playerID;
 }
 
 CKingdHeroList::CKingdHeroList(size_t maxSize, const CreateHeroItemFunctor & onCreateHeroItemCallback)
 {
 	OBJECT_CONSTRUCTION;
 	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"),16,0);
-	title->setPlayerColor(LOCPLINT->playerID);
+	title->setPlayerColor(GAME->interface()->playerID);
 	heroLabel = std::make_shared<CLabel>(150, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->overview[0]);
 	skillsLabel = std::make_shared<CLabel>(500, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->overview[1]);
 
-	ui32 townCount = LOCPLINT->cb->howManyHeroes(false);
+	ui32 townCount = GAME->interface()->cb->howManyHeroes(false);
 	ui32 size = OVERVIEW_SIZE*116 + 19;
 	heroes = std::make_shared<CListBox>([onCreateHeroItemCallback](size_t idx) -> std::shared_ptr<CIntObject>
 		{
-			auto heroesList = LOCPLINT->localState->getWanderingHeroes();
+			auto heroesList = GAME->interface()->localState->getWanderingHeroes();
 			if(idx < heroesList.size())
 			{
 				auto hero = std::make_shared<CHeroItem>(heroesList[idx]);
@@ -722,12 +723,12 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 {
 	OBJECT_CONSTRUCTION;
 	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"), 16, 0);
-	title->setPlayerColor(LOCPLINT->playerID);
+	title->setPlayerColor(GAME->interface()->playerID);
 	townLabel = std::make_shared<CLabel>(146, 10,FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->overview[3]);
 	garrHeroLabel = std::make_shared<CLabel>(375, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->overview[4]);
 	visitHeroLabel = std::make_shared<CLabel>(608, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->overview[5]);
 
-	ui32 townCount = LOCPLINT->cb->howManyTowns();
+	ui32 townCount = GAME->interface()->cb->howManyTowns();
 	ui32 size = OVERVIEW_SIZE*116 + 19;
 	towns = std::make_shared<CListBox>(std::bind(&CKingdTownList::createTownItem, this, _1),
 		Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size));
@@ -765,7 +766,7 @@ std::shared_ptr<CIntObject> CKingdTownList::createTownItem(size_t index)
 {
 	ui32 picCount = 4; // OVSLOT contains 4 images
 
-	auto townsList = LOCPLINT->localState->getOwnedTowns();
+	auto townsList = GAME->interface()->localState->getOwnedTowns();
 
 	if(index < townsList.size())
 		return std::make_shared<CTownItem>(townsList[index]);
@@ -787,7 +788,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	garr = std::make_shared<CGarrisonInt>(Point(313, 3), 4, Point(232,0), town->getUpperArmy(), town->visitingHero, true, true, CGarrisonInt::ESlotsLayout::TWO_ROWS);
 	heroes = std::make_shared<HeroSlots>(town, Point(244,6), Point(475,6), garr, false);
 
-	size_t iconIndex = town->getTown()->clientInfo.icons[town->hasFort()][town->built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	size_t iconIndex = town->getTown()->clientInfo.icons[town->hasFort()][town->built >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPT"), iconIndex, 0, 5, 6);
 	openTown = std::make_shared<LRClickableAreaOpenTown>(Rect(5, 6, 58, 64), town);
@@ -808,14 +809,14 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	fastTavern = std::make_shared<LRClickableArea>(Rect(5, 6, 58, 64), [&]()
 	{
 		if(town->hasBuilt(BuildingID::TAVERN))
-			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
+			GAME->interface()->showTavernWindow(town, nullptr, QueryID::NONE);
 	}, [&]{
 		if(!town->getTown()->faction->getDescriptionTranslated().empty())
 			CRClickPopup::createAndPush(town->getFaction()->getDescriptionTranslated());
 	});
 	fastMarket = std::make_shared<LRClickableArea>(Rect(153, 6, 65, 64), []()
 	{
-		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+		std::vector<const CGTownInstance*> towns = GAME->interface()->cb->getTownsInfo(true);
 		for(auto & town : towns)
 		{
 			if(town->hasBuilt(BuildingID::MARKETPLACE))
@@ -824,7 +825,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 				return;
 			}
 		}
-		LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
+		GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 	});
 	fastTown = std::make_shared<LRClickableArea>(Rect(67, 6, 165, 20), [&]()
 	{

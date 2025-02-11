@@ -15,6 +15,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
 #include "../adventureMap/CInGameConsole.h"
@@ -546,8 +547,8 @@ void CGStatusBar::show(Canvas & to)
 
 void CGStatusBar::clickPressed(const Point & cursorPosition)
 {
-	if(LOCPLINT && LOCPLINT->cingconsole->isActive())
-		LOCPLINT->cingconsole->startEnteringText();
+	if(GAME->interface() && GAME->interface()->cingconsole->isActive())
+		GAME->interface()->cingconsole->startEnteringText();
 }
 
 void CGStatusBar::activate()
@@ -561,7 +562,7 @@ void CGStatusBar::deactivate()
 	ENGINE->setStatusbar(nullptr);
 
 	if (enteringText)
-		LOCPLINT->cingconsole->endEnteringText(false);
+		GAME->interface()->cingconsole->endEnteringText(false);
 
 	CIntObject::deactivate();
 }

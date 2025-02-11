@@ -16,6 +16,7 @@
 
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
@@ -170,7 +171,7 @@ RandomMapTab::RandomMapTab():
 
 void RandomMapTab::updateMapInfoByHost()
 {
-	if(CSH->isGuest())
+	if(GAME->server().isGuest())
 		return;
 
 	// Generate header info

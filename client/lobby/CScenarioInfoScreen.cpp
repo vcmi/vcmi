@@ -14,6 +14,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 
@@ -32,9 +33,9 @@ CScenarioInfoScreen::CScenarioInfoScreen()
 	pos.h = 600;
 	pos = center();
 
-	localSi = new StartInfo(*LOCPLINT->cb->getStartInfo());
+	localSi = new StartInfo(*GAME->interface()->cb->getStartInfo());
 	localMi = new CMapInfo();
-	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));
+	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*GAME->interface()->cb->getMapHeader()));
 
 	screenType = ESelectionScreen::scenarioInfo;
 

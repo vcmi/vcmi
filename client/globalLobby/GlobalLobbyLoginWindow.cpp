@@ -15,6 +15,7 @@
 
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
@@ -38,7 +39,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 
 	MetaString loginAs;
 	loginAs.appendTextID("vcmi.lobby.login.as");
-	loginAs.replaceRawString(CSH->getGlobalLobby().getAccountDisplayName());
+	loginAs.replaceRawString(GAME->server().getGlobalLobby().getAccountDisplayName());
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->translate("vcmi.lobby.login.title"));
@@ -61,7 +62,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	toggleMode->setSelected(settings["lobby"]["roomType"].Integer());
 	toggleMode->addCallback([this](int index){onLoginModeChanged(index);});
 
-	if (CSH->getGlobalLobby().getAccountID().empty())
+	if (GAME->server().getGlobalLobby().getAccountID().empty())
 	{
 		buttonLogin->block(true);
 		toggleMode->setSelected(0);
@@ -110,8 +111,8 @@ void GlobalLobbyLoginWindow::onClose()
 void GlobalLobbyLoginWindow::onLogin()
 {
 	labelStatus->setText(VLC->generaltexth->translate("vcmi.lobby.login.connecting"));
-	if(!CSH->getGlobalLobby().isConnected())
-		CSH->getGlobalLobby().connect();
+	if(!GAME->server().getGlobalLobby().isConnected())
+		GAME->server().getGlobalLobby().connect();
 	else
 		onConnectionSuccess();
 
@@ -121,18 +122,18 @@ void GlobalLobbyLoginWindow::onLogin()
 
 void GlobalLobbyLoginWindow::onConnectionSuccess()
 {
-	std::string accountID = CSH->getGlobalLobby().getAccountID();
+	std::string accountID = GAME->server().getGlobalLobby().getAccountID();
 
 	if(toggleMode->getSelected() == 0)
-		CSH->getGlobalLobby().sendClientRegister(inputUsername->getText());
+		GAME->server().getGlobalLobby().sendClientRegister(inputUsername->getText());
 	else
-		CSH->getGlobalLobby().sendClientLogin();
+		GAME->server().getGlobalLobby().sendClientLogin();
 }
 
 void GlobalLobbyLoginWindow::onLoginSuccess()
 {
 	close();
-	CSH->getGlobalLobby().activateInterface();
+	GAME->server().getGlobalLobby().activateInterface();
 }
 
 void GlobalLobbyLoginWindow::onConnectionFailed(const std::string & reason)

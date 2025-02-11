@@ -19,6 +19,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../PlayerLocalState.h"
 
 #include "../gui/Shortcut.h"
@@ -348,8 +349,8 @@ auto CHeroGSlot::getUpgradableSlots(const CArmedInstance *obj) const
 	for(const auto & slot : slots)
 	{
 		auto upgradeInfo = std::make_pair(slot.first, UpgradeInfo(slot.second->getCreatureID()));
-		LOCPLINT->cb->fillUpgradeInfo(slot.second->armyObj, slot.first, upgradeInfo.second);
-		bool canUpgrade = obj->tempOwner == LOCPLINT->playerID && upgradeInfo.second.canUpgrade();
+		GAME->interface()->cb->fillUpgradeInfo(slot.second->armyObj, slot.first, upgradeInfo.second);
+		bool canUpgrade = obj->tempOwner == GAME->interface()->playerID && upgradeInfo.second.canUpgrade();
 		if(canUpgrade)
 			upgradeInfos.push_back(upgradeInfo);
 	}
@@ -364,7 +365,7 @@ auto CHeroGSlot::getUpgradableSlots(const CArmedInstance *obj) const
 	for(const auto & upgradeInfo : upgradeInfos)
 	{
 		TResources upgradeCosts = upgradeInfo.second.getUpgradeCosts() * slots[upgradeInfo.first]->getCount();
-		if(LOCPLINT->cb->getResourceAmount().canAfford(costs + upgradeCosts))
+		if(GAME->interface()->cb->getResourceAmount().canAfford(costs + upgradeCosts))
 			costs += upgradeCosts;
 		else
 			slotInfosToDelete.push_back(upgradeInfo.first);
@@ -391,7 +392,7 @@ void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & f
 	auto upgradeAll = [upgradableSlots, obj](){
 		if(!upgradableSlots.canAffordAny)
 		{
-			LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.townWindow.upgradeAll.notUpgradable"));
+			GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.townWindow.upgradeAll.notUpgradable"));
 			return;
 		}
 
@@ -404,9 +405,9 @@ void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & f
 			
 		std::string textID = upgradableSlots.canAffordAll ? "core.genrltxt.207" : "vcmi.townWindow.upgradeAll.notAllUpgradable";
 
-		LOCPLINT->showYesNoDialog(VLC->generaltexth->translate(textID), [upgradableSlots, obj](){
+		GAME->interface()->showYesNoDialog(VLC->generaltexth->translate(textID), [upgradableSlots, obj](){
 			for(auto & upgradeInfo : upgradableSlots.upgradeInfos)
-				LOCPLINT->cb->upgradeCreature(obj, upgradeInfo.first, upgradeInfo.second.getUpgrade());
+				GAME->interface()->cb->upgradeCreature(obj, upgradeInfo.first, upgradeInfo.second.getUpgrade());
 		}, nullptr, resComps);
 	};
 
@@ -435,12 +436,12 @@ void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & f
 	std::vector<RadialMenuConfig> menuElements = {
 		{ RadialMenuConfig::ITEM_NW, twoHeroes, "moveTroops", "vcmi.radialWheel.heroGetArmy", [heroId, heroOtherId](){CExchangeController(heroId, heroOtherId).moveArmy(false, std::nullopt);} },
 		{ RadialMenuConfig::ITEM_NE, twoHeroes, "stackSplitDialog", "vcmi.radialWheel.heroSwapArmy", [heroId, heroOtherId](){CExchangeController(heroId, heroOtherId).swapArmy();} },
-		{ RadialMenuConfig::ITEM_EE, twoHeroes, "tradeHeroes", "vcmi.radialWheel.heroExchange", [heroId, heroOtherId](){LOCPLINT->showHeroExchange(heroId, heroOtherId);} },
+		{ RadialMenuConfig::ITEM_EE, twoHeroes, "tradeHeroes", "vcmi.radialWheel.heroExchange", [heroId, heroOtherId](){GAME->interface()->showHeroExchange(heroId, heroOtherId);} },
 		{ RadialMenuConfig::ITEM_SW, twoHeroes, "moveArtifacts", "vcmi.radialWheel.heroGetArtifacts", [heroId, heroOtherId](){CExchangeController(heroId, heroOtherId).moveArtifacts(false, true, true);} },
 		{ RadialMenuConfig::ITEM_SE, twoHeroes, "swapArtifacts", "vcmi.radialWheel.heroSwapArtifacts", [heroId, heroOtherId](){CExchangeController(heroId, heroOtherId).swapArtifacts(true, true);} }
 	};
 	RadialMenuConfig upgradeSlot = { RadialMenuConfig::ITEM_WW, true, "upgradeCreatures", "vcmi.radialWheel.upgradeCreatures", [upgradeAll](){ upgradeAll(); } };
-	RadialMenuConfig dismissSlot = { RadialMenuConfig::ITEM_WW, true, "dismissHero", "vcmi.radialWheel.heroDismiss", [this](){ LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[22], [=](){ LOCPLINT->cb->dismissHero(hero); }, nullptr); } };
+	RadialMenuConfig dismissSlot = { RadialMenuConfig::ITEM_WW, true, "dismissHero", "vcmi.radialWheel.heroDismiss", [this](){ GAME->interface()->showYesNoDialog(VLC->generaltexth->allTexts[22], [=](){ GAME->interface()->cb->dismissHero(hero); }, nullptr); } };
 
 	if(upgradableSlots.isCreatureUpgradePossible)
 		menuElements.push_back(upgradeSlot);
@@ -514,9 +515,9 @@ void CHeroGSlot::clickPressed(const Point & cursorPosition)
 		setHighlight(false);
 
 		if(other->hero && !ENGINE->isKeyboardShiftDown())
-			LOCPLINT->showHeroExchange(hero->id, other->hero->id);
+			GAME->interface()->showHeroExchange(hero->id, other->hero->id);
 		else
-			LOCPLINT->openHeroWindow(hero);
+			GAME->interface()->openHeroWindow(hero);
 	}
 	else if(other->hero && other->isSelected())
 	{
@@ -582,7 +583,7 @@ void CHeroGSlot::set(const CGHeroInstance * newHero)
 	else if(!upg && owner->showEmpty) //up garrison
 	{
 		flag->visible = true;
-		flag->setFrame(LOCPLINT->castleInt->town->getOwner().getNum());
+		flag->setFrame(GAME->interface()->castleInt->town->getOwner().getNum());
 	}
 }
 
@@ -611,18 +612,18 @@ void HeroSlots::swapArmies()
 	//moving hero out of town - check if it is allowed
 	if (town->garrisonHero)
 	{
-		if (!town->visitingHero && LOCPLINT->cb->howManyHeroes(false) >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+		if (!town->visitingHero && GAME->interface()->cb->howManyHeroes(false) >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 		{
 			std::string text = VLC->generaltexth->translate("core.genrltxt.18"); //You already have %d adventuring heroes under your command.
-			boost::algorithm::replace_first(text,"%d",std::to_string(LOCPLINT->cb->howManyHeroes(false)));
+			boost::algorithm::replace_first(text,"%d",std::to_string(GAME->interface()->cb->howManyHeroes(false)));
 
-			LOCPLINT->showInfoDialog(text, std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
+			GAME->interface()->showInfoDialog(text, std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			allow = false;
 		}
 		else if (town->garrisonHero->stacksCount() == 0)
 		{
 			//This hero has no creatures.  A hero must have creatures before he can brave the dangers of the countryside.
-			LOCPLINT->showInfoDialog(VLC->generaltexth->translate("core.genrltxt.19"), {}, soundBase::sound_todo);
+			GAME->interface()->showInfoDialog(VLC->generaltexth->translate("core.genrltxt.19"), {}, soundBase::sound_todo);
 			allow = false;
 		}
 	}
@@ -631,7 +632,7 @@ void HeroSlots::swapArmies()
 	{
 		if(!town->visitingHero->canBeMergedWith(*town))
 		{
-			LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[275], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
+			GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[275], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			allow = false;
 		}
 	}
@@ -640,7 +641,7 @@ void HeroSlots::swapArmies()
 	visitingHero->setHighlight(false);
 
 	if (allow)
-		LOCPLINT->cb->swapGarrisonHero(town);
+		GAME->interface()->cb->swapGarrisonHero(town);
 }
 
 CCastleBuildings::CCastleBuildings(const CGTownInstance* Town):
@@ -676,7 +677,7 @@ void CCastleBuildings::recreate()
 		auto bayPos = town->bestLocation();
 		if(!bayPos.valid())
 			logGlobal->warn("Shipyard in non-coastal town!");
-		std::vector <const CGObjectInstance *> vobjs = LOCPLINT->cb->getVisitableObjs(bayPos, false);
+		std::vector <const CGObjectInstance *> vobjs = GAME->interface()->cb->getVisitableObjs(bayPos, false);
 		//there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
 		if(!vobjs.empty() && (vobjs.front()->ID == Obj::BOAT || vobjs.front()->ID == Obj::HERO))
 		{
@@ -858,7 +859,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 
 			case EMarketMode::RESOURCE_RESOURCE:
 				// can't use allied marketplace
-				if (town->getOwner() == LOCPLINT->playerID)
+				if (town->getOwner() == GAME->interface()->playerID)
 				{
 					ENGINE->windows().createAndPushWindow<CMarketWindow>(town, getHero(), nullptr, *b->marketModes.begin());
 					return true;
@@ -869,7 +870,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 				if(getHero())
 					ENGINE->windows().createAndPushWindow<CMarketWindow>(town, getHero(), nullptr, *b->marketModes.begin());
 				else
-					LOCPLINT->showInfoDialog(boost::str(boost::format(VLC->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
+					GAME->interface()->showInfoDialog(boost::str(boost::format(VLC->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 				return true;
 		}
 	}
@@ -898,18 +899,18 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 				return true;
 
 		case BuildingID::TAVERN:
-				LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
+				GAME->interface()->showTavernWindow(town, nullptr, QueryID::NONE);
 				return true;
 
 		case BuildingID::SHIPYARD:
 				if(town->shipyardStatus() == IBoatGenerator::GOOD)
 				{
-					LOCPLINT->showShipyardDialog(town);
+					GAME->interface()->showShipyardDialog(town);
 					return true;
 				}
 				else if(town->shipyardStatus() == IBoatGenerator::BOAT_ALREADY_BUILT)
 				{
-					LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[51]);
+					GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[51]);
 					return true;
 				}
 				return false;
@@ -928,7 +929,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 				return true;
 
 		case BuildingID::SHIP:
-			LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[51]); //Cannot build another boat
+			GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[51]); //Cannot build another boat
 			return true;
 
 		case BuildingID::SPECIAL_1:
@@ -942,7 +943,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 						return true;
 
 				case BuildingSubID::CASTLE_GATE:
-						if (LOCPLINT->makingTurn)
+						if (GAME->interface()->makingTurn)
 						{
 							enterCastleGate(buildingToTest);
 							return true;
@@ -951,7 +952,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 
 				case BuildingSubID::PORTAL_OF_SUMMONING:
 						if (town->creatures[town->getTown()->creatures.size()].second.empty())//No creatures
-							LOCPLINT->showInfoDialog(VLC->generaltexth->tcommands[30]);
+							GAME->interface()->showInfoDialog(VLC->generaltexth->tcommands[30]);
 						else
 							enterDwelling(town->getTown()->creatures.size());
 						return true;
@@ -982,14 +983,14 @@ void CCastleBuildings::enterRewardable(BuildingID building)
 		message.appendTextID("core.genrltxt.273"); // only visiting heroes may visit %s
 		message.replaceTextID(town->getTown()->buildings.at(building)->getNameTextID());
 
-		LOCPLINT->showInfoDialog(message.toString());
+		GAME->interface()->showInfoDialog(message.toString());
 	}
 	else
 	{
 		if (town->rewardableBuildings.at(building)->wasVisited(town->visitingHero))
 			enterBuilding(building);
 		else
-			LOCPLINT->cb->visitTownBuilding(town, building);
+			GAME->interface()->cb->visitTownBuilding(town, building);
 	}
 }
 
@@ -998,13 +999,13 @@ void CCastleBuildings::enterBlacksmith(BuildingID building, ArtifactID artifactI
 	const CGHeroInstance *hero = town->visitingHero;
 	if(!hero)
 	{
-		LOCPLINT->showInfoDialog(boost::str(boost::format(VLC->generaltexth->allTexts[273]) % town->getTown()->buildings.find(building)->second->getNameTranslated()));
+		GAME->interface()->showInfoDialog(boost::str(boost::format(VLC->generaltexth->allTexts[273]) % town->getTown()->buildings.find(building)->second->getNameTranslated()));
 		return;
 	}
 	auto art = artifactID.toArtifact();
 
 	int price = art->getPrice();
-	bool possible = LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= price;
+	bool possible = GAME->interface()->cb->getResourceAmount(EGameResID::GOLD) >= price;
 	if(possible)
 	{
 		for(auto slot : art->getPossibleSlots().at(ArtBearer::HERO))
@@ -1028,19 +1029,19 @@ void CCastleBuildings::enterBlacksmith(BuildingID building, ArtifactID artifactI
 void CCastleBuildings::enterBuilding(BuildingID building)
 {
 	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFactionID(), building)));
-	LOCPLINT->showInfoDialog( town->getTown()->buildings.find(building)->second->getDescriptionTranslated(), comps);
+	GAME->interface()->showInfoDialog( town->getTown()->buildings.find(building)->second->getDescriptionTranslated(), comps);
 }
 
 void CCastleBuildings::enterCastleGate(BuildingID building)
 {
 	if (!town->visitingHero)
 	{
-		LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[126]);
+		GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[126]);
 		return;//only visiting hero can use castle gates
 	}
 	std::vector <int> availableTowns;
 	std::vector<std::shared_ptr<IImage>> images;
-	std::vector <const CGTownInstance*> Towns = LOCPLINT->localState->getOwnedTowns();
+	std::vector <const CGTownInstance*> Towns = GAME->interface()->localState->getOwnedTowns();
 	for(auto & Town : Towns)
 	{
 		const CGTownInstance *t = Town;
@@ -1060,8 +1061,8 @@ void CCastleBuildings::enterCastleGate(BuildingID building)
 
 	auto gateIcon = std::make_shared<CAnimImage>(town->getTown()->clientInfo.buildingsIcons, building);//will be deleted by selection window
 	auto wnd = std::make_shared<CObjectListWindow>(availableTowns, gateIcon, VLC->generaltexth->jktexts[40],
-		VLC->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1), 0, images);
-	wnd->onPopup = [availableTowns](int index) { CRClickPopup::createAndPush(LOCPLINT->cb->getObjInstance(ObjectInstanceID(availableTowns[index])), ENGINE->getCursorPosition()); };
+		VLC->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, GAME->interface()->castleInt, _1), 0, images);
+	wnd->onPopup = [availableTowns](int index) { CRClickPopup::createAndPush(GAME->interface()->cb->getObjInstance(ObjectInstanceID(availableTowns[index])), ENGINE->getCursorPosition()); };
 	ENGINE->windows().pushWindow(wnd);
 }
 
@@ -1076,7 +1077,7 @@ void CCastleBuildings::enterDwelling(int level)
 
 	auto recruitCb = [=](CreatureID id, int count)
 	{
-		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
+		GAME->interface()->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 	};
 	ENGINE->windows().createAndPushWindow<CRecruitmentWindow>(town, level, town->getUpperArmy(), recruitCb, nullptr, -87);
 }
@@ -1123,7 +1124,7 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 			boost::algorithm::replace_first(descr,"%d",std::to_string(town->bonusValue.second));
 		}
 	}
-	LOCPLINT->showInfoDialog(descr, comps);
+	GAME->interface()->showInfoDialog(descr, comps);
 }
 
 void CCastleBuildings::enterMagesGuild()
@@ -1132,26 +1133,26 @@ void CCastleBuildings::enterMagesGuild()
 
 	// hero doesn't have spellbok
 	// or it is not our turn and we can't make actions
-	if(hero && !hero->hasSpellbook() && LOCPLINT->makingTurn)
+	if(hero && !hero->hasSpellbook() && GAME->interface()->makingTurn)
 	{
 		if(hero->isCampaignYog())
 		{
 			// "Yog has given up magic in all its forms..."
-			LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[736]);
+			GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[736]);
 		}
-		else if(LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) < 500) //not enough gold to buy spellbook
+		else if(GAME->interface()->cb->getResourceAmount(EGameResID::GOLD) < 500) //not enough gold to buy spellbook
 		{
 			openMagesGuild();
-			LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[213]);
+			GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[213]);
 		}
 		else
 		{
 			CFunctionList<void()> onYes = [this](){ openMagesGuild(); };
 			CFunctionList<void()> onNo = onYes;
-			onYes += [hero](){ LOCPLINT->cb->buyArtifact(hero, ArtifactID::SPELLBOOK); };
+			onYes += [hero](){ GAME->interface()->cb->buyArtifact(hero, ArtifactID::SPELLBOOK); };
 			std::vector<std::shared_ptr<CComponent>> components(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, ArtifactID(ArtifactID::SPELLBOOK)));
 
-			LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[214], onYes, onNo, components);
+			GAME->interface()->showYesNoDialog(VLC->generaltexth->allTexts[214], onYes, onNo, components);
 		}
 	}
 	else
@@ -1167,13 +1168,13 @@ void CCastleBuildings::enterTownHall()
 	{
 		if(!vstd::contains(town->forbiddenBuildings, BuildingID::GRAIL))
 		{
-			LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[597], //Do you wish this to be the permanent home of the Grail?
-										[&](){ LOCPLINT->cb->buildBuilding(town, BuildingID::GRAIL); },
+			GAME->interface()->showYesNoDialog(VLC->generaltexth->allTexts[597], //Do you wish this to be the permanent home of the Grail?
+										[&](){ GAME->interface()->cb->buildBuilding(town, BuildingID::GRAIL); },
 										[&](){ openTownHall(); });
 		}
 		else
 		{
-			LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[673]);
+			GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[673]);
 			assert(ENGINE->windows().topWindow<CInfoWindow>() != nullptr);
 			ENGINE->windows().topWindow<CInfoWindow>()->buttons[0]->addCallback(std::bind(&CCastleBuildings::openTownHall, this));
 		}
@@ -1186,8 +1187,8 @@ void CCastleBuildings::enterTownHall()
 
 void CCastleBuildings::openMagesGuild()
 {
-	auto mageGuildBackground = LOCPLINT->castleInt->town->getTown()->clientInfo.guildBackground;
-	ENGINE->windows().createAndPushWindow<CMageGuildScreen>(LOCPLINT->castleInt, mageGuildBackground);
+	auto mageGuildBackground = GAME->interface()->castleInt->town->getTown()->clientInfo.guildBackground;
+	ENGINE->windows().createAndPushWindow<CMageGuildScreen>(GAME->interface()->castleInt, mageGuildBackground);
 }
 
 void CCastleBuildings::openTownHall()
@@ -1197,16 +1198,16 @@ void CCastleBuildings::openTownHall()
 
 void CCastleBuildings::enterAnyThievesGuild()
 {
-	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+	std::vector<const CGTownInstance*> towns = GAME->interface()->cb->getTownsInfo(true);
 	for(auto & ownedTown : towns)
 	{
 		if(ownedTown->hasBuilt(BuildingID::TAVERN))
 		{
-			LOCPLINT->showThievesGuildWindow(ownedTown);
+			GAME->interface()->showThievesGuildWindow(ownedTown);
 			return;
 		}
 	}
-	LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
+	GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
 }
 
 void CCastleBuildings::enterBank(BuildingID building)
@@ -1215,12 +1216,12 @@ void CCastleBuildings::enterBank(BuildingID building)
 	if(town->bonusValue.second > 0)
 	{
 		components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE_PER_DAY, GameResID(GameResID::GOLD), -500));
-		LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.townStructure.bank.payBack"), components);
+		GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.townStructure.bank.payBack"), components);
 	}
 	else{
 	
 		components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, GameResID(GameResID::GOLD), 2500));
-		LOCPLINT->showYesNoDialog(VLC->generaltexth->translate("vcmi.townStructure.bank.borrow"), [this, building](){ LOCPLINT->cb->visitTownBuilding(town, building); }, nullptr, components);
+		GAME->interface()->showYesNoDialog(VLC->generaltexth->translate("vcmi.townStructure.bank.borrow"), [this, building](){ GAME->interface()->cb->visitTownBuilding(town, building); }, nullptr, components);
 	}
 }
 
@@ -1232,7 +1233,7 @@ void CCastleBuildings::enterAnyMarket()
 		return;
 	}
 
-	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+	std::vector<const CGTownInstance*> towns = GAME->interface()->cb->getTownsInfo(true);
 	for(auto & town : towns)
 	{
 		if(town->hasBuilt(BuildingID::MARKETPLACE))
@@ -1241,7 +1242,7 @@ void CCastleBuildings::enterAnyMarket()
 			return;
 		}
 	}
-	LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
+	GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 }
 
 CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, bool compact, bool _showAvailable):
@@ -1317,10 +1318,10 @@ void CCreaInfo::hover(bool on)
 
 void CCreaInfo::clickPressed(const Point & cursorPosition)
 {
-	int offset = LOCPLINT->castleInt? (-87) : 0;
+	int offset = GAME->interface()->castleInt? (-87) : 0;
 	auto recruitCb = [=](CreatureID id, int count)
 	{
-		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
+		GAME->interface()->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 	};
 	ENGINE->windows().createAndPushWindow<CRecruitmentWindow>(town, level, town->getUpperArmy(), recruitCb, nullptr, offset);
 }
@@ -1409,12 +1410,12 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 {
 	OBJECT_CONSTRUCTION;
 
-	LOCPLINT->castleInt = this;
+	GAME->interface()->castleInt = this;
 	addUsedEvents(KEYBOARD);
 
 	builds = std::make_shared<CCastleBuildings>(town);
 	panel = std::make_shared<CPicture>(ImagePath::builtin("TOWNSCRN"), 0, builds->pos.h);
-	panel->setPlayerColor(LOCPLINT->playerID);
+	panel->setPlayerColor(GAME->interface()->playerID);
 	pos.w = panel->pos.w;
 	pos.h = builds->pos.h + panel->pos.h;
 	center();
@@ -1439,7 +1440,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	statusbar = CGStatusBar::create(statusbarBackground);
 	resdatabar = std::make_shared<CResDataBar>(ImagePath::builtin("ARESBAR"), 3, 575, 37, 3, 84, 78);
 
-	townlist = std::make_shared<CTownList>(3, Rect(Point(743, 414), Point(48, 128)), Point(1,16), Point(0, 32), LOCPLINT->localState->getOwnedTowns().size() );
+	townlist = std::make_shared<CTownList>(3, Rect(Point(743, 414), Point(48, 128)), Point(1,16), Point(0, 32), GAME->interface()->localState->getOwnedTowns().size() );
 	townlist->setScrollUpButton( std::make_shared<CButton>( Point(744, 414), AnimationPath::builtin("IAM014"), CButton::tooltipLocalized("core.help.306"), 0));
 	townlist->setScrollDownButton( std::make_shared<CButton>( Point(744, 526), AnimationPath::builtin("IAM015"), CButton::tooltipLocalized("core.help.307"), 0));
 
@@ -1460,10 +1461,10 @@ CCastleInterface::~CCastleInterface()
 	// resume map audio if:
 	// adventureInt exists (may happen on exiting client with open castle interface)
 	// castleInt has not been replaced (happens on switching between towns inside castle interface)
-	if (adventureInt && LOCPLINT->castleInt == this)
+	if (adventureInt && GAME->interface()->castleInt == this)
 		adventureInt->onAudioResumed();
-	if(LOCPLINT->castleInt == this)
-		LOCPLINT->castleInt = nullptr;
+	if(GAME->interface()->castleInt == this)
+		GAME->interface()->castleInt = nullptr;
 }
 
 void CCastleInterface::updateGarrisons()
@@ -1483,28 +1484,28 @@ bool CCastleInterface::holdsGarrison(const CArmedInstance * army)
 
 void CCastleInterface::close()
 {
-	if(town->tempOwner == LOCPLINT->playerID) //we may have opened window for an allied town
+	if(town->tempOwner == GAME->interface()->playerID) //we may have opened window for an allied town
 	{
-		if(town->visitingHero && town->visitingHero->tempOwner == LOCPLINT->playerID)
-			LOCPLINT->localState->setSelection(town->visitingHero);
+		if(town->visitingHero && town->visitingHero->tempOwner == GAME->interface()->playerID)
+			GAME->interface()->localState->setSelection(town->visitingHero);
 		else
-			LOCPLINT->localState->setSelection(town);
+			GAME->interface()->localState->setSelection(town);
 	}
 	CWindowObject::close();
 }
 
 void CCastleInterface::castleTeleport(int where)
 {
-	const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(where));
-	LOCPLINT->localState->setSelection(town->visitingHero);//according to assert(ho == adventureInt->selection) in the eraseCurrentPathOf
-	LOCPLINT->cb->teleportHero(town->visitingHero, dest);
-	LOCPLINT->localState->erasePath(town->visitingHero);
+	const CGTownInstance * dest = GAME->interface()->cb->getTown(ObjectInstanceID(where));
+	GAME->interface()->localState->setSelection(town->visitingHero);//according to assert(ho == adventureInt->selection) in the eraseCurrentPathOf
+	GAME->interface()->cb->teleportHero(town->visitingHero, dest);
+	GAME->interface()->localState->erasePath(town->visitingHero);
 }
 
 void CCastleInterface::townChange()
 {
 	//TODO: do not recreate window
-	const CGTownInstance * dest = LOCPLINT->localState->getOwnedTown(townlist->getSelectedIndex());
+	const CGTownInstance * dest = GAME->interface()->localState->getOwnedTown(townlist->getSelectedIndex());
 	const CGTownInstance * town = this->town;// "this" is going to be deleted
 	if ( dest == town )
 		return;
@@ -1536,7 +1537,7 @@ void CCastleInterface::removeBuilding(BuildingID bid)
 void CCastleInterface::recreateIcons()
 {
 	OBJECT_CONSTRUCTION;
-	size_t iconIndex = town->getTown()->clientInfo.icons[town->hasFort()][town->built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	size_t iconIndex = town->getTown()->clientInfo.icons[town->hasFort()][town->built >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	icon->setFrame(iconIndex);
 	TResources townIncome = town->dailyIncome();
@@ -1556,7 +1557,7 @@ void CCastleInterface::recreateIcons()
 	fastTavern = std::make_shared<LRClickableArea>(Rect(15, 387, 58, 64), [&]()
 	{
 		if(town->hasBuilt(BuildingID::TAVERN))
-			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
+			GAME->interface()->showTavernWindow(town, nullptr, QueryID::NONE);
 	}, [this]{
 		if(!town->getFaction()->getDescriptionTranslated().empty())
 			CRClickPopup::createAndPush(town->getFaction()->getDescriptionTranslated());
@@ -1599,28 +1600,28 @@ void CCastleInterface::keyPressed(EShortcut key)
 		break;
 	case EShortcut::TOWN_OPEN_HERO_EXCHANGE:
 		if (town->visitingHero && town->garrisonHero)
-			LOCPLINT->showHeroExchange(town->visitingHero->id, town->garrisonHero->id);
+			GAME->interface()->showHeroExchange(town->visitingHero->id, town->garrisonHero->id);
 		break;
 	case EShortcut::TOWN_OPEN_HERO:
 		if (town->visitingHero)
-			LOCPLINT->openHeroWindow(town->visitingHero);
+			GAME->interface()->openHeroWindow(town->visitingHero);
 		else if (town->garrisonHero)
-			LOCPLINT->openHeroWindow(town->garrisonHero);
+			GAME->interface()->openHeroWindow(town->garrisonHero);
 		break;
 	case EShortcut::TOWN_OPEN_VISITING_HERO:
 		if (town->visitingHero)
-			LOCPLINT->openHeroWindow(town->visitingHero);
+			GAME->interface()->openHeroWindow(town->visitingHero);
 		break;
 	case EShortcut::TOWN_OPEN_GARRISONED_HERO:
 		if (town->garrisonHero)
-			LOCPLINT->openHeroWindow(town->garrisonHero);
+			GAME->interface()->openHeroWindow(town->garrisonHero);
 		break;
 	case EShortcut::TOWN_SWAP_ARMIES:
 		heroes->swapArmies();
 		break;
 	case EShortcut::TOWN_OPEN_TAVERN:
 		if(town->hasBuilt(BuildingID::TAVERN))
-			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
+			GAME->interface()->showTavernWindow(town, nullptr, QueryID::NONE);
 		break;
 	default:
 		break;
@@ -1649,7 +1650,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	pos.w = 154;
 	pos.h = 92;
 
-	state = LOCPLINT->cb->canBuildStructure(town, building->bid);
+	state = GAME->interface()->cb->canBuildStructure(town, building->bid);
 
 	constexpr std::array panelIndex =
 	{
@@ -1782,7 +1783,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		if(building->resources[i])
 		{
 			MetaString message;
-			int resourceAmount = LOCPLINT->cb->getResourceAmount(i);
+			int resourceAmount = GAME->interface()->cb->getResourceAmount(i);
 			bool canAfford = resourceAmount >= building->resources[i];
 
 			if(!canAfford && state != EBuildingState::ALREADY_PRESENT && settings["general"]["enableUiEnhancements"].Bool())
@@ -1813,7 +1814,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 
 		buy = std::make_shared<CButton>(Point(45, 446), AnimationPath::builtin("IBUY30"), CButton::tooltip(tooltipYes.toString()), [&](){ buyFunc(); }, EShortcut::GLOBAL_ACCEPT);
 		buy->setBorderColor(Colors::METALLIC_GOLD);
-		buy->block(state != EBuildingState::ALLOWED || LOCPLINT->playerID != town->tempOwner || !LOCPLINT->makingTurn);
+		buy->block(state != EBuildingState::ALLOWED || GAME->interface()->playerID != town->tempOwner || !GAME->interface()->makingTurn);
 
 		cancel = std::make_shared<CButton>(Point(290, 445), AnimationPath::builtin("ICANCEL"), CButton::tooltip(tooltipNo.toString()), [&](){ close();}, EShortcut::GLOBAL_CANCEL);
 		cancel->setBorderColor(Colors::METALLIC_GOLD);
@@ -1822,7 +1823,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 
 void CBuildWindow::buyFunc()
 {
-	LOCPLINT->cb->buildBuilding(town,building->bid);
+	GAME->interface()->cb->buildBuilding(town,building->bid);
 	ENGINE->windows().popWindows(2); //we - build window and hall screen
 }
 
@@ -1988,7 +1989,7 @@ void CFortScreen::creaturesChangedEventHandler()
 	for(auto & elem : recAreas)
 		elem->creaturesChangedEventHandler();
 
-	LOCPLINT->castleInt->creaturesChangedEventHandler();
+	GAME->interface()->castleInt->creaturesChangedEventHandler();
 }
 
 CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance * Town, int Level):
@@ -2092,7 +2093,7 @@ void CFortScreen::RecruitArea::creaturesChangedEventHandler()
 
 void CFortScreen::RecruitArea::clickPressed(const Point & cursorPosition)
 {
-	LOCPLINT->castleInt->builds->enterDwelling(level);
+	GAME->interface()->castleInt->builds->enterDwelling(level);
 }
 
 void CFortScreen::RecruitArea::showPopupWindow(const Point & cursorPosition)
@@ -2139,7 +2140,7 @@ void CMageGuildScreen::updateSpells(ObjectInstanceID tID)
 	spells.clear();
 	emptyScrolls.clear();
 
-	const CGTownInstance * town = LOCPLINT->cb->getTown(townId);
+	const CGTownInstance * town = GAME->interface()->cb->getTown(townId);
 
 	for(uint32_t i=0; i<town->getTown()->mageLevel; i++)
 	{
@@ -2169,22 +2170,22 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell, ObjectInst
 
 void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 {
-	const CGTownInstance * town = LOCPLINT->cb->getTown(townId);
-	if(LOCPLINT->cb->getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && town->spellResearchAllowed)
+	const CGTownInstance * town = GAME->interface()->cb->getTown(townId);
+	if(GAME->interface()->cb->getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && town->spellResearchAllowed)
 	{
 		int level = -1;
 		for(int i = 0; i < town->spells.size(); i++)
 			if(vstd::find_pos(town->spells[i], spell->id) != -1)
 				level = i;
 				
-		if(town->spellResearchCounterDay >= LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY).Vector()[level].Float())
+		if(town->spellResearchCounterDay >= GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY).Vector()[level].Float())
 		{
-			LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.spellResearch.comeAgain"));
+			GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.spellResearch.comeAgain"));
 			return;
 		}
 
-		auto costBase = TResources(LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
-		auto costExponent = LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
+		auto costBase = TResources(GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
+		auto costExponent = GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
 		auto cost = costBase * std::pow(town->spellResearchAcceptedCounter + 1, costExponent);
 
 		std::vector<std::shared_ptr<CComponent>> resComps;
@@ -2192,7 +2193,7 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		int index = town->spellsAtLevel(level, false);
 		if (index >= town->spells[level].size())
 		{
-			LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.spellResearch.noMoreSpells"));
+			GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.spellResearch.noMoreSpells"));
 			return;
 		}
 		auto newSpell = town->spells[level].at(index);
@@ -2208,17 +2209,17 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		for(int i = 0; i < 3; i++)
 			pom.emplace_back(AnimationPath::builtin("settingsWindow/button80"), nullptr);
 
-		auto text = VLC->generaltexth->translate(LOCPLINT->cb->getResourceAmount().canAfford(cost) ? "vcmi.spellResearch.pay" : "vcmi.spellResearch.canNotAfford");
+		auto text = VLC->generaltexth->translate(GAME->interface()->cb->getResourceAmount().canAfford(cost) ? "vcmi.spellResearch.pay" : "vcmi.spellResearch.canNotAfford");
 		boost::replace_first(text, "%SPELL1", spell->id.toSpell()->getNameTranslated());
 		boost::replace_first(text, "%SPELL2", newSpell.toSpell()->getNameTranslated());
-		auto temp = std::make_shared<CInfoWindow>(text, LOCPLINT->playerID, resComps, pom);
+		auto temp = std::make_shared<CInfoWindow>(text, GAME->interface()->playerID, resComps, pom);
 
 		temp->buttons[0]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/accept")));
-		temp->buttons[0]->addCallback([this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, true); });
+		temp->buttons[0]->addCallback([this, town](){ GAME->interface()->cb->spellResearch(town, spell->id, true); });
 		temp->buttons[0]->addPopupCallback([](){ CRClickPopup::createAndPush(VLC->generaltexth->translate("vcmi.spellResearch.research")); });
-		temp->buttons[0]->setEnabled(LOCPLINT->cb->getResourceAmount().canAfford(cost));
+		temp->buttons[0]->setEnabled(GAME->interface()->cb->getResourceAmount().canAfford(cost));
 		temp->buttons[1]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/reroll")));
-		temp->buttons[1]->addCallback([this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, false); });
+		temp->buttons[1]->addCallback([this, town](){ GAME->interface()->cb->spellResearch(town, spell->id, false); });
 		temp->buttons[1]->addPopupCallback([](){ CRClickPopup::createAndPush(VLC->generaltexth->translate("vcmi.spellResearch.skip")); });
 		temp->buttons[2]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/close")));
 		temp->buttons[2]->addPopupCallback([](){ CRClickPopup::createAndPush(VLC->generaltexth->translate("vcmi.spellResearch.abort")); });
@@ -2226,7 +2227,7 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		ENGINE->windows().pushWindow(temp);
 	}
 	else
-		LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
+		GAME->interface()->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
 }
 
 void CMageGuildScreen::Scroll::showPopupWindow(const Point & cursorPosition)
@@ -2281,7 +2282,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	cancel = std::make_shared<CButton>(Point(224, 312), AnimationPath::builtin("ICANCEL.DEF"), CButton::tooltip(cancelText.toString()), [&](){ close(); }, EShortcut::GLOBAL_CANCEL);
 
 	if(possible)
-		buy->addCallback([=](){ LOCPLINT->cb->buyArtifact(LOCPLINT->cb->getHero(hid),aid); });
+		buy->addCallback([=](){ GAME->interface()->cb->buyArtifact(GAME->interface()->cb->getHero(hid),aid); });
 	else
 		buy->block(true);
 

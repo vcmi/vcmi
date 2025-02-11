@@ -12,6 +12,7 @@
 #include "CMarketResources.h"
 
 #include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
@@ -60,7 +61,7 @@ void CMarketResources::makeDeal()
 {
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
-		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(bidTradePanel->getHighlightedItemId()),
+		GAME->interface()->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(bidTradePanel->getHighlightedItemId()),
 			GameResID(offerTradePanel->highlightedSlot->id), bidQty * toTrade, hero);
 		CMarketTraderText::makeDeal();
 		deselect();
@@ -84,12 +85,12 @@ void CMarketResources::highlightingChanged()
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
 		market->getOffer(bidTradePanel->getHighlightedItemId(), offerTradePanel->getHighlightedItemId(), bidQty, offerQty, EMarketMode::RESOURCE_RESOURCE);
-		offerSlider->setAmount(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getHighlightedItemId())) / bidQty);
+		offerSlider->setAmount(GAME->interface()->cb->getResourceAmount(GameResID(bidTradePanel->getHighlightedItemId())) / bidQty);
 		offerSlider->scrollTo(0);
 		const bool isControlsBlocked = bidTradePanel->getHighlightedItemId() != offerTradePanel->getHighlightedItemId() ? false : true;
 		offerSlider->block(isControlsBlocked);
 		maxAmount->block(isControlsBlocked);
-		deal->block(isControlsBlocked || !LOCPLINT->makingTurn);
+		deal->block(isControlsBlocked || !GAME->interface()->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
 	CMarketTraderText::highlightingChanged();

@@ -12,6 +12,7 @@
 #include "CArtifactsSelling.h"
 
 #include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
@@ -58,7 +59,7 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 	heroArts->onClickNotTradableCallback = []()
 	{
 		// This item can't be traded
-		LOCPLINT->showInfoDialog(VLC->generaltexth->allTexts[21]);
+		GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[21]);
 	};
 	CArtifactsSelling::updateShowcases();
 	CArtifactsSelling::deselect();
@@ -77,7 +78,7 @@ void CArtifactsSelling::makeDeal()
 {
 	const auto art = hero->getArt(selectedHeroSlot);
 	assert(art);
-	LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::ARTIFACT_RESOURCE, art->getId(),
+	GAME->interface()->cb->trade(market->getObjInstanceID(), EMarketMode::ARTIFACT_RESOURCE, art->getId(),
 		GameResID(offerTradePanel->getHighlightedItemId()), offerQty, hero);
 	CMarketTraderText::makeDeal();
 }
@@ -147,7 +148,7 @@ void CArtifactsSelling::highlightingChanged()
 	if(art && offerTradePanel->isHighlighted())
 	{
 		market->getOffer(art->getTypeId(), offerTradePanel->getHighlightedItemId(), bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
-		deal->block(!LOCPLINT->makingTurn);
+		deal->block(!GAME->interface()->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
 	CMarketTraderText::highlightingChanged();

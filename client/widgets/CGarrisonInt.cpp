@@ -15,6 +15,7 @@
 #include "RadialMenu.h"
 
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../render/IImage.h"
 #include "../windows/CCreatureWindow.h"
@@ -143,18 +144,18 @@ bool CGarrisonSlot::ally() const
 	if(!getObj())
 		return false;
 
-	return PlayerRelations::ALLIES == LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, getObj()->tempOwner);
+	return PlayerRelations::ALLIES == GAME->interface()->cb->getPlayerRelations(GAME->interface()->playerID, getObj()->tempOwner);
 }
 
 std::function<void()> CGarrisonSlot::getDismiss() const
 {
-	const bool canDismiss = getObj()->tempOwner == LOCPLINT->playerID
+	const bool canDismiss = getObj()->tempOwner == GAME->interface()->playerID
 		&& (getObj()->stacksCount() > 1 ||
 			!getObj()->needsLastStack());
 
 	return canDismiss ? [=]()
 	{
-		LOCPLINT->cb->dismissCreature(getObj(), ID);
+		GAME->interface()->cb->dismissCreature(getObj(), ID);
 	} : (std::function<void()>)nullptr;
 }
 
@@ -163,12 +164,12 @@ std::function<void()> CGarrisonSlot::getDismiss() const
 bool CGarrisonSlot::viewInfo()
 {
 	UpgradeInfo pom(ID.getNum());
-	LOCPLINT->cb->fillUpgradeInfo(getObj(), ID, pom);
+	GAME->interface()->cb->fillUpgradeInfo(getObj(), ID, pom);
 
-	bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.canUpgrade(); //upgrade is possible
+	bool canUpgrade = getObj()->tempOwner == GAME->interface()->playerID && pom.canUpgrade(); //upgrade is possible
 	std::function<void(CreatureID)> upgr = nullptr;
 	auto dism = getDismiss();
-	if(canUpgrade) upgr = [=] (CreatureID newID) { LOCPLINT->cb->upgradeCreature(getObj(), ID, newID); };
+	if(canUpgrade) upgr = [=] (CreatureID newID) { GAME->interface()->cb->upgradeCreature(getObj(), ID, newID); };
 
 	owner->selectSlot(nullptr);
 	owner->setSplittingMode(false);
@@ -206,10 +207,10 @@ bool CGarrisonSlot::highlightOrDropArtifact()
 					{
 						//creature can wear only one active artifact
 						//if we are placing a new one, the old one will be returned to the hero's backpack
-						LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(srcHero->id,
+						GAME->interface()->cb->swapArtifacts(dst, ArtifactLocation(srcHero->id,
 							ArtifactUtils::getArtBackpackPosition(srcHero, dstArt->getTypeId())));
 					}
-					LOCPLINT->cb->swapArtifacts(src, dst);
+					GAME->interface()->cb->swapArtifacts(src, dst);
 				}
 			}
 		}
@@ -271,7 +272,7 @@ bool CGarrisonSlot::mustForceReselection() const
 	bool withAlly = selection->our() ^ our();
 
 	// not our turn - actions are blocked
-	if (!LOCPLINT->makingTurn)
+	if (!GAME->interface()->makingTurn)
 		return true;
 
 	// Attempt to take creatures from ally (select theirs first)
@@ -343,13 +344,13 @@ void CGarrisonSlot::clickPressed(const Point & cursorPosition)
 				refr = split();
 			}
 			else if(!creature && lastHeroStackSelected) // split all except last creature
-				LOCPLINT->cb->splitStack(selectedObj, owner->army(upg), selection->ID, ID, selection->myStack->count - 1);
+				GAME->interface()->cb->splitStack(selectedObj, owner->army(upg), selection->ID, ID, selection->myStack->count - 1);
 			else if(creature != selection->creature) // swap
-				LOCPLINT->cb->swapCreatures(owner->army(upg), selectedObj, ID, selection->ID);
+				GAME->interface()->cb->swapCreatures(owner->army(upg), selectedObj, ID, selection->ID);
 			else if(lastHeroStackSelected) // merge last stack to other hero stack
 				refr = split();
 			else // merge
-				LOCPLINT->cb->mergeStacks(selectedObj, owner->army(upg), selection->ID, ID);
+				GAME->interface()->cb->mergeStacks(selectedObj, owner->army(upg), selection->ID, ID);
 		}
 		if(refr)
 		{
@@ -513,7 +514,7 @@ bool CGarrisonSlot::handleSplittingShortcuts()
 	{
 		auto dismiss = getDismiss();
 		if(dismiss)
-			LOCPLINT->showYesNoDialog(VLC->generaltexth->allTexts[12], dismiss, nullptr);
+			GAME->interface()->showYesNoDialog(VLC->generaltexth->allTexts[12], dismiss, nullptr);
 	}
 	else if(isAlt)
 	{
@@ -596,7 +597,7 @@ void CGarrisonInt::splitClick()
 
 void CGarrisonInt::splitStacks(const CGarrisonSlot * from, const CArmedInstance * armyDest, SlotID slotDest, int amount )
 {
-	LOCPLINT->cb->splitStack(armedObjs[from->upg], armyDest, from->ID, slotDest, amount);
+	GAME->interface()->cb->splitStack(armedObjs[from->upg], armyDest, from->ID, slotDest, amount);
 }
 
 bool CGarrisonInt::checkSelected(const CGarrisonSlot * selected, TQuantity min) const
@@ -640,11 +641,11 @@ void CGarrisonInt::moveStackToAnotherArmy(const CGarrisonSlot * selected)
 	if(!isDestSlotEmpty || isLastStack)
 	{
 		srcAmount += destArmy->getStackCount(destSlot); // Due to 'split' implementation in the 'CGameHandler::arrangeStacks'
-		LOCPLINT->cb->splitStack(srcArmy, destArmy, srcSlot, destSlot, srcAmount);
+		GAME->interface()->cb->splitStack(srcArmy, destArmy, srcSlot, destSlot, srcAmount);
 	}
 	else
 	{
-		LOCPLINT->cb->swapCreatures(srcArmy, destArmy, srcSlot, destSlot);
+		GAME->interface()->cb->swapCreatures(srcArmy, destArmy, srcSlot, destSlot);
 	}
 }
 
@@ -665,7 +666,7 @@ void CGarrisonInt::bulkMoveArmy(const CGarrisonSlot * selected)
 		return;
 
 	const auto srcSlot = selected->ID;
-	LOCPLINT->cb->bulkMoveArmy(srcArmy->id, destArmy->id, srcSlot);
+	GAME->interface()->cb->bulkMoveArmy(srcArmy->id, destArmy->id, srcSlot);
 }
 
 void CGarrisonInt::bulkMergeStacks(const CGarrisonSlot * selected)
@@ -678,7 +679,7 @@ void CGarrisonInt::bulkMergeStacks(const CGarrisonSlot * selected)
 	if(!armedObjs[type]->hasCreatureSlots(selected->creature, selected->ID))
 		return;
 
-	LOCPLINT->cb->bulkMergeStacks(armedObjs[type]->id, selected->ID);
+	GAME->interface()->cb->bulkMergeStacks(armedObjs[type]->id, selected->ID);
 }
 
 void CGarrisonInt::bulkSplitStack(const CGarrisonSlot * selected)
@@ -691,7 +692,7 @@ void CGarrisonInt::bulkSplitStack(const CGarrisonSlot * selected)
 	if(!hasEmptySlot(type))
 		return;
 
-	LOCPLINT->cb->bulkSplitStack(armedObjs[type]->id, selected->ID);
+	GAME->interface()->cb->bulkSplitStack(armedObjs[type]->id, selected->ID);
 }
 
 void CGarrisonInt::bulkSmartSplitStack(const CGarrisonSlot * selected)
@@ -705,7 +706,7 @@ void CGarrisonInt::bulkSmartSplitStack(const CGarrisonSlot * selected)
 	if(!hasEmptySlot(type) && armedObjs[type]->isCreatureBalanced(selected->creature))
 		return;
 
-	LOCPLINT->cb->bulkSmartSplitStack(armedObjs[type]->id, selected->ID);
+	GAME->interface()->cb->bulkSmartSplitStack(armedObjs[type]->id, selected->ID);
 }
 
 CGarrisonInt::CGarrisonInt(const Point & position, int inx, const Point & garsOffset, const CArmedInstance * s1, const CArmedInstance * s2, bool _removableUnits, bool smallImgs, ESlotsLayout _layout)
@@ -801,7 +802,7 @@ bool CGarrisonInt::isArmyOwned(EGarrisonType which) const
 	if (!object)
 		return false;
 
-	if (object->tempOwner == LOCPLINT->playerID)
+	if (object->tempOwner == GAME->interface()->playerID)
 		return true;
 
 	if (object->tempOwner == PlayerColor::UNFLAGGABLE)

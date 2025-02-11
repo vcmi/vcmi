@@ -26,6 +26,7 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
@@ -108,7 +109,7 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 	auto onIntroPlayed = [this]()
 	{
 		// Make sure that battle have not ended while intro was playing AND that a different one has not started
-		if(LOCPLINT->battleInt.get() == this)
+		if(GAME->interface()->battleInt.get() == this)
 			onIntroSoundPlayed();
 	};
 

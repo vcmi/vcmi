@@ -14,6 +14,7 @@
 
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Graphics.h"
@@ -493,13 +494,13 @@ void OptionsTab::SelectionWindow::apply()
 void OptionsTab::SelectionWindow::setSelection()
 {
 	if(selectedFaction != initialFaction)
-		CSH->setPlayerOption(LobbyChangePlayerOption::TOWN_ID, selectedFaction, color);
+		GAME->server().setPlayerOption(LobbyChangePlayerOption::TOWN_ID, selectedFaction, color);
 
 	if(selectedHero != initialHero)
-		CSH->setPlayerOption(LobbyChangePlayerOption::HERO_ID, selectedHero, color);
+		GAME->server().setPlayerOption(LobbyChangePlayerOption::HERO_ID, selectedHero, color);
 
 	if(selectedBonus != initialBonus)
-		CSH->setPlayerOption(LobbyChangePlayerOption::BONUS_ID, static_cast<int>(selectedBonus), color);
+		GAME->server().setPlayerOption(LobbyChangePlayerOption::BONUS_ID, static_cast<int>(selectedBonus), color);
 }
 
 void OptionsTab::SelectionWindow::reopen()
@@ -509,7 +510,7 @@ void OptionsTab::SelectionWindow::reopen()
 	else{
 		auto window = std::make_shared<SelectionWindow>(color, type, slider ? slider->getValue() : 0);
 		close();
-		if(CSH->isMyColor(color) || CSH->isHost())
+		if(GAME->server().isMyColor(color) || GAME->server().isHost())
 			ENGINE->windows().pushWindow(window);
 	}
 }
@@ -893,7 +894,7 @@ OptionsTab::HandicapWindow::HandicapWindow()
 				else
 					resources[resource.first] = std::stoi(resource.second->getText());
 			}
-			CSH->setPlayerHandicap(player.first, Handicap{resources, income, growth});
+			GAME->server().setPlayerHandicap(player.first, Handicap{resources, income, growth});
 		}
 	    		
 		close();
@@ -951,7 +952,7 @@ void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
 		return;
 	
 	PlayerInfo pi = SEL->getPlayerInfo(playerSettings.color);
-	const bool foreignPlayer = CSH->isGuest() && !CSH->isMyColor(playerSettings.color);
+	const bool foreignPlayer = GAME->server().isGuest() && !GAME->server().isMyColor(playerSettings.color);
 
 	if(selectionType == SelType::TOWN && ((pi.allowedFactions.size() < 2 && !pi.isFactionRandom) || foreignPlayer))
 		return;
@@ -976,13 +977,13 @@ void OptionsTab::SelectedBox::scrollBy(int distance)
 	switch(CPlayerSettingsHelper::selectionType)
 	{
 		case TOWN:
-			CSH->setPlayerOption(LobbyChangePlayerOption::TOWN, distance, playerSettings.color);
+			GAME->server().setPlayerOption(LobbyChangePlayerOption::TOWN, distance, playerSettings.color);
 			break;
 		case HERO:
-			CSH->setPlayerOption(LobbyChangePlayerOption::HERO, distance, playerSettings.color);
+			GAME->server().setPlayerOption(LobbyChangePlayerOption::HERO, distance, playerSettings.color);
 			break;
 		case BONUS:
-			CSH->setPlayerOption(LobbyChangePlayerOption::BONUS, distance, playerSettings.color);
+			GAME->server().setPlayerOption(LobbyChangePlayerOption::BONUS, distance, playerSettings.color);
 			break;
 	}
 
@@ -1009,7 +1010,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	pos.x += 54;
 	pos.y += 128 + serial * 50;
 
-	assert(CSH->mi && CSH->mi->mapHeader);
+	assert(GAME->server().mi && GAME->server().mi->mapHeader);
 	const PlayerInfo & p = SEL->getPlayerInfo(s->color);
 	assert(p.canComputerPlay || p.canHumanPlay); //someone must be able to control this player
 	if(p.canHumanPlay && p.canComputerPlay)
@@ -1031,7 +1032,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	}};
 
 	background = std::make_shared<CPicture>(ImagePath::builtin(bgs[s->color]), 0, 0);
-	if(s->isControlledByAI() || CSH->isGuest())
+	if(s->isControlledByAI() || GAME->server().isGuest())
 		labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, name, 95);
 	else
 	{
@@ -1045,7 +1046,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	std::string labelHandicapText = hasHandicap() ? VLC->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString();
 	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(55, 23, 46, 24), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, labelHandicapText);
 	handicap = std::make_shared<LRClickableArea>(Rect(53, 23, 50, 24), [](){
-		if(!CSH->isHost())
+		if(!GAME->server().isHost())
 			return;
 		
 		ENGINE->windows().createAndPushWindow<HandicapWindow>();
@@ -1084,12 +1085,12 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 
 	if(SEL->screenType == ESelectionScreen::newGame)
 	{
-		buttonTownLeft   = std::make_shared<CButton>(Point(107, 5), AnimationPath::builtin("ADOPLFA.DEF"), VLC->generaltexth->zelp[132], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::TOWN, -1, s->color));
-		buttonTownRight  = std::make_shared<CButton>(Point(168, 5), AnimationPath::builtin("ADOPRTA.DEF"), VLC->generaltexth->zelp[133], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::TOWN, +1, s->color));
-		buttonHeroLeft   = std::make_shared<CButton>(Point(183, 5), AnimationPath::builtin("ADOPLFA.DEF"), VLC->generaltexth->zelp[148], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::HERO, -1, s->color));
-		buttonHeroRight  = std::make_shared<CButton>(Point(244, 5), AnimationPath::builtin("ADOPRTA.DEF"), VLC->generaltexth->zelp[149], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::HERO, +1, s->color));
-		buttonBonusLeft  = std::make_shared<CButton>(Point(259, 5), AnimationPath::builtin("ADOPLFA.DEF"), VLC->generaltexth->zelp[164], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::BONUS, -1, s->color));
-		buttonBonusRight = std::make_shared<CButton>(Point(320, 5), AnimationPath::builtin("ADOPRTA.DEF"), VLC->generaltexth->zelp[165], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::BONUS, +1, s->color));
+		buttonTownLeft   = std::make_shared<CButton>(Point(107, 5), AnimationPath::builtin("ADOPLFA.DEF"), VLC->generaltexth->zelp[132], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::TOWN, -1, s->color));
+		buttonTownRight  = std::make_shared<CButton>(Point(168, 5), AnimationPath::builtin("ADOPRTA.DEF"), VLC->generaltexth->zelp[133], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::TOWN, +1, s->color));
+		buttonHeroLeft   = std::make_shared<CButton>(Point(183, 5), AnimationPath::builtin("ADOPLFA.DEF"), VLC->generaltexth->zelp[148], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::HERO, -1, s->color));
+		buttonHeroRight  = std::make_shared<CButton>(Point(244, 5), AnimationPath::builtin("ADOPRTA.DEF"), VLC->generaltexth->zelp[149], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::HERO, +1, s->color));
+		buttonBonusLeft  = std::make_shared<CButton>(Point(259, 5), AnimationPath::builtin("ADOPLFA.DEF"), VLC->generaltexth->zelp[164], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::BONUS, -1, s->color));
+		buttonBonusRight = std::make_shared<CButton>(Point(320, 5), AnimationPath::builtin("ADOPRTA.DEF"), VLC->generaltexth->zelp[165], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::BONUS, +1, s->color));
 	}
 
 	hideUnavailableButtons();
@@ -1103,7 +1104,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 			std::bind(&OptionsTab::onSetPlayerClicked, &parentTab, *s)
 		);
 		flag->setHoverable(true);
-		flag->block(CSH->isGuest());
+		flag->block(GAME->server().isGuest());
 	}
 	else
 		flag = nullptr;
@@ -1138,8 +1139,8 @@ void OptionsTab::PlayerOptionsEntry::clickReleased(const Point & cursorPosition)
 void OptionsTab::PlayerOptionsEntry::updateName() {
 	if(labelPlayerNameEdit->getText() != name)
 	{
-		CSH->setPlayerName(s->color, labelPlayerNameEdit->getText());
-		if(CSH->isMyColor(s->color))
+		GAME->server().setPlayerName(s->color, labelPlayerNameEdit->getText());
+		if(GAME->server().isMyColor(s->color))
 		{
 			Settings set = settings.write["general"]["playerName"];
 			set->String() = labelPlayerNameEdit->getText();
@@ -1153,7 +1154,7 @@ void OptionsTab::PlayerOptionsEntry::updateName() {
 void OptionsTab::onSetPlayerClicked(const PlayerSettings & ps) const
 {
 	if(ps.isControlledByAI() || humanPlayers > 1)
-		CSH->setPlayer(ps.color);
+		GAME->server().setPlayer(ps.color);
 }
 
 void OptionsTab::PlayerOptionsEntry::hideUnavailableButtons()
@@ -1161,7 +1162,7 @@ void OptionsTab::PlayerOptionsEntry::hideUnavailableButtons()
 	if(!buttonTownLeft)
 		return;
 
-	const bool foreignPlayer = CSH->isGuest() && !CSH->isMyColor(s->color);
+	const bool foreignPlayer = GAME->server().isGuest() && !GAME->server().isMyColor(s->color);
 
 	if((pi->allowedFactions.size() < 2 && !pi->isFactionRandom) || foreignPlayer)
 	{

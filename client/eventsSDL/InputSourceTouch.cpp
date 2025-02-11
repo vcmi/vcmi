@@ -16,6 +16,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
@@ -157,7 +158,7 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 		}
 		case TouchState::TAP_DOWN_DOUBLE:
 		{
-			CSH->getGlobalLobby().activateInterface();
+			GAME->server().getGlobalLobby().activateInterface();
 			break;
 		}
 		case TouchState::TAP_DOWN_LONG_AWAIT:

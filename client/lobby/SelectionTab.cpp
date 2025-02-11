@@ -16,6 +16,7 @@
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
@@ -263,7 +264,7 @@ void SelectionTab::toggleMode()
 {
 	allItems.clear();
 	curItems.clear();
-	if(CSH->isGuest())
+	if(GAME->server().isGuest())
 	{
 		if(slider)
 			slider->block(true);
@@ -310,10 +311,10 @@ void SelectionTab::toggleMode()
 			filter(0);
 		}
 
-		if(CSH->campaignStateToSend)
+		if(GAME->server().campaignStateToSend)
 		{
-			CSH->setCampaignState(CSH->campaignStateToSend);
-			CSH->campaignStateToSend.reset();
+			GAME->server().setCampaignState(GAME->server().campaignStateToSend);
+			GAME->server().campaignStateToSend.reset();
 		}
 		else
 		{
@@ -350,14 +351,14 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 					LobbyDelete ld;
 					ld.type = tabType == ESelectionScreen::newGame ? LobbyDelete::EType::RANDOMMAP : LobbyDelete::EType::SAVEGAME;
 					ld.name = curItems[py]->fileURI;
-					CSH->sendLobbyPack(ld);
+					GAME->server().sendLobbyPack(ld);
 				}, nullptr);
 			else
 				CInfoWindow::showYesNoDialog(VLC->generaltexth->translate("vcmi.lobby.deleteFolder") + "\n\n" + curFolder + curItems[py]->folderName, std::vector<std::shared_ptr<CComponent>>(), [this, py](){
 					LobbyDelete ld;
 					ld.type = LobbyDelete::EType::SAVEGAME_FOLDER;
 					ld.name = curFolder + curItems[py]->folderName;
-					CSH->sendLobbyPack(ld);
+					GAME->server().sendLobbyPack(ld);
 				}, nullptr);
 		}
 	}
@@ -895,7 +896,7 @@ std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<Reso
 			bool isCampaign = mapInfo->scenarioOptionsOfSave->mode == EStartMode::CAMPAIGN;
 			bool isMultiplayer = mapInfo->amountOfHumanPlayersInSave > 1;
 			bool isTutorial = boost::to_upper_copy(mapInfo->scenarioOptionsOfSave->mapname) == "MAPS/TUTORIAL";
-			switch(CSH->getLoadMode())
+			switch(GAME->server().getLoadMode())
 			{
 			case ELoadMode::SINGLE:
 				if(isCampaign || isTutorial)
@@ -937,7 +938,7 @@ std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<Reso
 
 void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & files)
 {
-	if(CSH->isHost() && files.size())
+	if(GAME->server().isHost() && files.size())
 	{
 		MetaString text = MetaString::createFromTextID("vcmi.lobby.deleteUnsupportedSave");
 		text.replaceNumber(files.size());
@@ -947,7 +948,7 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & 
 				LobbyDelete ld;
 				ld.type = LobbyDelete::EType::SAVEGAME;
 				ld.name = file.getName();
-				CSH->sendLobbyPack(ld);
+				GAME->server().sendLobbyPack(ld);
 			}
 		}, nullptr);
 	}

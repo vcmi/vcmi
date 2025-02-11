@@ -15,6 +15,7 @@
 
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
@@ -45,7 +46,7 @@ GlobalLobbyAddChannelWindowCard::GlobalLobbyAddChannelWindowCard(const std::stri
 
 void GlobalLobbyAddChannelWindowCard::clickPressed(const Point & cursorPosition)
 {
-	CSH->getGlobalLobby().addChannel(languageID);
+	GAME->server().getGlobalLobby().addChannel(languageID);
 	ENGINE->windows().popWindows(1);
 }
 
@@ -66,7 +67,7 @@ GlobalLobbyAddChannelWindow::GlobalLobbyAddChannelWindow()
 	const auto & allLanguages = Languages::getLanguageList();
 	std::vector<std::string> newLanguages;
 	for (const auto & language : allLanguages)
-		if (!vstd::contains(CSH->getGlobalLobby().getActiveChannels(), language.identifier))
+		if (!vstd::contains(GAME->server().getGlobalLobby().getActiveChannels(), language.identifier))
 			newLanguages.push_back(language.identifier);
 
 	const auto & createChannelCardCallback = [newLanguages](size_t index) -> std::shared_ptr<CIntObject>

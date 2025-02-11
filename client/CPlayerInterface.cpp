@@ -30,6 +30,7 @@
 #include "eventsSDL/NotificationHandler.h"
 
 #include "GameEngine.h"
+#include "GameInstance.h"
 #include "gui/CursorHandler.h"
 #include "gui/WindowHandler.h"
 
@@ -111,9 +112,7 @@
 // They all assume that interface mutex is locked.
 #define EVENT_HANDLER_CALLED_BY_CLIENT
 
-#define BATTLE_EVENT_POSSIBLE_RETURN	if (LOCPLINT != this) return; if (isAutoFightOn && !battleInt) return
-
-CPlayerInterface * LOCPLINT;
+#define BATTLE_EVENT_POSSIBLE_RETURN	if (GAME->interface() != this) return; if (isAutoFightOn && !battleInt) return
 
 std::shared_ptr<BattleInterface> CPlayerInterface::battleInt;
 
@@ -136,7 +135,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	
 {
 	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.toString());
-	LOCPLINT = this;
+	GAME->setInterfaceInstance(this);
 	playerID=Player;
 	human=true;
 	battleInt.reset();
@@ -155,8 +154,8 @@ CPlayerInterface::~CPlayerInterface()
 	logGlobal->trace("\tHuman player interface for player %s being destructed", playerID.toString());
 	delete showingDialog;
 	delete cingconsole;
-	if (LOCPLINT == this)
-		LOCPLINT = nullptr;
+	if (GAME->interface() == this)
+		GAME->setInterfaceInstance(nullptr);
 }
 
 void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
@@ -235,7 +234,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 	}
 
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (player != playerID && LOCPLINT == this)
+	if (player != playerID && GAME->interface() == this)
 	{
 		waitWhileDialog();
 
@@ -315,7 +314,7 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 
 	bool hotseatWait = humanPlayersCount > 1;
 
-		LOCPLINT = this;
+		GAME->setInterfaceInstance(this);
 		ENGINE->curInt = this;
 
 		NotificationHandler::notify("Your turn");
@@ -399,7 +398,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
-	if(LOCPLINT != this)
+	if(GAME->interface() != this)
 		return;
 
 	//FIXME: read once and store
@@ -905,7 +904,7 @@ void CPlayerInterface::battleTriggerEffect(const BattleID & battleID, const Batt
 
 	if(bte.effect == vstd::to_underlying(BonusType::MANA_DRAIN))
 	{
-		const CGHeroInstance * manaDrainedHero = LOCPLINT->cb->getHero(ObjectInstanceID(bte.additionalInfo));
+		const CGHeroInstance * manaDrainedHero = GAME->interface()->cb->getHero(ObjectInstanceID(bte.additionalInfo));
 		battleInt->windowObject->heroManaPointsChanged(manaDrainedHero);
 	}
 }
@@ -1006,7 +1005,7 @@ void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &t
 		// abort movement, if any. Strictly speaking unnecessary, but prevents some edge cases, like movement sound on visiting Magi Hut with "show messages in status window" on
 		movementController->requestMovementAbort();
 
-		if (makingTurn && ENGINE->windows().count() > 0 && LOCPLINT == this)
+		if (makingTurn && ENGINE->windows().count() > 0 && GAME->interface() == this)
 			ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
 		return;
 	}
@@ -1038,7 +1037,7 @@ void CPlayerInterface::showInfoDialog(const std::string & text, std::shared_ptr<
 
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<std::shared_ptr<CComponent>> & components, int soundID)
 {
-	LOG_TRACE_PARAMS(logGlobal, "player=%s, text=%s, is LOCPLINT=%d", playerID % text % (this==LOCPLINT));
+	LOG_TRACE_PARAMS(logGlobal, "player=%s, text=%s, is GAME->interface()=%d", playerID % text % (this==GAME->interface()));
 	waitWhileDialog();
 
 	if (settings["session"]["autoSkip"].Bool() && !ENGINE->isKeyboardShiftDown())
@@ -1047,7 +1046,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	}
 	std::shared_ptr<CInfoWindow> temp = CInfoWindow::create(text, playerID, components);
 
-	if ((makingTurn || (battleInt && battleInt->curInt && battleInt->curInt.get() == this)) && ENGINE->windows().count() > 0 && LOCPLINT == this)
+	if ((makingTurn || (battleInt && battleInt->curInt && battleInt->curInt.get() == this)) && ENGINE->windows().count() > 0 && GAME->interface() == this)
 	{
 		ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->setBusy();
@@ -1073,7 +1072,7 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components)
 {
 	movementController->requestMovementAbort();
-	LOCPLINT->showingDialog->setBusy();
+	GAME->interface()->showingDialog->setBusy();
 	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID);
 }
 
@@ -1251,7 +1250,7 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 {
 	LOG_TRACE(logGlobal);
-	if (!LOCPLINT->makingTurn)
+	if (!GAME->interface()->makingTurn)
 		return;
 
 	assert(h);
@@ -1420,10 +1419,10 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	//we might have built a boat in shipyard in opened town screen
 	if (obj->ID == Obj::BOAT
-		&& LOCPLINT->castleInt
-		&&  obj->visitablePos() == LOCPLINT->castleInt->town->bestLocation())
+		&& GAME->interface()->castleInt
+		&&  obj->visitablePos() == GAME->interface()->castleInt->town->bestLocation())
 	{
-		LOCPLINT->castleInt->addBuilding(BuildingID::SHIP);
+		GAME->interface()->castleInt->addBuilding(BuildingID::SHIP);
 	}
 }
 
@@ -1457,7 +1456,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj, const PlayerC
 			ENGINE->sound().playSound(removalSound.value());
 		}
 	}
-	MAPHANDLER->waitForOngoingAnimations();
+	GAME->map().waitForOngoingAnimations();
 
 	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)
 	{
@@ -1490,10 +1489,10 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 {
 	if(reason == PlayerBlocked::EReason::UPCOMING_BATTLE)
 	{
-		if(CSH->howManyPlayerInterfaces() > 1 && LOCPLINT != this && LOCPLINT->makingTurn == false)
+		if(GAME->server().howManyPlayerInterfaces() > 1 && GAME->interface() != this && GAME->interface()->makingTurn == false)
 		{
 			//one of our players who isn't last in order got attacked not by our another player (happens for example in hotseat mode)
-			LOCPLINT = this;
+			GAME->setInterfaceInstance(this);
 			ENGINE->curInt = this;
 			adventureInt->onCurrentPlayerChanged(playerID);
 			std::string msg = VLC->generaltexth->translate("vcmi.adventureMap.playerAttacked");
@@ -1514,7 +1513,7 @@ void CPlayerInterface::update()
 	boost::shared_lock gsLock(CGameState::mutex);
 
 	// While mutexes were locked away we may be have stopped being the active interface
-	if (LOCPLINT != this)
+	if (GAME->interface() != this)
 		return;
 
 	//if there are any waiting dialogs, show them
@@ -1577,10 +1576,10 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		if (victoryLossCheckResult.loss())
 			showInfoDialog(VLC->generaltexth->allTexts[95]);
 
-		assert(ENGINE->curInt == LOCPLINT);
-		auto previousInterface = LOCPLINT; //without multiple player interfaces some of lines below are useless, but for hotseat we wanna swap player interface temporarily
+		assert(ENGINE->curInt == GAME->interface());
+		auto previousInterface = GAME->interface(); //without multiple player interfaces some of lines below are useless, but for hotseat we wanna swap player interface temporarily
 
-		LOCPLINT = this; //this is needed for dialog to show and avoid freeze, dialog showing logic should be reworked someday
+		GAME->setInterfaceInstance(this); //this is needed for dialog to show and avoid freeze, dialog showing logic should be reworked someday
 		ENGINE->curInt = this; //waiting for dialogs requires this to get events
 
 		if(!makingTurn)
@@ -1593,7 +1592,7 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 			waitForAllDialogs();
 
 		ENGINE->curInt = previousInterface;
-		LOCPLINT = previousInterface;
+		GAME->setInterfaceInstance(previousInterface);
 	}
 }
 
@@ -1741,7 +1740,7 @@ void CPlayerInterface::showThievesGuildWindow (const CGObjectInstance * obj)
 void CPlayerInterface::showQuestLog()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	ENGINE->windows().createAndPushWindow<CQuestLog>(LOCPLINT->cb->getMyQuests());
+	ENGINE->windows().createAndPushWindow<CQuestLog>(GAME->interface()->cb->getMyQuests());
 }
 
 void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
@@ -1819,7 +1818,7 @@ void CPlayerInterface::proposeLoadingGame()
 		VLC->generaltexth->allTexts[68],
 		[]()
 		{
-			CSH->endGameplay();
+			GAME->server().endGameplay();
 			CMM->menu->switchToTab("load");
 		},
 		nullptr
@@ -1834,7 +1833,7 @@ bool CPlayerInterface::capturedAllEvents()
 		return true;
 	}
 
-	bool needToLockAdventureMap = adventureInt && adventureInt->isActive() && MAPHANDLER->hasOngoingAnimations();
+	bool needToLockAdventureMap = adventureInt && adventureInt->isActive() && GAME->map().hasOngoingAnimations();
 	bool quickCombatOngoing = isAutoFightOn && !battleInt;
 
 	if (ignoreEvents || needToLockAdventureMap || quickCombatOngoing )

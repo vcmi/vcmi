@@ -21,6 +21,7 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
@@ -170,7 +171,7 @@ BattleConsole::BattleConsole(const BattleInterface & owner, std::shared_ptr<CPic
 void BattleConsole::deactivate()
 {
 	if (enteringText)
-		LOCPLINT->cingconsole->endEnteringText(false);
+		GAME->interface()->cingconsole->endEnteringText(false);
 
 	CIntObject::deactivate();
 }

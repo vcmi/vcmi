@@ -11,6 +11,7 @@
 #include "CArtifactsOfHeroMain.h"
 
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 
 #include "../CPlayerInterface.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -42,14 +43,14 @@ void CArtifactsOfHeroMain::keyPressed(EShortcut key)
 		if (saveIdx != -1)
 		{
 			shortcutPressed = true;
-			LOCPLINT->cb->manageHeroCostume(getHero()->id, saveIdx, true);
+			GAME->interface()->cb->manageHeroCostume(getHero()->id, saveIdx, true);
 			return;
 		}
 
 		if (loadIdx != -1)
 		{
 			shortcutPressed = true;
-			LOCPLINT->cb->manageHeroCostume(getHero()->id, loadIdx, false);
+			GAME->interface()->cb->manageHeroCostume(getHero()->id, loadIdx, false);
 			return;
 		}
 	}

@@ -33,6 +33,7 @@
 #include "renderSDL/ScreenHandler.h"
 #include "renderSDL/RenderHandler.h"
 #include "CMT.h"
+#include "GameInstance.h"
 #include "battle/BattleInterface.h"
 
 #include "../lib/CThreadHelper.h"
@@ -90,7 +91,7 @@ void GameEngine::handleEvents()
 	events().dispatchTimer(framerate().getElapsedMilliseconds());
 
 	//player interface may want special event handling
-	if(nullptr != LOCPLINT && LOCPLINT->capturedAllEvents())
+	if(GAME->interface() && GAME->interface()->capturedAllEvents())
 		return;
 
 	input().processEvents();

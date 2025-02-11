@@ -16,6 +16,7 @@
 #include "../CServerHandler.h"
 #include "../PlayerLocalState.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../lobby/CSavingScreen.h"
@@ -128,7 +129,7 @@ void AdventureMapShortcuts::worldViewBack()
 {
 	owner.hotkeyExitWorldView();
 
-	auto hero = LOCPLINT->localState->getCurrentHero();
+	auto hero = GAME->interface()->localState->getCurrentHero();
 	if (hero)
 		owner.centerOnObject(hero);
 }
@@ -151,7 +152,7 @@ void AdventureMapShortcuts::worldViewScale4x()
 
 void AdventureMapShortcuts::switchMapLevel()
 {
-	int maxLevels = LOCPLINT->cb->getMapSize().z;
+	int maxLevels = GAME->interface()->cb->getMapSize().z;
 	if (maxLevels < 2)
 		return;
 
@@ -160,7 +161,7 @@ void AdventureMapShortcuts::switchMapLevel()
 
 void AdventureMapShortcuts::showQuestlog()
 {
-	LOCPLINT->showQuestLog();
+	GAME->interface()->showQuestLog();
 }
 
 void AdventureMapShortcuts::toggleTrackHero()
@@ -200,10 +201,10 @@ void AdventureMapShortcuts::toggleSleepWake()
 
 void AdventureMapShortcuts::setHeroSleeping()
 {
-	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
+	const CGHeroInstance *h = GAME->interface()->localState->getCurrentHero();
 	if (h)
 	{
-		LOCPLINT->localState->setHeroAsleep(h);
+		GAME->interface()->localState->setHeroAsleep(h);
 		owner.onHeroChanged(h);
 		nextHero();
 	}
@@ -211,31 +212,31 @@ void AdventureMapShortcuts::setHeroSleeping()
 
 void AdventureMapShortcuts::setHeroAwake()
 {
-	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
+	const CGHeroInstance *h = GAME->interface()->localState->getCurrentHero();
 	if (h)
 	{
-		LOCPLINT->localState->setHeroAwaken(h);
+		GAME->interface()->localState->setHeroAwaken(h);
 		owner.onHeroChanged(h);
 	}
 }
 
 void AdventureMapShortcuts::moveHeroAlongPath()
 {
-	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
-	if (!h || !LOCPLINT->localState->hasPath(h))
+	const CGHeroInstance *h = GAME->interface()->localState->getCurrentHero();
+	if (!h || !GAME->interface()->localState->hasPath(h))
 		return;
 
-	LOCPLINT->moveHero(h, LOCPLINT->localState->getPath(h));
+	GAME->interface()->moveHero(h, GAME->interface()->localState->getPath(h));
 }
 
 void AdventureMapShortcuts::showSpellbook()
 {
-	if (!LOCPLINT->localState->getCurrentHero())
+	if (!GAME->interface()->localState->getCurrentHero())
 		return;
 
-	owner.centerOnObject(LOCPLINT->localState->getCurrentHero());
+	owner.centerOnObject(GAME->interface()->localState->getCurrentHero());
 
-	ENGINE->windows().createAndPushWindow<CSpellWindow>(LOCPLINT->localState->getCurrentHero(), LOCPLINT, false);
+	ENGINE->windows().createAndPushWindow<CSpellWindow>(GAME->interface()->localState->getCurrentHero(), GAME->interface(), false);
 }
 
 void AdventureMapShortcuts::adventureOptions()
@@ -250,52 +251,52 @@ void AdventureMapShortcuts::systemOptions()
 
 void AdventureMapShortcuts::firstHero()
 {
-	if (!LOCPLINT->localState->getWanderingHeroes().empty())
+	if (!GAME->interface()->localState->getWanderingHeroes().empty())
 	{
-		const auto * hero = LOCPLINT->localState->getWanderingHero(0);
-		LOCPLINT->localState->setSelection(hero);
+		const auto * hero = GAME->interface()->localState->getWanderingHero(0);
+		GAME->interface()->localState->setSelection(hero);
 		owner.centerOnObject(hero);
 	}
 }
 
 void AdventureMapShortcuts::nextHero()
 {
-	const auto * currHero = LOCPLINT->localState->getCurrentHero();
-	const auto * nextHero = LOCPLINT->localState->getNextWanderingHero(currHero);
+	const auto * currHero = GAME->interface()->localState->getCurrentHero();
+	const auto * nextHero = GAME->interface()->localState->getNextWanderingHero(currHero);
 
 	if (nextHero)
 	{
-		LOCPLINT->localState->setSelection(nextHero);
+		GAME->interface()->localState->setSelection(nextHero);
 		owner.centerOnObject(nextHero);
 	}
 }
 
 void AdventureMapShortcuts::endTurn()
 {
-	if(!LOCPLINT->makingTurn)
+	if(!GAME->interface()->makingTurn)
 		return;
 
 	if(settings["adventure"]["heroReminder"].Bool())
 	{
-		for(auto hero : LOCPLINT->localState->getWanderingHeroes())
+		for(auto hero : GAME->interface()->localState->getWanderingHeroes())
 		{
-			if(!LOCPLINT->localState->isHeroSleeping(hero) && hero->movementPointsRemaining() > 0)
+			if(!GAME->interface()->localState->isHeroSleeping(hero) && hero->movementPointsRemaining() > 0)
 			{
 				// Only show hero reminder if conditions met:
 				// - There still movement points
 				// - Hero don't have a path or there not points for first step on path
-				LOCPLINT->localState->verifyPath(hero);
+				GAME->interface()->localState->verifyPath(hero);
 
-				if(!LOCPLINT->localState->hasPath(hero))
+				if(!GAME->interface()->localState->hasPath(hero))
 				{
-					LOCPLINT->showYesNoDialog( VLC->generaltexth->allTexts[55], [this](){ owner.hotkeyEndingTurn(); }, nullptr);
+					GAME->interface()->showYesNoDialog( VLC->generaltexth->allTexts[55], [this](){ owner.hotkeyEndingTurn(); }, nullptr);
 					return;
 				}
 
-				auto path = LOCPLINT->localState->getPath(hero);
+				auto path = GAME->interface()->localState->getPath(hero);
 				if (path.nodes.size() < 2 || path.nodes[path.nodes.size() - 2].turns)
 				{
-					LOCPLINT->showYesNoDialog( VLC->generaltexth->allTexts[55], [this](){ owner.hotkeyEndingTurn(); }, nullptr);
+					GAME->interface()->showYesNoDialog( VLC->generaltexth->allTexts[55], [this](){ owner.hotkeyEndingTurn(); }, nullptr);
 					return;
 				}
 			}
@@ -307,15 +308,15 @@ void AdventureMapShortcuts::endTurn()
 void AdventureMapShortcuts::showThievesGuild()
 {
 	//find first town with tavern
-	auto itr = range::find_if(LOCPLINT->localState->getOwnedTowns(), [](const CGTownInstance * town)
+	auto itr = range::find_if(GAME->interface()->localState->getOwnedTowns(), [](const CGTownInstance * town)
 	{
 		return town->hasBuilt(BuildingID::TAVERN);
 	});
 
-	if(itr != LOCPLINT->localState->getOwnedTowns().end())
-		LOCPLINT->showThievesGuildWindow(*itr);
+	if(itr != GAME->interface()->localState->getOwnedTowns().end())
+		GAME->interface()->showThievesGuildWindow(*itr);
 	else
-		LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
+		GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
 }
 
 void AdventureMapShortcuts::showScenarioInfo()
@@ -325,11 +326,11 @@ void AdventureMapShortcuts::showScenarioInfo()
 
 void AdventureMapShortcuts::toMainMenu()
 {
-	LOCPLINT->showYesNoDialog(
+	GAME->interface()->showYesNoDialog(
 		VLC->generaltexth->allTexts[578],
 		[]()
 		{
-			CSH->endGameplay();
+			GAME->server().endGameplay();
 			CMM->menu->switchToTab("main");
 		},
 		0
@@ -338,11 +339,11 @@ void AdventureMapShortcuts::toMainMenu()
 
 void AdventureMapShortcuts::newGame()
 {
-	LOCPLINT->showYesNoDialog(
+	GAME->interface()->showYesNoDialog(
 		VLC->generaltexth->allTexts[578],
 		[]()
 		{
-			CSH->endGameplay();
+			GAME->server().endGameplay();
 			CMM->menu->switchToTab("new");
 		},
 		nullptr
@@ -351,7 +352,7 @@ void AdventureMapShortcuts::newGame()
 
 void AdventureMapShortcuts::quitGame()
 {
-	LOCPLINT->showYesNoDialog(
+	GAME->interface()->showYesNoDialog(
 		VLC->generaltexth->allTexts[578],
 		[]()
 		{
@@ -371,32 +372,32 @@ void AdventureMapShortcuts::saveGame()
 
 void AdventureMapShortcuts::loadGame()
 {
-	LOCPLINT->proposeLoadingGame();
+	GAME->interface()->proposeLoadingGame();
 }
 
 void AdventureMapShortcuts::digGrail()
 {
-	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
+	const CGHeroInstance *h = GAME->interface()->localState->getCurrentHero();
 
-	if(h && LOCPLINT->makingTurn)
-		LOCPLINT->tryDigging(h);
+	if(h && GAME->interface()->makingTurn)
+		GAME->interface()->tryDigging(h);
 }
 
 void AdventureMapShortcuts::viewPuzzleMap()
 {
-	LOCPLINT->showPuzzleMap();
+	GAME->interface()->showPuzzleMap();
 }
 
 void AdventureMapShortcuts::restartGame()
 {
-	LOCPLINT->showYesNoDialog(
+	GAME->interface()->showYesNoDialog(
 		VLC->generaltexth->translate("vcmi.adventureMap.confirmRestartGame"),
 		[]()
 		{
 			ENGINE->dispatchMainThread(
 				[]()
 				{
-					CSH->sendRestartGame();
+					GAME->server().sendRestartGame();
 				}
 			);
 		},
@@ -406,28 +407,28 @@ void AdventureMapShortcuts::restartGame()
 
 void AdventureMapShortcuts::visitObject()
 {
-	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
+	const CGHeroInstance *h = GAME->interface()->localState->getCurrentHero();
 
 	if(h)
-		LOCPLINT->cb->moveHero(h, h->pos, false);
+		GAME->interface()->cb->moveHero(h, h->pos, false);
 }
 
 void AdventureMapShortcuts::openObject()
 {
-	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
-	const CGTownInstance *t = LOCPLINT->localState->getCurrentTown();
+	const CGHeroInstance *h = GAME->interface()->localState->getCurrentHero();
+	const CGTownInstance *t = GAME->interface()->localState->getCurrentTown();
 	if(h)
-		LOCPLINT->openHeroWindow(h);
+		GAME->interface()->openHeroWindow(h);
 
 	if(t)
-		LOCPLINT->openTownWindow(t);
+		GAME->interface()->openTownWindow(t);
 }
 
 void AdventureMapShortcuts::showMarketplace()
 {
 	//check if we have any marketplace
 	const CGTownInstance *townWithMarket = nullptr;
-	for(const CGTownInstance *t : LOCPLINT->cb->getTownsInfo())
+	for(const CGTownInstance *t : GAME->interface()->cb->getTownsInfo())
 	{
 		if(t->hasBuilt(BuildingID::MARKETPLACE))
 		{
@@ -439,15 +440,15 @@ void AdventureMapShortcuts::showMarketplace()
 	if(townWithMarket) //if any town has marketplace, open window
 		ENGINE->windows().createAndPushWindow<CMarketWindow>(townWithMarket, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 	else //if not - complain
-		LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
+		GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 }
 
 void AdventureMapShortcuts::firstTown()
 {
-	if (!LOCPLINT->localState->getOwnedTowns().empty())
+	if (!GAME->interface()->localState->getOwnedTowns().empty())
 	{
-		const auto * town = LOCPLINT->localState->getOwnedTown(0);
-		LOCPLINT->localState->setSelection(town);
+		const auto * town = GAME->interface()->localState->getOwnedTown(0);
+		GAME->interface()->localState->setSelection(town);
 		owner.centerOnObject(town);
 	}
 }
@@ -466,14 +467,14 @@ void AdventureMapShortcuts::search(bool next)
 {
 	// get all relevant objects
 	std::vector<ObjectInstanceID> visitableObjInstances;
-	for(auto & obj : LOCPLINT->cb->getAllVisitableObjs())
+	for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
 		if(obj->ID != MapObjectID::MONSTER && obj->ID != MapObjectID::HERO && obj->ID != MapObjectID::TOWN)
 			visitableObjInstances.push_back(obj->id);
 
 	// count of elements for each group (map is already sorted)
 	std::map<std::string, int> mapObjCount;
 	for(auto & obj : visitableObjInstances)
-		mapObjCount[{ LOCPLINT->cb->getObjInstance(obj)->getObjectName() }]++;
+		mapObjCount[{ GAME->interface()->cb->getObjInstance(obj)->getObjectName() }]++;
 
 	// convert to vector for indexed access
 	std::vector<std::pair<std::string, int>> textCountList;
@@ -499,7 +500,7 @@ void AdventureMapShortcuts::search(bool next)
 			// filter for matching objects
 			std::vector<ObjectInstanceID> selVisitableObjInstances;
 			for(auto & obj : visitableObjInstances)
-				if(selObj == LOCPLINT->cb->getObjInstance(obj)->getObjectName())
+				if(selObj == GAME->interface()->cb->getObjInstance(obj)->getObjectName())
 					selVisitableObjInstances.push_back(obj);
 			
 			if(searchPos + 1 < selVisitableObjInstances.size() && searchLast == selObj)
@@ -507,7 +508,7 @@ void AdventureMapShortcuts::search(bool next)
 			else
 				searchPos = 0;
 
-			auto objInst = LOCPLINT->cb->getObjInstance(selVisitableObjInstances[searchPos]);
+			auto objInst = GAME->interface()->cb->getObjInstance(selVisitableObjInstances[searchPos]);
 			owner.centerOnObject(objInst);
 			searchLast = objInst->getObjectName();
 		};
@@ -520,8 +521,8 @@ void AdventureMapShortcuts::search(bool next)
 
 void AdventureMapShortcuts::nextObject()
 {
-	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
-	const CGTownInstance *t = LOCPLINT->localState->getCurrentTown();
+	const CGHeroInstance *h = GAME->interface()->localState->getCurrentHero();
+	const CGTownInstance *t = GAME->interface()->localState->getCurrentTown();
 	if(h)
 		nextHero();
 
@@ -531,39 +532,39 @@ void AdventureMapShortcuts::nextObject()
 
 void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 {
-	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero(); //selected hero
+	const CGHeroInstance *h = GAME->interface()->localState->getCurrentHero(); //selected hero
 
 	if(!h)
 		return;
 
-	if (MAPHANDLER->hasOngoingAnimations())
+	if (GAME->map().hasOngoingAnimations())
 		return;
 
 	int3 dst = h->visitablePos() + int3(direction.x, direction.y, 0);
 
-	if (!MAPHANDLER->isInMap((dst)))
+	if (!GAME->map().isInMap((dst)))
 		return;
 
-	if ( !LOCPLINT->localState->setPath(h, dst))
+	if ( !GAME->interface()->localState->setPath(h, dst))
 		return;
 
-	const CGPath & path = LOCPLINT->localState->getPath(h);
+	const CGPath & path = GAME->interface()->localState->getPath(h);
 
 	if (path.nodes.size() > 2)
 		owner.onHeroChanged(h);
 	else
 		if(path.nodes[0].turns == 0)
-			LOCPLINT->moveHero(h, path);
+			GAME->interface()->moveHero(h, path);
 }
 
 bool AdventureMapShortcuts::optionCanViewQuests()
 {
-	return optionInMapView() && !MAPHANDLER->getMap()->quests.empty();
+	return optionInMapView() && !GAME->map().getMap()->quests.empty();
 }
 
 bool AdventureMapShortcuts::optionCanToggleLevel()
 {
-	return optionSidePanelActive() && LOCPLINT->cb->getMapSize().z > 1;
+	return optionSidePanelActive() && GAME->interface()->cb->getMapSize().z > 1;
 }
 
 bool AdventureMapShortcuts::optionMapLevelSurface()
@@ -573,14 +574,14 @@ bool AdventureMapShortcuts::optionMapLevelSurface()
 
 bool AdventureMapShortcuts::optionHeroSleeping()
 {
-	const CGHeroInstance *hero = LOCPLINT->localState->getCurrentHero();
-	return optionInMapView() && hero && LOCPLINT->localState->isHeroSleeping(hero);
+	const CGHeroInstance *hero = GAME->interface()->localState->getCurrentHero();
+	return optionInMapView() && hero && GAME->interface()->localState->isHeroSleeping(hero);
 }
 
 bool AdventureMapShortcuts::optionHeroAwake()
 {
-	const CGHeroInstance *hero = LOCPLINT->localState->getCurrentHero();
-	return optionInMapView() && hero && !LOCPLINT->localState->isHeroSleeping(hero);
+	const CGHeroInstance *hero = GAME->interface()->localState->getCurrentHero();
+	return optionInMapView() && hero && !GAME->interface()->localState->isHeroSleeping(hero);
 }
 
 bool AdventureMapShortcuts::optionCanVisitObject()
@@ -588,34 +589,34 @@ bool AdventureMapShortcuts::optionCanVisitObject()
 	if (!optionHeroSelected())
 		return false;
 
-	auto * hero = LOCPLINT->localState->getCurrentHero();
-	auto objects = LOCPLINT->cb->getVisitableObjs(hero->visitablePos());
+	auto * hero = GAME->interface()->localState->getCurrentHero();
+	auto objects = GAME->interface()->cb->getVisitableObjs(hero->visitablePos());
 
 	return objects.size() > 1; // there is object other than our hero
 }
 
 bool AdventureMapShortcuts::optionHeroSelected()
 {
-	return optionInMapView() && LOCPLINT->localState->getCurrentHero() != nullptr;
+	return optionInMapView() && GAME->interface()->localState->getCurrentHero() != nullptr;
 }
 
 bool AdventureMapShortcuts::optionHeroCanMove()
 {
-	const auto * hero = LOCPLINT->localState->getCurrentHero();
-	return optionInMapView() && hero && LOCPLINT->localState->hasPath(hero) && LOCPLINT->localState->getPath(hero).nextNode().turns == 0;
+	const auto * hero = GAME->interface()->localState->getCurrentHero();
+	return optionInMapView() && hero && GAME->interface()->localState->hasPath(hero) && GAME->interface()->localState->getPath(hero).nextNode().turns == 0;
 }
 
 bool AdventureMapShortcuts::optionHasNextHero()
 {
-	const auto * hero = LOCPLINT->localState->getCurrentHero();
-	const auto * nextSuitableHero = LOCPLINT->localState->getNextWanderingHero(hero);
+	const auto * hero = GAME->interface()->localState->getCurrentHero();
+	const auto * nextSuitableHero = GAME->interface()->localState->getNextWanderingHero(hero);
 
 	return optionInMapView() && nextSuitableHero != nullptr;
 }
 
 bool AdventureMapShortcuts::optionCanEndTurn()
 {
-	return optionInMapView() && LOCPLINT->makingTurn;
+	return optionInMapView() && GAME->interface()->makingTurn;
 }
 
 bool AdventureMapShortcuts::optionSpellcasting()
