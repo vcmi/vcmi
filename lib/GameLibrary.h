@@ -51,7 +51,6 @@ namespace scripting
 /// Loads and constructs several handlers
 class DLL_LINKAGE GameLibrary final : public Services
 {
-	std::shared_ptr<CBonusTypeHandler> bth;
 
 	std::shared_ptr<CContentHandler> getContent() const;
 	void setContent(std::shared_ptr<CContentHandler> content);
@@ -78,6 +77,7 @@ public:
 	const CIdentifierStorage * identifiers() const;
 
 	std::shared_ptr<CArtHandler> arth;
+	std::shared_ptr<CBonusTypeHandler> bth;
 	std::shared_ptr<CHeroHandler> heroh;
 	std::shared_ptr<CHeroClassHandler> heroclassesh;
 	std::shared_ptr<CCreatureHandler> creh;

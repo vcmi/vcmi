@@ -27,18 +27,12 @@ public:
 	std::string getNameTextID() const;
 	std::string getDescriptionTextID() const;
 
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & icon;
-		h & identifier;
-		h & hidden;
-
-	}
-
 private:
 	friend class CBonusTypeHandler;
 
-	std::string icon;
+	ImagePath icon;
+	std::map<int, ImagePath> subtypeIcons;
+	std::map<int, ImagePath> valueIcons;
 	std::string identifier;
 
 	bool hidden;
@@ -53,16 +47,11 @@ public:
 	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const override;
 	ImagePath bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const override;
 
-	template <typename Handler> void serialize(Handler & h)
-	{
-		//for now always use up to date configuration
-		//once modded bonus type will be implemented, serialize only them
-		std::vector<CBonusType> ignore;
-		h & ignore;
-	}
+	std::vector<JsonNode> loadLegacyData() override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+
 private:
-	void load();
-	void load(const JsonNode & config);
 	void loadItem(const JsonNode & source, CBonusType & dest, const std::string & name) const;
 
 	std::vector<CBonusType> bonusTypes; //index = BonusType

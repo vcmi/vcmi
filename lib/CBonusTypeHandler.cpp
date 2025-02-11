@@ -19,6 +19,7 @@
 #include "GameConstants.h"
 #include "GameLibrary.h"
 #include "modding/ModScope.h"
+#include "modding/IdentifierStorage.h"
 #include "spells/CSpellHandler.h"
 #include "texts/CGeneralTextHandler.h"
 #include "json/JsonUtils.h"
@@ -57,14 +58,9 @@ CBonusTypeHandler::CBonusTypeHandler()
 
 	BONUS_LIST;
 	#undef BONUS_NAME
-
-	load();
 }
 
-CBonusTypeHandler::~CBonusTypeHandler()
-{
-	//dtor
-}
+CBonusTypeHandler::~CBonusTypeHandler() = default;
 
 std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const
 {
@@ -98,151 +94,42 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 
 ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
 {
-	std::string fileName;
-	bool fullPath = false;
+	const CBonusType & bt = bonusTypes[vstd::to_underlying(bonus->type)];
 
-	switch(bonus->type)
-	{
-	case BonusType::SPELL_IMMUNITY:
-	{
-		fullPath = true;
-		if (bonus->subtype.as<SpellID>().hasValue())
-		{
-			const CSpell * sp = bonus->subtype.as<SpellID>().toSpell();
-			fileName = sp->getIconImmune();
-		}
-		break;
-	}
-	case BonusType::SPELL_DAMAGE_REDUCTION: //Spell damage reduction for all schools
-	{
-		if (bonus->subtype.as<SpellSchool>() == SpellSchool::ANY)
-			fileName = "E_GOLEM.bmp";
+	if (bt.subtypeIcons.count(bonus->subtype.getNum()))
+		return bt.subtypeIcons.at(bonus->subtype.getNum());
 
-		if (bonus->subtype.as<SpellSchool>() == SpellSchool::AIR)
-			fileName = "E_LIGHT.bmp";
+	if (bt.valueIcons.count(bonus->val))
+		return bt.valueIcons.at(bonus->val);
 
-		if (bonus->subtype.as<SpellSchool>() == SpellSchool::FIRE)
-			fileName = "E_FIRE.bmp";
-
-		if (bonus->subtype.as<SpellSchool>() == SpellSchool::WATER)
-			fileName = "E_COLD.bmp";
-
-		if (bonus->subtype.as<SpellSchool>() == SpellSchool::EARTH)
-			fileName = "E_SPEATH1.bmp"; //No separate icon for earth damage
-
-		break;
-	}
-	case BonusType::SPELL_SCHOOL_IMMUNITY: //for all school
-	{
-		if (bonus->subtype.as<SpellSchool>() == SpellSchool::AIR)
-			fileName = "E_SPAIR.bmp";
-
-		if (bonus->subtype.as<SpellSchool>() == SpellSchool::FIRE)
-			fileName = "E_SPFIRE.bmp";
-
-		if (bonus->subtype.as<SpellSchool>() == SpellSchool::WATER)
-			fileName = "E_SPWATER.bmp";
-
-		if (bonus->subtype.as<SpellSchool>() == SpellSchool::EARTH)
-			fileName = "E_SPEATH.bmp";
-
-		break;
-	}
-	case BonusType::NEGATIVE_EFFECTS_IMMUNITY:
-	{
-		if (bonus->subtype.as<SpellSchool>() == SpellSchool::AIR)
-			fileName = "E_SPAIR1.bmp";
-
-		if (bonus->subtype.as<SpellSchool>() == SpellSchool::FIRE)
-			fileName = "E_SPFIRE1.bmp";
-
-		if (bonus->subtype.as<SpellSchool>() == SpellSchool::WATER)
-			fileName = "E_SPWATER1.bmp";
-
-		if (bonus->subtype.as<SpellSchool>() == SpellSchool::EARTH)
-			fileName = "E_SPEATH1.bmp";
-
-		break;
-	}
-	case BonusType::LEVEL_SPELL_IMMUNITY:
-	{
-		if(vstd::iswithin(bonus->val, 1, 5))
-		{
-			fileName = "E_SPLVL" + std::to_string(bonus->val) + ".bmp";
-		}
-		break;
-	}
-	case BonusType::KING:
-	{
-		if(vstd::iswithin(bonus->val, 0, 3))
-		{
-			fileName = "E_KING" + std::to_string(std::max(1, bonus->val)) + ".bmp";
-		}
-		break;
-	}
-	case BonusType::GENERAL_DAMAGE_REDUCTION:
-	{
-		if (bonus->subtype == BonusCustomSubtype::damageTypeMelee)
-			fileName = "DamageReductionMelee.bmp";
-
-		if (bonus->subtype == BonusCustomSubtype::damageTypeRanged)
-			fileName = "DamageReductionRanged.bmp";
-
-		if (bonus->subtype == BonusCustomSubtype::damageTypeAll)
-			fileName = "DamageReductionAll.bmp";
-
-		break;
-	}
-
-	default:
-		{
-			const CBonusType & bt = bonusTypes[vstd::to_underlying(bonus->type)];
-			fileName = bt.icon;
-			fullPath = true;
-		}
-		break;
-	}
-
-	if(!fileName.empty() && !fullPath)
-		fileName = "zvs/Lib1.res/" + fileName;
-	return ImagePath::builtinTODO(fileName);
+	return bt.icon;
 }
 
-void CBonusTypeHandler::load()
+std::vector<JsonNode> CBonusTypeHandler::loadLegacyData()
 {
-	JsonNode gameConf(JsonPath::builtin("config/gameConfig.json"));
-	gameConf.setModScope(ModScope::scopeBuiltin());
-	JsonNode config(JsonUtils::assembleFromFiles(gameConf["bonuses"]));
-	config.setModScope("vcmi");
-	load(config);
+	return {};
 }
 
-void CBonusTypeHandler::load(const JsonNode & config)
+void CBonusTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	for(const auto & node : config.Struct())
+	auto it = bonusNameMap.find(name);
+
+	if(it == bonusNameMap.end())
 	{
-		auto it = bonusNameMap.find(node.first);
-
-		if(it == bonusNameMap.end())
-		{
-			//TODO: new bonus
-//			CBonusType bt;
-//			loadItem(node.second, bt);
-//
-//			auto new_id = bonusTypes.size();
-//
-//			bonusTypes.push_back(bt);
-
-			logBonus->warn("Unrecognized bonus name! (%s)", node.first);
-		}
-		else
-		{
-			CBonusType & bt = bonusTypes[vstd::to_underlying(it->second)];
-
-			loadItem(node.second, bt, node.first);
-			logBonus->trace("Loaded bonus type %s", node.first);
-		}
+		logBonus->warn("Unrecognized bonus name! (%s)", name);
 	}
+	else
+	{
+		CBonusType & bt = bonusTypes[vstd::to_underlying(it->second)];
+
+		loadItem(data, bt, name);
+		logBonus->trace("Loaded bonus type %s", name);
+	}
+}
+
+void CBonusTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+{
+	assert(0);
 }
 
 void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, const std::string & name) const
@@ -259,7 +146,23 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 	const JsonNode & graphics = source["graphics"];
 
 	if(!graphics.isNull())
-		dest.icon = graphics["icon"].String();
+		dest.icon = ImagePath::fromJson(graphics["icon"]);
+
+	for (const auto & additionalIcon : graphics["subtypeIcons"].Struct())
+	{
+		auto path = ImagePath::fromJson(additionalIcon.second);
+		VLC->identifiers()->requestIdentifier(additionalIcon.second.getModScope(), additionalIcon.first, [&dest, path](int32_t index)
+		{
+			dest.subtypeIcons[index] = path;
+		});
+	}
+
+	for (const auto & additionalIcon : graphics["valueIcons"].Struct())
+	{
+		auto path = ImagePath::fromJson(additionalIcon.second);
+		int value = std::stoi(additionalIcon.first);
+		dest.valueIcons[value] = path;
+	}
 }
 
 VCMI_LIB_NAMESPACE_END
