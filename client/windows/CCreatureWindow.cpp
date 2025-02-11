@@ -310,7 +310,8 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 		if(parent->activeBonuses.size() > bonusIndex)
 		{
 			BonusInfo & bi = parent->activeBonuses[bonusIndex];
-			icon[leftRight] = std::make_shared<CPicture>(bi.imagePath, position.x, position.y);
+			if (!bi.imagePath.empty())
+				icon[leftRight] = std::make_shared<CPicture>(bi.imagePath, position.x, position.y);
 			name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.name, 137);
 			description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 20, 137, 26), FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
 			drawBonusSource(leftRight, Point(position.x - 1, position.y - 1), bi);
