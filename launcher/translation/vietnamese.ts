@@ -1696,19 +1696,24 @@ Có thể do lỗi: %2</translation>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="184"/>
         <source>Update %n mods</source>
-        <translation>Cập nhật %n mods
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Cập nhật %n mods</numerusform>
+            <numerusform>Cập nhật %n mods</numerusform>
+            <numerusform>Cập nhật %n mods</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="188"/>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
-        <translation>Heroes Chronicles:
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-cài đặt %n/%1</translation>
+        <translation>
+            <numerusform>Heroes Chronicles:
+cài đặt %n/%1</numerusform>
+            <numerusform>Heroes Chronicles:
+cài đặt %n/%1</numerusform>
+            <numerusform>Heroes Chronicles:
+cài đặt %n/%1</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="205"/>
