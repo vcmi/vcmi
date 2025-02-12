@@ -551,8 +551,25 @@ void CampaignHandler::writeScenarioTravelToJson(JsonNode & node, const CampaignT
 void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding )
 {
 	ret.version = static_cast<CampaignVersion>(reader.readUInt32());
+
+	if (ret.version == CampaignVersion::HotA)
+	{
+		[[maybe_unused]] int32_t unknownA = reader.readInt32();
+		[[maybe_unused]] int32_t unknownB = reader.readInt32();
+		[[maybe_unused]] int32_t unknownC = reader.readInt8();
+		ret.numberOfScenarios = reader.readInt32();
+
+		assert(unknownA == 1);
+		assert(unknownB == 1);
+		assert(unknownC == 0);
+		assert(ret.numberOfScenarios <= 8);
+
+		// TODO. Or they are hardcoded in this hota version?
+		// ret.campaignRegions = ???;
+	}
+
 	ui8 campId = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
-	if(ret.version != CampaignVersion::Chr) // For chronicles: Will be overridden later; Chronicles uses own logic (reusing OH3 ID's)
+	if(ret.version < CampaignVersion::Chr) // For chronicles: Will be overridden later; Chronicles uses own logic (reusing OH3 ID's)
 		ret.loadLegacyData(campId);
 	ret.name.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "name"));
 	ret.description.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "description"));
@@ -561,7 +578,7 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 	ret.campaignVersion.appendRawString("");
 	ret.creationDateTime = 0;
 	if (ret.version > CampaignVersion::RoE)
-		ret.difficultyChosenByPlayer = reader.readInt8();
+		ret.difficultyChosenByPlayer = reader.readBool();
 	else
 		ret.difficultyChosenByPlayer = false;
 
@@ -576,7 +593,7 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 	auto prologEpilogReader = [&](const std::string & identifier) -> CampaignScenarioPrologEpilog
 	{
 		CampaignScenarioPrologEpilog ret;
-		ret.hasPrologEpilog = reader.readUInt8();
+		ret.hasPrologEpilog = reader.readBool();
 		if(ret.hasPrologEpilog)
 		{
 			bool isOriginalCampaign = boost::starts_with(header.getFilename(), "DATA/");
@@ -603,9 +620,18 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 	}
 	ret.regionColor = reader.readUInt8();
 	ret.difficulty = reader.readUInt8();
+	assert(ret.difficulty < 5);
 	ret.regionText.appendTextID(readLocalizedString(header, reader, header.filename, header.modName, header.encoding, ret.mapName + ".region"));
 	ret.prolog = prologEpilogReader(ret.mapName + ".prolog");
+	if (header.version == CampaignVersion::HotA)
+		prologEpilogReader(ret.mapName + ".prolog2");
+	if (header.version == CampaignVersion::HotA)
+		prologEpilogReader(ret.mapName + ".prolog3");
 	ret.epilog = prologEpilogReader(ret.mapName + ".epilog");
+	if (header.version == CampaignVersion::HotA)
+		prologEpilogReader(ret.mapName + ".epilog2");
+	if (header.version == CampaignVersion::HotA)
+		prologEpilogReader(ret.mapName + ".epilog3");
 
 	ret.travelOptions = readScenarioTravelFromMemory(reader, header.version);
 
@@ -635,8 +661,16 @@ CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & rea
 	ret.whatHeroKeeps.spells = whatHeroKeeps & 8;
 	ret.whatHeroKeeps.artifacts = whatHeroKeeps & 16;
 	
-	readContainer(ret.monstersKeptByHero, reader, 19);
-	readContainer(ret.artifactsKeptByHero, reader, version < CampaignVersion::SoD ? 17 : 18);
+	if (version == CampaignVersion::HotA)
+	{
+		readContainer(ret.monstersKeptByHero, reader, 24);
+		readContainer(ret.artifactsKeptByHero, reader, 21);
+	}
+	else
+	{
+		readContainer(ret.monstersKeptByHero, reader, 19);
+		readContainer(ret.artifactsKeptByHero, reader, version < CampaignVersion::SoD ? 17 : 18);
+	}
 
 	ret.startOptions = static_cast<CampaignStartOptions>(reader.readUInt8());
 
