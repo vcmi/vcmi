@@ -12,6 +12,7 @@
 
 #include "CMapService.h"
 #include "MapFeaturesH3M.h"
+#include "../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -185,7 +186,7 @@ private:
 	void readObjects();
 
 	/// Reads single object from input stream based on template
-	CGObjectInstance * readObject(std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
+	CGObjectInstance * readObject(MapObjectID id, MapObjectSubID subid, std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
 
 	CGObjectInstance * readEvent(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
 	CGObjectInstance * readMonster(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
@@ -197,20 +198,26 @@ private:
 	CGObjectInstance * readScholar(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readGarrison(const int3 & mapPosition);
 	CGObjectInstance * readArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readScroll(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readResource(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readMine(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readMine(const int3 & position);
+	CGObjectInstance * readAbandonedMine(const int3 & position);
 	CGObjectInstance * readPandora(const int3 & position, const ObjectInstanceID & idToBeGiven);
 	CGObjectInstance * readDwelling(const int3 & position);
 	CGObjectInstance * readDwellingRandom(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readShrine(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readHeroPlaceholder(const int3 & position);
-	CGObjectInstance * readGrail(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readPyramid(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readGrail(const int3 & position);
+	CGObjectInstance * readHotaBattleLocation(const int3 & position);
 	CGObjectInstance * readQuestGuard(const int3 & position);
 	CGObjectInstance * readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readBank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	CGObjectInstance * readTreasureChest(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	CGObjectInstance * readCampfire(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	CGObjectInstance * readBlackMarket(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	CGObjectInstance * readUniversity(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 
 	/**
 	 * Reads a creature set.
@@ -260,7 +267,8 @@ private:
 
 	/** List of templates loaded from the map, used on later stage to create
 	 *  objects but not needed for fully functional CMap */
-	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
+	std::vector<std::shared_ptr<ObjectTemplate>> originalTemplates;
+	std::vector<std::shared_ptr<ObjectTemplate>> remappedTemplates;
 
 	/** ptr to the map object which gets filled by data from the buffer */
 	CMap * map;

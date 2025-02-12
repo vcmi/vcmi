@@ -131,14 +131,14 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 {
 	// even if changes are minimal, we might not be able to parse map header in map selection screen
 	// throw exception - to be caught by map selection screen & excluded as invalid
-	if(hotaVersion > 3)
+	if(hotaVersion > 5)
 		throw std::runtime_error("Invalid map format!");
 
 	MapFormatFeaturesH3M result = getFeaturesSOD();
 	result.levelHOTA0 = true;
 	result.levelHOTA1 = hotaVersion > 0;
-	//result.levelHOTA2 = hotaVersion > 1; // HOTA2 seems to be identical to HOTA1 so far
 	result.levelHOTA3 = hotaVersion > 2;
+	result.levelHOTA5 = hotaVersion > 4;
 
 	result.artifactsBytes = 21;
 	result.heroesBytes = 23;
@@ -157,8 +157,18 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 	if(hotaVersion == 3)
 	{
 		result.artifactsCount = 165; // + HotA artifacts
-		result.heroesCount = 179; // + Cove + Giselle
-		result.heroesPortraitsCount = 188; // + Cove + Giselle
+		result.heroesCount = 179; // + Giselle
+		result.heroesPortraitsCount = 188; // + campaign portrait + Giselle
+	}
+	if (hotaVersion == 5)
+	{
+		result.factionsCount = 11; // + Factory
+		result.creaturesCount = 186; // + 16 Factory
+		result.artifactsCount = 166; // +pendant of reflection, +sleepkeeper
+		result.heroesCount = 198; // + 16 Factory, +3 campaign
+		result.heroesPortraitsCount = 208; // + 16 Factory, +10 campaign
+
+		result.heroesBytes = 25;
 	}
 
 	assert((result.heroesCount + 7) / 8 == result.heroesBytes);

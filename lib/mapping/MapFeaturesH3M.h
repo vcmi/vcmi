@@ -70,6 +70,7 @@ public:
 	bool levelHOTA0 = false;
 	bool levelHOTA1 = false;
 	bool levelHOTA3 = false;
+	bool levelHOTA5 = false;
 };
 
 VCMI_LIB_NAMESPACE_END
