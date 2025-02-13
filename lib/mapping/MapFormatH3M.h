@@ -214,8 +214,8 @@ private:
 	CGObjectInstance * readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readBank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readTreasureChest(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readCampfire(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	CGObjectInstance * readRewardWithArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	CGObjectInstance * readRewardWithArtifactAndResources(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readBlackMarket(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readUniversity(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 
@@ -227,12 +227,8 @@ private:
 	 */
 	void readCreatureSet(CCreatureSet * out, int number);
 
-	/**
-	 * Reads a quest for the given quest guard.
-	 *
-	 * @param guard the quest guard where that quest should be applied to
-	 */
 	void readBoxContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
+	void readBoxHotaContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
 
 	/**
 	 * Reads a quest for the given quest guard.

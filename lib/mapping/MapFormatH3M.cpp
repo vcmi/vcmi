@@ -774,14 +774,13 @@ void CMapLoaderH3M::readMapOptions()
 
 	if(features.levelHOTA5)
 	{
-		int32_t unknownA = reader->readInt32();
-		int32_t unknownB = reader->readInt32();
-
-		if (unknownA != 0)
-			logGlobal->warn("Map '%s': unknown option A has been set to %d!!", mapName, unknownA);
-
-		if (unknownB != 0)
-			logGlobal->warn("Map '%s': unknown option B has been set to %d!!", mapName, unknownB);
+		for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
+		{
+			// unconfirmed, but only remainig option according to changelog
+			bool heroRecruitmentBlocked = reader->readBool();
+			if (heroRecruitmentBlocked)
+				logGlobal->warn("Map '%s': option to ban hero recruitment for %s is not implemented!!", mapName, PlayerColor(i).toString());
+		}
 	}
 }
 
@@ -1085,23 +1084,7 @@ CGObjectInstance * CMapLoaderH3M::readEvent(const int3 & mapPosition, const Obje
 	else
 		object->humanActivate = true;
 
-	if(features.levelHOTA5)
-	{
-		int32_t movementMode = reader->readInt32(); // Give, Take, Nullify, Set, Replenish
-		int32_t movementAmount = reader->readInt32();
-
-		assert(movementMode >= 0 && movementMode <= 4);
-		if (movementMode != 0 || movementAmount != 0)
-			logGlobal->warn("Map '%s': Even %s option to modify (mode %d) movement points by %d is not implemented!", mapName, mapPosition.toString(), movementMode, movementAmount);
-	}
-
-	if(features.levelHOTA6)
-	{
-		int32_t allowedDifficultiesMask = reader->readInt32();
-		assert(allowedDifficultiesMask >= 0 && allowedDifficultiesMask < 32);
-		if (allowedDifficultiesMask != 0)
-			logGlobal->warn("Map '%s': Event %s availability by difficulty (mode %d) is not implemented!", mapName, mapPosition.toString(), allowedDifficultiesMask);
-	}
+	readBoxHotaContent(object, mapPosition, idToBeGiven);
 
 	return object;
 }
@@ -1112,26 +1095,9 @@ CGObjectInstance * CMapLoaderH3M::readPandora(const int3 & mapPosition, const Ob
 	readBoxContent(object, mapPosition, idToBeGiven);
 
 	if(features.levelHOTA5)
-	{
-		uint8_t unknown = reader->readUInt8();
-		int32_t movementMode = reader->readInt32(); // Give, Take, Nullify, Set, Replenish
-		int32_t movementAmount = reader->readInt32();
+		reader->skipZero(1); // Unknown value, always 0 so far
 
-		assert(movementMode >= 0 && movementMode <= 4);
-		assert(unknown == 0);
-		if (unknown != 0)
-			logGlobal->warn("Map '%s': Pandora %s Unknown option has been set!", mapName, mapPosition.toString());
-		if (movementMode != 0 || movementAmount != 0)
-			logGlobal->warn("Map '%s': Pandora %s ption to modify (mode %d) movement points by %d is not implemented!", mapName, mapPosition.toString(), movementMode, movementAmount);
-	}
-
-	if(features.levelHOTA6)
-	{
-		int32_t allowedDifficultiesMask = reader->readInt32();
-		assert(allowedDifficultiesMask >= 0 && allowedDifficultiesMask < 32);
-		if (allowedDifficultiesMask != 0)
-			logGlobal->warn("Map '%s': Pandora %s availability by difficulty (mode %d) is not implemented!", mapName, mapPosition.toString(), allowedDifficultiesMask);
-	}
+	readBoxHotaContent(object, mapPosition, idToBeGiven);
 
 	return object;
 }
@@ -1190,6 +1156,27 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 	object->configuration.info.push_back(vinfo);
 
 	reader->skipZero(8);
+}
+
+void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPosition, const ObjectInstanceID & idToBeGiven)
+{
+	if(features.levelHOTA5)
+	{
+		int32_t movementMode = reader->readInt32(); // Give, Take, Nullify, Set, Replenish
+		int32_t movementAmount = reader->readInt32();
+
+		assert(movementMode >= 0 && movementMode <= 4);
+		if (movementMode != 0 || movementAmount != 0)
+			logGlobal->warn("Map '%s': Event/Pandora %s option to modify (mode %d) movement points by %d is not implemented!", mapName, mapPosition.toString(), movementMode, movementAmount);
+	}
+
+	if(features.levelHOTA6)
+	{
+		int32_t allowedDifficultiesMask = reader->readInt32();
+		assert(allowedDifficultiesMask > 0 && allowedDifficultiesMask < 32);
+		if (allowedDifficultiesMask != 31)
+			logGlobal->warn("Map '%s': Event/Pandora %s availability by difficulty (mode %d) is not implemented!", mapName, mapPosition.toString(), allowedDifficultiesMask);
+	}
 }
 
 CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & mapPosition, const ObjectInstanceID & objectInstanceID)
@@ -1407,7 +1394,7 @@ CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & mapPosition, std::sh
 	if(objectTemplate->id == Obj::ARTIFACT)
 		artID = ArtifactID(objectTemplate->subid);
 
-	if(features.levelHOTA5 && objectTemplate->id != Obj::SPELL_SCROLL)
+	if(features.levelHOTA5)
 	{
 		uint32_t pickupMode = reader->readUInt32();
 		uint8_t pickupFlags = reader->readUInt8();
@@ -1415,8 +1402,7 @@ CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & mapPosition, std::sh
 		assert(pickupMode == 0 || pickupMode == 1 || pickupMode == 2); // DISABLED, RANDOM, CUSTOM
 
 		if (pickupMode != 0)
-			logGlobal->debug("Map '%s': Artifact %s: not implemented pickup mode %d (flags: %d)", mapName, mapPosition.toString(), pickupMode, pickupFlags);
-
+			logGlobal->debug("Map '%s': Artifact %s: not implemented pickup mode %d (flags: %d)", mapName, mapPosition.toString(), pickupMode, static_cast<int>(pickupFlags));
 	}
 
 	object->storedArtifact = ArtifactUtils::createArtifact(artID, SpellID::NONE);
@@ -1426,34 +1412,11 @@ CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & mapPosition, std::sh
 
 CGObjectInstance * CMapLoaderH3M::readScroll(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	ArtifactID artID = ArtifactID::NONE; //random, set later
-	SpellID spellID = SpellID::NONE;
 	auto * object = new CGArtifact(map->cb);
-
 	readMessageAndGuards(object->message, object, mapPosition);
+	SpellID spellID = reader->readSpell32();
 
-	if(objectTemplate->id == Obj::SPELL_SCROLL)
-	{
-		spellID = reader->readSpell32();
-		artID = ArtifactID::SPELL_SCROLL;
-	}
-	else if(objectTemplate->id == Obj::ARTIFACT)
-	{
-		//specific artifact
-		artID = ArtifactID(objectTemplate->subid);
-	}
-
-	if(features.levelHOTA5 && objectTemplate->id != Obj::SPELL_SCROLL)
-	{
-		[[maybe_unused]] uint32_t unknownA = reader->readUInt32();
-		[[maybe_unused]] uint8_t unknownB = reader->readUInt8();
-
-		// TODO
-		//assert(unknownA == 0);//pickup_mode (DISABLED=0, RANDOM=1, CUSTOM=2)
-		//assert(unknownB == 127);//pickup_conditions
-	}
-
-	object->storedArtifact = ArtifactUtils::createArtifact(artID, spellID.getNum());
+	object->storedArtifact = ArtifactUtils::createArtifact(ArtifactID::SPELL_SCROLL, spellID.getNum());
 	map->addNewArtifactInstance(object->storedArtifact);
 	return object;
 }
@@ -1603,10 +1566,10 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 		for (int i = 0; i < 7; ++i)
 		{
 			int32_t unitAmount = reader->readInt32();
-			int32_t unitToGive = reader->readInt32();
+			CreatureID unitToGive = reader->readCreature32();
 
-			if (unitToGive != -1)
-				logGlobal->debug("Map '%s': Hero placeholder: not implemented option to give %d units of type %d on map start to slot %d is not implemented!", mapName, unitAmount, unitToGive, i);
+			if (unitToGive.hasValue())
+				logGlobal->debug("Map '%s': Hero placeholder: not implemented option to give %d units of type %d on map start to slot %d is not implemented!", mapName, unitAmount, unitToGive.toEntity(VLC)->getJsonKey(), i);
 		}
 
 		int32_t artifactsToGive	= reader->readInt32();
@@ -1615,11 +1578,10 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 
 		for (int i = 0; i < artifactsToGive; ++i)
 		{
-			int32_t possiblyArtifactCustom = reader->readInt32();
-			if (possiblyArtifactCustom != 0)
-				logGlobal->debug("Map '%s': Hero placeholder: not implemented option to give hero artifact %d", mapName, possiblyArtifactCustom);
+			// NOTE: this might actually be 2 bytes for artifact ID + 2 bytes for spell scroll
+			ArtifactID startingArtifact = reader->readArtifact32();
+			logGlobal->debug("Map '%s': Hero placeholder: not implemented option to give hero artifact %d", mapName, startingArtifact.toEntity(VLC)->getJsonKey());
 		}
-
 	}
 
 	return object;
@@ -1708,15 +1670,31 @@ CGObjectInstance * CMapLoaderH3M::readBank(const int3 & mapPosition, std::shared
 	return readGeneric(mapPosition, objectTemplate);
 }
 
-CGObjectInstance * CMapLoaderH3M::readTreasureChest(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+CGObjectInstance * CMapLoaderH3M::readRewardWithArtifact(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	if(features.levelHOTA5)
 	{
-		int32_t content = reader->readInt32();
-		int32_t artifact = reader->readInt32();
-		logGlobal->warn("Map '%s: Object (%d) %s settings %d %d are not implemented!", mapName, objectTemplate->id, mapPosition.toString(), content, artifact);
-	}
+		// TREASURE_CHEST       - rewards index, if 3 - then 2nd value is artifact
+		// CORPSE               - rewards index, if 1 - then 2nd value is artifact
+		// SHIPWRECK_SURVIVOR   - if content = 0 then 2nd value is granted artifact
+		// SEA_CHEST            - rewards index, if 2 - then 2nd value is artifact
+		// FLOTSAM              - rewards index (0-3) + -1
+		// TREE_OF_KNOWLEDGE    - rewards index (0-2) + -1
+		// PYRAMID              - if content = 0 then 2nd value is granted spell
+		// WARRIORS_TOMB        - if content = 0 then 2nd value is granted artifact
+		// HOTA_JETSAM          - rewards index (0-3) + -1
+		// HOTA_VIAL_OF_MANA    - rewards index (0-3) + -1
 
+		int32_t content = reader->readInt32();
+		ArtifactID artifact;
+		if (content != -1)
+		{
+			artifact = reader->readArtifact32(); // NOTE: might be 2 byte artifact + 2 bytes scroll spell
+			logGlobal->warn("Map '%s: Object (%d) %s settings %d %d are not implemented!", mapName, objectTemplate->id, mapPosition.toString(), content, artifact);
+		}
+		else
+			reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
+	}
 	return readGeneric(mapPosition, objectTemplate);
 }
 
@@ -1750,28 +1728,37 @@ CGObjectInstance * CMapLoaderH3M::readUniversity(const int3 & mapPosition, std::
 		std::set<SecondarySkill> allowedSkills;
 		reader->readBitmaskSkills(allowedSkills, false);
 
+		// NOTE: check how this interacts with hota Seafaring Academy that is guaranteed to give Navigation
 		assert(customized == -1 || customized == 0);
 		if (customized != -1)
 			logGlobal->debug("Map '%s': University at %s: option to give specific skills out of %d is not implemented", mapName, mapPosition.toString(), allowedSkills.size());
 	}
-
 	return readGeneric(mapPosition, objectTemplate);
 }
 
-CGObjectInstance * CMapLoaderH3M::readCampfire(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+CGObjectInstance * CMapLoaderH3M::readRewardWithArtifactAndResources(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	if(features.levelHOTA5)
 	{
-		[[maybe_unused]] int32_t content = reader->readInt32();
-		[[maybe_unused]] int32_t artifact = reader->readInt32();
-		[[maybe_unused]] int32_t amount = reader->readInt32();
-		[[maybe_unused]] int32_t resourceID = reader->readInt32();
-		[[maybe_unused]] uint16_t unknown = reader->readUInt16();
+		// Sea Barrel / 0   -> aID = -1, aA = resource amount, rA = resource type, aB = garbage, rB = 0
+		// Sea Barrel / 1   -> aID = -1, aA = 1, rA = 1, aB = garbage, rB = 0
+		// Ancient Lamp / 0 -> aID = -1, aA = amount to recruit, rA = 0, aB = 1, rB = 0
+		// Grave / 0        -> aID = artifact to give, aA = resource amount, rA = resource type, aB = 1, rB = garbage
+		// CAMPFIRE 12 / 0  -> aID = -1, aA = gold amount, rA = gold type, aB = resource amount, rB = resource type
+		// WAGON  105 / 0   -> aID = -1 or artifact, aA = resource amount, rA = resource type, aB = 1, rB = garbage?
+		// WAGON  105 / 1   -> empty / garbage?
+		// LEAN_TO / 39 / 0 -> aID = -1, aA = resource amount, rA = resource type, aB = garbage, rB = 0
 
-		logGlobal->warn("Map '%s: Object (%d) %s settings %d %d are not implemented!", mapName, objectTemplate->id, mapPosition.toString(), content, artifact);
+		int32_t content = reader->readInt32();
+		int32_t artifact = reader->readInt32();
+		int32_t amountA = reader->readInt32();
+		int8_t resourceA = reader->readInt8();
+		int32_t amountB = reader->readInt32();
+		int8_t resourceB = reader->readInt8();
 
+		if (content != -1)
+			logGlobal->warn("Map '%s': Campfire (%d) %s settings %d %d %d %d %d %d are not implemented!", mapName, objectTemplate->id, mapPosition.toString(), content, artifact, amountA, static_cast<int>(resourceA), amountB, static_cast<int>(resourceB));
 	}
-
 	return readGeneric(mapPosition, objectTemplate);
 }
 
@@ -1890,31 +1877,31 @@ CGObjectInstance * CMapLoaderH3M::readObject(MapObjectID id, MapObjectSubID subi
 		case Obj::TREE_OF_KNOWLEDGE:
 		case Obj::PYRAMID:
 		case Obj::WARRIORS_TOMB:
-			return readTreasureChest(mapPosition, objectTemplate);
+			return readRewardWithArtifact(mapPosition, objectTemplate);
 
 		case Obj::CAMPFIRE:
 		case Obj::WAGON:
 		case Obj::LEAN_TO:
-			return readCampfire(mapPosition, objectTemplate);
+			return readRewardWithArtifactAndResources(mapPosition, objectTemplate);
 
 		case Obj::BORDER_GATE:
 			if (subid == 1000) // HotA hacks - Quest Gate
 				return readQuestGuard(mapPosition);
 			if (subid == 1001) // HotA hacks - Grave
-				return readCampfire(mapPosition, objectTemplate);
+				return readRewardWithArtifactAndResources(mapPosition, objectTemplate);
 			return readGeneric(mapPosition, objectTemplate);
 
-		case Obj(145):// HOTA_CUSTOM_1
+		case Obj::HOTA_CUSTOM_OBJECT_1:
 			// 0 -> Ancient Lamp
 			// 1 -> Sea Barrel
 			// 2 -> Jetsam
 			// 3 -> Vial of Mana
 			if (subid == 0 || subid == 1)
-				return readCampfire(mapPosition, objectTemplate);
+				return readRewardWithArtifactAndResources(mapPosition, objectTemplate);
 			else
-				return readTreasureChest(mapPosition, objectTemplate);
+				return readRewardWithArtifact(mapPosition, objectTemplate);
 
-		case Obj(146):// HOTA_CUSTOM_2
+		case Obj::HOTA_CUSTOM_OBJECT_2:
 			if (subid == 0) // Seafaring Academy
 				return readUniversity(mapPosition, objectTemplate);
 			else
@@ -2583,8 +2570,10 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 	if(features.levelHOTA5)
 	{
+		// Most likely customization of special buildings per faction -> 4x11 table
+		// TODO: is this customization of what can be built, or what is already built?
 		uint32_t unknownSize = reader->readUInt32();
-		assert(unknownSize == 44); // buildings?
+		assert(unknownSize == 44);
 		reader->skipUnused(unknownSize);
 	}
 
@@ -2614,16 +2603,16 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 		if(features.levelHOTA5)
 		{
-			[[maybe_unused]] int32_t allowedDifficulties = reader->readInt32();
-			[[maybe_unused]] int32_t hota_level_7b = reader->readInt32();
-			[[maybe_unused]] int32_t hota_amount = reader->readInt32();
-			[[maybe_unused]] int16_t hota_special = reader->readInt16();
+			[[maybe_unused]] int32_t allowedDifficultiesMask = reader->readInt32();
+			[[maybe_unused]] int32_t hotaLevel7b = reader->readInt32(); // ???
+			[[maybe_unused]] int32_t hota_amount = reader->readInt32(); // ???
+			[[maybe_unused]] int16_t hota_special = reader->readInt16(); // ???
 		}
 
 		if(features.levelHOTA7)
 		{
-			[[maybe_unused]] int32_t hota_amount = reader->readInt32();
-			[[maybe_unused]] bool apply_neutral_towns = reader->readBool();
+			[[maybe_unused]] int32_t hotaAmount = reader->readInt32(); // amount of creatures in 8th dwelling?
+			[[maybe_unused]] bool neutralAffected = reader->readBool();
 		}
 
 		// New buildings
