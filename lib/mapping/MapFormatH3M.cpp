@@ -193,10 +193,9 @@ void CMapLoaderH3M::readHeader()
 		if(hotaVersion > 4)
 		{
 			int32_t townTypesCount = reader->readUInt32();
-			uint8_t allowedDifficultiesMask = reader->readUInt8();
+			int8_t allowedDifficultiesMask = reader->readInt8Checked(0, 31);
 
 			assert(features.factionsCount == townTypesCount);
-			assert(allowedDifficultiesMask < 32);
 
 			if (features.factionsCount != townTypesCount)
 				logGlobal->warn("Map '%s': Expected %d factions, but %d found!", mapName, features.factionsCount, townTypesCount);
@@ -1083,7 +1082,15 @@ CGObjectInstance * CMapLoaderH3M::readEvent(const int3 & mapPosition, const Obje
 
 		assert(movementMode >= 0 && movementMode <= 4);
 		if (movementMode != 0 || movementAmount != 0)
-			logGlobal->warn("Map '%s': Option to modify (mode %d) movement points by %d in event is not implemented!", mapName, movementMode, movementAmount);
+			logGlobal->warn("Map '%s': Even %s option to modify (mode %d) movement points by %d is not implemented!", mapName, mapPosition.toString(), movementMode, movementAmount);
+	}
+
+	if(features.levelHOTA6)
+	{
+		int32_t allowedDifficultiesMask = reader->readInt32();
+		assert(allowedDifficultiesMask >= 0 && allowedDifficultiesMask < 32);
+		if (allowedDifficultiesMask != 0)
+			logGlobal->warn("Map '%s': Event %s availability by difficulty (mode %d) is not implemented!", mapName, mapPosition.toString(), allowedDifficultiesMask);
 	}
 
 	return object;
@@ -1103,9 +1110,17 @@ CGObjectInstance * CMapLoaderH3M::readPandora(const int3 & mapPosition, const Ob
 		assert(movementMode >= 0 && movementMode <= 4);
 		assert(unknown == 0);
 		if (unknown != 0)
-			logGlobal->warn("Map '%s': Unknown option in pandora box has been set!", mapName);
+			logGlobal->warn("Map '%s': Pandora %s Unknown option has been set!", mapName, mapPosition.toString());
 		if (movementMode != 0 || movementAmount != 0)
-			logGlobal->warn("Map '%s': Option to modify (mode %d) movement points by %d in event is not implemented!", mapName, movementMode, movementAmount);
+			logGlobal->warn("Map '%s': Pandora %s ption to modify (mode %d) movement points by %d is not implemented!", mapName, mapPosition.toString(), movementMode, movementAmount);
+	}
+
+	if(features.levelHOTA6)
+	{
+		int32_t allowedDifficultiesMask = reader->readInt32();
+		assert(allowedDifficultiesMask >= 0 && allowedDifficultiesMask < 32);
+		if (allowedDifficultiesMask != 0)
+			logGlobal->warn("Map '%s': Pandora %s availability by difficulty (mode %d) is not implemented!", mapName, mapPosition.toString(), allowedDifficultiesMask);
 	}
 
 	return object;

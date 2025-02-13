@@ -69,8 +69,9 @@ public:
 	bool levelWOG = false;
 	bool levelHOTA0 = false;
 	bool levelHOTA1 = false;
-	bool levelHOTA3 = false;
-	bool levelHOTA5 = false;
+	bool levelHOTA3 = false; // 1.6.0
+	bool levelHOTA5 = false; // 1.7.0
+	bool levelHOTA6 = false; // 1.7.1
 };
 
 VCMI_LIB_NAMESPACE_END
