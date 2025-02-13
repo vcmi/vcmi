@@ -201,7 +201,7 @@ void CMapLoaderH3M::readHeader()
 				logGlobal->warn("Map '%s': Expected %d factions, but %d found!", mapName, features.factionsCount, townTypesCount);
 
 			if (allowedDifficultiesMask != 0)
-				logGlobal->warn("Map '%s': List of allowed difficulties (%d) is not implemented!", mapName, allowedDifficultiesMask);
+				logGlobal->warn("Map '%s': List of allowed difficulties (%d) is not implemented!", mapName, static_cast<int>(allowedDifficultiesMask));
 		}
 
 		if(features.levelHOTA7)
@@ -1195,7 +1195,8 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & mapPosition, const Ob
 	//type will be set during initialization
 	object->putStack(SlotID(0), hlp);
 
-	object->character = reader->readInt8Checked(0, 4);
+	//TODO: 0-4 is h3 range. 5 is hota extension for exact aggression?
+	object->character = reader->readInt8Checked(0, 5);
 
 	bool hasMessage = reader->readBool();
 	if(hasMessage)
@@ -1232,11 +1233,11 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & mapPosition, const Ob
 
 	if (features.levelHOTA5)
 	{
-		int8_t unknownA = reader->readInt8();
-		int32_t unknownB = reader->readInt32();
+		bool sizeByValue = reader->readBool();//FIXME: double-check this flag effect
+		int32_t targetValue = reader->readInt32();
 
-		if (unknownA != 0 || unknownB != 0)
-			logGlobal->warn( "Map '%s': Wandering monsters %s unknown settings %d %d is not implemented!", mapName, mapPosition.toString(), unknownA, unknownB);
+		if (sizeByValue || targetValue)
+			logGlobal->warn( "Map '%s': Wandering monsters %s option to set unit size to %d (%d) AI value is not implemented!", mapName, mapPosition.toString(), targetValue, sizeByValue);
 	}
 
 	return object;
@@ -1402,7 +1403,7 @@ CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & mapPosition, std::sh
 		assert(pickupMode == 0 || pickupMode == 1 || pickupMode == 2); // DISABLED, RANDOM, CUSTOM
 
 		if (pickupMode != 0)
-			logGlobal->debug("Map '%s': Artifact %s: not implemented pickup mode %d (flags: %d)", mapName, mapPosition.toString(), pickupMode, static_cast<int>(pickupFlags));
+			logGlobal->warn("Map '%s': Artifact %s: not implemented pickup mode %d (flags: %d)", mapName, mapPosition.toString(), pickupMode, static_cast<int>(pickupFlags));
 	}
 
 	object->storedArtifact = ArtifactUtils::createArtifact(artID, SpellID::NONE);
@@ -1465,7 +1466,7 @@ CGObjectInstance * CMapLoaderH3M::readAbandonedMine(const int3 & mapPosition)
 		{
 			assert(guardsMin <= guardsMax);
 			assert(guardsUnit.hasValue());
-			logGlobal->debug("Map '%s': Abandoned Mine %s: not implemented guards of %d-%d %s", mapName, mapPosition.toString(), guardsMin, guardsMax, guardsUnit.toEntity(VLC)->getJsonKey());
+			logGlobal->warn("Map '%s': Abandoned Mine %s: not implemented guards of %d-%d %s", mapName, mapPosition.toString(), guardsMin, guardsMax, guardsUnit.toEntity(VLC)->getJsonKey());
 		}
 	}
 	return object;
@@ -1561,7 +1562,7 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 		bool customizedStatingUnits = reader->readBool();
 
 		if (customizedStatingUnits)
-			logGlobal->debug("Map '%s': Hero placeholder: not implemented option to customize starting units", mapName);
+			logGlobal->warn("Map '%s': Hero placeholder: not implemented option to customize starting units", mapName);
 
 		for (int i = 0; i < 7; ++i)
 		{
@@ -1569,7 +1570,7 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 			CreatureID unitToGive = reader->readCreature32();
 
 			if (unitToGive.hasValue())
-				logGlobal->debug("Map '%s': Hero placeholder: not implemented option to give %d units of type %d on map start to slot %d is not implemented!", mapName, unitAmount, unitToGive.toEntity(VLC)->getJsonKey(), i);
+				logGlobal->warn("Map '%s': Hero placeholder: not implemented option to give %d units of type %d on map start to slot %d is not implemented!", mapName, unitAmount, unitToGive.toEntity(VLC)->getJsonKey(), i);
 		}
 
 		int32_t artifactsToGive	= reader->readInt32();
@@ -1580,7 +1581,7 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 		{
 			// NOTE: this might actually be 2 bytes for artifact ID + 2 bytes for spell scroll
 			ArtifactID startingArtifact = reader->readArtifact32();
-			logGlobal->debug("Map '%s': Hero placeholder: not implemented option to give hero artifact %d", mapName, startingArtifact.toEntity(VLC)->getJsonKey());
+			logGlobal->warn("Map '%s': Hero placeholder: not implemented option to give hero artifact %d", mapName, startingArtifact.toEntity(VLC)->getJsonKey());
 		}
 	}
 
@@ -1658,7 +1659,7 @@ CGObjectInstance * CMapLoaderH3M::readBank(const int3 & mapPosition, std::shared
 
 		if(guardsPresetIndex != -1 || upgradedStackPresence != -1 || !artifacts.empty())
 			logGlobal->warn(
-				"Map '%s: creature bank at %s settings %d %d %d are not implemented!",
+				"Map '%s': creature bank at %s settings %d %d %d are not implemented!",
 				mapName,
 				mapPosition.toString(),
 				guardsPresetIndex,
@@ -1690,7 +1691,7 @@ CGObjectInstance * CMapLoaderH3M::readRewardWithArtifact(const int3 & mapPositio
 		if (content != -1)
 		{
 			artifact = reader->readArtifact32(); // NOTE: might be 2 byte artifact + 2 bytes scroll spell
-			logGlobal->warn("Map '%s: Object (%d) %s settings %d %d are not implemented!", mapName, objectTemplate->id, mapPosition.toString(), content, artifact);
+			logGlobal->warn("Map '%s': Object (%d) %s settings %d %d are not implemented!", mapName, objectTemplate->id, mapPosition.toString(), content, artifact);
 		}
 		else
 			reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
@@ -1710,9 +1711,9 @@ CGObjectInstance * CMapLoaderH3M::readBlackMarket(const int3 & mapPosition, std:
 			if (artifact.hasValue())
 			{
 				if (artifact != ArtifactID::SPELL_SCROLL)
-					logGlobal->debug("Map '%s': Black Market at %s: option to sell artifact %s is not implemented", mapName, mapPosition.toString(), artifact.toEntity(VLC)->getJsonKey());
+					logGlobal->warn("Map '%s': Black Market at %s: option to sell artifact %s is not implemented", mapName, mapPosition.toString(), artifact.toEntity(VLC)->getJsonKey());
 				else
-					logGlobal->debug("Map '%s': Black Market at %s: option to sell scroll %s is not implemented", mapName, mapPosition.toString(), spellID.toEntity(VLC)->getJsonKey());
+					logGlobal->warn("Map '%s': Black Market at %s: option to sell scroll %s is not implemented", mapName, mapPosition.toString(), spellID.toEntity(VLC)->getJsonKey());
 			}
 		}
 	}
@@ -1731,7 +1732,7 @@ CGObjectInstance * CMapLoaderH3M::readUniversity(const int3 & mapPosition, std::
 		// NOTE: check how this interacts with hota Seafaring Academy that is guaranteed to give Navigation
 		assert(customized == -1 || customized == 0);
 		if (customized != -1)
-			logGlobal->debug("Map '%s': University at %s: option to give specific skills out of %d is not implemented", mapName, mapPosition.toString(), allowedSkills.size());
+			logGlobal->warn("Map '%s': University at %s: option to give specific skills out of %d is not implemented", mapName, mapPosition.toString(), allowedSkills.size());
 	}
 	return readGeneric(mapPosition, objectTemplate);
 }
@@ -1757,7 +1758,7 @@ CGObjectInstance * CMapLoaderH3M::readRewardWithArtifactAndResources(const int3 
 		int8_t resourceB = reader->readInt8();
 
 		if (content != -1)
-			logGlobal->warn("Map '%s': Campfire (%d) %s settings %d %d %d %d %d %d are not implemented!", mapName, objectTemplate->id, mapPosition.toString(), content, artifact, amountA, static_cast<int>(resourceA), amountB, static_cast<int>(resourceB));
+			logGlobal->warn("Map '%s': Object (%d) %s settings %d %d %d %d %d %d are not implemented!", mapName, objectTemplate->id, mapPosition.toString(), content, artifact, amountA, static_cast<int>(resourceA), amountB, static_cast<int>(resourceB));
 	}
 	return readGeneric(mapPosition, objectTemplate);
 }
@@ -2571,10 +2572,21 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	if(features.levelHOTA5)
 	{
 		// Most likely customization of special buildings per faction -> 4x11 table
-		// TODO: is this customization of what can be built, or what is already built?
-		uint32_t unknownSize = reader->readUInt32();
-		assert(unknownSize == 44);
-		reader->skipUnused(unknownSize);
+		// presumably:
+		// 0 -> default / allowed
+		// 1 -> built?
+		// 2 -> banned?
+		uint32_t specialBuildingsSize = reader->readUInt32();
+
+		for (int i = 0; i < specialBuildingsSize; ++i)
+		{
+			int factionID = i / 4;
+			int buildingID = i % 4;
+
+			int8_t specialBuildingBuilt = reader->readInt8Checked(0, 2);
+			if (specialBuildingBuilt != 0)
+				logGlobal->warn("Map '%s': Town at %s: Constructing / banning town-specific special building %d in faction %d on start is not implemented!", mapName, position.toString(), buildingID, factionID);
+		}
 	}
 
 	// Read castle events
@@ -2584,41 +2596,36 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	{
 		// TODO: a lot of copy-pasted code with map event
 		CCastleEvent event;
-		event.name = readBasicString();
-		event.message.appendTextID(readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "event", eventID, "description")));
+		event.creatures.resize(7);
 
-		reader->readResources(event.resources);
-
-		reader->readBitmaskPlayers(event.players, false);
-		if(features.levelSOD)
-			event.humanAffected = reader->readBool();
-		else
-			event.humanAffected = true;
-
-		event.computerAffected = reader->readBool();
-		event.firstOccurrence = reader->readUInt16();
-		event.nextOccurrence = reader->readUInt16();
-
-		reader->skipZero(16);
+		readEventCommon(event, TextIdentifier("town", position.x, position.y, position.z, "event", eventID, "description"));
 
 		if(features.levelHOTA5)
 		{
-			[[maybe_unused]] int32_t allowedDifficultiesMask = reader->readInt32();
-			[[maybe_unused]] int32_t hotaLevel7b = reader->readInt32(); // ???
-			[[maybe_unused]] int32_t hota_amount = reader->readInt32(); // ???
-			[[maybe_unused]] int16_t hota_special = reader->readInt16(); // ???
+			int32_t creatureGrowth8 = reader->readInt32();
+
+			// always 44
+			int32_t hotaAmount = reader->readInt32();
+
+			// contains bitmask on which town-specific buildings to build
+			// 4 bits / town, for each of special building in town (special 1 - special 4)
+			int32_t hotaSpecialA = reader->readInt32();
+			int16_t hotaSpecialB = reader->readInt16();
+
+			if (hotaSpecialA != 0 || hotaSpecialB != 0 || hotaAmount != 44)
+				logGlobal->warn("Map '%s': Town at %s: Constructing town-specific special buildings in event is not implemented!", mapName, position.toString());;
+
+			event.creatures.push_back(creatureGrowth8);
 		}
 
 		if(features.levelHOTA7)
 		{
-			[[maybe_unused]] int32_t hotaAmount = reader->readInt32(); // amount of creatures in 8th dwelling?
 			[[maybe_unused]] bool neutralAffected = reader->readBool();
 		}
 
 		// New buildings
 		reader->readBitmaskBuildings(event.buildings, faction);
 
-		event.creatures.resize(7);
 		for(int i = 0; i < 7; ++i)
 			event.creatures[i] = reader->readUInt16();
 
@@ -2639,7 +2646,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 				if (mapHeader->players[alignment].canAnyonePlay())
 					object->alignmentToPlayer = PlayerColor(alignment);
 				else
-					logGlobal->warn("%s - Alignment of town at %s is invalid! Player %d is not present on map!", mapName, position.toString(), int(alignment));
+					logGlobal->warn("Map '%s': Alignment of town at %s is invalid! Player %d is not present on map!", mapName, position.toString(), int(alignment));
 			}
 			else
 			{
@@ -2648,11 +2655,11 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 				if(invertedAlignment < PlayerColor::PLAYER_LIMIT.getNum())
 				{
-					logGlobal->warn("%s - Alignment of town at %s 'not as player %d' is not implemented!", mapName, position.toString(), alignment - PlayerColor::PLAYER_LIMIT.getNum());
+					logGlobal->warn("Map '%s': Alignment of town at %s 'not as player %d' is not implemented!", mapName, position.toString(), alignment - PlayerColor::PLAYER_LIMIT.getNum());
 				}
 				else
 				{
-					logGlobal->warn("%s - Alignment of town at %s is corrupted!!", mapName, position.toString());
+					logGlobal->warn("Map '%s': Alignment of town at %s is corrupted!!", mapName, position.toString());
 				}
 			}
 		}
@@ -2662,43 +2669,45 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	return object;
 }
 
+void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & messageID)
+{
+	event.name = readBasicString();
+	event.message.appendTextID(readLocalizedString(messageID));
+
+	reader->readResources(event.resources);
+
+	reader->readBitmaskPlayers(event.players, false);
+	if(features.levelSOD)
+		event.humanAffected = reader->readBool();
+	else
+		event.humanAffected = true;
+
+	event.computerAffected = reader->readBool();
+	event.firstOccurrence = reader->readUInt16();
+	event.nextOccurrence = reader->readUInt16();
+
+	reader->skipZero(16);
+
+	if (features.levelHOTA7)
+	{
+		int32_t allowedDifficultiesMask = reader->readInt32();
+		assert(allowedDifficultiesMask > 0 && allowedDifficultiesMask < 32);
+		if (allowedDifficultiesMask != 31)
+			logGlobal->warn("Map '%s': Map event: availability by difficulty (mode %d) is not implemented!", mapName, allowedDifficultiesMask);
+	}
+}
+
 void CMapLoaderH3M::readEvents()
 {
 	uint32_t eventsCount = reader->readUInt32();
 	for(int eventID = 0; eventID < eventsCount; ++eventID)
 	{
-		// FIXME: a lot of copy-pasted code with town event
 		CMapEvent event;
-		event.name = readBasicString();
-		event.message.appendTextID(readLocalizedString(TextIdentifier("event", eventID, "description")));
+		readEventCommon(event, TextIdentifier("event", eventID, "description"));
 
-		reader->readResources(event.resources);
-		reader->readBitmaskPlayers(event.players, false);
-		if(features.levelSOD)
-		{
-			event.humanAffected = reader->readBool();
-		}
-		else
-		{
-			event.humanAffected = true;
-		}
-		event.computerAffected = reader->readBool();
-		event.firstOccurrence = reader->readUInt16();
-		event.nextOccurrence = reader->readUInt16();
-
-		reader->skipZero(16);
-
-		if (features.levelHOTA7)
-		{
-			[[maybe_unused]] int32_t difficulties = reader->readInt32();
-		}
-		else if (features.levelHOTA5)
-		{
-			[[maybe_unused]] int32_t difficulties = reader->readInt32();
-			[[maybe_unused]] int32_t unknownA= reader->readInt32();
-			[[maybe_unused]] int32_t unknownB= reader->readInt32();
-			[[maybe_unused]] int16_t unknownC= reader->readInt16();
-		}
+		// garbage bytes that were present in HOTA5 & HOTA6
+		if (features.levelHOTA5 && !features.levelHOTA7)
+			reader->skipUnused(14);
 
 		map->events.push_back(event);
 	}

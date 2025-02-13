@@ -28,6 +28,7 @@ class CCreatureSet;
 class CInputStream;
 class TextIdentifier;
 class CGPandoraBox;
+class CMapEvent;
 
 class ObjectInstanceID;
 class BuildingID;
@@ -229,6 +230,8 @@ private:
 
 	void readBoxContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
 	void readBoxHotaContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
+
+	void readEventCommon(CMapEvent & object, const TextIdentifier & messageID);
 
 	/**
 	 * Reads a quest for the given quest guard.

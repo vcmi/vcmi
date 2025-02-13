@@ -166,7 +166,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 		result.creaturesCount = 186; // + 16 Factory
 		result.artifactsCount = 166; // +pendant of reflection, +sleepkeeper
 		result.heroesCount = 198; // + 16 Factory, +3 campaign
-		result.heroesPortraitsCount = 208; // + 16 Factory, +10 campaign
+		result.heroesPortraitsCount = 228; // + 16 Factory, +A LOT campaign
 
 		result.heroesBytes = 25;
 	}
