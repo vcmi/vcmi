@@ -168,7 +168,7 @@ void CMapLoaderH3M::readHeader()
 		features = MapFormatFeaturesH3M::find(mapHeader->version, hotaVersion);
 		reader->setFormatLevel(features);
 
-		if(hotaVersion > 0)
+		if(features.levelHOTA1)
 		{
 			bool isMirrorMap = reader->readBool();
 			bool isArenaMap = reader->readBool();
@@ -181,7 +181,7 @@ void CMapLoaderH3M::readHeader()
 				logGlobal->warn("Map '%s': Arena maps are not supported!", mapName);
 		}
 
-		if(hotaVersion > 1)
+		if(features.levelHOTA2)
 		{
 			int32_t terrainTypesCount = reader->readUInt32();
 			assert(features.terrainsCount == terrainTypesCount);
@@ -190,7 +190,7 @@ void CMapLoaderH3M::readHeader()
 				logGlobal->warn("Map '%s': Expected %d terrains, but %d found!", mapName, features.terrainsCount, terrainTypesCount);
 		}
 
-		if(hotaVersion > 4)
+		if(features.levelHOTA5)
 		{
 			int32_t townTypesCount = reader->readUInt32();
 			int8_t allowedDifficultiesMask = reader->readInt8Checked(0, 31);
@@ -202,6 +202,14 @@ void CMapLoaderH3M::readHeader()
 
 			if (allowedDifficultiesMask != 0)
 				logGlobal->warn("Map '%s': List of allowed difficulties (%d) is not implemented!", mapName, allowedDifficultiesMask);
+		}
+
+		if(features.levelHOTA7)
+		{
+			bool canHireDefeatedHeroes = reader->readBool();
+
+			if (!canHireDefeatedHeroes)
+				logGlobal->warn("Map '%s': Option to block hiring of defeated heroes is not implemented!", mapName);
 		}
 	}
 	else
@@ -745,13 +753,15 @@ void CMapLoaderH3M::readMapOptions()
 
 	if(features.levelHOTA1)
 	{
-		// Unknown, may be another "sized bitmap", e.g
-		// 4 bytes - size of bitmap (16)
-		// 2 bytes - bitmap data (16 bits / 2 bytes)
-		// potentially - combo_artifact_count / combo_artifacts
-		[[maybe_unused]] uint8_t unknownConstant = reader->readUInt8();
-		assert(unknownConstant == 16);
-		reader->skipZero(5);
+		int32_t combinedArtifactsCount = reader->readInt32();
+		int32_t combinedArtifactsBytes = (combinedArtifactsCount + 7) / 8;
+
+		for (int i = 0; i < combinedArtifactsBytes; ++i)
+		{
+			uint8_t mask = reader->readUInt8();
+			if (mask != 0)
+				logGlobal->warn("Map '%s': Option to ban specific combined artifacts is not implemented!", mapName);
+		}
 	}
 
 	if(features.levelHOTA3)
@@ -1235,10 +1245,11 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & mapPosition, const Ob
 
 	if (features.levelHOTA5)
 	{
-		[[maybe_unused]] int8_t unknownA = reader->readInt8();
-		[[maybe_unused]] int32_t unknownB = reader->readInt32();
-		assert(unknownA == 0);
-		assert(unknownB == 0);
+		int8_t unknownA = reader->readInt8();
+		int32_t unknownB = reader->readInt32();
+
+		if (unknownA != 0 || unknownB != 0)
+			logGlobal->warn( "Map '%s': Wandering monsters %s unknown settings %d %d is not implemented!", mapName, mapPosition.toString(), unknownA, unknownB);
 	}
 
 	return object;
@@ -2466,6 +2477,7 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 		case EQuestMission::HOTA_MULTI:
 		{
 			uint32_t missionSubID = reader->readUInt32();
+			assert(missionSubID < 3);
 
 			if(missionSubID == 0)
 			{
@@ -2480,6 +2492,14 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 			{
 				missionId = EQuestMission::HOTA_REACH_DATE;
 				guard->quest->mission.daysPassed = reader->readUInt32() + 1;
+				break;
+			}
+			if(missionSubID == 2)
+			{
+				missionId = EQuestMission::HOTA_GAME_DIFFICULTY;
+				int32_t difficultyMask = reader->readUInt32();
+				assert(difficultyMask > 0 && difficultyMask < 32);
+				logGlobal->warn("Map '%s': Seer Hut at %s: Difficulty-specific quest (%d) is not implemented!", mapName, position.toString(), difficultyMask);
 				break;
 			}
 			break;
@@ -2588,16 +2608,22 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 		event.computerAffected = reader->readBool();
 		event.firstOccurrence = reader->readUInt16();
-		event.nextOccurrence = reader->readUInt8();
+		event.nextOccurrence = reader->readUInt16();
 
-		reader->skipZero(17);
+		reader->skipZero(16);
 
 		if(features.levelHOTA5)
 		{
 			[[maybe_unused]] int32_t allowedDifficulties = reader->readInt32();
 			[[maybe_unused]] int32_t hota_level_7b = reader->readInt32();
 			[[maybe_unused]] int32_t hota_amount = reader->readInt32();
-			[[maybe_unused]] int16_t apply_neutral_towns = reader->readInt16();
+			[[maybe_unused]] int16_t hota_special = reader->readInt16();
+		}
+
+		if(features.levelHOTA7)
+		{
+			[[maybe_unused]] int32_t hota_amount = reader->readInt32();
+			[[maybe_unused]] bool apply_neutral_towns = reader->readBool();
 		}
 
 		// New buildings
@@ -2669,17 +2695,20 @@ void CMapLoaderH3M::readEvents()
 		}
 		event.computerAffected = reader->readBool();
 		event.firstOccurrence = reader->readUInt16();
-		event.nextOccurrence = reader->readUInt8();
+		event.nextOccurrence = reader->readUInt16();
 
-		reader->skipZero(17);
+		reader->skipZero(16);
 
-		if (features.levelHOTA5)
+		if (features.levelHOTA7)
+		{
+			[[maybe_unused]] int32_t difficulties = reader->readInt32();
+		}
+		else if (features.levelHOTA5)
 		{
 			[[maybe_unused]] int32_t difficulties = reader->readInt32();
 			[[maybe_unused]] int32_t unknownA= reader->readInt32();
 			[[maybe_unused]] int32_t unknownB= reader->readInt32();
 			[[maybe_unused]] int16_t unknownC= reader->readInt16();
-
 		}
 
 		map->events.push_back(event);

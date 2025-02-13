@@ -131,15 +131,17 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 {
 	// even if changes are minimal, we might not be able to parse map header in map selection screen
 	// throw exception - to be caught by map selection screen & excluded as invalid
-	if(hotaVersion > 6)
+	if(hotaVersion > 7)
 		throw std::runtime_error("Invalid map format!");
 
 	MapFormatFeaturesH3M result = getFeaturesSOD();
 	result.levelHOTA0 = true;
 	result.levelHOTA1 = hotaVersion > 0;
+	result.levelHOTA2 = hotaVersion > 1;
 	result.levelHOTA3 = hotaVersion > 2;
 	result.levelHOTA5 = hotaVersion > 4;
 	result.levelHOTA6 = hotaVersion > 5;
+	result.levelHOTA7 = hotaVersion > 6;
 
 	result.artifactsBytes = 21;
 	result.heroesBytes = 23;
