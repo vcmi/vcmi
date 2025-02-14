@@ -416,7 +416,6 @@
 	"vcmi.townStructure.bank.borrow" : "Ihr betretet die Bank. Ein Bankangestellter sieht Euch und sagt: \"Wir haben ein spezielles Angebot für Euch gemacht. Ihr könnt bei uns einen Kredit von 2500 Gold für 5 Tage aufnehmen. Ihr werdet jeden Tag 500 Gold zurückzahlen müssen.\"",
 	"vcmi.townStructure.bank.payBack" : "Ihr betretet die Bank. Ein Bankangestellter sieht Euch und sagt: \"Ihr habt Euren Kredit bereits erhalten. Zahlt Ihn ihn zurück, bevor Ihr einen neuen aufnehmt.\"",
 
-	"vcmi.townWindow.upgradeAll.upgradable" : "Folgende Kreaturen aufrüsten?",
 	"vcmi.townWindow.upgradeAll.notAllUpgradable" : "Nicht genügend Ressourcen um alle Kreaturen aufzurüsten. Folgende Kreaturen aufrüsten?",
 	"vcmi.townWindow.upgradeAll.notUpgradable" : "Nicht genügend Ressourcen um mindestens eine Kreatur aufzurüsten.",
 

@@ -399,9 +399,9 @@ void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & f
 			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal));
 		resComps.back()->newLine = true;
 		for(auto & upgradeInfo : upgradableSlots.upgradeInfos)
-			resComps.push_back(std::make_shared<CComponent>(ComponentType::CREATURE, upgradeInfo.second.getUpgrade(), std::nullopt));
+			resComps.push_back(std::make_shared<CComponent>(ComponentType::CREATURE, upgradeInfo.second.getUpgrade(), obj->Slots().at(upgradeInfo.first)->count));
 			
-		std::string textID = upgradableSlots.canAffordAll ? "vcmi.townWindow.upgradeAll.upgradable" : "vcmi.townWindow.upgradeAll.notAllUpgradable";
+		std::string textID = upgradableSlots.canAffordAll ? "core.genrltxt.207" : "vcmi.townWindow.upgradeAll.notAllUpgradable";
 
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->translate(textID), [upgradableSlots, obj](){
 			for(auto & upgradeInfo : upgradableSlots.upgradeInfos)
@@ -436,19 +436,15 @@ void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & f
 		{ RadialMenuConfig::ITEM_NE, twoHeroes, "stackSplitDialog", "vcmi.radialWheel.heroSwapArmy", [heroId, heroOtherId](){CExchangeController(heroId, heroOtherId).swapArmy();} },
 		{ RadialMenuConfig::ITEM_EE, twoHeroes, "tradeHeroes", "vcmi.radialWheel.heroExchange", [heroId, heroOtherId](){LOCPLINT->showHeroExchange(heroId, heroOtherId);} },
 		{ RadialMenuConfig::ITEM_SW, twoHeroes, "moveArtifacts", "vcmi.radialWheel.heroGetArtifacts", [heroId, heroOtherId](){CExchangeController(heroId, heroOtherId).moveArtifacts(false, true, true);} },
-		{ RadialMenuConfig::ITEM_SE, twoHeroes, "swapArtifacts", "vcmi.radialWheel.heroSwapArtifacts", [heroId, heroOtherId](){CExchangeController(heroId, heroOtherId).swapArtifacts(true, true);} },
-		{ RadialMenuConfig::ITEM_WW, true, !upgradableSlots.isCreatureUpgradePossible ? "dismissHero" : "upgradeCreatures", !upgradableSlots.isCreatureUpgradePossible ? "vcmi.radialWheel.heroDismiss" : "vcmi.radialWheel.upgradeCreatures", [this, upgradableSlots, upgradeAll]()
-		{
-			if(upgradableSlots.isCreatureUpgradePossible)
-				upgradeAll();
-			else
-			{
-				CFunctionList<void()> ony = [=](){ };
-				ony += [=](){ LOCPLINT->cb->dismissHero(hero); };
-				LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, nullptr);
-			}
-		} },
+		{ RadialMenuConfig::ITEM_SE, twoHeroes, "swapArtifacts", "vcmi.radialWheel.heroSwapArtifacts", [heroId, heroOtherId](){CExchangeController(heroId, heroOtherId).swapArtifacts(true, true);} }
 	};
+	RadialMenuConfig upgradeSlot = { RadialMenuConfig::ITEM_WW, true, "upgradeCreatures", "vcmi.radialWheel.upgradeCreatures", [upgradeAll](){ upgradeAll(); } };
+	RadialMenuConfig dismissSlot = { RadialMenuConfig::ITEM_WW, true, "dismissHero", "vcmi.radialWheel.heroDismiss", [this](){ LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], [=](){ LOCPLINT->cb->dismissHero(hero); }, nullptr); } };
+
+	if(upgradableSlots.isCreatureUpgradePossible)
+		menuElements.push_back(upgradeSlot);
+	else
+		menuElements.push_back(dismissSlot);
 
 	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
 }

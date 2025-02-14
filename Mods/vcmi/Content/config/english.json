@@ -416,7 +416,6 @@
 	"vcmi.townStructure.bank.borrow" : "You enter the bank. A banker sees you and says: \"We have made a special offer for you. You can take a loan of 2500 gold from us for 5 days. You will have to repay 500 gold every day.\"",
 	"vcmi.townStructure.bank.payBack" : "You enter the bank. A banker sees you and says: \"You have already got your loan. Pay it back before taking a new one.\"",
 
-	"vcmi.townWindow.upgradeAll.upgradable" : "Do you want to upgrade following creatures?",
 	"vcmi.townWindow.upgradeAll.notAllUpgradable" : "Not enough resources to upgrade all creatures. Do you want to upgrade following creatures?",
 	"vcmi.townWindow.upgradeAll.notUpgradable" : "Not enough resources to upgrade any creature.",
 
