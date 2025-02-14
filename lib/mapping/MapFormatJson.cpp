@@ -640,19 +640,19 @@ void CMapFormatJson::readDisposedHeroes(JsonSerializeFormat & handler)
 			hero.players = mask;
 			//name and portrait are not used
 
-			map->disposedHeroes.push_back(hero);
+			mapHeader->disposedHeroes.push_back(hero);
 		}
 	}
 }
 
 void CMapFormatJson::writeDisposedHeroes(JsonSerializeFormat & handler)
 {
-	if(map->disposedHeroes.empty())
+	if(mapHeader->disposedHeroes.empty())
 		return;
 
 	auto definitions = handler.enterStruct("predefinedHeroes");//DisposedHeroes are part of predefinedHeroes in VCMI map format
 
-	for(DisposedHero & hero : map->disposedHeroes)
+	for(DisposedHero & hero : mapHeader->disposedHeroes)
 	{
 		std::string type = HeroTypeID::encode(hero.heroId.getNum());
 

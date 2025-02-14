@@ -39,11 +39,6 @@ void Rumor::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeStruct("text", text);
 }
 
-DisposedHero::DisposedHero() : heroId(0), portrait(255)
-{
-
-}
-
 CMapEvent::CMapEvent()
 	: humanAffected(false)
 	, computerAffected(false)

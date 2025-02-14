@@ -95,7 +95,6 @@ void CMapLoaderH3M::init()
 	inputStream->seek(0);
 
 	readHeader();
-	readDisposedHeroes();
 	readMapOptions();
 	readAllowedArtifacts();
 	readAllowedSpellsAbilities();
@@ -223,6 +222,7 @@ void CMapLoaderH3M::readHeader()
 	readVictoryLossConditions();
 	readTeamInfo();
 	readAllowedHeroes();
+	readDisposedHeroes();
 }
 
 void CMapLoaderH3M::readPlayerInfo()
@@ -703,13 +703,13 @@ void CMapLoaderH3M::readDisposedHeroes()
 	if(features.levelSOD)
 	{
 		size_t disp = reader->readUInt8();
-		map->disposedHeroes.resize(disp);
+		mapHeader->disposedHeroes.resize(disp);
 		for(size_t g = 0; g < disp; ++g)
 		{
-			map->disposedHeroes[g].heroId = reader->readHero();
-			map->disposedHeroes[g].portrait = reader->readHeroPortrait();
-			map->disposedHeroes[g].name = readLocalizedString(TextIdentifier("header", "heroes", map->disposedHeroes[g].heroId.getNum()));
-			reader->readBitmaskPlayers(map->disposedHeroes[g].players, false);
+			mapHeader->disposedHeroes[g].heroId = reader->readHero();
+			mapHeader->disposedHeroes[g].portrait = reader->readHeroPortrait();
+			mapHeader->disposedHeroes[g].name = readLocalizedString(TextIdentifier("header", "heroes", mapHeader->disposedHeroes[g].heroId.getNum()));
+			reader->readBitmaskPlayers(mapHeader->disposedHeroes[g].players, false);
 		}
 	}
 }
