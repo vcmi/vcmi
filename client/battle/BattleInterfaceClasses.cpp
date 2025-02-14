@@ -890,7 +890,7 @@ BattleResultResources BattleResultWindow::getResources(const BattleResult & br)
 		if (ourHero)
 		{
 			resources.resultText.appendTextID("core.genrltxt.305");
-			resources.resultText.replaceTextID(ourHero->getNameTranslated());
+			resources.resultText.replaceTextID(ourHero->getNameTextID());
 			resources.resultText.replaceNumber(br.exp[weAreAttacker ? BattleSide::ATTACKER : BattleSide::DEFENDER]);
 		}
 	}

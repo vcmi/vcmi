@@ -211,7 +211,7 @@ AssetGenerator::CanvasPtr AssetGenerator::createCampaignBackground()
 	auto locator = ImageLocator(ImagePath::builtin("CAMPBACK"), EImageBlitMode::OPAQUE);
 
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator);
-	auto image = GH.renderHandler().createImage(Point(200, 116), CanvasScalingPolicy::IGNORE);
+	auto image = GH.renderHandler().createImage(Point(800, 600), CanvasScalingPolicy::IGNORE);
 	Canvas canvas = image->getCanvas();
 
 	canvas.draw(img, Point(0, 0), Rect(0, 0, 800, 600));
@@ -251,7 +251,7 @@ AssetGenerator::CanvasPtr AssetGenerator::createChroniclesCampaignImages(int chr
 	auto locator = ImageLocator(imgPathBg, EImageBlitMode::OPAQUE);
 
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator);
-	auto image = GH.renderHandler().createImage(Point(800, 600), CanvasScalingPolicy::IGNORE);
+	auto image = GH.renderHandler().createImage(Point(200, 116), CanvasScalingPolicy::IGNORE);
 	Canvas canvas = image->getCanvas();
 
 	std::array sourceRect = {

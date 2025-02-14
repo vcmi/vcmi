@@ -79,7 +79,7 @@ void NetworkHandler::createInternalConnection(INetworkClientListener & listener,
 
 	server.receiveInternalConnection(localConnection);
 
-	io->post([&listener, localConnection](){
+	boost::asio::post(*io, [&listener, localConnection](){
 		listener.onConnectionEstablished(localConnection);
 	});
 }
