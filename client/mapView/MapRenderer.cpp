@@ -140,10 +140,10 @@ int MapTileStorage::groupCount(size_t fileIndex, size_t rotationIndex, size_t im
 }
 
 MapRendererTerrain::MapRendererTerrain()
-	: storage(VLC->terrainTypeHandler->objects.size())
+	: storage(LIBRARY->terrainTypeHandler->objects.size())
 {
 	logGlobal->debug("Loading map terrains");
-	for(const auto & terrain : VLC->terrainTypeHandler->objects)
+	for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
 		storage.load(terrain->getIndex(), AnimationPath::builtin(terrain->tilesFilename.getName() + (terrain->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::OPAQUE);
 	logGlobal->debug("Done loading map terrains");
 }
@@ -179,10 +179,10 @@ uint8_t MapRendererTerrain::checksum(IMapRendererContext & context, const int3 &
 }
 
 MapRendererRiver::MapRendererRiver()
-	: storage(VLC->riverTypeHandler->objects.size())
+	: storage(LIBRARY->riverTypeHandler->objects.size())
 {
 	logGlobal->debug("Loading map rivers");
-	for(const auto & river : VLC->riverTypeHandler->objects)
+	for(const auto & river : LIBRARY->riverTypeHandler->objects)
 		storage.load(river->getIndex(), AnimationPath::builtin(river->tilesFilename.getName() + (river->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::COLORKEY);
 	logGlobal->debug("Done loading map rivers");
 }
@@ -214,10 +214,10 @@ uint8_t MapRendererRiver::checksum(IMapRendererContext & context, const int3 & c
 }
 
 MapRendererRoad::MapRendererRoad()
-	: storage(VLC->roadTypeHandler->objects.size())
+	: storage(LIBRARY->roadTypeHandler->objects.size())
 {
 	logGlobal->debug("Loading map roads");
-	for(const auto & road : VLC->roadTypeHandler->objects)
+	for(const auto & road : LIBRARY->roadTypeHandler->objects)
 		storage.load(road->getIndex(), road->tilesFilename, EImageBlitMode::COLORKEY);
 	logGlobal->debug("Done loading map roads");
 }

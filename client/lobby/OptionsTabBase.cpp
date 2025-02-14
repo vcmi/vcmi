@@ -24,7 +24,7 @@
 #include "../../lib/texts/Languages.h"
 #include "../../lib/texts/MetaString.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 
 static std::string timeToString(int time)
 {
@@ -310,10 +310,10 @@ void OptionsTabBase::recreate(bool campaign)
 	auto const & generateSimturnsDurationText = [](int days) -> std::string
 	{
 		if (days == 0)
-			return VLC->generaltexth->translate("core.genrltxt.523");
+			return LIBRARY->generaltexth->translate("core.genrltxt.523");
 
 		if (days >= 1000000) // Not "unlimited" but close enough
-			return VLC->generaltexth->translate("core.turndur.10");
+			return LIBRARY->generaltexth->translate("core.turndur.10");
 
 		bool canUseMonth = days % 28 == 0 && days >= 28*2;
 		bool canUseWeek = days % 7 == 0 && days >= 7*2;
@@ -334,7 +334,7 @@ void OptionsTabBase::recreate(bool campaign)
 		}
 
 		MetaString message;
-		message.appendTextID(Languages::getPluralFormTextID( VLC->generaltexth->getPreferredLanguage(), value, text));
+		message.appendTextID(Languages::getPluralFormTextID( LIBRARY->generaltexth->getPreferredLanguage(), value, text));
 		message.replaceNumber(value);
 		return message.toString();
 	};
@@ -361,17 +361,17 @@ void OptionsTabBase::recreate(bool campaign)
 	if(auto chessFieldTurnLabel = widget<CLabel>("chessFieldTurnLabel"))
 	{
 		if (SEL->getStartInfo()->turnTimerInfo.accumulatingTurnTimer)
-			chessFieldTurnLabel->setText(VLC->generaltexth->translate("vcmi.optionsTab.chessFieldTurnAccumulate.help"));
+			chessFieldTurnLabel->setText(LIBRARY->generaltexth->translate("vcmi.optionsTab.chessFieldTurnAccumulate.help"));
 		else
-			chessFieldTurnLabel->setText(VLC->generaltexth->translate("vcmi.optionsTab.chessFieldTurnDiscard.help"));
+			chessFieldTurnLabel->setText(LIBRARY->generaltexth->translate("vcmi.optionsTab.chessFieldTurnDiscard.help"));
 	}
 
 	if(auto chessFieldUnitLabel = widget<CLabel>("chessFieldUnitLabel"))
 	{
 		if (SEL->getStartInfo()->turnTimerInfo.accumulatingUnitTimer)
-			chessFieldUnitLabel->setText(VLC->generaltexth->translate("vcmi.optionsTab.chessFieldUnitAccumulate.help"));
+			chessFieldUnitLabel->setText(LIBRARY->generaltexth->translate("vcmi.optionsTab.chessFieldUnitAccumulate.help"));
 		else
-			chessFieldUnitLabel->setText(VLC->generaltexth->translate("vcmi.optionsTab.chessFieldUnitDiscard.help"));
+			chessFieldUnitLabel->setText(LIBRARY->generaltexth->translate("vcmi.optionsTab.chessFieldUnitDiscard.help"));
 	}
 
 	if(auto buttonUnitTimerAccumulate = widget<CToggleButton>("buttonUnitTimerAccumulate"))
@@ -391,7 +391,7 @@ void OptionsTabBase::recreate(bool campaign)
 				{
 					turnSlider->scrollTo(idx, false);
 					if(auto w = widget<CLabel>("labelTurnDurationValue"))
-						w->setText(VLC->generaltexth->turnDurations[idx]);
+						w->setText(LIBRARY->generaltexth->turnDurations[idx]);
 				}
 			}
 		}

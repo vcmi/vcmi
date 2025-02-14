@@ -27,7 +27,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/MetaString.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 
 GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	: CWindowObject(BORDERED)
@@ -42,8 +42,8 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	loginAs.replaceRawString(GAME->server().getGlobalLobby().getAccountDisplayName());
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->translate("vcmi.lobby.login.title"));
-	labelUsernameTitle = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->translate("vcmi.lobby.login.username"));
+	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.lobby.login.title"));
+	labelUsernameTitle = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.lobby.login.username"));
 	labelUsername = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, loginAs.toString(), 265);
 	backgroundUsername = std::make_shared<TransparentFilledRectangle>(Rect(10, 90, 264, 20), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64));
 	inputUsername = std::make_shared<CTextInput>(Rect(15, 93, 260, 16), FONT_SMALL, ETextAlignment::CENTERLEFT, true);
@@ -53,8 +53,8 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 
 	auto buttonRegister = std::make_shared<CToggleButton>(Point(10, 40),  AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
 	auto buttonLogin = std::make_shared<CToggleButton>(Point(146, 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
-	buttonRegister->setTextOverlay(VLC->generaltexth->translate("vcmi.lobby.login.create"), EFonts::FONT_SMALL, Colors::YELLOW);
-	buttonLogin->setTextOverlay(VLC->generaltexth->translate("vcmi.lobby.login.login"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonRegister->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.login.create"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonLogin->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.login.login"), EFonts::FONT_SMALL, Colors::YELLOW);
 
 	toggleMode = std::make_shared<CToggleGroup>(nullptr);
 	toggleMode->addToggle(0, buttonRegister);
@@ -110,7 +110,7 @@ void GlobalLobbyLoginWindow::onClose()
 
 void GlobalLobbyLoginWindow::onLogin()
 {
-	labelStatus->setText(VLC->generaltexth->translate("vcmi.lobby.login.connecting"));
+	labelStatus->setText(LIBRARY->generaltexth->translate("vcmi.lobby.login.connecting"));
 	if(!GAME->server().getGlobalLobby().isConnected())
 		GAME->server().getGlobalLobby().connect();
 	else

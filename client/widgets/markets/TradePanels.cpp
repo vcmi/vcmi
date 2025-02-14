@@ -139,9 +139,9 @@ int CTradeableItem::getIndex()
 		return id;
 	case EType::ARTIFACT_TYPE:
 	case EType::ARTIFACT:
-		return VLC->artifacts()->getByIndex(id)->getIconIndex();
+		return LIBRARY->artifacts()->getByIndex(id)->getIconIndex();
 	case EType::CREATURE:
-		return VLC->creatures()->getByIndex(id)->getIconIndex();
+		return LIBRARY->creatures()->getByIndex(id)->getIconIndex();
 	default:
 		return -1;
 	}
@@ -164,20 +164,20 @@ void CTradeableItem::hover(bool on)
 	switch(type)
 	{
 	case EType::CREATURE:
-		ENGINE->statusbar()->write(boost::str(boost::format(VLC->generaltexth->allTexts[481]) % VLC->creh->objects[id]->getNamePluralTranslated()));
+		ENGINE->statusbar()->write(boost::str(boost::format(LIBRARY->generaltexth->allTexts[481]) % LIBRARY->creh->objects[id]->getNamePluralTranslated()));
 		break;
 	case EType::ARTIFACT_TYPE:
 	case EType::ARTIFACT:
 		if(id < 0)
-			ENGINE->statusbar()->write(VLC->generaltexth->zelp[582].first);
+			ENGINE->statusbar()->write(LIBRARY->generaltexth->zelp[582].first);
 		else
-			ENGINE->statusbar()->write(VLC->artifacts()->getByIndex(id)->getNameTranslated());
+			ENGINE->statusbar()->write(LIBRARY->artifacts()->getByIndex(id)->getNameTranslated());
 		break;
 	case EType::RESOURCE:
-		ENGINE->statusbar()->write(VLC->generaltexth->restypes[id]);
+		ENGINE->statusbar()->write(LIBRARY->generaltexth->restypes[id]);
 		break;
 	case EType::PLAYER:
-		ENGINE->statusbar()->write(VLC->generaltexth->capColors[id]);
+		ENGINE->statusbar()->write(LIBRARY->generaltexth->capColors[id]);
 		break;
 	}
 }
@@ -191,7 +191,7 @@ void CTradeableItem::showPopupWindow(const Point & cursorPosition)
 	case EType::ARTIFACT_TYPE:
 	case EType::ARTIFACT:
 		if (id >= 0)
-			CRClickPopup::createAndPush(VLC->artifacts()->getByIndex(id)->getDescriptionTranslated());
+			CRClickPopup::createAndPush(LIBRARY->artifacts()->getByIndex(id)->getDescriptionTranslated());
 		break;
 	}
 }
@@ -316,7 +316,7 @@ PlayersPanel::PlayersPanel(const CTradeableItem::ClickPressedFunctor & clickPres
 		slot = std::make_shared<CTradeableItem>(Rect(slotsPos[slotNum], slotDimension), EType::PLAYER, players[slotNum].num, slotNum);
 		slot->clickPressedCallback = clickPressedCallback;
 		slot->setSelectionWidth(selectionWidth);
-		slot->subtitle->setText(VLC->generaltexth->capColors[players[slotNum].num]);
+		slot->subtitle->setText(LIBRARY->generaltexth->capColors[players[slotNum].num]);
 		slotNum++;
 	}
 	showcaseSlot = std::make_shared<CTradeableItem>(Rect(selectedPos, slotDimension), EType::PLAYER, 0, 0);

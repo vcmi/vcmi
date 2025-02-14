@@ -30,7 +30,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 
 void ButtonBase::update()
 {
@@ -384,8 +384,8 @@ std::pair<std::string, std::string> CButton::tooltip()
 std::pair<std::string, std::string> CButton::tooltipLocalized(const std::string & key)
 {
 	return std::make_pair(
-		VLC->generaltexth->translate(key, "hover"),
-		VLC->generaltexth->translate(key, "help")
+		LIBRARY->generaltexth->translate(key, "hover"),
+		LIBRARY->generaltexth->translate(key, "help")
 	);
 }
 

@@ -20,7 +20,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/Rect.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/modding/CModHandler.h"
 #include "../../lib/texts/Languages.h"
@@ -101,7 +101,7 @@ static AtlasLayout doAtlasPacking(const std::map<int, Point> & images)
 void CBitmapFont::loadFont(const ResourcePath & resource, std::unordered_map<CodePoint, EntryFNT> & loadedChars)
 {
 	auto data = CResourceHandler::get()->load(resource)->readAll();
-	std::string modEncoding = VLC->modh->findResourceEncoding(resource);
+	std::string modEncoding = LIBRARY->modh->findResourceEncoding(resource);
 
 	height = data.first[5];
 

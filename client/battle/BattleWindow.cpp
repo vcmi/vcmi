@@ -561,7 +561,7 @@ void BattleWindow::bSurrenderf()
 			enemyHeroName = "#ENEMY#";
 		}
 
-		std::string surrenderMessage = boost::str(boost::format(VLC->generaltexth->allTexts[32]) % enemyHeroName % cost); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."
+		std::string surrenderMessage = boost::str(boost::format(LIBRARY->generaltexth->allTexts[32]) % enemyHeroName % cost); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."
 		owner.curInt->showYesNoDialog(surrenderMessage, [this](){ reallySurrender(); }, nullptr);
 	}
 }
@@ -574,7 +574,7 @@ void BattleWindow::bFleef()
 	if ( owner.getBattle()->battleCanFlee() )
 	{
 		auto ony = std::bind(&BattleWindow::reallyFlee,this);
-		owner.curInt->showYesNoDialog(VLC->generaltexth->allTexts[28], ony, nullptr); //Are you sure you want to retreat?
+		owner.curInt->showYesNoDialog(LIBRARY->generaltexth->allTexts[28], ony, nullptr); //Are you sure you want to retreat?
 	}
 	else
 	{
@@ -588,7 +588,7 @@ void BattleWindow::bFleef()
 			if (owner.defendingHeroInstance->tempOwner == owner.curInt->cb->getPlayerID())
 				heroName = owner.defendingHeroInstance->getNameTranslated();
 		//calculating text
-		auto txt = boost::format(VLC->generaltexth->allTexts[340]) % heroName; //The Shackles of War are present.  %s can not retreat!
+		auto txt = boost::format(LIBRARY->generaltexth->allTexts[340]) % heroName; //The Shackles of War are present.  %s can not retreat!
 
 		//printing message
 		owner.curInt->showInfoDialog(boost::str(txt), comps);
@@ -605,7 +605,7 @@ void BattleWindow::reallySurrender()
 {
 	if (owner.curInt->cb->getResourceAmount(EGameResID::GOLD) < owner.getBattle()->battleGetSurrenderCost())
 	{
-		owner.curInt->showInfoDialog(VLC->generaltexth->allTexts[29]); //You don't have enough gold!
+		owner.curInt->showInfoDialog(LIBRARY->generaltexth->allTexts[29]); //You don't have enough gold!
 	}
 	else
 	{
@@ -746,13 +746,13 @@ void BattleWindow::bSpellf()
 			std::string heroName = myHero->hasArt(artID, true) ? myHero->getNameTranslated() : owner.enemyHero().name;
 
 			//%s wields the %s, an ancient artifact which creates a p dead to all magic.
-			GAME->interface()->showInfoDialog(boost::str(boost::format(VLC->generaltexth->allTexts[683])
-										% heroName % VLC->artifacts()->getByIndex(artID)->getNameTranslated()));
+			GAME->interface()->showInfoDialog(boost::str(boost::format(LIBRARY->generaltexth->allTexts[683])
+										% heroName % LIBRARY->artifacts()->getByIndex(artID)->getNameTranslated()));
 		}
 		else if(blockingBonus->source == BonusSource::OBJECT_TYPE)
 		{
 			if(blockingBonus->sid.as<MapObjectID>() == Obj::GARRISON || blockingBonus->sid.as<MapObjectID>() == Obj::GARRISON2)
-				GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[684]);
+				GAME->interface()->showInfoDialog(LIBRARY->generaltexth->allTexts[684]);
 		}
 	}
 	else
@@ -892,7 +892,7 @@ void BattleWindow::endWithAutocombat()
 		return;
 
 	GAME->interface()->showYesNoDialog(
-		VLC->generaltexth->translate("vcmi.battleWindow.endWithAutocombat"),
+		LIBRARY->generaltexth->translate("vcmi.battleWindow.endWithAutocombat"),
 		[this]()
 		{
 			owner.curInt->isAutoFightEndBattle = true;

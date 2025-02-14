@@ -188,7 +188,7 @@ void ClientCommandManager::handleRedrawCommand()
 void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 {
 	std::map<std::string, std::map<std::string, std::string>> textsByMod;
-	VLC->generaltexth->exportAllTexts(textsByMod, onlyMissing);
+	LIBRARY->generaltexth->exportAllTexts(textsByMod, onlyMissing);
 
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / ( onlyMissing ? "translationMissing" : "translation");
 	boost::filesystem::create_directories(outPath);
@@ -267,7 +267,7 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	}
 
 	std::map<std::string, std::map<std::string, std::string>> textsByMod;
-	VLC->generaltexth->exportAllTexts(textsByMod, false);
+	LIBRARY->generaltexth->exportAllTexts(textsByMod, false);
 
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
 	boost::filesystem::create_directories(outPath);
@@ -308,7 +308,7 @@ void ClientCommandManager::handleGetConfigCommand()
 
 	for(auto contentName : contentNames)
 	{
-		auto const & handler = *VLC->modh->content;
+		auto const & handler = *LIBRARY->modh->content;
 		auto const & content = handler[contentName];
 
 		auto contentOutPath = outPath / contentName;
@@ -346,7 +346,7 @@ void ClientCommandManager::handleGetScriptsCommand()
 
 	boost::filesystem::create_directories(outPath);
 
-	for(const auto & kv : VLC->scriptHandler->objects)
+	for(const auto & kv : LIBRARY->scriptHandler->objects)
 	{
 		std::string name = kv.first;
 		boost::algorithm::replace_all(name,":","_");

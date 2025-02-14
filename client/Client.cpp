@@ -58,7 +58,7 @@ CPlayerEnvironment::CPlayerEnvironment(PlayerColor player_, CClient * cl_, std::
 
 const Services * CPlayerEnvironment::services() const
 {
-	return VLC;
+	return LIBRARY;
 }
 
 vstd::CLoggerBase * CPlayerEnvironment::logger() const
@@ -91,7 +91,7 @@ CClient::~CClient() = default;
 
 const Services * CClient::services() const
 {
-	return VLC; //todo: this should be VLC
+	return LIBRARY; //todo: this should be LIBRARY
 }
 
 const CClient::BattleCb * CClient::battle(const BattleID & battleID) const
@@ -120,7 +120,7 @@ void CClient::newGame(CGameState * initializedGameState)
 	CMapService mapService;
 	assert(initializedGameState);
 	gs = initializedGameState;
-	gs->preInit(VLC, this);
+	gs->preInit(LIBRARY, this);
 	logNetwork->trace("\tCreating gamestate: %i", GAME->server().th->getDiff());
 	if(!initializedGameState)
 	{
@@ -142,7 +142,7 @@ void CClient::loadGame(CGameState * initializedGameState)
 	logNetwork->info("Game state was transferred over network, loading.");
 	gs = initializedGameState;
 
-	gs->preInit(VLC, this);
+	gs->preInit(LIBRARY, this);
 	gs->updateOnLoad(GAME->server().si.get());
 	logNetwork->info("Game loaded, initialize interfaces.");
 

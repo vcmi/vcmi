@@ -20,7 +20,7 @@
 #include "../CSkillHandler.h"
 #include "../IGameCallback.h"
 #include "../TerrainHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../battle/BattleInfo.h"
@@ -110,15 +110,15 @@ std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32>
 				descriptionHelper.appendNamePlural(sid.as<CreatureID>());
 				break;
 			case BonusSource::SECONDARY_SKILL:
-				descriptionHelper.appendTextID(sid.as<SecondarySkill>().toEntity(VLC)->getNameTextID());
+				descriptionHelper.appendTextID(sid.as<SecondarySkill>().toEntity(LIBRARY)->getNameTextID());
 				break;
 			case BonusSource::HERO_SPECIAL:
-				descriptionHelper.appendTextID(sid.as<HeroTypeID>().toEntity(VLC)->getNameTextID());
+				descriptionHelper.appendTextID(sid.as<HeroTypeID>().toEntity(LIBRARY)->getNameTextID());
 				break;
 			case BonusSource::OBJECT_INSTANCE:
 				const auto * object = cb->getObj(sid.as<ObjectInstanceID>());
 				if (object)
-					descriptionHelper.appendTextID(VLC->objtypeh->getObjectName(object->ID, object->subID));
+					descriptionHelper.appendTextID(LIBRARY->objtypeh->getObjectName(object->ID, object->subID));
 		}
 	}
 

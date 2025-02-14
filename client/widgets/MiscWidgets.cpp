@@ -216,9 +216,9 @@ std::string CMinorResDataBar::buildDateString()
 	std::string pattern = "%s: %d, %s: %d, %s: %d";
 
 	auto formatted = boost::format(pattern)
-		% VLC->generaltexth->translate("core.genrltxt.62") % GAME->interface()->cb->getDate(Date::MONTH)
-		% VLC->generaltexth->translate("core.genrltxt.63") % GAME->interface()->cb->getDate(Date::WEEK)
-		% VLC->generaltexth->translate("core.genrltxt.64") % GAME->interface()->cb->getDate(Date::DAY_OF_WEEK);
+		% LIBRARY->generaltexth->translate("core.genrltxt.62") % GAME->interface()->cb->getDate(Date::MONTH)
+		% LIBRARY->generaltexth->translate("core.genrltxt.63") % GAME->interface()->cb->getDate(Date::WEEK)
+		% LIBRARY->generaltexth->translate("core.genrltxt.64") % GAME->interface()->cb->getDate(Date::DAY_OF_WEEK);
 
 	return boost::str(formatted);
 }
@@ -298,7 +298,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 				}
 				else
 				{
-					subtitle = VLC->generaltexth->arraytxt[171 + 3*(slot.second.count)];
+					subtitle = LIBRARY->generaltexth->arraytxt[171 + 3*(slot.second.count)];
 				}
 			}
 		}
@@ -482,7 +482,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 				return;
 			}
 		}
-		GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
+		GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 	});
 
 	assert(townInfo.tType);
@@ -576,16 +576,16 @@ void MoraleLuckBox::set(const AFactionMember * node)
 		component.value = morale ? node->moraleValAndBonusList(modifierList) : node->luckValAndBonusList(modifierList);
 
 	int mrlt = (component.value>0)-(component.value<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
-	hoverText = VLC->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
+	hoverText = LIBRARY->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
 	component.type = componentType[morale];
-	text = VLC->generaltexth->arraytxt[textId[morale]];
-	boost::algorithm::replace_first(text,"%s",VLC->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
+	text = LIBRARY->generaltexth->arraytxt[textId[morale]];
+	boost::algorithm::replace_first(text,"%s",LIBRARY->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
 
 	if (morale && node && (node->getBonusBearer()->hasBonusOfType(BonusType::UNDEAD)
 			|| node->getBonusBearer()->hasBonusOfType(BonusType::NON_LIVING)
 			|| node->getBonusBearer()->hasBonusOfType(BonusType::MECHANICAL)))
 	{
-		text += VLC->generaltexth->arraytxt[113]; //unaffected by morale
+		text += LIBRARY->generaltexth->arraytxt[113]; //unaffected by morale
 		component.value = 0;
 	}
 	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
@@ -614,7 +614,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 			}
 		}
 		text = addInfo.empty() 
-			? text + VLC->generaltexth->arraytxt[noneTxtId] 
+			? text + LIBRARY->generaltexth->arraytxt[noneTxtId] 
 			: text + addInfo;
 	}
 	std::string imageName;
@@ -644,7 +644,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 
 	auto faction = cre->getFactionID();
 
-	assert(VLC->townh->size() > faction);
+	assert(LIBRARY->townh->size() > faction);
 
 	if (cre->animDefName.empty())
 	{
@@ -656,9 +656,9 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 	}
 
 	if(Big)
-		bg = std::make_shared<CPicture>((*VLC->townh)[faction]->creatureBg130);
+		bg = std::make_shared<CPicture>((*LIBRARY->townh)[faction]->creatureBg130);
 	else
-		bg = std::make_shared<CPicture>((*VLC->townh)[faction]->creatureBg120);
+		bg = std::make_shared<CPicture>((*LIBRARY->townh)[faction]->creatureBg120);
 	anim = std::make_shared<CCreatureAnim>(0, 0, cre->animDefName);
 	anim->clipRect(cre->isDoubleWide()?170:150, 155, bg->pos.w, bg->pos.h);
 	anim->startPreview(cre->hasBonusOfType(BonusType::SIEGE_WEAPON));

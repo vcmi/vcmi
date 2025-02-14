@@ -14,7 +14,7 @@
 #include "../modding/IdentifierStorage.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -322,7 +322,7 @@ void ObstacleSetHandler::loadObject(std::string scope, std::string name, const J
 	{
 		addObstacleSet(os);
 		// TODO: Define some const array of object types ("biome" etc.)
-		VLC->identifiersHandler->registerObject(scope, "biome", name, biomes.back()->id);
+		LIBRARY->identifiersHandler->registerObject(scope, "biome", name, biomes.back()->id);
 	}
 	else
 	{
@@ -350,7 +350,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 	{
 		auto terrainName = biome["terrain"].String();
 
-		VLC->identifiers()->requestIdentifier(scope, "terrain", terrainName, [os](si32 id)
+		LIBRARY->identifiers()->requestIdentifier(scope, "terrain", terrainName, [os](si32 id)
 		{
 			os->setTerrain(TerrainId(id));
 		});
@@ -361,7 +361,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 
 		for (const auto & terrain : terrains)
 		{
-			VLC->identifiers()->requestIdentifier(scope, "terrain", terrain.String(), [os](si32 id)
+			LIBRARY->identifiers()->requestIdentifier(scope, "terrain", terrain.String(), [os](si32 id)
 			{
 				os->addTerrain(TerrainId(id));
 			});
@@ -380,7 +380,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 
 	auto handleFaction = [os, scope](const std::string & str)
 	{
-		VLC->identifiers()->requestIdentifier(scope, "faction", str, [os](si32 id)
+		LIBRARY->identifiers()->requestIdentifier(scope, "faction", str, [os](si32 id)
 		{
 			os->addFaction(FactionID(id));
 		});
@@ -436,7 +436,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 		auto identifier = boost::algorithm::to_lower_copy(node.String());
 		auto jsonName = JsonNode(identifier);
 
-		VLC->identifiers()->requestIdentifier(node.getModScope(), "obstacleTemplate", identifier, [this, os](si32 id)
+		LIBRARY->identifiers()->requestIdentifier(node.getModScope(), "obstacleTemplate", identifier, [this, os](si32 id)
 		{
 			logMod->trace("Resolved obstacle id: %d", id);
 			os->addObstacle(obstacleTemplates[id]);
@@ -455,7 +455,7 @@ void ObstacleSetHandler::addTemplate(const std::string & scope, const std::strin
 	if(pos != std::string::npos)
 		strippedName.erase(pos, 4);
 
-	if (VLC->identifiersHandler->getIdentifier(scope, "obstacleTemplate", strippedName, true))
+	if (LIBRARY->identifiersHandler->getIdentifier(scope, "obstacleTemplate", strippedName, true))
 	{
 		logMod->debug("Duplicate obstacle template: %s", strippedName);
 		return;
@@ -463,7 +463,7 @@ void ObstacleSetHandler::addTemplate(const std::string & scope, const std::strin
 	else
 	{
 		// Save by name
-		VLC->identifiersHandler->registerObject(scope, "obstacleTemplate", strippedName, id);
+		LIBRARY->identifiersHandler->registerObject(scope, "obstacleTemplate", strippedName, id);
 
 		// Index by id
 		obstacleTemplates[id] = tmpl;

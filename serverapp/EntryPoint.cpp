@@ -14,7 +14,7 @@
 #include "../lib/CConsoleHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/CConfigHandler.h"
 
 #include <boost/program_options.hpp>
@@ -95,11 +95,11 @@ int main(int argc, const char * argv[])
 		server.prepare(connectToLobby, true);
 		server.run();
 
-		// CVCMIServer destructor must be called here - before VLC cleanup
+		// CVCMIServer destructor must be called here - before LIBRARY cleanup
 	}
 
 	logConfig.deconfigure();
-	vstd::clear_pointer(VLC);
+	vstd::clear_pointer(LIBRARY);
 
 	return 0;
 }

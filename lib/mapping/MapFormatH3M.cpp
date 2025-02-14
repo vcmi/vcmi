@@ -24,7 +24,7 @@
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../constants/StringConstants.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../filesystem/CBinaryReader.h"
@@ -116,17 +116,17 @@ static MapIdentifiersH3M generateMapping(EMapFormat format)
 	MapIdentifiersH3M identifierMapper;
 
 	if(features.levelROE)
-		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA));
+		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA));
 	if(features.levelAB)
-		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
+		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
 	if(features.levelSOD)
-		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
+		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
 	if(features.levelCHR)
-		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES));
+		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES));
 	if(features.levelWOG)
-		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
+		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
 	if(features.levelHOTA0)
-		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
+		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
 
 	return identifierMapper;
 }
@@ -239,7 +239,7 @@ void CMapLoaderH3M::readHeader()
 	mapHeader->difficulty = static_cast<EMapDifficulty>(reader->readInt8Checked(0, 4));
 
 	if(features.levelAB)
-		mapHeader->levelLimit = reader->readInt8Checked(0, std::min(100u, VLC->heroh->maxSupportedLevel()));
+		mapHeader->levelLimit = reader->readInt8Checked(0, std::min(100u, LIBRARY->heroh->maxSupportedLevel()));
 	else
 		mapHeader->levelLimit = 0;
 
@@ -703,7 +703,7 @@ void CMapLoaderH3M::readTeamInfo()
 
 void CMapLoaderH3M::readAllowedHeroes()
 {
-	mapHeader->allowedHeroes = VLC->heroh->getDefaultAllowed();
+	mapHeader->allowedHeroes = LIBRARY->heroh->getDefaultAllowed();
 
 	if(features.levelHOTA0)
 		reader->readBitmaskHeroesSized(mapHeader->allowedHeroes, false);
@@ -786,7 +786,7 @@ void CMapLoaderH3M::readMapOptions()
 
 void CMapLoaderH3M::readAllowedArtifacts()
 {
-	map->allowedArtifact = VLC->arth->getDefaultAllowed();
+	map->allowedArtifact = LIBRARY->arth->getDefaultAllowed();
 
 	if(features.levelAB)
 	{
@@ -799,7 +799,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 	// ban combo artifacts
 	if(!features.levelSOD)
 	{
-		for(auto const & artifact : VLC->arth->objects)
+		for(auto const & artifact : LIBRARY->arth->objects)
 			if(artifact->isCombined())
 				map->allowedArtifact.erase(artifact->getId());
 	}
@@ -828,8 +828,8 @@ void CMapLoaderH3M::readAllowedArtifacts()
 
 void CMapLoaderH3M::readAllowedSpellsAbilities()
 {
-	map->allowedSpells = VLC->spellh->getDefaultAllowed();
-	map->allowedAbilities = VLC->skillh->getDefaultAllowed();
+	map->allowedSpells = LIBRARY->spellh->getDefaultAllowed();
+	map->allowedAbilities = LIBRARY->skillh->getDefaultAllowed();
 
 	if(features.levelSOD)
 	{
@@ -986,7 +986,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	if(artifactID == ArtifactID::NONE)
 		return false;
 
-	const Artifact * art = artifactID.toEntity(VLC);
+	const Artifact * art = artifactID.toEntity(LIBRARY);
 
 	if(!art)
 	{
@@ -1135,7 +1135,7 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 		{
 			SpellID scrollSpell = reader->readSpell16();
 			if (reward.artifacts.back() == ArtifactID::SPELL_SCROLL)
-				logGlobal->warn("Map '%s': Pandora/Event at %s Option to give spell scroll (%s) via event or pandora is not implemented!", mapName, mapPosition.toString(), scrollSpell.toEntity(VLC)->getJsonKey());
+				logGlobal->warn("Map '%s': Pandora/Event at %s Option to give spell scroll (%s) via event or pandora is not implemented!", mapName, mapPosition.toString(), scrollSpell.toEntity(LIBRARY)->getJsonKey());
 		}
 	}
 
@@ -1266,7 +1266,7 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::share
 		{
 			if(allowedAbilities.size() != 1)
 			{
-				auto defaultAllowed = VLC->skillh->getDefaultAllowed();
+				auto defaultAllowed = LIBRARY->skillh->getDefaultAllowed();
 
 				for(int skillID = features.skillsCount; skillID < defaultAllowed.size(); ++skillID)
 					if(defaultAllowed.count(skillID))
@@ -1276,7 +1276,7 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::share
 			JsonNode variable;
 			if (allowedAbilities.size() == 1)
 			{
-				variable.String() = VLC->skills()->getById(*allowedAbilities.begin())->getJsonKey();
+				variable.String() = LIBRARY->skills()->getById(*allowedAbilities.begin())->getJsonKey();
 			}
 			else
 			{
@@ -1284,7 +1284,7 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::share
 				for (auto const & skill : allowedAbilities)
 				{
 					JsonNode entry;
-					entry.String() = VLC->skills()->getById(skill)->getJsonKey();
+					entry.String() = LIBRARY->skills()->getById(skill)->getJsonKey();
 					anyOfList.push_back(entry);
 				}
 				variable["anyOf"].Vector() = anyOfList;
@@ -1336,7 +1336,7 @@ CGObjectInstance * CMapLoaderH3M::readScholar(const int3 & position, std::shared
 			{
 				JsonNode variable;
 				JsonNode dice;
-				variable.String() = VLC->skills()->getByIndex(bonusID)->getJsonKey();
+				variable.String() = LIBRARY->skills()->getByIndex(bonusID)->getJsonKey();
 				variable.setModScope(ModScope::scopeGame());
 				dice.Integer() = 50;
 				rewardable->configuration.presetVariable("secondarySkill", "gainedSkill", variable);
@@ -1347,7 +1347,7 @@ CGObjectInstance * CMapLoaderH3M::readScholar(const int3 & position, std::shared
 			{
 				JsonNode variable;
 				JsonNode dice;
-				variable.String() = VLC->spells()->getByIndex(bonusID)->getJsonKey();
+				variable.String() = LIBRARY->spells()->getByIndex(bonusID)->getJsonKey();
 				variable.setModScope(ModScope::scopeGame());
 				dice.Integer() = 20;
 				rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
@@ -1432,7 +1432,7 @@ CGObjectInstance * CMapLoaderH3M::readResource(const int3 & mapPosition, std::sh
 
 	if (objectTemplate->id != Obj::RANDOM_RESOURCE)
 	{
-		const auto & baseHandler = VLC->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid);
+		const auto & baseHandler = LIBRARY->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid);
 		const auto & ourHandler = std::dynamic_pointer_cast<ResourceInstanceConstructor>(baseHandler);
 
 		object->amount *= ourHandler->getAmountMultiplier();
@@ -1466,7 +1466,7 @@ CGObjectInstance * CMapLoaderH3M::readAbandonedMine(const int3 & mapPosition)
 		{
 			assert(guardsMin <= guardsMax);
 			assert(guardsUnit.hasValue());
-			logGlobal->warn("Map '%s': Abandoned Mine %s: not implemented guards of %d-%d %s", mapName, mapPosition.toString(), guardsMin, guardsMax, guardsUnit.toEntity(VLC)->getJsonKey());
+			logGlobal->warn("Map '%s': Abandoned Mine %s: not implemented guards of %d-%d %s", mapName, mapPosition.toString(), guardsMin, guardsMax, guardsUnit.toEntity(LIBRARY)->getJsonKey());
 		}
 	}
 	return object;
@@ -1526,7 +1526,7 @@ CGObjectInstance * CMapLoaderH3M::readShrine(const int3 & position, std::shared_
 		if(spell != SpellID::NONE)
 		{
 			JsonNode variable;
-			variable.String() = VLC->spells()->getById(spell)->getJsonKey();
+			variable.String() = LIBRARY->spells()->getById(spell)->getJsonKey();
 			variable.setModScope(ModScope::scopeGame()); // list may include spells from all mods
 			rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
 		}
@@ -1554,7 +1554,7 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 	else
 	{
 		object->heroType = htid;
-		logGlobal->debug("Map '%s': Hero placeholder: %s at %s, owned by %s", mapName, VLC->heroh->getById(htid)->getJsonKey(), mapPosition.toString(), object->getOwner().toString());
+		logGlobal->debug("Map '%s': Hero placeholder: %s at %s, owned by %s", mapName, LIBRARY->heroh->getById(htid)->getJsonKey(), mapPosition.toString(), object->getOwner().toString());
 	}
 
 	if(features.levelHOTA5)
@@ -1570,7 +1570,7 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 			CreatureID unitToGive = reader->readCreature32();
 
 			if (unitToGive.hasValue())
-				logGlobal->warn("Map '%s': Hero placeholder: not implemented option to give %d units of type %d on map start to slot %d is not implemented!", mapName, unitAmount, unitToGive.toEntity(VLC)->getJsonKey(), i);
+				logGlobal->warn("Map '%s': Hero placeholder: not implemented option to give %d units of type %d on map start to slot %d is not implemented!", mapName, unitAmount, unitToGive.toEntity(LIBRARY)->getJsonKey(), i);
 		}
 
 		int32_t artifactsToGive	= reader->readInt32();
@@ -1581,7 +1581,7 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 		{
 			// NOTE: this might actually be 2 bytes for artifact ID + 2 bytes for spell scroll
 			ArtifactID startingArtifact = reader->readArtifact32();
-			logGlobal->warn("Map '%s': Hero placeholder: not implemented option to give hero artifact %d", mapName, startingArtifact.toEntity(VLC)->getJsonKey());
+			logGlobal->warn("Map '%s': Hero placeholder: not implemented option to give hero artifact %d", mapName, startingArtifact.toEntity(LIBRARY)->getJsonKey());
 		}
 	}
 
@@ -1604,8 +1604,8 @@ CGObjectInstance * CMapLoaderH3M::readHotaBattleLocation(const int3 & mapPositio
 
 CGObjectInstance * CMapLoaderH3M::readGeneric(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	if(VLC->objtypeh->knownSubObjects(objectTemplate->id).count(objectTemplate->subid))
-		return VLC->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid)->create(map->cb, objectTemplate);
+	if(LIBRARY->objtypeh->knownSubObjects(objectTemplate->id).count(objectTemplate->subid))
+		return LIBRARY->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid)->create(map->cb, objectTemplate);
 
 	logGlobal->warn("Map '%s': Unrecognized object %d:%d ('%s') at %s found!", mapName, objectTemplate->id.toEnum(), objectTemplate->subid, objectTemplate->animationFile.getOriginalName(), mapPosition.toString());
 	return new CGObjectInstance(map->cb);
@@ -1711,9 +1711,9 @@ CGObjectInstance * CMapLoaderH3M::readBlackMarket(const int3 & mapPosition, std:
 			if (artifact.hasValue())
 			{
 				if (artifact != ArtifactID::SPELL_SCROLL)
-					logGlobal->warn("Map '%s': Black Market at %s: option to sell artifact %s is not implemented", mapName, mapPosition.toString(), artifact.toEntity(VLC)->getJsonKey());
+					logGlobal->warn("Map '%s': Black Market at %s: option to sell artifact %s is not implemented", mapName, mapPosition.toString(), artifact.toEntity(LIBRARY)->getJsonKey());
 				else
-					logGlobal->warn("Map '%s': Black Market at %s: option to sell scroll %s is not implemented", mapName, mapPosition.toString(), spellID.toEntity(VLC)->getJsonKey());
+					logGlobal->warn("Map '%s': Black Market at %s: option to sell scroll %s is not implemented", mapName, mapPosition.toString(), spellID.toEntity(LIBRARY)->getJsonKey());
 			}
 		}
 	}
@@ -2354,7 +2354,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 				{
 					SpellID scrollSpell = reader->readSpell16();
 					if (reward.artifacts.back() == ArtifactID::SPELL_SCROLL)
-						logGlobal->warn("Map '%s': Seer Hut at %s: Option to give spell scroll (%s) as a reward is not implemented!", mapName, position.toString(), scrollSpell.toEntity(VLC)->getJsonKey());
+						logGlobal->warn("Map '%s': Seer Hut at %s: Option to give spell scroll (%s) as a reward is not implemented!", mapName, position.toString(), scrollSpell.toEntity(LIBRARY)->getJsonKey());
 
 				}
 
@@ -2426,7 +2426,7 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 				{
 					SpellID scrollSpell = reader->readSpell16();
 					if (artid == ArtifactID::SPELL_SCROLL)
-						logGlobal->warn("Map '%s': Seer Hut at %s: Quest to find scroll '%s' is not implemented!", mapName, position.toString(), scrollSpell.toEntity(VLC)->getJsonKey());
+						logGlobal->warn("Map '%s': Seer Hut at %s: Quest to find scroll '%s' is not implemented!", mapName, position.toString(), scrollSpell.toEntity(LIBRARY)->getJsonKey());
 
 				}
 				guard->quest->mission.artifacts.push_back(artid);
@@ -2560,7 +2560,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	}
 
 	{
-		std::set<SpellID> spellsMask = VLC->spellh->getDefaultAllowed(); // by default - include spells from mods
+		std::set<SpellID> spellsMask = LIBRARY->spellh->getDefaultAllowed(); // by default - include spells from mods
 
 		reader->readBitmaskSpells(spellsMask, true);
 		std::copy(spellsMask.begin(), spellsMask.end(), std::back_inserter(object->possibleSpells));

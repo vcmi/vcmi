@@ -379,7 +379,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 			int maxAIValue = 0;
 			const CCreature * mostStrong = nullptr;
 
-			for(const auto & creature : VLC->creh->objects)
+			for(const auto & creature : LIBRARY->creh->objects)
 			{
 				if(creature->getFactionID() == factionIndex && static_cast<int>(creature->getAIValue()) > maxAIValue)
 				{

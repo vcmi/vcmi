@@ -265,7 +265,7 @@ void CHeroList::CHeroItem::showTooltip()
 
 std::string CHeroList::CHeroItem::getHoverText()
 {
-	return boost::str(boost::format(VLC->generaltexth->allTexts[15]) % hero->getNameTranslated() % hero->getClassNameTranslated()) + hero->getMovementPointsTextIfOwner(hero->getOwner());
+	return boost::str(boost::format(LIBRARY->generaltexth->allTexts[15]) % hero->getNameTranslated() % hero->getClassNameTranslated()) + hero->getMovementPointsTextIfOwner(hero->getOwner());
 }
 
 void CHeroList::CHeroItem::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
@@ -315,7 +315,7 @@ void CHeroList::CHeroItem::keyPressed(EShortcut key)
 
 	if(key == EShortcut::LIST_HERO_DISMISS)
 	{
-		GAME->interface()->showYesNoDialog(VLC->generaltexth->allTexts[22], [=](){ GAME->interface()->cb->dismissHero(hero); }, nullptr);
+		GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[22], [=](){ GAME->interface()->cb->dismissHero(hero); }, nullptr);
 		return;
 	}
 

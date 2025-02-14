@@ -11,7 +11,7 @@
 
 #include "LogicalExpression.h"
 
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 #include "texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -19,7 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 std::string LogicalExpressionDetail::getTextForOperator(const std::string & operation)
 {
 	//placed in cpp mostly to avoid unnecessary includes in header
-	return VLC->generaltexth->translate("vcmi.logicalExpressions." + operation);
+	return LIBRARY->generaltexth->translate("vcmi.logicalExpressions." + operation);
 }
 
 VCMI_LIB_NAMESPACE_END

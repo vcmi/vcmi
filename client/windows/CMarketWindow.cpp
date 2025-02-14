@@ -143,28 +143,28 @@ void CMarketWindow::createChangeModeButtons(EMarketMode currentMode, const IMark
 	};
 
 	if(isButtonVisible(EMarketMode::RESOURCE_PLAYER))
-		addButton(AnimationPath::builtin("TPMRKBU1.DEF"), VLC->generaltexth->zelp[612], std::bind(&CMarketWindow::createTransferResources, this, market, hero), EShortcut::MARKET_RESOURCE_PLAYER);
+		addButton(AnimationPath::builtin("TPMRKBU1.DEF"), LIBRARY->generaltexth->zelp[612], std::bind(&CMarketWindow::createTransferResources, this, market, hero), EShortcut::MARKET_RESOURCE_PLAYER);
 	if(isButtonVisible(EMarketMode::ARTIFACT_RESOURCE))
-		addButton(AnimationPath::builtin("TPMRKBU3.DEF"), VLC->generaltexth->zelp[613], std::bind(&CMarketWindow::createArtifactsSelling, this, market, hero), EShortcut::MARKET_ARTIFACT_RESOURCE);
+		addButton(AnimationPath::builtin("TPMRKBU3.DEF"), LIBRARY->generaltexth->zelp[613], std::bind(&CMarketWindow::createArtifactsSelling, this, market, hero), EShortcut::MARKET_ARTIFACT_RESOURCE);
 	if(isButtonVisible(EMarketMode::RESOURCE_ARTIFACT))
-		addButton(AnimationPath::builtin("TPMRKBU2.DEF"), VLC->generaltexth->zelp[598], std::bind(&CMarketWindow::createArtifactsBuying, this, market, hero), EShortcut::MARKET_RESOURCE_ARTIFACT);
+		addButton(AnimationPath::builtin("TPMRKBU2.DEF"), LIBRARY->generaltexth->zelp[598], std::bind(&CMarketWindow::createArtifactsBuying, this, market, hero), EShortcut::MARKET_RESOURCE_ARTIFACT);
 
 	buttonPos = Point(516, 520 - buttonHeightWithMargin);
 	if(isButtonVisible(EMarketMode::CREATURE_RESOURCE))
-		addButton(AnimationPath::builtin("TPMRKBU4.DEF"), VLC->generaltexth->zelp[599], std::bind(&CMarketWindow::createFreelancersGuild, this, market, hero), EShortcut::MARKET_CREATURE_RESOURCE);
+		addButton(AnimationPath::builtin("TPMRKBU4.DEF"), LIBRARY->generaltexth->zelp[599], std::bind(&CMarketWindow::createFreelancersGuild, this, market, hero), EShortcut::MARKET_CREATURE_RESOURCE);
 	if(isButtonVisible(EMarketMode::RESOURCE_RESOURCE))
-		addButton(AnimationPath::builtin("TPMRKBU5.DEF"), VLC->generaltexth->zelp[605], std::bind(&CMarketWindow::createMarketResources, this, market, hero), EShortcut::MARKET_RESOURCE_RESOURCE);
+		addButton(AnimationPath::builtin("TPMRKBU5.DEF"), LIBRARY->generaltexth->zelp[605], std::bind(&CMarketWindow::createMarketResources, this, market, hero), EShortcut::MARKET_RESOURCE_RESOURCE);
 	
 	buttonPos = Point(516, 421);
 	if(isButtonVisible(EMarketMode::CREATURE_EXP))
 	{
-		addButton(AnimationPath::builtin("ALTSACC.DEF"), VLC->generaltexth->zelp[572], std::bind(&CMarketWindow::createAltarCreatures, this, market, hero), EShortcut::MARKET_CREATURE_EXPERIENCE);
+		addButton(AnimationPath::builtin("ALTSACC.DEF"), LIBRARY->generaltexth->zelp[572], std::bind(&CMarketWindow::createAltarCreatures, this, market, hero), EShortcut::MARKET_CREATURE_EXPERIENCE);
 		if(marketWidget->hero->getAlignment() == EAlignment::GOOD)
 			changeModeButtons.back()->block(true);
 	}
 	if(isButtonVisible(EMarketMode::ARTIFACT_EXP))
 	{
-		addButton(AnimationPath::builtin("ALTART.DEF"), VLC->generaltexth->zelp[580], std::bind(&CMarketWindow::createAltarArtifacts, this, market, hero), EShortcut::MARKET_ARTIFACT_EXPERIENCE);
+		addButton(AnimationPath::builtin("ALTART.DEF"), LIBRARY->generaltexth->zelp[580], std::bind(&CMarketWindow::createAltarArtifacts, this, market, hero), EShortcut::MARKET_ARTIFACT_EXPERIENCE);
 		if(marketWidget->hero->getAlignment() == EAlignment::EVIL)
 			changeModeButtons.back()->block(true);
 	}
@@ -205,7 +205,7 @@ void CMarketWindow::createArtifactsBuying(const IMarket * market, const CGHeroIn
 
 	background = createBg(ImagePath::builtin("TPMRKABS.bmp"), PLAYER_COLORED);
 	marketWidget = std::make_shared<CArtifactsBuying>(market, hero, getMarketTitle(market->getObjInstanceID(), EMarketMode::RESOURCE_ARTIFACT));
-	initWidgetInternals(EMarketMode::RESOURCE_ARTIFACT, VLC->generaltexth->zelp[600]);
+	initWidgetInternals(EMarketMode::RESOURCE_ARTIFACT, LIBRARY->generaltexth->zelp[600]);
 }
 
 void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroInstance * hero)
@@ -221,7 +221,7 @@ void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroI
 	const auto heroArts = artsSellingMarket->getAOHset();
 	addSet(heroArts);
 	marketWidget = artsSellingMarket;
-	initWidgetInternals(EMarketMode::ARTIFACT_RESOURCE, VLC->generaltexth->zelp[600]);
+	initWidgetInternals(EMarketMode::ARTIFACT_RESOURCE, LIBRARY->generaltexth->zelp[600]);
 }
 
 void CMarketWindow::createMarketResources(const IMarket * market, const CGHeroInstance * hero)
@@ -230,7 +230,7 @@ void CMarketWindow::createMarketResources(const IMarket * market, const CGHeroIn
 
 	background = createBg(ImagePath::builtin("TPMRKRES.bmp"), PLAYER_COLORED);
 	marketWidget = std::make_shared<CMarketResources>(market, hero);
-	initWidgetInternals(EMarketMode::RESOURCE_RESOURCE, VLC->generaltexth->zelp[600]);
+	initWidgetInternals(EMarketMode::RESOURCE_RESOURCE, LIBRARY->generaltexth->zelp[600]);
 }
 
 void CMarketWindow::createFreelancersGuild(const IMarket * market, const CGHeroInstance * hero)
@@ -239,7 +239,7 @@ void CMarketWindow::createFreelancersGuild(const IMarket * market, const CGHeroI
 
 	background = createBg(ImagePath::builtin("TPMRKCRS.bmp"), PLAYER_COLORED);
 	marketWidget = std::make_shared<CFreelancerGuild>(market, hero);
-	initWidgetInternals(EMarketMode::CREATURE_RESOURCE, VLC->generaltexth->zelp[600]);
+	initWidgetInternals(EMarketMode::CREATURE_RESOURCE, LIBRARY->generaltexth->zelp[600]);
 }
 
 void CMarketWindow::createTransferResources(const IMarket * market, const CGHeroInstance * hero)
@@ -248,7 +248,7 @@ void CMarketWindow::createTransferResources(const IMarket * market, const CGHero
 
 	background = createBg(ImagePath::builtin("TPMRKPTS.bmp"), PLAYER_COLORED);
 	marketWidget = std::make_shared<CTransferResources>(market, hero);
-	initWidgetInternals(EMarketMode::RESOURCE_PLAYER, VLC->generaltexth->zelp[600]);
+	initWidgetInternals(EMarketMode::RESOURCE_PLAYER, LIBRARY->generaltexth->zelp[600]);
 }
 
 void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroInstance * hero)
@@ -273,7 +273,7 @@ void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroIns
 		showQuickBackpackWindow(heroArts->getHero(), artPlace.slot, cursorPosition);
 	};
 	addSet(heroArts);
-	initWidgetInternals(EMarketMode::ARTIFACT_EXP, VLC->generaltexth->zelp[568]);
+	initWidgetInternals(EMarketMode::ARTIFACT_EXP, LIBRARY->generaltexth->zelp[568]);
 	updateExperience();
 	quitButton->addCallback([altarArtifactsStorage](){altarArtifactsStorage->putBackArtifacts();});
 }
@@ -284,6 +284,6 @@ void CMarketWindow::createAltarCreatures(const IMarket * market, const CGHeroIns
 
 	background = createBg(ImagePath::builtin("ALTARMON.bmp"), PLAYER_COLORED);
 	marketWidget = std::make_shared<CAltarCreatures>(market, hero);
-	initWidgetInternals(EMarketMode::CREATURE_EXP, VLC->generaltexth->zelp[568]);
+	initWidgetInternals(EMarketMode::CREATURE_EXP, LIBRARY->generaltexth->zelp[568]);
 	updateExperience();
 }

@@ -289,14 +289,14 @@ void AdventureMapShortcuts::endTurn()
 
 				if(!GAME->interface()->localState->hasPath(hero))
 				{
-					GAME->interface()->showYesNoDialog( VLC->generaltexth->allTexts[55], [this](){ owner.hotkeyEndingTurn(); }, nullptr);
+					GAME->interface()->showYesNoDialog( LIBRARY->generaltexth->allTexts[55], [this](){ owner.hotkeyEndingTurn(); }, nullptr);
 					return;
 				}
 
 				auto path = GAME->interface()->localState->getPath(hero);
 				if (path.nodes.size() < 2 || path.nodes[path.nodes.size() - 2].turns)
 				{
-					GAME->interface()->showYesNoDialog( VLC->generaltexth->allTexts[55], [this](){ owner.hotkeyEndingTurn(); }, nullptr);
+					GAME->interface()->showYesNoDialog( LIBRARY->generaltexth->allTexts[55], [this](){ owner.hotkeyEndingTurn(); }, nullptr);
 					return;
 				}
 			}
@@ -316,7 +316,7 @@ void AdventureMapShortcuts::showThievesGuild()
 	if(itr != GAME->interface()->localState->getOwnedTowns().end())
 		GAME->interface()->showThievesGuildWindow(*itr);
 	else
-		GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
+		GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
 }
 
 void AdventureMapShortcuts::showScenarioInfo()
@@ -327,7 +327,7 @@ void AdventureMapShortcuts::showScenarioInfo()
 void AdventureMapShortcuts::toMainMenu()
 {
 	GAME->interface()->showYesNoDialog(
-		VLC->generaltexth->allTexts[578],
+		LIBRARY->generaltexth->allTexts[578],
 		[]()
 		{
 			GAME->server().endGameplay();
@@ -340,7 +340,7 @@ void AdventureMapShortcuts::toMainMenu()
 void AdventureMapShortcuts::newGame()
 {
 	GAME->interface()->showYesNoDialog(
-		VLC->generaltexth->allTexts[578],
+		LIBRARY->generaltexth->allTexts[578],
 		[]()
 		{
 			GAME->server().endGameplay();
@@ -353,7 +353,7 @@ void AdventureMapShortcuts::newGame()
 void AdventureMapShortcuts::quitGame()
 {
 	GAME->interface()->showYesNoDialog(
-		VLC->generaltexth->allTexts[578],
+		LIBRARY->generaltexth->allTexts[578],
 		[]()
 		{
 			ENGINE->dispatchMainThread( []()
@@ -391,7 +391,7 @@ void AdventureMapShortcuts::viewPuzzleMap()
 void AdventureMapShortcuts::restartGame()
 {
 	GAME->interface()->showYesNoDialog(
-		VLC->generaltexth->translate("vcmi.adventureMap.confirmRestartGame"),
+		LIBRARY->generaltexth->translate("vcmi.adventureMap.confirmRestartGame"),
 		[]()
 		{
 			ENGINE->dispatchMainThread(
@@ -440,7 +440,7 @@ void AdventureMapShortcuts::showMarketplace()
 	if(townWithMarket) //if any town has marketplace, open window
 		ENGINE->windows().createAndPushWindow<CMarketWindow>(townWithMarket, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 	else //if not - complain
-		GAME->interface()->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
+		GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 }
 
 void AdventureMapShortcuts::firstTown()
@@ -516,7 +516,7 @@ void AdventureMapShortcuts::search(bool next)
 	if(next)
 		selectObjOnMap(lastSel);
 	else
-		ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, VLC->generaltexth->translate("vcmi.adventureMap.search.hover"), VLC->generaltexth->translate("vcmi.adventureMap.search.help"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
+		ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.adventureMap.search.hover"), LIBRARY->generaltexth->translate("vcmi.adventureMap.search.help"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
 }
 
 void AdventureMapShortcuts::nextObject()

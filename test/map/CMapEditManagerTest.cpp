@@ -17,7 +17,7 @@
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/int3.h"
 #include "../lib/CRandomGenerator.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 
 
 TEST(MapManager, DrawTerrain_Type)
@@ -133,7 +133,7 @@ TEST(MapManager, DrawTerrain_View)
 			const auto & id = patternParts[1];
 
 			// Get mapping range
-			const auto & pattern = VLC->terviewh->getTerrainViewPatternById(groupStr, id); 
+			const auto & pattern = LIBRARY->terviewh->getTerrainViewPatternById(groupStr, id); 
 			const auto & mapping = pattern->get().mapping;
 
 			const auto & positionsNode = node["pos"].Vector();

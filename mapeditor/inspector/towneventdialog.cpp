@@ -174,7 +174,7 @@ void TownEventDialog::initCreatures()
 			auto creaturesOnLevel = ctown->creatures.at(i);
 			for (auto& creature : creaturesOnLevel)
 			{
-				auto cre = VLC->creatures()->getById(creature);
+				auto cre = LIBRARY->creatures()->getById(creature);
 				auto creatureName = QString::fromStdString(cre->getNameSingularTranslated());
 				creatureNames.append(creatureNames.isEmpty() ? creatureName : " / " + creatureName);
 			}

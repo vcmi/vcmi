@@ -31,7 +31,7 @@ class IRenderHandler : public boost::noncopyable
 public:
 	virtual ~IRenderHandler() = default;
 
-	/// Must be called once VLC loading is over to initialize icons
+	/// Must be called once LIBRARY loading is over to initialize icons
 	virtual void onLibraryLoadingFinished(const Services * services) = 0;
 
 	/// Loads image using given path

@@ -48,7 +48,7 @@ GameResID CGResource::resourceID() const
 
 std::string CGResource::getHoverText(PlayerColor player) const
 {
-	return VLC->generaltexth->restypes[resourceID().getNum()];
+	return LIBRARY->generaltexth->restypes[resourceID().getNum()];
 }
 
 void CGResource::pickRandomObject(vstd::RNG & rand)

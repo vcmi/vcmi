@@ -135,7 +135,7 @@ void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
 		totalCostValue->set(card->creature->getFullRecruitCost() * maxAmount);
 
 		//Recruit %s
-		title->setText(boost::str(boost::format(VLC->generaltexth->tcommands[21]) % card->creature->getNamePluralTranslated()));
+		title->setText(boost::str(boost::format(LIBRARY->generaltexth->tcommands[21]) % card->creature->getNamePluralTranslated()));
 
 		maxButton->block(maxAmount == 0);
 		slider->block(maxAmount == 0);
@@ -168,12 +168,12 @@ void CRecruitmentWindow::buy()
 			std::string txt;
 			if(dwelling->ID != Obj::TOWN)
 			{
-				txt = VLC->generaltexth->allTexts[425]; //The %s would join your hero, but there aren't enough provisions to support them.
-				boost::algorithm::replace_first(txt, "%s", slider->getValue() > 1 ? VLC->creh->objects[crid]->getNamePluralTranslated() : VLC->creh->objects[crid]->getNameSingularTranslated());
+				txt = LIBRARY->generaltexth->allTexts[425]; //The %s would join your hero, but there aren't enough provisions to support them.
+				boost::algorithm::replace_first(txt, "%s", slider->getValue() > 1 ? LIBRARY->creh->objects[crid]->getNamePluralTranslated() : LIBRARY->creh->objects[crid]->getNameSingularTranslated());
 			}
 			else
 			{
-				txt = VLC->generaltexth->allTexts[17]; //There is no room in the garrison for this army.
+				txt = LIBRARY->generaltexth->allTexts[17]; //There is no room in the garrison for this army.
 			}
 
 			GAME->interface()->showInfoDialog(txt);
@@ -223,19 +223,19 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, c
 
 	slider = std::make_shared<CSlider>(Point(176, 279), 135, std::bind(&CRecruitmentWindow::sliderMoved, this, _1), 0, 0, 0, Orientation::HORIZONTAL);
 
-	maxButton = std::make_shared<CButton>(Point(134, 313), AnimationPath::builtin("IRCBTNS.DEF"), VLC->generaltexth->zelp[553], std::bind(&CSlider::scrollToMax, slider), EShortcut::RECRUITMENT_MAX);
-	buyButton = std::make_shared<CButton>(Point(212, 313), AnimationPath::builtin("IBY6432.DEF"), VLC->generaltexth->zelp[554], std::bind(&CRecruitmentWindow::buy, this), EShortcut::GLOBAL_ACCEPT);
-	cancelButton = std::make_shared<CButton>(Point(290, 313), AnimationPath::builtin("ICN6432.DEF"), VLC->generaltexth->zelp[555], std::bind(&CRecruitmentWindow::close, this), EShortcut::GLOBAL_CANCEL);
+	maxButton = std::make_shared<CButton>(Point(134, 313), AnimationPath::builtin("IRCBTNS.DEF"), LIBRARY->generaltexth->zelp[553], std::bind(&CSlider::scrollToMax, slider), EShortcut::RECRUITMENT_MAX);
+	buyButton = std::make_shared<CButton>(Point(212, 313), AnimationPath::builtin("IBY6432.DEF"), LIBRARY->generaltexth->zelp[554], std::bind(&CRecruitmentWindow::buy, this), EShortcut::GLOBAL_ACCEPT);
+	cancelButton = std::make_shared<CButton>(Point(290, 313), AnimationPath::builtin("ICN6432.DEF"), LIBRARY->generaltexth->zelp[555], std::bind(&CRecruitmentWindow::close, this), EShortcut::GLOBAL_CANCEL);
 
 	title = std::make_shared<CLabel>(243, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW);
 	availableValue = std::make_shared<CLabel>(205, 253, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	toRecruitValue = std::make_shared<CLabel>(279, 253, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
-	costPerTroopValue = std::make_shared<CreatureCostBox>(Rect(65, 222, 97, 74), VLC->generaltexth->allTexts[346]);
-	totalCostValue = std::make_shared<CreatureCostBox>(Rect(323, 222, 97, 74), VLC->generaltexth->allTexts[466]);
+	costPerTroopValue = std::make_shared<CreatureCostBox>(Rect(65, 222, 97, 74), LIBRARY->generaltexth->allTexts[346]);
+	totalCostValue = std::make_shared<CreatureCostBox>(Rect(323, 222, 97, 74), LIBRARY->generaltexth->allTexts[466]);
 
-	availableTitle = std::make_shared<CLabel>(205, 233, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->allTexts[465]);
-	toRecruitTitle = std::make_shared<CLabel>(279, 233, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->allTexts[16]);
+	availableTitle = std::make_shared<CLabel>(205, 233, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[465]);
+	toRecruitTitle = std::make_shared<CLabel>(279, 233, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[16]);
 
 	availableCreaturesChanged();
 }
@@ -349,7 +349,7 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 
 	slider = std::make_shared<CSlider>(Point(21, 194), 257, std::bind(&CSplitWindow::sliderMoved, this, _1), 0, sliderPosition, rightAmount - rightMin, Orientation::HORIZONTAL);
 
-	std::string titleStr = VLC->generaltexth->allTexts[256];
+	std::string titleStr = LIBRARY->generaltexth->allTexts[256];
 	boost::algorithm::replace_first(titleStr,"%s", creature->getNamePluralTranslated());
 	title = std::make_shared<CLabel>(150, 34, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleStr);
 }
@@ -425,10 +425,10 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 	ok = std::make_shared<CButton>(Point(297, 413), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CLevelWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 
 	//%s has gained a level.
-	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(VLC->generaltexth->allTexts[444]) % hero->getNameTranslated()));
+	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(LIBRARY->generaltexth->allTexts[444]) % hero->getNameTranslated()));
 
 	//%s is now a level %d %s.
-	std::string levelTitleText = VLC->generaltexth->translate("core.genrltxt.445");
+	std::string levelTitleText = LIBRARY->generaltexth->translate("core.genrltxt.445");
 	boost::replace_first(levelTitleText, "%s", hero->getNameTranslated());
 	boost::replace_first(levelTitleText, "%d", std::to_string(hero->level));
 	boost::replace_first(levelTitleText, "%s", hero->getClassNameTranslated());
@@ -437,7 +437,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 
 	skillIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), static_cast<int>(pskill), 0, 174, 190);
 
-	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->primarySkillNames[static_cast<int>(pskill)] + " +1");
+	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->primarySkillNames[static_cast<int>(pskill)] + " +1");
 }
 
 void CLevelWindow::close()
@@ -474,17 +474,17 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	h1 = std::make_shared<HeroPortrait>(selected, 0, 72, 299, h[0], [this]() { if(!recruit->isBlocked()) recruitb(); });
 	h2 = std::make_shared<HeroPortrait>(selected, 1, 162, 299, h[1], [this]() { if(!recruit->isBlocked()) recruitb(); });
 
-	title = std::make_shared<CLabel>(197, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->jktexts[37]);
+	title = std::make_shared<CLabel>(197, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[37]);
 	cost = std::make_shared<CLabel>(320, 328, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(GameConstants::HERO_GOLD_COST));
 	heroDescription = std::make_shared<CTextBox>("", Rect(30, 373, 233, 35), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
-	heroesForHire = std::make_shared<CLabel>(145, 283, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->jktexts[38]);
+	heroesForHire = std::make_shared<CLabel>(145, 283, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[38]);
 
 	rumor = std::make_shared<CTextBox>(GAME->interface()->cb->getTavernRumor(tavernObj), Rect(32, 188, 330, 66), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
-	cancel = std::make_shared<CButton>(Point(310, 428), AnimationPath::builtin("ICANCEL.DEF"), CButton::tooltip(VLC->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), EShortcut::GLOBAL_CANCEL);
+	cancel = std::make_shared<CButton>(Point(310, 428), AnimationPath::builtin("ICANCEL.DEF"), CButton::tooltip(LIBRARY->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), EShortcut::GLOBAL_CANCEL);
 	recruit = std::make_shared<CButton>(Point(272, 355), AnimationPath::builtin("TPTAV01.DEF"), CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), EShortcut::GLOBAL_ACCEPT);
-	thiefGuild = std::make_shared<CButton>(Point(22, 428), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(VLC->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), EShortcut::ADVENTURE_THIEVES_GUILD);
+	thiefGuild = std::make_shared<CButton>(Point(22, 428), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(LIBRARY->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), EShortcut::ADVENTURE_THIEVES_GUILD);
 
 	if(!GAME->interface()->makingTurn)
 	{
@@ -492,7 +492,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	}
 	else if(GAME->interface()->cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //not enough gold
 	{
-		recruit->addHoverText(EButtonState::NORMAL, VLC->generaltexth->tavernInfo[0]); //Cannot afford a Hero
+		recruit->addHoverText(EButtonState::NORMAL, LIBRARY->generaltexth->tavernInfo[0]); //Cannot afford a Hero
 		recruit->block(true);
 	}
 	else if(GAME->interface()->cb->howManyHeroes(true) >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP))
@@ -516,7 +516,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	}
 	else if(dynamic_cast<const CGTownInstance *>(TavernObj) && dynamic_cast<const CGTownInstance *>(TavernObj)->visitingHero)
 	{
-		recruit->addHoverText(EButtonState::NORMAL, VLC->generaltexth->tavernInfo[2]); //Cannot recruit. You already have a Hero in this town.
+		recruit->addHoverText(EButtonState::NORMAL, LIBRARY->generaltexth->tavernInfo[2]); //Cannot recruit. You already have a Hero in this town.
 		recruit->block(true);
 	}
 	else
@@ -555,7 +555,7 @@ void CTavernWindow::addInvite()
 		if(!heroToInvite)
 			heroToInvite = (*RandomGeneratorUtil::nextItem(inviteableHeroes, CRandomGenerator::getDefault())).second;
 
-		inviteHero = std::make_shared<CLabel>(170, 444, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->translate("vcmi.tavernWindow.inviteHero"));
+		inviteHero = std::make_shared<CLabel>(170, 444, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.tavernWindow.inviteHero"));
 		inviteHeroImage = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), imageIndex, 0, 245, 428);
 		inviteHeroImageArea = std::make_shared<LRClickableArea>(Rect(245, 428, 48, 32), [this](){ ENGINE->windows().createAndPushWindow<HeroSelector>(inviteableHeroes, [this](CGHeroInstance* h){ heroToInvite = h; addInvite(); }); }, [this](){ ENGINE->windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(heroToInvite)); });
 	}
@@ -600,7 +600,7 @@ void CTavernWindow::show(Canvas & to)
 
 			//Recruit %s the %s
 			if (!recruit->isBlocked())
-				recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(VLC->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->getClassNameTranslated()));
+				recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(LIBRARY->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->getClassNameTranslated()));
 
 		}
 
@@ -644,7 +644,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 
 	if(H)
 	{
-		hoverName = VLC->generaltexth->tavernInfo[4];
+		hoverName = LIBRARY->generaltexth->tavernInfo[4];
 		boost::algorithm::replace_first(hoverName,"%s",H->getNameTranslated());
 
 		int artifs = (int)h->artifactsWorn.size() + (int)h->artifactsInBackpack.size();
@@ -652,7 +652,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 			if(vstd::contains(h->artifactsWorn, ArtifactPosition(i)))
 				artifs--;
 
-		description = VLC->generaltexth->allTexts[215];
+		description = LIBRARY->generaltexth->allTexts[215];
 		boost::algorithm::replace_first(description, "%s", h->getNameTranslated());
 		boost::algorithm::replace_first(description, "%d", std::to_string(h->level));
 		boost::algorithm::replace_first(description, "%s", h->getClassNameTranslated());
@@ -717,7 +717,7 @@ void CTavernWindow::HeroSelector::recreate()
 	{
 		if(y >= 0 && y <= MAX_LINES - 1)
 		{
-			portraits.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), (*VLC->heroh)[h.first]->imageIndex, 0, x * 48, y * 32));
+			portraits.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), (*LIBRARY->heroh)[h.first]->imageIndex, 0, x * 48, y * 32));
 			portraitAreas.push_back(std::make_shared<LRClickableArea>(Rect(x * 48, y * 32, 48, 32), [this, h](){ close(); onChoose(inviteableHeroes[h.first]); }, [this, h](){ ENGINE->windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(inviteableHeroes[h.first])); }));
 		}
 
@@ -738,7 +738,7 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 
 	bgWater = std::make_shared<CPicture>(ImagePath::builtin("TPSHIPBK"), 100, 69);
 
-	auto handler = VLC->objtypeh->getHandlerFor(Obj::BOAT, boatType);
+	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, boatType);
 
 	auto boatConstructor = std::dynamic_pointer_cast<const BoatInstanceConstructor>(handler);
 
@@ -764,8 +764,8 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 	goldPic = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), GameResID(EGameResID::GOLD), 0, 100, 244);
 	woodPic = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), GameResID(EGameResID::WOOD), 0, 196, 244);
 
-	quit = std::make_shared<CButton>(Point(224, 312), AnimationPath::builtin("ICANCEL"), CButton::tooltip(VLC->generaltexth->allTexts[599]), std::bind(&CShipyardWindow::close, this), EShortcut::GLOBAL_CANCEL);
-	build = std::make_shared<CButton>(Point(42, 312), AnimationPath::builtin("IBUY30"), CButton::tooltip(VLC->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this), EShortcut::GLOBAL_ACCEPT);
+	quit = std::make_shared<CButton>(Point(224, 312), AnimationPath::builtin("ICANCEL"), CButton::tooltip(LIBRARY->generaltexth->allTexts[599]), std::bind(&CShipyardWindow::close, this), EShortcut::GLOBAL_CANCEL);
+	build = std::make_shared<CButton>(Point(42, 312), AnimationPath::builtin("IBUY30"), CButton::tooltip(LIBRARY->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 	build->addCallback(onBuy);
 
 	for(GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i)
@@ -779,8 +779,8 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	title = std::make_shared<CLabel>(164, 27,  FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->jktexts[13]);
-	costLabel = std::make_shared<CLabel>(164, 220, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->jktexts[14]);
+	title = std::make_shared<CLabel>(164, 27,  FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[13]);
+	costLabel = std::make_shared<CLabel>(164, 220, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->jktexts[14]);
 }
 
 void CTransformerWindow::CItem::move()
@@ -871,15 +871,15 @@ CTransformerWindow::CTransformerWindow(const IMarket * _market, const CGHeroInst
 		}
 	}
 
-	all = std::make_shared<CButton>(Point(146, 416), AnimationPath::builtin("ALTARMY.DEF"), VLC->generaltexth->zelp[590], [&](){ addAll(); }, EShortcut::RECRUITMENT_UPGRADE_ALL);
-	convert = std::make_shared<CButton>(Point(269, 416), AnimationPath::builtin("ALTSACR.DEF"), VLC->generaltexth->zelp[591], [&](){ makeDeal(); }, EShortcut::GLOBAL_ACCEPT);
-	cancel = std::make_shared<CButton>(Point(392, 416), AnimationPath::builtin("ICANCEL.DEF"), VLC->generaltexth->zelp[592], [&](){ close(); },EShortcut::GLOBAL_CANCEL);
+	all = std::make_shared<CButton>(Point(146, 416), AnimationPath::builtin("ALTARMY.DEF"), LIBRARY->generaltexth->zelp[590], [&](){ addAll(); }, EShortcut::RECRUITMENT_UPGRADE_ALL);
+	convert = std::make_shared<CButton>(Point(269, 416), AnimationPath::builtin("ALTSACR.DEF"), LIBRARY->generaltexth->zelp[591], [&](){ makeDeal(); }, EShortcut::GLOBAL_ACCEPT);
+	cancel = std::make_shared<CButton>(Point(392, 416), AnimationPath::builtin("ICANCEL.DEF"), LIBRARY->generaltexth->zelp[592], [&](){ close(); },EShortcut::GLOBAL_CANCEL);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	titleLeft = std::make_shared<CLabel>(153, 29,FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->allTexts[485]);//holding area
-	titleRight = std::make_shared<CLabel>(153+295, 29, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->allTexts[486]);//transformer
-	helpLeft = std::make_shared<CTextBox>(VLC->generaltexth->allTexts[487], Rect(26,  56, 255, 40), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW);//move creatures to create skeletons
-	helpRight = std::make_shared<CTextBox>(VLC->generaltexth->allTexts[488], Rect(320, 56, 255, 40), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW);//creatures here will become skeletons
+	titleLeft = std::make_shared<CLabel>(153, 29,FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[485]);//holding area
+	titleRight = std::make_shared<CLabel>(153+295, 29, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[486]);//transformer
+	helpLeft = std::make_shared<CTextBox>(LIBRARY->generaltexth->allTexts[487], Rect(26,  56, 255, 40), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW);//move creatures to create skeletons
+	helpRight = std::make_shared<CTextBox>(LIBRARY->generaltexth->allTexts[488], Rect(320, 56, 255, 40), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW);//creatures here will become skeletons
 }
 
 void CTransformerWindow::close()
@@ -930,8 +930,8 @@ void CUniversityWindow::CItem::update()
 	bottomBar = std::make_shared<CPicture>(image, Point(-28, 48));
 
 	// needs to be on top of background bars
-	name = std::make_shared<CLabel>(22, -13, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, ID.toEntity(VLC)->getNameTranslated());
-	level = std::make_shared<CLabel>(22, 57, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->levels[0]);
+	name = std::make_shared<CLabel>(22, -13, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, ID.toEntity(LIBRARY)->getNameTranslated());
+	level = std::make_shared<CLabel>(22, 57, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->levels[0]);
 }
 
 CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID building, const IMarket * _market, const std::function<void()> & onWindowClosed)
@@ -943,13 +943,13 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 	OBJECT_CONSTRUCTION;
 
 
-	std::string titleStr = VLC->generaltexth->allTexts[602];
-	std::string speechStr = VLC->generaltexth->allTexts[603];
+	std::string titleStr = LIBRARY->generaltexth->allTexts[602];
+	std::string speechStr = LIBRARY->generaltexth->allTexts[603];
 
 	if(auto town = dynamic_cast<const CGTownInstance *>(_market))
 	{
 		auto faction = town->getTown()->faction->getId();
-		titlePic = std::make_shared<CAnimImage>((*VLC->townh)[faction]->town->clientInfo.buildingsIcons, building);
+		titlePic = std::make_shared<CAnimImage>((*LIBRARY->townh)[faction]->town->clientInfo.buildingsIcons, building);
 	}
 	else if(auto uni = dynamic_cast<const CGUniversity *>(_market); uni->appearance)
 	{
@@ -972,7 +972,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 	for(int i=0; i<goods.size(); i++)//prepare clickable items
 		items.push_back(std::make_shared<CItem>(this, goods[i].as<SecondarySkill>(), 54+i*104, 234));
 
-	cancel = std::make_shared<CButton>(Point(200, 313), AnimationPath::builtin("IOKAY.DEF"), VLC->generaltexth->zelp[632], [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
+	cancel = std::make_shared<CButton>(Point(200, 313), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[632], [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
@@ -1001,32 +1001,32 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkil
 {
 	OBJECT_CONSTRUCTION;
 
-	std::string text = VLC->generaltexth->allTexts[608];
-	boost::replace_first(text, "%s", VLC->generaltexth->levels[0]);
-	boost::replace_first(text, "%s", VLC->skillh->getByIndex(SKILL)->getNameTranslated());
+	std::string text = LIBRARY->generaltexth->allTexts[608];
+	boost::replace_first(text, "%s", LIBRARY->generaltexth->levels[0]);
+	boost::replace_first(text, "%s", LIBRARY->skillh->getByIndex(SKILL)->getNameTranslated());
 	boost::replace_first(text, "%d", "2000");
 
 	clerkSpeech = std::make_shared<CTextBox>(text, Rect(24, 129, 413, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
-	name = std::make_shared<CLabel>(230, 37,  FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->skillh->getByIndex(SKILL)->getNameTranslated());
+	name = std::make_shared<CLabel>(230, 37,  FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->skillh->getByIndex(SKILL)->getNameTranslated());
 	icon = std::make_shared<CAnimImage>(AnimationPath::builtin("SECSKILL"), SKILL*3+3, 0, 211, 51);
-	level = std::make_shared<CLabel>(230, 107, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->levels[1]);
+	level = std::make_shared<CLabel>(230, 107, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->levels[1]);
 
 	costIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), GameResID(EGameResID::GOLD), 0, 210, 210);
 	cost = std::make_shared<CLabel>(230, 267, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "2000");
 
-	std::string hoverText = VLC->generaltexth->allTexts[609];
-	boost::replace_first(hoverText, "%s", VLC->generaltexth->levels[0]+ " " + VLC->skillh->getByIndex(SKILL)->getNameTranslated());
+	std::string hoverText = LIBRARY->generaltexth->allTexts[609];
+	boost::replace_first(hoverText, "%s", LIBRARY->generaltexth->levels[0]+ " " + LIBRARY->skillh->getByIndex(SKILL)->getNameTranslated());
 
-	text = VLC->generaltexth->zelp[633].second;
-	boost::replace_first(text, "%s", VLC->generaltexth->levels[0]);
-	boost::replace_first(text, "%s", VLC->skillh->getByIndex(SKILL)->getNameTranslated());
+	text = LIBRARY->generaltexth->zelp[633].second;
+	boost::replace_first(text, "%s", LIBRARY->generaltexth->levels[0]);
+	boost::replace_first(text, "%s", LIBRARY->skillh->getByIndex(SKILL)->getNameTranslated());
 	boost::replace_first(text, "%d", "2000");
 
 	confirm = std::make_shared<CButton>(Point(148, 299), AnimationPath::builtin("IBY6432.DEF"), CButton::tooltip(hoverText, text), [=](){makeDeal(SKILL);}, EShortcut::GLOBAL_ACCEPT);
 	confirm->block(!available);
 
-	cancel = std::make_shared<CButton>(Point(252,299), AnimationPath::builtin("ICANCEL.DEF"), VLC->generaltexth->zelp[631], [&](){ close(); }, EShortcut::GLOBAL_CANCEL);
+	cancel = std::make_shared<CButton>(Point(252,299), AnimationPath::builtin("ICANCEL.DEF"), LIBRARY->generaltexth->zelp[631], [&](){ close(); }, EShortcut::GLOBAL_CANCEL);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
@@ -1043,22 +1043,22 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 
 	garr = std::make_shared<CGarrisonInt>(Point(92, 127), 4, Point(0,96), up, down, removableUnits);
 	{
-		auto split = std::make_shared<CButton>(Point(88, 314), AnimationPath::builtin("IDV6432.DEF"), CButton::tooltip(VLC->generaltexth->tcommands[3], ""), [this](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT );
+		auto split = std::make_shared<CButton>(Point(88, 314), AnimationPath::builtin("IDV6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->tcommands[3], ""), [this](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT );
 		garr->addSplitBtn(split);
 	}
-	quit = std::make_shared<CButton>(Point(399, 314), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(VLC->generaltexth->tcommands[8], ""), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT);
+	quit = std::make_shared<CButton>(Point(399, 314), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->tcommands[8], ""), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT);
 
 	std::string titleText;
 	if(down->tempOwner == up->tempOwner)
 	{
-		titleText = VLC->generaltexth->allTexts[709];
+		titleText = LIBRARY->generaltexth->allTexts[709];
 	}
 	else
 	{
 		//assume that this is joining monsters dialog
 		if(up->Slots().size() > 0)
 		{
-			titleText = VLC->generaltexth->allTexts[35];
+			titleText = LIBRARY->generaltexth->allTexts[35];
 			boost::algorithm::replace_first(titleText, "%s", up->Slots().begin()->second->getType()->getNamePluralTranslated());
 		}
 		else
@@ -1110,14 +1110,14 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 		}
 	}
 
-	upgradeAll = std::make_shared<CButton>(Point(30, 231), AnimationPath::builtin("APHLF4R"), CButton::tooltip(VLC->generaltexth->allTexts[432]), [this](){ makeDeal(SlotID(slotsCount));}, EShortcut::RECRUITMENT_UPGRADE_ALL);
+	upgradeAll = std::make_shared<CButton>(Point(30, 231), AnimationPath::builtin("APHLF4R"), CButton::tooltip(LIBRARY->generaltexth->allTexts[432]), [this](){ makeDeal(SlotID(slotsCount));}, EShortcut::RECRUITMENT_UPGRADE_ALL);
 
 	quit = std::make_shared<CButton>(Point(294, 275), AnimationPath::builtin("IOKAY.DEF"), CButton::tooltip(), [this](){close();}, EShortcut::GLOBAL_ACCEPT);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	garr = std::make_shared<CGarrisonInt>(Point(108, 60), 18, Point(), hero, nullptr);
 
-	statusbar->write(VLC->generaltexth->translate(dynamic_cast<const HillFort *>(fort)->getDescriptionToolTip()));
+	statusbar->write(LIBRARY->generaltexth->translate(dynamic_cast<const HillFort *>(fort)->getDescriptionToolTip()));
 
 	updateGarrisons();
 }
@@ -1227,7 +1227,7 @@ void CHillFortWindow::updateGarrisons()
 			{
 				slotIcons[i][0]->visible = true;
 				slotIcons[i][0]->setFrame(GameResID(EGameResID::GOLD));
-				slotLabels[i][0]->setText(VLC->generaltexth->allTexts[344]);
+				slotLabels[i][0]->setText(LIBRARY->generaltexth->allTexts[344]);
 			}
 		}
 	}
@@ -1254,14 +1254,14 @@ void CHillFortWindow::makeDeal(SlotID slot)
 	switch(currState[slot.getNum()])
 	{
 		case State::ALREADY_UPGRADED:
-			GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[313 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
+			GAME->interface()->showInfoDialog(LIBRARY->generaltexth->allTexts[313 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
 		case State::UNAFFORDABLE:
-			GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[314 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
+			GAME->interface()->showInfoDialog(LIBRARY->generaltexth->allTexts[314 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
 		case State::UNAVAILABLE:
 		{
-			std::string message = VLC->generaltexth->translate(dynamic_cast<const HillFort *>(fort)->getUnavailableUpgradeMessage());
+			std::string message = LIBRARY->generaltexth->translate(dynamic_cast<const HillFort *>(fort)->getUnavailableUpgradeMessage());
 			GAME->interface()->showInfoDialog(message, std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
 		}
@@ -1287,7 +1287,7 @@ std::string CHillFortWindow::getTextForSlot(SlotID slot)
 	if(!hero->getCreature(slot))//we don`t have creature here
 		return "";
 
-	std::string str = VLC->generaltexth->allTexts[318];
+	std::string str = LIBRARY->generaltexth->allTexts[318];
 	int amount = hero->getStackCount(slot);
 	if(amount == 1)
 		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->getNameSingularTranslated());
@@ -1327,7 +1327,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	SThievesGuildInfo tgi; //info to be displayed
 	GAME->interface()->cb->getThievesGuildInfo(tgi, owner);
 
-	exitb = std::make_shared<CButton>(Point(748, 556), AnimationPath::builtin("TPMAGE1"), CButton::tooltip(VLC->generaltexth->allTexts[600]), [&](){ close();}, EShortcut::GLOBAL_RETURN);
+	exitb = std::make_shared<CButton>(Point(748, 556), AnimationPath::builtin("TPMAGE1"), CButton::tooltip(LIBRARY->generaltexth->allTexts[600]), [&](){ close();}, EShortcut::GLOBAL_RETURN);
 	statusbar = CGStatusBar::create(3, 555, ImagePath::builtin("TStatBar.bmp"), 742);
 
 	resdatabar = std::make_shared<CMinorResDataBar>();
@@ -1349,7 +1349,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		else
 			y = posY[g-9];
 
-		std::string text = VLC->generaltexth->jktexts[24+g];
+		std::string text = LIBRARY->generaltexth->jktexts[24+g];
 		boost::algorithm::trim_if(text,boost::algorithm::is_any_of("\""));
 		if(settings["general"]["enableUiEnhancements"].Bool() && g >= 2 && g <= 4) // add icons instead of text (text is OH3 behavior)
 		{
@@ -1377,7 +1377,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		columnBackgrounds.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PRSTRIPS"), g-1, 0, 250 + 66*g, 7));
 
 	for(int g=0; g<tgi.playerColors.size(); ++g)
-		columnHeaders.push_back(std::make_shared<CLabel>(283 + 66*g, 21, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->jktexts[16+g]));
+		columnHeaders.push_back(std::make_shared<CLabel>(283 + 66*g, 21, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[16+g]));
 
 	//printing flags
 	for(int g = 0; g < std::size(fields); ++g) //by lines
@@ -1422,12 +1422,12 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 			if(iter.second.details)
 			{
 				std::vector<std::string> lines;
-				boost::split(lines, VLC->generaltexth->allTexts[184], boost::is_any_of("\n"));
+				boost::split(lines, LIBRARY->generaltexth->allTexts[184], boost::is_any_of("\n"));
 				for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
 				{
 					primSkillHeaders.push_back(std::make_shared<CLabel>(260 + 66 * counter, 407 + 11 * i, FONT_TINY, ETextAlignment::BOTTOMLEFT, Colors::WHITE, lines[i]));
 					primSkillHeadersArea.push_back(std::make_shared<LRClickableArea>(Rect(primSkillHeaders.back()->pos.x - pos.x, primSkillHeaders.back()->pos.y - pos.y - 11, 50, 11), nullptr, [i]{
-						CRClickPopup::createAndPush(VLC->generaltexth->arraytxt[2 + i]);
+						CRClickPopup::createAndPush(LIBRARY->generaltexth->arraytxt[2 + i]);
 					}));
 					primSkillValues.push_back(std::make_shared<CLabel>(310 + 66 * counter, 407 + 11 * i, FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE,
 							   std::to_string(iter.second.details->primskills[i])));
@@ -1453,11 +1453,11 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		std::string text;
 		if(it.second == EAiTactic::NONE)
 		{
-			text = VLC->generaltexth->arraytxt[172];
+			text = LIBRARY->generaltexth->arraytxt[172];
 		}
 		else if(it.second != EAiTactic::RANDOM)
 		{
-			text = VLC->generaltexth->arraytxt[168 + static_cast<int>(it.second)];
+			text = LIBRARY->generaltexth->arraytxt[168 + static_cast<int>(it.second)];
 		}
 
 		personalities.push_back(std::make_shared<CLabel>(283 + 66*counter, 459, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, text));
@@ -1587,7 +1587,7 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 	const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
 	const ColorRGBA grayedColor = ColorRGBA(158, 130, 105);
 	searchBoxRectangle = std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor);
-	searchBoxDescription = std::make_shared<CLabel>(r.center().x, r.center().y, FONT_SMALL, ETextAlignment::CENTER, grayedColor, VLC->generaltexth->translate("vcmi.spellBook.search"));
+	searchBoxDescription = std::make_shared<CLabel>(r.center().x, r.center().y, FONT_SMALL, ETextAlignment::CENTER, grayedColor, LIBRARY->generaltexth->translate("vcmi.spellBook.search"));
 
 	searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, ETextAlignment::CENTER, true);
 	searchBox->setCallback([this](const std::string & text){

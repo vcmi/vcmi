@@ -99,7 +99,7 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, c
 			for(const auto & artSlot : ArtifactUtils::unmovableSlots())
 				if(slot == artSlot)
 				{
-					GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[21]);
+					GAME->interface()->showInfoDialog(LIBRARY->generaltexth->allTexts[21]);
 					break;
 				}
 		}
@@ -217,13 +217,13 @@ bool CWindowWithArtifacts::checkSpecialArts(const CArtifactInstance & artInst, c
 	if(artId == ArtifactID::CATAPULT)
 	{
 		// The Catapult must be equipped
-		GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[312],
+		GAME->interface()->showInfoDialog(LIBRARY->generaltexth->allTexts[312],
 			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, ArtifactID(ArtifactID::CATAPULT))));
 		return false;
 	}
 	if(isTrade && !artInst.getType()->isTradable())
 	{
-		GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[21],
+		GAME->interface()->showInfoDialog(LIBRARY->generaltexth->allTexts[21],
 			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, artId)));
 		return false;
 	}
@@ -258,14 +258,14 @@ void CWindowWithArtifacts::putPickedArtifact(const CGHeroInstance & curHero, con
 		if(pickedArt->getType()->isBig())
 		{
 			// War machines cannot go to backpack
-			GAME->interface()->showInfoDialog(boost::str(boost::format(VLC->generaltexth->allTexts[153]) % pickedArt->getType()->getNameTranslated()));
+			GAME->interface()->showInfoDialog(boost::str(boost::format(LIBRARY->generaltexth->allTexts[153]) % pickedArt->getType()->getNameTranslated()));
 		}
 		else
 		{
 			if(ArtifactUtils::isBackpackFreeSlots(heroArtOwner))
 				GAME->interface()->cb->swapArtifacts(srcLoc, dstLoc);
 			else
-				GAME->interface()->showInfoDialog(VLC->generaltexth->translate("core.genrltxt.152"));
+				GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("core.genrltxt.152"));
 		}
 	}
 	// Check if artifact transfer is possible

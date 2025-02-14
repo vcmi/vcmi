@@ -24,7 +24,7 @@
 #include "../lib/IGameSettings.h"
 #include "../lib/json/JsonNode.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/RiverHandler.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/TerrainHandler.h"
@@ -156,7 +156,7 @@ AssetGenerator::CanvasPtr AssetGenerator::createPlayerColoredBackground(const Pl
 	std::shared_ptr<IImage> texture = ENGINE->renderHandler().loadImage(locator);
 
 	// transform to make color of brown DIBOX.PCX texture match color of specified player
-	auto filterSettings = VLC->settingsHandler->getFullConfig()["interface"]["playerColoredBackground"];
+	auto filterSettings = LIBRARY->settingsHandler->getFullConfig()["interface"]["playerColoredBackground"];
 	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
 		ColorFilter::genRangeShifter( filterSettings["red"   ].convertTo<std::vector<float>>() ),
 		ColorFilter::genRangeShifter( filterSettings["blue"  ].convertTo<std::vector<float>>() ),
@@ -280,7 +280,7 @@ AssetGenerator::CanvasPtr AssetGenerator::createChroniclesCampaignImages(int chr
 
 void AssetGenerator::createPaletteShiftedSprites()
 {
-	for(auto entity : VLC->terrainTypeHandler->objects)
+	for(auto entity : LIBRARY->terrainTypeHandler->objects)
 	{
 		if(entity->paletteAnimation.empty())
 			continue;
@@ -292,7 +292,7 @@ void AssetGenerator::createPaletteShiftedSprites()
 		generatePaletteShiftedAnimation(entity->tilesFilename, paletteShifts);
 
 	}
-	for(auto entity : VLC->riverTypeHandler->objects)
+	for(auto entity : LIBRARY->riverTypeHandler->objects)
 	{
 		if(entity->paletteAnimation.empty())
 			continue;

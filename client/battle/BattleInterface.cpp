@@ -257,7 +257,7 @@ void BattleInterface::newRoundFirst()
 
 void BattleInterface::newRound()
 {
-	console->addText(VLC->generaltexth->allTexts[412]);
+	console->addText(LIBRARY->generaltexth->allTexts[412]);
 	round++;
 }
 

@@ -78,8 +78,8 @@ public:
 	void pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand);
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
 
-	void saveCommonState(CSaveFile &out) const; //stores GS and VLC
-	void loadCommonState(CLoadFile &in); //loads GS and VLC
+	void saveCommonState(CSaveFile &out) const; //stores GS and LIBRARY
+	void loadCommonState(CLoadFile &in); //loads GS and LIBRARY
 };
 
 class DLL_LINKAGE IGameEventCallback

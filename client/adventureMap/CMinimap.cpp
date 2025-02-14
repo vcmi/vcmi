@@ -159,13 +159,13 @@ void CMinimap::clickPressed(const Point & cursorPosition)
 
 void CMinimap::showPopupWindow(const Point & cursorPosition)
 {
-	CRClickPopup::createAndPush(VLC->generaltexth->zelp[291].second);
+	CRClickPopup::createAndPush(LIBRARY->generaltexth->zelp[291].second);
 }
 
 void CMinimap::hover(bool on)
 {
 	if(on)
-		ENGINE->statusbar()->write(VLC->generaltexth->zelp[291].first);
+		ENGINE->statusbar()->write(LIBRARY->generaltexth->zelp[291].first);
 	else
 		ENGINE->statusbar()->clear();
 }

@@ -46,9 +46,9 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	addSet(arts);
 	arts->setHero(hero);
 
-	std::string sortByValue = VLC->generaltexth->translate("vcmi.heroWindow.sortBackpackByCost.hover");
-	std::string sortBySlot = VLC->generaltexth->translate("vcmi.heroWindow.sortBackpackBySlot.hover");
-	std::string sortByClass = VLC->generaltexth->translate("vcmi.heroWindow.sortBackpackByClass.hover");
+	std::string sortByValue = LIBRARY->generaltexth->translate("vcmi.heroWindow.sortBackpackByCost.hover");
+	std::string sortBySlot = LIBRARY->generaltexth->translate("vcmi.heroWindow.sortBackpackBySlot.hover");
+	std::string sortByClass = LIBRARY->generaltexth->translate("vcmi.heroWindow.sortBackpackByClass.hover");
 	
 	buttons.emplace_back(std::make_shared<CButton>(Point(), AnimationPath::builtin("heroBackpackSort"),
 		CButton::tooltipLocalized("vcmi.heroWindow.sortBackpackByCost"),

@@ -13,7 +13,7 @@
 #include "../lib/rmg/CRmgTemplateStorage.h"
 #include "../lib/rmg/CRmgTemplate.h"
 #include "../lib/rmg/CMapGenerator.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
 #include "../lib/texts/CGeneralTextHandler.h"

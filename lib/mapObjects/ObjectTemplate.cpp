@@ -12,7 +12,7 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CBinaryReader.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
 #include "../texts/CLegacyConfigParser.h"
@@ -222,7 +222,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	{
 		for(const auto & entry : node["allowedTerrains"].Vector())
 		{
-			VLC->identifiers()->requestIdentifier("terrain", entry, [this](int32_t identifier){
+			LIBRARY->identifiers()->requestIdentifier("terrain", entry, [this](int32_t identifier){
 				allowedTerrains.insert(TerrainId(identifier));
 			});
 		}
@@ -301,12 +301,12 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 	if(withTerrain)
 	{
 		//assumed that ROCK and WATER terrains are not included
-		if(allowedTerrains.size() < (VLC->terrainTypeHandler->size() - 2))
+		if(allowedTerrains.size() < (LIBRARY->terrainTypeHandler->size() - 2))
 		{
 			JsonVector & data = node["allowedTerrains"].Vector();
 
 			for(auto type : allowedTerrains)
-				data.emplace_back(VLC->terrainTypeHandler->getById(type)->getJsonKey());
+				data.emplace_back(LIBRARY->terrainTypeHandler->getById(type)->getJsonKey());
 		}
 	}
 
@@ -502,7 +502,7 @@ bool ObjectTemplate::canBePlacedAt(TerrainId terrainID) const
 {
 	if (anyLandTerrain)
 	{
-		const auto & terrain = VLC->terrainTypeHandler->getById(terrainID);
+		const auto & terrain = LIBRARY->terrainTypeHandler->getById(terrainID);
 		return terrain->isLand() && terrain->isPassable();
 	}
 	return vstd::contains(allowedTerrains, terrainID);

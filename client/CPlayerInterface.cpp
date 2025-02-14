@@ -328,7 +328,7 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 			adventureInt->onHotseatWaitStarted(playerID);
 
 			makingTurn = true;
-			std::string msg = VLC->generaltexth->allTexts[13];
+			std::string msg = LIBRARY->generaltexth->allTexts[13];
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
 			cmp.push_back(std::make_shared<CComponent>(ComponentType::FLAG, playerID));
@@ -1495,7 +1495,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 			GAME->setInterfaceInstance(this);
 			ENGINE->curInt = this;
 			adventureInt->onCurrentPlayerChanged(playerID);
-			std::string msg = VLC->generaltexth->translate("vcmi.adventureMap.playerAttacked");
+			std::string msg = LIBRARY->generaltexth->translate("vcmi.adventureMap.playerAttacked");
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
 			cmp.push_back(std::make_shared<CComponent>(ComponentType::FLAG, playerID));
@@ -1574,7 +1574,7 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 	if (player == playerID)
 	{
 		if (victoryLossCheckResult.loss())
-			showInfoDialog(VLC->generaltexth->allTexts[95]);
+			showInfoDialog(LIBRARY->generaltexth->allTexts[95]);
 
 		assert(ENGINE->curInt == GAME->interface());
 		auto previousInterface = GAME->interface(); //without multiple player interfaces some of lines below are useless, but for hotseat we wanna swap player interface temporarily
@@ -1662,7 +1662,7 @@ void CPlayerInterface::tryDigging(const CGHeroInstance * h)
 	if(msgToShow < 0)
 		cb->dig(h);
 	else
-		showInfoDialog(VLC->generaltexth->allTexts[msgToShow]);
+		showInfoDialog(LIBRARY->generaltexth->allTexts[msgToShow]);
 }
 
 void CPlayerInterface::battleNewRoundFirst(const BattleID & battleID)
@@ -1815,7 +1815,7 @@ void CPlayerInterface::waitForAllDialogs()
 void CPlayerInterface::proposeLoadingGame()
 {
 	showYesNoDialog(
-		VLC->generaltexth->allTexts[68],
+		LIBRARY->generaltexth->allTexts[68],
 		[]()
 		{
 			GAME->server().endGameplay();

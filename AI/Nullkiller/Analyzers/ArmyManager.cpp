@@ -121,7 +121,7 @@ std::vector<SlotInfo>::iterator ArmyManager::getBestUnitForScout(std::vector<Slo
 		totalPower += unit.power;
 
 	int baseMovementCost = cb->getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
-	bool terrainHasPenalty = armyTerrain.hasValue() && armyTerrain.toEntity(VLC)->moveCost != baseMovementCost;
+	bool terrainHasPenalty = armyTerrain.hasValue() && armyTerrain.toEntity(LIBRARY)->moveCost != baseMovementCost;
 
 	// arbitrary threshold - don't give scout more than specified part of total AI value of our army
 	uint64_t maxUnitValue = totalPower / 100;

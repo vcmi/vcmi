@@ -18,7 +18,7 @@
 #include "../mapping/CMap.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 #include <vstd/RNG.h>
 
@@ -54,11 +54,11 @@ rmg::Tileset collectDistantTiles(const Zone& zone, int distance)
 
 int chooseRandomAppearance(vstd::RNG & generator, si32 ObjID, TerrainId terrain)
 {
-	auto factories = VLC->objtypeh->knownSubObjects(ObjID);
+	auto factories = LIBRARY->objtypeh->knownSubObjects(ObjID);
 	vstd::erase_if(factories, [ObjID, &terrain](si32 f)
 	{
 		//TODO: Use templates with lowest number of terrains (most specific)
-		return VLC->objtypeh->getHandlerFor(ObjID, f)->getTemplates(terrain).empty();
+		return LIBRARY->objtypeh->getHandlerFor(ObjID, f)->getTemplates(terrain).empty();
 	});
 	
 	return *RandomGeneratorUtil::nextItem(factories, generator);

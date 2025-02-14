@@ -16,7 +16,7 @@
 #include "../mapping/CMapHeader.h"
 #include "CRmgTemplateStorage.h"
 #include "CRmgTemplate.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "serializer/JsonSerializeFormat.h"
 
 #include <vstd/RNG.h>
@@ -453,7 +453,7 @@ void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 void CMapGenOptions::setMapTemplate(const std::string & name)
 {
 	if(!name.empty())
-		setMapTemplate(VLC->tplh->getTemplate(name));
+		setMapTemplate(LIBRARY->tplh->getTemplate(name));
 }
 
 void CMapGenOptions::setRoadEnabled(const RoadId & roadType, bool enable)
@@ -703,7 +703,7 @@ std::vector<const CRmgTemplate *> CMapGenOptions::getPossibleTemplates() const
 	int3 tplSize(width, height, (hasTwoLevels ? 2 : 1));
 	auto humanPlayers = countHumanPlayers();
 
-	auto templates = VLC->tplh->getTemplates();
+	auto templates = LIBRARY->tplh->getTemplates();
 
 	vstd::erase_if(templates, [this, &tplSize, humanPlayers](const CRmgTemplate * tmpl)
 	{
@@ -784,8 +784,8 @@ void CMapGenOptions::CPlayerSettings::setStartingTown(FactionID value)
 	assert(value >= FactionID::RANDOM);
 	if(value != FactionID::RANDOM)
 	{
-		assert(value < FactionID(VLC->townh->size()));
-		assert((*VLC->townh)[value]->town != nullptr);
+		assert(value < FactionID(LIBRARY->townh->size()));
+		assert((*LIBRARY->townh)[value]->town != nullptr);
 	}
 	startingTown = value;
 }
@@ -797,7 +797,7 @@ HeroTypeID CMapGenOptions::CPlayerSettings::getStartingHero() const
 
 void CMapGenOptions::CPlayerSettings::setStartingHero(HeroTypeID value)
 {
-	assert(value == HeroTypeID::RANDOM || value.toEntity(VLC) != nullptr);
+	assert(value == HeroTypeID::RANDOM || value.toEntity(LIBRARY) != nullptr);
 	startingHero = value;
 }
 

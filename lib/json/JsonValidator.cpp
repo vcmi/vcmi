@@ -13,7 +13,7 @@
 
 #include "JsonUtils.h"
 
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../filesystem/Filesystem.h"
 #include "../modding/ModScope.h"
 #include "../modding/CModHandler.h"
@@ -461,7 +461,7 @@ static bool testFilePresence(const std::string & scope, const ResourcePath & res
 	{
 		//NOTE: recursive dependencies are not allowed at the moment - update code if this changes
 		bool found = true;
-		allowedScopes = VLC->modh->getModDependencies(scope, found);
+		allowedScopes = LIBRARY->modh->getModDependencies(scope, found);
 
 		if(!found)
 			return false;

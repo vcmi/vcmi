@@ -24,7 +24,7 @@
 #include "../lib/networkPacks/PacksForLobby.h"
 #include "../lib/mapObjects/CArmedInstance.h"
 #include "../lib/CConfigHandler.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/texts/TextOperations.h"
 
@@ -94,7 +94,7 @@ void GameChatHandler::onNewGameMessageReceived(PlayerColor sender, const std::st
 		playerName = GAME->interface()->cb->getStartInfo()->playerInfos.at(sender).name;
 
 	if (sender.isSpectator())
-		playerName = VLC->generaltexth->translate("vcmi.lobby.login.spectator");
+		playerName = LIBRARY->generaltexth->translate("vcmi.lobby.login.spectator");
 
 	chatHistory.push_back({playerName, messageText, timeFormatted});
 

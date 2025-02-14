@@ -122,7 +122,7 @@ void Rewardable::Interface::grantRewardBeforeLevelup(const Rewardable::VisitInfo
 	TExpType expToGive = 0;
 
 	if (info.reward.heroLevel > 0)
-		expToGive += VLC->heroh->reqExp(hero->level+info.reward.heroLevel) - VLC->heroh->reqExp(hero->level);
+		expToGive += LIBRARY->heroh->reqExp(hero->level+info.reward.heroLevel) - LIBRARY->heroh->reqExp(hero->level);
 
 	if (info.reward.heroExperience > 0)
 		expToGive += hero->calculateXp(info.reward.heroExperience);
@@ -168,7 +168,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 		std::set<SpellID> spellsToGive;
 
 		for (auto const & spell : info.reward.spells)
-			if (hero->canLearnSpell(spell.toEntity(VLC), true))
+			if (hero->canLearnSpell(spell.toEntity(LIBRARY), true))
 				spellsToGive.insert(spell);
 
 		if (!spellsToGive.empty())

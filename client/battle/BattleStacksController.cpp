@@ -262,7 +262,7 @@ std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack *
 
 	for(const auto & spellID : activeSpells)
 	{
-		auto positiveness = VLC->spells()->getByIndex(spellID)->getPositiveness();
+		auto positiveness = LIBRARY->spells()->getByIndex(spellID)->getPositiveness();
 		if(!boost::logic::indeterminate(positiveness))
 		{
 			if(positiveness)

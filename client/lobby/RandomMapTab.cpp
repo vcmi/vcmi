@@ -114,7 +114,7 @@ RandomMapTab::RandomMapTab():
 		ENGINE->windows().createAndPushWindow<TeamAlignments>(*this);
 	});
 	
-	for(const auto & road : VLC->roadTypeHandler->objects)
+	for(const auto & road : LIBRARY->roadTypeHandler->objects)
 	{
 		std::string cbRoadType = "selectRoad_" + road->getJsonKey();
 		addCallback(cbRoadType, [&, roadID = road->getId()](bool on)
@@ -141,7 +141,7 @@ RandomMapTab::RandomMapTab():
 	if(auto w = widget<ComboBox>("templateList"))
 	{
 		w->onConstructItems = [](std::vector<const void *> & curItems){
-			auto templates = VLC->tplh->getTemplates();
+			auto templates = LIBRARY->tplh->getTemplates();
 		
 			boost::range::sort(templates, [](const CRmgTemplate * a, const CRmgTemplate * b){
 				return a->getName() < b->getName();
@@ -372,7 +372,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		else
 			w->setTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
-	for(const auto & r : VLC->roadTypeHandler->objects)
+	for(const auto & r : LIBRARY->roadTypeHandler->objects)
 	{
 		// Workaround for vcmi-extras bug
 		std::string jsonKey = r->getJsonKey();

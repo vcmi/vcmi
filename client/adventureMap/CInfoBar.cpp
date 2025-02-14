@@ -80,9 +80,9 @@ CInfoBar::VisibleDateInfo::VisibleDateInfo()
 
 	std::string labelText;
 	if(GAME->interface()->cb->getDate(Date::DAY_OF_WEEK) == 1 && GAME->interface()->cb->getDate(Date::DAY) != 1) // monday of any week but first - show new week info
-		labelText = VLC->generaltexth->allTexts[63] + " " + std::to_string(GAME->interface()->cb->getDate(Date::WEEK));
+		labelText = LIBRARY->generaltexth->allTexts[63] + " " + std::to_string(GAME->interface()->cb->getDate(Date::WEEK));
 	else
-		labelText = VLC->generaltexth->allTexts[64] + " " + std::to_string(GAME->interface()->cb->getDate(Date::DAY_OF_WEEK));
+		labelText = LIBRARY->generaltexth->allTexts[64] + " " + std::to_string(GAME->interface()->cb->getDate(Date::DAY_OF_WEEK));
 
 	label = std::make_shared<CLabel>(95, 31, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, labelText);
 
@@ -151,8 +151,8 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 
 	//generate widgets
 	background = std::make_shared<CPicture>(ImagePath::builtin("ADSTATIN"));
-	allyLabel = std::make_shared<CLabel>(10, 106, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[390] + ":");
-	enemyLabel = std::make_shared<CLabel>(10, 136, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->allTexts[391] + ":");
+	allyLabel = std::make_shared<CLabel>(10, 106, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[390] + ":");
+	enemyLabel = std::make_shared<CLabel>(10, 136, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[391] + ":");
 
 	int posx = allyLabel->pos.w + allyLabel->pos.x - pos.x + 4;
 	for(PlayerColor & player : allies)
@@ -308,13 +308,13 @@ void CInfoBar::clickReleased(const Point & cursorPosition, bool lastActivated)
 
 void CInfoBar::showPopupWindow(const Point & cursorPosition)
 {
-	CRClickPopup::createAndPush(VLC->generaltexth->allTexts[109]);
+	CRClickPopup::createAndPush(LIBRARY->generaltexth->allTexts[109]);
 }
 
 void CInfoBar::hover(bool on)
 {
 	if(on)
-		ENGINE->statusbar()->write(VLC->generaltexth->zelp[292].first);
+		ENGINE->statusbar()->write(LIBRARY->generaltexth->zelp[292].first);
 	else
 		ENGINE->statusbar()->clear();
 }

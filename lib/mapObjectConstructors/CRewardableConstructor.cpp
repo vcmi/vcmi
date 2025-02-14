@@ -25,7 +25,7 @@ void CRewardableConstructor::initTypeData(const JsonNode & config)
 	blockVisit = config["blockedVisitable"].Bool();
 
 	if (!config["name"].isNull())
-		VLC->generaltexth->registerString( config.getModScope(), getNameTextID(), config["name"]);
+		LIBRARY->generaltexth->registerString( config.getModScope(), getNameTextID(), config["name"]);
 
 	if (settings["mods"]["validation"].String() != "off")
 		JsonUtils::validate(config, "vcmi:rewardable", getJsonKey());

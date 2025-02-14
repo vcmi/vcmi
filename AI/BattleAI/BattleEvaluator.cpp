@@ -426,7 +426,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 		{
 			if(obst->triggersEffects())
 			{
-				auto triggerAbility =  VLC->spells()->getById(obst->getTrigger());
+				auto triggerAbility =  LIBRARY->spells()->getById(obst->getTrigger());
 				auto triggerIsNegative = triggerAbility->isNegative() || triggerAbility->isDamage();
 
 				if(triggerIsNegative)
@@ -494,7 +494,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	//Get all spells we can cast
 	std::vector<const CSpell*> possibleSpells;
 
-	for (auto const & s : VLC->spellh->objects)
+	for (auto const & s : LIBRARY->spellh->objects)
 		if (s->canBeCast(cb->getBattle(battleID).get(), spells::Mode::HERO, hero))
 			possibleSpells.push_back(s.get());
 

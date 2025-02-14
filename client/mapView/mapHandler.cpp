@@ -55,7 +55,7 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 	const TerrainTile & t = map->getTile(pos);
 
 	if(t.hasFavorableWinds())
-		return VLC->objtypeh->getObjectName(Obj::FAVORABLE_WINDS, 0);
+		return LIBRARY->objtypeh->getObjectName(Obj::FAVORABLE_WINDS, 0);
 
 	std::string result = t.getTerrain()->getNameTranslated();
 
@@ -72,7 +72,7 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 	{
 		return boost::str(
 			boost::format(rightClick ? "%s\r\n%s" : "%s %s") // New line for the Message Box, space for the Status Bar
-			% result % VLC->generaltexth->allTexts[330]
+			% result % LIBRARY->generaltexth->allTexts[330]
 		); // 'digging ok'
 	}
 
@@ -242,6 +242,6 @@ IMapObjectObserver::IMapObjectObserver()
 
 IMapObjectObserver::~IMapObjectObserver()
 {
-	if (VLC && MAPHANDLER)
+	if (LIBRARY && MAPHANDLER)
 		GAME->map().removeMapObserver(this);
 }

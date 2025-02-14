@@ -34,9 +34,9 @@ ArmyWidget::ArmyWidget(CArmedInstance & a, QWidget *parent) :
 		uiSlots[i]->addItem("");
 		uiSlots[i]->setItemData(0, -1);
 		
-		for(int c = 0; c < VLC->creh->objects.size(); ++c)
+		for(int c = 0; c < LIBRARY->creh->objects.size(); ++c)
 		{
-			auto const & creature = VLC->creh->objects[c];
+			auto const & creature = LIBRARY->creh->objects[c];
 			uiSlots[i]->insertItem(c + 1, creature->getNamePluralTranslated().c_str());
 			uiSlots[i]->setItemData(c + 1, creature->getIndex());
 		}

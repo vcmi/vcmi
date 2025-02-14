@@ -16,7 +16,7 @@
 
 #include "../battle/Unit.h"
 #include "../bonuses/Bonus.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../CSkillHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -46,10 +46,10 @@ void BonusCaster::getCasterName(MetaString & text) const
 			text.replaceNamePlural(bonus->sid.as<CreatureID>());
 			break;
 		case BonusSource::SECONDARY_SKILL:
-			text.replaceTextID(bonus->sid.as<SecondarySkill>().toEntity(VLC)->getNameTextID());
+			text.replaceTextID(bonus->sid.as<SecondarySkill>().toEntity(LIBRARY)->getNameTextID());
 			break;
 		case BonusSource::HERO_SPECIAL:
-			text.replaceTextID(bonus->sid.as<HeroTypeID>().toEntity(VLC)->getNameTextID());
+			text.replaceTextID(bonus->sid.as<HeroTypeID>().toEntity(LIBRARY)->getNameTextID());
 			break;
 		default:
 			actualCaster->getCasterName(text);

@@ -32,8 +32,8 @@ CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance 
 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title));
 	deal = std::make_shared<CButton>(dealButtonPos, AnimationPath::builtin("TPMRKB.DEF"),
-		VLC->generaltexth->zelp[595], [this](){CArtifactsBuying::makeDeal();}, EShortcut::MARKET_DEAL);
-	labels.emplace_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->allTexts[168]));
+		LIBRARY->generaltexth->zelp[595], [this](){CArtifactsBuying::makeDeal();}, EShortcut::MARKET_DEAL);
+	labels.emplace_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[168]));
 
 	// Player's resources
 	assert(bidTradePanel);
@@ -75,7 +75,7 @@ void CArtifactsBuying::makeDeal()
 	}
 	else
 	{
-		GAME->interface()->showInfoDialog(VLC->generaltexth->translate("core.genrltxt.326"));
+		GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("core.genrltxt.326"));
 	}
 }
 
@@ -85,7 +85,7 @@ CMarketBase::MarketShowcasesParams CArtifactsBuying::getShowcasesParams() const
 		return MarketShowcasesParams
 		{
 			ShowcaseParams {std::to_string(deal->isBlocked() ? 0 : bidQty), bidTradePanel->getHighlightedItemId()},
-			ShowcaseParams {std::to_string(deal->isBlocked() ? 0 : offerQty), VLC->artifacts()->getByIndex(offerTradePanel->getHighlightedItemId())->getIconIndex()}
+			ShowcaseParams {std::to_string(deal->isBlocked() ? 0 : offerQty), LIBRARY->artifacts()->getByIndex(offerTradePanel->getHighlightedItemId())->getIconIndex()}
 		};
 	else
 		return MarketShowcasesParams {std::nullopt, std::nullopt};
@@ -115,6 +115,6 @@ std::string CArtifactsBuying::getTraderText()
 	}
 	else
 	{
-		return madeTransaction ? VLC->generaltexth->allTexts[162] : VLC->generaltexth->allTexts[163];
+		return madeTransaction ? LIBRARY->generaltexth->allTexts[162] : LIBRARY->generaltexth->allTexts[163];
 	}
 }

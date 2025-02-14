@@ -20,7 +20,7 @@
 #include "NetPackVisitor.h"
 #include "texts/CGeneralTextHandler.h"
 #include "CArtHandler.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 #include "mapping/CMap.h"
 #include "spells/CSpellHandler.h"
 #include "CCreatureHandler.h"

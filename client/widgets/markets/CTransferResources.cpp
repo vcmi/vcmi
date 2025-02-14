@@ -24,7 +24,7 @@
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/IMarket.h"
 #include "../../../lib/texts/MetaString.h"
-#include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/GameLibrary.h"
 
 CTransferResources::CTransferResources(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
@@ -34,10 +34,10 @@ CTransferResources::CTransferResources(const IMarket * market, const CGHeroInsta
 {
 	OBJECT_CONSTRUCTION;
 
-	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->allTexts[158]));
-	labels.emplace_back(std::make_shared<CLabel>(445, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->allTexts[169]));
+	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[158]));
+	labels.emplace_back(std::make_shared<CLabel>(445, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[169]));
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
-		VLC->generaltexth->zelp[595], [this](){CTransferResources::makeDeal();}, EShortcut::MARKET_DEAL);
+		LIBRARY->generaltexth->zelp[595], [this](){CTransferResources::makeDeal();}, EShortcut::MARKET_DEAL);
 
 	// Player's resources
 	assert(bidTradePanel);
@@ -78,7 +78,7 @@ CMarketBase::MarketShowcasesParams CTransferResources::getShowcasesParams() cons
 		return MarketShowcasesParams
 		{
 			ShowcaseParams {std::to_string(offerSlider->getValue()), bidTradePanel->getHighlightedItemId()},
-			ShowcaseParams {VLC->generaltexth->capColors[offerTradePanel->getHighlightedItemId()], offerTradePanel->getHighlightedItemId()}
+			ShowcaseParams {LIBRARY->generaltexth->capColors[offerTradePanel->getHighlightedItemId()], offerTradePanel->getHighlightedItemId()}
 		};
 	else
 		return MarketShowcasesParams {std::nullopt, std::nullopt};
@@ -109,6 +109,6 @@ std::string CTransferResources::getTraderText()
 	}
 	else
 	{
-		return madeTransaction ? VLC->generaltexth->allTexts[166] : VLC->generaltexth->allTexts[167];
+		return madeTransaction ? LIBRARY->generaltexth->allTexts[166] : LIBRARY->generaltexth->allTexts[167];
 	}
 }

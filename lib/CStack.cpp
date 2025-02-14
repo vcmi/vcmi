@@ -167,7 +167,7 @@ std::string CStack::nodeName() const
 	oss << owner.toString();
 	oss << " battle stack [" << ID << "]: " << getCount() << " of ";
 	if(typeID.hasValue())
-		oss << typeID.toEntity(VLC)->getJsonKey();
+		oss << typeID.toEntity(LIBRARY)->getJsonKey();
 	else
 		oss << "[UNDEFINED TYPE]";
 
@@ -306,7 +306,7 @@ bool CStack::isMeleeAttackPossible(const battle::Unit * attacker, const battle::
 
 std::string CStack::getName() const
 {
-	return (getCount() == 1) ? typeID.toEntity(VLC)->getNameSingularTranslated() : typeID.toEntity(VLC)->getNamePluralTranslated(); //War machines can't use base
+	return (getCount() == 1) ? typeID.toEntity(LIBRARY)->getNameSingularTranslated() : typeID.toEntity(LIBRARY)->getNamePluralTranslated(); //War machines can't use base
 }
 
 bool CStack::canBeHealed() const
@@ -422,7 +422,7 @@ void CStack::postDeserialize(const CArmedInstance * army, const SlotID & extSlot
 	else if(!army || extSlot == SlotID() || !army->hasStackAtSlot(extSlot))
 	{
 		base = nullptr;
-		logGlobal->warn("%s doesn't have a base stack!", typeID.toEntity(VLC)->getNameSingularTranslated());
+		logGlobal->warn("%s doesn't have a base stack!", typeID.toEntity(LIBRARY)->getNameSingularTranslated());
 	}
 	else
 	{

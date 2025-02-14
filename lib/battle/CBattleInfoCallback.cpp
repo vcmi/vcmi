@@ -712,7 +712,7 @@ bool CBattleInfoCallback::battleCanTargetEmptyHex(const battle::Unit * attacker)
 {
 	RETURN_IF_NOT_BATTLE(false);
 
-	if(!VLC->engineSettings()->getBoolean(EGameSettings::COMBAT_AREA_SHOT_CAN_TARGET_EMPTY_HEX))
+	if(!LIBRARY->engineSettings()->getBoolean(EGameSettings::COMBAT_AREA_SHOT_CAN_TARGET_EMPTY_HEX))
 		return false;
 
 	if(attacker->hasBonusOfType(BonusType::SPELL_LIKE_ATTACK))
@@ -1195,7 +1195,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 
 BattleHex CBattleInfoCallback::getAvailableHex(const CreatureID & creID, BattleSide side, int initialPos) const
 {
-	bool twoHex = VLC->creatures()->getById(creID)->isDoubleWide();
+	bool twoHex = LIBRARY->creatures()->getById(creID)->isDoubleWide();
 
 	int pos;
 	if (initialPos > -1)

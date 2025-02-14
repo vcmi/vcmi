@@ -142,7 +142,7 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	{
 		std::string playerName = settings["general"]["playerName"].String();
 		if(playerName == "Player")
-			playerName = VLC->generaltexth->translate("core.genrltxt.434");
+			playerName = LIBRARY->generaltexth->translate("core.genrltxt.434");
 		localPlayerNames.push_back(playerName);
 	}
 
@@ -228,7 +228,7 @@ void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 	{
 		// remote server refused connection - show error message
 		setState(EClientState::NONE);
-		CInfoWindow::showInfoDialog(VLC->generaltexth->translate("vcmi.mainMenu.serverConnectionFailed"), {});
+		CInfoWindow::showInfoDialog(LIBRARY->generaltexth->translate("vcmi.mainMenu.serverConnectionFailed"), {});
 	}
 }
 
@@ -564,12 +564,12 @@ bool CServerHandler::validateGameStart(bool allowOnlyAI) const
 		std::string errorMsg;
 		if(!e.whatMissing().empty())
 		{
-			errorMsg += VLC->generaltexth->translate("vcmi.server.errors.modsToEnable") + '\n';
+			errorMsg += LIBRARY->generaltexth->translate("vcmi.server.errors.modsToEnable") + '\n';
 			errorMsg += e.whatMissing();
 		}
 		if(!e.whatExcessive().empty())
 		{
-			errorMsg += VLC->generaltexth->translate("vcmi.server.errors.modsToDisable") + '\n';
+			errorMsg += LIBRARY->generaltexth->translate("vcmi.server.errors.modsToDisable") + '\n';
 			errorMsg += e.whatExcessive();
 		}
 		showServerError(errorMsg);
@@ -892,7 +892,7 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 	{
 		endGameplay();
 		CMM->menu->switchToTab("main");
-		showServerError(VLC->generaltexth->translate("vcmi.server.errors.disconnected"));
+		showServerError(LIBRARY->generaltexth->translate("vcmi.server.errors.disconnected"));
 	}
 	else
 	{
@@ -921,7 +921,7 @@ void CServerHandler::waitForServerShutdown()
 	{
 		if (getState() == EClientState::CONNECTING)
 		{
-			showServerError(VLC->generaltexth->translate("vcmi.server.errors.existingProcess"));
+			showServerError(LIBRARY->generaltexth->translate("vcmi.server.errors.existingProcess"));
 			setState(EClientState::CONNECTION_CANCELLED); // stop attempts to reconnect
 		}
 		logNetwork->error("Error: server failed to close correctly or crashed!");

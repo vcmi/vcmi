@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 #include "CBuildingHandler.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 #include "../faction/CTown.h"
 #include "../faction/CTownHandler.h"
 
@@ -39,7 +39,7 @@ BuildingID CBuildingHandler::campToERMU(int camp, FactionID townType, const std:
 	};
 
 	int curPos = static_cast<int>(campToERMU.size());
-	for (int i=0; i<(*VLC->townh)[townType]->town->creatures.size(); ++i)
+	for (int i=0; i<(*LIBRARY->townh)[townType]->town->creatures.size(); ++i)
 	{
 		if(camp == curPos) //non-upgraded
 			return BuildingID(30 + i);

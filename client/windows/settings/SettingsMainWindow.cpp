@@ -18,7 +18,7 @@
 
 #include "CMT.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
-#include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/GameLibrary.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "../../../lib/filesystem/ResourcePath.h"
@@ -121,7 +121,7 @@ void SettingsMainWindow::close()
 void SettingsMainWindow::quitGameButtonCallback()
 {
 	GAME->interface()->showYesNoDialog(
-		VLC->generaltexth->allTexts[578],
+		LIBRARY->generaltexth->allTexts[578],
 		[this]()
 		{
 			close();
@@ -142,7 +142,7 @@ void SettingsMainWindow::backButtonCallback()
 void SettingsMainWindow::mainMenuButtonCallback()
 {
 	GAME->interface()->showYesNoDialog(
-		VLC->generaltexth->allTexts[578],
+		LIBRARY->generaltexth->allTexts[578],
 		[this]()
 		{
 			close();
@@ -168,7 +168,7 @@ void SettingsMainWindow::saveGameButtonCallback()
 void SettingsMainWindow::restartGameButtonCallback()
 {
 	GAME->interface()->showYesNoDialog(
-		VLC->generaltexth->allTexts[67],
+		LIBRARY->generaltexth->allTexts[67],
 		[this]()
 		{
 			close();

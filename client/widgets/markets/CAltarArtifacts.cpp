@@ -35,16 +35,16 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 	altarArtifactsStorage = market->getArtifactsStorage();
 
 	deal = std::make_shared<CButton>(Point(269, 520), AnimationPath::builtin("ALTSACR.DEF"),
-		VLC->generaltexth->zelp[585], [this]() {CAltarArtifacts::makeDeal(); }, EShortcut::MARKET_DEAL);
-	labels.emplace_back(std::make_shared<CLabel>(450, 32, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->allTexts[477]));
-	labels.emplace_back(std::make_shared<CLabel>(302, 424, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->allTexts[478]));
+		LIBRARY->generaltexth->zelp[585], [this]() {CAltarArtifacts::makeDeal(); }, EShortcut::MARKET_DEAL);
+	labels.emplace_back(std::make_shared<CLabel>(450, 32, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[477]));
+	labels.emplace_back(std::make_shared<CLabel>(302, 424, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[478]));
 
 	sacrificeAllButton = std::make_shared<CButton>(Point(393, 520), AnimationPath::builtin("ALTFILL.DEF"),
-		VLC->generaltexth->zelp[571], std::bind(&CExperienceAltar::sacrificeAll, this), EShortcut::MARKET_SACRIFICE_ALL);
+		LIBRARY->generaltexth->zelp[571], std::bind(&CExperienceAltar::sacrificeAll, this), EShortcut::MARKET_SACRIFICE_ALL);
 	sacrificeAllButton->block(hero->artifactsInBackpack.empty() && hero->artifactsWorn.empty());
 
 	sacrificeBackpackButton = std::make_shared<CButton>(Point(147, 520), AnimationPath::builtin("ALTEMBK.DEF"),
-		VLC->generaltexth->zelp[570], std::bind(&CAltarArtifacts::sacrificeBackpack, this), EShortcut::MARKET_SACRIFICE_BACKPACK);
+		LIBRARY->generaltexth->zelp[570], std::bind(&CAltarArtifacts::sacrificeBackpack, this), EShortcut::MARKET_SACRIFICE_BACKPACK);
 	sacrificeBackpackButton->block(hero->artifactsInBackpack.empty());
 
 	// Hero's artifacts
@@ -188,7 +188,7 @@ CMarketBase::MarketShowcasesParams CAltarArtifacts::getShowcasesParams() const
 		return MarketShowcasesParams
 		{
 			std::nullopt,
-			ShowcaseParams {std::to_string(offerQty), VLC->artifacts()->getByIndex(art->getTypeId())->getIconIndex()}
+			ShowcaseParams {std::to_string(offerQty), LIBRARY->artifacts()->getByIndex(art->getTypeId())->getIconIndex()}
 		};
 	return MarketShowcasesParams {std::nullopt, std::nullopt};
 }

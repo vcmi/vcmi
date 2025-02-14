@@ -19,9 +19,9 @@ void HillFortInstanceConstructor::initTypeData(const JsonNode & config)
 {
 	parameters = config;
 	if(!parameters["unavailableUpgradeMessage"].isNull())
-		VLC->generaltexth->registerString(parameters.getModScope(), TextIdentifier(getBaseTextID(), "unavailableUpgradeMessage"), parameters["unavailableUpgradeMessage"].String());
+		LIBRARY->generaltexth->registerString(parameters.getModScope(), TextIdentifier(getBaseTextID(), "unavailableUpgradeMessage"), parameters["unavailableUpgradeMessage"].String());
 	
-	VLC->generaltexth->registerString(parameters.getModScope(), TextIdentifier(getBaseTextID(), "description"), parameters["description"].String());
+	LIBRARY->generaltexth->registerString(parameters.getModScope(), TextIdentifier(getBaseTextID(), "description"), parameters["description"].String());
 }
 
 void HillFortInstanceConstructor::initializeObject(HillFort * fort) const

@@ -15,7 +15,7 @@
 #include "../json/JsonRandom.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 #include "../CConfigHandler.h"
 #include "../entities/faction/CTownHandler.h"
@@ -45,7 +45,7 @@ bool CreatureInstanceConstructor::hasNameTextID() const
 
 std::string CreatureInstanceConstructor::getNameTextID() const
 {
-	return VLC->creatures()->getByIndex(getSubIndex())->getNamePluralTextID();
+	return LIBRARY->creatures()->getByIndex(getSubIndex())->getNamePluralTextID();
 }
 
 void ResourceInstanceConstructor::initTypeData(const JsonNode & input)
@@ -53,7 +53,7 @@ void ResourceInstanceConstructor::initTypeData(const JsonNode & input)
 	config = input;
 
 	resourceType = GameResID::GOLD; //set up fallback
-	VLC->identifiers()->requestIdentifierOptional("resource", input["resource"], [&](si32 index)
+	LIBRARY->identifiers()->requestIdentifierOptional("resource", input["resource"], [&](si32 index)
 	{
 		resourceType = GameResID(index);
 	});
@@ -97,9 +97,9 @@ void ResourceInstanceConstructor::randomizeObject(CGResource * object, vstd::RNG
 
 void CTownInstanceConstructor::initTypeData(const JsonNode & input)
 {
-	VLC->identifiers()->requestIdentifier("faction", input["faction"], [&](si32 index)
+	LIBRARY->identifiers()->requestIdentifier("faction", input["faction"], [&](si32 index)
 	{
-		faction = (*VLC->townh)[index];
+		faction = (*LIBRARY->townh)[index];
 	});
 
 	filtersJson = input["filters"];
@@ -116,7 +116,7 @@ void CTownInstanceConstructor::afterLoadFinalization()
 	{
 		filters[entry.first] = LogicalExpression<BuildingID>(entry.second, [this](const JsonNode & node)
 		{
-			return BuildingID(VLC->identifiers()->getIdentifier("building." + faction->getJsonKey(), node.Vector()[0]).value_or(-1));
+			return BuildingID(LIBRARY->identifiers()->getIdentifier("building." + faction->getJsonKey(), node.Vector()[0]).value_or(-1));
 		});
 	}
 }
@@ -157,7 +157,7 @@ std::string CTownInstanceConstructor::getNameTextID() const
 
 void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
 {
-	VLC->identifiers()->requestIdentifier(
+	LIBRARY->identifiers()->requestIdentifier(
 		"heroClass",
 		input["heroClass"],
 		[&](si32 index) { heroClass = HeroClassID(index).toHeroClass(); });
@@ -171,7 +171,7 @@ void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
 
 		if (!config["hero"].isNull())
 		{
-			VLC->identifiers()->requestIdentifier( "hero", config["hero"], [this, templateName = name](si32 index) {
+			LIBRARY->identifiers()->requestIdentifier( "hero", config["hero"], [this, templateName = name](si32 index) {
 				filters.at(templateName).fixedHero = HeroTypeID(index);
 			});
 		}
@@ -288,7 +288,7 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 	{
 		std::string description = input["description"].String();
 		descriptionTextID = TextIdentifier(getBaseTextID(), "description").get();
-		VLC->generaltexth->registerString( input.getModScope(), descriptionTextID, input["description"]);
+		LIBRARY->generaltexth->registerString( input.getModScope(), descriptionTextID, input["description"]);
 	}
 
 	if (!input["speech"].isNull())
@@ -301,7 +301,7 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 		else
 		{
 			speechTextID = TextIdentifier(getBaseTextID(), "speech").get();
-			VLC->generaltexth->registerString( input.getModScope(), speechTextID, input["speech"]);
+			LIBRARY->generaltexth->registerString( input.getModScope(), speechTextID, input["speech"]);
 		}
 	}
 
@@ -357,7 +357,7 @@ void MarketInstanceConstructor::randomizeObject(CGMarket * object, vstd::RNG & r
 std::string MarketInstanceConstructor::getSpeechTranslated() const
 {
 	assert(marketModes.count(EMarketMode::RESOURCE_SKILL));
-	return VLC->generaltexth->translate(speechTextID);
+	return LIBRARY->generaltexth->translate(speechTextID);
 }
 
 int MarketInstanceConstructor::getMarketEfficiency() const

@@ -18,7 +18,7 @@
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 
 void FontChain::renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
 {
@@ -59,9 +59,9 @@ bool FontChain::bitmapFontsPrioritized(const std::string & bitmapFontName) const
 	if (!vstd::isAlmostEqual(1.0, settings["video"]["fontScalingFactor"].Float()))
 		return false; // If player requested non-100% scaling - use scalable fonts
 
-	std::string gameLanguage = VLC->generaltexth->getPreferredLanguage();
+	std::string gameLanguage = LIBRARY->generaltexth->getPreferredLanguage();
 	std::string gameEncoding = Languages::getLanguageOptions(gameLanguage).encoding;
-	std::string fontEncoding = VLC->modh->findResourceEncoding(ResourcePath("data/" + bitmapFontName, EResType::BMP_FONT));
+	std::string fontEncoding = LIBRARY->modh->findResourceEncoding(ResourcePath("data/" + bitmapFontName, EResType::BMP_FONT));
 
 	// player uses language with different encoding than his bitmap fonts
 	// for example, Polish language with English fonts or Chinese language which can't use H3 fonts at all

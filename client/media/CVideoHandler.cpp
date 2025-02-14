@@ -25,7 +25,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 
 #include <SDL_render.h>
 
@@ -524,7 +524,7 @@ int FFMpegStream::findAudioStream() const
 		}
 	}
 
-	std::string preferredLanguageName = VLC->generaltexth->getPreferredLanguage();
+	std::string preferredLanguageName = LIBRARY->generaltexth->getPreferredLanguage();
 	std::string preferredTag = Languages::getLanguageOptions(preferredLanguageName).tagISO2;
 
 	for (auto const & entry : streamToLanguage)

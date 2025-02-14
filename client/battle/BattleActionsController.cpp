@@ -55,8 +55,8 @@ static std::string replacePlaceholders(std::string input, const TextReplacementL
 static std::string translatePlural(int amount, const std::string& baseTextID)
 {
 	if(amount == 1)
-		return VLC->generaltexth->translate(baseTextID + ".1");
-	return VLC->generaltexth->translate(baseTextID);
+		return LIBRARY->generaltexth->translate(baseTextID + ".1");
+	return LIBRARY->generaltexth->translate(baseTextID);
 }
 
 static std::string formatPluralImpl(int amount, const std::string & amountString, const std::string & baseTextID)
@@ -93,7 +93,7 @@ static std::string formatAttack(const DamageEstimation & estimation, const std::
 		{ "%KILLS", formatPlural(estimation.kills, "vcmi.battleWindow.damageEstimation.kills") },
 	};
 
-	return replacePlaceholders(VLC->generaltexth->translate(baseTextID), replacements);
+	return replacePlaceholders(LIBRARY->generaltexth->translate(baseTextID), replacements);
 }
 
 static std::string formatMeleeAttack(const DamageEstimation & estimation, const std::string & creatureName)
@@ -117,7 +117,7 @@ static std::string formatRangedAttack(const DamageEstimation & estimation, const
 static std::string formatRetaliation(const DamageEstimation & estimation, bool mayBeKilled)
 {
 	if (estimation.damage.max == 0)
-		return VLC->generaltexth->translate("vcmi.battleWindow.damageRetaliation.never");
+		return LIBRARY->generaltexth->translate("vcmi.battleWindow.damageRetaliation.never");
 
 	std::string baseTextID = estimation.kills.max == 0 ?
 								 "vcmi.battleWindow.damageRetaliation.damage" :
@@ -127,7 +127,7 @@ static std::string formatRetaliation(const DamageEstimation & estimation, bool m
 		"vcmi.battleWindow.damageRetaliation.may" :
 		"vcmi.battleWindow.damageRetaliation.will";
 
-	return VLC->generaltexth->translate(prefixTextID) + formatAttack(estimation, "", baseTextID, 0);
+	return LIBRARY->generaltexth->translate(prefixTextID) + formatAttack(estimation, "", baseTextID, 0);
 }
 
 BattleActionsController::BattleActionsController(BattleInterface & owner):
@@ -507,14 +507,14 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 	switch (action.get()) //display console message, realize selected action
 	{
 		case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
-			return (boost::format(VLC->generaltexth->allTexts[481]) % targetStack->getName()).str(); //Select %s
+			return (boost::format(LIBRARY->generaltexth->allTexts[481]) % targetStack->getName()).str(); //Select %s
 
 		case PossiblePlayerBattleAction::MOVE_TACTICS:
 		case PossiblePlayerBattleAction::MOVE_STACK:
 			if (owner.stacksController->getActiveStack()->hasBonusOfType(BonusType::FLYING))
-				return (boost::format(VLC->generaltexth->allTexts[295]) % owner.stacksController->getActiveStack()->getName()).str(); //Fly %s here
+				return (boost::format(LIBRARY->generaltexth->allTexts[295]) % owner.stacksController->getActiveStack()->getName()).str(); //Fly %s here
 			else
-				return (boost::format(VLC->generaltexth->allTexts[294]) % owner.stacksController->getActiveStack()->getName()).str(); //Move %s here
+				return (boost::format(LIBRARY->generaltexth->allTexts[294]) % owner.stacksController->getActiveStack()->getName()).str(); //Move %s here
 
 		case PossiblePlayerBattleAction::ATTACK:
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
@@ -539,7 +539,7 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			{
 				auto spellLikeAttackBonus = owner.stacksController->getActiveStack()->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
 				assert(spellLikeAttackBonus != nullptr);
-				return boost::str(boost::format(VLC->generaltexth->allTexts[26]) % spellLikeAttackBonus->subtype.as<SpellID>().toSpell()->getNameTranslated());
+				return boost::str(boost::format(LIBRARY->generaltexth->allTexts[26]) % spellLikeAttackBonus->subtype.as<SpellID>().toSpell()->getNameTranslated());
 			}
 
 			const auto * shooter = owner.stacksController->getActiveStack();
@@ -553,37 +553,37 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 		}
 
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-			return boost::str(boost::format(VLC->generaltexth->allTexts[27]) % action.spell().toSpell()->getNameTranslated() % targetStack->getName()); //Cast %s on %s
+			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[27]) % action.spell().toSpell()->getNameTranslated() % targetStack->getName()); //Cast %s on %s
 
 		case PossiblePlayerBattleAction::ANY_LOCATION:
-			return boost::str(boost::format(VLC->generaltexth->allTexts[26]) % action.spell().toSpell()->getNameTranslated()); //Cast %s
+			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[26]) % action.spell().toSpell()->getNameTranslated()); //Cast %s
 
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be available as random spell
-			return boost::str(boost::format(VLC->generaltexth->allTexts[301]) % targetStack->getName()); //Cast a spell on %
+			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[301]) % targetStack->getName()); //Cast a spell on %
 
 		case PossiblePlayerBattleAction::TELEPORT:
-			return VLC->generaltexth->allTexts[25]; //Teleport Here
+			return LIBRARY->generaltexth->allTexts[25]; //Teleport Here
 
 		case PossiblePlayerBattleAction::OBSTACLE:
-			return VLC->generaltexth->allTexts[550];
+			return LIBRARY->generaltexth->allTexts[550];
 
 		case PossiblePlayerBattleAction::SACRIFICE:
-			return (boost::format(VLC->generaltexth->allTexts[549]) % targetStack->getName()).str(); //sacrifice the %s
+			return (boost::format(LIBRARY->generaltexth->allTexts[549]) % targetStack->getName()).str(); //sacrifice the %s
 
 		case PossiblePlayerBattleAction::FREE_LOCATION:
-			return boost::str(boost::format(VLC->generaltexth->allTexts[26]) % action.spell().toSpell()->getNameTranslated()); //Cast %s
+			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[26]) % action.spell().toSpell()->getNameTranslated()); //Cast %s
 
 		case PossiblePlayerBattleAction::HEAL:
-			return (boost::format(VLC->generaltexth->allTexts[419]) % targetStack->getName()).str(); //Apply first aid to the %s
+			return (boost::format(LIBRARY->generaltexth->allTexts[419]) % targetStack->getName()).str(); //Apply first aid to the %s
 
 		case PossiblePlayerBattleAction::CATAPULT:
 			return ""; // TODO
 
 		case PossiblePlayerBattleAction::CREATURE_INFO:
-			return (boost::format(VLC->generaltexth->allTexts[297]) % targetStack->getName()).str();
+			return (boost::format(LIBRARY->generaltexth->allTexts[297]) % targetStack->getName()).str();
 
 		case PossiblePlayerBattleAction::HERO_INFO:
-			return  VLC->generaltexth->translate("core.genrltxt.417"); // "View Hero Stats"
+			return  LIBRARY->generaltexth->translate("core.genrltxt.417"); // "View Hero Stats"
 	}
 	assert(0);
 	return "";
@@ -595,16 +595,16 @@ std::string BattleActionsController::actionGetStatusMessageBlocked(PossiblePlaye
 	{
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
-			return VLC->generaltexth->allTexts[23];
+			return LIBRARY->generaltexth->allTexts[23];
 			break;
 		case PossiblePlayerBattleAction::TELEPORT:
-			return VLC->generaltexth->allTexts[24]; //Invalid Teleport Destination
+			return LIBRARY->generaltexth->allTexts[24]; //Invalid Teleport Destination
 			break;
 		case PossiblePlayerBattleAction::SACRIFICE:
-			return VLC->generaltexth->allTexts[543]; //choose army to sacrifice
+			return LIBRARY->generaltexth->allTexts[543]; //choose army to sacrifice
 			break;
 		case PossiblePlayerBattleAction::FREE_LOCATION:
-			return boost::str(boost::format(VLC->generaltexth->allTexts[181]) % action.spell().toSpell()->getNameTranslated()); //No room to place %s here
+			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[181]) % action.spell().toSpell()->getNameTranslated()); //No room to place %s here
 			break;
 		default:
 			return "";
@@ -874,7 +874,7 @@ void BattleActionsController::onHexHovered(const BattleHex & hoveredHex)
 {
 	if (owner.openingPlaying())
 	{
-		currentConsoleMsg = VLC->generaltexth->translate("vcmi.battleWindow.pressKeyToSkipIntro");
+		currentConsoleMsg = LIBRARY->generaltexth->translate("vcmi.battleWindow.pressKeyToSkipIntro");
 		ENGINE->statusbar()->write(currentConsoleMsg);
 		return;
 	}
@@ -1064,7 +1064,7 @@ void BattleActionsController::onHexRightClicked(const BattleHex & clickedHex)
 	if (heroSpellcastingModeActive() || isCurrentStackInSpellcastMode)
 	{
 		endCastingSpell();
-		CRClickPopup::createAndPush(VLC->generaltexth->translate("core.genrltxt.731")); // spell cancelled
+		CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("core.genrltxt.731")); // spell cancelled
 		return;
 	}
 

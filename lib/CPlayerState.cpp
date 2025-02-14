@@ -16,7 +16,7 @@
 #include "mapObjects/CGHeroInstance.h"
 #include "gameState/QuestInfo.h"
 #include "texts/CGeneralTextHandler.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -66,7 +66,7 @@ std::string PlayerState::getModScope() const
 
 std::string PlayerState::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::string PlayerState::getNameTextID() const

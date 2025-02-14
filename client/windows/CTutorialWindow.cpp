@@ -14,7 +14,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../ConditionalWait.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 #include "../CPlayerInterface.h"
 
 #include "../GameEngine.h"
@@ -44,7 +44,7 @@ CTutorialWindow::CTutorialWindow(const TutorialMode & m)
 	if(mode == TutorialMode::TOUCH_ADVENTUREMAP) videos = { "RightClick", "MapPanning", "MapZooming", "RadialWheel" };
 	else if(mode == TutorialMode::TOUCH_BATTLE) videos = { "BattleDirection", "BattleDirectionAbort", "AbortSpell" };
 
-	labelTitle = std::make_shared<CLabel>(190, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->translate("vcmi.tutorialWindow.title"));
+	labelTitle = std::make_shared<CLabel>(190, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.tutorialWindow.title"));
 	labelInformation = std::make_shared<CMultiLineLabel>(Rect(5, 40, 370, 60), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "");
 	buttonOk = std::make_shared<CButton>(Point(159, 367), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CTutorialWindow::exit, this), EShortcut::GLOBAL_RETURN); //62x28
 	buttonLeft = std::make_shared<CButton>(Point(5, 217), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), std::bind(&CTutorialWindow::previous, this), EShortcut::MOVE_LEFT); //22x46
@@ -63,7 +63,7 @@ void CTutorialWindow::setContent()
 	buttonLeft->block(page<1);
 	buttonRight->block(page>videos.size() - 2);
 
-	labelInformation->setText(VLC->generaltexth->translate("vcmi.tutorialWindow.decription." + videos[page]));
+	labelInformation->setText(LIBRARY->generaltexth->translate("vcmi.tutorialWindow.decription." + videos[page]));
 }
 
 void CTutorialWindow::openWindowFirstTime(const TutorialMode & m)

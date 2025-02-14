@@ -14,7 +14,7 @@
 #include "constants/StringConstants.h"
 #include "serializer/JsonSerializeFormat.h"
 #include "mapObjects/CObjectHandler.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -98,7 +98,7 @@ TResourceCap ResourceSet::marketValue() const
 {
 	TResourceCap total = 0;
 	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
-		total += static_cast<TResourceCap>(VLC->objh->resVals[i]) * static_cast<TResourceCap>(operator[](i));
+		total += static_cast<TResourceCap>(LIBRARY->objh->resVals[i]) * static_cast<TResourceCap>(operator[](i));
 	return total;
 }
 

@@ -30,7 +30,7 @@
 #include "../../lib/modding/ModDescription.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/MetaString.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 
 GlobalLobbyRoomAccountCard::GlobalLobbyRoomAccountCard(const GlobalLobbyAccount & accountDescription)
 {
@@ -64,7 +64,7 @@ GlobalLobbyRoomModCard::GlobalLobbyRoomModCard(const GlobalLobbyRoomModInfo & mo
 		statusColor = ColorRGBA(128, 128, 128);
 	else if(modInfo.status == ModVerificationStatus::VERSION_MISMATCH)
 		statusColor = Colors::YELLOW;
-	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, statusColor, VLC->generaltexth->translate("vcmi.lobby.mod.state." + statusToString.at(modInfo.status)));
+	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, statusColor, LIBRARY->generaltexth->translate("vcmi.lobby.mod.state." + statusToString.at(modInfo.status)));
 }
 
 static std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDescription, const std::vector<GlobalLobbyRoomModInfo> & modVerificationList)
@@ -129,14 +129,14 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 		GlobalLobbyRoomModInfo modInfo;
 		modInfo.status = modEntry.second;
 		if (modEntry.second == ModVerificationStatus::EXCESSIVE)
-			modInfo.version = VLC->modh->getModInfo(modEntry.first).getVersion().toString();
+			modInfo.version = LIBRARY->modh->getModInfo(modEntry.first).getVersion().toString();
 		else
 			modInfo.version = roomDescription.modList.at(modEntry.first).version.toString();
 
 		if (modEntry.second == ModVerificationStatus::NOT_INSTALLED)
 			modInfo.modName = roomDescription.modList.at(modEntry.first).name;
 		else
-			modInfo.modName = VLC->modh->getModInfo(modEntry.first).getName();
+			modInfo.modName = LIBRARY->modh->getModInfo(modEntry.first).getName();
 
 		modVerificationList.push_back(modInfo);
 	}

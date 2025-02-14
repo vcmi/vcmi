@@ -43,7 +43,7 @@
 #include "../lib/modding/ModDescription.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/texts/MetaString.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/VCMIDirs.h"
 
 #include <boost/program_options.hpp>
@@ -97,7 +97,7 @@ static void init()
 
 static void checkForModLoadingFailure()
 {
-	const auto & brokenMods = VLC->identifiersHandler->getModsWithFailedRequests();
+	const auto & brokenMods = LIBRARY->identifiersHandler->getModsWithFailedRequests();
 	if (!brokenMods.empty())
 	{
 		MetaString messageText;
@@ -105,7 +105,7 @@ static void checkForModLoadingFailure()
 
 		for (const auto & modID : brokenMods)
 		{
-			messageText.appendRawString(VLC->modh->getModInfo(modID).getName());
+			messageText.appendRawString(LIBRARY->modh->getModInfo(modID).getName());
 			messageText.appendEOL();
 		}
 		CInfoWindow::showInfoDialog(messageText.toString(), {});
@@ -343,7 +343,7 @@ int main(int argc, char * argv[])
 	{
 		pomtime.getDiff();
 		graphics = new Graphics(); // should be before curh
-		ENGINE->renderHandler().onLibraryLoadingFinished(VLC);
+		ENGINE->renderHandler().onLibraryLoadingFinished(LIBRARY);
 
 		CMessage::init();
 		logGlobal->info("Message handler: %d ms", pomtime.getDiff());
@@ -452,7 +452,7 @@ static void mainLoop()
 		vstd::clear_pointer(graphics);
 	}
 
-	vstd::clear_pointer(VLC);
+	vstd::clear_pointer(LIBRARY);
 
 	// sometimes leads to a hang. TODO: investigate
 	//vstd::clear_pointer(console);// should be removed after everything else since used by logging
@@ -490,9 +490,9 @@ void handleQuit(bool ask)
 	}
 
 	if (GAME->interface())
-		GAME->interface()->showYesNoDialog(VLC->generaltexth->allTexts[69], quitApplication, nullptr);
+		GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[69], quitApplication, nullptr);
 	else
-		CInfoWindow::showYesNoDialog(VLC->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
+		CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
 }
 
 /// Notify user about encountered fatal error and terminate the game

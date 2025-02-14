@@ -48,7 +48,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 
 static JsonPath optionsTabConfigLocation()
 {
@@ -113,7 +113,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex(bool big)
 		if (playerSettings.castle == FactionID::RANDOM)
 			return TOWN_RANDOM;
 
-		return (*VLC->townh)[factionIndex]->town->clientInfo.icons[true][false] + (big ? 0 : 2);
+		return (*LIBRARY->townh)[factionIndex]->town->clientInfo.icons[true][false] + (big ? 0 : 2);
 	}
 
 	case HERO:
@@ -128,7 +128,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex(bool big)
 			return playerSettings.heroPortrait;
 
 		auto index = playerSettings.getHeroValidated();
-		return (*VLC->heroh)[index]->imageIndex;
+		return (*LIBRARY->heroh)[index]->imageIndex;
 	}
 
 	case BONUS:
@@ -143,7 +143,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex(bool big)
 			return GOLD;
 		case PlayerStartingBonus::RESOURCE:
 		{
-			switch((*VLC->townh)[factionIndex]->town->primaryRes.toEnum())
+			switch((*LIBRARY->townh)[factionIndex]->town->primaryRes.toEnum())
 			{
 			case EGameResID::WOOD_AND_ORE:
 				return WOOD_ORE;
@@ -192,33 +192,33 @@ std::string OptionsTab::CPlayerSettingsHelper::getName()
 		case TOWN:
 		{
 			if (playerSettings.castle == FactionID::NONE)
-				return VLC->generaltexth->allTexts[523];
+				return LIBRARY->generaltexth->allTexts[523];
 
 			if (playerSettings.castle == FactionID::RANDOM)
-				return VLC->generaltexth->allTexts[522];
+				return LIBRARY->generaltexth->allTexts[522];
 
 			auto factionIndex = playerSettings.getCastleValidated();
-			return (*VLC->townh)[factionIndex]->getNameTranslated();
+			return (*LIBRARY->townh)[factionIndex]->getNameTranslated();
 		}
 		case HERO:
 		{
 			if (playerSettings.hero == HeroTypeID::NONE)
-				return VLC->generaltexth->allTexts[523];
+				return LIBRARY->generaltexth->allTexts[523];
 
 			if (playerSettings.hero == HeroTypeID::RANDOM)
-					return VLC->generaltexth->allTexts[522];
+					return LIBRARY->generaltexth->allTexts[522];
 
 			if(!playerSettings.heroNameTextId.empty())
-				return VLC->generaltexth->translate(playerSettings.heroNameTextId);
+				return LIBRARY->generaltexth->translate(playerSettings.heroNameTextId);
 			auto index = playerSettings.getHeroValidated();
-			return (*VLC->heroh)[index]->getNameTranslated();
+			return (*LIBRARY->heroh)[index]->getNameTranslated();
 		}
 		case BONUS:
 		{
 			if (playerSettings.bonus == PlayerStartingBonus::RANDOM)
-					return VLC->generaltexth->allTexts[522];
+					return LIBRARY->generaltexth->allTexts[522];
 
-			return VLC->generaltexth->arraytxt[214 + static_cast<int>(playerSettings.bonus)];
+			return LIBRARY->generaltexth->arraytxt[214 + static_cast<int>(playerSettings.bonus)];
 		}
 	}
 	return "";
@@ -230,21 +230,21 @@ std::string OptionsTab::CPlayerSettingsHelper::getTitle()
 	switch(selectionType)
 	{
 	case OptionsTab::TOWN:
-		return playerSettings.castle.isValid() ? VLC->generaltexth->allTexts[80] : VLC->generaltexth->allTexts[103];
+		return playerSettings.castle.isValid() ? LIBRARY->generaltexth->allTexts[80] : LIBRARY->generaltexth->allTexts[103];
 	case OptionsTab::HERO:
-		return playerSettings.hero.isValid() ? VLC->generaltexth->allTexts[77] : VLC->generaltexth->allTexts[101];
+		return playerSettings.hero.isValid() ? LIBRARY->generaltexth->allTexts[77] : LIBRARY->generaltexth->allTexts[101];
 	case OptionsTab::BONUS:
 	{
 		switch(playerSettings.bonus)
 		{
 		case PlayerStartingBonus::RANDOM:
-			return VLC->generaltexth->allTexts[86]; //{Random Bonus}
+			return LIBRARY->generaltexth->allTexts[86]; //{Random Bonus}
 		case PlayerStartingBonus::ARTIFACT:
-			return VLC->generaltexth->allTexts[83]; //{Artifact Bonus}
+			return LIBRARY->generaltexth->allTexts[83]; //{Artifact Bonus}
 		case PlayerStartingBonus::GOLD:
-			return VLC->generaltexth->allTexts[84]; //{Gold Bonus}
+			return LIBRARY->generaltexth->allTexts[84]; //{Gold Bonus}
 		case PlayerStartingBonus::RESOURCE:
-			return VLC->generaltexth->allTexts[85]; //{Resource Bonus}
+			return LIBRARY->generaltexth->allTexts[85]; //{Resource Bonus}
 		}
 	}
 	}
@@ -262,7 +262,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 	case HERO:
 	{
 		if(playerSettings.hero.isValid())
-			return getName() + " - " + (*VLC->heroh)[heroIndex]->heroClass->getNameTranslated();
+			return getName() + " - " + (*LIBRARY->heroh)[heroIndex]->heroClass->getNameTranslated();
 		return getName();
 	}
 
@@ -271,21 +271,21 @@ std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 		switch(playerSettings.bonus)
 		{
 		case PlayerStartingBonus::GOLD:
-			return VLC->generaltexth->allTexts[87]; //500-1000
+			return LIBRARY->generaltexth->allTexts[87]; //500-1000
 		case PlayerStartingBonus::RESOURCE:
 		{
-			switch((*VLC->townh)[factionIndex]->town->primaryRes.toEnum())
+			switch((*LIBRARY->townh)[factionIndex]->town->primaryRes.toEnum())
 			{
 			case EGameResID::MERCURY:
-				return VLC->generaltexth->allTexts[694];
+				return LIBRARY->generaltexth->allTexts[694];
 			case EGameResID::SULFUR:
-				return VLC->generaltexth->allTexts[695];
+				return LIBRARY->generaltexth->allTexts[695];
 			case EGameResID::CRYSTAL:
-				return VLC->generaltexth->allTexts[692];
+				return LIBRARY->generaltexth->allTexts[692];
 			case EGameResID::GEMS:
-				return VLC->generaltexth->allTexts[693];
+				return LIBRARY->generaltexth->allTexts[693];
 			case EGameResID::WOOD_AND_ORE:
-				return VLC->generaltexth->allTexts[89]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
+				return LIBRARY->generaltexth->allTexts[89]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
 			}
 		}
 		}
@@ -301,33 +301,33 @@ std::string OptionsTab::CPlayerSettingsHelper::getDescription()
 	switch(selectionType)
 	{
 	case TOWN:
-		return VLC->generaltexth->allTexts[104];
+		return LIBRARY->generaltexth->allTexts[104];
 	case HERO:
-		return VLC->generaltexth->allTexts[102];
+		return LIBRARY->generaltexth->allTexts[102];
 	case BONUS:
 	{
 		switch(playerSettings.bonus)
 		{
 		case PlayerStartingBonus::RANDOM:
-			return VLC->generaltexth->allTexts[94]; //Gold, wood and ore, or an artifact is randomly chosen as your starting bonus
+			return LIBRARY->generaltexth->allTexts[94]; //Gold, wood and ore, or an artifact is randomly chosen as your starting bonus
 		case PlayerStartingBonus::ARTIFACT:
-			return VLC->generaltexth->allTexts[90]; //An artifact is randomly chosen and equipped to your starting hero
+			return LIBRARY->generaltexth->allTexts[90]; //An artifact is randomly chosen and equipped to your starting hero
 		case PlayerStartingBonus::GOLD:
-			return VLC->generaltexth->allTexts[92]; //At the start of the game, 500-1000 gold is added to your Kingdom's resource pool
+			return LIBRARY->generaltexth->allTexts[92]; //At the start of the game, 500-1000 gold is added to your Kingdom's resource pool
 		case PlayerStartingBonus::RESOURCE:
 		{
-			switch((*VLC->townh)[factionIndex]->town->primaryRes.toEnum())
+			switch((*LIBRARY->townh)[factionIndex]->town->primaryRes.toEnum())
 			{
 			case EGameResID::MERCURY:
-				return VLC->generaltexth->allTexts[690];
+				return LIBRARY->generaltexth->allTexts[690];
 			case EGameResID::SULFUR:
-				return VLC->generaltexth->allTexts[691];
+				return LIBRARY->generaltexth->allTexts[691];
 			case EGameResID::CRYSTAL:
-				return VLC->generaltexth->allTexts[688];
+				return LIBRARY->generaltexth->allTexts[688];
 			case EGameResID::GEMS:
-				return VLC->generaltexth->allTexts[689];
+				return LIBRARY->generaltexth->allTexts[689];
 			case EGameResID::WOOD_AND_ORE:
-				return VLC->generaltexth->allTexts[93]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
+				return LIBRARY->generaltexth->allTexts[93]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
 			}
 		}
 		}
@@ -376,9 +376,9 @@ void OptionsTab::CPlayerOptionTooltipBox::genTownWindow()
 
 	pos = Rect(0, 0, 228, 290);
 	genHeader();
-	labelAssociatedCreatures = std::make_shared<CLabel>(pos.w / 2 + 8, 122, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->allTexts[79]);
+	labelAssociatedCreatures = std::make_shared<CLabel>(pos.w / 2 + 8, 122, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[79]);
 	std::vector<std::shared_ptr<CComponent>> components;
-	const CTown * town = (*VLC->townh)[factionIndex]->town;
+	const CTown * town = (*LIBRARY->townh)[factionIndex]->town;
 
 	for(auto & elem : town->creatures)
 	{
@@ -397,10 +397,10 @@ void OptionsTab::CPlayerOptionTooltipBox::genHeroWindow()
 
 	pos = Rect(0, 0, 292, 226);
 	genHeader();
-	labelHeroSpeciality = std::make_shared<CLabel>(pos.w / 2 + 4, 117, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->allTexts[78]);
+	labelHeroSpeciality = std::make_shared<CLabel>(pos.w / 2 + 4, 117, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[78]);
 
-	imageSpeciality = std::make_shared<CAnimImage>(AnimationPath::builtin("UN44"), (*VLC->heroh)[heroIndex]->imageIndex, 0, pos.w / 2 - 22, 134);
-	labelSpecialityName = std::make_shared<CLabel>(pos.w / 2, 188, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*VLC->heroh)[heroIndex]->getSpecialtyNameTranslated());
+	imageSpeciality = std::make_shared<CAnimImage>(AnimationPath::builtin("UN44"), (*LIBRARY->heroh)[heroIndex]->imageIndex, 0, pos.w / 2 - 22, 134);
+	labelSpecialityName = std::make_shared<CLabel>(pos.w / 2, 188, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*LIBRARY->heroh)[heroIndex]->getSpecialtyNameTranslated());
 }
 
 void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
@@ -814,7 +814,7 @@ OptionsTab::HandicapWindow::HandicapWindow()
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(pos);
 	backgroundTexture->setPlayerColor(PlayerColor(1));
 
-	labels.push_back(std::make_shared<CLabel>(pos.w / 2 + 8, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, VLC->generaltexth->translate("vcmi.lobby.handicap")));
+	labels.push_back(std::make_shared<CLabel>(pos.w / 2 + 8, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.lobby.handicap")));
 
 	enum Columns : int32_t
 	{
@@ -842,9 +842,9 @@ OptionsTab::HandicapWindow::HandicapWindow()
 			if(i == 0)
 			{
 				if(isIncome)
-					labels.push_back(std::make_shared<CLabel>(xPos, 38, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->translate("core.jktext.32")));
+					labels.push_back(std::make_shared<CLabel>(xPos, 38, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->translate("core.jktext.32")));
 				else if(isGrowth)
-					labels.push_back(std::make_shared<CLabel>(xPos, 38, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->translate("core.genrltxt.194")));
+					labels.push_back(std::make_shared<CLabel>(xPos, 38, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt.194")));
 				else
 					anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(resource), 0, 15 + xPos + (j == 0 ? 10 : 0), 35));
 			}
@@ -865,11 +865,11 @@ OptionsTab::HandicapWindow::HandicapWindow()
 			textinputs[player][resource]->setPopupCallback([isIncome, isGrowth](){
 				// Help for the textinputs
 				if(isIncome)
-					CRClickPopup::createAndPush(VLC->generaltexth->translate("vcmi.lobby.handicap.income"));
+					CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.lobby.handicap.income"));
 				else if(isGrowth)
-					CRClickPopup::createAndPush(VLC->generaltexth->translate("vcmi.lobby.handicap.growth"));
+					CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.lobby.handicap.growth"));
 				else
-					CRClickPopup::createAndPush(VLC->generaltexth->translate("vcmi.lobby.handicap.resource"));
+					CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.lobby.handicap.resource"));
 			});
 			if(isIncome || isGrowth)
 				labels.push_back(std::make_shared<CLabel>(area.topRight().x, area.center().y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, "%"));
@@ -1040,10 +1040,10 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 		labelPlayerNameEdit->setText(name);
 	}
 
-	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 21, 45, 26), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, VLC->generaltexth->arraytxt[206 + whoCanPlay]);
+	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 21, 45, 26), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->arraytxt[206 + whoCanPlay]);
 
 	auto hasHandicap = [this](){ return s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 && s->handicap.percentGrowth == 100; };
-	std::string labelHandicapText = hasHandicap() ? VLC->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString();
+	std::string labelHandicapText = hasHandicap() ? LIBRARY->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString();
 	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(55, 23, 46, 24), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, labelHandicapText);
 	handicap = std::make_shared<LRClickableArea>(Rect(53, 23, 50, 24), [](){
 		if(!GAME->server().isHost())
@@ -1085,12 +1085,12 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 
 	if(SEL->screenType == ESelectionScreen::newGame)
 	{
-		buttonTownLeft   = std::make_shared<CButton>(Point(107, 5), AnimationPath::builtin("ADOPLFA.DEF"), VLC->generaltexth->zelp[132], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::TOWN, -1, s->color));
-		buttonTownRight  = std::make_shared<CButton>(Point(168, 5), AnimationPath::builtin("ADOPRTA.DEF"), VLC->generaltexth->zelp[133], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::TOWN, +1, s->color));
-		buttonHeroLeft   = std::make_shared<CButton>(Point(183, 5), AnimationPath::builtin("ADOPLFA.DEF"), VLC->generaltexth->zelp[148], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::HERO, -1, s->color));
-		buttonHeroRight  = std::make_shared<CButton>(Point(244, 5), AnimationPath::builtin("ADOPRTA.DEF"), VLC->generaltexth->zelp[149], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::HERO, +1, s->color));
-		buttonBonusLeft  = std::make_shared<CButton>(Point(259, 5), AnimationPath::builtin("ADOPLFA.DEF"), VLC->generaltexth->zelp[164], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::BONUS, -1, s->color));
-		buttonBonusRight = std::make_shared<CButton>(Point(320, 5), AnimationPath::builtin("ADOPRTA.DEF"), VLC->generaltexth->zelp[165], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::BONUS, +1, s->color));
+		buttonTownLeft   = std::make_shared<CButton>(Point(107, 5), AnimationPath::builtin("ADOPLFA.DEF"), LIBRARY->generaltexth->zelp[132], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::TOWN, -1, s->color));
+		buttonTownRight  = std::make_shared<CButton>(Point(168, 5), AnimationPath::builtin("ADOPRTA.DEF"), LIBRARY->generaltexth->zelp[133], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::TOWN, +1, s->color));
+		buttonHeroLeft   = std::make_shared<CButton>(Point(183, 5), AnimationPath::builtin("ADOPLFA.DEF"), LIBRARY->generaltexth->zelp[148], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::HERO, -1, s->color));
+		buttonHeroRight  = std::make_shared<CButton>(Point(244, 5), AnimationPath::builtin("ADOPRTA.DEF"), LIBRARY->generaltexth->zelp[149], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::HERO, +1, s->color));
+		buttonBonusLeft  = std::make_shared<CButton>(Point(259, 5), AnimationPath::builtin("ADOPLFA.DEF"), LIBRARY->generaltexth->zelp[164], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::BONUS, -1, s->color));
+		buttonBonusRight = std::make_shared<CButton>(Point(320, 5), AnimationPath::builtin("ADOPRTA.DEF"), LIBRARY->generaltexth->zelp[165], std::bind(&IServerAPI::setPlayerOption, &GAME->server(), LobbyChangePlayerOption::BONUS, +1, s->color));
 	}
 
 	hideUnavailableButtons();
@@ -1100,7 +1100,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 		flag = std::make_shared<CButton>(
 			Point(-43, 2),
 			AnimationPath::builtin(flags[s->color.getNum()]),
-			VLC->generaltexth->zelp[180],
+			LIBRARY->generaltexth->zelp[180],
 			std::bind(&OptionsTab::onSetPlayerClicked, &parentTab, *s)
 		);
 		flag->setHoverable(true);

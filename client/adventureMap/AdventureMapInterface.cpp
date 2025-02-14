@@ -787,7 +787,7 @@ void AdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & he
 
 	totalMovementCost -= pathNode.moveRemains;
 
-	std::string result = VLC->generaltexth->translate("vcmi.adventureMap", pathNode.turns > 0 ? "moveCostDetails" : "moveCostDetailsNoTurns");
+	std::string result = LIBRARY->generaltexth->translate("vcmi.adventureMap", pathNode.turns > 0 ? "moveCostDetails" : "moveCostDetailsNoTurns");
 
 	boost::replace_first(result, "%TURNS", std::to_string(pathNode.turns));
 	boost::replace_first(result, "%POINTS", std::to_string(movementPointsLastTurnCost));
@@ -810,7 +810,7 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 
 	if(!GAME->interface()->cb->isVisible(mapPos))
 	{
-		CRClickPopup::createAndPush(VLC->generaltexth->allTexts[61]); //Uncharted Territory
+		CRClickPopup::createAndPush(LIBRARY->generaltexth->allTexts[61]); //Uncharted Territory
 		return;
 	}
 
@@ -853,7 +853,7 @@ void AdventureMapInterface::exitCastingMode()
 void AdventureMapInterface::hotkeyAbortCastingMode()
 {
 	exitCastingMode();
-	GAME->interface()->showInfoDialog(VLC->generaltexth->allTexts[731]); //Spell cancelled
+	GAME->interface()->showInfoDialog(LIBRARY->generaltexth->allTexts[731]); //Spell cancelled
 }
 
 void AdventureMapInterface::performSpellcasting(const int3 & dest)

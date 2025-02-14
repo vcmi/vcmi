@@ -76,9 +76,9 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 					message.appendEOL();
 					message.appendEOL();
 					if(combinedArt->isFused())
-						message.appendRawString(VLC->generaltexth->translate("vcmi.heroWindow.fusingArtifact.fusing"));
+						message.appendRawString(LIBRARY->generaltexth->translate("vcmi.heroWindow.fusingArtifact.fusing"));
 					else
-						message.appendRawString(VLC->generaltexth->allTexts[732]); // You possess all of the components needed to assemble the
+						message.appendRawString(LIBRARY->generaltexth->allTexts[732]); // You possess all of the components needed to assemble the
 					message.replaceName(ArtifactID(combinedArt->getId()));
 					GAME->interface()->showYesNoDialog(message.toString(), [&assembleConfirmed, hero, slot, combinedArt]()
 						{
@@ -114,7 +114,7 @@ bool ArtifactsUIController::askToDisassemble(const CGHeroInstance * hero, const 
 		MetaString message = MetaString::createFromTextID(art->getType()->getDescriptionTextID());
 		message.appendEOL();
 		message.appendEOL();
-		message.appendRawString(VLC->generaltexth->allTexts[733]); // Do you wish to disassemble this artifact?
+		message.appendRawString(LIBRARY->generaltexth->allTexts[733]); // Do you wish to disassemble this artifact?
 		GAME->interface()->showYesNoDialog(message.toString(), [hero, slot]()
 			{
 				GAME->interface()->cb->assembleArtifacts(hero->id, slot, false, ArtifactID());

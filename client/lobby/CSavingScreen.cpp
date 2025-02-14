@@ -26,7 +26,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 
 CSavingScreen::CSavingScreen()
 	: CSelectionBase(ESelectionScreen::saveGame)
@@ -41,7 +41,7 @@ CSavingScreen::CSavingScreen()
 	tabSel->toggleMode();
 	curTab = tabSel;
 		
-	buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRSAV.DEF"), VLC->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
+	buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRSAV.DEF"), LIBRARY->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
 	
 	GAME->interface()->gamePause(true);
 }
@@ -91,7 +91,7 @@ void CSavingScreen::saveGame()
 
 	if(CResourceHandler::get("local")->existsResource(ResourcePath(path, EResType::SAVEGAME)))
 	{
-		std::string hlp = VLC->generaltexth->allTexts[493]; //%s exists. Overwrite?
+		std::string hlp = LIBRARY->generaltexth->allTexts[493]; //%s exists. Overwrite?
 		boost::algorithm::replace_first(hlp, "%s", tabSel->inputName->getText());
 		GAME->interface()->showYesNoDialog(hlp, overWrite, nullptr);
 	}

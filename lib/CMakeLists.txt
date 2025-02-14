@@ -299,7 +299,7 @@ set(lib_MAIN_SRCS
 	ScriptHandler.cpp
 	TerrainHandler.cpp
 	TurnTimerInfo.cpp
-	VCMI_Lib.cpp
+	GameLibrary.cpp
 )
 
 if (NOT ENABLE_MINIMAL_LIB)
@@ -741,7 +741,7 @@ set(lib_MAIN_HEADERS
 	TurnTimerInfo.h
 	UnlockGuard.h
 	vcmi_endian.h
-	VCMI_Lib.h
+	GameLibrary.h
 )
 
 if (NOT ENABLE_MINIMAL_LIB)
