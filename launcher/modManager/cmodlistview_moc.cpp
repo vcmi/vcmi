@@ -95,6 +95,11 @@ void CModListView::setupModsView()
 
 	ui->allModsView->setUniformRowHeights(true);
 
+	ui->allModsView->setContextMenuPolicy(Qt::CustomContextMenu);
+	
+	connect(ui->allModsView, SIGNAL(customContextMenuRequested(const QPoint &)),
+		this, SLOT(onCustomContextMenu(const QPoint &)));
+
 	connect(ui->allModsView->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex&,const QModelIndex&)),
 		this, SLOT(modSelected(const QModelIndex&,const QModelIndex&)));
 
@@ -415,6 +420,66 @@ void CModListView::disableModInfo()
 	ui->installButton->setVisible(false);
 	ui->uninstallButton->setVisible(false);
 	ui->updateButton->setVisible(false);
+}
+
+void CModListView::onCustomContextMenu(const QPoint &point)
+{
+	QModelIndex index = ui->allModsView->indexAt(point);
+	if(index.isValid())
+	{	
+		const auto modName = index.data(ModRoles::ModNameRole).toString();
+		auto mod = modStateModel->getMod(modName);
+
+		QStringList notInstalledDependencies = getModsToInstall(modName);
+		QStringList unavailableDependencies = findUnavailableMods(notInstalledDependencies);
+		bool translationMismatch = 	mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString();
+		bool modIsBeingDownloaded = enqueuedModDownloads.contains(mod.getID());
+
+		auto contextMenu = new QMenu(tr("Context menu"), this);
+		QList<QAction*> actions;
+
+		auto addContextEntry = [this, &contextMenu, &actions, mod](bool condition, QString name, std::function<void(ModState)> function){
+			if(condition)
+			{
+				actions.append(new QAction(name, this));
+				connect(actions.back(), &QAction::triggered, this, [mod, function](){ function(mod); });
+				contextMenu->addAction(actions.back());
+			}
+		};
+
+		addContextEntry(
+			modStateModel->isModInstalled(mod.getID()) && modStateModel->isModEnabled(mod.getID()),
+			tr("Disable"),
+			[this](ModState mod){ disableModByName(mod.getID()); }
+		);
+		addContextEntry(
+			modStateModel->isModInstalled(mod.getID()) && !modStateModel->isModEnabled(mod.getID()) && notInstalledDependencies.empty() && !translationMismatch,
+			tr("Enable"),
+			[this](ModState mod){ enableModByName(mod.getID());
+		});
+		addContextEntry(
+			mod.isAvailable() && !mod.isSubmod() && unavailableDependencies.empty() && !modIsBeingDownloaded,
+			tr("Install"),
+			[this](ModState mod){ doInstallMod(mod.getID()); }
+		);
+		addContextEntry(
+			mod.isInstalled() && !mod.isSubmod(),
+			tr("Uninstall"),
+			[this](ModState mod){
+				if(modStateModel->isModEnabled(mod.getID()))
+					manager->disableMod(mod.getID());
+				manager->uninstallMod(mod.getID());
+				reload();
+			}
+		);
+		addContextEntry(
+			mod.isUpdateAvailable() && unavailableDependencies.empty() && !modIsBeingDownloaded,
+			tr("Update"),
+			[this](ModState mod){ doUpdateMod(mod.getID()); }
+		);
+
+		contextMenu->exec(ui->allModsView->viewport()->mapToGlobal(point));
+	}
 }
 
 void CModListView::dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight)

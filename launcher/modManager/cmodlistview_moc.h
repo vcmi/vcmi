@@ -123,6 +123,7 @@ public slots:
 	void disableModByName(QString modName);
 
 private slots:
+	void onCustomContextMenu(const QPoint &point);
 	void dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight);
 	void modSelected(const QModelIndex & current, const QModelIndex & previous);
 	void downloadProgress(qint64 current, qint64 max);
