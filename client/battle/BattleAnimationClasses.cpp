@@ -594,16 +594,19 @@ void ColorTransformAnimation::tick(uint32_t msPassed)
 	if (index == timePoints.size())
 	{
 		//end of animation. Apply ColorShifter using final values and die
-		const auto & shifter = steps[index - 1];
-		owner.stacksController->setStackColorFilter(shifter, stack, spell, false);
+		const auto & lastColor = effectColors[index - 1];
+		const auto & lastAlpha = transparency[index - 1];
+		owner.stacksController->setStackColorFilter(lastColor, lastAlpha, stack, spell, false);
 		delete this;
 		return;
 	}
 
 	assert(index != 0);
 
-	const auto & prevShifter = steps[index - 1];
-	const auto & nextShifter = steps[index];
+	const auto & prevColor = effectColors[index - 1];
+	const auto & nextColor = effectColors[index];
+	const auto & prevAlpha = transparency[index - 1];
+	const auto & nextAlpha = transparency[index];
 
 	float prevPoint = timePoints[index-1];
 	float nextPoint = timePoints[index];
@@ -611,9 +614,10 @@ void ColorTransformAnimation::tick(uint32_t msPassed)
 	float stepDuration = (nextPoint - prevPoint);
 	float factor = localProgress / stepDuration;
 
-	auto shifter = ColorFilter::genInterpolated(prevShifter, nextShifter, factor);
+	const auto & currColor = vstd::lerp(prevColor, nextColor, factor);
+	const auto & currAlpha = vstd::lerp(prevAlpha, nextAlpha, factor);
 
-	owner.stacksController->setStackColorFilter(shifter, stack, spell, true);
+	owner.stacksController->setStackColorFilter(currColor, currAlpha, stack, spell, true);
 }
 
 ColorTransformAnimation::ColorTransformAnimation(BattleInterface & owner, const CStack * _stack, const std::string & colorFilterName, const CSpell * spell):
@@ -622,10 +626,11 @@ ColorTransformAnimation::ColorTransformAnimation(BattleInterface & owner, const 
 	totalProgress(0.f)
 {
 	auto effect = owner.effectsController->getMuxerEffect(colorFilterName);
-	steps = effect.filters;
+	effectColors = effect.effectColors;
+	transparency = effect.transparency;
 	timePoints = effect.timePoints;
 
-	assert(!steps.empty() && steps.size() == timePoints.size());
+	assert(!effectColors.empty() && effectColors.size() == timePoints.size());
 
 	logAnim->debug("Created ColorTransformAnimation for %s", stack->getName());
 }

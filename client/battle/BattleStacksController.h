@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../render/ColorFilter.h"
+#include "../../lib/Color.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -37,9 +37,10 @@ class IImage;
 
 struct BattleStackFilterEffect
 {
-	ColorFilter effect;
 	const CStack * target;
 	const CSpell * source;
+	ColorRGBA effectColor;
+	uint8_t transparency;
 	bool persistent;
 };
 
@@ -134,7 +135,7 @@ public:
 	/// Adds new color filter effect targeting stack
 	/// Effect will last as long as stack is affected by specified spell (unless effect is persistent)
 	/// If effect from same (target, source) already exists, it will be updated
-	void setStackColorFilter(const ColorFilter & effect, const CStack * target, const CSpell *source, bool persistent);
+	void setStackColorFilter(const ColorRGBA & effect, uint8_t transparency, const CStack * target, const CSpell *source, bool persistent);
 	void addNewAnim(BattleAnimation *anim); //adds new anim to pendingAnims
 
 	const CStack* getActiveStack() const;
