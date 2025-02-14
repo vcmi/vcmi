@@ -574,13 +574,13 @@
         <location filename="../mainwindow.ui" line="1350"/>
         <location filename="../mainwindow.ui" line="1353"/>
         <source>h3m converter</source>
-        <translation>Konvertor kampaní</translation>
+        <translation>Konvertor map</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1358"/>
         <location filename="../mainwindow.ui" line="1361"/>
         <source>h3c converter</source>
-        <translation>Konvertor map</translation>
+        <translation>Konvertor kampaní</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1366"/>
@@ -865,7 +865,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1404"/>
         <source>HoMM3 campaigns (*.h3c)</source>
-        <translation>Kampaně HoMM3 (*.h3m)</translation>
+        <translation>Kampaně HoMM3 (*.h3c)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1408"/>
