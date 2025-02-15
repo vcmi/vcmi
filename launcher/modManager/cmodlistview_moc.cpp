@@ -425,9 +425,8 @@ void CModListView::disableModInfo()
 auto CModListView::buttonEnabledState(QString modName, ModState & mod)
 {
 	struct result {
-		bool disableVisible; bool enableVisible; bool installVisible; bool uninstallVisible; bool updateVisible;
-		bool disableEnabled; bool enableEnabled; bool installEnabled; bool uninstallEnabled; bool updateEnabled;
-		bool directoryEnabled; bool repositoryEnabled; 
+		bool disableVisible; bool enableVisible; bool installVisible; bool uninstallVisible; bool updateVisible; bool directoryVisible; bool repositoryVisible;
+		bool disableEnabled; bool enableEnabled; bool installEnabled; bool uninstallEnabled; bool updateEnabled; bool directoryEnabled; bool repositoryEnabled;
 	} res;
 
 	QStringList notInstalledDependencies = getModsToInstall(modName);
@@ -440,6 +439,12 @@ auto CModListView::buttonEnabledState(QString modName, ModState & mod)
 	res.installVisible = mod.isAvailable() && !mod.isSubmod();
 	res.uninstallVisible = mod.isInstalled() && !mod.isSubmod();
 	res.updateVisible = mod.isUpdateAvailable();
+#ifndef VCMI_MOBILE
+	res.directoryVisible = mod.isInstalled();
+#else
+	res.directoryVisible = false;
+#endif
+	res.repositoryVisible = !mod.getDownloadUrl().isEmpty();
 
 	// Block buttons if action is not allowed at this time
 	res.disableEnabled = true;
@@ -447,13 +452,8 @@ auto CModListView::buttonEnabledState(QString modName, ModState & mod)
 	res.installEnabled = unavailableDependencies.empty() && !modIsBeingDownloaded;
 	res.uninstallEnabled = true;
 	res.updateEnabled = unavailableDependencies.empty() && !modIsBeingDownloaded;
-
-#ifndef VCMI_MOBILE
-	res.directoryEnabled = mod.isInstalled();
-#else
-	res.directoryEnabled = false;
-#endif
-	res.repositoryEnabled = !mod.getDownloadUrl().isEmpty();
+	res.directoryEnabled = true;
+	res.repositoryEnabled = true;
 
 	return res;
 }
@@ -466,57 +466,53 @@ void CModListView::onCustomContextMenu(const QPoint &point)
 		const auto modName = index.data(ModRoles::ModNameRole).toString();
 		auto mod = modStateModel->getMod(modName);
 
-		QStringList notInstalledDependencies = getModsToInstall(modName);
-		QStringList unavailableDependencies = findUnavailableMods(notInstalledDependencies);
-		bool translationMismatch = 	mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString();
-		bool modIsBeingDownloaded = enqueuedModDownloads.contains(mod.getID());
-
 		auto contextMenu = new QMenu(tr("Context menu"), this);
 		QList<QAction*> actions;
 
-		auto addContextEntry = [this, &contextMenu, &actions, mod](bool condition, QString name, std::function<void(ModState)> function){
-			if(condition)
+		auto addContextEntry = [this, &contextMenu, &actions, mod](bool visible, bool enabled, QString name, std::function<void(ModState)> function){
+			if(visible)
 			{
 				actions.append(new QAction(name, this));
 				connect(actions.back(), &QAction::triggered, this, [mod, function](){ function(mod); });
 				contextMenu->addAction(actions.back());
+				actions.back()->setEnabled(enabled);
 			}
 		};
 
 		auto state = buttonEnabledState(modName, mod);
 
 		addContextEntry(
-			state.disableEnabled && state.disableVisible,
+			state.disableVisible, state.disableEnabled,
 			tr("Disable"),
 			[this](ModState mod){ disableModByName(mod.getID()); }
 		);
 		addContextEntry(
-			state.enableEnabled && state.enableVisible,
+			state.enableVisible, state.enableEnabled,
 			tr("Enable"),
 			[this](ModState mod){ enableModByName(mod.getID());
 		});
 		addContextEntry(
-			state.installEnabled && state.installVisible,
+			state.installVisible, state.installEnabled,
 			tr("Install"),
 			[this](ModState mod){ doInstallMod(mod.getID()); }
 		);
 		addContextEntry(
-			state.uninstallEnabled && state.uninstallVisible,
+			state.uninstallVisible, state.uninstallEnabled,
 			tr("Uninstall"),
 			[this](ModState mod){ doUninstallMod(mod.getID()); }
 		);
 		addContextEntry(
-			state.updateEnabled && state.updateVisible,
+			state.updateVisible, state.updateEnabled,
 			tr("Update"),
 			[this](ModState mod){ doUpdateMod(mod.getID()); }
 		);
 		addContextEntry(
-			state.directoryEnabled,
+			state.directoryVisible, state.directoryEnabled,
 			tr("Open directory"),
 			[this](ModState mod){ openModDictionary(mod.getID()); }
 		);
 		addContextEntry(
-			state.repositoryEnabled,
+			state.repositoryVisible, state.repositoryEnabled,
 			tr("Open repository"),
 			[](ModState mod){
 				QUrl url(mod.getDownloadUrl());
