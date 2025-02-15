@@ -482,7 +482,7 @@ void CModListView::onCustomContextMenu(const QPoint &point)
 	auto contextMenu = new QMenu(tr("Context menu"), this);
 	QList<QAction*> actions;
 
-	auto addContextEntry = [this, &contextMenu, &actions, mod](bool visible, bool enabled, QString name, std::function<void(ModState)> function){
+	auto addContextEntry = [this, &contextMenu, &actions, mod](bool visible, bool enabled, QIcon icon, QString name, std::function<void(ModState)> function){
 		if(!visible)
 			return;
 
@@ -490,42 +490,43 @@ void CModListView::onCustomContextMenu(const QPoint &point)
 		connect(actions.back(), &QAction::triggered, this, [mod, function](){ function(mod); });
 		contextMenu->addAction(actions.back());
 		actions.back()->setEnabled(enabled);
+		actions.back()->setIcon(icon);
 	};
 
 	auto state = buttonEnabledState(modName, mod);
 
 	addContextEntry(
-		state.disableVisible, state.disableEnabled,
+		state.disableVisible, state.disableEnabled, QIcon{":/icons/mod-disabled.png"},
 		tr("Disable"),
 		[this](ModState mod){ disableModByName(mod.getID()); }
 	);
 	addContextEntry(
-		state.enableVisible, state.enableEnabled,
+		state.enableVisible, state.enableEnabled, QIcon{":/icons/mod-enabled.png"},
 		tr("Enable"),
 		[this](ModState mod){ enableModByName(mod.getID());
 	});
 	addContextEntry(
-		state.installVisible, state.installEnabled,
+		state.installVisible, state.installEnabled, QIcon{":/icons/mod-download.png"},
 		tr("Install"),
 		[this](ModState mod){ doInstallMod(mod.getID()); }
 	);
 	addContextEntry(
-		state.uninstallVisible, state.uninstallEnabled,
+		state.uninstallVisible, state.uninstallEnabled, QIcon{":/icons/mod-delete.png"},
 		tr("Uninstall"),
 		[this](ModState mod){ doUninstallMod(mod.getID()); }
 	);
 	addContextEntry(
-		state.updateVisible, state.updateEnabled,
+		state.updateVisible, state.updateEnabled, QIcon{":/icons/mod-update.png"},
 		tr("Update"),
 		[this](ModState mod){ doUpdateMod(mod.getID()); }
 	);
 	addContextEntry(
-		state.directoryVisible, state.directoryEnabled,
+		state.directoryVisible, state.directoryEnabled, QIcon{":/icons/menu-mods.png"},
 		tr("Open directory"),
 		[this](ModState mod){ openModDictionary(mod.getID()); }
 	);
 	addContextEntry(
-		state.repositoryVisible, state.repositoryEnabled,
+		state.repositoryVisible, state.repositoryEnabled, QIcon{":/icons/about-project.png"},
 		tr("Open repository"),
 		[](ModState mod){
 			QUrl url(mod.getDownloadUrl());
