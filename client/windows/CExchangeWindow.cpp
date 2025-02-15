@@ -268,6 +268,10 @@ void CExchangeWindow::creatureArrowButtonCallback(bool leftToRight, SlotID slotI
 {
 	if (GH.isKeyboardAltDown())
 		controller.moveArmy(leftToRight, slotId);
+	else if (GH.isKeyboardCtrlDown())
+		controller.moveSingleStackCreature(leftToRight, slotId, true);
+	else if (GH.isKeyboardShiftDown())
+		controller.moveSingleStackCreature(leftToRight, slotId, false);
 	else
 		controller.moveStack(leftToRight, slotId);
 }
