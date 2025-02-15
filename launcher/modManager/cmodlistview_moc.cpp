@@ -487,7 +487,7 @@ void CModListView::onCustomContextMenu(const QPoint &point)
 		addContextEntry(
 			!mod.getDownloadUrl().isEmpty(),
 			tr("Open repository"),
-			[this](ModState mod){
+			[](ModState mod){
 				QUrl url(mod.getDownloadUrl());
 				QString repoUrl = QString("%1://%2/%3/%4")
                           .arg(url.scheme())
