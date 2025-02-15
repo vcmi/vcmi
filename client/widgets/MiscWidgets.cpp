@@ -550,6 +550,15 @@ CreatureTooltip::CreatureTooltip(Point pos, const CGCreature * creature)
 	tooltipTextbox = std::make_shared<CTextBox>(textContent, Rect(15, 95, 230, 150), 0, FONT_SMALL, ETextAlignment::TOPCENTER, Colors::WHITE);
 }
 
+void CreatureTooltip::show(Canvas & to)
+{
+	// fixes scrolling of textbox (#5076)
+	setRedrawParent(true);
+	redraw();
+
+	CIntObject::show(to);
+}
+
 void MoraleLuckBox::set(const AFactionMember * node)
 {
 	OBJECT_CONSTRUCTION;
