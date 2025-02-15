@@ -74,9 +74,12 @@ bool FontChain::bitmapFontsPrioritized(const std::string & bitmapFontName) const
 	return true; // else - use original bitmap fonts
 }
 
-void FontChain::addTrueTypeFont(const JsonNode & trueTypeConfig)
+void FontChain::addTrueTypeFont(const JsonNode & trueTypeConfig, bool begin)
 {
-	chain.insert(chain.begin(), std::make_unique<CTrueTypeFont>(trueTypeConfig));
+	if(begin)
+		chain.insert(chain.begin(), std::make_unique<CTrueTypeFont>(trueTypeConfig));
+	else
+		chain.push_back(std::make_unique<CTrueTypeFont>(trueTypeConfig));
 }
 
 void FontChain::addBitmapFont(const std::string & bitmapFilename)
