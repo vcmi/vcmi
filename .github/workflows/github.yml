@@ -29,7 +29,7 @@ jobs:
             before_install: linux_qt5.sh
             preset: linux-gcc-test
           - platform: linux
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             test: 0
             before_install: linux_qt5.sh
             preset: linux-gcc-debug
@@ -246,6 +246,9 @@ jobs:
         if [[ ${{matrix.preset}} == linux-gcc-test ]]
         then
             cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 --preset ${{ matrix.preset }}
+        elif [[ ${{matrix.preset}} == linux-gcc-debug ]]
+        then
+            cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 --preset ${{ matrix.preset }}
         elif [[ (${{matrix.preset}} == android-conan-ninja-release) && (${{github.ref}} != 'refs/heads/master') ]]
         then
             cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily;applicationVariant=daily" --preset ${{ matrix.preset }}
@@ -355,7 +358,7 @@ jobs:
 
   deploy-src:
     if: always() && github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         shell: bash
