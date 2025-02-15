@@ -233,6 +233,7 @@
 		"spectateTrackHero":        [],
 		"spellbookTabAdventure":    "A",
 		"spellbookTabCombat":       "C",
+		"spellbookSearchFocus":     "Tab",
 		"townOpenFort":             "F",
 		"townOpenGarrisonedHero":   "Shift+H",
 		"townOpenHall":             "B",
