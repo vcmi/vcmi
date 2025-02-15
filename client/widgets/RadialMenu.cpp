@@ -101,6 +101,9 @@ std::shared_ptr<RadialMenuItem> RadialMenu::findNearestItem(const Point & cursor
 		}
 	}
 
+	if (bestDistance > 2 * requiredDistanceFromCenter)
+		return nullptr;
+
 	assert(bestItem);
 	return bestItem;
 }
