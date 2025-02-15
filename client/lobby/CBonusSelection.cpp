@@ -114,6 +114,7 @@ CBonusSelection::CBonusSelection()
 	for(size_t b = 0; b < difficultyIcons.size(); ++b)
 	{
 		difficultyIcons[b] = std::make_shared<CAnimImage>(AnimationPath::builtinTODO("GSPBUT" + std::to_string(b + 3) + ".DEF"), 0, 0, 709, settings["general"]["enableUiEnhancements"].Bool() ? 480 : 455);
+		difficultyIconAreas[b] = std::make_shared<LRClickableArea>(difficultyIcons[b]->pos - pos.topLeft(), nullptr, [b]() { CRClickPopup::createAndPush(CGI->generaltexth->zelp[24 + b].second); });
 	}
 
 	if(getCampaign()->playerSelectedDifficulty())
@@ -377,9 +378,16 @@ void CBonusSelection::updateAfterStateChange()
 	for(size_t i = 0; i < difficultyIcons.size(); i++)
 	{
 		if(i == CSH->si->difficulty)
+		{
 			difficultyIcons[i]->enable();
+			difficultyIconAreas[i]->enable();
+
+		}
 		else
+		{
 			difficultyIcons[i]->disable();
+			difficultyIconAreas[i]->disable();
+		}
 	}
 	flagbox->recreate();
 	createBonusesIcons();
