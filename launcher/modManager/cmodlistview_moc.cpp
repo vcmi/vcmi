@@ -431,7 +431,7 @@ auto CModListView::buttonEnabledState(QString modName, ModState & mod)
 
 	QStringList notInstalledDependencies = getModsToInstall(modName);
 	QStringList unavailableDependencies = findUnavailableMods(notInstalledDependencies);
-	bool translationMismatch = 	mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString();
+	bool translationMismatch = mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString();
 	bool modIsBeingDownloaded = enqueuedModDownloads.contains(mod.getID());
 
 	res.disableVisible = modStateModel->isModInstalled(mod.getID()) && modStateModel->isModEnabled(mod.getID());
@@ -470,13 +470,13 @@ void CModListView::onCustomContextMenu(const QPoint &point)
 		QList<QAction*> actions;
 
 		auto addContextEntry = [this, &contextMenu, &actions, mod](bool visible, bool enabled, QString name, std::function<void(ModState)> function){
-			if(visible)
-			{
-				actions.append(new QAction(name, this));
-				connect(actions.back(), &QAction::triggered, this, [mod, function](){ function(mod); });
-				contextMenu->addAction(actions.back());
-				actions.back()->setEnabled(enabled);
-			}
+			if(!visible)
+				return;
+
+			actions.append(new QAction(name, this));
+			connect(actions.back(), &QAction::triggered, this, [mod, function](){ function(mod); });
+			contextMenu->addAction(actions.back());
+			actions.back()->setEnabled(enabled);
 		};
 
 		auto state = buttonEnabledState(modName, mod);
@@ -517,10 +517,10 @@ void CModListView::onCustomContextMenu(const QPoint &point)
 			[](ModState mod){
 				QUrl url(mod.getDownloadUrl());
 				QString repoUrl = QString("%1://%2/%3/%4")
-                          .arg(url.scheme())
-                          .arg(url.host())
-                          .arg(url.path().split('/')[1])
-                          .arg(url.path().split('/')[2]);
+					.arg(url.scheme())
+					.arg(url.host())
+					.arg(url.path().split('/')[1])
+					.arg(url.path().split('/')[2]);
 				QDesktopServices::openUrl(repoUrl);
 			}
 		);
@@ -809,7 +809,7 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	{
 		// some mods were not downloaded
 		int result = QMessageBox::warning (this, title, firstLine + errors.join("\n") + lastLine,
-		                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
+							QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
 
 		if(result == QMessageBox::Yes)
 			doInstallFiles = true;
