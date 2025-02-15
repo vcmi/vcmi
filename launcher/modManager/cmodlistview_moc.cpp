@@ -425,8 +425,20 @@ void CModListView::disableModInfo()
 auto CModListView::buttonEnabledState(QString modName, ModState & mod)
 {
 	struct result {
-		bool disableVisible; bool enableVisible; bool installVisible; bool uninstallVisible; bool updateVisible; bool directoryVisible; bool repositoryVisible;
-		bool disableEnabled; bool enableEnabled; bool installEnabled; bool uninstallEnabled; bool updateEnabled; bool directoryEnabled; bool repositoryEnabled;
+		bool disableVisible;
+		bool enableVisible;
+		bool installVisible;
+		bool uninstallVisible;
+		bool updateVisible;
+		bool directoryVisible;
+		bool repositoryVisible;
+		bool disableEnabled;
+		bool enableEnabled;
+		bool installEnabled;
+		bool uninstallEnabled;
+		bool updateEnabled;
+		bool directoryEnabled;
+		bool repositoryEnabled;
 	} res;
 
 	QStringList notInstalledDependencies = getModsToInstall(modName);
@@ -461,72 +473,72 @@ auto CModListView::buttonEnabledState(QString modName, ModState & mod)
 void CModListView::onCustomContextMenu(const QPoint &point)
 {
 	QModelIndex index = ui->allModsView->indexAt(point);
-	if(index.isValid())
-	{	
-		const auto modName = index.data(ModRoles::ModNameRole).toString();
-		auto mod = modStateModel->getMod(modName);
+	if(!index.isValid())
+		return;
 
-		auto contextMenu = new QMenu(tr("Context menu"), this);
-		QList<QAction*> actions;
+	const auto modName = index.data(ModRoles::ModNameRole).toString();
+	auto mod = modStateModel->getMod(modName);
 
-		auto addContextEntry = [this, &contextMenu, &actions, mod](bool visible, bool enabled, QString name, std::function<void(ModState)> function){
-			if(!visible)
-				return;
+	auto contextMenu = new QMenu(tr("Context menu"), this);
+	QList<QAction*> actions;
 
-			actions.append(new QAction(name, this));
-			connect(actions.back(), &QAction::triggered, this, [mod, function](){ function(mod); });
-			contextMenu->addAction(actions.back());
-			actions.back()->setEnabled(enabled);
-		};
+	auto addContextEntry = [this, &contextMenu, &actions, mod](bool visible, bool enabled, QString name, std::function<void(ModState)> function){
+		if(!visible)
+			return;
 
-		auto state = buttonEnabledState(modName, mod);
+		actions.append(new QAction(name, this));
+		connect(actions.back(), &QAction::triggered, this, [mod, function](){ function(mod); });
+		contextMenu->addAction(actions.back());
+		actions.back()->setEnabled(enabled);
+	};
 
-		addContextEntry(
-			state.disableVisible, state.disableEnabled,
-			tr("Disable"),
-			[this](ModState mod){ disableModByName(mod.getID()); }
-		);
-		addContextEntry(
-			state.enableVisible, state.enableEnabled,
-			tr("Enable"),
-			[this](ModState mod){ enableModByName(mod.getID());
-		});
-		addContextEntry(
-			state.installVisible, state.installEnabled,
-			tr("Install"),
-			[this](ModState mod){ doInstallMod(mod.getID()); }
-		);
-		addContextEntry(
-			state.uninstallVisible, state.uninstallEnabled,
-			tr("Uninstall"),
-			[this](ModState mod){ doUninstallMod(mod.getID()); }
-		);
-		addContextEntry(
-			state.updateVisible, state.updateEnabled,
-			tr("Update"),
-			[this](ModState mod){ doUpdateMod(mod.getID()); }
-		);
-		addContextEntry(
-			state.directoryVisible, state.directoryEnabled,
-			tr("Open directory"),
-			[this](ModState mod){ openModDictionary(mod.getID()); }
-		);
-		addContextEntry(
-			state.repositoryVisible, state.repositoryEnabled,
-			tr("Open repository"),
-			[](ModState mod){
-				QUrl url(mod.getDownloadUrl());
-				QString repoUrl = QString("%1://%2/%3/%4")
-					.arg(url.scheme())
-					.arg(url.host())
-					.arg(url.path().split('/')[1])
-					.arg(url.path().split('/')[2]);
-				QDesktopServices::openUrl(repoUrl);
-			}
-		);
+	auto state = buttonEnabledState(modName, mod);
 
-		contextMenu->exec(ui->allModsView->viewport()->mapToGlobal(point));
-	}
+	addContextEntry(
+		state.disableVisible, state.disableEnabled,
+		tr("Disable"),
+		[this](ModState mod){ disableModByName(mod.getID()); }
+	);
+	addContextEntry(
+		state.enableVisible, state.enableEnabled,
+		tr("Enable"),
+		[this](ModState mod){ enableModByName(mod.getID());
+	});
+	addContextEntry(
+		state.installVisible, state.installEnabled,
+		tr("Install"),
+		[this](ModState mod){ doInstallMod(mod.getID()); }
+	);
+	addContextEntry(
+		state.uninstallVisible, state.uninstallEnabled,
+		tr("Uninstall"),
+		[this](ModState mod){ doUninstallMod(mod.getID()); }
+	);
+	addContextEntry(
+		state.updateVisible, state.updateEnabled,
+		tr("Update"),
+		[this](ModState mod){ doUpdateMod(mod.getID()); }
+	);
+	addContextEntry(
+		state.directoryVisible, state.directoryEnabled,
+		tr("Open directory"),
+		[this](ModState mod){ openModDictionary(mod.getID()); }
+	);
+	addContextEntry(
+		state.repositoryVisible, state.repositoryEnabled,
+		tr("Open repository"),
+		[](ModState mod){
+			QUrl url(mod.getDownloadUrl());
+			QString repoUrl = QString("%1://%2/%3/%4")
+				.arg(url.scheme())
+				.arg(url.host())
+				.arg(url.path().split('/')[1])
+				.arg(url.path().split('/')[2]);
+			QDesktopServices::openUrl(repoUrl);
+		}
+	);
+
+	contextMenu->exec(ui->allModsView->viewport()->mapToGlobal(point));
 }
 
 void CModListView::dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight)
