@@ -422,6 +422,42 @@ void CModListView::disableModInfo()
 	ui->updateButton->setVisible(false);
 }
 
+auto CModListView::buttonEnabledState(QString modName, ModState & mod)
+{
+	struct result {
+		bool disableVisible; bool enableVisible; bool installVisible; bool uninstallVisible; bool updateVisible;
+		bool disableEnabled; bool enableEnabled; bool installEnabled; bool uninstallEnabled; bool updateEnabled;
+		bool directoryEnabled; bool repositoryEnabled; 
+	} res;
+
+	QStringList notInstalledDependencies = getModsToInstall(modName);
+	QStringList unavailableDependencies = findUnavailableMods(notInstalledDependencies);
+	bool translationMismatch = 	mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString();
+	bool modIsBeingDownloaded = enqueuedModDownloads.contains(mod.getID());
+
+	res.disableVisible = modStateModel->isModInstalled(mod.getID()) && modStateModel->isModEnabled(mod.getID());
+	res.enableVisible = modStateModel->isModInstalled(mod.getID()) && !modStateModel->isModEnabled(mod.getID());
+	res.installVisible = mod.isAvailable() && !mod.isSubmod();
+	res.uninstallVisible = mod.isInstalled() && !mod.isSubmod();
+	res.updateVisible = mod.isUpdateAvailable();
+
+	// Block buttons if action is not allowed at this time
+	res.disableEnabled = true;
+	res.enableEnabled = notInstalledDependencies.empty() && !translationMismatch;
+	res.installEnabled = unavailableDependencies.empty() && !modIsBeingDownloaded;
+	res.uninstallEnabled = true;
+	res.updateEnabled = unavailableDependencies.empty() && !modIsBeingDownloaded;
+
+#ifndef VCMI_MOBILE
+	res.directoryEnabled = mod.isInstalled();
+#else
+	res.directoryEnabled = false;
+#endif
+	res.repositoryEnabled = !mod.getDownloadUrl().isEmpty();
+
+	return res;
+}
+
 void CModListView::onCustomContextMenu(const QPoint &point)
 {
 	QModelIndex index = ui->allModsView->indexAt(point);
@@ -447,45 +483,40 @@ void CModListView::onCustomContextMenu(const QPoint &point)
 			}
 		};
 
+		auto state = buttonEnabledState(modName, mod);
+
 		addContextEntry(
-			modStateModel->isModInstalled(mod.getID()) && modStateModel->isModEnabled(mod.getID()),
+			state.disableEnabled && state.disableVisible,
 			tr("Disable"),
 			[this](ModState mod){ disableModByName(mod.getID()); }
 		);
 		addContextEntry(
-			modStateModel->isModInstalled(mod.getID()) && !modStateModel->isModEnabled(mod.getID()) && notInstalledDependencies.empty() && !translationMismatch,
+			state.enableEnabled && state.enableVisible,
 			tr("Enable"),
 			[this](ModState mod){ enableModByName(mod.getID());
 		});
 		addContextEntry(
-			mod.isAvailable() && !mod.isSubmod() && unavailableDependencies.empty() && !modIsBeingDownloaded,
+			state.installEnabled && state.installVisible,
 			tr("Install"),
 			[this](ModState mod){ doInstallMod(mod.getID()); }
 		);
 		addContextEntry(
-			mod.isInstalled() && !mod.isSubmod(),
+			state.uninstallEnabled && state.uninstallVisible,
 			tr("Uninstall"),
-			[this](ModState mod){
-				if(modStateModel->isModEnabled(mod.getID()))
-					manager->disableMod(mod.getID());
-				manager->uninstallMod(mod.getID());
-				reload();
-			}
+			[this](ModState mod){ doUninstallMod(mod.getID()); }
 		);
 		addContextEntry(
-			mod.isUpdateAvailable() && unavailableDependencies.empty() && !modIsBeingDownloaded,
+			state.updateEnabled && state.updateVisible,
 			tr("Update"),
 			[this](ModState mod){ doUpdateMod(mod.getID()); }
 		);
-#ifndef VCMI_MOBILE
 		addContextEntry(
-			mod.isInstalled(),
+			state.directoryEnabled,
 			tr("Open directory"),
 			[this](ModState mod){ openModDictionary(mod.getID()); }
 		);
-#endif
 		addContextEntry(
-			!mod.getDownloadUrl().isEmpty(),
+			state.repositoryEnabled,
 			tr("Open repository"),
 			[](ModState mod){
 				QUrl url(mod.getDownloadUrl());
@@ -529,23 +560,20 @@ void CModListView::selectMod(const QModelIndex & index)
 		Helper::enableScrollBySwiping(ui->modInfoBrowser);
 		Helper::enableScrollBySwiping(ui->changelogBrowser);
 
-		QStringList notInstalledDependencies = getModsToInstall(modName);
-		QStringList unavailableDependencies = findUnavailableMods(notInstalledDependencies);
-		bool translationMismatch = 	mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString();
-		bool modIsBeingDownloaded = enqueuedModDownloads.contains(mod.getID());
+		auto state = buttonEnabledState(modName, mod);
 
-		ui->disableButton->setVisible(modStateModel->isModInstalled(mod.getID()) && modStateModel->isModEnabled(mod.getID()));
-		ui->enableButton->setVisible(modStateModel->isModInstalled(mod.getID()) && !modStateModel->isModEnabled(mod.getID()));
-		ui->installButton->setVisible(mod.isAvailable() && !mod.isSubmod());
-		ui->uninstallButton->setVisible(mod.isInstalled() && !mod.isSubmod());
-		ui->updateButton->setVisible(mod.isUpdateAvailable());
+		ui->disableButton->setVisible(state.disableVisible);
+		ui->enableButton->setVisible(state.enableVisible);
+		ui->installButton->setVisible(state.installVisible);
+		ui->uninstallButton->setVisible(state.uninstallVisible);
+		ui->updateButton->setVisible(state.updateVisible);
 
 		// Block buttons if action is not allowed at this time
-		ui->disableButton->setEnabled(true);
-		ui->enableButton->setEnabled(notInstalledDependencies.empty() && !translationMismatch);
-		ui->installButton->setEnabled(unavailableDependencies.empty() && !modIsBeingDownloaded);
-		ui->uninstallButton->setEnabled(true);
-		ui->updateButton->setEnabled(unavailableDependencies.empty() && !modIsBeingDownloaded);
+		ui->disableButton->setEnabled(state.disableEnabled);
+		ui->enableButton->setEnabled(state.enableEnabled);
+		ui->installButton->setEnabled(state.installEnabled);
+		ui->uninstallButton->setEnabled(state.uninstallEnabled);
+		ui->updateButton->setEnabled(state.updateEnabled);
 
 		loadScreenshots();
 	}
@@ -703,13 +731,7 @@ void CModListView::on_uninstallButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 
-	if(modStateModel->isModExists(modName) && modStateModel->getMod(modName).isInstalled())
-	{
-		if(modStateModel->isModEnabled(modName))
-			manager->disableMod(modName);
-		manager->uninstallMod(modName);
-		reload();
-	}
+	doUninstallMod(modName);
 	
 	checkManagerErrors();
 }
@@ -1107,6 +1129,17 @@ void CModListView::doInstallMod(const QString & modName)
 			downloadMod(mod);
 		else if(!modStateModel->isModEnabled(name))
 			enableModByName(name);
+	}
+}
+
+void CModListView::doUninstallMod(const QString & modName)
+{
+	if(modStateModel->isModExists(modName) && modStateModel->getMod(modName).isInstalled())
+	{
+		if(modStateModel->isModEnabled(modName))
+			manager->disableMod(modName);
+		manager->uninstallMod(modName);
+		reload();
 	}
 }
 

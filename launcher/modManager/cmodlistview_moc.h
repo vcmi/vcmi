@@ -64,6 +64,8 @@ class CModListView : public QWidget
 
 	void changeEvent(QEvent *event) override;
 
+	auto buttonEnabledState(QString modName, ModState & mod);
+
 public:
 	explicit CModListView(QWidget * parent = nullptr);
 	~CModListView();
@@ -81,6 +83,9 @@ public:
 
 	/// install mod by name
 	void doInstallMod(const QString & modName);
+
+	/// uninstall mod by name
+	void doUninstallMod(const QString & modName);
 
 	/// update mod by name
 	void doUpdateMod(const QString & modName);
