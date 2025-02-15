@@ -477,6 +477,13 @@ void CModListView::onCustomContextMenu(const QPoint &point)
 			tr("Update"),
 			[this](ModState mod){ doUpdateMod(mod.getID()); }
 		);
+#ifndef VCMI_MOBILE
+		addContextEntry(
+			mod.isInstalled(),
+			tr("Open directory"),
+			[this](ModState mod){ openModDictionary(mod.getID()); }
+		);
+#endif
 
 		contextMenu->exec(ui->allModsView->viewport()->mapToGlobal(point));
 	}
@@ -665,6 +672,18 @@ void CModListView::doUpdateMod(const QString & modName)
 		if(mod.isUpdateAvailable() || !mod.isInstalled())
 			downloadMod(mod);
 	}
+}
+
+void CModListView::openModDictionary(const QString & modName)
+{
+	QString tmp = modName;
+	tmp.replace(".", "/Mods/");
+	
+	ResourcePath resID(std::string("Mods/") + tmp.toStdString(), EResType::DIRECTORY);
+	// Get location of the mod, in case-insensitive way
+	QString modDir = pathToQString(*CResourceHandler::get()->getResourceName(resID));
+
+	Helper::revealDirectoryInFileBrowser(modDir);
 }
 
 void CModListView::on_uninstallButton_clicked()

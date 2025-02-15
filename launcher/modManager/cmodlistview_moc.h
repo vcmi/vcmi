@@ -85,6 +85,9 @@ public:
 	/// update mod by name
 	void doUpdateMod(const QString & modName);
 
+	/// open mod dictionary by name
+	void openModDictionary(const QString & modName);
+
 	/// returns true if mod is available in repository and can be installed
 	bool isModAvailable(const QString & modName);
 
