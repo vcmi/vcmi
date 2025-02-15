@@ -484,6 +484,19 @@ void CModListView::onCustomContextMenu(const QPoint &point)
 			[this](ModState mod){ openModDictionary(mod.getID()); }
 		);
 #endif
+		addContextEntry(
+			!mod.getDownloadUrl().isEmpty(),
+			tr("Open repository"),
+			[this](ModState mod){
+				QUrl url(mod.getDownloadUrl());
+				QString repoUrl = QString("%1://%2/%3/%4")
+                          .arg(url.scheme())
+                          .arg(url.host())
+                          .arg(url.path().split('/')[1])
+                          .arg(url.path().split('/')[2]);
+				QDesktopServices::openUrl(repoUrl);
+			}
+		);
 
 		contextMenu->exec(ui->allModsView->viewport()->mapToGlobal(point));
 	}
@@ -678,7 +691,7 @@ void CModListView::openModDictionary(const QString & modName)
 {
 	QString tmp = modName;
 	tmp.replace(".", "/Mods/");
-	
+
 	ResourcePath resID(std::string("Mods/") + tmp.toStdString(), EResType::DIRECTORY);
 	// Get location of the mod, in case-insensitive way
 	QString modDir = pathToQString(*CResourceHandler::get()->getResourceName(resID));
