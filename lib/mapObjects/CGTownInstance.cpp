@@ -754,8 +754,6 @@ void CGTownInstance::recreateBuildingsBonuses()
 	for(const auto & b : bl)
 		removeBonus(b);
 
-
-
 	for(const auto & bid : builtBuildings)
 	{
 		bool bonusesReplacedByUpgrade = false;
@@ -777,7 +775,12 @@ void CGTownInstance::recreateBuildingsBonuses()
 			continue;
 
 		for(auto & bonus : building->buildingBonuses)
-			addNewBonus(bonus);
+		{
+			// Add copy of bonus to bonus system
+			// Othervice, bonuses with player or global propagator will not stack if player has multiple towns of same faction
+			auto bonusCopy = std::make_shared<Bonus>(*bonus);
+			addNewBonus(bonusCopy);
+		}
 	}
 }
 
