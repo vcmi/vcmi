@@ -30,7 +30,7 @@
 	"vcmi.bonusSource.creature" : "Fähigkeit",
 	"vcmi.bonusSource.spell" : "Zauber",
 	"vcmi.bonusSource.hero" : "Held",
-	"vcmi.bonusSource.commander" : "Commander",
+	"vcmi.bonusSource.commander" : "Command.",
 	"vcmi.bonusSource.other" : "Anderes",
 
 	"vcmi.capitalColors.0" : "Rot",
