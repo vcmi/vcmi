@@ -29,13 +29,14 @@
 #include "Zone.h"
 #include "Functions.h"
 #include "RmgMap.h"
-#include "threadpool/ThreadPool.h"
 #include "modificators/ObjectManager.h"
 #include "modificators/TreasurePlacer.h"
 #include "modificators/RoadPlacer.h"
 
 #include <vstd/RNG.h>
 #include <vcmi/HeroTypeService.h>
+
+#include <tbb/task_group.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -395,10 +396,7 @@ void CMapGenerator::fillZones()
 	}
 	else
 	{
-		ThreadPool pool;
-		std::vector<boost::future<void>> futures;
-		//At most one Modificator can run for every zone
-		pool.init(std::min<int>(boost::thread::hardware_concurrency(), numZones));
+		tbb::task_group pool;
 
 		while (!allJobs.empty())
 		{
@@ -412,12 +410,12 @@ void CMapGenerator::fillZones()
 				else if ((*it)->isReady())
 				{
 					auto jobCopy = *it;
-					futures.emplace_back(pool.async([this, jobCopy]() -> void
+					pool.run([this, jobCopy]() -> void
 						{
 							jobCopy->run();
 							Progress::Progress::step(); //Update progress bar
 						}
-					));
+					);
 					it = allJobs.erase(it);
 				}
 				else
@@ -428,10 +426,7 @@ void CMapGenerator::fillZones()
 		}
 
 		//Wait for all the tasks
-		for (auto& fut : futures)
-		{
-			fut.get();
-		}
+		pool.wait();
 	}
 
 	for (const auto& it : map->getZones())
