@@ -114,13 +114,13 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 			return (a->victoryIconIndex < b->victoryIconIndex);
 			break;
 		case _name: //by name
-			return boost::ilexicographical_compare(a->name.toString(), b->name.toString());
+			return aaa->name < bbb->name;
 		case _fileName: //by filename
 			return boost::ilexicographical_compare(aaa->fileURI, bbb->fileURI);
 		case _changeDate: //by changedate
 			return aaa->lastWrite < bbb->lastWrite;
 		default:
-			return boost::ilexicographical_compare(a->name.toString(), b->name.toString());
+			return aaa->name < bbb->name;
 		}
 	}
 	else //if we are sorting campaigns
