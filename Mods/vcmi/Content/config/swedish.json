@@ -86,9 +86,9 @@
 
 	"vcmi.spellBook.search": "sök...",
 
-	"vcmi.spellResearch.canNotAfford": "Du har inte råd att byta ut '{%SPELL1}' med '{%SPELL2}'. Du kan fortfarande göra dig av med den här trollformeln och forska vidare.",
-	"vcmi.spellResearch.comeAgain"   : "Forskningen har redan gjorts idag. Kom tillbaka imorgon.",
-	"vcmi.spellResearch.pay"         : "Trollformeln '{%SPELL2}' forskades fram! Vill du verkligen byta ut '{%SPELL1}' mot den framforskade trollformeln eller vill du forska vidare?",
+	"vcmi.spellResearch.canNotAfford": "'{%SPELL2}' forskades fram!\n\nDu har tyvärr inte råd att byta ut '{%SPELL1}' mot den framforskade trollformeln. Om du inte är nöjd med den framforskade trollformeln så kan du alltid forska vidare utan kostnad.",
+	"vcmi.spellResearch.comeAgain"   : "Det går inte att forska mer idag. Kom tillbaka imorgon.",
+	"vcmi.spellResearch.pay"         : "'{%SPELL2}' forskades fram!\n\nVill du verkligen genomföra transaktionen för att byta ut '{%SPELL1}' mot den framforskade trollformeln eller vill du forska vidare utan kostnad?",
 	"vcmi.spellResearch.research"    : "Välj den framforskade trollformeln",
 	"vcmi.spellResearch.skip"        : "Forska vidare",
 	"vcmi.spellResearch.abort"       : "Avbryt",
