@@ -494,7 +494,7 @@ std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
 
 		bitmapPath = bmpConf[index].String();
 		if (!ttfConf[bitmapPath].isNull())
-			loadedFont->addTrueTypeFont(ttfConf[bitmapPath]);
+			loadedFont->addTrueTypeFont(ttfConf[bitmapPath], !config["lowPriority"].Bool());
 	}
 	loadedFont->addBitmapFont(bitmapPath);
 

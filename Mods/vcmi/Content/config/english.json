@@ -32,7 +32,7 @@
 	"vcmi.bonusSource.creature" : "Ability",
 	"vcmi.bonusSource.spell" : "Spell",
 	"vcmi.bonusSource.hero" : "Hero",
-	"vcmi.bonusSource.commander" : "Commander",
+	"vcmi.bonusSource.commander" : "Command.",
 	"vcmi.bonusSource.other" : "Other",
 
 	"vcmi.capitalColors.0" : "Red",
