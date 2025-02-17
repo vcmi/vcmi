@@ -68,6 +68,7 @@
 	"vcmi.radialWheel.heroGetArtifacts" : "Získat artefakty od jiného hrdiny",
 	"vcmi.radialWheel.heroSwapArtifacts" : "Vyměnit artefakty s jiným hrdinou",
 	"vcmi.radialWheel.heroDismiss" : "Propustit hrdinu",
+	"vcmi.radialWheel.upgradeCreatures" : "Vylepšit všechny jednotky",
 
 	"vcmi.radialWheel.moveTop" : "Přesunout nahoru",
 	"vcmi.radialWheel.moveUp" : "Posunout výše",
@@ -416,6 +417,9 @@
 
 	"vcmi.townStructure.bank.borrow" : "Vstupujete do banky. Bankéř vás spatří a říká: \"Máme pro vás speciální nabídku. Můžete si vzít půjčku 2500 zlata na 5 dní. Každý den budete muset splácet 500 zlata.\"",
 	"vcmi.townStructure.bank.payBack" : "Vstupujete do banky. Bankéř vás spatří a říká: \"Již jste si vzali půjčku. Nejprve ji splaťte, než si vezmete další.\"",
+
+	"vcmi.townWindow.upgradeAll.notAllUpgradable" : "Nemáte dostatek surovin na vylepšení všech jednotek. Chcete vylepšit následující jednotky?",
+	"vcmi.townWindow.upgradeAll.notUpgradable" : "Nemáte dostatek surovin na vylepšení žádné z jednotek.",
 
 	"vcmi.logicalExpressions.anyOf"  : "Nějaké z následujících:",
 	"vcmi.logicalExpressions.allOf"  : "Všechny následující:",
