@@ -126,7 +126,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="166"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="380"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="385"/>
         <source>Description</source>
         <translation>Popis</translation>
     </message>
@@ -142,26 +142,31 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="515"/>
         <source>Uninstall</source>
         <translation>Odinstalovat</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="505"/>
         <source>Enable</source>
         <translation>Povolit</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="500"/>
         <source>Disable</source>
         <translation>Zakázat</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="520"/>
         <source>Update</source>
         <translation>Aktualizovat</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="521"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="510"/>
         <source>Install</source>
         <translation>Instalovat</translation>
     </message>
@@ -181,136 +186,151 @@
         <translation>Zrušit</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="302"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="307"/>
         <source>Mod name</source>
         <translation>Název modifikace</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="305"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="316"/>
         <source>Installed version</source>
         <translation>Nainstalovaná verze</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="306"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="318"/>
         <source>Latest version</source>
         <translation>Nejnovější verze</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="317"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
         <source>Size</source>
         <translation>Velikost</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="325"/>
         <source>Download size</source>
         <translation>Velikost ke stažení</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="327"/>
         <source>Authors</source>
         <translation>Autoři</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="325"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="330"/>
         <source>License</source>
         <translation>Licence</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="328"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="333"/>
         <source>Contact</source>
         <translation>Kontakt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="337"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="342"/>
         <source>Compatibility</source>
         <translation>Kompabilita</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="339"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="347"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="344"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
         <source>Required VCMI version</source>
         <translation>Vyžadovaná verze VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="345"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="350"/>
         <source>Supported VCMI version</source>
         <translation>Podporovaná verze VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="345"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="350"/>
         <source>please upgrade mod</source>
         <translation>prosíme aktualizujte modifikaci</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="174"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="761"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="179"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="891"/>
         <source>mods repository index</source>
         <translation>index repozitáře modifikací</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="347"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
         <source>or newer</source>
         <translation>nebo novější</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="350"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
         <source>Supported VCMI versions</source>
         <translation>Podporované verze VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="366"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>Languages</source>
         <translation>Jazyky</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="378"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="383"/>
         <source>Required mods</source>
         <translation>Vyžadované modifikace VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="379"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
         <source>Conflicting mods</source>
         <translation>Modifikace v kolizi</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="389"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
         <translation>Tuto modifikaci nelze aktivovat, protože je určena pro jiný jazyk.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="385"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="390"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
         <translation>Tuto modifikaci nelze aktivovat, protože chybí následující závislosti</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="386"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="391"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
         <translation>Tuto modifikaci nelze nainstalovat, protože chybí následující závislosti</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="387"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>Toto je podmodifikace a nelze ji nainstalovat ani odinstalovat samostatně bez hlavní modifikace</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="406"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="411"/>
         <source>Notes</source>
         <translation>Poznámky</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="655"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="482"/>
+        <source>Context menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="525"/>
+        <source>Open directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
+        <source>Open repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="783"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>Stahování %1. %p% (%v MB z %m MB) dokončeno</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="680"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="808"/>
         <source>Download failed</source>
         <translation>Stahování selhalo</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="681"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="809"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -323,7 +343,7 @@ Vyskytly se chyby:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="682"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="810"/>
         <source>
 
 Install successfully downloaded?</source>
@@ -332,39 +352,39 @@ Install successfully downloaded?</source>
 Nainstalovat úspěšně stažené?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="810"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="940"/>
         <source>Installing Heroes Chronicles</source>
         <translation>Instalování Heroes Chronicles</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="890"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1020"/>
         <source>Installing mod %1</source>
         <translation>Instalování modifikace %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="943"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1073"/>
         <source>Operation failed</source>
         <translation>Operace selhala</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="944"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1074"/>
         <source>Encountered errors:
 </source>
         <translation>Vyskytly se chyby:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="979"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1110"/>
         <source>screenshots</source>
         <translation>snímky obrazovky</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="985"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1116"/>
         <source>Screenshot %1</source>
         <translation>Snímek obrazovky %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="297"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="302"/>
         <source>Mod is incompatible</source>
         <translation>Modifikace není kompatibilní</translation>
     </message>
@@ -372,7 +392,7 @@ Nainstalovat úspěšně stažené?</translation>
 <context>
     <name>CSettingsView</name>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="682"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="705"/>
         <location filename="../settingsView/csettingsview_moc.cpp" line="98"/>
         <source>Off</source>
         <translation>Vypnuto</translation>
@@ -383,47 +403,47 @@ Nainstalovat úspěšně stažené?</translation>
         <translation>Umělá inteligence</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1061"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1084"/>
         <source>Interface Scaling</source>
         <translation>Škálování rozhraní</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="604"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="627"/>
         <source>Neutral AI in battles</source>
         <translation>Neutrální AI v bitvách</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1019"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1042"/>
         <source>Enemy AI in battles</source>
         <translation>Nepřátelská AI v bitvách</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="751"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="774"/>
         <source>Additional repository</source>
         <translation>Další repozitáře</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="597"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="620"/>
         <source>Adventure Map Allies</source>
         <translation>Spojenci na mapě světa</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="866"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="889"/>
         <source>Online Lobby port</source>
         <translation>Port online lobby</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="666"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="689"/>
         <source>Autocombat AI in battles</source>
         <translation>AI automatického boje v bitvách</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1422"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1445"/>
         <source>Sticks Sensitivity</source>
         <translation>Citlivost páček</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="908"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="931"/>
         <source>Automatic (Linear)</source>
         <translation>Automaticky (Lineárně)</translation>
     </message>
@@ -439,8 +459,8 @@ Nainstalovat úspěšně stažené?</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="83"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="539"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1412"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="562"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1435"/>
         <source>Automatic</source>
         <translation>Automaticky</translation>
     </message>
@@ -475,37 +495,42 @@ Nainstalovat úspěšně stažené?</translation>
         <translation>Plné</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="788"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="533"/>
+        <source>Allow portrait mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="811"/>
         <source>Use scalable fonts</source>
         <translation>Použít škálovatelná písma</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="859"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="882"/>
         <source>Online Lobby address</source>
         <translation>Adresa online lobby</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1019"/>
         <source>Handle back as right mouse button</source>
         <translation>Funkci tlačítka zpět namapovat na pravé tlačítko myši</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1102"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1125"/>
         <source>Cursor Scaling</source>
         <translation>Škálování kurzoru</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1131"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1154"/>
         <source>Scalable</source>
         <translation>Škálovatelné</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1167"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1190"/>
         <source>Miscellaneous</source>
         <translation>Ostatní</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1228"/>
         <source>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
@@ -522,52 +547,52 @@ Celá obrazovka bez okrajů - hra poběží v okně na celou obrazovku, přizpů
 Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané rozlišení.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1326"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1349"/>
         <source>Font Scaling (experimental)</source>
         <translation>Škálování písma (experimentální)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1390"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1413"/>
         <source>Original</source>
         <translation>Původní</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1429"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1452"/>
         <source>Upscaling Filter</source>
         <translation>Filtr škálování</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1462"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1485"/>
         <source>Basic</source>
         <translation>Základní</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="679"/>
         <source>Use Relative Pointer Mode</source>
         <translation>Použít režim relativního ukazatele</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="898"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="921"/>
         <source>Nearest</source>
         <translation>Nejbližší</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="903"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="926"/>
         <source>Linear</source>
         <translation>Lineární</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="807"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="830"/>
         <source>Input - Touchscreen</source>
         <translation>Vstup - dotyková obrazovka</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="774"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="797"/>
         <source>Adventure Map Enemies</source>
         <translation>Nepřátelé na mapě světa</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="926"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="949"/>
         <source>Show Tutorial again</source>
         <translation>Znovu zobrazi Tutoriál</translation>
     </message>
@@ -577,12 +602,12 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
         <translation>Restart</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1152"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1175"/>
         <source>Network</source>
         <translation>Síť</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="741"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="764"/>
         <source>Audio</source>
         <translation>Zvuk</translation>
     </message>
@@ -592,27 +617,27 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
         <translation>Relativní rychlost myši</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1068"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1091"/>
         <source>Music Volume</source>
         <translation>Hlasitost hudby</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="916"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="939"/>
         <source>Ignore SSL errors</source>
         <translation>Ignorovat chyby SSL</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="703"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="726"/>
         <source>Input - Mouse</source>
         <translation>Vstup - Myš</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1272"/>
         <source>Long Touch Duration</source>
         <translation>Doba dlouhého podržení</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="873"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="896"/>
         <source>Controller Click Tolerance</source>
         <translation>Odchylka klepnutí ovladače</translation>
     </message>
@@ -632,22 +657,22 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
         <translation>Hlasitost zvuků</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1218"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1241"/>
         <source>Windowed</source>
         <translation>V okně</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1223"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1246"/>
         <source>Borderless fullscreen</source>
         <translation>Celá obrazovka bez okrajů</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1228"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1251"/>
         <source>Exclusive fullscreen</source>
         <translation>Exkluzivní celá obrazovka</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1026"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1049"/>
         <source>Autosave limit (0 = off)</source>
         <translation>Limit aut. uložení (0=vypnuto)</translation>
     </message>
@@ -657,32 +682,32 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
         <translation>Filtr pro zmenšování</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="781"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="804"/>
         <source>Framerate Limit</source>
         <translation>Omezení snímků za sekundu</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1436"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1459"/>
         <source>Autosave prefix</source>
         <translation>Předpona aut. uložení</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="989"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1012"/>
         <source>Mouse Click Tolerance</source>
         <translation>Odchylka klepnutí myší</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="933"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="956"/>
         <source>Sticks Acceleration</source>
         <translation>Zrychlení páček</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1377"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1400"/>
         <source>empty = map name prefix</source>
         <translation>prázná = předpona - název mapy</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="613"/>
         <source>Refresh now</source>
         <translation>Obnovit nyní</translation>
     </message>
@@ -692,7 +717,7 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
         <translation>Výchozí repozitář</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="795"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="818"/>
         <source>Renderer</source>
         <translation>Vykreslovač</translation>
     </message>
@@ -712,12 +737,12 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
         <translation>Překlad Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1279"/>
         <source>Check on startup</source>
         <translation>Zkontrolovat při zapnutí</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="982"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1005"/>
         <source>Fullscreen</source>
         <translation>Celá obrazovka</translation>
     </message>
@@ -727,12 +752,12 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
         <translation>Všeobecné</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="852"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="875"/>
         <source>VCMI Language</source>
         <translation>Jazyk VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1443"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1466"/>
         <source>Resolution</source>
         <translation>Rozlišení</translation>
     </message>
@@ -742,22 +767,22 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
         <translation>Automatické uložení</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="764"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="787"/>
         <source>VSync</source>
         <translation>VSync</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="649"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="672"/>
         <source>Display index</source>
         <translation>Monitor</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="713"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="736"/>
         <source>Network port</source>
         <translation>Síťový port</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="945"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="968"/>
         <source>Video</source>
         <translation>Zobrazení</translation>
     </message>
@@ -767,27 +792,27 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
         <translation>Zobrazit intro</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="537"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="547"/>
         <source>Active</source>
         <translation>Aktivní</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="542"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="552"/>
         <source>Disabled</source>
         <translation>Zakázáno</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="543"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="553"/>
         <source>Enable</source>
         <translation>Povolit</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="548"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="558"/>
         <source>Not Installed</source>
         <translation>Nenainstalováno</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="549"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="559"/>
         <source>Install</source>
         <translation>Instalovat</translation>
     </message>
@@ -795,33 +820,33 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
 <context>
     <name>ChroniclesExtractor</name>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="61"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>Invalid file selected</source>
         <translation>Vybrán neplatný soubor</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="61"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
         <translation>Musíte vybrat instalační soubor Heroes Chronicles!</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="76"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="82"/>
         <source>Extracting error!</source>
         <translation>Chyb při rozbalování!</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="78"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="86"/>
         <source>Hash error!</source>
         <translation>Nesouhlasí kontrolní součet!</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="95"/>
-        <location filename="../modManager/chroniclesextractor.cpp" line="96"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
         <source>Heroes Chronicles</source>
         <translation>Heroes Chronicles</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="144"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="153"/>
         <source>Heroes Chronicles %1 - %2</source>
         <translation>Heroes Chronicles %1 - %2</translation>
     </message>
@@ -1070,19 +1095,19 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <translation>Instalátor GOG</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="396"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="397"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
         <translation>Poskytli jste instalátor GOG Galaxy! Tento soubor neobsahuje hru. Prosím, stáhněte si záložní offline instalátor hry!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="490"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="495"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Soubory z Heroes III: HD Edition nejsou ve VCMI  podporovány.
 Vyberte prosím adresář s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="495"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="500"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Byla nalezena neznámá nebo nepodporovaná verze Heroes III.
@@ -1094,37 +1119,37 @@ Vyberte prosím adresář s Heroes III: Complete Edition nebo Heroes III: Shadow
         <translation>Data GOG</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="417"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="419"/>
         <source>Extracting error!</source>
         <translation>Chyba při rozbalování!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="419"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="423"/>
         <source>Hash error!</source>
         <translation>Nesouhlasí kontrolní součet!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="422"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="427"/>
         <source>No Heroes III data!</source>
         <translation>Chybí data Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="422"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="427"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>Vybrané soubory neobsahují data Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="466"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="471"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
         <translation>Nepodařilo se detekovat platná data Heroes III ve vybraném adresáři.
 Vyberte prosím adresář s nainstalovanými daty Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="483"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="490"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="474"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="488"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="495"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="500"/>
         <source>Heroes III data not found!</source>
         <translation>Data Heroes III nenalezena!</translation>
     </message>
@@ -1157,7 +1182,7 @@ Důvod chyby: </translation>
         <translation>VCMI bylo zkompilováno bez podpory innoextract, která je potřebná pro extrahování EXE souborů!</translation>
     </message>
     <message numerus="yes">
-        <location filename="../innoextract.cpp" line="134"/>
+        <location filename="../innoextract.cpp" line="135"/>
         <source>SHA1 hash of provided files:
 Exe (%n bytes):
 %1</source>
@@ -1175,7 +1200,7 @@ Exe (%n bajtů):¶
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../innoextract.cpp" line="136"/>
+        <location filename="../innoextract.cpp" line="137"/>
         <source>
 Bin (%n bytes):
 %1</source>
@@ -1193,7 +1218,7 @@ Bin (%n bajtů):
         </translation>
     </message>
     <message>
-        <location filename="../innoextract.cpp" line="139"/>
+        <location filename="../innoextract.cpp" line="140"/>
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
@@ -1202,17 +1227,17 @@ Bin (%n bajtů):
 %1</translation>
     </message>
     <message>
-        <location filename="../innoextract.cpp" line="148"/>
+        <location filename="../innoextract.cpp" line="149"/>
         <source>Exe</source>
         <translation>Exe</translation>
     </message>
     <message>
-        <location filename="../innoextract.cpp" line="148"/>
+        <location filename="../innoextract.cpp" line="149"/>
         <source>Bin</source>
         <translation>Bin</translation>
     </message>
     <message>
-        <location filename="../innoextract.cpp" line="157"/>
+        <location filename="../innoextract.cpp" line="158"/>
         <source>Language mismatch!
 %1
 
@@ -1223,7 +1248,7 @@ Bin (%n bajtů):
 %2</translation>
     </message>
     <message>
-        <location filename="../innoextract.cpp" line="159"/>
+        <location filename="../innoextract.cpp" line="160"/>
         <source>Only one file known! Maybe files are corrupted? Please download again.
 %1
 
@@ -1234,7 +1259,7 @@ Bin (%n bajtů):
 %2</translation>
     </message>
     <message>
-        <location filename="../innoextract.cpp" line="165"/>
+        <location filename="../innoextract.cpp" line="166"/>
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
@@ -1369,12 +1394,12 @@ Bin (%n bajtů):
         <translation>Chyba při spouštění souboru</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="287"/>
+        <location filename="../mainwindow_moc.cpp" line="289"/>
         <source>Replace config file?</source>
         <translation>Chcete nahradit konfigurační soubor?</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="287"/>
+        <location filename="../mainwindow_moc.cpp" line="289"/>
         <source>Do you want to replace %1?</source>
         <translation>Chcete nahradit %1?</translation>
     </message>
@@ -1415,58 +1440,58 @@ Bin (%n bajtů):
         <translation>Modifikace není nainstalována</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="154"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="157"/>
         <source>Mod is already enabled</source>
         <translation>Modifikace je již povolena</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="157"/>
-        <location filename="../modManager/modstatecontroller.cpp" line="183"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="160"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="186"/>
         <source>Mod must be installed first</source>
         <translation>Nejprve je třeba nainstalovat modifikaci</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="161"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="164"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
         <translation>Modifikace není kompatibilní, prosím aktualizujte VCMI a použijte nejnovější verzi modifikace</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="164"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="167"/>
         <source>Can not enable translation mod for a different language!</source>
         <translation>Nelze zapnout modifikaci s překladem pro jiný jazyk!</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="169"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="172"/>
         <source>Required mod %1 is missing</source>
         <translation>Vyžadovaná modifkace %1 chybí</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="180"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="183"/>
         <source>Mod is already disabled</source>
         <translation>Modifikace je již deaktivována</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="193"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="196"/>
         <source>Mod archive is missing</source>
         <translation>Archiv modifikace chybí</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="198"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="201"/>
         <source>Mod archive is invalid or corrupted</source>
         <translation>Archiv modifikace je neplatný nebo poškozený</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="224"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="227"/>
         <source>Failed to extract mod data</source>
         <translation>Extrakce modifikace selhala</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="248"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="251"/>
         <source>Mod data was not found</source>
         <translation>Data modifikace nebyla nalezena</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="252"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="255"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
         <translation>Modifikace se nachází v chráněném adresáři, odstraňte ji prosím ručně:
