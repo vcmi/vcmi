@@ -19,4 +19,5 @@ void loadSettings();
 void enableScrollBySwiping(QObject * scrollTarget);
 QString getRealPath(QString path);
 void performNativeCopy(QString src, QString dst);
+void revealDirectoryInFileBrowser(QString path);
 }
