@@ -68,6 +68,7 @@
 	"vcmi.radialWheel.heroGetArtifacts" : "Отримати артефакти іншого героя",
 	"vcmi.radialWheel.heroSwapArtifacts" : "Обміняти артефакти героїв",
 	"vcmi.radialWheel.heroDismiss" : "Звільнити цього героя",
+	"vcmi.radialWheel.upgradeCreatures" : "Покращити усіх істот",
 
 	"vcmi.radialWheel.moveTop" : "Перемістити на початок",
 	"vcmi.radialWheel.moveUp" : "Перемістити вгору",
@@ -363,6 +364,8 @@
 	"vcmi.battleOptions.endWithAutocombat.help": "{Завершує бій}\n\nАвто-бій миттєво завершує бій",
 	"vcmi.battleOptions.showQuickSpell.hover": "Панель швидкого чарування",
 	"vcmi.battleOptions.showQuickSpell.help": "{Панель швидкого чарування}\n\nПоказати панель для швидкого вибору заклять.",
+	"vcmi.battleOptions.showHealthBar.hover": "Показувати шкалу здоров'я",
+	"vcmi.battleOptions.showHealthBar.help": "{Показувати шкалу здоров'я}\n\nПоказувати шкалу здоров'я, яка вказує на решту здоров'я до смерті однієї істоти.",
 
 	"vcmi.adventureMap.revisitObject.hover" : "Відвідати Об'єкт",
 	"vcmi.adventureMap.revisitObject.help" : "{Відвідати Об'єкт}\n\nЯкщо герой в даний момент стоїть на об'єкті мапи, він може знову відвідати цю локацію.",
@@ -415,6 +418,9 @@
 	"vcmi.townStructure.bank.borrow" : "Ви заходите в банк. Вас бачить банкір і каже: 'Ми зробили для вас спеціальну пропозицію. Ви можете взяти у нас позику в розмірі 2500 золотих на 5 днів. Але щодня ви повинні будете повертати по 500 золотих'.",
 	"vcmi.townStructure.bank.payBack" : "Ви заходите в банк. Банкір бачить вас і каже: 'Ви вже отримали позику. Погасіть її, перш ніж брати нову позику'.",
 
+	"vcmi.townWindow.upgradeAll.notAllUpgradable" : "Недостатньо коштів, щоб покращити всіх істот. Чи бажаєте ви покращити наступних істот?",
+	"vcmi.townWindow.upgradeAll.notUpgradable" : "Недостатньо коштів, щоб покращити будь-яку істоту.",
+
 	"vcmi.logicalExpressions.anyOf"  : "Будь-що з перерахованого:",
 	"vcmi.logicalExpressions.allOf"  : "Все з перерахованого:",
 	"vcmi.logicalExpressions.noneOf" : "Нічого з перерахованого:",
@@ -464,7 +470,7 @@
 	"vcmi.optionsTab.chessFieldBattle.help" : "Використовується у боях з ШІ чи у боях з гравцями якщо {таймер загону} вичерпується. Встановлюється на початку кожного бою.",
 	"vcmi.optionsTab.chessFieldUnitAccumulate.help" : "Використовується при обираннія дії загону у боях з гравцями. Встановлюється на початку дії. Залишок додається до {таймеру битви}",
 	"vcmi.optionsTab.chessFieldUnitDiscard.help" : "Використовується при обираннія дії загону у боях з гравцями. Встановлюється на початку дії. Залишок часу буде втрачено.",
-	
+
 	"vcmi.optionsTab.accumulate" : "Накопичувати",
 
 	"vcmi.optionsTab.simturnsTitle" : "Одночасні ходи",
@@ -740,7 +746,7 @@
 	"core.bonus.TRANSMUTATION.name" : "Трансмутація",
 	"core.bonus.TRANSMUTATION.description" : "${val}% шанс перетворити атакованого юніта в інший тип",
 	"core.bonus.UNDEAD.name" : "Нежить",
-	"core.bonus.UNDEAD.description" : "Істота є нежить",
+	"core.bonus.UNDEAD.description" : "Істота є нежиттю",
 	"core.bonus.UNLIMITED_RETALIATIONS.name" : "Необмежена кількість ударів у відповідь",
 	"core.bonus.UNLIMITED_RETALIATIONS.description" : "Відбиває будь-яку кількість атак",
 	"core.bonus.WATER_IMMUNITY.name" : "Імунітет до води",
@@ -782,5 +788,27 @@
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.water": "На цей загін не діють жодні закляття школи Води",
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.earth": "На цей загін не діють жодні закляття школи Землі",
 	"core.bonus.REVENGE.description" : "Завдає додаткової шкоди залежно від втраченого здоров'я в бою",
-	"core.bonus.REVENGE.name" : "Помста"
+	"core.bonus.REVENGE.name" : "Помста",
+	
+	"spell.core.castleMoat.name" : "Рів",
+	"spell.core.castleMoatTrigger.name" : "Рів",
+	"spell.core.catapultShot.name" : "Постріл з катапульти",
+	"spell.core.cyclopsShot.name" : "Постріл по стінам",
+	"spell.core.dungeonMoat.name" : "Кипляча нафта",
+	"spell.core.dungeonMoatTrigger.name" : "Кипляча нафта",
+	"spell.core.fireWallTrigger.name" : "Вогняна стіна",
+	"spell.core.firstAid.name" : "Перша допомога",
+	"spell.core.fortressMoat.name" : "Киплячий дьоготь",
+	"spell.core.fortressMoatTrigger.name" : "Киплячий дьоготь",
+	"spell.core.infernoMoat.name" : "Лава",
+	"spell.core.infernoMoatTrigger.name" : "Лава",
+	"spell.core.landMineTrigger.name" : "Наземна міна",
+	"spell.core.necropolisMoat.name" : "Могильник",
+	"spell.core.necropolisMoatTrigger.name" : "Могильник",
+	"spell.core.rampartMoat.name" : "Чагарник",
+	"spell.core.rampartMoatTrigger.name" : "Чагарник",
+	"spell.core.strongholdMoat.name" : "Дерев'яні піки",
+	"spell.core.strongholdMoatTrigger.name" : "Дерев'яні піки",
+	"spell.core.summonDemons.name" : "Виклик демонів",
+	"spell.core.towerMoat.name" : "Наземна міна"
 }
