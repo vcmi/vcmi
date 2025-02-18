@@ -109,6 +109,8 @@ include(CMakeDependentOption)
 cmake_dependent_option(ENABLE_INNOEXTRACT "Enable innoextract for GOG file extraction in launcher" ON "ENABLE_LAUNCHER" OFF)
 cmake_dependent_option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON "NOT ENABLE_GOLDMASTER" OFF)
 
+option(VCMI_PORTMASTER "PortMaster build" OFF)
+
 ############################################
 #        Miscellaneous options             #
 ############################################
