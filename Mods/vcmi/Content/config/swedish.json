@@ -68,6 +68,7 @@
 	"vcmi.radialWheel.heroGetArtifacts" : "Hämta artefakter från annan hjälte",
 	"vcmi.radialWheel.heroSwapArtifacts": "Byt artefakter med annan hjälte",
 	"vcmi.radialWheel.heroDismiss"      : "Avfärda hjälten",
+	"vcmi.radialWheel.upgradeCreatures" : "Uppgradera alla enheter",
 
 	"vcmi.radialWheel.moveTop"   : "Flytta längst upp",
 	"vcmi.radialWheel.moveUp"    : "Flytta uppåt",
@@ -416,6 +417,9 @@
 
 	"vcmi.townStructure.bank.borrow" : "Du går in i banken. En bankman ser dig och säger: \"Vi har gjort ett specialerbjudande till dig. Du kan ta ett lån på 2500 guld från oss i 5 dagar. Du måste återbetala 500 guld varje dag.\"",
 	"vcmi.townStructure.bank.payBack": "Du går in i banken. En bankman ser dig och säger: \"Du har redan fått ditt lån. Betala tillbaka det innan du tar ett nytt.\"",
+
+	"vcmi.townWindow.upgradeAll.notAllUpgradable": "Du har inte tillräckligt med resurser för att uppgradera alla enheter. Vill du uppgradera följande enheter?",
+	"vcmi.townWindow.upgradeAll.notUpgradable"   : "Du har inte tillräckligt med resurser för att uppgradera någon av enheterna.",
 
 	"vcmi.logicalExpressions.anyOf" : "Något av följande:",
 	"vcmi.logicalExpressions.allOf" : "Alla följande:",
