@@ -278,6 +278,9 @@ std::string MapRendererAdventureContext::overlayText(const int3 & coordinates) c
 	if (!tile.visitable())
 		return {};
 
+	if ( tile.visitableObjects.back()->ID == Obj::EVENT)
+		return {};
+
 	return tile.visitableObjects.back()->getObjectName();
 }
 
