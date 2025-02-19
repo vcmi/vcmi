@@ -307,17 +307,20 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="482"/>
         <source>Context menu</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Menu ngữ cảnh</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="525"/>
         <source>Open directory</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mở thư mục</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
         <source>Open repository</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mở kho lưu trữ</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="783"/>
@@ -347,7 +350,9 @@ Có lỗi sau:
         <source>
 
 Install successfully downloaded?</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">
+Cài đặt đã tải xuống thành công?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="940"/>
@@ -438,17 +443,20 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1445"/>
         <source>Sticks Sensitivity</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Độ nhạy cần điều khiển</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="931"/>
         <source>Automatic (Linear)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tự động (Tuyến tính)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="274"/>
         <source>Haptic Feedback</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Phản hồi xúc giác</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="378"/>
@@ -475,17 +483,20 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="93"/>
         <source>xBRZ x2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">xBRZ x2</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="98"/>
         <source>xBRZ x3</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">xBRZ x3</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="103"/>
         <source>xBRZ x4</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">xBRZ x4</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
@@ -495,7 +506,8 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="533"/>
         <source>Allow portrait mode</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Cho phép chế độ dọc</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="811"/>
@@ -510,7 +522,8 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1019"/>
         <source>Handle back as right mouse button</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Xử lý nút quay lại như chuột phải</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1125"/>
@@ -567,17 +580,20 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="679"/>
         <source>Use Relative Pointer Mode</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Sử dụng chế độ con trỏ tương đối</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="921"/>
         <source>Nearest</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Gần nhất</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="926"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tuyến tính</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="830"/>
@@ -632,17 +648,20 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1272"/>
         <source>Long Touch Duration</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Thời gian nhấn giữ lâu</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="896"/>
         <source>Controller Click Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Độ nhạy nhấp chuột của bộ điều khiển</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="281"/>
         <source>Touch Tap Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Độ nhạy chạm màn hình</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="337"/>
@@ -692,12 +711,14 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1012"/>
         <source>Mouse Click Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Độ nhạy nhấp chuột</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="956"/>
         <source>Sticks Acceleration</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Gia tốc cần điều khiển</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1400"/>
@@ -767,7 +788,8 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="787"/>
         <source>VSync</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VSync</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="672"/>
@@ -841,12 +863,14 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
         <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
         <source>Heroes Chronicles</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Heroes Chronicles</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="153"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Heroes Chronicles %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -855,7 +879,8 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
         <location filename="../modManager/modstate.cpp" line="140"/>
         <location filename="../modManager/modstatemodel.cpp" line="93"/>
         <source>%1 MiB</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%1 MiB</translation>
     </message>
 </context>
 <context>
@@ -873,7 +898,8 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="78"/>
         <source>Mods Preset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Thiết lập mod</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="126"/>
@@ -1212,12 +1238,14 @@ Bin (%n bytes):
     <message>
         <location filename="../innoextract.cpp" line="149"/>
         <source>Exe</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Exe</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="149"/>
         <source>Bin</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Bin</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="158"/>
@@ -1364,7 +1392,8 @@ Bin (%n bytes):
     <message>
         <location filename="../mainwindow_moc.ui" line="58"/>
         <source>Game</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Trò chơi</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="104"/>
@@ -1582,7 +1611,8 @@ Bin (%n bytes):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
         <source>AI</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">AI</translation>
     </message>
 </context>
 <context>
@@ -1605,27 +1635,32 @@ Có thể do lỗi: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="597"/>
         <source>Import from Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nhập từ bảng tạm</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="616"/>
         <source>Rename Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Đổi tên thiết lập hiện tại</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="530"/>
         <source>Create New Preset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tạo thiết lập mới</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="511"/>
         <source>Export to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Xuất ra bảng tạm</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="565"/>
         <source>Delete Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Xóa thiết lập hiện tại</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="119"/>
@@ -1643,7 +1678,8 @@ Có thể do lỗi: %2</translation>
         <location filename="../startGame/StartGameTab.ui" line="451"/>
         <location filename="../startGame/StartGameTab.ui" line="470"/>
         <source>?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="239"/>
@@ -1703,12 +1739,14 @@ Có thể do lỗi: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="55"/>
         <source>Mod Preset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Thiết lập mod</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="773"/>
         <source>Resume</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tiếp tục</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="834"/>
@@ -1749,17 +1787,20 @@ cài đặt %n/%1</numerusform>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="242"/>
         <source>Maps</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bản đồ</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="243"/>
         <source>Campaigns</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Chiến dịch</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="244"/>
         <source>Configs</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Cấu hình</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="245"/>
@@ -1769,7 +1810,8 @@ cài đặt %n/%1</numerusform>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="246"/>
         <source>Gog files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tệp Gog</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="249"/>
@@ -1791,68 +1833,96 @@ cài đặt %n/%1</numerusform>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tùy chọn này cho phép bạn nhập thêm tệp dữ liệu vào cài đặt VCMI của bạn. Hiện tại, các tùy chọn sau được hỗ trợ:
+
+- Bản đồ Heroes III (.h3m hoặc .vmap).
+- Chiến dịch Heroes III (.h3c hoặc .vcmp).
+- Heroes III Chronicles bằng trình cài đặt sao lưu ngoại tuyến từ GOG.com (.exe).
+- Mod VCMI ở định dạng zip (.zip).
+- Tệp cấu hình VCMI (.json).</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="309"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Phiên bản Heroes III của bạn sử dụng ngôn ngữ khác. VCMI cung cấp bản dịch trò chơi sang nhiều ngôn ngữ mà bạn có thể sử dụng. Sử dụng tùy chọn này để tự động cài đặt bản dịch sang ngôn ngữ của bạn.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="319"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Bản dịch Heroes III sang ngôn ngữ của bạn đã được cài đặt nhưng đang bị tắt. Sử dụng tùy chọn này để bật nó.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="329"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Một phiên bản mới của một số mod mà bạn đã cài đặt hiện có sẵn trong kho lưu trữ mod. Sử dụng tùy chọn này để tự động cập nhật tất cả các mod của bạn lên phiên bản mới nhất.
+
+CẢNH BÁO: Trong một số trường hợp, các phiên bản cập nhật của mod có thể không tương thích với các bản lưu hiện có của bạn. Bạn có thể muốn hoãn cập nhật mod cho đến khi hoàn thành trò chơi hiện tại của mình.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="341"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nếu bạn sở hữu Heroes Chronicles trên GOG.com, bạn có thể sử dụng trình cài đặt sao lưu ngoại tuyến do GOG cung cấp để nhập dữ liệu Heroes Chronicles vào VCMI dưới dạng chiến dịch tùy chỉnh.
+Để nhập Heroes Chronicles, hãy tải xuống trình cài đặt sao lưu ngoại tuyến của từng phần Chronicles mà bạn muốn cài đặt, chọn tùy chọn &apos;Nhập tệp&apos; và chọn tệp đã tải xuống. Điều này sẽ tạo và cài đặt mod cho VCMI chứa các Chronicles đã nhập.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="354"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI đã phát hiện rằng các tệp nhạc Heroes III bị thiếu trong cài đặt của bạn. VCMI sẽ chạy, nhưng nhạc trong trò chơi sẽ không khả dụng.
+
+Để giải quyết vấn đề này, vui lòng sao chép các tệp mp3 bị thiếu từ Heroes III vào thư mục dữ liệu VCMI theo cách thủ công hoặc cài đặt lại VCMI và nhập lại các tệp dữ liệu Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="365"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI đã phát hiện rằng các tệp video Heroes III bị thiếu trong cài đặt của bạn. VCMI sẽ chạy, nhưng các cảnh cắt trong trò chơi sẽ không khả dụng.
+
+Để giải quyết vấn đề này, vui lòng sao chép tệp VIDEO.VID từ Heroes III vào thư mục dữ liệu VCMI theo cách thủ công hoặc cài đặt lại VCMI và nhập lại các tệp dữ liệu Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="376"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI đã phát hiện rằng một số tệp dữ liệu của Heroes III bị thiếu trong cài đặt của bạn. Bạn có thể cố gắng chạy VCMI, nhưng trò chơi có thể không hoạt động như mong đợi hoặc bị lỗi.
+
+Để giải quyết vấn đề này, vui lòng cài đặt lại trò chơi và nhập lại các tệp dữ liệu bằng phiên bản Heroes III được hỗ trợ. VCMI yêu cầu Heroes III: Shadow of Death hoặc Complete Edition để chạy, mà bạn có thể mua (ví dụ) từ GOG.com.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="387"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI đã phát hiện rằng một số tệp dữ liệu của Heroes III: Armageddon&apos;s Blade bị thiếu trong cài đặt của bạn. VCMI sẽ hoạt động, nhưng các chiến dịch của Armageddon&apos;s Blade sẽ không khả dụng.
+
+Để giải quyết vấn đề này, vui lòng sao chép các tệp dữ liệu bị thiếu từ Heroes III vào thư mục dữ liệu VCMI theo cách thủ công hoặc cài đặt lại VCMI và nhập lại các tệp dữ liệu Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="423"/>
         <source>Enter preset name:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nhập tên thiết lập:</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="466"/>
         <source>Rename preset &apos;%1&apos; to:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Đổi tên thiết lập &apos;%1&apos; thành:</translation>
     </message>
 </context>
 <context>
