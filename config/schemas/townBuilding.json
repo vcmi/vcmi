@@ -65,6 +65,10 @@
 			"description" : "If set to true, this building will not automatically activate on new day or on entering town and needs to be activated manually on click",
 			"type" : "boolean"
 		},
+		"mapObjectLikeBonuses" : {
+			"description" : "Optional, all bonuses granted by configurable buildings will have source set to specified map object",
+			"type" : "string"
+		},
 		"configuration" : {
 			"description" : "Optional, configuration of building that can be activated by visiting hero",
 			"$ref" : "rewardable.json"

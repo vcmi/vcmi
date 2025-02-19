@@ -46,6 +46,7 @@ public:
 	bool upgradeReplacesBonuses = false;
 	bool manualHeroVisit = false;
 	BonusList buildingBonuses;
+	MapObjectID mapObjectLikeBonuses;
 
 	Rewardable::Info rewardableObjectInfo; ///configurable rewards for special buildings
 
