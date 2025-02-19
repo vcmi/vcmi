@@ -282,12 +282,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="389"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
-        <translation>Цю модифікацію не можливо увімкнути, оскільки це переклад на іншу мову</translation>
+        <translation>Цю модифікацію не можна увімкнути, оскільки це переклад на іншу мову.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="390"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
-        <translation>Цю модифікацію не можна активувати, оскільки відсутні наступні залежності</translation>
+        <translation>Цю модифікацію не можна увімкнути, оскільки відсутні наступні залежності</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="391"/>
@@ -307,17 +307,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="482"/>
         <source>Context menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Контекстне меню</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="525"/>
         <source>Open directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити теку</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
         <source>Open repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити репозиторій</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="783"/>
@@ -502,7 +502,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="533"/>
         <source>Allow portrait mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Дозволити портретну орієнтацію</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="811"/>
