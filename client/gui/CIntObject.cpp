@@ -15,8 +15,8 @@
 #include "EventDispatcher.h"
 #include "Shortcut.h"
 #include "../render/Canvas.h"
+#include "../render/IScreenHandler.h"
 #include "../windows/CMessage.h"
-#include "../CMT.h"
 
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),
@@ -238,15 +238,8 @@ void CIntObject::redraw()
 		}
 		else
 		{
-			Canvas buffer = Canvas::createFromSurface(screenBuf, CanvasScalingPolicy::AUTO);
-
+			Canvas buffer = GH.screenHandler().getScreenCanvas();
 			showAll(buffer);
-			if(screenBuf != screen)
-			{
-				Canvas screenBuffer = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
-
-				showAll(screenBuffer);
-			}
 		}
 	}
 }

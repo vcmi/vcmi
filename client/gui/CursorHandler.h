@@ -179,6 +179,7 @@ public:
 	Point getPivotOffsetCombat(size_t index);
 
 	void render();
+	void update();
 
 	void hide();
 	void show();

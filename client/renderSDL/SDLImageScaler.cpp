@@ -12,7 +12,6 @@
 
 #include "SDL_Extensions.h"
 
-#include "../CMT.h"
 #include "../xBRZ/xbrz.h"
 
 #include <tbb/parallel_for.h>
@@ -211,7 +210,7 @@ SDLImageScaler::SDLImageScaler(SDL_Surface * surf, const Rect & virtualDimension
 	if (optimizeImage)
 	{
 		SDLImageOptimizer optimizer(surf, virtualDimensions);
-		optimizer.optimizeSurface(screen);
+		optimizer.optimizeSurface(nullptr);
 		intermediate = optimizer.acquireResultSurface();
 		virtualDimensionsInput = optimizer.getResultDimensions();
 	}

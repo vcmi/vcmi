@@ -92,3 +92,8 @@ void CursorHardware::render()
 {
 	//no-op
 }
+
+void CursorHardware::update()
+{
+	//no-op
+}

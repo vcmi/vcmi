@@ -261,13 +261,18 @@ void CursorHandler::updateSpellcastCursor()
 
 void CursorHandler::render()
 {
+	cursor->render();
+}
+
+void CursorHandler::update()
+{
 	if(!showing)
 		return;
 
 	if (type == Cursor::Type::SPELLBOOK)
 		updateSpellcastCursor();
 
-	cursor->render();
+	cursor->update();
 }
 
 void CursorHandler::hide()

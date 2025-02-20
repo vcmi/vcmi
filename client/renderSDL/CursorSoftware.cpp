@@ -21,12 +21,15 @@
 #include <SDL_render.h>
 #include <SDL_events.h>
 
-void CursorSoftware::render()
+void CursorSoftware::update()
 {
 	//texture must be updated in the main (renderer) thread, but changes to cursor type may come from other threads
 	if (needUpdate)
 		updateTexture();
+}
 
+void CursorSoftware::render()
+{
 	Point renderPos = pos - pivot;
 
 	SDL_Rect destRect;

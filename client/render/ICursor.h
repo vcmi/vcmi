@@ -23,6 +23,7 @@ public:
 	virtual void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset) = 0;
 	virtual void setCursorPosition( const Point & newPos ) = 0;
 	virtual void render() = 0;
+	virtual void update() = 0;
 	virtual void setVisible( bool on) = 0;
 };
 
