@@ -25,6 +25,11 @@ CanvasImage::CanvasImage(const Point & size, CanvasScalingPolicy scalingPolicy)
 {
 }
 
+CanvasImage::~CanvasImage()
+{
+	SDL_FreeSurface(surface);
+}
+
 void CanvasImage::draw(SDL_Surface * where, const Point & pos, const Rect * src, int scalingFactor) const
 {
 	if(src)

@@ -110,6 +110,22 @@ void CExchangeController::moveStack(bool leftToRight, SlotID sourceSlot)
 	}
 }
 
+void CExchangeController::moveSingleStackCreature(bool leftToRight, SlotID sourceSlot, bool forceEmptySlotTarget)
+{
+	const auto source = leftToRight ? left : right;
+	const auto target = leftToRight ? right : left;
+	auto creature = source->getCreature(sourceSlot);
+
+	if(creature == nullptr || source->stacksCount() == 1)
+		return;
+
+	SlotID targetSlot = forceEmptySlotTarget ? target->getFreeSlot() : target->getSlotFor(creature);
+	if(targetSlot.validSlot())
+	{
+		LOCPLINT->cb->splitStack(source, target, sourceSlot, targetSlot, target->getStackCount(targetSlot) + 1);
+	}
+}
+
 void CExchangeController::swapArtifacts(bool equipped, bool baclpack)
 {
 	LOCPLINT->cb->bulkMoveArtifacts(left->id, right->id, true, equipped, baclpack);

@@ -91,6 +91,8 @@ public:
 	//return item with index which or null if not present
 	std::shared_ptr<CIntObject> getItem(size_t which);
 
+	std::shared_ptr<CSlider> getSlider();
+
 	//return currently active items
 	const std::list<std::shared_ptr<CIntObject>> & getItems();
 

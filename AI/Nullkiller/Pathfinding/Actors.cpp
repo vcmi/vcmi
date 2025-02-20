@@ -13,6 +13,7 @@
 #include "../Engine/Nullkiller.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapObjects/MapObjects.h"
+#include "../../../lib/mapping/CMapDefines.h"
 #include "../../../lib/pathfinder/TurnInfo.h"
 #include "Actions/BuyArmyAction.h"
 
@@ -394,7 +395,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 HeroExchangeArmy * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const
 {
 	auto * target = new HeroExchangeArmy();
-	auto bestArmy = ai->armyManager->getBestArmy(actor->hero, army1, army2);
+	auto bestArmy = ai->armyManager->getBestArmy(actor->hero, army1, army2, ai->cb->getTile(actor->hero->visitablePos())->getTerrainID());
 
 	for(auto & slotInfo : bestArmy)
 	{

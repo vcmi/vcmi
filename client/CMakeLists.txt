@@ -493,5 +493,9 @@ if (ffmpeg_INCLUDE_DIRS)
 	)
 endif()
 
+if(VCMI_PORTMASTER)
+	target_compile_definitions(vcmiclientcommon PRIVATE VCMI_PORTMASTER)
+endif()
+
 vcmi_set_output_dir(vcmiclientcommon "")
 enable_pch(vcmiclientcommon)

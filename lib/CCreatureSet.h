@@ -283,7 +283,7 @@ public:
 	bool slotEmpty(const SlotID & slot) const;
 	int stacksCount() const;
 	virtual bool needsLastStack() const; //true if last stack cannot be taken
-	ui64 getArmyStrength() const; //sum of AI values of creatures
+	ui64 getArmyStrength(int fortLevel = 0) const; //sum of AI values of creatures
 	ui64 getArmyCost() const; //sum of cost of creatures
 	ui64 getPower(const SlotID & slot) const; //value of specific stack
 	std::string getRoughAmount(const SlotID & slot, int mode = 0) const; //rough size of specific stack

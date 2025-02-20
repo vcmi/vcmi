@@ -300,7 +300,8 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 				ai->armyManager->getBestArmy(
 					path.targetHero,
 					path.heroArmy,
-					upgrader->getUpperArmy()));
+					upgrader->getUpperArmy(),
+					TerrainId::NONE));
 
 			armyToGetOrBuy.upgradeValue -= path.heroArmy->getArmyStrength();
 

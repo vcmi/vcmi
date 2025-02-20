@@ -211,6 +211,10 @@ ScreenHandler::ScreenHandler()
 	// NOTE: requires SDL 2.24.
 	SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitor");
 #endif
+	if(settings["video"]["allowPortrait"].Bool())
+		SDL_SetHint(SDL_HINT_ORIENTATIONS, "Portrait PortraitUpsideDown LandscapeLeft LandscapeRight");
+	else
+		SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER))
 	{
@@ -357,34 +361,23 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 		return filter;
 
 	// else - autoselect
-#ifdef VCMI_MOBILE
-	// to help with performance - only if player explicitly enabled xbrz
-	return EUpscalingFilter::NONE;
-#else
 	Point outputResolution = getRenderResolution();
 	Point logicalResolution = getPreferredLogicalResolution();
 
 	float scaleX = static_cast<float>(outputResolution.x) / logicalResolution.x;
 	float scaleY = static_cast<float>(outputResolution.x) / logicalResolution.x;
 	float scaling = std::min(scaleX, scaleY);
+	int systemMemoryMb = SDL_GetSystemRAM();
 
 	if (scaling <= 1.001f)
 		return EUpscalingFilter::NONE; // running at original resolution or even lower than that - no need for xbrz
-	else
-		return EUpscalingFilter::XBRZ_2;
-#endif
 
-#if 0
-// Old version, most optimal, but rather performance-heavy
-	if (scaling <= 1.001f)
-		return EUpscalingFilter::NONE; // running at original resolution or even lower than that - no need for xbrz
-	if (scaling <= 2.001f)
-		return EUpscalingFilter::XBRZ_2; // resolutions below 1200p (including 1080p / FullHD)
-	if (scaling <= 3.001f)
-		return EUpscalingFilter::XBRZ_3; // resolutions below 2400p (including 1440p and 2160p / 4K)
+	if (systemMemoryMb < 2048)
+		return EUpscalingFilter::NONE; // xbrz2 may use ~1.0 - 1.5 Gb of RAM and has notable CPU cost - avoid on low-spec hardware
 
-	return EUpscalingFilter::XBRZ_4; // Only for massive displays, e.g. 8K
-#endif
+	// Only using xbrz2 for autoselection.
+	// Higher options may have high system requirements and should be only selected explicitly by player
+	return EUpscalingFilter::XBRZ_2;
 }
 
 void ScreenHandler::selectUpscalingFilter()
@@ -493,7 +486,7 @@ SDL_Window * ScreenHandler::createWindow()
 #endif
 
 #ifdef VCMI_ANDROID
-	return createWindowImpl(Point(), SDL_WINDOW_FULLSCREEN, false);
+	return createWindowImpl(Point(), SDL_WINDOW_RESIZABLE, false);
 #endif
 }
 

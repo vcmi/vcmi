@@ -32,6 +32,16 @@
 #include "../../lib/texts/CGeneralTextHandler.h" //for Unicode related stuff
 #include "../../lib/CRandomGenerator.h"
 
+static EImageBlitMode getModeForFlags( uint8_t flags)
+{
+	if (flags & CCreatureAnim::CREATURE_MODE)
+		return EImageBlitMode::WITH_SHADOW_AND_SELECTION;
+	if (flags & CCreatureAnim::MAP_OBJECT_MODE)
+		return EImageBlitMode::WITH_SHADOW;
+
+	return EImageBlitMode::COLORKEY;
+}
+
 CPicture::CPicture(std::shared_ptr<IImage> image, const Point & position)
 	: bg(image)
 	, needRefresh(false)
@@ -195,12 +205,12 @@ CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, size_t Group, i
 {
 	pos.x += x;
 	pos.y += y;
-	anim = GH.renderHandler().loadAnimation(name, (Flags & CCreatureAnim::CREATURE_MODE) ? EImageBlitMode::WITH_SHADOW_AND_OVERLAY : EImageBlitMode::COLORKEY);
+	anim = GH.renderHandler().loadAnimation(name, getModeForFlags(Flags));
 	init();
 }
 
 CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, Rect targetPos, size_t Group, ui8 Flags):
-	anim(GH.renderHandler().loadAnimation(name, (Flags & CCreatureAnim::CREATURE_MODE) ? EImageBlitMode::WITH_SHADOW_AND_OVERLAY : EImageBlitMode::COLORKEY)),
+	anim(GH.renderHandler().loadAnimation(name, getModeForFlags(Flags))),
 	frame(Frame),
 	group(Group),
 	flags(Flags),
@@ -318,7 +328,7 @@ bool CAnimImage::isPlayerColored() const
 }
 
 CShowableAnim::CShowableAnim(int x, int y, const AnimationPath & name, ui8 Flags, ui32 frameTime, size_t Group, uint8_t alpha):
-	anim(GH.renderHandler().loadAnimation(name, (Flags & CREATURE_MODE) ? EImageBlitMode::WITH_SHADOW_AND_OVERLAY : EImageBlitMode::COLORKEY)),
+	anim(GH.renderHandler().loadAnimation(name, getModeForFlags(Flags))),
 	group(Group),
 	frame(0),
 	first(0),

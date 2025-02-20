@@ -18,8 +18,6 @@
 	"vcmi.adventureMap.noTownWithTavern"       : "¡No hay pueblo disponible con taberna!",
 	"vcmi.adventureMap.spellUnknownProblem"    : "Problema desconocido con este hechizo, no hay más información disponible.",
 	"vcmi.adventureMap.playerAttacked"         : "El jugador ha sido atacado: %s",
-	"vcmi.adventureMap.moveCostDetails"        : "Puntos de movimiento - Coste: %TURNS turnos + %POINTS puntos, Puntos restantes: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Puntos de movimiento - Coste: %POINTS puntos, Puntos restantes: %REMAINING",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Disculpe, la repetición del turno del oponente aún no está implementada.",
 
 	"vcmi.capitalColors.0" : "Rojo",

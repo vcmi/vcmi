@@ -163,8 +163,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	if(queryID.getNum() > 0)
 		quit->addCallback([=](){ LOCPLINT->cb->selectionMade(0, queryID); });
 
-	questlogButton[0] = std::make_shared<CButton>(Point( 10, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questLogShortcut, this), EShortcut::ADVENTURE_QUEST_LOG);
-	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questLogShortcut, this), EShortcut::ADVENTURE_QUEST_LOG);
+	questlogButton[0] = std::make_shared<CButton>(Point( 10, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questLogShortcut, this));
+	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questLogShortcut, this));
 
 	Rect barRect(5, 578, 725, 18);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), barRect, 5, 578));
@@ -268,6 +268,10 @@ void CExchangeWindow::creatureArrowButtonCallback(bool leftToRight, SlotID slotI
 {
 	if (GH.isKeyboardAltDown())
 		controller.moveArmy(leftToRight, slotId);
+	else if (GH.isKeyboardCtrlDown())
+		controller.moveSingleStackCreature(leftToRight, slotId, true);
+	else if (GH.isKeyboardShiftDown())
+		controller.moveSingleStackCreature(leftToRight, slotId, false);
 	else
 		controller.moveStack(leftToRight, slotId);
 }

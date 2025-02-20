@@ -84,6 +84,7 @@ struct DLL_EXPORT EvaluationContext
 	bool isHero;
 	bool isEnemy;
 	int explorePriority;
+	float powerRatio;
 
 	EvaluationContext(const Nullkiller * ai);
 
@@ -114,13 +115,13 @@ public:
 		INSTAKILL,
 		INSTADEFEND,
 		KILL,
-		UPGRADE,
 		HIGH_PRIO_EXPLORE,
 		HUNTER_GATHER,
 		LOW_PRIO_EXPLORE,
 		FAR_KILL,
+		DEFEND,
 		FAR_HUNTER_GATHER,
-		DEFEND
+		MAX_PRIORITY_TIER = FAR_HUNTER_GATHER
 	};
 
 private:

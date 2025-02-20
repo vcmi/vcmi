@@ -20,6 +20,7 @@
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
+#include "../render/IScreenHandler.h"
 #include "../CServerHandler.h"
 #include "../globalLobby/GlobalLobbyClient.h"
 
@@ -34,7 +35,7 @@
 #include <SDL_timer.h>
 
 InputSourceTouch::InputSourceTouch()
-	: lastTapTimeTicks(0), lastLeftClickTimeTicks(0)
+	: lastTapTimeTicks(0), lastLeftClickTimeTicks(0), numTouchFingers(0)
 {
 	params.useRelativeMode = settings["general"]["userRelativePointer"].Bool();
 	params.relativeModeSpeedFactor = settings["general"]["relativePointerSpeedMultiplier"].Float();
@@ -65,6 +66,7 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 		case TouchState::RELATIVE_MODE:
 		{
 			Point screenSize = GH.screenDimensions();
+			int scalingFactor = GH.screenHandler().getScalingFactor();
 
 			Point moveDistance {
 				static_cast<int>(screenSize.x * params.relativeModeSpeedFactor * tfinger.dx),
@@ -73,7 +75,7 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 
 			GH.input().moveCursorPosition(moveDistance);
 			if (CCS && CCS->curh)
-				CCS->curh->cursorMove(GH.getCursorPosition().x, GH.getCursorPosition().y);
+				CCS->curh->cursorMove(GH.getCursorPosition().x * scalingFactor, GH.getCursorPosition().y * scalingFactor);
 
 			break;
 		}
@@ -114,6 +116,8 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 
 void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinger)
 {
+	numTouchFingers = SDL_GetNumTouchFingers(tfinger.touchId);
+
 	// FIXME: better place to update potentially changed settings?
 	params.longTouchTimeMilliseconds = settings["general"]["longTouchTimeMilliseconds"].Float();
 	params.hapticFeedbackEnabled = settings["general"]["hapticFeedback"].Bool();
@@ -172,6 +176,8 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 
 void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 {
+	numTouchFingers = SDL_GetNumTouchFingers(tfinger.touchId);
+
 	switch(state)
 	{
 		case TouchState::RELATIVE_MODE:
@@ -280,6 +286,11 @@ bool InputSourceTouch::hasTouchInputDevice() const
 	return SDL_GetNumTouchDevices() > 0;
 }
 
+int InputSourceTouch::getNumTouchFingers() const
+{
+	return numTouchFingers;
+}
+
 void InputSourceTouch::emitPanningEvent(const SDL_TouchFingerEvent & tfinger)
 {
 	Point distance = convertTouchToMouse(-tfinger.dx, -tfinger.dy);
@@ -324,8 +335,8 @@ void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 	float newX = thisX - otherX;
 	float newY = thisY - otherY;
 
-	double distanceOld = std::sqrt(oldX * oldX + oldY + oldY);
-	double distanceNew = std::sqrt(newX * newX + newY + newY);
+	double distanceOld = std::sqrt(oldX * oldX + oldY * oldY);
+	double distanceNew = std::sqrt(newX * newX + newY * newY);
 
 	if (distanceOld > params.pinchSensitivityThreshold)
 		GH.events().dispatchGesturePinch(lastTapPosition, distanceNew / distanceOld);

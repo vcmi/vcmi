@@ -457,7 +457,7 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		}
 
 		GH.windows().createAndPushWindow<CMapOverview>(
-			curItems[py]->getNameTranslated(),
+			curItems[py]->name,
 			curItems[py]->fullFileURI,
 			creationDateTime,
 			author,

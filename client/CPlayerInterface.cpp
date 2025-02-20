@@ -491,6 +491,7 @@ void CPlayerInterface::heroSecondarySkillChanged(const CGHeroInstance * hero, in
 		cuw->updateSecondarySkills();
 
 	localState->verifyPath(hero);
+	adventureInt->onHeroChanged(hero);// secondary skill can change primary skill / mana limit
 }
 
 void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -505,6 +506,7 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (makingTurn && hero->tempOwner == playerID)
 		adventureInt->onHeroChanged(hero);
+	invalidatePaths();
 }
 void CPlayerInterface::receivedResource()
 {

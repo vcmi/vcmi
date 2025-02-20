@@ -117,8 +117,17 @@ void CMapHeader::setupEvents()
 	defeatMessage.appendTextID("core.lcdesc.0");
 }
 
-CMapHeader::CMapHeader() : version(EMapFormat::VCMI), height(72), width(72),
-	twoLevel(true), difficulty(EMapDifficulty::NORMAL), levelLimit(0), howManyTeams(0), areAnyPlayers(false)
+CMapHeader::CMapHeader()
+	: version(EMapFormat::VCMI)
+	, height(72)
+	, width(72)
+	, twoLevel(true)
+	, difficulty(EMapDifficulty::NORMAL)
+	, levelLimit(0)
+	, howManyTeams(0)
+	, areAnyPlayers(false)
+	, victoryIconIndex(0)
+	, defeatIconIndex(0)
 {
 	setupEvents();
 	allowedHeroes = VLC->heroh->getDefaultAllowed();

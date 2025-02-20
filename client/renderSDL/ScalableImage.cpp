@@ -97,47 +97,67 @@ void ScalableImageParameters::preparePalette(const SDL_Palette * originalPalette
 {
 	switch(blitMode)
 	{
-		case EImageBlitMode::ONLY_SHADOW:
-		case EImageBlitMode::ONLY_OVERLAY:
+		case EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR:
+		case EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION:
+		case EImageBlitMode::ONLY_FLAG_COLOR:
+		case EImageBlitMode::ONLY_SELECTION:
 			adjustPalette(originalPalette, blitMode, ColorFilter::genAlphaShifter(0), 0);
 			break;
+		case EImageBlitMode::GRAYSCALE_BODY_HIDE_SELECTION:
+			adjustPalette(originalPalette, blitMode, ColorFilter::genMuxerShifter( { 0.299, 0.587, 0.114, 0}, { 0.299, 0.587, 0.114, 0}, { 0.299, 0.587, 0.114, 0}, 1), 0);
+			break;
+
 	}
 
 	switch(blitMode)
 	{
 		case EImageBlitMode::SIMPLE:
 		case EImageBlitMode::WITH_SHADOW:
-		case EImageBlitMode::ONLY_SHADOW:
-		case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
+		case EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR:
+		case EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION:
+		case EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR:
+		case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
 			setShadowTransparency(originalPalette, 1.0);
 			break;
-		case EImageBlitMode::ONLY_BODY:
+		case EImageBlitMode::ONLY_BODY_HIDE_SELECTION:
+		case EImageBlitMode::ONLY_BODY_HIDE_FLAG_COLOR:
 		case EImageBlitMode::ONLY_BODY_IGNORE_OVERLAY:
-		case EImageBlitMode::ONLY_OVERLAY:
+		case EImageBlitMode::ONLY_FLAG_COLOR:
+		case EImageBlitMode::ONLY_SELECTION:
+		case EImageBlitMode::GRAYSCALE_BODY_HIDE_SELECTION:
 			setShadowTransparency(originalPalette, 0.0);
 			break;
 	}
 
 	switch(blitMode)
 	{
-		case EImageBlitMode::ONLY_OVERLAY:
-		case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
-			setOverlayColor(originalPalette, Colors::WHITE_TRUE);
+		case EImageBlitMode::ONLY_FLAG_COLOR:
+		case EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR:
+			setOverlayColor(originalPalette, Colors::WHITE_TRUE, false);
 			break;
-		case EImageBlitMode::ONLY_SHADOW:
-		case EImageBlitMode::ONLY_BODY:
-			setOverlayColor(originalPalette, Colors::TRANSPARENCY);
+		case EImageBlitMode::ONLY_SELECTION:
+		case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
+			setOverlayColor(originalPalette, Colors::WHITE_TRUE, true);
+			break;
+		case EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR:
+		case EImageBlitMode::ONLY_BODY_HIDE_FLAG_COLOR:
+			setOverlayColor(originalPalette, Colors::TRANSPARENCY, false);
+			break;
+		case EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION:
+		case EImageBlitMode::ONLY_BODY_HIDE_SELECTION:
+		case EImageBlitMode::GRAYSCALE_BODY_HIDE_SELECTION:
+			setOverlayColor(originalPalette, Colors::TRANSPARENCY, true);
 			break;
 	}
 }
 
-void ScalableImageParameters::setOverlayColor(const SDL_Palette * originalPalette, const ColorRGBA & color)
+void ScalableImageParameters::setOverlayColor(const SDL_Palette * originalPalette, const ColorRGBA & color, bool includeShadow)
 {
 	palette->colors[5] = CSDL_Ext::toSDL(addColors(targetPalette[5], color));
 
-	for (int i : {6,7})
+	if (includeShadow)
 	{
-		if (colorsSimilar(originalPalette->colors[i], sourcePalette[i]))
+		for (int i : {6,7})
 			palette->colors[i] = CSDL_Ext::toSDL(addColors(targetPalette[i], color));
 	}
 }
@@ -183,7 +203,7 @@ void ScalableImageParameters::setShadowTransparency(const SDL_Palette * original
 void ScalableImageParameters::adjustPalette(const SDL_Palette * originalPalette, EImageBlitMode blitMode, const ColorFilter & shifter, uint32_t colorsToSkipMask)
 {
 	// If shadow is enabled, following colors must be skipped unconditionally
-	if (blitMode == EImageBlitMode::WITH_SHADOW || blitMode == EImageBlitMode::WITH_SHADOW_AND_OVERLAY)
+	if (blitMode == EImageBlitMode::WITH_SHADOW || blitMode == EImageBlitMode::WITH_SHADOW_AND_SELECTION || blitMode == EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR)
 		colorsToSkipMask |= (1 << 0) + (1 << 1) + (1 << 4);
 
 	// Note: here we skip first colors in the palette that are predefined in H3 images
@@ -259,11 +279,15 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 	bool shadowLoading = scaled.at(scalingFactor).shadow.at(0) && scaled.at(scalingFactor).shadow.at(0)->isLoading();
 	bool bodyLoading = scaled.at(scalingFactor).body.at(0) && scaled.at(scalingFactor).body.at(0)->isLoading();
 	bool overlayLoading = scaled.at(scalingFactor).overlay.at(0) && scaled.at(scalingFactor).overlay.at(0)->isLoading();
+	bool grayscaleLoading = scaled.at(scalingFactor).bodyGrayscale.at(0) && scaled.at(scalingFactor).bodyGrayscale.at(0)->isLoading();
 	bool playerLoading = parameters.player != PlayerColor::CANNOT_DETERMINE && scaled.at(scalingFactor).playerColored.at(1+parameters.player.getNum()) && scaled.at(scalingFactor).playerColored.at(1+parameters.player.getNum())->isLoading();
 
-	if (shadowLoading || bodyLoading || overlayLoading || playerLoading)
+	if (shadowLoading || bodyLoading || overlayLoading || playerLoading || grayscaleLoading)
 	{
 		getFlippedImage(scaled[1].body)->scaledDraw(where, parameters.palette, dimensions() * scalingFactor, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
+
+		if (parameters.effectColorMultiplier.a != ColorRGBA::ALPHA_TRANSPARENT)
+			getFlippedImage(scaled[1].body)->scaledDraw(where, parameters.palette, dimensions() * scalingFactor, dest, src, parameters.effectColorMultiplier, parameters.alphaValue, locator.layer);
 		return;
 	}
 
@@ -278,6 +302,9 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 	{
 		if (scaled.at(scalingFactor).body.at(0))
 			flipAndDraw(scaled.at(scalingFactor).body, parameters.colorMultiplier, parameters.alphaValue);
+
+		if (scaled.at(scalingFactor).bodyGrayscale.at(0) && parameters.effectColorMultiplier.a != ColorRGBA::ALPHA_TRANSPARENT)
+			flipAndDraw(scaled.at(scalingFactor).bodyGrayscale, parameters.effectColorMultiplier, parameters.alphaValue);
 	}
 
 	if (scaled.at(scalingFactor).overlay.at(0))
@@ -353,7 +380,25 @@ void ScalableImageInstance::setOverlayColor(const ColorRGBA & color)
 	parameters.ovelayColorMultiplier = color;
 
 	if (parameters.palette)
-		parameters.setOverlayColor(image->getPalette(), color);
+		parameters.setOverlayColor(image->getPalette(), color, blitMode == EImageBlitMode::WITH_SHADOW_AND_SELECTION);
+}
+
+void ScalableImageInstance::setEffectColor(const ColorRGBA & color)
+{
+	parameters.effectColorMultiplier = color;
+
+	if (parameters.palette)
+	{
+		const auto grayscaleFilter = ColorFilter::genMuxerShifter( { 0.299, 0.587, 0.114, 0}, { 0.299, 0.587, 0.114, 0}, { 0.299, 0.587, 0.114, 0}, 1);
+		const auto effectStrengthFilter = ColorFilter::genRangeShifter( 0, 0, 0, color.r / 255.f, color.g / 255.f, color.b / 255.f);
+		const auto effectFilter = ColorFilter::genCombined(grayscaleFilter, effectStrengthFilter);
+		const auto effectiveFilter = ColorFilter::genInterpolated(ColorFilter::genEmptyShifter(), effectFilter, color.a / 255.f);
+
+		parameters.adjustPalette(image->getPalette(), blitMode, effectiveFilter, 0);
+	}
+
+	if (color.a != ColorRGBA::ALPHA_TRANSPARENT)
+		image->prepareEffectImage();
 }
 
 void ScalableImageInstance::playerColored(const PlayerColor & player)
@@ -410,11 +455,19 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 	if (loadedImage)
 		return loadedImage;
 
+	// optional images for 1x resolution - only try load them, don't attempt to generate
+	bool optionalImage =
+		mode == EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR ||
+		mode == EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION ||
+		mode == EImageBlitMode::ONLY_FLAG_COLOR ||
+		mode == EImageBlitMode::ONLY_SELECTION ||
+		mode == EImageBlitMode::GRAYSCALE_BODY_HIDE_SELECTION ||
+		color != PlayerColor::CANNOT_DETERMINE;
+
 	if (scalingFactor == 1)
 	{
-		// optional images for 1x resolution - only try load them, don't attempt to generate
 		// this block should never be called for 'body' layer - that image is loaded unconditionally before construction
-		assert(mode == EImageBlitMode::ONLY_SHADOW || mode == EImageBlitMode::ONLY_OVERLAY || color != PlayerColor::CANNOT_DETERMINE);
+		assert(optionalImage);
 		return nullptr;
 	}
 
@@ -427,7 +480,7 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 		{
 			if (scaling == 1)
 			{
-				if (mode == EImageBlitMode::ONLY_SHADOW || mode == EImageBlitMode::ONLY_OVERLAY || color != PlayerColor::CANNOT_DETERMINE)
+				if (optionalImage)
 				{
 					ScalableImageParameters parameters(getPalette(), mode);
 					return loadedImage->scaleInteger(scalingFactor, parameters.palette, mode);
@@ -464,9 +517,13 @@ void ScalableImageShared::loadScaledImages(int8_t scalingFactor, PlayerColor col
 				scaled[scalingFactor].body[0] = loadOrGenerateImage(locator.layer, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].body[0]);
 				break;
 
-			case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
-			case EImageBlitMode::ONLY_BODY:
-				scaled[scalingFactor].body[0] = loadOrGenerateImage(EImageBlitMode::ONLY_BODY, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].body[0]);
+			case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
+			case EImageBlitMode::ONLY_BODY_HIDE_SELECTION:
+				scaled[scalingFactor].body[0] = loadOrGenerateImage(EImageBlitMode::ONLY_BODY_HIDE_SELECTION, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].body[0]);
+				break;
+			case EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR:
+			case EImageBlitMode::ONLY_BODY_HIDE_FLAG_COLOR:
+				scaled[scalingFactor].body[0] = loadOrGenerateImage(EImageBlitMode::ONLY_BODY_HIDE_FLAG_COLOR, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].body[0]);
 				break;
 
 			case EImageBlitMode::WITH_SHADOW:
@@ -486,9 +543,13 @@ void ScalableImageShared::loadScaledImages(int8_t scalingFactor, PlayerColor col
 				scaled[scalingFactor].playerColored[1+color.getNum()] = loadOrGenerateImage(locator.layer, scalingFactor, color, scaled[1].playerColored[1+color.getNum()]);
 				break;
 
-			case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
-			case EImageBlitMode::ONLY_BODY:
-				scaled[scalingFactor].playerColored[1+color.getNum()] = loadOrGenerateImage(EImageBlitMode::ONLY_BODY, scalingFactor, color, scaled[1].playerColored[1+color.getNum()]);
+			case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
+			case EImageBlitMode::ONLY_BODY_HIDE_SELECTION:
+				scaled[scalingFactor].playerColored[1+color.getNum()] = loadOrGenerateImage(EImageBlitMode::ONLY_BODY_HIDE_SELECTION, scalingFactor, color, scaled[1].playerColored[1+color.getNum()]);
+				break;
+			case EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR:
+			case EImageBlitMode::ONLY_BODY_HIDE_FLAG_COLOR:
+				scaled[scalingFactor].playerColored[1+color.getNum()] = loadOrGenerateImage(EImageBlitMode::ONLY_BODY_HIDE_FLAG_COLOR, scalingFactor, color, scaled[1].playerColored[1+color.getNum()]);
 				break;
 
 			case EImageBlitMode::WITH_SHADOW:
@@ -503,9 +564,13 @@ void ScalableImageShared::loadScaledImages(int8_t scalingFactor, PlayerColor col
 		switch(locator.layer)
 		{
 			case EImageBlitMode::WITH_SHADOW:
-			case EImageBlitMode::ONLY_SHADOW:
-			case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
-				scaled[scalingFactor].shadow[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SHADOW, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].shadow[0]);
+			case EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION:
+			case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
+				scaled[scalingFactor].shadow[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].shadow[0]);
+				break;
+			case EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR:
+			case EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR:
+				scaled[scalingFactor].shadow[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].shadow[0]);
 				break;
 			default:
 				break;
@@ -516,9 +581,13 @@ void ScalableImageShared::loadScaledImages(int8_t scalingFactor, PlayerColor col
 	{
 		switch(locator.layer)
 		{
-			case EImageBlitMode::ONLY_OVERLAY:
-			case EImageBlitMode::WITH_SHADOW_AND_OVERLAY:
-				scaled[scalingFactor].overlay[0] = loadOrGenerateImage(EImageBlitMode::ONLY_OVERLAY, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].overlay[0]);
+			case EImageBlitMode::ONLY_FLAG_COLOR:
+			case EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR:
+				scaled[scalingFactor].overlay[0] = loadOrGenerateImage(EImageBlitMode::ONLY_FLAG_COLOR, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].overlay[0]);
+				break;
+			case EImageBlitMode::ONLY_SELECTION:
+			case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
+				scaled[scalingFactor].overlay[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SELECTION, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].overlay[0]);
 				break;
 			default:
 				break;
@@ -529,4 +598,21 @@ void ScalableImageShared::loadScaledImages(int8_t scalingFactor, PlayerColor col
 void ScalableImageShared::preparePlayerColoredImage(PlayerColor color)
 {
 	loadScaledImages(GH.screenHandler().getScalingFactor(), color);
+}
+
+void ScalableImageShared::prepareEffectImage()
+{
+	int scalingFactor = GH.screenHandler().getScalingFactor();
+
+	if (scaled[scalingFactor].bodyGrayscale[0] == nullptr)
+	{
+		switch(locator.layer)
+		{
+			case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
+				scaled[scalingFactor].bodyGrayscale[0] = loadOrGenerateImage(EImageBlitMode::GRAYSCALE_BODY_HIDE_SELECTION, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].bodyGrayscale[0]);
+				break;
+			default:
+				break;
+		}
+	}
 }

@@ -42,9 +42,11 @@ void ChroniclesExtractor::removeTempDir()
 	tempDir.removeRecursively();
 }
 
-int ChroniclesExtractor::getChronicleNo()
+std::vector<int> ChroniclesExtractor::getChronicleNo()
 {
+	// supports "All in one" and seperate installers
 	QStringList appDirCandidates = tempDir.entryList({"app"}, QDir::Filter::Dirs);
+	std::vector<int> tmp;
 
 	if (!appDirCandidates.empty())
 	{
@@ -56,11 +58,12 @@ int ChroniclesExtractor::getChronicleNo()
 			QStringList chroniclesDirCandidates = appDir.entryList({chronicleName}, QDir::Filter::Dirs);
 
 			if (!chroniclesDirCandidates.empty())
-				return i;
+				tmp.push_back(i);
 		}
 	}
-	QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select a Heroes Chronicles installer file!"));
-	return 0;
+	if(tmp.empty())
+		QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select a Heroes Chronicles installer file!"));
+	return tmp;
 }
 
 bool ChroniclesExtractor::extractGogInstaller(QString file)
@@ -179,6 +182,9 @@ void ChroniclesExtractor::extractFiles(int no) const
 	QDir outDirMaps(pathToQString(basePath / "Maps" / "Chronicles"));
 
 	auto extract = [](QDir scrDir, QDir dest, QString file, std::vector<std::string> files = {}){
+		if(scrDir.entryList({file}).isEmpty())
+			return; // file does not exists (needed for "All in one" installer)
+
 		CArchiveLoader archive("", scrDir.filePath(scrDir.entryList({file}).front()).toStdString(), false);
 		for(auto & entry : archive.getEntries())
 			if(files.empty())
@@ -211,6 +217,25 @@ void ChroniclesExtractor::extractFiles(int no) const
 	auto tarnumPortraits = std::vector<std::string>{"HPS137", "HPS138", "HPS139", "HPS140", "HPS141", "HPS142", "HPL137", "HPL138", "HPL139", "HPL140", "HPL141", "HPL142"};
 	extract(tmpDirData, outDirDataPortraits, "bitmap.lod", tarnumPortraits);
 	extract(tmpDirData, outDirData, "lbitmap.lod", std::vector<std::string>{"INTRORIM"});
+
+	// special case - "All in one" installer
+	{
+		tmpDir.cdUp();
+		auto mapping = std::map<std::string, int>{{ {"Intro", 1}, {"Intr2", 2}, {"Intr3", 3}, {"Intr4", 4}, {"Intro5", 7}, {"Intro6", 8} }};
+		std::vector<std::string> videoFiles;
+		for(auto & elem : mapping)
+			for(auto & ending : {".bik", ".smk"})
+				videoFiles.push_back(elem.first + ending);
+		extract(tmpDirData, tmpDir, "Hchron.vid", videoFiles);
+		for(auto & ending : {".bik", ".smk"})
+		{
+			if(!vstd::reverseMap(mapping).count(no))
+				continue;
+			auto srcName = vstd::reverseMap(mapping).at(no);
+			auto dstName = (no == 7 || no == 8) ? srcName : "Intro";
+			QFile::copy(tmpDir.filePath(QString::fromStdString(srcName + ending)), outDirVideo.filePath(QString::fromStdString(dstName + ending)));
+		}
+	}
 
 	if(!outDirMaps.exists())
 		outDirMaps.mkpath(".");
@@ -247,16 +272,19 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 		if(!extractGogInstaller(filepath))
 			continue;
 
-		logGlobal->info("Detecting Chronicle");
-		int chronicleNo = getChronicleNo();
-		if(!chronicleNo)
+		logGlobal->info("Detecting Chronicles");
+		auto chronicleNo = getChronicleNo();
+		if(chronicleNo.empty())
 			continue;
 
 		logGlobal->info("Creating base Chronicle mod");
 		createBaseMod();
 
-		logGlobal->info("Creating Chronicle mod");
-		createChronicleMod(chronicleNo);
+		for(auto & no : chronicleNo)
+		{
+			logGlobal->info("Creating Chronicle mod (%i)", no);
+			createChronicleMod(no);
+		}
 
 		logGlobal->info("Removing temporary directory");
 		removeTempDir();

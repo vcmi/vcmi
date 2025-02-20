@@ -238,7 +238,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 			if (spellBonuses->empty())
 				throw std::runtime_error("Failed to find effects for spell " + effect.toSpell()->getJsonKey());
 
-			int duration = spellBonuses->front()->duration;
+			int duration = spellBonuses->front()->turnsRemain;
 			boost::replace_first(spellText, "%d", std::to_string(duration));
 
 			spellIcons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
@@ -668,7 +668,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 			expArea->text = parent->generateStackExpDescription();
 		}
 		expLabel = std::make_shared<CLabel>(
-				pos.x + 21, pos.y + 52, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
+				pos.x + 21, pos.y + 55, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
 				TextOperations::formatMetric(stack->experience, 6));
 	}
 
@@ -773,9 +773,13 @@ CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> d
 	info->creature = stack->getCreature();
 	info->creatureCount = stack->count;
 
-	info->upgradeInfo = std::make_optional(UnitView::StackUpgradeInfo(upgradeInfo));
+	if(upgradeInfo.canUpgrade())
+	{
+		info->upgradeInfo = std::make_optional(UnitView::StackUpgradeInfo(upgradeInfo));
+		info->upgradeInfo->callback = callback;
+	}
+	
 	info->dismissInfo = std::make_optional(UnitView::StackDismissInfo());
-	info->upgradeInfo->callback = callback;
 	info->dismissInfo->callback = dismiss;
 	info->owner = dynamic_cast<const CGHeroInstance *> (stack->armyObj);
 	init();
