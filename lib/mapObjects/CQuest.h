@@ -35,6 +35,7 @@ enum class EQuestMission {
 	KEYMASTER = 11,
 	HOTA_HERO_CLASS = 12,
 	HOTA_REACH_DATE = 13,
+	HOTA_GAME_DIFFICULTY = 13,
 };
 
 class DLL_LINKAGE CQuest final : public Serializeable
