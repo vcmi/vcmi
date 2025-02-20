@@ -491,6 +491,7 @@ void CPlayerInterface::heroSecondarySkillChanged(const CGHeroInstance * hero, in
 		cuw->updateSecondarySkills();
 
 	localState->verifyPath(hero);
+	adventureInt->onHeroChanged(hero);// secondary skill can change primary skill / mana limit
 }
 
 void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
