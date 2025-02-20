@@ -441,15 +441,15 @@ void CCreatureHandler::loadCommanders()
 		commanderLevelPremy.push_back(JsonUtils::parseBonus(bonus.Vector()));
 	}
 
-	int i = 0;
+	int level = 0;
 	for (auto skill : config["skillLevels"].Vector())
 	{
 		skillLevels.emplace_back();
 		for (auto skillLevel : skill["levels"].Vector())
 		{
-			skillLevels[i].push_back(static_cast<ui8>(skillLevel.Float()));
+			skillLevels[level].push_back(static_cast<ui8>(skillLevel.Float()));
 		}
-		++i;
+		++level;
 	}
 
 	for (auto ability : config["abilityRequirements"].Vector())

@@ -122,14 +122,13 @@ public:
 	virtual int getLevel() const; //different for regular stack and commander
 	CreatureID getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
-	virtual void init();
 	CStackInstance(bool isHypothetic = false);
 	CStackInstance(const CreatureID & id, TQuantity count, bool isHypothetic = false);
 	CStackInstance(const CCreature *cre, TQuantity count, bool isHypothetic = false);
 	virtual ~CStackInstance() = default;
 
 	void setType(const CreatureID & creID);
-	void setType(const CCreature * c) override;
+	void setType(const CCreature * c) final;
 	void setArmyObj(const CArmedInstance *ArmyObj);
 	virtual void giveStackExp(TExpType exp);
 	bool valid(bool allowUnrandomized) const;
@@ -156,7 +155,6 @@ public:
 	std::vector <ui8> secondarySkills; //ID -> level
 	std::set <ui8> specialSkills;
 	//std::vector <CArtifactInstance *> arts;
-	void init() override;
 	CCommanderInstance();
 	CCommanderInstance(const CreatureID & id);
 	void setAlive (bool alive);

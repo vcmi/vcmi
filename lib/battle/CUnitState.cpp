@@ -916,11 +916,8 @@ void CUnitState::afterNewRound()
 	drainedMana = false;
 	counterAttacks.reset();
 
-	if(alive() && isClone())
-	{
-		if(!bonusCache.hasBonus(UnitBonusValuesProxy::CLONE_MARKER))
-			makeGhost();
-	}
+	if(alive() && isClone() && !bonusCache.hasBonus(UnitBonusValuesProxy::CLONE_MARKER))
+		makeGhost();
 }
 
 void CUnitState::afterGetsTurn()

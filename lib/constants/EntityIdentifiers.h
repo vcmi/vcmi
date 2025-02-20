@@ -329,7 +329,7 @@ public:
 		{
 			return getDwellings().at(upgradeIndex).at(level);
 		}
-		catch (const std::out_of_range & e)
+		catch (const std::out_of_range &)
 		{
 			return Type::NONE;
 		}
@@ -337,7 +337,7 @@ public:
 
 	static int getLevelFromDwelling(BuildingIDBase dwelling)
 	{
-		for (const auto level : getDwellings())
+		for (const auto & level : getDwellings())
 		{
 			auto it = std::find(level.begin(), level.end(), dwelling);
 			if (it != level.end())
@@ -368,9 +368,9 @@ public:
 		dwelling.setNum(getDwellingFromLevel(level, upgrade + 1));
 	}
 
-	bool IsDwelling() const
+	bool isDwelling() const
 	{
-		for (const auto level : getDwellings())
+		for (const auto & level : getDwellings())
 		{
 			if (vstd::contains(level, num))
 				return true;

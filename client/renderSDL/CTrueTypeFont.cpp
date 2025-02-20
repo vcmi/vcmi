@@ -125,27 +125,27 @@ size_t CTrueTypeFont::getStringWidthScaled(const std::string & text) const
 	return width;
 }
 
-void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
+void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & text, const ColorRGBA & color, const Point & pos) const
 {
-	if (data.empty())
+	if (text.empty())
 		return;
 
 	if (outline)
-		renderTextImpl(surface, data, Colors::BLACK, pos - Point(1,1) * getScalingFactor());
+		renderTextImpl(surface, text, Colors::BLACK, pos - Point(1,1) * getScalingFactor());
 
 	if (dropShadow || outline)
-		renderTextImpl(surface, data, Colors::BLACK, pos + Point(1,1) * getScalingFactor());
+		renderTextImpl(surface, text, Colors::BLACK, pos + Point(1,1) * getScalingFactor());
 
-	renderTextImpl(surface, data, color, pos);
+	renderTextImpl(surface, text, color, pos);
 }
 
-void CTrueTypeFont::renderTextImpl(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
+void CTrueTypeFont::renderTextImpl(SDL_Surface * surface, const std::string & text, const ColorRGBA & color, const Point & pos) const
 {
 	SDL_Surface * rendered;
 	if (blended)
-		rendered = TTF_RenderUTF8_Blended(font.get(), data.c_str(), CSDL_Ext::toSDL(color));
+		rendered = TTF_RenderUTF8_Blended(font.get(), text.c_str(), CSDL_Ext::toSDL(color));
 	else
-		rendered = TTF_RenderUTF8_Solid(font.get(), data.c_str(), CSDL_Ext::toSDL(color));
+		rendered = TTF_RenderUTF8_Solid(font.get(), text.c_str(), CSDL_Ext::toSDL(color));
 
 	assert(rendered);
 

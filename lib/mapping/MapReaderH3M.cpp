@@ -138,7 +138,7 @@ HeroTypeID MapReaderH3M::readHeroPortrait()
 
 CreatureID MapReaderH3M::readCreature32()
 {
-	CreatureID result= CreatureID(reader->readUInt32());
+	CreatureID result(reader->readUInt32());
 
 	if(result.getNum() == features.creatureIdentifierInvalid)
 		return CreatureID::NONE;

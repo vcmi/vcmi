@@ -95,7 +95,7 @@ std::shared_ptr<CanvasImage> CMapOverviewWidget::createMinimapForLayer(std::uniq
 	return canvasImage;
 }
 
-std::vector<std::shared_ptr<CanvasImage>> CMapOverviewWidget::createMinimaps(ResourcePath resource) const
+std::vector<std::shared_ptr<CanvasImage>> CMapOverviewWidget::createMinimaps(const ResourcePath & resource) const
 {
 	std::vector<std::shared_ptr<CanvasImage>> ret;
 
@@ -138,7 +138,7 @@ std::shared_ptr<CPicture> CMapOverviewWidget::buildDrawMinimap(const JsonNode & 
 	double maxSideLengthSrc = std::max(minimapRect.x, minimapRect.y);
 	double maxSideLengthDst = std::max(rect.w, rect.h);
 	double resize = maxSideLengthSrc / maxSideLengthDst;
-	Point newMinimapSize = Point(minimapRect.x / resize, minimapRect.y / resize);
+	Point newMinimapSize(minimapRect.x / resize, minimapRect.y / resize);
 
 	minimaps[id]->scaleTo(newMinimapSize, EScalingAlgorithm::NEAREST); // for sharp-looking minimap
 

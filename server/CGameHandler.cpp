@@ -260,7 +260,7 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 	}
 	else if (skill >= 100)
 	{
-		for(auto & bonus : VLC->creh->skillRequirements.at(skill - 100).first) 
+		for(const auto & bonus : VLC->creh->skillRequirements.at(skill - 100).first)
 		{
 			scp.which = SetCommanderProperty::SPECIAL_SKILL;
 			scp.accumulatedBonus = *bonus;
@@ -299,7 +299,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 			clu.skills.push_back(i);
 	}
 	int i = 100;
-	for (auto specialSkill : VLC->creh->skillRequirements)
+	for (const auto & specialSkill : VLC->creh->skillRequirements)
 	{
 		if (c->secondarySkills.at(specialSkill.second.first) >= ECommander::MAX_SKILL_LEVEL - 1
 			&&  c->secondarySkills.at(specialSkill.second.second) >= ECommander::MAX_SKILL_LEVEL - 1
@@ -2085,7 +2085,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	//Performs stuff that has to be done before new building is built
 	auto processBeforeBuiltStructure = [t, this](const BuildingID buildingID)
 	{
-		if(buildingID.IsDwelling())
+		if(buildingID.isDwelling())
 		{
 			int level = BuildingID::getLevelFromDwelling(buildingID);
 			int upgradeNumber = BuildingID::getUpgradedFromDwelling(buildingID);

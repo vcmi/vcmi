@@ -412,7 +412,7 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 
 // Range limit highlight helpers
 
-BattleHexArray BattleFieldController::getRangeHexes(const BattleHex & sourceHex, uint8_t distance)
+BattleHexArray BattleFieldController::getRangeHexes(const BattleHex & sourceHex, uint8_t distance) const
 {
 	BattleHexArray rangeHexes;
 
@@ -430,21 +430,21 @@ BattleHexArray BattleFieldController::getRangeHexes(const BattleHex & sourceHex,
 	return rangeHexes;
 }
 
-BattleHexArray BattleFieldController::getRangeLimitHexes(const BattleHex & hoveredHex, const BattleHexArray & rangeHexes, uint8_t distanceToLimit)
+BattleHexArray BattleFieldController::getRangeLimitHexes(const BattleHex & sourceHex, const BattleHexArray & rangeHexes, uint8_t distanceToLimit) const
 {
 	BattleHexArray rangeLimitHexes;
 
 	// from range hexes get only the ones at the limit
 	for(auto & hex : rangeHexes)
 	{
-		if(BattleHex::getDistance(hoveredHex, hex) == distanceToLimit)
+		if(BattleHex::getDistance(sourceHex, hex) == distanceToLimit)
 			rangeLimitHexes.insert(hex);
 	}
 
 	return rangeLimitHexes;
 }
 
-bool BattleFieldController::IsHexInRangeLimit(const BattleHex & hex, const BattleHexArray & rangeLimitHexes, int * hexIndexInRangeLimit)
+bool BattleFieldController::isHexInRangeLimit(const BattleHex & hex, const BattleHexArray & rangeLimitHexes, int * hexIndexInRangeLimit) const
 {
 	bool  hexInRangeLimit = false;
 
@@ -459,7 +459,7 @@ bool BattleFieldController::IsHexInRangeLimit(const BattleHex & hex, const Battl
 }
 
 std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeighbourDirectionsForLimitHexes(
-	const BattleHexArray & wholeRangeHexes, const BattleHexArray & rangeLimitHexes)
+	const BattleHexArray & wholeRangeHexes, const BattleHexArray & rangeLimitHexes) const
 {
 	std::vector<std::vector<BattleHex::EDir>> output;
 
@@ -565,11 +565,11 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 
 		// calculate if hex is Ranged Full Damage Limit and its position in highlight array
 		int hexIndexInRangedFullDamageLimit = 0;
-		bool hexInRangedFullDamageLimit = IsHexInRangeLimit(hex, rangedFullDamageLimitHexes, &hexIndexInRangedFullDamageLimit);
+		bool hexInRangedFullDamageLimit = isHexInRangeLimit(hex, rangedFullDamageLimitHexes, &hexIndexInRangedFullDamageLimit);
 
 		// calculate if hex is Shooting Range Limit and its position in highlight array
 		int hexIndexInShootingRangeLimit = 0;
-		bool hexInShootingRangeLimit = IsHexInRangeLimit(hex, shootingRangeLimitHexes, &hexIndexInShootingRangeLimit);
+		bool hexInShootingRangeLimit = isHexInRangeLimit(hex, shootingRangeLimitHexes, &hexIndexInShootingRangeLimit);
 
 		if(stackMovement && mouse) // area where hovered stackMovement can move shown with highlight. Because also affected by mouse cursor, shade as well
 		{
@@ -663,7 +663,7 @@ BattleHex BattleFieldController::getHexAtPosition(Point hoverPos)
 	return BattleHex::INVALID;
 }
 
-BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & myNumber)
+BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & myNumber) const
 {
 	const bool doubleWide = owner.stacksController->getActiveStack()->doubleWide();
 	const BattleHexArray & neighbours = myNumber.getAllNeighbouringTiles();

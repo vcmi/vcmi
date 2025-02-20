@@ -411,9 +411,9 @@ void ScalableImageInstance::playerColored(const PlayerColor & player)
 	image->preparePlayerColoredImage(player);
 }
 
-void ScalableImageParameters::playerColored(PlayerColor player)
+void ScalableImageParameters::playerColored(PlayerColor playerColor)
 {
-	graphics->setPlayerPalette(palette, player);
+	graphics->setPlayerPalette(palette, playerColor);
 }
 
 void ScalableImageInstance::shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove)
@@ -451,9 +451,9 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 	loadingLocator.playerColored = color;
 
 	// best case - requested image is already available in filesystem
-	auto loadedImage = GH.renderHandler().loadScaledImage(loadingLocator);
-	if (loadedImage)
-		return loadedImage;
+	auto loadedFullMatchImage = GH.renderHandler().loadScaledImage(loadingLocator);
+	if (loadedFullMatchImage)
+		return loadedFullMatchImage;
 
 	// optional images for 1x resolution - only try load them, don't attempt to generate
 	bool optionalImage =

@@ -124,10 +124,10 @@ CMapHeader::CMapHeader()
 	, twoLevel(true)
 	, difficulty(EMapDifficulty::NORMAL)
 	, levelLimit(0)
-	, howManyTeams(0)
-	, areAnyPlayers(false)
 	, victoryIconIndex(0)
 	, defeatIconIndex(0)
+	, howManyTeams(0)
+	, areAnyPlayers(false)
 {
 	setupEvents();
 	allowedHeroes = VLC->heroh->getDefaultAllowed();

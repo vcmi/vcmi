@@ -32,7 +32,7 @@ class RenderHandler final : public IRenderHandler
 
 	std::shared_ptr<CDefFile> getAnimationFile(const AnimationPath & path);
 	AnimationLayoutMap & getAnimationLayout(const AnimationPath & path, int scalingFactor, EImageBlitMode mode);
-	void initFromJson(AnimationLayoutMap & layout, const JsonNode & config, EImageBlitMode mode);
+	void initFromJson(AnimationLayoutMap & layout, const JsonNode & config, EImageBlitMode mode) const;
 
 	void addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName);
 	void addImageListEntries(const EntityService * service);

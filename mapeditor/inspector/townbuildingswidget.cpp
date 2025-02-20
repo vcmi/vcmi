@@ -318,7 +318,9 @@ void TownBuildingsWidget::onItemChanged(const QStandardItem * item) {
 	connect(&model, &QStandardItemModel::itemChanged, this, &TownBuildingsWidget::onItemChanged);
 }
 
-TownBuildingsDelegate::TownBuildingsDelegate(CGTownInstance & t): town(t), BaseInspectorItemDelegate()
+TownBuildingsDelegate::TownBuildingsDelegate(CGTownInstance & t)
+	: BaseInspectorItemDelegate()
+	, town(t)
 {
 }
 

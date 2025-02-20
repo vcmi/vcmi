@@ -683,19 +683,21 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 }
 
 CStackInstance::CStackInstance(bool isHypothetic)
-	: CBonusSystemNode(isHypothetic),
-	armyObj(_armyObj),
-	nativeTerrain(this, Selector::type()(BonusType::TERRAIN_NATIVE)),
-	initiative(this, Selector::type()(BonusType::STACKS_SPEED))
-
+	: CBonusSystemNode(isHypothetic)
+	, nativeTerrain(this, Selector::type()(BonusType::TERRAIN_NATIVE))
+	, initiative(this, Selector::type()(BonusType::STACKS_SPEED))
+	, armyObj(_armyObj)
 {
-	init();
+	experience = 0;
+	count = 0;
+	setType(nullptr);
+	_armyObj = nullptr;
+	setNodeType(STACK_INSTANCE);
 }
 
 CStackInstance::CStackInstance(const CreatureID & id, TQuantity Count, bool isHypothetic)
 	: CStackInstance(false)
 {
-	init();
 	setType(id);
 	count = Count;
 }
@@ -703,18 +705,8 @@ CStackInstance::CStackInstance(const CreatureID & id, TQuantity Count, bool isHy
 CStackInstance::CStackInstance(const CCreature *cre, TQuantity Count, bool isHypothetic)
 	: CStackInstance(false)
 {
-	init();
 	setType(cre);
 	count = Count;
-}
-
-void CStackInstance::init()
-{
-	experience = 0;
-	count = 0;
-	setType(nullptr);
-	_armyObj = nullptr;
-	setNodeType(STACK_INSTANCE);
 }
 
 CCreature::CreatureQuantityId CStackInstance::getQuantityID() const
@@ -966,19 +958,9 @@ const IBonusBearer* CStackInstance::getBonusBearer() const
 	return this;
 }
 
-CCommanderInstance::CCommanderInstance()
-{
-	init();
-}
+CCommanderInstance::CCommanderInstance() = default;
 
 CCommanderInstance::CCommanderInstance(const CreatureID & id): name("Commando")
-{
-	init();
-	setType(id);
-	//TODO - parse them
-}
-
-void CCommanderInstance::init()
 {
 	alive = true;
 	experience = 0;
@@ -988,6 +970,8 @@ void CCommanderInstance::init()
 	_armyObj = nullptr;
 	setNodeType (CBonusSystemNode::COMMANDER);
 	secondarySkills.resize (ECommander::SPELL_POWER + 1);
+	setType(id);
+	//TODO - parse them
 }
 
 void CCommanderInstance::setAlive (bool Alive)

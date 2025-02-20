@@ -209,8 +209,8 @@ void NetworkConnection::close()
 }
 
 InternalConnection::InternalConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkContext> & context)
-	: listener(listener)
-	, io(context)
+	: io(context)
+	, listener(listener)
 {
 }
 

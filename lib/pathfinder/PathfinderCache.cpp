@@ -28,7 +28,7 @@ std::shared_ptr<PathfinderConfig> PathfinderCache::createConfig(const CGHeroInst
 
 std::shared_ptr<CPathsInfo> PathfinderCache::buildPaths(const CGHeroInstance * h)
 {
-	std::shared_ptr<CPathsInfo> result = std::make_shared<CPathsInfo>(cb->getMapSize(), h);
+	auto result = std::make_shared<CPathsInfo>(cb->getMapSize(), h);
 	auto config = createConfig(h, *result);
 
 	cb->calculatePaths(config);
