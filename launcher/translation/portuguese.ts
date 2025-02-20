@@ -487,7 +487,7 @@ O download da instalação foi bem-sucedido?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="996"/>
         <source>Handle back as right mouse button</source>
-        <translation type="unfinished"></translation>
+        <translation>Tratar botão voltar como botão direito do mouse</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1102"/>
@@ -823,7 +823,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="144"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes Chronicles %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -1135,7 +1135,7 @@ Por favor, selecione o diretório com os dados do Heroes III instalados.</transl
     <message>
         <location filename="../modManager/imageviewer_moc.ui" line="20"/>
         <source>Image Viewer</source>
-        <translation>Visualizador de imagens</translation>
+        <translation>Visualizador de Imagens</translation>
     </message>
 </context>
 <context>
@@ -1150,7 +1150,7 @@ Motivo do erro: </translation>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation>Instalador Inno Setup não suportado!</translation>
+        <translation>Não é um instalador Inno Setup suportado!</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="58"/>
@@ -1163,11 +1163,13 @@ Motivo do erro: </translation>
 Exe (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
+            <numerusform>Hash SHA1 do arquivo fornecido:
+Exe (%n byte):
+%1</numerusform>
             <numerusform>Hash SHA1 dos arquivos fornecidos:
 Exe (%n bytes):
 %1</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1176,11 +1178,13 @@ Exe (%n bytes):
 Bin (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
+            <numerusform>
+Bin (%n byte):
+%1</numerusform>
             <numerusform>
 Bin (%n bytes):
 %1</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -1188,7 +1192,7 @@ Bin (%n bytes):
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-        <translation>O processo de cópia interna falhou. Espaço suficiente no dispositivo?
+        <translation>O processo de cópia interna falhou. Há espaço suficiente no dispositivo?
 
 %1</translation>
     </message>
@@ -1357,7 +1361,7 @@ Bin (%n bytes):
     <message>
         <location filename="../mainwindow_moc.cpp" line="46"/>
         <source>Error starting executable</source>
-        <translation type="unfinished">Erro ao iniciar o executável</translation>
+        <translation>Erro ao iniciar o executável</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="287"/>
@@ -1454,7 +1458,7 @@ Bin (%n bytes):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="248"/>
         <source>Mod data was not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Os dados do mod não foram encontrados</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="252"/>
