@@ -10,6 +10,7 @@
 #pragma once
 
 #include "filesystem/ResourcePath.h"
+#include "IHandlerBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -18,7 +19,7 @@ struct Bonus;
 
 ///High level interface for BonusTypeHandler
 
-class DLL_LINKAGE IBonusTypeHandler
+class DLL_LINKAGE IBonusTypeHandler : public IHandlerBase
 {
 public:
 	virtual ~IBonusTypeHandler() = default;

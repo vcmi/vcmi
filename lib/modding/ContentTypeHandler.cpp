@@ -23,6 +23,7 @@
 #include "../entities/hero/CHeroClassHandler.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../texts/CGeneralTextHandler.h"
+#include "../CBonusTypeHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
 #include "../IGameSettings.h"
@@ -241,6 +242,7 @@ void CContentHandler::init()
 {
 	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(VLC->heroclassesh.get(), "heroClass")));
 	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth.get(), "artifact")));
+	handlers.insert(std::make_pair("bonuses", ContentTypeHandler(VLC->bth.get(), "bonus")));
 	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh.get(), "creature")));
 	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh.get(), "faction")));
 	handlers.insert(std::make_pair("objects", ContentTypeHandler(VLC->objtypeh.get(), "object")));
