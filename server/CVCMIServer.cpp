@@ -974,10 +974,26 @@ void CVCMIServer::optionSetBonus(PlayerColor player, PlayerStartingBonus id)
 
 bool CVCMIServer::canUseThisHero(PlayerColor player, HeroTypeID ID)
 {
-	return VLC->heroh->size() > ID
-		&& si->playerInfos[player].castle == VLC->heroh->objects[ID]->heroClass->faction
-		&& !vstd::contains(getUsedHeroes(), ID)
-		&& mi->mapHeader->allowedHeroes.count(ID);
+	if (!ID.hasValue())
+		return false;
+
+	if (ID >= VLC->heroh->size())
+		return false;
+
+	if (si->playerInfos[player].castle != VLC->heroh->objects[ID]->heroClass->faction)
+		return false;
+
+	if (vstd::contains(getUsedHeroes(), ID))
+		return false;
+
+	if (!mi->mapHeader->allowedHeroes.count(ID))
+		return false;
+
+	for (const auto & disposedHero : mi->mapHeader->disposedHeroes)
+		if (disposedHero.heroId == ID && !disposedHero.players.count(player))
+			return false;
+
+	return true;
 }
 
 std::vector<HeroTypeID> CVCMIServer::getUsedHeroes()

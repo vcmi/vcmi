@@ -432,6 +432,12 @@ OptionsTab::SelectionWindow::SelectionWindow(const PlayerColor & color, SelType 
 			unusableHeroes.insert(player.second.hero);
 	}
 
+	for (const auto & disposedHero : SEL->getMapInfo()->mapHeader->disposedHeroes)
+	{
+		if (!disposedHero.players.count(color))
+			allowedHeroes.erase(disposedHero.heroId);
+	}
+
 	allowedBonus.push_back(PlayerStartingBonus::RANDOM);
 
 	if(initialHero != HeroTypeID::NONE|| SEL->getPlayerInfo(color).heroesNames.size() > 0)
@@ -459,8 +465,10 @@ std::tuple<int, int> OptionsTab::SelectionWindow::calcLines(FactionID faction)
 	for(auto & elemh : allowedHeroes)
 	{
 		const CHero * type = elemh.toHeroType();
-		if(type->heroClass->faction == faction)
-			count++;
+		if(type->heroClass->faction != faction)
+			continue;
+
+		count++;
 	}
 
 	return std::make_tuple(

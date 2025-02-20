@@ -70,6 +70,10 @@ enum class ESerializationVersion : int32_t
 	REWARDABLE_GUARDS, // 871 - fix missing serialization of guards in rewardable objects
 	MARKET_TRANSLATION_FIX, // 872 - remove serialization of markets translateable strings
 	EVENT_OBJECTS_DELETION, //873 - allow events to remove map objects
+
+	RELEASE_160 = 873,
+
+	MAP_HEADER_DISPOSED_HEROES, // map header contains disposed heroes list
 	
-	CURRENT = EVENT_OBJECTS_DELETION
+	CURRENT = MAP_HEADER_DISPOSED_HEROES
 };
