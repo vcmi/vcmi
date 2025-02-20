@@ -749,7 +749,7 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 		AnimationPath boatFilename = boatConstructor->getBoatAnimationName();
 
 		Point waterCenter = Point(bgWater->pos.x+bgWater->pos.w/2, bgWater->pos.y+bgWater->pos.h/2);
-		bgShip = std::make_shared<CShowableAnim>(120, 96, boatFilename, CShowableAnim::CREATURE_MODE, 100, 7);
+		bgShip = std::make_shared<CShowableAnim>(120, 96, boatFilename, CShowableAnim::MAP_OBJECT_MODE, 100, 7);
 		bgShip->center(waterCenter);
 		bgWater->needRefresh = true;
 	}
@@ -953,7 +953,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 	}
 	else if(auto uni = dynamic_cast<const CGUniversity *>(_market); uni->appearance)
 	{
-		titlePic = std::make_shared<CAnimImage>(uni->appearance->animationFile, 0, 0, 0, 0, CShowableAnim::CREATURE_MODE);
+		titlePic = std::make_shared<CAnimImage>(uni->appearance->animationFile, 0, 0, 0, 0, CShowableAnim::MAP_OBJECT_MODE);
 		titleStr = uni->getObjectName();
 		speechStr = uni->getSpeechTranslated();
 	}
