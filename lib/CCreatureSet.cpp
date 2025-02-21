@@ -13,7 +13,7 @@
 #include "ArtifactUtils.h"
 #include "CConfigHandler.h"
 #include "CCreatureHandler.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 #include "IGameSettings.h"
 #include "entities/hero/CHeroHandler.h"
 #include "mapObjects/CGHeroInstance.h"
@@ -353,11 +353,23 @@ bool CCreatureSet::needsLastStack() const
 	return false;
 }
 
-ui64 CCreatureSet::getArmyStrength() const
+ui64 CCreatureSet::getArmyStrength(int fortLevel) const
 {
 	ui64 ret = 0;
-	for(const auto & elem : stacks)
-		ret += elem.second->getPower();
+	for (const auto& elem : stacks)
+	{
+		ui64 powerToAdd = elem.second->getPower();
+		if (fortLevel > 0)
+		{
+			if (!elem.second->hasBonusOfType(BonusType::FLYING))
+			{
+				powerToAdd /= fortLevel;
+				if (!elem.second->hasBonusOfType(BonusType::SHOOTER))
+					powerToAdd /= fortLevel;
+			}
+		} 
+		ret += powerToAdd;
+	}
 	return ret;
 }
 
@@ -385,7 +397,7 @@ std::string CCreatureSet::getRoughAmount(const SlotID & slot, int mode) const
 		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 			return CCreature::getQuantityRangeStringForId(quantity);
 
-		return VLC->generaltexth->arraytxt[(174 + mode) + 3*(int)quantity];
+		return LIBRARY->generaltexth->arraytxt[(174 + mode) + 3*(int)quantity];
 	}
 	return "";
 }
@@ -407,7 +419,7 @@ std::string CCreatureSet::getArmyDescription() const
 			if(i + 2 < guards.size())
 				text += ", ";
 			else if(i + 2 == guards.size())
-				text += VLC->generaltexth->allTexts[237];
+				text += LIBRARY->generaltexth->allTexts[237];
 		}
 	}
 	return text;
@@ -670,35 +682,31 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 	}
 }
 
-CStackInstance::CStackInstance()
-	: armyObj(_armyObj)
-{
-	init();
-}
-
-CStackInstance::CStackInstance(const CreatureID & id, TQuantity Count, bool isHypothetic):
-	CBonusSystemNode(isHypothetic), armyObj(_armyObj)
-{
-	init();
-	setType(id);
-	count = Count;
-}
-
-CStackInstance::CStackInstance(const CCreature *cre, TQuantity Count, bool isHypothetic)
-	: CBonusSystemNode(isHypothetic), armyObj(_armyObj)
-{
-	init();
-	setType(cre);
-	count = Count;
-}
-
-void CStackInstance::init()
+CStackInstance::CStackInstance(bool isHypothetic)
+	: CBonusSystemNode(isHypothetic)
+	, nativeTerrain(this, Selector::type()(BonusType::TERRAIN_NATIVE))
+	, initiative(this, Selector::type()(BonusType::STACKS_SPEED))
+	, armyObj(_armyObj)
 {
 	experience = 0;
 	count = 0;
 	setType(nullptr);
 	_armyObj = nullptr;
 	setNodeType(STACK_INSTANCE);
+}
+
+CStackInstance::CStackInstance(const CreatureID & id, TQuantity Count, bool isHypothetic)
+	: CStackInstance(false)
+{
+	setType(id);
+	count = Count;
+}
+
+CStackInstance::CStackInstance(const CCreature *cre, TQuantity Count, bool isHypothetic)
+	: CStackInstance(false)
+{
+	setType(cre);
+	count = Count;
 }
 
 CCreature::CreatureQuantityId CStackInstance::getQuantityID() const
@@ -708,23 +716,23 @@ CCreature::CreatureQuantityId CStackInstance::getQuantityID() const
 
 int CStackInstance::getExpRank() const
 {
-	if (!VLC->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
+	if (!LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 		return 0;
 	int tier = getType()->getLevel();
 	if (vstd::iswithin(tier, 1, 7))
 	{
-		for(int i = static_cast<int>(VLC->creh->expRanks[tier].size()) - 2; i > -1; --i) //sic!
+		for(int i = static_cast<int>(LIBRARY->creh->expRanks[tier].size()) - 2; i > -1; --i) //sic!
 		{ //exp values vary from 1st level to max exp at 11th level
-			if (experience >= VLC->creh->expRanks[tier][i])
+			if (experience >= LIBRARY->creh->expRanks[tier][i])
 				return ++i; //faster, but confusing - 0 index mean 1st level of experience
 		}
 		return 0;
 	}
 	else //higher tier
 	{
-		for(int i = static_cast<int>(VLC->creh->expRanks[0].size()) - 2; i > -1; --i)
+		for(int i = static_cast<int>(LIBRARY->creh->expRanks[0].size()) - 2; i > -1; --i)
 		{
-			if (experience >= VLC->creh->expRanks[0][i])
+			if (experience >= LIBRARY->creh->expRanks[0][i])
 				return ++i;
 		}
 		return 0;
@@ -742,10 +750,10 @@ void CStackInstance::giveStackExp(TExpType exp)
 	if (!vstd::iswithin(level, 1, 7))
 		level = 0;
 
-	ui32 maxExp = VLC->creh->expRanks[level].back();
+	ui32 maxExp = LIBRARY->creh->expRanks[level].back();
 
 	vstd::amin(exp, static_cast<TExpType>(maxExp)); //prevent exp overflow due to different types
-	vstd::amin(exp, (maxExp * VLC->creh->maxExpPerBattle[level])/100);
+	vstd::amin(exp, (maxExp * LIBRARY->creh->maxExpPerBattle[level])/100);
 	vstd::amin(experience += exp, maxExp); //can't get more exp than this limit
 }
 
@@ -762,8 +770,8 @@ void CStackInstance::setType(const CCreature *c)
 	if(getCreature())
 	{
 		detachFromSource(*getCreature());
-		if (getCreature()->isMyUpgrade(c) && VLC->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
-			experience = static_cast<TExpType>(experience * VLC->creh->expAfterUpgrade / 100.0);
+		if (getCreature()->isMyUpgrade(c) && LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
+			experience = static_cast<TExpType>(experience * LIBRARY->creh->expAfterUpgrade / 100.0);
 	}
 
 	CStackBasicDescriptor::setType(c);
@@ -773,12 +781,12 @@ void CStackInstance::setType(const CCreature *c)
 }
 std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const
 {
-	return VLC->getBth()->bonusToString(bonus, this, description);
+	return LIBRARY->getBth()->bonusToString(bonus, this, description);
 }
 
 ImagePath CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
 {
-	return VLC->getBth()->bonusToGraphics(bonus);
+	return LIBRARY->getBth()->bonusToGraphics(bonus);
 }
 
 void CStackInstance::setArmyObj(const CArmedInstance * ArmyObj)
@@ -801,7 +809,7 @@ std::string CStackInstance::getQuantityTXT(bool capitalized) const
 		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 			return CCreature::getQuantityRangeStringForId(quantity);
 
-		return VLC->generaltexth->arraytxt[174 + (int)quantity*3 - 1 - capitalized];
+		return LIBRARY->generaltexth->arraytxt[174 + (int)quantity*3 - 1 - capitalized];
 	}
 	else
 		return "";
@@ -811,7 +819,7 @@ bool CStackInstance::valid(bool allowUnrandomized) const
 {
 	if(!randomStack)
 	{
-		return (getType() && getType() == getId().toEntity(VLC));
+		return (getType() && getType() == getId().toEntity(LIBRARY));
 	}
 	else
 		return allowUnrandomized;
@@ -832,6 +840,22 @@ std::string CStackInstance::nodeName() const
 PlayerColor CStackInstance::getOwner() const
 {
 	return _armyObj ? _armyObj->getOwner() : PlayerColor::NEUTRAL;
+}
+
+int32_t CStackInstance::getInitiative(int turn) const
+{
+	if (turn == 0)
+		return initiative.getValue();
+
+	return ACreature::getInitiative(turn);
+}
+
+TerrainId CStackInstance::getNativeTerrain() const
+{
+	if (nativeTerrain.hasBonus())
+		return TerrainId::ANY_TERRAIN;
+
+	return getFactionID().toEntity(LIBRARY)->getNativeTerrain();
 }
 
 void CStackInstance::deserializationFix()
@@ -934,19 +958,9 @@ const IBonusBearer* CStackInstance::getBonusBearer() const
 	return this;
 }
 
-CCommanderInstance::CCommanderInstance()
-{
-	init();
-}
+CCommanderInstance::CCommanderInstance() = default;
 
 CCommanderInstance::CCommanderInstance(const CreatureID & id): name("Commando")
-{
-	init();
-	setType(id);
-	//TODO - parse them
-}
-
-void CCommanderInstance::init()
 {
 	alive = true;
 	experience = 0;
@@ -956,6 +970,8 @@ void CCommanderInstance::init()
 	_armyObj = nullptr;
 	setNodeType (CBonusSystemNode::COMMANDER);
 	secondarySkills.resize (ECommander::SPELL_POWER + 1);
+	setType(id);
+	//TODO - parse them
 }
 
 void CCommanderInstance::setAlive (bool Alive)
@@ -976,7 +992,7 @@ void CCommanderInstance::giveStackExp (TExpType exp)
 
 int CCommanderInstance::getExpRank() const
 {
-	return VLC->heroh->level (experience);
+	return LIBRARY->heroh->level (experience);
 }
 
 int CCommanderInstance::getLevel() const
@@ -987,7 +1003,7 @@ int CCommanderInstance::getLevel() const
 void CCommanderInstance::levelUp ()
 {
 	level++;
-	for(const auto & bonus : VLC->creh->commanderLevelPremy)
+	for(const auto & bonus : LIBRARY->creh->commanderLevelPremy)
 	{ //grant all regular level-up bonuses
 		accumulateBonus(bonus);
 	}
@@ -1000,7 +1016,7 @@ ArtBearer::ArtBearer CCommanderInstance::bearerType() const
 
 bool CCommanderInstance::gainsLevel() const
 {
-	return experience >= VLC->heroh->reqExp(level + 1);
+	return experience >= LIBRARY->heroh->reqExp(level + 1);
 }
 
 //This constructor should be placed here to avoid side effects
@@ -1024,7 +1040,7 @@ const CCreature * CStackBasicDescriptor::getCreature() const
 
 const Creature * CStackBasicDescriptor::getType() const
 {
-	return typeID.hasValue() ? typeID.toEntity(VLC) : nullptr;
+	return typeID.hasValue() ? typeID.toEntity(LIBRARY) : nullptr;
 }
 
 CreatureID CStackBasicDescriptor::getId() const
@@ -1055,7 +1071,7 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 	{
 		if(typeID.hasValue())
 		{
-			std::string typeName = typeID.toEntity(VLC)->getJsonKey();
+			std::string typeName = typeID.toEntity(LIBRARY)->getJsonKey();
 			handler.serializeString("type", typeName);
 		}
 	}

@@ -228,6 +228,19 @@ TEST_F(UnitStateTest, additionalMeleeAttack)
 	EXPECT_EQ(subject.getTotalAttacks(true), 1);
 }
 
+TEST_F(UnitStateTest, hypnotized)
+{
+	setDefaultExpectations();
+
+	{
+		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HYPNOTIZED, BonusSource::SPELL_EFFECT, 41, BonusSourceID());
+
+		bonusMock.addNewBonus(bonus);
+	}
+
+	EXPECT_TRUE(subject.isHypnotized());
+}
+
 TEST_F(UnitStateTest, additionalRangedAttack)
 {
 	setDefaultExpectations();
@@ -252,10 +265,16 @@ TEST_F(UnitStateTest, getMinDamage)
 		bonusMock.addNewBonus(bonus);
 
 		bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, -20, BonusSourceID(), BonusCustomSubtype::creatureDamageMin);
+		bonus->effectRange = BonusLimitEffect::ONLY_DISTANCE_FIGHT;
 		bonusMock.addNewBonus(bonus);
+
+		bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, -10, BonusSourceID(), BonusCustomSubtype::creatureDamageMin);
+		bonus->effectRange = BonusLimitEffect::ONLY_MELEE_FIGHT;
+		bonusMock.addNewBonus(bonus);
+
 	}
 
-	EXPECT_EQ(subject.getMinDamage(false), 10);
+	EXPECT_EQ(subject.getMinDamage(false), 20);
 	EXPECT_EQ(subject.getMinDamage(true), 10);
 }
 
@@ -268,10 +287,15 @@ TEST_F(UnitStateTest, getMaxDamage)
 		bonusMock.addNewBonus(bonus);
 
 		bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, -20, BonusSourceID(), BonusCustomSubtype::creatureDamageMax);
+		bonus->effectRange = BonusLimitEffect::ONLY_DISTANCE_FIGHT;
+		bonusMock.addNewBonus(bonus);
+
+		bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, -10, BonusSourceID(), BonusCustomSubtype::creatureDamageMax);
+		bonus->effectRange = BonusLimitEffect::ONLY_MELEE_FIGHT;
 		bonusMock.addNewBonus(bonus);
 	}
 
-	EXPECT_EQ(subject.getMaxDamage(false), 10);
+	EXPECT_EQ(subject.getMaxDamage(false), 20);
 	EXPECT_EQ(subject.getMaxDamage(true), 10);
 }
 

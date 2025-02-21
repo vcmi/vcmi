@@ -27,6 +27,7 @@ class CGObjectInstance;
 class UpgradeInfo;
 class ConditionalWait;
 struct CPathsInfo;
+class PathfinderCache;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -64,6 +65,7 @@ class CPlayerInterface : public CGameInterface, public IUpdateable
 	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
 
 	std::unique_ptr<HeroMovementController> movementController;
+	std::unique_ptr<PathfinderCache> pathfinderCache;
 public: // TODO: make private
 	std::unique_ptr<ArtifactsUIController> artifactController;
 	std::shared_ptr<Environment> env;
@@ -154,7 +156,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void battleNewRoundFirst(const BattleID & battleID) override; //called at the beginning of each turn before changes are applied; used for HP regen handling
 	void battleNewRound(const BattleID & battleID) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void battleLogMessage(const BattleID & battleID, const std::vector<MetaString> & lines) override;
-	void battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
+	void battleStackMoved(const BattleID & battleID, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport) override;
 	void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc) override;
 	void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse) override; //called when a specific effect is set to stacks
 	void battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte) override; //various one-shot effect
@@ -168,7 +170,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void yourTacticPhase(const BattleID & battleID, int distance) override;
 	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
-public: // public interface for use by client via LOCPLINT access
+public: // public interface for use by client via GAME->interface() access
 
 	// part of GameInterface that is also used by client code
 	void showPuzzleMap() override;
@@ -198,6 +200,8 @@ public: // public interface for use by client via LOCPLINT access
 	void gamePause(bool pause);
 	void endNetwork();
 	void closeAllDialogs();
+	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
+	void invalidatePaths() override;
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
@@ -227,6 +231,3 @@ private:
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
 };
-
-/// Provides global access to instance of interface of currently active player
-extern CPlayerInterface * LOCPLINT;

@@ -20,7 +20,7 @@
 #include "../CSkillHandler.h"
 #include "../IGameCallback.h"
 #include "../TerrainHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../battle/BattleInfo.h"
@@ -110,15 +110,15 @@ std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32>
 				descriptionHelper.appendNamePlural(sid.as<CreatureID>());
 				break;
 			case BonusSource::SECONDARY_SKILL:
-				descriptionHelper.appendTextID(sid.as<SecondarySkill>().toEntity(VLC)->getNameTextID());
+				descriptionHelper.appendTextID(sid.as<SecondarySkill>().toEntity(LIBRARY)->getNameTextID());
 				break;
 			case BonusSource::HERO_SPECIAL:
-				descriptionHelper.appendTextID(sid.as<HeroTypeID>().toEntity(VLC)->getNameTextID());
+				descriptionHelper.appendTextID(sid.as<HeroTypeID>().toEntity(LIBRARY)->getNameTextID());
 				break;
 			case BonusSource::OBJECT_INSTANCE:
 				const auto * object = cb->getObj(sid.as<ObjectInstanceID>());
 				if (object)
-					descriptionHelper.appendTextID(VLC->objtypeh->getObjectName(object->ID, object->subID));
+					descriptionHelper.appendTextID(LIBRARY->objtypeh->getObjectName(object->ID, object->subID));
 		}
 	}
 
@@ -149,10 +149,7 @@ std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32>
 		// there is one known string that uses '%s' placeholder for bonus value:
 		// "core.arraytxt.69" : "\nFountain of Fortune Visited %s",
 		// So also add string replacement to handle this case
-		if (valueToShow > 0)
-			descriptionHelper.replaceRawString(std::to_string(valueToShow));
-		else
-			descriptionHelper.replaceRawString("-" + std::to_string(valueToShow));
+		descriptionHelper.replaceRawString(std::to_string(valueToShow));
 
 		if(type == BonusType::CREATURE_GROWTH_PERCENT)
 			descriptionHelper.appendRawString(" +" + std::to_string(valueToShow));

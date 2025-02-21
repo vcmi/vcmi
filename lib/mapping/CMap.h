@@ -56,26 +56,6 @@ struct DLL_LINKAGE Rumor
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
-/// The disposed hero struct describes which hero can be hired from which player.
-struct DLL_LINKAGE DisposedHero
-{
-	DisposedHero();
-
-	HeroTypeID heroId;
-	HeroTypeID portrait; /// The portrait id of the hero, -1 is default.
-	std::string name;
-	std::set<PlayerColor> players; /// Who can hire this hero (bitfield).
-
-	template <typename Handler>
-	void serialize(Handler & h)
-	{
-		h & heroId;
-		h & portrait;
-		h & name;
-		h & players;
-	}
-};
-
 /// The map contains the map header, the tiles of the terrain, objects, heroes, towns, rumors...
 class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 {
@@ -86,18 +66,10 @@ public:
 	void initTerrain();
 
 	CMapEditManager * getEditManager();
-	TerrainTile & getTile(const int3 & tile);
-	const TerrainTile & getTile(const int3 & tile) const;
+	inline TerrainTile & getTile(const int3 & tile);
+	inline const TerrainTile & getTile(const int3 & tile) const;
 	bool isCoastalTile(const int3 & pos) const;
-	bool isWaterTile(const int3 & pos) const;
-	inline bool isInTheMap(const int3 & pos) const
-	{
-		// Check whether coord < 0 is done implicitly. Negative signed int overflows to unsigned number larger than all signed ints.
-		return
-			static_cast<uint32_t>(pos.x) < static_cast<uint32_t>(width) &&
-			static_cast<uint32_t>(pos.y) < static_cast<uint32_t>(height) &&
-			static_cast<uint32_t>(pos.z) <= (twoLevel ? 1 : 0);
-	}
+	inline bool isInTheMap(const int3 & pos) const;
 
 	bool canMoveBetween(const int3 &src, const int3 &dst) const;
 	bool checkForVisitableDir(const int3 & src, const TerrainTile * pom, const int3 & dst) const;
@@ -145,9 +117,7 @@ public:
 
 	void reindexObjects();
 
-	ui32 checksum;
 	std::vector<Rumor> rumors;
-	std::vector<DisposedHero> disposedHeroes;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
 	std::set<SpellID> allowedSpells;
 	std::set<ArtifactID> allowedArtifact;
@@ -249,5 +219,26 @@ public:
 			h & *gameSettings;
 	}
 };
+
+inline bool CMap::isInTheMap(const int3 & pos) const
+{
+	// Check whether coord < 0 is done implicitly. Negative signed int overflows to unsigned number larger than all signed ints.
+	return
+		static_cast<uint32_t>(pos.x) < static_cast<uint32_t>(width) &&
+		static_cast<uint32_t>(pos.y) < static_cast<uint32_t>(height) &&
+		static_cast<uint32_t>(pos.z) <= (twoLevel ? 1 : 0);
+}
+
+inline TerrainTile & CMap::getTile(const int3 & tile)
+{
+	assert(isInTheMap(tile));
+	return terrain[tile.z][tile.x][tile.y];
+}
+
+inline const TerrainTile & CMap::getTile(const int3 & tile) const
+{
+	assert(isInTheMap(tile));
+	return terrain[tile.z][tile.x][tile.y];
+}
 
 VCMI_LIB_NAMESPACE_END

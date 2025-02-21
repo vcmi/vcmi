@@ -1,5 +1,194 @@
 # VCMI Project Changelog
 
+## 1.6.5 -> 1.6.6
+
+### General
+
+* Game no longer requires local network connection for single player games
+* Reduced size of obstacle-filled junction zones in Coldshadow Fantasy template
+* Upscaling filter xbrz x2 is now enabled by default on mobile systems
+* Fixes failure to import Chronicles on Windows with non-ascii characters in username
+* Added support for importing Chronicles using old All-in-One installer from gog.com
+* It is now possible to enable portrait mode on mobile systems.
+* Fixed grey bar at top of screen when returning to app while in game on Android
+
+### Stability
+
+* Fixed possible crash on opening unit description with unavailable upgrades
+* Fixed crash on winning game after last player loses the game due to not controlling a town for 7 days
+
+### Interface
+
+* Pressing Q during hero exchange will now swap both army and artifacts and will no longer trigger a quest log
+* Spellbook search is no longer enabled by default, allowing standard h3 shortcuts to work. Search can now be activated by pressing Tab
+* Ctrl/Shift + click on arrow buttons below creature slots during hero exchange now works in the familiar way from hd mod
+* On mobile systems, clicking on a blocked tile of a visitable object on the adventure map will now build a path to it
+* It is now possible to activate the adventure map overlay on the mobile system using the two-finger tap gesture
+* Fixed incorrect pinch event calculation that caused problems when zooming with touchscreen gestures
+* Game now displays both total cost in movement points and estimated time to arrive in turns when hovering over an accessible location
+* Artifact sort buttons in the Hero Backpack window now have correct text describing the sort order
+* Fixed non-standard color handling for shadows under selection highlight in creature animations from mods such as HotA's Iron Golem
+* Effects such as Bloodlust, Clone, and Petrify will now display correctly when xbrz is in use
+* Fixed broken Chronicles campaign screen available with new main menu themes mod
+* Fixed empty bonus shown in unit info window when unit is in Necropolis with Cover of Darkness built
+* Right-clicking on the difficulty button will now display the difficulty description popup
+* Fixed regression causing two minus signs in Fountain of Fortune description
+* Added option to upgrade all creatures in the radial menu when in town
+* Added option to display remaining unit health in the form of a health bar
+* Fixed regression that caused unavailable tiles to be displayed on the left and right sides of the battlefield when hovering with the mouse
+* Fixed regression that caused all spells to be displayed as having a duration of 16 rounds
+* Scrolling in the lobby window now only happens when hovering over the appropriate item, instead of scrolling all scrollable widgets at once
+* Fixed regression that caused black pixels on some hero portraits in mods that use 8-bit palette images
+* Fixed memory leak when upscaling images with xbrz filter
+* Fixed creature windows text align and buttons background
+
+### Mechanics
+
+* It is no longer possible to attack heroes standing on a visitable object from blocked tiles or from water when the attacker uses Fly
+* Fixed regression from 1.6 that caused multiple taverns in towns of the same faction to not be counted towards the level of information available for the thieves' guild
+* Fixed regression that caused Cove towns placed on map to be replaced with Castles on HotA maps
+* The amount of gold a player can receive from a bonfire is now always equal to the amount of rare resources received multiplied by 100
+* Disabled default victory conditions on all Elixir of Life campaign maps that require an artifact to be found, in line with H3
+
+### Nullkiller AI
+
+* Improved scoring of town buildings by the AI
+* AI will now prefer to give faster units to its scout heroes to optimize their movement points in future turns
+* Fixed AI not constructing prerequisites for town buildings in some cases, like not building Stables when attempting to build Training Grounds
+* AI will now avoid recruiting heroes if AI is low on gold or if the town is threatened by an enemy hero
+* AI will no longer attempt to use more than one hero to defend a town
+* AI will now devalue non-flying units when attacking towns with fortifications to prevent suicides against castles
+* Increased the priority of building unupgraded dwellings, as they provide units that can be hired immediately, rather than next week like citadels and castles
+* When multiple cities are threatened, the AI will now prefer to defend the one that takes the least number of turns to reach
+* Fixed AI attempting to restore mana points in town without a mage guild built
+* Reduced AI prioritization of army merging to the same level as general gathering
+* AI will now prioritize army merging before attacking enemies
+* Increased AI defense prioritization
+* AI will no longer leave the defense of a threatened town in order to bring the army to another hero
+* AI will no longer send heroes to die outside of towns that already have a garrisoning hero inside, if there's a stronger enemy hero lurking around the town
+* AI will no longer focus excessively on reaching Keymaster tents
+* AI will no longer rush towns that don't have a citadel or better if there is a strong enemy hero in the area
+* AI will no longer try to maximize defenses by using the strongest defender possible, but will instead try to use the most appropriate defender
+* Heroes that are currently threatened will be braver and not worry about attacking things that are also threatened if nothing safe is in range
+
+### Launcher
+
+* Added context menu for mod lists that allows disabling, enabling, installing, uninstalling, updating, opening installed mod location, and opening mod repository
+
+## 1.6.4 -> 1.6.5
+
+### General
+
+* Fixed corrupted graphics of generated assets like water tiles on mobile systems
+* All generated assets are now used directly from memory without saving them to disk
+* Launcher will now correctly show screenshots for already installed mods
+* Fixed broken icons in commander information dialog
+
+### Stability
+
+* Fixed regression causing crashes in combat when touchscreen input is in use
+* Fixed regression causing crash on attempt to upscale empty image
+* Fixed crash on some creature abilities from mods that cast targeted spells on unit with battle propagator
+* Fixed crash on accepting next turn in multiplayer when local player has game settings window open
+* Fixed crash in multiplayer when one player changes his starting options while another player has hero overview window open
+* Fixed crash on double-clicking login to global lobby button
+
+## 1.6.3 -> 1.6.4
+
+### General
+
+* xbrz image upscaling is now performed in background threads to avoid freezes in UI
+* Fixed a bug which caused importing data to fail on some Android devices.
+* It is now possible to add or remove per-language channels in lobby.
+* Fixed bug causing broken water tile animation when player opens launcher while game is running
+* Fixed smooth map dragging not working with right click drag
+* Game will no longer play sound on new chat message in global chat unless lobby UI is currently open
+* Fixed new building sound playing twice on costructing some buildings, such as town hall
+
+### AI
+
+* Significantly improved Battle AI performance
+* Slightly improved performance of Nullkiller AI
+* Improved scoring of on-map artifacts by Nullkiller AI
+* Nullkiller AI will now select artefact loadouts based on the hero's army, skills, spells, and mana points.
+* Nullkiller AI will now consider building resource silos in towns.
+* Fixed possible bug which could lead to AI avoiding map locations with placed events
+
+### Stability
+
+* Fixed a crash that could occur when winning a game by capturing a city that was set as a victory condition without first killing all enemies.
+* Fixed a possible crash on some platforms when opening the creature window if the hero has equipped artefacts that provide spell immunity.
+* Fixed crash when renaming preset to same name as before
+* Fixed possible crash when opening mod screenshots tab without selected mod
+* Fixed possible crash when loading game with broken mods active
+* Fixed crash on loading some user-made maps with objects that have unknown to VCMI map object ID or subID
+* Fixed crash on loading map in Wake of Gods format with pre-placed Mithril resource pile on map
+
+### Mechanics
+
+* Fixed war machines or units under the Bow of the Sharpshooter effect being unable to fire when blocked by enemy units.
+* Enemy corpses will no longer block adjacent enemy ranged units from using ranged attacks.
+* Spells banned on the map can no longer appear in towns.
+* Arrow towers will now consider units standing on wall tiles as inside town for target selection
+* Fixed possible integer overflow when player has more than 20 million gold or other resources.
+* Fixed the loading of vcmp campaigns when a specific hero is used in the bonuses of a scenario.
+* Fixed regression causing movement bonus from Stables (adventure map objects) and Stables (Castle town building) to stack with each other.
+* Fixed regression causing Pathfinding skill to reduce movement costs by only 1 movement point
+* Fixed bug causing hero paths not updating immediately after leveling up Pathfinding skill
+
+### Interface
+
+* Fixed multiple cases where town buidings were not ordered correctly and overlapping each other on town screen
+* Object search functionality is now case-insensitive and can search for similar strings to protect from typos
+* Thieves Guild will now show icons instead of text for resources comparison
+* Added support for custom images in multiplayer mode selection
+* TCP host/join dialogue now displays correct text in header
+* Main menu buttons for unavailable campaigns automatically hidden
+* Fixed graphical artefact near 3DO video when resolution is high and interface scaling is low
+
+### Map Editor
+
+* Object properties now show actual values instead of '...'.
+* Hovering over object properties now shows tooltip with full value
+
+### Modding
+
+* It is now possible to configure amount of creatures that would join on successful diplomacy check
+* It is now possible to disable joining for free for diplomacy
+* It is now possible to use images with `-shadow` or `-overlay` suffixes for 1x / unscaled mode
+* It is now possible to load pregenerated player-colored interface images using suffixes like `-red` or `-blue` in place of palette-based effects
+
+## 1.6.2 -> 1.6.3
+
+### Stability
+
+* Fixed possible crash on attempt to play corrupted video file
+* Fixed possible crash on invalid or corrupted game data
+* Fixed possible crash on invalid upscaling filter
+
+### Interface
+
+* Added right-click popup to Keymasters, Border Guards, and Border Gates that show all discovered objects of the same color
+* Added right-click popup to Obelisks that shows all discovered objects and their visitation status
+* Added support for randomly selected main menu backgrounds
+* Fixed display of long text in text-only right-click popups
+* Hero overview screen on map setup will now have scrollbars for hero desription when necessary
+* Fixed teleporter right-click popup appearing out of screen when interacting with teleporter near screen edge
+* Scenario Information window will now correctly replace random hero with actual starting hero
+
+### AI
+
+* Improved performance of Battle AI
+* Improved performance of pathfinding calculations
+* Reduced calculation of threat range, especially on low difficulties to improve performance
+* Fixed Nullkiller AI not considering nearby objects for visiting in some cases, breaking its exploration logic
+* Fixed Nullkiller AI not building town dwellings
+
+### Map Editor
+
+* Added option to convert .h3c files into .vcmp
+* It is now possible to configure town to have same faction as player
+
 ## 1.6.1 -> 1.6.2
 
 ### General

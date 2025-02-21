@@ -92,7 +92,7 @@
 				"villageHall":    { "animation" : "TBDNHALL.def", "x" : 0,   "y" : 234, "border" : "TODHALL1.bmp", "area" : "TZDHALL1.bmp" },
 				"townHall":       { "animation" : "TBDNHAL2.def", "x" : 0,   "y" : 223, "border" : "TODHALL2.bmp", "area" : "TZDHALL2.bmp" },
 				"cityHall":       { "animation" : "TBDNHAL3.def", "x" : 0,   "y" : 223, "border" : "TODHALL3.bmp", "area" : "TZDHALL3.bmp" },
-				"capitol":        { "animation" : "TBDNHAL4.def", "x" : 0,   "y" : 203, "z" : -1, "border" : "TODHALL4.bmp", "area" : "TZDHALL4.bmp" },
+				"capitol":        { "animation" : "TBDNHAL4.def", "x" : 0,   "y" : 203, "border" : "TODHALL4.bmp", "area" : "TZDHALL4.bmp" },
 				"marketplace":    { "animation" : "TBDNMARK.def", "x" : 590, "y" : 318, "z" : -2, "border" : "TODMARK.bmp",  "area" : "TZDMARK.bmp" },
 				"resourceSilo":   { "animation" : "TBDNSILO.def", "x" : 624, "y" : 335, "z" : 1,  "border" : "TODSILO.bmp",  "area" : "TZDSILO.bmp" },
 				"blacksmith":     { "animation" : "TBDNBLAK.def", "x" : 544, "y" : 248, "z" : -3, "border" : "TODSMITH.bmp", "area" : "TZDSMITH.bmp" },

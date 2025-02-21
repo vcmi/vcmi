@@ -13,9 +13,11 @@
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QStyledItemDelegate>
+#include "baseinspectoritemdelegate.h"
 #include "../lib/int3.h"
 #include "../lib/GameConstants.h"
 #include "../lib/mapObjects/CGCreature.h"
+#include "../lib/mapObjects/CGResource.h"
 #include "../lib/mapObjects/MapObjects.h"
 #include "../lib/mapObjects/FlaggableMapObject.h"
 #include "../lib/mapObjects/CRewardableObject.h"
@@ -42,7 +44,6 @@ public:
 	DECLARE_OBJ_TYPE(CGTownInstance);
 	DECLARE_OBJ_TYPE(CGArtifact);
 	DECLARE_OBJ_TYPE(CGMine);
-	DECLARE_OBJ_TYPE(CGResource);
 	DECLARE_OBJ_TYPE(CGDwelling);
 	DECLARE_OBJ_TYPE(CGGarrison);
 	DECLARE_OBJ_TYPE(CGHeroPlaceholder);
@@ -63,6 +64,8 @@ private:
 
 class Inspector
 {
+	QList<std::pair<QString, QVariant>> characterIdentifiers;
+
 protected:
 	struct PropertyEditorPlaceholder {};
 	
@@ -99,6 +102,7 @@ protected:
 	QTableWidgetItem * addProperty(bool value);
 	QTableWidgetItem * addProperty(CGObjectInstance * value);
 	QTableWidgetItem * addProperty(CGCreature::Character value);
+	QTableWidgetItem * addProperty(const std::optional<CGDwellingRandomizationInfo> & value);
 	QTableWidgetItem * addProperty(PropertyEditorPlaceholder value);
 	
 //===============END OF DECLARATION=======================================
@@ -115,7 +119,7 @@ public:
 protected:
 
 	template<class T>
-	void addProperty(const QString & key, const T & value, QAbstractItemDelegate * delegate, bool restricted)
+	void addProperty(const QString & key, const T & value, BaseInspectorItemDelegate * delegate, bool restricted)
 	{
 		auto * itemValue = addProperty(value);
 		if(!restricted)
@@ -142,6 +146,11 @@ protected:
 			++row;
 		}
 		itemKey->setFlags(restricted ? Qt::NoItemFlags : Qt::ItemIsEnabled);
+		if(delegate != nullptr)
+		{
+			QModelIndex index = table->model()->index(itemValue->row(), itemValue->column());
+			delegate->updateModelData(table->model(), index);
+		}
 	}
 	
 	template<class T>
@@ -159,11 +168,11 @@ protected:
 };
 
 
-class InspectorDelegate : public QStyledItemDelegate
+class InspectorDelegate : public BaseInspectorItemDelegate
 {
 	Q_OBJECT
 public:
-	using QStyledItemDelegate::QStyledItemDelegate;
+	using BaseInspectorItemDelegate::BaseInspectorItemDelegate;
 
 	QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 	void setEditorData(QWidget *editor, const QModelIndex &index) const override;

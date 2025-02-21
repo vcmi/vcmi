@@ -16,16 +16,16 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
-#include "../gui/CGuiHandler.h"
-#include "../CGameInfo.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../CPlayerInterface.h"
 
 CCampaignInfoScreen::CCampaignInfoScreen()
 {
 	OBJECT_CONSTRUCTION;
-	localSi = new StartInfo(*LOCPLINT->cb->getStartInfo());
+	localSi = new StartInfo(*GAME->interface()->cb->getStartInfo());
 	localMi = new CMapInfo();
-	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));
+	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*GAME->interface()->cb->getMapHeader()));
 
 	screenType = ESelectionScreen::scenarioInfo;
 

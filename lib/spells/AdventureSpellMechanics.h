@@ -86,7 +86,7 @@ protected:
 	void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 private:
 	const CGTownInstance * findNearestTown(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const std::vector <const CGTownInstance*> & pool) const;
-	int32_t movementCost(const AdventureSpellCastParameters & parameters) const;
+	int32_t movementCost(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 	std::vector <const CGTownInstance*> getPossibleTowns(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 };
 

@@ -13,13 +13,13 @@
 #include "StdInc.h"
 #include "../Global.h"
 
-#include "../client/CGameInfo.h"
 #include "../client/ClientCommandManager.h"
 #include "../client/CMT.h"
 #include "../client/CPlayerInterface.h"
 #include "../client/CServerHandler.h"
 #include "../client/eventsSDL/InputHandler.h"
-#include "../client/gui/CGuiHandler.h"
+#include "../client/GameEngine.h"
+#include "../client/GameInstance.h"
 #include "../client/gui/CursorHandler.h"
 #include "../client/gui/WindowHandler.h"
 #include "../client/mainmenu/CMainMenu.h"
@@ -43,7 +43,7 @@
 #include "../lib/modding/ModDescription.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/texts/MetaString.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/VCMIDirs.h"
 
 #include <boost/program_options.hpp>
@@ -81,7 +81,6 @@ static void init()
 	try
 	{
 		loadDLLClasses();
-		CGI->setFromLib();
 	}
 	catch (const DataLoadingException & e)
 	{
@@ -93,12 +92,12 @@ static void init()
 
 	// Debug code to load all maps on start
 	//ClientCommandManager commandController;
-	//commandController.processCommand("convert txt", false);
+	//commandController.processCommand("translate maps", false);
 }
 
 static void checkForModLoadingFailure()
 {
-	const auto & brokenMods = VLC->identifiersHandler->getModsWithFailedRequests();
+	const auto & brokenMods = LIBRARY->identifiersHandler->getModsWithFailedRequests();
 	if (!brokenMods.empty())
 	{
 		MetaString messageText;
@@ -106,7 +105,7 @@ static void checkForModLoadingFailure()
 
 		for (const auto & modID : brokenMods)
 		{
-			messageText.appendRawString(VLC->modh->getModInfo(modID).getName());
+			messageText.appendRawString(LIBRARY->modh->getModInfo(modID).getName());
 			messageText.appendEOL();
 		}
 		CInfoWindow::showInfoDialog(messageText.toString(), {});
@@ -157,6 +156,7 @@ int main(int argc, char * argv[])
 		("version,v", "display version information and exit")
 		("testmap", po::value<std::string>(), "")
 		("testsave", po::value<std::string>(), "")
+		("logLocation", po::value<std::string>(), "new location for log files")
 		("spectate,s", "enable spectator interface for AI-only games")
 		("spectate-ignore-hero", "wont follow heroes on adventure map")
 		("spectate-hero-speed", po::value<int>(), "hero movement speed on adventure map")
@@ -224,7 +224,9 @@ int main(int argc, char * argv[])
 #endif
 
 	setThreadNameLoggingOnly("MainGUI");
-	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
+	boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
+	if(vm.count("logLocation"))
+		logPath = vm["logLocation"].as<std::string>() + "/VCMI_Client_log.txt";
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
 	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_VERSION);
@@ -258,6 +260,7 @@ int main(int argc, char * argv[])
 	};
 
 	setSettingBool("session/onlyai", "onlyAI");
+	setSettingBool("session/disableVideo", "disable-video");
 	if(vm.count("headless"))
 	{
 		session["headless"].Bool() = true;
@@ -300,35 +303,13 @@ int main(int argc, char * argv[])
 
 	srand ( (unsigned int)time(nullptr) );
 
-	if(!settings["session"]["headless"].Bool())
-		GH.init();
+	ENGINE = std::make_unique<GameEngine>();
 
-	CCS = new CClientState();
-	CGI = new CGameInfo(); //contains all global information about game (texts, lodHandlers, map handler etc.)
-	CSH = new CServerHandler();
+	if(!settings["session"]["headless"].Bool())
+		ENGINE->init();
+
+	GAME = std::make_unique<GameInstance>();
 	
-	// Initialize video
-#ifdef DISABLE_VIDEO
-	CCS->videoh = new CEmptyVideoPlayer();
-#else
-	if (!settings["session"]["headless"].Bool() && !vm.count("disable-video"))
-		CCS->videoh = new CVideoPlayer();
-	else
-		CCS->videoh = new CEmptyVideoPlayer();
-#endif
-
-	logGlobal->info("\tInitializing video: %d ms", pomtime.getDiff());
-
-	if(!settings["session"]["headless"].Bool())
-	{
-		//initializing audio
-		CCS->soundh = new CSoundHandler();
-		CCS->soundh->setVolume((ui32)settings["general"]["sound"].Float());
-		CCS->musich = new CMusicHandler();
-		CCS->musich->setVolume((ui32)settings["general"]["music"].Float());
-		logGlobal->info("Initializing screen and sound handling: %d ms", pomtime.getDiff());
-	}
-
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
 	boost::thread loading([]()
@@ -362,15 +343,13 @@ int main(int argc, char * argv[])
 	{
 		pomtime.getDiff();
 		graphics = new Graphics(); // should be before curh
-		GH.renderHandler().onLibraryLoadingFinished(CGI);
-
-		CCS->curh = new CursorHandler();
-		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());
+		ENGINE->renderHandler().onLibraryLoadingFinished(LIBRARY);
 
 		CMessage::init();
 		logGlobal->info("Message handler: %d ms", pomtime.getDiff());
 
-		CCS->curh->show();
+		ENGINE->cursor().init();
+		ENGINE->cursor().show();
 	}
 
 	logGlobal->info("Initialization of VCMI (together): %d ms", total.getDiff());
@@ -383,18 +362,18 @@ int main(int argc, char * argv[])
 	{
 		session["testmap"].String() = vm["testmap"].as<std::string>();
 		session["onlyai"].Bool() = true;
-		boost::thread(&CServerHandler::debugStartTest, CSH, session["testmap"].String(), false);
+		boost::thread(&CServerHandler::debugStartTest, &GAME->server(), session["testmap"].String(), false);
 	}
 	else if(vm.count("testsave"))
 	{
 		session["testsave"].String() = vm["testsave"].as<std::string>();
 		session["onlyai"].Bool() = true;
-		boost::thread(&CServerHandler::debugStartTest, CSH, session["testsave"].String(), true);
+		boost::thread(&CServerHandler::debugStartTest, &GAME->server(), session["testsave"].String(), true);
 	}
 	else
 	{
 		auto mmenu = CMainMenu::create();
-		GH.curInt = mmenu.get();
+		ENGINE->curInt = mmenu.get();
 
 		bool playIntroVideo = !settings["session"]["headless"].Bool() && !vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool();
 		if(playIntroVideo)
@@ -432,8 +411,8 @@ static void mainLoop()
 
 	while(1) //main SDL events loop
 	{
-		GH.input().fetchEvents();
-		GH.renderFrame();
+		ENGINE->input().fetchEvents();
+		ENGINE->renderFrame();
 	}
 }
 
@@ -453,45 +432,33 @@ static void mainLoop()
 
 [[noreturn]] static void quitApplication()
 {
-	CSH->endNetwork();
+	GAME->server().endNetwork();
 
 	if(!settings["session"]["headless"].Bool())
 	{
-		if(CSH->client)
-			CSH->endGameplay();
+		if(GAME->server().client)
+			GAME->server().endGameplay();
 
-		GH.windows().clear();
+		ENGINE->windows().clear();
 	}
 
-	vstd::clear_pointer(CSH);
-
+	GAME.reset();
 	CMM.reset();
 
 	if(!settings["session"]["headless"].Bool())
 	{
-		// cleanup, mostly to remove false leaks from analyzer
-		if(CCS)
-		{
-			delete CCS->consoleh;
-			delete CCS->curh;
-			delete CCS->videoh;
-			delete CCS->musich;
-			delete CCS->soundh;
-
-			vstd::clear_pointer(CCS);
-		}
 		CMessage::dispose();
 
 		vstd::clear_pointer(graphics);
 	}
 
-	vstd::clear_pointer(VLC);
+	vstd::clear_pointer(LIBRARY);
 
 	// sometimes leads to a hang. TODO: investigate
 	//vstd::clear_pointer(console);// should be removed after everything else since used by logging
 
 	if(!settings["session"]["headless"].Bool())
-		GH.screenHandler().close();
+		ENGINE->screenHandler().close();
 
 	if(logConfig != nullptr)
 	{
@@ -499,6 +466,8 @@ static void mainLoop()
 		delete logConfig;
 		logConfig = nullptr;
 	}
+
+	//ENGINE.reset();
 
 	std::cout << "Ending...\n";
 	quitApplicationImmediately(0);
@@ -520,18 +489,10 @@ void handleQuit(bool ask)
 		return;
 	}
 
-	// FIXME: avoids crash if player attempts to close game while opening is still playing
-	// use cursor handler as indicator that loading is not done yet
-	// proper solution would be to abort init thread (or wait for it to finish)
-	if (!CCS->curh)
-	{
-		quitApplicationImmediately(0);
-	}
-
-	if (LOCPLINT)
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
+	if (GAME->interface())
+		GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[69], quitApplication, nullptr);
 	else
-		CInfoWindow::showYesNoDialog(CGI->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
+		CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
 }
 
 /// Notify user about encountered fatal error and terminate the game

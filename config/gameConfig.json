@@ -305,7 +305,15 @@
 			// if heroes are invitable in tavern
 			"tavernInvite"            : false,
 			// minimal primary skills for heroes
-			"minimalPrimarySkills": [ 0, 0, 1, 1]
+			"minimalPrimarySkills": [ 0, 0, 1, 1],
+			
+			/// minimal movement cost from one tile to another while offroad. Also see BASE_TILE_MOVEMENT_COST bonus type
+			/// Also affects cost of Town Portal spell and movement cost when using Fly spell
+			"movementCostBase" : 100,
+			/// movement points hero can get on start of the turn when on land, depending on speed of slowest creature (0-based list)
+			"movementPointsLand" : [ 1500, 1500, 1500, 1500, 1560, 1630, 1700, 1760, 1830, 1900, 1960, 2000 ],
+			/// movement points hero can get on start of the turn when on sea, depending on speed of slowest creature (0-based list)
+			"movementPointsSea" : [ 1500 ]
 		},
 
 		"towns":
@@ -436,7 +444,11 @@
 			// NOTE: on HotA maps, this setting has no effect. Value provided in map will be used instead.
 			"allowRandomSpecialWeeks" : true,
 			// if enabled, every creature can get double growth month, ignoring predefined list
-			"allowAllForDoubleMonth" : false
+			"allowAllForDoubleMonth" : false,
+			// if enabled creatures may join player for free, disabling it removes free joining globally unless creature is set to join in map editor
+			"allowJoiningForFree" : true,
+			// percent of stack amount that joins player per each successful join (does not decrease cost when joining for gold), if 0 or lower creatures never join for free or gold
+			"joiningPercentage" : 100
 		},
 		
 		"dwellings" :
@@ -559,29 +571,6 @@
 				{
 					"type" : "MANA_PER_KNOWLEDGE_PERCENTAGE", //1000% mana per knowledge
 					"val" : 1000,
-					"valueType" : "BASE_NUMBER"
-				},
-				"landMovement" :
-				{
-					"type" : "MOVEMENT", //Basic land movement
-					"subtype" : "heroMovementLand",
-					"val" : 1300,
-					"valueType" : "BASE_NUMBER",
-					"updater" : {
-						"type" : "ARMY_MOVEMENT", //Enable army movement bonus
-						"parameters" : [
-							20, // Movement points for lowest speed numerator
-							3,  // Movement points for lowest speed denominator
-							10, // Resulting value, rounded down, will be multiplied by this number
-							700 // All army movement bonus cannot be higher than this value (so, max movement will be 1300 + 700 for this settings)
-						]
-					}
-				},
-				"seaMovement" :
-				{
-					"type" : "MOVEMENT", //Basic sea movement
-					"subtype" : "heroMovementSea",
-					"val" : 1500,
 					"valueType" : "BASE_NUMBER"
 				}
 			}

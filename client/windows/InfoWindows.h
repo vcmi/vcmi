@@ -21,6 +21,8 @@ class CGHeroInstance;
 class CGGarrison;
 class CGCreature;
 class CGTeleport;
+class CGKeys;
+class CGObelisk;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -56,7 +58,7 @@ public:
 	CInfoWindow();
 	~CInfoWindow();
 
-	//use only before the game starts! (showYesNoDialog in LOCPLINT must be used then)
+	//use only before the game starts! (showYesNoDialog in GAME->interface() must be used then)
 	static void showInfoDialog(const std::string & text, const TCompsInfo & components, PlayerColor player = PlayerColor(1));
 	static void showYesNoDialog(const std::string & text, const TCompsInfo & components, const CFunctionList<void()> & onYes, const CFunctionList<void()> & onNo, PlayerColor player = PlayerColor(1));
 	static std::shared_ptr<CInfoWindow> create(const std::string & text, PlayerColor playerID = PlayerColor(1), const TCompsInfo & components = TCompsInfo());
@@ -91,20 +93,27 @@ public:
 	void mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 };
 
+/// adventure map popup
+class AdventureMapPopup : public CWindowObject
+{
+	Point dragDistance;
+
+public:
+	template<typename... Args>
+	AdventureMapPopup(Args&&... args);
+	void mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance) override;
+};
+
 /// popup on adventure map for town\hero and other objects with customized popup content
-class CInfoBoxPopup : public CWindowObject
+class CInfoBoxPopup : public AdventureMapPopup
 {
 	std::shared_ptr<CIntObject> tooltip;
-
-	Point dragDistance;
 
 public:
 	CInfoBoxPopup(Point position, const CGTownInstance * town);
 	CInfoBoxPopup(Point position, const CGHeroInstance * hero);
 	CInfoBoxPopup(Point position, const CGGarrison * garr);
 	CInfoBoxPopup(Point position, const CGCreature * creature);
-
-	void mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 };
 
 /// component selection window
@@ -116,20 +125,50 @@ public:
 	CSelWindow(const std::string & text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath,CFunctionList<void()> > > &Buttons, QueryID askID);
 };
 
-class TeleporterPopup : public CWindowObject
+class MinimapWithIcons : public CIntObject
 {
-	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
-
 	std::shared_ptr<TransparentFilledRectangle> backgroundSurface;
 	std::shared_ptr<TransparentFilledRectangle> backgroundUnderground;
 
 	std::shared_ptr<CMinimapInstance> surface;
 	std::shared_ptr<CMinimapInstance> undergroud;
 
+	std::vector<std::shared_ptr<CPicture>> iconsOverlay;
+
+public:
+	MinimapWithIcons(const Point & position);
+
+	void addIcon(const int3 & coordinates, const ImagePath & image);
+};
+
+class TeleporterPopup : public AdventureMapPopup
+{
+	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
+	std::shared_ptr<MinimapWithIcons> minimap;
 	std::shared_ptr<CLabel> labelTitle;
 
-	std::vector<std::shared_ptr<CPicture>> iconsOverlay;
 public:
 	TeleporterPopup(const Point & position, const CGTeleport * teleporter);
 };
 
+class KeymasterPopup : public AdventureMapPopup
+{
+	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
+	std::shared_ptr<MinimapWithIcons> minimap;
+	std::shared_ptr<CLabel> labelTitle;
+	std::shared_ptr<CLabel> labelDescription;
+
+public:
+	KeymasterPopup(const Point & position, const CGKeys * keymasterOrGuard);
+};
+
+class ObeliskPopup : public AdventureMapPopup
+{
+	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
+	std::shared_ptr<MinimapWithIcons> minimap;
+	std::shared_ptr<CLabel> labelTitle;
+	std::shared_ptr<CLabel> labelDescription;
+
+public:
+	ObeliskPopup(const Point & position, const CGObelisk * obelisk);
+};

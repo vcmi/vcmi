@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CMapOperation.h"
 
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../TerrainHandler.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "CMap.h"
@@ -264,7 +264,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 {
 	for(const auto & pos : invalidatedTerViews)
 	{
-		const auto & patterns = VLC->terviewh->getTerrainViewPatterns(map->getTile(pos).getTerrainID());
+		const auto & patterns = LIBRARY->terviewh->getTerrainViewPatterns(map->getTile(pos).getTerrainID());
 
 		// Detect a pattern which fits best
 		int bestPattern = -1;
@@ -407,7 +407,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 				{
 					if(terType->getId() == centerTerType->getId())
 					{
-						const auto patternForRule = VLC->terviewh->getTerrainViewPatternsById(centerTerType->getId(), rule.name);
+						const auto patternForRule = LIBRARY->terviewh->getTerrainViewPatternsById(centerTerType->getId(), rule.name);
 						if(auto p = patternForRule)
 						{
 							auto rslt = validateTerrainView(currentPos, &(p->get()), 1);
@@ -516,7 +516,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 			if(map->isInTheMap(pos))
 			{
 				const auto * terType = map->getTile(pos).getTerrain();
-				auto valid = validateTerrainView(pos, VLC->terviewh->getTerrainTypePatternById("n1")).result;
+				auto valid = validateTerrainView(pos, LIBRARY->terviewh->getTerrainTypePatternById("n1")).result;
 
 				// Special validity check for rock & water
 				if(valid && (terType->isWater() || !terType->isPassable()))
@@ -524,7 +524,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 					static const std::string patternIds[] = { "s1", "s2" };
 					for(const auto & patternId : patternIds)
 					{
-						valid = !validateTerrainView(pos, VLC->terviewh->getTerrainTypePatternById(patternId)).result;
+						valid = !validateTerrainView(pos, LIBRARY->terviewh->getTerrainTypePatternById(patternId)).result;
 						if(!valid) break;
 					}
 				}
@@ -534,7 +534,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 					static const std::string patternIds[] = { "n2", "n3" };
 					for(const auto & patternId : patternIds)
 					{
-						valid = validateTerrainView(pos, VLC->terviewh->getTerrainTypePatternById(patternId)).result;
+						valid = validateTerrainView(pos, LIBRARY->terviewh->getTerrainTypePatternById(patternId)).result;
 						if(valid) break;
 					}
 				}

@@ -15,7 +15,7 @@
 #include "../../CCallback.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/GameConstants.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -158,6 +158,8 @@ public:
 
 	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, BattleSide side, bool replayAllowed) override;
 	void battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID) override;
+
+	void invalidatePaths() override;
 
 	void makeTurn();
 

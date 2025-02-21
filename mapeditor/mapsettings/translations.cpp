@@ -14,7 +14,7 @@
 #include "../../lib/texts/Languages.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 
 void Translations::cleanupRemovedItems(CMap & map)
 {
@@ -62,6 +62,8 @@ Translations::Translations(CMapHeader & mh, QWidget *parent) :
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	ui->setupUi(this);
 	
+	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+	
 	//fill languages list
 	std::set<int> indexFoundLang;
 	int foundLang = -1;
@@ -72,7 +74,7 @@ Translations::Translations(CMapHeader & mh, QWidget *parent) :
 		ui->languageSelect->setItemData(ui->languageSelect->count() - 1, QVariant(QString::fromStdString(language.identifier)));
 		if(mapHeader.translations.Struct().count(language.identifier) && !mapHeader.translations[language.identifier].Struct().empty())
 			indexFoundLang.insert(ui->languageSelect->count() - 1);
-		if(language.identifier == VLC->generaltexth->getPreferredLanguage())
+		if(language.identifier == LIBRARY->generaltexth->getPreferredLanguage())
 			foundLang = ui->languageSelect->count() - 1;
 	}
 	ui->languageSelect->blockSignals(false);
@@ -87,7 +89,7 @@ Translations::Translations(CMapHeader & mh, QWidget *parent) :
 		ui->languageSelect->setCurrentIndex(foundLang);
 	
 	if(mapPreferredLanguage.empty())
-		mapPreferredLanguage = VLC->generaltexth->getPreferredLanguage();
+		mapPreferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
 }
 
 Translations::~Translations()

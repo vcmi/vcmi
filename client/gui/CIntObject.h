@@ -15,7 +15,7 @@
 #include "../../lib/Color.h"
 #include "../../lib/GameConstants.h"
 
-class CGuiHandler;
+class GameEngine;
 class CPicture;
 class Canvas;
 

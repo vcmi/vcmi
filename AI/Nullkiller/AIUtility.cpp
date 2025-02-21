@@ -18,6 +18,8 @@
 #include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/gameState/QuestInfo.h"
 #include "../../lib/IGameSettings.h"
+#include "../../lib/bonuses/Limiters.h"
+#include "../../lib/bonuses/Propagators.h"
 
 #include <vcmi/CreatureService.h>
 
@@ -265,15 +267,335 @@ bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2)
 	return a1->getArmyStrength() < a2->getArmyStrength();
 }
 
-bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2)
+double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_ptr<Bonus> & bonus)
 {
-	auto art1 = a1->getType();
-	auto art2 = a2->getType();
+	if (bonus->propagator && bonus->limiter && bonus->propagator->getPropagatorType() == CBonusSystemNode::BATTLE)
+	{
+		// assume that this is battle wide / other side propagator+limiter
+		// consider it as fully relevant since we don't know about future combat when equipping artifacts
+		return 1.0;
+	}
 
-	if(art1->getPrice() == art2->getPrice())
-		return art1->valOfBonuses(BonusType::PRIMARY_SKILL) > art2->valOfBonuses(BonusType::PRIMARY_SKILL);
+	const auto & getArmyRatioAffectedByLimiter = [&]()
+	{
+		if (!bonus->limiter)
+			return 1.0;
+
+		uint64_t totalStrength = 0;
+		uint64_t affectedStrength = 0;
+
+		const BonusList stillUndecided;
+
+		for (const auto & slot : hero->Slots())
+		{
+			const auto allBonuses = slot.second->getAllBonuses(Selector::all, Selector::all);
+			BonusLimitationContext context = {*bonus, *slot.second, *allBonuses, stillUndecided};
+
+			uint64_t unitStrength = slot.second->getPower();
+
+			if (bonus->limiter->limit(context) == ILimiter::EDecision::ACCEPT)
+				affectedStrength += unitStrength;
+			totalStrength += unitStrength;
+		}
+
+		if (totalStrength == 0)
+			return 0.0;
+
+		return static_cast<double>(affectedStrength) / totalStrength;
+	};
+
+	const auto & getArmyPercentageWithBonus = [&](BonusType type)
+	{
+		uint64_t totalStrength = 0;
+		uint64_t affectedStrength = 0;
+
+		for (const auto & slot : hero->Slots())
+		{
+			uint64_t unitStrength = slot.second->getPower();
+			if (slot.second->hasBonusOfType(type))
+				affectedStrength += unitStrength;
+			totalStrength += unitStrength;
+		}
+
+		if (totalStrength == 0)
+			return 0.0;
+
+		return static_cast<double>(affectedStrength) / totalStrength;
+	};
+
+	const auto & getSpellSchoolKnownSpellsFactor = [&](SpellSchool school)
+	{
+		uint64_t totalWeight = 0;
+		uint64_t knownWeight = 0;
+
+		for (auto spellID : LIBRARY->spellh->getDefaultAllowed())
+		{
+			auto spell = spellID.toEntity(LIBRARY);
+			if (!spell->hasSchool(school))
+				continue;
+
+			uint64_t spellLevel = spell->getLevel();
+			uint64_t spellWeight = spellLevel * spellLevel;
+			if (!hero->spellbookContainsSpell(spellID))
+				knownWeight += spellWeight;
+			totalWeight += spellWeight;
+		}
+		if (totalWeight == 0)
+			return 0.0;
+
+		return static_cast<double>(knownWeight) / totalWeight;
+	};
+
+	const auto & getSpellLevelKnownSpellsFactor = [&](int level)
+	{
+		uint64_t totalWeight = 0;
+		uint64_t knownWeight = 0;
+
+		for (auto spellID : LIBRARY->spellh->getDefaultAllowed())
+		{
+			auto spell = spellID.toEntity(LIBRARY);
+			if (spell->getLevel() != level)
+				continue;
+
+			if (!hero->spellbookContainsSpell(spellID))
+				knownWeight += 1;
+			totalWeight += 1;
+		}
+		if (totalWeight == 0)
+			return 0.0;
+
+		return static_cast<double>(knownWeight) / totalWeight;
+	};
+
+	constexpr double notRelevant = 0.0;  // artifact is not useful in current conditions
+	constexpr double relevant = 1.0;
+	constexpr double veryRelevant = 2.0; // for very situational artifacts, e.g. skill-specific, or army composition-specific
+
+	switch (bonus->type)
+	{
+		case BonusType::MOVEMENT:
+			if (hero->boat && bonus->subtype == BonusCustomSubtype::heroMovementSea)
+				return veryRelevant;
+
+			if (!hero->boat && bonus->subtype == BonusCustomSubtype::heroMovementLand)
+				return relevant;
+			return notRelevant;
+		case BonusType::STACKS_SPEED:
+		case BonusType::STACK_HEALTH:
+			return getArmyRatioAffectedByLimiter();
+		case BonusType::MORALE:
+			return getArmyRatioAffectedByLimiter() * (1 - getArmyPercentageWithBonus(BonusType::UNDEAD)); // TODO: other unaffected, e.g. Golems
+		case BonusType::LUCK:
+			return getArmyRatioAffectedByLimiter(); // Do we have luck?
+		case BonusType::PRIMARY_SKILL:
+			if (bonus->subtype == PrimarySkill::ATTACK || bonus->subtype == PrimarySkill::DEFENSE)
+				return getArmyRatioAffectedByLimiter(); // e.g. Vial of Dragonblood - consider only affected unit
+			else
+				return relevant; // spellpower / knowledge - always relevant
+		case BonusType::WATER_WALKING:
+		case BonusType::FLYING_MOVEMENT:
+			return hero->boat ? notRelevant : relevant; // boat can't fly
+		case BonusType::WHIRLPOOL_PROTECTION:
+			return hero->boat ? relevant : notRelevant;
+		case BonusType::UNDEAD_RAISE_PERCENTAGE:
+			return hero->hasBonusOfType(BonusType::IMPROVED_NECROMANCY) ? veryRelevant : notRelevant;
+		case BonusType::SPELL_DAMAGE:
+		case BonusType::SPELL_DURATION:
+			return hero->hasSpellbook() ? relevant : notRelevant;
+		case BonusType::PERCENTAGE_DAMAGE_BOOST:
+			if (bonus->subtype == BonusCustomSubtype::damageTypeRanged)
+				return veryRelevant * getArmyPercentageWithBonus(BonusType::SHOOTER);
+			if (bonus->subtype == BonusCustomSubtype::damageTypeMelee)
+				return veryRelevant * (1 - getArmyPercentageWithBonus(BonusType::SHOOTER));
+			return 0;
+		case BonusType::FULL_MANA_REGENERATION:
+		case BonusType::MANA_REGENERATION:
+			return hero->mana < hero->manaLimit() ? relevant : notRelevant;
+		case BonusType::LEARN_BATTLE_SPELL_CHANCE:
+			return hero->hasBonusOfType(BonusType::LEARN_BATTLE_SPELL_LEVEL_LIMIT) ? relevant : notRelevant;
+		case BonusType::NO_DISTANCE_PENALTY:
+		case BonusType::NO_WALL_PENALTY:
+			return getArmyPercentageWithBonus(BonusType::SHOOTER) * veryRelevant;
+		case BonusType::SPELLS_OF_SCHOOL:
+			if (!hero->hasSpellbook())
+				return notRelevant;
+			return 1 - getSpellSchoolKnownSpellsFactor(bonus->subtype.as<SpellSchool>());
+		case BonusType::SPELLS_OF_LEVEL:
+			if (!hero->hasSpellbook())
+				return notRelevant;
+			return 1 - getSpellLevelKnownSpellsFactor(bonus->subtype.getNum());
+// Potential TODO's
+//		case BonusType::MAGIC_RESISTANCE:
+//		case BonusType::FREE_SHIP_BOARDING:
+//		case BonusType::GENERATE_RESOURCE:
+//		case BonusType::CREATURE_GROWTH:
+//
+//		case BonusType::SPELLS_OF_LEVEL:
+//		case BonusType::SIGHT_RADIUS:
+	}
+
+	return 1.0;
+}
+
+int32_t getArtifactBonusScoreImpl(const std::shared_ptr<Bonus> & bonus)
+{
+	switch (bonus->type)
+	{
+		case BonusType::MOVEMENT:
+			if (bonus->subtype == BonusCustomSubtype::heroMovementLand)
+				return bonus->val * 20;
+			if (bonus->subtype == BonusCustomSubtype::heroMovementSea)
+				return bonus->val * 10;
+			return 0;
+		case BonusType::STACKS_SPEED:
+			return bonus->val * 8000;
+		case BonusType::MORALE:
+			return bonus->val * 1500;
+		case BonusType::LUCK:
+			return bonus->val * 1000;
+		case BonusType::PRIMARY_SKILL:
+			return bonus->val * 1000;
+		case BonusType::SURRENDER_DISCOUNT:
+			return 0; // irrelevant in gameplay
+		case BonusType::WATER_WALKING:
+			return 5000;
+		case BonusType::FREE_SHIP_BOARDING:
+			return 10000;
+		case BonusType::WHIRLPOOL_PROTECTION:
+			return 5000;
+		case BonusType::FLYING_MOVEMENT:
+			return 20000;
+		case BonusType::UNDEAD_RAISE_PERCENTAGE:
+			return bonus->val * 400;
+		case BonusType::GENERATE_RESOURCE:
+			return bonus->val * LIBRARY->objh->resVals.at(bonus->subtype.as<GameResID>().getNum()) * 10;
+		case BonusType::SPELL_DURATION:
+			return bonus->val * 200;
+		case BonusType::MAGIC_RESISTANCE:
+			return bonus->val * 400;
+		case BonusType::PERCENTAGE_DAMAGE_BOOST:
+			if (bonus->subtype == BonusCustomSubtype::damageTypeRanged)
+				return bonus->val * 200;
+			if (bonus->subtype == BonusCustomSubtype::damageTypeMelee)
+				return bonus->val * 500;
+			return 0;
+		case BonusType::CREATURE_GROWTH:
+			return (1+bonus->subtype.getNum()) * bonus->val * 400;
+		case BonusType::FULL_MANA_REGENERATION:
+			return 15000;
+		case BonusType::MANA_REGENERATION:
+			return bonus->val * 500;
+		case BonusType::SPELLS_OF_SCHOOL:
+			return 20000;
+		case BonusType::SPELLS_OF_LEVEL:
+			return bonus->subtype.getNum() * 6000;
+		case BonusType::SPELL_DAMAGE:
+			return bonus->val * 120;
+		case BonusType::SIGHT_RADIUS:
+			return bonus->val * 1000;
+		case BonusType::LEARN_BATTLE_SPELL_CHANCE:
+			return 0; // irrelevant in gameplay
+		case BonusType::STACK_HEALTH:
+			return bonus->val * 5000;
+		case BonusType::NO_DISTANCE_PENALTY:
+			return 10000;
+		case BonusType::NO_WALL_PENALTY:
+			return 5000;
+	}
+	return 0;
+	// Additional bonuses to consider from H3 artifacts:
+	// MIND_IMMUNITY
+	// BLOCK_MAGIC_ABOVE
+	// SPELL_IMMUNITY
+	// NEGATE_ALL_NATURAL_IMMUNITIES
+	// SPELL_RESISTANCE_AURA
+	// SPELL
+	// BATTLE_NO_FLEEING
+	// BLOCK_ALL_MAGIC
+	// NONEVIL_ALIGNMENT_MIX
+	// OPENING_BATTLE_SPELL
+	// IMPROVED_NECROMANCY
+	// HP_REGENERATION
+	// CREATURE_GROWTH_PERCENT
+	// LEVEL_SPELL_IMMUNITY
+	// FREE_SHOOTING
+	// FULL_MANA_REGENERATION
+}
+
+int32_t getArtifactBonusScore(const std::shared_ptr<Bonus> & bonus)
+{
+	if (bonus->propagator && bonus->propagator->getPropagatorType() == CBonusSystemNode::BATTLE)
+	{
+		if (bonus->limiter)
+		{
+			// assume that this is battle wide / other side propagator+limiter -> invert value
+			return -getArtifactBonusScoreImpl(bonus);
+		}
+		else
+		{
+			return 0; // TODO? How to consider battle-wide bonuses that affect everyone?
+		}
+	}
 	else
-		return art1->getPrice() > art2->getPrice();
+	{
+		return getArtifactBonusScoreImpl(bonus);
+	}
+
+}
+
+int64_t getPotentialArtifactScore(const CArtifact * type)
+{
+	int64_t totalScore = 0;
+
+	for (const auto & bonus : type->getExportedBonusList())
+		totalScore += getArtifactBonusScore(bonus);
+
+	if (type->hasParts())
+	{
+		for (const auto & part : type->getConstituents())
+		{
+			for (const auto & bonus : part->getExportedBonusList())
+				totalScore += getArtifactBonusScore(bonus);
+		}
+	}
+
+	int64_t finalScore = std::max<int64_t>(type->getPrice() / 5, totalScore );
+
+	return finalScore;
+}
+
+int64_t getArtifactScoreForHero(const CGHeroInstance * hero, const CArtifactInstance * artifact)
+{
+	if (artifact->isScroll())
+	{
+		auto spellID = artifact->getScrollSpellID();
+		auto spell = spellID.toEntity(LIBRARY);
+
+		if (hero->getSpellsInSpellbook().count(spellID))
+			return 0;
+		else
+			return spell->getLevel() * 100;
+	}
+
+	const CArtifact * type = artifact->getType();
+	int64_t totalScore = 0;
+
+	if (type->getId() == ArtifactID::SPELLBOOK)
+		return 0;
+
+	for (const auto & bonus : type->getExportedBonusList())
+		totalScore += getArtifactBonusRelevance(hero, bonus) * getArtifactBonusScore(bonus);
+
+	if (type->hasParts())
+	{
+		for (const auto & part : type->getConstituents())
+		{
+			for (const auto & bonus : part->getExportedBonusList())
+				totalScore += getArtifactBonusRelevance(hero, bonus) * getArtifactBonusScore(bonus);
+		}
+	}
+
+	return totalScore;
 }
 
 bool isWeeklyRevisitable(const Nullkiller * ai, const CGObjectInstance * obj)
@@ -452,9 +774,9 @@ bool townHasFreeTavern(const CGTownInstance * town)
 	return canMoveVisitingHeroToGarrison;
 }
 
-uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy)
+uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy, int fortLevel)
 {
-	auto armyStrength = heroArmy->getArmyStrength();
+	auto armyStrength = heroArmy->getArmyStrength(fortLevel);
 
 	if(hero && hero->commander && hero->commander->alive)
 	{

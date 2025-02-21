@@ -13,6 +13,7 @@
 #include "../Engine/Nullkiller.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapObjects/MapObjects.h"
+#include "../../../lib/mapping/CMapDefines.h"
 #include "../../../lib/pathfinder/TurnInfo.h"
 #include "Actions/BuyArmyAction.h"
 
@@ -47,11 +48,10 @@ ChainActor::ChainActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t 
 	initialTurn = 0;
 	armyValue = getHeroArmyStrengthWithCommander(hero, hero);
 	heroFightingStrength = hero->getHeroStrength();
-	tiCache.reset(new TurnInfo(hero));
 }
 
 ChainActor::ChainActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * heroArmy)
-	:hero(carrier->hero), tiCache(carrier->tiCache), heroRole(carrier->heroRole), isMovable(true), creatureSet(heroArmy), chainMask(carrier->chainMask | other->chainMask),
+	:hero(carrier->hero), heroRole(carrier->heroRole), isMovable(true), creatureSet(heroArmy), chainMask(carrier->chainMask | other->chainMask),
 	baseActor(this), carrierParent(carrier), otherParent(other), heroFightingStrength(carrier->heroFightingStrength),
 	actorExchangeCount(carrier->actorExchangeCount + other->actorExchangeCount), armyCost(carrier->armyCost + other->armyCost), actorAction()
 {
@@ -75,7 +75,7 @@ int ChainActor::maxMovePoints(CGPathNode::ELayer layer)
 		throw std::logic_error("Asking movement points for static actor");
 #endif
 
-	return hero->movementPointsLimitCached(layer, tiCache.get());
+	return hero->movementPointsLimit(layer);
 }
 
 std::string ChainActor::toString() const
@@ -133,7 +133,6 @@ void ChainActor::setBaseActor(HeroActor * base)
 	heroFightingStrength = base->heroFightingStrength;
 	armyCost = base->armyCost;
 	actorAction = base->actorAction;
-	tiCache = base->tiCache;
 	actorExchangeCount = base->actorExchangeCount;
 }
 
@@ -396,7 +395,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 HeroExchangeArmy * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const
 {
 	auto * target = new HeroExchangeArmy();
-	auto bestArmy = ai->armyManager->getBestArmy(actor->hero, army1, army2);
+	auto bestArmy = ai->armyManager->getBestArmy(actor->hero, army1, army2, ai->cb->getTile(actor->hero->visitablePos())->getTerrainID());
 
 	for(auto & slotInfo : bestArmy)
 	{

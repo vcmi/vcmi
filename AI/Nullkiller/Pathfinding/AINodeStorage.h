@@ -11,7 +11,7 @@
 #pragma once
 
 #define NKAI_PATHFINDER_TRACE_LEVEL 0
-constexpr int NKAI_GRAPH_TRACE_LEVEL = 0;
+constexpr int NKAI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualization, enter `/vslog graph` in game chat
 #define NKAI_TRACE_LEVEL 0
 
 #include "../../../lib/pathfinder/CGPathNode.h"
@@ -41,8 +41,8 @@ struct AIPathNode : public CGPathNode
 {
 	std::shared_ptr<const SpecialAction> specialAction;
 
-	const AIPathNode * chainOther;
-	const ChainActor * actor;
+	const AIPathNode * chainOther = nullptr;
+	const ChainActor * actor = nullptr;
 
 	uint64_t danger;
 	uint64_t armyLoss;
@@ -129,8 +129,8 @@ struct AIPath
 
 struct ExchangeCandidate : public AIPathNode
 {
-	AIPathNode * carrierParent;
-	AIPathNode * otherParent;
+	AIPathNode * carrierParent = nullptr;
+	AIPathNode * otherParent = nullptr;
 };
 
 enum EHeroChainPass

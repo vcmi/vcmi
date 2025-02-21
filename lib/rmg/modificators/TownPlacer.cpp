@@ -75,7 +75,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 			zone.setTownType(getRandomTownType());
 		}
 		
-		auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
+		auto townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
 
 		CGTownInstance * town = dynamic_cast<CGTownInstance *>(townFactory->create(map.mapInstance->cb, nullptr));
 		town->tempOwner = player;
@@ -83,7 +83,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		town->addBuilding(BuildingID::DEFAULT);
 		
 
-		for(auto spellID : VLC->spellh->getDefaultAllowed()) //add all regular spells to town
+		for(auto spellID : LIBRARY->spellh->getDefaultAllowed()) //add all regular spells to town
 			town->possibleSpells.push_back(spellID);
 		
 		auto position = placeMainTown(manager, *town);
@@ -197,7 +197,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 			}
 		}
 		
-		auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, subType);
+		auto townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, subType);
 		auto * town = dynamic_cast<CGTownInstance *>(townFactory->create(map.mapInstance->cb, nullptr));
 		town->ID = Obj::TOWN;
 		
@@ -206,7 +206,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 			town->addBuilding(BuildingID::FORT);
 		town->addBuilding(BuildingID::DEFAULT);
 		
-		for(auto spellID : VLC->spellh->getDefaultAllowed()) //add all regular spells to town
+		for(auto spellID : LIBRARY->spellh->getDefaultAllowed()) //add all regular spells to town
 			town->possibleSpells.push_back(spellID);
 		
 		if(totalTowns <= 0)
@@ -233,7 +233,7 @@ FactionID TownPlacer::getRandomTownType(bool matchUndergroundType)
 		std::set<FactionID> townTypesVerify;
 		for(auto factionIdx : townTypesAllowed)
 		{
-			bool preferUnderground = (*VLC->townh)[factionIdx]->preferUndergroundPlacement;
+			bool preferUnderground = (*LIBRARY->townh)[factionIdx]->preferUndergroundPlacement;
 			if(zone.isUnderground() ? preferUnderground : !preferUnderground)
 			{
 				townTypesVerify.insert(factionIdx);

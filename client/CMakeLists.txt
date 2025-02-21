@@ -37,7 +37,6 @@ set(vcmiclientcommon_SRCS
 	eventsSDL/InputSourceTouch.cpp
 	eventsSDL/InputSourceGameController.cpp
 
-	gui/CGuiHandler.cpp
 	gui/CIntObject.cpp
 	gui/CursorHandler.cpp
 	gui/EventDispatcher.cpp
@@ -88,6 +87,7 @@ set(vcmiclientcommon_SRCS
 	render/CBitmapHandler.cpp
 	render/CDefFile.cpp
 	render/Canvas.cpp
+	render/CanvasImage.cpp
 	render/ColorFilter.cpp
 	render/Colors.cpp
 	render/Graphics.cpp
@@ -99,14 +99,16 @@ set(vcmiclientcommon_SRCS
 	renderSDL/CursorHardware.cpp
 	renderSDL/CursorSoftware.cpp
 	renderSDL/FontChain.cpp
-	renderSDL/ImageScaled.cpp
+	renderSDL/ScalableImage.cpp
 	renderSDL/RenderHandler.cpp
 	renderSDL/SDLImage.cpp
 	renderSDL/SDLImageLoader.cpp
+	renderSDL/SDLImageScaler.cpp
 	renderSDL/SDLRWwrapper.cpp
 	renderSDL/ScreenHandler.cpp
 	renderSDL/SDL_Extensions.cpp
 
+	globalLobby/GlobalLobbyAddChannelWindow.cpp
 	globalLobby/GlobalLobbyClient.cpp
 	globalLobby/GlobalLobbyInviteWindow.cpp
 	globalLobby/GlobalLobbyLoginWindow.cpp
@@ -177,7 +179,8 @@ set(vcmiclientcommon_SRCS
 	xBRZ/xbrz.cpp
 
 	ArtifactsUIController.cpp
-	CGameInfo.cpp
+	GameEngine.cpp
+	GameInstance.cpp
 	CPlayerInterface.cpp
 	PlayerLocalState.cpp
 	CServerHandler.cpp
@@ -230,7 +233,6 @@ set(vcmiclientcommon_HEADERS
 	eventsSDL/InputSourceTouch.h
 	eventsSDL/InputSourceGameController.h
 
-	gui/CGuiHandler.h
 	gui/CIntObject.h
 	gui/CursorHandler.h
 	gui/EventDispatcher.h
@@ -290,6 +292,7 @@ set(vcmiclientcommon_HEADERS
 	render/CBitmapHandler.h
 	render/CDefFile.h
 	render/Canvas.h
+	render/CanvasImage.h
 	render/ColorFilter.h
 	render/Colors.h
 	render/EFont.h
@@ -307,10 +310,11 @@ set(vcmiclientcommon_HEADERS
 	renderSDL/CursorHardware.h
 	renderSDL/CursorSoftware.h
 	renderSDL/FontChain.h
-	renderSDL/ImageScaled.h
+	renderSDL/ScalableImage.h
 	renderSDL/RenderHandler.h
 	renderSDL/SDLImage.h
 	renderSDL/SDLImageLoader.h
+	renderSDL/SDLImageScaler.h
 	renderSDL/SDLRWwrapper.h
 	renderSDL/ScreenHandler.h
 	renderSDL/SDL_Extensions.h
@@ -318,6 +322,7 @@ set(vcmiclientcommon_HEADERS
 
 	globalLobby/GlobalLobbyClient.h
 	globalLobby/GlobalLobbyDefines.h
+	globalLobby/GlobalLobbyAddChannelWindow.h
 	globalLobby/GlobalLobbyInviteWindow.h
 	globalLobby/GlobalLobbyLoginWindow.h
 	globalLobby/GlobalLobbyRoomWindow.h
@@ -390,9 +395,10 @@ set(vcmiclientcommon_HEADERS
 	xBRZ/xbrz_tools.h
 
 	ArtifactsUIController.h
-	CGameInfo.h
 	CMT.h
 	CPlayerInterface.h
+	GameEngine.h
+	GameInstance.h
 	PlayerLocalState.h
 	CServerHandler.h
 	Client.h
@@ -470,12 +476,11 @@ target_link_libraries(vcmiclientcommon PUBLIC
 		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
 )
 
-if(ffmpeg_LIBRARIES)
+if(ENABLE_VIDEO)
+	target_compile_definitions(vcmiclientcommon PRIVATE ENABLE_VIDEO)
 	target_link_libraries(vcmiclientcommon PRIVATE
 		${ffmpeg_LIBRARIES}
 	)
-else()
-	target_compile_definitions(vcmiclientcommon PRIVATE DISABLE_VIDEO)
 endif()
 
 target_include_directories(vcmiclientcommon PUBLIC
@@ -486,6 +491,10 @@ if (ffmpeg_INCLUDE_DIRS)
 	target_include_directories(vcmiclientcommon PRIVATE
 		${ffmpeg_INCLUDE_DIRS}
 	)
+endif()
+
+if(VCMI_PORTMASTER)
+	target_compile_definitions(vcmiclientcommon PRIVATE VCMI_PORTMASTER)
 endif()
 
 vcmi_set_output_dir(vcmiclientcommon "")

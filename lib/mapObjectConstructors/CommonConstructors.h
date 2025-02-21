@@ -15,6 +15,9 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGMarket.h"
+#include "../mapObjects/CGResource.h"
+#include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/ObstacleSetHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -46,9 +49,19 @@ public:
 
 class ResourceInstanceConstructor : public CDefaultObjectTypeHandler<CGResource>
 {
+	JsonNode config;
+	GameResID resourceType;
 public:
+	void initTypeData(const JsonNode & input) override;
+
 	bool hasNameTextID() const override;
 	std::string getNameTextID() const override;
+
+	GameResID getResourceType() const;
+	int getAmountMultiplier() const;
+	int getBaseAmount(vstd::RNG & rng) const;
+
+	void randomizeObject(CGResource * object, vstd::RNG & rng) const override;
 };
 
 class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance>

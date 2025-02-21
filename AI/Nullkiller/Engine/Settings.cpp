@@ -18,7 +18,7 @@
 #include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/modding/CModHandler.h"
-#include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/GameLibrary.h"
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../../../lib/json/JsonUtils.h"
 
@@ -28,6 +28,7 @@ namespace NKAI
 		: maxRoamingHeroes(8),
 		mainHeroTurnDistanceLimit(10),
 		scoutHeroTurnDistanceLimit(5),
+		threatTurnDistanceLimit(5),
 		maxGoldPressure(0.3f),
 		retreatThresholdRelative(0.3),
 		retreatThresholdAbsolute(10000),
@@ -37,6 +38,7 @@ namespace NKAI
 		pathfinderBucketsCount(1),
 		pathfinderBucketSize(32),
 		allowObjectGraph(true),
+		useOneWayMonoliths(false),
 		useTroopsFromGarrisons(false),
 		updateHitmapOnTileReveal(false),
 		openMap(true),
@@ -63,5 +65,6 @@ namespace NKAI
 		openMap = node["openMap"].Bool();
 		useFuzzy = node["useFuzzy"].Bool();
 		useTroopsFromGarrisons = node["useTroopsFromGarrisons"].Bool();
+		useOneWayMonoliths = node["useOneWayMonoliths"].Bool();
 	}
 }

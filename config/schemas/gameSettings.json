@@ -44,7 +44,10 @@
 				"startingStackChances" :      { "type" : "array" },
 				"backpackSize" :              { "type" : "number" },
 				"tavernInvite" :              { "type" : "boolean" },
-				"minimalPrimarySkills" :      { "type" : "array" }
+				"minimalPrimarySkills" :      { "type" : "array" },
+				"movementCostBase"  :         { "type" : "number" },
+				"movementPointsLand" :        { "type" : "array" },
+				"movementPointsSea" :         { "type" : "array" }
 			}
 		},
 		"towns" : {
@@ -85,7 +88,9 @@
 				"weeklyGrowthCap" :         { "type" : "number" },
 				"dailyStackExperience" :    { "type" : "number" },
 				"allowRandomSpecialWeeks" : { "type" : "boolean" },
-				"allowAllForDoubleMonth" :  { "type" : "boolean" }
+				"allowAllForDoubleMonth" :  { "type" : "boolean" },
+				"allowJoiningForFree" :     { "type" : "boolean" },
+				"joiningPercentage" :       { "type" : "number" }
 			}
 		},
 		"dwellings": {

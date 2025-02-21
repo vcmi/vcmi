@@ -95,7 +95,7 @@ void Catapult::applyMassive(ServerCallback * server, const Mechanics * m) const
 			CatapultAttack::AttackInfo newInfo;
 			newInfo.damageDealt = getRandomDamage(server);
 			newInfo.attackedPart = target;
-			newInfo.destinationTile = m->battle()->wallPartToBattleHex(target);
+			newInfo.destinationTile = m->battle()->wallPartToBattleHex(target).toInt();
 			ca.attackedParts.push_back(newInfo);
 			attackInfo = ca.attackedParts.end() - 1;
 		}
@@ -137,7 +137,7 @@ void Catapult::applyTargeted(ServerCallback * server, const Mechanics * m, const
 
 		CatapultAttack::AttackInfo attack;
 		attack.attackedPart = actualTarget;
-		attack.destinationTile = m->battle()->wallPartToBattleHex(actualTarget);
+		attack.destinationTile = m->battle()->wallPartToBattleHex(actualTarget).toInt();
 		attack.damageDealt = getRandomDamage(server);
 
 		CatapultAttack ca; //package for clients

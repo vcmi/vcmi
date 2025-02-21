@@ -11,14 +11,14 @@
 #include "Global.h"
 #include "Client.h"
 
-#include "CGameInfo.h"
 #include "CPlayerInterface.h"
 #include "PlayerLocalState.h"
 #include "CServerHandler.h"
 #include "ClientNetPackVisitors.h"
 #include "adventureMap/AdventureMapInterface.h"
 #include "battle/BattleInterface.h"
-#include "gui/CGuiHandler.h"
+#include "GameEngine.h"
+#include "GameInstance.h"
 #include "gui/WindowHandler.h"
 #include "mapView/mapHandler.h"
 
@@ -58,7 +58,7 @@ CPlayerEnvironment::CPlayerEnvironment(PlayerColor player_, CClient * cl_, std::
 
 const Services * CPlayerEnvironment::services() const
 {
-	return VLC;
+	return LIBRARY;
 }
 
 vstd::CLoggerBase * CPlayerEnvironment::logger() const
@@ -91,7 +91,7 @@ CClient::~CClient() = default;
 
 const Services * CClient::services() const
 {
-	return VLC; //todo: this should be CGI
+	return LIBRARY; //todo: this should be LIBRARY
 }
 
 const CClient::BattleCb * CClient::battle(const BattleID & battleID) const
@@ -116,18 +116,18 @@ events::EventBus * CClient::eventBus() const
 
 void CClient::newGame(CGameState * initializedGameState)
 {
-	CSH->th->update();
+	GAME->server().th->update();
 	CMapService mapService;
 	assert(initializedGameState);
 	gs = initializedGameState;
-	gs->preInit(VLC, this);
-	logNetwork->trace("\tCreating gamestate: %i", CSH->th->getDiff());
+	gs->preInit(LIBRARY, this);
+	logNetwork->trace("\tCreating gamestate: %i", GAME->server().th->getDiff());
 	if(!initializedGameState)
 	{
 		Load::ProgressAccumulator progressTracking;
-		gs->init(&mapService, CSH->si.get(), progressTracking, settings["general"]["saveRandomMaps"].Bool());
+		gs->init(&mapService, GAME->server().si.get(), progressTracking, settings["general"]["saveRandomMaps"].Bool());
 	}
-	logNetwork->trace("Initializing GameState (together): %d ms", CSH->th->getDiff());
+	logNetwork->trace("Initializing GameState (together): %d ms", GAME->server().th->getDiff());
 
 	initMapHandler();
 	reinitScripting();
@@ -142,8 +142,8 @@ void CClient::loadGame(CGameState * initializedGameState)
 	logNetwork->info("Game state was transferred over network, loading.");
 	gs = initializedGameState;
 
-	gs->preInit(VLC, this);
-	gs->updateOnLoad(CSH->si.get());
+	gs->preInit(LIBRARY, this);
+	gs->updateOnLoad(GAME->server().si.get());
 	logNetwork->info("Game loaded, initialize interfaces.");
 
 	initMapHandler();
@@ -168,8 +168,7 @@ void CClient::save(const std::string & fname)
 
 void CClient::endNetwork()
 {
-	if (CGI->mh)
-		CGI->mh->endNetwork();
+	GAME->map().endNetwork();
 
 	if (CPlayerInterface::battleInt)
 		CPlayerInterface::battleInt->endNetwork();
@@ -192,12 +191,12 @@ void CClient::endGame()
 	for(auto & i : playerint)
 		i.second->finish();
 
-	GH.curInt = nullptr;
+	ENGINE->curInt = nullptr;
 	{
 		logNetwork->info("Ending current game!");
 		removeGUI();
 
-		CGI->mh.reset();
+		GAME->setMapInstance(nullptr);
 		vstd::clear_pointer(gs);
 
 		logNetwork->info("Deleted mapHandler and gameState.");
@@ -219,18 +218,16 @@ void CClient::initMapHandler()
 	// During loading CPlayerInterface from serialized state it's depend on MH
 	if(!settings["session"]["headless"].Bool())
 	{
-		CGI->mh = std::make_shared<CMapHandler>(gs->map);
-		logNetwork->trace("Creating mapHandler: %d ms", CSH->th->getDiff());
+		GAME->setMapInstance(std::make_unique<CMapHandler>(gs->map));
+		logNetwork->trace("Creating mapHandler: %d ms", GAME->server().th->getDiff());
 	}
-
-	pathCache.clear();
 }
 
 void CClient::initPlayerEnvironments()
 {
 	playerEnvironments.clear();
 
-	auto allPlayers = CSH->getAllClientPlayers(CSH->logicConnection->connectionID);
+	auto allPlayers = GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID);
 	bool hasHumanPlayer = false;
 	for(auto & color : allPlayers)
 	{
@@ -260,7 +257,7 @@ void CClient::initPlayerInterfaces()
 	for(auto & playerInfo : gs->scenarioOps->playerInfos)
 	{
 		PlayerColor color = playerInfo.first;
-		if(!vstd::contains(CSH->getAllClientPlayers(CSH->logicConnection->connectionID), color))
+		if(!vstd::contains(GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID), color))
 			continue;
 
 		if(!vstd::contains(playerint, color))
@@ -290,10 +287,10 @@ void CClient::initPlayerInterfaces()
 		installNewPlayerInterface(std::make_shared<CPlayerInterface>(PlayerColor::SPECTATOR), PlayerColor::SPECTATOR, true);
 	}
 
-	if(CSH->getAllClientPlayers(CSH->logicConnection->connectionID).count(PlayerColor::NEUTRAL))
+	if(GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID).count(PlayerColor::NEUTRAL))
 		installNewBattleInterface(CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String()), PlayerColor::NEUTRAL);
 
-	logNetwork->trace("Initialized player interfaces %d ms", CSH->th->getDiff());
+	logNetwork->trace("Initialized player interfaces %d ms", GAME->server().th->getDiff());
 }
 
 std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman) const
@@ -374,7 +371,7 @@ int CClient::sendRequest(const CPackForServer & request, PlayerColor player)
 	waitingRequest.pushBack(requestID);
 	request.requestID = requestID;
 	request.player = player;
-	CSH->logicConnection->sendPack(request);
+	GAME->server().logicConnection->sendPack(request);
 	if(vstd::contains(playerint, player))
 		playerint[player]->requestSent(&request, requestID);
 
@@ -485,7 +482,7 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 	if (!battleint->human)
 	{
 		// we want to avoid locking gamestate and causing UI to freeze while AI is making turn
-		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 		battleint->activeStack(battleID, gs->getBattle(battleID)->battleGetStackByID(gs->getBattle(battleID)->activeStack, false));
 	}
 	else
@@ -494,52 +491,13 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 	}
 }
 
-void CClient::updatePath(const ObjectInstanceID & id)
-{
-	invalidatePaths();
-	auto hero = getHero(id);
-	updatePath(hero);
-}
 
-void CClient::updatePath(const CGHeroInstance * hero)
-{
-	if(LOCPLINT && hero)
-		LOCPLINT->localState->verifyPath(hero);
-}
-
-void CClient::invalidatePaths()
-{
-	boost::unique_lock<boost::mutex> pathLock(pathCacheMutex);
-	pathCache.clear();
-}
 
 vstd::RNG & CClient::getRandomGenerator()
 {
 	// Client should use CRandomGenerator::getDefault() for UI logic
 	// Gamestate should never call this method on client!
 	throw std::runtime_error("Illegal access to random number generator from client code!");
-}
-
-std::shared_ptr<const CPathsInfo> CClient::getPathsInfo(const CGHeroInstance * h)
-{
-	assert(h);
-	boost::unique_lock<boost::mutex> pathLock(pathCacheMutex);
-
-	auto iter = pathCache.find(h);
-
-	if(iter == std::end(pathCache))
-	{
-		auto paths = std::make_shared<CPathsInfo>(getMapSize(), h);
-
-		gs->calculatePaths(h, *paths.get());
-
-		pathCache[h] = paths;
-		return paths;
-	}
-	else
-	{
-		return iter->second;
-	}
 }
 
 #if SCRIPTING_ENABLED
@@ -560,33 +518,33 @@ void CClient::reinitScripting()
 void CClient::removeGUI() const
 {
 	// CClient::endGame
-	GH.curInt = nullptr;
-	GH.windows().clear();
+	ENGINE->curInt = nullptr;
+	ENGINE->windows().clear();
 	adventureInt.reset();
 	logGlobal->info("Removed GUI.");
 
-	LOCPLINT = nullptr;
+	GAME->setInterfaceInstance(nullptr);
 }
 
 #ifdef VCMI_ANDROID
 extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jclass cls)
 {
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	logGlobal->info("Received emergency save game request");
-	if(!LOCPLINT || !LOCPLINT->cb)
+	if(!GAME->interface() || !GAME->interface()->cb)
 	{
 		logGlobal->info("... but no active player interface found!");
 		return false;
 	}
 
-	if (!CSH || !CSH->logicConnection)
+	if (!GAME->server().logicConnection)
 	{
 		logGlobal->info("... but no active connection found!");
 		return false;
 	}
 
-	LOCPLINT->cb->save("Saves/_Android_Autosave");
+	GAME->interface()->cb->save("Saves/_Android_Autosave");
 	return true;
 }
 #endif

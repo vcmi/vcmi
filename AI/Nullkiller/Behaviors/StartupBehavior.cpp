@@ -15,7 +15,7 @@
 #include "../Goals/RecruitHero.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
-#include "lib/mapObjects/MapObjects.h" //for victory conditions
+#include "../../../lib/mapObjects/CGResource.h"
 #include "../Engine/Nullkiller.h"
 
 namespace NKAI
@@ -149,7 +149,7 @@ Goals::TGoalVec StartupBehavior::decompose(const Nullkiller * ai) const
 	{
 		if(!startupTown->visitingHero)
 		{
-			if(ai->armyManager->howManyReinforcementsCanGet(startupTown->getUpperArmy(), startupTown->getUpperArmy(), closestHero) > 200)
+			if(ai->armyManager->howManyReinforcementsCanGet(startupTown->getUpperArmy(), startupTown->getUpperArmy(), closestHero, TerrainId::NONE) > 200)
 			{
 				auto paths = ai->pathfinder->getPathInfo(startupTown->visitablePos());
 

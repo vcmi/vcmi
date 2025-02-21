@@ -25,10 +25,10 @@ public:
 
 	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit, const std::string & cachingStr = "") const override;
 
-	int64_t getTreeVersion() const override;
+	int32_t getTreeVersion() const override;
 private:
 	mutable BonusList bonuses;
 
-	mutable int64_t cachedLast;
+	mutable int32_t cachedLast;
 	int32_t treeVersion;
 };

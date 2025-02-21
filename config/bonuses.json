@@ -82,6 +82,7 @@
 
 	"DARKNESS":
 	{
+		"hidden": true
 	},
 
 	"DEATH_STARE":
@@ -305,7 +306,7 @@
 	{
 		"graphics":
 		{
-			"icon":  "zvs/Lib1.res/E_SHOOT"
+			"icon":  "zvs/Lib1.res/LIM_SHOOT"
 		}
 	},
 

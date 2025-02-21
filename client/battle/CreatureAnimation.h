@@ -94,9 +94,6 @@ private:
 	///type of animation being displayed
 	ECreatureAnimType type;
 
-	/// current value of shadow transparency
-	uint8_t shadowAlpha;
-
 	/// border color, disabled if alpha = 0
 	ColorRGBA border;
 
@@ -127,7 +124,7 @@ public:
 	/// returns currently rendered type of animation
 	ECreatureAnimType getType() const;
 
-	void nextFrame(Canvas & canvas, const ColorFilter & shifter, bool facingRight);
+	void nextFrame(Canvas & canvas, const ColorRGBA & effectColor, uint8_t transparency, bool facingRight);
 
 	/// should be called every frame, return true when animation was reset to beginning
 	bool incrementFrame(float timePassed);

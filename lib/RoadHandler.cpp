@@ -13,7 +13,7 @@
 #include "texts/CGeneralTextHandler.h"
 #include "IGameSettings.h"
 #include "json/JsonNode.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,7 +21,7 @@ RoadTypeHandler::RoadTypeHandler()
 {
 	objects.emplace_back(new RoadType());
 
-	VLC->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
+	LIBRARY->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
 
 std::shared_ptr<RoadType> RoadTypeHandler::loadFromJson(
@@ -41,7 +41,7 @@ std::shared_ptr<RoadType> RoadTypeHandler::loadFromJson(
 	info->shortIdentifier = json["shortIdentifier"].String();
 	info->movementCost    = json["moveCost"].Integer();
 
-	VLC->generaltexth->registerString(scope,info->getNameTextID(), json["text"]);
+	LIBRARY->generaltexth->registerString(scope,info->getNameTextID(), json["text"]);
 
 	return info;
 }
@@ -54,7 +54,7 @@ const std::vector<std::string> & RoadTypeHandler::getTypeNames() const
 
 std::vector<JsonNode> RoadTypeHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_ROAD);
+	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_ROAD);
 
 	objects.resize(dataSize);
 	return {};
@@ -77,13 +77,13 @@ std::string RoadType::getNameTextID() const
 
 std::string RoadType::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 RoadType::RoadType():
 	id(Road::NO_ROAD),
 	identifier("empty"),
 	modScope("core"),
-	movementCost(GameConstants::BASE_MOVEMENT_COST)
+	movementCost(0)
 {}
 VCMI_LIB_NAMESPACE_END

@@ -56,6 +56,7 @@ CPathsInfo::CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_)
 	: sizes(Sizes), hero(hero_)
 {
 	nodes.resize(boost::extents[ELayer::NUM_LAYERS][sizes.z][sizes.x][sizes.y]);
+	heroBonusTreeVersion = hero->getTreeVersion();
 }
 
 CPathsInfo::~CPathsInfo() = default;

@@ -11,7 +11,7 @@
 
 #include "AIUtility.h"
 #include "../../lib/GameConstants.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 #include "VCAI.h"
 #include <boost/heap/binomial_heap.hpp>
 

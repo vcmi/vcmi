@@ -29,6 +29,8 @@ class NetworkServer : public INetworkConnectionListener, public INetworkServer
 public:
 	NetworkServer(INetworkServerListener & listener, const std::shared_ptr<NetworkContext> & context);
 
+	void receiveInternalConnection(std::shared_ptr<IInternalConnection> remoteConnection) override;
+
 	uint16_t start(uint16_t port) override;
 };
 

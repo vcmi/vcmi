@@ -162,7 +162,7 @@ void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::
 {
 	for (auto const & spellID : gs->map->allowedSpells)
 	{
-		const auto * spell = spellID.toEntity(VLC);
+		const auto * spell = spellID.toEntity(LIBRARY);
 
 		if (!isAllowed(spellID))
 			continue;

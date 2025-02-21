@@ -25,6 +25,13 @@ if(APPLE)
 	endif()
 endif()
 
+if(POLICY CMP0142)
+  cmake_policy(SET CMP0142 NEW)
+endif()
+if(POLICY CMP0177)
+  cmake_policy(SET CMP0177 NEW)
+endif()
+
 ############################################
 #        User-provided options             #
 ############################################
@@ -41,6 +48,7 @@ endif()
 option(ENABLE_CLIENT "Enable compilation of game client" ON)
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
+option(ENABLE_VIDEO "Enable video support using ffmpeg" ON)
 option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
 option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
 option(ENABLE_MINIMAL_LIB "Build only core parts of vcmi library that are required for game lobby" OFF)
@@ -100,6 +108,8 @@ endif()
 include(CMakeDependentOption)
 cmake_dependent_option(ENABLE_INNOEXTRACT "Enable innoextract for GOG file extraction in launcher" ON "ENABLE_LAUNCHER" OFF)
 cmake_dependent_option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON "NOT ENABLE_GOLDMASTER" OFF)
+
+option(VCMI_PORTMASTER "PortMaster build" OFF)
 
 ############################################
 #        Miscellaneous options             #
@@ -472,8 +482,11 @@ if(NOT FORCE_BUNDLED_MINIZIP)
 	endif()
 endif()
 
+
 if (ENABLE_CLIENT)
-	find_package(ffmpeg COMPONENTS avutil swscale avformat avcodec swresample)
+	if (ENABLE_VIDEO)
+		find_package(ffmpeg REQUIRED COMPONENTS avutil swscale avformat avcodec swresample)
+	endif()
 
 	find_package(SDL2 REQUIRED)
 	find_package(SDL2_image REQUIRED)
@@ -870,7 +883,9 @@ elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 	# Workaround for this issue:
 	# CPack Error: Error executing: /usr/bin/hdiutil detach "/Volumes/VCMI"
 	# https://github.com/actions/runner-images/issues/7522#issuecomment-1564467252
-	set(CPACK_COMMAND_HDIUTIL "/usr/bin/sudo /usr/bin/hdiutil")
+	if(DEFINED ENV{GITHUB_RUN_ID})
+		set(CPACK_COMMAND_HDIUTIL "/usr/bin/sudo /usr/bin/hdiutil")
+	endif()
 	# CMake code for CPACK_DMG_DS_STORE executed before DS_STORE_SETUP_SCRIPT
 	# So we can keep both enabled and this shouldn't hurt
 	# set(CPACK_DMG_DS_STORE "${CMAKE_SOURCE_DIR}/osx/dmg_DS_Store")

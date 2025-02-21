@@ -10,6 +10,7 @@
 #pragma once
 
 #include "BattleConstants.h"
+#include "../lib/battle/BattleHex.h"
 #include "../gui/CIntObject.h"
 #include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
 #include "../ConditionalWait.h"
@@ -27,7 +28,6 @@ class BattleAction;
 class CGTownInstance;
 struct CatapultAttack;
 struct BattleTriggerEffect;
-struct BattleHex;
 struct InfoAboutHero;
 class ObstacleChanges;
 class CPlayerBattleCallback;
@@ -163,7 +163,7 @@ public:
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 	void requestAutofightingAIToTakeAction();
 
-	void giveCommand(EActionType action, BattleHex tile = BattleHex(), SpellID spell = SpellID::NONE);
+	void giveCommand(EActionType action, const BattleHex & tile = BattleHex(), SpellID spell = SpellID::NONE);
 	void sendCommand(BattleAction command, const CStack * actor = nullptr);
 
 	const CGHeroInstance *getActiveHero(); //returns hero that can currently cast a spell
@@ -202,7 +202,7 @@ public:
 	void stackAdded(const CStack * stack); //new stack appeared on battlefield
 	void stackRemoved(uint32_t stackID); //stack disappeared from batlefiled
 	void stackActivated(const CStack *stack); //active stack has been changed
-	void stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance, bool teleport); //stack with id number moved to destHex
+	void stackMoved(const CStack *stack, const BattleHexArray & destHex, int distance, bool teleport); //stack with id number moved to destHex
 	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
 	void stackAttacking(const StackAttackInfo & attackInfo); //called when stack with id ID is attacking something on hex dest
 	void newRoundFirst();
@@ -215,10 +215,10 @@ public:
 
 	void displayBattleLog(const std::vector<MetaString> & battleLog);
 
-	void displaySpellAnimationQueue(const CSpell * spell, const CSpell::TAnimationQueue & q, BattleHex destinationTile, bool isHit);
-	void displaySpellCast(const CSpell * spell, BattleHex destinationTile); //displays spell`s cast animation
-	void displaySpellEffect(const CSpell * spell, BattleHex destinationTile); //displays spell`s affected animation
-	void displaySpellHit(const CSpell * spell, BattleHex destinationTile); //displays spell`s affected animation
+	void displaySpellAnimationQueue(const CSpell * spell, const CSpell::TAnimationQueue & q, const BattleHex & destinationTile, bool isHit);
+	void displaySpellCast(const CSpell * spell, const BattleHex & destinationTile); //displays spell`s cast animation
+	void displaySpellEffect(const CSpell * spell, const BattleHex & destinationTile); //displays spell`s affected animation
+	void displaySpellHit(const CSpell * spell, const BattleHex & destinationTile); //displays spell`s affected animation
 
 	void endAction(const BattleAction & action);
 

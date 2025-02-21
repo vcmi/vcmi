@@ -167,11 +167,11 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 
 	if (town)
 	{
-		const TerrainType* terrainData = VLC->terrainTypeHandler->getById(terrain);
+		const TerrainType* terrainData = LIBRARY->terrainTypeHandler->getById(terrain);
 		battlefieldType = BattleField(*RandomGeneratorUtil::nextItem(terrainData->battleFields, gameHandler->getRandomGenerator()));
 	}
 	else if (heroes[BattleSide::ATTACKER] && heroes[BattleSide::ATTACKER]->boat && heroes[BattleSide::DEFENDER] && heroes[BattleSide::DEFENDER]->boat)
-		battlefieldType = BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.ship_to_ship"));
+		battlefieldType = BattleField(*LIBRARY->identifiers()->getIdentifier("core", "battlefield.ship_to_ship"));
 
 	//send info about battles
 	BattleStart bs;

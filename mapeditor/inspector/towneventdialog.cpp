@@ -67,8 +67,10 @@ void TownEventDialog::initPlayers()
 	auto playerList = params.value("players").toList();
 	for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
+		MetaString str;
+		str.appendName(PlayerColor(i));
 		bool isAffected = playerList.contains(toQString(PlayerColor(i)));
-		auto * item = new QListWidgetItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[i]));
+		auto * item = new QListWidgetItem(QString::fromStdString(str.toString()));
 		item->setData(MapEditorRoles::PlayerIDRole, QVariant::fromValue(i));
 		item->setCheckState(isAffected ? Qt::Checked : Qt::Unchecked);
 		ui->playersAffected->addItem(item);
@@ -81,13 +83,15 @@ void TownEventDialog::initResources()
 	auto resourcesMap = params.value("resources").toMap();
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
-		auto name = QString::fromStdString(GameConstants::RESOURCE_NAMES[i]);
+		MetaString str;
+		str.appendName(GameResID(i));
+		auto name = QString::fromStdString(str.toString());
 		auto * item = new QTableWidgetItem();
 		item->setFlags(item->flags() & ~Qt::ItemIsEditable);
 		item->setText(name);
 		ui->resourcesTable->setItem(i, 0, item);
 
-		int val = resourcesMap.value(name).toInt();
+		int val = resourcesMap.value(QString::fromStdString(GameConstants::RESOURCE_NAMES[i])).toInt();
 		auto * edit = new QSpinBox(ui->resourcesTable);
 		edit->setMaximum(i == GameResID::GOLD ? MAXIMUM_GOLD_CHANGE : MAXIMUM_RESOURCE_CHANGE);
 		edit->setMinimum(i == GameResID::GOLD ? -MAXIMUM_GOLD_CHANGE : -MAXIMUM_RESOURCE_CHANGE);
@@ -101,10 +105,6 @@ void TownEventDialog::initResources()
 void TownEventDialog::initBuildings()
 {
 	auto * ctown = town.getTown();
-	if (!ctown)
-		ctown = VLC->townh->randomTown;
-	if (!ctown)
-		throw std::runtime_error("No Town defined for type selected");
 	auto allBuildings = ctown->getAllBuildings();
 	while (!allBuildings.empty())
 	{
@@ -174,7 +174,7 @@ void TownEventDialog::initCreatures()
 			auto creaturesOnLevel = ctown->creatures.at(i);
 			for (auto& creature : creaturesOnLevel)
 			{
-				auto cre = VLC->creatures()->getById(creature);
+				auto cre = LIBRARY->creatures()->getById(creature);
 				auto creatureName = QString::fromStdString(cre->getNameSingularTranslated());
 				creatureNames.append(creatureNames.isEmpty() ? creatureName : " / " + creatureName);
 			}
@@ -230,10 +230,10 @@ QVariantMap TownEventDialog::resourcesToVariant()
 	auto res = params.value("resources").toMap();
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
-		auto * itemType = ui->resourcesTable->item(i, 0);
+		auto itemType = QString::fromStdString(GameConstants::RESOURCE_NAMES[i]);
 		auto * itemQty = static_cast<QSpinBox *> (ui->resourcesTable->cellWidget(i, 1));
 
-		res[itemType->text()] = QVariant::fromValue(itemQty->value());
+		res[itemType] = QVariant::fromValue(itemQty->value());
 	}
 	return res;
 }

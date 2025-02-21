@@ -188,7 +188,8 @@
 				"fontScalingFactor",
 				"upscalingFilter",
 				"fontUpscalingFilter",
-				"downscalingFilter"
+				"downscalingFilter",
+				"allowPortrait"
 			],
 			"properties" : {
 				"resolution" : {
@@ -276,6 +277,10 @@
 					"type" : "string",
 					"enum" : [ "nearest", "linear", "best" ],
 					"default" : "best"
+				},
+				"allowPortrait" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		},
@@ -428,7 +433,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells", "endWithAutocombat", "queueSmallSlots", "queueSmallOutside", "enableQuickSpellPanel" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells", "endWithAutocombat", "queueSmallSlots", "queueSmallOutside", "enableQuickSpellPanel", "showHealthBar" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -490,6 +495,10 @@
 				"enableQuickSpellPanel" : {
 					"type": "boolean",
 					"default": true
+				},
+				"showHealthBar" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		},
@@ -673,7 +682,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "mapPreview", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode" ],
+			"required" : [ "mapPreview", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode", "languageRooms" ],
 			"properties" : {
 				"mapPreview" : {
 					"type" : "boolean",
@@ -698,6 +707,10 @@
 				"roomMode" : {
 					"type" : "number",
 					"default" : 0
+				},
+				"languageRooms" : {
+					"type" : "array",
+					"default" : []
 				}
 			}
 		},
@@ -715,6 +728,7 @@
 				"skipBattleIntroMusic",
 				"infoBarCreatureManagement",
 				"enableLargeSpellbook",
+				"simpleObjectSelection",
 				"skipAdventureMapAnimations"
 			],
 			"properties" : {
@@ -753,6 +767,13 @@
 				"enableLargeSpellbook" : {
 					"type": "boolean",
 					"default": true
+				},
+				"simpleObjectSelection" : {
+					"type": "boolean",
+					"default": true,
+					"defaultIOS": true,
+					"defaultAndroid": true,
+					"defaultDesktop" : false
 				},
 				"skipAdventureMapAnimations": {
 					"type": "boolean",

@@ -51,6 +51,7 @@ public:
 	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 	CreatureID getCreatureID() const;
 	const CCreature * getCreature() const;
+	TQuantity getJoiningAmount() const;
 
 	//stack formation depends on position,
 	bool containsUpgradedStack() const;

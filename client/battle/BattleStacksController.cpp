@@ -23,11 +23,9 @@
 #include "CreatureAnimation.h"
 
 #include "../CPlayerInterface.h"
-#include "../CGameInfo.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 #include "../media/ISoundPlayer.h"
-#include "../render/AssetGenerator.h"
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
@@ -39,6 +37,7 @@
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/texts/TextOperations.h"
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
 
@@ -80,12 +79,11 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	stackToActivate(nullptr),
 	animIDhelper(0)
 {
-	AssetGenerator::createCombatUnitNumberWindow();
 	//preparing graphics for displaying amounts of creatures
-	amountNormal     = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowDefault"), EImageBlitMode::COLORKEY);
-	amountPositive   = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowPositive"), EImageBlitMode::COLORKEY);
-	amountNegative   = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowNegative"), EImageBlitMode::COLORKEY);
-	amountEffNeutral = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowNeutral"), EImageBlitMode::COLORKEY);
+	amountNormal     = ENGINE->renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowDefault"), EImageBlitMode::COLORKEY);
+	amountPositive   = ENGINE->renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowPositive"), EImageBlitMode::COLORKEY);
+	amountNegative   = ENGINE->renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowNegative"), EImageBlitMode::COLORKEY);
+	amountEffNeutral = ENGINE->renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowNeutral"), EImageBlitMode::COLORKEY);
 
 	std::vector<const CStack*> stacks = owner.getBattle()->battleGetAllStacks(true);
 	for(const CStack * s : stacks)
@@ -206,8 +204,7 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 	if (!instant)
 	{
 		// immediately make stack transparent, giving correct shifter time to start
-		auto shifterFade = ColorFilter::genAlphaShifter(0);
-		setStackColorFilter(shifterFade, stack, nullptr, true);
+		setStackColorFilter(Colors::TRANSPARENCY, 0, stack, nullptr, true);
 
 		owner.addToAnimationStage(EAnimationEvents::HIT, [=]()
 		{
@@ -265,7 +262,7 @@ std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack *
 
 	for(const auto & spellID : activeSpells)
 	{
-		auto positiveness = CGI->spells()->getByIndex(spellID)->getPositiveness();
+		auto positiveness = LIBRARY->spells()->getByIndex(spellID)->getPositiveness();
 		if(!boost::logic::indeterminate(positiveness))
 		{
 			if(positiveness)
@@ -320,20 +317,33 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 
 	Point textPosition = Point(amountBG->dimensions().x/2 + boxPosition.x, boxPosition.y + amountBG->dimensions().y/2);
 
+	if(settings["battle"]["showHealthBar"].Bool())
+	{
+		float health = stack->getMaxHealth();
+		float healthRemaining = std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * health, .0f);
+		Rect r(boxPosition.x, boxPosition.y - 3, amountBG->width(), 4);
+		canvas.drawColor(r, Colors::RED);
+		canvas.drawColor(Rect(r.x, r.y, (r.w / health) * healthRemaining, r.h), Colors::GREEN);
+		canvas.drawBorder(r, Colors::YELLOW);
+	}
 	canvas.draw(amountBG, boxPosition);
 	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, TextOperations::formatMetric(stack->getCount(), 4));
 }
 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
 {
-	ColorFilter fullFilter = ColorFilter::genEmptyShifter();
+	ColorRGBA effectColor = Colors::TRANSPARENCY;
+	uint8_t transparency = 255;
 	for(const auto & filter : stackFilterEffects)
 	{
 		if (filter.target == stack)
-			fullFilter = ColorFilter::genCombined(fullFilter, filter.effect);
+		{
+			effectColor = filter.effectColor;
+			transparency = static_cast<int>(filter.transparency) * transparency / 255;
+		}
 	}
 
-	stackAnimation[stack->unitId()]->nextFrame(canvas, fullFilter, facingRight(stack)); // do actual blit
+	stackAnimation[stack->unitId()]->nextFrame(canvas, effectColor, transparency, facingRight(stack)); // do actual blit
 }
 
 void BattleStacksController::tick(uint32_t msPassed)
@@ -461,7 +471,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 			{
 				auto spell = attackedInfo.spellEffect.toSpell();
 				if (!spell->getCastSound().empty())
-					CCS->soundh->playSound(spell->getCastSound());
+					ENGINE->sound().playSound(spell->getCastSound());
 
 
 				owner.displaySpellEffect(spell, attackedInfo.defender->getPosition());
@@ -491,7 +501,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 	owner.waitForAnimations();
 }
 
-void BattleStacksController::stackTeleported(const CStack *stack, std::vector<BattleHex> destHex, int distance)
+void BattleStacksController::stackTeleported(const CStack *stack, const BattleHexArray & destHex, int distance)
 {
 	assert(destHex.size() > 0);
 	//owner.checkForAnimations(); // NOTE: at this point spellcast animations were added, but not executed
@@ -508,7 +518,7 @@ void BattleStacksController::stackTeleported(const CStack *stack, std::vector<Ba
 	// animations will be executed by spell
 }
 
-void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance)
+void BattleStacksController::stackMoved(const CStack *stack, const BattleHexArray & destHex, int distance)
 {
 	assert(destHex.size() > 0);
 	owner.checkForAnimations();
@@ -733,7 +743,7 @@ bool BattleStacksController::facingRight(const CStack * stack) const
 	return stackFacingRight.at(stack->unitId());
 }
 
-Point BattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CStack * stack) const
+Point BattleStacksController::getStackPositionAtHex(const BattleHex & hexNum, const CStack * stack) const
 {
 	Point ret(-500, -500); //returned value
 	if(stack && stack->initialPosition < 0) //creatures in turrets
@@ -771,18 +781,19 @@ Point BattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CSta
 	return ret;
 }
 
-void BattleStacksController::setStackColorFilter(const ColorFilter & effect, const CStack * target, const CSpell * source, bool persistent)
+void BattleStacksController::setStackColorFilter(const ColorRGBA & effectColor, uint8_t transparency, const CStack * target, const CSpell * source, bool persistent)
 {
 	for (auto & filter : stackFilterEffects)
 	{
 		if (filter.target == target && filter.source == source)
 		{
-			filter.effect     = effect;
+			filter.effectColor = effectColor;
+			filter.transparency	= transparency;
 			filter.persistent = persistent;
 			return;
 		}
 	}
-	stackFilterEffects.push_back({ effect, target, source, persistent });
+	stackFilterEffects.push_back({ target, source, effectColor, transparency, persistent });
 }
 
 void BattleStacksController::removeExpiredColorFilters()
@@ -793,7 +804,7 @@ void BattleStacksController::removeExpiredColorFilters()
 		{
 			if (filter.source && !filter.target->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(filter.source->id)), Selector::all))
 				return true;
-			if (filter.effect == ColorFilter::genEmptyShifter())
+			if (filter.effectColor == Colors::TRANSPARENCY && filter.transparency == 255)
 				return true;
 		}
 		return false;
@@ -830,7 +841,7 @@ void BattleStacksController::updateHoveredStacks()
 	}
 
 	if(mouseHoveredStacks != newStacks)
-		GH.windows().totalRedraw(); //fix for frozen stack info window and blue border in action bar
+		ENGINE->windows().totalRedraw(); //fix for frozen stack info window and blue border in action bar
 
 	mouseHoveredStacks = newStacks;
 }

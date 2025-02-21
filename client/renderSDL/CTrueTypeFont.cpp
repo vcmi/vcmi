@@ -20,8 +20,6 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/texts/TextOperations.h"
 
-#include <SDL_ttf.h>
-
 std::pair<std::unique_ptr<ui8[]>, ui64> CTrueTypeFont::loadData(const JsonNode & config)
 {
 	std::string filename = "Data/" + config["file"].String();
@@ -127,29 +125,31 @@ size_t CTrueTypeFont::getStringWidthScaled(const std::string & text) const
 	return width;
 }
 
-void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
+void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & text, const ColorRGBA & color, const Point & pos) const
 {
-	if (color.r != 0 && color.g != 0 && color.b != 0) // not black - add shadow
-	{
-		if (outline)
-			renderText(surface, data, Colors::BLACK, pos - Point(1,1) * getScalingFactor());
+	if (text.empty())
+		return;
 
-		if (dropShadow || outline)
-			renderText(surface, data, Colors::BLACK, pos + Point(1,1) * getScalingFactor());
-	}
+	if (outline)
+		renderTextImpl(surface, text, Colors::BLACK, pos - Point(1,1) * getScalingFactor());
 
-	if (!data.empty())
-	{
-		SDL_Surface * rendered;
-		if (blended)
-			rendered = TTF_RenderUTF8_Blended(font.get(), data.c_str(), CSDL_Ext::toSDL(color));
-		else
-			rendered = TTF_RenderUTF8_Solid(font.get(), data.c_str(), CSDL_Ext::toSDL(color));
+	if (dropShadow || outline)
+		renderTextImpl(surface, text, Colors::BLACK, pos + Point(1,1) * getScalingFactor());
 
-		assert(rendered);
+	renderTextImpl(surface, text, color, pos);
+}
 
-		CSDL_Ext::blitSurface(rendered, surface, pos);
-		SDL_FreeSurface(rendered);
-	}
+void CTrueTypeFont::renderTextImpl(SDL_Surface * surface, const std::string & text, const ColorRGBA & color, const Point & pos) const
+{
+	SDL_Surface * rendered;
+	if (blended)
+		rendered = TTF_RenderUTF8_Blended(font.get(), text.c_str(), CSDL_Ext::toSDL(color));
+	else
+		rendered = TTF_RenderUTF8_Solid(font.get(), text.c_str(), CSDL_Ext::toSDL(color));
+
+	assert(rendered);
+
+	CSDL_Ext::blitSurface(rendered, surface, pos);
+	SDL_FreeSurface(rendered);
 }
 

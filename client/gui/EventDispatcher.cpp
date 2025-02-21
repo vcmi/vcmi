@@ -12,7 +12,7 @@
 
 #include "EventsReceiver.h"
 #include "FramerateManager.h"
-#include "CGuiHandler.h"
+#include "GameEngine.h"
 #include "MouseButton.h"
 #include "WindowHandler.h"
 #include "gui/Shortcut.h"
@@ -80,10 +80,10 @@ void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & sho
 	bool keysCaptured = false;
 
 	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
-		dispatchMouseLeftButtonPressed(GH.getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
+		dispatchMouseLeftButtonPressed(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
 
 	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
-		dispatchShowPopup(GH.getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
+		dispatchShowPopup(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
 
 	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)
@@ -109,10 +109,10 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 	bool keysCaptured = false;
 
 	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
-		dispatchMouseLeftButtonReleased(GH.getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
+		dispatchMouseLeftButtonReleased(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
 
 	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
-		dispatchClosePopup(GH.getCursorPosition());
+		dispatchClosePopup(ENGINE->getCursorPosition());
 
 	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)
@@ -201,10 +201,20 @@ void EventDispatcher::dispatchShowPopup(const Point & position, int tolerance)
 
 void EventDispatcher::dispatchClosePopup(const Point & position)
 {
-	if (GH.windows().isTopWindowPopup())
-		GH.windows().popWindows(1);
+	bool popupOpen = ENGINE->windows().isTopWindowPopup(); // popup can already be closed for mouse dragging with RMB
 
-	assert(!GH.windows().isTopWindowPopup());
+	auto hlp = rclickable;
+
+	for(auto & i : hlp)
+	{
+		if(!vstd::contains(rclickable, i))
+			continue;
+
+		i->closePopupWindow(!popupOpen);
+	}
+
+	if(popupOpen)
+		ENGINE->windows().popWindows(1);
 }
 
 void EventDispatcher::handleLeftButtonClick(const Point & position, int tolerance, bool isPressed)

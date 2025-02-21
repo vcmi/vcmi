@@ -18,7 +18,7 @@
 #include "InputSourceText.h"
 #include "InputSourceGameController.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
@@ -26,7 +26,6 @@
 #include "../media/ISoundPlayer.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
-#include "../CGameInfo.h"
 
 #include "../../lib/CConfigHandler.h"
 
@@ -134,7 +133,7 @@ void InputHandler::setCurrentInputMode(InputMode modi)
 	if(currentInputMode != modi)
 	{
 		currentInputMode = modi;
-		GH.events().dispatchInputModeChanged(modi);
+		ENGINE->events().dispatchInputModeChanged(modi);
 	}
 }
 
@@ -193,7 +192,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 {
 	if(ev.type == SDL_QUIT)
 	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+		boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 #ifdef VCMI_ANDROID
 		handleQuit(false);
 #else
@@ -206,21 +205,21 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		if(ev.key.keysym.sym == SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT))
 		{
 			// FIXME: dead code? Looks like intercepted by OS/SDL and delivered as SDL_Quit instead?
-			boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+			boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 			handleQuit(true);
 			return;
 		}
 
 		if(ev.key.keysym.scancode == SDL_SCANCODE_AC_BACK && !settings["input"]["handleBackRightMouseButton"].Bool())
 		{
-			boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+			boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 			handleQuit(true);
 			return;
 		}
 	}
 	else if(ev.type == SDL_USEREVENT)
 	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+		boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 		handleUserEvent(ev.user);
 
 		return;
@@ -231,26 +230,34 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 			case SDL_WINDOWEVENT_RESTORED:
 #ifndef VCMI_IOS
 			{
-				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-				GH.onScreenResize(false);
+				boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+				ENGINE->onScreenResize(false);
+			}
+#endif
+				break;
+			case SDL_WINDOWEVENT_SIZE_CHANGED:
+#ifdef VCMI_ANDROID
+			{
+				boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+				ENGINE->onScreenResize(true);
 			}
 #endif
 				break;
 			case SDL_WINDOWEVENT_FOCUS_GAINED:
 			{
-				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+				boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 				if(settings["general"]["audioMuteFocus"].Bool()) {
-					CCS->musich->setVolume(settings["general"]["music"].Integer());
-					CCS->soundh->setVolume(settings["general"]["sound"].Integer());
+					ENGINE->music().setVolume(settings["general"]["music"].Integer());
+					ENGINE->sound().setVolume(settings["general"]["sound"].Integer());
 				}
 			}
 				break;
 			case SDL_WINDOWEVENT_FOCUS_LOST:
 			{
-				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+				boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 				if(settings["general"]["audioMuteFocus"].Bool()) {
-					CCS->musich->setVolume(0);
-					CCS->soundh->setVolume(0);
+					ENGINE->music().setVolume(0);
+					ENGINE->sound().setVolume(0);
 				}
 			}
 				break;
@@ -259,7 +266,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	}
 	else if(ev.type == SDL_SYSWMEVENT)
 	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+		boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 		if(!settings["session"]["headless"].Bool() && settings["general"]["notifications"].Bool())
 		{
 			NotificationHandler::handleSdlEvent(ev);
@@ -284,9 +291,8 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	//preprocessing
 	if(ev.type == SDL_MOUSEMOTION)
 	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-		if (CCS && CCS->curh)
-			CCS->curh->cursorMove(ev.motion.x, ev.motion.y);
+		boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		ENGINE->cursor().cursorMove(ev.motion.x, ev.motion.y);
 	}
 
 	{
@@ -360,7 +366,7 @@ void InputHandler::moveCursorPosition(const Point & distance)
 void InputHandler::setCursorPosition(const Point & position)
 {
 	cursorPosition = position;
-	GH.events().dispatchMouseMoved(Point(0, 0), position);
+	ENGINE->events().dispatchMouseMoved(Point(0, 0), position);
 }
 
 void InputHandler::startTextInput(const Rect & where)
@@ -387,6 +393,13 @@ uint32_t InputHandler::getTicks()
 bool InputHandler::hasTouchInputDevice() const
 {
 	return fingerHandler->hasTouchInputDevice();
+}
+
+int InputHandler::getNumTouchFingers() const
+{
+	if(currentInputMode != InputMode::TOUCH)
+		return 0;
+	return fingerHandler->getNumTouchFingers();
 }
 
 void InputHandler::dispatchMainThread(const std::function<void()> & functor)

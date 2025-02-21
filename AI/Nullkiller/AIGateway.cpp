@@ -285,8 +285,8 @@ void AIGateway::tileRevealed(const std::unordered_set<int3> & pos)
 			addVisitableObj(obj);
 	}
 
-	if (nullkiller->settings->isUpdateHitmapOnTileReveal())
-		nullkiller->dangerHitMap->reset();
+	if (nullkiller->settings->isUpdateHitmapOnTileReveal() && !pos.empty())
+		nullkiller->dangerHitMap->resetTileOwners();
 }
 
 void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
@@ -389,9 +389,10 @@ void AIGateway::objectRemoved(const CGObjectInstance * obj, const PlayerColor & 
 	}
 
 	if(obj->ID == Obj::HERO && cb->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
-	{
-		nullkiller->dangerHitMap->reset();
-	}
+		nullkiller->dangerHitMap->resetHitmap();
+
+	if(obj->ID == Obj::TOWN)
+		nullkiller->dangerHitMap->resetTileOwners();
 }
 
 void AIGateway::showHillFortWindow(const CGObjectInstance * object, const CGHeroInstance * visitor)
@@ -410,6 +411,7 @@ void AIGateway::heroCreated(const CGHeroInstance * h)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+	nullkiller->invalidatePathfinderData(); // new hero needs to look around
 }
 
 void AIGateway::advmapSpellCast(const CGHeroInstance * caster, SpellID spellID)
@@ -507,7 +509,7 @@ void AIGateway::objectPropertyChanged(const SetObjectProperty * sop)
 			else if(relations == PlayerRelations::SAME_PLAYER && obj->ID == Obj::TOWN)
 			{
 				// reevaluate defence for a new town
-				nullkiller->dangerHitMap->reset();
+				nullkiller->dangerHitMap->resetHitmap();
 			}
 		}
 	}
@@ -928,7 +930,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 
 	const CArmedInstance * armies[] = {destinationArmy, source};
 
-	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source);
+	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source, myCb->getTile(source->visitablePos())->getTerrainID());
 
 	for(auto army : armies)
 	{
@@ -982,7 +984,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 						&& source->stacksCount() == 1
 						&& (!destinationArmy->hasStackAtSlot(i) || destinationArmy->getCreature(i) == targetCreature))
 					{
-						auto weakest = nullkiller->armyManager->getWeakestCreature(bestArmy);
+						auto weakest = nullkiller->armyManager->getBestUnitForScout(bestArmy, myCb->getTile(source->visitablePos())->getTerrainID());
 						
 						if(weakest->creature == targetCreature)
 						{
@@ -1091,19 +1093,24 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 				}
 				if(!emptySlotFound) //try to put that atifact in already occupied slot
 				{
+					int64_t artifactScore = getArtifactScoreForHero(target, artifact);
+
 					for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
 					{
 						auto otherSlot = target->getSlot(slot);
 						if(otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
 						{
+							int64_t otherArtifactScore = getArtifactScoreForHero(target, otherSlot->artifact);
+							logAi->trace( "Comparing artifacts of %s: %s vs %s. Score: %d vs %d", target->getHeroTypeName(), artifact->getType()->getJsonKey(), otherSlot->artifact->getType()->getJsonKey(), artifactScore, otherArtifactScore);
+
 							//if that artifact is better than what we have, pick it
-							if(compareArtifacts(artifact, otherSlot->artifact)
-								&& artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
+							//combined artifacts are not always allowed to move
+							if(artifactScore > otherArtifactScore && artifact->canBePutAt(target, slot, true))
 							{
 								logAi->trace(
 									"Exchange artifacts %s <-> %s",
-									artifact->getType()->getNameTranslated(),
-									otherSlot->artifact->getType()->getNameTranslated());
+									artifact->getType()->getJsonKey(),
+									otherSlot->artifact->getType()->getJsonKey());
 
 								if(!otherSlot->artifact->canBePutAt(artHolder, location.slot, true))
 								{
@@ -1246,7 +1253,7 @@ void AIGateway::addVisitableObj(const CGObjectInstance * obj)
 
 	if(obj->ID == Obj::HERO && cb->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
 	{
-		nullkiller->dangerHitMap->reset();
+		nullkiller->dangerHitMap->resetHitmap();
 	}
 }
 
@@ -1290,7 +1297,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 	else
 	{
 		CGPath path;
-		cb->getPathsInfo(h.get())->getPath(path, dst);
+		nullkiller->getPathsInfo(h.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
 			logAi->error("Hero %s cannot reach %s.", h->getNameTranslated(), dst.toString());
@@ -1800,6 +1807,11 @@ void AIStatus::setChannelProbing(bool ongoing)
 bool AIStatus::channelProbing()
 {
 	return ongoingChannelProbing;
+}
+
+void AIGateway::invalidatePaths()
+{
+	nullkiller->invalidatePaths();
 }
 
 }

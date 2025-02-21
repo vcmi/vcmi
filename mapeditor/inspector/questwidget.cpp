@@ -11,7 +11,7 @@
 #include "questwidget.h"
 #include "ui_questwidget.h"
 #include "../mapcontroller.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CArtHandler.h"
@@ -43,7 +43,9 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	ui->lResources->setRowCount(GameConstants::RESOURCE_QUANTITY - 1);
 	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY - 1; ++i)
 	{
-		auto * item = new QTableWidgetItem(QString::fromStdString(GameConstants::RESOURCE_NAMES[i]));
+		MetaString str;
+		str.appendName(GameResID(i));
+		auto * item = new QTableWidgetItem(QString::fromStdString(str.toString()));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		ui->lResources->setItem(i, 0, item);
 		auto * spinBox = new QSpinBox;
@@ -52,7 +54,7 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	}
 	
 	//fill artifacts
-	for(const auto & artifactPtr : VLC->arth->objects)
+	for(const auto & artifactPtr : LIBRARY->arth->objects)
 	{
 		auto artifactIndex = artifactPtr->getIndex();
 		auto * item = new QListWidgetItem(QString::fromStdString(artifactPtr->getNameTranslated()));
@@ -64,7 +66,7 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	}
 	
 	//fill spells
-	for(const auto & spellPtr : VLC->spellh->objects)
+	for(const auto & spellPtr : LIBRARY->spellh->objects)
 	{
 		auto spellIndex = spellPtr->getIndex();
 		auto * item = new QListWidgetItem(QString::fromStdString(spellPtr->getNameTranslated()));
@@ -76,8 +78,8 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	}
 	
 	//fill skills
-	ui->lSkills->setRowCount(VLC->skillh->objects.size());
-	for(const auto & skillPtr : VLC->skillh->objects)
+	ui->lSkills->setRowCount(LIBRARY->skillh->objects.size());
+	for(const auto & skillPtr : LIBRARY->skillh->objects)
 	{
 		auto skillIndex = skillPtr->getIndex();
 		auto * item = new QTableWidgetItem(QString::fromStdString(skillPtr->getNameTranslated()));
@@ -97,14 +99,14 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	}
 	
 	//fill creatures
-	for(auto & creature : VLC->creh->objects)
+	for(auto & creature : LIBRARY->creh->objects)
 	{
 		ui->lCreatureId->addItem(QString::fromStdString(creature->getNameSingularTranslated()));
 		ui->lCreatureId->setItemData(ui->lCreatureId->count() - 1, creature->getIndex());
 	}
 	
 	//fill heroes
-	VLC->heroTypes()->forEach([this](const HeroType * hero, bool &)
+	LIBRARY->heroTypes()->forEach([this](const HeroType * hero, bool &)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(hero->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(hero->getId().getNum()));
@@ -114,7 +116,7 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	});
 	
 	//fill hero classes
-	VLC->heroClasses()->forEach([this](const HeroClass * heroClass, bool &)
+	LIBRARY->heroClasses()->forEach([this](const HeroClass * heroClass, bool &)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(heroClass->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(heroClass->getId().getNum()));
@@ -126,7 +128,9 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	//fill players
 	for(auto color = PlayerColor(0); color < PlayerColor::PLAYER_LIMIT; ++color)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[color.getNum()]));
+		MetaString str;
+		str.appendName(color);
+		auto * item = new QListWidgetItem(QString::fromStdString(str.toString()));
 		item->setData(Qt::UserRole, QVariant::fromValue(color.getNum()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(Qt::Unchecked);
@@ -158,12 +162,12 @@ void QuestWidget::obtainData()
 	}
 	
 	for(auto i : quest.mission.artifacts)
-		ui->lArtifacts->item(VLC->artifacts()->getById(i)->getIndex())->setCheckState(Qt::Checked);
+		ui->lArtifacts->item(LIBRARY->artifacts()->getById(i)->getIndex())->setCheckState(Qt::Checked);
 	for(auto i : quest.mission.spells)
-		ui->lSpells->item(VLC->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
+		ui->lSpells->item(LIBRARY->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
 	for(auto & i : quest.mission.secondary)
 	{
-		int index = VLC->skills()->getById(i.first)->getIndex();
+		int index = LIBRARY->skills()->getById(i.first)->getIndex();
 		if(auto * widget = qobject_cast<QComboBox*>(ui->lSkills->cellWidget(index, 1)))
 			widget->setCurrentIndex(i.second);
 	}
@@ -236,13 +240,13 @@ bool QuestWidget::commitChanges()
 	for(int i = 0; i < ui->lArtifacts->count(); ++i)
 	{
 		if(ui->lArtifacts->item(i)->checkState() == Qt::Checked)
-			quest.mission.artifacts.push_back(VLC->artifacts()->getByIndex(i)->getId());
+			quest.mission.artifacts.push_back(LIBRARY->artifacts()->getByIndex(i)->getId());
 	}
 	quest.mission.spells.clear();
 	for(int i = 0; i < ui->lSpells->count(); ++i)
 	{
 		if(ui->lSpells->item(i)->checkState() == Qt::Checked)
-			quest.mission.spells.push_back(VLC->spells()->getByIndex(i)->getId());
+			quest.mission.spells.push_back(LIBRARY->spells()->getByIndex(i)->getId());
 	}
 	
 	quest.mission.secondary.clear();
@@ -251,7 +255,7 @@ bool QuestWidget::commitChanges()
 		if(auto * widget = qobject_cast<QComboBox*>(ui->lSkills->cellWidget(i, 1)))
 		{
 			if(widget->currentIndex() > 0)
-				quest.mission.secondary[VLC->skills()->getByIndex(i)->getId()] = widget->currentIndex();
+				quest.mission.secondary[LIBRARY->skills()->getByIndex(i)->getId()] = widget->currentIndex();
 		}
 	}
 	
@@ -261,7 +265,7 @@ bool QuestWidget::commitChanges()
 		int index = ui->lCreatures->item(i, 0)->data(Qt::UserRole).toInt();
 		if(auto * widget = qobject_cast<QSpinBox*>(ui->lCreatures->cellWidget(i, 1)))
 			if(widget->value())
-				quest.mission.creatures.emplace_back(VLC->creatures()->getByIndex(index)->getId(), widget->value());
+				quest.mission.creatures.emplace_back(LIBRARY->creatures()->getByIndex(index)->getId(), widget->value());
 	}
 	
 	quest.mission.heroes.clear();
@@ -387,7 +391,7 @@ void QuestWidget::on_lCreatureRemove_clicked()
 		ui->lCreatures->removeRow(i);
 }
 
-QuestDelegate::QuestDelegate(MapController & c, CQuest & t): controller(c), quest(t), QStyledItemDelegate()
+QuestDelegate::QuestDelegate(MapController & c, CQuest & t): controller(c), quest(t), BaseInspectorItemDelegate()
 {
 }
 
@@ -413,6 +417,7 @@ void QuestDelegate::setModelData(QWidget * editor, QAbstractItemModel * model, c
 	if(auto *ed = qobject_cast<QuestWidget *>(editor))
 	{
 		ed->commitChanges();
+		updateModelData(model, index);
 	}
 	else
 	{
@@ -434,4 +439,82 @@ bool QuestDelegate::eventFilter(QObject * object, QEvent * event)
 		}
 	}
 	return QStyledItemDelegate::eventFilter(object, event);
+}
+
+void QuestDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QStringList textList(QObject::tr("Quest:"));
+	textList += QObject::tr("Day of Week: %1").arg(quest.mission.dayOfWeek);
+	textList += QObject::tr("Days Passed: %1").arg(quest.mission.daysPassed);
+	textList += QObject::tr("Hero Level: %1").arg(quest.mission.heroLevel);
+	textList += QObject::tr("Hero Experience: %1").arg(quest.mission.heroExperience);
+	textList += QObject::tr("Mana Points: %1").arg(quest.mission.manaPoints);
+	textList += QObject::tr("Mana Percentage: %1").arg(quest.mission.manaPercentage);
+	textList += QObject::tr("Primary Skills: %1/%2/%3/%4").arg(quest.mission.primary[0]).arg(quest.mission.primary[1]).arg(quest.mission.primary[2]).arg(quest.mission.primary[3]);
+
+	QStringList resourcesList;
+	for(GameResID resource = GameResID::WOOD; resource < GameResID::COUNT ; resource++)
+	{
+		if(resource == GameResID::MITHRIL)
+			continue;
+		if(quest.mission.resources[resource] == 0)
+			continue;
+		MetaString str;
+		str.appendName(resource);
+		resourcesList += QString("%1: %2").arg(QString::fromStdString(str.toString())).arg(quest.mission.resources[resource]);
+	}
+	textList += QObject::tr("Resources: %1").arg(resourcesList.join(", "));
+
+	QStringList artifactsList;
+	for(const auto & artifact : quest.mission.artifacts)
+	{
+		artifactsList += QString::fromStdString(LIBRARY->artifacts()->getById(artifact)->getNameTranslated());
+	}
+	textList += QObject::tr("Artifacts: %1").arg(artifactsList.join(", "));
+
+	QStringList spellsList;
+	for(const auto & spell : quest.mission.spells)
+	{
+		spellsList += QString::fromStdString(LIBRARY->spells()->getById(spell)->getNameTranslated());
+	}
+	textList += QObject::tr("Spells: %1").arg(spellsList.join(", "));
+
+	QStringList secondarySkillsList;
+	for(const auto & [skill, skillLevel] : quest.mission.secondary)
+	{
+		secondarySkillsList += QString("%1 (%2)").arg(QString::fromStdString(LIBRARY->skills()->getById(skill)->getNameTranslated())).arg(skillLevel);
+	}
+	textList += QObject::tr("Secondary Skills: %1").arg(secondarySkillsList.join(", "));
+
+	QStringList creaturesList;
+	for(const auto & creature : quest.mission.creatures)
+	{
+		creaturesList += QString("%1 %2").arg(creature.count).arg(QString::fromStdString(creature.getType()->getNamePluralTranslated()));
+	}
+	textList += QObject::tr("Creatures: %1").arg(creaturesList.join(", "));
+
+	QStringList heroesList;
+	for(const auto & hero : quest.mission.heroes)
+	{
+		heroesList += QString::fromStdString(LIBRARY->heroTypes()->getById(hero)->getNameTranslated());
+	}
+	textList += QObject::tr("Heroes: %1").arg(heroesList.join(", "));
+
+	QStringList heroClassesList;
+	for(const auto & heroClass : quest.mission.heroClasses)
+	{
+		heroClassesList += QString::fromStdString(LIBRARY->heroClasses()->getById(heroClass)->getNameTranslated());
+	}
+	textList += QObject::tr("Hero Classes: %1").arg(heroClassesList.join(", "));
+
+	QStringList playersList;
+	for(const auto & player : quest.mission.players)
+	{
+		MetaString str;
+		str.appendName(player);
+		playersList += QString::fromStdString(str.toString());
+	}
+	textList += QObject::tr("Players: %1").arg(playersList.join(", "));
+
+	setModelTextData(model, index, textList);
 }

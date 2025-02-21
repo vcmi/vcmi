@@ -14,7 +14,7 @@
 #include "constants/StringConstants.h"
 #include "serializer/JsonSerializeFormat.h"
 #include "mapObjects/CObjectHandler.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -67,7 +67,11 @@ void ResourceSet::positive()
 void ResourceSet::applyHandicap(int percentage)
 {
 	for(auto & elem : *this)
-		elem = vstd::divideAndCeil(elem * percentage, 100);
+	{
+		int64_t newAmount = vstd::divideAndCeil(static_cast<int64_t>(elem) * percentage, 100);
+		int64_t cap = GameConstants::PLAYER_RESOURCES_CAP;
+		elem = std::min(cap, newAmount);
+	}
 }
 
 static bool canAfford(const ResourceSet &res, const ResourceSet &price)
@@ -94,7 +98,7 @@ TResourceCap ResourceSet::marketValue() const
 {
 	TResourceCap total = 0;
 	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
-		total += static_cast<TResourceCap>(VLC->objh->resVals[i]) * static_cast<TResourceCap>(operator[](i));
+		total += static_cast<TResourceCap>(LIBRARY->objh->resVals[i]) * static_cast<TResourceCap>(operator[](i));
 	return total;
 }
 

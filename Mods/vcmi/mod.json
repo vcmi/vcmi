@@ -1,6 +1,14 @@
 {
 	"name" : "VCMI essential files",
 	"description" : "Essential files required for VCMI to run correctly",
+	"version" : "1.5",
+	"author" : "VCMI Team",
+	"contact" : "http://forum.vcmi.eu/index.php",
+	"modType" : "Graphical",
+
+	"factions" : [ "config/towerFactions" ],
+	"creatures" : [ "config/towerCreature" ],
+	"spells" : [ "config/spells" ],
 
 	"chinese" : {
 		"name" : "VCMI essential files",
@@ -43,6 +51,17 @@
 			"config/german.json"
 		]
 	},
+
+	"italian" : {
+    "name" : "VCMI - File di base",
+    "description" : "File di base necessari per il corretto funzionamento di VCMI",
+    "author" : "Team VCMI",
+
+    "skipValidation" : true,
+    "translations" : [
+        "config/italian.json"
+    ]
+},
 
 	"polish" : {
 		"name" : "Podstawowe pliki VCMI",
@@ -111,23 +130,24 @@
 	},
 
 	"vietnamese": {
-		"name": "VCMI essential files",
+		"name": "VCMI - Tập tin chính",
 		"description": "Các tập tin cần thiết để chạy VCMI",
-		"author": "Vũ Đắc Hoàng Ân",
+		"author": "Hunter8x - Bé Còi",
 		"skipValidation": true,
 		"translations": [
 			"config/vietnamese.json"
 		]
 	},
 
-	"version" : "1.5",
-	"author" : "VCMI Team",
-	"contact" : "http://forum.vcmi.eu/index.php",
-	"modType" : "Graphical",
-
-	"factions" : [ "config/towerFactions" ],
-	"creatures" : [ "config/towerCreature" ],
-	"spells" : [ "config/spells" ],
+	"hungarian" : {
+		"name" : "VCMI - alapvető fájlok",
+		"description" : "Alapvető fájlok a VCMI helyes működéséhez",
+		"author" : "VCMI csapat",
+		"skipValidation" : true,
+		"translations" : [
+			"config/hungarian.json"
+		]
+	},
 
 	"translations" : [
 		"config/english.json"

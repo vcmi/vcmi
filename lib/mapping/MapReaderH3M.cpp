@@ -136,6 +136,27 @@ HeroTypeID MapReaderH3M::readHeroPortrait()
 	return remapper.remapPortrait(result);
 }
 
+CreatureID MapReaderH3M::readCreature32()
+{
+	CreatureID result(reader->readUInt32());
+
+	if(result.getNum() == features.creatureIdentifierInvalid)
+		return CreatureID::NONE;
+
+	if(result.getNum() < features.creaturesCount)
+		return remapIdentifier(result);
+
+	// this may be random creature in army/town, to be randomized later
+	CreatureID randomIndex(result.getNum() - features.creatureIdentifierInvalid - 1);
+	assert(randomIndex < CreatureID::NONE);
+
+	if (randomIndex.getNum() > -16)
+		return randomIndex;
+
+	logGlobal->warn("Map contains invalid creature %d. Will be removed!", result.getNum());
+	return CreatureID::NONE;
+}
+
 CreatureID MapReaderH3M::readCreature()
 {
 	CreatureID result;
@@ -207,6 +228,15 @@ SpellID MapReaderH3M::readSpell()
 
 	assert(result.getNum() < features.spellsCount);
 	return remapIdentifier(result);
+}
+
+SpellID MapReaderH3M::readSpell16()
+{
+	SpellID result(readInt16());
+	if(result.getNum() == features.spellIdentifierInvalid)
+		return SpellID::NONE;
+	assert(result.getNum() < features.spellsCount);
+	return result;
 }
 
 SpellID MapReaderH3M::readSpell32()
@@ -371,8 +401,12 @@ std::shared_ptr<ObjectTemplate> MapReaderH3M::readObjectTemplate()
 {
 	auto tmpl = std::make_shared<ObjectTemplate>();
 	tmpl->readMap(*reader);
-	remapper.remapTemplate(*tmpl);
 	return tmpl;
+}
+
+void MapReaderH3M::remapTemplate(ObjectTemplate & tmpl)
+{
+	remapper.remapTemplate(tmpl);
 }
 
 void MapReaderH3M::skipUnused(size_t amount)
@@ -430,6 +464,11 @@ int8_t MapReaderH3M::readInt8()
 uint16_t MapReaderH3M::readUInt16()
 {
 	return reader->readUInt16();
+}
+
+int16_t MapReaderH3M::readInt16()
+{
+	return reader->readInt16();
 }
 
 uint32_t MapReaderH3M::readUInt32()

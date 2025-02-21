@@ -34,6 +34,7 @@ public:
 	ArtifactID readArtifact();
 	ArtifactID readArtifact8();
 	ArtifactID readArtifact32();
+	CreatureID readCreature32();
 	CreatureID readCreature();
 	HeroTypeID readHero();
 	HeroTypeID readHeroPortrait();
@@ -43,6 +44,7 @@ public:
 	PrimarySkill readPrimary();
 	SecondarySkill readSkill();
 	SpellID readSpell();
+	SpellID readSpell16();
 	SpellID readSpell32();
 	GameResID readGameResID();
 	PlayerColor readPlayer();
@@ -63,6 +65,7 @@ public:
 	int3 readInt3();
 
 	std::shared_ptr<ObjectTemplate> readObjectTemplate();
+	void remapTemplate(ObjectTemplate & tmpl);
 
 	void skipUnused(size_t amount);
 	void skipZero(size_t amount);
@@ -75,6 +78,7 @@ public:
 	int8_t readInt8();
 	int8_t readInt8Checked(int8_t lowerLimit, int8_t upperLimit);
 
+	int16_t readInt16();
 	uint16_t readUInt16();
 
 	uint32_t readUInt32();

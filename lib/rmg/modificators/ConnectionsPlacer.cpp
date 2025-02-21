@@ -149,8 +149,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	
 	//1. Try to make direct connection
 	//Do if it's not prohibited by terrain settings
-	const auto * ourTerrain   = VLC->terrainTypeHandler->getById(zone.getTerrainType());
-	const auto * otherTerrain = VLC->terrainTypeHandler->getById(otherZone->getTerrainType());
+	const auto * ourTerrain   = LIBRARY->terrainTypeHandler->getById(zone.getTerrainType());
+	const auto * otherTerrain = LIBRARY->terrainTypeHandler->getById(otherZone->getTerrainType());
 
 	bool directProhibited = vstd::contains(ourTerrain->prohibitTransitions, otherZone->getTerrainType())
 						 || vstd::contains(otherTerrain->prohibitTransitions, zone.getTerrainType());
@@ -378,7 +378,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			assert(otherZone->getModificator<ObjectManager>());
 			auto & managerOther = *otherZone->getModificator<ObjectManager>();
 			
-			auto factory = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
+			auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
 			auto * gate1 = factory->create(map.mapInstance->cb, nullptr);
 			auto * gate2 = factory->create(map.mapInstance->cb, nullptr);
 			rmg::Object rmgGate1(*gate1);
@@ -446,7 +446,7 @@ void ConnectionsPlacer::placeMonolithConnection(const rmg::ZoneConnection & conn
 
 	bool allowRoad = shouldGenerateRoad(connection);
 
-	auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
+	auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
 	auto * teleport1 = factory->create(map.mapInstance->cb, nullptr);
 	auto * teleport2 = factory->create(map.mapInstance->cb, nullptr);
 

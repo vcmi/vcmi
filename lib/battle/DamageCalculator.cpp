@@ -18,7 +18,7 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../spells/CSpellHandler.h"
 #include "../IGameSettings.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -33,7 +33,7 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 
     if(minDmg > maxDmg)
     {
-	const auto & creatureName = info.attacker->creatureId().toEntity(VLC)->getNamePluralTranslated();
+	const auto & creatureName = info.attacker->creatureId().toEntity(LIBRARY)->getNamePluralTranslated();
 	logGlobal->error("Creature %s: min damage %lld exceeds max damage %lld.", creatureName, minDmg, maxDmg);
         logGlobal->error("This may lead to unexpected results, please report it to the mod's creator.");
         // to avoid an RNG crash and make bless and curse spells work as expected
@@ -45,7 +45,7 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 		const auto * town = callback.battleGetDefendedTown();
 		assert(town);
 
-		switch(info.attacker->getPosition())
+		switch(info.attacker->getPosition().toInt())
 		{
 		case BattleHex::CASTLE_CENTRAL_TOWER:
 			return town->getKeepDamageRange();
@@ -213,8 +213,8 @@ double DamageCalculator::getAttackSkillFactor() const
 	if(attackAdvantage > 0)
 	{
 		// FIXME: use cb to acquire these settings
-		const double attackMultiplier = VLC->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR);
-		const double attackMultiplierCap = VLC->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP);
+		const double attackMultiplier = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR);
+		const double attackMultiplierCap = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP);
 		const double attackFactor = std::min(attackMultiplier * attackAdvantage, attackMultiplierCap);
 
 		return attackFactor;
@@ -304,8 +304,8 @@ double DamageCalculator::getDefenseSkillFactor() const
 	if(defenseAdvantage > 0) //decreasing dmg
 	{
 		// FIXME: use cb to acquire these settings
-		const double defenseMultiplier = VLC->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR);
-		const double defenseMultiplierCap = VLC->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP);
+		const double defenseMultiplier = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR);
+		const double defenseMultiplierCap = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP);
 
 		const double dec = std::min(defenseMultiplier * defenseAdvantage, defenseMultiplierCap);
 		return dec;

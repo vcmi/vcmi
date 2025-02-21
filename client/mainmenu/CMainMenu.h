@@ -83,6 +83,7 @@ public:
 	ESelectionScreen screenType;
 	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CPicture> picture;
+	std::shared_ptr<CTextBox> textTitle;
 	std::shared_ptr<CTextInput> playerName;
 	std::shared_ptr<CButton> buttonHotseat;
 	std::shared_ptr<CButton> buttonLobby;
@@ -93,8 +94,8 @@ public:
 
 	CMultiMode(ESelectionScreen ScreenType);
 	void openLobby();
-	void hostTCP();
-	void joinTCP();
+	void hostTCP(EShortcut shortcut);
+	void joinTCP(EShortcut shortcut);
 
 	/// Get all configured player names. The first name would always be present and initialized to its default value.
 	std::vector<std::string> getPlayersNames();
@@ -119,7 +120,7 @@ class CMultiPlayers : public WindowBase
 	void enterSelectionScreen();
 
 public:
-	CMultiPlayers(const std::vector<std::string> & playerNames, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode);
+	CMultiPlayers(const std::vector<std::string> & playerNames, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode, EShortcut shortcut);
 };
 
 /// Manages the configuration of pregame GUI elements like campaign screen, main menu, loading screen,...

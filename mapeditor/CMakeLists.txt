@@ -84,6 +84,7 @@ set(editor_HEADERS
 		inspector/herospellwidget.h
 		inspector/PickObjectDelegate.h
 		inspector/portraitwidget.h
+		inspector/baseinspectoritemdelegate.h
 		resourceExtractor/ResourceConverter.h
 		mapeditorroles.h
 )
@@ -130,6 +131,8 @@ set(editor_TS
 	"${translationsDir}/english.ts"
 	"${translationsDir}/french.ts"
 	"${translationsDir}/german.ts"
+	"${translationsDir}/hungarian.ts"
+	"${translationsDir}/italian.ts"
 	"${translationsDir}/polish.ts"
 	"${translationsDir}/portuguese.ts"
 	"${translationsDir}/russian.ts"

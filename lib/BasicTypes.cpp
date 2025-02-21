@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 #include "GameConstants.h"
 #include "IGameSettings.h"
 #include "bonuses/BonusList.h"
@@ -35,7 +35,7 @@ TerrainId AFactionMember::getNativeTerrain() const
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
 	return getBonusBearer()->hasBonusOfType(BonusType::TERRAIN_NATIVE)
-			 ? TerrainId::ANY_TERRAIN : getFactionID().toEntity(VLC)->getNativeTerrain();
+			 ? TerrainId::ANY_TERRAIN : getFactionID().toEntity(LIBRARY)->getNativeTerrain();
 }
 
 int32_t AFactionMember::magicResistance() const
@@ -69,18 +69,10 @@ int AFactionMember::getMaxDamage(bool ranged) const
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
 
-int AFactionMember::getPrimSkillLevel(PrimarySkill id) const
-{
-	auto allSkills = getBonusBearer()->getBonusesOfType(BonusType::PRIMARY_SKILL);
-	int ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(id)));
-	int minSkillValue = VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, id.getNum());
-	return std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect, sp=0 works in old saves
-}
-
 int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 {
-	int32_t maxGoodMorale = VLC->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE).size();
-	int32_t maxBadMorale = - (int32_t) VLC->engineSettings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
+	int32_t maxGoodMorale = LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE).size();
+	int32_t maxBadMorale = - (int32_t) LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
 
 	if(getBonusBearer()->hasBonusOfType(BonusType::MAX_MORALE))
 	{
@@ -108,8 +100,8 @@ int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 
 int AFactionMember::luckValAndBonusList(TConstBonusListPtr & bonusList) const
 {
-	int32_t maxGoodLuck = VLC->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE).size();
-	int32_t maxBadLuck = - (int32_t) VLC->engineSettings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
+	int32_t maxGoodLuck = LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE).size();
+	int32_t maxBadLuck = - (int32_t) LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
 
 	if(getBonusBearer()->hasBonusOfType(BonusType::MAX_LUCK))
 	{
@@ -158,6 +150,19 @@ ui32 ACreature::getMovementRange() const
 		return 0;
 
 	return getBonusBearer()->valOfBonuses(BonusType::STACKS_SPEED);
+}
+
+int32_t ACreature::getInitiative(int turn) const
+{
+	if (turn == 0)
+	{
+		return getBonusBearer()->valOfBonuses(BonusType::STACKS_SPEED);
+	}
+	else
+	{
+		const std::string cachingStrSS = "type_STACKS_SPEED_turns_" + std::to_string(turn);
+		return getBonusBearer()->valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)), cachingStrSS);
+	}
 }
 
 ui32 ACreature::getMovementRange(int turn) const

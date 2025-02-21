@@ -13,7 +13,7 @@
 #include "../json/JsonNode.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -321,7 +321,7 @@ public:
 
 			if (!fieldValue.empty())
 			{
-				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), IdentifierType::entityType(), fieldValue, [&value](int32_t index){
+				LIBRARY->identifiers()->requestIdentifier(ModScope::scopeGame(), IdentifierType::entityType(), fieldValue, [&value](int32_t index){
 					value = IdentifierType(index);
 				});
 			}
@@ -354,7 +354,7 @@ public:
 
 			for(size_t i = 0; i < fieldValue.size(); ++i)
 			{
-				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), E::entityType(), fieldValue[i], [&value, i](int32_t index){
+				LIBRARY->identifiers()->requestIdentifier(ModScope::scopeGame(), E::entityType(), fieldValue[i], [&value, i](int32_t index){
 					value[i] = T(index);
 				});
 			}
@@ -381,7 +381,7 @@ public:
 
 			for(size_t i = 0; i < fieldValue.size(); ++i)
 			{
-				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), U::entityType(), fieldValue[i], [&value](int32_t index){
+				LIBRARY->identifiers()->requestIdentifier(ModScope::scopeGame(), U::entityType(), fieldValue[i], [&value](int32_t index){
 					value.insert(T(index));
 				});
 			}

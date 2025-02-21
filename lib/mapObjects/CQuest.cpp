@@ -57,7 +57,7 @@ CQuest::CQuest():
 static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
-	return VLC->generaltexth->allTexts[id];
+	return LIBRARY->generaltexth->allTexts[id];
 }
 
 const std::string & CQuest::missionName(EQuestMission mission)
@@ -156,7 +156,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 		const auto * assembly = h->getCombinedArtWithPart(elem);
 		if (assembly)
 		{
-			auto parts = assembly->getPartsInfo(); // FIXME: causes crashes on Google Play
+			auto parts = assembly->getPartsInfo();
 
 			// Remove the assembly
 			cb->removeArtifact(ArtifactLocation(h->id, h->getArtPos(assembly)));
@@ -171,7 +171,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 			continue;
 		}
 
-		logGlobal->error("Failed to find artifact %s in inventory of hero %s", elem.toEntity(VLC)->getJsonKey(), h->getHeroTypeID());
+		logGlobal->error("Failed to find artifact %s in inventory of hero %s", elem.toEntity(LIBRARY)->getJsonKey(), h->getHeroTypeID());
 	}
 
 	cb->takeCreatures(h->id, mission.creatures);
@@ -194,18 +194,18 @@ void CQuest::addTextReplacements(IGameCallback * cb, MetaString & text, std::vec
 			{
 				loot.appendRawString("%d %s");
 				loot.replaceNumber(mission.primary[i]);
-				loot.replaceRawString(VLC->generaltexth->primarySkillNames[i]);
+				loot.replaceRawString(LIBRARY->generaltexth->primarySkillNames[i]);
 			}
 		}
 		
 		for(auto & skill : mission.secondary)
 		{
-			loot.appendTextID(VLC->skillh->getById(skill.first)->getNameTextID());
+			loot.appendTextID(LIBRARY->skillh->getById(skill.first)->getNameTextID());
 		}
 		
 		for(auto & spell : mission.spells)
 		{
-			loot.appendTextID(VLC->spellh->getById(spell)->getNameTextID());
+			loot.appendTextID(LIBRARY->spellh->getById(spell)->getNameTextID());
 		}
 		
 		if(!loot.empty())
@@ -225,7 +225,7 @@ void CQuest::addTextReplacements(IGameCallback * cb, MetaString & text, std::vec
 	}
 	
 	if(!mission.heroes.empty())
-		text.replaceRawString(VLC->heroh->getById(mission.heroes.front())->getNameTranslated());
+		text.replaceRawString(LIBRARY->heroh->getById(mission.heroes.front())->getNameTranslated());
 	
 	if(!mission.artifacts.empty())
 	{
@@ -338,7 +338,7 @@ void CQuest::addKillTargetReplacements(MetaString &out) const
 	if(stackToKill != CreatureID::NONE)
 	{
 		out.replaceNamePlural(stackToKill);
-		out.replaceRawString(VLC->generaltexth->arraytxt[147+stackDirection]);
+		out.replaceRawString(LIBRARY->generaltexth->arraytxt[147+stackDirection]);
 	}
 }
 
@@ -450,10 +450,10 @@ void CGSeerHut::setObjToKill()
 
 void CGSeerHut::init(vstd::RNG & rand)
 {
-	auto names = VLC->generaltexth->findStringsWithPrefix("core.seerhut.names");
+	auto names = LIBRARY->generaltexth->findStringsWithPrefix("core.seerhut.names");
 
 	auto seerNameID = *RandomGeneratorUtil::nextItem(names, rand);
-	seerName = VLC->generaltexth->translate(seerNameID);
+	seerName = LIBRARY->generaltexth->translate(seerNameID);
 	quest->textOption = rand.nextInt(2);
 	quest->completedOption = rand.nextInt(1, 3);
 	
@@ -505,7 +505,7 @@ std::string CGSeerHut::getHoverText(PlayerColor player) const
 	std::string hoverName = getObjectName();
 	if(ID == Obj::SEER_HUT && quest->activeForPlayers.count(player))
 	{
-		hoverName = VLC->generaltexth->allTexts[347];
+		hoverName = LIBRARY->generaltexth->allTexts[347];
 		boost::algorithm::replace_first(hoverName, "%s", seerName);
 	}
 
@@ -611,7 +611,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else
 	{
-		iw.text.appendRawString(VLC->generaltexth->seerEmpty[quest->completedOption]);
+		iw.text.appendRawString(LIBRARY->generaltexth->seerEmpty[quest->completedOption]);
 		if (ID == Obj::SEER_HUT)
 			iw.text.replaceRawString(seerName);
 		cb->showInfoDialog(&iw);
@@ -723,32 +723,32 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 			reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
 		if(metaTypeName == "resource")
 		{
-			auto rawId = *VLC->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
+			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
 			reward.resources[rawId] = val;
 		}
 		if(metaTypeName == "primarySkill")
 		{
-			auto rawId = *VLC->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
+			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
 			reward.primary.at(rawId) = val;
 		}
 		if(metaTypeName == "secondarySkill")
 		{
-			auto rawId = *VLC->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
+			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
 			reward.secondary[rawId] = val;
 		}
 		if(metaTypeName == "artifact")
 		{
-			auto rawId = *VLC->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
+			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
 			reward.artifacts.push_back(rawId);
 		}
 		if(metaTypeName == "spell")
 		{
-			auto rawId = *VLC->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
+			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
 			reward.spells.push_back(rawId);
 		}
 		if(metaTypeName == "creature")
 		{
-			auto rawId = *VLC->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
+			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
 			reward.creatures.emplace_back(rawId, val);
 		}
 		
@@ -800,7 +800,12 @@ std::string CGKeys::getHoverText(PlayerColor player) const
 
 std::string CGKeys::getObjectName() const
 {
-	return VLC->generaltexth->tentColors[subID.getNum()] + " " + CGObjectInstance::getObjectName();
+	return LIBRARY->generaltexth->tentColors[subID.getNum()] + " " + CGObjectInstance::getObjectName();
+}
+
+std::string CGKeys::getObjectDescription(PlayerColor player) const
+{
+	return visitedTxt(wasMyColorVisited(player));
 }
 
 bool CGKeymasterTent::wasVisited (PlayerColor player) const
@@ -839,9 +844,9 @@ void CGBorderGuard::getRolloverText(MetaString &text, bool onHover) const
 {
 	if (!onHover)
 	{
-		text.appendRawString(VLC->generaltexth->tentColors[subID.getNum()]);
+		text.appendRawString(LIBRARY->generaltexth->tentColors[subID.getNum()]);
 		text.appendRawString(" ");
-		text.appendRawString(VLC->objtypeh->getObjectName(Obj::KEYMASTER, subID));
+		text.appendRawString(LIBRARY->objtypeh->getObjectName(Obj::KEYMASTER, subID));
 	}
 }
 

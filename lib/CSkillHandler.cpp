@@ -24,7 +24,7 @@
 #include "texts/CGeneralTextHandler.h"
 #include "texts/CLegacyConfigParser.h"
 #include "texts/TextOperations.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -63,7 +63,7 @@ std::string CSkill::getNameTextID() const
 
 std::string CSkill::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::string CSkill::getJsonKey() const
@@ -84,7 +84,7 @@ std::string CSkill::getDescriptionTextID(int level) const
 
 std::string CSkill::getDescriptionTranslated(int level) const
 {
-	return VLC->generaltexth->translate(getDescriptionTextID(level));
+	return LIBRARY->generaltexth->translate(getDescriptionTextID(level));
 }
 
 void CSkill::registerIcons(const IconRegistar & cb) const
@@ -220,7 +220,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 	skill->onlyOnWaterMap = json["onlyOnWaterMap"].Bool();
 	skill->special = json["special"].Bool();
 
-	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
+	LIBRARY->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
 	switch(json["gainChance"].getType())
 	{
 	case JsonNode::JsonType::DATA_INTEGER:
@@ -245,7 +245,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 			skill->addNewBonus(bonus, level);
 		}
 		CSkill::LevelInfo & skillAtLevel = skill->at(level);
-		VLC->generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"]);
+		LIBRARY->generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"]);
 		skillAtLevel.iconSmall = levelNode["images"]["small"].String();
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();

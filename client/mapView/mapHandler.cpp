@@ -13,9 +13,9 @@
 #include "mapHandler.h"
 
 #include "../CCallback.h"
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/TerrainHandler.h"
@@ -53,7 +53,7 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 	const TerrainTile & t = map->getTile(pos);
 
 	if(t.hasFavorableWinds())
-		return CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS, 0);
+		return LIBRARY->objtypeh->getObjectName(Obj::FAVORABLE_WINDS, 0);
 
 	std::string result = t.getTerrain()->getNameTranslated();
 
@@ -66,11 +66,11 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 		}
 	}
 
-	if(LOCPLINT->cb->getTileDigStatus(pos, false) == EDiggingStatus::CAN_DIG)
+	if(GAME->interface()->cb->getTileDigStatus(pos, false) == EDiggingStatus::CAN_DIG)
 	{
 		return boost::str(
 			boost::format(rightClick ? "%s\r\n%s" : "%s %s") // New line for the Message Box, space for the Status Bar
-			% result % CGI->generaltexth->allTexts[330]
+			% result % LIBRARY->generaltexth->allTexts[330]
 		); // 'digging ok'
 	}
 
@@ -235,11 +235,10 @@ void CMapHandler::removeMapObserver(IMapObjectObserver * object)
 
 IMapObjectObserver::IMapObjectObserver()
 {
-	CGI->mh->addMapObserver(this);
+	GAME->map().addMapObserver(this);
 }
 
 IMapObjectObserver::~IMapObjectObserver()
 {
-	if (CGI && CGI->mh)
-		CGI->mh->removeMapObserver(this);
+	GAME->map().removeMapObserver(this);
 }

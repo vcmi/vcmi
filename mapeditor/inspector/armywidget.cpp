@@ -34,9 +34,9 @@ ArmyWidget::ArmyWidget(CArmedInstance & a, QWidget *parent) :
 		uiSlots[i]->addItem("");
 		uiSlots[i]->setItemData(0, -1);
 		
-		for(int c = 0; c < VLC->creh->objects.size(); ++c)
+		for(int c = 0; c < LIBRARY->creh->objects.size(); ++c)
 		{
-			auto const & creature = VLC->creh->objects[c];
+			auto const & creature = LIBRARY->creh->objects[c];
 			uiSlots[i]->insertItem(c + 1, creature->getNamePluralTranslated().c_str());
 			uiSlots[i]->setItemData(c + 1, creature->getIndex());
 		}
@@ -113,9 +113,9 @@ ArmyWidget::~ArmyWidget()
 	delete ui;
 }
 
-
-
-ArmyDelegate::ArmyDelegate(CArmedInstance & t): army(t), QStyledItemDelegate()
+ArmyDelegate::ArmyDelegate(CArmedInstance & t)
+	: BaseInspectorItemDelegate()
+	, army(t)
 {
 }
 
@@ -141,9 +141,22 @@ void ArmyDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, cons
 	if(auto * ed = qobject_cast<ArmyWidget *>(editor))
 	{
 		ed->commitChanges();
+		updateModelData(model, index);
 	}
 	else
 	{
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
+}
+
+void ArmyDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QStringList textList;
+	for(const auto & [_, stack] : army.stacks)
+	{
+		if(stack->count != 0 && stack->getCreature() != nullptr)
+			textList += QString("%1 %2").arg(stack->count).arg(QString::fromStdString(stack->getCreature()->getNamePluralTranslated()));
+	}
+
+	setModelTextData(model, index, textList);
 }

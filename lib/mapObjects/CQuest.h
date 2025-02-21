@@ -35,6 +35,7 @@ enum class EQuestMission {
 	KEYMASTER = 11,
 	HOTA_HERO_CLASS = 12,
 	HOTA_REACH_DATE = 13,
+	HOTA_GAME_DIFFICULTY = 13,
 };
 
 class DLL_LINKAGE CQuest final : public Serializeable
@@ -199,7 +200,8 @@ public:
 
 	bool wasMyColorVisited(const PlayerColor & player) const;
 
-	std::string getObjectName() const override; //depending on color
+	std::string getObjectName() const override;
+	std::string getObjectDescription(PlayerColor player) const;
 	std::string getHoverText(PlayerColor player) const override;
 
 	template <typename Handler> void serialize(Handler &h)

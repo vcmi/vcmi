@@ -319,6 +319,25 @@
             "cacheVariables": {
                 "ANDROID_GRADLE_PROPERTIES": "applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily;applicationVariant=daily"
             }
+        },
+        {
+            "name": "portmaster-release",
+            "displayName": "PortMaster",
+            "description": "VCMI PortMaster",
+            "inherits": "default-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_INSTALL_PREFIX": ".",
+                "ENABLE_DEBUG_CONSOLE": "OFF",
+                "ENABLE_EDITOR": "OFF",
+                "ENABLE_GITVERSION": "OFF",
+                "ENABLE_LAUNCHER": "OFF",
+                "ENABLE_SERVER": "OFF",
+                "ENABLE_TRANSLATIONS": "OFF",
+                "FORCE_BUNDLED_FL": "ON",
+                "ENABLE_GOLDMASTER": "ON",
+                "VCMI_PORTMASTER": "ON"
+            }
         }
     ],
     "buildPresets": [
@@ -447,6 +466,12 @@
             "name": "android-daily-release",
             "configurePreset": "android-daily-release",
             "inherits": "android-conan-ninja-release"
+        },
+        {
+            "name": "portmaster-release",
+            "configurePreset": "portmaster-release",
+            "inherits": "default-release",
+            "configuration": "Release"
         }
     ],
     "testPresets": [

@@ -11,18 +11,19 @@
 #include "StdInc.h"
 #include "CMarketResources.h"
 
-#include "../../gui/CGuiHandler.h"
+#include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
-#include "../../CGameInfo.h"
 #include "../../CPlayerInterface.h"
 
 #include "../../../CCallback.h"
 
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/IMarket.h"
+#include "../../../lib/GameLibrary.h"
 
 CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
@@ -34,9 +35,9 @@ CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance 
 {
 	OBJECT_CONSTRUCTION;
 
-	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[158]));
+	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[158]));
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
-		CGI->generaltexth->zelp[595], [this]() {CMarketResources::makeDeal(); }, EShortcut::MARKET_DEAL);
+		LIBRARY->generaltexth->zelp[595], [this]() {CMarketResources::makeDeal(); }, EShortcut::MARKET_DEAL);
 
 	// Player's resources
 	assert(bidTradePanel);
@@ -60,7 +61,7 @@ void CMarketResources::makeDeal()
 {
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
-		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(bidTradePanel->getHighlightedItemId()),
+		GAME->interface()->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(bidTradePanel->getHighlightedItemId()),
 			GameResID(offerTradePanel->highlightedSlot->id), bidQty * toTrade, hero);
 		CMarketTraderText::makeDeal();
 		deselect();
@@ -84,12 +85,12 @@ void CMarketResources::highlightingChanged()
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
 		market->getOffer(bidTradePanel->getHighlightedItemId(), offerTradePanel->getHighlightedItemId(), bidQty, offerQty, EMarketMode::RESOURCE_RESOURCE);
-		offerSlider->setAmount(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getHighlightedItemId())) / bidQty);
+		offerSlider->setAmount(GAME->interface()->cb->getResourceAmount(GameResID(bidTradePanel->getHighlightedItemId())) / bidQty);
 		offerSlider->scrollTo(0);
 		const bool isControlsBlocked = bidTradePanel->getHighlightedItemId() != offerTradePanel->getHighlightedItemId() ? false : true;
 		offerSlider->block(isControlsBlocked);
 		maxAmount->block(isControlsBlocked);
-		deal->block(isControlsBlocked || !LOCPLINT->makingTurn);
+		deal->block(isControlsBlocked || !GAME->interface()->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
 	CMarketTraderText::highlightingChanged();
@@ -99,7 +100,7 @@ void CMarketResources::updateSubtitles()
 {
 	CMarketBase::updateSubtitlesForBid(EMarketMode::RESOURCE_RESOURCE, bidTradePanel->getHighlightedItemId());
 	if(bidTradePanel->highlightedSlot)
-		offerTradePanel->slots[bidTradePanel->highlightedSlot->serial]->subtitle->setText(CGI->generaltexth->allTexts[164]); // n/a
+		offerTradePanel->slots[bidTradePanel->highlightedSlot->serial]->subtitle->setText(LIBRARY->generaltexth->allTexts[164]); // n/a
 }
 
 std::string CMarketResources::getTraderText()
@@ -109,15 +110,15 @@ std::string CMarketResources::getTraderText()
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.157");
 		message.replaceNumber(offerQty);
-		message.replaceRawString(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
+		message.replaceRawString(offerQty == 1 ? LIBRARY->generaltexth->allTexts[161] : LIBRARY->generaltexth->allTexts[160]);
 		message.replaceName(GameResID(bidTradePanel->getHighlightedItemId()));
 		message.replaceNumber(bidQty);
-		message.replaceRawString(bidQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
+		message.replaceRawString(bidQty == 1 ? LIBRARY->generaltexth->allTexts[161] : LIBRARY->generaltexth->allTexts[160]);
 		message.replaceName(GameResID(offerTradePanel->getHighlightedItemId()));
 		return message.toString();
 	}
 	else
 	{
-		return madeTransaction ? CGI->generaltexth->allTexts[162] : CGI->generaltexth->allTexts[163];
+		return madeTransaction ? LIBRARY->generaltexth->allTexts[162] : LIBRARY->generaltexth->allTexts[163];
 	}
 }

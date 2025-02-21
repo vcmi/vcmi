@@ -55,25 +55,25 @@ void TownSpellsWidget::resetSpells()
 {
 	town.possibleSpells.clear();
 	town.obligatorySpells.clear();
-	for (auto spellID : VLC->spellh->getDefaultAllowed())
+	for (auto spellID : LIBRARY->spellh->getDefaultAllowed())
 		town.possibleSpells.push_back(spellID);
 }
 
 void TownSpellsWidget::initSpellLists()
 {
-	auto spells = VLC->spellh->getDefaultAllowed();
+	auto spells = LIBRARY->spellh->getDefaultAllowed();
 	for (int i = 0; i < GameConstants::SPELL_LEVELS; i++)
 	{
 		std::vector<SpellID> spellsByLevel;
 		auto getSpellsByLevel = [i](auto spellID) {
-			return spellID.toEntity(VLC)->getLevel() == i + 1;
+			return spellID.toEntity(LIBRARY)->getLevel() == i + 1;
 		};
 		vstd::copy_if(spells, std::back_inserter(spellsByLevel), getSpellsByLevel);
 		possibleSpellLists[i]->clear();
 		requiredSpellLists[i]->clear();
 		for (auto spellID : spellsByLevel)
 		{
-			auto spell = spellID.toEntity(VLC);
+			auto spell = spellID.toEntity(LIBRARY);
 			auto * possibleItem = new QListWidgetItem(QString::fromStdString(spell->getNameTranslated()));
 			possibleItem->setData(MapEditorRoles::SpellIDRole, QVariant::fromValue(spell->getIndex()));
 			possibleItem->setFlags(possibleItem->flags() | Qt::ItemIsUserCheckable);
@@ -132,7 +132,7 @@ void TownSpellsWidget::on_customizeSpells_toggled(bool checked)
 	initSpellLists();
 }
 
-TownSpellsDelegate::TownSpellsDelegate(CGTownInstance & town) : QStyledItemDelegate(), town(town)
+TownSpellsDelegate::TownSpellsDelegate(CGTownInstance & town) : BaseInspectorItemDelegate(), town(town)
 {
 }
 
@@ -158,9 +158,41 @@ void TownSpellsDelegate::setModelData(QWidget * editor, QAbstractItemModel * mod
 	if (auto * ed = qobject_cast<TownSpellsWidget *>(editor))
 	{
 		ed->commitChanges();
+		updateModelData(model, index);
 	}
 	else
 	{
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
+}
+
+void TownSpellsDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QStringList textList;
+	QStringList requiredSpellsList;
+	QStringList possibleSpellsList;
+	if(vstd::contains(town.possibleSpells, SpellID::PRESET)) {
+		textList += QObject::tr("Custom Spells:");
+		textList += QObject::tr("Required:");
+		for(auto spellID : town.obligatorySpells)
+		{
+			auto spell = spellID.toEntity(LIBRARY);
+			requiredSpellsList += QString::fromStdString(spell->getNameTranslated());
+		}
+		textList += requiredSpellsList.join(",");
+		textList += QObject::tr("Possible:");
+		for(auto spellID : town.possibleSpells)
+		{
+			if(spellID == SpellID::PRESET)
+				continue;
+			auto spell = spellID.toEntity(LIBRARY);
+			possibleSpellsList += QString::fromStdString(spell->getNameTranslated());
+		}
+		textList += possibleSpellsList.join(",");
+	}
+	else
+	{
+		textList += QObject::tr("Default Spells");
+	}
+	setModelTextData(model, index, textList);
 }

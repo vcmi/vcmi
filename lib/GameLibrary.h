@@ -1,5 +1,5 @@
 /*
- * VCMI_Lib.h, part of VCMI engine
+ * GameLibrary.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -49,7 +49,7 @@ namespace scripting
 #endif
 
 /// Loads and constructs several handlers
-class DLL_LINKAGE LibClasses final : public Services
+class DLL_LINKAGE GameLibrary final : public Services
 {
 	std::shared_ptr<CBonusTypeHandler> bth;
 
@@ -104,8 +104,8 @@ public:
 	std::shared_ptr<scripting::ScriptHandler> scriptHandler;
 #endif
 
-	LibClasses(); //c-tor, loads .lods and NULLs handlers
-	~LibClasses();
+	GameLibrary(); //c-tor, loads .lods and NULLs handlers
+	~GameLibrary();
 	void init(bool onlyEssential); //uses standard config file
 
 	// basic initialization. should be called before init(). Can also extract original H3 archives
@@ -117,7 +117,7 @@ public:
 #endif
 };
 
-extern DLL_LINKAGE LibClasses * VLC;
+extern DLL_LINKAGE GameLibrary * LIBRARY;
 
 DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool extractArchives);
 DLL_LINKAGE void loadDLLClasses(bool onlyEssential = false);

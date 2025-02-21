@@ -217,7 +217,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 		r.exp[BattleSide::DEFENDER] = 0;
 		for (auto i = r.casualties[battle.otherSide(r.winner)].begin(); i!=r.casualties[battle.otherSide(r.winner)].end(); i++)
 		{
-			r.exp[r.winner] += VLC->creh->objects.at(i->first)->valOfBonuses(BonusType::STACK_HEALTH) * i->second;
+			r.exp[r.winner] += LIBRARY->creh->objects.at(i->first)->valOfBonuses(BonusType::STACK_HEALTH) * i->second;
 		}
 	};
 
@@ -342,7 +342,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 			auto eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_CHANCE);
 			for(auto & spellId : battle.getBattle()->getUsedSpells(battle.otherSide(battleResult->winner)))
 			{
-				auto spell = spellId.toEntity(VLC->spells());
+				auto spell = spellId.toEntity(LIBRARY->spells());
 				if(spell
 					&& spell->getLevel() <= eagleEyeLevel
 					&& !finishingBattle->winnerHero->spellbookContainsSpell(spell->getId())

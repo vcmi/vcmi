@@ -48,7 +48,7 @@ void HeroSpellWidget::initSpellLists()
 	for (int i = 0; i < GameConstants::SPELL_LEVELS; i++)
 	{
 		std::vector<const CSpell*> spellsByLevel;
-		for (auto const & spellID : VLC->spellh->getDefaultAllowed())
+		for (auto const & spellID : LIBRARY->spellh->getDefaultAllowed())
 		{
 			if (spellID.toSpell()->getLevel() == i + 1)
 				spellsByLevel.push_back(spellID.toSpell());
@@ -101,7 +101,9 @@ void HeroSpellWidget::on_customizeSpells_toggled(bool checked)
 	initSpellLists();
 }
 
-HeroSpellDelegate::HeroSpellDelegate(CGHeroInstance & h) : hero(h), QStyledItemDelegate()
+HeroSpellDelegate::HeroSpellDelegate(CGHeroInstance & h)
+	: BaseInspectorItemDelegate()
+	, hero(h)
 {
 }
 
@@ -127,9 +129,29 @@ void HeroSpellDelegate::setModelData(QWidget * editor, QAbstractItemModel * mode
 	if (auto * ed = qobject_cast<HeroSpellWidget *>(editor))
 	{
 		ed->commitChanges();
+		updateModelData(model, index);
 	}
 	else
 	{
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
+}
+
+void HeroSpellDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QStringList textList;
+	if(hero.spellbookContainsSpell(SpellID::PRESET))
+	{
+		textList += QObject::tr("Custom Spells:");
+		for(auto const & spellID : hero.getSpellsInSpellbook())
+		{
+			if(spellID != SpellID::PRESET)
+				textList += QString::fromStdString(spellID.toSpell()->getNameTranslated());
+		}
+	}
+	else
+	{
+		textList += QObject::tr("Default Spells");
+	}
+	setModelTextData(model, index, textList);
 }

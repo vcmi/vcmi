@@ -34,7 +34,7 @@
 #include "maphandler.h"
 #include "mainwindow.h"
 #include "inspector/inspector.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 
 MapController::MapController(MainWindow * m): main(m)
 {
@@ -134,11 +134,11 @@ void MapController::repairMap(CMap * map) const
 
 			map->allowedHeroes.insert(nih->getHeroTypeID());
 
-			auto const & type = VLC->heroh->objects[nih->subID];
+			auto const & type = LIBRARY->heroh->objects[nih->subID];
 			assert(type->heroClass);
 
 			if(nih->ID == Obj::HERO) //not prison
-				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
+				nih->appearance = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 			//fix spellbook
 			if(nih->spellbookContainsSpell(SpellID::SPELLBOOK_PRESET))
 			{
@@ -170,7 +170,7 @@ void MapController::repairMap(CMap * map) const
 			if(art->ID == Obj::SPELL_SCROLL && !art->storedArtifact)
 			{
 				std::vector<SpellID> out;
-				for(auto const & spell : VLC->spellh->objects) //spellh size appears to be greater (?)
+				for(auto const & spell : LIBRARY->spellh->objects) //spellh size appears to be greater (?)
 				{
 					//if(map->isAllowedSpell(spell->id))
 					{
@@ -224,7 +224,7 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 
 void MapController::initObstaclePainters(CMap * map)
 {
-	for (auto const & terrain : VLC->terrainTypeHandler->objects)
+	for (auto const & terrain : LIBRARY->terrainTypeHandler->objects)
 	{
 		auto terrainId = terrain->getId();
 		_obstaclePainters[terrainId] = std::make_unique<EditorObstaclePlacer>(map);
@@ -584,14 +584,14 @@ void MapController::redo()
 ModCompatibilityInfo MapController::modAssessmentAll()
 {
 	ModCompatibilityInfo result;
-	for(auto primaryID : VLC->objtypeh->knownObjects())
+	for(auto primaryID : LIBRARY->objtypeh->knownObjects())
 	{
-		for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
+		for(auto secondaryID : LIBRARY->objtypeh->knownSubObjects(primaryID))
 		{
-			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
+			auto handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
 			auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
 			if(modName != "core")
-				result[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
+				result[modName] = LIBRARY->modh->getModInfo(modName).getVerificationInfo();
 		}
 	}
 	return result;
@@ -605,7 +605,7 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 	{
 		auto modScope = entity->getModScope();
 		if(modScope != "core")
-			result[modScope] = VLC->modh->getModInfo(modScope).getVerificationInfo();
+			result[modScope] = LIBRARY->modh->getModInfo(modScope).getVerificationInfo();
 	};
 
 	for(auto obj : map.objects)
@@ -613,7 +613,7 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 		auto handler = obj->getObjectHandler();
 		auto modScope = handler->getModScope();
 		if(modScope != "core")
-			result[modScope] = VLC->modh->getModInfo(modScope).getVerificationInfo();
+			result[modScope] = LIBRARY->modh->getModInfo(modScope).getVerificationInfo();
 
 		if(obj->ID == Obj::TOWN || obj->ID == Obj::RANDOM_TOWN)
 		{
@@ -622,12 +622,12 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 			{
 				if(spellID == SpellID::PRESET)
 					continue;
-				extractEntityMod(spellID.toEntity(VLC));
+				extractEntityMod(spellID.toEntity(LIBRARY));
 			}
 
 			for(const auto & spellID : town->obligatorySpells)
 			{
-				extractEntityMod(spellID.toEntity(VLC));
+				extractEntityMod(spellID.toEntity(LIBRARY));
 			}
 		}
 
@@ -638,17 +638,17 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 			{
 				if(spellID == SpellID::PRESET || spellID == SpellID::SPELLBOOK_PRESET)
 					continue;
-				extractEntityMod(spellID.toEntity(VLC));
+				extractEntityMod(spellID.toEntity(LIBRARY));
 			}
 
 			for(const auto & [_, slotInfo] : hero->artifactsWorn)
 			{
-				extractEntityMod(slotInfo.artifact->getTypeId().toEntity(VLC));
+				extractEntityMod(slotInfo.artifact->getTypeId().toEntity(LIBRARY));
 			}
 
 			for(const auto & art : hero->artifactsInBackpack)
 			{
-				extractEntityMod(art.artifact->getTypeId().toEntity(VLC));
+				extractEntityMod(art.artifact->getTypeId().toEntity(LIBRARY));
 			}
 		}
 	}

@@ -325,12 +325,19 @@ private:
 public:
 	static Type getDwellingFromLevel(int level, int upgradeIndex)
 	{
-		return getDwellings()[upgradeIndex][level];
+		try
+		{
+			return getDwellings().at(upgradeIndex).at(level);
+		}
+		catch (const std::out_of_range &)
+		{
+			return Type::NONE;
+		}
 	}
 
 	static int getLevelFromDwelling(BuildingIDBase dwelling)
 	{
-		for (const auto level : getDwellings())
+		for (const auto & level : getDwellings())
 		{
 			auto it = std::find(level.begin(), level.end(), dwelling);
 			if (it != level.end())
@@ -361,9 +368,9 @@ public:
 		dwelling.setNum(getDwellingFromLevel(level, upgrade + 1));
 	}
 
-	bool IsDwelling() const
+	bool isDwelling() const
 	{
-		for (const auto level : getDwellings())
+		for (const auto & level : getDwellings())
 		{
 			if (vstd::contains(level, num))
 				return true;
@@ -398,12 +405,14 @@ public:
 	enum Type
 	{
 		NO_OBJ = -1,
-		ALTAR_OF_SACRIFICE [[deprecated]] = 2,
+
+		NOTHING = 0,
+		ALTAR_OF_SACRIFICE = 2,
 		ANCHOR_POINT = 3,
 		ARENA = 4,
 		ARTIFACT = 5,
 		PANDORAS_BOX = 6,
-		BLACK_MARKET [[deprecated]] = 7,
+		BLACK_MARKET = 7,
 		BOAT = 8,
 		BORDERGUARD = 9,
 		KEYMASTER = 10,
@@ -495,12 +504,12 @@ public:
 		TEMPLE = 96,
 		DEN_OF_THIEVES = 97,
 		TOWN = 98,
-		TRADING_POST [[deprecated]] = 99,
+		TRADING_POST = 99,
 		LEARNING_STONE = 100,
 		TREASURE_CHEST = 101,
 		TREE_OF_KNOWLEDGE = 102,
 		SUBTERRANEAN_GATE = 103,
-		UNIVERSITY [[deprecated]] = 104,
+		UNIVERSITY = 104,
 		WAGON = 105,
 		WAR_MACHINE_FACTORY = 106,
 		SCHOOL_OF_WAR = 107,
@@ -536,6 +545,8 @@ public:
 		PINE_TREES = 137,
 		PLANT = 138,
 		RIVER_DELTA = 143,
+		HOTA_CUSTOM_OBJECT_1 = 145,
+		HOTA_CUSTOM_OBJECT_2 = 146,
 		ROCK = 147,
 		SAND_DUNE = 148,
 		SAND_PIT = 149,
@@ -555,7 +566,7 @@ public:
 		RANDOM_MONSTER_L6 = 163,
 		RANDOM_MONSTER_L7 = 164,
 		BORDER_GATE = 212,
-		FREELANCERS_GUILD [[deprecated]] = 213,
+		FREELANCERS_GUILD = 213,
 		HERO_PLACEHOLDER = 214,
 		QUEST_GUARD = 215,
 		RANDOM_DWELLING = 216,
@@ -563,7 +574,7 @@ public:
 		RANDOM_DWELLING_FACTION = 218, //subtype = faction
 		GARRISON2 = 219,
 		ABANDONED_MINE = 220,
-		TRADING_POST_SNOW [[deprecated]] = 221,
+		TRADING_POST_SNOW = 221,
 		CLOVER_FIELD = 222,
 		CURSED_GROUND2 = 223,
 		EVIL_FOG = 224,

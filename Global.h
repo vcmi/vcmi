@@ -369,6 +369,15 @@ namespace vstd
 		return it->second;
 	}
 
+	// given a map from keys to values, creates a new map from values to keys 
+	template<typename K, typename V>
+	static std::map<V, K> reverseMap(const std::map<K, V>& m) {
+		std::map<V, K> r;
+ 		for (const auto& kv : m)
+			r[kv.second] = kv.first;
+		return r;
+	}
+
 	//returns first key that maps to given value if present, returns success via found if provided
 	template <typename Key, typename T>
 	Key findKey(const std::map<Key, T> & map, const T & value, bool * found = nullptr)
@@ -661,15 +670,15 @@ namespace vstd
 		return false;
 	}
 
-	template<typename T>
-	void removeDuplicates(std::vector<T> &vec)
+	template <typename Container>
+	void removeDuplicates(Container &vec)
 	{
 		std::sort(vec.begin(), vec.end());
 		vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
 	}
 
-	template <typename T>
-	void concatenate(std::vector<T> &dest, const std::vector<T> &src)
+	template <typename Container>
+	void concatenate(Container &dest, const Container &src)
 	{
 		dest.reserve(dest.size() + src.size());
 		dest.insert(dest.end(), src.begin(), src.end());

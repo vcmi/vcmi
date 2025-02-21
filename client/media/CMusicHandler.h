@@ -14,8 +14,7 @@
 
 #include "../lib/CConfigHandler.h"
 
-struct _Mix_Music;
-using Mix_Music = struct _Mix_Music;
+#include <SDL_mixer.h>
 
 class CMusicHandler;
 

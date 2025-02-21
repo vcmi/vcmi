@@ -12,7 +12,7 @@
 
 #include "../faction/CFaction.h"
 
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 #include "../../texts/CGeneralTextHandler.h"
 
 #include <vstd/RNG.h>
@@ -57,7 +57,7 @@ int CHeroClass::tavernProbability(FactionID targetFaction) const
 
 EAlignment CHeroClass::getAlignment() const
 {
-	return faction.toEntity(VLC)->getAlignment();
+	return faction.toEntity(LIBRARY)->getAlignment();
 }
 
 int32_t CHeroClass::getIndex() const
@@ -92,7 +92,7 @@ void CHeroClass::registerIcons(const IconRegistar & cb) const
 
 std::string CHeroClass::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::string CHeroClass::getNameTextID() const

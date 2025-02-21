@@ -19,7 +19,7 @@
 #include "../modding/CModHandler.h"
 #include "../modding/ModDescription.h"
 #include "../modding/ModScope.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 #include "CMap.h"
 #include "MapFormat.h"
@@ -32,8 +32,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 std::unique_ptr<CMap> CMapService::loadMap(const ResourcePath & name, IGameCallback * cb) const
 {
-	std::string modName = VLC->modh->findResourceOrigin(name);
-	std::string encoding = VLC->modh->findResourceEncoding(name);
+	std::string modName = LIBRARY->modh->findResourceOrigin(name);
+	std::string encoding = LIBRARY->modh->findResourceEncoding(name);
 
 	auto stream = getStreamFromFS(name);
 	return getMapLoader(stream, name.getName(), modName, encoding)->loadMap(cb);
@@ -41,8 +41,8 @@ std::unique_ptr<CMap> CMapService::loadMap(const ResourcePath & name, IGameCallb
 
 std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourcePath & name) const
 {
-	std::string modName = VLC->modh->findResourceOrigin(name);
-	std::string encoding = VLC->modh->findResourceEncoding(name);
+	std::string modName = LIBRARY->modh->findResourceOrigin(name);
+	std::string encoding = LIBRARY->modh->findResourceEncoding(name);
 
 	auto stream = getStreamFromFS(name);
 	return getMapLoader(stream, name.getName(), modName, encoding)->loadMapHeader();
@@ -90,7 +90,7 @@ void CMapService::saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::
 
 ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
 {
-	const auto & activeMods = VLC->modh->getActiveMods();
+	const auto & activeMods = LIBRARY->modh->getActiveMods();
 	
 	ModCompatibilityInfo missingMods;
 	ModCompatibilityInfo missingModsFiltered;
@@ -98,7 +98,7 @@ ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
 	{
 		if(vstd::contains(activeMods, mapMod.first))
 		{
-			const auto & modInfo = VLC->modh->getModInfo(mapMod.first);
+			const auto & modInfo = LIBRARY->modh->getModInfo(mapMod.first);
 			if(modInfo.getVersion().compatible(mapMod.second.version))
 				continue;
 		}

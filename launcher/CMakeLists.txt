@@ -1,6 +1,5 @@
 if(ENABLE_INNOEXTRACT)
 	add_subdirectory("lib/innoextract")
-	add_definitions(-DENABLE_INNOEXTRACT)
 endif()
 
 set(launcher_SRCS
@@ -80,6 +79,8 @@ set(launcher_TS
 	"${translationsDir}/english.ts"
 	"${translationsDir}/french.ts"
 	"${translationsDir}/german.ts"
+	"${translationsDir}/hungarian.ts"
+	"${translationsDir}/italian.ts"
 	"${translationsDir}/polish.ts"
 	"${translationsDir}/portuguese.ts"
 	"${translationsDir}/russian.ts"
@@ -219,6 +220,7 @@ vcmi_set_output_dir(vcmilauncher "")
 enable_pch(vcmilauncher)
 
 if(ENABLE_INNOEXTRACT)
+	target_compile_definitions(vcmilauncher PRIVATE ENABLE_INNOEXTRACT)
 	target_link_libraries(vcmilauncher innoextract)
 endif()
 

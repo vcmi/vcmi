@@ -11,13 +11,13 @@
 
 #include "../render/IFont.h"
 
+#include <SDL_ttf.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
 VCMI_LIB_NAMESPACE_END
 
 class CBitmapFont;
-
-using TTF_Font = struct _TTF_Font;
 
 class CTrueTypeFont final : public IFont
 {
@@ -34,6 +34,7 @@ class CTrueTypeFont final : public IFont
 	int getFontStyle(const JsonNode & config) const;
 
 	void renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const override;
+	void renderTextImpl(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const;
 	size_t getFontAscentScaled() const override;
 public:
 	CTrueTypeFont(const JsonNode & fontConfig);

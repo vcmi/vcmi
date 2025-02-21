@@ -12,7 +12,7 @@
 #include "BattleFieldHandler.h"
 #include "json/JsonNode.h"
 #include "modding/IdentifierStorage.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -55,26 +55,25 @@ Obstacle ObstacleInfo::getId() const
 	return obstacle;
 }
 
-std::vector<BattleHex> ObstacleInfo::getBlocked(BattleHex hex) const
+BattleHexArray ObstacleInfo::getBlocked(const BattleHex & hex) const
 {
-	std::vector<BattleHex> ret;
 	if(isAbsoluteObstacle)
 	{
 		assert(!hex.isValid());
-		range::copy(blockedTiles, std::back_inserter(ret));
-		return ret;
+		return BattleHexArray(blockedTiles);
 	}
 	
+	BattleHexArray ret;
 	for(int offset : blockedTiles)
 	{
-		BattleHex toBlock = hex + offset;
+		BattleHex toBlock = hex.toInt() + offset;
 		if((hex.getY() & 1) && !(toBlock.getY() & 1))
 			toBlock += BattleHex::LEFT;
 		
 		if(!toBlock.isValid())
 			logGlobal->error("Misplaced obstacle!");
 		else
-			ret.push_back(toBlock);
+			ret.insert(toBlock);
 	}
 	
 	return ret;
@@ -102,7 +101,7 @@ std::shared_ptr<ObstacleInfo> ObstacleHandler::loadFromJson(const std::string & 
 	info->height = json["height"].Integer();
 	for(const auto & t : json["allowedTerrains"].Vector())
 	{
-		VLC->identifiers()->requestIdentifier("terrain", t, [info](int32_t identifier){
+		LIBRARY->identifiers()->requestIdentifier("terrain", t, [info](int32_t identifier){
 			info->allowedTerrains.emplace_back(identifier);
 		});
 	}

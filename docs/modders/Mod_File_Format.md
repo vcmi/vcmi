@@ -193,7 +193,7 @@ These are fields that are present only in local mod.json file
 ## Translation fields
 
 In addition to field listed above, it is possible to add following block for any language supported by VCMI. If such block is present, Launcher will use this information for displaying translated mod information and game will use provided json files to translate mod to specified language.
-See [Translations](Translations.md) for more information
+See [Translations](../translators/Translations.md) for more information
 
 ```json
 	"<language>" : {
@@ -228,4 +228,4 @@ These are fields that are present only in remote repository and are generally no
 For mod description it is possible to use certain subset of HTML as
 described here:
 
-<http://qt-project.org/doc/qt-5.0/qtgui/richtext-html-subset.html>
+<https://doc.qt.io/qt-6/richtext-html-subset.html>

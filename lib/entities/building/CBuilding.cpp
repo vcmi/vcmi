@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CBuilding.h"
 
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../faction/CFaction.h"
 #include "../faction/CTown.h"
@@ -45,12 +45,12 @@ std::string CBuilding::getJsonKey() const
 
 std::string CBuilding::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::string CBuilding::getDescriptionTranslated() const
 {
-	return VLC->generaltexth->translate(getDescriptionTextID());
+	return LIBRARY->generaltexth->translate(getDescriptionTextID());
 }
 
 std::string CBuilding::getBaseTextID() const

@@ -16,12 +16,12 @@
 #include "InfoWindows.h"
 #include "CCastleInterface.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 
 #include "../battle/BattleInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../media/IVideoPlayer.h"
@@ -32,7 +32,6 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/VideoWidget.h"
 #include "../adventureMap/AdventureMapInterface.h"
-#include "../render/AssetGenerator.h"
 
 #include "../../CCallback.h"
 
@@ -41,6 +40,7 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
+#include "../../lib/texts/TextOperations.h"
 #include "../../lib/GameConstants.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -50,8 +50,8 @@ CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::functio
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos = myRect;
 	onLeft = funcL;
-	hoverText = CGI->generaltexth->zelp[helpTextId].first;
-	helpText = CGI->generaltexth->zelp[helpTextId].second;
+	hoverText = LIBRARY->generaltexth->zelp[helpTextId].first;
+	helpText = LIBRARY->generaltexth->zelp[helpTextId].second;
 	owner = _owner;
 }
 
@@ -117,7 +117,6 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	if(isBigSpellbook)
 	{
-		AssetGenerator::createBigSpellBook();
 		background = std::make_shared<CPicture>(ImagePath::builtin("SpellBookLarge"), 0, 0);
 		updateShadow();
 	}
@@ -137,17 +136,17 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 		const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
 		const ColorRGBA grayedColor = ColorRGBA(158, 130, 105);
 		searchBoxRectangle = std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor);
-		searchBoxDescription = std::make_shared<CLabel>(r.center().x, r.center().y, FONT_SMALL, ETextAlignment::CENTER, grayedColor, CGI->generaltexth->translate("vcmi.spellBook.search"));
+		searchBoxDescription = std::make_shared<CLabel>(r.center().x, r.center().y, FONT_SMALL, ETextAlignment::CENTER, grayedColor, LIBRARY->generaltexth->translate("vcmi.spellBook.search"));
 
-		searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, ETextAlignment::CENTER, true);
+		searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, ETextAlignment::CENTER, false);
 		searchBox->setCallback(std::bind(&CSpellWindow::searchInput, this));
 	}
 
 	if(onSpellSelect)
 	{
 		Point boxPos = r.bottomLeft() + Point(-2, 5);
-		showAllSpells = std::make_shared<CToggleButton>(boxPos, AnimationPath::builtin("sysopchk.def"), CButton::tooltip(CGI->generaltexth->translate("core.help.458.hover"), CGI->generaltexth->translate("core.help.458.hover")), [this](bool state){ searchInput(); });
-		showAllSpellsDescription = std::make_shared<CLabel>(boxPos.x + 40, boxPos.y + 12, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, CGI->generaltexth->translate("core.help.458.hover"));
+		showAllSpells = std::make_shared<CToggleButton>(boxPos, AnimationPath::builtin("sysopchk.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.help.458.hover"), LIBRARY->generaltexth->translate("core.help.458.hover")), [this](bool state){ searchInput(); });
+		showAllSpellsDescription = std::make_shared<CLabel>(boxPos.x + 40, boxPos.y + 12, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, LIBRARY->generaltexth->translate("core.help.458.hover"));
 	}
 
 	processSpells();
@@ -239,10 +238,10 @@ void CSpellWindow::processSpells()
 	mySpells.clear();
 
 	//initializing castable spells
-	mySpells.reserve(CGI->spellh->objects.size());
-	for(auto const & spell : CGI->spellh->objects)
+	mySpells.reserve(LIBRARY->spellh->objects.size());
+	for(auto const & spell : LIBRARY->spellh->objects)
 	{
-		bool searchTextFound = !searchBox || boost::algorithm::contains(boost::algorithm::to_lower_copy(spell->getNameTranslated()), boost::algorithm::to_lower_copy(searchBox->getText()));
+		bool searchTextFound = !searchBox || TextOperations::textSearchSimilar(searchBox->getText(), spell->getNameTranslated());
 
 		if(onSpellSelect)
 		{
@@ -353,6 +352,14 @@ void CSpellWindow::fbattleSpellsb()
 		setCurrentPage(0);
 	}
 	computeSpellsPerArea();
+}
+
+void CSpellWindow::toggleSearchBoxFocus()
+{
+	if(searchBox != nullptr)
+	{
+		searchBox->hasFocus() ? searchBox->removeFocus() : searchBox->giveFocus();
+	}
 }
 
 void CSpellWindow::fmanaPtsb()
@@ -505,7 +512,7 @@ void CSpellWindow::turnPageRight()
 {
 	OBJECT_CONSTRUCTION;
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		video = std::make_shared<VideoWidgetOnce>(Point(13, 14), VideoPath::builtin("PGTRNRGH.SMK"), false, this);
+		video = std::make_shared<VideoWidgetOnce>(Point(13, 14), VideoPath::builtin("PGTRNRENGINE->SMK"), false, this);
 }
 
 void CSpellWindow::onVideoPlaybackFinished()
@@ -546,6 +553,9 @@ void CSpellWindow::keyPressed(EShortcut key)
 			break;
 		case EShortcut::SPELLBOOK_TAB_ADVENTURE:
 			fadvSpellsb();
+			break;
+		case EShortcut::SPELLBOOK_SEARCH_FOCUS:
+			toggleSearchBoxFocus();
 			break;
 	}
 }
@@ -593,7 +603,7 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 		auto spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
 		{
-			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[206]) % spellCost % owner->myHero->mana));
+			GAME->interface()->showInfoDialog(boost::str(boost::format(LIBRARY->generaltexth->allTexts[206]) % spellCost % owner->myHero->mana));
 			return;
 		}
 
@@ -610,10 +620,10 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 		const bool inCastle = owner->myInt->castleInt != nullptr;
 
 		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
-		if((combatSpell != inCombat) || inCastle || (!combatSpell && !LOCPLINT->makingTurn))
+		if((combatSpell != inCombat) || inCastle || (!combatSpell && !GAME->interface()->makingTurn))
 		{
 			std::vector<std::shared_ptr<CComponent>> hlp(1, std::make_shared<CComponent>(ComponentType::SPELL, mySpell->id));
-			LOCPLINT->showInfoDialog(mySpell->getDescriptionTranslated(schoolLevel), hlp);
+			GAME->interface()->showInfoDialog(mySpell->getDescriptionTranslated(schoolLevel), hlp);
 		}
 		else if(combatSpell)
 		{
@@ -628,15 +638,15 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 				std::vector<std::string> texts;
 				problem.getAll(texts);
 				if(!texts.empty())
-					LOCPLINT->showInfoDialog(texts.front());
+					GAME->interface()->showInfoDialog(texts.front());
 				else
-					LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
+					GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
 			}
 		}
 		else //adventure spell
 		{
 			const CGHeroInstance * h = owner->myHero;
-			GH.windows().popWindows(1);
+			ENGINE->windows().popWindows(1);
 
 			auto guard = vstd::makeScopeGuard([this]()
 			{
@@ -647,7 +657,7 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 			});
 
 			spells::detail::ProblemImpl problem;
-			if (mySpell->getAdventureMechanics().canBeCast(problem, LOCPLINT->cb.get(), owner->myHero))
+			if (mySpell->getAdventureMechanics().canBeCast(problem, GAME->interface()->cb.get(), owner->myHero))
 			{
 				if(mySpell->getTargetType() == spells::AimType::LOCATION)
 					adventureInt->enterCastingMode(mySpell);
@@ -661,9 +671,9 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 				std::vector<std::string> texts;
 				problem.getAll(texts);
 				if(!texts.empty())
-					LOCPLINT->showInfoDialog(texts.front());
+					GAME->interface()->showInfoDialog(texts.front());
 				else
-					LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
+					GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
 			}
 		}
 	}
@@ -679,7 +689,7 @@ void CSpellWindow::SpellArea::showPopupWindow(const Point & cursorPosition)
 			dmgInfo.clear();
 		else
 		{
-			dmgInfo = CGI->generaltexth->allTexts[343];
+			dmgInfo = LIBRARY->generaltexth->allTexts[343];
 			boost::algorithm::replace_first(dmgInfo, "%d", std::to_string(causedDmg));
 		}
 
@@ -692,7 +702,7 @@ void CSpellWindow::SpellArea::hover(bool on)
 	if(mySpell)
 	{
 		if(on)
-			owner->statusBar->write(boost::str(boost::format("%s (%s)") % mySpell->getNameTranslated() % CGI->generaltexth->allTexts[171+mySpell->getLevel()]));
+			owner->statusBar->write(boost::str(boost::format("%s (%s)") % mySpell->getNameTranslated() % LIBRARY->generaltexth->allTexts[171+mySpell->getLevel()]));
 		else
 			owner->statusBar->clear();
 	}
@@ -754,16 +764,16 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		if(schoolLevel > 0)
 		{
 			boost::format fmt("%s/%s");
-			fmt % CGI->generaltexth->allTexts[171 + mySpell->getLevel()];
-			fmt % CGI->generaltexth->levels[3+(schoolLevel-1)];//lines 4-6
+			fmt % LIBRARY->generaltexth->allTexts[171 + mySpell->getLevel()];
+			fmt % LIBRARY->generaltexth->levels[3+(schoolLevel-1)];//lines 4-6
 			level->setText(fmt.str());
 		}
 		else
-			level->setText(CGI->generaltexth->allTexts[171 + mySpell->getLevel()]);
+			level->setText(LIBRARY->generaltexth->allTexts[171 + mySpell->getLevel()]);
 
 		cost->color = secondLineColor;
 		boost::format costfmt("%s: %d");
-		costfmt % CGI->generaltexth->allTexts[387] % spellCost;
+		costfmt % LIBRARY->generaltexth->allTexts[387] % spellCost;
 		cost->setText(costfmt.str());
 	}
 }

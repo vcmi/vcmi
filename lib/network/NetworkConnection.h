@@ -46,4 +46,21 @@ public:
 	void setAsyncWritesEnabled(bool on) override;
 };
 
+class InternalConnection final : public IInternalConnection, public std::enable_shared_from_this<InternalConnection>
+{
+	std::weak_ptr<IInternalConnection> otherSideWeak;
+	std::shared_ptr<NetworkContext> io;
+	INetworkConnectionListener & listener;
+	bool connectionActive = false;
+public:
+	InternalConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkContext> & context);
+
+	void receivePacket(const std::vector<std::byte> & message) override;
+	void disconnect() override;
+	void connectTo(std::shared_ptr<IInternalConnection> connection) override;
+	void sendPacket(const std::vector<std::byte> & message) override;
+	void setAsyncWritesEnabled(bool on) override;
+	void close() override;
+};
+
 VCMI_LIB_NAMESPACE_END

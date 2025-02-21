@@ -133,8 +133,8 @@ bool HeroPtr::operator==(const HeroPtr & rhs) const
 
 bool CDistanceSorter::operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs) const
 {
-	const CGPathNode * ln = ai->myCb->getPathsInfo(hero)->getPathInfo(lhs->visitablePos());
-	const CGPathNode * rn = ai->myCb->getPathsInfo(hero)->getPathInfo(rhs->visitablePos());
+	const CGPathNode * ln = ai->getPathsInfo(hero)->getPathInfo(lhs->visitablePos());
+	const CGPathNode * rn = ai->getPathsInfo(hero)->getPathInfo(rhs->visitablePos());
 
 	return ln->getCost() < rn->getCost();
 }
@@ -224,7 +224,7 @@ creInfo infoFromDC(const dwellingContent & dc)
 	ci.creID = dc.second.size() ? dc.second.back() : CreatureID(-1); //should never be accessed
 	if (ci.creID != CreatureID::NONE)
 	{
-		ci.cre = VLC->creatures()->getById(ci.creID);
+		ci.cre = LIBRARY->creatures()->getById(ci.creID);
 		ci.level = ci.cre->getLevel(); //this is creature tier, while tryRealize expects dwelling level. Ignore.
 	}
 	else

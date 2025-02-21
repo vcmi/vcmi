@@ -76,7 +76,7 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 
 	auto loadString = [&](const JsonNode & entry, const TextIdentifier & textID){
 		if (entry.isString() && !entry.String().empty() && entry.String()[0] != '@')
-			VLC->generaltexth->registerString(entry.getModScope(), textID, entry);
+			LIBRARY->generaltexth->registerString(entry.getModScope(), textID, entry);
 	};
 
 	parameters = objectConfig;
@@ -205,8 +205,8 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd:
 
 	for ( auto node : source["changeCreatures"].Struct() )
 	{
-		CreatureID from(VLC->identifiers()->getIdentifier(node.second.getModScope(), "creature", node.first).value());
-		CreatureID dest(VLC->identifiers()->getIdentifier(node.second.getModScope(), "creature", node.second.String()).value());
+		CreatureID from(LIBRARY->identifiers()->getIdentifier(node.second.getModScope(), "creature", node.first).value());
+		CreatureID dest(LIBRARY->identifiers()->getIdentifier(node.second.getModScope(), "creature", node.second.String()).value());
 
 		reward.extraComponents.emplace_back(ComponentType::CREATURE, dest);
 
@@ -275,7 +275,7 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 
 		for (const auto & guard : info.reward.guards )
 		{
-			if (strongest.toEntity(VLC)->getFightValue() < guard.getId().toEntity(VLC)->getFightValue())
+			if (strongest.toEntity(LIBRARY)->getFightValue() < guard.getId().toEntity(LIBRARY)->getFightValue())
 				strongest = guard.getId();
 		}
 		target.replaceNamePlural(strongest); // FIXME: use singular if only 1 such unit is in guards

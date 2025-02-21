@@ -17,7 +17,7 @@
 
 #include "CCreatureHandler.h"
 #include "GameConstants.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 #include "modding/ModScope.h"
 #include "spells/CSpellHandler.h"
 #include "texts/CGeneralTextHandler.h"
@@ -73,7 +73,7 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 		return "";
 
 	std::string textID = description ? bt.getDescriptionTextID() : bt.getNameTextID();
-	std::string text = VLC->generaltexth->translate(textID);
+	std::string text = LIBRARY->generaltexth->translate(textID);
 
 	auto school = bonus->subtype.as<SpellSchool>();
 	if (school.hasValue() && school != SpellSchool::ANY)
@@ -81,7 +81,7 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 		std::string schoolName = school.encode(school.getNum());
 		std::string baseTextID = description ? bt.getDescriptionTextID() : bt.getNameTextID();
 		std::string fullTextID = baseTextID + '.' + schoolName;
-		text = VLC->generaltexth->translate(fullTextID);
+		text = LIBRARY->generaltexth->translate(fullTextID);
 	}
 
 	if (text.find("${val}") != std::string::npos)
@@ -252,8 +252,8 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 
 	if (!dest.hidden)
 	{
-		VLC->generaltexth->registerString( "vcmi", dest.getNameTextID(), source["name"]);
-		VLC->generaltexth->registerString( "vcmi", dest.getDescriptionTextID(), source["description"]);
+		LIBRARY->generaltexth->registerString( "vcmi", dest.getNameTextID(), source["name"]);
+		LIBRARY->generaltexth->registerString( "vcmi", dest.getDescriptionTextID(), source["description"]);
 	}
 
 	const JsonNode & graphics = source["graphics"];

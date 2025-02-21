@@ -161,12 +161,24 @@ uint32_t TextOperations::getUnicodeCodepoint(char data, const std::string & enco
 
 std::string TextOperations::toUnicode(const std::string &text, const std::string &encoding)
 {
-	return boost::locale::conv::to_utf<char>(text, encoding);
+	try {
+		return boost::locale::conv::to_utf<char>(text, encoding);
+	}
+	catch (const boost::locale::conv::conversion_error &)
+	{
+		throw std::runtime_error("Failed to convert text '" + text + "' from encoding " + encoding );
+	}
 }
 
 std::string TextOperations::fromUnicode(const std::string &text, const std::string &encoding)
 {
-	return boost::locale::conv::from_utf<char>(text, encoding);
+	try {
+		return boost::locale::conv::from_utf<char>(text, encoding);
+	}
+	catch (const boost::locale::conv::conversion_error &)
+	{
+		throw std::runtime_error("Failed to convert text '" + text + "' to encoding " + encoding );
+	}
 }
 
 void TextOperations::trimRightUnicode(std::string & text, const size_t amount)
@@ -236,5 +248,78 @@ std::string TextOperations::getCurrentFormattedDateTimeLocal(std::chrono::second
 	return TextOperations::getFormattedDateTimeLocal(std::chrono::system_clock::to_time_t(timepoint));
 }
 
+int TextOperations::getLevenshteinDistance(const std::string & s, const std::string & t)
+{
+	int n = t.size();
+	int m = s.size();
+
+	// create two work vectors of integer distances
+	std::vector<int> v0(n+1, 0);
+	std::vector<int> v1(n+1, 0);
+
+	// initialize v0 (the previous row of distances)
+	// this row is A[0][i]: edit distance from an empty s to t;
+	// that distance is the number of characters to append to  s to make t.
+	for (int i = 0; i < n; ++i)
+		v0[i] = i;
+
+	for (int i = 0; i < m; ++i)
+	{
+		// calculate v1 (current row distances) from the previous row v0
+
+		// first element of v1 is A[i + 1][0]
+		// edit distance is delete (i + 1) chars from s to match empty t
+		v1[0] = i + 1;
+
+		// use formula to fill in the rest of the row
+		for (int j = 0; j < n; ++j)
+		{
+			// calculating costs for A[i + 1][j + 1]
+			int deletionCost = v0[j + 1] + 1;
+			int insertionCost = v1[j] + 1;
+			int substitutionCost;
+
+			if (s[i] == t[j])
+				substitutionCost = v0[j];
+			else
+				substitutionCost = v0[j] + 1;
+
+			v1[j + 1] = std::min({deletionCost, insertionCost, substitutionCost});
+		}
+
+		// copy v1 (current row) to v0 (previous row) for next iteration
+		// since data in v1 is always invalidated, a swap without copy could be more efficient
+		std::swap(v0, v1);
+	}
+
+	// after the last swap, the results of v1 are now in v0
+	return v0[n];
+}
+
+bool TextOperations::textSearchSimilar(const std::string & s, const std::string & t)
+{
+	boost::locale::generator gen;
+	std::locale loc = gen("en_US.UTF-8"); // support for UTF8 lowercase
+	
+	auto haystack = boost::locale::to_lower(t, loc);
+	auto needle = boost::locale::to_lower(s, loc);
+
+	if(boost::algorithm::contains(haystack, needle))
+		return true;
+
+	if(needle.size() > haystack.size())
+		return false;
+
+	for(int i = 0; i < haystack.size() - needle.size() + 1; i++)
+	{
+		auto dist = getLevenshteinDistance(haystack.substr(i, needle.size()), needle);
+		if(needle.size() > 2 && dist <= 1)
+			return true;
+		else if(needle.size() > 4 && dist <= 2)
+			return true;
+	}
+	
+	return false;
+}
 
 VCMI_LIB_NAMESPACE_END

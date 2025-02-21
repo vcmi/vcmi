@@ -15,7 +15,7 @@
 #include "Functions.h"
 
 #include "../TerrainHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../constants/StringConstants.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../modding/ModScope.h"
@@ -177,7 +177,7 @@ void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes() const
 {
 	std::set<TerrainId> terrains;
-	for(const auto & terrain : VLC->terrainTypeHandler->objects)
+	for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
 	{
 		if (terrain->isLand() && terrain->isPassable())
 		{
@@ -189,7 +189,7 @@ std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes() const
 
 std::set<FactionID> ZoneOptions::getDefaultTownTypes() const
 {
-	return VLC->townh->getDefaultAllowed();
+	return LIBRARY->townh->getDefaultAllowed();
 }
 
 std::set<FactionID> ZoneOptions::getTownTypes() const
@@ -857,7 +857,7 @@ void CRmgTemplate::afterLoad()
 		auto monsterTypes = zone->getMonsterTypes();
 		if (monsterTypes.empty())
 		{
-			zone->setMonsterTypes(VLC->townh->getAllowedFactions(false));
+			zone->setMonsterTypes(LIBRARY->townh->getAllowedFactions(false));
 		}
 	}
 

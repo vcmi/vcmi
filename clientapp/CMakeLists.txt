@@ -56,11 +56,6 @@ if(WIN32)
 	endif()
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
 
-	if(NOT ffmpeg_LIBRARIES)
-		target_compile_definitions(vcmiclient PRIVATE DISABLE_VIDEO)
-	endif()
-
-
 	# TODO: very hacky, find proper solution to copy AI dlls into bin dir
 	if(MSVC)
 		add_custom_command(TARGET vcmiclient POST_BUILD

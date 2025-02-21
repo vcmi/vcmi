@@ -148,6 +148,9 @@ bool ModStateController::canUninstallMod(QString modname)
 
 bool ModStateController::canEnableMod(QString modname)
 {
+	if (!modList->isModExists(modname))
+		return false;
+
 	auto mod = modList->getMod(modname);
 
 	if(modList->isModEnabled(modname))

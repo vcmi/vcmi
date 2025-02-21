@@ -31,6 +31,8 @@
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/PacksForServer.h"
 #include "../../lib/serializer/CTypeList.h"
+#include "../../lib/pathfinder/PathfinderCache.h"
+#include "../../lib/pathfinder/PathfinderOptions.h"
 
 #include "AIhelper.h"
 
@@ -621,11 +623,22 @@ void VCAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<C
 	playerID = *myCb->getPlayerID();
 	myCb->waitTillRealize = true;
 	myCb->unlockGsWhenWaiting = true;
+	pathfinderCache = std::make_unique<PathfinderCache>(myCb.get(), PathfinderOptions(myCb.get()));
 
 	if(!fh)
 		fh = new FuzzyHelper();
 
 	retrieveVisitableObjs();
+}
+
+std::shared_ptr<const CPathsInfo> VCAI::getPathsInfo(const CGHeroInstance * h) const
+{
+	return pathfinderCache->getPathsInfo(h);
+}
+
+void VCAI::invalidatePaths()
+{
+	pathfinderCache->invalidatePaths();
 }
 
 void VCAI::yourTurn(QueryID queryID)
@@ -1251,7 +1264,7 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 		int count = d->creatures[i].first;
 		CreatureID creID = d->creatures[i].second.back();
 
-		vstd::amin(count, ah->freeResources() / VLC->creatures()->getById(creID)->getFullRecruitCost());
+		vstd::amin(count, ah->freeResources() / LIBRARY->creatures()->getById(creID)->getFullRecruitCost());
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}
@@ -1800,7 +1813,7 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies) 
 			}
 		}
 	}
-	return cb->getPathsInfo(h.get())->getPathInfo(pos)->reachable();
+	return getPathsInfo(h.get())->getPathInfo(pos)->reachable();
 }
 
 bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
@@ -1837,7 +1850,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	else
 	{
 		CGPath path;
-		cb->getPathsInfo(h.get())->getPath(path, dst);
+		getPathsInfo(h.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
 			logAi->error("Hero %s cannot reach %s.", h->getNameTranslated(), dst.toString());

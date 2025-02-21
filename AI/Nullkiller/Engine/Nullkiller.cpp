@@ -24,6 +24,8 @@
 #include "../Goals/Composition.h"
 #include "../../../lib/CPlayerState.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/pathfinder/PathfinderCache.h"
+#include "../../lib/pathfinder/PathfinderOptions.h"
 
 namespace NKAI
 {
@@ -42,6 +44,8 @@ Nullkiller::Nullkiller()
 {
 
 }
+
+Nullkiller::~Nullkiller() = default;
 
 bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 {
@@ -72,6 +76,14 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
 	this->playerID = gateway->playerID;
 
 	settings = std::make_unique<Settings>(cb->getStartInfo()->difficulty);
+
+	PathfinderOptions pathfinderOptions(cb.get());
+
+	pathfinderOptions.useTeleportTwoWay = true;
+	pathfinderOptions.useTeleportOneWay = settings->isOneWayMonolithUsageAllowed();
+	pathfinderOptions.useTeleportOneWayRandom = settings->isOneWayMonolithUsageAllowed();
+
+	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), pathfinderOptions);
 
 	if(canUseOpenMap(cb, playerID))
 	{
@@ -229,7 +241,7 @@ void Nullkiller::resetAiState()
 	lockedResources = TResources();
 	scanDepth = ScanDepth::MAIN_FULL;
 	lockedHeroes.clear();
-	dangerHitMap->reset();
+	dangerHitMap->resetHitmap();
 	useHeroChain = true;
 	objectClusterizer->reset();
 
@@ -434,7 +446,7 @@ void Nullkiller::makeTurn()
 #if NKAI_TRACE_LEVEL >= 1
 		int prioOfTask = 0;
 #endif
-		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::DEFEND; ++prio)
+		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 		{
 #if NKAI_TRACE_LEVEL >= 1
 			prioOfTask = prio;
@@ -523,7 +535,10 @@ void Nullkiller::makeTurn()
 				else
 					return;
 			}
-			hasAnySuccess = true;
+			else
+			{
+				hasAnySuccess = true;
+			}
 		}
 
 		hasAnySuccess |= handleTrading();
@@ -546,6 +561,9 @@ void Nullkiller::makeTurn()
 #endif
 			return;
 		}
+
+		for (auto heroInfo : cb->getHeroesInfo())
+			gateway->pickBestArtifacts(heroInfo);
 
 		if(i == settings->getMaxPass())
 		{
@@ -706,7 +724,7 @@ bool Nullkiller::handleTrading()
 				if (toGive && toGive <= available[mostExpendable]) //don't try to sell 0 resources
 				{
 					cb->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), toGive);
-#if NKAI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 2
 					logAi->info("Traded %d of %s for %d of %s at %s", toGive, mostExpendable, toGet, mostWanted, obj->getObjectName());
 #endif
 					haveTraded = true;
@@ -716,6 +734,16 @@ bool Nullkiller::handleTrading()
 		}
 	}
 	return haveTraded;
+}
+
+std::shared_ptr<const CPathsInfo> Nullkiller::getPathsInfo(const CGHeroInstance * h) const
+{
+	return pathfinderCache->getPathsInfo(h);
+}
+
+void Nullkiller::invalidatePaths()
+{
+	pathfinderCache->invalidatePaths();
 }
 
 }

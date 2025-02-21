@@ -14,7 +14,7 @@
 #include "../lib/CConsoleHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/logging/CLogger.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/filesystem/Filesystem.h"

@@ -166,7 +166,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 						if(nextNode.specialAction || nextNode.chainMask != chainMask)
 							break;
 
-						auto targetNode = cb->getPathsInfo(hero)->getPathInfo(nextNode.coord);
+						auto targetNode = ai->nullkiller->getPathsInfo(hero)->getPathInfo(nextNode.coord);
 
 						if(!targetNode->reachable()
 							|| targetNode->getCost() > nextNode.cost)
@@ -182,7 +182,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 
 				if(node->turns == 0 && node->coord != hero->visitablePos())
 				{
-					auto targetNode = cb->getPathsInfo(hero)->getPathInfo(node->coord);
+					auto targetNode = ai->nullkiller->getPathsInfo(hero)->getPathInfo(node->coord);
 
 					if(targetNode->accessible == EPathAccessibility::NOT_SET
 						|| targetNode->accessible == EPathAccessibility::BLOCKED
@@ -239,7 +239,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 						if(hero->movementPointsRemaining() > 0)
 						{
 							CGPath path;
-							bool isOk = cb->getPathsInfo(hero)->getPath(path, node->coord);
+							bool isOk = ai->nullkiller->getPathsInfo(hero)->getPath(path, node->coord);
 
 							if(isOk && path.nodes.back().turns > 0)
 							{
