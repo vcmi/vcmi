@@ -131,6 +131,8 @@ set(editor_TS
 	"${translationsDir}/english.ts"
 	"${translationsDir}/french.ts"
 	"${translationsDir}/german.ts"
+	"${translationsDir}/hungarian.ts"
+	"${translationsDir}/italian.ts"
 	"${translationsDir}/polish.ts"
 	"${translationsDir}/portuguese.ts"
 	"${translationsDir}/russian.ts"

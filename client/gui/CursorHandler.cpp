@@ -24,7 +24,7 @@
 
 std::unique_ptr<ICursor> CursorHandler::createCursor()
 {
-#if defined(VCMI_MOBILE)
+#if defined(VCMI_MOBILE) || defined(VCMI_PORTMASTER)
 	if (settings["general"]["userRelativePointer"].Bool())
 		return std::make_unique<CursorSoftware>();
 #endif

@@ -411,6 +411,7 @@ void AIGateway::heroCreated(const CGHeroInstance * h)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+	nullkiller->invalidatePathfinderData(); // new hero needs to look around
 }
 
 void AIGateway::advmapSpellCast(const CGHeroInstance * caster, SpellID spellID)
@@ -929,7 +930,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 
 	const CArmedInstance * armies[] = {destinationArmy, source};
 
-	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source);
+	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source, myCb->getTile(source->visitablePos())->getTerrainID());
 
 	for(auto army : armies)
 	{
@@ -983,7 +984,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 						&& source->stacksCount() == 1
 						&& (!destinationArmy->hasStackAtSlot(i) || destinationArmy->getCreature(i) == targetCreature))
 					{
-						auto weakest = nullkiller->armyManager->getWeakestCreature(bestArmy);
+						auto weakest = nullkiller->armyManager->getBestUnitForScout(bestArmy, myCb->getTile(source->visitablePos())->getTerrainID());
 						
 						if(weakest->creature == targetCreature)
 						{

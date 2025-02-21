@@ -550,6 +550,15 @@ CreatureTooltip::CreatureTooltip(Point pos, const CGCreature * creature)
 	tooltipTextbox = std::make_shared<CTextBox>(textContent, Rect(15, 95, 230, 150), 0, FONT_SMALL, ETextAlignment::TOPCENTER, Colors::WHITE);
 }
 
+void CreatureTooltip::show(Canvas & to)
+{
+	// fixes scrolling of textbox (#5076)
+	setRedrawParent(true);
+	redraw();
+
+	CIntObject::show(to);
+}
+
 void MoraleLuckBox::set(const AFactionMember * node)
 {
 	OBJECT_CONSTRUCTION;
@@ -615,9 +624,9 @@ void MoraleLuckBox::set(const AFactionMember * node)
 		imageName = morale ? "IMRL42" : "ILCK42";
 
 	image = std::make_shared<CAnimImage>(AnimationPath::builtin(imageName), *component.value + 3);
-	image->moveBy(Point(pos.w/2 - image->pos.w/2, pos.h/2 - image->pos.h/2));//center icon
+	image->moveBy(Point(pos.w/2 - image->pos.w/2, pos.h/2 - image->pos.h/2)); //center icon
 	if(settings["general"]["enableUiEnhancements"].Bool())
-		label = std::make_shared<CLabel>(small ? 30 : 42, small ? 20 : 38, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(modifierList->totalValue()));
+		label = std::make_shared<CLabel>((image->pos.topLeft() - pos.topLeft()).x + (small ? 28 : 40), (image->pos.topLeft() - pos.topLeft()).y + (small ? 20 : 38), EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(modifierList->totalValue()));
 }
 
 MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small)

@@ -143,7 +143,8 @@ void BattleEffectsController::loadColorMuxers()
 		for (const JsonNode & entry : muxer.second.Vector() )
 		{
 			effect.timePoints.push_back(entry["time"].Float());
-			effect.filters.push_back(ColorFilter::genFromJson(entry));
+			effect.effectColors.push_back(ColorRGBA(255*entry["color"][0].Float(), 255*entry["color"][1].Float(), 255*entry["color"][2].Float(), 255*entry["color"][3].Float()));
+			effect.transparency.push_back(entry["alpha"].Float() * 255);
 		}
 		colorMuxerEffects[identifier] = effect;
 	}

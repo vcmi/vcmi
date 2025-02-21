@@ -57,7 +57,8 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 				auto reinforcement = ai->armyManager->howManyReinforcementsCanGet(
 					targetHero,
 					targetHero,
-					&*townArmyAvailableToBuy);
+					&*townArmyAvailableToBuy,
+					TerrainId::NONE);
 
 				if(reinforcement)
 					vstd::amin(reinforcement, ai->armyManager->howManyReinforcementsCanBuy(town->getUpperArmy(), town));

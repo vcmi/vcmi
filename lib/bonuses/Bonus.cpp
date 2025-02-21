@@ -149,10 +149,7 @@ std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32>
 		// there is one known string that uses '%s' placeholder for bonus value:
 		// "core.arraytxt.69" : "\nFountain of Fortune Visited %s",
 		// So also add string replacement to handle this case
-		if (valueToShow > 0)
-			descriptionHelper.replaceRawString(std::to_string(valueToShow));
-		else
-			descriptionHelper.replaceRawString("-" + std::to_string(valueToShow));
+		descriptionHelper.replaceRawString(std::to_string(valueToShow));
 
 		if(type == BonusType::CREATURE_GROWTH_PERCENT)
 			descriptionHelper.appendRawString(" +" + std::to_string(valueToShow));

@@ -46,6 +46,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/pathfinder/CGPathNode.h"
+#include "../../lib/pathfinder/TurnInfo.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
 
@@ -527,7 +528,6 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 	bool canSelect = topBlocking && topBlocking->ID == Obj::HERO && topBlocking->tempOwner == LOCPLINT->playerID;
 	canSelect |= topBlocking && topBlocking->ID == Obj::TOWN && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, topBlocking->tempOwner) != PlayerRelations::ENEMIES;
 
-	bool isHero = false;
 	if(LOCPLINT->localState->getCurrentArmy()->ID != Obj::HERO) //hero is not selected (presumably town)
 	{
 		if(LOCPLINT->localState->getCurrentArmy() == topBlocking) //selected town clicked
@@ -537,9 +537,10 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 	}
 	else if(const CGHeroInstance * currentHero = LOCPLINT->localState->getCurrentHero()) //hero is selected
 	{
-		isHero = true;
-
 		const CGPathNode *pn = LOCPLINT->getPathsInfo(currentHero)->getPathInfo(targetPosition);
+
+		const auto shipyard = dynamic_cast<const IShipyard *>(topBlocking);
+
 		if(currentHero == topBlocking) //clicked selected hero
 		{
 			LOCPLINT->openHeroWindow(currentHero);
@@ -550,10 +551,19 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 			LOCPLINT->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
 			return;
 		}
+		else if(shipyard != nullptr && pn->turns == 255 && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, topBlocking->tempOwner) != PlayerRelations::ENEMIES)
+		{
+			LOCPLINT->showShipyardDialogOrProblemPopup(shipyard);
+		}
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		{
+			int3 destinationTile = targetPosition;
+
+			if(topBlocking && topBlocking->isVisitable() && !topBlocking->visitableAt(destinationTile) && settings["gameTweaks"]["simpleObjectSelection"].Bool())
+				destinationTile = topBlocking->visitablePos();
+
 			if(LOCPLINT->localState->hasPath(currentHero) &&
-			   LOCPLINT->localState->getPath(currentHero).endPos() == targetPosition &&
+			   LOCPLINT->localState->getPath(currentHero).endPos() == destinationTile &&
 			   !GH.isKeyboardShiftDown())//we'll be moving
 			{
 				assert(!CGI->mh->hasOngoingAnimations());
@@ -570,7 +580,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 				}
 				else //remove old path and find a new one if we clicked on accessible tile
 				{
-					LOCPLINT->localState->setPath(currentHero, targetPosition);
+					LOCPLINT->localState->setPath(currentHero, destinationTile);
 					onHeroChanged(currentHero);
 				}
 			}
@@ -579,12 +589,6 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 	else
 	{
 		throw std::runtime_error("Nothing is selected...");
-	}
-
-	const auto shipyard = ourInaccessibleShipyard(topBlocking);
-	if(isHero && shipyard != nullptr)
-	{
-		LOCPLINT->showShipyardDialogOrProblemPopup(shipyard);
 	}
 }
 
@@ -686,6 +690,28 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 			showMoveDetailsInStatusbar(*hero, *pathNode);
 		}
 
+		if (objAtTile && pathNode->action == EPathNodeAction::UNKNOWN)
+		{
+			if(objAtTile->ID == Obj::TOWN && objRelations != PlayerRelations::ENEMIES)
+			{
+				CCS->curh->set(Cursor::Map::TOWN);
+				return;
+			}
+			else if(objAtTile->ID == Obj::HERO && objRelations == PlayerRelations::SAME_PLAYER)
+			{
+				CCS->curh->set(Cursor::Map::HERO);
+				return;
+			}
+			else if (objAtTile->ID == Obj::SHIPYARD && objRelations != PlayerRelations::ENEMIES)
+			{
+				CCS->curh->set(Cursor::Map::T1_SAIL);
+				return;
+			}
+
+			if(objAtTile->isVisitable() && !objAtTile->visitableAt(targetPosition) && settings["gameTweaks"]["simpleObjectSelection"].Bool())
+				pathNode = LOCPLINT->getPathsInfo(hero)->getPathInfo(objAtTile->visitablePos());
+		}
+
 		int turns = pathNode->turns;
 		vstd::amin(turns, 3);
 		switch(pathNode->action)
@@ -737,24 +763,9 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 			break;
 
 		default:
-			if(objAtTile && objRelations != PlayerRelations::ENEMIES)
-			{
-				if(objAtTile->ID == Obj::TOWN)
-					CCS->curh->set(Cursor::Map::TOWN);
-				else if(objAtTile->ID == Obj::HERO && objRelations == PlayerRelations::SAME_PLAYER)
-					CCS->curh->set(Cursor::Map::HERO);
-				else
-					CCS->curh->set(Cursor::Map::POINTER);
-			}
-			else
 				CCS->curh->set(Cursor::Map::POINTER);
 			break;
 		}
-	}
-
-	if(ourInaccessibleShipyard(objAtTile))
-	{
-		CCS->curh->set(Cursor::Map::T1_SAIL);
 	}
 }
 
@@ -762,13 +773,26 @@ void AdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & he
 {
 	const int maxMovementPointsAtStartOfLastTurn = pathNode.turns > 0 ? hero.movementPointsLimit(pathNode.layer == EPathfindingLayer::LAND) : hero.movementPointsRemaining();
 	const int movementPointsLastTurnCost = maxMovementPointsAtStartOfLastTurn - pathNode.moveRemains;
-	const int remainingPointsAfterMove = pathNode.turns == 0 ? pathNode.moveRemains : 0;
+	const int remainingPointsAfterMove = pathNode.moveRemains;
+
+	int totalMovementCost = 0;
+	for (int i = 0; i <= pathNode.turns; ++i)
+	{
+		auto turnInfo = hero.getTurnInfo(i);
+		if (pathNode.layer == EPathfindingLayer::SAIL)
+			totalMovementCost += turnInfo->getMovePointsLimitWater();
+		else
+			totalMovementCost += turnInfo->getMovePointsLimitLand();
+	}
+
+	totalMovementCost -= pathNode.moveRemains;
 
 	std::string result = VLC->generaltexth->translate("vcmi.adventureMap", pathNode.turns > 0 ? "moveCostDetails" : "moveCostDetailsNoTurns");
 
 	boost::replace_first(result, "%TURNS", std::to_string(pathNode.turns));
 	boost::replace_first(result, "%POINTS", std::to_string(movementPointsLastTurnCost));
 	boost::replace_first(result, "%REMAINING", std::to_string(remainingPointsAfterMove));
+	boost::replace_first(result, "%TOTAL", std::to_string(totalMovementCost));
 
 	GH.statusbar()->write(result);
 }
@@ -842,18 +866,6 @@ void AdventureMapInterface::performSpellcasting(const int3 & dest)
 Rect AdventureMapInterface::terrainAreaPixels() const
 {
 	return widget->getMapView()->pos;
-}
-
-const IShipyard * AdventureMapInterface::ourInaccessibleShipyard(const CGObjectInstance *obj) const
-{
-	const auto *ret = dynamic_cast<const IShipyard *>(obj);
-
-	if(!ret ||
-		obj->tempOwner != currentPlayerID ||
-		(CCS->curh->get<Cursor::Map>() != Cursor::Map::T1_SAIL && CCS->curh->get<Cursor::Map>() != Cursor::Map::POINTER))
-		return nullptr;
-
-	return ret;
 }
 
 void AdventureMapInterface::hotkeyExitWorldView()

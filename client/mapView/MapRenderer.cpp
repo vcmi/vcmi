@@ -407,7 +407,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const AnimationPath
 	if(it != animations.end())
 		return it->second;
 
-	auto ret = GH.renderHandler().loadAnimation(filename, enableOverlay ? EImageBlitMode::WITH_SHADOW_AND_OVERLAY : EImageBlitMode::WITH_SHADOW);
+	auto ret = GH.renderHandler().loadAnimation(filename, enableOverlay ? EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR: EImageBlitMode::WITH_SHADOW);
 	animations[filename] = ret;
 
 	if(generateMovementGroups)

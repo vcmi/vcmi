@@ -31,6 +31,7 @@ class ISelectionScreenInfo;
 class ExtraOptionsTab;
 class VideoWidgetOnce;
 class CBonusSelection;
+class LRClickableArea;
 
 
 /// Campaign screen where you can choose one out of three starting bonuses
@@ -93,6 +94,7 @@ public:
 	std::shared_ptr<CToggleGroup> groupBonuses;
 	std::shared_ptr<CLabel> labelDifficulty;
 	std::array<std::shared_ptr<CAnimImage>, 5> difficultyIcons;
+	std::array<std::shared_ptr<LRClickableArea>, 5> difficultyIconAreas;
 	std::shared_ptr<CButton> buttonDifficultyLeft;
 	std::shared_ptr<CButton> buttonDifficultyRight;
 	std::shared_ptr<CAnimImage> iconsMapSizes;

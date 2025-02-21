@@ -138,7 +138,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 		searchBoxRectangle = std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor);
 		searchBoxDescription = std::make_shared<CLabel>(r.center().x, r.center().y, FONT_SMALL, ETextAlignment::CENTER, grayedColor, CGI->generaltexth->translate("vcmi.spellBook.search"));
 
-		searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, ETextAlignment::CENTER, true);
+		searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, ETextAlignment::CENTER, false);
 		searchBox->setCallback(std::bind(&CSpellWindow::searchInput, this));
 	}
 
@@ -354,6 +354,14 @@ void CSpellWindow::fbattleSpellsb()
 	computeSpellsPerArea();
 }
 
+void CSpellWindow::toggleSearchBoxFocus()
+{
+	if(searchBox != nullptr)
+	{
+		searchBox->hasFocus() ? searchBox->removeFocus() : searchBox->giveFocus();
+	}
+}
+
 void CSpellWindow::fmanaPtsb()
 {
 }
@@ -545,6 +553,9 @@ void CSpellWindow::keyPressed(EShortcut key)
 			break;
 		case EShortcut::SPELLBOOK_TAB_ADVENTURE:
 			fadvSpellsb();
+			break;
+		case EShortcut::SPELLBOOK_SEARCH_FOCUS:
+			toggleSearchBoxFocus();
 			break;
 	}
 }

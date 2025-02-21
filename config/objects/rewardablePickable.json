@@ -26,17 +26,47 @@
 				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
+						"appearChance" : { "min" : 0, "max" : 33 },
 						"message" : 23,
 						"removeObject" : true,
 						"resources" : [
 							{
 								"anyOf" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
-								"min" : 4,
-								"max" : 6
+								"amount" : 4
 							},
 							{
 								"type" : "gold",
-								"amount" : [ 400, 500, 600 ]
+								"amount" : 400
+							}
+						]
+					},
+					{
+						"appearChance" : { "min" : 33, "max" : 66 },
+						"message" : 23,
+						"removeObject" : true,
+						"resources" : [
+							{
+								"anyOf" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
+								"amount" : 5
+							},
+							{
+								"type" : "gold",
+								"amount" : 500
+							}
+						]
+					},
+					{
+						"appearChance" : { "min" : 66, "max" : 100 },
+						"message" : 23,
+						"removeObject" : true,
+						"resources" : [
+							{
+								"anyOf" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
+								"amount" : 6
+							},
+							{
+								"type" : "gold",
+								"amount" : 600
 							}
 						]
 					}

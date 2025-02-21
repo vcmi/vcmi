@@ -353,11 +353,23 @@ bool CCreatureSet::needsLastStack() const
 	return false;
 }
 
-ui64 CCreatureSet::getArmyStrength() const
+ui64 CCreatureSet::getArmyStrength(int fortLevel) const
 {
 	ui64 ret = 0;
-	for(const auto & elem : stacks)
-		ret += elem.second->getPower();
+	for (const auto& elem : stacks)
+	{
+		ui64 powerToAdd = elem.second->getPower();
+		if (fortLevel > 0)
+		{
+			if (!elem.second->hasBonusOfType(BonusType::FLYING))
+			{
+				powerToAdd /= fortLevel;
+				if (!elem.second->hasBonusOfType(BonusType::SHOOTER))
+					powerToAdd /= fortLevel;
+			}
+		} 
+		ret += powerToAdd;
+	}
 	return ret;
 }
 

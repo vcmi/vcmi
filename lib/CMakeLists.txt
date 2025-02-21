@@ -872,3 +872,7 @@ if(APPLE_IOS AND NOT USING_CONAN)
 		install(${INSTALL_TYPE} ${LINKED_LIB_REAL} LIBRARY DESTINATION ${LIB_DIR})
 	endforeach()
 endif()
+
+if(VCMI_PORTMASTER)
+	target_compile_definitions(vcmi PRIVATE VCMI_PORTMASTER)
+endif()

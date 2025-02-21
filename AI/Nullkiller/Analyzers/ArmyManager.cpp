@@ -13,8 +13,10 @@
 #include "../Engine/Nullkiller.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapObjects/MapObjects.h"
+#include "../../../lib/mapping/CMapDefines.h"
 #include "../../../lib/IGameSettings.h"
 #include "../../../lib/GameConstants.h"
+#include "../../../lib/TerrainHandler.h"
 
 namespace NKAI
 {
@@ -76,7 +78,7 @@ std::vector<SlotInfo> ArmyManager::toSlotInfo(std::vector<creInfo> army) const
 
 uint64_t ArmyManager::howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const
 {
-	return howManyReinforcementsCanGet(hero, hero, source);
+	return howManyReinforcementsCanGet(hero, hero, source, ai->cb->getTile(hero->visitablePos())->getTerrainID());
 }
 
 std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const
@@ -111,17 +113,59 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 	return resultingArmy;
 }
 
-std::vector<SlotInfo>::iterator ArmyManager::getWeakestCreature(std::vector<SlotInfo> & army) const
+std::vector<SlotInfo>::iterator ArmyManager::getBestUnitForScout(std::vector<SlotInfo> & army, const TerrainId & armyTerrain) const
 {
-	auto weakest = boost::min_element(army, [](const SlotInfo & left, const SlotInfo & right) -> bool
+	uint64_t totalPower = 0;
+
+	for (const auto & unit : army)
+		totalPower += unit.power;
+
+	int baseMovementCost = cb->getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
+	bool terrainHasPenalty = armyTerrain.hasValue() && armyTerrain.toEntity(VLC)->moveCost != baseMovementCost;
+
+	// arbitrary threshold - don't give scout more than specified part of total AI value of our army
+	uint64_t maxUnitValue = totalPower / 100;
+
+	const auto & movementPointsLimits = cb->getSettings().getVector(EGameSettings::HEROES_MOVEMENT_POINTS_LAND);
+
+	auto fastest = boost::min_element(army, [&](const SlotInfo & left, const SlotInfo & right) -> bool
 	{
-		if(left.creature->getLevel() != right.creature->getLevel())
-			return left.creature->getLevel() < right.creature->getLevel();
-		
-		return left.creature->getMovementRange() > right.creature->getMovementRange();
+		uint64_t leftUnitPower = left.power / left.count;
+		uint64_t rightUnitPower = left.power / left.count;
+		bool leftUnitIsWeak = leftUnitPower < maxUnitValue || left.creature->getLevel() < 4;
+		bool rightUnitIsWeak = rightUnitPower < maxUnitValue || right.creature->getLevel() < 4;
+
+		if (leftUnitIsWeak != rightUnitIsWeak)
+			return leftUnitIsWeak;
+
+		if (terrainHasPenalty)
+		{
+			auto leftNativeTerrain = left.creature->getFactionID().toFaction()->nativeTerrain;
+			auto rightNativeTerrain = right.creature->getFactionID().toFaction()->nativeTerrain;
+
+			if (leftNativeTerrain != rightNativeTerrain)
+			{
+				if (leftNativeTerrain == armyTerrain)
+					return true;
+
+				if (rightNativeTerrain == armyTerrain)
+					return false;
+			}
+		}
+
+		int leftEffectiveMovement = std::min<int>(movementPointsLimits.size() - 1, left.creature->getMovementRange());
+		int rightEffectiveMovement = std::min<int>(movementPointsLimits.size() - 1, right.creature->getMovementRange());
+
+		int leftMovementPointsLimit = movementPointsLimits[leftEffectiveMovement];
+		int rightMovementPointsLimit = movementPointsLimits[rightEffectiveMovement];
+
+		if (leftMovementPointsLimit != rightMovementPointsLimit)
+			return leftMovementPointsLimit > rightMovementPointsLimit;
+
+		return leftUnitPower < rightUnitPower;
 	});
 
-	return weakest;
+	return fastest;
 }
 
 class TemporaryArmy : public CArmedInstance
@@ -134,7 +178,7 @@ public:
 	}
 };
 
-std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const
+std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source, const TerrainId & armyTerrain) const
 {
 	auto sortedSlots = getSortedSlots(target, source);
 
@@ -218,7 +262,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 		&& allowedFactions.size() == alignmentMap.size()
 		&& source->needsLastStack())
 	{
-		auto weakest = getWeakestCreature(resultingArmy);
+		auto weakest = getBestUnitForScout(resultingArmy, armyTerrain);
 
 		if(weakest->count == 1) 
 		{
@@ -398,14 +442,14 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 	return creaturesInDwellings;
 }
 
-ui64 ArmyManager::howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const
+ui64 ArmyManager::howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source, const TerrainId & armyTerrain) const
 {
 	if(source->stacksCount() == 0)
 	{
 		return 0;
 	}
 
-	auto bestArmy = getBestArmy(armyCarrier, target, source);
+	auto bestArmy = getBestArmy(armyCarrier, target, source, armyTerrain);
 	uint64_t newArmy = 0;
 	uint64_t oldArmy = target->getArmyStrength();
 

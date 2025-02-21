@@ -583,42 +583,28 @@ public:
 
 bool AINodeStorage::calculateHeroChain()
 {
-	std::random_device randomDevice;
-	std::mt19937 randomEngine(randomDevice());
-
 	heroChainPass = EHeroChainPass::CHAIN;
 	heroChain.clear();
 
 	std::vector<int3> data(committedTiles.begin(), committedTiles.end());
 
-	if(data.size() > 100)
+	int maxConcurrency = tbb::this_task_arena::max_concurrency();
+	std::vector<std::vector<CGPathNode *>> results(maxConcurrency);
+
+	logAi->trace("Caculating hero chain for %d items", data.size());
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, data.size()), [&](const tbb::blocked_range<size_t>& r)
 	{
-		boost::mutex resultMutex;
-
-		std::shuffle(data.begin(), data.end(), randomEngine);
-
-		tbb::parallel_for(tbb::blocked_range<size_t>(0, data.size()), [&](const tbb::blocked_range<size_t>& r)
-		{
-			//auto r = blocked_range<size_t>(0, data.size());
-			HeroChainCalculationTask task(*this, data, chainMask, heroChainTurn);
-
-			task.execute(r);
-
-			{
-				boost::lock_guard<boost::mutex> resultLock(resultMutex);
-
-				task.flushResult(heroChain);
-			}
-		});
-	}
-	else
-	{
-		auto r = tbb::blocked_range<size_t>(0, data.size());
 		HeroChainCalculationTask task(*this, data, chainMask, heroChainTurn);
 
+		int ourThread = tbb::this_task_arena::current_thread_index();
 		task.execute(r);
-		task.flushResult(heroChain);
-	}
+		task.flushResult(results.at(ourThread));
+	});
+
+	// FIXME: potentially non-deterministic behavior due to parallel_for
+	for (const auto & result : results)
+		vstd::concatenate(heroChain, result);
 
 	committedTiles.clear();
 
@@ -1464,9 +1450,20 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 			}
 		}
 
+		int fortLevel = 0;
+		auto visitableObjects = cb->getVisitableObjs(pos);
+		for (auto obj : visitableObjects)
+		{
+			if (objWithID<Obj::TOWN>(obj))
+			{
+				auto town = dynamic_cast<const CGTownInstance*>(obj);
+				fortLevel = town->fortLevel();
+			}
+		}
+
 		path.targetObjectArmyLoss = evaluateArmyLoss(
 			path.targetHero,
-			getHeroArmyStrengthWithCommander(path.targetHero, path.heroArmy),
+			getHeroArmyStrengthWithCommander(path.targetHero, path.heroArmy, fortLevel),
 			path.targetObjectDanger);
 
 		path.chainMask = node.actor->chainMask;

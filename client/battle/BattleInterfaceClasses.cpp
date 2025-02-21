@@ -636,7 +636,7 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	auto attack = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getAttack(stack->isShooter())) + "(" + std::to_string(stack->getAttack(stack->isShooter())) + ")";
 	auto defense = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getDefense(stack->isShooter())) + "(" + std::to_string(stack->getDefense(stack->isShooter())) + ")";
 	auto damage = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getMinDamage(stack->isShooter())) + "-" + std::to_string(stack->getMaxDamage(stack->isShooter()));
-	auto health = CGI->creatures()->getByIndex(stack->creatureIndex())->getMaxHealth();
+	auto health = stack->getMaxHealth();
 	auto morale = stack->moraleVal();
 	auto luck = stack->luckVal();
 
@@ -691,7 +691,7 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 			if (spellBonuses->empty())
 				throw std::runtime_error("Failed to find effects for spell " + effect.toSpell()->getJsonKey());
 
-			int duration = spellBonuses->front()->duration;
+			int duration = spellBonuses->front()->turnsRemain;
 
 			icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
 			if(settings["general"]["enableUiEnhancements"].Bool())
@@ -890,7 +890,7 @@ BattleResultResources BattleResultWindow::getResources(const BattleResult & br)
 		if (ourHero)
 		{
 			resources.resultText.appendTextID("core.genrltxt.305");
-			resources.resultText.replaceTextID(ourHero->getNameTranslated());
+			resources.resultText.replaceTextID(ourHero->getNameTextID());
 			resources.resultText.replaceNumber(br.exp[weAreAttacker ? BattleSide::ATTACKER : BattleSide::DEFENDER]);
 		}
 	}

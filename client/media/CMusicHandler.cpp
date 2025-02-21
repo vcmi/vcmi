@@ -22,8 +22,6 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 
-#include <SDL_mixer.h>
-
 void CMusicHandler::onVolumeChange(const JsonNode & volumeNode)
 {
 	setVolume(volumeNode.Integer());

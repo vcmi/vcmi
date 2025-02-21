@@ -23,9 +23,9 @@
 	"vcmi.adventureMap.noTownWithTavern"       : "Nejsou dostupná žádná města s putykou!",
 	"vcmi.adventureMap.spellUnknownProblem"    : "Neznámý problém s tímto kouzlem! Další informace nejsou k dispozici.",
 	"vcmi.adventureMap.playerAttacked"         : "Hráč byl napaden: %s",
-	"vcmi.adventureMap.moveCostDetails"        : "Body pohybu - Cena: %TURNS tahů + %POINTS bodů, zbylé body: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Body pohybu - Cena: %POINTS bodů, zbylé body: %REMAINING",
-	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Body pohybu: %REMAINING / %POINTS)",
+	"vcmi.adventureMap.moveCostDetails"                  : "Přesun sem tě bude stát {%TOTAL} bodů (za {%TURNS} tahů a {%POINTS} bodů). Po přesunu ti zbyde {%REMAINING} bodů.",
+	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Přesun sem tě bude stát {%POINTS} bodů. Po přesunu ti zbyde {%REMAINING} bodů.",
+	"vcmi.adventureMap.movementPointsHeroInfo"           : "(Body pohybu: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Omlouváme se, přehrání tahu soupeře ještě není implementováno!",
 
 	"vcmi.bonusSource.artifact" : "Artefakt",
@@ -68,6 +68,7 @@
 	"vcmi.radialWheel.heroGetArtifacts" : "Získat artefakty od jiného hrdiny",
 	"vcmi.radialWheel.heroSwapArtifacts" : "Vyměnit artefakty s jiným hrdinou",
 	"vcmi.radialWheel.heroDismiss" : "Propustit hrdinu",
+	"vcmi.radialWheel.upgradeCreatures" : "Vylepšit všechny jednotky",
 
 	"vcmi.radialWheel.moveTop" : "Přesunout nahoru",
 	"vcmi.radialWheel.moveUp" : "Posunout výše",
@@ -86,9 +87,9 @@
 
 	"vcmi.spellBook.search" : "Hledat",
 
-	"vcmi.spellResearch.canNotAfford" : "Nemáte dostatek prostředků k nahrazení {%SPELL1} za {%SPELL2}. Stále však můžete toto kouzlo zrušit a pokračovat ve výzkumu dalších kouzel.",
-	"vcmi.spellResearch.comeAgain" : "Výzkum už byl dnes proveden. Vraťte se zítra.",
-	"vcmi.spellResearch.pay" : "Chcete nahradit {%SPELL1} za {%SPELL2}? Nebo zrušit toto kouzlo a pokračovat ve výzkumu dalších kouzel?",
+	"vcmi.spellResearch.canNotAfford" : "Nemáš dostatek prostředků na výměnu kouzla {%SPELL1} za {%SPELL2}. Můžeš ho však odstranit a pokračovat ve výzkumu.",
+	"vcmi.spellResearch.comeAgain" : "Výzkum už byl dnes proveden. Vrať se zítra.",
+	"vcmi.spellResearch.pay" : "Chceš nahradit {%SPELL1} za {%SPELL2}? Nebo zrušit toto kouzlo a pokračovat ve výzkumu dalších kouzel?",
 	"vcmi.spellResearch.research" : "Prozkoumat toto kouzlo",
 	"vcmi.spellResearch.skip" : "Přeskočit toto kouzlo",
 	"vcmi.spellResearch.abort" : "Přerušit",
@@ -168,10 +169,10 @@
 	"vcmi.lobby.login.as" : "Přihlásit se jako %s",
 	"vcmi.lobby.login.spectator" : "Divák",
 	"vcmi.lobby.header.rooms" : "Herní místnosti - %d",
-	"vcmi.lobby.header.channels" : "Kanály konverzace",
-	"vcmi.lobby.header.chat.global" : "Globální konverzace hry - %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "Konverzace předchozí hry %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.player" : "Soukromá konverzace s %s", // %s -> nickname of another player
+	"vcmi.lobby.header.channels" : "Kanály chatu",
+	"vcmi.lobby.header.chat.global" : "Globální chat hry - %s", // %s -> language name
+	"vcmi.lobby.header.chat.match" : "Chat předchozí hry %s", // %s -> game start date & time
+	"vcmi.lobby.header.chat.player" : "Soukromý chat s %s", // %s -> nickname of another player
 	"vcmi.lobby.header.history" : "Vaše předchozí hry",
 	"vcmi.lobby.header.players" : "Online hráči - %d",
 	"vcmi.lobby.match.solo" : "Hra jednoho hráče",
@@ -185,7 +186,7 @@
 	"vcmi.lobby.room.description.load" : "Pro start hry načtěte uloženou hru.",
 	"vcmi.lobby.room.description.limit" : "Až %d hráčů se může připojit do vaší místnosti (včetně vás).",
 	"vcmi.lobby.invite.header" : "Pozvat hráče",
-	"vcmi.lobby.invite.notification" : "Pozval vás hráč do jejich soukromé místnosti. Nyní se do ní můžete připojit.",
+	"vcmi.lobby.invite.notification" : "Hráč vás pozval do své soukromé místnosti. Nyní se k ní můžete připojit.",
 	"vcmi.lobby.preview.title" : "Připojit se do herní místnosti",
 	"vcmi.lobby.preview.subtitle" : "Hra na %s, pořádána %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
 	"vcmi.lobby.preview.version" : "Verze hry:",
@@ -216,9 +217,9 @@
 	"vcmi.lobby.pvp.coin.hover" : "Mince",
 	"vcmi.lobby.pvp.coin.help" : "Hodí mincí",
 	"vcmi.lobby.pvp.randomTown.hover" : "Náhodné město",
-	"vcmi.lobby.pvp.randomTown.help" : "Napsat náhodné město do konvezace",
+	"vcmi.lobby.pvp.randomTown.help" : "Napsat náhodné město do chatu",
 	"vcmi.lobby.pvp.randomTownVs.hover" : "Náhodné město vs.",
-	"vcmi.lobby.pvp.randomTownVs.help" : "Napsat 2 náhodná města do konvezace",
+	"vcmi.lobby.pvp.randomTownVs.help" : "Napsat 2 náhodná města do chatu",
 	"vcmi.lobby.pvp.versus" : "vs.",
 
 	"vcmi.client.errors.invalidMap" : "{Neplatná mapa nebo kampaň}\n\nChyba při startu hry! Vybraná mapa nebo kampaň může být neplatná nebo poškozená. Důvod:\n%s",
@@ -363,6 +364,8 @@
 	"vcmi.battleOptions.endWithAutocombat.help" : "{Přeskočit bitvu}\n\nAutomatický boj okamžitě dohraje bitvu do konce.",
 	"vcmi.battleOptions.showQuickSpell.hover" : "Zobrazit rychlý panel kouzel",
 	"vcmi.battleOptions.showQuickSpell.help" : "{Zobrazit rychlý panel kouzel}\n\nZobrazí panel pro rychlý výběr kouzel.",
+	"vcmi.battleOptions.showHealthBar.hover": "Zobrazit ukazatel zdraví",
+	"vcmi.battleOptions.showHealthBar.help": "{Zobrazit ukazatel zdraví}\n\nZobrazí ukazatel, který znázorňuje, kolik zdraví zbývá, než jednotka zemře.",
 
 	"vcmi.adventureMap.revisitObject.hover" : "Znovu navštívit objekt",
 	"vcmi.adventureMap.revisitObject.help" : "{Znovu navštívit objekt}\n\nPokud hrdina právě stojí na objektu na mapě, může toto místo znovu navštívit.",
@@ -415,6 +418,9 @@
 	"vcmi.townStructure.bank.borrow" : "Vstupujete do banky. Bankéř vás spatří a říká: \"Máme pro vás speciální nabídku. Můžete si vzít půjčku 2500 zlata na 5 dní. Každý den budete muset splácet 500 zlata.\"",
 	"vcmi.townStructure.bank.payBack" : "Vstupujete do banky. Bankéř vás spatří a říká: \"Již jste si vzali půjčku. Nejprve ji splaťte, než si vezmete další.\"",
 
+	"vcmi.townWindow.upgradeAll.notAllUpgradable" : "Nemáte dostatek surovin na vylepšení všech jednotek. Chcete vylepšit následující jednotky?",
+	"vcmi.townWindow.upgradeAll.notUpgradable" : "Nemáte dostatek surovin na vylepšení žádné z jednotek.",
+
 	"vcmi.logicalExpressions.anyOf"  : "Nějaké z následujících:",
 	"vcmi.logicalExpressions.allOf"  : "Všechny následující:",
 	"vcmi.logicalExpressions.noneOf" : "Žádné z následujících:",
@@ -424,11 +430,11 @@
 	"vcmi.heroWindow.openBackpack.hover" : "Otevřít okno s artefakty",
 	"vcmi.heroWindow.openBackpack.help"  : "Otevře okno, které umožňuje snadnější správu artefaktů v batohu.",
 	"vcmi.heroWindow.sortBackpackByCost.hover"  : "Seřadit podle ceny",
-	"vcmi.heroWindow.sortBackpackByCost.help"  : "Seřadí artefakty v batohu podle ceny.",
+	"vcmi.heroWindow.sortBackpackByCost.help"  : "{Seřadit podle ceny}\n\nSeřadí artefakty v batohu podle ceny.",
 	"vcmi.heroWindow.sortBackpackBySlot.hover"  : "Seřadit podle slotu",
-	"vcmi.heroWindow.sortBackpackBySlot.help"  : "Seřadí artefakty v batohu podle přiřazeného slotu.",
+	"vcmi.heroWindow.sortBackpackBySlot.help"  : "{Seřadit podle slotu}\n\nSeřadí artefakty v batohu podle přiřazeného slotu.",
 	"vcmi.heroWindow.sortBackpackByClass.hover"  : "Seřadit podle třídy",
-	"vcmi.heroWindow.sortBackpackByClass.help"  : "Seřadí artefakty v batohu podle třídy artefaktu. Poklad, Menší, Větší, Relikvie.",
+	"vcmi.heroWindow.sortBackpackByClass.help"  : "{Seřadit podle třídy}\n\nSeřadí artefakty v batohu podle třídy artefaktu. Poklad, Menší, Větší, Relikvie.",
 	"vcmi.heroWindow.fusingArtifact.fusing" : "Máte všechny potřebné části k vytvoření %s. Chcete provést sloučení? {Při sloučení budou použity všechny části.}",
 
 	"vcmi.tavernWindow.inviteHero"  : "Pozvat hrdinu",

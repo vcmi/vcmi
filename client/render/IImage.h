@@ -47,19 +47,24 @@ enum class EImageBlitMode : uint8_t
 	WITH_SHADOW,
 
 	/// RGBA, may consist from 3 separate parts: base, shadow, and overlay
-	WITH_SHADOW_AND_OVERLAY,
+	WITH_SHADOW_AND_SELECTION,
+	WITH_SHADOW_AND_FLAG_COLOR,
 
 	/// RGBA, contains only body, with shadow and overlay disabled
-	ONLY_BODY,
+	GRAYSCALE_BODY_HIDE_SELECTION,
+	ONLY_BODY_HIDE_SELECTION,
+	ONLY_BODY_HIDE_FLAG_COLOR,
 
 	/// RGBA, contains only body, with shadow disabled and overlay treated as part of body
 	ONLY_BODY_IGNORE_OVERLAY,
 
 	/// RGBA, contains only shadow
-	ONLY_SHADOW,
+	ONLY_SHADOW_HIDE_SELECTION,
+	ONLY_SHADOW_HIDE_FLAG_COLOR,
 
 	/// RGBA, contains only overlay
-	ONLY_OVERLAY,
+	ONLY_SELECTION,
+	ONLY_FLAG_COLOR,
 };
 
 enum class EScalingAlgorithm : int8_t
@@ -100,8 +105,8 @@ public:
 
 	virtual void setAlpha(uint8_t value) = 0;
 
-	//only indexed bitmaps with 7 special colors
 	virtual void setOverlayColor(const ColorRGBA & color) = 0;
+	virtual void setEffectColor(const ColorRGBA & color) = 0;
 
 	virtual ~IImage() = default;
 };

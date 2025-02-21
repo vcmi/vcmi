@@ -129,6 +129,7 @@ public:
 	void fexitb();
 	void fadvSpellsb();
 	void fbattleSpellsb();
+	void toggleSearchBoxFocus();
 	void fmanaPtsb();
 
 	void fLcornerb();

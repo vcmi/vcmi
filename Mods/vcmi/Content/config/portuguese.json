@@ -23,8 +23,6 @@
 	"vcmi.adventureMap.noTownWithTavern"                 : "Não há cidades disponíveis com tavernas!",
 	"vcmi.adventureMap.spellUnknownProblem"              : "Há um problema desconhecido com este feitiço! Não há mais informações disponíveis.",
 	"vcmi.adventureMap.playerAttacked"                   : "O jogador foi atacado: %s",
-	"vcmi.adventureMap.moveCostDetails"                  : "Pontos de movimento - Custo: %TURNS turnos + %POINTS pontos, Pontos restantes: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Pontos de movimento - Custo: %POINTS pontos, Pontos restantes: %REMAINING",
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Pontos de movimento: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Desculpe, a repetição do turno do oponente ainda não está implementada!",
 
@@ -424,11 +422,11 @@
 	"vcmi.heroWindow.openBackpack.hover" : "Abrir janela da mochila de artefatos",
 	"vcmi.heroWindow.openBackpack.help" : "Abre a janela que facilita o gerenciamento da mochila de artefatos.",
 	"vcmi.heroWindow.sortBackpackByCost.hover"  : "Ordenar por custo",
-	"vcmi.heroWindow.sortBackpackByCost.help"   : "Ordena artefatos na mochila por custo.",
+	"vcmi.heroWindow.sortBackpackByCost.help"   : "{Ordenar por custo}\n\nOrdena artefatos na mochila por custo.",
 	"vcmi.heroWindow.sortBackpackBySlot.hover"  : "Ordenar por espaço",
-	"vcmi.heroWindow.sortBackpackBySlot.help"   : "Ordena artefatos na mochila por espaço equipado.",
+	"vcmi.heroWindow.sortBackpackBySlot.help"   : "{Ordenar por espaço}\n\nOrdena artefatos na mochila por espaço equipado.",
 	"vcmi.heroWindow.sortBackpackByClass.hover" : "Ordenar por classe",
-	"vcmi.heroWindow.sortBackpackByClass.help"  : "Ordena artefatos na mochila por classe de artefato. Tesouro, Menor, Maior, Relíquia.",
+	"vcmi.heroWindow.sortBackpackByClass.help"  : "{Ordenar por classe}\n\nOrdena artefatos na mochila por classe de artefato. Tesouro, Menor, Maior, Relíquia.",
 	"vcmi.heroWindow.fusingArtifact.fusing" : "Você possui todos os componentes necessários para a fusão de %s. Deseja realizar a fusão? {Todos os componentes serão consumidos após a fusão.}",
 
 	"vcmi.tavernWindow.inviteHero" : "Convidar herói",

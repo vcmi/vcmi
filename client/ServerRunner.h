@@ -12,6 +12,8 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct StartInfo;
+class INetworkHandler;
+class INetworkClientListener;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -20,24 +22,30 @@ class CVCMIServer;
 class IServerRunner
 {
 public:
-	virtual uint16_t start(uint16_t port, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo) = 0;
+	virtual void start(bool listenForConnections, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo) = 0;
 	virtual void shutdown() = 0;
 	virtual void wait() = 0;
 	virtual int exitCode() = 0;
+
+	virtual void connect(INetworkHandler & network, INetworkClientListener & listener) = 0;
 
 	virtual ~IServerRunner() = default;
 };
 
 /// Class that runs server instance as a thread of client process
-class ServerThreadRunner : public IServerRunner, boost::noncopyable
+class ServerThreadRunner final : public IServerRunner, boost::noncopyable
 {
 	std::unique_ptr<CVCMIServer> server;
 	boost::thread threadRunLocalServer;
+	uint16_t serverPort = 0;
+
 public:
-	uint16_t start(uint16_t port, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo) override;
+	void start(bool listenForConnections, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo) override;
 	void shutdown() override;
 	void wait() override;
 	int exitCode() override;
+
+	void connect(INetworkHandler & network, INetworkClientListener & listener) override;
 
 	ServerThreadRunner();
 	~ServerThreadRunner();
@@ -64,15 +72,17 @@ class child;
 
 /// Class that runs server instance as a child process
 /// Available only on desktop systems where process management is allowed
-class ServerProcessRunner : public IServerRunner, boost::noncopyable
+class ServerProcessRunner final : public IServerRunner, boost::noncopyable
 {
 	std::unique_ptr<boost::process::child> child;
 
 public:
-	uint16_t start(uint16_t port, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo) override;
+	void start(bool listenForConnections, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo) override;
 	void shutdown() override;
 	void wait() override;
 	int exitCode() override;
+
+	void connect(INetworkHandler & network, INetworkClientListener & listener) override;
 
 	ServerProcessRunner();
 	~ServerProcessRunner();

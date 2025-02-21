@@ -18,8 +18,6 @@
 	"vcmi.adventureMap.noTownWithTavern"       : "Il n'y a pas de villes disponibles avec des tavernes !",
 	"vcmi.adventureMap.spellUnknownProblem"    : "Il y a un problème inconnu avec ce sort ! Pas plus d'informations sont disponibles.",
 	"vcmi.adventureMap.playerAttacked"         : "Le joueur a été attaqué : %s",
-	"vcmi.adventureMap.moveCostDetails"        : "Points de mouvement - Coût : %TURNS tours + %POINTS points, Points restants : %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Points de mouvement - Coût : %POINTS points, Points restants : %REMAINING",
 
 	"vcmi.capitalColors.0" : "Rouge",
 	"vcmi.capitalColors.1" : "Bleu",

@@ -52,6 +52,17 @@
 		]
 	},
 
+	"italian" : {
+    "name" : "VCMI - File di base",
+    "description" : "File di base necessari per il corretto funzionamento di VCMI",
+    "author" : "Team VCMI",
+
+    "skipValidation" : true,
+    "translations" : [
+        "config/italian.json"
+    ]
+},
+
 	"polish" : {
 		"name" : "Podstawowe pliki VCMI",
 		"description" : "Dodatkowe pliki wymagane do prawidłowego działania VCMI",

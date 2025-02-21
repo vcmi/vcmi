@@ -579,6 +579,90 @@ void VCMIDirsAndroid::init()
 	nativePath = envHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "nativePath");
 	IVCMIDirsUNIX::init();
 }
+
+#elif defined(VCMI_PORTMASTER)
+class VCMIDirsPM : public IVCMIDirsUNIX
+{
+public:
+	bfs::path userDataPath() const override;
+	bfs::path userCachePath() const override;
+	bfs::path userConfigPath() const override;
+
+	std::vector<bfs::path> dataPaths() const override;
+
+	bfs::path libraryPath() const override;
+	bfs::path binaryPath() const override;
+
+	std::string libraryName(const std::string& basename) const override;
+};
+
+bfs::path VCMIDirsPM::userDataPath() const
+{
+	const char* homeDir;
+	if((homeDir = getenv("PORTMASTER_HOME")))
+		return bfs::path(homeDir) / "data";
+	else
+		return bfs::path(".") / "data";
+}
+bfs::path VCMIDirsPM::userCachePath() const
+{
+	// $XDG_CACHE_HOME, default: $HOME/.cache
+	const char * tempResult;
+	if ((tempResult = getenv("PORTMASTER_HOME")))
+		return bfs::path(tempResult) / "cache";
+	else
+		return bfs::path(".") / "cache";
+}
+bfs::path VCMIDirsPM::userConfigPath() const
+{
+	// $XDG_CONFIG_HOME, default: $HOME/.config
+	const char * tempResult;
+	if ((tempResult = getenv("PORTMASTER_HOME")))
+		return bfs::path(tempResult) / "save";
+	else
+		return bfs::path(".") / "save";
+}
+
+std::vector<bfs::path> VCMIDirsPM::dataPaths() const
+{
+	// $XDG_DATA_DIRS, default: /usr/local/share/:/usr/share/
+
+	// construct list in reverse.
+	// in specification first directory has highest priority
+	// in vcmi fs last directory has highest priority
+	std::vector<bfs::path> ret;
+	const char * tempResult;
+	if ((tempResult = getenv("PORTMASTER_HOME")))
+	{
+		ret.push_back(bfs::path(tempResult) / "data");
+		ret.push_back(bfs::path(tempResult));
+	}
+
+	ret.push_back(bfs::path(".") / "data");
+	ret.push_back(bfs::path("."));
+	return ret;
+}
+
+bfs::path VCMIDirsPM::libraryPath() const
+{
+	const char * tempResult;
+	if ((tempResult = getenv("PORTMASTER_HOME")))
+		return bfs::path(tempResult) / "libs";
+	else
+		return M_LIB_DIR;
+}
+
+bfs::path VCMIDirsPM::binaryPath() const
+{
+	const char * tempResult;
+	if ((tempResult = getenv("PORTMASTER_HOME")))
+		return bfs::path(tempResult) / "bin";
+	else
+		return M_BIN_DIR;
+}
+
+std::string VCMIDirsPM::libraryName(const std::string& basename) const { return "lib" + basename + ".so"; }
+
 #elif defined(VCMI_XDG)
 class VCMIDirsXDG : public IVCMIDirsUNIX
 {
@@ -700,6 +784,8 @@ namespace VCMIDirs
 			static VCMIDirsWIN32 singleton;
 		#elif defined(VCMI_ANDROID)
 			static VCMIDirsAndroid singleton;
+		#elif defined(VCMI_PORTMASTER)
+			static VCMIDirsPM singleton;
 		#elif defined(VCMI_XDG)
 			static VCMIDirsXDG singleton;
 		#elif defined(VCMI_MAC)

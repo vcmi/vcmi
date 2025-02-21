@@ -230,6 +230,7 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 		if (generated)
 			return generated;
 
+		logGlobal->error("Failed to load image %s", locator.image->getOriginalName());
 		return std::make_shared<SDLImageShared>(ImagePath::builtin("DEFAULT"));
 	}
 
@@ -292,9 +293,9 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 
 	std::string imagePathString = pathToLoad.getName();
 
-	if(locator.layer == EImageBlitMode::ONLY_OVERLAY)
+	if(locator.layer == EImageBlitMode::ONLY_FLAG_COLOR || locator.layer == EImageBlitMode::ONLY_SELECTION)
 		imagePathString += "-OVERLAY";
-	if(locator.layer == EImageBlitMode::ONLY_SHADOW)
+	if(locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION || locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR)
 		imagePathString += "-SHADOW";
 	if(locator.playerColored.isValidPlayer())
 		imagePathString += "-" + boost::to_upper_copy(GameConstants::PLAYER_COLOR_NAMES[locator.playerColored.getNum()]);
@@ -347,7 +348,10 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int
 	if (!locator.empty())
 		return loadImage(locator);
 	else
+	{
+		logGlobal->error("Failed to load non-existing image");
 		return loadImage(ImageLocator(ImagePath::builtin("DEFAULT"), mode));
+	}
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageBlitMode mode)
@@ -375,7 +379,7 @@ void RenderHandler::addImageListEntries(const EntityService * service)
 			if (imageName.empty())
 				return;
 
-			auto & layout = getAnimationLayout(AnimationPath::builtin("SPRITES/" + listName), 1, EImageBlitMode::SIMPLE);
+			auto & layout = getAnimationLayout(AnimationPath::builtin("SPRITES/" + listName), 1, EImageBlitMode::COLORKEY);
 
 			JsonNode entry;
 			entry["file"].String() = imageName;
@@ -413,8 +417,8 @@ static void detectOverlappingBuildings(RenderHandler * renderHandler, const Fact
 			if (left->pos.z != right->pos.z)
 				continue; // buildings already have different z-index and have well-defined overlap logic
 
-			auto leftImage = renderHandler->loadImage(left->defName, 0, 0, EImageBlitMode::SIMPLE);
-			auto rightImage = renderHandler->loadImage(right->defName, 0, 0, EImageBlitMode::SIMPLE);
+			auto leftImage = renderHandler->loadImage(left->defName, 0, 0, EImageBlitMode::COLORKEY);
+			auto rightImage = renderHandler->loadImage(right->defName, 0, 0, EImageBlitMode::COLORKEY);
 
 			Rect leftRect( left->pos.x, left->pos.y, leftImage->width(), leftImage->height());
 			Rect rightRect( right->pos.x, right->pos.y, rightImage->width(), rightImage->height());
@@ -490,7 +494,7 @@ std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
 
 		bitmapPath = bmpConf[index].String();
 		if (!ttfConf[bitmapPath].isNull())
-			loadedFont->addTrueTypeFont(ttfConf[bitmapPath]);
+			loadedFont->addTrueTypeFont(ttfConf[bitmapPath], !config["lowPriority"].Bool());
 	}
 	loadedFont->addBitmapFont(bitmapPath);
 

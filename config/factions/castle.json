@@ -185,6 +185,7 @@
 				"ship":           { "id" : 20, "upgrades" : "shipyard" },
 				"special2":       {
 					"requires" : [ "dwellingLvl4" ],
+					"mapObjectLikeBonuses" : "stables",
 					"configuration" : {
 						"visitMode" : "bonus",
 						"rewards" : [
@@ -202,6 +203,11 @@
 						{
 							"type": "MORALE",
 							"val": 2
+						},
+						{
+							"propagator": "PLAYER_PROPAGATOR",
+							"type": "THIEVES_GUILD_ACCESS",
+							"val": 1
 						}
 					],
 					"upgrades" : "tavern"

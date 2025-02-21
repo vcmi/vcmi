@@ -38,6 +38,7 @@
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/texts/TextOperations.h"
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
 
@@ -204,8 +205,7 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 	if (!instant)
 	{
 		// immediately make stack transparent, giving correct shifter time to start
-		auto shifterFade = ColorFilter::genAlphaShifter(0);
-		setStackColorFilter(shifterFade, stack, nullptr, true);
+		setStackColorFilter(Colors::TRANSPARENCY, 0, stack, nullptr, true);
 
 		owner.addToAnimationStage(EAnimationEvents::HIT, [=]()
 		{
@@ -318,20 +318,33 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 
 	Point textPosition = Point(amountBG->dimensions().x/2 + boxPosition.x, boxPosition.y + amountBG->dimensions().y/2);
 
+	if(settings["battle"]["showHealthBar"].Bool())
+	{
+		float health = stack->getMaxHealth();
+		float healthRemaining = std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * health, .0f);
+		Rect r(boxPosition.x, boxPosition.y - 3, amountBG->width(), 4);
+		canvas.drawColor(r, Colors::RED);
+		canvas.drawColor(Rect(r.x, r.y, (r.w / health) * healthRemaining, r.h), Colors::GREEN);
+		canvas.drawBorder(r, Colors::YELLOW);
+	}
 	canvas.draw(amountBG, boxPosition);
 	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, TextOperations::formatMetric(stack->getCount(), 4));
 }
 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
 {
-	ColorFilter fullFilter = ColorFilter::genEmptyShifter();
+	ColorRGBA effectColor = Colors::TRANSPARENCY;
+	uint8_t transparency = 255;
 	for(const auto & filter : stackFilterEffects)
 	{
 		if (filter.target == stack)
-			fullFilter = ColorFilter::genCombined(fullFilter, filter.effect);
+		{
+			effectColor = filter.effectColor;
+			transparency = static_cast<int>(filter.transparency) * transparency / 255;
+		}
 	}
 
-	stackAnimation[stack->unitId()]->nextFrame(canvas, fullFilter, facingRight(stack)); // do actual blit
+	stackAnimation[stack->unitId()]->nextFrame(canvas, effectColor, transparency, facingRight(stack)); // do actual blit
 }
 
 void BattleStacksController::tick(uint32_t msPassed)
@@ -769,18 +782,19 @@ Point BattleStacksController::getStackPositionAtHex(const BattleHex & hexNum, co
 	return ret;
 }
 
-void BattleStacksController::setStackColorFilter(const ColorFilter & effect, const CStack * target, const CSpell * source, bool persistent)
+void BattleStacksController::setStackColorFilter(const ColorRGBA & effectColor, uint8_t transparency, const CStack * target, const CSpell * source, bool persistent)
 {
 	for (auto & filter : stackFilterEffects)
 	{
 		if (filter.target == target && filter.source == source)
 		{
-			filter.effect     = effect;
+			filter.effectColor = effectColor;
+			filter.transparency	= transparency;
 			filter.persistent = persistent;
 			return;
 		}
 	}
-	stackFilterEffects.push_back({ effect, target, source, persistent });
+	stackFilterEffects.push_back({ target, source, effectColor, transparency, persistent });
 }
 
 void BattleStacksController::removeExpiredColorFilters()
@@ -791,7 +805,7 @@ void BattleStacksController::removeExpiredColorFilters()
 		{
 			if (filter.source && !filter.target->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(filter.source->id)), Selector::all))
 				return true;
-			if (filter.effect == ColorFilter::genEmptyShifter())
+			if (filter.effectColor == Colors::TRANSPARENCY && filter.transparency == 255)
 				return true;
 		}
 		return false;

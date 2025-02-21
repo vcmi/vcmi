@@ -108,6 +108,7 @@ class InputSourceTouch
 
 	uint32_t lastLeftClickTimeTicks;
 	Point lastLeftClickPosition;
+	int numTouchFingers;
 
 	Point convertTouchToMouse(const SDL_TouchFingerEvent & current);
 	Point convertTouchToMouse(float x, float y);
@@ -127,4 +128,6 @@ public:
 	void handleUpdate();
 
 	bool hasTouchInputDevice() const;
+
+	int getNumTouchFingers() const;
 };
