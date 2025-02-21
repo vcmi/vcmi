@@ -20,6 +20,8 @@
 #include "../gui/CGuiHandler.h"
 #include "../render/IScreenHandler.h"
 
+#include "../../lib/CConfigHandler.h"
+
 #include <tbb/parallel_for.h>
 #include <tbb/task_arena.h>
 
@@ -264,7 +266,10 @@ SDLImageShared::SDLImageShared(const SDLImageShared * from, int integerScaleFact
 		upscalingInProgress = false;
 	};
 
-	upscalingArena.enqueue(scalingTask);
+	if(settings["video"]["asyncUpscaling"].Bool())
+		upscalingArena.enqueue(scalingTask);
+	else
+		scalingTask();
 }
 
 bool SDLImageShared::isLoading() const

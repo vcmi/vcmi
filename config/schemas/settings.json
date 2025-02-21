@@ -194,7 +194,8 @@
 				"upscalingFilter",
 				"fontUpscalingFilter",
 				"downscalingFilter",
-				"allowPortrait"
+				"allowPortrait",
+				"asyncUpscaling"
 			],
 			"properties" : {
 				"resolution" : {
@@ -286,6 +287,10 @@
 				"allowPortrait" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"asyncUpscaling" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},
