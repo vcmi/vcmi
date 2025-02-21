@@ -42,7 +42,8 @@
 				"savePrefix",
 				"startTurnAutosave",
 				"enableUiEnhancements",
-				"audioMuteFocus"
+				"audioMuteFocus",
+				"enableOverlay"
 			],
 			"properties" : {
 				"playerName" : {
@@ -146,6 +147,10 @@
 				"audioMuteFocus" : {
 					"type": "boolean",
 					"default": false
+				},
+				"enableOverlay" : {
+					"type": "boolean",
+					"default": true
 				}
 			}
 		},

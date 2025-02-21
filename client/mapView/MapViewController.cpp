@@ -224,7 +224,7 @@ void MapViewController::updateState()
 		adventureContext->settingShowVisitable = settings["session"]["showVisitable"].Bool();
 		adventureContext->settingShowBlocked = settings["session"]["showBlocked"].Bool();
 		adventureContext->settingSpellRange = settings["session"]["showSpellRange"].Bool();
-		adventureContext->settingTextOverlay = GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2;
+		adventureContext->settingTextOverlay = (GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
 	}
 }
 

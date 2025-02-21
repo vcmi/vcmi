@@ -177,7 +177,7 @@ void CBuildingRect::show(Canvas & to)
 {
 	uint32_t stageDelay = BUILDING_APPEAR_TIMEPOINT;
 
-	bool showTextOverlay = GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2;
+	bool showTextOverlay = (GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
 
 	if(stateTimeCounter < BUILDING_APPEAR_TIMEPOINT)
 	{
@@ -770,7 +770,7 @@ void CCastleBuildings::show(Canvas & to)
 {
 	CIntObject::show(to);
 
-	bool showTextOverlay = GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2;
+	bool showTextOverlay = (GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
 	if(showTextOverlay)
 		drawOverlays(to, buildings);
 }
