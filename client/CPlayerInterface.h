@@ -170,7 +170,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void yourTacticPhase(const BattleID & battleID, int distance) override;
 	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
-public: // public interface for use by client via LOCPLINT access
+public: // public interface for use by client via GAME->interface() access
 
 	// part of GameInterface that is also used by client code
 	void showPuzzleMap() override;
@@ -231,6 +231,3 @@ private:
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
 };
-
-/// Provides global access to instance of interface of currently active player
-extern CPlayerInterface * LOCPLINT;

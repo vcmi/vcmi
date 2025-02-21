@@ -13,7 +13,7 @@
 #include "RmgMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -130,7 +130,7 @@ void Object::Instance::setTemplate(TerrainId terrain, vstd::RNG & rng)
 
 	if (templates.empty())
 	{
-		auto terrainName = VLC->terrainTypeHandler->getById(terrain)->getNameTranslated();
+		auto terrainName = LIBRARY->terrainTypeHandler->getById(terrain)->getNameTranslated();
 		throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.getObjTypeIndex() % terrainName));
 	}
 	

@@ -12,7 +12,7 @@
 
 #include "SDL_PixelAccess.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/Graphics.h"
 #include "../render/IImage.h"
 #include "../render/IScreenHandler.h"

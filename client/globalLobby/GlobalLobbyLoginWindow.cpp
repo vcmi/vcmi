@@ -13,9 +13,9 @@
 
 #include "GlobalLobbyClient.h"
 
-#include "../CGameInfo.h"
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
@@ -27,6 +27,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/MetaString.h"
+#include "../../lib/GameLibrary.h"
 
 GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	: CWindowObject(BORDERED)
@@ -38,11 +39,11 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 
 	MetaString loginAs;
 	loginAs.appendTextID("vcmi.lobby.login.as");
-	loginAs.replaceRawString(CSH->getGlobalLobby().getAccountDisplayName());
+	loginAs.replaceRawString(GAME->server().getGlobalLobby().getAccountDisplayName());
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.login.title"));
-	labelUsernameTitle = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("vcmi.lobby.login.username"));
+	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.lobby.login.title"));
+	labelUsernameTitle = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.lobby.login.username"));
 	labelUsername = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, loginAs.toString(), 265);
 	backgroundUsername = std::make_shared<TransparentFilledRectangle>(Rect(10, 90, 264, 20), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64));
 	inputUsername = std::make_shared<CTextInput>(Rect(15, 93, 260, 16), FONT_SMALL, ETextAlignment::CENTERLEFT, true);
@@ -52,8 +53,8 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 
 	auto buttonRegister = std::make_shared<CToggleButton>(Point(10, 40),  AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
 	auto buttonLogin = std::make_shared<CToggleButton>(Point(146, 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
-	buttonRegister->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.login.create"), EFonts::FONT_SMALL, Colors::YELLOW);
-	buttonLogin->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.login.login"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonRegister->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.login.create"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonLogin->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.login.login"), EFonts::FONT_SMALL, Colors::YELLOW);
 
 	toggleMode = std::make_shared<CToggleGroup>(nullptr);
 	toggleMode->addToggle(0, buttonRegister);
@@ -61,7 +62,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	toggleMode->setSelected(settings["lobby"]["roomType"].Integer());
 	toggleMode->addCallback([this](int index){onLoginModeChanged(index);});
 
-	if (CSH->getGlobalLobby().getAccountID().empty())
+	if (GAME->server().getGlobalLobby().getAccountID().empty())
 	{
 		buttonLogin->block(true);
 		toggleMode->setSelected(0);
@@ -109,9 +110,9 @@ void GlobalLobbyLoginWindow::onClose()
 
 void GlobalLobbyLoginWindow::onLogin()
 {
-	labelStatus->setText(CGI->generaltexth->translate("vcmi.lobby.login.connecting"));
-	if(!CSH->getGlobalLobby().isConnected())
-		CSH->getGlobalLobby().connect();
+	labelStatus->setText(LIBRARY->generaltexth->translate("vcmi.lobby.login.connecting"));
+	if(!GAME->server().getGlobalLobby().isConnected())
+		GAME->server().getGlobalLobby().connect();
 	else
 		onConnectionSuccess();
 
@@ -121,18 +122,18 @@ void GlobalLobbyLoginWindow::onLogin()
 
 void GlobalLobbyLoginWindow::onConnectionSuccess()
 {
-	std::string accountID = CSH->getGlobalLobby().getAccountID();
+	std::string accountID = GAME->server().getGlobalLobby().getAccountID();
 
 	if(toggleMode->getSelected() == 0)
-		CSH->getGlobalLobby().sendClientRegister(inputUsername->getText());
+		GAME->server().getGlobalLobby().sendClientRegister(inputUsername->getText());
 	else
-		CSH->getGlobalLobby().sendClientLogin();
+		GAME->server().getGlobalLobby().sendClientLogin();
 }
 
 void GlobalLobbyLoginWindow::onLoginSuccess()
 {
 	close();
-	CSH->getGlobalLobby().activateInterface();
+	GAME->server().getGlobalLobby().activateInterface();
 }
 
 void GlobalLobbyLoginWindow::onConnectionFailed(const std::string & reason)

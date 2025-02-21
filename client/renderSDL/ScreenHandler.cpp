@@ -11,10 +11,9 @@
 #include "StdInc.h"
 #include "ScreenHandler.h"
 
-#include "../CGameInfo.h"
 #include "../CMT.h"
 #include "../eventsSDL/NotificationHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
@@ -627,7 +626,7 @@ void ScreenHandler::presentScreenTexture()
 {
 	SDL_RenderClear(mainRenderer);
 	SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
-	CCS->curh->render();
+	ENGINE->cursor().render();
 	SDL_RenderPresent(mainRenderer);
 }
 

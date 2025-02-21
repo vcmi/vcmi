@@ -24,7 +24,7 @@
 #include "../StartInfo.h"
 #include "../TerrainHandler.h"
 #include "../VCMIDirs.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../battle/BattleInfo.h"
 #include "../campaign/CampaignState.h"
 #include "../constants/StringConstants.h"
@@ -298,7 +298,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 				playerSettings.castle = playerInfo.defaultCastle();
 				if(playerSettings.isControlledByAI() && playerSettings.name.empty())
 				{
-					playerSettings.name = VLC->generaltexth->allTexts[468];
+					playerSettings.name = LIBRARY->generaltexth->allTexts[468];
 				}
 				playerSettings.color = PlayerColor(i);
 			}
@@ -374,7 +374,7 @@ void CGameState::initGlobalBonuses()
 		bonus->sid = BonusSourceID(); //there is one global object
 		globalEffects.addNewBonus(bonus);
 	}
-	VLC->creh->loadCrExpBon(globalEffects);
+	LIBRARY->creh->loadCrExpBon(globalEffects);
 }
 
 void CGameState::initDifficulty()
@@ -539,7 +539,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 		}
 	}
 
-	auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->heroClass->getIndex());
+	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->heroClass->getIndex());
 	CGObjectInstance * obj = handler->create(callback, handler->getTemplates().front());
 	CGHeroInstance * hero = dynamic_cast<CGHeroInstance *>(obj);
 
@@ -611,7 +611,7 @@ void CGameState::initHeroes()
 		const auto & tile = map->getTile(hero->visitablePos());
 		if (tile.isWater())
 		{
-			auto handler = VLC->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
+			auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
 			auto boat = dynamic_cast<CGBoat*>(handler->create(callback, nullptr));
 			handler->configureObject(boat, gs->getRandomGenerator());
 
@@ -710,7 +710,7 @@ void CGameState::initStartingBonus()
 			break;
 		case PlayerStartingBonus::RESOURCE:
 			{
-				auto res = (*VLC->townh)[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
+				auto res = (*LIBRARY->townh)[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
 				if(res == EGameResID::WOOD_AND_ORE)
 				{
 					int amount = getRandomGenerator().nextInt(5, 10);
@@ -730,7 +730,7 @@ void CGameState::initStartingBonus()
 					logGlobal->error("Cannot give starting artifact - no heroes!");
 					break;
 				}
-				const Artifact * toGive = pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toEntity(VLC);
+				const Artifact * toGive = pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toEntity(LIBRARY);
 
 				CGHeroInstance *hero = elem.second.getHeroes()[0];
 				if(!giveHeroArtifact(hero, toGive->getId()))
@@ -744,7 +744,7 @@ void CGameState::initStartingBonus()
 void CGameState::initTownNames()
 {
 	std::map<FactionID, std::vector<int>> availableNames;
-	for(const auto & faction : VLC->townh->getDefaultAllowed())
+	for(const auto & faction : LIBRARY->townh->getDefaultAllowed())
 	{
 		std::vector<int> potentialNames;
 		if(faction.toFaction()->town->getRandomNamesCount() > 0)
@@ -1077,7 +1077,7 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
 	}
 
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
-		return BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
+		return BattleField(*LIBRARY->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
 	
 	if (t.getTerrain()->battleFields.empty())
 		throw std::runtime_error("Failed to find battlefield for terrain " + t.getTerrain()->getJsonKey());
@@ -1571,7 +1571,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 				for(const auto & it : elem->Slots())
 				{
 					CreatureID toCmp = it.second->getId(); //ID of creature we should compare with the best one
-					if(bestCre == CreatureID::NONE || bestCre.toEntity(VLC)->getAIValue() < toCmp.toEntity(VLC)->getAIValue())
+					if(bestCre == CreatureID::NONE || bestCre.toEntity(LIBRARY)->getAIValue() < toCmp.toEntity(LIBRARY)->getAIValue())
 					{
 						bestCre = toCmp;
 					}
@@ -1711,7 +1711,7 @@ ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags, std::func
 	// Select artifacts that satisfy provided criteria
 	for (auto const & artifactID : map->allowedArtifact)
 	{
-		if (!VLC->arth->legalArtifact(artifactID))
+		if (!LIBRARY->arth->legalArtifact(artifactID))
 			continue;
 
 		auto const * artifact = artifactID.toArtifact();

@@ -42,11 +42,6 @@ target_include_directories(vcmiclient
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if(ENABLE_VIDEO)
-	target_compile_definitions(vcmiclient PRIVATE ENABLE_VIDEO)
-endif()
-
-
 if(WIN32)
 	target_sources(vcmiclient PRIVATE "VCMI_client.rc")
 	set_target_properties(vcmiclient

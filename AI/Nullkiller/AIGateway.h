@@ -15,7 +15,7 @@
 #include "../../CCallback.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/GameConstants.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"

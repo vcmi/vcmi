@@ -116,7 +116,7 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 
 	for(const auto & entry : spells)
 	{
-		bool learnable = !h || h->canLearnSpell(entry.toEntity(VLC), true);
+		bool learnable = !h || h->canLearnSpell(entry.toEntity(LIBRARY), true);
 		comps.emplace_back(ComponentType::SPELL, entry, learnable ?	0 : -1);
 	}
 

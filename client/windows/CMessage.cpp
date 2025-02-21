@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CMessage.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/Graphics.h"
@@ -42,7 +42,7 @@ void CMessage::init()
 {
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		dialogBorders[i] = GH.renderHandler().loadAnimation(AnimationPath::builtin("DIALGBOX"), EImageBlitMode::COLORKEY);
+		dialogBorders[i] = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("DIALGBOX"), EImageBlitMode::COLORKEY);
 
 		for(int j = 0; j < dialogBorders[i]->size(0); j++)
 		{
@@ -71,7 +71,7 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 
 	boost::algorithm::trim_right_if(text, boost::algorithm::is_any_of(std::string(" ")));
 
-	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 
 	// each iteration generates one output line
 	while(text.length())
@@ -195,7 +195,7 @@ std::string CMessage::guessHeader(const std::string & msg)
 
 int CMessage::guessHeight(const std::string & txt, int width, EFonts font)
 {
-	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 	const auto lines = CMessage::breakText(txt, width, font);
 	size_t lineHeight = fontPtr->getLineHeight();
 	return lineHeight * lines.size();

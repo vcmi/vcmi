@@ -12,7 +12,7 @@
 
 #include "CHero.h"
 
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 #include "../../constants/StringConstants.h"
 #include "../../CCreatureHandler.h"
 #include "../../IGameSettings.h"
@@ -54,11 +54,11 @@ std::shared_ptr<CHero> CHeroHandler::loadFromJson(const std::string & scope, con
 	hero->onlyOnWaterMap = node["onlyOnWaterMap"].Bool();
 	hero->onlyOnMapWithoutWater = node["onlyOnMapWithoutWater"].Bool();
 
-	VLC->generaltexth->registerString(scope, hero->getNameTextID(), node["texts"]["name"]);
-	VLC->generaltexth->registerString(scope, hero->getBiographyTextID(), node["texts"]["biography"]);
-	VLC->generaltexth->registerString(scope, hero->getSpecialtyNameTextID(), node["texts"]["specialty"]["name"]);
-	VLC->generaltexth->registerString(scope, hero->getSpecialtyTooltipTextID(), node["texts"]["specialty"]["tooltip"]);
-	VLC->generaltexth->registerString(scope, hero->getSpecialtyDescriptionTextID(), node["texts"]["specialty"]["description"]);
+	LIBRARY->generaltexth->registerString(scope, hero->getNameTextID(), node["texts"]["name"]);
+	LIBRARY->generaltexth->registerString(scope, hero->getBiographyTextID(), node["texts"]["biography"]);
+	LIBRARY->generaltexth->registerString(scope, hero->getSpecialtyNameTextID(), node["texts"]["specialty"]["name"]);
+	LIBRARY->generaltexth->registerString(scope, hero->getSpecialtyTooltipTextID(), node["texts"]["specialty"]["tooltip"]);
+	LIBRARY->generaltexth->registerString(scope, hero->getSpecialtyDescriptionTextID(), node["texts"]["specialty"]["description"]);
 
 	hero->iconSpecSmall = node["images"]["specialtySmall"].String();
 	hero->iconSpecLarge = node["images"]["specialtyLarge"].String();
@@ -70,7 +70,7 @@ std::shared_ptr<CHero> CHeroHandler::loadFromJson(const std::string & scope, con
 	loadHeroSkills(hero.get(), node);
 	loadHeroSpecialty(hero.get(), node);
 
-	VLC->identifiers()->requestIdentifier("heroClass", node["class"],
+	LIBRARY->identifiers()->requestIdentifier("heroClass", node["class"],
 	[=](si32 classID)
 	{
 		hero->heroClass = HeroClassID(classID).toHeroClass();
@@ -98,7 +98,7 @@ void CHeroHandler::loadHeroArmy(CHero * hero, const JsonNode & node) const
 			std::swap(hero->initialArmy[i].minAmount, hero->initialArmy[i].maxAmount);
 		}
 
-		VLC->identifiers()->requestIdentifier("creature", source["creature"], [=](si32 creature)
+		LIBRARY->identifiers()->requestIdentifier("creature", source["creature"], [=](si32 creature)
 		{
 			hero->initialArmy[i].creature = CreatureID(creature);
 		});
@@ -115,7 +115,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 			size_t currentIndex = hero->secSkillsInit.size();
 			hero->secSkillsInit.emplace_back(SecondarySkill(-1), skillLevel);
 
-			VLC->identifiers()->requestIdentifier("skill", set["skill"], [=](si32 id)
+			LIBRARY->identifiers()->requestIdentifier("skill", set["skill"], [=](si32 id)
 			{
 				hero->secSkillsInit[currentIndex].first = SecondarySkill(id);
 			});
@@ -131,7 +131,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 
 	for(const JsonNode & spell : node["spellbook"].Vector())
 	{
-		VLC->identifiers()->requestIdentifier("spell", spell,
+		LIBRARY->identifiers()->requestIdentifier("spell", spell,
 		[=](si32 spellID)
 		{
 			hero->spells.insert(SpellID(spellID));
@@ -254,7 +254,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 
 		std::function<void()> specialtyLoader = [creatureNode, hero, prepSpec]
 		{
-			VLC->identifiers()->requestIdentifier("creature", creatureNode, [hero, prepSpec](si32 creature)
+			LIBRARY->identifiers()->requestIdentifier("creature", creatureNode, [hero, prepSpec](si32 creature)
 			{
 				for (const auto & bonus : createCreatureSpecialty(CreatureID(creature)))
 					hero->specialty.push_back(prepSpec(bonus));
@@ -312,7 +312,7 @@ static std::string genRefName(std::string input)
 
 std::vector<JsonNode> CHeroHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_HERO);
+	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_HERO);
 
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;

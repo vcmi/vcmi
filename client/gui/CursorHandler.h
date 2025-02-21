@@ -145,6 +145,8 @@ public:
 	CursorHandler();
 	~CursorHandler();
 
+	void init();
+
 	/// Replaces the cursor with a custom image.
 	/// @param image Image to replace cursor with or nullptr to use the normal cursor.
 	void dragAndDropCursor(std::shared_ptr<IImage> image);

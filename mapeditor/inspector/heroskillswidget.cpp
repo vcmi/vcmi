@@ -35,7 +35,7 @@ HeroSkillsWidget::HeroSkillsWidget(CGHeroInstance & h, QWidget *parent) :
 	ui->labelKnowledge->setText(QString::fromStdString(NPrimarySkill::names[3]));
 	
 	auto * delegate = new InspectorDelegate;
-	for(auto const & s : VLC->skillh->objects)
+	for(auto const & s : LIBRARY->skillh->objects)
 		delegate->options.push_back({QString::fromStdString(s->getNameTranslated()), QVariant::fromValue(s->getId().getNum())});
 	ui->skills->setItemDelegateForColumn(0, delegate);
 	
@@ -83,7 +83,7 @@ void HeroSkillsWidget::obtainData()
 	for(auto & s : hero.secSkills)
 	{
 		auto * itemSkill = new QTableWidgetItem;
-		itemSkill->setText(QString::fromStdString(VLC->skillh->getById(s.first)->getNameTranslated()));
+		itemSkill->setText(QString::fromStdString(LIBRARY->skillh->getById(s.first)->getNameTranslated()));
 		itemSkill->setData(Qt::UserRole, QVariant::fromValue(s.first.getNum()));
 		ui->skills->setItem(i, 0, itemSkill);
 		
@@ -155,10 +155,10 @@ void HeroSkillsDelegate::setModelData(QWidget *editor, QAbstractItemModel *model
 void HeroSkillsDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
 {
 	QStringList textList;
-	textList += QString("%1: %2").arg(QString::fromStdString(VLC->generaltexth->primarySkillNames[PrimarySkill::ATTACK])).arg(hero.getBasePrimarySkillValue(PrimarySkill::ATTACK));
-	textList += QString("%1: %2").arg(QString::fromStdString(VLC->generaltexth->primarySkillNames[PrimarySkill::DEFENSE])).arg(hero.getBasePrimarySkillValue(PrimarySkill::DEFENSE));
-	textList += QString("%1: %2").arg(QString::fromStdString(VLC->generaltexth->primarySkillNames[PrimarySkill::SPELL_POWER])).arg(hero.getBasePrimarySkillValue(PrimarySkill::SPELL_POWER));
-	textList += QString("%1: %2").arg(QString::fromStdString(VLC->generaltexth->primarySkillNames[PrimarySkill::KNOWLEDGE])).arg(hero.getBasePrimarySkillValue(PrimarySkill::KNOWLEDGE));
+	textList += QString("%1: %2").arg(QString::fromStdString(LIBRARY->generaltexth->primarySkillNames[PrimarySkill::ATTACK])).arg(hero.getBasePrimarySkillValue(PrimarySkill::ATTACK));
+	textList += QString("%1: %2").arg(QString::fromStdString(LIBRARY->generaltexth->primarySkillNames[PrimarySkill::DEFENSE])).arg(hero.getBasePrimarySkillValue(PrimarySkill::DEFENSE));
+	textList += QString("%1: %2").arg(QString::fromStdString(LIBRARY->generaltexth->primarySkillNames[PrimarySkill::SPELL_POWER])).arg(hero.getBasePrimarySkillValue(PrimarySkill::SPELL_POWER));
+	textList += QString("%1: %2").arg(QString::fromStdString(LIBRARY->generaltexth->primarySkillNames[PrimarySkill::KNOWLEDGE])).arg(hero.getBasePrimarySkillValue(PrimarySkill::KNOWLEDGE));
 
 	auto heroSecondarySkills = hero.secSkills;
 	if(heroSecondarySkills.size() == 1 && heroSecondarySkills[0].first == SecondarySkill::NONE) 
@@ -171,7 +171,7 @@ void HeroSkillsDelegate::updateModelData(QAbstractItemModel * model, const QMode
 		textList += QObject::tr("Secondary skills:");
 	}
 	for(const auto & [skill, skillLevel] : heroSecondarySkills)
-		textList += QString("%1 %2").arg(QString::fromStdString(VLC->skillh->getById(skill)->getNameTranslated())).arg(LevelIdentifiers[skillLevel - 1].first);
+		textList += QString("%1 %2").arg(QString::fromStdString(LIBRARY->skillh->getById(skill)->getNameTranslated())).arg(LevelIdentifiers[skillLevel - 1].first);
 
 	setModelTextData(model, index, textList);
 }

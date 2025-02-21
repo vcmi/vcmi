@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "ImageLocator.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "IScreenHandler.h"
 
 #include "../../lib/json/JsonNode.h"

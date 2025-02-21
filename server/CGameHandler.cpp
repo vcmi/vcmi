@@ -40,7 +40,7 @@
 #include "../lib/StartInfo.h"
 #include "../lib/TerrainHandler.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/int3.h"
 
 #include "../lib/battle/BattleInfo.h"
@@ -106,7 +106,7 @@ void callWith(std::vector<T> args, std::function<void(T)> fun, ui32 which)
 
 const Services * CGameHandler::services() const
 {
-	return VLC;
+	return LIBRARY;
 }
 
 const CGameHandler::BattleCb * CGameHandler::battle(const BattleID & battleID) const
@@ -238,19 +238,19 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 			case ECommander::SPELL_POWER:
 				scp.accumulatedBonus.type = BonusType::SPELL_DAMAGE_REDUCTION;
 				scp.accumulatedBonus.subtype = BonusSubtypeID(SpellSchool::ANY);
-				scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, ECommander::RESISTANCE);
+				scp.accumulatedBonus.val = difference (LIBRARY->creh->skillLevels, c->secondarySkills, ECommander::RESISTANCE);
 				sendAndApply(scp); //additional pack
 				scp.accumulatedBonus.type = BonusType::CREATURE_SPELL_POWER;
-				scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, ECommander::SPELL_POWER) * 100; //like hero with spellpower = ability level
+				scp.accumulatedBonus.val = difference (LIBRARY->creh->skillLevels, c->secondarySkills, ECommander::SPELL_POWER) * 100; //like hero with spellpower = ability level
 				sendAndApply(scp); //additional pack
 				scp.accumulatedBonus.type = BonusType::CASTS;
-				scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, ECommander::CASTS);
+				scp.accumulatedBonus.val = difference (LIBRARY->creh->skillLevels, c->secondarySkills, ECommander::CASTS);
 				sendAndApply(scp); //additional pack
 				scp.accumulatedBonus.type = BonusType::CREATURE_ENCHANT_POWER; //send normally
 				break;
 		}
 
-		scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, skill);
+		scp.accumulatedBonus.val = difference (LIBRARY->creh->skillLevels, c->secondarySkills, skill);
 		sendAndApply(scp);
 
 		scp.which = SetCommanderProperty::SECONDARY_SKILL;
@@ -260,7 +260,7 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 	}
 	else if (skill >= 100)
 	{
-		for(const auto & bonus : VLC->creh->skillRequirements.at(skill - 100).first)
+		for(const auto & bonus : LIBRARY->creh->skillRequirements.at(skill - 100).first)
 		{
 			scp.which = SetCommanderProperty::SPECIAL_SKILL;
 			scp.accumulatedBonus = *bonus;
@@ -299,7 +299,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 			clu.skills.push_back(i);
 	}
 	int i = 100;
-	for (const auto & specialSkill : VLC->creh->skillRequirements)
+	for (const auto & specialSkill : LIBRARY->creh->skillRequirements)
 	{
 		if (c->secondarySkills.at(specialSkill.second.first) >= ECommander::MAX_SKILL_LEVEL - 1
 			&&  c->secondarySkills.at(specialSkill.second.second) >= ECommander::MAX_SKILL_LEVEL - 1
@@ -343,11 +343,11 @@ void CGameHandler::expGiven(const CGHeroInstance *hero)
 
 void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountToGain)
 {
-	TExpType maxExp = VLC->heroh->reqExp(VLC->heroh->maxSupportedLevel());
+	TExpType maxExp = LIBRARY->heroh->reqExp(LIBRARY->heroh->maxSupportedLevel());
 	TExpType currExp = hero->exp;
 
 	if (gs->map->levelLimit != 0)
-		maxExp = VLC->heroh->reqExp(gs->map->levelLimit);
+		maxExp = LIBRARY->heroh->reqExp(gs->map->levelLimit);
 
 	TExpType canGainExp = 0;
 	if (maxExp > currExp)
@@ -545,7 +545,7 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 
 	CMapService mapService;
 	gs = new CGameState();
-	gs->preInit(VLC, this);
+	gs->preInit(LIBRARY, this);
 	logGlobal->info("Gamestate created!");
 	gs->init(&mapService, si, progressTracking);
 	logGlobal->info("Gamestate initialized!");
@@ -593,11 +593,11 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 
 			if (clear)
 			{
-				ssi.creatures[town->getTown()->creatures.size()].first = std::max(1, (creatureId.toEntity(VLC)->getGrowth())/2);
+				ssi.creatures[town->getTown()->creatures.size()].first = std::max(1, (creatureId.toEntity(LIBRARY)->getGrowth())/2);
 			}
 			else
 			{
-				ssi.creatures[town->getTown()->creatures.size()].first = creatureId.toEntity(VLC)->getGrowth();
+				ssi.creatures[town->getTown()->creatures.size()].first = creatureId.toEntity(LIBRARY)->getGrowth();
 			}
 			ssi.creatures[town->getTown()->creatures.size()].second.push_back(creatureId);
 			sendAndApply(ssi);
@@ -1608,7 +1608,7 @@ bool CGameHandler::load(const std::string & filename)
 		lobby->announceMessage(str);
 		return false;
 	}
-	gs->preInit(VLC, this);
+	gs->preInit(LIBRARY, this);
 	gs->updateOnLoad(lobby->si.get());
 	return true;
 }
@@ -2374,7 +2374,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	SlotID slot = army->getSlotFor(crid);
 
 	if ((!found && complain("Cannot recruit: no such creatures!"))
-		|| ((si32)cram  >  VLC->creh->objects.at(crid)->maxAmount(getPlayerState(army->tempOwner)->resources) && complain("Cannot recruit: lack of resources!"))
+		|| ((si32)cram  >  LIBRARY->creh->objects.at(crid)->maxAmount(getPlayerState(army->tempOwner)->resources) && complain("Cannot recruit: lack of resources!"))
 		|| (cram<=0  &&  complain("Cannot recruit: cram <= 0!"))
 		|| (!slot.validSlot()  && !warMachine && complain("Cannot recruit: no available slot!")))
 	{
@@ -4242,7 +4242,7 @@ CGObjectInstance * CGameHandler::createNewObject(const int3 & visitablePosition,
 	const TerrainTile & t = gs->map->getTile(visitablePosition);
 	terrainType = t.getTerrainID();
 
-	auto handler = VLC->objtypeh->getHandlerFor(objectID, subID);
+	auto handler = LIBRARY->objtypeh->getHandlerFor(objectID, subID);
 
 	CGObjectInstance * o = handler->create(gs->callback, nullptr);
 	handler->configureObject(o, getRandomGenerator());

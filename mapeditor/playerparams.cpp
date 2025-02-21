@@ -47,9 +47,9 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	ui->teamId->setCurrentIndex(playerInfo.team == TeamID::NO_TEAM ? 0 : playerInfo.team.getNum() + 1);
 	
 	//load factions
-	for(auto idx : VLC->townh->getAllowedFactions())
+	for(auto idx : LIBRARY->townh->getAllowedFactions())
 	{
-		const auto & faction = VLC->townh->objects.at(idx);
+		const auto & faction = LIBRARY->townh->objects.at(idx);
 		auto * item = new QListWidgetItem(QString::fromStdString(faction->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(idx.getNum()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);

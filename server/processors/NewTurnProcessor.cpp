@@ -407,7 +407,7 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 		{
 			CreatureID baseCreature	= tierVector.at(0);
 
-			if (baseCreature.toEntity(VLC)->getLevel() != tierToGrow)
+			if (baseCreature.toEntity(LIBRARY)->getLevel() != tierToGrow)
 				continue;
 
 			StackLocation stackLocation(t, freeSlotID);
@@ -494,7 +494,7 @@ RumorState NewTurnProcessor::pickNewRumor()
 				[[fallthrough]];
 
 			case RumorState::TYPE_RAND:
-				auto vector = VLC->generaltexth->findStringsWithPrefix("core.randtvrn");
+				auto vector = LIBRARY->generaltexth->findStringsWithPrefix("core.randtvrn");
 				rumorId = rand.nextInt((int)vector.size() - 1);
 
 				break;
@@ -523,12 +523,12 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 		{
 			if (gameHandler->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
 			{
-				CreatureID creatureID = VLC->creh->pickRandomMonster(gameHandler->getRandomGenerator());
+				CreatureID creatureID = LIBRARY->creh->pickRandomMonster(gameHandler->getRandomGenerator());
 				return { EWeekType::DOUBLE_GROWTH, creatureID};
 			}
-			else if (VLC->creh->doubledCreatures.size())
+			else if (LIBRARY->creh->doubledCreatures.size())
 			{
-				CreatureID creatureID = *RandomGeneratorUtil::nextItem(VLC->creh->doubledCreatures, gameHandler->getRandomGenerator());
+				CreatureID creatureID = *RandomGeneratorUtil::nextItem(LIBRARY->creh->doubledCreatures, gameHandler->getRandomGenerator());
 				return { EWeekType::DOUBLE_GROWTH, creatureID};
 			}
 			else
@@ -550,9 +550,9 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 			std::pair<int, CreatureID> newMonster(54, CreatureID());
 			do
 			{
-				newMonster.second = VLC->creh->pickRandomMonster(gameHandler->getRandomGenerator());
-			} while (VLC->creh->objects[newMonster.second] &&
-					(*VLC->townh)[VLC->creatures()->getById(newMonster.second)->getFactionID()]->town == nullptr); // find first non neutral creature
+				newMonster.second = LIBRARY->creh->pickRandomMonster(gameHandler->getRandomGenerator());
+			} while (LIBRARY->creh->objects[newMonster.second] &&
+					(*LIBRARY->townh)[LIBRARY->creatures()->getById(newMonster.second)->getFactionID()]->town == nullptr); // find first non neutral creature
 
 			return { EWeekType::BONUS_GROWTH, newMonster.second};
 		}

@@ -21,13 +21,13 @@
 #include "BattleProjectileController.h"
 #include "BattleRenderer.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 #include "../adventureMap/CInGameConsole.h"
 #include "../client/render/CAnimation.h"
@@ -112,16 +112,16 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	OBJECT_CONSTRUCTION;
 
 	//preparing cells and hexes
-	cellBorder = GH.renderHandler().loadImage(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
-	cellShade = GH.renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"), EImageBlitMode::SIMPLE);
-	cellUnitMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
-	cellUnitMaxMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMaxMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
+	cellBorder = ENGINE->renderHandler().loadImage(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
+	cellShade = ENGINE->renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"), EImageBlitMode::SIMPLE);
+	cellUnitMovementHighlight = ENGINE->renderHandler().loadImage(ImagePath::builtin("UnitMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
+	cellUnitMaxMovementHighlight = ENGINE->renderHandler().loadImage(ImagePath::builtin("UnitMaxMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
 
-	attackCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"), EImageBlitMode::COLORKEY);
-	spellCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"), EImageBlitMode::COLORKEY);
+	attackCursors = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"), EImageBlitMode::COLORKEY);
+	spellCursors = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"), EImageBlitMode::COLORKEY);
 
-	rangedFullDamageLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"), EImageBlitMode::COLORKEY);
-	shootingRangeLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"), EImageBlitMode::COLORKEY);
+	rangedFullDamageLimitImages = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"), EImageBlitMode::COLORKEY);
+	shootingRangeLimitImages = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"), EImageBlitMode::COLORKEY);
 
 	if(!owner.siegeController)
 	{
@@ -130,12 +130,12 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 		if(bfieldType == BattleField::NONE)
 			logGlobal->error("Invalid battlefield returned for current battle");
 		else
-			background = GH.renderHandler().loadImage(bfieldType.getInfo()->graphics, EImageBlitMode::OPAQUE);
+			background = ENGINE->renderHandler().loadImage(bfieldType.getInfo()->graphics, EImageBlitMode::OPAQUE);
 	}
 	else
 	{
 		auto backgroundName = owner.siegeController->getBattleBackgroundName();
-		background = GH.renderHandler().loadImage(backgroundName, EImageBlitMode::OPAQUE);
+		background = ENGINE->renderHandler().loadImage(backgroundName, EImageBlitMode::OPAQUE);
 	}
 
 	pos.w = background->width();
@@ -149,7 +149,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 void BattleFieldController::activate()
 {
-	LOCPLINT->cingconsole->pos = this->pos;
+	GAME->interface()->cingconsole->pos = this->pos;
 	CIntObject::activate();
 }
 
@@ -329,7 +329,7 @@ BattleHexArray BattleFieldController::getMovementRangeForHoveredStack()
 	if (!owner.stacksController->getActiveStack())
 		return BattleHexArray();
 
-	if (!settings["battle"]["movementHighlightOnHover"].Bool() && !GH.isKeyboardShiftDown())
+	if (!settings["battle"]["movementHighlightOnHover"].Bool() && !ENGINE->isKeyboardShiftDown())
 		return BattleHexArray();
 
 	auto hoveredStack = getHoveredStack();
@@ -416,7 +416,7 @@ BattleHexArray BattleFieldController::getRangeHexes(const BattleHex & sourceHex,
 {
 	BattleHexArray rangeHexes;
 
-	if (!settings["battle"]["rangeLimitHighlightOnHover"].Bool() && !GH.isKeyboardShiftDown())
+	if (!settings["battle"]["rangeLimitHighlightOnHover"].Bool() && !ENGINE->isKeyboardShiftDown())
 		return rangeHexes;
 
 	// get only battlefield hexes that are within the given distance
@@ -857,19 +857,19 @@ void BattleFieldController::show(Canvas & to)
 
 	if (isActive() && isGesturing() && getHoveredHex() != BattleHex::INVALID)
 	{
-		auto combatCursorIndex = CCS->curh->get<Cursor::Combat>();
+		auto combatCursorIndex = ENGINE->cursor().get<Cursor::Combat>();
 		if (combatCursorIndex)
 		{
 			auto combatImageIndex = static_cast<size_t>(*combatCursorIndex);
-			to.draw(attackCursors->getImage(combatImageIndex), hexPositionAbsolute(getHoveredHex()).center() - CCS->curh->getPivotOffsetCombat(combatImageIndex));
+			to.draw(attackCursors->getImage(combatImageIndex), hexPositionAbsolute(getHoveredHex()).center() - ENGINE->cursor().getPivotOffsetCombat(combatImageIndex));
 			return;
 		}
 
-		auto spellCursorIndex = CCS->curh->get<Cursor::Spellcast>();
+		auto spellCursorIndex = ENGINE->cursor().get<Cursor::Spellcast>();
 		if (spellCursorIndex)
 		{
 			auto spellImageIndex = static_cast<size_t>(*spellCursorIndex);
-			to.draw(spellCursors->getImage(spellImageIndex), hexPositionAbsolute(getHoveredHex()).center() - CCS->curh->getPivotOffsetSpellcast());
+			to.draw(spellCursors->getImage(spellImageIndex), hexPositionAbsolute(getHoveredHex()).center() - ENGINE->cursor().getPivotOffsetSpellcast());
 			return;
 		}
 

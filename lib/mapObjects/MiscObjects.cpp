@@ -42,7 +42,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
-	return VLC->generaltexth->allTexts[id];
+	return LIBRARY->generaltexth->allTexts[id];
 }
 
 void CTeamVisited::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
@@ -151,7 +151,7 @@ ResourceSet CGMine::dailyIncome() const
 
 std::string CGMine::getObjectName() const
 {
-	return VLC->generaltexth->translate("core.minename", getObjTypeIndex());
+	return LIBRARY->generaltexth->translate("core.minename", getObjTypeIndex());
 }
 
 std::string CGMine::getHoverText(PlayerColor player) const
@@ -159,12 +159,12 @@ std::string CGMine::getHoverText(PlayerColor player) const
 	std::string hoverName = CArmedInstance::getHoverText(player);
 
 	if (tempOwner != PlayerColor::NEUTRAL)
-		hoverName += "\n(" + VLC->generaltexth->restypes[producedResource.getNum()] + ")";
+		hoverName += "\n(" + LIBRARY->generaltexth->restypes[producedResource.getNum()] + ")";
 
 	if(stacksCount())
 	{
 		hoverName += "\n";
-		hoverName += VLC->generaltexth->allTexts[202]; //Guarded by
+		hoverName += LIBRARY->generaltexth->allTexts[202]; //Guarded by
 		hoverName += " ";
 		hoverName += getArmyDescription();
 	}
@@ -681,14 +681,14 @@ void CGArtifact::initObj(vstd::RNG & rand)
 
 std::string CGArtifact::getObjectName() const
 {
-	return VLC->artifacts()->getById(getArtifact())->getNameTranslated();
+	return LIBRARY->artifacts()->getById(getArtifact())->getNameTranslated();
 }
 
 std::string CGArtifact::getPopupText(PlayerColor player) const
 {
 	if (settings["general"]["enableUiEnhancements"].Bool())
 	{
-		std::string description = VLC->artifacts()->getById(getArtifact())->getDescriptionTranslated();
+		std::string description = LIBRARY->artifacts()->getById(getArtifact())->getDescriptionTranslated();
 		if (getArtifact() == ArtifactID::SPELL_SCROLL)
 			ArtifactUtils::insertScrrollSpellName(description, SpellID::NONE); // erase text placeholder
 		return description;
@@ -843,7 +843,7 @@ void CGSignBottle::initObj(vstd::RNG & rand)
 	//if no text is set than we pick random from the predefined ones
 	if(message.empty())
 	{
-		auto vector = VLC->generaltexth->findStringsWithPrefix("core.randsign");
+		auto vector = LIBRARY->generaltexth->findStringsWithPrefix("core.randsign");
 		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, rand);
 		message.appendTextID(messageIdentifier);
 	}

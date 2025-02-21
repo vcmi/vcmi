@@ -515,7 +515,7 @@ void CVCMIServer::setPlayerConnectedId(PlayerSettings & pset, ui8 player) const
 	if(vstd::contains(playerNames, player))
 		pset.name = playerNames.find(player)->second.name;
 	else
-		pset.name = VLC->generaltexth->allTexts[468]; //Computer
+		pset.name = LIBRARY->generaltexth->allTexts[468]; //Computer
 
 	pset.connectedPlayerIDs.clear();
 	if(player != PlayerSettings::PLAYER_AI)
@@ -889,7 +889,7 @@ void CVCMIServer::optionNextHero(PlayerColor player, int dir)
 		if (dir > 0)
 			s.hero = nextAllowedHero(player, HeroTypeID(-1), dir);
 		else
-			s.hero = nextAllowedHero(player, HeroTypeID(VLC->heroh->size()), dir);
+			s.hero = nextAllowedHero(player, HeroTypeID(LIBRARY->heroh->size()), dir);
 	}
 	else
 	{
@@ -917,7 +917,7 @@ HeroTypeID CVCMIServer::nextAllowedHero(PlayerColor player, HeroTypeID initial, 
 
 	if(direction > 0)
 	{
-		for (auto i = first; i.getNum() < VLC->heroh->size(); ++i)
+		for (auto i = first; i.getNum() < LIBRARY->heroh->size(); ++i)
 			if(canUseThisHero(player, i))
 				return i;
 	}
@@ -984,10 +984,10 @@ bool CVCMIServer::canUseThisHero(PlayerColor player, HeroTypeID ID)
 	if (!ID.hasValue())
 		return false;
 
-	if (ID >= VLC->heroh->size())
+	if (ID >= LIBRARY->heroh->size())
 		return false;
 
-	if (si->playerInfos[player].castle != VLC->heroh->objects[ID]->heroClass->faction)
+	if (si->playerInfos[player].castle != LIBRARY->heroh->objects[ID]->heroClass->faction)
 		return false;
 
 	if (vstd::contains(getUsedHeroes(), ID))

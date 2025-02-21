@@ -18,7 +18,7 @@
 #include "../../../lib/mapping/CMapDefines.h"
 #include "../../../lib/RoadHandler.h"
 #include "../../../lib/CCreatureHandler.h"
-#include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/GameLibrary.h"
 #include "../../../lib/StartInfo.h"
 #include "../../../CCallback.h"
 #include "../../../lib/filesystem/Filesystem.h"
@@ -309,7 +309,7 @@ uint64_t RewardEvaluator::getArmyReward(
 			{
 				for(auto artID : info.reward.artifacts)
 				{
-					const auto * art = dynamic_cast<const CArtifact *>(VLC->artifacts()->getById(artID));
+					const auto * art = dynamic_cast<const CArtifact *>(LIBRARY->artifacts()->getById(artID));
 
 					rewardValue += evaluateArtifactArmyValue(art);
 				}
@@ -694,7 +694,7 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 			{
 				for(auto spellID : info.reward.spells)
 				{
-					const spells::Spell * spell = VLC->spells()->getById(spellID);
+					const spells::Spell * spell = LIBRARY->spells()->getById(spellID);
 						
 					if(hero->canLearnSpell(spell) && !hero->spellbookContainsSpell(spellID))
 					{

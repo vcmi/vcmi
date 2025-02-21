@@ -23,10 +23,10 @@
 #include "BattleStacksController.h"
 #include "BattleRenderer.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
@@ -97,7 +97,7 @@ BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *
 	adventureInt->onAudioPaused();
 	ongoingAnimationsState.setBusy();
 
-	GH.windows().pushWindow(windowObject);
+	ENGINE->windows().pushWindow(windowObject);
 	windowObject->blockUI(true);
 	windowObject->updateQueue();
 
@@ -109,7 +109,7 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 	auto onIntroPlayed = [this]()
 	{
 		// Make sure that battle have not ended while intro was playing AND that a different one has not started
-		if(LOCPLINT->battleInt.get() == this)
+		if(GAME->interface()->battleInt.get() == this)
 			onIntroSoundPlayed();
 	};
 
@@ -126,13 +126,13 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 	int battleIntroSoundChannel = -1;
 
 	if (!battlefieldSound.empty())
-		battleIntroSoundChannel = CCS->soundh->playSound(battlefieldSound);
+		battleIntroSoundChannel = ENGINE->sound().playSound(battlefieldSound);
 	else
-		battleIntroSoundChannel = CCS->soundh->playSoundFromSet(battleIntroSounds);
+		battleIntroSoundChannel = ENGINE->sound().playSoundFromSet(battleIntroSounds);
 
 	if (battleIntroSoundChannel != -1)
 	{
-		CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
+		ENGINE->sound().setCallback(battleIntroSoundChannel, onIntroPlayed);
 
 		if (settings["gameTweaks"]["skipBattleIntroMusic"].Bool())
 			openingEnd();
@@ -157,9 +157,9 @@ void BattleInterface::onIntroSoundPlayed()
 	const auto & battlefieldMusic = bfieldType.getInfo()->musicFilename;
 
 	if (!battlefieldMusic.empty())
-		CCS->musich->playMusic(battlefieldMusic, true, true);
+		ENGINE->music().playMusic(battlefieldMusic, true, true);
 	else
-		CCS->musich->playMusicFromSet("battle", true, true);
+		ENGINE->music().playMusicFromSet("battle", true, true);
 }
 
 void BattleInterface::openingEnd()
@@ -191,7 +191,7 @@ BattleInterface::~BattleInterface()
 void BattleInterface::redrawBattlefield()
 {
 	fieldController->redrawBackgroundWithHexes();
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 void BattleInterface::stackReset(const CStack * stack)
@@ -257,7 +257,7 @@ void BattleInterface::newRoundFirst()
 
 void BattleInterface::newRound()
 {
-	console->addText(CGI->generaltexth->allTexts[412]);
+	console->addText(LIBRARY->generaltexth->allTexts[412]);
 	round++;
 }
 
@@ -301,7 +301,7 @@ void BattleInterface::sendCommand(BattleAction command, const CStack * actor)
 		stacksController->setActiveStack(nullptr);
 		//next stack will be activated when action ends
 	}
-	CCS->curh->set(Cursor::Combat::POINTER);
+	ENGINE->cursor().set(Cursor::Combat::POINTER);
 }
 
 const CGHeroInstance * BattleInterface::getActiveHero()
@@ -337,7 +337,7 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 	checkForAnimations();
 	stacksController->setActiveStack(nullptr);
 
-	CCS->curh->set(Cursor::Map::POINTER);
+	ENGINE->cursor().set(Cursor::Map::POINTER);
 	curInt->waitWhileDialog();
 
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-skip-battle-result"].Bool())
@@ -352,7 +352,7 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 	{
 		curInt->cb->selectionMade(selection, queryID);
 	};
-	GH.windows().pushWindow(wnd);
+	ENGINE->windows().pushWindow(wnd);
 
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
 	CPlayerInterface::battleInt.reset();
@@ -371,7 +371,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		stacksController->deactivateStack();
 	}
 
-	CCS->curh->set(Cursor::Combat::BLOCKED);
+	ENGINE->cursor().set(Cursor::Combat::BLOCKED);
 
 	const SpellID spellID = sc->spellID;
 
@@ -390,7 +390,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 					EAnimationEvents::BEFORE_HIT;//FIXME: recheck whether this should be on projectile spawning
 
 		addToAnimationStage(group, [=]() {
-			CCS->soundh->playSound(castSoundPath);
+			ENGINE->sound().playSound(castSoundPath);
 		});
 	}
 
@@ -447,7 +447,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	if (!sc->resistedCres.empty())
 	{
 		addToAnimationStage(EAnimationEvents::HIT, [=](){
-			CCS->soundh->playSound(AudioPath::builtin("MAGICRES"));
+			ENGINE->sound().playSound(AudioPath::builtin("MAGICRES"));
 		});
 	}
 
@@ -586,7 +586,7 @@ void BattleInterface::activateStack()
 	windowObject->blockUI(false);
 	fieldController->redrawBackgroundWithHexes();
 	actionsController->activateStack();
-	GH.fakeMouseMove();
+	ENGINE->fakeMouseMove();
 }
 
 bool BattleInterface::makingTurn() const
@@ -813,7 +813,7 @@ void BattleInterface::onAnimationsFinished()
 void BattleInterface::waitForAnimations()
 {
 	{
-		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 		ongoingAnimationsState.waitWhileBusy();
 	}
 

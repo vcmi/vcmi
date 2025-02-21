@@ -15,7 +15,7 @@
 #include "BonusSelector.h"
 #include "BonusList.h"
 
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../IGameSettings.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -99,10 +99,10 @@ void PrimarySkillsCache::update() const
 	static const CSelector knowledgeSelector = Selector::subtype()(PrimarySkill::KNOWLEDGE);
 
 	std::array<int, 4> minValues = {
-		VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::ATTACK),
-		VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::DEFENSE),
-		VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::SPELL_POWER),
-		VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::KNOWLEDGE)
+		LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::ATTACK),
+		LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::DEFENSE),
+		LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::SPELL_POWER),
+		LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::KNOWLEDGE)
 	};
 
 	auto list = target->getBonuses(primarySkillsSelector);

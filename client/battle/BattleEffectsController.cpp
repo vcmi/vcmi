@@ -18,8 +18,8 @@
 #include "BattleStacksController.h"
 #include "BattleRenderer.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../GameEngine.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/Canvas.h"
 #include "../render/CAnimation.h"
@@ -50,7 +50,7 @@ void BattleEffectsController::displayEffect(EBattleEffect effect, const AudioPat
 
 	AnimationPath customAnim = AnimationPath::builtinTODO(graphics->battleACToDef[effectID][0]);
 
-	CCS->soundh->playSound( soundFile );
+	ENGINE->sound().playSound( soundFile );
 
 	owner.stacksController->addNewAnim(new EffectAnimation(owner, customAnim, destTile, 0, transparencyFactor));
 }
@@ -82,7 +82,7 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 			break;
 		case BonusType::MORALE:
 		{
-			std::string hlp = CGI->generaltexth->allTexts[33];
+			std::string hlp = LIBRARY->generaltexth->allTexts[33];
 			boost::algorithm::replace_first(hlp,"%s",(stack->getName()));
 			displayEffect(EBattleEffect::GOOD_MORALE, AudioPath::builtin("GOODMRLE"), stack->getPosition());
 			owner.appendBattleLog(hlp);

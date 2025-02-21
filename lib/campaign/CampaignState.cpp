@@ -12,7 +12,7 @@
 
 #include "../Point.h"
 #include "../filesystem/ResourcePath.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../mapping/CMapService.h"
 #include "../mapping/CMapInfo.h"
@@ -180,7 +180,7 @@ bool CampaignBonus::isBonusForHero() const
 void CampaignHeader::loadLegacyData(ui8 campId)
 {
 	campaignRegions = CampaignRegions::getLegacy(campId);
-	numberOfScenarios = VLC->generaltexth->getCampaignLength(campId);
+	numberOfScenarios = LIBRARY->generaltexth->getCampaignLength(campId);
 }
 
 void CampaignHeader::loadLegacyData(CampaignRegions regions, int numOfScenario)

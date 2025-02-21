@@ -224,7 +224,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 		{
 			try
 			{
-				RangeGenerator obidgen(0, VLC->obstacleHandler->size() - 1, ourRand);
+				RangeGenerator obidgen(0, LIBRARY->obstacleHandler->size() - 1, ourRand);
 				auto obstPtr = std::make_shared<CObstacleInstance>();
 				obstPtr->obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
 				obstPtr->ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
@@ -246,7 +246,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 		{
 			while(tilesToBlock > 0)
 			{
-				RangeGenerator obidgen(0, VLC->obstacleHandler->size() - 1, ourRand);
+				RangeGenerator obidgen(0, LIBRARY->obstacleHandler->size() - 1, ourRand);
 				auto tileAccessibility = currentBattle->getAccessibility();
 				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
 				const ObstacleInfo &obi = *Obstacle(obid).getInfo();
@@ -377,7 +377,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	auto good = std::make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD);
 	auto evil = std::make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL);
 
-	const auto * bgInfo = VLC->battlefields()->getById(battlefieldType);
+	const auto * bgInfo = LIBRARY->battlefields()->getById(battlefieldType);
 
 	for(const std::shared_ptr<Bonus> & bonus : bgInfo->bonuses)
 	{

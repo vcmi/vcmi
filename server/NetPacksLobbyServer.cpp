@@ -395,7 +395,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 {
 	std::vector<FactionID> allowedTowns;
 
-	for (auto const & factionID : VLC->townh->getDefaultAllowed())
+	for (auto const & factionID : LIBRARY->townh->getDefaultAllowed())
 		if(std::find(pack.bannedTowns.begin(), pack.bannedTowns.end(), factionID) == pack.bannedTowns.end())
 			allowedTowns.push_back(factionID);
 
@@ -417,7 +417,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 				break;
 			txt.appendTextID("core.overview.3");
 			txt.appendRawString(" - ");
-			txt.appendTextID(VLC->townh->getById(randomFaction1[0])->getNameTextID());
+			txt.appendTextID(LIBRARY->townh->getById(randomFaction1[0])->getNameTextID());
 			srv.announceTxt(txt);
 			break;
 		case LobbyPvPAction::RANDOM_TOWN_VS:
@@ -425,11 +425,11 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 				break;
 			txt.appendTextID("core.overview.3");
 			txt.appendRawString(" - ");
-			txt.appendTextID(VLC->townh->getById(randomFaction1[0])->getNameTextID());
+			txt.appendTextID(LIBRARY->townh->getById(randomFaction1[0])->getNameTextID());
 			txt.appendRawString(" ");
 			txt.appendTextID("vcmi.lobby.pvp.versus");
 			txt.appendRawString(" ");
-			txt.appendTextID(VLC->townh->getById(randomFaction2[0])->getNameTextID());
+			txt.appendTextID(LIBRARY->townh->getById(randomFaction2[0])->getNameTextID());
 			srv.announceTxt(txt);
 			break;
 	}

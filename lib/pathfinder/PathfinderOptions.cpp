@@ -12,7 +12,7 @@
 
 #include "../gameState/CGameState.h"
 #include "../IGameSettings.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "NodeStorage.h"
 #include "PathfindingRules.h"
 #include "CPathfinder.h"

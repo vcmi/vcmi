@@ -9,9 +9,10 @@
  */
 #include "StdInc.h"
 #include "CreatureCostBox.h"
-#include "widgets/Images.h"
-#include "widgets/TextControls.h"
-#include "gui/CGuiHandler.h"
+
+#include "../widgets/Images.h"
+#include "../widgets/TextControls.h"
+#include "../GameEngine.h"
 
 CreatureCostBox::CreatureCostBox(Rect position, std::string titleText)
 {

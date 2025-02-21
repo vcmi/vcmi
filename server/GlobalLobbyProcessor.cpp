@@ -13,7 +13,7 @@
 #include "CVCMIServer.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/json/JsonUtils.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
 #include "../lib/modding/ModVerificationInfo.h"
@@ -160,10 +160,10 @@ JsonNode GlobalLobbyProcessor::getHostModList() const
 {
 	ModCompatibilityInfo info;
 
-	for (auto const & modName : VLC->modh->getActiveMods())
+	for (auto const & modName : LIBRARY->modh->getActiveMods())
 	{
-		if(VLC->modh->getModInfo(modName).affectsGameplay())
-			info[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
+		if(LIBRARY->modh->getModInfo(modName).affectsGameplay())
+			info[modName] = LIBRARY->modh->getModInfo(modName).getVerificationInfo();
 	}
 
 	return ModVerificationInfo::jsonSerializeList(info);

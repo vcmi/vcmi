@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "InputSourceText.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/EventDispatcher.h"
 #include "../render/IScreenHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
@@ -29,19 +29,19 @@ InputSourceText::InputSourceText()
 
 void InputSourceText::handleEventTextInput(const SDL_TextInputEvent & text)
 {
-	GH.events().dispatchTextInput(text.text);
+	ENGINE->events().dispatchTextInput(text.text);
 }
 
 void InputSourceText::handleEventTextEditing(const SDL_TextEditingEvent & text)
 {
-	GH.events().dispatchTextEditing(text.text);
+	ENGINE->events().dispatchTextEditing(text.text);
 }
 
 void InputSourceText::startTextInput(const Rect & whereInput)
 {
-	GH.dispatchMainThread([whereInput]()
+	ENGINE->dispatchMainThread([whereInput]()
 	{
-		Rect rectInScreenCoordinates = GH.screenHandler().convertLogicalPointsToWindow(whereInput);
+		Rect rectInScreenCoordinates = ENGINE->screenHandler().convertLogicalPointsToWindow(whereInput);
 		SDL_Rect textInputRect = CSDL_Ext::toSDL(rectInScreenCoordinates);
 
 		SDL_SetTextInputRect(&textInputRect);
@@ -55,7 +55,7 @@ void InputSourceText::startTextInput(const Rect & whereInput)
 
 void InputSourceText::stopTextInput()
 {
-	GH.dispatchMainThread([]()
+	ENGINE->dispatchMainThread([]()
 	{
 		if (SDL_IsTextInputActive() == SDL_TRUE)
 		{

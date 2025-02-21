@@ -421,7 +421,7 @@ void PlayerMessageProcessor::cheatGiveArmy(PlayerColor player, const CGHeroInsta
 	{
 	}
 
-	std::optional<int32_t> creatureId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "creature", creatureIdentifier, false);
+	std::optional<int32_t> creatureId = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "creature", creatureIdentifier, false);
 
 	if(creatureId.has_value())
 	{
@@ -462,16 +462,16 @@ void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHero
 	{
 		for (auto const & word : words)
 		{
-			auto artID = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", word, false);
-			if(artID &&  VLC->arth->objects[*artID])
+			auto artID = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", word, false);
+			if(artID &&  LIBRARY->arth->objects[*artID])
 				gameHandler->giveHeroNewArtifact(hero, ArtifactID(*artID), ArtifactPosition::FIRST_AVAILABLE);
 		}
 	}
 	else
 	{
-		for(int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
+		for(int g = 7; g < LIBRARY->arth->objects.size(); ++g) //including artifacts from mods
 		{
-			if(VLC->arth->objects[g]->canBePutAt(hero))
+			if(LIBRARY->arth->objects[g]->canBePutAt(hero))
 				gameHandler->giveHeroNewArtifact(hero, ArtifactID(g), ArtifactPosition::FIRST_AVAILABLE);
 		}
 	}
@@ -482,7 +482,7 @@ void PlayerMessageProcessor::cheatGiveScrolls(PlayerColor player, const CGHeroIn
 	if(!hero)
 		return;
 
-	for(const auto & spell : VLC->spellh->objects)
+	for(const auto & spell : LIBRARY->spellh->objects)
 		if(gameHandler->gameState()->isAllowed(spell->getId()) && !spell->isSpecial())
 		{
 			gameHandler->giveHeroNewScroll(hero, spell->getId(), ArtifactPosition::FIRST_AVAILABLE);
@@ -504,7 +504,7 @@ void PlayerMessageProcessor::cheatLevelup(PlayerColor player, const CGHeroInstan
 		levelsToGain = 1;
 	}
 
-	gameHandler->giveExperience(hero, VLC->heroh->reqExp(hero->level + levelsToGain) - VLC->heroh->reqExp(hero->level));
+	gameHandler->giveExperience(hero, LIBRARY->heroh->reqExp(hero->level + levelsToGain) - LIBRARY->heroh->reqExp(hero->level));
 }
 
 void PlayerMessageProcessor::cheatExperience(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)

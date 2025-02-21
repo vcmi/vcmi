@@ -13,12 +13,12 @@
 #include "Images.h"
 #include "TextControls.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../eventsSDL/InputHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
 #include "../gui/InterfaceObjectConfigurable.h"
@@ -30,6 +30,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/GameLibrary.h"
 
 void ButtonBase::update()
 {
@@ -100,7 +101,7 @@ void ButtonBase::setImage(const AnimationPath & defName, bool playerColoredButto
 	pos = image->pos;
 
 	if (playerColoredButton)
-		image->setPlayerColor(LOCPLINT->playerID);
+		image->setPlayerColor(GAME->interface()->playerID);
 }
 
 const JsonNode & ButtonBase::getCurrentConfig() const
@@ -135,7 +136,7 @@ void ButtonBase::setConfigurable(const JsonPath & jsonName, bool playerColoredBu
 	pos = configurable->pos;
 
 	if (playerColoredButton)
-		image->setPlayerColor(LOCPLINT->playerID);
+		image->setPlayerColor(GAME->interface()->playerID);
 }
 
 void CButton::addHoverText(EButtonState state, const std::string & text)
@@ -257,8 +258,8 @@ void CButton::clickPressed(const Point & cursorPosition)
 	{
 		if (!soundDisabled)
 		{
-			CCS->soundh->playSound(soundBase::button);
-			GH.input().hapticFeedback();
+			ENGINE->sound().playSound(soundBase::button);
+			ENGINE->input().hapticFeedback();
 		}
 		setState(EButtonState::PRESSED);
 
@@ -320,9 +321,9 @@ void CButton::hover (bool on)
 	if(!name.empty() && !isBlocked()) //if there is no name, there is nothing to display also
 	{
 		if (on)
-			GH.statusbar()->write(name);
+			ENGINE->statusbar()->write(name);
 		else
-			GH.statusbar()->clearIfMatching(name);
+			ENGINE->statusbar()->clearIfMatching(name);
 	}
 }
 
@@ -383,8 +384,8 @@ std::pair<std::string, std::string> CButton::tooltip()
 std::pair<std::string, std::string> CButton::tooltipLocalized(const std::string & key)
 {
 	return std::make_pair(
-		CGI->generaltexth->translate(key, "hover"),
-		CGI->generaltexth->translate(key, "help")
+		LIBRARY->generaltexth->translate(key, "hover"),
+		LIBRARY->generaltexth->translate(key, "help")
 	);
 }
 
@@ -484,8 +485,8 @@ void CToggleButton::clickPressed(const Point & cursorPosition)
 
 	if (canActivate())
 	{
-		CCS->soundh->playSound(soundBase::button);
-		GH.input().hapticFeedback();
+		ENGINE->sound().playSound(soundBase::button);
+		ENGINE->input().hapticFeedback();
 		setState(EButtonState::PRESSED);
 	}
 }

@@ -21,8 +21,8 @@ class CGHeroInstance;
 class CGObjectInstance;
 
 class CGameState;
-class LibClasses;
-extern DLL_LINKAGE LibClasses * VLC;
+class GameLibrary;
+extern DLL_LINKAGE GameLibrary * LIBRARY;
 
 struct TypeComparer
 {
@@ -125,7 +125,7 @@ public:
 		return oInfo.idRetriever(*obj);
 	}
 
-	void addStdVecItems(CGameState *gs, LibClasses *lib = VLC);
+	void addStdVecItems(CGameState *gs, GameLibrary *lib = LIBRARY);
 };
 
 /// Helper to detect classes with user-provided serialize(S&, int version) method

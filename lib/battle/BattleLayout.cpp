@@ -12,7 +12,7 @@
 
 #include "../GameSettings.h"
 #include "../IGameCallback.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../json/JsonNode.h"
 #include "../mapObjects/CArmedInstance.h"
 

@@ -1264,7 +1264,7 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 		int count = d->creatures[i].first;
 		CreatureID creID = d->creatures[i].second.back();
 
-		vstd::amin(count, ah->freeResources() / VLC->creatures()->getById(creID)->getFullRecruitCost());
+		vstd::amin(count, ah->freeResources() / LIBRARY->creatures()->getById(creID)->getFullRecruitCost());
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}

@@ -10,11 +10,10 @@
 #include "StdInc.h"
 #include "WindowHandler.h"
 
-#include "CGuiHandler.h"
+#include "GameEngine.h"
 #include "CIntObject.h"
 #include "CursorHandler.h"
 
-#include "../CGameInfo.h"
 #include "../render/Canvas.h"
 #include "../render/IScreenHandler.h"
 #include "../render/Colors.h"
@@ -44,7 +43,7 @@ void WindowHandler::pushWindow(std::shared_ptr<IShowActivatable> newInt)
 	if(!windowsStack.empty())
 		windowsStack.back()->deactivate();
 	windowsStack.push_back(newInt);
-	CCS->curh->set(Cursor::Map::POINTER);
+	ENGINE->cursor().set(Cursor::Map::POINTER);
 	newInt->activate();
 	totalRedraw();
 }
@@ -75,7 +74,7 @@ void WindowHandler::popWindows(int howMany)
 		windowsStack.back()->activate();
 		totalRedraw();
 	}
-	GH.fakeMouseMove();
+	ENGINE->fakeMouseMove();
 }
 
 std::shared_ptr<IShowActivatable> WindowHandler::topWindowImpl() const
@@ -107,7 +106,7 @@ void WindowHandler::totalRedrawImpl()
 {
 	logGlobal->debug("totalRedraw requested!");
 
-	Canvas target = GH.screenHandler().getScreenCanvas();
+	Canvas target = ENGINE->screenHandler().getScreenCanvas();
 
 	for(auto & elem : windowsStack)
 		elem->showAll(target);
@@ -125,7 +124,7 @@ void WindowHandler::simpleRedraw()
 
 void WindowHandler::simpleRedrawImpl()
 {
-	Canvas target = GH.screenHandler().getScreenCanvas();
+	Canvas target = ENGINE->screenHandler().getScreenCanvas();
 
 	if(!windowsStack.empty())
 		windowsStack.back()->show(target); //blit active interface/window

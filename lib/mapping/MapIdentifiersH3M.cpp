@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "MapIdentifiersH3M.h"
 
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../filesystem/Filesystem.h"
@@ -28,7 +28,7 @@ void MapIdentifiersH3M::loadMapping(std::map<IdentifierID, IdentifierID> & resul
 	for (auto entry : mapping.Struct())
 	{
 		IdentifierID sourceID (entry.second.Integer());
-		IdentifierID targetID (*VLC->identifiers()->getIdentifier(entry.second.getModScope(), identifierName, entry.first));
+		IdentifierID targetID (*LIBRARY->identifiers()->getIdentifier(entry.second.getModScope(), identifierName, entry.first));
 
 		result[sourceID] = targetID;
 	}
@@ -41,13 +41,13 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 
 	for (auto entryFaction : mapping["buildings"].Struct())
 	{
-		FactionID factionID (*VLC->identifiers()->getIdentifier(entryFaction.second.getModScope(), "faction", entryFaction.first));
+		FactionID factionID (*LIBRARY->identifiers()->getIdentifier(entryFaction.second.getModScope(), "faction", entryFaction.first));
 		auto buildingMap = entryFaction.second;
 
 		for (auto entryBuilding : buildingMap.Struct())
 		{
 			BuildingID sourceID (entryBuilding.second.Integer());
-			BuildingID targetID (*VLC->identifiers()->getIdentifier(entryBuilding.second.getModScope(), "building." + VLC->factions()->getById(factionID)->getJsonKey(), entryBuilding.first));
+			BuildingID targetID (*LIBRARY->identifiers()->getIdentifier(entryBuilding.second.getModScope(), "building." + LIBRARY->factions()->getById(factionID)->getJsonKey(), entryBuilding.first));
 
 			mappingFactionBuilding[factionID][sourceID] = targetID;
 		}
@@ -70,7 +70,7 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		{
 			for (auto entryInner : entryOuter.second.Struct())
 			{
-				auto handler = VLC->objtypeh->getHandlerFor( entryInner.second.getModScope(), entryOuter.first, entryInner.first);
+				auto handler = LIBRARY->objtypeh->getHandlerFor( entryInner.second.getModScope(), entryOuter.first, entryInner.first);
 
 				auto entryValues = entryInner.second.Vector();
 				ObjectTypeIdentifier h3mID{Obj(entryValues[0].Integer()), int32_t(entryValues[1].Integer())};
@@ -80,7 +80,7 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		}
 		else
 		{
-			auto handler = VLC->objtypeh->getHandlerFor( entryOuter.second.getModScope(), entryOuter.first, entryOuter.first);
+			auto handler = LIBRARY->objtypeh->getHandlerFor( entryOuter.second.getModScope(), entryOuter.first, entryOuter.first);
 
 			auto entryValues = entryOuter.second.Vector();
 			ObjectTypeIdentifier h3mID{Obj(entryValues[0].Integer()), int32_t(entryValues[1].Integer())};
@@ -125,7 +125,7 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 	if (objectTemplate.id == Obj::ARTIFACT)
 		objectTemplate.subid = remap(ArtifactID(objectTemplate.subid));
 
-	if (VLC->objtypeh->knownObjects().count(objectTemplate.id) == 0)
+	if (LIBRARY->objtypeh->knownObjects().count(objectTemplate.id) == 0)
 	{
 		logGlobal->warn("Unknown object found: %d | %d", objectTemplate.id, objectTemplate.subid);
 
@@ -134,7 +134,7 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 	}
 	else
 	{
-		if (VLC->objtypeh->knownSubObjects(objectTemplate.id).count(objectTemplate.subid) == 0)
+		if (LIBRARY->objtypeh->knownSubObjects(objectTemplate.id).count(objectTemplate.subid) == 0)
 		{
 			logGlobal->warn("Unknown subobject found: %d | %d", objectTemplate.id, objectTemplate.subid);
 			objectTemplate.subid = {};

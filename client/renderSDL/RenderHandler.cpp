@@ -14,7 +14,7 @@
 #include "ScalableImage.h"
 #include "FontChain.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 
 #include "../render/AssetGenerator.h"
 #include "../render/CAnimation.h"
@@ -170,7 +170,7 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 
 int RenderHandler::getScalingFactor() const
 {
-	return GH.screenHandler().getScalingFactor();
+	return ENGINE->screenHandler().getScalingFactor();
 }
 
 ImageLocator RenderHandler::getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group, int scaling, EImageBlitMode mode)

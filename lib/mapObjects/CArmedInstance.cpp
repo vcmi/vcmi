@@ -29,7 +29,7 @@ void CArmedInstance::randomizeArmy(FactionID type)
 		{
 			int level = elem.second->randomStack->level;
 			int upgrade = elem.second->randomStack->upgrade;
-			elem.second->setType((*VLC->townh)[type]->town->creatures[level][upgrade]);
+			elem.second->setType((*LIBRARY->townh)[type]->town->creatures[level][upgrade]);
 
 			elem.second->randomStack = std::nullopt;
 		}
@@ -73,7 +73,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	for(const auto & slot : Slots())
 	{
 		const CStackInstance * inst = slot.second;
-		const auto * creature  = inst->getCreatureID().toEntity(VLC);
+		const auto * creature  = inst->getCreatureID().toEntity(LIBRARY);
 
 		factions.insert(creature->getFactionID());
 		// Check for undead flag instead of faction (undead mummies are neutral)
@@ -92,7 +92,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 		for(auto f : factions)
 		{
-			if (VLC->factions()->getById(f)->getAlignment() != EAlignment::EVIL)
+			if (LIBRARY->factions()->getById(f)->getAlignment() != EAlignment::EVIL)
 				mixableFactions++;
 		}
 		if (mixableFactions > 0)

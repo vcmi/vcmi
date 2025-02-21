@@ -18,8 +18,7 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
-#include "../gui/CGuiHandler.h"
-#include "../CGameInfo.h"
+#include "../GameEngine.h"
 
 #include "../../lib/CStack.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -192,7 +191,7 @@ void BattleProjectileController::initStackProjectile(const CStack * stack)
 
 std::shared_ptr<CAnimation> BattleProjectileController::createProjectileImage(const AnimationPath & path )
 {
-	std::shared_ptr<CAnimation> projectile = GH.renderHandler().loadAnimation(path, EImageBlitMode::COLORKEY);
+	std::shared_ptr<CAnimation> projectile = ENGINE->renderHandler().loadAnimation(path, EImageBlitMode::COLORKEY);
 
 	if(projectile->size(1) != 0)
 		logAnim->error("Expected empty group 1 in stack projectile");

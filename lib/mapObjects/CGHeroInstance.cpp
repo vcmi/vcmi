@@ -318,14 +318,14 @@ void CGHeroInstance::initHero(vstd::RNG & rand, const HeroTypeID & SUBID)
 TObjectTypeHandler CGHeroInstance::getObjectHandler() const
 {
 	if (ID == Obj::HERO)
-		return VLC->objtypeh->getHandlerFor(ID, getHeroClass()->getIndex());
+		return LIBRARY->objtypeh->getHandlerFor(ID, getHeroClass()->getIndex());
 	else // prison or random hero
-		return VLC->objtypeh->getHandlerFor(ID, 0);
+		return LIBRARY->objtypeh->getHandlerFor(ID, 0);
 }
 
 void CGHeroInstance::updateAppearance()
 {
-	auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());
+	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());
 	auto terrain = cb->gameState()->getTile(visitablePos())->getTerrainID();
 	auto app = handler->getOverride(terrain, this);
 	if (app)
@@ -341,7 +341,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 
 	if (ID == Obj::HERO)
 	{
-		auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());
+		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());
 		appearance = handler->getTemplates().front();
 	}
 
@@ -404,7 +404,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 	// load base hero bonuses, TODO: per-map loading of base hero bonuses
 	// must be done separately from global bonuses since recruitable heroes in taverns 
 	// are not attached to global bonus node but need access to some global bonuses
-	// e.g. MANA_PER_KNOWLEDGE_PERCENTAGE for correct preview and initial state after recruit	for(const auto & ob : VLC->modh->heroBaseBonuses)
+	// e.g. MANA_PER_KNOWLEDGE_PERCENTAGE for correct preview and initial state after recruit	for(const auto & ob : LIBRARY->modh->heroBaseBonuses)
 	// or MOVEMENT to compute initial movement before recruiting is finished
 	const JsonNode & baseBonuses = cb->getSettings().getValue(EGameSettings::BONUSES_PER_HERO);
 	for(const auto & b : baseBonuses.Struct())
@@ -571,13 +571,13 @@ std::string CGHeroInstance::getObjectName() const
 {
 	if(ID != Obj::PRISON)
 	{
-		std::string hoverName = VLC->generaltexth->allTexts[15];
+		std::string hoverName = LIBRARY->generaltexth->allTexts[15];
 		boost::algorithm::replace_first(hoverName,"%s",getNameTranslated());
 		boost::algorithm::replace_first(hoverName,"%s", getClassNameTranslated());
 		return hoverName;
 	}
 	else
-		return VLC->objtypeh->getObjectName(ID, 0);
+		return LIBRARY->objtypeh->getObjectName(ID, 0);
 }
 
 std::string CGHeroInstance::getHoverText(PlayerColor player) const
@@ -591,7 +591,7 @@ std::string CGHeroInstance::getMovementPointsTextIfOwner(PlayerColor player) con
 	std::string output = "";
 	if(player == getOwner())
 	{
-		output += " " + VLC->generaltexth->translate("vcmi.adventureMap.movementPointsHeroInfo");
+		output += " " + LIBRARY->generaltexth->translate("vcmi.adventureMap.movementPointsHeroInfo");
 		boost::replace_first(output, "%POINTS", std::to_string(movementPointsLimit(!boat)));
 		boost::replace_first(output, "%REMAINING", std::to_string(movementPointsRemaining()));
 	}
@@ -660,7 +660,7 @@ void CGHeroInstance::recreateSecondarySkillsBonuses()
 void CGHeroInstance::updateSkillBonus(const SecondarySkill & which, int val)
 {
 	removeBonuses(Selector::source(BonusSource::SECONDARY_SKILL, BonusSourceID(which)));
-	auto skillBonus = (*VLC->skillh)[which]->at(val).effects;
+	auto skillBonus = (*LIBRARY->skillh)[which]->at(val).effects;
 	for(const auto & b : skillBonus)
 		addNewBonus(std::make_shared<Bonus>(*b));
 }
@@ -968,7 +968,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		{
 			int maxCasualtyLevel = 1;
 			for(const auto & casualty : casualties)
-				vstd::amax(maxCasualtyLevel, VLC->creatures()->getById(casualty.first)->getLevel());
+				vstd::amax(maxCasualtyLevel, LIBRARY->creatures()->getById(casualty.first)->getLevel());
 			// pick best bonus available
 			std::shared_ptr<Bonus> topPick;
 			for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
@@ -1093,14 +1093,14 @@ si32 CGHeroInstance::getManaNewTurn() const
 //  */
 // void CGHeroInstance::giveArtifact (ui32 aid) //use only for fixed artifacts
 // {
-// 	CArtifact * const artifact = VLC->arth->objects[aid]; //pointer to constant object
+// 	CArtifact * const artifact = LIBRARY->arth->objects[aid]; //pointer to constant object
 // 	CArtifactInstance *ai = CArtifactInstance::createNewArtifactInstance(artifact);
 // 	ai->putAt(this, ai->firstAvailableSlot(this));
 // }
 
 BoatId CGHeroInstance::getBoatType() const
 {
-	return BoatId(VLC->townh->getById(getHeroClass()->faction)->getBoatType());
+	return BoatId(LIBRARY->townh->getById(getHeroClass()->faction)->getBoatType());
 }
 
 void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
@@ -1166,17 +1166,17 @@ HeroTypeID CGHeroInstance::getPortraitSource() const
 
 int32_t CGHeroInstance::getIconIndex() const
 {
-	return getPortraitSource().toEntity(VLC)->getIconIndex();
+	return getPortraitSource().toEntity(LIBRARY)->getIconIndex();
 }
 
 std::string CGHeroInstance::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::string CGHeroInstance::getClassNameTranslated() const
 {
-	return VLC->generaltexth->translate(getClassNameTextID());
+	return LIBRARY->generaltexth->translate(getClassNameTextID());
 }
 
 std::string CGHeroInstance::getClassNameTextID() const
@@ -1200,7 +1200,7 @@ std::string CGHeroInstance::getNameTextID() const
 
 std::string CGHeroInstance::getBiographyTranslated() const
 {
-	return VLC->generaltexth->translate(getBiographyTextID());
+	return LIBRARY->generaltexth->translate(getBiographyTextID());
 }
 
 std::string CGHeroInstance::getBiographyTextID() const
@@ -1355,8 +1355,8 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills(vs
 {
 	auto getObligatorySkills = [](CSkill::Obligatory obl){
 		std::set<SecondarySkill> obligatory;
-		for(auto i = 0; i < VLC->skillh->size(); i++)
-			if((*VLC->skillh)[SecondarySkill(i)]->obligatory(obl))
+		for(auto i = 0; i < LIBRARY->skillh->size(); i++)
+			if((*LIBRARY->skillh)[SecondarySkill(i)]->obligatory(obl))
 				obligatory.insert(i); //Always return all obligatory skills
 
 		return obligatory;
@@ -1376,7 +1376,7 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills(vs
 	std::set<SecondarySkill> basicAndAdv;
 	std::set<SecondarySkill> none;
 
-	for(int i = 0; i < VLC->skillh->size(); i++)
+	for(int i = 0; i < LIBRARY->skillh->size(); i++)
 		if (canLearnSkill(SecondarySkill(i)))
 			none.insert(SecondarySkill(i));
 
@@ -1511,7 +1511,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 
 
 bool CGHeroInstance::gainsLevel() const
 {
-	return level < VLC->heroh->maxSupportedLevel() && exp >= static_cast<TExpType>(VLC->heroh->reqExp(level+1));
+	return level < LIBRARY->heroh->maxSupportedLevel() && exp >= static_cast<TExpType>(LIBRARY->heroh->reqExp(level+1));
 }
 
 void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)
@@ -1524,9 +1524,9 @@ void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)
 
 	for(const auto & skill : skills)
 	{
-		if((*VLC->skillh)[skill]->obligatory(CSkill::Obligatory::MAJOR))
+		if((*LIBRARY->skillh)[skill]->obligatory(CSkill::Obligatory::MAJOR))
 			skillsInfo.resetWisdomCounter();
-		if((*VLC->skillh)[skill]->obligatory(CSkill::Obligatory::MINOR))
+		if((*LIBRARY->skillh)[skill]->obligatory(CSkill::Obligatory::MINOR))
 			skillsInfo.resetMagicSchoolCounter();
 	}
 
@@ -1594,7 +1594,7 @@ void CGHeroInstance::setHeroTypeName(const std::string & identifier)
 {
 	if(ID == Obj::HERO || ID == Obj::PRISON)
 	{
-		auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", identifier);
+		auto rawId = LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", identifier);
 
 		if(rawId)
 			subID = rawId.value();
@@ -1769,7 +1769,7 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(!appearance)
 		{
 			// crossoverDeserialize
-			appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, getHeroClassID())->getTemplates().front();
+			appearance = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClassID())->getTemplates().front();
 		}
 	}
 
@@ -1904,7 +1904,7 @@ int CGHeroInstance::getBasePrimarySkillValue(PrimarySkill which) const
 {
 	std::string cachingStr = "CGHeroInstance::getBasePrimarySkillValue" + std::to_string(static_cast<int>(which));
 	auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(which)).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
-	auto minSkillValue = VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, which.getNum());
+	auto minSkillValue = LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, which.getNum());
 	return std::max(valOfBonuses(selector, cachingStr), minSkillValue);
 }
 

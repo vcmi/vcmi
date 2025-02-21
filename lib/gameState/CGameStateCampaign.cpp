@@ -481,7 +481,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 		const auto & node = campaignState->getHeroByType(*placeholder->heroType);
 		if (node.isNull())
 		{
-			logGlobal->info("Hero crossover: Unable to replace placeholder for %d (%s)!", placeholder->heroType->getNum(), VLC->heroTypes()->getById(*placeholder->heroType)->getNameTranslated());
+			logGlobal->info("Hero crossover: Unable to replace placeholder for %d (%s)!", placeholder->heroType->getNum(), LIBRARY->heroTypes()->getById(*placeholder->heroType)->getNameTranslated());
 			continue;
 		}
 

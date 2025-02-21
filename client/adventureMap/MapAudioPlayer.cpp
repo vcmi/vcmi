@@ -11,8 +11,9 @@
 #include "MapAudioPlayer.h"
 
 #include "../CCallback.h"
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../mapView/mapHandler.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
@@ -83,7 +84,7 @@ void MapAudioPlayer::addObject(const CGObjectInstance * obj)
 			{
 				int3 currTile(obj->anchorPos().x - fx, obj->anchorPos().y - fy, obj->anchorPos().z);
 
-				if(LOCPLINT->cb->isInTheMap(currTile) && obj->coveringAt(currTile))
+				if(GAME->interface()->cb->isInTheMap(currTile) && obj->coveringAt(currTile))
 					objects[currTile.z][currTile.x][currTile.y].push_back(obj->id);
 			}
 		}
@@ -95,7 +96,7 @@ void MapAudioPlayer::addObject(const CGObjectInstance * obj)
 		// visitable object - visitable tile acts as sound source
 		int3 currTile = obj->visitablePos();
 
-		if(LOCPLINT->cb->isInTheMap(currTile))
+		if(GAME->interface()->cb->isInTheMap(currTile))
 			objects[currTile.z][currTile.x][currTile.y].push_back(obj->id);
 
 		return;
@@ -110,7 +111,7 @@ void MapAudioPlayer::addObject(const CGObjectInstance * obj)
 		{
 			int3 currTile = obj->anchorPos() + tile;
 
-			if(LOCPLINT->cb->isInTheMap(currTile))
+			if(GAME->interface()->cb->isInTheMap(currTile))
 				objects[currTile.z][currTile.x][currTile.y].push_back(obj->id);
 		}
 		return;
@@ -119,9 +120,9 @@ void MapAudioPlayer::addObject(const CGObjectInstance * obj)
 
 void MapAudioPlayer::removeObject(const CGObjectInstance * obj)
 {
-	for(int z = 0; z < LOCPLINT->cb->getMapSize().z; z++)
-		for(int x = 0; x < LOCPLINT->cb->getMapSize().x; x++)
-			for(int y = 0; y < LOCPLINT->cb->getMapSize().y; y++)
+	for(int z = 0; z < GAME->interface()->cb->getMapSize().z; z++)
+		for(int x = 0; x < GAME->interface()->cb->getMapSize().x; x++)
+			for(int y = 0; y < GAME->interface()->cb->getMapSize().y; y++)
 				vstd::erase(objects[z][x][y], obj->id);
 }
 
@@ -131,7 +132,7 @@ std::vector<AudioPath> MapAudioPlayer::getAmbientSounds(const int3 & tile)
 
 	for(auto & objectID : objects[tile.z][tile.x][tile.y])
 	{
-		const auto & object = CGI->mh->getMap()->objects[objectID.getNum()];
+		const auto & object = GAME->map().getMap()->objects[objectID.getNum()];
 
 		assert(object);
 		if (!object)
@@ -145,7 +146,7 @@ std::vector<AudioPath> MapAudioPlayer::getAmbientSounds(const int3 & tile)
 		}
 	}
 
-	if(CGI->mh->getMap()->isCoastalTile(tile))
+	if(GAME->map().getMap()->isCoastalTile(tile))
 		result.emplace_back(AudioPath::builtin("LOOPOCEA"));
 
 	return result;
@@ -164,7 +165,7 @@ void MapAudioPlayer::updateAmbientSounds()
 
 	int3 pos = currentSelection->getSightCenter();
 	std::unordered_set<int3> tiles;
-	LOCPLINT->cb->getVisibleTilesInRange(tiles, pos, CCS->soundh->ambientGetRange(), int3::DIST_CHEBYSHEV);
+	GAME->interface()->cb->getVisibleTilesInRange(tiles, pos, ENGINE->sound().ambientGetRange(), int3::DIST_CHEBYSHEV);
 	for(int3 tile : tiles)
 	{
 		int dist = pos.dist(tile, int3::DIST_CHEBYSHEV);
@@ -172,22 +173,22 @@ void MapAudioPlayer::updateAmbientSounds()
 		for(auto & soundName : getAmbientSounds(tile))
 			updateSounds(soundName, dist);
 	}
-	CCS->soundh->ambientUpdateChannels(currentSounds);
+	ENGINE->sound().ambientUpdateChannels(currentSounds);
 }
 
 void MapAudioPlayer::updateMusic()
 {
 	if(audioPlaying && playerMakingTurn && currentSelection)
 	{
-		const auto * tile = LOCPLINT->cb->getTile(currentSelection->visitablePos());
+		const auto * tile = GAME->interface()->cb->getTile(currentSelection->visitablePos());
 
 		if (tile)
-			CCS->musich->playMusicFromSet("terrain", tile->getTerrain()->getJsonKey(), true, false);
+			ENGINE->music().playMusicFromSet("terrain", tile->getTerrain()->getJsonKey(), true, false);
 	}
 
 	if(audioPlaying && enemyMakingTurn)
 	{
-		CCS->musich->playMusicFromSet("enemy-turn", true, false);
+		ENGINE->music().playMusicFromSet("enemy-turn", true, false);
 	}
 }
 
@@ -201,11 +202,11 @@ void MapAudioPlayer::update()
 
 MapAudioPlayer::MapAudioPlayer()
 {
-	auto mapSize = LOCPLINT->cb->getMapSize();
+	auto mapSize = GAME->interface()->cb->getMapSize();
 
 	objects.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 
-	for(const auto & obj : CGI->mh->getMap()->objects)
+	for(const auto & obj : GAME->map().getMap()->objects)
 	{
 		if (obj)
 			addObject(obj);
@@ -214,8 +215,8 @@ MapAudioPlayer::MapAudioPlayer()
 
 MapAudioPlayer::~MapAudioPlayer()
 {
-	CCS->soundh->ambientStopAllChannels();
-	CCS->musich->stopMusic(1000);
+	ENGINE->sound().ambientStopAllChannels();
+	ENGINE->music().stopMusic(1000);
 }
 
 void MapAudioPlayer::onSelectionChanged(const CArmedInstance * newSelection)
@@ -227,8 +228,8 @@ void MapAudioPlayer::onSelectionChanged(const CArmedInstance * newSelection)
 void MapAudioPlayer::onAudioPaused()
 {
 	audioPlaying = false;
-	CCS->soundh->ambientStopAllChannels();
-	CCS->musich->stopMusic(1000);
+	ENGINE->sound().ambientStopAllChannels();
+	ENGINE->music().stopMusic(1000);
 }
 
 void MapAudioPlayer::onAudioResumed()
@@ -255,6 +256,6 @@ void MapAudioPlayer::onPlayerTurnEnded()
 {
 	playerMakingTurn = false;
 	enemyMakingTurn = false;
-	CCS->soundh->ambientStopAllChannels();
-	CCS->musich->stopMusic(1000);
+	ENGINE->sound().ambientStopAllChannels();
+	ENGINE->music().stopMusic(1000);
 }

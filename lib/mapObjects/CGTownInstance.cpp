@@ -133,7 +133,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	if (creatures[level].second.empty())
 		return ret; //no dwelling
 
-	const Creature *creature = creatures[level].second.back().toEntity(VLC);
+	const Creature *creature = creatures[level].second.back().toEntity(LIBRARY);
 	const int base = creature->getGrowth();
 	int castleBonus = 0;
 
@@ -145,7 +145,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	else
 		ret.handicapPercentage = 100;
 
-	ret.entries.emplace_back(VLC->generaltexth->allTexts[590], base); // \n\nBasic growth %d"
+	ret.entries.emplace_back(LIBRARY->generaltexth->allTexts[590], base); // \n\nBasic growth %d"
 
 	if (hasBuilt(BuildingID::CASTLE))
 		ret.entries.emplace_back(subID, BuildingID::CASTLE, castleBonus = base);
@@ -183,7 +183,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 		dwellingBonus = getDwellingBonus(creatures[level].second, p->getOwnedObjects());
 	}
 	if(dwellingBonus)
-		ret.entries.emplace_back(VLC->generaltexth->allTexts[591], dwellingBonus); // \nExternal dwellings %+d
+		ret.entries.emplace_back(LIBRARY->generaltexth->allTexts[591], dwellingBonus); // \nExternal dwellings %+d
 
 	if(hasBuilt(BuildingID::GRAIL)) //grail - +50% to ALL (so far added) growth
 		ret.entries.emplace_back(subID, BuildingID::GRAIL, ret.totalGrowth() / 2);
@@ -451,8 +451,8 @@ FactionID CGTownInstance::randomizeFaction(vstd::RNG & rand)
 
 	std::vector<FactionID> potentialPicks;
 
-	for (FactionID faction(0); faction < FactionID(VLC->townh->size()); ++faction)
-		if (VLC->factions()->getById(faction)->hasTown())
+	for (FactionID faction(0); faction < FactionID(LIBRARY->townh->size()); ++faction)
+		if (LIBRARY->factions()->getById(faction)->hasTown())
 			potentialPicks.push_back(faction);
 
 	assert(!potentialPicks.empty());
@@ -861,7 +861,7 @@ CBonusSystemNode & CGTownInstance::whatShouldBeAttached()
 
 std::string CGTownInstance::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(nameTextId);
+	return LIBRARY->generaltexth->translate(nameTextId);
 }
 
 std::string CGTownInstance::getNameTextID() const
@@ -1062,7 +1062,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		auto decodeBuilding = [this](const std::string & identifier) -> si32
 		{
-			auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), getTown()->getBuildingScope(), identifier);
+			auto rawId = LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), getTown()->getBuildingScope(), identifier);
 
 			if(rawId)
 				return rawId.value();
@@ -1158,7 +1158,7 @@ const CFaction * CGTownInstance::getFaction() const
 const CTown * CGTownInstance::getTown() const
 {
 	if(ID == Obj::RANDOM_TOWN)
-		return VLC->townh->randomTown;
+		return LIBRARY->townh->randomTown;
 
 	return getFaction()->town;
 }

@@ -10,8 +10,7 @@
 #include "StdInc.h"
 #include "CSoundHandler.h"
 
-#include "../gui/CGuiHandler.h"
-#include "../CGameInfo.h"
+#include "../GameEngine.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/CRandomGenerator.h"
@@ -48,10 +47,7 @@ CSoundHandler::CSoundHandler():
 	{
 		Mix_ChannelFinished([](int channel)
 		{
-			if (CCS)
-			{
-				CCS->soundh->soundFinishedCallback(channel);
-			}
+			ENGINE->sound().soundFinishedCallback(channel);
 		});
 	}
 }
@@ -319,7 +315,7 @@ void CSoundHandler::soundFinishedCallback(int channel)
 
 	if(!callback.empty())
 	{
-		GH.dispatchMainThread(
+		ENGINE->dispatchMainThread(
 			[callback]()
 			{
 				for(const auto & entry : callback)

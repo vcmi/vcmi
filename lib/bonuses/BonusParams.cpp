@@ -15,7 +15,7 @@
 #include "BonusSelector.h"
 
 #include "../ResourceSet.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 
@@ -148,12 +148,12 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 		else if (deprecatedSubtype == SecondarySkill::FIRST_AID || deprecatedSubtypeStr == "skill.firstAid")
 		{
 			type = BonusType::SPECIFIC_SPELL_POWER;
-			subtype = SpellID(*VLC->identifiers()->getIdentifier( ModScope::scopeGame(), "spell", "firstAid"));
+			subtype = SpellID(*LIBRARY->identifiers()->getIdentifier( ModScope::scopeGame(), "spell", "firstAid"));
 		}
 		else if (deprecatedSubtype == SecondarySkill::BALLISTICS || deprecatedSubtypeStr == "skill.ballistics")
 		{
 			type = BonusType::CATAPULT_EXTRA_SHOTS;
-			subtype = SpellID(*VLC->identifiers()->getIdentifier( ModScope::scopeGame(), "spell", "catapultShot"));
+			subtype = SpellID(*LIBRARY->identifiers()->getIdentifier( ModScope::scopeGame(), "spell", "catapultShot"));
 		}
 		else
 			isConverted = false;
@@ -185,7 +185,7 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 	else if (deprecatedTypeStr == "MAXED_SPELL")
 	{
 		type = BonusType::SPELL;
-		subtype = SpellID(*VLC->identifiers()->getIdentifier( ModScope::scopeGame(), "spell", deprecatedSubtypeStr));
+		subtype = SpellID(*LIBRARY->identifiers()->getIdentifier( ModScope::scopeGame(), "spell", deprecatedSubtypeStr));
 		valueType = BonusValueType::INDEPENDENT_MAX;
 		val = 3;
 	}

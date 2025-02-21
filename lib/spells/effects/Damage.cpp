@@ -156,7 +156,7 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 	else if(m->getSpell()->getJsonKey().find("accurateShot") != std::string::npos && !multiple)
 	{
 		MetaString line;
-		std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
+		std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
 		std::string textID = "vcmi.battleWindow.accurateShot.resultDescription";
 		line.appendTextID(Languages::getPluralFormTextID( preferredLanguage, kills, textID));
 		line.replaceNumber(kills);
@@ -175,7 +175,7 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 		{
 			MetaString line;
 			//todo: handle newlines in metastring
-			std::string text = VLC->generaltexth->allTexts[343]; //Does %d points of damage.
+			std::string text = LIBRARY->generaltexth->allTexts[343]; //Does %d points of damage.
 			boost::algorithm::trim(text);
 			line.appendRawString(text);
 			line.replaceNumber(static_cast<int>(damage)); //no more text afterwards

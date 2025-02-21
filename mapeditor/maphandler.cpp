@@ -70,15 +70,15 @@ void MapHandler::initTerrainGraphics()
 	std::map<std::string, std::string> terrainFiles;
 	std::map<std::string, std::string> roadFiles;
 	std::map<std::string, std::string> riverFiles;
-	for(const auto & terrain : VLC->terrainTypeHandler->objects)
+	for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
 	{
 		terrainFiles[terrain->getJsonKey()] = terrain->tilesFilename.getName();
 	}
-	for(const auto & river : VLC->riverTypeHandler->objects)
+	for(const auto & river : LIBRARY->riverTypeHandler->objects)
 	{
 		riverFiles[river->getJsonKey()] = river->tilesFilename.getName();
 	}
-	for(const auto & road : VLC->roadTypeHandler->objects)
+	for(const auto & road : LIBRARY->roadTypeHandler->objects)
 	{
 		roadFiles[road->getJsonKey()] = road->tilesFilename.getName();
 	}

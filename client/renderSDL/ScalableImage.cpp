@@ -13,7 +13,7 @@
 #include "SDLImage.h"
 #include "SDL_Extensions.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 
 #include "../render/ColorFilter.h"
 #include "../render/Colors.h"
@@ -225,7 +225,7 @@ ScalableImageShared::ScalableImageShared(const SharedImageLocator & locator, con
 	scaled[1].body[0] = baseImage;
 	assert(scaled[1].body[0] != nullptr);
 
-	loadScaledImages(GH.screenHandler().getScalingFactor(), PlayerColor::CANNOT_DETERMINE);
+	loadScaledImages(ENGINE->screenHandler().getScalingFactor(), PlayerColor::CANNOT_DETERMINE);
 }
 
 Point ScalableImageShared::dimensions() const
@@ -333,7 +333,7 @@ void ScalableImageInstance::scaleTo(const Point & size, EScalingAlgorithm algori
 {
 	scaledImage = nullptr;
 
-	auto newScaledImage = GH.renderHandler().createImage(dimensions(), CanvasScalingPolicy::AUTO);
+	auto newScaledImage = ENGINE->renderHandler().createImage(dimensions(), CanvasScalingPolicy::AUTO);
 
 	newScaledImage->getCanvas().draw(*this, Point(0, 0));
 	newScaledImage->scaleTo(size, algorithm);
@@ -358,7 +358,7 @@ Rect ScalableImageInstance::contentRect() const
 Point ScalableImageInstance::dimensions() const
 {
 	if (scaledImage)
-		return scaledImage->dimensions() / GH.screenHandler().getScalingFactor();
+		return scaledImage->dimensions() / ENGINE->screenHandler().getScalingFactor();
 	return image->dimensions();
 }
 
@@ -451,7 +451,7 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 	loadingLocator.playerColored = color;
 
 	// best case - requested image is already available in filesystem
-	auto loadedFullMatchImage = GH.renderHandler().loadScaledImage(loadingLocator);
+	auto loadedFullMatchImage = ENGINE->renderHandler().loadScaledImage(loadingLocator);
 	if (loadedFullMatchImage)
 		return loadedFullMatchImage;
 
@@ -475,7 +475,7 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 	for (int8_t scaling = 4; scaling > 0; --scaling)
 	{
 		loadingLocator.scalingFactor = scaling;
-		auto loadedImage = GH.renderHandler().loadScaledImage(loadingLocator);
+		auto loadedImage = ENGINE->renderHandler().loadScaledImage(loadingLocator);
 		if (loadedImage)
 		{
 			if (scaling == 1)
@@ -597,12 +597,12 @@ void ScalableImageShared::loadScaledImages(int8_t scalingFactor, PlayerColor col
 
 void ScalableImageShared::preparePlayerColoredImage(PlayerColor color)
 {
-	loadScaledImages(GH.screenHandler().getScalingFactor(), color);
+	loadScaledImages(ENGINE->screenHandler().getScalingFactor(), color);
 }
 
 void ScalableImageShared::prepareEffectImage()
 {
-	int scalingFactor = GH.screenHandler().getScalingFactor();
+	int scalingFactor = ENGINE->screenHandler().getScalingFactor();
 
 	if (scaled[scalingFactor].bodyGrayscale[0] == nullptr)
 	{

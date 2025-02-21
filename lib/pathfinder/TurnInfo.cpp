@@ -13,7 +13,7 @@
 #include "../IGameCallback.h"
 #include "../IGameSettings.h"
 #include "../TerrainHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../bonuses/BonusList.h"
 #include "../json/JsonNode.h"
 #include "../mapObjects/CGHeroInstance.h"
@@ -86,7 +86,7 @@ int TurnInfo::getMovePointsLimitWater() const
 
 TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, int Turn)
 	: target(target)
-	, noterrainPenalty(VLC->terrainTypeHandler->size())
+	, noterrainPenalty(LIBRARY->terrainTypeHandler->size())
 {
 	CSelector daySelector = Selector::days(Turn);
 

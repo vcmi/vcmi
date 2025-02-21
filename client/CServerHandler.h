@@ -215,5 +215,3 @@ public:
 	void visitForLobby(CPackForLobby & lobbyPack);
 	void visitForClient(CPackForClient & clientPack);
 };
-
-extern CServerHandler * CSH;

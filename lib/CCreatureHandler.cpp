@@ -14,7 +14,7 @@
 #include "entities/faction/CFaction.h"
 #include "entities/faction/CTownHandler.h"
 #include "filesystem/Filesystem.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 #include "IGameSettings.h"
 #include "constants/StringConstants.h"
 #include "bonuses/Limiters.h"
@@ -195,12 +195,12 @@ std::string CCreature::getNameTranslated() const
 
 std::string CCreature::getNamePluralTranslated() const
 {
-	return VLC->generaltexth->translate(getNamePluralTextID());
+	return LIBRARY->generaltexth->translate(getNamePluralTextID());
 }
 
 std::string CCreature::getNameSingularTranslated() const
 {
-	return VLC->generaltexth->translate(getNameSingularTextID());
+	return LIBRARY->generaltexth->translate(getNameSingularTextID());
 }
 
 std::string CCreature::getNameTextID() const
@@ -210,7 +210,7 @@ std::string CCreature::getNameTextID() const
 
 std::string CCreature::getDescriptionTranslated() const
 {
-	return VLC->generaltexth->translate(getDescriptionTextID());
+	return LIBRARY->generaltexth->translate(getDescriptionTextID());
 }
 
 std::string CCreature::getNamePluralTextID() const
@@ -284,7 +284,7 @@ bool CCreature::isDoubleWide() const
  */
 bool CCreature::isGood () const
 {
-	return VLC->factions()->getById(faction)->getAlignment() == EAlignment::GOOD;
+	return LIBRARY->factions()->getById(faction)->getAlignment() == EAlignment::GOOD;
 }
 
 /**
@@ -293,7 +293,7 @@ bool CCreature::isGood () const
  */
 bool CCreature::isEvil () const
 {
-	return VLC->factions()->getById(faction)->getAlignment() == EAlignment::EVIL;
+	return LIBRARY->factions()->getById(faction)->getAlignment() == EAlignment::EVIL;
 }
 
 si32 CCreature::maxAmount(const TResources &res) const //how many creatures can be bought
@@ -430,7 +430,7 @@ void CCreatureHandler::loadCommanders()
 {
 	auto configResource = JsonPath::builtin("config/commanders.json");
 
-	std::string modSource = VLC->modh->findResourceOrigin(configResource);
+	std::string modSource = LIBRARY->modh->findResourceOrigin(configResource);
 	JsonNode data(configResource);
 	data.setModScope(modSource);
 
@@ -470,7 +470,7 @@ void CCreatureHandler::loadCommanders()
 
 std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE);
+	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE);
 
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
@@ -568,9 +568,9 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 
 	cre->cost = ResourceSet(node["cost"]);
 
-	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);
-	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"]);
-	VLC->generaltexth->registerString(scope, cre->getDescriptionTextID(), node["description"]);
+	LIBRARY->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);
+	LIBRARY->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"]);
+	LIBRARY->generaltexth->registerString(scope, cre->getDescriptionTextID(), node["description"]);
 
 	cre->addBonus(node["hitPoints"].Integer(), BonusType::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), BonusType::STACKS_SPEED);
@@ -615,12 +615,12 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	JsonNode advMapFile = node["graphics"]["map"];
 	JsonNode advMapMask = node["graphics"]["mapMask"];
 
-	VLC->identifiers()->requestIdentifier(scope, "object", "monster", [cre, scope, advMapFile, advMapMask](si32 monsterIndex)
+	LIBRARY->identifiers()->requestIdentifier(scope, "object", "monster", [cre, scope, advMapFile, advMapMask](si32 monsterIndex)
 	{
 		JsonNode conf;
 		conf.setModScope(scope);
 
-		VLC->objtypeh->loadSubObject(cre->identifier, conf, Obj::MONSTER, cre->getId().num);
+		LIBRARY->objtypeh->loadSubObject(cre->identifier, conf, Obj::MONSTER, cre->getId().num);
 		if (!advMapFile.isNull())
 		{
 			JsonNode templ;
@@ -630,17 +630,17 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 			templ.setModScope(scope);
 
 			// if creature has custom advMapFile, reset any potentially imported H3M templates and use provided file instead
-			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->clearTemplates();
-			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->addTemplate(templ);
+			LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->clearTemplates();
+			LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->addTemplate(templ);
 		}
 
 		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
-		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->getTemplates().empty())
+		if (LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->getTemplates().empty())
 		{
 			if (!cre->special)
 				throw ModLoadingException(scope, "creature " + cre->getJsonKey() + " has no adventure map animation but is not marked as special!" );
 
-			VLC->objtypeh->removeSubObject(Obj::MONSTER, cre->getId().num);
+			LIBRARY->objtypeh->removeSubObject(Obj::MONSTER, cre->getId().num);
 		}
 	});
 
@@ -655,7 +655,7 @@ const std::vector<std::string> & CCreatureHandler::getTypeNames() const
 
 void CCreatureHandler::loadCrExpMod()
 {
-	if (VLC->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values
+	if (LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values
 	{
 		//Calculate rank exp values, formula appears complicated bu no parsing needed
 		expRanks.resize(8);
@@ -705,7 +705,7 @@ void CCreatureHandler::loadCrExpMod()
 
 void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 {
-	if (VLC->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience bonuses
+	if (LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience bonuses
 	{
 		logGlobal->debug("\tLoading stack experience bonuses");
 		auto addBonusForAllCreatures = [&](std::shared_ptr<Bonus> b) {
@@ -784,7 +784,7 @@ void CCreatureHandler::loadAnimationInfo(std::vector<JsonNode> &h3Data) const
 	parser.endLine(); // header
 	parser.endLine();
 
-	for(int dd = 0; dd < VLC->engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE); ++dd)
+	for(int dd = 0; dd < LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE); ++dd)
 	{
 		while (parser.isNextEntryEmpty() && parser.endLine()) // skip empty lines
 			;
@@ -895,14 +895,14 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 		}
 	}
 
-	VLC->identifiers()->requestIdentifier("faction", config["faction"], [=](si32 faction)
+	LIBRARY->identifiers()->requestIdentifier("faction", config["faction"], [=](si32 faction)
 	{
 		creature->faction = FactionID(faction);
 	});
 
 	for(const JsonNode &value : config["upgrades"].Vector())
 	{
-		VLC->identifiers()->requestIdentifier("creature", value, [=](si32 identifier)
+		LIBRARY->identifiers()->requestIdentifier("creature", value, [=](si32 identifier)
 		{
 			creature->upgrades.insert(CreatureID(identifier));
 		});

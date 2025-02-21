@@ -13,7 +13,7 @@
 #include "CModHandler.h"
 #include "ModScope.h"
 
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../constants/StringConstants.h"
 #include "../spells/CSpellHandler.h"
 
@@ -359,14 +359,14 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		// special scope that should have access to all in-game objects
 		if (request.localScope == ModScope::scopeGame())
 		{
-			for(const auto & modName : VLC->modh->getActiveMods())
+			for(const auto & modName : LIBRARY->modh->getActiveMods())
 				allowedScopes.insert(modName);
 		}
 
 		// normally ID's from all required mods, own mod and virtual built-in mod are allowed
 		else if(request.localScope != ModScope::scopeBuiltin() && !request.localScope.empty())
 		{
-			allowedScopes = VLC->modh->getModDependencies(request.localScope, isValidScope);
+			allowedScopes = LIBRARY->modh->getModDependencies(request.localScope, isValidScope);
 
 			if(!isValidScope)
 				return std::vector<ObjectData>();
@@ -398,7 +398,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		else
 		{
 			// allow access only if mod is in our dependencies
-			auto myDeps = VLC->modh->getModDependencies(request.localScope, isValidScope);
+			auto myDeps = LIBRARY->modh->getModDependencies(request.localScope, isValidScope);
 
 			if(!isValidScope)
 				return std::vector<ObjectData>();

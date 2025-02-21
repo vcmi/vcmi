@@ -9,14 +9,11 @@
  */
 
 #include "StdInc.h"
-
 #include "CPrologEpilogVideo.h"
-#include "../CGameInfo.h"
+
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
-//#include "../gui/WindowHandler.h"
-#include "../gui/CGuiHandler.h"
-//#include "../gui/FramerateManager.h"
+#include "../GameEngine.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/VideoWidget.h"
 #include "../widgets/Images.h"
@@ -29,7 +26,7 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	addUsedEvents(LCLICK | TIME);
 	pos = center(Rect(0, 0, 800, 600));
 
-	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
+	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, ENGINE->screenDimensions().x, ENGINE->screenDimensions().y));
 
 	//TODO: remove hardcoded paths. Some of campaigns video actually consist from 2 parts
 	// however, currently our campaigns format expects only	a single video file
@@ -48,16 +45,16 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	if (videoPlayer->pos.h == 400)
 		videoPlayer->moveBy(Point(0, 100));
 
-	CCS->musich->setVolume(CCS->musich->getVolume() / 2); // background volume is too loud by default
-	CCS->musich->playMusic(spe.prologMusic, true, true);
-	voiceDurationMilliseconds = CCS->soundh->getSoundDurationMilliseconds(spe.prologVoice);
-	voiceSoundHandle = CCS->soundh->playSound(spe.prologVoice);
+	ENGINE->music().setVolume(ENGINE->music().getVolume() / 2); // background volume is too loud by default
+	ENGINE->music().playMusic(spe.prologMusic, true, true);
+	voiceDurationMilliseconds = ENGINE->sound().getSoundDurationMilliseconds(spe.prologVoice);
+	voiceSoundHandle = ENGINE->sound().playSound(spe.prologVoice);
 	auto onVoiceStop = [this]()
 	{
 		voiceStopped = true;
 		elapsedTimeMilliseconds = 0;
 	};
-	CCS->soundh->setCallback(voiceSoundHandle, onVoiceStop);
+	ENGINE->sound().setCallback(voiceSoundHandle, onVoiceStop);
 
 	text = std::make_shared<CMultiLineLabel>(Rect(100, 500, 600, 100), EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::METALLIC_GOLD, spe.prologText.toString());
 	if(text->getLines().size() == 3)
@@ -79,7 +76,7 @@ void CPrologEpilogVideo::tick(uint32_t msPassed)
 		++positionCounter;
 	}
 	else if(elapsedTimeMilliseconds > (voiceDurationMilliseconds == 0 ? 8000 : 3000) && voiceStopped) // pause after completed scrolling (longer for intros missing voice)
-		clickPressed(GH.getCursorPosition());
+		clickPressed(ENGINE->getCursorPosition());
 }
 
 void CPrologEpilogVideo::show(Canvas & to)
@@ -92,11 +89,11 @@ void CPrologEpilogVideo::show(Canvas & to)
 
 void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
 {
-	CCS->musich->setVolume(CCS->musich->getVolume() * 2); // restore background volume
+	ENGINE->music().setVolume(ENGINE->music().getVolume() * 2); // restore background volume
 	close();
-	CCS->soundh->resetCallback(voiceSoundHandle); // reset callback to avoid memory corruption since 'this' will be destroyed
-	CCS->soundh->stopSound(voiceSoundHandle);
-	CCS->soundh->stopSound(videoSoundHandle);
+	ENGINE->sound().resetCallback(voiceSoundHandle); // reset callback to avoid memory corruption since 'this' will be destroyed
+	ENGINE->sound().stopSound(voiceSoundHandle);
+	ENGINE->sound().stopSound(videoSoundHandle);
 	if(exitCb)
 		exitCb();
 }

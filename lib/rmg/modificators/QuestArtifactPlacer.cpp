@@ -14,7 +14,7 @@
 #include "../RmgMap.h"
 #include "TreasurePlacer.h"
 #include "../CZonePlacer.h"
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjects/MapObjects.h"
@@ -42,14 +42,14 @@ void QuestArtifactPlacer::addQuestArtZone(std::shared_ptr<Zone> otherZone)
 
 void QuestArtifactPlacer::addQuestArtifact(const ArtifactID& id)
 {
-	logGlobal->trace("Need to place quest artifact %s", VLC->artifacts()->getById(id)->getNameTranslated());
+	logGlobal->trace("Need to place quest artifact %s", LIBRARY->artifacts()->getById(id)->getNameTranslated());
 	RecursiveLock lock(externalAccessMutex);
 	questArtifactsToPlace.emplace_back(id);
 }
 
 void QuestArtifactPlacer::removeQuestArtifact(const ArtifactID& id)
 {
-	logGlobal->trace("Will not try to place quest artifact %s", VLC->artifacts()->getById(id)->getNameTranslated());
+	logGlobal->trace("Will not try to place quest artifact %s", LIBRARY->artifacts()->getById(id)->getNameTranslated());
 	RecursiveLock lock(externalAccessMutex);
 	vstd::erase_if_present(questArtifactsToPlace, id);
 }
@@ -113,10 +113,10 @@ void QuestArtifactPlacer::placeQuestArtifacts(vstd::RNG & rand)
 			logGlobal->trace("Replacing %s at %s with the quest artifact %s",
 				objectToReplace->getObjectName(),
 				objectToReplace->anchorPos().toString(),
-				VLC->artifacts()->getById(artifactToPlace)->getNameTranslated());
+				LIBRARY->artifacts()->getById(artifactToPlace)->getNameTranslated());
 
 			//Update appearance. Terrain is irrelevant.
-			auto handler = VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, artifactToPlace);
+			auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::ARTIFACT, artifactToPlace);
 			auto newObj = handler->create(map.mapInstance->cb, nullptr);
 			auto templates = handler->getTemplates();
 			//artifactToReplace->appearance = templates.front();

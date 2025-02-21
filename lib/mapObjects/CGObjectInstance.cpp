@@ -126,7 +126,7 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
 	cb->gameState()->map->removeBlockVisTiles(this, true);
-	auto handler = VLC->objtypeh->getHandlerFor(newID, newSubID);
+	auto handler = LIBRARY->objtypeh->getHandlerFor(newID, newSubID);
 
 	if(!handler->getTemplates(tile.getTerrainID()).empty())
 	{
@@ -189,7 +189,7 @@ void CGObjectInstance::setProperty( ObjProperty what, ObjPropertyID identifier )
 
 TObjectTypeHandler CGObjectInstance::getObjectHandler() const
 {
-	return VLC->objtypeh->getHandlerFor(ID, subID);
+	return LIBRARY->objtypeh->getHandlerFor(ID, subID);
 }
 
 std::string CGObjectInstance::getTypeName() const
@@ -235,12 +235,12 @@ void CGObjectInstance::giveDummyBonus(const ObjectInstanceID & heroID, BonusDura
 
 std::string CGObjectInstance::getObjectName() const
 {
-	return VLC->objtypeh->getObjectName(ID, subID);
+	return LIBRARY->objtypeh->getObjectName(ID, subID);
 }
 
 std::optional<AudioPath> CGObjectInstance::getAmbientSound(vstd::RNG & rng) const
 {
-	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).ambient;
+	const auto & sounds = LIBRARY->objtypeh->getObjectSounds(ID, subID).ambient;
 	if(!sounds.empty())
 		return sounds.front(); // TODO: Support randomization of ambient sounds
 
@@ -249,7 +249,7 @@ std::optional<AudioPath> CGObjectInstance::getAmbientSound(vstd::RNG & rng) cons
 
 std::optional<AudioPath> CGObjectInstance::getVisitSound(vstd::RNG & rng) const
 {
-	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).visit;
+	const auto & sounds = LIBRARY->objtypeh->getObjectSounds(ID, subID).visit;
 	if(!sounds.empty())
 		return *RandomGeneratorUtil::nextItem(sounds, rng);
 
@@ -258,7 +258,7 @@ std::optional<AudioPath> CGObjectInstance::getVisitSound(vstd::RNG & rng) const
 
 std::optional<AudioPath> CGObjectInstance::getRemovalSound(vstd::RNG & rng) const
 {
-	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).removal;
+	const auto & sounds = LIBRARY->objtypeh->getObjectSounds(ID, subID).removal;
 	if(!sounds.empty())
 		return *RandomGeneratorUtil::nextItem(sounds, rng);
 
@@ -269,7 +269,7 @@ std::string CGObjectInstance::getHoverText(PlayerColor player) const
 {
 	auto text = getObjectName();
 	if (tempOwner.isValidPlayer())
-		text += "\n" + VLC->generaltexth->arraytxt[23 + tempOwner.getNum()];
+		text += "\n" + LIBRARY->generaltexth->arraytxt[23 + tempOwner.getNum()];
 	return text;
 }
 
@@ -402,7 +402,7 @@ void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
 
 BattleField CGObjectInstance::getBattlefield() const
 {
-	return VLC->objtypeh->getHandlerFor(ID, subID)->getBattlefield();
+	return LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattlefield();
 }
 
 const IOwnableObject * CGObjectInstance::asOwnable() const
