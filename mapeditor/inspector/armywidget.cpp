@@ -113,9 +113,9 @@ ArmyWidget::~ArmyWidget()
 	delete ui;
 }
 
-
-
-ArmyDelegate::ArmyDelegate(CArmedInstance & t): army(t), BaseInspectorItemDelegate()
+ArmyDelegate::ArmyDelegate(CArmedInstance & t)
+	: BaseInspectorItemDelegate()
+	, army(t)
 {
 }
 

@@ -466,49 +466,49 @@ void QuestDelegate::updateModelData(QAbstractItemModel * model, const QModelInde
 	textList += QObject::tr("Resources: %1").arg(resourcesList.join(", "));
 
 	QStringList artifactsList;
-	for(auto artifact : quest.mission.artifacts)
+	for(const auto & artifact : quest.mission.artifacts)
 	{
 		artifactsList += QString::fromStdString(VLC->artifacts()->getById(artifact)->getNameTranslated());
 	}
 	textList += QObject::tr("Artifacts: %1").arg(artifactsList.join(", "));
 
 	QStringList spellsList;
-	for(auto spell : quest.mission.spells)
+	for(const auto & spell : quest.mission.spells)
 	{
 		spellsList += QString::fromStdString(VLC->spells()->getById(spell)->getNameTranslated());
 	}
 	textList += QObject::tr("Spells: %1").arg(spellsList.join(", "));
 
 	QStringList secondarySkillsList;
-	for(auto & [skill, skillLevel] : quest.mission.secondary)
+	for(const auto & [skill, skillLevel] : quest.mission.secondary)
 	{
 		secondarySkillsList += QString("%1 (%2)").arg(QString::fromStdString(VLC->skills()->getById(skill)->getNameTranslated())).arg(skillLevel);
 	}
 	textList += QObject::tr("Secondary Skills: %1").arg(secondarySkillsList.join(", "));
 
 	QStringList creaturesList;
-	for(auto & creature : quest.mission.creatures)
+	for(const auto & creature : quest.mission.creatures)
 	{
 		creaturesList += QString("%1 %2").arg(creature.count).arg(QString::fromStdString(creature.getType()->getNamePluralTranslated()));
 	}
 	textList += QObject::tr("Creatures: %1").arg(creaturesList.join(", "));
 
 	QStringList heroesList;
-	for(auto & hero : quest.mission.heroes)
+	for(const auto & hero : quest.mission.heroes)
 	{
 		heroesList += QString::fromStdString(VLC->heroTypes()->getById(hero)->getNameTranslated());
 	}
 	textList += QObject::tr("Heroes: %1").arg(heroesList.join(", "));
 
 	QStringList heroClassesList;
-	for(auto & heroClass : quest.mission.heroClasses)
+	for(const auto & heroClass : quest.mission.heroClasses)
 	{
 		heroClassesList += QString::fromStdString(VLC->heroClasses()->getById(heroClass)->getNameTranslated());
 	}
 	textList += QObject::tr("Hero Classes: %1").arg(heroClassesList.join(", "));
 
 	QStringList playersList;
-	for(auto & player : quest.mission.players)
+	for(const auto & player : quest.mission.players)
 	{
 		MetaString str;
 		str.appendName(player);

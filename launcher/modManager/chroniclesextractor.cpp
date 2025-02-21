@@ -224,7 +224,7 @@ void ChroniclesExtractor::extractFiles(int no) const
 		auto mapping = std::map<std::string, int>{{ {"Intro", 1}, {"Intr2", 2}, {"Intr3", 3}, {"Intr4", 4}, {"Intro5", 7}, {"Intro6", 8} }};
 		std::vector<std::string> videoFiles;
 		for(auto & elem : mapping)
-			for(auto & ending : {".bik", ".smk"})
+			for(const auto & ending : {".bik", ".smk"})
 				videoFiles.push_back(elem.first + ending);
 		extract(tmpDirData, tmpDir, "Hchron.vid", videoFiles);
 		for(auto & ending : {".bik", ".smk"})
@@ -280,7 +280,7 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 		logGlobal->info("Creating base Chronicle mod");
 		createBaseMod();
 
-		for(auto & no : chronicleNo)
+		for(const auto & no : chronicleNo)
 		{
 			logGlobal->info("Creating Chronicle mod (%i)", no);
 			createChronicleMod(no);

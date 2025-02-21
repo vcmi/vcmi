@@ -116,7 +116,9 @@ void HeroSkillsWidget::commitChanges()
 	}
 }
 
-HeroSkillsDelegate::HeroSkillsDelegate(CGHeroInstance & h): hero(h), BaseInspectorItemDelegate()
+HeroSkillsDelegate::HeroSkillsDelegate(CGHeroInstance & h)
+	: BaseInspectorItemDelegate()
+	, hero(h)
 {
 }
 
@@ -157,7 +159,7 @@ void HeroSkillsDelegate::updateModelData(QAbstractItemModel * model, const QMode
 	textList += QString("%1: %2").arg(QString::fromStdString(VLC->generaltexth->primarySkillNames[PrimarySkill::DEFENSE])).arg(hero.getBasePrimarySkillValue(PrimarySkill::DEFENSE));
 	textList += QString("%1: %2").arg(QString::fromStdString(VLC->generaltexth->primarySkillNames[PrimarySkill::SPELL_POWER])).arg(hero.getBasePrimarySkillValue(PrimarySkill::SPELL_POWER));
 	textList += QString("%1: %2").arg(QString::fromStdString(VLC->generaltexth->primarySkillNames[PrimarySkill::KNOWLEDGE])).arg(hero.getBasePrimarySkillValue(PrimarySkill::KNOWLEDGE));
-;
+
 	auto heroSecondarySkills = hero.secSkills;
 	if(heroSecondarySkills.size() == 1 && heroSecondarySkills[0].first == SecondarySkill::NONE) 
 	{
@@ -168,7 +170,7 @@ void HeroSkillsDelegate::updateModelData(QAbstractItemModel * model, const QMode
 	{
 		textList += QObject::tr("Secondary skills:");
 	}
-	for(auto & [skill, skillLevel] : heroSecondarySkills)
+	for(const auto & [skill, skillLevel] : heroSecondarySkills)
 		textList += QString("%1 %2").arg(QString::fromStdString(VLC->skillh->getById(skill)->getNameTranslated())).arg(LevelIdentifiers[skillLevel - 1].first);
 
 	setModelTextData(model, index, textList);

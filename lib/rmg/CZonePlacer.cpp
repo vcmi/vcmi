@@ -783,7 +783,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		//Move one zone towards most distant zone to reduce distance
 
 		float maxDistance = 0;
-		for (auto con : misplacedZone->getConnections())
+		for (const auto & con : misplacedZone->getConnections())
 		{
 			if (con.getConnectionType() == rmg::EConnectionType::REPULSIVE)
 			{

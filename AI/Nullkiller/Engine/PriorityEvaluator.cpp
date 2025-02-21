@@ -895,7 +895,7 @@ public:
 		if(stayAtTown.town->mageGuildLevel() > 0)
 			evaluationContext.armyReward += evaluationContext.evaluator.getManaRecoveryArmyReward(stayAtTown.getHero());
 
-		if (evaluationContext.armyReward == 0)
+		if (vstd::isAlmostZero(evaluationContext.armyReward))
 			evaluationContext.isDefend = true;
 		else
 		{
@@ -1023,43 +1023,40 @@ public:
 		if(heroRole == HeroRole::MAIN)
 			evaluationContext.heroRole = heroRole;
 
-		if (hero)
+		// Assuming Slots() returns a collection of slots with slot.second->getCreatureID() and slot.second->getPower()
+		float heroPower = 0;
+		float totalPower = 0;
+
+		// Map to store the aggregated power of creatures by CreatureID
+		std::map<int, float> totalPowerByCreatureID;
+
+		// Calculate hero power and total power by CreatureID
+		for (auto slot : hero->Slots())
 		{
-			// Assuming Slots() returns a collection of slots with slot.second->getCreatureID() and slot.second->getPower()
-			float heroPower = 0;
-			float totalPower = 0;
+			int creatureID = slot.second->getCreatureID();
+			float slotPower = slot.second->getPower();
 
-			// Map to store the aggregated power of creatures by CreatureID
-			std::map<int, float> totalPowerByCreatureID;
+			// Add the power of this slot to the heroPower
+			heroPower += slotPower;
 
-			// Calculate hero power and total power by CreatureID
-			for (auto slot : hero->Slots())
+			// Accumulate the total power for the specific CreatureID
+			if (totalPowerByCreatureID.find(creatureID) == totalPowerByCreatureID.end())
 			{
-				int creatureID = slot.second->getCreatureID();
-				float slotPower = slot.second->getPower();
-
-				// Add the power of this slot to the heroPower
-				heroPower += slotPower;
-
-				// Accumulate the total power for the specific CreatureID
-				if (totalPowerByCreatureID.find(creatureID) == totalPowerByCreatureID.end())
-				{
-					// First time encountering this CreatureID, retrieve total creatures' power
-					totalPowerByCreatureID[creatureID] = ai->armyManager->getTotalCreaturesAvailable(creatureID).power;
-				}
+				// First time encountering this CreatureID, retrieve total creatures' power
+				totalPowerByCreatureID[creatureID] = ai->armyManager->getTotalCreaturesAvailable(creatureID).power;
 			}
+		}
 
-			// Calculate total power based on unique CreatureIDs
-			for (const auto& entry : totalPowerByCreatureID)
-			{
-				totalPower += entry.second;
-			}
+		// Calculate total power based on unique CreatureIDs
+		for (const auto& entry : totalPowerByCreatureID)
+		{
+			totalPower += entry.second;
+		}
 
-			// Compute the power ratio if total power is greater than zero
-			if (totalPower > 0)
-			{
-				evaluationContext.powerRatio = heroPower / totalPower;
-			}
+		// Compute the power ratio if total power is greater than zero
+		if (totalPower > 0)
+		{
+			evaluationContext.powerRatio = heroPower / totalPower;
 		}
 
 		if (target)
@@ -1249,7 +1246,7 @@ public:
 				auto potentialUpgradeValue = evaluationContext.evaluator.getUpgradeArmyReward(buildThis.town, bi);
 				
 				evaluationContext.addNonCriticalStrategicalValue(potentialUpgradeValue / 10000.0f / (float)bi.prerequisitesCount);
-				if(bi.id.IsDwelling())
+				if(bi.id.isDwelling())
 					evaluationContext.armyReward += bi.armyStrength - evaluationContext.evaluator.ai->armyManager->evaluateStackPower(bi.baseCreatureID.toCreature(), bi.creatureGrows);
 				else //This is for prerequisite-buildings
 					evaluationContext.armyReward += evaluationContext.evaluator.ai->armyManager->evaluateStackPower(bi.baseCreatureID.toCreature(), bi.creatureGrows);

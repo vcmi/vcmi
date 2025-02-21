@@ -161,7 +161,7 @@ void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 
 	BuildingID bid = getBuilding()->bid;
 	const CBuilding *bld = town->getTown()->buildings.at(bid);
-	if (!bid.IsDwelling())
+	if (!bid.isDwelling())
 	{
 		CRClickPopup::createAndPush(CInfoWindow::genText(bld->getNameTranslated(), bld->getDescriptionTranslated()),
 									std::make_shared<CComponent>(ComponentType::BUILDING, BuildingTypeUniqueID(bld->town->faction->getId(), bld->bid)));
@@ -240,7 +240,7 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 
 	auto bid = getBuilding()->bid;
 
-	if (!bid.IsDwelling())//non-dwellings - only building name
+	if (!bid.isDwelling())//non-dwellings - only building name
 		return town->getTown()->buildings.at(getBuilding()->bid)->getNameTranslated();
 	else//dwellings - recruit %creature%
 	{
@@ -339,13 +339,13 @@ CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance * h, HeroS
 
 CHeroGSlot::~CHeroGSlot() = default;
 
-auto CHeroGSlot::getUpgradableSlots(const CArmedInstance *obj)
+auto CHeroGSlot::getUpgradableSlots(const CArmedInstance *obj) const
 {
 	struct result { bool isCreatureUpgradePossible; bool canAffordAny; bool canAffordAll; TResources totalCosts; std::vector<std::pair<SlotID, UpgradeInfo>> upgradeInfos; };
 
 	auto slots = std::map<SlotID, const CStackInstance*>(obj->Slots().begin(), obj->Slots().end());
 	std::vector<std::pair<SlotID, UpgradeInfo>> upgradeInfos;
-	for(auto & slot : slots)
+	for(const auto & slot : slots)
 	{
 		auto upgradeInfo = std::make_pair(slot.first, UpgradeInfo(slot.second->getCreatureID()));
 		LOCPLINT->cb->fillUpgradeInfo(slot.second->armyObj, slot.first, upgradeInfo.second);
@@ -357,11 +357,11 @@ auto CHeroGSlot::getUpgradableSlots(const CArmedInstance *obj)
 	std::sort(upgradeInfos.begin(), upgradeInfos.end(), [&](const std::pair<SlotID, UpgradeInfo> & lhs, const std::pair<SlotID, UpgradeInfo> & rhs) {
 		return lhs.second.oldID.toCreature()->getLevel() > rhs.second.oldID.toCreature()->getLevel();
 	});
-	bool creaturesToUpgrade = static_cast<bool>(upgradeInfos.size());
+	bool hasCreaturesToUpgrade = !upgradeInfos.empty();
 
-	TResources costs = TResources();
+	TResources costs;
 	std::vector<SlotID> slotInfosToDelete;
-	for(auto & upgradeInfo : upgradeInfos)
+	for(const auto & upgradeInfo : upgradeInfos)
 	{
 		TResources upgradeCosts = upgradeInfo.second.getUpgradeCosts() * slots[upgradeInfo.first]->getCount();
 		if(LOCPLINT->cb->getResourceAmount().canAfford(costs + upgradeCosts))
@@ -373,7 +373,7 @@ auto CHeroGSlot::getUpgradableSlots(const CArmedInstance *obj)
 		return std::count(slotInfosToDelete.begin(), slotInfosToDelete.end(), item.first);
 	}), upgradeInfos.end());
 
-    return result { creaturesToUpgrade, static_cast<bool>(upgradeInfos.size()), !slotInfosToDelete.size(), costs, upgradeInfos };
+	return result { hasCreaturesToUpgrade, !upgradeInfos.empty(), slotInfosToDelete.empty(), costs, upgradeInfos };
 }
 
 void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
@@ -744,7 +744,7 @@ void CCastleBuildings::drawOverlays(Canvas & to, std::vector<std::shared_ptr<CBu
 		const auto & font = GH.renderHandler().loadFont(FONT_TINY);
 
 		auto backColor = Colors::GREEN; // Other
-		if(bid.IsDwelling())
+		if(bid.isDwelling())
 			backColor = Colors::PURPLE; // dwelling
 
 		auto contentRect = buildingRect->border->contentRect();
@@ -880,7 +880,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 		return true;
 	}
 
-	if (buildingToTest.IsDwelling())
+	if (buildingToTest.isDwelling())
 	{
 		enterDwelling((BuildingID::getLevelFromDwelling(buildingToTest)));
 		return true;

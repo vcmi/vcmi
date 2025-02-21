@@ -310,7 +310,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	
 	{ //Gender
 		auto * delegate = new InspectorDelegate;
-		delegate->options = {{QObject::tr("MALE"), QVariant::fromValue(int(EHeroGender::MALE))}, {QObject::tr("FEMALE"), QVariant::fromValue(int(EHeroGender::FEMALE))}};
+		delegate->options = {{QObject::tr("MALE"), QVariant::fromValue(static_cast<int>(EHeroGender::MALE))}, {QObject::tr("FEMALE"), QVariant::fromValue(static_cast<int>(EHeroGender::FEMALE))}};
 		addProperty<std::string>(QObject::tr("Gender"), (o->gender == EHeroGender::FEMALE ? QObject::tr("FEMALE") : QObject::tr("MALE")).toStdString(), delegate , false);
 	}
 	addProperty(QObject::tr("Name"), o->getNameTranslated(), false);
@@ -893,7 +893,7 @@ QTableWidgetItem * Inspector::addProperty(CGCreature::Character value)
 	item->setFlags(Qt::NoItemFlags);
 	item->setData(Qt::UserRole, QVariant::fromValue(int(value)));
 	
-	for(auto & i : characterIdentifiers)
+	for(const auto & i : characterIdentifiers)
 	{
 		if(i.second.toInt() == value)
 		{

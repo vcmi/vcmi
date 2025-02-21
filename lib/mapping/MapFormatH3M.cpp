@@ -2594,7 +2594,6 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 	for(int eventID = 0; eventID < eventsCount; ++eventID)
 	{
-		// TODO: a lot of copy-pasted code with map event
 		CCastleEvent event;
 		event.creatures.resize(7);
 
@@ -2613,7 +2612,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 			int16_t hotaSpecialB = reader->readInt16();
 
 			if (hotaSpecialA != 0 || hotaSpecialB != 0 || hotaAmount != 44)
-				logGlobal->warn("Map '%s': Town at %s: Constructing town-specific special buildings in event is not implemented!", mapName, position.toString());;
+				logGlobal->warn("Map '%s': Town at %s: Constructing town-specific special buildings in event is not implemented!", mapName, position.toString());
 
 			event.creatures.push_back(creatureGrowth8);
 		}
@@ -2646,7 +2645,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 				if (mapHeader->players[alignment].canAnyonePlay())
 					object->alignmentToPlayer = PlayerColor(alignment);
 				else
-					logGlobal->warn("Map '%s': Alignment of town at %s is invalid! Player %d is not present on map!", mapName, position.toString(), int(alignment));
+					logGlobal->warn("Map '%s': Alignment of town at %s is invalid! Player %d is not present on map!", mapName, position.toString(), static_cast<int>(alignment));
 			}
 			else
 			{

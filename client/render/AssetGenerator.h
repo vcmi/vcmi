@@ -24,8 +24,6 @@ public:
 	using AnimationLayoutMap = std::map<size_t, std::vector<ImageLocator>>;
 	using CanvasPtr = std::shared_ptr<CanvasImage>;
 
-	AssetGenerator();
-
 	void initialize();
 
 	std::shared_ptr<ISharedImage> generateImage(const ImagePath & image);
@@ -47,13 +45,13 @@ private:
 	std::map<ImagePath, ImageGenerationFunctor> imageFiles;
 	std::map<AnimationPath, AnimationLayoutMap> animationFiles;
 
-	CanvasPtr createAdventureOptionsCleanBackground();
-	CanvasPtr createBigSpellBook();
-	CanvasPtr createPlayerColoredBackground(const PlayerColor & player);
-	CanvasPtr createCombatUnitNumberWindow(float multR, float multG, float multB);
-	CanvasPtr createCampaignBackground();
-	CanvasPtr createChroniclesCampaignImages(int chronicle);
-	CanvasPtr createPaletteShiftedImage(const AnimationPath & source, const std::vector<PaletteAnimation> & animation, int frameIndex, int paletteShiftCounter);
+	CanvasPtr createAdventureOptionsCleanBackground() const;
+	CanvasPtr createBigSpellBook() const;
+	CanvasPtr createPlayerColoredBackground(const PlayerColor & player) const;
+	CanvasPtr createCombatUnitNumberWindow(float multR, float multG, float multB) const;
+	CanvasPtr createCampaignBackground() const;
+	CanvasPtr createChroniclesCampaignImages(int chronicle) const;
+	CanvasPtr createPaletteShiftedImage(const AnimationPath & source, const std::vector<PaletteAnimation> & animation, int frameIndex, int paletteShiftCounter) const;
 
 	void createPaletteShiftedSprites();
 	void generatePaletteShiftedAnimation(const AnimationPath & source, const std::vector<PaletteAnimation> & animation);

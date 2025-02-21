@@ -331,7 +331,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	if(!source["mapObjectLikeBonuses"].isNull())
 	{
-		VLC->identifiers()->requestIdentifierOptional("object", source["mapObjectLikeBonuses"], [=](si32 identifier)
+		VLC->identifiers()->requestIdentifierOptional("object", source["mapObjectLikeBonuses"], [ret](si32 identifier)
 		{
 			ret->mapObjectLikeBonuses = MapObjectID(identifier);
 		});

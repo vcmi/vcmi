@@ -29,10 +29,6 @@
 #include "../lib/RoadHandler.h"
 #include "../lib/TerrainHandler.h"
 
-AssetGenerator::AssetGenerator()
-{
-}
-
 void AssetGenerator::initialize()
 {
 	// clear to avoid non updated sprites after mod change (if base imnages are used)
@@ -81,7 +77,7 @@ std::map<AnimationPath, AssetGenerator::AnimationLayoutMap> AssetGenerator::gene
 	return animationFiles;
 }
 
-AssetGenerator::CanvasPtr AssetGenerator::createAdventureOptionsCleanBackground()
+AssetGenerator::CanvasPtr AssetGenerator::createAdventureOptionsCleanBackground() const
 {
 	auto locator = ImageLocator(ImagePath::builtin("ADVOPTBK"), EImageBlitMode::OPAQUE);
 
@@ -101,7 +97,7 @@ AssetGenerator::CanvasPtr AssetGenerator::createAdventureOptionsCleanBackground(
 	return image;
 }
 
-AssetGenerator::CanvasPtr AssetGenerator::createBigSpellBook()
+AssetGenerator::CanvasPtr AssetGenerator::createBigSpellBook() const
 {
 	auto locator = ImageLocator(ImagePath::builtin("SpelBack"), EImageBlitMode::OPAQUE);
 
@@ -153,7 +149,7 @@ AssetGenerator::CanvasPtr AssetGenerator::createBigSpellBook()
 	return image;
 }
 
-AssetGenerator::CanvasPtr AssetGenerator::createPlayerColoredBackground(const PlayerColor & player)
+AssetGenerator::CanvasPtr AssetGenerator::createPlayerColoredBackground(const PlayerColor & player) const
 {
 	auto locator = ImageLocator(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE);
 
@@ -185,7 +181,7 @@ AssetGenerator::CanvasPtr AssetGenerator::createPlayerColoredBackground(const Pl
 	return image;
 }
 
-AssetGenerator::CanvasPtr AssetGenerator::createCombatUnitNumberWindow(float multR, float multG, float multB)
+AssetGenerator::CanvasPtr AssetGenerator::createCombatUnitNumberWindow(float multR, float multG, float multB) const
 {
 	auto locator = ImageLocator(ImagePath::builtin("CMNUMWIN"), EImageBlitMode::OPAQUE);
 	locator.layer = EImageBlitMode::OPAQUE;
@@ -206,7 +202,7 @@ AssetGenerator::CanvasPtr AssetGenerator::createCombatUnitNumberWindow(float mul
 	return image;
 }
 
-AssetGenerator::CanvasPtr AssetGenerator::createCampaignBackground()
+AssetGenerator::CanvasPtr AssetGenerator::createCampaignBackground() const
 {
 	auto locator = ImageLocator(ImagePath::builtin("CAMPBACK"), EImageBlitMode::OPAQUE);
 
@@ -245,7 +241,7 @@ AssetGenerator::CanvasPtr AssetGenerator::createCampaignBackground()
 	return image;
 }
 
-AssetGenerator::CanvasPtr AssetGenerator::createChroniclesCampaignImages(int chronicle)
+AssetGenerator::CanvasPtr AssetGenerator::createChroniclesCampaignImages(int chronicle) const
 {
 	auto imgPathBg = ImagePath::builtin("chronicles_" + std::to_string(chronicle) + "/GamSelBk");
 	auto locator = ImageLocator(imgPathBg, EImageBlitMode::OPAQUE);
@@ -326,7 +322,9 @@ void AssetGenerator::generatePaletteShiftedAnimation(const AnimationPath & sprit
 			ImagePath spriteName = ImagePath::builtin(sprite.getName() + boost::str(boost::format("%02d") % tileIndex) + "_" + std::to_string(paletteIndex) + ".png");
 			layout[paletteIndex].push_back(ImageLocator(spriteName, EImageBlitMode::SIMPLE));
 
-			imageFiles[spriteName]  = [=](){ return createPaletteShiftedImage(sprite, paletteAnimations, tileIndex, paletteIndex);};
+			imageFiles[spriteName] = [this, sprite, paletteAnimations, tileIndex, paletteIndex](){
+				return createPaletteShiftedImage(sprite, paletteAnimations, tileIndex, paletteIndex);
+			};
 		}
 	}
 
@@ -334,7 +332,7 @@ void AssetGenerator::generatePaletteShiftedAnimation(const AnimationPath & sprit
 	animationFiles[shiftedPath] = layout;
 }
 
-AssetGenerator::CanvasPtr AssetGenerator::createPaletteShiftedImage(const AnimationPath & source, const std::vector<PaletteAnimation> & palette, int frameIndex, int paletteShiftCounter)
+AssetGenerator::CanvasPtr AssetGenerator::createPaletteShiftedImage(const AnimationPath & source, const std::vector<PaletteAnimation> & palette, int frameIndex, int paletteShiftCounter) const
 {
 	auto animation = GH.renderHandler().loadAnimation(source, EImageBlitMode::COLORKEY);
 

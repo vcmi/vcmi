@@ -386,7 +386,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 					town->getObjectName());
 #endif
 
-			ExecuteHeroChain heroChain = ExecuteHeroChain(path, town);
+			ExecuteHeroChain heroChain(path, town);
 				
 			if (closestWay)
 			{

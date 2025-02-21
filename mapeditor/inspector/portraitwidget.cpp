@@ -102,7 +102,9 @@ void PortraitWidget::on_buttonPrev_clicked()
 	drawPortrait();
 }
 
-PortraitDelegate::PortraitDelegate(CGHeroInstance & h): hero(h), BaseInspectorItemDelegate()
+PortraitDelegate::PortraitDelegate(CGHeroInstance & h)
+	: BaseInspectorItemDelegate()
+	, hero(h)
 {
 }
 

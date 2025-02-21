@@ -101,7 +101,9 @@ void HeroSpellWidget::on_customizeSpells_toggled(bool checked)
 	initSpellLists();
 }
 
-HeroSpellDelegate::HeroSpellDelegate(CGHeroInstance & h) : hero(h), BaseInspectorItemDelegate()
+HeroSpellDelegate::HeroSpellDelegate(CGHeroInstance & h)
+	: BaseInspectorItemDelegate()
+	, hero(h)
 {
 }
 

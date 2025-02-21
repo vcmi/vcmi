@@ -41,8 +41,8 @@ struct AIPathNode : public CGPathNode
 {
 	std::shared_ptr<const SpecialAction> specialAction;
 
-	const AIPathNode * chainOther;
-	const ChainActor * actor;
+	const AIPathNode * chainOther = nullptr;
+	const ChainActor * actor = nullptr;
 
 	uint64_t danger;
 	uint64_t armyLoss;
@@ -129,8 +129,8 @@ struct AIPath
 
 struct ExchangeCandidate : public AIPathNode
 {
-	AIPathNode * carrierParent;
-	AIPathNode * otherParent;
+	AIPathNode * carrierParent = nullptr;
+	AIPathNode * otherParent = nullptr;
 };
 
 enum EHeroChainPass

@@ -159,7 +159,7 @@ public:
 		return std::vector<BattleHex>(internalStorage.begin(), internalStorage.end());
 	}
 
-	[[nodiscard]] std::string toString(std::string delimiter = ", ") const noexcept
+	[[nodiscard]] std::string toString(const std::string & delimiter = ", ") const noexcept
 	{
 		std::string result = "[";
 		for(auto it = internalStorage.begin(); it != internalStorage.end(); ++it)

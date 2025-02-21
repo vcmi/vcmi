@@ -47,7 +47,7 @@ void ObjectManager::init()
 	// Consider only connected zones
 	auto id = zone.getId();
 	std::set<TRmgTemplateZoneId> connectedZones;
-	for(auto c : map.getMapGenOptions().getMapTemplate()->getConnectedZoneIds())
+	for(const auto & c : map.getMapGenOptions().getMapTemplate()->getConnectedZoneIds())
 	{
 		// Only consider connected zones
 		if (c.getZoneA() == id || c.getZoneB() == id)

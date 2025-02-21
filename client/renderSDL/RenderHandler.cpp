@@ -72,7 +72,7 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 	return result;
 }
 
-void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & config, EImageBlitMode mode)
+void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & config, EImageBlitMode mode) const
 {
 	std::string basepath;
 	basepath = config["basepath"].String();
@@ -155,20 +155,13 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 
 	for(auto & loader : configList)
 	{
-		try {
-			auto stream = loader->load(jsonResource);
-			std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
-			stream->read(textData.get(), stream->getSize());
+		auto stream = loader->load(jsonResource);
+		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
+		stream->read(textData.get(), stream->getSize());
 
-			const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), path.getOriginalName());
+		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), path.getOriginalName());
 
-			initFromJson(result, config, mode);
-		}
-		catch (const DataLoadingException & e)
-		{
-			// FIXME: sometimes triggered by generated animation assets, e.g. lava/water tiles
-			logGlobal->error("Failed to load animation file! Reason: %s", e.what());
-		}
+		initFromJson(result, config, mode);
 	}
 
 	animationLayouts[actualPath] = result;

@@ -156,7 +156,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 		const auto * assembly = h->getCombinedArtWithPart(elem);
 		if (assembly)
 		{
-			auto parts = assembly->getPartsInfo(); // FIXME: causes crashes on Google Play
+			auto parts = assembly->getPartsInfo();
 
 			// Remove the assembly
 			cb->removeArtifact(ArtifactLocation(h->id, h->getArtPos(assembly)));

@@ -1985,10 +1985,10 @@ void SetObjectProperty::applyGs(CGameState *gs)
 		PlayerColor oldOwner = obj->getOwner();
 		PlayerColor newOwner = identifier.as<PlayerColor>();
 		if(oldOwner.isValidPlayer())
-			gs->getPlayerState(oldOwner)->removeOwnedObject(obj);;
+			gs->getPlayerState(oldOwner)->removeOwnedObject(obj);
 
 		if(newOwner.isValidPlayer())
-			gs->getPlayerState(newOwner)->addOwnedObject(obj);;
+			gs->getPlayerState(newOwner)->addOwnedObject(obj);
 	}
 
 	if(what == ObjProperty::OWNER && cai)
