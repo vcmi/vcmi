@@ -307,17 +307,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="482"/>
         <source>Context menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontextmeny</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="525"/>
         <source>Open directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna mapp</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
         <source>Open repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna repositorie</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="783"/>
@@ -497,7 +497,7 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="533"/>
         <source>Allow portrait mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Tillåt porträttläge</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="811"/>
@@ -1175,7 +1175,7 @@ Orsak till fel: </translation>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation>Inno Setup-installationsprogrammet stöds inte!</translation>
+        <translation>Inte en stödd Inno Setup-installationsfil!</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="58"/>
@@ -1258,7 +1258,7 @@ Bin (%n byte):
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-        <translation>Okända filer! Filerna kanske är skadade? Prova med att ladda ner filen/filerna igen och försök igen.
+        <translation>Okända filer! Filerna kanske är skadade? Prova med att ladda ner filen/filerna på nytt och försök igen.
 
 %1</translation>
     </message>
@@ -1705,7 +1705,7 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="657"/>
         <source>You are using the latest version</source>
-        <translation>Du har den senaste versionen</translation>
+        <translation>Du använder den senaste versionen</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="37"/>
@@ -1794,7 +1794,7 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="251"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation>Välj filer (konfigurations-, modd-, kart-, kampanj-och GOG-filer) som ska installeras...</translation>
+        <translation>Välj filer (konfigurations-, modd-, kart-, kampanj-och GOG-filer) som du vill installera...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="294"/>
@@ -1823,7 +1823,7 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="319"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
-        <translation>Översättning av Heroes III till ditt språk är installerat men har stängts av. Använd det här alternativet för att aktivera det.</translation>
+        <translation>Översättning av Heroes III till ditt språk är installerat men har stängts av. Använd det här alternativet för att aktivera översättningen.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="329"/>
@@ -1838,7 +1838,7 @@ VARNING: I vissa fall kanske uppdaterade versioner av moddar inte är kompatibla
         <location filename="../startGame/StartGameTab.cpp" line="341"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-        <translation>Om du äger Hjältarnas krönikor (Heroes Chronicles) på gog.com så kan du använda &quot;offline backup game installers&quot; som tillhandahålls av GOG för att importera Heroes Chronicles data till VCMI så att man kan spela dem i VCMI.
+        <translation>Om du äger Hjältarnas krönikor (Heroes Chronicles) på gog.com kan du använda &quot;offline backup game installers&quot; som tillhandahålls av GOG för att importera Heroes Chronicles data till VCMI så att man kan spela dem i VCMI.
 För att importera Hjältarnas krönikor (Heroes Chronicles) ska du först ladda ner &quot;offline backup game installers&quot; av varje krönika som du vill installera. Välj alternativet &apos;Importera filer&apos; och välj nedladdad fil. Detta kommer att generera och installera modden för VCMI som innehåller importerade krönikor</translation>
     </message>
     <message>
@@ -1893,7 +1893,7 @@ För att lösa problemet måste du kopiera de saknade datafilerna från Heroes I
     <message>
         <location filename="../updatedialog_moc.ui" line="71"/>
         <source>You have the latest version</source>
-        <translation>Du har den senaste versionen</translation>
+        <translation>Du har senaste versionen</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="94"/>
