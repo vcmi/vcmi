@@ -24,8 +24,6 @@
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapping/CMap.h"
 
-std::unique_ptr<CMapHandler> MAPHANDLER = nullptr;
-
 bool CMapHandler::hasOngoingAnimations()
 {
 	for(auto * observer : observers)
@@ -242,6 +240,5 @@ IMapObjectObserver::IMapObjectObserver()
 
 IMapObjectObserver::~IMapObjectObserver()
 {
-	if (LIBRARY && MAPHANDLER)
-		GAME->map().removeMapObserver(this);
+	GAME->map().removeMapObserver(this);
 }

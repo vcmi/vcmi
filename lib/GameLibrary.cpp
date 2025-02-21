@@ -89,7 +89,7 @@ const HeroTypeService * GameLibrary::heroTypes() const
 }
 
 #if SCRIPTING_ENABLED
-const scripting::Service * LibClasses::scripts() const
+const scripting::Service * GameLibrary::scripts() const
 {
 	return scriptHandler.get();
 }
@@ -200,7 +200,7 @@ void GameLibrary::init(bool onlyEssential)
 }
 
 #if SCRIPTING_ENABLED
-void LibClasses::scriptsLoaded()
+void GameLibrary::scriptsLoaded()
 {
 	scriptHandler->performRegistration(this);
 }

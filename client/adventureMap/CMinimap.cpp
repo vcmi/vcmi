@@ -96,7 +96,7 @@ CMinimap::CMinimap(const Rect & position)
 	double maxSideLengthSrc = std::max(GAME->interface()->cb->getMapSize().x, GAME->interface()->cb->getMapSize().y);
 	double maxSideLengthDst = std::max(position.w, position.h);
 	double resize = maxSideLengthSrc / maxSideLengthDst;
-	Point newMinimapSize(GAME->interface()->cb->getMapSize().x/ resize, LOCPLINT->cb->getMapSize().y / resize);
+	Point newMinimapSize(GAME->interface()->cb->getMapSize().x/ resize, GAME->interface()->cb->getMapSize().y / resize);
 	Point offset = Point((std::max(newMinimapSize.x, newMinimapSize.y) - newMinimapSize.x) / 2, (std::max(newMinimapSize.x, newMinimapSize.y) - newMinimapSize.y) / 2);
 
 	pos.x += offset.x;

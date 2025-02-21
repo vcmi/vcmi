@@ -57,12 +57,12 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 		const SPuzzleInfo & info = elem;
 
 		auto piece = std::make_shared<CPicture>(info.filename, info.position.x, info.position.y);
+		piece->needRefresh = true;
 
 		//piece that will slowly disappear
 		if(info.whenUncovered <= GameConstants::PUZZLE_MAP_PIECES * discoveredRatio)
 		{
 			piecesToRemove.push_back(piece);
-			piece->needRefresh = true;
 			piece->recActions = piece->recActions & ~SHOWALL;
 		}
 		else

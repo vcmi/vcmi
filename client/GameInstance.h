@@ -11,9 +11,12 @@
 
 class CServerHandler;
 class GlobalLobbyClient;
-class INetworkHandler;
 class CPlayerInterface;
 class CMapHandler;
+
+VCMI_LIB_NAMESPACE_BEGIN
+class INetworkHandler;
+VCMI_LIB_NAMESPACE_END
 
 class GameInstance : boost::noncopyable
 {

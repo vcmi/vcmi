@@ -18,7 +18,7 @@
 #include "../mock/mock_spells_effects_Registry.h"
 #include "../mock/mock_ServerCallback.h"
 
-#include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/GameLibrary.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../../lib/ScriptHandler.h"
 #include "../../../lib/CScriptingModule.h"
@@ -110,7 +110,7 @@ protected:
 	{
 		EXPECT_CALL(registryMock, add(Eq(SCRIPT_NAME), _)).WillOnce(SaveArg<1>(&factory));
 		EXPECT_CALL(scriptMock, getName()).WillRepeatedly(ReturnRef(SCRIPT_NAME));
-		VLC->scriptHandler->lua->registerSpellEffect(&registryMock, &scriptMock);
+		LIBRARY->scriptHandler->lua->registerSpellEffect(&registryMock, &scriptMock);
 
 		GTEST_ASSERT_NE(factory, nullptr);
 		subject.reset(factory->create());

@@ -467,7 +467,7 @@ static void mainLoop()
 		logConfig = nullptr;
 	}
 
-	ENGINE.reset();
+	//ENGINE.reset();
 
 	std::cout << "Ending...\n";
 	quitApplicationImmediately(0);
