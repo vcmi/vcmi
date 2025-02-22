@@ -521,7 +521,9 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 			for(auto & icon : icons)
 				if(std::get<0>(icon) == line.first && std::get<1>(icon) == i + 1) // color && day
 				{
-					pictures.emplace_back(std::make_shared<CPicture>(std::get<2>(icon), Point(p.x - (std::get<2>(icon)->width() / 2), p.y - (std::get<2>(icon)->height() / 2))));
+					auto img = std::get<2>(icon);
+					Point imgPos(p.x - (img->contentRect().w / 2) - img->contentRect().x, p.y - (img->contentRect().h / 2) - img->contentRect().y);
+					pictures.emplace_back(std::make_shared<CPicture>(img, imgPos));
 					pictures.back()->addRClickCallback([icon](){ CRClickPopup::createAndPush(std::get<3>(icon)); });
 				}
 
