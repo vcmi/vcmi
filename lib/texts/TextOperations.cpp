@@ -331,8 +331,58 @@ std::vector<size_t> TextOperations::getAllPositionsInStr(const char & targetChar
 			results.push_back(pos);
 	}
 	return results;
-	std::vector<std::string> {};
 };
+
+std::optional<std::pair<size_t, size_t>> TextOperations::findFirstColorTag(const std::string_view & str)
+{
+	std::optional<std::pair<size_t, size_t>> res = std::nullopt;
+
+	if(const auto colorTextBegin = str.find('{'); colorTextBegin != std::string::npos)
+	{
+		// Opened color tag brace found. Try to find color tag.
+		if(const auto colorTagEnd = str.find('|'); colorTagEnd != std::string::npos)
+			res = std::make_pair(colorTextBegin, colorTagEnd - colorTextBegin + 1);
+		else
+			res = std::make_pair(colorTextBegin, 1);
+	}
+	return res;
+}
+
+std::string_view TextOperations::findColorTagForSection(const std::string & str, size_t beginPos, size_t length)
+{
+	const auto segment = std::string_view(str).substr(beginPos, length);
+	const auto tagBeginingPos = segment.find_last_of('{');
+	const auto tagEndingPos = segment.find_last_of('}');
+
+	if(tagBeginingPos != std::string::npos)
+	{
+		if(tagEndingPos == std::string::npos || tagEndingPos < tagBeginingPos)
+		{
+			const auto lastUnclosedColorTag = findFirstColorTag(segment.substr(tagBeginingPos, segment.length() - tagBeginingPos + 1));
+			assert(lastUnclosedColorTag.has_value());
+			return segment.substr(tagBeginingPos + lastUnclosedColorTag.value().first, lastUnclosedColorTag.value().second);
+		}
+	}
+	else if(tagEndingPos == std::string::npos && beginPos > 0)
+	{
+		return findColorTagForSection(str, 0, beginPos);
+	}
+	return std::string_view();
+}
+
+size_t TextOperations::calcColorTagsSummaryWidth(const std::string & str, const std::function<size_t(const std::string&)> & getStringWidth)
+{
+	size_t width = 0;
+	auto section = std::string_view(str).substr(0, str.length());
+
+	while(const auto colorTag = findFirstColorTag(section))
+	{
+		width += getStringWidth(str.substr(colorTag.value().first, colorTag.value().second));
+		section = section.substr(colorTag.value().first + colorTag.value().second);
+	}
+	width += std::count(str.begin(), str.end(), '}') * getStringWidth("}");
+	return width;
+}
 
 bool TextOperations::validateColorBraces(const std::string & text)
 {
@@ -367,46 +417,13 @@ bool TextOperations::validateColorBraces(const std::string & text)
 	return true;
 }
 
-std::vector<TextOperations::TextSegment> TextOperations::getPossibleLines(
-	const std::string & line, size_t maxLineWidth, const std::function<size_t(const std::string&)> &getStringWidth, const char & splitSymbol)
+std::vector<TextOperations::TextSegment> TextOperations::getPossibleSublines(
+	const std::string & line, size_t maxLineWidth, const std::function<size_t(const std::string&)> & getStringWidth, const char & splitSymbol)
 {
 	std::vector<TextSegment> result;
 	std::string_view lastFoundColor;
-	const std::function<size_t(const std::string_view&)> findColorTags = [&](const std::string_view & subLine)->size_t
-	{
-		size_t foundWidth = 0;
-		if(lastFoundColor.empty())
-		{
-			if(const auto colorTextBegin = subLine.find('{'); colorTextBegin != std::string::npos)
-			{
-				foundWidth += getStringWidth("{");
-				// Opened color tag brace found. Try to find color tag.
-				if(const auto colorTagEnd = subLine.find('|'); colorTagEnd != std::string::npos)
-				{
-					assert(subLine.find('}') > colorTagEnd);
-					lastFoundColor = subLine.substr(colorTextBegin, colorTagEnd - colorTextBegin + 1);
-					foundWidth += getStringWidth(std::string(lastFoundColor));
-				}
-				else
-				{
-					lastFoundColor = subLine.substr(colorTextBegin, 1);
-				}
-			}
-			else
-			{
-				return foundWidth;
-			}
-		}
-		if(const auto colorTextEnd = subLine.find('}'); colorTextEnd != std::string::npos)
-		{
-			foundWidth += getStringWidth("}");
-			lastFoundColor = std::string_view();
-			foundWidth += findColorTags(subLine.substr(colorTextEnd + 1, subLine.length() - colorTextEnd - 1));
-		}
-		return foundWidth;
-	};
 
-	const std::function<void(const std::string_view&)> splitBySymbol = [&](const std::string_view & subLine)
+	const std::function<void(const std::string_view&)> findPossibleSplit = [&](const std::string_view & subLine)
 	{
 		// Trim splitSymbols from beginning and ending
 		const auto subLineBeginPos = subLine.find_first_not_of(splitSymbol);
@@ -426,20 +443,22 @@ std::vector<TextOperations::TextSegment> TextOperations::getPossibleLines(
 		}
 
 		size_t lineWidth = 0;
-		const auto curWord = trimmedLine.substr(wordBegin, splitPossibles.front());
-		size_t nextWordWidth = getStringWidth(std::string(curWord)) - findColorTags(curWord);
+		auto word = trimmedLine.substr(wordBegin, splitPossibles.front());
+		size_t wordWidth = getStringWidth(std::string(word)) - calcColorTagsSummaryWidth(std::string(word), getStringWidth);
+		lastFoundColor = findColorTagForSection(line, word.data() - line.data(), word.length());
 
 		for(auto splitPos = splitPossibles.cbegin(); splitPos < splitPossibles.cend(); splitPos = std::next(splitPos))
 		{
-			lineWidth += nextWordWidth;
+			lineWidth += wordWidth;
 			const auto curColor = lastFoundColor;
 			const auto wordEnd = *splitPos;
 			const auto nextSplitPos = std::next(splitPos);
-			const auto nextWord = nextSplitPos == splitPossibles.end() ? trimmedLine.substr(wordEnd, trimmedLine.length() - wordEnd)
+			word = nextSplitPos == splitPossibles.end() ? trimmedLine.substr(wordEnd, trimmedLine.length() - wordEnd)
 				: trimmedLine.substr(wordEnd, *nextSplitPos - wordEnd);
-			nextWordWidth = getStringWidth(std::string(nextWord)) - findColorTags(nextWord);
+			wordWidth = getStringWidth(std::string(word)) - calcColorTagsSummaryWidth(std::string(word), getStringWidth);
+			lastFoundColor = findColorTagForSection(line, word.data() - line.data(), word.length());
 
-			if(lineWidth + nextWordWidth > maxLineWidth)
+			if(lineWidth + wordWidth > maxLineWidth)
 			{
 				const auto resultLine = trimmedLine.substr(0, wordEnd);
 				// Trim splitSymbols from ending and place result line into result
@@ -453,13 +472,13 @@ std::vector<TextOperations::TextSegment> TextOperations::getPossibleLines(
 					result.back().closingTagNeeded = true;
 					result.emplace_back(std::optional<std::pair<size_t, size_t>>({ curColor.data() - line.data(), curColor.length() }));
 				}
-				splitBySymbol(trimmedLine.substr(wordEnd, trimmedLine.length() - wordEnd));
+				findPossibleSplit(trimmedLine.substr(wordEnd, trimmedLine.length() - wordEnd));
 				return;
 			}
 			else
 			{
 				if(wordBegin == wordEnd)
-				lineWidth += getStringWidth(std::string(1, splitSymbol));
+					lineWidth += getStringWidth(std::string(1, splitSymbol));
 				wordBegin = wordEnd + 1;
 			}
 		}
@@ -467,7 +486,7 @@ std::vector<TextOperations::TextSegment> TextOperations::getPossibleLines(
 	};
 
 	result.emplace_back();
-	splitBySymbol(line);
+	findPossibleSplit(line);
 
 	return result;
 }
@@ -494,7 +513,7 @@ std::vector<std::string> TextOperations::breakText(
 	}
 
 	// Split text by lines
-	auto possibleLines = getPossibleLines(*preparedTextPtr, 0, getStringWidth, breakSymbol);
+	auto possibleLines = getPossibleSublines(*preparedTextPtr, 0, getStringWidth, breakSymbol);
 
 	// Add additional empty lines if needed. In Case "{....\n\n....}"
 	const auto possibleLinesOrigin = possibleLines;
@@ -545,7 +564,7 @@ std::vector<std::string> TextOperations::breakText(
 	{
 		std::string line;
 		makeNewLine(lineBreak, *preparedTextPtr, line);
-		for(const auto & breakBySpace : getPossibleLines(line, maxLineWidth, getStringWidth, ' '))
+		for(const auto & breakBySpace : getPossibleSublines(line, maxLineWidth, getStringWidth, ' '))
 			makeNewLine(breakBySpace, line, result.emplace_back());
 	}
 	return result;

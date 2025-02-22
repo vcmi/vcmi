@@ -79,14 +79,24 @@ namespace TextOperations
 	/// Check if texts have similarity when typing into search boxes
 	DLL_LINKAGE bool textSearchSimilar(const std::string & s, const std::string & t);
 
-	std::vector<size_t> getAllPositionsInStr(const char & targetChar, const std::string_view & str);
+	/// Finds all positions of a given character in a string.
+	DLL_LINKAGE std::vector<size_t> getAllPositionsInStr(const char & targetChar, const std::string_view & str);
 
-	/// Validates the location of the opening and closing brace of a color tag in a string.
+	/// Finds the first color tag.
+	DLL_LINKAGE std::optional<std::pair<size_t, size_t>> findFirstColorTag(const std::string_view & str);
+
+	/// Finds for unclosed color tag for the specified section of string. If the tag is closed on the given segment, returns an empty string.
+	DLL_LINKAGE std::string_view findColorTagForSection(const std::string & str, size_t beginPos, size_t length);
+
+	/// Calculates the total width of color tags in a string.
+	DLL_LINKAGE size_t calcColorTagsSummaryWidth(const std::string & str, const std::function<size_t(const std::string&)> & getStringWidth);
+
+	/// Checks the number of opening/closing tags and whether there are any nested tags.
 	DLL_LINKAGE bool validateColorBraces(const std::string & text);
 
 	struct TextSegment
 	{
-			// Line begin and end positions in the original string
+		// Line begin in the original string and length
 		std::pair<size_t, size_t> line;
 		std::optional<std::pair<size_t, size_t>> colorTag;
 		bool closingTagNeeded;
@@ -95,10 +105,11 @@ namespace TextOperations
 			: line(std::make_pair(0, 0))
 			, colorTag(colorTag)
 			, closingTagNeeded(false)
-			{
-		}
+			{}
 	};
-	std::vector<TextSegment> getPossibleLines(
+
+	/// For internal use TextOperations.
+	std::vector<TextSegment> getPossibleSublines(
 		const std::string & line, size_t maxLineWidth, const std::function<size_t(const std::string&)> & getStringWidth, const char & splitSymbol);
 
 	/// Split text in lines
