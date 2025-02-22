@@ -99,7 +99,6 @@ void GlobalLobbyProcessor::receiveServerLoginSuccess(const JsonNode & json)
 {
 	// no-op, wait just for any new commands from lobby
 	logGlobal->info("Lobby: Successfully connected to lobby server");
-	owner.startAcceptingIncomingConnections(true);
 }
 
 void GlobalLobbyProcessor::receiveAccountJoinsRoom(const JsonNode & json)
