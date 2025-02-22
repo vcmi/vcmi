@@ -483,12 +483,15 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 
 	// draw grid (vertical lines)
 	int dayGridInterval = maxDay < 700 ? 7 : 28;
-	for(const auto & line : data)
+	if(maxDay > 1)
 	{
-		for(int i = 0; i < line.second.size(); i += dayGridInterval)
+		for(const auto & line : data)
 		{
-			Point p = getPoint(i, line.second) + chartArea.topLeft();
-			canvas->addLine(Point(p.x, chartArea.topLeft().y), Point(p.x, chartArea.topLeft().y + chartArea.h), ColorRGBA(70, 70, 70));
+			for(int i = 0; i < line.second.size(); i += dayGridInterval)
+			{
+				Point p = getPoint(i, line.second) + chartArea.topLeft();
+				canvas->addLine(Point(p.x, chartArea.topLeft().y), Point(p.x, chartArea.topLeft().y + chartArea.h), ColorRGBA(70, 70, 70));
+			}
 		}
 	}
 
