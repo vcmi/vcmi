@@ -12,6 +12,7 @@
 
 #include "SDL_Extensions.h"
 
+#include "../gui/CGuiHandler.h"
 #include "../CMT.h"
 #include "../xBRZ/xbrz.h"
 
@@ -227,12 +228,19 @@ SDLImageScaler::SDLImageScaler(SDL_Surface * surf, const Rect & virtualDimension
 		SDL_FreeSurface(intermediate);
 		intermediate = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ARGB8888, 0);
 	}
+
+	if (intermediate == surf)
+		throw std::runtime_error("Scaler uses same surface as input!");
 }
 
 SDLImageScaler::~SDLImageScaler()
 {
-	SDL_FreeSurface(intermediate);
-	SDL_FreeSurface(ret);
+	GH.dispatchMainThread([surface = intermediate]()
+	{
+		// potentially SDL bug, execute SDL_FreeSurface in main thread to avoid thread races to its internal state
+		// may be fixed somewhere between 2.26.5 - 2.30
+		SDL_FreeSurface(surface);
+	});
 }
 
 SDL_Surface * SDLImageScaler::acquireResultSurface()
