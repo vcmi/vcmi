@@ -12,6 +12,7 @@ endif()
 set(test_SRCS
  		StdInc.cpp
  		main.cpp
+		CTextOperationsTest.cpp
  		CMemoryBufferTest.cpp
  		CVcmiTestConfig.cpp
  		JsonComparer.cpp

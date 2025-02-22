@@ -20,7 +20,6 @@
 #include "../render/IFont.h"
 #include "../render/IRenderHandler.h"
 #include "../render/Graphics.h"
-#include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
 #include "../widgets/TextControls.h"
 
@@ -34,6 +33,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CArtifactInstance.h"
 #include "../../lib/GameLibrary.h"
@@ -97,8 +97,9 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 	if(Type == ComponentType::RESOURCE && !ValText.empty())
 		max = 80;
 
-	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(max, pos.w), font);
 	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
+	std::vector<std::string> textLines = TextOperations::breakText(getSubtitle(), std::max<int>(max, pos.w),
+		[fontPtr](const std::string & str) -> size_t {return fontPtr->getStringWidth(str); });
 	const int height = static_cast<int>(fontPtr->getLineHeight());
 
 	for(auto & line : textLines)

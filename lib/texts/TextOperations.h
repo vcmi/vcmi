@@ -78,6 +78,32 @@ namespace TextOperations
 
 	/// Check if texts have similarity when typing into search boxes
 	DLL_LINKAGE bool textSearchSimilar(const std::string & s, const std::string & t);
+
+	std::vector<size_t> getAllPositionsInStr(const char & targetChar, const std::string_view & str);
+
+	/// Validates the location of the opening and closing brace of a color tag in a string.
+	DLL_LINKAGE bool validateColorBraces(const std::string & text);
+
+	struct TextSegment
+	{
+			// Line begin and end positions in the original string
+		std::pair<size_t, size_t> line;
+		std::optional<std::pair<size_t, size_t>> colorTag;
+		bool closingTagNeeded;
+
+		TextSegment(const std::optional<std::pair<size_t, size_t>> & colorTag = std::nullopt)
+			: line(std::make_pair(0, 0))
+			, colorTag(colorTag)
+			, closingTagNeeded(false)
+			{
+		}
+	};
+	std::vector<TextSegment> getPossibleLines(
+		const std::string & line, size_t maxLineWidth, const std::function<size_t(const std::string&)> & getStringWidth, const char & splitSymbol);
+
+	/// Split text in lines
+	DLL_LINKAGE std::vector<std::string> breakText(
+		const std::string & text, size_t maxLineWidth, const std::function<size_t(const std::string&)> & getStringWidth);
 };
 
 template<typename Arithmetic>

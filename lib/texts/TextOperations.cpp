@@ -322,4 +322,233 @@ bool TextOperations::textSearchSimilar(const std::string & s, const std::string 
 	return false;
 }
 
+std::vector<size_t> TextOperations::getAllPositionsInStr(const char & targetChar, const std::string_view & str)
+{
+	std::vector<size_t> results;
+	for(size_t pos = 0; pos < str.size(); pos++)
+	{
+		if(str[pos] == targetChar)
+			results.push_back(pos);
+	}
+	return results;
+	std::vector<std::string> {};
+};
+
+bool TextOperations::validateColorBraces(const std::string & text)
+{
+	const auto openingBraces = getAllPositionsInStr('{', text);
+	const auto closingBraces = getAllPositionsInStr('}', text);
+
+	if(openingBraces.size() != closingBraces.size())
+	{
+		logGlobal->error("CMessage: Not Equal number opening and closing tags");
+		return false;
+	}
+
+	if(openingBraces.empty())
+		return true;
+
+	auto closingPos = closingBraces.begin();
+	size_t closingPrevPos = 0;
+	for(const auto & openingPos : openingBraces)
+	{
+		if(openingPos >= *closingPos)
+		{
+			logGlobal->error("CMessage: Line validation Invalid: Closing tag before opening tag %s", text);
+			return false;
+		}
+		if(openingPos < closingPrevPos)
+		{
+			logGlobal->error("CMessage: Line validation Invalid: Tags inside another tags %s", text);
+			return false;
+		}
+		closingPrevPos = *closingPos++;
+	}
+	return true;
+}
+
+std::vector<TextOperations::TextSegment> TextOperations::getPossibleLines(
+	const std::string & line, size_t maxLineWidth, const std::function<size_t(const std::string&)> &getStringWidth, const char & splitSymbol)
+{
+	std::vector<TextSegment> result;
+	std::string_view lastFoundColor;
+	const std::function<size_t(const std::string_view&)> findColorTags = [&](const std::string_view & subLine)->size_t
+	{
+		size_t foundWidth = 0;
+		if(lastFoundColor.empty())
+		{
+			if(const auto colorTextBegin = subLine.find('{'); colorTextBegin != std::string::npos)
+			{
+				foundWidth += getStringWidth("{");
+				// Opened color tag brace found. Try to find color tag.
+				if(const auto colorTagEnd = subLine.find('|'); colorTagEnd != std::string::npos)
+				{
+					assert(subLine.find('}') > colorTagEnd);
+					lastFoundColor = subLine.substr(colorTextBegin, colorTagEnd - colorTextBegin + 1);
+					foundWidth += getStringWidth(std::string(lastFoundColor));
+				}
+				else
+				{
+					lastFoundColor = subLine.substr(colorTextBegin, 1);
+				}
+			}
+			else
+			{
+				return foundWidth;
+			}
+		}
+		if(const auto colorTextEnd = subLine.find('}'); colorTextEnd != std::string::npos)
+		{
+			foundWidth += getStringWidth("}");
+			lastFoundColor = std::string_view();
+			foundWidth += findColorTags(subLine.substr(colorTextEnd + 1, subLine.length() - colorTextEnd - 1));
+		}
+		return foundWidth;
+	};
+
+	const std::function<void(const std::string_view&)> splitBySymbol = [&](const std::string_view & subLine)
+	{
+		// Trim splitSymbols from beginning and ending
+		const auto subLineBeginPos = subLine.find_first_not_of(splitSymbol);
+		if(subLineBeginPos == std::string::npos)
+			return;
+		const auto subLineEndPos = subLine.find_last_not_of(splitSymbol);
+		if(subLineEndPos == std::string::npos)
+			return;
+
+		const auto trimmedLine = subLine.substr(subLineBeginPos, subLineEndPos - subLineBeginPos + 1);
+		size_t wordBegin = 0;
+		const auto splitPossibles = getAllPositionsInStr(splitSymbol, trimmedLine);
+		if(splitPossibles.empty())
+		{
+			result.back().line = std::make_pair(trimmedLine.data() - line.data(), trimmedLine.length());
+			return;
+		}
+
+		size_t lineWidth = 0;
+		const auto curWord = trimmedLine.substr(wordBegin, splitPossibles.front());
+		size_t nextWordWidth = getStringWidth(std::string(curWord)) - findColorTags(curWord);
+
+		for(auto splitPos = splitPossibles.cbegin(); splitPos < splitPossibles.cend(); splitPos = std::next(splitPos))
+		{
+			lineWidth += nextWordWidth;
+			const auto curColor = lastFoundColor;
+			const auto wordEnd = *splitPos;
+			const auto nextSplitPos = std::next(splitPos);
+			const auto nextWord = nextSplitPos == splitPossibles.end() ? trimmedLine.substr(wordEnd, trimmedLine.length() - wordEnd)
+				: trimmedLine.substr(wordEnd, *nextSplitPos - wordEnd);
+			nextWordWidth = getStringWidth(std::string(nextWord)) - findColorTags(nextWord);
+
+			if(lineWidth + nextWordWidth > maxLineWidth)
+			{
+				const auto resultLine = trimmedLine.substr(0, wordEnd);
+				// Trim splitSymbols from ending and place result line into result
+				result.back().line = std::make_pair(resultLine.data() - line.data(), resultLine.find_last_not_of(splitSymbol) + 1);
+				if(curColor.empty())
+				{
+					result.emplace_back();
+				}
+				else
+				{
+					result.back().closingTagNeeded = true;
+					result.emplace_back(std::optional<std::pair<size_t, size_t>>({ curColor.data() - line.data(), curColor.length() }));
+				}
+				splitBySymbol(trimmedLine.substr(wordEnd, trimmedLine.length() - wordEnd));
+				return;
+			}
+			else
+			{
+				if(wordBegin == wordEnd)
+				lineWidth += getStringWidth(std::string(1, splitSymbol));
+				wordBegin = wordEnd + 1;
+			}
+		}
+		result.back().line = std::make_pair(trimmedLine.data() - line.data(), trimmedLine.length());
+	};
+
+	result.emplace_back();
+	splitBySymbol(line);
+
+	return result;
+}
+
+std::vector<std::string> TextOperations::breakText(
+	const std::string & text,
+	size_t maxLineWidth,
+	const std::function<size_t(const std::string&)> & getStringWidth)
+{
+	std::vector<std::string> result;
+	if(!validateColorBraces(text))
+		return result;
+
+	// Detect end of line symbol. If '\r\n', remove '\r'.
+	// Texts with '\r\n' are very rare (Credits case), so rare string copying should not be a problem.
+	std::string preparedText;
+	auto preparedTextPtr = &text;
+	auto breakSymbol = '\n';
+	if(text.find("\r\n") != std::string::npos)
+	{
+		preparedText = text;
+		preparedTextPtr = &preparedText;
+		preparedText.erase(std::remove(preparedText.begin(), preparedText.end(), '\r'), preparedText.end());
+	}
+
+	// Split text by lines
+	auto possibleLines = getPossibleLines(*preparedTextPtr, 0, getStringWidth, breakSymbol);
+
+	// Add additional empty lines if needed. In Case "{....\n\n....}"
+	const auto possibleLinesOrigin = possibleLines;
+	auto curLine = possibleLinesOrigin.cbegin();
+	auto insertionIterator = possibleLines.cbegin();
+	size_t nextLineBeginEstimate = 0;
+	auto newLines = curLine->line.first - nextLineBeginEstimate;
+
+	for(auto nextLine = std::next(curLine);; nextLine = std::next(nextLine))
+	{
+		for(size_t newBreak = 0; newBreak < newLines; newBreak++)
+		{
+			const auto newLine = possibleLines.emplace(insertionIterator);
+			newLine->line.first = nextLineBeginEstimate + newBreak;
+			insertionIterator = std::next(newLine);
+		}
+		if(nextLine >= possibleLinesOrigin.cend())
+			break;
+
+		nextLineBeginEstimate = curLine->line.first + curLine->line.second + 1;
+		newLines = nextLine->line.first - nextLineBeginEstimate;
+		assert(nextLineBeginEstimate <= nextLine->line.first);
+		curLine = nextLine;
+		insertionIterator = std::next(insertionIterator);
+	}
+
+	const auto makeNewLine = [](const auto & lineBreak, const auto & srcStr, auto & emptyLine)
+	{
+		const auto colorTag = lineBreak.colorTag ?
+			std::string_view(srcStr).substr(lineBreak.colorTag.value().first, lineBreak.colorTag.value().second) : std::string_view();
+		emptyLine = std::string(colorTag) + srcStr.substr(lineBreak.line.first, lineBreak.line.second);
+		if(lineBreak.closingTagNeeded)
+			emptyLine.append("}");
+	};
+
+	// This is necessary to avoid spaces at the beginning of the line, after the color tag. "{  ...."
+	for(auto & lineBreak : possibleLines)
+		if(lineBreak.colorTag)
+		{
+			const auto lineBeginPos = preparedTextPtr->find_first_not_of(' ', lineBreak.line.first);
+			assert(lineBeginPos < lineBreak.line.first + lineBreak.line.second);
+			lineBreak.line.second -= lineBeginPos - lineBreak.line.first;
+			lineBreak.line.first = lineBeginPos;
+		}
+
+	// Split lines by spaces and fill result
+	for(const auto & lineBreak : possibleLines)
+	{
+		std::string line;
+		makeNewLine(lineBreak, *preparedTextPtr, line);
+		for(const auto & breakBySpace : getPossibleLines(line, maxLineWidth, getStringWidth, ' '))
+			makeNewLine(breakBySpace, line, result.emplace_back());
+	}
+	return result;
+}
+
 VCMI_LIB_NAMESPACE_END

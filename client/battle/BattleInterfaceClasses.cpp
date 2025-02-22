@@ -85,13 +85,16 @@ std::vector<std::string> BattleConsole::getVisibleText() const
 		if (text.empty())
 			continue;
 
-		auto result = CMessage::breakText(text, pos.w, FONT_SMALL);
+		const auto getStringWidthSmallFont = [](const std::string & str) -> size_t
+			{return ENGINE->renderHandler().loadFont(FONT_SMALL)->getStringWidth(str);};
+
+		auto result = TextOperations::breakText(text, pos.w, getStringWidthSmallFont);
 
 		if(result.size() > 2 && text.find('\n') != std::string::npos)
 		{
 			// Text has too many lines to fit into console, but has line breaks. Try ignore them and fit text that way
 			std::string cleanText = boost::algorithm::replace_all_copy(text, "\n", " ");
-			result = CMessage::breakText(cleanText, pos.w, FONT_SMALL);
+			result = TextOperations::breakText(cleanText, pos.w, getStringWidthSmallFont);
 		}
 
 		if(result.size() > 2)
@@ -122,7 +125,8 @@ std::vector<std::string> BattleConsole::splitText(const std::string &text)
 		}
 		else
 		{
-			std::vector<std::string> substrings = CMessage::breakText(line, pos.w, FONT_SMALL);
+			std::vector<std::string> substrings = TextOperations::breakText(line, pos.w,
+				[font](const std::string & str) -> size_t {return font->getStringWidth(str);});
 			output.insert(output.end(), substrings.begin(), substrings.end());
 		}
 	}
