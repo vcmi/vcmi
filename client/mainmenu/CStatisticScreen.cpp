@@ -438,7 +438,7 @@ int computeGridStep(int maxAmount, int linesLimit)
 }
 
 LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons, float maxY)
-	: CIntObject(), maxVal(0), maxDay(0)
+	: CIntObject(), maxVal(0), maxDay(0), data(data)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -473,13 +473,6 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 	int gridStep = computeGridStep(maxVal, gridLineCount);
 	niceMaxVal = gridStep * std::ceil(maxVal / gridStep);
 	niceMaxVal = std::max(1, niceMaxVal); // avoid zero size Y axis (if all values are 0)
-
-	// calculate points in chart
-	auto getPoint = [this](int i, std::vector<float> data){
-		float x = (static_cast<float>(chartArea.w) / static_cast<float>(maxDay - 1)) * static_cast<float>(i);
-		float y = static_cast<float>(chartArea.h) - (static_cast<float>(chartArea.h) / niceMaxVal) * data[i];
-		return Point(x, y);
-	};
 
 	// draw grid (vertical lines)
 	int dayGridInterval = maxDay < 700 ? 7 : 28;
@@ -541,18 +534,51 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 	layout.emplace_back(std::make_shared<CLabel>(p.x, p.y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.64")));
 }
 
+Point LineChart::getPoint(int i, std::vector<float> data)
+{
+	float x = (static_cast<float>(chartArea.w) / static_cast<float>(maxDay - 1)) * static_cast<float>(i);
+	float y = static_cast<float>(chartArea.h) - (static_cast<float>(chartArea.h) / niceMaxVal) * data[i];
+	return Point(x, y);
+};
+
 void LineChart::updateStatusBar(const Point & cursorPosition)
 {
-	statusBar->moveTo(cursorPosition + Point(-statusBar->pos.w / 2, 20));
-	statusBar->fitToRect(pos, 10);
+	OBJECT_CONSTRUCTION;
+
 	Rect r(pos.x + chartArea.x, pos.y + chartArea.y, chartArea.w, chartArea.h);
-	statusBar->setEnabled(r.isInside(cursorPosition));
-	if(r.isInside(cursorPosition))
+	Point curPos = cursorPosition;
+	if(r.isInside(curPos))
 	{
-		float x = (static_cast<float>(maxDay - 1) / static_cast<float>(chartArea.w)) * (static_cast<float>(cursorPosition.x) - static_cast<float>(r.x)) + 1.0f;
-		float y = niceMaxVal - (niceMaxVal / static_cast<float>(chartArea.h)) * (static_cast<float>(cursorPosition.y) - static_cast<float>(r.y));
+		std::vector<std::pair<int, Point>> points;
+		for(const auto & line : data)
+		{
+			for(int i = 0; i < line.second.size(); i++)
+			{
+				Point p = getPoint(i, line.second) + chartArea.topLeft();
+				int len = Point(curPos.x - p.x - pos.x, curPos.y - p.y - pos.y).length();
+				points.push_back(std::make_pair(len, p));
+			}
+		}
+		std::sort(points.begin(), points.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
+		if(points.size() && points[0].first < 15)
+		{
+			// Snap in with marker for nearest point
+			hoverMarker = std::make_shared<TransparentFilledRectangle>(Rect(points[0].second - Point(3, 3), Point(6, 6)), Colors::ORANGE);
+			curPos = points[0].second + pos;
+		}
+		else
+			hoverMarker.reset();
+
+		float x = (static_cast<float>(maxDay - 1) / static_cast<float>(chartArea.w)) * (static_cast<float>(curPos.x) - static_cast<float>(r.x)) + 1.0f;
+		float y = niceMaxVal - (niceMaxVal / static_cast<float>(chartArea.h)) * (static_cast<float>(curPos.y) - static_cast<float>(r.y));
+
 		statusBar->write(CGI->generaltexth->translate("core.genrltxt.64") + ": " + CStatisticScreen::getDay(x) + "   " + CGI->generaltexth->translate("vcmi.statisticWindow.value") + ": " + (static_cast<int>(y) > 0 ? std::to_string(static_cast<int>(y)) : std::to_string(y)));
 	}
+
+	statusBar->setEnabled(r.resize(1).isInside(curPos));
+	statusBar->moveTo(curPos + Point(-statusBar->pos.w / 2, 20));
+	statusBar->fitToRect(pos, 10);
+
 	setRedrawParent(true);
 	redraw();
 }
