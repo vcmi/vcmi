@@ -140,7 +140,7 @@ void MapViewController::modifyTileSize(int stepsChange, bool useDeadZone)
 
 		if (adventureContext)
 		{
-			Settings tileZoom = persistentStorage.write["tileZoom"];
+			Settings tileZoom = settings.write["adventure"]["tileZoom"];
 			tileZoom->Integer() = actualZoom.x;
 		}
 	}

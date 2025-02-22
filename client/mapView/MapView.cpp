@@ -211,7 +211,7 @@ void MapView::onViewMapActivated()
 {
 	controller->activateAdventureContext();
 
-	int zoom = persistentStorage["tileZoom"].Integer();
+	int zoom = settings["adventure"]["tileZoom"].Integer();
 	if(zoom)
 		controller->setTileSize(Point(zoom, zoom));
 	else
