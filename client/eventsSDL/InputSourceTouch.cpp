@@ -64,7 +64,7 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 	motionAccumulatedY[tfinger.fingerId] += tfinger.dy;
 
 	float motionThreshold = 1.0 / std::min(screenSize.x, screenSize.y);
-	if(motionAccumulatedX[tfinger.fingerId] < motionThreshold && motionAccumulatedY[tfinger.fingerId] < motionThreshold && motionAccumulatedX[tfinger.fingerId] > -motionThreshold && motionAccumulatedY[tfinger.fingerId] > -motionThreshold)
+	if(std::abs(motionAccumulatedX[tfinger.fingerId]) < motionThreshold && std::abs(motionAccumulatedY[tfinger.fingerId]) < motionThreshold)
 		return;
 
 	if (CCS && CCS->curh && settings["video"]["cursor"].String() == "software" && state != TouchState::RELATIVE_MODE)
@@ -121,8 +121,10 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 		}
 	}
 
-	motionAccumulatedX[tfinger.fingerId] = 0;
-	motionAccumulatedY[tfinger.fingerId] = 0;
+	if(std::abs(motionAccumulatedX[tfinger.fingerId]) >= motionThreshold)
+		motionAccumulatedX[tfinger.fingerId] = 0;
+	if(std::abs(motionAccumulatedY[tfinger.fingerId]) >= motionThreshold)
+		motionAccumulatedY[tfinger.fingerId] = 0;
 }
 
 void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinger)
