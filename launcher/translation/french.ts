@@ -282,20 +282,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="389"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ce mod ne peut pas être activé car il traduit dans une langue différente.</translation>
+        <translation>Ce mod ne peut pas être activé car il traduit dans une langue différente.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="390"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ce mod ne peut pas être activé car les dépendances suivantes sont manquantes</translation>
+        <translation>Ce mod ne peut pas être activé car les dépendances suivantes sont manquantes</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="391"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ce mod ne peut pas être installé car les dépendances suivantes sont manquantes</translation>
+        <translation>Ce mod ne peut pas être installé car les dépendances suivantes sont manquantes</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
@@ -311,20 +308,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="482"/>
         <source>Context menu</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Menu contextuel</translation>
+        <translation>Menu contextuel</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="525"/>
         <source>Open directory</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ouvrir le répertoire</translation>
+        <translation>Ouvrir le répertoire</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
         <source>Open repository</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ouvrir le dépôt</translation>
+        <translation>Ouvrir le dépôt</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="783"/>
@@ -361,8 +355,7 @@ Installer les téchargements réussis?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="940"/>
         <source>Installing Heroes Chronicles</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Installation de Heroes Chronicles</translation>
+        <translation>Installation de Heroes Chronicles</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1020"/>
@@ -470,8 +463,7 @@ Installer les téchargements réussis?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="75"/>
         <source>Mods Validation</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Validation des mods</translation>
+        <translation>Validation des mods</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="88"/>
@@ -496,20 +488,17 @@ Installer les téchargements réussis?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
         <source>Full</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Complet</translation>
+        <translation>Complet</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="533"/>
         <source>Allow portrait mode</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Autoriser le mode portrait</translation>
+        <translation>Autoriser le mode portrait</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="811"/>
         <source>Use scalable fonts</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Utiliser des polices évolutives</translation>
+        <translation>Utiliser des polices redimensionnables</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="882"/>
@@ -519,26 +508,22 @@ Installer les téchargements réussis?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1019"/>
         <source>Handle back as right mouse button</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Gérer le retour comme le bouton droit de la souris</translation>
+        <translation>Gérer le retour en atnt que le bouton droit de la souris</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1125"/>
         <source>Cursor Scaling</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Mise à l'échelle du curseur</translation>
+        <translation>Mise à l&apos;échelle du curseur</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1154"/>
         <source>Scalable</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Évolutif</translation>
+        <translation>Redimensionnable</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1190"/>
         <source>Miscellaneous</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Divers</translation>
+        <translation>Divers</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1228"/>
@@ -549,26 +534,23 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Sélectionnez un mode d'affichage pour le jeu
+        <translation>Sélectionnez un mode d&apos;affichage pour le jeu
 
-Fenêtré - le jeu s'exécutera dans une fenêtre couvrant une partie de votre écran.
+Fenêtré - le jeu s&apos;exécutera dans une fenêtre couvrant une partie de votre écran.
 
-Mode Fenêtré Sans Bordures - le jeu s'exécutera en plein écran dans une fenêtre correspondant à la résolution de votre écran.
+Mode Fenêtré Sans Bordures - le jeu s&apos;exécutera en plein écran dans une fenêtre correspondant à la résolution de votre écran.
 
 Mode Plein Écran Exclusif - le jeu couvrira entièrement votre écran et utilisera la résolution sélectionnée.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1349"/>
         <source>Font Scaling (experimental)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Mise à l'échelle des polices (expérimental)</translation>
+        <translation>Mise à l&apos;échelle des polices (expérimental)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1413"/>
         <source>Original</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Original</translation>
+        <translation>Original</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1452"/>
@@ -578,8 +560,7 @@ Mode Plein Écran Exclusif - le jeu couvrira entièrement votre écran et utilis
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1485"/>
         <source>Basic</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Basique</translation>
+        <translation>Basique</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="679"/>
@@ -842,39 +823,33 @@ Mode Plein Écran Exclusif - le jeu couvrira entièrement votre écran et utilis
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>Invalid file selected</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Fichier sélectionné invalide</translation>
+        <translation>Fichier sélectionné invalide</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vous devez sélectionner un fichier d'installation de Heroes Chronicles !</translation>
+        <translation>Vous devez sélectionner un fichier d&apos;installation de Heroes Chronicles !</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="82"/>
         <source>Extracting error!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Erreur d'extraction !</translation>
+        <translation>Erreur d&apos;extraction !</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="86"/>
         <source>Hash error!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Erreur de hachage !</translation>
+        <translation>Erreur de hachage !</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
         <source>Heroes Chronicles</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Heroes Chronicles</translation>
+        <translation>Heroes Chronicles</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="153"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Heroes Chronicles %1 - %2</translation>
+        <translation>Heroes Chronicles %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -922,14 +897,13 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Merci d'avoir installé VCMI !
+        <translation>Merci d&apos;avoir installé VCMI !
 
 Avant de pouvoir commencer à jouer, il y a encore quelques étapes à compléter.
 
 Veuillez noter que pour utiliser VCMI, vous devez posséder les fichiers de données originaux de Heroes® of Might and Magic® III: Complete ou The Shadow of Death.
 
-Heroes® of Might and Magic® III HD n'est actuellement pas pris en charge !</translation>
+Heroes® of Might and Magic® III HD n&apos;est pas actuellement pris en charge !</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="248"/>
@@ -1015,16 +989,14 @@ Heroes® of Might and Magic® III HD n'est actuellement pas pris en charge !</tr
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
         <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vous pouvez copier manuellement les répertoires Maps, Data et Mp3 du jeu original vers le répertoire de données VCMI visible en haut de cette page.</translation>
+        <translation>Vous pouvez copier manuellement les répertoires Maps, Data et Mp3 du jeu original vers le répertoire de données VCMI visible en haut de cette page.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Si vous possédez Heroes III sur gog.com, vous pouvez télécharger un installateur hors ligne de sauvegarde depuis gog.com. VCMI importera alors les données de Heroes III en utilisant l'installateur hors ligne.
-L'installateur hors ligne est composé de deux fichiers : &quot;.exe&quot; et &quot;.bin&quot; - vous devez télécharger les deux.</translation>
+        <translation>Si vous possédez Heroes III sur gog.com, vous pouvez télécharger un installateur hors ligne de sauvegarde depuis gog.com. VCMI importera alors les données de Heroes III en utilisant l&apos;installateur hors ligne.
+L&apos;installateur hors ligne est composé de deux fichiers : &quot;.exe&quot; et &quot;.bin&quot; - vous devez télécharger les deux.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="557"/>
@@ -1055,8 +1027,7 @@ L'installateur hors ligne est composé de deux fichiers : &quot;.exe&quot; et &q
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Installez un mod qui améliore l'interface, comme une meilleure interface pour les cartes aléatoires et des actions sélectionnables en bataille.</translation>
+        <translation>Installe un mod qui améliore l&apos;interface, comme une meilleure interface pour les cartes aléatoires et des actions sélectionnables en bataille.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="809"/>
@@ -1129,16 +1100,14 @@ L'installateur hors ligne est composé de deux fichiers : &quot;.exe&quot; et &q
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="495"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Les fichiers de Heroes III: HD Edition ne sont pas pris en charge par VCMI.
+        <translation>Les fichiers de Heroes III: HD Edition ne sont pas pris en charge par VCMI.
 Veuillez sélectionner le répertoire contenant Heroes III: Complete Edition ou Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="500"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Version inconnue ou non prise en charge de Heroes III détectée.
+        <translation>Version inconnue ou non prise en charge de Heroes III détectée.
 Veuillez sélectionner le répertoire contenant Heroes III: Complete Edition ou Heroes III: Shadow of Death.</translation>
     </message>
     <message>
@@ -1149,14 +1118,12 @@ Veuillez sélectionner le répertoire contenant Heroes III: Complete Edition ou 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="397"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vous avez fourni un installateur GOG Galaxy ! Ce fichier ne contient pas le jeu. Veuillez télécharger l'installateur de sauvegarde hors ligne !</translation>
+        <translation>Vous avez fourni un installateur GOG Galaxy ! Ce fichier ne contient pas le jeu. Veuillez télécharger l&apos;installateur de sauvegarde hors ligne !</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="423"/>
         <source>Hash error!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Erreur de hachage !</translation>
+        <translation>Erreur de hachage !</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="427"/>
@@ -1172,8 +1139,7 @@ Veuillez sélectionner le répertoire contenant Heroes III: Complete Edition ou 
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="471"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Impossible de détecter des données valides de Heroes III dans le répertoire choisi.
+        <translation>Impossible de détecter des données valides de Heroes III dans le répertoire choisi.
 Veuillez sélectionner le répertoire contenant les données installées de Heroes III.</translation>
     </message>
     <message>
@@ -1204,20 +1170,18 @@ Veuillez sélectionner le répertoire contenant les données installées de Hero
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished">Erreur de flux lors de l&apos;extraction des fichiers&#xa0;!
+        <translation>Erreur de flux lors de l&apos;extraction des fichiers&#xa0;!
 Raison de l&apos;erreur&#xa0;: </translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ce n'est pas un installateur Inno Setup pris en charge !</translation>
+        <translation>Ce n&apos;est pas un installateur Inno Setup pris en charge !</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="58"/>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">VCMI a été compilé sans prise en charge de innoextract, ce qui est nécessaire pour extraire les fichiers exe !</translation>
+        <translation>VCMI a été compilé sans prise en charge de innoextract, ce qui est nécessaire pour extraire les fichiers exe !</translation>
     </message>
     <message numerus="yes">
         <location filename="../innoextract.cpp" line="135"/>
@@ -1225,12 +1189,11 @@ Raison de l&apos;erreur&#xa0;: </translation>
 Exe (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">
-            <numerusform>Hachage SHA1 des fichiers fournis:
-Exe (%n octets):
+        <translation>
+            <numerusform>Hachage SHA1 des fichiers fournis :
+Exe (%n octet):
 %1</numerusform>
-            <numerusform>Hachage SHA1 des fichiers fournis:
+            <numerusform>Hachage SHA1 des fichiers fournis :
 Exe (%n octets):
 %1</numerusform>
         </translation>
@@ -1241,10 +1204,9 @@ Exe (%n octets):
 Bin (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>
-Bin (%n octets):
+Bin (%n octet):
 %1</numerusform>
             <numerusform>
 Bin (%n octets):
@@ -1256,22 +1218,19 @@ Bin (%n octets):
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Échec du processus de copie interne. Espace suffisant sur l'appareil ?
+        <translation>Échec du processus de copie interne. Espace suffisant sur l&apos;appareil ?
 
 %1</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="149"/>
         <source>Exe</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Exe</translation>
+        <translation>Exe</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="149"/>
         <source>Bin</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Bin</translation>
+        <translation>Bin</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="158"/>
@@ -1279,8 +1238,7 @@ Bin (%n octets):
 %1
 
 %2</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Incohérence de langue !
+        <translation>Incohérence de langue !
 %1
 
 %2</translation>
@@ -1291,8 +1249,7 @@ Bin (%n octets):
 %1
 
 %2</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Un seul fichier connu ! Peut-être que les fichiers sont corrompus ? Veuillez télécharger à nouveau.
+        <translation>Un seul fichier connu ! Peut-être que les fichiers sont corrompus ? Veuillez télécharger à nouveau.
 %1
 
 %2</translation>
@@ -1302,8 +1259,7 @@ Bin (%n octets):
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Fichiers inconnus ! Peut-être que les fichiers sont corrompus ? Veuillez télécharger à nouveau.
+        <translation>Fichiers inconnus ! Peut-être que les fichiers sont corrompus ? Veuillez télécharger à nouveau.
 
 %1</translation>
     </message>
@@ -1426,26 +1382,22 @@ Bin (%n octets):
     <message>
         <location filename="../mainwindow_moc.ui" line="58"/>
         <source>Game</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Jeu</translation>
+        <translation>Jeu</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="46"/>
         <source>Error starting executable</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Erreur au démarrage de l'exécutable</translation>
+        <translation>Erreur au démarrage de l&apos;exécutable</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="289"/>
         <source>Replace config file?</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Remplacer le fichier de configuration ?</translation>
+        <translation>Remplacer le fichier de configuration ?</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="289"/>
         <source>Do you want to replace %1?</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Voulez-vous remplacer %1 ?</translation>
+        <translation>Voulez-vous remplacer %1 ?</translation>
     </message>
 </context>
 <context>
@@ -1466,94 +1418,79 @@ Bin (%n octets):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="129"/>
         <source>Can not install submod</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Impossible d'installer le sous-mod</translation>
+        <translation>Impossible d&apos;installer le sous-mod</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="132"/>
         <source>Mod is already installed</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Le mod est déjà installé</translation>
+        <translation>Le mod est déjà installé</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="141"/>
         <source>Can not uninstall submod</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Impossible de désinstaller le sous-mod</translation>
+        <translation>Impossible de désinstaller le sous-mod</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="144"/>
         <source>Mod is not installed</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Le mod n'est pas installé</translation>
+        <translation>Le mod n&apos;est pas installé</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="157"/>
         <source>Mod is already enabled</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Le mod est déjà activé</translation>
+        <translation>Le mod est déjà activé</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="160"/>
         <location filename="../modManager/modstatecontroller.cpp" line="186"/>
         <source>Mod must be installed first</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Le mod doit d'abord être installé</translation>
+        <translation>Le mod doit d&apos;abord être installé</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="164"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Le mod n'est pas compatible, veuillez mettre à jour VCMI et vérifier les dernières révisions du mod</translation>
+        <translation>Le mod n&apos;est pas compatible, veuillez mettre à jour VCMI et vérifier les dernières révisions du mod</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="167"/>
         <source>Can not enable translation mod for a different language!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Impossible d'activer le mod de traduction pour une langue différente !</translation>
+        <translation>Impossible d&apos;activer le mod de traduction pour une langue différente !</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="172"/>
         <source>Required mod %1 is missing</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Le mod requis %1 est manquant</translation>
+        <translation>Le mod requis %1 est manquant</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="183"/>
         <source>Mod is already disabled</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Le mod est déjà désactivé</translation>
+        <translation>Le mod est déjà désactivé</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="196"/>
         <source>Mod archive is missing</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">L'archive du mod est manquante</translation>
+        <translation>L&apos;archive du mod est manquante</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="201"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">L'archive du mod est invalide ou corrompue</translation>
+        <translation>L&apos;archive du mod est invalide ou corrompue</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="227"/>
         <source>Failed to extract mod data</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Échec de l'extraction des données du mod</translation>
+        <translation>Échec de l&apos;extraction des données du mod</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="251"/>
         <source>Mod data was not found</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Les données du mod n'ont pas été trouvées</translation>
+        <translation>Les données du mod n&apos;ont pas été trouvées</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="255"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Le mod est situé dans un répertoire protégé, veuillez le supprimer manuellement :</translation>
+        <translation>Le mod est situé dans un répertoire protégé, veuillez le supprimer manuellement :</translation>
     </message>
 </context>
 <context>
@@ -1561,123 +1498,103 @@ Bin (%n octets):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="36"/>
         <source>Translation</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Traduction</translation>
+        <translation>Traduction</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="37"/>
         <source>Town</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ville</translation>
+        <translation>Ville</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="38"/>
         <source>Test</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Test</translation>
+        <translation>Test</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="39"/>
         <source>Templates</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Modèles</translation>
+        <translation>Modèles</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="40"/>
         <source>Spells</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Sorts</translation>
+        <translation>Sorts</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="41"/>
         <source>Music</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Musique</translation>
+        <translation>Musique</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="42"/>
         <source>Maps</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Cartes</translation>
+        <translation>Cartes</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="43"/>
         <source>Sounds</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Sons</translation>
+        <translation>Sons</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="44"/>
         <source>Skills</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Compétences</translation>
+        <translation>Compétences</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="45"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="60"/>
         <source>Other</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Autre</translation>
+        <translation>Autre</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="46"/>
         <source>Objects</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Objets</translation>
+        <translation>Objets</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="47"/>
         <source>Mechanics</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Mécanique</translation>
+        <translation>Mécanique</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="48"/>
         <source>Interface</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Interface</translation>
+        <translation>Interface</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="49"/>
         <source>Heroes</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Héros</translation>
+        <translation>Héros</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="50"/>
         <source>Graphical</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Graphisme</translation>
+        <translation>Graphisme</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="51"/>
         <source>Expansion</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Extension</translation>
+        <translation>Extension</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="52"/>
         <source>Creatures</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Créatures</translation>
+        <translation>Créatures</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="53"/>
         <source>Compatibility</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Compatibilité</translation>
+        <translation>Compatibilité</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Artifacts</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Artifacts</translation>
+        <translation>Artéfacts</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
         <source>AI</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">IA</translation>
+        <translation>IA</translation>
     </message>
 </context>
 <context>
@@ -1700,38 +1617,32 @@ Raison&#xa0;: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="597"/>
         <source>Import from Clipboard</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Importer depuis le presse-papiers</translation>
+        <translation>Importer depuis le Presse-papiers</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="616"/>
         <source>Rename Current Preset</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Renommer le préréglage actuel</translation>
+        <translation>Renommer le Préréglage Actuel</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="530"/>
         <source>Create New Preset</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Créer un nouveau préréglage</translation>
+        <translation>Créer un Nouveau Préréglage</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="511"/>
         <source>Export to Clipboard</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Exporter vers le presse-papiers</translation>
+        <translation>Exporter vers le Presse-papiers</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="565"/>
         <source>Delete Current Preset</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Supprimer le préréglage actuel</translation>
+        <translation>Supprimer le Préréglage Actuel</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="119"/>
         <source>Unsupported or corrupted game data detected!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Données du jeu non prises en charge ou corrompues détectées !</translation>
+        <translation>Données du jeu non prises en charge ou corrompues détectées !</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="141"/>
@@ -1744,105 +1655,88 @@ Raison&#xa0;: %2</translation>
         <location filename="../startGame/StartGameTab.ui" line="451"/>
         <location filename="../startGame/StartGameTab.ui" line="470"/>
         <source>?</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">?</translation>
+        <translation>?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="239"/>
         <source>Install Translation</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Installer la traduction</translation>
+        <translation>Installer la Traduction</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="391"/>
         <source>No soundtrack detected!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Aucune bande-son détectée !</translation>
+        <translation>Aucune bande-son détectée !</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="258"/>
         <source>Armaggedon&apos;s Blade campaigns are missing!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Les campagnes d'Armageddon's Blade sont manquantes !</translation>
+        <translation>Les campagnes d&apos;Armageddon&apos;s Blade sont manquantes !</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="293"/>
         <source>No video files detected!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Aucun fichier vidéo détecté !</translation>
+        <translation>Aucun fichier vidéo détecté !</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="432"/>
         <source>Activate Translation</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Activer la traduction</translation>
+        <translation>Activer la Traduction</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="315"/>
         <source>Import files</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Importer des fichiers</translation>
+        <translation>Importer des fichiers</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="701"/>
         <source>Check For Updates</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vérifier les mises à jour</translation>
+        <translation>Vérifier les mises à jour</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="720"/>
         <source>Go to Downloads Page</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Aller à la page des téléchargements</translation>
+        <translation>Aller à la Page des Téléchargements</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="739"/>
         <source>Go to Changelog Page</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Aller à la page du journal des modifications</translation>
+        <translation>Aller à la Page du Journal des Modifications</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="657"/>
         <source>You are using the latest version</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vous utilisez la dernière version</translation>
+        <translation>Vous utilisez la dernière version</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="37"/>
         <source>Game Data Files</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Fichiers de données du jeu</translation>
+        <translation>Fichiers de Données du Jeu</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="55"/>
         <source>Mod Preset</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Préréglage du mod</translation>
+        <translation>Préréglage du Mod</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="773"/>
         <source>Resume</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Reprendre</translation>
+        <translation>Reprendre</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="834"/>
         <source>Play</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Jouer</translation>
+        <translation>Jouer</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="801"/>
         <source>Editor</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Éditeur</translation>
+        <translation>Éditeur</translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="184"/>
         <source>Update %n mods</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">
-            <numerusform>Mettre à jour %n mods</numerusform>
+        <translation>
+            <numerusform>Mettre à jour %n mod</numerusform>
             <numerusform>Mettre à jour %n mods</numerusform>
         </translation>
     </message>
@@ -1850,67 +1744,57 @@ Raison&#xa0;: %2</translation>
         <location filename="../startGame/StartGameTab.cpp" line="188"/>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Heroes Chronicles :
 %n/%1 installé</numerusform>
             <numerusform>Heroes Chronicles :
-%n/%1 installé</numerusform>
+%n/%1 installés</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="205"/>
         <source>Update to %1 available</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Mise à jour vers %1 disponible</translation>
+        <translation>Mise à jour vers %1 disponible</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="241"/>
         <source>All supported files</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Tous les fichiers pris en charge</translation>
+        <translation>Tous les fichiers pris en charge</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="242"/>
         <source>Maps</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Cartes</translation>
+        <translation>Cartes</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="243"/>
         <source>Campaigns</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Campagnes</translation>
+        <translation>Campagnes</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="244"/>
         <source>Configs</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Configurations</translation>
+        <translation>Configurations</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="245"/>
         <source>Mods</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Mods</translation>
+        <translation>Mods</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="246"/>
         <source>Gog files</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Fichiers Gog</translation>
+        <translation>Fichiers Gog</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="249"/>
         <source>All files (*.*)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Tous les fichiers (*.*)</translation>
+        <translation>Tous les fichiers (*.*)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="251"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Sélectionnez les fichiers (configurations, mods, cartes, campagnes, fichiers gog) à installer...</translation>
+        <translation>Sélectionnez les fichiers (configurations, mods, cartes, campagnes, fichiers gog) à installer...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="294"/>
@@ -1922,52 +1806,46 @@ Raison&#xa0;: %2</translation>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Cette option vous permet d'importer des fichiers de données supplémentaires dans votre installation VCMI. Actuellement, les options suivantes sont prises en charge :
+        <translation>Cette option vous permet d&apos;importer des fichiers de données supplémentaires dans votre installation VCMI. Actuellement, les options suivantes sont prises en charge :
 
 - Cartes Heroes III (.h3m ou .vmap).
 - Campagnes Heroes III (.h3c ou .vcmp).
-- Heroes III Chronicles en utilisant l'installateur de sauvegarde hors ligne de GOG.com (.exe).
+- Heroes III Chronicles en utilisant l&apos;installateur de sauvegarde hors ligne de GOG.com (.exe).
 - Mods VCMI au format zip (.zip)
 - Fichiers de configuration VCMI (.json)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="309"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Votre version de Heroes III utilise une langue différente. VCMI propose des traductions du jeu dans diverses langues que vous pouvez utiliser. Utilisez cette option pour installer automatiquement la traduction dans votre langue.</translation>
+        <translation>Votre version de Heroes III utilise une langue différente. VCMI propose des traductions du jeu dans diverses langues que vous pouvez utiliser. Utilisez cette option pour installer automatiquement la traduction dans votre langue.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="319"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">La traduction de Heroes III dans votre langue est installée, mais elle a été désactivée. Utilisez cette option pour l'activer.</translation>
+        <translation>La traduction de Heroes III dans votre langue est installée, mais elle a été désactivée. Utilisez cette option pour l&apos;activer.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="329"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Une nouvelle version de certains des mods que vous avez installés est maintenant disponible dans le référentiel de mods. Utilisez cette option pour mettre automatiquement à jour tous vos mods vers la dernière version.
+        <translation>Une nouvelle version de certains des mods que vous avez installés est maintenant disponible dans le référentiel de mods. Utilisez cette option pour mettre automatiquement à jour tous vos mods vers la dernière version.
 
-ATTENTION : Dans certains cas, les versions mises à jour des mods peuvent ne pas être compatibles avec vos sauvegardes existantes. Vous voudrez peut-être reporter la mise à jour des mods jusqu'à ce que vous ayez terminé vos parties en cours.</translation>
+ATTENTION : Dans certains cas, les versions mises à jour des mods peuvent ne pas être compatibles avec vos sauvegardes existantes. Vous voudrez peut-être reporter la mise à jour des mods jusqu&apos;à ce que vous ayez terminé vos parties en cours.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="341"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Si vous possédez Heroes Chronicles sur gog.com, vous pouvez utiliser les installateurs de sauvegarde hors ligne fournis par gog pour importer les données de Heroes Chronicles dans VCMI en tant que campagnes personnalisées.
-Pour importer Heroes Chronicles, téléchargez l'installateur de sauvegarde hors ligne de chaque chronique que vous souhaitez installer, sélectionnez l'option &apos;Importer des fichiers&apos; et sélectionnez le fichier téléchargé. Cela générera et installera un mod pour VCMI contenant les chroniques importées.</translation>
+        <translation>Si vous possédez Heroes Chronicles sur gog.com, vous pouvez utiliser les installateurs de sauvegarde hors ligne fournis par gog pour importer les données de Heroes Chronicles dans VCMI en tant que campagnes personnalisées.
+Pour importer Heroes Chronicles, téléchargez l&apos;installateur de sauvegarde hors ligne de chaque chronique que vous souhaitez installer, sélectionnez l&apos;option &apos;Importer des fichiers&apos; et sélectionnez le fichier téléchargé. Cela générera et installera un mod pour VCMI contenant les chroniques importées.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="354"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">VCMI a détecté que les fichiers de musique de Heroes III sont manquants dans votre installation. VCMI fonctionnera, mais la musique en jeu ne sera pas disponible.
+        <translation>VCMI a détecté que les fichiers de musique de Heroes III sont manquants dans votre installation. VCMI fonctionnera, mais la musique en jeu ne sera pas disponible.
 
 Pour résoudre ce problème, veuillez copier manuellement les fichiers mp3 manquants de Heroes III vers le répertoire des fichiers de données VCMI ou réinstallez VCMI et réimportez les fichiers de données de Heroes III.</translation>
     </message>
@@ -1976,8 +1854,7 @@ Pour résoudre ce problème, veuillez copier manuellement les fichiers mp3 manqu
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">VCMI a détecté que les fichiers vidéo de Heroes III sont manquants dans votre installation. VCMI fonctionnera, mais les cinématiques du jeu ne seront pas disponibles.
+        <translation>VCMI a détecté que les fichiers vidéo de Heroes III sont manquants dans votre installation. VCMI fonctionnera, mais les cinématiques du jeu ne seront pas disponibles.
 
 Pour résoudre ce problème, veuillez copier manuellement le fichier VIDEO.VID de Heroes III vers le répertoire des fichiers de données VCMI ou réinstallez VCMI et réimportez les fichiers de données de Heroes III.</translation>
     </message>
@@ -1986,8 +1863,7 @@ Pour résoudre ce problème, veuillez copier manuellement le fichier VIDEO.VID d
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">VCMI a détecté que certains fichiers de données de Heroes III sont manquants dans votre installation. Vous pouvez tenter d'exécuter VCMI, mais le jeu peut ne pas fonctionner comme prévu ou planter.
+        <translation>VCMI a détecté que certains fichiers de données de Heroes III sont manquants dans votre installation. Vous pouvez tenter d&apos;exécuter VCMI, mais le jeu peut ne pas fonctionner comme prévu ou planter.
 
 Pour résoudre ce problème, veuillez réinstaller le jeu et réimporter les fichiers de données en utilisant une version prise en charge de Heroes III. VCMI nécessite Heroes III : Shadow of Death ou Complete Edition pour fonctionner, que vous pouvez obtenir (par exemple) sur gog.com.</translation>
     </message>
@@ -1996,22 +1872,19 @@ Pour résoudre ce problème, veuillez réinstaller le jeu et réimporter les fic
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">VCMI a détecté que certains fichiers de données de Heroes III: Armageddon&apos;s Blade sont manquants dans votre installation. VCMI fonctionnera, mais les campagnes d'Armageddon's Blade ne seront pas disponibles.
+        <translation>VCMI a détecté que certains fichiers de données de Heroes III: Armageddon&apos;s Blade sont manquants dans votre installation. VCMI fonctionnera, mais les campagnes d&apos;Armageddon&apos;s Blade ne seront pas disponibles.
 
 Pour résoudre ce problème, veuillez copier manuellement les fichiers de données manquants de Heroes III vers le répertoire des fichiers de données VCMI ou réinstallez VCMI et réimportez les fichiers de données de Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="423"/>
         <source>Enter preset name:</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Entrez le nom du préréglage :</translation>
+        <translation>Entrez le nom du préréglage :</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="466"/>
         <source>Rename preset &apos;%1&apos; to:</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Renommer le préréglage &apos;%1&apos; en :</translation>
+        <translation>Renommer le préréglage &apos;%1&apos; en :</translation>
     </message>
 </context>
 <context>
@@ -2039,8 +1912,7 @@ Pour résoudre ce problème, veuillez copier manuellement les fichiers de donné
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Impossible de lire le JSON depuis l'URL ou les données JSON sont incorrectes.</translation>
+        <translation>Impossible de lire le JSON depuis l&apos;URL ou les données JSON sont incorrectes.</translation>
     </message>
 </context>
 </TS>
