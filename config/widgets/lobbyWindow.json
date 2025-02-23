@@ -112,7 +112,8 @@
 		{
 			"name" : "headerGameChat",
 			"type": "labelTitle",
-			"position": {"x": 421, "y": 53}
+			"position": {"x": 421, "y": 53},
+			"maxWidth": 210
 		},
 		{
 			"type": "textBox",
