@@ -194,7 +194,7 @@
 			"type": "button",
 			"position": {"x": 5, "y": 556},
 			"image": "lobbyCreateRoom",
-			"help": "core.help.288",
+			"help": "vcmi.lobby.room.create",
 			"callback": "createGameRoom",
 			"items":
 			[

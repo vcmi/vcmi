@@ -179,6 +179,7 @@
 	"vcmi.lobby.match.duel" : "Game with %s", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d players",
 	"vcmi.lobby.room.create" : "Create New Room",
+	"vcmi.lobby.room.create.help" : "Create a new room in the online lobby that other players can join.",
 	"vcmi.lobby.room.players.limit" : "Players Limit",
 	"vcmi.lobby.room.description.public" : "Any player can join public room.",
 	"vcmi.lobby.room.description.private" : "Only invited players can join private room.",
