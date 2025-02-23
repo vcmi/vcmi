@@ -177,7 +177,7 @@
 	"vcmi.lobby.match.solo" : "Partita in singolo",
 	"vcmi.lobby.match.duel" : "Partita con %s", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d giocatori",
-	"vcmi.lobby.room.create" : "Crea nuova stanza",
+	"vcmi.lobby.room.create.hover" : "Crea nuova stanza",
 	"vcmi.lobby.room.players.limit" : "Limite giocatori",
 	"vcmi.lobby.room.description.public" : "Qualsiasi giocatore può entrare in una stanza pubblica.",
 	"vcmi.lobby.room.description.private" : "Solo i giocatori invitati possono entrare in una stanza privata.",

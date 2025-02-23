@@ -175,7 +175,7 @@
 	"vcmi.lobby.match.solo" : "Egyszemélyes játék",
 	"vcmi.lobby.match.duel" : "Játék %s-szel", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d játékos",
-	"vcmi.lobby.room.create" : "Új szoba létrehozása",
+	"vcmi.lobby.room.create.hover" : "Új szoba létrehozása",
 	"vcmi.lobby.room.players.limit" : "Játékosok száma",
 	"vcmi.lobby.room.description.public" : "Bárki csatlakozhat a nyilvános szobához.",
 	"vcmi.lobby.room.description.private" : "Csak meghívott játékosok csatlakozhatnak a privát szobához.",

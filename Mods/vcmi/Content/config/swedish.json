@@ -178,7 +178,7 @@
 	"vcmi.lobby.match.solo"              : "Spel för en spelare",
 	"vcmi.lobby.match.duel"              : "Spel med %s", // %s -> smeknamn på en annan spelare
 	"vcmi.lobby.match.multi"             : "%d spelare",
-	"vcmi.lobby.room.create"             : "Skapa nytt rum",
+	"vcmi.lobby.room.create.hover"             : "Skapa nytt rum",
 	"vcmi.lobby.room.players.limit"      : "Begränsning av spelare",
 	"vcmi.lobby.room.description.public" : "Alla spelare kan gå med i det offentliga rummet.",
 	"vcmi.lobby.room.description.private": "Endast inbjudna spelare kan gå med i ett privat rum.",
