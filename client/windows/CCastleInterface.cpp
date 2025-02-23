@@ -814,22 +814,26 @@ const CGHeroInstance * CCastleBuildings::getHero()
 
 void CCastleBuildings::buildingClicked(BuildingID building)
 {
-	BuildingID buildingToEnter = building;
-	for(;;)
+	std::vector<BuildingID> buildingsToTest;
+
+	for(BuildingID buildingToEnter = building;;)
 	{
 		const CBuilding *b = town->getTown()->buildings.find(buildingToEnter)->second;
 
-		if (buildingTryActivateCustomUI(buildingToEnter, building))
-			return;
-
+		buildingsToTest.push_back(buildingToEnter);
 		if (!b->upgrade.hasValue())
-		{
-			enterBuilding(building);
-			return;
-		}
+			break;
 
 		buildingToEnter = b->upgrade;
 	}
+
+	for(BuildingID buildingToEnter : boost::adaptors::reverse(buildingsToTest))
+	{
+		if (buildingTryActivateCustomUI(buildingToEnter, building))
+			return;
+	}
+
+	enterBuilding(building);
 }
 
 bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, BuildingID buildingTarget)
