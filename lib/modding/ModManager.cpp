@@ -763,6 +763,9 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 		if (mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage())
 			return false;
 
+		if(!mod.isCompatible())
+			return false;
+
 		if(mod.getDependencies().size() > resolvedModIDs.size())
 			return false;
 
