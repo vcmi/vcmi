@@ -177,7 +177,12 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 
 	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), subObject->subtype);
 	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
-		registerObject(scope, baseObject->getJsonKey(), compatID.String(), subObject->subtype);
+	{
+		if (identifier != compatID.String())
+			registerObject(scope, baseObject->getJsonKey(), compatID.String(), subObject->subtype);
+		else
+			logMod->warn("Mod '%s' map object '%s': compatibility identifier has same name as object itself!");
+	}
 }
 
 void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
@@ -192,7 +197,12 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 
 	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), subObject->subtype);
 	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
-		registerObject(scope, baseObject->getJsonKey(), compatID.String(), subObject->subtype);
+	{
+		if (identifier != compatID.String())
+			registerObject(scope, baseObject->getJsonKey(), compatID.String(), subObject->subtype);
+		else
+			logMod->warn("Mod '%s' map object '%s': compatibility identifier has same name as object itself!");
+	}
 }
 
 TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
