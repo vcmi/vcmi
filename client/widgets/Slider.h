@@ -38,6 +38,8 @@ class CSlider : public Scrollable
 
 	void updateSliderPos();
 
+	double getClickPos(const Point & cursorPosition);
+
 public:
 	enum EStyle
 	{
@@ -71,6 +73,7 @@ public:
 	bool receiveEvent(const Point & position, int eventType) const override;
 	void keyPressed(EShortcut key) override;
 	void clickPressed(const Point & cursorPosition) override;
+	void clickReleased(const Point & cursorPosition) override;
 	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void showAll(Canvas & to) override;

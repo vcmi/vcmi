@@ -178,7 +178,8 @@
 	"vcmi.lobby.match.solo" : "Singleplayer Game",
 	"vcmi.lobby.match.duel" : "Game with %s", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d players",
-	"vcmi.lobby.room.create" : "Create New Room",
+	"vcmi.lobby.room.create.hover" : "Create New Room",
+	"vcmi.lobby.room.create.help" : "Create a new room in the online lobby that other players can join.",
 	"vcmi.lobby.room.players.limit" : "Players Limit",
 	"vcmi.lobby.room.description.public" : "Any player can join public room.",
 	"vcmi.lobby.room.description.private" : "Only invited players can join private room.",
@@ -201,6 +202,8 @@
 	"vcmi.lobby.preview.error.mods" : "You are using different set of mods.",
 	"vcmi.lobby.preview.error.version" : "You are using different version of VCMI.",
 	"vcmi.lobby.channel.add" : "Add Channel",
+	"vcmi.lobby.channel.sendMessage.hover" : "Send message",
+	"vcmi.lobby.channel.sendMessage.help" : "Send message",
 	"vcmi.lobby.room.new" : "New Game",
 	"vcmi.lobby.room.load" : "Load Game",
 	"vcmi.lobby.room.type" : "Room Type",

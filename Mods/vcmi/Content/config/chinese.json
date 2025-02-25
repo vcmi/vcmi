@@ -175,7 +175,7 @@
 	"vcmi.lobby.match.solo" : "单人游戏",
 	"vcmi.lobby.match.duel" : "与 %s 的游戏", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d 个玩家",
-	"vcmi.lobby.room.create" : "创建房间",
+	"vcmi.lobby.room.create.hover" : "创建房间",
 	"vcmi.lobby.room.players.limit" : "玩家限制",
 	"vcmi.lobby.room.description.public" : "任何玩家都可以加入公开房间。",
 	"vcmi.lobby.room.description.private" : "只有被邀请的玩家能加入私有房间。",

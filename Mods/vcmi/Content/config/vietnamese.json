@@ -175,7 +175,7 @@
 	"vcmi.lobby.match.solo" : "Chơi Đơn",
 	"vcmi.lobby.match.duel" : "Chơi với %s", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "người chơi %d",
-	"vcmi.lobby.room.create" : "Tạo Phòng Mới",
+	"vcmi.lobby.room.create.hover" : "Tạo Phòng Mới",
 	"vcmi.lobby.room.players.limit" : "Số Người Chơi",
 	"vcmi.lobby.room.description.public" : "Người chơi có thể vào phòng công khai.",
 	"vcmi.lobby.room.description.private" : "Người chơi được mời mới có thể vào phòng riêng tư.",
