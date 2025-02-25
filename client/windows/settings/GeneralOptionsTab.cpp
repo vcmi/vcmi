@@ -160,6 +160,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	{
 		setBoolSetting("general", "hapticFeedback", value);
 	});
+	addCallback("enableOverlayChanged", [](bool value)
+	{
+		setBoolSetting("general", "enableOverlay", value);
+	});
 	addCallback("enableUiEnhancementsChanged", [](bool value)
 	{
 		setBoolSetting("general", "enableUiEnhancements", value);
@@ -222,6 +226,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	std::shared_ptr<CToggleButton> hapticFeedbackCheckbox = widget<CToggleButton>("hapticFeedbackCheckbox");
 	if (hapticFeedbackCheckbox)
 		hapticFeedbackCheckbox->setSelected(settings["general"]["hapticFeedback"].Bool());
+
+	std::shared_ptr<CToggleButton> enableOverlayCheckbox = widget<CToggleButton>("enableOverlayCheckbox");
+	if (enableOverlayCheckbox)
+		enableOverlayCheckbox->setSelected(settings["general"]["enableOverlay"].Bool());
 
 	std::shared_ptr<CToggleButton> enableUiEnhancementsCheckbox = widget<CToggleButton>("enableUiEnhancementsCheckbox");
 	if (enableUiEnhancementsCheckbox)

@@ -475,7 +475,7 @@ CKingdomInterface::CKingdomInterface()
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(ImagePath::builtin("KSTATBAR"), 10,pos.h - 45));
 	resdatabar = std::make_shared<CResDataBar>(ImagePath::builtin("KRESBAR"), 7, 111+footerPos, 29, 3, 76, 81);
 
-	activateTab(persistentStorage["gui"]["lastKindomInterface"].Integer());
+	activateTab(settings["general"]["lastKindomInterface"].Integer());
 }
 
 void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInstance * > &ownedObjects)
@@ -640,7 +640,7 @@ void CKingdomInterface::generateButtons()
 
 void CKingdomInterface::activateTab(size_t which)
 {
-	Settings s = persistentStorage.write["gui"]["lastKindomInterface"];
+	Settings s = settings.write["general"]["lastKindomInterface"];
 	s->Integer() = which;
 
 	btnHeroes->block(which == 0);
