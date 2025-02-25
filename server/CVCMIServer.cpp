@@ -80,25 +80,27 @@ CVCMIServer::CVCMIServer(uint16_t port, bool runByClient)
 
 CVCMIServer::~CVCMIServer() = default;
 
-uint16_t CVCMIServer::prepare(bool connectToLobby, bool listenForConnections)
-{
-	if(connectToLobby)
+uint16_t CVCMIServer::prepare(bool connectToLobby, bool listenForConnections) {
+	if(connectToLobby) {
 		lobbyProcessor = std::make_unique<GlobalLobbyProcessor>(*this);
-
-	return startAcceptingIncomingConnections(listenForConnections);
+		return 0;
+	} else {
+		return startAcceptingIncomingConnections(listenForConnections);
+	}
 }
 
 uint16_t CVCMIServer::startAcceptingIncomingConnections(bool listenForConnections)
 {
 	networkServer = networkHandler->createServerTCP(*this);
 
+	port
+		? logNetwork->info("Port %d will be used", port)
+		: logNetwork->info("Randomly assigned port will be used");
+
+	// config port may be 0 => srvport will contain the OS-assigned port value
+
 	if (listenForConnections)
 	{
-		// config port may be 0 => srvport will contain the OS-assigned port value
-		port
-			? logNetwork->info("Port %d will be used", port)
-			: logNetwork->info("Randomly assigned port will be used");
-
 		auto srvport = networkServer->start(port);
 		logNetwork->info("Listening for connections at port %d", srvport);
 		return srvport;
