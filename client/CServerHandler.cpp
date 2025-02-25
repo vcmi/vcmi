@@ -194,7 +194,6 @@ void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 
 void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 {
-	logNetwork->info("Establishing connection to %s:%d...", addr, port);
 	setState(EClientState::CONNECTING);
 	serverHostname = addr;
 	serverPort = port;

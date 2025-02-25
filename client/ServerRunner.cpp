@@ -40,6 +40,7 @@ void ServerThreadRunner::start(bool listenForConnections, bool connectToLobby, s
 	// cfgport may be 0 -- the real port is returned after calling prepare()
 	uint16_t port = settings["server"]["localPort"].Integer();
 	server = std::make_unique<CVCMIServer>(port, true);
+	lobbyMode = connectToLobby;
 
 	if (startingInfo)
 	{
@@ -77,7 +78,18 @@ int ServerThreadRunner::exitCode()
 
 void ServerThreadRunner::connect(INetworkHandler & network, INetworkClientListener & listener)
 {
-	network.createInternalConnection(listener, server->getNetworkServer());
+	if (lobbyMode)
+	{
+		std::string host = settings["server"]["localHostname"].String();
+		uint16_t port = settings["server"]["localPort"].Integer();
+		logNetwork->info("Establishing connection to %s:%d...", host, port);
+
+		network.connectToRemote(listener, host, port);
+	}
+	else
+	{
+		network.createInternalConnection(listener, server->getNetworkServer());
+	}
 }
 
 #ifdef ENABLE_SERVER_PROCESS
@@ -122,6 +134,7 @@ void ServerProcessRunner::connect(INetworkHandler & network, INetworkClientListe
 {
 	std::string host = settings["server"]["localHostname"].String();
 	uint16_t port = settings["server"]["localPort"].Integer();
+	logNetwork->info("Establishing connection to %s:%d...", host, port);
 
 	network.connectToRemote(listener, host, port);
 }
