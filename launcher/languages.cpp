@@ -102,6 +102,9 @@ void Languages::fillLanguages(QComboBox * widget, bool includeAll)
 
 	for(const auto & language : Languages::getLanguageList())
 	{
+		if(!language.selectable && activeLanguage != language.identifier)
+			continue;
+
 		QString displayName = generateLanguageName(language);
 		QVariant userData = QString::fromStdString(language.identifier);
 
@@ -135,6 +138,9 @@ void Languages::fillLanguages(QListWidget * widget, bool includeAll)
 
 	for(const auto & language : Languages::getLanguageList())
 	{
+		if(!language.selectable && activeLanguage != language.identifier)
+			continue;
+
 		QString displayName = generateLanguageName(language);
 		QVariant userData = QString::fromStdString(language.identifier);
 
