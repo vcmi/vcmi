@@ -307,17 +307,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="482"/>
         <source>Context menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Контекстное меню</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="525"/>
         <source>Open directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть каталог</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
         <source>Open repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть репозиторий</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="783"/>
@@ -532,7 +532,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="533"/>
         <source>Allow portrait mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Разрешить портретный режим</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="811"/>
@@ -547,7 +547,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1019"/>
         <source>Handle back as right mouse button</source>
-        <translation type="unfinished"></translation>
+        <translation>Обрабатывать кнопку «Назад» как правую кнопку мыши</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1125"/>
@@ -940,12 +940,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="673"/>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
-        <translation>Установить совместимую версию Horn of the Abyss: фанатского дополнения к Героям III (портированную командой VCMI)</translation>
+        <translation>Установить совместимую версию Рога Бездны: фанатского дополнения к Героям III (портированного командой VCMI)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
-        <translation>Установить совместимую версию In The Wake of Gods: фанатского дополнения к Героям III (портированную командой VCMI)</translation>
+        <translation>Установить совместимую версию Во Имя Богов: фанатского дополнения к Героям III (портированного командой VCMI)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
@@ -1036,7 +1036,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="710"/>
         <source>Horn of the Abyss</source>
-        <translation></translation>
+        <translation>Рог Бездны</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="643"/>
@@ -1046,7 +1046,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="809"/>
         <source>In The Wake of Gods</source>
-        <translation></translation>
+        <translation>Во Имя Богов</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="175"/>
@@ -1188,7 +1188,7 @@ error reason: </source>
 Exe (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>SHA1 хэш предоставленных файлов:
 Exe (%n байт):
 %1</numerusform>
@@ -1202,7 +1202,7 @@ Exe (%n байт):
 Bin (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>
 Bin (%n байт):
 %1</numerusform>
@@ -1384,7 +1384,7 @@ Bin (%n байт):
     <message>
         <location filename="../mainwindow_moc.cpp" line="46"/>
         <source>Error starting executable</source>
-        <translation type="unfinished">Ошибка запуска исполняемого файла</translation>
+        <translation>Ошибка запуска исполняемого файла</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="289"/>
@@ -1481,7 +1481,7 @@ Bin (%n байт):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="251"/>
         <source>Mod data was not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Данные мода не найдены</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="255"/>
