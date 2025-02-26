@@ -48,6 +48,8 @@ void CMapInfo::mapInit(const std::string & fname)
 	originalFileURI = resource.getOriginalName();
 	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(resource)).string();
 	mapHeader = mapService.loadMapHeader(resource);
+	lastWrite = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(resource));
+	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
 	countPlayers();
 }
 
