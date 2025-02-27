@@ -31,9 +31,12 @@ void MainWindow::load()
 	QDir::setCurrent(QApplication::applicationDirPath());
 
 #ifndef VCMI_MOBILE
-	console = new CConsoleHandler();
+	console = std::make_unique<CConsoleHandler>();
+	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console.get());
+#else
+	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", nullptr);
 #endif
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console);
+
 	logConfig.configureDefault();
 
 	try

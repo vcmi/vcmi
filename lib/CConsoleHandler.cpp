@@ -15,12 +15,6 @@
 
 #include <boost/stacktrace.hpp>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
-std::mutex CConsoleHandler::smx;
-
-DLL_LINKAGE CConsoleHandler * console = nullptr;
-
 VCMI_LIB_NAMESPACE_END
 
 #if defined(NDEBUG) && !defined(VCMI_ANDROID)
@@ -245,12 +239,12 @@ void CConsoleHandler::setColor(EConsoleTextColor::EConsoleTextColor color)
 #endif
 }
 
-int CConsoleHandler::run() const
+int CConsoleHandler::run()
 {
 	setThreadName("consoleHandler");
 	//disabling sync to make in_avail() work (othervice always returns 0)
 	{
-		TLockGuard _(smx);
+		std::lock_guard guard(smx);
 		std::ios::sync_with_stdio(false);
 	}
 	std::string buffer;
@@ -262,8 +256,8 @@ int CConsoleHandler::run() const
 		if (std::cin.rdbuf()->in_avail())
 		{
 			if ( getline(std::cin, buffer).good() )
-				if ( cb && *cb )
-					(*cb)(buffer, false);
+				if ( cb )
+					cb(buffer, false);
 		}
 		else
 			boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
@@ -277,9 +271,13 @@ int CConsoleHandler::run() const
 	}
 	return -1;
 }
-CConsoleHandler::CConsoleHandler():
-	cb(new std::function<void(const std::string &, bool)>), 
-	thread(nullptr)
+
+CConsoleHandler::CConsoleHandler()
+	:CConsoleHandler(std::function<void(const std::string &, bool)>{})
+{}
+
+CConsoleHandler::CConsoleHandler(std::function<void(const std::string &, bool)> callback)
+	:cb(callback)
 {
 #ifdef VCMI_WINDOWS
 	handleIn = GetStdHandle(STD_INPUT_HANDLE);
@@ -309,27 +307,24 @@ CConsoleHandler::~CConsoleHandler()
 {
 	logGlobal->info("Killing console...");
 	end();
-	delete cb;
 	logGlobal->info("Killing console... done!");
 }
 void CConsoleHandler::end()
 {
-	if (thread)
+	if (thread.joinable())
 	{
 #ifndef VCMI_WINDOWS
-		thread->interrupt();
+		thread.interrupt();
 #else
 		TerminateThread(thread->native_handle(),0);
 #endif
-		thread->join();
-		delete thread;
-		thread = nullptr;
+		thread.join();
 	}
 }
 
 void CConsoleHandler::start()
 {
-	thread = new boost::thread(std::bind(&CConsoleHandler::run,console));
+	thread = boost::thread(std::bind(&CConsoleHandler::run, this));
 }
 
 VCMI_LIB_NAMESPACE_END

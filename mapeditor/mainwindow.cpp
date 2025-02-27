@@ -184,14 +184,14 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	//configure logging
 	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Editor_log.txt";
-	console = new CConsoleHandler();
-	logConfig = new CBasicLogConfigurator(logPath, console);
+	console = std::make_unique<CConsoleHandler>();
+	logConfig = new CBasicLogConfigurator(logPath, console.get());
 	logConfig->configureDefault();
 	logGlobal->info("Starting map editor of '%s'", GameConstants::VCMI_VERSION);
 	logGlobal->info("The log file will be saved to %s", logPath);
 
 	//init
-	preinitDLL(::console, extractionOptions.extractArchives);
+	preinitDLL(extractionOptions.extractArchives);
 
 	// Initialize logging based on settings
 	logConfig->configure();

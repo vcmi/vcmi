@@ -210,8 +210,13 @@ int main(int argc, char * argv[])
 	CStopWatch total;
 	CStopWatch pomtime;
 	std::cout.flags(std::ios::unitbuf);
+
+	setThreadNameLoggingOnly("MainGUI");
+	boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
+	if(vm.count("logLocation"))
+		logPath = vm["logLocation"].as<std::string>() + "/VCMI_Client_log.txt";
+
 #ifndef VCMI_IOS
-	console = new CConsoleHandler();
 
 	auto callbackFunction = [](std::string buffer, bool calledFromIngameConsole)
 	{
@@ -219,15 +224,14 @@ int main(int argc, char * argv[])
 		commandController.processCommand(buffer, calledFromIngameConsole);
 	};
 
-	*console->cb = callbackFunction;
-	console->start();
+	CConsoleHandler console(callbackFunction);
+	console.start();
+
+	logConfig = new CBasicLogConfigurator(logPath, &console);
+#else
+	logConfig = new CBasicLogConfigurator(logPath, nullptr);
 #endif
 
-	setThreadNameLoggingOnly("MainGUI");
-	boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
-	if(vm.count("logLocation"))
-		logPath = vm["logLocation"].as<std::string>() + "/VCMI_Client_log.txt";
-	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
 	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_VERSION);
 	logGlobal->info("Creating console and configuring logger: %d ms", pomtime.getDiff());
@@ -236,7 +240,7 @@ int main(int argc, char * argv[])
 	// Init filesystem and settings
 	try
 	{
-		preinitDLL(::console, false);
+		preinitDLL(false);
 	}
 	catch (const DataLoadingException & e)
 	{
