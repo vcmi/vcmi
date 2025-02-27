@@ -178,7 +178,8 @@
 	"vcmi.lobby.match.solo" : "Einzelspieler-Spiel",
 	"vcmi.lobby.match.duel" : "Spiel mit %s", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d Spieler",
-	"vcmi.lobby.room.create" : "Neuen Spiel-Raum erstellen",
+	"vcmi.lobby.room.create.hover" : "Neuen Spiel-Raum erstellen",
+	"vcmi.lobby.room.create.help" : "Erstelle einen neuen Raum in der Online-Lobby, dem andere Spieler beitreten können.",
 	"vcmi.lobby.room.players.limit" : "Spieler Limit",
 	"vcmi.lobby.room.description.public" : "Jeder Spieler kann dem öffentlichen Raum beitreten.",
 	"vcmi.lobby.room.description.private" : "Nur eingeladene Spieler können den privaten Raum betreten.",
@@ -201,6 +202,8 @@
 	"vcmi.lobby.preview.error.mods" : "Ihr verwendet andere Mods.",
 	"vcmi.lobby.preview.error.version" : "Ihr verwendet eine andere Version von VCMI.",
 	"vcmi.lobby.channel.add" : "Kanal hinzufügen",
+	"vcmi.lobby.channel.sendMessage.hover" : "Nachricht senden",
+	"vcmi.lobby.channel.sendMessage.help" : "Nachricht senden",
 	"vcmi.lobby.room.new" : "Neues Spiel",
 	"vcmi.lobby.room.load" : "Spiel laden",
 	"vcmi.lobby.room.type" : "Raumtyp",
@@ -307,6 +310,8 @@
 	"vcmi.systemOptions.enableLargeSpellbookButton.help"   : "{Großes Zauberbuch}\n\nErmöglicht ein größeres Zauberbuch, in das mehr Zaubersprüche pro Seite passen. Die Animation des Seitenwechsels im Zauberbuch funktioniert nicht, wenn diese Einstellung aktiviert ist.",
 	"vcmi.systemOptions.audioMuteFocus.hover"  : "Stumm bei Inaktivität",
 	"vcmi.systemOptions.audioMuteFocus.help"   : "{Stumm bei Inaktivität}\n\nSchaltet Audio bei inaktiven Fenster-Fokus stumm. Ausnahmen sind Ingame-Nachrichten und der Neuer-Zug-Sound.",
+	"vcmi.systemOptions.enableOverlayButton.hover"  : "Overlay aktivieren",
+	"vcmi.systemOptions.enableOverlayButton.help"   : "{Overlay aktivieren}\n\nAktiviere Overlays, die zusätzliche Infos, wie Gebäudenamen anzeigen, wenn die ALT-Taste gedrückt oder die Zwei-Finger-Geste genutzt wird.",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "Meldungen im Infobereich anzeigen",
 	"vcmi.adventureOptions.infoBarPick.help" : "{Meldungen im Infobereich anzeigen}\n\nWann immer möglich, werden Spielnachrichten von besuchten Kartenobjekten in der Infoleiste angezeigt, anstatt als Popup-Fenster zu erscheinen",

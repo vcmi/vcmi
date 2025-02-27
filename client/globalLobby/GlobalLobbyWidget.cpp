@@ -44,7 +44,7 @@ GlobalLobbyWidget::GlobalLobbyWidget(GlobalLobbyWindow * window)
 
 	REGISTER_BUILDER("lobbyItemList", &GlobalLobbyWidget::buildItemList);
 
-	const JsonNode config(JsonPath::builtin("config/widgets/lobbyWindow.json"));
+	const JsonNode config(JsonPath::builtin(ENGINE->screenDimensions().x >= 1024 ? "config/widgets/lobbyWindowWide.json" : "config/widgets/lobbyWindow.json"));
 	build(config);
 }
 

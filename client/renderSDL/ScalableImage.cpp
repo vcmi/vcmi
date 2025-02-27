@@ -271,11 +271,6 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 		return images[index];
 	};
 
-	const auto & flipAndDraw = [&](FlippedImages & images, const ColorRGBA & colorMultiplier, uint8_t alphaValue){
-
-		getFlippedImage(images)->draw(where, parameters.palette, dest, src, colorMultiplier, alphaValue, locator.layer);
-	};
-
 	bool shadowLoading = scaled.at(scalingFactor).shadow.at(0) && scaled.at(scalingFactor).shadow.at(0)->isLoading();
 	bool bodyLoading = scaled.at(scalingFactor).body.at(0) && scaled.at(scalingFactor).body.at(0)->isLoading();
 	bool overlayLoading = scaled.at(scalingFactor).overlay.at(0) && scaled.at(scalingFactor).overlay.at(0)->isLoading();
@@ -292,7 +287,7 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 	}
 
 	if (scaled.at(scalingFactor).shadow.at(0))
-		flipAndDraw(scaled.at(scalingFactor).shadow, Colors::WHITE_TRUE, parameters.alphaValue);
+		getFlippedImage(scaled.at(scalingFactor).shadow)->draw(where, parameters.palette, dest, src, Colors::WHITE_TRUE, parameters.alphaValue, locator.layer);
 
 	if (parameters.player != PlayerColor::CANNOT_DETERMINE && scaled.at(scalingFactor).playerColored.at(1+parameters.player.getNum()))
 	{
@@ -301,14 +296,14 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 	else
 	{
 		if (scaled.at(scalingFactor).body.at(0))
-			flipAndDraw(scaled.at(scalingFactor).body, parameters.colorMultiplier, parameters.alphaValue);
+			getFlippedImage(scaled.at(scalingFactor).body)->draw(where, parameters.palette, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
 
 		if (scaled.at(scalingFactor).bodyGrayscale.at(0) && parameters.effectColorMultiplier.a != ColorRGBA::ALPHA_TRANSPARENT)
-			flipAndDraw(scaled.at(scalingFactor).bodyGrayscale, parameters.effectColorMultiplier, parameters.alphaValue);
+			getFlippedImage(scaled.at(scalingFactor).bodyGrayscale)->draw(where, parameters.palette, dest, src, parameters.effectColorMultiplier, parameters.alphaValue, locator.layer);
 	}
 
 	if (scaled.at(scalingFactor).overlay.at(0))
-		flipAndDraw(scaled.at(scalingFactor).overlay, parameters.ovelayColorMultiplier, static_cast<int>(parameters.alphaValue) * parameters.ovelayColorMultiplier.a / 255);
+		getFlippedImage(scaled.at(scalingFactor).overlay)->draw(where, parameters.palette, dest, src, parameters.ovelayColorMultiplier, static_cast<int>(parameters.alphaValue) * parameters.ovelayColorMultiplier.a / 255, locator.layer);
 }
 
 const SDL_Palette * ScalableImageShared::getPalette() const

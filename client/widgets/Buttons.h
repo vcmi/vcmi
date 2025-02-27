@@ -105,6 +105,7 @@ public:
 	/// State modifiers
 	bool isBlocked();
 	bool isHighlighted();
+	bool isPressed();
 
 	/// Constructor
 	CButton(Point position, const AnimationPath & defName, const std::pair<std::string, std::string> & help,

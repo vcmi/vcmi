@@ -20,6 +20,8 @@
 #include "../GameEngine.h"
 #include "../render/IScreenHandler.h"
 
+#include "../../lib/CConfigHandler.h"
+
 #include <tbb/parallel_for.h>
 #include <tbb/task_arena.h>
 
@@ -93,7 +95,9 @@ SDLImageShared::SDLImageShared(const ImagePath & filename)
 
 void SDLImageShared::scaledDraw(SDL_Surface * where, SDL_Palette * palette, const Point & scaleTo, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const
 {
-	assert(upscalingInProgress == false);
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
 	if (!surf)
 		return;
 
@@ -154,7 +158,9 @@ void SDLImageShared::scaledDraw(SDL_Surface * where, SDL_Palette * palette, cons
 
 void SDLImageShared::draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const
 {
-	assert(upscalingInProgress == false);
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
 	if (!surf)
 		return;
 
@@ -221,7 +227,9 @@ void SDLImageShared::optimizeSurface()
 
 std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palette * palette, EImageBlitMode mode) const
 {
-	assert(upscalingInProgress == false);
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
 	if (factor <= 0)
 		throw std::runtime_error("Unable to scale by integer value of " + std::to_string(factor));
 
@@ -264,7 +272,10 @@ SDLImageShared::SDLImageShared(const SDLImageShared * from, int integerScaleFact
 		upscalingInProgress = false;
 	};
 
-	upscalingArena.enqueue(scalingTask);
+	if(settings["video"]["asyncUpscaling"].Bool())
+		upscalingArena.enqueue(scalingTask);
+	else
+		scalingTask();
 }
 
 bool SDLImageShared::isLoading() const
@@ -274,7 +285,9 @@ bool SDLImageShared::isLoading() const
 
 std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Palette * palette) const
 {
-	assert(upscalingInProgress == false);
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
 
@@ -310,7 +323,9 @@ void SDLImageShared::exportBitmap(const boost::filesystem::path& path, SDL_Palet
 	directory.remove_filename();
 	boost::filesystem::create_directories(directory);
 
-	assert(upscalingInProgress == false);
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
 	if (!surf)
 		return;
 
@@ -323,7 +338,9 @@ void SDLImageShared::exportBitmap(const boost::filesystem::path& path, SDL_Palet
 
 bool SDLImageShared::isTransparent(const Point & coords) const
 {
-	assert(upscalingInProgress == false);
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
 	if (!surf)
 		return true;
 
@@ -343,7 +360,9 @@ bool SDLImageShared::isTransparent(const Point & coords) const
 
 Rect SDLImageShared::contentRect() const
 {
-	assert(upscalingInProgress == false);
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
 	auto tmpMargins = margins;
 	auto tmpSize = Point(surf->w, surf->h);
 	return Rect(tmpMargins, tmpSize);
@@ -351,7 +370,9 @@ Rect SDLImageShared::contentRect() const
 
 const SDL_Palette * SDLImageShared::getPalette() const
 {
-	assert(upscalingInProgress == false);
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
 	if (!surf)
 		return nullptr;
 	return surf->format->palette;
@@ -359,13 +380,17 @@ const SDL_Palette * SDLImageShared::getPalette() const
 
 Point SDLImageShared::dimensions() const
 {
-	assert(upscalingInProgress == false);
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
 	return fullSize;
 }
 
 std::shared_ptr<const ISharedImage> SDLImageShared::horizontalFlip() const
 {
-	assert(upscalingInProgress == false);
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
 	if (!surf)
 		return shared_from_this();
 
@@ -381,7 +406,9 @@ std::shared_ptr<const ISharedImage> SDLImageShared::horizontalFlip() const
 
 std::shared_ptr<const ISharedImage> SDLImageShared::verticalFlip() const
 {
-	assert(upscalingInProgress == false);
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
 	if (!surf)
 		return shared_from_this();
 
@@ -398,7 +425,9 @@ std::shared_ptr<const ISharedImage> SDLImageShared::verticalFlip() const
 // Keep the original palette, in order to do color switching operation
 void SDLImageShared::savePalette()
 {
-	assert(upscalingInProgress == false);
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
 	// For some images that don't have palette, skip this
 	if(surf->format->palette == nullptr)
 		return;

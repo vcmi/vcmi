@@ -1608,6 +1608,7 @@ void AIGateway::requestActionASAP(std::function<void()> whatToDo)
 void AIGateway::lostHero(HeroPtr h)
 {
 	logAi->debug("I lost my hero %s. It's best to forget and move on.", h.name());
+	nullkiller->invalidatePathfinderData();
 }
 
 void AIGateway::answerQuery(QueryID queryID, int selection)

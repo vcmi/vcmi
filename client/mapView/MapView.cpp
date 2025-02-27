@@ -210,7 +210,12 @@ void MapView::onMapZoomLevelChanged(int stepsChange, bool useDeadZone)
 void MapView::onViewMapActivated()
 {
 	controller->activateAdventureContext();
-	controller->setTileSize(Point(32, 32));
+
+	int zoom = settings["adventure"]["tileZoom"].Integer();
+	if(zoom)
+		controller->setTileSize(Point(zoom, zoom));
+	else
+		controller->setTileSize(Point(32, 32));
 }
 
 PuzzleMapView::PuzzleMapView(const Point & offset, const Point & dimensions, const int3 & tileToCenter)

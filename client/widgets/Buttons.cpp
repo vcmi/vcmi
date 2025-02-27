@@ -207,6 +207,11 @@ bool CButton::isHighlighted()
 	return getState() == EButtonState::HIGHLIGHTED;
 }
 
+bool CButton::isPressed()
+{
+	return getState() == EButtonState::PRESSED;
+}
+
 void CButton::setHoverable(bool on)
 {
 	hoverable = on;

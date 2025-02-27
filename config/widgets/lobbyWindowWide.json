@@ -26,14 +26,14 @@
 	},
 	
 	
-	"width": 800,
+	"width": 1024,
 	"height": 600,
 	
 	"items":
 	[
 		{
 			"type": "backgroundTexture",
-			"rect": {"w": 800, "h": 600}
+			"rect": {"w": 1024, "h": 600}
 		},
 		
 		{
@@ -69,36 +69,36 @@
 		
 		{
 			"type": "areaFilled",
-			"rect": {"x": 258, "y": 50, "w": 150, "h": 180}
+			"rect": {"x": 270, "y": 50, "w": 150, "h": 180}
 		},
 		{
 			"name" : "headerChannelList",
 			"type": "labelTitle",
-			"position": {"x": 268, "y": 53}
+			"position": {"x": 280, "y": 53}
 		},
 		{
 			"type" : "lobbyItemList",
 			"name" : "channelList",
 			"itemType" : "channel",
-			"position" : { "x" : 260, "y" : 68 },
+			"position" : { "x" : 272, "y" : 68 },
 			"itemOffset" : { "x" : 0, "y" : 40 },
 			"visibleAmount" : 4
 		},
 		
 		{
 			"type": "areaFilled",
-			"rect": {"x": 258, "y": 250, "w": 150, "h": 340}
+			"rect": {"x": 270, "y": 250, "w": 150, "h": 340}
 		},
 		{
 			"name" : "headerMatchList",
 			"type": "labelTitle",
-			"position": {"x": 268, "y": 253}
+			"position": {"x": 280, "y": 253}
 		},
 		{
 			"type" : "lobbyItemList",
 			"name" : "matchList",
 			"itemType" : "match",
-			"position" : { "x" : 260, "y" : 268 },
+			"position" : { "x" : 272, "y" : 268 },
 			"itemOffset" : { "x" : 0, "y" : 40 },
 			"sliderPosition" : { "x" : 130, "y" : 0 },
 			"sliderSize" : { "x" : 320, "y" : 320 },
@@ -107,13 +107,13 @@
 
 		{
 			"type": "areaFilled",
-			"rect": {"x": 411, "y": 50, "w": 232, "h": 515}
+			"rect": {"x": 430, "y": 50, "w": 430, "h": 515}
 		},
 		{
 			"name" : "headerGameChat",
 			"type": "labelTitle",
-			"position": {"x": 421, "y": 53},
-			"maxWidth": 210
+			"position": {"x": 440, "y": 53},
+			"maxWidth": 418
 		},
 		{
 			"type": "textBox",
@@ -122,33 +122,33 @@
 			"alignment": "left",
 			"color": "white",
 			"blueTheme" : true,
-			"rect": {"x": 421, "y": 68, "w": 210, "h": 495}
+			"rect": {"x": 440, "y": 68, "w": 418, "h": 495}
 		},
 		
 		{
 			"type": "areaFilled",
-			"rect": {"x": 411, "y": 565, "w": 196, "h": 25}
+			"rect": {"x": 430, "y": 565, "w": 397, "h": 25}
 		},
 		{
 			"name" : "messageInput",
 			"type": "textInput",
-			"rect": {"x": 421, "y": 568, "w": 176, "h": 20}
+			"rect": {"x": 440, "y": 568, "w": 377, "h": 20}
 		},
 		
 		{
 			"type": "areaFilled",
-			"rect": {"x": 646, "y": 50, "w": 150, "h": 540}
+			"rect": {"x": 870, "y": 50, "w": 150, "h": 540}
 		},
 		{
 			"name": "headerAccountList",
 			"type": "labelTitle",
-			"position": {"x": 656, "y": 53}
+			"position": {"x": 880, "y": 53}
 		},
 		{
 			"type" : "lobbyItemList",
 			"name" : "accountList",
 			"itemType" : "account",
-			"position" : { "x" : 648, "y" : 68 },
+			"position" : { "x" : 872, "y" : 68 },
 			"itemOffset" : { "x" : 0, "y" : 40 },
 			"sliderPosition" : { "x" : 130, "y" : 0 },
 			"sliderSize" : { "x" : 520, "y" : 520 },
@@ -157,7 +157,7 @@
 
 		{
 			"type": "button",
-			"position": {"x": 646, "y": 10},
+			"position": {"x": 870, "y": 10},
 			"image": "lobbyHideWindow",
 			"help": "core.help.288",
 			"callback": "closeWindow",
@@ -176,7 +176,7 @@
 		
 		{
 			"type": "button",
-			"position": {"x": 610, "y": 565},
+			"position": {"x": 827, "y": 565},
 			"image": "lobbySendMessage",
 			"help": "vcmi.lobby.channel.sendMessage",
 			"callback": "sendMessage",
@@ -192,7 +192,7 @@
 		
 		{
 			"type": "button",
-			"position": {"x": 5, "y": 556},
+			"position": {"x": 5, "y": 555},
 			"image": "lobbyCreateRoom",
 			"help": "vcmi.lobby.room.create",
 			"callback": "createGameRoom",

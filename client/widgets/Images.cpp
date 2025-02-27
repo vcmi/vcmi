@@ -441,7 +441,8 @@ void CShowableAnim::blitImage(size_t frame, size_t group, Canvas & to)
 	if(img)
 	{
 		img->setAlpha(alpha);
-		img->setOverlayColor(Colors::TRANSPARENCY);
+		if (getModeForFlags(flags) == EImageBlitMode::WITH_SHADOW_AND_SELECTION)
+			img->setOverlayColor(Colors::TRANSPARENCY);
 		to.draw(img, pos.topLeft(), src);
 	}
 }

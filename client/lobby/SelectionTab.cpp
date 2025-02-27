@@ -962,31 +962,38 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 	allItems.reserve(files.size());
 	for(auto & file : files)
 	{
-		auto info = std::make_shared<ElementInfo>();
-		info->fileURI = file.getOriginalName();
-		info->campaignInit();
-		info->name = info->getNameForList();
-				
-		if(info->campaign)
+		try
 		{
-			// skip campaigns organized in sets
-			std::string foundInSet = "";
-			for (auto const & set : campaignSets.Struct())
-				for (auto const & item : set.second["items"].Vector())
-					if(file.getName() == ResourcePath(item["file"].String()).getName())
-						foundInSet = set.first;
-			
-			// set has to be used in main menu
-			bool setInMainmenu = false;
-			if(!foundInSet.empty())
-				for (auto const & item : mainmenu["window"]["items"].Vector())
-					if(item["name"].String() == "campaign")
-						for (auto const & button : item["buttons"].Vector())
-							if(boost::algorithm::ends_with(boost::algorithm::to_lower_copy(button["command"].String()), boost::algorithm::to_lower_copy(foundInSet)))
-								setInMainmenu = true;
+			auto info = std::make_shared<ElementInfo>();
+			info->fileURI = file.getOriginalName();
+			info->campaignInit();
+			info->name = info->getNameForList();
 
-			if(!setInMainmenu)
-				allItems.push_back(info);
+			if(info->campaign)
+			{
+				// skip campaigns organized in sets
+				std::string foundInSet = "";
+				for (auto const & set : campaignSets.Struct())
+					for (auto const & item : set.second["items"].Vector())
+						if(file.getName() == ResourcePath(item["file"].String()).getName())
+							foundInSet = set.first;
+
+				// set has to be used in main menu
+				bool setInMainmenu = false;
+				if(!foundInSet.empty())
+					for (auto const & item : mainmenu["window"]["items"].Vector())
+						if(item["name"].String() == "campaign")
+							for (auto const & button : item["buttons"].Vector())
+								if(boost::algorithm::ends_with(boost::algorithm::to_lower_copy(button["command"].String()), boost::algorithm::to_lower_copy(foundInSet)))
+									setInMainmenu = true;
+
+				if(!setInMainmenu)
+					allItems.push_back(info);
+			}
+		}
+		catch(const std::exception & e)
+		{
+			logGlobal->error("Error: Failed to process campaign %s: %s", file.getName(), e.what());
 		}
 	}
 }
