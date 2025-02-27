@@ -543,7 +543,7 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":["C01SPE0"]
+			"affect":["C01SPE0", "transparency" : 0.5}]]
 		},
 		"sounds": {
 			"cast": "ANIMDEAD"
@@ -577,7 +577,7 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":["C01SPE0"]
+			"affect":["C01SPE0", "transparency" : 0.5}]]
 		},
 		"sounds": {
 			"cast": "SACRIF1"
