@@ -27,7 +27,6 @@ VCMI_LIB_NAMESPACE_END
 #endif
 
 #ifndef VCMI_WINDOWS
-	using TColor = std::string;
 	#define CONSOLE_GREEN "\x1b[1;32m"
 	#define CONSOLE_RED "\x1b[1;31m"
 	#define CONSOLE_MAGENTA "\x1b[1;35m"
@@ -41,7 +40,6 @@ VCMI_LIB_NAMESPACE_END
 #ifndef __MINGW32__
 	#pragma comment(lib, "dbghelp.lib")
 #endif
-	typedef WORD TColor;
 	HANDLE handleIn;
 	HANDLE handleOut;
 	HANDLE handleErr;
@@ -52,11 +50,7 @@ VCMI_LIB_NAMESPACE_END
 	#define CONSOLE_WHITE FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY
 	#define CONSOLE_GRAY FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
 	#define CONSOLE_TEAL FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY
-
-	static TColor defErrColor;
 #endif
-
-static TColor defColor;
 
 VCMI_LIB_NAMESPACE_BEGIN
 

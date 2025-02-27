@@ -13,6 +13,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CMap;
 class CampaignState;
 class CConsoleHandler;
+class CBasicLogConfigurator;
 class CGObjectInstance;
 VCMI_LIB_NAMESPACE_END
 
@@ -39,6 +40,7 @@ class MainWindow : public QMainWindow
 #ifndef VCMI_MOBILE
 	std::unique_ptr<CConsoleHandler> console;
 #endif
+	std::unique_ptr<CBasicLogConfigurator> logConfig;
 
 	std::unique_ptr<CMap> openMapInternal(const QString &);
 	std::shared_ptr<CampaignState> openCampaignInternal(const QString &);

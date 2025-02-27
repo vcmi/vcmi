@@ -78,11 +78,21 @@ public:
 	}
 
 private:
+
+#ifndef VCMI_WINDOWS
+	using TColor = std::string;
+#else
+	typedef WORD TColor;
+#endif
+
 	int run();
 
 	void end(); //kills listening thread
 
 	void setColor(EConsoleTextColor::EConsoleTextColor color); //sets color of text appropriate for given logging level
+
+	static TColor defColor;
+	static TColor defErrColor;
 
 	//function to be called when message is received - string: message, bool: whether call was made from in-game console
 	std::function<void(const std::string &, bool)> cb;

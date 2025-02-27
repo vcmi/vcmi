@@ -227,12 +227,12 @@ int main(int argc, char * argv[])
 	CConsoleHandler console(callbackFunction);
 	console.start();
 
-	logConfig = new CBasicLogConfigurator(logPath, &console);
+	CBasicLogConfigurator logConfig(logPath, &console);
 #else
-	logConfig = new CBasicLogConfigurator(logPath, nullptr);
+	CBasicLogConfigurator logConfig(logPath, nullptr);
 #endif
 
-	logConfig->configureDefault();
+	logConfig.configureDefault();
 	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_VERSION);
 	logGlobal->info("Creating console and configuring logger: %d ms", pomtime.getDiff());
 	logGlobal->info("The log file will be saved to %s", logPath);
@@ -289,7 +289,7 @@ int main(int argc, char * argv[])
 	setSettingInteger("general/saveFrequency", "savefrequency", 1);
 
 	// Initialize logging based on settings
-	logConfig->configure();
+	logConfig.configure();
 	logGlobal->debug("settings = %s", settings.toJsonNode().toString());
 
 	// Some basic data validation to produce better error messages in cases of incorrect install
