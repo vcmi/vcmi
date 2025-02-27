@@ -139,7 +139,7 @@ private:
 };
 
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
-class CMainMenu : public CIntObject, public IUpdateable, public std::enable_shared_from_this<CMainMenu>
+class CMainMenu : public CIntObject, public std::enable_shared_from_this<CMainMenu>
 {
 	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
@@ -153,7 +153,7 @@ public:
 	~CMainMenu();
 	void activate() override;
 	void onScreenResize() override;
-	void update() override;
+	void makeActiveInterface();
 	static void openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode);
 	static void openCampaignLobby(const std::string & campaignFileName, std::string campaignSet = "");
 	static void openCampaignLobby(std::shared_ptr<CampaignState> campaign);

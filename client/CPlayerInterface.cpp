@@ -315,7 +315,6 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 	bool hotseatWait = humanPlayersCount > 1;
 
 		GAME->setInterfaceInstance(this);
-		ENGINE->curInt = this;
 
 		NotificationHandler::notify("Your turn");
 		if(settings["general"]["startTurnAutosave"].Bool())
@@ -1493,7 +1492,6 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 		{
 			//one of our players who isn't last in order got attacked not by our another player (happens for example in hotseat mode)
 			GAME->setInterfaceInstance(this);
-			ENGINE->curInt = this;
 			adventureInt->onCurrentPlayerChanged(playerID);
 			std::string msg = LIBRARY->generaltexth->translate("vcmi.adventureMap.playerAttacked");
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
@@ -1509,13 +1507,6 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 
 void CPlayerInterface::update()
 {
-	// Make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
-	std::shared_lock gsLock(CGameState::mutex);
-
-	// While mutexes were locked away we may be have stopped being the active interface
-	if (GAME->interface() != this)
-		return;
-
 	//if there are any waiting dialogs, show them
 	if (makingTurn && !dialogs.empty() && !showingDialog->isBusy())
 	{
@@ -1523,12 +1514,6 @@ void CPlayerInterface::update()
 		ENGINE->windows().pushWindow(dialogs.front());
 		dialogs.pop_front();
 	}
-
-	assert(adventureInt);
-
-	// Handles mouse and key input
-	ENGINE->handleEvents();
-	ENGINE->windows().simpleRedraw();
 }
 
 void CPlayerInterface::endNetwork()
@@ -1576,11 +1561,9 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		if (victoryLossCheckResult.loss())
 			showInfoDialog(LIBRARY->generaltexth->allTexts[95]);
 
-		assert(ENGINE->curInt == GAME->interface());
 		auto previousInterface = GAME->interface(); //without multiple player interfaces some of lines below are useless, but for hotseat we wanna swap player interface temporarily
 
 		GAME->setInterfaceInstance(this); //this is needed for dialog to show and avoid freeze, dialog showing logic should be reworked someday
-		ENGINE->curInt = this; //waiting for dialogs requires this to get events
 
 		if(!makingTurn)
 		{
@@ -1591,7 +1574,6 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		else
 			waitForAllDialogs();
 
-		ENGINE->curInt = previousInterface;
 		GAME->setInterfaceInstance(previousInterface);
 	}
 }

@@ -16,13 +16,11 @@
 #include "../../lib/CConfigHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
-#include "../GameInstance.h"
+#include "../GameEngineUser.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 #include "../render/IScreenHandler.h"
-#include "../CServerHandler.h"
-#include "../globalLobby/GlobalLobbyClient.h"
 
 #if defined(VCMI_ANDROID)
 #include "../../lib/CAndroidVMHelper.h"
@@ -170,7 +168,7 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 		}
 		case TouchState::TAP_DOWN_DOUBLE:
 		{
-			GAME->server().getGlobalLobby().activateInterface();
+			ENGINE->user().onGlobalLobbyInterfaceActivated();
 			break;
 		}
 		case TouchState::TAP_DOWN_LONG_AWAIT:

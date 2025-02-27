@@ -398,6 +398,7 @@ set(vcmiclientcommon_HEADERS
 	CMT.h
 	CPlayerInterface.h
 	GameEngine.h
+	GameEngineUser.h
 	GameInstance.h
 	PlayerLocalState.h
 	CServerHandler.h
