@@ -10,9 +10,12 @@ This is list of all languages that are currently supported by VCMI. If your lang
 - Finnish
 - French
 - German
+- Greek
 - Hungarian
 - Italian
+- Japanese
 - Korean
+- Norwegian
 - Polish
 - Portuguese (Brazilian)
 - Russian
