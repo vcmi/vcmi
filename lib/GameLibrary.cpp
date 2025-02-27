@@ -32,7 +32,6 @@
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
 #include "filesystem/Filesystem.h"
-#include "CConsoleHandler.h"
 #include "rmg/CRmgTemplateStorage.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"
@@ -47,9 +46,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 GameLibrary * LIBRARY = nullptr;
 
-DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool extractArchives)
+DLL_LINKAGE void preinitDLL(bool extractArchives)
 {
-	console = Console;
 	LIBRARY = new GameLibrary();
 	LIBRARY->loadFilesystem(extractArchives);
 	settings.init("config/settings.json", "vcmi:settings");

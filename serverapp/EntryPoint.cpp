@@ -71,14 +71,14 @@ int main(int argc, const char * argv[])
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 
-	console = new CConsoleHandler();
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", console);
+	CConsoleHandler console;
+	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", &console);
 	logConfig.configureDefault();
 	logGlobal->info(SERVER_NAME);
 
 	boost::program_options::variables_map opts;
 	handleCommandOptions(argc, argv, opts);
-	preinitDLL(console, false);
+	preinitDLL(false);
 	logConfig.configure();
 
 	loadDLLClasses();

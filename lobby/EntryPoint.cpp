@@ -24,9 +24,9 @@ int main(int argc, const char * argv[])
 	CResourceHandler::load("config/filesystem.json"); // FIXME: we actually need only config directory for schemas, can be reduced
 
 #ifndef VCMI_IOS
-	console = new CConsoleHandler();
+	CConsoleHandler console;
 #endif
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Lobby_log.txt", console);
+	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Lobby_log.txt", &console);
 	logConfig.configureDefault();
 
 	auto databasePath = VCMIDirs::get().userDataPath() / "vcmiLobby.db";
