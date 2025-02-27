@@ -14,6 +14,7 @@
 #include "CStatisticScreen.h"
 #include "CMainMenu.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 #include "../media/IMusicPlayer.h"
@@ -169,7 +170,7 @@ void CHighScoreScreen::buttonResetClick()
 void CHighScoreScreen::buttonExitClick()
 {
 	close();
-	CMM->playMusic();
+	GAME->mainmenu()->playMusic();
 }
 
 void CHighScoreScreen::showAll(Canvas & to)
@@ -221,7 +222,7 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 
 void CHighScoreInputScreen::stopMusicAndClose()
 {
-	CMM->playMusic();
+	GAME->mainmenu()->playMusic();
 	close();
 }
 

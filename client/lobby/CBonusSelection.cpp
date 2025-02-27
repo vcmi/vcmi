@@ -398,7 +398,7 @@ void CBonusSelection::goBack()
 	if(GAME->server().getState() != EClientState::GAMEPLAY)
 	{
 		ENGINE->windows().popWindows(2);
-		CMM->playMusic();
+		GAME->mainmenu()->playMusic();
 	}
 	else
 	{

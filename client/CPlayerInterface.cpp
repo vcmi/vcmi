@@ -1801,7 +1801,7 @@ void CPlayerInterface::proposeLoadingGame()
 		[]()
 		{
 			GAME->server().endGameplay();
-			CMM->menu->switchToTab("load");
+			GAME->mainmenu()->menu->switchToTab("load");
 		},
 		nullptr
 	);

@@ -139,15 +139,15 @@ private:
 };
 
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
-class CMainMenu : public CIntObject, public std::enable_shared_from_this<CMainMenu>
+class CMainMenu final : public CIntObject, public std::enable_shared_from_this<CMainMenu>
 {
 	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
 	std::vector<VideoPath> videoPlayList;
 
-	CMainMenu(); //Use CMainMenu::create
-
 public:
+	CMainMenu();
+
 	std::shared_ptr<CMenuScreen> menu;
 
 	~CMainMenu();
@@ -160,8 +160,6 @@ public:
 	static void startTutorial();
 	static void openHighScoreScreen();
 	void openCampaignScreen(std::string name);
-
-	static std::shared_ptr<CMainMenu> create();
 
 	static std::shared_ptr<CPicture> createPicture(const JsonNode & config);
 
@@ -203,4 +201,4 @@ public:
 	void tick(uint32_t msPassed) override;
 };
 
-extern std::shared_ptr<CMainMenu> CMM;
+
