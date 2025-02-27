@@ -59,7 +59,7 @@
 		"defaultGainChance": 0,
 		"gainChance": {},
 		"animation":{
-			"affect":["SP12_", "transparency" : 0.5}]
+			"affect":[{ "defName" : "SP12_", "transparency" : 0.5}]
 		},
 
 		"sounds": {
