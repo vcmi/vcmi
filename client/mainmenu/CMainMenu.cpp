@@ -61,7 +61,6 @@
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/GameLibrary.h"
 
-std::shared_ptr<CMainMenu> CMM;
 ISelectionScreenInfo * SEL = nullptr;
 
 static void do_quit()
@@ -171,7 +170,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 			}
 			case 1: //open campaign selection window
 			{
-				return std::bind(&CMainMenu::openCampaignScreen, CMM, commands.front());
+				return std::bind(&CMainMenu::openCampaignScreen, GAME->mainmenu(), commands.front());
 				break;
 			}
 			case 2: //start
@@ -384,7 +383,7 @@ void CMainMenu::onScreenResize()
 
 void CMainMenu::makeActiveInterface()
 {
-	ENGINE->windows().pushWindow(CMM);
+	ENGINE->windows().pushWindow(GAME->mainmenu());
 	ENGINE->windows().pushWindow(menu);
 	menu->switchToTab(menu->getActiveTab());
 }
@@ -459,14 +458,6 @@ void CMainMenu::openHighScoreScreen()
 {
 	ENGINE->windows().createAndPushWindow<CHighScoreScreen>(CHighScoreScreen::HighScorePage::SCENARIO);
 	return;
-}
-
-std::shared_ptr<CMainMenu> CMainMenu::create()
-{
-	if(!CMM)
-		CMM = std::shared_ptr<CMainMenu>(new CMainMenu());
-
-	return CMM;
 }
 
 std::shared_ptr<CPicture> CMainMenu::createPicture(const JsonNode & config)

@@ -371,16 +371,15 @@ int main(int argc, char * argv[])
 		session["onlyai"].Bool() = true;
 		boost::thread(&CServerHandler::debugStartTest, &GAME->server(), session["testsave"].String(), true);
 	}
-	else
+	else if (!settings["session"]["headless"].Bool())
 	{
-		auto mmenu = CMainMenu::create();
-		mmenu->makeActiveInterface();
+		GAME->mainmenu()->makeActiveInterface();
 
-		bool playIntroVideo = !settings["session"]["headless"].Bool() && !vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool();
+		bool playIntroVideo = !vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool();
 		if(playIntroVideo)
-			mmenu->playIntroVideos();
+			GAME->mainmenu()->playIntroVideos();
 		else
-			mmenu->playMusic();
+			GAME->mainmenu()->playMusic();
 	}
 	
 	std::vector<std::string> names;
@@ -444,7 +443,7 @@ static void mainLoop()
 	}
 
 	GAME.reset();
-	CMM.reset();
+	GAME->mainmenu().reset();
 
 	if(!settings["session"]["headless"].Bool())
 	{

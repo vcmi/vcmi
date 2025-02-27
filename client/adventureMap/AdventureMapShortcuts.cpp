@@ -331,7 +331,7 @@ void AdventureMapShortcuts::toMainMenu()
 		[]()
 		{
 			GAME->server().endGameplay();
-			CMM->menu->switchToTab("main");
+			GAME->mainmenu()->menu->switchToTab("main");
 		},
 		0
 		);
@@ -344,7 +344,7 @@ void AdventureMapShortcuts::newGame()
 		[]()
 		{
 			GAME->server().endGameplay();
-			CMM->menu->switchToTab("new");
+			GAME->mainmenu()->menu->switchToTab("new");
 		},
 		nullptr
 		);

@@ -15,6 +15,7 @@
 #include "GameChatHandler.h"
 #include "CPlayerInterface.h"
 #include "GameEngine.h"
+#include "GameInstance.h"
 #include "gui/WindowHandler.h"
 
 #include "globalLobby/GlobalLobbyClient.h"
@@ -610,8 +611,8 @@ void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
 
 void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState)
 {
-	if(CMM)
-		CMM->disable();
+	if(GAME->mainmenu())
+		GAME->mainmenu()->disable();
 
 	switch(si->mode)
 	{
@@ -649,7 +650,7 @@ void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victo
 		scenarioHighScores.isCampaign = false;
 
 		endGameplay();
-		CMM->menu->switchToTab("main");
+		GAME->mainmenu()->menu->switchToTab("main");
 		ENGINE->windows().createAndPushWindow<CHighScoreInputScreen>(victory, scenarioHighScores, statistic);
 	}
 }
@@ -664,17 +665,11 @@ void CServerHandler::endGameplay()
 	client->endGame();
 	client.reset();
 
-	if(CMM)
+	if (GAME->mainmenu())
 	{
-		CMM->enable();
-		CMM->playMusic();
-		CMM->makeActiveInterface();
-	}
-	else
-	{
-		auto mainMenu = CMainMenu::create();
-		mainMenu->playMusic();
-		mainMenu->makeActiveInterface();
+		GAME->mainmenu()->enable();
+		GAME->mainmenu()->playMusic();
+		GAME->mainmenu()->makeActiveInterface();
 	}
 }
 
@@ -710,14 +705,13 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 			entry->Bool() = true;
 		}
 
-		ENGINE->windows().pushWindow(CMM);
-		ENGINE->windows().pushWindow(CMM->menu);
+		GAME->mainmenu()->makeActiveInterface();
 
 		if(!ourCampaign->isCampaignFinished())
-			CMM->openCampaignLobby(ourCampaign);
+			GAME->mainmenu()->openCampaignLobby(ourCampaign);
 		else
 		{
-			CMM->openCampaignScreen(ourCampaign->campaignSet);
+			GAME->mainmenu()->openCampaignScreen(ourCampaign->campaignSet);
 			if(!ourCampaign->getOutroVideo().empty() && ENGINE->video().open(ourCampaign->getOutroVideo(), 1))
 			{
 				ENGINE->music().stopMusic();
@@ -890,7 +884,7 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 	if(client)
 	{
 		endGameplay();
-		CMM->menu->switchToTab("main");
+		GAME->mainmenu()->menu->switchToTab("main");
 		showServerError(LIBRARY->generaltexth->translate("vcmi.server.errors.disconnected"));
 	}
 	else
