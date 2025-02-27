@@ -10,8 +10,10 @@
 #include "StdInc.h"
 #include "GameInstance.h"
 
+#include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "mapView/mapHandler.h"
+#include "globalLobby/GlobalLobbyClient.h"
 
 std::unique_ptr<GameInstance> GAME = nullptr;
 
@@ -57,4 +59,23 @@ void GameInstance::setMapInstance(std::unique_ptr<CMapHandler> ptr)
 void GameInstance::setInterfaceInstance(CPlayerInterface * ptr)
 {
 	interfaceInstance = std::move(ptr);
+}
+
+void GameInstance::onGlobalLobbyInterfaceActivated()
+{
+	server().getGlobalLobby().activateInterface();
+}
+
+void GameInstance::onUpdate()
+{
+	if (interfaceInstance)
+		interfaceInstance->update();
+}
+
+bool GameInstance::capturedAllEvents()
+{
+	if (interfaceInstance)
+		return interfaceInstance->capturedAllEvents();
+	else
+		return false;
 }

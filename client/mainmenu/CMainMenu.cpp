@@ -331,11 +331,7 @@ CMainMenu::CMainMenu()
 	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
 }
 
-CMainMenu::~CMainMenu()
-{
-	if(ENGINE->curInt == this)
-		ENGINE->curInt = nullptr;
-}
+CMainMenu::~CMainMenu() = default;
 
 void CMainMenu::playIntroVideos()
 {
@@ -386,21 +382,11 @@ void CMainMenu::onScreenResize()
 	backgroundAroundMenu->pos = pos;
 }
 
-void CMainMenu::update()
+void CMainMenu::makeActiveInterface()
 {
-	if(CMM != this->shared_from_this()) //don't update if you are not a main interface
-		return;
-
-	if(ENGINE->windows().count() == 0)
-	{
-		ENGINE->windows().pushWindow(CMM);
-		ENGINE->windows().pushWindow(menu);
-		menu->switchToTab(menu->getActiveTab());
-	}
-
-	// Handles mouse and key input
-	ENGINE->handleEvents();
-	ENGINE->windows().simpleRedraw();
+	ENGINE->windows().pushWindow(CMM);
+	ENGINE->windows().pushWindow(menu);
+	menu->switchToTab(menu->getActiveTab());
 }
 
 void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode)

@@ -666,15 +666,15 @@ void CServerHandler::endGameplay()
 
 	if(CMM)
 	{
-		ENGINE->curInt = CMM.get();
 		CMM->enable();
 		CMM->playMusic();
+		CMM->makeActiveInterface();
 	}
 	else
 	{
 		auto mainMenu = CMainMenu::create();
-		ENGINE->curInt = mainMenu.get();
 		mainMenu->playMusic();
+		mainMenu->makeActiveInterface();
 	}
 }
 

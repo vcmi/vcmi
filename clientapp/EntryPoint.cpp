@@ -309,6 +309,7 @@ int main(int argc, char * argv[])
 		ENGINE->init();
 
 	GAME = std::make_unique<GameInstance>();
+	ENGINE->setEngineUser(GAME.get());
 	
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
@@ -373,7 +374,7 @@ int main(int argc, char * argv[])
 	else
 	{
 		auto mmenu = CMainMenu::create();
-		ENGINE->curInt = mmenu.get();
+		mmenu->makeActiveInterface();
 
 		bool playIntroVideo = !settings["session"]["headless"].Bool() && !vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool();
 		if(playIntroVideo)

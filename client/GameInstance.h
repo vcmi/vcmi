@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "GameEngineUser.h"
+
 class CServerHandler;
 class GlobalLobbyClient;
 class CPlayerInterface;
@@ -18,7 +20,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class INetworkHandler;
 VCMI_LIB_NAMESPACE_END
 
-class GameInstance : boost::noncopyable
+class GameInstance final : boost::noncopyable, public IGameEngineUser
 {
 	std::unique_ptr<CServerHandler> serverInstance;
 	std::unique_ptr<CMapHandler> mapInstance;
@@ -36,6 +38,10 @@ public:
 	void setServerInstance(std::unique_ptr<CServerHandler> ptr);
 	void setMapInstance(std::unique_ptr<CMapHandler> ptr);
 	void setInterfaceInstance(CPlayerInterface * ptr);
+
+	void onGlobalLobbyInterfaceActivated() final;
+	void onUpdate() final;
+	bool capturedAllEvents() final;
 };
 
 extern std::unique_ptr<GameInstance> GAME;

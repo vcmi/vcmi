@@ -12,14 +12,11 @@
 #include "InputSourceKeyboard.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../CPlayerInterface.h"
 #include "../GameEngine.h"
-#include "../GameInstance.h"
+#include "../GameEngineUser.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/Shortcut.h"
 #include "../gui/ShortcutHandler.h"
-#include "../CServerHandler.h"
-#include "../globalLobby/GlobalLobbyClient.h"
 
 #include <SDL_clipboard.h>
 #include <SDL_events.h>
@@ -92,7 +89,7 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 	auto shortcutsVector = ENGINE->shortcuts().translateKeycode(keyName);
 
 	if (vstd::contains(shortcutsVector, EShortcut::MAIN_MENU_LOBBY))
-		GAME->server().getGlobalLobby().activateInterface();
+		ENGINE->user().onGlobalLobbyInterfaceActivated();
 
 	if (vstd::contains(shortcutsVector, EShortcut::GLOBAL_FULLSCREEN))
 	{
