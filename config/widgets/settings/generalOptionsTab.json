@@ -68,6 +68,9 @@
 					"created" : "mobile"
 				},
 				{
+					"text": "vcmi.systemOptions.enableOverlayButton.hover"
+				},
+				{
 					"text": "vcmi.systemOptions.enableUiEnhancementsButton.hover"
 				}
 			]
@@ -98,6 +101,7 @@
 				{
 					"created" : "mobile"
 				},
+				{},
 				{}
 			]
 		},
@@ -158,6 +162,11 @@
 					"help": "vcmi.systemOptions.hapticFeedbackButton",
 					"callback": "hapticFeedbackChanged",
 					"created" : "mobile"
+				},
+				{
+					"name": "enableOverlayCheckbox",
+					"help": "vcmi.systemOptions.enableOverlayButton",
+					"callback": "enableOverlayChanged"
 				},
 				{
 					"name": "enableUiEnhancementsCheckbox",

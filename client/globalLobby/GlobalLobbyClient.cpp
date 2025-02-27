@@ -477,7 +477,7 @@ std::shared_ptr<GlobalLobbyLoginWindow> GlobalLobbyClient::createLoginWindow()
 std::shared_ptr<GlobalLobbyWindow> GlobalLobbyClient::createLobbyWindow()
 {
 	auto lobbyWindowPtr = lobbyWindow.lock();
-	if(lobbyWindowPtr)
+	if(lobbyWindowPtr && GH.screenDimensions().x >= lobbyWindowPtr->pos.w) // if wide window doesn't fit anymore after ingame screen resolution change
 		return lobbyWindowPtr;
 
 	lobbyWindowPtr = std::make_shared<GlobalLobbyWindow>();

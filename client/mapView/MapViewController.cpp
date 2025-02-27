@@ -72,7 +72,7 @@ void MapViewController::setViewCenter(const Point & position, int level)
 		adventureInt->onMapViewMoved(model->getTilesTotalRect(), model->getLevel());
 }
 
-void MapViewController::setTileSize(const Point & tileSize)
+void MapViewController::setTileSize(const Point & tileSize, bool setTarget)
 {
 	Point oldSize = model->getSingleTileSize();
 	model->setTileSize(tileSize);
@@ -87,6 +87,9 @@ void MapViewController::setTileSize(const Point & tileSize)
 
 	// force update of view center since changing tile size may invalidated it
 	setViewCenter(newViewCenter, model->getLevel());
+	
+	if(setTarget)
+		targetTileSize = tileSize;
 }
 
 void MapViewController::modifyTileSize(int stepsChange, bool useDeadZone)
@@ -125,7 +128,7 @@ void MapViewController::modifyTileSize(int stepsChange, bool useDeadZone)
 			if(actualZoom.y >= defaultTileSize - zoomTileDeadArea && actualZoom.y <= defaultTileSize + zoomTileDeadArea)
 				actualZoom.y = defaultTileSize;
 		}
-		
+
 		bool isInDeadZone = targetTileSize != actualZoom || actualZoom == Point(defaultTileSize, defaultTileSize);
 
 		if(!wasInDeadZone && isInDeadZone)
@@ -133,7 +136,13 @@ void MapViewController::modifyTileSize(int stepsChange, bool useDeadZone)
 
 		wasInDeadZone = isInDeadZone;
 
-		setTileSize(actualZoom);
+		setTileSize(actualZoom, false);
+
+		if (adventureContext)
+		{
+			Settings tileZoom = settings.write["adventure"]["tileZoom"];
+			tileZoom->Integer() = actualZoom.x;
+		}
 	}
 }
 
@@ -224,7 +233,7 @@ void MapViewController::updateState()
 		adventureContext->settingShowVisitable = settings["session"]["showVisitable"].Bool();
 		adventureContext->settingShowBlocked = settings["session"]["showBlocked"].Bool();
 		adventureContext->settingSpellRange = settings["session"]["showSpellRange"].Bool();
-		adventureContext->settingTextOverlay = GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2;
+		adventureContext->settingTextOverlay = (GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
 	}
 }
 

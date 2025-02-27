@@ -20,6 +20,7 @@ class ComboBox;
 class CSlider;
 class IImage;
 class CPicture;
+class TransparentFilledRectangle;
 
 using TData = std::vector<std::pair<ColorRGBA, std::vector<float>>>;
 using TIcons = std::vector<std::tuple<ColorRGBA, int, std::shared_ptr<IImage>, std::string>>; // Color, Day, Image, Helptext
@@ -118,13 +119,18 @@ class LineChart : public CIntObject
 	std::vector<std::shared_ptr<CIntObject>> layout;
 	std::shared_ptr<CGStatusBar> statusBar;
 	std::vector<std::shared_ptr<CPicture>> pictures;
+	std::shared_ptr<TransparentFilledRectangle> hoverMarker;
 
 	Rect chartArea;
 	float maxVal;
 	int niceMaxVal;
 	int maxDay;
 
+	TData data;
+
 	void updateStatusBar(const Point & cursorPosition);
+	// calculate points in chart
+	Point getPoint(int i, std::vector<float> data);
 public:
 	LineChart(Rect position, std::string title, TData data, TIcons icons, float maxY);
 

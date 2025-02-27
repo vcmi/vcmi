@@ -178,7 +178,7 @@
 	"vcmi.lobby.match.solo" : "Hra jednoho hráče",
 	"vcmi.lobby.match.duel" : "Hra s %s", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d hráčů",
-	"vcmi.lobby.room.create" : "Vytvořit novou místnost",
+	"vcmi.lobby.room.create.hover" : "Vytvořit novou místnost",
 	"vcmi.lobby.room.players.limit" : "Omezení počtu hráčů",
 	"vcmi.lobby.room.description.public" : "Jakýkoliv hráč se může připojit do veřejné místnosti.",
 	"vcmi.lobby.room.description.private" : "Pouze pozvaní hráči se mohou připojit do soukromé místnosti.",
@@ -307,6 +307,8 @@
 	"vcmi.systemOptions.enableLargeSpellbookButton.help"   : "{Velká kniha kouzel}\n\nPovolí větší knihu kouzel, do které se vejde více kouzel na jednu stranu. Animace změny stránek s tímto nastavením nefunguje.",
 	"vcmi.systemOptions.audioMuteFocus.hover"  : "Ztlumit při neaktivitě",
 	"vcmi.systemOptions.audioMuteFocus.help"   : "{Ztlumit při neaktivitě}\n\nZtlumit zvuk, pokud je okno hry v pozadí. Výjimkou jsou zprávy ve hře a zvuk nového tahu.",
+	"vcmi.systemOptions.enableOverlayButton.hover" : "Povolit zobrazení informací",
+	"vcmi.systemOptions.enableOverlayButton.help" : "{Povolit zobrazení informací}\n\nZapne vrstvu zobrazující dodatečné informace, například názvy budov, pomocí klávesy ALT nebo gesta dvěma prsty.",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "Zobrazit zprávy v panelu informací",
 	"vcmi.adventureOptions.infoBarPick.help" : "{Zobrazit zprávy v panelu informací}\n\nKdyž bude možné, herní zprávy z návštěv míst na mapě budou zobrazeny v panelu informací místo ve zvláštním okně.",

@@ -96,7 +96,7 @@ public:
 
 	void setViewCenter(const int3 & position);
 	void setViewCenter(const Point & position, int level);
-	void setTileSize(const Point & tileSize);
+	void setTileSize(const Point & tileSize, bool setTarget = true);
 	void modifyTileSize(int stepsChange, bool useDeadZone);
 	void tick(uint32_t timePassed);
 	void afterRender();

@@ -177,7 +177,7 @@ void CBuildingRect::show(Canvas & to)
 {
 	uint32_t stageDelay = BUILDING_APPEAR_TIMEPOINT;
 
-	bool showTextOverlay = GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2;
+	bool showTextOverlay = (GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
 
 	if(stateTimeCounter < BUILDING_APPEAR_TIMEPOINT)
 	{
@@ -770,7 +770,7 @@ void CCastleBuildings::show(Canvas & to)
 {
 	CIntObject::show(to);
 
-	bool showTextOverlay = GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2;
+	bool showTextOverlay = (GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
 	if(showTextOverlay)
 		drawOverlays(to, buildings);
 }
@@ -814,22 +814,26 @@ const CGHeroInstance * CCastleBuildings::getHero()
 
 void CCastleBuildings::buildingClicked(BuildingID building)
 {
-	BuildingID buildingToEnter = building;
-	for(;;)
+	std::vector<BuildingID> buildingsToTest;
+
+	for(BuildingID buildingToEnter = building;;)
 	{
 		const CBuilding *b = town->getTown()->buildings.find(buildingToEnter)->second;
 
-		if (buildingTryActivateCustomUI(buildingToEnter, building))
-			return;
-
+		buildingsToTest.push_back(buildingToEnter);
 		if (!b->upgrade.hasValue())
-		{
-			enterBuilding(building);
-			return;
-		}
+			break;
 
 		buildingToEnter = b->upgrade;
 	}
+
+	for(BuildingID buildingToEnter : boost::adaptors::reverse(buildingsToTest))
+	{
+		if (buildingTryActivateCustomUI(buildingToEnter, building))
+			return;
+	}
+
+	enterBuilding(building);
 }
 
 bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, BuildingID buildingTarget)

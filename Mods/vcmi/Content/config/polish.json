@@ -171,7 +171,7 @@
 	"vcmi.lobby.match.solo" : "Gra jednoosobowa",
 	"vcmi.lobby.match.duel" : "vs. %s", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d graczy",
-	"vcmi.lobby.room.create" : "Stwórz nowy pokój",
+	"vcmi.lobby.room.create.hover" : "Stwórz nowy pokój",
 	"vcmi.lobby.room.players.limit" : "Limit graczy",
 	"vcmi.lobby.room.description.public" : "Każdy może dołączyć do pokoju.",
 	"vcmi.lobby.room.description.private" : "Tylko zaproszeni gracze mogą dołączyć do pokoju.",
