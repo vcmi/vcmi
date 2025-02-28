@@ -1234,7 +1234,7 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 			maskMap[basicActor->hero] = basicActor->chainMask;
 	}
 
-	boost::sort(initialNodes, NodeComparer<CGPathNode>());
+	std::sort(initialNodes.begin(), initialNodes.end(), NodeComparer<CGPathNode>());
 
 	std::vector<const ChainActor *> actorsVector(actorsOfInitial.begin(), actorsOfInitial.end());
 	tbb::concurrent_vector<CGPathNode *> output;

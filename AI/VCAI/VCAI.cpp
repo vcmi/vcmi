@@ -1038,7 +1038,7 @@ void VCAI::mainLoop()
 				vstd::erase_if_present(basicGoals, goal);
 
 			//add abstract goals
-			boost::sort(goalsToAdd, [](const Goals::TSubgoal & lhs, const Goals::TSubgoal & rhs) -> bool
+			std::sort(goalsToAdd.begin(), goalsToAdd.end(), [](const Goals::TSubgoal & lhs, const Goals::TSubgoal & rhs) -> bool
 			{
 				return lhs->priority > rhs->priority; //highest priority at the beginning
 			});

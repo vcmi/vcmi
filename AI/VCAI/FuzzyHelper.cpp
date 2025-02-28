@@ -37,7 +37,7 @@ Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 	{
 		return lhs->hero.h < rhs->hero.h;
 	};
-	boost::sort(vec, sortByHeroes);
+	std::sort(vec.begin(), vec.end(), sortByHeroes);
 
 	for(auto g : vec)
 	{

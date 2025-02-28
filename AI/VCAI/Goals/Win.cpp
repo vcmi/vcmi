@@ -97,7 +97,7 @@ TSubgoal Win::whatToDoToAchieve()
 								return vstd::contains(t->forbiddenBuildings, BuildingID::GRAIL);
 							}),
 								towns.end());
-						boost::sort(towns, CDistanceSorter(h.get()));
+						std::sort(towns.begin(), towns.end(), CDistanceSorter(h.get()));
 						if(towns.size())
 						{
 							return sptr(VisitTile(towns.front()->visitablePos()).sethero(h));

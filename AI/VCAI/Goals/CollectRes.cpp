@@ -139,7 +139,7 @@ TSubgoal CollectRes::whatToDoToTrade()
 		}
 	}
 
-	boost::sort(markets, [](const IMarket * m1, const IMarket * m2) -> bool
+	std::sort(markets.begin(), markets.end(), [](const IMarket * m1, const IMarket * m2) -> bool
 	{
 		return m1->getMarketEfficiency() < m2->getMarketEfficiency();
 	});
