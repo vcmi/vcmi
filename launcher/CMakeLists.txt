@@ -16,6 +16,7 @@ set(launcher_SRCS
 		settingsView/csettingsview_moc.cpp
 		startGame/StartGameTab.cpp
 		firstLaunch/firstlaunch_moc.cpp
+		demo.cpp
 		main.cpp
 		helper.cpp
 		innoextract.cpp
@@ -51,6 +52,7 @@ set(launcher_HEADERS
 		mainwindow_moc.h
 		languages.h
 		updatedialog_moc.h
+		demo.h
 		main.h
 		helper.h
 		innoextract.h
