@@ -15,8 +15,6 @@
 
 #include <boost/stacktrace.hpp>
 
-VCMI_LIB_NAMESPACE_END
-
 #if defined(NDEBUG) && !defined(VCMI_ANDROID)
 #define USE_ON_TERMINATE
 #endif
@@ -27,29 +25,29 @@ VCMI_LIB_NAMESPACE_END
 #endif
 
 #ifndef VCMI_WINDOWS
-	#define CONSOLE_GREEN "\x1b[1;32m"
-	#define CONSOLE_RED "\x1b[1;31m"
-	#define CONSOLE_MAGENTA "\x1b[1;35m"
-	#define CONSOLE_YELLOW "\x1b[1;33m"
-	#define CONSOLE_WHITE "\x1b[1;37m"
-	#define CONSOLE_GRAY "\x1b[1;30m"
-	#define CONSOLE_TEAL "\x1b[1;36m"
+constexpr const char * CONSOLE_GREEN = "\x1b[1;32m";
+constexpr const char * CONSOLE_RED = "\x1b[1;31m";
+constexpr const char * CONSOLE_MAGENTA = "\x1b[1;35m";
+constexpr const char * CONSOLE_YELLOW = "\x1b[1;33m";
+constexpr const char * CONSOLE_WHITE = "\x1b[1;37m";
+constexpr const char * CONSOLE_GRAY = "\x1b[1;30m";
+constexpr const char * CONSOLE_TEAL = "\x1b[1;36m";
 #else
-	#include <windows.h>
-	#include <dbghelp.h>
+#include <windows.h>
+#include <dbghelp.h>
 #ifndef __MINGW32__
 	#pragma comment(lib, "dbghelp.lib")
 #endif
-	HANDLE handleIn;
-	HANDLE handleOut;
-	HANDLE handleErr;
-	#define CONSOLE_GREEN FOREGROUND_GREEN | FOREGROUND_INTENSITY
-	#define CONSOLE_RED FOREGROUND_RED | FOREGROUND_INTENSITY
-	#define CONSOLE_MAGENTA FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY
-	#define CONSOLE_YELLOW FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY
-	#define CONSOLE_WHITE FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY
-	#define CONSOLE_GRAY FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
-	#define CONSOLE_TEAL FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY
+HANDLE handleIn;
+HANDLE handleOut;
+HANDLE handleErr;
+constexpr int32_t CONSOLE_GREEN = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+constexpr int32_t CONSOLE_RED = FOREGROUND_RED | FOREGROUND_INTENSITY;
+constexpr int32_t CONSOLE_MAGENTA = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+constexpr int32_t CONSOLE_YELLOW = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+constexpr int32_t CONSOLE_WHITE = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+constexpr int32_t CONSOLE_GRAY = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+constexpr int32_t CONSOLE_TEAL = FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
 #endif
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -190,7 +188,7 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 }
 #endif
 
-void CConsoleHandler::setColor(EConsoleTextColor::EConsoleTextColor color)
+void CConsoleHandler::setColor(EConsoleTextColor color)
 {
 	TColor colorCode;
 	switch(color)
@@ -259,8 +257,8 @@ int CConsoleHandler::run()
 		boost::this_thread::interruption_point();
 #else
 		std::getline(std::cin, buffer);
-		if ( cb && *cb )
-			(*cb)(buffer, false);
+		if ( cb )
+			cb(buffer, false);
 #endif
 	}
 	return -1;
@@ -270,7 +268,7 @@ CConsoleHandler::CConsoleHandler()
 	:CConsoleHandler(std::function<void(const std::string &, bool)>{})
 {}
 
-CConsoleHandler::CConsoleHandler(std::function<void(const std::string &, bool)> callback)
+CConsoleHandler::CConsoleHandler(const std::function<void(const std::string &, bool)> & callback)
 	:cb(callback)
 {
 #ifdef VCMI_WINDOWS
@@ -310,7 +308,7 @@ void CConsoleHandler::end()
 #ifndef VCMI_WINDOWS
 		thread.interrupt();
 #else
-		TerminateThread(thread->native_handle(),0);
+		TerminateThread(thread.native_handle(),0);
 #endif
 		thread.join();
 	}

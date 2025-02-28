@@ -23,6 +23,7 @@
 #include "../lib/GameLibrary.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/CConsoleHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CMemoryBuffer.h"
 #include "../lib/GameConstants.h"
