@@ -39,7 +39,7 @@ int main(int argc, const char * argv[])
 	{
 		server.start(LISTENING_PORT);
 	}
-	catch (const std::system_error & e)
+	catch (const boost::system::system_error & e)
 	{
 		logGlobal->error("Failed to start server! Another server already uses the same port? Reason: '%s'", e.what());
 		return 1;

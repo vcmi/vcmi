@@ -26,7 +26,7 @@ NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, cons
 	{
 		socket->set_option(boost::asio::socket_base::send_buffer_size{bufferSize});
 	}
-	catch(const std::system_error & e)
+	catch(const boost::system::system_error & e)
 	{
 		logNetwork->error("error setting 'send buffer size' socket option: %s", e.what());
 	}
@@ -35,7 +35,7 @@ NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, cons
 	{
 		socket->set_option(boost::asio::socket_base::receive_buffer_size{bufferSize});
 	}
-	catch(const std::system_error & e)
+	catch(const boost::system::system_error & e)
 	{
 		logNetwork->error("error setting 'receive buffer size' socket option: %s", e.what());
 	}
