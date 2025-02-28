@@ -23,7 +23,9 @@
 #include "../media/ISoundPlayer.h"
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
+#include "../render/IFont.h"
 #include "../render/IScreenHandler.h"
+#include "../render/IRenderHandler.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../windows/CMessage.h"
 
@@ -98,7 +100,8 @@ void CInGameConsole::addMessageSilent(const std::string & timeFormatted, const s
 	// 3) arbitrary selected left and right margins
 	int maxWidth = std::min( 800, adventureInt->terrainAreaPixels().w) - 100;
 
-	auto splitText = CMessage::breakText(formatted.toString(), maxWidth, FONT_MEDIUM);
+	auto splitText = TextOperations::breakText(formatted.toString(), maxWidth,
+		[](const std::string & str) -> size_t {return ENGINE->renderHandler().loadFont(FONT_MEDIUM)->getStringWidth(str);});
 
 	for(const auto & entry : splitText)
 		texts.push_back({entry, 0});
