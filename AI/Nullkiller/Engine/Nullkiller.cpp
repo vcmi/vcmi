@@ -374,7 +374,7 @@ HeroLockedReason Nullkiller::getHeroLockedReason(const CGHeroInstance * hero) co
 
 void Nullkiller::makeTurn()
 {
-	boost::lock_guard<std::mutex> sharedStorageLock(AISharedStorage::locker);
+	std::lock_guard<std::mutex> sharedStorageLock(AISharedStorage::locker);
 
 	const int MAX_DEPTH = 10;
 

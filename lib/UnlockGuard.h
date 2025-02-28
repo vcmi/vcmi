@@ -45,7 +45,7 @@ namespace vstd
 	}
 
 
-	//similar to boost::lock_guard but UNlocks for the scope + assertions
+	//similar to std::lock_guard but UNlocks for the scope + assertions
 	template<typename Mutex, typename LockingPolicy = detail::unlock_policy<Mutex> >
 	class unlock_guard : LockingPolicy
 	{

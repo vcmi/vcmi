@@ -2491,7 +2491,7 @@ void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 void VCAI::finish()
 {
 	//we want to lock to avoid multiple threads from calling makingTurn->join() at same time
-	boost::lock_guard<std::mutex> multipleCleanupGuard(turnInterruptionMutex);
+	std::lock_guard<std::mutex> multipleCleanupGuard(turnInterruptionMutex);
 	if(makingTurn)
 	{
 		makingTurn->interrupt();

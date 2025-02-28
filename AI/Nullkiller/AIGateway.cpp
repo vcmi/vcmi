@@ -1582,7 +1582,7 @@ void AIGateway::buildArmyIn(const CGTownInstance * t)
 void AIGateway::finish()
 {
 	//we want to lock to avoid multiple threads from calling makingTurn->join() at same time
-	boost::lock_guard<std::mutex> multipleCleanupGuard(turnInterruptionMutex);
+	std::lock_guard<std::mutex> multipleCleanupGuard(turnInterruptionMutex);
 
 	if(makingTurn)
 	{
