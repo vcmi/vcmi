@@ -128,7 +128,7 @@ std::vector<SlotInfo>::iterator ArmyManager::getBestUnitForScout(std::vector<Slo
 
 	const auto & movementPointsLimits = cb->getSettings().getVector(EGameSettings::HEROES_MOVEMENT_POINTS_LAND);
 
-	auto fastest = std::min_element(army.begin(), army.end(), [&](const SlotInfo & left, const SlotInfo & right) -> bool
+	auto fastest = boost::min_element(army, [&](const SlotInfo & left, const SlotInfo & right) -> bool
 	{
 		uint64_t leftUnitPower = left.power / left.count;
 		uint64_t rightUnitPower = left.power / left.count;

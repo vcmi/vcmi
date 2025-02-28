@@ -1438,12 +1438,12 @@ void VCAI::wander(HeroPtr h)
 			}
 			if(townsReachable.size()) //travel to town with largest garrison, or empty - better than nothing
 			{
-				dests.push_back(*std::max_element(townsReachable.begin(), townsReachable.end(), compareReinforcements));
+				dests.push_back(*boost::max_element(townsReachable, compareReinforcements));
 			}
 			else if(townsNotReachable.size())
 			{
 				//TODO pick the truly best
-				const CGTownInstance * t = *std::max_element(townsNotReachable.begin(), townsNotReachable.end(), compareReinforcements);
+				const CGTownInstance * t = *boost::max_element(townsNotReachable, compareReinforcements);
 				logAi->debug("%s can't reach any town, we'll try to make our way to %s at %s", h->getNameTranslated(), t->getNameTranslated(), t->visitablePos().toString());
 				int3 posBefore = h->visitablePos();
 				striveToGoal(sptr(Goals::ClearWayTo(t->visitablePos()).sethero(h))); //TODO: drop "strive", add to mainLoop
@@ -1470,7 +1470,7 @@ void VCAI::wander(HeroPtr h)
 				});
 				if (towns.size())
 				{
-					recruitHero(*std::max_element(towns.begin(), towns.end(), compareArmyStrength));
+					recruitHero(*boost::max_element(towns, compareArmyStrength));
 				}
 				break;
 			}
@@ -2214,7 +2214,7 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 			throw cannotFulfillGoalException("Can't buy any more creatures!");
 
 		creInfo ci =
-			*std::max_element(creaturesInDwellings.begin(), creaturesInDwellings.end(), [](const creInfo & lhs, const creInfo & rhs)
+			*boost::max_element(creaturesInDwellings, [](const creInfo & lhs, const creInfo & rhs)
 		{
 			//max value of creatures we can buy with our res
 			int value1 = lhs.cre->getAIValue() * lhs.count;
@@ -2293,7 +2293,7 @@ HeroPtr VCAI::primaryHero() const
 	if (hs.empty())
 		return nullptr;
 	else
-		return *std::max_element(hs.begin(), hs.end(), compareHeroStrength);
+		return *boost::max_element(hs, compareHeroStrength);
 }
 
 void VCAI::endTurn()

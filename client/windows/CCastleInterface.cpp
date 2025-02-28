@@ -702,7 +702,7 @@ void CCastleBuildings::recreate()
 	{
 		const CBuilding * build = town->getTown()->buildings.at(entry.first);
 
-		const CStructure * toAdd = *std::max_element(entry.second.begin(), entry.second.end(), [=](const CStructure * a, const CStructure * b)
+		const CStructure * toAdd = *boost::max_element(entry.second, [=](const CStructure * a, const CStructure * b)
 		{
 			return build->getDistance(a->building->bid) < build->getDistance(b->building->bid);
 		});

@@ -58,7 +58,7 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 
 std::vector<SlotInfo>::iterator ArmyManager::getWeakestCreature(std::vector<SlotInfo> & army) const
 {
-	auto weakest = std::min_element(army.begin(), army.end(), [](const SlotInfo & left, const SlotInfo & right) -> bool
+	auto weakest = boost::min_element(army, [](const SlotInfo & left, const SlotInfo & right) -> bool
 	{
 		if(left.creature->getLevel() != right.creature->getLevel())
 			return left.creature->getLevel() < right.creature->getLevel();

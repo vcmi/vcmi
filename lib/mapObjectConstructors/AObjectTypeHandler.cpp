@@ -224,7 +224,7 @@ std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getMostSpe
 	if (!templates.empty())
 	{
 		//Get terrain-specific template if possible
-		int leastTerrains = (*std::min_element(templates.begin(), templates.end(), [](const std::shared_ptr<const ObjectTemplate> & tmp1, const std::shared_ptr<const ObjectTemplate> & tmp2)
+		int leastTerrains = (*boost::min_element(templates, [](const std::shared_ptr<const ObjectTemplate> & tmp1, const std::shared_ptr<const ObjectTemplate> & tmp2)
 		{
 			return tmp1->getAllowedTerrains().size() < tmp2->getAllowedTerrains().size();
 		}))->getAllowedTerrains().size();
