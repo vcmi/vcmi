@@ -62,8 +62,8 @@ protected:
 
 	bool finished = false;
 	
-	mutable boost::recursive_mutex externalAccessMutex; //Used to communicate between Modificators
-	using RecursiveLock = boost::unique_lock<boost::recursive_mutex>;
+	mutable std::recursive_mutex externalAccessMutex; //Used to communicate between Modificators
+	using RecursiveLock = boost::unique_lock<std::recursive_mutex>;
 	using Lock = boost::unique_lock<boost::shared_mutex>;
 
 private:
