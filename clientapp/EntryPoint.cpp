@@ -34,6 +34,7 @@
 #include "../client/windows/CMessage.h"
 #include "../client/windows/InfoWindows.h"
 
+#include "../lib/CConsoleHandler.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/ExceptionsCommon.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -210,8 +211,13 @@ int main(int argc, char * argv[])
 	CStopWatch total;
 	CStopWatch pomtime;
 	std::cout.flags(std::ios::unitbuf);
+
+	setThreadNameLoggingOnly("MainGUI");
+	boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
+	if(vm.count("logLocation"))
+		logPath = vm["logLocation"].as<std::string>() + "/VCMI_Client_log.txt";
+
 #ifndef VCMI_IOS
-	console = new CConsoleHandler();
 
 	auto callbackFunction = [](std::string buffer, bool calledFromIngameConsole)
 	{
@@ -219,16 +225,15 @@ int main(int argc, char * argv[])
 		commandController.processCommand(buffer, calledFromIngameConsole);
 	};
 
-	*console->cb = callbackFunction;
-	console->start();
+	CConsoleHandler console(callbackFunction);
+	console.start();
+
+	CBasicLogConfigurator logConfigurator(logPath, &console);
+#else
+	CBasicLogConfigurator logConfigurator(logPath, nullptr);
 #endif
 
-	setThreadNameLoggingOnly("MainGUI");
-	boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
-	if(vm.count("logLocation"))
-		logPath = vm["logLocation"].as<std::string>() + "/VCMI_Client_log.txt";
-	logConfig = new CBasicLogConfigurator(logPath, console);
-	logConfig->configureDefault();
+	logConfigurator.configureDefault();
 	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_VERSION);
 	logGlobal->info("Creating console and configuring logger: %d ms", pomtime.getDiff());
 	logGlobal->info("The log file will be saved to %s", logPath);
@@ -236,7 +241,7 @@ int main(int argc, char * argv[])
 	// Init filesystem and settings
 	try
 	{
-		preinitDLL(::console, false);
+		preinitDLL(false);
 	}
 	catch (const DataLoadingException & e)
 	{
@@ -285,7 +290,7 @@ int main(int argc, char * argv[])
 	setSettingInteger("general/saveFrequency", "savefrequency", 1);
 
 	// Initialize logging based on settings
-	logConfig->configure();
+	logConfigurator.configure();
 	logGlobal->debug("settings = %s", settings.toJsonNode().toString());
 
 	// Some basic data validation to produce better error messages in cases of incorrect install
@@ -309,6 +314,7 @@ int main(int argc, char * argv[])
 		ENGINE->init();
 
 	GAME = std::make_unique<GameInstance>();
+	ENGINE->setEngineUser(GAME.get());
 	
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
@@ -370,16 +376,15 @@ int main(int argc, char * argv[])
 		session["onlyai"].Bool() = true;
 		boost::thread(&CServerHandler::debugStartTest, &GAME->server(), session["testsave"].String(), true);
 	}
-	else
+	else if (!settings["session"]["headless"].Bool())
 	{
-		auto mmenu = CMainMenu::create();
-		ENGINE->curInt = mmenu.get();
+		GAME->mainmenu()->makeActiveInterface();
 
-		bool playIntroVideo = !settings["session"]["headless"].Bool() && !vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool();
+		bool playIntroVideo = !vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool();
 		if(playIntroVideo)
-			mmenu->playIntroVideos();
+			GAME->mainmenu()->playIntroVideos();
 		else
-			mmenu->playMusic();
+			GAME->mainmenu()->playMusic();
 	}
 	
 	std::vector<std::string> names;
@@ -443,7 +448,7 @@ static void mainLoop()
 	}
 
 	GAME.reset();
-	CMM.reset();
+	GAME->mainmenu().reset();
 
 	if(!settings["session"]["headless"].Bool())
 	{

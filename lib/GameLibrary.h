@@ -119,7 +119,7 @@ public:
 
 extern DLL_LINKAGE GameLibrary * LIBRARY;
 
-DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool extractArchives);
+DLL_LINKAGE void preinitDLL(bool extractArchives);
 DLL_LINKAGE void loadDLLClasses(bool onlyEssential = false);
 
 

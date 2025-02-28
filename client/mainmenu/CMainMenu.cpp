@@ -61,7 +61,6 @@
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/GameLibrary.h"
 
-std::shared_ptr<CMainMenu> CMM;
 ISelectionScreenInfo * SEL = nullptr;
 
 static void do_quit()
@@ -171,7 +170,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 			}
 			case 1: //open campaign selection window
 			{
-				return std::bind(&CMainMenu::openCampaignScreen, CMM, commands.front());
+				return std::bind(&CMainMenu::openCampaignScreen, GAME->mainmenu(), commands.front());
 				break;
 			}
 			case 2: //start
@@ -331,11 +330,7 @@ CMainMenu::CMainMenu()
 	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
 }
 
-CMainMenu::~CMainMenu()
-{
-	if(ENGINE->curInt == this)
-		ENGINE->curInt = nullptr;
-}
+CMainMenu::~CMainMenu() = default;
 
 void CMainMenu::playIntroVideos()
 {
@@ -386,21 +381,11 @@ void CMainMenu::onScreenResize()
 	backgroundAroundMenu->pos = pos;
 }
 
-void CMainMenu::update()
+void CMainMenu::makeActiveInterface()
 {
-	if(CMM != this->shared_from_this()) //don't update if you are not a main interface
-		return;
-
-	if(ENGINE->windows().count() == 0)
-	{
-		ENGINE->windows().pushWindow(CMM);
-		ENGINE->windows().pushWindow(menu);
-		menu->switchToTab(menu->getActiveTab());
-	}
-
-	// Handles mouse and key input
-	ENGINE->handleEvents();
-	ENGINE->windows().simpleRedraw();
+	ENGINE->windows().pushWindow(GAME->mainmenu());
+	ENGINE->windows().pushWindow(menu);
+	menu->switchToTab(menu->getActiveTab());
 }
 
 void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode)
@@ -473,14 +458,6 @@ void CMainMenu::openHighScoreScreen()
 {
 	ENGINE->windows().createAndPushWindow<CHighScoreScreen>(CHighScoreScreen::HighScorePage::SCENARIO);
 	return;
-}
-
-std::shared_ptr<CMainMenu> CMainMenu::create()
-{
-	if(!CMM)
-		CMM = std::shared_ptr<CMainMenu>(new CMainMenu());
-
-	return CMM;
 }
 
 std::shared_ptr<CPicture> CMainMenu::createPicture(const JsonNode & config)

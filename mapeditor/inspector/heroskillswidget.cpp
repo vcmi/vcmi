@@ -15,7 +15,7 @@
 #include "../../lib/CSkillHandler.h"
 #include "inspector.h"
 
-static QList<std::pair<QString, QVariant>> LevelIdentifiers
+static const QList<std::pair<QString, QVariant>> LevelIdentifiers
 {
 	{QObject::tr("Beginner"), QVariant::fromValue(1)},
 	{QObject::tr("Advanced"), QVariant::fromValue(2)},

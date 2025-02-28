@@ -14,6 +14,7 @@
 #include <QDir>
 
 #include "../lib/CConfigHandler.h"
+#include "../lib/CConsoleHandler.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
@@ -31,10 +32,13 @@ void MainWindow::load()
 	QDir::setCurrent(QApplication::applicationDirPath());
 
 #ifndef VCMI_MOBILE
-	console = new CConsoleHandler();
+	console = std::make_unique<CConsoleHandler>();
+	CBasicLogConfigurator logConfigurator(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console.get());
+#else
+	CBasicLogConfigurator logConfigurator(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", nullptr);
 #endif
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console);
-	logConfig.configureDefault();
+
+	logConfigurator.configureDefault();
 
 	try
 	{

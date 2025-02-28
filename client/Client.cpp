@@ -191,7 +191,6 @@ void CClient::endGame()
 	for(auto & i : playerint)
 		i.second->finish();
 
-	ENGINE->curInt = nullptr;
 	{
 		logNetwork->info("Ending current game!");
 		removeGUI();
@@ -518,7 +517,6 @@ void CClient::reinitScripting()
 void CClient::removeGUI() const
 {
 	// CClient::endGame
-	ENGINE->curInt = nullptr;
 	ENGINE->windows().clear();
 	adventureInt.reset();
 	logGlobal->info("Removed GUI.");
