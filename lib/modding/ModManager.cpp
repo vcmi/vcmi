@@ -425,6 +425,9 @@ ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode 
 	coreModConfig.setModScope(ModScope::scopeBuiltin());
 	mods.try_emplace(ModScope::scopeBuiltin(), ModScope::scopeBuiltin(), coreModConfig, JsonNode());
 
+	// MODS COMPATIBILITY: in 1.6, repository list contains mod list directly, in 1.7 it is located in 'availableMods' node
+	const auto & availableRepositoryMods = repositoryList["availableMods"].isNull() ? repositoryList : repositoryList["availableMods"];
+
 	for(auto modID : modsToLoad)
 	{
 		if(ModScope::isScopeReserved(modID))
@@ -439,10 +442,10 @@ ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode 
 			continue;
 		}
 
-		mods.try_emplace(modID, modID, modConfig, repositoryList[modID]);
+		mods.try_emplace(modID, modID, modConfig, availableRepositoryMods[modID]);
 	}
 
-	for(const auto & mod : repositoryList.Struct())
+	for(const auto & mod : availableRepositoryMods.Struct())
 	{
 		if (vstd::contains(modsToLoad, mod.first))
 			continue;
