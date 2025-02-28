@@ -527,14 +527,14 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & turns,
 		phases[unitPhase].push_back(unit);
 	}
 
-	std::sort(phases[BattlePhases::SIEGE].begin(), phases[BattlePhases::SIEGE].end(), CMP_stack(BattlePhases::SIEGE, actualTurn, sideThatLastMoved));
+	boost::sort(phases[BattlePhases::SIEGE], CMP_stack(BattlePhases::SIEGE, actualTurn, sideThatLastMoved));
 	std::copy(phases[BattlePhases::SIEGE].begin(), phases[BattlePhases::SIEGE].end(), std::back_inserter(turns.back()));
 
 	if(turnsIsFull())
 		return;
 
 	for(uint8_t phase = BattlePhases::NORMAL; phase < BattlePhases::NUMBER_OF_PHASES; phase++)
-		std::sort(phases[phase].begin(), phases[phase].end(), CMP_stack(phase, actualTurn, sideThatLastMoved));
+		boost::sort(phases[phase], CMP_stack(phase, actualTurn, sideThatLastMoved));
 
 	uint8_t phase = BattlePhases::NORMAL;
 	while(!turnsIsFull() && phase < BattlePhases::NUMBER_OF_PHASES)

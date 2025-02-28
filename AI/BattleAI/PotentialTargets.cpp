@@ -84,7 +84,7 @@ PotentialTargets::PotentialTargets(
 		}
 	}
 
-	std::sort(possibleAttacks.begin(), possibleAttacks.end(), [](const AttackPossibility & lhs, const AttackPossibility & rhs) -> bool
+	boost::sort(possibleAttacks, [](const AttackPossibility & lhs, const AttackPossibility & rhs) -> bool
 	{
 		return lhs.damageDiff() > rhs.damageDiff();
 	});

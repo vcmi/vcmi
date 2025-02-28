@@ -105,7 +105,7 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 	for(auto & pair : creToPower)
 		resultingArmy.push_back(pair.second);
 
-	std::sort(resultingArmy.begin(), resultingArmy.end(), [](const SlotInfo & left, const SlotInfo & right) -> bool
+	boost::sort(resultingArmy, [](const SlotInfo & left, const SlotInfo & right) -> bool
 	{
 		return left.power > right.power;
 	});

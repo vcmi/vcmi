@@ -725,7 +725,7 @@ void CCastleBuildings::recreate()
 		return (*b1)<(*b2);
 	};
 
-	std::sort(children.begin(), children.end(), buildSorter); //TODO: create building in blit order
+	boost::sort(children, buildSorter); //TODO: create building in blit order
 }
 
 void CCastleBuildings::drawOverlays(Canvas & to, std::vector<std::shared_ptr<CBuildingRect>> buildingRects)

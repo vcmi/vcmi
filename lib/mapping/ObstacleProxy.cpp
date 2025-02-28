@@ -49,7 +49,7 @@ void ObstacleProxy::sortObstacles()
 	{
 		possibleObstacles.emplace_back(o);
 	}
-	std::sort(possibleObstacles.begin(), possibleObstacles.end(), [](const ObstaclePair &p1, const ObstaclePair &p2) -> bool
+	boost::sort(possibleObstacles, [](const ObstaclePair &p1, const ObstaclePair &p2) -> bool
 	{
 		return p1.first > p2.first; //bigger obstacles first
 	});

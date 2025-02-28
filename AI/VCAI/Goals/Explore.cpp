@@ -433,7 +433,7 @@ TSubgoal Explore::exploreNearestNeighbour(HeroPtr h) const
 	if(nearbyVisitableObjs.size())
 	{
 		vstd::removeDuplicates(nearbyVisitableObjs); //one object may occupy multiple tiles
-		std::sort(nearbyVisitableObjs.begin(), nearbyVisitableObjs.end(), CDistanceSorter(h.get()));
+		boost::sort(nearbyVisitableObjs, CDistanceSorter(h.get()));
 
 		TSubgoal pickupNearestObj = fh->chooseSolution(ai->ah->howToVisitObj(h, nearbyVisitableObjs.back(), false));
 

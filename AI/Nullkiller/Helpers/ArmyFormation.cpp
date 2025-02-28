@@ -53,9 +53,8 @@ void ArmyFormation::rearrangeArmyForSiege(const CGTownInstance * town, const CGH
 		for(auto slot : attacker->Slots())
 			stacks.push_back(slot.second);
 
-		std::sort(
-			stacks.begin(),
-			stacks.end(),
+		boost::sort(
+			stacks,
 			[](CStackInstance * slot1, CStackInstance * slot2) -> bool
 			{
 				auto cre1 = slot1->getCreatureID().toCreature();

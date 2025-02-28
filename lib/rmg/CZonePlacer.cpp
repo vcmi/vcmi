@@ -709,7 +709,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 	if (misplacedZones.empty())
 		return;
 
-	std::sort(misplacedZones.begin(), misplacedZones.end(), [](const Misplacement& lhs, Misplacement& rhs)
+	boost::sort(misplacedZones, [](const Misplacement& lhs, Misplacement& rhs)
 	{
 		return lhs.first > rhs.first; //Largest displacement first
 	});

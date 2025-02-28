@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void BonusList::stackBonuses()
 {
-	std::sort(bonuses.begin(), bonuses.end(), [](const std::shared_ptr<Bonus> & b1, const std::shared_ptr<Bonus> & b2) -> bool
+	boost::sort(bonuses, [](const std::shared_ptr<Bonus> & b1, const std::shared_ptr<Bonus> & b2) -> bool
 	{
 		if(b1 == b2)
 			return false;
