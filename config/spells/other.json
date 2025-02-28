@@ -533,8 +533,8 @@
 				"bonus.NON_LIVING" : "absolute",
 				"bonus.MECHANICAL" : "absolute",
 				"bonus.SIEGE_WEAPON" : "absolute",
-				"bonus.UNDEAD" : "absolute",
-				"bonus.GARGOYLE" : "absolute"
+				"bonus.GARGOYLE" : "absolute",
+				"bonus.UNDEAD" : "absolute"
 			}
 		}
 	},
@@ -543,7 +543,7 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":["C01SPE0"]
+			"affect":[{ "defName" : "C01SPE0", "transparency" : 0.5}]
 		},
 		"sounds": {
 			"cast": "ANIMDEAD"
@@ -577,7 +577,7 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":["C01SPE0"]
+			"affect":[{ "defName" : "C01SPE0", "transparency" : 0.5}]
 		},
 		"sounds": {
 			"cast": "SACRIF1"
