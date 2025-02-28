@@ -1186,7 +1186,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 	if(!stackPairs.empty())
 	{
 		auto comparator = [](DistStack lhs, DistStack rhs) { return lhs.distanceToPred < rhs.distanceToPred; };
-		auto minimal = boost::min_element(stackPairs, comparator);
+		auto minimal = std::min_element(stackPairs.begin(), stackPairs.end(), comparator);
 		return std::make_pair(minimal->stack, minimal->destination);
 	}
 	else

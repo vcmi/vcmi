@@ -128,7 +128,7 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 			return lhs.second < rhs.second;
 		};
 
-		resourceType = boost::max_element(daysToEarn, incomeComparer)->first;
+		resourceType = std::max_element(daysToEarn.begin(), daysToEarn.end(), incomeComparer)->first;
 		amountToCollect = missingResources[resourceType];
 	}
 

@@ -918,7 +918,7 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 				{
 					distances.emplace_back(zone.second, static_cast<float>(pos.dist2dSQ(zone.second->getPos())));
 				}
-				boost::min_element(distances, compareByDistance)->first->area()->add(pos); //closest tile belongs to zone
+				std::min_element(distances.begin(), distances.end(), compareByDistance)->first->area()->add(pos); //closest tile belongs to zone
 			}
 		}
 	}
@@ -951,7 +951,7 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 			{
 				distances.emplace_back(zone.second, zone.second->getCenter().dist2dSQ(float3(vertex.x(), vertex.y(), level)));
 			}
-			auto closestZone = boost::min_element(distances, compareByDistance)->first;
+			auto closestZone = std::min_element(distances.begin(), distances.end(), compareByDistance)->first;
 
 			vertexMapping[closestZone].insert(int3(vertex.x() * width, vertex.y() * height, level)); //Closest vertex belongs to zone
 		}
@@ -973,7 +973,7 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 				}
 
 				//Tile closest to vertex belongs to zone
-				auto closestZone = boost::min_element(distances, simpleCompareByDistance)->first;
+				auto closestZone = std::min_element(distances.begin(), distances.end(), simpleCompareByDistance)->first;
 				closestZone->area()->add(pos);
 				map.setZoneID(pos, closestZone->getId());
 			}

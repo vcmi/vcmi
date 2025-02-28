@@ -582,7 +582,7 @@ namespace vstd
 		 * Current bugfix is to don't use a typedef for decltype(*std::begin(rng)) and to use decltype
 		 * directly for both function parameters.
 		 */
-		return boost::min_element(rng, [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
+		return std::min_element(rng.begin(), rng.end(), [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
 		{
 			return vf(lhs) < vf(rhs);
 		});
@@ -597,7 +597,7 @@ namespace vstd
 		 * Current bugfix is to don't use a typedef for decltype(*std::begin(rng)) and to use decltype
 		 * directly for both function parameters.
 		 */
-		return boost::max_element(rng, [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
+		return std::max_element(rng.begin(), rng.end(), [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
 		{
 			return vf(lhs) < vf(rhs);
 		});
