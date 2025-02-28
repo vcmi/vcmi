@@ -645,7 +645,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 			bool answer = true;
 			auto objects = cb->getVisitableObjs(target);
 
-			if(hero.validAndSet() && target.valid() && objects.size())
+			if(hero.validAndSet() && target.isValid() && objects.size())
 			{
 				auto topObj = objects.front()->id == hero->id ? objects.back() : objects.front();
 				auto objType = topObj->ID; // top object should be our hero
@@ -722,7 +722,7 @@ void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelI
 	{
 		nullkiller->memory->knownTeleportChannels[channel]->passability = TeleportChannel::IMPASSABLE;
 	}
-	else if(destinationTeleport != ObjectInstanceID() && destinationTeleportPos.valid())
+	else if(destinationTeleport != ObjectInstanceID() && destinationTeleportPos.isValid())
 	{
 		auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
 		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
@@ -1352,7 +1352,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 			}
 
 			destinationTeleport = exitId;
-			if(exitPos.valid())
+			if(exitPos.isValid())
 				destinationTeleportPos = exitPos;
 			cb->moveHero(*h, h->pos, false);
 			destinationTeleport = ObjectInstanceID();

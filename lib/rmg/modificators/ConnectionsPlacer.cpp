@@ -273,7 +273,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			}
 		}
 		
-		if(guardPos.valid())
+		if(guardPos.isValid())
 		{
 			assert(zone.getModificator<ObjectManager>());
 			auto & manager = *zone.getModificator<ObjectManager>();

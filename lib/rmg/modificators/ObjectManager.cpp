@@ -242,7 +242,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 		}
 	}
 	
-	if(result.valid())
+	if(result.isValid())
 		obj.setPosition(result);
 	return result;
 }
@@ -348,7 +348,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 	while(true)
 	{
 		pos = findPlaceForObject(possibleArea, obj, weightFunction, optimizer);
-		if(!pos.valid())
+		if(!pos.isValid())
 		{
 			return rmg::Path::invalid();
 		}

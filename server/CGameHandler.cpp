@@ -924,7 +924,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 			leaveTile();
 
 		if (lookForGuards == CHECK_FOR_GUARDS && isInTheMap(guardPos))
-			tmh.attackedFrom = std::make_optional(guardPos);
+			tmh.attackedFrom = guardPos;
 
 		tmh.result = result;
 		sendAndApply(tmh);

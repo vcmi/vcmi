@@ -1051,9 +1051,9 @@ BattleInfo * CGameState::getBattle(const BattleID & battle)
 
 BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
 {
-	assert(tile.valid());
+	assert(tile.isValid());
 
-	if(!tile.valid())
+	if(!tile.isValid())
 		return BattleField::NONE;
 
 	const TerrainTile &t = map->getTile(tile);

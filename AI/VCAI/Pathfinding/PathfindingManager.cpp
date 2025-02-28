@@ -130,7 +130,7 @@ Goals::TGoalVec PathfindingManager::findPath(
 #ifdef VCMI_TRACE_PATHFINDER
 		logAi->trace("Path found size=%i, first tile=%s", path.nodes.size(), firstTileToGet.toString());
 #endif
-		if(firstTileToGet.valid() && ai->isTileNotReserved(hero.get(), firstTileToGet))
+		if(firstTileToGet.isValid() && ai->isTileNotReserved(hero.get(), firstTileToGet))
 		{
 			danger = path.getTotalDanger(hero);
 

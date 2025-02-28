@@ -100,7 +100,7 @@ std::vector<CGPathNode *> NodeStorage::calculateTeleportations(
 	{
 		auto * node = getNode(neighbour, source.node->layer);
 
-		if(!node->coord.valid())
+		if(!node->coord.isValid())
 		{
 			logAi->debug("Teleportation exit is blocked " + neighbour.toString());
 			continue;
@@ -132,7 +132,7 @@ std::vector<CGPathNode *> NodeStorage::getInitialNodes()
 	initialNode->moveRemains = out.hero->movementPointsRemaining();
 	initialNode->setCost(0.0);
 
-	if(!initialNode->coord.valid())
+	if(!initialNode->coord.isValid())
 	{
 		initialNode->coord = out.hpos;
 	}
