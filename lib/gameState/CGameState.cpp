@@ -58,7 +58,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-boost::shared_mutex CGameState::mutex;
+std::shared_mutex CGameState::mutex;
 
 HeroTypeID CGameState::pickNextHeroType(const PlayerColor & owner)
 {

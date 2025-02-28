@@ -36,7 +36,7 @@ private:
 
 	/// Protects access to callbacks member to avoid data races:
 	/// SDL calls sound finished callbacks from audio thread
-	boost::mutex mutexCallbacks;
+	std::mutex mutexCallbacks;
 
 	int ambientDistToVolume(int distance) const;
 	void ambientStopSound(const AudioPath & soundId);
@@ -44,7 +44,7 @@ private:
 
 	const JsonNode ambientConfig;
 
-	boost::mutex mutex;
+	std::mutex mutex;
 	std::map<AudioPath, int> ambientChannels;
 	std::map<int, int> channelVolumes;
 	int volume = 0;

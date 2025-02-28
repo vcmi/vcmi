@@ -21,7 +21,7 @@ public:
 	CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads);
 	void run();
 private:
-	boost::mutex rtinm;
+	std::mutex rtinm;
 	int currentTask;
 	int amount;
 	int threads;
@@ -61,7 +61,7 @@ public:
 		//thread group deletes threads, do not free manually
 	}
 private:
-	boost::mutex rtinm;
+	std::mutex rtinm;
 	size_t currentTask;
 	size_t amount;
 	size_t threads;
@@ -74,7 +74,7 @@ private:
 		{
 			size_t pom;
 			{
-				boost::unique_lock<boost::mutex> lock(rtinm);
+				std::unique_lock<std::mutex> lock(rtinm);
 				if((pom = currentTask) >= amount)
 					break;
 				else

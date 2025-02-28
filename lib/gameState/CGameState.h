@@ -82,7 +82,7 @@ public:
 
 	StatisticDataSet statistic;
 
-	static boost::shared_mutex mutex;
+	static std::shared_mutex mutex;
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 

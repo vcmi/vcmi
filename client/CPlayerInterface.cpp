@@ -1510,7 +1510,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 void CPlayerInterface::update()
 {
 	// Make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
-	boost::shared_lock gsLock(CGameState::mutex);
+	std::shared_lock gsLock(CGameState::mutex);
 
 	// While mutexes were locked away we may be have stopped being the active interface
 	if (GAME->interface() != this)

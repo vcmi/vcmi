@@ -55,7 +55,7 @@ private:
 	std::unique_ptr<IVideoPlayer> videoPlayerInstance;
 
 public:
-	boost::mutex interfaceMutex;
+	std::mutex interfaceMutex;
 
 	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
