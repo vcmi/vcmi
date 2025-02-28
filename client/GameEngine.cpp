@@ -107,7 +107,7 @@ void GameEngine::fakeMouseMove()
 void GameEngine::renderFrame()
 {
 	{
-		boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 		if (nullptr != curInt)
 			curInt->update();

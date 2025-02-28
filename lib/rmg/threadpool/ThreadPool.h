@@ -24,9 +24,9 @@ typedef std::optional<TRMGfunction> TRMGJob;
 class DLL_LINKAGE ThreadPool
 {
 private:
-	using Lock = boost::unique_lock<boost::shared_mutex>;
+	using Lock = std::unique_lock<boost::shared_mutex>;
 	mutable boost::shared_mutex mx;
-	mutable boost::condition_variable_any cv;
+	mutable std::condition_variable_any cv;
 	mutable boost::once_flag once;
 
 	bool isInitialized = false;

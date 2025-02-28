@@ -45,7 +45,7 @@ void CThreadHelper::processTasks()
 	{
 		int pom;
 		{
-			boost::unique_lock<boost::mutex> lock(rtinm);
+			std::unique_lock<std::mutex> lock(rtinm);
 			if((pom = currentTask) >= amount)
 				break;
 			else

@@ -131,7 +131,7 @@ public:
 	vstd::RNG & getRand();
 public:
 	mutable std::recursive_mutex areaMutex;
-	using Lock = boost::unique_lock<std::recursive_mutex>;
+	using Lock = std::unique_lock<std::recursive_mutex>;
 	
 protected:
 	CMapGenerator & generator;

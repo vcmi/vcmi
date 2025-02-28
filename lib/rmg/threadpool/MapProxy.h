@@ -34,7 +34,7 @@ public:
 
 private:
 	mutable boost::shared_mutex mx;
-	using Lock = boost::unique_lock<boost::shared_mutex>;
+	using Lock = std::unique_lock<boost::shared_mutex>;
 
 	RmgMap & map;
 };

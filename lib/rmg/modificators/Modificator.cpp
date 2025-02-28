@@ -35,7 +35,7 @@ const std::string & Modificator::getName() const
 
 bool Modificator::isReady()
 {
-	Lock lock(mx, boost::try_to_lock);
+	Lock lock(mx, std::try_to_lock);
 	if (!lock.owns_lock())
 	{
 		return false;
@@ -63,7 +63,7 @@ bool Modificator::isReady()
 
 bool Modificator::isFinished()
 {
-	Lock lock(mx, boost::try_to_lock);
+	Lock lock(mx, std::try_to_lock);
 	if (!lock.owns_lock())
 	{
 		return false;

@@ -99,7 +99,7 @@ public:
 private:
 	size_t nextIndex;
 
-	boost::mutex mutex;
+	std::mutex mutex;
 
 	std::map<std::type_index, std::string> keys;
 
