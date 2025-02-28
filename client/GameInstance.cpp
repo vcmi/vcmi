@@ -50,7 +50,7 @@ std::shared_ptr<CMainMenu> GameInstance::mainmenu()
 		return nullptr;
 
 	if (!mainMenuInstance)
-		mainMenuInstance = std::shared_ptr<CMainMenu>(new CMainMenu());
+		mainMenuInstance = std::make_shared<CMainMenu>();
 
 	return mainMenuInstance;
 }

@@ -11,10 +11,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-namespace EConsoleTextColor
-{
 /** The color enum is used for colored text console output. */
-enum EConsoleTextColor
+enum class EConsoleTextColor : int8_t
 {
 	DEFAULT = -1,
 	GREEN,
@@ -25,19 +23,18 @@ enum EConsoleTextColor
 	GRAY,
 	TEAL = -2
 };
-}
 
 /// Class which wraps the native console. It can print text based on
 /// the chosen color
 class DLL_LINKAGE CConsoleHandler
 {
 public:
-	CConsoleHandler(std::function<void(const std::string &, bool)> callback);
+	CConsoleHandler(const std::function<void(const std::string &, bool)> & callback);
 	CConsoleHandler();
 	~CConsoleHandler();
 	void start(); //starts listening thread
 
-	template<typename T> void print(const T &data, bool addNewLine = false, EConsoleTextColor::EConsoleTextColor color = EConsoleTextColor::DEFAULT, bool printToStdErr = false)
+	template<typename T> void print(const T &data, bool addNewLine = false, EConsoleTextColor color = EConsoleTextColor::DEFAULT, bool printToStdErr = false)
 	{
 		TLockGuard _(smx);
 #ifndef VCMI_WINDOWS
@@ -82,17 +79,17 @@ private:
 #ifndef VCMI_WINDOWS
 	using TColor = std::string;
 #else
-	typedef WORD TColor;
+	using TColor = int32_t;
 #endif
 
 	int run();
 
 	void end(); //kills listening thread
 
-	void setColor(EConsoleTextColor::EConsoleTextColor color); //sets color of text appropriate for given logging level
+	void setColor(EConsoleTextColor color); //sets color of text appropriate for given logging level
 
-	static TColor defColor;
-	static TColor defErrColor;
+	TColor defColor;
+	TColor defErrColor;
 
 	//function to be called when message is received - string: message, bool: whether call was made from in-game console
 	std::function<void(const std::string &, bool)> cb;
