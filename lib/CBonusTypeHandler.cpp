@@ -151,7 +151,7 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 	for (const auto & additionalIcon : graphics["subtypeIcons"].Struct())
 	{
 		auto path = ImagePath::fromJson(additionalIcon.second);
-		VLC->identifiers()->requestIdentifier(additionalIcon.second.getModScope(), additionalIcon.first, [&dest, path](int32_t index)
+		LIBRARY->identifiers()->requestIdentifier(additionalIcon.second.getModScope(), additionalIcon.first, [&dest, path](int32_t index)
 		{
 			dest.subtypeIcons[index] = path;
 		});
