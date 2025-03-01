@@ -1029,7 +1029,8 @@ SelectionTab::ListItem::ListItem(Point position)
 	labelMapSizeLetter->setAutoRedraw(false);
 	// FIXME: This -12 should not be needed, but for some reason CAnimImage displaced otherwise
 	iconFolder = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconFolder.png"), -8, -12);
-	iconFormat = std::make_shared<CAnimImage>(AnimationPath::builtin("SCSELC.DEF"), 0, 0, 59, -12);
+	if(ENGINE->getGameDataMode() != GameEngine::GameDataMode::ROE && ENGINE->getGameDataMode() != GameEngine::GameDataMode::DEMO_ROE)
+		iconFormat = std::make_shared<CAnimImage>(AnimationPath::builtin("SCSELC.DEF"), 0, 0, 59, -12);
 	iconVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT.DEF"), 0, 0, 277, -12);
 	iconLossCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRLOSS.DEF"), 0, 0, 310, -12);
 }
@@ -1042,7 +1043,8 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelMapSizeLetter->disable();
 		iconFolder->disable();
 		pictureEmptyLine->disable();
-		iconFormat->disable();
+		if(iconFormat)
+			iconFormat->disable();
 		iconVictoryCondition->disable();
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->disable();
@@ -1057,7 +1059,8 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelMapSizeLetter->disable();
 		iconFolder->enable();
 		pictureEmptyLine->enable();
-		iconFormat->disable();
+		if(iconFormat)
+			iconFormat->disable();
 		iconVictoryCondition->disable();
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->disable();
@@ -1085,7 +1088,8 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelMapSizeLetter->disable();
 		iconFolder->disable();
 		pictureEmptyLine->disable();
-		iconFormat->disable();
+		if(iconFormat)
+			iconFormat->disable();
 		iconVictoryCondition->disable();
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->enable();
@@ -1110,8 +1114,11 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelMapSizeLetter->setColor(color);
 		iconFolder->disable();
 		pictureEmptyLine->disable();
-		iconFormat->enable();
-		iconFormat->setFrame(info->getMapSizeFormatIconId());
+		if(iconFormat)
+		{
+			iconFormat->enable();
+			iconFormat->setFrame(info->getMapSizeFormatIconId());
+		}
 		iconVictoryCondition->enable();
 		iconVictoryCondition->setFrame(info->mapHeader->victoryIconIndex, 0);
 		iconLossCondition->enable();
