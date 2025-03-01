@@ -26,6 +26,7 @@
 	],
 	"heroes" :
 	[
+		"config/roe-demo/disabled-heroes/castle.json",
 		"config/roe-demo/disabled-heroes/conflux.json",
 		"config/roe-demo/disabled-heroes/fortress.json",
 		"config/roe-demo/disabled-heroes/inferno.json",

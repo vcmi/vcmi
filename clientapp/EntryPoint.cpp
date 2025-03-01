@@ -313,6 +313,7 @@ int main(int argc, char * argv[])
 	else if(CResourceHandler::get()->existsResource(ResourcePath("MAPS/H3DEMO.H3M")))
 		mode = GameEngine::GameDataMode::DEMO_SOD;
 
+	mode = GameEngine::GameDataMode::DEMO_ROE;
 	if(mode == GameEngine::GameDataMode::ROE)
 		handleFatalError("Heroes III: Restoration of Erathia (including HD Edition) data files are not supported!", false);
 
