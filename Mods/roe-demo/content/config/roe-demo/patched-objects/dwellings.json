@@ -1,0 +1,43 @@
+{
+	"core:creatureGeneratorCommon" : {
+		"types" : {
+			"basiliskPit": null,
+			"behemothCrag": null,
+			"forsakenPalace": null,
+			"fireLake": null,
+			"altarOfWishes": null,
+			"gorgonLair": null,
+			"dragonCliffs": null,
+			"hydraPond": null,
+			"mageTower": null,
+			"goldenPavilion": null,
+			"demonGate": null,
+			"ogreFort": null,
+			"hellHole": null,
+			"dragonCave": null,
+			"cliffNest": null,
+			"cloudTemple": null,
+			"dendroidArches": null,
+			"wyvernNest": null,
+			"unicornGladeBig": null,
+			"altarOfThought": null,
+			"pyre": null,
+			"frozenCliffs": null,
+			"crystalCavern": null,
+			"magicForest": null,
+			"sulfurousLair": null,
+			"enchantersHollow": null,
+			"treetopTower": null,
+			"unicornGlade": null,
+			"trollBridge": null,
+		}
+	},
+	"core:creatureGeneratorSpecial" : {
+		"types" : {
+			"golemFactory" : {
+				"creatures#override" : [[ "core:ironGolem" ]],
+				"guards" : null
+			}
+		}
+	}
+}

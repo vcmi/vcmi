@@ -1,0 +1,40 @@
+{
+	"author" : "VCMI Team",
+	"contact" : "",
+	"name" : "RoE demo",
+	"description" : "Support for RoE demo",
+	"modType" : "Other",
+	"version" : "1.0",
+	"factions" :
+	[
+		"config/roe-demo/factions-without-town/conflux.json",
+		"config/roe-demo/factions-without-town/fortress.json",
+		"config/roe-demo/factions-without-town/inferno.json",
+		"config/roe-demo/factions-without-town/rampart.json",
+		"config/roe-demo/factions-without-town/stronghold.json",
+		"config/roe-demo/factions-without-town/tower.json"
+	],
+	"creatures" :
+	[
+		"config/roe-demo/disabled-creatures/conflux.json",
+		"config/roe-demo/disabled-creatures/fortress.json",
+		"config/roe-demo/disabled-creatures/inferno.json",
+		"config/roe-demo/disabled-creatures/rampart.json",
+		"config/roe-demo/disabled-creatures/stronghold.json",
+		"config/roe-demo/disabled-creatures/tower.json",
+		"config/roe-demo/disabled-creatures/neutral.json"
+	],
+	"heroes" :
+	[
+		"config/roe-demo/disabled-heroes/conflux.json",
+		"config/roe-demo/disabled-heroes/fortress.json",
+		"config/roe-demo/disabled-heroes/inferno.json",
+		"config/roe-demo/disabled-heroes/rampart.json",
+		"config/roe-demo/disabled-heroes/stronghold.json",
+		"config/roe-demo/disabled-heroes/tower.json"
+	],
+	"heroClasses" :
+	[
+		"config/roe-demo/patched-hero-classes.json"
+	]
+}

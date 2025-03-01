@@ -1,0 +1,10 @@
+{
+	"core:pasis":
+	{
+		"special" : true
+	},
+	"core:monere":
+	{
+		"special" : true
+	}
+}

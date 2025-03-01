@@ -1,0 +1,18 @@
+{
+	"core:thane":
+	{
+		"special" : true
+	},
+	"core:fafner":
+	{
+		"special" : true
+	},
+	"core:iona":
+	{
+		"special" : true
+	},
+	"core:theodorus":
+	{
+		"special" : true
+	}
+}

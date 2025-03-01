@@ -1,0 +1,52 @@
+{
+	"core:pixie" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:sprite" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:stormElemental" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:psychicElemental" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:magicElemental" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:iceElemental" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:magmaElemental" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:energyElemental" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:firebird" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:phoenix" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	}
+}

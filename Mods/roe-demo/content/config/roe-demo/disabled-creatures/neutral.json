@@ -1,0 +1,77 @@
+{
+	"core:goldGolem" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:diamondGolem" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:azureDragon" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:crystalDragon" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:fairieDragon" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:rustDragon" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:enchanter" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:sharpshooter" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:troll" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:boar" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:halfling" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:mummy" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:nomad" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:peasant" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:rogue" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	}
+}

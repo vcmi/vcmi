@@ -1,0 +1,37 @@
+{
+	"core:orcChieftain" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:ogre" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:ogreMage" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:roc" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:thunderbird" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:behemoth" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:ancientBehemoth" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	}
+}

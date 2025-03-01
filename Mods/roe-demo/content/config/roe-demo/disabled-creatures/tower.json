@@ -1,0 +1,47 @@
+{
+	"core:stoneGolem" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:mage" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:archMage" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:genie" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:masterGenie" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:naga" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:nagaQueen" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:giant" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	},
+	"core:titan" :
+	{
+		"disabled" : true,
+		"graphics" : null
+	}
+}
