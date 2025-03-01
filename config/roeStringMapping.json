@@ -25,27 +25,10 @@
         "DATA/MINEEVNT.TXT": [],
         "DATA/XTRAINFO.TXT": [],
 
-        //DATA/CREDITS.TXT // ok
         //DATA/ARTRAITS.TXT // todo
         //DATA/ARTEVENT.TXT // todo
         //DATA/CRTRAITS.TXT // todo
-        //DATA/CREXPMOD.TXT // missing
-        //DATA/CREXPBON.TXT // missing
-        //DATA/CRANIM.TXT // ok
-        //DATA/SSTRAITS.TXT // ok
-        //DATA/TERRNAME.TXT // ok
-        //DATA/BUILDING.TXT // ok
         //DATA/BLDGNEUT.TXT // todo
-        //DATA/BLDGSPEC.TXT // ok
-        //DATA/DWELLING.TXT // ok
-        //DATA/TOWNTYPE.TXT // ok
-        //DATA/TOWNNAME.TXT // ok
-        //DATA/HCTRAITS.TXT // ok
-        //DATA/HEROSPEC.TXT // ok
-        //DATA/HEROBIOS.TXT // ok
-        //DATA/HOTRAITS.TXT // ok
-        //Data/Objects.txt // ok
-        //Data/ObjNames.txt // ok
         //DATA/SPTRAITS.TXT // todo
 
         "DATA/RANDTVRN.TXT": [], // todo
