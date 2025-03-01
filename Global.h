@@ -119,7 +119,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <chrono>
 #include <climits>
 #include <cmath>
-#include <codecvt>
 #include <condition_variable>
 #include <cstdio>
 #include <cstdlib>

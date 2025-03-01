@@ -102,7 +102,7 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	}
 	pos = background->center();
 	card = std::make_shared<InfoCard>();
-	buttonBack = std::make_shared<CButton>(Point(581, 535), AnimationPath::builtin("SCNRBACK.DEF"), LIBRARY->generaltexth->zelp[105], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
+	buttonBack = std::make_shared<CButton>(Point(581, 535), AnimationPath::builtin("SCNRBACK.DEF"), LIBRARY->generaltexth->zelp[105], [this](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)

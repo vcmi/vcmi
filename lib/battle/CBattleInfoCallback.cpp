@@ -1761,9 +1761,9 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const ba
 	};
 	std::vector<SpellID> beneficialSpells;
 
-	auto getAliveEnemy = [=](const std::function<bool(const CStack *)> & pred) -> const CStack *
+	auto getAliveEnemy = [&](const std::function<bool(const CStack *)> & pred) -> const CStack *
 	{
-		auto stacks = battleGetStacksIf([=](const CStack * stack)
+		auto stacks = battleGetStacksIf([&](const CStack * stack)
 		{
 			return pred(stack) && stack->unitOwner() != subject->unitOwner() && stack->isValidTarget(false);
 		});

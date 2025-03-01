@@ -153,7 +153,7 @@ std::function<void()> CGarrisonSlot::getDismiss() const
 		&& (getObj()->stacksCount() > 1 ||
 			!getObj()->needsLastStack());
 
-	return canDismiss ? [=]()
+	return canDismiss ? [this]()
 	{
 		GAME->interface()->cb->dismissCreature(getObj(), ID);
 	} : (std::function<void()>)nullptr;
@@ -169,7 +169,7 @@ bool CGarrisonSlot::viewInfo()
 	bool canUpgrade = getObj()->tempOwner == GAME->interface()->playerID && pom.canUpgrade(); //upgrade is possible
 	std::function<void(CreatureID)> upgr = nullptr;
 	auto dism = getDismiss();
-	if(canUpgrade) upgr = [=] (CreatureID newID) { GAME->interface()->cb->upgradeCreature(getObj(), ID, newID); };
+	if(canUpgrade) upgr = [this] (CreatureID newID) { GAME->interface()->cb->upgradeCreature(getObj(), ID, newID); };
 
 	owner->selectSlot(nullptr);
 	owner->setSplittingMode(false);

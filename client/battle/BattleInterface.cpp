@@ -348,7 +348,7 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 	}
 
 	auto wnd = std::make_shared<BattleResultWindow>(br, *(this->curInt));
-	wnd->resultCallback = [=](ui32 selection)
+	wnd->resultCallback = [this, queryID](ui32 selection)
 	{
 		curInt->cb->selectionMade(selection, queryID);
 	};
@@ -400,7 +400,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 		if(casterStack != nullptr )
 		{
-			addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]()
+			addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, casterStack, targetedTile, spell]()
 			{
 				stacksController->addNewAnim(new CastAnimation(*this, casterStack, targetedTile, getBattle()->battleGetStackByPos(targetedTile), spell));
 				displaySpellCast(spell, casterStack->getPosition());
@@ -411,14 +411,14 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 			auto hero = sc->side == BattleSide::DEFENDER ? defendingHero : attackingHero;
 			assert(hero);
 
-			addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]()
+			addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, hero, targetedTile, spell]()
 			{
 				stacksController->addNewAnim(new HeroCastAnimation(*this, hero, targetedTile, getBattle()->battleGetStackByPos(targetedTile), spell));
 			});
 		}
 	}
 
-	addToAnimationStage(EAnimationEvents::HIT, [=](){
+	addToAnimationStage(EAnimationEvents::HIT, [this, spell, targetedTile](){
 		displaySpellHit(spell, targetedTile);
 	});
 
@@ -429,7 +429,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		assert(stack);
 		if(stack)
 		{
-			addToAnimationStage(EAnimationEvents::HIT, [=](){
+			addToAnimationStage(EAnimationEvents::HIT, [this, stack, spell](){
 				displaySpellEffect(spell, stack->getPosition());
 			});
 		}
@@ -439,14 +439,14 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	{
 		auto stack = getBattle()->battleGetStackByID(elem, false);
 		assert(stack);
-		addToAnimationStage(EAnimationEvents::HIT, [=](){
+		addToAnimationStage(EAnimationEvents::HIT, [this, stack](){
 			effectsController->displayEffect(EBattleEffect::MAGIC_MIRROR, stack->getPosition());
 		});
 	}
 
 	if (!sc->resistedCres.empty())
 	{
-		addToAnimationStage(EAnimationEvents::HIT, [=](){
+		addToAnimationStage(EAnimationEvents::HIT, [](){
 			ENGINE->sound().playSound(AudioPath::builtin("MAGICRES"));
 		});
 	}
@@ -455,7 +455,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	{
 		auto stack = getBattle()->battleGetStackByID(elem, false);
 		assert(stack);
-		addToAnimationStage(EAnimationEvents::HIT, [=](){
+		addToAnimationStage(EAnimationEvents::HIT, [this, stack](){
 			effectsController->displayEffect(EBattleEffect::RESISTANCE, stack->getPosition());
 		});
 	}
@@ -467,7 +467,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		Point rightHero = Point(755, 30);
 		BattleSide side = sc->side;
 
-		addToAnimationStage(EAnimationEvents::AFTER_HIT, [=](){
+		addToAnimationStage(EAnimationEvents::AFTER_HIT, [this, side, leftHero, rightHero](){
 			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side == BattleSide::DEFENDER ? "SP07_A.DEF" : "SP07_B.DEF"), leftHero));
 			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side == BattleSide::DEFENDER ? "SP07_B.DEF" : "SP07_A.DEF"), rightHero));
 		});

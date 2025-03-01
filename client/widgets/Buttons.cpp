@@ -549,7 +549,7 @@ void CToggleGroup::addToggle(int identifier, const std::shared_ptr<CToggleBase> 
 		addChild(intObj.get());
 	}
 
-	button->addCallback([=] (bool on) { if (on) selectionChanged(identifier);});
+	button->addCallback([this, identifier] (bool on) { if (on) selectionChanged(identifier);});
 	button->setAllowDeselection(false);
 
 	if(buttons.count(identifier)>0)

@@ -163,7 +163,7 @@ void AIGateway::showTavernWindow(const CGObjectInstance * object, const CGHeroIn
 	NET_EVENT_HANDLER;
 
 	status.addQuery(queryID, "TavernWindow");
-	requestActionASAP([=](){ answerQuery(queryID, 0); });
+	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::showThievesGuildWindow(const CGObjectInstance * obj)
@@ -299,7 +299,7 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 
 	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->getNameTranslated() % firstHero->tempOwner % secondHero->getNameTranslated() % secondHero->tempOwner));
 
-	requestActionASAP([=]()
+	requestActionASAP([this, firstHero, secondHero, query]()
 	{
 		auto transferFrom2to1 = [this](const CGHeroInstance * h1, const CGHeroInstance * h2) -> void
 		{
@@ -338,7 +338,7 @@ void AIGateway::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedI
 
 	status.addQuery(queryID, "RecruitmentDialog");
 
-	requestActionASAP([=](){
+	requestActionASAP([this, dwelling, dst, queryID](){
 		recruitCreatures(dwelling, dst);
 		answerQuery(queryID, 0);
 	});
@@ -457,7 +457,7 @@ void AIGateway::showUniversityWindow(const IMarket * market, const CGHeroInstanc
 	NET_EVENT_HANDLER;
 
 	status.addQuery(queryID, "UniversityWindow");
-	requestActionASAP([=](){ answerQuery(queryID, 0); });
+	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -533,7 +533,7 @@ void AIGateway::showMarketWindow(const IMarket * market, const CGHeroInstance * 
 	NET_EVENT_HANDLER;
 
 	status.addQuery(queryID, "MarketWindow");
-	requestActionASAP([=](){ answerQuery(queryID, 0); });
+	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain)
@@ -589,7 +589,7 @@ void AIGateway::yourTurn(QueryID queryID)
 	NET_EVENT_HANDLER;
 	nullkiller->invalidatePathfinderData();
 	status.addQuery(queryID, "YourTurn");
-	requestActionASAP([=](){ answerQuery(queryID, 0); });
+	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
 	status.startedTurn();
 	makingTurn = std::make_unique<boost::thread>(&AIGateway::makeTurn, this);
 }
@@ -602,7 +602,7 @@ void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, s
 	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->getNameTranslated() % hero->level));
 	HeroPtr hPtr = hero;
 
-	requestActionASAP([=]()
+	requestActionASAP([this, hPtr, skills, queryID]()
 	{ 
 		int sel = 0;
 
@@ -624,7 +624,7 @@ void AIGateway::commanderGotLevel(const CCommanderInstance * commander, std::vec
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
 	status.addQuery(queryID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->armyObj->nodeName() % (int)commander->level));
-	requestActionASAP([=](){ answerQuery(queryID, 0); });
+	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
@@ -639,7 +639,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 
 	if(!selection && cancel)
 	{
-		requestActionASAP([=]()
+		requestActionASAP([this, hero, target, askID]()
 		{
 			//yes&no -> always answer yes, we are a brave AI :)
 			bool answer = true;
@@ -687,7 +687,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 		return;
 	}
 
-	requestActionASAP([=]()
+	requestActionASAP([this, selection, components, hero, askID]()
 	{
 		int sel = 0;
 
@@ -749,7 +749,7 @@ void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelI
 		}
 	}
 
-	requestActionASAP([=]()
+	requestActionASAP([this, askID, chosenExit]()
 	{
 		answerQuery(askID, chosenExit);
 	});
@@ -766,7 +766,7 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	status.addQuery(queryID, boost::str(boost::format("Garrison dialog with %s and %s") % s1 % s2));
 
 	//you can't request action from action-response thread
-	requestActionASAP([=]()
+	requestActionASAP([this, up, down, removableUnits, queryID]()
 	{
 		if(removableUnits && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed() && !cb->getStartInfo()->isRestorationOfErathiaCampaign())
 		{
@@ -781,7 +781,7 @@ void AIGateway::showMapObjectSelectDialog(QueryID askID, const Component & icon,
 {
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, "Map object select query");
-	requestActionASAP([=](){ answerQuery(askID, selectedObject.getNum()); });
+	requestActionASAP([this, askID](){ answerQuery(askID, selectedObject.getNum()); });
 }
 
 bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
@@ -1209,7 +1209,7 @@ void AIGateway::battleEnd(const BattleID & battleID, const BattleResult * br, Qu
 	{
 		status.addQuery(queryID, "Confirm battle query");
 
-		requestActionASAP([=]()
+		requestActionASAP([this, queryID]()
 			{
 				answerQuery(queryID, 0);
 			});
