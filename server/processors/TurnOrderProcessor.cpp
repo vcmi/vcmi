@@ -260,7 +260,7 @@ void TurnOrderProcessor::doStartNewDay()
 
 	if(!activePlayer)
 	{
-		gameHandler->gameLobby()->setState(EServerState::SHUTDOWN);
+		gameHandler->gameLobby().setState(EServerState::SHUTDOWN);
 		return;
 	}
 

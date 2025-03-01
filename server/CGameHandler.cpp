@@ -129,9 +129,9 @@ events::EventBus * CGameHandler::eventBus() const
 	return serverEventBus.get();
 }
 
-CVCMIServer * CGameHandler::gameLobby() const
+CVCMIServer & CGameHandler::gameLobby() const
 {
-	return lobby;
+	return *lobby;
 }
 
 void CGameHandler::levelUpHero(const CGHeroInstance * hero, SecondarySkill skill)
@@ -421,7 +421,7 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 
 void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 {
-	if(lobby->getState() == EServerState::SHUTDOWN || !gs || !gs->scenarioOps)
+	if(gameLobby().getState() == EServerState::SHUTDOWN || !gs || !gs->scenarioOps)
 	{
 		assert(0); // game should have shut down before reaching this point!
 		return;
@@ -461,7 +461,7 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 	}
 }
 
-void CGameHandler::handleReceivedPack(CPackForServer & pack)
+void CGameHandler::handleReceivedPack(std::shared_ptr<CConnection> connection, CPackForServer & pack)
 {
 	//prepare struct informing that action was applied
 	auto sendPackageResponse = [&](bool successfullyApplied)
@@ -471,7 +471,7 @@ void CGameHandler::handleReceivedPack(CPackForServer & pack)
 		applied.result = successfullyApplied;
 		applied.packType = CTypeList::getInstance().getTypeID(&pack);
 		applied.requestID = pack.requestID;
-		pack.c->sendPack(applied);
+		connection->sendPack(applied);
 	};
 
 	if(isBlockedByQueries(&pack, pack.player))
@@ -483,7 +483,7 @@ void CGameHandler::handleReceivedPack(CPackForServer & pack)
 		bool result;
 		try
 		{
-			ApplyGhNetPackVisitor applier(*this);
+			ApplyGhNetPackVisitor applier(*this, connection);
 			pack.visit(applier);
 			result = applier.getResult();
 		}
@@ -709,9 +709,9 @@ void CGameHandler::start(bool resume)
 {
 	LOG_TRACE_PARAMS(logGlobal, "resume=%d", resume);
 
-	for (auto cc : lobby->activeConnections)
+	for (auto cc : gameLobby().activeConnections)
 	{
-		auto players = lobby->getAllClientPlayers(cc->connectionID);
+		auto players = gameLobby().getAllClientPlayers(cc->connectionID);
 		std::stringstream sbuffer;
 		sbuffer << "Connection " << cc->connectionID << " will handle " << players.size() << " player: ";
 		for (PlayerColor color : players)
@@ -1439,7 +1439,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 void CGameHandler::sendToAllClients(CPackForClient & pack)
 {
 	logNetwork->trace("\tSending to all clients: %s", typeid(pack).name());
-	for (auto c : lobby->activeConnections)
+	for (auto c : gameLobby().activeConnections)
 		c->sendPack(pack);
 }
 
@@ -1468,64 +1468,62 @@ void CGameHandler::sendAndApply(NewStructures & pack)
 	checkVictoryLossConditionsForPlayer(getTown(pack.tid)->tempOwner);
 }
 
-bool CGameHandler::isPlayerOwns(CPackForServer * pack, ObjectInstanceID id)
+bool CGameHandler::isPlayerOwns(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, ObjectInstanceID id)
 {
-	return pack->player == getOwner(id) && hasPlayerAt(getOwner(id), pack->c);
+	return pack->player == getOwner(id) && hasPlayerAt(getOwner(id), connection);
 }
 
-void CGameHandler::throwNotAllowedAction(CPackForServer * pack)
+void CGameHandler::throwNotAllowedAction(const std::shared_ptr<CConnection> & connection)
 {
-	if(pack->c)
-		playerMessages->sendSystemMessage(pack->c, MetaString::createFromTextID("vcmi.server.errors.notAllowed"));
+	playerMessages->sendSystemMessage(connection, MetaString::createFromTextID("vcmi.server.errors.notAllowed"));
 
 	logNetwork->error("Player is not allowed to perform this action!");
 	throw ExceptionNotAllowedAction();
 }
 
-void CGameHandler::wrongPlayerMessage(CPackForServer * pack, PlayerColor expectedplayer)
+void CGameHandler::wrongPlayerMessage(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, PlayerColor expectedplayer)
 {
 	auto str = MetaString::createFromTextID("vcmi.server.errors.wrongIdentified");
 	str.appendName(pack->player);
 	str.appendName(expectedplayer);
 	logNetwork->error(str.toString());
 
-	if(pack->c)
-		playerMessages->sendSystemMessage(pack->c, str);
+	playerMessages->sendSystemMessage(connection, str);
 }
 
-void CGameHandler::throwIfWrongOwner(CPackForServer * pack, ObjectInstanceID id)
+void CGameHandler::throwIfWrongOwner(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, ObjectInstanceID id)
 {
-	if(!isPlayerOwns(pack, id))
+	if(!isPlayerOwns(connection, pack, id))
 	{
-		wrongPlayerMessage(pack, getOwner(id));
-		throwNotAllowedAction(pack);
+		wrongPlayerMessage(connection, pack, getOwner(id));
+		throwNotAllowedAction(connection);
 	}
 }
 
-void CGameHandler::throwIfPlayerNotActive(CPackForServer * pack)
+void CGameHandler::throwIfPlayerNotActive(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack)
 {
 	if (!turnOrder->isPlayerMakingTurn(pack->player))
-		throwNotAllowedAction(pack);
+		throwNotAllowedAction(connection);
 }
 
-void CGameHandler::throwIfWrongPlayer(CPackForServer * pack)
+void CGameHandler::throwIfWrongPlayer(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack)
 {
-	throwIfWrongPlayer(pack, pack->player);
+	throwIfWrongPlayer(connection, pack, pack->player);
 }
 
-void CGameHandler::throwIfWrongPlayer(CPackForServer * pack, PlayerColor player)
+void CGameHandler::throwIfWrongPlayer(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, PlayerColor player)
 {
-	if(!hasPlayerAt(player, pack->c) || pack->player != player)
+	if(!hasPlayerAt(player, connection) || pack->player != player)
 	{
-		wrongPlayerMessage(pack, player);
-		throwNotAllowedAction(pack);
+		wrongPlayerMessage(connection, pack, player);
+		throwNotAllowedAction(connection);
 	}
 }
 
-void CGameHandler::throwAndComplain(CPackForServer * pack, std::string txt)
+void CGameHandler::throwAndComplain(const std::shared_ptr<CConnection> & connection, std::string txt)
 {
 	complain(txt);
-	throwNotAllowedAction(pack);
+	throwNotAllowedAction(connection);
 }
 
 void CGameHandler::save(const std::string & filename)
@@ -1586,7 +1584,7 @@ bool CGameHandler::load(const std::string & filename)
 			errorMsg.appendRawString("\n");
 			errorMsg.appendRawString(e.whatExcessive());
 		}
-		lobby->announceMessage(errorMsg);
+		gameLobby().announceMessage(errorMsg);
 		return false;
 	}
 	catch(const IdentifierResolutionException & e)
@@ -1595,7 +1593,7 @@ bool CGameHandler::load(const std::string & filename)
 		MetaString errorMsg;
 		errorMsg.appendTextID("vcmi.server.errors.unknownEntity");
 		errorMsg.replaceRawString(e.identifierName);
-		lobby->announceMessage(errorMsg);
+		gameLobby().announceMessage(errorMsg);
 		return false;
 	}
 
@@ -1605,11 +1603,11 @@ bool CGameHandler::load(const std::string & filename)
 		auto str = MetaString::createFromTextID("vcmi.broadcast.failedLoadGame");
 		str.appendRawString(": ");
 		str.appendRawString(e.what());
-		lobby->announceMessage(str);
+		gameLobby().announceMessage(str);
 		return false;
 	}
 	gs->preInit(LIBRARY, this);
-	gs->updateOnLoad(lobby->si.get());
+	gs->updateOnLoad(gameLobby().si.get());
 	return true;
 }
 
@@ -3542,7 +3540,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 			if(p->human)
 			{
-				lobby->setState(EServerState::SHUTDOWN);
+				gameLobby().setState(EServerState::SHUTDOWN);
 			}
 		}
 		else

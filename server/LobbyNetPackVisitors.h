@@ -14,12 +14,15 @@
 class ClientPermissionsCheckerNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
-	bool result;
+	std::shared_ptr<CConnection> connection;
 	CVCMIServer & srv;
+	bool result;
 
 public:
-	ClientPermissionsCheckerNetPackVisitor(CVCMIServer & srv)
-		:srv(srv), result(false)
+	ClientPermissionsCheckerNetPackVisitor(CVCMIServer & srv, const std::shared_ptr<CConnection> & connection)
+		: connection(connection)
+		, srv(srv)
+		, result(false)
 	{
 	}
 
@@ -49,7 +52,7 @@ private:
 
 public:
 	ApplyOnServerAfterAnnounceNetPackVisitor(CVCMIServer & srv)
-		:srv(srv)
+		: srv(srv)
 	{
 	}
 
@@ -64,12 +67,15 @@ public:
 class ApplyOnServerNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
-	bool result;
+	std::shared_ptr<CConnection> connection;
 	CVCMIServer & srv;
+	bool result;
 
 public:
-	ApplyOnServerNetPackVisitor(CVCMIServer & srv)
-		:srv(srv), result(true)
+	ApplyOnServerNetPackVisitor(CVCMIServer & srv, const std::shared_ptr<CConnection> & connection)
+		: connection(connection)
+		, srv(srv)
+		, result(true)
 	{
 	}
 

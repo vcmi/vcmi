@@ -21,10 +21,6 @@ class ICPackVisitor;
 
 struct DLL_LINKAGE CPack : public Serializeable
 {
-	/// Pointer to connection that pack received from
-	/// Only set & used on server
-	std::shared_ptr<CConnection> c;
-
 	CPack() = default;
 	virtual ~CPack() = default;
 
