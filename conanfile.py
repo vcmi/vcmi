@@ -157,9 +157,9 @@ class VCMI(ConanFile):
         # and for mods - webm container / vp8 or vp9 video / opus sound
         # TODO: add av1 support for mods (requires enabling libdav1d which currently fails to build via Conan)
         self.options["ffmpeg"].enable_protocols = "file"
-        self.options["ffmpeg"].enable_demuxers = "bink,binka,ogg,smacker,webm_dash_manifest"
-        self.options["ffmpeg"].enable_parsers = "opus,vorbis,vp8,vp9,webp"
-        self.options["ffmpeg"].enable_decoders = "bink,binkaudio_dct,binkaudio_rdft,smackaud,smacker,theora,vorbis,vp8,vp9,opus"
+        self.options["ffmpeg"].enable_demuxers = "bink,binka,ogg,smacker,webm_dash_manifest,mpeg1video,mp2,mjpeg"
+        self.options["ffmpeg"].enable_parsers = "opus,vorbis,vp8,vp9,webp,mpeg,smjpeg"
+        self.options["ffmpeg"].enable_decoders = "bink,binkaudio_dct,binkaudio_rdft,smackaud,smacker,theora,vorbis,vp8,vp9,opus,mpeg1video,mp2,mjpeg"
 
         #optionally, for testing - enable ffplay/ffprobe binaries in conan package:
         #if self.settings.os == "Windows":
