@@ -14,6 +14,8 @@
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
 
+#include <boost/thread/thread_only.hpp>
+
 namespace NKAI
 {
 

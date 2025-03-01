@@ -23,6 +23,8 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "Pathfinding/AIPathfinder.h"
 
+#include <boost/thread/thread_only.hpp>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct QuestInfo;

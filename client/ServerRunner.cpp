@@ -49,7 +49,7 @@ void ServerThreadRunner::start(bool listenForConnections, bool connectToLobby, s
 
 	std::promise<uint16_t> promise;
 
-	threadRunLocalServer = boost::thread([this, connectToLobby, listenForConnections, &promise]{
+	threadRunLocalServer = std::thread([this, connectToLobby, listenForConnections, &promise]{
 		setThreadName("runServer");
 		uint16_t port = server->prepare(connectToLobby, listenForConnections);
 		promise.set_value(port);

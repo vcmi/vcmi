@@ -143,49 +143,42 @@ void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 
 	auto start = std::chrono::high_resolution_clock::now();
 
-	try
+	if(stack->creatureId() == CreatureID::CATAPULT)
 	{
-		if(stack->creatureId() == CreatureID::CATAPULT)
-		{
-			cb->battleMakeUnitAction(battleID, useCatapult(battleID, stack));
-			return;
-		}
-		if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON) && stack->hasBonusOfType(BonusType::HEALER))
-		{
-			cb->battleMakeUnitAction(battleID, useHealingTent(battleID, stack));
-			return;
-		}
+		cb->battleMakeUnitAction(battleID, useCatapult(battleID, stack));
+		return;
+	}
+	if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON) && stack->hasBonusOfType(BonusType::HEALER))
+	{
+		cb->battleMakeUnitAction(battleID, useHealingTent(battleID, stack));
+		return;
+	}
 
 #if BATTLE_TRACE_LEVEL>=1
-		logAi->trace("Build evaluator and targets");
+	logAi->trace("Build evaluator and targets");
 #endif
 
-		BattleEvaluator evaluator(
-			env, cb, stack, playerID, battleID, side, 
-			getStrengthRatio(cb->getBattle(battleID), side),
-			getSimulationTurnsCount(env->game()->getStartInfo()));
+	BattleEvaluator evaluator(
+		env, cb, stack, playerID, battleID, side,
+		getStrengthRatio(cb->getBattle(battleID), side),
+		getSimulationTurnsCount(env->game()->getStartInfo()));
 
-		result = evaluator.selectStackAction(stack);
+	result = evaluator.selectStackAction(stack);
 
-		if(autobattlePreferences.enableSpellsUsage && evaluator.canCastSpell())
-		{
-			auto spelCasted = evaluator.attemptCastingSpell(stack);
-
-			if(spelCasted)
-				return;
-		}
-
-		logAi->trace("Spellcast attempt completed in %lld", timeElapsed(start));
-
-		if(auto action = considerFleeingOrSurrendering(battleID))
-		{
-			cb->battleMakeUnitAction(battleID, *action);
-			return;
-		}
-	}
-	catch(boost::thread_interrupted &)
+	if(autobattlePreferences.enableSpellsUsage && evaluator.canCastSpell())
 	{
-		throw;
+		auto spelCasted = evaluator.attemptCastingSpell(stack);
+
+		if(spelCasted)
+			return;
+	}
+
+	logAi->trace("Spellcast attempt completed in %lld", timeElapsed(start));
+
+	if(auto action = considerFleeingOrSurrendering(battleID))
+	{
+		cb->battleMakeUnitAction(battleID, *action);
+		return;
 	}
 
 	if(result.actionType == EActionType::DEFEND)

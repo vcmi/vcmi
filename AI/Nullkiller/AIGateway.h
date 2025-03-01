@@ -22,6 +22,8 @@
 #include "Pathfinding/AIPathfinder.h"
 #include "Engine/Nullkiller.h"
 
+#include <boost/thread/thread_only.hpp>
+
 namespace NKAI
 {
 

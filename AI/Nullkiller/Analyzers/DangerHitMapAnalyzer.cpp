@@ -15,6 +15,8 @@
 #include "../../../lib/CRandomGenerator.h"
 #include "../../../lib/logging/VisualLogger.h"
 
+#include <boost/thread/thread_only.hpp>
+
 namespace NKAI
 {
 

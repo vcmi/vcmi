@@ -28,7 +28,7 @@ std::string getThreadName()
 	if (!threadNameForLogging.empty())
 		return threadNameForLogging;
 
-	return boost::lexical_cast<std::string>(boost::this_thread::get_id());
+	return boost::lexical_cast<std::string>(std::this_thread::get_id());
 }
 
 void setThreadNameLoggingOnly(const std::string &name)

@@ -70,6 +70,7 @@ public:
 
 	void waitWhileContains(const T & item)
 	{
+		//FIXME: should throw exception on destruction
 		TLock lock(mx);
 		while(vstd::contains(items, item))
 			cond.wait(lock);
