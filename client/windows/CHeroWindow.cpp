@@ -70,7 +70,7 @@ CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInsta
 }
 
 CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
-	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("HeroScr4"))
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin(ENGINE->isRoeData() ? "HeroScr3" : "HeroScr4"))
 {
 	auto & heroscrn = LIBRARY->generaltexth->heroscrn;
 

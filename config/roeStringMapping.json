@@ -1,6 +1,7 @@
 {
     "newLines":
     {
+        // readToVector
         "DATA/VCDESC.TXT"  : [ 13 ],
         "DATA/LCDESC.TXT"  : [],
         "DATA/TCOMMAND.TXT": [ 35 ],
@@ -24,28 +25,28 @@
         "DATA/MINEEVNT.TXT": [],
         "DATA/XTRAINFO.TXT": [],
 
-        //DATA/CREDITS.TXT
-        //DATA/ARTRAITS.TXT
-        //DATA/ARTEVENT.TXT
-        //DATA/CRTRAITS.TXT
-        //DATA/CREXPMOD.TXT
-        //DATA/CREXPBON.TXT
-        //DATA/CRANIM.TXT
-        //DATA/SSTRAITS.TXT
-        //DATA/TERRNAME.TXT
-        //DATA/BUILDING.TXT
-        //DATA/BLDGNEUT.TXT
-        //DATA/BLDGSPEC.TXT
-        //DATA/DWELLING.TXT
-        //DATA/TOWNTYPE.TXT
-        //DATA/TOWNNAME.TXT
-        //DATA/HCTRAITS.TXT
-        //DATA/HEROSPEC.TXT
-        //DATA/HEROBIOS.TXT
-        //DATA/HOTRAITS.TXT
-        //Data/Objects.txt
-        //Data/ObjNames.txt
-        //DATA/SPTRAITS.TXT
+        //DATA/CREDITS.TXT // ok
+        //DATA/ARTRAITS.TXT // todo
+        //DATA/ARTEVENT.TXT // todo
+        //DATA/CRTRAITS.TXT // todo
+        //DATA/CREXPMOD.TXT // missing
+        //DATA/CREXPBON.TXT // missing
+        //DATA/CRANIM.TXT // ok
+        //DATA/SSTRAITS.TXT // ok
+        //DATA/TERRNAME.TXT // ok
+        //DATA/BUILDING.TXT // ok
+        //DATA/BLDGNEUT.TXT // todo
+        //DATA/BLDGSPEC.TXT // ok
+        //DATA/DWELLING.TXT // ok
+        //DATA/TOWNTYPE.TXT // ok
+        //DATA/TOWNNAME.TXT // ok
+        //DATA/HCTRAITS.TXT // ok
+        //DATA/HEROSPEC.TXT // ok
+        //DATA/HEROBIOS.TXT // ok
+        //DATA/HOTRAITS.TXT // ok
+        //Data/Objects.txt // ok
+        //Data/ObjNames.txt // ok
+        //DATA/SPTRAITS.TXT // todo
 
         "DATA/RANDTVRN.TXT": [], // todo
         "DATA/GENRLTXT.TXT": [], // todo
@@ -55,6 +56,7 @@
     },
     "different":
     {
+        // readToVector
         "DATA/ARRAYTXT.TXT": [ 259, 260, 261, 262, 263, 264, 265, 266, 267, 268 ],
     }
 }

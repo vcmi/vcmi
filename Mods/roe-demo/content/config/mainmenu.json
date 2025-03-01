@@ -6,7 +6,7 @@
 	"loading" :
 	{
 		"background" : ["loadbar"],
-		"x": 395, "y": 548, "size": 18, "amount": 20,
+		"x": 334, "y": 527, "size": 18, "amount": 20,
 		"name": "loadprog"
 	},
 
