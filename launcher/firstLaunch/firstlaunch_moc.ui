@@ -96,7 +96,7 @@
    <item>
     <widget class="QStackedWidget" name="installerTabs">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="pageLanguageSelect">
       <layout class="QGridLayout" name="gridLayout_3">
@@ -119,6 +119,7 @@
         <widget class="QLabel" name="labelLanguageTitle">
          <property name="font">
           <font>
+           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -241,6 +242,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
         <widget class="QLabel" name="labelDataTitle">
          <property name="font">
           <font>
+           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -263,12 +265,12 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
         </spacer>
        </item>
        <item>
-        <layout class="QGridLayout" name="gridLayout" columnstretch="1,2,1">
+        <layout class="QGridLayout" name="gridLayout" columnstretch="1,0,0">
          <property name="spacing">
           <number>6</number>
          </property>
-         <item row="2" column="2">
-          <widget class="QPushButton" name="pushButtonDataCopy">
+         <item row="4" column="2">
+          <widget class="QPushButton" name="pushButtonGogInstall">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>25</horstretch>
@@ -276,25 +278,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Copy existing data</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0" colspan="2">
-          <widget class="QLabel" name="labelDataGogTitle">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>50</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Use offline installer from gog.com</string>
+            <string>Install gog.com files</string>
            </property>
           </widget>
          </item>
@@ -317,47 +301,19 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="2">
-          <widget class="QPushButton" name="pushButtonGogInstall">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>25</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+         <item row="0" column="1" colspan="2">
+          <widget class="QLineEdit" name="lineEditDataUser">
+           <property name="enabled">
+            <bool>true</bool>
            </property>
-           <property name="text">
-            <string>Install gog.com files</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0" colspan="2">
-          <widget class="QLabel" name="labelDataManualTitle">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>50</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="font">
-            <font>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Manual Installation</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="2">
-          <widget class="QPushButton" name="pushButtonDataSearch">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>25</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Search again</string>
+           <property name="readOnly">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -389,19 +345,35 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1" colspan="2">
-          <widget class="QLineEdit" name="lineEditDataUser">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
+         <item row="2" column="2">
+          <widget class="QPushButton" name="pushButtonDataCopy">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>25</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Copy existing data</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0" colspan="2">
+          <widget class="QLabel" name="labelDataManualTitle">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>50</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="readOnly">
-            <bool>true</bool>
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Manual Installation</string>
            </property>
           </widget>
          </item>
@@ -434,61 +406,12 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
            <property name="font">
             <font>
+             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
            <property name="text">
             <string>Heroes III data files</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" colspan="2">
-          <widget class="QLabel" name="labelDataCopyTitle">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>50</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Copy existing files</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1" colspan="2">
-          <widget class="QLineEdit" name="lineEditDataSystem">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>50</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0" colspan="3">
-          <widget class="QLabel" name="labelDataFound">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>100</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Your Heroes III data files have been successfully found.</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -512,6 +435,96 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
            </property>
            <property name="wordWrap">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0" colspan="3">
+          <widget class="QLabel" name="labelDataFound">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>100</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Your Heroes III data files have been successfully found.</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="2">
+          <widget class="QLabel" name="labelDataGogTitle">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>50</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Use offline installer from gog.com</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="2">
+          <widget class="QPushButton" name="pushButtonDataSearch">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>25</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Search again</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" colspan="2">
+          <widget class="QLineEdit" name="lineEditDataSystem">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>50</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="labelDataCopyTitle">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>50</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Copy existing files</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QPushButton" name="pushButtonDemo">
+           <property name="text">
+            <string>PushButton</string>
            </property>
           </widget>
          </item>
@@ -587,6 +600,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <widget class="QLabel" name="labelPresetTitle">
          <property name="font">
           <font>
+           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -636,6 +650,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
            </property>
            <property name="font">
             <font>
+             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -703,6 +718,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
            </property>
            <property name="font">
             <font>
+             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -735,6 +751,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
            </property>
            <property name="font">
             <font>
+             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -802,6 +819,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
            </property>
            <property name="font">
             <font>
+             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>

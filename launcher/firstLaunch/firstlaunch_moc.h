@@ -10,6 +10,8 @@
 #pragma once
 #include "../StdInc.h"
 
+#include "../demo.h"
+
 namespace Ui
 {
 class FirstLaunchView;
@@ -20,6 +22,8 @@ class CModListView;
 class FirstLaunchView : public QWidget
 {
 	Q_OBJECT
+
+	std::unique_ptr<Demo> demo;
 
 	void changeEvent(QEvent *event);
 	CModListView * getModView();
@@ -35,7 +39,7 @@ class FirstLaunchView : public QWidget
 	void languageSelected(const QString & languageCode);
 
 	// Tab Heroes III Data
-	bool heroesDataDetect();
+	bool heroesDataDetect(bool checkDemo);
 
 	void heroesDataMissing();
 	void heroesDataDetected();
@@ -59,7 +63,7 @@ public:
 	explicit FirstLaunchView(QWidget * parent = nullptr);
 
 	// Tab Heroes III Data
-	bool heroesDataUpdate();
+	bool heroesDataUpdate(bool checkDemo);
 
 public slots:
 
@@ -74,6 +78,8 @@ private slots:
 	void on_pushButtonDataBack_clicked();
 
 	void on_pushButtonDataSearch_clicked();
+
+	void on_pushButtonDemo_clicked();
 
 	void on_pushButtonDataCopy_clicked();
 

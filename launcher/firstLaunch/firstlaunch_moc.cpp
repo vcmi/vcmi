@@ -24,6 +24,8 @@
 #include "../languages.h"
 #include "../innoextract.h"
 
+#include "../demo.h"
+
 #ifdef VCMI_IOS
 #include "ios/selectdirectory.h"
 
@@ -112,7 +114,7 @@ void FirstLaunchView::on_pushButtonDataBack_clicked()
 
 void FirstLaunchView::on_pushButtonDataSearch_clicked()
 {
-	heroesDataUpdate();
+	heroesDataUpdate(false);
 }
 
 void FirstLaunchView::on_pushButtonDataCopy_clicked()
@@ -125,6 +127,12 @@ void FirstLaunchView::on_pushButtonDataCopy_clicked()
 	// https://bugreports.qt.io/browse/QTBUG-98651
 	MessageBoxCustom::showDialog(this, [this]{ copyHeroesData(); });
 #endif
+}
+
+void FirstLaunchView::on_pushButtonDemo_clicked()
+{
+	demo = std::make_unique<Demo>([this](){ heroesDataUpdate(true); });
+	demo->download();
 }
 
 void FirstLaunchView::on_pushButtonGogInstall_clicked()
@@ -163,7 +171,7 @@ void FirstLaunchView::activateTabHeroesData()
 	ui->buttonTabHeroesData->setChecked(true);
 	ui->buttonTabModPreset->setChecked(false);
 
-	if(heroesDataUpdate())
+	if(heroesDataUpdate(false))
 	{
 		activateTabModPreset();
 		return;
@@ -205,9 +213,9 @@ void FirstLaunchView::languageSelected(const QString & selectedLanguage)
 		mainWindow->updateTranslation();
 }
 
-bool FirstLaunchView::heroesDataUpdate()
+bool FirstLaunchView::heroesDataUpdate(bool checkDemo)
 {
-	bool detected = heroesDataDetect();
+	bool detected = heroesDataDetect(checkDemo);
 	if(detected)
 		heroesDataDetected();
 	else
@@ -278,7 +286,7 @@ void FirstLaunchView::heroesDataDetected()
 }
 
 // Tab Heroes III Data
-bool FirstLaunchView::heroesDataDetect()
+bool FirstLaunchView::heroesDataDetect(bool checkDemo)
 {
 	// user might have copied files to one of our data path.
 	// perform full reinitialization of virtual filesystem
@@ -290,7 +298,7 @@ bool FirstLaunchView::heroesDataDetect()
 	bool heroesDataFoundROE = CResourceHandler::get()->existsResource(ResourcePath("DATA/GENRLTXT.TXT"));
 	bool heroesDataFoundSOD = CResourceHandler::get()->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
 
-	return heroesDataFoundROE && heroesDataFoundSOD;
+	return heroesDataFoundROE && (heroesDataFoundSOD || checkDemo);
 }
 
 QString FirstLaunchView::getHeroesInstallDir()
@@ -541,7 +549,7 @@ void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 		}
 	}
 
-	heroesDataUpdate();
+	heroesDataUpdate(false);
 }
 
 // Tab Mod Preset
