@@ -1,0 +1,35 @@
+{
+    "newLines":
+    {
+        "DATA/VCDESC.TXT"  : [ 13 ],
+        "DATA/LCDESC.TXT"  : [],
+        "DATA/TCOMMAND.TXT": [ 35 ],
+        "DATA/HALLINFO.TXT": [],
+        "DATA/CASTINFO.TXT": [],
+        "DATA/ADVEVENT.TXT": [ 187, 188, 189, 190 ],
+        "DATA/RESTYPES.TXT": [],
+        "DATA/RANDSIGN.TXT": [],
+        "DATA/OVERVIEW.TXT": [],
+        "DATA/ARRAYTXT.TXT": [ 83, 123, 124, 125, 126, 227, 269 ],
+        "DATA/PRISKILL.TXT": [],
+        "DATA/PLCOLORS.TXT": [],
+        "DATA/JKTEXT.TXT"  : [],
+        "DATA/TVRNINFO.TXT": [],
+        "DATA/TURNDUR.TXT" : [],
+        "DATA/HEROSCRN.TXT": [],
+        "DATA/TENTCOLR.TXT": [ 0, 1, 2, 3, 4, 5, 6, 7 ], // not exists
+        "DATA/SKILLLEV.TXT": [],
+        "DATA/CMPMUSIC.TXT": [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48],  // not exists
+        "DATA/MINENAME.TXT": [],
+        "DATA/MINEEVNT.TXT": [],
+        "DATA/XTRAINFO.TXT": [],
+        "DATA/GENRLTXT.TXT": [], // todo
+        "DATA/HELP.TXT"    : [], // todo
+        "DATA/SEERHUT.TXT" : [], // todo
+        "DATA/CAMPTEXT.TXT": []  // not exists
+    },
+    "different":
+    {
+        "DATA/ARRAYTXT.TXT": [ 259, 260, 261, 262, 263, 264, 265, 266, 267, 268 ],
+    }
+}

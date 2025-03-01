@@ -317,6 +317,11 @@ int main(int argc, char * argv[])
 	if(mode == GameEngine::GameDataMode::ROE)
 		handleFatalError("Heroes III: Restoration of Erathia (including HD Edition) data files are not supported!", false);
 
+	if(mode == GameEngine::GameDataMode::DEMO_ROE || GameEngine::GameDataMode::DEMO_SOD)
+		logGlobal->info("Game started with demo data");
+	if(mode == GameEngine::GameDataMode::ROE || GameEngine::GameDataMode::DEMO_ROE)
+		logGlobal->info("Game started with RoE data");
+
 	ENGINE = std::make_unique<GameEngine>(mode);
 
 	if(!settings["session"]["headless"].Bool())
