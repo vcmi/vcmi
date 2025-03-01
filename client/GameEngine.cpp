@@ -125,10 +125,11 @@ void GameEngine::renderFrame()
 	framerate().framerateDelay(); // holds a constant FPS
 }
 
-GameEngine::GameEngine()
+GameEngine::GameEngine(GameDataMode gameDataMode)
 	: captureChildren(false)
 	, curInt(nullptr)
 	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
+	, gameDataMode(gameDataMode)
 {
 }
 
@@ -180,6 +181,11 @@ const Point & GameEngine::getCursorPosition() const
 Point GameEngine::screenDimensions() const
 {
 	return screenHandlerInstance->getLogicalResolution();
+}
+
+GameEngine::GameDataMode GameEngine::getGameDataMode() const
+{
+	return gameDataMode;
 }
 
 void GameEngine::drawFPSCounter()

@@ -296,14 +296,24 @@ int main(int argc, char * argv[])
 	};
 
 	testFile("DATA/HELP.TXT", "VCMI requires Heroes III: Shadow of Death or Heroes III: Complete data files to run!");
-	testFile("DATA/TENTCOLR.TXT", "Heroes III: Restoration of Erathia (including HD Edition) data files are not supported!");
 	testFile("MODS/VCMI/MOD.JSON", "VCMI installation is corrupted! Built-in mod was not found!");
 	testFile("DATA/PLAYERS.PAL", "Heroes III data files (Data/H3Bitmap.lod) are incomplete or corruped! Please reinstall them.");
 	testFile("SPRITES/DEFAULT.DEF", "Heroes III data files (Data/H3Sprite.lod) are incomplete or corruped! Please reinstall them.");
 
 	srand ( (unsigned int)time(nullptr) );
 
-	ENGINE = std::make_unique<GameEngine>();
+	GameEngine::GameDataMode mode = GameEngine::GameDataMode::SOD;
+	if(!CResourceHandler::get()->existsResource(ResourcePath("DATA/TENTCOLR.TXT")))
+	{
+		if(CResourceHandler::get()->existsResource(ResourcePath("MAPS/H3DEMO.H3M")))
+			mode = GameEngine::GameDataMode::DEMO_ROE;
+		else
+			mode = GameEngine::GameDataMode::ROE;
+	}
+	else if(CResourceHandler::get()->existsResource(ResourcePath("MAPS/H3DEMO.H3M")))
+		mode = GameEngine::GameDataMode::DEMO_SOD;
+
+	ENGINE = std::make_unique<GameEngine>(mode);
 
 	if(!settings["session"]["headless"].Bool())
 		ENGINE->init();
