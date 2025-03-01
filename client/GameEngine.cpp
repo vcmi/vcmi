@@ -188,6 +188,16 @@ GameEngine::GameDataMode GameEngine::getGameDataMode() const
 	return gameDataMode;
 }
 
+bool GameEngine::isRoeData() const
+{
+	return gameDataMode == GameEngine::GameDataMode::ROE || gameDataMode == GameEngine::GameDataMode::DEMO_ROE;
+}
+
+bool GameEngine::isDemoData() const
+{
+	return gameDataMode == GameEngine::GameDataMode::SOD || gameDataMode == GameEngine::GameDataMode::DEMO_SOD;
+}
+
 void GameEngine::drawFPSCounter()
 {
 	Canvas target = screenHandler().getScreenCanvas();

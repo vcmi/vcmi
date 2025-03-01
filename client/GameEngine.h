@@ -98,6 +98,8 @@ public:
 
 	/// returns game data
 	GameDataMode getGameDataMode() const;
+	bool isRoeData() const;
+	bool isDemoData() const;
 
 	IScreenHandler & screenHandler();
 	IRenderHandler & renderHandler();

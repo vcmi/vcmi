@@ -1029,7 +1029,7 @@ SelectionTab::ListItem::ListItem(Point position)
 	labelMapSizeLetter->setAutoRedraw(false);
 	// FIXME: This -12 should not be needed, but for some reason CAnimImage displaced otherwise
 	iconFolder = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconFolder.png"), -8, -12);
-	if(ENGINE->getGameDataMode() != GameEngine::GameDataMode::ROE && ENGINE->getGameDataMode() != GameEngine::GameDataMode::DEMO_ROE)
+	if(!ENGINE->isRoeData())
 		iconFormat = std::make_shared<CAnimImage>(AnimationPath::builtin("SCSELC.DEF"), 0, 0, 59, -12);
 	iconVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT.DEF"), 0, 0, 277, -12);
 	iconLossCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRLOSS.DEF"), 0, 0, 310, -12);
