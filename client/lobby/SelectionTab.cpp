@@ -180,11 +180,16 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		for(int i = 0; i < 5; i++)
 			buttonsSortBy.push_back(std::make_shared<CButton>(Point(158 + 47 * i - (ENGINE->isRoeData() ? 36 : 0), 46), AnimationPath::builtin(filterIconNmes[i]), LIBRARY->generaltexth->zelp[54 + i], std::bind(&SelectionTab::filter, this, sizes[i], true), filterShortcuts[i]));
 
-		constexpr std::array xpos = {23, 55, 88, 121, 306, 339};
+		std::array xpos = {23, 55, 88, 121, 306, 339};
+		if(ENGINE->isRoeData())
+			xpos = {20, 52, 0, 85, 270, 303};
 		constexpr std::array sortIconNames = {"SCBUTT1.DEF", "SCBUTT2.DEF", "SCBUTCP.DEF", "SCBUTT3.DEF", "SCBUTT4.DEF", "SCBUTT5.DEF"};
 		constexpr std::array sortShortcuts = { EShortcut::MAPS_SORT_PLAYERS, EShortcut::MAPS_SORT_SIZE, EShortcut::MAPS_SORT_FORMAT, EShortcut::MAPS_SORT_NAME, EShortcut::MAPS_SORT_VICTORY, EShortcut::MAPS_SORT_DEFEAT };
 		for(int i = 0; i < 6; i++)
 		{
+			if(ENGINE->isRoeData() && i == 2)
+				continue;
+
 			ESortBy criteria = (ESortBy)i;
 			if(criteria == _name)
 				criteria = generalSortingBy;
@@ -228,7 +233,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 	if(enableUiEnhancements)
 	{
-		auto sortByDate = std::make_shared<CButton>(Point(371, 85), AnimationPath::builtin("selectionTabSortDate"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate), EShortcut::MAPS_SORT_CHANGEDATE);
+		auto sortByDate = std::make_shared<CButton>(Point(371 - (ENGINE->isRoeData() ? 36 : 0), 85), AnimationPath::builtin("selectionTabSortDate"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate), EShortcut::MAPS_SORT_CHANGEDATE);
 		sortByDate->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/selectionTabSortDate")));
 		buttonsSortBy.push_back(sortByDate);
 
@@ -1016,23 +1021,25 @@ std::unordered_set<ResourcePath> SelectionTab::getFiles(std::string dirURI, ERes
 
 SelectionTab::ListItem::ListItem(Point position)
 	: CIntObject(LCLICK, position)
-{
+{	/*std::array xpos = {23, 55, 88, 121, 306, 339};
+		if(ENGINE->isRoeData())
+			xpos = {20, 52, 0, 85, 270, 303};*/
 	OBJECT_CONSTRUCTION;
 	pictureEmptyLine = std::make_shared<CPicture>(ImagePath::builtin("camcust"), Rect(25, 121, 349, 26), -8, -14);
-	labelName = std::make_shared<CLabel>(LABEL_POS_X, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "", 185);
+	labelName = std::make_shared<CLabel>(LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "", 185);
 	labelName->setAutoRedraw(false);
-	labelAmountOfPlayers = std::make_shared<CLabel>(8, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	labelAmountOfPlayers = std::make_shared<CLabel>(8 - (ENGINE->isRoeData() ? 3 : 0), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelAmountOfPlayers->setAutoRedraw(false);
-	labelNumberOfCampaignMaps = std::make_shared<CLabel>(8, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	labelNumberOfCampaignMaps = std::make_shared<CLabel>(8 - (ENGINE->isRoeData() ? 3 : 0), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelNumberOfCampaignMaps->setAutoRedraw(false);
-	labelMapSizeLetter = std::make_shared<CLabel>(41, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	labelMapSizeLetter = std::make_shared<CLabel>(41 - (ENGINE->isRoeData() ? 3 : 0), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelMapSizeLetter->setAutoRedraw(false);
 	// FIXME: This -12 should not be needed, but for some reason CAnimImage displaced otherwise
 	iconFolder = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconFolder.png"), -8, -12);
 	if(!ENGINE->isRoeData())
 		iconFormat = std::make_shared<CAnimImage>(AnimationPath::builtin("SCSELC.DEF"), 0, 0, 59, -12);
-	iconVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT.DEF"), 0, 0, 277, -12);
-	iconLossCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRLOSS.DEF"), 0, 0, 310, -12);
+	iconVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT.DEF"), 0, 0, 277 - (ENGINE->isRoeData() ? 36 : 0), -12);
+	iconLossCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRLOSS.DEF"), 0, 0, 310 - (ENGINE->isRoeData() ? 36 : 0), -12);
 }
 
 void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool selected)
@@ -1069,12 +1076,12 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		if(info->isAutoSaveFolder) // align autosave folder left (starting timestamps in list should be in one line)
 		{
 			labelName->alignment = ETextAlignment::CENTERLEFT;
-			labelName->moveTo(Point(pos.x + 80, labelName->pos.y));
+			labelName->moveTo(Point(pos.x + 80 - (ENGINE->isRoeData() ? 36 : 0), labelName->pos.y));
 		}
 		else
 		{
 			labelName->alignment = ETextAlignment::CENTER;
-			labelName->moveTo(Point(pos.x + LABEL_POS_X, labelName->pos.y));
+			labelName->moveTo(Point(pos.x + LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), labelName->pos.y));
 		}
 		labelName->setText(info->folderName);
 		labelName->setColor(color);
@@ -1099,7 +1106,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelNumberOfCampaignMaps->setColor(color);
 		labelName->setMaxWidth(316);
 		labelName->alignment = ETextAlignment::CENTER;
-		labelName->moveTo(Point(pos.x + LABEL_POS_X, labelName->pos.y));
+		labelName->moveTo(Point(pos.x + LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), labelName->pos.y));
 	}
 	else
 	{
@@ -1125,7 +1132,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		iconLossCondition->setFrame(info->mapHeader->defeatIconIndex, 0);
 		labelName->setMaxWidth(185);
 		labelName->alignment = ETextAlignment::CENTER;
-		labelName->moveTo(Point(pos.x + LABEL_POS_X, labelName->pos.y));
+		labelName->moveTo(Point(pos.x + LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), labelName->pos.y));
 	}
 	labelName->setText(info->name);
 	labelName->setColor(color);
