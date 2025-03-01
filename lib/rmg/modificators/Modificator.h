@@ -62,9 +62,9 @@ protected:
 
 	bool finished = false;
 	
-	mutable boost::recursive_mutex externalAccessMutex; //Used to communicate between Modificators
-	using RecursiveLock = boost::unique_lock<boost::recursive_mutex>;
-	using Lock = boost::unique_lock<boost::shared_mutex>;
+	mutable std::recursive_mutex externalAccessMutex; //Used to communicate between Modificators
+	using RecursiveLock = std::unique_lock<std::recursive_mutex>;
+	using Lock = std::unique_lock<std::shared_mutex>;
 
 private:
 	virtual void process() = 0;
@@ -73,7 +73,7 @@ private:
 
 	std::list<Modificator*> preceeders; //must be ordered container
 
-	mutable boost::shared_mutex mx; //Used only for task scheduling
+	mutable std::shared_mutex mx; //Used only for task scheduling
 
 	void dump();
 };

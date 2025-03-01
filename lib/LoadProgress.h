@@ -88,7 +88,7 @@ public:
 	Type get() const;
 	
 private:
-	mutable boost::mutex _mx;
+	mutable std::mutex _mx;
 	long long _accumulated = 0;
 	long long _steps = 0;
 	std::vector<std::reference_wrapper<const Progress>> _progress;

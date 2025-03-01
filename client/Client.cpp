@@ -353,7 +353,7 @@ void CClient::handlePack(CPackForClient & pack)
 	pack.visit(beforeVisitor);
 	logNetwork->trace("\tMade first apply on cl: %s", typeid(pack).name());
 	{
-		boost::unique_lock lock(CGameState::mutex);
+		std::unique_lock lock(CGameState::mutex);
 		gs->apply(pack);
 	}
 	logNetwork->trace("\tApplied on gs: %s", typeid(pack).name());
@@ -529,7 +529,7 @@ void CClient::removeGUI() const
 #ifdef VCMI_ANDROID
 extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jclass cls)
 {
-	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	logGlobal->info("Received emergency save game request");
 	if(!GAME->interface() || !GAME->interface()->cb)

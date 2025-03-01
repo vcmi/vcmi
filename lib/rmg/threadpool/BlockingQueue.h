@@ -19,8 +19,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 template <typename T>
 class DLL_LINKAGE BlockingQueue : protected std::queue<T>
 {
-	using WriteLock = boost::unique_lock<boost::shared_mutex>;
-	using Readlock = boost::shared_lock<boost::shared_mutex>;
+	using WriteLock = std::unique_lock<std::shared_mutex>;
+	using Readlock = std::shared_lock<std::shared_mutex>;
 
 public:
 	BlockingQueue() = default;
@@ -85,7 +85,7 @@ public:
 	}
 
 private:
-	mutable boost::shared_mutex mx;
+	mutable std::shared_mutex mx;
 };
 
 VCMI_LIB_NAMESPACE_END

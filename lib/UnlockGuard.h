@@ -45,7 +45,7 @@ namespace vstd
 	}
 
 
-	//similar to boost::lock_guard but UNlocks for the scope + assertions
+	//similar to std::lock_guard but UNlocks for the scope + assertions
 	template<typename Mutex, typename LockingPolicy = detail::unlock_policy<Mutex> >
 	class unlock_guard : LockingPolicy
 	{
@@ -114,7 +114,7 @@ namespace vstd
 			: unlock_guard<Mutex, detail::unlock_shared_policy<Mutex> >();
 	}
 
-	using unlock_shared_guard = unlock_guard<boost::shared_mutex, detail::unlock_shared_policy<boost::shared_mutex>>;
+	using unlock_shared_guard = unlock_guard<std::shared_mutex, detail::unlock_shared_policy<std::shared_mutex>>;
 }
 
 VCMI_LIB_NAMESPACE_END

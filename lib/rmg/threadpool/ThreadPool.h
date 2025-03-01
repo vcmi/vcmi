@@ -24,10 +24,10 @@ typedef std::optional<TRMGfunction> TRMGJob;
 class DLL_LINKAGE ThreadPool
 {
 private:
-	using Lock = boost::unique_lock<boost::shared_mutex>;
-	mutable boost::shared_mutex mx;
-	mutable boost::condition_variable_any cv;
-	mutable boost::once_flag once;
+	using Lock = std::unique_lock<std::shared_mutex>;
+	mutable std::shared_mutex mx;
+	mutable std::condition_variable_any cv;
+	mutable std::once_flag once;
 
 	bool isInitialized = false;
 	bool stopping = false;
@@ -56,8 +56,7 @@ private:
 	mutable BlockingQueue<TRMGfunction> tasks;
 };
 
-ThreadPool::ThreadPool() :
-	once(BOOST_ONCE_INIT)
+ThreadPool::ThreadPool()
 {};
 
 ThreadPool::~ThreadPool()
@@ -67,7 +66,7 @@ ThreadPool::~ThreadPool()
 
 inline void ThreadPool::init(size_t numThreads)
 {
-	boost::call_once(once, [this, numThreads]()
+	std::call_once(once, [this, numThreads]()
 	{
 		Lock lock(mx);
 		stopping = false;
