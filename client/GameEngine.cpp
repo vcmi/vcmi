@@ -195,7 +195,7 @@ bool GameEngine::isRoeData() const
 
 bool GameEngine::isDemoData() const
 {
-	return gameDataMode == GameEngine::GameDataMode::SOD || gameDataMode == GameEngine::GameDataMode::DEMO_SOD;
+	return gameDataMode == GameEngine::GameDataMode::DEMO_ROE || gameDataMode == GameEngine::GameDataMode::DEMO_SOD;
 }
 
 void GameEngine::drawFPSCounter()

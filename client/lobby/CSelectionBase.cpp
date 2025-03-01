@@ -145,7 +145,8 @@ InfoCard::InfoCard()
 	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, "", SEL->screenType == ESelectionScreen::campaignList ? 325 : 285);
 	Rect descriptionRect(26, 149, 320, 115);
 	mapDescription = std::make_shared<CTextBox>("", descriptionRect, 1);
-	playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
+	if(!ENGINE->isRoeData())
+		playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
 	chat = std::make_shared<CChatBox>(Rect(18, 126, 335, 143));
 	pvpBox = std::make_shared<PvPBox>(Rect(17, 396, 338, 105));
 
@@ -315,7 +316,8 @@ void InfoCard::setChat(bool activateChat)
 			mapDescription->disable();
 			chat->enable();
 			pvpBox->enable();
-			playerListBg->enable();
+			if(playerListBg)
+				playerListBg->enable();
 		}
 		if (GAME->server().inLobbyRoom())
 		{
@@ -330,7 +332,8 @@ void InfoCard::setChat(bool activateChat)
 		mapDescription->enable();
 		chat->disable();
 		pvpBox->disable();
-		playerListBg->disable();
+		if(playerListBg)
+			playerListBg->disable();
 
 		if(SEL->screenType == ESelectionScreen::campaignList)
 		{

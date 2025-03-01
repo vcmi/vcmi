@@ -76,7 +76,8 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 	case ESelectionScreen::newGame:
 	{
 		tabOpt = std::make_shared<OptionsTab>();
-		tabTurnOptions = std::make_shared<TurnOptionsTab>();
+		if(!ENGINE->isRoeData())
+			tabTurnOptions = std::make_shared<TurnOptionsTab>();
 		tabExtraOptions = std::make_shared<ExtraOptionsTab>();
 		tabRand = std::make_shared<RandomMapTab>();
 		tabRand->mapInfoChanged += std::bind(&IServerAPI::setMapInfo, &GAME->server(), _1, _2);
@@ -100,7 +101,8 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 	case ESelectionScreen::loadGame:
 	{
 		tabOpt = std::make_shared<OptionsTab>();
-		tabTurnOptions = std::make_shared<TurnOptionsTab>();
+		if(!ENGINE->isRoeData())
+			tabTurnOptions = std::make_shared<TurnOptionsTab>();
 		tabExtraOptions = std::make_shared<ExtraOptionsTab>();
 		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRLOD.DEF"), LIBRARY->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, false), EShortcut::LOBBY_LOAD_GAME);
 		initLobby();

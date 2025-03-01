@@ -239,7 +239,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::newGame)
 		{
-			buttonDeleteMode = std::make_shared<CButton>(Point(367, 18), AnimationPath::builtin("lobby/deleteButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.deleteMode")), [this, tabTitle, tabTitleDelete](){
+			buttonDeleteMode = std::make_shared<CButton>(Point(367 - (ENGINE->isRoeData() ? 36 : 0), 18), AnimationPath::builtin("lobby/deleteButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.deleteMode")), [this, tabTitle, tabTitleDelete](){
 				deleteMode = !deleteMode;
 				if(deleteMode)
 					labelTabTitle->setText(tabTitleDelete);
@@ -1021,11 +1021,10 @@ std::unordered_set<ResourcePath> SelectionTab::getFiles(std::string dirURI, ERes
 
 SelectionTab::ListItem::ListItem(Point position)
 	: CIntObject(LCLICK, position)
-{	/*std::array xpos = {23, 55, 88, 121, 306, 339};
-		if(ENGINE->isRoeData())
-			xpos = {20, 52, 0, 85, 270, 303};*/
+{
 	OBJECT_CONSTRUCTION;
-	pictureEmptyLine = std::make_shared<CPicture>(ImagePath::builtin("camcust"), Rect(25, 121, 349, 26), -8, -14);
+	if(!ENGINE->isDemoData())
+		pictureEmptyLine = std::make_shared<CPicture>(ImagePath::builtin("camcust"), Rect(25, 121, 349, 26), -8, -14);
 	labelName = std::make_shared<CLabel>(LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "", 185);
 	labelName->setAutoRedraw(false);
 	labelAmountOfPlayers = std::make_shared<CLabel>(8 - (ENGINE->isRoeData() ? 3 : 0), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
@@ -1049,7 +1048,8 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
 		iconFolder->disable();
-		pictureEmptyLine->disable();
+		if(pictureEmptyLine)
+			pictureEmptyLine->disable();
 		if(iconFormat)
 			iconFormat->disable();
 		iconVictoryCondition->disable();
@@ -1065,7 +1065,8 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
 		iconFolder->enable();
-		pictureEmptyLine->enable();
+		if(pictureEmptyLine)
+			pictureEmptyLine->enable();
 		if(iconFormat)
 			iconFormat->disable();
 		iconVictoryCondition->disable();
@@ -1076,12 +1077,12 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		if(info->isAutoSaveFolder) // align autosave folder left (starting timestamps in list should be in one line)
 		{
 			labelName->alignment = ETextAlignment::CENTERLEFT;
-			labelName->moveTo(Point(pos.x + 80 - (ENGINE->isRoeData() ? 36 : 0), labelName->pos.y));
+			labelName->moveTo(Point(pos.x + 80 - (ENGINE->isRoeData() ? 22 : 0), labelName->pos.y));
 		}
 		else
 		{
 			labelName->alignment = ETextAlignment::CENTER;
-			labelName->moveTo(Point(pos.x + LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), labelName->pos.y));
+			labelName->moveTo(Point(pos.x + LABEL_POS_X - (ENGINE->isRoeData() ? 22 : 0), labelName->pos.y));
 		}
 		labelName->setText(info->folderName);
 		labelName->setColor(color);
@@ -1094,7 +1095,8 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
 		iconFolder->disable();
-		pictureEmptyLine->disable();
+		if(pictureEmptyLine)
+			pictureEmptyLine->disable();
 		if(iconFormat)
 			iconFormat->disable();
 		iconVictoryCondition->disable();
@@ -1120,7 +1122,8 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelMapSizeLetter->setText(info->getMapSizeName());
 		labelMapSizeLetter->setColor(color);
 		iconFolder->disable();
-		pictureEmptyLine->disable();
+		if(pictureEmptyLine)
+			pictureEmptyLine->disable();
 		if(iconFormat)
 		{
 			iconFormat->enable();
