@@ -23,6 +23,31 @@
         "DATA/MINENAME.TXT": [],
         "DATA/MINEEVNT.TXT": [],
         "DATA/XTRAINFO.TXT": [],
+
+        //DATA/CREDITS.TXT
+        //DATA/ARTRAITS.TXT
+        //DATA/ARTEVENT.TXT
+        //DATA/CRTRAITS.TXT
+        //DATA/CREXPMOD.TXT
+        //DATA/CREXPBON.TXT
+        //DATA/CRANIM.TXT
+        //DATA/SSTRAITS.TXT
+        //DATA/TERRNAME.TXT
+        //DATA/BUILDING.TXT
+        //DATA/BLDGNEUT.TXT
+        //DATA/BLDGSPEC.TXT
+        //DATA/DWELLING.TXT
+        //DATA/TOWNTYPE.TXT
+        //DATA/TOWNNAME.TXT
+        //DATA/HCTRAITS.TXT
+        //DATA/HEROSPEC.TXT
+        //DATA/HEROBIOS.TXT
+        //DATA/HOTRAITS.TXT
+        //Data/Objects.txt
+        //Data/ObjNames.txt
+        //DATA/SPTRAITS.TXT
+
+        "DATA/RANDTVRN.TXT": [], // todo
         "DATA/GENRLTXT.TXT": [], // todo
         "DATA/HELP.TXT"    : [], // todo
         "DATA/SEERHUT.TXT" : [], // todo

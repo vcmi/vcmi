@@ -10,6 +10,7 @@
 #pragma once
 
 #include "TextLocalizationContainer.h"
+#include "../json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -44,6 +45,8 @@ class DLL_LINKAGE CGeneralTextHandler: public TextLocalizationContainer
 
 	/// number of scenarios in specific campaign. TODO: move to a better location
 	std::vector<size_t> scenariosCountPerCampaign;
+
+	JsonNode roeMapping;
 
 public:
 	LegacyTextContainer allTexts;
