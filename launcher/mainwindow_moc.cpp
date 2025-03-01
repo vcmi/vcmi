@@ -135,7 +135,7 @@ void MainWindow::detectPreferredLanguage()
 		logGlobal->info("Preferred language: %s", userLang.toStdString());
 
 		for (auto const & vcmiLang : Languages::getLanguageList())
-			if (vcmiLang.tagIETF == userLang.toStdString())
+			if (vcmiLang.tagIETF == userLang.toStdString() && vcmiLang.selectable)
 				selectedLanguage = vcmiLang.identifier;
 
 		if (!selectedLanguage.empty())
