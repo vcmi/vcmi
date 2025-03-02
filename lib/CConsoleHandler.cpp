@@ -317,7 +317,7 @@ void CConsoleHandler::end()
 
 void CConsoleHandler::start()
 {
-	thread = std::thread(std::bind(&CConsoleHandler::run,console));
+	thread = std::thread(std::bind(&CConsoleHandler::run, this));
 }
 
 VCMI_LIB_NAMESPACE_END
