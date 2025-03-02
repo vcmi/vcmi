@@ -19,8 +19,7 @@ class ShortcutHandler;
 class FramerateManager;
 class IStatusBar;
 class CIntObject;
-class IUpdateable;
-class IShowActivatable;
+class IGameEngineUser;
 class IRenderHandler;
 class IScreenHandler;
 class WindowHandler;
@@ -54,6 +53,8 @@ private:
 	std::unique_ptr<CursorHandler> cursorHandlerInstance;
 	std::unique_ptr<IVideoPlayer> videoPlayerInstance;
 
+	IGameEngineUser *engineUser = nullptr;
+
 public:
 	std::mutex interfaceMutex;
 
@@ -65,6 +66,7 @@ public:
 	EventDispatcher & events();
 	InputHandler & input();
 
+	IGameEngineUser & user() { return *engineUser; }
 	ISoundPlayer & sound() { return *soundPlayerInstance; }
 	IMusicPlayer & music() { return *musicPlayerInstance; }
 	CursorHandler & cursor() { return *cursorHandlerInstance; }
@@ -96,8 +98,7 @@ public:
 
 	/// Set currently active status bar
 	void setStatusbar(std::shared_ptr<IStatusBar>);
-
-	IUpdateable *curInt;
+	void setEngineUser(IGameEngineUser * user);
 
 	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
 	std::list<CIntObject *> createdObj; //stack of objs being created

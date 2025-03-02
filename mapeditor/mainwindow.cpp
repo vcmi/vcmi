@@ -23,6 +23,7 @@
 #include "../lib/GameLibrary.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/CConsoleHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CMemoryBuffer.h"
 #include "../lib/GameConstants.h"
@@ -50,8 +51,6 @@
 #include "mapsettings/translations.h"
 #include "playersettings.h"
 #include "validator.h"
-
-static CBasicLogConfigurator * logConfig;
 
 QJsonValue jsonFromPixmap(const QPixmap &p)
 {
@@ -184,14 +183,14 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	//configure logging
 	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Editor_log.txt";
-	console = new CConsoleHandler();
-	logConfig = new CBasicLogConfigurator(logPath, console);
+	console = std::make_unique<CConsoleHandler>();
+	logConfig = std::make_unique<CBasicLogConfigurator>(logPath, console.get());
 	logConfig->configureDefault();
 	logGlobal->info("Starting map editor of '%s'", GameConstants::VCMI_VERSION);
 	logGlobal->info("The log file will be saved to %s", logPath);
 
 	//init
-	preinitDLL(::console, extractionOptions.extractArchives);
+	preinitDLL(extractionOptions.extractArchives);
 
 	// Initialize logging based on settings
 	logConfig->configure();

@@ -57,7 +57,7 @@ namespace boost
 }
 
 /// Central class for managing user interface logic
-class CPlayerInterface : public CGameInterface, public IUpdateable
+class CPlayerInterface : public CGameInterface
 {
 	bool ignoreEvents;
 	int autosaveCount;
@@ -90,7 +90,6 @@ public: // TODO: make private
 
 protected: // Call-ins from server, should not be called directly, but only via GameInterface
 
-	void update() override;
 	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
 
 	void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2) override;
@@ -173,6 +172,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 public: // public interface for use by client via GAME->interface() access
 
 	// part of GameInterface that is also used by client code
+	void update();
 	void showPuzzleMap() override;
 	void viewWorldMap() override;
 	void showQuestLog() override;
