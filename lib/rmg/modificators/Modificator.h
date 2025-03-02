@@ -13,7 +13,7 @@
 #include "../../GameConstants.h"
 #include "../../int3.h"
 #include "../Zone.h"
-#include "../threadpool/MapProxy.h"
+#include "../MapProxy.h"
 
 class RmgMap;
 class CMapGenerator;

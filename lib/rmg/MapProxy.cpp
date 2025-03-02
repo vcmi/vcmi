@@ -9,8 +9,8 @@
  */
 
 #include "MapProxy.h"
-#include "../../TerrainHandler.h"
-#include "../../GameLibrary.h"
+#include "../TerrainHandler.h"
+#include "../GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

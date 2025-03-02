@@ -15,7 +15,7 @@
 #include "RockFiller.h"
 #include "../Functions.h"
 #include "../CMapGenerator.h"
-#include "../threadpool/MapProxy.h"
+#include "../MapProxy.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../../mapObjects/CGObjectInstance.h"
 #include "../../modding/IdentifierStorage.h"

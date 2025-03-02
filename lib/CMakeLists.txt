@@ -217,7 +217,7 @@ set(lib_MAIN_SRCS
 	rmg/modificators/ObstaclePlacer.cpp
 	rmg/modificators/RiverPlacer.cpp
 	rmg/modificators/TerrainPainter.cpp
-	rmg/threadpool/MapProxy.cpp
+	rmg/MapProxy.cpp
 
 	serializer/BinaryDeserializer.cpp
 	serializer/BinarySerializer.cpp
@@ -633,9 +633,7 @@ set(lib_MAIN_HEADERS
 	rmg/modificators/ObstaclePlacer.h
 	rmg/modificators/RiverPlacer.h
 	rmg/modificators/TerrainPainter.h
-	rmg/threadpool/BlockingQueue.h
-	rmg/threadpool/ThreadPool.h
-	rmg/threadpool/MapProxy.h
+	rmg/MapProxy.h
 
 	serializer/BinaryDeserializer.h
 	serializer/BinarySerializer.h
