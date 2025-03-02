@@ -1,5 +1,13 @@
 # VCMI Project Changelog
 
+## 1.6.7 -> 1.7.0
+
+* Added support for configuring icons for bonus icons in creature window per bonus subtype or per bonus value
+* Heroes that are marked as unavailable for specific player will now be correctly blocked from use as starting heroes
+* Added support for loading h3m maps from HotA 1.7 (also needs support from HotA mod)
+* Added BASE_TILE_MOVEMENT_COST bonus that allows configuring minimal cost for moving between tiles for heroes
+* Commanders will now automatically gain no melee penalty bonus on receiving ranged attack
+
 ## 1.6.6 -> 1.6.7
 
 ### Stability

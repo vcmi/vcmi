@@ -33,7 +33,7 @@
 #include "renderSDL/ScreenHandler.h"
 #include "renderSDL/RenderHandler.h"
 #include "CMT.h"
-#include "GameInstance.h"
+#include "GameEngineUser.h"
 #include "battle/BattleInterface.h"
 
 #include "../lib/CThreadHelper.h"
@@ -91,7 +91,7 @@ void GameEngine::handleEvents()
 	events().dispatchTimer(framerate().getElapsedMilliseconds());
 
 	//player interface may want special event handling
-	if(GAME->interface() && GAME->interface()->capturedAllEvents())
+	if(engineUser->capturedAllEvents())
 		return;
 
 	input().processEvents();
@@ -107,10 +107,12 @@ void GameEngine::fakeMouseMove()
 void GameEngine::renderFrame()
 {
 	{
-		boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
-		if (nullptr != curInt)
-			curInt->update();
+		engineUser->onUpdate();
+
+		handleEvents();
+		windows().simpleRedraw();
 
 		if (settings["video"]["showfps"].Bool())
 			drawFPSCounter();
@@ -127,7 +129,6 @@ void GameEngine::renderFrame()
 
 GameEngine::GameEngine(GameDataMode gameDataMode)
 	: captureChildren(false)
-	, curInt(nullptr)
 	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
 	, gameDataMode(gameDataMode)
 {
@@ -266,4 +267,9 @@ void GameEngine::onScreenResize(bool resolutionChanged)
 
 	windows().onScreenResize();
 	ENGINE->cursor().onScreenResize();
+}
+
+void GameEngine::setEngineUser(IGameEngineUser * user)
+{
+	engineUser = user;
 }

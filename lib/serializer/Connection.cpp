@@ -70,7 +70,7 @@ CConnection::~CConnection() = default;
 
 void CConnection::sendPack(const CPack & pack)
 {
-	boost::mutex::scoped_lock lock(writeMutex);
+	std::scoped_lock lock(writeMutex);
 
 	auto connectionPtr = networkConnection.lock();
 

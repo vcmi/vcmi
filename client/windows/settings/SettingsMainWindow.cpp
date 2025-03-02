@@ -147,7 +147,7 @@ void SettingsMainWindow::mainMenuButtonCallback()
 		{
 			close();
 			GAME->server().endGameplay();
-			CMM->menu->switchToTab("main");
+			GAME->mainmenu()->menu->switchToTab("main");
 		},
 		0
 	);

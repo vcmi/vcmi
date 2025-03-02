@@ -10,8 +10,13 @@
 #include "StdInc.h"
 #include "GameInstance.h"
 
+#include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "mapView/mapHandler.h"
+#include "globalLobby/GlobalLobbyClient.h"
+#include "mainmenu/CMainMenu.h"
+
+#include "../lib/CConfigHandler.h"
 
 std::unique_ptr<GameInstance> GAME = nullptr;
 
@@ -39,6 +44,17 @@ CMapHandler & GameInstance::map()
 	return *mapInstance;
 }
 
+std::shared_ptr<CMainMenu> GameInstance::mainmenu()
+{
+	if(settings["session"]["headless"].Bool())
+		return nullptr;
+
+	if (!mainMenuInstance)
+		mainMenuInstance = std::make_shared<CMainMenu>();
+
+	return mainMenuInstance;
+}
+
 CPlayerInterface * GameInstance::interface()
 {
 	return interfaceInstance;
@@ -56,5 +72,24 @@ void GameInstance::setMapInstance(std::unique_ptr<CMapHandler> ptr)
 
 void GameInstance::setInterfaceInstance(CPlayerInterface * ptr)
 {
-	interfaceInstance = std::move(ptr);
+	interfaceInstance = ptr;
+}
+
+void GameInstance::onGlobalLobbyInterfaceActivated()
+{
+	server().getGlobalLobby().activateInterface();
+}
+
+void GameInstance::onUpdate()
+{
+	if (interfaceInstance)
+		interfaceInstance->update();
+}
+
+bool GameInstance::capturedAllEvents()
+{
+	if (interfaceInstance)
+		return interfaceInstance->capturedAllEvents();
+	else
+		return false;
 }
