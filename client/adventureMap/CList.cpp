@@ -315,7 +315,7 @@ void CHeroList::CHeroItem::keyPressed(EShortcut key)
 
 	if(key == EShortcut::LIST_HERO_DISMISS)
 	{
-		GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[22], [=](){ GAME->interface()->cb->dismissHero(hero); }, nullptr);
+		GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[22], [this](){ GAME->interface()->cb->dismissHero(hero); }, nullptr);
 		return;
 	}
 

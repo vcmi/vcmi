@@ -1264,7 +1264,7 @@ EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(const PlayerColor & p
 	const MetaString messageLostSelf = MetaString::createFromTextID("core.genrltxt.7");
 	const MetaString messageLostOther = MetaString::createFromTextID("core.genrltxt.8");
 
-	auto evaluateEvent = [=](const EventCondition & condition)
+	auto evaluateEvent = [this, player](const EventCondition & condition)
 	{
 		return this->checkForVictory(player, condition);
 	};

@@ -519,7 +519,7 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill psk
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	ENGINE->sound().playSound(soundBase::heroNewLevel);
-	ENGINE->windows().createAndPushWindow<CLevelWindow>(hero, pskill, skills, [=](ui32 selection)
+	ENGINE->windows().createAndPushWindow<CLevelWindow>(hero, pskill, skills, [this, queryID](ui32 selection)
 	{
 		cb->selectionMade(selection, queryID);
 	});
@@ -530,7 +530,7 @@ void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, 
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	ENGINE->sound().playSound(soundBase::heroNewLevel);
-	ENGINE->windows().createAndPushWindow<CStackWindow>(commander, skills, [=](ui32 selection)
+	ENGINE->windows().createAndPushWindow<CStackWindow>(commander, skills, [this, queryID](ui32 selection)
 	{
 		cb->selectionMade(selection, queryID);
 	});
@@ -844,7 +844,7 @@ void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *
 
 			if (allowManualReplay || isAutoFightEndBattle)
 			{
-				wnd->resultCallback = [=](ui32 selection)
+				wnd->resultCallback = [this, queryID](ui32 selection)
 				{
 					cb->selectionMade(selection, queryID);
 				};
@@ -1095,7 +1095,7 @@ void CPlayerInterface::showBlockingDialog(const std::string &text, const std::ve
 		for (auto & component : components)
 			intComps.push_back(std::make_shared<CComponent>(component)); //will be deleted by close in window
 
-		showYesNoDialog(text, [=](){ cb->selectionMade(1, askID); }, [=](){ cb->selectionMade(0, askID); }, intComps);
+		showYesNoDialog(text, [this, askID](){ cb->selectionMade(1, askID); }, [this, askID](){ cb->selectionMade(0, askID); }, intComps);
 	}
 	else if (selection)
 	{
@@ -1144,12 +1144,12 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	};
 	std::stable_sort(objectGuiOrdered.begin(), objectGuiOrdered.end(), townComparator);
 
-	auto selectCallback = [=](int selection)
+	auto selectCallback = [this, askID](int selection)
 	{
 		cb->sendQueryReply(selection, askID);
 	};
 
-	auto cancelCallback = [=]()
+	auto cancelCallback = [this, askID]()
 	{
 		cb->sendQueryReply(std::nullopt, askID);
 	};
@@ -1272,7 +1272,7 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto onEnd = [=](){ cb->selectionMade(0, queryID); };
+	auto onEnd = [this, queryID](){ cb->selectionMade(0, queryID); };
 
 	if (movementController->isHeroMovingThroughGarrison(down, up))
 	{
@@ -1381,11 +1381,11 @@ void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const C
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
-	auto recruitCb = [=](CreatureID id, int count)
+	auto recruitCb = [this, dwelling, dst](CreatureID id, int count)
 	{
 		cb->recruitCreatures(dwelling, dst, id, count, -1);
 	};
-	auto closeCb = [=]()
+	auto closeCb = [this, queryID]()
 	{
 		cb->selectionMade(0, queryID);
 	};
@@ -1410,7 +1410,7 @@ void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 	auto state = obj->shipyardStatus();
 	TResources cost;
 	obj->getBoatCost(cost);
-	ENGINE->windows().createAndPushWindow<CShipyardWindow>(cost, state, obj->getBoatType(), [=](){ cb->buildBoat(obj); });
+	ENGINE->windows().createAndPushWindow<CShipyardWindow>(cost, state, obj->getBoatType(), [this, obj](){ cb->buildBoat(obj); });
 }
 
 void CPlayerInterface::newObject( const CGObjectInstance * obj )

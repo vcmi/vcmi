@@ -1023,7 +1023,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkil
 	boost::replace_first(text, "%s", LIBRARY->skillh->getByIndex(SKILL)->getNameTranslated());
 	boost::replace_first(text, "%d", "2000");
 
-	confirm = std::make_shared<CButton>(Point(148, 299), AnimationPath::builtin("IBY6432.DEF"), CButton::tooltip(hoverText, text), [=](){makeDeal(SKILL);}, EShortcut::GLOBAL_ACCEPT);
+	confirm = std::make_shared<CButton>(Point(148, 299), AnimationPath::builtin("IBY6432.DEF"), CButton::tooltip(hoverText, text), [this, SKILL](){makeDeal(SKILL);}, EShortcut::GLOBAL_ACCEPT);
 	confirm->block(!available);
 
 	cancel = std::make_shared<CButton>(Point(252,299), AnimationPath::builtin("ICANCEL.DEF"), LIBRARY->generaltexth->zelp[631], [&](){ close(); }, EShortcut::GLOBAL_CANCEL);

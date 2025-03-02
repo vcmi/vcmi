@@ -348,7 +348,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 
 	if(parent->info->dismissInfo && parent->info->dismissInfo->callback)
 	{
-		auto onDismiss = [=]()
+		auto onDismiss = [this]()
 		{
 			parent->info->dismissInfo->callback();
 			parent->close();
@@ -372,12 +372,12 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 		{
 			TResources totalCost = upgradeInfo.info.getAvailableUpgradeCosts().at(buttonIndex) * parent->info->creatureCount;
 
-			auto onUpgrade = [=]()
+			auto onUpgrade = [this, upgradeInfo, buttonIndex]()
 			{
 				upgradeInfo.callback(upgradeInfo.info.getAvailableUpgrades().at(buttonIndex));
 				parent->close();
 			};
-			auto onClick = [=]()
+			auto onClick = [totalCost, onUpgrade]()
 			{
 				std::vector<std::shared_ptr<CComponent>> resComps;
 				for(TResources::nziterator i(totalCost); i.valid(); i++)
@@ -427,7 +427,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 		parent->switchButtons[parent->activeTab]->disable();
 	}
 
-	exit = std::make_shared<CButton>(Point(382, 5), AnimationPath::builtin("hsbtns.def"), LIBRARY->generaltexth->zelp[447], [=](){ parent->close(); }, EShortcut::GLOBAL_RETURN);
+	exit = std::make_shared<CButton>(Point(382, 5), AnimationPath::builtin("hsbtns.def"), LIBRARY->generaltexth->zelp[447], [this](){ parent->close(); }, EShortcut::GLOBAL_RETURN);
 }
 
 CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, int yOffset)
@@ -470,7 +470,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 			if(parent->selectedSkill == index)
 				parent->setSelection(index, icon);
 
-			icon->callback = [=]()
+			icon->callback = [this, index, icon]()
 			{
 				parent->setSelection(index, icon);
 			};
@@ -503,7 +503,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 			return skillID >= 100;
 		});
 
-		auto onCreate = [=](size_t index)->std::shared_ptr<CIntObject>
+		auto onCreate = [this](size_t index)->std::shared_ptr<CIntObject>
 		{
 			for(auto skillID : parent->info->levelupInfo->skills)
 			{
@@ -512,7 +512,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 					const auto bonuses = LIBRARY->creh->skillRequirements[skillID-100].first;
 					const CStackInstance * stack = parent->info->commander;
 					auto icon = std::make_shared<CCommanderSkillIcon>(std::make_shared<CPicture>(stack->bonusToGraphics(bonuses[0])), true, [](){});
-					icon->callback = [=]()
+					icon->callback = [this, skillID, icon]()
 					{
 						parent->setSelection(skillID, icon);
 					};
@@ -533,8 +533,8 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 		abilities = std::make_shared<CListBox>(onCreate, Point(38, 3+pos.h), Point(63, 0), 6, abilitiesCount);
 		abilities->setRedrawParent(true);
 
-		leftBtn = std::make_shared<CButton>(Point(10,  pos.h + 6), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(), [=](){ abilities->moveToPrev(); }, EShortcut::MOVE_LEFT);
-		rightBtn = std::make_shared<CButton>(Point(411, pos.h + 6), AnimationPath::builtin("hsbtns5.def"), CButton::tooltip(), [=](){ abilities->moveToNext(); }, EShortcut::MOVE_RIGHT);
+		leftBtn = std::make_shared<CButton>(Point(10,  pos.h + 6), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(), [this](){ abilities->moveToPrev(); }, EShortcut::MOVE_LEFT);
+		rightBtn = std::make_shared<CButton>(Point(411, pos.h + 6), AnimationPath::builtin("hsbtns5.def"), CButton::tooltip(), [this](){ abilities->moveToNext(); }, EShortcut::MOVE_RIGHT);
 
 		if(abilitiesCount <= 6)
 		{
@@ -694,7 +694,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 			{
 				parent->stackArtifactButton = std::make_shared<CButton>(
 						Point(pos.x - 2 , pos.y + 46), AnimationPath::builtin("stackWindow/cancelButton"),
-						CButton::tooltipLocalized("vcmi.creatureWindow.returnArtifact"),	[=]()
+						CButton::tooltipLocalized("vcmi.creatureWindow.returnArtifact"),	[this]()
 				{
 					parent->removeStackArtifact(ArtifactPosition::CREATURE_SLOT);
 				});
@@ -905,7 +905,7 @@ void CStackWindow::initSections()
 
 	if(info->commander)
 	{
-		auto onCreate = [=](size_t index) -> std::shared_ptr<CIntObject>
+		auto onCreate = [this](size_t index) -> std::shared_ptr<CIntObject>
 		{
 			auto obj = switchTab(index);
 

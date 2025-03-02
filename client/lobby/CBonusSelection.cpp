@@ -422,9 +422,9 @@ void CBonusSelection::startMap()
 	if (!GAME->server().validateGameStart())
 		return;
 
-	auto showPrologVideo = [=]()
+	auto showPrologVideo = [this]()
 	{
-		auto exitCb = [=]()
+		auto exitCb = []()
 		{
 			logGlobal->info("Starting scenario %d", static_cast<int>(GAME->server().campaignMap));
 			GAME->server().sendStartGame();

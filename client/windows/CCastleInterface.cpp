@@ -441,7 +441,7 @@ void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & f
 		{ RadialMenuConfig::ITEM_SE, twoHeroes, "swapArtifacts", "vcmi.radialWheel.heroSwapArtifacts", [heroId, heroOtherId](){CExchangeController(heroId, heroOtherId).swapArtifacts(true, true);} }
 	};
 	RadialMenuConfig upgradeSlot = { RadialMenuConfig::ITEM_WW, true, "upgradeCreatures", "vcmi.radialWheel.upgradeCreatures", [upgradeAll](){ upgradeAll(); } };
-	RadialMenuConfig dismissSlot = { RadialMenuConfig::ITEM_WW, true, "dismissHero", "vcmi.radialWheel.heroDismiss", [this](){ GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[22], [=](){ GAME->interface()->cb->dismissHero(hero); }, nullptr); } };
+	RadialMenuConfig dismissSlot = { RadialMenuConfig::ITEM_WW, true, "dismissHero", "vcmi.radialWheel.heroDismiss", [this](){ GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[22], [this](){ GAME->interface()->cb->dismissHero(hero); }, nullptr); } };
 
 	if(upgradableSlots.isCreatureUpgradePossible)
 		menuElements.push_back(upgradeSlot);
@@ -1079,7 +1079,7 @@ void CCastleBuildings::enterDwelling(int level)
 		return;
 	}
 
-	auto recruitCb = [=](CreatureID id, int count)
+	auto recruitCb = [this, level](CreatureID id, int count)
 	{
 		GAME->interface()->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 	};
@@ -1323,7 +1323,7 @@ void CCreaInfo::hover(bool on)
 void CCreaInfo::clickPressed(const Point & cursorPosition)
 {
 	int offset = GAME->interface()->castleInt? (-87) : 0;
-	auto recruitCb = [=](CreatureID id, int count)
+	auto recruitCb = [this](CreatureID id, int count)
 	{
 		GAME->interface()->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 	};
