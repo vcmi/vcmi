@@ -15,6 +15,7 @@
 #include "Goals/Goals.h"
 
 #include "../../lib/ArtifactUtils.h"
+#include "../../lib/CThreadHelper.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/MapObjects.h"
@@ -223,7 +224,7 @@ void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryL
 			logAi->debug("VCAI: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.toString());
 		}
 
-		finish();
+		makingTurnInterrupption.interruptThread();
 	}
 }
 
@@ -648,7 +649,12 @@ void VCAI::yourTurn(QueryID queryID)
 	status.addQuery(queryID, "YourTurn");
 	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
 	status.startedTurn();
-	makingTurn = std::make_unique<boost::thread>(&VCAI::makeTurn, this);
+
+	if (makingTurn && makingTurn->joinable())
+		makingTurn->join(); // leftover from previous turn
+
+	makingTurnInterrupption.reset();
+	makingTurn = std::make_unique<std::thread>(&VCAI::makeTurn, this);
 }
 
 void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
@@ -845,9 +851,8 @@ void VCAI::makeTurn()
 				logAi->info("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
 		}
 	}
-	catch (boost::thread_interrupted & e)
+	catch (const TerminationRequestedException & e)
 	{
-	(void)e;
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
 		return;
 	}
@@ -998,17 +1003,16 @@ void VCAI::mainLoop()
 
 			try
 			{
-				boost::this_thread::interruption_point();
+				makingTurnInterrupption.interruptionPoint();
 				goalToRealize->accept(this); //visitor pattern
-				boost::this_thread::interruption_point();
+				makingTurnInterrupption.interruptionPoint();
 			}
-			catch (boost::thread_interrupted & e)
+			catch (const TerminationRequestedException & e)
 			{
-				(void)e;
 				logAi->debug("Player %d: Making turn thread received an interruption!", playerID);
 				throw; //rethrow, we want to truly end this thread
 			}
-			catch (goalFulfilledException & e)
+			catch (const goalFulfilledException & e)
 			{
 				//the sub-goal was completed successfully
 				completeGoal(e.goal);
@@ -1018,7 +1022,7 @@ void VCAI::mainLoop()
 				// remove abstract visit tile if we completed the elementar one
 				vstd::erase_if_present(goalsToAdd, goalToRealize);
 			}
-			catch (std::exception & e)
+			catch (const std::exception & e)
 			{
 				logAi->debug("Failed to realize subgoal of type %s, I will stop.", goalToRealize->name());
 				logAi->debug("The error message was: %s", e.what());
@@ -2364,24 +2368,23 @@ void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
 
 		try
 		{
-			boost::this_thread::interruption_point();
+			makingTurnInterrupption.interruptionPoint();
 			elementarGoal->accept(this); //visitor pattern
-			boost::this_thread::interruption_point();
+			makingTurnInterrupption.interruptionPoint();
 		}
-		catch (boost::thread_interrupted & e)
+		catch (const TerminationRequestedException & e)
 		{
-			(void)e;
 			logAi->debug("Player %d: Making turn thread received an interruption!", playerID);
 			throw; //rethrow, we want to truly end this thread
 		}
-		catch (goalFulfilledException & e)
+		catch (const goalFulfilledException & e)
 		{
 			//the sub-goal was completed successfully
 			completeGoal(e.goal);
 			//local goal was also completed
 			completeGoal(elementarGoal);
 		}
-		catch (std::exception & e)
+		catch (const std::exception & e)
 		{
 			logAi->debug("Failed to realize subgoal of type %s, I will stop.", elementarGoal->name());
 			logAi->debug("The error message was: %s", e.what());
@@ -2409,7 +2412,7 @@ Goals::TSubgoal VCAI::decomposeGoal(Goals::TSubgoal ultimateGoal)
 	int maxGoals = searchDepth; //preventing deadlock for mutually dependent goals
 	while (maxGoals)
 	{
-		boost::this_thread::interruption_point();
+		makingTurnInterrupption.interruptionPoint();
 
 		goal = goal->whatToDoToAchieve(); //may throw if decomposition fails
 		--maxGoals;
@@ -2490,11 +2493,10 @@ void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 
 void VCAI::finish()
 {
-	//we want to lock to avoid multiple threads from calling makingTurn->join() at same time
-	std::lock_guard<std::mutex> multipleCleanupGuard(turnInterruptionMutex);
+	makingTurnInterrupption.interruptThread();
+
 	if(makingTurn)
 	{
-		makingTurn->interrupt();
 		makingTurn->join();
 		makingTurn.reset();
 	}
@@ -2502,7 +2504,7 @@ void VCAI::finish()
 
 void VCAI::requestActionASAP(std::function<void()> whatToDo)
 {
-	boost::thread newThread([this, whatToDo]()
+	std::thread newThread([this, whatToDo]()
 	{
 		setThreadName("VCAI::requestActionASAP::whatToDo");
 		SET_GLOBAL_STATE(this);

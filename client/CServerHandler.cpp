@@ -33,7 +33,7 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-#include "ConditionalWait.h"
+#include "../lib/ConditionalWait.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TurnTimerInfo.h"

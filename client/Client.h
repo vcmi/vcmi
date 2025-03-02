@@ -43,8 +43,6 @@ class CCallback;
 class CClient;
 class CBaseForCLApply;
 
-namespace boost { class thread; }
-
 template<typename T>
 class ThreadSafeVector
 {

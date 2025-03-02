@@ -22,8 +22,6 @@
 #include "Pathfinding/AIPathfinder.h"
 #include "Engine/Nullkiller.h"
 
-#include <boost/thread/thread_only.hpp>
-
 namespace NKAI
 {
 
@@ -69,23 +67,11 @@ public:
 	ObjectInstanceID destinationTeleport;
 	int3 destinationTeleportPos;
 	std::vector<ObjectInstanceID> teleportChannelProbingList; //list of teleport channel exits that not visible and need to be (re-)explored
-	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
-
-	//std::set<HeroPtr> invalidPathHeroes; //FIXME, just a workaround
-	//std::map<HeroPtr, Goals::TSubgoal> lockedHeroes; //TODO: allow non-elementar objectives
-	//std::map<HeroPtr, std::set<const CGObjectInstance *>> reservedHeroesMap; //objects reserved by specific heroes
-	//std::set<HeroPtr> heroesUnableToExplore; //these heroes will not be polled for exploration in current state of game
-
-	//sets are faster to search, also do not contain duplicates
-	//std::set<const CGObjectInstance *> reservedObjs; //to be visited by specific hero
-	//std::map<HeroPtr, std::set<HeroPtr>> visitedHeroes; //visited this turn //FIXME: this is just bug workaround
 
 	AIStatus status;
 	std::string battlename;
 	std::shared_ptr<CCallback> myCb;
-	std::unique_ptr<boost::thread> makingTurn;
-private:
-	std::mutex turnInterruptionMutex;
+	std::unique_ptr<std::thread> makingTurn;
 
 public:
 	ObjectInstanceID selectedObject;

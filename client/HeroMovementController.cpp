@@ -22,7 +22,7 @@
 
 #include "../CCallback.h"
 
-#include "ConditionalWait.h"
+#include "../lib/ConditionalWait.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/pathfinder/CGPathNode.h"

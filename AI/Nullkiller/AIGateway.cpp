@@ -216,10 +216,7 @@ void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & vic
 			logAi->debug("AIGateway: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.toString());
 		}
 
-		// some whitespace to flush stream
-		logAi->debug(std::string(200, ' '));
-
-		finish();
+		nullkiller->makingTurnInterrupption.interruptThread();
 	}
 }
 
@@ -591,7 +588,12 @@ void AIGateway::yourTurn(QueryID queryID)
 	status.addQuery(queryID, "YourTurn");
 	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
 	status.startedTurn();
-	makingTurn = std::make_unique<boost::thread>(&AIGateway::makeTurn, this);
+
+	if (makingTurn && makingTurn->joinable())
+		makingTurn->join(); // leftover from previous turn
+
+	nullkiller->makingTurnInterrupption.reset();
+	makingTurn = std::make_unique<std::thread>(&AIGateway::makeTurn, this);
 }
 
 void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
@@ -871,13 +873,12 @@ void AIGateway::makeTurn()
 		}
 #if NKAI_TRACE_LEVEL == 0
 	}
-	catch (boost::thread_interrupted & e)
+	catch (const TerminationRequestedException & e)
 	{
-	(void)e;
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
 		return;
 	}
-	catch (std::exception & e)
+	catch (const std::exception & e)
 	{
 		logAi->debug("Making turn thread has caught an exception: %s", e.what());
 	}
@@ -1581,12 +1582,10 @@ void AIGateway::buildArmyIn(const CGTownInstance * t)
 
 void AIGateway::finish()
 {
-	//we want to lock to avoid multiple threads from calling makingTurn->join() at same time
-	std::lock_guard<std::mutex> multipleCleanupGuard(turnInterruptionMutex);
+	nullkiller->makingTurnInterrupption.interruptThread();
 
 	if(makingTurn)
 	{
-		makingTurn->interrupt();
 		makingTurn->join();
 		makingTurn.reset();
 	}
@@ -1594,7 +1593,7 @@ void AIGateway::finish()
 
 void AIGateway::requestActionASAP(std::function<void()> whatToDo)
 {
-	boost::thread newThread([this, whatToDo]()
+	std::thread newThread([this, whatToDo]()
 	{
 		setThreadName("AIGateway::requestActionASAP::whatToDo");
 		SET_GLOBAL_STATE(this);

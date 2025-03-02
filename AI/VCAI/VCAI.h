@@ -14,7 +14,7 @@
 #include "../../lib/AI_Base.h"
 #include "../../CCallback.h"
 
-#include "../../lib/CThreadHelper.h"
+#include "../../lib/ConditionalWait.h"
 
 #include "../../lib/GameConstants.h"
 #include "../../lib/GameLibrary.h"
@@ -22,8 +22,6 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "Pathfinding/AIPathfinder.h"
-
-#include <boost/thread/thread_only.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -107,9 +105,9 @@ public:
 
 	std::shared_ptr<CCallback> myCb;
 
-	std::unique_ptr<boost::thread> makingTurn;
-private:
-	std::mutex turnInterruptionMutex;
+	std::unique_ptr<std::thread> makingTurn;
+	ThreadInterruption makingTurnInterrupption;
+
 public:
 	ObjectInstanceID selectedObject;
 
