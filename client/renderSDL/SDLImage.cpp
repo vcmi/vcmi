@@ -256,8 +256,6 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 
 SDLImageShared::SDLImageShared(const SDLImageShared * from, int integerScaleFactor, EScalingAlgorithm algorithm)
 {
-	static tbb::task_arena upscalingArena;
-
 	upscalingInProgress = true;
 
 	auto scaler = std::make_shared<SDLImageScaler>(from->surf, Rect(from->margins, from->fullSize), true);
@@ -273,7 +271,7 @@ SDLImageShared::SDLImageShared(const SDLImageShared * from, int integerScaleFact
 	};
 
 	if(settings["video"]["asyncUpscaling"].Bool())
-		upscalingArena.enqueue(scalingTask);
+		tbb::this_task_arena::enqueue(scalingTask);
 	else
 		scalingTask();
 }

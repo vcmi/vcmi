@@ -23,6 +23,9 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "Pathfinding/AIPathfinder.h"
 
+#include <tbb/task_group.h>
+#include <tbb/task_arena.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct QuestInfo;
@@ -105,7 +108,7 @@ public:
 
 	std::shared_ptr<CCallback> myCb;
 
-	std::unique_ptr<std::thread> makingTurn;
+	std::unique_ptr<tbb::task_group> asyncTasks;
 	ThreadInterruption makingTurnInterrupption;
 
 public:
@@ -262,7 +265,7 @@ public:
 	void requestSent(const CPackForServer * pack, int requestID) override;
 	void answerQuery(QueryID queryID, int selection);
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
-	void requestActionASAP(std::function<void()> whatToDo);
+	void executeActionAsync(const std::string & description, const std::function<void()> & whatToDo);
 };
 
 class cannotFulfillGoalException : public std::exception

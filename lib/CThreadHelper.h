@@ -21,4 +21,17 @@ void DLL_LINKAGE setThreadNameLoggingOnly(const std::string &name);
 /// Returns human-readable thread name that was set before, or string form of system-provided thread ID if no human-readable name was set
 std::string DLL_LINKAGE getThreadName();
 
+class DLL_LINKAGE ScopedThreadName : boost::noncopyable
+{
+public:
+	ScopedThreadName(const std::string & name)
+	{
+		setThreadName(name);
+	}
+	~ScopedThreadName()
+	{
+		setThreadName({});
+	}
+};
+
 VCMI_LIB_NAMESPACE_END

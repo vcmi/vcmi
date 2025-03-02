@@ -22,6 +22,9 @@
 #include "Pathfinding/AIPathfinder.h"
 #include "Engine/Nullkiller.h"
 
+#include <tbb/task_group.h>
+#include <tbb/task_arena.h>
+
 namespace NKAI
 {
 
@@ -71,7 +74,7 @@ public:
 	AIStatus status;
 	std::string battlename;
 	std::shared_ptr<CCallback> myCb;
-	std::unique_ptr<std::thread> makingTurn;
+	std::unique_ptr<tbb::task_group> asyncTasks;
 
 public:
 	ObjectInstanceID selectedObject;
@@ -79,7 +82,7 @@ public:
 	std::unique_ptr<Nullkiller> nullkiller;
 
 	AIGateway();
-	virtual ~AIGateway();
+	~AIGateway();
 
 	//TODO: extract to appropriate goals
 	void tryRealize(Goals::DigAtTile & g);
@@ -178,7 +181,7 @@ public:
 	void requestSent(const CPackForServer * pack, int requestID) override;
 	void answerQuery(QueryID queryID, int selection);
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
-	void requestActionASAP(std::function<void()> whatToDo);
+	void executeActionAsync(const std::string & description, const std::function<void()> & whatToDo);
 };
 
 }

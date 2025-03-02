@@ -101,13 +101,15 @@ If you're creating new project part, place `VCMI_LIB_USING_NAMESPACE` in its `St
 
 ## Artificial Intelligence
 
-### StupidAI
+### Combat AI
 
-Stupid AI is recent and used battle AI.
+- Battle AI is recent and used combat AI.
+- Stupid AI is old and deprecated version of combat AI
 
 ### Adventure AI
 
-VCAI module is currently developed agent-based system driven by goals and heroes.
+- NullkillerAI module is currently developed agent-based system driven by goals and heroes.
+- VCAI is old and deprecated version of adventure map AI
 
 ## Threading Model
 
@@ -131,12 +133,10 @@ Here is list of threads including their name that can be seen in logging or in d
 - NullkillerAI parallelizes a lot of its tasks using TBB methods, mostly parallel_for
 - Random map generator actively uses thread pool provided by TBB
 - Client performs image upscaling in background thread to avoid visible freezes
+- AI main task (`NKAI::makeTurn`). This TBB task is created whenever AI stars a new turn, and ends when AI ends its turn. Majority of AI event processing is done in this thread, however some actions are either offloaded entirely as tbb task, or parallelized using methods like parallel_for.
+- AI helper tasks (`NKAI::<various>`). Adventure AI creates such tasks whenever it receives event that requires processing without locking network thread that initiated the call.
 
 ## Short-living threads
-
-- AI thread (`AIGateway::makeTurn`). Adventure AI creates its thread whenever it stars a new turn, and terminates it when turn ends. Majority of AI event processing is done in this thread, however some actions are either offloaded entirely as tbb task, or parallelized using methods like parallel_for.
-
-- AI helper thread (`AIGateway::doActionASAP`). Adventure AI creates such thread whenever it receives event that requires processing without locking network thread that initiated the call.
 
 - Autocombat initiation thread (`autofightingAI`). Combat AI usually runs on network thread, as reaction on unit taking turn netpack event. However initial activation of AI when player presses hotkey or button is done in input processing (`MainGUI`) thread. To avoid freeze when AI selects its first action, this action is done on a temporary thread
 
