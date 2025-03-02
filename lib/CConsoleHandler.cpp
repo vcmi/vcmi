@@ -243,7 +243,7 @@ int CConsoleHandler::run()
 
 	while ( std::cin.good() )
 	{
-#ifndef VCMI_WINDOWS
+#ifndef _MSC_VER
 		//check if we have some unreaded symbols
 		if (std::cin.rdbuf()->in_avail())
 		{
@@ -306,7 +306,7 @@ void CConsoleHandler::end()
 {
 	if (thread.joinable())
 	{
-#ifndef VCMI_WINDOWS
+#ifndef _MSC_VER
 		shutdownPending = true;
 #else
 		TerminateThread(thread.native_handle(),0);
