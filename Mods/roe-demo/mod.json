@@ -41,5 +41,30 @@
 	"spells" :
 	[
 		"config/roe-demo/disabled-spells.json"
-	]
+	],
+	"settings":
+	{
+		"textData" :
+		{
+			"heroClass"  : 18,
+			"artifact"   : 144,
+			"creature"   : 150,
+			"faction"    : 8,
+			"hero"       : 156,
+			"spell"      : 81,
+			"object"     : 256,
+			"terrain"    : 10,
+			"river"      : 5,
+			"road"       : 4
+		},
+		
+		"mapFormat" : {
+			"armageddonsBlade" : {
+				"supported" : false
+			},
+			"shadowOfDeath" : { 
+				"supported" : false
+			}
+		}
+	}
 }
