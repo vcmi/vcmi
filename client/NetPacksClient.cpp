@@ -882,7 +882,7 @@ void ApplyClientNetPackVisitor::visitEndAction(EndAction & pack)
 void ApplyClientNetPackVisitor::visitPackageApplied(PackageApplied & pack)
 {
 	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::requestRealized, &pack);
-	if(!CClient::waitingRequest.tryRemovingElement(pack.requestID))
+	if(!cl.waitingRequest.tryRemovingElement(pack.requestID))
 		logNetwork->warn("Surprising server message! PackageApplied for unknown requestID!");
 }
 

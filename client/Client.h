@@ -13,6 +13,8 @@
 #include <vcmi/Environment.h>
 
 #include "../lib/IGameCallback.h"
+#include "../lib/ConditionalWait.h"
+
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -50,8 +52,15 @@ class ThreadSafeVector
 	std::vector<T> items;
 	std::mutex mx;
 	std::condition_variable cond;
+	std::atomic<bool> isTerminating = false;
 
 public:
+	void requestTermination()
+	{
+		isTerminating = true;
+		clear();
+	}
+
 	void clear()
 	{
 		TLock lock(mx);
@@ -61,6 +70,8 @@ public:
 
 	void pushBack(const T & item)
 	{
+		assert(!isTerminating);
+
 		TLock lock(mx);
 		items.push_back(item);
 		cond.notify_all();
@@ -68,14 +79,18 @@ public:
 
 	void waitWhileContains(const T & item)
 	{
-		//FIXME: should throw exception on destruction
 		TLock lock(mx);
 		while(vstd::contains(items, item))
 			cond.wait(lock);
+
+		if (isTerminating)
+			throw TerminationRequestedException();
 	}
 
 	bool tryRemovingElement(const T & item) //returns false if element was not present
 	{
+		assert(!isTerminating);
+
 		TLock lock(mx);
 		auto itr = vstd::find(items, item);
 		if(itr == items.end()) //not in container
@@ -129,6 +144,7 @@ public:
 
 	void save(const std::string & fname);
 	void endNetwork();
+	void finishGameplay();
 	void endGame();
 
 	void initMapHandler();
@@ -139,7 +155,7 @@ public:
 	void installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, PlayerColor color, bool battlecb = false);
 	void installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, PlayerColor color, bool needCallback = true);
 
-	static ThreadSafeVector<int> waitingRequest; //FIXME: make this normal field (need to join all threads before client destruction)
+	ThreadSafeVector<int> waitingRequest;
 
 	void handlePack(CPackForClient & pack); //applies the given pack and deletes it
 	int sendRequest(const CPackForServer & request, PlayerColor player); //returns ID given to that request

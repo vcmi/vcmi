@@ -653,6 +653,8 @@ void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victo
 
 void CServerHandler::endGameplay()
 {
+	client->finishGameplay();
+
 	// Game is ending
 	// Tell the network thread to reach a stable state
 	sendClientDisconnecting();
@@ -671,6 +673,7 @@ void CServerHandler::endGameplay()
 
 void CServerHandler::restartGameplay()
 {
+	client->finishGameplay();
 	client->endGame();
 	client.reset();
 

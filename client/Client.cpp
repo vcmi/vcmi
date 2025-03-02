@@ -46,8 +46,6 @@
 #include "lib/CAndroidVMHelper.h"
 #endif
 
-ThreadSafeVector<int> CClient::waitingRequest;
-
 CPlayerEnvironment::CPlayerEnvironment(PlayerColor player_, CClient * cl_, std::shared_ptr<CCallback> mainCallback_)
 	: player(player_),
 	cl(cl_),
@@ -181,25 +179,28 @@ void CClient::endNetwork()
 	}
 }
 
+void CClient::finishGameplay()
+{
+	waitingRequest.requestTermination();
+
+	//suggest interfaces to finish their stuff (AI should interrupt any bg working threads)
+	for(auto & i : playerint)
+		i.second->finish();
+}
+
 void CClient::endGame()
 {
 #if SCRIPTING_ENABLED
 	clientScripts.reset();
 #endif
 
-	//suggest interfaces to finish their stuff (AI should interrupt any bg working threads)
-	for(auto & i : playerint)
-		i.second->finish();
+	logNetwork->info("Ending current game!");
+	removeGUI();
 
-	{
-		logNetwork->info("Ending current game!");
-		removeGUI();
+	GAME->setMapInstance(nullptr);
+	vstd::clear_pointer(gs);
 
-		GAME->setMapInstance(nullptr);
-		vstd::clear_pointer(gs);
-
-		logNetwork->info("Deleted mapHandler and gameState.");
-	}
+	logNetwork->info("Deleted mapHandler and gameState.");
 
 	CPlayerInterface::battleInt.reset();
 	playerint.clear();

@@ -884,7 +884,15 @@ void AIGateway::makeTurn()
 	}
 #endif
 
-	endTurn();
+	try
+	{
+		endTurn();
+	}
+	catch (const TerminationRequestedException & e)
+	{
+		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
+		return;
+	}
 }
 
 void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
