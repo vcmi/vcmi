@@ -448,7 +448,6 @@ static void mainLoop()
 	}
 
 	GAME.reset();
-	GAME->mainmenu().reset();
 
 	if(!settings["session"]["headless"].Bool())
 	{

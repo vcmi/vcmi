@@ -19,6 +19,8 @@
 	#include <sys/prctl.h>
 #endif
 
+#include <tbb/task_arena.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 static thread_local std::string threadNameForLogging;
@@ -28,7 +30,12 @@ std::string getThreadName()
 	if (!threadNameForLogging.empty())
 		return threadNameForLogging;
 
-	return boost::lexical_cast<std::string>(std::this_thread::get_id());
+	int tbbIndex = tbb::this_task_arena::current_thread_index();
+
+	if (tbbIndex < 0)
+		return boost::lexical_cast<std::string>(std::this_thread::get_id());
+	else
+		return "TBB worker " + boost::lexical_cast<std::string>(tbbIndex);
 }
 
 void setThreadNameLoggingOnly(const std::string &name)

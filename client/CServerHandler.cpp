@@ -106,8 +106,8 @@ CServerHandler::CServerHandler()
 
 void CServerHandler::threadRunNetwork()
 {
-	logGlobal->info("Starting network thread");
 	setThreadName("runNetwork");
+	logGlobal->info("Starting network thread");
 	try {
 		networkHandler->run();
 	}

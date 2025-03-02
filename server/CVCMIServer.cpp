@@ -16,6 +16,7 @@
 #include "processors/PlayerMessageProcessor.h"
 
 #include "../lib/CPlayerState.h"
+#include "../lib/CThreadHelper.h"
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/entities/hero/CHeroClass.h"
@@ -231,6 +232,7 @@ bool CVCMIServer::prepareToStartGame()
 
 	auto progressTrackingThread = std::thread([this, &progressTracking]()
 	{
+		setThreadName("progressTrackingThread");
 		auto currentProgress = std::numeric_limits<Load::Type>::max();
 
 		while(!progressTracking.finished())

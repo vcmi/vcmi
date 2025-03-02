@@ -833,13 +833,13 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 
 void AIGateway::makeTurn()
 {
+	setThreadName("AIGateway::makeTurn");
 	MAKING_TURN;
 
 	auto day = cb->getDate(Date::DAY);
 	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.toString(), day);
 
 	std::shared_lock gsLock(CGameState::mutex);
-	setThreadName("AIGateway::makeTurn");
 
 	if(nullkiller->isOpenMap())
 	{
