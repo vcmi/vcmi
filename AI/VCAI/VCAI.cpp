@@ -37,6 +37,8 @@
 
 #include "AIhelper.h"
 
+static tbb::task_arena executeActionAsyncArena;
+
 extern FuzzyHelper * fh;
 
 const double SAFE_ATTACK_CONSTANT = 1.5;
@@ -470,7 +472,7 @@ void VCAI::showHillFortWindow(const CGObjectInstance * object, const CGHeroInsta
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
-	executeActionAsync("showHillFortWindow", [=]()
+	executeActionAsync("showHillFortWindow", [visitor]()
 	{
 		makePossibleUpgrades(visitor);
 	});
@@ -656,7 +658,7 @@ void VCAI::yourTurn(QueryID queryID)
 		ScopedThreadName guard("VCAI::makingTurn");
 		makeTurn();
 	});
-	tbb::this_task_arena::enqueue([this](){asyncTasks->wait();});
+	executeActionAsyncArena.enqueue([this](){asyncTasks->wait();});
 }
 
 void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
@@ -853,7 +855,7 @@ void VCAI::makeTurn()
 				logAi->info("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
 		}
 	}
-	catch (const TerminationRequestedException & e)
+	catch (const TerminationRequestedException &)
 	{
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
 		return;
@@ -1009,7 +1011,7 @@ void VCAI::mainLoop()
 				goalToRealize->accept(this); //visitor pattern
 				makingTurnInterrupption.interruptionPoint();
 			}
-			catch (const TerminationRequestedException & e)
+			catch (const TerminationRequestedException &)
 			{
 				logAi->debug("Player %d: Making turn thread received an interruption!", playerID);
 				throw; //rethrow, we want to truly end this thread
@@ -2374,7 +2376,7 @@ void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
 			elementarGoal->accept(this); //visitor pattern
 			makingTurnInterrupption.interruptionPoint();
 		}
-		catch (const TerminationRequestedException & e)
+		catch (const TerminationRequestedException &)
 		{
 			logAi->debug("Player %d: Making turn thread received an interruption!", playerID);
 			throw; //rethrow, we want to truly end this thread
@@ -2506,6 +2508,8 @@ void VCAI::finish()
 
 void VCAI::executeActionAsync(const std::string & description, const std::function<void()> & whatToDo)
 {
+
+
 	if (!asyncTasks)
 		throw std::runtime_error("Attempt to execute task on shut down AI state!");
 
@@ -2516,7 +2520,7 @@ void VCAI::executeActionAsync(const std::string & description, const std::functi
 		std::shared_lock gsLock(CGameState::mutex);
 		whatToDo();
 	});
-	tbb::this_task_arena::enqueue([this](){asyncTasks->wait();});
+	executeActionAsyncArena.enqueue([this](){asyncTasks->wait();});
 }
 
 void VCAI::lostHero(HeroPtr h)

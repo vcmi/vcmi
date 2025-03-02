@@ -32,6 +32,8 @@
 #include "AIGateway.h"
 #include "Goals/Goals.h"
 
+static tbb::task_arena executeActionAsyncArena;
+
 namespace NKAI
 {
 
@@ -596,7 +598,7 @@ void AIGateway::yourTurn(QueryID queryID)
 		ScopedThreadName guard("NKAI::makingTurn");
 		makeTurn();
 	});
-	tbb::this_task_arena::enqueue([this](){asyncTasks->wait();});
+	executeActionAsyncArena.enqueue([this](){asyncTasks->wait();});
 }
 
 void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
@@ -876,7 +878,7 @@ void AIGateway::makeTurn()
 		}
 #if NKAI_TRACE_LEVEL == 0
 	}
-	catch (const TerminationRequestedException & e)
+	catch (const TerminationRequestedException &)
 	{
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
 		return;
@@ -891,7 +893,7 @@ void AIGateway::makeTurn()
 	{
 		endTurn();
 	}
-	catch (const TerminationRequestedException & e)
+	catch (const TerminationRequestedException &)
 	{
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
 		return;
@@ -1614,7 +1616,7 @@ void AIGateway::executeActionAsync(const std::string & description, const std::f
 		std::shared_lock gsLock(CGameState::mutex);
 		whatToDo();
 	});
-	tbb::this_task_arena::enqueue([this](){asyncTasks->wait();});
+	executeActionAsyncArena.enqueue([this](){asyncTasks->wait();});
 }
 
 void AIGateway::lostHero(HeroPtr h)
