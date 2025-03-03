@@ -69,16 +69,6 @@ QPixmap pixmapFromJson(const QJsonValue &val)
   return p;
 }
 
-void init()
-{
-	loadDLLClasses();
-
-	Settings config = settings.write["session"]["editor"];
-	config->Bool() = true;
-
-	logGlobal->info("Initializing VCMI_Lib");
-}
-
 void MainWindow::loadUserSettings()
 {
 	//load window settings
@@ -190,7 +180,8 @@ MainWindow::MainWindow(QWidget* parent) :
 	logGlobal->info("The log file will be saved to %s", logPath);
 
 	//init
-	preinitDLL(extractionOptions.extractArchives);
+	LIBRARY = new GameLibrary();
+	LIBRARY->initializeFilesystem(extractionOptions.extractArchives);
 
 	// Initialize logging based on settings
 	logConfig->configure();
@@ -250,7 +241,12 @@ MainWindow::MainWindow(QWidget* parent) :
 	loadUserSettings(); //For example window size
 	setTitle();
 
-	init();
+	LIBRARY->initializeLibrary();
+
+	Settings config = settings.write["session"]["editor"];
+	config->Bool() = true;
+
+	logGlobal->info("Initializing VCMI_Lib");
 
 	graphics = new Graphics(); // should be before curh->init()
 	graphics->load();//must be after Content loading but should be in main thread

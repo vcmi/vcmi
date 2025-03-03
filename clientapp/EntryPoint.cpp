@@ -78,18 +78,17 @@ static CBasicLogConfigurator *logConfig;
 
 static void init()
 {
-	CStopWatch tmh;
 	try
 	{
-		loadDLLClasses();
+		CStopWatch tmh;
+		LIBRARY->initializeLibrary();
+		logGlobal->info("Initializing VCMI_Lib: %d ms", tmh.getDiff());
 	}
 	catch (const DataLoadingException & e)
 	{
 		criticalInitializationError = e.what();
 		return;
 	}
-
-	logGlobal->info("Initializing VCMI_Lib: %d ms", tmh.getDiff());
 
 	// Debug code to load all maps on start
 	//ClientCommandManager commandController;
@@ -241,7 +240,8 @@ int main(int argc, char * argv[])
 	// Init filesystem and settings
 	try
 	{
-		preinitDLL(false);
+		LIBRARY = new GameLibrary;
+		LIBRARY->initializeFilesystem(false);
 	}
 	catch (const DataLoadingException & e)
 	{

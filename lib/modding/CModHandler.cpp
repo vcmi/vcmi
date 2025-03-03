@@ -309,7 +309,7 @@ void CModHandler::load()
 	logMod->info("\tAll game content loaded");
 }
 
-void CModHandler::afterLoad(bool onlyEssential)
+void CModHandler::afterLoad()
 {
 	JsonNode modSettings;
 	for (const auto & modEntry : getActiveMods())
