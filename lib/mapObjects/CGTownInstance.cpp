@@ -684,14 +684,14 @@ std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) co
 	if(mode == EMarketMode::RESOURCE_ARTIFACT)
 	{
 		std::vector<TradeItemBuy> ret;
-		for(const ArtifactID a : cb->gameState()->map->townMerchantArtifacts)
+		for(const ArtifactID a : cb->gameState()->getMap().townMerchantArtifacts)
 			ret.push_back(a);
 
 		return ret;
 	}
 	else if ( mode == EMarketMode::RESOURCE_SKILL )
 	{
-		return cb->gameState()->map->townUniversitySkills;
+		return cb->gameState()->getMap().townUniversitySkills;
 	}
 	else
 		return IMarket::availableItemsIds(mode);

@@ -12,7 +12,6 @@
 #include "../bonuses/CBonusSystemNode.h"
 #include "../IGameCallback.h"
 #include "../LoadProgress.h"
-#include "../ConstTransitivePtr.h"
 
 #include "RumorState.h"
 #include "GameStatistics.h"
@@ -49,6 +48,7 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeabl
 
 	std::unique_ptr<StartInfo> initialOpts; //copy of settings received from pregame (not randomized)
 	std::unique_ptr<StartInfo> scenarioOps;
+	std::unique_ptr<CMap> map;
 public:
 	/// Stores number of times each artifact was placed on map via randomization
 	std::map<ArtifactID, int> allocatedArtifacts;
@@ -75,7 +75,6 @@ public:
 	void updateOnLoad(StartInfo * si);
 
 	ui32 day; //total number of days in game
-	ConstTransitivePtr<CMap> map;
 	std::map<PlayerColor, PlayerState> players;
 	std::map<TeamID, TeamState> teams;
 	CBonusSystemNode globalEffects;
@@ -83,6 +82,7 @@ public:
 
 	StatisticDataSet statistic;
 
+	// NOTE: effectively AI mutex, only used by adventure map AI
 	static std::shared_mutex mutex;
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
@@ -135,6 +135,15 @@ public:
 	const StartInfo * getInitialStartInfo() const final
 	{
 		return initialOpts.get();
+	}
+
+	CMap & getMap()
+	{
+		return *map;
+	}
+	const CMap & getMap() const
+	{
+		return *map;
 	}
 
 	bool isVisible(int3 pos, const std::optional<PlayerColor> & player) const override;

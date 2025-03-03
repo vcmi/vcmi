@@ -627,7 +627,7 @@ void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
 {
 	TeamState *t = gameHandler->gameState()->getPlayerTeam(player);
 
-	for(auto & obj : gameHandler->gameState()->map->objects)
+	for(auto & obj : gameHandler->gameState()->getMap().objects)
 	{
 		if(obj && obj->ID == Obj::OBELISK && !obj->wasVisited(player))
 		{

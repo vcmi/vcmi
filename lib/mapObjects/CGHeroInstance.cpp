@@ -540,7 +540,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			
 			ObjectInstanceID boatId;
 			const auto boatPos = visitablePos();
-			if (cb->gameState()->map->getTile(boatPos).isWater())
+			if (cb->gameState()->getMap().getTile(boatPos).isWater())
 			{
 				smp.val = movementPointsLimit(false);
 				if (!boat)
@@ -1258,7 +1258,7 @@ void CGHeroInstance::removeSpellbook()
 
 	if(hasSpellbook())
 	{
-		cb->gameState()->map->removeArtifactInstance(*this, ArtifactPosition::SPELLBOOK);
+		cb->gameState()->getMap().removeArtifactInstance(*this, ArtifactPosition::SPELLBOOK);
 	}
 }
 

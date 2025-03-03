@@ -58,17 +58,17 @@ VCMI_LIB_NAMESPACE_BEGIN
 void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 {
 	std::vector<int> floors;
-	floors.reserve(gs->map->levels());
-	for(int b = 0; b < gs->map->levels(); ++b)
+	floors.reserve(gs->getMap().levels());
+	for(int b = 0; b < gs->getMap().levels(); ++b)
 	{
 		floors.push_back(b);
 	}
 	const TerrainTile * tinfo = nullptr;
 	for (auto zd : floors)
 	{
-		for (int xd = 0; xd < gs->map->width; xd++)
+		for (int xd = 0; xd < gs->getMap().width; xd++)
 		{
-			for (int yd = 0; yd < gs->map->height; yd++)
+			for (int yd = 0; yd < gs->getMap().height; yd++)
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
 				if (tinfo->isLand() && tinfo->getTerrain()->isPassable() && !tinfo->blocked()) //land and free
@@ -95,9 +95,9 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 	else
 	{
 		const TeamState * team = !player ? nullptr : gs->getPlayerTeam(*player);
-		for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, gs->map->width - 1); xd++)
+		for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, gs->getMap().width - 1); xd++)
 		{
-			for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gs->map->height - 1); yd++)
+			for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gs->getMap().height - 1); yd++)
 			{
 				int3 tilePos(xd,yd,pos.z);
 				int distance = pos.dist(tilePos, distanceFormula);
@@ -126,7 +126,7 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std:
 	std::vector<int> floors;
 	if(level == -1)
 	{
-		for(int b = 0; b < gs->map->levels(); ++b)
+		for(int b = 0; b < gs->getMap().levels(); ++b)
 		{
 			floors.push_back(b);
 		}
@@ -136,9 +136,9 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std:
 
 	for(auto zd: floors)
 	{
-		for(int xd = 0; xd < gs->map->width; xd++)
+		for(int xd = 0; xd < gs->getMap().width; xd++)
 		{
-			for(int yd = 0; yd < gs->map->height; yd++)
+			for(int yd = 0; yd < gs->getMap().height; yd++)
 			{
 				int3 coordinates(xd, yd, zd);
 				if (filter(getTile(coordinates)))
@@ -160,7 +160,7 @@ void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<ArtifactID> & out, 
 
 void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)
 {
-	for (auto const & spellID : gs->map->allowedSpells)
+	for (auto const & spellID : gs->getMap().allowedSpells)
 	{
 		const auto * spell = spellID.toEntity(LIBRARY);
 
@@ -208,7 +208,7 @@ void CPrivilegedInfoCallback::saveCommonState(CSaveFile & out) const
 	logGlobal->info("Saving lib part of game...");
 	out.putMagicBytes(SAVEGAME_MAGIC);
 	logGlobal->info("\tSaving header");
-	out.serializer & static_cast<CMapHeader&>(*gs->map);
+	out.serializer & static_cast<CMapHeader&>(gs->getMap());
 	logGlobal->info("\tSaving options");
 	out.serializer & gs->getStartInfo();
 	logGlobal->info("\tSaving mod list");
@@ -219,9 +219,9 @@ void CPrivilegedInfoCallback::saveCommonState(CSaveFile & out) const
 
 TerrainTile * CNonConstInfoCallback::getTile(const int3 & pos)
 {
-	if(!gs->map->isInTheMap(pos))
+	if(!gs->getMap().isInTheMap(pos))
 		return nullptr;
-	return &gs->map->getTile(pos);
+	return &gs->getMap().getTile(pos);
 }
 
 CGHeroInstance * CNonConstInfoCallback::getHero(const ObjectInstanceID & objid)
@@ -251,12 +251,12 @@ PlayerState * CNonConstInfoCallback::getPlayerState(const PlayerColor & color, b
 
 CArtifactInstance * CNonConstInfoCallback::getArtInstance(const ArtifactInstanceID & aid)
 {
-	return gs->map->artInstances.at(aid.num);
+	return gs->getMap().artInstances.at(aid.num);
 }
 
 CGObjectInstance * CNonConstInfoCallback::getObjInstance(const ObjectInstanceID & oid)
 {
-	return gs->map->objects.at(oid.num);
+	return gs->getMap().objects.at(oid.num);
 }
 
 CArmedInstance * CNonConstInfoCallback::getArmyInstance(const ObjectInstanceID & oid)

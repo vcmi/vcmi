@@ -346,8 +346,8 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 	TExpType maxExp = LIBRARY->heroh->reqExp(LIBRARY->heroh->maxSupportedLevel());
 	TExpType currExp = hero->exp;
 
-	if (gs->map->levelLimit != 0)
-		maxExp = LIBRARY->heroh->reqExp(gs->map->levelLimit);
+	if (gs->getMap().levelLimit != 0)
+		maxExp = LIBRARY->heroh->reqExp(gs->getMap().levelLimit);
 
 	TExpType canGainExp = 0;
 	if (maxExp > currExp)
@@ -553,7 +553,7 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	for (auto & elem : gs->players)
 		turnOrder->addPlayer(elem.first);
 
-	for (auto & elem : gs->map->allHeroes)
+	for (auto & elem : gs->getMap().allHeroes)
 	{
 		if(elem)
 			heroPool->getHeroSkillsRandomGenerator(elem->getHeroTypeID()); // init RMG seed
@@ -638,7 +638,7 @@ void CGameHandler::onNewTurn()
 
 	if (firstTurn)
 	{
-		for (auto obj : gs->map->objects)
+		for (auto obj : gs->getMap().objects)
 		{
 			if (obj && obj->ID == Obj::PRISON) //give imprisoned hero 0 exp to level him up. easiest to do at this point
 			{
@@ -655,7 +655,7 @@ void CGameHandler::onNewTurn()
 		addStatistics(gameState()->statistic); // write at end of turn
 	}
 
-	for (CGTownInstance *t : gs->map->towns)
+	for (CGTownInstance *t : gs->getMap().towns)
 	{
 		PlayerColor player = t->tempOwner;
 
@@ -669,7 +669,7 @@ void CGameHandler::onNewTurn()
 		}
 	}
 
-	for (CGTownInstance *t : gs->map->towns)
+	for (CGTownInstance *t : gs->getMap().towns)
 	{
 		if (t->hasBonusOfType (BonusType::DARKNESS))
 		{
@@ -696,7 +696,7 @@ void CGameHandler::onNewTurn()
 		checkVictoryLossConditionsForAll(); // check for map turn limit
 
 	//call objects
-	for (auto & elem : gs->map->objects)
+	for (auto & elem : gs->getMap().objects)
 	{
 		if (elem)
 			elem->newTurn(getRandomGenerator());
@@ -810,7 +810,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.toString(), hid.getNum(), h->anchorPos().toString(), dst.toString());
 	const int3 hmpos = h->convertToVisitablePos(dst);
 
-	if (!gs->map->isInTheMap(hmpos))
+	if (!gs->getMap().isInTheMap(hmpos))
 	{
 		logGlobal->error("Destination tile is outside the map!");
 		return false;
@@ -905,7 +905,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	// should be called if hero changes tile but before applying TryMoveHero package
 	auto leaveTile = [&]()
 	{
-		for (CGObjectInstance *obj : gs->map->getTile(h->visitablePos()).visitableObjects)
+		for (CGObjectInstance *obj : gs->getMap().getTile(h->visitablePos()).visitableObjects)
 		{
 			obj->onHeroLeave(h);
 		}
@@ -3050,7 +3050,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, GameRe
 	if(dynamic_cast<const CGTownInstance *>(m))
 	{
 		saa.id = ObjectInstanceID::NONE;
-		saa.arts = gs->map->townMerchantArtifacts;
+		saa.arts = gs->getMap().townMerchantArtifacts;
 	}
 	else if(const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(m)) //black market
 	{
@@ -3469,7 +3469,7 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 	}
 
 	int3 tile = obj->bestLocation();
-	if (!gs->map->isInTheMap(tile))
+	if (!gs->getMap().isInTheMap(tile))
 	{
 		complain("Cannot find appropriate tile for a boat!");
 		return false;
@@ -3559,7 +3559,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			}
 
 			//player lost -> all his objects become unflagged (neutral)
-			for (auto obj : gs->map->objects) //unflag objs
+			for (auto obj : gs->getMap().objects) //unflag objs
 			{
 				if (obj.get() && obj->tempOwner == player)
 					setOwner(obj, PlayerColor::NEUTRAL);
@@ -3615,7 +3615,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->tempOwner;
-	if (gs->map->grailPos == h->visitablePos())
+	if (gs->getMap().grailPos == h->visitablePos())
 	{
 		ArtifactID grail = ArtifactID::GRAIL;
 
@@ -4052,7 +4052,7 @@ void CGameHandler::synchronizeArtifactHandlerLists()
 
 bool CGameHandler::isValidObject(const CGObjectInstance *obj) const
 {
-	return vstd::contains(gs->map->objects, obj);
+	return vstd::contains(gs->getMap().objects, obj);
 }
 
 bool CGameHandler::isBlockedByQueries(const CPackForServer *pack, PlayerColor player)
@@ -4253,7 +4253,7 @@ CGObjectInstance * CGameHandler::createNewObject(const int3 & visitablePosition,
 	if (!gs->isInTheMap(visitablePosition))
 		throw std::runtime_error("Attempt to create object outside map at " + visitablePosition.toString());
 
-	const TerrainTile & t = gs->map->getTile(visitablePosition);
+	const TerrainTile & t = gs->getMap().getTile(visitablePosition);
 	terrainType = t.getTerrainID();
 
 	auto handler = LIBRARY->objtypeh->getHandlerFor(objectID, subID);

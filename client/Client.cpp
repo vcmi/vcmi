@@ -218,7 +218,7 @@ void CClient::initMapHandler()
 	// During loading CPlayerInterface from serialized state it's depend on MH
 	if(!settings["session"]["headless"].Bool())
 	{
-		GAME->setMapInstance(std::make_unique<CMapHandler>(gs->map));
+		GAME->setMapInstance(std::make_unique<CMapHandler>(&gs->getMap()));
 		logNetwork->trace("Creating mapHandler: %d ms", GAME->server().th->getDiff());
 	}
 }

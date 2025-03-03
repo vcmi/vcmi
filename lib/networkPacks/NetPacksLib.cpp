@@ -998,7 +998,7 @@ void FoWChange::applyGs(CGameState *gs)
 	if (mode == ETileVisibility::HIDDEN) //do not hide too much
 	{
 		std::unordered_set<int3> tilesRevealed;
-		for (auto & elem : gs->map->objects)
+		for (auto & elem : gs->getMap().objects)
 		{
 			const CGObjectInstance *o = elem;
 			if (o)
@@ -1059,9 +1059,9 @@ void ChangeObjPos::applyGs(CGameState *gs)
 		logNetwork->error("Wrong ChangeObjPos: object %d doesn't exist!", objid.getNum());
 		return;
 	}
-	gs->map->removeBlockVisTiles(obj);
+	gs->getMap().removeBlockVisTiles(obj);
 	obj->setAnchorPos(nPos + obj->getVisitableOffset());
-	gs->map->addBlockVisTiles(obj);
+	gs->getMap().addBlockVisTiles(obj);
 }
 
 void ChangeObjectVisitors::applyGs(CGameState *gs)
@@ -1080,7 +1080,7 @@ void ChangeObjectVisitors::applyGs(CGameState *gs)
 			break;
 		case VISITOR_CLEAR:
 			// remove visit info from all heroes, including those that are not present on map
-			for (CGHeroInstance * hero : gs->map->allHeroes)
+			for (CGHeroInstance * hero : gs->getMap().allHeroes)
 				if (hero)
 					hero->visitedObjects.erase(object);
 
@@ -1125,7 +1125,7 @@ void PlayerEndsGame::applyGs(CGameState *gs)
 		if(p->human && gs->getStartInfo()->campState)
 		{
 			std::vector<CGHeroInstance *> crossoverHeroes;
-			for (CGHeroInstance * hero : gs->map->heroesOnMap)
+			for (CGHeroInstance * hero : gs->getMap().heroesOnMap)
 				if (hero->tempOwner == player)
 					crossoverHeroes.push_back(hero);
 
@@ -1189,7 +1189,7 @@ void RemoveObject::applyGs(CGameState *gs)
 	CGObjectInstance *obj = gs->getObjInstance(objectID);
 	logGlobal->debug("removing object id=%d; address=%x; name=%s", objectID, (intptr_t)obj, obj->getObjectName());
 	//unblock tiles
-	gs->map->removeBlockVisTiles(obj);
+	gs->getMap().removeBlockVisTiles(obj);
 
 	if (initiator.isValidPlayer())
 		gs->getPlayerState(initiator)->destroyedObjects.insert(objectID);
@@ -1209,7 +1209,7 @@ void RemoveObject::applyGs(CGameState *gs)
 	{
 		auto * beatenHero = dynamic_cast<CGHeroInstance *>(obj);
 		assert(beatenHero);
-		gs->map->heroesOnMap -= beatenHero;
+		gs->getMap().heroesOnMap -= beatenHero;
 
 		auto * siegeNode = beatenHero->whereShouldBeAttachedOnSiege(gs);
 
@@ -1238,14 +1238,14 @@ void RemoveObject::applyGs(CGameState *gs)
 		//return hero to the pool, so he may reappear in tavern
 
 		gs->heroesPool->addHeroToPool(beatenHero);
-		gs->map->objects[objectID.getNum()] = nullptr;
+		gs->getMap().objects[objectID.getNum()] = nullptr;
 
 		//If hero on Boat is removed, the Boat disappears
 		if(beatenHero->boat)
 		{
 			beatenHero->detachFrom(const_cast<CGBoat&>(*beatenHero->boat));
-			gs->map->instanceNames.erase(beatenHero->boat->instanceName);
-			gs->map->objects[beatenHero->boat->id.getNum()].dellNull();
+			gs->getMap().instanceNames.erase(beatenHero->boat->instanceName);
+			gs->getMap().objects[beatenHero->boat->id.getNum()].dellNull();
 			beatenHero->boat = nullptr;
 		}
 		return;
@@ -1254,7 +1254,7 @@ void RemoveObject::applyGs(CGameState *gs)
 	const auto * quest = dynamic_cast<const IQuestObject *>(obj);
 	if (quest)
 	{
-		gs->map->quests[quest->quest->qid] = nullptr;
+		gs->getMap().quests[quest->quest->qid] = nullptr;
 		for (auto &player : gs->players)
 		{
 			vstd::erase_if(player.second.quests, [obj](const QuestInfo & q){
@@ -1263,9 +1263,9 @@ void RemoveObject::applyGs(CGameState *gs)
 		}
 	}
 
-	gs->map->instanceNames.erase(obj->instanceName);
-	gs->map->objects[objectID.getNum()].dellNull();
-	gs->map->calculateGuardingGreaturePositions();//FIXME: excessive, update only affected tiles
+	gs->getMap().instanceNames.erase(obj->instanceName);
+	gs->getMap().objects[objectID.getNum()].dellNull();
+	gs->getMap().calculateGuardingGreaturePositions();//FIXME: excessive, update only affected tiles
 }
 
 static int getDir(const int3 & src, const int3 & dst)
@@ -1327,12 +1327,12 @@ void TryMoveHero::applyGs(CGameState *gs)
 
 	if(result == EMBARK) //hero enters boat at destination tile
 	{
-		const TerrainTile &tt = gs->map->getTile(h->convertToVisitablePos(end));
+		const TerrainTile &tt = gs->getMap().getTile(h->convertToVisitablePos(end));
 		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == Obj::BOAT); //the only visitable object at destination is Boat
 		auto * boat = dynamic_cast<CGBoat *>(tt.visitableObjects.back());
 		assert(boat);
 
-		gs->map->removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
+		gs->getMap().removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
 		h->boat = boat;
 		h->attachTo(*boat);
 		boat->hero = h;
@@ -1343,18 +1343,18 @@ void TryMoveHero::applyGs(CGameState *gs)
 		b->direction = h->moveDir;
 		b->pos = start;
 		b->hero = nullptr;
-		gs->map->addBlockVisTiles(b);
+		gs->getMap().addBlockVisTiles(b);
 		h->detachFrom(*b);
 		h->boat = nullptr;
 	}
 
 	if(start!=end && (result == SUCCESS || result == TELEPORTATION || result == EMBARK || result == DISEMBARK))
 	{
-		gs->map->removeBlockVisTiles(h);
+		gs->getMap().removeBlockVisTiles(h);
 		h->pos = end;
 		if(auto * b = const_cast<CGBoat *>(h->boat))
 			b->pos = end;
-		gs->map->addBlockVisTiles(h);
+		gs->getMap().addBlockVisTiles(h);
 	}
 
 	auto & fogOfWarMap = gs->getPlayerTeam(h->getOwner())->fogOfWarMap;
@@ -1417,11 +1417,11 @@ void SetHeroesInTown::applyGs(CGameState *gs)
 
 	if(v)
 	{
-		gs->map->addBlockVisTiles(v);
+		gs->getMap().addBlockVisTiles(v);
 	}
 	if(g)
 	{
-		gs->map->removeBlockVisTiles(g);
+		gs->getMap().removeBlockVisTiles(g);
 	}
 }
 
@@ -1437,7 +1437,7 @@ void HeroRecruited::applyGs(CGameState *gs)
 		auto * boat = dynamic_cast<CGBoat *>(obj);
 		if (boat)
 		{
-			gs->map->removeBlockVisTiles(boat);
+			gs->getMap().removeBlockVisTiles(boat);
 			h->attachToBoat(boat);
 		}
 	}
@@ -1448,16 +1448,16 @@ void HeroRecruited::applyGs(CGameState *gs)
 
 	if(h->id == ObjectInstanceID())
 	{
-		h->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
-		gs->map->objects.emplace_back(h);
+		h->id = ObjectInstanceID(static_cast<si32>(gs->getMap().objects.size()));
+		gs->getMap().objects.emplace_back(h);
 	}
 	else
-		gs->map->objects[h->id.getNum()] = h;
+		gs->getMap().objects[h->id.getNum()] = h;
 
-	gs->map->heroesOnMap.emplace_back(h);
+	gs->getMap().heroesOnMap.emplace_back(h);
 	p->addOwnedObject(h);
 	h->attachTo(*p);
-	gs->map->addBlockVisTiles(h);
+	gs->getMap().addBlockVisTiles(h);
 
 	if(t)
 		t->setVisitingHero(h);
@@ -1473,7 +1473,7 @@ void GiveHero::applyGs(CGameState *gs)
 		auto * boat = dynamic_cast<CGBoat *>(obj);
 		if (boat)
 		{
-			gs->map->removeBlockVisTiles(boat);
+			gs->getMap().removeBlockVisTiles(boat);
 			h->attachToBoat(boat);
 		}
 	}
@@ -1483,26 +1483,26 @@ void GiveHero::applyGs(CGameState *gs)
 	h->attachTo(*gs->getPlayerState(player));
 
 	auto oldVisitablePos = h->visitablePos();
-	gs->map->removeBlockVisTiles(h,true);
+	gs->getMap().removeBlockVisTiles(h,true);
 	h->updateAppearance();
 
 	h->setOwner(player);
 	h->setMovementPoints(h->movementPointsLimit(true));
 	h->setAnchorPos(h->convertFromVisitablePos(oldVisitablePos));
-	gs->map->heroesOnMap.emplace_back(h);
+	gs->getMap().heroesOnMap.emplace_back(h);
 	gs->getPlayerState(h->getOwner())->addOwnedObject(h);
 
-	gs->map->addBlockVisTiles(h);
+	gs->getMap().addBlockVisTiles(h);
 	h->inTownGarrison = false;
 }
 
 void NewObject::applyGs(CGameState *gs)
 {
-	newObject->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
+	newObject->id = ObjectInstanceID(static_cast<si32>(gs->getMap().objects.size()));
 
-	gs->map->objects.emplace_back(newObject);
-	gs->map->addBlockVisTiles(newObject);
-	gs->map->calculateGuardingGreaturePositions();
+	gs->getMap().objects.emplace_back(newObject);
+	gs->getMap().addBlockVisTiles(newObject);
+	gs->getMap().calculateGuardingGreaturePositions();
 
 	// attach newly spawned wandering monster to global bonus system node
 	auto newArmy = dynamic_cast<CArmedInstance*>(newObject);
@@ -1515,7 +1515,7 @@ void NewObject::applyGs(CGameState *gs)
 void NewArtifact::applyGs(CGameState *gs)
 {
 	auto art = ArtifactUtils::createArtifact(artId, spellId);
-	gs->map->addNewArtifactInstance(art);
+	gs->getMap().addNewArtifactInstance(art);
 	PutArtifact pa(art->getId(), ArtifactLocation(artHolder, pos), false);
 	pa.applyGs(gs);
 }
@@ -1632,7 +1632,7 @@ void RebalanceStacks::applyGs(CGameState *gs)
 					auto dstSlot = ArtifactUtils::getArtBackpackPosition(srcHero, dstArt->getTypeId());
 					if(srcHero && dstSlot != ArtifactPosition::PRE_FIRST)
 					{
-						gs->map->moveArtifactInstance(*dstStack, ArtifactPosition::CREATURE_SLOT, *srcHero, dstSlot);
+						gs->getMap().moveArtifactInstance(*dstStack, ArtifactPosition::CREATURE_SLOT, *srcHero, dstSlot);
 					}
 					//else - artifact can be lost :/
 					else
@@ -1644,12 +1644,12 @@ void RebalanceStacks::applyGs(CGameState *gs)
 						ea.applyGs(gs);
 						logNetwork->warn("Cannot move artifact! No free slots");
 					}
-					gs->map->moveArtifactInstance(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
+					gs->getMap().moveArtifactInstance(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
 					//TODO: choose from dialog
 				}
 				else //just move to the other slot before stack gets erased
 				{
-					gs->map->moveArtifactInstance(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
+					gs->getMap().moveArtifactInstance(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
 				}
 			}
 			if (stackExp)
@@ -1727,7 +1727,7 @@ void PutArtifact::applyGs(CGameState *gs)
 	assert(hero);
 	assert(art && art->canBePutAt(hero, al.slot));
 	assert(ArtifactUtils::checkIfSlotValid(*hero, al.slot));
-	gs->map->putArtifactInstance(*hero, art, al.slot);
+	gs->getMap().putArtifactInstance(*hero, art, al.slot);
 }
 
 void BulkEraseArtifacts::applyGs(CGameState *gs)
@@ -1766,7 +1766,7 @@ void BulkEraseArtifacts::applyGs(CGameState *gs)
 		{
 			logGlobal->debug("Erasing artifact %s", slotInfo->artifact->getType()->getNameTranslated());
 		}
-		gs->map->removeArtifactInstance(*artSet, slot);
+		gs->getMap().removeArtifactInstance(*artSet, slot);
 	}
 }
 
@@ -1783,7 +1783,7 @@ void BulkMoveArtifacts::applyGs(CGameState *gs)
 			});
 
 		for(const auto & slot : packToRemove)
-			gs->map->removeArtifactInstance(artSet, slot);
+			gs->getMap().removeArtifactInstance(artSet, slot);
 	};
 
 	const auto bulkArtsPut = [gs](std::vector<LinkedSlots> & artsPack, CArtifactSet & initArtSet, CArtifactSet & dstArtSet)
@@ -1792,7 +1792,7 @@ void BulkMoveArtifacts::applyGs(CGameState *gs)
 		{
 			auto * art = initArtSet.getArt(slotsPair.srcPos);
 			assert(art);
-			gs->map->putArtifactInstance(dstArtSet, art, slotsPair.dstPos);
+			gs->getMap().putArtifactInstance(dstArtSet, art, slotsPair.dstPos);
 		}
 	};
 	
@@ -1824,7 +1824,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 		}));
 
 	auto * combinedArt = new CArtifactInstance(builtArt);
-	gs->map->addNewArtifactInstance(combinedArt);
+	gs->getMap().addNewArtifactInstance(combinedArt);
 
 	// Find slots for all involved artifacts
 	std::set<ArtifactPosition, std::greater<>> slotsInvolved = { al.slot };
@@ -1865,7 +1865,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	for(const auto & slot : slotsInvolved)
 	{
 		const auto constituentInstance = artSet->getArt(slot);
-		gs->map->removeArtifactInstance(*artSet, slot);
+		gs->getMap().removeArtifactInstance(*artSet, slot);
 
 		if(!combinedArt->getType()->isFused())
 		{
@@ -1877,7 +1877,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	}
 
 	// Put new combined artifacts
-	gs->map->putArtifactInstance(*artSet, combinedArt, al.slot);
+	gs->getMap().putArtifactInstance(*artSet, combinedArt, al.slot);
 }
 
 void DisassembledArtifact::applyGs(CGameState *gs)
@@ -1888,15 +1888,15 @@ void DisassembledArtifact::applyGs(CGameState *gs)
 	assert(disassembledArt);
 
 	const auto parts = disassembledArt->getPartsInfo();
-	gs->map->removeArtifactInstance(*hero, al.slot);
+	gs->getMap().removeArtifactInstance(*hero, al.slot);
 	for(auto & part : parts)
 	{
 		// ArtifactPosition::PRE_FIRST is value of main part slot -> it'll replace combined artifact in its pos
 		auto slot = (ArtifactUtils::isSlotEquipment(part.slot) ? part.slot : al.slot);
 		disassembledArt->detachFrom(*part.art);
-		gs->map->putArtifactInstance(*hero, part.art, slot);
+		gs->getMap().putArtifactInstance(*hero, part.art, slot);
 	}
-	gs->map->eraseArtifactInstance(disassembledArt);
+	gs->getMap().eraseArtifactInstance(disassembledArt);
 }
 
 void HeroVisit::applyGs(CGameState *gs)
@@ -1918,7 +1918,7 @@ void SetAvailableArtifacts::applyGs(CGameState *gs)
 	}
 	else
 	{
-		gs->map->townMerchantArtifacts = arts;
+		gs->getMap().townMerchantArtifacts = arts;
 	}
 }
 
@@ -1949,7 +1949,7 @@ void NewTurn::applyGs(CGameState *gs)
 	for(auto & creatureSet : availableCreatures) //set available creatures in towns
 		creatureSet.applyGs(gs);
 
-	for(CGTownInstance* t : gs->map->towns)
+	for(CGTownInstance* t : gs->getMap().towns)
 	{
 		t->built = 0;
 		t->spellResearchCounterDay = 0;

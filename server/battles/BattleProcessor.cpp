@@ -160,7 +160,7 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 	TerrainId terrain = t.getTerrainID();
 	if (town)
 		terrain = town->getNativeTerrain();
-	else if (gameHandler->gameState()->map->isCoastalTile(tile)) //coastal tile is always ground
+	else if (gameHandler->gameState()->getMap().isCoastalTile(tile)) //coastal tile is always ground
 		terrain = ETerrainId::SAND;
 
 	BattleField battlefieldType = gameHandler->gameState()->battleGetBattlefieldType(tile, gameHandler->getRandomGenerator());

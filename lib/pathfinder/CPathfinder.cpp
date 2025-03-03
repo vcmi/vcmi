@@ -111,7 +111,7 @@ void CPathfinder::calculatePaths()
 
 	for(auto * initialNode : initialNodes)
 	{
-		if(!gamestate->isInTheMap(initialNode->coord)/* || !gs->map->isInTheMap(dest)*/) //check input
+		if(!gamestate->isInTheMap(initialNode->coord)/* || !gs->getMap().isInTheMap(dest)*/) //check input
 		{
 			logGlobal->error("CGameState::calculatePaths: Hero outside the gs->map? How dare you...");
 			throw std::runtime_error("Wrong checksum");
@@ -251,7 +251,7 @@ TeleporterTilesVector CPathfinderHelper::getAllowedTeleportChannelExits(const Te
 			auto pos = obj->getBlockedPos();
 			for(const auto & p : pos)
 			{
-				if(gs->map->getTile(p).topVisitableId() == obj->ID)
+				if(gs->getMap().getTile(p).topVisitableId() == obj->ID)
 					allowedExits.push_back(p);
 			}
 		}
@@ -571,7 +571,7 @@ void CPathfinderHelper::getNeighbours(
 	const boost::logic::tribool & onLand,
 	const bool limitCoastSailing) const
 {
-	CMap * map = gs->map;
+	const CMap * map = &gs->getMap();
 	const TerrainType * sourceTerrain = sourceTile.getTerrain();
 
 	static constexpr std::array dirs = {
