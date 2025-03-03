@@ -55,6 +55,8 @@ private:
 
 	IGameEngineUser *engineUser = nullptr;
 
+	void updateFrame();
+
 public:
 	std::mutex interfaceMutex;
 
@@ -107,7 +109,7 @@ public:
 	~GameEngine();
 
 	void init();
-	void renderFrame();
+	[[noreturn]] void mainLoop();
 
 	/// called whenever SDL_WINDOWEVENT_RESTORED is reported or the user selects a different resolution, requiring to center/resize all windows
 	void onScreenResize(bool resolutionChanged);

@@ -68,11 +68,7 @@ namespace po_style = boost::program_options::command_line_style;
 static std::atomic<bool> headlessQuit = false;
 static std::optional<std::string> criticalInitializationError;
 
-#ifndef VCMI_IOS
-void processCommand(const std::string &message);
-#endif
 [[noreturn]] static void quitApplication();
-static void mainLoop();
 
 static CBasicLogConfigurator *logConfig;
 
@@ -387,12 +383,15 @@ int main(int argc, char * argv[])
 			GAME->mainmenu()->playMusic();
 	}
 	
-	std::vector<std::string> names;
+#ifndef VCMI_UNIX
+	// on Linux, name of main thread is also name of our process. Which we don't want to change
+	setThreadName("MainGUI");
+#endif
 
 	if(!settings["session"]["headless"].Bool())
 	{
 		checkForModLoadingFailure();
-		mainLoop();
+		ENGINE->mainLoop();
 	}
 	else
 	{
@@ -403,23 +402,6 @@ int main(int argc, char * argv[])
 
 		quitApplication();
 	}
-
-	return 0;
-}
-
-static void mainLoop()
-{
-#ifndef VCMI_UNIX
-	// on Linux, name of main thread is also name of our process. Which we don't want to change
-	setThreadName("MainGUI");
-#endif
-
-	while(1) //main SDL events loop
-	{
-		ENGINE->input().fetchEvents();
-		ENGINE->renderFrame();
-	}
-}
 
 [[noreturn]] static void quitApplicationImmediately(int error_code)
 {

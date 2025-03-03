@@ -104,27 +104,33 @@ void GameEngine::fakeMouseMove()
 	});
 }
 
-void GameEngine::renderFrame()
+[[noreturn]] void GameEngine::mainLoop()
 {
+	for (;;)
 	{
-		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-
-		engineUser->onUpdate();
-
-		handleEvents();
-		windows().simpleRedraw();
-
-		if (settings["video"]["showfps"].Bool())
-			drawFPSCounter();
-
-		screenHandlerInstance->updateScreenTexture();
-
-		windows().onFrameRendered();
-		ENGINE->cursor().update();
+		input().fetchEvents();
+		updateFrame();
+		screenHandlerInstance->presentScreenTexture();
+		framerate().framerateDelay(); // holds a constant FPS
 	}
+}
 
-	screenHandlerInstance->presentScreenTexture();
-	framerate().framerateDelay(); // holds a constant FPS
+void GameEngine::updateFrame()
+{
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+
+	engineUser->onUpdate();
+
+	handleEvents();
+	windows().simpleRedraw();
+
+	if (settings["video"]["showfps"].Bool())
+		drawFPSCounter();
+
+	screenHandlerInstance->updateScreenTexture();
+
+	windows().onFrameRendered();
+	ENGINE->cursor().update();
 }
 
 GameEngine::GameEngine()
