@@ -620,12 +620,12 @@ void CGTownInstance::mergeGarrisonOnSiege() const
 		});
 		auto dst = visitingHero->getSlotFor(pair.second->getCreatureID());
 		if(dst.validSlot())
-			cb->moveStack(StackLocation(this, pair.first), StackLocation(visitingHero, dst), -1);
+			cb->moveStack(StackLocation(id, pair.first), StackLocation(visitingHero->id, dst), -1);
 		else
 		{
 			dst = getWeakestStackSlot(static_cast<int>(pair.second->getPower()));
 			if(dst.validSlot())
-				cb->swapStacks(StackLocation(this, pair.first), StackLocation(visitingHero, dst));
+				cb->swapStacks(StackLocation(id, pair.first), StackLocation(visitingHero->id, dst));
 		}
 	}
 }
@@ -654,7 +654,7 @@ void CGTownInstance::clearArmy() const
 {
 	while(!stacks.empty())
 	{
-		cb->eraseStack(StackLocation(this, stacks.begin()->first));
+		cb->eraseStack(StackLocation(id, stacks.begin()->first));
 	}
 }
 

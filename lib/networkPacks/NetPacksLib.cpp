@@ -1520,16 +1520,6 @@ void NewArtifact::applyGs(CGameState *gs)
 	pa.applyGs(gs);
 }
 
-const CStackInstance * StackLocation::getStack()
-{
-	if(!army->hasStackAtSlot(slot))
-	{
-		logNetwork->warn("%s don't have a stack at slot %d", army->nodeName(), slot.getNum());
-		return nullptr;
-	}
-	return &army->getStack(slot);
-}
-
 struct ObjectRetriever
 {
 	const CArmedInstance * operator()(const ConstTransitivePtr<CGHeroInstance> &h) const
@@ -1616,25 +1606,25 @@ void RebalanceStacks::applyGs(CGameState *gs)
 	if(!dstObj)
 		throw std::runtime_error("RebalanceStacks: invalid army object " + std::to_string(dstArmy.getNum()) + ", possible game state corruption.");
 
-	StackLocation src(srcObj, srcSlot);
-	StackLocation dst(dstObj, dstSlot);
+	StackLocation src(srcObj->id, srcSlot);
+	StackLocation dst(dstObj->id, dstSlot);
 
-	const CCreature * srcType = src.army->getCreature(src.slot);
-	TQuantity srcCount = src.army->getStackCount(src.slot);
+	const CCreature * srcType = srcObj->getCreature(src.slot);
+	TQuantity srcCount = srcObj->getStackCount(src.slot);
 	bool stackExp = gs->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE);
 
 	if(srcCount == count) //moving whole stack
 	{
-		const auto c = dst.army->getCreature(dst.slot);
+		const auto c = dstObj->getCreature(dst.slot);
 
 		if(c) //stack at dest -> merge
 		{
 			assert(c == srcType);
 			
-			const auto srcHero = dynamic_cast<CGHeroInstance*>(src.army.get());
-			const auto dstHero = dynamic_cast<CGHeroInstance*>(dst.army.get());
-			auto srcStack = const_cast<CStackInstance*>(src.getStack());
-			auto dstStack = const_cast<CStackInstance*>(dst.getStack());
+			const auto srcHero = dynamic_cast<CGHeroInstance*>(srcObj);
+			const auto dstHero = dynamic_cast<CGHeroInstance*>(dstObj);
+			auto srcStack = const_cast<CStackInstance*>(srcObj->getStackPtr(src.slot));
+			auto dstStack = const_cast<CStackInstance*>(dstObj->getStackPtr(dst.slot));
 			if(srcStack->getArt(ArtifactPosition::CREATURE_SLOT))
 			{
 				if(auto dstArt = dstStack->getArt(ArtifactPosition::CREATURE_SLOT))
@@ -1664,48 +1654,48 @@ void RebalanceStacks::applyGs(CGameState *gs)
 			}
 			if (stackExp)
 			{
-				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
-				src.army->eraseStack(src.slot);
-				dst.army->changeStackCount(dst.slot, count);
-				dst.army->setStackExp(dst.slot, totalExp /(dst.army->getStackCount(dst.slot))); //mean
+				ui64 totalExp = srcCount * srcObj->getStackExperience(src.slot) + dstObj->getStackCount(dst.slot) * dstObj->getStackExperience(dst.slot);
+				srcObj->eraseStack(src.slot);
+				dstObj->changeStackCount(dst.slot, count);
+				dstObj->setStackExp(dst.slot, totalExp /(dstObj->getStackCount(dst.slot))); //mean
 			}
 			else
 			{
-				src.army->eraseStack(src.slot);
-				dst.army->changeStackCount(dst.slot, count);
+				srcObj->eraseStack(src.slot);
+				dstObj->changeStackCount(dst.slot, count);
 			}
 		}
 		else //move stack to an empty slot, no exp change needed
 		{
-			CStackInstance *stackDetached = src.army->detachStack(src.slot);
-			dst.army->putStack(dst.slot, stackDetached);
+			CStackInstance *stackDetached = srcObj->detachStack(src.slot);
+			dstObj->putStack(dst.slot, stackDetached);
 		}
 	}
 	else
 	{
-		[[maybe_unused]] const CCreature *c = dst.army->getCreature(dst.slot);
+		[[maybe_unused]] const CCreature *c = dstObj->getCreature(dst.slot);
 		if(c) //stack at dest -> rebalance
 		{
 			assert(c == srcType);
 			if (stackExp)
 			{
-				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
-				src.army->changeStackCount(src.slot, -count);
-				dst.army->changeStackCount(dst.slot, count);
-				dst.army->setStackExp(dst.slot, totalExp /(src.army->getStackCount(src.slot) + dst.army->getStackCount(dst.slot))); //mean
+				ui64 totalExp = srcCount * srcObj->getStackExperience(src.slot) + dstObj->getStackCount(dst.slot) * dstObj->getStackExperience(dst.slot);
+				srcObj->changeStackCount(src.slot, -count);
+				dstObj->changeStackCount(dst.slot, count);
+				dstObj->setStackExp(dst.slot, totalExp /(srcObj->getStackCount(src.slot) + dstObj->getStackCount(dst.slot))); //mean
 			}
 			else
 			{
-				src.army->changeStackCount(src.slot, -count);
-				dst.army->changeStackCount(dst.slot, count);
+				srcObj->changeStackCount(src.slot, -count);
+				dstObj->changeStackCount(dst.slot, count);
 			}
 		}
 		else //split stack to an empty slot
 		{
-			src.army->changeStackCount(src.slot, -count);
-			dst.army->addToSlot(dst.slot, srcType->getId(), count, false);
+			srcObj->changeStackCount(src.slot, -count);
+			dstObj->addToSlot(dst.slot, srcType->getId(), count, false);
 			if (stackExp)
-				dst.army->setStackExp(dst.slot, src.army->getStackExperience(src.slot));
+				dstObj->setStackExp(dst.slot, srcObj->getStackExperience(src.slot));
 		}
 	}
 

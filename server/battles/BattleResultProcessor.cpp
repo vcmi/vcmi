@@ -124,13 +124,13 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 			if(st->getCount() == 0 || !st->alive())
 			{
 				logGlobal->debug("Stack has been destroyed.");
-				StackLocation sl(army, st->unitSlot());
+				StackLocation sl(army->id, st->unitSlot());
 				newStackCounts.push_back(TStackAndItsNewCount(sl, 0));
 			}
 			else if(st->getCount() != army->getStackCount(st->unitSlot()))
 			{
 				logGlobal->debug("Stack size changed: %d -> %d units.", army->getStackCount(st->unitSlot()), st->getCount());
-				StackLocation sl(army, st->unitSlot());
+				StackLocation sl(army->id, st->unitSlot());
 				newStackCounts.push_back(TStackAndItsNewCount(sl, st->getCount()));
 			}
 		}
@@ -158,7 +158,7 @@ void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 		SlotID slot = army->getSlotFor(summoned_iter.first);
 		if (slot.validSlot())
 		{
-			StackLocation location(army, slot);
+			StackLocation location(army->id, slot);
 			gh->addToSlot(location, summoned_iter.first.toCreature(), summoned_iter.second);
 		}
 		else
@@ -561,7 +561,7 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 	if (necroSlot != SlotID() && !finishingBattle->isDraw())
 	{
 		finishingBattle->winnerHero->showNecromancyDialog(raisedStack, gameHandler->getRandomGenerator());
-		gameHandler->addToSlot(StackLocation(finishingBattle->winnerHero, necroSlot), raisedStack.getCreature(), raisedStack.count);
+		gameHandler->addToSlot(StackLocation(finishingBattle->winnerHero->id, necroSlot), raisedStack.getCreature(), raisedStack.count);
 	}
 
 	BattleResultsApplied resultsApplied;

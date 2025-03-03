@@ -573,7 +573,7 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 168);
 		iw.components.emplace_back(ComponentType::CREATURE, h->getCreature(targetstack)->getId(), -countToTake);
 		cb->showInfoDialog(&iw);
-		cb->changeStackCount(StackLocation(h, targetstack), -countToTake);
+		cb->changeStackCount(StackLocation(h->id, targetstack), -countToTake);
 	}
 	else
 	{
@@ -1043,7 +1043,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 
 			if(drown)
 			{
-				cb->changeStackCount(StackLocation(h, i->first), -drown);
+				cb->changeStackCount(StackLocation(h->id, i->first), -drown);
 				xp += drown * i->second->getType()->getMaxHealth();
 			}
 		}

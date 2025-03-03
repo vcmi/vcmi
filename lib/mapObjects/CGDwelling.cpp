@@ -420,7 +420,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 					std::pair<SlotID, SlotID> toMerge;
 					if (h->mergeableStacks(toMerge))
 					{
-						cb->moveStack(StackLocation(h, toMerge.first), StackLocation(h, toMerge.second), -1); //merge toMerge.first into toMerge.second
+						cb->moveStack(StackLocation(h->id, toMerge.first), StackLocation(h->id, toMerge.second), -1); //merge toMerge.first into toMerge.second
 						assert(!h->hasStackAtSlot(toMerge.first)); //we have now a new free slot
 					}
 				}
@@ -453,7 +453,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 
 				cb->showInfoDialog(&iw);
 				cb->sendAndApply(sac);
-				cb->addToSlot(StackLocation(h, slot), crs, count);
+				cb->addToSlot(StackLocation(h->id, slot), crs, count);
 			}
 		}
 		else //there no creatures

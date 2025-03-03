@@ -185,7 +185,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 			{
 				if (heroStack->getId() == change.first)
 				{
-					StackLocation location(hero, slot.first);
+					StackLocation location(hero->id, slot.first);
 					cb->changeStackType(location, change.second.toCreature());
 					break;
 				}

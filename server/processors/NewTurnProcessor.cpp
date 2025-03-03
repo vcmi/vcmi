@@ -385,7 +385,7 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 		if (creature->getLevel() != tierToGrow)
 			continue;
 
-		StackLocation stackLocation(t, slot.first);
+		StackLocation stackLocation(t->id, slot.first);
 		gameHandler->changeStackCount(stackLocation, creature->getGrowth(), false);
 		takeFromAvailable(creature->getGrowth());
 
@@ -410,7 +410,7 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 			if (baseCreature.toEntity(LIBRARY)->getLevel() != tierToGrow)
 				continue;
 
-			StackLocation stackLocation(t, freeSlotID);
+			StackLocation stackLocation(t->id, freeSlotID);
 
 			if (upgradeUnit && !baseCreature.toCreature()->upgrades.empty())
 			{

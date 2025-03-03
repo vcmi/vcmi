@@ -19,6 +19,7 @@ struct SideInBattle;
 struct BattleResult;
 class CBattleInfoCallback;
 class CGHeroInstance;
+class CArmedInstance;
 VCMI_LIB_NAMESPACE_END
 
 class CBattleQuery;
