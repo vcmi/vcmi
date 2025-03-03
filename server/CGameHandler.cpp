@@ -2048,7 +2048,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	if(t->hasBuilt(requestedID))
 		COMPLAIN_RETF("Building %s is already built in %s", t->getTown()->buildings.at(requestedID)->getNameTranslated() % t->getNameTranslated());
 
-	const CBuilding * requestedBuilding = t->getTown()->buildings.at(requestedID);
+	const auto & requestedBuilding = t->getTown()->buildings.at(requestedID);
 
 	//Vector with future list of built building and buildings in auto-mode that are not yet built.
 	std::vector<const CBuilding*> remainingAutoBuildings;
@@ -2144,7 +2144,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 		else
 		{
 			if(build.second->mode == CBuilding::BUILD_AUTO) //not built auto building
-				remainingAutoBuildings.push_back(build.second);
+				remainingAutoBuildings.push_back(build.second.get());
 		}
 	}
 
@@ -2154,7 +2154,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	ns.built = force ? t->built : (t->built+1);
 
 	std::queue<const CBuilding*> buildingsToAdd;
-	buildingsToAdd.push(requestedBuilding);
+	buildingsToAdd.push(requestedBuilding.get());
 
 	while(!buildingsToAdd.empty())
 	{

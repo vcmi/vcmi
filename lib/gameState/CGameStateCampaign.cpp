@@ -677,7 +677,7 @@ void CGameStateCampaign::initTowns()
 
 			town->addBuilding(newBuilding);
 
-			auto building = town->getTown()->buildings.at(newBuilding);
+			const auto & building = town->getTown()->buildings.at(newBuilding);
 			newBuilding = building->upgrade;
 		}
 		break;

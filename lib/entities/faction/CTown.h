@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../building/TownFortifications.h"
-#include "../../ConstTransitivePtr.h"
 #include "../../Point.h"
 #include "../../constants/EntityIdentifiers.h"
 #include "../../constants/Enumerations.h"
@@ -26,8 +25,8 @@ class CBuilding;
 /// Should be moved from lib to client
 struct DLL_LINKAGE CStructure
 {
-	CBuilding * building;  // base building. If null - this structure will be always present on screen
-	CBuilding * buildable; // building that will be used to determine built building and visible cost. Usually same as "building"
+	const CBuilding * building;  // base building. If null - this structure will be always present on screen
+	const CBuilding * buildable; // building that will be used to determine built building and visible cost. Usually same as "building"
 
 	int3 pos;
 	AnimationPath defName;
@@ -58,10 +57,9 @@ public:
 	CFaction * faction;
 
 	/// level -> list of creatures on this tier
-	// TODO: replace with pointers to CCreature
 	std::vector<std::vector<CreatureID> > creatures;
 
-	std::map<BuildingID, ConstTransitivePtr<CBuilding> > buildings;
+	std::map<BuildingID, std::unique_ptr<const CBuilding>> buildings;
 
 	std::vector<std::string> dwellings; //defs for adventure map dwellings for new towns, [0] means tier 1 creatures etc.
 	std::vector<std::string> dwellingNames;
@@ -99,7 +97,7 @@ public:
 
 		/// list of town screen structures.
 		/// NOTE: index in vector is meaningless. Vector used instead of list for a bit faster access
-		std::vector<ConstTransitivePtr<CStructure> > structures;
+		std::vector<std::unique_ptr<const CStructure>> structures;
 
 		std::string siegePrefix;
 		std::vector<Point> siegePositions;

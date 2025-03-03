@@ -476,13 +476,12 @@ std::vector <const CGObjectInstance *> CGameInfoCallback::getVisitableObjs(int3 
 		if(!getPlayerID().has_value() || obj->ID != Obj::EVENT) //hide events from players
 			ret.push_back(obj);
 	}
-
 	return ret;
 }
 
-std::vector<ConstTransitivePtr<CGObjectInstance>> CGameInfoCallback::getAllVisitableObjs() const
+std::vector<const CGObjectInstance *> CGameInfoCallback::getAllVisitableObjs() const
 {
-	std::vector<ConstTransitivePtr<CGObjectInstance>> ret;
+	std::vector<const CGObjectInstance *> ret;
 	for(auto & obj : gs->map->objects)
 		if(obj && obj->isVisitable() && obj->ID != Obj::EVENT && isVisible(obj))
 			ret.push_back(obj);
@@ -589,8 +588,7 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 	if(!t->getTown()->buildings.count(ID))
 		return EBuildingState::BUILDING_ERROR;
 
-	const CBuilding * building = t->getTown()->buildings.at(ID);
-
+	const auto & building = t->getTown()->buildings.at(ID);
 
 	if(t->hasBuilt(ID))	//already built
 		return EBuildingState::ALREADY_PRESENT;

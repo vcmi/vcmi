@@ -769,7 +769,7 @@ void CGTownInstance::recreateBuildingsBonuses()
 		if (bonusesReplacedByUpgrade)
 			continue;
 
-		auto building = getTown()->buildings.at(bid);
+		const auto & building = getTown()->buildings.at(bid);
 
 		if(building->buildingBonuses.empty())
 			continue;
@@ -960,7 +960,7 @@ TResources CGTownInstance::getBuildingCost(const BuildingID & buildingID) const
 
 CBuilding::TRequired CGTownInstance::genBuildingRequirements(const BuildingID & buildID, bool deep) const
 {
-	const CBuilding * building = getTown()->buildings.at(buildID);
+	const auto & building = getTown()->buildings.at(buildID);
 
 	//TODO: find better solution to prevent infinite loops
 	std::set<BuildingID> processed;
@@ -974,7 +974,7 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(const BuildingID & 
 			return CBuilding::TRequired::OperatorAll();
 		}
 
-		const CBuilding * build = getTown()->buildings.at(id);
+		const auto & build = getTown()->buildings.at(id);
 		CBuilding::TRequired::OperatorAll requirements;
 
 		if (!hasBuilt(id))
@@ -999,7 +999,7 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(const BuildingID & 
 	CBuilding::TRequired::OperatorAll requirements;
 	if (building->upgrade != BuildingID::NONE)
 	{
-		const CBuilding * upgr = getTown()->buildings.at(building->upgrade);
+		const auto & upgr = getTown()->buildings.at(building->upgrade);
 
 		requirements.expressions.push_back(dependTest(upgr->bid));
 		processed.clear();
@@ -1095,7 +1095,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 				if(id == BuildingID::DEFAULT)
 					continue;
 
-				const CBuilding * building = getTown()->buildings.at(id);
+				const auto & building = getTown()->buildings.at(id);
 
 				if(building->mode == CBuilding::BUILD_AUTO)
 					continue;

@@ -11,6 +11,7 @@
 
 #include "IMarket.h"
 #include "CGDwelling.h"
+#include "../ConstTransitivePtr.h"
 #include "../entities/faction/CFaction.h" // TODO: remove
 #include "../entities/faction/CTown.h" // TODO: remove
 
