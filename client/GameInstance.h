@@ -45,6 +45,7 @@ public:
 	void onGlobalLobbyInterfaceActivated() final;
 	void onUpdate() final;
 	bool capturedAllEvents() final;
+	void onShutdownRequested(bool askForConfirmation) final;
 };
 
 extern std::unique_ptr<GameInstance> GAME;

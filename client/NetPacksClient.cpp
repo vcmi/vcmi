@@ -418,7 +418,7 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 	{
 		logAi->info("Red player %s. Ending game.", pack.victoryLossCheckResult.victory() ? "won" : "lost");
 
-		handleQuit(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
+		GAME->onShutdownRequested(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
 	}
 }
 

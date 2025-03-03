@@ -17,24 +17,19 @@
 #include "../client/CMT.h"
 #include "../client/CPlayerInterface.h"
 #include "../client/CServerHandler.h"
-#include "../client/eventsSDL/InputHandler.h"
 #include "../client/GameEngine.h"
 #include "../client/GameInstance.h"
 #include "../client/gui/CursorHandler.h"
 #include "../client/gui/WindowHandler.h"
 #include "../client/mainmenu/CMainMenu.h"
-#include "../client/media/CEmptyVideoPlayer.h"
-#include "../client/media/CMusicHandler.h"
-#include "../client/media/CSoundHandler.h"
-#include "../client/media/CVideoHandler.h"
 #include "../client/render/Graphics.h"
 #include "../client/render/IRenderHandler.h"
 #include "../client/render/IScreenHandler.h"
-#include "../client/lobby/CBonusSelection.h"
 #include "../client/windows/CMessage.h"
 #include "../client/windows/InfoWindows.h"
 
 #include "../lib/CConsoleHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/ExceptionsCommon.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -42,7 +37,6 @@
 #include "../lib/modding/IdentifierStorage.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
-#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/texts/MetaString.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/VCMIDirs.h"
@@ -68,9 +62,7 @@ namespace po_style = boost::program_options::command_line_style;
 static std::atomic<bool> headlessQuit = false;
 static std::optional<std::string> criticalInitializationError;
 
-[[noreturn]] static void quitApplication();
-
-static CBasicLogConfigurator *logConfig;
+[[noreturn]] extern void quitApplication();
 
 static void init()
 {
@@ -402,22 +394,9 @@ int main(int argc, char * argv[])
 
 		quitApplication();
 	}
-
-[[noreturn]] static void quitApplicationImmediately(int error_code)
-{
-	// Perform quick exit without executing static destructors and let OS cleanup anything that we did not
-	// We generally don't care about them and this leads to numerous issues, e.g.
-	// destruction of locked mutexes (fails an assertion), even in third-party libraries (as well as native libs on Android)
-	// Android - std::quick_exit is available only starting from API level 21
-	// Mingw, macOS and iOS - std::quick_exit is unavailable (at least in current version of CI)
-#if (defined(__ANDROID_API__) && __ANDROID_API__ < 21) || (defined(__MINGW32__)) || defined(VCMI_APPLE)
-	::exit(error_code);
-#else
-	std::quick_exit(error_code);
-#endif
 }
 
-[[noreturn]] static void quitApplication()
+[[noreturn]] void quitApplication()
 {
 	GAME->server().endNetwork();
 
@@ -446,39 +425,17 @@ int main(int argc, char * argv[])
 	if(!settings["session"]["headless"].Bool())
 		ENGINE->screenHandler().close();
 
-	if(logConfig != nullptr)
-	{
-		logConfig->deconfigure();
-		delete logConfig;
-		logConfig = nullptr;
-	}
+	//if(logConfig != nullptr)
+	//{
+	//	logConfig->deconfigure();
+	//	delete logConfig;
+	//	logConfig = nullptr;
+	//}
 
 	//ENGINE.reset();
 
 	std::cout << "Ending...\n";
-	quitApplicationImmediately(0);
-}
-
-void handleQuit(bool ask)
-{
-	if(!ask)
-	{
-		if(settings["session"]["headless"].Bool())
-		{
-			headlessQuit = true;
-		}
-		else
-		{
-			quitApplication();
-		}
-
-		return;
-	}
-
-	if (GAME->interface())
-		GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[69], quitApplication, nullptr);
-	else
-		CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
+	::exit(0);
 }
 
 /// Notify user about encountered fatal error and terminate the game
@@ -495,5 +452,5 @@ void handleFatalError(const std::string & message, bool terminate)
 	if (terminate)
 		throw std::runtime_error(message);
 	else
-		quitApplicationImmediately(1);
+		::exit(1);
 }
