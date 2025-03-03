@@ -92,13 +92,7 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	pos.h = 584;
 	if(screenType == ESelectionScreen::campaignList)
 	{
-		//setBackground(ImagePath::builtin("CamCust.bmp"));
-
-		const JsonNode& gameSelectConfig = CMainMenuConfig::get().getConfig()["campaign-selection"];
-		const JsonVector& bgNames = gameSelectConfig["background"].Vector();
-
-		setBackground(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(bgNames, CRandomGenerator::getDefault())));
-
+		setBackground(ImagePath::builtin("CamCust.bmp"));
 		pos = background->center();
 	}
 	else
