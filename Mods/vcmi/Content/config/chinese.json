@@ -23,6 +23,8 @@
 	"vcmi.adventureMap.noTownWithTavern"       : "没有酒馆可供查看。",
 	"vcmi.adventureMap.spellUnknownProblem"    : "无此魔法的信息。",
 	"vcmi.adventureMap.playerAttacked"         : "玩家遭受攻击: %s",
+	"vcmi.adventureMap.moveCostDetails"                  : "移动到此处总计花费{%TOTAL}移动力（{%TURNS}回合{%POINTS}点）。移动完成后还会剩下{%REMAINING}点。",
+	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "移动到此处总计花费{%POINTS}移动力。移动完成后还会剩下{%REMAINING}点。",
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(移动点数: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "抱歉，重放对手行动功能目前暂未实现！",
 
@@ -66,6 +68,7 @@
 	"vcmi.radialWheel.heroGetArtifacts" : "移动宝物",
 	"vcmi.radialWheel.heroSwapArtifacts" : "交换宝物",
 	"vcmi.radialWheel.heroDismiss" : "解雇英雄",
+	"vcmi.radialWheel.upgradeCreatures" : "升级所有生物",
 
 	"vcmi.radialWheel.moveTop" : "移到顶端",
 	"vcmi.radialWheel.moveUp" : "上移",
@@ -176,6 +179,7 @@
 	"vcmi.lobby.match.duel" : "与 %s 的游戏", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d 个玩家",
 	"vcmi.lobby.room.create.hover" : "创建房间",
+	"vcmi.lobby.room.create.help" : "于在线大厅里创建一个其他玩家可加入的新房间。",
 	"vcmi.lobby.room.players.limit" : "玩家限制",
 	"vcmi.lobby.room.description.public" : "任何玩家都可以加入公开房间。",
 	"vcmi.lobby.room.description.private" : "只有被邀请的玩家能加入私有房间。",
@@ -197,6 +201,9 @@
 	"vcmi.lobby.preview.error.invite" : "你没有被邀请到这个房间。",
 	"vcmi.lobby.preview.error.mods" : "你使用了不同的模组合集。",
 	"vcmi.lobby.preview.error.version" : "你使用了不同版本的VCMI。",
+	"vcmi.lobby.channel.add" : "添加频道",
+	"vcmi.lobby.channel.sendMessage.hover" : "发送消息",
+	"vcmi.lobby.channel.sendMessage.help" : "发送消息",
 	"vcmi.lobby.room.new" : "新建游戏",
 	"vcmi.lobby.room.load" : "加载游戏",
 	"vcmi.lobby.room.type" : "房间类型",
@@ -220,6 +227,7 @@
 
 	"vcmi.client.errors.invalidMap" : "{非法地图或战役}\n\n启动游戏失败，选择的地图或者战役，无效或被污染。原因:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{找不到数据文件}\n\n没有找到战役数据文件！你可能使用了不完整或损坏的英雄无敌3数据文件，请重新安装数据文件。",
+	"vcmi.client.errors.modLoadingFailure" : "{加载mod失败}\n\n加载mod发生致命错误！游戏可能无法正常进行，也可能崩溃。请升级或禁用下列mod：\n\n",
 	"vcmi.server.errors.disconnected" : "{网络错误}\n\n与游戏服务器的连接已断开！",
 	"vcmi.server.errors.playerLeft" : "{玩家离开}\n\n%s玩家已断开游戏！", //%s -> player color
 	"vcmi.server.errors.existingProcess"     : "一个VCMI进程已经在运行，启动新进程前请结束它。",
@@ -302,6 +310,8 @@
 	"vcmi.systemOptions.enableLargeSpellbookButton.help"   : "{扩展魔法书}\n\n启用更大的魔法书界面，每页展示更多魔法，但魔法书翻页特效在该模式下无法呈现。",
 	"vcmi.systemOptions.audioMuteFocus.hover"  : "失去焦点时静音",
 	"vcmi.systemOptions.audioMuteFocus.help"   : "{失去焦点时静音}\n\n当窗口失去焦点时静音，游戏内消息提示和新回合提示除外。",
+	"vcmi.systemOptions.enableOverlayButton.hover"  : "启用叠加层",
+	"vcmi.systemOptions.enableOverlayButton.help"   : "{启用叠加层}\n\n按下ALT键或双指手势以启用叠加层显示建筑名称等额外信息。",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "在信息面板显示消息",
 	"vcmi.adventureOptions.infoBarPick.help" : "{在信息面板显示消息}\n\n尽可能将来自访问地图物件的信息将显示在信息面板，而不是弹出窗口。",
@@ -359,6 +369,8 @@
 	"vcmi.battleOptions.endWithAutocombat.help": "{结束战斗}\n\n以自动战斗立即结束剩余战斗过程",
 	"vcmi.battleOptions.showQuickSpell.hover": "展示快捷法术面板",
 	"vcmi.battleOptions.showQuickSpell.help": "{展示快捷法术面板}\n\n展示快捷选择法术的面板。",
+	"vcmi.battleOptions.showHealthBar.hover" : "显示生命条",
+	"vcmi.battleOptions.showHealthBar.help" : "{显示生命条}\n\n显示生命条，在单位死亡前展示剩余生命值。",
 
 	"vcmi.adventureMap.revisitObject.hover" : "重新访问",
 	"vcmi.adventureMap.revisitObject.help" : "{重新访问}\n\n让当前英雄重新访问地图建筑或城镇。",
@@ -410,6 +422,9 @@
 
 	"vcmi.townStructure.bank.borrow" : "你走进银行。一位银行职员看到你，说道：“我们为您提供了一个特别优惠。您可以向我们借2500金币，期限为5天。您每天需要偿还500金币。”",
 	"vcmi.townStructure.bank.payBack" : "你走进银行。一位银行职员看到你，说道：“您已经获得了贷款。还清之前，不能再申请新的贷款。”",
+
+	"vcmi.townWindow.upgradeAll.notAllUpgradable" : "没有足够的资源升级全部生物，你想要升级下列生物吗？",
+	"vcmi.townWindow.upgradeAll.notUpgradable" : "没有足够的资源升级任一生物。",
 
 	"vcmi.logicalExpressions.anyOf"  : "以下任一前提：",
 	"vcmi.logicalExpressions.allOf"  : "以下所有前提：",
@@ -727,8 +742,6 @@
 	"core.bonus.SPELL_AFTER_ATTACK.description": "攻击后${val}%几率施放${subtype.spell}魔法",
 	"core.bonus.SPELL_BEFORE_ATTACK.name": "攻击前施法",
 	"core.bonus.SPELL_BEFORE_ATTACK.description": "攻击前${val}%几率施放${subtype.spell}魔法",
-	"core.bonus.SPELL_DAMAGE_REDUCTION.name": "魔法伤害减免",
-	"core.bonus.SPELL_DAMAGE_REDUCTION.description": "受魔法攻击时伤害减少${val}%",
 	"core.bonus.SPELL_IMMUNITY.name": "特定魔法免疫",
 	"core.bonus.SPELL_IMMUNITY.description": "免疫${subtype.spell}魔法",
 	"core.bonus.SPELL_LIKE_ATTACK.name": "类施法攻击",
@@ -761,7 +774,31 @@
 	"core.bonus.MECHANICAL.description": "免疫大多数效果，可修复",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "棱光吐息",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "攻击后向三方向扩散攻击",
-	
+	"core.bonus.SPELL_DAMAGE_REDUCTION.name": "魔法伤害减免",
+	"core.bonus.SPELL_DAMAGE_REDUCTION.description": "受魔法攻击时伤害减少${val}%",
+	"core.bonus.SPELL_DAMAGE_REDUCTION.name" : "魔法抗性",
+	"core.bonus.SPELL_DAMAGE_REDUCTION.name.air" : "气系魔法抗性",
+	"core.bonus.SPELL_DAMAGE_REDUCTION.name.fire" : "火系魔法抗性",
+	"core.bonus.SPELL_DAMAGE_REDUCTION.name.water" : "水系魔法抗性",
+	"core.bonus.SPELL_DAMAGE_REDUCTION.name.earth" : "土系魔法抗性",
+	"core.bonus.SPELL_DAMAGE_REDUCTION.description" : "减少所有魔法伤害${val}%。",
+	"core.bonus.SPELL_DAMAGE_REDUCTION.description.air" : "减少所有气系魔法伤害${val}%。",
+	"core.bonus.SPELL_DAMAGE_REDUCTION.description.fire" : "减少所有火系魔法伤害${val}%。",
+	"core.bonus.SPELL_DAMAGE_REDUCTION.description.water" : "减少所有水系魔法伤害${val}%。",
+	"core.bonus.SPELL_DAMAGE_REDUCTION.description.earth" : "减少所有土系魔法伤害${val}%。",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.name" : "魔法免疫",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.name.air" : "气系免疫",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.name.fire" : "火系免疫",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.name.water" : "水系免疫",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.name.earth" : "土系免疫",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description" : "此单位免疫所有魔法",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.air" : "此单位免疫所有气系魔法",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.fire" : "此单位免疫所有火系魔法",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.water" : "此单位免疫所有水系魔法",
+	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.earth" : "此单位免疫所有土系魔法",
+	"core.bonus.OPENING_BATTLE_SPELL.name" : "开局施放法术",
+	"core.bonus.OPENING_BATTLE_SPELL.description" : "在战斗开始时施放${subtype.spell}",
+
 	"spell.core.castleMoat.name" : "护城河",
 	"spell.core.castleMoatTrigger.name" : "护城河",
 	"spell.core.catapultShot.name" : "投石车射击",
