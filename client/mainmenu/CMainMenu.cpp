@@ -271,32 +271,38 @@ CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 	for(const JsonNode & node : config["images"].Vector())
 		images.push_back(CMainMenu::createPicture(node));
 
-	for (const JsonNode& node : config["buttons"].Vector()) {
+	for (const JsonNode& node : config["buttons"].Vector())
+	{
 		auto tokens = node["command"].String().find(' ');
 		std::pair<std::string, std::string> commandParts = {
 			node["command"].String().substr(0, tokens),
 			(tokens == std::string::npos) ? "" : node["command"].String().substr(tokens + 1)
 		};
 
-		if (commandParts.first == "campaigns") {
+		if (commandParts.first == "campaigns")
+		{
 			const auto& campaign = CMainMenuConfig::get().getCampaigns()[commandParts.second];
 
-			if (!campaign.isStruct()) {
+			if (!campaign.isStruct())
+			{
 				logGlobal->warn("Campaign set %s not found", commandParts.second);
 				continue;
 			}
 
 			bool fileExists = false;
-			for (const auto& item : campaign["items"].Vector()) {
+			for (const auto& item : campaign["items"].Vector())
+			{
 				std::string filename = item["file"].String();
 
-				if (CResourceHandler::get()->existsResource(ResourcePath(filename, EResType::CAMPAIGN))) {
+				if (CResourceHandler::get()->existsResource(ResourcePath(filename, EResType::CAMPAIGN)))
+				{
 					fileExists = true;
 					break; 
 				}
 			}
 
-			if (!fileExists) {
+			if (!fileExists)
+			{
 				logGlobal->warn("No valid files found for campaign set %s", commandParts.second);
 				continue;
 			}
@@ -313,7 +319,9 @@ CMainMenuConfig::CMainMenuConfig()
 	, config(JsonPath::builtin("config/mainmenu.json"))
 {
 	if (!config["scenario-selection"].isStruct())
-		handleFatalError("The main menu configuration file mainmenu.json is invalid or corrupted. Please check the file for errors, verify your mod setup, or reinstall VCMI to resolve the issue.", false);
+		// Fallback for 1.6 mods
+		if (config["game-select"].Vector().empty())
+			handleFatalError("The main menu configuration file mainmenu.json is invalid or corrupted. Please check the file for errors, verify your mod setup, or reinstall VCMI to resolve the issue.", false);
 }
 
 const CMainMenuConfig & CMainMenuConfig::get()
@@ -740,7 +748,8 @@ CLoadingScreen::CLoadingScreen(ImagePath background)
 
 	// Load logo
 	const auto& logoConfig = conf["logo"];
-	if (!logoConfig.isNull() && logoConfig["name"].isVector() && !logoConfig["name"].Vector().empty()) {
+	if (!logoConfig["name"].Vector().empty())
+	{
 		this->logo = std::make_shared<CPicture>(
 			ImagePath::fromJson(*RandomGeneratorUtil::nextItem(logoConfig["name"].Vector(), CRandomGenerator::getDefault())),
 			Point(logoConfig["x"].Integer(), logoConfig["y"].Integer())
@@ -749,7 +758,8 @@ CLoadingScreen::CLoadingScreen(ImagePath background)
 
 	// Load sublogo
 	const auto& sublogoConfig = conf["sublogo"];
-	if (!sublogoConfig.isNull() && sublogoConfig["name"].isVector() && !sublogoConfig["name"].Vector().empty()) {
+	if (!logoConfig["name"].Vector().empty())
+	{
 		this->sublogo = std::make_shared<CPicture>(
 			ImagePath::fromJson(*RandomGeneratorUtil::nextItem(sublogoConfig["name"].Vector(), CRandomGenerator::getDefault())),
 			Point(sublogoConfig["x"].Integer(), sublogoConfig["y"].Integer())
@@ -758,7 +768,8 @@ CLoadingScreen::CLoadingScreen(ImagePath background)
 
 	// Load loadframe
 	const auto& loadframeConfig = conf["loadframe"];
-	if (loadframeConfig.isStruct()) {
+	if (loadframeConfig.isStruct())
+	{
 		this->loadFrame = std::make_shared<CPicture>(
 			ImagePath::fromJson(*RandomGeneratorUtil::nextItem(loadframeConfig["name"].Vector(), CRandomGenerator::getDefault())),
 			loadframeConfig["x"].Integer(),
@@ -768,7 +779,8 @@ CLoadingScreen::CLoadingScreen(ImagePath background)
 
 	// Load loadbar
 	const auto& loadbarConfig = conf["loadbar"];
-	if (loadbarConfig.isStruct()) {
+	if (loadbarConfig.isStruct())
+	{
 		AnimationPath loadbarPath = AnimationPath::fromJson(*RandomGeneratorUtil::nextItem(loadbarConfig["name"].Vector(), CRandomGenerator::getDefault()));
 		const int posx = loadbarConfig["x"].Integer();
 		const int posy = loadbarConfig["y"].Integer();
