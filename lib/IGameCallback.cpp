@@ -210,7 +210,7 @@ void CPrivilegedInfoCallback::saveCommonState(CSaveFile & out) const
 	logGlobal->info("\tSaving header");
 	out.serializer & static_cast<CMapHeader&>(*gs->map);
 	logGlobal->info("\tSaving options");
-	out.serializer & gs->scenarioOps;
+	out.serializer & gs->getStartInfo();
 	logGlobal->info("\tSaving mod list");
 	out.serializer & activeMods;
 	logGlobal->info("\tSaving gamestate");

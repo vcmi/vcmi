@@ -444,10 +444,10 @@ DamageRange CGTownInstance::getKeepDamageRange() const
 FactionID CGTownInstance::randomizeFaction(vstd::RNG & rand)
 {
 	if(getOwner().isValidPlayer())
-		return cb->gameState()->scenarioOps->getIthPlayersSettings(getOwner()).castle;
+		return cb->getStartInfo()->getIthPlayersSettings(getOwner()).castle;
 
 	if(alignmentToPlayer.isValidPlayer())
-		return cb->gameState()->scenarioOps->getIthPlayersSettings(alignmentToPlayer).castle;
+		return cb->getStartInfo()->getIthPlayersSettings(alignmentToPlayer).castle;
 
 	std::vector<FactionID> potentialPicks;
 

@@ -53,7 +53,7 @@ int CGameInfoCallback::getResource(PlayerColor Player, GameResID which) const
 
 const PlayerSettings * CGameInfoCallback::getPlayerSettings(PlayerColor color) const
 {
-	return &gs->scenarioOps->getIthPlayersSettings(color);
+	return &gs->getStartInfo()->getIthPlayersSettings(color);
 }
 
 bool CGameInfoCallback::isAllowed(SpellID id) const
@@ -192,13 +192,14 @@ void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackP
 	//return gs->fillUpgradeInfo(obj->getStack(stackPos));
 }
 
-const StartInfo * CGameInfoCallback::getStartInfo(bool beforeRandomization) const
+const StartInfo * CGameInfoCallback::getStartInfo() const
 {
-	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
-	if(beforeRandomization)
-		return gs->initialOpts;
-	else
-		return gs->scenarioOps;
+	return gs->getStartInfo();
+}
+
+const StartInfo * CGameInfoCallback::getInitialStartInfo() const
+{
+	return gs->getInitialStartInfo();
 }
 
 int32_t CGameInfoCallback::getSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const
@@ -374,7 +375,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 			for(auto & elem : info.army)
 				elem.second.count = 0;
 
-			const auto factionIndex = getStartInfo(false)->playerInfos.at(h->tempOwner).castle;
+			const auto factionIndex = getStartInfo()->playerInfos.at(h->tempOwner).castle;
 
 			int maxAIValue = 0;
 			const CCreature * mostStrong = nullptr;

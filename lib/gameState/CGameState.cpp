@@ -151,8 +151,6 @@ CGameState::~CGameState()
 	// explicitly delete all ongoing battles first - BattleInfo destructor requires valid CGameState
 	currentBattles.clear();
 	map.dellNull();
-	scenarioOps.dellNull();
-	initialOpts.dellNull();
 }
 
 const IGameSettings & CGameState::getSettings() const
@@ -170,8 +168,8 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 {
 	assert(services);
 	assert(callback);
-	scenarioOps = CMemorySerializer::deepCopy(*si).release();
-	initialOpts = CMemorySerializer::deepCopy(*si).release();
+	scenarioOps = CMemorySerializer::deepCopy(*si);
+	initialOpts = CMemorySerializer::deepCopy(*si);
 	si = nullptr;
 
 	switch(scenarioOps->mode)

@@ -49,7 +49,6 @@
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/serializer/CMemorySerializer.h"
 #include "../lib/UnlockGuard.h"
 
 #include <boost/uuid/uuid.hpp>

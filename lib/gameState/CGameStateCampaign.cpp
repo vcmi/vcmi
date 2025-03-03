@@ -28,7 +28,6 @@
 #include "../mapping/CMap.h"
 #include "../ArtifactUtils.h"
 #include "../CPlayerState.h"
-#include "../serializer/CMemorySerializer.h"
 
 #include <vstd/RNG.h>
 #include <vcmi/HeroTypeService.h>

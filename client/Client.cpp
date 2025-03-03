@@ -254,7 +254,7 @@ void CClient::initPlayerEnvironments()
 
 void CClient::initPlayerInterfaces()
 {
-	for(auto & playerInfo : gs->scenarioOps->playerInfos)
+	for(auto & playerInfo : gs->getStartInfo()->playerInfos)
 	{
 		PlayerColor color = playerInfo.first;
 		if(!vstd::contains(GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID), color))
@@ -266,7 +266,7 @@ void CClient::initPlayerInterfaces()
 			if(playerInfo.second.isControlledByAI() || settings["session"]["onlyai"].Bool())
 			{
 				bool alliedToHuman = false;
-				for(auto & allyInfo : gs->scenarioOps->playerInfos)
+				for(auto & allyInfo : gs->getStartInfo()->playerInfos)
 					if (gs->getPlayerTeam(allyInfo.first) == gs->getPlayerTeam(playerInfo.first) && allyInfo.second.isControlledByHuman())
 						alliedToHuman = true;
 

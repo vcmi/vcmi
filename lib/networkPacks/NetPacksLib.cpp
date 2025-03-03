@@ -1122,14 +1122,14 @@ void PlayerEndsGame::applyGs(CGameState *gs)
 
 		// TODO: Campaign-specific code might as well go somewhere else
 		// keep all heroes from the winning player
-		if(p->human && gs->scenarioOps->campState)
+		if(p->human && gs->getStartInfo()->campState)
 		{
 			std::vector<CGHeroInstance *> crossoverHeroes;
 			for (CGHeroInstance * hero : gs->map->heroesOnMap)
 				if (hero->tempOwner == player)
 					crossoverHeroes.push_back(hero);
 
-			gs->scenarioOps->campState->setCurrentMapAsConquered(crossoverHeroes);
+			gs->getStartInfo()->campState->setCurrentMapAsConquered(crossoverHeroes);
 		}
 	}
 	else
@@ -1143,14 +1143,14 @@ void PlayerEndsGame::applyGs(CGameState *gs)
 
 void PlayerReinitInterface::applyGs(CGameState *gs)
 {
-	if(!gs || !gs->scenarioOps)
+	if(!gs || !gs->getStartInfo())
 		return;
 	
 	//TODO: what does mean if more that one player connected?
 	if(playerConnectionId == PlayerSettings::PLAYER_AI)
 	{
 		for(const auto & player : players)
-			gs->scenarioOps->getIthPlayersSettings(player).connectedPlayerIDs.clear();
+			gs->getStartInfo()->getIthPlayersSettings(player).connectedPlayerIDs.clear();
 	}
 }
 
