@@ -21,6 +21,15 @@ VCMI_LIB_NAMESPACE_BEGIN
 class INetworkHandler;
 VCMI_LIB_NAMESPACE_END
 
+class GameShutdownException final : public std::exception
+{
+public:
+	const char* what() const noexcept final
+	{
+		return "Game shutdown has been requested";
+	}
+};
+
 class GameInstance final : boost::noncopyable, public IGameEngineUser
 {
 	std::unique_ptr<CServerHandler> serverInstance;

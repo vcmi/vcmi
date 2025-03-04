@@ -62,7 +62,7 @@ namespace po_style = boost::program_options::command_line_style;
 static std::atomic<bool> headlessQuit = false;
 static std::optional<std::string> criticalInitializationError;
 
-[[noreturn]] extern void quitApplication();
+[[noreturn]] static void quitApplication();
 
 static void init()
 {
@@ -380,23 +380,28 @@ int main(int argc, char * argv[])
 	setThreadName("MainGUI");
 #endif
 
-	if(!settings["session"]["headless"].Bool())
+	try
 	{
-		checkForModLoadingFailure();
-		ENGINE->mainLoop();
+		if(!settings["session"]["headless"].Bool())
+		{
+			checkForModLoadingFailure();
+			ENGINE->mainLoop();
+		}
+		else
+		{
+			while(!headlessQuit)
+				std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		}
 	}
-	else
+	catch (const GameShutdownException & )
 	{
-		while(!headlessQuit)
-			std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
 		quitApplication();
 	}
 }
 
-[[noreturn]] void quitApplication()
+[[noreturn]] static void quitApplication()
 {
 	GAME->server().endNetwork();
 

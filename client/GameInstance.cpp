@@ -100,13 +100,15 @@ bool GameInstance::capturedAllEvents()
 
 void GameInstance::onShutdownRequested(bool ask)
 {
+	auto doQuit = [](){ throw GameShutdownException(); };
+
 	if(!ask)
-		quitApplication();
+		doQuit();
 	else
 	{
 		if (interface())
-			interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[69], quitApplication, nullptr);
+			interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[69], doQuit, nullptr);
 		else
-			CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
+			CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->allTexts[69], {}, doQuit, {}, PlayerColor(1));
 	}
 }
