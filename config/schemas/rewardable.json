@@ -117,7 +117,7 @@
 				"bonuses" : {
 					"type":"array",
 					"description": "List of bonuses that will be granted to visiting hero",
-					"items": { "$ref" : "bonus.json" }
+					"items": { "$ref" : "bonusInstance.json" }
 				},
 
 				"resources" : { "$ref" : "#/definitions/identifierWithValueList" },
