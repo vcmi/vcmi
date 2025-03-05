@@ -881,8 +881,11 @@ void CModListView::installFiles(QStringList files)
 			JsonNode repoData = JsonUtils::jsonFromFile(filename);
 			if(repoData["name"].isNull())
 			{
+				// MODS COMPATIBILITY: in 1.6, repository list contains mod list directly, in 1.7 it is located in 'availableMods' node
+				const auto & availableRepositoryMods = repoData["availableMods"].isNull() ? repoData : repoData["availableMods"];
+
 				// This is main repository index. Download all referenced mods
-				for(const auto & [modName, modJson] : repoData.Struct())
+				for(const auto & [modName, modJson] : availableRepositoryMods.Struct())
 				{
 					auto modNameLower = boost::algorithm::to_lower_copy(modName);
 					auto modJsonUrl = modJson["mod"];
