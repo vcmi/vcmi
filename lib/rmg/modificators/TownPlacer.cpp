@@ -46,12 +46,16 @@ void TownPlacer::process()
 
 void TownPlacer::init()
 {
+	// TODO: Depend on other zones
 	POSTFUNCTION(MinePlacer);
 	POSTFUNCTION(RoadPlacer);
 } 
 
 void TownPlacer::placeTowns(ObjectManager & manager)
 {
+	// TODO: Configurew each subseqquent town based on townHints
+	// TODO: First town should be set to type chosen by player
+
 	if(zone.getOwner() && ((zone.getType() == ETemplateZoneType::CPU_START) || (zone.getType() == ETemplateZoneType::PLAYER_START)))
 	{
 		//set zone types to player faction, generate main town
@@ -72,7 +76,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		else //no player - randomize town
 		{
 			player = PlayerColor::NEUTRAL;
-			zone.setTownType(getRandomTownType());
+			zone.setTownType(getTownTypeFromHint(0));
 		}
 		
 		auto townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
@@ -114,7 +118,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 			addNewTowns(zone.getPlayerTowns().getTownCount(), false, PlayerColor::NEUTRAL, manager);
 		}
 	}
-	else //randomize town types for any other zones as well
+	else //randomize town types for non-player zones
 	{
 		zone.setTownType(getRandomTownType());
 	}
@@ -180,20 +184,59 @@ void TownPlacer::cleanupBoundaries(const rmg::Object & rmgObject)
 	}
 }
 
+FactionID TownPlacer::getTownTypeFromHint(size_t hintIndex)
+{
+	const auto & hints = zone.getTownHints();
+	if(hints.size() <= hintIndex)
+		return zone.getTownType();
+
+	const auto & townHints = hints[hintIndex];
+	FactionID subType = zone.getTownType();
+
+	if(townHints.likeZone != rmg::ZoneOptions::NO_ZONE)
+	{
+		// Copy directly from other zone
+		subType = map.getZones().at(townHints.likeZone)->getTownType();
+	}
+	else if(townHints.notLikeZone != rmg::ZoneOptions::NO_ZONE)
+	{
+		// Exclude type rolled for other zone
+		auto townTypes = zone.getTownTypes();
+		townTypes.erase(map.getZones().at(townHints.notLikeZone)->getTownType());
+		zone.setTownTypes(townTypes);
+		
+		if(!townTypes.empty())
+			subType = *RandomGeneratorUtil::nextItem(townTypes, zone.getRand());
+	}
+	else if(townHints.relatedToZoneTerrain != rmg::ZoneOptions::NO_ZONE)
+	{
+		auto townTerrain = map.getZones().at(townHints.relatedToZoneTerrain)->getTerrainType();
+		
+		auto townTypesAllowed = zone.getTownTypes();
+		vstd::erase_if(townTypesAllowed, [townTerrain](FactionID type)
+		{
+			return (*LIBRARY->townh)[type]->getNativeTerrain() != townTerrain;
+		});
+		zone.setTownTypes(townTypesAllowed);
+		
+		if(!townTypesAllowed.empty())
+			subType = *RandomGeneratorUtil::nextItem(townTypesAllowed, zone.getRand());
+	}
+
+	return subType;
+}
+
 void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player, ObjectManager & manager)
 {
 	for(int i = 0; i < count; i++)
 	{
 		FactionID subType = zone.getTownType();
 		
-		if(totalTowns>0)
+		if(totalTowns > 0)
 		{
 			if(!zone.areTownsSameType())
 			{
-				if(!zone.getTownTypes().empty())
-					subType = *RandomGeneratorUtil::nextItem(zone.getTownTypes(), zone.getRand());
-				else
-					subType = *RandomGeneratorUtil::nextItem(zone.getDefaultTownTypes(), zone.getRand()); //it is possible to have zone with no towns allowed
+				subType = getTownTypeFromHint(totalTowns);
 			}
 		}
 		
