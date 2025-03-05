@@ -1,0 +1,43 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI bonus type format",
+	"description" : "Definition of bonus types",
+	"required" : ["type"],
+	"additionalProperties" : false,
+	"properties" : {
+		"hidden" : {
+			"type" : "boolean",
+			"description" : "If set to true, all instances of this bonus will be hidden in UI"
+		},
+		"graphics" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"icon" : {
+					"type" : "string",
+					"description" : "Resourse path of generic icon for this bonus",
+					"format" : "imageFile"
+				},
+				
+				"subtypeIcons" : {
+					"type" : "object",
+					"description" : "Resourse path of icon for this bonus subtype",
+					"additionalProperties" : {
+						"type" : "string",
+						"format" : "imageFile"
+					}
+				},
+				
+				"valueIcons" : {
+					"type" : "object",
+					"description" : "Resourse path of icon for this bonus value",
+					"additionalProperties" : {
+						"type" : "string",
+						"format" : "imageFile"
+					}
+				}
+			}
+		}
+	}
+}
