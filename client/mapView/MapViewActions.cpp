@@ -109,6 +109,9 @@ void MapViewActions::mouseDragged(const Point & cursorPosition, const Point & la
 
 void MapViewActions::mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
+	if(!settings["adventure"]["rightButtonDrag"].Bool())
+		return;
+
 	dragActive = true;
 	owner.onMapSwiped(lastUpdateDistance);
 }
