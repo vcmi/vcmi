@@ -170,8 +170,10 @@ void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 
 	bool isCurrentMapConquerable = pack.ourCampaign->currentScenario() && pack.ourCampaign->isAvailable(*pack.ourCampaign->currentScenario());
 
-	for(auto scenarioID : pack.ourCampaign->allScenarios())
+	auto scenarios = pack.ourCampaign->allScenarios();
+	for(std::set<CampaignScenarioID>::reverse_iterator itr = scenarios.rbegin(); itr != scenarios.rend(); itr++) // reverse -> on multiple scenario selection set lowest id at the end
 	{
+		auto scenarioID = *itr;
 		if(pack.ourCampaign->isAvailable(scenarioID))
 		{
 			if(!isCurrentMapConquerable || (isCurrentMapConquerable && scenarioID == *pack.ourCampaign->currentScenario()))
@@ -393,7 +395,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 {
 	std::vector<FactionID> allowedTowns;
 
-	for (auto const & factionID : VLC->townh->getDefaultAllowed())
+	for (auto const & factionID : LIBRARY->townh->getDefaultAllowed())
 		if(std::find(pack.bannedTowns.begin(), pack.bannedTowns.end(), factionID) == pack.bannedTowns.end())
 			allowedTowns.push_back(factionID);
 
@@ -415,7 +417,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 				break;
 			txt.appendTextID("core.overview.3");
 			txt.appendRawString(" - ");
-			txt.appendTextID(VLC->townh->getById(randomFaction1[0])->getNameTextID());
+			txt.appendTextID(LIBRARY->townh->getById(randomFaction1[0])->getNameTextID());
 			srv.announceTxt(txt);
 			break;
 		case LobbyPvPAction::RANDOM_TOWN_VS:
@@ -423,11 +425,11 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 				break;
 			txt.appendTextID("core.overview.3");
 			txt.appendRawString(" - ");
-			txt.appendTextID(VLC->townh->getById(randomFaction1[0])->getNameTextID());
+			txt.appendTextID(LIBRARY->townh->getById(randomFaction1[0])->getNameTextID());
 			txt.appendRawString(" ");
 			txt.appendTextID("vcmi.lobby.pvp.versus");
 			txt.appendRawString(" ");
-			txt.appendTextID(VLC->townh->getById(randomFaction2[0])->getNameTextID());
+			txt.appendTextID(LIBRARY->townh->getById(randomFaction2[0])->getNameTextID());
 			srv.announceTxt(txt);
 			break;
 	}
@@ -445,16 +447,47 @@ void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 	if(pack.type == LobbyDelete::EType::SAVEGAME || pack.type == LobbyDelete::EType::RANDOMMAP)
 	{
 		auto res = ResourcePath(pack.name, pack.type == LobbyDelete::EType::SAVEGAME ? EResType::SAVEGAME : EResType::MAP);
-		auto file = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(res));
-		boost::filesystem::remove(file);
-		if(boost::filesystem::is_empty(file.parent_path()))
-			boost::filesystem::remove(file.parent_path());
+		auto name = CResourceHandler::get()->getResourceName(res);
+		if (!name)
+		{
+			logGlobal->error("Failed to find resource with name '%s'", res.getOriginalName());
+			return;
+		}
+
+		boost::system::error_code ec;
+		auto file = boost::filesystem::canonical(*name, ec);
+
+		if (ec)
+		{
+			logGlobal->error("Failed to delete file '%s'. Reason: %s", res.getOriginalName(), ec.message());
+		}
+		else
+		{
+			boost::filesystem::remove(file);
+			if(boost::filesystem::is_empty(file.parent_path()))
+				boost::filesystem::remove(file.parent_path());
+		}
 	}
 	else if(pack.type == LobbyDelete::EType::SAVEGAME_FOLDER)
 	{
 		auto res = ResourcePath("Saves/" + pack.name, EResType::DIRECTORY);
-		auto folder = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(res));
-		boost::filesystem::remove_all(folder);
+		auto name = CResourceHandler::get()->getResourceName(res);
+		if (!name)
+		{
+			logGlobal->error("Failed to find folder with name '%s'", res.getOriginalName());
+			return;
+		}
+
+		boost::system::error_code ec;
+		auto folder = boost::filesystem::canonical(*name);
+		if (ec)
+		{
+			logGlobal->error("Failed to delete folder '%s'. Reason: %s", res.getOriginalName(), ec.message());
+		}
+		else
+		{
+			boost::filesystem::remove_all(folder);
+		}
 	}
 
 	LobbyUpdateState lus;

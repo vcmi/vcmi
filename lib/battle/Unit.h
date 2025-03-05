@@ -17,7 +17,7 @@
 #include "../bonuses/IBonusBearer.h"
 
 #include "IUnitInfo.h"
-#include "BattleHex.h"
+#include "BattleHexArray.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -64,6 +64,8 @@ class CUnitState;
 
 class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer, public ACreature
 {
+	static BattleHexArray::ArrayOfBattleHexArrays precomputeUnitHexes(BattleSide side, bool twoHex);
+
 public:
 	virtual ~Unit();
 
@@ -84,11 +86,15 @@ public:
 	bool isTurret() const;
 	virtual bool isValidTarget(bool allowDead = false) const = 0; //non-turret non-ghost stacks (can be attacked or be object of magic effect)
 
+	virtual bool isHypnotized() const = 0;
+	virtual bool isInvincible() const = 0;
+
 	virtual bool isClone() const = 0;
 	virtual bool hasClone() const = 0;
 
 	virtual bool canCast() const = 0;
 	virtual bool isCaster() const = 0;
+	virtual bool canShootBlocked() const = 0;
 	virtual bool canShoot() const = 0;
 	virtual bool isShooter() const = 0;
 
@@ -110,9 +116,7 @@ public:
 	virtual int getTotalAttacks(bool ranged) const = 0;
 
 	virtual BattleHex getPosition() const = 0;
-	virtual void setPosition(BattleHex hex) = 0;
-
-	virtual int32_t getInitiative(int turn = 0) const = 0;
+	virtual void setPosition(const BattleHex & hex) = 0;
 
 	virtual bool canMove(int turn = 0) const = 0; //if stack can move
 	virtual bool defended(int turn = 0) const = 0;
@@ -127,19 +131,19 @@ public:
 
 	virtual std::string getDescription() const;
 
-	std::vector<BattleHex> getSurroundingHexes(BattleHex assumedPosition = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
-	std::vector<BattleHex> getAttackableHexes(const Unit * attacker) const;
-	static std::vector<BattleHex> getSurroundingHexes(BattleHex position, bool twoHex, BattleSide side);
+	const BattleHexArray & getSurroundingHexes(const BattleHex & assumedPosition = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
+	BattleHexArray getAttackableHexes(const Unit * attacker) const;
+	static const BattleHexArray & getSurroundingHexes(const BattleHex & position, bool twoHex, BattleSide side);
 
-	bool coversPos(BattleHex position) const; //checks also if unit is double-wide
+	bool coversPos(const BattleHex & position) const; //checks also if unit is double-wide
 
-	std::vector<BattleHex> getHexes() const; //up to two occupied hexes, starting from front
-	std::vector<BattleHex> getHexes(BattleHex assumedPos) const; //up to two occupied hexes, starting from front
-	static std::vector<BattleHex> getHexes(BattleHex assumedPos, bool twoHex, BattleSide side);
+	const BattleHexArray & getHexes() const; //up to two occupied hexes, starting from front
+	const BattleHexArray & getHexes(const BattleHex & assumedPos) const; //up to two occupied hexes, starting from front
+	static const BattleHexArray & getHexes(const BattleHex & assumedPos, bool twoHex, BattleSide side);
 
 	BattleHex occupiedHex() const; //returns number of occupied hex (not the position) if stack is double wide; otherwise -1
-	BattleHex occupiedHex(BattleHex assumedPos) const; //returns number of occupied hex (not the position) if stack is double wide and would stand on assumedPos; otherwise -1
-	static BattleHex occupiedHex(BattleHex assumedPos, bool twoHex, BattleSide side);
+	BattleHex occupiedHex(const BattleHex & assumedPos) const; //returns number of occupied hex (not the position) if stack is double wide and would stand on assumedPos; otherwise -1
+	static BattleHex occupiedHex(const BattleHex & assumedPos, bool twoHex, BattleSide side);
 
 	///MetaStrings
 	void addText(MetaString & text, EMetaText type, int32_t serial, const boost::logic::tribool & plural = boost::logic::indeterminate) const;

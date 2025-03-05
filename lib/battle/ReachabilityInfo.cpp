@@ -14,14 +14,15 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, BattleHex StartPosition):
+ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, const BattleHex & StartPosition):
 	perspective(static_cast<BattleSide>(Stack->unitSide())),
 	startPosition(StartPosition),
 	doubleWide(Stack->doubleWide()),
 	side(Stack->unitSide()),
 	flying(Stack->hasBonusOfType(BonusType::FLYING))
 {
-	knownAccessible = battle::Unit::getHexes(startPosition, doubleWide, side);
+	knownAccessible = & battle::Unit::getHexes(startPosition, doubleWide, side);
+	destructibleEnemyTurns.fill(-1);
 }
 
 ReachabilityInfo::ReachabilityInfo()
@@ -30,24 +31,24 @@ ReachabilityInfo::ReachabilityInfo()
 	predecessors.fill(BattleHex::INVALID);
 }
 
-bool ReachabilityInfo::isReachable(BattleHex hex) const
+bool ReachabilityInfo::isReachable(const BattleHex & hex) const
 {
-	return distances[hex] < INFINITE_DIST;
+	return distances[hex.toInt()] < INFINITE_DIST;
 }
 
 uint32_t ReachabilityInfo::distToNearestNeighbour(
-	const std::vector<BattleHex> & targetHexes,
+	const BattleHexArray & targetHexes,
 	BattleHex * chosenHex) const
 {
 	uint32_t ret = 1000000;
 
-	for(auto targetHex : targetHexes)
+	for(const auto & targetHex : targetHexes)
 	{
-		for(auto & n : targetHex.neighbouringTiles())
+		for(auto & n : targetHex.getNeighbouringTiles())
 		{
-			if(distances[n] < ret)
+			if(distances[n.toInt()] < ret)
 			{
-				ret = distances[n];
+				ret = distances[n.toInt()];
 				if(chosenHex)
 					*chosenHex = n;
 			}
@@ -70,17 +71,15 @@ uint32_t ReachabilityInfo::distToNearestNeighbour(
 		{
 			// It can be back to back attack  o==o  or head to head  =oo=.
 			// In case of back-to-back the distance between heads (unit positions) may be up to 3 tiles
-			vstd::concatenate(attackableHexes, battle::Unit::getHexes(defender->occupiedHex(), true, defender->unitSide()));
+			attackableHexes.insert(battle::Unit::getHexes(defender->occupiedHex(), true, defender->unitSide()));
 		}
 		else
 		{
-			vstd::concatenate(attackableHexes, battle::Unit::getHexes(defender->getPosition(), true, defender->unitSide()));
+			attackableHexes.insert(battle::Unit::getHexes(defender->getPosition(), true, defender->unitSide()));
 		}
 	}
 
-	vstd::removeDuplicates(attackableHexes);
-
-	vstd::erase_if(attackableHexes, [defender](BattleHex h) -> bool
+	attackableHexes.eraseIf([defender](const BattleHex & h) -> bool
 		{
 			return h.getY() != defender->getPosition().getY() || !h.isAvailable();
 		});

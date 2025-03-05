@@ -230,8 +230,7 @@ public:
 	static const PrimarySkill SPELL_POWER;
 	static const PrimarySkill KNOWLEDGE;
 
-	static const PrimarySkill BEGIN;
-	static const PrimarySkill END;
+	static const std::array<PrimarySkill, 4> & ALL_SKILLS();
 
 	static const PrimarySkill EXPERIENCE;
 
@@ -290,85 +289,93 @@ public:
 		HORDE_PLACEHOLDER1 = -30,
 		NONE = -1,
 		FIRST_REGULAR_ID = 0,
-		MAGES_GUILD_1 = 0,  MAGES_GUILD_2, MAGES_GUILD_3,     MAGES_GUILD_4,   MAGES_GUILD_5,
-		TAVERN,         SHIPYARD,      FORT,              CITADEL,         CASTLE,
-		VILLAGE_HALL,   TOWN_HALL,     CITY_HALL,         CAPITOL,         MARKETPLACE,
-		RESOURCE_SILO,  BLACKSMITH,    SPECIAL_1,         HORDE_1,         HORDE_1_UPGR,
-		SHIP,           SPECIAL_2,     SPECIAL_3,         SPECIAL_4,       HORDE_2,
-		HORDE_2_UPGR,   GRAIL,         EXTRA_TOWN_HALL,   EXTRA_CITY_HALL, EXTRA_CAPITOL,
-		DWELL_FIRST=30, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LAST=36,
-		DWELL_UP_FIRST=37,  DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP,
-		DWELL_LVL_6_UP, DWELL_UP_LAST=43, DWELL_LVL_8=150, DWELL_LVL_8_UP=151, //150-154 reserved for 8. creature with potential upgrades
+		MAGES_GUILD_1 = 0,  MAGES_GUILD_2,   MAGES_GUILD_3,     MAGES_GUILD_4,   MAGES_GUILD_5,
+		TAVERN,             SHIPYARD,        FORT,              CITADEL,         CASTLE,
+		VILLAGE_HALL,       TOWN_HALL,       CITY_HALL,         CAPITOL,         MARKETPLACE,
+		RESOURCE_SILO,      BLACKSMITH,      SPECIAL_1,         HORDE_1,         HORDE_1_UPGR,
+		SHIP,               SPECIAL_2,       SPECIAL_3,         SPECIAL_4,       HORDE_2,
+		HORDE_2_UPGR,       GRAIL,           EXTRA_TOWN_HALL,   EXTRA_CITY_HALL, EXTRA_CAPITOL,
 
-		DWELL_LVL_1 = DWELL_FIRST,
-		DWELL_LVL_7 = DWELL_LAST,
-		DWELL_LVL_1_UP = DWELL_UP_FIRST,
-		DWELL_LVL_7_UP = DWELL_UP_LAST,
+		DWELL_LVL_1=30,     DWELL_LVL_2,     DWELL_LVL_3,       DWELL_LVL_4,     DWELL_LVL_5,	  DWELL_LVL_6,     DWELL_LVL_7=36,
+		DWELL_LVL_1_UP=37,  DWELL_LVL_2_UP,  DWELL_LVL_3_UP,    DWELL_LVL_4_UP,  DWELL_LVL_5_UP,  DWELL_LVL_6_UP,  DWELL_LVL_7_UP=43,
+		DWELL_LVL_1_UP2,    DWELL_LVL_2_UP2, DWELL_LVL_3_UP2,	DWELL_LVL_4_UP2, DWELL_LVL_5_UP2, DWELL_LVL_6_UP2, DWELL_LVL_7_UP2,
+		DWELL_LVL_1_UP3,    DWELL_LVL_2_UP3, DWELL_LVL_3_UP3,	DWELL_LVL_4_UP3, DWELL_LVL_5_UP3, DWELL_LVL_6_UP3, DWELL_LVL_7_UP3,
+		DWELL_LVL_1_UP4,    DWELL_LVL_2_UP4, DWELL_LVL_3_UP4,	DWELL_LVL_4_UP4, DWELL_LVL_5_UP4, DWELL_LVL_6_UP4, DWELL_LVL_7_UP4,
+		DWELL_LVL_1_UP5,    DWELL_LVL_2_UP5, DWELL_LVL_3_UP5,	DWELL_LVL_4_UP5, DWELL_LVL_5_UP5, DWELL_LVL_6_UP5, DWELL_LVL_7_UP5,
 
-		DWELL_UP2_FIRST = DWELL_LVL_7_UP + 1,
-
-//		//Special buildings for towns.
-		CASTLE_GATE   = SPECIAL_3, //Inferno
-		FREELANCERS_GUILD = SPECIAL_2, //Stronghold
-		ARTIFACT_MERCHANT = SPECIAL_1,
-
+		//150-155 reserved for 8. creature with potential upgrades
+		DWELL_LVL_8=150, DWELL_LVL_8_UP=151, DWELL_LVL_8_UP2 = 152, DWELL_LVL_8_UP3 = 153, DWELL_LVL_8_UP4 = 154, DWELL_LVL_8_UP5 = 155,
 	};
 
 private:
-	static std::vector<std::vector<Type>> getDwellings()
+	static std::array<std::array<Type, 8>, 6> getDwellings()
 	{
-		std::vector<Type> dwellings = { DWELL_LVL_1, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LVL_7, DWELL_LVL_8 };
-		std::vector<Type> dwellingsUp = { DWELL_LVL_1_UP, DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP, DWELL_LVL_6_UP, DWELL_LVL_7_UP, DWELL_LVL_8_UP };
-		return {dwellings, dwellingsUp};
+		static const std::array<std::array<Type, 8>, 6> allDwellings = {{
+			{ DWELL_LVL_1, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LVL_7, DWELL_LVL_8 },
+			{ DWELL_LVL_1_UP, DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP, DWELL_LVL_6_UP, DWELL_LVL_7_UP, DWELL_LVL_8_UP },
+			{ DWELL_LVL_1_UP2, DWELL_LVL_2_UP2, DWELL_LVL_3_UP2, DWELL_LVL_4_UP2, DWELL_LVL_5_UP2, DWELL_LVL_6_UP2, DWELL_LVL_7_UP2, DWELL_LVL_8_UP2 },
+			{ DWELL_LVL_1_UP3, DWELL_LVL_2_UP3, DWELL_LVL_3_UP3, DWELL_LVL_4_UP3, DWELL_LVL_5_UP3, DWELL_LVL_6_UP3, DWELL_LVL_7_UP3, DWELL_LVL_8_UP3 },
+			{ DWELL_LVL_1_UP4, DWELL_LVL_2_UP4, DWELL_LVL_3_UP4, DWELL_LVL_4_UP4, DWELL_LVL_5_UP4, DWELL_LVL_6_UP4, DWELL_LVL_7_UP4, DWELL_LVL_8_UP4 },
+			{ DWELL_LVL_1_UP5, DWELL_LVL_2_UP5, DWELL_LVL_3_UP5, DWELL_LVL_4_UP5, DWELL_LVL_5_UP5, DWELL_LVL_6_UP5, DWELL_LVL_7_UP5, DWELL_LVL_8_UP5 }
+		}};
+
+		return allDwellings;
 	}
 
 public:
 	static Type getDwellingFromLevel(int level, int upgradeIndex)
 	{
-		return getDwellings()[upgradeIndex][level];
+		try
+		{
+			return getDwellings().at(upgradeIndex).at(level);
+		}
+		catch (const std::out_of_range &)
+		{
+			return Type::NONE;
+		}
 	}
 
 	static int getLevelFromDwelling(BuildingIDBase dwelling)
 	{
-		for(int i = 0; i < 2; i++)
+		for (const auto & level : getDwellings())
 		{
-			auto tmp = getDwellings()[i];
-			auto it = std::find(tmp.begin(), tmp.end(), dwelling);
-			if (it != tmp.end())
-				return std::distance(tmp.begin(), it);
+			auto it = std::find(level.begin(), level.end(), dwelling);
+			if (it != level.end())
+				return std::distance(level.begin(), it);
 		}
-		if(dwelling >= BuildingIDBase::DWELL_LVL_8 && dwelling < BuildingIDBase::DWELL_LVL_8 + 5)
-			return 7;
-		else
-			return (dwelling - DWELL_FIRST) % (GameConstants::CREATURES_PER_TOWN - 1);
+
+		throw std::runtime_error("Call to getLevelFromDwelling with building '" + std::to_string(dwelling.num) +"' that is not dwelling!");
 	}
 
 	static int getUpgradedFromDwelling(BuildingIDBase dwelling)
 	{
-		for(int i = 0; i < 2; i++)
+		const auto & dwellings = getDwellings();
+
+		for(int i = 0; i < dwellings.size(); i++)
 		{
-			auto tmp = getDwellings()[i];
-			auto it = std::find(tmp.begin(), tmp.end(), dwelling);
-			if (it != tmp.end())
+			if (vstd::contains(dwellings[i], dwelling))
 				return i;
 		}
-		if(dwelling >= BuildingIDBase::DWELL_LVL_8 && dwelling < BuildingIDBase::DWELL_LVL_8 + 5)
-			return dwelling - BuildingIDBase::DWELL_LVL_8;
-		else
-			return (dwelling - DWELL_FIRST) / (GameConstants::CREATURES_PER_TOWN - 1);
+
+		throw std::runtime_error("Call to getUpgradedFromDwelling with building '" + std::to_string(dwelling.num) +"' that is not dwelling!");
 	}
 
 	static void advanceDwelling(BuildingIDBase & dwelling)
 	{
-		if(dwelling >= BuildingIDBase::DWELL_LVL_8 && dwelling < BuildingIDBase::DWELL_LVL_8 + 5)
-			dwelling.advance(1);
-		else
-			dwelling.advance(GameConstants::CREATURES_PER_TOWN - 1);
+		int level =	getLevelFromDwelling(dwelling);
+		int upgrade = getUpgradedFromDwelling(dwelling);
+
+		dwelling.setNum(getDwellingFromLevel(level, upgrade + 1));
 	}
 
-	bool IsSpecialOrGrail() const
+	bool isDwelling() const
 	{
-		return num == SPECIAL_1 || num == SPECIAL_2 || num == SPECIAL_3 || num == SPECIAL_4 || num == GRAIL;
+		for (const auto & level : getDwellings())
+		{
+			if (vstd::contains(level, num))
+				return true;
+		}
+		return false;
 	}
 };
 
@@ -398,12 +405,14 @@ public:
 	enum Type
 	{
 		NO_OBJ = -1,
-		ALTAR_OF_SACRIFICE [[deprecated]] = 2,
+
+		NOTHING = 0,
+		ALTAR_OF_SACRIFICE = 2,
 		ANCHOR_POINT = 3,
 		ARENA = 4,
 		ARTIFACT = 5,
 		PANDORAS_BOX = 6,
-		BLACK_MARKET [[deprecated]] = 7,
+		BLACK_MARKET = 7,
 		BOAT = 8,
 		BORDERGUARD = 9,
 		KEYMASTER = 10,
@@ -495,12 +504,12 @@ public:
 		TEMPLE = 96,
 		DEN_OF_THIEVES = 97,
 		TOWN = 98,
-		TRADING_POST [[deprecated]] = 99,
+		TRADING_POST = 99,
 		LEARNING_STONE = 100,
 		TREASURE_CHEST = 101,
 		TREE_OF_KNOWLEDGE = 102,
 		SUBTERRANEAN_GATE = 103,
-		UNIVERSITY [[deprecated]] = 104,
+		UNIVERSITY = 104,
 		WAGON = 105,
 		WAR_MACHINE_FACTORY = 106,
 		SCHOOL_OF_WAR = 107,
@@ -536,6 +545,8 @@ public:
 		PINE_TREES = 137,
 		PLANT = 138,
 		RIVER_DELTA = 143,
+		HOTA_CUSTOM_OBJECT_1 = 145,
+		HOTA_CUSTOM_OBJECT_2 = 146,
 		ROCK = 147,
 		SAND_DUNE = 148,
 		SAND_PIT = 149,
@@ -555,7 +566,7 @@ public:
 		RANDOM_MONSTER_L6 = 163,
 		RANDOM_MONSTER_L7 = 164,
 		BORDER_GATE = 212,
-		FREELANCERS_GUILD [[deprecated]] = 213,
+		FREELANCERS_GUILD = 213,
 		HERO_PLACEHOLDER = 214,
 		QUEST_GUARD = 215,
 		RANDOM_DWELLING = 216,
@@ -563,7 +574,7 @@ public:
 		RANDOM_DWELLING_FACTION = 218, //subtype = faction
 		GARRISON2 = 219,
 		ABANDONED_MINE = 220,
-		TRADING_POST_SNOW [[deprecated]] = 221,
+		TRADING_POST_SNOW = 221,
 		CLOVER_FIELD = 222,
 		CURSED_GROUND2 = 223,
 		EVIL_FOG = 224,

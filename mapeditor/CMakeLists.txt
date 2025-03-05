@@ -84,6 +84,7 @@ set(editor_HEADERS
 		inspector/herospellwidget.h
 		inspector/PickObjectDelegate.h
 		inspector/portraitwidget.h
+		inspector/baseinspectoritemdelegate.h
 		resourceExtractor/ResourceConverter.h
 		mapeditorroles.h
 )
@@ -128,12 +129,21 @@ set(editor_TS
 	"${translationsDir}/chinese.ts"
 	"${translationsDir}/czech.ts"
 	"${translationsDir}/english.ts"
+	"${translationsDir}/finnish.ts"
 	"${translationsDir}/french.ts"
 	"${translationsDir}/german.ts"
+	"${translationsDir}/greek.ts"
+	"${translationsDir}/hungarian.ts"
+	"${translationsDir}/italian.ts"
+	"${translationsDir}/japanese.ts"
+	"${translationsDir}/korean.ts"
+	"${translationsDir}/norwegian.ts"
 	"${translationsDir}/polish.ts"
 	"${translationsDir}/portuguese.ts"
 	"${translationsDir}/russian.ts"
 	"${translationsDir}/spanish.ts"
+	"${translationsDir}/swedish.ts"
+	"${translationsDir}/turkish.ts"
 	"${translationsDir}/ukrainian.ts"
 	"${translationsDir}/vietnamese.ts"
 )
@@ -222,6 +232,9 @@ if(APPLE)
 	# This makes Xcode project prettier by moving mapeditor_autogen directory into vcmiclient subfolder
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmieditor)
 endif()
+
+# Qt defines 'emit' as macros, which conflicts with TBB definition of method with same name
+target_compile_definitions(vcmieditor PRIVATE QT_NO_EMIT)
 
 if(ENABLE_STATIC_LIBS OR NOT (ENABLE_EDITOR AND ENABLE_LAUNCHER))
 	target_compile_definitions(vcmieditor PRIVATE VCMIQT_STATIC)

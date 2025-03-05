@@ -31,6 +31,7 @@ class ISelectionScreenInfo;
 class ExtraOptionsTab;
 class VideoWidgetOnce;
 class CBonusSelection;
+class LRClickableArea;
 
 
 /// Campaign screen where you can choose one out of three starting bonuses
@@ -51,9 +52,16 @@ public:
 		bool selectable; // true if region should be selectable
 		bool labelOnly;
 		std::shared_ptr<CLabel> label;
+		struct BlinkAnim
+		{
+			uint32_t msPassed;
+			uint32_t count;
+			bool state;
+		} blinkAnim;
 	public:
 		CRegion(CampaignScenarioID id, bool accessible, bool selectable, bool labelOnly, const CampaignRegions & campDsc);
-		void updateState();
+		void updateState(bool disableAll = false);
+		void tick(uint32_t msPassed) override;
 		void clickReleased(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
 	};
@@ -86,6 +94,7 @@ public:
 	std::shared_ptr<CToggleGroup> groupBonuses;
 	std::shared_ptr<CLabel> labelDifficulty;
 	std::array<std::shared_ptr<CAnimImage>, 5> difficultyIcons;
+	std::array<std::shared_ptr<LRClickableArea>, 5> difficultyIconAreas;
 	std::shared_ptr<CButton> buttonDifficultyLeft;
 	std::shared_ptr<CButton> buttonDifficultyRight;
 	std::shared_ptr<CAnimImage> iconsMapSizes;

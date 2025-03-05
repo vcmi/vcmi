@@ -175,6 +175,8 @@ ModsPresetState::ModsPresetState()
 	auto allPresets = getAllPresets();
 	if (!vstd::contains(allPresets, modConfig["activePreset"].String()))
 		modConfig["activePreset"] = JsonNode(allPresets.front());
+
+	logGlobal->debug("Loading following mod settings: %s", modConfig.toCompactString());
 }
 
 void ModsPresetState::createInitialPreset()
@@ -207,7 +209,12 @@ const JsonNode & ModsPresetState::getActivePresetConfig() const
 
 TModList ModsPresetState::getActiveRootMods() const
 {
-	const JsonNode & modsToActivateJson = getActivePresetConfig()["mods"];
+	return getRootMods(getActivePreset());
+}
+
+TModList ModsPresetState::getRootMods(const std::string & presetName) const
+{
+	const JsonNode & modsToActivateJson = modConfig["presets"][presetName]["mods"];
 	auto modsToActivate = modsToActivateJson.convertTo<std::vector<TModID>>();
 	if (!vstd::contains(modsToActivate, ModScope::scopeBuiltin()))
 		modsToActivate.push_back(ModScope::scopeBuiltin());
@@ -385,11 +392,41 @@ std::string ModsPresetState::getActivePreset() const
 	return modConfig["activePreset"].String();
 }
 
+JsonNode ModsPresetState::exportCurrentPreset() const
+{
+	JsonNode data = getActivePresetConfig();
+	std::string presetName = getActivePreset();
+
+	data["name"] = JsonNode(presetName);
+
+	vstd::erase_if(data["settings"].Struct(), [&](const auto & pair){
+		return !vstd::contains(data["mods"].Vector(), JsonNode(pair.first));
+	});
+
+	return data;
+}
+
+std::string ModsPresetState::importPreset(const JsonNode & newConfig)
+{
+	std::string importedPresetName = newConfig["name"].String();
+
+	if (importedPresetName.empty())
+		throw std::runtime_error("Attempt to import invalid preset");
+
+	modConfig["presets"][importedPresetName] = newConfig;
+	modConfig["presets"][importedPresetName].Struct().erase("name");
+
+	return importedPresetName;
+}
+
 ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode & repositoryList)
 {
 	JsonNode coreModConfig(JsonPath::builtin("config/gameConfig.json"));
 	coreModConfig.setModScope(ModScope::scopeBuiltin());
 	mods.try_emplace(ModScope::scopeBuiltin(), ModScope::scopeBuiltin(), coreModConfig, JsonNode());
+
+	// MODS COMPATIBILITY: in 1.6, repository list contains mod list directly, in 1.7 it is located in 'availableMods' node
+	const auto & availableRepositoryMods = repositoryList["availableMods"].isNull() ? repositoryList : repositoryList["availableMods"];
 
 	for(auto modID : modsToLoad)
 	{
@@ -405,10 +442,10 @@ ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode 
 			continue;
 		}
 
-		mods.try_emplace(modID, modID, modConfig, repositoryList[modID]);
+		mods.try_emplace(modID, modID, modConfig, availableRepositoryMods[modID]);
 	}
 
-	for(const auto & mod : repositoryList.Struct())
+	for(const auto & mod : availableRepositoryMods.Struct())
 	{
 		if (vstd::contains(modsToLoad, mod.first))
 			continue;
@@ -422,7 +459,14 @@ ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode 
 
 const ModDescription & ModsStorage::getMod(const TModID & fullID) const
 {
-	return mods.at(fullID);
+	try {
+		return mods.at(fullID);
+	}
+	catch (const std::out_of_range & )
+	{
+		// rethrow with better error message
+		throw std::out_of_range("Failed to find mod " + fullID);
+	}
 }
 
 TModList ModsStorage::getAllMods() const
@@ -508,7 +552,7 @@ double ModManager::getInstalledModSizeMegabytes(const TModID & modName) const
 
 void ModManager::eraseMissingModsFromPreset()
 {
-	const TModList & installedMods = modsState->getInstalledMods();
+	const TModList & installedMods = getInstalledValidMods();
 	const TModList & rootMods = modsPreset->getActiveRootMods();
 
 	modsPreset->removeOldMods(installedMods);
@@ -531,7 +575,7 @@ void ModManager::eraseMissingModsFromPreset()
 
 void ModManager::addNewModsToPreset()
 {
-	const TModList & installedMods = modsState->getInstalledMods();
+	const TModList & installedMods = getInstalledValidMods();
 
 	for(const auto & modID : installedMods)
 	{
@@ -548,6 +592,19 @@ void ModManager::addNewModsToPreset()
 		if (!modSettings.count(settingID))
 			modsPreset->setSettingActive(rootMod, settingID, !modsStorage->getMod(modID).keepDisabled());
 	}
+}
+
+TModList ModManager::getInstalledValidMods() const
+{
+	TModList installedMods = modsState->getInstalledMods();
+	TModList validMods = modsStorage->getAllMods();
+
+	TModList result;
+	for (const auto & modID : installedMods)
+		if (vstd::contains(validMods, modID))
+			result.push_back(modID);
+
+	return result;
 }
 
 TModList ModManager::collectDependenciesRecursive(const TModID & modID) const
@@ -619,7 +676,7 @@ void ModManager::tryEnableMods(const TModList & modList)
 
 	for (const auto & modName : modList)
 		if (!vstd::contains(testResolver.getActiveMods(), modName))
-			throw std::runtime_error("Failed to enable mod! Mod " + modName + " remains disabled!");
+			logGlobal->error("Failed to enable mod '%s'! This may be caused by a recursive dependency!", modName);
 
 	updatePreset(testResolver);
 }
@@ -647,7 +704,7 @@ void ModManager::updatePreset(const ModDependenciesResolver & testResolver)
 
 	for (const auto & modID : newActiveMods)
 	{
-		assert(vstd::contains(modsState->getInstalledMods(), modID));
+		assert(vstd::contains(getInstalledValidMods(), modID));
 		modsPreset->setModActive(modID, true);
 	}
 
@@ -707,6 +764,9 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 	auto isResolved = [&](const ModDescription & mod) -> bool
 	{
 		if (mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage())
+			return false;
+
+		if(!mod.isCompatible())
 			return false;
 
 		if(mod.getDependencies().size() > resolvedModIDs.size())
@@ -794,6 +854,30 @@ std::vector<std::string> ModManager::getAllPresets() const
 std::string ModManager::getActivePreset() const
 {
 	return modsPreset->getActivePreset();
+}
+
+JsonNode ModManager::exportCurrentPreset() const
+{
+	return modsPreset->exportCurrentPreset();
+}
+
+std::tuple<std::string, TModList> ModManager::importPreset(const JsonNode & data)
+{
+	std::string presetName = modsPreset->importPreset(data);
+
+	TModList requiredMods = modsPreset->getRootMods(presetName);
+	TModList installedMods = getInstalledValidMods();
+
+	TModList missingMods;
+	for (const auto & modID : requiredMods)
+	{
+		if (!vstd::contains(installedMods, modID))
+			missingMods.push_back(modID);
+	}
+
+	modsPreset->saveConfigurationState();
+
+	return {presetName, missingMods};
 }
 
 VCMI_LIB_NAMESPACE_END

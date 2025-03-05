@@ -116,11 +116,12 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <atomic>
 #include <bitset>
 #include <cassert>
+#include <chrono>
 #include <climits>
 #include <cmath>
-#include <codecvt>
-#include <cstdlib>
+#include <condition_variable>
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <functional>
 #include <iomanip>
@@ -134,6 +135,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <random>
 #include <regex>
 #include <set>
+#include <shared_mutex>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -168,6 +170,8 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/algorithm/string.hpp>
 #include <boost/crc.hpp>
 #include <boost/current_function.hpp>
+#include <boost/container/small_vector.hpp>
+#include <boost/container/static_vector.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/date_time/posix_time/time_formatters.hpp>
 #include <boost/filesystem.hpp>
@@ -185,9 +189,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/range/algorithm.hpp>
 #include <boost/thread/thread_only.hpp>
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/recursive_mutex.hpp>
-#include <boost/thread/once.hpp>
 
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846
@@ -364,6 +365,15 @@ namespace vstd
 		if (it == m.end())
 			return defaultValue;
 		return it->second;
+	}
+
+	// given a map from keys to values, creates a new map from values to keys 
+	template<typename K, typename V>
+	static std::map<V, K> reverseMap(const std::map<K, V>& m) {
+		std::map<V, K> r;
+ 		for (const auto& kv : m)
+			r[kv.second] = kv.first;
+		return r;
 	}
 
 	//returns first key that maps to given value if present, returns success via found if provided
@@ -658,15 +668,15 @@ namespace vstd
 		return false;
 	}
 
-	template<typename T>
-	void removeDuplicates(std::vector<T> &vec)
+	template <typename Container>
+	void removeDuplicates(Container &vec)
 	{
 		std::sort(vec.begin(), vec.end());
 		vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
 	}
 
-	template <typename T>
-	void concatenate(std::vector<T> &dest, const std::vector<T> &src)
+	template <typename Container>
+	void concatenate(Container &dest, const Container &src)
 	{
 		dest.reserve(dest.size() + src.size());
 		dest.insert(dest.end(), src.begin(), src.end());

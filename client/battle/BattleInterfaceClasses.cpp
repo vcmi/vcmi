@@ -18,10 +18,10 @@
 #include "BattleStacksController.h"
 #include "BattleWindow.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
@@ -113,7 +113,7 @@ std::vector<std::string> BattleConsole::splitText(const std::string &text)
 
 	boost::split(lines, text, boost::is_any_of("\n"));
 
-	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
 	for(const auto & line : lines)
 	{
 		if (font->getStringWidth(text) < pos.w)
@@ -171,7 +171,7 @@ BattleConsole::BattleConsole(const BattleInterface & owner, std::shared_ptr<CPic
 void BattleConsole::deactivate()
 {
 	if (enteringText)
-		LOCPLINT->cingconsole->endEnteringText(false);
+		GAME->interface()->cingconsole->endEnteringText(false);
 
 	CIntObject::deactivate();
 }
@@ -180,7 +180,7 @@ void BattleConsole::clickPressed(const Point & cursorPosition)
 {
 	if(owner.makingTurn() && !owner.openingPlaying())
 	{
-		GH.windows().createAndPushWindow<BattleConsoleWindow>(boost::algorithm::join(logEntries, "\n"));
+		ENGINE->windows().createAndPushWindow<BattleConsoleWindow>(boost::algorithm::join(logEntries, "\n"));
 	}
 }
 
@@ -191,12 +191,12 @@ void BattleConsole::setEnteringMode(bool on)
 	if (on)
 	{
 		assert(enteringText == false);
-		GH.startTextInput(pos);
+		ENGINE->input().startTextInput(pos);
 	}
 	else
 	{
 		assert(enteringText == true);
-		GH.stopTextInput();
+		ENGINE->input().stopTextInput();
 	}
 	enteringText = on;
 	redraw();
@@ -337,8 +337,8 @@ void BattleHero::heroLeftClicked()
 
 	if(owner.getBattle()->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
-		CCS->curh->set(Cursor::Map::POINTER);
-		GH.windows().createAndPushWindow<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
+		ENGINE->cursor().set(Cursor::Map::POINTER);
+		ENGINE->windows().createAndPushWindow<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
 	}
 }
 
@@ -348,7 +348,7 @@ void BattleHero::heroRightClicked()
 		return;
 
 	Point windowPosition;
-	if(GH.screenDimensions().x < 1000)
+	if(ENGINE->screenDimensions().x < 1000)
 	{
 		windowPosition.x = (!defender) ? owner.fieldController->pos.left() + 1 : owner.fieldController->pos.right() - 79;
 		windowPosition.y = owner.fieldController->pos.y + 135;
@@ -364,7 +364,7 @@ void BattleHero::heroRightClicked()
 	{
 		auto h = defender ? owner.defendingHeroInstance : owner.attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
-		GH.windows().createAndPushWindow<HeroInfoWindow>(targetHero, &windowPosition);
+		ENGINE->windows().createAndPushWindow<HeroInfoWindow>(targetHero, &windowPosition);
 	}
 }
 
@@ -398,7 +398,7 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	else
 		animationPath = hero->getHeroClass()->imageBattleMale;
 
-	animation = GH.renderHandler().loadAnimation(animationPath, EImageBlitMode::WITH_SHADOW);
+	animation = ENGINE->renderHandler().loadAnimation(animationPath, EImageBlitMode::WITH_SHADOW);
 
 	pos.w = 64;
 	pos.h = 136;
@@ -409,9 +409,9 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 		animation->verticalFlip();
 
 	if(defender)
-		flagAnimation = GH.renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGR"), EImageBlitMode::COLORKEY);
+		flagAnimation = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGR"), EImageBlitMode::COLORKEY);
 	else
-		flagAnimation = GH.renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGL"), EImageBlitMode::COLORKEY);
+		flagAnimation = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGL"), EImageBlitMode::COLORKEY);
 
 	flagAnimation->playerColored(hero->tempOwner);
 
@@ -462,7 +462,7 @@ std::vector<std::tuple<SpellID, bool>> QuickSpellPanel::getSpells() const
 		if(spellIds[i] != SpellID::NONE)
 			continue;
 
-		for(const auto & availableSpellID : CGI->spellh->getDefaultAllowed())
+		for(const auto & availableSpellID : LIBRARY->spellh->getDefaultAllowed())
 		{
 			const auto * availableSpell = availableSpellID.toSpell();
 			if(!availableSpell->isAdventure() && !availableSpell->isCreatureAbility() && hero->canCastThisSpell(availableSpell) && !vstd::contains(spellIds, availableSpell->getId()))
@@ -507,8 +507,8 @@ void QuickSpellPanel::create()
 		});
 		button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), id != SpellID::NONE ? id.num + 1 : 0));
 		button->addPopupCallback([this, i, hero](){
-			GH.input().hapticFeedback();
-			GH.windows().createAndPushWindow<CSpellWindow>(hero, owner.curInt.get(), true, [this, i](SpellID spell){
+			ENGINE->input().hapticFeedback();
+			ENGINE->windows().createAndPushWindow<CSpellWindow>(hero, owner.curInt.get(), true, [this, i](SpellID spell){
 				Settings configID = persistentStorage.write["quickSpell"][std::to_string(i)];
 				configID->String() = spell == SpellID::NONE ? "" : spell.toSpell()->identifier;
 				create();
@@ -522,7 +522,7 @@ void QuickSpellPanel::create()
 		{
 			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 7 + 50 * i, 48, 36), ColorRGBA(0, 0, 0, 172)));
 		}
-		if(GH.input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE)
+		if(ENGINE->input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE)
 			labels.push_back(std::make_shared<CLabel>(7, 10 + 50 * i, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, config["keyboard"]["battleSpellShortcut" + std::to_string(i)].String()));
 
 		buttons.push_back(button);
@@ -572,10 +572,10 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.getIconIndex(), 0, 10, 6));
 
 	//primary stats
-	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 87, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[381] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[382] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[383] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[380] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 87, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[381] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[382] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[383] + ":"));
 
 	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(attack)));
 	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(defense)));
@@ -583,14 +583,14 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(knowledge)));
 
 	//morale+luck
-	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[384] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[385] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[384] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[385] + ":"));
 
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("IMRL22"), morale + 3, 0, 47, 131));
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ILCK22"), luck + 3, 0, 47, 143));
 
 	//spell points
-	labels.push_back(std::make_shared<CLabel>(39, 174, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[387]));
+	labels.push_back(std::make_shared<CLabel>(39, 174, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[387]));
 	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
 }
 
@@ -633,10 +633,10 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), stack->creatureId() + 2, 0, 10, 6));
 	labels.push_back(std::make_shared<CLabel>(10 + 58, 6 + 64, FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, TextOperations::formatMetric(stack->getCount(), 4)));
 
-	auto attack = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getAttack(stack->isShooter())) + "(" + std::to_string(stack->getAttack(stack->isShooter())) + ")";
-	auto defense = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getDefense(stack->isShooter())) + "(" + std::to_string(stack->getDefense(stack->isShooter())) + ")";
-	auto damage = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getMinDamage(stack->isShooter())) + "-" + std::to_string(stack->getMaxDamage(stack->isShooter()));
-	auto health = CGI->creatures()->getByIndex(stack->creatureIndex())->getMaxHealth();
+	auto attack = std::to_string(LIBRARY->creatures()->getByIndex(stack->creatureIndex())->getAttack(stack->isShooter())) + "(" + std::to_string(stack->getAttack(stack->isShooter())) + ")";
+	auto defense = std::to_string(LIBRARY->creatures()->getByIndex(stack->creatureIndex())->getDefense(stack->isShooter())) + "(" + std::to_string(stack->getDefense(stack->isShooter())) + ")";
+	auto damage = std::to_string(LIBRARY->creatures()->getByIndex(stack->creatureIndex())->getMinDamage(stack->isShooter())) + "-" + std::to_string(stack->getMaxDamage(stack->isShooter()));
+	auto health = stack->getMaxHealth();
 	auto morale = stack->moraleVal();
 	auto luck = stack->luckVal();
 
@@ -644,10 +644,10 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	auto healthRemaining = TextOperations::formatMetric(std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * health, (si64)0), 4);
 
 	//primary stats*/
-	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 87, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[381] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[386] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[389] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[380] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 87, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[381] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[386] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[389] + ":"));
 
 	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, attack));
 	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, defense));
@@ -655,15 +655,15 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(health)));
 
 	//morale+luck
-	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[384] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[385] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[384] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[385] + ":"));
 
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("IMRL22"), morale + 3, 0, 47, 131));
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ILCK22"), luck + 3, 0, 47, 143));
 
 	//extra information
-	labels.push_back(std::make_shared<CLabel>(9, 168, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->translate("vcmi.battleWindow.killed") + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 180, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[389] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 168, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.battleWindow.killed") + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 180, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[389] + ":"));
 
 	labels.push_back(std::make_shared<CLabel>(69, 180, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(killed)));
 	labels.push_back(std::make_shared<CLabel>(69, 192, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, healthRemaining));
@@ -686,7 +686,12 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 		if (hasGraphics)
 		{
 			//FIXME: support permanent duration
-			int duration = stack->getFirstBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)))->turnsRemain;
+			auto spellBonuses = stack->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)));
+
+			if (spellBonuses->empty())
+				throw std::runtime_error("Failed to find effects for spell " + effect.toSpell()->getJsonKey());
+
+			int duration = spellBonuses->front()->turnsRemain;
 
 			icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
 			if(settings["general"]["enableUiEnhancements"].Bool())
@@ -697,7 +702,7 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	}
 
 	if(spells.size() == 0)
-		labelsMultiline.push_back(std::make_shared<CMultiLineLabel>(Rect(firstPos.x, firstPos.y, 48, 36), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[674]));
+		labelsMultiline.push_back(std::make_shared<CMultiLineLabel>(Rect(firstPos.x, firstPos.y, 48, 36), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[674]));
 	if(spells.size() > 3)
 		labelsMultiline.push_back(std::make_shared<CMultiLineLabel>(Rect(firstPos.x + offset.x * 2, firstPos.y + offset.y * 2 - 4, 48, 36), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "..."));
 }
@@ -745,30 +750,30 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	{
 		repeat = std::make_shared<CButton>(Point(24, 505), AnimationPath::builtin("icn6432.def"), std::make_pair("", ""), [&](){ bRepeatf();}, EShortcut::GLOBAL_CANCEL);
 		repeat->setBorderColor(Colors::METALLIC_GOLD);
-		labels.push_back(std::make_shared<CLabel>(232, 520, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.battleResultsWindow.applyResultsLabel")));
+		labels.push_back(std::make_shared<CLabel>(232, 520, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.battleResultsWindow.applyResultsLabel")));
 	}
 
 	if(br.winner == BattleSide::ATTACKER)
 	{
-		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
+		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[410]));
 	}
 	else
 	{
-		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
+		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[411]));
 	}
 	
 	if(br.winner == BattleSide::DEFENDER)
 	{
-		labels.push_back(std::make_shared<CLabel>(412, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
+		labels.push_back(std::make_shared<CLabel>(412, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[410]));
 	}
 	else
 	{
-		labels.push_back(std::make_shared<CLabel>(408, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
+		labels.push_back(std::make_shared<CLabel>(408, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[411]));
 	}
 
-	labels.push_back(std::make_shared<CLabel>(232, 302, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,  CGI->generaltexth->allTexts[407]));
-	labels.push_back(std::make_shared<CLabel>(232, 332, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[408]));
-	labels.push_back(std::make_shared<CLabel>(232, 428, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[409]));
+	labels.push_back(std::make_shared<CLabel>(232, 302, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,  LIBRARY->generaltexth->allTexts[407]));
+	labels.push_back(std::make_shared<CLabel>(232, 332, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[408]));
+	labels.push_back(std::make_shared<CLabel>(232, 428, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[409]));
 
 	std::string sideNames[2] = {"N/A", "N/A"};
 
@@ -812,7 +817,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	{
 		if(br.casualties[step].size()==0)
 		{
-			labels.push_back(std::make_shared<CLabel>(235, 360 + 97 * static_cast<int>(step), FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[523]));
+			labels.push_back(std::make_shared<CLabel>(235, 360 + 97 * static_cast<int>(step), FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[523]));
 		}
 		else
 		{
@@ -820,7 +825,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 			int yPos = 344 + static_cast<int>(step) * 97;
 			for(auto & elem : br.casualties[step])
 			{
-				auto creature = CGI->creatures()->getByIndex(elem.first);
+				auto creature = LIBRARY->creatures()->getByIndex(elem.first);
 				if (creature->getId() == CreatureID::ARROW_TOWERS )
 					continue; // do not show destroyed towers in battle results
 
@@ -838,7 +843,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	description = std::make_shared<CTextBox>(resources.resultText.toString(), Rect(69, 203, 330, 68), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	videoPlayer = std::make_shared<VideoWidget>(Point(107, 70), resources.prologueVideo, resources.loopedVideo, false);
 
-	CCS->musich->playMusic(resources.musicName, false, true);
+	ENGINE->music().playMusic(resources.musicName, false, true);
 }
 
 BattleResultResources BattleResultWindow::getResources(const BattleResult & br)
@@ -885,7 +890,7 @@ BattleResultResources BattleResultWindow::getResources(const BattleResult & br)
 		if (ourHero)
 		{
 			resources.resultText.appendTextID("core.genrltxt.305");
-			resources.resultText.replaceTextID(ourHero->getNameTranslated());
+			resources.resultText.replaceTextID(ourHero->getNameTextID());
 			resources.resultText.replaceNumber(br.exp[weAreAttacker ? BattleSide::ATTACKER : BattleSide::DEFENDER]);
 		}
 	}
@@ -908,7 +913,7 @@ BattleResultResources BattleResultWindow::getResources(const BattleResult & br)
 		case EBattleResult::SURRENDER:
 			resources.resultText.appendTextID("core.genrltxt.309");
 			resources.musicName = AudioPath::builtin("Music/Surrender Battle");
-			resources.prologueVideo = VideoPath();
+			resources.prologueVideo = VideoPath::builtin("SURRENDER.BIK");
 			resources.loopedVideo = VideoPath::builtin("SURRENDER.BIK");
 			break;
 		default:
@@ -941,8 +946,8 @@ void BattleResultWindow::buttonPressed(int button)
 
 	close();
 
-	if(GH.windows().topWindow<BattleWindow>())
-		GH.windows().popWindows(1); //pop battle interface if present
+	if(ENGINE->windows().topWindow<BattleWindow>())
+		ENGINE->windows().popWindows(1); //pop battle interface if present
 
 	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
 	//so we can be sure that there is no dialogs left on GUI stack.
@@ -971,7 +976,7 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	{
 		int32_t queueSmallOutsideYOffset = 65;
 		bool queueSmallOutside = settings["battle"]["queueSmallOutside"].Bool() && (pos.y - queueSmallOutsideYOffset) >= 0;
-		queueSize = std::clamp(static_cast<int>(settings["battle"]["queueSmallSlots"].Float()), 1, queueSmallOutside ? GH.screenDimensions().x / 41 : 19);
+		queueSize = std::clamp(static_cast<int>(settings["battle"]["queueSmallSlots"].Float()), 1, queueSmallOutside ? ENGINE->screenDimensions().x / 41 : 19);
 
 		pos.w = queueSize * 41;
 		pos.h = 49;
@@ -1102,7 +1107,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 		if(currentTurn && !owner->embedded)
 		{
 			std::string tmp = std::to_string(*currentTurn);
-			const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+			const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
 			int len = font->getStringWidth(tmp);
 			roundRect->pos.w = len + 6;
 			round->pos = Rect(roundRect->pos.center().x, roundRect->pos.center().y, 0, 0);
@@ -1165,5 +1170,5 @@ void StackQueue::StackBox::showPopupWindow(const Point & cursorPosition)
 	auto stacks = owner->owner.getBattle()->battleGetAllStacks();
 	for(const CStack * stack : stacks)
 		if(boundUnitID.has_value() && stack->unitId() == *boundUnitID)
-			GH.windows().createAndPushWindow<CStackWindow>(stack, true);
+			ENGINE->windows().createAndPushWindow<CStackWindow>(stack, true);
 }

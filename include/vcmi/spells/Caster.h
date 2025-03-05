@@ -22,6 +22,7 @@ class SpellSchool;
 namespace battle
 {
 	class Unit;
+	using Units = boost::container::small_vector<const Unit *, 4>;
 }
 
 namespace spells
@@ -65,7 +66,7 @@ public:
 	virtual void getCasterName(MetaString & text) const = 0;
 
 	///full default text
-	virtual void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const = 0;
+	virtual void getCastDescription(const Spell * spell, const battle::Units & attacked, MetaString & text) const = 0;
 
 	virtual void spendMana(ServerCallback * server, const int32_t spellCost) const = 0;
 

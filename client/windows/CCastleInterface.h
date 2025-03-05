@@ -103,6 +103,8 @@ class CHeroGSlot : public CIntObject
 	const CGHeroInstance * hero;
 	int upg; //0 - up garrison, 1 - down garrison
 
+	auto getUpgradableSlots(const CArmedInstance *obj) const;
+
 public:
 	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSlots * Owner);
 	~CHeroGSlot();
@@ -152,13 +154,16 @@ class CCastleBuildings : public CIntObject
 
 	void enterBlacksmith(BuildingID building, ArtifactID artifactID);//support for blacksmith + ballista yard
 	void enterBuilding(BuildingID building);//for buildings with simple description + pic left-click messages
-	void enterCastleGate();
+	void enterCastleGate(BuildingID building);
 	void enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades);//Rampart's fountains
 	
 	void openMagesGuild();
 	void openTownHall();
 
 	void recreate();
+
+	void drawOverlays(Canvas & to, std::vector<std::shared_ptr<CBuildingRect>> buildingRects);
+	void show(Canvas & to) override;
 public:
 	CBuildingRect * selectedBuilding;
 

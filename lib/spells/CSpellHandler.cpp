@@ -183,7 +183,7 @@ std::string CSpell::getNameTextID() const
 
 std::string CSpell::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::string CSpell::getDescriptionTextID(int32_t level) const
@@ -194,7 +194,7 @@ std::string CSpell::getDescriptionTextID(int32_t level) const
 
 std::string CSpell::getDescriptionTranslated(int32_t level) const
 {
-	return VLC->generaltexth->translate(getDescriptionTextID(level));
+	return LIBRARY->generaltexth->translate(getDescriptionTextID(level));
 }
 
 std::string CSpell::getJsonKey() const
@@ -357,7 +357,7 @@ int32_t CSpell::getLevelPower(const int32_t skillLevel) const
 
 si32 CSpell::getProbability(const FactionID & factionId) const
 {
-	if(!vstd::contains(probabilities,factionId))
+	if(!vstd::contains(probabilities, factionId))
 	{
 		return defaultProbability;
 	}
@@ -434,7 +434,7 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 		}
 
 		//invincible
-		if(bearer->hasBonusOfType(BonusType::INVINCIBLE))
+		if(affectedCreature->isInvincible())
 			ret = 0;
 	}
 	ret = caster->getSpellBonus(this, ret, affectedCreature);
@@ -701,7 +701,7 @@ const std::vector<std::string> & CSpellHandler::getTypeNames() const
 
 std::vector<int> CSpellHandler::spellRangeInHexes(std::string input) const
 {
-	std::set<BattleHex> ret;
+	BattleHexArray ret;
 	std::string rng = input + ','; //copy + artificial comma for easier handling
 
 	if(rng.size() >= 2 && std::tolower(rng[0]) != 'x') //there is at least one hex in range (+artificial comma)
@@ -754,7 +754,14 @@ std::vector<int> CSpellHandler::spellRangeInHexes(std::string input) const
 		}
 	}
 
-	return std::vector<int>(ret.begin(), ret.end());
+	std::vector<int> result;
+	result.reserve(ret.size());
+
+	std::transform(ret.begin(), ret.end(), std::back_inserter(result),
+		[](const BattleHex & hex) { return hex.toInt(); }
+	);
+
+	return result;
 }
 
 std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
@@ -784,7 +791,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 		spell->combat = type == "combat";
 	}
 
-	VLC->generaltexth->registerString(scope, spell->getNameTextID(), json["name"]);
+	LIBRARY->generaltexth->registerString(scope, spell->getNameTextID(), json["name"]);
 
 	logMod->trace("%s: loading spell %s", __FUNCTION__, spell->getNameTranslated());
 
@@ -807,7 +814,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		const int chance = static_cast<int>(node.second.Integer());
 
-		VLC->identifiers()->requestIdentifier(node.second.getModScope(), "faction", node.first, [=](si32 factionID)
+		LIBRARY->identifiers()->requestIdentifier(node.second.getModScope(), "faction", node.first, [=](si32 factionID)
 		{
 			spell->probabilities[FactionID(factionID)] = chance;
 		});
@@ -830,7 +837,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		if(counteredSpell.second.Bool())
 		{
-			VLC->identifiers()->requestIdentifier(counteredSpell.second.getModScope(), "spell", counteredSpell.first, [=](si32 id)
+			LIBRARY->identifiers()->requestIdentifier(counteredSpell.second.getModScope(), "spell", counteredSpell.first, [=](si32 id)
 			{
 				spell->counteredSpells.emplace_back(id);
 			});
@@ -1011,7 +1018,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 		const si32 levelPower     = levelObject.power = static_cast<si32>(levelNode["power"].Integer());
 
 		if (!spell->isCreatureAbility())
-			VLC->generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"]);
+			LIBRARY->generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"]);
 
 		levelObject.cost          = static_cast<si32>(levelNode["cost"].Integer());
 		levelObject.AIValue       = static_cast<si32>(levelNode["aiValue"].Integer());

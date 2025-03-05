@@ -10,7 +10,8 @@
 #include "StdInc.h"
 #include "CHeroBackpackWindow.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 
 #include "../widgets/Buttons.h"
@@ -24,6 +25,7 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<CArtifactsOfHeroPtr> & artsSets)
 	: CWindowWithArtifacts(&artsSets)
@@ -43,16 +45,23 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	};
 	addSet(arts);
 	arts->setHero(hero);
+
+	std::string sortByValue = LIBRARY->generaltexth->translate("vcmi.heroWindow.sortBackpackByCost.hover");
+	std::string sortBySlot = LIBRARY->generaltexth->translate("vcmi.heroWindow.sortBackpackBySlot.hover");
+	std::string sortByClass = LIBRARY->generaltexth->translate("vcmi.heroWindow.sortBackpackByClass.hover");
 	
-	buttons.emplace_back(std::make_unique<CButton>(Point(), AnimationPath::builtin("ALTFILL.DEF"),
+	buttons.emplace_back(std::make_shared<CButton>(Point(), AnimationPath::builtin("heroBackpackSort"),
 		CButton::tooltipLocalized("vcmi.heroWindow.sortBackpackByCost"),
-		[hero]() { LOCPLINT->cb->sortBackpackArtifactsByCost(hero->id); }));
-	buttons.emplace_back(std::make_unique<CButton>(Point(), AnimationPath::builtin("ALTFILL.DEF"),
+		[hero]() { GAME->interface()->cb->sortBackpackArtifactsByCost(hero->id); }));
+	buttons.back()->setTextOverlay(sortByValue, EFonts::FONT_SMALL, Colors::YELLOW);
+	buttons.emplace_back(std::make_shared<CButton>(Point(), AnimationPath::builtin("heroBackpackSort"),
 		CButton::tooltipLocalized("vcmi.heroWindow.sortBackpackBySlot"),
-		[hero]() { LOCPLINT->cb->sortBackpackArtifactsBySlot(hero->id); }));
-	buttons.emplace_back(std::make_unique<CButton>(Point(), AnimationPath::builtin("ALTFILL.DEF"),
+		[hero]() { GAME->interface()->cb->sortBackpackArtifactsBySlot(hero->id); }));
+	buttons.back()->setTextOverlay(sortBySlot, EFonts::FONT_SMALL, Colors::YELLOW);
+	buttons.emplace_back(std::make_shared<CButton>(Point(), AnimationPath::builtin("heroBackpackSort"),
 		CButton::tooltipLocalized("vcmi.heroWindow.sortBackpackByClass"),
-		[hero]() { LOCPLINT->cb->sortBackpackArtifactsByClass(hero->id); }));
+		[hero]() { GAME->interface()->cb->sortBackpackArtifactsByClass(hero->id); }));
+	buttons.back()->setTextOverlay(sortByClass, EFonts::FONT_SMALL, Colors::YELLOW);
 
 	pos.w = stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
 	pos.h = stretchedBackground->pos.h = arts->pos.h + buttons.back()->pos.h + 3 * windowMargin;
@@ -78,7 +87,7 @@ void CHeroBackpackWindow::notFocusedClick()
 void CHeroBackpackWindow::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
-	CMessage::drawBorder(PlayerColor(LOCPLINT->playerID), to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+	CMessage::drawBorder(PlayerColor(GAME->interface()->playerID), to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
 CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot)
@@ -129,6 +138,6 @@ void CHeroQuickBackpackWindow::showAll(Canvas & to)
 		close();
 		return;
 	}
-	CMessage::drawBorder(PlayerColor(LOCPLINT->playerID), to, pos.w + 28, pos.h + 29, pos.x - 14, pos.y - 15);
+	CMessage::drawBorder(PlayerColor(GAME->interface()->playerID), to, pos.w + 28, pos.h + 29, pos.x - 14, pos.y - 15);
 	CIntObject::showAll(to);
 }

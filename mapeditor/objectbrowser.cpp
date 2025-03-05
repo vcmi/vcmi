@@ -14,7 +14,7 @@
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 
 ObjectBrowserProxyModel::ObjectBrowserProxyModel(QObject *parent)
 	: QSortFilterProxyModel{parent}, terrain(ETerrainId::ANY_TERRAIN)
@@ -52,7 +52,7 @@ bool ObjectBrowserProxyModel::filterAcceptsRow(int source_row, const QModelIndex
 	auto objSubId = data["subid"].toInt();
 	auto templateId = data["template"].toInt();
 
-	auto factory = VLC->objtypeh->getHandlerFor(objId, objSubId);
+	auto factory = LIBRARY->objtypeh->getHandlerFor(objId, objSubId);
 	auto templ = factory->getTemplates()[templateId];
 
 	result = result && templ->canBePlacedAt(terrain);

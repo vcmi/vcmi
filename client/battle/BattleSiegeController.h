@@ -102,9 +102,9 @@ public:
 	void collectRenderableObjects(BattleRenderer & renderer);
 
 	/// queries from other battle controllers
-	bool isAttackableByCatapult(BattleHex hex) const;
+	bool isAttackableByCatapult(const BattleHex & hex) const;
 	ImagePath getBattleBackgroundName() const;
-	const CCreature *getTurretCreature(BattleHex turretPosition) const;
+	const CCreature *getTurretCreature(const BattleHex & turretPosition) const;
 	Point getTurretCreaturePosition( BattleHex position ) const;
 
 	const CGTownInstance *getSiegedTown() const;

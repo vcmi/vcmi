@@ -17,12 +17,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE BonusList
 {
 public:
-	using TInternalContainer = std::vector<std::shared_ptr<Bonus>>;
+	using TInternalContainer = boost::container::small_vector<std::shared_ptr<Bonus>, 16>;
 
 private:
 	TInternalContainer bonuses;
-	bool belongsToTree;
-	void changed() const;
 
 public:
 	using const_reference = TInternalContainer::const_reference;
@@ -31,10 +29,7 @@ public:
 	using const_iterator = TInternalContainer::const_iterator;
 	using iterator = TInternalContainer::iterator;
 
-	BonusList(bool BelongsToTree = false);
-	BonusList(const BonusList &bonusList);
-	BonusList(BonusList && other) noexcept;
-	BonusList& operator=(const BonusList &bonusList);
+	BonusList() = default;
 
 	// wrapper functions of the STL vector container
 	TInternalContainer::size_type size() const { return bonuses.size(); }
@@ -43,7 +38,6 @@ public:
 	void clear();
 	bool empty() const { return bonuses.empty(); }
 	void resize(TInternalContainer::size_type sz, const std::shared_ptr<Bonus> & c = nullptr);
-	void reserve(TInternalContainer::size_type sz);
 	TInternalContainer::size_type capacity() const { return bonuses.capacity(); }
 	STRONG_INLINE std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) { return bonuses[n]; }
 	STRONG_INLINE const std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) const { return bonuses[n]; }
@@ -59,14 +53,14 @@ public:
 
 	// BonusList functions
 	void stackBonuses();
-	int totalValue() const;
+	int totalValue(int baseValue = 0) const;
 	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit = nullptr) const;
 	void getAllBonuses(BonusList &out) const;
 
 	//special find functions
 	std::shared_ptr<Bonus> getFirst(const CSelector &select);
 	std::shared_ptr<const Bonus> getFirst(const CSelector &select) const;
-	int valOfBonuses(const CSelector &select) const;
+	int valOfBonuses(const CSelector &select, int baseValue = 0) const;
 
 	// conversion / output
 	JsonNode toJsonNode() const;

@@ -24,7 +24,9 @@ namespace NKAI
 		int maxRoamingHeroes;
 		int mainHeroTurnDistanceLimit;
 		int scoutHeroTurnDistanceLimit;
-		int maxpass;
+		int threatTurnDistanceLimit;
+		int maxPass;
+		int maxPriorityPass;
 		int pathfinderBucketsCount;
 		int pathfinderBucketSize;
 		float maxGoldPressure;
@@ -34,6 +36,7 @@ namespace NKAI
 		float maxArmyLossTarget;
 		bool allowObjectGraph;
 		bool useTroopsFromGarrisons;
+		bool useOneWayMonoliths;
 		bool updateHitmapOnTileReveal;
 		bool openMap;
 		bool useFuzzy;
@@ -41,7 +44,8 @@ namespace NKAI
 	public:
 		explicit Settings(int difficultyLevel);
 
-		int getMaxPass() const { return maxpass; }
+		int getMaxPass() const { return maxPass; }
+		int getMaxPriorityPass() const { return maxPriorityPass; }
 		float getMaxGoldPressure() const { return maxGoldPressure; }
 		float getRetreatThresholdRelative() const { return retreatThresholdRelative; }
 		float getRetreatThresholdAbsolute() const { return retreatThresholdAbsolute; }
@@ -50,10 +54,12 @@ namespace NKAI
 		int getMaxRoamingHeroes() const { return maxRoamingHeroes; }
 		int getMainHeroTurnDistanceLimit() const { return mainHeroTurnDistanceLimit; }
 		int getScoutHeroTurnDistanceLimit() const { return scoutHeroTurnDistanceLimit; }
+		int getThreatTurnDistanceLimit() const { return threatTurnDistanceLimit; }
 		int getPathfinderBucketsCount() const { return pathfinderBucketsCount; }
 		int getPathfinderBucketSize() const { return pathfinderBucketSize; }
 		bool isObjectGraphAllowed() const { return allowObjectGraph; }
 		bool isGarrisonTroopsUsageAllowed() const { return useTroopsFromGarrisons; }
+		bool isOneWayMonolithUsageAllowed() const { return useOneWayMonoliths; }
 		bool isUpdateHitmapOnTileReveal() const { return updateHitmapOnTileReveal; }
 		bool isOpenMap() const { return openMap; }
 		bool isUseFuzzy() const { return useFuzzy; }

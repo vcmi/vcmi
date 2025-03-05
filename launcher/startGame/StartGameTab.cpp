@@ -19,6 +19,7 @@
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/VCMIDirs.h"
+#include "../../vcmiqt/MessageBox.h"
 
 void StartGameTab::changeEvent(QEvent *event)
 {
@@ -44,12 +45,41 @@ StartGameTab::StartGameTab(QWidget * parent)
 	refreshState();
 
 	ui->buttonGameResume->setVisible(false); // TODO: implement
-	ui->buttonPresetExport->setVisible(false); // TODO: implement
-	ui->buttonPresetImport->setVisible(false); // TODO: implement
 
 #ifndef ENABLE_EDITOR
 	ui->buttonGameEditor->hide();
 #endif
+
+	auto clipboard = QGuiApplication::clipboard();
+
+	connect(clipboard, SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
+}
+
+void StartGameTab::clipboardDataChanged()
+{
+	ui->buttonPresetExport->setIcon(QIcon{});// reset icon, if any
+
+	auto clipboard = QGuiApplication::clipboard();
+	QString clipboardText = clipboard->text().trimmed();
+
+	if (clipboardText.isEmpty())
+	{
+		ui->buttonPresetImport->setEnabled(false);
+	}
+	else
+	{
+		// this *may* be json, try parsing it
+		if (clipboardText.startsWith('{'))
+		{
+			QByteArray presetBytes(clipboardText.toUtf8());
+			const JsonNode presetJson(reinterpret_cast<const std::byte*>(presetBytes.data()), presetBytes.size(), "preset in clipboard");
+			bool presetValid = !presetJson["name"].String().empty() && !presetJson["mods"].Vector().empty();
+
+			ui->buttonPresetImport->setEnabled(presetValid);
+		}
+		else
+			ui->buttonPresetImport->setEnabled(false);
+	}
 }
 
 StartGameTab::~StartGameTab()
@@ -72,6 +102,8 @@ void StartGameTab::refreshState()
 	refreshTranslation(getMainWindow()->getTranslationStatus());
 	refreshPresets();
 	refreshMods();
+
+	clipboardDataChanged();
 }
 
 void StartGameTab::refreshPresets()
@@ -227,7 +259,7 @@ void StartGameTab::on_buttonImportFiles_clicked()
 
 	// iOS can't display modal dialogs when called directly on button press
 	// https://bugreports.qt.io/browse/QTBUG-98651
-	QTimer::singleShot(0, this, importFunctor);
+	MessageBoxCustom::showDialog(this, importFunctor);
 }
 
 void StartGameTab::on_buttonInstallTranslation_clicked()
@@ -269,7 +301,7 @@ void StartGameTab::on_buttonHelpImportFiles_clicked()
 		" - VCMI configuration files (.json)\n"
 	);
 
-	QMessageBox::information(this, ui->buttonImportFiles->text(), message);
+	MessageBoxCustom::information(this, ui->buttonImportFiles->text(), message);
 }
 
 void StartGameTab::on_buttonInstallTranslationHelp_clicked()
@@ -279,7 +311,7 @@ void StartGameTab::on_buttonInstallTranslationHelp_clicked()
 		"VCMI provides translations of the game into various languages that you can use. "
 		"Use this option to automatically install such translation to your language."
 	);
-	QMessageBox::information(this, ui->buttonInstallTranslation->text(), message);
+	MessageBoxCustom::information(this, ui->buttonInstallTranslation->text(), message);
 }
 
 void StartGameTab::on_buttonActivateTranslationHelp_clicked()
@@ -289,7 +321,7 @@ void StartGameTab::on_buttonActivateTranslationHelp_clicked()
 		"Use this option to enable it."
 	);
 
-	QMessageBox::information(this, ui->buttonActivateTranslation->text(), message);
+	MessageBoxCustom::information(this, ui->buttonActivateTranslation->text(), message);
 }
 
 void StartGameTab::on_buttonUpdateModsHelp_clicked()
@@ -298,10 +330,10 @@ void StartGameTab::on_buttonUpdateModsHelp_clicked()
 		"A new version of some of the mods that you have installed is now available in mod repository. "
 		"Use this option to automatically update all your mods to latest version.\n\n"
 		"WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. "
-		"You many want to postpone mod update until you finish any of your ongoing games."
+		"You may want to postpone mod update until you finish any of your ongoing games."
 		);
 
-	QMessageBox::information(this, ui->buttonUpdateMods->text(), message);
+	MessageBoxCustom::information(this, ui->buttonUpdateMods->text(), message);
 }
 
 void StartGameTab::on_buttonChroniclesHelp_clicked()
@@ -314,7 +346,7 @@ void StartGameTab::on_buttonChroniclesHelp_clicked()
 		"This will generate and install mod for VCMI that contains imported chronicles"
 	);
 
-	QMessageBox::information(this, ui->labelChronicles->text(), message);
+	MessageBoxCustom::information(this, ui->labelChronicles->text(), message);
 }
 
 void StartGameTab::on_buttonMissingSoundtrackHelp_clicked()
@@ -325,7 +357,7 @@ void StartGameTab::on_buttonMissingSoundtrackHelp_clicked()
 		"To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually "
 		"or reinstall VCMI and re-import Heroes III data files"
 	);
-	QMessageBox::information(this, ui->labelMissingSoundtrack->text(), message);
+	MessageBoxCustom::information(this, ui->labelMissingSoundtrack->text(), message);
 }
 
 void StartGameTab::on_buttonMissingVideoHelp_clicked()
@@ -336,7 +368,7 @@ void StartGameTab::on_buttonMissingVideoHelp_clicked()
 		"To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually "
 		"or reinstall VCMI and re-import Heroes III data files"
 		);
-	QMessageBox::information(this, ui->labelMissingVideo->text(), message);
+	MessageBoxCustom::information(this, ui->labelMissingVideo->text(), message);
 }
 
 void StartGameTab::on_buttonMissingFilesHelp_clicked()
@@ -347,7 +379,7 @@ void StartGameTab::on_buttonMissingFilesHelp_clicked()
 		"To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. "
 		"VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com"
 	);
-	QMessageBox::information(this, ui->labelMissingFiles->text(), message);
+	MessageBoxCustom::information(this, ui->labelMissingFiles->text(), message);
 }
 
 void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
@@ -358,36 +390,49 @@ void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
 		"To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually "
 		"or reinstall VCMI and re-import Heroes III data files"
 	);
-	QMessageBox::information(this, ui->labelMissingCampaigns->text(), message);
+	MessageBoxCustom::information(this, ui->labelMissingCampaigns->text(), message);
 }
 
 void StartGameTab::on_buttonPresetExport_clicked()
 {
-	// TODO
+	JsonNode presetJson = getMainWindow()->getModView()->exportCurrentPreset();
+	QString presetString = QString::fromStdString(presetJson.toCompactString());
+	QGuiApplication::clipboard()->setText(presetString);
+
+	ui->buttonPresetExport->setIcon(QIcon{":/icons/mod-enabled.png"});
 }
 
 void StartGameTab::on_buttonPresetImport_clicked()
 {
-	// TODO
+	QString presetString = QGuiApplication::clipboard()->text();
+	QByteArray presetBytes(presetString.toUtf8());
+	JsonNode presetJson(reinterpret_cast<const std::byte*>(presetBytes.data()), presetBytes.size(), "imported preset");
+
+	getMainWindow()->getModView()->importPreset(presetJson);
+	getMainWindow()->switchToModsTab();
+	refreshPresets();
 }
 
 void StartGameTab::on_buttonPresetNew_clicked()
 {
-	bool ok;
-	QString presetName = QInputDialog::getText(
-		this,
-		ui->buttonPresetNew->text(),
-		tr("Enter preset name:"),
-		QLineEdit::Normal,
-		QString(),
-		&ok);
+	const auto & functor = [this](){
+		bool ok;
+		QString presetName = QInputDialog::getText(
+			this,
+			ui->buttonPresetNew->text(),
+			tr("Enter preset name:"),
+			QLineEdit::Normal,
+			QString(),
+			&ok);
 
-	if (ok && !presetName.isEmpty())
-	{
-		getMainWindow()->getModView()->createNewPreset(presetName);
-		getMainWindow()->getModView()->activatePreset(presetName);
-		refreshPresets();
-	}
+		if (ok && !presetName.isEmpty())
+		{
+			getMainWindow()->getModView()->createNewPreset(presetName);
+			getMainWindow()->getModView()->activatePreset(presetName);
+			refreshPresets();
+		}
+	};
+	MessageBoxCustom::showDialog(this, functor);
 }
 
 void StartGameTab::on_buttonPresetDelete_clicked()
@@ -411,21 +456,23 @@ void StartGameTab::on_comboBoxModPresets_currentTextChanged(const QString &prese
 
 void StartGameTab::on_buttonPresetRename_clicked()
 {
-	QString currentName = getMainWindow()->getModView()->getActivePreset();
+	const auto & functor = [this](){
+		QString currentName = getMainWindow()->getModView()->getActivePreset();
 
-	bool ok;
-	QString newName = QInputDialog::getText(
-		this,
-		ui->buttonPresetNew->text(),
-		tr("Rename preset '%1' to:").arg(currentName),
-		QLineEdit::Normal,
-		currentName,
-		&ok);
+		bool ok;
+		QString newName = QInputDialog::getText(
+			this,
+			ui->buttonPresetNew->text(),
+			tr("Rename preset '%1' to:").arg(currentName),
+			QLineEdit::Normal,
+			currentName,
+			&ok);
 
-	if (ok && !newName.isEmpty())
-	{
-		getMainWindow()->getModView()->renamePreset(currentName, newName);
-		refreshPresets();
-	}
+		if (ok && !newName.isEmpty() && newName != currentName)
+		{
+			getMainWindow()->getModView()->renamePreset(currentName, newName);
+			refreshPresets();
+		}
+	};
+	MessageBoxCustom::showDialog(this, functor);
 }
-

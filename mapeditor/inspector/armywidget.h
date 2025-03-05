@@ -11,6 +11,7 @@
 
 #include "../StdInc.h"
 #include <QDialog>
+#include "baseinspectoritemdelegate.h"
 #include "../lib/mapObjects/CArmedInstance.h"
 
 const int TOTAL_SLOTS = 7;
@@ -39,17 +40,18 @@ private:
 	std::array<QComboBox*, TOTAL_SLOTS> uiSlots;
 };
 
-class ArmyDelegate : public QStyledItemDelegate
+class ArmyDelegate : public BaseInspectorItemDelegate
 {
 	Q_OBJECT
 public:
-	using QStyledItemDelegate::QStyledItemDelegate;
+	using BaseInspectorItemDelegate::BaseInspectorItemDelegate;
 	
 	ArmyDelegate(CArmedInstance &);
 	
 	QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 	void setEditorData(QWidget *editor, const QModelIndex &index) const override;
 	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
+	void updateModelData(QAbstractItemModel * model, const QModelIndex & index) const override;
 	
 private:
 	CArmedInstance & army;

@@ -21,6 +21,12 @@
 #include "../Analyzers/ObjectClusterizer.h"
 #include "../Helpers/ArmyFormation.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+class PathfinderCache;
+
+VCMI_LIB_NAMESPACE_END
+
 namespace NKAI
 {
 
@@ -72,12 +78,14 @@ private:
 	int3 targetTile;
 	ObjectInstanceID targetObject;
 	std::map<const CGHeroInstance *, HeroLockedReason> lockedHeroes;
+	std::unique_ptr<PathfinderCache> pathfinderCache;
 	ScanDepth scanDepth;
 	TResources lockedResources;
 	bool useHeroChain;
 	AIGateway * gateway;
 	bool openMap;
 	bool useObjectGraph;
+	bool pathfinderInvalidated;
 
 public:
 	static std::unique_ptr<ObjectGraph> baseGraph;
@@ -100,6 +108,7 @@ public:
 	std::mutex aiStateMutex;
 
 	Nullkiller();
+	~Nullkiller();
 	void init(std::shared_ptr<CCallback> cb, AIGateway * gateway);
 	void makeTurn();
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }
@@ -121,6 +130,10 @@ public:
 	bool isOpenMap() const { return openMap; }
 	bool isObjectGraphAllowed() const { return useObjectGraph; }
 	bool handleTrading();
+	void invalidatePathfinderData();
+
+	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h) const;
+	void invalidatePaths();
 
 private:
 	void resetAiState();

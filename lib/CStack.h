@@ -23,7 +23,7 @@ struct BattleStackAttacked;
 class BattleInfo;
 
 //Represents STACK_BATTLE nodes
-class DLL_LINKAGE CStack : public CBonusSystemNode, public battle::CUnitState, public battle::IUnitEnvironment
+class DLL_LINKAGE CStack final : public CBonusSystemNode, public battle::CUnitState, public battle::IUnitEnvironment
 {
 private:
 	ui32 ID = -1; //unique ID of stack
@@ -36,6 +36,9 @@ private:
 
 	SlotID slot;  //slot - position in garrison (may be 255 for neutrals/called creatures)
 
+	bool doubleWideCached = false;
+
+	void postDeserialize(const CArmedInstance * army, const SlotID & extSlot);
 public:
 	const CStackInstance * base = nullptr; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
 	
@@ -60,7 +63,7 @@ public:
 	std::vector<SpellID> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 	const CGHeroInstance * getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, nullptr otherwise
 
-	static std::vector<BattleHex> meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
+	static BattleHexArray meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
 	static bool isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
 
 	BattleHex::EDir destShiftDir() const;
@@ -77,6 +80,7 @@ public:
 	BattleSide unitSide() const override;
 	PlayerColor unitOwner() const override;
 	SlotID unitSlot() const override;
+	bool doubleWide() const override { return doubleWideCached;};
 
 	std::string getDescription() const override;
 
@@ -119,26 +123,7 @@ public:
 			h & army;
 			h & extSlot;
 
-			if(extSlot == SlotID::COMMANDER_SLOT_PLACEHOLDER)
-			{
-				const auto * hero = dynamic_cast<const CGHeroInstance *>(army);
-				assert(hero);
-				base = hero->commander;
-			}
-			else if(slot == SlotID::SUMMONED_SLOT_PLACEHOLDER || slot == SlotID::ARROW_TOWERS_SLOT || slot == SlotID::WAR_MACHINES_SLOT)
-			{
-				//no external slot possible, so no base stack
-				base = nullptr;
-			}
-			else if(!army || extSlot == SlotID() || !army->hasStackAtSlot(extSlot))
-			{
-				base = nullptr;
-				logGlobal->warn("%s doesn't have a base stack!", typeID.toEntity(VLC)->getNameSingularTranslated());
-			}
-			else
-			{
-				base = &army->getStack(extSlot);
-			}
+			postDeserialize(army, extSlot);
 		}
 	}
 

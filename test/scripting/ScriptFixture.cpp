@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 #include "lib/modding/ModScope.h"
-#include "lib/VCMI_Lib.h"
+#include "lib/GameLibrary.h"
 
 #include "ScriptFixture.h"
 
@@ -31,7 +31,7 @@ void ScriptFixture::loadScriptFromFile(const std::string & path)
 
 void ScriptFixture::loadScript(const JsonNode & scriptConfig)
 {
-	subject = VLC->scriptHandler->loadFromJson(&loggerMock, ModScope::scopeBuiltin(), scriptConfig, "test");
+	subject = LIBRARY->scriptHandler->loadFromJson(&loggerMock, ModScope::scopeBuiltin(), scriptConfig, "test");
 
 	GTEST_ASSERT_NE(subject, nullptr);
 
@@ -42,7 +42,7 @@ void ScriptFixture::loadScript(const JsonNode & scriptConfig)
 
 void ScriptFixture::loadScript(ModulePtr module, const std::string & scriptSource)
 {
-	subject = std::make_shared<ScriptImpl>(VLC->scriptHandler.get());
+	subject = std::make_shared<ScriptImpl>(LIBRARY->scriptHandler.get());
 
 	subject->host = module;
 	subject->sourceText = scriptSource;

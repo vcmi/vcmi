@@ -15,6 +15,7 @@
 #include "../../lib/filesystem/CArchiveLoader.h"
 
 #include "../innoextract.h"
+#include "../helper.h"
 
 ChroniclesExtractor::ChroniclesExtractor(QWidget *p, std::function<void(float percent)> cb) :
 	parent(p), cb(cb)
@@ -41,9 +42,11 @@ void ChroniclesExtractor::removeTempDir()
 	tempDir.removeRecursively();
 }
 
-int ChroniclesExtractor::getChronicleNo()
+std::vector<int> ChroniclesExtractor::getChronicleNo()
 {
+	// supports "All in one" and seperate installers
 	QStringList appDirCandidates = tempDir.entryList({"app"}, QDir::Filter::Dirs);
+	std::vector<int> tmp;
 
 	if (!appDirCandidates.empty())
 	{
@@ -55,11 +58,12 @@ int ChroniclesExtractor::getChronicleNo()
 			QStringList chroniclesDirCandidates = appDir.entryList({chronicleName}, QDir::Filter::Dirs);
 
 			if (!chroniclesDirCandidates.empty())
-				return i;
+				tmp.push_back(i);
 		}
 	}
-	QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select a Heroes Chronicles installer file!"));
-	return 0;
+	if(tmp.empty())
+		QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select a Heroes Chronicles installer file!"));
+	return tmp;
 }
 
 bool ChroniclesExtractor::extractGogInstaller(QString file)
@@ -72,10 +76,15 @@ bool ChroniclesExtractor::extractGogInstaller(QString file)
 
 	if(!errorText.isEmpty())
 	{
+		logGlobal->error("Gog chronicles installer extraction failure! Reason: %s", errorText.toStdString());
+
 		QString hashError = Innoextract::getHashError(file, {}, {}, {});
 		QMessageBox::critical(parent, tr("Extracting error!"), errorText);
 		if(!hashError.isEmpty())
+		{
+			logGlobal->error("Hash error: %s", hashError.toStdString());
 			QMessageBox::critical(parent, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
+		}
 		return false;
 	}
 
@@ -94,7 +103,7 @@ void ChroniclesExtractor::createBaseMod() const
 		{ "modType", "Expansion" },
 		{ "name", tr("Heroes Chronicles") },
 		{ "description", tr("Heroes Chronicles") },
-		{ "author", "3DO" },
+		{ "author", "New World Computing, 3DO" },
 		{ "version", "1.0" },
 		{ "contact", "vcmi.eu" },
 		{ "heroes", QJsonArray({"config/portraitsChronicles.json"}) },
@@ -142,7 +151,7 @@ void ChroniclesExtractor::createChronicleMod(int no)
 		{ "modType", "Expansion" },
 		{ "name", QString("%1 - %2").arg(no).arg(tmpChronicles) },
 		{ "description", tr("Heroes Chronicles %1 - %2").arg(no).arg(tmpChronicles) },
-		{ "author", "3DO" },
+		{ "author", "New World Computing, 3DO" },
 		{ "version", "1.0" },
 		{ "contact", "vcmi.eu" },
 	};
@@ -173,6 +182,9 @@ void ChroniclesExtractor::extractFiles(int no) const
 	QDir outDirMaps(pathToQString(basePath / "Maps" / "Chronicles"));
 
 	auto extract = [](QDir scrDir, QDir dest, QString file, std::vector<std::string> files = {}){
+		if(scrDir.entryList({file}).isEmpty())
+			return; // file does not exists (needed for "All in one" installer)
+
 		CArchiveLoader archive("", scrDir.filePath(scrDir.entryList({file}).front()).toStdString(), false);
 		for(auto & entry : archive.getEntries())
 			if(files.empty())
@@ -206,6 +218,25 @@ void ChroniclesExtractor::extractFiles(int no) const
 	extract(tmpDirData, outDirDataPortraits, "bitmap.lod", tarnumPortraits);
 	extract(tmpDirData, outDirData, "lbitmap.lod", std::vector<std::string>{"INTRORIM"});
 
+	// special case - "All in one" installer
+	{
+		tmpDir.cdUp();
+		auto mapping = std::map<std::string, int>{{ {"Intro", 1}, {"Intr2", 2}, {"Intr3", 3}, {"Intr4", 4}, {"Intro5", 7}, {"Intro6", 8} }};
+		std::vector<std::string> videoFiles;
+		for(auto & elem : mapping)
+			for(const auto & ending : {".bik", ".smk"})
+				videoFiles.push_back(elem.first + ending);
+		extract(tmpDirData, tmpDir, "Hchron.vid", videoFiles);
+		for(auto & ending : {".bik", ".smk"})
+		{
+			if(!vstd::reverseMap(mapping).count(no))
+				continue;
+			auto srcName = vstd::reverseMap(mapping).at(no);
+			auto dstName = (no == 7 || no == 8) ? srcName : "Intro";
+			QFile::copy(tmpDir.filePath(QString::fromStdString(srcName + ending)), outDirVideo.filePath(QString::fromStdString(dstName + ending)));
+		}
+	}
+
 	if(!outDirMaps.exists())
 		outDirMaps.mkpath(".");
 	QString campaignFileName = "Hc" + QString::number(no) + "_Main.h3c";
@@ -226,30 +257,34 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 		if(!createTempDir())
 			continue;
 		
-		logGlobal->info("Copying offline installer");
 		// FIXME: this is required at the moment for Android (and possibly iOS)
 		// Incoming file names are in content URI form, e.g. content://media/internal/chronicles.exe
 		// Qt can handle those like it does regular files
 		// however, innoextract fails to open such files
 		// so make a copy in directory to which vcmi always has full access and operate on it
 		QString filepath = tempDir.filePath("chr.exe");
-		QFile(f).copy(filepath);
+		logGlobal->info("Copying offline installer from '%s' to '%s'", f.toStdString(), filepath.toStdString());
+
+		Helper::performNativeCopy(f, filepath);
 		QFile file(filepath);
 
 		logGlobal->info("Extracting offline installer");
 		if(!extractGogInstaller(filepath))
 			continue;
 
-		logGlobal->info("Detecting Chronicle");
-		int chronicleNo = getChronicleNo();
-		if(!chronicleNo)
+		logGlobal->info("Detecting Chronicles");
+		auto chronicleNo = getChronicleNo();
+		if(chronicleNo.empty())
 			continue;
 
 		logGlobal->info("Creating base Chronicle mod");
 		createBaseMod();
 
-		logGlobal->info("Creating Chronicle mod");
-		createChronicleMod(chronicleNo);
+		for(const auto & no : chronicleNo)
+		{
+			logGlobal->info("Creating Chronicle mod (%i)", no);
+			createChronicleMod(no);
+		}
 
 		logGlobal->info("Removing temporary directory");
 		removeTempDir();

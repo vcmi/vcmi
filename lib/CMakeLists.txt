@@ -53,6 +53,7 @@ set(lib_MAIN_SRCS
 	battle/BattleAction.cpp
 	battle/BattleAttackInfo.cpp
 	battle/BattleHex.cpp
+	battle/BattleHexArray.cpp
 	battle/BattleInfo.cpp
 	battle/BattleLayout.cpp
 	battle/BattleProxy.cpp
@@ -71,12 +72,12 @@ set(lib_MAIN_SRCS
 	battle/Unit.cpp
 
 	bonuses/Bonus.cpp
+	bonuses/BonusCache.cpp
 	bonuses/BonusEnum.cpp
 	bonuses/BonusList.cpp
 	bonuses/BonusParams.cpp
 	bonuses/BonusSelector.cpp
 	bonuses/BonusCustomTypes.cpp
-	bonuses/CBonusProxy.cpp
 	bonuses/CBonusSystemNode.cpp
 	bonuses/IBonusBearer.cpp
 	bonuses/Limiters.cpp
@@ -115,6 +116,7 @@ set(lib_MAIN_SRCS
 	gameState/RumorState.cpp
 	gameState/TavernHeroesPool.cpp
 	gameState/GameStatistics.cpp
+	gameState/UpgradeInfo.cpp
 
 	mapObjectConstructors/AObjectTypeHandler.cpp
 	mapObjectConstructors/CBankInstanceConstructor.cpp
@@ -134,6 +136,7 @@ set(lib_MAIN_SRCS
 	mapObjects/CGMarket.cpp
 	mapObjects/CGObjectInstance.cpp
 	mapObjects/CGPandoraBox.cpp
+	mapObjects/CGResource.cpp
 	mapObjects/TownBuildingInstance.cpp
 	mapObjects/CGTownInstance.cpp
 	mapObjects/CObjectHandler.cpp
@@ -176,6 +179,7 @@ set(lib_MAIN_SRCS
 	pathfinder/CGPathNode.cpp
 	pathfinder/CPathfinder.cpp
 	pathfinder/NodeStorage.cpp
+	pathfinder/PathfinderCache.cpp
 	pathfinder/PathfinderOptions.cpp
 	pathfinder/PathfindingRules.cpp
 	pathfinder/TurnInfo.cpp
@@ -219,7 +223,7 @@ set(lib_MAIN_SRCS
 	rmg/modificators/ObstaclePlacer.cpp
 	rmg/modificators/RiverPlacer.cpp
 	rmg/modificators/TerrainPainter.cpp
-	rmg/threadpool/MapProxy.cpp
+	rmg/MapProxy.cpp
 
 	serializer/BinaryDeserializer.cpp
 	serializer/BinarySerializer.cpp
@@ -301,7 +305,7 @@ set(lib_MAIN_SRCS
 	ScriptHandler.cpp
 	TerrainHandler.cpp
 	TurnTimerInfo.cpp
-	VCMI_Lib.cpp
+	GameLibrary.cpp
 )
 
 if (LUAJIT_FOUND)
@@ -424,6 +428,7 @@ set(lib_MAIN_HEADERS
 	battle/BattleAction.h
 	battle/BattleAttackInfo.h
 	battle/BattleHex.h
+	battle/BattleHexArray.h
 	battle/BattleInfo.h
 	battle/BattleLayout.h
 	battle/BattleSide.h
@@ -446,12 +451,12 @@ set(lib_MAIN_HEADERS
 	battle/Unit.h
 
 	bonuses/Bonus.h
+	bonuses/BonusCache.h
 	bonuses/BonusEnum.h
 	bonuses/BonusList.h
 	bonuses/BonusParams.h
 	bonuses/BonusSelector.h
 	bonuses/BonusCustomTypes.h
-	bonuses/CBonusProxy.h
 	bonuses/CBonusSystemNode.h
 	bonuses/IBonusBearer.h
 	bonuses/Limiters.h
@@ -527,6 +532,7 @@ set(lib_MAIN_HEADERS
 	mapObjects/CGObjectInstance.h
 	mapObjects/CGPandoraBox.h
 	mapObjects/TownBuildingInstance.h
+	mapObjects/CGResource.h
 	mapObjects/CGTownInstance.h
 	mapObjects/CObjectHandler.h
 	mapObjects/CQuest.h
@@ -593,6 +599,7 @@ set(lib_MAIN_HEADERS
 	pathfinder/CGPathNode.h
 	pathfinder/CPathfinder.h
 	pathfinder/NodeStorage.h
+	pathfinder/PathfinderCache.h
 	pathfinder/PathfinderOptions.h
 	pathfinder/PathfinderUtil.h
 	pathfinder/PathfindingRules.h
@@ -638,9 +645,7 @@ set(lib_MAIN_HEADERS
 	rmg/modificators/ObstaclePlacer.h
 	rmg/modificators/RiverPlacer.h
 	rmg/modificators/TerrainPainter.h
-	rmg/threadpool/BlockingQueue.h
-	rmg/threadpool/ThreadPool.h
-	rmg/threadpool/MapProxy.h
+	rmg/MapProxy.h
 
 	serializer/BinaryDeserializer.h
 	serializer/BinarySerializer.h
@@ -746,7 +751,7 @@ set(lib_MAIN_HEADERS
 	TurnTimerInfo.h
 	UnlockGuard.h
 	vcmi_endian.h
-	VCMI_Lib.h
+	GameLibrary.h
 )
 
 if (LUAJIT_FOUND)
@@ -887,4 +892,8 @@ if(APPLE_IOS AND NOT USING_CONAN)
 		endif()
 		install(${INSTALL_TYPE} ${LINKED_LIB_REAL} LIBRARY DESTINATION ${LIB_DIR})
 	endforeach()
+endif()
+
+if(VCMI_PORTMASTER)
+	target_compile_definitions(vcmi PRIVATE VCMI_PORTMASTER)
 endif()

@@ -14,10 +14,12 @@
 #include <QDir>
 
 #include "../lib/CConfigHandler.h"
+#include "../lib/CConsoleHandler.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/texts/Languages.h"
+#include "../lib/ExceptionsCommon.h"
 
 #include "updatedialog_moc.h"
 #include "main.h"
@@ -30,13 +32,23 @@ void MainWindow::load()
 	QDir::setCurrent(QApplication::applicationDirPath());
 
 #ifndef VCMI_MOBILE
-	console = new CConsoleHandler();
+	console = std::make_unique<CConsoleHandler>();
+	CBasicLogConfigurator logConfigurator(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console.get());
+#else
+	CBasicLogConfigurator logConfigurator(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", nullptr);
 #endif
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console);
-	logConfig.configureDefault();
 
-	CResourceHandler::initialize();
-	CResourceHandler::load("config/filesystem.json");
+	logConfigurator.configureDefault();
+
+	try
+	{
+		CResourceHandler::initialize();
+		CResourceHandler::load("config/filesystem.json");
+	}
+	catch (const DataLoadingException & e)
+	{
+		QMessageBox::critical(this, tr("Error starting executable"), QString::fromStdString(e.what()));
+	}
 
 	Helper::loadSettings();
 }
@@ -127,7 +139,7 @@ void MainWindow::detectPreferredLanguage()
 		logGlobal->info("Preferred language: %s", userLang.toStdString());
 
 		for (auto const & vcmiLang : Languages::getLanguageList())
-			if (vcmiLang.tagIETF == userLang.toStdString())
+			if (vcmiLang.tagIETF == userLang.toStdString() && vcmiLang.selectable)
 				selectedLanguage = vcmiLang.identifier;
 
 		if (!selectedLanguage.empty())
@@ -149,7 +161,7 @@ void MainWindow::enterSetup()
 	ui->tabListWidget->setCurrentIndex(TabRows::SETUP);
 }
 
-void MainWindow::exitSetup()
+void MainWindow::exitSetup(bool goToMods)
 {
 	Settings writer = settings.write["launcher"]["setupCompleted"];
 	writer->Bool() = true;
@@ -158,7 +170,10 @@ void MainWindow::exitSetup()
 	ui->settingsButton->setEnabled(true);
 	ui->aboutButton->setEnabled(true);
 	ui->modslistButton->setEnabled(true);
-	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
+	if (goToMods)
+		ui->tabListWidget->setCurrentIndex(TabRows::MODS);
+	else
+		ui->tabListWidget->setCurrentIndex(TabRows::START);
 }
 
 void MainWindow::switchToStartTab()
@@ -253,11 +268,13 @@ void MainWindow::dropEvent(QDropEvent* event)
 
 void MainWindow::manualInstallFile(QString filePath)
 {
-	if(filePath.endsWith(".zip", Qt::CaseInsensitive) || filePath.endsWith(".exe", Qt::CaseInsensitive))
+	QString realFilePath = Helper::getRealPath(filePath);
+
+	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive) || realFilePath.endsWith(".exe", Qt::CaseInsensitive))
 		switchToModsTab();
 
 	QString fileName = QFileInfo{filePath}.fileName();
-	if(filePath.endsWith(".zip", Qt::CaseInsensitive))
+	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive))
 	{
 		QString filenameClean = fileName.toLower()
 			// mod name currently comes from zip file -> remove suffixes from github zip download
@@ -267,7 +284,7 @@ void MainWindow::manualInstallFile(QString filePath)
 
 		getModView()->downloadFile(filenameClean, QUrl::fromLocalFile(filePath), "mods");
 	}
-	else if(filePath.endsWith(".json", Qt::CaseInsensitive))
+	else if(realFilePath.endsWith(".json", Qt::CaseInsensitive))
 	{
 		QDir configDir(QString::fromStdString(VCMIDirs::get().userConfigPath().string()));
 		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files); // case insensitive check

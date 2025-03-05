@@ -13,10 +13,9 @@
 
 #include "CMainMenu.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../media/IMusicPlayer.h"
 #include "../render/Canvas.h"
@@ -73,7 +72,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 
 void CCampaignScreen::activate()
 {
-	CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, false);
+	ENGINE->music().playMusic(AudioPath::builtin("Music/MainMenu"), true, false);
 
 	CWindowObject::activate();
 }
@@ -82,9 +81,9 @@ std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & butt
 {
 	std::pair<std::string, std::string> help;
 	if(!button["help"].isNull() && button["help"].Float() > 0)
-		help = CGI->generaltexth->zelp[(size_t)button["help"].Float()];
+		help = LIBRARY->generaltexth->zelp[(size_t)button["help"].Float()];
 
-	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), AnimationPath::fromJson(button["name"]), help, [=](){ close();}, EShortcut::GLOBAL_CANCEL);
+	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), AnimationPath::fromJson(button["name"]), help, [this](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const JsonNode & parentConfig, std::string campaignSet)

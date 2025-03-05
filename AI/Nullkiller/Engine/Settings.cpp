@@ -18,7 +18,7 @@
 #include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/modding/CModHandler.h"
-#include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/GameLibrary.h"
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../../../lib/json/JsonUtils.h"
 
@@ -28,14 +28,17 @@ namespace NKAI
 		: maxRoamingHeroes(8),
 		mainHeroTurnDistanceLimit(10),
 		scoutHeroTurnDistanceLimit(5),
+		threatTurnDistanceLimit(5),
 		maxGoldPressure(0.3f),
 		retreatThresholdRelative(0.3),
 		retreatThresholdAbsolute(10000),
 		safeAttackRatio(1.1),
-		maxpass(10),
+		maxPass(10),
+		maxPriorityPass(10),
 		pathfinderBucketsCount(1),
 		pathfinderBucketSize(32),
 		allowObjectGraph(true),
+		useOneWayMonoliths(false),
 		useTroopsFromGarrisons(false),
 		updateHitmapOnTileReveal(false),
 		openMap(true),
@@ -48,7 +51,8 @@ namespace NKAI
 		maxRoamingHeroes = node["maxRoamingHeroes"].Integer();
 		mainHeroTurnDistanceLimit = node["mainHeroTurnDistanceLimit"].Integer();
 		scoutHeroTurnDistanceLimit = node["scoutHeroTurnDistanceLimit"].Integer();
-		maxpass = node["maxpass"].Integer();
+		maxPass = node["maxPass"].Integer();
+		maxPriorityPass = node["maxPriorityPass"].Integer();
 		pathfinderBucketsCount = node["pathfinderBucketsCount"].Integer();
 		pathfinderBucketSize = node["pathfinderBucketSize"].Integer();
 		maxGoldPressure = node["maxGoldPressure"].Float();
@@ -61,5 +65,6 @@ namespace NKAI
 		openMap = node["openMap"].Bool();
 		useFuzzy = node["useFuzzy"].Bool();
 		useTroopsFromGarrisons = node["useTroopsFromGarrisons"].Bool();
+		useOneWayMonoliths = node["useOneWayMonoliths"].Bool();
 	}
 }

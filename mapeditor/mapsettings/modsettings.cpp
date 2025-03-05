@@ -57,12 +57,12 @@ void ModSettings::initialize(MapController & c)
 		return item;
 	};
 
-	for(const auto & modName : VLC->modh->getActiveMods())
+	for(const auto & modName : LIBRARY->modh->getActiveMods())
 	{
 		QString qmodName = QString::fromStdString(modName);
 		if(qmodName.split(".").size() == 1)
 		{
-			const auto & modInfo = VLC->modh->getModInfo(modName);
+			const auto & modInfo = LIBRARY->modh->getModInfo(modName);
 			addedMods[qmodName] = createModTreeWidgetItem(nullptr, modInfo);
 			ui->treeMods->addTopLevelItem(addedMods[qmodName]);
 		}
@@ -83,7 +83,7 @@ void ModSettings::initialize(MapController & c)
 
 		if(addedMods.count(qs))
 		{
-			const auto & modInfo = VLC->modh->getModInfo(qmodName.toStdString());
+			const auto & modInfo = LIBRARY->modh->getModInfo(qmodName.toStdString());
 			addedMods[qmodName] = createModTreeWidgetItem(addedMods[qs], modInfo);
 			modsToProcess.erase(qmodIter);
 			qmodIter = modsToProcess.begin();
@@ -103,7 +103,7 @@ void ModSettings::update()
 		if(item->checkState(0) == Qt::Checked)
 		{
 			auto modName = item->data(0, Qt::UserRole).toString().toStdString();
-			controller->map()->mods[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
+			controller->map()->mods[modName] = LIBRARY->modh->getModInfo(modName).getVerificationInfo();
 		}
 	};
 

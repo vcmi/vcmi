@@ -24,7 +24,7 @@ class ArtifactsUIController
 	size_t numOfArtsAskAssembleSession;
 	std::set<ArtifactID> ignoredArtifacts;
 
-	boost::mutex askAssembleArtifactMutex;
+	std::mutex askAssembleArtifactMutex;
 
 public:
 	ArtifactsUIController();

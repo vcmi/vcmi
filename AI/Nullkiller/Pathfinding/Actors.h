@@ -73,7 +73,6 @@ public:
 	float heroFightingStrength;
 	uint8_t actorExchangeCount;
 	TResources armyCost;
-	std::shared_ptr<TurnInfo> tiCache;
 
 	ChainActor() = default;
 	virtual ~ChainActor() = default;
@@ -94,7 +93,7 @@ private:
 	const HeroActor * actor;
 	std::map<const ChainActor *, HeroActor *> exchangeMap;
 	const Nullkiller * ai;
-	boost::shared_mutex sync;
+	std::shared_mutex sync;
 
 public:
 	HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai);

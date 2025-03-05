@@ -17,14 +17,13 @@
 #include "MapViewModel.h"
 #include "mapHandler.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../adventureMap/AdventureMapInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../eventsSDL/InputHandler.h"
 
 #include "../../CCallback.h"
@@ -65,7 +64,7 @@ void BasicMapView::render(Canvas & target, bool fullUpdate)
 	tilesCache->update(controller->getContext());
 	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
 
-	MapOverlayLogVisualizer r(target, model);
+	MapOverlayLogVisualizer r(targetClipped, model);
 	logVisual->visualize(r);
 }
 
@@ -76,7 +75,7 @@ void BasicMapView::tick(uint32_t msPassed)
 
 void BasicMapView::show(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+	CanvasClipRectGuard guard(to, pos);
 	render(to, false);
 
 	controller->afterRender();
@@ -84,7 +83,7 @@ void BasicMapView::show(Canvas & to)
 
 void BasicMapView::showAll(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+	CanvasClipRectGuard guard(to, pos);
 	render(to, true);
 }
 
@@ -115,7 +114,7 @@ MapView::MapView(const Point & offset, const Point & dimensions)
 
 void MapView::onMapLevelSwitched()
 {
-	if(LOCPLINT->cb->getMapSize().z > 1)
+	if(GAME->interface()->cb->getMapSize().z > 1)
 	{
 		if(model->getLevel() == 0)
 			controller->setViewCenter(model->getMapViewCenter(), 1);
@@ -136,7 +135,7 @@ void MapView::onMapScrolled(const Point & distance)
 void MapView::onMapSwiped(const Point & viewPosition)
 {
 	if(settings["adventure"]["smoothDragging"].Bool())
-		swipeHistory.push_back(std::pair<uint32_t, Point>(GH.input().getTicks(), viewPosition));
+		swipeHistory.push_back(std::pair<uint32_t, Point>(ENGINE->input().getTicks(), viewPosition));
 
 	controller->setViewCenter(model->getMapViewCenter() + viewPosition, model->getLevel());
 }
@@ -149,7 +148,7 @@ void MapView::postSwipe(uint32_t msPassed)
 		{
 			Point diff = Point(0, 0);
 			std::pair<uint32_t, Point> firstAccepted;
-			uint32_t now = GH.input().getTicks();
+			uint32_t now = ENGINE->input().getTicks();
 			for (auto & x : swipeHistory) {
 				if(now - x.first < postSwipeCatchIntervalMs) { // only the last x ms are caught
 					if(firstAccepted.first == 0)
@@ -211,7 +210,12 @@ void MapView::onMapZoomLevelChanged(int stepsChange, bool useDeadZone)
 void MapView::onViewMapActivated()
 {
 	controller->activateAdventureContext();
-	controller->setTileSize(Point(32, 32));
+
+	int zoom = settings["adventure"]["tileZoom"].Integer();
+	if(zoom)
+		controller->setTileSize(Point(zoom, zoom));
+	else
+		controller->setTileSize(Point(32, 32));
 }
 
 PuzzleMapView::PuzzleMapView(const Point & offset, const Point & dimensions, const int3 & tileToCenter)

@@ -10,14 +10,13 @@
 #include "StdInc.h"
 #include "CVideoHandler.h"
 
-#ifndef DISABLE_VIDEO
+#ifdef ENABLE_VIDEO
 
 #include "ISoundPlayer.h"
 
-#include "../CGameInfo.h"
 #include "../CMT.h"
 #include "../eventsSDL/InputHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/Canvas.h"
 #include "../render/IScreenHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
@@ -26,6 +25,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
+#include "../../lib/GameLibrary.h"
 
 #include <SDL_render.h>
 
@@ -59,8 +59,18 @@ static si64 lodSeek(void * opaque, si64 pos, int whence)
 	return data->seek(pos);
 }
 
+static void logFFmpegError(int errorCode)
+{
+	std::array<char, AV_ERROR_MAX_STRING_SIZE> errorMessage{};
+	av_strerror(errorCode, errorMessage.data(), errorMessage.size());
+
+	logGlobal->warn("Failed to open video file! Reason: %s", errorMessage.data());
+}
+
 [[noreturn]] static void throwFFmpegError(int errorCode)
 {
+	logFFmpegError(errorCode);
+
 	std::array<char, AV_ERROR_MAX_STRING_SIZE> errorMessage{};
 	av_strerror(errorCode, errorMessage.data(), errorMessage.size());
 
@@ -95,7 +105,7 @@ bool FFMpegStream::openInput(const VideoPath & videoToOpen)
 	return input != nullptr;
 }
 
-void FFMpegStream::openContext()
+bool FFMpegStream::openContext()
 {
 	static const int BUFFER_SIZE = 4096;
 	input->seek(0);
@@ -109,13 +119,21 @@ void FFMpegStream::openContext()
 	int avfopen = avformat_open_input(&formatContext, "dummyFilename", nullptr, nullptr);
 
 	if(avfopen != 0)
-		throwFFmpegError(avfopen);
+	{
+		logFFmpegError(avfopen);
+		return false;
+	}
 
 	// Retrieve stream information
 	int findStreamInfo = avformat_find_stream_info(formatContext, nullptr);
 
 	if(avfopen < 0)
-		throwFFmpegError(findStreamInfo);
+	{
+		logFFmpegError(findStreamInfo);
+		return false;
+	}
+
+	return true;
 }
 
 void FFMpegStream::openCodec(int desiredStreamIndex)
@@ -169,16 +187,19 @@ const AVFrame * FFMpegStream::getCurrentFrame() const
 	return frame;
 }
 
-void CVideoInstance::openVideo()
+bool CVideoInstance::openVideo()
 {
-	openContext();
+	if (!openContext())
+		return false;
+
 	openCodec(findVideoStream());
+	return true;
 }
 
 void CVideoInstance::prepareOutput(float scaleFactor, bool useTextureOutput)
 {
 	//setup scaling
-	dimensions = Point(getCodecContext()->width * scaleFactor, getCodecContext()->height * scaleFactor) * GH.screenHandler().getScalingFactor();
+	dimensions = Point(getCodecContext()->width * scaleFactor, getCodecContext()->height * scaleFactor) * ENGINE->screenHandler().getScalingFactor();
 
 	// Allocate a place to put our YUV image on that screen
 	if (useTextureOutput)
@@ -357,15 +378,15 @@ FFMpegStream::~FFMpegStream()
 
 Point CVideoInstance::size()
 {
-	return dimensions / GH.screenHandler().getScalingFactor();
+	return dimensions / ENGINE->screenHandler().getScalingFactor();
 }
 
-void CVideoInstance::show(const Point & position, Canvas & canvas)
+void CVideoInstance::show(const Point & position, SDL_Surface * to)
 {
 	if(sws == nullptr)
 		throw std::runtime_error("No video to show!");
 
-	CSDL_Ext::blitSurface(surface, canvas.getInternalSurface(), position * GH.screenHandler().getScalingFactor());
+	CSDL_Ext::blitSurface(surface, to, position * ENGINE->screenHandler().getScalingFactor());
 }
 
 double FFMpegStream::getCurrentFrameEndTime() const
@@ -503,7 +524,7 @@ int FFMpegStream::findAudioStream() const
 		}
 	}
 
-	std::string preferredLanguageName = CGI->generaltexth->getPreferredLanguage();
+	std::string preferredLanguageName = LIBRARY->generaltexth->getPreferredLanguage();
 	std::string preferredTag = Languages::getLanguageOptions(preferredLanguageName).tagISO2;
 
 	for (auto const & entry : streamToLanguage)
@@ -526,7 +547,9 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 {
 	if (!openInput(videoToOpen))
 		return { nullptr, 0};
-	openContext();
+
+	if (!openContext())
+		return { nullptr, 0};
 
 	int audioStreamIndex = findAudioStream();
 	if (audioStreamIndex == -1)
@@ -648,12 +671,16 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 
 std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, float scaleFactor)
 {
+	logGlobal->trace("Opening video: %s", name.getOriginalName());
+
 	auto result = std::make_unique<CVideoInstance>();
 
 	if (!result->openInput(name))
 		return nullptr;
 
-	result->openVideo();
+	if (!result->openVideo())
+		return nullptr;
+
 	result->prepareOutput(scaleFactor, false);
 	result->loadNextFrame(); // prepare 1st frame
 
@@ -662,6 +689,8 @@ std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, float
 
 std::pair<std::unique_ptr<ui8[]>, si64> CVideoPlayer::getAudio(const VideoPath & videoToOpen)
 {
+	logGlobal->trace("Opening video: %s", videoToOpen.getOriginalName());
+
 	AudioPath audioPath = videoToOpen.toType<EResType::SOUND>();
 	AudioPath audioPathVideoDir = audioPath.addPrefix("VIDEO/");
 

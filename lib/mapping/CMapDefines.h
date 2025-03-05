@@ -12,7 +12,8 @@
 
 #include "../ResourceSet.h"
 #include "../texts/MetaString.h"
-#include "../int3.h"
+#include "../GameLibrary.h"
+#include "../TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -103,31 +104,32 @@ struct DLL_LINKAGE TerrainTile
 	TerrainTile();
 
 	/// Gets true if the terrain is not a rock. If from is water/land, same type is also required.
-	bool entrableTerrain(const TerrainTile * from = nullptr) const;
-	bool entrableTerrain(bool allowLand, bool allowSea) const;
+	inline bool entrableTerrain() const;
+	inline bool entrableTerrain(const TerrainTile * from) const;
+	inline bool entrableTerrain(bool allowLand, bool allowSea) const;
 	/// Checks for blocking objects and terraint type (water / land).
 	bool isClear(const TerrainTile * from = nullptr) const;
 	/// Gets the ID of the top visitable object or -1 if there is none.
 	Obj topVisitableId(bool excludeTop = false) const;
 	CGObjectInstance * topVisitableObj(bool excludeTop = false) const;
-	bool isWater() const;
-	bool isLand() const;
+	inline bool isWater() const;
+	inline bool isLand() const;
 	EDiggingStatus getDiggingStatus(bool excludeTop = true) const;
-	bool hasFavorableWinds() const;
+	inline bool hasFavorableWinds() const;
 
-	bool visitable() const;
-	bool blocked() const;
+	inline bool visitable() const;
+	inline bool blocked() const;
 
-	const TerrainType * getTerrain() const;
-	const RiverType * getRiver() const;
-	const RoadType * getRoad() const;
+	inline const TerrainType * getTerrain() const;
+	inline const RiverType * getRiver() const;
+	inline const RoadType * getRoad() const;
 
-	TerrainId getTerrainID() const;
-	RiverId getRiverID() const;
-	RoadId getRoadID() const;
+	inline TerrainId getTerrainID() const;
+	inline RiverId getRiverID() const;
+	inline RoadId getRoadID() const;
 
-	bool hasRiver() const;
-	bool hasRoad() const;
+	inline bool hasRiver() const;
+	inline bool hasRoad() const;
 
 	TerrainId terrainType;
 	RiverId riverType;
@@ -192,5 +194,87 @@ struct DLL_LINKAGE TerrainTile
 		h & blockingObjects;
 	}
 };
+
+inline bool TerrainTile::hasFavorableWinds() const
+{
+	return extTileFlags & 128;
+}
+
+inline bool TerrainTile::isWater() const
+{
+	return getTerrain()->isWater();
+}
+
+inline bool TerrainTile::isLand() const
+{
+	return getTerrain()->isLand();
+}
+
+inline bool TerrainTile::visitable() const
+{
+	return !visitableObjects.empty();
+}
+
+inline bool TerrainTile::blocked() const
+{
+	return !blockingObjects.empty();
+}
+
+inline bool TerrainTile::hasRiver() const
+{
+	return getRiverID() != RiverId::NO_RIVER;
+}
+
+inline bool TerrainTile::hasRoad() const
+{
+	return getRoadID() != RoadId::NO_ROAD;
+}
+
+inline const TerrainType * TerrainTile::getTerrain() const
+{
+	return terrainType.toEntity(LIBRARY);
+}
+
+inline const RiverType * TerrainTile::getRiver() const
+{
+	return riverType.toEntity(LIBRARY);
+}
+
+inline const RoadType * TerrainTile::getRoad() const
+{
+	return roadType.toEntity(LIBRARY);
+}
+
+inline TerrainId TerrainTile::getTerrainID() const
+{
+	return terrainType;
+}
+
+inline RiverId TerrainTile::getRiverID() const
+{
+	return riverType;
+}
+
+inline RoadId TerrainTile::getRoadID() const
+{
+	return roadType;
+}
+
+inline bool TerrainTile::entrableTerrain() const
+{
+	return entrableTerrain(true, true);
+}
+
+inline bool TerrainTile::entrableTerrain(const TerrainTile * from) const
+{
+	const TerrainType * terrainFrom = from->getTerrain();
+	return entrableTerrain(terrainFrom->isLand(), terrainFrom->isWater());
+}
+
+inline bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
+{
+	const TerrainType * terrain = getTerrain();
+	return terrain->isPassable() && ((allowSea && terrain->isWater()) || (allowLand && terrain->isLand()));
+}
 
 VCMI_LIB_NAMESPACE_END

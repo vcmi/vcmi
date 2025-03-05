@@ -68,11 +68,11 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 
 std::string CGCreature::getMonsterLevelText() const
 {
-	std::string monsterLevel = VLC->generaltexth->translate("vcmi.adventureMap.monsterLevel");
+	std::string monsterLevel = LIBRARY->generaltexth->translate("vcmi.adventureMap.monsterLevel");
 	bool isRanged = getCreature()->getBonusBearer()->hasBonusOfType(BonusType::SHOOTER);
 	std::string attackTypeKey = isRanged ? "vcmi.adventureMap.monsterRangedType" : "vcmi.adventureMap.monsterMeleeType";
-	std::string attackType = VLC->generaltexth->translate(attackTypeKey);
-	boost::replace_first(monsterLevel, "%TOWN", getCreature()->getFactionID().toEntity(VLC)->getNameTranslated());
+	std::string attackType = LIBRARY->generaltexth->translate(attackTypeKey);
+	boost::replace_first(monsterLevel, "%TOWN", getCreature()->getFactionID().toEntity(LIBRARY)->getNameTranslated());
 	boost::replace_first(monsterLevel, "%LEVEL", std::to_string(getCreature()->getLevel()));
 	boost::replace_first(monsterLevel, "%ATTACK_TYPE", attackType);
 	return monsterLevel;
@@ -115,7 +115,7 @@ std::string CGCreature::getPopupText(const CGHeroInstance * hero) const
 	if (settings["general"]["enableUiEnhancements"].Bool())
 	{
 		hoverName += getMonsterLevelText();
-		hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.title");
+		hoverName += LIBRARY->generaltexth->translate("vcmi.adventureMap.monsterThreat.title");
 
 		int choice;
 		uint64_t armyStrength = getArmyStrength();
@@ -134,7 +134,7 @@ std::string CGCreature::getPopupText(const CGHeroInstance * hero) const
 		else if (ratio < 20)   choice = 10;
 		else                   choice = 11;
 
-		hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.levels." + std::to_string(choice));
+		hoverName += LIBRARY->generaltexth->translate("vcmi.adventureMap.monsterThreat.levels." + std::to_string(choice));
 	}
 	return hoverName;
 }
@@ -182,7 +182,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
 			ynd.text.appendLocalString(EMetaText::ADVOB_TXT, 86);
-			ynd.text.replaceName(getCreatureID(), getStackCount(SlotID(0)));
+			ynd.text.replaceName(getCreatureID(), getJoiningAmount());
 			cb->showBlockingDialog(this, &ynd);
 			break;
 		}
@@ -194,8 +194,8 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
 			ynd.components.emplace_back(ComponentType::RESOURCE, GameResID(GameResID::GOLD), action);
-			std::string tmp = VLC->generaltexth->advobtxt[90];
-			boost::algorithm::replace_first(tmp, "%d", std::to_string(getStackCount(SlotID(0))));
+			std::string tmp = LIBRARY->generaltexth->advobtxt[90];
+			boost::algorithm::replace_first(tmp, "%d", std::to_string(getJoiningAmount()));
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(action));
 			boost::algorithm::replace_first(tmp,"%s",getCreature()->getNamePluralTranslated());
 			ynd.text.appendRawString(tmp);
@@ -215,45 +215,50 @@ const CCreature * CGCreature::getCreature() const
 	return getCreatureID().toCreature();
 }
 
+TQuantity CGCreature::getJoiningAmount() const
+{
+	return std::max(static_cast<int64_t>(1), getStackCount(SlotID(0)) * cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE) / 100);
+}
+
 void CGCreature::pickRandomObject(vstd::RNG & rand)
 {
 	switch(ID.toEnum())
 	{
 		case MapObjectID::RANDOM_MONSTER:
-			subID = VLC->creh->pickRandomMonster(rand);
+			subID = LIBRARY->creh->pickRandomMonster(rand);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L1:
-			subID = VLC->creh->pickRandomMonster(rand, 1);
+			subID = LIBRARY->creh->pickRandomMonster(rand, 1);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L2:
-			subID = VLC->creh->pickRandomMonster(rand, 2);
+			subID = LIBRARY->creh->pickRandomMonster(rand, 2);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L3:
-			subID = VLC->creh->pickRandomMonster(rand, 3);
+			subID = LIBRARY->creh->pickRandomMonster(rand, 3);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L4:
-			subID = VLC->creh->pickRandomMonster(rand, 4);
+			subID = LIBRARY->creh->pickRandomMonster(rand, 4);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L5:
-			subID = VLC->creh->pickRandomMonster(rand, 5);
+			subID = LIBRARY->creh->pickRandomMonster(rand, 5);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L6:
-			subID = VLC->creh->pickRandomMonster(rand, 6);
+			subID = LIBRARY->creh->pickRandomMonster(rand, 6);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L7:
-			subID = VLC->creh->pickRandomMonster(rand, 7);
+			subID = LIBRARY->creh->pickRandomMonster(rand, 7);
 			break;
 	}
 
 	try {
 		// sanity check
-		VLC->objtypeh->getHandlerFor(MapObjectID::MONSTER, subID);
+		LIBRARY->objtypeh->getHandlerFor(MapObjectID::MONSTER, subID);
 	}
 	catch (const std::out_of_range & )
 	{
 		// Try to generate some debug information if sanity check failed
 		CreatureID creatureID(subID.getNum());
-		throw std::out_of_range("Failed to find handler for creature " + std::to_string(creatureID.getNum()) + ", identifier:" + creatureID.toEntity(VLC)->getJsonKey());
+		throw std::out_of_range("Failed to find handler for creature " + std::to_string(creatureID.getNum()) + ", identifier:" + creatureID.toEntity(LIBRARY)->getJsonKey());
 	}
 
 	ID = MapObjectID::MONSTER;
@@ -336,7 +341,7 @@ void CGCreature::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 {
 	//calculate relative strength of hero and creatures armies
-	double relStrength = static_cast<double>(h->getTotalStrength()) / getArmyStrength();
+	double relStrength = static_cast<double>(h->getValueForDiplomacy()) / getArmyStrength();
 
 	int powerFactor;
 	if(relStrength >= 7)
@@ -378,9 +383,9 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	if(charisma < character)
 		return FIGHT;
 
-	if (allowJoin)
+	if (allowJoin && cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE) > 0)
 	{
-		if(diplomacy + sympathy + 1 >= character)
+		if((cb->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_JOINING_FOR_FREE) || character == Character::COMPLIANT) && diplomacy + sympathy + 1 >= character)
 			return JOIN_FOR_FREE;
 
 		if(diplomacy * 2 + sympathy + 1 >= character)
@@ -448,6 +453,10 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 			cb->giveResource(h->tempOwner,EGameResID::GOLD,-cost);
 
 		giveReward(h);
+
+		for(std::pair<const SlotID, CStackInstance*> stack : this->stacks)
+			stack.second->count = getJoiningAmount();
+
 		cb->tryJoiningArmy(this, h, true, true);
 	}
 }

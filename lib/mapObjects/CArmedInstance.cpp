@@ -29,7 +29,7 @@ void CArmedInstance::randomizeArmy(FactionID type)
 		{
 			int level = elem.second->randomStack->level;
 			int upgrade = elem.second->randomStack->upgrade;
-			elem.second->setType((*VLC->townh)[type]->town->creatures[level][upgrade]);
+			elem.second->setType((*LIBRARY->townh)[type]->town->creatures[level][upgrade]);
 
 			elem.second->randomStack = std::nullopt;
 		}
@@ -37,9 +37,6 @@ void CArmedInstance::randomizeArmy(FactionID type)
 		assert(elem.second->armyObj == this);
 	}
 }
-
-// Take Angelic Alliance troop-mixing freedom of non-evil units into account.
-CSelector CArmedInstance::nonEvilAlignmentMixSelector = Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX);
 
 CArmedInstance::CArmedInstance(IGameCallback *cb)
 	:CArmedInstance(cb, false)
@@ -49,7 +46,7 @@ CArmedInstance::CArmedInstance(IGameCallback *cb)
 CArmedInstance::CArmedInstance(IGameCallback *cb, bool isHypothetic):
 	CGObjectInstance(cb),
 	CBonusSystemNode(isHypothetic),
-	nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector),
+	nonEvilAlignmentMix(this, Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX)), // Take Angelic Alliance troop-mixing freedom of non-evil units into account.
 	battle(nullptr)
 {
 }
@@ -76,7 +73,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	for(const auto & slot : Slots())
 	{
 		const CStackInstance * inst = slot.second;
-		const auto * creature  = inst->getCreatureID().toEntity(VLC);
+		const auto * creature  = inst->getCreatureID().toEntity(LIBRARY);
 
 		factions.insert(creature->getFactionID());
 		// Check for undead flag instead of faction (undead mummies are neutral)
@@ -89,13 +86,13 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 	size_t factionsInArmy = factions.size(); //town garrison seems to take both sets into account
 
-	if (nonEvilAlignmentMix.getHasBonus())
+	if (nonEvilAlignmentMix.hasBonus())
 	{
 		size_t mixableFactions = 0;
 
 		for(auto f : factions)
 		{
-			if (VLC->factions()->getById(f)->getAlignment() != EAlignment::EVIL)
+			if (LIBRARY->factions()->getById(f)->getAlignment() != EAlignment::EVIL)
 				mixableFactions++;
 		}
 		if (mixableFactions > 0)
@@ -118,7 +115,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	
 	b->description = bonusDescription;
 
-	CBonusSystemNode::treeHasChanged();
+	nodeHasChanged();
 
 	//-1 modifier for any Undead unit in army
 	auto undeadModifier = getExportedBonusList().getFirst(Selector::source(BonusSource::ARMY, BonusCustomSource::undeadMoraleDebuff));

@@ -82,13 +82,13 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 		//trimming prim skills
 		for(auto & hero : campaignHeroReplacements)
 		{
-			for(auto g = PrimarySkill::BEGIN; g < PrimarySkill::END; ++g)
+			for(auto skill : PrimarySkill::ALL_SKILLS())
 			{
 				auto sel = Selector::type()(BonusType::PRIMARY_SKILL)
-					.And(Selector::subtype()(BonusSubtypeID(g)))
+					.And(Selector::subtype()(BonusSubtypeID(skill)))
 					.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 
-				hero.hero->getLocalBonus(sel)->val = hero.hero->getHeroClass()->primarySkillInitial[g.getNum()];
+				hero.hero->getLocalBonus(sel)->val = hero.hero->getHeroClass()->primarySkillInitial[skill.getNum()];
 			}
 		}
 	}
@@ -337,14 +337,14 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 		case CampaignBonusType::PRIMARY_SKILL:
 		{
 			const ui8 * ptr = reinterpret_cast<const ui8 *>(&curBonus->info2);
-			for(auto g = PrimarySkill::BEGIN; g < PrimarySkill::END; ++g)
+			for(auto skill : PrimarySkill::ALL_SKILLS())
 			{
-				int val = ptr[g.getNum()];
+				int val = ptr[skill.getNum()];
 				if(val == 0)
 					continue;
 
 				auto currentScenario = *gameState->scenarioOps->campState->currentScenario();
-				auto bb = std::make_shared<Bonus>( BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CAMPAIGN_BONUS, val, BonusSourceID(currentScenario), BonusSubtypeID(g) );
+				auto bb = std::make_shared<Bonus>( BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CAMPAIGN_BONUS, val, BonusSourceID(currentScenario), BonusSubtypeID(skill) );
 				hero->addNewBonus(bb);
 			}
 			break;
@@ -481,7 +481,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 		const auto & node = campaignState->getHeroByType(*placeholder->heroType);
 		if (node.isNull())
 		{
-			logGlobal->info("Hero crossover: Unable to replace placeholder for %d (%s)!", placeholder->heroType->getNum(), VLC->heroTypes()->getById(*placeholder->heroType)->getNameTranslated());
+			logGlobal->info("Hero crossover: Unable to replace placeholder for %d (%s)!", placeholder->heroType->getNum(), LIBRARY->heroTypes()->getById(*placeholder->heroType)->getNameTranslated());
 			continue;
 		}
 
@@ -551,7 +551,7 @@ void CGameStateCampaign::initHeroes()
 			int maxB = -1;
 			for (int b=0; b<heroes.size(); ++b)
 			{
-				if (maxB == -1 || heroes[b]->getTotalStrength() > heroes[maxB]->getTotalStrength())
+				if (maxB == -1 || heroes[b]->getValueForCampaign() > heroes[maxB]->getValueForCampaign())
 				{
 					maxB = b;
 				}

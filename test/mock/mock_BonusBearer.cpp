@@ -38,10 +38,9 @@ TConstBonusListPtr BonusBearerMock::getAllBonuses(const CSelector & selector, co
 	return ret;
 }
 
-int64_t BonusBearerMock::getTreeVersion() const
+int32_t BonusBearerMock::getTreeVersion() const
 {
-	int64_t ret = treeVersion;
-	return ret << 32;
+	return treeVersion;
 }
 
 

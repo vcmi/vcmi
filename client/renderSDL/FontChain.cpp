@@ -13,13 +13,12 @@
 #include "CTrueTypeFont.h"
 #include "CBitmapFont.h"
 
-#include "../CGameInfo.h"
-
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/modding/CModHandler.h"
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
+#include "../../lib/GameLibrary.h"
 
 void FontChain::renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
 {
@@ -60,9 +59,9 @@ bool FontChain::bitmapFontsPrioritized(const std::string & bitmapFontName) const
 	if (!vstd::isAlmostEqual(1.0, settings["video"]["fontScalingFactor"].Float()))
 		return false; // If player requested non-100% scaling - use scalable fonts
 
-	std::string gameLanguage = CGI->generaltexth->getPreferredLanguage();
+	std::string gameLanguage = LIBRARY->generaltexth->getPreferredLanguage();
 	std::string gameEncoding = Languages::getLanguageOptions(gameLanguage).encoding;
-	std::string fontEncoding = CGI->modh->findResourceEncoding(ResourcePath("data/" + bitmapFontName, EResType::BMP_FONT));
+	std::string fontEncoding = LIBRARY->modh->findResourceEncoding(ResourcePath("data/" + bitmapFontName, EResType::BMP_FONT));
 
 	// player uses language with different encoding than his bitmap fonts
 	// for example, Polish language with English fonts or Chinese language which can't use H3 fonts at all
@@ -74,9 +73,12 @@ bool FontChain::bitmapFontsPrioritized(const std::string & bitmapFontName) const
 	return true; // else - use original bitmap fonts
 }
 
-void FontChain::addTrueTypeFont(const JsonNode & trueTypeConfig)
+void FontChain::addTrueTypeFont(const JsonNode & trueTypeConfig, bool begin)
 {
-	chain.insert(chain.begin(), std::make_unique<CTrueTypeFont>(trueTypeConfig));
+	if(begin)
+		chain.insert(chain.begin(), std::make_unique<CTrueTypeFont>(trueTypeConfig));
+	else
+		chain.push_back(std::make_unique<CTrueTypeFont>(trueTypeConfig));
 }
 
 void FontChain::addBitmapFont(const std::string & bitmapFilename)
@@ -113,24 +115,32 @@ size_t FontChain::getGlyphWidthScaled(const char * data) const
 
 std::vector<FontChain::TextChunk> FontChain::splitTextToChunks(const std::string & data) const
 {
+	// U+FFFD - replacement character (question mark in rhombus)
+	static const std::string replacementCharacter = u8"�";
+
 	std::vector<TextChunk> chunks;
+
+	const auto & selectFont = [this](const char * characterPtr) -> const IFont *
+	{
+		for(const auto & font : chain)
+			if (font->canRepresentCharacter(characterPtr))
+				return font.get();
+		return nullptr;
+	};
 
 	for (size_t i = 0; i < data.size(); i += TextOperations::getUnicodeCharacterSize(data[i]))
 	{
-		const IFont * currentFont = nullptr;
-		for(const auto & font : chain)
+		std::string symbol = data.substr(i, TextOperations::getUnicodeCharacterSize(data[i]));
+		const IFont * currentFont = selectFont(symbol.data());
+
+		if (currentFont == nullptr)
 		{
-			if (font->canRepresentCharacter(data.data() + i))
-			{
-				currentFont = font.get();
-				break;
-			}
+			symbol = replacementCharacter;
+			currentFont = selectFont(symbol.data());
 		}
 
 		if (currentFont == nullptr)
-			continue; // not representable
-
-		std::string symbol = data.substr(i, TextOperations::getUnicodeCharacterSize(data[i]));
+			continue; // Still nothing - neither desired character nor fallback can be rendered
 
 		if (chunks.empty() || chunks.back().font != currentFont)
 			chunks.push_back({currentFont, symbol});

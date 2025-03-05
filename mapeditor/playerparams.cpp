@@ -29,7 +29,9 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	{
 		if(i == playerId || !controller.map()->players[i].canAnyonePlay())
 		{
-			ui->playerColorCombo->addItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[i]), QVariant(i));
+			MetaString str;
+			str.appendName(PlayerColor(i));
+			ui->playerColorCombo->addItem(QString::fromStdString(str.toString()), QVariant(i));
 			if(i == playerId)
 				ui->playerColorCombo->setCurrentIndex(index);
 			++index;
@@ -45,9 +47,9 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	ui->teamId->setCurrentIndex(playerInfo.team == TeamID::NO_TEAM ? 0 : playerInfo.team.getNum() + 1);
 	
 	//load factions
-	for(auto idx : VLC->townh->getAllowedFactions())
+	for(auto idx : LIBRARY->townh->getAllowedFactions())
 	{
-		const auto & faction = VLC->townh->objects.at(idx);
+		const auto & faction = LIBRARY->townh->objects.at(idx);
 		auto * item = new QListWidgetItem(QString::fromStdString(faction->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(idx.getNum()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
@@ -78,8 +80,6 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 		if(auto town = dynamic_cast<CGTownInstance*>(controller.map()->objects[i].get()))
 		{
 			auto * ctown = town->getTown();
-			if(!ctown)
-				ctown = VLC->townh->randomTown;
 
 			if(ctown && town->getOwner().getNum() == playerColor)
 			{

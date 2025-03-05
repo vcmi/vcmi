@@ -18,7 +18,7 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../spells/CSpellHandler.h"
 #include "../IGameSettings.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -35,9 +35,9 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 	minDmg = info.attacker->getMinDamage(info.shooting);
 	maxDmg = info.attacker->getMaxDamage(info.shooting);
 
-	if(minDmg > maxDmg)
-	{
-	const auto & creatureName = info.attacker->creatureId().toEntity(VLC)->getNamePluralTranslated();
+    if(minDmg > maxDmg)
+    {
+	const auto & creatureName = info.attacker->creatureId().toEntity(LIBRARY)->getNamePluralTranslated();
 	logGlobal->error("Creature %s: min damage %lld exceeds max damage %lld.", creatureName, minDmg, maxDmg);
 		logGlobal->error("This may lead to unexpected results, please report it to the mod's creator.");
 		// to avoid an RNG crash and make bless and curse spells work as expected
@@ -49,7 +49,7 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 		const auto * town = callback.battleGetDefendedTown();
 		assert(town);
 
-		switch(info.attacker->getPosition())
+		switch(info.attacker->getPosition().toInt())
 		{
 		case BattleHex::CASTLE_CENTRAL_TOWER:
 			return town->getKeepDamageRange();
@@ -165,7 +165,7 @@ int DamageCalculator::getActorAttackSlayer() const
 		return 0;
 
 	auto slayerEffects = info.attacker->getBonuses(selectorSlayer, cachingStrSlayer);
-	auto slayerAffected = info.defender->unitType()->valOfBonuses(Selector::type()(BonusType::KING));
+	auto slayerAffected = info.defender->unitType()->valOfBonuses(BonusType::KING);
 
 	if(std::shared_ptr<const Bonus> slayerEffect = slayerEffects->getFirst(Selector::all))
 	{
@@ -216,7 +216,7 @@ LuaExpressionEvaluator & DamageCalculator::getAttackSkillEvaluator() const
 {
 	if(!attackSkillEvaluator)
 	{
-		const std::string & formula = VLC->engineSettings()->getValue(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FORMULA).String();
+		const std::string & formula = LIBRARY->engineSettings()->getValue(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FORMULA).String();
 		attackSkillEvaluator  = std::make_unique<LuaExpressionEvaluator>(formula);
 	}
 	return *attackSkillEvaluator;
@@ -226,7 +226,7 @@ LuaExpressionEvaluator & DamageCalculator::getDefenseSkillEvaluator() const
 {
 	if(!defenseSkillEvaluator)
 	{
-		const std::string & formula = VLC->engineSettings()->getValue(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FORMULA).String();
+		const std::string & formula = LIBRARY->engineSettings()->getValue(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FORMULA).String();
 		defenseSkillEvaluator = std::make_unique<LuaExpressionEvaluator>(formula);
 	}
 	return *defenseSkillEvaluator;
@@ -240,7 +240,7 @@ double DamageCalculator::getAttackSkillFactor() const
 	std::map<std::string, double> params =
 	{
 		{"defense", getTargetDefenseEffective()},
-		{"attack", getActorAttackEffective()}
+            {"attack", getActorAttackEffective()}
 	};
 	double result = evaluator.evaluate(params);
 	return result;
@@ -298,26 +298,16 @@ double DamageCalculator::getAttackDoubleDamageFactor() const
 
 double DamageCalculator::getAttackJoustingFactor() const
 {
-	const std::string cachingStrJousting = "type_JOUSTING";
-	static const auto selectorJousting = Selector::type()(BonusType::JOUSTING);
-
-	const std::string cachingStrChargeImmunity = "type_CHARGE_IMMUNITY";
-	static const auto selectorChargeImmunity = Selector::type()(BonusType::CHARGE_IMMUNITY);
-
 	//applying jousting bonus
-	if(info.chargeDistance > 0 && info.attacker->hasBonus(selectorJousting, cachingStrJousting) && !info.defender->hasBonus(selectorChargeImmunity, cachingStrChargeImmunity))
-		return info.chargeDistance * (info.attacker->valOfBonuses(selectorJousting))/100.0;
+	if(info.chargeDistance > 0 && info.attacker->hasBonusOfType(BonusType::JOUSTING) && !info.defender->hasBonusOfType(BonusType::CHARGE_IMMUNITY))
+		return info.chargeDistance * (info.attacker->valOfBonuses(BonusType::JOUSTING))/100.0;
 	return 0.0;
 }
 
 double DamageCalculator::getAttackHateFactor() const
 {
 	//assume that unit have only few HATE features and cache them all
-	const std::string cachingStrHate = "type_HATE";
-	static const auto selectorHate = Selector::type()(BonusType::HATE);
-
-	auto allHateEffects = info.attacker->getBonuses(selectorHate, cachingStrHate);
-
+	auto allHateEffects = info.attacker->getBonusesOfType(BonusType::HATE);
 	return allHateEffects->valOfBonuses(Selector::subtype()(BonusSubtypeID(info.defender->creatureId()))) / 100.0;
 }
 
@@ -441,7 +431,7 @@ double DamageCalculator::getDefenseForgetfulnessFactor() const
 	{
 		//todo: set actual percentage in spell bonus configuration instead of just level; requires non trivial backward compatibility handling
 		//get list first, total value of 0 also counts
-		TConstBonusListPtr forgetfulList = info.attacker->getBonuses(Selector::type()(BonusType::FORGETFULL),"type_FORGETFULL");
+		TConstBonusListPtr forgetfulList = info.attacker->getBonusesOfType(BonusType::FORGETFULL);
 
 		if(!forgetfulList->empty())
 		{

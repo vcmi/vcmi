@@ -108,9 +108,10 @@ class DLL_LINKAGE SingleHeroPathfinderConfig : public PathfinderConfig
 {
 private:
 	std::unique_ptr<CPathfinderHelper> pathfinderHelper;
+	const CGHeroInstance * hero;
 
 public:
-	SingleHeroPathfinderConfig(CPathsInfo & out, CGameState * gs, const CGHeroInstance * hero);
+	SingleHeroPathfinderConfig(CPathsInfo & out, const CGameInfoCallback * gs, const CGHeroInstance * hero);
 	virtual ~SingleHeroPathfinderConfig();
 
 	CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) override;

@@ -33,7 +33,7 @@ struct CPathsInfo;
 struct InfoAboutHero;
 struct InfoAboutTown;
 
-struct UpgradeInfo;
+class UpgradeInfo;
 struct SThievesGuildInfo;
 class CMapHeader;
 struct TeamState;
@@ -172,7 +172,7 @@ public:
 
 
 	//armed object
-	virtual void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out)const;
+	virtual void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const;
 
 	//hero
 	const CGHeroInstance * getHero(ObjectInstanceID objid) const override;
@@ -207,8 +207,7 @@ public:
 	virtual std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 	virtual bool isInTheMap(const int3 &pos) const;
 	virtual void getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
-	virtual void calculatePaths(const std::shared_ptr<PathfinderConfig> & config);
-	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out);
+	virtual void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const;
 	virtual EDiggingStatus getTileDigStatus(int3 tile, bool verbose = true) const;
 
 	//town

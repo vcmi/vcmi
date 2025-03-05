@@ -48,10 +48,10 @@ namespace boost { class thread; }
 template<typename T>
 class ThreadSafeVector
 {
-	using TLock = boost::unique_lock<boost::mutex>;
+	using TLock = std::unique_lock<std::mutex>;
 	std::vector<T> items;
-	boost::mutex mx;
-	boost::condition_variable cond;
+	std::mutex mx;
+	std::condition_variable cond;
 
 public:
 	void clear()
@@ -149,11 +149,6 @@ public:
 	void battleFinished(const BattleID & battleID);
 	void startPlayerBattleAction(const BattleID & battleID, PlayerColor color);
 
-	void invalidatePaths(); // clears this->pathCache()
-	void updatePath(const ObjectInstanceID & heroID); // invalidatePaths and update displayed hero path 
-	void updatePath(const CGHeroInstance * hero);
-	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
-
 	friend class CCallback; //handling players actions
 	friend class CBattleCallback; //handling players actions
 
@@ -234,9 +229,6 @@ private:
 	std::shared_ptr<scripting::PoolImpl> clientScripts;
 #endif
 	std::unique_ptr<events::EventBus> clientEventBus;
-
-	mutable boost::mutex pathCacheMutex;
-	std::map<const CGHeroInstance *, std::shared_ptr<CPathsInfo>> pathCache;
 
 	void reinitScripting();
 };

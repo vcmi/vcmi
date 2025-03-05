@@ -15,13 +15,13 @@
 #include "RockFiller.h"
 #include "../Functions.h"
 #include "../CMapGenerator.h"
-#include "../threadpool/MapProxy.h"
+#include "../MapProxy.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../../mapObjects/CGObjectInstance.h"
 #include "../../modding/IdentifierStorage.h"
 #include "../../modding/ModScope.h"
 #include "../../TerrainHandler.h"
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -76,25 +76,35 @@ bool RoadPlacer::createRoad(const int3 & destination)
 
 	auto simpleRoutig = [this, &border](const int3& src, const int3& dst)
 	{
-		if(areaIsolated().contains(dst))
+		if(std::abs((src - dst).y) == 1)
 		{
-			return 1000.0f; //Do not route road behind objects that are not visitable from top, such as Monoliths
+			//Do not allow connections straight up through object not visitable from top
+			if(areaIsolated().contains(dst) || areaIsolated().contains(src))
+			{
+				return 1e12f;
+			}
 		}
 		else
 		{
-			float ret = dst.dist2d(src);
-
-			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
+			if(areaIsolated().contains(dst))
 			{
-				ret *= VISITABLE_PENALTY;
+				//Simply do not route road behind objects that are not visitable from top, such as Monoliths
+				return 1e6f;
 			}
-			float dist = border.distanceSqr(dst);
-			if(dist > 1.0f)
-			{
-				ret /= dist;
-			}
-			return ret;
 		}
+
+		float ret = dst.dist2d(src);
+
+		if (visitableTiles.contains(src) || visitableTiles.contains(dst))
+		{
+			ret *= VISITABLE_PENALTY;
+		}
+		float dist = border.distanceSqr(dst);
+		if(dist > 1.0f)
+		{
+			ret /= dist;
+		}
+		return ret;
 	};
 	
 	auto res = path.search(destination, true, simpleRoutig);
@@ -168,7 +178,7 @@ void RoadPlacer::drawRoads(bool secondary)
 	auto tiles = roads.getTilesVector();
 
 	std::string roadName = (secondary ? generator.getConfig().secondaryRoadType : generator.getConfig().defaultRoadType);
-	RoadId roadType(*VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "road", roadName));
+	RoadId roadType(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "road", roadName));
 
 	//If our road type is not enabled, choose highest below it
 	for (int8_t bestRoad = roadType.getNum(); bestRoad > RoadId(Road::NO_ROAD).getNum(); bestRoad--)

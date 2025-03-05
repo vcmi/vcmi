@@ -23,7 +23,7 @@ class RNG;
 }
 
 struct BattleResult;
-struct UpgradeInfo;
+class UpgradeInfo;
 class BoatId;
 class CGObjectInstance;
 class CStackInstance;

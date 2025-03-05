@@ -12,27 +12,10 @@
 #include "ui_aboutproject_moc.h"
 
 #include "../updatedialog_moc.h"
+#include "../helper.h"
 
 #include "../../lib/GameConstants.h"
 #include "../../lib/VCMIDirs.h"
-
-#ifdef VCMI_IOS
-#include "ios/revealdirectoryinfiles.h"
-#endif
-
-namespace
-{
-void revealDirectoryInFileBrowser(QLineEdit * dirLineEdit)
-{
-	const auto dirUrl = QUrl::fromLocalFile(QFileInfo{dirLineEdit->text()}.absoluteFilePath());
-#ifdef VCMI_IOS
-	iOS_utils::revealDirectoryInFiles(dirUrl);
-#else
-	QDesktopServices::openUrl(dirUrl);
-#endif
-}
-}
-
 
 void AboutProjectView::hideAndStretchWidget(QGridLayout * layout, QWidget * toHide, QWidget * toStretch)
 {
@@ -88,22 +71,22 @@ void AboutProjectView::on_updatesButton_clicked()
 
 void AboutProjectView::on_openGameDataDir_clicked()
 {
-	revealDirectoryInFileBrowser(ui->lineEditGameDir);
+	Helper::revealDirectoryInFileBrowser(ui->lineEditGameDir->text());
 }
 
 void AboutProjectView::on_openUserDataDir_clicked()
 {
-	revealDirectoryInFileBrowser(ui->lineEditUserDataDir);
+	Helper::revealDirectoryInFileBrowser(ui->lineEditUserDataDir->text());
 }
 
 void AboutProjectView::on_openTempDir_clicked()
 {
-	revealDirectoryInFileBrowser(ui->lineEditTempDir);
+	Helper::revealDirectoryInFileBrowser(ui->lineEditTempDir->text());
 }
 
 void AboutProjectView::on_openConfigDir_clicked()
 {
-	revealDirectoryInFileBrowser(ui->lineEditConfigDir);
+	Helper::revealDirectoryInFileBrowser(ui->lineEditConfigDir->text());
 }
 
 void AboutProjectView::on_pushButtonDiscord_clicked()

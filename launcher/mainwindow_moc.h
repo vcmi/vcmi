@@ -12,6 +12,10 @@
 #include <QStringList>
 #include <QTranslator>
 
+VCMI_LIB_NAMESPACE_BEGIN
+class CConsoleHandler;
+VCMI_LIB_NAMESPACE_END
+
 namespace Ui
 {
 class MainWindow;
@@ -40,6 +44,10 @@ class MainWindow : public QMainWindow
 #endif
 	Ui::MainWindow * ui;
 
+#ifndef VCMI_MOBILE
+	std::unique_ptr<CConsoleHandler> console;
+#endif
+
 	void load();
 
 	enum TabRows
@@ -62,7 +70,7 @@ public:
 	
 	void detectPreferredLanguage();
 	void enterSetup();
-	void exitSetup();
+	void exitSetup(bool goToMods);
 	void switchToModsTab();
 	void switchToStartTab();
 

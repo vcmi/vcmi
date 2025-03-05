@@ -10,9 +10,8 @@
 #include "StdInc.h"
 #include "CMusicHandler.h"
 
-#include "../CGameInfo.h"
 #include "../eventsSDL/InputHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../renderSDL/SDLRWwrapper.h"
 
 #include "../../lib/entities/faction/CFaction.h"
@@ -21,8 +20,7 @@
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
-
-#include <SDL_mixer.h>
+#include "../../lib/GameLibrary.h"
 
 void CMusicHandler::onVolumeChange(const JsonNode & volumeNode)
 {
@@ -58,20 +56,20 @@ CMusicHandler::CMusicHandler():
 	{
 		Mix_HookMusicFinished([]()
 		{
-			CCS->musich->musicFinishedCallback();
+			ENGINE->music().musicFinishedCallback();
 		});
 	}
 }
 
 void CMusicHandler::loadTerrainMusicThemes()
 {
-	for(const auto & terrain : CGI->terrainTypeHandler->objects)
+	for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
 	{
 		for(const auto & filename : terrain->musicFilename)
 			addEntryToSet("terrain_" + terrain->getJsonKey(), filename);
 	}
 
-	for(const auto & faction : CGI->townh->objects)
+	for(const auto & faction : LIBRARY->townh->objects)
 	{
 		if (!faction || !faction->hasTown())
 			continue;
@@ -90,7 +88,7 @@ CMusicHandler::~CMusicHandler()
 {
 	if(isInitialized())
 	{
-		boost::mutex::scoped_lock guard(mutex);
+		std::scoped_lock guard(mutex);
 
 		Mix_HookMusicFinished(nullptr);
 		current->stop();
@@ -102,7 +100,7 @@ CMusicHandler::~CMusicHandler()
 
 void CMusicHandler::playMusic(const AudioPath & musicURI, bool loop, bool fromStart)
 {
-	boost::mutex::scoped_lock guard(mutex);
+	std::scoped_lock guard(mutex);
 
 	if(current && current->isPlaying() && current->isTrack(musicURI))
 		return;
@@ -117,7 +115,7 @@ void CMusicHandler::playMusicFromSet(const std::string & musicSet, const std::st
 
 void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop, bool fromStart)
 {
-	boost::mutex::scoped_lock guard(mutex);
+	std::scoped_lock guard(mutex);
 
 	auto selectedSet = musicsSet.find(whichSet);
 	if(selectedSet == musicsSet.end())
@@ -157,7 +155,7 @@ void CMusicHandler::stopMusic(int fade_ms)
 	if(!isInitialized())
 		return;
 
-	boost::mutex::scoped_lock guard(mutex);
+	std::scoped_lock guard(mutex);
 
 	if(current != nullptr)
 		current->stop(fade_ms);
@@ -187,10 +185,10 @@ void CMusicHandler::musicFinishedCallback()
 	// 1) SDL thread waiting to acquire music lock in this method (while keeping internal SDL mutex locked)
 	// 2) VCMI thread waiting to acquire internal SDL mutex (while keeping music mutex locked)
 
-	GH.dispatchMainThread(
+	ENGINE->dispatchMainThread(
 		[this]()
 		{
-			boost::unique_lock lockGuard(mutex);
+			std::unique_lock lockGuard(mutex);
 			if(current != nullptr)
 			{
 				// if music is looped, play it again
@@ -327,7 +325,7 @@ bool MusicEntry::play()
 		}
 	}
 
-	startTime = GH.input().getTicks();
+	startTime = ENGINE->input().getTicks();
 
 	playing = true;
 	return true;
@@ -339,7 +337,7 @@ bool MusicEntry::stop(int fade_ms)
 	{
 		playing = false;
 		loop = 0;
-		uint32_t endTime = GH.input().getTicks();
+		uint32_t endTime = ENGINE->input().getTicks();
 		assert(startTime != uint32_t(-1));
 		float playDuration = (endTime - startTime + startPosition) / 1000.f;
 		owner->trackPositions[currentName] = playDuration;

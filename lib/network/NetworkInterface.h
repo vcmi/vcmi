@@ -21,6 +21,15 @@ public:
 	virtual void close() = 0;
 };
 
+/// Class for internal connections within single process, for use when TCP is not possible or not desired
+class IInternalConnection : public INetworkConnection
+{
+public:
+	virtual void receivePacket(const std::vector<std::byte> & message) = 0;
+	virtual void disconnect() = 0;
+	virtual void connectTo(std::shared_ptr<IInternalConnection> connection) = 0;
+};
+
 using NetworkConnectionPtr = std::shared_ptr<INetworkConnection>;
 using NetworkConnectionWeakPtr = std::weak_ptr<INetworkConnection>;
 
@@ -41,6 +50,7 @@ public:
 	virtual ~INetworkServer() = default;
 
 	virtual uint16_t start(uint16_t port) = 0;
+	virtual void receiveInternalConnection(std::shared_ptr<IInternalConnection> remoteConnection) = 0;
 };
 
 /// Base interface that must be implemented by user of networking API to handle any connection callbacks
@@ -93,6 +103,10 @@ public:
 	/// On success: INetworkTimerListener::onConnectionEstablished() will be called, established connection provided as parameter
 	/// On failure: INetworkTimerListener::onConnectionFailed will be called with human-readable error message
 	virtual void connectToRemote(INetworkClientListener & listener, const std::string & host, uint16_t port) = 0;
+
+	/// Creates an instance of internal connection that is connected to a network server, but uses intra-process communication instead of TCP
+	/// On success INetworkTimerListener::onConnectionEstablished() will be called asynchronously, established connection provided as parameter
+	virtual void createInternalConnection(INetworkClientListener & listener, INetworkServer & server) = 0;
 
 	/// Creates a timer that will be called once, after specified interval has passed
 	/// On success: INetworkTimerListener::onTimer() will be called

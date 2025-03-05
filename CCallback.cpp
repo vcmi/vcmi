@@ -384,11 +384,6 @@ bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
 	return gs->map->canMoveBetween(a, b);
 }
 
-std::shared_ptr<const CPathsInfo> CCallback::getPathsInfo(const CGHeroInstance * h)
-{
-	return cl->getPathsInfo(h);
-}
-
 std::optional<PlayerColor> CCallback::getPlayerID() const
 {
 	return CBattleCallback::getPlayerID();

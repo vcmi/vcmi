@@ -144,17 +144,17 @@ const IBonusBearer * CArtifact::getBonusBearer() const
 
 std::string CArtifact::getDescriptionTranslated() const
 {
-	return VLC->generaltexth->translate(getDescriptionTextID());
+	return LIBRARY->generaltexth->translate(getDescriptionTextID());
 }
 
 std::string CArtifact::getEventTranslated() const
 {
-	return VLC->generaltexth->translate(getEventTextID());
+	return LIBRARY->generaltexth->translate(getEventTextID());
 }
 
 std::string CArtifact::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::string CArtifact::getDescriptionTextID() const
@@ -341,7 +341,7 @@ CArtHandler::~CArtHandler() = default;
 
 std::vector<JsonNode> CArtHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_ARTIFACT);
+	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_ARTIFACT);
 
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
@@ -445,9 +445,9 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 
 	const JsonNode & text = node["text"];
 
-	VLC->generaltexth->registerString(scope, art->getNameTextID(), text["name"]);
-	VLC->generaltexth->registerString(scope, art->getDescriptionTextID(), text["description"]);
-	VLC->generaltexth->registerString(scope, art->getEventTextID(), text["event"]);
+	LIBRARY->generaltexth->registerString(scope, art->getNameTextID(), text["name"]);
+	LIBRARY->generaltexth->registerString(scope, art->getDescriptionTextID(), text["description"]);
+	LIBRARY->generaltexth->registerString(scope, art->getEventTextID(), text["event"]);
 
 	const JsonNode & graphics = node["graphics"];
 	art->image = graphics["image"].String();
@@ -476,21 +476,21 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	const JsonNode & warMachine = node["warMachine"];
 	if(!warMachine.isNull())
 	{
-		VLC->identifiers()->requestIdentifier("creature", warMachine, [=](si32 id)
+		LIBRARY->identifiers()->requestIdentifier("creature", warMachine, [=](si32 id)
 		{
 			art->warMachine = CreatureID(id);
 
 			//this assumes that creature object is stored before registration
-			VLC->creh->objects.at(id)->warMachine = art->id;
+			LIBRARY->creh->objects.at(id)->warMachine = art->id;
 		});
 	}
 
-	VLC->identifiers()->requestIdentifier(scope, "object", "artifact", [=](si32 index)
+	LIBRARY->identifiers()->requestIdentifier(scope, "object", "artifact", [=](si32 index)
 	{
 		JsonNode conf;
 		conf.setModScope(scope);
 
-		VLC->objtypeh->loadSubObject(art->identifier, conf, Obj::ARTIFACT, art->getIndex());
+		LIBRARY->objtypeh->loadSubObject(art->identifier, conf, Obj::ARTIFACT, art->getIndex());
 
 		if(!art->advMapDef.empty())
 		{
@@ -500,7 +500,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 
 			// add new template.
 			// Necessary for objects added via mods that don't have any templates in H3
-			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->getIndex())->addTemplate(templ);
+			LIBRARY->objtypeh->getHandlerFor(Obj::ARTIFACT, art->getIndex())->addTemplate(templ);
 		}
 	});
 
@@ -624,7 +624,7 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 	{
 		for(const auto & component : node["components"].Vector())
 		{
-			VLC->identifiers()->requestIdentifier("artifact", component, [this, art](int32_t id)
+			LIBRARY->identifiers()->requestIdentifier("artifact", component, [this, art](int32_t id)
 			{
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them
@@ -672,10 +672,10 @@ bool CArtHandler::legalArtifact(const ArtifactID & id) const
 	if(art->possibleSlots.count(ArtBearer::HERO) && !art->possibleSlots.at(ArtBearer::HERO).empty())
 		return true;
 
-	if(art->possibleSlots.count(ArtBearer::CREATURE) && !art->possibleSlots.at(ArtBearer::CREATURE).empty() && VLC->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_ARTIFACT))
+	if(art->possibleSlots.count(ArtBearer::CREATURE) && !art->possibleSlots.at(ArtBearer::CREATURE).empty() && LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_ARTIFACT))
 		return true;
 
-	if(art->possibleSlots.count(ArtBearer::COMMANDER) && !art->possibleSlots.at(ArtBearer::COMMANDER).empty() && VLC->engineSettings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
+	if(art->possibleSlots.count(ArtBearer::COMMANDER) && !art->possibleSlots.at(ArtBearer::COMMANDER).empty() && LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
 		return true;
 
 	return false;
@@ -703,8 +703,9 @@ void CArtHandler::afterLoadFinalization()
 			assert(bonus->source == BonusSource::ARTIFACT);
 			bonus->sid = BonusSourceID(art->id);
 		}
+		art->nodeHasChanged();
 	}
-	CBonusSystemNode::treeHasChanged();
+
 }
 
 CArtifactInstance * CArtifactSet::getArt(const ArtifactPosition & pos, bool excludeLocked) const

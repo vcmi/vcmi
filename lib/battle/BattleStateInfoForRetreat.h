@@ -16,6 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace battle
 {
 	class Unit;
+	using Units = boost::container::small_vector<const Unit *, 4>;
 }
 
 class CGHeroInstance;
@@ -27,8 +28,8 @@ public:
 	bool canSurrender;
 	bool isLastTurnBeforeDie;
 	BattleSide ourSide;
-	std::vector<const battle::Unit *> ourStacks;
-	std::vector<const battle::Unit *> enemyStacks;
+	battle::Units ourStacks;
+	battle::Units enemyStacks;
 	const CGHeroInstance * ourHero;
 	const CGHeroInstance * enemyHero;
 	int turnsSkippedByDefense;

@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "Limiters.h"
 
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../spells/CSpellHandler.h"
@@ -121,7 +121,7 @@ void CCreatureTypeLimiter::setCreature(const CreatureID & id)
 std::string CCreatureTypeLimiter::toString() const
 {
 	boost::format fmt("CCreatureTypeLimiter(creature=%s, includeUpgrades=%s)");
-	fmt % creatureID.toEntity(VLC)->getJsonKey() % (includeUpgrades ? "true" : "false");
+	fmt % creatureID.toEntity(LIBRARY)->getJsonKey() % (includeUpgrades ? "true" : "false");
 	return fmt.str();
 }
 
@@ -130,7 +130,7 @@ JsonNode CCreatureTypeLimiter::toJsonNode() const
 	JsonNode root;
 
 	root["type"].String() = "CREATURE_TYPE_LIMITER";
-	root["parameters"].Vector().emplace_back(creatureID.toEntity(VLC)->getJsonKey());
+	root["parameters"].Vector().emplace_back(creatureID.toEntity(LIBRARY)->getJsonKey());
 	root["parameters"].Vector().emplace_back(includeUpgrades);
 
 	return root;
@@ -220,13 +220,14 @@ ILimiter::EDecision UnitOnHexLimiter::limit(const BonusLimitationContext &contex
 		return ILimiter::EDecision::DISCARD;
 
 	auto accept = false;
+
 	for (const auto & hex : stack->getHexes())
-		accept |= !!applicableHexes.count(hex);
+		accept |= applicableHexes.contains(hex);
 
 	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 }
 
-UnitOnHexLimiter::UnitOnHexLimiter(const std::set<BattleHex> & applicableHexes):
+UnitOnHexLimiter::UnitOnHexLimiter(const BattleHexArray & applicableHexes):
 	applicableHexes(applicableHexes)
 {
 }
@@ -237,7 +238,7 @@ JsonNode UnitOnHexLimiter::toJsonNode() const
 
 	root["type"].String() = "UNIT_ON_HEXES";
 	for(const auto & hex : applicableHexes)
-		root["parameters"].Vector().emplace_back(hex);
+		root["parameters"].Vector().emplace_back(hex.toInt());
 
 	return root;
 }
@@ -271,7 +272,7 @@ ILimiter::EDecision CreatureTerrainLimiter::limit(const BonusLimitationContext &
 std::string CreatureTerrainLimiter::toString() const
 {
 	boost::format fmt("CreatureTerrainLimiter(terrainType=%s)");
-	auto terrainName = VLC->terrainTypeHandler->getById(terrainType)->getJsonKey();
+	auto terrainName = LIBRARY->terrainTypeHandler->getById(terrainType)->getJsonKey();
 	fmt % (terrainType == ETerrainId::NATIVE_TERRAIN ? "native" : terrainName);
 	return fmt.str();
 }
@@ -281,7 +282,7 @@ JsonNode CreatureTerrainLimiter::toJsonNode() const
 	JsonNode root;
 
 	root["type"].String() = "CREATURE_TERRAIN_LIMITER";
-	auto terrainName = VLC->terrainTypeHandler->getById(terrainType)->getJsonKey();
+	auto terrainName = LIBRARY->terrainTypeHandler->getById(terrainType)->getJsonKey();
 	root["parameters"].Vector().emplace_back(terrainName);
 
 	return root;
@@ -318,7 +319,7 @@ ILimiter::EDecision FactionLimiter::limit(const BonusLimitationContext &context)
 std::string FactionLimiter::toString() const
 {
 	boost::format fmt("FactionLimiter(faction=%s)");
-	fmt % VLC->factions()->getById(faction)->getJsonKey();
+	fmt % LIBRARY->factions()->getById(faction)->getJsonKey();
 	return fmt.str();
 }
 
@@ -327,7 +328,7 @@ JsonNode FactionLimiter::toJsonNode() const
 	JsonNode root;
 
 	root["type"].String() = "FACTION_LIMITER";
-	root["parameters"].Vector().emplace_back(VLC->factions()->getById(faction)->getJsonKey());
+	root["parameters"].Vector().emplace_back(LIBRARY->factions()->getById(faction)->getJsonKey());
 
 	return root;
 }

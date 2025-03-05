@@ -11,7 +11,7 @@
 #pragma once
 
 #define NKAI_PATHFINDER_TRACE_LEVEL 0
-constexpr int NKAI_GRAPH_TRACE_LEVEL = 0;
+constexpr int NKAI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualization, enter `/vslog graph` in game chat
 #define NKAI_TRACE_LEVEL 0
 
 #include "../../../lib/pathfinder/CGPathNode.h"
@@ -22,8 +22,6 @@ constexpr int NKAI_GRAPH_TRACE_LEVEL = 0;
 #include "../Goals/AbstractGoal.h"
 #include "Actions/SpecialAction.h"
 #include "Actors.h"
-
-#include <boost/container/small_vector.hpp>
 
 namespace NKAI
 {
@@ -43,8 +41,8 @@ struct AIPathNode : public CGPathNode
 {
 	std::shared_ptr<const SpecialAction> specialAction;
 
-	const AIPathNode * chainOther;
-	const ChainActor * actor;
+	const AIPathNode * chainOther = nullptr;
+	const ChainActor * actor = nullptr;
 
 	uint64_t danger;
 	uint64_t armyLoss;
@@ -131,8 +129,8 @@ struct AIPath
 
 struct ExchangeCandidate : public AIPathNode
 {
-	AIPathNode * carrierParent;
-	AIPathNode * otherParent;
+	AIPathNode * carrierParent = nullptr;
+	AIPathNode * otherParent = nullptr;
 };
 
 enum EHeroChainPass
@@ -151,7 +149,7 @@ class AISharedStorage
 	static std::shared_ptr<boost::multi_array<AIPathNode, 4>> shared;
 	std::shared_ptr<boost::multi_array<AIPathNode, 4>> nodes;
 public:
-	static boost::mutex locker;
+	static std::mutex locker;
 	static uint32_t version;
 
 	AISharedStorage(int3 sizes, int numChains);

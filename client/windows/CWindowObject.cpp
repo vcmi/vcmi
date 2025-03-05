@@ -13,7 +13,8 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -23,8 +24,8 @@
 #include "../render/IScreenHandler.h"
 #include "../render/IRenderHandler.h"
 #include "../render/Canvas.h"
+#include "../render/CanvasImage.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
@@ -43,7 +44,7 @@ CWindowObject::CWindowObject(int options_, const ImagePath & imageName, Point ce
 		assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
 	if (options & RCLICK_POPUP)
-		CCS->curh->hide();
+		ENGINE->cursor().hide();
 
 	if (background)
 		pos = background->center(centerAt);
@@ -63,12 +64,12 @@ CWindowObject::CWindowObject(int options_, const ImagePath & imageName):
 		assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
 	if(options & RCLICK_POPUP)
-		CCS->curh->hide();
+		ENGINE->cursor().hide();
 
 	if(background)
 		pos = background->center();
 	else
-		center(GH.screenDimensions() / 2);
+		center(ENGINE->screenDimensions() / 2);
 
 	if(!(options & SHADOW_DISABLED))
 		setShadow(true);
@@ -77,7 +78,7 @@ CWindowObject::CWindowObject(int options_, const ImagePath & imageName):
 CWindowObject::~CWindowObject()
 {
 	if(options & RCLICK_POPUP)
-		CCS->curh->show();
+		ENGINE->cursor().show();
 }
 
 std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, bool playerColored)
@@ -87,10 +88,9 @@ std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, b
 	if(imageName.empty())
 		return nullptr;
 
-	auto image = std::make_shared<CPicture>(imageName);
-	image->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
+	auto image = std::make_shared<CPicture>(imageName, Point(0,0), EImageBlitMode::OPAQUE);
 	if(playerColored)
-		image->setPlayerColor(LOCPLINT->playerID);
+		image->setPlayerColor(GAME->interface()->playerID);
 	return image;
 }
 
@@ -116,8 +116,7 @@ void CWindowObject::updateShadow()
 void CWindowObject::setShadow(bool on)
 {
 	//size of shadow
-	int sizeOriginal = 8;
-	int size = sizeOriginal * GH.screenHandler().getScalingFactor();
+	int size = 8;
 
 	if(on == !shadowParts.empty())
 		return;
@@ -130,61 +129,12 @@ void CWindowObject::setShadow(bool on)
 
 	if(on)
 	{
-
-		//helper to set last row
-		auto blitAlphaRow = [](SDL_Surface *surf, size_t row)
-		{
-			uint8_t * ptr = (uint8_t*)surf->pixels + surf->pitch * (row);
-
-			for (size_t i=0; i< surf->w; i++)
-			{
-				Channels::px<4>::a.set(ptr, 128);
-				ptr+=4;
-			}
-		};
-
-		// helper to set last column
-		auto blitAlphaCol = [](SDL_Surface *surf, size_t col)
-		{
-			uint8_t * ptr = (uint8_t*)surf->pixels + 4 * (col);
-
-			for (size_t i=0; i< surf->h; i++)
-			{
-				Channels::px<4>::a.set(ptr, 128);
-				ptr+= surf->pitch;
-			}
-		};
-
-		static SDL_Surface * shadowCornerTempl = nullptr;
-		static SDL_Surface * shadowBottomTempl = nullptr;
-		static SDL_Surface * shadowRightTempl = nullptr;
-
-		//one-time initialization
-		if(!shadowCornerTempl)
-		{
-			//create "template" surfaces
-			shadowCornerTempl = CSDL_Ext::createSurfaceWithBpp<4>(size, size);
-			shadowBottomTempl = CSDL_Ext::createSurfaceWithBpp<4>(1, size);
-			shadowRightTempl  = CSDL_Ext::createSurfaceWithBpp<4>(size, 1);
-
-			//fill with shadow body color
-			CSDL_Ext::fillSurface(shadowCornerTempl, { 0, 0, 0, 192 } );
-			CSDL_Ext::fillSurface(shadowBottomTempl, { 0, 0, 0, 192 } );
-			CSDL_Ext::fillSurface(shadowRightTempl,  { 0, 0, 0, 192 } );
-
-			//fill last row and column with more transparent color
-			blitAlphaCol(shadowRightTempl , size-1);
-			blitAlphaCol(shadowCornerTempl, size-1);
-			blitAlphaRow(shadowBottomTempl, size-1);
-			blitAlphaRow(shadowCornerTempl, size-1);
-		}
-
 		//FIXME: do something with this points
 		Point shadowStart;
 		if (options & BORDERED)
-			shadowStart = Point(sizeOriginal - 14, sizeOriginal - 14);
+			shadowStart = Point(size - 14, size - 14);
 		else
-			shadowStart = Point(sizeOriginal, sizeOriginal);
+			shadowStart = Point(size, size);
 
 		Point shadowPos;
 		if (options & BORDERED)
@@ -198,37 +148,47 @@ void CWindowObject::setShadow(bool on)
 		else
 			fullsize = Point(pos.w, pos.h);
 
-		//create base 8x8 piece of shadow
-		SDL_Surface * shadowCorner = CSDL_Ext::copySurface(shadowCornerTempl);
-		SDL_Surface * shadowBottom = CSDL_Ext::scaleSurface(shadowBottomTempl, (fullsize.x - sizeOriginal) * GH.screenHandler().getScalingFactor(), size);
-		SDL_Surface * shadowRight  = CSDL_Ext::scaleSurface(shadowRightTempl,  size, (fullsize.y - sizeOriginal) * GH.screenHandler().getScalingFactor());
+		Point sizeCorner(size, size);
+		Point sizeRight(fullsize.x - size, size);
+		Point sizeBottom(size, fullsize.y - size);
 
-		blitAlphaCol(shadowBottom, 0);
-		blitAlphaRow(shadowRight, 0);
+		//create base 8x8 piece of shadow
+		auto imageCorner = ENGINE->renderHandler().createImage(sizeCorner, CanvasScalingPolicy::AUTO);
+		auto imageRight  = ENGINE->renderHandler().createImage(sizeRight,  CanvasScalingPolicy::AUTO);
+		auto imageBottom = ENGINE->renderHandler().createImage(sizeBottom, CanvasScalingPolicy::AUTO);
+
+		Canvas canvasCorner = imageCorner->getCanvas();
+		Canvas canvasRight = imageRight->getCanvas();
+		Canvas canvasBottom = imageBottom->getCanvas();
+
+		canvasCorner.drawColor(Rect(Point(0,0), sizeCorner), { 0, 0, 0, 128 });
+		canvasRight.drawColor(Rect(Point(0,0), sizeRight), { 0, 0, 0, 128 });
+		canvasBottom.drawColor(Rect(Point(0,0), sizeBottom), { 0, 0, 0, 128 });
+
+		canvasCorner.drawColor(Rect(Point(0,0), sizeCorner - Point(1,1)), { 0, 0, 0, 192 });
+		canvasRight.drawColor(Rect(Point(0,0),   sizeRight - Point(0,1)), { 0, 0, 0, 192 });
+		canvasBottom.drawColor(Rect(Point(0,0), sizeBottom - Point(1,0)), { 0, 0, 0, 192 });
 
 		//generate "shadow" object with these 3 pieces in it
 		{
 			OBJECT_CONSTRUCTION;
 
-			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowCorner), Point(shadowPos.x,   shadowPos.y)));
-			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowRight ),  Point(shadowPos.x,   shadowStart.y)));
-			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowBottom), Point(shadowStart.x, shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( imageCorner, Point(shadowPos.x,   shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( imageRight, Point(shadowStart.x, shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( imageBottom,  Point(shadowPos.x,   shadowStart.y)));
 
 		}
-		SDL_FreeSurface(shadowCorner);
-		SDL_FreeSurface(shadowBottom);
-		SDL_FreeSurface(shadowRight);
 	}
 }
 
 void CWindowObject::showAll(Canvas & to)
 {
-	auto color = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1);
+	auto color = GAME->interface() ? GAME->interface()->playerID : PlayerColor(1);
 	if(settings["session"]["spectate"].Bool())
 		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
 
 	CIntObject::showAll(to);
-	if ((options & BORDERED) && (pos.dimensions() != GH.screenDimensions()))
+	if ((options & BORDERED) && (pos.dimensions() != ENGINE->screenDimensions()))
 		CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 

@@ -318,7 +318,9 @@ void TownBuildingsWidget::onItemChanged(const QStandardItem * item) {
 	connect(&model, &QStandardItemModel::itemChanged, this, &TownBuildingsWidget::onItemChanged);
 }
 
-TownBuildingsDelegate::TownBuildingsDelegate(CGTownInstance & t): town(t), QStyledItemDelegate()
+TownBuildingsDelegate::TownBuildingsDelegate(CGTownInstance & t)
+	: BaseInspectorItemDelegate()
+	, town(t)
 {
 }
 
@@ -332,11 +334,6 @@ void TownBuildingsDelegate::setEditorData(QWidget *editor, const QModelIndex &in
 	if(auto * ed = qobject_cast<TownBuildingsWidget *>(editor))
 	{
 		auto * ctown = town.getTown();
-		if(!ctown)
-			ctown = VLC->townh->randomTown;
-		if(!ctown)
-			throw std::runtime_error("No Town defined for type selected");
-		
 		ed->addBuildings(*ctown);
 	}
 	else
@@ -353,6 +350,7 @@ void TownBuildingsDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
 		town.removeAllBuildings();
 		for(const auto & building : ed->getBuiltBuildings())
 			town.addBuilding(building);
+		updateModelData(model, index);
 	}
 	else
 	{
@@ -360,4 +358,26 @@ void TownBuildingsDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
 	}
 }
 
-
+void TownBuildingsDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QStringList textList(QObject::tr("Built buildings:"));
+	auto * ctown = town.getTown();
+	for(const auto & buildingID : town.getBuildings())
+	{
+		if(buildingID == BuildingID::DEFAULT)
+			continue;
+		auto name = QString::fromStdString(ctown->buildings.at(buildingID)->getNameTranslated());
+		if(name.isEmpty())
+			name = QString::fromStdString(defaultBuildingIdConversion(buildingID));
+		textList += name;
+	}
+	textList += QObject::tr("Forbidden buildings:");
+	for(const auto & buildingID : town.forbiddenBuildings)
+	{
+		auto name = QString::fromStdString(ctown->buildings.at(buildingID)->getNameTranslated());
+		if(name.isEmpty())
+			name = QString::fromStdString(defaultBuildingIdConversion(buildingID));
+		textList += name;
+	}
+	setModelTextData(model, index, textList);
+}

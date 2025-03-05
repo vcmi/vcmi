@@ -11,7 +11,7 @@
 #include "CompleteQuest.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../AIGateway.h"
-#include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/GameLibrary.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 
 namespace NKAI
@@ -91,7 +91,7 @@ std::string CompleteQuest::questToString() const
 {
 	if(isKeyMaster(q))
 	{
-		return "find " + VLC->generaltexth->tentColors[q.obj->subID] + " keymaster tent";
+		return "find " + LIBRARY->generaltexth->tentColors[q.obj->subID] + " keymaster tent";
 	}
 
 	if(q.quest->questName == CQuest::missionName(EQuestMission::NONE))

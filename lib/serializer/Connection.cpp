@@ -70,7 +70,7 @@ CConnection::~CConnection() = default;
 
 void CConnection::sendPack(const CPack & pack)
 {
-	boost::mutex::scoped_lock lock(writeMutex);
+	std::scoped_lock lock(writeMutex);
 
 	auto connectionPtr = networkConnection.lock();
 
@@ -102,7 +102,8 @@ std::unique_ptr<CPack> CConnection::retrievePack(const std::vector<std::byte> & 
 	if (packReader->position != data.size())
 		throw std::runtime_error("Failed to retrieve pack! Not all data has been read!");
 
-	logNetwork->trace("Received CPack of type %s", typeid(result.get()).name());
+	auto packRawPtr = result.get();
+	logNetwork->trace("Received CPack of type %s", typeid(*packRawPtr).name());
 	deserializer->loadedPointers.clear();
 	deserializer->loadedSharedPointers.clear();
 	return result;

@@ -26,8 +26,8 @@ android {
 		minSdk = qtMinSdkVersion as Integer
 		targetSdk = qtTargetSdkVersion as Integer // ANDROID_TARGET_SDK_VERSION in the CMake project
 
-		versionCode 1610
-		versionName "1.6.0"
+		versionCode 1700
+		versionName "1.7.0"
 
 		setProperty("archivesBaseName", "vcmi")
 	}
@@ -57,6 +57,7 @@ android {
 			applicationIdSuffix '.debug'
 			manifestPlaceholders = [
 				applicationLabel: 'VCMI debug',
+				applicationVariant: 'debug',
 			]
 			ndk {
 				debugSymbolLevel 'full'
@@ -70,6 +71,7 @@ android {
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 			manifestPlaceholders = [
 				applicationLabel: project.findProperty('applicationLabel') ?: 'VCMI',
+				applicationVariant: project.findProperty('applicationVariant') ?: '',
 			]
 			ndk {
 				debugSymbolLevel 'full'

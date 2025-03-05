@@ -385,15 +385,15 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
 			for(int i = 0; i < controller->map()->allowedArtifact.size(); ++i)
-				victoryTypeWidget->addItem(QString::fromStdString(VLC->arth->objects[i]->getNameTranslated()), QVariant::fromValue(i));
+				victoryTypeWidget->addItem(QString::fromStdString(LIBRARY->arth->objects[i]->getNameTranslated()), QVariant::fromValue(i));
 			break;
 		}
 
 		case 1: { //EventCondition::HAVE_CREATURES
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
-			for(int i = 0; i < VLC->creh->objects.size(); ++i)
-				victoryTypeWidget->addItem(QString::fromStdString(VLC->creh->objects[i]->getNamePluralTranslated()), QVariant::fromValue(i));
+			for(int i = 0; i < LIBRARY->creh->objects.size(); ++i)
+				victoryTypeWidget->addItem(QString::fromStdString(LIBRARY->creh->objects[i]->getNamePluralTranslated()), QVariant::fromValue(i));
 
 			victoryValueWidget = new QLineEdit;
 			ui->victoryParamsLayout->addWidget(victoryValueWidget);
@@ -407,7 +407,9 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 			{
 				for(int resType = 0; resType < GameConstants::RESOURCE_QUANTITY; ++resType)
 				{
-					auto resName = QString::fromStdString(GameConstants::RESOURCE_NAMES[resType]);
+					MetaString str;
+					str.appendName(GameResID(resType));
+					auto resName = QString::fromStdString(str.toString());
 					victoryTypeWidget->addItem(resName, QVariant::fromValue(resType));
 				}
 			}
@@ -421,13 +423,13 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 		case 3: { //EventCondition::HAVE_BUILDING
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
-			auto * ctown = VLC->townh->randomTown;
+			auto * ctown = LIBRARY->townh->randomTown;
 			for(int bId : ctown->getAllBuildings())
 				victoryTypeWidget->addItem(QString::fromStdString(defaultBuildingIdConversion(BuildingID(bId))), QVariant::fromValue(bId));
 
 			victorySelectWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victorySelectWidget);
-			victorySelectWidget->addItem("Any town", QVariant::fromValue(-1));
+			victorySelectWidget->addItem(tr("Any town"), QVariant::fromValue(-1));
 			for(int i : getObjectIndexes<const CGTownInstance>(*controller->map()))
 				victorySelectWidget->addItem(getTownName(*controller->map(), i).c_str(), QVariant::fromValue(i));
 			
@@ -463,7 +465,7 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
 			for(int i = 0; i < controller->map()->allowedArtifact.size(); ++i)
-				victoryTypeWidget->addItem(QString::fromStdString(VLC->arth->objects[i]->getNameTranslated()), QVariant::fromValue(i));
+				victoryTypeWidget->addItem(QString::fromStdString(LIBRARY->arth->objects[i]->getNameTranslated()), QVariant::fromValue(i));
 			
 			victorySelectWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victorySelectWidget);

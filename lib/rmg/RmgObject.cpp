@@ -13,7 +13,7 @@
 #include "RmgMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -130,7 +130,7 @@ void Object::Instance::setTemplate(TerrainId terrain, vstd::RNG & rng)
 
 	if (templates.empty())
 	{
-		auto terrainName = VLC->terrainTypeHandler->getById(terrain)->getNameTranslated();
+		auto terrainName = LIBRARY->terrainTypeHandler->getById(terrain)->getNameTranslated();
 		throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.getObjTypeIndex() % terrainName));
 	}
 	
@@ -255,6 +255,14 @@ Object::Instance & Object::addInstance(CGObjectInstance & object, const int3 & p
 	return dInstances.back();
 }
 
+bool Object::isVisitable() const
+{
+	return vstd::contains_if(dInstances, [](const Instance & instance)
+	{
+		return instance.object().isVisitable();
+	});
+}
+
 const int3 & Object::getPosition() const
 {
 	return dPosition;
@@ -263,6 +271,11 @@ const int3 & Object::getPosition() const
 int3 Object::getVisitablePosition() const
 {
 	assert(!dInstances.empty());
+
+	// FIXME: This doesn't take into account Hota monster offset
+	if (guarded)
+		return getGuardPos();
+
 	for(const auto & instance : dInstances)
 		if(!getArea().contains(instance.getVisitablePosition()))
 			return instance.getVisitablePosition();
@@ -464,6 +477,12 @@ uint32_t rmg::Object::getValue() const
 
 rmg::Area Object::Instance::getBorderAbove() const
 {
+	if (!object().isVisitable())
+	{
+		// TODO: Non-visitable objects don't need this, but theoretically could return valid area
+		return rmg::Area();
+	}
+
 	int3 visitablePos = getVisitablePosition();
 	auto areaVisitable = rmg::Area({visitablePos});
 	auto borderAbove = areaVisitable.getBorderOutside();

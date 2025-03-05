@@ -125,6 +125,12 @@ void CSettingsView::loadSettings()
 	else
 		ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
 #endif
+#ifndef VCMI_ANDROID
+	ui->buttonHandleBackRightMouseButton->hide();
+	ui->labelHandleBackRightMouseButton->hide();
+	ui->buttonAllowPortrait->hide();
+	ui->labelAllowPortrait->hide();
+#endif
 	fillValidScalingRange();
 
 	ui->buttonScalingAuto->setChecked(settings["video"]["resolution"]["scaling"].Integer() == 0);
@@ -173,6 +179,7 @@ void CSettingsView::loadSettings()
 	ui->sliderRelativeCursorSpeed->setValue(settings["general"]["relativePointerSpeedMultiplier"].Integer());
 	ui->sliderLongTouchDuration->setValue(settings["general"]["longTouchTimeMilliseconds"].Integer());
 	ui->slideToleranceDistanceMouse->setValue(settings["input"]["mouseToleranceDistance"].Integer());
+	ui->buttonHandleBackRightMouseButton->setChecked(settings["input"]["handleBackRightMouseButton"].Bool());
 	ui->sliderToleranceDistanceTouch->setValue(settings["input"]["touchToleranceDistance"].Integer());
 	ui->sliderToleranceDistanceController->setValue(settings["input"]["shortcutToleranceDistance"].Integer());
 	ui->sliderControllerSticksSensitivity->setValue(settings["input"]["controllerAxisSpeed"].Integer());
@@ -201,6 +208,7 @@ void CSettingsView::loadSettings()
 void CSettingsView::loadToggleButtonSettings()
 {
 	setCheckbuttonState(ui->buttonShowIntro, settings["video"]["showIntro"].Bool());
+	setCheckbuttonState(ui->buttonAllowPortrait, settings["video"]["allowPortrait"].Bool());
 	setCheckbuttonState(ui->buttonAutoCheck, settings["launcher"]["autoCheckRepositories"].Bool());
 
 	setCheckbuttonState(ui->buttonRepositoryDefault, settings["launcher"]["defaultRepositoryEnabled"].Bool());
@@ -213,6 +221,8 @@ void CSettingsView::loadToggleButtonSettings()
 
 	setCheckbuttonState(ui->buttonRelativeCursorMode, settings["general"]["userRelativePointer"].Bool());
 	setCheckbuttonState(ui->buttonHapticFeedback, settings["general"]["hapticFeedback"].Bool());
+
+	setCheckbuttonState(ui->buttonHandleBackRightMouseButton, settings["input"]["handleBackRightMouseButton"].Bool());
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
@@ -463,6 +473,13 @@ void CSettingsView::on_buttonShowIntro_toggled(bool value)
 	Settings node = settings.write["video"]["showIntro"];
 	node->Bool() = value;
 	updateCheckbuttonText(ui->buttonShowIntro);
+}
+
+void CSettingsView::on_buttonAllowPortrait_toggled(bool value)
+{
+	Settings node = settings.write["video"]["allowPortrait"];
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonAllowPortrait);
 }
 
 void CSettingsView::on_buttonAutoSave_toggled(bool value)
@@ -840,5 +857,12 @@ void CSettingsView::on_buttonScalingAuto_toggled(bool checked)
 	
 	Settings node = settings.write["video"]["resolution"]["scaling"];
 	node->Integer() = checked ? 0 : 100;
+}
+
+void CSettingsView::on_buttonHandleBackRightMouseButton_toggled(bool checked)
+{
+	Settings node = settings.write["input"]["handleBackRightMouseButton"];
+	node->Bool() = checked;
+	updateCheckbuttonText(ui->buttonHandleBackRightMouseButton);
 }
 

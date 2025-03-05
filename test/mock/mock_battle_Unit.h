@@ -16,7 +16,7 @@ class UnitMock : public battle::Unit
 {
 public:
 	MOCK_CONST_METHOD3(getAllBonuses, TConstBonusListPtr(const CSelector &, const CSelector &, const std::string &));
-	MOCK_CONST_METHOD0(getTreeVersion, int64_t());
+	MOCK_CONST_METHOD0(getTreeVersion, int32_t());
 
 	MOCK_CONST_METHOD0(getCasterUnitId, int32_t());
 	MOCK_CONST_METHOD2(getSpellSchoolLevel, int32_t(const spells::Spell *, SpellSchool *));
@@ -28,7 +28,7 @@ public:
 	MOCK_CONST_METHOD1(getEffectValue, int64_t(const spells::Spell *));
 	MOCK_CONST_METHOD0(getCasterOwner, PlayerColor());
 	MOCK_CONST_METHOD1(getCasterName, void(MetaString &));
-	MOCK_CONST_METHOD3(getCastDescription, void(const spells::Spell *, const std::vector<const battle::Unit *> &, MetaString &));
+	MOCK_CONST_METHOD3(getCastDescription, void(const spells::Spell *, const battle::Units &, MetaString &));
 	MOCK_CONST_METHOD2(spendMana, void(ServerCallback *, const int32_t));
 	MOCK_CONST_METHOD0(manaLimit, int32_t());
 	MOCK_CONST_METHOD0(getHeroCaster, CGHeroInstance*());
@@ -57,10 +57,13 @@ public:
 	MOCK_CONST_METHOD0(isFrozen, bool());
 	MOCK_CONST_METHOD1(isValidTarget, bool(bool));
 
+	MOCK_CONST_METHOD0(isHypnotized, bool());
+	MOCK_CONST_METHOD0(isInvincible, bool());
 	MOCK_CONST_METHOD0(isClone, bool());
 	MOCK_CONST_METHOD0(hasClone, bool());
 	MOCK_CONST_METHOD0(canCast, bool());
 	MOCK_CONST_METHOD0(isCaster, bool());
+	MOCK_CONST_METHOD0(canShootBlocked, bool());
 	MOCK_CONST_METHOD0(canShoot, bool());
 	MOCK_CONST_METHOD0(isShooter, bool());
 
@@ -73,7 +76,7 @@ public:
 	MOCK_CONST_METHOD1(getTotalAttacks, int(bool));
 
 	MOCK_CONST_METHOD0(getPosition, BattleHex());
-	MOCK_METHOD1(setPosition, void(BattleHex));
+	MOCK_METHOD1(setPosition, void(const BattleHex&));
 	MOCK_CONST_METHOD1(getInitiative, int32_t(int));
 
 	MOCK_CONST_METHOD1(canMove, bool(int));

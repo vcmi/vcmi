@@ -10,12 +10,12 @@
 #include "StdInc.h"
 #include "TradePanels.h"
 
-#include "../../gui/CGuiHandler.h"
+#include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "../../render/Canvas.h"
 #include "../../widgets/TextControls.h"
 #include "../../windows/InfoWindows.h"
 
-#include "../../CGameInfo.h"
 #include "../../CPlayerInterface.h"
 
 #include "../../../CCallback.h"
@@ -139,9 +139,9 @@ int CTradeableItem::getIndex()
 		return id;
 	case EType::ARTIFACT_TYPE:
 	case EType::ARTIFACT:
-		return CGI->artifacts()->getByIndex(id)->getIconIndex();
+		return LIBRARY->artifacts()->getByIndex(id)->getIconIndex();
 	case EType::CREATURE:
-		return CGI->creatures()->getByIndex(id)->getIconIndex();
+		return LIBRARY->creatures()->getByIndex(id)->getIconIndex();
 	default:
 		return -1;
 	}
@@ -157,27 +157,27 @@ void CTradeableItem::hover(bool on)
 {
 	if(!on || id == -1)
 	{
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 		return;
 	}
 
 	switch(type)
 	{
 	case EType::CREATURE:
-		GH.statusbar()->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->getNamePluralTranslated()));
+		ENGINE->statusbar()->write(boost::str(boost::format(LIBRARY->generaltexth->allTexts[481]) % LIBRARY->creh->objects[id]->getNamePluralTranslated()));
 		break;
 	case EType::ARTIFACT_TYPE:
 	case EType::ARTIFACT:
 		if(id < 0)
-			GH.statusbar()->write(CGI->generaltexth->zelp[582].first);
+			ENGINE->statusbar()->write(LIBRARY->generaltexth->zelp[582].first);
 		else
-			GH.statusbar()->write(CGI->artifacts()->getByIndex(id)->getNameTranslated());
+			ENGINE->statusbar()->write(LIBRARY->artifacts()->getByIndex(id)->getNameTranslated());
 		break;
 	case EType::RESOURCE:
-		GH.statusbar()->write(CGI->generaltexth->restypes[id]);
+		ENGINE->statusbar()->write(LIBRARY->generaltexth->restypes[id]);
 		break;
 	case EType::PLAYER:
-		GH.statusbar()->write(CGI->generaltexth->capColors[id]);
+		ENGINE->statusbar()->write(LIBRARY->generaltexth->capColors[id]);
 		break;
 	}
 }
@@ -191,7 +191,7 @@ void CTradeableItem::showPopupWindow(const Point & cursorPosition)
 	case EType::ARTIFACT_TYPE:
 	case EType::ARTIFACT:
 		if (id >= 0)
-			CRClickPopup::createAndPush(CGI->artifacts()->getByIndex(id)->getDescriptionTranslated());
+			CRClickPopup::createAndPush(LIBRARY->artifacts()->getByIndex(id)->getDescriptionTranslated());
 		break;
 	}
 }
@@ -305,7 +305,7 @@ PlayersPanel::PlayersPanel(const CTradeableItem::ClickPressedFunctor & clickPres
 	std::vector<PlayerColor> players;
 	for(auto player = PlayerColor(0); player < PlayerColor::PLAYER_LIMIT_I; player++)
 	{
-		if(player != LOCPLINT->playerID && LOCPLINT->cb->getPlayerStatus(player) == EPlayerStatus::INGAME)
+		if(player != GAME->interface()->playerID && GAME->interface()->cb->getPlayerStatus(player) == EPlayerStatus::INGAME)
 			players.emplace_back(player);
 	}
 
@@ -316,7 +316,7 @@ PlayersPanel::PlayersPanel(const CTradeableItem::ClickPressedFunctor & clickPres
 		slot = std::make_shared<CTradeableItem>(Rect(slotsPos[slotNum], slotDimension), EType::PLAYER, players[slotNum].num, slotNum);
 		slot->clickPressedCallback = clickPressedCallback;
 		slot->setSelectionWidth(selectionWidth);
-		slot->subtitle->setText(CGI->generaltexth->capColors[players[slotNum].num]);
+		slot->subtitle->setText(LIBRARY->generaltexth->capColors[players[slotNum].num]);
 		slotNum++;
 	}
 	showcaseSlot = std::make_shared<CTradeableItem>(Rect(selectedPos, slotDimension), EType::PLAYER, 0, 0);

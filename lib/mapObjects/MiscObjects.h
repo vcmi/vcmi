@@ -16,6 +16,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CMap;
+class UpgradeInfo;
 
 // This one teleport-specific, but has to be available everywhere in callbacks and netpacks
 // For now it's will be there till teleports code refactored and moved into own file
@@ -123,37 +124,6 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-class DLL_LINKAGE CGResource : public CArmedInstance
-{
-public:
-	using CArmedInstance::CArmedInstance;
-
-	static constexpr uint32_t RANDOM_AMOUNT = 0;
-	static constexpr uint32_t GOLD_AMOUNT_MULTIPLIER = 100;
-	uint32_t amount = RANDOM_AMOUNT; //0 if random
-	
-	MetaString message;
-
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj(vstd::RNG & rand) override;
-	void pickRandomObject(vstd::RNG & rand) override;
-	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
-	std::string getHoverText(PlayerColor player) const override;
-
-	void collectRes(const PlayerColor & player) const;
-	GameResID resourceID() const;
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & static_cast<CArmedInstance&>(*this);
-		h & amount;
-		h & message;
-	}
-protected:
-	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-};
-
 class DLL_LINKAGE CGMine : public CArmedInstance, public IOwnableObject
 {
 public:
@@ -214,14 +184,12 @@ class DLL_LINKAGE CGTeleport : public CGObjectInstance
 	bool isChannelEntrance(const ObjectInstanceID & id) const;
 	bool isChannelExit(const ObjectInstanceID & id) const;
 
-	std::vector<ObjectInstanceID> getAllEntrances(bool excludeCurrent = false) const;
-
 protected:
 	enum EType {UNKNOWN, ENTRANCE, EXIT, BOTH};
 	EType type = EType::UNKNOWN;
 
 	ObjectInstanceID getRandomExit(const CGHeroInstance * h) const;
-	std::vector<ObjectInstanceID> getAllExits(bool excludeCurrent = false) const;
+
 
 public:
 	using CGObjectInstance::CGObjectInstance;
@@ -230,6 +198,9 @@ public:
 
 	bool isEntrance() const;
 	bool isExit() const;
+
+	std::vector<ObjectInstanceID> getAllEntrances(bool excludeCurrent = false) const;
+	std::vector<ObjectInstanceID> getAllExits(bool excludeCurrent = false) const;
 
 	virtual void teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const = 0;
 
@@ -404,6 +375,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(vstd::RNG & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
+	std::string getObjectDescription(PlayerColor player) const;
 
 	template <typename Handler> void serialize(Handler &h)
 	{

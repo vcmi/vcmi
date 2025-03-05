@@ -14,6 +14,7 @@
 #include "CArmedInstance.h"
 #include "IOwnableObject.h"
 
+#include "../bonuses/BonusCache.h"
 #include "../entities/hero/EHeroGender.h"
 #include "../CArtHandler.h" // For CArtifactSet
 
@@ -23,8 +24,11 @@ class CHero;
 class CGBoat;
 class CGTownInstance;
 class CMap;
+class UpgradeInfo;
+class TurnInfo;
+
 struct TerrainTile;
-struct TurnInfo;
+struct TurnInfoCache;
 
 class DLL_LINKAGE CGHeroPlaceholder : public CGObjectInstance
 {
@@ -57,8 +61,12 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 	friend class CMapFormatJson;
 
 private:
+	PrimarySkillsCache primarySkills;
+	MagicSchoolMasteryCache magicSchoolMastery;
+	BonusValueCache manaPerKnowledgeCached;
+	std::unique_ptr<TurnInfoCache> turnInfoCache;
+
 	std::set<SpellID> spells; //known spells (spell IDs)
-	mutable int lowestCreatureSpeed;
 	ui32 movement; //remaining movement points
 
 public:
@@ -200,6 +208,7 @@ public:
 	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills(vstd::RNG & rand) const;
 
 	ui8 getSecSkillLevel(const SecondarySkill & skill) const; //0 - no skill
+	int getPrimSkillLevel(PrimarySkill id) const;
 
 	/// Returns true if hero has free secondary skill slot.
 	bool canLearnSkill() const;
@@ -209,24 +218,23 @@ public:
 	void setSecSkillLevel(const SecondarySkill & which, int val, bool abs); // abs == 0 - changes by value; 1 - sets to value
 	void levelUp(const std::vector<SecondarySkill> & skills);
 
-	/// returns base movement cost for movement between specific tiles. Does not accounts for diagonal movement or last tile exception
-	ui32 getTileMovementCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const;
-
 	void setMovementPoints(int points);
 	int movementPointsRemaining() const;
 	int movementPointsLimit(bool onLand) const;
 	//cached version is much faster, TurnInfo construction is costly
 	int movementPointsLimitCached(bool onLand, const TurnInfo * ti) const;
-	//update army movement bonus
-	void updateArmyMovementBonus(bool onLand, const TurnInfo * ti) const;
 
-	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false, const TurnInfo * ti = nullptr) const;
+	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark, const TurnInfo * ti) const;
+
+	std::unique_ptr<TurnInfo> getTurnInfo(int days) const;
 
 	double getFightingStrength() const; // takes attack / defense skill into account
 	double getMagicStrength() const; // takes knowledge / spell power skill but also current mana, whether the hero owns a spell-book and whether that books contains anything into account
-	double getMagicStrengthForCampaign() const; // takes knowledge / spell power skill into account
 	double getHeroStrength() const; // includes fighting and magic strength
-	double getHeroStrengthForCampaign() const; // includes fighting and the for-campaign-version of magic strength
+
+	uint32_t getValueForCampaign() const;
+	uint64_t getValueForDiplomacy() const;
+	
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
 	int getBasePrimarySkillValue(PrimarySkill which) const; //the value of a base-skill without items or temporary bonuses
@@ -298,7 +306,7 @@ public:
 	const CGHeroInstance * getHeroCaster() const override;
 
 	void getCasterName(MetaString & text) const override;
-	void getCastDescription(const spells::Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override;
+	void getCastDescription(const spells::Spell * spell, const battle::Units & attacked, MetaString & text) const override;
 	void spendMana(ServerCallback * server, const int spellCost) const override;
 
 	void attachToBoat(CGBoat* newBoat);

@@ -47,6 +47,7 @@ private slots:
 	void on_comboBoxEnemyAI_currentTextChanged(const QString & arg1);
 	void on_spinBoxNetworkPort_valueChanged(int arg1);
 	void on_buttonShowIntro_toggled(bool value);
+	void on_buttonAllowPortrait_toggled(bool value);
 	void on_buttonAutoCheck_toggled(bool value);
 	void on_comboBoxDisplayIndex_currentIndexChanged(int index);
 	void on_buttonAutoSave_toggled(bool value);
@@ -100,6 +101,8 @@ private slots:
 	void on_sliderScalingCursor_valueChanged(int value);
 
 	void on_buttonScalingAuto_toggled(bool checked);
+
+	void on_buttonHandleBackRightMouseButton_toggled(bool checked);
 
 private:
 	Ui::CSettingsView * ui;

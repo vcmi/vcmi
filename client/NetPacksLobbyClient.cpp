@@ -25,9 +25,9 @@
 
 #include "CServerHandler.h"
 #include "GameChatHandler.h"
-#include "CGameInfo.h"
 #include "Client.h"
-#include "gui/CGuiHandler.h"
+#include "GameEngine.h"
+#include "GameInstance.h"
 #include "gui/WindowHandler.h"
 #include "widgets/Buttons.h"
 #include "widgets/TextControls.h"
@@ -55,10 +55,10 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 		}
 		else if(!settings["session"]["headless"].Bool())
 		{
-			if (GH.windows().topWindow<CSimpleJoinScreen>())
-				GH.windows().popWindows(1);
+			if (ENGINE->windows().topWindow<CSimpleJoinScreen>())
+				ENGINE->windows().popWindows(1);
 
-			if (!GH.windows().findWindows<GlobalLobbyServerSetup>().empty())
+			if (!ENGINE->windows().findWindows<GlobalLobbyServerSetup>().empty())
 			{
 				assert(handler.serverMode == EServerMode::LOBBY_HOST);
 				// announce opened game room
@@ -72,13 +72,14 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 					handler.getGlobalLobby().sendOpenRoom("public", roomPlayerLimit);
 			}
 
-			while (!GH.windows().findWindows<GlobalLobbyWindow>().empty())
+			while (!ENGINE->windows().findWindows<GlobalLobbyWindow>().empty())
 			{
 				// if global lobby is open, pop all dialogs on top of it as well as lobby itself
-				GH.windows().popWindows(1);
+				ENGINE->windows().popWindows(1);
 			}
 
-			GH.windows().createAndPushWindow<CLobbyScreen>(handler.screenType);
+			bool hideScreen = handler.campaignStateToSend && (!handler.campaignStateToSend->campaignSet.empty() || handler.campaignStateToSend->lastScenario());
+			ENGINE->windows().createAndPushWindow<CLobbyScreen>(handler.screenType, hideScreen);
 		}
 		handler.setState(EClientState::LOBBY);
 	}
@@ -95,11 +96,11 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClient
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	if(auto w = GH.windows().topWindow<CLoadingScreen>())
-		GH.windows().popWindow(w);
+	if(auto w = ENGINE->windows().topWindow<CLoadingScreen>())
+		ENGINE->windows().popWindow(w);
 	
-	if(GH.windows().count() > 0)
-		GH.windows().popWindows(1);
+	if(ENGINE->windows().count() > 0)
+		ENGINE->windows().popWindows(1);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)
@@ -170,7 +171,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pac
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+	if(auto w = ENGINE->windows().topWindow<CLoadingScreen>())
 	{
 		w->finish();
 		w->tick(0);
@@ -180,7 +181,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyLoadProgress(LobbyLoadProgress & pack)
 {
-	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+	if(auto w = ENGINE->windows().topWindow<CLoadingScreen>())
 	{
 		w->set(pack.progress);
 		w->tick(0);
@@ -208,17 +209,17 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	{
 		auto bonusSel = std::make_shared<CBonusSelection>();
 		lobby->bonusSel = bonusSel;
-		if(!handler.si->campState->conqueredScenarios().size() && !handler.si->campState->getIntroVideo().empty() && CCS->videoh->open(handler.si->campState->getIntroVideo(), 1))
+		if(!handler.si->campState->conqueredScenarios().size() && !handler.si->campState->getIntroVideo().empty() && ENGINE->video().open(handler.si->campState->getIntroVideo(), 1))
 		{
-			CCS->musich->stopMusic();
-			GH.windows().createAndPushWindow<VideoWindow>(handler.si->campState->getIntroVideo(), handler.si->campState->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : handler.si->campState->getVideoRim(), false, 1, [bonusSel](bool skipped){
-				if(!CSH->si->campState->getMusic().empty())
-					CCS->musich->playMusic(CSH->si->campState->getMusic(), true, false);
-				GH.windows().pushWindow(bonusSel);
+			ENGINE->music().stopMusic();
+			ENGINE->windows().createAndPushWindow<VideoWindow>(handler.si->campState->getIntroVideo(), handler.si->campState->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : handler.si->campState->getVideoRim(), false, 1, [bonusSel](bool skipped){
+				if(!GAME->server().si->campState->getMusic().empty())
+					ENGINE->music().playMusic(GAME->server().si->campState->getMusic(), true, false);
+				ENGINE->windows().pushWindow(bonusSel);
 			});
 		}
 		else
-			GH.windows().pushWindow(bonusSel);
+			ENGINE->windows().pushWindow(bonusSel);
 	}
 
 	if(lobby->bonusSel)

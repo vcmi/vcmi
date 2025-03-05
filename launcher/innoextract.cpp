@@ -93,6 +93,7 @@ QString Innoextract::getHashError(QString exeFile, QString binFile, QString exeF
 		{ H3_COMPLETE, "french",     822688,  998540653, "fbb300eeef52f5d81a571a178723b19313e3856d", "4f4d90ff2f60968616766237664744bc54754500" }, // setup_heroes_of_might_and_magic_3_complete_4.0_(3.2)_gog_0.1_(french)_(77075).exe
 		{ H3_COMPLETE, "polish",     819904,  851750601, "a413b0b9f3d5ca3e1a57e84a42de28c67d77b1a7", "fd9fe58bcbb8b442e8cfc299d90f1d503f281d40" }, // setup_heroes_of_might_and_magic_3_complete_4.0_(3.2)_gog_0.1_(polish)_(77075).exe
 		{ H3_COMPLETE, "russian",    819416,  981633128, "e84eedf62fe2e5f9171a7e1ce6e99315a09ce41f", "49cc683395c0cf80830bfa66e42bb5dfdb7aa124" }, // setup_heroes_of_might_and_magic_3_complete_4.0_(3.2)_gog_0.1_(russian)_(77075).exe
+		{ CHR,         "english", 689384280,          0, "81f6e306103cca7dd413c4476eeda65eb790e9e6", ""                                         }, // setup_heroes_chronicles_2.0.0.38.exe
 		{ CHR,         "english", 485694752,          0, "44e4fc2c38261a1c2a57d5198f44493210e8fc1a", ""                                         }, // setup_heroes_chronicles_chapter1_2.1.0.42.exe
 		{ CHR,         "english", 493102840,          0, "b479a3272cf4b57a6b7fc499df5eafb624dcd6de", ""                                         }, // setup_heroes_chronicles_chapter2_2.1.0.43.exe
 		{ CHR,         "english", 470364128,          0, "5ad36d822e1700c9ecf93b78652900a52518146b", ""                                         }, // setup_heroes_chronicles_chapter3_2.1.0.41.exe
@@ -127,17 +128,17 @@ QString Innoextract::getHashError(QString exeFile, QString binFile, QString exeF
 	exeInfoOriginal = doHash(QFile(exeFileOriginal));
 	if(!binFileOriginal.isEmpty())
 		binInfoOriginal = doHash(QFile(binFileOriginal));
-	
+
 	if(exeInfo.hash.empty() || (!binFile.isEmpty() && binInfo.hash.empty()))
 		return QString{}; // hashing not possible -> previous error is enough
 
-	QString hashOutput = tr("SHA1 hash of provided files:\nExe (%1 bytes):\n%2").arg(QString::number(exeInfo.size), QString::fromStdString(exeInfo.hash));
+	QString hashOutput = tr("SHA1 hash of provided files:\nExe (%n bytes):\n%1", "param is hash", exeInfo.size).arg(QString::fromStdString(exeInfo.hash));
 	if(!binInfo.hash.empty())
-		hashOutput += tr("\nBin (%1 bytes):\n%2").arg(QString::number(binInfo.size), QString::fromStdString(binInfo.hash));
-	
+		hashOutput += tr("\nBin (%n bytes):\n%1", "param is hash", binInfo.size).arg(QString::fromStdString(binInfo.hash));
+
 	if((!exeInfoOriginal.hash.empty() && exeInfo.hash != exeInfoOriginal.hash) || (!binInfoOriginal.hash.empty() && !binFile.isEmpty() && !binFileOriginal.isEmpty() && binInfo.hash != binInfoOriginal.hash))
 		return tr("Internal copy process failed. Enough space on device?\n\n%1").arg(hashOutput);
-	
+
 	QString foundKnown;
 	QString exeLang;
 	QString binLang;

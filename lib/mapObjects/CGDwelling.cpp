@@ -102,8 +102,8 @@ FactionID CGDwelling::randomizeFaction(vstd::RNG & rand)
 
 	std::vector<FactionID> potentialPicks;
 
-	for (FactionID faction(0); faction < FactionID(VLC->townh->size()); ++faction)
-		if (VLC->factions()->getById(faction)->hasTown())
+	for (FactionID faction(0); faction < FactionID(LIBRARY->townh->size()); ++faction)
+		if (LIBRARY->factions()->getById(faction)->hasTown())
 			potentialPicks.push_back(faction);
 
 	assert(!potentialPicks.empty());
@@ -137,16 +137,16 @@ void CGDwelling::pickRandomObject(vstd::RNG & rand)
 		assert(level >= 0 && level <= 6);
 		randomizationInfo.reset();
 
-		CreatureID cid = (*VLC->townh)[faction]->town->creatures[level][0];
+		CreatureID cid = (*LIBRARY->townh)[faction]->town->creatures[level][0];
 
 		//NOTE: this will pick last dwelling with this creature (Mantis #900)
 		//check for block map equality is better but more complex solution
 		auto testID = [&](const Obj & primaryID) -> MapObjectSubID
 		{
-			auto dwellingIDs = VLC->objtypeh->knownSubObjects(primaryID);
+			auto dwellingIDs = LIBRARY->objtypeh->knownSubObjects(primaryID);
 			for (MapObjectSubID entry : dwellingIDs)
 			{
-				const auto * handler = dynamic_cast<const DwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(primaryID, entry).get());
+				const auto * handler = dynamic_cast<const DwellingInstanceConstructor *>(LIBRARY->objtypeh->getHandlerFor(primaryID, entry).get());
 
 				if (!handler->isBannedForRandomDwelling() && handler->producesCreature(cid.toCreature()))
 					return MapObjectSubID(entry);
@@ -165,9 +165,9 @@ void CGDwelling::pickRandomObject(vstd::RNG & rand)
 
 		if (subID == MapObjectSubID())
 		{
-			logGlobal->error("Error: failed to find dwelling for %s of level %d", (*VLC->townh)[faction]->getNameTranslated(), int(level));
+			logGlobal->error("Error: failed to find dwelling for %s of level %d", (*LIBRARY->townh)[faction]->getNameTranslated(), int(level));
 			ID = Obj::CREATURE_GENERATOR1;
-			subID = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), rand);
+			subID = *RandomGeneratorUtil::nextItem(LIBRARY->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), rand);
 		}
 
 		setType(ID, subID);
@@ -217,7 +217,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 44); //{%s} \n\n The camp is deserted.  Perhaps you should try next week.
-		iw.text.replaceName(ID);
+		iw.text.replaceName(ID, subID);
 		cb->sendAndApply(iw);
 		return;
 	}
@@ -260,7 +260,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	else if(ID == Obj::REFUGEE_CAMP)
 	{
 		bd.text.appendLocalString(EMetaText::ADVOB_TXT, 35); //{%s} Would you like to recruit %s?
-		bd.text.replaceName(ID);
+		bd.text.replaceName(ID, subID);
 		for(const auto & elem : creatures)
 			bd.text.replaceNamePlural(elem.second[0]);
 	}
@@ -269,7 +269,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	else
 		throw std::runtime_error("Illegal dwelling!");
 
-	if(ID == Obj::REFUGEE_CAMP || (ID == Obj::CREATURE_GENERATOR1 && VLC->creatures()->getById(creatures[0].second[0])->getLevel() != 1))
+	if(ID == Obj::REFUGEE_CAMP || (ID == Obj::CREATURE_GENERATOR1 && LIBRARY->creatures()->getById(creatures[0].second[0])->getLevel() != 1))
 	{
 		bd.flags |= BlockingDialog::SAFE_TO_AUTOACCEPT;
 	}
@@ -288,7 +288,7 @@ void CGDwelling::newTurn(vstd::RNG & rand) const
 
 	if(ID == Obj::REFUGEE_CAMP) //if it's a refugee camp, we need to pick an available creature
 	{
-		cb->setObjPropertyID(id, ObjProperty::AVAILABLE_CREATURE, VLC->creh->pickRandomMonster(rand));
+		cb->setObjPropertyID(id, ObjProperty::AVAILABLE_CREATURE, LIBRARY->creh->pickRandomMonster(rand));
 	}
 
 	bool change = false;
@@ -365,7 +365,7 @@ void CGDwelling::updateGuards() const
 	//default condition - creatures are of level 5 or higher
 	for (auto creatureEntry : creatures)
 	{
-		if (VLC->creatures()->getById(creatureEntry.second.at(0))->getLevel() >= 5 && ID != Obj::REFUGEE_CAMP)
+		if (LIBRARY->creatures()->getById(creatureEntry.second.at(0))->getLevel() >= 5 && ID != Obj::REFUGEE_CAMP)
 		{
 			guarded = true;
 			break;

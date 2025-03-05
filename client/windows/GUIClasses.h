@@ -498,11 +498,13 @@ class CThievesGuildWindow : public CStatusbarWindow
 	std::vector<std::shared_ptr<CLabel>> rowHeaders;
 	std::vector<std::shared_ptr<CAnimImage>> columnBackgrounds;
 	std::vector<std::shared_ptr<CLabel>> columnHeaders;
+	std::vector<std::shared_ptr<CAnimImage>> columnHeaderIcons;
 	std::vector<std::shared_ptr<CAnimImage>> cells;
 
 	std::vector<std::shared_ptr<CPicture>> banners;
 	std::vector<std::shared_ptr<CAnimImage>> bestHeroes;
-	std::vector<std::shared_ptr<CTextBox>> primSkillHeaders;
+	std::vector<std::shared_ptr<CLabel>> primSkillHeaders;
+	std::vector<std::shared_ptr<LRClickableArea>> primSkillHeadersArea;
 	std::vector<std::shared_ptr<CLabel>> primSkillValues;
 	std::vector<std::shared_ptr<CAnimImage>> bestCreatures;
 	std::vector<std::shared_ptr<CLabel>> personalities;
@@ -515,6 +517,7 @@ class VideoWindow : public CWindowObject, public IVideoHolder
 	std::shared_ptr<VideoWidgetOnce> videoPlayer;
 	std::shared_ptr<CFilledTexture> backgroundAroundWindow;
 	std::shared_ptr<GraphicalPrimitiveCanvas> blackBackground;
+	bool showBackground;
 
 	std::function<void(bool)> closeCb;
 
@@ -526,4 +529,5 @@ public:
 	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
 	void notFocusedClick() override;
+	void showAll(Canvas & to) override;
 };

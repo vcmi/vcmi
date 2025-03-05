@@ -22,7 +22,7 @@ void ShipyardInstanceConstructor::initTypeData(const JsonNode & config)
 
 void ShipyardInstanceConstructor::initializeObject(CGShipyard * shipyard) const
 {
-	shipyard->createdBoat = BoatId(*VLC->identifiers()->getIdentifier("core:boat", parameters["boat"]));
+	shipyard->createdBoat = BoatId(*LIBRARY->identifiers()->getIdentifier("core:boat", parameters["boat"]));
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -83,6 +83,7 @@ public:
 	ESelectionScreen screenType;
 	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CPicture> picture;
+	std::shared_ptr<CTextBox> textTitle;
 	std::shared_ptr<CTextInput> playerName;
 	std::shared_ptr<CButton> buttonHotseat;
 	std::shared_ptr<CButton> buttonLobby;
@@ -93,8 +94,8 @@ public:
 
 	CMultiMode(ESelectionScreen ScreenType);
 	void openLobby();
-	void hostTCP();
-	void joinTCP();
+	void hostTCP(EShortcut shortcut);
+	void joinTCP(EShortcut shortcut);
 
 	/// Get all configured player names. The first name would always be present and initialized to its default value.
 	std::vector<std::string> getPlayersNames();
@@ -119,7 +120,7 @@ class CMultiPlayers : public WindowBase
 	void enterSelectionScreen();
 
 public:
-	CMultiPlayers(const std::vector<std::string> & playerNames, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode);
+	CMultiPlayers(const std::vector<std::string> & playerNames, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode, EShortcut shortcut);
 };
 
 /// Manages the configuration of pregame GUI elements like campaign screen, main menu, loading screen,...
@@ -138,29 +139,27 @@ private:
 };
 
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
-class CMainMenu : public CIntObject, public IUpdateable, public std::enable_shared_from_this<CMainMenu>
+class CMainMenu final : public CIntObject, public std::enable_shared_from_this<CMainMenu>
 {
 	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
 	std::vector<VideoPath> videoPlayList;
 
-	CMainMenu(); //Use CMainMenu::create
-
 public:
+	CMainMenu();
+
 	std::shared_ptr<CMenuScreen> menu;
 
 	~CMainMenu();
 	void activate() override;
 	void onScreenResize() override;
-	void update() override;
+	void makeActiveInterface();
 	static void openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode);
 	static void openCampaignLobby(const std::string & campaignFileName, std::string campaignSet = "");
 	static void openCampaignLobby(std::shared_ptr<CampaignState> campaign);
 	static void startTutorial();
 	static void openHighScoreScreen();
 	void openCampaignScreen(std::string name);
-
-	static std::shared_ptr<CMainMenu> create();
 
 	static std::shared_ptr<CPicture> createPicture(const JsonNode & config);
 
@@ -202,4 +201,4 @@ public:
 	void tick(uint32_t msPassed) override;
 };
 
-extern std::shared_ptr<CMainMenu> CMM;
+

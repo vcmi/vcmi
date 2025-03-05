@@ -17,7 +17,7 @@
 #include "../../lib/CThreadHelper.h"
 
 #include "../../lib/GameConstants.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -26,6 +26,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct QuestInfo;
+class PathfinderCache;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -33,8 +34,8 @@ class AIhelper;
 
 class AIStatus
 {
-	boost::mutex mx;
-	boost::condition_variable cv;
+	std::mutex mx;
+	std::condition_variable cv;
 
 	BattleState battle;
 	std::map<QueryID, std::string> remainingQueries;
@@ -80,6 +81,7 @@ public:
 	std::vector<ObjectInstanceID> teleportChannelProbingList; //list of teleport channel exits that not visible and need to be (re-)explored
 	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<HeroPtr, std::set<const CGTownInstance *>> townVisitsThisWeek;
+	std::unique_ptr<PathfinderCache> pathfinderCache;
 
 	//part of mainLoop, but accessible from outside
 	std::vector<Goals::TSubgoal> basicGoals;
@@ -105,7 +107,7 @@ public:
 
 	std::unique_ptr<boost::thread> makingTurn;
 private:
-	boost::mutex turnInterruptionMutex;
+	std::mutex turnInterruptionMutex;
 public:
 	ObjectInstanceID selectedObject;
 
@@ -254,6 +256,8 @@ public:
 	std::vector<HeroPtr> getMyHeroes() const;
 	HeroPtr primaryHero() const;
 	void checkHeroArmy(HeroPtr h);
+	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h) const;
+	void invalidatePaths() override;
 
 	void requestSent(const CPackForServer * pack, int requestID) override;
 	void answerQuery(QueryID queryID, int selection);

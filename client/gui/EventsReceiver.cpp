@@ -11,7 +11,7 @@
 #include "EventsReceiver.h"
 
 #include "MouseButton.h"
-#include "CGuiHandler.h"
+#include "GameEngine.h"
 #include "EventDispatcher.h"
 
 AEventsReceiver::AEventsReceiver()
@@ -42,7 +42,7 @@ void AEventsReceiver::activateEvents(ui16 what)
 	assert((what & GENERAL) || (activeState & GENERAL));
 
 	activeState |= GENERAL;
-	GH.events().activateElement(this, what);
+	ENGINE->events().activateElement(this, what);
 }
 
 void AEventsReceiver::deactivateEvents(ui16 what)
@@ -56,7 +56,7 @@ void AEventsReceiver::deactivateEvents(ui16 what)
 		// if element is deactivated (has GENERAL flag) then all existing active events should also be deactivated
 		what = activeState;
 	}
-	GH.events().deactivateElement(this, what & activeState);
+	ENGINE->events().deactivateElement(this, what & activeState);
 
 	if (!(activeState & GESTURE) && panningState)
 		panningState = false;

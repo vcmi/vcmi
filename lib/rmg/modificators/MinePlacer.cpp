@@ -12,6 +12,7 @@
 #include "../RmgMap.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../mapObjects/CGResource.h"
 #include "../../mapObjects/MiscObjects.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../RmgPath.h"
@@ -57,7 +58,7 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 		const auto res = GameResID(mineInfo.first);
 		for(int i = 0; i < mineInfo.second; ++i)
 		{
-			auto mineHandler = VLC->objtypeh->getHandlerFor(Obj::MINE, res);
+			auto mineHandler = LIBRARY->objtypeh->getHandlerFor(Obj::MINE, res);
 			const auto & rmginfo = mineHandler->getRMGInfo();
 			auto * mine = dynamic_cast<CGMine *>(mineHandler->create(map.mapInstance->cb, nullptr));
 			mine->producedResource = res;
@@ -90,8 +91,7 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 		{
 			for(int rc = zone.getRand().nextInt(1, extraRes); rc > 0; --rc)
 			{
-				auto * resource = dynamic_cast<CGResource *>(VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(map.mapInstance->cb, nullptr));
-				resource->amount = CGResource::RANDOM_AMOUNT;
+				auto * resource = dynamic_cast<CGResource *>(LIBRARY->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(map.mapInstance->cb, nullptr));
 
 				RequiredObjectInfo roi;
 				roi.obj = resource;

@@ -14,36 +14,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-BonusList::BonusList(bool BelongsToTree) : belongsToTree(BelongsToTree)
-{
-}
-
-BonusList::BonusList(const BonusList & bonusList): belongsToTree(false)
-{
-	bonuses.resize(bonusList.size());
-	std::copy(bonusList.begin(), bonusList.end(), bonuses.begin());
-}
-
-BonusList::BonusList(BonusList && other) noexcept: belongsToTree(false)
-{
-	std::swap(belongsToTree, other.belongsToTree);
-	std::swap(bonuses, other.bonuses);
-}
-
-BonusList& BonusList::operator=(const BonusList &bonusList)
-{
-	bonuses.resize(bonusList.size());
-	std::copy(bonusList.begin(), bonusList.end(), bonuses.begin());
-	belongsToTree = false;
-	return *this;
-}
-
-void BonusList::changed() const
-{
-    if(belongsToTree)
-		CBonusSystemNode::treeHasChanged();
-}
-
 void BonusList::stackBonuses()
 {
 	boost::sort(bonuses, [](const std::shared_ptr<Bonus> & b1, const std::shared_ptr<Bonus> & b2) -> bool
@@ -83,10 +53,10 @@ void BonusList::stackBonuses()
 	}
 }
 
-int BonusList::totalValue() const
+int BonusList::totalValue(int baseValue) const
 {
 	if (bonuses.empty())
-		return 0;
+		return baseValue;
 
 	struct BonusCollection
 	{
@@ -104,6 +74,7 @@ int BonusList::totalValue() const
 	};
 
 	BonusCollection accumulated;
+	accumulated.base = baseValue;
 	int indexMaxCount = 0;
 	int indexMinCount = 0;
 
@@ -195,7 +166,6 @@ std::shared_ptr<const Bonus> BonusList::getFirst(const CSelector &selector) cons
 
 void BonusList::getBonuses(BonusList & out, const CSelector &selector, const CSelector &limit) const
 {
-	out.reserve(bonuses.size());
 	for(const auto & b : bonuses)
 	{
 		if(selector(b.get()) && (!limit || ((bool)limit && limit(b.get()))))
@@ -209,12 +179,12 @@ void BonusList::getAllBonuses(BonusList &out) const
 		out.push_back(b);
 }
 
-int BonusList::valOfBonuses(const CSelector &select) const
+int BonusList::valOfBonuses(const CSelector &select, int baseValue) const
 {
 	BonusList ret;
 	CSelector limit = nullptr;
 	getBonuses(ret, select, limit);
-	return ret.totalValue();
+	return ret.totalValue(baseValue);
 }
 
 JsonNode BonusList::toJsonNode() const
@@ -228,19 +198,16 @@ JsonNode BonusList::toJsonNode() const
 void BonusList::push_back(const std::shared_ptr<Bonus> & x)
 {
 	bonuses.push_back(x);
-	changed();
 }
 
 BonusList::TInternalContainer::iterator BonusList::erase(const int position)
 {
-	changed();
 	return bonuses.erase(bonuses.begin() + position);
 }
 
 void BonusList::clear()
 {
 	bonuses.clear();
-	changed();
 }
 
 std::vector<BonusList *>::size_type BonusList::operator-=(const std::shared_ptr<Bonus> & i)
@@ -249,25 +216,17 @@ std::vector<BonusList *>::size_type BonusList::operator-=(const std::shared_ptr<
 	if(itr == bonuses.end())
 		return false;
 	bonuses.erase(itr);
-	changed();
 	return true;
 }
 
 void BonusList::resize(BonusList::TInternalContainer::size_type sz, const std::shared_ptr<Bonus> & c)
 {
 	bonuses.resize(sz, c);
-	changed();
-}
-
-void BonusList::reserve(TInternalContainer::size_type sz)
-{
-	bonuses.reserve(sz);
 }
 
 void BonusList::insert(BonusList::TInternalContainer::iterator position, BonusList::TInternalContainer::size_type n, const std::shared_ptr<Bonus> & x)
 {
 	bonuses.insert(position, n, x);
-	changed();
 }
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const BonusList &bonusList)

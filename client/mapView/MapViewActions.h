@@ -36,6 +36,7 @@ public:
 	void clickReleased(const Point & cursorPosition) override;
 	void clickCancel(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
+	void closePopupWindow(bool alreadyClosed) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void gesturePinch(const Point & centerPosition, double lastUpdateFactor) override;
 	void hover(bool on) override;

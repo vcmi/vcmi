@@ -40,15 +40,23 @@ namespace PathfinderUtil
 				}
 				else
 				{
+					bool hasBlockedVisitable = false;
+					bool hasVisitable = false;
+
 					for(const CGObjectInstance * obj : tinfo.visitableObjects)
 					{
 						if(obj->isBlockedVisitable())
-							return EPathAccessibility::BLOCKVIS;
-						else if(obj->passableFor(player))
-							return EPathAccessibility::ACCESSIBLE;
-						else if(obj->ID != Obj::EVENT)
-							return EPathAccessibility::VISITABLE;
+							hasBlockedVisitable = true;
+						else if(!obj->passableFor(player) && obj->ID != Obj::EVENT)
+							hasVisitable = true;
 					}
+
+					if(hasBlockedVisitable)
+						return EPathAccessibility::BLOCKVIS;
+					if(hasVisitable)
+						return EPathAccessibility::VISITABLE;
+
+					return EPathAccessibility::ACCESSIBLE;
 				}
 			}
 			else if(tinfo.blocked())

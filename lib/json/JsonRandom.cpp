@@ -19,7 +19,7 @@
 #include "JsonBonus.h"
 
 #include "../constants/StringConstants.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../CArtHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
@@ -34,6 +34,21 @@
 #include "../modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+std::string JsonRandomizationException::cleanupJson(const JsonNode & value)
+{
+	std::string result = value.toCompactString();
+	for (size_t i = 0; i < result.size(); ++i)
+		if (result[i] == '\n')
+			result[i] = ' ';
+
+	return result;
+}
+
+JsonRandomizationException::JsonRandomizationException(const std::string & message, const JsonNode & input)
+	: std::runtime_error(message + " Input was: " + cleanupJson(input))
+{}
+
 
 	si32 JsonRandom::loadVariable(const std::string & variableGroup, const std::string & value, const Variables & variables, si32 defaultValue)
 	{
@@ -84,7 +99,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 	IdentifierType JsonRandom::decodeKey(const std::string & modScope, const std::string & value, const Variables & variables)
 	{
 		if (value.empty() || value[0] != '@')
-			return IdentifierType(VLC->identifiers()->getIdentifier(modScope, IdentifierType::entityType(), value).value_or(-1));
+			return IdentifierType(LIBRARY->identifiers()->getIdentifier(modScope, IdentifierType::entityType(), value).value_or(-1));
 		else
 			return loadVariable(IdentifierType::entityType(), value, variables, IdentifierType::NONE);
 	}
@@ -93,7 +108,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 	IdentifierType JsonRandom::decodeKey(const JsonNode & value, const Variables & variables)
 	{
 		if (value.String().empty() || value.String()[0] != '@')
-			return IdentifierType(VLC->identifiers()->getIdentifier(IdentifierType::entityType(), value).value_or(-1));
+			return IdentifierType(LIBRARY->identifiers()->getIdentifier(IdentifierType::entityType(), value).value_or(-1));
 		else
 			return loadVariable(IdentifierType::entityType(), value.String(), variables, IdentifierType::NONE);
 	}
@@ -101,20 +116,20 @@ VCMI_LIB_NAMESPACE_BEGIN
 	template<>
 	PlayerColor JsonRandom::decodeKey(const JsonNode & value, const Variables & variables)
 	{
-		return PlayerColor(*VLC->identifiers()->getIdentifier("playerColor", value));
+		return PlayerColor(*LIBRARY->identifiers()->getIdentifier("playerColor", value));
 	}
 
 	template<>
 	PrimarySkill JsonRandom::decodeKey(const JsonNode & value, const Variables & variables)
 	{
-		return PrimarySkill(*VLC->identifiers()->getIdentifier("primarySkill", value));
+		return PrimarySkill(*LIBRARY->identifiers()->getIdentifier("primarySkill", value));
 	}
 
 	template<>
 	PrimarySkill JsonRandom::decodeKey(const std::string & modScope, const std::string & value, const Variables & variables)
 	{
 		if (value.empty() || value[0] != '@')
-			return PrimarySkill(*VLC->identifiers()->getIdentifier(modScope, "primarySkill", value));
+			return PrimarySkill(*LIBRARY->identifiers()->getIdentifier(modScope, "primarySkill", value));
 		else
 			return PrimarySkill(loadVariable("primarySkill", value, variables, PrimarySkill::NONE.getNum()));
 	}
@@ -198,17 +213,17 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 			vstd::erase_if(result, [=](const SpellID & spell)
 			{
-				return VLC->spellh->getById(spell)->getLevel() != spellLevel;
+				return LIBRARY->spellh->getById(spell)->getLevel() != spellLevel;
 			});
 		}
 
 		if (!value["school"].isNull())
 		{
-			int32_t schoolID = VLC->identifiers()->getIdentifier("spellSchool", value["school"]).value();
+			int32_t schoolID = LIBRARY->identifiers()->getIdentifier("spellSchool", value["school"]).value();
 
 			vstd::erase_if(result, [=](const SpellID & spell)
 			{
-				return !VLC->spellh->getById(spell)->hasSchool(SpellSchool(schoolID));
+				return !LIBRARY->spellh->getById(spell)->hasSchool(SpellSchool(schoolID));
 			});
 		}
 		return result;
@@ -345,7 +360,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 	SecondarySkill JsonRandom::loadSecondary(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		std::set<SecondarySkill> defaultSkills;
-		for(const auto & skill : VLC->skillh->objects)
+		for(const auto & skill : LIBRARY->skillh->objects)
 			if (cb->isAllowed(skill->getId()))
 				defaultSkills.insert(skill->getId());
 
@@ -367,7 +382,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		if(value.isVector())
 		{
 			std::set<SecondarySkill> defaultSkills;
-			for(const auto & skill : VLC->skillh->objects)
+			for(const auto & skill : LIBRARY->skillh->objects)
 				if (cb->isAllowed(skill->getId()))
 					defaultSkills.insert(skill->getId());
 
@@ -386,8 +401,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 	ArtifactID JsonRandom::loadArtifact(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		std::set<ArtifactID> allowedArts;
-		for(const auto & artifact : VLC->arth->objects)
-			if (cb->isAllowed(artifact->getId()) && VLC->arth->legalArtifact(artifact->getId()))
+		for(const auto & artifact : LIBRARY->arth->objects)
+			if (cb->isAllowed(artifact->getId()) && LIBRARY->arth->legalArtifact(artifact->getId()))
 				allowedArts.insert(artifact->getId());
 
 		std::set<ArtifactID> potentialPicks = filterKeys(value, allowedArts, variables);
@@ -408,7 +423,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 	SpellID JsonRandom::loadSpell(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
 	{
 		std::set<SpellID> defaultSpells;
-		for(const auto & spell : VLC->spellh->objects)
+		for(const auto & spell : LIBRARY->spellh->objects)
 			if (cb->isAllowed(spell->getId()) && !spell->isSpecial())
 				defaultSpells.insert(spell->getId());
 
@@ -453,7 +468,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		std::vector<HeroTypeID> ret;
 		for(auto & entry : value.Vector())
 		{
-			ret.push_back(VLC->heroTypes()->getByIndex(VLC->identifiers()->getIdentifier("hero", entry.String()).value())->getId());
+			ret.push_back(LIBRARY->heroTypes()->getByIndex(LIBRARY->identifiers()->getIdentifier("hero", entry.String()).value())->getId());
 		}
 		return ret;
 	}
@@ -463,7 +478,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		std::vector<HeroClassID> ret;
 		for(auto & entry : value.Vector())
 		{
-			ret.push_back(VLC->heroClasses()->getByIndex(VLC->identifiers()->getIdentifier("heroClass", entry.String()).value())->getId());
+			ret.push_back(LIBRARY->heroClasses()->getByIndex(LIBRARY->identifiers()->getIdentifier("heroClass", entry.String()).value())->getId());
 		}
 		return ret;
 	}
@@ -473,7 +488,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		CStackBasicDescriptor stack;
 
 		std::set<CreatureID> defaultCreatures;
-		for(const auto & creature : VLC->creh->objects)
+		for(const auto & creature : LIBRARY->creh->objects)
 			if (!creature->special)
 				defaultCreatures.insert(creature->getId());
 
@@ -483,7 +498,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 		if (!potentialPicks.empty())
 			pickedCreature = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 		else
-			logMod->warn("Failed to select suitable random creature!");
+			throw JsonRandomizationException("No potential creatures to pick!", value);
+
+		if (!pickedCreature.hasValue())
+			throw JsonRandomizationException("Invalid creature picked!", value);
 
 		stack.setType(pickedCreature.toCreature());
 		stack.count = loadValue(value, rng, variables);
@@ -521,7 +539,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 				info.minAmount = static_cast<si32>(node["min"].Float());
 				info.maxAmount = static_cast<si32>(node["max"].Float());
 			}
-			CreatureID creatureID(VLC->identifiers()->getIdentifier("creature", node["type"]).value());
+			CreatureID creatureID(LIBRARY->identifiers()->getIdentifier("creature", node["type"]).value());
 			const CCreature * crea = creatureID.toCreature();
 			info.allowedCreatures.push_back(crea);
 			if (node["upgradeChance"].Float() > 0)

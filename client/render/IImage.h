@@ -47,19 +47,32 @@ enum class EImageBlitMode : uint8_t
 	WITH_SHADOW,
 
 	/// RGBA, may consist from 3 separate parts: base, shadow, and overlay
-	WITH_SHADOW_AND_OVERLAY,
+	WITH_SHADOW_AND_SELECTION,
+	WITH_SHADOW_AND_FLAG_COLOR,
 
 	/// RGBA, contains only body, with shadow and overlay disabled
-	ONLY_BODY,
+	GRAYSCALE_BODY_HIDE_SELECTION,
+	ONLY_BODY_HIDE_SELECTION,
+	ONLY_BODY_HIDE_FLAG_COLOR,
 
 	/// RGBA, contains only body, with shadow disabled and overlay treated as part of body
 	ONLY_BODY_IGNORE_OVERLAY,
 
 	/// RGBA, contains only shadow
-	ONLY_SHADOW,
+	ONLY_SHADOW_HIDE_SELECTION,
+	ONLY_SHADOW_HIDE_FLAG_COLOR,
 
 	/// RGBA, contains only overlay
-	ONLY_OVERLAY,
+	ONLY_SELECTION,
+	ONLY_FLAG_COLOR,
+};
+
+enum class EScalingAlgorithm : int8_t
+{
+	NEAREST,
+	BILINEAR,
+	XBRZ_OPAQUE, // xbrz, image edges are considered to have same color as pixel inside image. Only for integer scaling
+	XBRZ_ALPHA // xbrz, image edges are considered to be transparent. Only for integer scaling
 };
 
 /// Base class for images for use in client code.
@@ -68,18 +81,19 @@ class IImage
 {
 public:
 	//draws image on surface "where" at position
-	virtual void draw(SDL_Surface * where, const Point & pos, const Rect * src = nullptr) const = 0;
+	virtual void draw(SDL_Surface * where, const Point & pos, const Rect * src, int scalingFactor) const = 0;
 
-	virtual void scaleTo(const Point & size) = 0;
-	virtual void scaleInteger(int factor) = 0;
+	virtual void scaleTo(const Point & size, EScalingAlgorithm algorithm) = 0;
 
 	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
 
 	//Change palette to specific player
-	virtual void playerColored(PlayerColor player) = 0;
+	virtual void playerColored(const PlayerColor & player) = 0;
 
 	//test transparency of specific pixel
 	virtual bool isTransparent(const Point & coords) const = 0;
+
+	virtual Rect contentRect() const = 0;
 
 	virtual Point dimensions() const = 0;
 	int width() const;
@@ -90,12 +104,9 @@ public:
 	virtual void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) = 0;
 
 	virtual void setAlpha(uint8_t value) = 0;
-	virtual void setBlitMode(EImageBlitMode mode) = 0;
 
-	//only indexed bitmaps with 7 special colors
 	virtual void setOverlayColor(const ColorRGBA & color) = 0;
-
-	virtual std::shared_ptr<const ISharedImage> getSharedImage() const = 0;
+	virtual void setEffectColor(const ColorRGBA & color) = 0;
 
 	virtual ~IImage() = default;
 };
@@ -109,15 +120,21 @@ public:
 	virtual Point dimensions() const = 0;
 	virtual void exportBitmap(const boost::filesystem::path & path, SDL_Palette * palette) const = 0;
 	virtual bool isTransparent(const Point & coords) const = 0;
+	virtual Rect contentRect() const = 0;
+
+	virtual void scaledDraw(SDL_Surface * where, SDL_Palette * palette, const Point & scaling, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const = 0;
 	virtual void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const = 0;
 
-	[[nodiscard]] virtual std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) const = 0;
+	/// Returns true if this image is still loading and can't be used
+	virtual bool isLoading() const = 0;
+
+	virtual ~ISharedImage() = default;
+
+	virtual const SDL_Palette * getPalette() const = 0;
 
 	[[nodiscard]] virtual std::shared_ptr<const ISharedImage> horizontalFlip() const = 0;
 	[[nodiscard]] virtual std::shared_ptr<const ISharedImage> verticalFlip() const = 0;
 	[[nodiscard]] virtual std::shared_ptr<const ISharedImage> scaleInteger(int factor, SDL_Palette * palette, EImageBlitMode blitMode) const = 0;
 	[[nodiscard]] virtual std::shared_ptr<const ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const = 0;
 
-
-	virtual ~ISharedImage() = default;
 };

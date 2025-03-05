@@ -275,6 +275,15 @@ public:
 		for(uint32_t i=0;i<length;i++)
 			save(data[i]);
 	}
+	template <typename T, size_t N>
+	void save(const boost::container::small_vector<T, N>& data)
+	{
+		uint32_t length = data.size();
+		*this& length;
+		for (uint32_t i = 0; i < length; i++)
+			save(data[i]);
+	}
+
 	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
 	void save(const std::deque<T> & data)
 	{
@@ -292,28 +301,25 @@ public:
 	template <typename T>
 	void save(const std::set<T> &data)
 	{
-		auto & d = const_cast<std::set<T> &>(data);
-		uint32_t length = d.size();
+		uint32_t length = data.size();
 		save(length);
-		for(auto i = d.begin(); i != d.end(); i++)
+		for(auto i = data.begin(); i != data.end(); i++)
 			save(*i);
 	}
 	template <typename T, typename U>
 	void save(const std::unordered_set<T, U> &data)
 	{
-		auto & d = const_cast<std::unordered_set<T, U> &>(data);
-		uint32_t length = d.size();
+		uint32_t length = data.size();
 		*this & length;
-		for(auto i = d.begin(); i != d.end(); i++)
+		for(auto i = data.begin(); i != data.end(); i++)
 			save(*i);
 	}
 	template <typename T>
 	void save(const std::list<T> &data)
 	{
-		auto & d = const_cast<std::list<T> &>(data);
-		uint32_t length = d.size();
+		uint32_t length = data.size();
 		*this & length;
-		for(auto i = d.begin(); i != d.end(); i++)
+		for(auto i = data.begin(); i != data.end(); i++)
 			save(*i);
 	}
 

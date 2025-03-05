@@ -16,7 +16,7 @@
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapping/CMap.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 
 
 MinimapView::MinimapView(QWidget * parent):
@@ -47,7 +47,7 @@ void MinimapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 	
 	auto pos = mapToScene(mouseEvent->pos());
 	pos *= 32;
-	emit cameraPositionChanged(pos);
+	cameraPositionChanged(pos);
 }
 
 void MinimapView::mousePressEvent(QMouseEvent* event)
@@ -90,7 +90,7 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 	if(tile == tilePrev) //do not redraw
 		return;
 
-	emit currentCoordinates(tile.x, tile.y);
+	currentCoordinates(tile.x, tile.y);
 
 	switch(selectionTool)
 	{
@@ -563,7 +563,7 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 		auto selection = sc->selectionObjectsView.getSelection();
 		if(selection.size() == 1)
 		{
-			emit openObjectProperties(*selection.begin(), tab);
+			openObjectProperties(*selection.begin(), tab);
 		}
 		break;
 	}
@@ -591,7 +591,7 @@ void MapView::dragEnterEvent(QDragEnterEvent * event)
 				auto objId = data["id"].toInt();
 				auto objSubId = data["subid"].toInt();
 				auto templateId = data["template"].toInt();
-				auto factory = VLC->objtypeh->getHandlerFor(objId, objSubId);
+				auto factory = LIBRARY->objtypeh->getHandlerFor(objId, objSubId);
 				auto templ = factory->getTemplates()[templateId];
 				controller->discardObject(sc->level);
 				controller->createObject(sc->level, factory->create(nullptr, templ));
@@ -618,7 +618,7 @@ void MapView::dropEvent(QDropEvent * event)
 		{
 			auto * obj = sc->selectionObjectsView.newObject;
 			controller->commitObjectCreate(sc->level);
-			emit openObjectProperties(obj, false);
+			openObjectProperties(obj, false);
 		}
 		else
 		{
@@ -736,13 +736,13 @@ void MapScene::updateViews()
 void MapScene::terrainSelected(bool anythingSelected)
 {
 	isTerrainSelected = anythingSelected;
-	emit selected(isTerrainSelected || isObjectSelected);
+	selected(isTerrainSelected || isObjectSelected);
 }
 
 void MapScene::objectSelected(bool anythingSelected)
 {
 	isObjectSelected = anythingSelected;
-	emit selected(isTerrainSelected || isObjectSelected);
+	selected(isTerrainSelected || isObjectSelected);
 }
 
 MinimapScene::MinimapScene(int lvl):

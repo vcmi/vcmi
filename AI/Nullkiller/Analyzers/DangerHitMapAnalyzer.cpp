@@ -119,7 +119,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 		PathfinderSettings ps;
 
-		ps.scoutTurnDistanceLimit = ps.mainTurnDistanceLimit = ai->settings->getMainHeroTurnDistanceLimit();
+		ps.scoutTurnDistanceLimit = ps.mainTurnDistanceLimit = ai->settings->getThreatTurnDistanceLimit();
 		ps.useHeroChain = false;
 
 		ai->pathfinder->updatePaths(pair.second, ps);
@@ -343,12 +343,6 @@ std::set<const CGObjectInstance *> DangerHitMapAnalyzer::getOneTurnAccessibleObj
 	}
 
 	return result;
-}
-
-void DangerHitMapAnalyzer::reset()
-{
-	hitMapUpToDate = false;
-	tileOwnersUpToDate = false;
 }
 
 }

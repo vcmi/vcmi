@@ -14,7 +14,7 @@
 #include "JsonValidator.h"
 
 #include "../texts/CGeneralTextHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../bonuses/BonusParams.h"
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
@@ -85,7 +85,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SPELL_SCHOOL_IMMUNITY:
 		case BonusType::NEGATIVE_EFFECTS_IMMUNITY:
 		{
-			VLC->identifiers()->requestIdentifier( "spellSchool", node, [&subtype](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "spellSchool", node, [&subtype](int32_t identifier)
 			{
 				subtype = SpellSchool(identifier);
 			});
@@ -93,7 +93,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		}
 		case BonusType::NO_TERRAIN_PENALTY:
 		{
-			VLC->identifiers()->requestIdentifier( "terrain", node, [&subtype](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "terrain", node, [&subtype](int32_t identifier)
 			{
 				subtype = TerrainId(identifier);
 			});
@@ -101,7 +101,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		}
 		case BonusType::PRIMARY_SKILL:
 		{
-			VLC->identifiers()->requestIdentifier( "primarySkill", node, [&subtype](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "primarySkill", node, [&subtype](int32_t identifier)
 			{
 				subtype = PrimarySkill(identifier);
 			});
@@ -116,7 +116,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SUMMON_GUARDIANS:
 		case BonusType::MANUAL_CONTROL:
 		{
-			VLC->identifiers()->requestIdentifier( "creature", node, [&subtype](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "creature", node, [&subtype](int32_t identifier)
 			{
 				subtype = CreatureID(identifier);
 			});
@@ -144,7 +144,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::MORE_DAMAGE_FROM_SPELL:
 		case BonusType::NOT_ACTIVE:
 		{
-			VLC->identifiers()->requestIdentifier( "spell", node, [&subtype](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "spell", node, [&subtype](int32_t identifier)
 			{
 				subtype = SpellID(identifier);
 			});
@@ -154,7 +154,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::RESOURCES_CONSTANT_BOOST:
 		case BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST:
 		{
-			VLC->identifiers()->requestIdentifier( "resource", node, [&subtype](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "resource", node, [&subtype](int32_t identifier)
 			{
 				subtype = GameResID(identifier);
 			});
@@ -178,7 +178,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SPELLS_OF_LEVEL: // spell level
 		case BonusType::CREATURE_GROWTH: // creature level
 		{
-			VLC->identifiers()->requestIdentifier( "bonusSubtype", node, [&subtype](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "bonusSubtype", node, [&subtype](int32_t identifier)
 			{
 				subtype = BonusCustomSubtype(identifier);
 			});
@@ -219,7 +219,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		case BonusSource::ARTIFACT:
 		case BonusSource::ARTIFACT_INSTANCE:
 		{
-			VLC->identifiers()->requestIdentifier( "artifact", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "artifact", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = ArtifactID(identifier);
 			});
@@ -227,7 +227,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::OBJECT_TYPE:
 		{
-			VLC->identifiers()->requestIdentifier( "object", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "object", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = Obj(identifier);
 			});
@@ -239,7 +239,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 			break;
 		case BonusSource::CREATURE_ABILITY:
 		{
-			VLC->identifiers()->requestIdentifier( "creature", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "creature", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = CreatureID(identifier);
 			});
@@ -247,7 +247,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::TERRAIN_OVERLAY:
 		{
-			VLC->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = BattleField(identifier);
 			});
@@ -255,7 +255,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::SPELL_EFFECT:
 		{
-			VLC->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = SpellID(identifier);
 			});
@@ -267,7 +267,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 			break;
 		case BonusSource::SECONDARY_SKILL:
 		{
-			VLC->identifiers()->requestIdentifier( "secondarySkill", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "secondarySkill", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = SecondarySkill(identifier);
 			});
@@ -275,7 +275,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::HERO_SPECIAL:
 		{
-			VLC->identifiers()->requestIdentifier( "hero", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "hero", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = HeroTypeID(identifier);
 			});
@@ -415,7 +415,7 @@ void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
 			var = static_cast<si32>(value.Float());
 			break;
 		case JsonNode::JsonType::DATA_STRING:
-			VLC->identifiers()->requestIdentifier(value, [&](si32 identifier)
+			LIBRARY->identifiers()->requestIdentifier(value, [&](si32 identifier)
 			{
 				var = identifier;
 			});
@@ -435,7 +435,7 @@ void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
 							var[i] = static_cast<si32>(vec[i].Float());
 							break;
 						case JsonNode::JsonType::DATA_STRING:
-							VLC->identifiers()->requestIdentifier(vec[i], [&var,i](si32 identifier)
+							LIBRARY->identifiers()->requestIdentifier(vec[i], [&var,i](si32 identifier)
 							{
 								var[i] = identifier;
 							});
@@ -503,7 +503,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 			if(limiterType == "CREATURE_TYPE_LIMITER")
 			{
 				auto creatureLimiter = std::make_shared<CCreatureTypeLimiter>();
-				VLC->identifiers()->requestIdentifier("creature", parameters[0], [=](si32 creature)
+				LIBRARY->identifiers()->requestIdentifier("creature", parameters[0], [=](si32 creature)
 				{
 					creatureLimiter->setCreature(CreatureID(creature));
 				});
@@ -575,7 +575,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 			else if(limiterType == "FACTION_LIMITER" || limiterType == "CREATURE_FACTION_LIMITER") //Second name is deprecated, 1.2 compat
 			{
 				auto factionLimiter = std::make_shared<FactionLimiter>();
-				VLC->identifiers()->requestIdentifier("faction", parameters[0], [=](si32 faction)
+				LIBRARY->identifiers()->requestIdentifier("faction", parameters[0], [=](si32 faction)
 				{
 					factionLimiter->faction = FactionID(faction);
 				});
@@ -597,7 +597,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				auto terrainLimiter = std::make_shared<CreatureTerrainLimiter>();
 				if(!parameters.empty())
 				{
-					VLC->identifiers()->requestIdentifier("terrain", parameters[0], [terrainLimiter](si32 terrain)
+					LIBRARY->identifiers()->requestIdentifier("terrain", parameters[0], [terrainLimiter](si32 terrain)
 					{
 						terrainLimiter->terrainType = terrain;
 					});

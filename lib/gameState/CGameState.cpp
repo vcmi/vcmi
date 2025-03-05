@@ -24,7 +24,7 @@
 #include "../StartInfo.h"
 #include "../TerrainHandler.h"
 #include "../VCMIDirs.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../battle/BattleInfo.h"
 #include "../campaign/CampaignState.h"
 #include "../constants/StringConstants.h"
@@ -52,12 +52,13 @@
 #include "../rmg/CMapGenerator.h"
 #include "../serializer/CMemorySerializer.h"
 #include "../spells/CSpellHandler.h"
+#include "UpgradeInfo.h"
 
 #include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-boost::shared_mutex CGameState::mutex;
+std::shared_mutex CGameState::mutex;
 
 HeroTypeID CGameState::pickNextHeroType(const PlayerColor & owner)
 {
@@ -297,7 +298,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 				playerSettings.castle = playerInfo.defaultCastle();
 				if(playerSettings.isControlledByAI() && playerSettings.name.empty())
 				{
-					playerSettings.name = VLC->generaltexth->allTexts[468];
+					playerSettings.name = LIBRARY->generaltexth->allTexts[468];
 				}
 				playerSettings.color = PlayerColor(i);
 			}
@@ -373,7 +374,7 @@ void CGameState::initGlobalBonuses()
 		bonus->sid = BonusSourceID(); //there is one global object
 		globalEffects.addNewBonus(bonus);
 	}
-	VLC->creh->loadCrExpBon(globalEffects);
+	LIBRARY->creh->loadCrExpBon(globalEffects);
 }
 
 void CGameState::initDifficulty()
@@ -538,7 +539,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 		}
 	}
 
-	auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->heroClass->getIndex());
+	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->heroClass->getIndex());
 	CGObjectInstance * obj = handler->create(callback, handler->getTemplates().front());
 	CGHeroInstance * hero = dynamic_cast<CGHeroInstance *>(obj);
 
@@ -565,7 +566,7 @@ void CGameState::placeStartingHeroes()
 				continue;
 
 			HeroTypeID heroTypeId = pickNextHeroType(playerColor);
-			if(playerSettingPair.second.hero == HeroTypeID::NONE)
+			if(playerSettingPair.second.hero == HeroTypeID::NONE || playerSettingPair.second.hero == HeroTypeID::RANDOM)
 				playerSettingPair.second.hero = heroTypeId;
 
 			placeStartingHero(playerColor, HeroTypeID(heroTypeId), playerInfo.posOfMainTown);
@@ -610,7 +611,7 @@ void CGameState::initHeroes()
 		const auto & tile = map->getTile(hero->visitablePos());
 		if (tile.isWater())
 		{
-			auto handler = VLC->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
+			auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
 			auto boat = dynamic_cast<CGBoat*>(handler->create(callback, nullptr));
 			handler->configureObject(boat, gs->getRandomGenerator());
 
@@ -709,7 +710,7 @@ void CGameState::initStartingBonus()
 			break;
 		case PlayerStartingBonus::RESOURCE:
 			{
-				auto res = (*VLC->townh)[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
+				auto res = (*LIBRARY->townh)[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
 				if(res == EGameResID::WOOD_AND_ORE)
 				{
 					int amount = getRandomGenerator().nextInt(5, 10);
@@ -729,7 +730,7 @@ void CGameState::initStartingBonus()
 					logGlobal->error("Cannot give starting artifact - no heroes!");
 					break;
 				}
-				const Artifact * toGive = pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toEntity(VLC);
+				const Artifact * toGive = pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toEntity(LIBRARY);
 
 				CGHeroInstance *hero = elem.second.getHeroes()[0];
 				if(!giveHeroArtifact(hero, toGive->getId()))
@@ -743,7 +744,7 @@ void CGameState::initStartingBonus()
 void CGameState::initTownNames()
 {
 	std::map<FactionID, std::vector<int>> availableNames;
-	for(const auto & faction : VLC->townh->getDefaultAllowed())
+	for(const auto & faction : LIBRARY->townh->getDefaultAllowed())
 	{
 		std::vector<int> potentialNames;
 		if(faction.toFaction()->town->getRandomNamesCount() > 0)
@@ -802,8 +803,8 @@ void CGameState::initTowns()
 		assert(vti->getTown());
 		assert(vti->getTown()->creatures.size() <= GameConstants::CREATURES_PER_TOWN);
 
-		constexpr std::array basicDwellings = { BuildingID::DWELL_FIRST, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3, BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7, BuildingID::DWELL_LVL_8 };
-		constexpr std::array upgradedDwellings = { BuildingID::DWELL_UP_FIRST, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP, BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP, BuildingID::DWELL_LVL_8_UP };
+		constexpr std::array basicDwellings = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3, BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7, BuildingID::DWELL_LVL_8 };
+		constexpr std::array upgradedDwellings = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP, BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP, BuildingID::DWELL_LVL_8_UP };
 		constexpr std::array hordes = { BuildingID::HORDE_PLACEHOLDER1, BuildingID::HORDE_PLACEHOLDER2, BuildingID::HORDE_PLACEHOLDER3, BuildingID::HORDE_PLACEHOLDER4, BuildingID::HORDE_PLACEHOLDER5, BuildingID::HORDE_PLACEHOLDER6, BuildingID::HORDE_PLACEHOLDER7, BuildingID::HORDE_PLACEHOLDER8 };
 
 		//init buildings
@@ -883,41 +884,45 @@ void CGameState::initTowns()
 		//init spells
 		vti->spells.resize(GameConstants::SPELL_LEVELS);
 		vti->possibleSpells -= SpellID::PRESET;
+
 		for(ui32 z=0; z<vti->obligatorySpells.size();z++)
 		{
 			const auto * s = vti->obligatorySpells[z].toSpell();
 			vti->spells[s->getLevel()-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}
+
+		vstd::erase_if(vti->possibleSpells, [&](const SpellID & spellID)
+		{
+			const auto * spell = spellID.toSpell();
+
+			if (spell->getProbability(vti->getFactionID()) == 0)
+				return true;
+
+			if (spell->isSpecial() || spell->isCreatureAbility())
+				return true;
+
+			if (!isAllowed(spellID))
+				return true;
+
+			return false;
+		});
+
+		std::vector<int> spellWeights;
+		for (auto & spellID : vti->possibleSpells)
+			spellWeights.push_back(spellID.toSpell()->getProbability(vti->getFactionID()));
+
+
 		while(!vti->possibleSpells.empty())
 		{
-			ui32 total=0;
-			int sel = -1;
+			size_t index = RandomGeneratorUtil::nextItemWeighted(spellWeights, getRandomGenerator());
 
-			for(ui32 ps=0;ps<vti->possibleSpells.size();ps++)
-				total += vti->possibleSpells[ps].toSpell()->getProbability(vti->getFactionID());
-
-			if (total == 0) // remaining spells have 0 probability
-				break;
-
-			auto r = getRandomGenerator().nextInt(total - 1);
-			for(ui32 ps=0; ps<vti->possibleSpells.size();ps++)
-			{
-				r -= vti->possibleSpells[ps].toSpell()->getProbability(vti->getFactionID());
-				if(r<0)
-				{
-					sel = ps;
-					break;
-				}
-			}
-			if(sel<0)
-				sel=0;
-
-			const auto * s = vti->possibleSpells[sel].toSpell();
+			const auto * s = vti->possibleSpells[index].toSpell();
 			vti->spells[s->getLevel()-1].push_back(s->id);
-			vti->possibleSpells -= s->id;
+
+			vti->possibleSpells.erase(vti->possibleSpells.begin() + index);
+			spellWeights.erase(spellWeights.begin() + index);
 		}
-		vti->possibleSpells.clear();
 	}
 }
 
@@ -1072,7 +1077,7 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
 	}
 
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
-		return BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
+		return BattleField(*LIBRARY->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
 	
 	if (t.getTerrain()->battleFields.empty())
 		throw std::runtime_error("Failed to find battlefield for terrain " + t.getTerrain()->getJsonKey());
@@ -1088,10 +1093,11 @@ void CGameState::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, Upg
 	out = fillUpgradeInfo(obj->getStack(stackPos));
 }
 
-UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
+UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance & stack) const
 {
-	UpgradeInfo ret;
 	const CCreature *base = stack.getCreature();
+	
+	UpgradeInfo ret(base->getId());
 
 	if (stack.armyObj->ID == Obj::HERO)
 	{
@@ -1117,12 +1123,6 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 		town->fillUpgradeInfo(ret, stack);
 	}
 
-	if(!ret.newID.empty())
-		ret.oldID = base->getId();
-
-	for (ResourceSet &cost : ret.cost)
-		cost.positive(); //upgrade cost can't be negative, ignore missing resources
-
 	return ret;
 }
 
@@ -1144,15 +1144,9 @@ void CGameState::apply(CPackForClient & pack)
 	pack.applyGs(this);
 }
 
-void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)
+void CGameState::calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const
 {
-	calculatePaths(std::make_shared<SingleHeroPathfinderConfig>(out, this, hero));
-}
-
-void CGameState::calculatePaths(const std::shared_ptr<PathfinderConfig> & config)
-{
-	//FIXME: creating pathfinder is costly, maybe reset / clear is enough?
-	CPathfinder pathfinder(this, config);
+	CPathfinder pathfinder(const_cast<CGameState*>(this), config);
 	pathfinder.calculatePaths();
 }
 
@@ -1270,7 +1264,7 @@ EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(const PlayerColor & p
 	const MetaString messageLostSelf = MetaString::createFromTextID("core.genrltxt.7");
 	const MetaString messageLostOther = MetaString::createFromTextID("core.genrltxt.8");
 
-	auto evaluateEvent = [=](const EventCondition & condition)
+	auto evaluateEvent = [this, player](const EventCondition & condition)
 	{
 		return this->checkForVictory(player, condition);
 	};
@@ -1577,7 +1571,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 				for(const auto & it : elem->Slots())
 				{
 					CreatureID toCmp = it.second->getId(); //ID of creature we should compare with the best one
-					if(bestCre == CreatureID::NONE || bestCre.toEntity(VLC)->getAIValue() < toCmp.toEntity(VLC)->getAIValue())
+					if(bestCre == CreatureID::NONE || bestCre.toEntity(LIBRARY)->getAIValue() < toCmp.toEntity(LIBRARY)->getAIValue())
 					{
 						bestCre = toCmp;
 					}
@@ -1717,7 +1711,7 @@ ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags, std::func
 	// Select artifacts that satisfy provided criteria
 	for (auto const & artifactID : map->allowedArtifact)
 	{
-		if (!VLC->arth->legalArtifact(artifactID))
+		if (!LIBRARY->arth->legalArtifact(artifactID))
 			continue;
 
 		auto const * artifact = artifactID.toArtifact();

@@ -15,6 +15,9 @@ Installation is a two step process, at first you need to install game, then you 
 - Connect your device to PC and enable file transfer.
 - Copy "Data", "Maps" and "Mp3" from Heroes III to any folder on  mobile device, then open VCMI, select Heroes III data import option, then select the folder where you copied Heroes III data.
 
+gog.com download page:
+![GoG-Installer](images/gog_offline_installer.png)
+
 ## Troubleshooting / known issues
 
 ### The game crashes on start

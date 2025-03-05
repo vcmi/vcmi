@@ -202,6 +202,24 @@ enum class EMapDifficulty : uint8_t
 	IMPOSSIBLE = 4
 };
 
+/// The disposed hero struct describes which hero can be hired from which player.
+struct DLL_LINKAGE DisposedHero
+{
+	HeroTypeID heroId;
+	HeroTypeID portrait; /// The portrait id of the hero, -1 is default.
+	std::string name;
+	std::set<PlayerColor> players; /// Who can hire this hero (bitfield).
+
+	template <typename Handler>
+	void serialize(Handler & h)
+	{
+		h & heroId;
+		h & portrait;
+		h & name;
+		h & players;
+	}
+};
+
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...
 class DLL_LINKAGE CMapHeader: public Serializeable
 {
@@ -247,6 +265,8 @@ public:
 	ui8 howManyTeams;
 	std::set<HeroTypeID> allowedHeroes;
 	std::set<HeroTypeID> reservedCampaignHeroes; /// Heroes that have placeholders in this map and are reserved for campaign
+
+	std::vector<DisposedHero> disposedHeroes;
 
 	bool areAnyPlayers; /// Unused. True if there are any playable players on the map.
 
@@ -298,6 +318,8 @@ public:
 		h & victoryIconIndex;
 		h & defeatMessage;
 		h & defeatIconIndex;
+		if (h.version >= Handler::Version::MAP_HEADER_DISPOSED_HEROES)
+			h & disposedHeroes;
 		h & translations;
 		if(!h.saving)
 			registerMapStrings();

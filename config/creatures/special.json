@@ -48,6 +48,10 @@
 			{
 				"type" : "SHOOTER"
 			},
+			"noDistancePenalty" :
+			{
+				"type" : "NO_DISTANCE_PENALTY" // hide shooting range visualization
+			},
 			"siegeMachine" :
 			{
 				"type" : "CATAPULT",

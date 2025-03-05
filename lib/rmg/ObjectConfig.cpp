@@ -14,7 +14,7 @@
 #include "ObjectInfo.h"
 #include "ObjectConfig.h"
 
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
@@ -102,7 +102,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 
 
 				JsonNode node;
-				node.String() = VLC->objtypeh->getHandlerFor(object.primaryID, object.secondaryID);
+				node.String() = LIBRARY->objtypeh->getHandlerFor(object.primaryID, object.secondaryID);
 				// TODO: Check if AI-generated code is right
 
 
@@ -118,7 +118,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 
 			for (const auto & objectName : objectNames)
 			{
-				VLC->objtypeh->resolveObjectCompoundId(objectName,
+				LIBRARY->objtypeh->resolveObjectCompoundId(objectName,
 					[this](CompoundMapObjectID objid)
 					{
 						addBannedObject(objid);
@@ -152,7 +152,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 				objectMaxPerZone = std::numeric_limits<int>::max();
 			}
 
-			VLC->objtypeh->resolveObjectCompoundId(objectName,
+			LIBRARY->objtypeh->resolveObjectCompoundId(objectName,
 
 				[this, objectValue, objectProbability, objectMaxPerZone](CompoundMapObjectID objid)
 				{

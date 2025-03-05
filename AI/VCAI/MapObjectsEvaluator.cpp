@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "MapObjectsEvaluator.h"
 #include "../../lib/GameConstants.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/mapObjects/CompoundMapObjectID.h"
 #include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
@@ -31,11 +31,11 @@ MapObjectsEvaluator & MapObjectsEvaluator::getInstance()
 
 MapObjectsEvaluator::MapObjectsEvaluator()
 {
-	for(auto primaryID : VLC->objtypeh->knownObjects())
+	for(auto primaryID : LIBRARY->objtypeh->knownObjects())
 	{
-		for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
+		for(auto secondaryID : LIBRARY->objtypeh->knownSubObjects(primaryID))
 		{
-			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
+			auto handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
 			if(handler && !handler->isStaticObject())
 			{
 				if(handler->getAiValue() != std::nullopt)
@@ -83,7 +83,7 @@ std::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * 
 		{
 			for(auto & creatureID : creLevel.second)
 			{
-				auto creature = VLC->creatures()->getById(creatureID);
+				auto creature = LIBRARY->creatures()->getById(creatureID);
 				aiValue += (creature->getAIValue() * creature->getGrowth());
 			}
 		}

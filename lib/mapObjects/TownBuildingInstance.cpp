@@ -68,11 +68,6 @@ TownRewardableBuildingInstance::TownRewardableBuildingInstance(IGameCallback *cb
 TownRewardableBuildingInstance::TownRewardableBuildingInstance(CGTownInstance * town, const BuildingID & index, vstd::RNG & rand)
 	: TownBuildingInstance(town, index)
 {
-	initObj(rand);
-}
-
-void TownRewardableBuildingInstance::initObj(vstd::RNG & rand)
-{
 	assert(town && town->getTown());
 	configuration = generateConfiguration(rand);
 }
@@ -87,8 +82,16 @@ Rewardable::Configuration TownRewardableBuildingInstance::generateConfiguration(
 	{
 		for (auto & bonus : rewardInfo.reward.bonuses)
 		{
-			bonus.source = BonusSource::TOWN_STRUCTURE;
-			bonus.sid = BonusSourceID(building->getUniqueTypeID());
+			if (building->mapObjectLikeBonuses.hasValue())
+			{
+				bonus.source = BonusSource::OBJECT_TYPE;
+				bonus.sid = BonusSourceID(building->mapObjectLikeBonuses);
+			}
+			else
+			{
+				bonus.source = BonusSource::TOWN_STRUCTURE;
+				bonus.sid = BonusSourceID(building->getUniqueTypeID());
+			}
 		}
 	}
 	return result;
@@ -163,7 +166,10 @@ bool TownRewardableBuildingInstance::wasVisitedBefore(const CGHeroInstance * con
 		case Rewardable::VISIT_BONUS:
 		{
 			const auto building = town->getTown()->buildings.at(getBuildingType());
-			return contextHero->hasBonusFrom(BonusSource::TOWN_STRUCTURE, BonusSourceID(building->getUniqueTypeID()));
+			if (building->mapObjectLikeBonuses.hasValue())
+				return contextHero->hasBonusFrom(BonusSource::OBJECT_TYPE, BonusSourceID(building->mapObjectLikeBonuses));
+			else
+				return contextHero->hasBonusFrom(BonusSource::TOWN_STRUCTURE, BonusSourceID(building->getUniqueTypeID()));
 		}
 		case Rewardable::VISIT_HERO:
 			return visitors.find(contextHero->id) != visitors.end();

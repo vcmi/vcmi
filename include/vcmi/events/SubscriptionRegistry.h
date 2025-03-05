@@ -36,7 +36,7 @@ public:
 
 	std::unique_ptr<EventSubscription> subscribeBefore(BusTag tag, PreHandler && handler)
 	{
-		boost::unique_lock<boost::shared_mutex> lock(mutex);
+		std::unique_lock<std::shared_mutex> lock(mutex);
 
 		auto storage = std::make_shared<PreHandlerStorage>(std::move(handler));
 		preHandlers[tag].push_back(storage);
@@ -45,7 +45,7 @@ public:
 
 	std::unique_ptr<EventSubscription> subscribeAfter(BusTag tag, PostHandler && handler)
 	{
-		boost::unique_lock<boost::shared_mutex> lock(mutex);
+		std::unique_lock<std::shared_mutex> lock(mutex);
 
 		auto storage = std::make_shared<PostHandlerStorage>(std::move(handler));
 		postHandlers[tag].push_back(storage);
@@ -54,7 +54,7 @@ public:
 
 	void executeEvent(const EventBus * bus, E & event, const ExecHandler & execHandler)
 	{
-		boost::shared_lock<boost::shared_mutex> lock(mutex);
+		std::shared_lock<std::shared_mutex> lock(mutex);
 		{
 			auto it = preHandlers.find(bus);
 
@@ -141,7 +141,7 @@ private:
 		std::shared_ptr<PostHandlerStorage> handler;
 	};
 
-	boost::shared_mutex mutex;
+	std::shared_mutex mutex;
 
 	std::map<BusTag, std::vector<std::shared_ptr<PreHandlerStorage>>> preHandlers;
 	std::map<BusTag, std::vector<std::shared_ptr<PostHandlerStorage>>> postHandlers;
@@ -149,7 +149,7 @@ private:
 	template <typename T>
 	void unsubscribe(BusTag tag, T what, std::map<BusTag, std::vector<T>> & from)
 	{
-		boost::unique_lock<boost::shared_mutex> lock(mutex);
+		std::unique_lock<std::shared_mutex> lock(mutex);
 
 		auto it = from.find(tag);
 

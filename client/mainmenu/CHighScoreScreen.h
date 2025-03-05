@@ -39,11 +39,11 @@ private:
 	void buttonExitClick();
 
 	void showPopupWindow(const Point & cursorPosition) override;
+	void showAll(Canvas & to) override;
 
 	HighScorePage highscorepage;
 
 	std::shared_ptr<CPicture> background;
-	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 	std::vector<std::shared_ptr<CButton>> buttons;
 	std::vector<std::shared_ptr<CLabel>> texts;
 	std::vector<std::shared_ptr<CAnimImage>> images;
@@ -77,7 +77,6 @@ class CHighScoreInputScreen : public CWindowObject, public IVideoHolder
 	std::shared_ptr<CHighScoreInput> input;
 	std::shared_ptr<TransparentFilledRectangle> background;
 	std::shared_ptr<VideoWidgetBase> videoPlayer;
-	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
 	std::shared_ptr<CButton> statisticButton;
 
@@ -85,6 +84,7 @@ class CHighScoreInputScreen : public CWindowObject, public IVideoHolder
 	HighScoreCalculation calc;
 	StatisticDataSet stat;
 
+	void stopMusicAndClose();
 	void onVideoPlaybackFinished() override;
 public:
 	CHighScoreInputScreen(bool won, HighScoreCalculation calc, const StatisticDataSet & statistic);
@@ -94,4 +94,5 @@ public:
 	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
 	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 };

@@ -17,7 +17,7 @@
 
 #include "../../CSkillHandler.h"
 #include "../../IGameSettings.h"
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 #include "../../constants/StringConstants.h"
 #include "../../json/JsonNode.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
@@ -32,7 +32,7 @@ void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass *
 {
 	const auto & skillName = NPrimarySkill::names[pSkill.getNum()];
 	auto currentPrimarySkillValue = static_cast<int>(node["primarySkills"][skillName].Integer());
-	int primarySkillLegalMinimum = VLC->engineSettings()->getVector(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS)[pSkill.getNum()];
+	int primarySkillLegalMinimum = LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, pSkill.getNum());
 
 	if(currentPrimarySkillValue < primarySkillLegalMinimum)
 	{
@@ -69,7 +69,7 @@ std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(const std::string & 
 	heroClass->imageMapFemale    = node["animation"]["map"]["female"].String();
 	heroClass->imageMapMale      = node["animation"]["map"]["male"].String();
 
-	VLC->generaltexth->registerString(scope, heroClass->getNameTextID(), node["name"].String());
+	LIBRARY->generaltexth->registerString(scope, heroClass->getNameTextID(), node["name"].String());
 
 	if (vstd::contains(affinityStr, node["affinity"].String()))
 	{
@@ -97,13 +97,13 @@ std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(const std::string & 
 	for(auto skillPair : node["secondarySkills"].Struct())
 	{
 		int probability = static_cast<int>(skillPair.second.Integer());
-		VLC->identifiers()->requestIdentifier(skillPair.second.getModScope(), "skill", skillPair.first, [heroClass, probability](si32 skillID)
+		LIBRARY->identifiers()->requestIdentifier(skillPair.second.getModScope(), "skill", skillPair.first, [heroClass, probability](si32 skillID)
 											  {
 												  heroClass->secSkillProbability[skillID] = probability;
 											  });
 	}
 
-	VLC->identifiers()->requestIdentifier ("creature", node["commander"],
+	LIBRARY->identifiers()->requestIdentifier ("creature", node["commander"],
 										  [=](si32 commanderID)
 										  {
 											  heroClass->commander = CreatureID(commanderID);
@@ -114,27 +114,27 @@ std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(const std::string & 
 	{
 		int value = static_cast<int>(tavern.second.Float());
 
-		VLC->identifiers()->requestIdentifier(tavern.second.getModScope(), "faction", tavern.first,
+		LIBRARY->identifiers()->requestIdentifier(tavern.second.getModScope(), "faction", tavern.first,
 											  [=](si32 factionID)
 											  {
 												  heroClass->selectionProbability[FactionID(factionID)] = value;
 											  });
 	}
 
-	VLC->identifiers()->requestIdentifier("faction", node["faction"],
+	LIBRARY->identifiers()->requestIdentifier("faction", node["faction"],
 										  [=](si32 factionID)
 										  {
 											  heroClass->faction.setNum(factionID);
 										  });
 
-	VLC->identifiers()->requestIdentifier(scope, "object", "hero", [=](si32 index)
+	LIBRARY->identifiers()->requestIdentifier(scope, "object", "hero", [=](si32 index)
 										  {
 											  JsonNode classConf = node["mapObject"];
 											  classConf["heroClass"].String() = identifier;
 											  if (!node["compatibilityIdentifiers"].isNull())
 												  classConf["compatibilityIdentifiers"] = node["compatibilityIdentifiers"];
 											  classConf.setModScope(scope);
-											  VLC->objtypeh->loadSubObject(identifier, classConf, index, heroClass->getIndex());
+											  LIBRARY->objtypeh->loadSubObject(identifier, classConf, index, heroClass->getIndex());
 										  });
 
 	return heroClass;
@@ -142,7 +142,7 @@ std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(const std::string & 
 
 std::vector<JsonNode> CHeroClassHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_HERO_CLASS);
+	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_HERO_CLASS);
 
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
@@ -187,7 +187,7 @@ void CHeroClassHandler::afterLoadFinalization()
 	// for each pair <class, town> set selection probability if it was not set before in tavern entries
 	for(auto & heroClass : objects)
 	{
-		for(auto & faction : VLC->townh->objects)
+		for(auto & faction : LIBRARY->townh->objects)
 		{
 			if (!faction->town)
 				continue;
@@ -199,11 +199,11 @@ void CHeroClassHandler::afterLoadFinalization()
 		}
 
 		// set default probabilities for gaining secondary skills where not loaded previously
-		for(int skillID = 0; skillID < VLC->skillh->size(); skillID++)
+		for(int skillID = 0; skillID < LIBRARY->skillh->size(); skillID++)
 		{
 			if(heroClass->secSkillProbability.count(skillID) == 0)
 			{
-				const CSkill * skill = (*VLC->skillh)[SecondarySkill(skillID)];
+				const CSkill * skill = (*LIBRARY->skillh)[SecondarySkill(skillID)];
 				logMod->trace("%s: no probability for %s, using default", heroClass->identifier, skill->getJsonKey());
 				heroClass->secSkillProbability[skillID] = skill->gainChance[heroClass->affinity];
 			}
@@ -216,7 +216,7 @@ void CHeroClassHandler::afterLoadFinalization()
 		{
 			JsonNode templ;
 			templ["animation"].String() = hc->imageMapMale;
-			VLC->objtypeh->getHandlerFor(Obj::HERO, hc->getIndex())->addTemplate(templ);
+			LIBRARY->objtypeh->getHandlerFor(Obj::HERO, hc->getIndex())->addTemplate(templ);
 		}
 	}
 }

@@ -32,6 +32,7 @@
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
+#include "../lib/gameState/UpgradeInfo.h"
 
 #include <vstd/RNG.h>
 
@@ -41,7 +42,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
-	return VLC->generaltexth->allTexts[id];
+	return LIBRARY->generaltexth->allTexts[id];
 }
 
 void CTeamVisited::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
@@ -150,7 +151,7 @@ ResourceSet CGMine::dailyIncome() const
 
 std::string CGMine::getObjectName() const
 {
-	return VLC->generaltexth->translate("core.minename", getObjTypeIndex());
+	return LIBRARY->generaltexth->translate("core.minename", getObjTypeIndex());
 }
 
 std::string CGMine::getHoverText(PlayerColor player) const
@@ -158,12 +159,12 @@ std::string CGMine::getHoverText(PlayerColor player) const
 	std::string hoverName = CArmedInstance::getHoverText(player);
 
 	if (tempOwner != PlayerColor::NEUTRAL)
-		hoverName += "\n(" + VLC->generaltexth->restypes[producedResource.getNum()] + ")";
+		hoverName += "\n(" + LIBRARY->generaltexth->restypes[producedResource.getNum()] + ")";
 
 	if(stacksCount())
 	{
 		hoverName += "\n";
-		hoverName += VLC->generaltexth->allTexts[202]; //Guarded by
+		hoverName += LIBRARY->generaltexth->allTexts[202]; //Guarded by
 		hoverName += " ";
 		hoverName += getArmyDescription();
 	}
@@ -253,115 +254,6 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 			}
 		}
 	}
-}
-
-GameResID CGResource::resourceID() const
-{
-	return getObjTypeIndex().getNum();
-}
-
-std::string CGResource::getHoverText(PlayerColor player) const
-{
-	return VLC->generaltexth->restypes[resourceID().getNum()];
-}
-
-void CGResource::pickRandomObject(vstd::RNG & rand)
-{
-	assert(ID == Obj::RESOURCE || ID == Obj::RANDOM_RESOURCE);
-
-	if (ID == Obj::RANDOM_RESOURCE)
-	{
-		ID = Obj::RESOURCE;
-		subID = rand.nextInt(EGameResID::WOOD, EGameResID::GOLD);
-		setType(ID, subID);
-
-		if (subID == EGameResID::GOLD && amount != CGResource::RANDOM_AMOUNT)
-			amount *= CGResource::GOLD_AMOUNT_MULTIPLIER;
-	}
-}
-
-void CGResource::initObj(vstd::RNG & rand)
-{
-	blockVisit = true;
-
-	if(amount == CGResource::RANDOM_AMOUNT)
-	{
-		switch(resourceID().toEnum())
-		{
-		case EGameResID::GOLD:
-			amount = rand.nextInt(5, 10) * CGResource::GOLD_AMOUNT_MULTIPLIER;
-			break;
-		case EGameResID::WOOD: case EGameResID::ORE:
-			amount = rand.nextInt(6, 10);
-			break;
-		default:
-			amount = rand.nextInt(3, 5);
-			break;
-		}
-	}
-}
-
-void CGResource::onHeroVisit( const CGHeroInstance * h ) const
-{
-	if(stacksCount())
-	{
-		if(!message.empty())
-		{
-			BlockingDialog ynd(true,false);
-			ynd.player = h->getOwner();
-			ynd.text = message;
-			cb->showBlockingDialog(this, &ynd);
-		}
-		else
-		{
-			blockingDialogAnswered(h, true); //behave as if player accepted battle
-		}
-	}
-	else
-		collectRes(h->getOwner());
-}
-
-void CGResource::collectRes(const PlayerColor & player) const
-{
-	cb->giveResource(player, resourceID(), amount);
-	InfoWindow sii;
-	sii.player = player;
-	if(!message.empty())
-	{
-		sii.type = EInfoWindowMode::AUTO;
-		sii.text = message;
-	}
-	else
-	{
-		sii.type = EInfoWindowMode::INFO;
-		sii.text.appendLocalString(EMetaText::ADVOB_TXT,113);
-		sii.text.replaceName(resourceID());
-	}
-	sii.components.emplace_back(ComponentType::RESOURCE, resourceID(), amount);
-	sii.soundID = soundBase::pickup01 + cb->gameState()->getRandomGenerator().nextInt(6);
-	cb->showInfoDialog(&sii);
-	cb->removeObject(this, player);
-}
-
-void CGResource::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
-{
-	if(result.winner == BattleSide::ATTACKER) //attacker won
-		collectRes(hero->getOwner());
-}
-
-void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
-{
-	if(answer)
-		cb->startBattle(hero, this);
-}
-
-void CGResource::serializeJsonOptions(JsonSerializeFormat & handler)
-{
-	CArmedInstance::serializeJsonOptions(handler);
-	if(!handler.saving && !handler.getCurrent()["guards"].Vector().empty())
-		CCreatureSet::serializeJson(handler, "guards", 7);
-	handler.serializeInt("amount", amount, 0);
-	handler.serializeStruct("guardMessage", message);
 }
 
 bool CGTeleport::isEntrance() const
@@ -789,14 +681,14 @@ void CGArtifact::initObj(vstd::RNG & rand)
 
 std::string CGArtifact::getObjectName() const
 {
-	return VLC->artifacts()->getById(getArtifact())->getNameTranslated();
+	return LIBRARY->artifacts()->getById(getArtifact())->getNameTranslated();
 }
 
 std::string CGArtifact::getPopupText(PlayerColor player) const
 {
 	if (settings["general"]["enableUiEnhancements"].Bool())
 	{
-		std::string description = VLC->artifacts()->getById(getArtifact())->getDescriptionTranslated();
+		std::string description = LIBRARY->artifacts()->getById(getArtifact())->getDescriptionTranslated();
 		if (getArtifact() == ArtifactID::SPELL_SCROLL)
 			ArtifactUtils::insertScrrollSpellName(description, SpellID::NONE); // erase text placeholder
 		return description;
@@ -951,7 +843,7 @@ void CGSignBottle::initObj(vstd::RNG & rand)
 	//if no text is set than we pick random from the predefined ones
 	if(message.empty())
 	{
-		auto vector = VLC->generaltexth->findStringsWithPrefix("core.randsign");
+		auto vector = LIBRARY->generaltexth->findStringsWithPrefix("core.randsign");
 		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, rand);
 		message.appendTextID(messageIdentifier);
 	}
@@ -1288,6 +1180,11 @@ std::string CGObelisk::getHoverText(PlayerColor player) const
 	return getObjectName() + " " + visitedTxt(wasVisited(player));
 }
 
+std::string CGObelisk::getObjectDescription(PlayerColor player) const
+{
+	return visitedTxt(wasVisited(player));
+}
+
 void CGObelisk::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch(what)
@@ -1323,13 +1220,9 @@ void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) 
 
 	int costModifier = upgradeCostPercentage[index];
 
-	if (costModifier < 0)
-		return; // upgrade not allowed
-
 	for(const auto & nid : stack.getCreature()->upgrades)
 	{
-		info.newID.push_back(nid);
-		info.cost.push_back((nid.toCreature()->getFullRecruitCost() - stack.getType()->getFullRecruitCost()) * costModifier / 100);
+		info.addUpgrade(nid, stack.getType(), costModifier);
 	}
 }
 

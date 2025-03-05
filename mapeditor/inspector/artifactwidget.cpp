@@ -23,7 +23,7 @@ ArtifactWidget::ArtifactWidget(CArtifactFittingSet & fittingSet, QWidget * paren
 
 	connect(ui->saveButton, &QPushButton::clicked, this, [this]() 
 	{
-		emit saveArtifact(ui->artifact->currentData().toInt(), ArtifactPosition(ui->possiblePositions->currentData().toInt()));
+		saveArtifact(ui->artifact->currentData().toInt(), ArtifactPosition(ui->possiblePositions->currentData().toInt()));
 		close();
 	});
 	connect(ui->cancelButton, &QPushButton::clicked, this, &ArtifactWidget::close);
@@ -47,7 +47,7 @@ void ArtifactWidget::fillArtifacts()
 {
 	ui->artifact->clear();
 	auto currentSlot = ui->possiblePositions->currentData().toInt();
-	for (const auto& art : VLC->arth->getDefaultAllowed())
+	for (const auto& art : LIBRARY->arth->getDefaultAllowed())
 	{
 		auto artifact = art.toArtifact();
 		// forbid spell scroll for now as require special handling

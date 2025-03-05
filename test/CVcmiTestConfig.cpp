@@ -11,10 +11,9 @@
 #include "StdInc.h"
 #include "CVcmiTestConfig.h"
 
-#include "../lib/CConsoleHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/logging/CLogger.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -23,8 +22,7 @@
 
 void CVcmiTestConfig::SetUp()
 {
-	console = new CConsoleHandler();
-	preinitDLL(console, true);
+	preinitDLL(true);
 	loadDLLClasses(true);
 
 	/* TEST_DATA_DIR may be wrong, if yes below test don't run,

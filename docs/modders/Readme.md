@@ -74,7 +74,7 @@ Map objects:
 - - [Rewardable](Map_Objects/Rewardable.md)
 - - [Creature Bank](Map_Objects/Creature_Bank.md)
 - - [Dwelling](Map_Objects/Dwelling.md)
-- - [Market](Map_Objects/Markets.md)
+- - [Market](Map_Objects/Market.md)
 - - [Boat](Map_Objects/Boat.md)
 
 Other:

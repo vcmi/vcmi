@@ -11,6 +11,9 @@ class ObjectBrowserProxyModel;
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CMap;
+class CampaignState;
+class CConsoleHandler;
+class CBasicLogConfigurator;
 class CGObjectInstance;
 VCMI_LIB_NAMESPACE_END
 
@@ -33,8 +36,14 @@ class MainWindow : public QMainWindow
 #ifdef ENABLE_QT_TRANSLATIONS
 	QTranslator translator;
 #endif
-	
+
+#ifndef VCMI_MOBILE
+	std::unique_ptr<CConsoleHandler> console;
+#endif
+	std::unique_ptr<CBasicLogConfigurator> logConfig;
+
 	std::unique_ptr<CMap> openMapInternal(const QString &);
+	std::shared_ptr<CampaignState> openCampaignInternal(const QString &);
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
@@ -117,6 +126,8 @@ private slots:
 	void on_actionTranslations_triggered();
 	
 	void on_actionh3m_converter_triggered();
+
+	void on_actionh3c_converter_triggered();
 
 	void on_actionLock_triggered();
 

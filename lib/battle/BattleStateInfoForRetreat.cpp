@@ -27,7 +27,7 @@ BattleStateInfoForRetreat::BattleStateInfoForRetreat():
 {
 }
 
-uint64_t getFightingStrength(const std::vector<const battle::Unit *> & stacks, const CGHeroInstance * hero = nullptr)
+uint64_t getFightingStrength(const battle::Units & stacks, const CGHeroInstance * hero = nullptr)
 {
 	uint64_t result = 0;
 

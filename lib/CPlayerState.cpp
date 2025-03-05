@@ -16,7 +16,7 @@
 #include "mapObjects/CGHeroInstance.h"
 #include "gameState/QuestInfo.h"
 #include "texts/CGeneralTextHandler.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -66,7 +66,7 @@ std::string PlayerState::getModScope() const
 
 std::string PlayerState::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::string PlayerState::getNameTextID() const
@@ -112,24 +112,24 @@ std::vector<T> PlayerState::getObjectsOfType() const
 	return result;
 }
 
-std::vector<const CGHeroInstance *> PlayerState::getHeroes() const
+const std::vector<const CGHeroInstance *> & PlayerState::getHeroes() const
 {
-	return getObjectsOfType<const CGHeroInstance *>();
+	return constOwnedHeroes;
 }
 
-std::vector<const CGTownInstance *> PlayerState::getTowns() const
+const std::vector<const CGTownInstance *> & PlayerState::getTowns() const
 {
-	return getObjectsOfType<const CGTownInstance *>();
+	return constOwnedTowns;
 }
 
-std::vector<CGHeroInstance *> PlayerState::getHeroes()
+const std::vector<CGHeroInstance *> & PlayerState::getHeroes()
 {
-	return getObjectsOfType<CGHeroInstance *>();
+	return ownedHeroes;
 }
 
-std::vector<CGTownInstance *> PlayerState::getTowns()
+const std::vector<CGTownInstance *> & PlayerState::getTowns()
 {
-	return getObjectsOfType<CGTownInstance *>();
+	return ownedTowns;
 }
 
 std::vector<const CGObjectInstance *> PlayerState::getOwnedObjects() const
@@ -141,11 +141,51 @@ void PlayerState::addOwnedObject(CGObjectInstance * object)
 {
 	assert(object->asOwnable() != nullptr);
 	ownedObjects.push_back(object);
+
+	auto * town = dynamic_cast<CGTownInstance*>(object);
+	auto * hero = dynamic_cast<CGHeroInstance*>(object);
+
+	if (town)
+	{
+		ownedTowns.push_back(town);
+		constOwnedTowns.push_back(town);
+	}
+
+	if (hero)
+	{
+		ownedHeroes.push_back(hero);
+		constOwnedHeroes.push_back(hero);
+	}
+}
+
+void PlayerState::postDeserialize()
+{
+	for (const auto& object : ownedObjects)
+	{
+		auto* town = dynamic_cast<CGTownInstance*>(object);
+		auto* hero = dynamic_cast<CGHeroInstance*>(object);
+
+		if (town)
+		{
+			ownedTowns.push_back(town);
+			constOwnedTowns.push_back(town);
+		}
+
+		if (hero)
+		{
+			ownedHeroes.push_back(hero);
+			constOwnedHeroes.push_back(hero);
+		}
+	}
 }
 
 void PlayerState::removeOwnedObject(CGObjectInstance * object)
 {
 	vstd::erase(ownedObjects, object);
+	vstd::erase(ownedTowns, object);
+	vstd::erase(constOwnedTowns, object);
+	vstd::erase(ownedHeroes, object);
+	vstd::erase(constOwnedHeroes, object);
 }
 
 

@@ -15,6 +15,7 @@
 
 struct SDL_Surface;
 class IImage;
+class IVideoInstance;
 enum EFonts : int8_t;
 
 enum class CanvasScalingPolicy
@@ -27,6 +28,8 @@ enum class CanvasScalingPolicy
 /// Class that represents surface for drawing on
 class Canvas
 {
+	friend class CanvasClipRectGuard;
+
 	/// Upscaler awareness. Must be first member for initialization
 	CanvasScalingPolicy scalingPolicy;
 
@@ -72,6 +75,9 @@ public:
 
 	/// renders image onto this canvas at specified position
 	void draw(const std::shared_ptr<IImage>& image, const Point & pos);
+	void draw(const IImage& image, const Point & pos);
+
+	void draw(IVideoInstance & video, const Point & pos);
 
 	/// renders section of image bounded by sourceRect at specified position
 	void draw(const std::shared_ptr<IImage>& image, const Point & pos, const Rect & sourceRect);
@@ -114,9 +120,16 @@ public:
 
 	int getScalingFactor() const;
 
-	/// Compatibility method. AVOID USAGE. To be removed once SDL abstraction layer is finished.
-	SDL_Surface * getInternalSurface();
-
 	/// get the render area
 	Rect getRenderArea() const;
+};
+
+class CanvasClipRectGuard : boost::noncopyable
+{
+	SDL_Surface * surf;
+	Rect oldRect;
+
+public:
+	CanvasClipRectGuard(Canvas & canvas, const Rect & rect);
+	~CanvasClipRectGuard();
 };

@@ -11,6 +11,7 @@
 
 #include "../StdInc.h"
 #include <QDialog>
+#include "baseinspectoritemdelegate.h"
 #include "../lib/mapping/CMapDefines.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../mapcontroller.h"
@@ -40,17 +41,18 @@ private:
 	CGTownInstance & town;
 };
 
-class TownEventsDelegate : public QStyledItemDelegate
+class TownEventsDelegate : public BaseInspectorItemDelegate
 {
 	Q_OBJECT
 public:
-	using QStyledItemDelegate::QStyledItemDelegate;
+	using BaseInspectorItemDelegate::BaseInspectorItemDelegate;
 
 	TownEventsDelegate(CGTownInstance &, MapController &);
 
 	QWidget* createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const override;
 	void setEditorData(QWidget * editor, const QModelIndex & index) const override;
 	void setModelData(QWidget * editor, QAbstractItemModel * model, const QModelIndex & index) const override;
+	void updateModelData(QAbstractItemModel * model, const QModelIndex & index) const override;
 
 private:
 	CGTownInstance & town;

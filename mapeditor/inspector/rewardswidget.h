@@ -10,6 +10,7 @@
 #pragma once
 #include "../StdInc.h"
 #include <QDialog>
+#include "baseinspectoritemdelegate.h"
 #include "../lib/mapObjects/CRewardableObject.h"
 
 namespace Ui {
@@ -67,18 +68,19 @@ private:
 	CMap & map;
 };
 
-class RewardsDelegate : public QStyledItemDelegate
+class RewardsDelegate : public BaseInspectorItemDelegate
 {
 	Q_OBJECT
 public:
 	RewardsDelegate(CMap &, CRewardableObject &);
 
-	using QStyledItemDelegate::QStyledItemDelegate;
+	using BaseInspectorItemDelegate::BaseInspectorItemDelegate;
 	
 	void setEditorData(QWidget *editor, const QModelIndex &index) const override;
 	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 
 	QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+	void updateModelData(QAbstractItemModel * model, const QModelIndex & index) const override;
 
 private:
 	CRewardableObject & object;

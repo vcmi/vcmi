@@ -19,6 +19,7 @@
 #include "../../lib/texts/Languages.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../vcmiqt/MessageBox.h"
 #include "../helper.h"
 #include "../languages.h"
 #include "../innoextract.h"
@@ -122,7 +123,7 @@ void FirstLaunchView::on_pushButtonDataCopy_clicked()
 #else
 	// iOS can't display modal dialogs when called directly on button press
 	// https://bugreports.qt.io/browse/QTBUG-98651
-	QTimer::singleShot(0, this, [this]{ copyHeroesData(); });
+	MessageBoxCustom::showDialog(this, [this]{ copyHeroesData(); });
 #endif
 }
 
@@ -130,7 +131,7 @@ void FirstLaunchView::on_pushButtonGogInstall_clicked()
 {
 	// iOS can't display modal dialogs when called directly on button press
 	// https://bugreports.qt.io/browse/QTBUG-98651
-	QTimer::singleShot(0, this, &FirstLaunchView::extractGogData);
+	MessageBoxCustom::showDialog(this, [this]{extractGogData();});
 }
 
 void FirstLaunchView::enterSetup()
@@ -188,10 +189,10 @@ void FirstLaunchView::activateTabModPreset()
 	modPresetUpdate();
 }
 
-void FirstLaunchView::exitSetup()
+void FirstLaunchView::exitSetup(bool goToMods)
 {
 	if(auto * mainWindow = dynamic_cast<MainWindow *>(QApplication::activeWindow()))
-		mainWindow->exitSetup();
+		mainWindow->exitSetup(goToMods);
 }
 
 // Tab Language
@@ -317,9 +318,8 @@ QString FirstLaunchView::getHeroesInstallDir()
 void FirstLaunchView::extractGogData()
 {
 #ifdef ENABLE_INNOEXTRACT
-	auto fileSelection = [this](QByteArray magic, QString filter, QString startPath = {}) {
+	auto fileSelection = [this](QString filter, QString startPath = {}) {
 		QString titleSel = tr("Select %1 file...", "param is file extension").arg(filter);
-		QString titleErr = tr("You have to select %1 file!", "param is file extension").arg(filter);
 #if defined(VCMI_MOBILE)
 		filter = tr("GOG file (*.*)");
 		QMessageBox::information(this, tr("File selection"), titleSel);
@@ -327,27 +327,35 @@ void FirstLaunchView::extractGogData()
 		QString file = QFileDialog::getOpenFileName(this, titleSel, startPath.isEmpty() ? QDir::homePath() : startPath, filter);
 		if(file.isEmpty())
 			return QString{};
-		
-		QFile tmpFile(file);
+		return file;
+	};
+
+	auto checkMagic = [this](QString filename, QString filter, QByteArray magic)
+	{
+		QString titleErr = tr("You have to select %1 file!", "param is file extension").arg(filter);
+
+		QFile tmpFile(filename);
 		if(!tmpFile.open(QIODevice::ReadOnly))
 		{
 			QMessageBox::critical(this, tr("File cannot be opened"), tmpFile.errorString());
-			return QString{};
+			return false;
 		}
 		QByteArray magicFile = tmpFile.read(magic.length());
 		if(!magicFile.startsWith(magic))
 		{
 			QMessageBox::critical(this, tr("Invalid file selected"), titleErr);
-			return QString{};
+			return false;
 		}
-
-		return file;
+		return true;
 	};
 
-	QString fileBin = fileSelection(QByteArray{"idska32"}, tr("GOG data") + " (*.bin)");
+	QString filterBin = tr("GOG data") + " (*.bin)";
+	QString filterExe = tr("GOG installer") + " (*.exe)";
+
+	QString fileBin = fileSelection(filterBin);
 	if(fileBin.isEmpty())
 		return;
-	QString fileExe = fileSelection(QByteArray{"MZ"}, tr("GOG installer") + " (*.exe)", QFileInfo(fileBin).absolutePath());
+	QString fileExe = fileSelection(filterExe, QFileInfo(fileBin).absolutePath());
 	if(fileExe.isEmpty())
 		return;
 
@@ -355,7 +363,7 @@ void FirstLaunchView::extractGogData()
 	ui->pushButtonGogInstall->setVisible(false);
 	setEnabled(false);
 
-	QTimer::singleShot(100, this, [this, fileExe, fileBin](){ // background to make sure FileDialog is closed...
+	QTimer::singleShot(100, this, [this, fileExe, fileBin, checkMagic, filterBin, filterExe](){ // background to make sure FileDialog is closed...
 		QDir tempDir(pathToQString(VCMIDirs::get().userDataPath()));
 		if(tempDir.cd("tmp"))
 		{
@@ -368,8 +376,13 @@ void FirstLaunchView::extractGogData()
 
 		QString tmpFileExe = tempDir.filePath("h3_gog.exe");
 		QString tmpFileBin = tempDir.filePath("h3_gog-1.bin");
-		QFile(fileExe).copy(tmpFileExe);
-		QFile(fileBin).copy(tmpFileBin);
+
+		Helper::performNativeCopy(fileExe, tmpFileExe);
+		Helper::performNativeCopy(fileBin, tmpFileBin);
+
+		if (!checkMagic(tmpFileBin, filterBin, QByteArray{"idska32"}) ||
+		   !checkMagic(tmpFileExe, filterExe, QByteArray{"MZ"}))
+			return;
 
 		logGlobal->info("Installing exe '%s' ('%s')", tmpFileExe.toStdString(), fileExe.toStdString());
 		logGlobal->info("Installing bin '%s' ('%s')", tmpFileBin.toStdString(), fileBin.toStdString());
@@ -413,9 +426,13 @@ void FirstLaunchView::extractGogData()
 		{
 			if(!errorText.isEmpty())
 			{
+				logGlobal->error("Gog installer extraction failure! Reason: %s", errorText.toStdString());
 				QMessageBox::critical(this, tr("Extracting error!"), errorText, QMessageBox::Ok, QMessageBox::Ok);
 				if(!hashError.isEmpty())
+				{
+					logGlobal->error("Hash error: %s", hashError.toStdString());
 					QMessageBox::critical(this, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
+				}
 			}
 			else
 				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
@@ -547,7 +564,7 @@ void FirstLaunchView::modPresetUpdate()
 
 	// we can't install anything - either repository checkout is off or all recommended mods are already installed
 	if (!checkCanInstallTranslation() && !checkCanInstallExtras() && !checkCanInstallHota() && !checkCanInstallWog())
-		exitSetup();
+		exitSetup(false);
 }
 
 QString FirstLaunchView::findTranslationModName()
@@ -624,7 +641,8 @@ void FirstLaunchView::on_pushButtonPresetNext_clicked()
 	if (ui->buttonPresetHota->isChecked() && checkCanInstallHota())
 		modsToInstall.push_back("hota");
 
-	exitSetup();
+	bool goToMods = !modsToInstall.empty();
+	exitSetup(goToMods);
 
 	for (auto const & modName : modsToInstall)
 		getModView()->doInstallMod(modName);
@@ -639,4 +657,3 @@ void FirstLaunchView::on_pushButtonGithub_clicked()
 {
 	QDesktopServices::openUrl(QUrl("https://github.com/vcmi/vcmi"));
 }
-

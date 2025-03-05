@@ -15,12 +15,19 @@
 
 #include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
 
 void CSlider::mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
+	bool onControl = pos.isInside(cursorPosition) && !left->pos.isInside(cursorPosition) && !right->pos.isInside(cursorPosition);
+	if(!onControl && !slider->isPressed())
+		return;
+
+	if(onControl && !slider->isPressed())
+		slider->clickPressed(cursorPosition);
+
 	double newPosition = 0;
 	if(getOrientation() == Orientation::HORIZONTAL)
 	{
@@ -129,44 +136,57 @@ void CSlider::scrollTo(int to, bool callCallbacks)
 		moved(getValue());
 }
 
+double CSlider::getClickPos(const Point & cursorPosition)
+{
+	double pw = 0;
+	double rw = 0;
+	if(getOrientation() == Orientation::HORIZONTAL)
+	{
+		pw = cursorPosition.x-pos.x-25;
+		rw = pw / static_cast<double>(pos.w - 48);
+	}
+	else
+	{
+		pw = cursorPosition.y-pos.y-24;
+		rw = pw / (pos.h-48);
+	}
+
+	return rw;
+}
+
 void CSlider::clickPressed(const Point & cursorPosition)
 {
-	if(!slider->isBlocked())
-	{
-		double pw = 0;
-		double rw = 0;
-		if(getOrientation() == Orientation::HORIZONTAL)
-		{
-			pw = cursorPosition.x-pos.x-25;
-			rw = pw / static_cast<double>(pos.w - 48);
-		}
-		else
-		{
-			pw = cursorPosition.y-pos.y-24;
-			rw = pw / (pos.h-48);
-		}
-
-		// click on area covered by buttons -> ignore, will be handled by left/right buttons
-		if (!vstd::iswithin(rw, 0, 1))
-			return;
-
-		slider->clickPressed(cursorPosition);
-		scrollTo((int)(rw * positions  +  0.5));
+	bool onControl = pos.isInside(cursorPosition) && !left->pos.isInside(cursorPosition) && !right->pos.isInside(cursorPosition);
+	if(!onControl)
 		return;
-	}
+
+	if(slider->isBlocked())
+		return;
+
+	// click on area covered by buttons -> ignore, will be handled by left/right buttons
+	auto rw = getClickPos(cursorPosition);
+	if (!vstd::iswithin(rw, 0, 1))
+		return;
+
+	slider->clickPressed(cursorPosition);
+	scrollTo((int)(rw * positions + 0.5));
+}
+
+void CSlider::clickReleased(const Point & cursorPosition)
+{
+	if(slider->isBlocked())
+		return;
+
+	slider->clickReleased(cursorPosition);
 }
 
 bool CSlider::receiveEvent(const Point &position, int eventType) const
 {
 	if (eventType == LCLICK)
-	{
-		return pos.isInside(position) && !left->pos.isInside(position) && !right->pos.isInside(position);
-	}
+		return true; //capture "clickReleased" also outside of control
 
 	if(eventType != WHEEL && eventType != GESTURE)
-	{
 		return CIntObject::receiveEvent(position, eventType);
-	}
 
 	if (!scrollBounds)
 		return true;

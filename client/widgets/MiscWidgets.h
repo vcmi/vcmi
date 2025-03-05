@@ -166,6 +166,7 @@ class CreatureTooltip : public CIntObject
 	std::shared_ptr<CAnimImage> creatureImage;
 	std::shared_ptr<CTextBox> tooltipTextbox;
 
+	void show(Canvas & to) override;
 public:
 	CreatureTooltip(Point pos, const CGCreature * creature);
 };

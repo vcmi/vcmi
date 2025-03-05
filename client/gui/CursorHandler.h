@@ -145,6 +145,8 @@ public:
 	CursorHandler();
 	~CursorHandler();
 
+	void init();
+
 	/// Replaces the cursor with a custom image.
 	/// @param image Image to replace cursor with or nullptr to use the normal cursor.
 	void dragAndDropCursor(std::shared_ptr<IImage> image);
@@ -179,6 +181,7 @@ public:
 	Point getPivotOffsetCombat(size_t index);
 
 	void render();
+	void update();
 
 	void hide();
 	void show();

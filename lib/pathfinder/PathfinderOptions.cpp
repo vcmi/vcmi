@@ -12,7 +12,7 @@
 
 #include "../gameState/CGameState.h"
 #include "../IGameSettings.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "NodeStorage.h"
 #include "PathfindingRules.h"
 #include "CPathfinder.h"
@@ -59,14 +59,17 @@ std::vector<std::shared_ptr<IPathfindingRule>> SingleHeroPathfinderConfig::build
 
 SingleHeroPathfinderConfig::~SingleHeroPathfinderConfig() = default;
 
-SingleHeroPathfinderConfig::SingleHeroPathfinderConfig(CPathsInfo & out, CGameState * gs, const CGHeroInstance * hero)
+SingleHeroPathfinderConfig::SingleHeroPathfinderConfig(CPathsInfo & out, const CGameInfoCallback * gs, const CGHeroInstance * hero)
 	: PathfinderConfig(std::make_shared<NodeStorage>(out, hero), gs, buildRuleSet())
+	, hero(hero)
 {
-	pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, hero, options);
 }
 
 CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs)
 {
+	if (!pathfinderHelper)
+		pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, hero, options);
+
 	return pathfinderHelper.get();
 }
 

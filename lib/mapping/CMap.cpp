@@ -11,7 +11,7 @@
 #include "CMap.h"
 
 #include "../CArtHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../CCreatureHandler.h"
 #include "../GameSettings.h"
 #include "../RiverHandler.h"
@@ -37,11 +37,6 @@ void Rumor::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("name", name);
 	handler.serializeStruct("text", text);
-}
-
-DisposedHero::DisposedHero() : heroId(0), portrait(255)
-{
-
 }
 
 CMapEvent::CMapEvent()
@@ -143,17 +138,6 @@ TerrainTile::TerrainTile():
 {
 }
 
-bool TerrainTile::entrableTerrain(const TerrainTile * from) const
-{
-	return entrableTerrain(from ? from->isLand() : true, from ? from->isWater() : true);
-}
-
-bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
-{
-	return getTerrain()->isPassable()
-			&& ((allowSea && isWater())  ||  (allowLand && isLand()));
-}
-
 bool TerrainTile::isClear(const TerrainTile * from) const
 {
 	return entrableTerrain(from) && !blocked();
@@ -187,87 +171,20 @@ EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 		return EDiggingStatus::CAN_DIG;
 }
 
-bool TerrainTile::hasFavorableWinds() const
-{
-	return extTileFlags & 128;
-}
-
-bool TerrainTile::isWater() const
-{
-	return getTerrain()->isWater();
-}
-
-bool TerrainTile::isLand() const
-{
-	return getTerrain()->isLand();
-}
-
-bool TerrainTile::visitable() const
-{
-	return !visitableObjects.empty();
-}
-
-bool TerrainTile::blocked() const
-{
-	return !blockingObjects.empty();
-}
-
-bool TerrainTile::hasRiver() const
-{
-	return getRiverID() != RiverId::NO_RIVER;
-}
-
-bool TerrainTile::hasRoad() const
-{
-	return getRoadID() != RoadId::NO_ROAD;
-}
-
-const TerrainType * TerrainTile::getTerrain() const
-{
-	return terrainType.toEntity(VLC);
-}
-
-const RiverType * TerrainTile::getRiver() const
-{
-	return riverType.toEntity(VLC);
-}
-
-const RoadType * TerrainTile::getRoad() const
-{
-	return roadType.toEntity(VLC);
-}
-
-TerrainId TerrainTile::getTerrainID() const
-{
-	return terrainType;
-}
-
-RiverId TerrainTile::getRiverID() const
-{
-	return riverType;
-}
-
-RoadId TerrainTile::getRoadID() const
-{
-	return roadType;
-}
-
-
 CMap::CMap(IGameCallback * cb)
 	: GameCallbackHolder(cb)
-	, checksum(0)
 	, grailPos(-1, -1, -1)
 	, grailRadius(0)
 	, waterMap(false)
 	, uidCounter(0)
 {
-	allHeroes.resize(VLC->heroh->size());
-	allowedAbilities = VLC->skillh->getDefaultAllowed();
-	allowedArtifact = VLC->arth->getDefaultAllowed();
-	allowedSpells = VLC->spellh->getDefaultAllowed();
+	allHeroes.resize(LIBRARY->heroh->size());
+	allowedAbilities = LIBRARY->skillh->getDefaultAllowed();
+	allowedArtifact = LIBRARY->arth->getDefaultAllowed();
+	allowedSpells = LIBRARY->spellh->getDefaultAllowed();
 
 	gameSettings = std::make_unique<GameSettings>();
-	gameSettings->loadBase(VLC->settingsHandler->getFullConfig());
+	gameSettings->loadBase(LIBRARY->settingsHandler->getFullConfig());
 }
 
 CMap::~CMap()
@@ -355,7 +272,7 @@ CGHeroInstance * CMap::getHero(HeroTypeID heroID)
 
 bool CMap::isCoastalTile(const int3 & pos) const
 {
-	//todo: refactoring: extract neighbor tile iterator and use it in GameState
+	//todo: refactoring: extract neighbour tile iterator and use it in GameState
 	static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
 
@@ -365,7 +282,7 @@ bool CMap::isCoastalTile(const int3 & pos) const
 		return false;
 	}
 
-	if(isWaterTile(pos))
+	if(getTile(pos).isWater())
 		return false;
 
 	for(const auto & dir : dirs)
@@ -382,22 +299,6 @@ bool CMap::isCoastalTile(const int3 & pos) const
 	return false;
 }
 
-TerrainTile & CMap::getTile(const int3 & tile)
-{
-	assert(isInTheMap(tile));
-	return terrain[tile.z][tile.x][tile.y];
-}
-
-const TerrainTile & CMap::getTile(const int3 & tile) const
-{
-	assert(isInTheMap(tile));
-	return terrain[tile.z][tile.x][tile.y];
-}
-
-bool CMap::isWaterTile(const int3 &pos) const
-{
-	return isInTheMap(pos) && getTile(pos).isWater();
-}
 bool CMap::canMoveBetween(const int3 &src, const int3 &dst) const
 {
 	const TerrainTile * dstTile = &getTile(dst);
@@ -511,11 +412,11 @@ void CMap::checkForObjectives()
 			switch (cond.condition)
 			{
 				case EventCondition::HAVE_ARTIFACT:
-					event.onFulfill.replaceTextID(cond.objectType.as<ArtifactID>().toEntity(VLC)->getNameTextID());
+					event.onFulfill.replaceTextID(cond.objectType.as<ArtifactID>().toEntity(LIBRARY)->getNameTextID());
 					break;
 
 				case EventCondition::HAVE_CREATURES:
-					event.onFulfill.replaceTextID(cond.objectType.as<CreatureID>().toEntity(VLC)->getNameSingularTextID());
+					event.onFulfill.replaceTextID(cond.objectType.as<CreatureID>().toEntity(LIBRARY)->getNameSingularTextID());
 					event.onFulfill.replaceNumber(cond.value);
 					break;
 

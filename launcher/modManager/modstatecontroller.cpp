@@ -148,6 +148,9 @@ bool ModStateController::canUninstallMod(QString modname)
 
 bool ModStateController::canEnableMod(QString modname)
 {
+	if (!modList->isModExists(modname))
+		return false;
+
 	auto mod = modList->getMod(modname);
 
 	if(modList->isModEnabled(modname))
@@ -214,7 +217,7 @@ bool ModStateController::doInstallMod(QString modname, QString archivePath)
 	
 	while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
 	{
-		emit extractionProgress(filesCounter, filesToExtract.size());
+		extractionProgress(filesCounter, filesToExtract.size());
 		qApp->processEvents();
 	}
 	
@@ -245,7 +248,7 @@ bool ModStateController::doUninstallMod(QString modname)
 	QString modDir = pathToQString(*CResourceHandler::get()->getResourceName(resID));
 
 	if(!QDir(modDir).exists())
-		return addError(modname, tr("Data with this mod was not found"));
+		return addError(modname, tr("Mod data was not found"));
 
 	QDir modFullDir(modDir);
 	if(!removeModDir(modDir))

@@ -1,5 +1,5 @@
 /*
- * jsonutils.cpp, part of VCMI engine
+ * helper.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -14,6 +14,15 @@
 
 #include <QObject>
 #include <QScroller>
+
+#ifdef VCMI_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
+
+#ifdef VCMI_IOS
+#include "ios/revealdirectoryinfiles.h"
+#endif
 
 #ifdef VCMI_MOBILE
 static QScrollerProperties generateScrollerProperties()
@@ -42,6 +51,42 @@ void enableScrollBySwiping(QObject * scrollTarget)
 	QScroller::grabGesture(scrollTarget, QScroller::LeftMouseButtonGesture);
 	QScroller * scroller = QScroller::scroller(scrollTarget);
 	scroller->setScrollerProperties(generateScrollerProperties());
+#endif
+}
+
+QString getRealPath(QString path)
+{
+#ifdef VCMI_ANDROID
+	if(path.contains("content://", Qt::CaseInsensitive))
+	{
+		auto str = QAndroidJniObject::fromString(path);
+		return QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "getFilenameFromUri", "(Ljava/lang/String;Landroid/content/Context;)Ljava/lang/String;", str.object<jstring>(), QtAndroid::androidContext().object()).toString();
+	}
+	else
+		return path;
+#else
+	return path;
+#endif
+}
+
+void performNativeCopy(QString src, QString dst)
+{
+#ifdef VCMI_ANDROID
+	auto srcStr = QAndroidJniObject::fromString(src);
+	auto dstStr = QAndroidJniObject::fromString(dst);
+	QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;Landroid/content/Context;)V", srcStr.object<jstring>(), dstStr.object<jstring>(), QtAndroid::androidContext().object());
+#else
+	QFile::copy(src, dst);
+#endif
+}
+
+void revealDirectoryInFileBrowser(QString path)
+{
+	const auto dirUrl = QUrl::fromLocalFile(QFileInfo{path}.absoluteFilePath());
+#ifdef VCMI_IOS
+	iOS_utils::revealDirectoryInFiles(dirUrl);
+#else
+	QDesktopServices::openUrl(dirUrl);
 #endif
 }
 }

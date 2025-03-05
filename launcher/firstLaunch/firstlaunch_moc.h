@@ -29,7 +29,7 @@ class FirstLaunchView : public QWidget
 	void activateTabLanguage();
 	void activateTabHeroesData();
 	void activateTabModPreset();
-	void exitSetup();
+	void exitSetup(bool goToMods);
 	
 	// Tab Language
 	void languageSelected(const QString & languageCode);

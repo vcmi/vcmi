@@ -95,6 +95,11 @@ void CModListView::setupModsView()
 
 	ui->allModsView->setUniformRowHeights(true);
 
+	ui->allModsView->setContextMenuPolicy(Qt::CustomContextMenu);
+	
+	connect(ui->allModsView, SIGNAL(customContextMenuRequested(const QPoint &)),
+		this, SLOT(onCustomContextMenu(const QPoint &)));
+
 	connect(ui->allModsView->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex&,const QModelIndex&)),
 		this, SLOT(modSelected(const QModelIndex&,const QModelIndex&)));
 
@@ -417,6 +422,126 @@ void CModListView::disableModInfo()
 	ui->updateButton->setVisible(false);
 }
 
+auto CModListView::buttonEnabledState(QString modName, ModState & mod)
+{
+	struct result {
+		bool disableVisible;
+		bool enableVisible;
+		bool installVisible;
+		bool uninstallVisible;
+		bool updateVisible;
+		bool directoryVisible;
+		bool repositoryVisible;
+		bool disableEnabled;
+		bool enableEnabled;
+		bool installEnabled;
+		bool uninstallEnabled;
+		bool updateEnabled;
+		bool directoryEnabled;
+		bool repositoryEnabled;
+	} res;
+
+	QStringList notInstalledDependencies = getModsToInstall(modName);
+	QStringList unavailableDependencies = findUnavailableMods(notInstalledDependencies);
+	bool translationMismatch = mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString();
+	bool modIsBeingDownloaded = enqueuedModDownloads.contains(mod.getID());
+
+	res.disableVisible = modStateModel->isModInstalled(mod.getID()) && modStateModel->isModEnabled(mod.getID());
+	res.enableVisible = modStateModel->isModInstalled(mod.getID()) && !modStateModel->isModEnabled(mod.getID());
+	res.installVisible = mod.isAvailable() && !mod.isSubmod();
+	res.uninstallVisible = mod.isInstalled() && !mod.isSubmod();
+	res.updateVisible = mod.isUpdateAvailable();
+#ifndef VCMI_MOBILE
+	res.directoryVisible = mod.isInstalled();
+#else
+	res.directoryVisible = false;
+#endif
+	res.repositoryVisible = !mod.getDownloadUrl().isEmpty();
+
+	// Block buttons if action is not allowed at this time
+	res.disableEnabled = true;
+	res.enableEnabled = notInstalledDependencies.empty() && !translationMismatch;
+	res.installEnabled = unavailableDependencies.empty() && !modIsBeingDownloaded;
+	res.uninstallEnabled = true;
+	res.updateEnabled = unavailableDependencies.empty() && !modIsBeingDownloaded;
+	res.directoryEnabled = true;
+	res.repositoryEnabled = true;
+
+	return res;
+}
+
+void CModListView::onCustomContextMenu(const QPoint &point)
+{
+	QModelIndex index = ui->allModsView->indexAt(point);
+	if(!index.isValid())
+		return;
+
+	const auto modName = index.data(ModRoles::ModNameRole).toString();
+	auto mod = modStateModel->getMod(modName);
+
+	auto contextMenu = new QMenu(tr("Context menu"), this);
+	QList<QAction*> actions;
+
+	auto addContextEntry = [this, &contextMenu, &actions, mod](bool visible, bool enabled, QIcon icon, QString name, std::function<void(ModState)> function){
+		if(!visible)
+			return;
+
+		actions.append(new QAction(name, this));
+		connect(actions.back(), &QAction::triggered, this, [mod, function](){ function(mod); });
+		contextMenu->addAction(actions.back());
+		actions.back()->setEnabled(enabled);
+		actions.back()->setIcon(icon);
+	};
+
+	auto state = buttonEnabledState(modName, mod);
+
+	addContextEntry(
+		state.disableVisible, state.disableEnabled, QIcon{":/icons/mod-disabled.png"},
+		tr("Disable"),
+		[this](ModState mod){ disableModByName(mod.getID()); }
+	);
+	addContextEntry(
+		state.enableVisible, state.enableEnabled, QIcon{":/icons/mod-enabled.png"},
+		tr("Enable"),
+		[this](ModState mod){ enableModByName(mod.getID());
+	});
+	addContextEntry(
+		state.installVisible, state.installEnabled, QIcon{":/icons/mod-download.png"},
+		tr("Install"),
+		[this](ModState mod){ doInstallMod(mod.getID()); }
+	);
+	addContextEntry(
+		state.uninstallVisible, state.uninstallEnabled, QIcon{":/icons/mod-delete.png"},
+		tr("Uninstall"),
+		[this](ModState mod){ doUninstallMod(mod.getID()); }
+	);
+	addContextEntry(
+		state.updateVisible, state.updateEnabled, QIcon{":/icons/mod-update.png"},
+		tr("Update"),
+		[this](ModState mod){ doUpdateMod(mod.getID()); }
+	);
+	addContextEntry(
+		state.directoryVisible, state.directoryEnabled, QIcon{":/icons/menu-mods.png"},
+		tr("Open directory"),
+		[this](ModState mod){ openModDictionary(mod.getID()); }
+	);
+	addContextEntry(
+		state.repositoryVisible, state.repositoryEnabled, QIcon{":/icons/about-project.png"},
+		tr("Open repository"),
+		[](ModState mod){
+			QUrl url(mod.getDownloadUrl());
+			QString repoUrl = QString("%1://%2/%3/%4")
+				.arg(url.scheme())
+				.arg(url.host())
+				.arg(url.path().split('/')[1])
+				.arg(url.path().split('/')[2]);
+			QDesktopServices::openUrl(repoUrl);
+		}
+	);
+
+	contextMenu->exec(ui->allModsView->viewport()->mapToGlobal(point));
+}
+
 void CModListView::dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight)
 {
 	selectMod(ui->allModsView->currentIndex());
@@ -444,23 +569,20 @@ void CModListView::selectMod(const QModelIndex & index)
 		Helper::enableScrollBySwiping(ui->modInfoBrowser);
 		Helper::enableScrollBySwiping(ui->changelogBrowser);
 
-		QStringList notInstalledDependencies = getModsToInstall(modName);
-		QStringList unavailableDependencies = findUnavailableMods(notInstalledDependencies);
-		bool translationMismatch = 	mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString();
-		bool modIsBeingDownloaded = enqueuedModDownloads.contains(mod.getID());
+		auto state = buttonEnabledState(modName, mod);
 
-		ui->disableButton->setVisible(modStateModel->isModInstalled(mod.getID()) && modStateModel->isModEnabled(mod.getID()));
-		ui->enableButton->setVisible(modStateModel->isModInstalled(mod.getID()) && !modStateModel->isModEnabled(mod.getID()));
-		ui->installButton->setVisible(mod.isAvailable() && !mod.isSubmod());
-		ui->uninstallButton->setVisible(mod.isInstalled() && !mod.isSubmod());
-		ui->updateButton->setVisible(mod.isUpdateAvailable());
+		ui->disableButton->setVisible(state.disableVisible);
+		ui->enableButton->setVisible(state.enableVisible);
+		ui->installButton->setVisible(state.installVisible);
+		ui->uninstallButton->setVisible(state.uninstallVisible);
+		ui->updateButton->setVisible(state.updateVisible);
 
 		// Block buttons if action is not allowed at this time
-		ui->disableButton->setEnabled(true);
-		ui->enableButton->setEnabled(notInstalledDependencies.empty() && !translationMismatch);
-		ui->installButton->setEnabled(unavailableDependencies.empty() && !modIsBeingDownloaded);
-		ui->uninstallButton->setEnabled(true);
-		ui->updateButton->setEnabled(unavailableDependencies.empty() && !modIsBeingDownloaded);
+		ui->disableButton->setEnabled(state.disableEnabled);
+		ui->enableButton->setEnabled(state.enableEnabled);
+		ui->installButton->setEnabled(state.installEnabled);
+		ui->uninstallButton->setEnabled(state.uninstallEnabled);
+		ui->updateButton->setEnabled(state.updateEnabled);
 
 		loadScreenshots();
 	}
@@ -561,7 +683,7 @@ QStringList CModListView::getModsToInstall(QString mod)
 				potentialToInstall = modStateModel->getTopParent(potentialToInstall);
 		}
 
-		if (modStateModel->isModExists(potentialToInstall) && !modStateModel->isModInstalled(potentialToInstall))
+		if (!modStateModel->isModInstalled(potentialToInstall))
 			result.push_back(potentialToInstall);
 
 		if (modStateModel->isModExists(potentialToInstall))
@@ -602,17 +724,23 @@ void CModListView::doUpdateMod(const QString & modName)
 	}
 }
 
+void CModListView::openModDictionary(const QString & modName)
+{
+	QString tmp = modName;
+	tmp.replace(".", "/Mods/");
+
+	ResourcePath resID(std::string("Mods/") + tmp.toStdString(), EResType::DIRECTORY);
+	// Get location of the mod, in case-insensitive way
+	QString modDir = pathToQString(*CResourceHandler::get()->getResourceName(resID));
+
+	Helper::revealDirectoryInFileBrowser(modDir);
+}
+
 void CModListView::on_uninstallButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 
-	if(modStateModel->isModExists(modName) && modStateModel->getMod(modName).isInstalled())
-	{
-		if(modStateModel->isModEnabled(modName))
-			manager->disableMod(modName);
-		manager->uninstallMod(modName);
-		reload();
-	}
+	doUninstallMod(modName);
 	
 	checkManagerErrors();
 }
@@ -694,7 +822,7 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	{
 		// some mods were not downloaded
 		int result = QMessageBox::warning (this, title, firstLine + errors.join("\n") + lastLine,
-		                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
+							QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
 
 		if(result == QMessageBox::Yes)
 			doInstallFiles = true;
@@ -739,13 +867,15 @@ void CModListView::installFiles(QStringList files)
 	// TODO: some better way to separate zip's with mods and downloaded repository files
 	for(QString filename : files)
 	{
-		if(filename.endsWith(".zip", Qt::CaseInsensitive))
+		QString realFilename = Helper::getRealPath(filename);
+
+		if(realFilename.endsWith(".zip", Qt::CaseInsensitive))
 			mods.push_back(filename);
-		else if(filename.endsWith(".h3m", Qt::CaseInsensitive) || filename.endsWith(".h3c", Qt::CaseInsensitive) || filename.endsWith(".vmap", Qt::CaseInsensitive) || filename.endsWith(".vcmp", Qt::CaseInsensitive))
+		else if(realFilename.endsWith(".h3m", Qt::CaseInsensitive) || realFilename.endsWith(".h3c", Qt::CaseInsensitive) || realFilename.endsWith(".vmap", Qt::CaseInsensitive) || realFilename.endsWith(".vcmp", Qt::CaseInsensitive))
 			maps.push_back(filename);
-		if(filename.endsWith(".exe", Qt::CaseInsensitive))
+		if(realFilename.endsWith(".exe", Qt::CaseInsensitive))
 			exe.push_back(filename);
-		else if(filename.endsWith(".json", Qt::CaseInsensitive))
+		else if(realFilename.endsWith(".json", Qt::CaseInsensitive))
 		{
 			//download and merge additional files
 			JsonNode repoData = JsonUtils::jsonFromFile(filename);
@@ -773,7 +903,7 @@ void CModListView::installFiles(QStringList files)
 				JsonUtils::merge(accumulatedRepositoryData[modNameLower], repoData);
 			}
 		}
-		else if(filename.endsWith(".png", Qt::CaseInsensitive))
+		else if(realFilename.endsWith(".png", Qt::CaseInsensitive))
 			images.push_back(filename);
 	}
 
@@ -818,13 +948,14 @@ void CModListView::installFiles(QStringList files)
 			ChroniclesExtractor ce(this, [&prog](float progress) { prog = progress; });
 			ce.installChronicles(exe);
 			reload();
-			enableModByName("chronicles");
+			if (modStateModel->isModExists("chronicles"))
+				enableModByName("chronicles");
 			return true;
 		});
 		
 		while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
 		{
-			emit extractionProgress(static_cast<int>(prog * 1000.f), 1000);
+			extractionProgress(static_cast<int>(prog * 1000.f), 1000);
 			qApp->processEvents();
 		}
 		
@@ -855,6 +986,12 @@ void CModListView::installMods(QStringList archives)
 		QString modName = archive.section('/', -1, -1).section('.', 0, 0);
 
 		modNames.push_back(modName);
+	}
+
+	if (!activatingPreset.isEmpty())
+	{
+		modStateModel->activatePreset(activatingPreset);
+		activatingPreset.clear();
 	}
 
 	// uninstall old version of mod, if installed
@@ -925,7 +1062,7 @@ void CModListView::on_pushButton_clicked()
 
 void CModListView::modelReset()
 {
-	selectMod(filterModel->rowCount() > 0 ? filterModel->index(0, 0) : QModelIndex());
+	ui->allModsView->setCurrentIndex(filterModel->rowCount() > 0 ? filterModel->index(0, 0) : QModelIndex());
 }
 
 void CModListView::checkManagerErrors()
@@ -946,38 +1083,38 @@ void CModListView::on_tabWidget_currentChanged(int index)
 
 void CModListView::loadScreenshots()
 {
-	if(ui->tabWidget->currentIndex() == 2)
-	{
-		if(!ui->allModsView->currentIndex().isValid())
-		{
-			// select the first mod, so we can access its data
-			ui->allModsView->setCurrentIndex(filterModel->index(0, 0));
-		}
+	if(ui->tabWidget->currentIndex() != 2)
+		return;
+
+	assert(ui->allModsView->currentIndex().isValid());
+
+
+	if (!ui->allModsView->currentIndex().isValid())
+		return;
 		
-		ui->screenshotsList->clear();
-		QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
-		assert(modStateModel->isModExists(modName)); //should be filtered out by check above
+	ui->screenshotsList->clear();
+	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
+	assert(modStateModel->isModExists(modName)); //should be filtered out by check above
 
-		for(QString url : modStateModel->getMod(modName).getScreenshots())
+	for(QString url : modStateModel->getMod(modName).getScreenshots())
+	{
+		// URL must be encoded to something else to get rid of symbols illegal in file names
+		const auto hashed = QCryptographicHash::hash(url.toUtf8(), QCryptographicHash::Md5);
+		const auto fileName = QString{QLatin1String{"%1.png"}}.arg(QLatin1String{hashed.toHex()});
+
+		const auto fullPath = QString{QLatin1String{"%1/%2"}}.arg(CLauncherDirs::downloadsPath(), fileName);
+		QPixmap pixmap(fullPath);
+		if(pixmap.isNull())
 		{
-			// URL must be encoded to something else to get rid of symbols illegal in file names
-			const auto hashed = QCryptographicHash::hash(url.toUtf8(), QCryptographicHash::Md5);
-			const auto fileName = QString{QLatin1String{"%1.png"}}.arg(QLatin1String{hashed.toHex()});
-
-			const auto fullPath = QString{QLatin1String{"%1/%2"}}.arg(CLauncherDirs::downloadsPath(), fileName);
-			QPixmap pixmap(fullPath);
-			if(pixmap.isNull())
-			{
-				// image file not exists or corrupted - try to redownload
-				downloadFile(fileName, url, tr("screenshots"));
-			}
-			else
-			{
-				// managed to load cached image
-				QIcon icon(pixmap);
-				auto * item = new QListWidgetItem(icon, QString(tr("Screenshot %1")).arg(ui->screenshotsList->count() + 1));
-				ui->screenshotsList->addItem(item);
-			}
+			// image file not exists or corrupted - try to redownload
+			downloadFile(fileName, url, tr("screenshots"));
+		}
+		else
+		{
+			// managed to load cached image
+			QIcon icon(pixmap);
+			auto * item = new QListWidgetItem(icon, QString(tr("Screenshot %1")).arg(ui->screenshotsList->count() + 1));
+			ui->screenshotsList->addItem(item);
 		}
 	}
 }
@@ -1004,9 +1141,20 @@ void CModListView::doInstallMod(const QString & modName)
 	}
 }
 
+void CModListView::doUninstallMod(const QString & modName)
+{
+	if(modStateModel->isModExists(modName) && modStateModel->getMod(modName).isInstalled())
+	{
+		if(modStateModel->isModEnabled(modName))
+			manager->disableMod(modName);
+		manager->uninstallMod(modName);
+		reload();
+	}
+}
+
 bool CModListView::isModAvailable(const QString & modName)
 {
-	return !modStateModel->isModInstalled(modName);
+	return modStateModel->isModExists(modName) && !modStateModel->isModInstalled(modName);
 }
 
 bool CModListView::isModEnabled(const QString & modName)
@@ -1046,7 +1194,13 @@ QStringList CModListView::getUpdateableMods()
 	for(const auto & modName : modStateModel->getAllMods())
 	{
 		auto mod = modStateModel->getMod(modName);
-		if (mod.isUpdateAvailable())
+		if (!mod.isUpdateAvailable())
+			continue;
+
+		QStringList notInstalledDependencies = getModsToInstall(mod.getID());
+		QStringList unavailableDependencies = findUnavailableMods(notInstalledDependencies);
+
+		if (unavailableDependencies.empty())
 			result.push_back(modName);
 	}
 
@@ -1146,4 +1300,26 @@ QStringList CModListView::getAllPresets() const
 QString CModListView::getActivePreset() const
 {
 	return modStateModel->getActivePreset();
+}
+
+JsonNode CModListView::exportCurrentPreset() const
+{
+	return modStateModel->exportCurrentPreset();
+}
+
+void CModListView::importPreset(const JsonNode & data)
+{
+	const auto & [presetName, modList] = modStateModel->importPreset(data);
+
+	if (modList.empty())
+	{
+		modStateModel->activatePreset(presetName);
+		modStateModel->reloadLocalState();
+	}
+	else
+	{
+		activatingPreset = presetName;
+		for (const auto & modID : modList)
+			doInstallMod(modID);
+	}
 }

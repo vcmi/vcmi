@@ -23,6 +23,7 @@
 
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGDwelling.h"
+#include "../mapObjects/CGResource.h"
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CGTownInstance.h"

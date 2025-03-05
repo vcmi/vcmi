@@ -47,7 +47,7 @@ void ObjectManager::init()
 	// Consider only connected zones
 	auto id = zone.getId();
 	std::set<TRmgTemplateZoneId> connectedZones;
-	for(auto c : map.getMapGenOptions().getMapTemplate()->getConnectedZoneIds())
+	for(const auto & c : map.getMapGenOptions().getMapTemplate()->getConnectedZoneIds())
 	{
 		// Only consider connected zones
 		if (c.getZoneA() == id || c.getZoneB() == id)
@@ -121,7 +121,7 @@ void ObjectManager::updateDistances(const int3 & pos)
 void ObjectManager::updateDistances(std::function<ui32(const int3 & tile)> distanceFunction)
 {
 	// Workaround to avoid deadlock when accessed from other zone
-	RecursiveLock lock(zone.areaMutex, boost::try_to_lock);
+	RecursiveLock lock(zone.areaMutex, std::try_to_lock);
 	if (!lock.owns_lock())
 	{
 		// Unsolvable problem of mutual access
@@ -418,12 +418,14 @@ bool ObjectManager::createMonoliths()
 			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
 		}
+
+		// Object must be placed first so that curved path won't go through occupied tiles
+		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 		
-		// Once it can be created, replace with curved path
+		// Once it can be created, replace with curved path.
 		replaceWithCurvedPath(path, zone, rmgObject.getVisitablePosition());
 		
 		zone.connectPath(path);
-		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 	}
 
 	vstd::erase_if(requiredObjects, [](const auto & objInfo)
@@ -452,6 +454,8 @@ bool ObjectManager::createRequiredObjects()
 			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
 		}
+
+		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 		if (objInfo.createRoad)
 		{
 			// Once valid path can be created, replace with curved path
@@ -459,7 +463,6 @@ bool ObjectManager::createRequiredObjects()
 		}
 		
 		zone.connectPath(path);
-		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 		
 		for(const auto & nearby : nearbyObjects)
 		{
@@ -587,17 +590,22 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		Zone::Lock lock(zone.areaMutex);
 
 		zone.areaPossible()->subtract(object.getArea());
-		bool keepVisitable = zone.freePaths()->contains(object.getVisitablePosition());
+		bool keepVisitable = object.isVisitable() && zone.freePaths()->contains(object.getVisitablePosition());
 		zone.freePaths()->subtract(object.getArea()); //just to avoid areas overlapping
-		if(keepVisitable)
-			zone.freePaths()->add(object.getVisitablePosition());
 		zone.areaUsed()->unite(object.getArea());
-		zone.areaUsed()->erase(object.getVisitablePosition());
+		if (keepVisitable)
+		{
+			zone.freePaths()->add(object.getVisitablePosition());
+			zone.areaUsed()->erase(object.getVisitablePosition());
+		}
 
 		if(guarded) //We assume the monster won't be guarded
 		{
 			auto guardedArea = object.instances().back()->getAccessibleArea();
-			guardedArea.add(object.instances().back()->getVisitablePosition());
+			if (object.isVisitable())
+			{
+				guardedArea.add(object.instances().back()->getVisitablePosition());
+			}
 			auto areaToBlock = object.getAccessibleArea(true);
 			areaToBlock.subtract(guardedArea);
 			zone.areaPossible()->subtract(areaToBlock);
@@ -626,7 +634,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		for (auto id : adjacentZones)
 		{
 			auto otherZone = map.getZones().at(id);
-			if ((otherZone->getType() == ETemplateZoneType::WATER) == (zone.getType()	== ETemplateZoneType::WATER))
+			if ((otherZone->getType() == ETemplateZoneType::WATER) == (zone.getType() == ETemplateZoneType::WATER))
 			{
 				// Do not update other zone if only one is water
 				auto manager = otherZone->getModificator<ObjectManager>();
@@ -641,7 +649,10 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 	// TODO: Add multiple tiles in one operation to avoid multiple invalidation
 	for(auto * instance : object.instances())
 	{
-		objectsVisitableArea.add(instance->getVisitablePosition());
+		if (instance->object().isVisitable())
+		{
+			objectsVisitableArea.add(instance->getVisitablePosition());
+		}
 		objects.push_back(&instance->object());
 		if(auto * rp = zone.getModificator<RoadPlacer>())
 		{
@@ -664,6 +675,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 
 			if (object.isGuarded())
 			{
+				// Do not route roads through guarded objects
 				rp->areaVisitable().add(instance->getVisitablePosition());
 			}
 		}
@@ -735,7 +747,7 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	CreatureID creId = CreatureID::NONE;
 	int amount = 0;
 	std::vector<CreatureID> possibleCreatures;
-	for(auto const & cre : VLC->creh->objects)
+	for(auto const & cre : LIBRARY->creh->objects)
 	{
 		if(cre->special)
 			continue;
@@ -751,17 +763,17 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	if(!possibleCreatures.empty())
 	{
 		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, zone.getRand());
-		amount = strength / creId.toEntity(VLC)->getAIValue();
+		amount = strength / creId.toEntity(LIBRARY)->getAIValue();
 		if (amount >= 4)
 			amount = static_cast<int>(amount * zone.getRand().nextDouble(0.75, 1.25));
 	}
 	else //just pick any available creature
 	{
 		creId = CreatureID::AZURE_DRAGON; //Azure Dragon
-		amount = strength / creId.toEntity(VLC)->getAIValue();
+		amount = strength / creId.toEntity(LIBRARY)->getAIValue();
 	}
 	
-	auto guardFactory = VLC->objtypeh->getHandlerFor(Obj::MONSTER, creId);
+	auto guardFactory = LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, creId);
 
 	auto * guard = dynamic_cast<CGCreature *>(guardFactory->create(map.mapInstance->cb, nullptr));
 	guard->character = CGCreature::HOSTILE;

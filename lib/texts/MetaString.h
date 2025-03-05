@@ -99,7 +99,6 @@ public:
 
 	void replaceName(const ArtifactID & id);
 	void replaceName(const FactionID& id);
-	void replaceName(const MapObjectID & id);
 	void replaceName(const MapObjectID & id, const MapObjectSubID & subId);
 	void replaceName(const PlayerColor& id);
 	void replaceName(const SecondarySkill& id);

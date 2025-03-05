@@ -14,7 +14,7 @@
 #include "../RmgMap.h"
 #include "TreasurePlacer.h"
 #include "../CZonePlacer.h"
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjects/MapObjects.h"
