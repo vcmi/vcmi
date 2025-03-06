@@ -300,10 +300,29 @@ int TextOperations::getLevenshteinDistance(const std::string & s, const std::str
 	return v0[n];
 }
 
+DLL_LINKAGE std::string TextOperations::getLocaleName()
+{
+	try
+	{
+		const std::string localeName = Languages::getLanguageOptions(VLC->generaltexth->getPreferredLanguage()).localeName;
+
+		if(localeName.empty())
+			throw std::runtime_error("Locale name is empty, will use fallback option.");
+
+		return localeName;
+	}
+	catch(const std::exception & e)
+	{
+		logGlobal->warn("Failed to retrieve locale. Using fallback: en_US.UTF-8");
+
+		return "en_US.UTF-8";
+	}
+}
+
 bool TextOperations::textSearchSimilar(const std::string & s, const std::string & t)
 {
 	boost::locale::generator gen;
-	std::locale loc = gen("en_US.UTF-8"); // support for UTF8 lowercase
+	std::locale loc = gen(getLocaleName());
 	
 	auto haystack = boost::locale::to_lower(t, loc);
 	auto needle = boost::locale::to_lower(s, loc);

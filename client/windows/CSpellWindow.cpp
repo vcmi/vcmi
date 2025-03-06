@@ -92,7 +92,7 @@ public:
 				return false;
 		}
 
-		return A->getNameTranslated() < B->getNameTranslated();
+		return TextOperations::compareLocalizedStrings(A->getNameTranslated(), B->getNameTranslated());
 	}
 };
 

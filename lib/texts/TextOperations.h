@@ -9,6 +9,9 @@
  */
 #pragma once
 
+#include "../../lib/texts/Languages.h"
+#include "../../lib/VCMI_Lib.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 /// Namespace that provides utilities for unicode support (UTF-8)
@@ -76,8 +79,22 @@ namespace TextOperations
 	/// https://en.wikipedia.org/wiki/Levenshtein_distance#Iterative_with_two_matrix_rows
 	DLL_LINKAGE int getLevenshteinDistance(const std::string & s, const std::string & t);
 
+	/// Retrieves the locale name based on the selected (in config) game language, with a safe fallback.
+	DLL_LINKAGE std::string getLocaleName();
+
+	/// Compares two strings using locale-aware collation based on the selected game language.
+	DLL_LINKAGE inline bool compareLocalizedStrings(std::string_view str1, std::string_view str2)
+	{
+		static const std::locale loc(getLocaleName());
+		static const std::collate<char> & col = std::use_facet<std::collate<char>>(loc);
+
+		return col.compare(str1.data(), str1.data() + str1.size(),
+			str2.data(), str2.data() + str2.size()) < 0;
+	}
+
 	/// Check if texts have similarity when typing into search boxes
 	DLL_LINKAGE bool textSearchSimilar(const std::string & s, const std::string & t);
+
 };
 
 template<typename Arithmetic>

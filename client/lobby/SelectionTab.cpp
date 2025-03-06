@@ -59,7 +59,7 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		{
 			if(boost::algorithm::starts_with(aaa->folderName, "..") || boost::algorithm::starts_with(bbb->folderName, ".."))
 				return boost::algorithm::starts_with(aaa->folderName, "..");
-			return boost::ilexicographical_compare(aaa->folderName, bbb->folderName);
+			return TextOperations::compareLocalizedStrings(aaa->folderName, bbb->folderName);
 		}
 	}
 
@@ -114,9 +114,9 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 			return (a->victoryIconIndex < b->victoryIconIndex);
 			break;
 		case _name: //by name
-			return aaa->name < bbb->name;
+			return TextOperations::compareLocalizedStrings(aaa->name, bbb->name);
 		case _fileName: //by filename
-			return boost::ilexicographical_compare(aaa->fileURI, bbb->fileURI);
+			return TextOperations::compareLocalizedStrings(aaa->fileURI, bbb->fileURI);
 		case _changeDate: //by changedate
 			return aaa->lastWrite < bbb->lastWrite;
 		default:
@@ -130,9 +130,9 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		case _numOfMaps: //by number of maps in campaign
 			return aaa->campaign->scenariosCount() < bbb->campaign->scenariosCount();
 		case _name: //by name
-			return boost::ilexicographical_compare(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
+			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
 		default:
-			return boost::ilexicographical_compare(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
+			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
 		}
 	}
 }
