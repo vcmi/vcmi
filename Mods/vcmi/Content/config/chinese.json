@@ -774,8 +774,6 @@
 	"core.bonus.MECHANICAL.description": "免疫大多数效果，可修复",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name": "棱光吐息",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.description": "攻击后向三方向扩散攻击",
-	"core.bonus.SPELL_DAMAGE_REDUCTION.name": "魔法伤害减免",
-	"core.bonus.SPELL_DAMAGE_REDUCTION.description": "受魔法攻击时伤害减少${val}%",
 	"core.bonus.SPELL_DAMAGE_REDUCTION.name" : "魔法抗性",
 	"core.bonus.SPELL_DAMAGE_REDUCTION.name.air" : "气系魔法抗性",
 	"core.bonus.SPELL_DAMAGE_REDUCTION.name.fire" : "火系魔法抗性",
