@@ -1,0 +1,9 @@
+[settings]
+build_type=Release
+
+[platform_tool_requires]
+cmake/3.31.0
+ninja/1.12.1
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja
