@@ -248,11 +248,6 @@ if(APPLE_IOS)
 		"-framework UniformTypeIdentifiers"
 	)
 
-	# TODO: remove after switching prebuilt deps to a newer Conan's Qt recipe
-	if(XCODE_VERSION VERSION_GREATER_EQUAL 14.0)
-		target_link_libraries(vcmilauncher "-framework IOKit")
-	endif()
-
 	# workaround https://github.com/conan-io/conan-center-index/issues/13332
 	if(USING_CONAN)
 		file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/QIOSIntegrationPlugin.h
