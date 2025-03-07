@@ -4,14 +4,12 @@
 	{
 		"background" : ["gamselb0", "gamselb1"],
 		
-		//"logo": {
-		//	"name": ["logo/logo0", "logo/logo1", "logo/logo2"], 
-		//	"x": 20, "y": 20
-		//},
-		//"sublogo": {
-		//	"name": ["sublogo/sublogo0", "sublogo/sublogo1", "sublogo/sublogo2"], 
-		//	"x": 20, "y": 120
-		//}
+		// Additional images
+		//"images": 
+		//[
+		//	{ "x": 10, "y": 0, "name": ["img1", "img2" ]},
+		//	{ "x": 10, "y": 140, "name": ["pic1", "img2" ]} 
+		//]
 	},
 	
 	"loading" :
@@ -27,15 +25,13 @@
 		//	"name": ["loadframe0", "loadframe1", "loadframe2", "loadframe3"],
 		//	"x": 390, "y": 543
 		//},
-		//
-		//"logo": {
-		//	"name": ["logo/logo0", "logo/logo1", "logo/logo2"], 
-		//	"x": 20, "y": 20
-		//},
-		//"sublogo": {
-		//	"name": ["sublogo/sublogo0", "sublogo/sublogo1", "sublogo/sublogo2"], 
-		//	"x": 20, "y": 120
-		//}
+
+		// Additional images
+		//"images": 
+		//[
+		//	{ "x": 10, "y": 0, "name": ["img1", "img2" ]},
+		//	{ "x": 10, "y": 140, "name": ["pic1", "img2" ]} 
+		//]
 		
 	},
 	
@@ -45,19 +41,19 @@
 	//Main menu window, consists of several sub-menus aka items
 	"window":
 	{
-		"background" : ["gamselbk"],
-		
-		//"logo": {
-		//	"name": ["logo/logo0", "logo/logo1", "logo/logo2"], 
-		//	"x": 20, "y": 20
-		//},
-		//"sublogo": {
-		//	"name": ["sublogo/sublogo0", "sublogo/sublogo1", "sublogo/sublogo2"], 
-		//	"x": 20, "y": 120
-		//},
 		//"scalable" : true, //background will be scaled to screen size
+		
+		"background" : ["gamselbk"],
+
 		//"video" :    {"x": 8, "y": 105, "name":"CREDITS.SMK" },//Floating WoG logo. Disabled due to different position in various versions of H3.
-		//"images" : [],//Optional, contains any additional images in the same format as video
+		
+		// Additional images
+		//"images": 
+		//[
+		//	{ "x": 10, "y": 0, "name": ["img1", "img2" ]},
+		//	{ "x": 10, "y": 140, "name": ["pic1", "img2" ]} 
+		//]
+
 		"items" : 
 		[
 			{
