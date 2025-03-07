@@ -88,16 +88,10 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 
 	pos = background->center();
 
-	const auto& logoConfig = config["logo"];
-	if (!logoConfig["name"].Vector().empty()) {
-		auto logoImage = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(logoConfig["name"].Vector(), CRandomGenerator::getDefault())), Point(logoConfig["x"].Integer(), logoConfig["y"].Integer()));
-		images.push_back(logoImage);
-	}
-	
-	const auto& sublogoConfig = config["sublogo"];
-	if (!sublogoConfig["name"].Vector().empty()) {
-		auto logoImage = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(sublogoConfig["name"].Vector(), CRandomGenerator::getDefault())), Point(sublogoConfig["x"].Integer(), sublogoConfig["y"].Integer()));
-		images.push_back(logoImage);
+	for (const JsonNode& node : config["images"].Vector())
+	{
+		auto image = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(node["name"].Vector(), CRandomGenerator::getDefault())), Point(node["x"].Integer(), node["y"].Integer()));
+		images.push_back(image);
 	}
 
 	if(!config["video"].isNull())
@@ -108,9 +102,6 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 
 	for(const JsonNode & node : config["items"].Vector())
 		menuNameToEntry.push_back(node["name"].String());
-
-	for(const JsonNode & node : config["images"].Vector())
-		images.push_back(CMainMenu::createPicture(node));
 
 	//Hardcoded entry
 	menuNameToEntry.push_back("credits");
@@ -251,14 +242,13 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 	EShortcut shortcut = GH.shortcuts().findShortcut(button["shortcut"].String());
 
 	if (shortcut == EShortcut::NONE && !button["shortcut"].String().empty())
-	{
 		logGlobal->warn("Unknown shortcut '%s' found when loading main menu config!", button["shortcut"].String());
-	}
 
 	auto result = std::make_shared<CButton>(Point(posx, posy), AnimationPath::fromJson(button["name"]), help, command, shortcut);
 
 	if (button["center"].Bool())
 		result->moveBy(Point(-result->pos.w/2, -result->pos.h/2));
+
 	return result;
 }
 
@@ -741,43 +731,26 @@ CLoadingScreen::CLoadingScreen(ImagePath background)
 
 	const auto& conf = CMainMenuConfig::get().getConfig()["loading"];
 
-	// Load background
 	const auto& backgroundConfig = conf["background"];
-	if (backgroundConfig.isVector() && !backgroundConfig.Vector().empty())
-		this->background = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(backgroundConfig.Vector(), CRandomGenerator::getDefault())));
+	if (!backgroundConfig.Vector().empty())
+		backimg = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(backgroundConfig.Vector(), CRandomGenerator::getDefault())));
 
-	// Load logo
-	const auto& logoConfig = conf["logo"];
-	if (!logoConfig["name"].Vector().empty())
+	for (const JsonNode& node : conf["images"].Vector())
 	{
-		this->logo = std::make_shared<CPicture>(
-			ImagePath::fromJson(*RandomGeneratorUtil::nextItem(logoConfig["name"].Vector(), CRandomGenerator::getDefault())),
-			Point(logoConfig["x"].Integer(), logoConfig["y"].Integer())
-			);
+		auto image = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(node["name"].Vector(), CRandomGenerator::getDefault())), Point(node["x"].Integer(), node["y"].Integer()));
+		images.push_back(image);
 	}
 
-	// Load sublogo
-	const auto& sublogoConfig = conf["sublogo"];
-	if (!logoConfig["name"].Vector().empty())
-	{
-		this->sublogo = std::make_shared<CPicture>(
-			ImagePath::fromJson(*RandomGeneratorUtil::nextItem(sublogoConfig["name"].Vector(), CRandomGenerator::getDefault())),
-			Point(sublogoConfig["x"].Integer(), sublogoConfig["y"].Integer())
-			);
-	}
-
-	// Load loadframe
 	const auto& loadframeConfig = conf["loadframe"];
 	if (loadframeConfig.isStruct())
 	{
-		this->loadFrame = std::make_shared<CPicture>(
+		loadFrame = std::make_shared<CPicture>(
 			ImagePath::fromJson(*RandomGeneratorUtil::nextItem(loadframeConfig["name"].Vector(), CRandomGenerator::getDefault())),
 			loadframeConfig["x"].Integer(),
 			loadframeConfig["y"].Integer()
 			);
 	}
 
-	// Load loadbar
 	const auto& loadbarConfig = conf["loadbar"];
 	if (loadbarConfig.isStruct())
 	{
