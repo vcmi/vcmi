@@ -118,16 +118,6 @@ function(vcmi_print_git_commit_hash)
 
 endfunction()
 
-#install imported target on windows
-function(install_vcpkg_imported_tgt tgt)
-	get_target_property(TGT_LIB_LOCATION ${tgt} LOCATION)
-	get_filename_component(TGT_LIB_FOLDER ${TGT_LIB_LOCATION} PATH)
-	get_filename_component(tgt_name ${TGT_LIB_LOCATION} NAME_WE)
-	get_filename_component(TGT_DLL ${TGT_LIB_FOLDER}/../bin/${tgt_name}.dll ABSOLUTE)
-	message("${tgt_name}: ${TGT_DLL}")
-	install(FILES ${TGT_DLL} DESTINATION ${BIN_DIR})
-endfunction(install_vcpkg_imported_tgt)
-
 # install dependencies from Conan, CONAN_RUNTIME_LIBS_FILE is set in conanfile.py
 function(vcmi_install_conan_deps)
 	if(NOT USING_CONAN)
@@ -148,4 +138,15 @@ function(vcmi_deploy_qt deployQtToolName deployQtOptions)
 	else()
 		message(WARNING "${deployQtToolName} not found, running cpack would result in broken package")
 	endif()
+endfunction()
+
+# generate .bat for .exe with proper PATH
+function(vcmi_create_exe_shim tgt)
+	if(NOT CONAN_RUNENV_SCRIPT)
+		return()
+	endif()
+	file(GENERATE OUTPUT "$<TARGET_FILE_DIR:${tgt}>/$<TARGET_FILE_BASE_NAME:${tgt}>.bat" CONTENT
+"call ${CONAN_RUNENV_SCRIPT}
+@start $<TARGET_FILE_NAME:${tgt}>"
+	)
 endfunction()

@@ -30,6 +30,7 @@ if(ANDROID)
 	)
 else()
 	add_executable(vcmiclient ${clientapp_SRCS} ${clientapp_HEADERS})
+	vcmi_create_exe_shim(vcmiclient)
 endif()
 
 target_link_libraries(vcmiclient PRIVATE vcmiclientcommon)
@@ -55,15 +56,6 @@ if(WIN32)
 		target_link_libraries(vcmiclient SDL2::SDL2main)
 	endif()
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
-
-	# TODO: very hacky, find proper solution to copy AI dlls into bin dir
-	if(MSVC)
-		add_custom_command(TARGET vcmiclient POST_BUILD
-			WORKING_DIRECTORY "$<TARGET_FILE_DIR:vcmiclient>"
-			COMMAND ${CMAKE_COMMAND} -E copy AI/fuzzylite.dll fuzzylite.dll
-			COMMAND ${CMAKE_COMMAND} -E copy AI/tbb12.dll tbb12.dll
-		)
-	endif()
 elseif(APPLE_IOS)
 	set_target_properties(vcmiclient PROPERTIES
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist"

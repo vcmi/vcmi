@@ -155,6 +155,7 @@ if(ENABLE_SINGLE_APP_BUILD OR ANDROID)
 	add_library(vcmilauncher OBJECT ${launcher_QM})
 else()
 	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_ICON})
+	vcmi_create_exe_shim(vcmilauncher)
 endif()
 
 if(ENABLE_TRANSLATIONS)
