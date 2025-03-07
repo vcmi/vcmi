@@ -1,0 +1,14 @@
+[settings]
+build_type=Release
+
+[platform_tool_requires]
+cmake/3.31.6
+ninja/1.12.1
+
+[replace_requires]
+# TODO: remove after https://github.com/conan-io/conan-center-index/pull/27125 is merged
+# Qt 5 depends on 0.4.8, but it doesn't build for iOS
+md4c/0.4.8: md4c/0.5.2
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja

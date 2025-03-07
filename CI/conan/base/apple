@@ -1,12 +1,16 @@
+include(common)
+
 [settings]
 compiler=apple-clang
-compiler.version=14
+compiler.cppstd=17
 compiler.libcxx=libc++
-build_type=Release
+compiler.version=16
 
-# required for Boost.Locale in versions >= 1.81
-compiler.cppstd=11
+[replace_requires]
+bzip2/*: bzip2/[*]@system
+libiconv/*: libiconv/[*]@system
+sqlite3/*: sqlite3/[*]@system
+zlib/*: zlib/[*]@system
 
 [conf]
-tools.apple:enable_bitcode = False
-tools.cmake.cmaketoolchain:generator = Ninja
+tools.apple:enable_bitcode=False
