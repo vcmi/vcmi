@@ -77,7 +77,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	OBJECT_CONSTRUCTION;
 
 	const auto& bgConfig = config["background"];
-	if (bgConfig.isVector() && !bgConfig.Vector().empty())
+	if (bgConfig.isVector())
 		background = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(bgConfig.Vector(), CRandomGenerator::getDefault())));
 
 	if (bgConfig.isString())
@@ -89,13 +89,13 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	pos = background->center();
 
 	const auto& logoConfig = config["logo"];
-	if (!logoConfig.isNull() && logoConfig["name"].isVector() && !logoConfig["name"].Vector().empty()) {
+	if (!logoConfig["name"].Vector().empty()) {
 		auto logoImage = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(logoConfig["name"].Vector(), CRandomGenerator::getDefault())), Point(logoConfig["x"].Integer(), logoConfig["y"].Integer()));
 		images.push_back(logoImage);
 	}
-
+	
 	const auto& sublogoConfig = config["sublogo"];
-	if (!sublogoConfig.isNull() && sublogoConfig["name"].isVector() && !sublogoConfig["name"].Vector().empty()) {
+	if (!sublogoConfig["name"].Vector().empty()) {
 		auto logoImage = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(sublogoConfig["name"].Vector(), CRandomGenerator::getDefault())), Point(sublogoConfig["x"].Integer(), sublogoConfig["y"].Integer()));
 		images.push_back(logoImage);
 	}
