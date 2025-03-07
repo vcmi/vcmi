@@ -126,7 +126,7 @@ public:
 		// reinit presence flags
 		presenceFlags = {};
 		for(const auto & hex : internalStorage)
-			presenceFlags.set(hex.toInt()) = true;
+			presenceFlags.set(hex.toInt());
 	}
 
 	void shuffle(vstd::RNG & rand)
@@ -159,7 +159,7 @@ public:
 		return std::vector<BattleHex>(internalStorage.begin(), internalStorage.end());
 	}
 
-	[[nodiscard]] std::string toString(std::string delimiter = ", ") const noexcept
+	[[nodiscard]] std::string toString(const std::string & delimiter = ", ") const noexcept
 	{
 		std::string result = "[";
 		for(auto it = internalStorage.begin(); it != internalStorage.end(); ++it)
@@ -239,7 +239,7 @@ public:
 		if(!s.saving)
 		{
 			for(const auto & hex : internalStorage)
-				presenceFlags.set(hex.toInt()) = true;
+				presenceFlags.set(hex.toInt());
 		}
 	}
 

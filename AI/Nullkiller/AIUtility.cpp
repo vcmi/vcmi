@@ -328,9 +328,9 @@ double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_
 		uint64_t totalWeight = 0;
 		uint64_t knownWeight = 0;
 
-		for (auto spellID : VLC->spellh->getDefaultAllowed())
+		for (auto spellID : LIBRARY->spellh->getDefaultAllowed())
 		{
-			auto spell = spellID.toEntity(VLC);
+			auto spell = spellID.toEntity(LIBRARY);
 			if (!spell->hasSchool(school))
 				continue;
 
@@ -351,9 +351,9 @@ double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_
 		uint64_t totalWeight = 0;
 		uint64_t knownWeight = 0;
 
-		for (auto spellID : VLC->spellh->getDefaultAllowed())
+		for (auto spellID : LIBRARY->spellh->getDefaultAllowed())
 		{
-			auto spell = spellID.toEntity(VLC);
+			auto spell = spellID.toEntity(LIBRARY);
 			if (spell->getLevel() != level)
 				continue;
 
@@ -468,7 +468,7 @@ int32_t getArtifactBonusScoreImpl(const std::shared_ptr<Bonus> & bonus)
 		case BonusType::UNDEAD_RAISE_PERCENTAGE:
 			return bonus->val * 400;
 		case BonusType::GENERATE_RESOURCE:
-			return bonus->val * VLC->objh->resVals.at(bonus->subtype.as<GameResID>().getNum()) * 10;
+			return bonus->val * LIBRARY->objh->resVals.at(bonus->subtype.as<GameResID>().getNum()) * 10;
 		case BonusType::SPELL_DURATION:
 			return bonus->val * 200;
 		case BonusType::MAGIC_RESISTANCE:
@@ -569,7 +569,7 @@ int64_t getArtifactScoreForHero(const CGHeroInstance * hero, const CArtifactInst
 	if (artifact->isScroll())
 	{
 		auto spellID = artifact->getScrollSpellID();
-		auto spell = spellID.toEntity(VLC);
+		auto spell = spellID.toEntity(LIBRARY);
 
 		if (hero->getSpellsInSpellbook().count(spellID))
 			return 0;
@@ -774,9 +774,9 @@ bool townHasFreeTavern(const CGTownInstance * town)
 	return canMoveVisitingHeroToGarrison;
 }
 
-uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy)
+uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy, int fortLevel)
 {
-	auto armyStrength = heroArmy->getArmyStrength();
+	auto armyStrength = heroArmy->getArmyStrength(fortLevel);
 
 	if(hero && hero->commander && hero->commander->alive)
 	{

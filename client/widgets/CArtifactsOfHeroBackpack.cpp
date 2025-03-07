@@ -10,7 +10,8 @@
 #include "StdInc.h"
 #include "CArtifactsOfHeroBackpack.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 
 #include "Images.h"
 #include "IGameSettings.h"
@@ -34,7 +35,7 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(size_t slotsColumnsMax, size_
 CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack()
 	: CArtifactsOfHeroBackpack(8, 8)
 {
-	const auto backpackCap = LOCPLINT->cb->getSettings().getInteger(EGameSettings::HEROES_BACKPACK_CAP);
+	const auto backpackCap = GAME->interface()->cb->getSettings().getInteger(EGameSettings::HEROES_BACKPACK_CAP);
 	auto visibleCapacityMax = slotsRowsMax * slotsColumnsMax;
 	if(backpackCap >= 0)
 		visibleCapacityMax = visibleCapacityMax > backpackCap ? backpackCap : visibleCapacityMax;
@@ -203,5 +204,5 @@ void CArtifactsOfHeroQuickBackpack::swapSelected()
 			break;
 		}
 	if(backpackLoc.slot != ArtifactPosition::PRE_FIRST && filterBySlot != ArtifactPosition::PRE_FIRST && curHero)
-		LOCPLINT->cb->swapArtifacts(backpackLoc, ArtifactLocation(curHero->id, filterBySlot));
+		GAME->interface()->cb->swapArtifacts(backpackLoc, ArtifactLocation(curHero->id, filterBySlot));
 }

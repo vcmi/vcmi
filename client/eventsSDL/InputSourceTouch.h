@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "SDL_touch.h"
 #include "../../lib/Point.h"
 
 // Debug option. If defined, mouse events will instead generate touch events, allowing testing of touch input on desktop
@@ -108,6 +109,10 @@ class InputSourceTouch
 
 	uint32_t lastLeftClickTimeTicks;
 	Point lastLeftClickPosition;
+	int numTouchFingers;
+
+	std::map<SDL_FingerID, float> motionAccumulatedX;
+	std::map<SDL_FingerID, float> motionAccumulatedY;
 
 	Point convertTouchToMouse(const SDL_TouchFingerEvent & current);
 	Point convertTouchToMouse(float x, float y);
@@ -127,4 +132,6 @@ public:
 	void handleUpdate();
 
 	bool hasTouchInputDevice() const;
+
+	int getNumTouchFingers() const;
 };

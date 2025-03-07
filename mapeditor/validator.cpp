@@ -144,7 +144,7 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 					if (ins->storedArtifact)
 					{
 						if (map->allowedSpells.count(ins->storedArtifact->getScrollSpellID()) == 0)
-							issues.insert({ tr("Spell scroll %1 is prohibited by map settings").arg(ins->storedArtifact->getScrollSpellID().toEntity(VLC->spells())->getNameTranslated().c_str()), false });
+							issues.insert({ tr("Spell scroll %1 is prohibited by map settings").arg(ins->storedArtifact->getScrollSpellID().toEntity(LIBRARY->spells())->getNameTranslated().c_str()), false });
 					}
 					else
 						issues.insert({ tr("Spell scroll %1 doesn't have instance assigned and must be removed").arg(ins->instanceName.c_str()), true });
@@ -184,7 +184,7 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 		{
 			if(!map->mods.count(mod.first))
 			{
-				issues.insert({ tr("Map contains object from mod \"%1\", but doesn't require it").arg(QString::fromStdString(VLC->modh->getModInfo(mod.first).getVerificationInfo().name)), true });
+				issues.insert({ tr("Map contains object from mod \"%1\", but doesn't require it").arg(QString::fromStdString(LIBRARY->modh->getModInfo(mod.first).getVerificationInfo().name)), true });
 			}
 		}
 	}

@@ -9,8 +9,8 @@
  */
 
 #include "MapProxy.h"
-#include "../../TerrainHandler.h"
-#include "../../VCMI_Lib.h"
+#include "../TerrainHandler.h"
+#include "../GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -48,7 +48,7 @@ void MapProxy::drawRivers(vstd::RNG & generator, std::vector<int3> & tiles, Terr
 {
 	Lock lock(mx);
 	map.getEditManager()->getTerrainSelection().setSelection(tiles);
-	map.getEditManager()->drawRiver(VLC->terrainTypeHandler->getById(terrain)->river, &generator);
+	map.getEditManager()->drawRiver(LIBRARY->terrainTypeHandler->getById(terrain)->river, &generator);
 }
 
 void MapProxy::drawRoads(vstd::RNG & generator, std::vector<int3> & tiles, RoadId roadType)

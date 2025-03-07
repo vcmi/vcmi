@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "ObjectInfo.h"
 
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
@@ -61,7 +61,7 @@ ObjectInfo & ObjectInfo::operator=(const ObjectInfo & other)
 
 void ObjectInfo::setAllTemplates(MapObjectID type, MapObjectSubID subtype)
 {
-	auto templHandler = VLC->objtypeh->getHandlerFor(type, subtype);
+	auto templHandler = LIBRARY->objtypeh->getHandlerFor(type, subtype);
 	if(!templHandler)
 		return;
 	
@@ -70,7 +70,7 @@ void ObjectInfo::setAllTemplates(MapObjectID type, MapObjectSubID subtype)
 
 void ObjectInfo::setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainId terrainType)
 {
-	auto templHandler = VLC->objtypeh->getHandlerFor(type, subtype);
+	auto templHandler = LIBRARY->objtypeh->getHandlerFor(type, subtype);
 	if(!templHandler)
 		return;
 	

@@ -12,7 +12,7 @@
 
 #include "SDL_Extensions.h"
 
-#include "../CMT.h"
+#include "../GameEngine.h"
 #include "../xBRZ/xbrz.h"
 
 #include <tbb/parallel_for.h>
@@ -120,6 +120,9 @@ const Rect & SDLImageOptimizer::getResultDimensions() const
 
 void SDLImageScaler::scaleSurface(Point targetDimensions, EScalingAlgorithm algorithm)
 {
+	if (!intermediate)
+		return; // may happen on scaling of empty images
+
 	if(!targetDimensions.x || !targetDimensions.y)
 		throw std::runtime_error("invalid scaling dimensions!");
 
@@ -144,6 +147,9 @@ void SDLImageScaler::scaleSurface(Point targetDimensions, EScalingAlgorithm algo
 
 void SDLImageScaler::scaleSurfaceIntegerFactor(int factor, EScalingAlgorithm algorithm)
 {
+	if (!intermediate)
+		return; // may happen on scaling of empty images
+
 	if(factor == 0)
 		throw std::runtime_error("invalid scaling factor!");
 
@@ -205,7 +211,7 @@ SDLImageScaler::SDLImageScaler(SDL_Surface * surf, const Rect & virtualDimension
 	if (optimizeImage)
 	{
 		SDLImageOptimizer optimizer(surf, virtualDimensions);
-		optimizer.optimizeSurface(screen);
+		optimizer.optimizeSurface(nullptr);
 		intermediate = optimizer.acquireResultSurface();
 		virtualDimensionsInput = optimizer.getResultDimensions();
 	}
@@ -221,12 +227,19 @@ SDLImageScaler::SDLImageScaler(SDL_Surface * surf, const Rect & virtualDimension
 		SDL_FreeSurface(intermediate);
 		intermediate = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ARGB8888, 0);
 	}
+
+	if (intermediate == surf)
+		throw std::runtime_error("Scaler uses same surface as input!");
 }
 
 SDLImageScaler::~SDLImageScaler()
 {
-	SDL_FreeSurface(intermediate);
-	SDL_FreeSurface(ret);
+	ENGINE->dispatchMainThread([surface = intermediate]()
+	{
+		// potentially SDL bug, execute SDL_FreeSurface in main thread to avoid thread races to its internal state
+		// may be fixed somewhere between 2.26.5 - 2.30
+		SDL_FreeSurface(surface);
+	});
 }
 
 SDL_Surface * SDLImageScaler::acquireResultSurface()

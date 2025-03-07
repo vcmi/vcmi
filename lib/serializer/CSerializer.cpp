@@ -21,7 +21,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 //must be instantiated in .cpp file for access to complete types of all member fields
 CSerializer::~CSerializer() = default;
 
-void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
+void CSerializer::addStdVecItems(CGameState *gs, GameLibrary *lib)
 {
 	registerVectoredType<CGObjectInstance, ObjectInstanceID>(&gs->map->objects,
 		[](const CGObjectInstance &obj){ return obj.id; });

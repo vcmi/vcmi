@@ -17,7 +17,7 @@
 #include "CArtHandler.h"
 #include "CArtifactInstance.h"
 #include "CCreatureHandler.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 
 #include <vcmi/Entity.h>
 
@@ -122,14 +122,13 @@ public:
 	virtual int getLevel() const; //different for regular stack and commander
 	CreatureID getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
-	virtual void init();
 	CStackInstance(bool isHypothetic = false);
 	CStackInstance(const CreatureID & id, TQuantity count, bool isHypothetic = false);
 	CStackInstance(const CCreature *cre, TQuantity count, bool isHypothetic = false);
 	virtual ~CStackInstance() = default;
 
 	void setType(const CreatureID & creID);
-	void setType(const CCreature * c) override;
+	void setType(const CCreature * c) final;
 	void setArmyObj(const CArmedInstance *ArmyObj);
 	virtual void giveStackExp(TExpType exp);
 	bool valid(bool allowUnrandomized) const;
@@ -156,7 +155,6 @@ public:
 	std::vector <ui8> secondarySkills; //ID -> level
 	std::set <ui8> specialSkills;
 	//std::vector <CArtifactInstance *> arts;
-	void init() override;
 	CCommanderInstance();
 	CCommanderInstance(const CreatureID & id);
 	void setAlive (bool alive);
@@ -283,7 +281,7 @@ public:
 	bool slotEmpty(const SlotID & slot) const;
 	int stacksCount() const;
 	virtual bool needsLastStack() const; //true if last stack cannot be taken
-	ui64 getArmyStrength() const; //sum of AI values of creatures
+	ui64 getArmyStrength(int fortLevel = 0) const; //sum of AI values of creatures
 	ui64 getArmyCost() const; //sum of cost of creatures
 	ui64 getPower(const SlotID & slot) const; //value of specific stack
 	std::string getRoughAmount(const SlotID & slot, int mode = 0) const; //rough size of specific stack

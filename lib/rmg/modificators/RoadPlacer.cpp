@@ -15,13 +15,13 @@
 #include "RockFiller.h"
 #include "../Functions.h"
 #include "../CMapGenerator.h"
-#include "../threadpool/MapProxy.h"
+#include "../MapProxy.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../../mapObjects/CGObjectInstance.h"
 #include "../../modding/IdentifierStorage.h"
 #include "../../modding/ModScope.h"
 #include "../../TerrainHandler.h"
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -178,7 +178,7 @@ void RoadPlacer::drawRoads(bool secondary)
 	auto tiles = roads.getTilesVector();
 
 	std::string roadName = (secondary ? generator.getConfig().secondaryRoadType : generator.getConfig().defaultRoadType);
-	RoadId roadType(*VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "road", roadName));
+	RoadId roadType(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "road", roadName));
 
 	//If our road type is not enabled, choose highest below it
 	for (int8_t bestRoad = roadType.getNum(); bestRoad > RoadId(Road::NO_ROAD).getNum(); bestRoad--)

@@ -34,7 +34,7 @@ class DLL_LINKAGE CConnection : boost::noncopyable
 	std::unique_ptr<BinaryDeserializer> deserializer;
 	std::unique_ptr<BinarySerializer> serializer;
 
-	boost::mutex writeMutex;
+	std::mutex writeMutex;
 
 	void disableStackSendingByID();
 	void enableStackSendingByID();

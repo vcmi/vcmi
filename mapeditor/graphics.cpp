@@ -24,7 +24,7 @@
 #include "../lib/filesystem/CBinaryReader.h"
 #include "Animation.h"
 #include "../lib/CThreadHelper.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../CCallback.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "BitmapHandler.h"
@@ -124,9 +124,9 @@ void Graphics::load()
 
 void Graphics::loadHeroAnimations()
 {
-	for(const auto & elem : VLC->heroclassesh->objects)
+	for(const auto & elem : LIBRARY->heroclassesh->objects)
 	{
-		for(auto templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
+		for(auto templ : LIBRARY->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
 		{
 			if(!heroAnimations.count(templ->animationFile.getName()))
 				heroAnimations[templ->animationFile.getName()] = loadHeroAnimation(templ->animationFile.getName());
@@ -337,10 +337,10 @@ void Graphics::addImageListEntries(const EntityService * service)
 
 void Graphics::initializeImageLists()
 {
-	addImageListEntries(VLC->creatures());
-	addImageListEntries(VLC->heroTypes());
-	addImageListEntries(VLC->artifacts());
-	addImageListEntries(VLC->factions());
-	addImageListEntries(VLC->spells());
-	addImageListEntries(VLC->skills());
+	addImageListEntries(LIBRARY->creatures());
+	addImageListEntries(LIBRARY->heroTypes());
+	addImageListEntries(LIBRARY->artifacts());
+	addImageListEntries(LIBRARY->factions());
+	addImageListEntries(LIBRARY->spells());
+	addImageListEntries(LIBRARY->skills());
 }

@@ -116,11 +116,12 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <atomic>
 #include <bitset>
 #include <cassert>
+#include <chrono>
 #include <climits>
 #include <cmath>
-#include <codecvt>
-#include <cstdlib>
+#include <condition_variable>
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <functional>
 #include <iomanip>
@@ -188,9 +189,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/range/algorithm.hpp>
 #include <boost/thread/thread_only.hpp>
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/recursive_mutex.hpp>
-#include <boost/thread/once.hpp>
 
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846

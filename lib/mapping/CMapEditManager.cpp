@@ -11,7 +11,7 @@
 #include "CMapEditManager.h"
 
 #include "../mapObjects/CGHeroInstance.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "CDrawRoadsOperation.h"
 #include "CMapOperation.h"
 

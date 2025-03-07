@@ -20,9 +20,10 @@
 #include <QListWidget>
 
 #include "../lib/VCMIDirs.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/CConsoleHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CMemoryBuffer.h"
 #include "../lib/GameConstants.h"
@@ -50,8 +51,6 @@
 #include "mapsettings/translations.h"
 #include "playersettings.h"
 #include "validator.h"
-
-static CBasicLogConfigurator * logConfig;
 
 QJsonValue jsonFromPixmap(const QPixmap &p)
 {
@@ -184,14 +183,14 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	//configure logging
 	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Editor_log.txt";
-	console = new CConsoleHandler();
-	logConfig = new CBasicLogConfigurator(logPath, console);
+	console = std::make_unique<CConsoleHandler>();
+	logConfig = std::make_unique<CBasicLogConfigurator>(logPath, console.get());
 	logConfig->configureDefault();
 	logGlobal->info("Starting map editor of '%s'", GameConstants::VCMI_VERSION);
 	logGlobal->info("The log file will be saved to %s", logPath);
 
 	//init
-	preinitDLL(::console, extractionOptions.extractArchives);
+	preinitDLL(extractionOptions.extractArchives);
 
 	// Initialize logging based on settings
 	logConfig->configure();
@@ -663,7 +662,7 @@ void MainWindow::roadOrRiverButtonClicked(ui8 type, bool isRoad)
 
 void MainWindow::addGroupIntoCatalog(const QString & groupName, bool staticOnly)
 {
-	auto knownObjects = VLC->objtypeh->knownObjects();
+	auto knownObjects = LIBRARY->objtypeh->knownObjects();
 	for(auto ID : knownObjects)
 	{
 		if(catalog.count(ID))
@@ -687,19 +686,19 @@ void MainWindow::addGroupIntoCatalog(const QString & groupName, bool useCustomNa
 		itemGroup = itms.front();
 	}
 
-	if (VLC->objtypeh->knownObjects().count(ID) == 0)
+	if (LIBRARY->objtypeh->knownObjects().count(ID) == 0)
 		return;
 
-	auto knownSubObjects = VLC->objtypeh->knownSubObjects(ID);
+	auto knownSubObjects = LIBRARY->objtypeh->knownSubObjects(ID);
 	for(auto secondaryID : knownSubObjects)
 	{
-		auto factory = VLC->objtypeh->getHandlerFor(ID, secondaryID);
+		auto factory = LIBRARY->objtypeh->getHandlerFor(ID, secondaryID);
 		auto templates = factory->getTemplates();
 		bool singleTemplate = templates.size() == 1;
 		if(staticOnly && !factory->isStaticObject())
 			continue;
 
-		auto subGroupName = QString::fromStdString(VLC->objtypeh->getObjectName(ID, secondaryID));
+		auto subGroupName = QString::fromStdString(LIBRARY->objtypeh->getObjectName(ID, secondaryID));
 		
 		auto * itemType = new QStandardItem(subGroupName);
 		for(int templateId = 0; templateId < templates.size(); ++templateId)
@@ -764,7 +763,7 @@ void MainWindow::loadObjectsTree()
 	{
 	ui->terrainFilterCombo->addItem("");
 	//adding terrains
-	for(auto & terrain : VLC->terrainTypeHandler->objects)
+	for(auto & terrain : LIBRARY->terrainTypeHandler->objects)
 	{
 		auto *b = new QPushButton(QString::fromStdString(terrain->getNameTranslated()));
 		ui->terrainLayout->addWidget(b);
@@ -779,7 +778,7 @@ void MainWindow::loadObjectsTree()
 	//add spacer to keep terrain button on the top
 	ui->terrainLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	//adding roads
-	for(auto & road : VLC->roadTypeHandler->objects)
+	for(auto & road : LIBRARY->roadTypeHandler->objects)
 	{
 		auto *b = new QPushButton(QString::fromStdString(road->getNameTranslated()));
 		ui->roadLayout->addWidget(b);
@@ -788,7 +787,7 @@ void MainWindow::loadObjectsTree()
 	//add spacer to keep terrain button on the top
 	ui->roadLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	//adding rivers
-	for(auto & river : VLC->riverTypeHandler->objects)
+	for(auto & river : LIBRARY->riverTypeHandler->objects)
 	{
 		auto *b = new QPushButton(QString::fromStdString(river->getNameTranslated()));
 		ui->riverLayout->addWidget(b);
@@ -979,10 +978,12 @@ void MainWindow::on_actionLevel_triggered()
 		ui->minimapView->setScene(controller.miniScene(mapLevel));
 		if (mapLevel == 0)
 		{
+			ui->actionLevel->setText(tr("View underground"));
 			ui->actionLevel->setToolTip(tr("View underground"));
 		}
 		else
 		{
+			ui->actionLevel->setText(tr("View surface"));
 			ui->actionLevel->setToolTip(tr("View surface"));
 		}
 	}
@@ -1085,7 +1086,7 @@ void MainWindow::on_terrainFilterCombo_currentIndexChanged(int index)
 	objectBrowser->terrain = TerrainId(ETerrainId::ANY_TERRAIN);
 	if (!uniqueName.isEmpty())
 	{
-		for (auto const & terrain : VLC->terrainTypeHandler->objects)
+		for (auto const & terrain : LIBRARY->terrainTypeHandler->objects)
 			if (terrain->getJsonKey() == uniqueName.toStdString())
 				objectBrowser->terrain = terrain->getId();
 	}
@@ -1263,7 +1264,7 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 	std::set<CGObjectInstance*> staticObjects;
 	for(auto * obj : controller.scene(mapLevel)->selectionObjectsView.getSelection())
 	{
-		auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
+		auto handler = LIBRARY->objtypeh->getHandlerFor(obj->ID, obj->subID);
 		if(!controller.map()->isInTheMap(obj->visitablePos()))
 		{
 			++errors;

@@ -14,7 +14,7 @@
 #include "Languages.h"
 #include "TextOperations.h"
 
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../json/JsonNode.h"
 #include "../modding/CModHandler.h"
 
@@ -44,7 +44,7 @@ void TextLocalizationContainer::registerStringOverride(const std::string & modCo
 		}
 		else
 		{
-			if (language == VLC->generaltexth->getPreferredLanguage())
+			if (language == LIBRARY->generaltexth->getPreferredLanguage())
 				entry.overriden = true;
 		}
 	}
@@ -176,7 +176,7 @@ std::string TextLocalizationContainer::getModLanguage(const std::string & modCon
 {
 	if (modContext == "core")
 		return CGeneralTextHandler::getInstalledLanguage();
-	return VLC->modh->getModLanguage(modContext);
+	return LIBRARY->modh->getModLanguage(modContext);
 }
 
 void TextLocalizationContainer::jsonSerialize(JsonNode & dest) const
@@ -189,24 +189,24 @@ void TextLocalizationContainer::jsonSerialize(JsonNode & dest) const
 
 TextContainerRegistrable::TextContainerRegistrable()
 {
-	VLC->generaltexth->addSubContainer(*this);
+	LIBRARY->generaltexth->addSubContainer(*this);
 }
 
 TextContainerRegistrable::~TextContainerRegistrable()
 {
-	VLC->generaltexth->removeSubContainer(*this);
+	LIBRARY->generaltexth->removeSubContainer(*this);
 }
 
 TextContainerRegistrable::TextContainerRegistrable(const TextContainerRegistrable & other)
 	: TextLocalizationContainer(other)
 {
-	VLC->generaltexth->addSubContainer(*this);
+	LIBRARY->generaltexth->addSubContainer(*this);
 }
 
 TextContainerRegistrable::TextContainerRegistrable(TextContainerRegistrable && other) noexcept
 	:TextLocalizationContainer(other)
 {
-	VLC->generaltexth->addSubContainer(*this);
+	LIBRARY->generaltexth->addSubContainer(*this);
 }
 
 

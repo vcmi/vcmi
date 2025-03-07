@@ -57,7 +57,7 @@ namespace boost
 }
 
 /// Central class for managing user interface logic
-class CPlayerInterface : public CGameInterface, public IUpdateable
+class CPlayerInterface : public CGameInterface
 {
 	bool ignoreEvents;
 	int autosaveCount;
@@ -90,7 +90,6 @@ public: // TODO: make private
 
 protected: // Call-ins from server, should not be called directly, but only via GameInterface
 
-	void update() override;
 	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
 
 	void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2) override;
@@ -170,9 +169,10 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void yourTacticPhase(const BattleID & battleID, int distance) override;
 	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
-public: // public interface for use by client via LOCPLINT access
+public: // public interface for use by client via GAME->interface() access
 
 	// part of GameInterface that is also used by client code
+	void update();
 	void showPuzzleMap() override;
 	void viewWorldMap() override;
 	void showQuestLog() override;
@@ -231,6 +231,3 @@ private:
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
 };
-
-/// Provides global access to instance of interface of currently active player
-extern CPlayerInterface * LOCPLINT;

@@ -47,7 +47,7 @@ void ArtifactWidget::fillArtifacts()
 {
 	ui->artifact->clear();
 	auto currentSlot = ui->possiblePositions->currentData().toInt();
-	for (const auto& art : VLC->arth->getDefaultAllowed())
+	for (const auto& art : LIBRARY->arth->getDefaultAllowed())
 	{
 		auto artifact = art.toArtifact();
 		// forbid spell scroll for now as require special handling

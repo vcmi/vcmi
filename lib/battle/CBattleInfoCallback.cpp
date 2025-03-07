@@ -31,9 +31,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-namespace SiegeStuffThatShouldBeMovedToHandlers // <=== TODO
-{
-
 static BattleHex lineToWallHex(int line) //returns hex with wall in given line (y coordinate)
 {
 	static const BattleHex lineToHex[] = {12, 29, 45, 62, 78, 96, 112, 130, 147, 165, 182};
@@ -90,9 +87,6 @@ static BattleHex WallPartToHex(EWallPart part)
 
 	return BattleHex::INVALID; //not found!
 }
-}
-
-using namespace SiegeStuffThatShouldBeMovedToHandlers;
 
 ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster * caster, spells::Mode mode) const
 {
@@ -718,7 +712,7 @@ bool CBattleInfoCallback::battleCanTargetEmptyHex(const battle::Unit * attacker)
 {
 	RETURN_IF_NOT_BATTLE(false);
 
-	if(!VLC->engineSettings()->getBoolean(EGameSettings::COMBAT_AREA_SHOT_CAN_TARGET_EMPTY_HEX))
+	if(!LIBRARY->engineSettings()->getBoolean(EGameSettings::COMBAT_AREA_SHOT_CAN_TARGET_EMPTY_HEX))
 		return false;
 
 	if(attacker->hasBonusOfType(BonusType::SPELL_LIKE_ATTACK))
@@ -1174,7 +1168,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 
 	std::vector<DistStack> stackPairs;
 
-	battle::Units possible = battleGetUnitsIf([=](const battle::Unit * unit)
+	battle::Units possible = battleGetUnitsIf([closest](const battle::Unit * unit)
 	{
 		return unit->isValidTarget(false) && unit != closest;
 	});
@@ -1201,7 +1195,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 
 BattleHex CBattleInfoCallback::getAvailableHex(const CreatureID & creID, BattleSide side, int initialPos) const
 {
-	bool twoHex = VLC->creatures()->getById(creID)->isDoubleWide();
+	bool twoHex = LIBRARY->creatures()->getById(creID)->isDoubleWide();
 
 	int pos;
 	if (initialPos > -1)
@@ -1723,11 +1717,11 @@ battle::Units CBattleInfoCallback::battleAdjacentUnits(const battle::Unit * unit
 
 	const auto & hexes = unit->getSurroundingHexes();
 
-	const auto & units = battleGetUnitsIf([=](const battle::Unit * unit)
+	const auto & units = battleGetUnitsIf([&hexes](const battle::Unit * testedUnit)
 	{
-		if (unit->isDead())
+		if (testedUnit->isDead())
 			return false;
-		const auto & unitHexes = unit->getHexes();
+		const auto & unitHexes = testedUnit->getHexes();
 		for (const auto & hex : unitHexes)
 			if (hexes.contains(hex))
 				return true;
@@ -1767,9 +1761,9 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const ba
 	};
 	std::vector<SpellID> beneficialSpells;
 
-	auto getAliveEnemy = [=](const std::function<bool(const CStack *)> & pred) -> const CStack *
+	auto getAliveEnemy = [&](const std::function<bool(const CStack *)> & pred) -> const CStack *
 	{
-		auto stacks = battleGetStacksIf([=](const CStack * stack)
+		auto stacks = battleGetStacksIf([&](const CStack * stack)
 		{
 			return pred(stack) && stack->unitOwner() != subject->unitOwner() && stack->isValidTarget(false);
 		});

@@ -10,8 +10,7 @@
 #include "StdInc.h"
 #include "CSoundHandler.h"
 
-#include "../gui/CGuiHandler.h"
-#include "../CGameInfo.h"
+#include "../GameEngine.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/CRandomGenerator.h"
@@ -48,10 +47,7 @@ CSoundHandler::CSoundHandler():
 	{
 		Mix_ChannelFinished([](int channel)
 		{
-			if (CCS)
-			{
-				CCS->soundh->soundFinishedCallback(channel);
-			}
+			ENGINE->sound().soundFinishedCallback(channel);
 		});
 	}
 }
@@ -287,7 +283,7 @@ void CSoundHandler::setChannelVolume(int channel, ui32 percent)
 
 void CSoundHandler::setCallback(int channel, std::function<void()> function)
 {
-	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
+	std::scoped_lock lockGuard(mutexCallbacks);
 
 	auto iter = callbacks.find(channel);
 
@@ -300,14 +296,14 @@ void CSoundHandler::setCallback(int channel, std::function<void()> function)
 
 void CSoundHandler::resetCallback(int channel)
 {
-	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
+	std::scoped_lock lockGuard(mutexCallbacks);
 
 	callbacks.erase(channel);
 }
 
 void CSoundHandler::soundFinishedCallback(int channel)
 {
-	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
+	std::scoped_lock lockGuard(mutexCallbacks);
 
 	if(callbacks.count(channel) == 0)
 		return;
@@ -319,7 +315,7 @@ void CSoundHandler::soundFinishedCallback(int channel)
 
 	if(!callback.empty())
 	{
-		GH.dispatchMainThread(
+		ENGINE->dispatchMainThread(
 			[callback]()
 			{
 				for(const auto & entry : callback)
@@ -331,14 +327,14 @@ void CSoundHandler::soundFinishedCallback(int channel)
 
 void CSoundHandler::initCallback(int channel)
 {
-	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
+	std::scoped_lock lockGuard(mutexCallbacks);
 	assert(callbacks.count(channel) == 0);
 	callbacks[channel] = {};
 }
 
 void CSoundHandler::initCallback(int channel, const std::function<void()> & function)
 {
-	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
+	std::scoped_lock lockGuard(mutexCallbacks);
 	assert(callbacks.count(channel) == 0);
 	callbacks[channel].push_back(function);
 }
@@ -350,7 +346,7 @@ int CSoundHandler::ambientGetRange() const
 
 void CSoundHandler::ambientUpdateChannels(std::map<AudioPath, int> soundsArg)
 {
-	boost::mutex::scoped_lock guard(mutex);
+	std::scoped_lock guard(mutex);
 
 	std::vector<AudioPath> stoppedSounds;
 	for(const auto & pair : ambientChannels)
@@ -395,7 +391,7 @@ void CSoundHandler::ambientUpdateChannels(std::map<AudioPath, int> soundsArg)
 
 void CSoundHandler::ambientStopAllChannels()
 {
-	boost::mutex::scoped_lock guard(mutex);
+	std::scoped_lock guard(mutex);
 
 	for(const auto & ch : ambientChannels)
 	{

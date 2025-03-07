@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "ISpellMechanics.h"
 
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 #include "../bonuses/Bonus.h"
 #include "../battle/CBattleInfoCallback.h"
@@ -76,7 +76,7 @@ protected:
 	void loadEffects(const JsonNode & config, const int level)
 	{
 		JsonDeserializer deser(nullptr, config);
-		effects->serializeJson(VLC->spellEffects(), deser, level);
+		effects->serializeJson(LIBRARY->spellEffects(), deser, level);
 	}
 private:
 	std::shared_ptr<IReceptiveCheck> targetCondition;
@@ -482,7 +482,7 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) con
 				caster->getCasterName(text);
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
-			else if(b && b->source == BonusSource::TERRAIN_OVERLAY && VLC->battlefields()->getById(b->sid.as<BattleField>())->identifier == "cursed_ground")
+			else if(b && b->source == BonusSource::TERRAIN_OVERLAY && LIBRARY->battlefields()->getById(b->sid.as<BattleField>())->identifier == "cursed_ground")
 			{
 				text.appendLocalString(EMetaText::GENERAL_TXT, 537);
 				target.add(std::move(text), spells::Problem::NORMAL);
@@ -670,19 +670,19 @@ std::vector<AimType> BaseMechanics::getTargetTypes() const
 
 const CreatureService * BaseMechanics::creatures() const
 {
-	return VLC->creatures(); //todo: redirect
+	return LIBRARY->creatures(); //todo: redirect
 }
 
 #if SCRIPTING_ENABLED
 const scripting::Service * BaseMechanics::scripts() const
 {
-	return VLC->scripts(); //todo: redirect
+	return LIBRARY->scripts(); //todo: redirect
 }
 #endif
 
 const Service * BaseMechanics::spells() const
 {
-	return VLC->spells(); //todo: redirect
+	return LIBRARY->spells(); //todo: redirect
 }
 
 const CBattleInfoCallback * BaseMechanics::battle() const

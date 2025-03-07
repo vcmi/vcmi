@@ -14,9 +14,9 @@
 #include "CLobbyScreen.h"
 #include "SelectionTab.h"
 
-#include "../CGameInfo.h"
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
@@ -111,10 +111,10 @@ RandomMapTab::RandomMapTab():
 	//new callbacks available only from mod
 	addCallback("teamAlignments", [&](int)
 	{
-		GH.windows().createAndPushWindow<TeamAlignments>(*this);
+		ENGINE->windows().createAndPushWindow<TeamAlignments>(*this);
 	});
 	
-	for(const auto & road : VLC->roadTypeHandler->objects)
+	for(const auto & road : LIBRARY->roadTypeHandler->objects)
 	{
 		std::string cbRoadType = "selectRoad_" + road->getJsonKey();
 		addCallback(cbRoadType, [&, roadID = road->getId()](bool on)
@@ -141,7 +141,7 @@ RandomMapTab::RandomMapTab():
 	if(auto w = widget<ComboBox>("templateList"))
 	{
 		w->onConstructItems = [](std::vector<const void *> & curItems){
-			auto templates = VLC->tplh->getTemplates();
+			auto templates = LIBRARY->tplh->getTemplates();
 		
 			boost::range::sort(templates, [](const CRmgTemplate * a, const CRmgTemplate * b){
 				return a->getName() < b->getName();
@@ -171,7 +171,7 @@ RandomMapTab::RandomMapTab():
 
 void RandomMapTab::updateMapInfoByHost()
 {
-	if(CSH->isGuest())
+	if(GAME->server().isGuest())
 		return;
 
 	// Generate header info
@@ -372,7 +372,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		else
 			w->setTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
-	for(const auto & r : VLC->roadTypeHandler->objects)
+	for(const auto & r : LIBRARY->roadTypeHandler->objects)
 	{
 		// Workaround for vcmi-extras bug
 		std::string jsonKey = r->getJsonKey();
@@ -489,14 +489,14 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 		}
 		randomMapTab.updateMapInfoByHost();
 
-		for(auto & window : GH.windows().findWindows<TeamAlignments>())
-			GH.windows().popWindow(window);
+		for(auto & window : ENGINE->windows().findWindows<TeamAlignments>())
+			ENGINE->windows().popWindow(window);
 	});
 	
 	addCallback("cancel", [&](int)
 	{
-		for(auto & window : GH.windows().findWindows<TeamAlignments>())
-			GH.windows().popWindow(window);
+		for(auto & window : ENGINE->windows().findWindows<TeamAlignments>())
+			ENGINE->windows().popWindow(window);
 	});
 	
 	build(config);

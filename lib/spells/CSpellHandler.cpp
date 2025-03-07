@@ -183,7 +183,7 @@ std::string CSpell::getNameTextID() const
 
 std::string CSpell::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::string CSpell::getDescriptionTextID(int32_t level) const
@@ -194,7 +194,7 @@ std::string CSpell::getDescriptionTextID(int32_t level) const
 
 std::string CSpell::getDescriptionTranslated(int32_t level) const
 {
-	return VLC->generaltexth->translate(getDescriptionTextID(level));
+	return LIBRARY->generaltexth->translate(getDescriptionTextID(level));
 }
 
 std::string CSpell::getJsonKey() const
@@ -791,7 +791,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 		spell->combat = type == "combat";
 	}
 
-	VLC->generaltexth->registerString(scope, spell->getNameTextID(), json["name"]);
+	LIBRARY->generaltexth->registerString(scope, spell->getNameTextID(), json["name"]);
 
 	logMod->trace("%s: loading spell %s", __FUNCTION__, spell->getNameTranslated());
 
@@ -814,7 +814,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		const int chance = static_cast<int>(node.second.Integer());
 
-		VLC->identifiers()->requestIdentifier(node.second.getModScope(), "faction", node.first, [=](si32 factionID)
+		LIBRARY->identifiers()->requestIdentifier(node.second.getModScope(), "faction", node.first, [=](si32 factionID)
 		{
 			spell->probabilities[FactionID(factionID)] = chance;
 		});
@@ -837,7 +837,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		if(counteredSpell.second.Bool())
 		{
-			VLC->identifiers()->requestIdentifier(counteredSpell.second.getModScope(), "spell", counteredSpell.first, [=](si32 id)
+			LIBRARY->identifiers()->requestIdentifier(counteredSpell.second.getModScope(), "spell", counteredSpell.first, [=](si32 id)
 			{
 				spell->counteredSpells.emplace_back(id);
 			});
@@ -1018,7 +1018,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 		const si32 levelPower     = levelObject.power = static_cast<si32>(levelNode["power"].Integer());
 
 		if (!spell->isCreatureAbility())
-			VLC->generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"]);
+			LIBRARY->generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"]);
 
 		levelObject.cost          = static_cast<si32>(levelNode["cost"].Integer());
 		levelObject.AIValue       = static_cast<si32>(levelNode["aiValue"].Integer());

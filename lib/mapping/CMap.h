@@ -56,26 +56,6 @@ struct DLL_LINKAGE Rumor
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
-/// The disposed hero struct describes which hero can be hired from which player.
-struct DLL_LINKAGE DisposedHero
-{
-	DisposedHero();
-
-	HeroTypeID heroId;
-	HeroTypeID portrait; /// The portrait id of the hero, -1 is default.
-	std::string name;
-	std::set<PlayerColor> players; /// Who can hire this hero (bitfield).
-
-	template <typename Handler>
-	void serialize(Handler & h)
-	{
-		h & heroId;
-		h & portrait;
-		h & name;
-		h & players;
-	}
-};
-
 /// The map contains the map header, the tiles of the terrain, objects, heroes, towns, rumors...
 class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 {
@@ -138,7 +118,6 @@ public:
 	void reindexObjects();
 
 	std::vector<Rumor> rumors;
-	std::vector<DisposedHero> disposedHeroes;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
 	std::set<SpellID> allowedSpells;
 	std::set<ArtifactID> allowedArtifact;

@@ -19,10 +19,9 @@
 #include "BattleStacksController.h"
 #include "CreatureAnimation.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
@@ -124,7 +123,7 @@ void StackActionAnimation::setSound( const AudioPath & sound )
 bool StackActionAnimation::init()
 {
 	if (!sound.empty())
-		CCS->soundh->playSound(sound);
+		ENGINE->sound().playSound(sound);
 
 	if (myAnim->framesInGroup(currGroup) > 0)
 	{
@@ -358,7 +357,7 @@ bool MovementAnimation::init()
 
 	if (moveSoundHandler == -1)
 	{
-		moveSoundHandler = CCS->soundh->playSound(stack->unitType()->sounds.move, -1);
+		moveSoundHandler = ENGINE->sound().playSound(stack->unitType()->sounds.move, -1);
 	}
 
 	Point begPosition = owner.stacksController->getStackPositionAtHex(prevHex, stack);
@@ -419,7 +418,7 @@ MovementAnimation::~MovementAnimation()
 	assert(stack);
 
 	if(moveSoundHandler != -1)
-		CCS->soundh->stopSound(moveSoundHandler);
+		ENGINE->sound().stopSound(moveSoundHandler);
 }
 
 MovementAnimation::MovementAnimation(BattleInterface & owner, const CStack *stack, const BattleHexArray & _destTiles, int _distance)
@@ -455,7 +454,7 @@ bool MovementEndAnimation::init()
 	logAnim->debug("CMovementEndAnimation::init: stack %s", stack->getName());
 	myAnim->pos.moveTo(owner.stacksController->getStackPositionAtHex(nextHex, stack));
 
-	CCS->soundh->playSound(stack->unitType()->sounds.endMoving);
+	ENGINE->sound().playSound(stack->unitType()->sounds.endMoving);
 
 	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_END))
 	{
@@ -475,7 +474,7 @@ MovementEndAnimation::~MovementEndAnimation()
 	if(myAnim->getType() != ECreatureAnimType::DEAD)
 		myAnim->setType(ECreatureAnimType::HOLDING); //resetting to default
 
-	CCS->curh->show();
+	ENGINE->cursor().show();
 }
 
 MovementStartAnimation::MovementStartAnimation(BattleInterface & owner, const CStack * _stack)
@@ -496,7 +495,7 @@ bool MovementStartAnimation::init()
 	}
 
 	logAnim->debug("CMovementStartAnimation::init: stack %s", stack->getName());
-	CCS->soundh->playSound(stack->unitType()->sounds.startMoving);
+	ENGINE->sound().playSound(stack->unitType()->sounds.startMoving);
 
 	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_START))
 	{
@@ -594,16 +593,19 @@ void ColorTransformAnimation::tick(uint32_t msPassed)
 	if (index == timePoints.size())
 	{
 		//end of animation. Apply ColorShifter using final values and die
-		const auto & shifter = steps[index - 1];
-		owner.stacksController->setStackColorFilter(shifter, stack, spell, false);
+		const auto & lastColor = effectColors[index - 1];
+		const auto & lastAlpha = transparency[index - 1];
+		owner.stacksController->setStackColorFilter(lastColor, lastAlpha, stack, spell, false);
 		delete this;
 		return;
 	}
 
 	assert(index != 0);
 
-	const auto & prevShifter = steps[index - 1];
-	const auto & nextShifter = steps[index];
+	const auto & prevColor = effectColors[index - 1];
+	const auto & nextColor = effectColors[index];
+	const auto & prevAlpha = transparency[index - 1];
+	const auto & nextAlpha = transparency[index];
 
 	float prevPoint = timePoints[index-1];
 	float nextPoint = timePoints[index];
@@ -611,9 +613,10 @@ void ColorTransformAnimation::tick(uint32_t msPassed)
 	float stepDuration = (nextPoint - prevPoint);
 	float factor = localProgress / stepDuration;
 
-	auto shifter = ColorFilter::genInterpolated(prevShifter, nextShifter, factor);
+	const auto & currColor = vstd::lerp(prevColor, nextColor, factor);
+	const auto & currAlpha = vstd::lerp(prevAlpha, nextAlpha, factor);
 
-	owner.stacksController->setStackColorFilter(shifter, stack, spell, true);
+	owner.stacksController->setStackColorFilter(currColor, currAlpha, stack, spell, true);
 }
 
 ColorTransformAnimation::ColorTransformAnimation(BattleInterface & owner, const CStack * _stack, const std::string & colorFilterName, const CSpell * spell):
@@ -622,10 +625,11 @@ ColorTransformAnimation::ColorTransformAnimation(BattleInterface & owner, const 
 	totalProgress(0.f)
 {
 	auto effect = owner.effectsController->getMuxerEffect(colorFilterName);
-	steps = effect.filters;
+	effectColors = effect.effectColors;
+	transparency = effect.transparency;
 	timePoints = effect.timePoints;
 
-	assert(!steps.empty() && steps.size() == timePoints.size());
+	assert(!effectColors.empty() && effectColors.size() == timePoints.size());
 
 	logAnim->debug("Created ColorTransformAnimation for %s", stack->getName());
 }
@@ -811,7 +815,7 @@ void CatapultAnimation::tick(uint32_t msPassed)
 	auto soundFilename  = AudioPath::builtin((catapultDamage > 0) ? "WALLHIT" : "WALLMISS");
 	AnimationPath effectFilename = AnimationPath::builtin((catapultDamage > 0) ? "SGEXPL" : "CSGRCK");
 
-	CCS->soundh->playSound( soundFilename );
+	ENGINE->sound().playSound( soundFilename );
 	owner.stacksController->addNewAnim( new EffectAnimation(owner, effectFilename, shotTarget));
 }
 
@@ -883,7 +887,7 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 
 EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects, float transparencyFactor, bool reversed):
 	BattleAnimation(owner),
-	animation(GH.renderHandler().loadAnimation(animationName, EImageBlitMode::SIMPLE)),
+	animation(ENGINE->renderHandler().loadAnimation(animationName, EImageBlitMode::SIMPLE)),
 	transparencyFactor(transparencyFactor),
 	effectFlags(effects),
 	effectFinished(false),

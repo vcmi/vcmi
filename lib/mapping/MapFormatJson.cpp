@@ -17,7 +17,7 @@
 #include "CMap.h"
 #include "MapFormat.h"
 #include "../ArtifactUtils.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
@@ -262,7 +262,7 @@ CMapFormatJson::CMapFormatJson():
 
 TerrainId CMapFormatJson::getTerrainByCode(const std::string & code)
 {
-	for(const auto & object : VLC->terrainTypeHandler->objects)
+	for(const auto & object : LIBRARY->terrainTypeHandler->objects)
 	{
 		if(object->shortIdentifier == code)
 			return object->getId();
@@ -272,7 +272,7 @@ TerrainId CMapFormatJson::getTerrainByCode(const std::string & code)
 
 RiverId CMapFormatJson::getRiverByCode(const std::string & code)
 {
-	for(const auto & object : VLC->riverTypeHandler->objects)
+	for(const auto & object : LIBRARY->riverTypeHandler->objects)
 	{
 		if (object->shortIdentifier == code)
 			return object->getId();
@@ -282,7 +282,7 @@ RiverId CMapFormatJson::getRiverByCode(const std::string & code)
 
 RoadId CMapFormatJson::getRoadByCode(const std::string & code)
 {
-	for(const auto & object : VLC->roadTypeHandler->objects)
+	for(const auto & object : LIBRARY->roadTypeHandler->objects)
 	{
 		if (object->shortIdentifier == code)
 			return object->getId();
@@ -296,12 +296,12 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 
 	if(handler.saving)
 	{
-		for(auto const factionID : VLC->townh->getDefaultAllowed())
+		for(auto const factionID : LIBRARY->townh->getDefaultAllowed())
 			if(vstd::contains(value, factionID))
 				temp.insert(factionID);
 	}
 
-	handler.serializeLIC("allowedFactions", &FactionID::decode, &FactionID::encode, VLC->townh->getDefaultAllowed(), temp);
+	handler.serializeLIC("allowedFactions", &FactionID::decode, &FactionID::encode, LIBRARY->townh->getDefaultAllowed(), temp);
 
 	if(!handler.saving)
 		value = temp;
@@ -322,7 +322,7 @@ void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 
 	serializePlayerInfo(handler);
 
-	handler.serializeLIC("allowedHeroes", &HeroTypeID::decode, &HeroTypeID::encode, VLC->heroh->getDefaultAllowed(), mapHeader->allowedHeroes);
+	handler.serializeLIC("allowedHeroes", &HeroTypeID::decode, &HeroTypeID::encode, LIBRARY->heroh->getDefaultAllowed(), mapHeader->allowedHeroes);
 
 	handler.serializeStruct("victoryMessage", mapHeader->victoryMessage);
 	handler.serializeInt("victoryIconIndex", mapHeader->victoryIconIndex);
@@ -640,19 +640,19 @@ void CMapFormatJson::readDisposedHeroes(JsonSerializeFormat & handler)
 			hero.players = mask;
 			//name and portrait are not used
 
-			map->disposedHeroes.push_back(hero);
+			mapHeader->disposedHeroes.push_back(hero);
 		}
 	}
 }
 
 void CMapFormatJson::writeDisposedHeroes(JsonSerializeFormat & handler)
 {
-	if(map->disposedHeroes.empty())
+	if(mapHeader->disposedHeroes.empty())
 		return;
 
 	auto definitions = handler.enterStruct("predefinedHeroes");//DisposedHeroes are part of predefinedHeroes in VCMI map format
 
-	for(DisposedHero & hero : map->disposedHeroes)
+	for(DisposedHero & hero : mapHeader->disposedHeroes)
 	{
 		std::string type = HeroTypeID::encode(hero.heroId.getNum());
 
@@ -723,11 +723,11 @@ void CMapFormatJson::serializeOptions(JsonSerializeFormat & handler)
 
 	serializePredefinedHeroes(handler);
 
-	handler.serializeLIC("allowedAbilities", &SecondarySkill::decode, &SecondarySkill::encode, VLC->skillh->getDefaultAllowed(), map->allowedAbilities);
+	handler.serializeLIC("allowedAbilities", &SecondarySkill::decode, &SecondarySkill::encode, LIBRARY->skillh->getDefaultAllowed(), map->allowedAbilities);
 
-	handler.serializeLIC("allowedArtifacts",  &ArtifactID::decode, &ArtifactID::encode, VLC->arth->getDefaultAllowed(), map->allowedArtifact);
+	handler.serializeLIC("allowedArtifacts",  &ArtifactID::decode, &ArtifactID::encode, LIBRARY->arth->getDefaultAllowed(), map->allowedArtifact);
 
-	handler.serializeLIC("allowedSpells", &SpellID::decode, &SpellID::encode, VLC->spellh->getDefaultAllowed(), map->allowedSpells);
+	handler.serializeLIC("allowedSpells", &SpellID::decode, &SpellID::encode, LIBRARY->spellh->getDefaultAllowed(), map->allowedSpells);
 
 	//todo:events
 }
@@ -1055,7 +1055,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 		return;
 	}
 
-	auto handler = VLC->objtypeh->getHandlerFor( ModScope::scopeMap(), typeName, subtypeName);
+	auto handler = LIBRARY->objtypeh->getHandlerFor( ModScope::scopeMap(), typeName, subtypeName);
 
 	auto appearance = std::make_shared<ObjectTemplate>();
 
@@ -1092,7 +1092,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 		if(art->ID == Obj::SPELL_SCROLL)
 		{
 			auto spellIdentifier = configuration["options"]["spell"].String();
-			auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeBuiltin(), "spell", spellIdentifier);
+			auto rawId = LIBRARY->identifiers()->getIdentifier(ModScope::scopeBuiltin(), "spell", spellIdentifier);
 			if(rawId)
 				spellID = rawId.value();
 			else

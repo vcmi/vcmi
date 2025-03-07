@@ -349,7 +349,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 		logAi->trace(
 			"Checking movement towards %d of %s",
 			enemy->getCount(),
-			VLC->creatures()->getById(enemy->creatureId())->getJsonKey());
+			LIBRARY->creatures()->getById(enemy->creatureId())->getJsonKey());
 
 		auto distance = dists.distToNearestNeighbour(activeStack, enemy);
 
@@ -506,7 +506,7 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 	uint8_t turn,
 	PotentialTargets & targets,
 	std::shared_ptr<HypotheticBattle> hb,
-	battle::Units additionalUnits) const
+	const battle::Units & additionalUnits) const
 {
 	ReachabilityData result;
 
@@ -636,7 +636,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	PotentialTargets & targets,
 	DamageCache & damageCache,
 	std::shared_ptr<HypotheticBattle> hb,
-	battle::Units additionalUnits) const
+	const battle::Units & additionalUnits) const
 {
 #if BATTLE_TRACE_LEVEL>=1
 	logAi->trace("Battle exchange at %d", ap.attack.shooting ? ap.dest.toInt() : ap.from.toInt());
@@ -1002,7 +1002,7 @@ const battle::Units & BattleExchangeEvaluator::getOneTurnReachableUnits(uint8_t 
 }
 
 // avoid blocking path for stronger stack by weaker stack
-bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * activeUnit, const BattleHex & position)
+bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(const HypotheticBattle & hb, const battle::Unit * activeUnit, const BattleHex & position)
 {
 	const int BLOCKING_THRESHOLD = 70;
 	const int BLOCKING_OWN_ATTACK_PENALTY = 100;

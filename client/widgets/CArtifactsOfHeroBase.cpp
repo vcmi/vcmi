@@ -10,16 +10,15 @@
 #include "StdInc.h"
 #include "CArtifactsOfHeroBase.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 
 #include "Buttons.h"
 
 #include "../CPlayerInterface.h"
-#include "../CGameInfo.h"
 
 #include "../../CCallback.h"
-
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
@@ -37,11 +36,11 @@ void CArtifactsOfHeroBase::putBackPickedArtifact()
 		auto slot = ArtifactUtils::getArtAnyPosition(curHero, art->getTypeId());
 		if(slot == ArtifactPosition::PRE_FIRST)
 		{
-			LOCPLINT->cb->eraseArtifactByClient(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
+			GAME->interface()->cb->eraseArtifactByClient(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
 		}
 		else
 		{
-			LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS), ArtifactLocation(curHero->id, slot));
+			GAME->interface()->cb->swapArtifacts(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS), ArtifactLocation(curHero->id, slot));
 		}
 	}
 }
@@ -157,7 +156,7 @@ const CGHeroInstance * CArtifactsOfHeroBase::getHero() const
 
 void CArtifactsOfHeroBase::scrollBackpack(bool left)
 {
-	LOCPLINT->cb->scrollBackpackArtifacts(curHero->id, left);
+	GAME->interface()->cb->scrollBackpackArtifacts(curHero->id, left);
 }
 
 void CArtifactsOfHeroBase::markPossibleSlots(const CArtifact * art, bool assumeDestRemoved)

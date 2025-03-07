@@ -16,7 +16,7 @@
 #include "../entities/faction/CTownHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "CMapGenOptions.h"
 #include "RmgMap.h"
 #include "Zone.h"
@@ -477,7 +477,7 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 					zonesToPlace.push_back(zone);
 				else
 				{
-					auto & tt = (*VLC->townh)[faction]->nativeTerrain;
+					auto & tt = (*LIBRARY->townh)[faction]->nativeTerrain;
 					if(tt == ETerrainId::NONE)
 					{
 						//any / random
@@ -485,7 +485,7 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 					}
 					else
 					{
-						const auto & terrainType = VLC->terrainTypeHandler->getById(tt);
+						const auto & terrainType = LIBRARY->terrainTypeHandler->getById(tt);
 						if(terrainType->isUnderground() && !terrainType->isSurface())
 						{
 							//underground only
@@ -783,7 +783,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		//Move one zone towards most distant zone to reduce distance
 
 		float maxDistance = 0;
-		for (auto con : misplacedZone->getConnections())
+		for (const auto & con : misplacedZone->getConnections())
 		{
 			if (con.getConnectionType() == rmg::EConnectionType::REPULSIVE)
 			{

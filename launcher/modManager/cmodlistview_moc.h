@@ -64,6 +64,8 @@ class CModListView : public QWidget
 
 	void changeEvent(QEvent *event) override;
 
+	auto buttonEnabledState(QString modName, ModState & mod);
+
 public:
 	explicit CModListView(QWidget * parent = nullptr);
 	~CModListView();
@@ -82,8 +84,14 @@ public:
 	/// install mod by name
 	void doInstallMod(const QString & modName);
 
+	/// uninstall mod by name
+	void doUninstallMod(const QString & modName);
+
 	/// update mod by name
 	void doUpdateMod(const QString & modName);
+
+	/// open mod dictionary by name
+	void openModDictionary(const QString & modName);
 
 	/// returns true if mod is available in repository and can be installed
 	bool isModAvailable(const QString & modName);
@@ -123,6 +131,7 @@ public slots:
 	void disableModByName(QString modName);
 
 private slots:
+	void onCustomContextMenu(const QPoint &point);
 	void dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight);
 	void modSelected(const QModelIndex & current, const QModelIndex & previous);
 	void downloadProgress(qint64 current, qint64 max);

@@ -48,7 +48,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 static const JsonNode nullNode;
 
-class LibClasses;
+class GameLibrary;
 class CModHandler;
 
 JsonNode::JsonNode(bool boolean)

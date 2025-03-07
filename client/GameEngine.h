@@ -1,5 +1,5 @@
 /*
- * CGuiHandler.h, part of VCMI engine
+ * GameEngine.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -19,16 +19,18 @@ class ShortcutHandler;
 class FramerateManager;
 class IStatusBar;
 class CIntObject;
-class IUpdateable;
-class IShowActivatable;
+class IGameEngineUser;
 class IRenderHandler;
 class IScreenHandler;
 class WindowHandler;
 class EventDispatcher;
 class InputHandler;
+class ISoundPlayer;
+class IMusicPlayer;
+class CursorHandler;
+class IVideoPlayer;
 
-// Handles GUI logic and drawing
-class CGuiHandler
+class GameEngine
 {
 private:
 	/// Fake no-op version status bar, for use in windows that have no status bar
@@ -46,8 +48,15 @@ private:
 	std::unique_ptr<EventDispatcher> eventDispatcherInstance;
 	std::unique_ptr<InputHandler> inputHandlerInstance;
 
+	std::unique_ptr<ISoundPlayer> soundPlayerInstance;
+	std::unique_ptr<IMusicPlayer> musicPlayerInstance;
+	std::unique_ptr<CursorHandler> cursorHandlerInstance;
+	std::unique_ptr<IVideoPlayer> videoPlayerInstance;
+
+	IGameEngineUser *engineUser = nullptr;
+
 public:
-	boost::mutex interfaceMutex;
+	std::mutex interfaceMutex;
 
 	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
@@ -56,6 +65,12 @@ public:
 	FramerateManager & framerate();
 	EventDispatcher & events();
 	InputHandler & input();
+
+	IGameEngineUser & user() { return *engineUser; }
+	ISoundPlayer & sound() { return *soundPlayerInstance; }
+	IMusicPlayer & music() { return *musicPlayerInstance; }
+	CursorHandler & cursor() { return *cursorHandlerInstance; }
+	IVideoPlayer & video() { return *videoPlayerInstance; }
 
 	/// Returns current logical screen dimensions
 	/// May not match size of window if user has UI scaling different from 100%
@@ -74,9 +89,6 @@ public:
 	/// returns true if Shift is currently pressed down
 	bool isKeyboardShiftDown() const;
 
-	void startTextInput(const Rect & where);
-	void stopTextInput();
-
 	IScreenHandler & screenHandler();
 	IRenderHandler & renderHandler();
 	WindowHandler & windows();
@@ -86,14 +98,13 @@ public:
 
 	/// Set currently active status bar
 	void setStatusbar(std::shared_ptr<IStatusBar>);
-
-	IUpdateable *curInt;
+	void setEngineUser(IGameEngineUser * user);
 
 	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
 	std::list<CIntObject *> createdObj; //stack of objs being created
 
-	CGuiHandler();
-	~CGuiHandler();
+	GameEngine();
+	~GameEngine();
 
 	void init();
 	void renderFrame();
@@ -111,4 +122,4 @@ public:
 	void dispatchMainThread(const std::function<void()> & functor);
 };
 
-extern CGuiHandler GH; //global gui handler
+extern std::unique_ptr<GameEngine> ENGINE; //global gui handler

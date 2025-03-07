@@ -64,4 +64,18 @@ public:
 	}
 };
 
+namespace vstd
+{
+template<typename Floating>
+ColorRGBA lerp(const ColorRGBA & left, const ColorRGBA & right, const Floating & factor)
+{
+	return ColorRGBA(
+		vstd::lerp(left.r, right.r, factor),
+		vstd::lerp(left.g, right.g, factor),
+		vstd::lerp(left.b, right.b, factor),
+		vstd::lerp(left.a, right.a, factor)
+	);
+}
+}
+
 VCMI_LIB_NAMESPACE_END

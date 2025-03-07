@@ -20,6 +20,10 @@
 #include <QtAndroid>
 #endif
 
+#ifdef VCMI_IOS
+#include "ios/revealdirectoryinfiles.h"
+#endif
+
 #ifdef VCMI_MOBILE
 static QScrollerProperties generateScrollerProperties()
 {
@@ -73,6 +77,16 @@ void performNativeCopy(QString src, QString dst)
 	QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;Landroid/content/Context;)V", srcStr.object<jstring>(), dstStr.object<jstring>(), QtAndroid::androidContext().object());
 #else
 	QFile::copy(src, dst);
+#endif
+}
+
+void revealDirectoryInFileBrowser(QString path)
+{
+	const auto dirUrl = QUrl::fromLocalFile(QFileInfo{path}.absoluteFilePath());
+#ifdef VCMI_IOS
+	iOS_utils::revealDirectoryInFiles(dirUrl);
+#else
+	QDesktopServices::openUrl(dirUrl);
 #endif
 }
 }

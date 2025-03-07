@@ -16,7 +16,7 @@
 #include "ModScope.h"
 
 #include "../json/JsonNode.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -64,7 +64,7 @@ ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const 
 {
 	ModListVerificationStatus result;
 
-	for(const auto & m : VLC->modh->getActiveMods())
+	for(const auto & m : LIBRARY->modh->getActiveMods())
 	{
 		if(modList.count(m))
 			continue;
@@ -72,7 +72,7 @@ ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const 
 		if (m == ModScope::scopeBuiltin())
 			continue;
 
-		if(VLC->modh->getModInfo(m).affectsGameplay())
+		if(LIBRARY->modh->getModInfo(m).affectsGameplay())
 			result[m] = ModVerificationStatus::EXCESSIVE;
 	}
 
@@ -89,20 +89,20 @@ ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const 
 		for(const auto & subInfoPair : modList)
 			modAffectsGameplay |= (subInfoPair.second.impactsGameplay && subInfoPair.second.parent == remoteModId);
 
-		if(!vstd::contains(VLC->modh->getAllMods(), remoteModId))
+		if(!vstd::contains(LIBRARY->modh->getAllMods(), remoteModId))
 		{
 			result[remoteModId] = ModVerificationStatus::NOT_INSTALLED;
 			continue;
 		}
 
-		const auto & localVersion = VLC->modh->getModInfo(remoteModId).getVersion();
-		modAffectsGameplay |= VLC->modh->getModInfo(remoteModId).affectsGameplay();
+		const auto & localVersion = LIBRARY->modh->getModInfo(remoteModId).getVersion();
+		modAffectsGameplay |= LIBRARY->modh->getModInfo(remoteModId).affectsGameplay();
 
 		// skip it. Such mods should only be present in old saves or if mod changed and no longer affects gameplay
 		if (!modAffectsGameplay)
 			continue;
 
-		if (!vstd::contains(VLC->modh->getActiveMods(), remoteModId))
+		if (!vstd::contains(LIBRARY->modh->getActiveMods(), remoteModId))
 		{
 			result[remoteModId] = ModVerificationStatus::DISABLED;
 			continue;

@@ -47,7 +47,7 @@ void ObjectManager::init()
 	// Consider only connected zones
 	auto id = zone.getId();
 	std::set<TRmgTemplateZoneId> connectedZones;
-	for(auto c : map.getMapGenOptions().getMapTemplate()->getConnectedZoneIds())
+	for(const auto & c : map.getMapGenOptions().getMapTemplate()->getConnectedZoneIds())
 	{
 		// Only consider connected zones
 		if (c.getZoneA() == id || c.getZoneB() == id)
@@ -121,7 +121,7 @@ void ObjectManager::updateDistances(const int3 & pos)
 void ObjectManager::updateDistances(std::function<ui32(const int3 & tile)> distanceFunction)
 {
 	// Workaround to avoid deadlock when accessed from other zone
-	RecursiveLock lock(zone.areaMutex, boost::try_to_lock);
+	RecursiveLock lock(zone.areaMutex, std::try_to_lock);
 	if (!lock.owns_lock())
 	{
 		// Unsolvable problem of mutual access
@@ -747,7 +747,7 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	CreatureID creId = CreatureID::NONE;
 	int amount = 0;
 	std::vector<CreatureID> possibleCreatures;
-	for(auto const & cre : VLC->creh->objects)
+	for(auto const & cre : LIBRARY->creh->objects)
 	{
 		if(cre->special)
 			continue;
@@ -763,17 +763,17 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	if(!possibleCreatures.empty())
 	{
 		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, zone.getRand());
-		amount = strength / creId.toEntity(VLC)->getAIValue();
+		amount = strength / creId.toEntity(LIBRARY)->getAIValue();
 		if (amount >= 4)
 			amount = static_cast<int>(amount * zone.getRand().nextDouble(0.75, 1.25));
 	}
 	else //just pick any available creature
 	{
 		creId = CreatureID::AZURE_DRAGON; //Azure Dragon
-		amount = strength / creId.toEntity(VLC)->getAIValue();
+		amount = strength / creId.toEntity(LIBRARY)->getAIValue();
 	}
 	
-	auto guardFactory = VLC->objtypeh->getHandlerFor(Obj::MONSTER, creId);
+	auto guardFactory = LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, creId);
 
 	auto * guard = dynamic_cast<CGCreature *>(guardFactory->create(map.mapInstance->cb, nullptr));
 	guard->character = CGCreature::HOSTILE;

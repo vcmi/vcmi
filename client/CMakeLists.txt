@@ -37,7 +37,6 @@ set(vcmiclientcommon_SRCS
 	eventsSDL/InputSourceTouch.cpp
 	eventsSDL/InputSourceGameController.cpp
 
-	gui/CGuiHandler.cpp
 	gui/CIntObject.cpp
 	gui/CursorHandler.cpp
 	gui/EventDispatcher.cpp
@@ -180,7 +179,8 @@ set(vcmiclientcommon_SRCS
 	xBRZ/xbrz.cpp
 
 	ArtifactsUIController.cpp
-	CGameInfo.cpp
+	GameEngine.cpp
+	GameInstance.cpp
 	CPlayerInterface.cpp
 	PlayerLocalState.cpp
 	CServerHandler.cpp
@@ -233,7 +233,6 @@ set(vcmiclientcommon_HEADERS
 	eventsSDL/InputSourceTouch.h
 	eventsSDL/InputSourceGameController.h
 
-	gui/CGuiHandler.h
 	gui/CIntObject.h
 	gui/CursorHandler.h
 	gui/EventDispatcher.h
@@ -396,9 +395,11 @@ set(vcmiclientcommon_HEADERS
 	xBRZ/xbrz_tools.h
 
 	ArtifactsUIController.h
-	CGameInfo.h
 	CMT.h
 	CPlayerInterface.h
+	GameEngine.h
+	GameEngineUser.h
+	GameInstance.h
 	PlayerLocalState.h
 	CServerHandler.h
 	Client.h
@@ -491,6 +492,10 @@ if (ffmpeg_INCLUDE_DIRS)
 	target_include_directories(vcmiclientcommon PRIVATE
 		${ffmpeg_INCLUDE_DIRS}
 	)
+endif()
+
+if(VCMI_PORTMASTER)
+	target_compile_definitions(vcmiclientcommon PRIVATE VCMI_PORTMASTER)
 endif()
 
 vcmi_set_output_dir(vcmiclientcommon "")

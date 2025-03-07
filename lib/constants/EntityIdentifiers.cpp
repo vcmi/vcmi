@@ -28,7 +28,7 @@
 
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 #include "CArtHandler.h"//todo: remove
 #include "CCreatureHandler.h"//todo: remove
 #include "spells/CSpellHandler.h" //todo: remove
@@ -148,7 +148,7 @@ int32_t IdentifierBase::resolveIdentifier(const std::string & entityType, const 
 	if (identifier.empty())
 		return -1;
 
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType, identifier);
+	auto rawId = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), entityType, identifier);
 
 	if (rawId)
 		return rawId.value();
@@ -164,7 +164,7 @@ std::string HeroClassID::encode(const si32 index)
 {
 	if (index == -1)
 		return "";
-	return VLC->heroClasses()->getByIndex(index)->getJsonKey();
+	return LIBRARY->heroClasses()->getByIndex(index)->getJsonKey();
 }
 
 std::string HeroClassID::entityType()
@@ -174,7 +174,7 @@ std::string HeroClassID::entityType()
 
 const CHeroClass * HeroClassID::toHeroClass() const
 {
-	return dynamic_cast<const CHeroClass*>(toEntity(VLC));
+	return dynamic_cast<const CHeroClass*>(toEntity(LIBRARY));
 }
 
 const HeroClass * HeroClassID::toEntity(const Services * services) const
@@ -206,7 +206,7 @@ std::string MapObjectID::encode(int32_t index)
 {
 	if (index == -1)
 		return "";
-	return VLC->objtypeh->getJsonKey(MapObjectID(index));
+	return LIBRARY->objtypeh->getJsonKey(MapObjectID(index));
 }
 
 si32 MapObjectID::decode(const std::string & identifier)
@@ -225,7 +225,7 @@ std::string MapObjectSubID::encode(MapObjectID primaryID, int32_t index)
 	if (primaryID == Obj::SPELL_SCROLL)
 		return SpellID::encode(index);
 
-	return VLC->objtypeh->getHandlerFor(primaryID, index)->getJsonKey();
+	return LIBRARY->objtypeh->getHandlerFor(primaryID, index)->getJsonKey();
 }
 
 si32 MapObjectSubID::decode(MapObjectID primaryID, const std::string & identifier)
@@ -236,14 +236,14 @@ si32 MapObjectSubID::decode(MapObjectID primaryID, const std::string & identifie
 	if (primaryID == Obj::SPELL_SCROLL)
 		return SpellID::decode(identifier);
 
-	return resolveIdentifier(VLC->objtypeh->getJsonKey(primaryID), identifier);
+	return resolveIdentifier(LIBRARY->objtypeh->getJsonKey(primaryID), identifier);
 }
 
 std::string BoatId::encode(int32_t index)
 {
 	if (index == -1)
 		return "";
-	return VLC->objtypeh->getHandlerFor(MapObjectID::BOAT, index)->getJsonKey();
+	return LIBRARY->objtypeh->getHandlerFor(MapObjectID::BOAT, index)->getJsonKey();
 }
 
 si32 BoatId::decode(const std::string & identifier)
@@ -264,7 +264,7 @@ std::string HeroTypeID::encode(const si32 index)
 		return "";
 	if (index == -2)
 		return "random";
-	return VLC->heroTypes()->getByIndex(index)->getJsonKey();
+	return LIBRARY->heroTypes()->getByIndex(index)->getJsonKey();
 }
 
 std::string HeroTypeID::entityType()
@@ -274,7 +274,7 @@ std::string HeroTypeID::entityType()
 
 const CArtifact * ArtifactIDBase::toArtifact() const
 {
-	return dynamic_cast<const CArtifact*>(toEntity(VLC));
+	return dynamic_cast<const CArtifact*>(toEntity(LIBRARY));
 }
 
 const Artifact * ArtifactIDBase::toEntity(const Services * services) const
@@ -291,7 +291,7 @@ std::string ArtifactID::encode(const si32 index)
 {
 	if (index == -1)
 		return "";
-	return VLC->artifacts()->getByIndex(index)->getJsonKey();
+	return LIBRARY->artifacts()->getByIndex(index)->getJsonKey();
 }
 
 std::string ArtifactID::entityType()
@@ -308,12 +308,12 @@ std::string SecondarySkill::encode(const si32 index)
 {
 	if (index == -1)
 		return "";
-	return VLC->skills()->getById(SecondarySkill(index))->getJsonKey();
+	return LIBRARY->skills()->getById(SecondarySkill(index))->getJsonKey();
 }
 
 const CSkill * SecondarySkill::toSkill() const
 {
-	return dynamic_cast<const CSkill *>(toEntity(VLC));
+	return dynamic_cast<const CSkill *>(toEntity(LIBRARY));
 }
 
 const Skill * SecondarySkill::toEntity(const Services * services) const
@@ -323,7 +323,7 @@ const Skill * SecondarySkill::toEntity(const Services * services) const
 
 const CCreature * CreatureIDBase::toCreature() const
 {
-	return (*VLC->creh)[num];
+	return (*LIBRARY->creh)[num];
 }
 
 const Creature * CreatureIDBase::toEntity(const Services * services) const
@@ -345,7 +345,7 @@ std::string CreatureID::encode(const si32 index)
 {
 	if (index == -1)
 		return "";
-	return VLC->creatures()->getById(CreatureID(index))->getJsonKey();
+	return LIBRARY->creatures()->getById(CreatureID(index))->getJsonKey();
 }
 
 std::string CreatureID::entityType()
@@ -355,7 +355,7 @@ std::string CreatureID::entityType()
 
 const CSpell * SpellIDBase::toSpell() const
 {
-	return dynamic_cast<const CSpell*>(toEntity(VLC));
+	return dynamic_cast<const CSpell*>(toEntity(LIBRARY));
 }
 
 const spells::Spell * SpellIDBase::toEntity(const Services * services) const
@@ -370,7 +370,7 @@ const spells::Spell * SpellIDBase::toEntity(const spells::Service * service) con
 
 const CHero * HeroTypeID::toHeroType() const
 {
-	return dynamic_cast<const CHero*>(toEntity(VLC));
+	return dynamic_cast<const CHero*>(toEntity(LIBRARY));
 }
 
 const HeroType * HeroTypeID::toEntity(const Services * services) const
@@ -395,7 +395,7 @@ std::string SpellID::encode(const si32 index)
 		return "preset";
 	if (index == SpellID::SPELLBOOK_PRESET)
 		return "spellbook_preset";
-	return VLC->spells()->getByIndex(index)->getJsonKey();
+	return LIBRARY->spells()->getByIndex(index)->getJsonKey();
 }
 
 si32 BattleField::decode(const std::string & identifier)
@@ -405,7 +405,7 @@ si32 BattleField::decode(const std::string & identifier)
 
 std::string BattleField::encode(const si32 index)
 {
-	return VLC->battlefields()->getByIndex(index)->getJsonKey();
+	return LIBRARY->battlefields()->getByIndex(index)->getJsonKey();
 }
 
 std::string SpellID::entityType()
@@ -476,7 +476,7 @@ std::string FactionID::encode(const si32 index)
 {
 	if (index == -1)
 		return "";
-	return VLC->factions()->getByIndex(index)->getJsonKey();
+	return LIBRARY->factions()->getByIndex(index)->getJsonKey();
 }
 
 std::string FactionID::entityType()
@@ -486,7 +486,7 @@ std::string FactionID::entityType()
 
 const CFaction * FactionID::toFaction() const
 {
-	return dynamic_cast<const CFaction*>(toEntity(VLC));
+	return dynamic_cast<const CFaction*>(toEntity(LIBRARY));
 }
 
 const Faction * FactionID::toEntity(const Services * service) const
@@ -508,7 +508,7 @@ std::string TerrainId::encode(const si32 index)
 		return "";
 	if (index == TerrainId::NATIVE_TERRAIN)
 		return "native";
-	return VLC->terrainTypeHandler->getByIndex(index)->getJsonKey();
+	return LIBRARY->terrainTypeHandler->getByIndex(index)->getJsonKey();
 }
 
 std::string TerrainId::entityType()
@@ -528,7 +528,7 @@ std::string RoadId::encode(const si32 index)
 {
 	if (index == RoadId::NO_ROAD.getNum())
 		return "";
-	return VLC->roadTypeHandler->getByIndex(index)->getJsonKey();
+	return LIBRARY->roadTypeHandler->getByIndex(index)->getJsonKey();
 }
 
 std::string RoadId::entityType()
@@ -548,7 +548,7 @@ std::string RiverId::encode(const si32 index)
 {
 	if (index == RiverId::NO_RIVER.getNum())
 		return "";
-	return VLC->riverTypeHandler->getByIndex(index)->getJsonKey();
+	return LIBRARY->riverTypeHandler->getByIndex(index)->getJsonKey();
 }
 
 std::string RiverId::entityType()
@@ -558,29 +558,29 @@ std::string RiverId::entityType()
 
 const TerrainType * TerrainId::toEntity(const Services * service) const
 {
-	return VLC->terrainTypeHandler->getByIndex(num);
+	return LIBRARY->terrainTypeHandler->getByIndex(num);
 }
 
 const RoadType * RoadId::toEntity(const Services * service) const
 {
-	return VLC->roadTypeHandler->getByIndex(num);
+	return LIBRARY->roadTypeHandler->getByIndex(num);
 }
 
 const RiverType * RiverId::toEntity(const Services * service) const
 {
-	return VLC->riverTypeHandler->getByIndex(num);
+	return LIBRARY->riverTypeHandler->getByIndex(num);
 }
 
 const BattleField BattleField::NONE;
 
 const BattleFieldInfo * BattleField::getInfo() const
 {
-	return VLC->battlefields()->getById(*this);
+	return LIBRARY->battlefields()->getById(*this);
 }
 
 const ObstacleInfo * Obstacle::getInfo() const
 {
-	return VLC->obstacles()->getById(*this);
+	return LIBRARY->obstacles()->getById(*this);
 }
 
 si32 SpellSchool::decode(const std::string & identifier)

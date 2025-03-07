@@ -15,7 +15,7 @@
 #include "../../CCallback.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/GameConstants.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -27,8 +27,8 @@ namespace NKAI
 
 class AIStatus
 {
-	boost::mutex mx;
-	boost::condition_variable cv;
+	std::mutex mx;
+	std::condition_variable cv;
 
 	BattleState battle;
 	std::map<QueryID, std::string> remainingQueries;
@@ -83,7 +83,7 @@ public:
 	std::shared_ptr<CCallback> myCb;
 	std::unique_ptr<boost::thread> makingTurn;
 private:
-	boost::mutex turnInterruptionMutex;
+	std::mutex turnInterruptionMutex;
 
 public:
 	ObjectInstanceID selectedObject;

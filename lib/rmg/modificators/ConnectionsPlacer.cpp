@@ -37,8 +37,8 @@ std::pair<Zone::Lock, Zone::Lock> ConnectionsPlacer::lockZones(std::shared_ptr<Z
 
 	while (true)
 	{
-		auto lock1 = Zone::Lock(zone.areaMutex, boost::try_to_lock);
-		auto lock2 = Zone::Lock(otherZone->areaMutex, boost::try_to_lock);
+		auto lock1 = Zone::Lock(zone.areaMutex, std::try_to_lock);
+		auto lock2 = Zone::Lock(otherZone->areaMutex, std::try_to_lock);
 
 		if (lock1.owns_lock() && lock2.owns_lock())
 		{
@@ -71,8 +71,8 @@ void ConnectionsPlacer::process()
 
 			while (cp)
 			{
-				RecursiveLock lock1(externalAccessMutex, boost::try_to_lock);
-				RecursiveLock lock2(cp->externalAccessMutex, boost::try_to_lock);
+				RecursiveLock lock1(externalAccessMutex, std::try_to_lock);
+				RecursiveLock lock2(cp->externalAccessMutex, std::try_to_lock);
 				if (lock1.owns_lock() && lock2.owns_lock())
 				{
 					if (!vstd::contains(dCompleted, c))
@@ -149,8 +149,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	
 	//1. Try to make direct connection
 	//Do if it's not prohibited by terrain settings
-	const auto * ourTerrain   = VLC->terrainTypeHandler->getById(zone.getTerrainType());
-	const auto * otherTerrain = VLC->terrainTypeHandler->getById(otherZone->getTerrainType());
+	const auto * ourTerrain   = LIBRARY->terrainTypeHandler->getById(zone.getTerrainType());
+	const auto * otherTerrain = LIBRARY->terrainTypeHandler->getById(otherZone->getTerrainType());
 
 	bool directProhibited = vstd::contains(ourTerrain->prohibitTransitions, otherZone->getTerrainType())
 						 || vstd::contains(otherTerrain->prohibitTransitions, zone.getTerrainType());
@@ -378,7 +378,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			assert(otherZone->getModificator<ObjectManager>());
 			auto & managerOther = *otherZone->getModificator<ObjectManager>();
 			
-			auto factory = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
+			auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
 			auto * gate1 = factory->create(map.mapInstance->cb, nullptr);
 			auto * gate2 = factory->create(map.mapInstance->cb, nullptr);
 			rmg::Object rmgGate1(*gate1);
@@ -446,7 +446,7 @@ void ConnectionsPlacer::placeMonolithConnection(const rmg::ZoneConnection & conn
 
 	bool allowRoad = shouldGenerateRoad(connection);
 
-	auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
+	auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
 	auto * teleport1 = factory->create(map.mapInstance->cb, nullptr);
 	auto * teleport2 = factory->create(map.mapInstance->cb, nullptr);
 

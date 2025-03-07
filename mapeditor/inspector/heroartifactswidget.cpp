@@ -52,14 +52,14 @@ void HeroArtifactsWidget::on_removeButton_clicked()
 
 void HeroArtifactsWidget::onSaveArtifact(int32_t artifactIndex, ArtifactPosition slot) 
 {
-	auto artifact = ArtifactUtils::createArtifact(VLC->arth->getByIndex(artifactIndex)->getId());
+	auto artifact = ArtifactUtils::createArtifact(LIBRARY->arth->getByIndex(artifactIndex)->getId());
 	fittingSet.putArtifact(slot, artifact);
 	addArtifactToTable(artifactIndex, slot);
 }
 
 void HeroArtifactsWidget::addArtifactToTable(int32_t artifactIndex, ArtifactPosition slot)
 {
-	auto artifact = VLC->arth->getByIndex(artifactIndex);
+	auto artifact = LIBRARY->arth->getByIndex(artifactIndex);
 	auto * itemArtifact = new QTableWidgetItem;
 	itemArtifact->setText(QString::fromStdString(artifact->getNameTranslated()));
 	itemArtifact->setData(MapEditorRoles::ArtifactIDRole, QVariant::fromValue(artifact->getIndex()));
@@ -79,11 +79,11 @@ void HeroArtifactsWidget::obtainData()
 	std::vector<const CArtifact *> combinedArtifactsParts;
 	for (const auto & [artPosition, artSlotInfo] : fittingSet.artifactsWorn)
 	{
-		addArtifactToTable(VLC->arth->getById(artSlotInfo.artifact->getTypeId())->getIndex(), artPosition);
+		addArtifactToTable(LIBRARY->arth->getById(artSlotInfo.artifact->getTypeId())->getIndex(), artPosition);
 	}
 	for (const auto & art : hero.artifactsInBackpack)
 	{
-		addArtifactToTable(VLC->arth->getById(art.artifact->getTypeId())->getIndex(), ArtifactPosition::BACKPACK_START);
+		addArtifactToTable(LIBRARY->arth->getById(art.artifact->getTypeId())->getIndex(), ArtifactPosition::BACKPACK_START);
 	}
 }
 

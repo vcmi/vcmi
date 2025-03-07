@@ -21,7 +21,7 @@
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 #include <vcmi/spells/Spell.h>
 
@@ -374,7 +374,7 @@ public:
 		}
 		else if(type == "creature")
 		{
-			auto rawId = VLC->identifiers()->getIdentifier(scope, type, identifier, true);
+			auto rawId = LIBRARY->identifiers()->getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
 				return std::make_shared<CreatureCondition>(CreatureID(rawId.value()));
@@ -383,7 +383,7 @@ public:
 		}
 		else if(type == "spell")
 		{
-			auto rawId = VLC->identifiers()->getIdentifier(scope, type, identifier, true);
+			auto rawId = LIBRARY->identifiers()->getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
 				return std::make_shared<SpellEffectCondition>(SpellID(rawId.value()));

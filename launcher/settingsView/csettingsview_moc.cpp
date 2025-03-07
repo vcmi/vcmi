@@ -128,6 +128,8 @@ void CSettingsView::loadSettings()
 #ifndef VCMI_ANDROID
 	ui->buttonHandleBackRightMouseButton->hide();
 	ui->labelHandleBackRightMouseButton->hide();
+	ui->buttonAllowPortrait->hide();
+	ui->labelAllowPortrait->hide();
 #endif
 	fillValidScalingRange();
 
@@ -206,6 +208,7 @@ void CSettingsView::loadSettings()
 void CSettingsView::loadToggleButtonSettings()
 {
 	setCheckbuttonState(ui->buttonShowIntro, settings["video"]["showIntro"].Bool());
+	setCheckbuttonState(ui->buttonAllowPortrait, settings["video"]["allowPortrait"].Bool());
 	setCheckbuttonState(ui->buttonAutoCheck, settings["launcher"]["autoCheckRepositories"].Bool());
 
 	setCheckbuttonState(ui->buttonRepositoryDefault, settings["launcher"]["defaultRepositoryEnabled"].Bool());
@@ -470,6 +473,13 @@ void CSettingsView::on_buttonShowIntro_toggled(bool value)
 	Settings node = settings.write["video"]["showIntro"];
 	node->Bool() = value;
 	updateCheckbuttonText(ui->buttonShowIntro);
+}
+
+void CSettingsView::on_buttonAllowPortrait_toggled(bool value)
+{
+	Settings node = settings.write["video"]["allowPortrait"];
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonAllowPortrait);
 }
 
 void CSettingsView::on_buttonAutoSave_toggled(bool value)

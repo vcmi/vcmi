@@ -16,7 +16,7 @@
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapping/CMap.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 
 
 MinimapView::MinimapView(QWidget * parent):
@@ -591,7 +591,7 @@ void MapView::dragEnterEvent(QDragEnterEvent * event)
 				auto objId = data["id"].toInt();
 				auto objSubId = data["subid"].toInt();
 				auto templateId = data["template"].toInt();
-				auto factory = VLC->objtypeh->getHandlerFor(objId, objSubId);
+				auto factory = LIBRARY->objtypeh->getHandlerFor(objId, objSubId);
 				auto templ = factory->getTemplates()[templateId];
 				controller->discardObject(sc->level);
 				controller->createObject(sc->level, factory->create(nullptr, templ));

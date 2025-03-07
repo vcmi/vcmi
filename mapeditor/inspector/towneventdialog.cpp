@@ -174,7 +174,7 @@ void TownEventDialog::initCreatures()
 			auto creaturesOnLevel = ctown->creatures.at(i);
 			for (auto& creature : creaturesOnLevel)
 			{
-				auto cre = VLC->creatures()->getById(creature);
+				auto cre = LIBRARY->creatures()->getById(creature);
 				auto creatureName = QString::fromStdString(cre->getNameSingularTranslated());
 				creatureNames.append(creatureNames.isEmpty() ? creatureName : " / " + creatureName);
 			}
@@ -230,10 +230,10 @@ QVariantMap TownEventDialog::resourcesToVariant()
 	auto res = params.value("resources").toMap();
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
-		auto * itemType = ui->resourcesTable->item(i, 0);
+		auto itemType = QString::fromStdString(GameConstants::RESOURCE_NAMES[i]);
 		auto * itemQty = static_cast<QSpinBox *> (ui->resourcesTable->cellWidget(i, 1));
 
-		res[itemType->text()] = QVariant::fromValue(itemQty->value());
+		res[itemType] = QVariant::fromValue(itemQty->value());
 	}
 	return res;
 }

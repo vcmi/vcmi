@@ -185,7 +185,7 @@ const IMarket * CGameInfoCallback::getMarket(ObjectInstanceID objid) const
 
 void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo & out) const
 {
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
 	ERROR_RET_IF(!canGetFullInfo(obj), "Cannot get info about not owned object!");
 	ERROR_RET_IF(!obj->hasStackAtSlot(stackPos), "There is no such stack!");
 	gs->fillUpgradeInfo(obj, stackPos, out);
@@ -194,7 +194,7 @@ void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackP
 
 const StartInfo * CGameInfoCallback::getStartInfo(bool beforeRandomization) const
 {
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
 	if(beforeRandomization)
 		return gs->initialOpts;
 	else
@@ -203,7 +203,7 @@ const StartInfo * CGameInfoCallback::getStartInfo(bool beforeRandomization) cons
 
 int32_t CGameInfoCallback::getSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const
 {
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
 	ERROR_RET_VAL_IF(!canGetFullInfo(caster), "Cannot get info about caster!", -1);
 	//if there is a battle
 	auto casterBattle = gs->getBattle(caster->getOwner());
@@ -217,7 +217,7 @@ int32_t CGameInfoCallback::getSpellCost(const spells::Spell * sp, const CGHeroIn
 
 int64_t CGameInfoCallback::estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const
 {
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
 
 	ERROR_RET_VAL_IF(hero && !canGetFullInfo(hero), "Cannot get info about caster!", -1);
 
@@ -229,7 +229,7 @@ int64_t CGameInfoCallback::estimateSpellDamage(const CSpell * sp, const CGHeroIn
 
 void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj)
 {
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
 	ERROR_RET_IF(!obj, "No guild object!");
 	ERROR_RET_IF(obj->ID == Obj::TOWN && !canGetFullInfo(obj), "Cannot get info about town guild object!");
 	//TODO: advmap object -> check if they're visited by our hero
@@ -379,7 +379,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 			int maxAIValue = 0;
 			const CCreature * mostStrong = nullptr;
 
-			for(const auto & creature : VLC->creh->objects)
+			for(const auto & creature : LIBRARY->creh->objects)
 			{
 				if(creature->getFactionID() == factionIndex && static_cast<int>(creature->getAIValue()) > maxAIValue)
 				{
@@ -419,13 +419,13 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 int CGameInfoCallback::getDate(Date mode) const
 {
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
 	return gs->getDate(mode);
 }
 
 bool CGameInfoCallback::isVisible(int3 pos, const std::optional<PlayerColor> & Player) const
 {
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
 	return gs->isVisible(pos, Player);
 }
 
@@ -445,7 +445,7 @@ bool CGameInfoCallback::isVisible(const CGObjectInstance *obj) const
 }
 // const CCreatureSet* CInfoCallback::getGarrison(const CGObjectInstance *obj) const
 // {
-// 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+// 	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
 // 	if()
 // 	const CArmedInstance *armi = dynamic_cast<const CArmedInstance*>(obj);
 // 	if(!armi)
@@ -754,14 +754,14 @@ CGameInfoCallback::CGameInfoCallback(CGameState * GS):
 
 int CPlayerSpecificInfoCallback::howManyTowns() const
 {
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
 	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", -1);
 	return CGameInfoCallback::howManyTowns(*getPlayerID());
 }
 
 std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(bool onlyOur) const
 {
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
 	auto ret = std::vector < const CGTownInstance *>();
 	for(const auto & i : gs->players)
 	{
@@ -777,7 +777,7 @@ std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(
 }
 std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo(bool onlyOur) const
 {
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
 	std::vector < const CGHeroInstance *> ret;
 	for(auto hero : gs->map->heroesOnMap)
 	{
@@ -840,7 +840,7 @@ std::vector <QuestInfo> CPlayerSpecificInfoCallback::getMyQuests() const
 
 int CPlayerSpecificInfoCallback::howManyHeroes(bool includeGarrisoned) const
 {
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
 	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", -1);
 	return getHeroCount(*getPlayerID(), includeGarrisoned);
 }
@@ -872,14 +872,14 @@ const CGTownInstance* CPlayerSpecificInfoCallback::getTownBySerial(int serialId)
 
 int CPlayerSpecificInfoCallback::getResourceAmount(GameResID type) const
 {
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
 	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", -1);
 	return getResource(*getPlayerID(), type);
 }
 
 TResources CPlayerSpecificInfoCallback::getResourceAmount() const
 {
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
 	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", TResources());
 	return gs->players[*getPlayerID()].resources;
 }

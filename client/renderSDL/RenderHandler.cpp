@@ -14,8 +14,9 @@
 #include "ScalableImage.h"
 #include "FontChain.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 
+#include "../render/AssetGenerator.h"
 #include "../render/CAnimation.h"
 #include "../render/CanvasImage.h"
 #include "../render/CDefFile.h"
@@ -43,6 +44,13 @@
 #include <vcmi/SkillService.h>
 #include <vcmi/spells/Service.h>
 
+RenderHandler::RenderHandler()
+	:assetGenerator(std::make_unique<AssetGenerator>())
+{
+}
+
+RenderHandler::~RenderHandler() = default;
+
 std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & path)
 {
 	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
@@ -64,7 +72,7 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 	return result;
 }
 
-void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & config, EImageBlitMode mode)
+void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & config, EImageBlitMode mode) const
 {
 	std::string basepath;
 	basepath = config["basepath"].String();
@@ -147,20 +155,13 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 
 	for(auto & loader : configList)
 	{
-		try {
-			auto stream = loader->load(jsonResource);
-			std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
-			stream->read(textData.get(), stream->getSize());
+		auto stream = loader->load(jsonResource);
+		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
+		stream->read(textData.get(), stream->getSize());
 
-			const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), path.getOriginalName());
+		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), path.getOriginalName());
 
-			initFromJson(result, config, mode);
-		}
-		catch (const DataLoadingException & e)
-		{
-			// FIXME: sometimes triggered by generated animation assets, e.g. lava/water tiles
-			logGlobal->error("Failed to load animation file! Reason: %s", e.what());
-		}
+		initFromJson(result, config, mode);
 	}
 
 	animationLayouts[actualPath] = result;
@@ -169,7 +170,7 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 
 int RenderHandler::getScalingFactor() const
 {
-	return GH.screenHandler().getScalingFactor();
+	return ENGINE->screenHandler().getScalingFactor();
 }
 
 ImageLocator RenderHandler::getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group, int scaling, EImageBlitMode mode)
@@ -201,12 +202,29 @@ std::shared_ptr<ScalableImageShared> RenderHandler::loadImageImpl(const ImageLoc
 	return scaledImage;
 }
 
-std::shared_ptr<SDLImageShared> RenderHandler::loadImageFromFileUncached(const ImageLocator & locator)
+std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const ImageLocator & locator)
 {
 	if(locator.image)
 	{
-		// TODO: create EmptySharedImage class that will be instantiated if image does not exists or fails to load
-		return std::make_shared<SDLImageShared>(*locator.image);
+		auto imagePath = *locator.image;
+		auto imagePathSprites = imagePath.addPrefix("SPRITES/");
+		auto imagePathData = imagePath.addPrefix("DATA/");
+
+		if(CResourceHandler::get()->existsResource(imagePathSprites))
+			return std::make_shared<SDLImageShared>(imagePathSprites);
+
+		if(CResourceHandler::get()->existsResource(imagePathData))
+			return std::make_shared<SDLImageShared>(imagePathData);
+
+		if(CResourceHandler::get()->existsResource(imagePath))
+			return std::make_shared<SDLImageShared>(imagePath);
+
+		auto generated = assetGenerator->generateImage(imagePath);
+		if (generated)
+			return generated;
+
+		logGlobal->error("Failed to load image %s", locator.image->getOriginalName());
+		return std::make_shared<SDLImageShared>(ImagePath::builtin("DEFAULT"));
 	}
 
 	if(locator.defFile)
@@ -268,9 +286,9 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 
 	std::string imagePathString = pathToLoad.getName();
 
-	if(locator.layer == EImageBlitMode::ONLY_OVERLAY)
+	if(locator.layer == EImageBlitMode::ONLY_FLAG_COLOR || locator.layer == EImageBlitMode::ONLY_SELECTION)
 		imagePathString += "-OVERLAY";
-	if(locator.layer == EImageBlitMode::ONLY_SHADOW)
+	if(locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION || locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR)
 		imagePathString += "-SHADOW";
 	if(locator.playerColored.isValidPlayer())
 		imagePathString += "-" + boost::to_upper_copy(GameConstants::PLAYER_COLOR_NAMES[locator.playerColored.getNum()]);
@@ -323,7 +341,10 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int
 	if (!locator.empty())
 		return loadImage(locator);
 	else
+	{
+		logGlobal->error("Failed to load non-existing image");
 		return loadImage(ImageLocator(ImagePath::builtin("DEFAULT"), mode));
+	}
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageBlitMode mode)
@@ -351,7 +372,7 @@ void RenderHandler::addImageListEntries(const EntityService * service)
 			if (imageName.empty())
 				return;
 
-			auto & layout = getAnimationLayout(AnimationPath::builtin("SPRITES/" + listName), 1, EImageBlitMode::SIMPLE);
+			auto & layout = getAnimationLayout(AnimationPath::builtin("SPRITES/" + listName), 1, EImageBlitMode::COLORKEY);
 
 			JsonNode entry;
 			entry["file"].String() = imageName;
@@ -389,8 +410,8 @@ static void detectOverlappingBuildings(RenderHandler * renderHandler, const Fact
 			if (left->pos.z != right->pos.z)
 				continue; // buildings already have different z-index and have well-defined overlap logic
 
-			auto leftImage = renderHandler->loadImage(left->defName, 0, 0, EImageBlitMode::SIMPLE);
-			auto rightImage = renderHandler->loadImage(right->defName, 0, 0, EImageBlitMode::SIMPLE);
+			auto leftImage = renderHandler->loadImage(left->defName, 0, 0, EImageBlitMode::COLORKEY);
+			auto rightImage = renderHandler->loadImage(right->defName, 0, 0, EImageBlitMode::COLORKEY);
 
 			Rect leftRect( left->pos.x, left->pos.y, leftImage->width(), leftImage->height());
 			Rect rightRect( right->pos.x, right->pos.y, rightImage->width(), rightImage->height());
@@ -423,6 +444,10 @@ static void detectOverlappingBuildings(RenderHandler * renderHandler, const Fact
 
 void RenderHandler::onLibraryLoadingFinished(const Services * services)
 {
+	assert(animationLayouts.empty());
+	assetGenerator->initialize();
+	animationLayouts = assetGenerator->generateAllAnimations();
+
 	addImageListEntries(services->creatures());
 	addImageListEntries(services->heroTypes());
 	addImageListEntries(services->artifacts());
@@ -462,10 +487,16 @@ std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
 
 		bitmapPath = bmpConf[index].String();
 		if (!ttfConf[bitmapPath].isNull())
-			loadedFont->addTrueTypeFont(ttfConf[bitmapPath]);
+			loadedFont->addTrueTypeFont(ttfConf[bitmapPath], !config["lowPriority"].Bool());
 	}
 	loadedFont->addBitmapFont(bitmapPath);
 
 	fonts[font] = loadedFont;
 	return loadedFont;
+}
+
+void RenderHandler::exportGeneratedAssets()
+{
+	for (const auto & entry : assetGenerator->generateAllImages())
+		entry.second->exportBitmap(VCMIDirs::get().userDataPath() / "Generated" / (entry.first.getOriginalName() + ".png"), nullptr);
 }

@@ -10,11 +10,11 @@
 #include "StdInc.h"
 #include "TurnTimerWidget.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleStacksController.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/Graphics.h"
 #include "../widgets/Images.h"
@@ -41,7 +41,7 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 	pos.w = 0;
 	pos.h = 0;
 	recActions &= ~DEACTIVATE;
-	const auto & timers = LOCPLINT->cb->getStartInfo()->turnTimerInfo;
+	const auto & timers = GAME->interface()->cb->getStartInfo()->turnTimerInfo;
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos); // 1 px smaller on all sides
 
@@ -69,7 +69,7 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 			playerLabelsUnit[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
 		}
 
-		updateTextLabel(player, LOCPLINT->cb->getPlayerTurnTime(player));
+		updateTextLabel(player, GAME->interface()->cb->getPlayerTurnTime(player));
 	}
 	else
 	{
@@ -80,16 +80,16 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 
 		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 		{
-			if (LOCPLINT->cb->getStartInfo()->playerInfos.count(player) == 0)
+			if (GAME->interface()->cb->getStartInfo()->playerInfos.count(player) == 0)
 				continue;
 
-			if (!LOCPLINT->cb->getStartInfo()->playerInfos.at(player).isControlledByHuman())
+			if (!GAME->interface()->cb->getStartInfo()->playerInfos.at(player).isControlledByHuman())
 				continue;
 
 			pos.h += 20;
 			playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
 
-			updateTextLabel(player, LOCPLINT->cb->getPlayerTurnTime(player));
+			updateTextLabel(player, GAME->interface()->cb->getPlayerTurnTime(player));
 		}
 	}
 
@@ -104,13 +104,13 @@ void TurnTimerWidget::show(Canvas & to)
 
 void TurnTimerWidget::updateNotifications(PlayerColor player, int timeMs)
 {
-	if(player != LOCPLINT->playerID)
+	if(player != GAME->interface()->playerID)
 		return;
 
 	int newTimeSeconds = timeMs / 1000;
 
 	if (newTimeSeconds != lastSoundCheckSeconds && notificationThresholds.count(newTimeSeconds))
-		CCS->soundh->playSound(AudioPath::builtin("WE5"));
+		ENGINE->sound().playSound(AudioPath::builtin("WE5"));
 
 	lastSoundCheckSeconds = newTimeSeconds;
 }
@@ -125,7 +125,7 @@ static std::string msToString(int timeMs)
 
 void TurnTimerWidget::updateTextLabel(PlayerColor player, const TurnTimerInfo & timer)
 {
-	const auto & timerSettings = LOCPLINT->cb->getStartInfo()->turnTimerInfo;
+	const auto & timerSettings = GAME->interface()->cb->getStartInfo()->turnTimerInfo;
 	auto mainLabel = playerLabelsMain[player];
 
 	if (isBattleMode)
@@ -166,7 +166,7 @@ void TurnTimerWidget::updateTextLabel(PlayerColor player, const TurnTimerInfo & 
 
 void TurnTimerWidget::updateTimer(PlayerColor player, uint32_t msPassed)
 {
-	const auto & gamestateTimer = LOCPLINT->cb->getPlayerTurnTime(player);
+	const auto & gamestateTimer = GAME->interface()->cb->getPlayerTurnTime(player);
 	updateNotifications(player, gamestateTimer.valueMs());
 	updateTextLabel(player, gamestateTimer);
 }
@@ -175,9 +175,9 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 {
 	for(const auto & player : playerLabelsMain)
 	{
-		if (LOCPLINT->battleInt)
+		if (GAME->interface()->battleInt)
 		{
-			const auto & battle = LOCPLINT->battleInt->getBattle();
+			const auto & battle = GAME->interface()->battleInt->getBattle();
 
 			bool isDefender = battle->sideToPlayer(BattleSide::DEFENDER) == player.first;
 			bool isAttacker = battle->sideToPlayer(BattleSide::ATTACKER) == player.first;

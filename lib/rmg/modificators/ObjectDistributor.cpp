@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "ObjectDistributor.h"
 
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 #include "../RmgMap.h"
 #include "../CMapGenerator.h"
 #include "TreasurePlacer.h"
@@ -47,11 +47,11 @@ void ObjectDistributor::distributeLimitedObjects()
 {
 	auto zones = map.getZones();
 
-	for (auto primaryID : VLC->objtypeh->knownObjects())
+	for (auto primaryID : LIBRARY->objtypeh->knownObjects())
 	{
-		for (auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
+		for (auto secondaryID : LIBRARY->objtypeh->knownSubObjects(primaryID))
 		{
-			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
+			auto handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
 			if (!handler->isStaticObject() && handler->getRMGInfo().value)
 			{
 				auto rmgInfo = handler->getRMGInfo();
@@ -84,7 +84,7 @@ void ObjectDistributor::distributeLimitedObjects()
 						
 						oi.generateObject = [cb=map.mapInstance->cb, primaryID, secondaryID]() -> CGObjectInstance *
 						{
-							return VLC->objtypeh->getHandlerFor(primaryID, secondaryID)->create(cb, nullptr);
+							return LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID)->create(cb, nullptr);
 						};
 						
 						oi.value = rmgInfo.value;

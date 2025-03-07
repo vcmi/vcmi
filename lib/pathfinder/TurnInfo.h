@@ -33,6 +33,7 @@ struct TurnInfoCache
 	TurnInfoBonusList noTerrainPenalty;
 	TurnInfoBonusList freeShipBoarding;
 	TurnInfoBonusList roughTerrainDiscount;
+	TurnInfoBonusList baseTileMovementCost;
 	TurnInfoBonusList movementPointsLimitLand;
 	TurnInfoBonusList movementPointsLimitWater;
 
@@ -57,6 +58,7 @@ private:
 	int flyingMovementValue;
 	int waterWalkingValue;
 	int roughTerrainDiscountValue;
+	int moveCostBaseValue;
 	int movePointsLimitLand;
 	int movePointsLimitWater;
 
@@ -73,6 +75,7 @@ public:
 	int getFlyingMovementValue() const;
 	int getWaterWalkingValue() const;
 	int getRoughTerrainDiscountValue() const;
+	int getMovementCostBase() const;
 	int getMovePointsLimitLand() const;
 	int getMovePointsLimitWater() const;
 

@@ -150,7 +150,7 @@ void Initializer::initialize(CGHeroInstance * o)
 
 	if(o->ID == Obj::HERO)
 	{
-		for(auto const & t : VLC->heroh->objects)
+		for(auto const & t : LIBRARY->heroh->objects)
 		{
 			if(t->heroClass->getId() == HeroClassID(o->subID))
 			{
@@ -182,7 +182,7 @@ void Initializer::initialize(CGTownInstance * o)
 
 	if(o->possibleSpells.empty())
 	{
-		for(auto const & spellId : VLC->spellh->getDefaultAllowed()) //add all regular spells to town
+		for(auto const & spellId : LIBRARY->spellh->getDefaultAllowed()) //add all regular spells to town
 		{
 			o->possibleSpells.push_back(spellId);
 		}
@@ -196,9 +196,9 @@ void Initializer::initialize(CGArtifact * o)
 	if(o->ID == Obj::SPELL_SCROLL)
 	{
 		std::vector<SpellID> out;
-		for(auto const & spell : VLC->spellh->objects) //spellh size appears to be greater (?)
+		for(auto const & spell : LIBRARY->spellh->objects) //spellh size appears to be greater (?)
 		{
-			if(VLC->spellh->getDefaultAllowed().count(spell->id) != 0)
+			if(LIBRARY->spellh->getDefaultAllowed().count(spell->id) != 0)
 			{
 				out.push_back(spell->id);
 			}
@@ -291,11 +291,11 @@ void Inspector::updateProperties(CGHeroPlaceholder * o)
 	
 	{
 		auto * delegate = new InspectorDelegate;
-		for(int i = 0; i < VLC->heroh->objects.size(); ++i)
+		for(int i = 0; i < LIBRARY->heroh->objects.size(); ++i)
 		{
-			delegate->options.push_back({QObject::tr(VLC->heroh->objects[i]->getNameTranslated().c_str()), QVariant::fromValue(VLC->heroh->objects[i]->getId().getNum())});
+			delegate->options.push_back({QObject::tr(LIBRARY->heroh->objects[i]->getNameTranslated().c_str()), QVariant::fromValue(LIBRARY->heroh->objects[i]->getId().getNum())});
 		}
-		addProperty(QObject::tr("Hero type"), o->heroType.has_value() ? VLC->heroh->getById(o->heroType.value())->getNameTranslated() : "", delegate, !type);
+		addProperty(QObject::tr("Hero type"), o->heroType.has_value() ? LIBRARY->heroh->getById(o->heroType.value())->getNameTranslated() : "", delegate, !type);
 	}
 }
 
@@ -310,7 +310,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	
 	{ //Gender
 		auto * delegate = new InspectorDelegate;
-		delegate->options = {{QObject::tr("MALE"), QVariant::fromValue(int(EHeroGender::MALE))}, {QObject::tr("FEMALE"), QVariant::fromValue(int(EHeroGender::FEMALE))}};
+		delegate->options = {{QObject::tr("MALE"), QVariant::fromValue(static_cast<int>(EHeroGender::MALE))}, {QObject::tr("FEMALE"), QVariant::fromValue(static_cast<int>(EHeroGender::FEMALE))}};
 		addProperty<std::string>(QObject::tr("Gender"), (o->gender == EHeroGender::FEMALE ? QObject::tr("FEMALE") : QObject::tr("MALE")).toStdString(), delegate , false);
 	}
 	addProperty(QObject::tr("Name"), o->getNameTranslated(), false);
@@ -325,7 +325,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	if(o->getHeroTypeID().hasValue() || o->ID == Obj::PRISON)
 	{ //Hero type
 		auto * delegate = new InspectorDelegate;
-		for(const auto & heroPtr : VLC->heroh->objects)
+		for(const auto & heroPtr : LIBRARY->heroh->objects)
 		{
 			if(controller.map()->allowedHeroes.count(heroPtr->getId()) != 0)
 			{
@@ -375,12 +375,12 @@ void Inspector::updateProperties(CGArtifact * o)
 		if(spellId != SpellID::NONE)
 		{
 			auto * delegate = new InspectorDelegate;
-			for(auto const & spell : VLC->spellh->objects)
+			for(auto const & spell : LIBRARY->spellh->objects)
 			{
 				if(controller.map()->allowedSpells.count(spell->id) != 0)
 					delegate->options.push_back({QObject::tr(spell->getNameTranslated().c_str()), QVariant::fromValue(int(spell->getId()))});
 			}
-			addProperty(QObject::tr("Spell"), VLC->spellh->getById(spellId)->getNameTranslated(), delegate, false);
+			addProperty(QObject::tr("Spell"), LIBRARY->spellh->getById(spellId)->getNameTranslated(), delegate, false);
 		}
 	}
 }
@@ -489,7 +489,7 @@ void Inspector::updateProperties()
 	
 	if(obj->ID != Obj::HERO_PLACEHOLDER && !dynamic_cast<CGHeroInstance*>(obj))
 	{
-		auto factory = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
+		auto factory = LIBRARY->objtypeh->getHandlerFor(obj->ID, obj->subID);
 		addProperty(QObject::tr("IsStatic"), factory->isStaticObject());
 	}
 	
@@ -718,7 +718,7 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 	
 	if(key == QObject::tr("Hero type"))
 	{
-		for(auto const & t : VLC->heroh->objects)
+		for(auto const & t : LIBRARY->heroh->objects)
 		{
 			if(t->getId() == value.toInt())
 				o->subID = value.toInt();
@@ -837,7 +837,7 @@ QTableWidgetItem * Inspector::addProperty(const std::string & value)
 
 QTableWidgetItem * Inspector::addProperty(const TextIdentifier & value)
 {
-	return addProperty(VLC->generaltexth->translate(value.get()));
+	return addProperty(LIBRARY->generaltexth->translate(value.get()));
 }
 
 QTableWidgetItem * Inspector::addProperty(const MetaString & value)
@@ -893,7 +893,7 @@ QTableWidgetItem * Inspector::addProperty(CGCreature::Character value)
 	item->setFlags(Qt::NoItemFlags);
 	item->setData(Qt::UserRole, QVariant::fromValue(int(value)));
 	
-	for(auto & i : characterIdentifiers)
+	for(const auto & i : characterIdentifiers)
 	{
 		if(i.second.toInt() == value)
 		{

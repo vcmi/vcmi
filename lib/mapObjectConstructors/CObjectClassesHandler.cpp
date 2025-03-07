@@ -13,7 +13,7 @@
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CBinaryReader.h"
 #include "../json/JsonUtils.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
 #include "../IGameSettings.h"
@@ -109,7 +109,7 @@ CObjectClassesHandler::~CObjectClassesHandler() = default;
 
 std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_OBJECT);
+	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_OBJECT);
 
 	CLegacyConfigParser parser(TextPath::builtin("Data/Objects.txt"));
 	auto totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
@@ -177,7 +177,12 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 
 	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), subObject->subtype);
 	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
-		registerObject(scope, baseObject->getJsonKey(), compatID.String(), subObject->subtype);
+	{
+		if (identifier != compatID.String())
+			registerObject(scope, baseObject->getJsonKey(), compatID.String(), subObject->subtype);
+		else
+			logMod->warn("Mod '%s' map object '%s': compatibility identifier has same name as object itself!", scope, identifier);
+	}
 }
 
 void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
@@ -192,7 +197,12 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 
 	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), subObject->subtype);
 	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
-		registerObject(scope, baseObject->getJsonKey(), compatID.String(), subObject->subtype);
+	{
+		if (identifier != compatID.String())
+			registerObject(scope, baseObject->getJsonKey(), compatID.String(), subObject->subtype);
+		else
+			logMod->warn("Mod '%s' map object '%s': compatibility identifier has same name as object itself!");
+	}
 }
 
 TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
@@ -235,7 +245,7 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 		for (auto & templ : createdObject->getTemplates())
 		{
 			// Register templates for new objects from mods
-			VLC->biomeHandler->addTemplate(scope, templ->stringID, templ);
+			LIBRARY->biomeHandler->addTemplate(scope, templ->stringID, templ);
 		}
 	}
 
@@ -246,7 +256,7 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 		{
 			// Register legacy templates as "core"
 			// FIXME: Why does it clear stringID?
-			VLC->biomeHandler->addTemplate("core", templ.second->stringID, templ.second);
+			LIBRARY->biomeHandler->addTemplate("core", templ.second->stringID, templ.second);
 		}
 
 		createdObject->addTemplate(templ.second);
@@ -274,7 +284,7 @@ std::string ObjectClass::getNameTextID() const
 
 std::string ObjectClass::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
@@ -287,7 +297,7 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::stri
 	newObject->base = json["base"];
 	newObject->id = index;
 
-	VLC->generaltexth->registerString(scope, newObject->getNameTextID(), json["name"]);
+	LIBRARY->generaltexth->registerString(scope, newObject->getNameTextID(), json["name"]);
 
 	newObject->objectTypeHandlers.resize(json["lastReservedIndex"].Float() + 1);
 
@@ -322,7 +332,7 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 {
 	mapObjectTypes.push_back(loadFromJson(scope, data, name, mapObjectTypes.size()));
 
-	VLC->identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.back()->id);
+	LIBRARY->identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.back()->id);
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -330,7 +340,7 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 	assert(mapObjectTypes.at(index) == nullptr); // ensure that this id was not loaded before
 
 	mapObjectTypes.at(index) = loadFromJson(scope, data, name, index);
-	VLC->identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.at(index)->id);
+	LIBRARY->identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.at(index)->id);
 }
 
 void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, MapObjectID ID, MapObjectSubID subID)
@@ -381,11 +391,11 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObj
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const
 {
-	std::optional<si32> id = VLC->identifiers()->getIdentifier(scope, "object", type);
+	std::optional<si32> id = LIBRARY->identifiers()->getIdentifier(scope, "object", type);
 	if(id)
 	{
 		const auto & object = mapObjectTypes.at(id.value());
-		std::optional<si32> subID = VLC->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
+		std::optional<si32> subID = LIBRARY->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
 
 		if (subID)
 			return object->objectTypeHandlers.at(subID.value());
@@ -406,11 +416,11 @@ CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::stri
 	std::optional<si32> id;
 	if (scope.empty())
 	{
-		id = VLC->identifiers()->getIdentifier("object", type);
+		id = LIBRARY->identifiers()->getIdentifier("object", type);
 	}
 	else
 	{
-		id = VLC->identifiers()->getIdentifier(scope, "object", type);
+		id = LIBRARY->identifiers()->getIdentifier(scope, "object", type);
 	}
 
 	if(id)
@@ -419,7 +429,7 @@ CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::stri
 			return CompoundMapObjectID(id.value(), 0);
 
 		const auto & object = mapObjectTypes.at(id.value());
-		std::optional<si32> subID = VLC->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
+		std::optional<si32> subID = LIBRARY->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
 
 		if (subID)
 			return CompoundMapObjectID(id.value(), subID.value());

@@ -48,10 +48,10 @@ namespace boost { class thread; }
 template<typename T>
 class ThreadSafeVector
 {
-	using TLock = boost::unique_lock<boost::mutex>;
+	using TLock = std::unique_lock<std::mutex>;
 	std::vector<T> items;
-	boost::mutex mx;
-	boost::condition_variable cond;
+	std::mutex mx;
+	std::condition_variable cond;
 
 public:
 	void clear()

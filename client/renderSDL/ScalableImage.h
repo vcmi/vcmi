@@ -26,6 +26,7 @@ struct ScalableImageParameters : boost::noncopyable
 
 	ColorRGBA colorMultiplier = Colors::WHITE_TRUE;
 	ColorRGBA ovelayColorMultiplier = Colors::WHITE_TRUE;
+	ColorRGBA effectColorMultiplier = Colors::TRANSPARENCY;
 
 	PlayerColor player = PlayerColor::CANNOT_DETERMINE;
 	uint8_t alphaValue = 255;
@@ -39,7 +40,7 @@ struct ScalableImageParameters : boost::noncopyable
 	void setShadowTransparency(const SDL_Palette * originalPalette, float factor);
 	void shiftPalette(const SDL_Palette * originalPalette, uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove);
 	void playerColored(PlayerColor player);
-	void setOverlayColor(const SDL_Palette * originalPalette, const ColorRGBA & color);
+	void setOverlayColor(const SDL_Palette * originalPalette, const ColorRGBA & color, bool includeShadow);
 	void preparePalette(const SDL_Palette * originalPalette, EImageBlitMode blitMode);
 	void adjustPalette(const SDL_Palette * originalPalette, EImageBlitMode blitMode, const ColorFilter & shifter, uint32_t colorsToSkipMask);
 };
@@ -63,6 +64,9 @@ class ScalableImageShared final : public std::enable_shared_from_this<ScalableIm
 
 		/// Upscaled overlay (player color, selection highlight) of our image, may be null
 		FlippedImages overlay;
+
+		/// Upscaled grayscale version of body, for special effects in combat (e.g clone / petrify / berserk)
+		FlippedImages bodyGrayscale;
 
 		/// player-colored images of this particular scale, mostly for UI. These are never flipped in h3
 		PlayerColoredImages playerColored;
@@ -91,6 +95,7 @@ public:
 
 	std::shared_ptr<ScalableImageInstance> createImageReference();
 
+	void prepareEffectImage();
 	void preparePlayerColoredImage(PlayerColor color);
 };
 
@@ -115,6 +120,7 @@ public:
 	void setAlpha(uint8_t value) override;
 	void draw(SDL_Surface * where, const Point & pos, const Rect * src, int scalingFactor) const override;
 	void setOverlayColor(const ColorRGBA & color) override;
+	void setEffectColor(const ColorRGBA & color) override;
 	void playerColored(const PlayerColor & player) override;
 	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
 	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;

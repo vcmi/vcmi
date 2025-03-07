@@ -50,8 +50,8 @@ namespace AIPathfinding
 		options.allowLayerTransitioningAfterBattle = true;
 		options.useTeleportWhirlpool = true;
 		options.forceUseTeleportWhirlpool = true;
-		options.useTeleportOneWay = ai->settings->isOneWayMonolithUsageAllowed();;
-		options.useTeleportOneWayRandom = ai->settings->isOneWayMonolithUsageAllowed();;
+		options.useTeleportOneWay = ai->settings->isOneWayMonolithUsageAllowed();
+		options.useTeleportOneWayRandom = ai->settings->isOneWayMonolithUsageAllowed();
 	}
 
 	AIPathfinderConfig::~AIPathfinderConfig() = default;

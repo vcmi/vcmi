@@ -104,7 +104,7 @@ InfoAboutHero & InfoAboutHero::operator=(const InfoAboutHero & iah)
 
 int32_t InfoAboutHero::getIconIndex() const
 {
-	return VLC->heroTypes()->getById(portraitSource)->getIconIndex();
+	return LIBRARY->heroTypes()->getById(portraitSource)->getIconIndex();
 }
 
 void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLevel infoLevel)

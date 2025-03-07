@@ -217,7 +217,7 @@ set(lib_MAIN_SRCS
 	rmg/modificators/ObstaclePlacer.cpp
 	rmg/modificators/RiverPlacer.cpp
 	rmg/modificators/TerrainPainter.cpp
-	rmg/threadpool/MapProxy.cpp
+	rmg/MapProxy.cpp
 
 	serializer/BinaryDeserializer.cpp
 	serializer/BinarySerializer.cpp
@@ -299,7 +299,7 @@ set(lib_MAIN_SRCS
 	ScriptHandler.cpp
 	TerrainHandler.cpp
 	TurnTimerInfo.cpp
-	VCMI_Lib.cpp
+	GameLibrary.cpp
 )
 
 if (NOT ENABLE_MINIMAL_LIB)
@@ -633,9 +633,7 @@ set(lib_MAIN_HEADERS
 	rmg/modificators/ObstaclePlacer.h
 	rmg/modificators/RiverPlacer.h
 	rmg/modificators/TerrainPainter.h
-	rmg/threadpool/BlockingQueue.h
-	rmg/threadpool/ThreadPool.h
-	rmg/threadpool/MapProxy.h
+	rmg/MapProxy.h
 
 	serializer/BinaryDeserializer.h
 	serializer/BinarySerializer.h
@@ -741,7 +739,7 @@ set(lib_MAIN_HEADERS
 	TurnTimerInfo.h
 	UnlockGuard.h
 	vcmi_endian.h
-	VCMI_Lib.h
+	GameLibrary.h
 )
 
 if (NOT ENABLE_MINIMAL_LIB)
@@ -871,4 +869,8 @@ if(APPLE_IOS AND NOT USING_CONAN)
 		endif()
 		install(${INSTALL_TYPE} ${LINKED_LIB_REAL} LIBRARY DESTINATION ${LIB_DIR})
 	endforeach()
+endif()
+
+if(VCMI_PORTMASTER)
+	target_compile_definitions(vcmi PRIVATE VCMI_PORTMASTER)
 endif()

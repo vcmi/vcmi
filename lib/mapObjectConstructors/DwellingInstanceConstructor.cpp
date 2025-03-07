@@ -13,7 +13,7 @@
 #include "../CCreatureHandler.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../json/JsonRandom.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../mapObjects/CGDwelling.h"
 #include "../modding/IdentifierStorage.h"
 
@@ -29,7 +29,7 @@ void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
 	if (input.Struct().count("name") == 0)
 		logMod->warn("Dwelling %s missing name!", getJsonKey());
 
-	VLC->generaltexth->registerString( input.getModScope(), getNameTextID(), input["name"]);
+	LIBRARY->generaltexth->registerString( input.getModScope(), getNameTextID(), input["name"]);
 
 	const JsonVector & levels = input["creatures"].Vector();
 	const auto totalLevels = levels.size();
@@ -43,7 +43,7 @@ void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
 
 		for(int currentCreature = 0; currentCreature < creaturesNumber; currentCreature++)
 		{
-			VLC->identifiers()->requestIdentifier("creature", creaturesOnLevel[currentCreature], [this, currentLevel, currentCreature] (si32 index)
+			LIBRARY->identifiers()->requestIdentifier("creature", creaturesOnLevel[currentCreature], [this, currentLevel, currentCreature] (si32 index)
 			{
 				availableCreatures.at(currentLevel).at(currentCreature) = CreatureID(index).toCreature();
 			});

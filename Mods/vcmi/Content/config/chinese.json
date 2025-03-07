@@ -23,8 +23,6 @@
 	"vcmi.adventureMap.noTownWithTavern"       : "没有酒馆可供查看。",
 	"vcmi.adventureMap.spellUnknownProblem"    : "无此魔法的信息。",
 	"vcmi.adventureMap.playerAttacked"         : "玩家遭受攻击: %s",
-	"vcmi.adventureMap.moveCostDetails"        : "移动点数 - 花费: %TURNS 轮 + %POINTS 点移动力, 剩余移动力: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns" : "移动点数 - 花费: %POINTS 点移动力, 剩余移动力: %REMAINING",
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(移动点数: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "抱歉，重放对手行动功能目前暂未实现！",
 
@@ -177,7 +175,7 @@
 	"vcmi.lobby.match.solo" : "单人游戏",
 	"vcmi.lobby.match.duel" : "与 %s 的游戏", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d 个玩家",
-	"vcmi.lobby.room.create" : "创建房间",
+	"vcmi.lobby.room.create.hover" : "创建房间",
 	"vcmi.lobby.room.players.limit" : "玩家限制",
 	"vcmi.lobby.room.description.public" : "任何玩家都可以加入公开房间。",
 	"vcmi.lobby.room.description.private" : "只有被邀请的玩家能加入私有房间。",
@@ -422,11 +420,11 @@
 	"vcmi.heroWindow.openBackpack.hover" : "开启宝物背包界面",
 	"vcmi.heroWindow.openBackpack.help"  : "用更大的界面显示所有获得的宝物",
 	"vcmi.heroWindow.sortBackpackByCost.hover"  : "按价格排序",
-	"vcmi.heroWindow.sortBackpackByCost.help"  : "将行囊里的宝物按价格排序。",
+	"vcmi.heroWindow.sortBackpackByCost.help"  : "{按价格排序}\n\n将行囊里的宝物按价格排序。",
 	"vcmi.heroWindow.sortBackpackBySlot.hover"  : "按装备槽排序",
-	"vcmi.heroWindow.sortBackpackBySlot.help"  : "将行囊里的宝物按装备槽排序。",
+	"vcmi.heroWindow.sortBackpackBySlot.help"  : "{按装备槽排序}\n\n将行囊里的宝物按装备槽排序。",
 	"vcmi.heroWindow.sortBackpackByClass.hover"  : "按类型排序",
-	"vcmi.heroWindow.sortBackpackByClass.help"  : "将行囊里的宝物按装备槽排序：低级宝物、中级宝物、高级宝物、圣物。",
+	"vcmi.heroWindow.sortBackpackByClass.help"  : "{按类型排序}\n\n将行囊里的宝物按装备槽排序：低级宝物、中级宝物、高级宝物、圣物。",
 	"vcmi.heroWindow.fusingArtifact.fusing" : "你已拥有融合%s所需的全部组件，想现在进行融合吗？{所有组件在融合后将被消耗。}",
 
 	"vcmi.tavernWindow.inviteHero"  : "邀请英雄",

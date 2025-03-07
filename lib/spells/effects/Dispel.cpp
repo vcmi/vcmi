@@ -88,7 +88,7 @@ void Dispel::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 
 std::shared_ptr<const BonusList> Dispel::getBonuses(const Mechanics * m, const battle::Unit * unit) const
 {
-	auto sel = [=](const Bonus * bonus)
+	auto sel = [this, m](const Bonus * bonus)
 	{
 		if(bonus->source == BonusSource::SPELL_EFFECT)
 		{

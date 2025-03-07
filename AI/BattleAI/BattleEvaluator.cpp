@@ -384,7 +384,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 
 	BattleHexArray targetHexes = hexes;
 
-	targetHexes.sort([&](const BattleHex & h1, const BattleHex & h2) -> bool
+	targetHexes.sort([&reachability](const BattleHex & h1, const BattleHex & h2) -> bool
 		{
 			return reachability.distances[h1.toInt()] < reachability.distances[h2.toInt()];
 		});
@@ -426,7 +426,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 		{
 			if(obst->triggersEffects())
 			{
-				auto triggerAbility =  VLC->spells()->getById(obst->getTrigger());
+				auto triggerAbility =  LIBRARY->spells()->getById(obst->getTrigger());
 				auto triggerIsNegative = triggerAbility->isNegative() || triggerAbility->isDamage();
 
 				if(triggerIsNegative)
@@ -435,7 +435,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 		}
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.
-		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [&](const BattleHex & hex) -> int
+		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [this, &bestNeighbour, &stack, &obstacleHexes](const BattleHex & hex) -> int
 		{
 			const int NEGATIVE_OBSTACLE_PENALTY = 100; // avoid landing on negative obstacle (moat, fire wall, etc)
 			const int BLOCKED_STACK_PENALTY = 100; // avoid landing on moat
@@ -494,7 +494,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	//Get all spells we can cast
 	std::vector<const CSpell*> possibleSpells;
 
-	for (auto const & s : VLC->spellh->objects)
+	for (auto const & s : LIBRARY->spellh->objects)
 		if (s->canBeCast(cb->getBattle(battleID).get(), spells::Mode::HERO, hero))
 			possibleSpells.push_back(s.get());
 

@@ -12,7 +12,7 @@
 
 #include "../ResourceSet.h"
 #include "../texts/MetaString.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -232,17 +232,17 @@ inline bool TerrainTile::hasRoad() const
 
 inline const TerrainType * TerrainTile::getTerrain() const
 {
-	return terrainType.toEntity(VLC);
+	return terrainType.toEntity(LIBRARY);
 }
 
 inline const RiverType * TerrainTile::getRiver() const
 {
-	return riverType.toEntity(VLC);
+	return riverType.toEntity(LIBRARY);
 }
 
 inline const RoadType * TerrainTile::getRoad() const
 {
-	return roadType.toEntity(VLC);
+	return roadType.toEntity(LIBRARY);
 }
 
 inline TerrainId TerrainTile::getTerrainID() const

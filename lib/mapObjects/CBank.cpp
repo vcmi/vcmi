@@ -32,7 +32,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
-	return VLC->generaltexth->allTexts[id];
+	return LIBRARY->generaltexth->allTexts[id];
 }
 
 CBank::CBank(IGameCallback *cb)
@@ -157,7 +157,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 
 	if (!bankConfig)
 	{
-		iw.text.appendRawString(VLC->generaltexth->advobtxt[33]);// This was X, now is completely empty
+		iw.text.appendRawString(LIBRARY->generaltexth->advobtxt[33]);// This was X, now is completely empty
 		iw.text.replaceTextID(getObjectHandler()->getNameTextID());
 		cb->showInfoDialog(&iw);
 	}
@@ -211,7 +211,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 
 			for(const SpellID & spellId : bankConfig->spells)
 			{
-				const auto * spell = spellId.toEntity(VLC);
+				const auto * spell = spellId.toEntity(LIBRARY);
 				iw.text.appendName(spellId);
 				if(spell->getLevel() <= hero->maxSpellLevel())
 				{

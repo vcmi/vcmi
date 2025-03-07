@@ -22,6 +22,7 @@ PlayerSettings::PlayerSettings(MapController & ctrl, QWidget *parent) :
 	controller(ctrl)
 {
 	ui->setupUi(this);
+	controller.settingsDialog = this;
 	
 	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 	
@@ -49,6 +50,7 @@ PlayerSettings::PlayerSettings(MapController & ctrl, QWidget *parent) :
 
 PlayerSettings::~PlayerSettings()
 {
+	controller.settingsDialog = nullptr;
 	delete ui;
 }
 

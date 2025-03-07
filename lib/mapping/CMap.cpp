@@ -11,7 +11,7 @@
 #include "CMap.h"
 
 #include "../CArtHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../CCreatureHandler.h"
 #include "../GameSettings.h"
 #include "../RiverHandler.h"
@@ -37,11 +37,6 @@ void Rumor::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("name", name);
 	handler.serializeStruct("text", text);
-}
-
-DisposedHero::DisposedHero() : heroId(0), portrait(255)
-{
-
 }
 
 CMapEvent::CMapEvent()
@@ -183,13 +178,13 @@ CMap::CMap(IGameCallback * cb)
 	, waterMap(false)
 	, uidCounter(0)
 {
-	allHeroes.resize(VLC->heroh->size());
-	allowedAbilities = VLC->skillh->getDefaultAllowed();
-	allowedArtifact = VLC->arth->getDefaultAllowed();
-	allowedSpells = VLC->spellh->getDefaultAllowed();
+	allHeroes.resize(LIBRARY->heroh->size());
+	allowedAbilities = LIBRARY->skillh->getDefaultAllowed();
+	allowedArtifact = LIBRARY->arth->getDefaultAllowed();
+	allowedSpells = LIBRARY->spellh->getDefaultAllowed();
 
 	gameSettings = std::make_unique<GameSettings>();
-	gameSettings->loadBase(VLC->settingsHandler->getFullConfig());
+	gameSettings->loadBase(LIBRARY->settingsHandler->getFullConfig());
 }
 
 CMap::~CMap()
@@ -417,11 +412,11 @@ void CMap::checkForObjectives()
 			switch (cond.condition)
 			{
 				case EventCondition::HAVE_ARTIFACT:
-					event.onFulfill.replaceTextID(cond.objectType.as<ArtifactID>().toEntity(VLC)->getNameTextID());
+					event.onFulfill.replaceTextID(cond.objectType.as<ArtifactID>().toEntity(LIBRARY)->getNameTextID());
 					break;
 
 				case EventCondition::HAVE_CREATURES:
-					event.onFulfill.replaceTextID(cond.objectType.as<CreatureID>().toEntity(VLC)->getNameSingularTextID());
+					event.onFulfill.replaceTextID(cond.objectType.as<CreatureID>().toEntity(LIBRARY)->getNameSingularTextID());
 					event.onFulfill.replaceNumber(cond.value);
 					break;
 

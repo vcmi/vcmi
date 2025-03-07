@@ -180,12 +180,12 @@ void MapComparer::compareHeader()
 	boost::sort (expectedEvents, sortByIdentifier);
 
 	checkEqual(actualEvents, expectedEvents);
+	checkEqual(actual->disposedHeroes, expected->disposedHeroes);
 }
 
 void MapComparer::compareOptions()
 {
 	checkEqual(actual->rumors, expected->rumors);
-	checkEqual(actual->disposedHeroes, expected->disposedHeroes);
 	//todo: compareOptions predefinedHeroes
 
 	checkEqual(actual->allowedAbilities, expected->allowedAbilities);

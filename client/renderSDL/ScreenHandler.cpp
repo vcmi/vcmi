@@ -11,11 +11,12 @@
 #include "StdInc.h"
 #include "ScreenHandler.h"
 
+#include "../CMT.h"
 #include "../eventsSDL/NotificationHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
-#include "../renderSDL/SDL_Extensions.h"
-#include "CMT.h"
+#include "../render/Canvas.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/constants/StringConstants.h"
@@ -31,12 +32,7 @@
 #include <SDL.h>
 
 // TODO: should be made into a private members of ScreenHandler
-static SDL_Window * mainWindow = nullptr;
 SDL_Renderer * mainRenderer = nullptr;
-SDL_Texture * screenTexture = nullptr;
-SDL_Surface * screen = nullptr; //main screen surface
-SDL_Surface * screen2 = nullptr; //and hlp surface (used to store not-active interfaces layer)
-SDL_Surface * screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 
 static const std::string NAME = GameConstants::VCMI_VERSION; //application name
 static constexpr Point heroes3Resolution = Point(800, 600);
@@ -211,6 +207,10 @@ ScreenHandler::ScreenHandler()
 	// NOTE: requires SDL 2.24.
 	SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitor");
 #endif
+	if(settings["video"]["allowPortrait"].Bool())
+		SDL_SetHint(SDL_HINT_ORIENTATIONS, "Portrait PortraitUpsideDown LandscapeLeft LandscapeRight");
+	else
+		SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER))
 	{
@@ -357,34 +357,23 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 		return filter;
 
 	// else - autoselect
-#ifdef VCMI_MOBILE
-	// to help with performance - only if player explicitly enabled xbrz
-	return EUpscalingFilter::NONE;
-#else
 	Point outputResolution = getRenderResolution();
 	Point logicalResolution = getPreferredLogicalResolution();
 
 	float scaleX = static_cast<float>(outputResolution.x) / logicalResolution.x;
 	float scaleY = static_cast<float>(outputResolution.x) / logicalResolution.x;
 	float scaling = std::min(scaleX, scaleY);
+	int systemMemoryMb = SDL_GetSystemRAM();
 
 	if (scaling <= 1.001f)
 		return EUpscalingFilter::NONE; // running at original resolution or even lower than that - no need for xbrz
-	else
-		return EUpscalingFilter::XBRZ_2;
-#endif
 
-#if 0
-// Old version, most optimal, but rather performance-heavy
-	if (scaling <= 1.001f)
-		return EUpscalingFilter::NONE; // running at original resolution or even lower than that - no need for xbrz
-	if (scaling <= 2.001f)
-		return EUpscalingFilter::XBRZ_2; // resolutions below 1200p (including 1080p / FullHD)
-	if (scaling <= 3.001f)
-		return EUpscalingFilter::XBRZ_3; // resolutions below 2400p (including 1440p and 2160p / 4K)
+	if (systemMemoryMb < 2048)
+		return EUpscalingFilter::NONE; // xbrz2 may use ~1.0 - 1.5 Gb of RAM and has notable CPU cost - avoid on low-spec hardware
 
-	return EUpscalingFilter::XBRZ_4; // Only for massive displays, e.g. 8K
-#endif
+	// Only using xbrz2 for autoselection.
+	// Higher options may have high system requirements and should be only selected explicitly by player
+	return EUpscalingFilter::XBRZ_2;
 }
 
 void ScreenHandler::selectUpscalingFilter()
@@ -434,18 +423,6 @@ void ScreenHandler::initializeScreenBuffers()
 		throw std::runtime_error("Unable to create screen texture");
 	}
 
-	screen2 = CSDL_Ext::copySurface(screen);
-
-	if(nullptr == screen2)
-	{
-		throw std::runtime_error("Unable to copy surface\n");
-	}
-
-	if (GH.windows().count() > 1)
-		screenBuf = screen2;
-	else
-		screenBuf = screen;
-
 	clearScreen();
 }
 
@@ -493,7 +470,7 @@ SDL_Window * ScreenHandler::createWindow()
 #endif
 
 #ifdef VCMI_ANDROID
-	return createWindowImpl(Point(), SDL_WINDOW_FULLSCREEN, false);
+	return createWindowImpl(Point(), SDL_WINDOW_RESIZABLE, false);
 #endif
 }
 
@@ -590,15 +567,6 @@ int ScreenHandler::getPreferredRenderingDriver() const
 
 void ScreenHandler::destroyScreenBuffers()
 {
-	// screenBuf is not a separate surface, but points to either screen or screen2 - just set to null
-	screenBuf = nullptr;
-
-	if(nullptr != screen2)
-	{
-		SDL_FreeSurface(screen2);
-		screen2 = nullptr;
-	}
-
 	if(nullptr != screen)
 	{
 		SDL_FreeSurface(screen);
@@ -641,6 +609,24 @@ void ScreenHandler::clearScreen()
 {
 	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
 	SDL_RenderClear(mainRenderer);
+	SDL_RenderPresent(mainRenderer);
+}
+
+Canvas ScreenHandler::getScreenCanvas() const
+{
+	return Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
+}
+
+void ScreenHandler::updateScreenTexture()
+{
+	SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
+}
+
+void ScreenHandler::presentScreenTexture()
+{
+	SDL_RenderClear(mainRenderer);
+	SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
+	ENGINE->cursor().render();
 	SDL_RenderPresent(mainRenderer);
 }
 

@@ -11,7 +11,7 @@
 #include "BattleOptionsTab.h"
 
 #include "../../battle/BattleInterface.h"
-#include "../../gui/CGuiHandler.h"
+#include "../../GameEngine.h"
 #include "../../../lib/CConfigHandler.h"
 #include "../../../lib/filesystem/ResourcePath.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
@@ -76,6 +76,10 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	{
 		endWithAutocombatChangedCallback(value);
 	});
+	addCallback("showHealthBarChanged", [this, owner](bool value)
+	{
+		showHealthBarCallback(value, owner);
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> animationSpeedToggle = widget<CToggleGroup>("animationSpeedPicker");
@@ -113,6 +117,9 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 
 	std::shared_ptr<CToggleButton> endWithAutocombatCheckbox = widget<CToggleButton>("endWithAutocombatCheckbox");
 	endWithAutocombatCheckbox->setSelected(settings["battle"]["endWithAutocombat"].Bool());
+
+	std::shared_ptr<CToggleButton> showHealthBarCheckbox = widget<CToggleButton>("showHealthBarCheckbox");
+	showHealthBarCheckbox->setSelected(settings["battle"]["showHealthBar"].Bool());
 }
 
 int BattleOptionsTab::getAnimSpeed() const
@@ -279,4 +286,12 @@ void BattleOptionsTab::endWithAutocombatChangedCallback(bool value)
 {
 	Settings endWithAutocombat = settings.write["battle"]["endWithAutocombat"];
 	endWithAutocombat->Bool() = value;
+}
+
+void BattleOptionsTab::showHealthBarCallback(bool value, BattleInterface * parentBattleInterface)
+{
+	Settings showHealthBar = settings.write["battle"]["showHealthBar"];
+	showHealthBar->Bool() = value;
+	if(parentBattleInterface)
+		parentBattleInterface->redrawBattlefield();
 }

@@ -13,7 +13,7 @@
 #include "../AIUtility.h"
 
 #include "../../../lib/GameConstants.h"
-#include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/GameLibrary.h"
 
 namespace NKAI
 {
@@ -53,10 +53,11 @@ public:
 	virtual ui64 howManyReinforcementsCanGet(
 		const IBonusBearer * armyCarrier,
 		const CCreatureSet * target,
-		const CCreatureSet * source) const = 0;
+		const CCreatureSet * source,
+		const TerrainId & armyTerrain) const = 0;
 
-	virtual std::vector<SlotInfo> getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const = 0;
-	virtual std::vector<SlotInfo>::iterator getWeakestCreature(std::vector<SlotInfo> & army) const = 0;
+	virtual std::vector<SlotInfo> getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source, const TerrainId & armyTerrain) const = 0;
+	virtual std::vector<SlotInfo>::iterator getBestUnitForScout(std::vector<SlotInfo> & army, const TerrainId & armyTerrain) const = 0;
 	virtual std::vector<SlotInfo> getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const = 0;
 	virtual std::vector<SlotInfo> toSlotInfo(std::vector<creInfo> creatures) const = 0;
 
@@ -97,9 +98,9 @@ public:
 		uint8_t turn = 0) const override;
 
 	ui64 howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const override;
-	ui64 howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const override;
-	std::vector<SlotInfo> getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const override;
-	std::vector<SlotInfo>::iterator getWeakestCreature(std::vector<SlotInfo> & army) const override;
+	ui64 howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source, const TerrainId & armyTerrain) const override;
+	std::vector<SlotInfo> getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source, const TerrainId & armyTerrain) const override;
+	std::vector<SlotInfo>::iterator getBestUnitForScout(std::vector<SlotInfo> & army, const TerrainId & armyTerrain) const override;
 	std::vector<SlotInfo> getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const override;
 	std::vector<SlotInfo> toSlotInfo(std::vector<creInfo> creatures) const override;
 

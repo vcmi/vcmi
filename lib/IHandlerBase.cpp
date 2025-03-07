@@ -13,7 +13,7 @@
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
 #include "modding/CModHandler.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -24,7 +24,7 @@ std::string IHandlerBase::getScopeBuiltin()
 
 void IHandlerBase::registerObject(const std::string & scope, const std::string & type_name, const std::string & name, si32 index)
 {
-	return VLC->identifiersHandler->registerObject(scope, type_name, name, index);
+	return LIBRARY->identifiersHandler->registerObject(scope, type_name, name, index);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -1,5 +1,5 @@
 /*
- * VCMI_Lib.cpp, part of VCMI engine
+ * GameLibrary.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,7 @@
  */
 
 #include "StdInc.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 
 #include "CArtHandler.h"
 #include "CBonusTypeHandler.h"
@@ -32,7 +32,6 @@
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
 #include "filesystem/Filesystem.h"
-#include "CConsoleHandler.h"
 #include "rmg/CRmgTemplateStorage.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"
@@ -45,102 +44,101 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-LibClasses * VLC = nullptr;
+GameLibrary * LIBRARY = nullptr;
 
-DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool extractArchives)
+DLL_LINKAGE void preinitDLL(bool extractArchives)
 {
-	console = Console;
-	VLC = new LibClasses();
-	VLC->loadFilesystem(extractArchives);
+	LIBRARY = new GameLibrary();
+	LIBRARY->loadFilesystem(extractArchives);
 	settings.init("config/settings.json", "vcmi:settings");
 	persistentStorage.init("config/persistentStorage.json", "");
-	VLC->loadModFilesystem();
+	LIBRARY->loadModFilesystem();
 
 }
 
 DLL_LINKAGE void loadDLLClasses(bool onlyEssential)
 {
-	VLC->init(onlyEssential);
+	LIBRARY->init(onlyEssential);
 }
 
-const ArtifactService * LibClasses::artifacts() const
+const ArtifactService * GameLibrary::artifacts() const
 {
 	return arth.get();
 }
 
-const CreatureService * LibClasses::creatures() const
+const CreatureService * GameLibrary::creatures() const
 {
 	return creh.get();
 }
 
-const FactionService * LibClasses::factions() const
+const FactionService * GameLibrary::factions() const
 {
 	return townh.get();
 }
 
-const HeroClassService * LibClasses::heroClasses() const
+const HeroClassService * GameLibrary::heroClasses() const
 {
 	return heroclassesh.get();
 }
 
-const HeroTypeService * LibClasses::heroTypes() const
+const HeroTypeService * GameLibrary::heroTypes() const
 {
 	return heroh.get();
 }
 
 #if SCRIPTING_ENABLED
-const scripting::Service * LibClasses::scripts() const
+const scripting::Service * GameLibrary::scripts() const
 {
 	return scriptHandler.get();
 }
 #endif
 
-const spells::Service * LibClasses::spells() const
+const spells::Service * GameLibrary::spells() const
 {
 	return spellh.get();
 }
 
-const SkillService * LibClasses::skills() const
+const SkillService * GameLibrary::skills() const
 {
 	return skillh.get();
 }
 
-const IBonusTypeHandler * LibClasses::getBth() const
+const IBonusTypeHandler * GameLibrary::getBth() const
 {
 	return bth.get();
 }
 
-const CIdentifierStorage * LibClasses::identifiers() const
+const CIdentifierStorage * GameLibrary::identifiers() const
 {
 	return identifiersHandler.get();
 }
 
-const spells::effects::Registry * LibClasses::spellEffects() const
+const spells::effects::Registry * GameLibrary::spellEffects() const
 {
 	return spells::effects::GlobalRegistry::get();
 }
 
-spells::effects::Registry * LibClasses::spellEffects()
+spells::effects::Registry * GameLibrary::spellEffects()
 {
 	return spells::effects::GlobalRegistry::get();
 }
 
-const BattleFieldService * LibClasses::battlefields() const
+const BattleFieldService * GameLibrary::battlefields() const
 {
 	return battlefieldsHandler.get();
 }
 
-const ObstacleService * LibClasses::obstacles() const
+const ObstacleService * GameLibrary::obstacles() const
 {
 	return obstacleHandler.get();
 }
 
-const IGameSettings * LibClasses::engineSettings() const
+const IGameSettings * GameLibrary::engineSettings() const
 {
 	return settingsHandler.get();
 }
 
-void LibClasses::loadFilesystem(bool extractArchives)
+void GameLibrary::loadFilesystem(bool extractArchives)
 {
 	CStopWatch loadTime;
 
@@ -151,7 +149,7 @@ void LibClasses::loadFilesystem(bool extractArchives)
 	logGlobal->info("\tData loading: %d ms", loadTime.getDiff());
 }
 
-void LibClasses::loadModFilesystem()
+void GameLibrary::loadModFilesystem()
 {
 	CStopWatch loadTime;
 	modh = std::make_unique<CModHandler>();
@@ -167,7 +165,7 @@ template <class Handler> void createHandler(std::shared_ptr<Handler> & handler)
 	handler = std::make_shared<Handler>();
 }
 
-void LibClasses::init(bool onlyEssential)
+void GameLibrary::init(bool onlyEssential)
 {
 	createHandler(settingsHandler);
 	modh->initializeConfig();
@@ -200,21 +198,21 @@ void LibClasses::init(bool onlyEssential)
 }
 
 #if SCRIPTING_ENABLED
-void LibClasses::scriptsLoaded()
+void GameLibrary::scriptsLoaded()
 {
 	scriptHandler->performRegistration(this);
 }
 #endif
 
-LibClasses::LibClasses() = default;
-LibClasses::~LibClasses() = default;
+GameLibrary::GameLibrary() = default;
+GameLibrary::~GameLibrary() = default;
 
-std::shared_ptr<CContentHandler> LibClasses::getContent() const
+std::shared_ptr<CContentHandler> GameLibrary::getContent() const
 {
 	return modh->content;
 }
 
-void LibClasses::setContent(std::shared_ptr<CContentHandler> content)
+void GameLibrary::setContent(std::shared_ptr<CContentHandler> content)
 {
 	modh->content = std::move(content);
 }

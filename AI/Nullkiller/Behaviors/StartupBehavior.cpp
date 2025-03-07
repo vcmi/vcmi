@@ -149,7 +149,7 @@ Goals::TGoalVec StartupBehavior::decompose(const Nullkiller * ai) const
 	{
 		if(!startupTown->visitingHero)
 		{
-			if(ai->armyManager->howManyReinforcementsCanGet(startupTown->getUpperArmy(), startupTown->getUpperArmy(), closestHero) > 200)
+			if(ai->armyManager->howManyReinforcementsCanGet(startupTown->getUpperArmy(), startupTown->getUpperArmy(), closestHero, TerrainId::NONE) > 200)
 			{
 				auto paths = ai->pathfinder->getPathInfo(startupTown->visitablePos());
 

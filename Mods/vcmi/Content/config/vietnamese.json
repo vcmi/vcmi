@@ -23,8 +23,6 @@
 	"vcmi.adventureMap.noTownWithTavern": "Thành không có sẵn quán rượu!",
 	"vcmi.adventureMap.spellUnknownProblem": "Phép này có lỗi! Không có thông tin nào khác.",
 	"vcmi.adventureMap.playerAttacked": "Người chơi bị tấn công: %s",
-	"vcmi.adventureMap.moveCostDetails": "Điểm di chuyển - Cần: %TURNS lượt + %POINTS điểm, Còn lại: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns": "Điểm di chuyển - Cần: %POINTS điểm, Còn lại: %REMAINING",
 	"vcmi.adventureMap.movementPointsHeroInfo": "(Điểm di chuyển: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented": "Xin lỗi, lượt chơi lại của đối thủ vẫn chưa được triển khai!",
 
@@ -177,7 +175,7 @@
 	"vcmi.lobby.match.solo" : "Chơi Đơn",
 	"vcmi.lobby.match.duel" : "Chơi với %s", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "người chơi %d",
-	"vcmi.lobby.room.create" : "Tạo Phòng Mới",
+	"vcmi.lobby.room.create.hover" : "Tạo Phòng Mới",
 	"vcmi.lobby.room.players.limit" : "Số Người Chơi",
 	"vcmi.lobby.room.description.public" : "Người chơi có thể vào phòng công khai.",
 	"vcmi.lobby.room.description.private" : "Người chơi được mời mới có thể vào phòng riêng tư.",
@@ -423,11 +421,11 @@
 	"vcmi.heroWindow.openBackpack.hover" : "Mở cửa sổ ba lô báu vật",
 	"vcmi.heroWindow.openBackpack.help"  : "Mở cửa sổ để quản lý ba lô báu vật dễ dàng hơn.",
 	"vcmi.heroWindow.sortBackpackByCost.hover"  : "Sắp xếp theo giá",
-	"vcmi.heroWindow.sortBackpackByCost.help"  : "Sắp xếp các báu vật trong ba lô theo giá.",
+	"vcmi.heroWindow.sortBackpackByCost.help"  : "{Sắp xếp theo giá}\n\nSắp xếp các báu vật trong ba lô theo giá.",
 	"vcmi.heroWindow.sortBackpackBySlot.hover"  : "Sắp xếp theo vị trí",
-	"vcmi.heroWindow.sortBackpackBySlot.help"  : "Sắp xếp báu vật trong ba lô theo ô được trang bị.",
+	"vcmi.heroWindow.sortBackpackBySlot.help"  : "{Sắp xếp theo vị trí}\n\nSắp xếp báu vật trong ba lô theo ô được trang bị.",
 	"vcmi.heroWindow.sortBackpackByClass.hover"  : "Sắp xếp theo loại",
-	"vcmi.heroWindow.sortBackpackByClass.help"  : "Sắp xếp các báu vật trong ba lô theo loại: Chính, Phụ, Cổ đại và Quý hiếm.",
+	"vcmi.heroWindow.sortBackpackByClass.help"  : "{Sắp xếp theo loại}\n\nSắp xếp các báu vật trong ba lô theo loại: Chính, Phụ, Cổ đại và Quý hiếm.",
 	"vcmi.heroWindow.fusingArtifact.fusing" : "Bạn đã sở hữu tất cả các món đồ cần thiết để hợp nhất %s. Bạn có muốn hợp nhất không? {Tất cả các món đồ sẽ được sử dụng khi hợp nhất.}",
 
 	"vcmi.tavernWindow.inviteHero"  : "Mới thêm tướng",

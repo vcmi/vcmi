@@ -23,8 +23,6 @@
 	"vcmi.adventureMap.noTownWithTavern"                 : "Nincsenek elérhető kocsmával rendelkező városok!",
 	"vcmi.adventureMap.spellUnknownProblem"              : "Ismeretlen probléma van ezzel a varázslattal! További információ nem érhető el.",
 	"vcmi.adventureMap.playerAttacked"                   : "A játékost megtámadták: %s",
-	"vcmi.adventureMap.moveCostDetails"                  : "Mozgáspontok - Költség: %TURNS kör + %POINTS pont, Hátralévő pontok: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Mozgáspontok - Költség: %POINTS pont, Hátralévő pontok: %REMAINING",
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Mozgáspontok: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Sajnáljuk, az ellenfél körének visszajátszása még nincs megvalósítva!",
 
@@ -177,7 +175,7 @@
 	"vcmi.lobby.match.solo" : "Egyszemélyes játék",
 	"vcmi.lobby.match.duel" : "Játék %s-szel", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d játékos",
-	"vcmi.lobby.room.create" : "Új szoba létrehozása",
+	"vcmi.lobby.room.create.hover" : "Új szoba létrehozása",
 	"vcmi.lobby.room.players.limit" : "Játékosok száma",
 	"vcmi.lobby.room.description.public" : "Bárki csatlakozhat a nyilvános szobához.",
 	"vcmi.lobby.room.description.private" : "Csak meghívott játékosok csatlakozhatnak a privát szobához.",
@@ -424,11 +422,11 @@
 	"vcmi.heroWindow.openBackpack.hover" : "Műtárgy hátizsák ablak megnyitása",
 	"vcmi.heroWindow.openBackpack.help"  : "Az ablak megnyitása, amely megkönnyíti a műtárgy hátizsák kezelését.",
 	"vcmi.heroWindow.sortBackpackByCost.hover"  : "Rendezés ár szerint",
-	"vcmi.heroWindow.sortBackpackByCost.help"  : "A műtárgyak ár szerinti rendezése a hátizsákban.",
+	"vcmi.heroWindow.sortBackpackByCost.help"  : "{Rendezés ár szerint}\n\nA műtárgyak ár szerinti rendezése a hátizsákban.",
 	"vcmi.heroWindow.sortBackpackBySlot.hover"  : "Rendezés nyílás szerint",
-	"vcmi.heroWindow.sortBackpackBySlot.help"  : "A műtárgyak nyílás szerinti rendezése a hátizsákban.",
+	"vcmi.heroWindow.sortBackpackBySlot.help"  : "{Rendezés nyílás szerint}\n\nA műtárgyak nyílás szerinti rendezése a hátizsákban.",
 	"vcmi.heroWindow.sortBackpackByClass.hover"  : "Rendezés osztály szerint",
-	"vcmi.heroWindow.sortBackpackByClass.help"  : "A műtárgyak osztály szerinti rendezése a hátizsákban. Kincs, Kisebb, Nagyobb, Relikvia",
+	"vcmi.heroWindow.sortBackpackByClass.help"  : "{Rendezés osztály szerint}\n\nA műtárgyak osztály szerinti rendezése a hátizsákban. Kincs, Kisebb, Nagyobb, Relikvia",
 	"vcmi.heroWindow.fusingArtifact.fusing" : "Ön birtokában van az összes szükséges komponensnek a(z) %s összeolvasztásához. Szeretné elvégezni az összeolvasztást? {Minden komponens elfogy az összeolvasztás során.}",
 
 	"vcmi.tavernWindow.inviteHero"  : "Hős meghívása",

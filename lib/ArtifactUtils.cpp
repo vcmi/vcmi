@@ -184,7 +184,7 @@ DLL_LINKAGE bool ArtifactUtils::isBackpackFreeSlots(const CArtifactSet * target,
 {
 	if(target->bearerType() == ArtBearer::HERO)
 	{
-		const auto backpackCap = VLC->engineSettings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
+		const auto backpackCap = LIBRARY->engineSettings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
 		if(backpackCap < 0)
 			return true;
 		else
@@ -277,7 +277,7 @@ DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description
 	if(nameStart != std::string::npos && nameEnd != std::string::npos)
 	{
 		if(sid.getNum() >= 0)
-			description = description.replace(nameStart, nameEnd - nameStart + 1, sid.toEntity(VLC->spells())->getNameTranslated());
+			description = description.replace(nameStart, nameEnd - nameStart + 1, sid.toEntity(LIBRARY->spells())->getNameTranslated());
 		else
 			description = description.erase(nameStart, nameEnd - nameStart + 2); // erase "[spell name] " - including space
 	}

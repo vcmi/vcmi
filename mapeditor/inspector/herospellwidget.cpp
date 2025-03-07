@@ -48,7 +48,7 @@ void HeroSpellWidget::initSpellLists()
 	for (int i = 0; i < GameConstants::SPELL_LEVELS; i++)
 	{
 		std::vector<const CSpell*> spellsByLevel;
-		for (auto const & spellID : VLC->spellh->getDefaultAllowed())
+		for (auto const & spellID : LIBRARY->spellh->getDefaultAllowed())
 		{
 			if (spellID.toSpell()->getLevel() == i + 1)
 				spellsByLevel.push_back(spellID.toSpell());
@@ -101,7 +101,9 @@ void HeroSpellWidget::on_customizeSpells_toggled(bool checked)
 	initSpellLists();
 }
 
-HeroSpellDelegate::HeroSpellDelegate(CGHeroInstance & h) : hero(h), BaseInspectorItemDelegate()
+HeroSpellDelegate::HeroSpellDelegate(CGHeroInstance & h)
+	: BaseInspectorItemDelegate()
+	, hero(h)
 {
 }
 

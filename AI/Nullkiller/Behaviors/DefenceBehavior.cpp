@@ -214,10 +214,14 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 		std::vector<int> pathsToDefend;
 		std::map<const CGHeroInstance *, std::vector<int>> defferedPaths;
+		AIPath* closestWay = nullptr;
 
 		for(int i = 0; i < paths.size(); i++)
 		{
 			auto & path = paths[i];
+
+			if (!closestWay || path.movementCost() < closestWay->movementCost())
+				closestWay = &path;
 
 #if NKAI_TRACE_LEVEL >= 1
 			logAi->trace(
@@ -382,7 +386,14 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 					town->getObjectName());
 #endif
 
-			sequence.push_back(sptr(ExecuteHeroChain(path, town)));
+			ExecuteHeroChain heroChain(path, town);
+				
+			if (closestWay)
+			{
+				heroChain.closestWayRatio = closestWay->movementCost() / heroChain.getPath().movementCost();
+			}
+
+			sequence.push_back(sptr(heroChain));
 			composition.addNextSequence(sequence);
 
 			auto firstBlockedAction = path.getFirstBlockedAction();

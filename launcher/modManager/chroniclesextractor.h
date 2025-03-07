@@ -24,7 +24,7 @@ class ChroniclesExtractor : public QObject
 
 	bool createTempDir();
 	void removeTempDir();
-	int getChronicleNo();
+	std::vector<int> getChronicleNo();
 	bool extractGogInstaller(QString filePath);
 	void createBaseMod() const;
 	void createChronicleMod(int no);

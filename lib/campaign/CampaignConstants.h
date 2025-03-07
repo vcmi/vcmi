@@ -20,6 +20,8 @@ enum class CampaignVersion : uint8_t
 	WoG = 6,
 	Chr = 7,
 
+	HotA = 10,
+
 	VCMI = 1,
 	VCMI_MIN = 1,
 	VCMI_MAX = 1,

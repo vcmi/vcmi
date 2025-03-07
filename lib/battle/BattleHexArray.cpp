@@ -32,9 +32,7 @@ void BattleHexArray::insert(const BattleHexArray & other) noexcept
 
 void BattleHexArray::clear() noexcept
 {
-	for(const auto & hex : internalStorage)
-		presenceFlags[hex.toInt()] = false;
-
+	presenceFlags = {};
 	internalStorage.clear();
 }
 

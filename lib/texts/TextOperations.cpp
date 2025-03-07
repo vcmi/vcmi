@@ -161,12 +161,24 @@ uint32_t TextOperations::getUnicodeCodepoint(char data, const std::string & enco
 
 std::string TextOperations::toUnicode(const std::string &text, const std::string &encoding)
 {
-	return boost::locale::conv::to_utf<char>(text, encoding);
+	try {
+		return boost::locale::conv::to_utf<char>(text, encoding);
+	}
+	catch (const boost::locale::conv::conversion_error &)
+	{
+		throw std::runtime_error("Failed to convert text '" + text + "' from encoding " + encoding );
+	}
 }
 
 std::string TextOperations::fromUnicode(const std::string &text, const std::string &encoding)
 {
-	return boost::locale::conv::from_utf<char>(text, encoding);
+	try {
+		return boost::locale::conv::from_utf<char>(text, encoding);
+	}
+	catch (const boost::locale::conv::conversion_error &)
+	{
+		throw std::runtime_error("Failed to convert text '" + text + "' to encoding " + encoding );
+	}
 }
 
 void TextOperations::trimRightUnicode(std::string & text, const size_t amount)
@@ -199,8 +211,12 @@ void TextOperations::trimRightUnicode(std::string & text, const size_t amount)
 
 size_t TextOperations::getUnicodeCharactersCount(const std::string & text)
 {
-	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
-	return conv.from_bytes(text).size(); 
+	size_t charactersCount = 0;
+
+	for (size_t i=0; i<text.size(); i += getUnicodeCharacterSize(text[i]))
+		charactersCount++;
+
+	return charactersCount;
 }
 
 std::string TextOperations::escapeString(std::string input)
@@ -295,7 +311,10 @@ bool TextOperations::textSearchSimilar(const std::string & s, const std::string 
 	if(boost::algorithm::contains(haystack, needle))
 		return true;
 
-	for(int i = 0; i < haystack.size() - needle.size(); i++)
+	if(needle.size() > haystack.size())
+		return false;
+
+	for(int i = 0; i < haystack.size() - needle.size() + 1; i++)
 	{
 		auto dist = getLevenshteinDistance(haystack.substr(i, needle.size()), needle);
 		if(needle.size() > 2 && dist <= 1)

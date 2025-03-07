@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CObstacleInstance.h"
 #include "../ObstacleHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"

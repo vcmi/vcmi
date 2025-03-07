@@ -517,6 +517,7 @@ class VideoWindow : public CWindowObject, public IVideoHolder
 	std::shared_ptr<VideoWidgetOnce> videoPlayer;
 	std::shared_ptr<CFilledTexture> backgroundAroundWindow;
 	std::shared_ptr<GraphicalPrimitiveCanvas> blackBackground;
+	bool showBackground;
 
 	std::function<void(bool)> closeCb;
 
@@ -528,4 +529,5 @@ public:
 	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
 	void notFocusedClick() override;
+	void showAll(Canvas & to) override;
 };

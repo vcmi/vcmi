@@ -277,6 +277,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"heroCostumeLoad9",         EShortcut::HERO_COSTUME_LOAD_9       },
 		{"spellbookTabAdventure",    EShortcut::SPELLBOOK_TAB_ADVENTURE   },
 		{"spellbookTabCombat",       EShortcut::SPELLBOOK_TAB_COMBAT      },
+		{"spellbookSearchFocus",     EShortcut::SPELLBOOK_SEARCH_FOCUS    },
 		{"listHeroUp",               EShortcut::LIST_HERO_UP              },
 		{"listHeroDown",             EShortcut::LIST_HERO_DOWN            },
 		{"listHeroTop",              EShortcut::LIST_HERO_TOP             },

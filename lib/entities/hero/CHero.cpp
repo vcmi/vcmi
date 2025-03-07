@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CHero.h"
 
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 #include "../../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -45,27 +45,27 @@ HeroTypeID CHero::getId() const
 
 std::string CHero::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::string CHero::getBiographyTranslated() const
 {
-	return VLC->generaltexth->translate(getBiographyTextID());
+	return LIBRARY->generaltexth->translate(getBiographyTextID());
 }
 
 std::string CHero::getSpecialtyNameTranslated() const
 {
-	return VLC->generaltexth->translate(getSpecialtyNameTextID());
+	return LIBRARY->generaltexth->translate(getSpecialtyNameTextID());
 }
 
 std::string CHero::getSpecialtyDescriptionTranslated() const
 {
-	return VLC->generaltexth->translate(getSpecialtyDescriptionTextID());
+	return LIBRARY->generaltexth->translate(getSpecialtyDescriptionTextID());
 }
 
 std::string CHero::getSpecialtyTooltipTranslated() const
 {
-	return VLC->generaltexth->translate(getSpecialtyTooltipTextID());
+	return LIBRARY->generaltexth->translate(getSpecialtyTooltipTextID());
 }
 
 std::string CHero::getNameTextID() const

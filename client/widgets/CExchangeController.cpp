@@ -11,6 +11,7 @@
 #include "CExchangeController.h"
 
 #include "../CPlayerInterface.h"
+#include "../GameInstance.h"
 
 #include "../widgets/CGarrisonInt.h"
 
@@ -19,8 +20,8 @@
 #include "../lib/mapObjects/CGHeroInstance.h"
 
 CExchangeController::CExchangeController(ObjectInstanceID hero1, ObjectInstanceID hero2)
-	: left(LOCPLINT->cb->getHero(hero1))
-	, right(LOCPLINT->cb->getHero(hero2))
+	: left(GAME->interface()->cb->getHero(hero1))
+	, right(GAME->interface()->cb->getHero(hero2))
 {
 }
 
@@ -40,7 +41,7 @@ void CExchangeController::swapArmy()
 
 	for(; i != leftSlots.end() && j != rightSlots.end(); i++, j++)
 	{
-		LOCPLINT->cb->swapCreatures(left, right, i->first, j->first);
+		GAME->interface()->cb->swapCreatures(left, right, i->first, j->first);
 	}
 
 	if(i != leftSlots.end())
@@ -50,7 +51,7 @@ void CExchangeController::swapArmy()
 
 		for(; i != leftSlots.end() && slot != freeSlots.end(); i++, slot++)
 		{
-			LOCPLINT->cb->swapCreatures(left, right, i->first, *slot);
+			GAME->interface()->cb->swapCreatures(left, right, i->first, *slot);
 		}
 	}
 	else if(j != rightSlots.end())
@@ -60,7 +61,7 @@ void CExchangeController::swapArmy()
 
 		for(; j != rightSlots.end() && slot != freeSlots.end(); j++, slot++)
 		{
-			LOCPLINT->cb->swapCreatures(left, right, *slot, j->first);
+			GAME->interface()->cb->swapCreatures(left, right, *slot, j->first);
 		}
 	}
 }
@@ -83,7 +84,7 @@ void CExchangeController::moveArmy(bool leftToRight, std::optional<SlotID> heldS
 	if (source->getCreature(heldSlot.value()) == nullptr)
 		return;
 
-	LOCPLINT->cb->bulkMoveArmy(source->id, target->id, heldSlot.value());
+	GAME->interface()->cb->bulkMoveArmy(source->id, target->id, heldSlot.value());
 }
 
 void CExchangeController::moveStack(bool leftToRight, SlotID sourceSlot)
@@ -100,19 +101,35 @@ void CExchangeController::moveStack(bool leftToRight, SlotID sourceSlot)
 	{
 		if(source->stacksCount() == 1 && source->needsLastStack())
 		{
-			LOCPLINT->cb->splitStack(source, target, sourceSlot, targetSlot,
+			GAME->interface()->cb->splitStack(source, target, sourceSlot, targetSlot,
 				target->getStackCount(targetSlot) + source->getStackCount(sourceSlot) - 1);
 		}
 		else
 		{
-			LOCPLINT->cb->mergeOrSwapStacks(source, target, sourceSlot, targetSlot);
+			GAME->interface()->cb->mergeOrSwapStacks(source, target, sourceSlot, targetSlot);
 		}
+	}
+}
+
+void CExchangeController::moveSingleStackCreature(bool leftToRight, SlotID sourceSlot, bool forceEmptySlotTarget)
+{
+	const auto source = leftToRight ? left : right;
+	const auto target = leftToRight ? right : left;
+	auto creature = source->getCreature(sourceSlot);
+
+	if(creature == nullptr || source->stacksCount() == 1)
+		return;
+
+	SlotID targetSlot = forceEmptySlotTarget ? target->getFreeSlot() : target->getSlotFor(creature);
+	if(targetSlot.validSlot())
+	{
+		GAME->interface()->cb->splitStack(source, target, sourceSlot, targetSlot, target->getStackCount(targetSlot) + 1);
 	}
 }
 
 void CExchangeController::swapArtifacts(bool equipped, bool baclpack)
 {
-	LOCPLINT->cb->bulkMoveArtifacts(left->id, right->id, true, equipped, baclpack);
+	GAME->interface()->cb->bulkMoveArtifacts(left->id, right->id, true, equipped, baclpack);
 }
 
 void CExchangeController::moveArtifacts(bool leftToRight, bool equipped, bool baclpack)
@@ -120,5 +137,5 @@ void CExchangeController::moveArtifacts(bool leftToRight, bool equipped, bool ba
 	const auto source = leftToRight ? left : right;
 	const auto target = leftToRight ? right : left;
 
-	LOCPLINT->cb->bulkMoveArtifacts(source->id, target->id, false, equipped, baclpack);
+	GAME->interface()->cb->bulkMoveArtifacts(source->id, target->id, false, equipped, baclpack);
 }

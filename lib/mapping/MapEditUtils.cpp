@@ -13,7 +13,7 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../TerrainHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "CMap.h"
 #include "CMapOperation.h"
 
@@ -272,7 +272,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 
 const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternConfig::getTerrainViewPatterns(TerrainId terrain) const
 {
-	auto iter = terrainViewPatterns.find(VLC->terrainTypeHandler->getById(terrain)->terrainViewPatterns);
+	auto iter = terrainViewPatterns.find(LIBRARY->terrainTypeHandler->getById(terrain)->terrainViewPatterns);
 	if (iter == terrainViewPatterns.end())
 		return terrainViewPatterns.at("normal");
 	return iter->second;

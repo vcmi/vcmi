@@ -14,7 +14,7 @@
 
 #include "../RoadHandler.h"
 #include "../RiverHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 #include <vstd/RNG.h>
 

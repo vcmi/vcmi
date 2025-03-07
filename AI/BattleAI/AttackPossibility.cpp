@@ -38,7 +38,7 @@ void DamageCache::buildObstacleDamageCache(std::shared_ptr<HypotheticBattle> hb,
 		if(!spellObstacle || !obst->triggersEffects())
 			continue;
 
-		auto triggerAbility = VLC->spells()->getById(obst->getTrigger());
+		auto triggerAbility = LIBRARY->spells()->getById(obst->getTrigger());
 		auto triggerIsNegative = triggerAbility->isNegative() || triggerAbility->isDamage();
 
 		if(!triggerIsNegative)

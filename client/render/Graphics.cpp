@@ -27,7 +27,7 @@
 #include "../../lib/json/JsonNode.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModScope.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 
 #include <SDL_surface.h>
 
@@ -89,7 +89,7 @@ void Graphics::loadPaletteAndColors()
 
 void Graphics::initializeBattleGraphics()
 {
-	auto allConfigs = VLC->modh->getActiveMods();
+	auto allConfigs = LIBRARY->modh->getActiveMods();
 	allConfigs.insert(allConfigs.begin(), ModScope::scopeBuiltin());
 	for(auto & mod : allConfigs)
 	{

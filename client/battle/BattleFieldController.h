@@ -65,16 +65,16 @@ class BattleFieldController : public CIntObject
 	// Range limit highlight helpers
 
 	/// get all hexes within a certain distance of given hex
-	BattleHexArray getRangeHexes(const BattleHex & sourceHex, uint8_t distance);
+	BattleHexArray getRangeHexes(const BattleHex & sourceHex, uint8_t distance) const;
 
 	/// get only hexes at the limit of a range
-	BattleHexArray getRangeLimitHexes(const BattleHex & hoveredHex, const BattleHexArray & hexRange, uint8_t distanceToLimit);
+	BattleHexArray getRangeLimitHexes(const BattleHex & hoveredHex, const BattleHexArray & hexRange, uint8_t distanceToLimit) const;
 
 	/// calculate if a hex is in range limit and return its index in range
-	bool IsHexInRangeLimit(const BattleHex & hex, const BattleHexArray & rangeLimitHexes, int * hexIndexInRangeLimit);
+	bool isHexInRangeLimit(const BattleHex & hex, const BattleHexArray & rangeLimitHexes, int * hexIndexInRangeLimit) const;
 
 	/// get an array that has for each hex in range, an array with all directions where an outside neighbour hex exists
-	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(const BattleHexArray & rangeHexes, const BattleHexArray & rangeLimitHexes);
+	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(const BattleHexArray & rangeHexes, const BattleHexArray & rangeLimitHexes) const;
 
 	/// calculates what image to use as range limit, depending on the direction of neighbours
 	/// a mask is used internally to mark the directions of all neighbours
@@ -135,7 +135,7 @@ public:
 	/// returns true if stack should render its stack count image in default position - outside own hex
 	bool stackCountOutsideHex(const BattleHex & number) const;
 
-	BattleHex::EDir selectAttackDirection(const BattleHex & myNumber);
+	BattleHex::EDir selectAttackDirection(const BattleHex & myNumber) const;
 
 	BattleHex fromWhichHexAttack(const BattleHex & myNumber);
 };
