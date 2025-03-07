@@ -110,15 +110,11 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 		setBackground(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(*bgNames, CRandomGenerator::getDefault())));
 		pos = background->center();
 
-		// Set logo
-		const auto& logoConfig = gameSelectConfig["logo"];
-		if (!logoConfig["name"].Vector().empty())
-			logo = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(logoConfig["name"].Vector(), CRandomGenerator::getDefault())), Point(logoConfig["x"].Integer(), logoConfig["y"].Integer()));
-		
-		// Set sublogo
-		const auto& sublogoConfig = gameSelectConfig["sublogo"];
-		if (!logoConfig["name"].Vector().empty())
-			sublogo = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(sublogoConfig["name"].Vector(), CRandomGenerator::getDefault())), Point(sublogoConfig["x"].Integer(), sublogoConfig["y"].Integer()));
+		for (const JsonNode& node : gameSelectConfig["images"].Vector())
+		{
+			auto image = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(node["name"].Vector(), CRandomGenerator::getDefault())), Point(node["x"].Integer(), node["y"].Integer()));
+			images.push_back(image);
+		}
 	}
 	
 	card = std::make_shared<InfoCard>();
