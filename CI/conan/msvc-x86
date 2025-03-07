@@ -1,0 +1,4 @@
+include(base/msvc)
+
+[settings]
+arch=x86
