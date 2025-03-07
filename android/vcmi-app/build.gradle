@@ -14,7 +14,7 @@ android {
 	 * Changing them manually might break the compilation!
 	 *******************************************************/
 
-	ndkVersion '25.2.9519653'
+	ndkVersion = androidNdkVersion // Qt generates this property
 
 	// Extract native libraries from the APK
 	packagingOptions.jniLibs.useLegacyPackaging true
