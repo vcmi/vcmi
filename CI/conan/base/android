@@ -1,10 +1,16 @@
+include(common)
+
 [settings]
-build_type=Release
 compiler=clang
+compiler.cppstd=17
 compiler.libcxx=c++_shared
 compiler.version=14
 os=Android
 
-[buildenv]
-# fixes shared libiconv build
-LD=ld
+[replace_requires]
+zlib/*: zlib/[*]@system
+
+[conf]
+# https://github.com/conan-io/conan-center-index/issues/25342
+# https://github.com/conan-io/conan/issues/16468#issuecomment-2175877245
+tools.meson.mesontoolchain:extra_machine_files={{ [os.path.join(profile_dir, "meson_workaround.txt")] }}

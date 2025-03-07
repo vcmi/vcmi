@@ -128,15 +128,24 @@ function(install_vcpkg_imported_tgt tgt)
 	install(FILES ${TGT_DLL} DESTINATION ${BIN_DIR})
 endfunction(install_vcpkg_imported_tgt)
 
-# install dependencies from Conan, install_dir should contain \${CMAKE_INSTALL_PREFIX}
-function(vcmi_install_conan_deps install_dir)
+# install dependencies from Conan, CONAN_RUNTIME_LIBS_FILE is set in conanfile.py
+function(vcmi_install_conan_deps)
 	if(NOT USING_CONAN)
 		return()
 	endif()
-	install(CODE "
-		execute_process(COMMAND
-			conan imports \"${CMAKE_SOURCE_DIR}\" --install-folder \"${CONAN_INSTALL_FOLDER}\" --import-folder \"${install_dir}\"
-		)
-		file(REMOVE \"${install_dir}/conan_imports_manifest.txt\")
-	")
+
+	file(STRINGS "${CONAN_RUNTIME_LIBS_FILE}" runtimeLibs)
+	install(FILES ${runtimeLibs} DESTINATION ${LIB_DIR})
+endfunction()
+
+function(vcmi_deploy_qt deployQtToolName deployQtOptions)
+	# TODO: use qt_generate_deploy_app_script() with Qt 6
+	find_program(TOOL_DEPLOYQT NAMES ${deployQtToolName} PATHS "${qtBinDir}")
+	if(TOOL_DEPLOYQT)
+		install(CODE "
+			execute_process(COMMAND \"${TOOL_DEPLOYQT}\" ${deployQtOptions} -verbose 2)
+		")
+	else()
+		message(WARNING "${deployQtToolName} not found, running cpack would result in broken package")
+	endif()
 endfunction()
