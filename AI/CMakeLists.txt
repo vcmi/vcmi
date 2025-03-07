@@ -19,10 +19,6 @@ else()
 	set(fuzzylite_FOUND FALSE)
 endif()
 
-if(TARGET fuzzylite::fuzzylite AND MSVC)
-	install_vcpkg_imported_tgt(fuzzylite::fuzzylite)
-endif()
-
 if(NOT fuzzylite_FOUND)
 	set(FL_BUILD_BINARY OFF CACHE BOOL "")
 	set(FL_BUILD_SHARED OFF CACHE BOOL "")
