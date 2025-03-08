@@ -310,17 +310,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="482"/>
         <source>Context menu</source>
-        <translation type="unfinished"></translation>
+        <translation>右键菜单</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="525"/>
         <source>Open directory</source>
-        <translation type="unfinished"></translation>
+        <translation>打开目录</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
         <source>Open repository</source>
-        <translation type="unfinished"></translation>
+        <translation>打开源</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="783"/>
@@ -506,7 +506,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="533"/>
         <source>Allow portrait mode</source>
-        <translation type="unfinished"></translation>
+        <translation>允许竖屏模式</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="811"/>
@@ -521,7 +521,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1019"/>
         <source>Handle back as right mouse button</source>
-        <translation type="unfinished"></translation>
+        <translation>将后退键视为右键</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1125"/>
@@ -853,7 +853,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="153"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation type="unfinished">英雄无敌历代记 %1 - %2</translation>
+        <translation>英雄无敌历代记 %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -1194,7 +1194,7 @@ error reason: </source>
 Exe (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>提供文件的SHA1哈希值：
 Exe（%n字节）：
 %1</numerusform>
@@ -1206,7 +1206,7 @@ Exe（%n字节）：
 Bin (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>
 Bin (%n字节):
 %1</numerusform>
@@ -1386,7 +1386,7 @@ Bin (%n字节):
     <message>
         <location filename="../mainwindow_moc.cpp" line="46"/>
         <source>Error starting executable</source>
-        <translation type="unfinished">启动可执行文件时出错</translation>
+        <translation>启动可执行文件时出错</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="289"/>
@@ -1483,7 +1483,7 @@ Bin (%n字节):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="251"/>
         <source>Mod data was not found</source>
-        <translation type="unfinished"></translation>
+        <translation>未找到模组数据</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="255"/>
