@@ -207,7 +207,7 @@
 	{
 		"index": 60,
 		"class" : "heretic",
-		"female": false,
+		"female": true,
 		"spellbook": [ "haste" ],
 		"skills":
 		[
