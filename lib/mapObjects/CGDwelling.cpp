@@ -66,16 +66,16 @@ FactionID CGDwelling::randomizeFaction(vstd::RNG & rand)
 
 	if (!randomizationInfo->instanceId.empty())
 	{
-		auto iter = cb->gameState()->map->instanceNames.find(randomizationInfo->instanceId);
+		auto iter = cb->gameState()->getMap().instanceNames.find(randomizationInfo->instanceId);
 
-		if(iter == cb->gameState()->map->instanceNames.end())
+		if(iter == cb->gameState()->getMap().instanceNames.end())
 			logGlobal->error("Map object not found: %s", randomizationInfo->instanceId);
 		linkedTown = dynamic_cast<CGTownInstance *>(iter->second.get());
 	}
 
 	if (randomizationInfo->identifier != 0)
 	{
-		for(auto & elem : cb->gameState()->map->objects)
+		for(auto & elem : cb->gameState()->getMap().objects)
 		{
 			auto town = dynamic_cast<CGTownInstance*>(elem.get());
 			if(town && town->identifier == randomizationInfo->identifier)
@@ -420,7 +420,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 					std::pair<SlotID, SlotID> toMerge;
 					if (h->mergeableStacks(toMerge))
 					{
-						cb->moveStack(StackLocation(h, toMerge.first), StackLocation(h, toMerge.second), -1); //merge toMerge.first into toMerge.second
+						cb->moveStack(StackLocation(h->id, toMerge.first), StackLocation(h->id, toMerge.second), -1); //merge toMerge.first into toMerge.second
 						assert(!h->hasStackAtSlot(toMerge.first)); //we have now a new free slot
 					}
 				}
@@ -453,7 +453,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 
 				cb->showInfoDialog(&iw);
 				cb->sendAndApply(sac);
-				cb->addToSlot(StackLocation(h, slot), crs, count);
+				cb->addToSlot(StackLocation(h->id, slot), crs, count);
 			}
 		}
 		else //there no creatures

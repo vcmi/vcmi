@@ -432,9 +432,9 @@ void PlayerMessageProcessor::cheatGiveArmy(PlayerColor player, const CGHeroInsta
 			if (!hero->hasStackAtSlot(SlotID(i)))
 			{
 				if (amountPerSlot.has_value())
-					gameHandler->insertNewStack(StackLocation(hero, SlotID(i)), creature, *amountPerSlot);
+					gameHandler->insertNewStack(StackLocation(hero->id, SlotID(i)), creature, *amountPerSlot);
 				else
-					gameHandler->insertNewStack(StackLocation(hero, SlotID(i)), creature, 5 * std::pow(10, i));
+					gameHandler->insertNewStack(StackLocation(hero->id, SlotID(i)), creature, 5 * std::pow(10, i));
 			}
 		}
 	}
@@ -627,7 +627,7 @@ void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
 {
 	TeamState *t = gameHandler->gameState()->getPlayerTeam(player);
 
-	for(auto & obj : gameHandler->gameState()->map->objects)
+	for(auto & obj : gameHandler->gameState()->getMap().objects)
 	{
 		if(obj && obj->ID == Obj::OBELISK && !obj->wasVisited(player))
 		{

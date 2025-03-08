@@ -225,7 +225,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 		return;
 	}
 	
-	pack.initializedStartInfo = std::make_shared<StartInfo>(*srv.gh->getStartInfo(true));
+	pack.initializedStartInfo = std::make_shared<StartInfo>(*srv.gh->getInitialStartInfo());
 	pack.initializedGameState = srv.gh->gameState();
 	result = true;
 }

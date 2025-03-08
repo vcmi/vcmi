@@ -192,7 +192,8 @@ std::string CMarketWindow::getMarketTitle(const ObjectInstanceID marketId, const
 	{
 		for(const auto & buildingId : town->getBuildings())
 		{
-			if(const auto building = town->getTown()->buildings.at(buildingId); vstd::contains(building->marketModes, mode))
+			const auto & building = town->getTown()->buildings.at(buildingId);
+			if(vstd::contains(building->marketModes, mode))
 				return building->getNameTranslated();
 		}
 	}

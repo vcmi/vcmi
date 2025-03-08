@@ -11,7 +11,6 @@
 
 #include "int3.h"
 #include "ResourceSet.h" // for Res
-#include "ConstTransitivePtr.h"
 
 #define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
@@ -59,7 +58,8 @@ public:
 
 //	//various
 	virtual int getDate(Date mode=Date::DAY) const = 0; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
-	virtual const StartInfo * getStartInfo(bool beforeRandomization = false) const = 0;
+	virtual const StartInfo * getStartInfo() const = 0;
+	virtual const StartInfo * getInitialStartInfo() const = 0;
 	virtual bool isAllowed(SpellID id) const = 0;
 	virtual bool isAllowed(ArtifactID id) const = 0;
 	virtual bool isAllowed(SecondarySkill id) const = 0;
@@ -146,7 +146,8 @@ protected:
 public:
 	//various
 	int getDate(Date mode=Date::DAY)const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
-	const StartInfo * getStartInfo(bool beforeRandomization = false) const override;
+	const StartInfo * getStartInfo() const override;
+	const StartInfo * getInitialStartInfo() const override;
 	bool isAllowed(SpellID id) const override;
 	bool isAllowed(ArtifactID id) const override;
 	bool isAllowed(SecondarySkill id) const override;
@@ -188,11 +189,11 @@ public:
 
 	//objects
 	const CGObjectInstance * getObj(ObjectInstanceID objid, bool verbose = true) const override;
-	virtual std::vector <const CGObjectInstance * > getBlockingObjs(int3 pos)const;
-	std::vector <const CGObjectInstance * > getVisitableObjs(int3 pos, bool verbose = true) const override;
-	std::vector<ConstTransitivePtr<CGObjectInstance>> getAllVisitableObjs() const;
-	virtual std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
-	virtual const CGObjectInstance * getTopObj (int3 pos) const;
+	virtual std::vector<const CGObjectInstance *> getBlockingObjs(int3 pos) const;
+	std::vector<const CGObjectInstance *> getVisitableObjs(int3 pos, bool verbose = true) const override;
+	std::vector<const CGObjectInstance *> getAllVisitableObjs() const;
+	virtual std::vector<const CGObjectInstance *> getFlaggableObjects(int3 pos) const;
+	virtual const CGObjectInstance * getTopObj(int3 pos) const;
 	virtual PlayerColor getOwner(ObjectInstanceID heroID) const;
 	virtual const IMarket * getMarket(ObjectInstanceID objid) const;
 
