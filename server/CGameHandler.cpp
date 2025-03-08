@@ -421,7 +421,7 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 
 void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 {
-	if(gameLobby().getState() == EServerState::SHUTDOWN || !gs || !gs->scenarioOps)
+	if(gameLobby().getState() == EServerState::SHUTDOWN || !gs || !gs->getStartInfo())
 	{
 		assert(0); // game should have shut down before reaching this point!
 		return;
@@ -430,7 +430,7 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 	for(auto & playerConnections : connections)
 	{
 		PlayerColor playerId = playerConnections.first;
-		auto * playerSettings = gs->scenarioOps->getPlayersSettings(playerId.getNum());
+		auto * playerSettings = gs->getStartInfo()->getPlayersSettings(playerId.getNum());
 		if(!playerSettings)
 			continue;
 		

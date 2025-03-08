@@ -37,7 +37,7 @@ struct DLL_LINKAGE CStructure
 	bool hiddenUpgrade; // used only if "building" is upgrade, if true - structure on town screen will behave exactly like parent (mouse clicks, hover texts, etc)
 };
 
-class DLL_LINKAGE CTown
+class DLL_LINKAGE CTown : boost::noncopyable
 {
 	friend class CTownHandler;
 	size_t namesCount = 0;
