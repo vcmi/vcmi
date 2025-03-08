@@ -66,17 +66,17 @@ void PlayerMessageProcessor::playerMessage(PlayerColor player, const std::string
 
 void PlayerMessageProcessor::commandExit(PlayerColor player, const std::vector<std::string> & words)
 {
-	bool isHost = gameHandler->gameLobby()->isPlayerHost(player);
+	bool isHost = gameHandler->gameLobby().isPlayerHost(player);
 	if(!isHost)
 		return;
 
 	broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.gameTerminated"));
-	gameHandler->gameLobby()->setState(EServerState::SHUTDOWN);
+	gameHandler->gameLobby().setState(EServerState::SHUTDOWN);
 }
 
 void PlayerMessageProcessor::commandKick(PlayerColor player, const std::vector<std::string> & words)
 {
-	bool isHost = gameHandler->gameLobby()->isPlayerHost(player);
+	bool isHost = gameHandler->gameLobby().isPlayerHost(player);
 	if(!isHost)
 		return;
 
@@ -88,10 +88,10 @@ void PlayerMessageProcessor::commandKick(PlayerColor player, const std::vector<s
 			playerToKick = PlayerColor(std::stoi(playername));
 		else
 		{
-			for(auto & c : gameHandler->connections)
+			for (PlayerColor color : PlayerColor::ALL_PLAYERS())
 			{
-				if(c.first.toString() == playername)
-					playerToKick = c.first;
+				if(color.toString() == playername)
+					playerToKick = color;
 			}
 		}
 
@@ -108,7 +108,7 @@ void PlayerMessageProcessor::commandKick(PlayerColor player, const std::vector<s
 
 void PlayerMessageProcessor::commandSave(PlayerColor player, const std::vector<std::string> & words)
 {
-	bool isHost = gameHandler->gameLobby()->isPlayerHost(player);
+	bool isHost = gameHandler->gameLobby().isPlayerHost(player);
 	if(!isHost)
 		return;
 
@@ -143,7 +143,7 @@ void PlayerMessageProcessor::commandCheaters(PlayerColor player, const std::vect
 
 void PlayerMessageProcessor::commandStatistic(PlayerColor player, const std::vector<std::string> & words)
 {
-	bool isHost = gameHandler->gameLobby()->isPlayerHost(player);
+	bool isHost = gameHandler->gameLobby().isPlayerHost(player);
 	if(!isHost)
 		return;
 

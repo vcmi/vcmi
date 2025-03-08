@@ -96,7 +96,7 @@ void Object::Instance::setPosition(const int3 & position)
 
 void Object::Instance::setPositionRaw(const int3 & position)
 {
-	if(!dObject.anchorPos().valid())
+	if(!dObject.anchorPos().isValid())
 	{
 		dObject.setAnchorPos(dPosition + dParent.getPosition());
 		dBlockedAreaCache.clear();

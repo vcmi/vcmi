@@ -34,7 +34,7 @@ void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 			{
 				for(const auto & temp : handler->getTemplates())
 				{
-					if(temp->canBePlacedAt(terrain) && temp->getBlockMapOffset().valid())
+					if(temp->canBePlacedAt(terrain) && temp->getBlockMapOffset().isValid())
 						obstaclesBySize[temp->getBlockedOffsets().size()].push_back(temp);
 				}
 			}
@@ -193,7 +193,7 @@ bool ObstacleProxy::prepareBiome(const ObstacleSetFilter & filter, vstd::RNG & r
 		{
 			for (const auto & temp : os->getObstacles())
 			{
-				if(temp->getBlockMapOffset().valid())
+				if(temp->getBlockMapOffset().isValid())
 				{
 					obstaclesBySize[temp->getBlockedOffsets().size()].push_back(temp);
 				}

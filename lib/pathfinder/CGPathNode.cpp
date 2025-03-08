@@ -106,7 +106,7 @@ void PathNodeInfo::setNode(CGameState * gs, CGPathNode * n)
 
 	if(coord != node->coord)
 	{
-		assert(node->coord.valid());
+		assert(node->coord.isValid());
 
 		coord = node->coord;
 		tile = gs->getTile(coord);
@@ -131,7 +131,7 @@ void PathNodeInfo::setNode(CGameState * gs, CGPathNode * n)
 
 void PathNodeInfo::updateInfo(CPathfinderHelper * hlp, CGameState * gs)
 {
-	if(gs->guardingCreaturePosition(node->coord).valid() && !isInitialPosition)
+	if(gs->guardingCreaturePosition(node->coord).isValid() && !isInitialPosition)
 	{
 		guarded = true;
 	}

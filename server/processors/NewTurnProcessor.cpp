@@ -436,7 +436,7 @@ RumorState NewTurnProcessor::pickNewRumor()
 	static const std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
 	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
 															  RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
-	if(gameHandler->gameState()->map->grailPos.valid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
+	if(gameHandler->gameState()->map->grailPos.isValid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
 		sRumorTypes.push_back(RumorState::RUMOR_GRAIL);
 
 	int rumorId = -1;

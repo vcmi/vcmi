@@ -120,7 +120,7 @@ void HeroMovementController::updatePath(const CGHeroInstance * hero, const TryMo
 
 	assert(GAME->interface()->makingTurn);
 
-	bool directlyAttackingCreature = details.attackedFrom.has_value() && GAME->interface()->localState->getPath(hero).lastNode().coord == details.attackedFrom;
+	bool directlyAttackingCreature = details.attackedFrom.isValid() && GAME->interface()->localState->getPath(hero).lastNode().coord == details.attackedFrom;
 
 	int3 desiredTarget = GAME->interface()->localState->getPath(hero).nextNode().coord;
 	int3 actualTarget = hero->convertToVisitablePos(details.end);
@@ -163,7 +163,7 @@ void HeroMovementController::onTryMoveHero(const CGHeroInstance * hero, const Tr
 	}
 
 	bool directlyAttackingCreature =
-		details.attackedFrom.has_value() &&
+		details.attackedFrom.isValid() &&
 		GAME->interface()->localState->hasPath(hero) &&
 		GAME->interface()->localState->getPath(hero).lastNode().coord == details.attackedFrom;
 
@@ -194,7 +194,7 @@ void HeroMovementController::onTryMoveHero(const CGHeroInstance * hero, const Tr
 	if(directlyAttackingCreature)
 	{
 		// Get direction to attacker.
-		int3 posOffset = *details.attackedFrom - details.end + int3(2, 1, 0);
+		int3 posOffset = details.attackedFrom - details.end + int3(2, 1, 0);
 		static const ui8 dirLookup[3][3] =
 		{
 			{ 1, 2, 3 },

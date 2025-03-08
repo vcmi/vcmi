@@ -39,10 +39,13 @@ class CVCMIServerPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 private:
 	CVCMIServer & handler;
 	std::shared_ptr<CGameHandler> gh;
+	std::shared_ptr<CConnection> connection;
 
 public:
-	CVCMIServerPackVisitor(CVCMIServer & handler, std::shared_ptr<CGameHandler> gh)
-			:handler(handler), gh(gh)
+	CVCMIServerPackVisitor(CVCMIServer & handler, const std::shared_ptr<CGameHandler> & gh, const std::shared_ptr<CConnection> & connection)
+		: handler(handler)
+		, gh(gh)
+		, connection(connection)
 	{
 	}
 
@@ -50,13 +53,13 @@ public:
 
 	void visitForLobby(CPackForLobby & packForLobby) override
 	{
-		handler.handleReceivedPack(packForLobby);
+		handler.handleReceivedPack(connection, packForLobby);
 	}
 
 	void visitForServer(CPackForServer & serverPack) override
 	{
 		if (gh)
-			gh->handleReceivedPack(serverPack);
+			gh->handleReceivedPack(connection, serverPack);
 		else
 			logNetwork->error("Received pack for game server while in lobby!");
 	}
@@ -130,8 +133,7 @@ void CVCMIServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & c
 		throw std::out_of_range("Unknown connection received in CVCMIServer::findConnection");
 
 	auto pack = c->retrievePack(message);
-	pack->c = c;
-	CVCMIServerPackVisitor visitor(*this, this->gh);
+	CVCMIServerPackVisitor visitor(*this, this->gh, c);
 	pack->visit(visitor);
 }
 
@@ -310,20 +312,19 @@ void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & con
 	if (c)
 	{
 		LobbyClientDisconnected lcd;
-		lcd.c = c;
 		lcd.clientId = c->connectionID;
-		handleReceivedPack(lcd);
+		handleReceivedPack(c, lcd);
 	}
 }
 
-void CVCMIServer::handleReceivedPack(CPackForLobby & pack)
+void CVCMIServer::handleReceivedPack(std::shared_ptr<CConnection> connection, CPackForLobby & pack)
 {
-	ClientPermissionsCheckerNetPackVisitor checker(*this);
+	ClientPermissionsCheckerNetPackVisitor checker(*this, connection);
 	pack.visit(checker);
 
 	if(checker.getResult())
 	{
-		ApplyOnServerNetPackVisitor applier(*this);
+		ApplyOnServerNetPackVisitor applier(*this, connection);
 		pack.visit(applier);
 		if (applier.getResult())
 			announcePack(pack);
@@ -397,6 +398,7 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 	assert(getState() == EServerState::LOBBY);
 
 	c->connectionID = currentClientId++;
+	c->uuid = uuid;
 
 	if(hostClientId == -1)
 	{
@@ -445,41 +447,6 @@ void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> connection)
 	{
 		gh->handleClientDisconnection(connection);
 	}
-
-//	PlayerReinitInterface startAiPack;
-//	startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;
-//
-//	for(auto it = playerNames.begin(); it != playerNames.end();)
-//	{
-//		if(it->second.connection != c->connectionID)
-//		{
-//			++it;
-//			continue;
-//		}
-//
-//		int id = it->first;
-//		std::string playerLeftMsgText = boost::str(boost::format("%s (pid %d cid %d) left the game") % id % playerNames[id].name % c->connectionID);
-//		announceTxt(playerLeftMsgText); //send lobby text, it will be ignored for non-lobby clients
-//		auto * playerSettings = si->getPlayersSettings(id);
-//		if(!playerSettings)
-//		{
-//			++it;
-//			continue;
-//		}
-//
-//		it = playerNames.erase(it);
-//		setPlayerConnectedId(*playerSettings, PlayerSettings::PLAYER_AI);
-//
-//		if(gh && si && state == EServerState::GAMEPLAY)
-//		{
-//			gh->playerMessages->broadcastMessage(playerSettings->color, playerLeftMsgText);
-//	//		gh->connections[playerSettings->color].insert(hostClient);
-//			startAiPack.players.push_back(playerSettings->color);
-//		}
-//	}
-//
-//	if(!startAiPack.players.empty())
-//		gh->sendAndApply(startAiPack);
 }
 
 void CVCMIServer::reconnectPlayer(int connId)

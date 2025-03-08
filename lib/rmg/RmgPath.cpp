@@ -99,7 +99,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 		{
 			// Trace the path using the saved parent information and return path
 			int3 backTracking = currentNode;
-			while (cameFrom[backTracking].valid())
+			while (cameFrom[backTracking].isValid())
 			{
 				result.dPath.add(backTracking);
 				backTracking = cameFrom[backTracking];

@@ -97,7 +97,7 @@ void ObjectGraphCalculator::addMinimalDistanceJunctions()
 			if(target->hasNodeAt(pos))
 				return;
 
-			if(ai->cb->getGuardingCreaturePosition(pos).valid())
+			if(ai->cb->getGuardingCreaturePosition(pos).isValid())
 				return;
 
 			ConnectionCostInfo currentCost = getConnectionsCost(paths);
@@ -200,7 +200,7 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 			auto pos1 = path1.targetHero->visitablePos();
 			auto pos2 = path2.targetHero->visitablePos();
 
-			if(guardPos.valid() && guardPos != pos1 && guardPos != pos2)
+			if(guardPos.isValid() && guardPos != pos1 && guardPos != pos2)
 				continue;
 
 			auto obj1 = actorObjectMap[path1.targetHero];
@@ -310,7 +310,7 @@ void ObjectGraphCalculator::addObjectActor(const CGObjectInstance * obj)
 
 	auto shipyard = dynamic_cast<const IShipyard *>(obj);
 		
-	if(shipyard && shipyard->bestLocation().valid())
+	if(shipyard && shipyard->bestLocation().isValid())
 	{
 		int3 virtualBoat = shipyard->bestLocation();
 			

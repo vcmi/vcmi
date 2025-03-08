@@ -102,7 +102,7 @@ public:
 	void announceMessage(const MetaString & txt);
 	void announceMessage(const std::string & txt);
 
-	void handleReceivedPack(CPackForLobby & pack);
+	void handleReceivedPack(std::shared_ptr<CConnection> connection, CPackForLobby & pack);
 
 	void updateAndPropagateLobbyState();
 

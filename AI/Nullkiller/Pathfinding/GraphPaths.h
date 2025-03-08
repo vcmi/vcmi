@@ -41,7 +41,7 @@ struct GraphPathNodePointer
 
 	bool valid() const
 	{
-		return coord.valid();
+		return coord.isValid();
 	}
 };
 

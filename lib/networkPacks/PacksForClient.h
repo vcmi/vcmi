@@ -640,13 +640,20 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 		DISEMBARK
 	};
 
+	/// ID of moved hero
 	ObjectInstanceID id;
+	/// Movement points that hero will have after movement
 	ui32 movePoints = 0;
-	EResult result = FAILED; //uses EResult
-	int3 start; //h3m format
+	/// Result of movement attempt. FAILED should generally never happen unless client requested invalid operation
+	EResult result = FAILED;
+	/// Hero anchor position from which hero moves
+	int3 start;
+	/// Hero anchor position to which hero moves
 	int3 end;
-	std::unordered_set<int3> fowRevealed; //revealed tiles
-	std::optional<int3> attackedFrom; // Set when stepping into endangered tile.
+	/// Tiles that were revealed by this move
+	std::unordered_set<int3> fowRevealed;
+	/// If hero moves on guarded tile, this field will be set to visitable pos of attacked wandering monster
+	int3 attackedFrom;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 

@@ -699,7 +699,7 @@ void VCAI::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID cha
 	{
 		knownTeleportChannels[channel]->passability = TeleportChannel::IMPASSABLE;
 	}
-	else if(destinationTeleport != ObjectInstanceID() && destinationTeleportPos.valid())
+	else if(destinationTeleport != ObjectInstanceID() && destinationTeleportPos.isValid())
 	{
 		auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
 		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
@@ -1291,7 +1291,7 @@ bool VCAI::isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, const AIPath 
 {
 	const int3 pos = obj->visitablePos();
 	const int3 targetPos = path.firstTileToGet();
-	if (!targetPos.valid())
+	if (!targetPos.isValid())
 		return false;
 	if (!isTileNotReserved(h.get(), targetPos))
 		return false;
@@ -1320,7 +1320,7 @@ bool VCAI::isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, const AIPath 
 
 bool VCAI::isTileNotReserved(const CGHeroInstance * h, int3 t) const
 {
-	if(t.valid())
+	if(t.isValid())
 	{
 		auto obj = cb->getTopObj(t);
 		if(obj && vstd::contains(ai->reservedObjs, obj)
@@ -1900,7 +1900,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
 		{
 			destinationTeleport = exitId;
-			if(exitPos.valid())
+			if(exitPos.isValid())
 				destinationTeleportPos = exitPos;
 			cb->moveHero(*h, h->pos, false);
 			destinationTeleport = ObjectInstanceID();

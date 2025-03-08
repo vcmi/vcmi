@@ -347,7 +347,7 @@ void Zone::fractalize()
 			}
 			
 			possibleTiles.subtract(tilesToIgnore);
-			if(!nodeFound.valid()) //nothing else can be done (?)
+			if(!nodeFound.isValid()) //nothing else can be done (?)
 				break;
 			tilesToIgnore.clear();
 		}

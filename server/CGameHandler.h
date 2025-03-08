@@ -85,7 +85,7 @@ public:
 	const GameCb * game() const override;
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
-	CVCMIServer * gameLobby() const;
+	CVCMIServer & gameLobby() const;
 
 	bool isValidObject(const CGObjectInstance *obj) const;
 	bool isBlockedByQueries(const CPackForServer *pack, PlayerColor player);
@@ -194,7 +194,7 @@ public:
 
 	void init(StartInfo *si, Load::ProgressAccumulator & progressTracking);
 	void handleClientDisconnection(std::shared_ptr<CConnection> c);
-	void handleReceivedPack(CPackForServer & pack);
+	void handleReceivedPack(std::shared_ptr<CConnection> c, CPackForServer & pack);
 	bool hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const;
 
@@ -266,19 +266,19 @@ public:
 	void sendAndApply(SetResources & pack);
 	void sendAndApply(NewStructures & pack);
 
-	void wrongPlayerMessage(CPackForServer * pack, PlayerColor expectedplayer);
+	void wrongPlayerMessage(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, PlayerColor expectedplayer);
 	/// Unconditionally throws with "Action not allowed" message
-	[[noreturn]] void throwNotAllowedAction(CPackForServer * pack);
+	[[noreturn]] void throwNotAllowedAction(const std::shared_ptr<CConnection> & connection);
 	/// Throws if player stated in pack is not making turn right now
-	void throwIfPlayerNotActive(CPackForServer * pack);
+	void throwIfPlayerNotActive(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack);
 	/// Throws if object is not owned by pack sender
-	void throwIfWrongOwner(CPackForServer * pack, ObjectInstanceID id);
+	void throwIfWrongOwner(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, ObjectInstanceID id);
 	/// Throws if player is not present on connection of this pack
-	void throwIfWrongPlayer(CPackForServer * pack, PlayerColor player);
-	void throwIfWrongPlayer(CPackForServer * pack);
-	[[noreturn]] void throwAndComplain(CPackForServer * pack, std::string txt);
+	void throwIfWrongPlayer(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, PlayerColor player);
+	void throwIfWrongPlayer(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack);
+	[[noreturn]] void throwAndComplain(const std::shared_ptr<CConnection> & connection, std::string txt);
 
-	bool isPlayerOwns(CPackForServer * pack, ObjectInstanceID id);
+	bool isPlayerOwns(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, ObjectInstanceID id);
 
 	void start(bool resume);
 	void tick(int millisecondsPassed);
