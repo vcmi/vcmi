@@ -83,7 +83,7 @@ struct Options
 
 inline const auto & getLanguageList()
 {
-	static const std::array<Options, 20> languages
+	static const std::array<Options, 22> languages
 	{ {
 		{ "bulgarian",   "Bulgarian",   "Български",  "CP1251", "bg", "bul", "%d.%m.%Y %H:%M",    EPluralForms::EN_2, true  },
 		{ "czech",       "Czech",       "Čeština",    "CP1250", "cs", "cze", "%d.%m.%Y %H:%M",    EPluralForms::CZ_3, true  },
