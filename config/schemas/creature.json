@@ -127,7 +127,7 @@
 			"description" : "Creature abilities described using Bonus system",
 			"type" : "object",
 			"additionalProperties" : {
-				"$ref" : "bonus.json"
+				"$ref" : "bonusInstance.json"
 			}
 		},
 		"graphics" : {
@@ -285,7 +285,7 @@
 				"required" : [ "bonus", "values" ],
 				"description" : "0",
 				"properties" : {
-					"bonus" : {"$ref" : "bonus.json" },
+					"bonus" : {"$ref" : "bonusInstance.json" },
 					"values" : {
 						"type" : "array",
 						"minItems" : 10,

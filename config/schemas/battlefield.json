@@ -17,7 +17,7 @@
 		"bonuses": {
 			"type":"array",
 			"description": "List of bonuses that will affect all battles on this battlefield",
-			"items": { "$ref" : "bonus.json" }
+			"items": { "$ref" : "bonusInstance.json" }
 		},
 		"graphics" : {
 			"type" : "string",

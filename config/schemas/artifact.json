@@ -14,7 +14,7 @@
 					"level" : {
 						"type" : "number"
 					},
-					"bonus" : { "$ref" : "bonus.json" }
+					"bonus" : { "$ref" : "bonusInstance.json" }
 				}
 			}
 		}
@@ -68,7 +68,7 @@
 		"bonuses" : {
 			"type" : "array",
 			"description" : "Bonuses provided by this artifact using bonus system",
-			"items" : { "$ref" : "bonus.json" }
+			"items" : { "$ref" : "bonusInstance.json" }
 		},
 		"growing" : {
 			"type" : "object",
