@@ -307,17 +307,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="482"/>
         <source>Context menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Menu kontekstowe</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="525"/>
         <source>Open directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz katalog</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
         <source>Open repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz repozytorium</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="783"/>
@@ -502,7 +502,7 @@ Zainstalować pomyślnie pobrane?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="533"/>
         <source>Allow portrait mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Zezwól na tryb portretowy</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="811"/>
@@ -1357,7 +1357,7 @@ Bin (%n bytes):
     <message>
         <location filename="../languages.cpp" line="61"/>
         <source>Auto (%1)</source>
-        <translation></translation>
+        <translation>Auto (%1)</translation>
     </message>
 </context>
 <context>
@@ -1673,12 +1673,12 @@ Powód: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="258"/>
         <source>Armaggedon&apos;s Blade campaigns are missing!</source>
-        <translation></translation>
+        <translation>Brak kampanii Ostrze Armagedonu!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="293"/>
         <source>No video files detected!</source>
-        <translation></translation>
+        <translation>Nie wykryto plików wideo!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="432"/>
