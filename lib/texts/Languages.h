@@ -25,6 +25,7 @@ enum class EPluralForms
 
 enum class ELanguages
 {
+	BULGARIAN,
 	CZECH,
 	CHINESE,
 	ENGLISH,
@@ -39,6 +40,7 @@ enum class ELanguages
 	NORWEGIAN,
 	POLISH,
 	PORTUGUESE,
+	ROMANIAN,
 	RUSSIAN,
 	SPANISH,
 	SWEDISH,
@@ -83,6 +85,7 @@ inline const auto & getLanguageList()
 {
 	static const std::array<Options, 20> languages
 	{ {
+		{ "bulgarian",   "Bulgarian",   "Български",  "CP1251", "bg", "bul", "%d.%m.%Y %H:%M",    EPluralForms::EN_2, true  },
 		{ "czech",       "Czech",       "Čeština",    "CP1250", "cs", "cze", "%d.%m.%Y %H:%M",    EPluralForms::CZ_3, true  },
 		{ "chinese",     "Chinese",     "简体中文",    "GBK",    "zh", "chi", "%Y-%m-%d %H:%M",    EPluralForms::VI_1, true  }, // Note: actually Simplified Chinese
 		{ "english",     "English",     "English",    "CP1252", "en", "eng", "%Y-%m-%d %H:%M",    EPluralForms::EN_2, true  }, // English uses international date/time format here
@@ -96,6 +99,7 @@ inline const auto & getLanguageList()
 		{ "korean",      "Korean",      "한국어",      "CP949",  "ko", "kor", "%Y-%m-%d %H:%M",    EPluralForms::VI_1, true  },
 		{ "polish",      "Polish",      "Polski",     "CP1250", "pl", "pol", "%d.%m.%Y %H:%M",    EPluralForms::PL_3, true  },
 		{ "portuguese",  "Portuguese",  "Português",  "CP1252", "pt", "por", "%d/%m/%Y %H:%M",    EPluralForms::EN_2, true  }, // Note: actually Brazilian Portuguese
+		{ "romanian",    "Romanian",    "Română",     "CP28606","ro", "rum", "%Y-%m-%d %H:%M",    EPluralForms::EN_2, false },
 		{ "russian",     "Russian",     "Русский",    "CP1251", "ru", "rus", "%d.%m.%Y %H:%M",    EPluralForms::UK_3, true  },
 		{ "spanish",     "Spanish",     "Español",    "CP1252", "es", "spa", "%d/%m/%Y %H:%M",    EPluralForms::EN_2, true  },
 		{ "swedish",     "Swedish",     "Svenska",    "CP1252", "sv", "swe", "%Y-%m-%d %H:%M",    EPluralForms::EN_2, true  },
