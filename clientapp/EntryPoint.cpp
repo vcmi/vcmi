@@ -318,7 +318,7 @@ int main(int argc, char * argv[])
 	
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
-	boost::thread loading([]()
+	std::thread loading([]()
 	{
 		setThreadName("initialize");
 		init();
@@ -368,13 +368,13 @@ int main(int argc, char * argv[])
 	{
 		session["testmap"].String() = vm["testmap"].as<std::string>();
 		session["onlyai"].Bool() = true;
-		boost::thread(&CServerHandler::debugStartTest, &GAME->server(), session["testmap"].String(), false);
+		GAME->server().debugStartTest(session["testmap"].String(), false);
 	}
 	else if(vm.count("testsave"))
 	{
 		session["testsave"].String() = vm["testsave"].as<std::string>();
 		session["onlyai"].Bool() = true;
-		boost::thread(&CServerHandler::debugStartTest, &GAME->server(), session["testsave"].String(), true);
+		GAME->server().debugStartTest(session["testsave"].String(), true);
 	}
 	else if (!settings["session"]["headless"].Bool())
 	{
@@ -397,9 +397,9 @@ int main(int argc, char * argv[])
 	else
 	{
 		while(!headlessQuit)
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
+			std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
 		quitApplication();
 	}
@@ -448,7 +448,6 @@ static void mainLoop()
 	}
 
 	GAME.reset();
-	GAME->mainmenu().reset();
 
 	if(!settings["session"]["headless"].Bool())
 	{

@@ -112,10 +112,6 @@ CLogger * CLogger::getLogger(const CLoggerDomain & domain)
 			logger->setLevel(ELogLevel::TRACE);
 		}
 		CLogManager::get().addLogger(logger);
-		if (logGlobal != nullptr)
-		{
-			logGlobal->debug("Created logger %s", domain.getName());
-		}
 	}
 	return logger;
 }

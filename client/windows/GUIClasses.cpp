@@ -57,7 +57,7 @@
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/texts/TextOperations.h"
 #include "../lib/IGameSettings.h"
-#include "ConditionalWait.h"
+#include "../lib/ConditionalWait.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CSkillHandler.h"

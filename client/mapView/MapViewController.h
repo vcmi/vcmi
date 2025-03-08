@@ -10,7 +10,7 @@
 #pragma once
 
 #include "IMapRendererObserver.h"
-#include "../ConditionalWait.h"
+#include "../../lib/ConditionalWait.h"
 #include "../../lib/Point.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

@@ -243,7 +243,7 @@ int CConsoleHandler::run()
 
 	while ( std::cin.good() )
 	{
-#ifndef VCMI_WINDOWS
+#ifndef _MSC_VER
 		//check if we have some unreaded symbols
 		if (std::cin.rdbuf()->in_avail())
 		{
@@ -252,9 +252,10 @@ int CConsoleHandler::run()
 					cb(buffer, false);
 		}
 		else
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-		boost::this_thread::interruption_point();
+		if (shutdownPending)
+			return -1;
 #else
 		std::getline(std::cin, buffer);
 		if ( cb )
@@ -305,8 +306,8 @@ void CConsoleHandler::end()
 {
 	if (thread.joinable())
 	{
-#ifndef VCMI_WINDOWS
-		thread.interrupt();
+#ifndef _MSC_VER
+		shutdownPending = true;
 #else
 		TerminateThread(thread.native_handle(),0);
 #endif
@@ -316,7 +317,7 @@ void CConsoleHandler::end()
 
 void CConsoleHandler::start()
 {
-	thread = boost::thread(std::bind(&CConsoleHandler::run, this));
+	thread = std::thread(std::bind(&CConsoleHandler::run, this));
 }
 
 VCMI_LIB_NAMESPACE_END

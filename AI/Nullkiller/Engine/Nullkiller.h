@@ -21,6 +21,8 @@
 #include "../Analyzers/ObjectClusterizer.h"
 #include "../Helpers/ArmyFormation.h"
 
+#include "../../../lib/ConditionalWait.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class PathfinderCache;
@@ -106,6 +108,7 @@ public:
 	PlayerColor playerID;
 	std::shared_ptr<CCallback> cb;
 	std::mutex aiStateMutex;
+	mutable ThreadInterruption makingTurnInterrupption;
 
 	Nullkiller();
 	~Nullkiller();

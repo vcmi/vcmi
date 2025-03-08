@@ -124,7 +124,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 		ai->pathfinder->updatePaths(pair.second, ps);
 
-		boost::this_thread::interruption_point();
+		ai->makingTurnInterrupption.interruptionPoint();
 
 		pforeachTilePaths(mapSize, ai, [&](const int3 & pos, const std::vector<AIPath> & paths)
 		{

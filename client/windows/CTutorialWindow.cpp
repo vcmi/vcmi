@@ -12,7 +12,7 @@
 
 #include "../eventsSDL/InputHandler.h"
 #include "../../lib/CConfigHandler.h"
-#include "../ConditionalWait.h"
+#include "../../lib/ConditionalWait.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/GameLibrary.h"
 #include "../CPlayerInterface.h"

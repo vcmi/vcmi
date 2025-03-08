@@ -103,7 +103,7 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> localPlayerNames;
 
-	boost::thread threadNetwork;
+	std::thread threadNetwork;
 
 	std::atomic<EClientState> state;
 

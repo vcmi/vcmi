@@ -15,6 +15,7 @@
 #include "Goals/Goals.h"
 
 #include "../../lib/ArtifactUtils.h"
+#include "../../lib/CThreadHelper.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/MapObjects.h"
@@ -35,6 +36,8 @@
 #include "../../lib/pathfinder/PathfinderOptions.h"
 
 #include "AIhelper.h"
+
+static tbb::task_arena executeActionAsyncArena;
 
 extern FuzzyHelper * fh;
 
@@ -75,7 +78,7 @@ struct SetGlobalState
 VCAI::VCAI()
 {
 	LOG_TRACE(logAi);
-	makingTurn = nullptr;
+	asyncTasks = std::make_unique<tbb::task_group>();
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
 
@@ -174,7 +177,7 @@ void VCAI::showTavernWindow(const CGObjectInstance * object, const CGHeroInstanc
 	NET_EVENT_HANDLER;
 
 	status.addQuery(queryID, "TavernWindow");
-	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
+	executeActionAsync("showTavernWindow", [this, queryID](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::showThievesGuildWindow(const CGObjectInstance * obj)
@@ -223,7 +226,7 @@ void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryL
 			logAi->debug("VCAI: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.toString());
 		}
 
-		finish();
+		makingTurnInterrupption.interruptThread();
 	}
 }
 
@@ -311,7 +314,7 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 
 	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->getNameTranslated() % firstHero->tempOwner % secondHero->getNameTranslated() % secondHero->tempOwner));
 
-	requestActionASAP([this, firstHero, secondHero, query]()
+	executeActionAsync("heroExchangeStarted", [this, firstHero, secondHero, query]()
 	{
 		float goalpriority1 = 0;
 		float goalpriority2 = 0;
@@ -370,7 +373,7 @@ void VCAI::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstan
 	NET_EVENT_HANDLER;
 
 	status.addQuery(queryID, "RecruitmentDialog");
-	requestActionASAP([this, dwelling, dst, queryID](){
+	executeActionAsync("showRecruitmentDialog", [this, dwelling, dst, queryID](){
 		recruitCreatures(dwelling, dst);
 		checkHeroArmy(dynamic_cast<const CGHeroInstance*>(dst));
 		answerQuery(queryID, 0);
@@ -469,7 +472,7 @@ void VCAI::showHillFortWindow(const CGObjectInstance * object, const CGHeroInsta
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
-	requestActionASAP([=]()
+	executeActionAsync("showHillFortWindow", [visitor]()
 	{
 		makePossibleUpgrades(visitor);
 	});
@@ -532,7 +535,7 @@ void VCAI::showUniversityWindow(const IMarket * market, const CGHeroInstance * v
 	NET_EVENT_HANDLER;
 
 	status.addQuery(queryID, "UniversityWindow");
-	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
+	executeActionAsync("showUniversityWindow", [this, queryID](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -600,7 +603,7 @@ void VCAI::showMarketWindow(const IMarket * market, const CGHeroInstance * visit
 	NET_EVENT_HANDLER;
 
 	status.addQuery(queryID, "MarketWindow");
-	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
+	executeActionAsync("showMarketWindow", [this, queryID](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain)
@@ -646,9 +649,16 @@ void VCAI::yourTurn(QueryID queryID)
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
 	status.addQuery(queryID, "YourTurn");
-	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
+	executeActionAsync("yourTurn", [this, queryID](){ answerQuery(queryID, 0); });
 	status.startedTurn();
-	makingTurn = std::make_unique<boost::thread>(&VCAI::makeTurn, this);
+
+	makingTurnInterrupption.reset();
+	asyncTasks->run([this]()
+	{
+		ScopedThreadName guard("VCAI::makingTurn");
+		makeTurn();
+	});
+	executeActionAsyncArena.enqueue([this](){asyncTasks->wait();});
 }
 
 void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
@@ -656,7 +666,7 @@ void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::v
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
 	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->getNameTranslated() % hero->level));
-	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
+	executeActionAsync("heroGotLevel", [this, queryID](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
@@ -664,7 +674,7 @@ void VCAI::commanderGotLevel(const CCommanderInstance * commander, std::vector<u
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
 	status.addQuery(queryID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->armyObj->nodeName() % (int)commander->level));
-	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
+	executeActionAsync("commanderGotLevel", [this, queryID](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
@@ -681,7 +691,7 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 	if(!selection && cancel) //yes&no -> always answer yes, we are a brave AI :)
 		sel = 1;
 
-	requestActionASAP([this, askID, sel]()
+	executeActionAsync("showBlockingDialog", [this, askID, sel]()
 	{
 		answerQuery(askID, sel);
 	});
@@ -726,7 +736,7 @@ void VCAI::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID cha
 		}
 	}
 
-	requestActionASAP([this, askID, chosenExit]()
+	executeActionAsync("showTeleportDialog", [this, askID, chosenExit]()
 	{
 		answerQuery(askID, chosenExit);
 	});
@@ -743,7 +753,7 @@ void VCAI::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * 
 	status.addQuery(queryID, boost::str(boost::format("Garrison dialog with %s and %s") % s1 % s2));
 
 	//you can't request action from action-response thread
-	requestActionASAP([this, down, up, removableUnits, queryID]()
+	executeActionAsync("showGarrisonDialog", [this, down, up, removableUnits, queryID]()
 	{
 		if(removableUnits && !cb->getStartInfo()->isRestorationOfErathiaCampaign())
 			pickBestCreatures(down, up);
@@ -756,7 +766,7 @@ void VCAI::showMapObjectSelectDialog(QueryID askID, const Component & icon, cons
 {
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, "Map object select query");
-	requestActionASAP([this, askID](){ answerQuery(askID, selectedObject.getNum()); });
+	executeActionAsync("showMapObjectSelectDialog", [this, askID](){ answerQuery(askID, selectedObject.getNum()); });
 }
 
 void makePossibleUpgrades(const CArmedInstance * obj)
@@ -845,9 +855,8 @@ void VCAI::makeTurn()
 				logAi->info("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
 		}
 	}
-	catch (boost::thread_interrupted & e)
+	catch (const TerminationRequestedException &)
 	{
-	(void)e;
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
 		return;
 	}
@@ -998,17 +1007,16 @@ void VCAI::mainLoop()
 
 			try
 			{
-				boost::this_thread::interruption_point();
+				makingTurnInterrupption.interruptionPoint();
 				goalToRealize->accept(this); //visitor pattern
-				boost::this_thread::interruption_point();
+				makingTurnInterrupption.interruptionPoint();
 			}
-			catch (boost::thread_interrupted & e)
+			catch (const TerminationRequestedException &)
 			{
-				(void)e;
 				logAi->debug("Player %d: Making turn thread received an interruption!", playerID);
 				throw; //rethrow, we want to truly end this thread
 			}
-			catch (goalFulfilledException & e)
+			catch (const goalFulfilledException & e)
 			{
 				//the sub-goal was completed successfully
 				completeGoal(e.goal);
@@ -1018,7 +1026,7 @@ void VCAI::mainLoop()
 				// remove abstract visit tile if we completed the elementar one
 				vstd::erase_if_present(goalsToAdd, goalToRealize);
 			}
-			catch (std::exception & e)
+			catch (const std::exception & e)
 			{
 				logAi->debug("Failed to realize subgoal of type %s, I will stop.", goalToRealize->name());
 				logAi->debug("The error message was: %s", e.what());
@@ -2364,24 +2372,23 @@ void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
 
 		try
 		{
-			boost::this_thread::interruption_point();
+			makingTurnInterrupption.interruptionPoint();
 			elementarGoal->accept(this); //visitor pattern
-			boost::this_thread::interruption_point();
+			makingTurnInterrupption.interruptionPoint();
 		}
-		catch (boost::thread_interrupted & e)
+		catch (const TerminationRequestedException &)
 		{
-			(void)e;
 			logAi->debug("Player %d: Making turn thread received an interruption!", playerID);
 			throw; //rethrow, we want to truly end this thread
 		}
-		catch (goalFulfilledException & e)
+		catch (const goalFulfilledException & e)
 		{
 			//the sub-goal was completed successfully
 			completeGoal(e.goal);
 			//local goal was also completed
 			completeGoal(elementarGoal);
 		}
-		catch (std::exception & e)
+		catch (const std::exception & e)
 		{
 			logAi->debug("Failed to realize subgoal of type %s, I will stop.", elementarGoal->name());
 			logAi->debug("The error message was: %s", e.what());
@@ -2409,7 +2416,7 @@ Goals::TSubgoal VCAI::decomposeGoal(Goals::TSubgoal ultimateGoal)
 	int maxGoals = searchDepth; //preventing deadlock for mutually dependent goals
 	while (maxGoals)
 	{
-		boost::this_thread::interruption_point();
+		makingTurnInterrupption.interruptionPoint();
 
 		goal = goal->whatToDoToAchieve(); //may throw if decomposition fails
 		--maxGoals;
@@ -2490,27 +2497,30 @@ void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 
 void VCAI::finish()
 {
-	//we want to lock to avoid multiple threads from calling makingTurn->join() at same time
-	std::lock_guard<std::mutex> multipleCleanupGuard(turnInterruptionMutex);
-	if(makingTurn)
+	makingTurnInterrupption.interruptThread();
+
+	if (asyncTasks)
 	{
-		makingTurn->interrupt();
-		makingTurn->join();
-		makingTurn.reset();
+		asyncTasks->wait();
+		asyncTasks.reset();
 	}
 }
 
-void VCAI::requestActionASAP(std::function<void()> whatToDo)
+void VCAI::executeActionAsync(const std::string & description, const std::function<void()> & whatToDo)
 {
-	boost::thread newThread([this, whatToDo]()
+
+
+	if (!asyncTasks)
+		throw std::runtime_error("Attempt to execute task on shut down AI state!");
+
+	asyncTasks->run([this, description, whatToDo]()
 	{
-		setThreadName("VCAI::requestActionASAP::whatToDo");
+		ScopedThreadName guard("VCAI::" + description);
 		SET_GLOBAL_STATE(this);
 		std::shared_lock gsLock(CGameState::mutex);
 		whatToDo();
 	});
-
-	newThread.detach();
+	executeActionAsyncArena.enqueue([this](){asyncTasks->wait();});
 }
 
 void VCAI::lostHero(HeroPtr h)

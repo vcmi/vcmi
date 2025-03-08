@@ -702,6 +702,7 @@ set(lib_MAIN_HEADERS
 	CCreatureSet.h
 	CGameInfoCallback.h
 	CGameInterface.h
+	ConditionalWait.h
 	ConstTransitivePtr.h
 	Color.h
 	CPlayerState.h
@@ -757,7 +758,7 @@ endif()
 set_target_properties(vcmi PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
 target_link_libraries(vcmi PUBLIC
 	minizip::minizip ZLIB::ZLIB TBB::tbb
-	${SYSTEM_LIBS} Boost::boost Boost::thread Boost::filesystem Boost::program_options Boost::locale Boost::date_time
+	${SYSTEM_LIBS} Boost::boost Boost::filesystem Boost::program_options Boost::locale Boost::date_time
 )
 
 if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)

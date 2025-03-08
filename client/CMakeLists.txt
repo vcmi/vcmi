@@ -405,7 +405,6 @@ set(vcmiclientcommon_HEADERS
 	Client.h
 	ClientCommandManager.h
 	ClientNetPackVisitors.h
-	ConditionalWait.h
 	HeroMovementController.h
 	GameChatHandler.h
 	LobbyClientNetPackVisitors.h
