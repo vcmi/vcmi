@@ -399,6 +399,8 @@ int main(int argc, char * argv[])
 	{
 		quitApplication();
 	}
+
+	return 0;
 }
 
 [[noreturn]] static void quitApplication()
