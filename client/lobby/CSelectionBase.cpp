@@ -94,13 +94,30 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	if(screenType == ESelectionScreen::campaignList)
 	{
 		setBackground(ImagePath::builtin("CamCust.bmp"));
+		pos = background->center();
 	}
 	else
 	{
-		const JsonVector & bgNames = CMainMenuConfig::get().getConfig()["game-select"].Vector();
-		setBackground(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(bgNames, CRandomGenerator::getDefault())));
+
+		const JsonNode& gameSelectConfig = CMainMenuConfig::get().getConfig()["scenario-selection"];
+		const JsonVector* bgNames = nullptr;
+
+		if (!gameSelectConfig.isStruct()) 
+			bgNames = &CMainMenuConfig::get().getConfig()["game-select"].Vector();  // Fallback for 1.6 mods
+		else
+			bgNames = &gameSelectConfig["background"].Vector();
+		
+
+		setBackground(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(*bgNames, CRandomGenerator::getDefault())));
+		pos = background->center();
+
+		for (const JsonNode& node : gameSelectConfig["images"].Vector())
+		{
+			auto image = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(node["name"].Vector(), CRandomGenerator::getDefault())), Point(node["x"].Integer(), node["y"].Integer()));
+			images.push_back(image);
+		}
 	}
-	pos = background->center();
+	
 	card = std::make_shared<InfoCard>();
 	buttonBack = std::make_shared<CButton>(Point(581, 535), AnimationPath::builtin("SCNRBACK.DEF"), LIBRARY->generaltexth->zelp[105], [this](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
