@@ -1319,7 +1319,7 @@ Bin (%n bytes):
     <message>
         <location filename="../mainwindow_moc.ui" line="20"/>
         <source>VCMI Launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMIランチャー</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="150"/>
