@@ -185,6 +185,11 @@ GeneralOptionsTab::GeneralOptionsTab()
 		setBoolSetting("general", "audioMuteFocus", value);
 	});
 
+	addCallback("enableSubtitleChanged", [](bool value)
+	{
+		setBoolSetting("general", "enableSubtitle", value);
+	});
+
 	//moved from "other" tab that is disabled for now to avoid excessible tabs with barely any content
 	addCallback("availableCreaturesAsDwellingChanged", [=](int value)
 	{
@@ -242,6 +247,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	std::shared_ptr<CToggleButton> audioMuteFocusCheckbox = widget<CToggleButton>("audioMuteFocusCheckbox");
 	if (audioMuteFocusCheckbox)
 		audioMuteFocusCheckbox->setSelected(settings["general"]["audioMuteFocus"].Bool());
+
+	std::shared_ptr<CToggleButton> enableSubtitleCheckbox = widget<CToggleButton>("enableSubtitleCheckbox");
+	if (enableSubtitleCheckbox)
+		enableSubtitleCheckbox->setSelected(settings["general"]["enableSubtitle"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
 	musicSlider->scrollTo(ENGINE->music().getVolume());

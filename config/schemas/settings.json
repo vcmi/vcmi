@@ -44,7 +44,8 @@
 				"enableUiEnhancements",
 				"audioMuteFocus",
 				"enableOverlay",
-				"lastKindomInterface"
+				"lastKindomInterface",
+				"enableSubtitle"
 			],
 			"properties" : {
 				"playerName" : {
@@ -156,6 +157,10 @@
 				"lastKindomInterface" : {
 					"type" : "number",
 					"default" : 0
+				},
+				"enableSubtitle" : {
+					"type": "boolean",
+					"default": true
 				}
 			}
 		},
