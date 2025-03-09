@@ -295,7 +295,7 @@
 			// number of heroes that player can have active on map at the same time
 			"perPlayerOnMapCap" : 8,
 			// number of heroes that player can have in total, including garrisoned
-			"perPlayerTotalCap" : 16,
+			"perPlayerTotalCap" : 9999,
 			// if enabled, hero that wins a battle without any non-summoned troops left will retreat and become available in tavern instead of being lost
 			"retreatOnWinWithoutTroops" : true,
 			// Chances for a hero with default army to receive corresponding stack out of his predefined starting troops
