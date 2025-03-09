@@ -70,8 +70,8 @@ class BinaryDeserializer : public CLoaderBase
 		{
 			auto * hero = dynamic_cast<CGHeroInstance *>(armyPtr);
 			assert(hero);
-			assert(hero->commander);
-			data = hero->commander;
+			assert(hero->getCommander());
+			data = hero->getCommander();
 		}
 		return true;
 	}

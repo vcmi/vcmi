@@ -410,7 +410,7 @@ void CStack::postDeserialize(const CArmedInstance * army, const SlotID & extSlot
 	{
 		const auto * hero = dynamic_cast<const CGHeroInstance *>(army);
 		assert(hero);
-		base = hero->commander;
+		base = hero->getCommander();
 	}
 	else if(slot == SlotID::SUMMONED_SLOT_PLACEHOLDER || slot == SlotID::ARROW_TOWERS_SLOT || slot == SlotID::WAR_MACHINES_SLOT)
 	{

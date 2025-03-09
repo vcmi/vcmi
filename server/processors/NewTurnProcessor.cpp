@@ -143,11 +143,11 @@ void NewTurnProcessor::onPlayerTurnStarted(PlayerColor which)
 	for (const auto * t : playerState->getTowns())
 	{
 		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
-		if (t->garrisonHero != nullptr)
-			gameHandler->objectVisited(t, t->garrisonHero);
+		if (t->getGarrisonHero() != nullptr)
+			gameHandler->objectVisited(t, t->getGarrisonHero());
 
-		if (t->visitingHero != nullptr)
-			gameHandler->objectVisited(t, t->visitingHero);
+		if (t->getVisitingHero() != nullptr)
+			gameHandler->objectVisited(t, t->getVisitingHero());
 	}
 }
 

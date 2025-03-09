@@ -268,7 +268,7 @@ TeleporterTilesVector CPathfinderHelper::getCastleGates(const PathNodeInfo & sou
 
 	for(const auto & town : getPlayerState(hero->tempOwner)->getTowns())
 	{
-		if(town->id != source.nodeObject->id && town->visitingHero == nullptr
+		if(town->id != source.nodeObject->id && town->getVisitingHero() == nullptr
 			&& town->hasBuilt(BuildingSubID::CASTLE_GATE))
 		{
 			allowedExits.push_back(town->visitablePos());

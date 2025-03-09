@@ -271,7 +271,7 @@ CArtifactSet * CNonConstInfoCallback::getArtSet(const ArtifactLocation & loc)
 		if(loc.creature.has_value())
 		{
 			if(loc.creature.value() == SlotID::COMMANDER_SLOT_PLACEHOLDER)
-				return hero->commander;
+				return hero->getCommander();
 			else
 				return hero->getStackPtr(loc.creature.value());
 		}

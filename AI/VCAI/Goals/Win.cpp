@@ -83,9 +83,9 @@ TSubgoal Win::whatToDoToAchieve()
 				if(auto h = ai->getHeroWithGrail())
 				{
 					//hero is in a town that can host Grail
-					if(h->visitedTown && !vstd::contains(h->visitedTown->forbiddenBuildings, BuildingID::GRAIL))
+					if(h->getVisitedTown() && !vstd::contains(h->getVisitedTown()->forbiddenBuildings, BuildingID::GRAIL))
 					{
-						const CGTownInstance * t = h->visitedTown;
+						const CGTownInstance * t = h->getVisitedTown();
 						return sptr(BuildThis(BuildingID::GRAIL, t).setpriority(10));
 					}
 					else

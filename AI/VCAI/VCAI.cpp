@@ -486,8 +486,8 @@ void VCAI::playerBonusChanged(const Bonus & bonus, bool gain)
 void VCAI::heroCreated(const CGHeroInstance * h)
 {
 	LOG_TRACE(logAi);
-	if(h->visitedTown)
-		townVisitsThisWeek[HeroPtr(h)].insert(h->visitedTown);
+	if(h->getVisitedTown())
+		townVisitsThisWeek[HeroPtr(h)].insert(h->getVisitedTown());
 	NET_EVENT_HANDLER;
 }
 
@@ -1073,12 +1073,12 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 	{
 	case Obj::TOWN:
 		moveCreaturesToHero(dynamic_cast<const CGTownInstance *>(obj));
-		if(h->visitedTown) //we are inside, not just attacking
+		if(h->getVisitedTown()) //we are inside, not just attacking
 		{
-			townVisitsThisWeek[h].insert(h->visitedTown);
+			townVisitsThisWeek[h].insert(h->getVisitedTown());
 			if(!h->hasSpellbook() && ah->freeGold() >= GameConstants::SPELLBOOK_GOLD_COST)
 			{
-				if(h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
+				if(h->getVisitedTown()->hasBuilt(BuildingID::MAGES_GUILD_1))
 					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
 			}
 		}
@@ -1089,9 +1089,9 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 
 void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 {
-	if(t->visitingHero && t->armedGarrison() && t->visitingHero->tempOwner == t->tempOwner)
+	if(t->getVisitingHero() && t->armedGarrison() && t->getVisitingHero()->tempOwner == t->tempOwner)
 	{
-		pickBestCreatures(t->visitingHero, t);
+		pickBestCreatures(t->getVisitingHero(), t);
 	}
 }
 
@@ -1363,10 +1363,10 @@ void VCAI::wander(HeroPtr h)
 {
 	auto visitTownIfAny = [this](HeroPtr h) -> bool
 	{
-		if (h->visitedTown)
+		if (h->getVisitedTown())
 		{
-			townVisitsThisWeek[h].insert(h->visitedTown);
-			buildArmyIn(h->visitedTown);
+			townVisitsThisWeek[h].insert(h->getVisitedTown());
+			buildArmyIn(h->getVisitedTown());
 			return true;
 		}
 		return false;
@@ -1434,7 +1434,7 @@ void VCAI::wander(HeroPtr h)
 			std::vector<const CGTownInstance *> townsNotReachable;
 			for(const CGTownInstance * t : cb->getTownsInfo())
 			{
-				if(!t->visitingHero && !vstd::contains(townVisitsThisWeek[h], t))
+				if(!t->getVisitingHero() && !vstd::contains(townVisitsThisWeek[h], t))
 				{
 					if(isAccessibleForHero(t->visitablePos(), h))
 						townsReachable.push_back(t);
@@ -2251,7 +2251,7 @@ void VCAI::tryRealize(Goals::AbstractGoal & g)
 const CGTownInstance * VCAI::findTownWithTavern() const
 {
 	for(const CGTownInstance * t : cb->getTownsInfo())
-		if(t->hasBuilt(BuildingID::TAVERN) && !t->visitingHero)
+		if(t->hasBuilt(BuildingID::TAVERN) && !t->getVisitingHero())
 			return t;
 
 	return nullptr;
@@ -2455,7 +2455,7 @@ void VCAI::performTypicalActions()
 
 void VCAI::buildArmyIn(const CGTownInstance * t)
 {
-	makePossibleUpgrades(t->visitingHero);
+	makePossibleUpgrades(t->getVisitingHero());
 	makePossibleUpgrades(t);
 	recruitCreatures(t, t->getUpperArmy());
 	moveCreaturesToHero(t);

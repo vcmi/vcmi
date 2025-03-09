@@ -183,7 +183,7 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 		details->goldIncome = income[EGameResID::GOLD];
 		details->customRes = t->hasBuilt(BuildingID::RESOURCE_SILO);
 		details->hallLevel = t->hallLevel();
-		details->garrisonedHero = t->garrisonHero;
+		details->garrisonedHero = t->getGarrisonHero();
 	}
 }
 

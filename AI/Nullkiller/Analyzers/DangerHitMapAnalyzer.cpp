@@ -93,8 +93,8 @@ void DangerHitMapAnalyzer::updateHitMap()
 		{
 			auto town = dynamic_cast<const CGTownInstance *>(obj);
 
-			if(town->garrisonHero)
-				heroes[town->garrisonHero->tempOwner][town->garrisonHero] = HeroRole::MAIN;
+			if(town->getGarrisonHero())
+				heroes[town->getGarrisonHero()->tempOwner][town->getGarrisonHero()] = HeroRole::MAIN;
 		}
 	}
 

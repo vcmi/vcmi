@@ -767,7 +767,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 bool townHasFreeTavern(const CGTownInstance * town)
 {
 	if(!town->hasBuilt(BuildingID::TAVERN)) return false;
-	if(!town->visitingHero) return true;
+	if(!town->getVisitingHero()) return true;
 
 	bool canMoveVisitingHeroToGarrison = !town->getUpperArmy()->stacksCount();
 
@@ -778,9 +778,9 @@ uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCr
 {
 	auto armyStrength = heroArmy->getArmyStrength(fortLevel);
 
-	if(hero && hero->commander && hero->commander->alive)
+	if(hero && hero->getCommander() && hero->getCommander()->alive)
 	{
-		armyStrength += 100 * hero->commander->level;
+		armyStrength += 100 * hero->getCommander()->level;
 	}
 
 	return armyStrength;

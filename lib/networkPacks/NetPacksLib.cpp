@@ -872,7 +872,7 @@ void SetSecSkill::applyGs(CGameState *gs)
 
 void SetCommanderProperty::applyGs(CGameState *gs)
 {
-	CCommanderInstance * commander = gs->getHero(heroid)->commander;
+	const auto & commander = gs->getHero(heroid)->getCommander();
 	assert (commander);
 
 	switch (which)
@@ -1219,15 +1219,14 @@ void RemoveObject::applyGs(CGameState *gs)
 			return asi.artifact->getTypeId() == ArtifactID::GRAIL;
 		});
 
-		if(beatenHero->visitedTown)
+		if(beatenHero->getVisitedTown())
 		{
-			if(beatenHero->visitedTown->garrisonHero == beatenHero)
-				beatenHero->visitedTown->garrisonHero = nullptr;
+			if(beatenHero->getVisitedTown()->getGarrisonHero() == beatenHero)
+				beatenHero->getVisitedTown()->setGarrisonedHero(nullptr);
 			else
-				beatenHero->visitedTown->visitingHero = nullptr;
+				beatenHero->getVisitedTown()->setVisitingHero(nullptr);
 
-			beatenHero->visitedTown = nullptr;
-			beatenHero->inTownGarrison = false;
+			beatenHero->setVisitedTown(nullptr, false);
 		}
 		//return hero to the pool, so he may reappear in tavern
 
@@ -1403,8 +1402,8 @@ void SetHeroesInTown::applyGs(CGameState *gs)
 	CGHeroInstance * v = gs->getHero(visiting);
 	CGHeroInstance * g = gs->getHero(garrison);
 
-	bool newVisitorComesFromGarrison = v && v == t->garrisonHero;
-	bool newGarrisonComesFromVisiting = g && g == t->visitingHero;
+	bool newVisitorComesFromGarrison = v && v == t->getGarrisonHero();
+	bool newGarrisonComesFromVisiting = g && g == t->getVisitingHero();
 
 	if(newVisitorComesFromGarrison)
 		t->setGarrisonedHero(nullptr);
@@ -1493,7 +1492,7 @@ void GiveHero::applyGs(CGameState *gs)
 	gs->getPlayerState(h->getOwner())->addOwnedObject(h);
 
 	gs->getMap().addBlockVisTiles(h);
-	h->inTownGarrison = false;
+	h->setVisitedTown(nullptr, false);
 }
 
 void NewObject::applyGs(CGameState *gs)
@@ -2032,7 +2031,7 @@ void CommanderLevelUp::applyGs(CGameState *gs)
 {
 	auto * hero = gs->getHero(heroId);
 	assert(hero);
-	auto commander = hero->commander;
+	const auto & commander = hero->getCommander();
 	assert(commander);
 	commander->levelUp();
 }
@@ -2128,9 +2127,9 @@ void BattleResultAccepted::applyGs(CGameState *gs)
 		// Grow up growing artifacts
 		if(const auto winnerHero = gs->getHero(heroResult[winnerSide].heroId))
 		{
-			if(winnerHero->commander && winnerHero->commander->alive)
+			if(winnerHero->getCommander() && winnerHero->getCommander()->alive)
 			{
-				for(auto & art : winnerHero->commander->artifactsWorn)
+				for(auto & art : winnerHero->getCommander()->artifactsWorn)
 					art.second.artifact->growingUp();
 			}
 			for(auto & art : winnerHero->artifactsWorn)

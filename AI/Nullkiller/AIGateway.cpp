@@ -904,19 +904,19 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 	switch(obj->ID)
 	{
 	case Obj::TOWN:
-		if(h->visitedTown) //we are inside, not just attacking
+		if(h->getVisitedTown()) //we are inside, not just attacking
 		{
 			makePossibleUpgrades(h.get());
 
 			std::unique_lock lockGuard(nullkiller->aiStateMutex);
 
-			if(!h->visitedTown->garrisonHero || !nullkiller->isHeroLocked(h->visitedTown->garrisonHero))
-				moveCreaturesToHero(h->visitedTown);
+			if(!h->getVisitedTown()->getGarrisonHero() || !nullkiller->isHeroLocked(h->getVisitedTown()->getGarrisonHero()))
+				moveCreaturesToHero(h->getVisitedTown());
 
 			if(nullkiller->heroManager->getHeroRole(h) == HeroRole::MAIN && !h->hasSpellbook()
 				&& nullkiller->getFreeGold() >= GameConstants::SPELLBOOK_GOLD_COST)
 			{
-				if(h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
+				if(h->getVisitedTown()->hasBuilt(BuildingID::MAGES_GUILD_1))
 					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
 			}
 		}
@@ -929,9 +929,9 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 
 void AIGateway::moveCreaturesToHero(const CGTownInstance * t)
 {
-	if(t->visitingHero && t->armedGarrison() && t->visitingHero->tempOwner == t->tempOwner)
+	if(t->getVisitingHero() && t->armedGarrison() && t->getVisitingHero()->tempOwner == t->tempOwner)
 	{
-		pickBestCreatures(t->visitingHero, t->getUpperArmy());
+		pickBestCreatures(t->getVisitingHero(), t->getUpperArmy());
 	}
 }
 
@@ -1282,10 +1282,10 @@ void AIGateway::addVisitableObj(const CGObjectInstance * obj)
 
 bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 {
-	if(h->inTownGarrison && h->visitedTown)
+	if(h->isGarrisoned() && h->getVisitedTown())
 	{
-		cb->swapGarrisonHero(h->visitedTown);
-		moveCreaturesToHero(h->visitedTown);
+		cb->swapGarrisonHero(h->getVisitedTown());
+		moveCreaturesToHero(h->getVisitedTown());
 	}
 
 	//TODO: consider if blockVisit objects change something in our checks: AIUtility::isBlockVisitObj()
@@ -1596,7 +1596,7 @@ void AIGateway::endTurn()
 
 void AIGateway::buildArmyIn(const CGTownInstance * t)
 {
-	makePossibleUpgrades(t->visitingHero);
+	makePossibleUpgrades(t->getVisitingHero());
 	makePossibleUpgrades(t);
 	recruitCreatures(t, t->getUpperArmy());
 	moveCreaturesToHero(t);

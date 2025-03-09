@@ -185,7 +185,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 		if(!town->hasBuilt(BuildingID::TAVERN) && gameHandler->complain("No tavern!"))
 			return false;
 
-		if(town->visitingHero && gameHandler->complain("There is visiting hero - no place!"))
+		if(town->getVisitingHero() && gameHandler->complain("There is visiting hero - no place!"))
 			return false;
 	}
 

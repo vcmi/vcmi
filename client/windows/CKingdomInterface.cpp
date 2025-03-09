@@ -785,7 +785,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	hall = std::make_shared<CTownInfo>( 69, 31, town, true);
 	fort = std::make_shared<CTownInfo>(111, 31, town, false);
 
-	garr = std::make_shared<CGarrisonInt>(Point(313, 3), 4, Point(232,0), town->getUpperArmy(), town->visitingHero, true, true, CGarrisonInt::ESlotsLayout::TWO_ROWS);
+	garr = std::make_shared<CGarrisonInt>(Point(313, 3), 4, Point(232,0), town->getUpperArmy(), town->getVisitingHero(), true, true, CGarrisonInt::ESlotsLayout::TWO_ROWS);
 	heroes = std::make_shared<HeroSlots>(town, Point(244,6), Point(475,6), garr, false);
 
 	size_t iconIndex = town->getTown()->clientInfo.icons[town->hasFort()][town->built >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
@@ -837,13 +837,13 @@ void CTownItem::updateGarrisons()
 {
 	garr->selectSlot(nullptr);
 	garr->setArmy(town->getUpperArmy(), EGarrisonType::UPPER);
-	garr->setArmy(town->visitingHero, EGarrisonType::LOWER);
+	garr->setArmy(town->getVisitingHero(), EGarrisonType::LOWER);
 	garr->recreateSlots();
 }
 
 bool CTownItem::holdsGarrison(const CArmedInstance * army)
 {
-	return army == town || army == town->getUpperArmy() || army == town->visitingHero;
+	return army == town || army == town->getUpperArmy() || army == town->getVisitingHero();
 }
 
 void CTownItem::update()

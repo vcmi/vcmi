@@ -132,7 +132,7 @@ double MapRendererBaseContext::objectTransparency(ObjectInstanceID objectID, con
 	{
 		const auto * hero = dynamic_cast<const CGHeroInstance *>(object);
 
-		if(hero->inTownGarrison)
+		if(hero->isGarrisoned())
 			return 0;
 
 		if(hero->boat)

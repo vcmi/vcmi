@@ -703,7 +703,7 @@ void ApplyClientNetPackVisitor::visitCommanderLevelUp(CommanderLevelUp & pack)
 {
 	const CGHeroInstance * hero = cl.getHero(pack.heroId);
 	assert(hero);
-	const CCommanderInstance * commander = hero->commander;
+	const auto & commander = hero->getCommander();
 	assert(commander);
 	assert(commander->armyObj); //is it possible for Commander to exist beyond armed instance?
 	callOnlyThatInterface(cl, pack.player, &CGameInterface::commanderGotLevel, commander, pack.skills, pack.queryID);

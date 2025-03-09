@@ -351,9 +351,9 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	//adding commanders
 	for(BattleSide i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 	{
-		if (heroes[i] && heroes[i]->commander && heroes[i]->commander->alive)
+		if (heroes[i] && heroes[i]->getCommander() && heroes[i]->getCommander()->alive)
 		{
-			currentBattle->generateNewStack(currentBattle->nextUnitId(), *heroes[i]->commander, i, SlotID::COMMANDER_SLOT_PLACEHOLDER, layout.commanders.at(i));
+			currentBattle->generateNewStack(currentBattle->nextUnitId(), *heroes[i]->getCommander(), i, SlotID::COMMANDER_SLOT_PLACEHOLDER, layout.commanders.at(i));
 		}
 	}
 

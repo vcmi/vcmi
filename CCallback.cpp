@@ -273,7 +273,7 @@ void CCallback::spellResearch( const CGTownInstance *town, SpellID spellAtSlot, 
 
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
 {
-	if(town->tempOwner == *player || (town->garrisonHero && town->garrisonHero->tempOwner == *player ))
+	if(town->tempOwner == *player || (town->getGarrisonHero() && town->getGarrisonHero()->tempOwner == *player ))
 	{
 		GarrisonHeroSwap pack(town->id);
 		sendRequest(pack);

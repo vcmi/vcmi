@@ -499,7 +499,7 @@ bool CCreatureSet::contains(const CStackInstance *stack) const
 SlotID CCreatureSet::findStack(const CStackInstance *stack) const
 {
 	const auto * h = dynamic_cast<const CGHeroInstance *>(this);
-	if (h && h->commander == stack)
+	if (h && h->getCommander() == stack)
 		return SlotID::COMMANDER_SLOT_PLACEHOLDER;
 
 	if(!stack)

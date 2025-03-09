@@ -174,7 +174,7 @@ void setPlayerColor(QImage * sur, PlayerColor player)
 std::shared_ptr<QImage> MapHandler::getObjectImage(const CGObjectInstance * obj)
 {
 	if(	!obj
-	   || (obj->ID==Obj::HERO && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
+	   || (obj->ID==Obj::HERO && static_cast<const CGHeroInstance*>(obj)->isGarrisoned()) //garrisoned hero
 	   || (obj->ID==Obj::BOAT && static_cast<const CGBoat*>(obj)->hero)) //boat with hero (hero graphics is used)
 	{
 		return nullptr;

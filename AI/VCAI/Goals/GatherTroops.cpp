@@ -75,9 +75,9 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 
 		if(count >= this->value)
 		{
-			if(t->visitingHero)
+			if(t->getVisitingHero())
 			{
-				solutions.push_back(sptr(VisitObj(t->id.getNum()).sethero(t->visitingHero.get())));
+				solutions.push_back(sptr(VisitObj(t->id.getNum()).sethero(t->getVisitingHero())));
 			}
 			else
 			{

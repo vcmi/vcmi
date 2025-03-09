@@ -244,7 +244,7 @@ si64 Statistic::getArmyStrength(const PlayerState * ps, bool withTownGarrison)
 
 	for(auto h : ps->getHeroes())
 	{
-		if(!h->inTownGarrison || withTownGarrison)		//original h3 behavior
+		if(!h->isGarrisoned() || withTownGarrison)		//original h3 behavior
 			str += h->getArmyStrength();
 	}
 	return str;

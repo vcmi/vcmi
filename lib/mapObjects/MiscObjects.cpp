@@ -616,7 +616,7 @@ bool CGWhirlpool::isProtected(const CGHeroInstance * h)
 {
 	return h->hasBonusOfType(BonusType::WHIRLPOOL_PROTECTION)
 		|| (h->stacksCount() == 1 && h->Slots().begin()->second->count == 1)
-		|| (h->stacksCount() == 0 && h->commander && h->commander->alive);
+		|| (h->stacksCount() == 0 && h->getCommander() && h->getCommander()->alive);
 }
 
 ArtifactID CGArtifact::getArtifact() const

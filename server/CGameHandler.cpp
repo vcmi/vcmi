@@ -334,8 +334,8 @@ void CGameHandler::expGiven(const CGHeroInstance *hero)
 {
 	if (hero->gainsLevel())
 		levelUpHero(hero);
-	else if (hero->commander && hero->commander->gainsLevel())
-		levelUpCommander(hero->commander);
+	else if (hero->getCommander() && hero->getCommander()->gainsLevel())
+		levelUpCommander(hero->getCommander());
 
 	//if (hero->commander && hero->level > hero->commander->level && hero->commander->gainsLevel())
 // 		levelUpCommander(hero->commander);
@@ -375,7 +375,7 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 	sendAndApply(sps);
 
 	//hero may level up
-	if (hero->commander && hero->commander->alive)
+	if (hero->getCommander() && hero->getCommander()->alive)
 	{
 		//FIXME: trim experience according to map limit?
 		SetCommanderProperty scp;
@@ -412,8 +412,8 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 	sss.abs = abs;
 	sendAndApply(sss);
 
-	if (hero->visitedTown)
-		giveSpells(hero->visitedTown, hero);
+	if (hero->getVisitedTown())
+		giveSpells(hero->getVisitedTown(), hero);
 
 	// Our scouting range may have changed - update it
 	if (hero->getOwner().isValidPlayer())
@@ -893,7 +893,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	if(distance(h->pos, dst) >= 1.5 && movementMode == EMovementMode::STANDARD)
 		return complainRet("Tiles " + h->pos.toString()+ " and "+ dst.toString() +" are not neighboring!");
 
-	if(h->inTownGarrison)
+	if(h->isGarrisoned())
 		return complainRet("Can not move garrisoned hero!");
 
 	if(h->movementPointsRemaining() < cost && dst != h->pos && movementMode == EMovementMode::STANDARD)
@@ -1048,7 +1048,7 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	if (!h || !t)
 		COMPLAIN_RET("Invalid call to teleportHero!");
 
-	const CGTownInstance *from = h->visitedTown;
+	const CGTownInstance *from = h->getVisitedTown();
 	if (((h->getOwner() != t->getOwner())
 		&& complain("Cannot teleport hero to another player"))
 
@@ -1186,7 +1186,7 @@ void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStac
 
 void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)
 {
-	if (obj->visitingHero != hero && obj->garrisonHero != hero)
+	if (obj->getVisitingHero() != hero && obj->getGarrisonHero() != hero)
 	{
 		HeroVisitCastle vc;
 		vc.hid = hero->id;
@@ -1196,8 +1196,8 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 	}
 	visitCastleObjects(obj, hero);
 
-	if (obj->visitingHero && obj->garrisonHero)
-		useScholarSkill(obj->visitingHero->id, obj->garrisonHero->id);
+	if (obj->getVisitingHero() && obj->getGarrisonHero())
+		useScholarSkill(obj->getVisitingHero()->id, obj->getGarrisonHero()->id);
 	checkVictoryLossConditionsForPlayer(hero->tempOwner); //transported artifact?
 }
 
@@ -2073,10 +2073,10 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 		case CBuilding::BUILD_GRAIL  :
 			if(requestedBuilding->mode == CBuilding::BUILD_GRAIL) //needs grail
 			{
-				if(!t->visitingHero || !t->visitingHero->hasArt(ArtifactID::GRAIL))
+				if(!t->getVisitingHero() || !t->getVisitingHero()->hasArt(ArtifactID::GRAIL))
 					COMPLAIN_RET("Cannot build this without grail!")
 				else
-					removeArtifact(ArtifactLocation(t->visitingHero->id, t->visitingHero->getArtPos(ArtifactID::GRAIL, false)));
+					removeArtifact(ArtifactLocation(t->getVisitingHero()->id, t->getVisitingHero()->getArtPos(ArtifactID::GRAIL, false)));
 			}
 			break;
 		}
@@ -2123,10 +2123,10 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 
 		if(isMageGuild || isLibrary || (t->getFactionID() == ETownType::CONFLUX && buildingID == BuildingID::GRAIL))
 		{
-			if(t->visitingHero)
-				giveSpells(t,t->visitingHero);
-			if(t->garrisonHero)
-				giveSpells(t,t->garrisonHero);
+			if(t->getVisitingHero())
+				giveSpells(t,t->getVisitingHero());
+			if(t->getGarrisonHero())
+				giveSpells(t,t->getGarrisonHero());
 		}
 	};
 
@@ -2201,10 +2201,10 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	{
 		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
 		std::vector<const CGHeroInstance *> visitors;
-		if (t->garrisonHero)
-			visitors.push_back(t->garrisonHero);
-		if (t->visitingHero)
-			visitors.push_back(t->visitingHero);
+		if (t->getGarrisonHero())
+			visitors.push_back(t->getGarrisonHero());
+		if (t->getVisitingHero())
+			visitors.push_back(t->getVisitingHero());
 
 		if (!visitors.empty())
 			visitCastleObjects(t, visitors);
@@ -2233,12 +2233,12 @@ bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)
 		return true;
 	}
 
-	if (t->rewardableBuildings.count(bid) && t->visitingHero && t->getTown()->buildings.at(bid)->manualHeroVisit)
+	if (t->rewardableBuildings.count(bid) && t->getVisitingHero() && t->getTown()->buildings.at(bid)->manualHeroVisit)
 	{
 		std::vector<BuildingID> buildingsToVisit;
 		std::vector<const CGHeroInstance*> visitors;
 		buildingsToVisit.push_back(bid);
-		visitors.push_back(t->visitingHero);
+		visitors.push_back(t->getVisitingHero());
 		auto visitQuery = std::make_shared<TownBuildingVisitQuery>(this, t, visitors, buildingsToVisit);
 		queries->addQuery(visitQuery);
 		return true;
@@ -2316,10 +2316,10 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool
 
 	setResearchedSpells(t, level, spells, accepted);
 
-	if(t->visitingHero)
-		giveSpells(t, t->visitingHero);
-	if(t->garrisonHero)
-		giveSpells(t, t->garrisonHero);
+	if(t->getVisitingHero())
+		giveSpells(t, t->getVisitingHero());
+	if(t->getGarrisonHero())
+		giveSpells(t, t->getGarrisonHero());
 
 	return true;
 }
@@ -2342,7 +2342,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	if (town)
 	{
 		COMPLAIN_RET_FALSE_IF(town != army && !hero, "Cannot recruit: invalid destination!");
-		COMPLAIN_RET_FALSE_IF(hero != town->garrisonHero && hero != town->visitingHero, "Cannot recruit: can only recruit to town or hero in town!!");
+		COMPLAIN_RET_FALSE_IF(hero != town->getGarrisonHero() && hero != town->getVisitingHero(), "Cannot recruit: can only recruit to town or hero in town!!");
 	}
 	else
 	{
@@ -2505,16 +2505,16 @@ bool CGameHandler::swapGarrisonOnSiege(ObjectInstanceID tid)
 {
 	const CGTownInstance * town = getTown(tid);
 
-	if(!town->garrisonHero == !town->visitingHero)
+	if(!town->getGarrisonHero() == !town->getVisitingHero())
 		return false;
 
 	SetHeroesInTown intown;
 	intown.tid = tid;
 
-	if(town->garrisonHero) //garrison -> vising
+	if(town->getGarrisonHero()) //garrison -> vising
 	{
 		intown.garrison = ObjectInstanceID();
-		intown.visiting = town->garrisonHero->id;
+		intown.visiting = town->getGarrisonHero()->id;
 	}
 	else //visiting -> garrison
 	{
@@ -2522,7 +2522,7 @@ bool CGameHandler::swapGarrisonOnSiege(ObjectInstanceID tid)
 			town->mergeGarrisonOnSiege();
 
 		intown.visiting = ObjectInstanceID();
-		intown.garrison = town->visitingHero->id;
+		intown.garrison = town->getVisitingHero()->id;
 	}
 	sendAndApply(intown);
 	return true;
@@ -2531,29 +2531,29 @@ bool CGameHandler::swapGarrisonOnSiege(ObjectInstanceID tid)
 bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 {
 	const CGTownInstance * town = getTown(tid);
-	if (!town->garrisonHero && town->visitingHero) //visiting => garrison, merge armies: town army => hero army
+	if (!town->getGarrisonHero() && town->getVisitingHero()) //visiting => garrison, merge armies: town army => hero army
 	{
 
-		if (!town->visitingHero->canBeMergedWith(*town))
+		if (!town->getVisitingHero()->canBeMergedWith(*town))
 		{
 			complain("Cannot make garrison swap, not enough free slots!");
 			return false;
 		}
 
-		moveArmy(town, town->visitingHero, true);
+		moveArmy(town, town->getVisitingHero(), true);
 
 		SetHeroesInTown intown;
 		intown.tid = tid;
 		intown.visiting = ObjectInstanceID();
-		intown.garrison = town->visitingHero->id;
+		intown.garrison = town->getVisitingHero()->id;
 		sendAndApply(intown);
 		return true;
 	}
-	else if (town->garrisonHero && !town->visitingHero) //move hero out of the garrison
+	else if (town->getGarrisonHero() && !town->getVisitingHero()) //move hero out of the garrison
 	{
 		int mapCap = getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
 		//check if moving hero out of town will break wandering heroes limit
-		if (getHeroCount(town->garrisonHero->tempOwner,false) >= mapCap)
+		if (getHeroCount(town->getGarrisonHero()->tempOwner,false) >= mapCap)
 		{
 			complain("Cannot move hero out of the garrison, there are already " + std::to_string(mapCap) + " wandering heroes!");
 			return false;
@@ -2562,16 +2562,16 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 		SetHeroesInTown intown;
 		intown.tid = tid;
 		intown.garrison = ObjectInstanceID();
-		intown.visiting =  town->garrisonHero->id;
+		intown.visiting =  town->getGarrisonHero()->id;
 		sendAndApply(intown);
 		return true;
 	}
-	else if (!!town->garrisonHero && town->visitingHero) //swap visiting and garrison hero
+	else if (!!town->getGarrisonHero() && town->getVisitingHero()) //swap visiting and garrison hero
 	{
 		SetHeroesInTown intown;
 		intown.tid = tid;
-		intown.garrison = town->visitingHero->id;
-		intown.visiting =  town->garrisonHero->id;
+		intown.garrison = town->getVisitingHero()->id;
+		intown.visiting =  town->getGarrisonHero()->id;
 		sendAndApply(intown);
 		return true;
 	}
@@ -2991,7 +2991,7 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 {
 	const CGHeroInstance * hero = getHero(hid);
 	COMPLAIN_RET_FALSE_IF(nullptr == hero, "Invalid hero index");
-	const CGTownInstance * town = hero->visitedTown;
+	const CGTownInstance * town = hero->getVisitedTown();
 	COMPLAIN_RET_FALSE_IF(nullptr == town, "Hero not in town");
 
 	if (aid==ArtifactID::SPELLBOOK)
@@ -3342,13 +3342,13 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 		if (o1->ID == Obj::TOWN)
 		{
 			const CGTownInstance *t = static_cast<const CGTownInstance*>(o1);
-			if (t->visitingHero == o2  ||  t->garrisonHero == o2)
+			if (t->getVisitingHero() == o2  ||  t->getGarrisonHero() == o2)
 				return true;
 		}
 		if (o2->ID == Obj::TOWN)
 		{
 			const CGTownInstance *t = static_cast<const CGTownInstance*>(o2);
-			if (t->visitingHero == o1  ||  t->garrisonHero == o1)
+			if (t->getVisitingHero() == o1  ||  t->getGarrisonHero() == o1)
 				return true;
 		}
 
@@ -3364,7 +3364,7 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 			const CGHeroInstance *h2 = static_cast<const CGHeroInstance*>(o2);
 
 			// two heroes in same town (garrisoned and visiting)
-			if (h1->visitedTown != nullptr && h2->visitedTown != nullptr && h1->visitedTown == h2->visitedTown)
+			if (h1->getVisitedTown() != nullptr && h2->getVisitedTown() != nullptr && h1->getVisitedTown() == h2->getVisitedTown())
 				return true;
 		}
 
@@ -3408,7 +3408,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 		if(obj->ID == Obj::HERO)
 		{
 			auto visitedHero = static_cast<const CGHeroInstance *>(obj);
-			const auto visitedTown = visitedHero->visitedTown;
+			const auto visitedTown = visitedHero->getVisitedTown();
 
 			if(visitedTown)
 			{

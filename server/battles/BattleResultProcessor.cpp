@@ -106,7 +106,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 				if(c)
 				{
 					auto h = dynamic_cast <const CGHeroInstance *>(army);
-					if(h && h->commander == c && (st->getCount() == 0 || !st->alive()))
+					if(h && h->getCommander() == c && (st->getCount() == 0 || !st->alive()))
 					{
 						logGlobal->debug("Commander is dead.");
 						heroWithDeadCommander = army->id; //TODO: unify commander handling
@@ -323,11 +323,11 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 	if(battleResult->winner == BattleSide::DEFENDER
 	   && winnerHero
-	   && winnerHero->visitedTown
-	   && !winnerHero->inTownGarrison
-	   && winnerHero->visitedTown->garrisonHero == winnerHero)
+	   && winnerHero->getVisitedTown()
+	   && !winnerHero->isGarrisoned()
+	   && winnerHero->getVisitedTown()->getGarrisonHero() == winnerHero)
 	{
-		gameHandler->swapGarrisonOnSiege(winnerHero->visitedTown->id); //return defending visitor from garrison to its rightful place
+		gameHandler->swapGarrisonOnSiege(winnerHero->getVisitedTown()->id); //return defending visitor from garrison to its rightful place
 	}
 	//give exp
 	if(!finishingBattle->isDraw() && battleResult->exp[finishingBattle->winnerSide] && winnerHero)
@@ -336,7 +336,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	// Add statistics
 	if(loserHero && !finishingBattle->isDraw())
 	{
-		ConstTransitivePtr<CGHeroInstance> strongestHero = nullptr;
+		const CGHeroInstance * strongestHero = nullptr;
 		for(auto & hero : gameHandler->gameState()->getPlayerState(finishingBattle->loser)->getHeroes())
 			if(!strongestHero || hero->exp > strongestHero->exp)
 				strongestHero = hero;
@@ -460,11 +460,11 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 					addArtifactToTransfer(packHero, loserHero->getArtPos(art), art);
 			}
 
-			if(loserHero->commander)
+			if(loserHero->getCommander())
 			{
 				auto & packCommander = resultsApplied.artifacts.emplace_back(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
-				packCommander.srcCreature = loserHero->findStack(loserHero->commander);
-				for(const auto & artSlot : loserHero->commander->artifactsWorn)
+				packCommander.srcCreature = loserHero->findStack(loserHero->getCommander());
+				for(const auto & artSlot : loserHero->getCommander()->artifactsWorn)
 					addArtifactToTransfer(packCommander, artSlot.first, artSlot.second.getArt());
 			}
 			auto armyObj = dynamic_cast<const CArmedInstance*>(gameHandler->getObj(finishingBattle->loserId));

@@ -773,7 +773,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 	const CGHeroInstance * hero = gameHandler->getHero(currObj);
 	const CGTownInstance * town = gameHandler->getTown(currObj);
 	if (!town && hero)
-		town = hero->visitedTown;
+		town = hero->getVisitedTown();
 
 	const auto & doCheatGiveSpells = [&]() { cheatGiveSpells(player, hero); };
 	const auto & doCheatBuildTown = [&]() { cheatBuildTown(player, town); };

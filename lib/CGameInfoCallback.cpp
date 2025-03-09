@@ -721,7 +721,7 @@ int CGameInfoCallback::getHeroCount( PlayerColor player, bool includeGarrisoned 
 		return static_cast<int>(p->getHeroes().size());
 	else
 		for(const auto & elem : p->getHeroes())
-			if(!elem->inTownGarrison)
+			if(!elem->isGarrisoned())
 				ret++;
 	return ret;
 }
@@ -792,7 +792,7 @@ std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo
 
 int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero, bool includeGarrisoned) const
 {
-	if (hero->inTownGarrison && !includeGarrisoned)
+	if (hero->isGarrisoned() && !includeGarrisoned)
 		return -1;
 
 	size_t index = 0;
@@ -800,7 +800,7 @@ int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero, bool
 
 	for (auto & possibleHero : heroes)
 	{
-		if (includeGarrisoned || !(possibleHero)->inTownGarrison)
+		if (includeGarrisoned || !(possibleHero)->isGarrisoned())
 			index++;
 
 		if (possibleHero == hero)
@@ -853,7 +853,7 @@ const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId,
 	if (!includeGarrisoned)
 	{
 		for(ui32 i = 0; i < p->getHeroes().size() && static_cast<int>(i) <= serialId; i++)
-			if(p->getHeroes()[i]->inTownGarrison)
+			if(p->getHeroes()[i]->isGarrisoned())
 				serialId++;
 	}
 	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->getHeroes().size(), "No player info", nullptr);

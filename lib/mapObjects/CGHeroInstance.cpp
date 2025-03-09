@@ -308,6 +308,47 @@ void CGHeroInstance::setHeroType(HeroTypeID heroType)
 	subID = heroType;
 }
 
+bool CGHeroInstance::isGarrisoned() const
+{
+	return inTownGarrison;
+}
+
+const CGTownInstance * CGHeroInstance::getVisitedTown() const
+{
+	if (!visitedTown.hasValue())
+		return nullptr;
+
+	return cb->getTown(visitedTown);
+}
+
+CGTownInstance * CGHeroInstance::getVisitedTown()
+{
+	if (!visitedTown.hasValue())
+		return nullptr;
+
+	return dynamic_cast<CGTownInstance*>(cb->gameState()->getObjInstance(visitedTown));
+}
+
+void CGHeroInstance::setVisitedTown(const CGTownInstance * town, bool garrisoned)
+{
+	if (town)
+		visitedTown = town->id;
+	else
+		visitedTown = {};
+
+	inTownGarrison = garrisoned;
+}
+
+const CCommanderInstance * CGHeroInstance::getCommander() const
+{
+	return commander.get();
+}
+
+CCommanderInstance * CGHeroInstance::getCommander()
+{
+	return commander.get();
+}
+
 void CGHeroInstance::initObj(vstd::RNG & rand)
 {
 	if (ID == Obj::HERO)
@@ -423,7 +464,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 
 	if (cb->getSettings().getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander && getHeroClass()->commander.hasValue())
 	{
-		commander = new CCommanderInstance(getHeroClass()->commander);
+		commander = std::make_unique<CCommanderInstance>(getHeroClass()->commander);
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
 		commander->giveStackExp (exp); //after our exp is set
 	}
@@ -504,10 +545,7 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 	}
 }
 
-CGHeroInstance::~CGHeroInstance()
-{
-	commander.dellNull();
-}
+CGHeroInstance::~CGHeroInstance() = default;
 
 bool CGHeroInstance::needsLastStack() const
 {
@@ -527,8 +565,8 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 		}
 		else //battle
 		{
-			if(visitedTown) //we're in town
-				visitedTown->onHeroVisit(h); //town will handle attacking
+			if(getVisitedTown()) //we're in town
+				getVisitedTown()->onHeroVisit(h); //town will handle attacking
 			else
 				cb->startBattle(h,	this);
 		}
@@ -1060,7 +1098,7 @@ si32 CGHeroInstance::manaRegain() const
 
 si32 CGHeroInstance::getManaNewTurn() const
 {
-	if(visitedTown && visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
+	if(getVisitedTown() && getVisitedTown()->hasBuilt(BuildingID::MAGES_GUILD_1))
 	{
 		//if hero starts turn in town with mage guild - restore all mana
 		return std::max(mana, manaLimit());
@@ -1280,30 +1318,30 @@ void CGHeroInstance::boatDeserializationFix()
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const
 {
-	if(!visitedTown)
+	if(!getVisitedTown())
 		return nullptr;
 
-	return isBattleOutsideTown ? (CBonusSystemNode *)(& visitedTown->townAndVis)
-		: (CBonusSystemNode *)(visitedTown.get());
+	return isBattleOutsideTown ? (CBonusSystemNode *)(& getVisitedTown()->townAndVis)
+		: (CBonusSystemNode *)(getVisitedTown());
 
 }
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(CGameState * gs)
 {
-	if(visitedTown)
-		return whereShouldBeAttachedOnSiege(visitedTown->isBattleOutsideTown(this));
+	if(getVisitedTown())
+		return whereShouldBeAttachedOnSiege(getVisitedTown()->isBattleOutsideTown(this));
 
 	return &CArmedInstance::whereShouldBeAttached(gs);
 }
 
 CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState * gs)
 {
-	if(visitedTown)
+	if(getVisitedTown())
 	{
-		if(inTownGarrison)
-			return *visitedTown;
+		if(isGarrisoned())
+			return *getVisitedTown();
 		else
-			return visitedTown->townAndVis;
+			return getVisitedTown()->townAndVis;
 	}
 	else
 		return CArmedInstance::whereShouldBeAttached(gs);

@@ -43,7 +43,7 @@ bool AdventureSpellMechanics::canBeCast(spells::Problem & problem, const CGameIn
 
 	if (heroCaster)
 	{
-		if(heroCaster->inTownGarrison)
+		if(heroCaster->isGarrisoned())
 			return false;
 
 		const auto level = heroCaster->getSpellSchoolLevel(owner);
@@ -467,7 +467,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 		if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < moveCost)
 			return ESpellCastResult::ERROR;
 
-		if(destination->visitingHero)
+		if(destination->getVisitingHero())
 		{
 			InfoWindow iw;
 			iw.player = parameters.caster->getCasterOwner();
@@ -520,7 +520,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 			return ESpellCastResult::ERROR;
 		}
 
-		if(destination->visitingHero)
+		if(destination->getVisitingHero())
 		{
 			env->complain("[Internal error] Can't teleport to occupied town");
 			return ESpellCastResult::ERROR;
@@ -635,7 +635,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 
 		for(const auto * t : towns)
 		{
-			if(t->visitingHero == nullptr) //empty town
+			if(t->getVisitingHero() == nullptr) //empty town
 				request.objects.push_back(t->id);
 		}
 

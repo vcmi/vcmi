@@ -992,7 +992,7 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 
 				if (t->visitableAt(h->visitablePos()))
 				{
-					assert(t->visitingHero == nullptr);
+					assert(t->getVisitingHero() == nullptr);
 					t->setVisitingHero(h);
 				}
 			}
@@ -1000,9 +1000,9 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 	}
 	for (auto hero : map->heroesOnMap)
 	{
-		if (hero->visitedTown)
+		if (hero->getVisitedTown())
 		{
-			assert (hero->visitedTown->visitingHero == hero);
+			assert (hero->getVisitedTown()->getVisitingHero() == hero);
 		}
 	}
 }
@@ -1092,9 +1092,9 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance & stack) const
 		auto hero = dynamic_cast<const CGHeroInstance *>(stack.armyObj);
 		hero->fillUpgradeInfo(ret, stack);
 
-		if (hero->visitedTown)
+		if (hero->getVisitedTown())
 		{
-			hero->visitedTown->fillUpgradeInfo(ret, stack);
+			hero->getVisitedTown()->fillUpgradeInfo(ret, stack);
 		}
 		else
 		{
@@ -1382,8 +1382,8 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		case EventCondition::TRANSPORT:
 		{
 			const auto * t = getTown(condition.objectID);
-			bool garrisonedWon = t->garrisonHero && t->garrisonHero->getOwner() == player && t->garrisonHero->hasArt(condition.objectType.as<ArtifactID>());
-			bool visitingWon = t->visitingHero && t->visitingHero->getOwner() == player && t->visitingHero->hasArt(condition.objectType.as<ArtifactID>());
+			bool garrisonedWon = t->getGarrisonHero() && t->getGarrisonHero()->getOwner() == player && t->getGarrisonHero()->hasArt(condition.objectType.as<ArtifactID>());
+			bool visitingWon = t->getVisitingHero() && t->getVisitingHero()->getOwner() == player && t->getVisitingHero()->hasArt(condition.objectType.as<ArtifactID>());
 
 			return garrisonedWon || visitingWon;
 		}

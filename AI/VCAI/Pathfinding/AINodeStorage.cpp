@@ -267,7 +267,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 
 		for(const CGTownInstance * targetTown : towns)
 		{
-			if(targetTown->visitingHero)
+			if(targetTown->getVisitingHero())
 				continue;
 
 			auto nodeOptional = getOrCreateNode(targetTown->visitablePos(), EPathfindingLayer::LAND, srcNode->chainMask | CAST_CHAIN);

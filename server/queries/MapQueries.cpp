@@ -237,7 +237,7 @@ void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 {
 	assert(answer);
 	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getObjectName(), answer.value());
-	gh->levelUpCommander(hero->commander, clu.skills[*answer]);
+	gh->levelUpCommander(hero->getCommander(), clu.skills[*answer]);
 }
 
 void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const

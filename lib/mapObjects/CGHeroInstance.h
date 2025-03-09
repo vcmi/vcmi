@@ -17,7 +17,6 @@
 #include "../bonuses/BonusCache.h"
 #include "../entities/hero/EHeroGender.h"
 #include "../CArtHandler.h" // For CArtifactSet
-#include "../ConstTransitivePtr.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -66,12 +65,14 @@ private:
 	MagicSchoolMasteryCache magicSchoolMastery;
 	BonusValueCache manaPerKnowledgeCached;
 	std::unique_ptr<TurnInfoCache> turnInfoCache;
+	std::unique_ptr<CCommanderInstance> commander;
 
 	std::set<SpellID> spells; //known spells (spell IDs)
+	ObjectInstanceID visitedTown; //set if hero is visiting town or in the town garrison
 	ui32 movement; //remaining movement points
+	bool inTownGarrison; // if hero is in town garrison
 
 public:
-
 	//////////////////////////////////////////////////////////////////////////
 	//format:   123
 	//          8 4
@@ -93,9 +94,6 @@ public:
 	std::string nameCustomTextId;
 	std::string biographyCustomTextId;
 
-	bool inTownGarrison; // if hero is in town garrison
-	ConstTransitivePtr<CGTownInstance> visitedTown; //set if hero is visiting town or in the town garrison
-	ConstTransitivePtr<CCommanderInstance> commander;
 	const CGBoat * boat = nullptr; //set to CGBoat when sailing
 
 	static constexpr si32 UNINITIALIZED_MANA = -1;
@@ -103,8 +101,6 @@ public:
 	static constexpr auto UNINITIALIZED_EXPERIENCE = std::numeric_limits<TExpType>::max();
 	static const ui32 NO_PATROLLING;
 
-	//std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
-	//std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::set<ObjectInstanceID> visitedObjects;
 
 	struct DLL_LINKAGE Patrol
@@ -251,6 +247,14 @@ public:
 	const CHero * getHeroType() const;
 	HeroTypeID getHeroTypeID() const;
 	void setHeroType(HeroTypeID type);
+
+	bool isGarrisoned() const;
+	const CGTownInstance * getVisitedTown() const;
+	CGTownInstance * getVisitedTown();
+	void setVisitedTown(const CGTownInstance * town, bool garrisoned);
+
+	const CCommanderInstance * getCommander() const;
+	CCommanderInstance * getCommander();
 
 	void initObj(vstd::RNG & rand) override;
 	void initHero(vstd::RNG & rand);

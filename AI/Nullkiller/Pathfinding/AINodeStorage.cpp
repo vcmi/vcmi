@@ -958,7 +958,7 @@ void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 	{
 		// do not allow our own heroes in garrison to act on map
 		if(hero.first->getOwner() == ai->playerID
-			&& hero.first->inTownGarrison
+			&& hero.first->isGarrisoned()
 			&& (ai->isHeroLocked(hero.first) || ai->heroManager->heroCapReached(false)))
 		{
 			continue;
@@ -987,9 +987,9 @@ void AINodeStorage::setTownsAndDwellings(
 	{
 		uint64_t mask = FirstActorMask << actors.size();
 
-		// TODO: investigate logix of second condition || ai->nullkiller->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE
+		// TODO: investigate logix of second condition || ai->nullkiller->getHeroLockedReason(town->getGarrisonHero()) != HeroLockedReason::DEFENCE
 		// check defence imrove
-		if(!town->garrisonHero)
+		if(!town->getGarrisonHero())
 		{
 			actors.push_back(std::make_shared<TownGarrisonActor>(town, mask));
 		}
@@ -1185,19 +1185,19 @@ void AINodeStorage::calculateTownPortal(
 	{
 		for(const CGTownInstance * targetTown : towns)
 		{
-			if(targetTown->visitingHero
+			if(targetTown->getVisitingHero()
 				&& targetTown->getUpperArmy()->stacksCount()
-				&& maskMap.find(targetTown->visitingHero.get()) != maskMap.end())
+				&& maskMap.find(targetTown->getVisitingHero()) != maskMap.end())
 			{
-				auto basicMask = maskMap.at(targetTown->visitingHero.get());
+				auto basicMask = maskMap.at(targetTown->getVisitingHero());
 				bool sameActorInTown = actor->chainMask == basicMask;
 
 				if(!sameActorInTown)
 					continue;
 			}
 
-			if (targetTown->visitingHero
-				&& (targetTown->visitingHero.get()->getFactionID() != actor->hero->getFactionID()
+			if (targetTown->getVisitingHero()
+				&& (targetTown->getVisitingHero()->getFactionID() != actor->hero->getFactionID()
 					|| targetTown->getUpperArmy()->stacksCount()))
 				continue;
 
