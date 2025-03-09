@@ -46,7 +46,25 @@ void TownPlacer::process()
 
 void TownPlacer::init()
 {
-	// TODO: Depend on other zones
+	for(auto & townHint : zone.getTownHints())
+	{
+		logGlobal->info("Town hint of zone %d: %d", zone.getId(), townHint.likeZone);
+		if(townHint.likeZone != rmg::ZoneOptions::NO_ZONE)
+		{
+			logGlobal->info("Dependency on town type of zone %d", townHint.likeZone);
+			dependency(map.getZones().at(townHint.likeZone)->getModificator<TownPlacer>());
+		}
+		else if(townHint.notLikeZone != rmg::ZoneOptions::NO_ZONE)
+		{
+			logGlobal->info("Dependency on town unlike type of zone %d", townHint.notLikeZone);
+			dependency(map.getZones().at(townHint.notLikeZone)->getModificator<TownPlacer>());
+		}
+		else if(townHint.relatedToZoneTerrain != rmg::ZoneOptions::NO_ZONE)
+		{
+			logGlobal->info("Dependency on town related to zone terrain of zone %d", townHint.relatedToZoneTerrain);
+			dependency(map.getZones().at(townHint.relatedToZoneTerrain)->getModificator<TownPlacer>());
+		}
+	}
 	POSTFUNCTION(MinePlacer);
 	POSTFUNCTION(RoadPlacer);
 } 
@@ -54,7 +72,6 @@ void TownPlacer::init()
 void TownPlacer::placeTowns(ObjectManager & manager)
 {
 	// TODO: Configurew each subseqquent town based on townHints
-	// TODO: First town should be set to type chosen by player
 
 	if(zone.getOwner() && ((zone.getType() == ETemplateZoneType::CPU_START) || (zone.getType() == ETemplateZoneType::PLAYER_START)))
 	{
@@ -120,7 +137,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 	}
 	else //randomize town types for non-player zones
 	{
-		zone.setTownType(getRandomTownType());
+		zone.setTownType(getTownTypeFromHint(0));
 	}
 	
 	addNewTowns(zone.getNeutralTowns().getCastleCount(), true, PlayerColor::NEUTRAL, manager);
@@ -128,6 +145,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 	
 	if(!totalTowns) //if there's no town present, get random faction for dwellings and pandoras
 	{
+		// TODO: Use townHints also when there are no towns in zone
 		//25% chance for neutral
 		if (zone.getRand().nextInt(1, 100) <= 25)
 		{
@@ -188,7 +206,9 @@ FactionID TownPlacer::getTownTypeFromHint(size_t hintIndex)
 {
 	const auto & hints = zone.getTownHints();
 	if(hints.size() <= hintIndex)
-		return zone.getTownType();
+	{
+		return *RandomGeneratorUtil::nextItem(zone.getTownTypes(), zone.getRand());
+	}
 
 	const auto & townHints = hints[hintIndex];
 	FactionID subType = zone.getTownType();
