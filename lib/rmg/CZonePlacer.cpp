@@ -881,21 +881,6 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 		return lhs.second < rhs.second;
 	};
 
-	auto moveZoneToCenterOfMass = [width, height](const std::shared_ptr<Zone> & zone) -> void
-	{
-		int3 total(0, 0, 0);
-		auto tiles = zone->area()->getTiles();
-		for(const auto & tile : tiles)
-		{
-			total += tile;
-		}
-		int size = static_cast<int>(tiles.size());
-		assert(size);
-		auto newPos = int3(total.x / size, total.y / size, total.z / size);
-		zone->setPos(newPos);
-		zone->setCenter(float3(float(newPos.x) / width, float(newPos.y) / height, newPos.z));
-	};
-
 	int levels = map.levels();
 
 	// Find current center of mass for each zone. Move zone to that center to balance zones sizes
@@ -928,7 +913,7 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 		if(zone.second->area()->empty())
 			throw rmgException("Empty zone is generated, probably RMG template is inappropriate for map size");
 		
-		moveZoneToCenterOfMass(zone.second);
+		zone.second->moveToCenterOfMass();
 	}
 
 	for(const auto & zone : zones)
@@ -997,7 +982,7 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 	//set position (town position) to center of mass of irregular zone
 	for(const auto & zone : zones)
 	{
-		moveZoneToCenterOfMass(zone.second);
+		zone.second->moveToCenterOfMass();
 
 		//TODO: similar for islands
 		#define	CREATE_FULL_UNDERGROUND true //consider linking this with water amount
