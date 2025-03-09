@@ -194,9 +194,6 @@ CMap::~CMap()
 	for(auto obj : objects)
 		obj.dellNull();
 
-	for(auto quest : quests)
-		quest.dellNull();
-
 	for(auto artInstance : artInstances)
 		artInstance.dellNull();
 
@@ -527,17 +524,15 @@ void CMap::removeArtifactInstance(CArtifactSet & set, const ArtifactPosition & s
 	art->addPlacementMap(partsMap);
 }
 
-void CMap::addNewQuestInstance(CQuest* quest)
+void CMap::addNewQuestInstance(std::shared_ptr<CQuest> quest)
 {
 	quest->qid = static_cast<si32>(quests.size());
 	quests.emplace_back(quest);
 }
 
-void CMap::removeQuestInstance(CQuest * quest)
-
+void CMap::removeQuestInstance(std::shared_ptr<CQuest> quest)
 {
 	//TODO: should be called only by map editor.
-	//During game, completed quests or quests from removed objects stay forever
 
 	//Shift indexes
 	auto iter = std::next(quests.begin(), quest->qid);
@@ -546,6 +541,13 @@ void CMap::removeQuestInstance(CQuest * quest)
 	{
 		(*iter)->qid = i;
 	}
+}
+
+void CMap::clearQuestInstance(const CQuest * quest)
+{
+	assert(quests.at(quest->qid).get() == quest);
+
+	quests.at(quest->qid) = nullptr;
 }
 
 void CMap::setUniqueInstanceName(CGObjectInstance * obj)

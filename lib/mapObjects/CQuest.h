@@ -118,14 +118,25 @@ public:
 
 class DLL_LINKAGE IQuestObject : public virtual Serializeable
 {
-public:
-	CQuest * quest = new CQuest();
+	friend class CMapLoaderH3M;
+	friend class TreasurePlacer; // RMG
+	friend class Inspector; // Map editor
 
-	///Information about quest should remain accessible even if IQuestObject removed from map
-	///All CQuest objects are freed in CMap destructor
+protected:
+	std::shared_ptr<CQuest> quest;
+
+public:
+	IQuestObject()
+		:quest(std::make_shared<CQuest>())
+	{}
+
 	virtual ~IQuestObject() = default;
 	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const = 0;
 	virtual bool checkQuest (const CGHeroInstance * h) const;
+	const CQuest * getQuest() const
+	{
+		return quest.get();
+	}
 
 	template <typename Handler> void serialize(Handler &h)
 	{

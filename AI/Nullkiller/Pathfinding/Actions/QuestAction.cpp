@@ -12,6 +12,7 @@
 #include "QuestAction.h"
 #include "../../AIGateway.h"
 #include "../../Goals/CompleteQuest.h"
+#include "../../../lib/mapObjects/CQuest.h"
 
 namespace NKAI
 {

@@ -12,6 +12,7 @@
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../AIGateway.h"
 #include "../../../lib/GameLibrary.h"
+#include "../../../lib/mapObjects/CQuest.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 
 namespace NKAI

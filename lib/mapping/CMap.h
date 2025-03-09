@@ -59,7 +59,11 @@ struct DLL_LINKAGE Rumor
 /// The map contains the map header, the tiles of the terrain, objects, heroes, towns, rumors...
 class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 {
+	friend class CSerializer;
+
 	std::unique_ptr<GameSettings> gameSettings;
+
+	std::vector< std::shared_ptr<CQuest> > quests;
 public:
 	explicit CMap(IGameCallback *cb);
 	~CMap();
@@ -86,8 +90,9 @@ public:
 	void putArtifactInstance(CArtifactSet & set, CArtifactInstance * art, const ArtifactPosition & slot);
 	void removeArtifactInstance(CArtifactSet & set, const ArtifactPosition & slot);
 
-	void addNewQuestInstance(CQuest * quest);
-	void removeQuestInstance(CQuest * quest);
+	void addNewQuestInstance(std::shared_ptr<CQuest> quest);
+	void removeQuestInstance(std::shared_ptr<CQuest> quest);
+	void clearQuestInstance(const CQuest * quest);
 
 	void setUniqueInstanceName(CGObjectInstance * obj);
 	///Use only this method when creating new map object instances
@@ -130,7 +135,6 @@ public:
 	std::vector< ConstTransitivePtr<CGObjectInstance> > objects;
 	std::vector< ConstTransitivePtr<CGTownInstance> > towns;
 	std::vector< ConstTransitivePtr<CArtifactInstance> > artInstances;
-	std::vector< ConstTransitivePtr<CQuest> > quests;
 	std::vector< ConstTransitivePtr<CGHeroInstance> > allHeroes; //indexed by [hero_type_id]; on map, disposed, prisons, etc.
 
 	//Helper lists

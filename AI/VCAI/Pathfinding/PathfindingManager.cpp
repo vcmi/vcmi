@@ -224,7 +224,7 @@ Goals::TSubgoal PathfindingManager::clearWayTo(HeroPtr hero, int3 firstTileToGet
 
 			if(questObj)
 			{
-				auto questInfo = QuestInfo(questObj->quest, topObj, topObj->visitablePos());
+				auto questInfo = QuestInfo(questObj->getQuest(), topObj, topObj->visitablePos());
 
 				return sptr(Goals::CompleteQuest(questInfo));
 			}

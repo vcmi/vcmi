@@ -522,7 +522,7 @@ void TreasurePlacer::addSeerHuts()
 		{
 			auto * seer = dynamic_cast<CGSeerHut *>(obj);
 			// Artifact can be used again
-			ArtifactID artid = seer->quest->mission.artifacts.front();
+			ArtifactID artid = seer->getQuest()->mission.artifacts.front();
 			qap->addRandomArtifact(artid);
 			qap->removeQuestArtifact(artid);
 		};

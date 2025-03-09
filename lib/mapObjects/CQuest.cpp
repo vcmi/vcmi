@@ -592,7 +592,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 			cb->setObjPropertyID(id, ObjProperty::SEERHUT_VISITED, h->getOwner());
 
 			AddQuest aq;
-			aq.quest = QuestInfo (quest, this, visitablePos());
+			aq.quest = QuestInfo(quest.get(), this, visitablePos());
 			aq.player = h->tempOwner;
 			cb->sendAndApply(aq); //TODO: merge with setObjProperty?
 		}
@@ -869,7 +869,7 @@ void CGBorderGuard::onHeroVisit(const CGHeroInstance * h) const
 		h->showInfoDialog(18);
 
 		AddQuest aq;
-		aq.quest = QuestInfo (quest, this, visitablePos());
+		aq.quest = QuestInfo (quest.get(), this, visitablePos());
 		aq.player = h->tempOwner;
 		cb->sendAndApply(aq);
 		//TODO: add this quest only once OR check for multiple instances later
@@ -894,7 +894,7 @@ void CGBorderGate::onHeroVisit(const CGHeroInstance * h) const //TODO: passabili
 		h->showInfoDialog(18);
 
 		AddQuest aq;
-		aq.quest = QuestInfo (quest, this, visitablePos());
+		aq.quest = QuestInfo (quest.get(), this, visitablePos());
 		aq.player = h->tempOwner;
 		cb->sendAndApply(aq);
 	}
