@@ -321,12 +321,6 @@ class VCMI(ConanFile):
         tc.variables["CONAN_RUNTIME_LIBS_FILE"] = self._generateRuntimeLibsFile()
         if self.settings.os == "Android":
             tc.variables["CMAKE_ANDROID_API"] = str(self.settings.os.api_level)
-            tc.variables["ANDROID_SYSROOT_LIB_SUBDIR"] = {
-                "armv7": "arm-linux-androideabi",
-                "armv8": "aarch64-linux-android",
-                "x86": "i686-linux-android",
-                "x86_64": "x86_64-linux-android",
-            }.get(str(self.settings.arch))
         elif self.settings.os == "Windows":
             tc.variables["CONAN_RUNENV_SCRIPT"] = self._pathForCmake(os.path.join(self.build_folder, "conanrun.bat"))
         tc.generate()

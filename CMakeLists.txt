@@ -626,6 +626,9 @@ elseif(ANDROID)
 	include(GNUInstallDirs)
 	set(LIB_DIR "libs/${ANDROID_ABI}")
 
+	file(READ "${CMAKE_ANDROID_NDK}/meta/abis.json" ndkAbiInfo)
+	string(JSON ANDROID_SYSROOT_LIB_SUBDIR GET "${ndkAbiInfo}" "${ANDROID_ABI}" "triple")
+
 	# required by Qt
 	set(androidPackageSourceDir "${CMAKE_SOURCE_DIR}/android")
 	set(androidQtBuildDir "${CMAKE_BINARY_DIR}/android-build")
