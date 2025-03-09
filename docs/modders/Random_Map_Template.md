@@ -107,7 +107,7 @@
 		{
 			// 3rd town type cannot match any of the following zones. Can be integer or vector of integers
 			"notLikeZone" : [1, 2, 3, 4]
-		},
+		}
 	],
 	
 	//optional, list of explicitly banned terrain types
