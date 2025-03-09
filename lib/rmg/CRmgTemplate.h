@@ -154,7 +154,7 @@ public:
 		CTownHints();
 		// TODO: Make private
 		TRmgTemplateZoneId likeZone = NO_ZONE;
-		TRmgTemplateZoneId notLikeZone = NO_ZONE;
+		std::vector<TRmgTemplateZoneId> notLikeZone;
 		TRmgTemplateZoneId relatedToZoneTerrain = NO_ZONE;
 
 		void serializeJson(JsonSerializeFormat & handler);

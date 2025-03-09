@@ -54,10 +54,13 @@ void TownPlacer::init()
 			logGlobal->info("Dependency on town type of zone %d", townHint.likeZone);
 			dependency(map.getZones().at(townHint.likeZone)->getModificator<TownPlacer>());
 		}
-		else if(townHint.notLikeZone != rmg::ZoneOptions::NO_ZONE)
+		else if(!townHint.notLikeZone.empty())
 		{
-			logGlobal->info("Dependency on town unlike type of zone %d", townHint.notLikeZone);
-			dependency(map.getZones().at(townHint.notLikeZone)->getModificator<TownPlacer>());
+			for(auto zoneId : townHint.notLikeZone)
+			{
+				logGlobal->info("Dependency on town unlike type of zone %d", zoneId);
+				dependency(map.getZones().at(zoneId)->getModificator<TownPlacer>());
+			}
 		}
 		else if(townHint.relatedToZoneTerrain != rmg::ZoneOptions::NO_ZONE)
 		{
@@ -218,11 +221,14 @@ FactionID TownPlacer::getTownTypeFromHint(size_t hintIndex)
 		// Copy directly from other zone
 		subType = map.getZones().at(townHints.likeZone)->getTownType();
 	}
-	else if(townHints.notLikeZone != rmg::ZoneOptions::NO_ZONE)
+	else if(!townHints.notLikeZone.empty())
 	{
 		// Exclude type rolled for other zone
 		auto townTypes = zone.getTownTypes();
-		townTypes.erase(map.getZones().at(townHints.notLikeZone)->getTownType());
+		for(auto zoneId : townHints.notLikeZone)
+		{
+			townTypes.erase(map.getZones().at(zoneId)->getTownType());
+		}
 		zone.setTownTypes(townTypes);
 		
 		if(!townTypes.empty())

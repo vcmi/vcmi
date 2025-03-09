@@ -109,7 +109,6 @@ void ZoneOptions::CTownInfo::serializeJson(JsonSerializeFormat & handler)
 
 ZoneOptions::CTownHints::CTownHints()
 	: likeZone(NO_ZONE),
-	notLikeZone(NO_ZONE),
 	relatedToZoneTerrain(NO_ZONE)
 {
 
@@ -118,7 +117,23 @@ ZoneOptions::CTownHints::CTownHints()
 void ZoneOptions::CTownHints::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeInt("likeZone", likeZone, NO_ZONE);
-	handler.serializeInt("notLikeZone", notLikeZone, NO_ZONE);
+	auto node = handler.getCurrent();
+	if (node["notLikeZone"].isVector())
+	{
+		// TODO: Utility to serialize vector of ints?
+		auto notLikeZoneData = handler.enterArray("notLikeZone");
+		notLikeZone.resize(notLikeZoneData.size());
+		for (size_t i = 0; i < notLikeZoneData.size(); ++i)
+		{
+			notLikeZoneData.serializeInt(i, notLikeZone[i]);
+		}
+	}
+	else
+	{
+		int temp;
+		handler.serializeInt("notLikeZone", temp, NO_ZONE);
+		notLikeZone.push_back(temp);
+	}
 	handler.serializeInt("relatedToZoneTerrain", relatedToZoneTerrain, NO_ZONE);
 }
 

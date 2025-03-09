@@ -25,7 +25,15 @@
 						"type": "object",
 						"properties": {
 							"likeZone": { "type": "number" },
-							"notLikeZone": { "type": "number" },
+							"notLikeZone": { 
+								"oneOf": [
+									{ "type": "number" },
+									{ 
+										"type": "array",
+										"items": { "type": "number" }
+									}
+								]
+							},
 							"relatedToZoneTerrain": { "type": "number" }
 						}
 					}
