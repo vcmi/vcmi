@@ -21,6 +21,7 @@ enum class EPluralForms
 	UK_3, // Three forms, special cases for numbers ending in 1 and 2, 3, 4, except those ending in 1[1-4] (Ukrainian)
 	CZ_3, // Three forms, special cases for 1 and 2, 3, 4 (Czech)
 	PL_3, // Three forms, special case for one and some numbers ending in 2, 3, or 4 (Polish)
+	RO_3, // Three forms, special case for numbers ending in 00 or [2-9][0-9] (Romanian)
 };
 
 enum class ELanguages
@@ -99,7 +100,7 @@ inline const auto & getLanguageList()
 		{ "korean",      "Korean",      "한국어",      "CP949",  "ko", "kor", "%Y-%m-%d %H:%M",    EPluralForms::VI_1, true  },
 		{ "polish",      "Polish",      "Polski",     "CP1250", "pl", "pol", "%d.%m.%Y %H:%M",    EPluralForms::PL_3, true  },
 		{ "portuguese",  "Portuguese",  "Português",  "CP1252", "pt", "por", "%d/%m/%Y %H:%M",    EPluralForms::EN_2, true  }, // Note: actually Brazilian Portuguese
-		{ "romanian",    "Romanian",    "Română",     "CP28606","ro", "rum", "%Y-%m-%d %H:%M",    EPluralForms::EN_2, false },
+		{ "romanian",    "Romanian",    "Română",     "CP28606","ro", "rum", "%Y-%m-%d %H:%M",    EPluralForms::RO_3, false },
 		{ "russian",     "Russian",     "Русский",    "CP1251", "ru", "rus", "%d.%m.%Y %H:%M",    EPluralForms::UK_3, true  },
 		{ "spanish",     "Spanish",     "Español",    "CP1252", "es", "spa", "%d/%m/%Y %H:%M",    EPluralForms::EN_2, true  },
 		{ "swedish",     "Swedish",     "Svenska",    "CP1252", "sv", "swe", "%Y-%m-%d %H:%M",    EPluralForms::EN_2, true  },
@@ -161,6 +162,12 @@ inline constexpr int getPluralFormIndex(EPluralForms form, Numeric value)
 				return 1;
 			if (value%10>=2 && value%10<=4 && (value%100<10 || value%100>=20))
 				return 2;
+			return 0;
+		case EPluralForms::RO_3:
+			if (value == 1)
+			    return 1;
+			if (value==0 || (value%100 > 0 && value%100 < 20))
+			    return 2;
 			return 0;
 	}
 	throw std::runtime_error("Invalid plural form enumeration received!");
