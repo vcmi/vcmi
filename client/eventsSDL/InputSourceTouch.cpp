@@ -58,6 +58,7 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 {
 	Point screenSize = ENGINE->screenDimensions();
 
+	motionAccumulatedX[tfinger.fingerId] += tfinger.dx;
 	motionAccumulatedY[tfinger.fingerId] += tfinger.dy;
 
 	float motionThreshold = 1.0 / std::min(screenSize.x, screenSize.y);
