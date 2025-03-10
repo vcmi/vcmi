@@ -1513,8 +1513,7 @@ void NewObject::applyGs(CGameState *gs)
 
 void NewArtifact::applyGs(CGameState *gs)
 {
-	auto art = ArtifactUtils::createArtifact(artId, spellId);
-	gs->getMap().addNewArtifactInstance(art);
+	auto art = gs->createArtifact(artId, spellId);
 	PutArtifact pa(art->getId(), ArtifactLocation(artHolder, pos), false);
 	pa.applyGs(gs);
 }
@@ -1732,7 +1731,7 @@ void PutArtifact::applyGs(CGameState *gs)
 	assert(hero);
 	assert(art && art->canBePutAt(hero, al.slot));
 	assert(ArtifactUtils::checkIfSlotValid(*hero, al.slot));
-	gs->getMap().putArtifactInstance(*hero, art, al.slot);
+	gs->getMap().putArtifactInstance(*hero, art->getId(), al.slot);
 }
 
 void BulkEraseArtifacts::applyGs(CGameState *gs)
@@ -1797,7 +1796,7 @@ void BulkMoveArtifacts::applyGs(CGameState *gs)
 		{
 			auto * art = initArtSet.getArt(slotsPair.srcPos);
 			assert(art);
-			gs->getMap().putArtifactInstance(dstArtSet, art, slotsPair.dstPos);
+			gs->getMap().putArtifactInstance(dstArtSet, art->getId(), slotsPair.dstPos);
 		}
 	};
 	
@@ -1828,8 +1827,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 			return art->getId() == builtArt->getId();
 		}));
 
-	auto * combinedArt = new CArtifactInstance(builtArt);
-	gs->getMap().addNewArtifactInstance(combinedArt);
+	auto * combinedArt = gs->getMap().createSingleArtifact(artId);
 
 	// Find slots for all involved artifacts
 	std::set<ArtifactPosition, std::greater<>> slotsInvolved = { al.slot };
@@ -1882,14 +1880,15 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	}
 
 	// Put new combined artifacts
-	gs->getMap().putArtifactInstance(*artSet, combinedArt, al.slot);
+	gs->getMap().putArtifactInstance(*artSet, combinedArt->getId(), al.slot);
 }
 
 void DisassembledArtifact::applyGs(CGameState *gs)
 {
 	auto hero = gs->getHero(al.artHolder);
 	assert(hero);
-	auto disassembledArt = hero->getArt(al.slot);
+	auto disassembledArtID = hero->getArtID(al.slot);
+	auto disassembledArt = gs->getArtInstance(disassembledArtID);
 	assert(disassembledArt);
 
 	const auto parts = disassembledArt->getPartsInfo();
@@ -1898,10 +1897,10 @@ void DisassembledArtifact::applyGs(CGameState *gs)
 	{
 		// ArtifactPosition::PRE_FIRST is value of main part slot -> it'll replace combined artifact in its pos
 		auto slot = (ArtifactUtils::isSlotEquipment(part.slot) ? part.slot : al.slot);
-		disassembledArt->detachFrom(*part.art);
-		gs->getMap().putArtifactInstance(*hero, part.art, slot);
+		disassembledArt->detachFromSource(*part.art);
+		gs->getMap().putArtifactInstance(*hero, part.art->getId(), slot);
 	}
-	gs->getMap().eraseArtifactInstance(disassembledArt);
+	gs->getMap().eraseArtifactInstance(disassembledArt->getId());
 }
 
 void HeroVisit::applyGs(CGameState *gs)
@@ -2130,12 +2129,10 @@ void BattleResultAccepted::applyGs(CGameState *gs)
 			if(winnerHero->getCommander() && winnerHero->getCommander()->alive)
 			{
 				for(auto & art : winnerHero->getCommander()->artifactsWorn)
-					art.second.artifact->growingUp();
+					gs->getArtInstance(art.second.getID())->growingUp();
 			}
 			for(auto & art : winnerHero->artifactsWorn)
-			{
-				art.second.artifact->growingUp();
-			}
+				gs->getArtInstance(art.second.getID())->growingUp();
 		}
 	}
 
@@ -2501,6 +2498,13 @@ const CArtifactInstance * ArtSlotInfo::getArt() const
 	if(locked)
 		return nullptr;
 	return artifact;
+}
+
+ArtifactInstanceID ArtSlotInfo::getID() const
+{
+	if(locked || artifact == nullptr)
+		return {};
+	return artifact->getId();
 }
 
 VCMI_LIB_NAMESPACE_END

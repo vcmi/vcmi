@@ -901,12 +901,12 @@ ArtBearer::ArtBearer CStackInstance::bearerType() const
 	return ArtBearer::CREATURE;
 }
 
-CStackInstance::ArtPlacementMap CStackInstance::putArtifact(const ArtifactPosition & pos, CArtifactInstance * art)
+CStackInstance::ArtPlacementMap CStackInstance::putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art)
 {
 	assert(!getArt(pos));
 	assert(art->canBePutAt(this, pos));
 
-	attachTo(*art);
+	attachToSource(*art);
 	return CArtifactSet::putArtifact(pos, art);
 }
 
@@ -914,7 +914,7 @@ void CStackInstance::removeArtifact(const ArtifactPosition & pos)
 {
 	assert(getArt(pos));
 
-	detachFrom(*getArt(pos));
+	detachFromSource(*getArt(pos));
 	CArtifactSet::removeArtifact(pos);
 }
 

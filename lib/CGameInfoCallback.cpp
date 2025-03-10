@@ -951,7 +951,7 @@ void CGameInfoCallback::calculatePaths(const std::shared_ptr<PathfinderConfig> &
 
 const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID aid ) const
 {
-	return gs->getMap().artInstances.at(aid.num);
+	return gs->getMap().getArtifactInstance(aid);
 }
 
 const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid ) const

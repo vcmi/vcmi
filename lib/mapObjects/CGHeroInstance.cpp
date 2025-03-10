@@ -405,7 +405,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 		// hero starts with default spellbook presence status
 		if(!getArt(ArtifactPosition::SPELLBOOK) && getHeroType()->haveSpellBook)
 		{
-			auto artifact = ArtifactUtils::createArtifact(ArtifactID::SPELLBOOK);
+			auto artifact = cb->gameState()->createArtifact(ArtifactID::SPELLBOOK);
 			putArtifact(ArtifactPosition::SPELLBOOK, artifact);
 		}
 	}
@@ -414,7 +414,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 
 	if(!getArt(ArtifactPosition::MACH4))
 	{
-		auto artifact = ArtifactUtils::createArtifact(ArtifactID::CATAPULT);
+		auto artifact = cb->gameState()->createArtifact(ArtifactID::CATAPULT);
 		putArtifact(ArtifactPosition::MACH4, artifact); //everyone has a catapult
 	}
 
@@ -527,7 +527,7 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 
 				if(!getArt(slot))
 				{
-					auto artifact = ArtifactUtils::createArtifact(aid);
+					auto artifact = cb->gameState()->createArtifact(aid);
 					putArtifact(slot, artifact);
 				}
 				else
@@ -1236,12 +1236,12 @@ std::string CGHeroInstance::getBiographyTextID() const
 	return ""; //for random hero
 }
 
-CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(const ArtifactPosition & pos, CArtifactInstance * art)
+CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art)
 {
 	assert(art->canBePutAt(this, pos));
 
 	if(ArtifactUtils::isSlotEquipment(pos))
-		attachTo(*art);
+		attachToSource(*art);
 	return CArtifactSet::putArtifact(pos, art);
 }
 
@@ -1252,7 +1252,7 @@ void CGHeroInstance::removeArtifact(const ArtifactPosition & pos)
 
 	CArtifactSet::removeArtifact(pos);
 	if(ArtifactUtils::isSlotEquipment(pos))
-		detachFrom(*art);
+		detachFromSource(*art);
 }
 
 bool CGHeroInstance::hasSpellbook() const
@@ -1768,7 +1768,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeIdArray("spellBook", spells);
 
 	if(handler.saving)
-		CArtifactSet::serializeJsonArtifacts(handler, "artifacts");
+		CArtifactSet::serializeJsonArtifacts(handler, "artifacts", &cb->gameState()->getMap());
 }
 
 void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)

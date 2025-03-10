@@ -17,7 +17,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void CCombinedArtifactInstance::addPart(CArtifactInstance * art, const ArtifactPosition & slot)
+void CCombinedArtifactInstance::addPart(const CArtifactInstance * art, const ArtifactPosition & slot)
 {
 	auto artInst = static_cast<CArtifactInstance*>(this);
 	assert(vstd::contains_if(artInst->getType()->getConstituents(),
@@ -27,7 +27,7 @@ void CCombinedArtifactInstance::addPart(CArtifactInstance * art, const ArtifactP
 		}));
 	assert(art->getParentNodes().size() == 1  &&  art->getParentNodes().front() == art->getType());
 	partsInfo.emplace_back(art, slot);
-	artInst->attachTo(*art);
+	artInst->attachToSource(*art);
 }
 
 bool CCombinedArtifactInstance::isPart(const CArtifactInstance * supposedPart) const
@@ -173,7 +173,7 @@ void CArtifactInstance::deserializationFix()
 {
 	setType(artTypeID.toArtifact());
 	for(PartInfo & part : partsInfo)
-		attachTo(*part.art);
+		attachToSource(*part.art);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -325,10 +325,10 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 		}
 		case CampaignBonusType::SPELL_SCROLL:
 		{
-			CArtifactInstance * scroll = ArtifactUtils::createScroll(SpellID(curBonus->info2));
+			const auto scroll = gameState->createScroll(SpellID(curBonus->info2));
 			const auto slot = ArtifactUtils::getArtAnyPosition(hero, scroll->getTypeId());
 			if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
-				gameState->map->putArtifactInstance(*hero, scroll, slot);
+				gameState->map->putArtifactInstance(*hero, scroll->getId(), slot);
 			else
 				logGlobal->error("Cannot give starting scroll - no free slots!");
 			break;
@@ -432,7 +432,7 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 
 				const auto slot = ArtifactUtils::getArtAnyPosition(receiver, artifact->getTypeId());
 				if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
-					gameState->map->putArtifactInstance(*receiver, artifact, slot);
+					gameState->map->putArtifactInstance(*receiver, artifact->getId(), slot);
 				else
 					logGlobal->error("Cannot transfer artifact - no free slots!");
 			}

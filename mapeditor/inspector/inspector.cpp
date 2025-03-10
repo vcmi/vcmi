@@ -38,7 +38,9 @@
 #include "../mapcontroller.h"
 
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
-Initializer::Initializer(CGObjectInstance * o, const PlayerColor & pl) : defaultPlayer(pl)
+Initializer::Initializer(MapController & controller, CGObjectInstance * o, const PlayerColor & pl)
+	: defaultPlayer(pl)
+	, controller(controller)
 {
 	logGlobal->info("New object instance initialized");
 ///IMPORTANT! initialize order should be from base objects to derived objects
@@ -203,7 +205,7 @@ void Initializer::initialize(CGArtifact * o)
 				out.push_back(spell->id);
 			}
 		}
-		auto a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
+		auto a = controller.map()->createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
 		o->storedArtifact = a;
 	}
 }
@@ -320,7 +322,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	auto * delegate = new HeroSkillsDelegate(*o);
 	addProperty(QObject::tr("Skills"), PropertyEditorPlaceholder(), delegate, false);
 	addProperty(QObject::tr("Spells"), PropertyEditorPlaceholder(), new HeroSpellDelegate(*o), false);
-	addProperty(QObject::tr("Artifacts"), PropertyEditorPlaceholder(), new HeroArtifactsDelegate(*o), false);
+	addProperty(QObject::tr("Artifacts"), PropertyEditorPlaceholder(), new HeroArtifactsDelegate(controller, *o), false);
 	
 	if(o->getHeroTypeID().hasValue() || o->ID == Obj::PRISON)
 	{ //Hero type
@@ -640,7 +642,7 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 	
 	if(o->storedArtifact && key == QObject::tr("Spell"))
 	{
-		o->storedArtifact = ArtifactUtils::createScroll(SpellID(value.toInt()));
+		o->storedArtifact = controller.map()->createScroll(SpellID(value.toInt()));
 	}
 }
 

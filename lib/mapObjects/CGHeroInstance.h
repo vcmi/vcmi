@@ -260,7 +260,7 @@ public:
 	void initHero(vstd::RNG & rand);
 	void initHero(vstd::RNG & rand, const HeroTypeID & SUBID);
 
-	ArtPlacementMap putArtifact(const ArtifactPosition & pos, CArtifactInstance * art) override;
+	ArtPlacementMap putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art) override;
 	void removeArtifact(const ArtifactPosition & pos) override;
 	void initExp(vstd::RNG & rand);
 	void initArmy(vstd::RNG & rand, IArmyDescriptor *dst = nullptr);

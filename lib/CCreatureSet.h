@@ -132,7 +132,7 @@ public:
 	void setArmyObj(const CArmedInstance *ArmyObj);
 	virtual void giveStackExp(TExpType exp);
 	bool valid(bool allowUnrandomized) const;
-	ArtPlacementMap putArtifact(const ArtifactPosition & pos, CArtifactInstance * art) override;//from CArtifactSet
+	ArtPlacementMap putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art) override;//from CArtifactSet
 	void removeArtifact(const ArtifactPosition & pos) override;
 	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
 	std::string nodeName() const override; //from CBonusSystemnode

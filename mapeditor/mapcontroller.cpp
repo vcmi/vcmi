@@ -144,7 +144,7 @@ void MapController::repairMap(CMap * map)
 			{
 				nih->removeSpellFromSpellbook(SpellID::SPELLBOOK_PRESET);
 				if(!nih->getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook)
-					nih->putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createArtifact(ArtifactID::SPELLBOOK));
+					nih->putArtifact(ArtifactPosition::SPELLBOOK, map->createArtifact(ArtifactID::SPELLBOOK));
 			}
 			
 		}
@@ -177,7 +177,7 @@ void MapController::repairMap(CMap * map)
 						out.push_back(spell->id);
 					}
 				}
-				auto a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
+				auto a = map->createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
 				art->storedArtifact = a;
 			}
 		}
@@ -376,7 +376,7 @@ void MapController::pasteFromClipboard(int level)
 			obj->pos = newPos;
 		obj->pos.z = level;
 		
-		Initializer init(obj, defaultPlayer);
+		Initializer init(*this, obj, defaultPlayer);
 		_map->getEditManager()->insertObject(obj);
 		_scenes[level]->selectionObjectsView.selectObject(obj);
 		_mapHandler->invalidate(obj);
@@ -521,7 +521,7 @@ void MapController::commitObjectCreate(int level)
 	
 	newObj->pos = pos;
 	
-	Initializer init(newObj, defaultPlayer);
+	Initializer init(*this, newObj, defaultPlayer);
 	
 	_map->getEditManager()->insertObject(newObj);
 	_mapHandler->invalidate(newObj);

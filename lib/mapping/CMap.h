@@ -64,6 +64,8 @@ class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 	std::unique_ptr<GameSettings> gameSettings;
 
 	std::vector< std::shared_ptr<CQuest> > quests;
+	std::vector< std::shared_ptr<CArtifactInstance> > artInstances;
+
 public:
 	explicit CMap(IGameCallback *cb);
 	~CMap();
@@ -83,11 +85,16 @@ public:
 	void removeBlockVisTiles(CGObjectInstance * obj, bool total = false);
 	void calculateGuardingGreaturePositions();
 
-	void addNewArtifactInstance(CArtifactSet & artSet);
-	void addNewArtifactInstance(ConstTransitivePtr<CArtifactInstance> art);
-	void eraseArtifactInstance(CArtifactInstance * art);
+	CArtifactInstance * createScroll(const SpellID & spellId);
+	CArtifactInstance * createArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
+	CArtifactInstance * createSingleArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
+
+	CArtifactInstance * getArtifactInstance(const ArtifactInstanceID & artifactID);
+	const CArtifactInstance * getArtifactInstance(const ArtifactInstanceID & artifactID) const;
+
+	void eraseArtifactInstance(const ArtifactInstanceID art);
 	void moveArtifactInstance(CArtifactSet & srcSet, const ArtifactPosition & srcSlot, CArtifactSet & dstSet, const ArtifactPosition & dstSlot);
-	void putArtifactInstance(CArtifactSet & set, CArtifactInstance * art, const ArtifactPosition & slot);
+	void putArtifactInstance(CArtifactSet & set, const ArtifactInstanceID art, const ArtifactPosition & slot);
 	void removeArtifactInstance(CArtifactSet & set, const ArtifactPosition & slot);
 
 	void addNewQuestInstance(std::shared_ptr<CQuest> quest);
@@ -134,7 +141,6 @@ public:
 	//Central lists of items in game. Position of item in the vectors below is their (instance) id.
 	std::vector< ConstTransitivePtr<CGObjectInstance> > objects;
 	std::vector< ConstTransitivePtr<CGTownInstance> > towns;
-	std::vector< ConstTransitivePtr<CArtifactInstance> > artInstances;
 	std::vector< ConstTransitivePtr<CGHeroInstance> > allHeroes; //indexed by [hero_type_id]; on map, disposed, prisons, etc.
 
 	//Helper lists

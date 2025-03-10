@@ -330,7 +330,7 @@ public:
 			{
 				// This pointers is already loaded. The "data" needs to be pointed to it,
 				// so their shared state is actually shared.
-				data = std::static_pointer_cast<T>(itr->second);
+				data = std::dynamic_pointer_cast<T>(itr->second);
 			}
 			else
 			{

@@ -1006,9 +1006,8 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	// Artifact seems to be missing in game, so skip artifacts that don't fit target slot
 	if(ArtifactID(artifactID).toArtifact()->canBePutAt(hero, ArtifactPosition(slot)))
 	{
-		auto * artifact = ArtifactUtils::createArtifact(artifactID, scrollSpell);
-		map->putArtifactInstance(*hero, artifact, slot);
-		map->addNewArtifactInstance(artifact);
+		auto * artifact = map->createArtifact(artifactID, scrollSpell);
+		map->putArtifactInstance(*hero, artifact->getId(), slot);
 	}
 	else
 	{
@@ -1407,8 +1406,7 @@ CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & mapPosition, std::sh
 			logGlobal->warn("Map '%s': Artifact %s: not implemented pickup mode %d (flags: %d)", mapName, mapPosition.toString(), pickupMode, static_cast<int>(pickupFlags));
 	}
 
-	object->storedArtifact = ArtifactUtils::createArtifact(artID, SpellID::NONE);
-	map->addNewArtifactInstance(object->storedArtifact);
+	object->storedArtifact = map->createArtifact(artID, SpellID::NONE);
 	return object;
 }
 
@@ -1418,8 +1416,7 @@ CGObjectInstance * CMapLoaderH3M::readScroll(const int3 & mapPosition, std::shar
 	readMessageAndGuards(object->message, object, mapPosition);
 	SpellID spellID = reader->readSpell32();
 
-	object->storedArtifact = ArtifactUtils::createArtifact(ArtifactID::SPELL_SCROLL, spellID.getNum());
-	map->addNewArtifactInstance(object->storedArtifact);
+	object->storedArtifact = map->createArtifact(ArtifactID::SPELL_SCROLL, spellID.getNum());
 	return object;
 }
 

@@ -251,7 +251,7 @@ PlayerState * CNonConstInfoCallback::getPlayerState(const PlayerColor & color, b
 
 CArtifactInstance * CNonConstInfoCallback::getArtInstance(const ArtifactInstanceID & aid)
 {
-	return gs->getMap().artInstances.at(aid.num);
+	return gs->getMap().getArtifactInstance(aid);
 }
 
 CGObjectInstance * CNonConstInfoCallback::getObjInstance(const ObjectInstanceID & oid)

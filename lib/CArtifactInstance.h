@@ -10,7 +10,6 @@
 #pragma once
 
 #include "bonuses/CBonusSystemNode.h"
-#include "GameConstants.h"
 #include "CArtHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -24,17 +23,17 @@ protected:
 public:
 	struct PartInfo
 	{
-		CArtifactInstance * art;
+		const CArtifactInstance * art;
 		ArtifactPosition slot;
 		template <typename Handler> void serialize(Handler & h)
 		{
 			h & art;
 			h & slot;
 		}
-		PartInfo(CArtifactInstance * art = nullptr, const ArtifactPosition & slot = ArtifactPosition::PRE_FIRST)
+		PartInfo(const CArtifactInstance * art = nullptr, const ArtifactPosition & slot = ArtifactPosition::PRE_FIRST)
 			: art(art), slot(slot) {};
 	};
-	void addPart(CArtifactInstance * art, const ArtifactPosition & slot);
+	void addPart(const CArtifactInstance * art, const ArtifactPosition & slot);
 	// Checks if supposed part inst is part of this combined art inst
 	bool isPart(const CArtifactInstance * supposedPart) const;
 	bool hasParts() const;
@@ -65,7 +64,7 @@ public:
 	void growingUp();
 };
 
-class DLL_LINKAGE CArtifactInstance
+class DLL_LINKAGE CArtifactInstance final
 	: public CBonusSystemNode, public CCombinedArtifactInstance, public CScrollArtifactInstance, public CGrowingArtifactInstance
 {
 protected:

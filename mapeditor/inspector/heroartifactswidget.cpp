@@ -13,12 +13,16 @@
 #include "ui_heroartifactswidget.h"
 #include "inspector.h"
 #include "mapeditorroles.h"
+#include "../mapcontroller.h"
+
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/mapping/CMap.h"
 
-HeroArtifactsWidget::HeroArtifactsWidget(CGHeroInstance & h, QWidget * parent) :
+HeroArtifactsWidget::HeroArtifactsWidget(MapController & controller, CGHeroInstance & h, QWidget * parent) :
 	QDialog(parent),
 	ui(new Ui::HeroArtifactsWidget),
+	controller(controller),
 	hero(h),
 	fittingSet(CArtifactFittingSet(h))
 {
@@ -52,7 +56,7 @@ void HeroArtifactsWidget::on_removeButton_clicked()
 
 void HeroArtifactsWidget::onSaveArtifact(int32_t artifactIndex, ArtifactPosition slot) 
 {
-	auto artifact = ArtifactUtils::createArtifact(LIBRARY->arth->getByIndex(artifactIndex)->getId());
+	auto artifact = controller.map()->createArtifact(LIBRARY->arth->getByIndex(artifactIndex)->getId());
 	fittingSet.putArtifact(slot, artifact);
 	addArtifactToTable(artifactIndex, slot);
 }
@@ -110,13 +114,16 @@ void HeroArtifactsWidget::commitChanges()
 	}
 }
 
-HeroArtifactsDelegate::HeroArtifactsDelegate(CGHeroInstance & h) : BaseInspectorItemDelegate(), hero(h)
+HeroArtifactsDelegate::HeroArtifactsDelegate(MapController & controller, CGHeroInstance & h)
+	: BaseInspectorItemDelegate()
+	, controller(controller)
+	, hero(h)
 {
 }
 
 QWidget * HeroArtifactsDelegate::createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const
 {
-	return new HeroArtifactsWidget(hero, parent);
+	return new HeroArtifactsWidget(controller, hero, parent);
 }
 
 void HeroArtifactsDelegate::setEditorData(QWidget * editor, const QModelIndex & index) const

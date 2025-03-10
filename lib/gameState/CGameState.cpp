@@ -1618,12 +1618,11 @@ void CGameState::attachArmedObjects()
 
 bool CGameState::giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid)
 {
-	 CArtifactInstance * ai = ArtifactUtils::createArtifact(aid);
-	 map->addNewArtifactInstance(ai);
+	 CArtifactInstance * ai = createArtifact(aid);
 	 auto slot = ArtifactUtils::getArtAnyPosition(h, aid);
 	 if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
 	 {
-		 map->putArtifactInstance(*h, ai, slot);
+		 map->putArtifactInstance(*h, ai->getId(), slot);
 		 return true;
 	 }
 	 else
@@ -1764,6 +1763,16 @@ ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::function<bool(A
 ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags)
 {
 	return pickRandomArtifact(rand, flags, [](const ArtifactID &) { return true; });
+}
+
+CArtifactInstance * CGameState::createScroll(const SpellID & spellId)
+{
+	return map->createScroll(spellId);
+}
+
+CArtifactInstance * CGameState::createArtifact(const ArtifactID & artID, const SpellID & spellId)
+{
+	return map->createArtifact(artID, spellId);
 }
 
 VCMI_LIB_NAMESPACE_END

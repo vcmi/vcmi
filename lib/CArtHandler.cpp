@@ -18,6 +18,7 @@
 #include "json/JsonBonus.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
+#include "mapping/CMap.h"
 #include "serializer/JsonSerializeFormat.h"
 #include "texts/CGeneralTextHandler.h"
 #include "texts/CLegacyConfigParser.h"
@@ -705,18 +706,26 @@ void CArtHandler::afterLoadFinalization()
 		}
 		art->nodeHasChanged();
 	}
-
 }
 
-CArtifactInstance * CArtifactSet::getArt(const ArtifactPosition & pos, bool excludeLocked) const
+const CArtifactInstance * CArtifactSet::getArt(const ArtifactPosition & pos, bool excludeLocked) const
 {
 	if(const ArtSlotInfo * si = getSlot(pos))
 	{
 		if(si->artifact && (!excludeLocked || !si->locked))
 			return si->artifact;
 	}
-
 	return nullptr;
+}
+
+ArtifactInstanceID CArtifactSet::getArtID(const ArtifactPosition & pos, bool excludeLocked) const
+{
+	if(const ArtSlotInfo * si = getSlot(pos))
+	{
+		if(si->artifact && (!excludeLocked || !si->locked))
+			return si->artifact->getId();
+	}
+	return {};
 }
 
 ArtifactPosition CArtifactSet::getArtPos(const ArtifactID & aid, bool onlyWorn, bool allowLocked) const
@@ -781,10 +790,10 @@ bool CArtifactSet::hasArt(const ArtifactID & aid, bool onlyWorn, bool searchComb
 	return false;
 }
 
-CArtifactSet::ArtPlacementMap CArtifactSet::putArtifact(const ArtifactPosition & slot, CArtifactInstance * art)
+CArtifactSet::ArtPlacementMap CArtifactSet::putArtifact(const ArtifactPosition & slot, const CArtifactInstance * art)
 {
 	ArtPlacementMap resArtPlacement;
-	const auto putToSlot = [this](const ArtifactPosition & targetSlot, CArtifactInstance * targetArt, bool locked)
+	const auto putToSlot = [this](const ArtifactPosition & targetSlot, const CArtifactInstance * targetArt, bool locked)
 	{
 		ArtSlotInfo * slotInfo;
 		if(targetSlot == ArtifactPosition::TRANSITION_POS)
@@ -939,10 +948,10 @@ void CArtifactSet::artDeserializationFix(CBonusSystemNode *node)
 {
 	for(auto & elem : artifactsWorn)
 		if(elem.second.artifact && !elem.second.locked)
-			node->attachTo(*elem.second.artifact);
+			node->attachToSource(*elem.second.artifact);
 }
 
-void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName)
+void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName, CMap * map)
 {
 	//todo: creature and commander artifacts
 	if(handler.saving && artifactsInBackpack.empty() && artifactsWorn.empty())
@@ -959,7 +968,7 @@ void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const s
 	switch(bearerType())
 	{
 	case ArtBearer::HERO:
-		serializeJsonHero(handler);
+		serializeJsonHero(handler, map);
 		break;
 	case ArtBearer::CREATURE:
 		serializeJsonCreature(handler);
@@ -973,11 +982,11 @@ void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const s
 	}
 }
 
-void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler)
+void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 {
 	for(const auto & slot : ArtifactUtils::allWornSlots())
 	{
-		serializeJsonSlot(handler, slot);
+		serializeJsonSlot(handler, slot, map);
 	}
 
 	std::vector<ArtifactID> backpackTemp;
@@ -993,7 +1002,7 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler)
 	{
 		for(const ArtifactID & artifactID : backpackTemp)
 		{
-			auto * artifact = ArtifactUtils::createArtifact(artifactID);
+			auto * artifact = map->createArtifact(artifactID);
 			auto slot = ArtifactPosition::BACKPACK_START + artifactsInBackpack.size();
 			if(artifact->getType()->canBePutAt(this, slot))
 			{
@@ -1014,7 +1023,7 @@ void CArtifactSet::serializeJsonCommander(JsonSerializeFormat & handler)
 	logGlobal->error("CArtifactSet::serializeJsonCommander not implemented");
 }
 
-void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot)
+void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot, CMap * map)
 {
 	ArtifactID artifactID;
 
@@ -1034,7 +1043,7 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 
 		if(artifactID != ArtifactID::NONE)
 		{
-			auto * artifact = ArtifactUtils::createArtifact(artifactID.toEnum());
+			auto * artifact = map->createArtifact(artifactID.toEnum());
 
 			if(artifact->getType()->canBePutAt(this, slot))
 			{

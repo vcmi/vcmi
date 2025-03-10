@@ -107,6 +107,9 @@ public:
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags, std::function<bool(ArtifactID)> accepts);
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, std::set<ArtifactID> filtered);
 
+	CArtifactInstance * createScroll(const SpellID & spellId);
+	CArtifactInstance * createArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
+
 	/// Returns battle in which selected player is engaged, or nullptr if none.
 	/// Can NOT be used with neutral player, use battle by ID instead
 	const BattleInfo * getBattle(const PlayerColor & player) const;

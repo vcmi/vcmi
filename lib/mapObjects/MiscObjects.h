@@ -109,7 +109,6 @@ public:
 	void initObj(vstd::RNG & rand) override;
 	void pickRandomObject(vstd::RNG & rand) override;
 
-	void afterAddToMap(CMap * map) override;
 	BattleField getBattlefield() const override;
 
 	ArtifactID getArtifact() const;

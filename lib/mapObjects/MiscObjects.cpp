@@ -663,10 +663,8 @@ void CGArtifact::initObj(vstd::RNG & rand)
 	if(ID == Obj::ARTIFACT)
 	{
 		if (!storedArtifact)
-		{
-			storedArtifact = ArtifactUtils::createArtifact(ArtifactID());
-			cb->gameState()->getMap().addNewArtifactInstance(storedArtifact);
-		}
+			storedArtifact = cb->gameState()->createArtifact(ArtifactID());
+
 		if(!storedArtifact->getType())
 			storedArtifact->setType(getArtifact().toArtifact());
 	}
@@ -811,15 +809,6 @@ void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answ
 {
 	if(answer)
 		cb->startBattle(hero, this);
-}
-
-void CGArtifact::afterAddToMap(CMap * map)
-{
-	//Artifacts from map objects are never removed
-	//FIXME: This should be revertible in map editor
-
-	if(ID == Obj::SPELL_SCROLL && storedArtifact && storedArtifact->getId().getNum() < 0)
-        map->addNewArtifactInstance(storedArtifact);
 }
 
 void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)

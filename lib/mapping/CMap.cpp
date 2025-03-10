@@ -194,9 +194,6 @@ CMap::~CMap()
 	for(auto obj : objects)
 		obj.dellNull();
 
-	for(auto artInstance : artInstances)
-		artInstance.dellNull();
-
 	resetStaticData();
 }
 
@@ -467,33 +464,10 @@ void CMap::checkForObjectives()
 	}
 }
 
-void CMap::addNewArtifactInstance(CArtifactSet & artSet)
-{
-	for(const auto & [slot, slotInfo] : artSet.artifactsWorn)
-	{
-		if(!slotInfo.locked && slotInfo.getArt())
-			addNewArtifactInstance(slotInfo.artifact);
-	}
-	for(const auto & slotInfo : artSet.artifactsInBackpack)
-		addNewArtifactInstance(slotInfo.artifact);
-}
-
-void CMap::addNewArtifactInstance(ConstTransitivePtr<CArtifactInstance> art)
-{
-	assert(art);
-	assert(art->getId() == -1);
-	art->setId(static_cast<ArtifactInstanceID>(artInstances.size()));
-	artInstances.emplace_back(art);
-		
-	for(const auto & partInfo : art->getPartsInfo())
-		addNewArtifactInstance(partInfo.art);
-}
-
-void CMap::eraseArtifactInstance(CArtifactInstance * art)
+void CMap::eraseArtifactInstance(ArtifactInstanceID art)
 {
 	//TODO: handle for artifacts removed in map editor
-	assert(artInstances[art->getId().getNum()] == art);
-	artInstances[art->getId().getNum()].dellNull();
+	artInstances[art.getNum()] = nullptr;
 }
 
 void CMap::moveArtifactInstance(
@@ -502,26 +476,29 @@ void CMap::moveArtifactInstance(
 {
 	auto art = srcSet.getArt(srcSlot);
 	removeArtifactInstance(srcSet, srcSlot);
-	putArtifactInstance(dstSet, art, dstSlot);
+	putArtifactInstance(dstSet, art->getId(), dstSlot);
 }
 
-void CMap::putArtifactInstance(CArtifactSet & set, CArtifactInstance * art, const ArtifactPosition & slot)
+void CMap::putArtifactInstance(CArtifactSet & set, ArtifactInstanceID artID, const ArtifactPosition & slot)
 {
-	art->addPlacementMap(set.putArtifact(slot, art));
+	auto artifact = artInstances.at(artID.getNum());
+
+	artifact->addPlacementMap(set.putArtifact(slot, artifact.get()));
 }
 
 void CMap::removeArtifactInstance(CArtifactSet & set, const ArtifactPosition & slot)
 {
-	auto art = set.getArt(slot);
-	assert(art);
+	ArtifactInstanceID artID = set.getArtID(slot);
+	auto artifact = artInstances.at(artID.getNum());
+	assert(artifact);
 	set.removeArtifact(slot);
 	CArtifactSet::ArtPlacementMap partsMap;
-	for(auto & part : art->getPartsInfo())
+	for(auto & part : artifact->getPartsInfo())
 	{
 		if(part.slot != ArtifactPosition::PRE_FIRST)
 			partsMap.try_emplace(part.art, ArtifactPosition::PRE_FIRST);
 	}
-	art->addPlacementMap(partsMap);
+	artifact->addPlacementMap(partsMap);
 }
 
 void CMap::addNewQuestInstance(std::shared_ptr<CQuest> quest)
@@ -775,6 +752,54 @@ void CMap::overrideGameSetting(EGameSettings option, const JsonNode & input)
 void CMap::overrideGameSettings(const JsonNode & input)
 {
 	return gameSettings->loadOverrides(input);
+}
+
+CArtifactInstance * CMap::createScroll(const SpellID & spellId)
+{
+	return createArtifact(ArtifactID::SPELL_SCROLL, spellId);
+}
+
+CArtifactInstance * CMap::createSingleArtifact(const ArtifactID & artId, const SpellID & spellId)
+{
+	return new CArtifactInstance();
+}
+
+CArtifactInstance * CMap::createArtifact(const ArtifactID & artID, const SpellID & spellId)
+{
+	if(!artID.hasValue())
+		return new CArtifactInstance(); // random, empty //TODO: make this illegal & remove?
+
+	auto art = artID.toArtifact();
+
+	auto artInst = new CArtifactInstance(art);
+	if(art->isCombined() && !art->isFused())
+	{
+		for(const auto & part : art->getConstituents())
+			artInst->addPart(createArtifact(part->getId(), spellId), ArtifactPosition::PRE_FIRST);
+	}
+	if(art->isGrowing())
+	{
+		auto bonus = std::make_shared<Bonus>();
+		bonus->type = BonusType::LEVEL_COUNTER;
+		bonus->val = 0;
+		artInst->addNewBonus(bonus);
+	}
+	if(art->isScroll())
+	{
+		artInst->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL,
+													 BonusSource::ARTIFACT_INSTANCE, -1, BonusSourceID(ArtifactID(ArtifactID::SPELL_SCROLL)), BonusSubtypeID(spellId)));
+	}
+	return artInst;
+}
+
+CArtifactInstance * CMap::getArtifactInstance(const ArtifactInstanceID & artifactID)
+{
+	return artInstances.at(artifactID.getNum()).get();
+}
+
+const CArtifactInstance * CMap::getArtifactInstance(const ArtifactInstanceID & artifactID) const
+{
+	return artInstances.at(artifactID.getNum()).get();
 }
 
 VCMI_LIB_NAMESPACE_END

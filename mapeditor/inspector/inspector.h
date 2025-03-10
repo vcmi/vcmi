@@ -57,9 +57,10 @@ public:
 	//DECLARE_OBJ_TYPE(CGPandoraBox);
 	//DECLARE_OBJ_TYPE(CGSeerHut);
 	
-	Initializer(CGObjectInstance *, const PlayerColor &);
+	Initializer(MapController & controller, CGObjectInstance *, const PlayerColor &);
 
 private:
+	MapController & controller;
 	PlayerColor defaultPlayer;
 };
 
