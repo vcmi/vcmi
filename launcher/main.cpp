@@ -110,8 +110,6 @@ void startExecutable(QString name, const QStringList & args)
 {
 	// Start vcmiclient and vcmieditor with QProcess::start() instead of QProcess::startDetached()
 	// since startDetached() results in a missing terminal prompt after quitting vcmiclient.
-	// QProcess::start() causes the launcher window to freeze while the child process is running. By changing
-	// the "process" to pointer, the launcher will be detached on MacOS while sticking with QProcess::start().
 	auto process = std::make_unique<QProcess> ();
 	process->setProcessChannelMode(QProcess::ForwardedChannels);
 	process->start(name, args);
