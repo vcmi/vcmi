@@ -3,3 +3,13 @@ include(apple)
 [settings]
 os=iOS
 os.sdk=iphoneos
+
+[options]
+qt/*:shared=False
+sdl/*:shared=False
+sdl_image/*:shared=False
+sdl_mixer/*:shared=False
+sdl_ttf/*:shared=False
+
+qt/*:opengl=es2
+sdl/*:sdl2main=False

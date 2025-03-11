@@ -14,3 +14,15 @@ zlib/*: zlib/[*]@system
 # https://github.com/conan-io/conan-center-index/issues/25342
 # https://github.com/conan-io/conan/issues/16468#issuecomment-2175877245
 tools.meson.mesontoolchain:extra_machine_files={{ [os.path.join(profile_dir, "meson_workaround.txt")] }}
+
+[options]
+# TODO https://github.com/conan-io/conan-center-index/issues/26020
+# freetype/*:shared=True
+sdl/*:shared=False
+sdl_image/*:shared=False
+sdl_mixer/*:shared=False
+sdl_ttf/*:shared=False
+
+qt/*:opengl=es2
+qt/*:qtandroidextras=True
+qt/*:with_freetype=True
