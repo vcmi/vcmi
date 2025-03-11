@@ -145,6 +145,11 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <variant>
 #include <vector>
 
+// VCMI requires features that were added to TBB 2021.4
+// However, until TBB 2021.7 they were only available with this define
+// For versions TBB 2021.7 and later this define is not required
+#define TBB_PREVIEW_TASK_GROUP_EXTENSIONS 1
+
 //The only available version is 3, as of Boost 1.50
 #include <boost/version.hpp>
 
