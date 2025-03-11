@@ -595,7 +595,7 @@ void ScreenHandler::destroyWindow()
 	}
 }
 
-void ScreenHandler::close()
+ScreenHandler::~ScreenHandler()
 {
 	if(settings["general"]["notifications"].Bool())
 		NotificationHandler::destroy();

@@ -62,8 +62,6 @@ namespace po_style = boost::program_options::command_line_style;
 static std::atomic<bool> headlessQuit = false;
 static std::optional<std::string> criticalInitializationError;
 
-[[noreturn]] static void quitApplication();
-
 static void init()
 {
 	try
@@ -397,14 +395,9 @@ int main(int argc, char * argv[])
 	}
 	catch (const GameShutdownException & )
 	{
-		quitApplication();
+		// no-op - just break out of main loop
 	}
 
-	return 0;
-}
-
-[[noreturn]] static void quitApplication()
-{
 	GAME->server().endNetwork();
 
 	if(!settings["session"]["headless"].Bool())
@@ -420,29 +413,16 @@ int main(int argc, char * argv[])
 	if(!settings["session"]["headless"].Bool())
 	{
 		CMessage::dispose();
-
 		vstd::clear_pointer(graphics);
 	}
 
+	ENGINE.reset();
+
 	vstd::clear_pointer(LIBRARY);
-
-	// sometimes leads to a hang. TODO: investigate
-	//vstd::clear_pointer(console);// should be removed after everything else since used by logging
-
-	if(!settings["session"]["headless"].Bool())
-		ENGINE->screenHandler().close();
-
-	//if(logConfig != nullptr)
-	//{
-	//	logConfig->deconfigure();
-	//	delete logConfig;
-	//	logConfig = nullptr;
-	//}
-
-	//ENGINE.reset();
+	logConfigurator.deconfigure();
 
 	std::cout << "Ending...\n";
-	::exit(0);
+	return 0;
 }
 
 /// Notify user about encountered fatal error and terminate the game

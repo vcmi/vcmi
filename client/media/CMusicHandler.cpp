@@ -91,7 +91,6 @@ CMusicHandler::~CMusicHandler()
 		std::scoped_lock guard(mutex);
 
 		Mix_HookMusicFinished(nullptr);
-		current->stop();
 
 		current.reset();
 		next.reset();
