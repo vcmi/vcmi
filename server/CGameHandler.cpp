@@ -2397,7 +2397,18 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 		COMPLAIN_RET_FALSE_IF(!hero, "Only hero can buy war machines");
 		COMPLAIN_RET_FALSE_IF(artId == ArtifactID::CATAPULT, "Catapult cannot be recruited!");
 		COMPLAIN_RET_FALSE_IF(nullptr == art, "Invalid war machine artifact");
+		COMPLAIN_RET_FALSE_IF(hero->hasArt(artId),"Hero already has this machine!");
 
+		bool hasFreeSlot = false;
+		for(auto slot : art->getPossibleSlots().at(ArtBearer::HERO))
+			if (hero->getArt(slot) == nullptr)
+				hasFreeSlot = true;
+
+		if (!hasFreeSlot)
+		{
+			auto slot = art->getPossibleSlots().at(ArtBearer::HERO).front();
+			removeArtifact(ArtifactLocation(hero->id, slot));
+		}
 		return giveHeroNewArtifact(hero, artId, ArtifactPosition::FIRST_AVAILABLE);
 	}
 	else
