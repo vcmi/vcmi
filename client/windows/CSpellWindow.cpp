@@ -241,7 +241,7 @@ void CSpellWindow::processSpells()
 	mySpells.reserve(LIBRARY->spellh->objects.size());
 	for(auto const & spell : LIBRARY->spellh->objects)
 	{
-		bool searchTextFound = !searchBox || TextOperations::textSearchSimilar(searchBox->getText(), spell->getNameTranslated());
+		bool searchTextFound = !searchBox || TextOperations::textSearchSimilarityScore(searchBox->getText(), spell->getNameTranslated()) < 100;
 
 		if(onSpellSelect)
 		{

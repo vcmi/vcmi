@@ -1531,7 +1531,11 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	items.reserve(_items.size());
 
 	for(int id : _items)
-		items.push_back(std::make_pair(id, GAME->interface()->cb->getObjInstance(ObjectInstanceID(id))->getObjectName()));
+	{
+		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(id))->getObjectName();
+		trimTextIfTooWide(objectName);
+		items.emplace_back(id, objectName);
+	}
 	itemsVisible = items;
 
 	init(titleWidget_, _title, _descr, searchBoxEnabled);
@@ -1550,8 +1554,12 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 
 	items.reserve(_items.size());
 
-	for(size_t i=0; i<_items.size(); i++)
-		items.push_back(std::make_pair(int(i), _items[i]));
+	for(size_t i = 0; i < _items.size(); i++)
+	{
+		std::string objectName = _items[i];
+		trimTextIfTooWide(objectName);
+		items.emplace_back(static_cast<int>(i), objectName);
+	}
 	itemsVisible = items;
 
 	init(titleWidget_, _title, _descr, searchBoxEnabled);
@@ -1570,7 +1578,7 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 	{
 		addChild(titleWidget.get());
 		titleWidget->pos.x = pos.w/2 + pos.x - titleWidget->pos.w/2;
-		titleWidget->pos.y =75 + pos.y - titleWidget->pos.h/2;
+		titleWidget->pos.y = 75 + pos.y - titleWidget->pos.h/2;
 	}
 	list = std::make_shared<CListBox>(std::bind(&CObjectListWindow::genItem, this, _1),
 		Point(14, 151), Point(0, 25), 9, itemsVisible.size(), 0, 1, Rect(262, -32, 256, 256) );
@@ -1590,21 +1598,76 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 	searchBoxDescription = std::make_shared<CLabel>(r.center().x, r.center().y, FONT_SMALL, ETextAlignment::CENTER, grayedColor, LIBRARY->generaltexth->translate("vcmi.spellBook.search"));
 
 	searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, ETextAlignment::CENTER, true);
-	searchBox->setCallback([this](const std::string & text){
-		searchBoxDescription->setEnabled(text.empty());
+	searchBox->setCallback(std::bind(&CObjectListWindow::itemsSearchCallback, this, std::placeholders::_1));
+}
 
-		itemsVisible.clear();
-		for(auto & item : items)
-			if(TextOperations::textSearchSimilar(text, item.second))
-				itemsVisible.push_back(item);
+void CObjectListWindow::trimTextIfTooWide(std::string & text) const
+{
+	int maxWidth = pos.w - 60;
 
-		selected = 0;
-		list->resize(itemsVisible.size());
-		list->scrollTo(0);
-		ok->block(!itemsVisible.size());
+	// Create a temporary label to measure text width
+	auto label = std::make_shared<CLabel>(0, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, text);
+	int textWidth = label->getWidth();
 
-		redraw();
+	std::regex pattern(R"(.*(\(\d+\))$)");
+	std::smatch match;
+
+	std::string quantity;
+	if(std::regex_match(text, match, pattern) && match.size() > 1)
+		quantity = match[1]; // Extract the quantity
+
+	std::string suffix = " ... " + quantity;
+
+	if(textWidth >= maxWidth)
+	{
+		logGlobal->warn("Mapobject name '%s' is too long and probably needs to be fixed! Trimming...", 
+			text.substr(0, text.size() - quantity.size() + 1));
+
+		// Trim text until it fits
+		while(!text.empty())
+		{
+			std::string trimmedText = text + suffix;
+			label->setText(trimmedText);
+
+			if(label->getWidth() < maxWidth)
+				break;
+
+			text.resize(text.size() - 1);
+		}
+
+		text += suffix;
+	}
+}
+
+void CObjectListWindow::itemsSearchCallback(const std::string & text)
+{
+	searchBoxDescription->setEnabled(text.empty());
+
+	itemsVisible.clear();
+	std::vector<std::pair<int, decltype(items)::value_type>> rankedItems; // Store (score, item)
+
+	for(auto & item : items)
+	{
+		int score = TextOperations::textSearchSimilarityScore(text, item.second);
+		if(score < 100) // Keep only relevant items
+			rankedItems.emplace_back(score, item);
+	}
+
+	// Sort: Lower score is better match
+	std::sort(rankedItems.begin(), rankedItems.end(), [](const auto & a, const auto & b)
+	{
+		return a.first < b.first;
 	});
+
+	for(auto & rankedItem : rankedItems)
+		itemsVisible.push_back(rankedItem.second);
+
+	selected = 0;
+	list->resize(itemsVisible.size());
+	list->scrollTo(0);
+	ok->block(!itemsVisible.size());
+
+	redraw();
 }
 
 std::shared_ptr<CIntObject> CObjectListWindow::genItem(size_t index)

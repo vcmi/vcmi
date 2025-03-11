@@ -77,7 +77,7 @@ namespace TextOperations
 	/// Algorithm for detection of typos in words
 	/// Determines how 'different' two strings are - how many changes must be done to turn one string into another one
 	/// https://en.wikipedia.org/wiki/Levenshtein_distance#Iterative_with_two_matrix_rows
-	DLL_LINKAGE int getLevenshteinDistance(const std::string & s, const std::string & t);
+	DLL_LINKAGE int getLevenshteinDistance(std::string_view s, std::string_view t);
 
 	/// Retrieves the locale name based on the selected (in config) game language, with a safe fallback.
 	DLL_LINKAGE std::string getLocaleName();
@@ -93,7 +93,8 @@ namespace TextOperations
 	}
 
 	/// Check if texts have similarity when typing into search boxes
-	DLL_LINKAGE bool textSearchSimilar(const std::string & s, const std::string & t);
+	/// 0 -> Exact match or substring match, 1 - 2 -> Close match based on Levenshtein distance, >100 -> Unrelated word(bad match).
+	DLL_LINKAGE int textSearchSimilarityScore(const std::string & s, const std::string & t);
 
 };
 

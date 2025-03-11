@@ -252,7 +252,7 @@ std::string TextOperations::getCurrentFormattedDateTimeLocal(std::chrono::second
 	return TextOperations::getFormattedDateTimeLocal(std::chrono::system_clock::to_time_t(timepoint));
 }
 
-int TextOperations::getLevenshteinDistance(const std::string & s, const std::string & t)
+int TextOperations::getLevenshteinDistance(std::string_view s, std::string_view t)
 {
 	int n = t.size();
 	int m = s.size();
@@ -319,30 +319,43 @@ DLL_LINKAGE std::string TextOperations::getLocaleName()
 	}
 }
 
-bool TextOperations::textSearchSimilar(const std::string & s, const std::string & t)
+int TextOperations::textSearchSimilarityScore(const std::string & s, const std::string & t)
 {
 	boost::locale::generator gen;
 	std::locale loc = gen(getLocaleName());
-	
+
 	auto haystack = boost::locale::to_lower(t, loc);
 	auto needle = boost::locale::to_lower(s, loc);
 
-	if(boost::algorithm::contains(haystack, needle))
-		return true;
+	// 0 - Best possible match: text starts with the search string
+	if(haystack.rfind(needle, 0) == 0)
+		return 0;
 
+	// 1 - Strong match: text contains the search string
+	if(haystack.find(needle) != std::string::npos)
+		return 1;
+
+	// If the search string is longer than the text, return a high penalty
 	if(needle.size() > haystack.size())
-		return false;
+		return 100;
 
-	for(int i = 0; i < haystack.size() - needle.size() + 1; i++)
+	// Compute Levenshtein distance for fuzzy similarity
+	int minDist = 100;
+	for(size_t i = 0; i <= haystack.size() - needle.size(); i++)
 	{
-		auto dist = getLevenshteinDistance(haystack.substr(i, needle.size()), needle);
-		if(needle.size() > 2 && dist <= 1)
-			return true;
-		else if(needle.size() > 4 && dist <= 2)
-			return true;
+		std::string_view subHaystack = std::string_view(haystack).substr(i, needle.size());
+		int dist = getLevenshteinDistance(subHaystack, needle);
+		if(dist < minDist)
+			minDist = dist;
 	}
-	
-	return false;
+
+	// Apply scaling: Short words tolerate smaller distances
+	if(needle.size() > 2 && minDist <= 1)
+		return minDist + 1; // +1 to ensure it's worse than an exact match
+	else if(needle.size() > 4 && minDist <= 2)
+		return minDist + 1;
+
+	return 100; // Worst similarity
 }
 
 VCMI_LIB_NAMESPACE_END
