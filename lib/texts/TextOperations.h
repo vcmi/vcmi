@@ -9,9 +9,6 @@
  */
 #pragma once
 
-#include "../../lib/texts/Languages.h"
-#include "../../lib/VCMI_Lib.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 /// Namespace that provides utilities for unicode support (UTF-8)

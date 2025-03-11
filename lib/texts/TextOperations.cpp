@@ -10,7 +10,8 @@
 #include "StdInc.h"
 #include "TextOperations.h"
 
-#include "texts/CGeneralTextHandler.h"
+#include "../GameLibrary.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "Languages.h"
 #include "CConfigHandler.h"
 
@@ -304,7 +305,7 @@ DLL_LINKAGE std::string TextOperations::getLocaleName()
 {
 	try
 	{
-		const std::string localeName = Languages::getLanguageOptions(VLC->generaltexth->getPreferredLanguage()).localeName;
+		const std::string localeName = Languages::getLanguageOptions(LIBRARY->generaltexth->getPreferredLanguage()).localeName;
 
 		if(localeName.empty())
 			throw std::runtime_error("Locale name is empty, will use fallback option.");
