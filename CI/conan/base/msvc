@@ -19,3 +19,6 @@ os=Windows
     'NTDDI_VERSION={}'.format(NTDDI_WIN7),
 ] %}
 tools.build:defines={{ win7_defines }}
+
+[options]
+ffmpeg/*:shared=True
