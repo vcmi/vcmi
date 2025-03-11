@@ -60,6 +60,7 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/json/JsonUtils.h"
 
 ISelectionScreenInfo * SEL = nullptr;
 
@@ -305,7 +306,7 @@ CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 }
 
 CMainMenuConfig::CMainMenuConfig()
-	: campaignSets(JsonPath::builtin("config/campaignSets.json"))
+	: campaignSets(JsonUtils::assembleFromFiles("config/campaignSets.json"))
 	, config(JsonPath::builtin("config/mainmenu.json"))
 {
 	if (!config["scenario-selection"].isStruct())
