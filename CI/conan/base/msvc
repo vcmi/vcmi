@@ -18,3 +18,6 @@ tools.build:defines=[
     'WINVER={{ _WIN32_WINNT_WIN7 }}',
     'NTDDI_VERSION={{ NTDDI_WIN7 }}',
 ]
+
+[options]
+ffmpeg/*:shared=True
