@@ -110,19 +110,19 @@ void startExecutable(QString name, const QStringList & args)
 {
 	// Start vcmiclient and vcmieditor with QProcess::start() instead of QProcess::startDetached()
 	// since startDetached() results in a missing terminal prompt after quitting vcmiclient.
-	// QProcess::start() causes the launcher window to freeze while the child process is running, so we hide it in
-	// MainWindow::on_startGameButton_clicked() and MainWindow::on_startEditorButton_clicked()
-	QProcess process;
-	process.setProcessChannelMode(QProcess::ForwardedChannels);
-	process.start(name, args);
-	process.waitForFinished(-1);
+	// QProcess::start() causes the launcher window to freeze while the child process is running. By changing
+	// the "process" to pointer, the launcher will be detached on MacOS while sticking with QProcess::start().
+	auto process = std::make_unique<QProcess> ();
+	process->setProcessChannelMode(QProcess::ForwardedChannels);
+	process->start(name, args);
 
-	if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0) {
+	if (process->exitStatus() != QProcess::NormalExit || process->exitCode() != 0) {
 		QMessageBox::critical(qApp->activeWindow(),
 								QObject::tr("Error starting executable"),
-								QObject::tr("Failed to start %1\nReason: %2").arg(name, process.errorString()));
+								QObject::tr("Failed to start %1\nReason: %2").arg(name, process->errorString()));
 	}
 
+	QObject::connect(process.get(), static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), process.get(), [p = process.release()]() { p->deleteLater(); });
 	qApp->quit();
 }
 #endif
