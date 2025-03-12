@@ -24,7 +24,6 @@
 #include "../../lib/CConfigHandler.h"
 
 #include <tbb/parallel_for.h>
-#include <tbb/task_arena.h>
 
 #include <SDL_image.h>
 #include <SDL_surface.h>
@@ -400,6 +399,9 @@ std::shared_ptr<const ISharedImage> SDLImageShared::horizontalFlip() const
 	ret->margins.y = fullSize.y - surf->h - margins.y;
 	ret->fullSize = fullSize;
 
+	// erase our own reference
+	SDL_FreeSurface(flipped);
+
 	return ret;
 }
 
@@ -417,6 +419,9 @@ std::shared_ptr<const ISharedImage> SDLImageShared::verticalFlip() const
 	ret->margins.x = fullSize.x - surf->w - margins.x;
 	ret->margins.y = margins.y;
 	ret->fullSize = fullSize;
+
+	// erase our own reference
+	SDL_FreeSurface(flipped);
 
 	return ret;
 }

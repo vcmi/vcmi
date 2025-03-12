@@ -64,6 +64,12 @@ CSoundHandler::~CSoundHandler()
 			if(chunk.second.first)
 				Mix_FreeChunk(chunk.second.first);
 		}
+
+		for(auto & chunk : soundChunksRaw)
+		{
+			if(chunk.second.first)
+				Mix_FreeChunk(chunk.second.first);
+		}
 	}
 }
 
