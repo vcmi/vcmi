@@ -1734,7 +1734,8 @@ void VideoWindow::clickPressed(const Point & cursorPosition)
 
 void VideoWindow::keyPressed(EShortcut key)
 {
-	exit(true);
+	if(key == EShortcut::GLOBAL_RETURN)
+		exit(true);
 }
 
 void VideoWindow::notFocusedClick()
