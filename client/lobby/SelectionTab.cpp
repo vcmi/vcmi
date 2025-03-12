@@ -120,7 +120,7 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		case _changeDate: //by changedate
 			return aaa->lastWrite < bbb->lastWrite;
 		default:
-			return aaa->name < bbb->name;
+			return TextOperations::compareLocalizedStrings(aaa->name, bbb->name);
 		}
 	}
 	else //if we are sorting campaigns

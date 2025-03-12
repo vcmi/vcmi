@@ -303,27 +303,12 @@ int TextOperations::getLevenshteinDistance(std::string_view s, std::string_view 
 
 DLL_LINKAGE std::string TextOperations::getLocaleName()
 {
-	try
-	{
-		const std::string localeName = Languages::getLanguageOptions(LIBRARY->generaltexth->getPreferredLanguage()).localeName;
-
-		if(localeName.empty())
-			throw std::runtime_error("Using fallback: en_US.UTF-8");
-
-		return localeName;
-	}
-	catch(const std::exception & e)
-	{
-		logGlobal->warn("Failed to retrieve locale. %s", e.what());
-	}
-
-	return "en_US.UTF-8";
+	return Languages::getLanguageOptions(LIBRARY->generaltexth->getPreferredLanguage()).localeName;
 }
 
-int TextOperations::textSearchSimilarityScore(const std::string & s, const std::string & t)
+std::optional<int> TextOperations::textSearchSimilarityScore(const std::string & s, const std::string & t)
 {
-	boost::locale::generator gen;
-	std::locale loc = gen(getLocaleName());
+	static const std::locale loc = boost::locale::generator().generate(getLocaleName());
 
 	auto haystack = boost::locale::to_lower(t, loc);
 	auto needle = boost::locale::to_lower(s, loc);
@@ -336,27 +321,22 @@ int TextOperations::textSearchSimilarityScore(const std::string & s, const std::
 	if(haystack.find(needle) != std::string::npos)
 		return 1;
 
-	// If the search string is longer than the text, return a high penalty
-	if(needle.size() > haystack.size())
-		return 100;
+	// Dynamic threshold: Reject if too many typos based on word length
+	int maxAllowedDistance = std::max(2, static_cast<int>(needle.size() / 2));
 
 	// Compute Levenshtein distance for fuzzy similarity
-	int minDist = 100;
+	int minDist = std::numeric_limits<int>::max();
 	for(size_t i = 0; i <= haystack.size() - needle.size(); i++)
 	{
-		std::string_view subHaystack = std::string_view(haystack).substr(i, needle.size());
-		int dist = getLevenshteinDistance(subHaystack, needle);
-		if(dist < minDist)
-			minDist = dist;
+		int dist = getLevenshteinDistance(haystack.substr(i, needle.size()), needle);
+		minDist = std::min(minDist, dist);
 	}
 
 	// Apply scaling: Short words tolerate smaller distances
-	if(needle.size() > 2 && minDist <= 1)
-		return minDist + 1; // +1 to ensure it's worse than an exact match
-	else if(needle.size() > 4 && minDist <= 2)
-		return minDist + 1;
+	if(needle.size() > 2 && minDist <= 2)
+		minDist += 1;
 
-	return 100; // Worst similarity
+	return (minDist > maxAllowedDistance) ? std::nullopt : std::optional<int>{ minDist };
 }
 
 VCMI_LIB_NAMESPACE_END

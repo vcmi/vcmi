@@ -39,6 +39,7 @@
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 #include "../render/IImage.h"
+#include "../render/IFont.h"
 
 #include "../../CCallback.h"
 
@@ -1533,7 +1534,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	for(int id : _items)
 	{
 		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(id))->getObjectName();
-		trimTextIfTooWide(objectName);
+		trimTextIfTooWide(objectName, id);
 		items.emplace_back(id, objectName);
 	}
 	itemsVisible = items;
@@ -1557,7 +1558,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 	for(size_t i = 0; i < _items.size(); i++)
 	{
 		std::string objectName = _items[i];
-		trimTextIfTooWide(objectName);
+		trimTextIfTooWide(objectName, static_cast<int>(i));
 		items.emplace_back(static_cast<int>(i), objectName);
 	}
 	itemsVisible = items;
@@ -1601,38 +1602,27 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 	searchBox->setCallback(std::bind(&CObjectListWindow::itemsSearchCallback, this, std::placeholders::_1));
 }
 
-void CObjectListWindow::trimTextIfTooWide(std::string & text) const
+void CObjectListWindow::trimTextIfTooWide(std::string & text, int id) const
 {
 	int maxWidth = pos.w - 60;	// 60 px for scrollbar and borders
+	std::string idStr = '(' + std::to_string(id) + ')';
+	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
+	std::string suffix = " ... " + idStr;
 
-	// Create a temporary label to measure text width
-	auto label = std::make_shared<CLabel>(0, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, text);
-	int textWidth = label->getWidth();
-
-	std::regex pattern(R"(.*(\(\d+\))$)");
-	std::smatch match;
-
-	std::string quantity;
-	if(std::regex_match(text, match, pattern) && match.size() > 1)
-		quantity = match[1]; // Extract the quantity
-
-	std::string suffix = " ... " + quantity;
-
-	if(textWidth >= maxWidth)
+	if(font->getStringWidth(text) >= maxWidth)
 	{
 		logGlobal->warn("Mapobject name '%s' is too long and probably needs to be fixed! Trimming...", 
-			text.substr(0, text.size() - quantity.size() + 1));
+			text.substr(0, text.size() - idStr.size() + 1));
 
 		// Trim text until it fits
 		while(!text.empty())
 		{
 			std::string trimmedText = text + suffix;
-			label->setText(trimmedText);
 
-			if(label->getWidth() < maxWidth)
+			if(font->getStringWidth(trimmedText) < maxWidth)
 				break;
 
-			text.resize(text.size() - 1);
+			TextOperations::trimRightUnicode(text);
 		}
 
 		text += suffix;
@@ -1648,9 +1638,8 @@ void CObjectListWindow::itemsSearchCallback(const std::string & text)
 
 	for(const auto & item : items)
 	{
-		int score = TextOperations::textSearchSimilarityScore(text, item.second);
-		if(score < 100) // Keep only relevant items
-			rankedItems.emplace_back(score, item);
+		if(auto score = TextOperations::textSearchSimilarityScore(text, item.second)) // Keep only relevant items
+			rankedItems.emplace_back(score.value(), item);
 	}
 
 	// Sort: Lower score is better match

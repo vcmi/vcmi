@@ -76,7 +76,7 @@ namespace TextOperations
 	/// https://en.wikipedia.org/wiki/Levenshtein_distance#Iterative_with_two_matrix_rows
 	DLL_LINKAGE int getLevenshteinDistance(std::string_view s, std::string_view t);
 
-	/// Retrieves the locale name based on the selected (in config) game language, with a safe fallback.
+	/// Retrieves the locale name based on the selected (in config) game language.
 	DLL_LINKAGE std::string getLocaleName();
 
 	/// Compares two strings using locale-aware collation based on the selected game language.
@@ -90,8 +90,9 @@ namespace TextOperations
 	}
 
 	/// Check if texts have similarity when typing into search boxes
-	/// 0 -> Exact match or substring match, 1 - 2 -> Close match based on Levenshtein distance, >100 -> Unrelated word(bad match).
-	DLL_LINKAGE int textSearchSimilarityScore(const std::string & s, const std::string & t);
+	/// 0 -> Exact match or starts with typed-in text, 1 -> Close match or substring match, 
+	/// other values = Levenshtein distance, returns std::nullopt for unrelated word (bad match).
+	DLL_LINKAGE std::optional<int> textSearchSimilarityScore(const std::string & s, const std::string & t);
 
 };
 

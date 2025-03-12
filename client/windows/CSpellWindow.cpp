@@ -241,12 +241,18 @@ void CSpellWindow::processSpells()
 	mySpells.reserve(LIBRARY->spellh->objects.size());
 	for(auto const & spell : LIBRARY->spellh->objects)
 	{
-		bool searchTextFound = !searchBox || TextOperations::textSearchSimilarityScore(searchBox->getText(), spell->getNameTranslated()) < 100;
+		bool searchTextFound = !searchBox || TextOperations::textSearchSimilarityScore(searchBox->getText(), spell->getNameTranslated());
 
 		if(onSpellSelect)
 		{
-			if(spell->isCombat() == openOnBattleSpells && !spell->isSpecial() && !spell->isCreatureAbility() && searchTextFound && (showAllSpells->isSelected() || myHero->canCastThisSpell(spell.get())))
+			if(spell->isCombat() == openOnBattleSpells
+				&& !spell->isSpecial()
+				&& !spell->isCreatureAbility()
+				&& searchTextFound
+				&& (showAllSpells->isSelected() || myHero->canCastThisSpell(spell.get())))
+			{
 				mySpells.push_back(spell.get());
+			}
 			continue;
 		}
 
