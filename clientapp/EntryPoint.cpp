@@ -235,14 +235,14 @@ int main(int argc, char * argv[])
 	}
 
 	Settings session = settings.write["session"];
-	auto setSettingBool = [&](std::string key, std::string arg) {
+	auto setSettingBool = [&](const std::string & key, const std::string & arg) {
 		Settings s = settings.write(vstd::split(key, "/"));
 		if(vm.count(arg))
 			s->Bool() = true;
 		else if(s->isNull())
 			s->Bool() = false;
 	};
-	auto setSettingInteger = [&](std::string key, std::string arg, si64 defaultValue) {
+	auto setSettingInteger = [&](const std::string & key, const std::string & arg, si64 defaultValue) {
 		Settings s = settings.write(vstd::split(key, "/"));
 		if(vm.count(arg))
 			s->Integer() = vm[arg].as<si64>();
@@ -280,7 +280,7 @@ int main(int argc, char * argv[])
 	logGlobal->debug("settings = %s", settings.toJsonNode().toString());
 
 	// Some basic data validation to produce better error messages in cases of incorrect install
-	auto testFile = [](std::string filename, std::string message)
+	auto testFile = [](const std::string & filename, const std::string & message)
 	{
 		if (!CResourceHandler::get()->existsResource(ResourcePath(filename)))
 			handleFatalError(message, false);

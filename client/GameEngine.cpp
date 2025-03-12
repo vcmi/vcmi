@@ -23,21 +23,17 @@
 #include "media/CVideoHandler.h"
 #include "media/CEmptyVideoPlayer.h"
 
-#include "CPlayerInterface.h"
 #include "adventureMap/AdventureMapInterface.h"
 #include "render/Canvas.h"
 #include "render/Colors.h"
-#include "render/Graphics.h"
 #include "render/IFont.h"
 #include "render/EFont.h"
 #include "renderSDL/ScreenHandler.h"
 #include "renderSDL/RenderHandler.h"
-#include "CMT.h"
 #include "GameEngineUser.h"
 #include "battle/BattleInterface.h"
 
 #include "../lib/AsyncRunner.h"
-#include "../lib/CThreadHelper.h"
 #include "../lib/CConfigHandler.h"
 
 #include <SDL_render.h>
@@ -84,8 +80,8 @@ GameEngine::GameEngine()
 
 	soundPlayerInstance = std::make_unique<CSoundHandler>();
 	musicPlayerInstance = std::make_unique<CMusicHandler>();
-	sound().setVolume((ui32)settings["general"]["sound"].Float());
-	music().setVolume((ui32)settings["general"]["music"].Float());
+	sound().setVolume(settings["general"]["sound"].Integer());
+	music().setVolume(settings["general"]["music"].Integer());
 	cursorHandlerInstance = std::make_unique<CursorHandler>();
 
 	asyncTasks = std::make_unique<AsyncRunner>();
@@ -244,7 +240,7 @@ std::shared_ptr<IStatusBar> GameEngine::statusbar()
 	return locked;
 }
 
-void GameEngine::setStatusbar(std::shared_ptr<IStatusBar> newStatusBar)
+void GameEngine::setStatusbar(const std::shared_ptr<IStatusBar> & newStatusBar)
 {
 	currentStatusBar = newStatusBar;
 }

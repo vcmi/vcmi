@@ -9,23 +9,27 @@
  */
 #pragma once
 
-#include <tbb/task_group.h>
 #include <tbb/task_arena.h>
+#include <tbb/task_group.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+/// Helper class for running asynchronous tasks using TBB thread pool
 class AsyncRunner : boost::noncopyable
 {
 	tbb::task_arena arena;
 	tbb::task_group taskGroup;
 
 public:
-	template <typename Functor>
+	/// Runs the provided functor asynchronously on a thread from the TBB worker pool.
+	template<typename Functor>
 	void run(Functor && f)
 	{
 		arena.enqueue(taskGroup.defer(std::forward<Functor>(f)));
 	}
 
+	/// Waits for all previously enqueued task.
+	/// Re-entrable - waiting for tasks does not prevent submitting new tasks
 	void wait()
 	{
 		taskGroup.wait();
