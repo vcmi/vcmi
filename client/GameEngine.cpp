@@ -36,6 +36,7 @@
 #include "GameEngineUser.h"
 #include "battle/BattleInterface.h"
 
+#include "../lib/AsyncRunner.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/CConfigHandler.h"
 
@@ -86,6 +87,8 @@ GameEngine::GameEngine()
 	sound().setVolume((ui32)settings["general"]["sound"].Float());
 	music().setVolume((ui32)settings["general"]["music"].Float());
 	cursorHandlerInstance = std::make_unique<CursorHandler>();
+
+	asyncTasks = std::make_unique<AsyncRunner>();
 }
 
 void GameEngine::handleEvents()

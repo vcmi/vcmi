@@ -11,6 +11,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
+class AsyncRunner;
 class Rect;
 VCMI_LIB_NAMESPACE_END
 
@@ -52,6 +53,7 @@ private:
 	std::unique_ptr<IMusicPlayer> musicPlayerInstance;
 	std::unique_ptr<CursorHandler> cursorHandlerInstance;
 	std::unique_ptr<IVideoPlayer> videoPlayerInstance;
+	std::unique_ptr<AsyncRunner> asyncTasks;
 
 	IGameEngineUser *engineUser = nullptr;
 
@@ -68,6 +70,7 @@ public:
 	EventDispatcher & events();
 	InputHandler & input();
 
+	AsyncRunner & async() { return *asyncTasks; }
 	IGameEngineUser & user() { return *engineUser; }
 	ISoundPlayer & sound() { return *soundPlayerInstance; }
 	IMusicPlayer & music() { return *musicPlayerInstance; }

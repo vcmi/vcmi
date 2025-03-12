@@ -27,6 +27,7 @@
 #include "../client/windows/CMessage.h"
 #include "../client/windows/InfoWindows.h"
 
+#include "../lib/AsyncRunner.h"
 #include "../lib/CConsoleHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/CThreadHelper.h"
@@ -416,6 +417,9 @@ int main(int argc, char * argv[])
 		CMessage::dispose();
 		vstd::clear_pointer(graphics);
 	}
+
+	// must be executed before reset - since unique_ptr resets pointer to null before calling destructor
+	ENGINE->async().wait();
 
 	ENGINE.reset();
 
