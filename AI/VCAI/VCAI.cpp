@@ -653,12 +653,11 @@ void VCAI::yourTurn(QueryID queryID)
 	status.startedTurn();
 
 	makingTurnInterrupption.reset();
-	asyncTasks->run([this]()
+	executeActionAsyncArena.enqueue(asyncTasks->defer([this]()
 	{
 		ScopedThreadName guard("VCAI::makingTurn");
 		makeTurn();
-	});
-	executeActionAsyncArena.enqueue([this](){asyncTasks->wait();});
+	}));
 }
 
 void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
@@ -2508,19 +2507,16 @@ void VCAI::finish()
 
 void VCAI::executeActionAsync(const std::string & description, const std::function<void()> & whatToDo)
 {
-
-
 	if (!asyncTasks)
 		throw std::runtime_error("Attempt to execute task on shut down AI state!");
 
-	asyncTasks->run([this, description, whatToDo]()
+	executeActionAsyncArena.enqueue(asyncTasks->defer([this, description, whatToDo]()
 	{
 		ScopedThreadName guard("VCAI::" + description);
 		SET_GLOBAL_STATE(this);
 		std::shared_lock gsLock(CGameState::mutex);
 		whatToDo();
-	});
-	executeActionAsyncArena.enqueue([this](){asyncTasks->wait();});
+	}));
 }
 
 void VCAI::lostHero(HeroPtr h)

@@ -474,9 +474,17 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 			SetAvailableCreatures sac;
 			sac.tid = id;
 			sac.creatures = creatures;
-			sac.creatures[0].first = !h->getArt(ArtifactPosition::MACH1); //ballista
-			sac.creatures[1].first = !h->getArt(ArtifactPosition::MACH3); //first aid tent
-			sac.creatures[2].first = !h->getArt(ArtifactPosition::MACH2); //ammo cart
+
+			for (auto & entry : sac.creatures)
+			{
+				CreatureID creature = entry.second.at(0);
+				ArtifactID warMachine = creature.toCreature()->warMachine;
+
+				if (h->hasArt(warMachine, true, false))
+					entry.first = 0;
+				else
+					entry.first = 1;
+			}
 			cb->sendAndApply(sac);
 		}
 

@@ -593,12 +593,11 @@ void AIGateway::yourTurn(QueryID queryID)
 
 	nullkiller->makingTurnInterrupption.reset();
 
-	asyncTasks->run([this]()
+	executeActionAsyncArena.enqueue(asyncTasks->defer([this]()
 	{
 		ScopedThreadName guard("NKAI::makingTurn");
 		makeTurn();
-	});
-	executeActionAsyncArena.enqueue([this](){asyncTasks->wait();});
+	}));
 }
 
 void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
@@ -1609,14 +1608,13 @@ void AIGateway::executeActionAsync(const std::string & description, const std::f
 	if (!asyncTasks)
 		throw std::runtime_error("Attempt to execute task on shut down AI state!");
 
-	asyncTasks->run([this, description, whatToDo]()
+	executeActionAsyncArena.enqueue(asyncTasks->defer([this, description, whatToDo]()
 	{
 		ScopedThreadName guard("NKAI::" + description);
 		SET_GLOBAL_STATE(this);
 		std::shared_lock gsLock(CGameState::mutex);
 		whatToDo();
-	});
-	executeActionAsyncArena.enqueue([this](){asyncTasks->wait();});
+	}));
 }
 
 void AIGateway::lostHero(HeroPtr h)
