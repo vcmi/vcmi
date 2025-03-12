@@ -232,8 +232,7 @@ MusicEntry::~MusicEntry()
 
 	if(loop == 0 && Mix_FadingMusic() != MIX_NO_FADING)
 	{
-		assert(0);
-		logGlobal->error("Attempt to delete music while fading out!");
+		logGlobal->trace("Halting playback of music file %s", currentName.getOriginalName());
 		Mix_HaltMusic();
 	}
 

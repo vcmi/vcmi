@@ -56,6 +56,7 @@ CSoundHandler::~CSoundHandler()
 {
 	if(isInitialized())
 	{
+		Mix_ChannelFinished(nullptr);
 		Mix_HaltChannel(-1);
 
 		for(auto & chunk : soundChunks)
