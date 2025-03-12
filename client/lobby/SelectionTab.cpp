@@ -48,6 +48,7 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/json/JsonUtils.h"
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
 {
@@ -962,7 +963,7 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & 
 
 void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files)
 {
-	auto campaignSets = JsonNode(JsonPath::builtin("config/campaignSets.json"));
+	auto campaignSets = JsonUtils::assembleFromFiles("config/campaignSets.json");
 	auto mainmenu = JsonNode(JsonPath::builtin("config/mainmenu.json"));
 
 	allItems.reserve(files.size());
