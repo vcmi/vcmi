@@ -24,7 +24,6 @@
 #include "../client/mainmenu/CMainMenu.h"
 #include "../client/render/Graphics.h"
 #include "../client/render/IRenderHandler.h"
-#include "../client/render/IScreenHandler.h"
 #include "../client/windows/CMessage.h"
 #include "../client/windows/InfoWindows.h"
 
@@ -294,13 +293,13 @@ int main(int argc, char * argv[])
 
 	srand ( (unsigned int)time(nullptr) );
 
-	ENGINE = std::make_unique<GameEngine>();
-
 	if(!settings["session"]["headless"].Bool())
-		ENGINE->init();
+		ENGINE = std::make_unique<GameEngine>();
 
 	GAME = std::make_unique<GameInstance>();
-	ENGINE->setEngineUser(GAME.get());
+
+	if (ENGINE)
+		ENGINE->setEngineUser(GAME.get());
 	
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
@@ -331,7 +330,7 @@ int main(int argc, char * argv[])
 		handleFatalError(criticalInitializationError.value(), false);
 	}
 
-	if(!settings["session"]["headless"].Bool())
+	if (ENGINE)
 	{
 		pomtime.getDiff();
 		graphics = new Graphics(); // should be before curh
@@ -380,7 +379,7 @@ int main(int argc, char * argv[])
 
 	try
 	{
-		if(!settings["session"]["headless"].Bool())
+		if (ENGINE)
 		{
 			checkForModLoadingFailure();
 			ENGINE->mainLoop();
@@ -396,6 +395,7 @@ int main(int argc, char * argv[])
 	catch (const GameShutdownException & )
 	{
 		// no-op - just break out of main loop
+		logGlobal->info("Main loop termination requested");
 	}
 
 	GAME->server().endNetwork();
@@ -405,7 +405,8 @@ int main(int argc, char * argv[])
 		if(GAME->server().client)
 			GAME->server().endGameplay();
 
-		ENGINE->windows().clear();
+		if (ENGINE)
+			ENGINE->windows().clear();
 	}
 
 	GAME.reset();

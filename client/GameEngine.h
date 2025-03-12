@@ -108,7 +108,6 @@ public:
 	GameEngine();
 	~GameEngine();
 
-	void init();
 	[[noreturn]] void mainLoop();
 
 	/// called whenever SDL_WINDOWEVENT_RESTORED is reported or the user selects a different resolution, requiring to center/resize all windows

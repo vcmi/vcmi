@@ -58,7 +58,9 @@ ObjectConstruction::~ObjectConstruction()
 	ENGINE->captureChildren = !ENGINE->createdObj.empty();
 }
 
-void GameEngine::init()
+GameEngine::GameEngine()
+	: captureChildren(false)
+	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
 {
 	inGuiThread = true;
 
@@ -131,12 +133,6 @@ void GameEngine::updateFrame()
 
 	windows().onFrameRendered();
 	ENGINE->cursor().update();
-}
-
-GameEngine::GameEngine()
-	: captureChildren(false)
-	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
-{
 }
 
 GameEngine::~GameEngine()
