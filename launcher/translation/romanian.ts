@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fi_FI">
+<TS version="2.1" language="ro_RO">
 <context>
     <name>AboutProjectView</name>
     <message>
@@ -1319,7 +1319,7 @@ Bin (%n bytes):
     <message>
         <location filename="../mainwindow_moc.ui" line="20"/>
         <source>VCMI Launcher</source>
-        <translation>VCMI-laukaisulaite</translation>
+        <translation>Lansator VCMI</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="150"/>
