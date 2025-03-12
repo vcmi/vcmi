@@ -308,16 +308,16 @@ DLL_LINKAGE std::string TextOperations::getLocaleName()
 		const std::string localeName = Languages::getLanguageOptions(LIBRARY->generaltexth->getPreferredLanguage()).localeName;
 
 		if(localeName.empty())
-			throw std::runtime_error("Locale name is empty, will use fallback option.");
+			throw std::runtime_error("Using fallback: en_US.UTF-8");
 
 		return localeName;
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal->warn("Failed to retrieve locale. Using fallback: en_US.UTF-8");
-
-		return "en_US.UTF-8";
+		logGlobal->warn("Failed to retrieve locale. %s", e.what());
 	}
+
+	return "en_US.UTF-8";
 }
 
 int TextOperations::textSearchSimilarityScore(const std::string & s, const std::string & t)

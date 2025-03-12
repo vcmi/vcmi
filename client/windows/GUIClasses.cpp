@@ -1603,7 +1603,7 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 
 void CObjectListWindow::trimTextIfTooWide(std::string & text) const
 {
-	int maxWidth = pos.w - 60;
+	int maxWidth = pos.w - 60;	// 60 px for scrollbar and borders
 
 	// Create a temporary label to measure text width
 	auto label = std::make_shared<CLabel>(0, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, text);
@@ -1646,7 +1646,7 @@ void CObjectListWindow::itemsSearchCallback(const std::string & text)
 	itemsVisible.clear();
 	std::vector<std::pair<int, decltype(items)::value_type>> rankedItems; // Store (score, item)
 
-	for(auto & item : items)
+	for(const auto & item : items)
 	{
 		int score = TextOperations::textSearchSimilarityScore(text, item.second);
 		if(score < 100) // Keep only relevant items
@@ -1659,7 +1659,7 @@ void CObjectListWindow::itemsSearchCallback(const std::string & text)
 		return a.first < b.first;
 	});
 
-	for(auto & rankedItem : rankedItems)
+	for(const auto & rankedItem : rankedItems)
 		itemsVisible.push_back(rankedItem.second);
 
 	selected = 0;
