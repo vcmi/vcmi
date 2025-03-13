@@ -207,15 +207,11 @@ float Path::curvedCost(const int3& src, const int3& dst, const int3& center)
 	float W = 10.0f;// width of the transition area
 	float A = 0.7f; // sine bias
 
-    // Euclidean step distance:
-    float dx = dst.x - src.x;
-    float dy = dst.y - src.y;
-    float d = std::sqrt(dx*dx + dy*dy);
+    // Euclidean distance:
+    float d = src.dist2d(dst);
     
     // Distance from dst to the zone center:
-    float rx = dst.x - center.x;
-    float ry = dst.y - center.y;
-    float r = std::sqrt(rx*rx + ry*ry);
+    float r = dst.dist2d(center);
     
     // Compute normalized offset inside the zone:
     // (R - W) is the inner edge, R is the outer edge.
@@ -232,11 +228,8 @@ Path::MoveCostFunction Path::createCurvedCostFunction(const Area & border)
 	// Capture by value to ensure the Area object persists
 	return [border = border](const int3& src, const int3& dst) -> float
 	{
-		// Route main roads far from border
-		//float ret = dst.dist2d(src);
-
-		//float ret = nonEuclideanCostFunction(src, dst);
 		float ret = curvedCost(src, dst, border.getCenterOfMass());
+		// Route main roads far from border
 		float dist = border.distanceSqr(dst);
 
 		if(dist > 1.0f)
