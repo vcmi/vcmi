@@ -110,6 +110,7 @@ void startExecutable(QString name, const QStringList & args)
 {
 	// Start vcmiclient and vcmieditor with QProcess::start() instead of QProcess::startDetached()
 	// since startDetached() results in a missing terminal prompt after quitting vcmiclient.
+	// Using a pointer allows the process exist after startExecutable return.
 	auto process = std::make_unique<QProcess> ();
 	process->setProcessChannelMode(QProcess::ForwardedChannels);
 	process->start(name, args);
