@@ -46,7 +46,7 @@ public:
 		std::vector<int> result;
 		for(int i = 0; i < map.objects.size(); ++i)
 		{
-			if(auto obj = dynamic_cast<T*>(map.objects[i].get()))
+			if(auto obj = dynamic_cast<T*>(map.objects.at(i).get()))
 				result.push_back(i);
 		}
 		return result;
@@ -57,7 +57,7 @@ public:
 	{
 		for(int i = 0; i < map.objects.size(); ++i)
 		{
-			if(auto obj = dynamic_cast<T*>(map.objects[i].get()))
+			if(auto obj = dynamic_cast<T*>(map.objects.at(i).get()))
 			{
 				if(obj->pos == pos)
 					return i;

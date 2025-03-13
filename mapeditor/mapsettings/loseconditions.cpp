@@ -331,7 +331,7 @@ void LoseConditions::onObjectPicked(const CGObjectInstance * obj)
 	for(int i = 0; i < loseTypeWidget->count(); ++i)
 	{
 		auto data = controller->map()->objects.at(loseTypeWidget->itemData(i).toInt());
-		if(data == obj)
+		if(data.get() == obj)
 		{
 			loseTypeWidget->setCurrentIndex(i);
 			break;

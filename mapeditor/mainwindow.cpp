@@ -698,7 +698,7 @@ void MainWindow::addGroupIntoCatalog(const QString & groupName, bool useCustomNa
 			}
 			
 			//create object to extract name
-			std::unique_ptr<CGObjectInstance> temporaryObj(factory->create(nullptr, templ));
+			auto temporaryObj(factory->create(nullptr, templ));
 			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().c_str()) : subGroupName;
 			itemType->setText(translated);
 			
@@ -1401,8 +1401,8 @@ void MainWindow::on_actionLock_triggered()
 		{
 			for(auto obj : controller.map()->objects)
 			{
-				controller.scene(mapLevel)->selectionObjectsView.setLockObject(obj, true);
-				controller.scene(mapLevel)->objectsView.setLockObject(obj, true);
+				controller.scene(mapLevel)->selectionObjectsView.setLockObject(obj.get(), true);
+				controller.scene(mapLevel)->objectsView.setLockObject(obj.get(), true);
 			}
 		}
 		else

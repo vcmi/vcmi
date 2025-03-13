@@ -77,7 +77,7 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	int foundMainTown = -1;
 	for(int i = 0, townIndex = 0; i < controller.map()->objects.size(); ++i)
 	{
-		if(auto town = dynamic_cast<CGTownInstance*>(controller.map()->objects[i].get()))
+		if(auto town = dynamic_cast<CGTownInstance*>(controller.map()->objects.at(i).get()))
 		{
 			auto * ctown = town->getTown();
 
@@ -223,7 +223,7 @@ void PlayerParams::onTownPicked(const CGObjectInstance * obj)
 	for(int i = 0; i < ui->mainTown->count(); ++i)
 	{
 		auto town = controller.map()->objects.at(ui->mainTown->itemData(i).toInt());
-		if(town == obj)
+		if(town.get() == obj)
 		{
 			ui->mainTown->setCurrentIndex(i);
 			break;

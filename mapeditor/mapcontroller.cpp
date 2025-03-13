@@ -110,19 +110,16 @@ void MapController::repairMap(CMap * map)
 	
 	//fix owners for objects
 	auto allImpactedObjects(map->objects);
-	allImpactedObjects.insert(allImpactedObjects.end(), map->predefinedHeroes.begin(), map->predefinedHeroes.end());
+
+	for (const auto & hero : map->predefinedHeroes)
+		allImpactedObjects.push_back(hero);
+
 	for(auto obj : allImpactedObjects)
 	{
 		//fix flags
 		if(obj->getOwner() == PlayerColor::UNFLAGGABLE)
 		{
-			if(dynamic_cast<CGMine*>(obj.get()) ||
-			   dynamic_cast<CGDwelling*>(obj.get()) ||
-			   dynamic_cast<CGTownInstance*>(obj.get()) ||
-			   dynamic_cast<CGGarrison*>(obj.get()) ||
-			   dynamic_cast<CGShipyard*>(obj.get()) ||
-			   dynamic_cast<FlaggableMapObject*>(obj.get()) ||
-			   dynamic_cast<CGHeroInstance*>(obj.get()))
+			if(obj->asOwnable())
 				obj->tempOwner = PlayerColor::NEUTRAL;
 		}
 		//fix hero instance
@@ -364,9 +361,9 @@ void MapController::pasteFromClipboard(int level)
 	QStringList errors;
 	for(auto & objUniquePtr : _clipboard)
 	{
-		auto * obj = CMemorySerializer::deepCopy(*objUniquePtr).release();
+		auto obj = CMemorySerializer::deepCopyShared(*objUniquePtr);
 		QString errorMsg;
-		if (!canPlaceObject(level, obj, errorMsg))
+		if (!canPlaceObject(level, obj.get(), errorMsg))
 		{
 			errors.push_back(std::move(errorMsg));
 			continue;
@@ -376,10 +373,10 @@ void MapController::pasteFromClipboard(int level)
 			obj->pos = newPos;
 		obj->pos.z = level;
 		
-		Initializer init(*this, obj, defaultPlayer);
+		Initializer init(*this, obj.get(), defaultPlayer);
 		_map->getEditManager()->insertObject(obj);
-		_scenes[level]->selectionObjectsView.selectObject(obj);
-		_mapHandler->invalidate(obj);
+		_scenes[level]->selectionObjectsView.selectObject(obj.get());
+		_mapHandler->invalidate(obj.get());
 	}
 	if(!errors.isEmpty())
 		QMessageBox::warning(main, QObject::tr("Can't place object"), errors.join('\n'));
@@ -397,8 +394,7 @@ bool MapController::discardObject(int level) const
 	_scenes[level]->selectionObjectsView.clear();
 	if(_scenes[level]->selectionObjectsView.newObject)
 	{
-		delete _scenes[level]->selectionObjectsView.newObject;
-		_scenes[level]->selectionObjectsView.newObject = nullptr;
+		_scenes[level]->selectionObjectsView.newObject.reset();
 		_scenes[level]->selectionObjectsView.shift = QPoint(0, 0);
 		_scenes[level]->selectionObjectsView.selectionMode = SelectionObjectsLayer::NOTHING;
 		_scenes[level]->selectionObjectsView.draw();
@@ -407,7 +403,7 @@ bool MapController::discardObject(int level) const
 	return false;
 }
 
-void MapController::createObject(int level, CGObjectInstance * obj) const
+void MapController::createObject(int level, std::shared_ptr<CGObjectInstance> obj) const
 {
 	_scenes[level]->selectionObjectsView.newObject = obj;
 	_scenes[level]->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
@@ -438,10 +434,10 @@ void MapController::commitObstacleFill(int level)
 	
 	for(auto & sel : _obstaclePainters)
 	{
-		for(auto * o : sel.second->placeObstacles(CRandomGenerator::getDefault()))
+		for(auto o : sel.second->placeObstacles(CRandomGenerator::getDefault()))
 		{
-			_mapHandler->invalidate(o);
-			_scenes[level]->objectsView.setDirty(o);
+			_mapHandler->invalidate(o.get());
+			_scenes[level]->objectsView.setDirty(o.get());
 		}
 	}
 	
@@ -509,7 +505,7 @@ void MapController::commitObjectShift(int level)
 
 void MapController::commitObjectCreate(int level)
 {
-	auto * newObj = _scenes[level]->selectionObjectsView.newObject;
+	auto newObj = _scenes[level]->selectionObjectsView.newObject;
 	if(!newObj)
 		return;
 	
@@ -521,11 +517,11 @@ void MapController::commitObjectCreate(int level)
 	
 	newObj->pos = pos;
 	
-	Initializer init(*this, newObj, defaultPlayer);
+	Initializer init(*this, newObj.get(), defaultPlayer);
 	
 	_map->getEditManager()->insertObject(newObj);
-	_mapHandler->invalidate(newObj);
-	_scenes[level]->objectsView.setDirty(newObj);
+	_mapHandler->invalidate(newObj.get());
+	_scenes[level]->objectsView.setDirty(newObj.get());
 	
 	_scenes[level]->selectionObjectsView.newObject = nullptr;
 	_scenes[level]->selectionObjectsView.shift = QPoint(0, 0);

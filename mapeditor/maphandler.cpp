@@ -259,9 +259,9 @@ void MapHandler::initObjectRects()
 	tileObjects.resize(map->width * map->height * (map->twoLevel ? 2 : 1));
 	
 	//initializing objects / rects
-	for(const CGObjectInstance * elem : map->objects)
+	for(const auto & elem : map->objects)
 	{
-		addObject(elem);
+		addObject(elem.get());
 	}
 	
 	for(auto & tt : tileObjects)

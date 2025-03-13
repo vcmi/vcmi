@@ -191,7 +191,7 @@ public:
 	void unlockAll();
 		
 	QPoint shift;
-	CGObjectInstance * newObject;
+	std::shared_ptr<CGObjectInstance> newObject;
 	//FIXME: magic number
 	SelectionMode selectionMode = SelectionMode::NOTHING;
 

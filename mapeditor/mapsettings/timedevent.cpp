@@ -63,7 +63,7 @@ TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) 
 		auto id = ObjectInstanceID(idAsVariant.toInt());
 		auto obj = controller.map()->objects[id];
 		if(obj)
-			insertObjectToDelete(obj);
+			insertObjectToDelete(obj.get());
 	}
 	show();
 }
