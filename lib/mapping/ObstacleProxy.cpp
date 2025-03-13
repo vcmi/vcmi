@@ -370,7 +370,7 @@ void ObstacleProxy::placeObject(rmg::Object & object, std::set<std::shared_ptr<C
 {
 	for (auto * instance : object.instances())
 	{
-		instances.insert(instance->object());
+		instances.insert(instance->pointer());
 	}
 }
 
