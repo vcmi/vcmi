@@ -507,8 +507,9 @@ RumorState NewTurnProcessor::pickNewRumor()
 
 std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 {
-	for (const auto & t : gameHandler->gameState()->getMap().towns)
+	for (const auto & townID : gameHandler->gameState()->getMap().getAllTowns())
 	{
+		auto t = gameHandler->gameState()->getTown(townID);
 		if (t->hasBuilt(BuildingID::GRAIL, ETownType::INFERNO))
 			return { EWeekType::DEITYOFFIRE, CreatureID::IMP };
 	}
@@ -666,8 +667,11 @@ NewTurn NewTurnProcessor::generateNewTurnPack()
 
 	if (newWeek)
 	{
-		for (const auto & t : gameHandler->gameState()->getMap().towns)
-			n.availableCreatures.push_back(generateTownGrowth(t.get(), n.specialWeek, n.creatureid, firstTurn));
+		for (const auto & townID : gameHandler->gameState()->getMap().getAllTowns())
+		{
+			auto t = gameHandler->gameState()->getTown(townID);
+			n.availableCreatures.push_back(generateTownGrowth(t, n.specialWeek, n.creatureid, firstTurn));
+		}
 	}
 
 	if (newWeek)
@@ -695,17 +699,21 @@ void NewTurnProcessor::onNewTurn()
 
 	if (newWeek)
 	{
-		for (const auto & t : gameHandler->gameState()->getMap().towns)
+		for (const auto & townID : gameHandler->gameState()->getMap().getAllTowns())
+		{
+			auto t = gameHandler->gameState()->getTown(townID);
 			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
-				gameHandler->setPortalDwelling(t.get(), true, (n.specialWeek == EWeekType::PLAGUE ? true : false)); //set creatures for Portal of Summoning
+				gameHandler->setPortalDwelling(t, true, (n.specialWeek == EWeekType::PLAGUE ? true : false)); //set creatures for Portal of Summoning
+		}
 	}
 
 	if (newWeek && !firstTurn)
 	{
-		for (const auto & t : gameHandler->gameState()->getMap().towns)
+		for (const auto & townID : gameHandler->gameState()->getMap().getAllTowns())
 		{
+			auto t = gameHandler->gameState()->getTown(townID);
 			if (!t->getOwner().isValidPlayer())
-				updateNeutralTownGarrison(t.get(), 1 + gameHandler->getDate(Date::DAY) / 7);
+				updateNeutralTownGarrison(t, 1 + gameHandler->getDate(Date::DAY) / 7);
 		}
 	}
 

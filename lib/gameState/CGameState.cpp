@@ -518,8 +518,9 @@ void CGameState::initPlayerStates()
 
 void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTypeID & heroTypeId, int3 townPos)
 {
-	for(auto town : map->towns)
+	for (const auto & townID : map->getAllTowns())
 	{
+		auto town = getTown(townID);
 		if(town->anchorPos() == townPos)
 		{
 			townPos = town->visitablePos();
@@ -580,8 +581,10 @@ void CGameState::removeHeroPlaceholders()
 
 void CGameState::initHeroes()
 {
-	for(auto hero : map->heroesOnMap)  //heroes instances initialization
+	//heroes instances initialization
+	for (auto heroID : map->getHeroesOnMap())
 	{
+		auto hero = getHero(heroID);
 		if (hero->getOwner() == PlayerColor::UNFLAGGABLE)
 		{
 			logGlobal->warn("Hero with uninitialized owner!");
@@ -591,8 +594,9 @@ void CGameState::initHeroes()
 	}
 
 	// generate boats for all heroes on water
-	for(auto hero : map->heroesOnMap)
+	for (auto heroID : map->getHeroesOnMap())
 	{
+		auto hero = getHero(heroID);
 		assert(map->isInTheMap(hero->visitablePos()));
 		const auto & tile = map->getTile(hero->visitablePos());
 		if (tile.isWater())
@@ -626,7 +630,7 @@ void CGameState::initHeroes()
 		if(!vstd::contains(heroesToCreate, ph->getHeroTypeID()))
 			continue;
 		ph->initHero(getRandomGenerator());
-		heroesPool->addHeroToPool(ph.get());
+		heroesPool->addHeroToPool(ph);
 		heroesToCreate.erase(ph->getHeroTypeID());
 	}
 
@@ -637,7 +641,7 @@ void CGameState::initHeroes()
 
 		int typeID = htype.getNum();
 		map->allHeroes[typeID] = vhi;
-		heroesPool->addHeroToPool(vhi.get());
+		heroesPool->addHeroToPool(vhi);
 	}
 
 	for(auto & elem : map->disposedHeroes)
@@ -739,9 +743,9 @@ void CGameState::initTownNames()
 		}
 	}
 
-	for(auto & vti : map->towns)
+	for (const auto & townID : map->getAllTowns())
 	{
-		assert(vti->getTown());
+		auto vti = getTown(townID);
 
 		if(!vti->getNameTextID().empty())
 			continue;
@@ -781,9 +785,10 @@ void CGameState::initTowns()
 	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::WATER_MAGIC));
 	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::EARTH_MAGIC));
 
-	for (auto & vti : map->towns)
+	for (const auto & townID : map->getAllTowns())
 	{
-		assert(vti->getTown());
+		auto vti = getTown(townID);
+
 		assert(vti->getTown()->creatures.size() <= GameConstants::CREATURES_PER_TOWN);
 
 		constexpr std::array basicDwellings = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3, BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7, BuildingID::DWELL_LVL_8 };
@@ -992,10 +997,12 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 			}
 		}
 	}
-	for (auto hero : map->heroesOnMap)
+
+	for (auto heroID : map->getHeroesOnMap())
 	{
+		auto hero = getHero(heroID);
 		if (hero->getVisitedTown())
-			assert(hero->getVisitedTown()->getVisitingHero() == hero.get());
+			assert(hero->getVisitedTown()->getVisitingHero() == hero);
 	}
 }
 
@@ -1569,8 +1576,9 @@ void CGameState::buildBonusSystemTree()
 	buildGlobalTeamPlayerTree();
 	attachArmedObjects();
 
-	for(auto & t : map->towns)
+	for (const auto & townID : getMap().getAllTowns())
 	{
+		auto t = getTown(townID);
 		t->deserializationFix();
 	}
 }
@@ -1633,8 +1641,8 @@ std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllow
 			ret -= HeroTypeID(playerSettingPair.second.hero);
 	}
 
-	for(auto hero : map->heroesOnMap)  //heroes instances initialization
-		ret -= hero->getHeroTypeID();
+	for (auto heroID : map->getHeroesOnMap())
+		ret -= getHero(heroID)->getHeroTypeID();
 
 	for(auto obj : map->objects) //prisons
 	{

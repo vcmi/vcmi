@@ -657,8 +657,9 @@ void CGameHandler::onNewTurn()
 		addStatistics(gameState()->statistic); // write at end of turn
 	}
 
-	for (const auto & t : gs->getMap().towns)
+	for (const auto & townID : gameState()->getMap().getAllTowns())
 	{
+		auto t = gameState()->getTown(townID);
 		PlayerColor player = t->tempOwner;
 
 		if(t->hasBuilt(BuildingID::GRAIL)
@@ -671,8 +672,9 @@ void CGameHandler::onNewTurn()
 		}
 	}
 
-	for (const auto & t : gs->getMap().towns)
+	for (const auto & townID : gameState()->getMap().getAllTowns())
 	{
+		auto t = gameState()->getTown(townID);
 		if (t->hasBonusOfType (BonusType::DARKNESS))
 		{
 			for (auto & player : gs->players)

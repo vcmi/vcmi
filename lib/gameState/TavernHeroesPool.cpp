@@ -14,15 +14,13 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-TavernHeroesPool::~TavernHeroesPool()
-{
-	for(const auto & ptr : heroesPool) // clean hero pool
-		delete ptr.second;
-}
-
 std::map<HeroTypeID, CGHeroInstance*> TavernHeroesPool::unusedHeroesFromPool() const
 {
-	std::map<HeroTypeID, CGHeroInstance*> pool = heroesPool;
+	std::map<HeroTypeID, CGHeroInstance*> pool;
+
+	for (const auto & hero : heroesPool)
+		pool[hero.first] = hero.second.get();
+
 	for(const auto & slot : currentTavern)
 		pool.erase(slot.hero->getHeroTypeID());
 
@@ -48,7 +46,7 @@ void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot,
 	if (hero == HeroTypeID::NONE)
 		return;
 
-	CGHeroInstance * h = heroesPool[hero];
+	auto h = heroesPool[hero];
 
 	if (h && army)
 		h->setToArmy(army);
@@ -60,7 +58,7 @@ void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot,
 	}
 
 	TavernSlot newSlot;
-	newSlot.hero = h;
+	newSlot.hero = h.get();
 	newSlot.player = player;
 	newSlot.role = role;
 	newSlot.slot = slot;
@@ -97,11 +95,11 @@ std::vector<const CGHeroInstance *> TavernHeroesPool::getHeroesFor(PlayerColor c
 	return result;
 }
 
-CGHeroInstance * TavernHeroesPool::takeHeroFromPool(HeroTypeID hero)
+std::shared_ptr<CGHeroInstance> TavernHeroesPool::takeHeroFromPool(HeroTypeID hero)
 {
 	assert(heroesPool.count(hero));
 
-	CGHeroInstance * result = heroesPool[hero];
+	auto result = heroesPool[hero];
 	heroesPool.erase(hero);
 
 	vstd::erase_if(currentTavern, [&](const TavernSlot & entry){
@@ -135,7 +133,7 @@ void TavernHeroesPool::onNewDay()
 	}
 }
 
-void TavernHeroesPool::addHeroToPool(CGHeroInstance * hero)
+void TavernHeroesPool::addHeroToPool(std::shared_ptr<CGHeroInstance> hero)
 {
 	heroesPool[hero->getHeroTypeID()] = hero;
 }

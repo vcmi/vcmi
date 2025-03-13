@@ -1118,9 +1118,9 @@ void PlayerEndsGame::applyGs(CGameState *gs)
 		if(p->human && gs->getStartInfo()->campState)
 		{
 			std::vector<CGHeroInstance *> crossoverHeroes;
-			for (auto hero : gs->getMap().heroesOnMap)
+			for (auto hero : p->getHeroes())
 				if (hero->tempOwner == player)
-					crossoverHeroes.push_back(hero.get());
+					crossoverHeroes.push_back(hero);
 
 			gs->getStartInfo()->campState->setCurrentMapAsConquered(crossoverHeroes);
 		}
@@ -1200,9 +1200,9 @@ void RemoveObject::applyGs(CGameState *gs)
 
 	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
-		auto * beatenHero = dynamic_cast<CGHeroInstance *>(obj);
+		auto beatenObject = gs->getMap().eraseObject(obj->id);
+		auto beatenHero = std::dynamic_pointer_cast<CGHeroInstance>(beatenObject);
 		assert(beatenHero);
-		gs->getMap().eraseObject(beatenHero->id);
 
 		auto * siegeNode = beatenHero->whereShouldBeAttachedOnSiege(gs);
 
@@ -1220,7 +1220,7 @@ void RemoveObject::applyGs(CGameState *gs)
 
 		if(beatenHero->getVisitedTown())
 		{
-			if(beatenHero->getVisitedTown()->getGarrisonHero() == beatenHero)
+			if(beatenHero->getVisitedTown()->getGarrisonHero() == beatenHero.get())
 				beatenHero->getVisitedTown()->setGarrisonedHero(nullptr);
 			else
 				beatenHero->getVisitedTown()->setVisitingHero(nullptr);
@@ -1424,7 +1424,7 @@ void SetHeroesInTown::applyGs(CGameState *gs)
 
 void HeroRecruited::applyGs(CGameState *gs)
 {
-	CGHeroInstance *h = gs->heroesPool->takeHeroFromPool(hid);
+	auto h = gs->heroesPool->takeHeroFromPool(hid);
 	CGTownInstance *t = gs->getTown(tid);
 	PlayerState *p = gs->getPlayerState(player);
 
@@ -1449,16 +1449,15 @@ void HeroRecruited::applyGs(CGameState *gs)
 		h->id = ObjectInstanceID(static_cast<si32>(gs->getMap().objects.size()));
 		gs->getMap().objects.emplace_back(h);
 	}
-//	else
-//		gs->getMap().replaceObject(h->id, h);
+	else
+		gs->getMap().replaceObject(h->id, h);
 
-	gs->getMap().heroesOnMap.emplace_back(h);
-	p->addOwnedObject(h);
+	gs->getMap().addNewObject(h);
+	p->addOwnedObject(h.get());
 	h->attachTo(*p);
-	gs->getMap().addBlockVisTiles(h);
 
 	if(t)
-		t->setVisitingHero(h);
+		t->setVisitingHero(h.get());
 }
 
 void GiveHero::applyGs(CGameState *gs)
@@ -1487,7 +1486,7 @@ void GiveHero::applyGs(CGameState *gs)
 	h->setOwner(player);
 	h->setMovementPoints(h->movementPointsLimit(true));
 	h->setAnchorPos(h->convertFromVisitablePos(oldVisitablePos));
-	gs->getMap().heroesOnMap.emplace_back(h);
+	gs->getMap().heroAddedToMap(h);
 	gs->getPlayerState(h->getOwner())->addOwnedObject(h);
 
 	gs->getMap().addBlockVisTiles(h);
@@ -1930,8 +1929,9 @@ void NewTurn::applyGs(CGameState *gs)
 	for(auto & creatureSet : availableCreatures) //set available creatures in towns
 		creatureSet.applyGs(gs);
 
-	for(auto & t : gs->getMap().towns)
+	for (const auto & townID : gs->getMap().getAllTowns())
 	{
+		auto t = gs->getTown(townID);
 		t->built = 0;
 		t->spellResearchCounterDay = 0;
 	}

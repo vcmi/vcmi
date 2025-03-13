@@ -774,20 +774,10 @@ std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(
 	} //	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	return ret;
 }
-std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo(bool onlyOur) const
+std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo() const
 {
-	//std::shared_lock<std::shared_mutex> lock(*gs->mx);
-	std::vector < const CGHeroInstance *> ret;
-	for(auto hero : gs->getMap().heroesOnMap)
-	{
-		// !player || // - why would we even get access to hero not owned by any player?
-		if((hero->tempOwner == *getPlayerID()) ||
-			(isVisible(hero->visitablePos(), getPlayerID()) && !onlyOur)	)
-		{
-			ret.push_back(hero.get());
-		}
-	}
-	return ret;
+	const auto * playerState = gs->getPlayerState(*getPlayerID());
+	return playerState->getHeroes();
 }
 
 int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero, bool includeGarrisoned) const

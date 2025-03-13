@@ -44,7 +44,7 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 {
 	logAi->trace("Entering GatherTroops::whatToDoToAchieve");
 
-	auto heroes = cb->getHeroesInfo(true);
+	auto heroes = cb->getHeroesInfo();
 
 	for(auto hero : heroes)
 	{

@@ -178,14 +178,12 @@ public:
 			}
 		}
 
-
 		Load::ProgressAccumulator progressTracker;
 		gameState->init(&mapService, &si, progressTracker, false);
 
 		ASSERT_NE(map, nullptr);
-		ASSERT_EQ(map->heroesOnMap.size(), 2);
+		ASSERT_EQ(map->getHeroesOnMap().size(), 2);
 	}
-
 
 	void startTestBattle(const CGHeroInstance * attacker, const CGHeroInstance * defender)
 	{
@@ -226,8 +224,11 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 {
 	startTestGame();
 
-	auto attacker = map->heroesOnMap[0];
-	auto defender = map->heroesOnMap[1];
+	auto attackerID = map->getHeroesOnMap()[0];
+	auto defenderID = map->getHeroesOnMap()[1];
+
+	auto attacker = std::dynamic_pointer_cast<CGHeroInstance>(map->objects.at(attackerID.getNum()));
+	auto defender = std::dynamic_pointer_cast<CGHeroInstance>(map->objects.at(defenderID.getNum()));
 
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
@@ -308,8 +309,11 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 {
 	startTestGame();
 
-	auto attacker = map->heroesOnMap[0];
-	auto defender = map->heroesOnMap[1];
+	auto attackerID = map->getHeroesOnMap()[0];
+	auto defenderID = map->getHeroesOnMap()[1];
+
+	auto attacker = std::dynamic_pointer_cast<CGHeroInstance>(map->objects.at(attackerID.getNum()));
+	auto defender = std::dynamic_pointer_cast<CGHeroInstance>(map->objects.at(defenderID.getNum()));
 
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 

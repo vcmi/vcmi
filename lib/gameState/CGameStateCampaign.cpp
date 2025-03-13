@@ -634,9 +634,9 @@ void CGameStateCampaign::initTowns()
 	if (chosenBonus->type != CampaignBonusType::BUILDING)
 		return;
 
-	for (int g=0; g<gameState->map->towns.size(); ++g)
+	for (const auto & townID : gameState->map->getAllTowns())
 	{
-		auto town = gameState->map->towns[g];
+		auto town = gameState->getTown(townID);
 
 		PlayerState * owner = gameState->getPlayerState(town->getOwner());
 		if (!owner)

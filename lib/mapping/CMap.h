@@ -62,8 +62,12 @@ class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 
 	std::unique_ptr<GameSettings> gameSettings;
 
-	std::vector< std::shared_ptr<CQuest> > quests;
-	std::vector< std::shared_ptr<CArtifactInstance> > artInstances;
+	std::vector<std::shared_ptr<CQuest>> quests;
+	std::vector<std::shared_ptr<CArtifactInstance>> artInstances;
+
+	std::vector<ObjectInstanceID> towns;
+
+	std::vector<ObjectInstanceID> heroesOnMap;
 
 public:
 	explicit CMap(IGameCallback *cb);
@@ -97,31 +101,31 @@ public:
 	void removeArtifactInstance(CArtifactSet & set, const ArtifactPosition & slot);
 
 	void addNewQuestInstance(std::shared_ptr<CQuest> quest);
-	void removeQuestInstance(std::shared_ptr<CQuest> quest);
 	void clearQuestInstance(const CQuest * quest);
 
-	void setUniqueInstanceName(ObjectInstanceID target){};
+	void generateUniqueInstanceName(CGObjectInstance * target);
+
 	///Use only this method when creating new map object instances
-	void addNewObject(std::shared_ptr<CGObjectInstance> obj){}
-	void moveObject(ObjectInstanceID target, const int3 & dst){}
+	void addNewObject(std::shared_ptr<CGObjectInstance> obj);
+	void moveObject(ObjectInstanceID target, const int3 & dst);
 
 	/// Remove objects and shifts object indicies.
 	/// Only for use in map editor / RMG
-	std::shared_ptr<CGObjectInstance> removeObject(ObjectInstanceID oldObject){return nullptr;}
+	std::shared_ptr<CGObjectInstance> removeObject(ObjectInstanceID oldObject);
 
 	/// Replaced map object with specified ID with new object
 	/// Old object must exist and will be removed from map
 	/// Returns pointer to old object, which can be manipulated or dropped
-	std::shared_ptr<CGObjectInstance> replaceObject(ObjectInstanceID oldObject, const std::shared_ptr<CGObjectInstance> & newObject){return nullptr;}
+	std::shared_ptr<CGObjectInstance> replaceObject(ObjectInstanceID oldObject, const std::shared_ptr<CGObjectInstance> & newObject);
 
 	/// Erases object from map without shifting indices
 	/// Returns pointer to old object, which can be manipulated or dropped
-	std::shared_ptr<CGObjectInstance> eraseObject(ObjectInstanceID oldObject){return nullptr;}
+	std::shared_ptr<CGObjectInstance> eraseObject(ObjectInstanceID oldObject);
 
-	void heroAddedToMap(const CGHeroInstance * hero) {}
-	void heroRemovedFromMap(const CGHeroInstance * hero) {}
-	void townAddedToMap(const CGTownInstance * town) {}
-	void townRemovedFromMap(const CGTownInstance * town) {}
+	void heroAddedToMap(const CGHeroInstance * hero);
+	void heroRemovedFromMap(const CGHeroInstance * hero);
+	void townAddedToMap(const CGTownInstance * town);
+	void townRemovedFromMap(const CGTownInstance * town);
 
 	bool isWaterMap() const;
 	bool calculateWaterContent();
@@ -136,6 +140,14 @@ public:
 	/// Gets object of specified type on requested position
 	const CGObjectInstance * getObjectiveObjectFrom(const int3 & pos, Obj type);
 	CGHeroInstance * getHero(HeroTypeID heroId);
+
+	/// Returns ID's of all heroes that are currently present on map
+	/// All garrisoned heroes are included from this list
+	/// All prisons are excluded from this list
+	const std::vector<ObjectInstanceID> & getHeroesOnMap();
+
+	/// Returns ID's of all towns present on map
+	const std::vector<ObjectInstanceID> & getAllTowns();
 
 	/// Sets the victory/loss condition objectives ??
 	void checkForObjectives();
@@ -155,11 +167,9 @@ public:
 
 	//Central lists of items in game. Position of item in the vectors below is their (instance) id.
 	std::vector< std::shared_ptr<CGObjectInstance> > objects;
-	std::vector< std::shared_ptr<CGTownInstance> > towns;
 	std::vector< std::shared_ptr<CGHeroInstance> > allHeroes; //indexed by [hero_type_id]; on map, disposed, prisons, etc.
 
 	//Helper lists
-	std::vector< std::shared_ptr<CGHeroInstance> > heroesOnMap;
 	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > teleportChannels;
 	std::vector<std::shared_ptr<CGHeroInstance> > predefinedHeroes;
 
@@ -182,6 +192,8 @@ public:
 	void overrideGameSettings(const JsonNode & input);
 	void overrideGameSetting(EGameSettings option, const JsonNode & input);
 	const IGameSettings & getSettings() const;
+
+	void postInitialize();
 
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground

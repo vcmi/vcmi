@@ -250,7 +250,7 @@ public:
 	virtual int getHeroSerial(const CGHeroInstance * hero, bool includeGarrisoned=true) const;
 	virtual const CGTownInstance* getTownBySerial(int serialId) const; // serial id is [0, number of towns)
 	virtual const CGHeroInstance* getHeroBySerial(int serialId, bool includeGarrisoned=true) const; // serial id is [0, number of heroes)
-	virtual std::vector <const CGHeroInstance *> getHeroesInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
+	virtual std::vector <const CGHeroInstance *> getHeroesInfo() const; //true -> only owned; false -> all visible
 	virtual std::vector <const CGObjectInstance * > getMyObjects() const; //returns all objects flagged by belonging player
 	virtual std::vector <QuestInfo> getMyQuests() const;
 

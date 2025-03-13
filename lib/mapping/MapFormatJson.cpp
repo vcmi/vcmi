@@ -1134,11 +1134,7 @@ void CMapLoaderJson::readObjects()
 	for(auto & ptr : loaders)
 		ptr->configure();
 
-	std::sort(map->heroesOnMap.begin(), map->heroesOnMap.end(), [](const std::shared_ptr<CGHeroInstance> & a, const std::shared_ptr<CGHeroInstance> & b)
-	{
-		return a->getObjTypeIndex() < b->getObjTypeIndex();
-	});
-
+	map->postInitialize();
 
 	std::set<HeroTypeID> debugHeroesOnMap;
 	for (auto const & object : map->objects)

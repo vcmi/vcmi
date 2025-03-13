@@ -625,18 +625,18 @@ void ApplyClientNetPackVisitor::visitSetHeroesInTown(SetHeroesInTown & pack)
 
 void ApplyClientNetPackVisitor::visitHeroRecruited(HeroRecruited & pack)
 {
-	auto & h = gs.getMap().heroesOnMap.back();
+	auto * h = gs.getMap().getHero(pack.hid);
 	if(h->getHeroTypeID() != pack.hid)
 	{
 		logNetwork->error("Something wrong with hero recruited!");
 	}
 
-	if(callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroCreated, h.get()))
+	if(callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroCreated, h))
 	{
 		if(const CGTownInstance *t = gs.getTown(pack.tid))
 			callInterfaceIfPresent(cl, h->getOwner(), &IGameEventsReceiver::heroInGarrisonChange, t);
 	}
-	GAME->map().onObjectInstantAdd(h.get(), h->getOwner());
+	GAME->map().onObjectInstantAdd(h, h->getOwner());
 }
 
 void ApplyClientNetPackVisitor::visitGiveHero(GiveHero & pack)

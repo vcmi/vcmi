@@ -1964,14 +1964,7 @@ void CMapLoaderH3M::readObjects()
 		map->addNewObject(newObject);
 	}
 
-	std::sort(
-		map->heroesOnMap.begin(),
-		map->heroesOnMap.end(),
-		[](const std::shared_ptr<CGHeroInstance> & a, const std::shared_ptr<CGHeroInstance> & b)
-		{
-			return a->subID < b->subID;
-		}
-	);
+	map->postInitialize();
 }
 
 void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
