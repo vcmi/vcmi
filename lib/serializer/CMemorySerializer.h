@@ -40,6 +40,17 @@ public:
 		mem.iser & ret;
 		return ret;
 	}
+
+	template <typename T>
+	static std::shared_ptr<T> deepCopyShared(const T &data)
+	{
+		CMemorySerializer mem;
+		mem.oser & &data;
+
+		std::shared_ptr<T> ret;
+		mem.iser & ret;
+		return ret;
+	}
 };
 
 VCMI_LIB_NAMESPACE_END

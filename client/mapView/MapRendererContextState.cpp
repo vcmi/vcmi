@@ -25,7 +25,7 @@
 static bool compareObjectBlitOrder(ObjectInstanceID left, ObjectInstanceID right)
 {
 	//FIXME: remove mh access
-	return GAME->map().compareObjectBlitOrder(GAME->map().getMap()->objects[left.getNum()], GAME->map().getMap()->objects[right.getNum()]);
+	return GAME->map().compareObjectBlitOrder(GAME->map().getMap()->objects.at(left.getNum()).get(), GAME->map().getMap()->objects.at(right.getNum()).get());
 }
 
 MapRendererContextState::MapRendererContextState()
@@ -36,7 +36,7 @@ MapRendererContextState::MapRendererContextState()
 
 	logGlobal->debug("Loading map objects");
 	for(const auto & obj : GAME->map().getMap()->objects)
-		addObject(obj);
+		addObject(obj.get());
 	logGlobal->debug("Done loading map objects");
 }
 

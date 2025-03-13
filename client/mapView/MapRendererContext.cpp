@@ -103,7 +103,7 @@ const MapRendererBaseContext::MapObjectsList & MapRendererBaseContext::getObject
 
 const CGObjectInstance * MapRendererBaseContext::getObject(ObjectInstanceID objectID) const
 {
-	return GAME->map().getMap()->objects.at(objectID.getNum());
+	return GAME->map().getMap()->objects.at(objectID.getNum()).get();
 }
 
 const CGPath * MapRendererBaseContext::currentPath() const

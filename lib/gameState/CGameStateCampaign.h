@@ -23,8 +23,8 @@ class CMap;
 
 struct CampaignHeroReplacement
 {
-	CampaignHeroReplacement(CGHeroInstance * hero, const ObjectInstanceID & heroPlaceholderId);
-	CGHeroInstance * hero;
+	CampaignHeroReplacement(std::shared_ptr<CGHeroInstance> hero, const ObjectInstanceID & heroPlaceholderId);
+	std::shared_ptr<CGHeroInstance> hero;
 	ObjectInstanceID heroPlaceholderId;
 	std::vector<ArtifactPosition> transferrableArtifacts;
 };

@@ -13,7 +13,6 @@
 #include "CMapDefines.h"
 #include "CMapHeader.h"
 
-#include "../ConstTransitivePtr.h"
 #include "../GameCallbackHolder.h"
 #include "../networkPacks/TradeItem.h"
 
@@ -101,11 +100,28 @@ public:
 	void removeQuestInstance(std::shared_ptr<CQuest> quest);
 	void clearQuestInstance(const CQuest * quest);
 
-	void setUniqueInstanceName(CGObjectInstance * obj);
+	void setUniqueInstanceName(ObjectInstanceID target){};
 	///Use only this method when creating new map object instances
-	void addNewObject(CGObjectInstance * obj);
-	void moveObject(CGObjectInstance * obj, const int3 & dst);
-	void removeObject(CGObjectInstance * obj);
+	void addNewObject(std::shared_ptr<CGObjectInstance> obj){}
+	void moveObject(ObjectInstanceID target, const int3 & dst){}
+
+	/// Remove objects and shifts object indicies.
+	/// Only for use in map editor / RMG
+	std::shared_ptr<CGObjectInstance> removeObject(ObjectInstanceID oldObject){return nullptr;}
+
+	/// Replaced map object with specified ID with new object
+	/// Old object must exist and will be removed from map
+	/// Returns pointer to old object, which can be manipulated or dropped
+	std::shared_ptr<CGObjectInstance> replaceObject(ObjectInstanceID oldObject, const std::shared_ptr<CGObjectInstance> & newObject){return nullptr;}
+
+	/// Erases object from map without shifting indices
+	/// Returns pointer to old object, which can be manipulated or dropped
+	std::shared_ptr<CGObjectInstance> eraseObject(ObjectInstanceID oldObject){return nullptr;}
+
+	void heroAddedToMap(const CGHeroInstance * hero) {}
+	void heroRemovedFromMap(const CGHeroInstance * hero) {}
+	void townAddedToMap(const CGTownInstance * town) {}
+	void townRemovedFromMap(const CGTownInstance * town) {}
 
 	bool isWaterMap() const;
 	bool calculateWaterContent();
@@ -130,7 +146,6 @@ public:
 	void reindexObjects();
 
 	std::vector<Rumor> rumors;
-	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
 	std::set<SpellID> allowedSpells;
 	std::set<ArtifactID> allowedArtifact;
 	std::set<SecondarySkill> allowedAbilities;
@@ -139,13 +154,14 @@ public:
 	int grailRadius;
 
 	//Central lists of items in game. Position of item in the vectors below is their (instance) id.
-	std::vector< ConstTransitivePtr<CGObjectInstance> > objects;
-	std::vector< ConstTransitivePtr<CGTownInstance> > towns;
-	std::vector< ConstTransitivePtr<CGHeroInstance> > allHeroes; //indexed by [hero_type_id]; on map, disposed, prisons, etc.
+	std::vector< std::shared_ptr<CGObjectInstance> > objects;
+	std::vector< std::shared_ptr<CGTownInstance> > towns;
+	std::vector< std::shared_ptr<CGHeroInstance> > allHeroes; //indexed by [hero_type_id]; on map, disposed, prisons, etc.
 
 	//Helper lists
-	std::vector< ConstTransitivePtr<CGHeroInstance> > heroesOnMap;
+	std::vector< std::shared_ptr<CGHeroInstance> > heroesOnMap;
 	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > teleportChannels;
+	std::vector<std::shared_ptr<CGHeroInstance> > predefinedHeroes;
 
 	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
 	std::map<si32, ObjectInstanceID> questIdentifierToId;
@@ -153,7 +169,7 @@ public:
 	std::unique_ptr<CMapEditManager> editManager;
 	boost::multi_array<int3, 3> guardingCreaturePositions;
 
-	std::map<std::string, ConstTransitivePtr<CGObjectInstance> > instanceNames;
+	std::map<std::string, std::shared_ptr<CGObjectInstance> > instanceNames;
 
 	bool waterMap;
 

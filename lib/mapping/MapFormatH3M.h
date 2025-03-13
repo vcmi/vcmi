@@ -187,38 +187,37 @@ private:
 	void readObjects();
 
 	/// Reads single object from input stream based on template
-	CGObjectInstance * readObject(MapObjectID id, MapObjectSubID subid, std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
-
-	CGObjectInstance * readEvent(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
-	CGObjectInstance * readMonster(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
-	CGObjectInstance * readHero(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
-	CGObjectInstance * readSeerHut(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
-	CGObjectInstance * readTown(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readSign(const int3 & position);
-	CGObjectInstance * readWitchHut(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readScholar(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readGarrison(const int3 & mapPosition);
-	CGObjectInstance * readArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readScroll(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readResource(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readMine(const int3 & position);
-	CGObjectInstance * readAbandonedMine(const int3 & position);
-	CGObjectInstance * readPandora(const int3 & position, const ObjectInstanceID & idToBeGiven);
-	CGObjectInstance * readDwelling(const int3 & position);
-	CGObjectInstance * readDwellingRandom(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readShrine(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readHeroPlaceholder(const int3 & position);
-	CGObjectInstance * readGrail(const int3 & position);
-	CGObjectInstance * readHotaBattleLocation(const int3 & position);
-	CGObjectInstance * readQuestGuard(const int3 & position);
-	CGObjectInstance * readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readBank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readRewardWithArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readRewardWithArtifactAndResources(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readBlackMarket(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readUniversity(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readObject(MapObjectID id, MapObjectSubID subid, std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readEvent(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readMonster(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readHero(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readSeerHut(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readTown(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	std::shared_ptr<CGObjectInstance> readSign(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readWitchHut(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readScholar(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readGarrison(const int3 & mapPosition);
+	std::shared_ptr<CGObjectInstance> readArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	std::shared_ptr<CGObjectInstance> readScroll(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	std::shared_ptr<CGObjectInstance> readResource(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	std::shared_ptr<CGObjectInstance> readMine(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readAbandonedMine(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readPandora(const int3 & position, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readDwelling(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readDwellingRandom(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	std::shared_ptr<CGObjectInstance> readShrine(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readHeroPlaceholder(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readGrail(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readHotaBattleLocation(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readQuestGuard(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readBank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readRewardWithArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readRewardWithArtifactAndResources(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readBlackMarket(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readUniversity(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 
 	/**
 	 * Reads a creature set.

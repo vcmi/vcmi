@@ -625,18 +625,18 @@ void ApplyClientNetPackVisitor::visitSetHeroesInTown(SetHeroesInTown & pack)
 
 void ApplyClientNetPackVisitor::visitHeroRecruited(HeroRecruited & pack)
 {
-	CGHeroInstance *h = gs.getMap().heroesOnMap.back();
+	auto & h = gs.getMap().heroesOnMap.back();
 	if(h->getHeroTypeID() != pack.hid)
 	{
 		logNetwork->error("Something wrong with hero recruited!");
 	}
 
-	if(callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroCreated, h))
+	if(callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroCreated, h.get()))
 	{
 		if(const CGTownInstance *t = gs.getTown(pack.tid))
 			callInterfaceIfPresent(cl, h->getOwner(), &IGameEventsReceiver::heroInGarrisonChange, t);
 	}
-	GAME->map().onObjectInstantAdd(h, h->getOwner());
+	GAME->map().onObjectInstantAdd(h.get(), h->getOwner());
 }
 
 void ApplyClientNetPackVisitor::visitGiveHero(GiveHero & pack)
@@ -1054,7 +1054,7 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 {
 	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 
-	const CGObjectInstance *obj = pack.newObject;
+	const CGObjectInstance * obj = pack.newObject.get();
 	GAME->map().onObjectFadeIn(obj, pack.initiator);
 
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)

@@ -34,7 +34,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CampaignHeroReplacement::CampaignHeroReplacement(CGHeroInstance * hero, const ObjectInstanceID & heroPlaceholderId):
+CampaignHeroReplacement::CampaignHeroReplacement(std::shared_ptr<CGHeroInstance> hero, const ObjectInstanceID & heroPlaceholderId):
 	hero(hero),
 	heroPlaceholderId(heroPlaceholderId)
 {
@@ -227,7 +227,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 	// remove same heroes on the map which will be added through crossover heroes
 	// INFO: we will remove heroes because later it may be possible that the API doesn't allow having heroes
 	// with the same hero type id
-	std::vector<CGHeroInstance *> removedHeroes;
+	std::vector<std::shared_ptr<CGObjectInstance>> removedHeroes;
 
 	std::set<HeroTypeID> reservedHeroes = campaignState->getReservedHeroes();
 	std::set<HeroTypeID> heroesToRemove;
@@ -248,10 +248,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 		auto * hero = gameState->getUsedHero(heroID);
 		if(hero)
 		{
-			removedHeroes.push_back(hero);
-			gameState->map->heroesOnMap -= hero;
-			gameState->map->objects[hero->id.getNum()] = nullptr;
-			gameState->map->removeBlockVisTiles(hero, true);
+			removedHeroes.push_back(gameState->map->eraseObject(hero->id));
 		}
 	}
 
@@ -259,8 +256,9 @@ void CGameStateCampaign::placeCampaignHeroes()
 	replaceHeroesPlaceholders();
 
 	// now add removed heroes again with unused type ID
-	for(auto * hero : removedHeroes)
+	for(auto object : removedHeroes)
 	{
+		auto hero = dynamic_cast<CGHeroInstance*>(object.get());
 		HeroTypeID heroTypeId;
 		if(hero->ID == Obj::HERO)
 		{
@@ -285,7 +283,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 		}
 
 		hero->setHeroType(heroTypeId);
-		gameState->map->getEditManager()->insertObject(hero);
+		gameState->map->getEditManager()->insertObject(object);
 	}
 }
 
@@ -363,26 +361,18 @@ void CGameStateCampaign::replaceHeroesPlaceholders()
 		if (!campaignHeroReplacement.heroPlaceholderId.hasValue())
 			continue;
 
-		auto * heroPlaceholder = dynamic_cast<CGHeroPlaceholder *>(gameState->getObjInstance(campaignHeroReplacement.heroPlaceholderId));
+		auto heroPlaceholder = gameState->map->objects.at(campaignHeroReplacement.heroPlaceholderId.getNum());
+		auto heroToPlace = campaignHeroReplacement.hero;
 
-		CGHeroInstance *heroToPlace = campaignHeroReplacement.hero;
-		heroToPlace->id = campaignHeroReplacement.heroPlaceholderId;
 		if(heroPlaceholder->tempOwner.isValidPlayer())
 			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
+
+		// FIXME: consider whether to move these actions to CMap::replaceObject method
 		heroToPlace->setAnchorPos(heroPlaceholder->anchorPos());
 		heroToPlace->setHeroType(heroToPlace->getHeroTypeID());
 		heroToPlace->appearance = heroToPlace->getObjectHandler()->getTemplates().front();
 
-		gameState->map->removeBlockVisTiles(heroPlaceholder, true);
-		gameState->map->objects[heroPlaceholder->id.getNum()] = nullptr;
-		gameState->map->instanceNames.erase(heroPlaceholder->instanceName);
-
-		gameState->map->heroesOnMap.emplace_back(heroToPlace);
-		gameState->map->objects[heroToPlace->id.getNum()] = heroToPlace;
-		gameState->map->addBlockVisTiles(heroToPlace);
-		gameState->map->instanceNames[heroToPlace->instanceName] = heroToPlace;
-
-		delete heroPlaceholder;
+		gameState->map->replaceObject(campaignHeroReplacement.heroPlaceholderId, heroToPlace);
 	}
 }
 
@@ -413,7 +403,7 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 		if (campaignHeroReplacement.heroPlaceholderId.hasValue())
 			continue;
 
-		auto * donorHero = campaignHeroReplacement.hero;
+		auto donorHero = campaignHeroReplacement.hero;
 
 		if (!donorHero)
 			throw std::runtime_error("Failed to find hero to take artifacts from! Scenario: " + gameState->map->name.toString());
@@ -440,7 +430,8 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 				logGlobal->error("Cannot transfer artifact - no receiver hero!");
 		}
 
-		delete donorHero;
+		// FIXME: erase entry from array? clear entire campaignHeroReplacements?
+		//campaignHeroReplacement.hero.reset();
 	}
 }
 
@@ -484,7 +475,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 			continue;
 		}
 
-		CGHeroInstance * hero = campaignState->crossoverDeserialize(node, gameState->map.get());
+		auto hero = campaignState->crossoverDeserialize(node, gameState->map.get());
 
 		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->getHeroType(), hero->getNameTranslated());
 
@@ -509,7 +500,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 			if (nodeListIter == nodeList.end())
 				break;
 
-			CGHeroInstance * hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map.get());
+			auto hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map.get());
 			nodeListIter++;
 
 			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->getHeroType(), hero->getNameTranslated());
@@ -520,7 +511,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 		// Add remaining heroes without placeholders - to transfer their artifacts to placed heroes
 		for (;nodeListIter != nodeList.end(); ++nodeListIter)
 		{
-			CGHeroInstance * hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map.get());
+			auto hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map.get());
 			campaignHeroReplacements.emplace_back(hero, ObjectInstanceID::NONE);
 		}
 	}
@@ -645,7 +636,7 @@ void CGameStateCampaign::initTowns()
 
 	for (int g=0; g<gameState->map->towns.size(); ++g)
 	{
-		CGTownInstance * town = gameState->map->towns[g];
+		auto town = gameState->map->towns[g];
 
 		PlayerState * owner = gameState->getPlayerState(town->getOwner());
 		if (!owner)

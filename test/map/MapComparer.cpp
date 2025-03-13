@@ -232,7 +232,7 @@ void MapComparer::compareObjects()
 
 			auto actualObject = it->second;
 
-			compareObject(actualObject, expectedObject);
+			compareObject(actualObject.get(), expectedObject.get());
 		}
 	}
 }

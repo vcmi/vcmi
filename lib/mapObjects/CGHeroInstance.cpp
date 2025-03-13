@@ -1604,13 +1604,12 @@ std::string CGHeroInstance::getHeroTypeName() const
 
 void CGHeroInstance::afterAddToMap(CMap * map)
 {
-	if(ID != Obj::PRISON)
-		map->heroesOnMap.emplace_back(this);
+	map->heroAddedToMap(this);
 }
+
 void CGHeroInstance::afterRemoveFromMap(CMap* map)
 {
-	if (ID == Obj::PRISON)
-		vstd::erase_if_present(map->heroesOnMap, this);
+	map->heroRemovedFromMap(this);
 }
 
 void CGHeroInstance::setHeroTypeName(const std::string & identifier)

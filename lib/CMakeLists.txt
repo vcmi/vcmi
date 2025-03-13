@@ -700,7 +700,6 @@ set(lib_MAIN_HEADERS
 	CGameInfoCallback.h
 	CGameInterface.h
 	ConditionalWait.h
-	ConstTransitivePtr.h
 	Color.h
 	CPlayerState.h
 	CRandomGenerator.h

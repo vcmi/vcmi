@@ -191,9 +191,6 @@ CMap::~CMap()
 {
 	getEditManager()->getUndoManager().clearAll();
 
-	for(auto obj : objects)
-		obj.dellNull();
-
 	resetStaticData();
 }
 
@@ -260,7 +257,7 @@ CGHeroInstance * CMap::getHero(HeroTypeID heroID)
 {
 	for(auto & elem : heroesOnMap)
 		if(elem->getHeroTypeID() == heroID)
-			return elem;
+			return elem.get();
 	return nullptr;
 }
 
@@ -377,16 +374,16 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj type
 	logGlobal->error("Will try to find closest matching object");
 
 	CGObjectInstance * bestMatch = nullptr;
-	for (CGObjectInstance * object : objects)
+	for (const auto & object : objects)
 	{
 		if (object && object->ID == type)
 		{
 			if (bestMatch == nullptr)
-				bestMatch = object;
+				bestMatch = object.get();
 			else
 			{
 				if (object->anchorPos().dist2dSQ(pos) < bestMatch->anchorPos().dist2dSQ(pos))
-					bestMatch = object;// closer than one we already found
+					bestMatch = object.get();// closer than one we already found
 			}
 		}
 	}
@@ -424,32 +421,32 @@ void CMap::checkForObjectives()
 						cond.objectID = getObjectiveObjectFrom(cond.position, Obj::TOWN)->id;
 					break;
 
-				case EventCondition::CONTROL:
-					if (isInTheMap(cond.position))
-						cond.objectID = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>())->id;
-
-					if (cond.objectID != ObjectInstanceID::NONE)
-					{
-						const auto * town = dynamic_cast<const CGTownInstance *>(objects[cond.objectID].get());
-						if (town)
-							event.onFulfill.replaceRawString(town->getNameTranslated());
-						const auto * hero = dynamic_cast<const CGHeroInstance *>(objects[cond.objectID].get());
-						if (hero)
-							event.onFulfill.replaceRawString(hero->getNameTranslated());
-					}
-					break;
-
-				case EventCondition::DESTROY:
-					if (isInTheMap(cond.position))
-						cond.objectID = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>())->id;
-
-					if (cond.objectID != ObjectInstanceID::NONE)
-					{
-						const auto * hero = dynamic_cast<const CGHeroInstance *>(objects[cond.objectID].get());
-						if (hero)
-							event.onFulfill.replaceRawString(hero->getNameTranslated());
-					}
-					break;
+//				case EventCondition::CONTROL:
+//					if (isInTheMap(cond.position))
+//						cond.objectID = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>())->id;
+//
+//					if (cond.objectID != ObjectInstanceID::NONE)
+//					{
+//						const auto * town = dynamic_cast<const CGTownInstance *>(objects[cond.objectID].get());
+//						if (town)
+//							event.onFulfill.replaceRawString(town->getNameTranslated());
+//						const auto * hero = dynamic_cast<const CGHeroInstance *>(objects[cond.objectID].get());
+//						if (hero)
+//							event.onFulfill.replaceRawString(hero->getNameTranslated());
+//					}
+//					break;
+//
+//				case EventCondition::DESTROY:
+//					if (isInTheMap(cond.position))
+//						cond.objectID = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>())->id;
+//
+//					if (cond.objectID != ObjectInstanceID::NONE)
+//					{
+//						const auto * hero = dynamic_cast<const CGHeroInstance *>(objects[cond.objectID].get());
+//						if (hero)
+//							event.onFulfill.replaceRawString(hero->getNameTranslated());
+//					}
+//					break;
 				case EventCondition::TRANSPORT:
 					cond.objectID = getObjectiveObjectFrom(cond.position, Obj::TOWN)->id;
 					break;
@@ -527,63 +524,89 @@ void CMap::clearQuestInstance(const CQuest * quest)
 	quests.at(quest->qid) = nullptr;
 }
 
-void CMap::setUniqueInstanceName(CGObjectInstance * obj)
-{
-	//this gives object unique name even if objects are removed later
+//void CMap::setUniqueInstanceName(CGObjectInstance * obj)
+//{
+//	//this gives object unique name even if objects are removed later
+//
+//	auto uid = uidCounter++;
+//
+//	boost::format fmt("%s_%d");
+//	fmt % obj->getTypeName() % uid;
+//	obj->instanceName = fmt.str();
+//}
 
-	auto uid = uidCounter++;
+//void CMap::addNewObject(CGObjectInstance * obj)
+//{
+//	if(obj->id != ObjectInstanceID(static_cast<si32>(objects.size())))
+//		throw std::runtime_error("Invalid object instance id");
+//
+//	if(obj->instanceName.empty())
+//		throw std::runtime_error("Object instance name missing");
+//
+//	if (vstd::contains(instanceNames, obj->instanceName))
+//		throw std::runtime_error("Object instance name duplicated: "+obj->instanceName);
+//
+//	objects.emplace_back(obj);
+//	instanceNames[obj->instanceName] = obj;
+//	addBlockVisTiles(obj);
+//
+//	//TODO: how about defeated heroes recruited again?
+//
+//	obj->afterAddToMap(this);
+//}
+//
+//void CMap::moveObject(CGObjectInstance * obj, const int3 & pos)
+//{
+//	removeBlockVisTiles(obj);
+//	obj->setAnchorPos(pos);
+//	addBlockVisTiles(obj);
+//}
+//
+//void CMap::removeObject(CGObjectInstance * obj)
+//{
+//	removeBlockVisTiles(obj);
+//	instanceNames.erase(obj->instanceName);
+//
+//	//update indices
+//
+//	auto iter = std::next(objects.begin(), obj->id.getNum());
+//	iter = objects.erase(iter);
+//	for(int i = obj->id.getNum(); iter != objects.end(); ++i, ++iter)
+//	{
+//		(*iter)->id = ObjectInstanceID(i);
+//	}
+//
+//	obj->afterRemoveFromMap(this);
+//
+//	//TODO: Clean artifact instances (mostly worn by hero?) and quests related to this object
+//	//This causes crash with undo/redo in editor
+//}
 
-	boost::format fmt("%s_%d");
-	fmt % obj->getTypeName() % uid;
-	obj->instanceName = fmt.str();
-}
-
-void CMap::addNewObject(CGObjectInstance * obj)
-{
-	if(obj->id != ObjectInstanceID(static_cast<si32>(objects.size())))
-		throw std::runtime_error("Invalid object instance id");
-
-	if(obj->instanceName.empty())
-		throw std::runtime_error("Object instance name missing");
-
-	if (vstd::contains(instanceNames, obj->instanceName))
-		throw std::runtime_error("Object instance name duplicated: "+obj->instanceName);
-
-	objects.emplace_back(obj);
-	instanceNames[obj->instanceName] = obj;
-	addBlockVisTiles(obj);
-
-	//TODO: how about defeated heroes recruited again?
-
-	obj->afterAddToMap(this);
-}
-
-void CMap::moveObject(CGObjectInstance * obj, const int3 & pos)
-{
-	removeBlockVisTiles(obj);
-	obj->setAnchorPos(pos);
-	addBlockVisTiles(obj);
-}
-
-void CMap::removeObject(CGObjectInstance * obj)
-{
-	removeBlockVisTiles(obj);
-	instanceNames.erase(obj->instanceName);
-
-	//update indices
-
-	auto iter = std::next(objects.begin(), obj->id.getNum());
-	iter = objects.erase(iter);
-	for(int i = obj->id.getNum(); iter != objects.end(); ++i, ++iter)
-	{
-		(*iter)->id = ObjectInstanceID(i);
-	}
-
-	obj->afterRemoveFromMap(this);
-
-	//TODO: Clean artifact instances (mostly worn by hero?) and quests related to this object
-	//This causes crash with undo/redo in editor
-}
+//void CMap::replaceObject(ObjectInstanceID oldObjectID, const std::shared_ptr<CGObjectInstance> & newObject)
+//{
+//	auto oldObject = objects.at(oldObjectID.getNum());
+//
+//	newObject->id = oldObjectID;
+//
+//	removeBlockVisTiles(oldObject.get(), true);
+//	instanceNames.erase(oldObject->instanceName);
+//
+//	objects.at(oldObjectID.getNum()) = newObject;
+//	addBlockVisTiles(newObject.get());
+//	instanceNames[newObject->instanceName] = newObject;
+//
+//	oldObject->afterRemoveFromMap(this);
+//	newObject->afterAddToMap(this);
+//}
+//
+//void CMap::eraseObject(ObjectInstanceID oldObjectID)
+//{
+//	auto oldObject = objects.at(oldObjectID.getNum());
+//
+//	objects.at(oldObjectID) = nullptr;
+//	removeBlockVisTiles(oldObject.get(), true);
+//	oldObject->afterRemoveFromMap(this);
+//}
 
 bool CMap::isWaterMap() const
 {
@@ -709,7 +732,7 @@ void CMap::reindexObjects()
 {
 	// Only reindex at editor / RMG operations
 
-	std::sort(objects.begin(), objects.end(), [](const CGObjectInstance * lhs, const CGObjectInstance * rhs)
+	std::sort(objects.begin(), objects.end(), [](const auto & lhs, const auto & rhs)
 	{
 		// Obstacles first, then visitable, at the end - removable
 

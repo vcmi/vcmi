@@ -233,7 +233,7 @@ void CGameState::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 		//index is hero type
 		if(index >= 0 && index < map->allHeroes.size())
 		{
-			CGHeroInstance * hero = map->allHeroes.at(index);
+			const auto & hero = map->allHeroes.at(index);
 			hero->updateFrom(data);
 		}
 		else
@@ -471,7 +471,7 @@ void CGameState::initRandomFactionsForPlayers()
 void CGameState::randomizeMapObjects()
 {
 	logGlobal->debug("\tRandomizing objects");
-	for(CGObjectInstance *object : map->objects)
+	for(const auto & object : map->objects)
 	{
 		if(!object)
 			continue;
@@ -495,10 +495,10 @@ void CGameState::randomizeMapObjects()
 
 void CGameState::initOwnedObjects()
 {
-	for(CGObjectInstance *object : map->objects)
+	for(const auto & object : map->objects)
 	{
 		if (object && object->getOwner().isValidPlayer())
-			getPlayerState(object->getOwner())->addOwnedObject(object);
+			getPlayerState(object->getOwner())->addOwnedObject(object.get());
 	}
 }
 
@@ -528,8 +528,8 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 	}
 
 	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->heroClass->getIndex());
-	CGObjectInstance * obj = handler->create(callback, handler->getTemplates().front());
-	CGHeroInstance * hero = dynamic_cast<CGHeroInstance *>(obj);
+	auto object = handler->create(callback, handler->getTemplates().front());
+	auto hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
 
 	hero->ID = Obj::HERO;
 	hero->setHeroType(heroTypeId);
@@ -587,9 +587,7 @@ void CGameState::initHeroes()
 			logGlobal->warn("Hero with uninitialized owner!");
 			continue;
 		}
-
 		hero->initHero(getRandomGenerator());
-		map->allHeroes[hero->getHeroTypeID().getNum()] = hero;
 	}
 
 	// generate boats for all heroes on water
@@ -600,8 +598,8 @@ void CGameState::initHeroes()
 		if (tile.isWater())
 		{
 			auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
-			auto boat = dynamic_cast<CGBoat*>(handler->create(callback, nullptr));
-			handler->configureObject(boat, gs->getRandomGenerator());
+			auto boat = std::dynamic_pointer_cast<CGBoat>(handler->create(callback, nullptr));
+			handler->configureObject(boat.get(), gs->getRandomGenerator());
 
 			boat->setAnchorPos(hero->anchorPos());
 			boat->appearance = handler->getTemplates().front();
@@ -609,7 +607,7 @@ void CGameState::initHeroes()
 
 			map->objects.emplace_back(boat);
 
-			hero->attachToBoat(boat);
+			hero->attachToBoat(boat.get());
 		}
 	}
 
@@ -619,7 +617,6 @@ void CGameState::initHeroes()
 		{
 			auto * hero = dynamic_cast<CGHeroInstance*>(obj.get());
 			hero->initHero(getRandomGenerator());
-			map->allHeroes[hero->getHeroTypeID().getNum()] = hero;
 		}
 	}
 
@@ -629,20 +626,18 @@ void CGameState::initHeroes()
 		if(!vstd::contains(heroesToCreate, ph->getHeroTypeID()))
 			continue;
 		ph->initHero(getRandomGenerator());
-		heroesPool->addHeroToPool(ph);
+		heroesPool->addHeroToPool(ph.get());
 		heroesToCreate.erase(ph->getHeroTypeID());
-
-		map->allHeroes[ph->getHeroTypeID().getNum()] = ph;
 	}
 
 	for(const HeroTypeID & htype : heroesToCreate) //all not used allowed heroes go with default state into the pool
 	{
-		auto * vhi = new CGHeroInstance(callback);
+		auto vhi = std::make_shared<CGHeroInstance>(callback);
 		vhi->initHero(getRandomGenerator(), htype);
 
 		int typeID = htype.getNum();
 		map->allHeroes[typeID] = vhi;
-		heroesPool->addHeroToPool(vhi);
+		heroesPool->addHeroToPool(vhi.get());
 	}
 
 	for(auto & elem : map->disposedHeroes)
@@ -663,7 +658,7 @@ void CGameState::initFogOfWar()
 		fow.resize(boost::extents[layers][map->width][map->height]);
 		std::fill(fow.data(), fow.data() + fow.num_elements(), 0);
 
-		for(CGObjectInstance *obj : map->objects)
+		for(const auto & obj : map->objects)
 		{
 			if(!obj || !vstd::contains(elem.second.players, obj->tempOwner)) continue; //not a flagged object
 
@@ -918,14 +913,13 @@ void CGameState::initMapObjects()
 {
 	logGlobal->debug("\tObject initialization");
 
-//	objCaller->preInit();
-	for(CGObjectInstance *obj : map->objects)
+	for(auto & obj : map->objects)
 	{
 		if(obj)
 			obj->initObj(getRandomGenerator());
 	}
 	logGlobal->debug("\tObject initialization done");
-	for(CGObjectInstance *obj : map->objects)
+	for(auto & obj : map->objects)
 	{
 		if(!obj)
 			continue;
@@ -935,7 +929,7 @@ void CGameState::initMapObjects()
 			case Obj::QUEST_GUARD:
 			case Obj::SEER_HUT:
 			{
-				auto * q = dynamic_cast<CGSeerHut *>(obj);
+				auto * q = dynamic_cast<CGSeerHut *>(obj.get());
 				assert (q);
 				q->setObjToKill();
 			}
@@ -1001,9 +995,7 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 	for (auto hero : map->heroesOnMap)
 	{
 		if (hero->getVisitedTown())
-		{
-			assert (hero->getVisitedTown()->getVisitingHero() == hero);
-		}
+			assert(hero->getVisitedTown()->getVisitingHero() == hero.get());
 	}
 }
 
@@ -1577,7 +1569,7 @@ void CGameState::buildBonusSystemTree()
 	buildGlobalTeamPlayerTree();
 	attachArmedObjects();
 
-	for(CGTownInstance *t : map->towns)
+	for(auto & t : map->towns)
 	{
 		t->deserializationFix();
 	}
@@ -1607,9 +1599,9 @@ void CGameState::buildGlobalTeamPlayerTree()
 
 void CGameState::attachArmedObjects()
 {
-	for(CGObjectInstance *obj : map->objects)
+	for(auto & obj : map->objects)
 	{
-		if(auto * armed = dynamic_cast<CArmedInstance *>(obj))
+		if(auto * armed = dynamic_cast<CArmedInstance *>(obj.get()))
 		{
 			armed->whatShouldBeAttached().attachTo(armed->whereShouldBeAttached(this));
 		}

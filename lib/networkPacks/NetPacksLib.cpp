@@ -992,9 +992,8 @@ void FoWChange::applyGs(CGameState *gs)
 	if (mode == ETileVisibility::HIDDEN) //do not hide too much
 	{
 		std::unordered_set<int3> tilesRevealed;
-		for (auto & elem : gs->getMap().objects)
+		for (auto & o : gs->getMap().objects)
 		{
-			const CGObjectInstance *o = elem;
 			if (o)
 			{
 				switch(o->ID.toEnum())
@@ -1074,7 +1073,7 @@ void ChangeObjectVisitors::applyGs(CGameState *gs)
 			break;
 		case VISITOR_CLEAR:
 			// remove visit info from all heroes, including those that are not present on map
-			for (CGHeroInstance * hero : gs->getMap().allHeroes)
+			for (auto hero : gs->getMap().allHeroes)
 				if (hero)
 					hero->visitedObjects.erase(object);
 
@@ -1119,9 +1118,9 @@ void PlayerEndsGame::applyGs(CGameState *gs)
 		if(p->human && gs->getStartInfo()->campState)
 		{
 			std::vector<CGHeroInstance *> crossoverHeroes;
-			for (CGHeroInstance * hero : gs->getMap().heroesOnMap)
+			for (auto hero : gs->getMap().heroesOnMap)
 				if (hero->tempOwner == player)
-					crossoverHeroes.push_back(hero);
+					crossoverHeroes.push_back(hero.get());
 
 			gs->getStartInfo()->campState->setCurrentMapAsConquered(crossoverHeroes);
 		}
@@ -1203,7 +1202,7 @@ void RemoveObject::applyGs(CGameState *gs)
 	{
 		auto * beatenHero = dynamic_cast<CGHeroInstance *>(obj);
 		assert(beatenHero);
-		gs->getMap().heroesOnMap -= beatenHero;
+		gs->getMap().eraseObject(beatenHero->id);
 
 		auto * siegeNode = beatenHero->whereShouldBeAttachedOnSiege(gs);
 
@@ -1237,8 +1236,7 @@ void RemoveObject::applyGs(CGameState *gs)
 		if(beatenHero->boat)
 		{
 			beatenHero->detachFrom(const_cast<CGBoat&>(*beatenHero->boat));
-			gs->getMap().instanceNames.erase(beatenHero->boat->instanceName);
-			gs->getMap().objects[beatenHero->boat->id.getNum()].dellNull();
+			gs->getMap().eraseObject(beatenHero->boat->id);
 			beatenHero->boat = nullptr;
 		}
 		return;
@@ -1257,7 +1255,7 @@ void RemoveObject::applyGs(CGameState *gs)
 	}
 
 	gs->getMap().instanceNames.erase(obj->instanceName);
-	gs->getMap().objects[objectID.getNum()].dellNull();
+	gs->getMap().eraseObject(objectID);
 	gs->getMap().calculateGuardingGreaturePositions();//FIXME: excessive, update only affected tiles
 }
 
@@ -1445,13 +1443,14 @@ void HeroRecruited::applyGs(CGameState *gs)
 	h->pos = tile;
 	h->updateAppearance();
 
+	assert(h->id == ObjectInstanceID());
 	if(h->id == ObjectInstanceID())
 	{
 		h->id = ObjectInstanceID(static_cast<si32>(gs->getMap().objects.size()));
 		gs->getMap().objects.emplace_back(h);
 	}
-	else
-		gs->getMap().objects[h->id.getNum()] = h;
+//	else
+//		gs->getMap().replaceObject(h->id, h);
 
 	gs->getMap().heroesOnMap.emplace_back(h);
 	p->addOwnedObject(h);
@@ -1499,12 +1498,11 @@ void NewObject::applyGs(CGameState *gs)
 {
 	newObject->id = ObjectInstanceID(static_cast<si32>(gs->getMap().objects.size()));
 
-	gs->getMap().objects.emplace_back(newObject);
-	gs->getMap().addBlockVisTiles(newObject);
+	gs->getMap().addNewObject(newObject);
 	gs->getMap().calculateGuardingGreaturePositions();
 
 	// attach newly spawned wandering monster to global bonus system node
-	auto newArmy = dynamic_cast<CArmedInstance*>(newObject);
+	auto newArmy = std::dynamic_pointer_cast<CArmedInstance>(newObject);
 	if (newArmy)
 		newArmy->whatShouldBeAttached().attachTo(newArmy->whereShouldBeAttached(gs));
 
@@ -1517,27 +1515,6 @@ void NewArtifact::applyGs(CGameState *gs)
 	PutArtifact pa(art->getId(), ArtifactLocation(artHolder, pos), false);
 	pa.applyGs(gs);
 }
-
-struct ObjectRetriever
-{
-	const CArmedInstance * operator()(const ConstTransitivePtr<CGHeroInstance> &h) const
-	{
-		return h;
-	}
-	const CArmedInstance * operator()(const ConstTransitivePtr<CStackInstance> &s) const
-	{
-		return s->armyObj;
-	}
-};
-template<typename T>
-struct GetBase
-{
-	template <typename TArg>
-	T * operator()(TArg &arg) const
-	{
-		return arg;
-	}
-};
 
 void ChangeStackCount::applyGs(CGameState *gs)
 {
@@ -1953,7 +1930,7 @@ void NewTurn::applyGs(CGameState *gs)
 	for(auto & creatureSet : availableCreatures) //set available creatures in towns
 		creatureSet.applyGs(gs);
 
-	for(CGTownInstance* t : gs->getMap().towns)
+	for(auto & t : gs->getMap().towns)
 	{
 		t->built = 0;
 		t->spellResearchCounterDay = 0;

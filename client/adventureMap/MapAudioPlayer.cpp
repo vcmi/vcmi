@@ -209,7 +209,7 @@ MapAudioPlayer::MapAudioPlayer()
 	for(const auto & obj : GAME->map().getMap()->objects)
 	{
 		if (obj)
-			addObject(obj);
+			addObject(obj.get());
 	}
 }
 

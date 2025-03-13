@@ -1058,12 +1058,12 @@ void CGTownInstance::onTownCaptured(const PlayerColor & winner) const
 
 void CGTownInstance::afterAddToMap(CMap * map)
 {
-	map->towns.emplace_back(this);
+	map->townAddedToMap(this);
 }
 
 void CGTownInstance::afterRemoveFromMap(CMap * map)
 {
-	vstd::erase_if_present(map->towns, this);
+	map->townRemovedFromMap(this);
 }
 
 void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)

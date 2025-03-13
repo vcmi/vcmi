@@ -201,11 +201,11 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	//try to find unoccupied boat to summon
 	const CGBoat * nearest = nullptr;
 	double dist = 0;
-	for(const CGObjectInstance * obj : env->getMap()->objects)
+	for(const auto & obj : env->getMap()->objects)
 	{
 		if(obj && obj->ID == Obj::BOAT)
 		{
-			const auto * b = dynamic_cast<const CGBoat *>(obj);
+			const auto * b = dynamic_cast<const CGBoat *>(obj.get());
 			if(b->hero || b->layer != EPathfindingLayer::SAIL)
 				continue; //we're looking for unoccupied boat
 
@@ -726,12 +726,12 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(SpellCastEnvironment * env
 
 	const auto & fowMap = env->getCb()->getPlayerTeam(parameters.caster->getCasterOwner())->fogOfWarMap;
 
-	for(const CGObjectInstance * obj : env->getMap()->objects)
+	for(const auto & obj : env->getMap()->objects)
 	{
 		//deleted object remain as empty pointer
-		if(obj && filterObject(obj, spellLevel))
+		if(obj && filterObject(obj.get(), spellLevel))
 		{
-			ObjectPosInfo posInfo(obj);
+			ObjectPosInfo posInfo(obj.get());
 
 			if(fowMap[posInfo.pos.z][posInfo.pos.x][posInfo.pos.y] == 0)
 				pack.objectPositions.push_back(posInfo);

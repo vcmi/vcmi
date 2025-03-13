@@ -948,10 +948,10 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 
 		std::vector<const CGObjectInstance *> eyes;
 
-		for (auto object : cb->gameState()->getMap().objects)
+		for (const auto & object : cb->gameState()->getMap().objects)
 		{
 			if (object && object->ID == Obj::EYE_OF_MAGI && object->subID == this->subID)
-				eyes.push_back(object);
+				eyes.push_back(object.get());
 		}
 
 		if (!eyes.empty())

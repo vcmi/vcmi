@@ -256,7 +256,7 @@ CArtifactInstance * CNonConstInfoCallback::getArtInstance(const ArtifactInstance
 
 CGObjectInstance * CNonConstInfoCallback::getObjInstance(const ObjectInstanceID & oid)
 {
-	return gs->getMap().objects.at(oid.num);
+	return gs->getMap().objects.at(oid.num).get();
 }
 
 CArmedInstance * CNonConstInfoCallback::getArmyInstance(const ObjectInstanceID & oid)

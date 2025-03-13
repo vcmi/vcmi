@@ -350,7 +350,7 @@ public:
 	std::set<HeroTypeID> getReservedHeroes() const;
 
 	/// Returns strongest hero from specified scenario, or null if none found
-	const CGHeroInstance * strongestHero(CampaignScenarioID scenarioId, const PlayerColor & owner) const;
+	std::shared_ptr<CGHeroInstance> strongestHero(CampaignScenarioID scenarioId, const PlayerColor & owner) const;
 
 	/// Returns heroes that can be instantiated as hero placeholders by power
 	const std::vector<JsonNode> & getHeroesByPower(CampaignScenarioID scenarioId) const;
@@ -360,7 +360,7 @@ public:
 	const JsonNode & getHeroByType(HeroTypeID heroID) const;
 
 	JsonNode crossoverSerialize(CGHeroInstance * hero) const;
-	CGHeroInstance * crossoverDeserialize(const JsonNode & node, CMap * map) const;
+	std::shared_ptr<CGHeroInstance> crossoverDeserialize(const JsonNode & node, CMap * map) const;
 
 	std::string campaignSet;
 

@@ -139,7 +139,7 @@ const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool v
 		return nullptr;
 	}
 
-	const CGObjectInstance *ret = gs->getMap().objects[oid];
+	const CGObjectInstance *ret = gs->getMap().objects[oid].get();
 	if(!ret)
 	{
 		if(verbose)
@@ -484,8 +484,8 @@ std::vector<const CGObjectInstance *> CGameInfoCallback::getAllVisitableObjs() c
 {
 	std::vector<const CGObjectInstance *> ret;
 	for(auto & obj : gs->getMap().objects)
-		if(obj && obj->isVisitable() && obj->ID != Obj::EVENT && isVisible(obj))
-			ret.push_back(obj);
+		if(obj && obj->isVisitable() && obj->ID != Obj::EVENT && isVisible(obj.get()))
+			ret.push_back(obj.get());
 
 	return ret;
 }
@@ -784,7 +784,7 @@ std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo
 		if((hero->tempOwner == *getPlayerID()) ||
 			(isVisible(hero->visitablePos(), getPlayerID()) && !onlyOur)	)
 		{
-			ret.push_back(hero);
+			ret.push_back(hero.get());
 		}
 	}
 	return ret;
@@ -956,7 +956,7 @@ const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID 
 
 const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid ) const
 {
-	return gs->getMap().objects.at(oid.num);
+	return gs->getMap().objects.at(oid.num).get();
 }
 
 const CArtifactSet * CGameInfoCallback::getArtSet(const ArtifactLocation & loc) const

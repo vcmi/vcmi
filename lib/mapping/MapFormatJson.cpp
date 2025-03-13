@@ -1084,7 +1084,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 	//artifact instance serialization requires access to Map object, handle it here for now
 	//todo: find better solution for artifact instance serialization
 
-	if(auto * art = dynamic_cast<CGArtifact *>(instance))
+	if(auto art = std::dynamic_pointer_cast<CGArtifact>(instance))
 	{
 		ArtifactID artID = ArtifactID::NONE;
 		SpellID spellID = SpellID::NONE;
@@ -1108,7 +1108,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 		art->storedArtifact = owner->map->createArtifact(artID, spellID.getNum());
 	}
 
-	if(auto * hero = dynamic_cast<CGHeroInstance *>(instance))
+	if(auto hero = std::dynamic_pointer_cast<CGHeroInstance>(instance))
 	{
 		auto o = handler.enterStruct("options");
 		hero->serializeJsonArtifacts(handler, "artifacts", owner->map);
@@ -1134,7 +1134,7 @@ void CMapLoaderJson::readObjects()
 	for(auto & ptr : loaders)
 		ptr->configure();
 
-	std::sort(map->heroesOnMap.begin(), map->heroesOnMap.end(), [](const ConstTransitivePtr<CGHeroInstance> & a, const ConstTransitivePtr<CGHeroInstance> & b)
+	std::sort(map->heroesOnMap.begin(), map->heroesOnMap.end(), [](const std::shared_ptr<CGHeroInstance> & a, const std::shared_ptr<CGHeroInstance> & b)
 	{
 		return a->getObjTypeIndex() < b->getObjTypeIndex();
 	});
@@ -1305,7 +1305,7 @@ void CMapSaverJson::writeObjects()
 
 	JsonSerializer handler(mapObjectResolver.get(), data);
 
-	for(CGObjectInstance * obj : map->objects)
+	for(const auto & obj : map->objects)
 	{
 		//logGlobal->trace("\t%s", obj->instanceName);
 		auto temp = handler.enterStruct(obj->instanceName);

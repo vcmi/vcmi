@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "../ConstTransitivePtr.h"
 #include "../GameConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -39,10 +38,10 @@ struct TypeComparer
 template <typename ObjType, typename IdType>
 struct VectorizedObjectInfo
 {
-	const std::vector<ConstTransitivePtr<ObjType> > *vector;	//pointer to the appropriate vector
+	const std::vector<std::shared_ptr<ObjType> > *vector;	//pointer to the appropriate vector
 	std::function<IdType(const ObjType &)> idRetriever;
 
-	VectorizedObjectInfo(const std::vector< ConstTransitivePtr<ObjType> > *Vector, std::function<IdType(const ObjType &)> IdGetter)
+	VectorizedObjectInfo(const std::vector< std::shared_ptr<ObjType> > *Vector, std::function<IdType(const ObjType &)> IdGetter)
 		:vector(Vector), idRetriever(IdGetter)
 	{
 	}
@@ -69,7 +68,7 @@ class DLL_LINKAGE CSerializer : boost::noncopyable
 		vectors[&typeid(T)] = VectorizedObjectInfo<T, U>(Vector, idRetriever);
 	}
 	template <typename T, typename U>
-	void registerVectoredType(const std::vector<ConstTransitivePtr<T> > *Vector, const std::function<U(const T&)> &idRetriever)
+	void registerVectoredType(const std::vector<std::shared_ptr<T> > *Vector, const std::function<U(const T&)> &idRetriever)
 	{
 		vectors[&typeid(T)] = VectorizedObjectInfo<T, U>(Vector, idRetriever);
 	}

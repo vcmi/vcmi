@@ -657,7 +657,7 @@ void CGameHandler::onNewTurn()
 		addStatistics(gameState()->statistic); // write at end of turn
 	}
 
-	for (CGTownInstance *t : gs->getMap().towns)
+	for (const auto & t : gs->getMap().towns)
 	{
 		PlayerColor player = t->tempOwner;
 
@@ -671,7 +671,7 @@ void CGameHandler::onNewTurn()
 		}
 	}
 
-	for (CGTownInstance *t : gs->getMap().towns)
+	for (const auto & t : gs->getMap().towns)
 	{
 		if (t->hasBonusOfType (BonusType::DARKNESS))
 		{
@@ -2682,7 +2682,7 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 		auto dstSlot = ArtifactUtils::getArtAnyPosition(&artFittingSet, artifact->getTypeId());
 		if(dstSlot != ArtifactPosition::PRE_FIRST)
 		{
-			artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
+			artFittingSet.putArtifact(dstSlot, artifact);
 			slots.emplace_back(srcSlot, dstSlot);
 
 			// TODO Shouldn't be here. Possibly in callback after equipping the artifact
@@ -3570,8 +3570,8 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			//player lost -> all his objects become unflagged (neutral)
 			for (auto obj : gs->getMap().objects) //unflag objs
 			{
-				if (obj.get() && obj->tempOwner == player)
-					setOwner(obj, PlayerColor::NEUTRAL);
+				if (obj && obj->tempOwner == player)
+					setOwner(obj.get(), PlayerColor::NEUTRAL);
 			}
 
 			//eliminating one player may cause victory of another:
@@ -4059,11 +4059,6 @@ void CGameHandler::synchronizeArtifactHandlerLists()
 	sendAndApply(uahl);
 }
 
-bool CGameHandler::isValidObject(const CGObjectInstance *obj) const
-{
-	return vstd::contains(gs->getMap().objects, obj);
-}
-
 bool CGameHandler::isBlockedByQueries(const CPackForServer *pack, PlayerColor player)
 {
 	if (dynamic_cast<const PlayerMessage *>(pack) != nullptr)
@@ -4093,7 +4088,7 @@ void CGameHandler::removeAfterVisit(const ObjectInstanceID & id)
 	{
 		if (auto someVistQuery = std::dynamic_pointer_cast<MapObjectVisitQuery>(query))
 		{
-			if(someVistQuery->visitedObject->id == id)
+			if (someVistQuery->visitedObject == id)
 			{
 				someVistQuery->removeObjectAfterVisit = true;
 				return;
@@ -4154,8 +4149,8 @@ const CGHeroInstance * CGameHandler::getVisitingHero(const CGObjectInstance *obj
 	for(const auto & query : queries->allQueries())
 	{
 		auto visit = std::dynamic_pointer_cast<const VisitQuery>(query);
-		if (visit && visit->visitedObject == obj)
-			return visit->visitingHero;
+		if (visit && visit->visitedObject == obj->id)
+			return getHero(visit->visitingHero);
 	}
 	return nullptr;
 }
@@ -4167,8 +4162,8 @@ const CGObjectInstance * CGameHandler::getVisitingObject(const CGHeroInstance *h
 	for(const auto & query : queries->allQueries())
 	{
 		auto visit = std::dynamic_pointer_cast<const VisitQuery>(query);
-		if (visit && visit->visitingHero == hero)
-			return visit->visitedObject;
+		if (visit && visit->visitingHero == hero->id)
+			return getObjInstance(visit->visitedObject);
 	}
 	return nullptr;
 }
@@ -4184,7 +4179,7 @@ bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, con
 
 	if (auto topQuery = queries->topQuery(hero->getOwner()))
 		if (auto visit = std::dynamic_pointer_cast<const VisitQuery>(topQuery))
-			return !(visit->visitedObject == obj && visit->visitingHero == hero);
+			return !(visit->visitedObject == obj->id && visit->visitingHero == hero->id);
 
 	return true;
 }
@@ -4247,7 +4242,7 @@ scripting::Pool * CGameHandler::getGlobalContextPool() const
 #endif
 
 
-CGObjectInstance * CGameHandler::createNewObject(const int3 & visitablePosition, MapObjectID objectID, MapObjectSubID subID)
+std::shared_ptr<CGObjectInstance> CGameHandler::createNewObject(const int3 & visitablePosition, MapObjectID objectID, MapObjectSubID subID)
 {
 	TerrainId terrainType = ETerrainId::NONE;
 
@@ -4259,8 +4254,8 @@ CGObjectInstance * CGameHandler::createNewObject(const int3 & visitablePosition,
 
 	auto handler = LIBRARY->objtypeh->getHandlerFor(objectID, subID);
 
-	CGObjectInstance * o = handler->create(gs->callback, nullptr);
-	handler->configureObject(o, getRandomGenerator());
+	auto o = handler->create(gs->callback, nullptr);
+	handler->configureObject(o.get(), getRandomGenerator());
 	assert(o->ID == objectID);
 
 	assert(!handler->getTemplates(terrainType).empty());
@@ -4284,7 +4279,7 @@ void CGameHandler::createWanderingMonster(const int3 & visitablePosition, Creatu
 {
 	auto createdObject = createNewObject(visitablePosition, Obj::MONSTER, creature);
 
-	auto * cre = dynamic_cast<CGCreature *>(createdObject);
+	auto cre = std::dynamic_pointer_cast<CGCreature>(createdObject);
 	assert(cre);
 	cre->notGrowingTeam = cre->neverFlees = false;
 	cre->character = 2;
@@ -4307,7 +4302,7 @@ void CGameHandler::createHole(const int3 & visitablePosition, PlayerColor initia
 	newObject(createdObject, initiator);
 }
 
-void CGameHandler::newObject(CGObjectInstance * object, PlayerColor initiator)
+void CGameHandler::newObject(std::shared_ptr<CGObjectInstance> object, PlayerColor initiator)
 {
 	object->initObj(gs->getRandomGenerator());
 
