@@ -83,6 +83,7 @@ public:
 	void setCenter(const float3 &f);
 	int3 getPos() const;
 	void setPos(const int3 &pos);
+	void moveToCenterOfMass();
 	
 	ThreadSafeProxy<rmg::Area> area(); 
 	ThreadSafeProxy<const rmg::Area> area() const;
