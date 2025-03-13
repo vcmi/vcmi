@@ -190,6 +190,43 @@ const Area & Path::getPathArea() const
 	return dPath;
 }
 
+float Path::nonEuclideanCostFunction(const int3& src, const int3& dst)
+{
+	// Use non-euclidean metric
+	int dx = std::abs(src.x - dst.x);
+	int dy = std::abs(src.y - dst.y);
+	// int dx = src.x - dst.x;
+	// int dy = src.y - dst.y;
+	return std::sqrt(dx * dx + dy * dy) -
+		500 * std::sin(dx * dy / 20);
+}
+
+float Path::curvedCost(const int3& src, const int3& dst, const int3& center)
+{
+	float R = 30.0f; // radius of the zone
+	float W = 10.0f;// width of the transition area
+	float A = 0.7f; // sine bias
+
+    // Euclidean step distance:
+    float dx = dst.x - src.x;
+    float dy = dst.y - src.y;
+    float d = std::sqrt(dx*dx + dy*dy);
+    
+    // Distance from dst to the zone center:
+    float rx = dst.x - center.x;
+    float ry = dst.y - center.y;
+    float r = std::sqrt(rx*rx + ry*ry);
+    
+    // Compute normalized offset inside the zone:
+    // (R - W) is the inner edge, R is the outer edge.
+    float t = std::clamp((r - (R - W)) / W, 0.0f, 1.0f);
+    
+    // Use sine bias: lowest cost in the middle (t=0.5), higher near edges.
+    float bias = 1.0f + A * std::sin(M_PI * t);
+    
+    return d * bias;
+}
+
 Path::MoveCostFunction Path::createCurvedCostFunction(const Area & border)
 {
 	// Capture by value to ensure the Area object persists
@@ -198,17 +235,8 @@ Path::MoveCostFunction Path::createCurvedCostFunction(const Area & border)
 		// Route main roads far from border
 		//float ret = dst.dist2d(src);
 
-		auto costFunction = [border](const int3& src, const int3& dst) -> float
-		{
-			// Use non-euclidean metric
-			int dx = std::abs(src.x - dst.x);
-			int dy = std::abs(src.y - dst.y);
-			// int dx = src.x - dst.x;
-			// int dy = src.y - dst.y;
-			return std::sqrt(dx * dx + dy * dy) -
-				500 * std::sin(dx * dy / 20);
-		};
-		float ret = costFunction(src, dst);
+		//float ret = nonEuclideanCostFunction(src, dst);
+		float ret = curvedCost(src, dst, border.getCenterOfMass());
 		float dist = border.distanceSqr(dst);
 
 		if(dist > 1.0f)

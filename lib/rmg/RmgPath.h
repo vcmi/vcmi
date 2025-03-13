@@ -18,6 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 namespace rmg
 {
+
 class Path
 {
 public:
@@ -43,6 +44,8 @@ public:
 	const Area & getPathArea() const;
 	
 	static Path invalid();
+	static float nonEuclideanCostFunction(const int3& src, const int3& dst);
+	static float curvedCost(const int3& src, const int3& dst, const int3& center);
 	static MoveCostFunction createCurvedCostFunction(const Area & border);
 	
 private:
