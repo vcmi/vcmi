@@ -196,7 +196,19 @@ Path::MoveCostFunction Path::createCurvedCostFunction(const Area & border)
 	return [border = border](const int3& src, const int3& dst) -> float
 	{
 		// Route main roads far from border
-		float ret = dst.dist2d(src);
+		//float ret = dst.dist2d(src);
+
+		auto costFunction = [border](const int3& src, const int3& dst) -> float
+		{
+			// Use non-euclidean metric
+			int dx = std::abs(src.x - dst.x);
+			int dy = std::abs(src.y - dst.y);
+			// int dx = src.x - dst.x;
+			// int dy = src.y - dst.y;
+			return std::sqrt(dx * dx + dy * dy) -
+				500 * std::sin(dx * dy / 20);
+		};
+		float ret = costFunction(src, dst);
 		float dist = border.distanceSqr(dst);
 
 		if(dist > 1.0f)
