@@ -1,8 +1,10 @@
+{% import 'vars.jinja' as vars %}
+
 include(common)
 
 [settings]
 compiler=clang
-compiler.cppstd=17
+compiler.cppstd={{ vars.cppstd }}
 compiler.libcxx=c++_shared
 compiler.version=14
 os=Android
