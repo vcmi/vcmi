@@ -1100,14 +1100,14 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 					auto current = stack.top();
 					stack.pop();
 
-					if(visited.find(current) != visited.end())
+					if(vstd::contains(visited, current))
 						continue;
 
 					visited.insert(current);
 
 					for(auto & neighbor : roadGraph[current])
 					{
-						if(visited.find(neighbor.first) == visited.end())
+						if(!vstd::contains(visited, neighbor.first))
 						{
 							stack.push(neighbor.first);
 						}
@@ -1117,7 +1117,7 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 				//Check if all zones with roads are still reachable
 				for(auto zoneId : zonesWithRoads)
 				{
-					if(visited.find(zoneId) == visited.end())
+					if(!vstd::contains(visited, zoneId))
 					{
 						canRemove = false;
 						break;
@@ -1128,7 +1128,7 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 			if(!canRemove)
 			{
 				//Restore connection and try next one
-				if(roadGraph[zoneA].find(zoneB) == roadGraph[zoneA].end())
+				if(!vstd::contains(roadGraph[zoneA], zoneB))
 				{
 					roadGraph[zoneA][zoneB] = 1;
 					roadGraph[zoneB][zoneA] = 1;
