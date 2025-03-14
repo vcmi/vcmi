@@ -93,7 +93,7 @@ bool RoadPlacer::createRoad(const int3 & destination)
 			}
 		}
 
-		float ret = rmg::Path::curvedCost(src, dst, border.getCenterOfMass());
+		float ret = rmg::Path::nonEuclideanCostFunction(src, dst, border.getCenterOfMass());
 
 		if (visitableTiles.contains(src) || visitableTiles.contains(dst))
 		{

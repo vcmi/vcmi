@@ -190,18 +190,7 @@ const Area & Path::getPathArea() const
 	return dPath;
 }
 
-float Path::nonEuclideanCostFunction(const int3& src, const int3& dst)
-{
-	// Use non-euclidean metric
-	int dx = std::abs(src.x - dst.x);
-	int dy = std::abs(src.y - dst.y);
-	// int dx = src.x - dst.x;
-	// int dy = src.y - dst.y;
-	return std::sqrt(dx * dx + dy * dy) -
-		500 * std::sin(dx * dy / 20);
-}
-
-float Path::curvedCost(const int3& src, const int3& dst, const int3& center)
+float Path::nonEuclideanCostFunction(const int3& src, const int3& dst, const int3& center)
 {
 	float R = 30.0f; // radius of the zone
 	float W = 10.0f;// width of the transition area
@@ -228,7 +217,7 @@ Path::MoveCostFunction Path::createCurvedCostFunction(const Area & border)
 	// Capture by value to ensure the Area object persists
 	return [border = border](const int3& src, const int3& dst) -> float
 	{
-		float ret = curvedCost(src, dst, border.getCenterOfMass());
+		float ret = nonEuclideanCostFunction(src, dst, border.getCenterOfMass());
 		// Route main roads far from border
 		float dist = border.distanceSqr(dst);
 
