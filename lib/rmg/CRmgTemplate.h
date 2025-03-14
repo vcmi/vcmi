@@ -105,10 +105,12 @@ public:
 	int getGuardStrength() const;
 	rmg::EConnectionType getConnectionType() const;
 	rmg::ERoadOption getRoadOption() const;
+	void setRoadOption(rmg::ERoadOption roadOption);
 
 	void serializeJson(JsonSerializeFormat & handler);
 	
 	friend bool operator==(const ZoneConnection &, const ZoneConnection &);
+	friend bool operator<(const ZoneConnection &, const ZoneConnection &);
 private:
 	int id;
 	TRmgTemplateZoneId zoneA;
@@ -185,7 +187,11 @@ public:
 
 	void addConnection(const ZoneConnection & connection);
 	std::vector<ZoneConnection> getConnections() const;
+	std::vector<ZoneConnection>& getConnectionsRef();
 	std::vector<TRmgTemplateZoneId> getConnectedZoneIds() const;
+
+	// Set road option for a specific connection by ID
+	void setRoadOption(int connectionId, rmg::ERoadOption roadOption);
 
 	void serializeJson(JsonSerializeFormat & handler);
 	

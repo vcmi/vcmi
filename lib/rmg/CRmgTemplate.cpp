@@ -302,6 +302,28 @@ std::vector<ZoneConnection> ZoneOptions::getConnections() const
 	return connectionDetails;
 }
 
+std::vector<ZoneConnection>& ZoneOptions::getConnectionsRef()
+{
+	return connectionDetails;
+}
+
+void ZoneOptions::setRoadOption(int connectionId, rmg::ERoadOption roadOption)
+{
+	for(auto & connection : connectionDetails)
+	{
+		if(connection.getId() == connectionId)
+		{
+			connection.setRoadOption(roadOption);
+			logGlobal->info("Set road option for connection %d between zones %d and %d to %s", 
+				connectionId, connection.getZoneA(), connection.getZoneB(), 
+				roadOption == rmg::ERoadOption::ROAD_TRUE ? "true" : 
+				roadOption == rmg::ERoadOption::ROAD_FALSE ? "false" : "random");
+			return;
+		}
+	}
+	logGlobal->warn("Failed to find connection with ID %d in zone %d", connectionId, id);
+}
+
 std::vector<TRmgTemplateZoneId> ZoneOptions::getConnectedZoneIds() const
 {
 	return connectedZoneIds;
@@ -481,10 +503,20 @@ rmg::ERoadOption ZoneConnection::getRoadOption() const
 {
 	return hasRoad;
 }
+
+void ZoneConnection::setRoadOption(rmg::ERoadOption roadOption)
+{
+	hasRoad = roadOption;
+}
 	
 bool operator==(const ZoneConnection & l, const ZoneConnection & r)
 {
 	return l.id == r.id;
+}
+
+bool operator<(const ZoneConnection & l, const ZoneConnection & r)
+{
+	return l.id < r.id;
 }
 
 void ZoneConnection::serializeJson(JsonSerializeFormat & handler)

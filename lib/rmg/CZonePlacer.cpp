@@ -1008,127 +1008,104 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 {
 	auto zones = map.getZones();
+	bool anyDropped;
 
-	//First, build a graph of road connections
-	std::map<TRmgTemplateZoneId, std::set<TRmgTemplateZoneId>> roadGraph;
-	std::vector<rmg::ZoneConnection> randomConnections;
-	std::vector<rmg::ZoneConnection> fixedConnections;
-
-	//Collect all road connections and build initial graph
-	for(const auto & zone : zones)
+	do
 	{
-		for(const auto & connection : zone.second->getConnections())
+		anyDropped = false;
+		std::map<TRmgTemplateZoneId, std::set<TRmgTemplateZoneId>> roadGraph;
+		std::set<rmg::ZoneConnection> randomConnections;
+
+		//Build graph and collect random connections
+		for(const auto & zone : zones)
 		{
-			if(connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE)
+			for(const auto & connection : zone.second->getConnections())
 			{
-				roadGraph[connection.getZoneA()].insert(connection.getZoneB());
-				roadGraph[connection.getZoneB()].insert(connection.getZoneA());
-				fixedConnections.push_back(connection);
-			}
-			else if(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
-			{
-				roadGraph[connection.getZoneA()].insert(connection.getZoneB());
-				roadGraph[connection.getZoneB()].insert(connection.getZoneA());
-				randomConnections.push_back(connection);
-			}
-		}
-	}
-
-	//Find all connected components in the initial graph
-	std::map<TRmgTemplateZoneId, int> zoneToComponent;
-	int numComponents = 0;
-
-	auto dfsComponent = [&](TRmgTemplateZoneId start, int component)
-	{
-		std::stack<TRmgTemplateZoneId> stack;
-		stack.push(start);
-
-		while(!stack.empty())
-		{
-			auto current = stack.top();
-			stack.pop();
-
-			if(zoneToComponent.find(current) != zoneToComponent.end())
-				continue;
-
-			zoneToComponent[current] = component;
-
-			for(auto neighbor : roadGraph[current])
-			{
-				if(zoneToComponent.find(neighbor) == zoneToComponent.end())
+				if(connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE)
 				{
-					stack.push(neighbor);
+					roadGraph[connection.getZoneA()].insert(connection.getZoneB());
+					roadGraph[connection.getZoneB()].insert(connection.getZoneA());
 				}
+				else if(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
+				{
+					roadGraph[connection.getZoneA()].insert(connection.getZoneB());
+					roadGraph[connection.getZoneB()].insert(connection.getZoneA());
+					randomConnections.insert(connection);
+				}
+				// ROAD_FALSE connections are ignored
 			}
 		}
-	};
+		logGlobal->info("Remaining random connections: %d", randomConnections.size());
 
-	//Find all components
-	for(const auto & zone : zones)
-	{
-		if(zoneToComponent.find(zone.first) == zoneToComponent.end() && !roadGraph[zone.first].empty())
-		{
-			dfsComponent(zone.first, numComponents++);
-		}
-	}
+		if(randomConnections.empty())
+			break;
 
-	//Process each component separately
-	for(int component = 0; component < numComponents; component++)
-	{
-		//Get random connections for this component
-		std::vector<rmg::ZoneConnection> componentRandomConnections;
-		for(const auto & conn : randomConnections)
+		//Convert to vector for shuffling
+		std::vector<rmg::ZoneConnection> shuffledConnections(randomConnections.begin(), randomConnections.end());
+		RandomGeneratorUtil::randomShuffle(shuffledConnections, *rand);
+
+		//Try each random connection in shuffled order
+		for(const auto & conn : shuffledConnections)
 		{
-			if(zoneToComponent[conn.getZoneA()] == component)
+			auto zoneA = conn.getZoneA();
+			auto zoneB = conn.getZoneB();
+
+			//Check if either zone would become isolated by removing this connection
+			if(roadGraph[zoneA].size() <= 1 || roadGraph[zoneB].size() <= 1)
 			{
-				componentRandomConnections.push_back(conn);
+				//Can't remove this connection as it would isolate a zone
+				continue;
 			}
-		}
 
-		//Shuffle random connections
-		RandomGeneratorUtil::randomShuffle(componentRandomConnections, *rand);
-
-		//Try removing each random connection
-		for(const auto & conn : componentRandomConnections)
-		{
 			//Temporarily remove this connection
-			roadGraph[conn.getZoneA()].erase(conn.getZoneB());
-			roadGraph[conn.getZoneB()].erase(conn.getZoneA());
+			roadGraph[zoneA].erase(zoneB);
+			roadGraph[zoneB].erase(zoneA);
 
-			//Check if graph remains connected
+			//Check if graph remains connected as a whole
 			bool canRemove = true;
 			std::set<TRmgTemplateZoneId> visited;
 
-			//Start DFS from any zone in this component
-			auto startZone = conn.getZoneA();
-			std::stack<TRmgTemplateZoneId> stack;
-			stack.push(startZone);
-
-			while(!stack.empty())
+			// Get all zones that have road connections
+			std::set<TRmgTemplateZoneId> zonesWithRoads;
+			for(const auto & entry : roadGraph)
 			{
-				auto current = stack.top();
-				stack.pop();
-
-				if(visited.find(current) != visited.end())
-					continue;
-
-				visited.insert(current);
-
-				for(auto neighbor : roadGraph[current])
+				if(!entry.second.empty())
 				{
-					if(visited.find(neighbor) == visited.end())
-					{
-						stack.push(neighbor);
-					}
+					zonesWithRoads.insert(entry.first);
 				}
 			}
 
-			//Check if all zones in this component are still reachable
-			for(const auto & zone : zones)
+			if(!zonesWithRoads.empty())
 			{
-				if(zoneToComponent[zone.first] == component && !roadGraph[zone.first].empty())
+				//Start DFS from any zone that has roads
+				TRmgTemplateZoneId startZone = *zonesWithRoads.begin();
+				
+				std::stack<TRmgTemplateZoneId> stack;
+				stack.push(startZone);
+
+				while(!stack.empty())
 				{
-					if(visited.find(zone.first) == visited.end())
+					auto current = stack.top();
+					stack.pop();
+
+					if(visited.find(current) != visited.end())
+						continue;
+
+					visited.insert(current);
+
+					for(auto neighbor : roadGraph[current])
+					{
+						if(visited.find(neighbor) == visited.end())
+						{
+							stack.push(neighbor);
+						}
+					}
+				}
+
+				//Check if all zones with roads are still reachable
+				for(auto zoneId : zonesWithRoads)
+				{
+					if(visited.find(zoneId) == visited.end())
 					{
 						canRemove = false;
 						break;
@@ -1138,24 +1115,44 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 
 			if(!canRemove)
 			{
-				//Restore connection if removing it would break connectivity
-				roadGraph[conn.getZoneA()].insert(conn.getZoneB());
-				roadGraph[conn.getZoneB()].insert(conn.getZoneA());
+				//Restore connection and try next one
+				roadGraph[zoneA].insert(zoneB);
+				roadGraph[zoneB].insert(zoneA);
+				continue;
 			}
-			else
+
+			//Found a connection we can remove - update in both zones that contain it
+			auto & zonePtr = zones[zoneA];
+			zonePtr->setRoadOption(conn.getId(), rmg::ERoadOption::ROAD_FALSE);
+
+			auto & otherZonePtr = zones[zoneB];
+			otherZonePtr->setRoadOption(conn.getId(), rmg::ERoadOption::ROAD_FALSE);
+
+			logGlobal->info("Dropped random road between %d and %d", zoneA, zoneB);
+			anyDropped = true;
+			break; //Exit loop and rebuild graph
+		}
+	} while(anyDropped);
+
+	// Use a set to track processed connection IDs to avoid duplicates
+	std::set<int> processedConnectionIds;
+	
+	// Process each zone's connections
+	for(auto & zonePtr : zones)
+	{
+		for(auto & connection : zonePtr.second->getConnections())
+		{			
+			if(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
 			{
-				//Mark this connection as having no road
-				for(auto & zonePtr : zones)
-				{
-					for(auto & connection : zonePtr.second->getConnections())
-					{
-						if(connection.getId() == conn.getId())
-						{
-							const_cast<rmg::ZoneConnection&>(connection) = conn; //FIXME: avoid const_cast
-							break;
-						}
-					}
-				}
+				auto id = connection.getId();
+				// Only process each connection once
+				if(vstd::contains(processedConnectionIds, id))
+					continue;
+
+				processedConnectionIds.insert(id);
+				
+				// Use the new setRoadOption method
+				zonePtr.second->setRoadOption(id, rmg::ERoadOption::ROAD_TRUE);
 			}
 		}
 	}
