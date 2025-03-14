@@ -6,4 +6,5 @@ compiler.version=14
 os=Android
 
 [buildenv]
-LD=ld # fixes shared libiconv build
+# fixes shared libiconv build
+LD=ld
