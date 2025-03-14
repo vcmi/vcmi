@@ -261,7 +261,7 @@
 			{ "a" : "1", "b" : "21", "guard" : 3000, "road" : "true" },
 
 			{ "a" : "2", "b" : "10", "guard" : 6000, "road" : "random" },
-			{ "a" : "2", "b" : "22", "guard" : 3000, "road" : "random" },
+			{ "a" : "2", "b" : "22", "guard" : 3000, "road" : "true" },
 			{ "a" : "2", "b" : "22", "guard" : 3000, "road" : "random" },
 
 			{ "a" : "3", "b" : "21", "guard" : 3000, "road" : "true" },
@@ -276,7 +276,7 @@
 			{ "a" : "5", "b" : "24", "guard" : 3000, "road" : "random" },
 			{ "a" : "5", "b" : "24", "guard" : 3000, "road" : "random" },
 
-			{ "a" : "6", "b" : "14", "guard" : 6000 },
+			{ "a" : "6", "b" : "14", "guard" : 6000, "road" : "true" },
 			{ "a" : "6", "b" : "25", "guard" : 3000, "road" : "random" },
 			{ "a" : "6", "b" : "25", "guard" : 3000, "road" : "true" },
 

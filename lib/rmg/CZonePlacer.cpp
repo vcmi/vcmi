@@ -1013,7 +1013,9 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 	do
 	{
 		anyDropped = false;
-		std::map<TRmgTemplateZoneId, std::set<TRmgTemplateZoneId>> roadGraph;
+
+		// Instead of a simple set, use a multiset to track multiple connections between zones
+		std::map<TRmgTemplateZoneId, std::map<TRmgTemplateZoneId, int>> roadGraph;
 		std::set<rmg::ZoneConnection> randomConnections;
 
 		//Build graph and collect random connections
@@ -1023,13 +1025,13 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 			{
 				if(connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE)
 				{
-					roadGraph[connection.getZoneA()].insert(connection.getZoneB());
-					roadGraph[connection.getZoneB()].insert(connection.getZoneA());
+					roadGraph[connection.getZoneA()][connection.getZoneB()]++;
+					roadGraph[connection.getZoneB()][connection.getZoneA()]++;
 				}
 				else if(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
 				{
-					roadGraph[connection.getZoneA()].insert(connection.getZoneB());
-					roadGraph[connection.getZoneB()].insert(connection.getZoneA());
+					roadGraph[connection.getZoneA()][connection.getZoneB()]++;
+					roadGraph[connection.getZoneB()][connection.getZoneA()]++;
 					randomConnections.insert(connection);
 				}
 				// ROAD_FALSE connections are ignored
@@ -1057,9 +1059,19 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 				continue;
 			}
 
-			//Temporarily remove this connection
-			roadGraph[zoneA].erase(zoneB);
-			roadGraph[zoneB].erase(zoneA);
+			//Check if this is the last road between these zones
+			if(roadGraph[zoneA][zoneB] <= 1)
+			{
+				//Temporarily remove this connection
+				roadGraph[zoneA].erase(zoneB);
+				roadGraph[zoneB].erase(zoneA);
+			}
+			else
+			{
+				//Decrement the connection count
+				roadGraph[zoneA][zoneB]--;
+				roadGraph[zoneB][zoneA]--;
+			}
 
 			//Check if graph remains connected as a whole
 			bool canRemove = true;
@@ -1093,11 +1105,11 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 
 					visited.insert(current);
 
-					for(auto neighbor : roadGraph[current])
+					for(auto & neighbor : roadGraph[current])
 					{
-						if(visited.find(neighbor) == visited.end())
+						if(visited.find(neighbor.first) == visited.end())
 						{
-							stack.push(neighbor);
+							stack.push(neighbor.first);
 						}
 					}
 				}
@@ -1116,8 +1128,16 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 			if(!canRemove)
 			{
 				//Restore connection and try next one
-				roadGraph[zoneA].insert(zoneB);
-				roadGraph[zoneB].insert(zoneA);
+				if(roadGraph[zoneA].find(zoneB) == roadGraph[zoneA].end())
+				{
+					roadGraph[zoneA][zoneB] = 1;
+					roadGraph[zoneB][zoneA] = 1;
+				}
+				else
+				{
+					roadGraph[zoneA][zoneB]++;
+					roadGraph[zoneB][zoneA]++;
+				}
 				continue;
 			}
 
