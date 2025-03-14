@@ -1134,10 +1134,8 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 		}
 	} while(anyDropped);
 
-	// Use a set to track processed connection IDs to avoid duplicates
-	std::set<int> processedConnectionIds;
 	
-	// Process each zone's connections
+	// Mark all remaining random connections as TRUE
 	for(auto & zonePtr : zones)
 	{
 		for(auto & connection : zonePtr.second->getConnections())
@@ -1145,13 +1143,6 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 			if(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
 			{
 				auto id = connection.getId();
-				// Only process each connection once
-				if(vstd::contains(processedConnectionIds, id))
-					continue;
-
-				processedConnectionIds.insert(id);
-				
-				// Use the new setRoadOption method
 				zonePtr.second->setRoadOption(id, rmg::ERoadOption::ROAD_TRUE);
 			}
 		}

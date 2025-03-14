@@ -110,7 +110,6 @@ void ConnectionsPlacer::init()
 	POSTFUNCTION(RoadPlacer);
 	POSTFUNCTION(ObjectManager);
 	
-	// FIXME: Use zones modified by CZonePlacer
 	for (auto c : zone.getConnections())
 	{
 		addConnection(c);
