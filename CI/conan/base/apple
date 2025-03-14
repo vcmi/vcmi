@@ -1,8 +1,10 @@
+{% import 'vars.jinja' as vars %}
+
 include(common)
 
 [settings]
 compiler=apple-clang
-compiler.cppstd=17
+compiler.cppstd={{ vars.cppstd }}
 compiler.libcxx=libc++
 compiler.version=16
 
