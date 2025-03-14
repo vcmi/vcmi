@@ -281,12 +281,8 @@
 			{ "a" : "6", "b" : "25", "guard" : 3000, "road" : "true" },
 
 			{ "a" : "7", "b" : "21", "guard" : 6000, "road" : "random" },
-			{ "a" : "7", "b" : "21", "guard" : 6000, "road" : "random" },
-			{ "a" : "8", "b" : "22", "guard" : 6000, "road" : "random" },
 			{ "a" : "8", "b" : "22", "guard" : 6000, "road" : "random" },
 			{ "a" : "15", "b" : "24", "guard" : 6000, "road" : "random"  },
-			{ "a" : "15", "b" : "24", "guard" : 6000, "road" : "random"  },
-			{ "a" : "16", "b" : "25", "guard" : 6000, "road" : "random"  },
 			{ "a" : "16", "b" : "25", "guard" : 6000, "road" : "random"  },
 
 			{ "a" : "9", "b" : "10", "guard" : 6000, "road" : "true" },
