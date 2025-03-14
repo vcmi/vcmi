@@ -360,10 +360,10 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 	BattleResultAccepted raccepted;
 	raccepted.battleID = battle.getBattle()->getBattleID();
-	raccepted.heroResult[finishingBattle->winnerSide].heroId = winnerHero ? winnerHero->id : ObjectInstanceID::NONE;
-	raccepted.heroResult[CBattleInfoEssentials::otherSide(finishingBattle->winnerSide)].heroId = loserHero ? loserHero->id : ObjectInstanceID::NONE;
-	raccepted.heroResult[BattleSide::ATTACKER].armyId = battle.battleGetArmyObject(BattleSide::ATTACKER)->id;
-	raccepted.heroResult[BattleSide::DEFENDER].armyId = battle.battleGetArmyObject(BattleSide::DEFENDER)->id;
+	raccepted.heroResult[finishingBattle->winnerSide].heroID = winnerHero ? winnerHero->id : ObjectInstanceID::NONE;
+	raccepted.heroResult[CBattleInfoEssentials::otherSide(finishingBattle->winnerSide)].heroID = loserHero ? loserHero->id : ObjectInstanceID::NONE;
+	raccepted.heroResult[BattleSide::ATTACKER].armyID = battle.battleGetArmyObject(BattleSide::ATTACKER)->id;
+	raccepted.heroResult[BattleSide::DEFENDER].armyID = battle.battleGetArmyObject(BattleSide::DEFENDER)->id;
 	raccepted.heroResult[BattleSide::ATTACKER].exp = battleResult->exp[BattleSide::ATTACKER];
 	raccepted.heroResult[BattleSide::DEFENDER].exp = battleResult->exp[BattleSide::DEFENDER];
 	raccepted.winnerSide = finishingBattle->winnerSide;

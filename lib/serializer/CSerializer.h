@@ -146,12 +146,6 @@ struct VectorizedTypeFor
 	using type = std::conditional_t<std::is_base_of_v<CGObjectInstance, T>, CGObjectInstance, T>;
 };
 
-template <>
-struct VectorizedTypeFor<CGHeroInstance>
-{
-	using type = CGHeroInstance;
-};
-
 template <typename T>
 struct VectorizedIDType
 {
@@ -162,12 +156,6 @@ template <>
 struct VectorizedIDType<CArtifactInstance>
 {
 	using type = ArtifactInstanceID;
-};
-
-template <>
-struct VectorizedIDType<CGHeroInstance>
-{
-	using type = HeroTypeID;
 };
 
 /// Base class for deserializers

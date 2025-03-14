@@ -80,7 +80,6 @@ public:
 
 	//hero
 	virtual const CGHeroInstance * getHero(ObjectInstanceID objid) const = 0;
-	virtual const CGHeroInstance * getHeroWithSubid(int subid) const = 0;
 //	int getHeroCount(PlayerColor player, bool includeGarrisoned) const;
 //	bool getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject = nullptr) const;
 //	int32_t getSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
@@ -177,7 +176,6 @@ public:
 
 	//hero
 	const CGHeroInstance * getHero(ObjectInstanceID objid) const override;
-	const CGHeroInstance * getHeroWithSubid(int subid) const override;
 	virtual int getHeroCount(PlayerColor player, bool includeGarrisoned) const;
 	virtual bool getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject = nullptr) const;
 	virtual int32_t getSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction

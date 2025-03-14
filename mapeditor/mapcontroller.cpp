@@ -109,10 +109,13 @@ void MapController::repairMap(CMap * map)
 			e.name = "rumor_" + std::to_string(emptyNameId++);
 	
 	//fix owners for objects
-	auto allImpactedObjects(map->objects);
+	std::vector<CGObjectInstance*> allImpactedObjects;
 
-	for (const auto & hero : map->predefinedHeroes)
-		allImpactedObjects.push_back(hero);
+	for (const auto & object : map->objects)
+		allImpactedObjects.push_back(object.get());
+
+	for (const auto & hero : map->getHeroesInPool())
+		allImpactedObjects.push_back(map->tryGetFromHeroPool(hero));
 
 	for(auto obj : allImpactedObjects)
 	{
@@ -123,7 +126,7 @@ void MapController::repairMap(CMap * map)
 				obj->tempOwner = PlayerColor::NEUTRAL;
 		}
 		//fix hero instance
-		if(auto * nih = dynamic_cast<CGHeroInstance*>(obj.get()))
+		if(auto * nih = dynamic_cast<CGHeroInstance*>(obj))
 		{
 			// All heroes present on map or in prisons need to be allowed to rehire them after they are defeated
 
@@ -146,7 +149,7 @@ void MapController::repairMap(CMap * map)
 			
 		}
 		//fix town instance
-		if(auto * tnh = dynamic_cast<CGTownInstance*>(obj.get()))
+		if(auto * tnh = dynamic_cast<CGTownInstance*>(obj))
 		{
 			if(tnh->getTown())
 			{
@@ -162,7 +165,7 @@ void MapController::repairMap(CMap * map)
 			}
 		}
 		//fix spell scrolls
-		if(auto * art = dynamic_cast<CGArtifact*>(obj.get()))
+		if(auto * art = dynamic_cast<CGArtifact*>(obj))
 		{
 			if(art->ID == Obj::SPELL_SCROLL && !art->storedArtifact)
 			{
@@ -179,7 +182,7 @@ void MapController::repairMap(CMap * map)
 			}
 		}
 		//fix mines 
-		if(auto * mine = dynamic_cast<CGMine*>(obj.get()))
+		if(auto * mine = dynamic_cast<CGMine*>(obj))
 		{
 			if(!mine->isAbandoned())
 			{

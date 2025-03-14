@@ -555,11 +555,11 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	for (auto & elem : gs->players)
 		turnOrder->addPlayer(elem.first);
 
-	for (auto & elem : gs->getMap().allHeroes)
-	{
-		if(elem)
-			heroPool->getHeroSkillsRandomGenerator(elem->getHeroTypeID()); // init RMG seed
-	}
+//	for (auto & elem : gs->getMap().allHeroes)
+//	{
+//		if(elem)
+//			heroPool->getHeroSkillsRandomGenerator(elem->getHeroTypeID()); // init RMG seed
+//	}
 
 	reinitScripting();
 }

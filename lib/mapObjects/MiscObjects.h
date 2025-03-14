@@ -284,11 +284,12 @@ public:
 
 class DLL_LINKAGE CGBoat : public CGObjectInstance, public CBonusSystemNode
 {
+	ObjectInstanceID boardedHeroID;
+
 public:
 	using CGObjectInstance::CGObjectInstance;
 
 	ui8 direction;
-	const CGHeroInstance *hero;  //hero on board
 	bool onboardAssaultAllowed; //if true, hero can attack units from transport
 	bool onboardVisitAllowed; //if true, hero can visit objects from transport
 	EPathfindingLayer layer;
@@ -301,12 +302,15 @@ public:
 	CGBoat(IGameCallback * cb);
 	bool isCoastVisitable() const override;
 
+	void setBoardedHero(const CGHeroInstance * hero);
+	const CGHeroInstance * getBoardedHero() const;
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & direction;
-		h & hero;
+		h & boardedHeroID;
 		h & layer;
 		h & onboardAssaultAllowed;
 		h & onboardVisitAllowed;

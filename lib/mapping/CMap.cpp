@@ -178,7 +178,7 @@ CMap::CMap(IGameCallback * cb)
 	, waterMap(false)
 	, uidCounter(0)
 {
-	allHeroes.resize(LIBRARY->heroh->size());
+	heroesPool.resize(LIBRARY->heroh->size());
 	allowedAbilities = LIBRARY->skillh->getDefaultAllowed();
 	allowedArtifact = LIBRARY->arth->getDefaultAllowed();
 	allowedSpells = LIBRARY->spellh->getDefaultAllowed();
@@ -187,12 +187,7 @@ CMap::CMap(IGameCallback * cb)
 	gameSettings->loadBase(LIBRARY->settingsHandler->getFullConfig());
 }
 
-CMap::~CMap()
-{
-	getEditManager()->getUndoManager().clearAll();
-
-	resetStaticData();
-}
+CMap::~CMap() = default;
 
 void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 {
@@ -255,8 +250,13 @@ void CMap::calculateGuardingGreaturePositions()
 
 CGHeroInstance * CMap::getHero(HeroTypeID heroID)
 {
-	if (vstd::contains(heroesOnMap, heroID))
-		return allHeroes.at(heroID.getNum()).get();
+	for (const auto & objectID : heroesOnMap)
+	{
+		const auto hero = std::dynamic_pointer_cast<CGHeroInstance>(objects.at(objectID.getNum()));
+
+		if (hero->getHeroTypeID() == heroID)
+			return hero.get();
+	}
 	return nullptr;
 }
 
@@ -727,14 +727,6 @@ CMapEditManager * CMap::getEditManager()
 	return editManager.get();
 }
 
-void CMap::resetStaticData()
-{
-	obeliskCount = 0;
-	obelisksVisited.clear();
-	townMerchantArtifacts.clear();
-	townUniversitySkills.clear();
-}
-
 void CMap::resolveQuestIdentifiers()
 {
 	//FIXME: move to CMapLoaderH3M
@@ -865,5 +857,35 @@ void CMap::postInitialize()
 	});
 }
 
+void CMap::addToHeroPool(std::shared_ptr<CGHeroInstance> hero)
+{
+	assert(hero->getHeroTypeID().isValid());
+	assert(!vstd::contains(heroesOnMap, hero->getHeroTypeID()));
+	assert(heroesPool.at(hero->getHeroTypeID().getNum()) == nullptr);
+
+	heroesPool.at(hero->getHeroTypeID().getNum()) = hero;
+}
+
+CGHeroInstance * CMap::tryGetFromHeroPool(HeroTypeID hero)
+{
+	return heroesPool.at(hero.getNum()).get();
+}
+
+std::shared_ptr<CGHeroInstance> CMap::tryTakeFromHeroPool(HeroTypeID hero)
+{
+	auto result = heroesPool.at(hero.getNum());
+	heroesPool.at(hero.getNum()) = nullptr;
+	return result;
+}
+
+std::vector<HeroTypeID> CMap::getHeroesInPool() const
+{
+	std::vector<HeroTypeID> result;
+	for (const auto & hero : heroesPool)
+		if (hero)
+			result.push_back(hero->getHeroTypeID());
+
+	return result;
+}
 
 VCMI_LIB_NAMESPACE_END

@@ -987,7 +987,6 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 CGBoat::CGBoat(IGameCallback * cb)
 	: CGObjectInstance(cb)
 {
-	hero = nullptr;
 	direction = 4;
 	layer = EPathfindingLayer::SAIL;
 }
@@ -995,6 +994,22 @@ CGBoat::CGBoat(IGameCallback * cb)
 bool CGBoat::isCoastVisitable() const
 {
 	return true;
+}
+
+void CGBoat::setBoardedHero(const CGHeroInstance * hero)
+{
+	if (hero)
+		boardedHeroID = hero->id;
+	else
+		boardedHeroID = ObjectInstanceID();
+}
+
+const CGHeroInstance * CGBoat::getBoardedHero() const
+{
+	if (boardedHeroID.hasValue())
+		return cb->getHero(boardedHeroID);
+	else
+		return nullptr;
 }
 
 void CGSirens::initObj(vstd::RNG & rand)

@@ -679,19 +679,19 @@ void CMapFormatJson::serializeTimedEvents(JsonSerializeFormat & handler)
 
 void CMapFormatJson::serializePredefinedHeroes(JsonSerializeFormat & handler)
 {
-	//todo:serializePredefinedHeroes
-
 	if(handler.saving)
 	{
-		if(!map->predefinedHeroes.empty())
+		auto heroPool = map->getHeroesInPool();
+		if(!heroPool.empty())
 		{
 			auto predefinedHeroes = handler.enterStruct("predefinedHeroes");
 
-			for(auto & hero : map->predefinedHeroes)
+			for(auto & heroID : heroPool)
 			{
-				auto predefinedHero = handler.enterStruct(hero->getHeroTypeName());
+				auto heroPtr = map->tryGetFromHeroPool(heroID);
+				auto predefinedHero = handler.enterStruct(heroPtr->getHeroTypeName());
 
-				hero->serializeJsonDefinition(handler);
+				heroPtr->serializeJsonDefinition(handler);
 			}
 		}
 	}
@@ -705,12 +705,12 @@ void CMapFormatJson::serializePredefinedHeroes(JsonSerializeFormat & handler)
 		{
 			auto predefinedHero = handler.enterStruct(p.first);
 
-			auto * hero = new CGHeroInstance(map->cb);
+			auto hero = std::make_shared<CGHeroInstance>(map->cb);
 			hero->ID = Obj::HERO;
 			hero->setHeroTypeName(p.first);
 			hero->serializeJsonDefinition(handler);
 
-			map->predefinedHeroes.emplace_back(hero);
+			map->addToHeroPool(hero);
 		}
 	}
 }

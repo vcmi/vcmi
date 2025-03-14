@@ -53,9 +53,12 @@ StartingBonus::~StartingBonus()
 void StartingBonus::initControls()
 {
 	std::map<int, std::string> heroSelection;
-	for(auto & hero : map->heroesOnMap)
+	for(ObjectInstanceID heroID : map->getHeroesOnMap())
+	{
+		const auto * hero = dynamic_cast<const CGHeroInstance*>(map->objects.at(heroID.getNum()).get());
 		if(hero->getOwner() == color || color == PlayerColor::CANNOT_DETERMINE)
 			heroSelection.emplace(hero->getHeroTypeID(), hero->getNameTranslated());
+	}
 	heroSelection.emplace(HeroTypeID::CAMP_STRONGEST, tr("Strongest").toStdString());
 	heroSelection.emplace(HeroTypeID::CAMP_GENERATED, tr("Generated").toStdString());
 	heroSelection.emplace(HeroTypeID::CAMP_RANDOM, tr("Random").toStdString());
@@ -80,13 +83,19 @@ void StartingBonus::initControls()
 		ui->comboBoxCreatureCreatureType->addItem(QString::fromStdString(objectPtr->getNameSingularTranslated()), QVariant(objectPtr->getId()));
 	
 	if(map->players[color].hasMainTown)
-		for(auto & town : map->towns)
+	{
+		for(ObjectInstanceID townID : map->getAllTowns())
+		{
+			const auto * town = dynamic_cast<const CGTownInstance*>(map->objects.at(townID.getNum()).get());
+
 			if(town->pos == map->players[color].posOfMainTown)
 			{
 				for(auto & building : town->getTown()->buildings)
 					ui->comboBoxBuildingBuilding->addItem(QString::fromStdString(building.second->getNameTranslated()), QVariant(building.first.getNum()));
 				break;
 			}
+		}
+	}
 
 	for(auto const & objectPtr : LIBRARY->arth->objects)
 		if(!vstd::contains(std::vector<ArtifactID>({

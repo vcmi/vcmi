@@ -62,11 +62,17 @@ class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 
 	std::unique_ptr<GameSettings> gameSettings;
 
+	/// All quests that are currently present on map
 	std::vector<std::shared_ptr<CQuest>> quests;
+	/// All artifacts that exists on map, whether on map, in hero inventory, or stored in some object
 	std::vector<std::shared_ptr<CArtifactInstance>> artInstances;
+	/// All heroes that are currently free for recruitment in taverns and are not present on map
+	std::vector<std::shared_ptr<CGHeroInstance> > heroesPool;
 
+	/// Precomputed indices of all towns on map
 	std::vector<ObjectInstanceID> towns;
 
+	/// Precomputed indices of all towns on map. Does not includes heroes in prisons
 	std::vector<ObjectInstanceID> heroesOnMap;
 
 public:
@@ -127,6 +133,11 @@ public:
 	void townAddedToMap(const CGTownInstance * town);
 	void townRemovedFromMap(const CGTownInstance * town);
 
+	void addToHeroPool(std::shared_ptr<CGHeroInstance> hero);
+	std::shared_ptr<CGHeroInstance> tryTakeFromHeroPool(HeroTypeID hero);
+	CGHeroInstance * tryGetFromHeroPool(HeroTypeID hero);
+	std::vector<HeroTypeID> getHeroesInPool() const;
+
 	bool isWaterMap() const;
 	bool calculateWaterContent();
 	void banWaterArtifacts();
@@ -139,6 +150,8 @@ public:
 
 	/// Gets object of specified type on requested position
 	const CGObjectInstance * getObjectiveObjectFrom(const int3 & pos, Obj type);
+
+	/// Returns pointer to hero of specified type if hero is present on map
 	CGHeroInstance * getHero(HeroTypeID heroId);
 
 	/// Returns ID's of all heroes that are currently present on map
@@ -152,7 +165,6 @@ public:
 	/// Sets the victory/loss condition objectives ??
 	void checkForObjectives();
 
-	void resetStaticData();
 	void resolveQuestIdentifiers();
 
 	void reindexObjects();
@@ -167,11 +179,9 @@ public:
 
 	//Central lists of items in game. Position of item in the vectors below is their (instance) id.
 	std::vector< std::shared_ptr<CGObjectInstance> > objects;
-	std::vector< std::shared_ptr<CGHeroInstance> > allHeroes; //indexed by [hero_type_id]; on map, disposed, prisons, etc.
 
 	//Helper lists
 	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > teleportChannels;
-	std::vector<std::shared_ptr<CGHeroInstance> > predefinedHeroes;
 
 	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
 	std::map<si32, ObjectInstanceID> questIdentifierToId;
@@ -215,7 +225,6 @@ public:
 		h & grailPos;
 		h & artInstances;
 		h & quests;
-		h & allHeroes;
 
 		//TODO: viccondetails
 		h & terrain;

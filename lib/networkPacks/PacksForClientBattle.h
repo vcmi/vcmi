@@ -95,19 +95,14 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 
 	struct HeroBattleResults
 	{
-		HeroBattleResults()
-			: heroId(ObjectInstanceID::NONE)
-			, armyId(ObjectInstanceID::NONE)
-			, exp(0) {}
-
-		ObjectInstanceID heroId;
-		ObjectInstanceID armyId;
-		TExpType exp;
+		ObjectInstanceID heroID;
+		ObjectInstanceID armyID;
+		TExpType exp = 0;
 
 		template <typename Handler> void serialize(Handler & h)
 		{
-			h & armyId;
-			h & heroId;
+			h & heroID;
+			h & armyID;
 			h & exp;
 		}
 	};

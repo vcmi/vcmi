@@ -1299,10 +1299,9 @@ void CGHeroInstance::attachToBoat(CGBoat* newBoat)
 {
 	assert(newBoat);
 	boat = newBoat;
-	attachTo(const_cast<CGBoat&>(*boat));
-	const_cast<CGBoat*>(boat)->hero = this;
+	attachTo(*newBoat);
+	newBoat->setBoardedHero(this);
 }
-
 
 void CGHeroInstance::deserializationFix()
 {

@@ -182,7 +182,7 @@ void MapViewController::tick(uint32_t timeDelta)
 		assert(boat || hero);
 
 		if(!hero)
-			hero = boat->hero;
+			hero = boat->getBoardedHero();
 
 		double heroMoveTime = GAME->interface()->playerID == hero->getOwner() ?
 			settings["adventure"]["heroMoveTime"].Float() :
@@ -249,7 +249,7 @@ void MapViewController::afterRender()
 		assert(boat || hero);
 
 		if(!hero)
-			hero = boat->hero;
+			hero = boat->getBoardedHero();
 
 		if(movementContext->progress >= 0.999)
 		{
@@ -406,10 +406,10 @@ void MapViewController::removeObject(const CGObjectInstance * obj)
 	if (obj->ID == Obj::BOAT)
 	{
 		auto * boat = dynamic_cast<const CGBoat*>(obj);
-		if (boat->hero)
+		if (boat->getBoardedHero())
 		{
-			view->invalidate(context, boat->hero->id);
-			state->removeObject(boat->hero);
+			view->invalidate(context, boat->getBoardedHero()->id);
+			state->removeObject(boat->getBoardedHero());
 		}
 	}
 

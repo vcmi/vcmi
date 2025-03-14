@@ -1073,9 +1073,11 @@ void ChangeObjectVisitors::applyGs(CGameState *gs)
 			break;
 		case VISITOR_CLEAR:
 			// remove visit info from all heroes, including those that are not present on map
-			for (auto hero : gs->getMap().allHeroes)
-				if (hero)
-					hero->visitedObjects.erase(object);
+			for (auto heroID : gs->getMap().getHeroesOnMap())
+				gs->getHero(heroID)->visitedObjects.erase(object);
+
+			for (auto heroID : gs->getMap().getHeroesInPool())
+				gs->getMap().tryGetFromHeroPool(heroID)->visitedObjects.erase(object);
 
 			for(auto &elem : gs->players)
 				elem.second.visitedObjects.erase(object);
@@ -1329,14 +1331,14 @@ void TryMoveHero::applyGs(CGameState *gs)
 		gs->getMap().removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
 		h->boat = boat;
 		h->attachTo(*boat);
-		boat->hero = h;
+		boat->setBoardedHero(h);
 	}
 	else if(result == DISEMBARK) //hero leaves boat to destination tile
 	{
 		auto * b = const_cast<CGBoat *>(h->boat);
 		b->direction = h->moveDir;
 		b->pos = start;
-		b->hero = nullptr;
+		b->setBoardedHero(nullptr);
 		gs->getMap().addBlockVisTiles(b);
 		h->detachFrom(*b);
 		h->boat = nullptr;
@@ -2093,17 +2095,18 @@ void BattleCancelled::applyGs(CGameState *gs)
 void BattleResultAccepted::applyGs(CGameState *gs)
 {
 	// Remove any "until next battle" bonuses
-	if(const auto attackerHero = gs->getHero(heroResult[BattleSide::ATTACKER].heroId))
+	if(const auto attackerHero = gs->getHero(heroResult[BattleSide::ATTACKER].heroID))
 		attackerHero->removeBonusesRecursive(Bonus::OneBattle);
-	if(const auto defenderHero = gs->getHero(heroResult[BattleSide::DEFENDER].heroId))
+	if(const auto defenderHero = gs->getHero(heroResult[BattleSide::DEFENDER].heroID))
 		defenderHero->removeBonusesRecursive(Bonus::OneBattle);
 
 	if(winnerSide != BattleSide::NONE)
 	{
 		// Grow up growing artifacts
-		if(const auto winnerHero = gs->getHero(heroResult[winnerSide].heroId))
+		if(const auto winnerHero = gs->getHero(heroResult[winnerSide].heroID))
 		{
 			if(winnerHero->getCommander() && winnerHero->getCommander()->alive)
+
 			{
 				for(auto & art : winnerHero->getCommander()->artifactsWorn)
 					gs->getArtInstance(art.second.getID())->growingUp();
@@ -2115,12 +2118,12 @@ void BattleResultAccepted::applyGs(CGameState *gs)
 
 	if(gs->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
-		if(const auto attackerArmy = gs->getArmyInstance(heroResult[BattleSide::ATTACKER].armyId))
+		if(const auto attackerArmy = gs->getArmyInstance(heroResult[BattleSide::ATTACKER].armyID))
 		{
 			attackerArmy->giveStackExp(heroResult[BattleSide::ATTACKER].exp);
 			attackerArmy->nodeHasChanged();
 		}
-		if(const auto defenderArmy = gs->getArmyInstance(heroResult[BattleSide::DEFENDER].armyId))
+		if(const auto defenderArmy = gs->getArmyInstance(heroResult[BattleSide::DEFENDER].armyID))
 		{
 			defenderArmy->giveStackExp(heroResult[BattleSide::DEFENDER].exp);
 			defenderArmy->nodeHasChanged();

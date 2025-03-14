@@ -230,17 +230,26 @@ void CGameState::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 		logGlobal->error("Creature instance update is not implemented");
 		break;
 	case Metatype::HERO_INSTANCE:
+	{
 		//index is hero type
-		if(index >= 0 && index < map->allHeroes.size())
+		HeroTypeID heroID(index);
+		auto heroOnMap = map->getHero(heroID);
+		auto heroInPool = map->tryGetFromHeroPool(heroID);
+
+		if(heroOnMap)
 		{
-			const auto & hero = map->allHeroes.at(index);
-			hero->updateFrom(data);
+			heroOnMap->updateFrom(data);
+		}
+		else if (heroInPool)
+		{
+			heroInPool->updateFrom(data);
 		}
 		else
 		{
-			logGlobal->error("Update entity: hero index %s is out of range [%d,%d]", index, 0,  map->allHeroes.size());
+			logGlobal->error("Update entity: hero index %s is out of range", index);
 		}
 		break;
+	}
 	case Metatype::MAP_OBJECT_INSTANCE:
 		if(index >= 0 && index < map->objects.size())
 		{
@@ -625,22 +634,22 @@ void CGameState::initHeroes()
 	}
 
 	std::set<HeroTypeID> heroesToCreate = getUnusedAllowedHeroes(); //ids of heroes to be created and put into the pool
-	for(auto ph : map->predefinedHeroes)
-	{
-		if(!vstd::contains(heroesToCreate, ph->getHeroTypeID()))
-			continue;
-		ph->initHero(getRandomGenerator());
-		heroesPool->addHeroToPool(ph);
-		heroesToCreate.erase(ph->getHeroTypeID());
-	}
 
 	for(const HeroTypeID & htype : heroesToCreate) //all not used allowed heroes go with default state into the pool
 	{
-		auto vhi = std::make_shared<CGHeroInstance>(callback);
-		vhi->initHero(getRandomGenerator(), htype);
+		auto vhi = map->tryTakeFromHeroPool(htype);
 
-		int typeID = htype.getNum();
-		map->allHeroes[typeID] = vhi;
+		if (vhi)
+		{
+			vhi->initHero(getRandomGenerator());
+		}
+		else
+		{
+			auto vhi = std::make_shared<CGHeroInstance>(callback);
+			vhi->initHero(getRandomGenerator(), htype);
+		}
+
+		map->addToHeroPool(vhi);
 		heroesPool->addHeroToPool(vhi);
 	}
 

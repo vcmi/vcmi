@@ -439,8 +439,8 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 	if(obj->ID == Obj::BOAT)
 	{
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
-		if(boat && boat->hero && !boat->flagAnimations[boat->hero->tempOwner.getNum()].empty())
-			return getAnimation(boat->flagAnimations[boat->hero->tempOwner.getNum()], true, false);
+		if(boat && boat->getBoardedHero() && !boat->flagAnimations[boat->getBoardedHero()->tempOwner.getNum()].empty())
+			return getAnimation(boat->flagAnimations[boat->getBoardedHero()->tempOwner.getNum()], true, false);
 	}
 
 	return nullptr;
@@ -452,7 +452,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getOverlayAnimation(const CGObje
 	{
 		// Boats have additional animation with waves around boat
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
-		if(boat && boat->hero && !boat->overlayAnimation.empty())
+		if(boat && boat->getBoardedHero() && !boat->overlayAnimation.empty())
 			return getAnimation(boat->overlayAnimation, true, false);
 	}
 	return nullptr;

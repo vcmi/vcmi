@@ -871,7 +871,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		if(!custom)
 			continue;
 
-		auto * hero = new CGHeroInstance(map->cb);
+		auto hero = std::make_shared<CGHeroInstance>(map->cb);
 		hero->ID = Obj::HERO;
 		hero->subID = heroID;
 
@@ -897,7 +897,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 			}
 		}
 
-		loadArtifactsOfHero(hero);
+		loadArtifactsOfHero(hero.get());
 
 		bool hasCustomBio = reader->readBool();
 		if(hasCustomBio)
@@ -919,7 +919,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 				hero->pushPrimSkill(static_cast<PrimarySkill>(skillID), reader->readUInt8());
 			}
 		}
-		map->predefinedHeroes.emplace_back(hero);
+		map->addToHeroPool(hero);
 
 		logGlobal->debug("Map '%s': Hero predefined in map: %s", mapName, hero->getHeroType()->getJsonKey());
 	}
@@ -2032,8 +2032,6 @@ void CMapLoaderH3M::setOwnerAndValidate(const int3 & mapPosition, CGObjectInstan
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPosition, const ObjectInstanceID & objectInstanceID)
 {
-	auto object = std::make_shared<CGHeroInstance>(map->cb);
-
 	if(features.levelAB)
 	{
 		unsigned int identifier = reader->readUInt32();
@@ -2041,18 +2039,15 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 	}
 
 	PlayerColor owner = reader->readPlayer();
-	object->subID = reader->readHero().getNum();
+	HeroTypeID heroType = reader->readHero();
 
 	//If hero of this type has been predefined, use that as a base.
 	//Instance data will overwrite the predefined values where appropriate.
-	for(auto & elem : map->predefinedHeroes)
+	auto object = map->tryTakeFromHeroPool(heroType);
+	if (!object)
 	{
-		if(elem->subID == object->subID)
-		{
-			logGlobal->debug("Hero %d will be taken from the predefined heroes list.", object->subID);
-			object = elem;
-			break;
-		}
+		object = std::make_shared<CGHeroInstance>(map->cb);
+		object->subID = heroType.getNum();
 	}
 
 	setOwnerAndValidate(mapPosition, object.get(), owner);

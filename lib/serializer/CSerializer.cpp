@@ -23,10 +23,8 @@ CSerializer::~CSerializer() = default;
 
 void CSerializer::addStdVecItems(CGameState *gs, GameLibrary *lib)
 {
-//	registerVectoredType<CGObjectInstance, ObjectInstanceID>(&gs->getMap().objects,
-//		[](const CGObjectInstance &obj){ return obj.id; });
-	registerVectoredType<CGHeroInstance, HeroTypeID>(&gs->getMap().allHeroes,
-		[](const CGHeroInstance &h){ return h.getHeroType()->getId(); });
+	registerVectoredType<CGObjectInstance, ObjectInstanceID>(&gs->getMap().objects,
+		[](const CGObjectInstance &obj){ return obj.id; });
 	registerVectoredType<CArtifactInstance, ArtifactInstanceID>(&gs->getMap().artInstances,
 		[](const CArtifactInstance &artInst){ return artInst.getId(); });
 	registerVectoredType<CQuest, si32>(&gs->getMap().quests,

@@ -914,16 +914,6 @@ const TeamState * CGameInfoCallback::getPlayerTeam( PlayerColor color ) const
 	}
 }
 
-const CGHeroInstance * CGameInfoCallback::getHeroWithSubid( int subid ) const
-{
-	if(subid<0)
-		return nullptr;
-	if(subid>= gs->getMap().allHeroes.size())
-		return nullptr;
-
-	return gs->getMap().allHeroes.at(subid).get();
-}
-
 bool CGameInfoCallback::isInTheMap(const int3 &pos) const
 {
 	return gs->getMap().isInTheMap(pos);

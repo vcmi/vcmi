@@ -84,8 +84,8 @@ void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInsta
 
 		lastBattleQuery->result = std::nullopt;
 
-		assert(lastBattleQuery->belligerents[BattleSide::ATTACKER] == battle->getSide(BattleSide::ATTACKER).armyObject);
-		assert(lastBattleQuery->belligerents[BattleSide::DEFENDER] == battle->getSide(BattleSide::DEFENDER).armyObject);
+		assert(lastBattleQuery->belligerents[BattleSide::ATTACKER] == battle->getSideArmy(BattleSide::ATTACKER));
+		assert(lastBattleQuery->belligerents[BattleSide::DEFENDER] == battle->getSideArmy(BattleSide::DEFENDER));
 	}
 
 	BattleCancelled bc;
