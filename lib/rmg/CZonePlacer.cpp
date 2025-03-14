@@ -1059,8 +1059,10 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 				continue;
 			}
 
+			bool multipleConnections = roadGraph[zoneA][zoneB] > 1;
+
 			//Check if this is the last road between these zones
-			if(roadGraph[zoneA][zoneB] <= 1)
+			if(!multipleConnections)
 			{
 				//Temporarily remove this connection
 				roadGraph[zoneA].erase(zoneB);
@@ -1075,52 +1077,57 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 
 			//Check if graph remains connected as a whole
 			bool canRemove = true;
-			std::set<TRmgTemplateZoneId> visited;
 
-			// Get all zones that have road connections
-			std::set<TRmgTemplateZoneId> zonesWithRoads;
-			for(const auto & entry : roadGraph)
+			// Multiple connections imply this one can be removed without checking
+			if (!multipleConnections)
 			{
-				if(!entry.second.empty())
+				std::set<TRmgTemplateZoneId> visited;
+
+				// Get all zones that have road connections
+				std::set<TRmgTemplateZoneId> zonesWithRoads;
+				for(const auto & entry : roadGraph)
 				{
-					zonesWithRoads.insert(entry.first);
-				}
-			}
-
-			if(!zonesWithRoads.empty())
-			{
-				//Start DFS from any zone that has roads
-				TRmgTemplateZoneId startZone = *zonesWithRoads.begin();
-				
-				std::stack<TRmgTemplateZoneId> stack;
-				stack.push(startZone);
-
-				while(!stack.empty())
-				{
-					auto current = stack.top();
-					stack.pop();
-
-					if(vstd::contains(visited, current))
-						continue;
-
-					visited.insert(current);
-
-					for(auto & neighbor : roadGraph[current])
+					if(!entry.second.empty())
 					{
-						if(!vstd::contains(visited, neighbor.first))
-						{
-							stack.push(neighbor.first);
-						}
+						zonesWithRoads.insert(entry.first);
 					}
 				}
 
-				//Check if all zones with roads are still reachable
-				for(auto zoneId : zonesWithRoads)
+				if(!zonesWithRoads.empty())
 				{
-					if(!vstd::contains(visited, zoneId))
+					//Start DFS from any zone that has roads
+					TRmgTemplateZoneId startZone = *zonesWithRoads.begin();
+					
+					std::stack<TRmgTemplateZoneId> stack;
+					stack.push(startZone);
+
+					while(!stack.empty())
 					{
-						canRemove = false;
-						break;
+						auto current = stack.top();
+						stack.pop();
+
+						if(vstd::contains(visited, current))
+							continue;
+
+						visited.insert(current);
+
+						for(auto & neighbor : roadGraph[current])
+						{
+							if(!vstd::contains(visited, neighbor.first))
+							{
+								stack.push(neighbor.first);
+							}
+						}
+					}
+
+					//Check if all zones with roads are still reachable
+					for(auto zoneId : zonesWithRoads)
+					{
+						if(!vstd::contains(visited, zoneId))
+						{
+							canRemove = false;
+							break;
+						}
 					}
 				}
 			}
@@ -1128,16 +1135,8 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 			if(!canRemove)
 			{
 				//Restore connection and try next one
-				if(!vstd::contains(roadGraph[zoneA], zoneB))
-				{
-					roadGraph[zoneA][zoneB] = 1;
-					roadGraph[zoneB][zoneA] = 1;
-				}
-				else
-				{
-					roadGraph[zoneA][zoneB]++;
-					roadGraph[zoneB][zoneA]++;
-				}
+				roadGraph[zoneA][zoneB]++;
+				roadGraph[zoneB][zoneA]++;
 				continue;
 			}
 
