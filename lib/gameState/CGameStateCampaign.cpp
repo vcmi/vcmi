@@ -361,7 +361,7 @@ void CGameStateCampaign::replaceHeroesPlaceholders()
 		if (!campaignHeroReplacement.heroPlaceholderId.hasValue())
 			continue;
 
-		auto heroPlaceholder = gameState->map->objects.at(campaignHeroReplacement.heroPlaceholderId.getNum());
+		auto heroPlaceholder = gameState->map->getObject(campaignHeroReplacement.heroPlaceholderId);
 		auto heroToPlace = campaignHeroReplacement.hero;
 
 		if(heroPlaceholder->tempOwner.isValidPlayer())
@@ -380,16 +380,8 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 {
 	CGHeroInstance * receiver = nullptr;
 
-	for(auto obj : gameState->map->objects)
+	for(auto hero : gameState->map->getObjects<CGHeroInstance>())
 	{
-		if (!obj)
-			continue;
-
-		if (obj->ID != Obj::HERO)
-			continue;
-
-		auto * hero = dynamic_cast<CGHeroInstance *>(obj.get());
-
 		if (gameState->getPlayerState(hero->getOwner())->isHuman())
 		{
 			receiver = hero;
@@ -445,16 +437,8 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 	campaignHeroReplacements.clear();
 
 	// find all placeholders on map
-	for(auto obj : gameState->map->objects)
+	for(auto heroPlaceholder : gameState->map->getObjects<CGHeroPlaceholder>())
 	{
-		if(!obj)
-			continue;
-
-		if (obj->ID != Obj::HERO_PLACEHOLDER)
-			continue;
-
-		auto * heroPlaceholder = dynamic_cast<CGHeroPlaceholder *>(obj.get());
-
 		// only 1 field must be set
 		assert(heroPlaceholder->powerRank.has_value() != heroPlaceholder->heroType.has_value());
 

@@ -374,13 +374,9 @@ void CGTeleport::addToChannel(std::map<TeleportChannelID, std::shared_ptr<Telepo
 
 TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, MapObjectSubID SubID) const
 {
-	for(auto obj : cb->gameState()->getMap().objects)
+	for(auto teleportObj : cb->gameState()->getMap().getObjects<CGMonolith>())
 	{
-		if(!obj)
-			continue;
-
-		const auto * teleportObj = dynamic_cast<const CGMonolith *>(cb->getObj(obj->id));
-		if(teleportObj && vstd::contains(IDs, teleportObj->ID) && teleportObj->subID == SubID)
+		if(vstd::contains(IDs, teleportObj->ID) && teleportObj->subID == SubID)
 			return teleportObj->channel;
 	}
 	return TeleportChannelID();
@@ -487,14 +483,9 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 {
 	//split on underground and surface gates
 	std::vector<CGSubterraneanGate *> gatesSplit[2]; //surface and underground gates
-	for(auto & obj : cb->gameState()->getMap().objects)
+	for(auto gate : cb->gameState()->getMap().getObjects<CGSubterraneanGate>())
 	{
-		if(!obj)
-			continue;
-
-		auto * hlp = dynamic_cast<CGSubterraneanGate *>(cb->gameState()->getObjInstance(obj->id));
-		if(hlp)
-			gatesSplit[hlp->visitablePos().z].push_back(hlp);
+		gatesSplit[gate->visitablePos().z].push_back(gate);
 	}
 
 	//sort by position
@@ -948,10 +939,10 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 
 		std::vector<const CGObjectInstance *> eyes;
 
-		for (const auto & object : cb->gameState()->getMap().objects)
+		for (const auto & object : cb->gameState()->getMap().getObjects<CGMagi>())
 		{
-			if (object && object->ID == Obj::EYE_OF_MAGI && object->subID == this->subID)
-				eyes.push_back(object.get());
+			if (object->ID == Obj::EYE_OF_MAGI && object->subID == this->subID)
+				eyes.push_back(object);
 		}
 
 		if (!eyes.empty())

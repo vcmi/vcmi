@@ -23,6 +23,7 @@
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/modding/ModScope.h"
 #include "../../lib/mapping/CMap.h"
@@ -627,9 +628,9 @@ void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
 {
 	TeamState *t = gameHandler->gameState()->getPlayerTeam(player);
 
-	for(auto & obj : gameHandler->gameState()->getMap().objects)
+	for(auto & obj : gameHandler->gameState()->getMap().getObjects<CGObelisk>())
 	{
-		if(obj && obj->ID == Obj::OBELISK && !obj->wasVisited(player))
+		if(!obj->wasVisited(player))
 		{
 			gameHandler->setObjPropertyID(obj->id, ObjProperty::OBELISK_VISITED, t->id);
 			for(const auto & color : t->players)

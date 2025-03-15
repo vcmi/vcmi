@@ -251,16 +251,18 @@ void CGameState::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 		break;
 	}
 	case Metatype::MAP_OBJECT_INSTANCE:
-		if(index >= 0 && index < map->objects.size())
+	{
+		CGObjectInstance * obj = getObjInstance(ObjectInstanceID(index));
+		if(obj)
 		{
-			CGObjectInstance * obj = getObjInstance(ObjectInstanceID(index));
 			obj->updateFrom(data);
 		}
 		else
 		{
-			logGlobal->error("Update entity: object index %s is out of range [%d,%d]", index, 0,  map->objects.size());
+			logGlobal->error("Update entity: object index %s is out of range", index);
 		}
 		break;
+	}
 	default:
 		logGlobal->error("This metatype update is not implemented");
 		break;
@@ -446,7 +448,7 @@ void CGameState::initGrailPosition()
 		}
 
 		//remove tiles with holes
-		for(auto & elem : map->objects)
+		for(auto & elem : map->getObjects())
 			if(elem && elem->ID == Obj::HOLE)
 				allowedPos -= elem->anchorPos();
 
@@ -480,11 +482,8 @@ void CGameState::initRandomFactionsForPlayers()
 void CGameState::randomizeMapObjects()
 {
 	logGlobal->debug("\tRandomizing objects");
-	for(const auto & object : map->objects)
+	for(const auto & object : map->getObjects())
 	{
-		if(!object)
-			continue;
-
 		object->pickRandomObject(getRandomGenerator());
 
 		//handle Favouring Winds - mark tiles under it
@@ -504,10 +503,10 @@ void CGameState::randomizeMapObjects()
 
 void CGameState::initOwnedObjects()
 {
-	for(const auto & object : map->objects)
+	for(const auto & object : map->getObjects())
 	{
 		if (object && object->getOwner().isValidPlayer())
-			getPlayerState(object->getOwner())->addOwnedObject(object.get());
+			getPlayerState(object->getOwner())->addOwnedObject(object);
 	}
 }
 
@@ -575,16 +574,11 @@ void CGameState::placeStartingHeroes()
 void CGameState::removeHeroPlaceholders()
 {
 	// remove any hero placeholders that remain on map after (potential) campaign heroes placement
-	for(auto obj : map->objects)
+	for(auto obj : map->getObjects<CGHeroPlaceholder>())
 	{
-		if(obj && obj->ID == Obj::HERO_PLACEHOLDER)
-		{
-			auto heroPlaceholder = dynamic_cast<CGHeroPlaceholder *>(obj.get());
-			map->removeBlockVisTiles(heroPlaceholder, true);
-			map->instanceNames.erase(obj->instanceName);
-			map->objects[heroPlaceholder->id.getNum()] = nullptr;
-			delete heroPlaceholder;
-		}
+		map->removeBlockVisTiles(obj, true);
+		map->instanceNames.erase(obj->instanceName);
+		map->eraseObject(obj->id);
 	}
 }
 
@@ -616,21 +610,15 @@ void CGameState::initHeroes()
 
 			boat->setAnchorPos(hero->anchorPos());
 			boat->appearance = handler->getTemplates().front();
-			boat->id = ObjectInstanceID(static_cast<si32>(gs->getMap().objects.size()));
-
-			map->objects.emplace_back(boat);
-
+			map->addNewObject(boat);
 			hero->attachToBoat(boat.get());
 		}
 	}
 
-	for(auto obj : map->objects) //prisons
+	for(auto hero : map->getObjects<CGHeroInstance>()) //prisons
 	{
-		if(obj && obj->ID == Obj::PRISON)
-		{
-			auto * hero = dynamic_cast<CGHeroInstance*>(obj.get());
+		if(hero->ID == Obj::PRISON)
 			hero->initHero(getRandomGenerator());
-		}
 	}
 
 	std::set<HeroTypeID> heroesToCreate = getUnusedAllowedHeroes(); //ids of heroes to be created and put into the pool
@@ -671,9 +659,10 @@ void CGameState::initFogOfWar()
 		fow.resize(boost::extents[layers][map->width][map->height]);
 		std::fill(fow.data(), fow.data() + fow.num_elements(), 0);
 
-		for(const auto & obj : map->objects)
+		for(const auto & obj : map->getObjects())
 		{
-			if(!obj || !vstd::contains(elem.second.players, obj->tempOwner)) continue; //not a flagged object
+			if(!vstd::contains(elem.second.players, obj->getOwner()))
+				continue; //not a flagged object
 
 			std::unordered_set<int3> tiles;
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), ETileVisibility::HIDDEN, obj->tempOwner);
@@ -927,27 +916,14 @@ void CGameState::initMapObjects()
 {
 	logGlobal->debug("\tObject initialization");
 
-	for(auto & obj : map->objects)
-	{
-		if(obj)
-			obj->initObj(getRandomGenerator());
-	}
-	logGlobal->debug("\tObject initialization done");
-	for(auto & obj : map->objects)
-	{
-		if(!obj)
-			continue;
+	for(auto & obj : map->getObjects())
+		obj->initObj(getRandomGenerator());
 
-		switch(obj->ID.toEnum())
-		{
-			case Obj::QUEST_GUARD:
-			case Obj::SEER_HUT:
-			{
-				auto * q = dynamic_cast<CGSeerHut *>(obj.get());
-				assert (q);
-				q->setObjToKill();
-			}
-		}
+	logGlobal->debug("\tObject initialization done");
+	for(auto & q : map->getObjects<CGSeerHut>())
+	{
+		if (q->ID ==Obj::QUEST_GUARD || q->ID ==Obj::SEER_HUT)
+			q->setObjToKill();
 	}
 	CGSubterraneanGate::postInit(callback); //pairing subterranean gates
 
@@ -1060,10 +1036,10 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
 		return topObject->getBattlefield();
 	}
 
-	for(auto &obj : map->objects)
+	for(auto & obj : map->getObjects())
 	{
 		//look only for objects covering given tile
-		if( !obj || !obj->coveringAt(tile))
+		if( !obj->coveringAt(tile))
 			continue;
 
 		auto customBattlefield = obj->getBattlefield();
@@ -1313,10 +1289,9 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		{
 			//check if in players armies there is enough creatures
 			int total = 0; //creature counter
-			for(auto object : map->objects)
+			for(auto ai : map->getObjects<CArmedInstance>())
 			{
-				const auto * ai = dynamic_cast<const CArmedInstance *>(object.get());
-				if(ai && ai->getOwner() == player)
+				if(ai->getOwner() == player)
 				{
 					for(const auto & elem : ai->Slots()) //iterate through army
 						if(elem.second->getId() == condition.objectType.as<CreatureID>()) //it's searched creature
@@ -1354,7 +1329,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 			}
 			else
 			{
-				for(const auto & elem : map->objects) // mode B - destroy all objects of this type
+				for(const auto & elem : map->getObjects()) // mode B - destroy all objects of this type
 				{
 					if(elem && elem->ID == condition.objectType.as<MapObjectID>())
 						return false;
@@ -1378,7 +1353,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 			}
 			else
 			{
-				for(const auto & elem : map->objects) // mode B - flag all objects of this type
+				for(const auto & elem : map->getObjects()) // mode B - flag all objects of this type
 				{
 					 //check not flagged objs
 					if ( elem && elem->ID == condition.objectType.as<MapObjectID>() && team->players.count(elem->getOwner()) == 0 )
@@ -1616,12 +1591,9 @@ void CGameState::buildGlobalTeamPlayerTree()
 
 void CGameState::attachArmedObjects()
 {
-	for(auto & obj : map->objects)
+	for(auto & armed : map->getObjects<CArmedInstance>())
 	{
-		if(auto * armed = dynamic_cast<CArmedInstance *>(obj.get()))
-		{
-			armed->whatShouldBeAttached().attachTo(armed->whereShouldBeAttached(this));
-		}
+		armed->whatShouldBeAttached().attachTo(armed->whereShouldBeAttached(this));
 	}
 }
 
@@ -1653,9 +1625,8 @@ std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllow
 	for (auto heroID : map->getHeroesOnMap())
 		ret -= getHero(heroID)->getHeroTypeID();
 
-	for(auto obj : map->objects) //prisons
+	for(auto hero : map->getObjects<CGHeroInstance>()) //prisons
 	{
-		auto * hero = dynamic_cast<const CGHeroInstance *>(obj.get());
 		if(hero && hero->ID == Obj::PRISON)
 			ret -= hero->getHeroTypeID();
 	}
@@ -1670,17 +1641,8 @@ bool CGameState::isUsedHero(const HeroTypeID & hid) const
 
 CGHeroInstance * CGameState::getUsedHero(const HeroTypeID & hid) const
 {
-	for(auto obj : map->objects) //prisons
+	for(auto hero : map->getObjects<CGHeroInstance>()) //prisons
 	{
-		if (!obj)
-			continue;
-
-		if ( obj->ID !=Obj::PRISON && obj->ID != Obj::HERO)
-			continue;
-
-		auto * hero = dynamic_cast<CGHeroInstance *>(obj.get());
-		assert(hero);
-
 		if (hero->getHeroTypeID() == hid)
 			return hero;
 	}

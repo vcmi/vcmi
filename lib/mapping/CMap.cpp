@@ -888,4 +888,14 @@ std::vector<HeroTypeID> CMap::getHeroesInPool() const
 	return result;
 }
 
+CGObjectInstance * CMap::getObject(ObjectInstanceID obj)
+{
+	return objects.at(obj).get();
+}
+
+const CGObjectInstance * CMap::getObject(ObjectInstanceID obj) const
+{
+	return objects.at(obj).get();
+}
+
 VCMI_LIB_NAMESPACE_END

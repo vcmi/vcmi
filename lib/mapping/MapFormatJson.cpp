@@ -89,14 +89,14 @@ std::string MapObjectResolver::encode(si32 identifier) const
 		id = owner->map->questIdentifierToId[identifier];
 	}
 
-	si32 oid = id.getNum();
-	if(oid < 0  ||  oid >= owner->map->objects.size())
+	auto object = owner->map->getObject(id);
+
+	if(!object)
 	{
-        logGlobal->error("Cannot get object with id %d", oid);
+		logGlobal->error("Cannot get object with id %d", id.getNum());
 		return "";
 	}
-
-	return owner->map->objects[oid]->instanceName;
+	return object->instanceName;
 }
 
 namespace HeaderDetail
@@ -421,12 +421,10 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 		{
 			//ignoring heroesNames and saving from actual map objects
 			//TODO: optimize
-			for(auto & obj : map->objects)
+			for(auto & hero : map->getObjects<CGHeroInstance>())
 			{
-				if((obj->ID == Obj::HERO || obj->ID == Obj::RANDOM_HERO) && obj->tempOwner == PlayerColor(player))
+				if((hero->getOwner()) == PlayerColor(player))
 				{
-					auto * hero = dynamic_cast<CGHeroInstance *>(obj.get());
-
 					auto heroes = handler.enterStruct("heroes");
 					if(hero)
 					{
@@ -1066,7 +1064,6 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	// Will be destroyed soon and replaced with shared template
 	instance = handler->create(owner->map->cb, appearance);
 
-	instance->id = ObjectInstanceID(static_cast<si32>(owner->map->objects.size()));
 	instance->instanceName = jsonKey;
 	instance->setAnchorPos(pos);
 	owner->map->addNewObject(instance);
@@ -1137,12 +1134,10 @@ void CMapLoaderJson::readObjects()
 	map->postInitialize();
 
 	std::set<HeroTypeID> debugHeroesOnMap;
-	for (auto const & object : map->objects)
+	for (auto const & hero : map->getObjects<CGHeroInstance>())
 	{
-		if(object->ID != Obj::HERO && object->ID != Obj::PRISON)
+		if(hero->ID != Obj::HERO && hero->ID != Obj::PRISON)
 			continue;
-
-		auto * hero = dynamic_cast<const CGHeroInstance *>(object.get());
 
 		if (debugHeroesOnMap.count(hero->getHeroTypeID()))
 			logGlobal->error("Hero is already on the map at %s", hero->visitablePos().toString());
@@ -1301,7 +1296,7 @@ void CMapSaverJson::writeObjects()
 
 	JsonSerializer handler(mapObjectResolver.get(), data);
 
-	for(const auto & obj : map->objects)
+	for(const auto & obj : map->getObjects())
 	{
 		//logGlobal->trace("\t%s", obj->instanceName);
 		auto temp = handler.enterStruct(obj->instanceName);
@@ -1320,9 +1315,7 @@ void CMapSaverJson::writeObjects()
 
 		grail["options"]["radius"].Float() = map->grailRadius;
 
-		std::string grailId = boost::str(boost::format("grail_%d") % map->objects.size());
-
-		data[grailId] = grail;
+		data["grail"] = grail;
 	}
 
 	//cleanup empty options

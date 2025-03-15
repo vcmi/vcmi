@@ -992,20 +992,12 @@ void FoWChange::applyGs(CGameState *gs)
 	if (mode == ETileVisibility::HIDDEN) //do not hide too much
 	{
 		std::unordered_set<int3> tilesRevealed;
-		for (auto & o : gs->getMap().objects)
+		for (auto & o : gs->getMap().getObjects())
 		{
-			if (o)
+			if (o->asOwnable())
 			{
-				switch(o->ID.toEnum())
-				{
-				case Obj::HERO:
-				case Obj::MINE:
-				case Obj::TOWN:
-				case Obj::ABANDONED_MINE:
-					if(vstd::contains(team->players, o->tempOwner)) //check owned observators
-						gs->getTilesInRange(tilesRevealed, o->getSightCenter(), o->getSightRadius(), ETileVisibility::HIDDEN, o->tempOwner);
-					break;
-				}
+				if(vstd::contains(team->players, o->getOwner())) //check owned observators
+					gs->getTilesInRange(tilesRevealed, o->getSightCenter(), o->getSightRadius(), ETileVisibility::HIDDEN, o->tempOwner);
 			}
 		}
 		for(const int3 & t : tilesRevealed) //probably not the most optimal solution ever
@@ -1232,7 +1224,6 @@ void RemoveObject::applyGs(CGameState *gs)
 		//return hero to the pool, so he may reappear in tavern
 
 		gs->heroesPool->addHeroToPool(beatenHero);
-		gs->getMap().objects[objectID.getNum()] = nullptr;
 
 		//If hero on Boat is removed, the Boat disappears
 		if(beatenHero->boat)
@@ -1448,13 +1439,11 @@ void HeroRecruited::applyGs(CGameState *gs)
 	assert(h->id == ObjectInstanceID());
 	if(h->id == ObjectInstanceID())
 	{
-		h->id = ObjectInstanceID(static_cast<si32>(gs->getMap().objects.size()));
-		gs->getMap().objects.emplace_back(h);
+		gs->getMap().addNewObject(h);
 	}
 	else
 		gs->getMap().replaceObject(h->id, h);
 
-	gs->getMap().addNewObject(h);
 	p->addOwnedObject(h.get());
 	h->attachTo(*p);
 
@@ -1497,8 +1486,6 @@ void GiveHero::applyGs(CGameState *gs)
 
 void NewObject::applyGs(CGameState *gs)
 {
-	newObject->id = ObjectInstanceID(static_cast<si32>(gs->getMap().objects.size()));
-
 	gs->getMap().addNewObject(newObject);
 	gs->getMap().calculateGuardingGreaturePositions();
 

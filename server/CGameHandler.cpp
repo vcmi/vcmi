@@ -640,11 +640,11 @@ void CGameHandler::onNewTurn()
 
 	if (firstTurn)
 	{
-		for (auto obj : gs->getMap().objects)
+		for (auto obj : gs->getMap().getObjects<CGHeroInstance>())
 		{
-			if (obj && obj->ID == Obj::PRISON) //give imprisoned hero 0 exp to level him up. easiest to do at this point
+			if (obj->ID == Obj::PRISON) //give imprisoned hero 0 exp to level him up. easiest to do at this point
 			{
-				giveExperience(getHero(obj->id), 0);
+				giveExperience(obj, 0);
 			}
 		}
 
@@ -700,7 +700,7 @@ void CGameHandler::onNewTurn()
 		checkVictoryLossConditionsForAll(); // check for map turn limit
 
 	//call objects
-	for (auto & elem : gs->getMap().objects)
+	for (auto & elem : gs->getMap().getObjects())
 	{
 		if (elem)
 			elem->newTurn(getRandomGenerator());
@@ -3570,10 +3570,10 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			}
 
 			//player lost -> all his objects become unflagged (neutral)
-			for (auto obj : gs->getMap().objects) //unflag objs
+			for (auto obj : gs->getMap().getObjects()) //unflag objs
 			{
 				if (obj && obj->tempOwner == player)
-					setOwner(obj.get(), PlayerColor::NEUTRAL);
+					setOwner(obj, PlayerColor::NEUTRAL);
 			}
 
 			//eliminating one player may cause victory of another:

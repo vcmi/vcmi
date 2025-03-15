@@ -75,9 +75,9 @@ FactionID CGDwelling::randomizeFaction(vstd::RNG & rand)
 
 	if (randomizationInfo->identifier != 0)
 	{
-		for(auto & elem : cb->gameState()->getMap().objects)
+		for(auto & townID : cb->gameState()->getMap().getAllTowns())
 		{
-			auto town = dynamic_cast<CGTownInstance*>(elem.get());
+			auto town = cb->gameState()->getTown(townID);
 			if(town && town->identifier == randomizationInfo->identifier)
 			{
 				linkedTown = town;

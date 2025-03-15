@@ -227,8 +227,8 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 	auto attackerID = map->getHeroesOnMap()[0];
 	auto defenderID = map->getHeroesOnMap()[1];
 
-	auto attacker = std::dynamic_pointer_cast<CGHeroInstance>(map->objects.at(attackerID.getNum()));
-	auto defender = std::dynamic_pointer_cast<CGHeroInstance>(map->objects.at(defenderID.getNum()));
+	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
+	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
 
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
@@ -240,7 +240,7 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 		gameCallback->sendAndApply(na);
 	}
 
-	startTestBattle(attacker.get(), defender.get());
+	startTestBattle(attacker, defender);
 
 	{
 		battle::UnitInfo info;
@@ -271,11 +271,11 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 	ASSERT_NE(def, nullptr);
 	ASSERT_NE(att, def);
 
-	EXPECT_NE(att->getMyHero(), defender.get());
-	EXPECT_NE(def->getMyHero(), attacker.get());
+	EXPECT_NE(att->getMyHero(), defender);
+	EXPECT_NE(def->getMyHero(), attacker);
 
-	EXPECT_EQ(att->getMyHero(), attacker.get()) << att->nodeName();
-	EXPECT_EQ(def->getMyHero(), defender.get()) << def->nodeName();
+	EXPECT_EQ(att->getMyHero(), attacker) << att->nodeName();
+	EXPECT_EQ(def->getMyHero(), defender) << def->nodeName();
 
 	{
 		using namespace ::testing;
@@ -312,8 +312,8 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 	auto attackerID = map->getHeroesOnMap()[0];
 	auto defenderID = map->getHeroesOnMap()[1];
 
-	auto attacker = std::dynamic_pointer_cast<CGHeroInstance>(map->objects.at(attackerID.getNum()));
-	auto defender = std::dynamic_pointer_cast<CGHeroInstance>(map->objects.at(defenderID.getNum()));
+	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
+	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
 
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
@@ -331,7 +331,7 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		gameCallback->sendAndApply(na);
 	}
 
-	startTestBattle(attacker.get(), defender.get());
+	startTestBattle(attacker, defender);
 
 	uint32_t unitId = gameState->currentBattles.front()->battleNextUnitId();
 
@@ -384,7 +384,7 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		const CSpell * spell = SpellID(SpellID::RESURRECTION).toSpell();
 		ASSERT_NE(spell, nullptr);
 
-			spells::BattleCast cast(gameState->currentBattles.front().get(), attacker.get(), spells::Mode::HERO, spell);
+			spells::BattleCast cast(gameState->currentBattles.front().get(), attacker, spells::Mode::HERO, spell);
 
 		spells::Target target;
 		target.emplace_back(unit);

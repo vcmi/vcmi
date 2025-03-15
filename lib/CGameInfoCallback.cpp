@@ -131,26 +131,18 @@ TurnTimerInfo CGameInfoCallback::getPlayerTurnTime(PlayerColor color) const
 
 const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool verbose) const
 {
-	si32 oid = objid.num;
-	if(oid < 0  ||  oid >= gs->getMap().objects.size())
-	{
-		if(verbose)
-			logGlobal->error("Cannot get object with id %d", oid);
-		return nullptr;
-	}
-
-	const CGObjectInstance *ret = gs->getMap().objects[oid].get();
+	const CGObjectInstance *ret = gs->getMap().getObject(objid);
 	if(!ret)
 	{
 		if(verbose)
-			logGlobal->error("Cannot get object with id %d. Object was removed", oid);
+			logGlobal->error("Cannot get object with id %d. Object was removed", objid.getNum());
 		return nullptr;
 	}
 
 	if(!isVisible(ret, getPlayerID()) && ret->tempOwner != getPlayerID())
 	{
 		if(verbose)
-			logGlobal->error("Cannot get object with id %d. Object is not visible.", oid);
+			logGlobal->error("Cannot get object with id %d. Object is not visible.", objid.getNum());
 		return nullptr;
 	}
 
@@ -483,9 +475,9 @@ std::vector <const CGObjectInstance *> CGameInfoCallback::getVisitableObjs(int3 
 std::vector<const CGObjectInstance *> CGameInfoCallback::getAllVisitableObjs() const
 {
 	std::vector<const CGObjectInstance *> ret;
-	for(auto & obj : gs->getMap().objects)
-		if(obj && obj->isVisitable() && obj->ID != Obj::EVENT && isVisible(obj.get()))
-			ret.push_back(obj.get());
+	for(auto & obj : gs->getMap().getObjects())
+		if(obj->isVisitable() && obj->ID != Obj::EVENT && isVisible(obj))
+			ret.push_back(obj);
 
 	return ret;
 }
@@ -548,9 +540,9 @@ EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile, bool verbose) cons
 	if(!isVisible(tile))
 		return EDiggingStatus::UNKNOWN;
 
-	for(const auto & object : gs->getMap().objects)
+	for(const auto & object : gs->getMap().getObjects())
 	{
-		if(object && object->ID == Obj::HOLE && object->anchorPos() == tile)
+		if(object->ID == Obj::HOLE && object->anchorPos() == tile)
 			return EDiggingStatus::TILE_OCCUPIED;
 	}
 	return getTile(tile)->getDiggingStatus();
@@ -936,7 +928,7 @@ const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID 
 
 const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid ) const
 {
-	return gs->getMap().objects.at(oid.num).get();
+	return gs->getMap().getObject((oid));
 }
 
 const CArtifactSet * CGameInfoCallback::getArtSet(const ArtifactLocation & loc) const

@@ -587,8 +587,6 @@ CInsertObjectOperation::CInsertObjectOperation(CMap* map, std::shared_ptr<CGObje
 
 void CInsertObjectOperation::execute()
 {
-	obj->id = ObjectInstanceID(map->objects.size());
-
 	map->generateUniqueInstanceName(obj.get());
 	map->addNewObject(obj);
 }
@@ -650,8 +648,6 @@ void CRemoveObjectOperation::execute()
 void CRemoveObjectOperation::undo()
 {
 	assert(removedObject != nullptr);
-	//set new id, but do not rename object
-	removedObject->id = ObjectInstanceID(static_cast<si32>(map->objects.size()));
 	map->addNewObject(removedObject);
 }
 

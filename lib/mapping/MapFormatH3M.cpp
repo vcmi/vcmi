@@ -1920,6 +1920,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 void CMapLoaderH3M::readObjects()
 {
 	uint32_t objectsCount = reader->readUInt32();
+	ObjectInstanceID nextObjectID(0);
 
 	for(uint32_t i = 0; i < objectsCount; ++i)
 	{
@@ -1927,7 +1928,6 @@ void CMapLoaderH3M::readObjects()
 		assert(map->isInTheMap(mapPosition) || map->isInTheMap(mapPosition - int3(0,8,0)) || map->isInTheMap(mapPosition - int3(8,0,0)) || map->isInTheMap(mapPosition - int3(8,8,0)));
 
 		uint32_t defIndex = reader->readUInt32();
-		ObjectInstanceID objectInstanceID = ObjectInstanceID(static_cast<si32>(map->objects.size()));
 
 		std::shared_ptr<ObjectTemplate> originalTemplate = originalTemplates.at(defIndex);
 		std::shared_ptr<ObjectTemplate> remappedTemplate = remappedTemplates.at(defIndex);
@@ -1935,20 +1935,19 @@ void CMapLoaderH3M::readObjects()
 		auto originalSubID = originalTemplate->subid;
 		reader->skipZero(5);
 
-		auto newObject = readObject(originalID, originalSubID, remappedTemplate, mapPosition, objectInstanceID);
+		auto newObject = readObject(originalID, originalSubID, remappedTemplate, mapPosition, nextObjectID);
 
 		if(!newObject)
 			continue;
 
 		newObject->setAnchorPos(mapPosition);
 		newObject->ID = remappedTemplate->id;
-		newObject->id = objectInstanceID;
+		newObject->id = nextObjectID;
 		if(newObject->ID != Obj::HERO && newObject->ID != Obj::HERO_PLACEHOLDER && newObject->ID != Obj::PRISON)
 		{
 			newObject->subID = remappedTemplate->subid;
 		}
 		newObject->appearance = remappedTemplate;
-		assert(objectInstanceID == ObjectInstanceID((si32)map->objects.size()));
 
 		if (newObject->isVisitable() && !map->isInTheMap(newObject->visitablePos()))
 			logGlobal->error("Map '%s': Object at %s - outside of map borders!", mapName, mapPosition.toString());
@@ -1962,6 +1961,7 @@ void CMapLoaderH3M::readObjects()
 			newObject->instanceName = fmt.str();
 		}
 		map->addNewObject(newObject);
+		nextObjectID.num += 1;
 	}
 
 	map->postInitialize();

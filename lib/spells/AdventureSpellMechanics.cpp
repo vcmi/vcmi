@@ -201,20 +201,16 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	//try to find unoccupied boat to summon
 	const CGBoat * nearest = nullptr;
 	double dist = 0;
-	for(const auto & obj : env->getMap()->objects)
+	for(const auto & b : env->getMap()->getObjects<CGBoat>())
 	{
-		if(obj && obj->ID == Obj::BOAT)
-		{
-			const auto * b = dynamic_cast<const CGBoat *>(obj.get());
-			if(b->getBoardedHero() || b->layer != EPathfindingLayer::SAIL)
-				continue; //we're looking for unoccupied boat
+		if(b->getBoardedHero() || b->layer != EPathfindingLayer::SAIL)
+			continue; //we're looking for unoccupied boat
 
-			double nDist = b->visitablePos().dist2d(parameters.caster->getHeroCaster()->visitablePos());
-			if(!nearest || nDist < dist) //it's first boat or closer than previous
-			{
-				nearest = b;
-				dist = nDist;
-			}
+		double nDist = b->visitablePos().dist2d(parameters.caster->getHeroCaster()->visitablePos());
+		if(!nearest || nDist < dist) //it's first boat or closer than previous
+		{
+			nearest = b;
+			dist = nDist;
 		}
 	}
 
@@ -726,12 +722,12 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(SpellCastEnvironment * env
 
 	const auto & fowMap = env->getCb()->getPlayerTeam(parameters.caster->getCasterOwner())->fogOfWarMap;
 
-	for(const auto & obj : env->getMap()->objects)
+	for(const auto & obj : env->getMap()->getObjects())
 	{
 		//deleted object remain as empty pointer
-		if(obj && filterObject(obj.get(), spellLevel))
+		if(obj && filterObject(obj, spellLevel))
 		{
-			ObjectPosInfo posInfo(obj.get());
+			ObjectPosInfo posInfo(obj);
 
 			if(fowMap[posInfo.pos.z][posInfo.pos.x][posInfo.pos.y] == 0)
 				pack.objectPositions.push_back(posInfo);

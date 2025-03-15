@@ -62,6 +62,8 @@ class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 
 	std::unique_ptr<GameSettings> gameSettings;
 
+	/// Central lists of items in game. Position of item in the vectors below is their (instance) id.
+	std::vector< std::shared_ptr<CGObjectInstance> > objects;
 	/// All quests that are currently present on map
 	std::vector<std::shared_ptr<CQuest>> quests;
 	/// All artifacts that exists on map, whether on map, in hero inventory, or stored in some object
@@ -138,6 +140,35 @@ public:
 	CGHeroInstance * tryGetFromHeroPool(HeroTypeID hero);
 	std::vector<HeroTypeID> getHeroesInPool() const;
 
+	CGObjectInstance * getObject(ObjectInstanceID obj);
+	const CGObjectInstance * getObject(ObjectInstanceID obj) const;
+
+	template<typename ObjectType = CGObjectInstance>
+	std::vector<const ObjectType *> getObjects() const
+	{
+		std::vector<const ObjectType *> result;
+		for (const auto & object : objects)
+		{
+			auto casted = dynamic_cast<const ObjectType*>(object.get());
+			if (casted)
+				result.push_back(casted);
+		}
+		return result;
+	}
+
+	template<typename ObjectType = CGObjectInstance>
+	std::vector<ObjectType *> getObjects()
+	{
+		std::vector<ObjectType *> result;
+		for (const auto & object : objects)
+		{
+			auto casted = dynamic_cast<ObjectType*>(object.get());
+			if (casted)
+				result.push_back(casted);
+		}
+		return result;
+	}
+
 	bool isWaterMap() const;
 	bool calculateWaterContent();
 	void banWaterArtifacts();
@@ -176,9 +207,6 @@ public:
 	std::vector<CMapEvent> events;
 	int3 grailPos;
 	int grailRadius;
-
-	//Central lists of items in game. Position of item in the vectors below is their (instance) id.
-	std::vector< std::shared_ptr<CGObjectInstance> > objects;
 
 	//Helper lists
 	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > teleportChannels;
