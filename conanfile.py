@@ -15,7 +15,6 @@ class VCMI(ConanFile):
     generators = "CMakeDeps"
 
     _libRequires = [
-        "boost/[^1.69]",
         "luajit/2.1.0-beta3",
         "minizip/[^1.2.12]",
         "zlib/[^1.2.12]",
@@ -32,9 +31,11 @@ class VCMI(ConanFile):
     requires = _libRequires + _clientRequires + _launcherRequires
 
     options = {
+        "target_pre_windows10": [True, False],
         "with_ffmpeg": [True, False],
     }
     default_options = {
+        "target_pre_windows10": False,
         "with_ffmpeg": True,
     }
 
@@ -53,7 +54,18 @@ class VCMI(ConanFile):
         if self.settings.os == "Android":
             self.options["qt"].android_sdk = os.getenv("ANDROID_HOME")
 
+        if self.settings.os != "Windows":
+            del self.options.target_pre_windows10
+
     def requirements(self):
+        # lib
+        # boost::filesystem removed support for Windows < 10 in v1.87
+        boostMinVersion = "1.69"
+        if self.options.get_safe("target_pre_windows10", False):
+            self.requires(f"boost/[>={boostMinVersion} <1.87]")
+        else:
+            self.requires(f"boost/[^{boostMinVersion}]")
+
         # client
         if self.options.with_ffmpeg:
             self.requires("ffmpeg/[>=4.4]")
