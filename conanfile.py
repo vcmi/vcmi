@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMakeToolchain
 from conan.tools.files import save
@@ -52,23 +53,6 @@ class VCMI(ConanFile):
         if self.settings.os == "Android":
             self.options["qt"].android_sdk = os.getenv("ANDROID_HOME")
 
-    def configure(self):
-        self.options["sdl"].sdl2main = self.settings.os != "iOS"
-
-        self.options["qt"].qttools = True
-        self.options["qt"].qtandroidextras = self.settings.os == "Android" # TODO: in Qt 6 it's part of Core
-        self.options["qt"].openssl = not is_apple_os(self)
-        if self._isMobilePlatform:
-            self.options["qt"].opengl = "es2"
-
-        # static Qt for iOS is the only viable option at the moment
-        if self.settings.os == "iOS":
-            self.options["qt"].shared = False
-
-        # MSVC static build requires static runtime, but VCMI uses dynamic runtime
-        if is_msvc(self):
-            self.options["ffmpeg"].shared = True
-
     def requirements(self):
         # client
         if self.options.with_ffmpeg:
@@ -92,6 +76,26 @@ class VCMI(ConanFile):
         else:
             self.requires("qt/[~5.15.2]")
         self.requires("md4c/0.5.2", override=True) # Qt 5 depends on 0.4.8, but it doesn't build for iOS
+
+    def validate(self):
+        # FFmpeg
+        if is_msvc(self) and self.options.with_ffmpeg and self.dependencies["ffmpeg"].options.shared != True:
+            raise ConanInvalidConfiguration("MSVC FFmpeg static build requires static runtime, but VCMI uses dynamic runtime")
+
+        # SDL
+        sdl2mainValue = self.settings.os != "iOS"
+        if self.dependencies["sdl"].options.sdl2main != sdl2mainValue:
+            raise ConanInvalidConfiguration(f"sdl:sdl2main option for {self.settings.os} must be set to {sdl2mainValue}")
+
+        # Qt
+        qtDep = self.dependencies["qt"]
+        if qtDep.options.qttools != True:
+            raise ConanInvalidConfiguration("qt:qttools option must be set to True")
+        if self.settings.os == "Android" and qtDep.options.qtandroidextras != True:
+            # TODO: in Qt 6 this option doesn't exist
+            raise ConanInvalidConfiguration("qt:qtandroidextras option for Android must be set to True")
+        if not is_apple_os(self) and qtDep.options.openssl != True:
+            raise ConanInvalidConfiguration("qt:openssl option for non-Apple OS must be set to True, otherwise mods can't be downloaded")
 
     def _pathForCmake(self, path):
         # CMake doesn't like \ in strings
