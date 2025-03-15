@@ -153,7 +153,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"mainMenuCampaignChr",      EShortcut::MAIN_MENU_CAMPAIGN_CHR    },
 		{"mainMenuCampaignHota",     EShortcut::MAIN_MENU_CAMPAIGN_HOTA   },
 		{"mainMenuCampaignWog",      EShortcut::MAIN_MENU_CAMPAIGN_WOG    },
-		{"mainMenuCampaignVcmi",     EShortcut::MAIN_MENU_CAMPAIGN_VCMI   },
+		{"mainMenuCampaignVCMI",     EShortcut::MAIN_MENU_CAMPAIGN_VCMI   },
 		{"mainMenuLobby",            EShortcut::MAIN_MENU_LOBBY           },
 		{"lobbyBeginStandardGame",   EShortcut::LOBBY_BEGIN_STANDARD_GAME },
 		{"lobbyBeginCampaign",       EShortcut::LOBBY_BEGIN_CAMPAIGN      },
