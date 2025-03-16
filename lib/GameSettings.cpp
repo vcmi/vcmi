@@ -33,6 +33,26 @@ std::vector<int> IGameSettings::getVector(EGameSettings option) const
 	return getValue(option).convertTo<std::vector<int>>();
 }
 
+std::vector<std::pair<int, int> > IGameSettings::getDiceVector(EGameSettings option) const
+{
+	const JsonVector & diceVector = getValue(option).Vector();
+	std::vector<std::pair<int, int> > result;
+	for (auto& jsonNode : diceVector) 
+	{
+		if (jsonNode.isVector()) 
+		{
+			std::vector<int> oneDice = jsonNode.convertTo<std::vector<int>>();
+			result.push_back(std::make_pair(oneDice[0], oneDice[1]));
+		}
+		else 
+		{
+			int denominator = jsonNode.Integer();
+			result.push_back(std::make_pair(1, denominator));
+		}
+	}
+	return result;
+}
+
 int IGameSettings::getVectorValue(EGameSettings option, size_t index) const
 {
 	return getValue(option)[index].Integer();

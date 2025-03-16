@@ -232,18 +232,18 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 			auto morale = slot.second->moraleVal();
 			auto multiplier = 1.0f;
 
-			const auto & badMoraleDice = cb->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
-			const auto & highMoraleDice = cb->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
+			const auto & badMoraleDice = cb->getSettings().getDiceVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
+			const auto & highMoraleDice = cb->getSettings().getDiceVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
 
 			if(morale < 0 && !badMoraleDice.empty())
 			{
 				size_t diceIndex = std::min<size_t>(badMoraleDice.size(), -morale) - 1;
-				multiplier -= 1.0 / badMoraleDice.at(diceIndex);
+				multiplier -= 1.0 / badMoraleDice.at(diceIndex).second * badMoraleDice.at(diceIndex).first;
 			}
 			else if(morale > 0 && !highMoraleDice.empty())
 			{
 				size_t diceIndex = std::min<size_t>(highMoraleDice.size(), morale) - 1;
-				multiplier += 1.0 / highMoraleDice.at(diceIndex);
+				multiplier += 1.0 / highMoraleDice.at(diceIndex).second * highMoraleDice.at(diceIndex).first;
 			}
 
 			newValue += multiplier * slot.second->getPower();

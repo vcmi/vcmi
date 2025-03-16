@@ -106,6 +106,7 @@ public:
 	int64_t getInteger(EGameSettings option) const;
 	double getDouble(EGameSettings option) const;
 	std::vector<int> getVector(EGameSettings option) const;
+	std::vector<std::pair<int, int> > getDiceVector(EGameSettings option) const;
 	int getVectorValue(EGameSettings option, size_t index) const;
 };
 
