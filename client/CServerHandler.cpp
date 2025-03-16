@@ -703,8 +703,6 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 			entry->Bool() = true;
 		}
 
-		GAME->mainmenu()->makeActiveInterface();
-
 		if(!ourCampaign->isCampaignFinished())
 			GAME->mainmenu()->openCampaignLobby(ourCampaign);
 		else

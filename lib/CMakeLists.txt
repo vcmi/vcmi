@@ -693,6 +693,7 @@ set(lib_MAIN_HEADERS
 
 	AI_Base.h
 	ArtifactUtils.h
+	AsyncRunner.h
 	BattleFieldHandler.h
 	CAndroidVMHelper.h
 	CArtHandler.h

@@ -11,6 +11,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
+class AsyncRunner;
 class Rect;
 VCMI_LIB_NAMESPACE_END
 
@@ -52,8 +53,13 @@ private:
 	std::unique_ptr<IMusicPlayer> musicPlayerInstance;
 	std::unique_ptr<CursorHandler> cursorHandlerInstance;
 	std::unique_ptr<IVideoPlayer> videoPlayerInstance;
+	std::unique_ptr<AsyncRunner> asyncTasks;
 
 	IGameEngineUser *engineUser = nullptr;
+
+	void updateFrame();
+	void handleEvents(); //takes events from queue and calls interested objects
+	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
 
 public:
 	std::mutex interfaceMutex;
@@ -66,6 +72,7 @@ public:
 	EventDispatcher & events();
 	InputHandler & input();
 
+	AsyncRunner & async() { return *asyncTasks; }
 	IGameEngineUser & user() { return *engineUser; }
 	ISoundPlayer & sound() { return *soundPlayerInstance; }
 	IMusicPlayer & music() { return *musicPlayerInstance; }
@@ -97,7 +104,9 @@ public:
 	std::shared_ptr<IStatusBar> statusbar();
 
 	/// Set currently active status bar
-	void setStatusbar(std::shared_ptr<IStatusBar>);
+	void setStatusbar(const std::shared_ptr<IStatusBar> &);
+
+	/// Sets engine user that is used as target of callback for events received by engine
 	void setEngineUser(IGameEngineUser * user);
 
 	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
@@ -106,16 +115,17 @@ public:
 	GameEngine();
 	~GameEngine();
 
-	void init();
-	void renderFrame();
+	/// Performs main game loop till game shutdown
+	/// This method never returns, to abort main loop throw GameShutdownException
+	[[noreturn]] void mainLoop();
 
 	/// called whenever SDL_WINDOWEVENT_RESTORED is reported or the user selects a different resolution, requiring to center/resize all windows
 	void onScreenResize(bool resolutionChanged);
 
-	void handleEvents(); //takes events from queue and calls interested objects
+	/// Simulate mouse movement to force refresh UI state that updates on mouse move
 	void fakeMouseMove();
-	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
 
+	/// Returns true for calls made from main (GUI) thread, false othervice
 	bool amIGuiThread();
 
 	/// Calls provided functor in main thread on next execution frame

@@ -19,6 +19,7 @@
 #include "InputSourceGameController.h"
 
 #include "../GameEngine.h"
+#include "../GameEngineUser.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
@@ -194,9 +195,9 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	{
 		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 #ifdef VCMI_ANDROID
-		handleQuit(false);
+		ENGINE->user().onShutdownRequested(false);
 #else
-		handleQuit(true);
+		ENGINE->user().onShutdownRequested(true);
 #endif
 		return;
 	}
@@ -206,14 +207,14 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		{
 			// FIXME: dead code? Looks like intercepted by OS/SDL and delivered as SDL_Quit instead?
 			std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-			handleQuit(true);
+			ENGINE->user().onShutdownRequested(true);
 			return;
 		}
 
 		if(ev.key.keysym.scancode == SDL_SCANCODE_AC_BACK && !settings["input"]["handleBackRightMouseButton"].Bool())
 		{
 			std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-			handleQuit(true);
+			ENGINE->user().onShutdownRequested(true);
 			return;
 		}
 	}

@@ -23,13 +23,11 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "Pathfinding/AIPathfinder.h"
 
-#include <tbb/task_group.h>
-#include <tbb/task_arena.h>
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct QuestInfo;
 class PathfinderCache;
+class AsyncRunner;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -108,7 +106,7 @@ public:
 
 	std::shared_ptr<CCallback> myCb;
 
-	std::unique_ptr<tbb::task_group> asyncTasks;
+	std::unique_ptr<AsyncRunner> asyncTasks;
 	ThreadInterruption makingTurnInterrupption;
 
 public:

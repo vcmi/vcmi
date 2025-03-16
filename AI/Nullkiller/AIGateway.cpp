@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "../../lib/ArtifactUtils.h"
+#include "../../lib/AsyncRunner.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/entities/building/CBuilding.h"
@@ -31,8 +32,6 @@
 
 #include "AIGateway.h"
 #include "Goals/Goals.h"
-
-static tbb::task_arena executeActionAsyncArena;
 
 namespace NKAI
 {
@@ -73,7 +72,7 @@ AIGateway::AIGateway()
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
 	nullkiller.reset(new Nullkiller());
-	asyncTasks = std::make_unique<tbb::task_group>();
+	asyncTasks = std::make_unique<AsyncRunner>();
 }
 
 AIGateway::~AIGateway()
@@ -593,11 +592,11 @@ void AIGateway::yourTurn(QueryID queryID)
 
 	nullkiller->makingTurnInterrupption.reset();
 
-	executeActionAsyncArena.enqueue(asyncTasks->defer([this]()
+	asyncTasks->run([this]()
 	{
 		ScopedThreadName guard("NKAI::makingTurn");
 		makeTurn();
-	}));
+	});
 }
 
 void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
@@ -1608,13 +1607,13 @@ void AIGateway::executeActionAsync(const std::string & description, const std::f
 	if (!asyncTasks)
 		throw std::runtime_error("Attempt to execute task on shut down AI state!");
 
-	executeActionAsyncArena.enqueue(asyncTasks->defer([this, description, whatToDo]()
+	asyncTasks->run([this, description, whatToDo]()
 	{
 		ScopedThreadName guard("NKAI::" + description);
 		SET_GLOBAL_STATE(this);
 		std::shared_lock gsLock(CGameState::mutex);
 		whatToDo();
-	}));
+	});
 }
 
 void AIGateway::lostHero(HeroPtr h)
