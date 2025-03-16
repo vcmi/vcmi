@@ -319,11 +319,13 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 
 	if(settings["battle"]["showHealthBar"].Bool())
 	{
-		float health = stack->getMaxHealth();
-		float healthRemaining = std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * health, .0f);
+		double healthMaxType = stack->unitType()->getMaxHealth();
+		double healthMaxStack = stack->getMaxHealth();
+		double healthMaxRatio = healthMaxStack / healthMaxType;
+		double healthRemaining = std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * healthMaxStack, .0) * healthMaxRatio;
 		Rect r(boxPosition.x, boxPosition.y - 3, amountBG->width(), 4);
 		canvas.drawColor(r, Colors::RED);
-		canvas.drawColor(Rect(r.x, r.y, (r.w / health) * healthRemaining, r.h), Colors::GREEN);
+		canvas.drawColor(Rect(r.x, r.y, (r.w / healthMaxStack) * healthRemaining, r.h), Colors::GREEN);
 		canvas.drawBorder(r, Colors::YELLOW);
 	}
 	canvas.draw(amountBG, boxPosition);

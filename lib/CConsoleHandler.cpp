@@ -251,8 +251,9 @@ int CConsoleHandler::run()
 				if ( cb )
 					cb(buffer, false);
 		}
-		else
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+		std::unique_lock guard(shutdownMutex);
+		shutdownVariable.wait_for(guard, std::chrono::seconds(1));
 
 		if (shutdownPending)
 			return -1;
@@ -308,6 +309,7 @@ void CConsoleHandler::end()
 	{
 #ifndef _MSC_VER
 		shutdownPending = true;
+		shutdownVariable.notify_all();
 #else
 		TerminateThread(thread.native_handle(),0);
 #endif

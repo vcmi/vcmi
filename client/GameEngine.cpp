@@ -23,20 +23,17 @@
 #include "media/CVideoHandler.h"
 #include "media/CEmptyVideoPlayer.h"
 
-#include "CPlayerInterface.h"
 #include "adventureMap/AdventureMapInterface.h"
 #include "render/Canvas.h"
 #include "render/Colors.h"
-#include "render/Graphics.h"
 #include "render/IFont.h"
 #include "render/EFont.h"
 #include "renderSDL/ScreenHandler.h"
 #include "renderSDL/RenderHandler.h"
-#include "CMT.h"
 #include "GameEngineUser.h"
 #include "battle/BattleInterface.h"
 
-#include "../lib/CThreadHelper.h"
+#include "../lib/AsyncRunner.h"
 #include "../lib/CConfigHandler.h"
 
 #include <SDL_render.h>
@@ -58,7 +55,9 @@ ObjectConstruction::~ObjectConstruction()
 	ENGINE->captureChildren = !ENGINE->createdObj.empty();
 }
 
-void GameEngine::init()
+GameEngine::GameEngine()
+	: captureChildren(false)
+	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
 {
 	inGuiThread = true;
 
@@ -81,9 +80,11 @@ void GameEngine::init()
 
 	soundPlayerInstance = std::make_unique<CSoundHandler>();
 	musicPlayerInstance = std::make_unique<CMusicHandler>();
-	sound().setVolume((ui32)settings["general"]["sound"].Float());
-	music().setVolume((ui32)settings["general"]["music"].Float());
+	sound().setVolume(settings["general"]["sound"].Integer());
+	music().setVolume(settings["general"]["music"].Integer());
 	cursorHandlerInstance = std::make_unique<CursorHandler>();
+
+	asyncTasks = std::make_unique<AsyncRunner>();
 }
 
 void GameEngine::handleEvents()
@@ -104,33 +105,33 @@ void GameEngine::fakeMouseMove()
 	});
 }
 
-void GameEngine::renderFrame()
+[[noreturn]] void GameEngine::mainLoop()
 {
+	for (;;)
 	{
-		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-
-		engineUser->onUpdate();
-
-		handleEvents();
-		windows().simpleRedraw();
-
-		if (settings["video"]["showfps"].Bool())
-			drawFPSCounter();
-
-		screenHandlerInstance->updateScreenTexture();
-
-		windows().onFrameRendered();
-		ENGINE->cursor().update();
+		input().fetchEvents();
+		updateFrame();
+		screenHandlerInstance->presentScreenTexture();
+		framerate().framerateDelay(); // holds a constant FPS
 	}
-
-	screenHandlerInstance->presentScreenTexture();
-	framerate().framerateDelay(); // holds a constant FPS
 }
 
-GameEngine::GameEngine()
-	: captureChildren(false)
-	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
+void GameEngine::updateFrame()
 {
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+
+	engineUser->onUpdate();
+
+	handleEvents();
+	windows().simpleRedraw();
+
+	if (settings["video"]["showfps"].Bool())
+		drawFPSCounter();
+
+	screenHandlerInstance->updateScreenTexture();
+
+	windows().onFrameRendered();
+	ENGINE->cursor().update();
 }
 
 GameEngine::~GameEngine()
@@ -239,7 +240,7 @@ std::shared_ptr<IStatusBar> GameEngine::statusbar()
 	return locked;
 }
 
-void GameEngine::setStatusbar(std::shared_ptr<IStatusBar> newStatusBar)
+void GameEngine::setStatusbar(const std::shared_ptr<IStatusBar> & newStatusBar)
 {
 	currentStatusBar = newStatusBar;
 }

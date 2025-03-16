@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="ko_KR">
+<TS version="2.1" language="ro_RO">
 <context>
     <name>ArmyWidget</name>
     <message>
@@ -287,7 +287,7 @@
     <message>
         <location filename="../mainwindow.ui" line="14"/>
         <source>VCMI Map Editor</source>
-        <translation>VCMI 맵 편집기</translation>
+        <translation>Editor de hărți VCMI</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="59"/>

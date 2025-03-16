@@ -74,6 +74,7 @@ set(launcher_RESOURCES
 
 set(translationsDir "translation")
 set(launcher_TS
+	"${translationsDir}/bulgarian.ts"
 	"${translationsDir}/chinese.ts"
 	"${translationsDir}/czech.ts"
 	"${translationsDir}/english.ts"
@@ -88,6 +89,7 @@ set(launcher_TS
 	"${translationsDir}/norwegian.ts"
 	"${translationsDir}/polish.ts"
 	"${translationsDir}/portuguese.ts"
+	"${translationsDir}/romanian.ts"
 	"${translationsDir}/russian.ts"
 	"${translationsDir}/spanish.ts"
 	"${translationsDir}/swedish.ts"

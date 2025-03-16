@@ -227,6 +227,9 @@
 			"items" : [
 				{
 					"text": "vcmi.systemOptions.audioMuteFocus.hover"
+				},
+				{
+					"text": "core.genrltxt.575"
 				}
 			]
 		},
@@ -239,6 +242,11 @@
 					"name": "audioMuteFocusCheckbox",
 					"help": "vcmi.systemOptions.audioMuteFocus",
 					"callback": "audioMuteFocusChanged"
+				},
+				{
+					"name": "enableSubtitleCheckbox",
+					"help": "core.help.363",
+					"callback": "enableSubtitleChanged"
 				}
 			]
 		},

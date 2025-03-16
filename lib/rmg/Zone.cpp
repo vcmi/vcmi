@@ -171,6 +171,15 @@ void Zone::setTerrainType(TerrainId terrain)
 	terrainType = terrain;
 }
 
+void Zone::moveToCenterOfMass()
+{
+	auto newPos = area()->getCenterOfMass();
+	setPos(newPos);
+	setCenter(float3(float(newPos.x) / map.getMapGenOptions().getWidth(), 
+		float(newPos.y) / map.getMapGenOptions().getHeight(), 
+		newPos.z));
+}
+
 rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter) const
 ///connect current tile to any other free tile within zone
 {

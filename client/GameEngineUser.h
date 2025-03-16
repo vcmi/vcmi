@@ -20,6 +20,9 @@ public:
 	/// Called on every game tick for game to update its state
 	virtual void onUpdate() = 0;
 
+	/// Called when app shutdown has been requested in any way - exit button, Alt-F4, etc
+	virtual void onShutdownRequested(bool askForConfirmation) = 0;
+
 	/// Returns true if all input events should be captured and ignored
 	virtual bool capturedAllEvents() = 0;
 };

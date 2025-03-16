@@ -51,10 +51,6 @@ namespace scripting
 /// Loads and constructs several handlers
 class DLL_LINKAGE GameLibrary final : public Services
 {
-
-	std::shared_ptr<CContentHandler> getContent() const;
-	void setContent(std::shared_ptr<CContentHandler> content);
-
 public:
 	const ArtifactService * artifacts() const override;
 	const CreatureService * creatures() const override;
@@ -76,38 +72,44 @@ public:
 	const IBonusTypeHandler * getBth() const; //deprecated
 	const CIdentifierStorage * identifiers() const;
 
-	std::shared_ptr<CArtHandler> arth;
-	std::shared_ptr<CBonusTypeHandler> bth;
-	std::shared_ptr<CHeroHandler> heroh;
-	std::shared_ptr<CHeroClassHandler> heroclassesh;
-	std::shared_ptr<CCreatureHandler> creh;
-	std::shared_ptr<CSpellHandler> spellh;
-	std::shared_ptr<CSkillHandler> skillh;
+	std::unique_ptr<CArtHandler> arth;
+	std::unique_ptr<CBonusTypeHandler> bth;
+	std::unique_ptr<CHeroHandler> heroh;
+	std::unique_ptr<CHeroClassHandler> heroclassesh;
+	std::unique_ptr<CCreatureHandler> creh;
+	std::unique_ptr<CSpellHandler> spellh;
+	std::unique_ptr<CSkillHandler> skillh;
 	// TODO: Remove ObjectHandler altogether?
-	std::shared_ptr<CObjectHandler> objh;
-	std::shared_ptr<CObjectClassesHandler> objtypeh;
-	std::shared_ptr<CTownHandler> townh;
-	std::shared_ptr<CGeneralTextHandler> generaltexth;
-	std::shared_ptr<CModHandler> modh;
-	std::shared_ptr<TerrainTypeHandler> terrainTypeHandler;
-	std::shared_ptr<RoadTypeHandler> roadTypeHandler;
-	std::shared_ptr<RiverTypeHandler> riverTypeHandler;
-	std::shared_ptr<CIdentifierStorage> identifiersHandler;
-	std::shared_ptr<CTerrainViewPatternConfig> terviewh;
-	std::shared_ptr<CRmgTemplateStorage> tplh;
-	std::shared_ptr<BattleFieldHandler> battlefieldsHandler;
-	std::shared_ptr<ObstacleHandler> obstacleHandler;
-	std::shared_ptr<GameSettings> settingsHandler;
-	std::shared_ptr<ObstacleSetHandler> biomeHandler;
+	std::unique_ptr<CObjectHandler> objh;
+	std::unique_ptr<CObjectClassesHandler> objtypeh;
+	std::unique_ptr<CTownHandler> townh;
+	std::unique_ptr<CGeneralTextHandler> generaltexth;
+	std::unique_ptr<CModHandler> modh;
+	std::unique_ptr<TerrainTypeHandler> terrainTypeHandler;
+	std::unique_ptr<RoadTypeHandler> roadTypeHandler;
+	std::unique_ptr<RiverTypeHandler> riverTypeHandler;
+	std::unique_ptr<CIdentifierStorage> identifiersHandler;
+	std::unique_ptr<CTerrainViewPatternConfig> terviewh;
+	std::unique_ptr<CRmgTemplateStorage> tplh;
+	std::unique_ptr<BattleFieldHandler> battlefieldsHandler;
+	std::unique_ptr<ObstacleHandler> obstacleHandler;
+	std::unique_ptr<GameSettings> settingsHandler;
+	std::unique_ptr<ObstacleSetHandler> biomeHandler;
 
 #if SCRIPTING_ENABLED
-	std::shared_ptr<scripting::ScriptHandler> scriptHandler;
+	std::unique_ptr<scripting::ScriptHandler> scriptHandler;
 #endif
 
-	GameLibrary(); //c-tor, loads .lods and NULLs handlers
+	GameLibrary();
 	~GameLibrary();
-	void init(bool onlyEssential); //uses standard config file
 
+	/// initializes settings and filesystem
+	void initializeFilesystem(bool extractArchives);
+
+	/// Loads all game entities
+	void initializeLibrary();
+
+private:
 	// basic initialization. should be called before init(). Can also extract original H3 archives
 	void loadFilesystem(bool extractArchives);
 	void loadModFilesystem();
@@ -118,9 +120,5 @@ public:
 };
 
 extern DLL_LINKAGE GameLibrary * LIBRARY;
-
-DLL_LINKAGE void preinitDLL(bool extractArchives);
-DLL_LINKAGE void loadDLLClasses(bool onlyEssential = false);
-
 
 VCMI_LIB_NAMESPACE_END
