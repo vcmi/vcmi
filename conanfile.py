@@ -87,7 +87,6 @@ class VCMI(ConanFile):
             self.requires("qt/[~5.15.14]") # earlier versions have serious bugs
         else:
             self.requires("qt/[~5.15.2]")
-        self.requires("md4c/0.5.2", override=True) # Qt 5 depends on 0.4.8, but it doesn't build for iOS
 
     def validate(self):
         # FFmpeg

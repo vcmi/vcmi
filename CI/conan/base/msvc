@@ -15,11 +15,12 @@ os=Windows
 # https://learn.microsoft.com/en-us/windows/win32/WinProg/using-the-windows-headers
 {% set _WIN32_WINNT_WIN7 = '0x0601' %}
 {% set NTDDI_WIN7 = '0x06010000' %}
-tools.build:defines=[
-    '_WIN32_WINNT={{ _WIN32_WINNT_WIN7 }}',
-    'WINVER={{ _WIN32_WINNT_WIN7 }}',
-    'NTDDI_VERSION={{ NTDDI_WIN7 }}',
-]
+{% set win7_defines = [
+    '_WIN32_WINNT={}'.format(_WIN32_WINNT_WIN7),
+    'WINVER={}'.format(_WIN32_WINNT_WIN7),
+    'NTDDI_VERSION={}'.format(NTDDI_WIN7),
+] %}
+tools.build:defines={{ win7_defines }}
 
 [options]
 ffmpeg/*:shared=True

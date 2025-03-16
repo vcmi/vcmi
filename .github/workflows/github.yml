@@ -115,7 +115,6 @@ jobs:
             upload: 1
             extension: apk
             preset: android-conan-ninja-release
-            before_install: android.sh
             conan_profile: android-32-ndk
             conan_prebuilts: dependencies-android-armeabi-v7a
             artifact_platform: armeabi-v7a
@@ -124,7 +123,6 @@ jobs:
             upload: 1
             extension: apk
             preset: android-conan-ninja-release
-            before_install: android.sh
             conan_profile: android-64-ndk
             conan_prebuilts: dependencies-android-arm64-v8a
             artifact_platform: arm64-v8a
