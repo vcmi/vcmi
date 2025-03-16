@@ -131,6 +131,10 @@ void CSettingsView::loadSettings()
 	ui->buttonAllowPortrait->hide();
 	ui->labelAllowPortrait->hide();
 #endif
+#ifndef VCMI_IOS
+	ui->labelIgnoreMuteSwitch->hide();
+	ui->buttonIgnoreMuteSwitch->hide();
+#endif
 	fillValidScalingRange();
 
 	ui->buttonScalingAuto->setChecked(settings["video"]["resolution"]["scaling"].Integer() == 0);
@@ -223,6 +227,8 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonHapticFeedback, settings["general"]["hapticFeedback"].Bool());
 
 	setCheckbuttonState(ui->buttonHandleBackRightMouseButton, settings["input"]["handleBackRightMouseButton"].Bool());
+
+	setCheckbuttonState(ui->buttonIgnoreMuteSwitch, settings["general"]["ignoreMuteSwitch"].Bool());
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
@@ -866,3 +872,9 @@ void CSettingsView::on_buttonHandleBackRightMouseButton_toggled(bool checked)
 	updateCheckbuttonText(ui->buttonHandleBackRightMouseButton);
 }
 
+void CSettingsView::on_buttonIgnoreMuteSwitch_toggled(bool checked)
+{
+	Settings node = settings.write["general"]["ignoreMuteSwitch"];
+	node->Bool() = checked;
+	updateCheckbuttonText(ui->buttonIgnoreMuteSwitch);
+}
