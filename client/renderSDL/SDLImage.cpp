@@ -352,9 +352,10 @@ Rect SDLImageShared::contentRect() const
 	if(upscalingInProgress)
 		throw std::runtime_error("Attempt to access images that is still being loaded!");
 
-	auto tmpMargins = margins;
-	auto tmpSize = Point(surf->w, surf->h);
-	return Rect(tmpMargins, tmpSize);
+	if (!surf)
+		return Rect();
+
+	return Rect(margins, Point(surf->w, surf->h));
 }
 
 const SDL_Palette * SDLImageShared::getPalette() const
