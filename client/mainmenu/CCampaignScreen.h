@@ -25,38 +25,41 @@ class VideoWidget;
 class CCampaignScreen : public CWindowObject
 {
 public:
-    enum CampaignStatus { DEFAULT = 0, ENABLED, DISABLED, COMPLETED };
+	enum CampaignStatus {DEFAULT = 0, ENABLED, DISABLED, COMPLETED}; // the status of the campaign
 
 private:
-    class CCampaignButton : public CIntObject
-    {
-    private:
-        std::shared_ptr<CLabel> hoverLabel;
-        std::shared_ptr<CPicture> graphicsImage;
-        std::shared_ptr<CPicture> graphicsCompleted;
-        std::shared_ptr<VideoWidget> videoPlayer;
-        CampaignStatus status;
-        VideoPath videoPath;
+	/// A button which plays a video when you move the mouse cursor over it
+	class CCampaignButton : public CIntObject
+	{
+	private:
+		std::shared_ptr<CLabel> hoverLabel;
+		std::shared_ptr<CPicture> graphicsImage;
+		std::shared_ptr<CPicture> graphicsCompleted;
+		std::shared_ptr<VideoWidget> videoPlayer;
+		CampaignStatus status;
+		VideoPath videoPath;
 
-        std::string campFile;
-        std::string hoverText;
-        std::string campaignSet;
+		std::string campFile; // the filename/resourcename of the campaign
+		std::string hoverText;
 
-        void clickReleased(const Point& cursorPosition) override;
-        void hover(bool on) override;
+		std::string campaignSet;
 
-    public:
-        CCampaignButton(const JsonNode& config, const JsonNode& parentConfig, std::string campaignSet);
-    };
+		void clickReleased(const Point & cursorPosition) override;
+		void hover(bool on) override;
 
-    std::string campaignSet;
-    std::vector<std::shared_ptr<CCampaignButton>> campButtons;
-    std::vector<std::shared_ptr<CPicture>> images;
-    std::shared_ptr<CButton> buttonBack;
+	public:
+		CCampaignButton(const JsonNode & config, const JsonNode & parentConfig, std::string campaignSet);
+	};
+
+	std::string campaignSet;
+
+	std::vector<std::shared_ptr<CCampaignButton>> campButtons;
+	std::vector<std::shared_ptr<CPicture>> images;
+	std::shared_ptr<CButton> buttonBack;
     std::shared_ptr<CButton> buttonNext;
     std::shared_ptr<CButton> buttonPrev;
 
-    std::shared_ptr<CButton> createExitButton(const JsonNode& button);
+	std::shared_ptr<CButton> createExitButton(const JsonNode & button);
 
     int campaignsPerPage = 8;
     int currentPage = 0;
@@ -66,6 +69,7 @@ private:
     void updateCampaignButtons(const JsonNode& parentConfig, const std::string& campaignSet);
 
 public:
-    CCampaignScreen(const JsonNode& config, std::string campaignSet);
-    void activate() override;
+	CCampaignScreen(const JsonNode & config, std::string campaignSet);
+
+	void activate() override;
 };
