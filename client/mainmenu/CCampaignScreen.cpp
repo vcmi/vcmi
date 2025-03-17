@@ -43,31 +43,69 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
-CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
+CCampaignScreen::CCampaignScreen(const JsonNode& config, std::string name)
 	: CWindowObject(BORDERED), campaignSet(name)
 {
 	OBJECT_CONSTRUCTION;
 
-	for(const JsonNode & node : config[name]["images"].Vector())
+	const auto& campaigns = config[name]["items"].Vector();
+
+	// Define mapping of background name -> campaigns per page
+	const std::unordered_map<std::string, int> campaignsPerPageMap = {
+		{"CampaignBackground4", 4},
+		{"CampaignBackground5", 5},
+		{"CampaignBackground6", 6},
+		{"CampaignBackground7", 7},
+		{"CAMPBACK", 7},
+		{"CAMPBKX2", 7},
+		{"CampaignBackground8", 8}
+	};
+
+	// Process images and check if name is in the map
+	for (const JsonNode& node : config[name]["images"].Vector())
+	{
 		images.push_back(CMainMenu::createPicture(node));
 
-	if(!images.empty())
-	{
-		images[0]->center(); // move background to center
-		moveTo(images[0]->pos.topLeft()); // move everything else to center
-		images[0]->moveTo(pos.topLeft()); // restore moved twice background
-		pos = images[0]->pos; // fix height\width of this window
+		std::string imageName = node["name"].String();
+		auto it = campaignsPerPageMap.find(imageName);
+		if (it != campaignsPerPageMap.end())
+		{
+			campaignsPerPage = it->second;
+		}
 	}
 
-	if(!config[name]["exitbutton"].isNull())
+	if (!images.empty())
+	{
+		images[0]->center();
+		moveTo(images[0]->pos.topLeft());
+		images[0]->moveTo(pos.topLeft());
+		pos = images[0]->pos;
+	}
+
+
+	for (const auto& node : campaigns)
+	{
+		auto button = std::make_shared<CCampaignButton>(node, config, campaignSet);
+		button->enable();
+		campButtons.push_back(button);
+	}
+
+	maxPages = (campaigns.size() + campaignsPerPage - 1) / campaignsPerPage;
+
+	buttonNext = std::make_shared<CButton>(Point(340, 560), AnimationPath::builtin("campaigns/next"), "", [this, name]() { switchPage(1, name); });
+	buttonNext->disable();
+
+	buttonPrev = std::make_shared<CButton>(Point(275, 560), AnimationPath::builtin("campaigns/back"), "", [this, name]() { switchPage(-1, name); });
+	buttonPrev->disable();
+
+
+	if (!config[name]["exitbutton"].isNull())
 	{
 		buttonBack = createExitButton(config[name]["exitbutton"]);
 		buttonBack->setHoverable(true);
 	}
 
-	for(const JsonNode & node : config[name]["items"].Vector())
-		if(CResourceHandler::get()->existsResource(ResourcePath(node["file"].String(), EResType::CAMPAIGN)))
-			campButtons.push_back(std::make_shared<CCampaignButton>(node, config, campaignSet));
+	updateCampaignButtons(config, campaignSet);
 }
 
 void CCampaignScreen::activate()
@@ -77,18 +115,19 @@ void CCampaignScreen::activate()
 	CWindowObject::activate();
 }
 
-std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & button)
+std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode& button)
 {
 	std::pair<std::string, std::string> help;
-	if(!button["help"].isNull() && button["help"].Float() > 0)
+	if (!button["help"].isNull() && button["help"].Float() > 0)
 		help = LIBRARY->generaltexth->zelp[(size_t)button["help"].Float()];
 
-	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), AnimationPath::fromJson(button["name"]), help, [this](){ close();}, EShortcut::GLOBAL_CANCEL);
+	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), AnimationPath::fromJson(button["name"]), help, [this]() { close(); }, EShortcut::GLOBAL_CANCEL);
 }
 
-CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const JsonNode & parentConfig, std::string campaignSet)
+CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode& config, const JsonNode& parentConfig, std::string campaignSet)
 	: campaignSet(campaignSet)
 {
+
 	OBJECT_CONSTRUCTION;
 
 	pos.x += static_cast<int>(config["x"].Float());
@@ -104,23 +143,25 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 	auto header = CampaignHandler::getHeader(campFile);
 	hoverText = header->getNameTranslated();
 
-	if(persistentStorage["completedCampaigns"][header->getFilename()].Bool())
+	if (persistentStorage["completedCampaigns"][header->getFilename()].Bool())
 		status = CCampaignScreen::COMPLETED;
 
-	for(const JsonNode & node : parentConfig[campaignSet]["items"].Vector())
+	for (const JsonNode& node : parentConfig[campaignSet]["items"].Vector())
 	{
-		for(const JsonNode & requirement : config["requires"].Vector())
+		for (const JsonNode& requirement : config["requires"].Vector())
 		{
-			if(node["id"].Integer() == requirement.Integer())
-				if(!persistentStorage["completedCampaigns"][node["file"].String()].Bool())
+			if (node["id"].Integer() == requirement.Integer())
+				if (!persistentStorage["completedCampaigns"][node["file"].String()].Bool())
 					status = CCampaignScreen::DISABLED;
 		}
+		if (!CResourceHandler::get()->existsResource(ResourcePath(node["file"].String(), EResType::CAMPAIGN)))
+			status = CCampaignScreen::DISABLED;
 	}
 
-	if(persistentStorage["unlockAllCampaigns"].Bool())
+	if (persistentStorage["unlockAllCampaigns"].Bool())
 		status = CCampaignScreen::ENABLED;
 
-	if(status != CCampaignScreen::DISABLED)
+	if (status != CCampaignScreen::DISABLED)
 	{
 		addUsedEvents(LCLICK | HOVER);
 		graphicsImage = std::make_shared<CPicture>(ImagePath::fromJson(config["image"]));
@@ -128,11 +169,12 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 		parent->addChild(hoverLabel.get());
 	}
 
-	if(status == CCampaignScreen::COMPLETED)
+	if (status == CCampaignScreen::COMPLETED)
 		graphicsCompleted = std::make_shared<CPicture>(ImagePath::builtin("CAMPCHK"));
+	
 }
 
-void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPosition)
+void CCampaignScreen::CCampaignButton::clickReleased(const Point& cursorPosition)
 {
 	CMainMenu::openCampaignLobby(campFile, campaignSet);
 }
@@ -146,11 +188,51 @@ void CCampaignScreen::CCampaignButton::hover(bool on)
 	else
 		videoPlayer.reset();
 
-	if(hoverLabel)
+	if (hoverLabel)
 	{
-		if(on)
+		if (on)
 			hoverLabel->setText(hoverText); // Shows the name of the campaign when you get into the bounds of the button
 		else
 			hoverLabel->setText(" ");
 	}
+}
+
+void CCampaignScreen::switchPage(int delta, const std::string& campaignSet)
+{
+	currentPage += delta;
+	currentPage = std::clamp(currentPage, 0, maxPages - 1);
+
+	const auto& campaignConfig = CMainMenuConfig::get().getCampaigns();
+
+	updateCampaignButtons(campaignConfig, campaignSet);
+}
+
+void CCampaignScreen::updateCampaignButtons(const JsonNode& parentConfig, const std::string& campaignSet)
+{
+	const auto& campaigns = parentConfig[campaignSet]["items"].Vector();
+
+	int minId = (currentPage * campaignsPerPage) + 1;
+	int maxId = minId + campaignsPerPage - 1;
+
+	for (size_t i = 0; i < campButtons.size(); ++i)
+	{
+		int campaignId = campaigns[i]["id"].Integer();
+
+		if (campaignId >= minId && campaignId <= maxId)
+			campButtons[i]->enable();
+		else
+			campButtons[i]->disable();
+	}
+
+	if (maxId < campaigns.size())
+		buttonNext->enable();
+	else
+		buttonNext->disable();
+
+	if (currentPage > 0)
+		buttonPrev->enable();
+	else
+		buttonPrev->disable();
+
+	redraw();
 }

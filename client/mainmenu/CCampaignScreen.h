@@ -10,6 +10,8 @@
 #pragma once
 
 #include "../windows/CWindowObject.h"
+#include <vector>
+#include <memory>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,42 +27,47 @@ class VideoWidget;
 class CCampaignScreen : public CWindowObject
 {
 public:
-	enum CampaignStatus {DEFAULT = 0, ENABLED, DISABLED, COMPLETED}; // the status of the campaign
+    enum CampaignStatus { DEFAULT = 0, ENABLED, DISABLED, COMPLETED };
 
 private:
-	/// A button which plays a video when you move the mouse cursor over it
-	class CCampaignButton : public CIntObject
-	{
-	private:
-		std::shared_ptr<CLabel> hoverLabel;
-		std::shared_ptr<CPicture> graphicsImage;
-		std::shared_ptr<CPicture> graphicsCompleted;
-		std::shared_ptr<VideoWidget> videoPlayer;
-		CampaignStatus status;
-		VideoPath videoPath;
+    class CCampaignButton : public CIntObject
+    {
+    private:
+        std::shared_ptr<CLabel> hoverLabel;
+        std::shared_ptr<CPicture> graphicsImage;
+        std::shared_ptr<CPicture> graphicsCompleted;
+        std::shared_ptr<VideoWidget> videoPlayer;
+        CampaignStatus status;
+        VideoPath videoPath;
 
-		std::string campFile; // the filename/resourcename of the campaign
-		std::string hoverText;
+        std::string campFile;
+        std::string hoverText;
+        std::string campaignSet;
 
-		std::string campaignSet;
+        void clickReleased(const Point& cursorPosition) override;
+        void hover(bool on) override;
 
-		void clickReleased(const Point & cursorPosition) override;
-		void hover(bool on) override;
+    public:
+        CCampaignButton(const JsonNode& config, const JsonNode& parentConfig, std::string campaignSet);
+    };
 
-	public:
-		CCampaignButton(const JsonNode & config, const JsonNode & parentConfig, std::string campaignSet);
-	};
+    std::string campaignSet;
+    std::vector<std::shared_ptr<CCampaignButton>> campButtons;
+    std::vector<std::shared_ptr<CPicture>> images;
+    std::shared_ptr<CButton> buttonBack;
+    std::shared_ptr<CButton> buttonNext;
+    std::shared_ptr<CButton> buttonPrev;
 
-	std::string campaignSet;
+    std::shared_ptr<CButton> createExitButton(const JsonNode& button);
 
-	std::vector<std::shared_ptr<CCampaignButton>> campButtons;
-	std::vector<std::shared_ptr<CPicture>> images;
-	std::shared_ptr<CButton> buttonBack;
+    int campaignsPerPage = 8;
+    int currentPage = 0;
+    int maxPages = 0;
 
-	std::shared_ptr<CButton> createExitButton(const JsonNode & button);
+    void switchPage(int delta, const std::string& campaignSet);
+    void updateCampaignButtons(const JsonNode& parentConfig, const std::string& campaignSet);
 
 public:
-	CCampaignScreen(const JsonNode & config, std::string campaignSet);
-
-	void activate() override;
+    CCampaignScreen(const JsonNode& config, std::string campaignSet);
+    void activate() override;
 };
