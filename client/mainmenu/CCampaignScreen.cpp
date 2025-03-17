@@ -92,10 +92,10 @@ CCampaignScreen::CCampaignScreen(const JsonNode& config, std::string name)
 
 	maxPages = (campaigns.size() + campaignsPerPage - 1) / campaignsPerPage;
 
-	buttonNext = std::make_shared<CButton>(Point(340, 560), AnimationPath::builtin("campaigns/next"), "", [this, name]() { switchPage(1, name); });
+	buttonNext = std::make_shared<CButton>(Point(340, 560), AnimationPath::builtin("campaigns/next"), std::make_pair("", ""), [this, name]() { switchPage(1, name); });
 	buttonNext->disable();
 
-	buttonPrev = std::make_shared<CButton>(Point(275, 560), AnimationPath::builtin("campaigns/back"), "", [this, name]() { switchPage(-1, name); });
+	buttonPrev = std::make_shared<CButton>(Point(275, 560), AnimationPath::builtin("campaigns/back"), std::make_pair("", ""), [this, name]() { switchPage(-1, name); });
 	buttonPrev->disable();
 
 
