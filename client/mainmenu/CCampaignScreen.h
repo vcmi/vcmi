@@ -10,8 +10,6 @@
 #pragma once
 
 #include "../windows/CWindowObject.h"
-#include <vector>
-#include <memory>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
