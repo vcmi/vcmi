@@ -29,7 +29,7 @@
 			{ "id": 3, "x":43,  "y":245, "file":"DATA/SLAYER",   "image":"CAMP1DS1", "video":"C1ds1", "requires": []              },
 			{ "id": 4, "x":313, "y":244, "file":"DATA/FESTIVAL", "image":"CAMP1FL3", "video":"C1fl3", "requires": []              },
 			{ "id": 5, "x":586, "y":246, "file":"DATA/FIRE",     "image":"CAMP1PF2", "video":"C1pf2", "requires": []              },
-			{ "id": 6, "x":32,  "y":417, "file":"DATA/FOOL",     "image":"CAMP1FW1", "video":"C1fw1", "requires": [1, 2, 3, 4, 5] }
+			{ "id": 6, "x":34,  "y":417, "file":"DATA/FOOL",     "image":"CAMP1FW1", "video":"C1fw1", "requires": [1, 2, 3, 4, 5] }
 		]
 	},
 	"sod":
