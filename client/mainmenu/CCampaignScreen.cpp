@@ -76,10 +76,10 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 
 	if (!images.empty())
 	{
-		images[0]->center();
-		moveTo(images[0]->pos.topLeft());
-		images[0]->moveTo(pos.topLeft());
-		pos = images[0]->pos;
+		images[0]->center(); // move background to center
+		moveTo(images[0]->pos.topLeft()); // move everything else to center
+		images[0]->moveTo(pos.topLeft()); // restore moved twice background
+		pos = images[0]->pos; // fix height\width of this window
 	}
 
 	
@@ -97,7 +97,6 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 
 	buttonPrev = std::make_shared<CButton>(Point(275, 560), AnimationPath::builtin("campaigns/back"), std::make_pair("", ""), [this, name]() { switchPage(-1, name); });
 	buttonPrev->disable();
-
 
 	if (!config[name]["exitbutton"].isNull())
 	{
@@ -118,16 +117,15 @@ void CCampaignScreen::activate()
 std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & button)
 {
 	std::pair<std::string, std::string> help;
-	if (!button["help"].isNull() && button["help"].Float() > 0)
+	if(!button["help"].isNull() && button["help"].Float() > 0)
 		help = LIBRARY->generaltexth->zelp[(size_t)button["help"].Float()];
 
-	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), AnimationPath::fromJson(button["name"]), help, [this]() { close(); }, EShortcut::GLOBAL_CANCEL);
+	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), AnimationPath::fromJson(button["name"]), help, [this](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const JsonNode & parentConfig, std::string campaignSet)
 	: campaignSet(campaignSet)
 {
-
 	OBJECT_CONSTRUCTION;
 
 	pos.x += static_cast<int>(config["x"].Float());
@@ -137,10 +135,9 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 
 	campFile = config["file"].String();
 	videoPath = VideoPath::fromJson(config["video"]);
-	
+
 	status = CCampaignScreen::ENABLED;
 
-	// Check if campaign file exists
 	if(CResourceHandler::get()->existsResource(ResourcePath(campFile, EResType::CAMPAIGN)))
 	{
 		auto header = CampaignHandler::getHeader(campFile);
@@ -154,7 +151,6 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 		status = CCampaignScreen::DISABLED;
 	}
 
-	
 	for(const JsonNode & node : parentConfig[campaignSet]["items"].Vector())
 	{
 		for(const JsonNode & requirement : config["requires"].Vector())
@@ -164,7 +160,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 					status = CCampaignScreen::DISABLED;
 		}
 	}
-	
+
 	if(persistentStorage["unlockAllCampaigns"].Bool())
 		status = CCampaignScreen::ENABLED;
 
@@ -178,7 +174,6 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 
 	if(status == CCampaignScreen::COMPLETED)
 		graphicsCompleted = std::make_shared<CPicture>(ImagePath::builtin("CAMPCHK"));
-	
 }
 
 void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPosition)
@@ -190,7 +185,7 @@ void CCampaignScreen::CCampaignButton::hover(bool on)
 {
 	OBJECT_CONSTRUCTION;
 
-	if(on && !videoPath.empty())
+	if (on && !videoPath.empty())
 		videoPlayer = std::make_shared<VideoWidget>(Point(), videoPath, false);
 	else
 		videoPlayer.reset();
