@@ -99,7 +99,7 @@ bool ArmyWidget::commitChanges()
 			{
 				if(army.hasStackAtSlot(SlotID(i)))
 					army.eraseStack(SlotID(i));
-				army.putStack(SlotID(i), new CStackInstance(creId, amount, false));
+				army.putStack(SlotID(i), std::make_unique<CStackInstance>(creId, amount, false));
 			}
 		}
 	}

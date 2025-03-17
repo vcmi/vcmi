@@ -358,9 +358,9 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 	}
 	else
 	{
-		for(auto slot : army->Slots())
+		for(const auto & slot : army->Slots())
 		{
-			auto targetSlot = target->getSlotFor(slot.second->getCreatureID());
+			const auto & targetSlot = target->getSlotFor(slot.second->getCreatureID());
 
 			target->addToSlot(targetSlot, slot.second->getCreatureID(), slot.second->count);
 		}

@@ -102,8 +102,8 @@ void CGMine::initObj(vstd::RNG & rand)
 	{
 		//set guardians
 		int howManyTroglodytes = rand.nextInt(100, 199);
-		auto * troglodytes = new CStackInstance(CreatureID::TROGLODYTES, howManyTroglodytes);
-		putStack(SlotID(0), troglodytes);
+		auto troglodytes = std::make_unique<CStackInstance>(CreatureID::TROGLODYTES, howManyTroglodytes);
+		putStack(SlotID(0), std::move(troglodytes));
 
 		assert(!abandonedMineResources.empty());
 		if (!abandonedMineResources.empty())

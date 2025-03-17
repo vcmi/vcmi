@@ -83,7 +83,7 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 		size_t count = 0;
 		for(const auto & slot : hero->Slots())
 		{
-			const CStackInstance * heroStack = slot.second;
+			const auto & heroStack = slot.second;
 			if (heroStack->getType() == reqStack.getType())
 				count += heroStack->count;
 		}

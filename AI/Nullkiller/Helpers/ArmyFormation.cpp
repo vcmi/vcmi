@@ -25,7 +25,7 @@ void ArmyFormation::addSingleCreatureStacks(const CGHeroInstance * hero)
 
 	while(!freeSlots.empty())
 	{
-		auto weakestCreature = vstd::minElementByFun(hero->Slots(), [](const std::pair<SlotID, CStackInstance *> & slot) -> int
+		TSlots::const_iterator weakestCreature = vstd::minElementByFun(hero->Slots(), [](const auto & slot) -> int
 			{
 				return slot.second->getCount() == 1
 					? std::numeric_limits<int>::max()
@@ -50,8 +50,8 @@ void ArmyFormation::rearrangeArmyForSiege(const CGTownInstance * town, const CGH
 	{
 		std::vector<CStackInstance *> stacks;
 
-		for(auto slot : attacker->Slots())
-			stacks.push_back(slot.second);
+		for(const auto & slot : attacker->Slots())
+			stacks.push_back(slot.second.get());
 
 		boost::sort(
 			stacks,
@@ -67,7 +67,7 @@ void ArmyFormation::rearrangeArmyForSiege(const CGTownInstance * town, const CGH
 
 		for(int i = 0; i < stacks.size(); i++)
 		{
-			auto pos = vstd::findKey(attacker->Slots(), stacks[i]);
+			auto pos = stacks[i]->armyObj->findStack(stacks[i]);
 
 			if(pos.getNum() != i)
 				cb->swapCreatures(attacker, attacker, static_cast<SlotID>(i), pos);

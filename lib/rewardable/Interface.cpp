@@ -179,7 +179,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 	{
 		for(const auto & slot : hero->Slots())
 		{
-			const CStackInstance * heroStack = slot.second;
+			const auto & heroStack = slot.second;
 
 			for(const auto & change : info.reward.creaturesChange)
 			{
@@ -197,7 +197,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 	{
 		CCreatureSet creatures;
 		for(const auto & crea : info.reward.creatures)
-			creatures.addToSlot(creatures.getFreeSlot(), new CStackInstance(crea.getCreature(), crea.count));
+			creatures.addToSlot(creatures.getFreeSlot(), std::make_unique<CStackInstance>(crea.getCreature(), crea.count));
 
 		if(auto * army = dynamic_cast<const CArmedInstance*>(this)) //TODO: to fix that, CArmedInstance must be split on map instance part and interface part
 			cb->giveCreatures(army, hero, creatures, false);

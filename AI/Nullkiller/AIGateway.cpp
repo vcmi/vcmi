@@ -1180,7 +1180,7 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 
 		if(!recruiter->getSlotFor(creID).validSlot())
 		{
-			for(auto stack : recruiter->Slots())
+			for(const auto & stack : recruiter->Slots())
 			{
 				if(!stack.second->getType())
 					continue;

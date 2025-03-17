@@ -29,7 +29,7 @@ int GatherTroops::getCreaturesCount(const CArmedInstance * army)
 {
 	int count = 0;
 
-	for(auto stack : army->Slots())
+	for(const auto & stack : army->Slots())
 	{
 		if(objid == stack.second->getCreatureID().num)
 		{

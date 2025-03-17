@@ -73,15 +73,14 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 	for(const auto & slot : Slots())
 	{
-		const CStackInstance * inst = slot.second;
-		const auto * creature  = inst->getCreatureID().toEntity(LIBRARY);
+		const auto * creature  = slot.second->getCreatureID().toEntity(LIBRARY);
 
 		factions.insert(creature->getFactionID());
 		// Check for undead flag instead of faction (undead mummies are neutral)
 		if (!hasUndead)
 		{
 			//this is costly check, let's skip it at first undead
-			hasUndead |= inst->hasBonus(undeadSelector, undeadCacheKey);
+			hasUndead |= slot.second->hasBonus(undeadSelector, undeadCacheKey);
 		}
 	}
 

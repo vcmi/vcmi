@@ -62,7 +62,7 @@ void BuyArmy::accept(AIGateway * ai)
 			{
 				SlotID lowestValueSlot;
 				int lowestValue = std::numeric_limits<int>::max();
-				for (auto slot : town->getUpperArmy()->Slots())
+				for (const auto & slot : town->getUpperArmy()->Slots())
 				{
 					if (slot.second->getCreatureID() != CreatureID::NONE)
 					{

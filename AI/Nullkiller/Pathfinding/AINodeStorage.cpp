@@ -284,7 +284,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 					return;
 				}
 
-				auto weakest = vstd::minElementByFun(dstNode->actor->creatureSet->Slots(), [](std::pair<SlotID, const CStackInstance *> pair) -> int
+				const auto & weakest = vstd::minElementByFun(dstNode->actor->creatureSet->Slots(), [](const auto & pair) -> int
 					{
 						return pair.second->getCount() * pair.second->getCreatureID().toCreature()->getAIValue();
 					});

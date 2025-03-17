@@ -696,7 +696,7 @@ int32_t getArmyCost(const CArmedInstance * army)
 {
 	int32_t value = 0;
 
-	for(auto stack : army->Slots())
+	for(const auto & stack : army->Slots())
 	{
 		value += stack.second->getCreatureID().toCreature()->getFullRecruitCost().marketValue() * stack.second->count;
 	}
@@ -990,7 +990,7 @@ public:
 		std::map<int, float> totalPowerByCreatureID;
 
 		// Calculate hero power and total power by CreatureID
-		for (auto slot : hero->Slots())
+		for (const auto & slot : hero->Slots())
 		{
 			int creatureID = slot.second->getCreatureID();
 			float slotPower = slot.second->getPower();

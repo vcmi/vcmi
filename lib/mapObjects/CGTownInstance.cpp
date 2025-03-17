@@ -533,7 +533,7 @@ void CGTownInstance::initializeNeutralTownGarrison(vstd::RNG & rand)
 		CreatureID guardID = getTown()->creatures[guard.tier].at(0);
 		int guardSize = rand.nextInt(guard.min, guard.max);
 
-		putStack(getFreeSlot(), new CStackInstance(guardID, guardSize));
+		putStack(getFreeSlot(), std::make_unique<CStackInstance>(guardID, guardSize));
 	}
 }
 
@@ -583,33 +583,25 @@ void CGTownInstance::mergeGarrisonOnSiege() const
 {
 	auto getWeakestStackSlot = [&](ui64 powerLimit)
 	{
-		std::vector<SlotID> weakSlots;
-		auto stacksList = getVisitingHero()->stacks;
-		std::pair<SlotID, CStackInstance *> pair;
-		while(!stacksList.empty())
+		SlotID weakestSlot;
+
+		for ( const auto & pair : getVisitingHero()->stacks)
 		{
-			pair = *vstd::minElementByFun(stacksList, [&](const std::pair<SlotID, CStackInstance *> & elem) { return elem.second->getPower(); });
 			if(powerLimit > pair.second->getPower() &&
-				(weakSlots.empty() || pair.second->getPower() == getVisitingHero()->getStack(weakSlots.front()).getPower()))
+			   (weakestSlot == SlotID() || pair.second->getPower() < getVisitingHero()->getStack(weakestSlot).getPower()))
 			{
-				weakSlots.push_back(pair.first);
-				stacksList.erase(pair.first);
+				weakestSlot = pair.first;
 			}
-			else
-				break;
 		}
 
-		if(!weakSlots.empty())
-			return *std::max_element(weakSlots.begin(), weakSlots.end());
-
-		return SlotID();
+		return weakestSlot;
 	};
 
 	auto count = static_cast<int>(stacks.size());
 
 	for(int i = 0; i < count; i++)
 	{
-		auto pair = *vstd::maxElementByFun(stacks, [&](const std::pair<SlotID, CStackInstance *> & elem)
+		const auto & pair = *vstd::maxElementByFun(stacks, [&](const auto & elem)
 		{
 			ui64 power = elem.second->getPower();
 			auto dst = getVisitingHero()->getSlotFor(elem.second->getCreatureID());

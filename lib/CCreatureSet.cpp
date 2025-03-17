@@ -73,7 +73,7 @@ bool CCreatureSet::setCreature(SlotID slot, CreatureID type, TQuantity quantity)
 	auto * armyObj = castToArmyObj();
 	bool isHypotheticArmy = armyObj ? armyObj->isHypothetic() : false;
 
-	putStack(slot, new CStackInstance(type, quantity, isHypotheticArmy));
+	putStack(slot, std::make_unique<CStackInstance>(type, quantity, isHypotheticArmy));
 	return true;
 }
 
@@ -315,17 +315,17 @@ void CCreatureSet::addToSlot(const SlotID & slot, const CreatureID & cre, TQuant
 	}
 }
 
-void CCreatureSet::addToSlot(const SlotID & slot, CStackInstance * stack, bool allowMerging)
+void CCreatureSet::addToSlot(const SlotID & slot, std::unique_ptr<CStackInstance> stack, bool allowMerging)
 {
 	assert(stack->valid(true));
 
 	if(!hasStackAtSlot(slot))
 	{
-		putStack(slot, stack);
+		putStack(slot, std::move(stack));
 	}
 	else if(allowMerging && stack->getType() == getCreature(slot))
 	{
-		joinStack(slot, stack);
+		joinStack(slot, std::move(stack));
 	}
 	else
 	{
@@ -473,15 +473,14 @@ const CStackInstance & CCreatureSet::getStack(const SlotID & slot) const
 CStackInstance * CCreatureSet::getStackPtr(const SlotID & slot) const
 {
 	if(hasStackAtSlot(slot))
-		return stacks.find(slot)->second;
+		return stacks.find(slot)->second.get();
 	else return nullptr;
 }
 
 void CCreatureSet::eraseStack(const SlotID & slot)
 {
 	assert(hasStackAtSlot(slot));
-	CStackInstance *toErase = detachStack(slot);
-	vstd::clear_pointer(toErase);
+	detachStack(slot);
 }
 
 bool CCreatureSet::contains(const CStackInstance *stack) const
@@ -490,7 +489,7 @@ bool CCreatureSet::contains(const CStackInstance *stack) const
 		return false;
 
 	for(const auto & elem : stacks)
-		if(elem.second == stack)
+		if(elem.second.get() == stack)
 			return true;
 
 	return false;
@@ -506,7 +505,7 @@ SlotID CCreatureSet::findStack(const CStackInstance *stack) const
 		return SlotID();
 
 	for(const auto & elem : stacks)
-		if(elem.second == stack)
+		if(elem.second.get() == stack)
 			return elem.first;
 
 	return SlotID();
@@ -517,16 +516,16 @@ CArmedInstance * CCreatureSet::castToArmyObj()
 	return dynamic_cast<CArmedInstance *>(this);
 }
 
-void CCreatureSet::putStack(const SlotID & slot, CStackInstance * stack)
+void CCreatureSet::putStack(const SlotID & slot, std::unique_ptr<CStackInstance> stack)
 {
 	assert(slot.getNum() < GameConstants::ARMY_SIZE);
 	assert(!hasStackAtSlot(slot));
-	stacks[slot] = stack;
+	stacks[slot] = std::move(stack);
 	stack->setArmyObj(castToArmyObj());
 	armyChanged();
 }
 
-void CCreatureSet::joinStack(const SlotID & slot, CStackInstance * stack)
+void CCreatureSet::joinStack(const SlotID & slot, std::unique_ptr<CStackInstance> stack)
 {
 	[[maybe_unused]] const CCreature *c = getCreature(slot);
 	assert(c == stack->getType());
@@ -534,7 +533,6 @@ void CCreatureSet::joinStack(const SlotID & slot, CStackInstance * stack)
 
 	//TODO move stuff
 	changeStackCount(slot, stack->count);
-	vstd::clear_pointer(stack);
 }
 
 void CCreatureSet::changeStackCount(const SlotID & slot, TQuantity toAdd)
@@ -554,15 +552,15 @@ void CCreatureSet::setToArmy(CSimpleArmy &src)
 	{
 		auto i = src.army.begin();
 
-		putStack(i->first, new CStackInstance(i->second.first, i->second.second));
+		putStack(i->first, std::make_unique<CStackInstance>(i->second.first, i->second.second));
 		src.army.erase(i);
 	}
 }
 
-CStackInstance * CCreatureSet::detachStack(const SlotID & slot)
+std::unique_ptr<CStackInstance> CCreatureSet::detachStack(const SlotID & slot)
 {
 	assert(hasStackAtSlot(slot));
-	CStackInstance *ret = stacks[slot];
+	std::unique_ptr<CStackInstance> ret = std::move(stacks[slot]);
 
 	//if(CArmedInstance *armedObj = castToArmyObj())
 	if(ret)
@@ -579,8 +577,7 @@ CStackInstance * CCreatureSet::detachStack(const SlotID & slot)
 void CCreatureSet::setStackType(const SlotID & slot, const CreatureID & type)
 {
 	assert(hasStackAtSlot(slot));
-	CStackInstance *s = stacks[slot];
-	s->setType(type);
+	stacks[slot]->setType(type);
 	armyChanged();
 }
 
@@ -674,9 +671,9 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 
 			if(amount > 0)
 			{
-				auto * new_stack = new CStackInstance();
+				auto new_stack = std::make_unique<CStackInstance>();
 				new_stack->serializeJson(handler);
-				putStack(SlotID(static_cast<si32>(idx)), new_stack);
+				putStack(SlotID(static_cast<si32>(idx)), std::move(new_stack));
 			}
 		}
 	}

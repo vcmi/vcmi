@@ -2851,7 +2851,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	}
 	case Obj::HILL_FORT:
 	{
-		for(auto slot : h->Slots())
+		for(const auto & slot : h->Slots())
 		{
 			if(slot.second->getType()->hasUpgrades())
 				return true; //TODO: check price?

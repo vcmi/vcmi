@@ -4287,7 +4287,7 @@ void CGameHandler::createWanderingMonster(const int3 & visitablePosition, Creatu
 	cre->character = 2;
 	cre->gainedArtifact = ArtifactID::NONE;
 	cre->identifier = -1;
-	cre->addToSlot(SlotID(0), new CStackInstance(creature, -1)); //add placeholder stack
+	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(creature, -1)); //add placeholder stack
 
 	newObject(createdObject, PlayerColor::NEUTRAL);
 }

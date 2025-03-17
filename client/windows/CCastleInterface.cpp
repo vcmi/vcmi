@@ -344,9 +344,8 @@ auto CHeroGSlot::getUpgradableSlots(const CArmedInstance *obj) const
 {
 	struct result { bool isCreatureUpgradePossible; bool canAffordAny; bool canAffordAll; TResources totalCosts; std::vector<std::pair<SlotID, UpgradeInfo>> upgradeInfos; };
 
-	auto slots = std::map<SlotID, const CStackInstance*>(obj->Slots().begin(), obj->Slots().end());
 	std::vector<std::pair<SlotID, UpgradeInfo>> upgradeInfos;
-	for(const auto & slot : slots)
+	for(const auto & slot : obj->Slots())
 	{
 		auto upgradeInfo = std::make_pair(slot.first, UpgradeInfo(slot.second->getCreatureID()));
 		GAME->interface()->cb->fillUpgradeInfo(slot.second->armyObj, slot.first, upgradeInfo.second);
@@ -364,7 +363,7 @@ auto CHeroGSlot::getUpgradableSlots(const CArmedInstance *obj) const
 	std::vector<SlotID> slotInfosToDelete;
 	for(const auto & upgradeInfo : upgradeInfos)
 	{
-		TResources upgradeCosts = upgradeInfo.second.getUpgradeCosts() * slots[upgradeInfo.first]->getCount();
+		TResources upgradeCosts = upgradeInfo.second.getUpgradeCosts() * obj->Slots().at(upgradeInfo.first)->getCount();
 		if(GAME->interface()->cb->getResourceAmount().canAfford(costs + upgradeCosts))
 			costs += upgradeCosts;
 		else

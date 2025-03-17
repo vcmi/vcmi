@@ -1544,17 +1544,17 @@ void SwapStacks::applyGs(CGameState *gs)
 	if(!dstObj)
 		throw std::runtime_error("SwapStacks: invalid army object " + std::to_string(dstArmy.getNum()) + ", possible game state corruption.");
 
-	CStackInstance * s1 = srcObj->detachStack(srcSlot);
-	CStackInstance * s2 = dstObj->detachStack(dstSlot);
+	auto s1 = srcObj->detachStack(srcSlot);
+	auto s2 = dstObj->detachStack(dstSlot);
 
-	srcObj->putStack(srcSlot, s2);
-	dstObj->putStack(dstSlot, s1);
+	srcObj->putStack(srcSlot, std::move(s2));
+	dstObj->putStack(dstSlot, std::move(s1));
 }
 
 void InsertNewStack::applyGs(CGameState *gs)
 {
 	if(auto * obj = gs->getArmyInstance(army))
-		obj->putStack(slot, new CStackInstance(type, count));
+		obj->putStack(slot, std::make_unique<CStackInstance>(type, count));
 	else
 		throw std::runtime_error("InsertNewStack: invalid army object " + std::to_string(army.getNum()) + ", possible game state corruption.");
 }
@@ -1636,8 +1636,8 @@ void RebalanceStacks::applyGs(CGameState *gs)
 		}
 		else //move stack to an empty slot, no exp change needed
 		{
-			CStackInstance *stackDetached = srcObj->detachStack(src.slot);
-			dstObj->putStack(dst.slot, stackDetached);
+			auto stackDetached = srcObj->detachStack(src.slot);
+			dstObj->putStack(dst.slot, std::move(stackDetached));
 		}
 	}
 	else

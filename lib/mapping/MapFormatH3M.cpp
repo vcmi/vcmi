@@ -1189,11 +1189,11 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 		map->questIdentifierToId[object->identifier] = objectInstanceID;
 	}
 
-	auto * hlp = new CStackInstance();
+	auto hlp = std::make_unique<CStackInstance>();
 	hlp->count = reader->readUInt16();
 
 	//type will be set during initialization
-	object->putStack(SlotID(0), hlp);
+	object->putStack(SlotID(0), std::move(hlp));
 
 	//TODO: 0-4 is h3 range. 5 is hota extension for exact aggression?
 	object->character = reader->readInt8Checked(0, 5);
@@ -1978,7 +1978,7 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 		if(creatureID == CreatureID::NONE)
 			continue;
 
-		auto * result = new CStackInstance();
+		auto result = std::make_unique<CStackInstance>();
 		result->count = count;
 
 		if(creatureID < CreatureID::NONE)
@@ -1996,7 +1996,7 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 			result->setType(creatureID);
 		}
 
-		out->putStack(SlotID(index), result);
+		out->putStack(SlotID(index), std::move(result));
 	}
 
 	out->validTypes(true);

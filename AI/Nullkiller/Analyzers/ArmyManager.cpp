@@ -489,7 +489,7 @@ void ArmyManager::update()
 
 	for(auto army : total)
 	{
-		for(auto slot : army->Slots())
+		for(const auto & slot : army->Slots())
 		{
 			totalArmy[slot.second->getCreatureID()].count += slot.second->count;
 		}
@@ -506,7 +506,7 @@ std::vector<SlotInfo> ArmyManager::convertToSlots(const CCreatureSet * army) con
 {
 	std::vector<SlotInfo> result;
 
-	for(auto slot : army->Slots())
+	for(const auto & slot : army->Slots())
 	{
 		SlotInfo slotInfo;
 
@@ -524,7 +524,7 @@ std::vector<StackUpgradeInfo> ArmyManager::getHillFortUpgrades(const CCreatureSe
 {
 	std::vector<StackUpgradeInfo> upgrades;
 
-	for(auto creature : army->Slots())
+	for(const auto & creature : army->Slots())
 	{
 		CreatureID initial = creature.second->getCreatureID();
 		auto possibleUpgrades = initial.toCreature()->upgrades;
@@ -552,7 +552,7 @@ std::vector<StackUpgradeInfo> ArmyManager::getDwellingUpgrades(const CCreatureSe
 {
 	std::vector<StackUpgradeInfo> upgrades;
 
-	for(auto creature : army->Slots())
+	for(const auto & creature : army->Slots())
 	{
 		CreatureID initial = creature.second->getCreatureID();
 		auto possibleUpgrades = initial.toCreature()->upgrades;

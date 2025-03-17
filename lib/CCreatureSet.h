@@ -179,7 +179,7 @@ public:
 	}
 };
 
-using TSlots = std::map<SlotID, CStackInstance *>;
+using TSlots = std::map<SlotID, std::unique_ptr<CStackInstance>>;
 using TSimpleSlots = std::map<SlotID, std::pair<CreatureID, TQuantity>>;
 
 using TPairCreatureSlot = std::pair<const CCreature *, SlotID>;
@@ -238,22 +238,22 @@ public:
 	const TSlots &Slots() const {return stacks;}
 
 	void addToSlot(const SlotID & slot, const CreatureID & cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
-	void addToSlot(const SlotID & slot, CStackInstance * stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
+	void addToSlot(const SlotID & slot, std::unique_ptr<CStackInstance> stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
 	void clearSlots() override;
 	void setFormation(EArmyFormation tight);
 	CArmedInstance *castToArmyObj();
 
 	//basic operations
-	void putStack(const SlotID & slot, CStackInstance * stack); //adds new stack to the army, slot must be empty
+	void putStack(const SlotID & slot, std::unique_ptr<CStackInstance> stack); //adds new stack to the army, slot must be empty
 	void setStackCount(const SlotID & slot, TQuantity count); //stack must exist!
-	CStackInstance * detachStack(const SlotID & slot); //removes stack from army but doesn't destroy it (so it can be moved somewhere else or safely deleted)
+	std::unique_ptr<CStackInstance> detachStack(const SlotID & slot); //removes stack from army but doesn't destroy it (so it can be moved somewhere else or safely deleted)
 	void setStackType(const SlotID & slot, const CreatureID & type);
 	void giveStackExp(TExpType exp);
 	void setStackExp(const SlotID & slot, TExpType exp);
 
 	//derivative
 	void eraseStack(const SlotID & slot); //slot must be occupied
-	void joinStack(const SlotID & slot, CStackInstance * stack); //adds new stack to the existing stack of the same type
+	void joinStack(const SlotID & slot, std::unique_ptr<CStackInstance> stack); //adds new stack to the existing stack of the same type
 	void changeStackCount(const SlotID & slot, TQuantity toAdd); //stack must exist!
 	bool setCreature (SlotID slot, CreatureID type, TQuantity quantity) override; //replaces creature in stack; slots 0 to 6, if quantity=0 erases stack
 	void setToArmy(CSimpleArmy &src); //erases all our army and moves stacks from src to us; src MUST NOT be an armed object! WARNING: use it wisely. Or better do not use at all.

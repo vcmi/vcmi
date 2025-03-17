@@ -172,16 +172,21 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 	//trimming creatures
 	for(auto & hero : campaignHeroReplacements)
 	{
-		auto shouldSlotBeErased = [&](const std::pair<SlotID, CStackInstance *> & j) -> bool
+		auto shouldSlotBeErased = [&](CStackInstance & j) -> bool
 		{
-			CreatureID crid = j.second->getCreatureID();
+			CreatureID crid = j.getCreatureID();
 			return !travelOptions.monstersKeptByHero.count(crid);
 		};
 
-		auto stacksCopy = hero.hero->stacks; //copy of the map, so we can iterate iover it and remove stacks
-		for(auto &slotPair : stacksCopy)
-			if(shouldSlotBeErased(slotPair))
-				hero.hero->eraseStack(slotPair.first);
+		//generate list of slots without removing anything first to avoid iterator invalidation
+		std::vector<SlotID> slotsToErase;
+
+		for(auto &slotPair : hero.hero->Slots())
+			if(shouldSlotBeErased(*slotPair.second))
+				slotsToErase.push_back(slotPair.first);
+
+		for (const auto slotID : slotsToErase)
+			hero.hero->eraseStack(slotID);
 	}
 
 	// Removing short-term bonuses

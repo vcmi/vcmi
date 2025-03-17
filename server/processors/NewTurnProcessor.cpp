@@ -227,12 +227,12 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 	{
 		bool hasCrystalGenCreature = false;
 		for (const auto & hero : state.getHeroes())
-			for(auto stack : hero->stacks)
+			for(const auto & stack : hero->stacks)
 				if(stack.second->hasBonusOfType(BonusType::SPECIAL_CRYSTAL_GENERATION))
 					hasCrystalGenCreature = true;
 
 		for(const auto & town : state.getTowns())
-			for(auto stack : town->stacks)
+			for(const auto & stack : town->stacks)
 				if(stack.second->hasBonusOfType(BonusType::SPECIAL_CRYSTAL_GENERATION))
 					hasCrystalGenCreature = true;
 
