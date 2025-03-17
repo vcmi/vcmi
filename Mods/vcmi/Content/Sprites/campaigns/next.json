@@ -1,0 +1,8 @@
+{
+	"basepath" : "campaigns/",
+ 
+	"images" :
+	[
+		{ "frame" : 0, "file" : "next.png" }
+	]
+}
