@@ -754,7 +754,7 @@ void ApplyFirstClientNetPackVisitor::visitBattleStart(BattleStart & pack)
 
 void ApplyClientNetPackVisitor::visitBattleStart(BattleStart & pack)
 {
-	cl.battleStarted(pack.info);
+	cl.battleStarted(pack.info.get());
 }
 
 void ApplyFirstClientNetPackVisitor::visitBattleNextRound(BattleNextRound & pack)

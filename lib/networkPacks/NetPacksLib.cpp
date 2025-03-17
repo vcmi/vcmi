@@ -2005,11 +2005,10 @@ void BattleStart::applyGs(CGameState *gs)
 {
 	assert(battleID == gs->nextBattleID);
 
-	gs->currentBattles.emplace_back(info);
-
 	info->battleID = gs->nextBattleID;
 	info->localInit();
 
+	gs->currentBattles.push_back(std::move(info));
 	gs->nextBattleID = BattleID(gs->nextBattleID.getNum() + 1);
 }
 

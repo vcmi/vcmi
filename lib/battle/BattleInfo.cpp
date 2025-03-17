@@ -156,10 +156,10 @@ struct RangeGenerator
 	std::function<int()> myRand;
 };
 
-BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town)
+std::unique_ptr<BattleInfo> BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town)
 {
 	CMP_stack cmpst;
-	auto * currentBattle = new BattleInfo(layout);
+	auto currentBattle = std::make_unique<BattleInfo>(layout);
 
 	for(auto i : { BattleSide::LEFT_SIDE, BattleSide::RIGHT_SIDE})
 		currentBattle->sides[i].init(heroes[i], armies[i]);

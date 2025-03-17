@@ -62,8 +62,6 @@ class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 
 	std::unique_ptr<GameSettings> gameSettings;
 
-	/// Central lists of items in game. Position of item in the vectors below is their (instance) id.
-	std::vector< std::shared_ptr<CGObjectInstance> > objects;
 	/// All quests that are currently present on map
 	std::vector<std::shared_ptr<CQuest>> quests;
 	/// All artifacts that exists on map, whether on map, in hero inventory, or stored in some object
@@ -78,6 +76,10 @@ class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 	std::vector<ObjectInstanceID> heroesOnMap;
 
 public:
+	/// Central lists of items in game. Position of item in the vectors below is their (instance) id.
+	/// TODO: make private
+	std::vector< std::shared_ptr<CGObjectInstance> > objects;
+
 	explicit CMap(IGameCallback *cb);
 	~CMap();
 	void initTerrain();

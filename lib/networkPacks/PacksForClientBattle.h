@@ -14,6 +14,7 @@
 #include "PacksForClient.h"
 #include "../battle/BattleHexArray.h"
 #include "../battle/BattleAction.h"
+#include "../battle/BattleInfo.h"
 #include "../texts/MetaString.h"
 
 class CClient;
@@ -30,7 +31,7 @@ struct DLL_LINKAGE BattleStart : public CPackForClient
 	void applyGs(CGameState * gs) override;
 
 	BattleID battleID = BattleID::NONE;
-	BattleInfo * info = nullptr;
+	std::unique_ptr<BattleInfo> info;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
