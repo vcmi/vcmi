@@ -60,6 +60,7 @@ private slots:
 	void on_lineEditRepositoryExtra_textEdited(const QString &arg1);
 	void on_spinBoxInterfaceScaling_valueChanged(int arg1);
 	void on_refreshRepositoriesButton_clicked();
+	void on_buttonConfigEditor_clicked();
 	void on_spinBoxFramerateLimit_valueChanged(int arg1);
 	void on_buttonVSync_toggled(bool value);
 	void on_comboBoxEnemyPlayerAI_currentTextChanged(const QString &arg1);

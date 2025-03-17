@@ -297,13 +297,7 @@ void MainWindow::manualInstallFile(QString filePath)
 				QFile::remove(configFilePath);
 				QFile::copy(filePath, configFilePath);
 
-				// reload settings
-				Helper::loadSettings();
-				for(const auto widget : qApp->allWidgets())
-					if(auto settingsView = qobject_cast<CSettingsView *>(widget))
-						settingsView->loadSettings();
-
-				getModView()->reload();
+				Helper::reLoadSettings();
 			}
 		}
 	}

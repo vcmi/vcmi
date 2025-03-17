@@ -11,6 +11,7 @@
 #include "StartGameTab.h"
 #include "ui_StartGameTab.h"
 
+#include "../helper.h"
 #include "../mainwindow_moc.h"
 #include "../main.h"
 #include "../updatedialog_moc.h"
@@ -87,19 +88,11 @@ StartGameTab::~StartGameTab()
 	delete ui;
 }
 
-MainWindow * StartGameTab::getMainWindow()
-{
-	foreach(QWidget *w, qApp->allWidgets())
-		if(QMainWindow* mainWin = qobject_cast<QMainWindow*>(w))
-			return dynamic_cast<MainWindow *>(mainWin);
-	return nullptr;
-}
-
 void StartGameTab::refreshState()
 {
 	refreshGameData();
 	refreshUpdateStatus(EGameUpdateStatus::NOT_CHECKED);//TODO - follow automatic check on startup setting
-	refreshTranslation(getMainWindow()->getTranslationStatus());
+	refreshTranslation(Helper::getMainWindow()->getTranslationStatus());
 	refreshPresets();
 	refreshMods();
 
@@ -110,10 +103,10 @@ void StartGameTab::refreshPresets()
 {
 	QSignalBlocker blocker(ui->comboBoxModPresets);
 
-	QStringList allPresets = getMainWindow()->getModView()->getAllPresets();
+	QStringList allPresets = Helper::getMainWindow()->getModView()->getAllPresets();
 	ui->comboBoxModPresets->clear();
 	ui->comboBoxModPresets->addItems(allPresets);
-	ui->comboBoxModPresets->setCurrentText(getMainWindow()->getModView()->getActivePreset());
+	ui->comboBoxModPresets->setCurrentText(Helper::getMainWindow()->getModView()->getActivePreset());
 	ui->buttonPresetDelete->setVisible(allPresets.size() > 1);
 }
 
@@ -178,8 +171,8 @@ void StartGameTab::refreshTranslation(ETranslationStatus status)
 void StartGameTab::refreshMods()
 {
 	constexpr int chroniclesCount = 8;
-	QStringList updateableMods = getMainWindow()->getModView()->getUpdateableMods();
-	QStringList chroniclesMods = getMainWindow()->getModView()->getInstalledChronicles();
+	QStringList updateableMods = Helper::getMainWindow()->getModView()->getUpdateableMods();
+	QStringList chroniclesMods = Helper::getMainWindow()->getModView()->getInstalledChronicles();
 
 	ui->buttonUpdateMods->setText(tr("Update %n mods", "", updateableMods.size()));
 	ui->buttonUpdateMods->setVisible(!updateableMods.empty());
@@ -207,7 +200,7 @@ void StartGameTab::refreshUpdateStatus(EGameUpdateStatus status)
 
 void StartGameTab::on_buttonGameStart_clicked()
 {
-	getMainWindow()->hide();
+	Helper::getMainWindow()->hide();
 	startGame({});
 }
 
@@ -228,7 +221,7 @@ void StartGameTab::on_buttonUpdateCheck_clicked()
 
 void StartGameTab::on_buttonGameEditor_clicked()
 {
-	getMainWindow()->hide();
+	Helper::getMainWindow()->hide();
 	startEditor({});
 }
 
@@ -253,7 +246,7 @@ void StartGameTab::on_buttonImportFiles_clicked()
 		for(const auto & file : files)
 		{
 			logGlobal->info("Importing file %s", file.toStdString());
-			getMainWindow()->manualInstallFile(file);
+			Helper::getMainWindow()->manualInstallFile(file);
 		}
 	};
 
@@ -264,29 +257,29 @@ void StartGameTab::on_buttonImportFiles_clicked()
 
 void StartGameTab::on_buttonInstallTranslation_clicked()
 {
-	if (getMainWindow()->getTranslationStatus() == ETranslationStatus::NOT_INSTALLLED)
+	if (Helper::getMainWindow()->getTranslationStatus() == ETranslationStatus::NOT_INSTALLLED)
 	{
 		QString preferredlanguage = QString::fromStdString(settings["general"]["language"].String());
-		QString modName = getMainWindow()->getModView()->getTranslationModName(preferredlanguage);
-		getMainWindow()->getModView()->doInstallMod(modName);
+		QString modName = Helper::getMainWindow()->getModView()->getTranslationModName(preferredlanguage);
+		Helper::getMainWindow()->getModView()->doInstallMod(modName);
 	}
 }
 
 void StartGameTab::on_buttonActivateTranslation_clicked()
 {
 	QString preferredlanguage = QString::fromStdString(settings["general"]["language"].String());
-	QString modName = getMainWindow()->getModView()->getTranslationModName(preferredlanguage);
-	getMainWindow()->getModView()->enableModByName(modName);
+	QString modName = Helper::getMainWindow()->getModView()->getTranslationModName(preferredlanguage);
+	Helper::getMainWindow()->getModView()->enableModByName(modName);
 }
 
 void StartGameTab::on_buttonUpdateMods_clicked()
 {
-	QStringList updateableMods = getMainWindow()->getModView()->getUpdateableMods();
+	QStringList updateableMods = Helper::getMainWindow()->getModView()->getUpdateableMods();
 
-	getMainWindow()->switchToModsTab();
+	Helper::getMainWindow()->switchToModsTab();
 
 	for (const auto & modName : updateableMods)
-		getMainWindow()->getModView()->doUpdateMod(modName);
+		Helper::getMainWindow()->getModView()->doUpdateMod(modName);
 }
 
 void StartGameTab::on_buttonHelpImportFiles_clicked()
@@ -395,7 +388,7 @@ void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
 
 void StartGameTab::on_buttonPresetExport_clicked()
 {
-	JsonNode presetJson = getMainWindow()->getModView()->exportCurrentPreset();
+	JsonNode presetJson = Helper::getMainWindow()->getModView()->exportCurrentPreset();
 	QString presetString = QString::fromStdString(presetJson.toCompactString());
 	QGuiApplication::clipboard()->setText(presetString);
 
@@ -408,8 +401,8 @@ void StartGameTab::on_buttonPresetImport_clicked()
 	QByteArray presetBytes(presetString.toUtf8());
 	JsonNode presetJson(reinterpret_cast<const std::byte*>(presetBytes.data()), presetBytes.size(), "imported preset");
 
-	getMainWindow()->getModView()->importPreset(presetJson);
-	getMainWindow()->switchToModsTab();
+	Helper::getMainWindow()->getModView()->importPreset(presetJson);
+	Helper::getMainWindow()->switchToModsTab();
 	refreshPresets();
 }
 
@@ -427,8 +420,8 @@ void StartGameTab::on_buttonPresetNew_clicked()
 
 		if (ok && !presetName.isEmpty())
 		{
-			getMainWindow()->getModView()->createNewPreset(presetName);
-			getMainWindow()->getModView()->activatePreset(presetName);
+			Helper::getMainWindow()->getModView()->createNewPreset(presetName);
+			Helper::getMainWindow()->getModView()->activatePreset(presetName);
 			refreshPresets();
 		}
 	};
@@ -437,27 +430,27 @@ void StartGameTab::on_buttonPresetNew_clicked()
 
 void StartGameTab::on_buttonPresetDelete_clicked()
 {
-	QString activePresetBefore = getMainWindow()->getModView()->getActivePreset();
-	QStringList allPresets = getMainWindow()->getModView()->getAllPresets();
+	QString activePresetBefore = Helper::getMainWindow()->getModView()->getActivePreset();
+	QStringList allPresets = Helper::getMainWindow()->getModView()->getAllPresets();
 
 	allPresets.removeAll(activePresetBefore);
 	if (!allPresets.empty())
 	{
-		getMainWindow()->getModView()->activatePreset(allPresets.front());
-		getMainWindow()->getModView()->deletePreset(activePresetBefore);
+		Helper::getMainWindow()->getModView()->activatePreset(allPresets.front());
+		Helper::getMainWindow()->getModView()->deletePreset(activePresetBefore);
 		refreshPresets();
 	}
 }
 
 void StartGameTab::on_comboBoxModPresets_currentTextChanged(const QString &presetName)
 {
-	getMainWindow()->getModView()->activatePreset(presetName);
+	Helper::getMainWindow()->getModView()->activatePreset(presetName);
 }
 
 void StartGameTab::on_buttonPresetRename_clicked()
 {
 	const auto & functor = [this](){
-		QString currentName = getMainWindow()->getModView()->getActivePreset();
+		QString currentName = Helper::getMainWindow()->getModView()->getActivePreset();
 
 		bool ok;
 		QString newName = QInputDialog::getText(
@@ -470,7 +463,7 @@ void StartGameTab::on_buttonPresetRename_clicked()
 
 		if (ok && !newName.isEmpty() && newName != currentName)
 		{
-			getMainWindow()->getModView()->renamePreset(currentName, newName);
+			Helper::getMainWindow()->getModView()->renamePreset(currentName, newName);
 			refreshPresets();
 		}
 	};
