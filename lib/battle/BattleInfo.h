@@ -36,7 +36,7 @@ public:
 	const CGTownInstance * town; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
 	int3 tile; //for background and bonuses
 	bool replayAllowed;
-	std::vector<CStack*> stacks;
+	std::vector<std::unique_ptr<CStack>> stacks;
 	std::vector<std::shared_ptr<CObstacleInstance> > obstacles;
 	SiegeInfo si;
 
@@ -145,8 +145,8 @@ public:
 	using CBattleInfoEssentials::battleGetFightingHero;
 	CGHeroInstance * battleGetFightingHero(BattleSide side) const;
 
-	CStack * generateNewStack(uint32_t id, const CStackInstance & base, BattleSide side, const SlotID & slot, const BattleHex & position);
-	CStack * generateNewStack(uint32_t id, const CStackBasicDescriptor & base, BattleSide side, const SlotID & slot, const BattleHex & position);
+	void generateNewStack(uint32_t id, const CStackInstance & base, BattleSide side, const SlotID & slot, const BattleHex & position);
+	void generateNewStack(uint32_t id, const CStackBasicDescriptor & base, BattleSide side, const SlotID & slot, const BattleHex & position);
 
 	const SideInBattle & getSide(BattleSide side) const;
 	SideInBattle & getSide(BattleSide side);

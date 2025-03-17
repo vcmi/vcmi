@@ -260,12 +260,12 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 	const CStack * att = nullptr;
 	const CStack * def = nullptr;
 
-	for(const CStack * s : gameState->currentBattles.front()->stacks)
+	for(const auto & s : gameState->currentBattles.front()->stacks)
 	{
 		if(s->unitType()->getId() == CreatureID::BALLISTA && s->unitSide() == BattleSide::DEFENDER)
-			def = s;
+			def = s.get();
 		else if(s->unitType()->getId() == CreatureID(69) && s->unitSide() == BattleSide::ATTACKER)
-			att = s;
+			att = s.get();
 	}
 	ASSERT_NE(att, nullptr);
 	ASSERT_NE(def, nullptr);

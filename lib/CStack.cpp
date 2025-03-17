@@ -341,9 +341,9 @@ const IBonusBearer* CStack::getBonusBearer() const
 
 bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 {
-	for(const CStack * st : battle->stacks)
+	for(const auto & st : battle->stacks)
 	{
-		if(battle->battleMatchOwner(st, unit, true) && st->unitType()->getId() == CreatureID::AMMO_CART)
+		if(battle->battleMatchOwner(st.get(), unit, true) && st->unitType()->getId() == CreatureID::AMMO_CART)
 		{
 			return st->alive();
 		}
