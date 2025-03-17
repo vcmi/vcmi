@@ -441,12 +441,6 @@ void CMainMenu::openCampaignScreen(std::string name)
 			campaignsFound = false;
 	}
 
-	if (!campaignsFound)
-	{
-		CInfoWindow::showInfoDialog(LIBRARY->generaltexth->translate("vcmi.client.errors.missingCampaigns"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
-		return;
-	}
-
 	ENGINE->windows().createAndPushWindow<CCampaignScreen>(config, name);
 }
 

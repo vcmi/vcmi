@@ -43,11 +43,11 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
-CCampaignScreen::CCampaignScreen(const JsonNode& config, std::string name)
+CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 	: CWindowObject(BORDERED), campaignSet(name)
 {
 	OBJECT_CONSTRUCTION;
-
+	
 	const auto& campaigns = config[name]["items"].Vector();
 
 	// Define mapping of background name -> campaigns per page
@@ -82,7 +82,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode& config, std::string name)
 		pos = images[0]->pos;
 	}
 
-
+	
 	for (const auto& node : campaigns)
 	{
 		auto button = std::make_shared<CCampaignButton>(node, config, campaignSet);
@@ -115,7 +115,7 @@ void CCampaignScreen::activate()
 	CWindowObject::activate();
 }
 
-std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode& button)
+std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & button)
 {
 	std::pair<std::string, std::string> help;
 	if (!button["help"].isNull() && button["help"].Float() > 0)
@@ -124,7 +124,7 @@ std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode& butto
 	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), AnimationPath::fromJson(button["name"]), help, [this]() { close(); }, EShortcut::GLOBAL_CANCEL);
 }
 
-CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode& config, const JsonNode& parentConfig, std::string campaignSet)
+CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const JsonNode & parentConfig, std::string campaignSet)
 	: campaignSet(campaignSet)
 {
 
@@ -137,31 +137,38 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode& config, const 
 
 	campFile = config["file"].String();
 	videoPath = VideoPath::fromJson(config["video"]);
-
+	
 	status = CCampaignScreen::ENABLED;
 
-	auto header = CampaignHandler::getHeader(campFile);
-	hoverText = header->getNameTranslated();
-
-	if (persistentStorage["completedCampaigns"][header->getFilename()].Bool())
-		status = CCampaignScreen::COMPLETED;
-
-	for (const JsonNode& node : parentConfig[campaignSet]["items"].Vector())
+	// Check if campaign file exists
+	if(CResourceHandler::get()->existsResource(ResourcePath(campFile, EResType::CAMPAIGN)))
 	{
-		for (const JsonNode& requirement : config["requires"].Vector())
-		{
-			if (node["id"].Integer() == requirement.Integer())
-				if (!persistentStorage["completedCampaigns"][node["file"].String()].Bool())
-					status = CCampaignScreen::DISABLED;
-		}
-		if (!CResourceHandler::get()->existsResource(ResourcePath(node["file"].String(), EResType::CAMPAIGN)))
-			status = CCampaignScreen::DISABLED;
+		auto header = CampaignHandler::getHeader(campFile);
+		hoverText = header->getNameTranslated();
+
+		if (persistentStorage["completedCampaigns"][header->getFilename()].Bool())
+			status = CCampaignScreen::COMPLETED;
+	}
+	else
+	{
+		status = CCampaignScreen::DISABLED;
 	}
 
-	if (persistentStorage["unlockAllCampaigns"].Bool())
+	
+	for(const JsonNode & node : parentConfig[campaignSet]["items"].Vector())
+	{
+		for(const JsonNode & requirement : config["requires"].Vector())
+		{
+			if(node["id"].Integer() == requirement.Integer())
+				if(!persistentStorage["completedCampaigns"][node["file"].String()].Bool())
+					status = CCampaignScreen::DISABLED;
+		}
+	}
+	
+	if(persistentStorage["unlockAllCampaigns"].Bool())
 		status = CCampaignScreen::ENABLED;
 
-	if (status != CCampaignScreen::DISABLED)
+	if(status != CCampaignScreen::DISABLED)
 	{
 		addUsedEvents(LCLICK | HOVER);
 		graphicsImage = std::make_shared<CPicture>(ImagePath::fromJson(config["image"]));
@@ -169,12 +176,12 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode& config, const 
 		parent->addChild(hoverLabel.get());
 	}
 
-	if (status == CCampaignScreen::COMPLETED)
+	if(status == CCampaignScreen::COMPLETED)
 		graphicsCompleted = std::make_shared<CPicture>(ImagePath::builtin("CAMPCHK"));
 	
 }
 
-void CCampaignScreen::CCampaignButton::clickReleased(const Point& cursorPosition)
+void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPosition)
 {
 	CMainMenu::openCampaignLobby(campFile, campaignSet);
 }
@@ -183,21 +190,21 @@ void CCampaignScreen::CCampaignButton::hover(bool on)
 {
 	OBJECT_CONSTRUCTION;
 
-	if (on && !videoPath.empty())
+	if(on && !videoPath.empty())
 		videoPlayer = std::make_shared<VideoWidget>(Point(), videoPath, false);
 	else
 		videoPlayer.reset();
 
-	if (hoverLabel)
+	if(hoverLabel)
 	{
-		if (on)
+		if(on)
 			hoverLabel->setText(hoverText); // Shows the name of the campaign when you get into the bounds of the button
 		else
 			hoverLabel->setText(" ");
 	}
 }
 
-void CCampaignScreen::switchPage(int delta, const std::string& campaignSet)
+void CCampaignScreen::switchPage(int delta, const std::string & campaignSet)
 {
 	currentPage += delta;
 	currentPage = std::clamp(currentPage, 0, maxPages - 1);
@@ -207,29 +214,35 @@ void CCampaignScreen::switchPage(int delta, const std::string& campaignSet)
 	updateCampaignButtons(campaignConfig, campaignSet);
 }
 
-void CCampaignScreen::updateCampaignButtons(const JsonNode& parentConfig, const std::string& campaignSet)
+void CCampaignScreen::updateCampaignButtons(const JsonNode & parentConfig, const std::string & campaignSet)
 {
 	const auto& campaigns = parentConfig[campaignSet]["items"].Vector();
 
 	int minId = (currentPage * campaignsPerPage) + 1;
 	int maxId = minId + campaignsPerPage - 1;
 
-	for (size_t i = 0; i < campButtons.size(); ++i)
+	for(size_t i = 0; i < campButtons.size(); ++i)
 	{
 		int campaignId = campaigns[i]["id"].Integer();
 
-		if (campaignId >= minId && campaignId <= maxId)
+		if(campaignId >= minId && campaignId <= maxId)
 			campButtons[i]->enable();
 		else
 			campButtons[i]->disable();
+
+		if(!CResourceHandler::get()->existsResource(ResourcePath(campaigns[i]["file"].String(), EResType::CAMPAIGN)))
+		{
+			campButtons[i]->disable();
+			logGlobal->warn("Campaign %s doesn't exist", campaigns[i]["file"].String());
+		}
 	}
 
-	if (maxId < campaigns.size())
+	if(maxId < campaigns.size())
 		buttonNext->enable();
 	else
 		buttonNext->disable();
 
-	if (currentPage > 0)
+	if(currentPage > 0)
 		buttonPrev->enable();
 	else
 		buttonPrev->disable();
