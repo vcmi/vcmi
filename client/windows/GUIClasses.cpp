@@ -64,6 +64,8 @@
 #include "../lib/CSkillHandler.h"
 #include "../lib/CSoundBase.h"
 
+#include <boost/lexical_cast.hpp>
+
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
 	: CIntObject(LCLICK | SHOW_POPUP),
 	parent(window),

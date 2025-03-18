@@ -20,6 +20,7 @@
 #endif
 
 #include <tbb/task_arena.h>
+#include <boost/lexical_cast.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

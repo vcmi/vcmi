@@ -150,43 +150,22 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 // For versions TBB 2021.7 and later this define is not required
 #define TBB_PREVIEW_TASK_GROUP_EXTENSIONS 1
 
-//The only available version is 3, as of Boost 1.50
 #include <boost/version.hpp>
 
+// As of Boost 1.50+, the only available version is 3,
+// Version 4 has been added in Boost 1.77
 #define BOOST_FILESYSTEM_VERSION 3
-#if BOOST_VERSION > 105000
-#  define BOOST_THREAD_VERSION 3
-#endif
 #if BOOST_VERSION == 107400
 #  define BOOST_ALLOW_DEPRECATED_HEADERS
 #endif
-#define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
-//need to link boost thread dynamically to avoid https://stackoverflow.com/questions/35978572/boost-thread-interupt-does-not-work-when-crossing-a-dll-boundary
-//for example VCAI::finish() may freeze on thread join after interrupt when linking this statically
-#ifndef BOOST_THREAD_USE_DLL
-#  define BOOST_THREAD_USE_DLL
-#endif
-#define BOOST_BIND_NO_PLACEHOLDERS
 
-#if BOOST_VERSION >= 106600
-#define BOOST_ASIO_ENABLE_OLD_SERVICES
-#endif
-
-#include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/crc.hpp>
-#include <boost/current_function.hpp>
 #include <boost/container/small_vector.hpp>
 #include <boost/container/static_vector.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/format.hpp>
-#include <boost/functional/hash.hpp>
-#include <boost/lexical_cast.hpp>
-#ifdef VCMI_WINDOWS
-#include <boost/locale/generator.hpp>
-#endif
 #include <boost/logic/tribool.hpp>
 #include <boost/multi_array.hpp>
 #include <boost/range/adaptor/filtered.hpp>

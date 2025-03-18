@@ -58,6 +58,8 @@
 
 #include <vcmi/events/EventBus.h>
 
+#include <boost/lexical_cast.hpp>
+
 CServerHandler::~CServerHandler()
 {
 	if (serverRunner)

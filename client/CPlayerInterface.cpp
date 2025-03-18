@@ -108,6 +108,8 @@
 
 #include "../lib/texts/TextOperations.h"
 
+#include <boost/lexical_cast.hpp>
+
 // The macro below is used to mark functions that are called by client when game state changes.
 // They all assume that interface mutex is locked.
 #define EVENT_HANDLER_CALLED_BY_CLIENT

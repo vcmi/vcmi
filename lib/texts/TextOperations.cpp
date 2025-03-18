@@ -317,10 +317,11 @@ DLL_LINKAGE bool TextOperations::compareLocalizedStrings(std::string_view str1, 
 
 std::optional<int> TextOperations::textSearchSimilarityScore(const std::string & s, const std::string & t)
 {
-	static const std::locale loc = boost::locale::generator().generate(getLocaleName());
+	static const std::locale loc(getLocaleName());
+	static const std::collate<char> & col = std::use_facet<std::collate<char>>(loc);
 
-	auto haystack = boost::locale::to_lower(t, loc);
-	auto needle = boost::locale::to_lower(s, loc);
+	auto haystack = col.transform(t.data(), t.data() + t.size());
+	auto needle = col.transform(s.data(), s.data() + s.size());
 
 	// 0 - Best possible match: text starts with the search string
 	if(haystack.rfind(needle, 0) == 0)
