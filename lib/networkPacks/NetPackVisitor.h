@@ -37,7 +37,6 @@ public:
 	virtual void visitGamePause(GamePause & pack) {}
 	virtual void visitEntitiesChanged(EntitiesChanged & pack) {}
 	virtual void visitSetRewardableConfiguration(SetRewardableConfiguration & pack) {}
-	virtual void visitSetBankConfiguration(SetBankConfiguration & pack) {}
 	virtual void visitSetResources(SetResources & pack) {}
 	virtual void visitSetPrimSkill(SetPrimSkill & pack) {}
 	virtual void visitSetSecSkill(SetSecSkill & pack) {}

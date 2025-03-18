@@ -172,7 +172,6 @@ public:
 	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) override;
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override;
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override;
-	void setBankObjectConfiguration(ObjectInstanceID objid, const BankConfig & configuration) override;
 	void setRewardableObjectConfiguration(ObjectInstanceID objid, const Rewardable::Configuration & configuration) override;
 	void setRewardableObjectConfiguration(ObjectInstanceID townInstanceID, BuildingID buildingID, const Rewardable::Configuration & configuration) override;
 	void showInfoDialog(InfoWindow * iw) override;

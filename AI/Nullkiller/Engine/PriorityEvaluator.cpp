@@ -13,7 +13,6 @@
 #include "Nullkiller.h"
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../../../lib/mapObjects/CGResource.h"
 #include "../../../lib/mapping/CMapDefines.h"
 #include "../../../lib/RoadHandler.h"
@@ -141,46 +140,6 @@ int32_t getResourcesGoldReward(const TResources & res)
 		if(res[r] > 0)
 			result += r == EGameResID::GOLD ? res[r] : res[r] * 100;
 	}
-
-	return result;
-}
-
-uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero)
-{
-	auto objectInfo = target->getObjectHandler()->getObjectInfo(target->appearance);
-	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
-	auto creatures = bankInfo->getPossibleCreaturesReward(target->cb);
-	uint64_t result = 0;
-
-	const auto& slots = hero->Slots();
-	ui64 weakestStackPower = 0;
-	int duplicatingSlots = getDuplicatingSlots(hero);
-
-	if (slots.size() >= GameConstants::ARMY_SIZE)
-	{
-		//No free slot, we might discard our weakest stack
-		weakestStackPower = std::numeric_limits<ui64>().max();
-		for (const auto & stack : slots)
-		{
-			vstd::amin(weakestStackPower, stack.second->getPower());
-		}
-	}
-
-	for (auto c : creatures)
-	{
-		//Only if hero has slot for this creature in the army
-		auto ccre = dynamic_cast<const CCreature*>(c.data.getType());
-		if (hero->getSlotFor(ccre).validSlot() || duplicatingSlots > 0)
-		{
-			result += (c.data.getType()->getAIValue() * c.data.count) * c.chance;
-		}
-		/*else
-		{
-			//we will need to discard the weakest stack
-			result += (c.data.type->getAIValue() * c.data.count - weakestStackPower) * c.chance;
-		}*/
-	}
-	result /= 100; //divide by total chance
 
 	return result;
 }
